@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_apply_style.inc,v 1.24 2012/03/01 03:53:24 mhaidar Exp $
+* $Id: matrix_apply_style.inc,v 1.25 2012/03/16 06:36:20 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     A WYSIWYG plugin to apply a style from the effective design
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -473,33 +473,8 @@ class Matrix_Apply_Style extends WYSIWYG_Plugin
 		if (isset($GLOBALS['sq_preview_url']) && !empty($GLOBALS['sq_preview_url'])) {
 			$url = $GLOBALS['sq_preview_url'];
 			$url = preg_replace('|^http[s]?://|', '', $url);
-
-			$db = MatrixDAL::getDb();
-
-			$sql = 'SELECT value
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value ';
-
-			$where = 'name LIKE :lookup_name AND
-						((:url = url)
-						OR ((:url_1 LIKE url || \'/%\')
-						AND (:url_2 NOT LIKE url || \'%/$\'))
-						OR ((:url_slash = url)))';
-
-			$order_by = ' ORDER BY depth DESC';
-
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-
-			try {
-				$query = MatrixDAL::preparePdoQuery($sql.$where.$order_by);
-				MatrixDAL::bindValueToPdo($query, 'lookup_name', 'design::%frontend%');
-				MatrixDAL::bindValueToPdo($query, 'url', $url);
-				MatrixDAL::bindValueToPdo($query, 'url_1', $url);
-				MatrixDAL::bindValueToPdo($query, 'url_2', $url);
-				MatrixDAL::bindValueToPdo($query, 'url_slash', $url.'/');
-				$designid = MatrixDAL::executePdoOne($query);
-			} catch (Exception $e) {
-				throw new Exception('Unable to get lookup values for URL "'.$url.'" due to database error:'.$e->getMessage());
-			}//end try catch
+			
+			$designid = $am->getValueFromURL($url, 'design::%frontend%', TRUE);
 
 			if ($designid) {
 				$design = $am->getAsset($designid);

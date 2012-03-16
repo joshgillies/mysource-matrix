@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.867 2012/03/15 00:23:23 mhaidar Exp $
+* $Id: asset_manager.inc,v 1.868 2012/03/16 06:36:12 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.867 $
+* @version $Revision: 1.868 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7913,16 +7913,7 @@ class Asset_Manager extends MySource_Object
 
 		}//end if empty $root_url
 
-		/*
-		 * split url by slashes to form a list of lineages
-		 * site.com/a/b => ('site.com', 'site.com/a', 'site.com/a/b)
-		 */
-		$urls = Array();
-		$pos = strpos($url,"/");
-		while ($pos) {
-		    $urls[] = MatrixDAL::quote(substr($url,0,$pos));
-		    $pos = strpos($url,"/",$pos+1);
-		}
+		$urls = split_url($url, TRUE);
 		$urls[] = MatrixDAL::quote($url);
 		$in_sql = implode(',', $urls);
 		
@@ -8054,6 +8045,11 @@ class Asset_Manager extends MySource_Object
 	{
 		$db = MatrixDAL::getDb();
 
+		$urls = split_url($url, TRUE); //inherited
+		$urls[] = MatrixDAL::quote($url); //applied
+		$urls[] = MatrixDAL::quote($url.'/'); //override
+		$urls = implode(',', $urls);
+		
 		/**
 		* Since we have the url,
 		* we don't need to include the ast_lookup table in the query.
@@ -8064,10 +8060,7 @@ class Asset_Manager extends MySource_Object
 			INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON lv.value = a.assetid
 			';
 		$where = 'lv.name = :design_name AND ' .
-					'((:url1 = lv.url)
-						OR ((:url2 LIKE lv.url || \'/%\')
-						AND (:url3 NOT LIKE lv.url || \'%/$\'))
-						OR ((:url4 = lv.url)))';
+					'lv.url IN ( '.$urls.' )';
 
 		$order_by = ' ORDER BY depth DESC';
 
@@ -8077,17 +8070,7 @@ class Asset_Manager extends MySource_Object
 
 		$query = MatrixDAL::preparePdoQuery($sql);
 
-		// it's the same url but we have to bind it 4 times to the different variables.
-		$bind_vars = array(
-			'design_name' => $design_name,
-			'url1' => $url,
-			'url2' => $url,
-			'url3' => $url,
-			'url4' => $url.'/',
-		);
-		foreach ($bind_vars as $bind_var => $bind_value) {
-			MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
-		}
+		MatrixDAL::bindValueToPdo($query, 'design_name', $design_name);
 
 		$result = MatrixDAL::executePdoAll($query);
 		return empty($result) ? NULL : $result[0];
@@ -8139,28 +8122,35 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Return the lookup value for the passed URL
 	*
-	* @param string	$url		the url to get the design for
-	* @param string	$value_name	the code for the design/layout (eg. design/paint_layout::system::frontend)
+	* @param string	 $url			the url to get the design for
+	* @param string	 $value_name	the code for the design/layout (eg. design/paint_layout::system::frontend),
+	* 								the code pattern if using $like_value (eg. design/paint_layout::%)
+	* @param boolean $like_value	TRUE = LIKE $value_name, otherwise direct match to $value_name	
 	*
 	* @return string
 	* @access public
 	*/
-	function getValueFromURL($url, $value_name)
+	function getValueFromURL($url, $value_name, $like_value = FALSE)
 	{
 		$db = MatrixDAL::getDb();
 
-		$urls = split_url($url, TRUE); //inherited layout
-		$urls[] = MatrixDAL::quote($url); //applied layout
-		$urls[] = MatrixDAL::quote($url.'/'); //override layout
+		$urls = split_url($url, TRUE); //inherited
+		$urls[] = MatrixDAL::quote($url); //applied
+		$urls[] = MatrixDAL::quote($url.'/'); //override
 		$urls = implode(',', $urls);
 		
-		$sql = 'SELECT lv.value, lv.depth 
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv';
+		$sql = 'SELECT value, depth 
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value';
 
-		$where = 'lv.name = :value_name 
-					AND lv.url IN ( '.$urls.' )';
+		if ($like_value){
+			$where = 'name LIKE :value_name';
+		} else {
+			$where = 'name = :value_name';
+		}
+		
+		$where .= ' AND url IN ( '.$urls.' )';
 
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lv');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 		$order_by = ' ORDER BY depth DESC';
 		
 		try {
