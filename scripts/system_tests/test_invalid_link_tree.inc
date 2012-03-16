@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: test_invalid_link_tree.inc,v 1.3 2010/08/12 06:23:51 mhaidar Exp $
+* $Id: test_invalid_link_tree.inc,v 1.3.10.1 2012/03/16 05:28:15 akarelia Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.10.1 $
 * @package MySource_Matrix
 */
 class Test_Invalid_Link_Tree
@@ -67,12 +67,18 @@ class Test_Invalid_Link_Tree
 	{
 		$status = TRUE;
 		$sql = 'SELECT linkid FROM sq_ast_lnk_tree WHERE linkid NOT IN (SELECT linkid FROM sq_ast_lnk WHERE link_type <= 4)';
-		$result = MatrixDAL::executeSqlAssoc($sql);
-		if (!empty($result)) {
+		$results = MatrixDAL::executeSqlAssoc($sql);
+		if (!empty($results)) {
 			$status = FALSE;
-			$messages[] = 'There are '.count($result).' invalid link(s) in the link tree on the system';
-			foreach ($result as $entry) {
-				$errors[] = 'Link #'.$entry['linkid'].' on the link tree does not exist on the system';
+
+			foreach ($results as $index => $result) {
+				$results[$index] = $result['linkid'];
+			}
+			$results = array_unique($results);
+
+			$messages[] = 'There are '.count($results).' invalid link(s) in the link tree on the system';
+			foreach ($results as $entry) {
+				$errors[] = 'Link #'.$entry.' on the link tree does not exist on the system';
 			}//end foreach
 		}//end if
 

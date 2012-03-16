@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: test_invalid_links.inc,v 1.2 2009/12/15 00:16:59 bpearson Exp $
+* $Id: test_invalid_links.inc,v 1.2.12.1 2012/03/16 05:28:15 akarelia Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.12.1 $
 * @package MySource_Matrix
 */
 class Test_Invalid_Links
@@ -72,6 +72,7 @@ class Test_Invalid_Links
 		$count = 0;
 
 		foreach ($content_types as $content_type) {
+			$error_in_content_type = FALSE;
 			$asset = $am->getAsset($content_type, '', TRUE);
 			if (is_null($asset)) {
 				$status = FALSE;
@@ -85,8 +86,9 @@ class Test_Invalid_Links
 				$link_asset = $am->getAsset($assetid, '', TRUE);
 				if (is_null($link_asset)) {
 					$status = FALSE;
-					$count++;
-					$error[] = 'A link to Asset #'.$assetid.' was found on Content Type #'.$content_type;
+					if (!$error_in_content_type) $count++;
+					$error_in_content_type = TRUE;
+					$errors[] = 'A link to Asset #'.$assetid.' was found on Content Type #'.$content_type;
 				} else {
 					$am->forgetAsset($link_asset, TRUE);
 				}//end if
@@ -94,6 +96,7 @@ class Test_Invalid_Links
 			$am->forgetAsset($asset, TRUE);
 		}//end foreach
 
+		$errors = array_unique($errors);
 		if (!$status && !empty($count)) {
 			$messages[] = 'There are '.$count.' content types with problems found';
 		}//end if
