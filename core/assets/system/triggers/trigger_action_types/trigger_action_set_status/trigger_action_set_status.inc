@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_status.inc,v 1.20 2007/12/02 23:18:57 bshkara Exp $
+* $Id: trigger_action_set_status.inc,v 1.20.20.1 2012/03/16 01:57:46 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_actio
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.20.20.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -164,7 +164,12 @@ class Trigger_Action_Set_Status extends Trigger_Action
 		ob_end_clean();
 
 		ob_start();
-			check_box($prefix.'[dependant_parents]', 1, array_get_index($settings, 'dependant_parents', FALSE));
+			$dependant_parents = array_get_index($settings, 'dependant_parents', FALSE);
+			if ($write_access) {
+				check_box($prefix.'[dependant_parents]', 1, $dependant_parents);
+			} else {
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.($dependant_parents ? 'tick' : 'cross').'.gif" alt="'.($dependant_parents ? translate('yes') : translate('no')).'" /> ';
+			}
 			$basic_part_2 = ob_get_contents();
 		ob_end_clean();
 
