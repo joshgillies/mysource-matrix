@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: test_orphan_assets.inc,v 1.3 2010/08/12 06:23:51 mhaidar Exp $
+* $Id: test_orphan_assets.inc,v 1.3.8.1 2012/03/16 05:29:20 akarelia Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.8.1 $
 * @package MySource_Matrix
 */
 class Test_Orphan_Assets
@@ -67,12 +67,18 @@ class Test_Orphan_Assets
 	{
 		$status = TRUE;
 		$sql = 'SELECT assetid FROM sq_ast WHERE assetid NOT IN (SELECT minorid AS assetid FROM sq_ast_lnk WHERE link_type < 8)';
-		$result = MatrixDAL::executeSqlAssoc($sql);
-		if (!empty($result)) {
+		$results = MatrixDAL::executeSqlAssoc($sql);
+		if (!empty($results)) {
+
+			foreach ($results as $index => $result) {
+				$results[$index] = $result['assetid'];
+			}
+			$results = array_unique($results);
+
 			$status = FALSE;
-			$messages[] = 'There are '.count($result).' orphaned asset(s) on the system';
-			foreach ($result as $asset) {
-				$errors[] = 'Asset #'.$asset['assetid'].' is orphaned on the system';
+			$messages[] = 'There are '.count($results).' orphaned asset(s) on the system';
+			foreach ($results as $asset) {
+				$errors[] = 'Asset #'.$asset.' is orphaned on the system';
 			}//end foreach
 		}//end if
 

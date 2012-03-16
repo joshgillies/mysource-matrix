@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: test_dead_assets.inc,v 1.3 2010/08/12 06:23:51 mhaidar Exp $
+* $Id: test_dead_assets.inc,v 1.3.8.1 2012/03/16 05:29:20 akarelia Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.8.1 $
 * @package MySource_Matrix
 */
 class Test_Dead_Assets
@@ -68,18 +68,30 @@ class Test_Dead_Assets
 		$status = TRUE;
 		$minor_sql = 'SELECT minorid FROM sq_ast_lnk WHERE minorid NOT IN (select assetid FROM sq_ast) AND linkid <> 1';
 		$minor_result = MatrixDAL::executeSqlAssoc($minor_sql);
+
+		foreach ($minor_result as $index => $result) {
+			$minor_result[$index] = $result['minorid'];
+		}
+		$minor_result = array_unique($minor_result);
+
 		if (!empty($minor_result)) {
 			$status = FALSE;
 			foreach ($minor_result as $result) {
-				$errors[] = 'Asset #'.$result['minorid'].' was not found on the system';
+				$errors[] = 'Asset #'.$result.' was not found on the system';
 			}//end foreach
 		}//end if
 		$major_sql = 'SELECT majorid FROM sq_ast_lnk WHERE majorid NOT IN (SELECT assetid FROM sq_ast) AND linkid <> 1';
 		$major_result = MatrixDAL::executeSqlAssoc($major_sql);
+
+		foreach ($major_result as $index => $result) {
+			$major_result[$index] = $result['majorid'];
+		}
+		$major_result = array_unique($major_result);
+
 		if (!empty($major_result)) {
 			$status = FALSE;
 			foreach ($major_result as $result) {
-				$errors[] = 'Asset #'.$result['majorid'].' was not found on the system';
+				$errors[] = 'Asset #'.$result.' was not found on the system';
 			}//end foreach
 		}//end if
 		
