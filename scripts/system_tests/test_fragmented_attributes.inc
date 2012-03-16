@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: test_fragmented_attributes.inc,v 1.3 2010/08/12 06:23:51 mhaidar Exp $
+* $Id: test_fragmented_attributes.inc,v 1.4 2012/03/16 05:19:49 akarelia Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 class Test_Fragmented_Attributes
@@ -68,26 +68,38 @@ class Test_Fragmented_Attributes
 		$status = TRUE;
 		// Missing assets
 		$asset_sql = 'SELECT assetid FROM sq_ast_attr_val WHERE assetid NOT IN (SELECT DISTINCT assetid FROM sq_ast) OR attrid NOT IN (SELECT DISTINCT attrid FROM sq_ast_attr)';
-		$asset_result = MatrixDAL::executeSqlAssoc($asset_sql);
-		if (!empty($asset_result)) {
+		$asset_results = MatrixDAL::executeSqlAssoc($asset_sql);
+
+		foreach ($asset_results as $index => $result) {
+			$asset_results[$index] = $result['assetid'];
+		}
+		$asset_results = array_unique($asset_results);
+
+		if (!empty($asset_results)) {
 			$status = FALSE;
-			foreach ($asset_result as $result) {
-				$errors[] = 'Asset #'.$result['assetid'].' on the attributes table does not exist';
+			foreach ($asset_results as $result) {
+				$errors[] = 'Asset #'.$result.' on the attributes table does not exist';
 			}//end foreach
 		}//end if
 
 		// Missing attributes
 		$attr_sql = 'SELECT attrid FROM sq_ast_attr_val WHERE attrid NOT IN (SELECT DISTINCT attrid FROM sq_ast_attr)';
-		$attr_result = MatrixDAL::executeSqlAssoc($attr_sql);
-		if (!empty($attr_result)) {
+		$attr_results = MatrixDAL::executeSqlAssoc($attr_sql);
+
+		foreach ($attr_results as $index => $result) {
+			$attr_results[$index] = $result['attrid'];
+		}
+		$attr_results = array_unique($asset_results);
+
+		if (!empty($attr_results)) {
 			$status = FALSE;
-			foreach ($attr_result as $result) {
-				$errors[] = 'Attribute #'.$result['attrid'].' on the attributes table does not exist';
+			foreach ($attr_results as $result) {
+				$errors[] = 'Attribute #'.$result.' on the attributes table does not exist';
 			}//end foreach
 		}//end if
 
 		if (!$status) {
-			$count = count($asset_result) + count($attr_result);
+			$count = count($asset_results) + count($attr_results);
 			$messages[] = 'There are '.$count.' fragmented attribute(s) on the system';
 		}//end if
 
