@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.73.8.1 2011/10/13 06:37:34 akarelia Exp $
+* $Id: calendar_common.inc,v 1.73.8.2 2012/03/16 01:25:01 mhaidar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.73.8.1 $
+* @version $Revision: 1.73.8.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -488,7 +488,7 @@ class Calendar_Common
 
 					if ($last_date_components['ms'] - $now['ms'] > 1) {
 						// we have intervening months, so we want to see if the event starts or ends in one of them
-						$sql_freqs[] = '((frequency LIKE '.MatrixDAL::quote('M').') AND ((MOD('.$last_date_components['ms'].' - start_date_ms, period) BETWEEN 1 AND '.($last_date_components['ms'] - $now['ms'] - 1).') OR (MOD('.$last_date_components['ms'].' - end_date_ms, period) BETWEEN 1 AND '.($last_date_components['ms'] - $now['ms'] - 1).')))';
+						$sql_freqs[] = '((frequency LIKE '.MatrixDAL::quote('M%').') AND ((MOD('.$last_date_components['ms'].' - start_date_ms, period) BETWEEN 1 AND '.($last_date_components['ms'] - $now['ms'] - 1).') OR (MOD('.$last_date_components['ms'].' - end_date_ms, period) BETWEEN 1 AND '.($last_date_components['ms'] - $now['ms'] - 1).')))';
 					}
 				}//end else
 
