@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: video_file.inc,v 1.7 2011/05/23 00:05:44 akarelia Exp $
+* $Id: video_file.inc,v 1.8 2012/03/16 00:20:04 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author     Nicholas Hubbard <nic@zedsaid.com>
 * @author     Luke Wright <lwright@squiz.net>
-* @version    $Revision: 1.7 $
+* @version    $Revision: 1.8 $
 * @package    MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -422,11 +422,12 @@ class Video_File extends File
 
 			$use_ogg = TRUE;
 
-			// Include our support file
-			require_once SQ_TOOL_OGG_METADATA_EXTRACTION_PATH;
+			// Include our support file which is our own class file
+			// this class file extends the original ogg.class.php
+			require_once SQ_CORE_PACKAGE_PATH.'/files/video_file/lib/Matrix_Ogg.inc';
 
 			// We don't want to use the cache option
-			$ogg = new Ogg($file_name, NOCACHING);
+			$ogg = new Matrix_Ogg($file_name, NOCACHING);
 			// Video
 			$theora = isset($ogg->Streams['theora']) ? $ogg->Streams['theora'] : NULL;
 			// Audio
@@ -434,8 +435,14 @@ class Video_File extends File
 
 			// Data relating to the file itself.
 			$file_duration = $ogg->Streams['duration'];
-			$file_bitrate = isset($theora) ? $theora['nombr'] : 0;
 			$file_samplerate = isset($vorbis) ? $vorbis['samplerate'] : 0;
+
+			if ($theora) {
+				$file_bitrate = $theora['nombr'];
+			} else if ($vorbis) {
+				$file_bitrate = $vorbis['bitrate'];
+			}
+
 		} else {
 			$file_duration = $id3->info['playtime_seconds'];
 			$file_bitrate = $id3->info['bitrate'];
@@ -467,7 +474,6 @@ class Video_File extends File
 				$id3_tag_data['channels'] = $vorbis['channels'];
 				$id3_tag_data['channel_mode'] = $vorbis['channels'] == 2 ? 'Stereo' : 'Mono';
 			}
-			
 			if (!is_null($theora)) {
 				$id3_tag_data['video_codec'] = $theora['vendor'];
 				$id3_tag_data['width'] = $theora['width'];
