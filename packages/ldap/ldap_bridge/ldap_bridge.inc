@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.108 2012/03/06 02:39:59 cupreti Exp $
+* $Id: ldap_bridge.inc,v 1.109 2012/03/16 06:33:33 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.108 $
+* @version $Revision: 1.109 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -121,6 +121,11 @@ class LDAP_Bridge extends Asset implements Bridge
 	*/
 	function connectToLdap()
 	{
+		// If the bridge is archived, make no attempt to connect
+		if ($this->status == SQ_STATUS_ARCHIVED) {
+			return NULL;
+		}
+
 		// A bit silly to connect to LDAP without a hostname, otherwise continue...
 		$hostname = $this->attr('host');
 		if (empty($hostname)) return NULL;
