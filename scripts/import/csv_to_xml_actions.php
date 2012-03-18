@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: csv_to_xml_actions.php,v 1.10 2007/12/10 06:23:45 rong Exp $
+* $Id: csv_to_xml_actions.php,v 1.11 2012/03/18 22:40:15 ewang Exp $
 *
 */
 
@@ -408,6 +408,7 @@ function validateMetadataMapping(&$metadata_mapping)
 	$am = $GLOBALS['SQ_SYSTEM']->am;
 
 	foreach ($metadata_fields as $metadata_field_id => $metadata_field_type) {
+		$metadata_field_type = $metadata_field_type[0]['type_code'];
 		$field = $am->getAsset($metadata_field_id, $metadata_field_type);
 		$metadata_mapping['metadata_field_objects'][$metadata_field_id] = $field;
 
