@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_search_service.inc,v 1.8 2011/02/14 22:18:09 mhaidar Exp $
+* $Id: soap_api_search_service.inc,v 1.8.4.1 2012/03/19 04:22:00 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -235,7 +235,12 @@ class Soap_Api_Search_Service extends Soap_Api
 																	'field'			=> $data_source->StandardOption->FieldName,
 																   ),
 												  );
-						}//end else
+						} else if ($data_source->FieldType == 'IncludeAll') {
+							$data_source_new	= Array (
+													'type'		=> 'include_all',
+													'params'	=> Array (),
+												  );
+						}
 						$new_field_info['data_sources'][]	= $data_source_new;
 
 					}//end foreach
@@ -562,7 +567,7 @@ class Soap_Api_Search_Service extends Soap_Api
 														   	'SearchFieldType'	=> Array (
 														   							'restriction_base'	=> 'string',
 														   							'enumeration'		=> Array (
-														   													'Metadata', 'Attribute', 'Standard'
+														   													'Metadata', 'Attribute', 'Standard', 'IncludeAll',
 														   												   ),
 														   						   ),
 															'AssetType'			=> Array (
