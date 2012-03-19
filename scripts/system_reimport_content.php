@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_reimport_content.php,v 1.7 2012/02/01 01:10:18 ewang Exp $
+* $Id: system_reimport_content.php,v 1.7.2.1 2012/03/19 02:43:30 csmith Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 *
 * Usage: php scripts/system_reimport_content.php [SYSTEM_ROOT]
 *
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.2.1 $
 * @package MySource_Matrix
 */
 
@@ -42,7 +42,9 @@ if (function_exists('iconv') === FALSE) {
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
 if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
-	trigger_error("You need to supply the path to the System Root as the first argument\n", E_USER_ERROR);
+    echo "You need to supply the path to the System Root as the first argument.\n\n";
+    usage(TRUE);
+    exit;
 }
 $db_conf = require $SYSTEM_ROOT.'/data/private/conf/db.inc';
 array_shift($_SERVER['argv']);
@@ -66,14 +68,16 @@ if (isset($_SERVER['argv'][1]) && $_SERVER['argv'][1] == '--verbose') {
  * and shows the current encoding of the database.
  * It's up to the user to take the appropriate action.
  */
-function usage()
+function usage($exampleLine=FALSE)
 {
 	global $db_conf, $db_encoding;
 	$encoding = '(empty)';
 	if (isset($db_conf['db2']['encoding']) === TRUE) {
 		$encoding = $db_conf['db2']['encoding'];
-	}
-	echo $_SERVER['argv'][0]." SYSTEM_ROOT [--report] [--verbose]\n";
+    }
+    if ($exampleLine === TRUE) {
+        echo $_SERVER['argv'][0]." SYSTEM_ROOT [--report] [--verbose]\n";
+    }
 	echo "This script will re-import content from files into the database.\n";
 	echo "This is mainly useful for oracle systems where the wrong database\n";
 	echo "encoding has been used and needs to be changed.\n";
