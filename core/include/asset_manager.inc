@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.859.2.7 2012/03/09 01:29:44 cupreti Exp $
+* $Id: asset_manager.inc,v 1.859.2.8 2012/03/19 02:14:00 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.859.2.7 $
+* @version $Revision: 1.859.2.8 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7914,16 +7914,7 @@ class Asset_Manager extends MySource_Object
 
 		}//end if empty $root_url
 
-		/*
-		 * split url by slashes to form a list of lineages
-		 * site.com/a/b => ('site.com', 'site.com/a', 'site.com/a/b)
-		 */
-		$urls = Array();
-		$pos = strpos($url,"/");
-		while ($pos) {
-		    $urls[] = MatrixDAL::quote(substr($url,0,$pos));
-		    $pos = strpos($url,"/",$pos+1);
-		}
+		$urls = get_url_lineage($url, TRUE);
 		$urls[] = MatrixDAL::quote($url);
 		$in_sql = implode(',', $urls);
 		
@@ -8055,6 +8046,11 @@ class Asset_Manager extends MySource_Object
 	{
 		$db = MatrixDAL::getDb();
 
+		$urls = get_url_lineage($url, TRUE); //inherited
+		$urls[] = MatrixDAL::quote($url); //applied
+		$urls[] = MatrixDAL::quote($url.'/'); //override
+		$urls = implode(',', $urls);
+		
 		/**
 		* Since we have the url,
 		* we don't need to include the ast_lookup table in the query.
@@ -8065,10 +8061,7 @@ class Asset_Manager extends MySource_Object
 			INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON lv.value = a.assetid
 			';
 		$where = 'lv.name = :design_name AND ' .
-					'((:url1 = lv.url)
-						OR ((:url2 LIKE lv.url || \'/%\')
-						AND (:url3 NOT LIKE lv.url || \'%/$\'))
-						OR ((:url4 = lv.url)))';
+					'lv.url IN ( '.$urls.' )';
 
 		$order_by = ' ORDER BY depth DESC';
 
@@ -8078,17 +8071,7 @@ class Asset_Manager extends MySource_Object
 
 		$query = MatrixDAL::preparePdoQuery($sql);
 
-		// it's the same url but we have to bind it 4 times to the different variables.
-		$bind_vars = array(
-			'design_name' => $design_name,
-			'url1' => $url,
-			'url2' => $url,
-			'url3' => $url,
-			'url4' => $url.'/',
-		);
-		foreach ($bind_vars as $bind_var => $bind_value) {
-			MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
-		}
+		MatrixDAL::bindValueToPdo($query, 'design_name', $design_name);
 
 		$result = MatrixDAL::executePdoAll($query);
 		return empty($result) ? NULL : $result[0];
@@ -8140,60 +8123,40 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Return the lookup value for the passed URL
 	*
-	* @param string	$url		the url to get the design for
-	* @param string	$value_name	the code for the design/layout (eg. design/paint_layout::system::frontend)
+	* @param string	 $url			the url to get the design for
+	* @param string	 $value_name	the code for the design/layout (eg. design/paint_layout::system::frontend),
+	* 								the code pattern if using $like_value (eg. design/paint_layout::%)
+	* @param boolean $like_value	TRUE = LIKE $value_name, otherwise direct match to $value_name	
 	*
 	* @return string
 	* @access public
 	*/
-	function getValueFromURL($url, $value_name)
+	function getValueFromURL($url, $value_name, $like_value = FALSE)
 	{
 		$db = MatrixDAL::getDb();
 
-		// find any exact matches, indicating a value set on this URL itself
-		// order by depth to produce the override value first
-		$sql_1 = 'SELECT lv.value, \'0\' as inhd, depth
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv
-						ON ((l.url = lv.url)
-						OR (l.url || \'/\' = lv.url))
-				';
+		$urls = get_url_lineage($url, TRUE); //inherited
+		$urls[] = MatrixDAL::quote($url); //applied
+		$urls[] = MatrixDAL::quote($url.'/'); //override
+		$urls = implode(',', $urls);
+		
+		$sql = 'SELECT value, depth 
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value';
 
-		$where_1 = 'lv.name = :value_name_1
-						AND l.url = :url_1
-				';
+		if ($like_value){
+			$where = 'name LIKE :value_name';
+		} else {
+			$where = 'name = :value_name';
+		}
+		
+		$where .= ' AND url IN ( '.$urls.' )';
 
-		$where_1 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where_1, 'lv');
-		$where_1 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where_1, 'l');
-
-		// find any inherited values
-		// order by depth to produce the closest matching value first
-		$sql_2 = 'SELECT lv.value, \'1\' as inhd, depth
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv
-						ON l.url = lv.url
-				';
-
-		$where_2 = 'lv.name = :value_name_2
-						AND :url_2 LIKE l.url || \'/%\'
-				';
-
-		$where_2 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where_2, 'lv');
-		$where_2 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where_2, 'l');
-
-
-		$sql_1 = $sql_1.$where_1;
-		$sql_2 = $sql_2.$where_2;
-
-		// retrieve values set on this URL first
-		$order_by = ' ORDER BY depth DESC, inhd ASC';
-
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+		$order_by = ' ORDER BY depth DESC';
+		
 		try {
-			$query = MatrixDAL::preparePdoQuery($sql_1.' UNION ALL '.$sql_2.$order_by);
-			MatrixDAL::bindValueToPdo($query, 'value_name_1', $value_name);
-			MatrixDAL::bindValueToPdo($query, 'value_name_2', $value_name);
-			MatrixDAL::bindValueToPdo($query, 'url_1', $url);
-			MatrixDAL::bindValueToPdo($query, 'url_2', $url);
+			$query = MatrixDAL::preparePdoQuery($sql.$where.$order_by);
+			MatrixDAL::bindValueToPdo($query, 'value_name', $value_name);
 			$result = MatrixDAL::executePdoOne($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to get lookup value: '.$value_name.' for URL: '.$url.' due to database error: '.$e->getMessage());

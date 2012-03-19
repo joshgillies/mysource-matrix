@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.265 2011/11/17 06:42:48 akarelia Exp $
+* $Id: general.inc,v 1.265.2.1 2012/03/19 02:14:00 mhaidar Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.265 $
+* @version $Revision: 1.265.2.1 $
 * @package MySource_Matrix
 */
 
@@ -821,6 +821,34 @@ function strip_url($url, $strip_protocol=FALSE)
 	return (($strip_protocol) ? '' : $matches[1]).preg_replace(Array('|/+$|', '|//+|'), Array('', '/'), $matches[2]);
 
 }//end strip_url()
+
+
+/**
+* Split url by slashes to form a list of lineages
+* site.com/a/b => ('site.com', 'site.com/a', 'site.com/a/b)
+*
+* @param string		$url		the url to split (without protocol)
+* @param boolean	$db_quote	escape strings for db queries
+*
+* @return array
+* @access public
+*/
+function get_url_lineage($url, $db_quote = TRUE)
+{
+	$urls = Array();
+	$pos = strpos($url, "/");
+	while ($pos) {
+		if ($db_quote){
+			$urls[] = MatrixDAL::quote(substr($url, 0, $pos));
+		} else {
+	    	$urls[] = substr($url, 0, $pos);
+		}
+	    $pos = strpos($url, "/", $pos + 1);
+	}
+	
+	return $urls;
+	
+}//end get_url_lineage()
 
 
 /**
