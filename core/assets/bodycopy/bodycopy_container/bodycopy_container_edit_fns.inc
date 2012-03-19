@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.73.2.2 2011/12/19 04:32:11 cupreti Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.73.2.3 2012/03/19 02:16:01 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.73.2.2 $
+* @version $Revision: 1.73.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -510,32 +510,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		$url = $GLOBALS['sq_preview_url'];
 		$url = preg_replace('|^http[s]?://|', '', $url);
 
-		$db = MatrixDAL::getDb();
-
-		$sql = 'SELECT value
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value ';
-
-		$where = 'name LIKE :lookup_name AND
-						((:url = url)
-						OR ((:url_1 LIKE url || \'/%\')
-						AND (:url_2 NOT LIKE url || \'%/$\'))
-						OR ((:url_slash = url)))';
-
-		$order_by = ' ORDER BY depth DESC';
-
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-
-		try {
-			$query = MatrixDAL::preparePdoQuery($sql.$where.$order_by);
-			MatrixDAL::bindValueToPdo($query, 'lookup_name', 'design::%');
-			MatrixDAL::bindValueToPdo($query, 'url', $url);
-			MatrixDAL::bindValueToPdo($query, 'url_1', $url);
-			MatrixDAL::bindValueToPdo($query, 'url_2', $url);
-			MatrixDAL::bindValueToPdo($query, 'url_slash', $url.'/');
-			$designid = MatrixDAL::executePdoOne($query);
-		} catch (Exception $e) {
-			throw new Exception('Unable to get designid for URL: '.$url.' due to database error: '.$e->getMessage());
-		}
+		$designid = $am->getValueFromURL($url, 'design::%', TRUE);
 
 		if ($designid) {
 			if (!SQ_IN_LIMBO) {
