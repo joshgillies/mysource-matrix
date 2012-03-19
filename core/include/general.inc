@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.266 2012/03/15 00:23:23 mhaidar Exp $
+* $Id: general.inc,v 1.267 2012/03/19 02:09:51 mhaidar Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.266 $
+* @version $Revision: 1.267 $
 * @package MySource_Matrix
 */
 
@@ -833,7 +833,7 @@ function strip_url($url, $strip_protocol=FALSE)
 * @return array
 * @access public
 */
-function split_url($url, $db_quote = TRUE)
+function get_url_lineage($url, $db_quote = TRUE)
 {
 	$urls = Array();
 	$pos = strpos($url, "/");
@@ -848,7 +848,7 @@ function split_url($url, $db_quote = TRUE)
 	
 	return $urls;
 	
-}//end split_url()
+}//end get_url_lineage()
 
 
 /**

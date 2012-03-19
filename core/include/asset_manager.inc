@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.868 2012/03/16 06:36:12 mhaidar Exp $
+* $Id: asset_manager.inc,v 1.869 2012/03/19 02:09:51 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.868 $
+* @version $Revision: 1.869 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7913,7 +7913,7 @@ class Asset_Manager extends MySource_Object
 
 		}//end if empty $root_url
 
-		$urls = split_url($url, TRUE);
+		$urls = get_url_lineage($url, TRUE);
 		$urls[] = MatrixDAL::quote($url);
 		$in_sql = implode(',', $urls);
 		
@@ -8045,7 +8045,7 @@ class Asset_Manager extends MySource_Object
 	{
 		$db = MatrixDAL::getDb();
 
-		$urls = split_url($url, TRUE); //inherited
+		$urls = get_url_lineage($url, TRUE); //inherited
 		$urls[] = MatrixDAL::quote($url); //applied
 		$urls[] = MatrixDAL::quote($url.'/'); //override
 		$urls = implode(',', $urls);
@@ -8134,7 +8134,7 @@ class Asset_Manager extends MySource_Object
 	{
 		$db = MatrixDAL::getDb();
 
-		$urls = split_url($url, TRUE); //inherited
+		$urls = get_url_lineage($url, TRUE); //inherited
 		$urls[] = MatrixDAL::quote($url); //applied
 		$urls[] = MatrixDAL::quote($url.'/'); //override
 		$urls = implode(',', $urls);
