@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_metadata_triggers_management.inc,v 1.1 2008/08/21 11:55:38 gnoel Exp $
+* $Id: cron_job_metadata_triggers_management.inc,v 1.2 2012/03/20 23:57:31 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -50,6 +50,14 @@ class Cron_Job_Metadata_Triggers_Management extends Asset_Management
 												'default'		=> '2008-01-01 00:00:00',
 												'parameters'	=> Array(
 																	'allow_null'	=> TRUE,
+																   ),
+											   ),
+						'use_cron_last_run' => Array(
+												'added'			=> '0.2',
+												'type'			=> 'boolean',
+												'default'		=> '0',
+												'parameters'	=> Array(
+																	'allow_empty' => false,
 																   ),
 											   ),
 					  );

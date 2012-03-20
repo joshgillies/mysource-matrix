@@ -13,7 +13,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.1 2008/08/21 11:55:38 gnoel Exp $
+* $Id: asset.xml,v 1.2 2012/03/20 23:57:31 ewang Exp $
 *
 */
 -->
@@ -30,7 +30,7 @@
 	<requirements>
 		<requirement type="asset">
 			<code>cron_job</code>
-			<version>0.1</version>
+			<version>0.2</version>
 		</requirement>
 	</requirements>
 	<flash_menu_path></flash_menu_path>

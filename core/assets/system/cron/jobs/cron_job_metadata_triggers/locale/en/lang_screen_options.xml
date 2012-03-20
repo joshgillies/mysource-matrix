@@ -18,13 +18,17 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_options.xml,v 1.1 2008/08/21 11:55:39 gnoel Exp $
+* $Id: lang_screen_options.xml,v 1.2 2012/03/20 23:57:31 ewang Exp $
 *
 */
 -->
 
 <contents>
 	<section name="Minimum Date">
+		<field attribute="use_cron_last_run">
+			<display_name>Use Last Run</display_name>
+			<note>Set to Yes to use Cron Manager's Last Run value as Minimum Date.</note>
+		</field>
 		<field attribute="ignore_date">
 			<display_name>Minimum Date</display_name>
 			<note>This cron job will only fire Metadata Time events for metadata field dates whose value is between Minimum Date and now.</note>
