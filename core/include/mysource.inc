@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.385 2012/02/28 02:08:08 ewang Exp $
+* $Id: mysource.inc,v 1.386 2012/03/20 06:28:17 akarelia Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.385 $
+* @version $Revision: 1.386 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -839,7 +839,8 @@ class MySource extends MySource_Object
 					$asset->printFrontend();
 				}
 				$content = ob_get_contents();
-			ob_end_clean();
+			// now clear off our buffer but only if had anything in it
+			if (ob_get_length() !== FALSE) ob_end_clean();
 
 			$this->replaceKeyword($content);
 
