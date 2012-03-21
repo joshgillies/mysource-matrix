@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.6 2009/11/27 05:39:53 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.7 2012/03/21 05:34:36 mhaidar Exp $
 *
 */
 -->
@@ -20,6 +20,10 @@
 		<field attribute="name">
 			<display_name>Schema Name</display_name>
 			<note />
+		</field>
+		<field attribute="notify_starter_on_live">
+			<display_name>Notify Starter When Live?</display_name>
+			<note>If enabled, will send the Notify on Live message to the initiator of the workflow process.</note>
 		</field>
 	</section>
 	<section name="Workflow Streams">

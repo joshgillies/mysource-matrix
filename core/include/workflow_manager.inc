@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.172 2011/12/22 23:57:06 mhaidar Exp $
+* $Id: workflow_manager.inc,v 1.173 2012/03/21 05:34:36 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.172 $
+* @version $Revision: 1.173 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -157,10 +157,18 @@ class Workflow_Manager extends MySource_Object
 	*
 	* This is primarily used for showing settings on the Metadata Schemas
 	* screen.
+	* 
+	* @param int		$assetid					the ID of the asset
+	* @param int		$schemaid					the ID of the schema
+	* @param boolean 	$cascades					limit to cascades setting : null = all, true = on, false = off
+	* @param boolean 	$include_cascades			include schema cascades info
+	* @param boolean 	$include_last_started_by	include schema last_started_by info
+	* 
+	* @return multitype:
 	*/
-	function getAssetSchemaInfo($assetid, $schemaid=NULL, $cascades=NULL, $include_cascades=TRUE)
+	function getAssetSchemaInfo($assetid, $schemaid=NULL, $cascades=NULL, $include_cascades=TRUE, $include_last_started_by=FALSE)
 	{
-		$sql = '  SELECT DISTINCT schemaid, granted, cascades
+		$sql = '  SELECT DISTINCT schemaid, granted, cascades, last_started_by
 				  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_wflow ';
 		$where = 'assetid = :assetid';
 		if (!is_null($schemaid)) {
@@ -187,11 +195,13 @@ class Workflow_Manager extends MySource_Object
 
 		$schemas = Array();
 		foreach ($result as $data) {
-			if ($include_cascades) {
+			if ($include_cascades || $include_last_started_by) {
 				$schemas[$data['schemaid']] = Array(
 												'granted'	=> $data['granted'],
-												'cascades'	=> $data['cascades'],
 											  );
+				if ($include_cascades) $schemas[$data['schemaid']]['cascades'] = $data['cascades'];
+				if ($include_last_started_by) $schemas[$data['schemaid']]['last_started_by'] = $data['last_started_by'];
+				
 			} else {
 				$schemas[$data['schemaid']] = $data['granted'];
 			}
@@ -579,12 +589,26 @@ class Workflow_Manager extends MySource_Object
 		}
 
 		// if there are no workflows, we dont notify anyone
-		$schemas = $this->getSchemas($assetid, TRUE);
+		$schemas = $this->getAssetSchemaInfo($assetid, NULL, NULL, FALSE, TRUE);
 		if (empty($schemas)) return TRUE;
 
-		foreach ($schemas as $schemaid) {
+		foreach ($schemas as $schemaid => $schema_info) {
+			if (!$schema_info['granted']) continue;
+			
 			// these will be the people who to notify (some may be groups)
 			$notify = Array();
+			
+			$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid, 'workflow_schema');
+			if ($schema && $schema->attr('notify_starter_on_live')){
+				if (!empty($schema_info['last_started_by']) && $GLOBALS['SQ_SYSTEM']->am->assetExists($schema_info['last_started_by'])){
+					$started_by_user = $GLOBALS['SQ_SYSTEM']->am->getAsset($schema_info['last_started_by']);
+					// see bug #4986	Simple Edit User doesnt get workflow emails initiated via EES
+					// and see simple_edit_user::canAccessBackend()
+					if ($started_by_user instanceof Simple_Edit_User) $started_by_user->_tmp['starter_of_workflow'] = TRUE;
+					$notify[] = $schema_info['last_started_by'];
+				}
+			}
+			
 			$conditions = $GLOBALS['SQ_SYSTEM']->am->getChildren($schemaid, 'workflow_step_condition');
 			foreach ($conditions as $cond_id => $type_code) {
 				$condition = $GLOBALS['SQ_SYSTEM']->am->getAsset($cond_id, 'workflow_step_condition');
@@ -633,7 +657,6 @@ class Workflow_Manager extends MySource_Object
 	
 				$msg->replacements  = $msg_reps;
 				
-				$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid, 'workflow_schema');
 				if ($schema){
 					// Does this schema have a custom message?
 					if (trim($schema->attr('message_notify_on_live')) !== '' ) {
@@ -1567,16 +1590,30 @@ class Workflow_Manager extends MySource_Object
 			$workflow['stream_assetid'] = $streams[$schemaid];
 			$workflow['stream_name'] = $stream_names[$streams[$schemaid]];
 			if (empty($workflow['steps'])) continue;
-			$workflow = serialize($workflow);
+			$new_workflow = serialize($workflow);
 
+			$sql = 'UPDATE
+						'.SQ_TABLE_RUNNING_PREFIX.'ast_wflow
+					SET
+						wflow = :wflow,
+						last_started_by = :last_started_by
+					WHERE
+						assetid	= :assetid
+						AND schemaid = :schemaid';
+			
 			try {
+				$query = MatrixDAL::preparePdoQuery($sql);
 				$bind_vars = Array(
-								'wflow'		=> $workflow,
-								'assetid'	=> $assetid,
-								'schemaid'	=> $schemaid,
+								'wflow'				=> $new_workflow,
+								'assetid'			=> $assetid,
+								'schemaid'			=> $schemaid,
+								'last_started_by' 	=> $workflow['started_by'],
 							 );
-				MatrixDAL::executeQuery('core', 'updateWorkflow', $bind_vars);
-			} catch (Exception $e) {
+				foreach ($bind_vars as $bind_name => $bind_value){
+					MatrixDAL::bindValueToPdo($query, $bind_name, $bind_value);
+				}
+				MatrixDAL::execPdoQuery($query);
+			} catch (DALException $e) {
 				throw new Exception('Unable to update workflow table for asset: '.$assetid.' due to database error: '.$e->getMessage());
 			}
 
@@ -1809,7 +1846,7 @@ class Workflow_Manager extends MySource_Object
 		// make sure the asset has not been deleted since the start of the workflow
 		if($GLOBALS['SQ_SYSTEM']->am->assetExists($started_by)) {
 			$started_by_user = $GLOBALS['SQ_SYSTEM']->am->getAsset($started_by);
-			// see bug #498	Simple Edit User doesnt get workflow emails initiated via EES
+			// see bug #4986	Simple Edit User doesnt get workflow emails initiated via EES
 			// and see simple_edit_user::canAccessBackend()
 			if ($started_by_user instanceof Simple_Edit_User) $started_by_user->_tmp['starter_of_workflow'] = TRUE;
 		}
