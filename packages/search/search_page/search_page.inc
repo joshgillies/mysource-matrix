@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.256 2012/03/21 00:11:47 mhaidar Exp $
+* $Id: search_page.inc,v 1.257 2012/03/21 00:19:23 mhaidar Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.256 $
+* @version $Revision: 1.257 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2151,7 +2151,7 @@ class Search_Page extends Listing_Engine
 				break;
 			}//end switch
 
-			if ($apply_modifiers){
+			if ($apply_modifiers && $replacement != "%$full_keyword%"){
 				apply_keyword_modifiers($replacement, $modifiers);	
 			}
 
