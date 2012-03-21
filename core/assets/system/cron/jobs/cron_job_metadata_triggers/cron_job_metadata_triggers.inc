@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_metadata_triggers.inc,v 1.8 2011/05/11 23:10:06 ewang Exp $
+* $Id: cron_job_metadata_triggers.inc,v 1.8.6.1 2012/03/21 02:43:51 ewang Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 * @see _exec() for the algorithm
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -156,7 +156,15 @@ class Cron_Job_Metadata_Triggers extends Cron_Job
 
 		$db = $GLOBALS['SQ_SYSTEM']->db;
 		
-		$ignore_date = $this->Attr('ignore_date');
+		// work out min date - if 'use_cron_last_run' is true, use cron manager's last run as min date here
+		// otherwise use 'ignore_date' attribute value
+		if ($this->Attr('use_cron_last_run')) {
+			$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+			$ignore_date = date('Y-m-d H:i:s', $cron_mgr->getLastRun());
+		} else {
+			$ignore_date = $this->Attr('ignore_date');
+		}
+
 		$max_date = date('Y-m-d H:i:s');
 		if (empty($ignore_date)) return $ret;
 
@@ -171,7 +179,8 @@ class Cron_Job_Metadata_Triggers extends Cron_Job
 		$triggers = $tm->getTriggerList();
 		foreach ($triggers as $trigger_info) {
 			$trigger = $tm->getTrigger($trigger_info['id']);
-			if (!empty($trigger['data']['events']['trigger_event_metadata_time'])) {
+			// we would like to know the field id of metadata specified in active triggers that use metadata time event 
+			if ($trigger['active'] && !empty($trigger['data']['events']['trigger_event_metadata_time'])) {
 				foreach ($trigger['data']['conditions'] as $trigger_condition) {
 					if ($trigger_condition['type'] == 'trigger_condition_metadata_time') {
 						if (isset($trigger_condition['data']['trigger_metadata_date_fieldid'])) {
@@ -182,20 +191,22 @@ class Cron_Job_Metadata_Triggers extends Cron_Job
 			}
 		}
 
-		$period_options = Array(
-							'i' => translate('minutes'),
-							'h' => translate('hours'),
-							'd' => translate('days'),
-							'w' => translate('weeks'),
-							'm' => translate('months'),
-							'y' => translate('years'),
-						  );
+		if (!$this->Attr('use_cron_last_run')) {
+			$period_options = Array(
+								'i' => translate('minutes'),
+								'h' => translate('hours'),
+								'd' => translate('days'),
+								'w' => translate('weeks'),
+								'm' => translate('months'),
+								'y' => translate('years'),
+							);
 
-		// check to see if the $ignore_time is relative or fixed. If relative lets make a proper time out of it
-		$found = preg_match('/^([\-\+])([0-9]+)(['.implode('', array_keys($period_options)).'])$/', $ignore_date, $matches);
+			// check to see if the $ignore_time is relative or fixed. If relative lets make a proper time out of it
+			$found = preg_match('/^([\-\+])([0-9]+)(['.implode('', array_keys($period_options)).'])$/', $ignore_date, $matches);
 
-		if($found === 1) {
-			$ignore_date = date('Y-m-d H:i:s', strtotime($max_date.' '.$matches[1].$matches[2].$period_options[$matches[3]]));
+			if($found === 1) {
+				$ignore_date = date('Y-m-d H:i:s', strtotime($max_date.' '.$matches[1].$matches[2].$period_options[$matches[3]]));
+			}
 		}
 
 		// if we are having the cut off date in past then we should swap min_date <=> max_date or else the

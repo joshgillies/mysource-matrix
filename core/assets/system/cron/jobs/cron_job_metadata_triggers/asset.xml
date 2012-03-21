@@ -13,7 +13,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.1 2008/08/21 11:55:38 gnoel Exp $
+* $Id: asset.xml,v 1.1.22.1 2012/03/21 02:43:51 ewang Exp $
 *
 */
 -->
@@ -21,7 +21,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>__core__</package>
 	<type_code>cron_job_metadata_triggers</type_code>
-	<version>0.1</version>
+	<version>0.2</version>
 	<name>Cron Job Metadata Triggers</name>
 	<description>cron job metadata triggers fires Metadata Time events for expired metatdata fields</description>
 	<instantiable>yes</instantiable>

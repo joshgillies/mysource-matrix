@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.84 2011/12/19 06:23:50 ewang Exp $
+* $Id: cron_manager.inc,v 1.84.2.1 2012/03/21 02:43:51 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.84 $
+* @version $Revision: 1.84.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1057,6 +1057,16 @@ class Cron_Manager extends Asset
 	}//end _errorHandler()
 
 
+	/**
+	* get an integer value in Last Run attribute
+	*
+	* @return int
+	* @access public
+	*/
+	function getLastRun() {
+		return (int) $this->attr('last_run');
+	}
+	
 }//end class
 
 ?>
