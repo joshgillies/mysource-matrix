@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.93.2.1 2012/01/05 05:16:53 mhaidar Exp $
+* $Id: wysiwyg.inc,v 1.93.2.2 2012/03/22 23:54:10 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.93.2.1 $
+* @version $Revision: 1.93.2.2 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -1179,7 +1179,7 @@ if (SQ_CONF_DEFAULT_CHARACTER_SET != 'utf-8') {
 
 					// escape any special reg exp chars in the location
 					current_location = current_location.replace(/([.?+*^$\\\[\]\(\)\{\}|])/gi, '\\$1');
-					re = new RegExp(current_location, "gi");
+					re = new RegExp(current_location + '[/]?', "gi");
 					html = html.replace(re, "");
 
 					// now replace any ampersands with '&amp;' as IE seems to anyway sometimes (even in href's)
