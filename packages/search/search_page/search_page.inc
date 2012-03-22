@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.255 2011/08/26 03:51:13 ewang Exp $
+* $Id: search_page.inc,v 1.255.4.1 2012/03/22 01:42:49 mhaidar Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.255 $
+* @version $Revision: 1.255.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1820,7 +1820,11 @@ class Search_Page extends Listing_Engine
 		$parent_replaces = $this->getContentsKeywordReplacements($keywords);
 
 		foreach ($keywords as $keyword) {
-			$replacement = "%$keyword%";
+			$full_keyword = $keyword;
+			$replacement = "%$full_keyword%";
+			$keyword = parse_keyword($keyword, $modifiers);
+			$apply_modifiers = TRUE;
+
 			switch ($keyword) {
 				case 'result_list':
 					// the groupAssetsRecursively() method must be called before the getChunk() method because the getChunk()
@@ -2139,14 +2143,20 @@ class Search_Page extends Listing_Engine
 						if (isset($parent_replaces[$keyword])) {
 							$replacement = $parent_replaces[$keyword];
 						} else {
-							$replacement = $this->getGeneralReplacement($keyword);
+							// Avoid messing with globals and other keywords in the fallback to Asset::getKeywordReplacement() by passing the full keyword.						
+							$replacement = $this->getGeneralReplacement($full_keyword);
+							$apply_modifiers = FALSE;
 						}
 
 					}
 				break;
 			}//end switch
 
-			$replaces[$keyword] = $replacement;
+			if ($apply_modifiers && $replacement != "%$full_keyword%"){
+				apply_keyword_modifiers($replacement, $modifiers);	
+			}
+			
+			$replaces[$full_keyword] = $replacement;
 
 		}//end foreach
 
