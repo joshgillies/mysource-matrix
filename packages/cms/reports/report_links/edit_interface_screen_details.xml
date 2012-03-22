@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.6 2008/10/20 03:56:38 ewang Exp $
+* $Id: edit_interface_screen_details.xml,v 1.6.20.1 2012/03/22 04:40:35 mhaidar Exp $
 *
 */
 -->
@@ -54,18 +54,18 @@
 				<process_function name="processReportBrokenLink" />
 			</function_call>
 		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintExport"   />
-				<process_function name="processExport" />
-			</function_call>
-		</field>
 	</section>
-	<section name="Display Options" write_access="write:attributes" limbo_access="1">
+	<section name="Report Options" write_access="write:attributes" limbo_access="1">
 		<field>
 			<function_call>
 				<paint_function   name="paintDisplayOptions"  />
 				<process_function name="processDisplayOptions" />
+			</function_call>
+		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintExport"   />
+				<process_function name="processExport" />
 			</function_call>
 		</field>
 	</section>

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.8 2008/10/20 03:58:11 ewang Exp $
+* $Id: lang_screen_details.xml,v 1.8.20.1 2012/03/22 04:40:35 mhaidar Exp $
 *
 */
 -->
@@ -61,22 +61,22 @@
 				<process_function name="processReportBrokenLink" />
 			</function_call>
 		</field>
-		<field>
-			<display_name>Export Report</display_name>
-			<note>This will allow you download a CSV (Comma Separated Values) file, containing the content of the report</note>
-			<function_call>
-				<paint_function   name="paintExport"   />
-				<process_function name="processExport" />
-			</function_call>
-		</field>
 	</section>
-	<section name="Display Options">
+	<section name="Report Options">
 		<field>
 			<display_name>Content To Display In Report</display_name>
-			<note>These options can be changed and are visible in the report display without regenerating the report.</note>
+			<note>These options can be changed and are visible in the report display and export without regenerating the report.</note>
 			<function_call>
 				<paint_function   name="paintDisplayOptions"  />
 				<process_function name="processDisplayOptions" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Export Report</display_name>
+			<note>This will allow you download a CSV (Comma Separated Values) file, containing the content of the report as per the above display options.</note>
+			<function_call>
+				<paint_function   name="paintExport"   />
+				<process_function name="processExport" />
 			</function_call>
 		</field>
 	</section>
