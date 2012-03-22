@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_schema_management.inc,v 1.15 2011/06/27 05:44:34 mhaidar Exp $
+* $Id: workflow_schema_management.inc,v 1.15.4.1 2012/03/22 00:24:54 mhaidar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.15.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -44,6 +44,15 @@ class Workflow_Schema_Management extends Asset_Management
 														'added'		=> '0.1',
 														'type'		=> 'text',
 														'default'	=> '',
+													   ),
+						'notify_starter_on_live'	=> Array (
+														'added'			=> '0.1',
+														'type'			=> 'boolean',
+														'default'		=> FALSE,
+														'parameters'	=> Array(
+																			'allow_empty'	=> FALSE,
+																			),
+														'description'	=> 'If enabled, will send the Notify on Live message to the initiator of the workflow process.',
 													   ),
 						'subject_notify_on_live'	=> Array(
 														'added'			=> '0.2',
