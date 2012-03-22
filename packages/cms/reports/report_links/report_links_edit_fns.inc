@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.50.2.1 2012/03/22 04:40:35 mhaidar Exp $
+* $Id: report_links_edit_fns.inc,v 1.50.2.2 2012/03/22 05:06:30 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.50.2.1 $
+* @version $Revision: 1.50.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1473,7 +1473,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 				$headers[$id] = ucwords(str_replace('_', ' ', $value));
 			}
 
-			$csv->setFieldHeaders($headers);
+			if (!empty($logs)) $csv->setFieldHeaders($headers);
 
 			$csv->setValues($logs);
 
