@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: table-editor.js,v 1.30 2010/08/13 02:17:20 cupreti Exp $
+* $Id: table-editor.js,v 1.30.10.1 2012/03/22 03:04:08 akarelia Exp $
 *
 */
 
@@ -164,8 +164,8 @@ TCell = function(parent)
 				out += name + '_td' + this.headers[i].r + '_' + this.headers[i].c + ' ';
 			out +='"';
 		}
-	
-		var style = ' style="';
+
+		var style = "";
 		if (this.borderColor != null) {
 			style += 'border-color:' + this.borderColor + ';';
 			this.style = this.style.replace(new RegExp('border\-color:.*?;', 'gi'), '');
@@ -193,9 +193,17 @@ TCell = function(parent)
 			this.style = this.style.replace(new RegExp('height:.*?;', 'gi'), '');
 		}
 
-		if (this.style != null) style += this.style;
+		if (this.style != null && this.style.search('style=') != -1) {
+			style = this.style + style;
+		} else {
+			style += ' style="' + this.style;
+		}
 
-		if (style != ' style="') out += style + '"';
+		if (style != '' && style.search('style=') != -1) {
+			out += style + '"';
+		} else {
+			out += ' style="' + style + '"';
+		}
 		out += this.extra + '>' + this.content;
 		if (this.th) out += '</th>';
 		else out += '</td>';
@@ -548,8 +556,8 @@ TTable = function(name, rows, cols)
 	this.Export = function()
 	{
 		var out = '<table id="' + this.id +'"';
-		if (!isNaN(this.cellSpacing)) out += '" cellspacing="' + this.cellSpacing + '"';
-		if (!isNaN(this.cellPadding)) out += '" cellpadding="' + this.cellPadding + '"';
+		if (!isNaN(this.cellSpacing) && this.cellSpacing != "") out += '" cellspacing="' + this.cellSpacing + '"';
+		if (!isNaN(this.cellPadding) && this.cellPadding != "") out += '" cellpadding="' + this.cellPadding + '"';
 		if (this.className != null) out += ' class="' + this.className + '"';
 		if (this.htmlwidth != "") out += ' width=' + this.htmlwidth;
 		if (this.htmlborder != null) out += ' border=' + this.htmlborder;
