@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.50 2012/01/04 23:44:43 mhaidar Exp $
+* $Id: report_links_edit_fns.inc,v 1.51 2012/03/22 04:21:00 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1369,6 +1369,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			$headers = Array();
 			$empty_headers = TRUE;
 			$top_headers = TRUE;
+			$display_options = $asset->attr('display_options');
 
 			foreach ($root->asset as $asset_node) {
 				$persistent_values = Array();
@@ -1394,19 +1395,77 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 				$top_headers = FALSE;
 
 				foreach ($asset_node->link as $link) {
-					$row = $persistent_values;
-					if ($empty_headers) $headers[] = 'type';
-					$row[] = (string) $link->attributes()->type;
-					if ($empty_headers) $headers[] = 'valid';
-					$row[] = (int) $link->attributes()->valid;
-
-					if ($empty_headers) $headers[] = 'html';
-					$row[] = (string) $link->html;
-					if ($empty_headers) $headers[] = 'description';
-					$row[] = (string) $link->description;
-
-					$logs[] = $row;
-					$empty_headers = FALSE;
+					$valid = (int) $link->attributes()->valid;
+					$type = (string) $link->attributes()->type;
+					$html = (string) $link->html;
+					$description = (string) $link->description;
+					
+					$display_link = TRUE;
+					switch ($type) {
+						case 'internal':
+							if (!$display_options['internal_section']) {
+								$display_link = FALSE;
+							} else {
+								if ($valid) {
+									if (!$display_options['internal_working']) {
+										$display_link = FALSE;
+									}
+								} else {
+									if (!$display_options['internal_broken']) {
+										$display_link = FALSE;
+									}
+								}
+							}
+						break;
+						case 'external':
+							if (!$display_options['external_section']) {
+								$display_link = FALSE;
+							} else {							
+								if ($valid) {
+									if (!$display_options['external_working']) {
+										$display_link = FALSE;
+									}
+								} else {
+									if (!$display_options['external_broken']) {
+										$display_link = FALSE;
+									}
+								}
+							}
+						break;
+						case 'mailto':
+							if (!$display_options['email_section']) {
+								$display_link = FALSE;
+							} else {
+								if ($valid) {
+									if (!$display_options['email_working']) {
+										$display_link = FALSE;
+									}
+								} else {
+									if (!$display_options['email_broken']) {
+										$display_link = FALSE;
+									}
+								}
+							}
+						break;
+						default:
+						break;
+					}//end switch
+					
+					if ($display_link) {
+						$row = $persistent_values;
+						if ($empty_headers) $headers[] = 'type';
+						$row[] = $type;
+						if ($empty_headers) $headers[] = 'valid';
+						$row[] = $valid;
+	
+						if ($empty_headers) $headers[] = 'html';
+						$row[] = $html;
+						if ($empty_headers) $headers[] = 'description';
+						$row[] = $description;
+	
+						$logs[] = $row;
+						$empty_headers = FALSE;
+					}
 				}
 			}//end foreach
 
