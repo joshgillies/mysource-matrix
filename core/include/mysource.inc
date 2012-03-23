@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.374.2.7 2012/02/23 00:02:43 akarelia Exp $
+* $Id: mysource.inc,v 1.374.2.8 2012/03/23 03:53:45 akarelia Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.374.2.7 $
+* @version $Revision: 1.374.2.8 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -760,6 +760,7 @@ class MySource extends MySource_Object
 			// See if caching is enabled for the asset
 			$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 
+
 			// buffer the content and do keyword replacement
 			ob_start();
 				if (basename($_SERVER['PHP_SELF']) == SQ_CONF_RECACHE_SUFFIX) {
@@ -785,7 +786,8 @@ class MySource extends MySource_Object
 					$asset->printFrontend();
 				}
 				$content = ob_get_contents();
-			ob_end_clean();
+			// now clear off our buffer but only if had anything in it
+			if (ob_get_length() !== FALSE) ob_end_clean();
 
 			$this->replaceKeyword($content);
 
