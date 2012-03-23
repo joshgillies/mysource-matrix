@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.381.2.4 2012/02/28 03:45:48 ewang Exp $
+* $Id: mysource.inc,v 1.381.2.5 2012/03/23 03:53:02 akarelia Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.381.2.4 $
+* @version $Revision: 1.381.2.5 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -806,7 +806,7 @@ class MySource extends MySource_Object
 			// See if caching is enabled for the asset
 			$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 
-			
+
 			// buffer the content and do keyword replacement
 			ob_start();
 				if (basename($_SERVER['PHP_SELF']) == SQ_CONF_RECACHE_SUFFIX) {
@@ -826,7 +826,7 @@ class MySource extends MySource_Object
 				// caching is enabled and asset is readable by public user, send HTTP headers
 				// however not send if user have just logged out (see bug #3766)
 				else if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && 
-						 SQ_CONF_SEND_CACHEABLE_HEADER && 
+						 SQ_CONF_SEND_CACHEABLE_HEADER &&  
 						 empty($_POST) && $asset->status >= SQ_STATUS_LIVE && 
 						 $asset->readAccess() && 
 						 !(isset($_REQUEST['just_logged_out']) && $_REQUEST['just_logged_out']) && 
@@ -839,7 +839,8 @@ class MySource extends MySource_Object
 					$asset->printFrontend();
 				}
 				$content = ob_get_contents();
-			ob_end_clean();
+			// now clear off our buffer but only if had anything in it
+			if (ob_get_length() !== FALSE) ob_end_clean();
 
 			$this->replaceKeyword($content);
 
