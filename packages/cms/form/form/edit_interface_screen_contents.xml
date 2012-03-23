@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_contents.xml,v 1.37 2011/02/16 23:38:47 akarelia Exp $
+* $Id: edit_interface_screen_contents.xml,v 1.37.6.1 2012/03/23 04:07:00 akarelia Exp $
 *
 */
 -->
@@ -70,6 +70,17 @@
 		</field>
 		<field attribute="submission_errors_msg">
 			<wysiwyg height="40" />
+		</field>
+	</section>
+	<section name="Submissions Limit">
+		<field write_access="write:menu">
+			<function_call>
+				<paint_function   name="paintSubmissionLimit"   />
+				<process_function name="processSubmissionLimit" />
+			</function_call>
+		</field>
+		<field attribute="submission_limit_reached_text">
+			<text width="100" />
 		</field>
 	</section>
 	<section name="CAPTCHA">

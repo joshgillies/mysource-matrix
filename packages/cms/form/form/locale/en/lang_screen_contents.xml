@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_contents.xml,v 1.21 2011/02/16 23:38:47 akarelia Exp $
+* $Id: lang_screen_contents.xml,v 1.21.6.1 2012/03/23 04:07:00 akarelia Exp $
 *
 */
 -->
@@ -90,6 +90,20 @@
 		<field attribute="submission_errors_msg">
 			<display_name>Error Message Format</display_name>
 			<note>The %form_errors_message% keyword will be replaced with this text if there are submission errors</note>
+		</field>
+	</section>
+	<section name="Submissions Limit">
+		<field>
+			<display_name>No. of Submission allowed</display_name>
+			<note>If set only this many submissions will be allowed. Once the number of submissions is reached, the 'submissions_exhausted' bodycopy will be displayed. Default value is 0 this disables the feature and limit is imposed on the number of submissions.</note>
+			<function_call>
+				<paint_function   name="paintSubmissionLimit"   />
+				<process_function name="processSubmissionLimit" />
+			</function_call>
+		</field>
+		<field attribute="submission_limit_reached_text">
+			<display_name>Error Text</display_name>
+			<note>This text will be used by Matrix to show error when the submission limit has been reached while the form was still being filled in by user</note>
 		</field>
 	</section>
 	<section name="CAPTCHA">

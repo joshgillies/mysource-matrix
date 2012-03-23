@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_management.inc,v 1.68 2011/02/21 02:49:41 cupreti Exp $
+* $Id: form_management.inc,v 1.68.6.1 2012/03/23 04:07:00 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.68 $
+* @version $Revision: 1.68.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -451,7 +451,7 @@ class Form_Management extends Asset_Management
 															'default'		=> 'Regenerate security key',
 															'description'	=> 'Mollom CAPTCHA regen link text',
 														),
-						'disable_keyword_replacements'		=> Array(
+						'disable_keyword_replacements'	=> Array(
 															'added'			=> '0.16',
 															'type'			=> 'boolean',
 															'default'		=> TRUE,
@@ -460,6 +460,18 @@ class Form_Management extends Asset_Management
 																				'allow_empty'	=> FALSE,
 													   						   ),
 													  	),
+						'submission_limit'				=> Array(
+															'added'			=> '0.16',
+															'type'			=> 'int',
+															'default'		=> 0,
+															'description'	=> 'limit the number of submissions allowed',
+													  	   ),
+						'submission_limit_reached_text'	=> Array(
+															'added'			=> '0.16',
+															'type'			=> 'text',
+															'default'		=> 'Submission limit has been reached on this form. No more submission will be accepted',
+															'is_contextable'=> TRUE,
+														   ),
 					  );
 
 	}//end constructor
