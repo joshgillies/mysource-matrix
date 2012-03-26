@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: rss_feed_reader.inc,v 1.20 2010/10/06 02:21:35 ewang Exp $
+* $Id: rss_feed_reader.inc,v 1.21 2012/03/26 01:59:47 mhaidar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * Converts an xml document to different arrays of relative arrays
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package Fudge
 * @subpackage RSS_Feeds
 */
@@ -221,23 +221,30 @@ class RSS_Feed_Reader
 		} else {
 			$this->parsed = TRUE;
 			if (!is_string($this->fp)) {
-				$first_chunk = TRUE;
+				$find_xml = TRUE;
 				// Read the XML file 4KB at a time
 				while (!feof($fp)) {
 					$data = fread($fp, 4096);
-					// strip out possible http headers (when proxy is used)
-					if ($first_chunk) {
+					// find the XML so we can strip out possible http headers (when proxy is used)
+					if ($find_xml) {
 						$data = explode('<?xml', $data);
 						if (count($data) > 1) {
 							array_shift($data);
 							$data = '<?xml'.implode('<?xml', $data);
 						} else {
-							$data = $data[0];
+							// try find the rss XML tag
+							$data = explode('<rss', $data[0]);
+							if (count($data) > 1) {
+								array_shift($data);
+								$data = '<rss'.implode('<rss', $data);
+							} else {
+								continue;
+							}
 						}
-
-						// we're done with the first chunk, shouldn't be headers elsewhere
-						$first_chunk = FALSE;
+						// if we got here, we found the XML, so we can start parsing
+						$find_xml = FALSE;
 					}
+					
 					if (!xml_parse($this->parser, $data)) {
 						return 'Error in the feed';
 					}
