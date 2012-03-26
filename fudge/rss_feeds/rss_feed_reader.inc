@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: rss_feed_reader.inc,v 1.22 2012/03/26 02:18:26 mhaidar Exp $
+* $Id: rss_feed_reader.inc,v 1.23 2012/03/26 02:45:52 mhaidar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * Converts an xml document to different arrays of relative arrays
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package Fudge
 * @subpackage RSS_Feeds
 */
@@ -233,7 +233,8 @@ class RSS_Feed_Reader
 							$data = '<?xml'.implode('<?xml', $data);
 						} else {
 							// try find the rss XML tag
-							$data = explode('<rss', $data[0]);
+							$data = str_ireplace(Array('<rss', '</rss>'), Array('<rss', '</rss>'), $data[0]);
+							$data = explode('<rss', $data);
 							if (count($data) > 1) {
 								array_shift($data);
 								$data = '<rss'.implode('<rss', $data);
