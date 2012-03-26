@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: rss_feed_reader.inc,v 1.21 2012/03/26 01:59:47 mhaidar Exp $
+* $Id: rss_feed_reader.inc,v 1.22 2012/03/26 02:18:26 mhaidar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * Converts an xml document to different arrays of relative arrays
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package Fudge
 * @subpackage RSS_Feeds
 */
@@ -249,6 +249,12 @@ class RSS_Feed_Reader
 						return 'Error in the feed';
 					}
 				}
+				
+				// still did not find the XML
+				if ($find_xml){
+					return 'Error in the feed';
+				}
+				
 			} else {
 				if (!xml_parse($this->parser, $this->fp)) {
 					return 'Error in the feed';
