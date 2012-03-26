@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: rss_feed_reader.inc,v 1.24 2012/03/26 04:03:08 mhaidar Exp $
+* $Id: rss_feed_reader.inc,v 1.25 2012/03/26 04:24:15 mhaidar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * Converts an xml document to different arrays of relative arrays
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package Fudge
 * @subpackage RSS_Feeds
 */
@@ -236,11 +236,11 @@ class RSS_Feed_Reader
 							// try find a valid XML start tag (in this order)
 							$start_tags = Array ('rss', 'rdf', 'feed');
 							foreach ($start_tags as $tag){
-								$data = str_ireplace(Array("<$tag", "</$tag>"), Array("<$tag", "</$tag>"), $data[0]);
-								$data = explode("<$tag", $data);
-								if (count($data) > 1) {
-									array_shift($data);
-									$data = "<$tag".implode("<$tag", $data);
+								$test_data = str_ireplace(Array("<$tag", "</$tag>"), Array("<$tag", "</$tag>"), $data[0]);
+								$test_data = explode("<$tag", $test_data);
+								if (count($test_data) > 1) {
+									array_shift($test_data);
+									$data = "<$tag".implode("<$tag", $test_data);
 									$found_xml = TRUE;
 									break;
 								}
