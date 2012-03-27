@@ -1,5 +1,112 @@
 SQUIZ MATRIX CHANGELOG
 
+VERSION 4.8.1
+
+Featured Changes
+===================================
+
+
+Safe Edit Support for Asset Thumbnail [ Feature Request #3632 ]
+-----------------------------------------------------
+
+The Safe Edit status for assets allows you to make changes to an asset that is live without those changes being seen on a site until they have been approved. Once the safe edit version of an asset has been approved, it replaces the previous live version on the site. If these changes are rejected, the content of the asset will revert back to its original content.
+
+Previously, however, the thumbnail setting of an asset could not be safely edited; any changes to the thumbnail of an asset in Safe Edit mode would also affect the live version of the asset. As such, if safe edit changes were rejected, a thumbnail would not be able to revert back to its previous version.
+
+This feature adds support for asset thumbnails when an asset is in Safe Edit mode, allowing you to safely edit and configure the thumbnail of an asset without affecting the live version of a site.
+
+Asset Live Notification for Workflow Initiator [ Feature Request #5346 ]
+-----------------------------------------------------
+
+This features introduces a new option on the Details screen of a Workflow Schema allowing you to notify the user who initiated the workflow process when an asset is made Live (i.e. completes the workflow process).
+
+When the Notify Starter When Live? field is enabled, an email will be sent to the user when the asset is completes workflow and is made Live. This email is the same as that sent to users who have enabled the 'Notify on Live' option on a Workflow Step. You can configure the layout of this email on the Custom Messages screen of the Workflow Schema.
+
+Export Online Quiz to XML Tool [ Feature Request #5571 ]
+-----------------------------------------------------
+
+This feature introduces a new system tool to export an Online Quiz (including any question groups and multi-choice questions) to an XML file.
+
+The Export Online Quiz to XML tool is accessed on the System Tools screen. The tool allows you to select a root node to export the Online Quiz asset(s) and specify whether to also export Standard Page assets as part of the resulting XML file.
+
+If you are also exporting Standard Page assets, additional options are available, allowing you to select a Paint Method (raw or paint layout) and to specify the start and end tags to extract content from.
+
+When you have configured the settings for the Export Online Quiz to XML tool and click Commit, a download link will be made available for the resulting XML file.
+
+This tool has been added for compliance in Sharable Content Object Reference Model (SCORM) development (a set of technical standards for e-based learning).
+
+Custom Form Submission Limit [ Feature Request #5622 ]
+-----------------------------------------------------
+
+This feature introduces a new submission limit for Custom Form assets, essentially setting a maximum number of form submissions that can be stored within the asset.
+
+This setting is configured in a new 'Submissions Limit' section of the Details screen of the Form Contents asset. You can specify the number of submissions allowed on the form and an error string to display when all submission spots have been exhausted.
+
+This feature has been added to give greater control over the submissions of a Custom Form, especially in cases where only a limited number of submissions can be made, for example when providing seating for an event.
+
+
+Additional Changes and Bug Fixes
+=================================== 
+
+
+Minor Enhancements
+
+Minor Enhancement #5601: Improved Future Asset Status Cron Job Error Reporting.
+Minor Enhancement #5605: Cascade Option on Clear Squiz Cache Trigger Action.
+Minor Enhancement #5607: Include All for SOAP Advanced Search.
+Minor Enhancement #5613: Tree Location Trigger Condition: Select Multiple Locations.
+Minor Enhancement #5614: Keyword Modifiers on Redirect Page.
+Minor Enhancement #5617: Decision Tree: First Question Selection Enhancement.
+Minor Enhancement #5619: getValueFromURL Performance Enhancement.
+Minor Enhancement #5625: Internal Messages Warning Message.
+Minor Enhancement #5630: Cease Connection Attempts to Archived LDAP Bridge.
+Minor Enhancement #5633: Search Page: Keyword Modifiers in Next/Previous Links.
+Minor Enhancement #5635: Last Run Option on Metadata Triggers Cron Job.
+Minor Enhancement #5638: Links Report Display Options Now Affect Downloadable CSV Reports.
+
+Core
+
+Fixed Bug #5527: Space in ALT text adds image filename to ALT attribute.
+Fixed Bug #5589: Simple Edit incorrectly inheriting CSS body styles.
+Fixed Bug #5596: system_parse_designs.php does not parse recursive design customisations.
+Fixed Bug #5598: Matrix import script can throw error if the asset its importing has deny permission.
+Fixed Bug #5612: Multiple Tree Location Trigger Conditions generates invalid hash table entries.
+Fixed Bug #5615: PHP Warning when creating the first remap.
+Fixed Bug #5616: Trigger Condition Link Exists not storing parent type or id in hash.
+Fixed Bug #5621: User Restrictions Asset/User Type Condition setup throws errors.
+Fixed Bug #5626: Ogg video metadata extraction.
+Fixed Bug #5628: Cosmetic Issue : Checkbox on Trigger Action Set Status enabled even without Acquiring locks.
+Fixed Bug #5629: system_check.php script reports duplicate entries.
+Fixed Bug #5632: csv_to_xml_actions.php throws errors.
+Fixed Bug #5634: Matrix logs php notice every time a login page is rendered.
+Fixed Bug #5636: Specifying a style for a table border creates messy code.
+Fixed Bug #5637: Asset builder removing full stop from WYSIWYG hyperlinks with anchor names.
+
+
+CMS
+
+Fixed Bug #5618: Keyword modifier doesn't work on all keywords for the Form Submission asset.
+
+LDAP
+
+Fixed Bug #5608: ldap_change_dn.php does not update running_as attribute for cron jobs.
+
+Calendar
+
+Fixed Bug #5606: Upcoming events listing doesn't list recurring events if the first date is in the past.
+
+Data
+
+Fixed Bug #5640: RSS Data Source intermittently loses results.
+
+Web Services
+
+Fixed Bug #5593: JS API trashAsset function not deleting asset links.
+Fixed Bug #5609: JS_API::getRoles doesn't return correct message when no roles found.
+Fixed Bug #5610: SOAP GetLinkByAsset() not passing correct default value to Asset_Manager::getLinkByAsset().
+
+
+
 VERSION 4.8.0
 
 Featured Changes
