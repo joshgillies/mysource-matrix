@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: rss_feed_reader.inc,v 1.20 2010/10/06 02:21:35 ewang Exp $
+* $Id: rss_feed_reader.inc,v 1.20.8.1 2012/03/27 04:08:39 mhaidar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * Converts an xml document to different arrays of relative arrays
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.20.8.1 $
 * @package Fudge
 * @subpackage RSS_Feeds
 */
@@ -221,27 +221,43 @@ class RSS_Feed_Reader
 		} else {
 			$this->parsed = TRUE;
 			if (!is_string($this->fp)) {
-				$first_chunk = TRUE;
+				$found_xml = FALSE;
 				// Read the XML file 4KB at a time
 				while (!feof($fp)) {
 					$data = fread($fp, 4096);
-					// strip out possible http headers (when proxy is used)
-					if ($first_chunk) {
+					// find the XML so we can strip out possible http headers (when proxy is used)
+					if (!$found_xml) {
 						$data = explode('<?xml', $data);
 						if (count($data) > 1) {
 							array_shift($data);
 							$data = '<?xml'.implode('<?xml', $data);
+							$found_xml = TRUE;
 						} else {
-							$data = $data[0];
-						}
-
-						// we're done with the first chunk, shouldn't be headers elsewhere
-						$first_chunk = FALSE;
+							// try find a valid XML start tag (in this order)
+							$start_tags = Array ('rss', 'rdf', 'feed');
+							foreach ($start_tags as $tag){
+								$test_data = str_ireplace("<$tag", "<$tag", $data[0]);
+								$test_data = explode("<$tag", $test_data);
+								if (count($test_data) > 1) {
+									array_shift($test_data);
+									$data = "<$tag".implode("<$tag", $test_data);
+									$found_xml = TRUE;
+									break;
+								}
+							}
+						} 
 					}
-					if (!xml_parse($this->parser, $data)) {
+					
+					if ($found_xml && !xml_parse($this->parser, $data)) {
 						return 'Error in the feed';
 					}
 				}
+				
+				// still did not find the XML
+				if (!$found_xml){
+					return 'Error in the feed';
+				}
+				
 			} else {
 				if (!xml_parse($this->parser, $this->fp)) {
 					return 'Error in the feed';
