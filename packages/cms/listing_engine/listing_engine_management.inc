@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.85 2011/07/12 00:04:36 cupreti Exp $
+* $Id: listing_engine_management.inc,v 1.86 2012/03/27 04:07:08 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.85 $
+* @version $Revision: 1.86 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -472,7 +472,15 @@ class Listing_Engine_Management extends Asset_Management
 																				'empty_result'		=> 'Return empty result',
 																			   ),
 														   ),
-									  );										
+									  );
+		$this->vars['hide_no_href_links'] = Array(
+												'added'			=> '0.16',
+												'type'			=> 'boolean',
+												'default'		=> FALSE,
+												'parameters'	=> Array(
+																	'allow_empty'	=> FALSE,
+																   ),
+											);
 	}//end constructor
 
 
