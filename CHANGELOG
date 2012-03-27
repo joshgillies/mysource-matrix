@@ -1,5 +1,63 @@
 SQUIZ MATRIX CHANGELOG
 
+VERSION 4.6.5
+
+Minor Enhancements and Bug Fixes
+=================================== 
+
+
+Minor Enhancements
+
+Minor Enhancement #5601: Improved Future Asset Status Cron Job Error Reporting.
+Minor Enhancement #5605: Cascade Option on Clear Squiz Cache Trigger Action.
+Minor Enhancement #5607: Include All for SOAP Advanced Search.
+Minor Enhancement #5614: Keyword Modifiers on Redirect Page.
+Minor Enhancement #5619: getValueFromURL Performance Enhancement.
+Minor Enhancement #5630: Cease Connection Attempts to Archived LDAP Bridge.
+Minor Enhancement #5633: Search Page: Keyword Modifiers in Next/Previous Links.
+
+Core
+
+Fixed Bug #5527: Space in ALT text adds image filename to ALT attribute.
+Fixed Bug #5589: Simple Edit incorrectly inheriting CSS body styles.
+Fixed Bug #5596: system_parse_designs.php does not parse recursive design customisations.
+Fixed Bug #5598: Matrix import script can throw error if the asset its importing has deny permission.
+Fixed Bug #5612: Multiple Tree Location Trigger Conditions generates invalid hash table entries.
+Fixed Bug #5615: PHP Warning when creating the first remap.
+Fixed Bug #5616: Trigger Condition Link Exists not storing parent type or id in hash.
+Fixed Bug #5621: User Restrictions Asset/User Type Condition setup throws errors.
+Fixed Bug #5626: Ogg video metadata extraction.
+Fixed Bug #5628: Cosmetic Issue : Checkbox on Trigger Action Set Status enabled even without Acquiring locks.
+Fixed Bug #5629: system_check.php script reports duplicate entries.
+Fixed Bug #5632: csv_to_xml_actions.php throws errors.
+Fixed Bug #5634: Matrix logs php notice every time a login page is rendered.
+Fixed Bug #5636: Specifying a style for a table border creates messy code.
+Fixed Bug #5637: Asset builder removing full stop from WYSIWYG hyperlinks with anchor names.
+
+
+CMS
+
+Fixed Bug #5618: Keyword modifier doesn't work on all keywords for the Form Submission asset.
+
+LDAP
+
+Fixed Bug #5608: ldap_change_dn.php does not update running_as attribute for cron jobs.
+
+Calendar
+
+Fixed Bug #5606: Upcoming events listing doesn't list recurring events if the first date is in the past.
+
+Data
+
+Fixed Bug #5640: RSS Data Source intermittently loses results.
+
+Web Services
+
+Fixed Bug #5593: JS API trashAsset function not deleting asset links.
+Fixed Bug #5609: JS_API::getRoles doesn't return correct message when no roles found.
+Fixed Bug #5610: SOAP GetLinkByAsset() not passing correct default value to Asset_Manager::getLinkByAsset().
+
+
 
 VERSION 4.6.4
 
