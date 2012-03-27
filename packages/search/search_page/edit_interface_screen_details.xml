@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.54 2011/02/16 23:41:01 akarelia Exp $
+* $Id: edit_interface_screen_details.xml,v 1.55 2012/03/27 04:10:22 akarelia Exp $
 *
 */
 -->
@@ -101,6 +101,9 @@
 		</field>
 		<field attribute="current_page_format" write_access="write:attributes">
 			<text width="50" />
+		</field>
+		<field attribute="hide_no_href_links" write_access="write:attributes">
+			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
 	<section name="Advanced Settings" write_access="write:attributes">
