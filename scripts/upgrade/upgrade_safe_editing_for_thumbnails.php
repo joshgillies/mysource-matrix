@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_safe_editing_for_thumbnails.php,v 1.2 2012/02/23 00:56:24 akarelia Exp $
+* $Id: upgrade_safe_editing_for_thumbnails.php,v 1.3 2012/03/27 05:38:44 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -54,7 +54,7 @@ $done_asset = 1;
 $bad_assetids = Array();
 
 // get all the assets in the system who are in safe edit status and have a thumbnail attached to it
-$sql = "SELECT assetid from sq_ast where status = '64' and assetid IN (select majorid from sq_ast_lnk where value = 'thumbnail');";
+$sql = "SELECT assetid from sq_ast where status = '64' and assetid IN (select majorid from sq_ast_lnk where value = 'thumbnail')";
 
 $results = MatrixDAL::executeSqlAssoc($sql);
 echo "Found ".count($results)." assets that are in 'Safe Editing' status and has thumbnail applied.\n";
