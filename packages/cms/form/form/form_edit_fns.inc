@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.84.10.1 2012/03/23 04:07:00 akarelia Exp $
+* $Id: form_edit_fns.inc,v 1.84.10.2 2012/03/29 02:28:28 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.84.10.1 $
+* @version $Revision: 1.84.10.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1092,7 +1092,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 					$bodycopy = $asset->getBodycopy($bc_name, SQ_LINK_TYPE_2);
 					if (is_null($bodycopy))  $bodycopy = $asset->getBodycopy($bc_name, SQ_LINK_NOTICE);
 					if (is_null($bodycopy)) {
-						$asset->createBodycopy($bc_name, Array('content' => 'Number of submisions allowed for this form has reached. No more submissions are allowed.'));
+						$asset->createBodycopy($bc_name, Array('content' => 'Number of submissions allowed for this form has reached. No more submissions are allowed.'));
 					} else {
 						// bodycopy already exists but must be type 3 linked, convert
 						// the link to type 2 so that it is visible in the asset map
