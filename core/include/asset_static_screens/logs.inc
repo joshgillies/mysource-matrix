@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: logs.inc,v 1.37 2012/03/29 00:45:57 akarelia Exp $
+* $Id: logs.inc,v 1.38 2012/03/29 01:05:34 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 * @author Greg Sherwood <gsherwood@squiz.net>
 * @author Marcel Wegermann	<mwegermann@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix
 */
 
@@ -112,16 +112,16 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 	// dont add the to and from dates to the query user prolly wants ALL the logs
 	if ($from_field->processField() && $from_field->value != '1990-01-01 00:00:00') {
 		$from_date = $from_field->value;
-		// this will look stupid but this is needed
-		// or else on screen reload both the date 
-		// fields will have the same date on them
-		$from_field->setValue($from_date);
 	}
+	// this will look stupid but this is needed
+	// or else on screen reload both the date 
+	// fields will have the same date on them
+	$from_field->setValue($from_date);
 
 	if ($to_field->processField() && $to_field->value != '1990-01-01 00:00:00') {
 		$to_date = $to_field->value;
-		$to_field->setValue($to_date);
 	}
+	$to_field->setValue($to_date);
 
 
 	if (!( empty($type_options) && empty($selected_types) )) {
