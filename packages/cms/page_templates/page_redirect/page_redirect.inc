@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_redirect.inc,v 1.44 2012/03/12 04:23:58 mhaidar Exp $
+* $Id: page_redirect.inc,v 1.45 2012/03/30 03:22:02 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -313,7 +313,7 @@ class Page_Redirect extends Page
 		}
 		
 		if (!is_null($replacement)) {
-			apply_keyword_modifiers($replacement, $modifiers);
+			apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id));
 		}
 		
 		return $replacement;

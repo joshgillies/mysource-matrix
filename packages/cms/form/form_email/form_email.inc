@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.75 2011/10/14 00:57:47 mhaidar Exp $
+* $Id: form_email.inc,v 1.76 2012/03/30 03:22:02 mhaidar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.75 $
+* @version $Revision: 1.76 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -744,7 +744,11 @@ class Form_Email extends Form
 			$replacement = parent::_getThankYouKeywordReplacement($keyword);
 		}
 		
-		apply_keyword_modifiers($replacement, $modifiers);
+		$replace_keywords = Array(
+								'assetid' 	=> $this->id,
+								'call_fns'	=> Array ('_getThankYouKeywordReplacement', 'getKeywordReplacement'),
+							);
+		apply_keyword_modifiers($replacement, $modifiers, $replace_keywords);
 
 		return $replacement;
 

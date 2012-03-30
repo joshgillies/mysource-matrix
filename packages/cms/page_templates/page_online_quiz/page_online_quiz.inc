@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz.inc,v 1.42 2012/02/20 04:31:03 mhaidar Exp $
+* $Id: page_online_quiz.inc,v 1.43 2012/03/30 03:22:02 mhaidar Exp $
 *
 */
 
@@ -61,7 +61,7 @@ define('SQ_ONLINE_QUIZ_FLAG_COMPLETE', 'is_complete');
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2433,13 +2433,13 @@ class Page_Online_Quiz extends Page_Asset_Listing
 			} else {
 				$replacement = $this->getInteractiveQuestionKeywordReplacement(substr($keyword, strlen('interactive_')));
 			}
-			if (!is_null($replacement)) apply_keyword_modifiers($replacement, $modifiers);
+			if (!is_null($replacement)) apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id));
 			return $replacement;
 		}
 		
 		if ($keyword == 'quiz_score'){
 			$replacement = $this->getScoreKeywordReplacement();
-			apply_keyword_modifiers($replacement, $modifiers);
+			apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id));
 			return $replacement;
 		} 
 		
@@ -2520,7 +2520,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 
 		// otherwise, fall back to the parent
 		$replacement = parent::getKeywordReplacement($keyword);
-		if (!is_null($replacement)) apply_keyword_modifiers($replacement, $modifiers);
+		if (!is_null($replacement)) apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id));
 		
 		return $replacement;
 

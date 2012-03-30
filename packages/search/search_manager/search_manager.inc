@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.251 2012/02/12 22:43:19 csmith Exp $
+* $Id: search_manager.inc,v 1.252 2012/03/30 03:22:11 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.251 $
+* @version $Revision: 1.252 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1544,7 +1544,7 @@ class Search_Manager extends Asset
 	
 							if ($keyword_replacement !== NULL) {
 								if (count($modifiers) > 0) {
-									apply_keyword_modifiers($keyword_replacement, $modifiers);
+									apply_keyword_modifiers($keyword_replacement, $modifiers, Array('assetid' => $asset->id));
 								}
 								$the_replacement[$full_keyword] = $keyword_replacement;
 							} else {

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_send_submission_log.inc,v 1.1 2012/03/12 05:10:43 cupreti Exp $
+* $Id: cron_job_send_submission_log.inc,v 1.2 2012/03/30 03:22:02 mhaidar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __cms__
 */
@@ -253,7 +253,7 @@ class Cron_Job_Send_Submission_Log extends Cron_Job
 						$keyword_value = $form->getKeywordReplacement($part_keyword);
 					}
 					if ($part_keyword != $full_keyword) {
-						apply_keyword_modifiers($keyword_value, $modifiers);
+						apply_keyword_modifiers($keyword_value, $modifiers, Array('assetid' => $form->id));
 					}
 					$keyword_replacements[$full_keyword] = $keyword_value;
 				}

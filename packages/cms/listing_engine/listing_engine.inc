@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.340 2012/03/27 04:07:08 akarelia Exp $
+* $Id: listing_engine.inc,v 1.341 2012/03/30 03:22:02 mhaidar Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.340 $
+* @version $Revision: 1.341 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -613,7 +613,7 @@ class Listing_Engine extends Page
 					if (isset($replacements[$plain_keyword]) && !empty($modifiers)) {
 						$replacements[$kw] = $replacements[$plain_keyword];
 						// Apply modifiers
-						apply_keyword_modifiers($replacements[$kw], $modifiers);
+						apply_keyword_modifiers($replacements[$kw], $modifiers, Array('assetid' => $this->id, 'replacements' => $replacements));
 					}
 				}
 			}
@@ -887,7 +887,7 @@ class Listing_Engine extends Page
 				if (!empty($modifiers) && $keywords_is_replaced) {
 					$replacements[$kw] = $replacements[$plain_keyword];
 					// Apply modifiers
-					apply_keyword_modifiers($replacements[$kw], $modifiers);
+					apply_keyword_modifiers($replacements[$kw], $modifiers,  Array('assetid' => $this->id, 'replacements' => $replacements));
 				}
 			}
 		}
@@ -1681,7 +1681,7 @@ class Listing_Engine extends Page
 
 				// previous page link
 				if ($result_page <= 1) {
-					$replacements['previous_page'] = $this->attr('hide_no_href_links') ? '' : $this->attr('prev_page_text');
+					$replacements['previous_page'] = $this->attr('prev_page_text');
 					$replacements['previous_page_href'] = '';
 				} else {
 					// blank out the 'result_page' query - we can understand it if it's given to us, but we don't want to give it to anyone else
@@ -1692,7 +1692,7 @@ class Listing_Engine extends Page
 
 				// next page link
 				if ($result_page >= count($chunks)) {
-					$replacements['next_page'] = $this->attr('hide_no_href_links') ? '' : $this->attr('next_page_text');
+					$replacements['next_page'] = $this->attr('next_page_text');
 					$replacements['next_page_href'] = '';
 				} else {
 					$replacements['next_page_href'] = htmlspecialchars(replace_query_string_vars(Array($asset_result_page_var => $result_page+1), NULL, NULL, TRUE));
@@ -1891,7 +1891,7 @@ class Listing_Engine extends Page
 
 				// previous page link
 				if ($result_page <= 1) {
-					$replacements['previous_page'] = $this->attr('hide_no_href_links') ? '' : $this->attr('prev_page_text');
+					$replacements['previous_page'] = $this->attr('prev_page_text');
 					$replacements['previous_page_href'] = '';
 				} else {
 					$replacements['previous_page_href'] = htmlspecialchars(replace_query_string_vars(Array($asset_result_page_var => $result_page-1), NULL, NULL, TRUE));
@@ -1900,7 +1900,7 @@ class Listing_Engine extends Page
 
 				// next page link
 				if ($result_page >= $num_pages) {
-					$replacements['next_page'] = $this->attr('hide_no_href_links') ? '' : $this->attr('next_page_text');
+					$replacements['next_page'] = $this->attr('next_page_text');
 					$replacements['next_page_href'] = '';
 				} else {
 					$replacements['next_page_href'] = htmlspecialchars(replace_query_string_vars(Array($asset_result_page_var => $result_page+1), NULL, NULL, TRUE));
@@ -2226,7 +2226,8 @@ class Listing_Engine extends Page
 							$replacements[$kw] = $replacements[$plain_keyword];
 								
 							// Apply modifiers
-							apply_keyword_modifiers($replacements[$kw], $modifiers);
+							$assetid = ($remaining_groups['group_type'] == 'parent_asset') ? $group_level : 0;
+							apply_keyword_modifiers($replacements[$kw], $modifiers,  Array('assetid' => $assetid, 'replacements' => $replacements));
 						}//end if
 					}//end foreach
 
@@ -2945,7 +2946,7 @@ class Listing_Engine extends Page
 						$keywords[$kw] = $keywords[$plain_keyword];
 
 						// Apply modifiers
-						apply_keyword_modifiers($keywords[$kw], $modifiers);
+						apply_keyword_modifiers($keywords[$kw], $modifiers, Array('assetid' => $assetid, 'replacements' => $keywords));
 				}//end if
 			}//end if
 		}//end foreach
@@ -4461,7 +4462,7 @@ class Listing_Engine extends Page
 			$func_name = 'get'.ucwords_no_space($keyword_stem).'KeywordReplacement';
 			if (method_exists($this, $func_name)) {
 				$replacement = $this->$func_name($args);
-				apply_keyword_modifiers($replacement, $modifiers);
+				apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id));
 				return $replacement;
 			}
 		}
@@ -4475,7 +4476,7 @@ class Listing_Engine extends Page
 		}
 
 		if (!is_null($replacement)) {
-			apply_keyword_modifiers($replacement, $modifiers);
+			apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id));
 		}
 		return $replacement;
 
