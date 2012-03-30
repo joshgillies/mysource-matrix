@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.45 2011/12/14 00:04:18 akarelia Exp $
+* $Id: funnelback_search_page.inc,v 1.46 2012/03/30 02:56:11 mhaidar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -1364,7 +1364,7 @@ class Funnelback_Search_Page extends Listing_Engine
 			}//end switch
 		}//end if
 
-		apply_keyword_modifiers($replacement, $modifiers);
+		apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id));
 
 		return $replacement;
 

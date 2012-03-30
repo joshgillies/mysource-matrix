@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.103 2012/02/07 22:55:37 cupreti Exp $
+* $Id: calendar_event.inc,v 1.104 2012/03/30 02:55:16 mhaidar Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.103 $
+* @version $Revision: 1.104 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1042,7 +1042,7 @@ class Calendar_Event extends Asset
 
 		}//end switch
 
-		apply_keyword_modifiers($replacement, $modifiers);
+		apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id));
 
 		return $replacement;
 

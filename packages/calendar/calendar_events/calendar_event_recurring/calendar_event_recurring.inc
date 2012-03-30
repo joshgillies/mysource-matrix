@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.105 2012/02/05 22:57:31 cupreti Exp $
+* $Id: calendar_event_recurring.inc,v 1.106 2012/03/30 02:55:17 mhaidar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.105 $
+* @version $Revision: 1.106 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1104,7 +1104,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 
 		}//end switch
 
-		apply_keyword_modifiers($replacement, $modifiers);
+		apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id));
 
 		return $replacement;
 

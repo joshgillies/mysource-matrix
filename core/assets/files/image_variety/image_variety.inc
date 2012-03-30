@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.60 2011/11/02 22:44:56 cupreti Exp $
+* $Id: image_variety.inc,v 1.61 2012/03/30 02:55:01 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.61 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -887,11 +887,12 @@ class Image_Variety extends Asset
 
 				// Get the keyword without any modifiers
 				$replacement = $contexted_asset->getKeywordReplacement($keyword);
-				unset($contexted_asset);
-				$GLOBALS['SQ_SYSTEM']->restoreContext();
 
 				// Then apply the ones we had remaining, then return it
-				apply_keyword_modifiers($replacement, $modifiers);
+				apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $contexted_asset->id));
+				
+				unset($contexted_asset);
+				$GLOBALS['SQ_SYSTEM']->restoreContext();
 				return $replacement;
 
 			}//end if contextid is not the currently active context
@@ -917,7 +918,7 @@ class Image_Variety extends Asset
 		}
 
 		if (count($modifiers) > 0) {
-			apply_keyword_modifiers($replacement, $modifiers);
+			apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id));
 		}
 
 		return $replacement;

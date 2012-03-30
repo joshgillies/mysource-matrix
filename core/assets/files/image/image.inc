@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.92 2012/03/09 00:22:45 mhaidar Exp $
+* $Id: image.inc,v 1.93 2012/03/30 02:55:01 mhaidar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.92 $
+* @version $Revision: 1.93 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1014,11 +1014,12 @@ class Image extends File implements Bridge
 
 				// Get the keyword without any modifiers
 				$replacement = $contexted_asset->getKeywordReplacement($keyword);
-				unset($contexted_asset);
-				$GLOBALS['SQ_SYSTEM']->restoreContext();
 
 				// Then apply the ones we had remaining, then return it
-				apply_keyword_modifiers($replacement, $modifiers);
+				apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $contexted_asset->id));
+				
+				unset($contexted_asset);
+				$GLOBALS['SQ_SYSTEM']->restoreContext();
 				return $replacement;
 
 			}//end if contextid is not the currently active context
@@ -1059,7 +1060,7 @@ class Image extends File implements Bridge
 
 		if ($replacement !== NULL) {
 			if (count($modifiers) > 0) {
-				apply_keyword_modifiers($replacement, $modifiers);
+				apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id));
 			}
 		} else {
 			// Use the full keyword to send up, so modifiers still get respected

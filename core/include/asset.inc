@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.760 2012/02/22 22:50:33 ewang Exp $
+* $Id: asset.inc,v 1.761 2012/03/30 02:55:01 mhaidar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.760 $
+* @version $Revision: 1.761 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3864,11 +3864,12 @@ class Asset extends MySource_Object
 
 				// Get the keyword without any modifiers
 				$replacement = $contexted_asset->getKeywordReplacement($keyword);
-				unset($contexted_asset);
-				$GLOBALS['SQ_SYSTEM']->restoreContext();
 
 				// Then apply the ones we had remaining, then return it
-				apply_keyword_modifiers($replacement, $modifiers);
+				apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $contexted_asset->id));
+				
+				unset($contexted_asset);
+				$GLOBALS['SQ_SYSTEM']->restoreContext();
 				return $replacement;
 
 			}//end if contextid is not the currently active context
@@ -4154,8 +4155,8 @@ class Asset extends MySource_Object
 			}
 		}
 
-		apply_keyword_modifiers($replacement, $modifiers);
-
+		apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id));
+		
 		return $replacement;
 
 	}//end _getKeywordReplacement()

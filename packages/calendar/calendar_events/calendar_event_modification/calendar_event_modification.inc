@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_modification.inc,v 1.30 2011/10/27 01:19:07 mhaidar Exp $
+* $Id: calendar_event_modification.inc,v 1.31 2012/03/30 02:55:16 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * of a recurring event have changed for a particular instance of that event.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -305,7 +305,7 @@ class Calendar_Event_Modification extends Calendar_Event
 		if (empty($replacement)) {
 			$replacement = parent::getKeywordReplacement($keyword);
 		}
-		apply_keyword_modifiers($replacement, $modifiers);
+		apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id));
 
 		return $replacement;
 

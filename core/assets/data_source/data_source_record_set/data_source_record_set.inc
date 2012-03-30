@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_record_set.inc,v 1.13 2010/05/11 02:12:33 lwright Exp $
+* $Id: data_source_record_set.inc,v 1.14 2012/03/30 02:55:01 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage core
 */
@@ -184,11 +184,12 @@ class Data_Source_Record_Set extends Asset
 
 				// Get the keyword without any modifiers
 				$replacement = $contexted_asset->getKeywordReplacement($keyword);
-				unset($contexted_asset);
-				$GLOBALS['SQ_SYSTEM']->restoreContext();
 
 				// Then apply the ones we had remaining, then return it
-				apply_keyword_modifiers($replacement, $modifiers);
+				apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $contexted_asset->id));
+				
+				unset($contexted_asset);
+				$GLOBALS['SQ_SYSTEM']->restoreContext();
 				return $replacement;
 
 			}//end if contextid is not the currently active context
@@ -237,7 +238,7 @@ class Data_Source_Record_Set extends Asset
 		} 
 		
 		if (count($modifiers) > 0) {
-			apply_keyword_modifiers($replacement, $modifiers);
+			apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id));
 		}
 		
 		return $replacement;

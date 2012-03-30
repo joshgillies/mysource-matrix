@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: flv_file.inc,v 1.7 2011/05/22 23:20:54 akarelia Exp $
+* $Id: flv_file.inc,v 1.8 2012/03/30 02:55:01 mhaidar Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -134,11 +134,12 @@ class FLV_File extends File
 
 				// Get the keyword without any modifiers
 				$replacement = $contexted_asset->getKeywordReplacement($keyword);
-				unset($contexted_asset);
-				$GLOBALS['SQ_SYSTEM']->restoreContext();
 
 				// Then apply the ones we had remaining, then return it
-				apply_keyword_modifiers($replacement, $modifiers);
+				apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $contexted_asset->id));
+				
+				unset($contexted_asset);
+				$GLOBALS['SQ_SYSTEM']->restoreContext();
 				return $replacement;
 
 			}//end if contextid is not the currently active context
@@ -175,7 +176,7 @@ class FLV_File extends File
 
 		if ($replacement !== NULL) {
 			if (count($modifiers) > 0) {
-				apply_keyword_modifiers($replacement, $modifiers);
+				apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id));
 			}			
 		} else {
 			// use full keyword so the modifiers still get used

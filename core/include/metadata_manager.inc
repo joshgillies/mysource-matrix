@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.232 2012/02/22 22:50:33 ewang Exp $
+* $Id: metadata_manager.inc,v 1.233 2012/03/30 02:55:02 mhaidar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *	 Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.232 $
+* @version $Revision: 1.233 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -1202,7 +1202,9 @@ class Metadata_Manager extends MySource_Object
 				echo '/* 1 */', "\n";
 				echo '$metadata_replacements = Array();'."\n";
 				foreach ($keywords as $keyword) {
-					echo '$metadata_replacements["'.addslashes($keyword).'"] = $metadata_asset->getKeywordReplacement("'.addslashes($keyword).'");'."\n";
+					if (!preg_match('/^metadata_field_/', $keyword)) {
+						echo '$metadata_replacements["'.addslashes($keyword).'"] = $metadata_asset->getKeywordReplacement("'.addslashes($keyword).'");'."\n";
+					}
 				}
 				echo '/* 2 */', "\n";
 				replace_keywords($tag_values, $replacements);
@@ -1262,7 +1264,7 @@ class Metadata_Manager extends MySource_Object
 								$part_keyword = parse_keyword($full_keyword, $modifiers);
 								if ($part_keyword != $full_keyword && isset($field_replacements[$part_keyword])) {
 									$keyword_value = $field_replacements[$part_keyword];
-									apply_keyword_modifiers($keyword_value, $modifiers);
+									apply_keyword_modifiers($keyword_value, $modifiers, Array('assetid' => $assetid));
 									$field_replacements[$full_keyword] = $keyword_value;
 								}
 							}

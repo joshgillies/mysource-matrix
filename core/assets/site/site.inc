@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.128 2012/02/09 04:29:57 ewang Exp $
+* $Id: site.inc,v 1.129 2012/03/30 02:55:01 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.128 $
+* @version $Revision: 1.129 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1037,7 +1037,7 @@ class Site extends Folder
 
 		if ($replacement !== NULL) {
 			if (count($modifiers) > 0) {
-				apply_keyword_modifiers($replacement, $modifiers);
+				apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id));
 			}
 		} else {
 			// Use full keyword, so modifiers still get used

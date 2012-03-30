@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.209 2012/02/20 23:11:31 cupreti Exp $
+* $Id: file.inc,v 1.210 2012/03/30 02:55:01 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.209 $
+* @version $Revision: 1.210 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1622,7 +1622,7 @@ class File extends Asset
 			$part_keyword = parse_keyword($full_keyword, $modifiers);
 			$keyword_value = $this->getKeywordReplacement($part_keyword);
 			if ($part_keyword != $full_keyword) {
-				apply_keyword_modifiers($keyword_value, $modifiers);
+				apply_keyword_modifiers($keyword_value, $modifiers, Array('assetid' => $this->id));
 			}
 
 			$keyword_replacement[$full_keyword] = $keyword_value;

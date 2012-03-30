@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_make_soap_call.inc,v 1.6 2011/10/04 05:42:33 akarelia Exp $
+* $Id: trigger_action_make_soap_call.inc,v 1.7 2012/03/30 02:56:49 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(dirname(dirname(__FILE__))).'/lib/soap_common.inc';
 *
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -728,7 +728,7 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 			$modified_keyword = parse_keyword($keyword, $modifiers);
 			$replacement[$keyword] = $asset->getKeywordReplacement($modified_keyword);
 			if (!empty($modifiers)) {
-				apply_keyword_modifiers($replacement[$keyword], $modifiers);
+				apply_keyword_modifiers($replacement[$keyword], $modifiers, Array('assetid' => $asset->id));
 			}
 
 		}

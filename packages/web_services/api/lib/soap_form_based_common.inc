@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_form_based_common.inc,v 1.1 2011/10/04 05:32:49 akarelia Exp $
+* $Id: soap_form_based_common.inc,v 1.2 2012/03/30 02:56:49 mhaidar Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 * This class will have all the common functions used for SOAP Form Actions and SOAP Form Section Action
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -60,7 +60,7 @@ class SOAP_Form_Based_Common
 				}
 
 				if (!empty($modifiers)) {
-					apply_keyword_modifiers($replacement, $modifiers);
+					apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $form->id));
 				}
 				$content = preg_replace('/%'.str_replace('^', '\^', $match[1]).'%/U', str_replace('$', '\$', $replacement), $content, 1, $count);
 
