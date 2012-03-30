@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.341 2012/03/30 03:22:02 mhaidar Exp $
+* $Id: listing_engine.inc,v 1.342 2012/03/30 03:35:59 mhaidar Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.341 $
+* @version $Revision: 1.342 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1681,7 +1681,7 @@ class Listing_Engine extends Page
 
 				// previous page link
 				if ($result_page <= 1) {
-					$replacements['previous_page'] = $this->attr('prev_page_text');
+					$replacements['previous_page'] = $this->attr('hide_no_href_links') ? '' : $this->attr('prev_page_text');
 					$replacements['previous_page_href'] = '';
 				} else {
 					// blank out the 'result_page' query - we can understand it if it's given to us, but we don't want to give it to anyone else
@@ -1692,7 +1692,7 @@ class Listing_Engine extends Page
 
 				// next page link
 				if ($result_page >= count($chunks)) {
-					$replacements['next_page'] = $this->attr('next_page_text');
+					$replacements['next_page'] = $this->attr('hide_no_href_links') ? '' : $this->attr('next_page_text');
 					$replacements['next_page_href'] = '';
 				} else {
 					$replacements['next_page_href'] = htmlspecialchars(replace_query_string_vars(Array($asset_result_page_var => $result_page+1), NULL, NULL, TRUE));
@@ -1891,7 +1891,7 @@ class Listing_Engine extends Page
 
 				// previous page link
 				if ($result_page <= 1) {
-					$replacements['previous_page'] = $this->attr('prev_page_text');
+					$replacements['previous_page'] = $this->attr('hide_no_href_links') ? '' : $this->attr('prev_page_text');
 					$replacements['previous_page_href'] = '';
 				} else {
 					$replacements['previous_page_href'] = htmlspecialchars(replace_query_string_vars(Array($asset_result_page_var => $result_page-1), NULL, NULL, TRUE));
@@ -1900,7 +1900,7 @@ class Listing_Engine extends Page
 
 				// next page link
 				if ($result_page >= $num_pages) {
-					$replacements['next_page'] = $this->attr('next_page_text');
+					$replacements['next_page'] = $this->attr('hide_no_href_links') ? '' : $this->attr('next_page_text');
 					$replacements['next_page_href'] = '';
 				} else {
 					$replacements['next_page_href'] = htmlspecialchars(replace_query_string_vars(Array($asset_result_page_var => $result_page+1), NULL, NULL, TRUE));

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.259 2012/03/30 03:22:11 mhaidar Exp $
+* $Id: search_page.inc,v 1.260 2012/03/30 03:36:05 mhaidar Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.259 $
+* @version $Revision: 1.260 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1897,7 +1897,7 @@ class Search_Page extends Listing_Engine
 
 				case 'previous_result_page_link':
 					if ($current_result_page <= 1) {
-						$replacement = $this->attr('prev_page_text');
+						$replacement = $this->attr('hide_no_href_links') ? '' : $this->attr('prev_page_text');
 						break;
 					}
 					$replacement = '<a href="'.($this->attr('submit_to_page_url') ? $this->getURL() : current_url()).'?'.htmlspecialchars('mode='.$mode.'&current_result_page='.($current_result_page - 1).'&results_per_page='.$results_per_page.$queries).'">'.$this->attr('prev_page_text').'</a>';
@@ -1905,7 +1905,7 @@ class Search_Page extends Listing_Engine
 
 				case 'next_result_page_link':
 					if ($current_result_page >= $total_pages) {
-						$replacement = $this->attr('next_page_text');
+						$replacement = $this->attr('hide_no_href_links') ? '' : $this->attr('next_page_text');
 						break;
 					}
 					$replacement = '<a href="'.($this->attr('submit_to_page_url') ? $this->getURL() : current_url()).'?'.htmlspecialchars('mode='.$mode.'&current_result_page='.($current_result_page + 1).'&results_per_page='.$results_per_page.$queries).'">'.$this->attr('next_page_text').'</a>';
