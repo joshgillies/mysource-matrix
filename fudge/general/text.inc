@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.62 2012/02/09 05:19:41 cupreti Exp $
+* $Id: text.inc,v 1.63 2012/03/30 03:05:32 mhaidar Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.62 $
+* @version $Revision: 1.63 $
 * @package Fudge
 * @subpackage Text
 */
@@ -120,14 +120,28 @@ function parse_keyword($keyword, &$modifiers = NULL)
 
 /**
  * Applies a set of modifiers against given text. $text is updated in place.
- *
+ * 
+ * @param string	$text				the text to modify
+ * @param array		$modifiers			modifiers to apply to $text
+ * @param array		$replace_keywords	info used for 'replace_keywords' modifier,
+ * 										needed to determine replacement source for nested keywords
+ * <pre>
+ *					Array (
+ *						'assetid'		=> the asset id the keyword replacement ($text) belongs to
+ *										   supply only if the caller scope includes replacements from all the 'call_fns',
+ *						'call_fns'		=> a list of asset keyword replacement functions to call for 'assetid'
+ *										   if not specified will default to include 'getKeywordReplacement',
+ *						'replacements'	=> supply if any keyword replacements available from the caller scope,
+ *					)
+ * </pre>
+ * 
  * @return void
  * @access public
  */
-function apply_keyword_modifiers(&$text, $modifiers)
+function apply_keyword_modifiers(&$text, $modifiers, $replace_keywords=Array())
 {
 	foreach ($modifiers as $m) {
-		$text = apply_keyword_modifier($text, $m);
+		$text = apply_keyword_modifier($text, $m, $replace_keywords);
 	}
 
 }//end apply_keyword_modifiers()
@@ -136,16 +150,78 @@ function apply_keyword_modifiers(&$text, $modifiers)
 /**
  * Returns a version of $text piped through a predefined modifier.
  *
- * Mofifiers should be self explanatory.
- *
+ * Most modifiers should be self explanatory.
+ * 
+ * @param string	$text				the text to modify
+ * @param array		$modifier			the modifier type and its arguments
+ * @param array		$replace_keywords	info used for 'replace_keywords' modifier,
+ * 										needed to determine replacement source for nested keywords
+ * <pre>
+ *					Array (
+ *						'assetid'		=> the asset id the keyword replacement ($text) belongs to
+ *										   supply only if the caller scope includes replacements from all the 'call_fns',
+ *						'call_fns'		=> a list of asset keyword replacement functions to call for 'assetid'
+ *										   if not specified will default to include 'getKeywordReplacement',
+ *						'replacements'	=> supply if any keyword replacements available from the caller scope,
+ *					)
+ * </pre>
+ * 
  * @return string
  * @access public
  */
-function apply_keyword_modifier($text, $modifier)
+function apply_keyword_modifier($text, $modifier, $replace_keywords=Array())
 {
 
 	switch ($modifier['modifier']) {
 
+	case "replace_keywords":
+
+		/* This modifier takes another modifier as its arguments.
+		 * Will attempt to replace any keywords in this nested modifiers arguments.
+		 * Info from $replace_keywords will be used to determine source for keyword replacements.
+		 */
+		$nested_modifier = array_get_index($modifier['args'], 0, NULL);
+		$nested_modifier_args = Array();
+		
+		$kw_replacements = array_get_index($replace_keywords, 'replacements', Array());
+		$assetid = array_get_index($replace_keywords, 'assetid', 0);
+		$call_fns = array_get_index($replace_keywords, 'call_fns', Array('getKeywordReplacement'));
+
+		for ($i = 1; $i < count($modifier['args']); $i++){
+			$value = $modifier['args'][$i];
+			preg_match_all('/\{([a-zA-Z_]{2,}[a-zA-Z_\-0-9\.:]+)\}/', $value, $matches, PREG_PATTERN_ORDER);
+			$keywords = array_unique($matches[1]);
+			
+			$replacements = Array();
+			foreach ($keywords as $keyword){
+				if (isset($kw_replacements[$keyword])){
+					$replacements[$keyword] = $kw_replacements[$keyword];
+				} else if (!empty($assetid)){
+					if (!isset($asset)) $asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+					if ($asset){
+						foreach ($call_fns as $fn){
+							if (method_exists($asset, $fn)){
+								$asset_replacement = $asset->$fn($keyword);
+								if (!is_null($asset_replacement) && $asset_replacement != '%'.$keyword.'%'){
+									$replacements[$keyword] = $asset_replacement;
+									break;
+								}
+							}
+						}
+	
+					}
+				}
+			}
+
+			foreach ($replacements as $keyword => $replacement) {
+				if ($keyword == '') continue;
+				$value = str_replace("{".$keyword."}", $replacement, $value);
+			}
+			$nested_modifier_args[] = $value;
+		}
+
+		return apply_keyword_modifier($text, Array('modifier' => $nested_modifier, 'args' => $nested_modifier_args));
+		
 	case "urlencode":
 		return urlencode($text);
 
