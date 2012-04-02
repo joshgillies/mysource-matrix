@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.260 2012/03/30 03:36:05 mhaidar Exp $
+* $Id: search_page.inc,v 1.261 2012/04/02 03:23:13 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.260 $
+* @version $Revision: 1.261 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1095,7 +1095,11 @@ class Search_Page extends Listing_Engine
 				$key_field = array_search($field_name, $pmap_params);
 				$query = $pmap->getParameterValue($pmap_params[$key_field]);
 			}
-			replace_global_keywords($query);
+			if (!is_array($query)) $query = Array($query);
+
+			foreach ($query as $idx => $individual_query) {
+				$query[$idx] = replace_global_keywords($individual_query);
+			}
 		}
 
 		ob_start();
