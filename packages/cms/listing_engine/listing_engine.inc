@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.342 2012/03/30 03:35:59 mhaidar Exp $
+* $Id: listing_engine.inc,v 1.343 2012/04/02 03:20:56 akarelia Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.342 $
+* @version $Revision: 1.343 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -4723,6 +4723,10 @@ class Listing_Engine extends Page
 			}
 		}
 		$selected = (isset($_REQUEST[$options['name']])) ? Array($_REQUEST[$options['name']]) : Array();
+
+		if (isset($selected[0]) && is_array($selected[0])) {
+			$selected = $selected[0];
+		}
 
 		ob_start();
 			structured_drop_down($options['name'], $options['root_node'], $pass_codes, $selected, $options['width'], $options['height'], $options['max_depth'], $this->attr('check_boxes') == 2 ? TRUE : FALSE, $options['seperator'], TRUE, $options['all_text'], $this->attr('check_boxes'));
