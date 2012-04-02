@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.202.2.1 2011/11/09 23:36:57 cupreti Exp $
+* $Id: backend.inc,v 1.202.2.2 2012/04/02 06:50:44 mhaidar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.202.2.1 $
+* @version $Revision: 1.202.2.2 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -75,6 +75,8 @@ class Backend extends MySource_Object
 	*/
 	function paint()
 	{
+		$this->_sanitiseHTTPVariables();
+
 		header('Content-Type: text/html; charset='.SQ_CONF_DEFAULT_CHARACTER_SET);
 		if (SQ_IN_LIMBO) {
 
@@ -1545,6 +1547,34 @@ class Backend extends MySource_Object
 		return $html;
 
 	}//end _getDHTMLMessage()
+	
+	
+	/**
+	* Sanitises HTTP REQUEST, POST & GET variables 
+	* before they are printed in various places in the backend interface.
+	*
+	* @access private
+	* @return void
+	*/
+	private function _sanitiseHTTPVariables()
+	{
+		$vars = Array ('am_section', 'assetid', 'asset_ei_screen', 'current_assetid');
+		foreach ($vars as $var)
+		{
+			if (isset($_REQUEST[$var]) && is_scalar($_REQUEST[$var])) {
+				$_REQUEST[$var] = htmlspecialchars($_REQUEST[$var]);
+			}
+			
+			if (isset($_GET[$var]) && is_scalar($_GET[$var])) {
+				$_GET[$var] = htmlspecialchars($_GET[$var]);
+			}
+			
+			if (isset($_POST[$var]) && is_scalar($_POST[$var])) {
+				$_POST[$var] = htmlspecialchars($_POST[$var]);
+			}
+		}
+		
+	}//end _sanitiseHTTPVariables()
 
 
 }//end class

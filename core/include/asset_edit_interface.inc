@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.372 2011/07/21 01:01:11 akarelia Exp $
+* $Id: asset_edit_interface.inc,v 1.372.2.1 2012/04/02 06:50:44 mhaidar Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.372 $
+* @version $Revision: 1.372.2.1 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -159,7 +159,7 @@ class Asset_Edit_Interface extends MySource_Object
 		$asset_path = Array();
 		if (isset($_REQUEST['sq_asset_path'])) {
 			// asset map sends comma-separated assetids indicating the path
-			$matches = preg_split('|,([0-9]+:?),?|', ($_REQUEST['sq_asset_path']), 0, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+			$matches = preg_split('|,([0-9]+:?),?|', htmlspecialchars($_REQUEST['sq_asset_path']), 0, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
 			for (reset($matches); NULL !== ($k = key($matches)); next($matches)) {
 				// if a match ends with the shadow id seperator, the next match
 				// is actually part of this match
@@ -618,7 +618,7 @@ class Asset_Edit_Interface extends MySource_Object
 		 //  WHERE AM I   //
 		///////////////////
 		if (isset($_REQUEST['sq_link_path'])) {
-			$link_path = $_REQUEST['sq_link_path'];
+			$link_path = htmlspecialchars($_REQUEST['sq_link_path']);
 		} else {
 			$link_path = '';
 		}
