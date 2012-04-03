@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: logs.inc,v 1.31 2011/04/18 06:34:46 mhaidar Exp $
+* $Id: logs.inc,v 1.31.4.1 2012/04/03 01:47:36 ewang Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author Greg Sherwood <gsherwood@squiz.net>
 * @author Marcel Wegermann	<mwegermann@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.31.4.1 $
 * @package MySource_Matrix
 */
 
@@ -190,7 +190,7 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 						?>
 
 						<?php $next_url = $selected_base_url.'&'.$prefix.'_start_at='.($start_printing_at - $num_per_page); ?>
-						 <a style="text-decoration: none;" href="<?php echo $next_url; ?>">
+						 <a style="text-decoration: none;" href="<?php echo (htmlspecialchars($next_url)); ?>">
 						<?php
 
 					} else {
@@ -212,7 +212,7 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 						?>
 
 						 <?php $next_url = $selected_base_url.'&'.$prefix.'_start_at='.($start_printing_at + $num_per_page); ?>
-						  <a style="text-decoration: none;" href="<?php echo $next_url; ?>">
+						  <a style="text-decoration: none;" href="<?php echo (htmlspecialchars($next_url)); ?>">
 						 <?php
 
 					} else {
