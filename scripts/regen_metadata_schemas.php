@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: regen_metadata_schemas.php,v 1.4 2011/08/08 04:42:30 akarelia Exp $
+* $Id: regen_metadata_schemas.php,v 1.4.2.1 2012/04/03 22:58:55 akarelia Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 * If no schema is specified, then all schemas in the system are regenerated.
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.2.1 $
 * @package MySource_Matrix
 */
 
@@ -109,7 +109,7 @@ $total_assets    = Array();
 if (file_exists(SYNCH_FILE)) {
    $total_assets_str    = file_get_contents(SYNCH_FILE);
 } else {
-    trigger_error ("Unable to find Synch File, probably because the user executing this script does not have permission to write to this folder.", E_USER_WARNINGs);
+    trigger_error ("Unable to find Synch File, probably because the user executing this script does not have permission to write to this folder.", E_USER_WARNING);
     exit(0);
 }//end else
 
