@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config_edit_interface.inc,v 1.43 2011/11/01 00:28:09 akarelia Exp $
+* $Id: system_config_edit_interface.inc,v 1.44 2012/04/03 00:57:24 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *    Looks after the editing of the system config
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix
 */
 class System_Config_Edit_Interface extends MySource_Object
@@ -82,7 +82,7 @@ class System_Config_Edit_Interface extends MySource_Object
 		  ///////////////////
 		 //  SCREEN MENU  //
 		///////////////////
-		$o->addFormActionGetVar('config_screen', rawurlencode($active_screen), TRUE);
+		$o->addFormActionGetVar('config_screen', $active_screen, TRUE);
 		$current_location = $o->getCurrentLocation();
 		list($current_loc_base, $current_loc_query) = explode('?', $current_location);
 		$config_screens = Array(

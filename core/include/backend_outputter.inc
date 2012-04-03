@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.169 2010/06/01 03:28:41 mhaidar Exp $
+* $Id: backend_outputter.inc,v 1.170 2012/04/03 00:57:24 ewang Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.169 $
+* @version $Revision: 1.170 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -252,6 +252,7 @@ class Backend_Outputter
 		} else {
 			list($url, $query) = explode('?', $this->_action);
 		}
+		$value = rawurlencode($value);
 		$this->_action = replace_query_string_vars(Array($name => $value), $url, $query);
 		if ($persistant) {
 			$this->_persistant_get_vars[$name] = $value;
@@ -284,7 +285,7 @@ class Backend_Outputter
 	function setFormAnchor($anchor)
 	{
 		$anchor = trim($anchor);
-		$this->_anchor = ($anchor) ? '//'.$anchor : '';
+		$this->_anchor = ($anchor) ? '//'.rawurlencode($anchor) : '';
 
 	}//end setFormAnchor()
 

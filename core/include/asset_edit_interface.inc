@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.374 2012/04/02 09:37:15 ewang Exp $
+* $Id: asset_edit_interface.inc,v 1.375 2012/04/03 00:57:24 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.374 $
+* @version $Revision: 1.375 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -662,12 +662,12 @@ class Asset_Edit_Interface extends MySource_Object
 				$layout = $GLOBALS['SQ_SYSTEM']->am->getAsset($layoutid);
 			}
 			if (!is_null($layout)) {
-				$o->addFormActionGetVar('asset_ei_screen', rawurlencode($active_screen), TRUE);
+				$o->addFormActionGetVar('asset_ei_screen', $active_screen, TRUE);
 				return $this->paintLayout($owner, $o, $layout);
 			}
 			// Otherwise refer to layout manager
 			if (NULL !== ($layout = $lm->getLayout($owner, $active_screen))) {
-				$o->addFormActionGetVar('asset_ei_screen', rawurlencode($active_screen), TRUE);
+				$o->addFormActionGetVar('asset_ei_screen', $active_screen, TRUE);
 				return $this->paintLayout($owner, $o, $layout);
 			}
 		}
@@ -929,7 +929,7 @@ class Asset_Edit_Interface extends MySource_Object
 		// paint the layout now, if needed
 		if ($paint_layout) {
 			if (NULL !== ($layout = $lm->getLayout($owner, $active_screen))) {
-				$o->addFormActionGetVar('asset_ei_screen', rawurlencode($active_screen), TRUE);
+				$o->addFormActionGetVar('asset_ei_screen', $active_screen, TRUE);
 				return $this->paintLayout($owner, $o, $layout);
 			}
 		}

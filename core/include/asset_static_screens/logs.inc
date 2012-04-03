@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: logs.inc,v 1.38 2012/03/29 01:05:34 akarelia Exp $
+* $Id: logs.inc,v 1.39 2012/04/03 00:57:24 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 * @author Greg Sherwood <gsherwood@squiz.net>
 * @author Marcel Wegermann	<mwegermann@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix
 */
 
@@ -255,7 +255,7 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 						?>
 
 						<?php $next_url = $selected_base_url.'&'.$prefix.'_start_at='.($start_printing_at - $num_per_page); ?>
-						 <a style="text-decoration: none;" href="<?php echo $next_url; ?>">
+					    <a style="text-decoration: none;" href="<?php echo (htmlspecialchars($next_url)); ?>">
 						<?php
 
 					} else {
@@ -277,7 +277,7 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 						?>
 
 						 <?php $next_url = $selected_base_url.'&'.$prefix.'_start_at='.($start_printing_at + $num_per_page); ?>
-						  <a style="text-decoration: none;" href="<?php echo $next_url; ?>">
+						  <a style="text-decoration: none;" href="<?php echo (htmlspecialchars($next_url)); ?>">
 						 <?php
 
 					} else {
