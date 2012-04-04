@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: assertions.inc,v 1.25 2007/10/29 05:02:44 lwright Exp $
+* $Id: assertions.inc,v 1.25.20.1 2012/04/04 02:47:13 ewang Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.25.20.1 $
 * @package MySource_Matrix
 */
 
@@ -475,7 +475,7 @@ function assert_valid_assetid($assetids, $msg='', $silent=false, $fatal=true)
 
 	if (!$valid) {
 		if (empty($msg)) {
-			$msg = translate('assert_assetid', gettype($current_id), $current_id);
+			$msg = translate('assert_assetid', gettype($current_id), htmlspecialchars($current_id));
 		}
 		trigger_exception($msg, $silent, $fatal);
 		return false;
