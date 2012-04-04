@@ -18,7 +18,7 @@
 * a URL applied to it.
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.2.1 $
 * @package MySource_Matrix
 */
 
@@ -616,14 +616,10 @@ Make sure you have all you information you need before Proceeding\n");
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL(NULL,  strip_url($new_url), TRUE, TRUE);
 		if($asset != NULL) return FALSE;
 
-		$sql_check_new_url = '(SELECT url FROM sq_ast_url WHERE url LIKE :new_url)';
-		
-		$sql_check_new_url .= ' UNION (SELECT url FROM sq_ast_lookup WHERE url LIKE :new_url)';
-		
-		$sql_check_new_url .= ' UNION (SELECT url FROM sq_ast_lookup_value WHERE url LIKE :new_url)';
+		$sql_check_new_url = 'SELECT url FROM sq_ast_url WHERE url = :new_url';
 
 		$query = MatrixDAL::preparePdoQuery($sql_check_new_url);
-		MatrixDAL::bindValueToPdo($query, 'new_url', strip_url($new_url).'%');
+		MatrixDAL::bindValueToPdo($query, 'new_url', strip_url($new_url));
 		$new_url_check = MatrixDAL::executePdoOne($query);
 		if (!empty($new_url_check)) {
 			return FALSE;
