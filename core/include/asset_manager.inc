@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.853.2.7 2012/03/19 02:16:01 mhaidar Exp $
+* $Id: asset_manager.inc,v 1.853.2.8 2012/04/05 01:16:03 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.853.2.7 $
+* @version $Revision: 1.853.2.8 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7914,34 +7914,20 @@ class Asset_Manager extends MySource_Object
 
 		}//end if empty $root_url
 
-		// the get_lineage_from_url procedure takes a url and splits it into the
-		// possible urls that we are looking for.
-		// we do this because its faster than performing a 'url LIKE l.url%'
-		$in_sql = 'sq_get_lineage_from_url(:url)';
-		$bind_vars = Array();
-
-		// if we are oracle type-cast the function result to a table
-		$db_type = MatrixDAL::getDbType();
-		if ($db_type == 'oci') {
-			$in_sql = 'SELECT * FROM table('.$in_sql.')';
-			try {
-				$in_sql = str_replace(':url', MatrixDAL::quote($url.'/'), $in_sql);
-				$result = MatrixDAL::executeSqlAssoc($in_sql, 0);
-			} catch (Exception $e) {
-				throw new Exception('Unable to get lineage for URL "'.$protocol.'://'.$url.'" due to database error: '.$e->getMessage());
-			}
-
-			if (empty($result)) return Array();
-
-			for (reset($result); NULL !== ($key = key($result)); next($result)) {
-				$result[$key] = MatrixDAL::quote($result[$key]);
-			}
-			$in_sql = implode(',', $result);
-
-		} else {
-			$in_sql = 'SELECT * FROM '.$in_sql;
-			$bind_vars['url'] = $url.'/';
+		/*
+		 * split url by slashes to form a list of lineages
+		 * site.com/a/b => ('site.com', 'site.com/a', 'site.com/a/b)
+		 */
+		$urls = Array();
+		$pos = strpos($url,"/");
+		while ($pos) {
+		    $urls[] = MatrixDAL::quote(substr($url,0,$pos));
+		    $pos = strpos($url,"/",$pos+1);
 		}
+		$urls[] = MatrixDAL::quote($url);
+		$in_sql = implode(',', $urls);
+		
+		$db_type = MatrixDAL::getDbType();
 		$where = 'l.root_urlid = '.(int)$root_url['urlid'].'
 				  AND l.url IN (
 								'.$in_sql.'
@@ -7975,9 +7961,6 @@ class Asset_Manager extends MySource_Object
 
 		try {
 			$query = MatrixDAL::preparePdoQuery($sql);
-			foreach ($bind_vars as $bind_var => $bind_value) {
-				MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
-			}
 			$result = MatrixDAL::executePdoAll($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to get lineage for URL "'.$protocol.'://'.$url.'" due to database error: '.$e->getMessage());
