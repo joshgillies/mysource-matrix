@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.869 2012/03/19 02:09:51 mhaidar Exp $
+* $Id: asset_manager.inc,v 1.870 2012/04/10 06:28:54 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.869 $
+* @version $Revision: 1.870 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1164,7 +1164,6 @@ class Asset_Manager extends MySource_Object
 	function getAsset($assetid, $type_code='', $mute_errors=FALSE)
 	{
 
-		$this->_get_asset_history[] = $assetid;
 		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 
 		// This function is supposed to take in an assetid of type int or string only, array of assetids should not be accepted.
@@ -1260,6 +1259,7 @@ class Asset_Manager extends MySource_Object
 		}//end if
 
 		if (isset($asset)) {
+			$this->_get_asset_history[] = $assetid;
 			$this->_asset_cache->add($asset, $contextid.'\\'.$asset->id);
 			
 			$deja_vu = $GLOBALS['SQ_SYSTEM']->getDejaVu();
