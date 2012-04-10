@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.261 2012/04/02 03:23:13 akarelia Exp $
+* $Id: search_page.inc,v 1.262 2012/04/10 04:14:57 mhaidar Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.261 $
+* @version $Revision: 1.262 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1083,7 +1083,7 @@ class Search_Page extends Listing_Engine
 		// But don't touch it if there was some SESSION var already set
 		$pmap = $this->getAttribute('stored_query_session');
 		$pmap_params = $pmap->getParameters();
-		if (is_array($pmap_params) && !empty($pmap_params)) {
+		if (empty($query) && is_array($pmap_params) && !empty($pmap_params)) {
 			// Check for all fields
 			if (in_array('stored_query', $pmap_params)) {
 				$key_field = array_search('stored_query', $pmap_params);
@@ -1095,11 +1095,7 @@ class Search_Page extends Listing_Engine
 				$key_field = array_search($field_name, $pmap_params);
 				$query = $pmap->getParameterValue($pmap_params[$key_field]);
 			}
-			if (!is_array($query)) $query = Array($query);
-
-			foreach ($query as $idx => $individual_query) {
-				$query[$idx] = replace_global_keywords($individual_query);
-			}
+			replace_global_keywords($query);
 		}
 
 		ob_start();
