@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_body.inc,v 1.37 2009/10/13 05:59:39 bpearson Exp $
+* $Id: design_area_body.inc,v 1.38 2012/04/10 06:30:31 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -91,7 +91,8 @@ class Design_Area_Body extends Design_Area
 				$used_asset_ids = array_unique(array_slice($GLOBALS['SQ_SYSTEM']->am->_get_asset_history, $num_previous_gets));
 				foreach ($used_asset_ids as $used_asset_id) {
 					$used_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($used_asset_id);
-					$used_asset->reload();
+					if($used_asset)
+					    $used_asset->reload();
 				}
 				$ASSET->reload();
 
@@ -112,7 +113,8 @@ class Design_Area_Body extends Design_Area
 			$used_asset_ids = array_unique(array_slice($GLOBALS['SQ_SYSTEM']->am->_get_asset_history, $num_previous_gets));
 			foreach ($used_asset_ids as $used_asset_id) {
 				$used_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($used_asset_id);
-				$used_asset->reload();
+				if($used_asset)
+				    $used_asset->reload();
 			}
 			$ASSET->reload();
 
