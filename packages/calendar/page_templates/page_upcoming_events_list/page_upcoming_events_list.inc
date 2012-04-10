@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_upcoming_events_list.inc,v 1.30.8.2 2012/01/10 04:33:23 akarelia Exp $
+* $Id: page_upcoming_events_list.inc,v 1.30.8.3 2012/04/10 05:36:11 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.30.8.2 $
+* @version $Revision: 1.30.8.3 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -422,8 +422,6 @@ class Page_Upcoming_Events_List extends Page
 
 		$recurring_event_descendants = array_merge($am->getTypeDescendants('calendar_event_recurring', TRUE), Array('calendar_event_modification'));
 
-		// Flag to know that $_REQUEST['SQ_CALENDAR_DATE'] contains current set from the main page
-		$first_current_date = TRUE;
 		foreach($events as $id => $event) {
 			$events[$id]['current_date'] = $_REQUEST['SQ_CALENDAR_DATE'];
 		}
@@ -453,10 +451,11 @@ class Page_Upcoming_Events_List extends Page
 				$current_date = $events[$shadow_id]['current_date'];
 
 				// If event recurs at current_date move to next day for correct evaluation of next recurrance date
-				if ($asset->hasOccurrenceOnDate($current_date) && !$first_current_date) {
+				if ($asset->hasOccurrenceOnDate($current_date)) {
 					$current_date = add_days_to_iso($current_date, 1);
 				}
 				$next_occurance = $asset->getFirstOccurrenceAfter($current_date);
+				if ($next_occurance === FALSE) continue; //we exceeded the stop date
 
 				foreach($events as $temp_id => $temp_event) {
 					$original_id = strtok($temp_id, ':');
@@ -465,8 +464,6 @@ class Page_Upcoming_Events_List extends Page
 						$_REQUEST['SQ_CALENDAR_DATE'] = $next_occurance;
 					}
 				}
-
-				$first_current_date = FALSE;
 
 			} else if ($asset && $asset->type() == 'calendar_event_modification') {
 
