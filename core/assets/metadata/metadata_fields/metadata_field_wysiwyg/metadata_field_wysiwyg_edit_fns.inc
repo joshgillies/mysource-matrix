@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_wysiwyg_edit_fns.inc,v 1.4 2009/10/16 01:39:28 lwright Exp $
+* $Id: metadata_field_wysiwyg_edit_fns.inc,v 1.5 2012/04/11 04:15:25 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_ATTRIBUTES_PATH.'/wysiwyg/wysiwyg.inc';
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -149,7 +149,7 @@ class Metadata_Field_WYSIWYG_Edit_Fns extends Metadata_Field_Edit_Fns
 		} else {
 			// default is not checked, so process the attribute
 			$wysiwyg = $asset->getAttribute('wysiwyg');
-			$wysiwyg->process($prefix);
+			$wysiwyg->process($prefix, NULL, FALSE);
 			if ($wysiwyg->processed) {
 				$new_value_str = Metadata_Field::encodeValueString(trim($wysiwyg->value), Array());
 				$processed = TRUE;

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.35 2011/05/09 22:23:00 akarelia Exp $
+* $Id: wysiwyg.inc,v 1.36 2012/04/11 04:15:25 mhaidar Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/wysiwyg/wysiwyg.inc';
 *    <wysiwyg style="div" width="100%" height="300" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -211,16 +211,18 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 	/**
 	* Process the interface for filling in a value
 	*
-	* @param string	prefix	prefix for the form elements
+	* @param string		$prefix			prefix for the form elements
+	* @param int		$owner_id		id of the asset such as standard page and news item which own that html content
+	* @param boolean	$cmp_value		whether to compare current value with new value	in the decision to process
 	*
 	* @access public
 	*/
-	function process($prefix, $owner_id=NULL)
+	function process($prefix, $owner_id=NULL, $cmp_value=TRUE)
 	{
 		$wysiwyg = $this->_createEditor($prefix);
 		$html = $wysiwyg->process();
 		$this->processed = FALSE;
-		if ($html !== FALSE && $html !== $this->value && $this->setValue($html, $owner_id)) {
+		if ($html !== FALSE && (!$cmp_value || $html !== $this->value) && $this->setValue($html, $owner_id)) {log_dump();
 			$this->processed = TRUE;
 		}
 
