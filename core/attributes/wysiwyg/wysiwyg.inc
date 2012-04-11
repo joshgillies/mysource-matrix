@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.36 2012/04/11 04:15:25 mhaidar Exp $
+* $Id: wysiwyg.inc,v 1.37 2012/04/11 04:17:57 mhaidar Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/wysiwyg/wysiwyg.inc';
 *    <wysiwyg style="div" width="100%" height="300" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -222,7 +222,7 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 		$wysiwyg = $this->_createEditor($prefix);
 		$html = $wysiwyg->process();
 		$this->processed = FALSE;
-		if ($html !== FALSE && (!$cmp_value || $html !== $this->value) && $this->setValue($html, $owner_id)) {log_dump();
+		if ($html !== FALSE && (!$cmp_value || $html !== $this->value) && $this->setValue($html, $owner_id)) {
 			$this->processed = TRUE;
 		}
 
