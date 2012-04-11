@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.255.4.1 2012/03/22 01:42:49 mhaidar Exp $
+* $Id: search_page.inc,v 1.255.4.2 2012/04/11 00:28:16 mhaidar Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.255.4.1 $
+* @version $Revision: 1.255.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1083,7 +1083,7 @@ class Search_Page extends Listing_Engine
 		// But don't touch it if there was some SESSION var already set
 		$pmap = $this->getAttribute('stored_query_session');
 		$pmap_params = $pmap->getParameters();
-		if (is_array($pmap_params) && !empty($pmap_params)) {
+		if (empty($query) && is_array($pmap_params) && !empty($pmap_params)) {
 			// Check for all fields
 			if (in_array('stored_query', $pmap_params)) {
 				$key_field = array_search('stored_query', $pmap_params);
