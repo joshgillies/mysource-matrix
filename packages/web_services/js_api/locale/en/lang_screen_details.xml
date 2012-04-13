@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.21 2011/08/17 01:08:10 akarelia Exp $
+* $Id: lang_screen_details.xml,v 1.22 2012/04/13 06:03:01 ewang Exp $
 *
 */
 -->
@@ -214,6 +214,14 @@
         </field>
         <field attribute="get_lineage">
             <display_name>Get Lineage</display_name>
+            <note />
+        </field>
+        <field attribute="get_lineage_from_url">
+            <display_name>Get Lineage From URL</display_name>
+            <note />
+        </field>
+        <field attribute="get_url_from_lineage">
+            <display_name>Get URL From Lineage</display_name>
             <note />
         </field>
     </section>

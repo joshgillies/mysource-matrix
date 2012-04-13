@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_enhanced_function_list.inc,v 1.14 2012/02/09 00:10:17 akarelia Exp $
+* $Id: js_api_enhanced_function_list.inc,v 1.15 2012/04/13 06:03:01 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author  Anthony Barnes <abarnes@squiz.com.au>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -452,7 +452,116 @@ class Js_Api_Enhanced_Function_List
 
 			<?php
 		}// end if(get_lineage)
+		
+		
+		if ($js_api_asset->attr('get_lineage_from_url')) {
+			?>
 
+		/**
+		* Gets a single lineage of the passed url
+		*
+		*
+		* @param object		options       JSON string of options
+		* { 
+		*      asset_url:				string		url(inclusing protocol) or the assetid of the asset
+		*      dataCallback:			function	Custom callback function
+		* }
+		*/
+		getLineageFromUrl: function(options)
+		{
+			var fnName = 'getLineageFromUrl';
+			if (arguments.length === 0) {
+				return {
+					// Set the default values
+					defaults: {
+						asset_url: 	           '',
+						dataCallback:          function(){}
+					},
+
+					// Set the required arguments
+					required: ['asset_url']
+				};
+			}// end if
+
+			// Extract some configuration and use it to build
+			// parameters for the post call
+			var fnConfig = this[fnName].call(this);
+			options = this._options(fnConfig.required,fnConfig.defaults,options);
+
+			// Encode the url
+			options.asset_url = encodeURI(options.asset_url);
+
+			this._doPost(fnName,[
+				['asset_url', options.asset_url]
+			],options);
+
+		},// end getLineageFromUrl
+
+			<?php
+		}// end if(get_lineage_from_url)
+		
+		
+		if ($js_api_asset->attr('get_url_from_lineage')) {
+			?>
+
+		/**
+		* Gets a single url based on the lineage passed (asset ids)
+		*
+		*
+		* @param object		options       JSON string of options
+		* { 
+		*      param array			lineage	asset id array to represent lineage from top to bottom
+		*      dataCallback:			function	Custom callback function
+		* }
+		*/
+		getUrlFromLineage: function(options)
+		{
+			var fnName = 'getUrlFromLineage';
+			if (arguments.length === 0) {
+				return {
+					// Set the default values
+					defaults: {
+						lineage: 	           [],
+						root_url: 	           '',
+						protocol:	           '',		
+						dataCallback:          function(){}
+					},
+
+					// Set the required arguments
+					required: ['lineage']
+				};
+			}// end if
+
+			// Extract some configuration and use it to build
+			// parameters for the post call
+			var fnConfig = this[fnName].call(this);
+			options = this._options(fnConfig.required,fnConfig.defaults,options);
+
+			// Encode the lineage
+			var lineageArray = [];
+			for (var assetid in options.lineage) {
+			    if (options.lineage[assetid].hasOwnProperty("assetid")) {
+			       lineageArray.push(options.lineage[assetid]["assetid"]);
+			    }
+			    else {
+			       lineageArray.push(options.lineage[assetid]);
+			    }
+			}
+			
+
+			this._doPost(fnName,[
+				['lineage', lineageArray.join('\\,')],
+				['root_url', options.root_url],
+				['protocol', options.protocol]
+			],options);
+
+		},// end getUrlFromLineage
+
+			<?php
+		}// end if(get_url_from_lineage)
+		
+		
+		
 		if ($js_api_asset->attr('get_attributes')) {
 			?>
 
@@ -1033,7 +1142,7 @@ class Js_Api_Enhanced_Function_List
 				['sort_order', options.sort_order],
 				['is_dependant', options.is_dependant],
 				['is_exclusive', options.is_exclusive],
-				['extra_attributes', options.extra_attributes + '&' + options.attributes]
+				['extra_attributes', options.extra_attributes + '&' + options.attributes],
 			],options);
 
 		},// end createAsset

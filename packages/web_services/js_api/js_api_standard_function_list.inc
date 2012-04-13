@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_standard_function_list.inc,v 1.11 2011/09/13 05:08:53 cupreti Exp $
+* $Id: js_api_standard_function_list.inc,v 1.12 2012/04/13 06:03:01 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1744,6 +1744,85 @@ function getLineage(asset_url, significant_link_only, dataCallback)
 			<?php
 		}//end if(get_lineage)
 
+		
+				if ($js_api_asset->attr('get_lineage_from_url')) {
+			?>
+
+/**
+* Returns an array of assets info in the order that they propagate out from the given URL.
+*
+* @param string		asset_url				the asset url we are getting lineage from
+* @param function	dataCallback			Custom callback function
+*
+* @return string
+* @access public
+*/
+function getLineageFromUrl(asset_url, dataCallback)
+{
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+	var asset_url = isset(asset_url) ? asset_url.replace(/&/g , "%26").replace(/#/g , "%23").replace(/\?/g , "%3F").replace(/\+/g , "%2B") : '';
+	var significant_link_only = isset(significant_link_only) && (significant_link_only.toString().toLowerCase() != 'null' && significant_link_only != '' ) ? significant_link_only : 1;
+
+	
+	// Build our string
+	var url = '<?php echo $api_url; ?>' + '?key=' + api_key + '&type=getLineageFromUrl&asset_url=' + asset_url;
+
+	// Make our request
+	makeRequest(url, true, dataCallback);
+
+}//end getLineageFromUrl()
+
+
+			<?php
+		}//end if(get_lineage_from_url)
+		
+		
+		if ($js_api_asset->attr('get_url_from_lineage')) {
+			?>
+
+/**
+* Given an array of asset ids in the order that they propagate out from site, it returns an array of URL(s) that matches the lineage.
+*
+* @param array	lineage				asset id array to represent lineage from top to bottom
+* @param string	root_url				optional parameter to further filter results against multiple root urls
+* @param string	protocol				optional parameter to further filter results for protocol (http, https)
+* @param function	dataCallback			Custom callback function
+*
+* @return string
+* @access public
+*/
+function getUrlFromLineage(lineage, root_url, protocol, dataCallback)
+{
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+	var lineageArray = [];
+	var root_url = isset(root_url) && ( root_url.toString().toLowerCase() != 'null' && root_url != '' ) ? encodeURI(root_url) : '';
+	var protocol = isset(protocol) && ( protocol.toString().toLowerCase() != 'null' && protocol != '' ) ? encodeURI(protocol) : '';
+	
+	for (var index in lineage) {
+	    var assetid = lineage[index];
+	    if(assetid.hasOwnProperty("assetid")) {
+		lineageArray.push(assetid["assetid"]);
+	    }
+	    else {
+		lineageArray.push(assetid);
+    	    }
+	}
+	
+	// Build our string
+	var url = '<?php echo $api_url; ?>' + '?key=' + api_key + '&type=getUrlFromLineage&lineage=' + lineageArray.join('\\,') + '&root_url=' + root_url + '&protocol=' + protocol;
+
+	// Make our request
+	makeRequest(url, true, dataCallback);
+
+}//end getUrlFromLineage()
+
+
+			<?php
+		}//end if(get_url_from_lineage)
+		
+		
 		if ($js_api_asset->attr('batch_requests')) {
 			?>
 
