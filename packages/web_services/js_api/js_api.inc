@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.106 2012/03/05 23:17:29 akarelia Exp $
+* $Id: js_api.inc,v 1.107 2012/04/13 04:56:19 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.106 $
+* @version $Revision: 1.107 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1351,10 +1351,13 @@ class JS_Api extends Page
 	*/
 	private function _releaseLock($args=Array(), $asset=NULL, $read_access=FALSE, $write_access=FALSE)
 	{
-		if ($write_access) {
-			$screen = $args['screen'];
-			$response = $this->getLocksInfo($asset->id, $screen);
+		$screen = $args['screen'];
+		$response = $this->getLocksInfo($asset->id, $screen);
 
+		// we might not have write access but this might be caused because 
+		// the status of the asset has changed (say from UC to pending approval) 
+		// but still we should be able to release locks if we hold any
+		if ($write_access || (!empty($response) && $asset->writeAccess('', Array(), FALSE))) {
 			if (empty($response)) {
 				$data[] =  'No lock are held by anyone on Asset "'.$asset->name.'" (#'.$asset->id.')';
 			} else {
