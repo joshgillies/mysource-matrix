@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.108 2012/04/13 06:03:01 ewang Exp $
+* $Id: js_api.inc,v 1.109 2012/04/16 05:10:38 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.108 $
+* @version $Revision: 1.109 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -2180,7 +2180,7 @@ class JS_Api extends Page
 		
 		$result = $GLOBALS['SQ_SYSTEM']->am->getUrlFromLineage($lineage, $root_url, $protocol);
 		
-		if (empty($result)) return Array('error' => 'No URL found for supplied lingeage');
+		if (empty($result)) return Array('error' => 'No URL found for supplied lineage');
 		
 		return $result;
 

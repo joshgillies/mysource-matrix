@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_enhanced_function_list.inc,v 1.16 2012/04/16 04:21:46 ewang Exp $
+* $Id: js_api_enhanced_function_list.inc,v 1.17 2012/04/16 05:10:38 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author  Anthony Barnes <abarnes@squiz.com.au>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -411,7 +411,7 @@ class Js_Api_Enhanced_Function_List
 		*
 		* @param object		options       JSON string of options
 		* { 
-		*      asset_url:				string		url(inclusing protocol) or the assetid of the asset
+		*      asset_url:				string		url(including protocol) or the assetid of the asset
 		*      significant_link_only:	boolean		if get to get back significant (type_1 and type_2) links only
 		*      dataCallback:			function	Custom callback function
 		* }
@@ -463,7 +463,7 @@ class Js_Api_Enhanced_Function_List
 		*
 		* @param object		options       JSON string of options
 		* { 
-		*      asset_url:				string		url(inclusing protocol) or the assetid of the asset
+		*      asset_url:				string		url(including protocol) or the assetid of the asset
 		*      dataCallback:			function	Custom callback function
 		* }
 		*/
