@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_standard_function_list.inc,v 1.12 2012/04/13 06:03:01 ewang Exp $
+* $Id: js_api_standard_function_list.inc,v 1.13 2012/04/16 04:21:46 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1796,17 +1796,16 @@ function getUrlFromLineage(lineage, root_url, protocol, dataCallback)
 {
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
-	var lineageArray = [];
 	var root_url = isset(root_url) && ( root_url.toString().toLowerCase() != 'null' && root_url != '' ) ? encodeURI(root_url) : '';
 	var protocol = isset(protocol) && ( protocol.toString().toLowerCase() != 'null' && protocol != '' ) ? encodeURI(protocol) : '';
 	
-	for (var index in lineage) {
-	    var assetid = lineage[index];
-	    if(assetid.hasOwnProperty("assetid")) {
-		lineageArray.push(assetid["assetid"]);
+	var lineageArray = [];
+	for (var i = 0, l = options.lineage.length; i<l; i+=1) {
+	    if(options.lineage[i].hasOwnProperty("assetid")) {
+		lineageArray.push(options.lineage[i]["assetid"]);
 	    }
 	    else {
-		lineageArray.push(assetid);
+		lineageArray.push(options.lineage[i]);
     	    }
 	}
 	

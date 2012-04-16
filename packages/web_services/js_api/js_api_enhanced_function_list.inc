@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_enhanced_function_list.inc,v 1.15 2012/04/13 06:03:01 ewang Exp $
+* $Id: js_api_enhanced_function_list.inc,v 1.16 2012/04/16 04:21:46 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author  Anthony Barnes <abarnes@squiz.com.au>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -539,12 +539,12 @@ class Js_Api_Enhanced_Function_List
 
 			// Encode the lineage
 			var lineageArray = [];
-			for (var assetid in options.lineage) {
-			    if (options.lineage[assetid].hasOwnProperty("assetid")) {
-			       lineageArray.push(options.lineage[assetid]["assetid"]);
+			for (var i = 0, l = options.lineage.length; i<l; i+=1) {
+			    if (options.lineage[i].hasOwnProperty("assetid")) {
+			       lineageArray.push(options.lineage[i]["assetid"]);
 			    }
 			    else {
-			       lineageArray.push(options.lineage[assetid]);
+			       lineageArray.push(options.lineage[i]);
 			    }
 			}
 			
