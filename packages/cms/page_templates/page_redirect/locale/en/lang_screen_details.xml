@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.7 2010/04/15 23:49:56 mhaidar Exp $
+* $Id: lang_screen_details.xml,v 1.8 2012/04/16 05:30:28 akarelia Exp $
 *
 */
 -->
@@ -67,11 +67,8 @@
  		</field>
 		<field attribute="timeout">
 			<display_name>Redirect Timeout</display_name>
-			<note>If this is set to greater than zero, the redirect will automatically occur only
-			after this time period (in seconds) has expired. This allows you to, for example, display
-			a message through a paint layout or design and implement a 'redirecting you in XX
-			seconds' feature. If this is set to 0 (zero, default), then it will redirect immediately. Note that this has no effect
-			when the &lt;strong&gt;New Window&lt;/strong&gt; option is turned on and a design is applied</note>
+			<note>Setting a value greater than 0 in this field will apply a timeout on the redirect page, automatically redirecting a user after the specified period of time has passed (in seconds). This will allow you to, for example, display a redirect message to users through the use of a Paint Layout. Please note that the use of a Paint Layout is required if a timeout has been configured in this field.&lt;br&gt;
+			By default, this value is set to 0 (zero), meaning that this asset will redirect immediately. This setting will have no effect if the redirect page's &lt;b&gt;New Window&lt;/b&gt; option is enabled.</note>
 		</field>
 	</section>
 	<section name="Session Variables" write_access="write:attributes" limbo_access="1">
