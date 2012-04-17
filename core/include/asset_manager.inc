@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.871 2012/04/13 05:23:46 ewang Exp $
+* $Id: asset_manager.inc,v 1.872 2012/04/17 07:02:02 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.871 $
+* @version $Revision: 1.872 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5223,7 +5223,7 @@ class Asset_Manager extends MySource_Object
 							SET
 								linkid = :linkid
 							WHERE
-								treeid LIKE :treeid_wildcard
+								treeid LIKE :treeid_found
 							AND
 								linkid = 0
 							AND NOT EXISTS(
@@ -5249,6 +5249,7 @@ class Asset_Manager extends MySource_Object
 						}
 						$bind_vars['linkid'] = -$linkid;
 						$bind_vars['treeid'] = $treeid.$free_treeid;
+						$bind_vars['treeid_found'] = $found_treeid;
 						$query = MatrixDAL::preparePdoQuery($sql);
 						foreach ($bind_vars as $bind_name => $bind_value) {
 							MatrixDAL::bindValueToPdo($query, $bind_name, $bind_value);
@@ -5263,8 +5264,29 @@ class Asset_Manager extends MySource_Object
 					// Get the number of affected rows - if the update to our
 					// link ID worked, then we've won this tree ID
 					if ($aff_rows != 0) {
-						$requires_update = TRUE;
-						break;
+						// before we declare won tree ID, we have to double check if other processes also declare won tree ID
+						// this could happen because above "UPDATE .. AND NOT EXISTS" query is not granular enough. 
+						// every concurrent processes may think others NOT EXIST, and therefore all UPDATE at the same time.
+						 $sql = 'SELECT count(1) FROM sq_ast_lnk_tree
+						     WHERE
+							(
+							    treeid LIKE :treeid_wildcard
+							    OR treeid = :treeid
+							 )
+						     AND linkid <> 0
+						     ';
+						 $bind_vars = Array();
+						 $bind_vars['treeid'] = $treeid.$free_treeid;
+						 $bind_vars['treeid_wildcard'] = $treeid.$free_treeid.':%';
+						 $query = MatrixDAL::preparePdoQuery($sql);
+						 foreach ($bind_vars as $bind_name => $bind_value) {
+							MatrixDAL::bindValueToPdo($query, $bind_name, $bind_value);
+						}
+ 						$result = MatrixDAL::executePdoOne($query);
+						if($result <=1) {
+						    $requires_update = TRUE;
+						    break;
+						}
 					}
 				}//end if
 
