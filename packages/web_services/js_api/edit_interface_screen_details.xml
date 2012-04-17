@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.20 2011/08/17 01:08:10 akarelia Exp $
+* $Id: edit_interface_screen_details.xml,v 1.20.2.1 2012/04/17 00:33:30 ewang Exp $
 *
 */
 -->
@@ -170,6 +170,12 @@
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="get_lineage">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="get_lineage_from_url">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="get_url_from_lineage">
 			<boolean true_text="yes" false_text="no" />
 		</field>
 
