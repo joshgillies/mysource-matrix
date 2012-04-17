@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.872 2012/04/17 07:02:02 ewang Exp $
+* $Id: asset_manager.inc,v 1.873 2012/04/17 23:49:48 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.872 $
+* @version $Revision: 1.873 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5223,7 +5223,7 @@ class Asset_Manager extends MySource_Object
 							SET
 								linkid = :linkid
 							WHERE
-								treeid LIKE :treeid_found
+								treeid = :treeid_found
 							AND
 								linkid = 0
 							AND NOT EXISTS(
@@ -5232,7 +5232,7 @@ class Asset_Manager extends MySource_Object
 								FROM
 									sq_ast_lnk_tree
 								WHERE
-									(treeid LIKE :treeid_wildcard_1
+									(treeid LIKE :treeid_wildcard
 								OR	treeid = :treeid)
 								AND linkid <> 0)';
 
@@ -5241,11 +5241,9 @@ class Asset_Manager extends MySource_Object
 					try {
 						$bind_vars = Array();
 						if (!$is_oci) {
-							$sql = str_replace(':treeid_wildcard_1', MatrixDAL::quote($treeid.$free_treeid.':%'), $sql);
 							$sql = str_replace(':treeid_wildcard', MatrixDAL::quote($treeid.$free_treeid.':%'), $sql);							
 						} else {
 							$bind_vars['treeid_wildcard'] = $treeid.$free_treeid.':%';
-							$bind_vars['treeid_wildcard_1'] = $treeid.$free_treeid.':%';
 						}
 						$bind_vars['linkid'] = -$linkid;
 						$bind_vars['treeid'] = $treeid.$free_treeid;
