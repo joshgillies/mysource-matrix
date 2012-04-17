@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.96.2.8 2012/03/09 01:30:38 cupreti Exp $
+* $Id: js_api.inc,v 1.96.2.9 2012/04/17 00:09:16 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.96.2.8 $
+* @version $Revision: 1.96.2.9 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -70,6 +70,8 @@ class JS_Api extends Page
 									'createFileAsset'				=> 'create_asset',
 									'setContentOfEditableFileAsset'	=> 'set_file_content',
 									'getLineage'					=> 'get_lineage',
+									'getLineageFromUrl'				=> 'get_lineage_from_url',
+									'getUrlFromLineage'				=> 'get_url_from_lineage',
 									'batchRequest'					=> 'batch_requests',
 									'cloneAsset'					=> 'clone_asset',
 									'showDifference'				=> 'show_diff',
@@ -118,6 +120,8 @@ class JS_Api extends Page
 									'getRoles'						=> Array('no_check'),
 									'executeHTMLTidy'				=> Array('no_check'),
 									'getLineage'					=> Array('no_check'),
+									'getLineageFromUrl'				=> Array('no_check'),    
+									'getUrlFromLineage'				=> Array('no_check'),    
 									'batchRequest'					=> Array('no_check'),
 								   );
 
@@ -2038,6 +2042,8 @@ class JS_Api extends Page
 					);
 		}
 		
+		if(!$asset->readAccess()) return Array('error' => 'You do not have permissions to access this asset');
+		
 		$raw_lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($asset->id, 0, NULL, Array('name', 'type_code'), $significant_link_only);
 		$root_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
 
@@ -2093,6 +2099,88 @@ class JS_Api extends Page
 
 	}// end _getLineage()
 
+	/**
+	* get a single lineage of the passed url
+	*
+	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param object		$asset			the asset we are executing this function on
+	* @param boolean	$read_access	read access check for the asset we 
+	*									are dealing with with respect to current user
+	* @param boolean	$write_access	write access check for the asset we 
+	*									are dealing with with respect to current user
+	*
+	* @return array
+	* @access private
+	*/
+	private function _getLineageFromUrl($args=Array(), $asset=NULL, $read_access=FALSE, $write_access=FALSE)
+	{
+		// we have the url in the args, lets get it and get the asset are dealing with
+		$url = trim(array_get_index($args, 'asset_url', ''));
+		if (empty($url)) return Array('error' => 'No URL supplied');
+
+		$url_bits = parse_url($url);
+		
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL($url_bits['scheme'], $url_bits['host'].$url_bits['path']);
+		
+		if (is_null($asset)) return Array('error' => 'URL supplied does not point to asset in Matrix');
+		
+		if(!$asset->readAccess()) return Array('error' => 'You do not have permissions to access this asset');
+		
+
+		$result_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL($url_bits['scheme'], $url_bits['host'].$url_bits['path']);
+		if(empty($result_lineage)) return Array('error' => 'No lineage found');
+		
+		return $result_lineage;
+
+	}// end _getLineageFromUrl()
+	
+	
+	
+	/**
+	* get url from passed lineage array (asset ids)
+	*
+	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param object		$asset			the asset we are executing this function on
+	* @param boolean	$read_access	read access check for the asset we 
+	*									are dealing with with respect to current user
+	* @param boolean	$write_access	write access check for the asset we 
+	*									are dealing with with respect to current user
+	*
+	* @return array
+	* @access private
+	*/
+	private function _getUrlFromLineage($args=Array(), $asset=NULL, $read_access=FALSE, $write_access=FALSE)
+	{
+
+		$lineage = trim(array_get_index($args, 'lineage', ''));
+		$root_url = trim(array_get_index($args, 'root_url', NULL));
+		$protocol = trim(array_get_index($args, 'protocol', NULL));
+	
+		if(empty($root_url)) $root_url = NULL;		
+		if (empty($lineage)) return Array('error' => 'No lineage supplied');
+		
+		$lineage = explode('\\,', $lineage);
+
+		$current_asset_id = trim(array_pop($lineage));
+		$current_asset = $this->setAsset($current_asset_id);
+		If(!$current_asset) return FALSE;
+
+		if(!$current_asset->readAccess()) return Array('error' => 'You do not have permissions to access this asset');
+		
+		$candidate_urls = $GLOBALS['SQ_SYSTEM']->am->getURLs($current_asset_id);
+		if(empty($candidate_urls)) return Array('error' => 'No URL found for current asset');
+		
+		$lineage[] = $current_asset_id;
+		
+		$result = $GLOBALS['SQ_SYSTEM']->am->getUrlFromLineage($lineage, $root_url, $protocol);
+		
+		if (empty($result)) return Array('error' => 'No URL found for supplied lineage');
+		
+		return $result;
+
+	}// end _getUrlFromLineage()
+	
+	
 	
 	/**
 	* clone the given asset under a new parent

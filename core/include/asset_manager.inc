@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.859.2.9 2012/04/10 06:32:33 ewang Exp $
+* $Id: asset_manager.inc,v 1.859.2.10 2012/04/17 00:08:51 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.859.2.9 $
+* @version $Revision: 1.859.2.10 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -8033,6 +8033,73 @@ class Asset_Manager extends MySource_Object
 	}//end getLineageFromURL()
 
 
+	
+	/**
+	* Given lineage of asset ids from top to bottom, this funciton will pick an URL of the bottom asset (current asset)
+	* that matches with given lineage. 
+	*
+	*
+	* @param array		$lineage		array of asset ids from top to bottom
+	* @param string		$root_url		additional root url to help filtering the results in case the root site has multiple urls
+	*
+	* @return array
+	* @access public
+	*/
+	function getUrlFromLineage($lineage = Array(), $root_url = NULL, $protocol = NULL)
+	{
+		// get the current asset's all urls
+		$current_asset_id = array_pop($lineage);
+		$candidate_urls = $this->getURLs($current_asset_id);
+		
+		// reverse traverse the lineage array to allow filtering special site urls
+		// e.g siteA has url site.com,  siteB has url site.com/B
+		// if an asset is linked to both sites and given lineage of siteA. we can inspect from bottom lineage to top,
+		// and only select the shortest matched URL, filter out rest. so it won't accidentally include siteB url in the result.
+		$lineage = array_reverse($lineage);
+		foreach ($lineage as $assetid) {
+		    $done_urls = Array();
+		    $asset_urls = $this->getURLs(trim($assetid));
+		   
+		    foreach ($candidate_urls as $candidate_url) {
+			foreach ($asset_urls as $asset_url) {
+			    if(strpos($candidate_url['url'], $asset_url['url']) === 0) {
+				// for candidate urls that matched with same asset url, we only keep the shortest
+				if(!isset($done_urls[$asset_url['url']]) || (strlen($done_urls[$asset_url['url']]['url']) > strlen($candidate_url['url'])))  {
+				    $done_urls[$asset_url['url']] = $candidate_url;
+				}
+			    }
+			}
+		    }
+		    $candidate_urls = array_values($done_urls);
+		}
+		
+		
+		$result = Array();
+		foreach ($candidate_urls as $url) {
+		    // filter out those don't match with root url
+		    if($root_url) {
+			 $root_url = preg_replace('/^http(s)?:\/\//', '', $root_url);
+			if(strpos($url['url'], $root_url) !== 0) continue;
+		    }
+		    
+		    // https and http are different urls
+		    if($url['http']) {
+			if(empty($protocol) ||  $protocol === 'http')		
+			    $result[] = 'http://' . $url['url'];
+		    }
+		    if($url['https']) {
+			if(empty($protocol) ||  $protocol === 'https')
+			    $result[] = 'https://' . $url['url'];
+		    }
+		
+		}
+
+		return $result;
+	    
+	}//end getUrlFromLineage()
+	
+	
+	
 	/**
 	* Return the design for the passed URL
 	*
