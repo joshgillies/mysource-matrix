@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_redirect.inc,v 1.41.8.2 2012/03/12 04:27:43 mhaidar Exp $
+* $Id: page_redirect.inc,v 1.41.8.3 2012/04/18 05:18:00 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.41.8.2 $
+* @version $Revision: 1.41.8.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -214,7 +214,10 @@ class Page_Redirect extends Page
 
 		$timeout = $this->attr('timeout');
 		if (($timeout > 0) || headers_sent()) {
-			parent::printFrontend();
+			if (!isset($this->_tmp['parent_already_called'])) {
+				$this->_tmp['parent_already_called'] = TRUE;
+				parent::printFrontend();
+			}
 			flush();
 			echo $this->getJavascriptRedirectKeywordReplacement();
 		}
