@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.873 2012/04/17 23:49:48 ewang Exp $
+* $Id: asset_manager.inc,v 1.874 2012/04/18 00:10:10 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.873 $
+* @version $Revision: 1.874 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5308,12 +5308,11 @@ class Asset_Manager extends MySource_Object
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 				$i++;
-			// only try to do this 50 times. this will only be exceeded if the number
-			// of concurrent requests to create a link under this branch exceeds about 100,
-			// so its very unlikely that this will occur
-			} while ($i < 50);
+			// only try to do this 200 times. more tries, better chance to avoid concurrency deadlock. 
+			// but too many tries could freeze the process by exceeding max execution time
+			} while ($i < 200);
 
-			if ($i >= 50) {
+			if ($i >= 200) {
 				trigger_localised_error('SYS0310', E_USER_ERROR);
 			}
 
