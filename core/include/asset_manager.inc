@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.853.2.10 2012/04/17 00:33:14 ewang Exp $
+* $Id: asset_manager.inc,v 1.853.2.11 2012/04/18 01:49:39 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.853.2.10 $
+* @version $Revision: 1.853.2.11 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5224,7 +5224,7 @@ class Asset_Manager extends MySource_Object
 							SET
 								linkid = :linkid
 							WHERE
-								treeid LIKE :treeid_wildcard
+								treeid = :treeid_found
 							AND
 								linkid = 0
 							AND NOT EXISTS(
@@ -5233,7 +5233,7 @@ class Asset_Manager extends MySource_Object
 								FROM
 									sq_ast_lnk_tree
 								WHERE
-									(treeid LIKE :treeid_wildcard_1
+									(treeid LIKE :treeid_wildcard
 								OR	treeid = :treeid)
 								AND linkid <> 0)';
 
@@ -5242,14 +5242,13 @@ class Asset_Manager extends MySource_Object
 					try {
 						$bind_vars = Array();
 						if (!$is_oci) {
-							$sql = str_replace(':treeid_wildcard_1', MatrixDAL::quote($treeid.$free_treeid.':%'), $sql);
 							$sql = str_replace(':treeid_wildcard', MatrixDAL::quote($treeid.$free_treeid.':%'), $sql);							
 						} else {
 							$bind_vars['treeid_wildcard'] = $treeid.$free_treeid.':%';
-							$bind_vars['treeid_wildcard_1'] = $treeid.$free_treeid.':%';
 						}
 						$bind_vars['linkid'] = -$linkid;
 						$bind_vars['treeid'] = $treeid.$free_treeid;
+						$bind_vars['treeid_found'] = $found_treeid;
 						$query = MatrixDAL::preparePdoQuery($sql);
 						foreach ($bind_vars as $bind_name => $bind_value) {
 							MatrixDAL::bindValueToPdo($query, $bind_name, $bind_value);
@@ -5264,8 +5263,33 @@ class Asset_Manager extends MySource_Object
 					// Get the number of affected rows - if the update to our
 					// link ID worked, then we've won this tree ID
 					if ($aff_rows != 0) {
-						$requires_update = TRUE;
-						break;
+						// before we declare won tree ID, we have to double check if other processes also declare won tree ID
+						// this could happen because above "UPDATE .. AND NOT EXISTS" query is not granular enough. 
+						// every concurrent processes may think others NOT EXIST, and therefore all UPDATE at the same time.
+						 $sql = 'SELECT count(1) FROM sq_ast_lnk_tree
+						     WHERE
+							(
+							    treeid LIKE :treeid_wildcard
+							    OR treeid = :treeid
+							 )
+						     AND linkid <> 0
+						     ';
+						 $bind_vars = Array();
+						 $bind_vars['treeid'] = $treeid.$free_treeid;
+						 if (!$is_oci) {
+							$sql = str_replace(':treeid_wildcard', MatrixDAL::quote($treeid.$free_treeid.':%'), $sql);							
+						  } else {
+							$bind_vars['treeid_wildcard'] = $treeid.$free_treeid.':%';
+						  }
+						 $query = MatrixDAL::preparePdoQuery($sql);
+						 foreach ($bind_vars as $bind_name => $bind_value) {
+							MatrixDAL::bindValueToPdo($query, $bind_name, $bind_value);
+						}
+ 						$result = MatrixDAL::executePdoOne($query);
+						if($result <=1) {
+						    $requires_update = TRUE;
+						    break;
+						}
 					}
 				}//end if
 
@@ -5289,12 +5313,11 @@ class Asset_Manager extends MySource_Object
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 				$i++;
-			// only try to do this 50 times. this will only be exceeded if the number
-			// of concurrent requests to create a link under this branch exceeds about 100,
-			// so its very unlikely that this will occur
-			} while ($i < 50);
+			// only try to do this 200 times. more tries, better chance to avoid concurrency deadlock. 
+			// but too many tries could freeze the process by exceeding max execution time
+			} while ($i < 200);
 
-			if ($i >= 50) {
+			if ($i >= 200) {
 				trigger_localised_error('SYS0310', E_USER_ERROR);
 			}
 
