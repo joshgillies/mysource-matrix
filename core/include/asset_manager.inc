@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.875 2012/04/18 01:33:49 ewang Exp $
+* $Id: asset_manager.inc,v 1.876 2012/04/18 01:44:07 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.875 $
+* @version $Revision: 1.876 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5265,17 +5265,17 @@ class Asset_Manager extends MySource_Object
 						// before we declare won tree ID, we have to double check if other processes also declare won tree ID
 						// this could happen because above "UPDATE .. AND NOT EXISTS" query is not granular enough. 
 						// every concurrent processes may think others NOT EXIST, and therefore all UPDATE at the same time.
-						 $sql = 'SELECT count(1) FROM sq_ast_lnk_tree
-						     WHERE
+						$sql = 'SELECT count(1) FROM sq_ast_lnk_tree
+						    WHERE
 							(
 							    treeid LIKE :treeid_wildcard
 							    OR treeid = :treeid
-							 )
-						     AND linkid <> 0
-						     ';
-						 $bind_vars = Array();
-						 $bind_vars['treeid'] = $treeid.$free_treeid;
-						 if (!$is_oci) {
+							)
+						    AND linkid <> 0
+						    ';
+						$bind_vars = Array();
+						$bind_vars['treeid'] = $treeid.$free_treeid;
+						if (!$is_oci) {
 							$sql = str_replace(':treeid_wildcard', MatrixDAL::quote($treeid.$free_treeid.':%'), $sql);							
 						} else {
 							$bind_vars['treeid_wildcard'] = $treeid.$free_treeid.':%';
