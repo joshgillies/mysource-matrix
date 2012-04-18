@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.874 2012/04/18 00:10:10 ewang Exp $
+* $Id: asset_manager.inc,v 1.875 2012/04/18 01:33:49 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.874 $
+* @version $Revision: 1.875 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5275,7 +5275,11 @@ class Asset_Manager extends MySource_Object
 						     ';
 						 $bind_vars = Array();
 						 $bind_vars['treeid'] = $treeid.$free_treeid;
-						 $bind_vars['treeid_wildcard'] = $treeid.$free_treeid.':%';
+						 if (!$is_oci) {
+							$sql = str_replace(':treeid_wildcard', MatrixDAL::quote($treeid.$free_treeid.':%'), $sql);							
+						} else {
+							$bind_vars['treeid_wildcard'] = $treeid.$free_treeid.':%';
+						}
 						 $query = MatrixDAL::preparePdoQuery($sql);
 						 foreach ($bind_vars as $bind_name => $bind_value) {
 							MatrixDAL::bindValueToPdo($query, $bind_name, $bind_value);
