@@ -10,6 +10,10 @@
 			<display_name>Payment Gateway</display_name>
 			<note>Select the payment gateway which you would like to use to process items after the checkout process.</note>
 		</field>
+		<field attribute="gateway_required">
+			<display_name>Gateway Required?</display_name>
+			<note>Allow Check Out page to complete order without defining the payment gateway. This will let users submit the order without having to pay.</note>
+		</field>
 	</section>
 	<section name="Quantity Tracking" write_access="write:attributes">
 		<field attribute="negative_quantity_message">

@@ -52,6 +52,12 @@ The listed numbers are the amount of products which have been ordered but which 
 														'type'		=> 'serialise',
 														'default'	=> Array(),
 													   ),
+						'gateway_required'			=> Array(
+														'added'			=> '0.3',
+														'type'			=> 'boolean',
+														'default'		=> TRUE,
+														'parameters'	=> Array('allow_empty'	=> FALSE),
+													   ),
 					  );
 
 	}//end constructor

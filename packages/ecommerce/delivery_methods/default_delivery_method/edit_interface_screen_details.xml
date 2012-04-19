@@ -8,6 +8,9 @@
 		<field attribute="payment_gateway">
 			<assetid type_codes="payment_gateway:D" />
 		</field>
+		<field attribute="gateway_required">
+			<boolean true_text="yes" false_text="no" />
+		</field>
 	</section>
 	<section name="Quantity Tracking" write_access="write:attributes">
 		<field attribute="negative_quantity_message">
