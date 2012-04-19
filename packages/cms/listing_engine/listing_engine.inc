@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.338.2.3 2012/04/11 00:28:19 mhaidar Exp $
+* $Id: listing_engine.inc,v 1.338.2.4 2012/04/19 04:58:38 akarelia Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.338.2.3 $
+* @version $Revision: 1.338.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1681,7 +1681,7 @@ class Listing_Engine extends Page
 
 				// previous page link
 				if ($result_page <= 1) {
-					$replacements['previous_page'] = $this->attr('prev_page_text');
+					$replacements['previous_page'] = $this->attr('hide_no_href_links') ? '' : $this->attr('prev_page_text');
 					$replacements['previous_page_href'] = '';
 				} else {
 					// blank out the 'result_page' query - we can understand it if it's given to us, but we don't want to give it to anyone else
@@ -1692,7 +1692,7 @@ class Listing_Engine extends Page
 
 				// next page link
 				if ($result_page >= count($chunks)) {
-					$replacements['next_page'] = $this->attr('next_page_text');
+					$replacements['next_page'] = $this->attr('hide_no_href_links') ? '' : $this->attr('next_page_text');
 					$replacements['next_page_href'] = '';
 				} else {
 					$replacements['next_page_href'] = htmlspecialchars(replace_query_string_vars(Array($asset_result_page_var => $result_page+1), NULL, NULL, TRUE));
@@ -1891,7 +1891,7 @@ class Listing_Engine extends Page
 
 				// previous page link
 				if ($result_page <= 1) {
-					$replacements['previous_page'] = $this->attr('prev_page_text');
+					$replacements['previous_page'] = $this->attr('hide_no_href_links') ? '' : $this->attr('prev_page_text');
 					$replacements['previous_page_href'] = '';
 				} else {
 					$replacements['previous_page_href'] = htmlspecialchars(replace_query_string_vars(Array($asset_result_page_var => $result_page-1), NULL, NULL, TRUE));
@@ -1900,7 +1900,7 @@ class Listing_Engine extends Page
 
 				// next page link
 				if ($result_page >= $num_pages) {
-					$replacements['next_page'] = $this->attr('next_page_text');
+					$replacements['next_page'] = $this->attr('hide_no_href_links') ? '' : $this->attr('next_page_text');
 					$replacements['next_page_href'] = '';
 				} else {
 					$replacements['next_page_href'] = htmlspecialchars(replace_query_string_vars(Array($asset_result_page_var => $result_page+1), NULL, NULL, TRUE));
@@ -4726,7 +4726,7 @@ class Listing_Engine extends Page
 		if (isset($selected[0]) && is_array($selected[0])) {
 			$selected = $selected[0];
 		}
-		
+
 		ob_start();
 			structured_drop_down($options['name'], $options['root_node'], $pass_codes, $selected, $options['width'], $options['height'], $options['max_depth'], $this->attr('check_boxes') == 2 ? TRUE : FALSE, $options['seperator'], TRUE, $options['all_text'], $this->attr('check_boxes'));
 			$replacement = ob_get_contents();

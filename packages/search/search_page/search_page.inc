@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.255.4.2 2012/04/11 00:28:16 mhaidar Exp $
+* $Id: search_page.inc,v 1.255.4.3 2012/04/19 04:54:02 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.255.4.2 $
+* @version $Revision: 1.255.4.3 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1818,7 +1818,6 @@ class Search_Page extends Listing_Engine
 
 		// get any extra keyword replacements from asset_listing
 		$parent_replaces = $this->getContentsKeywordReplacements($keywords);
-
 		foreach ($keywords as $keyword) {
 			$full_keyword = $keyword;
 			$replacement = "%$full_keyword%";
@@ -1898,7 +1897,7 @@ class Search_Page extends Listing_Engine
 
 				case 'previous_result_page_link':
 					if ($current_result_page <= 1) {
-						$replacement = $this->attr('prev_page_text');
+						$replacement = $this->attr('hide_no_href_links') ? '' : $this->attr('prev_page_text');
 						break;
 					}
 					$replacement = '<a href="'.($this->attr('submit_to_page_url') ? $this->getURL() : current_url()).'?'.htmlspecialchars('mode='.$mode.'&current_result_page='.($current_result_page - 1).'&results_per_page='.$results_per_page.$queries).'">'.$this->attr('prev_page_text').'</a>';
@@ -1906,7 +1905,7 @@ class Search_Page extends Listing_Engine
 
 				case 'next_result_page_link':
 					if ($current_result_page >= $total_pages) {
-						$replacement = $this->attr('next_page_text');
+						$replacement = $this->attr('hide_no_href_links') ? '' : $this->attr('next_page_text');
 						break;
 					}
 					$replacement = '<a href="'.($this->attr('submit_to_page_url') ? $this->getURL() : current_url()).'?'.htmlspecialchars('mode='.$mode.'&current_result_page='.($current_result_page + 1).'&results_per_page='.$results_per_page.$queries).'">'.$this->attr('next_page_text').'</a>';
@@ -2143,7 +2142,7 @@ class Search_Page extends Listing_Engine
 						if (isset($parent_replaces[$keyword])) {
 							$replacement = $parent_replaces[$keyword];
 						} else {
-							// Avoid messing with globals and other keywords in the fallback to Asset::getKeywordReplacement() by passing the full keyword.						
+							// Avoid messing with globals and other keywords in the fallback to Asset::getKeywordReplacement() by passing the full keyword.
 							$replacement = $this->getGeneralReplacement($full_keyword);
 							$apply_modifiers = FALSE;
 						}
@@ -2153,9 +2152,9 @@ class Search_Page extends Listing_Engine
 			}//end switch
 
 			if ($apply_modifiers && $replacement != "%$full_keyword%"){
-				apply_keyword_modifiers($replacement, $modifiers);	
+				apply_keyword_modifiers($replacement, $modifiers);
 			}
-			
+
 			$replaces[$full_keyword] = $replacement;
 
 		}//end foreach

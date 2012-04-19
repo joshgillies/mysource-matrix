@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.44 2011/07/11 02:06:40 cupreti Exp $
+* $Id: edit_interface_screen_details.xml,v 1.44.4.1 2012/04/19 04:58:38 akarelia Exp $
 *
 */
 -->
@@ -127,6 +127,9 @@
 		</field>
 		<field attribute="current_page_format">
 			<text width="50" />
+		</field>
+		<field attribute="hide_no_href_links">
+			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
 	<section name="Customise Bodycopies" write_access="write:links"  limbo_access="1">
