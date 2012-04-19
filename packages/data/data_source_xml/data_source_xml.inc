@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_xml.inc,v 1.27.2.1 2011/09/30 06:52:57 cupreti Exp $
+* $Id: data_source_xml.inc,v 1.27.2.2 2012/04/19 04:29:11 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once 'HTTP/Client.php';
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.27.2.1 $
+* @version $Revision: 1.27.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -322,12 +322,12 @@ class Data_Source_Xml extends Data_Source
 			$required_tags = $this->_getRequiredTags();
 			if(!empty($required_tags)) {
 				foreach($required_tags as $index => $required_tag) {
-					$pattern = '|(<'.$required_tag.')([^>]*)/>|i';
-					$replace = "<".$required_tag." $2>\n</".$required_tag.">";
+					$pattern = '|(<'.$required_tag.')([\s]+[^>]*)/>|i';
+					$replace = "<".$required_tag."$2>\n</".$required_tag.">";
 					$content = preg_replace($pattern, $replace, $content);
 
-					$pattern = '|(<'.$required_tag.')([^>].*)></'.$required_tag.'>|i';
-					$replace = "<".$required_tag." $2>\n</".$required_tag.">";
+					$pattern = '|(<'.$required_tag.')([\s]+[^>]*)></'.$required_tag.'>|i';
+					$replace = "<".$required_tag."$2>\n</".$required_tag.">";
 					$content = preg_replace($pattern, $replace, $content);
 				}
 			}
