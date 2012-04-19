@@ -10,18 +10,19 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: logs.inc,v 1.35.2.2 2012/04/03 01:35:45 ewang Exp $
+* $Id: logs.inc,v 1.35.2.3 2012/04/19 04:12:47 akarelia Exp $
 *
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 
 /**
 * Logs Static Screen Functions
 *
 * @author Greg Sherwood <gsherwood@squiz.net>
 * @author Marcel Wegermann	<mwegermann@squiz.net>
-* @version $Revision: 1.35.2.2 $
+* @version $Revision: 1.35.2.3 $
 * @package MySource_Matrix
 */
 
@@ -41,6 +42,7 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 {
 	// prefix for all the form vars
 	$prefix = $owner->getPrefix();
+	$invalid_dates = TRUE;
 
 	$log_types = include SQ_DATA_PATH.'/private/system/core/internal_message_types.inc';
 
@@ -82,6 +84,45 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 		}
 		$type_options[$type] = ucwords(str_replace(Array('.', '_'), ' ', $type));
 	}
+	$date = date('Y-m-d H:s:i', time());
+	$date = '';
+	$date_parameters = Array(
+					'min'			=> '1990-01-01 00:00:00',
+					'max'			=> '2030-12-31 23:59:59',
+					'allow_circa'	=> '0',
+					'show'			=> Array('y', 'm', 'd', 'h', 'i', 's'),
+					'null'			=> Array(),
+					'style'			=> Array(
+										'y'	=> 's',
+										'm'	=> 's',
+										'd'	=> 's',
+										'h'	=> 's',
+										'i'	=> 's',
+										's'	=> 's',
+									   ),
+				  );
+
+	// get 2 date fields for to and from fields
+	$from_field = new DateTime_Field($prefix.'_date_from', $date, $date_parameters);
+	$to_field   = new DateTime_Field($prefix.'_date_to', $date, $date_parameters);
+
+	$from_date = $to_date = '';
+
+	// get the values from the date fields but if they are left to default date then
+	// dont add the to and from dates to the query user prolly wants ALL the logs
+	if ($from_field->processField() && $from_field->value != '1990-01-01 00:00:00') {
+		$from_date = $from_field->value;
+	}
+	// this will look stupid but this is needed
+	// or else on screen reload both the date 
+	// fields will have the same date on them
+	$from_field->setValue($from_date);
+
+	if ($to_field->processField() && $to_field->value != '1990-01-01 00:00:00') {
+		$to_date = $to_field->value;
+	}
+	$to_field->setValue($to_date);
+
 
 	if (!( empty($type_options) && empty($selected_types) )) {
 
@@ -90,8 +131,22 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 		combo_box($_combo_box_name, $type_options, TRUE, $selected_types, 10);
 		echo '&nbsp;';
 
-		normal_button($prefix.'_go', translate('view'), 'this.form.submit()');
 
+		$o->closeField();
+
+		$o->openField(translate('from'));
+		$from_field->printField();
+		$o->closeField();
+
+		$o->openField(translate('to'));
+		$to_field->printField();
+		echo "<br>";
+		// okie dont let the user confuse you with wrong dates
+		if (isset($from_date) && isset($to_date) && $from_date > $to_date) {
+			echo "<font color=\"red\"><b>ERROR : 'From' date provided is later than 'To' date. </b></font><br>";
+			$invalid_dates = FALSE;
+		}
+		normal_button($prefix.'_go', translate('view'), 'this.form.submit()');
 		$o->closeField();
 	}
 
@@ -103,8 +158,8 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 
 		if (strpos($active_log_type, 'asset.linking') === 0) {
 
-			$minor_logs = $ms->getLogs($active_log_type, Array('minorid' => $owner->id));
-			$major_logs = $ms->getLogs($active_log_type, Array('majorid' => $owner->id));
+			$minor_logs = $ms->getLogs($active_log_type, Array('minorid' => $owner->id, 'from_date' => $from_date, 'to_date' => $to_date));
+			$major_logs = $ms->getLogs($active_log_type, Array('majorid' => $owner->id, 'from_date' => $from_date, 'to_date' => $to_date));
 			$logs = array_merge($minor_logs, $major_logs);
 
 		} else if (strpos($active_log_type, 'asset.workflow') === 0) {
@@ -115,23 +170,27 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 				$logs = $ms->getLogs($active_log_type, Array(
 														'assetid'	=> $owner->id,
 														'version'	=> $_REQUEST['sq_workflow_log_version'],
+														'from_date'	=> $from_date,
+														'to_date'	=> $to_date,
 													   )
 									 );
 				$user_logs = $ms->getLogs($active_log_type.'.userlog', Array(
 																		'assetid'	=> $owner->id,
 																		'version'	=> $_REQUEST['sq_workflow_log_version'],
+																		'from_date'	=> $from_date,
+																		'to_date'	=> $to_date,
 																	   )
 										  );
 			} else {
-				$logs = $ms->getLogs($active_log_type, Array('assetid' => $owner->id));
-				$user_logs = $ms->getLogs($active_log_type.'.userlog', Array('assetid' => $owner->id));
+				$logs = $ms->getLogs($active_log_type, Array('assetid' => $owner->id, 'from_date' => $from_date, 'to_date' => $to_date));
+				$user_logs = $ms->getLogs($active_log_type.'.userlog', Array('assetid' => $owner->id, 'from_date' => $from_date, 'to_date' => $to_date));
 			}
 
 			$logs = array_merge($logs, $user_logs);
 
 		} else {
 
-			$logs = $ms->getLogs($active_log_type, Array('assetid' => $owner->id));
+			$logs = $ms->getLogs($active_log_type, Array('assetid' => $owner->id, 'from_date' => $from_date, 'to_date' => $to_date));
 
 		}//end if ($active_log_type)
 
@@ -145,8 +204,10 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 		$selected_base_url = replace_query_string_vars(Array($_combo_box_name.'[]' => NULL, $owner->type().'_'.$owner->id.'_start_at' => NULL,));
 		$selected_base_url .= '&'.$_combo_box_name.'[]='.implode('&'.$_combo_box_name.'[]=', $selected_types);
 	}
-	
-	if (empty($all_logs)) {
+
+	// if non of the logs are selected or if the dates
+	// were nto right dont display any logs for now
+	if (empty($all_logs) || !$invalid_dates) {
 		$o->openRaw();
 			if (!( empty($type_options) && empty($selected_base_url) )) {
 				echo '<b>'.translate('no_logged_messages', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</b>';
