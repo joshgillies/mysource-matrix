@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.93.2.12 2012/04/17 00:33:30 ewang Exp $
+* $Id: js_api.inc,v 1.93.2.13 2012/04/19 03:56:38 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.93.2.12 $
+* @version $Revision: 1.93.2.13 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1355,10 +1355,13 @@ class JS_Api extends Page
 	*/
 	private function _releaseLock($args=Array(), $asset=NULL, $read_access=FALSE, $write_access=FALSE)
 	{
-		if ($write_access) {
-			$screen = $args['screen'];
-			$response = $this->getLocksInfo($asset->id, $screen);
+		$screen = $args['screen'];
+		$response = $this->getLocksInfo($asset->id, $screen);
 
+		// we might not have write access but this might be caused because 
+		// the status of the asset has changed (say from UC to pending approval) 
+		// but still we should be able to release locks if we hold any
+		if ($write_access || (!empty($response) && $asset->writeAccess('', Array(), FALSE))) {
 			if (empty($response)) {
 				$data[] =  'No lock are held by anyone on Asset "'.$asset->name.'" (#'.$asset->id.')';
 			} else {
@@ -2042,6 +2045,8 @@ class JS_Api extends Page
 					);
 		}
 		
+		if(!$asset->readAccess()) return Array('error' => 'You do not have permissions to access this asset');
+
 		$raw_lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($asset->id, 0, NULL, Array('name', 'type_code'), $significant_link_only);
 		$root_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
 
@@ -2097,9 +2102,7 @@ class JS_Api extends Page
 
 	}// end _getLineage()
 
-	
-	
-	
+
 	/**
 	* get a single lineage of the passed url
 	*
@@ -2180,7 +2183,6 @@ class JS_Api extends Page
 		return $result;
 
 	}// end _getUrlFromLineage()
-	
 	
 	
 	
