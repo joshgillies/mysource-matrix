@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_xml.inc,v 1.29 2011/11/07 22:49:40 csmith Exp $
+* $Id: data_source_xml.inc,v 1.29.2.1 2012/04/19 04:29:36 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.29.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -217,7 +217,7 @@ class Data_Source_Xml extends Data_Source
 	*/
 	function openFeed($url)
 	{
-		log_dump('in '.__FUNCTION__.' for url '.$url);
+	    
 		if (isset($this->_tmp['urlcontents'][$url]) === TRUE) {
 			return $this->_tmp['urlcontents'][$url];
 		}
@@ -229,7 +229,6 @@ class Data_Source_Xml extends Data_Source
 
 		$responseDetails = fetch_url($url, $options);
 
-		log_dump(print_r($responseDetails, true));
 
 		if ($responseDetails['errornumber'] != 0) {
 			trigger_localised_error('CMS0063', E_USER_WARNING, $url, $responseDetails['errorstring']);
@@ -247,7 +246,6 @@ class Data_Source_Xml extends Data_Source
 
 		$this->_tmp['urlcontents'][$url] = $response;
 
-		log_dump($response);
 		return $response;
 
 	}//end openFeed()
@@ -304,12 +302,12 @@ class Data_Source_Xml extends Data_Source
 			$required_tags = $this->_getRequiredTags();
 			if(!empty($required_tags)) {
 				foreach($required_tags as $index => $required_tag) {
-					$pattern = '|(<'.$required_tag.')([^>]*)/>|i';
-					$replace = "<".$required_tag." $2>\n</".$required_tag.">";
+					$pattern = '|(<'.$required_tag.')([\s]+[^>]*)/>|i';
+					$replace = "<".$required_tag."$2>\n</".$required_tag.">";
 					$content = preg_replace($pattern, $replace, $content);
 
-					$pattern = '|(<'.$required_tag.')([^>].*)></'.$required_tag.'>|i';
-					$replace = "<".$required_tag." $2>\n</".$required_tag.">";
+					$pattern = '|(<'.$required_tag.')([\s]+[^>]*)></'.$required_tag.'>|i';
+					$replace = "<".$required_tag."$2>\n</".$required_tag.">";
 					$content = preg_replace($pattern, $replace, $content);
 				}
 			}
