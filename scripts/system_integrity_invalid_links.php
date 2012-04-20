@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_invalid_links.php,v 1.5 2011/07/05 03:33:32 mhaidar Exp $
+* $Id: system_integrity_invalid_links.php,v 1.5.2.1 2012/04/20 03:37:39 akarelia Exp $
 *
 */
 
@@ -22,14 +22,14 @@
 *
 * @author  Nathan Callahan <ncallahan@squiz.net>
 * @author  Mohamed Haidar <mhaidar@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.2.1 $
 * @package MySource_Matrix
 */
 
 error_reporting(E_ALL);
-if (count($_SERVER['argv']) != 3 || php_sapi_name() != 'cli') {
+if (count($_SERVER['argv']) < 3 || php_sapi_name() != 'cli') {
 	echo "This script needs to be run in the following format:\n\n";
-	echo "\tphp system_integrity_invalid_links.php [SYSTEM_ROOT] [-delete|-check]\n\n";
+	echo "\tphp system_integrity_invalid_links.php [SYSTEM_ROOT] [-delete|-check] [-remove_notice_links]\n\n";
 	exit(1);
 }
 
@@ -45,6 +45,16 @@ $ACTION = ltrim($ACTION, '-');
 if (empty($ACTION) || ($ACTION != 'delete' && $ACTION != 'check')) {
 	trigger_error("No action specified", E_USER_ERROR);
 }//end if
+
+$remove_notice_links = FALSE;
+$NOTICE_ACTION = (isset($_SERVER['argv'][3])) ? $_SERVER['argv'][3] : '';
+$NOTICE_ACTION = ltrim($NOTICE_ACTION, '-');
+if ($NOTICE_ACTION == 'remove_notice_links') {
+	if ($ACTION != 'delete') trigger_error("Cannot remove notice links if the action is not '-delete'", E_USER_ERROR);
+	$remove_notice_links = TRUE;
+} else if ($NOTICE_ACTION != '') {
+	if ($ACTION == 'delete') echo "\nThird argument was mentioned but was not '-remove_notice_links'. Notice Links will not be removed\n\n";
+}
 
 // login as root user to avoid problems with safe edit assets
 $root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
@@ -102,7 +112,7 @@ $GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 foreach($links as $link) {
 
 	//the upcoming queries have been copied over from Asset_Manager::deleteAssetLinkByLink().
-	if (!($link['link_type'] & SQ_SC_LINK_SIGNIFICANT)) continue;
+	if (!($link['link_type'] & SQ_SC_LINK_SIGNIFICANT) && !$remove_notice_links) continue;
 	
 	$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 	
