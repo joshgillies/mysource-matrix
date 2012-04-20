@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.3 2011/02/21 02:28:43 cupreti Exp $
+* $Id: edit_interface_screen_details.xml,v 1.3.6.1 2012/04/20 04:57:23 akarelia Exp $
 *
 */
 -->
@@ -52,7 +52,7 @@
 			<text width="30" height="1" />
 		</field>
 	</section>
-	<section name="Security Enhancement">
+	<section name="Security Enhancement" write_access="write:attributes">
 		<field attribute="disable_keyword_replacements">
 			<boolean true_text="yes" false_text="no" />
 		</field>
