@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.74 2012/03/21 05:34:36 mhaidar Exp $
+* $Id: tables.xml,v 1.75 2012/04/20 01:02:11 ewang Exp $
 *
 */
 -->
@@ -1150,7 +1150,7 @@
 					<description />
 				</column>
 				<column name="last_started_by" allow_null="1">
-					<type>VARCHAR(15)</type>
+					<type>VARCHAR(255)</type>
 					<type_variations />
 					<default />
 					<description />
