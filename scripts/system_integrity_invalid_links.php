@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_invalid_links.php,v 1.6 2012/04/20 03:30:34 akarelia Exp $
+* $Id: system_integrity_invalid_links.php,v 1.7 2012/04/22 23:46:15 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Nathan Callahan <ncallahan@squiz.net>
 * @author  Mohamed Haidar <mhaidar@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 
@@ -63,27 +63,15 @@ if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 }
 
 $GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db');
-$sql = "SELECT * FROM sq_ast_lnk a 
-		WHERE 
-			a.minorid 
-		NOT IN 
-			( SELECT assetid FROM sq_ast ) 
-		AND 
-			a.link_type <> :link_type
-		UNION
-		SELECT * FROM sq_ast_lnk b 
-		WHERE 
-			b.majorid 
-		NOT IN 
-			( SELECT assetid FROM sq_ast ) 
-		AND 
-			b.link_type <> :link_type
-		AND
-			b.majorid <> '0'"; // Need to skip the link for the root folder.
+$sql  = "SELECT * FROM sq_ast_lnk a WHERE a.minorid NOT IN (SELECT assetid FROM sq_ast)";
+if (!$remove_notice_links && $ACTION != 'check') $sql .= " AND a.link_type <> :link_type";
+
+$sql .= " UNION SELECT * FROM sq_ast_lnk b WHERE b.majorid NOT IN (SELECT assetid FROM sq_ast) AND b.majorid <> '0'";
+if (!$remove_notice_links && $ACTION != 'check') $sql .= " AND b.link_type <> :link_type";
 
 try {
 	$query = MatrixDAL::preparePdoQuery($sql);
-	MatrixDAL::bindValueToPdo($query, 'link_type', SQ_LINK_NOTICE);
+	if (!$remove_notice_links && $ACTION != 'check') MatrixDAL::bindValueToPdo($query, 'link_type', SQ_LINK_NOTICE);
 	$links = DAL::executePdoAssoc($query);
 	$link_count = count($links);
 } catch (Exception $e) {
@@ -113,7 +101,7 @@ foreach($links as $link) {
 
 	//the upcoming queries have been copied over from Asset_Manager::deleteAssetLinkByLink().
 	if (!($link['link_type'] & SQ_SC_LINK_SIGNIFICANT) && !$remove_notice_links) continue;
-	
+
 	$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 	
 	// update the parents to tell them that they are going to be one kid less
