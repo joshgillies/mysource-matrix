@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.55 2010/06/10 06:39:43 cupreti Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.56 2012/04/23 05:34:04 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -395,13 +395,16 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 		$html = $wysiwyg->process();
 		if ($html === FALSE) return FALSE;
 
-		// grab and store the last run status of htmltidy plugin
-		// to be used when we print the corresponding status icon
-		$html_tidy =& $wysiwyg->get_plugin('html_tidy');
-		if (!is_null($html_tidy)) {
-			$asset->setAttrValue('htmltidy_status', $html_tidy->htmltidy_status);
-			$asset->setAttrValue('htmltidy_errors', $html_tidy->htmltidy_errors);
-		}//end if
+		if (!isset($_POST['ees_content_no_filter'])) {
+			// grab and store the last run status of htmltidy plugin
+			// to be used when we print the corresponding status icon
+			$html_tidy =& $wysiwyg->get_plugin('html_tidy');
+			if (!is_null($html_tidy)) {
+				$asset->setAttrValue('htmltidy_status', $html_tidy->htmltidy_status);
+				$asset->setAttrValue('htmltidy_errors', $html_tidy->htmltidy_errors);
+			}//end if
+		}
+
 		return $asset->setAttrValue('html', $html);
 
 	}//end processBackend()
