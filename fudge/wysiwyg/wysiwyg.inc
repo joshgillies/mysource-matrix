@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.94.2.1 2012/03/22 23:53:20 akarelia Exp $
+* $Id: wysiwyg.inc,v 1.94.2.2 2012/04/23 05:35:23 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.94.2.1 $
+* @version $Revision: 1.94.2.2 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -1551,10 +1551,13 @@ if (SQ_CONF_DEFAULT_CHARACTER_SET != 'utf-8') {
 		// replace out special form tags back with real form tags
 		$html = preg_replace('|<HTMLAREA_FORM ([^>]*?)>(.*?)</HTMLAREA_FORM>|is', '<FORM \\1>\\2</FORM>', $html);
 
-		for (reset($this->_loaded_plugins); NULL !== ($k = key($this->_loaded_plugins)); next($this->_loaded_plugins)) {
-			$plugin =& $this->_loaded_plugins[$k];
-			$plugin->process($html);
+		if (!isset($_POST['ees_content_no_filter'])) {
+			for (reset($this->_loaded_plugins); NULL !== ($k = key($this->_loaded_plugins)); next($this->_loaded_plugins)) {
+				$plugin =& $this->_loaded_plugins[$k];
+				$plugin->process($html);
+			}
 		}
+
 		return $html;
 
 	}//end process()
