@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: suite_manager.inc,v 1.13 2011/11/07 22:49:47 csmith Exp $
+* $Id: suite_manager.inc,v 1.13.2.1 2012/04/23 06:35:39 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.13.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage squiz_suite
 */
@@ -586,12 +586,6 @@ class Suite_Manager extends Page
 	public function printFrontend()
 	{
 		$responseContent = Array();
-
-		// Stop browsers from looking inside the looking glass.
-		if (!isset($_SERVER['HTTP_USER_AGENT']) || strpos($_SERVER['HTTP_USER_AGENT'], 'SquizSuite') !== 0) {
-			parent::printFrontend();
-			exit;
-		}//end if
 
 		// Only allow communications if live.
 		if ($this->status != SQ_STATUS_LIVE) {
