@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.173 2012/03/21 05:34:36 mhaidar Exp $
+* $Id: workflow_manager.inc,v 1.174 2012/04/23 01:58:45 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.173 $
+* @version $Revision: 1.174 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -600,12 +600,14 @@ class Workflow_Manager extends MySource_Object
 			
 			$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid, 'workflow_schema');
 			if ($schema && $schema->attr('notify_starter_on_live')){
-				if (!empty($schema_info['last_started_by']) && $GLOBALS['SQ_SYSTEM']->am->assetExists($schema_info['last_started_by'])){
-					$started_by_user = $GLOBALS['SQ_SYSTEM']->am->getAsset($schema_info['last_started_by']);
-					// see bug #4986	Simple Edit User doesnt get workflow emails initiated via EES
-					// and see simple_edit_user::canAccessBackend()
-					if ($started_by_user instanceof Simple_Edit_User) $started_by_user->_tmp['starter_of_workflow'] = TRUE;
-					$notify[] = $schema_info['last_started_by'];
+				if (!empty($schema_info['last_started_by'])){
+					$started_by_user = $GLOBALS['SQ_SYSTEM']->am->getAsset($schema_info['last_started_by'], '', TRUE);
+					if ($started_by_user){
+						// see bug #4986	Simple Edit User doesnt get workflow emails initiated via EES
+						// and see simple_edit_user::canAccessBackend()
+						if ($started_by_user instanceof Simple_Edit_User) $started_by_user->_tmp['starter_of_workflow'] = TRUE;
+						$notify[] = $schema_info['last_started_by'];
+					}
 				}
 			}
 			
@@ -1843,9 +1845,8 @@ class Workflow_Manager extends MySource_Object
 		$workflow_values = $this->getSchemaWorkflows($assetid);
 		$workflow = reset($workflow_values);
 		$started_by = $workflow['started_by'];
-		// make sure the asset has not been deleted since the start of the workflow
-		if($GLOBALS['SQ_SYSTEM']->am->assetExists($started_by)) {
-			$started_by_user = $GLOBALS['SQ_SYSTEM']->am->getAsset($started_by);
+		$started_by_user = $GLOBALS['SQ_SYSTEM']->am->getAsset($started_by, '', TRUE);
+		if ($started_by_user){
 			// see bug #4986	Simple Edit User doesnt get workflow emails initiated via EES
 			// and see simple_edit_user::canAccessBackend()
 			if ($started_by_user instanceof Simple_Edit_User) $started_by_user->_tmp['starter_of_workflow'] = TRUE;
