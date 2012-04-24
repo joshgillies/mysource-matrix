@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_management.php,v 1.2 2011/08/08 04:42:30 akarelia Exp $
+* $Id: hipo_management.php,v 1.2.4.1 2012/04/24 07:06:13 akarelia Exp $
 *
 */
 
@@ -18,18 +18,32 @@
 * Hipo Management 
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.4.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
 if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');
+
 if ((php_sapi_name() != 'cli')) {
 	trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
+}
+
+if (count($_SERVER['argv']) < 2) {
+	echo "USAGE : php hipo_management.php MATRIX_ROOT [-remove_all_jobs]\n";
+	exit();
 }
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
 if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
 	trigger_error("You need to supply the path to the System Root as the first argument\n", E_USER_ERROR);
+}
+
+$truncate_table = FALSE;
+if (isset($_SERVER['argv'][2]) && $_SERVER['argv'][2] == '-remove_all_jobs') {
+	$truncate_table = TRUE;
+} else if (isset($_SERVER['argv'][2]) && $_SERVER['argv'][2] != '-remove_all_jobs') {
+	echo "USAGE : php hipo_management.php MATRIX_ROOT [-remove_all_jobs]\n";
+	exit();
 }
 
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
@@ -65,6 +79,32 @@ try {
 }
 $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
+if ($truncate_table) {
+	echo "Found ".count($results)." jobs.";
+	if (count($results) > 0) {
+		echo "\nMake sure no HIPO jobs are running currently. Selecting 'yes' will remove those HIPO jobs too.\n";
+		echo "Are you sure you want to continue removing all HIPO jobs? (y/n)\n";
+		$wish = rtrim(fgets(STDIN, 4094));
+
+		if (strtolower($wish) == 'y') {
+			echo "Now truncating Hipo job table\t";
+			$sql = 'TRUNCATE TABLE sq_hipo_job';
+			try {
+				$ok = MatrixDAL::executeSql($sql);
+				if ($ok !== FALSE) {
+					echo "[ OK ]\n";
+				} else {
+					echo "[ FAILED ]\n";
+				}
+			}catch (Exception $e) {
+				throw new Exception('Unable to truncate table due to : '.$e->getMessage());
+			}
+		}
+	} else {
+		echo "\n";
+	}
+	exit();
+}
 // Filter out dependants
 foreach ($results as $result) {
 	$source_name = array_get_index($result, 'source_code_name', '');
