@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.859.2.11 2012/04/18 01:48:50 ewang Exp $
+* $Id: asset_manager.inc,v 1.859.2.12 2012/04/24 04:14:00 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.859.2.11 $
+* @version $Revision: 1.859.2.12 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1176,7 +1176,6 @@ class Asset_Manager extends MySource_Object
 
 		assert_valid_assetid($assetid);
 		$asset = $this->_asset_cache->get($contextid.'\\'.$assetid);
-
 		if (empty($asset)) {
 			// Try Deja vu
 			$deja_vu = $GLOBALS['SQ_SYSTEM']->getDejaVu();
@@ -2368,6 +2367,9 @@ class Asset_Manager extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
+		// if all went well then broadcast the event telling system a asset has been cloned
+		$parameter = Array();
+		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_asset_cloned', $clone, $parameter);
 		return $clone;
 
 	}//end cloneAsset()
@@ -4349,8 +4351,8 @@ class Asset_Manager extends MySource_Object
 				$USERIDS_COND = '';
 			} else {
 				$current_user = $this->getAsset($GLOBALS['SQ_SYSTEM']->user->id);
-                $userids = $current_user->getUserGroups();
-                $this->forgetAsset($current_user);
+				$userids = $current_user->getUserGroups();
+				$this->forgetAsset($current_user);
 				$userids[] = $GLOBALS['SQ_SYSTEM']->user->id;
 				$userids[] = $this->getSystemAssetid('public_user');
 				for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
@@ -6924,7 +6926,7 @@ class Asset_Manager extends MySource_Object
 		return TRUE;
 
 	}//end trashAsset()
-	
+
 
 //--        PERMISSIONS        --//
 
@@ -8121,6 +8123,7 @@ class Asset_Manager extends MySource_Object
 	    
 	}//end getUrlFromLineage()
 	
+
 	
 	
 	/**
