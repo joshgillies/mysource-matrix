@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.876 2012/04/18 01:44:07 ewang Exp $
+* $Id: asset_manager.inc,v 1.877 2012/04/24 03:39:19 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.876 $
+* @version $Revision: 1.877 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2367,6 +2367,9 @@ class Asset_Manager extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
+		// if all went well then broadcast the event telling system a asset has been cloned
+		$parameter = Array();
+		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_asset_cloned', $clone, $parameter);
 		return $clone;
 
 	}//end cloneAsset()
@@ -8809,7 +8812,7 @@ class Asset_Manager extends MySource_Object
 				$where    = $baseWhere;
 				if (empty($pathToFix) === FALSE) {
 					$where .= ' AND p.path LIKE :pathToFix';
-															
+
 					// if it's a file name, digits is added to file name part before extension
 					$extension = strrchr($pathToFix,'.');
 					if($extension === FALSE) {
