@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: suite_manager.inc,v 1.14 2012/04/23 06:34:13 akarelia Exp $
+* $Id: suite_manager.inc,v 1.15 2012/04/24 00:57:37 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage squiz_suite
 */
@@ -1592,28 +1592,6 @@ class Suite_Manager extends Page
 		return $result;
 
 	}//end parseSuiteXML()
-
-
-	/**
-	 * Parse the passed user agent string and return the system type.
-	 *
-	 * @param string $userAgentStr User agent string to parse.
-	 *
-	 * @return string
-	 * @access public
-	 */
-	public function getSystemTypeFromUserAgent($userAgentStr)
-	{
-		$matches = Array();
-		$pattern = '/'.$this->_userAgentPrefix.'([^\/]+)\/4\.0/';
-		preg_match_all($pattern, $userAgentStr, $matches);
-		if (empty($matches) === TRUE) {
-			return FALSE;
-		}
-
-		return $matches[1][0];
-
-	}//end getSystemTypeFromUserAgent()
 
 
 	/**

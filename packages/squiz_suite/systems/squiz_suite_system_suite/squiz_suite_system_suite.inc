@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: squiz_suite_system_suite.inc,v 1.10 2012/01/17 05:20:07 akarelia Exp $
+* $Id: squiz_suite_system_suite.inc,v 1.11 2012/04/24 00:57:37 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/squiz_suite/systems/squiz_suite_system/squiz_sui
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage squiz_suite
 */
@@ -98,13 +98,6 @@ class Squiz_Suite_System_Suite extends Squiz_Suite_System
 	{
 		$suite_manager = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('suite_manager');
 		try {
-			// Verify the User Agent string. Can we get the system type out of it?
-			$systemType = $suite_manager->getSystemTypeFromUserAgent($_SERVER['HTTP_USER_AGENT']);
-			if ($systemType === FALSE) {
-				$errMsg = 'User-agent string can not be parsed.';
-				throw new Exception($errMsg);
-			}
-
 			// Parse the posted XML file. Exception will be thrown in case error occurs.
 			$required = array('system_id', 'system_url', 'system_name');
 			$xml      = array_get_index($_POST, 'xml', NULL);
@@ -157,13 +150,6 @@ class Squiz_Suite_System_Suite extends Squiz_Suite_System
 	{
 		$suite_manager = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('suite_manager');
 		try {
-			// Verify the User Agent string. Can we get the system type out of it?
-			$systemType = $suite_manager->getSystemTypeFromUserAgent($_SERVER['HTTP_USER_AGENT']);
-			if ($systemType === FALSE) {
-				$errMsg = 'User-agent string can not be parsed.';
-				throw new Exception($errMsg);
-			}
-
 			$current_product = $suite_manager->getCurrentProduct();
 			if (empty($current_product) || !isset($current_product['url'])) {
 				$errMsg = 'The system is not ready to accept any connection request.';
@@ -279,13 +265,6 @@ class Squiz_Suite_System_Suite extends Squiz_Suite_System
 	{
 		$suite_manager = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('suite_manager');
 		try {
-			// Verify the User Agent string. Can we get the system type out of it?
-			$systemType = $suite_manager->getSystemTypeFromUserAgent($_SERVER['HTTP_USER_AGENT']);
-			if ($systemType === FALSE) {
-				$errMsg = 'User-agent string can not be parsed.';
-				throw new Exception($errMsg);
-			}
-
 			// Parse the posted XML file. Exception will be thrown in case error occurs.
 			$required = Array(
 							'system_id',
@@ -388,13 +367,6 @@ class Squiz_Suite_System_Suite extends Squiz_Suite_System
 	{
 		$suite_manager = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('suite_manager');
 		try {
-			// Verify the User Agent string. Can we get the system type out of it?
-			$systemType = $suite_manager->getSystemTypeFromUserAgent($_SERVER['HTTP_USER_AGENT']);
-			if ($systemType === FALSE) {
-				$errMsg = 'User-agent string can not be parsed.';
-				throw new Exception($errMsg);
-			}
-
 			// Parse the posted XML file. Exception will be thrown in case error occurs.
 			$required = Array(
 							'system_id',
@@ -466,13 +438,6 @@ class Squiz_Suite_System_Suite extends Squiz_Suite_System
 	{
 		$suite_manager = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('suite_manager');
 		try {
-			// Verify the User Agent string. Can we get the system type out of it?
-			$systemType = $suite_manager->getSystemTypeFromUserAgent($_SERVER['HTTP_USER_AGENT']);
-			if ($systemType === FALSE) {
-				$errMsg = 'User-agent string can not be parsed.';
-				throw new Exception($errMsg);
-			}
-
 			// Parse the posted XML file. Exception will be thrown in case error occurs.
 			$required = array(
 					'system_id',
@@ -549,13 +514,6 @@ class Squiz_Suite_System_Suite extends Squiz_Suite_System
 	{
 		$suite_manager = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('suite_manager');
 		try {
-			// Verify the User Agent string. Can we get the system type out of it?
-			$systemType = $suite_manager->getSystemTypeFromUserAgent($_SERVER['HTTP_USER_AGENT']);
-			if ($systemType === FALSE) {
-				$errMsg = 'User-agent string can not be parsed.';
-				throw new Exception($errMsg);
-			}
-
 			// Parse the posted XML file. Exception will be thrown in case error occurs.
 			$required = array(
 					'system_id',
