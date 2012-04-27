@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_ldap.inc,v 1.8 2012/04/27 04:14:23 cupreti Exp $
+* $Id: data_source_ldap.inc,v 1.9 2012/04/27 05:24:13 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 * 	search filter query string and populate the LDAP entries as shadow assets
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -378,7 +378,20 @@ class Data_Source_Ldap extends Data_Source
 
 		return $links;
 
-	}//end _getAllowedLinks()	
+	}//end _getAllowedLinks()
+
+
+	/**
+	* Returns name of LDAP attributes defined as binary data
+	*
+	* @return array
+	* @access public
+	*/
+	function getBinaryDataAttributes()
+	{
+		return $this->parseStringValues($this->attr('binary_attributes'));
+
+	}//end getBinaryDataAttributes()
 
 
 }//end class
