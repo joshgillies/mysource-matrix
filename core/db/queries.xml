@@ -733,33 +733,6 @@
 		</primary>
 	</query>
 
-	<query id="getSnippetOrder">
-		<primary>
-			<select>
-				<fields>
-					<field table="sq_ast_lnk" column="minorid" />
-				</fields>
-				<from>
-					<table>sq_ast_lnk</table>
-				</from>
-				<where>
-					<in table="sq_ast_lnk" column="minorid">:minorids</in>
-					<in table="sq_ast_lnk" column="majorid">:majorids</in>
-				</where>
-				<group-by>
-					<field table="sq_ast_lnk" column="majorid" />
-					<field table="sq_ast_lnk" column="sort_order" />
-					<field table="sq_ast_lnk" column="minorid" />
-				</group-by>
-				<order-by>
-					<field table="sq_ast_lnk" column="majorid" />
-					<field table="sq_ast_lnk" column="sort_order" />
-				</order-by>
-			</select>
-		</primary>
-	</query>
-
-
 	<!-- //		HIPO 	// -->
 
 	<query id="selectJobsForUser">

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.877 2012/04/24 03:39:19 akarelia Exp $
+* $Id: asset_manager.inc,v 1.878 2012/04/27 00:16:59 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.877 $
+* @version $Revision: 1.878 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1176,6 +1176,7 @@ class Asset_Manager extends MySource_Object
 
 		assert_valid_assetid($assetid);
 		$asset = $this->_asset_cache->get($contextid.'\\'.$assetid);
+
 		if (empty($asset)) {
 			// Try Deja vu
 			$deja_vu = $GLOBALS['SQ_SYSTEM']->getDejaVu();
@@ -3512,9 +3513,9 @@ class Asset_Manager extends MySource_Object
 					$from .= ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON p.assetid = a.assetid ';
 					$from .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r ON (p.userid = r.roleid AND r.assetid = a.assetid) ';
 
-                    $current_user = $this->getAsset($GLOBALS['SQ_SYSTEM']->user->id);
-                    $userids = $current_user->getUserGroups();
-                    $this->forgetAsset($current_user);
+					$current_user = $this->getAsset($GLOBALS['SQ_SYSTEM']->user->id);
+					$userids = $current_user->getUserGroups();
+					$this->forgetAsset($current_user);
 					$userids[] = (String)$GLOBALS['SQ_SYSTEM']->user->id;
 					$public_userid = (String)$this->getSystemAssetid('public_user');
 					$userids[] = $public_userid;
@@ -5283,8 +5284,8 @@ class Asset_Manager extends MySource_Object
 						} else {
 							$bind_vars['treeid_wildcard'] = $treeid.$free_treeid.':%';
 						}
-						 $query = MatrixDAL::preparePdoQuery($sql);
-						 foreach ($bind_vars as $bind_name => $bind_value) {
+						$query = MatrixDAL::preparePdoQuery($sql);
+						foreach ($bind_vars as $bind_name => $bind_value) {
 							MatrixDAL::bindValueToPdo($query, $bind_name, $bind_value);
 						}
  						$result = MatrixDAL::executePdoOne($query);
@@ -7944,7 +7945,7 @@ class Asset_Manager extends MySource_Object
 		$in_sql = implode(',', $urls);
 		
 		$db_type = MatrixDAL::getDbType();
-		
+
 		$where = 'l.root_urlid = '.(int)$root_url['urlid'].'
 				  AND l.url IN (
 								'.$in_sql.'
@@ -8057,7 +8058,6 @@ class Asset_Manager extends MySource_Object
 
 	}//end getLineageFromURL()
 
-
 	
 	/**
 	* Given lineage of asset ids from top to bottom, this funciton will pick an URL of the bottom asset (current asset)
@@ -8122,8 +8122,6 @@ class Asset_Manager extends MySource_Object
 		return $result;
 	    
 	}//end getUrlFromLineage()
-	
-		
 	
 	
 	/**
@@ -10057,16 +10055,38 @@ class Asset_Manager extends MySource_Object
 		$minorids = array_keys($containers);
 		$majorids = array_keys($parent);
 		$majorids[] = $rootid;
+
+		foreach ($minorids as $idx => $minorid) {
+			$minorids[$idx] = MatrixDAL::quote($minorid);
+		}
+
+		foreach ($majorids as $idx => $majorid) {
+			$majorids[$idx] = MatrixDAL::quote($majorid);
+		}
+
+		$snippet_sql = 'SELECT minorid FROM sq_ast_lnk';
+
+		foreach (array_chunk($minorids, 999) as $chunk) {
+			$minor_in_clauses[] = ' minorid IN ('.implode(', ', $chunk).')';
+		}
+		$snippet_sql .= ' WHERE ('.implode(' OR ', $minor_in_clauses).') AND';
+
+		foreach (array_chunk($majorids, 999) as $chunk) {
+			$major_in_clauses[] = ' majorid IN ('.implode(', ', $chunk).')';
+		}
+		$snippet_sql .= ' ('.implode(' OR ', $major_in_clauses).')';
+
+		$snippet_sql .= ' GROUP BY majorid, sort_order, minorid ORDER BY majorid, sort_order';
+
 		try {
-			$bind_vars = Array(
-							'minorids' => $minorids,
-							'majorids' => $majorids,
-						 );
-			$db_result = MatrixDAL::executeGrouped('core', 'getSnippetOrder', $bind_vars);
+			$query = MatrixDAL::preparePdoQuery($snippet_sql);
+			$db_results = MatrixDAL::executePdoAssoc($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to get snippet sort order due to database error: '.$e->getMessage());
 		}
-		$results = array_keys($db_result);
+		foreach ($db_results as $db_result) {
+			$results[] = $db_result['minorid'];
+		}
 
 		// generate list of snippet name and content
 		$keywords = Array();
