@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_record_set_edit_fns.inc,v 1.8 2009/05/08 00:38:38 hnguyen Exp $
+* $Id: data_source_record_set_edit_fns.inc,v 1.9 2012/04/27 05:21:43 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage core
 */
@@ -70,6 +70,15 @@ class Data_Source_Record_Set_Edit_Fns extends Asset_Edit_Fns
 	public function paintDetails(Data_Source_Record_Set $asset, Backend_Outputter $o, $prefix)
 	{
 		$vars = $asset->vars;
+	
+		// See if the datasource has any attributes defined as the "binary data"
+		$asset_bits = explode(':', $asset->id);
+		$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset_bits[0]);
+		$binary_attrs = $parent->getBinaryDataAttributes();
+		foreach($binary_attrs as $index => $attr) {
+			$binary_attrs[$index] = strtolower($attr);
+		}
+
 		?>
 		<b>Record Set Is: </b>
 		<table>
@@ -80,7 +89,14 @@ class Data_Source_Record_Set_Edit_Fns extends Asset_Edit_Fns
 				<?php
 				if ($key != 'shadow_asset_name') {
 					?><td><b><?php echo $key;?></b></td>
-					<td><?php echo $value;?></td>
+					<td><?php
+						// If the value is defined as "binary", do not paint it
+						if (!empty($binary_attrs) && in_array($key, $binary_attrs)) {
+							echo '{Binary data}';
+						} else {
+							echo $value;
+						}
+					?></td>
 				<?php
 				}
 				?>
