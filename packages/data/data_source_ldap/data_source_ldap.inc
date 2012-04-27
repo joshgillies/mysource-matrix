@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_ldap.inc,v 1.7 2011/06/30 04:43:20 ewang Exp $
+* $Id: data_source_ldap.inc,v 1.8 2012/04/27 04:14:23 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 * 	search filter query string and populate the LDAP entries as shadow assets
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -81,7 +81,7 @@ class Data_Source_Ldap extends Data_Source
 			return Array();
 		}		
 		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this);
-		$hash = md5($query_string.$this->attr('attributes'));
+		$hash = md5($query_string.$this->attr('attributes').';'.$this->attr('binary_attributes'));
 		// Check the local cache
 		if (!isset($this->_tmp[$hash])) {
 		
@@ -201,21 +201,15 @@ class Data_Source_Ldap extends Data_Source
 			$base_dn = $this->_ldap_dir['root_dn'];			
 			$sort_by = trim($this->attr('sort_by'));
 			
-			$required_attributes = explode(",", $this->attr('attributes'));
-			foreach($required_attributes as $index => $required_attribute) {
-				$required_attribute = trim($required_attribute);
-				if (!empty($required_attribute)) {
-					$required_attributes[$index] = trim($required_attribute);
-				} else {
-					unset($required_attributes[$index]);
-				}
-			}//end foreach
-			$required_attributes = array_values($required_attributes);
+			$required_attributes = Array();
+			if ($this->attr('attributes')) {
+				$required_attributes = $this->parseStringValues($this->attr('attributes').','.$this->attr('binary_attributes'));
+			}
 			
 			$search_result = $ldap->search($base_dn, $search_filter, empty($sort_by) ? NULL : $sort_by, TRUE, TRUE, $required_attributes);
 			
 			if (!empty($search_result)) {
-				$entries = $ldap->getEntries($search_result);						
+				$entries = $ldap->getEntries($search_result, $this->parseStringValues($this->attr('binary_attributes')));
 				
 				if (!empty($entries)) {					
 					unset($entries['count']);
@@ -247,6 +241,31 @@ class Data_Source_Ldap extends Data_Source
 		return $result;
 
 	}//end _executeQuery()
+
+
+	/**
+	 * Parse a delimiter-separated string and return the array containing the unique values.
+	 * 
+	 * @param string $str			The delimiter-separated string to parse
+	 * @param string $delimiter		The delimiter that splits the values in the string
+	 * 
+	 * @return array				Return the array containing the unique values from the parsed string
+	 * @access public
+	 */
+	function parseStringValues($str, $delimiter = ',')
+	{
+		$values = explode($delimiter, $str);
+		$new_values = Array();
+		foreach ($values as $value) {
+			$val = trim($value);
+			if (($val != '') && !in_array($val, $new_values)) {
+				$new_values[] = $val;
+			}
+		}
+		
+		return $new_values;
+		
+	}//end parseStringValues()
 
 
 	/**

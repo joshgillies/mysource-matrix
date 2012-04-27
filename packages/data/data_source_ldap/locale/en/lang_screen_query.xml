@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_query.xml,v 1.2 2011/04/13 07:01:06 cupreti Exp $
+* $Id: lang_screen_query.xml,v 1.3 2012/04/27 04:14:23 cupreti Exp $
 *
 */
 -->
@@ -28,6 +28,10 @@
 		<field attribute="attributes">
 			<display_name>Attributes To Extract</display_name>
 			<note>Enter a comma-separated list of attributes to extract from the LDAP directory</note>
+		</field>
+		<field attribute="binary_attributes">
+			<display_name>Binary Attributes To Extract</display_name>
+			<note>Enter a comma-separated list of &lt;strong&gt;binary&lt;/strong&gt; attributes to extract from the LDAP directory. &lt;em&gt;Please use these binary attributes with care as they might decrease the LDAP Data Source performance&lt;/em&gt;</note>
 		</field>
 		<field attribute="sort_by">
 			<display_name>Sort By</display_name>
