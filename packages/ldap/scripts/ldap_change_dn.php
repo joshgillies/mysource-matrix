@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_change_dn.php,v 1.15 2012/03/07 05:31:44 akarelia Exp $
+* $Id: ldap_change_dn.php,v 1.16 2012/04/30 06:26:10 akarelia Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Alter the database to reflect that the DN of a user has changed
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 * @subpackage ldap
 */
@@ -95,7 +95,6 @@ $new_dn = $bridge_id.':'.$new_dn;
 $db =& $GLOBALS['SQ_SYSTEM']->db;
 $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-
 	printActionName('Changing asset ownership');
 	// Change created ownership
 	$bind_vars = Array(
@@ -138,9 +137,23 @@ $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 	printActionStatus('OK');
 
 	printActionName('Changing shadow links');
+	// find out any links that has already be re-created..possibly from backend
+	$sql = 'SELECT majorid FROM sq_shdw_ast_lnk where minorid = '.MatrixDAL::quote($new_dn);
+	$existing_links = MatrixDAL::executeSqlAssoc($sql);
+
+	foreach ($existing_links as $index => $existing_link) {
+		$existing_links[] = $existing_links[$index]['majorid'];
+		unset($existing_links[$index]);
+	}
+
+	// update the dn here but be sure to not to try to insert
+	// duplicate entries incase the updated ldap user is already
+	// linked to target asset from backend for more info see bug
+	// 5686 LDAP update script fails if unique constraint violated
 	$sql = 'UPDATE sq_shdw_ast_lnk
 			SET minorid = '.MatrixDAL::quote($new_dn).'
-			WHERE minorid = '.MatrixDAL::quote($old_dn);
+			WHERE minorid = '.MatrixDAL::quote($old_dn).'
+			AND majorid NOT IN (SELECT s.majorid FROM sq_shdw_ast_lnk s where s.minorid = '.MatrixDAL::quote($new_dn).')';
 	$result = MatrixDAL::executeSql($sql);
 
 	MatrixDAL::executeQuery('core', 'changeShadowLinkUpdatedDateUser', $bind_vars);
@@ -233,6 +246,13 @@ $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 
+if (!empty($existing_links)) {
+	echo "Few links in sq_shdw_ast_lnk table were already updated prior to running script.\n";
+	echo "Links for old DN under following parents need to be fixed manually\n";
+	foreach ($existing_links as $index => $link) {
+		echo "$index) $link\n";
+	}
+}
 /**
 * Prints the name of the action currently being performed as a padded string
 *
