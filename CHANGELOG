@@ -1,5 +1,145 @@
 SQUIZ MATRIX CHANGELOG
 
+VERSION 4.8.2
+
+Featured Changes
+===================================
+
+
+New Asset Cloned Trigger Event [ Feature Request #5528 ]
+-----------------------------------------------------
+
+Trigger events within Squiz Matrix define the actions that a trigger is listening for before it is fired. So, for example, you can configure your triggers to fire when an asset is created in the system or when the status of an asset is changed. Once an event fires a trigger, the configured conditions are checked and, if approved, the specified actions on the trigger will be performed. 
+
+While Matrix already contains a large number of trigger events, the act of cloning an asset within the asset map was not previously broadcast as an event and could not fire a trigger.
+
+This feature introduces a new trigger event that will fire a trigger when an asset is cloned. The Asset Cloned trigger event can be selected when configuring the Details screen of a trigger.
+
+Asset Listing / Search Page: Option to Hide Unlinked Navigation Text [ Feature Request #5641 ]
+-----------------------------------------------------
+
+Squiz Matrix's Asset Listing and Search Page assets allow you to display the list of results as multiple pages of assets. When a listing or search page is configured in this manner, Next Page and Previous Page links are displayed to allow users to navigate through the returned results.
+
+Previously, both these navigation links would be displayed regardless of what page of results a user was viewing. As such, the Previous Page button would be displayed on the first page of the results as unlinked text, as would the Next Page button on the last page of results.
+
+This feature introduces a new option to hide unlinked navigation text to prevent this from occurring. This is configured via a new setting on the Details screen of the Asset Listing and Search Page assets.
+
+When this option is enabled, the Previous Page link will not appear on the first page of the results and the Next Page link will not appear on the last page of the results.
+
+By default, this field will be disabled, ensuring that existing implementations using these nest/previous links remain functional.
+
+E-Commerce Checkout Without Payment Gateway  [ Feature Request #5647 ]
+-----------------------------------------------------
+
+Squiz Matrix's E-Commerce package allows for a variety of different implementations when creating an online e-commerce store. When using the Checkout Page asset, users configure a Default Delivery Method, which is linked to a payment gateway. This allows customers to select a delivery method and provide their address and payment details.
+
+Previously, this e-commerce setup would not function without the use of a working payment gateway. This meant that customers would be required to complete the payment process to submit an order.
+
+This feature introduces the new option of allowing users to submit orders without going through the payment process. This option is set via a new field on the Details screen of the Default Delivery Method asset.
+
+The Gateway Required? field allows you to specify whether or not a payment gateway asset is required for use on the Checkout Page.
+
+When this setting is enabled (as it is by default), a payment gateway must be configured or else the customer will be presented with an error and the order will not be submitted.
+
+Disabling this setting means that customers will bypass the payment process completely and the order will be submitted directly after completing the delivery details form.
+
+This feature has been added to provide additional implementation possibilities and give users more control over their e-commerce setups.
+
+New JavaScript API Functions: getLineageFromUrl, getUrlFromLineage [ Feature Request #5665 ]
+-----------------------------------------------------
+
+Two new operations have been added to the JavaScript API's Traversing functionality.
+
+The getLineageFromUrl() operation returns the asset lineage of a specified URL. This function differs from the existing getLineage() operation by returning the specific asset lineage of a URL rather than returning all lineages of the asset.
+
+This operation take the following parameters.
+
+asset_url: the URL of the asset to get the lineage of.
+dataCallback: the custom callback function. 
+
+An example usage of this operation is as follows:
+
+Standard Mode:
+
+getLineageFromUrl("http://www.example.com/site",  customDataCallbackFunc); 
+
+Enhanced Mode:
+
+js_api.getLineageFromUrl({
+  "asset_url":"http://www.example.com/site",
+  "dataCallback":customDataCallbackFunc
+}) 
+
+The getUrlFromLineage() operation returns the URL of a specified asset lineage.
+
+This operation takes the following parameters:
+
+lineage: an array of asset IDs in lineage order, e.g. ["80", "85", "200"] or [{"assetid":"80"}, {"assetid":"85"}, {"assetid":"200"}].
+root_url: a root URL to filter the results against multiple roots (optional).
+protocol: a protocol to filter the results, e.g. http, https (optional).
+dataCallback: the custom callback function. 
+
+An example usage of this operation is as follows:
+
+Standard Mode:
+
+getUrlFromLineage(["4206", "4437"], "", "https", customDataCallbackFunc);
+
+Enhanced Mode:
+
+js_api.getUrlFromLineage({
+  "lineage":["4206", "4437"],
+  "protocol":"https",
+  "dataCallback":customDataCallbackFunc
+})
+
+
+Additional Changes and Bug Fixes
+=================================== 
+
+
+Minor Enhancements
+
+Minor Enhancement #5642: Logs Screen - Filter by Date Range.
+Minor Enhancement #5666: Create Asset Link Function Performance Enhancement.
+Minor Enhancement #5670: system_integrity_invalid_links.php Script Now Evaluates Notice Links.
+Minor Enhancement #5672: Forcibly Remove HIPO Jobs With the HIPO Management Script.
+
+Core
+
+Fixed Bug #5651: regen_metadata_schemas.php Trigger Error error.
+Fixed Bug #5652: Script to add url with add_remove_url.php incorrectly reports new URL exists.
+Fixed Bug #5659: Asset Not Found issue for preview with difference of system version and edited version.
+Fixed Bug #5660: Metadata WYSIWYG fields cannot be blanked out.
+Fixed Bug #5668: Workflow table last_started_by field too short for LDAP users.
+Fixed Bug #5680: Automatic upgrade misses rollback change.
+
+CMS
+
+Fixed Bug #5656: Redirect Page timeout causes infinite loop. 
+
+Search
+
+Fixed Bug #5648: Couple of issues with Search Page with Structured Drop Down and Stored Search. 
+
+Calendar
+
+Fixed Bug #5650: Upcoming Event List has blank instance keyword replacements for recurring events.  
+
+E-Commerce
+
+Fixed Bug #5671: Cannot change the value for Disable Keyword Replacements option on simple form.  
+
+Data
+
+Fixed Bug #5669: XML Data Source breaks Attribute Without Value.  
+
+Web Services
+
+Fixed Bug #5658: JS API releaseLocks fails when asset is Pending Approval and the user has Write Access.
+
+
+
 VERSION 4.8.1
 
 Featured Changes
