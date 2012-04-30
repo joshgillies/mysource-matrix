@@ -1,5 +1,103 @@
 SQUIZ MATRIX CHANGELOG
 
+
+VERSION 4.6.6
+
+Featured Changes
+===================================
+
+
+New JavaScript API Functions: getLineageFromUrl, getUrlFromLineage [ Feature Request #5665 ]
+-----------------------------------------------------
+
+Two new operations have been added to the JavaScript API's Traversing functionality.
+
+The getLineageFromUrl() operation returns the asset lineage of a specified URL. This function differs from the existing getLineage() operation by returning the specific asset lineage of a URL rather than returning all lineages of the asset.
+
+This operation take the following parameters.
+
+asset_url: the URL of the asset to get the lineage of.
+dataCallback: the custom callback function. 
+
+An example usage of this operation is as follows:
+
+Standard Mode:
+
+getLineageFromUrl("http://www.example.com/site",  customDataCallbackFunc); 
+
+Enhanced Mode:
+
+js_api.getLineageFromUrl({
+  "asset_url":"http://www.example.com/site",
+  "dataCallback":customDataCallbackFunc
+}) 
+
+The getUrlFromLineage() operation returns the URL of a specified asset lineage.
+
+This operation takes the following parameters:
+
+lineage: an array of asset IDs in lineage order, e.g. ["80", "85", "200"] or [{"assetid":"80"}, {"assetid":"85"}, {"assetid":"200"}].
+root_url: a root URL to filter the results against multiple roots (optional).
+protocol: a protocol to filter the results, e.g. http, https (optional).
+dataCallback: the custom callback function. 
+
+An example usage of this operation is as follows:
+
+Standard Mode:
+
+getUrlFromLineage(["4206", "4437"], "", "https", customDataCallbackFunc);
+
+Enhanced Mode:
+
+js_api.getUrlFromLineage({
+  "lineage":["4206", "4437"],
+  "protocol":"https",
+  "dataCallback":customDataCallbackFunc
+})
+
+
+Additional Changes and Bug Fixes
+=================================== 
+
+
+Minor Enhancements
+
+Minor Enhancement #5666: Create Asset Link Function Performance Enhancement.
+Minor Enhancement #5670: system_integrity_invalid_links.php Script Now Evaluates Notice Links.
+Minor Enhancement #5672: Forcibly Remove HIPO Jobs With the HIPO Management Script.
+
+Core
+
+Fixed Bug #5651: regen_metadata_schemas.php Trigger Error error.
+Fixed Bug #5659: Asset Not Found issue for preview with difference of system version and edited version.
+Fixed Bug #5660: Metadata WYSIWYG fields cannot be blanked out.
+
+CMS
+
+Fixed Bug #5656: Redirect Page timeout causes infinite loop. 
+
+Search
+
+Fixed Bug #5648: Couple of issues with Search Page with Structured Drop Down and Stored Search. 
+
+Calendar
+
+Fixed Bug #5650: Upcoming Event List has blank instance keyword replacements for recurring events.  
+
+E-Commerce
+
+Fixed Bug #5671: Cannot change the value for Disable Keyword Replacements option on simple form.  
+
+Data
+
+Fixed Bug #5669: XML Data Source breaks Attribute Without Value.  
+
+Web Services
+
+Fixed Bug #5658: JS API releaseLocks fails when asset is Pending Approval and the user has Write Access.
+
+
+
 VERSION 4.6.5
 
 Minor Enhancements and Bug Fixes
