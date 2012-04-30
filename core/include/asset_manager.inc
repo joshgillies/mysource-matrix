@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.878 2012/04/27 00:16:59 akarelia Exp $
+* $Id: asset_manager.inc,v 1.879 2012/04/30 07:02:23 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.878 $
+* @version $Revision: 1.879 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -9575,21 +9575,8 @@ class Asset_Manager extends MySource_Object
 			foreach ($treeids as $treeid) {
 				$i++;
 
-				/**
-				 * if min_height is null, that means we specified a max_height.
-				 * this will do a like search:
-				 *
-				 * $treeid like t.treeid || '%'
-				 * and length(t.treeid) >= length
-				*/
-				if (is_null($min_height)) {
-					$where_comp = ':'.$bind_prefix.'treeid_'.$i.' LIKE t.treeid || \'%\'';
-					$where_comp .= ' AND LENGTH(t.treeid) >= :'.$bind_prefix.'treeid_height_'.$i;
-					$bind_vars[$bind_prefix.'treeid_'.$i] = $treeid;
-					$bind_vars[$bind_prefix.'treeid_height_'.$i] = (strlen($treeid) - ($max_height-1) * SQ_CONF_ASSET_TREE_SIZE);
-					$where_comps[] = $where_comp;
-					continue;
-				}
+				//if min_height is null, set to 1
+				if (is_null($min_height)) $min_height = 1;
 
 				/**
 				 * if max_height is null, that means we specified a min_height
