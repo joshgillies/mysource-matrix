@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_common.inc,v 1.16 2011/07/01 09:00:21 mhaidar Exp $
+* $Id: trim_common.inc,v 1.16.2.1 2012/04/30 07:05:52 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.16.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage trim
 */
@@ -402,7 +402,6 @@ class TRIM_Common
 	public static function getURIsFromClassification($connection, $classification)
 	{
 		$results	= Array();
-		if(!preg_match('/^[a-zA-Z0-9_ ]+( - [a-zA-Z0-9_]+)*$/', $classification)) return $results;
 		
 		$specific_items = Array();
 		$specific_items['plnTitle'] = 1;
@@ -899,6 +898,10 @@ class TRIM_Common
 	public static function executeRequest($connection, $operations=Array(), $display_type='Fetch', $search_clause_xml = '', $hash_key='', &$final_file_path='')
 	{
 
+	    	    	// TRIM API call usually takes a while to search records
+			$default_socket_timeout = ini_get('default_socket_timeout');
+			ini_set('default_socket_timeout', -1);
+			
 			$Execute		= Array (
 							'req'	=> self::constructTrimRequest(),
 						 	 );
@@ -973,6 +976,7 @@ class TRIM_Common
 				}
 			}//end else if
 
+			ini_set('default_socket_timeout', $default_socket_timeout);
 	}//end execute
 
 
@@ -1134,6 +1138,11 @@ class TRIM_Common
 			return 0;
 		}//end try catch
 
+		if(isset($data->error) && !empty ($data->error)) {
+		    	trigger_error($data->error, E_USER_WARNING);
+			return 0;
+		}
+		
 		$new_record_uri	= 0;
 		if (!empty($data)) {
 			$return_xml	= new SimpleXMLElement((string) $data->ExecuteXmlResult);
