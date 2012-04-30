@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_ldap.inc,v 1.9 2012/04/27 05:24:13 cupreti Exp $
+* $Id: data_source_ldap.inc,v 1.10 2012/04/30 00:21:32 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 * 	search filter query string and populate the LDAP entries as shadow assets
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -201,10 +201,7 @@ class Data_Source_Ldap extends Data_Source
 			$base_dn = $this->_ldap_dir['root_dn'];			
 			$sort_by = trim($this->attr('sort_by'));
 			
-			$required_attributes = Array();
-			if ($this->attr('attributes')) {
-				$required_attributes = $this->parseStringValues($this->attr('attributes').','.$this->attr('binary_attributes'));
-			}
+			$required_attributes = $this->parseStringValues($this->attr('attributes').','.$this->attr('binary_attributes'));
 			
 			$search_result = $ldap->search($base_dn, $search_filter, empty($sort_by) ? NULL : $sort_by, TRUE, TRUE, $required_attributes);
 			
