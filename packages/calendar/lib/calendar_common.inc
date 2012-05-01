@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.77 2012/03/05 23:25:50 mhaidar Exp $
+* $Id: calendar_common.inc,v 1.78 2012/05/01 07:50:38 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.77 $
+* @version $Revision: 1.78 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1451,7 +1451,7 @@ class Calendar_Common
 		$start_day = $event['start_date_year'].'-'.str_pad($event['start_date_mon'],2,'0',STR_PAD_LEFT).'-'.str_pad($event['start_date_mday'],2,'0',STR_PAD_LEFT);
 		$start_time = (is_null($event['start_date_hours']) ? '00' : $event['start_date_hours']).':'.(is_null($event['start_date_minutes']) ? '00' : $event['start_date_minutes']).':00';
 		
-		// Event end time data
+		// Event end time data (first instance)
 		if (!is_null($event['end_date_year'])) {
 			$end_day = $event['end_date_year'].'-'.str_pad($event['end_date_mon'],2,'0',STR_PAD_LEFT).'-'.str_pad($event['end_date_mday'],2,'0',STR_PAD_LEFT);
 			$end_time = (is_null($event['end_date_hours']) ? '23' : $event['end_date_hours']).':'.(is_null($event['end_date_minutes']) ? '59' : $event['end_date_minutes']).':00';
@@ -1469,9 +1469,12 @@ class Calendar_Common
 		$after = $first_day;
 		$type_code = $event['type_code'];
 		$event_frequency = Calendar_Event_Recurring::getEventFrequency($event);
+
+		// Event runs untill
+		$stop_day = $event['stop_date'] == '----------'  ? $last_day : $event['stop_date'];
 		
 		do {
-			$next_occurance = Calendar_Event_Recurring::getFirstOccurrenceAfter($after, $start_day, $event['frequency'], $event['period'], $last_day);
+			$next_occurance = Calendar_Event_Recurring::getFirstOccurrenceAfter($after, $start_day, $event['frequency'], $event['period'], $stop_day);
 			if ($next_occurance > $last_day) break;
 			
 			if ($next_occurance) {
