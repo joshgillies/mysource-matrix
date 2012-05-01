@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_json_edit_fns.inc,v 1.2 2011/05/06 02:24:28 mhaidar Exp $
+* $Id: data_source_json_edit_fns.inc,v 1.2.4.1 2012/05/01 02:28:07 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Daniel Simmons <dsimmons@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -148,7 +148,7 @@ class Data_Source_Json_Edit_Fns extends Data_Source_Edit_Fns
 
 		if ($asset->writeAccess('links')) {
 			asset_finder($prefix.'_connector_node', $connector_asset_id, Array(
-				'page_rest_resource' => 'I',
+				'page_rest_resource' => 'D',
 				'page_standard' => 'I',
 				'page_asset_listing' => 'I',
 				'search_page' => 'I',
