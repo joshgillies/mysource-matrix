@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission_edit_fns.inc,v 1.33 2011/04/20 05:04:15 cupreti Exp $
+* $Id: form_submission_edit_fns.inc,v 1.33.4.1 2012/05/01 02:53:09 mhaidar Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.33.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -97,6 +97,8 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 		$is_editable_q = FALSE;
 
 		$answers = $asset->attr('attributes');
+		if (empty($answers['answers'])) return ($wa && $is_editable_q);
+
 		reset($answers['answers']);
 		$form_id = key($GLOBALS['SQ_SYSTEM']->am->getParents(key($answers['answers']), 'form', FALSE));
 		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($form_id);
@@ -236,6 +238,8 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 	function processSubmissionAnswers(&$asset, &$o, $prefix)
 	{
 		$attributes = $asset->attr('attributes');
+		if (empty($attributes['answers'])) return FALSE;
+
 		$form_id = key($GLOBALS['SQ_SYSTEM']->am->getParents(key($attributes['answers']), 'form', FALSE));
 		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($form_id);
 		$this->_tmp['question_errors'] = Array();
