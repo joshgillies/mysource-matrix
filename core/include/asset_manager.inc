@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.880 2012/05/01 01:13:41 mhaidar Exp $
+* $Id: asset_manager.inc,v 1.881 2012/05/01 01:28:32 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.880 $
+* @version $Revision: 1.881 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -9575,10 +9575,16 @@ class Asset_Manager extends MySource_Object
 			foreach ($treeids as $treeid) {
 				$i++;
 
-				//if min_height is null, set to 1
+				//if min_height is null, that means we specified a max_height
 				if (is_null($min_height)) {
-					if ($max_height < 1) return Array();
-					$min_height = 1;
+					if ($max_height < 1) {
+						// where clause that will return nothing
+						$where_comps[] = '1=0';
+						continue;
+					} else {
+						// equivalent to having specified as 1
+						$min_height = 1;
+					}
 				}
 
 				/**
