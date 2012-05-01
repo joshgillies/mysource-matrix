@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: video_file.inc,v 1.7.4.1 2012/03/19 04:57:26 akarelia Exp $
+* $Id: video_file.inc,v 1.7.4.2 2012/05/01 04:02:14 mhaidar Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author     Nicholas Hubbard <nic@zedsaid.com>
 * @author     Luke Wright <lwright@squiz.net>
-* @version    $Revision: 1.7.4.1 $
+* @version    $Revision: 1.7.4.2 $
 * @package    MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -179,7 +179,7 @@ class Video_File extends File
 			// Set our new asset object
 			$alt_assetid = $this->attr('alt_asset');
 			// Make sure we have an asset id
-			if ($alt_assetid != '' && is_numeric($alt_assetid)) {
+			if (!empty($alt_assetid) && is_numeric($alt_assetid)) {
 				$alt_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($alt_assetid);
 				$replacement = !empty($alt_asset) ? $alt_asset->getKeywordReplacement($alt_asset_key) : '';
 			} else {
