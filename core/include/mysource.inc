@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.387 2012/05/03 01:20:56 csmith Exp $
+* $Id: mysource.inc,v 1.388 2012/05/03 05:55:43 ewang Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.387 $
+* @version $Revision: 1.388 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -629,21 +629,10 @@ class MySource extends MySource_Object
 
 			if (is_null($asset)) {
 
-				$protocol = current_protocol();
-
-				// This URL is without parameters
-				$url      = strip_url(current_url(FALSE, TRUE));
-
-				// This URL is verbatim
-				$url_with_params = strip_url($_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);
-
 				$rm = $this->am->getSystemAsset('remap_manager');
-
-				// Firstly, look for an exact match in the database
-				if ($rm->loadRemapFromURL($protocol, $url_with_params)) {
-					$url = $url_with_params;
-				} else {
-					// Fall back to the URL without parameters if there is no a match
+				if(!($rm->loadRemapFromCurrentURL())) {
+					$url      = strip_url(current_url(FALSE, TRUE));
+					$protocol = current_protocol();
 
 					$remap_load = false;
 					// Only need to check this again if the url is different with params.

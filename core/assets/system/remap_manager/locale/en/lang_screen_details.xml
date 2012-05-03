@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.5 2010/09/17 05:34:38 mhaidar Exp $
+* $Id: lang_screen_details.xml,v 1.6 2012/05/03 05:57:09 ewang Exp $
 *
 */
 -->
@@ -67,6 +67,14 @@
 			<function_call>
 				<paint_function name="paintNeverDeleteRemapCheckbox" />
 				<process_function name="processNeverDeleteRemapCheckbox" />
+			</function_call>
+		</field>
+		<field>
+		    	<display_name>Preserve query string in remaps?</display_name>
+			<note>Note that you can strip querystrings per-remap by appending a trailing '?' to the end of the target URL</note>
+			<function_call>
+				<paint_function name="paintPreserveUrlParametersCheckbox" />
+				<process_function name="processPreserveUrlParametersCheckbox" />
 			</function_call>
 		</field>
 	</section>

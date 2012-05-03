@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.53 2012/05/03 03:38:47 csmith Exp $
+* $Id: remap_manager.inc,v 1.54 2012/05/03 05:57:09 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -383,6 +383,51 @@ class Remap_Manager extends Asset
 
 	}//end remapAllURLs()
 
+	/**
+	* Attempts to redirect user from current URL
+	* 
+	*
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function loadRemapFromCurrentURL()
+	{
+		$protocol = current_protocol();
+
+		// URL without parameters
+		$url      = strip_url(current_url(FALSE, TRUE));
+
+		// This URL is verbatim
+		$url_with_params = strip_url($_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);
+		
+		// Try verbatim URL first
+		if($this->loadRemapFromURL($protocol, $url_with_params))
+			return TRUE;
+
+		if(!$this->attr("preserve_url_parameters"))   {
+			// Try URL without paramters
+			return($this->loadRemapFromURL($protocol, $url));
+		}
+		else {
+			// Try URL + ?, if match is found, this URL is marked as an exception that no need of  preserving parameters
+			if($this->loadRemapFromURL($protocol, $url.'?'))
+				return TRUE;
+			
+			// Try URL, and preserve all parameters when redirecting
+			$parameters = '';
+			$pos = strpos($url_with_params, '?');
+			if($pos !== FALSE) {
+			    $parameters = substr($url_with_params, $pos + 1);
+			}
+			
+			// Try URL and preserve all paramters
+			if($this->loadRemapFromURL($protocol, $url, $parameters))
+				return TRUE;
+		}
+		
+		return FALSE;
+	}
 
 	/**
 	* Attempts to redirect a url to its remapped url
@@ -390,11 +435,12 @@ class Remap_Manager extends Asset
 	*
 	* @param string	$protocol	the protocol that the url is using
 	* @param string	$url		the url to remap from
-	*
+	* @param string	$parameters	paramters string to preserve
+	 * 
 	* @return boolean
 	* @access public
 	*/
-	public function loadRemapFromURL($protocol=NULL, $url=NULL)
+	public function loadRemapFromURL($protocol=NULL, $url=NULL, $parameters='')
 	{
 		if (is_null($protocol)) $protocol = current_protocol();
 		if (is_null($url)) {
@@ -416,6 +462,11 @@ class Remap_Manager extends Asset
 
 		// if we have a remap url, display it
 		if (!empty($remap_url)) {
+			// preserve parameters to remapped url
+			if(!empty($parameters)) {
+			    $remap_url = $remap_url.'?'.$parameters;
+			}
+			
 			header('HTTP/1.1 301 Moved Permanently');
 			$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 			// Send Cacheable Header based on cache manager default setting

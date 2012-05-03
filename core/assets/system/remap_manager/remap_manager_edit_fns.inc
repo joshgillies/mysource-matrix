@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_edit_fns.inc,v 1.43 2012/03/08 05:12:19 akarelia Exp $
+* $Id: remap_manager_edit_fns.inc,v 1.44 2012/05/03 05:57:09 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -475,7 +475,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 			check_box($prefix.'_csv_header');
 			$o->note(translate('csv_upload_header_example'));
 		$o->closeField();
-
+		
 	}//end paintAddRemapURLs()
 
 
@@ -881,6 +881,60 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 	}//end processExportEntriesToCSV()
 
 
+	/**
+	* Paints the Preserve URL Paramaters checkbox
+	*
+	* @param Remap_Manager		$asset	the asset to which we belong
+	* @param Backend_Outputter	$o	the outputter class
+	* @param string			$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function paintPreserveUrlParametersCheckbox(Remap_Manager $asset, Backend_Outputter $o, $prefix)
+	{
+			$write_access = $asset->writeAccess('attributes');
+			$preserve_url_parameters = $asset->attr('preserve_url_parameters');
+
+
+
+			// paint checkbox
+			if ($write_access) {
+					check_box($prefix.'_preserve_url_parameters', TRUE, $preserve_url_parameters);
+			} else {
+					?>
+							<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $preserve_url_parameters ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
+					<?php
+			}
+
+	
+			return $write_access;
+
+	}//end paintPreserveUrlParametersCheckbox()
+
+
+	/**
+	* Process the Preserve URL Paramaters checkbox
+	*
+	* @param Remap_Manager		$asset	the asset to which we belong
+	* @param Backend_Outputter	$o	the outputter class
+	* @param string				$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function processPreserveUrlParametersCheckbox(Remap_Manager $asset, Backend_Outputter $o, $prefix)
+	{
+			if (!$asset->writeAccess('attributes')) return FALSE;
+
+			$preserve_url_parameters = isset($_POST[$prefix.'_preserve_url_parameters']);
+			$asset->setAttrValue('preserve_url_parameters', $preserve_url_parameters);
+
+			return TRUE;
+
+	}//end processPreserveUrlParametersCheckbox()
+
+	
 }//end class
 
 ?>
