@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.54 2012/05/03 05:57:09 ewang Exp $
+* $Id: remap_manager.inc,v 1.55 2012/05/03 22:16:06 csmith Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -400,32 +400,40 @@ class Remap_Manager extends Asset
 
 		// This URL is verbatim
 		$url_with_params = strip_url($_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);
-		
+
 		// Try verbatim URL first
 		if($this->loadRemapFromURL($protocol, $url_with_params))
-			return TRUE;
+            return TRUE;
 
-		if(!$this->attr("preserve_url_parameters"))   {
+		if(!$this->attr("preserve_url_parameters")) {
+			// If the urls are the same with and without params, there's no
+			// need to check anything else.
+			if ($url === $url_with_params) {
+				return FALSE;
+			}
+
 			// Try URL without paramters
 			return($this->loadRemapFromURL($protocol, $url));
 		}
-		else {
-			// Try URL + ?, if match is found, this URL is marked as an exception that no need of  preserving parameters
-			if($this->loadRemapFromURL($protocol, $url.'?'))
-				return TRUE;
-			
-			// Try URL, and preserve all parameters when redirecting
-			$parameters = '';
-			$pos = strpos($url_with_params, '?');
-			if($pos !== FALSE) {
-			    $parameters = substr($url_with_params, $pos + 1);
-			}
-			
-			// Try URL and preserve all paramters
-			if($this->loadRemapFromURL($protocol, $url, $parameters))
-				return TRUE;
-		}
+
+		// Try URL + ?, if match is found, this URL is marked as an exception that no need of  preserving parameters
+		if($this->loadRemapFromURL($protocol, $url.'?'))
+			return TRUE;
 		
+		// Try URL, and preserve all parameters when redirecting
+		$parameters = '';
+		$pos = strpos($url_with_params, '?');
+		if($pos !== FALSE) {
+			$parameters = substr($url_with_params, $pos + 1);
+		}
+
+		// Try URL and preserve all paramters
+		if (!empty($parameters)) {
+			if($this->loadRemapFromURL($protocol, $url, $parameters)) {
+				return TRUE;
+			}
+		}
+	
 		return FALSE;
 	}
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.388 2012/05/03 05:55:43 ewang Exp $
+* $Id: mysource.inc,v 1.389 2012/05/03 22:16:06 csmith Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.388 $
+* @version $Revision: 1.389 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -618,7 +618,7 @@ class MySource extends MySource_Object
 						$asset = NULL;
 					}
 				}
-			}
+            }
 
 			if (!is_null($asset) && !$asset->effectiveUnrestricted() && $require_password_change) {
 				$page_name = '"'.$asset->name.'"';
@@ -634,56 +634,46 @@ class MySource extends MySource_Object
 					$url      = strip_url(current_url(FALSE, TRUE));
 					$protocol = current_protocol();
 
-					$remap_load = false;
-					// Only need to check this again if the url is different with params.
-					if ($url !== $url_with_params) {
-						$remap_load = $rm->loadRemapFromURL($protocol, $url);
+					// okay, the remap manager could not remap this url, so
+					// check to see if we can find a 404 page from a site matching this url
+					$root_url = $this->am->getRootURL($url);
+
+					// if we can get a site from the url,
+					// try to delegate the 404 to its not found page
+					if (!empty($root_url)) {
+						$site = $this->am->getAsset($root_url['assetid']);
+						if (!is_null($site)) {
+							$page = $site->getSpecialPage('not_found');
+							if (!is_null($page)) {
+								$this->_paintNotFoundAsset($page, $site);
+								exit(1);
+							}
+						}
 					}
 
-					if (!$remap_load) {
-						// okay, the remap manager could not remap this url, so
-						// check to see if we can find a 404 page from a site matching this url
-						$root_url = $this->am->getRootURL($url);
+					// if we can't get a site from the url, or the
+					// site does not have a 404 page, then try asking
+					// the remap manager to remap to its 404 page
+					if (!$rm->paintPageNotFoundRemap()) {
+						header('HTTP/1.0 404 Not Found');
 
-						// if we can get a site from the url,
-						// try to delegate the 404 to its not found page
-						if (!empty($root_url)) {
-							$site = $this->am->getAsset($root_url['assetid']);
-							if (!is_null($site)) {
-								$page = $site->getSpecialPage('not_found');
-								if (!is_null($page)) {
-									$this->_paintNotFoundAsset($page, $site);
-									exit(1);
-								}
-							}
-						}
+						$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+						// Send Cacheable Header based on cache manager default setting
+						if (SQ_CONF_SEND_CACHEABLE_HEADER && SQ_CONF_SEND_404_CACHEABLE_HEADER && $cm->cacheableHeadersEnabledForCurrentProtocol()) {
+							header('Pragma: cache');
 
-						// if we can't get a site from the url, or the
-						// site does not have a 404 page, then try asking
-						// the remap manager to remap to its 404 page
-						if (!$rm->paintPageNotFoundRemap()) {
-							header('HTTP/1.0 404 Not Found');
-
-							$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-							// Send Cacheable Header based on cache manager default setting
-							if (SQ_CONF_SEND_CACHEABLE_HEADER && SQ_CONF_SEND_404_CACHEABLE_HEADER && $cm->cacheableHeadersEnabledForCurrentProtocol()) {
-								header('Pragma: cache');
-
-								$browser_cache_expiry = $cm->attr('browser_cache_expiry');
-								if (empty($browser_cache_expiry)) {
-									$browser_cache_expiry = $cm->attr('expiry');
-								}
-
-								header('Cache-Control: max-age='.$browser_cache_expiry.', '.$cm->cacheControlLevel());
-								header('Expires: '.gmdate('D, d M Y H:i:s', time() + $browser_cache_expiry).' GMT');
+							$browser_cache_expiry = $cm->attr('browser_cache_expiry');
+							if (empty($browser_cache_expiry)) {
+								$browser_cache_expiry = $cm->attr('expiry');
 							}
 
-							// last resort, display little green error
-							trigger_localised_error('SYS0218', E_USER_NOTICE, $protocol.'://'.$url);
+							header('Cache-Control: max-age='.$browser_cache_expiry.', '.$cm->cacheControlLevel());
+							header('Expires: '.gmdate('D, d M Y H:i:s', time() + $browser_cache_expiry).' GMT');
 						}
 
-					}//end if !load remap
-
+						// last resort, display little green error
+						trigger_localised_error('SYS0218', E_USER_NOTICE, $protocol.'://'.$url);
+					}
 				}//end else
 
 				exit(1);
