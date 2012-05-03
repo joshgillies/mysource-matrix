@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.52 2011/11/02 22:45:21 cupreti Exp $
+* $Id: remap_manager.inc,v 1.53 2012/05/03 03:38:47 csmith Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -396,8 +396,6 @@ class Remap_Manager extends Asset
 	*/
 	public function loadRemapFromURL($protocol=NULL, $url=NULL)
 	{
-		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-
 		if (is_null($protocol)) $protocol = current_protocol();
 		if (is_null($url)) {
 			$url = strip_url(current_url(FALSE, TRUE));
@@ -406,10 +404,7 @@ class Remap_Manager extends Asset
 		$url = $protocol.'://'.$url;
 
 		try {
-			$bind_vars = Array(
-								'date_value' => ts_iso8601(time()),
-							  );
-			$time = MatrixDAL::executeOne('core', 'toDate', $bind_vars);
+			$time      = ts_iso8601(time());
 			$bind_vars = Array(
 							'url'  => $url,
 							'time' => $time,
@@ -455,8 +450,6 @@ class Remap_Manager extends Asset
 	*/
 	public function getRemapFromURL($protocol=NULL, $url=NULL)
 	{
-		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-
 		if (is_null($protocol)) $protocol = current_protocol();
 		if (is_null($url)) {
 			$url = strip_url(current_url(FALSE, TRUE));
@@ -465,10 +458,7 @@ class Remap_Manager extends Asset
 		$url = $protocol.'://'.$url;
 
 		try {
-			$bind_vars = Array(
-								'date_value' => ts_iso8601(time()),
-							  );
-			$time = MatrixDAL::executeOne('core', 'toDate', $bind_vars);
+			$time      = ts_iso8601(time());
 			$bind_vars = Array(
 							'url'  => $url,
 							'time' => $time,
@@ -485,8 +475,8 @@ class Remap_Manager extends Asset
 			$url = preg_replace($search, '', $remap_url);
 			
 			// find the final remap url recursively
-    		$final_url = $this->getRemapFromURL($protocol, $url);
-    		if ($final_url !== FALSE) $remap_url = $final_url;				
+			$final_url = $this->getRemapFromURL($protocol, $url);
+			if ($final_url !== FALSE) $remap_url = $final_url;
 			return $remap_url;
 		}
 		return FALSE;
