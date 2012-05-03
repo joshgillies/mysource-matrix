@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_simple_edit_user.inc,v 1.2 2012/05/03 01:46:14 mhaidar Exp $
+* $Id: ldap_simple_edit_user.inc,v 1.3 2012/05/03 01:55:40 mhaidar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_PACKAGES_PATH.'/ldap/ldap_user/ldap_user.inc';
 * Purpose
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -104,7 +104,8 @@ class Ldap_Simple_Edit_User extends Ldap_User
 	
 	
 	/**
-	* Because shadow user assets do not extend the Matrix Simple Edit User, is this a Shadow Simple Edit User?
+	* Because this asset does not extend the Matrix Simple Edit User, is this a Shadow Simple Edit User?
+	* This is a type check only. DO NOT use to grant access to Simple Edit mode.
 	* 
 	* @return boolean
 	* @access public
