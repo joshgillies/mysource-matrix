@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.881 2012/05/01 01:28:32 mhaidar Exp $
+* $Id: asset_manager.inc,v 1.882 2012/05/03 04:38:04 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.881 $
+* @version $Revision: 1.882 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -9582,8 +9582,13 @@ class Asset_Manager extends MySource_Object
 						$where_comps[] = '1=0';
 						continue;
 					} else {
-						// equivalent to having specified as 1
-						$min_height = 1;
+						$prefixes = Array();
+						$min_length = (strlen($treeid) - ($max_height-1) * SQ_CONF_ASSET_TREE_SIZE);
+						for ($prefix = 0; $prefix < $max_height; $prefix++) {
+							$prefixes[] = MatrixDAL::quote(substr($treeid, 0, $min_length + $prefix * SQ_CONF_ASSET_TREE_SIZE));
+						}
+						$where_comps[] = 't.treeid IN (' . implode(', ', $prefixes) . ')';
+						continue;
 					}
 				}
 
