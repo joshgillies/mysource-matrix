@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select_edit_fns.inc,v 1.15 2011/12/21 00:10:29 mhaidar Exp $
+* $Id: form_question_type_select_edit_fns.inc,v 1.15.2.1 2012/05/03 07:56:31 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question_edit_fns.inc'
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.15.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -415,11 +415,13 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 				// If the input is disabled, don't respond
 				if (input.disabled) return;
 
-				// Don't let the option list get down to a single element. Clear the field
-				// instead, but leave it as two elements
+				// Don't let the option list get down to a single options. Clear the field
+				// instead, but leave the last two options
+
 				var inputs = input.parentNode.getElementsByTagName('INPUT');
-				if (inputs.length <= 2) {
+				if (inputs.length <= 4) {
 					input.value = '';
+					input2.value = '';
 					return;
 				}
 
@@ -439,8 +441,10 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 					}
 					moveDownBut = moveDownBut.nextSibling;
 				}
-				button.parentNode.removeChild(moveDownBut);
-
+				// If its the last option, it will not have down button
+				if (moveDownBut != null) {
+					button.parentNode.removeChild(moveDownBut);
+				}
 
 				var brTag = button.nextSibling;
 				while (brTag.tagName != 'BR') {
