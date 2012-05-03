@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.343 2012/04/02 03:20:56 akarelia Exp $
+* $Id: listing_engine.inc,v 1.344 2012/05/03 00:56:49 mhaidar Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.343 $
+* @version $Revision: 1.344 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -3213,7 +3213,7 @@ class Listing_Engine extends Page
 						// nodes. If so, use the dynamic parameter as the root node; otherwise return an error.
 						$matching_root_ids = array_intersect(array_keys($dynamic_parents), $root_asset_ids);
 						if (empty($matching_root_ids)) {
-							trigger_localised_error('CMS0020', E_USER_WARNING, $dynamic_root);
+							trigger_localised_error('CMS0020', E_USER_WARNING, $dynamic_root, $this->id);
 						} else {
 							$dynamic_root_nodes[] = $dynamic_root;
 						}
