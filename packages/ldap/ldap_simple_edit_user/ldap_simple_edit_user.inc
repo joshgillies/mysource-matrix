@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_simple_edit_user.inc,v 1.1 2012/03/06 02:38:00 cupreti Exp $
+* $Id: ldap_simple_edit_user.inc,v 1.2 2012/05/03 01:46:14 mhaidar Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_PACKAGES_PATH.'/ldap/ldap_user/ldap_user.inc';
 * Purpose
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -101,6 +101,19 @@ class Ldap_Simple_Edit_User extends Ldap_User
 		return (SQ_IN_LIMBO || SQ_IN_CRON || $in_limbo || $workflow_starter);
 
 	}//end canAccessBackend()
+	
+	
+	/**
+	* Because shadow user assets do not extend the Matrix Simple Edit User, is this a Shadow Simple Edit User?
+	* 
+	* @return boolean
+	* @access public
+	*/
+	function isShadowSimpleEditUser()
+	{
+		return TRUE;
+		
+	}//end isShadowSimpleEditUser()
 
 
 }//end class
