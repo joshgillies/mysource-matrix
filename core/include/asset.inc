@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.761 2012/03/30 02:55:01 mhaidar Exp $
+* $Id: asset.inc,v 1.762 2012/05/03 04:33:18 csmith Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.761 $
+* @version $Revision: 1.762 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1474,7 +1474,7 @@ class Asset extends MySource_Object
 			$bind_vars['languages']      = $this->languages;
 			$bind_vars['charset']        = $this->charset;
 			$bind_vars['force_secure']   = $this->force_secure;
-			$bind_vars['updated']        = MatrixDAL::executeOne('core', 'toDate', Array('date_value' => ts_iso8601($updated)));
+			$bind_vars['updated']        = ts_iso8601($updated);
 			$bind_vars['updated_userid'] = $updated_userid;
 			$bind_vars['assetid']        = $this->id;
 

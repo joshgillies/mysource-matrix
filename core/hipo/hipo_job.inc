@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.105 2010/04/19 03:25:19 akarelia Exp $
+* $Id: hipo_job.inc,v 1.106 2012/05/03 04:33:18 csmith Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.105 $
+* @version $Revision: 1.106 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -497,11 +497,7 @@ class HIPO_Job extends MySource_Object
 
 		$now = time();
 
-		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-
 		try {
-			// get timestamp for db type TODO
-			$last_updated = MatrixDAL::executeOne('core', 'toDate', Array('date_value' => ts_iso8601($now)));
 			$bind_vars = Array(
 							'code_name'			=> $code_name,
 							'job_type'			=> get_class($this),
@@ -512,7 +508,7 @@ class HIPO_Job extends MySource_Object
 							'options'			=> $options,
 							'steps'				=> $steps,
 							'running_vars'		=> $vars,
-							'last_updated'		=> $last_updated,
+							'last_updated'		=> ts_iso8601($now),
 						 );
 
 			MatrixDAL::executeQuery('core', 'insertHipoJob', $bind_vars);
@@ -802,17 +798,13 @@ class HIPO_Job extends MySource_Object
 			}
 		} else {
 
-			require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-
 			try {
-				// get timestamp for db type TODO
-				$last_updated = MatrixDAL::executeOne('core', 'toDate', Array('date_value' => ts_iso8601($now)));
 				$bind_vars	= Array (
 								'hipo_vars'		=> serialize($this->_hipo_vars),
 								'options'		=> serialize($this->_options),
 								'steps'			=> serialize($this->_steps),
 								'running_vars'	=> serialize($this->_running_vars),
-								'last_updated'	=> $last_updated,
+								'last_updated'	=> ts_iso8601($now),
 								'code_name'		=> $this->code_name,
 							  );
 				MatrixDAL::executeQuery('core', 'updateHipoJobVars', $bind_vars);
@@ -878,12 +870,10 @@ class HIPO_Job extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$db = $GLOBALS['SQ_SYSTEM']->db;
 
-		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-
 		$sql = 	'UPDATE
 					sq_hipo_job
 				SET
-					last_updated	= '.db_extras_todate(MatrixDAL::getDbType(), ':new_time', FALSE).'
+					last_updated	= :new_time
 				WHERE
 					code_name	= :code_name';
 
