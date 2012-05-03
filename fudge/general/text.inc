@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.61.2.1 2012/02/15 00:00:24 cupreti Exp $
+* $Id: text.inc,v 1.61.2.2 2012/05/03 08:06:10 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.61.2.1 $
+* @version $Revision: 1.61.2.2 $
 * @package Fudge
 * @subpackage Text
 */
@@ -425,7 +425,65 @@ function apply_keyword_modifier($text, $modifier)
 			if ($GLOBALS['SQ_SYSTEM']->am->assetExists($text)) {
 				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($text);
 				if ($asset->readAccess()) {
-					return $asset->getKeywordReplacement($asset_keyword);
+					if (strpos($asset_keyword, 'asset_contents') === 0) {
+						if ($asset_keyword == 'asset_contents') {
+							// get the front end of the asset
+							$this_paint_layout = $asset->getCurrentPaintLayoutName();
+							$this_url = preg_replace('/^.+:\/\//', '', $asset->getURL());
+							$layout_id = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL($this_url, $this_paint_layout);
+							ob_start();
+								if (!$layout_id) {
+									$asset->printBodyWithPaintLayout();
+								} else {
+									$asset->printBodyWithPaintLayout($layout_id);
+								}
+								$content = ob_get_contents();
+							ob_end_clean();
+
+						} else if ($asset_keyword == 'asset_contents_raw') {
+							ob_start();
+								$asset->printBody();
+								$content = ob_get_contents();
+							ob_end_clean();
+
+						} else if (strpos($asset_keyword, 'asset_contents_paint_layout_id') === 0) {
+							$layout_id = str_replace('asset_contents_paint_layout_id_', '', $asset_keyword);
+							ob_start();
+								if (!$layout_id) {
+									$asset->printBodyWithPaintLayout();
+								} else {
+									$asset->printBodyWithPaintLayout($layout_id);
+								}
+								$content = ob_get_contents();
+							ob_end_clean();
+
+						} else if (0 === strpos ($asset_keyword, 'asset_contents_paint_layout_name')) {
+							$layout_name = str_replace('asset_contents_paint_layout_name_', '', $asset_keyword);
+							$this_url = preg_replace('/^.*:\/\//', '', $asset->getURL());
+
+							// if user has not mentioned if it is a user defined or default frontend
+							// assume it is user defined
+							if (strpos($layout_name, 'paint_layout::user::') === FALSE && strpos($layout_name, 'paint_layout::system::frontend') === FALSE) {
+								$layout_name = 'paint_layout::user::'.$layout_name;
+							}
+							$layout_id = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL($this_url, $layout_name);
+							ob_start();
+								if (!$layout_id) {
+									$asset->printBodyWithPaintLayout();
+								} else {
+									$asset->printBodyWithPaintLayout($layout_id);
+								}
+								$content = ob_get_contents();
+							ob_end_clean();
+						} else {
+							$content = '';
+						}
+
+						return $content;
+
+					} else {
+						return $asset->getKeywordReplacement($asset_keyword);
+					}
 				}
 			}
 		}
