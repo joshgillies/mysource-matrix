@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.386 2012/03/20 06:28:17 akarelia Exp $
+* $Id: mysource.inc,v 1.387 2012/05/03 01:20:56 csmith Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.386 $
+* @version $Revision: 1.387 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -627,7 +627,6 @@ class MySource extends MySource_Object
 			}
 
 
-
 			if (is_null($asset)) {
 
 				$protocol = current_protocol();
@@ -645,9 +644,14 @@ class MySource extends MySource_Object
 					$url = $url_with_params;
 				} else {
 					// Fall back to the URL without parameters if there is no a match
-					$rm = $this->am->getSystemAsset('remap_manager');
-					if (!$rm->loadRemapFromURL($protocol, $url)) {
 
+					$remap_load = false;
+					// Only need to check this again if the url is different with params.
+					if ($url !== $url_with_params) {
+						$remap_load = $rm->loadRemapFromURL($protocol, $url);
+					}
+
+					if (!$remap_load) {
 						// okay, the remap manager could not remap this url, so
 						// check to see if we can find a 404 page from a site matching this url
 						$root_url = $this->am->getRootURL($url);
@@ -699,47 +703,49 @@ class MySource extends MySource_Object
 
 			// we need to check if the asset is being requested by Funnelback for Indexing Purpose
 			// if the condition matches then we need to send few extra headers along with regular contents
-			$fbm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('funnelback_manager', TRUE);
-			if (!is_null($fbm)) {
-				$fb_user = $fbm->attr('user');
-				if ($GLOBALS['SQ_SYSTEM']->currentUserId() == $fb_user || (isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'Funnelback') !== FALSE)) {
-					$security_keys = $fbm->getAccessLocks($asset);
-					header('X-Funnelback-Locks: '.$security_keys);
+			// Check the user agent first so we don't load funnelback manager unless we really need to.
+			if (isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'Funnelback') !== FALSE) {
+				$fbm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('funnelback_manager', TRUE);
+				if (!is_null($fbm)) {
+					$fb_user = $fbm->attr('user');
+					if ($GLOBALS['SQ_SYSTEM']->currentUserId() == $fb_user) {
+						$security_keys = $fbm->getAccessLocks($asset);
+						header('X-Funnelback-Locks: '.$security_keys);
 
-					// Some definitions
-					$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+						header('X-Funnelback-SQUIZASSETYPE: '.$asset->type());
+						header('X-Funnelback-last_modified: '.date('Y-m-d', $asset->updated).'T'.date('H:i:s', $asset->updated));
+						if ($asset instanceof File) {
+							header('X-Funnelback-file-title: '.$asset->attr('title'));
+							header('X-Funnelback-file-name: '.$asset->name);
+						}
+						if ($asset->created_userid != 0) {
+							$created_by = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->created_userid);
+							header('X-Funnelback-author-name: '.$created_by->name);
+							header('X-Funnelback-author-id: '.$created_by->id);
+						}
+						header('X-Funnelback-created: '.date('Y-m-d', $asset->created).'T'.date('H:i:s', $asset->created));
+						header('X-Funnelback-ancestors: '.implode(' ', array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($asset->id))));
 
-					header('X-Funnelback-SQUIZASSETYPE: '.$asset->type());
-					header('X-Funnelback-last_modified: '.date('Y-m-d', $asset->updated).'T'.date('H:i:s', $asset->updated));
-					if ($asset instanceof File) {
-						header('X-Funnelback-file-title: '.$asset->attr('title'));
-						header('X-Funnelback-file-name: '.$asset->name);
-					}
-					if ($asset->created_userid != 0) {
-						$created_by = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->created_userid);
-						header('X-Funnelback-author-name: '.$created_by->name);
-						header('X-Funnelback-author-id: '.$created_by->id);
-					}
-					header('X-Funnelback-created: '.date('Y-m-d', $asset->created).'T'.date('H:i:s', $asset->created));
-					header('X-Funnelback-ancestors: '.implode(' ', array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($asset->id))));
-
-					// Add in the metadata
-					$metadata = $mm->getMetadata($asset->id);
-					foreach ($metadata as $info) {
-						$name = $info[0]['name'];
-
-						$value = $info[0]['value'];
+						// Add in the metadata
+						$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 						require_once SQ_FUDGE_PATH.'/general/text.inc';
-						$keywords = retrieve_keywords_replacements($value);
-						$replacements = Array();
-						foreach ($keywords as $keyword) {
-							$replacements[$keyword] = $asset->getKeywordReplacement($keyword);
+
+						$metadata = $mm->getMetadata($asset->id);
+						foreach ($metadata as $info) {
+							$name = $info[0]['name'];
+
+							$value = $info[0]['value'];
+							$keywords = retrieve_keywords_replacements($value);
+							$replacements = Array();
+							foreach ($keywords as $keyword) {
+								$replacements[$keyword] = $asset->getKeywordReplacement($keyword);
+							}//end foreach
+							replace_keywords($value, $replacements);
+							$name = $fbm->encodeText(htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+							$value = $fbm->encodeText(htmlspecialchars($value, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+							header('X-Funnelback-metadata-'.$name.': '.$value);
 						}//end foreach
-						replace_keywords($value, $replacements);
-						$name = $fbm->encodeText(htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
-						$value = $fbm->encodeText(htmlspecialchars($value, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
-						header('X-Funnelback-metadata-'.$name.': '.$value);
-					}//end foreach
+					}//end if
 				}//end if
 			}//end if
 
@@ -753,23 +759,34 @@ class MySource extends MySource_Object
 				exit(1);
 			}
 			
-			
-
-			// Try and find the current site
+			// If we've loaded up an asset previously from the current url,
+			// check if it's a site asset.
+			// If it is, we don't need to work out the site again.
 			$site = NULL;
-			$asset_url = current_url(FALSE, TRUE);
-			// Muting errors by passing in the third parameter
-			$asset_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL(NULL, $asset_url, TRUE);
-			foreach ($asset_lineage as $asset_link) {
-				$asset_type = $asset_link['type_code'];
+			if (!is_null($asset)) {
+				$asset_type = $asset->type();
 				if ($asset_type == 'site' || $GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($asset_type, 'site')) {
-					$site_assetid = $asset_link['assetid'];
-					if (!empty($site_assetid)) {
-						$site = $GLOBALS['SQ_SYSTEM']->am->getAsset($site_assetid);
-						break;
-					}//end if
+					$site = $asset;
 				}
 			}
+
+			// It's not a site asset or we don't know what the asset is?
+			if ($site === NULL) {
+				$asset_url = current_url(FALSE, TRUE);
+				// Muting errors by passing in the third parameter
+				$asset_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL(NULL, $asset_url, TRUE);
+				foreach ($asset_lineage as $asset_link) {
+					$asset_type = $asset_link['type_code'];
+					if ($asset_type == 'site' || $GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($asset_type, 'site')) {
+						$site_assetid = $asset_link['assetid'];
+						if (!empty($site_assetid)) {
+							$site = $GLOBALS['SQ_SYSTEM']->am->getAsset($site_assetid);
+							break;
+						}//end if
+					}
+				}
+			}
+
 			if (!is_null($site)) {
 				$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CURRENT_SITE', $site);
 			}//end if
@@ -2959,6 +2976,12 @@ class MySource extends MySource_Object
 		// Get all contexts, except the default
 		$contexts = $this->getAllContexts();
 		unset($contexts[0]);
+
+		// If the system doesn't have any contexts, just return.
+		if (empty($contexts)) {
+			$contextid = 0;
+			return $contextid;
+		}
 
 		uasort($contexts, create_function('$a,$b', 'return $a["sort_order"] - $b["sort_order"];'));
 
