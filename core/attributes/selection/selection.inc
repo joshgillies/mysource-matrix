@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: selection.inc,v 1.61 2010/09/28 04:56:40 cupreti Exp $
+* $Id: selection.inc,v 1.62 2012/05/03 05:33:10 akarelia Exp $
 *
 */
 
@@ -39,7 +39,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *   <selection style="boxes" columns="1" extras="" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -380,7 +380,7 @@ function paint($prefix, $read_only=FALSE)
 						$selected = (($key == '__other__') && $this->_params['allow_other']) && $this->hasUnlistedValue() || ($key == $value);
 						$onclick = 'document.getElementById(\''.$prefix.'_other\').style.visibility = \''.(($key == '__other__') ? 'visible' : 'hidden').'\'';
 						$extras = str_replace('%on_click%', $onclick, $this->_edit_params['extras']);
-						$id = $prefix.'_'.$key;
+						$id = $prefix.'_'.str_replace(' ', '_', $key);
 						$extras .= ' id="'.$id.'"';
 						radio_button($prefix, $key, $selected, '', $extras);
 						label($val, $id);
@@ -392,7 +392,7 @@ function paint($prefix, $read_only=FALSE)
 						</td>
 						<?php
 					} else {
-						$id = $prefix.'_'.$key;
+						$id = $prefix.'_'.str_replace(' ', '_', $key);
 						$extras = $this->_edit_params['extras'].' id="'.$id.'"';
 							?>
 								<td>&nbsp;
@@ -424,7 +424,7 @@ function paint($prefix, $read_only=FALSE)
 						$selected = (($key == '__other__') && $this->_params['allow_other']) && $this->hasUnlistedValue() || ($key == $value);
 						$onclick = 'document.getElementById(\''.$prefix.'_other\').style.visibility = \''.(($key == '__other__') ? 'visible' : 'hidden').'\'';
 						$extras = str_replace('%on_click%', $onclick, $this->_edit_params['extras']);
-						$id = $prefix.'_'.$key;
+						$id = $prefix.'_'.str_replace(' ', '_', $key);
 						$extras .= ' id="'.$id.'"';
 						radio_button($prefix, $key, $selected, '', $extras);
 						label($val, $id);
@@ -433,7 +433,7 @@ function paint($prefix, $read_only=FALSE)
 							text_box($prefix.'_other', $this->hasUnlistedValue() ? $this->value : '', '', '', FALSE, $selected ? '' : 'style="visibility: hidden"');
 						}
 					} else {
-						$id = $prefix.'_'.$key;
+						$id = $prefix.'_'.str_replace(' ', '_', $key);
 						$extras = $this->_edit_params['extras'].' id="'.$id.'"';
 						check_box($prefix.'['.$i.']', $key, (is_array($value) && in_array($key, $value)), '', $extras);
 						label($val, $id);
