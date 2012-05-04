@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.882 2012/05/03 04:38:04 mhaidar Exp $
+* $Id: asset_manager.inc,v 1.883 2012/05/04 00:14:29 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.882 $
+* @version $Revision: 1.883 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -9583,11 +9583,14 @@ class Asset_Manager extends MySource_Object
 						continue;
 					} else {
 						$prefixes = Array();
-						$min_length = (strlen($treeid) - ($max_height-1) * SQ_CONF_ASSET_TREE_SIZE);
-						for ($prefix = 0; $prefix < $max_height; $prefix++) {
-							$prefixes[] = MatrixDAL::quote(substr($treeid, 0, $min_length + $prefix * SQ_CONF_ASSET_TREE_SIZE));
+						$length = strlen($treeid);
+						for ($prefix = 0; $prefix < $max_height; $prefix++){
+							$next_treeid = substr($treeid, 0, $length);
+							if (empty($next_treeid)) break;
+							$prefixes[] = MatrixDAL::quote($next_treeid);
+							$length -= SQ_CONF_ASSET_TREE_SIZE;
 						}
-						$where_comps[] = 't.treeid IN (' . implode(', ', $prefixes) . ')';
+						$where_comps[] = 't.treeid IN ('.implode(',', $prefixes).')';
 						continue;
 					}
 				}
