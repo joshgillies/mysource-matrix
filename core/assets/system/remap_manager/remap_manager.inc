@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.55 2012/05/03 22:16:06 csmith Exp $
+* $Id: remap_manager.inc,v 1.56 2012/05/04 04:09:56 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -403,7 +403,7 @@ class Remap_Manager extends Asset
 
 		// Try verbatim URL first
 		if($this->loadRemapFromURL($protocol, $url_with_params))
-            return TRUE;
+		     return TRUE;
 
 		if(!$this->attr("preserve_url_parameters")) {
 			// If the urls are the same with and without params, there's no
@@ -416,10 +416,6 @@ class Remap_Manager extends Asset
 			return($this->loadRemapFromURL($protocol, $url));
 		}
 
-		// Try URL + ?, if match is found, this URL is marked as an exception that no need of  preserving parameters
-		if($this->loadRemapFromURL($protocol, $url.'?'))
-			return TRUE;
-		
 		// Try URL, and preserve all parameters when redirecting
 		$parameters = '';
 		$pos = strpos($url_with_params, '?');
@@ -456,24 +452,54 @@ class Remap_Manager extends Asset
 		}
 
 		$url = $protocol.'://'.$url;
-
-		try {
-			$time      = ts_iso8601(time());
-			$bind_vars = Array(
-							'url'  => $url,
-							'time' => $time,
-						 );
-			$remap_url = MatrixDAL::executeOne('remap_manager', 'getCurrentRemapURL', $bind_vars);
-		} catch (DALException $e) {
-			throw new Exception('Unable to get current remap URL for "'.$url.'" due to database error: '.$e->getMessage());
+		$time      = ts_iso8601(time());
+		
+		// there is URL parameters to pass
+		if(!empty($parameters)) {
+		    // Try URL + ?, if match is found, this URL is marked as an exception that no need of  preserving parameters
+		    try {
+			    
+			    $bind_vars = Array(
+							    'url'  => $url,
+							    'url_with_trailing_question_mark'  => $url.'?',
+							    'time' => $time,
+						    );
+			    $results = MatrixDAL::executeAssoc('remap_manager', 'getCurrentRemapURLTrailingQuestionMark', $bind_vars);
+		    } catch (DALException $e) {
+			    throw new Exception('Unable to get current remap URL for "'.$url.'" due to database error: '.$e->getMessage());
+		    }
+		    
+		    if(empty($results)) return FALSE;
+		    
+		    $remap_url = $results[0]['remap_url'];
+		    
+		    // if this query returns us a plain url (not with trailing '?'), we should pass URL parameters to remapped url
+		    if($results[0]['url'] === $url) {
+			// preserve parameters to remapped url
+			if(strpos($remap_url, '?') !== FALSE) {
+			     $remap_url = $remap_url.'&'.$parameters;
+			}
+			else {
+			    $remap_url = $remap_url.'?'.$parameters;
+			}	
+		    }
+		}
+		else {
+		    // no URL parameters to pass
+		    try {
+			    
+			    $bind_vars = Array(
+							    'url'  => $url,
+							    'time' => $time,
+						    );
+			    $remap_url = MatrixDAL::executeOne('remap_manager', 'getCurrentRemapURL', $bind_vars);
+		    } catch (DALException $e) {
+			    throw new Exception('Unable to get current remap URL for "'.$url.'" due to database error: '.$e->getMessage());
+		    }
 		}
 
 		// if we have a remap url, display it
 		if (!empty($remap_url)) {
-			// preserve parameters to remapped url
-			if(!empty($parameters)) {
-			    $remap_url = $remap_url.'?'.$parameters;
-			}
 			
 			header('HTTP/1.1 301 Moved Permanently');
 			$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');

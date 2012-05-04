@@ -50,6 +50,35 @@
 			</select>
 		</primary>
 	</query>
+	
+	<query id="getCurrentRemapURLTrailingQuestionMark">
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_ast_lookup_remap" column="url" />
+					<field table="sq_ast_lookup_remap" column="remap_url" />
+				</fields>
+				<from>
+					<table>sq_ast_lookup_remap</table>
+				</from>
+				<where>
+					<or>
+					    <equal table="sq_ast_lookup_remap" column="url">:url</equal>
+					     <equal table="sq_ast_lookup_remap" column="url">:url_with_trailing_question_mark</equal>
+					</or>
+					<or>
+						<is-null><field table="sq_ast_lookup_remap" column="expires" /></is-null>
+						<greater table="sq_ast_lookup_remap" column="expires">:time</greater>
+					</or>
+				</where>
+				<order-by direction="DESC">
+					<field table="sq_ast_lookup_remap" column="url" />
+				</order-by>
+				<limit offset="0">1</limit>
+			</select>
+		</primary>
+	</query>
+	
 
 	<query id="removeNeverDeleteFromCurrentRemapURL">
 		<primary>
