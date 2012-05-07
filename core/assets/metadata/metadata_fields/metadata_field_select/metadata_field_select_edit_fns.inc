@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.50 2012/01/09 00:34:09 csmith Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.50.2.1 2012/05/07 04:14:51 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.50.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -124,9 +124,9 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 				$non_default_vals = Array();
 				foreach ($select_options as $key => $select_option) {
 					if (in_array($key, $default_keys)) {
-						$default_vals[] = "'".addslashes($key)."'";
+						$default_vals[] = "'".addslashes(str_replace(' ', '_', $key))."'";
 					} else {
-						$non_default_vals[] = "'".addslashes($key)."'";
+						$non_default_vals[] = "'".addslashes(str_replace(' ', '_', $key))."'";
 					}
 				}
 				$default_vals_expr = '['.implode(', ', $default_vals).']';
