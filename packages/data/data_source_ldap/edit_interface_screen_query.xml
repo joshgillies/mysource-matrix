@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_query.xml,v 1.2 2011/04/13 07:01:06 cupreti Exp $
+* $Id: edit_interface_screen_query.xml,v 1.2.6.1 2012/05/07 01:57:01 cupreti Exp $
 *
 */
 -->
@@ -29,6 +29,9 @@
 		<field attribute="attributes">
 			<text width="100" height="1" />
 		</field>
+		<field attribute="binary_attributes">
+			<text width="100" height="1" />
+		</field>		
 	</section>
 	<section name="Record Set Asset Names" write_access="write:attributes">
 		<field>
