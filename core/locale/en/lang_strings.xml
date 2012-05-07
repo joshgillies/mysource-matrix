@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.398.2.11 2012/04/30 05:03:48 ewang Exp $
+* $Id: lang_strings.xml,v 1.398.2.12 2012/05/07 01:04:53 mhaidar Exp $
 *
 */
 
@@ -1307,6 +1307,7 @@ Force that this asset can only be viewed through a Secure (SSL) connection</stri
 	<string source="selected_asset_does_not_exist">Selected asset does not exist</string>
 	<string source="locked_types">%1$sLOCKED%2$s Types : %3$s</string>
 	<string source="failed_searching_for">Search for "%s" found nothing. Try Again</string>
+	<string source="failed_searching_for_error">Search for "%s" failed due to system error. Check error log and contact your system administrator.</string>
 	<string source="select_condition_type">Select condition type</string>
 	<string source="content_type_not_found">Content Type Asset Id : #%s not found. Please contact your system administrator</string>
 
