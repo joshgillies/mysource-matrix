@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.203.2.5 2012/05/07 00:15:42 mhaidar Exp $
+* $Id: backend.inc,v 1.203.2.6 2012/05/07 01:04:07 mhaidar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.203.2.5 $
+* @version $Revision: 1.203.2.6 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -490,12 +490,19 @@ class Backend extends MySource_Object
 				');
 			} else {
 				$search_terms = $_POST['asset_search'];
-				$results = Backend_Search::processSearch($search_terms);
+				try {
+					$results = Backend_Search::processSearch($search_terms);
+				} catch (Exception $e) {
+					$error_msg = $e->getMessage();
+					log_error('Search for "'.$_POST['asset_search'].'" failed due to error: '.$error_msg, E_USER_WARNING);
+					$results = Array();
+				}
 
 				$js_code = '';
 
 				if (empty($results)) {
-					$html = $this->_getDHTMLMessage(translate('search_failed'), translate('failed_searching_for', addslashes($_POST['asset_search'])), 'search-failed', 'info');
+					$msg = (!empty($error_msg)) ? 'failed_searching_for_error' : 'failed_searching_for';
+					$html = $this->_getDHTMLMessage(translate('search_failed'), translate($msg, addslashes($_POST['asset_search'])), 'search-failed', 'info');
 					$dhtml_messages['search_failed'] = Array('html' => str_replace("\n", '', $html), 'width' => '400', 'timeout' => 6.0);
 				} else {
 					$detail_lines[] = '<strong>'.'Matched on Keyword ('.count($results).' asset'.(count($results) == 1 ? '' : 's').'):'.'</strong>';
