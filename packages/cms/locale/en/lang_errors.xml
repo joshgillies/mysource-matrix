@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.24 2010/08/23 02:09:56 mhaidar Exp $
+* $Id: lang_errors.xml,v 1.24.8.1 2012/05/07 00:38:58 mhaidar Exp $
 *
 */
 -->
@@ -79,8 +79,8 @@
 	<error code="CMS0019">No type settings have been configured for this page - no assets will be listed</error>
 		<!-- packages/cms/page_templates/page_asset_listing/page_asset_listing.inc:241: -->
 
-	<error code="CMS0020">Supplied dynamic root node [Id: #%1$s] is in an unauthorised part of the system.  Defaulting to static root node</error>
-		<!-- packages/cms/page_templates/page_asset_listing/page_asset_listing.inc:458: -->
+	<error code="CMS0020">Supplied dynamic root node (Id: #%1$s) is in an unauthorised part of the system.  Defaulting to static root node. See Asset (Id: #%2$s)</error>
+		<!-- packages/cms/listing_engine/listing_engine.inc: -->
 
 	<error code="CMS0021">Poll question not created</error>
 		<!-- packages/cms/page_templates/page_poll/page_poll_edit_fns.inc:111: -->

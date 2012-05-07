@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.244.2.1 2011/11/25 03:20:20 akarelia Exp $
+* $Id: page_calendar.inc,v 1.244.2.2 2012/05/07 00:38:54 mhaidar Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.244.2.1 $
+* @version $Revision: 1.244.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -3332,7 +3332,7 @@ class Page_Calendar extends Page
 				$dynamic_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($dynamic_root);
 				$matching_root_ids = array_intersect(array_keys($dynamic_parents), $original_root_ids);
 				if (empty($matching_root_ids)) {
-					trigger_localised_error('CMS0020', E_USER_WARNING, $dynamic_root);
+					trigger_localised_error('CAL0067', E_USER_WARNING, $dynamic_root, $this->id);
 				} else {
 					$dynamic_root_nodes[] = $dynamic_root;
 				}
