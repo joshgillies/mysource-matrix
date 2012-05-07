@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.144 2011/08/29 02:04:16 ewang Exp $
+* $Id: system_config.inc,v 1.144.4.1 2012/05/07 03:24:09 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.144 $
+* @version $Revision: 1.144.4.1 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -1181,15 +1181,35 @@ class System_Config extends Config
 
 		// Attempt "DROP VIEW ... IF EXISTS" for PostGres, "DROP VIEW" for Oracle
 		try {
-			// Oracle does not have an "IF EXISTS" clause in "DROP VIEW", so leave it out here
-			$drop_view_if_exists = (($db_type == 'pgsql') ? 'IF EXISTS ' : '');
+			if ($db_type == 'pgsql') {
+				// Drop the views first
+				// If we can't drop or create views accordingly then we'll roll back the transaction in the "catch" block
+				MatrixDAL::executeSql('DROP VIEW IF EXISTS sq_vw_ast_perm');
+				MatrixDAL::executeSql('DROP VIEW IF EXISTS sq_vw_ast_role');
 
-			// Drop the views first
-			// If we can't drop or create views accordingly then we'll roll back the transaction in the "catch" block
-			MatrixDAL::executeSql('DROP VIEW '.$drop_view_if_exists.'sq_vw_ast_perm');
-			MatrixDAL::executeSql('DROP VIEW '.$drop_view_if_exists.'sq_vw_ast_role');
+				$drop_success = TRUE;
+			} else if ($db_type == 'oci') {
+				// find out first if the view exists or else oracle will
+				// throw warning oci_execute(): ORA-00942: table or view does not exist
+				$perm_sql = "SELECT VIEW_NAME FROM ALL_VIEWS WHERE VIEW_NAME = 'SQ_VW_AST_PERM'";
+				$role_sql = "SELECT VIEW_NAME FROM ALL_VIEWS WHERE VIEW_NAME = 'SQ_VW_AST_ROLE'";
 
-			$drop_success = TRUE;
+				$perm_vw_query = MatrixDAL::preparePdoQuery($perm_sql);
+				$role_vw_query = MatrixDAL::preparePdoQuery($role_sql);
+
+				$perm_vw_exists = MatrixDAL::executePdoAssoc($perm_vw_query);
+				$role_vw_exists = MatrixDAL::executePdoAssoc($role_vw_query);
+
+				if (isset($perm_vw_exists['0']['view_name']) && $perm_vw_exists['0']['view_name'] == 'SQ_VW_AST_PERM') {
+					MatrixDAL::executeSql('DROP VIEW sq_vw_ast_perm');
+				}
+
+				if (isset($role_vw_exists['0']['view_name']) && $role_vw_exists['0']['view_name'] == 'SQ_VW_AST_ROLE') {
+					MatrixDAL::executeSql('DROP VIEW sq_vw_ast_role');
+				}
+
+				$drop_success = TRUE;
+			}
 		} catch (Exception $e) {
 			// Don't let the world know, just keep on keeping on - we'll create the view in a sec
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
