@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-*$Id: deja_vu.inc,v 1.7 2012/05/04 06:49:41 mhaidar Exp $
+*$Id: deja_vu.inc,v 1.8 2012/05/07 03:21:19 mhaidar Exp $
 *
 */
 
@@ -35,7 +35,7 @@ define('SQ_DEJA_VU_LOCALE', 'locale_manager');
 * memory, purely to improve scalability.
 *
 * @author  James Hurst <jhurst@squiz.co.uk>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 */
 class Deja_Vu extends MySource_Object
@@ -441,7 +441,7 @@ class Deja_Vu extends MySource_Object
 	*/
 	function failureCallback($hostname, $port)
 	{
-		log_error(get_class()." failure communicating with $hostname::$port", E_USER_WARNING);
+		log_error(get_class()." failure communicating with $hostname:$port", E_USER_WARNING);
 
 	}//end failureCallback()
 

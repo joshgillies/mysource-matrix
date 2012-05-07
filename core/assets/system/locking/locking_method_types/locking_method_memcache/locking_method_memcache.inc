@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: locking_method_memcache.inc,v 1.3 2012/05/04 06:49:41 mhaidar Exp $
+* $Id: locking_method_memcache.inc,v 1.4 2012/05/07 03:21:19 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/locking/locking_method/locking_method
 *
 *
 * @author		Luke Wright <lwright@squiz.net>
-* @version		$Revision: 1.3 $
+* @version		$Revision: 1.4 $
 * @package		MySource_Matrix_Packages
 * @subpackage	__core__
 */
@@ -407,7 +407,7 @@ class Locking_Method_Memcache extends Locking_Method
 	*/
 	public static function failureCallback($hostname, $port)
 	{
-		log_error(get_class()." failure communicating with $hostname::$port", E_USER_WARNING);
+		log_error(get_class()." failure communicating with $hostname:$port", E_USER_WARNING);
 
 	}//end failureCallback()
 	

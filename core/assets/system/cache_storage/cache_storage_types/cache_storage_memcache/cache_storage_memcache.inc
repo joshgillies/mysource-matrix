@@ -18,7 +18,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: cache_storage_memcache.inc,v 1.12 2012/05/04 06:49:41 mhaidar Exp $
+ * $Id: cache_storage_memcache.inc,v 1.13 2012/05/07 03:21:19 mhaidar Exp $
  *
  */
 
@@ -38,7 +38,7 @@ define('SQ_CACHE_MEMCACHE_URL_INDEX_PREFIX', 'sq_cache_url_index|');
  *
  * @author  James Hurst <james@riverratrecords.com>
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.12 $
+ * @version $Revision: 1.13 $
  * @package MySource_Matrix_Packages
  * @subpackage __core__
  */
@@ -372,7 +372,7 @@ class Cache_Storage_Memcache extends Cache_Storage
 	*/
 	function failureCallback($hostname, $port)
 	{
-		log_error(get_class()." failure communicating with $hostname::$port", E_USER_WARNING);
+		log_error(get_class()." failure communicating with $hostname:$port", E_USER_WARNING);
 
 	}//end failureCallback()
 
