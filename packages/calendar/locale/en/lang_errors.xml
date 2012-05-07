@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.8 2008/11/24 23:17:14 mbrydon Exp $
+* $Id: lang_errors.xml,v 1.8.20.1 2012/05/07 00:39:12 mhaidar Exp $
 *
 */
 
@@ -204,4 +204,7 @@
 	<error code="CAL0062">Could not link the contents to the no results bodycopy</error>
 
 	<error code="CAL0063">Lastest date to show for Restricted Period Calendar Page #%s has not been set.</error>
+	
+	<error code="CAL0067">Supplied dynamic root node (Id: #%1$s) is in an unauthorised part of the system.  Defaulting to static root node. See Asset (Id: #%2$s)</error>
+
 </errors>
