@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.202.2.4 2012/04/03 01:47:36 ewang Exp $
+* $Id: backend.inc,v 1.202.2.5 2012/05/07 00:16:20 mhaidar Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.202.2.4 $
+* @version $Revision: 1.202.2.5 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -472,7 +472,7 @@ class Backend extends MySource_Object
 			$url_match = FALSE;
 
 			// check for a url first
-			$searched_asset = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL('', strip_url($_POST['asset_search'], TRUE), TRUE, TRUE);
+			$searched_asset = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL(NULL, strip_url($_POST['asset_search'], TRUE), TRUE, TRUE);
 			if (is_null($searched_asset) && assert_valid_assetid($_POST['asset_search'], '', TRUE, FALSE)) {
 				// check for assetid second
 				$searched_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($_POST['asset_search'], '', TRUE);
