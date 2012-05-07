@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_create_sharepoint_list_item.inc,v 1.4 2010/05/05 03:26:50 ewang Exp $
+* $Id: form_action_create_sharepoint_list_item.inc,v 1.4.12.1 2012/05/07 01:19:28 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/sharepoint/lib/sharepoint_common.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.12.1 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -591,11 +591,6 @@ class Form_Action_Create_Sharepoint_List_Item extends Form_Action
 	public static function isValid(Form $form, $settings)
 	{
 		self::_fillDefaults($settings);
-
-		// Must have a TRIM Bridge to be valid
-		if (empty($settings['connector_assetid'])) {
-			return FALSE;
-		}
 
 		// Must selected a record type to create
 		if (empty($settings['create_list'])) {
