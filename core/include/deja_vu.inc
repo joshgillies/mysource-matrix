@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-*$Id: deja_vu.inc,v 1.6 2011/01/19 22:35:19 cupreti Exp $
+*$Id: deja_vu.inc,v 1.6.8.1 2012/05/07 03:14:06 mhaidar Exp $
 *
 */
 
@@ -35,7 +35,7 @@ define('SQ_DEJA_VU_LOCALE', 'locale_manager');
 * memory, purely to improve scalability.
 *
 * @author  James Hurst <jhurst@squiz.co.uk>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.8.1 $
 * @package MySource_Matrix
 */
 class Deja_Vu extends MySource_Object
@@ -90,7 +90,7 @@ class Deja_Vu extends MySource_Object
 			foreach ($services['deja_vu'] as $host_key => $weight) {
 				assert_true(array_key_exists($host_key, $hosts) === TRUE, 'Cannot use Deja Vu; host key "'.$host_key.'" assigned for use for Deja Vu but not defined as a host');
 				$host = $hosts[$host_key];
-				$this->_memcache->addServer($host['host'], $host['port'], $host['persistent'], $weight, $host['timeout'], $host['retry_interval'], $host['status']);
+				$this->_memcache->addServer($host['host'], $host['port'], $host['persistent'], $weight, $host['timeout'], $host['retry_interval'], $host['status'], Array($this, 'failureCallback'));
 			}
 
 			$this->_memcache->setCompressThreshold($memcache_conf['compression_threshold'], $memcache_conf['compression_min_saving']);
@@ -429,7 +429,22 @@ class Deja_Vu extends MySource_Object
 		
 	}//end disable()
 
+	
+	/**
+	* Failure Callback function for Memcache::addServer
+	* 
+	* @param $hostname
+	* @param $port
+	* 
+	* @return void
+	* @access public
+	*/
+	function failureCallback($hostname, $port)
+	{
+		log_error(get_class()." failure communicating with $hostname:$port", E_USER_WARNING);
 
+	}//end failureCallback()
+	
 }//end class
 
 ?>

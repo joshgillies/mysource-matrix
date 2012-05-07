@@ -18,7 +18,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: cache_storage_memcache.inc,v 1.11 2010/12/13 06:13:38 mhaidar Exp $
+ * $Id: cache_storage_memcache.inc,v 1.11.8.1 2012/05/07 03:14:06 mhaidar Exp $
  *
  */
 
@@ -38,7 +38,7 @@ define('SQ_CACHE_MEMCACHE_URL_INDEX_PREFIX', 'sq_cache_url_index|');
  *
  * @author  James Hurst <james@riverratrecords.com>
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.11 $
+ * @version $Revision: 1.11.8.1 $
  * @package MySource_Matrix_Packages
  * @subpackage __core__
  */
@@ -84,7 +84,7 @@ class Cache_Storage_Memcache extends Cache_Storage
 		foreach ($services['cache_manager'] as $host_key => $weight) {
 			assert_true(array_key_exists($host_key, $hosts) === TRUE, 'Cannot use Memcache Cache Storage; host key "'.$host_key.'" assigned for use for cache manager but not defined as a host');
 			$host = $hosts[$host_key];
-			$this->_memcache->addServer($host['host'], $host['port'], $host['persistent'], $weight, $host['timeout'], $host['retry_interval'], $host['status']);
+			$this->_memcache->addServer($host['host'], $host['port'], $host['persistent'], $weight, $host['timeout'], $host['retry_interval'], $host['status'], Array($this, 'failureCallback'));
 		}
 
 		$this->_memcache->setCompressThreshold($memcache_conf['compression_threshold'], $memcache_conf['compression_min_saving']);
@@ -361,6 +361,21 @@ class Cache_Storage_Memcache extends Cache_Storage
 	}//end getAllFilePaths()
 
 
+	/**
+	* Failure Callback function for Memcache::addServer
+	* 
+	* @param $hostname
+	* @param $port
+	* 
+	* @return void
+	* @access public
+	*/
+	function failureCallback($hostname, $port)
+	{
+		log_error(get_class()." failure communicating with $hostname:$port", E_USER_WARNING);
+
+	}//end failureCallback()
+	
 }//end class
 
 ?>
