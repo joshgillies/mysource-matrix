@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.172.2.2 2012/04/23 02:17:26 mhaidar Exp $
+* $Id: workflow_manager.inc,v 1.172.2.3 2012/05/07 03:56:43 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.172.2.2 $
+* @version $Revision: 1.172.2.3 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -1327,6 +1327,14 @@ class Workflow_Manager extends MySource_Object
 			$schemas = $this->getSchemas($assetid, TRUE);
 			$streamids = Array();
 
+			// foreach of our schemas check to make sure they are still on system
+			// see bug 5678 enhancement: better error handling for non exist workflow schema
+			foreach ($schemas as $index => $schema) {
+				if (!$GLOBALS['SQ_SYSTEM']->am->assetExists($schema)) {
+					trigger_error("Workflow Schema Id #$schema is applied to Asset Id #$assetid but cannot be found in system anymore.", E_USER_WARNING);
+					unset($schemas[$index]);
+				}
+			}
 			if ($stream_name === NULL) {
 				// ALL Streams
 				foreach ($schemas as $schemaid) {
@@ -2453,6 +2461,11 @@ class Workflow_Manager extends MySource_Object
 	*/
 	public function getStreams($schemaid, $ignore_default=FALSE)
 	{
+		$stream_names = Array();
+		if (!$GLOBALS['SQ_SYSTEM']->am->assetExists($schemaid)) {
+			trigger_error("Workflow Schema Id #$schemaid is applied to this asset but cannot be found in system anymore.", E_USER_WARNING);
+			return $stream_names;
+		}
 		$stream_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($schemaid, SQ_LINK_TYPE_2, 'workflow_stream', FALSE);
 		$streamids = Array();
 
