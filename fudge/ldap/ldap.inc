@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap.inc,v 1.15 2011/04/20 00:43:05 akarelia Exp $
+* $Id: ldap.inc,v 1.15.6.1 2012/05/07 01:58:39 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     To provide an interface to an LDAP directory server for basic functionality
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.15.6.1 $
 * @package Fudge
 * @subpackage ldap
 */
@@ -218,12 +218,43 @@ class Ldap
 	* @return array
 	* @access public
 	*/
-	function getEntries($result)
+	function getEntries($result, $binary_attributes = Array())
 	{
 		if (!($info = ldap_get_entries($this->ptr, $result))) {
 			trigger_error('Unable to get entries for LDAP search result ['.$result.'] :'.ldap_error($this->ptr), E_USER_WARNING);
 			return Array();
 		} else {
+			// ldap_get_entries() function can not handle binary data so we use ldap_get_values_len() to
+			// put binary data to the binary attributes of $info
+			if (!empty($binary_attributes) && ($info['count'] > 0)) {
+				// There is no document confirming that the order of entries returned by ldap_get_entries()
+				// is the same with that of ldap_first_entry()/ldap_next_entry() so we use the dn as identifier
+				$entry_order = Array();
+				for ($i = 0; $i < $info['count']; $i++) {
+					$entry_order[$info[$i]['dn']] = $i;
+				}
+				// Set binary data for each entry
+				for ($entry_identifier = ldap_first_entry($this->ptr, $result); $entry_identifier !== FALSE; $entry_identifier = ldap_next_entry($this->ptr, $entry_identifier)) {
+					$dn = ldap_get_dn($this->ptr, $entry_identifier);
+					if (($dn !== FALSE) && isset($entry_order[$dn])) {
+						$entry_index = $entry_order[$dn];
+						foreach ($binary_attributes as $attribute) {
+							// ldap_get_entries() lowercases attribute indexes
+							$lowercased_attribute = strtolower($attribute);
+							// ldap_get_entries() can still get the first few bytes of the binary data, so we can speed this function
+							// a bit by checking if there is a value of this attribute before extracting its actual binary data
+							if (isset($info[$entry_index][$lowercased_attribute])) {
+								// ldap_get_values_len() function throws a warning if there is no value for the attribute so we suppress the warning with @
+								$binary_value = @ldap_get_values_len($this->ptr, $entry_identifier, $attribute);
+								if ($binary_value !== FALSE) {
+									$info[$entry_index][$lowercased_attribute] = $binary_value;
+								}
+							}
+						}
+					}
+				}
+			}
+			
 			return $info;
 		}
 

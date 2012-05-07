@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source.inc,v 1.31 2011/08/11 03:35:50 cupreti Exp $
+* $Id: data_source.inc,v 1.31.4.1 2012/05/07 01:57:42 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.31.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -447,6 +447,20 @@ class Data_Source extends Asset implements Bridge
 		return Array();
 
 	}//end getAllChildLinks()
+	
+	
+	/**
+	* Returns name of attributes/fields defined by this datasoruce 
+	* as a binary data
+	*
+	* @return array
+	* @access public
+	*/
+	function getBinaryDataAttributes()
+	{
+		return Array();
+
+	}//end getBinaryDataAttributes()	
 
 
 	/**
