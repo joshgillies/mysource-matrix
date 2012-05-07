@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: locking_method_memcache.inc,v 1.2 2010/10/19 05:54:13 csmith Exp $
+* $Id: locking_method_memcache.inc,v 1.2.8.1 2012/05/07 03:14:17 mhaidar Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/locking/locking_method/locking_method
 *
 *
 * @author		Luke Wright <lwright@squiz.net>
-* @version		$Revision: 1.2 $
+* @version		$Revision: 1.2.8.1 $
 * @package		MySource_Matrix_Packages
 * @subpackage	__core__
 */
@@ -78,7 +78,7 @@ class Locking_Method_Memcache extends Locking_Method
 		foreach ($services['locking'] as $host_key => $weight) {
 			assert_true(array_key_exists($host_key, $hosts) === TRUE, 'Cannot use Memcache Locking Method; host key "'.$host_key.'" assigned for use for locking but not defined as a host');
 			$host = $hosts[$host_key];
-			self::$memcache->addServer($host['host'], $host['port'], $host['persistent'], $weight, $host['timeout'], $host['retry_interval'], $host['status']);
+			self::$memcache->addServer($host['host'], $host['port'], $host['persistent'], $weight, $host['timeout'], $host['retry_interval'], $host['status'], Array('Locking_Method_Memcache', 'failureCallback'));
 		}
 
 		self::$memcache->setCompressThreshold($memcache_conf['compression_threshold'], $memcache_conf['compression_min_saving']);
@@ -396,6 +396,20 @@ class Locking_Method_Memcache extends Locking_Method
     }//end supportsDeletingExpiredLocks()
 
 
+	/**
+	* Failure Callback function for Memcache::addServer
+	* 
+	* @param $hostname
+	* @param $port
+	* 
+	* @return void
+	* @access public
+	*/
+	public static function failureCallback($hostname, $port)
+	{
+		log_error(get_class()." failure communicating with $hostname:$port", E_USER_WARNING);
+
+	}//end failureCallback()
 
 }//end class
 
