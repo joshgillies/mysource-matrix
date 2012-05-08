@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.49.12.1 2012/01/04 23:46:43 mhaidar Exp $
+* $Id: report_links_edit_fns.inc,v 1.49.12.2 2012/05/08 06:53:38 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.49.12.1 $
+* @version $Revision: 1.49.12.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -152,19 +152,20 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 
 						}
 
-						if ($validated_results === FALSE) continue;
+						if ($validated_results !== FALSE) {
 
-						$link_info = Array (
-										'type'	=> $link_type,
-										'url'	=> $match,
-									 );
-						$content = $this->_addReportContent($content,$link_info,$validated_results);
+							$link_info = Array (
+											'type'	=> $link_type,
+											'url'	=> $match,
+										 );
+							$content = $this->_addReportContent($content,$link_info,$validated_results);
 
-						if (!empty($content)) {
-							$content = "\t".'<asset assetid="'.$asset->id.'" name="'.htmlSpecialChars($asset->name).'" short_name="'.htmlSpecialChars($asset->short_name).'" type_code="'.$asset->type().'" status="'.$asset->status.'">'."\n".$content."\t".'</asset>'."\n";
-							fwrite($temp_file, $content);
+							if (!empty($content)) {
+								$content = "\t".'<asset assetid="'.$asset->id.'" name="'.htmlSpecialChars($asset->name).'" short_name="'.htmlSpecialChars($asset->short_name).'" type_code="'.$asset->type().'" status="'.$asset->status.'">'."\n".$content."\t".'</asset>'."\n";
+								fwrite($temp_file, $content);
+							}
 						}
-
+						
 						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 						unset($asset);
 					} else {
