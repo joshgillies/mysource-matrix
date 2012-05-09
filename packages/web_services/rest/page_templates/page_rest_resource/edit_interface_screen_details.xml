@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.2 2010/05/05 07:16:13 ewang Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2.12.1 2012/05/09 01:55:27 akarelia Exp $
 *
 */
 -->
@@ -27,6 +27,9 @@
 	<section name="HTTP Request" write_access="write:attributes">
 		<field attribute="http_request">
 			<http_request />
+		</field>
+		<field attribute="allow_global_replace">
+			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="allow_multiple_runs">
 			<boolean true_text="yes" false_text="no" />

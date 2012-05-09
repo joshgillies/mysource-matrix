@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.3 2010/05/05 07:16:13 ewang Exp $
+* $Id: lang_screen_details.xml,v 1.3.12.1 2012/05/09 01:55:28 akarelia Exp $
 *
 */
 -->
@@ -30,6 +30,10 @@
 		<field attribute="oauth">
 			<display_name>OAuth Parameters</display_name>
 			<note />
+		</field>
+		<field attribute="allow_global_replace">
+			<display_name>Allow Keyword replacement</display_name>
+			<note>Enabling this option will allow Squiz Matrix to replace keywords found in the REST response body. This can be useful when the response is returned from another instance of Squiz Matrix. Disabling this option will ensure that the system does not replace any keywords (or content using a format similar to a keyword) in the response.</note>
 		</field>
 	</section>
 </contents>

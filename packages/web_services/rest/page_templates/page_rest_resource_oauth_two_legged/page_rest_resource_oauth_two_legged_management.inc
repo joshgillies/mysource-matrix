@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rest_resource_oauth_two_legged_management.inc,v 1.1 2011/12/22 16:48:50 mmaruyama Exp $
+* $Id: page_rest_resource_oauth_two_legged_management.inc,v 1.1.2.1 2012/05/09 01:55:28 akarelia Exp $
 *
 */
 
@@ -37,13 +37,21 @@ class Page_REST_Resource_OAuth_Two_Legged_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 		$this->vars = Array(
-			'oauth'  => Array(
-				'added'		=> '0.1',
-				'type'		=> 'oauth',
-				'default'   => Array(
-					'type' => 'TWO_LEGGED',
-				),
-			),
+						'oauth'					=> Array(
+													'added'		=> '0.1',
+													'type'		=> 'oauth',
+													'default'   => Array(
+																	'type' => 'TWO_LEGGED',
+																   ),
+												   ),
+						'allow_global_replace'	=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'boolean',
+													'default'		=> FALSE,
+													'parameters'	=> Array(
+																		'allow_empty'	=> FALSE
+																	   ),
+												   ),
 		);
 
 	}//end constructor

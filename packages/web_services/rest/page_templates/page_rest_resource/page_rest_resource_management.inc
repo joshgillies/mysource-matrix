@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rest_resource_management.inc,v 1.3 2010/05/05 07:16:13 ewang Exp $
+* $Id: page_rest_resource_management.inc,v 1.3.12.1 2012/05/09 01:55:27 akarelia Exp $
 *
 */
 
@@ -37,29 +37,35 @@ class Page_REST_Resource_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 		$this->vars = Array(
-			'http_request'	=> Array(
-				'added' => '0.1',
-				'type'	=> 'http_request',
-				'default'	=> Array(),
-			),
-			'send_headers'	=> Array(
-				'added'		=> '0.1',
-				'type'		=> 'boolean',
-				'default'	=> FALSE,
-				'parameters'	=> Array('allow_empty'	=> FALSE),
-			),
-			'error_response'	=> Array(
-				'added'			=> '0.1',
-				'type'			=> 'text',
-				'default'		=> '',
-			),
-			'allow_multiple_runs'	=> Array(
-				'added'		=> '0.1',
-				'type'		=> 'boolean',
-				'default'	=> FALSE,
-				'parameters'	=> Array('allow_empty'	=> FALSE),
-			),
-		);
+						'http_request'			=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'http_request',
+													'default'		=> Array(),
+												   ),
+						'send_headers'			=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'boolean',
+													'default'		=> FALSE,
+													'parameters'	=> Array('allow_empty'	=> FALSE),
+												   ),
+						'error_response'		=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'text',
+													'default'		=> '',
+												   ),
+						'allow_multiple_runs'	=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'boolean',
+													'default'		=> FALSE,
+													'parameters'	=> Array('allow_empty'	=> FALSE),
+												   ),
+						'allow_global_replace'	=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'boolean',
+													'default'		=> FALSE,
+													'parameters'	=> Array('allow_empty'	=> FALSE),
+												   ),
+			          );
 
 	}//end constructor
 

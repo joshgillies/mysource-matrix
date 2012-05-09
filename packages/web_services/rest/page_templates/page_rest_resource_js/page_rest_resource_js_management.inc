@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rest_resource_js_management.inc,v 1.3 2010/05/05 07:16:13 ewang Exp $
+* $Id: page_rest_resource_js_management.inc,v 1.3.12.1 2012/05/09 01:55:27 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_ATTRIBUTES_PATH.'/http_request/http_request.inc';
 * @see Asset_Management
 *
 * @author  James Hurst <jhurst@squiz.co.uk>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.12.1 $
 * @package Squiz_UK_Clients
 * @subpackage rest_resource_js
 */
@@ -38,22 +38,28 @@ class Page_REST_Resource_JS_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 		$this->vars = Array(
-			'http_request'	=> Array(
-				'added' => '0.1',
-				'type'	=> 'http_request',
-				'default'	=> Array(),
-			),
-			'javascript_files'	=> Array(
-				'added'	=> '0.1',
-				'type'	=> 'serialise',
-				'default'	=> Array(),
-			),
-			'javascript'	=> Array(
-				'added'			=> '0.1',
-				'type'			=> 'text',
-				'default'		=> '',
-			),
-		);
+						'http_request'			=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'http_request',
+													'default'		=> Array(),
+												   ),
+						'javascript_files'		=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'serialise',
+													'default'		=> Array(),
+												   ),
+						'javascript'			=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'text',
+													'default'		=> '',
+												   ),
+						'allow_global_replace'	=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'boolean',
+													'default'		=> FALSE,
+													'parameters'	=> Array('allow_empty'	=> FALSE),
+												   ),
+					   );
 
 	}//end constructor
 
