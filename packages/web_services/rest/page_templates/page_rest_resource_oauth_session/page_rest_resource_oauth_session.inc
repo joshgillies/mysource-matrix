@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rest_resource_oauth_session.inc,v 1.6 2011/12/22 16:48:50 mmaruyama Exp $
+* $Id: page_rest_resource_oauth_session.inc,v 1.7 2012/05/09 01:39:22 akarelia Exp $
 *
 */
 
@@ -53,6 +53,10 @@ class Page_REST_Resource_OAuth_Session extends Page_REST_Resource
 	 */
 	public function printBody()
 	{
+
+		// let the user decide if they want Matrix to do keyword replacements on the response. See  bug
+		// #5701 Minor Enhancement : Allow REST resources assets to stop replacing keywords in response
+		$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_REPLACE_MYSOURCE_LEVEL_KEYWORDS', $this->attr('allow_global_replace'));
 
 		// reset the oauth related session variables to restart the oauth authorization process in one of the following cases:
 		// - if the user click on 'Reset Existing Authorization Data'

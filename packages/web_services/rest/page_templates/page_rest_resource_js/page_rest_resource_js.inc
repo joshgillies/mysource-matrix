@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rest_resource_js.inc,v 1.9 2010/12/01 02:33:12 mhaidar Exp $
+* $Id: page_rest_resource_js.inc,v 1.10 2012/05/09 01:39:22 akarelia Exp $
 *
 */
 
@@ -56,6 +56,10 @@ class Page_REST_Resource_JS extends Page_REST_Resource
 	{
 		// Run the request(s).
 		$this->_process();
+		// let the user decide if they want Matrix to do keyword replacements on the response. See  bug
+		// #5701 Minor Enhancement : Allow REST resources assets to stop replacing keywords in response
+		$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_REPLACE_MYSOURCE_LEVEL_KEYWORDS', $this->attr('allow_global_replace'));
+
 		$this->_processJavascript();
 
 	}//end printBody()

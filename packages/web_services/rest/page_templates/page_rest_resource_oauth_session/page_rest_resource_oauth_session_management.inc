@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rest_resource_oauth_session_management.inc,v 1.4 2011/12/22 16:48:50 mmaruyama Exp $
+* $Id: page_rest_resource_oauth_session_management.inc,v 1.5 2012/05/09 01:39:22 akarelia Exp $
 *
 */
 
@@ -37,14 +37,20 @@ class Page_REST_Resource_OAuth_Session_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 		$this->vars = Array(
-			'oauth'  => Array(
-				'added'		=> '0.1',
-				'type'		=> 'oauth',
-				'default'   => Array(
-					'type' => 'THREE_LEGGED',
-				),
-			),
-		);
+						'oauth'					=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'oauth',
+													'default'   	=> Array(
+																		'type' => 'THREE_LEGGED',
+																	   ),
+												   ),
+						'allow_global_replace'	=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'boolean',
+													'default'		=> FALSE,
+													'parameters'	=> Array('allow_empty'	=> FALSE),
+												   ),
+					   );
 
 	}//end constructor
 
