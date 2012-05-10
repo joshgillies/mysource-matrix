@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: embed_movie_search.php,v 1.3 2007/12/10 06:23:46 rong Exp $
+* $Id: embed_movie_search.php,v 1.3.22.1 2012/05/10 04:14:36 akarelia Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Insert Link Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.22.1 $
 * @package MySource_Matrix
 */
 
@@ -49,11 +49,9 @@ if ($search_for != '') {
 		}
 	}
 
-	// Only search for files (strict type check)
-	$results = Backend_Search::processSearch($search_for, Array(), Array('file' => FALSE));
-
 	$html = '';
 	$found_asset_line = '';
+	$results = Array();
 
 	if (!empty($asset_by_url)) {
 		$found_asset =& $asset_by_url;
@@ -70,96 +68,99 @@ if ($search_for != '') {
 		$found_asset_line .= '<div class="search-result">';
 		$found_asset_line .= get_asset_tag_line($found_asset->id, 'javascript:set_asset_finder_from_search(\''.$found_asset->id.'\', \''.htmlspecialchars($asset_name, ENT_QUOTES).'\', \'\', \'0\');');
 		$found_asset_line .= '</div>';
-	}
+	} else {
+		// Only search for files (strict type check)
+		$results = Backend_Search::processSearch($search_for, Array(), Array('file' => FALSE));
 
-	if (!empty($results)) {
-		$result_list = Array();
+		if (!empty($results)) {
+			$result_list = Array();
 
-		foreach ($results as $result_assetid => $result_detail) {
-			$tag_line = get_asset_tag_line($result_assetid);
+			foreach ($results as $result_assetid => $result_detail) {
+				$tag_line = get_asset_tag_line($result_assetid);
 
-			$this_detail = Array();
+				$this_detail = Array();
 
-			foreach ($result_detail as $result_component_name => $result_component) {
-				foreach ($result_component as $name => $value) {
+				foreach ($result_detail as $result_component_name => $result_component) {
+					foreach ($result_component as $name => $value) {
 
-					$name_detail = '';
-					switch ($result_component_name) {
-						case 'contents':
-							$name_detail = 'Asset Contents';
-						break;
+						$name_detail = '';
+						switch ($result_component_name) {
+							case 'contents':
+								$name_detail = 'Asset Contents';
+							break;
 
-						case 'metadata':
-						case 'schema':
-							$name_detail = ($result_component_name == 'schema' ? 'Default ' : '').'Metadata: ';
+							case 'metadata':
+							case 'schema':
+								$name_detail = ($result_component_name == 'schema' ? 'Default ' : '').'Metadata: ';
 
-							// Find a friendly name for the metadata field, if there
-							// is none then use the standard name of the field itself
-							$attr_values = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('friendly_name', 'metadata_field', Array($name));
-							if (empty($attr_values)) {
-								$name_detail .= $value['name'];
-							} else {
-								$name_detail .= $attr_values[$name];
-							}
+								// Find a friendly name for the metadata field, if there
+								// is none then use the standard name of the field itself
+								$attr_values = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('friendly_name', 'metadata_field', Array($name));
+								if (empty($attr_values)) {
+									$name_detail .= $value['name'];
+								} else {
+									$name_detail .= $attr_values[$name];
+								}
 
-							$value = $value['value'];
-						break;
+								$value = $value['value'];
+							break;
 
-						case 'attributes':
-							$name_detail = 'Attribute: '.ucwords(str_replace('_', ' ', $name));
-						break;
-					}
-
-					$words = explode(' ', $search_for);
-					$value = strip_tags($value);
-
-					preg_match_all('/('.addslashes(implode('|', $words)).')/i', $value, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
-
-					// We go backwards, because that way we don't invalidate
-					// our offsets. This section ellipsisises the bits between
-					// matches so that there's 15 characters either side of
-					// matches.
-
-					// Last match position
-					if ($matches[count($matches) - 1][0][1] < strlen($value) - 15) {
-						$value = substr_replace($value, '...', $matches[count($matches) - 1][0][1] + 15);
-					}
-
-					for ($i = count($matches) - 1; $i > 0; $i--) {
-						$previous_match = $matches[$i - 1][0];
-						$this_match = $matches[$i][0];
-
-						$prev_pos = $previous_match[1] + strlen($previous_match[0]);
-						$next_pos = $this_match[1];
-
-						if (($next_pos - $prev_pos) > 30) {
-							$value = substr_replace($value, '...', $prev_pos + 15, ($next_pos - $prev_pos) - 30);
+							case 'attributes':
+								$name_detail = 'Attribute: '.ucwords(str_replace('_', ' ', $name));
+							break;
 						}
-					}
 
-					// First match position
-					if ($matches[0][0][1] > 15) {
-						$value = substr_replace($value, '...', 0, $matches[0][0][1] - 15);
-					}
+						$words = explode(' ', $search_for);
+						$value = strip_tags($value);
 
-					// Cut it down to a certain number of characters anyway
-					$value = ellipsisize($value, 120);
+						preg_match_all('/('.addslashes(implode('|', $words)).')/i', $value, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
 
-					$value = preg_replace('/('.addslashes(implode('|', $words)).')/i', '<span class="sq-backend-search-results-highlight">$1</span>', $value);
+						// We go backwards, because that way we don't invalidate
+						// our offsets. This section ellipsisises the bits between
+						// matches so that there's 15 characters either side of
+						// matches.
 
-					// remove \r and replace \n with line breaks
-					$this_detail[] = $name_detail.'<br/><em>'.str_replace("\r", '', str_replace("\n", '<br/>', $value)).'</em>';
+						// Last match position
+						if ($matches[count($matches) - 1][0][1] < strlen($value) - 15) {
+							$value = substr_replace($value, '...', $matches[count($matches) - 1][0][1] + 15);
+						}
+
+						for ($i = count($matches) - 1; $i > 0; $i--) {
+							$previous_match = $matches[$i - 1][0];
+							$this_match = $matches[$i][0];
+
+							$prev_pos = $previous_match[1] + strlen($previous_match[0]);
+							$next_pos = $this_match[1];
+
+							if (($next_pos - $prev_pos) > 30) {
+								$value = substr_replace($value, '...', $prev_pos + 15, ($next_pos - $prev_pos) - 30);
+							}
+						}
+
+						// First match position
+						if ($matches[0][0][1] > 15) {
+							$value = substr_replace($value, '...', 0, $matches[0][0][1] - 15);
+						}
+
+						// Cut it down to a certain number of characters anyway
+						$value = ellipsisize($value, 120);
+
+						$value = preg_replace('/('.addslashes(implode('|', $words)).')/i', '<span class="sq-backend-search-results-highlight">$1</span>', $value);
+
+						// remove \r and replace \n with line breaks
+						$this_detail[] = $name_detail.'<br/><em>'.str_replace("\r", '', str_replace("\n", '<br/>', $value)).'</em>';
+					}//end foreach
 				}//end foreach
+
+				$asset_name = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($result_assetid, 'asset', FALSE, 'name');
+
+				$result_list[] = Array(
+									'tag_line'	=> get_asset_tag_line($result_assetid, 'javascript:set_asset_finder_from_search(\''.$result_assetid.'\', \''.htmlspecialchars($asset_name[$result_assetid], ENT_QUOTES).'\', \'\', \'0\');'),
+									'detail'	=> implode($this_detail, '<br/>'),
+								 );
 			}//end foreach
-
-			$asset_name = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($result_assetid, 'asset', FALSE, 'name');
-
-			$result_list[] = Array(
-								'tag_line'	=> get_asset_tag_line($result_assetid, 'javascript:set_asset_finder_from_search(\''.$result_assetid.'\', \''.htmlspecialchars($asset_name[$result_assetid], ENT_QUOTES).'\', \'\', \'0\');'),
-								'detail'	=> implode($this_detail, '<br/>'),
-							 );
-		}//end foreach
-	}//end if
+		}//end if
+	}//end else
 
 	// Are there any results? If not, put in a "search failed" box, otherwise
 	// build the results box
