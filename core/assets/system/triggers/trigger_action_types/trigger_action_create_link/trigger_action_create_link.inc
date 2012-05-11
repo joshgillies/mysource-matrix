@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_link.inc,v 1.29 2010/07/14 05:11:49 csmith Exp $
+* $Id: trigger_action_create_link.inc,v 1.29.10.1 2012/05/11 02:10:15 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.29.10.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -141,9 +141,13 @@ class Trigger_Action_Create_Link extends Trigger_Action
 			}
 		}
 
+		// Whether to add auto remap
+		$rm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
+		$auto_add_remaps = $rm->attr('remap_upon_webpath_change');
+
 		// update lookups for both assets
-		$major->updateLookups();
-		$minor->updateLookups();
+		$major->updateLookups($auto_add_remaps);
+		$minor->updateLookups($auto_add_remaps);
 
 		return Array(
 				'linkid'		=> $action_link['linkid'],
