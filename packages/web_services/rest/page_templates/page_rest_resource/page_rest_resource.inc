@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rest_resource.inc,v 1.7 2012/05/09 01:39:22 akarelia Exp $
+* $Id: page_rest_resource.inc,v 1.8 2012/05/14 09:24:04 cupreti Exp $
 *
 */
 
@@ -147,6 +147,9 @@ class Page_REST_Resource extends Page
 			$http_attr->setKeywordReplacements($available_keywords);
 
 			$this->_res =& $http_attr->run();
+
+			// trigger the event with this REST asset as a triggering asset and a response received
+			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_rest_response_received', $this, $this->_res);
 		}
 
 	}//end _process()

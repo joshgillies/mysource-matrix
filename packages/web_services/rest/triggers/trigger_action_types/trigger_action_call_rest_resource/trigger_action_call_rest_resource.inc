@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_call_rest_resource.inc,v 1.6 2010/07/14 05:23:09 csmith Exp $
+* $Id: trigger_action_call_rest_resource.inc,v 1.7 2012/05/14 09:24:42 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_ATTRIBUTES_PATH.'/http_request/http_request.inc';
 *
 *
 * @author  Maki Maruyama <mmaruyama@squiz.co.uk>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage rest
 */
@@ -111,6 +111,8 @@ class Trigger_Action_Call_Rest_Resource extends Trigger_Action
 		// send the request
 		$res =& $http_request_attr->run();
 
+		// pass the triggering asset and REST responses received
+		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_rest_response_received', $state['asset'], $res);
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($state['asset']);
 
 		return Array(
