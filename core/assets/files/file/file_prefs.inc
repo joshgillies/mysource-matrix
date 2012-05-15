@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_prefs.inc,v 1.16.10.1 2012/05/15 01:51:40 akarelia Exp $
+* $Id: file_prefs.inc,v 1.16.10.2 2012/05/15 05:13:49 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Looks after the creation the WYSIWYG preferences
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16.10.1 $
+* @version $Revision: 1.16.10.2 $
 * @package MySource_Matrix
 */
 class File_Prefs extends Prefs
@@ -133,7 +133,10 @@ class File_Prefs extends Prefs
 
 			if ($have_lock && $is_admin) {
 				text_box('prefs[SQ_FILE_MAX_SIZE]', $this->pref_vars['SQ_FILE_MAX_SIZE']['default'], 10);
-				echo $o->note(translate('warn_max_settable_file_size', '<b>'.strtoupper(easy_filesize($php_max_file_size)).'</b>', '<b>'.strtoupper(easy_filesize($post_size)).'</b>'));
+				echo $o->note(translate('warn_max_settable_file_size', '<b>'.strtoupper(easy_filesize($php_max_file_size)).'</b>'));
+				if ($ini_size > $post_size) {
+					echo $o->note(translate('warn_max_settable_file_size_warning', '<b>'.strtoupper(easy_filesize($post_size)).'</b>'));
+				}
 			} else {
 				if (!$this->pref_vars['SQ_FILE_MAX_SIZE']['default']) {
 					echo translate('warn_set_max_file_size', '<b>'.strtoupper(easy_filesize($php_max_file_size)).'</b>');
@@ -146,9 +149,12 @@ class File_Prefs extends Prefs
 					}
 
 					if ($max_file_size > $php_max_file_size) {
-						echo translate('file_size_above_limit', '<b>'.strtoupper(easy_filesize($max_file_size)).'</b>', '<b>'.strtoupper(easy_filesize($php_max_file_size)).'</b>', '<b>'.strtoupper(easy_filesize($post_size)).'</b>');
+						echo translate('file_size_above_limit', '<b>'.strtoupper(easy_filesize($max_file_size)).'</b>', '<b>'.strtoupper(easy_filesize($php_max_file_size)).'</b>');
 					} else {
 						echo strtoupper(easy_filesize($max_file_size));
+					}
+					if ($ini_size > $post_size) {
+						echo $o->note(translate('warn_max_settable_file_size_warning', '<b>'.strtoupper(easy_filesize($post_size)).'</b>'));
 					}
 				}
 			}
