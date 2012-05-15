@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.398.2.12 2012/05/07 01:04:53 mhaidar Exp $
+* $Id: lang_strings.xml,v 1.398.2.13 2012/05/15 02:00:15 akarelia Exp $
 *
 */
 
@@ -894,9 +894,9 @@
 	<string source="path_to_markdownify_no_required_method">The markdownify PHP file does not have the required %s class (took from file name) or parseString method</string>
 
 	<string source="warn_set_max_file_size">You have not set a maximum file upload size. The current PHP limit of %s will be applied to all file uploads.</string>
-	<string source="warn_max_settable_file_size">The maximum file size can be entered in shorthand notation: 'K' for kilobytes, 'M' for megabytes. The maximum file size allowed by PHP on this system is "%s"</string>
+	<string source="warn_max_settable_file_size">The maximum file size can be entered in shorthand notation: 'K' for kilobytes, 'M' for megabytes. The maximum file size allowed by PHP on this system is "%1$s".&lt;br&gt;&lt;b&gt;NOTE: &lt;/b&gt;Make sure the PHP defined 'max_post_size' (currently set to %2$s) is greater than Max File Upload config otherwise PHP will blank out POST array if the data is over limit and no error is reported in Matrix.</string>
 	<string source="warn_preuploaded_max_settable_file_size">The maximum file size can be created from the pre-uploaded files. When the value is zero, this option will be ignored.</string>
-	<string source="file_size_above_limit">The current setting of %1$s is greater than than the PHP limit of %2$s. The PHP limit will be applied to all file uploads.</string>
+	<string source="file_size_above_limit">The current setting of %1$s is greater than than the PHP limit of %2$s. The PHP limit will be applied to all file uploads. &lt;br&gt;&lt;b&gt;NOTE: &lt;/b&gt;Make sure the PHP defined 'max_post_size' (currently set to %3$s) is greater than Max File Upload config otherwise PHP will blank out POST array if the data is over limit and no error is reported in Matrix.</string>
 	<string source="body_type">Body Type</string>
 	<string source="mozilla_always_uses_iframe">In Mozilla, an iFrame will always be used. This setting only affects Internet Explorer.</string>
 	<string source="all_plugins_selected">All plugins are selected</string>
