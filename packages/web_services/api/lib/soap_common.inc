@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_common.inc,v 1.1.2.2 2011/10/24 07:26:35 akarelia Exp $
+* $Id: soap_common.inc,v 1.1.2.3 2012/05/16 01:44:49 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ define('MAX_COMPLEX_TYPE_PASRSE_LOOP', 3);
 * This class will have all the common functions used for SOAP trigger and form actions
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.1.2.2 $
+* @version $Revision: 1.1.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -70,7 +70,6 @@ class SOAP_Common
 				}
 			}
 		}
-	log_dump($_SESSION[SQ_SESSION_SANDBOX_INDEX]);
 
 	}//end _store_results()
 
@@ -316,6 +315,11 @@ class SOAP_Common
 		if ($settings['run_test']) {
 			$options['trace'] = 1;
 		}
+
+		if ($settings['mute_exceptions']) {
+			$options['exceptions'] = 0;
+		}
+
 		$options['cache_wsdl'] = WSDL_CACHE_NONE;
 
 		return $options;
@@ -389,7 +393,7 @@ class SOAP_Common
 
 		// generate url for file and throw it back to be used in the 
 		// the keywords replacement array
-		$file_url = "./?SQ_ACTION=get_soap_downloaded_file&soap_filename=$file_name";
+		$file_url = './?SQ_ACTION=get_soap_downloaded_file&soap_filename='.$file_name;
 		
 		return $file_url;
 
