@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_common.inc,v 1.1 2011/10/04 05:32:49 akarelia Exp $
+* $Id: soap_common.inc,v 1.1.4.1 2012/05/16 01:44:33 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ define('MAX_COMPLEX_TYPE_PASRSE_LOOP', 3);
 * This class will have all the common functions used for SOAP trigger and form actions
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -315,6 +315,11 @@ class SOAP_Common
 		if ($settings['run_test']) {
 			$options['trace'] = 1;
 		}
+
+		if ($settings['mute_exceptions']) {
+			$options['exceptions'] = 0;
+		}
+
 		$options['cache_wsdl'] = WSDL_CACHE_NONE;
 
 		return $options;
