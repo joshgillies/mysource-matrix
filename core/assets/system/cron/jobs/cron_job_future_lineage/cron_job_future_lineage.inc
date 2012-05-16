@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage.inc,v 1.36 2010/12/21 00:36:19 ewang Exp $
+* $Id: cron_job_future_lineage.inc,v 1.36.8.1 2012/05/16 04:48:56 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.36.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -341,7 +341,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	* @see Cron_Job::_exec(), Cron_Job::run()
 	*/
 	protected function _exec(&$msg)
-	{
+	{	
 		// we can be removed because the error is beyound our control
 		$failed_ret_val = SQ_CRON_JOB_ERROR | SQ_CRON_JOB_REMOVE;
 
@@ -386,28 +386,23 @@ class Cron_Job_Future_Lineage extends Cron_Job
 			
 			$can_safe_trash = $this->_canSafeTrash($minor, $exclude_self);
 		}
-	
-
+		
+		$existing_links = Array();
+		if ($this->attr('delete_link_all') == TRUE && $can_safe_trash) {	
+			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($main_asset->id, SQ_SC_LINK_SIGNIFICANT, '', TRUE, $side_of_link);			
+			foreach ($links as $link) {
+				$existing_links[] = $link['linkid'];
+			}
+		} else if ($this->attr('delete_linkid') > 0 && $can_safe_trash) {
+			$existing_links[] = $this->attr('delete_linkid');
+		}//end if
+		
+		log_dump($existing_links);
+		
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$delete_link_success = TRUE;
-		if ($this->attr('delete_link_all') == TRUE && $can_safe_trash) {	
-			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($main_asset->id, SQ_SC_LINK_SIGNIFICANT, '', TRUE, $side_of_link);
-			foreach ($links as $link) {
-				if (!$delete_link_success = $this->_execDeleteLink($link['linkid'])) {
-					break;
-				}//end if
-			}
-		} else if ($this->attr('delete_linkid') > 0 && $can_safe_trash) {
-			$delete_link_success = $this->_execDeleteLink($this->attr('delete_linkid'));
-		}//end if
-
-		if (!$delete_link_success) return $failed_ret_val;
-
-
 		if (!is_null($target_asset)) {
-
 			// if moving to the trash, and it is not safe to do so, throw an error
 			$trash_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
 			if ($major->id == $trash_folder->id && !$can_safe_trash) {
@@ -449,6 +444,19 @@ class Cron_Job_Future_Lineage extends Cron_Job
 			}
 
 		}//end if
+		
+		// Now delete the previous links
+		$delete_link_success = TRUE;
+		foreach ($existing_links as $linkid) {
+			if (!$delete_link_success = $this->_execDeleteLink($linkid)) {
+				break;
+			}//end if
+		}
+		if (!$delete_link_success) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();			
+			return $failed_ret_val;
+		}		
 		
 		//update lookups for all assets involved
 		if(!empty($minor)){
