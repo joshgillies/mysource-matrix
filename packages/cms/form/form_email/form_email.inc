@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.76 2012/03/30 03:22:02 mhaidar Exp $
+* $Id: form_email.inc,v 1.77 2012/05/16 03:32:14 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.76 $
+* @version $Revision: 1.77 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -634,9 +634,12 @@ class Form_Email extends Form
 
 		// add attachments to emails
 		$current_value['attachments'] = Array();
-		$attachments = $this->_getAttachments();
-		$current_value['attachments'] = $attachments['assets'];
-		$filenames = $attachments['filenames'];
+		$filenames = Array();
+		if (array_get_index($current_value, 'inc_attachments', FALSE)) {
+			$attachments = $this->_getAttachments();
+			$current_value['attachments'] = $attachments['assets'];
+			$filenames = $attachments['filenames'];
+		}
 
 		$all_text = $current_value['html_format']
 					.' '.$current_value['text_format']
