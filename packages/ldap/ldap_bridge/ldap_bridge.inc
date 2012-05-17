@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.109 2012/03/16 06:33:33 cupreti Exp $
+* $Id: ldap_bridge.inc,v 1.110 2012/05/17 05:59:11 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.109 $
+* @version $Revision: 1.110 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -786,9 +786,8 @@ class LDAP_Bridge extends Asset implements Bridge
 			}
 
 			foreach (array_keys($parents) as $parentid) {
-				// ask the asset manager for the real parents _only_
-				// note that we do not come back to this function from the am
-				$real_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($parentid, $type_code, $strict_type_code, NULL, NULL, TRUE, NULL, NULL, TRUE);
+				// bug fix #5717 Permission cascade issue with Active Directory LDAP user
+				$real_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($parentid, $type_code, $strict_type_code);
 				$parents = $real_parents + $parents;
 			}
 
