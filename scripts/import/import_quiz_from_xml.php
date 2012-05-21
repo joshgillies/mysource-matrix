@@ -10,17 +10,40 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_quiz_from_xml.php,v 1.1 2012/05/21 23:23:05 hlliauw Exp $
+* $Id: import_quiz_from_xml.php,v 1.2 2012/05/21 23:36:38 hlliauw Exp $
 *
 */
 
 /**
 * Creates quiz and question assets based on an xml file provided.
 *
+*   # SAMPLE XML STRUCTURE
+*
+*	<exportquestions>
+*	  <pool Name="Question Group Name">
+*	    <question>
+*	      <QuestionText>Question Text</QuestionText>
+*	      <Option_A points="0">
+*	        <Option_Text>Yes</Option_Text>
+*	        <Response_Supplement />
+*	      </Option_A>
+*	      <Option_B points="0">
+*	        <Option_Text>No</Option_Text>
+*	        <Response_Supplement />
+*	      </Option_B>
+*	      <Option_C points="1">
+*	        <Option_Text>Correct Option</Option_Text>
+*	        <Response_Supplement>Sample Response Text</Response_Supplement>
+*	      </Option_C>
+*	    </question>
+*	  </pool>
+*	</exportquestions>
 *
 *
-* @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.1 $
+*
+*
+* @author  Han Loong Liauw <hlliauw@squiz.net>
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 
