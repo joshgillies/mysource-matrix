@@ -44,6 +44,10 @@ if [ "x$2" != "x" ]; then
 	CHECKOUT_DIR=$2
 fi
 
+# What do we need to check out?
+PACKAGES="bulkmail calendar cms data ecommerce filesystem funnelback google_maps import_tools ipb ldap news search sharepoint squid squiz_suite trim web_services"
+FUDGE_PACKAGES="antivirus colour csv datetime_field db_extras dev file_versioning general image image_editor js_calendar ldap mollom rss_feeds standards_lists var_serialise wysiwyg"
+
 if [ -d $CHECKOUT_DIR ]; then
 	echo "Directory $CHECKOUT_DIR already exists, aborting."
 	echo "Please specify a directory that doesn't exist."
@@ -51,15 +55,33 @@ if [ -d $CHECKOUT_DIR ]; then
 	exit 1
 fi
 
-PACKAGES="bulkmail calendar cms data ecommerce filesystem funnelback google_maps import_tools ipb ldap news search sharepoint squid squiz_suite trim web_services"
-FUDGE_PACKAGES="antivirus colour csv datetime_field db_extras dev file_versioning general image image_editor js_calendar ldap mollom rss_feeds standards_lists var_serialise wysiwyg"
+# cvs can't do checkouts to absolute paths, so we need to turn everything relative.
+#
+# Make sure we can create the path to the checkout dir.
+#
+checkoutBase=`dirname $CHECKOUT_DIR`
+if [ ! -d $checkoutBase ]; then
+    mkdir -p $checkoutBase
+    if [ $? -gt 0 ]; then
+        echo "Unable to make directory ${checkoutBase} to check out matrix to."
+        echo "Aborting."
+        exit 1
+    fi
+fi
+
+# Turn checkout_dir relative (to checkoutBase).
+CHECKOUT_DIR=`basename $CHECKOUT_DIR`
 
 echo "Checking out squiz matrix core .. "
 
+# Need to jump to the base dir to checkout to.
+pushd $checkoutBase >/dev/null
 $CVS -q -d :pserver:$USER:@$SERVER:$CVS_PUBLIC_PATH/core co -P -r $VERSION -d $CHECKOUT_DIR mysource_matrix > /dev/null
 
 if [ $? -gt 0 ]; then
 	echo "There was a problem checking out the matrix core"
+    echo "Make sure you have permissions to write to the ${checkoutBase}/${CHECKOUT_DIR}/ directory."
+    popd >/dev/null
 	exit
 fi
 
@@ -92,8 +114,11 @@ cd ..
 find . -type f -not -path ./MANIFEST -a -not -path "*/CVS/*" -print0 | sort -z -k 2 | xargs -0 md5sum > /tmp/MANIFEST.$$
 mv /tmp/MANIFEST.$$ ./MANIFEST
 
+# Jump back to our original location.
+popd >/dev/null
+
 echo ""
-echo "Everything has been checked out into the $CHECKOUT_DIR/ folder."
+echo "Everything has been checked out into the ${checkoutBase}/${CHECKOUT_DIR}/ folder."
 echo "For installation instructions, please visit"
 echo "http://matrix.squizsuite.net/quick-start-guide/manual-installation/"
 echo ""
