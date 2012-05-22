@@ -10,13 +10,13 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: convert_database.php,v 1.10 2011/12/19 01:05:55 csmith Exp $
+* $Id: convert_database.php,v 1.11 2012/05/22 03:27:33 csmith Exp $
 *
 */
 
 /**
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 * @subpackage scripts
 */
@@ -40,6 +40,10 @@ ini_set('memory_limit', '256M');
  * To do that, edit the data/private/conf/db.inc, set the details
  * and run
  * php install/step_02.php /path/to/mysource_matrix
+ *
+ * Once this script has run successfully, you will need to run rebake.php
+ * to fix up the baked out xml queries so they use the appropriate
+ * database type's syntaxes.
  */
 
 /**
@@ -490,6 +494,26 @@ MatrixDAL::dbClose($dest_db);
 MatrixDAL::dbClose($source_db);
 
 pre_echo('Conversion is complete');
+
+echo "\n";
+$rebakeCmd = "/usr/bin/php ${SYSTEM_ROOT}/scripts/dev/rebake.php ${SYSTEM_ROOT}";
+echo "rebake.php now needs to run. Do this now [Y/n] ? ";
+$response = strtolower(trim(fgets(STDIN)));
+if (empty($response) === TRUE) {
+    $response = 'y';
+}
+
+if ($response != 'y') {
+    pre_echo("You will need to run ${rebakeCmd} manually.\n");
+    exit;
+}
+
+echo "Running rebake.php now .. \n";
+$output = array();
+$rc     = -1;
+exec($rebakeCmd, $output, $rc);
+pre_echo("Rebake returned the following:\n".implode("\n", $output)."\n");
+pre_echo('This script is now finished.');
 
 /**
  * parse_tables_xml
