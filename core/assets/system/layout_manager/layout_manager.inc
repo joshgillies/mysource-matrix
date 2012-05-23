@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout_manager.inc,v 1.21 2010/06/15 02:12:28 bpearson Exp $
+* $Id: layout_manager.inc,v 1.21.10.1 2012/05/23 00:17:17 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.21.10.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -282,7 +282,7 @@ class Layout_Manager extends Asset
 	{
 		$layout_def = 'layout::'.$asset->type().'::'.$screen;
 		$layouts = $asset->getLookupValues(TRUE, $layout_def);
-		$url = str_replace('http://', '', $asset->getURL());
+		$url = preg_replace('|^https?://|', '', $asset->getURL());
 
 		if (!empty($layouts)) {
 			$layout = NULL;
