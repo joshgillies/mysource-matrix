@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.96 2011/11/23 06:48:09 cupreti Exp $
+* $Id: file_edit_fns.inc,v 1.96.2.1 2012/05/23 00:53:22 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.96 $
+* @version $Revision: 1.96.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -555,8 +555,9 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	{
 		$info = Array();
 		if (isset($_POST[$prefix.'_server_file']) && (!empty($_POST[$prefix.'_server_file']))) {
-			$info['name'] = $_POST[$prefix.'_server_file'];
-			$info['tmp_name'] = SQ_TEMP_PATH.'/'.$_POST[$prefix.'_server_file'];
+			$filename = trim($_POST[$prefix.'_server_file'], './');
+			$info['name'] = $filename;
+			$info['tmp_name'] = SQ_TEMP_PATH.'/'.$filename;
 			$info['non_uploaded_file'] = TRUE;
 		}
 		return $info;
