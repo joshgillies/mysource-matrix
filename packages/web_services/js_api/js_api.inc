@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.110 2012/05/08 08:19:33 cupreti Exp $
+* $Id: js_api.inc,v 1.111 2012/05/23 07:25:23 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.110 $
+* @version $Revision: 1.111 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -3754,6 +3754,7 @@ class JS_Api extends Page
 
 				// Send our JSON
 				$output = preg_replace('/(%){1}([globals_snippet_][_A-Za-z0-9\-]*)(%){1}/','&#37;$2&#37;', $output);
+				$output = str_replace('\\\\', '\\', $output);
 				echo $output;
 
 			}//end if
