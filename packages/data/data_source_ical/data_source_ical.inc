@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_ical.inc,v 1.8.2.1 2012/05/17 01:13:44 cupreti Exp $
+* $Id: data_source_ical.inc,v 1.8.2.2 2012/05/23 06:52:06 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once(SQ_INCLUDE_PATH.'/general_occasional.inc');
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.8.2.1 $
+* @version $Revision: 1.8.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -134,8 +134,8 @@ class Data_Source_iCal extends Data_Source
 		$index = 0;
 
 		if ($ical_data) {
-			// "Unfond" the lines in the ical feed
-			$ical_data = str_replace("\r\n\t", '', $ical_data);
+			// "Unfold" the lines in the ical feed
+			$ical_data = str_replace("\r\n ", '', str_replace("\r\n\t", '', $ical_data));
 			$ical_lines = explode("\r\n", $ical_data);
 			foreach($ical_lines as $line) {
 				$line = trim($line);
