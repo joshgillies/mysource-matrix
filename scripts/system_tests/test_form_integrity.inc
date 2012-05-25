@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: test_form_integrity.inc,v 1.2 2009/12/15 00:16:59 bpearson Exp $
+* $Id: test_form_integrity.inc,v 1.2.10.1 2012/05/25 00:17:11 ewang Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.10.1 $
 * @package MySource_Matrix
 */
 class Test_Form_Integrity
@@ -121,7 +121,7 @@ class Test_Form_Integrity
 				$action_type = $action['type_code'];
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset($action_type);
 
-				if (!$action['active'] && !call_user_func(Array($action_type, 'isValid'), $this, $action['settings'])) {
+				if (!$action['active'] && !call_user_func(Array($action_type, 'isValid'), $asset, $action['settings'])) {
 					$status = FALSE;
 					$invalid = TRUE;
 					$errors[] = 'Form #'.$assetid.' has an invalid form action ('.$action_type.')';
