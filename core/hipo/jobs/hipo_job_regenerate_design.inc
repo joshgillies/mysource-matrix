@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_regenerate_design.inc,v 1.3.2.1 2012/01/12 06:48:29 ewang Exp $
+* $Id: hipo_job_regenerate_design.inc,v 1.3.2.2 2012/05/28 00:34:39 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.3.2.1 $
+* @version $Revision: 1.3.2.2 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -57,7 +57,7 @@ class HIPO_Job_Regenerate_Design extends HIPO_Job
 	public static function paintConfig(&$o, $class, $write_access)
 	{
 		// design regeneration threshhold HIPO config entry
-		$o->openField('Hipo Job Regnerate Design');
+		$o->openField('Hipo Job Regenerate Design');
 
 		if ($write_access) {
 			text_box($class.'[SQ_HIPO_REGENERATE_DESIGN_THRESHOLD]', SQ_HIPO_REGENERATE_DESIGN_THRESHOLD, 1);
@@ -113,7 +113,7 @@ class HIPO_Job_Regenerate_Design extends HIPO_Job
 	*/
 	function getHipoName()
 	{
-		return 'Hipo Job Regnerate Design';
+		return 'Hipo Job Regenerate Design';
 
 	}//end getHipoName()
 
@@ -129,7 +129,7 @@ class HIPO_Job_Regenerate_Design extends HIPO_Job
 	{
 		return Array(
 				Array(
-					'name'		=> 'Hipo Job Regnerate Design',
+					'name'		=> 'Hipo Job Regenerate Design',
 					'function_call'	=> Array(
 							    'process_function'	=> 'processCustomisation',
 							),
