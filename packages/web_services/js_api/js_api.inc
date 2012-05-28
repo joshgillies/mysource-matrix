@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.93.2.13 2012/04/19 03:56:38 akarelia Exp $
+* $Id: js_api.inc,v 1.93.2.14 2012/05/28 00:57:28 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.93.2.13 $
+* @version $Revision: 1.93.2.14 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -388,7 +388,12 @@ class JS_Api extends Page
 				}
 
 				$func_name = '_'.$type;
-				$results[$track_func] = $this->$func_name($args, $asset, $ra, $wa);
+				try {
+					$results[$track_func] = $this->$func_name($args, $asset, $ra, $wa);
+				} catch (Exception $e) {
+					// If any exception was thrown when executing the function, catch it
+					$results[$track_func]['error'] = 'Exception occured when executing JS API function "'.$type.'()": '.$e->getMessage();
+				}
 
 				// if batching request and one of the function is set to blocking
 				// and of the function execution returned error bail out
