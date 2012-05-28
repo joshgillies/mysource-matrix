@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: suite_manager.inc,v 1.15 2012/04/24 00:57:37 akarelia Exp $
+* $Id: suite_manager.inc,v 1.16 2012/05/28 02:17:30 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage squiz_suite
 */
@@ -870,6 +870,7 @@ class Suite_Manager extends Page
 		foreach ($requiredParams as $param) {
 			$value = array_get_index($_POST, $param['name'], NULL);
 			$value = $this->decodeJson($value);
+			$value = htmlentities($value); 
 
 			if ($value === NULL && $encrypted !== NULL && array_key_exists($param['name'], $encrypted) === TRUE) {
 				$value = $this->decodeJson($encrypted[$param['name']]);
@@ -1077,9 +1078,17 @@ class Suite_Manager extends Page
 			}//end if
 		} else {
 			$apiURL = rtrim($apiURL, '/');
+			$getVars = '';
+			if (strpos($apiURL, '?') !== FALSE) {
+				$getVars = substr($apiURL, strpos($apiURL, '?'));
+				$apiURL  = substr($apiURL, 0, strpos($apiURL, '?'));
+				$getVars = str_replace('/__api', '', $getVars);
+			}
+
 			$apiURL .= '/'.$format;
 			$apiURL .= '/'.$system;
 			$apiURL .= '/'.$action;
+			$apiURL .= $getVars;
 			if ($action !== 'suiteConnect') {
 				// Set the encryption for all requests except suiteConnect,
 				// so the target system treats this request as a superuser.
@@ -1424,6 +1433,7 @@ class Suite_Manager extends Page
 		}
 
 		$headers = array('Expect:');
+		$url = rtrim($url, '/');
 		$details = fetch_url($url, $options, $headers, FALSE);
 		if ($details['response'] === FALSE) {
 			$errMsg = 'cURL failed:'.$details['errorstring'];
