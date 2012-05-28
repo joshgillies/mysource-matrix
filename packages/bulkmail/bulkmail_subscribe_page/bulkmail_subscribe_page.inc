@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_subscribe_page.inc,v 1.32 2011/06/15 23:02:33 ewang Exp $
+* $Id: bulkmail_subscribe_page.inc,v 1.32.2.1 2012/05/28 00:56:27 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once 'Mail/mime.php';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayne Ong <rong@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.32.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -302,6 +302,13 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 		$all_mailing_lists = $this->getAvailableLocations();
 		$parents = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($user->id, 'user_group', FALSE));
 		$current_subscriptions = array_intersect($all_mailing_lists, $parents);
+
+		// if the 'Show Root Node' is set to yes and if it was selected then we wont find the individual assetids
+		// for the subscription and unsubscriptions. see bug #5705 Problem with "all" on Bulkmail subscribe page
+		if ($this->attr('include_root_node')) {
+			if (in_array($this->attr('root_node'), $subscriptions)) $subscriptions = $all_mailing_lists;
+			if (in_array($this->attr('root_node'), $unsubscriptions)) $unsubscriptions = $all_mailing_lists;
+		}
 
 		$bad_subscriptions = array_diff($subscriptions, $all_mailing_lists);
 		$bad_unsubscriptions = array_diff($unsubscriptions, $all_mailing_lists);
