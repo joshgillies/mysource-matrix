@@ -11,7 +11,7 @@
 * +--------------------------------------------------------------------+
 *
 *
-* $Id: key_reminder.inc,v 1.8 2010/05/05 04:27:05 lwright Exp $
+* $Id: key_reminder.inc,v 1.8.12.1 2012/05/29 03:45:36 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 * Purpose
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.12.1 $
 * @package MySource_Matrix
 */
 ?>
@@ -39,7 +39,7 @@
 			<div class="key-reminder-body">
 			<p class="key-reminder-warning">YOUR WARRANTY KEY IS INVALID CONSEQUENTLY YOUR SYSTEM IS CURRENTLY NOT WARRANTED.</p>
 
-			<p>MySource Matrix is an open source product with the benefit of full commercial support provided through Squiz Service Level Agreements. A valid <em>Warranty Key</em> is a means to alert administrators of the presence or absence of a current Squiz Service Level agreement.</p>
+			<p>Squiz Matrix is an open source product with the benefit of full commercial support provided through Squiz Service Level Agreements. A valid <em>Warranty Key</em> is a means to alert administrators of the presence or absence of a current Squiz Service Level agreement.</p>
 
 			<p>The <em>Warranty Key</em> is a code provided by Squiz that contains encoded information about when your system warranty will expire and a portion of your <em>Install Key</em>.  It is used by Squiz Support to provide you appropriate levels of support and warranty. It does not include any personal or other identifying information.</p>
 
@@ -47,9 +47,9 @@
 
 			<h2>Obtaining a Warranty Key</h2>
 
-			<p>To obtain a <em>Warranty Key</em> from Squiz, you need to obtain the <em>Install Key</em> for this system. You can find the install key from the <strong>System Administration</strong> screen.</p>
+			<p>To obtain a <em>Warranty Key</em> from Squiz, you need to obtain the <em>Install Key</em> for this system. You can find the install key from the <strong>System Configuration</strong> screen.</p>
 
-			<p>Once you have obtained the <em>Install Key</em>, you will need to send it to Squiz (contact details below) so that they may provide you with a <em>Warranty Key</em>. Once you have received a <em>Warranty Key</em>, you enter this on the <strong>System Administration</strong> screen, next to where you obtained your <em>Install Key</em>.</p>
+			<p>Once you have obtained the <em>Install Key</em>, you will need to send it to Squiz (contact details below) so that they may provide you with a <em>Warranty Key</em>. Once you have received a <em>Warranty Key</em>, you enter this on the <strong>System Configuration</strong> screen, next to where you obtained your <em>Install Key</em>.</p>
 
 			<h2>Contacting Squiz</h2>
 
