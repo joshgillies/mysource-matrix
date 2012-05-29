@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.93.2.14 2012/05/28 00:57:28 cupreti Exp $
+* $Id: js_api.inc,v 1.93.2.15 2012/05/29 05:58:13 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.93.2.14 $
+* @version $Revision: 1.93.2.15 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1874,13 +1874,22 @@ class JS_Api extends Page
 				$valid_type_code= $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('file', TRUE);
 
 				if(!in_array(Array($type_code), $valid_type_code)) {
+
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
+					$new_asset = new $type_code();
+
+					require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+					$file_ext = get_file_type($filename);
+
+					if (!in_array($file_ext, $new_asset->allowed_extensions)) {
+						return Array('error' => 'The supplied file extension "'.$file_ext.'" is not allowed for file type "'.$type_code."'");
+					}
 					//We are going to write to the Matrix Data tmp dir
-					$tmp_file_name  = $this->getRandomFilename($file_name);
-					$file_ext = $this->get_file_extension($type_code);
+					$tmp_file_name  = $this->getRandomFilename($filename);
 					$destination_file   = SQ_DATA_PATH.'/temp/'.$tmp_file_name.'.'.$file_ext;
 
 					while (file_exists($destination_file)) {
-						$tmp_file_name  = $this->getRandomFilename($file_name);
+						$tmp_file_name  = $this->getRandomFilename($filename);
 						$destination_file   = SQ_DATA_PATH.'/temp/'.$tmp_file_name.'.'.$file_ext;
 					}//end while
 
@@ -1902,26 +1911,22 @@ class JS_Api extends Page
 								'sort_order'=> -1,
 							);
 
-					$filename_w_extension = $filename.'.'.$file_ext;
-					require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-					$file_type = get_file_type($filename_w_extension);
-
 					$file_info = Array (
 									'name'				=> $filename,
 									'tmp_name'			=> $destination_file,
-									'type'				=> $file_type,
+									'type'				=> $file_ext,
 									'error'				=> 0,
 									'size'				=> filesize($destination_file),
-									'filename'			=> $filename_w_extension,
+									'filename'			=> $filename,
 									'non_uploaded_file' => TRUE,
 								 );
 
-					$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
-					$new_asset = new $type_code();
 					//fake it
 					$new_asset->_tmp['uploading_file'] = TRUE;
 					if ($type_code == 'data_source_graph') $new_asset->setAttrValue('title', $filename);
+
 					$success = $new_asset->create($link, $file_info);
+
 
 					if (!$success) {
 						$data['error'] = 'Error occured while creating new asset of type \''.$type_code.'\'';
@@ -1947,7 +1952,7 @@ class JS_Api extends Page
 		return $data;
 
 	}// end _createFileAsset
-
+	
 
 	/**
 	* updates the file content of the editable file types viz: xml_file, xsl_file, css_file, text_file and js_file 
