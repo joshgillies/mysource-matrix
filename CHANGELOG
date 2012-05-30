@@ -1,5 +1,213 @@
 SQUIZ MATRIX CHANGELOG
 
+VERSION 4.10.0 RC1
+
+Featured Changes
+===================================
+
+New Option to Create LDAP Users as Matrix Simple Edit Users [ Feature Request #5611 ]
+-----------------------------------------------------
+
+Squiz Matrix's LDAP Bridge asset allows you to connect to an external LDAP directory, exposing any LDAP users within the system. These users can then be utilised within Matrix, with the ability to log in and view/edit content.
+
+Previously, the LDAP Bridge provided the option of assigning LDAP users with either a Backend User or regular User status, employing these users with the designated user authority.
+
+This feature introduces the option of stipulating that LDAP users be appointed as Simple Edit User types when exposed within Matrix. These users are restricted to editing content within the Simple Edit interface of a site.
+
+This setting is configured in the User Type field on the Details screen of an LDAP Bridge asset.
+
+This feature has been added to provide greater control over LDAP users within Squiz Matrix.
+
+Send Submission Log to Email Cron Job [ Feature Request #5620 ]
+-----------------------------------------------------
+
+A new setting has been added to Squiz Matrix's Custom Form asset, allowing you to create a new cron job that will automatically send form submission logs via email.
+
+This setting is configured under a new Send Submissions To Email section on the Submission Logs screen of a Custom Form.
+
+You can configure the frequency of when the Send Submission Log job is run, as well as specifying the format of the submission logs (CSV or XML) and from which date to send the logs of.
+
+The recipients and format of the Send Submission Log email is managed on the Details screen of the cron job. The keyword replacements available on a Custom Form can be used to define the layout of the email.
+
+Configured Send Submission Log jobs will be listed on the Details screen of the Cron Manager as Repeating cron jobs. You can add multiple Send Submission Log cron jobs to send various different logs.
+
+Nest Keyword Replacements Within Modifiers [ Feature Request #5646 ]
+-----------------------------------------------------
+
+Keyword modifiers within Squiz Matrix allow you to modify the returned values of keyword replacements. These modifiers take argument values that allow you to customise this process.
+
+Previously, keyword modifiers did not support the use of keyword replacements as arguments. This feature resolves this issue by providing support for nested keywords within the arguments of a modifier.
+
+This is achieved through a new replace_keywords modifier. This modifier is used before a regular modifier to indicate that any keywords used within the specified arguments should be replaced with the appropriate keyword value.
+
+Keywords nested within a modifier are enclosed in braces (curly brackets) rather than percent signs.
+
+In the example below, the replace_keywords modifier has been used to replace the asset_metadata_price keyword argument within the eq modifier.
+
+ %asset_metadata_show_price^replace_keywords:eq:1:{asset_metadata_price}% 
+
+If the asset_metadata_show_price value is equal to 1, it will be replaced with the returned value of the asset_metadata_price keyword. If the replace_keywords modifier is not used, the value would simply use the text "asset_metadata_price"; the keyword would not be replaced.
+
+The replace_keywords modifier will replace all standard and metadata keyword replacements as well as a limited amount of special asset-specific keywords. Global keyword replacements are not supported by this modifier.
+
+This feature has been added to provide further implementation solutions and to prevent complex workarounds that were previously being used.
+
+Specify Binary Attributes on LDAP Data Source [ Feature Request #5682 ]
+-----------------------------------------------------
+
+Squiz Matrix's LDAP Data Source asset allows you to query external LDAP directories, returning LDAP users as shadow assets within your system.
+
+The LDAP Data Source's Search Filter allows you to specify the user attributes to extract from the LDAP directory, such as names, descriptions etc. Previously, however, attributes containing binary data would not be recognised as such by Squiz Matrix and would return a corrupt value on the LDAP Data Source.
+
+This feature adds a new option to the Search Filter on the LDAP Data Source, allowing you to specify the binary attributes to extract. Attributes specified in the Binary Attributes to Extract field will be returned correctly as binary data and can be used within the system through the use of keyword replacements. 
+
+Preserve Query String in Remaps [ Feature Request #5684 ]
+-----------------------------------------------------
+
+A new global preference has been added to Squiz Matrix's Remap Manager, allowing you to preserver query strings in remapped URLs. Currently, query strings are disregarded during a remap - this new functionality allows you to preserve any appended query strings, as well as define when query string should not be preserved.
+
+The Preserve query string in remaps? option is enabled by default on new installations. This means that query strings will be preserved for each remap, except where a trailing ? is appended to the end of the target URL.
+
+Examples of this functionality are outlined below:
+
+Remap: /foo -> /bar
+Matches: /foo
+Redirect: /bar 
+
+Remap: /foo -> /bar
+Matches: /foo?SQ_DESIGN_NAME=bar
+Redirect: /bar?SQ_DESIGN_NAME=bar
+
+Remap: /foo? -> /bar
+Matches: /foo?SQ_DESIGN_NAME=bar
+Redirect: /bar
+
+New Trigger Event and Condition to Check REST Response  [ Feature Request #5712 ]
+-----------------------------------------------------
+
+A new trigger event has been added to Squiz Matrix, firing a trigger after receiving a response from a REST Resource (i.e. a REST Resource asset or Call REST Resource trigger action etc.).
+
+The REST Response Received trigger event can be used in conjunction with the new REST Response trigger condition. This condition evaluates the response of a REST Resource within Squiz Matrix, matching against either request URLs, http codes or the body of the REST response.
+
+Like the Join User Group For Session trigger action, the REST Response Received event and REST Response condition have been added to strengthen the functionality of the Squiz Matrix trigger system and expand on the trigger set-ups available to users.
+
+New Trigger Action to Dynamically Link User to a User Group [ Feature Request #5713 ]
+-----------------------------------------------------
+
+Trigger actions allow you to specify tasks that will be performed when a fired trigger meets a specified set of conditions. Squiz Matrix boasts an extensive array of trigger actions that are available, from creating new assets to updating your status on twitter.
+
+This feature introduces a brand new trigger action to allow the current user to be dynamically linked to a user group throughout the remainder of the login session.
+
+The Join User Group For Session trigger action can be configured on the Details screen of a trigger and allows you to specify a user group by asset ID (either selected from the Asset Map or retrieved via a keyword replacement).
+
+When the trigger is fired, the currently logged-in user will be dynamically linked to the selected user group for the remainder of the session, until it expires or the user logs out. This allows you to associate a user with a user group without physically linking that user.
+
+The Join User Group For Session trigger action has been added to strengthen the functionality of the Squiz Matrix trigger system and expand on the trigger set-ups available to users.
+
+New Script to Import Quiz Questions From an XML File [ Feature Request #5718 ]
+-----------------------------------------------------
+
+This feature introduces the new import_quiz_from_xml.php script to the Matrix database, allowing you to import Online Quiz questions and groups from an XML File.
+
+The XML file containing the Online Quiz questions is presented in the following format:
+
+<exportquestions>
+ <pool Name="Question Group Name">
+   <question>
+     <QuestionText>Question Text</QuestionText>
+     <Option_A points="0">
+       <Option_Text>Yes</Option_Text>
+       <Response_Supplement />
+     </Option_A>
+     <Option_B points="0">
+       <Option_Text>No</Option_Text>
+       <Response_Supplement />
+     </Option_B>
+     <Option_C points="1">
+       <Option_Text>Correct Option</Option_Text>
+       <Response_Supplement>Sample Response Text</Response_Supplement>
+     </Option_C>
+   </question>
+ </pool>
+</exportquestions>
+
+An example usage of this script is shown below.
+
+$ php scripts/import/import_quiz_from_xml.php $PWD 123 quiz.xml
+
+*** Import Complete *** 
+Questions Created :     20
+Groups Created :        3
+*** Import Complete ***
+
+
+Additional Changes and Bug Fixes
+=================================== 
+
+Minor Enhancements
+
+Minor Enhancement #5576: Maximum File Size Accurately Calculated for System File Size Limit.
+Minor Enhancement #5649: Asset Manager's generateGetParentsQuery Function Enhancement.
+Minor Enhancement #5662: Improved Error Handling on Squiz Matrix Quick Search.
+Minor Enhancement #5678: Improved Error Handling for Non-Existent Workflow Schemas.
+Minor Enhancement #5692: Asset Content Keywords on as_asset Modifier.
+Minor Enhancement #5639: Improved Error Handling for Unauthorised Dynamic Root Nodes.
+Minor Enhancement #5694: Improved System Management Preventing Recalculation of Data.
+Minor Enhancement #5695: Asset Map Support for Shadow Simple Edit Users.
+Minor Enhancement #5701: REST Resource: Control the Replacing of Keywords in Response.
+Minor Enhancement #5711: JS API Error Handling on setWebPath Function when String Length Greater than 255 Chars.
+Minor Enhancement #5715: SOAP Submission Action: Mute Exceptions on Test Run.
+Minor Enhancement #5717: Active Directory LDAP User Permissions Enhancement. 
+
+Core
+
+Fixed Bug #5657: Matrix doesn't fail over to alternate memcached servers for cache, locking or deja vu.
+Fixed Bug #5674: Snippet folder and Oracle limit (error ORA-01795).
+Fixed Bug #5675: Invalid HTML on asset builder if select metadata field has spaces in key.
+Fixed Bug #5677: Select options position toggles fail after deleting options from list.
+Fixed Bug #5683: step_02 should not error first time around on Oracle.
+Fixed Bug #5687: Admin Quick Search doesn't seem to find https URLs that have force secure.
+Fixed Bug #5696: Errors when the Allowed File Extensions to Upload settings have been customised.
+Fixed Bug #5699: Quick Search on Insert link plugin for WYSIWYG different to Quick Search in Admin interface.
+Fixed Bug #5702: system_parse_designs.php and system_parse_design.php failed to include files.
+Fixed Bug #5703: Create Link Trigger adds a remap.
+Fixed Bug #5714: Set Future Lineage cron job creating an extra asset link to the Trash.
+Fixed Bug #5719: Edit screen not acquiring locks over https.
+Fixed Bug #5723: Checkout.sh can't handle full paths for its checkout target.
+Fixed Bug #5726: test_form_integrity system test script undefined variable $this.
+Fixed Bug #5727: Invalid Warranty Key screen errors.
+
+CMS
+
+Fixed Bug #5604: Asset Builder Created Bodycopy prints form tags.
+Fixed Bug #5700: Generating "broken links" link report asset can throw fatal error.
+Fixed Bug #5716: "Include file attachments" setting in the Custom Form's Email Option not working. 
+
+LDAP
+
+Fixed Bug #5686: Asset Builder Created Bodycopy prints form tags. 
+
+Bulkmail
+
+Fixed Bug #5705: Problem with "all" on Bulkmail subscribe page. 
+
+Calendar
+
+Fixed Bug #5691: Event search result returning recurring event instances beyond event's stop date. 
+
+Data
+
+Fixed Bug #5709: iCal Data Source not unfolding content. 
+
+Squid
+
+Fixed Bug #5706: Clear Squid Cache returns binary data to the browser window. 
+
+SharePoint
+
+Fixed Bug #5697: SharePoint form action to create list not valid for entered connection details.
+
+
 
 VERSION 4.8.0 RC1
 
