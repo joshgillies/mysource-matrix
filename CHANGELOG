@@ -1,5 +1,82 @@
 SQUIZ MATRIX CHANGELOG
 
+VERSION 4.8.3
+
+Featured Changes
+===================================
+
+Specify Binary Attributes on LDAP Data Source [ Feature Request #5682 ]
+-----------------------------------------------------
+
+Squiz Matrix's LDAP Data Source asset allows you to query external LDAP directories, returning LDAP users as shadow assets within your system.
+
+The LDAP Data Source's Search Filter allows you to specify the user attributes to extract from the LDAP directory, such as names, descriptions etc. Previously, however, attributes containing binary data would not be recognised as such by Squiz Matrix and would return a corrupt value on the LDAP Data Source.
+
+This feature adds a new option to the Search Filter on the LDAP Data Source, allowing you to specify the binary attributes to extract. Attributes specified in the Binary Attributes to Extract field will be returned correctly as binary data and can be used within the system through the use of keyword replacements. 
+
+
+Additional Changes and Bug Fixes
+=================================== 
+
+Minor Enhancements
+
+Minor Enhancement #5662: Improved Error Handling on Squiz Matrix Quick Search.
+Minor Enhancement #5678: Improved Error Handling for Non-Existent Workflow Schemas.
+Minor Enhancement #5692: Asset Content Keywords on as_asset Modifier.
+Minor Enhancement #5639: Improved Error Handling for Unauthorised Dynamic Root Nodes.
+Minor Enhancement #5695: Asset Map Support for Shadow Simple Edit Users.
+Minor Enhancement #5701: REST Resource: Control the Replacing of Keywords in Response.
+Minor Enhancement #5711: JS API Error Handling on setWebPath Function when String Length Greater than 255 Chars.
+Minor Enhancement #5715: SOAP Submission Action: Mute Exceptions on Test Run.
+Minor Enhancement #5717: Active Directory LDAP User Permissions Enhancement. 
+
+Core
+
+Fixed Bug #5657: Matrix doesn't fail over to alternate memcached servers for cache, locking or deja vu.
+Fixed Bug #5674: Snippet folder and Oracle limit (error ORA-01795).
+Fixed Bug #5675: Invalid HTML on asset builder if select metadata field has spaces in key.
+Fixed Bug #5677: Select options position toggles fail after deleting options from list.
+Fixed Bug #5683: step_02 should not error first time around on Oracle.
+Fixed Bug #5687: Admin Quick Search doesn't seem to find https URLs that have force secure.
+Fixed Bug #5696: Errors when the Allowed File Extensions to Upload settings have been customised.
+Fixed Bug #5699: Quick Search on Insert link plugin for WYSIWYG different to Quick Search in Admin interface.
+Fixed Bug #5702: system_parse_designs.php and system_parse_design.php failed to include files.
+Fixed Bug #5703: Create Link Trigger adds a remap.
+Fixed Bug #5714: Set Future Lineage cron job creating an extra asset link to the Trash.
+Fixed Bug #5719: Edit screen not acquiring locks over https.
+Fixed Bug #5726: test_form_integrity system test script undefined variable $this.
+Fixed Bug #5727: Invalid Warranty Key screen errors.
+
+CMS
+
+Fixed Bug #5700: Generating "broken links" link report asset can throw fatal error.
+Fixed Bug #5716: "Include file attachments" setting in the Custom Form's Email Option not working. 
+
+LDAP
+
+Fixed Bug #5686: Asset Builder Created Bodycopy prints form tags. 
+
+Bulkmail
+
+Fixed Bug #5705: Problem with "all" on Bulkmail subscribe page. 
+
+Calendar
+
+Fixed Bug #5691: Event search result returning recurring event instances beyond event's stop date. 
+
+Data
+
+Fixed Bug #5709: iCal Data Source not unfolding content. 
+
+Squid
+
+Fixed Bug #5706: Clear Squid Cache returns binary data to the browser window. 
+
+SharePoint
+
+Fixed Bug #5697: SharePoint form action to create list not valid for entered connection details. 
+
+
 VERSION 4.8.2
 
 Featured Changes
@@ -113,10 +190,12 @@ Fixed Bug #5659: Asset Not Found issue for preview with difference of system ver
 Fixed Bug #5660: Metadata WYSIWYG fields cannot be blanked out.
 Fixed Bug #5668: Workflow table last_started_by field too short for LDAP users.
 Fixed Bug #5680: Automatic upgrade misses rollback change.
+Fixed Bug #5681: Paint layouts break when using a video asset's alt asset keywords.
 
 CMS
 
 Fixed Bug #5656: Redirect Page timeout causes infinite loop. 
+Fixed Bug #568: Paint layouts break when using a video asset's alt asset keywords.
 
 Search
 
