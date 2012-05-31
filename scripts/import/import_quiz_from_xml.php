@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_quiz_from_xml.php,v 1.3 2012/05/31 01:36:34 hlliauw Exp $
+* $Id: import_quiz_from_xml.php,v 1.4 2012/05/31 03:56:06 hlliauw Exp $
 *
 */
 
@@ -43,7 +43,7 @@
 *
 *
 * @author  Han Loong Liauw <hlliauw@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 
@@ -203,9 +203,7 @@ foreach ($xml_import_vals as $xml_elem) {
 		            # Create asset and set Question Text to use bodycopy
 	                $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 		            $status = $new_question->create($group_link);
-		           // $new_question->setQuestionTextBodycopy(true);
-		            createQuestionTextBodycopy($new_question);
-	                $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+		            $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 	                # question not needed anymore so can forget it
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($new_question);
@@ -263,49 +261,5 @@ function get_attribute_value($data, $attr = '') {
 	}
 	return '';
 }
-
-
-/**
-* Creates the Question Text bodycopy
-*
-* @param asset	$asset	
-*
-* @return boolean
-* @access public
-*/
-function createQuestionTextBodycopy(&$asset)
-{
-	$bodycopy_link = $asset->getQuestionTextBodycopyLink(SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3);
-
-	// we already have a bodycopy link: bail out
-	if ($bodycopy_link) {
-		return FALSE;
-	} else {
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
-
-		$link_type = SQ_LINK_TYPE_2 ;
-
-		$bodycopy_asset = new Bodycopy();
-		$copy_link =  Array(
-						'asset'			=> &$asset,
-						'value'			=> 'question_text',
-						'link_type'		=> $link_type,
-						'is_dependant'	=> 1,
-						'is_exclusive'	=> 1,
-					  );
-
-		$bodycopy_asset->setAttrValue('name', 'Question Text');
-		$args = Array(
-					'content'	=> $asset->attr('question_text'),
-				);
-		if (!$bodycopy_asset->create($copy_link, $args)) return FALSE;
-
-		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bodycopy_asset);
-		unset($bodycopy_asset);
-	}
-
-	return TRUE;
-
-}//end createQuestionTextBodycopy()
 
 ?>
