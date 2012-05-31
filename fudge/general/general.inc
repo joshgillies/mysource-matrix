@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.53 2010/08/12 07:11:57 cupreti Exp $
+* $Id: general.inc,v 1.54 2012/05/31 23:01:55 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package Fudge
 * @subpackage General
 */
@@ -577,6 +577,7 @@ function generate_security_key($key_len, $include_uppercase=FALSE, $include_numb
 		$g=base64_decode($gl[rand(0,(count($gl)-1))]);$pos=rand(1,($key_len-strlen($g)));
 		$k=substr($k,0,$pos).$g.substr($k,($pos+strlen($g)));
 	}
+
 	return $k;
 
 }//end generate_security_key()
@@ -912,4 +913,28 @@ function array_sort_by_length(&$array, $sort_order=TRUE, $value_sort=TRUE)
 	return $sort_function($array, $cmp_function);
 }
 
+
+
+/**
+* Generates a string to be used as a nonce security token, preserved for current session.
+*
+* @return string
+* @access public
+*/
+function get_unique_token()
+    {
+	if(isset($_SESSION['SQ_SYSTEM_NONCE_SECURITY_TOKEN'])) {
+	    return $_SESSION['SQ_SYSTEM_NONCE_SECURITY_TOKEN'];
+	}
+	
+	$prefix      = '';
+	$moreEntropy = TRUE;
+	$token       = sha1(uniqid($prefix, $moreEntropy));
+
+	$_SESSION['SQ_SYSTEM_NONCE_SECURITY_TOKEN'] = $token;
+	
+	return $token;
+
+    }//end get_unique_token()
+    
 ?>
