@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_quiz_from_xml.php,v 1.2 2012/05/21 23:36:38 hlliauw Exp $
+* $Id: import_quiz_from_xml.php,v 1.3 2012/05/31 01:36:34 hlliauw Exp $
 *
 */
 
@@ -43,7 +43,7 @@
 *
 *
 * @author  Han Loong Liauw <hlliauw@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 
@@ -133,7 +133,7 @@ foreach ($xml_import_vals as $xml_elem) {
 	                $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 	                # builds the link
-					$group_link = Array('asset' => &$new_group, 'link_type' => SQ_LINK_TYPE_2);
+					$group_link = Array('asset' => &$new_group, 'link_type' => SQ_LINK_TYPE_1);
 					
 					# Resets question count and array
 					$question_count = 1;
@@ -145,32 +145,6 @@ foreach ($xml_import_vals as $xml_elem) {
 
 			# Creates a new question
 			case 'question':
-
-				if(isset($question) && !empty($group_link)) {
-
-					# if qustion already exists save it to matrix
-					$question['response_form'] = $options;
-
-					$new_question = new Online_Quiz_Question_Multichoice();
-
-					# Sets question attributes
-		            $new_question->setAttrValue('name', $question['name']);
-		            $new_question->setAttrValue('question_text', $question['question_text']);
-		            $new_question->setAttrValue('response_form', $options);
-
-		            # Create asset and set Question Text to use bodycopy
-	                $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-		            $status = $new_question->create($group_link);
-		            $new_question->setQuestionTextBodycopy(true);
-	                $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-
-	                # question not needed anymore so can forget it
-					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($new_question);
-
-					$questions_created++;
-
-				}
-
 				# Create arrays to store new questions
 				$question = array('name' => 'Question '.$question_count, 'response_form' => array());
 				$options = array();
@@ -208,6 +182,39 @@ foreach ($xml_import_vals as $xml_elem) {
 				break;
 		}
 		
+	} elseif (in_array($xml_elem['type'], array('close'))) {
+		
+		switch (strtolower($xml_elem['tag'])) {
+			# Create a new Question Group
+
+			case 'question':
+
+				if(isset($question) && !empty($group_link)) {
+					# if qustion already exists save it to matrix
+					$question['response_form'] = $options;
+
+					$new_question = new Online_Quiz_Question_Multichoice();
+
+					# Sets question attributes
+		            $new_question->setAttrValue('name', $question['name']);
+		            $new_question->setAttrValue('question_text', $question['question_text']);
+		            $new_question->setAttrValue('response_form', $options);
+
+		            # Create asset and set Question Text to use bodycopy
+	                $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+		            $status = $new_question->create($group_link);
+		           // $new_question->setQuestionTextBodycopy(true);
+		            createQuestionTextBodycopy($new_question);
+	                $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+
+	                # question not needed anymore so can forget it
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($new_question);
+
+					$questions_created++;
+
+				}
+				break;
+		}
 	}
 }
 
@@ -256,5 +263,49 @@ function get_attribute_value($data, $attr = '') {
 	}
 	return '';
 }
+
+
+/**
+* Creates the Question Text bodycopy
+*
+* @param asset	$asset	
+*
+* @return boolean
+* @access public
+*/
+function createQuestionTextBodycopy(&$asset)
+{
+	$bodycopy_link = $asset->getQuestionTextBodycopyLink(SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3);
+
+	// we already have a bodycopy link: bail out
+	if ($bodycopy_link) {
+		return FALSE;
+	} else {
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
+
+		$link_type = SQ_LINK_TYPE_2 ;
+
+		$bodycopy_asset = new Bodycopy();
+		$copy_link =  Array(
+						'asset'			=> &$asset,
+						'value'			=> 'question_text',
+						'link_type'		=> $link_type,
+						'is_dependant'	=> 1,
+						'is_exclusive'	=> 1,
+					  );
+
+		$bodycopy_asset->setAttrValue('name', 'Question Text');
+		$args = Array(
+					'content'	=> $asset->attr('question_text'),
+				);
+		if (!$bodycopy_asset->create($copy_link, $args)) return FALSE;
+
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bodycopy_asset);
+		unset($bodycopy_asset);
+	}
+
+	return TRUE;
+
+}//end createQuestionTextBodycopy()
 
 ?>
