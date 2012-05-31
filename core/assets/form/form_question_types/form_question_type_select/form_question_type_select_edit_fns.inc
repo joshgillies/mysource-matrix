@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select_edit_fns.inc,v 1.16 2012/05/03 07:51:44 cupreti Exp $
+* $Id: form_question_type_select_edit_fns.inc,v 1.17 2012/05/31 04:46:13 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question_edit_fns.inc'
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -82,7 +82,7 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 	{
 		if (isset($_POST[$prefix.'_default'])) {
 
-			$default = $_POST[$prefix.'_default'];
+			$default = $_POST[$prefix.'_default'];log_dump(var_export($default,1));
 			if (!is_array($default)) $default = Array($default);
 
 			$old_options = array_get_index($_POST, $prefix.'_old_options', Array());
@@ -90,7 +90,12 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 			if (!empty($old_options)) {
 				$new_options = $asset->getOptions();
 				$new_values = Array();
+				$new_default_vals = Array();
 				foreach ($default as $str_key) {
+					if (empty($str_key)) {
+						trigger_error('Key text for the selected default option(s) cannot be empty string', E_USER_WARNING);
+						continue;
+					}
 					// neaten up any numeric keys passing through
 					if (is_numeric($str_key)) {
 						$str_key = (int) $str_key;
