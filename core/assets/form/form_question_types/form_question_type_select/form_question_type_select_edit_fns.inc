@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select_edit_fns.inc,v 1.18 2012/05/31 04:50:57 akarelia Exp $
+* $Id: form_question_type_select_edit_fns.inc,v 1.19 2012/05/31 22:16:30 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question_edit_fns.inc'
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -92,7 +92,7 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 				$new_values = Array();
 				$new_default_vals = Array();
 				foreach ($default as $str_key) {
-					if (empty($str_key)) {
+					if ($str_key === '') {
 						trigger_error('Key text for the selected default option(s) cannot be empty string', E_USER_WARNING);
 						continue;
 					}
