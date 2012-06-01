@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.172 2012/05/31 07:29:41 ewang Exp $
+* $Id: backend_outputter.inc,v 1.173 2012/06/01 00:52:06 ewang Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.172 $
+* @version $Revision: 1.173 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -1169,8 +1169,7 @@ class Backend_Outputter
 		hidden_field('state', '');
 		hidden_field('allowconfirm', !defined('SQ_CONF_CONFIRM_SAVE_CHANGES') ? '1' : SQ_CONF_CONFIRM_SAVE_CHANGES);
 		// insert nonce token
-		if(SQ_CONF_USE_SECURITY_TOKEN)
-		    hidden_field('token', get_unique_token());
+		hidden_field('token', get_unique_token());
 		
 		foreach ($this->_hidden_fields as $name => $value) {
 			hidden_field($name, $value);

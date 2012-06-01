@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.54 2012/05/31 07:32:39 ewang Exp $
+* $Id: insert_image.php,v 1.55 2012/06/01 00:52:12 ewang Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix
 */
 
@@ -478,7 +478,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 		<form action="" method="get" name="main_form" id="main-form">
 		    <?php 
 		    // insert nonce secuirty token.
-		    if(SQ_CONF_USE_SECURITY_TOKEN && $GLOBALS['SQ_SYSTEM']->user && !($GLOBALS['SQ_SYSTEM']->user instanceof Public_User))
+		    if( $GLOBALS['SQ_SYSTEM']->user && !($GLOBALS['SQ_SYSTEM']->user instanceof Public_User))
 			hidden_field('token', get_unique_token());
 		    ?>
 			<table width="100%">
@@ -666,7 +666,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 											</td>
 										</tr>
 										<tr>
-											<td class="label"><?php echo translate('id_name_text'); ?>:</td>
+											<td class="label"><?php echo translate('name'); ?>:</td>
 											<td>
 												<input type="text" name="image_id" id="f_image_id" size="20" title="Name" value="<?php echo htmlspecialchars($_REQUEST['f_image_id']) ?>" />
 											</td>
