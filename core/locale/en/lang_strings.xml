@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.410.2.5 2012/05/15 05:13:49 akarelia Exp $
+* $Id: lang_strings.xml,v 1.410.2.6 2012/06/01 03:58:27 cupreti Exp $
 *
 */
 
@@ -164,6 +164,7 @@
 	<string source="enable_markdown">Enable Markdown</string>
 	<string source="enable_markdownify">Enable Markdownify</string>
 	<string source="html_tidy_accessibility_level">HTML Tidy Accessibility Check Level</string>
+	<string source="html_tidy_html_standard">HTML Standard to use for HTML Tidy</string>
 	<string source="enable_getid3_extraction">Enable getID3 Extraction</string>
 	<string source="getid3_extraction">getID3 Extraction</string>
 	<string source="path_to_getid3">Path to getID3</string>

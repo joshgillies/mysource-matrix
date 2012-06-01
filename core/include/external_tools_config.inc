@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: external_tools_config.inc,v 1.40 2011/11/28 04:32:42 ewang Exp $
+* $Id: external_tools_config.inc,v 1.40.2.1 2012/06/01 03:56:48 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    e.g. HTML Tidy, PDFtoHTML, Antiword, etc.
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.40.2.1 $
 * @package MySource_Matrix
 */
 class External_Tools_Config extends Config
@@ -42,6 +42,7 @@ class External_Tools_Config extends Config
 						'SQ_TOOL_HTML_TIDY_PATH'				=> Array('editable' => 1, 'default' => '/usr/bin/tidy'),
 						'SQ_TOOL_HTML_TIDY_ENABLED'				=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_TOOL_HTML_TIDY_ACCESSIBILITY_LEVEL'	=> Array('editable' => 1, 'default' => 0),
+						'SQ_TOOL_HTML_TIDY_HTML_STANDARD'		=> Array('editable' => 1, 'default' => 'HTML_4.01_Transitional'),
 						'SQ_TOOL_PDFTOHTML_PATH'				=> Array('editable' => 1, 'default' => '/usr/bin/pdftohtml'),
 						'SQ_TOOL_PDFTOHTML_ENABLED'				=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_TOOL_ANTIWORD_PATH'					=> Array('editable' => 1, 'default' => '/usr/bin/antiword'),
@@ -193,6 +194,23 @@ class External_Tools_Config extends Config
 				echo (SQ_TOOL_HTML_TIDY_ACCESSIBILITY_LEVEL) ? SQ_TOOL_HTML_TIDY_ACCESSIBILITY_LEVEL : 0;
 			}
 
+			$o->openField(translate('html_tidy_html_standard'), '', '');
+			$html_standards = Array(
+					'HTML_4.01_Transitional' =>'HTML 4.01 Transitional',
+					'HTML_4.01_Strict' => 'HTML 4.01 Strict',
+					'HTML_4.01_Frameset' => 'HTML 4.01 Frameset',
+					'XHTML_1.0_Transitional' => 'XHTML 1.0 Transitional',
+					'XHTML_1.0_Strict' => 'XHTML 1.0 Strict',
+					'XHTML_1.0_Frameset' => 'XHTML 1.0 Frameset',
+					'XHTML_1.1' => 'XHTML 1.1',
+				);
+			$html_standard_selected = (SQ_TOOL_HTML_TIDY_HTML_STANDARD) ? SQ_TOOL_HTML_TIDY_HTML_STANDARD : 'HTML_4.01_Transitional';
+			if ($write_access && $is_root) {
+				combo_box($class.'[SQ_TOOL_HTML_TIDY_HTML_STANDARD]', $html_standards, FALSE, $html_standard_selected);
+			} else {
+				echo $html_standards[$html_standard_selected];
+			}
+			
 			require_once SQ_FUDGE_PATH.'/standards_lists/character_sets.inc';
 			$tidy_char_set = array_get_index($standards_lists_tidy_char_sets, SQ_CONF_DEFAULT_CHARACTER_SET);
 
