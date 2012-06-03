@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.52.6.1 2012/02/06 05:50:05 mhaidar Exp $
+* $Id: insert_image.php,v 1.52.6.2 2012/06/03 23:31:05 ewang Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.52.6.1 $
+* @version $Revision: 1.52.6.2 $
 * @package MySource_Matrix
 */
 
@@ -476,6 +476,11 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 	<body onload="Init();" onUnload="asset_finder_onunload();">
 
 		<form action="" method="get" name="main_form" id="main-form">
+		   <?php 
+		    // insert nonce secuirty token.
+		    if( $GLOBALS['SQ_SYSTEM']->user && !($GLOBALS['SQ_SYSTEM']->user instanceof Public_User))
+			hidden_field('token', get_unique_token());
+		    ?>
 			<table width="100%">
 				<tr>
 					<td valign="top">

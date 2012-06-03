@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: upload_image.php,v 1.4 2011/02/21 04:35:34 cupreti Exp $
+* $Id: upload_image.php,v 1.4.6.1 2012/06/03 23:31:05 ewang Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Upload Image Popup for the WYSIWYG
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.6.1 $
 * @package MySource_Matrix
 */
 
@@ -29,6 +29,17 @@ if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAcce
 	echo return_javascript_error('You cannot upload file as a non-backend user');
 	exit;
 }
+
+// verify nonce secuirty token to make sure the user submitting the request is using Matrix's backend interface
+if(!isset($_POST['token'])) {
+    trigger_error('Secuirty token not found');
+    exit;
+}
+$token = get_unique_token();
+if($_POST['token'] !== $token) {
+    trigger_error('Invalid secuirty token');
+    exit;
+} 
 
 // Check if something was submitted
 if (!isset($_FILES['create_image_upload']['name']) || !isset($_FILES['create_image_upload']['tmp_name']) || empty($_FILES['create_image_upload']['tmp_name']) || !isset($_FILES['create_image_upload']['error']) || !empty($_FILES['create_image_upload']['error'])) {
