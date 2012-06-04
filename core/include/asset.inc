@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.762 2012/05/03 04:33:18 csmith Exp $
+* $Id: asset.inc,v 1.763 2012/06/04 06:19:44 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.762 $
+* @version $Revision: 1.763 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -6435,8 +6435,13 @@ class Asset extends MySource_Object
 		if (!isset($this->_tmp['fast_track'])) $this->_tmp['fast_track'] = Array();
 		
 		foreach($tasks as $task) {
+			// Initialise the "fast tracked assetids" array only if we have not fast tracked this task before,
+			// or if we have removed it from being fast tracked
+			if (!isset($this->_tmp['fast_track'][$task.'_assetids']) || !isset($this->_tmp['fast_track'][$task]) || !$this->_tmp['fast_track'][$task]) {
+				$this->_tmp['fast_track'][$task.'_assetids'] = Array();
+			}
+
 			$this->_tmp['fast_track'][$task] = TRUE;
-			$this->_tmp['fast_track'][$task.'_assetids'] = Array();
 		}
 		
 	}//end fastTrack()
