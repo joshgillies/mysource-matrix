@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_02.php,v 1.79 2011/03/29 05:31:51 akarelia Exp $
+* $Id: step_02.php,v 1.80 2012/06/05 03:40:32 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.79 $
+* @version $Revision: 1.80 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -35,7 +35,7 @@ if ((php_sapi_name() == 'cli')) {
 		$SYSTEM_ROOT = $_SERVER['argv'][1];
 	}
 
-	$err_msg = "You need to supply the path to the System Root as the first argument\n";
+	$err_msg = "ERROR: You need to supply the path to the System Root as the first argument.\n";
 
 } else {
 	if (isset($_GET['SYSTEM_ROOT'])) {
@@ -49,8 +49,17 @@ if ((php_sapi_name() == 'cli')) {
 	';
 }
 
-if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
-	trigger_error($err_msg, E_USER_ERROR);
+if (empty($SYSTEM_ROOT)) {
+	$err_msg .= "Usage: php install/step_02.php <PATH_TO_MATRIX>\n";
+	echo $err_msg;
+	exit();
+}
+
+if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+	$err_msg = "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
+	$err_msg .= "Usage: php install/step_02.php <PATH_TO_MATRIX>\n";
+	echo $err_msg;
+	exit();
 }
 
 define('SQ_SYSTEM_ROOT',  $SYSTEM_ROOT);

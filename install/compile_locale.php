@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: compile_locale.php,v 1.19 2010/07/14 01:14:20 csmith Exp $
+* $Id: compile_locale.php,v 1.20 2012/06/05 03:40:32 akarelia Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 * Compiles languages on the system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -38,7 +38,7 @@ if ((php_sapi_name() == 'cli')) {
 	if (isset($_SERVER['argv'][1])) {
 		$SYSTEM_ROOT = $_SERVER['argv'][1];
 	}
-	$err_msg = "You need to supply the path to the System Root as the first argument\n";
+	$err_msg = "ERROR: You need to supply the path to the System Root as the first argument\n";
 
 } else {
 	$err_msg = '
@@ -48,8 +48,17 @@ if ((php_sapi_name() == 'cli')) {
 	';
 }
 
-if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
-	trigger_error($err_msg, E_USER_ERROR);
+if (empty($SYSTEM_ROOT)) {
+	$err_msg .= "Usage: php install/step_03.php <PATH_TO_MATRIX>\n";
+	echo $err_msg;
+	exit();
+}
+
+if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+	$err_msg = "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
+	$err_msg .= "Usage: php install/step_03.php <PATH_TO_MATRIX>\n";
+	echo $err_msg;
+	exit();
 }
 
 // only use console stuff if we're running from the command line

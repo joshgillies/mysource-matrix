@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.84 2011/11/28 05:12:29 ewang Exp $
+* $Id: step_03.php,v 1.85 2012/06/05 03:40:32 akarelia Exp $
 *
 */
 
@@ -35,7 +35,7 @@
 * would update all the asset types for core and cms only
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.84 $
+* @version $Revision: 1.85 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -65,13 +65,15 @@ if ((php_sapi_name() == 'cli')) {
 	if (isset($_SERVER['argv'][1])) {
 		$SYSTEM_ROOT = $_SERVER['argv'][1];
 	}
-	$err_msg = "You need to supply the path to the System Root as the first argument\n";
+
+	$err_msg = "ERROR: You need to supply the path to the System Root as the first argument.\n";
 
 } else {
 	$cli = FALSE;
 	if (isset($_GET['SYSTEM_ROOT'])) {
 		$SYSTEM_ROOT = $_GET['SYSTEM_ROOT'];
 	}
+
 	$err_msg = '
 	<div style="background-color: red; color: white; font-weight: bold;">
 		You need to supply the path to the System Root as a query string variable called SYSTEM_ROOT
@@ -79,10 +81,18 @@ if ((php_sapi_name() == 'cli')) {
 	';
 }
 
-if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
-	trigger_error($err_msg, E_USER_ERROR);
+if (empty($SYSTEM_ROOT)) {
+	$err_msg .= "Usage: php install/step_03.php <PATH_TO_MATRIX>\n";
+	echo $err_msg;
+	exit();
 }
 
+if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+	$err_msg = "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
+	$err_msg .= "Usage: php install/step_03.php <PATH_TO_MATRIX>\n";
+	echo $err_msg;
+	exit();
+}
 
 // only use console stuff if we're running from the command line
 if ($cli) {
