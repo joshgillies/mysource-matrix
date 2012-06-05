@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_move_update.php,v 1.18 2012/06/05 06:26:09 akarelia Exp $
+* $Id: system_move_update.php,v 1.19 2012/06/05 06:42:54 akarelia Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Small script to be run AFTER the system root directory is changed
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -38,7 +38,7 @@ if ((php_sapi_name() == 'cli')) {
 }
 
 if (empty($SYSTEM_ROOT)) {
-	echo $er_msg;
+	echo $err_msg;
 	exit();
 }
 
