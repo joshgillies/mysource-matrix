@@ -7,7 +7,7 @@
 *
 * 
 * @author  Mohamed Haidar <mhaidar@squiz.com.au>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 
@@ -53,8 +53,14 @@ $options = Array (
 	}
 
 	$SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
-	if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
-		trigger_error('The directory you specified as the system root does not exist, or is not a directory', E_USER_ERROR);
+	if (empty($SYSTEM_ROOT)) {
+		echo "ERROR: You need to supply the path to the System Root as the first argument\n";
+		exit();
+	}
+
+	if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+		echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
+		exit();
 	}
 
 	if (isset($_SERVER['argv'][2])) {

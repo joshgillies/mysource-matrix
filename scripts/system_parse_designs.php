@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_parse_designs.php,v 1.9 2012/05/09 06:31:50 ewang Exp $
+* $Id: system_parse_designs.php,v 1.10 2012/06/05 06:26:09 akarelia Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Reparses all of the designs in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 */
 if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');
@@ -26,8 +26,13 @@ error_reporting(E_ALL);
 if ((php_sapi_name() != 'cli')) trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
-if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
+if (empty($SYSTEM_ROOT)) {
 	echo "ERROR: You need to supply the path to the System Root as the first argument\n";
+	exit();
+}
+
+if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
 	exit();
 }
 
@@ -38,7 +43,8 @@ $root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 
 // log in as root
 if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
-	trigger_error("Failed logging in as root user\n", E_USER_ERROR);
+	echo "ERROR: Failed logging in as root user\n";
+	exit();
 }
 
 

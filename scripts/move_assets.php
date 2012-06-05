@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: move_assets.php,v 1.7 2009/11/09 16:50:58 ata Exp $
+* $Id: move_assets.php,v 1.8 2012/06/05 06:26:09 akarelia Exp $
 *
 */
 
@@ -25,11 +25,16 @@
 */
 
 error_reporting(E_ALL);
+ini_set('memory_limit', '-1');
 if ((php_sapi_name() != 'cli')) trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
-if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
-	printUsage('ERROR: You need to supply the path to the System Root as the first argument');
+if (empty($SYSTEM_ROOT)) {
+	printUsage("ERROR: You need to supply the path to the System Root as the first argument");
+}
+
+if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+	printUsage("ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.");
 }
 
 //FROM PARENT ID
@@ -68,7 +73,8 @@ if (!$root_user->comparePassword($root_password)) {
 
 // log in as root
 if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
-	trigger_error("Failed login in as root user\n", E_USER_ERROR);
+	echo "ERROR: Failed login in as root user\n";
+	exit();
 }
 
 moveAssets($FROM_PARENT_ID, $TO_PARENT_ID, $ASSET_TYPE, $LINK_TYPE);

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_of_funnelback_binary_to_9_1.php,v 1.1 2011/11/22 06:13:29 ewang Exp $
+* $Id: upgrade_of_funnelback_binary_to_9_1.php,v 1.2 2012/06/05 06:26:10 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 
 /**
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 * @subpackage scripts 
 */
@@ -41,20 +41,22 @@ if (count($argv) < 1) {
 }//end if
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
-if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
-	echo "ERROR : You need to supply the path to the source System Root as the First argument\n";
+if (empty($SYSTEM_ROOT)) {
+	echo "ERROR: You need to supply the path to the System Root as the first argument\n";
+	exit();
+}
+
+if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
 	exit();
 }
 
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
-
-
 $root_user	= $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
-
 
 // log in as root
 if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
-	trigger_error("Failed logging in as root user\n", E_USER_ERROR);
+	echo "ERROR: Failed logging in as root user\n";
 	exit(1);
 }//end if
 

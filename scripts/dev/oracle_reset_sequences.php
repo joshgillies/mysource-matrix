@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: oracle_reset_sequences.php,v 1.4 2011/08/08 04:42:31 akarelia Exp $
+* $Id: oracle_reset_sequences.php,v 1.5 2012/06/05 06:26:10 akarelia Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Rebuilds Oracle Sequences from highest primary key value in the database
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 * @subpackage scripts
 */
@@ -29,8 +29,14 @@ error_reporting(E_ALL);
 if (php_sapi_name() != 'cli') trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
-if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
-	echo "ERROR: You need to supply the path to the source System Root as the first argument\n";
+
+if (empty($SYSTEM_ROOT)) {
+	echo "ERROR: You need to supply the path to the System Root as the first argument\n";
+	exit();
+}
+
+if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
 	exit();
 }
 

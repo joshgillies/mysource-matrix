@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_foreign_keys.php,v 1.5 2010/07/15 04:43:37 csmith Exp $
+* $Id: system_integrity_foreign_keys.php,v 1.6 2012/06/05 06:26:09 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Checks the integrity of the database foreign keys
 *
 * @author Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -29,17 +29,17 @@ if ((php_sapi_name() != 'cli')) {
 }
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
-if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
+if (empty($SYSTEM_ROOT)) {
 	echo "ERROR: You need to supply the path to the System Root as the first argument\n";
 	exit();
 }
 
-$DELETING_ASSET_TYPE = (isset($_SERVER['argv'][2])) ? $_SERVER['argv'][2] : '';
-if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
-	echo "ERROR: You need to supply an asset type code as the second argument\n";
+if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
+	exit();
 }
 
-
+$DELETING_ASSET_TYPE = (isset($_SERVER['argv'][2])) ? $_SERVER['argv'][2] : '';
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
 
 
@@ -56,7 +56,7 @@ if (!$root_user->comparePassword($root_password)) {
 
 // log in as root
 if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
-	trigger_error("Failed loggin in as root user\n", E_USER_ERROR);
+	echo "ERROR: Failed loggin in as root user\n";
 	exit();
 }
 

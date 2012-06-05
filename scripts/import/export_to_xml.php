@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: export_to_xml.php,v 1.25 2012/02/28 03:10:59 cupreti Exp $
+* $Id: export_to_xml.php,v 1.26 2012/06/05 06:26:10 akarelia Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 * @author  Edison Wang <ewang@squiz.net>
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix
 */
 
@@ -45,22 +45,27 @@ ini_set('memory_limit', '1024M');
 if ((php_sapi_name() != 'cli')) trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
-if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
-	trigger_error("You need to supply the path to the System Root as the first argument\n", E_USER_ERROR);
+if (empty($SYSTEM_ROOT)) {
+	echo "ERROR: You need to supply the path to the System Root as the first argument\n";
+	exit();
+}
+
+if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
+	exit();
 }
 
 $asset_infos = (isset($_SERVER['argv'][2])) ? explode(',',$_SERVER['argv'][2]) : Array();
 if (empty($asset_infos)) {
-	trigger_error("You need to supply the asset id for the asset you want to export and parent asset it will link to as the second argument with format 3:75,4:46 (assetid 3 links to assetid 75, assetid 4 links to asset id 46)\n", E_USER_ERROR);
+	echo "ERROR: You need to supply the asset id for the asset you want to export and parent asset it will link to as the second argument with format 3:75,4:46 (assetid 3 links to assetid 75, assetid 4 links to asset id 46)\n";
+	exit();
 }
-
-
 
 $initial_link_type = (isset($_SERVER['argv'][3])) ? $_SERVER['argv'][3] : '';
 if (empty($initial_link_type)) {
-	trigger_error("You need to supply the initial link type as the third argument\n", E_USER_ERROR);
+	echo "ERROR: You need to supply the initial link type as the third argument\n";
+	exit();
 }
-
 
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
 require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
@@ -68,7 +73,8 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 // log in as root
 $root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
-	trigger_error("Failed logging in as root user\n", E_USER_ERROR);
+	echo "Failed logging in as root user\n";
+	exit();
 }
 $warned = FALSE;
 $asset_id_map = Array();

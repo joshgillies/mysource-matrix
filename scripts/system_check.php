@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_check.php,v 1.4 2011/08/08 04:42:30 akarelia Exp $
+* $Id: system_check.php,v 1.5 2012/06/05 06:26:09 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *		--no-colours
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -88,9 +88,14 @@ foreach ($_SERVER['argv'] as $placement => $argument) {
 	}//end if
 }//end foreach
 
-// Look for requirements
-if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
-	echo "ERROR: You need to supply the path to the System Root as an argument\n";
+if (empty($SYSTEM_ROOT)) {
+	echo "ERROR: You need to supply the path to the System Root as the first argument\n";
+	echo $help;
+	exit();
+}
+
+if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
 	echo $help;
 	exit();
 }

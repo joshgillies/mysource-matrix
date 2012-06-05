@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_fix_public_files.php,v 1.2 2011/08/08 04:42:30 akarelia Exp $
+* $Id: system_integrity_fix_public_files.php,v 1.3 2012/06/05 06:26:09 akarelia Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Fix (update, recover or remove) public files in the public data directory of file and its descendant assets. 
 *
 * @author  Mohamed Haidar <mhaidar@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 
@@ -32,8 +32,14 @@ if (count($_SERVER['argv']) < 3 || php_sapi_name() != 'cli') {
 }
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
-if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
-	trigger_error('The directory you specified as the system root does not exist, or is not a directory', E_USER_ERROR);
+if (empty($SYSTEM_ROOT)) {
+	echo "ERROR: You need to supply the path to the System Root as the first argument\n";
+	exit();
+}
+
+if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
+	exit();
 }
 
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
@@ -43,7 +49,8 @@ assert_valid_assetid($ROOT_ID, "The ROOT_ID '$ROOT_ID' specified is invalid");
 	
 $root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
-	trigger_error("Failed login in as root user\n", E_USER_ERROR);
+	echo "ERROR: Failed login in as root user\n";
+	exit();
 }
 
 //get children of the tree root asset which are file and its descendant types

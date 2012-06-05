@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_check_indexes.php,v 1.17 2011/10/17 23:30:57 csmith Exp $
+* $Id: system_integrity_check_indexes.php,v 1.18 2012/06/05 06:26:09 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 
 /**
 * @author  Chris Smith <csmith@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix
 * @subpackage scripts
 */
@@ -40,8 +40,13 @@ error_reporting(E_ALL);
 if (php_sapi_name() != 'cli') trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
-if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
-	echo "ERROR: You need to supply the path to the source System Root as the first argument\n";
+if (empty($SYSTEM_ROOT)) {
+	echo "ERROR: You need to supply the path to the System Root as the first argument\n";
+	exit();
+}
+
+if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
 	exit();
 }
 

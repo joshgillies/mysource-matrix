@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_clean_old_files.php,v 1.4 2007/12/10 06:23:45 rong Exp $
+* $Id: system_integrity_clean_old_files.php,v 1.5 2012/06/05 06:26:09 akarelia Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Deletes the old checked-out files from the data directory for file type of assets
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 
@@ -28,6 +28,11 @@ if ((php_sapi_name() != 'cli')) trigger_error("You can only run this script from
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
 if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
 	echo "ERROR: You need to supply the path to the System Root as the first argument\n";
+	exit();
+}
+
+if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
 	exit();
 }
 
@@ -58,12 +63,14 @@ $root_password = rtrim(fgets(STDIN, 4094));
 // check that the correct root password was entered
 $root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 if (!$root_user->comparePassword($root_password)) {
-	trigger_error("The root password entered was incorrect\n", E_USER_ERROR);
+	echo "ERROR: The root password entered was incorrect\n";
+	exit();
 }
 
 // log in as root
 if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
-	trigger_error("Failed logging in as root user\n", E_USER_ERROR);
+	echo "ERROR: Failed logging in as root user\n";
+	exit();
 }
 
 $fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: get_design_area_setable_attrs.php,v 1.8 2006/12/06 05:39:51 bcaldwell Exp $
+* $Id: get_design_area_setable_attrs.php,v 1.9 2012/06/05 06:26:09 akarelia Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Small script to return the design areas setable attributes and their descriptions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -37,10 +37,15 @@ if ((php_sapi_name() == 'cli')) {
 	';
 }
 
-if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
-	trigger_error($err_msg, E_USER_ERROR);
+if (empty($SYSTEM_ROOT)) {
+	echo $err_msg;
+	exit();
 }
 
+if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
+	exit();
+}
 
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
 

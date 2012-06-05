@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: status_change.php,v 1.4 2011/08/08 04:42:30 akarelia Exp $
+* $Id: status_change.php,v 1.5 2012/06/05 06:26:09 akarelia Exp $
 *
 */
 if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');
@@ -22,8 +22,14 @@ if ((php_sapi_name() != 'cli')) {
 $available_status_codes = Array(1,2,4,8,16,32,64,128,256);
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
-if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
-	trigger_error("You need to supply the path to the System Root as the first argument\n", E_USER_ERROR);
+if (empty($SYSTEM_ROOT)) {
+	echo "ERROR: You need to supply the path to the System Root as the first argument\n";
+	exit();
+}
+
+if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
+	exit();
 }
 
 define('SQ_SYSTEM_ROOT', $SYSTEM_ROOT);
@@ -31,11 +37,13 @@ require_once $SYSTEM_ROOT.'/core/include/init.inc';
 
 $ROOT_NODE = (isset($_SERVER['argv'][2])) ? $_SERVER['argv'][2] : '';
 if (empty($ROOT_NODE)) {
-	trigger_error("You need to supply a root node as the second argument\n", E_USER_ERROR);
+	echo "You need to supply a root node as the second argument\n";
+	exit();
 }
 $STATUS = (isset($_SERVER['argv'][3])) ? $_SERVER['argv'][3] : '';
 if (empty($STATUS) || !in_array($STATUS, $available_status_codes)) {
-	trigger_error("You need to supply a status code as the third argument\n", E_USER_ERROR);
+	echo "You need to supply a status code as the third argument\n";
+	exit();
 }
 $CHILDREN = (isset($_SERVER['argv'][4]) && $_SERVER['argv'][4] == 'y') ? FALSE : TRUE;
 

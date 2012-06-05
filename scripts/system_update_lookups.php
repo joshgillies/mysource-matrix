@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_update_lookups.php,v 1.13 2011/08/31 06:08:25 cupreti Exp $
+* $Id: system_update_lookups.php,v 1.14 2012/06/05 06:26:09 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
 * @author  James Hurst <jhurst@squiz.co.uk>
 * @author  Daniel Simmons <dsimmons@squiz.co.uk>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix
 */
 
@@ -206,13 +206,21 @@ function usage() {
 function process_args(&$config) {
 	
 	$config['system_root'] = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
-	if (empty($config['system_root']) || !is_dir($config['system_root'])) {
-	    trigger_error("You need to supply the path to the System Root as the first argument\n", E_USER_ERROR);
-	}//end if
+	if (empty($config['system_root'])) {
+		echo "ERROR: You need to supply the path to the System Root as the first argument\n";
+		exit();
+	}
+
+	if (!is_dir($config['system_root']) || !is_readable($config['system_root'].'/core/include/init.inc')) {
+		echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
+		exit();
+	}
+
 	
 	$config['assetids'] = (isset($_SERVER['argv'][2])) ? $_SERVER['argv'][2] : '';
 	if (empty($config['assetids'])) {
-	    trigger_error("You need to specify the root nodes to update lookups from as the second argument\n", E_USER_ERROR);
+	    echo "ERROR: You need to specify the root nodes to update lookups from as the second argument\n";
+		exit();
 	}//end if
 	
 	$config['batch_size'] = (int) get_parameterised_arg('--batch-size', 1000);

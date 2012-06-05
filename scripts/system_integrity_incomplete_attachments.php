@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_incomplete_attachments.php,v 1.8 2011/08/08 04:42:30 akarelia Exp $
+* $Id: system_integrity_incomplete_attachments.php,v 1.9 2012/06/05 06:26:09 akarelia Exp $
 *
 */
 
@@ -22,15 +22,20 @@
 * 		where [ACTION] is --fix (delete the attachments) or --check (just report)
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
 if ((php_sapi_name() != 'cli')) trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
-if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
+if (empty($SYSTEM_ROOT)) {
 	echo "ERROR: You need to supply the path to the System Root as the first argument\n";
+	exit();
+}
+
+if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
 	exit();
 }
 

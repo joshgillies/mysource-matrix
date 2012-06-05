@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: create_pages.php,v 1.5 2006/12/06 05:42:20 bcaldwell Exp $
+* $Id: create_pages.php,v 1.6 2012/06/05 06:26:10 akarelia Exp $
 *
 */
 
@@ -22,20 +22,27 @@
 *
 * @author  Avi Miller <avim@netspace.net.au>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
 if ((php_sapi_name() != 'cli')) trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
-if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
-	trigger_error("You need to supply the path to the System Root as the first argument\n", E_USER_ERROR);
+if (empty($SYSTEM_ROOT)) {
+	echo "ERROR: You need to supply the path to the System Root as the first argument\n";
+	exit();
+}
+
+if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
+	exit();
 }
 
 $import_file = (isset($_SERVER['argv'][2])) ? $_SERVER['argv'][2] : '';
 if (empty($import_file) || !is_file($import_file)) {
-	trigger_error("You need to supply the path to the import file as the second argument\n", E_USER_ERROR);
+	echo "You need to supply the path to the import file as the second argument\n";
+	exit();
 }
 
 require_once $SYSTEM_ROOT.'/core/include/init.inc';

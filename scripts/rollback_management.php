@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: rollback_management.php,v 1.24 2011/11/03 04:42:12 ewang Exp $
+* $Id: rollback_management.php,v 1.25 2012/06/05 06:26:09 akarelia Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -182,7 +182,17 @@ if (!empty($ROLLBACK_DATE) && !empty($PURGE_FV_DATE)) {
 	usage();
 }
 
-if (empty($SYSTEM_ROOT)) usage();
+if (empty($SYSTEM_ROOT)) {
+	echo "ERROR: You need to supply the path to the System Root as the first argument\n";
+	usage();
+	exit();
+}
+
+if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
+	usage();
+	exit();
+}
 
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
 require_once SQ_INCLUDE_PATH.'/rollback_management.inc';

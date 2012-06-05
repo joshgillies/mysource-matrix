@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_fix_char_encoding.php,v 1.2 2011/08/08 04:42:30 akarelia Exp $
+* $Id: system_integrity_fix_char_encoding.php,v 1.3 2012/06/05 06:26:09 akarelia Exp $
 */
 
 /**
@@ -20,7 +20,7 @@
 * IMPORTANT: SYSTEM MUST BE BACKEDUP BEFORE RUNNING THIS SCRIPT!!!
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 
@@ -30,12 +30,18 @@ if ((php_sapi_name() != 'cli')) {
 }
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
-if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {	
+if (empty($SYSTEM_ROOT)) {
+	echo "ERROR: You need to supply the path to the System Root as the first argument\n";
 	print_usage();
-	echo "ERROR: The directory you specified as the system root does not exist, or is not a directory.\n\n";
-
-	exit;
+	exit();
 }
+
+if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
+	print_usage();
+	exit();
+}
+
 if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');
 
 $old_encoding = (isset($_SERVER['argv'][2])) ? $_SERVER['argv'][2] : '';

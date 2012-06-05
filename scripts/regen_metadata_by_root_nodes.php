@@ -17,7 +17,7 @@
 * then it will go find all the children of those root nodes and regenerate metadata for these child assets.
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 
@@ -32,13 +32,20 @@ if (count($argv) < 3) {
 }//end if
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
-if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
-    trigger_error("You need to supply the path to the System Root as the first argument\n", E_USER_ERROR);
-}//end if
+if (empty($SYSTEM_ROOT)) {
+	echo "ERROR: You need to supply the path to the System Root as the first argument\n";
+	exit();
+}
+
+if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
+	exit();
+}
 
 $assetids = (isset($_SERVER['argv'][2])) ? $_SERVER['argv'][2] : '';
 if (empty($assetids)) {
-    trigger_error("You need to specify the root nodes to regenerate metadata from as the second argument\n", E_USER_ERROR);
+    echo "ERROR: You need to specify the root nodes to regenerate metadata from as the second argument\n";
+	exit();
 }//end if
 
 $max_thread_num = (isset($_SERVER['argv'][3])) ? $_SERVER['argv'][3] : '';
@@ -95,13 +102,13 @@ $pid_prepare    = pcntl_fork();
             // the parent process still runs and continues to fork more processes.
             if (!$root_user->comparePassword($root_password)) {
                 // only show the error once
-                trigger_error("The root password entered was incorrect\n", E_USER_ERROR);
-                exit;
+                echo "ERROR: The root password entered was incorrect\n";
+                exit();
             }
 
             // log in as root
             if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
-                trigger_error("Failed logging in as root user\n", E_USER_ERROR);
+                echo "ERROR: Failed logging in as root user\n";
                 exit(1);
             }//end if
 

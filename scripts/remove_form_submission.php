@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remove_form_submission.php,v 1.11 2011/12/06 04:28:09 mhaidar Exp $
+* $Id: remove_form_submission.php,v 1.12 2012/06/05 06:26:09 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 *		Require Matrix version 3.12 or newer
 *
 * @author  Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 */
 
@@ -34,8 +34,13 @@ error_reporting(E_ALL);
 if ((php_sapi_name() != 'cli')) trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
-if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
+if (empty($SYSTEM_ROOT)) {
 	echo "ERROR: You need to supply the path to the System Root as the first argument\n";
+	exit();
+}
+
+if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
 	exit();
 }
 
@@ -49,10 +54,10 @@ if (count($argv) != 5) {
 	exit(1);
 } else if (preg_match('/^[0-9]{4}-[0-9]{2}-[0-9]{2}/',$argv[3]) != TRUE) {
 	// simple date format YYYY-MM-DD check, nothing fancy
-	trigger_error('\'From date\' must be in the format \'YYYY-MM-DD\'', E_USER_WARNING);
+	echo"ERROR: 'From date' must be in the format 'YYYY-MM-DD'\n";
 	exit(1);
 } else if (preg_match('/^[0-9]{4}-[0-9]{2}-[0-9]{2}/',$argv[4]) != TRUE) {
-	trigger_error('\'To date\' must be in the format \'YYYY-MM-DD\'', E_USER_WARNING);
+	echo "ERROR: 'To date' must be in the format 'YYYY-MM-DD'\n";
 	exit(1);
 }
 require_once SQ_FUDGE_PATH.'/general/datetime.inc';
@@ -63,11 +68,11 @@ $to_value = iso8601_date_component($argv[4]).' 23:59:59';
 $assetid = $argv[2];
 $asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 if (is_null($asset)) {
-	trigger_error("#$assetid is not a valid asset ID", E_USER_WARNING);
+	echo "ERROR: #$assetid is not a valid asset ID";
 	exit(1);
 }
 if (!is_a($asset, 'page_custom_form')) {
-	trigger_error("Asset #$assetid is not a custom form asset", E_USER_WARNING);
+	echo "ERROR: Asset #$assetid is not a custom form asset";
 	exit(1);
 } else {
 	$form = $asset->getForm();

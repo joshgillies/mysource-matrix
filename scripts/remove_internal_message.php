@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remove_internal_message.php,v 1.7 2010/03/02 22:24:38 cupreti Exp $
+* $Id: remove_internal_message.php,v 1.8 2012/06/05 06:26:09 akarelia Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Delete internal messages
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -124,7 +124,16 @@ foreach ($options[0] as $option) {
 
 }//end foreach arguments
 
-if (empty($SYSTEM_ROOT)) usage();
+if (empty($SYSTEM_ROOT)) {
+	echo "ERROR: You need to supply the path to the System Root as the first argument\n";
+	usage();
+}
+
+if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
+	usage();
+}
+
 if (empty($PERIOD)) usage();
 
 require_once $SYSTEM_ROOT.'/core/include/init.inc';

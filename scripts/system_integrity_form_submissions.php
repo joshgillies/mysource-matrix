@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_form_submissions.php,v 1.3 2011/08/08 04:42:30 akarelia Exp $
+* $Id: system_integrity_form_submissions.php,v 1.4 2012/06/05 06:26:09 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * system_integrity_form_submissions.php SYSTEM_ROOT [list|delete]
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 
@@ -49,8 +49,14 @@ if ((php_sapi_name() != 'cli')) {
 }
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
-if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
-	getInfo('You need to supply the path to the System Root as the first argument');
+if (empty($SYSTEM_ROOT)) {
+	echo "ERROR: You need to supply the path to the System Root as the first argument\n";
+	exit();
+}
+
+if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
+	exit();
 }
 
 if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');

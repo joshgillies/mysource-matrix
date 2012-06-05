@@ -34,7 +34,7 @@
 *
 *
 * @author      Luke Wright <lwright@squiz.net>
-* @version     $Revision: 1.3 $
+* @version     $Revision: 1.4 $
 * @package     Mysource_Matrix
 * @subpackage  __core__
 */
@@ -81,9 +81,8 @@ switch (count($ARGV)) {
 
 list($SYSTEM_ROOT, $ROOT_ASSETID, $UNRESTRICT_SETTING) = array_slice($ARGV, 1, 3);
 
-// Do we have a dodgy system root path?
-if (!is_file($SYSTEM_ROOT.'/core/include/init.inc')) {
-	error_line('System root passed does not seem to point to a valid MySource Matrix installation');
+if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+	error_line('ERROR: Path provided doesn\'t point to a Matrix installation\'s System Root. Please provide correct path and try again.');;
 	exit(1);
 }
 

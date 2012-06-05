@@ -10,14 +10,14 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: migrate_metadata_text_to_multiple_text.php,v 1.3 2011/08/08 04:42:30 akarelia Exp $
+* $Id: migrate_metadata_text_to_multiple_text.php,v 1.4 2012/06/05 06:26:09 akarelia Exp $
 *
 */
 
 /**
 *
 * @author Scott Kim <skim@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -39,13 +39,13 @@ $REPORT_ONLY = FALSE;
 $FROM_ASSETID = FALSE;
 $TO_ASSETID = FALSE;
 $DELIMITER = ' ';
-$_SYSTEM_ROOT = '';
+$SYSTEM_ROOT = '';
 foreach ($options[0] as $option) {
 	switch ($option[0]) {
 		case 's':
 			if (empty($option[1])) usage();
 			if (!is_dir($option[1])) usage();
-			$_SYSTEM_ROOT = $option[1];
+			$SYSTEM_ROOT = $option[1];
 		break;
 		case '--from':
 			$FROM_ASSETID = $option[1];
@@ -59,14 +59,23 @@ foreach ($options[0] as $option) {
 	}
 
 }
-if (empty($_SYSTEM_ROOT)) usage();
+if (empty($SYSTEM_ROOT)) {
+	echo "ERROR: You need to supply the path to the System Root as the first argument\n";
+	usage();
+}
+
+if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
+	usage();
+}
+
 if (empty($FROM_ASSETID)) usage();
 if (empty($TO_ASSETID)) usage();
 
 
 if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');
-define('SQ_SYSTEM_ROOT', $_SYSTEM_ROOT);
-include_once $_SYSTEM_ROOT.'/core/include/init.inc';
+define('SQ_SYSTEM_ROOT', $SYSTEM_ROOT);
+include_once $SYSTEM_ROOT.'/core/include/init.inc';
 
 $from_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($FROM_ASSETID);
 if (empty($from_asset) || !is_a($from_asset, 'metadata_field_text')) {

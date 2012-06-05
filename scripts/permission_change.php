@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: permission_change.php,v 1.5 2011/09/01 01:22:37 ewang Exp $
+* $Id: permission_change.php,v 1.6 2012/06/05 06:26:09 akarelia Exp $
 *
 */
 
@@ -29,25 +29,35 @@ if ((php_sapi_name() != 'cli')) {
 }
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
-if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
-	trigger_error("You need to supply the path to the System Root as the first argument\n", E_USER_ERROR);
+if (empty($SYSTEM_ROOT)) {
+	echo "ERROR: You need to supply the path to the System Root as the first argument\n";
+	exit();
 }
+
+if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
+	exit();
+}
+
 define('SQ_SYSTEM_ROOT', $SYSTEM_ROOT);
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
 
 // Other options
 $ROOT_NODE = (isset($_SERVER['argv'][2])) ? $_SERVER['argv'][2] : '';
 if (empty($ROOT_NODE)) {
-	trigger_error("You need to supply a root node as the second argument\n", E_USER_ERROR);
+	echo "ERROR: You need to supply a root node as the second argument\n";
+	exit();
 }
 $USER = (isset($_SERVER['argv'][3])) ? $_SERVER['argv'][3] : '';
 if (empty($USER)) {
-	trigger_error("You need to supply a user as the third argument\n", E_USER_ERROR);
+	echo "ERROR: You need to supply a user as the third argument\n";
+	exit();
 }
 $available_permissions = Array('read'=>SQ_PERMISSION_READ, 'write'=>SQ_PERMISSION_WRITE, 'admin'=>SQ_PERMISSION_ADMIN);
 $PERMISSION = (isset($_SERVER['argv'][4])) ? $_SERVER['argv'][4] : '';
 if (empty($PERMISSION) || !array_key_exists($PERMISSION, $available_permissions)) {
-	trigger_error("You need to supply a permission as the fourth argument\n", E_USER_ERROR);
+	echo "ERROR: You need to supply a permission as the fourth argument\n";
+	exit();
 }
 $GRANTED  = (isset($_SERVER['argv'][5]) && $_SERVER['argv'][5] == 'y') ? '1' : '0';
 $CHILDREN = (isset($_SERVER['argv'][6]) && $_SERVER['argv'][6] == 'y') ? TRUE : FALSE;

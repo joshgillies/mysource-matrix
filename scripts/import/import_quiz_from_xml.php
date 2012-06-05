@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_quiz_from_xml.php,v 1.4 2012/05/31 03:56:06 hlliauw Exp $
+* $Id: import_quiz_from_xml.php,v 1.5 2012/06/05 06:26:10 akarelia Exp $
 *
 */
 
@@ -43,7 +43,7 @@
 *
 *
 * @author  Han Loong Liauw <hlliauw@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 
@@ -55,18 +55,26 @@ if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');
 if ((php_sapi_name() != 'cli')) trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
-if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
-	trigger_error("You need to supply the path to the System Root as the first argument\n", E_USER_ERROR);
+if (empty($SYSTEM_ROOT)) {
+	echo "ERROR: You need to supply the path to the System Root as the first argument\n";
+	exit();
+}
+
+if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
+	exit();
 }
 
 $root_node_id = (isset($_SERVER['argv'][2])) ? $_SERVER['argv'][2] : '';
 if (empty($root_node_id) || !is_numeric($root_node_id)) {
-	trigger_error("you need to supply root node under which the assets are to be imported as fourth argument\n", E_USER_ERROR);
+	echo "ERROR: You need to supply root node under which the assets are to be imported as fourth argument\n";
+	exit();
 }
 
 $import_file = (isset($_SERVER['argv'][3])) ? $_SERVER['argv'][3] : '';
 if (empty($import_file) || !is_file($import_file)) {
-	trigger_error("You need to supply the path to the import file as the second argument\n", E_USER_ERROR);
+	echo "ERROR: You need to supply the path to the import file as the second argument\n";
+	exit();
 }
 
 require_once $SYSTEM_ROOT.'/core/include/init.inc';

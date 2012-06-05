@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: move_assets_to_dated_folders.php,v 1.6 2011/08/08 04:42:30 akarelia Exp $
+* $Id: move_assets_to_dated_folders.php,v 1.7 2012/06/05 06:26:09 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 * Credit to Richard Hulse (Radio NZ) for this concept which is now available to the Matrix Community!
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 
@@ -37,7 +37,7 @@
 */
 function printUsage()
 {
-        echo "Move assets into dated folders\n\n";
+    echo "Move assets into dated folders\n\n";
 	echo "Usage: move_assets_to_dated_folders [system root] --root=[root node asset ID] --type=[asset type code]\n";
 	echo "                                    --field=[asset date field] --period=[time period] (--folder-link-type=[folder link type])\n";
 	echo "                                    (--move-asset-status=[move asset status]) (--make-folders-live)\n\n";
@@ -398,9 +398,15 @@ if (empty($options[0])) {
 }
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
-if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
+if (empty($SYSTEM_ROOT)) {
+	echo "ERROR: You need to supply the path to the System Root as the first argument\n";
 	printUsage();
-	echo "Please specify the path to the System Root as the first argument\n";
+	exit();
+}
+
+if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
+	printUsage();
 	exit();
 }
 
@@ -443,15 +449,15 @@ foreach ($options[0] as $option) {
 		case '--root':
 			$root_node = (isset($option[1])) ? (int)$option[1] : 0;
 			if ($root_node <= 0) {
-				printUsage();
 				echo "Please specify a root node asset ID (--root)\n";
+				printUsage();
 				exit();
 			}
 
 			$parent_asset =& $am->getAsset($root_node);
 			if (!$parent_asset->id) {
-				printUsage();
 				echo "The specified root node asset was not found\n";
+				printUsage();
 				exit();
 			}
 			$am->forgetAsset($parent_asset);
@@ -460,8 +466,8 @@ foreach ($options[0] as $option) {
 		case '--type':
 			$asset_type_code = (isset($option[1])) ? $option[1] : '';
 			if (empty($asset_type_code)) {
-				printUsage();
 				echo "Please specify an asset type (--type)\n";
+				printUsage();
 				exit();
 			} else {
 				// Verify that the supplied asset code is correct
@@ -472,12 +478,12 @@ foreach ($options[0] as $option) {
 		case '--field':
 			$asset_date_field = (isset($option[1])) ? strtolower($option[1]) : '';
 			if (empty($asset_date_field)) {
-				printUsage();
 				echo "Please specify an asset date field (--field)\n";
+				printUsage();
 				exit();
 			} else if (($asset_date_field != 'created') && ($asset_date_field != 'published')) {
-				printUsage();
 				echo "Please specify either 'created' or 'published' for the asset date field\n";
+				printUsage();
 				exit();
 			}
 		break;
@@ -485,12 +491,12 @@ foreach ($options[0] as $option) {
 		case '--period':
 			$time_period = (isset($option[1])) ? strtolower($option[1]) : '';
 			if (empty($time_period)) {
-				printUsage();
 				echo "Please specify a time period (--period)\n";
+				printUsage();
 				exit();
 			} else if (($time_period != 'year') && ($time_period != 'month') && ($time_period != 'day')) {
-				printUsage();
 				echo "Please specify either 'year', 'month' or 'day' for the time period\n";
+				printUsage();
 				exit();
 			}
 		break;
@@ -498,8 +504,8 @@ foreach ($options[0] as $option) {
 		case '--folder-link-type':
 			$folder_link_type = (isset($option[1])) ? (int)$option[1] : SQ_LINK_TYPE_2;
 			if (($folder_link_type != SQ_LINK_TYPE_1) && ($folder_link_type != SQ_LINK_TYPE_2)) {
-				printUsage();
 				echo "Please specify either link type 1 or 2 for the folder link type (--folder-link-type)\n";
+				printUsage();
 				exit();
 			}
 		break;
@@ -527,7 +533,8 @@ if (!$root_user->comparePassword($root_password)) {
 
 // Log in as root
 if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
-    trigger_error("Failed login as root user\n", E_USER_ERROR);
+    echo "ERROR: Failed login as root user\n";
+	exit();
 }
 
 // All validated - ready to Folderise(tm)

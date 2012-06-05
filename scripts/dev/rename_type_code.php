@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: rename_type_code.php,v 1.4 2008/02/18 05:28:41 lwright Exp $
+* $Id: rename_type_code.php,v 1.5 2012/06/05 06:26:10 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * assets that have associated files.
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -35,8 +35,14 @@ if (count($_SERVER['argv']) != 4) {
 }
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
-if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
-	trigger_error('The directory you specified as the system root does not exist, or is not a directory', E_USER_ERROR);
+if (empty($SYSTEM_ROOT)) {
+	echo "ERROR: You need to supply the path to the System Root as the first argument\n";
+	exit();
+}
+
+if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
+	exit();
 }
 
 require_once $SYSTEM_ROOT.'/core/include/init.inc';

@@ -5,7 +5,7 @@
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -45,7 +45,15 @@ foreach ($options[0] as $option) {
 	}
 }
 
-if (empty($SYSTEM_ROOT)) usage();
+if (empty($SYSTEM_ROOT)) {
+	echo "ERROR: You need to supply the path to the System Root as the first argument\n";
+	usage();
+}
+
+if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
+	usage();
+}
 
 if($ACTION === '--disable_force') {
 	// forcibly disable deja vu before even include init.inc

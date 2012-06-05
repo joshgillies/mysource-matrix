@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: recreate_rollback_triggers.php,v 1.3 2006/12/06 05:39:51 bcaldwell Exp $
+* $Id: recreate_rollback_triggers.php,v 1.4 2012/06/05 06:26:09 akarelia Exp $
 *
 */
 
@@ -18,15 +18,21 @@
 * Recreate the Rollback Trigger functions
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
 if ((php_sapi_name() != 'cli')) trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
-if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
-	trigger_error("You need to supply the path to the System Root as the first argument\n", E_USER_ERROR);
+if (empty($SYSTEM_ROOT)) {
+	echo "ERROR: You need to supply the path to the System Root as the first argument\n";
+	exit();
+}
+
+if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
+	exit();
 }
 
 require_once $SYSTEM_ROOT.'/core/include/init.inc';

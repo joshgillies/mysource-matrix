@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: locale_restore.php,v 1.4 2011/08/08 04:42:30 akarelia Exp $
+* $Id: locale_restore.php,v 1.5 2012/06/05 06:26:10 akarelia Exp $
 *
 */
 
@@ -38,7 +38,7 @@
 *	XML file has locale info that this script uses..
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -65,9 +65,16 @@ if ((php_sapi_name() == 'cli')) {
 	';
 }
 
-if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
-	trigger_error($err_msg, E_USER_ERROR);
+if (empty($SYSTEM_ROOT)) {
+	echo $err_msg;
+	exit();
 }
+
+if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
+	exit();
+}
+
 
 
 // only use console stuff if we're running from the command line
@@ -104,7 +111,8 @@ if (!$root_user->comparePassword($root_password)) {
 
 // log in as root
 if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
-	trigger_error("Failed login in as root user\n", E_USER_ERROR);
+	echo "Failed login in as root user\n";
+	exit();
 }
 
 // get the list of functions used during install

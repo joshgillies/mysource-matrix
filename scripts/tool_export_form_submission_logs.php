@@ -17,7 +17,7 @@
 * Run this script without argument to see its usage.
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 
@@ -35,8 +35,12 @@ array_shift($args);
 
 // Get the Matrix System Root Directory
 $MATRIX_ROOT_DIR = array_shift($args);
-if (empty($MATRIX_ROOT_DIR) || !is_dir($MATRIX_ROOT_DIR)) {
-	print_usage("ERROR: You need to enter the Matrix System Root directory as the first argument.");
+if (empty($MATRIX_ROOT_DIR)) {
+	print_usage("ERROR: You need to supply the path to the System Root as the first argument");
+}
+
+if (!is_dir($MATRIX_ROOT_DIR) || !is_readable($MATRIX_ROOT_DIR.'/core/include/init.inc')) {
+	print_usage("ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.");
 }
 
 require $MATRIX_ROOT_DIR.'/core/include/init.inc';

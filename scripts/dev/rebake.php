@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: rebake.php,v 1.5 2011/08/08 04:42:31 akarelia Exp $
+* $Id: rebake.php,v 1.6 2012/06/05 06:26:10 akarelia Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *    php install_queries.php /system/root
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -57,10 +57,15 @@ if ((php_sapi_name() == 'cli')) {
 	';
 }
 
-if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
-	trigger_error($err_msg, E_USER_ERROR);
+if (empty($SYSTEM_ROOT)) {
+	echo $err_msg;
+	exit();
 }
 
+if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
+	exit();
+}
 
 // only use console stuff if we're running from the command line
 if ($cli) {

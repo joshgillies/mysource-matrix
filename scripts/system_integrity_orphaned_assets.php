@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_orphaned_assets.php,v 1.16 2008/09/16 06:59:15 ewang Exp $
+* $Id: system_integrity_orphaned_assets.php,v 1.17 2012/06/05 06:26:09 akarelia Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 * the minor) underneath a specified asset id, preferably a folder
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -28,8 +28,13 @@ if ((php_sapi_name() != 'cli')) {
 }
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
-if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
+if (empty($SYSTEM_ROOT)) {
 	echo "ERROR: You need to supply the path to the System Root as the first argument\n";
+	exit();
+}
+
+if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
 	exit();
 }
 
@@ -64,7 +69,8 @@ if (!$root_user->comparePassword($root_password)) {
 
 // log in as root
 if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
-	trigger_error("Failed login in as root user\n", E_USER_ERROR);
+	echo "ERROR: Failed login in as root user\n";
+	exit();
 }
 
 $db =& $GLOBALS['SQ_SYSTEM']->db;

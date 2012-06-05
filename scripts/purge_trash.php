@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: purge_trash.php,v 1.7 2011/08/08 04:42:30 akarelia Exp $
+* $Id: purge_trash.php,v 1.8 2012/06/05 06:26:09 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 *        all assets underneath this rootnode (inclusive) will be purged from the trash folder.
 *        useful when the system runs out of memory when purging all assets
 *
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 */
 
@@ -37,8 +37,14 @@ if (php_sapi_name() != 'cli') {
 }
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
-if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
-	trigger_error("You need to supply the path to the System Root as the first argument\n", E_USER_ERROR);
+if (empty($SYSTEM_ROOT)) {
+	echo "ERROR: You need to supply the path to the System Root as the first argument\n";
+	exit();
+}
+
+if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
+	exit();
 }
 
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
@@ -46,7 +52,8 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
 $root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
-	trigger_error("Failed logging in as root user\n", E_USER_ERROR);
+	echo "ERROR: Failed logging in as root user\n";
+	exit();
 }
 
 $vars = Array();

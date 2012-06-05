@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_invalid_links.php,v 1.7 2012/04/22 23:46:15 akarelia Exp $
+* $Id: system_integrity_invalid_links.php,v 1.8 2012/06/05 06:26:09 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Nathan Callahan <ncallahan@squiz.net>
 * @author  Mohamed Haidar <mhaidar@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 */
 
@@ -34,8 +34,14 @@ if (count($_SERVER['argv']) < 3 || php_sapi_name() != 'cli') {
 }
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
-if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
-	trigger_error('The directory you specified as the system root does not exist, or is not a directory', E_USER_ERROR);
+if (empty($SYSTEM_ROOT)) {
+	echo "ERROR: You need to supply the path to the System Root as the first argument\n";
+	exit();
+}
+
+if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
+	exit();
 }
 
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
@@ -43,7 +49,8 @@ require_once $SYSTEM_ROOT.'/core/include/init.inc';
 $ACTION = (isset($_SERVER['argv'][2])) ? $_SERVER['argv'][2] : '';
 $ACTION = ltrim($ACTION, '-');
 if (empty($ACTION) || ($ACTION != 'delete' && $ACTION != 'check')) {
-	trigger_error("No action specified", E_USER_ERROR);
+	echo "ERROR: No action specified";
+	exit();
 }//end if
 
 $remove_notice_links = FALSE;
@@ -59,7 +66,8 @@ if ($NOTICE_ACTION == 'remove_notice_links') {
 // login as root user to avoid problems with safe edit assets
 $root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
-	trigger_error("Failed login in as root user", E_USER_ERROR);
+	echo "ERROR: Failed login in as root user";
+	exit();
 }
 
 $GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db');

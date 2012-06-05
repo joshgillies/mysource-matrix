@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_check_links.php,v 1.5 2010/12/08 04:12:41 ewang Exp $
+* $Id: system_integrity_check_links.php,v 1.6 2012/06/05 06:26:09 akarelia Exp $
 *
 */
 
@@ -18,15 +18,20 @@
 * Go through all WYSIWYG content types and ensure all ./?a=xx links are valid
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
 if ((php_sapi_name() != 'cli')) trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
-if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
+if (empty($SYSTEM_ROOT)) {
 	echo "ERROR: You need to supply the path to the System Root as the first argument\n";
+	exit();
+}
+
+if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
 	exit();
 }
 
@@ -35,11 +40,9 @@ require_once $SYSTEM_ROOT.'/core/include/init.inc';
 // login as root user to avoid problems with safe edit assets
 $root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
-	trigger_error("Failed login in as root user\n", E_USER_ERROR);
+	echo "Failed login in as root user\n";
+	exit();
 }
-
-
-
 
 $ROOT_ASSETID = (isset($_SERVER['argv'][2])) ? $_SERVER['argv'][2] : '1';
 if ($ROOT_ASSETID == 1) {

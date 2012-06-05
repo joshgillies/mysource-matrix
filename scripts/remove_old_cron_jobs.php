@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remove_old_cron_jobs.php,v 1.6 2010/08/23 00:30:26 akarelia Exp $
+* $Id: remove_old_cron_jobs.php,v 1.7 2012/06/05 06:26:09 akarelia Exp $
 *
 */
 
@@ -19,15 +19,20 @@
 * piled up so much that you can't delete them manually and can't run the cron script
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
 if ((php_sapi_name() != 'cli')) trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
-if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
+if (empty($SYSTEM_ROOT)) {
 	echo "ERROR: You need to supply the path to the System Root as the first argument\n";
+	exit();
+}
+
+if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
 	exit();
 }
 
@@ -47,7 +52,8 @@ if (!$root_user->comparePassword($root_password)) {
 
 // log in as root
 if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
-	trigger_error("Failed login in as root user\n", E_USER_ERROR);
+	echo "ERROR: Failed login in as root user\n";
+	exit();
 }
 
 $GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');

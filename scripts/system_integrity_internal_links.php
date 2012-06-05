@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_internal_links.php,v 1.4 2008/09/16 06:59:01 ewang Exp $
+* $Id: system_integrity_internal_links.php,v 1.5 2012/06/05 06:26:09 akarelia Exp $
 *
 */
 
@@ -18,15 +18,20 @@
 * Go through all WYSIWYG content types are ensure all ./?a=xx links are in the correct format
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
 if ((php_sapi_name() != 'cli')) trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
-if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
+if (empty($SYSTEM_ROOT)) {
 	echo "ERROR: You need to supply the path to the System Root as the first argument\n";
+	exit();
+}
+
+if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
 	exit();
 }
 
@@ -50,7 +55,8 @@ if (!$root_user->comparePassword($root_password)) {
 
 // log in as root
 if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
-	trigger_error("Failed loggin in as root user\n", E_USER_ERROR);
+	echo "Failed loggin in as root user\n";
+	exit();
 }
 
 // go trough each wysiwyg in the system, lock it, validate it, unlock it

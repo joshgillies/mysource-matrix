@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_move_update.php,v 1.17 2010/07/16 06:02:45 mhaidar Exp $
+* $Id: system_move_update.php,v 1.18 2012/06/05 06:26:09 akarelia Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Small script to be run AFTER the system root directory is changed
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -37,8 +37,14 @@ if ((php_sapi_name() == 'cli')) {
 	';
 }
 
-if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
-	trigger_error($err_msg, E_USER_ERROR);
+if (empty($SYSTEM_ROOT)) {
+	echo $er_msg;
+	exit();
+}
+
+if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
+	exit();
 }
 
 // simple fn to print a prompt and return what the user enters

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_replace_attribute_content.php,v 1.3 2011/12/19 01:20:27 ewang Exp $
+* $Id: search_replace_attribute_content.php,v 1.4 2012/06/05 06:26:10 akarelia Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 echo 'Comment the code that stops this script from working. Protection against accidental execution.';
@@ -49,7 +49,8 @@ if ((php_sapi_name() != 'cli')) {
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
 if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
-	trigger_error("You need to supply the path to the System Root as the first argument\n", E_USER_ERROR);
+	echo "You need to supply the path to the System Root as the first argument\n";
+	exit();
 }
 
 define('SQ_SYSTEM_ROOT', $SYSTEM_ROOT);
@@ -60,7 +61,8 @@ $root_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 
 // log in as root
 if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
-	trigger_error("Failed logging in as root user\n", E_USER_ERROR);
+	echo "Failed logging in as root user\n";
+	exit();
 }
 
 $GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');

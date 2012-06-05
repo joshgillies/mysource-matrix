@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: regenerate_treeids_for_triggers.php,v 1.2 2011/08/08 04:42:30 akarelia Exp $
+* $Id: regenerate_treeids_for_triggers.php,v 1.3 2012/06/05 06:26:09 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * this will re-enter values in table, thus fxing up any issue with inconsistent tree_ids
 *
 * @author  Ashish Karelia <akarelia@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -29,8 +29,14 @@ if (php_sapi_name() != 'cli') {
 }
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
-if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
-	trigger_error("You need to supply the path to the System Root as the first argument\n", E_USER_ERROR);
+if (empty($SYSTEM_ROOT)) {
+	echo "ERROR: You need to supply the path to the System Root as the first argument\n";
+	exit();
+}
+
+if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
+	exit();
 }
 
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
@@ -40,7 +46,8 @@ if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');
 
 $root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
-	trigger_error("Failed logging in as root user\n", E_USER_ERROR);
+	echo "ERROR: Failed logging in as root user\n";
+	exit();
 }
 
 //--        MAIN()        --//

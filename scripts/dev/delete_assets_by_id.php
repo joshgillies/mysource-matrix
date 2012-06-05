@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: delete_assets_by_id.php,v 1.1 2009/02/12 23:10:03 csmith Exp $
+* $Id: delete_assets_by_id.php,v 1.2 2012/06/05 06:26:09 akarelia Exp $
 *
 */
 
@@ -38,7 +38,8 @@ require dirname(__FILE__) . '/../../core/include/init.inc';
 $root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 // log in as root
 if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
-	trigger_error("Failed login in as root user\n", E_USER_ERROR);
+	echo "Failed login in as root user\n";
+	exit();
 }
 
 $trash_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');

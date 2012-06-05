@@ -2224,7 +2224,8 @@ class DbBackend_MatrixDAL extends DbBackendPlugin
 		$SYSTEM_ROOT = $conn_string;
 
 		if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
-		    trigger_error("You need to supply the path to the System Root as the first argument" . "\n", E_USER_ERROR);
+		    echo "You need to supply the path to the System Root as the first argument\n";
+			exit();
 		}
 
 		require_once $SYSTEM_ROOT.'/fudge/dev/dev.inc';

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_recover_file_versions.php,v 1.6 2011/09/01 08:10:35 ewang Exp $
+* $Id: system_integrity_recover_file_versions.php,v 1.7 2012/06/05 06:26:09 akarelia Exp $
 *
 */
 
@@ -20,15 +20,21 @@
 * Notes: YOU SHOULD BACK UP YOUR SYSTEM BEFORE USING THIS SCRIPT
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
 if ((php_sapi_name() != 'cli')) trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
-if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
+if (empty($SYSTEM_ROOT)) {
 	echo "ERROR: You need to supply the path to the System Root as the first argument\n";
+	print_usage();
+	exit();
+}
+
+if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
 	print_usage();
 	exit();
 }
@@ -44,7 +50,8 @@ require_once $SYSTEM_ROOT.'/core/include/init.inc';
 $root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 
 if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
-	trigger_error("Failed login in as root user\n", E_USER_ERROR);
+	echo "ERROR: Failed login in as root user\n";
+	exit();
 }
 
 //get children of the tree root asset which are file and its descendant types

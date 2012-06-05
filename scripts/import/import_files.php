@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_files.php,v 1.12 2010/07/15 04:43:37 csmith Exp $
+* $Id: import_files.php,v 1.13 2012/06/05 06:26:10 akarelia Exp $
 *
 */
 
@@ -55,7 +55,7 @@
 * fourth argument is equals to 1 allow unrestricted access will be set to be true
 *
 * @author Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -64,13 +64,20 @@ if ((php_sapi_name() != 'cli')) {
 }
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
-if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
-	trigger_error("You need to supply the path to the System Root as the first argument\n", E_USER_ERROR);
+if (empty($SYSTEM_ROOT)) {
+	echo "ERROR: You need to supply the path to the System Root as the first argument\n";
+	exit();
+}
+
+if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
+	exit();
 }
 
 $import_home_dir = (isset($_SERVER['argv'][2])) ? $_SERVER['argv'][2] : '';
 if (empty($import_home_dir) || !is_dir($import_home_dir)) {
-	trigger_error("You need to supply the path to the import directory as the second argument\n", E_USER_ERROR);
+	echo "ERROR: You need to supply the path to the import directory as the second argument\n";
+	exit();
 }
 
 $matrix_root_assetid = (isset($_SERVER['argv'][3])) ? $_SERVER['argv'][3] : 0;
