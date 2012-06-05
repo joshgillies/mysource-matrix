@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: suite_manager.inc,v 1.16 2012/05/28 02:17:30 akarelia Exp $
+* $Id: suite_manager.inc,v 1.17 2012/06/05 03:12:44 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage squiz_suite
 */
@@ -870,7 +870,7 @@ class Suite_Manager extends Page
 		foreach ($requiredParams as $param) {
 			$value = array_get_index($_POST, $param['name'], NULL);
 			$value = $this->decodeJson($value);
-			$value = htmlentities($value); 
+			$value = htmlentities_array($value);
 
 			if ($value === NULL && $encrypted !== NULL && array_key_exists($param['name'], $encrypted) === TRUE) {
 				$value = $this->decodeJson($encrypted[$param['name']]);
@@ -1188,7 +1188,6 @@ class Suite_Manager extends Page
 
 			if ($response === FALSE) {
 				$connection_failed = TRUE;
-				$this->updateProduct($product['suiteid'], 'status', 'failed');
 				continue;
 			}
 
