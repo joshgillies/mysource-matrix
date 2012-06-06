@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.70 2011/07/25 08:24:35 cupreti Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.70.6.1 2012/06/06 04:31:59 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.70 $
+* @version $Revision: 1.70.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -405,7 +405,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 		
 		if (!isset($GLOBALS['SQ_NEST_CONTENT_PAINTED'])) $GLOBALS['SQ_NEST_CONTENT_PAINTED'] = Array();
 		if (!isset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$asset_cache_key])) {
-
+			
 			$additional_get_vars = <?php
 			// keyword delimiters need to be replaced temporarily
 			echo str_replace('%', '&#37;', var_export($additional_get_vars, TRUE)); ?>;
@@ -464,6 +464,10 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 			}
 			$old_get[$asset_cache_key] = $_GET;
 			$_GET = array_merge($_GET, $processed_get_vars);
+			
+			// $_REQUEST by default is supposed to contain the contnets of $_GET
+			$old_request[$asset_cache_key] = $_REQUEST;
+			$_REQUEST = array_merge($_REQUEST, $processed_get_vars);
 
 			$GLOBALS['SQ_NEST_CONTENT_PAINTED'][$asset_cache_key] = 1;
 			$nested_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($nested_assetid, '', TRUE);
@@ -495,6 +499,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 			unset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$asset_cache_key]);
 
 			$_GET = $old_get[$asset_cache_key];
+			$_REQUEST = $old_request[$asset_cache_key];
 		} else {
 			echo '<font color="red"><b>[ ** '.translate('cms_ct_nest_content_recursion_warning').' ** ]<br />'.translate('cms_ct_nest_content_recursion_body').'</b></font>';
 		}
