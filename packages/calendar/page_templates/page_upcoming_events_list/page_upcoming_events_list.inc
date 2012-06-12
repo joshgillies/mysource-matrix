@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_upcoming_events_list.inc,v 1.36 2012/05/03 00:56:53 mhaidar Exp $
+* $Id: page_upcoming_events_list.inc,v 1.36.2.1 2012/06/12 04:26:21 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.36.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -364,6 +364,7 @@ class Page_Upcoming_Events_List extends Page
 		}
 
 		$event_list = '';
+		$events_data = Array();	
 		$mm = NULL;
 
 		// Print one instance of each Multi-Date Event
@@ -445,7 +446,7 @@ class Page_Upcoming_Events_List extends Page
 			}
 
 			$asset = $am->getAsset($id);
-
+			$event_occurance = $event['start_date_ts'];
 			if ($asset && $asset->type() == 'calendar_event_recurring') {
 
 				$current_date = $events[$shadow_id]['current_date'];
@@ -464,6 +465,7 @@ class Page_Upcoming_Events_List extends Page
 						$_REQUEST['SQ_CALENDAR_DATE'] = $next_occurance;
 					}
 				}
+				$event_occurance = strtotime($next_occurance);
 
 			} else if ($asset && $asset->type() == 'calendar_event_modification') {
 
@@ -482,6 +484,7 @@ class Page_Upcoming_Events_List extends Page
 						$_REQUEST['SQ_CALENDAR_DATE'] = $occurance_date;
 					}
 				}
+				$event_occurance = strtotime($occurance_date);
 			}
 
 			// get asset keywords
@@ -522,12 +525,18 @@ class Page_Upcoming_Events_List extends Page
 
 			$entry = $type_formats[$format_type];
 			replace_keywords($entry, $replacements);
-			$event_list .= $entry;
+			$events_data[] = Array('data' => $entry, 'start_date_ts' => $event_occurance);
 
 			if ($asset && $asset->type() == 'calendar_event_modification') 
 				$_REQUEST['SQ_CALENDAR_DATE'] = $recuring_event_last_occurance_date;
 
 		}//end foreach events
+		
+		// Sort the resulting events based on their instance start time
+		uasort($events_data, Array('Calendar_Common', 'compareStartDates'));
+		foreach($events_data as $event_data) {
+			$event_list .= $event_data['data'];
+		}
 
 		if (isset($_REQUEST['SQ_CALENDAR_DATE'])) {
 			unset($_REQUEST['SQ_CALENDAR_DATE']);
