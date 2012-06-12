@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: rollback_management.inc,v 1.9 2012/06/12 06:00:50 csmith Exp $
+* $Id: rollback_management.inc,v 1.10 2012/06/12 22:28:20 csmith Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 * @author Marc McIntyre <mmcintyre@squiz.net>
 * @author Greg Sherwood <gsherwood@squiz.net>
 * @author Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -435,7 +435,7 @@ function rollback_found(array $tables=array())
 		$sql = db_extras_modify_limit_clause($sql, MatrixDAL::getDbType(), 1);
 		$queries[] = "(".$sql.")";
 	}
-	$query  = "SELECT COUNT(*) FROM (".implode(" UNION ALL ", $queries).") AS rbcheck";
+	$query  = "SELECT COUNT(*) FROM (".implode(" UNION ALL ", $queries).") rbcheck";
 	$result = MatrixDAL::preparePdoQuery($query);
 	$count  = MatrixDAL::executePdoOne($result);
 	if ($count > 0) {
