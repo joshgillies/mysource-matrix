@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_rollback_management.inc,v 1.3 2011/12/04 23:28:30 ewang Exp $
+* $Id: hipo_job_rollback_management.inc,v 1.4 2012/06/12 06:00:50 csmith Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/rollback_management.inc';
 * </pre>
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -571,6 +571,18 @@ class HIPO_Job_Rollback_Management extends HIPO_Job
 		if ($this->_running_vars['start_job']) {
 			$this->_running_vars['start_job'] = FALSE;
 			$this->_running_vars['to_check'] = $this->_running_vars['rollback_table_names'];
+
+			if ($this->_running_vars['enable_rollback']) {
+				$rbfound = rollback_found($this->_running_vars['to_check']);
+				if ($rbfound) {
+					$step_data['percent_done'] = 100;
+					$step_data['complete']     = TRUE;
+					$this->_running_vars['start_job'] = TRUE;
+					$this->skipStep(5);
+					$this->skipStep(6);
+					return TRUE;
+				}
+			}
 		}
 
 		if ((!empty($this->_running_vars['to_check'])) && (($this->_running_vars['enable_rollback']) || ($this->_running_vars['disable_rollback']))) {

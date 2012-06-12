@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: rollback_management.php,v 1.25 2012/06/05 06:26:09 akarelia Exp $
+* $Id: rollback_management.php,v 1.26 2012/06/12 06:00:50 csmith Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -53,6 +53,7 @@ $RESET_ROLLBACK = FALSE;
 $DELETE_REDUNDANT_ENTRIES = FALSE;
 $QUIET = FALSE;
 
+$valid_option = FALSE;
 foreach ($options[0] as $option) {
 
 	switch ($option[0]) {
@@ -63,6 +64,7 @@ foreach ($options[0] as $option) {
 				usage();
 			}
 			$ROLLBACK_DATE = $option[1];
+			$valid_option = TRUE;
 		break;
 
 		case 'p':
@@ -94,6 +96,7 @@ foreach ($options[0] as $option) {
 			}
 			if ($time_num > 1) $time_units .= 's';
 			$ROLLBACK_DATE = date('Y-m-d H:i:s', strtotime('-'.$time_num.' '.$time_units));
+			$valid_option = TRUE;
 		break;
 
 		case 'f':
@@ -125,6 +128,7 @@ foreach ($options[0] as $option) {
 			}
 			if ($time_num > 1) $time_units .= 's';
 			$PURGE_FV_DATE = date('Y-m-d H:i:s', strtotime('-'.$time_num.' '.$time_units));
+			$valid_option = TRUE;
 		break;
 
 		case 's':
@@ -138,6 +142,7 @@ foreach ($options[0] as $option) {
 				usage();
 			}
 			$ENABLE_ROLLBACK = TRUE;
+			$valid_option = TRUE;
 		break;
 
 		case '--disable-rollback':
@@ -145,6 +150,7 @@ foreach ($options[0] as $option) {
 				usage();
 			}
 			$DISABLE_ROLLBACK = TRUE;
+			$valid_option = TRUE;
 		break;
 
 		case '--reset-rollback':
@@ -152,6 +158,7 @@ foreach ($options[0] as $option) {
 				usage();
 			}
 			$RESET_ROLLBACK = TRUE;
+			$valid_option = TRUE;
 		break;
 
 		case '--delete-redundant-entries':
@@ -159,6 +166,7 @@ foreach ($options[0] as $option) {
 				usage();
 			}
 			$DELETE_REDUNDANT_ENTRIES = TRUE;
+			$valid_option = TRUE;
 		break;
 
 		case 'q':
@@ -170,6 +178,10 @@ foreach ($options[0] as $option) {
 	}//end switch
 
 }//end foreach arguments
+
+if (!$valid_option) {
+	usage();
+}
 
 if ($ENABLE_ROLLBACK || $DISABLE_ROLLBACK || $RESET_ROLLBACK) {
 	if (!empty($ROLLBACK_DATE) || !empty($PURGE_FV_DATE)) {
@@ -244,6 +256,14 @@ if ($PURGE_FV_DATE) {
 		}
 		$ENABLE_ROLLBACK = TRUE;
 		echo "\nEnabling rollback...\n\n";
+	}
+
+	if ($ENABLE_ROLLBACK) {
+		$rollback_check = rollback_found($tables);
+		if ($rollback_check) {
+			echo "Rollback has been enabled before, it doesn't need to be enabled again.\n";
+			exit;
+		}
 	}
 
 	foreach ($tables as $table) {
