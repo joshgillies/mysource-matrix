@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_apply_style.inc,v 1.25 2012/03/16 06:36:20 mhaidar Exp $
+* $Id: matrix_apply_style.inc,v 1.26 2012/06/13 04:16:04 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     A WYSIWYG plugin to apply a style from the effective design
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -236,8 +236,13 @@ class Matrix_Apply_Style extends WYSIWYG_Plugin
 			range = this._createRange(this._getSelection());
 
 			if (HTMLArea.is_ie) {
-
+				
 				///////// INTERNET EXPLORER /////////
+				
+				// if the selection is empty
+				if (range.boundingWidth == 0) {
+					break;
+				}				
 
 				// get the parent element of the range, working around an IE bug
 				// with parentELement()
@@ -453,8 +458,8 @@ class Matrix_Apply_Style extends WYSIWYG_Plugin
 	*/
 	function process(&$html)
 	{
-		$html = preg_replace('|<span[^>]+class\="?no_style"?([^>]+)?>([^<]+)?</span>|i', '\\2', $html);
-		$html = preg_replace('|class\="?no_style?"|i', '', $html);
+		$html = preg_replace('|<span[^>]+class\="?no_style"?([^>]+)?>([^<]+)?</span>|i', '\\2', $html);		
+		$html = preg_replace('|(<[^>]*?)class\="?no_style"?([^>]*?>)|i', '$1$2', $html);
 
 	}//end process();
 	
