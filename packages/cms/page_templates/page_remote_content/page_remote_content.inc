@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.90 2012/02/15 00:59:11 cupreti Exp $
+* $Id: page_remote_content.inc,v 1.91 2012/06/18 07:23:50 cupreti Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.90 $
+* @version $Revision: 1.91 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -250,12 +250,12 @@ class Page_Remote_Content extends Page
 
 		// If we have already handled this complete URL, mark it as such
 		$processed = array_get_index($this->_tmp, 'processed', Array());
-		if (isset($processed[$url])) {
-			return $processed[$url];
+		if (isset($processed[$url]) && $processed[$url]) {
+			return NULL;
 		}
 
 		// here we mark that we've attempted processing of this request
-		// if the processing turns out to successfull later, we will set as "null" then
+		// if the processing turns out to successfull later, we will set as "TRUE" then
 		$this->_tmp['processed'][$url] = FALSE;
 
 		$post_data = NULL;
@@ -455,7 +455,7 @@ class Page_Remote_Content extends Page
 		}
 
 		// Mark the successful processing of this url
-		$this->_tmp['processed'][$url] = NULL;
+		$this->_tmp['processed'][$url] = TRUE;
 
 		return TRUE;
 
