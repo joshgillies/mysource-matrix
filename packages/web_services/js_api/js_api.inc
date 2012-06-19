@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.96.2.12 2012/05/29 05:57:51 cupreti Exp $
+* $Id: js_api.inc,v 1.96.2.13 2012/06/19 23:14:36 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.96.2.12 $
+* @version $Revision: 1.96.2.13 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -3856,7 +3856,7 @@ class JS_Api extends Page
 	*/
 	function array_utf8_encode_recursive($dat) 
 	{
-		if (is_string($dat)) {
+		if (is_string($dat) && (mb_detect_encoding($dat) !== 'UTF-8')) {
 			return utf8_encode($dat);
 		}
 
