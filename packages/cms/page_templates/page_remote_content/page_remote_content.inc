@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.89.2.2 2012/06/18 23:51:39 cupreti Exp $
+* $Id: page_remote_content.inc,v 1.89.2.3 2012/06/19 00:09:29 cupreti Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.89.2.2 $
+* @version $Revision: 1.89.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -953,9 +953,9 @@ class Page_Remote_Content extends Page
 		if (!empty($tag_replacements)) {
 			foreach ($tag_replacements as $tag => $replace_info) {
 				if ($replace_info['remove_content']) {
-					$pattern = '/(<(?:'.$tag.')[^>]*?>[^<]*)/i';
+					$pattern = '/(<(?:'.$tag.')(?:\s+[^>]*?)?>[^<]*)/i';
 				} else {
-					$pattern = '/(<(?:'.$tag.')[^>]*?>)/i';
+					$pattern = '/(<(?:'.$tag.')(?:\s+[^>]*?)?>)/i';
 				}
 				$content = preg_replace($pattern, $replace_info['start_tag'], $content);
 				$pattern = '/(<(?:\/'.$tag.')[^>]*?>)/i';
