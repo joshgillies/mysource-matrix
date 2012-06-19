@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rss_feed.inc,v 1.28 2011/06/07 00:37:06 mhaidar Exp $
+* $Id: page_rss_feed.inc,v 1.28.4.1 2012/06/19 00:48:37 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.28.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -451,7 +451,7 @@ class Page_RSS_Feed extends Page
 						$timestamp = mktime($value);
 					}
 					if ($rss_type == 'rss_2.0') {
-						$value = date('D, j M Y H:i:s T', $timestamp);
+						$value = date('D, j M Y H:i:s O', $timestamp);
 					} else if ($rss_type == 'atom_1.0') {
 						$value = date('Y-m-d', $timestamp).'T'.date('H:i:s', $timestamp).'Z';
 					}
