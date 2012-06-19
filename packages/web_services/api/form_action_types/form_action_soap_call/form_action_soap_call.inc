@@ -10,11 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-<<<<<<< form_action_soap_call.inc
-* $Id: form_action_soap_call.inc,v 1.21 2012/06/19 08:08:31 cupreti Exp $
-=======
-* $Id: form_action_soap_call.inc,v 1.21 2012/06/19 08:08:31 cupreti Exp $
->>>>>>> 1.20
+* $Id: form_action_soap_call.inc,v 1.22 2012/06/19 08:10:38 cupreti Exp $
 *
 */
 
@@ -32,7 +28,7 @@ require_once dirname(dirname(dirname(__FILE__))).'/lib/soap_form_based_common.in
 * Make a SOAP call before submitting form
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
