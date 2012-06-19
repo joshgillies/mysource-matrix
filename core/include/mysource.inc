@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.381.2.5 2012/03/23 03:53:02 akarelia Exp $
+* $Id: mysource.inc,v 1.381.2.6 2012/06/19 00:17:07 cupreti Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.381.2.5 $
+* @version $Revision: 1.381.2.6 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -4272,7 +4272,7 @@ class MySource extends MySource_Object
 		// Replace each ./a=xx link by its respective full URL
 		foreach($matches[1] as $index => $assetid) {
 			if (isset($assets_url[$assetid]) && !empty($assets_url[$assetid])) {
-				$replacement = preg_replace('!\./\?a=[0-9]+(?:\:[0-9a-z]+\$?)?!i', $assets_url[$assetid], $matches[0][$index]);
+				$replacement = preg_replace('!\./\?a=[0-9]+(?:\:[0-9a-z]+\$?)?!i', str_replace('$', '\$', $assets_url[$assetid]), $matches[0][$index]);
 				$content = str_replace($matches[0][$index], $replacement, $content);
 			}
 		}
