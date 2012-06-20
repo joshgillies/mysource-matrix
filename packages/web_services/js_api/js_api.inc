@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.96.2.14 2012/06/20 00:26:30 ewang Exp $
+* $Id: js_api.inc,v 1.96.2.15 2012/06/20 07:34:18 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.96.2.14 $
+* @version $Revision: 1.96.2.15 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -3726,7 +3726,9 @@ class JS_Api extends Page
 						$this->returnError($output);
 					}
 				} else {
-					$data = $this->array_utf8_encode_recursive($data);
+					// all ISO characters have to be converted to UTF8 encoding
+					if(SQ_CONF_DEFAULT_CHARACTER_SET == 'iso-8859-1')
+					    $data = $this->array_utf8_encode_recursive($data);
 					$output = json_encode($data);
 					if (function_exists('json_last_error') && (json_last_error() != JSON_ERROR_NONE)) {
 						switch (json_last_error()) {
@@ -3857,7 +3859,7 @@ class JS_Api extends Page
 	function array_utf8_encode_recursive($dat) 
 	{
 		if (is_string($dat)) {
-			return (mb_detect_encoding($dat) == 'UTF-8') ? utf8_encode($dat) : $dat;
+			return utf8_encode($dat);
 		}
 
 		if (is_object($dat)) {
