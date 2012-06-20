@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.115 2012/06/20 00:24:54 ewang Exp $
+* $Id: js_api.inc,v 1.116 2012/06/20 06:11:22 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.115 $
+* @version $Revision: 1.116 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1882,8 +1882,21 @@ class JS_Api extends Page
 					require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 					$file_ext = get_file_type($filename);
 
-					if (!in_array($file_ext, $new_asset->allowed_extensions)) {
-						return Array('error' => 'The supplied file extension "'.$file_ext.'" is not allowed for file type "'.$type_code."'");
+					// bug fix #5749 JS API createFileAsset warns of file extension on generic file asset
+					// if we are creaed generic File asset the allowed_extensions property is empty for
+					// this get all the allowed file extensions by matrix and let the user go nuts !!!
+					if ($type_code == 'File') {
+						// get our standard list of MIME type allowed
+						include_once SQ_FUDGE_PATH.'/standards_lists/mime_types.inc';
+						$allowed_extensions = array_keys($standards_lists_mime_types);
+					} else if ($type_code == 'Text_File') {
+						$allowed_extensions = Array('txt');
+					} else {
+						$allowed_extensions = $new_asset->allowed_extensions;
+					}
+
+					if (!in_array($file_ext, $allowed_extensions)) {
+						return Array('error' => 'The supplied file extension "'.$file_ext.'" is not allowed for file type "'.$type_code.'"');
 					}
 					//We are going to write to the Matrix Data tmp dir
 					$tmp_file_name  = $this->getRandomFilename($filename);
@@ -1927,7 +1940,6 @@ class JS_Api extends Page
 					if ($type_code == 'data_source_graph') $new_asset->setAttrValue('title', $filename);
 
 					$success = $new_asset->create($link, $file_info);
-
 
 					if (!$success) {
 						$data['error'] = 'Error occured while creating new asset of type \''.$type_code.'\'';
@@ -3759,6 +3771,7 @@ class JS_Api extends Page
 
 				// Send our JSON
 				$output = preg_replace('/(%){1}([globals_snippet_][_A-Za-z0-9\-]*)(%){1}/','&#37;$2&#37;', $output);
+
 				echo $output;
 
 			}//end if
@@ -3785,41 +3798,6 @@ class JS_Api extends Page
 		return $tmp_file_name;
 
 	}//end getRandomFileName()
-
-
-	/*
-	* Purpose : provides an extension for filename for the provided type_code
-	*
-	* @param string	type_code	file type_code we are fishing for
-	*
-	* @return string
-	* @access public
-	*/
-	function get_file_extension($type_code)
-	{
-		$ext_array = Array(
-						'file'				=> 'txt',
-						'powerpoint_doc'	=> 'ppt',
-						'xml_file'			=> 'xml',
-						'flv_file'			=> 'flv',
-						'image'				=> 'jpg',
-						'css_file'			=> 'css',
-						'video_file'		=> 'wmv',
-						'mp3_file'			=> 'mp3',
-						'text_file'			=> 'txt',
-						'rtf_file'			=> 'rtf',
-						'excel_doc'			=> 'xls',
-						'pdf_file'			=> 'pdf',
-						'xsl_file'			=> 'xsl',
-						'js_file'			=> 'js',
-						'word_doc'			=> 'doc',
-						'data_source_graph'	=> 'grf',
-						'thumbnail'			=> 'jpg',
-					 );
-
-		return $ext_array[$type_code];
-
-	}//end get_file_extension()
 
 
 	/**
