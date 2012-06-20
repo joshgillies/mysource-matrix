@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_soap_call.inc,v 1.20 2011/10/06 02:48:32 akarelia Exp $
+* $Id: form_action_soap_call.inc,v 1.20.2.1 2012/06/20 00:20:29 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once dirname(dirname(dirname(__FILE__))).'/lib/soap_form_based_common.in
 * Make a SOAP call before submitting form
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.20.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -564,7 +564,7 @@ class Form_Action_SOAP_Call extends Form_Action
 			if(isset($settings[$settings['action'].'parameters'.$i])) {
 
 				$soap_message = SOAP_Form_Based_Common::getKeywordReplacementsFromForm($settings[$settings['action'].'parameters'.$i], $form);
-				$object = @simplexml_load_string($soap_message);
+				$object = @simplexml_load_string($soap_message, 'SimpleXMLElement', LIBXML_NOCDATA);
 
 				if($object === FALSE) {
 					// Just string argument, replace file content keywords
