@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: rollback_management.inc,v 1.8 2011/11/03 04:42:12 ewang Exp $
+* $Id: rollback_management.inc,v 1.8.2.1 2012/06/20 23:19:41 csmith Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 * @author Marc McIntyre <mmcintyre@squiz.net>
 * @author Greg Sherwood <gsherwood@squiz.net>
 * @author Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -410,5 +410,38 @@ function purge_file_versioning($date, $num_rows=0)
 
 }//end purge_file_versioning()
 
+/**
+ * Check whether rollback entries have been found in any of the database tables.
+ * If there is at least one row, this will return TRUE (meaning rollback has already
+ * been enabled before and doesn't need enabling again).
+ * If there are no rows found, it returns FALSE (rollback can safely be enabled).
+ *
+ * @param mixed $tables The database tables currently installed. Comes from
+ *                      get_rollback_table_names.
+ *
+ * @return boolean Returns NULL if no tables were passed in.
+ *                 Returns TRUE if any entries are found.
+ *                 Returns FALSE if no entries are found in any table.
+ */
+function rollback_found(array $tables=array())
+{
+	if (empty($tables)) {
+		return NULL;
+	}
+
+	$queries = array();
+	foreach ($tables as $table) {
+		$sql = "SELECT 1 FROM sq_rb_".$table." WHERE sq_eff_to IS NULL";
+		$sql = db_extras_modify_limit_clause($sql, MatrixDAL::getDbType(), 1);
+		$queries[] = "(".$sql.")";
+	}
+	$query  = "SELECT COUNT(*) FROM (".implode(" UNION ALL ", $queries).") rbcheck";
+	$result = MatrixDAL::preparePdoQuery($query);
+	$count  = MatrixDAL::executePdoOne($result);
+	if ($count > 0) {
+		return TRUE;
+	}
+	return FALSE;
+}
 
 ?>
