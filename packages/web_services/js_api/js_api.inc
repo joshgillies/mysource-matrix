@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.117 2012/06/20 07:32:30 ewang Exp $
+* $Id: js_api.inc,v 1.118 2012/06/21 22:39:27 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.117 $
+* @version $Revision: 1.118 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -75,7 +75,6 @@ class JS_Api extends Page
 									'batchRequest'					=> 'batch_requests',
 									'cloneAsset'					=> 'clone_asset',
 									'showDifference'				=> 'show_diff',
-									
 								  );
 
 	/*
@@ -1885,12 +1884,10 @@ class JS_Api extends Page
 					// bug fix #5749 JS API createFileAsset warns of file extension on generic file asset
 					// if we are creaed generic File asset the allowed_extensions property is empty for
 					// this get all the allowed file extensions by matrix and let the user go nuts !!!
-					if ($type_code == 'File') {
+					if (strtolower($type_code) == 'file' || strtolower($type_code) == 'text_file') {
 						// get our standard list of MIME type allowed
 						include_once SQ_FUDGE_PATH.'/standards_lists/mime_types.inc';
 						$allowed_extensions = array_keys($standards_lists_mime_types);
-					} else if ($type_code == 'Text_File') {
-						$allowed_extensions = Array('txt');
 					} else {
 						$allowed_extensions = $new_asset->allowed_extensions;
 					}
@@ -2069,7 +2066,7 @@ class JS_Api extends Page
 		}
 		
 		if(!$asset->readAccess()) return Array('error' => 'You do not have permissions to access this asset');
-		
+
 		$raw_lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($asset->id, 0, NULL, Array('name', 'type_code'), $significant_link_only);
 		$root_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
 
@@ -2125,8 +2122,7 @@ class JS_Api extends Page
 
 	}// end _getLineage()
 
-	
-	
+
 	/**
 	* get a single lineage of the passed url
 	*
@@ -2207,8 +2203,6 @@ class JS_Api extends Page
 		return $result;
 
 	}// end _getUrlFromLineage()
-	
-	
 	
 	
 	
