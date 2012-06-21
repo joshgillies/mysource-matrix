@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.883 2012/05/04 00:14:29 mhaidar Exp $
+* $Id: asset_manager.inc,v 1.884 2012/06/21 05:28:00 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.883 $
+* @version $Revision: 1.884 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -6752,9 +6752,14 @@ class Asset_Manager extends MySource_Object
 	*/
 	function canSafeTrashAsset($assetid, $ignore_linkid=0, $ignore_other_links=TRUE)
 	{
-		$asset = $this->getAsset($assetid);
-
 		$trash_errors = Array();
+
+		// if its a shadow asset, this check is irrelevant
+		if (strpos($assetid, ':') !== FALSE) {
+			return $trash_errors;
+		}
+		
+		$asset = $this->getAsset($assetid);
 
 		// If we are ignoring other backend links (so we can provide a status),
 		// then skip this part and always run the links check. Otherwise, we
