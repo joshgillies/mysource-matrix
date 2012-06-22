@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.381.2.6 2012/06/19 00:17:07 cupreti Exp $
+* $Id: mysource.inc,v 1.381.2.7 2012/06/22 01:47:50 akarelia Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.381.2.6 $
+* @version $Revision: 1.381.2.7 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -94,7 +94,7 @@ class MySource extends MySource_Object
 	* @var object Transaction_Manager
 	*/
 	public $tm;
-	
+
 	/**
 	* @var object Performance_Manager
 	*/
@@ -201,7 +201,7 @@ class MySource extends MySource_Object
 	*/
 	protected $_global_defines;
 
-	
+
 	/**
 	 * Deja Vu
 	 *
@@ -218,9 +218,9 @@ class MySource extends MySource_Object
 	{
 
 	}//end constructor
-	
 
-	
+
+
 	/**
 	 * Destructor
 	 *
@@ -238,10 +238,10 @@ class MySource extends MySource_Object
 				$deja_vu->remember(SQ_DEJA_VU_LOCALE, NULL, $this->lm);
 			}
 		}
-		
+
 	}//end destructor
-	
-	
+
+
 	/**
 	* This initialises all the objects that we need to use, the reason that we can't do
 	* this in the constructor is that the Asset_Manager uses the DB in it's constructor
@@ -254,29 +254,29 @@ class MySource extends MySource_Object
 	public function init()
 	{
 		$this->_processUserIP();
-		
+
 		$this->changeDatabaseConnection('db');
 		$this->changeContext(0);
 
 		// initialise the asset manager as we are going to need it pretty much everywhere
 		$this->am = new Asset_Manager();
-		
+
 		// initialise the performance manager
 		$this->pm = new Performance_Manager();
 
 
-		// Same with the locale manager; translations will be all around us. 
+		// Same with the locale manager; translations will be all around us.
 		// Loading them is slow though, so first try deja_vu.
 		$deja_vu = $GLOBALS['SQ_SYSTEM']->getDejaVu();
 		if ($deja_vu) {
 			$this->lm = $deja_vu->recall(SQ_DEJA_VU_LOCALE);
 		}
-		
+
 		// If nothing, start from scratch.
 		if (empty($this->lm)) {
 			$this->lm = new Locale_Manager();
 		}
-		
+
 		$this->lm->setCurrentLocale(SQ_CONF_DEFAULT_BACKEND_LOCALE);
 
 		if (!SQ_PHP_CLI && $GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
@@ -316,7 +316,7 @@ class MySource extends MySource_Object
 				$old_level = error_reporting(E_ERROR);
 				session_start();
 				error_reporting($old_level);
-			} else { 
+			} else {
 				session_start();
 			}
 
@@ -336,7 +336,7 @@ class MySource extends MySource_Object
 					$old_level = error_reporting(E_ERROR);
 					session_start();
 					error_reporting($old_level);
-				} else { 
+				} else {
 					session_start();
 				}
 				$restore_session = TRUE;
@@ -426,7 +426,7 @@ class MySource extends MySource_Object
 			define('SQ_TABLE_RUNNING_PREFIX', 'sq_');
 
 		}//end if
-		
+
 		// In performance timing mode, set current user if required
 		 if(defined('SQ_IN_PERFORMANCE_TIMING') && SQ_IN_PERFORMANCE_TIMING) {
 		     if(isset($_REQUEST['performance_setting_user'])) {
@@ -451,13 +451,13 @@ class MySource extends MySource_Object
 				 $this->setCurrentUser($user);
 			     }
 			}
-			
+
 			if(empty($GLOBALS['SQ_SYSTEM']->user) || !$GLOBALS['SQ_SYSTEM']->user->canAccessBackend()) exit(1);
 			$this->pm->printResults();
 			exit(1);
 		}
 
-			
+
 		// process any global actions we have
 		if (!empty($_REQUEST['SQ_ACTION'])) {
 			$this->_processGlobalActions();
@@ -521,7 +521,7 @@ class MySource extends MySource_Object
 	{
 		// init perfromance timer
 		$this->pm->begin();
-		
+
 		// if the user is Up For Review, prompt the user to change password
 		$require_password_change = ($this->user && !($this->user instanceof Public_User) && $this->user->status == SQ_STATUS_LIVE_APPROVAL);
 
@@ -570,7 +570,7 @@ class MySource extends MySource_Object
 
 		} else if (SQ_IN_LOGIN) {
 			$this->paintLogin(translate('login'), translate('must_login_to_access_backend'));
-			
+
 		} else {
 			// we are on the frontend
 			if (!(SQ_IN_CRON || SQ_PHP_CLI) && defined('SQ_CONF_REDIRECT_URL_WITH_TRAILING_SLASH') && SQ_CONF_REDIRECT_URL_WITH_TRAILING_SLASH){
@@ -588,7 +588,7 @@ class MySource extends MySource_Object
 					}
 				}
 			}
-			
+
 			// check for ./?a=xx type urls or normal
 			if (isset($_REQUEST['a'])) {
 				// requested asset is exclusively in the trash - don't display
@@ -597,7 +597,7 @@ class MySource extends MySource_Object
 				} else {
 					$asset = $this->am->getAsset($_REQUEST['a'], '', TRUE);
 				}
-				
+
 				//Feature #4759: Asset ID to URL remaps.
 				if (is_null($asset)){
 					$rm = $this->am->getSystemAsset('remap_manager');
@@ -625,7 +625,6 @@ class MySource extends MySource_Object
 				$this->paintPasswordChange(translate('change_password'), translate('must_change_password_to_access_asset', $page_name));
 				exit();
 			}
-
 
 
 			if (is_null($asset)) {
@@ -752,7 +751,7 @@ class MySource extends MySource_Object
 				}
 				exit(1);
 			}
-			
+
 			
 
 			// Try and find the current site
@@ -770,6 +769,7 @@ class MySource extends MySource_Object
 					}//end if
 				}
 			}
+
 			if (!is_null($site)) {
 				$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CURRENT_SITE', $site);
 			}//end if
@@ -834,7 +834,7 @@ class MySource extends MySource_Object
 						 $cm->sendCacheableHeaders($asset->type(), $asset->id)
 						) {
 					$this->_sendHTTPHeaders($asset);
-				
+
 				} else {
 					$asset->printFrontend();
 				}
@@ -848,11 +848,11 @@ class MySource extends MySource_Object
 			if (SQ_CONF_NO_ASSET_SELF_LINKS) {
 				$content = parse_self_links($content);
 			}
-			
-			
+
+
 			// Carryout highest level ./?a=xx URL translation
 			$this->_translateMatrixURL($content);
-			
+
 			// translate all urls to performance mode style url _performance and target=_top
 			$this->_translatePerformanceModeURL($content);
 
@@ -924,7 +924,6 @@ class MySource extends MySource_Object
 		$recache = basename($_SERVER['PHP_SELF']) == SQ_CONF_RECACHE_SUFFIX;
 		// Don't send cacheable headers when recacheing (see bug #3947)
 		if (!$recache) {
-			
 			header('Pragma: cache');
 		}
 
@@ -1301,8 +1300,6 @@ class MySource extends MySource_Object
 	}//end paintPasswordChange()
 
 
-	
-	
 	/**
 	* Set up the current user, reading from the session and checking that conditions are satisfied
 	*
@@ -1576,25 +1573,32 @@ class MySource extends MySource_Object
 				} else {
 					$this->_logSecurityMsg('system.security.logout.manual');
 				}
-				$stalled_hipo_array = Array();
-				$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
-				$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
-				// Only show hipo stalled job warning when it's really logging out from backend
-				if($for_real){
-				$stalled_hipo_array = $hh->getJobsForUser($current_userid);
-				}
-				if (SQ_IN_BACKEND && !empty($stalled_hipo_array)) {
-					$return_url = current_protocol().'://'.current_url(FALSE);
 
-					// We need to handle the 'return to HTTP' stuff here in any case
-					if (!$_SESSION['user_is_public'] && array_get_index($_SESSION, 'SQ_RETURN_TO_HTTP')) {
-						unset($_SESSION['SQ_RETURN_TO_HTTP']);
-						$return_url = 'http://'.current_url(FALSE);
+				// code below is added with respect to #5731 Login as and
+				// stalled hippo. If we are switching back to the primary
+				// user don't worry about chec king the stalled hippo jobs
+				if (!isset($_SESSION['login_as_invoker_id']) && !isset($_SESSION['login_as_invoker_username'])) {
+					$stalled_hipo_array = Array();
+					$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+					$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
+					// Only show hipo stalled job warning when it's really logging out from backend
+					if ($for_real){
+						$stalled_hipo_array = $hh->getJobsForUser($current_userid);
 					}
-					$return_url = replace_query_string_vars(Array('SQ_ACTION' => NULL), $return_url);
-					require_once dirname(__FILE__).'/hipo_reminder.inc';
-					exit();
+					if (SQ_IN_BACKEND && !empty($stalled_hipo_array)) {
+						$return_url = current_protocol().'://'.current_url(FALSE);
+
+						// We need to handle the 'return to HTTP' stuff here in any case
+						if (!$_SESSION['user_is_public'] && array_get_index($_SESSION, 'SQ_RETURN_TO_HTTP')) {
+							unset($_SESSION['SQ_RETURN_TO_HTTP']);
+							$return_url = 'http://'.current_url(FALSE);
+						}
+						$return_url = replace_query_string_vars(Array('SQ_ACTION' => NULL), $return_url);
+						require_once dirname(__FILE__).'/hipo_reminder.inc';
+						exit();
+					}
 				}
+
 				if ($for_real) {
 					$this->broadcastTriggerEvent('trigger_event_before_user_logout', $old_user, NULL);
 				}
@@ -1813,7 +1817,7 @@ class MySource extends MySource_Object
 				}
 
 				if (version_compare(PHP_VERSION, '5.3.0') >= 0) {
-					$finfo = finfo_open(FILEINFO_MIME_TYPE); 
+					$finfo = finfo_open(FILEINFO_MIME_TYPE);
 					$mime_type = finfo_file($finfo, $full_file_path);
 				} else {
 					$mime_type = mime_content_type($full_file_path);
@@ -3416,8 +3420,8 @@ class MySource extends MySource_Object
 		return $this->log_manager;
 
 	}//end getLogManager()
-	
-	
+
+
 	/**
 	* Get Deja Vu for that eerie "have me not met before?" feeling.
 	*
@@ -3432,7 +3436,7 @@ class MySource extends MySource_Object
 			require_once SQ_INCLUDE_PATH.'/deja_vu.inc';
 			$this->_deja_vu = new Deja_Vu();
 		}
-		
+
 		if ($this->_deja_vu->enabled()) {
 			return $this->_deja_vu;
 		} else {
@@ -4249,7 +4253,7 @@ class MySource extends MySource_Object
 
 	}//end _generateAttributeImage()
 
-	
+
 	/**
 	* Replace "./?a=xx" URLs by  their respective full URLs
 	*
@@ -4257,7 +4261,7 @@ class MySource extends MySource_Object
 	*
 	* @return void
 	* @access private
-	*/	
+	*/
 	function _translateMatrixURL(&$content)
 	{
 		// Get all the matrix ./a=xx links in the content
@@ -4278,7 +4282,7 @@ class MySource extends MySource_Object
 		}
 	}//end _translateMatrixURL()
 
-	
+
 	/**
 	* Replace all URLs with performance suffix and target = _top
 	*
@@ -4286,49 +4290,49 @@ class MySource extends MySource_Object
 	*
 	* @return void
 	* @access private
-	*/	
+	*/
 	function _translatePerformanceModeURL(&$content)
-	{	
+	{
 		if(!defined('SQ_IN_PERFORMANCE_TIMING')) return;
-		
+
 		// Get all links in the content
 		preg_match_all('/<a\s[^>]*href=(\"??)([^\" >]*?)\\1[^>]*>(.*)<\/a>/siU', $content, $matches);
-		
+
 		// Replace hyper links with _performance style url
 		foreach($matches[0] as $index => $url) {
 				$src = $matches[2][$index];
 				if(empty($src)) continue;
-				
+
 				// remove trailing slash
 				if(substr($src, -1) == '/') {
 					$src = rtrim($src, '/');
 				}
 				// add _performance suffix
 				if(strpos($src, '?') !== FALSE) {
-					$src = preg_replace('/\?/', '/'.SQ_CONF_PERFORMANCE_SUFFIX.'/?', $src);	
+					$src = preg_replace('/\?/', '/'.SQ_CONF_PERFORMANCE_SUFFIX.'/?', $src);
 				}
 				else {
 					$src = $src.'/'.SQ_CONF_PERFORMANCE_SUFFIX;
 				}
-				
+
 				// only replace the first link found
 				$pos = strpos($url, $matches[2][$index]);
 				if($pos !== FALSE)
 					$new_url = substr_replace($url, $src, $pos, strlen($matches[2][$index]));
-				
+
 				// remove target attribute
 				$new_url = preg_replace('/target[ ]*=[ ]*[^a-zA-Z_"\']*/i', '', $new_url);
-				
+
 				// add new target attribute
 				$new_url = preg_replace('/^<a/i', '<a target="_top"', $new_url);
-				
+
 				$content = str_replace($url, $new_url, $content);
 		}
-		
-		
+
+
 		// Get all forms in the content
 		preg_match_all('/<form\s[^>]*action=(\"??)([^\" >]*?)\\1[^>]*>/siU', $content, $matches);
-		
+
 		// Add onsubmit event for all forms. We have to refresh the performance result frame in this way(using js addEvent could cause too much issues)
 		foreach($matches[0] as $index => $url) {
 				$new_url = $url;
@@ -4340,17 +4344,16 @@ class MySource extends MySource_Object
 					// add new submit event
 					$new_url = preg_replace('/^<form/i', '<form onsubmit="parent.result_frame.document.location.reload();"', $new_url);
 				}
-				
+
 
 				$content = str_replace($url, $new_url, $content);
 		}
-		
+
 	}//end _translatePerformanceModeURL()
-	
-	
-	
+
+
 	/**
-	* If SQ_CONF_USE_HTTP_X_FORWARDED_FOR enabled, attempts to obtain User IP using HTTP_X_FORWARDED_FOR 
+	* If SQ_CONF_USE_HTTP_X_FORWARDED_FOR enabled, attempts to obtain User IP using HTTP_X_FORWARDED_FOR
 	* and overwrites the REMOTE_ADDR $_SERVER variable.
 	* This is to avoid recieving and using a Proxy IP in REMOTE_ADDR when behind a proxy.
 	* A trusted/known Proxy IP SQ_CONF_FORWARDED_IP_PROXY_LIST list is required.
@@ -4379,7 +4382,7 @@ class MySource extends MySource_Object
 					$_SERVER['REMOTE_ADDR'] = $last_forward;
 				}
 			}
-		}	
+		}
 
 	}//end _processUserIP()
 
