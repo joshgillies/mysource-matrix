@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.90.2.1 2012/03/09 00:24:13 mhaidar Exp $
+* $Id: image.inc,v 1.90.2.2 2012/06/22 00:40:16 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.90.2.1 $
+* @version $Revision: 1.90.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -132,9 +132,9 @@ class Image extends File implements Bridge
 	* @access public
 	*/
 	public function saveSystemVersion()
-	{	
+	{
 		if (!parent::saveSystemVersion()) return FALSE;
-		
+
 		$varieties = $this->attr('varieties');
 		if (!empty($varieties['lookups'])) {
 			// make sure our varieties system directory exists
@@ -142,17 +142,17 @@ class Image extends File implements Bridge
 				trigger_localised_error('CORE0050', E_USER_WARNING, $this->name);
 				return FALSE;
 			}
-			
+
 			// make sure there is nothing in the varieties system directory
 			if (!clear_directory($this->data_path.'/.sq_system/varieties')) {
 				trigger_localised_error('CORE0046', E_USER_WARNING, $this->name);
 				return FALSE;
 			}
-	
+
 			// store the current version of each image variety file
 			$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 			$versions = Array();
-		
+
 			foreach ($varieties['lookups'] as $varietyid) {
 				$variety = $this->getAsset($this->id.':'.$varietyid);
 				if (is_null($variety)) continue;
@@ -160,18 +160,18 @@ class Image extends File implements Bridge
 				$file_info = $fv->_checkOutCheck($variety->data_path_suffix.'/'.$variety->attr('filename'));
 				$versions[$variety->attr('filename')] = $file_info['version'];
 			}//end foreach
-			
+
 			if (!array_to_file($versions, 'versions', $this->data_path.'/.sq_system/varieties/sq_system_version_no')) {
 				trigger_localised_error('CORE0051', E_USER_WARNING, $this->name);
 				return FALSE;
 			}
 		}// end if
-		
+
 		return TRUE;
 
 	}//end saveSystemVersion()
-	
-	
+
+
 	/**
 	* Replaces the editing version with the system (live) version
 	*
@@ -179,61 +179,60 @@ class Image extends File implements Bridge
 	* @access public
 	*/
 	public function revertToSystemVersion()
-	{	
-
+	{
 		//grab version info first before it is cleared
 		if (is_file($this->data_path.'/.sq_system/varieties/sq_system_version_no')) {
 			include ($this->data_path.'/.sq_system/varieties/sq_system_version_no');
 		}
-			
+
 		if (!parent::revertToSystemVersion()) return FALSE;
-		
-		$varieties = $this->attr('varieties');	
-		if (!empty($varieties['lookups'])) {	
+
+		$varieties = $this->attr('varieties');
+		if (!empty($varieties['lookups'])) {
 			// make sure our varieties directory exists
 			if (!create_directory($this->data_path.'/varieties')) {
 				trigger_localised_error('CORE0049', E_USER_WARNING, $this->name);
 				return FALSE;
 			}
-			
+
 			// make sure our varieties directory is clear
 			if (!clear_directory($this->data_path.'/varieties')) {
 				trigger_localised_error('CORE0045', E_USER_WARNING, $this->name);
 				return FALSE;
 			}
-			
+
 			foreach ($varieties['lookups'] as $varietyid) {
 				$variety = $this->getAsset($this->id.':'.$varietyid);
 				if (is_null($variety)) continue;
-		
+
 				$file_version = isset($versions[$variety->attr('filename')]) ? $versions[$variety->attr('filename')] : NULL;
 				$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
-		
+
 				// check out the old version of the file into the private data directory
 				$rep_path = $variety->data_path_suffix.'/'.$variety->attr('filename');
 				if (!$fv->checkOut($rep_path, $variety->data_path, $file_version)) {
 					trigger_localised_error('CORE0044', E_USER_WARNING, $variety->attr('filename'));
 					return FALSE;
 				}
-		
+
 				// create a new versioning entry for the old version
 				$file_info = $fv->_checkOutCheck($rep_path, $file_version);
 				$fv->_updateFile($file_info['fileid'], $variety->data_path_suffix, $variety->data_path.'/'.$variety->attr('filename'));
-		
+
 				// check out the new version
 				if (!$fv->checkOut($rep_path, $variety->data_path)) {
 					trigger_localised_error('CORE0044', E_USER_WARNING, $variety->attr('filename'));
 					return FALSE;
 				}
 
-			}//end foreach			
+			}//end foreach
 		}
 
 		return TRUE;
 
 	}//end revertToSystemVersion()
-	
-	
+
+
 	/**
 	* Get an array of some useful data about the existing uploaded file
 	*
@@ -525,7 +524,7 @@ class Image extends File implements Bridge
 	protected function _checkFileState()
 	{
 		if ($this->status & SQ_SC_STATUS_SAFE_EDITING) return TRUE; //don't touch public file in safe edit
-		
+
 		$varieties = $this->attr('varieties');
 		if (!empty($varieties)) {
 			foreach ($varieties['lookups'] as $varietyid) {
@@ -1084,7 +1083,28 @@ class Image extends File implements Bridge
 		$varieties = $this->attr('varieties');
 		if (isset($varieties['data'][$varieties['lookups'][$variety_name]]['filename'])) {
 			$filename = $varieties['data'][$varieties['lookups'][$variety_name]]['filename'];
-			$size = getimagesize($this->data_path.'/varieties/'.$filename);
+			$varietyid = $varieties['lookups'][$variety_name];
+			$variety = $this->getAsset($this->id.':'.$varietyid);
+
+			if ($this->useSystemVersion()) {
+				if (is_file($this->data_path.'/varieties/sq_system_version_no')) {
+					include ($this->data_path.'/varieties/sq_system_version_no');
+				}
+				$file_version = isset($versions[$filename]) ? $versions[$filename] : NULL;
+				$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
+				$rep_path = $variety->data_path_suffix.'/'.$filename;
+				if (!$fv->checkOut($rep_path, $variety->data_path, $file_version)) {
+					trigger_localised_error('CORE0044', E_USER_WARNING, $variety->attr('filename'));
+					return FALSE;
+				}
+
+				// create a new versioning entry for the old version
+				$file_info = $fv->_checkOutCheck($rep_path, $file_version);
+				$size = getimagesize($file_info['source_file']);
+			} else {
+				$size = getimagesize($this->data_path.'/varieties/'.$filename);
+			}
+
 			return $size;
 		}
 
@@ -1464,8 +1484,8 @@ class Image extends File implements Bridge
 		return Array();
 
 	}//end getAssetMapAssetInfo()
-	
-	
+
+
 	/**
 	* Checks a file on the file system to see if it can be used as a valid image file
 	*
@@ -1479,15 +1499,15 @@ class Image extends File implements Bridge
 		if (!parent::validFile($info)) {
 			return FALSE;
 		}
-		
+
 		if (getimagesize($info['path']) === FALSE) {
 			trigger_error('Uploaded file is not a valid image file', E_USER_WARNING);
 			return FALSE;
-		}			
+		}
 
 		return TRUE;
 
-	}//end validFile()	
+	}//end validFile()
 
 
 }//end class
