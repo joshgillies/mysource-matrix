@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_update_lookups.inc,v 1.55 2012/01/19 01:25:05 mhaidar Exp $
+* $Id: hipo_job_update_lookups.inc,v 1.55.2.1 2012/06/22 03:25:46 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.55.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -237,7 +237,9 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 				$sql = 'SELECT l.minorid, MAX(LENGTH(t.treeid)) as length
 						FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t
 								 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid
-						AND '.db_extras_bitand(MatrixDAL::getDbType(), 'l.link_type', SQ_SC_LINK_BACKEND_NAV).' > 0';
+						AND (('.db_extras_bitand(MatrixDAL::getDbType(), 'l.link_type', SQ_SC_LINK_BACKEND_NAV).' > 0) OR 
+							 (('.db_extras_bitand(MatrixDAL::getDbType(), 'l.link_type', SQ_SC_LINK_SIGNIFICANT).' > 0) AND ';
+				$sql .= (MatrixDAL::getDbType() === 'oci') ? '(l.value IS NOT NULL)))' : '(l.value <> \'\'))) ';
 				$where = 't.treeid LIKE :treeid
 						  GROUP BY l.minorid ORDER BY length';
 
