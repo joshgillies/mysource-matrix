@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.118 2012/06/21 22:39:27 akarelia Exp $
+* $Id: js_api.inc,v 1.119 2012/06/26 00:36:50 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.118 $
+* @version $Revision: 1.119 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1886,7 +1886,7 @@ class JS_Api extends Page
 					// this get all the allowed file extensions by matrix and let the user go nuts !!!
 					if (strtolower($type_code) == 'file' || strtolower($type_code) == 'text_file') {
 						// get our standard list of MIME type allowed
-						include_once SQ_FUDGE_PATH.'/standards_lists/mime_types.inc';
+						include SQ_FUDGE_PATH.'/standards_lists/mime_types.inc';
 						$allowed_extensions = array_keys($standards_lists_mime_types);
 					} else {
 						$allowed_extensions = $new_asset->allowed_extensions;
