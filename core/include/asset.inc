@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.763 2012/06/04 06:19:44 cupreti Exp $
+* $Id: asset.inc,v 1.764 2012/06/26 05:00:12 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.763 $
+* @version $Revision: 1.764 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4135,6 +4135,20 @@ class Asset extends MySource_Object
 						return $replacement;	
 				}		
 			}
+			
+		} else if (0 === strpos($keyword, 'asset_frontend_metadata')) {
+			// Returns the asset's frontend metadata content
+			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+			$metadata_default_name = 'metadata.php';
+			$metadata_basename = ($contextid === 0) ? 'metadata.php' : 'metadata.'.$contextid.'.php';
+			
+			ob_start();
+				if (file_exists($this->data_path.'/'.$metadata_basename)) {
+					require $this->data_path.'/'.$metadata_basename;
+				} else if (file_exists($this->data_path.'/'.$metadata_default_name)) {
+					require $this->data_path.'/'.$metadata_default_name;
+				}
+			$replacement = ob_get_clean();			
 			
 		} else {
 			$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
