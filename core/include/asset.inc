@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.765 2012/06/27 04:20:25 cupreti Exp $
+* $Id: asset.inc,v 1.766 2012/06/27 23:33:38 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.765 $
+* @version $Revision: 1.766 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4522,11 +4522,8 @@ class Asset extends MySource_Object
 	public function effectiveUnrestricted()
 	{
 		// This is not readAccess() because if this is FALSE we don't refer to the writeAccess() setting
-		$public_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('public_user');
-		// User groups that has public user
-		$assetids = $public_user->getUserGroups();
-		$assetids[] = $public_user->id;
-		return ($this->status >= SQ_STATUS_LIVE && $this->_checkPermissionAccess(SQ_PERMISSION_READ, $assetids));
+		$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
+		return ($this->status >= SQ_STATUS_LIVE && $this->_checkPermissionAccess(SQ_PERMISSION_READ, Array($public_userid)));
 
 	}//end effectiveUnrestricted()
 
