@@ -1,5 +1,47 @@
 SQUIZ MATRIX CHANGELOG
 
+
+VERSION 4.8.4
+
+Minor Enhancements and Bug Fixes
+=================================== 
+
+Minor Enhancements
+
+Minor Enhancement #5730: New Automatic Upgrade Script Parameter to Truncate Rollback Data.
+Minor Enhancement #5733: Improved Error Handling for Select Question Type.
+
+Core
+
+Fixed Bug #5708: Impossible to remove links to shadow assets when Safe Trash is enabled.
+Fixed Bug #5731: Login as and stalled Hipo.
+Fixed Bug #5735: Running Rollback Management script more than once causes duplicate entries.
+Fixed Bug #5736: Search table missing some metadata components when cascading multiple metadata schemas to the new asset.
+Fixed Bug #5738: Image variety width and height break - safe edit, position format.
+Fixed Bug #5740: RSS asset - channel pubDate and lastBuildDate transform format.
+Fixed Bug #5744: "Remove CSS style" option in "Apply CSS style" plugin not removing the style class in IE.
+Fixed Bug #5746: Web paths with $ character not replaced correctly in certain circumstances.
+Fixed Bug #5747: The %user_name% keyword is not working correctly in workflow custom messages.
+Fixed Bug #5755: WYSIWYG metadata field default value cannot commit blank content.
+
+CMS
+
+Fixed Bug #5748: Remote Content Page requests target URL twice.
+Fixed Bug #5751: Remote Content Page's tag replacement not working correctly.
+
+Calendar
+
+Fixed Bug #5742: Upcoming Calendar Events Page not showing events in expected order.
+
+Web Services
+
+Fixed Bug #5749: JS API createFileAsset function warns of file extension on generic file asset.
+Fixed Bug #5752: JS API will garble already UTF-8 encoded foreign language text.
+Fixed Bug #5753: Make SOAP Call form and form section actions ignoring CDATA content in SOAP request.
+
+
+
+
 VERSION 4.8.3
 
 Featured Changes
