@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_bulk_file_import.inc,v 1.14 2011/11/28 04:26:13 ewang Exp $
+* $Id: tool_bulk_file_import.inc,v 1.15 2012/06/27 05:54:43 akarelia Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_DATA_PATH.'/private/conf/import_tools_manager.inc';
 *    Tool for importing files into Matrix
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -101,7 +101,7 @@ class Tool_Bulk_File_Import extends Tool
 								<tr>
 									<th class="sq-backend-table-header" style="width: 130px;"><?php echo 'Directory'; ?></th>
 									<th class="sq-backend-table-header" style="width: 80px; text-align: center;"><?php echo 'Select for Import'; ?></th>
-									<th class="sq-backend-table-header" style="width: 390px; text-align: left;"><?php echo 'Import Under'; ?></th>
+									<th class="sq-backend-table-header" style="width: 390px; text-align: center;"><?php echo 'Import Under'; ?></th>
 								</tr>
 								<?php
 									$files = Tool_Bulk_File_Import::_getFileList($import_dir);
@@ -139,6 +139,14 @@ class Tool_Bulk_File_Import extends Tool
 										<?php
 									}
 								?>
+								<tr>
+									<td class="sq-backend-table-cell" style="border-top: 0px;"colspan="3">
+										<?php
+											echo "Sort the files alphanumerically on import?   ";
+											check_box('sort_file_import', '1', FALSE);
+										?>
+									</td>
+								</tr>
 							</table>
 							<?php
 							$o->note(translate('file_import_tools_select_file'));
@@ -564,7 +572,9 @@ class Tool_Bulk_File_Import extends Tool
 
 		// Process Server Upload
 		if ($process_server) {
+			$sorting = array_get_index($_POST, 'sort_file_import', FALSE);
 			$dirs_array = list_dirs($import_dir, TRUE);
+
 			foreach ($dirs_array as $dir_name) {
 				$files = Tool_Bulk_File_Import::_getFileList($dir_name);
 				$num_of_files = count($files);
@@ -589,6 +599,7 @@ class Tool_Bulk_File_Import extends Tool
 			}//end foreach
 
 			$tmp = array_get_index($_POST, 'chunk_file_import', '');
+
 			if (!empty($tmp)) {
 
 				$tmp = array_get_index($_POST, 'chunk_file_import_root_assetid', '');
@@ -602,6 +613,13 @@ class Tool_Bulk_File_Import extends Tool
 					$vars['server_file_import'][$import_dir]['file_list'] = $files;
 					$vars['server_file_import'][$import_dir]['num_of_files'] = count($files);
 					$vars['server_file_import'][$import_dir]['root_id'] = $tmp['assetid'];
+				}
+			}
+
+			if ($sorting && isset($vars['server_file_import'])) {
+				foreach ($vars['server_file_import'] as $import_dir_name => $import_file_info) {
+					if (isset($vars['server_file_import'][$import_dir_name]['file_list']))
+						sort($vars['server_file_import'][$import_dir_name]['file_list']);
 				}
 			}
 		}//end if
