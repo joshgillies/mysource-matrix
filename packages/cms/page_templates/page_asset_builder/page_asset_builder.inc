@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.169.2.1 2012/02/21 03:26:24 ewang Exp $
+* $Id: page_asset_builder.inc,v 1.169.2.2 2012/06/28 06:09:47 ewang Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.169.2.1 $
+* @version $Revision: 1.169.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2139,7 +2139,7 @@ class Page_Asset_Builder extends Page
 								if (substr($post_var, -$idlength) == $attr_details['attrid']) {
 									// we got the attribute value in post change the attr val
 									?>
-									document.getElementById('<?php echo $post_var; ?>').value = '<?php echo $post_var_value; ?>';
+									document.getElementById('<?php echo htmlspecialchars($post_var, ENT_QUOTES); ?>').value = '<?php echo htmlspecialchars($post_var_value, ENT_QUOTES); ?>';
 									<?php
 								}
 							}
