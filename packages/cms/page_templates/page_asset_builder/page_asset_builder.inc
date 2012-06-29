@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.172 2012/06/28 06:07:45 ewang Exp $
+* $Id: page_asset_builder.inc,v 1.173 2012/06/29 07:06:07 ewang Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.172 $
+* @version $Revision: 1.173 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -497,6 +497,11 @@ class Page_Asset_Builder extends Page
 					// create our dummy asset so we can access all its you beaut functions
 					// to make life easier for ourselves
 					$create_type = $_POST['AB_'.$this->id.'_ASSET_BUILDER_CREATE_TYPE'];
+					$allowed_types = $this->attr('create_type');
+					if(!isset($allowed_types[$create_type])) {
+						trigger_error('Create type is not allowed', E_USER_NOTICE);
+						return FALSE;
+					}
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset($create_type);
 					$new_asset = new $create_type();
 					$prefix = $new_asset->getPrefix();
