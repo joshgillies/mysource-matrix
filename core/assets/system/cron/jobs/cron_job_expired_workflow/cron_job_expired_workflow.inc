@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_expired_workflow.inc,v 1.41 2011/08/18 01:56:39 cupreti Exp $
+* $Id: cron_job_expired_workflow.inc,v 1.42 2012/07/02 07:11:11 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *	Note that this is a singleton asset - when the asset type is installed it creates a single
 *	instance of itself under the cron manager, which should remain there always.
 *
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -279,6 +279,7 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 
 		$schema_workflows = $wfm->getSchemaWorkflows($assetid);
 		$workflow =& $schema_workflows[$schemaid];
+		$schema_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 		// don't automatically escalate, just notify admins
@@ -309,6 +310,15 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 			$subject = trim(array_get_index($step_data, 'subject_stale', 'Stale Workflow Step'));
 			$msg->subject = (!empty($subject)) ? $subject : 'Stale Workflow Step';
 		}//end if
+
+		if (!is_null($schema_asset)) {
+			if ($schema_asset->attr('schema_from_email_address') != '') {
+				$msg->from = $schema_asset->attr('schema_from_email_address');
+			}
+			if ($schema_asset->attr('schema_reply_to_email_address') != '') {
+				$msg->parameters['reply_to'] = $schema_asset->attr('schema_reply_to_email_address');
+			}
+		}
 
 		$wfm->addMessageReplacements($asset, $msg->subject, $msg->body, $msg->replacements);
 		$ms->enqueueMessage($msg);
