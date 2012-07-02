@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_files.php,v 1.12 2010/07/15 04:43:37 csmith Exp $
+* $Id: import_files.php,v 1.12.12.1 2012/07/02 07:24:47 akarelia Exp $
 *
 */
 
@@ -43,22 +43,25 @@
 *
 *
 * USAGE:
-* php scripts/import/import_files.php  . folders_to_import 66
+* php scripts/import/import_files.php  . folders_to_import 66 [--sort]
 * or
-* php scripts/import/import_files.php  . folders_to_import 66 1
+* php scripts/import/import_files.php  . folders_to_import 66 1 [--sort]
 * or
-* php scripts/import/import_files.php  . folders_to_import
+* php scripts/import/import_files.php  . folders_to_import [--sort]
 *
 * first argument matrix root folder
 * second argument folder to import
 * third argument matrix asset id where you want to import the folders and files
 * fourth argument is equals to 1 allow unrestricted access will be set to be true
+* fifth argument, if set to --sort the files be alphanumerically sorted before importing
 *
 * @author Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.12.12.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
+if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');
+
 if ((php_sapi_name() != 'cli')) {
 	trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 }
@@ -73,9 +76,28 @@ if (empty($import_home_dir) || !is_dir($import_home_dir)) {
 	trigger_error("You need to supply the path to the import directory as the second argument\n", E_USER_ERROR);
 }
 
-$matrix_root_assetid = (isset($_SERVER['argv'][3])) ? $_SERVER['argv'][3] : 0;
+$SORTING = FALSE;
+$matrix_root_assetid = 0;
+$allow_unrestricted_access = FALSE;
 
-$allow_unrestricted_access = (isset($_SERVER['argv'][4]) && ($_SERVER['argv'][4] == 1)) ? TRUE : FALSE;
+if (isset($_SERVER['argv'][3]) && $_SERVER['argv'][3] != '--sort') {
+	$matrix_root_assetid = $_SERVER['argv'][3];
+} else if (isset($_SERVER['argv'][3]) && $_SERVER['argv'][3] == '--sort') {
+	$SORTING = TRUE;
+}
+
+if (isset($_SERVER['argv'][4]) && ($_SERVER['argv'][4] != '--sort') && ($_SERVER['argv'][4] == 1)) {
+		$allow_unrestricted_access = TRUE;
+} else if (isset($_SERVER['argv'][4]) && $_SERVER['argv'][4] == '--sort') {
+	$SORTING = TRUE;
+}
+
+if (isset($_SERVER['argv'][5]) && $_SERVER['argv'][5] == '--sort') {
+	$SORTING = TRUE;
+} else if (isset($_SERVER['argv'][5]) && $_SERVER['argv'][5] != '--sort') {
+	echo "ERROR: Fifth argument passed can only be '--sort'";
+	exit();
+}
 
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
@@ -214,6 +236,8 @@ foreach ($import_dirs as $import_dir) {
 
 	// get a list of all files in the import directory
 	$files = list_files($import_path);
+	if ($SORTING) sort($files);
+
 	foreach ($files as $filename) {
 		switch (get_file_type($filename)) {
 			case 'doc' :
