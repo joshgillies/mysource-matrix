@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.7 2012/03/21 05:34:36 mhaidar Exp $
+* $Id: lang_screen_details.xml,v 1.8 2012/07/02 07:08:18 akarelia Exp $
 *
 */
 -->
@@ -24,6 +24,14 @@
 		<field attribute="notify_starter_on_live">
 			<display_name>Notify Starter When Live?</display_name>
 			<note>If enabled, will send the Notify on Live message to the initiator of the workflow process.</note>
+		</field>
+		<field attribute="schema_from_email_address">
+			<display_name>Email to be Sent From</display_name>
+			<note>If this option is set, workflow emails will be sent from this email address rather than the email address of the user triggering the workflow changes.</note>
+		</field>
+		<field attribute="schema_reply_to_email_address">
+			<display_name>Email to Reply-To</display_name>
+			<note>If this option is set, workflow emails will use this email address as their Reply-To address rather than the email address of the user triggering the workflow changes.</note>
 		</field>
 	</section>
 	<section name="Workflow Streams">

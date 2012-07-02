@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.13 2012/03/21 05:34:36 mhaidar Exp $
+* $Id: edit_interface_screen_details.xml,v 1.14 2012/07/02 07:08:18 akarelia Exp $
 *
 */
 -->
@@ -22,6 +22,12 @@
 		</field>
 		<field attribute="notify_starter_on_live">
 			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="schema_from_email_address">
+			<email width="50" />
+		</field>
+		<field attribute="schema_reply_to_email_address">
+			<email width="50" />
 		</field>
 	</section>
 	<section name="Workflow Streams" write_access="write:links">
