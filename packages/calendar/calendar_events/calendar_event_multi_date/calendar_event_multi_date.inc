@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_multi_date.inc,v 1.16 2010/03/02 23:16:37 akarelia Exp $
+* $Id: calendar_event_multi_date.inc,v 1.16.14.1 2012/07/03 07:16:38 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwoood <greg@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.16.14.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -186,7 +186,7 @@ class Calendar_Event_Multi_Date extends Asset
 		}
 
 		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-		$cached_contents = $cm->loadFromCache($this, $cache_key);
+		$cached_contents = $cm->loadFromCache($this->id, $cache_key);
 
 		// if the cache is empty, go ahead and regenrate a new version
 		if ($cached_contents === FALSE) {
