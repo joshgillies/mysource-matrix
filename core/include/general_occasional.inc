@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.102 2012/02/20 23:13:53 cupreti Exp $
+* $Id: general_occasional.inc,v 1.102.2.1 2012/07/03 07:11:49 cupreti Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.102 $
+* @version $Revision: 1.102.2.1 $
 * @package MySource_Matrix
 */
 
@@ -407,10 +407,6 @@ function make_valid_web_paths($paths, $fallback_path='')
 		// no spaces in web paths
 		$path = preg_replace('/\\s+/', SQ_CONF_WEB_PATH_SEPARATOR, $path);
 
-		// Bug Fix #3991 Run time error if SQ_CONF_WEB_PATH_SEPARATOR is empty
-		// replace more than one web path separator with just one
-		if (SQ_CONF_WEB_PATH_SEPARATOR != '') $path = preg_replace('/'.SQ_CONF_WEB_PATH_SEPARATOR.'+/', SQ_CONF_WEB_PATH_SEPARATOR, $path);
-
 		// no parentheses
 		$path = preg_replace('/[\(\)\[\]]/', '', $path);
 
@@ -429,6 +425,10 @@ function make_valid_web_paths($paths, $fallback_path='')
 
 		// taken (in part) from info here -> http://www.w3.org/Addressing/URL/5_URI_BNF.html
 		$path = preg_replace('/[^a-zA-Z0-9\-$_@.!*~(),]/', '',  $path);
+
+		// Bug Fix #3991 Run time error if SQ_CONF_WEB_PATH_SEPARATOR is empty
+		// replace more than one web path separator with just one
+		if (SQ_CONF_WEB_PATH_SEPARATOR != '') $path = preg_replace('/'.SQ_CONF_WEB_PATH_SEPARATOR.'+/', SQ_CONF_WEB_PATH_SEPARATOR, $path);
 
 		// ignore blanks
 		if ($path !== '' && !in_array($path, $valid_paths)) {
