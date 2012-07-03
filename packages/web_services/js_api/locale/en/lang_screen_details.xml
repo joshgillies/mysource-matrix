@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.22 2012/04/13 06:03:01 ewang Exp $
+* $Id: lang_screen_details.xml,v 1.23 2012/07/03 07:04:10 akarelia Exp $
 *
 */
 -->
@@ -162,7 +162,7 @@
 		</field>
 		<field attribute="show_diff">
 			<display_name>Show content difference</display_name>
-			<note>Allows user to compare contents of two different assets. Optionally a paint layout cant be passed for each of the assets to check the difference with.</note>
+			<note>Allows user to compare contents of two different assets. Optionally a paint layout can be passed for each of the assets to check the difference with.</note>
 		</field>
    </section>
     <section name="Linking" write_access="write:attributes">
