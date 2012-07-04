@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.107 2012/07/03 04:02:20 cupreti Exp $
+* $Id: hipo_job.inc,v 1.108 2012/07/04 00:09:54 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.107 $
+* @version $Revision: 1.108 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -661,7 +661,7 @@ class HIPO_Job extends MySource_Object
 		$prev_last_updated = array_get_index($this->_hipo_vars, 'timeout_prev_last_updated', $this->last_updated);
 	
 		// If this task utilises server processing
-		$running_at_server = isset($this->_steps[$this->_hipo_vars['current_step']]) && $this->_steps[$this->_hipo_vars['current_step']]['running_mode'] == 'server';
+		$running_at_server = isset($this->_steps[$this->_hipo_vars['current_step']]) && isset($this->_steps[$this->_hipo_vars['current_step']]['running_mode']) && $this->_steps[$this->_hipo_vars['current_step']]['running_mode'] == 'server';
 
 		if ($this->_current_mode != 'server' && $running_at_server && SQ_HIPO_USE_SERVER) {
 			if ($this->last_updated > $prev_last_updated) {
