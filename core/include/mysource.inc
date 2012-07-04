@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.389.2.2 2012/06/22 01:44:32 akarelia Exp $
+* $Id: mysource.inc,v 1.389.2.3 2012/07/04 02:14:14 ewang Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.389.2.2 $
+* @version $Revision: 1.389.2.3 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -303,7 +303,13 @@ class MySource extends MySource_Object
 			$session_handler = $this->getSessionHandlerClassName();
 			eval($session_handler.'::init();');
 
-			ini_set('session.gc_maxlifetime', SQ_CONF_SESSION_GC_MAXLIFETIME);
+			if(SQ_CONF_SESSION_HANDLER === 'memcache') {
+			    // memcache can only hold 30 days of cache, otherwise will fail silently
+			    ini_set('session.gc_maxlifetime', SQ_CONF_SESSION_GC_MAXLIFETIME > 2592000 ? 2592000 : SQ_CONF_SESSION_GC_MAXLIFETIME);
+			}
+			else {
+			    ini_set('session.gc_maxlifetime', SQ_CONF_SESSION_GC_MAXLIFETIME);
+			}
 
 			$session_set = FALSE;
 			if (isset($_GET['SESSION_ID']) && (isset($_GET['SESSION_KEY']) || isset($_GET['SOAP_SESSION_KEY']))) {
