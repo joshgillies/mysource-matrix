@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: core.js,v 1.38.14.2 2012/02/29 00:12:16 mhaidar Exp $
+* $Id: core.js,v 1.38.14.3 2012/07/05 06:39:23 akarelia Exp $
 *
 */
 
@@ -209,7 +209,7 @@ HTMLArea.prototype.setMode = function(mode, noFocus) {
 	if (this._editMode == mode) return false;
 	switch (mode) {
 		case "textmode":
-			var html = this.getHTML();
+			var html = this.cleanHTML(this.getHTML());
 			if (HTMLArea.is_gecko) {
 				var html = document.createTextNode(html);
 				this._iframe.contentWindow.document.body.innerHTML = "";
@@ -218,21 +218,21 @@ HTMLArea.prototype.setMode = function(mode, noFocus) {
 				this._docContent.innerText = html;
 				//Bug #5545: Using ctrl-z while viewing html source in WYSIWYG removes all tags in IE
 				//DOM Maniupulation will break the undo/redo stack
-				this._docContent.removeChild(this._docContent.appendChild(this._doc.createTextNode("")));				
+				this._docContent.removeChild(this._docContent.appendChild(this._doc.createTextNode("")));
 			}
 			if (this.config.statusBar) {
 				this._statusBar.innerHTML = HTMLArea.I18N.msg["TEXT_MODE"];
 			}
 		break;
 		case "wysiwyg":
-			var html = this.getHTML();
+			var html = this.cleanHTML(this.getHTML());
 			if (HTMLArea.is_gecko) {
 				this._iframe.contentWindow.document.body.innerHTML = html;
 			} else if (HTMLArea.is_ie) {
 				this._docContent.innerHTML = html;
 				//Bug #5545: Using ctrl-z while viewing html source in WYSIWYG removes all tags in IE
 				//DOM Maniupulation will break the undo/redo stack
-				this._docContent.removeChild(this._docContent.appendChild(this._doc.createTextNode("")));				
+				this._docContent.removeChild(this._docContent.appendChild(this._doc.createTextNode("")));
 			}
 			if (this.config.statusBar) {
 				this._statusBar.innerHTML = '';
@@ -454,3 +454,49 @@ HTMLArea.prototype.deleteEmpty = function() {
 	 
 };
 
+HTMLArea.prototype.cleanHTML = function(content) {
+	content = content.replace(/<(p|div|h1|h2|h3|h4|h5|h6|li)((\s+\w+(\s*=\s*(?:".*?"|\'.*?\'|[^\'">\s]+))?)+)?\s*>\s*/ig, "<$1$2>");
+	content = content.replace(/\s*<\/(p|div|h1|h2|h3|h4|h5|h6|li)((\s+\w+(\s*=\s*(?:".*?"|\'.*?\'|[^\'">\s]+))?)+)?\s*>/ig, "</$1$2>");
+	content = content.replace(/<(area|base|basefont|br|hr|input|img|link|meta)((\s+\w+(\s*=\s*(?:".*?"|\'.*?\'|[^\'">\s]+))?)+)?\s*>/ig, "<$1$2 />");
+	content = content.replace(/<\/?\s*([A-Z\d]+)/g, function(str) { return str.toLowerCase();});
+
+	// Add quotes around attributes (IE....).
+	// This requires some explanation because I'm sick of having to try and
+	// figure out what I did in this regex each time we change it.
+	// <\w+(?:(?:\s+\w+(?:\s*=\s*(?:"(?:[^"]+)?"|\'(?:[^\']+)?\'))?)+)?
+	// <[tagname](
+	//            (
+	//             spaces[attrname](
+	//                              spacemaybe[=]spacemaybe(
+	//                                                      "(...maybe)" OR
+	//                                                      '(...maybe)'
+	//                                                     )
+	//                             maybe)
+	//            ) * many
+	//           maybe)
+	// (?:\s+\w+(?:\s*=\s*(?:[^\'">\s]+))?)+
+	//           (
+	//            spaces[attrname](
+	//                             spacemaybe[=]spacemaybe(noquotes/spaces/end...)
+	//                            maybe)
+	//           ) * many
+	// (?:(?:\s+\w+(?:\s*=\s*(?:"(?:[^"]+)?"|\'(?:[^\']+)?\'|[^\'">\s]+))?)+)?\s*\/?>
+	//           (
+	//            (spaces[attrname](
+	//                              spacemaybe[=]spacemaybe(
+	//                                                      "(...maybe)" OR
+	//                                                      '(...maybe)' OR
+	//                                                      noquotes/spaces/end...
+	//                                                     )
+	//                             maybe)
+	//            ) * many
+	//           maybe)
+	//           spacesmaybe/>
+	content = content.replace(/<\w+(?:(?:\s+\w+(?:\s*=\s*(?:"(?:[^"]+)?"|\'(?:[^\']+)?\'))?)+)?(?:\s+\w+(?:\s*=\s*(?:[^\'">\s]+))?)+(?:(?:\s+\w+(?:\s*=\s*(?:"(?:[^"]+)?"|\'(?:[^\']+)?\'|[^\'">\s]+))?)+)?\s*\/?>/ig, function(match) {
+		match = match.replace(/(\s+\w+\s*=\s*)([^\'">\s]+)/gi, function(attr, attrName, value) {
+			return attrName + '"' + value + '"';
+			});
+			return match;
+		});
+	return content;
+};
