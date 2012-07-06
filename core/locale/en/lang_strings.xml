@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.416 2012/06/01 03:53:06 cupreti Exp $
+* $Id: lang_strings.xml,v 1.417 2012/07/06 04:57:55 akarelia Exp $
 *
 */
 
@@ -2246,6 +2246,7 @@ If you are ready to continue, please click <strong>Next</strong> to proceed with
 
 	<string source="div_disable_delete">Disable Deleting Divisions or Tables</string>
 	<string source="div_disable_delete_note">Allows you to stop users from being able to delete Divisions or Tables on the Edit Contents screen. The users, however, will still be able to move, link, clone and delete them in the Asset Map.</string>
+	<string source="child_creation_type_2_restriction">Child Creation Type 2 Link Restriction</string>
 
 
 

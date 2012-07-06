@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.14 2009/07/16 23:21:48 mbrydon Exp $
+* $Id: lang_strings.xml,v 1.15 2012/07/06 04:59:23 akarelia Exp $
 *
 *
 * Calendar Package Localised Strings File
@@ -87,6 +87,7 @@
 <string source="cal_evt_recur_keyword_instance_end_datetime_">Current Instance End expressed with PHP date format which follow the last underscore character of the keyword.</string>
 <string source="cal_evt_recur_keyword_instance_start_datetime">Current Instance Start (ISO8601 Format)</string>
 <string source="cal_evt_recur_keyword_instance_start_datetime_">Current Instance Start expressed with PHP date format which follow the last underscore character of the keyword.</string>
+<string source="calendar_events_frequency">Events frequency threshold</string>
 
 </strings>
 
