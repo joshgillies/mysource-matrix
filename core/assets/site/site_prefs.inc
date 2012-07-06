@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_prefs.inc,v 1.1 2011/06/16 00:53:49 mhaidar Exp $
+* $Id: site_prefs.inc,v 1.2 2012/07/06 04:58:58 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Looks after the creation of the Site preferences
 *
 * @author  Mohamed Haidar <mhaidar@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 class Site_Prefs extends Prefs
@@ -33,7 +33,7 @@ class Site_Prefs extends Prefs
 
 	var $pref_vars = Array (
 						'SQ_CHILD_CREATE_LINK_TYPE_2_RESTRICT'	=> Array(
-																'name'			=> 'Child Creation Type 2 Link Restriction',
+																'name'			=> 'child_creation_type_2_restriction',
 																'description'	=> 'Link type options prior to asset creation will be restricted to a TYPE 2 link for any asset to be located anywhere under the specified Site Asset IDs. Link type can still be changed after creation e.g. via Linking Screen',
 																'default'		=> Array(),
 																'protected'		=> FALSE,
@@ -69,7 +69,7 @@ class Site_Prefs extends Prefs
 
 		if (is_null($pref) || $pref == 'SQ_CHILD_CREATE_LINK_TYPE_2_RESTRICT') {
 			if (is_null($pref)) {
-				$o->openField($this->pref_vars['SQ_CHILD_CREATE_LINK_TYPE_2_RESTRICT']['name']);
+				$o->openField(translate($this->pref_vars['SQ_CHILD_CREATE_LINK_TYPE_2_RESTRICT']['name']));
 			}
 
 			if ($have_lock && $is_admin) {
