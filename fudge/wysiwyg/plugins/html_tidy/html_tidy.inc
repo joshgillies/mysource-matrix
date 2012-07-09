@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.73 2011/10/20 23:16:36 mhaidar Exp $
+* $Id: html_tidy.inc,v 1.73.4.1 2012/07/09 00:43:39 cupreti Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 * @author	Greg Sherwood <greg@squiz.net>
 * @author	Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author	Scott Kim <skim@squiz.net>
-* @version $Revision: 1.73 $
+* @version $Revision: 1.73.4.1 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -62,6 +62,17 @@ class HTML_Tidy extends Wysiwyg_Plugin
 
 	var $htmltidy_errors = NULL;
 
+	// HTML versions and their respective doctype declaration
+	var $html_standards = Array(
+							'HTML_4.01_Transitional' => '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">',
+							'HTML_4.01_Strict' => '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"> ',
+							'HTML_4.01_Frameset' => '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">',
+							'XHTML_1.0_Strict' => '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">',
+							'XHTML_1.0_Transitional' => '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">',
+							'XHTML_1.0_Frameset' => '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">',
+							'XHTML_1.1' => '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">',
+						);
+						
 
 	/**
 	* Constructor
@@ -195,7 +206,8 @@ class HTML_Tidy extends Wysiwyg_Plugin
 					$args .= ' '.$param.' '.((is_bool($option)) ? (int) $option : $option);
 				}
 
-				$complete_html = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+				$doctype_header= $this->html_standards[SQ_TOOL_HTML_TIDY_HTML_STANDARD ? SQ_TOOL_HTML_TIDY_HTML_STANDARD : 'HTML_4.01_Transitional'];
+				$complete_html = $doctype_header.'
 						<html lang="en"><head><title></title>
 						<meta name="description" content="test content" />
 						</head><body>
