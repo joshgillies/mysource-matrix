@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.308 2012/05/03 01:46:13 mhaidar Exp $
+* $Id: asset_map.inc,v 1.309 2012/07/09 05:47:16 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.308 $
+* @version $Revision: 1.309 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -572,8 +572,7 @@ class Asset_Map
 	*/
 	function process(&$backend)
 	{
-
-	    	// block public users from probing
+		// block public users from probing
 		$user = isset($GLOBALS['SQ_SYSTEM']->user) ? $GLOBALS['SQ_SYSTEM']->user : NULL;
 		if (is_null($user) || $user instanceof Public_User || (method_exists($user, 'canAccessBackend') && !($user instanceof Simple_Edit_User || $user->canAccessBackend() || (method_exists($user, 'isShadowSimpleEditUser') && $user->isShadowSimpleEditUser())))) {
 			exit();
@@ -1012,11 +1011,14 @@ class Asset_Map
 	function _getChildAssets(&$root, $assetid, $dependants_only=FALSE, $start=0, $limit=0)
 	{
 		// make sure permission is checked for parent asset. asset map doesn't need status check, just assume it's always live
-	    	$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+    	$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if($asset) {
 		    $status = $asset->status;
 		    $asset->status = SQ_STATUS_LIVE;
-		    if(!($asset->readAccess())) exit;
+			if(!($asset->readAccess())) {
+				$this->_error('AMAP0047', $asset->name, $asset->id);
+				exit();
+			}
 		    $asset->status = $status;
 		}
 
