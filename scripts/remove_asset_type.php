@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remove_asset_type.php,v 1.5 2012/06/05 06:26:09 akarelia Exp $
+* $Id: remove_asset_type.php,v 1.6 2012/07/10 02:54:55 cupreti Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 * assets of exactly the type you specify
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -73,6 +73,10 @@ $query = MatrixDAL::preparePdoQuery($sql);
 MatrixDAL::bindValueToPdo($query, 'type_code', $DELETING_ASSET_TYPE);
 $assets_of_type = MatrixDAL::executePdoAssoc($query, 0);
 
+foreach($assets_of_type as $index => $val) {
+	$assets_of_type[$index] = MatrixDAL::quote($val);
+}
+
 if (!empty($assets_of_type)) {
 	$asset_ids_set = '('.implode(', ', $assets_of_type).')';
 	$sql = 'DELETE FROM sq_ast_attr_val WHERE assetid in '.$asset_ids_set;
@@ -102,7 +106,7 @@ MatrixDAL::execPdoQuery($query);
 
 $sql = 'DELETE FROM sq_ast_typ_inhd WHERE type_code = :type_code';
 $query = MatrixDAL::preparePdoQuery($sql);
-MatrixDAL::bindValueToPdo($query, ':type_code', $DELETING_ASSET_TYPE);
+MatrixDAL::bindValueToPdo($query, 'type_code', $DELETING_ASSET_TYPE);
 MatrixDAL::execPdoQuery($query);
 
 assert_true(unlink(dirname(dirname(__FILE__)).'/data/private/db/asset_types.inc'), 'failed removing asset_types.inc');
