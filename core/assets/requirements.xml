@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: requirements.xml,v 1.14 2011/11/17 22:46:42 csmith Exp $
+* $Id: requirements.xml,v 1.15 2012/07/10 04:59:48 ewang Exp $
 *
 */
 -->
@@ -34,6 +34,16 @@
 			<suggested>1</suggested>
 			<description> - you only need to install this module if you are going to use an Oracle database.</description>
 		</alternative>
+	</requirement>
+	<requirement>
+		<php_extension>pdo_mysql</php_extension>
+		<suggested>1</suggested>
+		<description> - you only need to install this module if DB datasource asset will connect to mysql DB</description>
+	</requirement>
+	<requirement>
+		<php_extension>pdo_sqlsrv</php_extension>
+		<suggested>1</suggested>
+		<description> - you only need to install this module if DB datasource asset will connect to MS SQL Server</description>
 	</requirement>
 	<requirement>
 		<php_extension>curl</php_extension>
