@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.78 2012/07/02 07:06:14 akarelia Exp $
+* $Id: messaging_service.inc,v 1.79 2012/07/10 07:34:55 akarelia Exp $
 *
 */
 
@@ -37,7 +37,7 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 *    Facilitate the sending and management of internal messages
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.78 $
+* @version $Revision: 1.79 $
 * @package MySource_Matrix
 */
 class Messaging_Service extends MySource_Object
@@ -749,7 +749,17 @@ class Messaging_Service extends MySource_Object
 			}
 
 			if (isset($this->_emails['reply_to']) && !isset($reply_to_str)) {
-				$reply_to_str = $this->_emails['reply_to'];
+				$reply_to = $this->_emails['reply_to'];
+				if (assert_valid_assetid($reply_to, '', TRUE, FALSE)) {
+					$user_reply_to = $GLOBALS['SQ_SYSTEM']->am->getAsset($reply_to);
+					if (!is_null($user_reply_to)) {
+						$reply_to_name = preg_replace('/[\[\]\(\)\<\>\@\,\;\:\\\"\.]+/','', $user_reply_to->name);
+						$reply_to_email = $user_reply_to->attr('email');
+						$reply_to_str = $reply_to_name.' <'.$reply_to_email.'>';
+					}
+				} else {
+					$reply_to_str = $reply_to;
+				}
 			}
 
 			foreach ($from_emails as $to => $to_emails) {

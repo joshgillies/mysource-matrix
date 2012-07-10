@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.176 2012/07/02 07:06:14 akarelia Exp $
+* $Id: workflow_manager.inc,v 1.177 2012/07/10 07:34:55 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.176 $
+* @version $Revision: 1.177 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -201,7 +201,7 @@ class Workflow_Manager extends MySource_Object
 											  );
 				if ($include_cascades) $schemas[$data['schemaid']]['cascades'] = $data['cascades'];
 				if ($include_last_started_by) $schemas[$data['schemaid']]['last_started_by'] = $data['last_started_by'];
-				
+
 			} else {
 				$schemas[$data['schemaid']] = $data['granted'];
 			}
@@ -594,7 +594,7 @@ class Workflow_Manager extends MySource_Object
 
 		foreach ($schemas as $schemaid => $schema_info) {
 			if (!$schema_info['granted']) continue;
-			
+
 			// these will be the people who to notify (some may be groups)
 			$notify = Array();
 			
@@ -610,7 +610,7 @@ class Workflow_Manager extends MySource_Object
 					}
 				}
 			}
-			
+
 			$conditions = $GLOBALS['SQ_SYSTEM']->am->getChildren($schemaid, 'workflow_step_condition');
 			foreach ($conditions as $cond_id => $type_code) {
 				$condition = $GLOBALS['SQ_SYSTEM']->am->getAsset($cond_id, 'workflow_step_condition');
@@ -671,11 +671,13 @@ class Workflow_Manager extends MySource_Object
 						$msg->subject = (!empty($subject)) ? $subject : 'Asset Made Live';
 					}//end if
 
-					if ($schema->attr('schema_from_email_address') != '') {
-						$msg->from = $schema->attr('schema_from_email_address');
-					}
 					if ($schema->attr('schema_reply_to_email_address') != '') {
 						$msg->parameters['reply_to'] = $schema->attr('schema_reply_to_email_address');
+					} else {
+						$msg->parameters['reply_to'] = $GLOBALS['SQ_SYSTEM']->currentUserId();
+					}
+					if ($schema->attr('schema_from_email_address') != '') {
+						$msg->from = $schema->attr('schema_from_email_address');
 					}
 				}//end if
 				
@@ -1130,11 +1132,13 @@ class Workflow_Manager extends MySource_Object
 						$msg->to = $publishers_step;
 						// see if we have the 'from' field set
 						$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid, 'workflow_schema');
-						if ($schema->attr('schema_from_email_address') != '') {
-							$msg->from = $schema->attr('schema_from_email_address');
-						}
 						if ($schema->attr('schema_reply_to_email_address') != '') {
 							$msg->parameters['reply_to'] = $schema->attr('schema_reply_to_email_address');
+						} else {
+							$msg->parameters['reply_to'] = $GLOBALS['SQ_SYSTEM']->currentUserId();
+						}
+						if ($schema->attr('schema_from_email_address') != '') {
+							$msg->from = $schema->attr('schema_from_email_address');
 						}
 
 						$subject = trim(array_get_index($current_step, 'subject_approve', 'Asset Changes Approved'));
@@ -1147,11 +1151,13 @@ class Workflow_Manager extends MySource_Object
 						$msg->to = $publishers_step;
 						// see if we have the 'from' field set
 						$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid, 'workflow_schema');
-						if ($schema->attr('schema_from_email_address') != '') {
-							$msg->from = $schema->attr('schema_from_email_address');
-						}
 						if ($schema->attr('schema_reply_to_email_address') != '') {
 							$msg->parameters['reply_to'] = $schema->attr('schema_reply_to_email_address');
+						} else {
+							$msg->parameters['reply_to'] = $GLOBALS['SQ_SYSTEM']->currentUserId();
+						}
+						if ($schema->attr('schema_from_email_address') != '') {
+							$msg->from = $schema->attr('schema_from_email_address');
 						}
 
 						$subject = trim(array_get_index($current_step, 'subject_approve', 'Asset Changes Approved'));
@@ -1231,13 +1237,15 @@ class Workflow_Manager extends MySource_Object
 						$msg->parameters['assetid'] = $asset->id;
 						// see if we have the 'from' field set
 						$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid, 'workflow_schema');
+						if ($schema->attr('schema_reply_to_email_address') != '') {
+							$msg->parameters['reply_to'] = $schema->attr('schema_reply_to_email_address');
+						} else {
+							$msg->parameters['reply_to'] = $GLOBALS['SQ_SYSTEM']->currentUserId();
+						}
 						if ($schema->attr('schema_from_email_address') != '') {
 							$msg->from = $schema->attr('schema_from_email_address');
 						}
-						if ($schema->attr('schema_reply_to_email_address') != '') {
-							$msg->parameters['reply_to'] = $schema->attr('schema_reply_to_email_address');
-						}
-			
+
 						// Does this step have a custom message (for inviting users to the next step)?
 						if (isset($current_step['message_review_invitation']) && trim($current_step['message_review_invitation']) !== '' ) {
 							$msg->body = trim($current_step['message_review_invitation']);
@@ -1288,11 +1296,13 @@ class Workflow_Manager extends MySource_Object
 						$msg->replacements = $msg_reps;
 						// see if we have the 'from' field set
 						$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid, 'workflow_schema');
-						if ($schema->attr('schema_from_email_address') != '') {
-							$msg->from = $schema->attr('schema_from_email_address');
-						}
 						if ($schema->attr('schema_reply_to_email_address') != '') {
 							$msg->parameters['reply_to'] = $schema->attr('schema_reply_to_email_address');
+						} else {
+							$msg->parameters['reply_to'] = $GLOBALS['SQ_SYSTEM']->currentUserId();
+						}
+						if ($schema->attr('schema_from_email_address') != '') {
+							$msg->from = $schema->attr('schema_from_email_address');
 						}
 
 						// Does this step have a custom message?
@@ -1722,11 +1732,13 @@ class Workflow_Manager extends MySource_Object
 
 				// see if we have the 'from' field set
 				$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid, 'workflow_schema');
-				if ($schema->attr('schema_from_email_address') != '') {
-					$msg->from = $schema->attr('schema_from_email_address');
-				}
 				if ($schema->attr('schema_reply_to_email_address') != '') {
 					$msg->parameters['reply_to'] = $schema->attr('schema_reply_to_email_address');
+				} else {
+					$msg->parameters['reply_to'] = $GLOBALS['SQ_SYSTEM']->currentUserId();
+				}
+				if ($schema->attr('schema_from_email_address') != '') {
+					$msg->from = $schema->attr('schema_from_email_address');
 				}
 
 				// added the publishers to the list of people that are to be notified
@@ -1949,11 +1961,13 @@ class Workflow_Manager extends MySource_Object
 
 				// see if we have the 'from' field set
 				$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid, 'workflow_schema');
-				if ($schema->attr('schema_from_email_address') != '') {
-					$msg->from = $schema->attr('schema_from_email_address');
-				}
 				if ($schema->attr('schema_reply_to_email_address') != '') {
 					$msg->parameters['reply_to'] = $schema->attr('schema_reply_to_email_address');
+				} else {
+					$msg->parameters['reply_to'] = $GLOBALS['SQ_SYSTEM']->currentUserId();
+				}
+				if ($schema->attr('schema_from_email_address') != '') {
+					$msg->from = $schema->attr('schema_from_email_address');
 				}
 
 				// added the publishers to the list of people that are to be notified
@@ -2235,11 +2249,13 @@ class Workflow_Manager extends MySource_Object
 
 			// see if we have the 'from' field set
 			$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid, 'workflow_schema');
-			if ($schema->attr('schema_from_email_address') != '') {
-				$msg->from = $schema->attr('schema_from_email_address');
-			}
 			if ($schema->attr('schema_reply_to_email_address') != '') {
 				$msg->parameters['reply_to'] = $schema->attr('schema_reply_to_email_address');
+			} else {
+				$msg->parameters['reply_to'] = $GLOBALS['SQ_SYSTEM']->currentUserId();
+			}
+			if ($schema->attr('schema_from_email_address') != '') {
+				$msg->from = $schema->attr('schema_from_email_address');
 			}
 
 			// Does this step have a custom message for stale workflow?
@@ -2328,11 +2344,13 @@ class Workflow_Manager extends MySource_Object
 
 		// see if we have the 'from' field set
 		$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid, 'workflow_schema');
-		if ($schema->attr('schema_from_email_address') != '') {
-			$log->from = $schema->attr('schema_from_email_address');
-		}
 		if ($schema->attr('schema_reply_to_email_address') != '') {
 			$log->parameters['reply_to'] = $schema->attr('schema_reply_to_email_address');
+		} else {
+			$log->parameters['reply_to'] = $GLOBALS['SQ_SYSTEM']->currentUserId();
+		}
+		if ($schema->attr('schema_from_email_address') != '') {
+			$log->from = $schema->attr('schema_from_email_address');
 		}
 
 		$log->replacements = $msg_reps;
@@ -2348,11 +2366,13 @@ class Workflow_Manager extends MySource_Object
 		if (!$this->silentWorkflowParty($asset->id)) {
 			$msg = $ms->newMessage($publishers_before);
 			// see if we have the 'from' field set
-			if ($schema->attr('schema_from_email_address') != '') {
-				$msg->from = $schema->attr('schema_from_email_address');
-			}
 			if ($schema->attr('schema_reply_to_email_address') != '') {
 				$msg->parameters['reply_to'] = $schema->attr('schema_reply_to_email_address');
+			} else {
+				$msg->parameters['reply_to'] = $GLOBALS['SQ_SYSTEM']->currentUserId();
+			}
+			if ($schema->attr('schema_from_email_address') != '') {
+				$msg->from = $schema->attr('schema_from_email_address');
 			}
 
 			$msg->type    = 'asset.workflow.announce.escalated';
@@ -2406,11 +2426,13 @@ class Workflow_Manager extends MySource_Object
 					$msg_reps['preview_url'] = $root_url.'/'.$asset->getBackendHref('details', FALSE);
 				}
 				// see if we have the 'from' field set
-				if ($schema->attr('schema_from_email_address') != '') {
-					$msg->from = $schema->attr('schema_from_email_address');
-				}
 				if ($schema->attr('schema_reply_to_email_address') != '') {
 					$msg->parameters['reply_to'] = $schema->attr('schema_reply_to_email_address');
+				} else {
+					$msg->parameters['reply_to'] = $GLOBALS['SQ_SYSTEM']->currentUserId();
+				}
+				if ($schema->attr('schema_from_email_address') != '') {
+					$msg->from = $schema->attr('schema_from_email_address');
 				}
 
 				$msg->type = 'asset.workflow.review';
@@ -2464,11 +2486,13 @@ class Workflow_Manager extends MySource_Object
 					$msg_reps['preview_url'] = $root_url.'/'.$asset->getBackendHref('details', FALSE);
 				}
 				// see if we have the 'from' field set
-				if ($schema->attr('schema_from_email_address') != '') {
-					$msg->from = $schema->attr('schema_from_email_address');
-				}
 				if ($schema->attr('schema_reply_to_email_address') != '') {
 					$msg->parameters['reply_to'] = $schema->attr('schema_reply_to_email_address');
+				} else {
+					$msg->parameters['reply_to'] = $GLOBALS['SQ_SYSTEM']->currentUserId();
+				}
+				if ($schema->attr('schema_from_email_address') != '') {
+					$msg->from = $schema->attr('schema_from_email_address');
 				}
 	
 				$msg->type    = 'asset.workflow.invitation.progress';
