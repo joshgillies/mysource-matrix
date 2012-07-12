@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.375 2012/04/03 00:57:24 ewang Exp $
+* $Id: asset_edit_interface.inc,v 1.376 2012/07/12 00:38:08 cupreti Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.375 $
+* @version $Revision: 1.376 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1912,7 +1912,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 				// save the status for later so we can see if it changed
 				$old_status = $owner->status;
-
+				
 				// process the system defined bit of this tab if we
 				// are not creating the asset
 				if (!$creating) {
@@ -2045,16 +2045,20 @@ class Asset_Edit_Interface extends MySource_Object
 								$attr = $owner->getAttribute((string)$field->attributes()->attribute);
 								if (is_null($attr)) continue;
 								if (!$attr->setEditParams($last_child)) continue;
-
-								$revert_attr = $attr;
-								$attr->process($prefix.'_'.$attr->id, $owner->id);
-								if ($attr->processed && $owner->setAttrValue($attr->name, $attr->value)) {
-									$ret_val = TRUE;
-								} else {
-									// processing failed so revert to old version
-									$attr = $revert_attr;
+							
+								// If we have just reverted to the system version, so don't overwrite those 
+								// with the attribute values submitted in safe edit mode (see bug #5786)
+								if (!isset($owner->_tmp['reverting_to_system_version']) || !$owner->_tmp['reverting_to_system_version']) {
+									$revert_attr = $attr;
+									$attr->process($prefix.'_'.$attr->id, $owner->id);
+									if ($attr->processed && $owner->setAttrValue($attr->name, $attr->value)) {
+										$ret_val = TRUE;
+									} else {
+										// processing failed so revert to old version
+										$attr = $revert_attr;
+									}
+									unset($revert_attr);
 								}
-								unset($revert_attr);
 
 							} else if ($last_child->getName() == 'function_call') {
 
