@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.45 2011/02/23 03:50:21 mhaidar Exp $
+* $Id: form_question.inc,v 1.46 2012/07/12 22:39:56 akarelia Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -634,10 +634,20 @@ class Form_Question extends Asset
 				$value = $_POST['q'.$this->id];
 				// sanitise it by removing '%' from keywords so that
 				// they dont go ahead and try to fetch it replacement
-				$keywords = extract_keywords($value);
-				foreach ($keywords as $keyword) {
-					$pattern = '/(%*)'.$keyword.'(%*)/';
-					$value = preg_replace($pattern, $keyword, $value);
+				if (is_array($value)) {
+					foreach ($value as $idx => $val) {
+						$keywords = extract_keywords($val);
+						foreach ($keywords as $keyword) {
+							$pattern = '/(%*)'.$keyword.'(%*)/';
+							$value[$idx] = preg_replace($pattern, $keyword, $val);
+						}
+					}
+				} else {
+					$keywords = extract_keywords($value);
+					foreach ($keywords as $keyword) {
+						$pattern = '/(%*)'.$keyword.'(%*)/';
+						$value = preg_replace($pattern, $keyword, $value);
+					}
 				}
 				$this->setValue($value);
 			} else {
