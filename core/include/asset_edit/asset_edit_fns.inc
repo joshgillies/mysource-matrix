@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.87 2011/06/16 00:53:49 mhaidar Exp $
+* $Id: asset_edit_fns.inc,v 1.87.4.1 2012/07/12 05:58:54 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.87 $
+* @version $Revision: 1.87.4.1 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Fns extends MySource_Object
@@ -431,6 +431,9 @@ class Asset_Edit_Fns extends MySource_Object
 			}
 		}
 
+		$remap_manager = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
+		$never_delete = ($remap_manager->attr('never_delete_remap_default') == FALSE) ? 0 : 1;
+
 		$o->openField(translate('old_url'));
 			text_box($prefix.'_add_remap_old_url', '', 50);
 		$o->closeField();
@@ -445,6 +448,9 @@ class Asset_Edit_Fns extends MySource_Object
 			label(translate('days'), $prefix.'_add_remap_expires_days');
 		$o->closeField();
 
+		$o->openField(translate('never_delete'));
+			check_box($prefix.'_add_remap_never_delete', TRUE, $never_delete);
+		$o->closeField();
 
 	}//end paintAddRemapURLs()
 
@@ -481,7 +487,7 @@ class Asset_Edit_Fns extends MySource_Object
 		}
 
 		$remap_manager = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
-		$never_delete = ($remap_manager->attr('never_delete_remap_default') == FALSE) ? 0 : 1;
+		$never_delete = isset($_POST[$prefix.'_add_remap_never_delete']) ? 1 : 0;
 		$remap_manager->addRemapURL($old_url, $new_url, $expires, $never_delete, FALSE);
 
 		return TRUE;
