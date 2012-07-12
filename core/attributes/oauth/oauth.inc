@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: oauth.inc,v 1.5 2011/12/22 16:48:09 mmaruyama Exp $
+* $Id: oauth.inc,v 1.5.4.1 2012/07/12 05:03:48 ewang Exp $
 *
 */
 
@@ -431,7 +431,8 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 
 		// the url might already be url encoded - decode it to avoid double encoding later on 
 		// so that it'll work whehter the url has been encoded or not        
-        $url = urldecode($url);
+		if($url_encode)
+		    $url = urldecode($url);
 
 		// if the url has the parameters part, return the parameters as an array
 		$url_param = explode('?', $url);
