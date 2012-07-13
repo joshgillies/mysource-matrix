@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_update_lookups.php,v 1.14 2012/06/05 06:26:09 akarelia Exp $
+* $Id: system_update_lookups.php,v 1.15 2012/07/13 00:23:54 cupreti Exp $
 *
 */
 
@@ -23,12 +23,12 @@
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
 * @author  James Hurst <jhurst@squiz.co.uk>
 * @author  Daniel Simmons <dsimmons@squiz.co.uk>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 */
 
 error_reporting(E_ALL);
-ini_set('memory_limit', '-1');
+if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');
 if ((php_sapi_name() != 'cli')) {
     trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 }//end if
@@ -36,11 +36,6 @@ if ((php_sapi_name() != 'cli')) {
 $config = array();
 
 define('LOG_FILE_NAME', 'update_lookups.log');
-
-if (count($argv) < 2) {
-	usage();
-    exit(99);
-}//end if
 
 // Get config from command line args.
 process_args($config);
@@ -51,11 +46,16 @@ require_once SQ_INCLUDE_PATH.'/assertions.inc';
 define('LOG_FILE', SQ_SYSTEM_ROOT.'/data/private/logs/'.LOG_FILE_NAME);			// This is the log file
 define('SYNCH_FILE', SQ_TEMP_PATH.'/update_lookups.assetid');	// We need this file to store the assetids
 
-// Replace space with empty string
-$assetids = preg_replace('/[\s]*/', '', $config['assetids']);
+if (empty($config['assetids'])) {
+	// We are running the script over the whole system
+	$rootnodes = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('site', FALSE);
+} else {
+	// Replace space with empty string
+	$assetids = preg_replace('/[\s]*/', '', $config['assetids']);
 
-// Explode them so we have the list in array
-$rootnodes    = getRootNodes($assetids);
+	// Explode them so we have the list in array
+	$rootnodes    = getRootNodes($assetids);
+}
 
 _disconnectFromMatrixDatabase();
 
@@ -186,9 +186,9 @@ exit(0);
  */
 function usage() {
 	echo "\n";
-	echo "Usage: php {$_SERVER['argv'][0]} <system_root> <assetid[,assetid]> [--batch-size <num>] [--verbose]\n";
+	echo "Usage: php {$_SERVER['argv'][0]} <system_root> [assetid[,assetid]] [--batch-size <num>] [--verbose]\n";
 	echo "\n";
-	echo "  <assetid>            Assets to update lookups for (and their children)\n";
+	echo "  [assetid]            Assets to update lookups for (and their children). If this argument is omitted the script will run on the whole system\n";
 	echo "  --batch-size <num>   Number of assets to process per fork. Default is 1000.\n";
 	echo "  --verbose            Print number of assets remaining to stdout.\n";
 	echo "\n";
@@ -208,20 +208,25 @@ function process_args(&$config) {
 	$config['system_root'] = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
 	if (empty($config['system_root'])) {
 		echo "ERROR: You need to supply the path to the System Root as the first argument\n";
+		usage();
 		exit();
 	}
 
 	if (!is_dir($config['system_root']) || !is_readable($config['system_root'].'/core/include/init.inc')) {
 		echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
+		usage();
 		exit();
 	}
-
 	
-	$config['assetids'] = (isset($_SERVER['argv'][2])) ? $_SERVER['argv'][2] : '';
-	if (empty($config['assetids'])) {
-	    echo "ERROR: You need to specify the root nodes to update lookups from as the second argument\n";
-		exit();
-	}//end if
+	$config['assetids'] = (isset($_SERVER['argv'][2])) ? trim($_SERVER['argv'][2]) : '';
+	if (empty($config['assetids']) || strpos($config['assetids'], '--') === 0) {
+		echo "\nWARNING: You are running this update lookup on the whole system.\nThis is fine but it may take a long time\n\nYOU HAVE 5 SECONDS TO CANCEL THIS SCRIPT... ";
+		for ($i = 1; $i <= 5; $i++) {
+			sleep(1);
+			echo $i.' ';
+		}
+		$config['assetids'] = '';
+	}
 	
 	$config['batch_size'] = (int) get_parameterised_arg('--batch-size', 1000);
 	$config['verbose'] = (int) get_boolean_arg('--verbose');
