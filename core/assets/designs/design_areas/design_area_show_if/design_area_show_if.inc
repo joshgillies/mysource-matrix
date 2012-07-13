@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_show_if.inc,v 1.14 2007/12/06 04:28:50 lwright Exp $
+* $Id: design_area_show_if.inc,v 1.14.24.1 2012/07/13 00:23:05 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *	Show different content depending on certain conditions evaluated at runtime
 *
 * @author  Avi Miller <Avi Miller@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.14.24.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -121,7 +121,7 @@ class Design_Area_Show_If extends Design_Area
 		// character 1 of the potential output (i.e. the DocType). Otherwise, it may get
 		// ignored
 		if (!empty($then)) {
-			echo '?', '>'."\n";
+			echo '?', '>';
 			foreach ($then as $index => $element) {
 				$this->_printContentItemCode($element);
 			}
@@ -133,7 +133,7 @@ class Design_Area_Show_If extends Design_Area
 		echo '} else {'."\n";
 
 		if (!empty($else)) {
-			echo '?', '>'."\n";
+			echo '?', '>';
 			foreach ($else as $index => $element) {
 				$this->_printContentItemCode($element);
 			}
