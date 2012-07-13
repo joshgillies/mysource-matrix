@@ -19,12 +19,12 @@
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
 * @author  James Hurst <jhurst@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 
 error_reporting(E_ALL);
-ini_set('memory_limit', '-1');
+if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');
 if ((php_sapi_name() != 'cli')) {
     trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 }//end if
