@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.71 2012/06/05 04:07:25 cupreti Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.72 2012/07/16 06:19:36 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.71 $
+* @version $Revision: 1.72 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -295,6 +295,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 			}
 			$asset_contents = '<strong>'.translate('cms_ct_nest_content_nested_content').get_asset_tag_line($nested_asset->id).'</strong> <a href="'.$asset_link.'" id="sq_preview_new_window" target="_blank">'.translate('cms_ct_nest_content_click_to_preview').'</a>.';
 		} else {
+			$asset_contents = '';
 			// This is the real deal, so we want to actually print the asset
 
 			// Check for recursion
@@ -353,6 +354,17 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 
 				$asset_contents = ob_get_contents();
 			ob_end_clean();
+
+			$keywords = extract_keywords($asset_contents);
+			$replacements = Array();
+			foreach ($keywords as $idx => $keyword) {
+				if (strpos($keyword, 'nested_get_') === 0) {
+					$sub_keyword = substr($keyword, 11);
+					$replacements[$keyword] = array_get_index($_GET, $sub_keyword, '');
+				}
+			}
+
+			replace_keywords($asset_contents, $replacements);
 
 			$_GET = $old_get;
 
@@ -471,21 +483,29 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 
 			$GLOBALS['SQ_NEST_CONTENT_PAINTED'][$asset_cache_key] = 1;
 			$nested_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($nested_assetid, '', TRUE);
+			$asset_contents = '';
 			if ($nested_asset->id && $nested_asset->readAccess()) {
+				ob_start();
 				<?php
 				switch ($asset->attr('paint_with')) {
 					case 'raw':
-						?>$nested_asset->printBody();<?php
+						?>
+						$nested_asset->printBody();
+						<?php
 					break;
 
 					case 'default':
-						?>$nested_asset->printBodyWithPaintLayout();<?php
+						?>
+						$nested_asset->printBodyWithPaintLayout();
+						<?php
 					break;
 
 					case 'arbitrary':
 						$arbitrary_paint_layout = $this->_getArbitraryPaintLayout($asset);
 						if (empty($arbitrary_paint_layout)) {
-							?>$nested_asset->printBody();<?php
+							?>
+							$nested_asset->printBody();
+							<?php
 						} else {
 							?>
 							$arbitrary_paint_layout = $GLOBALS['SQ_SYSTEM']->am->getAsset(<?php echo $arbitrary_paint_layout->id ?>);
@@ -495,7 +515,22 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 					break;
 				}//end switch
 				?>
+				$asset_contents = ob_get_contents();
+				ob_end_clean();
+
+				$keywords = extract_keywords($asset_contents);
+				$replacements = Array();
+				foreach ($keywords as $idx => $keyword) {
+					if (strpos($keyword, 'nested_get_') == 0) {
+						$sub_keyword = substr($keyword, 11);
+						$replacements[$keyword] = array_get_index($_GET, $sub_keyword, '');
+					}
+				}
+
+				replace_keywords($asset_contents, $replacements);
 			}
+			
+			echo $asset_contents;
 			unset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$asset_cache_key]);
 
 			$_GET = $old_get[$asset_cache_key];
