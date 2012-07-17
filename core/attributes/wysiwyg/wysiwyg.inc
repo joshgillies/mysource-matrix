@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.37 2012/04/11 04:17:57 mhaidar Exp $
+* $Id: wysiwyg.inc,v 1.38 2012/07/17 02:12:03 akarelia Exp $
 *
 */
 
@@ -28,13 +28,12 @@ require_once SQ_FUDGE_PATH.'/wysiwyg/wysiwyg.inc';
 *    <wysiwyg style="div" width="100%" height="300" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
 class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 {
-
 
 	/**
 	* Constructor
@@ -48,9 +47,11 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 		$this->Asset_Attribute_Text($attributeid, $value);
 
 		// set default edit parameters
-		$this->_edit_params['style']  = 'div';
-		$this->_edit_params['width']  = '100%';
-		$this->_edit_params['height'] = '300';
+		$this->_edit_params['style']		= 'div';
+		$this->_edit_params['width']		= '100%';
+		$this->_edit_params['height']		= '300';
+		$this->_edit_params['tidy_status']	= 'wait';
+		$this->_edit_params['tidy_errors']	= '';
 
 	}//end constructor
 
@@ -64,7 +65,7 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 	* @access public
 	*/
 	function setEditParams(&$node)
-	{// TODO TOF TEST
+	{
 		if (!parent::setEditParams($node)) return false;
 
 		if (isset($node->attributes()->style))  $this->_edit_params['style']  = (string)$node->attributes()->style;
@@ -195,7 +196,11 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 		if (!(SQ_IN_BACKEND || SQ_IN_LIMBO)) echo '<script type="text/javascript" src="'.sq_web_path('lib').'/js/edit.js"></script>';
 
 		?>
+		<script type="text/javascript">
+			var bodycopy_initialised = true;
+		</script>
 		<div style="border: 1px dashed #C0C0C0;" id="<?php echo $prefix.'_switch_option_div'; ?>">
+			<span style="float: right;"><?php echo $this->paintBackendStatusIcons($wysiwyg); ?></span>
 			<div style="width: 16px; height: 16px; background: url(<?php echo sq_web_path('lib')?>/web/images/icons/edit_mode.png);background: expression('none');filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='<?php echo sq_web_path('lib')?>/web/images/icons/edit_mode.png', sizingMethod='scale'); font-size:10px; cursor:pointer;"
 				onclick="switchEditingMode('<?php echo $prefix; ?>_contents_div','<?php echo $prefix; ?>_wysiwyg_div', editor_<?php echo $prefix; ?>);"></div>
 		</div>
@@ -225,6 +230,8 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 		if ($html !== FALSE && (!$cmp_value || $html !== $this->value) && $this->setValue($html, $owner_id)) {
 			$this->processed = TRUE;
 		}
+		$this->_edit_params['tidy_status'] = isset($wysiwyg->_loaded_plugins['html_tidy']->htmltidy_status) ? $wysiwyg->_loaded_plugins['html_tidy']->htmltidy_status : 'wait';
+		$this->_edit_params['tidy_errors'] = isset($wysiwyg->_loaded_plugins['html_tidy']->htmltidy_errors) ? $wysiwyg->_loaded_plugins['html_tidy']->htmltidy_errors : '';
 
 	}//end process()
 
@@ -283,6 +290,7 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 
 	}//end getKeywordValue()
 
+
 	/**
 	* Checks for hyperlinks pointing to non-live Matrix assets
 	* Sets the value of this attribute after validating
@@ -293,18 +301,69 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 	* @access public
 	*/
 	function setValue(&$value, $owner_id = NULL)
-	{		
+	{
 		if (!empty($owner_id)) {
 			$live_link_only = $GLOBALS['SQ_SYSTEM']->getUserPrefs('content_type_wysiwyg', 'SQ_LIVE_LINK_ONLY');
-			$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($owner_id);			
+			$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($owner_id);
 			if ($asset_info[$owner_id]['status'] == SQ_STATUS_LIVE && $live_link_only) {
 				require_once SQ_FUDGE_PATH.'/general/www.inc';
 				$outcome = check_non_live_link($value, $owner_id);
 				if ($outcome !== FALSE) $value = $outcome;
 			}
 		}
+
 		return parent::setValue($value);
+
 	}//end setValue()
+
+
+	/**
+	* Prints extra backend icons at the right hand side of the menu
+	*
+	* @param Content_Type_WYSIWYG	$asset	the WYSIWYG Content Type object
+	* @param string					$prefix	prefix for form elements
+	*
+	* @return void
+	* @access public
+	*/
+	public function paintBackendStatusIcons($wysiwyg)
+	{
+		require_once SQ_DATA_PATH.'/private/conf/tools.inc';
+		require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
+
+		// prints the status of the last run of htmltidy tool as a tag icon
+		if (!SQ_TOOL_HTML_TIDY_ENABLED || !file_exists(SQ_TOOL_HTML_TIDY_PATH)) {
+			// tool is not enabled
+			Bodycopy_Edit_Fns::printBodycopyIcon('', 'HTMLTidy Status', translate('wysiwyg_htmltidy_status_disabled'), 'htmltidy_disabled', '[HTMLTidy Status]');
+		} else {
+
+			$status = $this->_edit_params['tidy_status'];
+			$status_msg = translate('wysiwyg_htmltidy_status_wait');
+			$image_filename = 'htmltidy_'.$status;
+			switch ($status) {
+				case 'pass':
+					$status_msg = translate('wysiwyg_htmltidy_status_pass');
+				break;
+				case 'fail':
+					$status_msg = translate('wysiwyg_htmltidy_status_fail');
+				break;
+				case 'wait':
+					$status_msg = translate('wysiwyg_htmltidy_status_wait');
+				break;
+			}//end switch
+
+			Bodycopy_Edit_Fns::printBodycopyIcon('', 'HTMLTidy Status', $status_msg, $image_filename, '[HTMLTidy Status]');
+
+			$res = (str_replace('
+', '<br />', htmlentities($this->_edit_params['tidy_errors'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
+
+			$htmltidy_accessibility_filename = 'accessibility_'.(empty($res) ? 'pass' : 'fail');
+            Bodycopy_Edit_Fns::printBodycopyIcon('', 'HTMLTidy Accessibility', !empty($res) ? $res : translate('wysiwyg_htmltidy_accessibility_no_warning'), $htmltidy_accessibility_filename, '[HTMLTidy Status]');
+
+		}
+
+	}//end paintBackendStatusIcons()
+
 
 }//end class
 
