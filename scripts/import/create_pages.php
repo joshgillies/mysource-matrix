@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: create_pages.php,v 1.5 2006/12/06 05:42:20 bcaldwell Exp $
+* $Id: create_pages.php,v 1.5.30.1 2012/07/18 07:28:29 akarelia Exp $
 *
 */
 
@@ -22,10 +22,12 @@
 *
 * @author  Avi Miller <avim@netspace.net.au>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.30.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
+if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');
+
 if ((php_sapi_name() != 'cli')) trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
@@ -42,28 +44,43 @@ require_once $SYSTEM_ROOT.'/core/include/init.inc';
 
 // get the import file
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+
 $pages = file($import_file);
 $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-foreach ($pages as $pageline) {
+$csv_fd = fopen($import_file, 'r');
+$line_number = 1;
+while (($data = fgetcsv($csv_fd, 1024, ',')) !== FALSE) {
 
-	// create an asset under the new parent of the correct type
-	list($pagename, $page_type, $parent_assetid, $link_type) = explode(",", $pageline);
-	$GLOBALS['SQ_SYSTEM']->am->includeAsset(trim($page_type));
+	if (count($data) != 4) {
+		echo "Wrong number of arguments passed on line #$line_number : ".implode(', ', $data)."\n";
+		$line_number++;
+		continue;
+	}
 
-	$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset(trim($parent_assetid));
-	if (is_null($parent_asset)) trigger_error("New parent asset #$parent_assetid does not exist\n", E_USER_ERROR);
-	$import_link = Array('asset' => &$parent_asset, 'link_type' => $link_type);
+	$GLOBALS['SQ_SYSTEM']->am->includeAsset(trim($data[1]));
 
-	$new_asset_type = trim($page_type);
+	$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset(trim($data[2]), '', TRUE);
+	if (is_null($parent_asset)) {
+		echo "New parent asset #{$data[2]} does not exist on line #$line_number\n";
+		$line_number++;
+		continue;
+	}
+
+	$import_link = Array('asset' => &$parent_asset, 'link_type' => $data[3]);
+
+	$new_asset_type = trim($data[1]);
 
 	$new_page = new $new_asset_type();
-	$new_page->setAttrValue('name', trim($pagename));
+	$new_page->setAttrValue('name', trim($data[0]));
 
 	if (!$new_page->create($import_link)) {
-		trigger_error('Failed to import '.$new_asset_type.' '.trim($pagename), E_USER_WARNING);
+		echo 'Failed to import '.$new_asset_type.' '.trim($data[0]);
+		$line_number++;
+		continue;
 	} else {
-		bam('New '.$new_page->type().' asset created for '.trim($pagename).' - asset ID #'.$new_page->id);
+		bam('New '.$new_page->type().' asset created for '.trim($data[0]).' - asset ID #'.$new_page->id);
 	}
+	$line_number++;
 }
 
 $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
