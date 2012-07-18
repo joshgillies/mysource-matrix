@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new_management.inc,v 1.19 2010/03/09 23:31:53 lwright Exp $
+* $Id: page_whats_new_management.inc,v 1.19.14.1 2012/07/18 08:35:52 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.19.14.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -39,46 +39,67 @@ class Page_Whats_New_Management extends Asset_Management
 		parent::__construct($pm);
 
 		$this->vars = Array(
-						'date_field'		=> Array(
-												'added'			=> '0.1',
-												'type'			=> 'selection',
-												'default'		=> 'updated',
-												'parameters'	=> Array(
-																	'options'	=> Array(
-																					'created'	=> 'Created Date',
-																					'updated'	=> 'Last Updated Date',
-																					'published'	=> 'Last Published Date',
-																				   ),
-																   ),
-												'multiple'		=> FALSE,
-												'allow_empty'	=> FALSE,
-											   ),
-						'range_type'		=> Array(
-												'added'			=> '0.1',
-												'type'			=> 'text',
-												'default'		=> 'default',
-											   ),
-						'date_range_from'	=> Array(
-												'added'			=> '0.1',
-												'type'			=> 'datetime',
-												'default'		=> '---------- --:--:--',
-												'parameters'	=> Array(
-																	'allow_null'	=> TRUE,
-																   ),
-											   ),
-						'date_range_to'		=> Array(
-												'added'			=> '0.1',
-												'type'			=> 'datetime',
-												'default'		=> '---------- --:--:--',
-												'parameters'	=> Array(
-																	'allow_null'	=> TRUE,
-																   ),
-											   ),
-						'date_ranges'		=> Array(
-												'added'		=> '0.1',
-												'type'		=> 'serialise',
-												'default'	=> Array(),
-											   ),
+						'date_field'				=> Array(
+														'added'			=> '0.1',
+														'type'			=> 'selection',
+														'default'		=> 'updated',
+														'parameters'	=> Array(
+																			'options'	=> Array(
+																							'created'	=> 'Created Date',
+																							'updated'	=> 'Last Updated Date',
+																							'published'	=> 'Last Published Date',
+																						   ),
+																		   ),
+														'multiple'		=> FALSE,
+														'allow_empty'	=> FALSE,
+													   ),
+						'range_type'				=> Array(
+														'added'			=> '0.1',
+														'type'			=> 'text',
+														'default'		=> 'default',
+													   ),
+						'date_range_from'			=> Array(
+														'added'			=> '0.1',
+														'type'			=> 'datetime',
+														'default'		=> '---------- --:--:--',
+														'parameters'	=> Array(
+																			'allow_null'	=> TRUE,
+																		   ),
+													   ),
+						'date_range_to'				=> Array(
+														'added'			=> '0.1',
+														'type'			=> 'datetime',
+														'default'		=> '---------- --:--:--',
+														'parameters'	=> Array(
+																			'allow_null'	=> TRUE,
+																		   ),
+													   ),
+						'date_ranges'				=> Array(
+														'added'			=> '0.1',
+														'type'			=> 'serialise',
+														'default'		=> Array(),
+													   ),
+						'link_value_filter'			=> Array(
+														'added'			=> '0.1',
+														'type'			=> 'text',
+														'default'		=> '',
+													   ),
+						'link_value_filter_enabled' => Array(
+														'added'			=> '0.1',
+														'type'			=> 'boolean',
+														'default'		=> FALSE,
+														'parameters'	=> Array(
+																			'allow_empty'	=> FALSE,
+																	  	   ),
+													   ),
+						'link_value_filter_logic'	=> Array(
+														'added'			=> '0.16',
+														'type'			=> 'boolean',
+														'default'		=> TRUE,
+														'parameters'	=> Array(
+																			'allow_empty'	=> FALSE,
+																		   ),
+												  		),
 					  );
 
 	}//end constructor
