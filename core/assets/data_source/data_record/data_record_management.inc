@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_record_management.inc,v 1.3 2007/11/29 04:32:38 lwright Exp $
+* $Id: data_record_management.inc,v 1.4 2012/07/18 06:47:37 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -49,6 +49,7 @@ class Data_Record_Management extends Asset_Management
 									'description'	=> 'The full name of the record',
 									'update_fn'		=> '',
 									'is_admin'		=> FALSE,
+									'is_contextable'=> TRUE,
 								   ),
 					  );
 
