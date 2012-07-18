@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.309 2012/07/09 05:47:16 akarelia Exp $
+* $Id: asset_map.inc,v 1.310 2012/07/18 08:06:36 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.309 $
+* @version $Revision: 1.310 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -583,7 +583,11 @@ class Asset_Map
 
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
-		$root = simplexml_load_file('php://input');
+		$xml = file_get_contents("php://input");
+		// disable loading external entitties to prevent scanning for file existence
+		if (function_exists('libxml_disable_entity_loader'))
+			libxml_disable_entity_loader(TRUE);
+		$root = simplexml_load_string($xml);
 
 		switch ($root['action']) {
 			case 'get translations' :
