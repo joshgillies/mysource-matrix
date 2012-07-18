@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new.inc,v 1.44 2010/03/09 23:31:53 lwright Exp $
+* $Id: page_whats_new.inc,v 1.45 2012/07/18 04:01:55 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -98,6 +98,12 @@ class Page_Whats_New extends Listing_Engine
 		// this is the field in the database that we are using the specify that something is "new"
 		$field = $this->attr('date_field');
 		$ranges = $this->attr('date_ranges');
+
+		$link_value_wanted = NULL;
+		if ($this->attr('link_value_filter_enabled')) {
+			// the data stored in the DB was encoded to protect against cross scripting so we use htmlentities
+			$link_value_wanted = htmlentities($this->attr('link_value_filter'));
+		}
 
 		// work out the where clause that is going to find "new" assets
 		$where = '';
@@ -219,11 +225,18 @@ class Page_Whats_New extends Listing_Engine
 			return Array();
 		}
 
+		if (!is_null($link_value_wanted)) {
+			$link_value_wanted = Array(
+									'link_value' 	=> Array($link_value_wanted),
+									'equal' 		=> $this->attr('link_value_filter_logic'),
+								 );
+		}
+
 		if ($this->attr('subs_only')) {
 			$links = Array();
 
 			foreach ($root_asset_ids as $root_asset_id) {
-				$links_query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset_id, $this->attr('link_types'), array_keys($wanted_types), FALSE, 'major', NULL, NULL, NULL, $letter_sort_by, SQ_PERMISSION_READ);
+				$links_query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset_id, $this->attr('link_types'), array_keys($wanted_types), FALSE, 'major', $link_value_wanted, NULL, NULL, $letter_sort_by, SQ_PERMISSION_READ);
 				$query = $links_query['sql_array'];
 				$bind_vars = array_merge($base_bind_vars, $links_query['bind_vars']);
 
@@ -275,7 +288,7 @@ class Page_Whats_New extends Listing_Engine
 
 			foreach ($root_asset_ids as $root_asset_id) {
 				$root_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($root_asset_id);
-				$child_query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), FALSE, NULL, $letter_sort_by, SQ_PERMISSION_READ);
+				$child_query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), FALSE, NULL, $letter_sort_by, SQ_PERMISSION_READ, TRUE, TRUE, NULL, NULL, TRUE, $link_value_wanted);
 				$sql_array = $child_query['sql_array'];
 				$bind_vars = array_merge($base_bind_vars, $child_query['bind_vars']);
 
