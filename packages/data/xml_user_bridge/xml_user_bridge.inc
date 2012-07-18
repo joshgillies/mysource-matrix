@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: xml_user_bridge.inc,v 1.12 2011/02/24 02:37:03 cupreti Exp $
+* $Id: xml_user_bridge.inc,v 1.12.6.1 2012/07/18 07:55:21 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * 	Exposes shadow user assets representing the data in an XML file
 *
 * @author Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.12.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -246,6 +246,7 @@ class XML_User_Bridge extends Asset implements Bridge
 								'value'				=> '',
 								'linkid'			=> 0,
 								'sort_order'		=> -1,
+								'is_dependant'		=> 1,
 							  );
 					$res = Array();
 					foreach ($this->groups as $id => $name) {
@@ -268,6 +269,7 @@ class XML_User_Bridge extends Asset implements Bridge
 								'value'				=> '',
 								'linkid'			=> 0,
 								'sort_order'		=> -1,
+								'is_dependant'		=> 1,
 							  );
 					$res = Array();
 					foreach ($this->group_members[$bits[1]] as $userid => $details) {
@@ -287,6 +289,7 @@ class XML_User_Bridge extends Asset implements Bridge
 							'value'				=> '',
 							'linkid'			=> 0,
 							'sort_order'		=> -1,
+							'is_dependant'		=> 1,
 						   );
 					return Array($res);
 				}
@@ -304,6 +307,7 @@ class XML_User_Bridge extends Asset implements Bridge
 								'value'				=> '',
 								'linkid'			=> 0,
 								'sort_order'		=> -1,
+								'is_dependant'		=> 1,
 							  );
 					$res = Array();
 					foreach ($this->user_memberships[$bits[2]] as $groupid) {
