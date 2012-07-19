@@ -10,10 +10,11 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.100.4.1 2012/06/26 05:05:02 cupreti Exp $
+* $Id: internal_message.inc,v 1.100.4.2 2012/07/19 01:48:46 akarelia Exp $
 *
 */
 
+require_once SQ_FUDGE_PATH.'/general/www.inc';
 
 /**
 * Internal_Message
@@ -22,7 +23,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.100.4.1 $
+* @version $Revision: 1.100.4.2 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -182,7 +183,7 @@ class Internal_Message extends MySource_Object
 
 		$user_from = null;
 		$from_name = '';
-		if ($this->from) {
+		if ($this->from && assert_valid_assetid($this->from, '', TRUE, FALSE)) {
 			$user_from = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->from);
 			if (!is_null($user_from)) {
 				$from_name = $user_from->name;
@@ -264,12 +265,13 @@ class Internal_Message extends MySource_Object
 			// work out the email address the the email will be sent from
 			$from_email = SQ_CONF_DEFAULT_EMAIL;
 			$from_string = '';
-			if ($this->from) {
-				if (!is_null($user_from)) {
-					$from_string = $user_from->name.' <'.$user_from->attr('email').'>';
-					$from_email = $user_from->attr('email');
-				}
+			if ($this->from && !is_null($user_from)) {
+				$from_string = $user_from->name.' <'.$user_from->attr('email').'>';
+				$from_email = $user_from->attr('email');
+			} else if ($this->from && valid_email($this->from)) {
+				$from_email = $this->from;
 			}
+
 			if (empty($from_email)) {
 				if (isset($_SERVER['HOSTNAME']) && isset($_SERVER['HTTP_HOST'])) {
 					$from_email = 'webmaster@'.((SQ_PHP_CLI) ? $_SERVER['HOSTNAME'] : $_SERVER['HTTP_HOST']);
@@ -339,6 +341,7 @@ class Internal_Message extends MySource_Object
 			// send each user a message - via email and into their internal message inbox
 			foreach ($send_to as $userid) {
 
+				$reply_to_email  = isset($this->parameters['reply_to']) ? $this->parameters['reply_to'] : '';
 				if (!$userid) {
 					// The userid is empty, which means we are sending a message to the system
 					// so we send to the default email and tech email
@@ -389,7 +392,7 @@ class Internal_Message extends MySource_Object
 						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 					}
 
-					$ms->queueEmail($this->from, 0, $subject, $log_body);
+					$ms->queueEmail($this->from, 0, $subject, $log_body, $reply_to_email);
 					if (!$ms->sending_queue) $ms->sendQueuedEmails();
 
 				} else {
@@ -441,7 +444,6 @@ class Internal_Message extends MySource_Object
 
 					if ($send_mail) {
 						// send an email as well
-						require_once SQ_FUDGE_PATH.'/general/www.inc';
 						$to_email = trim($user->attr('email'));
 						//reload the $body again, since it might be different from internal message.
 
@@ -457,7 +459,7 @@ class Internal_Message extends MySource_Object
 							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 						}
 
-						$ms->queueEmail($this->from, $userid, $subject, $log_body);
+						$ms->queueEmail($this->from, $userid, $subject, $log_body, $reply_to_email);
 						if (!$ms->sending_queue) $ms->sendQueuedEmails();
 					}
 				}

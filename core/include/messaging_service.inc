@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.77 2012/03/29 00:45:57 akarelia Exp $
+* $Id: messaging_service.inc,v 1.77.2.1 2012/07/19 01:48:46 akarelia Exp $
 *
 */
 
@@ -37,7 +37,7 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 *    Facilitate the sending and management of internal messages
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.77 $
+* @version $Revision: 1.77.2.1 $
 * @package MySource_Matrix
 */
 class Messaging_Service extends MySource_Object
@@ -683,7 +683,7 @@ class Messaging_Service extends MySource_Object
 	* @return void
 	* @access public
 	*/
-	function queueEmail($from, $to, $subject, $body)
+	function queueEmail($from, $to, $subject, $body, $reply_to='')
 	{
 		if (!isset($this->_emails[$from])) {
 			$this->_emails[$from] = Array();
@@ -695,6 +695,10 @@ class Messaging_Service extends MySource_Object
 
 		if (!isset($this->_emails[$from][$to][$subject])) {
 			$this->_emails[$from][$to][$subject] = Array();
+		}
+
+		if (!isset($this->_emails['reply_to']) && !empty($reply_to)) {
+			$this->_emails['reply_to'] = $reply_to;
 		}
 
 		$this->_emails[$from][$to][$subject][] = $body;
@@ -719,16 +723,19 @@ class Messaging_Service extends MySource_Object
 		$mime = new Mail_mime($crlf);
 
 		foreach ($this->_emails as $from => $from_emails) {
+			if ($from == 'reply_to') continue;
 			// work out the email address the the email will be sent from
 			$from_email = SQ_CONF_DEFAULT_EMAIL;
 			$from_string = '';
-			if ($from) {
+			if ($from && assert_valid_assetid($from, '', TRUE, FALSE)) {
 				$user_from = $GLOBALS['SQ_SYSTEM']->am->getAsset($from);
 				if (!is_null($user_from)) {
 					$from_name = preg_replace('/[\[\]\(\)\<\>\@\,\;\:\\\"\.]+/','', $user_from->name);
 					$from_email = $user_from->attr('email');
 					$from_string = $from_name.' <'.$from_email.'>';
 				}
+			} else {
+				$from_email = $from;
 			}
 			if (empty($from_email)) {
 				if (isset($_SERVER['HOSTNAME']) && isset($_SERVER['HTTP_HOST'])) {
@@ -739,6 +746,20 @@ class Messaging_Service extends MySource_Object
 			}
 			if (empty($from_string)) {
 				$from_string = '"'.SQ_SYSTEM_SHORT_NAME.' System" <'.$from_email.'>';
+			}
+
+			if (isset($this->_emails['reply_to']) && !isset($reply_to_str)) {
+				$reply_to = $this->_emails['reply_to'];
+				if (assert_valid_assetid($reply_to, '', TRUE, FALSE)) {
+					$user_reply_to = $GLOBALS['SQ_SYSTEM']->am->getAsset($reply_to);
+					if (!is_null($user_reply_to)) {
+						$reply_to_name = preg_replace('/[\[\]\(\)\<\>\@\,\;\:\\\"\.]+/','', $user_reply_to->name);
+						$reply_to_email = $user_reply_to->attr('email');
+						$reply_to_str = $reply_to_name.' <'.$reply_to_email.'>';
+					}
+				} else {
+					$reply_to_str = $reply_to;
+				}
 			}
 
 			foreach ($from_emails as $to => $to_emails) {
@@ -785,6 +806,8 @@ class Messaging_Service extends MySource_Object
 								'From'		=> $from_string,
 								'Subject'	=> $subject,
 							);
+
+					if (isset($reply_to_str) && $reply_to_str != '') $hdrs['Reply-To'] = $reply_to_str;
 
 					$text_body = $this->formatEmail($body, $user, 'text');
 					$html_body = $this->formatEmail($body, $user, 'html');
