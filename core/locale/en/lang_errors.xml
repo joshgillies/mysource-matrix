@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.142 2012/07/09 05:48:15 akarelia Exp $
+* $Id: lang_errors.xml,v 1.143 2012/07/19 04:49:13 akarelia Exp $
 *
 */
 
@@ -665,7 +665,7 @@
 	<error code="AMAP0044">Unable to Clone Asset, %s</error>
 	<error code="AMAP0045">Unable to Change Asset Position, %s</error>
 	<error code="AMAP0046">Unable to Move Asset #%s, asset is locked</error>
-	<error code="AMAP0047">Permission Denied. Could not load child assets for asset #%1$s (%2$s)</error>
+	<error code="AMAP0047">Permission Denied. Could not load child assets for asset %1$s (#%2$s)</error>
 
 	<!-- FILE VERSIONING -->
 
