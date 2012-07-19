@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.376 2012/07/12 00:38:08 cupreti Exp $
+* $Id: asset_edit_interface.inc,v 1.377 2012/07/19 08:31:02 cupreti Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.376 $
+* @version $Revision: 1.377 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1923,6 +1923,11 @@ class Asset_Edit_Interface extends MySource_Object
 					}
 				}
 
+				// If we have just reverted to the system version, so don't overwrite those 
+				// with the attribute values submitted in safe edit mode (see bug #5786)
+				if (isset($owner->_tmp['reverting_to_system_version']) && $owner->_tmp['reverting_to_system_version']) {
+					return TRUE;
+				}
 				// try and find the file to print user defined
 				$file = @$this->findLanguageFile('screen_'.$active_screen);
 
@@ -2046,19 +2051,15 @@ class Asset_Edit_Interface extends MySource_Object
 								if (is_null($attr)) continue;
 								if (!$attr->setEditParams($last_child)) continue;
 							
-								// If we have just reverted to the system version, so don't overwrite those 
-								// with the attribute values submitted in safe edit mode (see bug #5786)
-								if (!isset($owner->_tmp['reverting_to_system_version']) || !$owner->_tmp['reverting_to_system_version']) {
-									$revert_attr = $attr;
-									$attr->process($prefix.'_'.$attr->id, $owner->id);
-									if ($attr->processed && $owner->setAttrValue($attr->name, $attr->value)) {
-										$ret_val = TRUE;
-									} else {
-										// processing failed so revert to old version
-										$attr = $revert_attr;
-									}
-									unset($revert_attr);
+								$revert_attr = $attr;
+								$attr->process($prefix.'_'.$attr->id, $owner->id);
+								if ($attr->processed && $owner->setAttrValue($attr->name, $attr->value)) {
+									$ret_val = TRUE;
+								} else {
+									// processing failed so revert to old version
+									$attr = $revert_attr;
 								}
+								unset($revert_attr);
 
 							} else if ($last_child->getName() == 'function_call') {
 
