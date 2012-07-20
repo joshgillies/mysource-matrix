@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_structured_file_import.inc,v 1.25 2010/05/25 07:55:09 kmyothein Exp $
+* $Id: hipo_job_structured_file_import.inc,v 1.26 2012/07/20 04:42:45 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -622,7 +622,7 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 			$counter = 0;
 			if ($this->_running_vars['leading_create'] == TRUE) {
 				// only create this page, if there is sufficient text
-				if (bcmod(count($matches), '2') == 1) {
+				if ((count($matches) % 2) == 1) {
 					$initial_data[] = Array (
 										'name'		=> $this->_running_vars['leading_text'],
 										'title'		=> '',
@@ -632,7 +632,7 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 					$leading_update = TRUE;
 				}
 			}
-			if (bcmod(count($matches), '2') == 1) $counter++;
+			if ((count($matches) % 2) == 1) $counter++;
 
 			for ($i=$counter; $i < count($matches); $i+=2) {
 				$initial_data[] = Array (
@@ -694,7 +694,7 @@ class HIPO_Job_Structured_File_Import extends HIPO_Job
 		$match_data = Array();
 
 		$counter = 0;
-		if (bcmod(count($matches), '2') == '1') {
+		if ((count($matches) % 2) == 1) {
 			$match_data['parent_data'] = $matches[0];
 			$counter++;
 		}
