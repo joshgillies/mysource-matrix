@@ -13,7 +13,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.9 2011/02/01 04:50:20 mhaidar Exp $
+* $Id: asset.xml,v 1.9.8.1 2012/07/23 01:21:27 ewang Exp $
 *
 */
 -->
@@ -21,7 +21,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>__core__</package>
 	<type_code>design_css</type_code>
-	<version>0.4</version>
+	<version>0.5</version>
 	<name>CSS Design File</name>
 	<description>This is a CSS asset that is parsed</description>
 	<instantiable>yes</instantiable>

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_management.inc,v 1.23 2011/02/01 04:50:20 mhaidar Exp $
+* $Id: design_management.inc,v 1.23.8.1 2012/07/23 01:21:27 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.23.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -104,6 +104,20 @@ class Design_Management extends Asset_Management
 			}
 			
 		}//end if
+		
+		if (version_compare($current_version, '0.4', '<')) {
+			pre_echo('UPGRADING DESIGN FROM v < 0.4');
+
+			// regenerate all design assets
+			$design_ids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('design', TRUE, TRUE);
+			foreach ($design_ids as $design_id => $type) {
+				$vars = Array('assetid' => $design_id);
+				$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+				$hh->freestyleHipo('hipo_job_regenerate_design', $vars);
+			}
+			
+		}//end if
+		
 		return TRUE;
 
 	}//end _upgrade()
