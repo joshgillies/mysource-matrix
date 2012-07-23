@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_expired_workflow.inc,v 1.43 2012/07/19 02:01:42 akarelia Exp $
+* $Id: cron_job_expired_workflow.inc,v 1.44 2012/07/23 00:23:23 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *	Note that this is a singleton asset - when the asset type is installed it creates a single
 *	instance of itself under the cron manager, which should remain there always.
 *
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -312,8 +312,8 @@ class Cron_Job_Expired_WorkFlow extends Cron_Job
 		}//end if
 
 		if (!is_null($schema_asset)) {
-			if ($schema->attr('schema_reply_to_email_address') != '') {
-				$msg->parameters['reply_to'] = $schema->attr('schema_reply_to_email_address');
+			if ($schema_asset->attr('schema_reply_to_email_address') != '') {
+				$msg->parameters['reply_to'] = $schema_asset->attr('schema_reply_to_email_address');
 			} else {
 				$msg->parameters['reply_to'] = $msg->from;
 			}
