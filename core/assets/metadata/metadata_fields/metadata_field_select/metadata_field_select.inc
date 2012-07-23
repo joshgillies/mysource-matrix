@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select.inc,v 1.39 2012/01/09 00:34:09 csmith Exp $
+* $Id: metadata_field_select.inc,v 1.39.2.1 2012/07/23 03:16:53 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/csv/csv.inc';
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.39.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -342,7 +342,7 @@ class Metadata_Field_Select extends Metadata_Field
 				$sql .= $where;
 
 				// Now build the default values query (and sub-query).
-				$sub_sql = 'SELECT fieldid, contextid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_mdata_val ';
+				$sub_sql = 'SELECT fieldid, contextid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_mdata_val WHERE assetid = :host_assetid_1 ';
 				$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('', 'ast_mdata_val');
 
 				$union_sql = 'SELECT default_val FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_mdata_dflt_val';
@@ -360,11 +360,12 @@ class Metadata_Field_Select extends Metadata_Field
 
 				// Go go go!
 				$bind_vars = Array(
-								'host_assetid'	=> (string)$host_assetid,
-								'fieldid'		=> (string)$this->id,
-								'contextid'		=> (int)$contextid,
-								'fieldid_1'		=> (string)$this->id,
-								'contextid_1'	=> (int)$contextid,
+								'host_assetid'		=> (string)$host_assetid,
+								'fieldid'			=> (string)$this->id,
+								'contextid'			=> (int)$contextid,
+								'host_assetid_1'	=> (string)$host_assetid,
+								'fieldid_1'			=> (string)$this->id,
+								'contextid_1'		=> (int)$contextid,
 							 );
 
 				$query = MatrixDAL::preparePdoQuery($sql);
