@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.265.2.1 2012/03/19 02:14:00 mhaidar Exp $
+* $Id: general.inc,v 1.265.2.2 2012/07/24 01:22:42 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.265.2.1 $
+* @version $Revision: 1.265.2.2 $
 * @package MySource_Matrix
 */
 
@@ -179,9 +179,8 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 
 			$error_title = 'background-color: '.$bg_colour.'; font-size: 14px; font-weight: bold; color: #ffffff; font-family: verdana, arial, sans-serif; vertical-align: top;';
 			$error_data  = 'background-color: '.$bg_colour.'; font-size: 12px; color: #ffffff; font-family: verdana, arial, sans-serif; vertical-align: top;';
-
+			if(empty($buffers)) echo '</script></table></table></table></table><br/>';
 			?>
-				</script></table></table></table></table><br/>
 				<table bgcolor="#c0c0c0" cellspacing="0" border="1" cellpadding="2" bordercolor="#ff0000">
 					<tr>
 						<td style="<?php echo $error_title; ?>">
@@ -821,34 +820,6 @@ function strip_url($url, $strip_protocol=FALSE)
 	return (($strip_protocol) ? '' : $matches[1]).preg_replace(Array('|/+$|', '|//+|'), Array('', '/'), $matches[2]);
 
 }//end strip_url()
-
-
-/**
-* Split url by slashes to form a list of lineages
-* site.com/a/b => ('site.com', 'site.com/a', 'site.com/a/b)
-*
-* @param string		$url		the url to split (without protocol)
-* @param boolean	$db_quote	escape strings for db queries
-*
-* @return array
-* @access public
-*/
-function get_url_lineage($url, $db_quote = TRUE)
-{
-	$urls = Array();
-	$pos = strpos($url, "/");
-	while ($pos) {
-		if ($db_quote){
-			$urls[] = MatrixDAL::quote(substr($url, 0, $pos));
-		} else {
-	    	$urls[] = substr($url, 0, $pos);
-		}
-	    $pos = strpos($url, "/", $pos + 1);
-	}
-	
-	return $urls;
-	
-}//end get_url_lineage()
 
 
 /**
