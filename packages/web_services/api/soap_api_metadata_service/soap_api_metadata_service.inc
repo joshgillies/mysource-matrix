@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_metadata_service.inc,v 1.8 2012/01/29 22:43:04 ewang Exp $
+* $Id: soap_api_metadata_service.inc,v 1.9 2012/07/24 07:10:49 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -62,6 +62,7 @@ class Soap_Api_Metadata_Service extends Soap_Api
 				'RegenerateMetadataAsset'		=> '1',
 				'GetMetadataValueByIDs'			=> '1',
 				'SetAssetMetadata'				=> '1',
+				'SetMultipleMetadataFields'		=> '1',
 				'SetMetadataFieldDefaultValue'	=> '1',
 				'GetSchemasOnAsset'				=> '1',
 			   );
@@ -268,6 +269,70 @@ class Soap_Api_Metadata_Service extends Soap_Api
 		}//end else
 
 	}//end SetAssetMetadata()
+
+
+	/**
+	* Description: This operation will set the value for a metadata fields of an asset
+	*
+	* @param array $request	The request information
+	* <pre>
+	* Array (
+	*		 'AssetID'		=> [The asset to regenerate metadata for],
+	*		 'MetadataInfo'	=> [metadata field id/value pairs],
+	*        )
+	* </pre>
+	*
+	* @return void
+	* @access public
+	*/
+	function SetMultipleMetadataFields($request)
+	{
+		$request_info	= (Array) $request;
+		$assetid		= array_get_index($request_info, 'AssetID', '');
+		$metadata_info	= array_get_index($request_info, 'MetadataInfo', Array());
+
+		if (!empty($assetid) && !empty($metadata_info)) {
+			$metadata_values = Array();
+			$mm	= $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+			foreach ($metadata_info as $metadata) {
+				$metadata = (Array) $metadata;
+
+				$field	= $GLOBALS['SQ_SYSTEM']->am->getAsset($metadata['FieldID']);
+
+				if (!($field instanceof Metadata_Field)) {
+					throw new SoapFault('Server', 'Field ID provided, '.$metadata['FieldID'].', does not belong to a metadata field');
+				}//end if
+
+
+				$field_name		= $field->attr('name');
+
+				// Encode value before setting metadata
+				$new_value = Metadata_Field::encodeValueString($metadata['FieldValue'], Array());
+
+				$metadata_values[$field->id] = Array (
+													Array (
+														'name'	=> $field_name,
+														'value'	=> $new_value,
+													),
+											   );
+			}//end foreach
+
+			$GLOBALS['SQ_SYSTEM']->am->acquireLock($assetid, 'metadata');
+			$result	= $mm->setMetadata($assetid, $metadata_values);
+			$GLOBALS['SQ_SYSTEM']->am->releaseLock($assetid, 'metadata');
+
+			if ($result) {
+				return Array (
+						'SetMultipleMetadataFieldsResult'	=> $result,
+					   );
+			} else {
+				throw new SoapFault('Server', 'Unable To Set Metadata For Asset');
+			}//end else
+		} else {
+			throw new SoapFault('Server', 'Please provide both AssetID and Metadata Field id/value info.');
+		}//end else
+
+	}//end SetMultipleMetadataFields()
 
 
 	/**
@@ -493,6 +558,7 @@ class Soap_Api_Metadata_Service extends Soap_Api
 		$schema_info					= self::getArgType('SchemaSetInfo', 0, 'unbounded', TRUE);
 		$field_values					= self::getArgType('FieldInfo', 0, 'unbounded', TRUE);
 		$grant_type						= self::getArgType('Grant', 1, 1);
+		$metadata_info					= self::getArgType('MetadataInfo', 0, 'unbounded', TRUE);
 
 		$complex_types	= Array (
 							'SetMetadataSchema'					=> Array (
@@ -530,6 +596,15 @@ class Soap_Api_Metadata_Service extends Soap_Api
 																											   ),
 																	'SetAssetMetadataResponse'				=> Array (
 																												'SetAssetMetadataResult'				=> self::$boolean_optional,
+																											   ),
+																   ),
+							'SetMultipleMetadataFields'			=> Array(
+																	'SetMultipleMetadataFields'				=> Array (
+																												'AssetID'								=> self::$string_non_optional,
+																												'MetadataInfo'							=> $metadata_info,
+																											   ),
+																	'SetMultipleMetadataFieldsResponse'		=> Array (
+																												'SetMultipleMetadataFieldsResult'		=> self::$boolean_optional,
 																											   ),
 																   ),
 							'SetMetadataFieldDefaultValue'		=> Array(
@@ -621,15 +696,21 @@ class Soap_Api_Metadata_Service extends Soap_Api
 	{
 		$complex_types    = Array (
 							'GetMetadataFieldValues'    => Array (
-															'FieldInfo'				=> Array (
+															'FieldInfo'					=> Array (
 																							'FieldName'			=> self::$string_non_optional,
 																							'FieldValue'		=> self::$string_non_optional,
 																						   ),
 														   ),
-							'GetSchemasOnAsset'    => Array (
+							'GetSchemasOnAsset'			=> Array (
 															'SchemaSetInfo'				=> Array (
 																							'SchemaID'			=> self::$string_non_optional,
-																							'Grant'			=> self::$int_non_optional,
+																							'Grant'				=> self::$int_non_optional,
+																						   ),
+														   ),
+							'SetMultipleMetadataFields'	=> Array (
+															'MetadataInfo'				=> Array (
+																							'FieldID'			=> self::$string_non_optional,
+																							'FieldValue'		=> self::$string_non_optional,
 																						   ),
 														   ),
 						  );

@@ -105,6 +105,42 @@ function SetAssetMetadata(assetid, field_id, new_value)
 
 
 /**
+* Description: This operation will set the value for a metadata fieldis of an asset
+*
+* @param array $request	The request information
+* <pre>
+* Array (
+*		 'AssetID'		=> [The asset to regenerate metadata for],
+*		 'MetadataInfo' => [metadata field id/value pairs],
+*        )
+* </pre>
+*
+* @return void
+* @access public
+*/
+function SetMultipleMetadataFields(assetid, metadata_info)
+{
+	var soapBody	= "\
+<ns1:SetMultipleMetadataFields>\
+<AssetID>"+assetid+"</AssetID>";
+
+	var meta_str = "";
+	for (var i in metadata_info) {
+		meta_str += "\
+<MetadataInfo>\
+<FieldID>"+metadata_info[i][0]+"</FieldID>\
+<FieldValue>"+metadata_info[i][1]+"</FieldValue>\
+</MetadataInfo>";
+	}
+
+	soapBody += meta_str +"\
+</ns1:SetMultipleMetadataFields>";
+
+	return soapBody;
+}//end SetAssetMetadata
+
+
+/**
 * Description: This operation will set the default value for a metadata field
 *
 * @param array $request	The request information
