@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.267 2012/03/19 02:09:51 mhaidar Exp $
+* $Id: general.inc,v 1.268 2012/07/24 01:20:32 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.267 $
+* @version $Revision: 1.268 $
 * @package MySource_Matrix
 */
 
@@ -179,9 +179,8 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 
 			$error_title = 'background-color: '.$bg_colour.'; font-size: 14px; font-weight: bold; color: #ffffff; font-family: verdana, arial, sans-serif; vertical-align: top;';
 			$error_data  = 'background-color: '.$bg_colour.'; font-size: 12px; color: #ffffff; font-family: verdana, arial, sans-serif; vertical-align: top;';
-
-			?>
-				</script></table></table></table></table><br/>
+			if(empty($buffers)) echo '</script></table></table></table></table><br/>';
+			?>	
 				<table bgcolor="#c0c0c0" cellspacing="0" border="1" cellpadding="2" bordercolor="#ff0000">
 					<tr>
 						<td style="<?php echo $error_title; ?>">
