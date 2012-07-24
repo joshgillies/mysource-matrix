@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.84 2011/11/28 05:12:29 ewang Exp $
+* $Id: step_03.php,v 1.84.4.1 2012/07/24 00:46:23 akarelia Exp $
 *
 */
 
@@ -35,7 +35,7 @@
 * would update all the asset types for core and cms only
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.84 $
+* @version $Revision: 1.84.4.1 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -106,6 +106,21 @@ if (!defined('SQ_SYSTEM_ROOT')) {
 }
 
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
+
+// check to see if the default/ tech email in main.inc are provided and are correct
+// for more info see bug report 5804 Default and Tech Emails shouldnt break install
+require_once SQ_FUDGE_PATH.'/general/www.inc';
+
+$SQ_CONF_DEFAULT_EMAIL = SQ_CONF_DEFAULT_EMAIL;
+if (!empty($SQ_CONF_DEFAULT_EMAIL) && !valid_email($SQ_CONF_DEFAULT_EMAIL)) {
+	echo "Value '$SQ_CONF_DEFAULT_EMAIL' configued for 'SQ_CONF_DEFAULT_EMAIL' in main.inc is not valid.\nPlease fix it and try running the script again.\n";
+	exit(1);
+}
+$SQ_CONF_TECH_EMAIL = SQ_CONF_TECH_EMAIL;
+if (!empty($SQ_CONF_TECH_EMAIL) && !valid_email($SQ_CONF_TECH_EMAIL)) {
+	echo "Value '$SQ_CONF_TECH_EMAIL' configured for 'SQ_CONF_TECH_EMAIL' in main.inc is not valid.\nPlease fix it and try running the script again.\n";
+	exit(1);
+}
 
 // Clean up any remembered data.
 require_once $SYSTEM_ROOT.'/core/include/deja_vu.inc';
