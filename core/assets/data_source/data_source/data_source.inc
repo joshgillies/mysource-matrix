@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source.inc,v 1.33 2012/07/25 05:05:30 cupreti Exp $
+* $Id: data_source.inc,v 1.34 2012/07/25 06:43:05 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -803,7 +803,7 @@ class Data_Source extends Asset implements Bridge
 				$field_value = $filter['value'];
 				$match_type = $filter['match_type'];
 				$match_case = $filter['match_case'];
-				if (!isset($recordset[$field_name]) || empty($field_value)) {
+				if (!isset($recordset[$field_name])) {
 					continue;
 				}
 				
@@ -830,6 +830,11 @@ class Data_Source extends Asset implements Bridge
 						$condition_matched = preg_match('/'.str_replace('/', '\/',$field_value).'/'.($match_case == 'ignore_case' ? 'i' : ''), $record_value);
 					break;
 				}//end switch
+				
+				// Allow empty string comparision
+				if (!$condition_matched && empty($record_value) && empty($field_value)) {
+					$condition_matched = TRUE;
+				}
 
 				if ($grouping_logic == 'OR' && $condition_matched) {
 					break;
