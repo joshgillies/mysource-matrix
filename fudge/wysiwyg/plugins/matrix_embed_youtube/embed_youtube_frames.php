@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: embed_youtube_frames.php,v 1.1 2008/10/31 03:46:51 bpearson Exp $
+* $Id: embed_youtube_frames.php,v 1.2 2012/07/25 08:33:23 ewang Exp $
 *
 */
 ?>
@@ -23,6 +23,6 @@
 </head>
 <frameset rows="30,*" frameborder="0" border="0">
 	<frame src="embed_youtube_title.php" name="sq_wysiwyg_popup_title" scrolling="no" marginwidth="0" marginheight="0" noresize="noresize" />
-	<frame src="embed_youtube.php?<?php echo $_SERVER['QUERY_STRING'] ?>" name="sq_wysiwyg_popup_main" scrolling="no" marginwidth="0" marginheight="0" noresize="noresize" />
+	<frame src="embed_youtube.php?<?php echo htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES); ?>" name="sq_wysiwyg_popup_main" scrolling="no" marginwidth="0" marginheight="0" noresize="noresize" />
 </frameset>
 </html>
