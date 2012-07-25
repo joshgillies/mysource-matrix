@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.146 2012/05/31 07:31:46 ewang Exp $
+* $Id: system_config.inc,v 1.147 2012/07/25 06:18:29 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.146 $
+* @version $Revision: 1.147 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -206,7 +206,9 @@ class System_Config extends Config
 						$vars[$var_name] = max(60, (int) $vars[$var_name]);
 					}
 				}
-
+				if (isset($vars['SQ_LICENCE_WARRANTY_KEY'])) {
+					$vars['SQ_LICENCE_WARRANTY_KEY'] = trim($vars['SQ_LICENCE_WARRANTY_KEY']);
+				}
 			}//end if validating values
 
 		}//end if SQ_SYSTEM is set
