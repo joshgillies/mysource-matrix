@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_ldap.inc,v 1.10 2012/04/30 00:21:32 cupreti Exp $
+* $Id: data_source_ldap.inc,v 1.11 2012/07/25 05:12:07 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 * 	search filter query string and populate the LDAP entries as shadow assets
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -325,30 +325,6 @@ class Data_Source_Ldap extends Data_Source
 	}//end getSearchFilterString()
 	
 
-	/**
-	* Get a value of a dynamic variable
-	*
-	* @param string	$variable_name	Name of variable
-	*
-	* @return string
-	* @access public
-	*/
-	function getDynamicVariableValue($variable_name)
-	{
-		$dynamic_vars = $this->attr('dynamic_vars');
-		if (!isset($dynamic_vars[$variable_name])) return '';
-		$parameter_map = $this->getAttribute('parameter_map');
-		$value = $parameter_map->getParameterValue($variable_name);
-
-		if (empty($value)) {
-			return array_get_index($dynamic_vars, $variable_name, '');
-		}
-
-		return urlencode($value);
-
-	}//end getDynamicVariableValue()
-	
-	
 	/**
 	* Returns an array of all the permitted links type, the type asset and the cardinality
 	* In the form

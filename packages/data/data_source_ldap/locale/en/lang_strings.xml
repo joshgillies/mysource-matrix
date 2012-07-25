@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.3 2011/04/12 03:07:27 cupreti Exp $
+* $Id: lang_strings.xml,v 1.4 2012/07/25 05:12:07 cupreti Exp $
 *
 *
 * DB XML Localised Strings File
@@ -20,16 +20,10 @@
 <strings>
 <string source="tag">Tag</string>
 <string source="attributes">Attributes</string>
-
-<string source="ldap_data_source_variable_section_note"><![CDATA[Variables added in this section can be used in LDAP Search Filter query string in the form <strong>%%%%VARIABLENAME%%%%</strong>. Spaces in variable names are not allowed. Variables are case sensitive, i.e. "name" is not the same as "NAME". Any variable added to this form becomes available in the "Data Mappings" section below. Default value is used if a data mapping has not been setup or produces no result. Variable names can only contain letters (A-Z,a-z), digits (0-9), underscore (_), dash (-) and dot (.)]]></string>
-<string source="ldap_data_source_mappings_section_note">Use this section to setup dynamic assignment of values to variables.</string>
 <string source="ldap_connected">Connected</string>
 <string source="ldap_unable_to_connect">Unable to connect</string>
 <string source="option_ldap_opt_protocol_version">Use Protocol Version 3</string>
 <string source="option_ldap_opt_referrals">Disallow Referrals</string>
 <string source="ldap_not_available_line_1">The LDAP extension has not been enabled on this PHP installation.</string>
 <string source="ldap_not_available_line_2">LDAP support needs to be compiled into/enabled in PHP, before the LDAP Bridge can work. For further information, please contact your system administrator.</string>
-
-
-
 </strings>

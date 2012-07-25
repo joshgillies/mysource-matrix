@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_xml_management.inc,v 1.6 2010/10/22 05:56:22 cupreti Exp $
+* $Id: data_source_xml_management.inc,v 1.7 2012/07/25 05:14:31 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -70,19 +70,6 @@ class Data_Source_Xml_Management extends Asset_Management
 												'default'		=> '',
 												'description'	=> 'Serialized array of tags and their selected attributes',
 											   ),
-						'dynamic_vars'		=> Array(
-												'added'			=> '0.3',
-												'type'			=> 'serialise',
-												'default'		=> Array(),
-												),
-						'parameter_map'		=> Array(
-												'added'			=> '0.3',
-												'type'			=> 'parameter_map',
-												'default'		=> Array(),
-												'parameters'	=> Array(
-																'parameters'	=> Array(),
-															),
-												),
 						'cdata_tags'				=> Array (
 												'added'			=> '0.3',
 												'type'			=> 'text',
