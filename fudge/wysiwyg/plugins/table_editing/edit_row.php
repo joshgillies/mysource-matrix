@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_row.php,v 1.10 2011/02/15 06:14:53 cupreti Exp $
+* $Id: edit_row.php,v 1.11 2012/07/25 08:35:28 ewang Exp $
 *
 */
 
@@ -18,15 +18,17 @@
 * Row Edit Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 */
 
 require_once dirname(__FILE__).'/../../wysiwyg_plugin.inc';
 $wysiwyg = null;
 $plugin = new wysiwyg_plugin($wysiwyg);
+$_GET['f_bgcolor'] = preg_replace('/[^a-zA-Z_0-9 ]+/', '', $_GET['f_bgcolor']);
+$_GET['f_color'] = preg_replace('/[^a-zA-Z_0-9 ]+/', '', $_GET['f_color']);
+$_GET['f_borderColor'] = preg_replace('/[^a-zA-Z_0-9 ]+/', '', $_GET['f_borderColor']);
 ?>
-
 <html style="width:380px; height:270px;">
 
 	<head>
