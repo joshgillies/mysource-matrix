@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.61.2.2 2012/05/03 08:06:10 cupreti Exp $
+* $Id: text.inc,v 1.61.2.3 2012/07/26 00:55:11 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.61.2.2 $
+* @version $Revision: 1.61.2.3 $
 * @package Fudge
 * @subpackage Text
 */
@@ -187,15 +187,17 @@ function apply_keyword_modifier($text, $modifier)
 
 	case "maxwords":
 		// One argument; the max words as an integer.
-		$max = array_get_index($modifier['args'], 0, 0);
-		if (is_numeric($max)) {
-			$words = str_word_count($text, 2);
-			$keys = array_keys($words);
+		$max = array_get_index($modifier['args'], 0, NULL);
 
-			if ($max >= count($keys)) {
+		if (is_numeric($max)) {
+			$text  = str_replace('&nbsp;', ' ', trim($text));
+			$words = preg_split("/[\s,]+/", $text);
+
+			if ($max >= count($words)) {
 				return $text;
 			} else {
-				return substr($text, 0, $keys[$max]);
+				$words = array_splice($words, 0, $max);
+				return implode(' ', $words);
 			}
 		} else {
 			return $text;
