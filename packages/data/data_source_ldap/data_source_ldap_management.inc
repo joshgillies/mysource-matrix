@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_ldap_management.inc,v 1.3 2012/04/27 04:14:23 cupreti Exp $
+* $Id: data_source_ldap_management.inc,v 1.3.2.1 2012/07/26 03:39:30 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -103,19 +103,6 @@ class Data_Source_Ldap_Management extends Asset_Management
 												'type'			=> 'text',
 												'default'		=> '',
 											   ),											   
-						'dynamic_vars'		=> Array(
-												'added'			=> '0.1',
-												'type'			=> 'serialise',
-												'default'		=> Array(),
-												),
-						'parameter_map'		=> Array(
-												'added'			=> '0.1',
-												'type'			=> 'parameter_map',
-												'default'		=> Array(),
-												'parameters'	=> Array(
-																'parameters'	=> Array(),
-															),
-												),
 						'attributes'		=> Array(
 												'added'			=> '0.1',
 												'type'			=> 'text',

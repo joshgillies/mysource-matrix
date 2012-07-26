@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source.inc,v 1.32 2012/04/27 05:16:56 cupreti Exp $
+* $Id: data_source.inc,v 1.32.2.1 2012/07/26 03:37:29 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.32.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -191,6 +191,10 @@ class Data_Source extends Asset implements Bridge
 	*/
 	public function cacheResultSet(Array $result, $cache_key='')
 	{
+		if (!empty($cache_key)) {
+			$this->setAttrValue('cache_key', $cache_key);
+		}
+
 		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		$r = $cm->saveToCache($this->id, $this->type(), $cache_key, serialize($result), FALSE);
 
@@ -562,7 +566,7 @@ class Data_Source extends Asset implements Bridge
 
 		if ($side_of_link == 'major') {
 			if ($assetid == $this->id) {
-				$result = $this->getResultSet();
+				$result = $this->filterResultSet($this->getResultSet());
 				if (empty($result)) {
 					return Array();
 				} else {
@@ -655,7 +659,7 @@ class Data_Source extends Asset implements Bridge
 		$shadowid = array_pop($shadowid);
 		$asset = NULL;
 		if (is_null($shadowid)) return $asset;
-		$result = $this->getResultSet();
+		$result = $this->filterResultSet($this->getResultSet());
 
 		if (!empty($result)) {
 			if (isset($result[$shadowid])) {
@@ -757,8 +761,167 @@ class Data_Source extends Asset implements Bridge
 		return Array();
 
 	}//end getLineageFromURL()
+	
+	
+	/**
+	* Filter the record set based on the filter settings
+	*
+	* @param array	$result		Datasoruce's record sets
+	*
+	* @return array
+	* @access public
+	*/
+	function filterResultSet($result)
+	{
+		if (!$this->attr('filter_enabled')) {
+			return $result;
+		}
+		$filters = $this->getDatasourceFilters();
+		if (empty($filters)) {
+			return $result;
+		}
+		
+		$grouping_logic = $this->attr('filter_logic');
+		$filter_mode = $this->attr('filter_mode');
+		
+		// Check the cache
+		$hash = md5($this->attr('cache_key').$grouping_logic.$filter_mode.serialize($filters));
+		if (isset($this->tmp[$hash])) {
+			return $this->tmp[$hash];
+		}
+		$cached_result = $this->getCachedResultSet($hash);
+		if ($cached_result !== FALSE) {
+			$this->tmp[$hash] = $cached_result;
+			return $cached_result;
+		}
+
+		$filtered_result = Array();
+		foreach($result as $index => $recordset) {
+			$condition_matched = TRUE;
+			foreach($filters as $filter) {
+				$field_name = $filter['name'];
+				$field_value = $filter['value'];
+				$match_type = $filter['match_type'];
+				$match_case = $filter['match_case'];
+				if (!isset($recordset[$field_name])) {
+					continue;
+				}
+				
+				$record_value = trim($recordset[$field_name]);
+				$condition_matched = FALSE;
+				switch($match_type) {
+					case 'contains':
+						if ($match_case == 'ignore_case') {
+							$condition_matched = stripos($record_value, $field_value) !== FALSE;
+						} else {
+							$condition_matched = strpos($record_value, $field_value) !== FALSE;
+						}
+					break;
+
+					case 'exact':
+						if ($match_case == 'ignore_case') {
+							$condition_matched = strtolower($record_value) == strtolower($field_value);
+						} else {
+							$condition_matched = $record_value == $field_value;
+						}
+					break;
+
+					case 'regex':
+						$condition_matched = preg_match('/'.str_replace('/', '\/',$field_value).'/'.($match_case == 'ignore_case' ? 'i' : ''), $record_value);
+					break;
+				}//end switch
+				
+				// Allow empty string comparision
+				if (!$condition_matched && empty($record_value) && empty($field_value)) {
+					$condition_matched = TRUE;
+				}
+
+				if ($grouping_logic == 'OR' && $condition_matched) {
+					break;
+				} else if ($grouping_logic == 'AND' && !$condition_matched) {
+					break;
+				}
+
+			}//end foreach
+
+			if ($condition_matched && $filter_mode == 'include') {
+				$filtered_result[] = $recordset;
+			} else if (!$condition_matched && $filter_mode == 'exclude') {
+				$filtered_result[] = $recordset;
+			}
+			
+		}//end foreach
+
+		// Cache the result
+		$this->cacheResultSet($filtered_result, $hash);
+		$this->tmp[$hash] = $filtered_result;
+
+		return $filtered_result;
+
+	}//end filterRecordSet()
+
 
 	
+	/**
+	* Get the Filters data for this datasoruce asset
+	*
+	* @return array
+	* @access public
+	*/
+	function getDatasourceFilters()
+	{
+		$filters = $this->attr('record_filters');
+		if (empty($filters)) {
+			return Array();
+		}
+		
+		// Keyword pattern for the dynamic keyword 
+		$keyword_pattern = '('.'%%'.'([a-zA-Z_\-0-9\.]+)'.'%%'.')';
+
+		foreach($filters as $index => $filter)  {
+			if (empty($filter['name'])) {
+				continue;
+			}
+			// Replace the dynamic keyword in the filter's value
+			$filter_val = $filter['value'];
+			preg_match_all ('/'.$keyword_pattern.'/', $filter_val, $matches, PREG_PATTERN_ORDER);
+
+			foreach($matches[2] as $keyword) {
+				$value = $this->getDynamicVariableValue($keyword);
+				$filter_val = str_replace('%%'.$keyword.'%%', $value, $filter_val);
+			}//end foreach
+			$filters[$index]['value'] = $filter_val;
+		}//end foreach
+
+		return $filters;
+
+	}//end getDatasourceFilters()
+	
+	
+	/**
+	* Get a value of a dynamic variable
+	*
+	* @param string	$variable_name	Name of variable
+	*
+	* @return string
+	* @access public
+	*/
+	function getDynamicVariableValue($variable_name)
+	{
+		$dynamic_vars = $this->attr('dynamic_vars');
+		if (!isset($dynamic_vars[$variable_name])) return '';
+
+		$parameter_map = $this->getAttribute('parameter_map');
+		$value = $parameter_map->getParameterValue($variable_name);
+
+		if (empty($value)) {
+			$value = array_get_index($dynamic_vars, $variable_name, '');
+		}
+
+		return $value;
+
+	}//end getDynamicVariableValue()
+
 	/**
 	* Delete Asset
 	*

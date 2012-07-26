@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.8 2010/05/05 07:11:14 ewang Exp $
+* $Id: lang_strings.xml,v 1.8.14.1 2012/07/26 03:41:01 cupreti Exp $
 *
 *
 * DB DataSource Localised Strings File
@@ -66,8 +66,5 @@
 <string source="alias"> Alias</string>
 
 <string source="data_password_not_displayed">(Password not displayed)</string>
-
-<string source="db_data_source_variable_section_note"><![CDATA[Variables added in this section can be used in queries in the form <strong>%%%%VARIABLENAME%%%%</strong>. Spaces in variable names are not allowed. Variables are case sensitive, i.e. "name" is not the same as "NAME". Any variable added to this form becomes available in the "Data Mappings" section below. Default value is used if a data mapping has not been setup or produces no result. Variable names can only contain letters (A-Z,a-z), digits (0-9), underscore (_), dash (-) and dot (.)]]></string>
-<string source="db_data_source_mappings_section_note">Use this section to setup dynamic assignment of values to variables.</string>
 
 </strings>

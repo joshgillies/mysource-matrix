@@ -10,11 +10,13 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.2 2010/05/05 07:11:14 ewang Exp $
+* $Id: edit_interface_screens.xml,v 1.2.14.1 2012/07/26 03:41:40 cupreti Exp $
 *
 */
 -->
 
 <screens>
+	<screen code_name="filters"	display_name="Record Filter"	lock_type="attributes" force_unlock="0" />		
+	<screen code_name="inputs"	display_name="Dynamic Inputs"	lock_type="attributes" force_unlock="0" />
 	<screen code_name="paths"	display_name="Web Paths"		lock_type="lookups"  icon="web" />
 </screens>

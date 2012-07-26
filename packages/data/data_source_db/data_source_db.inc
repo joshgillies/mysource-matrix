@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db.inc,v 1.49 2011/11/15 05:19:22 cupreti Exp $
+* $Id: data_source_db.inc,v 1.49.4.1 2012/07/26 03:41:01 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.49.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -194,31 +194,6 @@ class Data_Source_DB extends Data_Source
 		return $sql;
 
 	}//end _getExecutableQueryString()
-
-
-	/**
-	* Get a value of a dynamic variable
-	*
-	* @param string	$variable_name	Name of variable
-	*
-	* @return string
-	* @access public
-	*/
-	function getDynamicVariableValue($variable_name)
-	{
-		$dynamic_vars = $this->attr('dynamic_vars');
-		if (!isset($dynamic_vars[$variable_name])) return '';
-
-		$parameter_map = $this->getAttribute('parameter_map');
-		$value = $parameter_map->getParameterValue($variable_name);
-
-		if (empty($value)) {
-			$value = array_get_index($dynamic_vars, $variable_name, '');
-		}
-
-		return $value;
-
-	}//end getDynamicVariableValue()
 
 
 	/**

@@ -10,16 +10,30 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_inputs.xml,v 1.1 2011/03/23 07:05:42 cupreti Exp $
+* $Id: lang_screen_filters.xml,v 1.1.2.2 2012/07/26 03:37:29 cupreti Exp $
 *
 */
 -->
 
 <contents>
-	<section name="Dynamic Variables" write_access="write:attributes">
-		<function_call>
-			<paint_function name="paintDynamicData" />
-			<process_function name="processDynamicData" />
-		</function_call>
+	<section name="Filter Options">
+		<field attribute="filter_enabled">
+			<display_name>Filter Status</display_name>
+		</field>	
+		<field attribute="filter_logic">
+			<display_name>Logical Grouping</display_name>
+		</field>
+		<field attribute="filter_mode">
+			<display_name>Filter Mode</display_name>
+		</field>
+	</section>
+	<section name="Record Filters">		
+		<field>
+			<display_name>Conditions</display_name>
+			<function_call>
+				<paint_function name="paintRecordFilter" />
+				<process_function name="processRecordFilter" />
+			</function_call>
+		</field>
 	</section>
 </contents>

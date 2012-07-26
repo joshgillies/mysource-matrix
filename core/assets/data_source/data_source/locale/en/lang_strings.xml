@@ -1,0 +1,29 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.1.2.2 2012/07/26 03:37:29 cupreti Exp $
+*
+*
+* DataSource Localised Strings File
+*/
+-->
+
+<strings>
+<string source="data_source_new_filter">Add New Condition</string>
+<string source="data_source_filter_name">Record Set Field Name</string>
+<string source="data_source_value_to_match">Value to Match</string>
+<string source="data_source_match_type">Match Type</string>
+<string source="data_source_match_case">Match Case</string>
+<string source="data_source_dynamic_keywords_node"><![CDATA[Dynamic variables added in "Dynamic Inputs" screen can be used here in the "Value to Match" field in the form <strong>%%%%VARIABLENAME%%%%.</strong>]]></string>
+<string source="data_source_variable_section_note"><![CDATA[Variables added in this section can be used in Record Filters and in other applicable fields in the form <strong>%%%%VARIABLENAME%%%%</strong>. Spaces in variable names are not allowed. Variables are case sensitive, i.e. "name" is not the same as "NAME". Any variable added to this form becomes available in the "Data Mappings" section below. Default value is used if a data mapping has not been setup or produces no result. Variable names can only contain letters (A-Z,a-z), digits (0-9), underscore (_), dash (-) and dot (.)]]></string>
+<string source="data_source_mappings_section_note">Use this section to setup dynamic assignment of values to variables.</string>
+</strings>
