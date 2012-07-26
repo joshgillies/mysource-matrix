@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.203.2.7 2012/06/03 23:30:57 ewang Exp $
+* $Id: backend.inc,v 1.203.2.8 2012/07/26 05:23:32 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.203.2.7 $
+* @version $Revision: 1.203.2.8 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -245,7 +245,7 @@ class Backend extends MySource_Object
 			// (e.g. for trigger condition 'url matches')
 			foreach ($query_vars as $key => $value) {
 				if ($key == 'SQ_ACTION') continue;
-				$main_extras .= '&'.$key.'='.$value;
+				$main_extras .= '&'.urlencode($key).'='.urlencode($value);
 			}
 		}
 

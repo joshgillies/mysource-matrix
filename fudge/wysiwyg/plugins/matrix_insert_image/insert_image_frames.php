@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image_frames.php,v 1.2 2010/05/31 00:24:52 kmyothein Exp $
+* $Id: insert_image_frames.php,v 1.2.10.1 2012/07/26 05:23:39 ewang Exp $
 *
 */
 ?>
@@ -26,6 +26,6 @@
 		<frame src="insert_image_title.php" name="sq_wysiwyg_popup_title" scrolling="no" marginwidth="0" marginheight="0" noresize="noresize" />
 		<frame src="insert_image_search.php" name="sq_wysiwyg_popup_search" scrolling="no" marginwidth="0" marginheight="0" noresize="noresize" />
 	</frameset>
-	<frame src="insert_image.php?<?php echo $_SERVER['QUERY_STRING'] ?>" name="sq_wysiwyg_popup_main" scrolling="no" marginwidth="0" marginheight="0" noresize="noresize" />
+	<frame src="insert_image.php?<?php echo htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES);?>" name="sq_wysiwyg_popup_main" scrolling="no" marginwidth="0" marginheight="0" noresize="noresize" />
 </frameset>
 </html>
