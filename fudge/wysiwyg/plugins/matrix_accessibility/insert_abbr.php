@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_abbr.php,v 1.10 2012/07/25 08:30:55 ewang Exp $
+* $Id: insert_abbr.php,v 1.11 2012/07/26 04:47:42 ewang Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Insert Abbreviation Popup for the WYSIWYG
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 */
 
@@ -87,11 +87,11 @@ if (!isset($_GET['title']))		  $_GET['title'] = "";
 			function buildForm() {
 				document.write('<tr>');
 				document.write('<td class="label"><?php echo translate('abbreviation'); ?>:</td>');
-				document.write('<td colspan="3"><?php text_box('abbr', htmlspecialchars(trim($_GET['abbr']), ENT_QUOTES), 40, 0);?></td>');
+				document.write('<td colspan="3"><?php text_box('abbr', preg_replace('/[\']+/', '' , trim($_GET['abbr'])), 40, 0);?></td>');
 				document.write('</tr>');
 				document.write('<tr>');
 				document.write('    <td class="label"><?php echo translate('definition'); ?>:</td>');
-				document.write('    <td colspan="3"><?php text_box('title', htmlspecialchars(trim($_GET['title']), ENT_QUOTES), 40, 0);?></td>');
+				document.write('    <td colspan="3"><?php text_box('title', preg_replace('/[\']+/', '' , trim($_GET['abbr'])), 40, 0);?></td>');
 				document.write('</tr>');
 			};
 
