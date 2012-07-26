@@ -11,7 +11,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search.inc,v 1.27 2011/07/04 00:16:02 mhaidar Exp $
+* $Id: trim_saved_search.inc,v 1.28 2012/07/26 08:12:56 ewang Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -122,6 +122,7 @@ class TRIM_Saved_Search extends Data_Source
 				$object_list	= '';
 				if (!empty($connection['wsdl'])) {
 					$object_list	= $this->getTRIMRecords($connection);
+					
 					// Only download files if we are asked to
 					if ($this->attr('download_files')) {
 						foreach ($object_list as &$record_info) {
@@ -335,7 +336,14 @@ class TRIM_Saved_Search extends Data_Source
 		$dir_path	= $this->data_path.'/'.$uri;
 		$path_parts	= Array();
 		if (file_exists($dir_path)) {
-			$dir	= new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir_path));
+			if(defined("RecursiveDirectoryIterator::SKIP_DOTS"))
+			{
+			    $dir	= new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir_path, RecursiveDirectoryIterator::SKIP_DOTS));
+			}
+			else {
+			    $dir	= new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir_path));
+			}
+			
 			if (empty($dir)) return FALSE;
 			$pre_mtime = 0;
 			foreach ($dir as $file) {
@@ -406,6 +414,7 @@ class TRIM_Saved_Search extends Data_Source
 		$classifications = Array();
 		if(!empty($classification_title)) {
 			$classification_uris = TRIM_Common::getURIsFromClassification($connection, trim($classification_title));
+	
 			foreach ($classification_uris as $classification) {
 				// filter out inrelevent classifications
 				if($classification_include_sub) {
