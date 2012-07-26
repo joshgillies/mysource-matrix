@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.308.2.2 2012/07/18 08:07:45 ewang Exp $
+* $Id: asset_map.inc,v 1.308.2.3 2012/07/26 05:21:04 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.308.2.2 $
+* @version $Revision: 1.308.2.3 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -572,6 +572,8 @@ class Asset_Map
 	*/
 	function process(&$backend)
 	{
+		ini_set("display_errors", 0);
+		
 		// block public users from probing
 		$user = isset($GLOBALS['SQ_SYSTEM']->user) ? $GLOBALS['SQ_SYSTEM']->user : NULL;
 		if (is_null($user) || $user instanceof Public_User || (method_exists($user, 'canAccessBackend') && !($user instanceof Simple_Edit_User || $user->canAccessBackend() || (method_exists($user, 'isShadowSimpleEditUser') && $user->isShadowSimpleEditUser())))) {

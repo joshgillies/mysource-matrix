@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: embed_movie_frames.php,v 1.1 2006/12/27 21:52:17 lwright Exp $
+* $Id: embed_movie_frames.php,v 1.1.28.1 2012/07/26 05:21:13 ewang Exp $
 *
 */
 ?>
@@ -26,6 +26,6 @@
 		<frame src="embed_movie_title.php" name="sq_wysiwyg_popup_title" scrolling="no" marginwidth="0" marginheight="0" noresize="noresize" />
 		<frame src="embed_movie_search.php" name="sq_wysiwyg_popup_search" scrolling="no" marginwidth="0" marginheight="0" noresize="noresize" />
 	</frameset>
-	<frame src="embed_movie.php?<?php echo $_SERVER['QUERY_STRING'] ?>" name="sq_wysiwyg_popup_main" scrolling="no" marginwidth="0" marginheight="0" noresize="noresize" />
+	<frame src="embed_movie.php?<?php echo htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES); ?>" name="sq_wysiwyg_popup_main" scrolling="no" marginwidth="0" marginheight="0" noresize="noresize" />
 </frameset>
 </html>
