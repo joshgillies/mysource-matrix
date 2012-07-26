@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-*$Id: performance_manager.inc,v 1.4 2011/08/29 02:04:16 ewang Exp $
+*$Id: performance_manager.inc,v 1.5 2012/07/26 01:35:15 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *     
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 class Performance_Manager extends MySource_Object
@@ -249,7 +249,7 @@ class Performance_Manager extends MySource_Object
 		foreach($_GET as $name => $value) {
 			if(!empty($param_string))
 			    $param_string .= '&';
-			$param_string .= $name.'='.$value;
+			$param_string .= urlencode($name).'='.urlencode($value);
 		}
 		if(!empty($param_string)) {
 		    $param_string = '?'.$param_string;
