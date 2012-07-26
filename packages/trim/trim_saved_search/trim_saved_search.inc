@@ -11,7 +11,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search.inc,v 1.27 2011/07/04 00:16:02 mhaidar Exp $
+* $Id: trim_saved_search.inc,v 1.27.6.1 2012/07/26 08:15:57 ewang Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.27.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -335,7 +335,13 @@ class TRIM_Saved_Search extends Data_Source
 		$dir_path	= $this->data_path.'/'.$uri;
 		$path_parts	= Array();
 		if (file_exists($dir_path)) {
-			$dir	= new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir_path));
+			if(defined("RecursiveDirectoryIterator::SKIP_DOTS"))
+			{
+			    $dir	= new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir_path, RecursiveDirectoryIterator::SKIP_DOTS));
+			}
+			else {
+			    $dir	= new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir_path));
+			}
 			if (empty($dir)) return FALSE;
 			$pre_mtime = 0;
 			foreach ($dir as $file) {
@@ -343,6 +349,7 @@ class TRIM_Saved_Search extends Data_Source
 				if($mtime > $pre_mtime) {
 					$file_path	= $file->getPathname();
 					$path_parts	= pathinfo($file_path);
+					break;
 				}
 			}//end foreach
 		} else {
