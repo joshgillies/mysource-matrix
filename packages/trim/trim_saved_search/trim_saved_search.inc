@@ -11,7 +11,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search.inc,v 1.29 2012/07/26 08:17:25 ewang Exp $
+* $Id: trim_saved_search.inc,v 1.30 2012/07/27 00:02:19 akarelia Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -347,6 +347,7 @@ class TRIM_Saved_Search extends Data_Source
 			if (empty($dir)) return FALSE;
 			$pre_mtime = 0;
 			foreach ($dir as $file) {
+				if ($file->isDir()) continue;
 				$mtime = $file->getMTime();
 				if($mtime > $pre_mtime) {
 					$file_path	= $file->getPathname();
