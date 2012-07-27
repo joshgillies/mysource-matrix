@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_acronym.php,v 1.9 2012/07/26 04:47:42 ewang Exp $
+* $Id: insert_acronym.php,v 1.10 2012/07/27 00:08:22 ewang Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Insert Acronym Popup for the WYSIWYG
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 */
 
@@ -167,12 +167,12 @@ if (!isset($_GET['title']))		  $_GET['title'] = "";
 						<table style="width:100%">
 							<tr>
 								<td class="label">Acronym:</td>
-								<td colspan="3"><?php text_box('acronym', trim($_GET['acronym'], ENT_QUOTES), 40, 0);?>
+								<td colspan="3"><?php text_box('acronym', trim($_GET['acronym']), 40, 0);?>
 								</td>
 							</tr>
 							<tr>
 								<td class="label">Definition:</td>
-								<td colspan="3"><?php text_box('title',trim($_GET['title'], ENT_QUOTES), 40, 0);?>
+								<td colspan="3"><?php text_box('title',trim($_GET['title']), 40, 0);?>
 								</td>
 							</tr>
 						</table>
