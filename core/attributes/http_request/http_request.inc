@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: http_request.inc,v 1.15 2012/07/30 01:54:10 ewang Exp $
+* $Id: http_request.inc,v 1.16 2012/07/30 02:02:53 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 * 	<http_request />
 *
 * @author  James Hurst <jhurst@squiz.co.uk>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -515,6 +515,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		if ($this->_config['append_get_vars']) {
 			$query_vars = $collection_var = '';
 			foreach ($_GET as $query => $param) {
+				$param = str_replace(' ', '+', $param);
 				if ($query == 'collection') {
 					$collection_var .= $query.'='.$param;
 					continue;
