@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: http_request.inc,v 1.14 2012/02/14 23:45:00 akarelia Exp $
+* $Id: http_request.inc,v 1.15 2012/07/30 01:54:10 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 * 	<http_request />
 *
 * @author  James Hurst <jhurst@squiz.co.uk>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -515,17 +515,21 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		if ($this->_config['append_get_vars']) {
 			$query_vars = $collection_var = '';
 			foreach ($_GET as $query => $param) {
-				$param = str_replace(' ', '+', $param);
 				if ($query == 'collection') {
-					$collection_var .= '&'.$query.'='.$param;
+					$collection_var .= $query.'='.$param;
 					continue;
 				}
-				$query_vars .= '&'.$query.'='.$param;
+				$prefix = empty($query_vars) ? '' : '&';
+				$query_vars .= $prefix.$query.'='.$param;
+				
 			}
-			foreach ($this->_res['request']['urls'] as $index => $url) {
-				if (strpos($url, '?') === FALSE) $url .= '?';
-				if (strpos($url, 'collection=') === FALSE) $url .= $collection_var;
-				$this->_res['request']['urls'][$index] = $url.$query_vars;
+			if(!empty($query_vars) || !empty($collection_var)) {
+			    foreach ($this->_res['request']['urls'] as $index => $url) {
+				    if (strpos($url, '?') === FALSE) $url .= '?';
+				    if (strpos($url, 'collection=') === FALSE) $url .= $collection_var;
+				    $prefix = empty($collection_var) ? '' : '&';
+				    $this->_res['request']['urls'][$index] = $url.$prefix.$query_vars;
+			    }
 			}
 		}
 
@@ -700,7 +704,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 				// Attempt to load from cache. 
 				// We pin the cache entries against the REST Manager, 
 				// so that they can be shared across multiple assets.
-				$cache =& $cm->loadFromCache($rm->id, 'cache_manager', $cache_key, FALSE);
+				$cache =& $cm->loadFromCache($rm->id, 'rest_manager', $cache_key, FALSE);
 
 				if ($cache !== FALSE) {
 					// HIT!
@@ -883,7 +887,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 					// Save to cache.
 					$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 					$rm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('rest_manager');
-					$cm->saveToCache($rm->id, 'cache_manager', $cache_key, serialize($response), FALSE, $response['expiry']);
+					$cm->saveToCache($rm->id, 'rest_manager', $cache_key, serialize($response), FALSE, $response['expiry']);
 				}
 			}
 		}
