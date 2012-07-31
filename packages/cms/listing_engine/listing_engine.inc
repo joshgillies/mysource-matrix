@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.338.2.5 2012/05/07 00:39:47 mhaidar Exp $
+* $Id: listing_engine.inc,v 1.338.2.6 2012/07/31 01:09:12 akarelia Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.338.2.5 $
+* @version $Revision: 1.338.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -55,12 +55,12 @@ class Listing_Engine extends Page
 	* @var string suffix to data dir where the performance of listing should be logged
 	*/
 	var $performance_log_file_name = 'performance';
-	
+
 	/**
 	* @var int number of max assets can list without triggering a performance warning
 	*/
 	var $performance_threshold = 1000;
-	
+
 
 	function __construct($assetid=0)
 	{
@@ -660,14 +660,14 @@ class Listing_Engine extends Page
 		/*
 		 * Performance Monitor
 		 * Log performance warnings when listing engine tries to list a large number of assets
-		 * 
+		 *
 		 */
 		$total_numbers = isset($children) ? count($children) : 0;
 		if ($total_numbers >= $this->performance_threshold) {
 			$log_contents = 'Listing page #'.$this->id.' is trying to list '.$total_numbers.' assets, which exceeds the performance monitor threshold of '.$this->performance_threshold;
 			log_write($log_contents, $this->performance_log_file_name, E_USER_WARNING);
 		}
-		
+
 		$exclude_assets = $this->attr('exclude_assets');
 
 		// get children of exclude root nodes, add them to the exclude list
@@ -735,7 +735,7 @@ class Listing_Engine extends Page
 			$format_bodycopy->printBody();
 			return;
 		}
-	
+
 		if ($this->attr('group_by') == 'grouped') {
 			// Timer!
 			$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'getAssetsInfo');
@@ -746,7 +746,7 @@ class Listing_Engine extends Page
 				$this->_tmp['asset_urls']	  = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_keys($children));
 			}
 			$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'getAssetsInfo');
-		
+
 			// Timer!
 			$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'groupAssets');
 			// the list is sorted and positions set, now we can split to groups
@@ -757,7 +757,7 @@ class Listing_Engine extends Page
 
 		// Timer!
 		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'chunkAssets');
-		
+
 		// Which position in the list to start from
 		$start_pos = $this->attr('start_position') - 1;
 		if ($start_pos > 0) {
@@ -770,7 +770,7 @@ class Listing_Engine extends Page
 				}//end foreach
 			}//end else
 		}//end if start position
-		
+
 		$num_per_page = $this->_getNumPerPage();
 
 		$asset_result_page_var	 = 'result_'.$this->id.'_result_page';
@@ -881,7 +881,7 @@ class Listing_Engine extends Page
 		foreach ($replacements as $kw => $res) {
 			if ($res == '%'.$kw.'%') {
 				$plain_keyword = parse_keyword($kw, $modifiers);
-				// check to see if the keyword is actually replaced and 
+				// check to see if the keyword is actually replaced and
 				// the replacement isn't just the keyword itself
 				$keywords_is_replaced = isset($replacements[$plain_keyword]) && $replacements[$plain_keyword] != '%'.$plain_keyword.'%' && $replacements[$plain_keyword] != $plain_keyword;
 				if (!empty($modifiers) && $keywords_is_replaced) {
@@ -968,10 +968,10 @@ class Listing_Engine extends Page
 				} else {
 					$root_nodes[] = $nodes;
 				}
-			} else { 
+			} else {
 				$root_nodes = $this->getRootNodes(FALSE);
 			}
-			
+
 			//as per bug #4608, cache key needs to be unique for nested search pages with dynamic stored_query_session
 			if ($this->type() == 'search_page') {
 				$pmap = unserialize($this->attr('stored_query_session'));
@@ -981,40 +981,39 @@ class Listing_Engine extends Page
 					if (is_array($pmap_params) && !empty($pmap_params)) {
 						foreach ($pmap_params as $params) {
 							$sq_index = $pmap->getParameterValue($params);
-							if (isset($sq_index)) $stored_queries[] = $sq_index; 
+							if (isset($sq_index)) $stored_queries[] = $sq_index;
 						}
-					}	
+					}
 				}
-				
+
 				if (!empty($stored_queries)) {
 					$cache_key .= '-'.serialize($stored_queries);
 				}
 			}
-			
-			
+
 			// funnelback search page dynamic parameters
 			if ($this->type() == 'funnelback_search_page') {
 				$pmap = $this->getAttribute('dynamic_parameters');
-				if(!empty($pmap)) {	
-					$pmap_params = $pmap->getParameters();			
+				if(!empty($pmap)) {
+					$pmap_params = $pmap->getParameters();
 					foreach ($pmap_params as $params) {
 						$dynamic_query = $pmap->getParameterValue($params);
 						$cache_key .= '-'.$params.':'.$dynamic_query;
-					}				
+					}
 				}
 			}
-			
+
 			if (!empty($root_nodes)) {
 				$cache_key .= '-'.implode('-', $root_nodes);
 			}
-			
+
 			$cache_key .= $this->_getNumPerPage();
 
 			// Add context to the cache key, because all our bodycopies could be
 			// customised and we are caching the entire contents of the page
 			$cache_key .= '-ctx'.$contextid;
 		}
-		
+
 		return $cache_key;
 
 	}//end _getCacheKey()
@@ -1737,7 +1736,7 @@ class Listing_Engine extends Page
 				if (isset($todo[$other_letter])) {
 					$all_letters[$other_letter] = $other_letter_value;
 				}
-				
+
 				if ($this->attr('a_z_style') == 'single') {
 					$page_list = '';
 					$page_list_without_unused = '';
@@ -1750,11 +1749,11 @@ class Listing_Engine extends Page
 							$page_list .= ' '.$text_value.' ';
 						}
 					}
-					
+
 					$this->_tmp['result_page'] = (int)$result_page;
 					$replacements['page_list'] = $page_list;
 					$replacements['page_list_without_unused'] = $page_list_without_unused;
-					
+
 				} else {
 
 					// here we generate a list of only active letters
@@ -2211,10 +2210,21 @@ class Listing_Engine extends Page
 							$replacements[$selection_name.'_selection_id'] = $control_name;
 						}
 					}
-					
+
 					// Keywords not evaluated above might be the ones with the modifiers
+					// see bug #5808 %globals_X% keywords do not work in group format bodycopies
+					// and bug #4734 keyword modifiers not working on group_name keyword
 					foreach($format_keywords as $format_keyword) {
-						if (!isset($replacements[$format_keyword])) {
+						// if it is asset based or globals keyword don't empty string the replacement
+						// the replacement for these keywords shall be queried later on
+						if (!isset($replacements[$format_keyword]) &&
+										(strpos($format_keyword, 'globals_') !== FALSE || strpos($format_keyword, 'asset_') !== FALSE)) {
+							// if we havn't got a replacement yet
+							// dont blank out the keyword already
+							$replacements[$format_keyword] = '%'.$format_keyword.'%';
+						} else if (!isset($replacements[$format_keyword])) {
+							// blank out the replacement if we are sure it is a %group_*%
+							// keyword, as we already have replacement of it from up above
 							$replacements[$format_keyword] = '';
 						}
 					}
@@ -2222,9 +2232,11 @@ class Listing_Engine extends Page
 					// Apply the keyword modifiers
 					foreach($replacements as $kw => $value) {
 						$plain_keyword = parse_keyword($kw, $modifiers);
-						if (!empty($modifiers)) {
+						// see if there is modifier and that the keyword is not waiting to be replaced
+						// and only then try and allpy the keyword modifier to the replacement we have
+						if (!empty($modifiers) && '%'.$kw.'%' != $value) {
 							$replacements[$kw] = $replacements[$plain_keyword];
-								
+
 							// Apply modifiers
 							apply_keyword_modifiers($replacements[$kw], $modifiers);
 						}//end if
@@ -2289,7 +2301,7 @@ class Listing_Engine extends Page
 					$num_rows = max(array_keys($column_layout)) + 1;
 					$num_columns = max(array_values($column_layout));
 					$current_row = 1;
-					for (reset($assets); NULL !== ($assetid = key($assets));) {	
+					for (reset($assets); NULL !== ($assetid = key($assets));) {
 						echo '<tr>';
 						$cols_in_row = array_get_index($column_layout, $current_row, $column_layout['0']);
 						$each_colspan = (int)($num_columns / $cols_in_row);
@@ -2318,9 +2330,9 @@ class Listing_Engine extends Page
 
 					echo '</table>';
 				}
-			} 		
+			}
 			//if div is used to generate the column
-			else if ($using_columns && $column_layout_type === 'div') { 
+			else if ($using_columns && $column_layout_type === 'div') {
 				foreach ($todo as $letter => $assets) {
 					$letter_text = $letter === '@' ?  $this->attr('other_page_text') : $letter;
 					$anchor = '<a name="letter_'.$letter.'">'.$letter_text.'</a>';
@@ -2348,7 +2360,7 @@ class Listing_Engine extends Page
 						 echo "\n\n";
 					}//end for
 				}
-			
+
 			} else {
 				foreach ($todo as $letter => $assets) {
 					$letter_text = $letter === '@' ?  $this->attr('other_page_text') : $letter;
@@ -2361,7 +2373,7 @@ class Listing_Engine extends Page
 					}
 				}
 			}
-		
+
 		} else {
 			//if table style is used to generate the column
 			if ($using_columns && $column_layout_type === 'table') {
@@ -2734,10 +2746,10 @@ class Listing_Engine extends Page
 						$show_self = $this->attr('self_in_lineage');
 						$first = TRUE;
 
-						$served_by_apache = strpos($matches[2], '/__data/') !== FALSE || (SQ_CONF_STATIC_ROOT_URL && strpos($matches[2], SQ_CONF_STATIC_ROOT_URL.'/') !== FALSE);						
+						$served_by_apache = strpos($matches[2], '/__data/') !== FALSE || (SQ_CONF_STATIC_ROOT_URL && strpos($matches[2], SQ_CONF_STATIC_ROOT_URL.'/') !== FALSE);
 						if (!$show_self && !$served_by_apache) {
-							array_pop($lineage_array);							
-						}									
+							array_pop($lineage_array);
+						}
 						foreach ($lineage_array as $lineage_item) {
 							if ($first && !$show_root) {
 								$first = FALSE;
@@ -3218,7 +3230,7 @@ class Listing_Engine extends Page
 						}
 					}
 				}
-				
+
 				if (!empty($dynamic_root_nodes)) {
 					$root_asset_ids = $dynamic_root_nodes;
 					$empty_dynamic_roots = FALSE;
@@ -3416,11 +3428,11 @@ class Listing_Engine extends Page
 		foreach ($assetids as $assetid => $group_datas) {
 			$asset_groups[] = Array('assetid' => $assetid);
 		}
-		
+
 		// keep track of the last time we encountered a parent asset group
 		$last_parent_asset = FALSE;
 		$limit_array = Array();
-		
+
 		foreach ($group_levels as $group_key => $group_level) {
 			array_unshift($limit_array, array_get_index($group_level, 'max_children', NULL));
 			$new_asset_groups = Array();
@@ -4706,7 +4718,7 @@ class Listing_Engine extends Page
 	* @access public
 	*/
 	function getStructuredRootNodeKeywordReplacement()
-	{	
+	{
 		$options = $this->attr('structured_dropdown_options');
 		if (empty($options['root_node'])) return '';
 
