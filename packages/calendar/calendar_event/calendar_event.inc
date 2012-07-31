@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.105 2012/07/31 04:51:21 akarelia Exp $
+* $Id: calendar_event.inc,v 1.106 2012/07/31 04:52:48 akarelia Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.105 $
+* @version $Revision: 1.106 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -244,7 +244,6 @@ class Calendar_Event extends Asset
 				SQ_LINK_NOTICE	=> Array(
 									'image'				=> Array('card' =>   1, 'exclusive' => FALSE),
 									'design'			=> Array('card' => 'M', 'exclusive' => FALSE),
-									'paint_layout_page'	=> Array('card' => 'M', 'exclusive' => FALSE),
 								   ),
 			   );
 
