@@ -1,5 +1,95 @@
 SQUIZ MATRIX CHANGELOG
 
+VERSION 4.8.5
+
+Featured Changes
+===================================
+
+Bulk File Import Tool: Alphanumeric Sorting [ Feature Request #5764 ]
+-----------------------------------------------------
+
+The Bulk File Import Tool allows you to upload multiple files through the browser into a specified location. This can be achieved by specifying a file import directory on your server to import the files of. When importing files in this manner, the Bulk File Import Tool would previously import files into Matrix in random order. This feature introduces a new option to the Bulk File Import Tool to sort the files imported from a Server File Import.
+
+The Sort the files alphanumerically on import? option is enabled on the Details screen of the Bulk File Import Tool in the Server File Import settings.
+
+Enabling this option will sort imported files in alphanumeric order (i.e. numerals -> capital letters -> lower case letters).
+
+For example, consider the following list of files to be imported:
+
+1.txtapple.txt31apples.txtTest_1.docx001.pdf30apples.doc
+
+Selecting the Sort the files alphanumerically on import? option would sort this list of files in the following order:
+
+001.pdf
+1.txt
+30apples.doc
+31apples.txt
+Test_1.docx
+apple.txt
+
+This addition has also been carried over to the import_files.php script which is used to import files from a server. This option is specified when running this script through a new --sort argument.
+
+For example:
+
+$ php import_files.php [system_root] folders_to_import 66 1 --sort
+
+This feature has been added to provide greater control to users when importing files into Squiz Matrix.
+
+Additional Changes and Bug Fixes
+=================================== 
+
+Minor Enhancements
+
+Minor Enhancement #5766: Asset Map: Improved End of File Error Reporting.
+Minor Enhancement #5777: New Option to Set Never Delete Settings When Creating Remaps.
+Minor Enhancement #5803: Structure File Import Tool: Silent bcmod() Dependency Removed. 
+Minor Enhancement #5809: Whitespace Stripped in Warranty Key Entry Form.
+
+Core
+
+Fixed Bug #5768: Typo in help text.
+Fixed Bug #5770: Object of class Calendar_Event_Multi_Date could not be converted to string.
+Fixed Bug #5773: Not able to create an asset with name having special chars.
+Fixed Bug #5776: HIPO job unnecessarily trying to check the job's status at the Squiz Server.
+Fixed Bug #5778: Editing table cell properties in IE can cause invalid markup in WYSYWIG.
+Fixed Bug #5779: Insert Anchor WYSYWIG plugin creates invalid markup in IE.
+Fixed Bug #5780: Trigger context menu and group preferences showing source string not found.
+Fixed Bug #5781: br tags are not self closing in IE.
+Fixed Bug #5782: IE turns all the HTML markup to uppercase.
+Fixed Bug #5784: remove_asset_type and remove_assets_of_type broken in newer postgreSQL versions.
+Fixed Bug #5786: Details screen values are committed when cancelling Safe Edit.
+Fixed Bug #5789: Answering Select type form question which allows multiple selection can throw errors.
+Fixed Bug #5790: Trigger action Update Twitter Status can not update status with space and any special characters.
+Fixed Bug #5791: Trying to expand XML User Bridge in Asset Map returns error.
+Fixed Bug #5792: System updatelookups script does not run over the whole system if rootnode is not supplied.
+Fixed Bug #5793: Show If design area always prints a blank line before the content.
+Fixed Bug #5796: %asset_metadata_field_value% fails to find default value when other assets have explicit values set.
+Fixed Bug #5797: Data Record asset name does not change context.
+Fixed Bug #5807: Update Matrix license comment in the design.
+Fixed Bug #5808: %globals_X% keywords do not work in group format bodycopies.
+Fixed Bug #5810: Unnecessary closing HTML tags before displaying error message.
+Fixed Bug #5815: Maxwords keyword issue when dealing with foreign characters.
+Fixed Bug #5814: step_03.php fails if an attribute has been moved from the child types to the parent.
+Fixed Bug #5816: Wrong metadata fetched for assets in Safe Editing when using DejaVu.
+
+Bulkmail
+
+Fixed Bug #5804: Default and tech emails break install.
+
+Import Tools
+
+Fixed Bug #5760: scripts/import/create_pages.php script does not properly parse escaped quotes.
+
+TRIM
+
+Fixed Bug #5799: File attachments can not be downloaded and show as Plain Text 0B size. 
+
+Web Services
+
+Fixed Bug #5698: JSAPI's getKeywordsReplacements function parses some keyword modifier content incorrectly.
+
+
+
 
 VERSION 4.8.4
 
