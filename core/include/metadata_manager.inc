@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.233 2012/03/30 02:55:02 mhaidar Exp $
+* $Id: metadata_manager.inc,v 1.233.2.1 2012/07/31 00:36:43 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *	 Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.233 $
+* @version $Revision: 1.233.2.1 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -723,11 +723,14 @@ class Metadata_Manager extends MySource_Object
 	 */
 	function loadMetadataFile($assetid, $metadata_filename)
 	{
+		$metadata  = Array();
+		$deja_vu   = $GLOBALS['SQ_SYSTEM']->getDejaVu();
+		$is_sq_sys = (basename(dirname($metadata_filename)) == '.sq_system') ? 1 : 0;
+		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+
 		// Try Deja vu
-		$metadata = Array();
-		$deja_vu = $GLOBALS['SQ_SYSTEM']->getDejaVu();
 		if ($deja_vu) {
-			$metadata = $deja_vu->recall(SQ_DEJA_VU_METADATA, $assetid);
+			$metadata = $deja_vu->recall(SQ_DEJA_VU_METADATA, $assetid, $contextid.'|'.$is_sq_sys);
 		}
 
 		// We may have 'fields' in Deja Vu already (see getMetadataInterfaceValueByAssetid), 
@@ -744,7 +747,7 @@ class Metadata_Manager extends MySource_Object
 			
 			// Try and rememeber for next time
 			if ($deja_vu) {
-				$deja_vu->remember(SQ_DEJA_VU_METADATA, $assetid, $metadata);
+				$deja_vu->remember(SQ_DEJA_VU_METADATA, $assetid, $metadata, $contextid.'|'.$is_sq_sys);
 			}
 		}
 		return $metadata;
@@ -852,7 +855,7 @@ class Metadata_Manager extends MySource_Object
 	* @access public
 	*/
 	function setMetadata($assetid, $metadata, $contextid=NULL, $update_asset=TRUE, $broadcast_all_fields=FALSE)
-	{	
+	{
 		if ($contextid === NULL) {
 			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 		}
