@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: replace_text.inc,v 1.13 2011/12/19 02:57:41 cupreti Exp $
+* $Id: replace_text.inc,v 1.13.4.1 2012/07/31 05:41:41 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *		from other formatting functions
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.13.4.1 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -66,6 +66,10 @@ class Replace_Text extends WYSIWYG_Plugin
 					if (types[0] && editor.getSelectedHTML().length != 0) {
 						selected_html = true;
 						var curHTML = editor.getSelectedHTML();
+						// Remove the line breaks in the html content (see bug #5704)
+						if (HTMLArea.is_ie) {
+							curHTML = curHTML.replace(/\r\n/g, "");
+						}						
 					} else if (!types[0]) {
 						selected_html = false;
 						var curHTML = editor.getHTML();
