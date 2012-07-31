@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.104 2012/03/30 02:55:16 mhaidar Exp $
+* $Id: calendar_event.inc,v 1.105 2012/07/31 04:51:21 akarelia Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.104 $
+* @version $Revision: 1.105 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -242,8 +242,9 @@ class Calendar_Event extends Asset
 								   ),
 				SQ_LINK_TYPE_3	=> Array(),
 				SQ_LINK_NOTICE	=> Array(
-									'image'		=> Array('card' => 1, 'exclusive' => FALSE),
-									'design'	=> Array('card' => 'M', 'exclusive' => FALSE),
+									'image'				=> Array('card' =>   1, 'exclusive' => FALSE),
+									'design'			=> Array('card' => 'M', 'exclusive' => FALSE),
+									'paint_layout_page'	=> Array('card' => 'M', 'exclusive' => FALSE),
 								   ),
 			   );
 
@@ -883,7 +884,7 @@ class Calendar_Event extends Asset
 				break;
 
 			case 'event_start_time_ical':
-				// If theres no time bit, then only use the date portion to get the correct iCal timestamp  
+				// If theres no time bit, then only use the date portion to get the correct iCal timestamp
 				if (preg_match("/^(.*?) (--):(--):(--)$/", $this->attr('start_date'))) {
 					$replacement = date('Ymd', iso8601_ts($this->attr('start_date')));
 				} else {
@@ -936,9 +937,9 @@ class Calendar_Event extends Asset
 				} else {
 					// If theres no end time for given end date then accourding to iCal
 					// standards this means end date is next day without time bit but
-					// this is confusing and misleading for the users so as a fix to 
-					// issue reported on #5359 iCal date keyword prints incorrected if 
-					// end date has no time, we will let the end date be according to 
+					// this is confusing and misleading for the users so as a fix to
+					// issue reported on #5359 iCal date keyword prints incorrected if
+					// end date has no time, we will let the end date be according to
 					// hCalendar standards. More information on bug report's comments
 					$no_endtime_pattern = "/^(....)-(..)-([0-9]{2}) (--:--:--)$/";
 					$replacement = "$1-$2-$3";
@@ -947,8 +948,8 @@ class Calendar_Event extends Asset
 					} else {
 						$end_date = $this->attr('end_date');
 					}
-	
-					// Don't worry about possibility of invalid date resulting from incrementing 
+
+					// Don't worry about possibility of invalid date resulting from incrementing
 					// the day bit above; php's date() will handle it correctly
 					$replacement = preg_match("/..:..:..$/",$end_date) ? date('Ymd\THis', iso8601_ts($end_date)) : date('Ymd', iso8601_ts($end_date));
 				}
@@ -980,20 +981,20 @@ class Calendar_Event extends Asset
 			case 'delete_link':
 				$replacement = $this->_getDeleteLink();
 				break;
-				
+
 			case 'instance_start_datetime':
-			
-				$start_ts = isset($this->vars['start_date_ts']) ? $this->attr('start_date_ts') : '';					
+
+				$start_ts = isset($this->vars['start_date_ts']) ? $this->attr('start_date_ts') : '';
 				if (!empty($start_ts)) {
 					$replacement = date('Y-m-d H:i', $start_ts);
 				}
 				break;
-			
+
 			case 'instance_end_datetime':
 				$end_ts = isset($this->vars['end_date_ts']) ? $this->attr('end_date_ts') : '';
 				if (!empty($end_ts)) {
 					$replacement = empty($end_ts) ? '' : date('Y-m-d H:i', $end_ts);
-				}					
+				}
 				break;
 
 			default:
@@ -1007,12 +1008,12 @@ class Calendar_Event extends Asset
 				if (!empty($matches)) {
 					$replacement = $end_date_not_set ? '' : date($matches[1], iso8601_ts($this->attr('end_date')));
 				}
-				
+
 				preg_match('/^event_calendar_date_(.+)/', $keyword, $matches);
 				if (!empty($matches) && !empty($_REQUEST['SQ_CALENDAR_DATE'])) {
 					$replacement = date($matches[1], strtotime($_REQUEST['SQ_CALENDAR_DATE']));
 				}
-				
+
 				// Event instance keywords
 				if (isset($this->vars['start_date_ts'])) {
 					$start_ts = $this->attr('start_date_ts');
@@ -1036,7 +1037,7 @@ class Calendar_Event extends Asset
 						}
 					}//end if
 				}
-				
+
 				if (empty($replacement)) $replacement = parent::getKeywordReplacement($keyword);
 				break;
 
@@ -1048,7 +1049,7 @@ class Calendar_Event extends Asset
 
 	}//end getKeywordReplacement()
 
-	
+
 	/**
 	* Returns a reference to the event asset instance represented by the passed assetid
 	*
@@ -1077,7 +1078,7 @@ class Calendar_Event extends Asset
 				return $asset;
 			}
 			$event_asset = clone $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-			
+
 			$event_asset->full_id = $whole_assetid;
 			foreach($instance_data as $attr => $value) {
 				$event_asset->vars[$attr]['attrid'] = 0;
@@ -1123,7 +1124,7 @@ class Calendar_Event extends Asset
 				}
 				$asset_type = $event_data['type_code'];
 			}
-			
+
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			// if a sort field is specified then return only that field value else return all of the fields
 			if (!empty($field)) {
@@ -1155,7 +1156,7 @@ class Calendar_Event extends Asset
 								  );
 			}//end if field not empty
 		}//end foreach of assetids
-		
+
 		return $info;
 
 	}//end getAssetInfo()
