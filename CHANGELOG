@@ -1,5 +1,172 @@
 SQUIZ MATRIX CHANGELOG
 
+VERSION 4.10.1
+
+Featured Changes
+===================================
+
+Link Value Filtering on the What's New Page [ Feature Request #5392 ]
+-----------------------------------------------------
+
+The Asset Listing Page asset's Link Value Filtering options allow you to filter listed assets by a configured link value. This value, configured on the Linking Screen of an asset, can be checked against a set Link Value on the listing's settings (either matching or not matching) to determine whether an asset should be listed.
+
+For example, image assets within your site can be configured with link values such as landscape or portrait. The Link Value Filtering options allow you to create an asset listing that will only display landscape images by setting the Link Value Filtering Logic to match the landscape link value.
+
+Previously, this functionality was restricted to the Asset Listing Page asset only. This feature extends this functionality for use on a What's New Page asset , providing you more configuration options for your What's New listing.
+
+Bulk File Import Tool: Alphanumeric Sorting [ Feature Request #5764 ]
+-----------------------------------------------------
+
+The Bulk File Import Tool allows you to upload multiple files through the browser into a specified location. This can be achieved by specifying a file import directory on your server to import the files of. When importing files in this manner, the Bulk File Import Tool would previously import files into Matrix in random order. This feature introduces a new option to the Bulk File Import Tool to sort the files imported from a Server File Import.
+
+The Sort the files alphanumerically on import? option is enabled on the Details screen of the Bulk File Import Tool in the Server File Import settings.
+
+Enabling this option will sort imported files in alphanumeric order (i.e. numerals -> capital letters -> lower case letters).
+
+For example, consider the following list of files to be imported:
+
+1.txtapple.txt31apples.txtTest_1.docx001.pdf30apples.doc
+
+Selecting the Sort the files alphanumerically on import? option would sort this list of files in the following order:
+
+001.pdf
+1.txt
+30apples.doc
+31apples.txt
+Test_1.docx
+apple.txt
+
+This addition has also been carried over to the import_files.php script which is used to import files from a server. This option is specified when running this script through a new --sort argument.
+
+For example:
+
+$ php import_files.php [system_root] folders_to_import 66 1 --sort
+
+This feature has been added to provide greater control to users when importing files into Squiz Matrix.
+
+Set From and Reply-To Email Addresses on Workflow Notifications [ Feature Request #5774 ]
+-----------------------------------------------------
+
+When workflow is running on an asset, Squiz Matrix will send a number of notification emails to users to update them on the status of the approval process. These emails will notify users on a variety of different occasions, for example, if their approval is required on an asset or when a workflow step is approved or rejected.
+
+Previously, while the content of these emails were configurable (via the Custom Messages screen), the From and Reply-To email addresses on these notifications were not. This feature introduces the ability to set the From and Reply-To values for workflow emails.
+
+The Email to be Sent From and Email to Reply-To fields can be configured on the Details screen of a Workflow Schema. The values entered into these fields will override the default values used by Squiz Matrix, i.e. the email address of the user who triggered the workflow changes.
+
+This feature provides greater configuration for workflow emails within Squiz Matrix, providing accurate address information to your receiving users.
+
+New Keyword Format to Print GET Variables of Nested Content [ Feature Request #5795 ]
+-----------------------------------------------------
+
+Squiz Matrix's Nest Content content type allows you to take the content of an asset in the system and display it inside the content of another. Whilst you are configuring this content type, you are able to pass additional GET variables to the asset being nested. Previously, however, values passed to the nested asset could not be exposed using Matrix's global keywords (e.g. %globals_get_VARIABLE_NAME%).
+
+This feature adds a new keyword format to expose the GET variable information on nested assets:
+
+%nested_get_VARIABLE_NAME%
+
+This new keyword will print the value of the GET variable specified.
+
+New SOAP Function to Configure Multiple Metadata Fields on an Asset [ Feature Request #5811 ]
+-----------------------------------------------------
+
+Squiz Matrix's SOAP API Metadata Service asset manages the metadata functions of the system's SOAP Server, including setting and regenerating metadata.
+
+The SOAP API Metadata Service includes the SetAssetMetadata function that sets the value of a metadata field for a specified asset. This function, however, was limited to setting only single metadata fields; the function would need to be run multiple times to set the value of many different metadata fields.
+
+This feature introduces a new function on the SOAP API Metadata Service to set the value of multiple metadata fields in a single function call.
+
+The SetMultipleMetadataFields function allows you to configure the values of any number of metadata fields and is enabled on the Details screen SOAP API Metadata Service.
+
+This function takes the following parameters:
+
+   AssetID: the ID of the asset to set metadata on.
+   MetadataInfo: the metadata FieldID and FieldValue values to set.
+
+The format of the setMultipleMetadataFields function is as follows: 
+
+<ns1:SetMultipleMetadataFields>
+   <AssetID>70</AssetID>
+   <MetadataInfo>
+       <FieldID>407</FieldID>
+       <FieldValue>First field value</FieldValue>
+   </MetadataInfo>
+   <MetadataInfo>
+       <FieldID>618</FieldID>
+       <FieldValue>Second field value</FieldValue>
+   </MetadataInfo>
+</ns1:SetMultipleMetadataFields>
+
+Filter Record Sets on Data Source Assets [ Feature Request #5813 ]
+-----------------------------------------------------
+
+Squiz Matrix's Data Source assets, such as the DB Data Source, allow you to query external resources (e.g. a database or LDAP directory), returning records as shadow assets within the system. These records can then be used within your site, for example, to expose record information on an asset listing.
+
+This feature introduces a brand new Record Filter screen, providing a variety of new options to refine the results of your data query and the shadow assets created within Squiz Matrix.
+
+The Record Filter screen allows you to configure a series of conditions that can then be matched against the returned records of the data source. You can then choose to either filter out the records matching the configured conditions or to return the matched records.
+
+Conditions are configured by matching a set value against a field on record set assets. Match type selections are available (string value, exact and contains; or regex), as well as case matching. You can also use dynamical variables (added on the Dynamic Inputs screen) as the value to match records against.
+
+This feature has been added to provide users with greater control over the records returned on data source assets within Squiz Matrix.
+
+
+Additional Changes and Bug Fixes
+=================================== 
+
+Minor Enhancements
+
+Minor Enhancement #5734: HTML Tidy Plugin: Select HTML Standard to Evaluate Against.
+Minor Enhancement #5741: Session Expiry Times Capped to Valid Values with Memcache.
+Minor Enhancement #5766: Asset Map: Improved End of File Error Reporting.
+Minor Enhancement #5775: check_requirements.php to Check Database Libraries.
+Minor Enhancement #5777: New Option to Set Never Delete Settings When Creating Remaps.
+Minor Enhancement #5794: HTML Tidy Indicators on WYSIWYG Metadata Field and Attribute Types.
+Minor Enhancement #5803: Structure File Import Tool: Silent bcmod() Dependency Removed.
+Minor Enhancement #5809: Whitespace Stripped in Warranty Key Entry Form. 
+
+Core
+
+Fixed Bug #5768: Typo in help text.
+Fixed Bug #5770: Object of class Calendar_Event_Multi_Date could not be converted to string.
+Fixed Bug #5773: Not able to create an asset with name having special chars.
+Fixed Bug #5776: HIPO job unnecessarily trying to check the job's status at the Squiz Server.
+Fixed Bug #5778: Editing table cell properties in IE can cause invalid markup in WYSYWIG.
+Fixed Bug #5779: Insert Anchor WYSYWIG plugin creates invalid markup in IE.
+Fixed Bug #5780: Trigger context menu and group preferences showing source string not found.
+Fixed Bug #5781: br tags are not self closing in IE.
+Fixed Bug #5782: IE turns all the HTML markup to uppercase.
+Fixed Bug #5784: remove_asset_type and remove_assets_of_type broken in newer postgreSQL versions.
+Fixed Bug #5786: Details screen values are committed when cancelling Safe Edit.
+Fixed Bug #5789: Answering Select type form question which allows multiple selection can throw errors.
+Fixed Bug #5790: Trigger action Update Twitter Status can not update status with space and any special characters.
+Fixed Bug #5791: Trying to expand XML User Bridge in Asset Map returns error.
+Fixed Bug #5792: System updatelookups script does not run over the whole system if rootnode is not supplied.
+Fixed Bug #5793: Show If design area always prints a blank line before the content.
+Fixed Bug #5796: %asset_metadata_field_value% fails to find default value when other assets have explicit values set.
+Fixed Bug #5797: Data Record asset name does not change context.
+Fixed Bug #5807: Update Matrix license comment in the design.
+Fixed Bug #5808: %globals_X% keywords do not work in group format bodycopies.
+Fixed Bug #5810: Unnecessary closing HTML tags before displaying error message.
+Fixed Bug #5814: step_03.php fails if an attribute has been moved from the child types to the parent.
+Fixed Bug #5815: Maxwords keyword issue when dealing with foreign characters. 
+Fixed Bug #5816: Wrong metadata fetched for assets in Safe Editing when using DejaVu.
+
+Bulkmail
+
+Fixed Bug #5804: Default and tech emails break install.
+
+Import Tools
+
+Fixed Bug #5760: scripts/import/create_pages.php script does not properly parse escaped quotes.
+
+TRIM
+
+Fixed Bug #5799: File attachments can not be downloaded and show as Plain Text 0B size. 
+
+Web Services
+
+Fixed Bug #5698: JSAPI's getKeywordsReplacements function parses some keyword modifier content incorrectly.
+
 
 VERSION 4.10.0
 
