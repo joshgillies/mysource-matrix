@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_move_update.php,v 1.19 2012/06/05 06:42:54 akarelia Exp $
+* $Id: system_move_update.php,v 1.20 2012/08/02 00:12:47 ewang Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Small script to be run AFTER the system root directory is changed
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -162,7 +162,7 @@ function recurse_data_dir_for_safe_edit_files($dir, $old_rep_root, $new_rep_root
                         $str = file_to_string($sq_system_file);
                         if ($str) {
 							echo "File : $sq_system_file\n";
-							preg_match ("/\"[A-Za-z_]+\"/" ,$str , $asset_type);
+							preg_match ("/\"[A-Za-z_0-9]+\"/" ,$str , $asset_type);
 							$GLOBALS['SQ_SYSTEM']->am->includeAsset(str_replace('"', '', $asset_type[0]));
 							$content_array = unserialize($str);
 							foreach ($index_to_look as $value) {
