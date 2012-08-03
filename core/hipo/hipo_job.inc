@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.108 2012/07/04 00:09:54 cupreti Exp $
+* $Id: hipo_job.inc,v 1.109 2012/08/03 01:02:25 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.108 $
+* @version $Revision: 1.109 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -707,11 +707,11 @@ class HIPO_Job extends MySource_Object
 									case 'error':
 									case 'dead':
 										$alive = FALSE;
-										trigger_localised_error('HIPO0048', E_USER_WARNING, $ack['msg']);
+										trigger_localised_error('HIPO0048', E_USER_WARNING, $ack['msg'].' (TaskID #'.$this->_hipo_vars['server_taskid'].')');
 									break;
 
 									default :
-										trigger_localised_error('HIPO0047', E_USER_WARNING, print_r($ack, TRUE));
+										trigger_localised_error('HIPO0047', E_USER_WARNING, print_r($ack, TRUE).' (TaskID #'.$this->_hipo_vars['server_taskid'].')');
 								}//end switch ($ack['result'])
 							}//end if (!is_null($ack))
 						}//end if ($client->write())
@@ -1470,11 +1470,11 @@ class HIPO_Job extends MySource_Object
 							break;
 
 							case 'error' :
-								trigger_localised_error('HIPO0048', E_USER_WARNING, $ack['msg']);
+								trigger_localised_error('HIPO0048', E_USER_WARNING, $ack['msg'].' (TaskID #'.$this->_hipo_vars['server_taskid'].')');
 							break;
 
 							default :
-								trigger_localised_error('HIPO0047', E_USER_WARNING, print_r($ack, TRUE));
+								trigger_localised_error('HIPO0047', E_USER_WARNING, print_r($ack, TRUE).' (TaskID #'.$this->_hipo_vars['server_taskid'].')');
 
 						}// end switch
 
