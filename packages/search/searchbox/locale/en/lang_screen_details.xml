@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.9 2008/11/25 05:03:15 mbrydon Exp $
+* $Id: lang_screen_details.xml,v 1.10 2012/08/03 08:16:14 cupreti Exp $
 *
 */
 -->
@@ -78,6 +78,14 @@
 		</field>
 		<field attribute="default_text">
 			<display_name>Default Text</display_name>
+			<note />
+		</field>
+		<field attribute="querybox_title">
+			<display_name>Title</display_name>
+			<note />
+		</field>
+		<field attribute="querybox_label">
+			<display_name>Label</display_name>
 			<note />
 		</field>
 	</section>
