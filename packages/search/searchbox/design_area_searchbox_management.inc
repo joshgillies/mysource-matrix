@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_searchbox_management.inc,v 1.16 2008/11/25 05:03:15 mbrydon Exp $
+* $Id: design_area_searchbox_management.inc,v 1.16.22.1 2012/08/06 02:13:52 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.16.22.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -109,6 +109,19 @@ class Design_Area_SearchBox_Management extends Asset_Management
 											'default'		=> '',
 											'description'	=> 'Default category value',
 										  );
+		
+		$this->vars['querybox_title'] = Array(
+										'added'			=> '0.3',
+										'type'			=> 'text',
+										'default'		=> '',
+										'description'	=> 'The title attribute of the search input box',
+									);
+		$this->vars['querybox_label'] = Array(
+										'added'			=> '0.3',
+										'type'			=> 'text',
+										'default'		=> '',
+										'description'	=> 'The label text for the search input box',
+									);										  
 
 	}//end constructor
 

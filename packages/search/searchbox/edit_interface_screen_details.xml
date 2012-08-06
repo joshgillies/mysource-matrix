@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.17 2008/11/25 05:03:15 mbrydon Exp $
+* $Id: edit_interface_screen_details.xml,v 1.17.22.1 2012/08/06 02:13:52 cupreti Exp $
 *
 */
 -->
@@ -64,6 +64,12 @@
 			<int width="5" />
 		</field>
 		<field write_access="write:attributes" attribute="default_text">
+			<text width="30" />
+		</field>
+		<field write_access="write:attributes" attribute="querybox_title">
+			<text width="30" />
+		</field>
+		<field write_access="write:attributes" attribute="querybox_label">
 			<text width="30" />
 		</field>
 	</section>

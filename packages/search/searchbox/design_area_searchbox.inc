@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_searchbox.inc,v 1.33 2009/09/13 23:46:49 ewang Exp $
+* $Id: design_area_searchbox.inc,v 1.33.16.1 2012/08/06 02:13:52 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.33.16.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -132,6 +132,19 @@ class Design_Area_Searchbox extends Design_Area
 			case 'box' :
 				$class = isset($args['class']) ? ' class="'.$args['class'].'"' : '';
 				$id = isset($args['id']) ? ' id="'.$args['id'].'"' : '';
+
+				$title_val = $this->attr('querybox_title');
+				$title = !empty($title_val) ? ' title="'.$this->attr('querybox_title').'"' : '';
+
+				$label_val = $this->attr('querybox_label');
+				$label = '';
+				if (!empty($label_val)) {
+					if (!empty($args['id'])) {
+						$label = '<label for="'.$args['id'].'">'.$this->attr('querybox_label').'</label>';
+					} else {
+						$label = '<label for="'.htmlspecialchars($this->attr('field_name')).'">'.$this->attr('querybox_label').'</label>';
+					}
+				}
 				echo '
 				<input type="hidden" name="mode" value="results" />
 				<?php
@@ -151,12 +164,13 @@ class Design_Area_Searchbox extends Design_Area
 						}
 
 						require_once SQ_LIB_PATH."/html_form/html_form.inc";
-						text_box($form_field_name, $field_value, $box_width, "", $hide_default, \''.$class.$id.'\');
+						'.(!empty($label) ? 'echo \''.$label.'\';' : '').'
+						text_box($form_field_name, $field_value, $box_width, "", $hide_default, \''.$class.$id.$title.'\');
 					}
 				?>
 				';
 			break;
-
+			
 			default:
 				if (substr($var, -6) == '_query') {
 					echo '
