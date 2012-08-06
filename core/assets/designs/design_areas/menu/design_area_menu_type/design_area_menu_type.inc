@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.112.4.1 2012/03/06 05:48:45 akarelia Exp $
+* $Id: design_area_menu_type.inc,v 1.112.4.2 2012/08/06 02:05:28 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.112.4.1 $
+* @version $Revision: 1.112.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -656,7 +656,7 @@ class Design_Area_Menu_Type extends Design_Area
 						echo '        $thumbnail = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\']);'."\n";
 						echo '    }'."\n";
 						echo '}'."\n";
-						echo 'if ($thumbnail) echo $thumbnail->printImageTag($'.$id_name.'_row[\'name\'], \'\', TRUE);'."\n";
+						echo 'if ($thumbnail) echo $thumbnail->printImageTag(\'\', \'\', TRUE);'."\n";
 						echo '?', '>';
 					}
 				break;
