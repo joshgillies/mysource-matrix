@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_bundle_edit_fns.inc,v 1.7 2010/01/13 02:41:40 lwright Exp $
+* $Id: workflow_bundle_edit_fns.inc,v 1.8 2012/08/06 01:49:35 akarelia Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.com.au>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -204,6 +204,15 @@ class Workflow_Bundle_Edit_Fns extends Asset_Edit_Fns
 						<?php
 					$stream_box = ob_get_clean();
 					echo str_replace($cascade_box, $stream_box.$cascade_box, $status_output);
+					if (isset($this->_tmp['incomplete_metadata'])) {
+						$new_status = isset($_POST[$prefix.'_change_status']) ? ' to \''.get_status_description($_POST[$prefix.'_change_status']).'\'' : '';
+						echo "<p>".translate('cannot_change_bundle_status_metadata_incomplete', $new_status);
+						foreach (array_keys($this->_tmp['incomplete_metadata']) as $incomplete_meta_assetid) {
+							$assetinfo = get_asset_tag_line($incomplete_meta_assetid, 'metadata');
+							echo "<br />$assetinfo";
+						}
+						echo "</p>";
+					}
 				} else {
 					echo $status_output;
 				}
@@ -245,19 +254,24 @@ class Workflow_Bundle_Edit_Fns extends Asset_Edit_Fns
 				} else if ($_POST[$prefix.'_change_status'] > 0) {
 					$new_status = $_POST[$prefix.'_change_status'];
 				}
+				// before we try to change the asset status lets see if the 
+				// required metadata fields are set or else notify user abt it
+				$this->_checkRequiredMetadataComplete($asset);
 
-				$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
-				$vars = Array(
-							'bundle_assetid'	=> $asset->id,
-							'new_status'		=> $new_status,
-						);
-				if (isset($_POST[$prefix.'_change_status_stream'])) {
-					if ($_POST[$prefix.'_change_status_stream'] !== 'SQ_USE_DEFAULT') {
-						$vars['workflow_stream'] = $_POST[$prefix.'_change_status_stream'];
+				if (!isset($this->_tmp['incomplete_metadata'])) {
+					$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+					$vars = Array(
+								'bundle_assetid'	=> $asset->id,
+								'new_status'		=> $new_status,
+							);
+					if (isset($_POST[$prefix.'_change_status_stream'])) {
+						if ($_POST[$prefix.'_change_status_stream'] !== 'SQ_USE_DEFAULT') {
+							$vars['workflow_stream'] = $_POST[$prefix.'_change_status_stream'];
+						}
 					}
+					$hh->queueHipo('hipo_job_edit_bundled_assets_status', $vars);
+					return TRUE;
 				}
-				$hh->queueHipo('hipo_job_edit_bundled_assets_status', $vars);
-				return TRUE;
 			}
 		}
 
@@ -392,6 +406,15 @@ class Workflow_Bundle_Edit_Fns extends Asset_Edit_Fns
 					if ($reject_status !== NULL) {
 						normal_button($prefix.'_workflow_status_update_reject', current($reject_status), str_replace('%status%', (string)(key($reject_status)), $button_js));
 					}
+					if (isset($this->_tmp['incomplete_metadata'])) {
+						$new_status = isset($_POST[$prefix.'_workflow_new_status']) ? ' to \''.get_status_description($_POST[$prefix.'_workflow_new_status']).'\'' : '';
+						echo "<p>".translate('cannot_change_bundle_status_metadata_incomplete', $new_status);
+						foreach (array_keys($this->_tmp['incomplete_metadata']) as $incomplete_meta_assetid) {
+							$assetinfo = get_asset_tag_line($incomplete_meta_assetid, 'metadata');
+							echo "<br />$assetinfo";
+						}
+						echo "</p>";
+					}
 
 				$o->closeField();
 			} else {
@@ -434,15 +457,23 @@ class Workflow_Bundle_Edit_Fns extends Asset_Edit_Fns
 			$new_status = (int)$_POST[$prefix.'_workflow_new_status'];
 			$log_message = array_get_index($_POST, $prefix.'_workflow_new_log_message', '');
 
-			if ($new_status > 0) {
-				$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
-				$vars = Array(
-							'bundle_assetid'	=> $asset->id,
-							'new_status'		=> $new_status,
-							'log_message'		=> $log_message,
-						);
-				$hh->queueHipo('hipo_job_edit_bundled_assets_status', $vars);
-				return TRUE;
+			// before we try to change the asset status lets see if the 
+			// required metadata fields are set or else notify user abt it
+			// if we are rejecting the workflow then its alright but
+			// don't approve the changes if the metadata is gone missing
+			if (!($new_status & SQ_STATUS_UNDER_CONSTRUCTION)) $this->_checkRequiredMetadataComplete($asset);
+
+			if (!isset($this->_tmp['incomplete_metadata'])) {
+				if ($new_status > 0) {
+					$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+					$vars = Array(
+								'bundle_assetid'	=> $asset->id,
+								'new_status'		=> $new_status,
+								'log_message'		=> $log_message,
+							);
+					$hh->queueHipo('hipo_job_edit_bundled_assets_status', $vars);
+					return TRUE;
+				}
 			}
 		}
 
@@ -523,6 +554,30 @@ class Workflow_Bundle_Edit_Fns extends Asset_Edit_Fns
 		return FALSE;
 
 	}//end showIfCanApprove()
+
+
+	/**
+	* Checks if the assets under the bundle have the required metadata
+	* populated.
+	*
+	* @param Workflow_Bundle	$asset	The bundle to test
+	*
+	* @return boolean
+	*/
+	private function _checkRequiredMetadataComplete(Workflow_Bundle $asset)
+	{
+		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE);
+		$mm    = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$not_cool_assets = Array();
+
+		foreach ($links as $link) {
+			$assetid = $link['minorid'];
+			if (!isset($this->_tmp['incomplete_metadata'][$assetid]) && !$mm->requiredFieldsComplete($assetid)) {
+				$this->_tmp['incomplete_metadata'][$assetid] = TRUE;
+			}
+		}//end foreach
+
+	}//end _checkRequiredMetadataComplete
 
 
 }//end class
