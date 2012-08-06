@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.64.2.1 2012/07/26 00:52:55 akarelia Exp $
+* $Id: text.inc,v 1.64.2.2 2012/08/06 05:17:53 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.64.2.1 $
+* @version $Revision: 1.64.2.2 $
 * @package Fudge
 * @subpackage Text
 */
@@ -343,6 +343,45 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array())
 		}
 		return $text;
 
+	case "xpathe":
+		// Arg is a xpath query
+		//
+		// PHP state that XPath version 1.0 is supported,
+		// see: http://au.php.net/manual/en/class.domxpath.php
+		// 
+		// This should mean that all the functions documented by W3C are supported,
+		// see: http://www.w3.org/TR/xpath/
+		//
+		// Example:
+		//
+		//    %asset_contents~xpathe:sum(//item/value)%
+		//
+		// The path takes the mathematical sum() of item/value tags in the XML.
+		// 
+		// Example:
+		//
+		//    %asset_contents~xpathe:count(//h1)%
+		//
+		// Counts the number of heading ones in the supplied markup.
+		//
+		if (empty($text)) return $text;
+
+		// There may have been a colon in the path, which would have split the argument
+		// out across elements - if so, fix it up.
+		$path = implode(':', $modifier['args']);
+
+		$dom = new DOMDocument();
+		$dom->loadXML($text);
+		$xpath = new DOMXPath($dom);
+
+		$result = $xpath->evaluate($path);
+
+		// free up memory
+		unset($xpath);
+		unset($dom);
+		
+		return is_scalar($result) ? $result : $text;
+		
 	case "empty":
 		// One argument; text to display if the keyword result is empty.
 		if (empty($text)) {
