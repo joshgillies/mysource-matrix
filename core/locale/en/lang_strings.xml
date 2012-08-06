@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.417 2012/07/06 04:57:55 akarelia Exp $
+* $Id: lang_strings.xml,v 1.418 2012/08/06 01:51:07 akarelia Exp $
 *
 */
 
@@ -74,6 +74,7 @@
 	<string source="asset_future_status_change_from_parent">Future status for this asset can only be set from parent asset's &lt;a href="%s"&gt;details screen&lt;/a&gt;&lt;/i&gt;</string>
 	<string source="cannot_make_live_metadata_incomplete">This asset cannot be made live because some mandatory %s fields are empty</string>
 	<string source="cannot_approve_metadata_incomplete">This asset cannot be approved to go live because some mandatory %s fields are empty</string>
+	<string source="cannot_change_bundle_status_metadata_incomplete">Asset status cannot be changed%s. Following assets are missing some mandatory metadata fields.</string>
 
 	<string source="asset_type_counts">Asset Type Counts</string>
 	<string source="asset_types">Asset Types</string>
