@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links.inc,v 1.14 2008/10/20 03:57:28 ewang Exp $
+* $Id: report_links.inc,v 1.14.22.1 2012/08/06 01:52:59 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.14.22.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -80,9 +80,9 @@ class Report_Links extends Report
 			if (!is_file($report_path)) return Array();
 
 			try {
-				$root = new SimpleXMLElement($report_path, LIBXML_NOCDATA, TRUE);
+				$root = @new SimpleXMLElement($report_path, LIBXML_NOCDATA, TRUE);
 			} catch (Exception $e) {
-				throw new Exception('Unable to parse report file "'.$report_path.'": '.$e->getMessage());
+				trigger_error('Unable to parse report file "'.$report_path.'": '.$e->getMessage());
 				return Array();
 			}
 
@@ -200,9 +200,9 @@ class Report_Links extends Report
 		}
 
 		try {
-			$root = new SimpleXMLElement($report_path, LIBXML_NOCDATA, TRUE);
+			$root = @new SimpleXMLElement($report_path, LIBXML_NOCDATA, TRUE);
 		} catch (Exception $e) {
-			 throw new Exception('Unable to parse report file "'.$report_path.'": '.$e->getMessage());
+			trigger_error('Unable to parse report file "'.$report_path.'": '.$e->getMessage());
 			return Array();
 		}
 
