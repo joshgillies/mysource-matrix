@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.96.2.19 2012/07/18 07:45:55 akarelia Exp $
+* $Id: js_api.inc,v 1.96.2.20 2012/08/07 04:45:32 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.96.2.19 $
+* @version $Revision: 1.96.2.20 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -78,7 +78,7 @@ class JS_Api extends Page
 								  );
 
 	/*
-	* array mapping the function call 
+	* array mapping the function call
 	* the permission needed to access them
 	*/
 	private $_permission_mapping = Array(
@@ -120,8 +120,8 @@ class JS_Api extends Page
 									'getRoles'						=> Array('no_check'),
 									'executeHTMLTidy'				=> Array('no_check'),
 									'getLineage'					=> Array('no_check'),
-									'getLineageFromUrl'				=> Array('no_check'),    
-									'getUrlFromLineage'				=> Array('no_check'),    
+									'getLineageFromUrl'				=> Array('no_check'),
+									'getUrlFromLineage'				=> Array('no_check'),
 									'batchRequest'					=> Array('no_check'),
 								   );
 
@@ -160,7 +160,7 @@ class JS_Api extends Page
 		$this->setAttrValue('api_key', $key);
 		$this->saveAttributes();
 		$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
-		
+
 		return $this->makeAndSaveInitialWebPath(strtolower($this->attr('name').'.js'), $link);
 
 	}//end _createAdditional()
@@ -270,23 +270,20 @@ class JS_Api extends Page
 			return;
 		}
 
-		$temp_server_vars = $_SERVER['PHP_SELF'];
-
 		// #4372  Feature Request : JS API ability to specify _admin/_edit access
 		// Lets populate our $_REQUEST var so that we can use it later :)
 		$_REQUEST['force_simple_edit'] = $this->attr('force_simple_edit');
-
 		$temp_server_vars = $_SERVER['PHP_SELF'];
 
 		if (isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER'])) {
 			$referer_url = str_replace(current_protocol().'://', '', $_SERVER['HTTP_REFERER']);
 
-			// if we are in Backend or limbo remove everything after _edit or _admin
+			// if we are in Backend or limbo remove everything after /_edit or /_admin
 			// or else getAssetFromURL will get confused and wont return us correct asset
 			if (strpos($_SERVER['HTTP_REFERER'], SQ_CONF_LIMBO_SUFFIX) !== FALSE) {
-				$referer_url = preg_replace('/'.SQ_CONF_LIMBO_SUFFIX.'(.)*/', '', $referer_url);
+				$referer_url = preg_replace('|/'.SQ_CONF_LIMBO_SUFFIX.'(.)*|', '', $referer_url);
 			} else if (strpos($referer_url, SQ_CONF_BACKEND_SUFFIX) !== FALSE) {
-				$referer_url = preg_replace('/'.SQ_CONF_BACKEND_SUFFIX.'(.)*/', '', $referer_url);
+				$referer_url = preg_replace('|/'.SQ_CONF_BACKEND_SUFFIX.'(.)*|', '', $referer_url);
 			}
 
 			$url_asset_object = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL(current_protocol(), $referer_url, TRUE, TRUE);
@@ -295,8 +292,9 @@ class JS_Api extends Page
 			}
 
 			if (strpos($_SERVER['HTTP_REFERER'], SQ_CONF_LIMBO_SUFFIX) !== FALSE || $this->attr('force_simple_edit')) {
-				$_SERVER['PHP_SELF'] = preg_replace('/'.SQ_CONF_LIMBO_SUFFIX.'(.)*/', '', $_SERVER['PHP_SELF']);
-				$_SERVER['PHP_SELF'] = preg_replace('/'.SQ_CONF_BACKEND_SUFFIX.'(.)*/', '', $_SERVER['PHP_SELF']);
+				$_SERVER['PHP_SELF'] = preg_replace('|/'.SQ_CONF_LIMBO_SUFFIX.'(.)*|', '', $_SERVER['PHP_SELF']);
+				$_SERVER['PHP_SELF'] = preg_replace('|/'.SQ_CONF_BACKEND_SUFFIX.'(.)*|', '', $_SERVER['PHP_SELF']);
+				$_SERVER['PHP_SELF'] = $_SERVER['PHP_SELF'].'/';
 				$_REQUEST['force_simple_edit'] = TRUE;
 			}
 		}
@@ -332,7 +330,7 @@ class JS_Api extends Page
 					// and we are to use the assetid from the previous function exec
 					$keyword = $args['id'];
 					$instructions = explode('_', trim($keyword, '%'));
-					// if we know where to take the new id from, do it or 
+					// if we know where to take the new id from, do it or
 					// else just continue with the previous one we have been using
 					$string_to_eval = '';
 					if (count($instructions) >= 3) {
@@ -364,7 +362,7 @@ class JS_Api extends Page
 					}
 					$asset = $this->setAsset($id);
 
-					// Check to see if passed ID is under our root node, or, if we are using a root node		
+					// Check to see if passed ID is under our root node, or, if we are using a root node
 					if (!$this->checkRoot($asset)) {
 						$this->returnError('You do not have permissions to access this asset');
 						restore_error_handler();
@@ -964,7 +962,7 @@ class JS_Api extends Page
 				// Set our new values
 				$success = $this->setAttributeValue($asset->id, $attr_names, $attr_vals);;
 				if($success) {
-					$data = $success; 
+					$data = $success;
 				} else {
 					$data = 'Attribute for Asset #'.$asset->id.' were not set. Check Error Log for more information';
 				}
@@ -1211,7 +1209,7 @@ class JS_Api extends Page
 				$data['error'] = $level.' is not a valid permissions level';
 				return $data;
 			}
-			
+
 			$data = $this->getPermission($asset->id, $level);
 			if (!$data) return FALSE;
 
@@ -1363,8 +1361,8 @@ class JS_Api extends Page
 		$screen = $args['screen'];
 		$response = $this->getLocksInfo($asset->id, $screen);
 
-		// we might not have write access but this might be caused because 
-		// the status of the asset has changed (say from UC to pending approval) 
+		// we might not have write access but this might be caused because
+		// the status of the asset has changed (say from UC to pending approval)
 		// but still we should be able to release locks if we hold any
 		if ($write_access || (!empty($response) && $asset->writeAccess('', Array(), FALSE))) {
 			if (empty($response)) {
@@ -1914,7 +1912,7 @@ class JS_Api extends Page
 						imagepng($img, $destination_file);
 					}
 
-					// construct the link array 
+					// construct the link array
 					$link = Array (
 								'asset'		=> $asset,
 								'link_type'	=> $link_type,
@@ -2036,9 +2034,9 @@ class JS_Api extends Page
 			return Array(
 					'error' => 'No URL supplied'
 					);
-		}		
-		$significant_link_only = array_get_index($args, 'significant_link_only', TRUE);		
-			
+		}
+		$significant_link_only = array_get_index($args, 'significant_link_only', TRUE);	
+
 		// cant get lineage of root_folder, DUHH !
 		if ($url == '1') return Array();
 
@@ -2064,16 +2062,16 @@ class JS_Api extends Page
 					'error' => 'URL supplied is invalid'
 					);
 		}
-		
+
 		if(!$asset->readAccess()) return Array('error' => 'You do not have permissions to access this asset');
 
 		$raw_lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($asset->id, 0, NULL, Array('name', 'type_code'), $significant_link_only);
 		$root_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
 
 		$result_lineages = Array();
-		$linkid_done = Array();		
+		$linkid_done = Array();
 		$link_types = $significant_link_only ? SQ_SC_LINK_SIGNIFICANT : SQ_SC_LINK_ALL;
-		
+
 		foreach ($raw_lineages as $index => $val) {
 			$data = Array();
 			$minorid = $asset->id;
@@ -2081,7 +2079,7 @@ class JS_Api extends Page
 			foreach($parent_lineage_assetids as $majorid) {
 				$major_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($majorid);
 				$minor_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($minorid);
-				
+
 				$links = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($major_asset->id, $minor_asset->id, $link_types, NULL, 'major', TRUE);
 				foreach($links as $link) {
 					if (!in_array($link['linkid'], $linkid_done)) {
@@ -2089,8 +2087,8 @@ class JS_Api extends Page
 							$treeid_data = $GLOBALS['SQ_SYSTEM']->am->getLinkTreeid($link['linkid']);
 						} else {
 							$treeid_data = Array($link['linkid'] => Array(Array(FALSE)));
-						}						
-						foreach($treeid_data[$link['linkid']] as $treeid) {					
+						}
+						foreach($treeid_data[$link['linkid']] as $treeid) {
 							$info = Array();
 							$info['tree_id']			= $treeid[0];
 							$info['assetid']			= $minor_asset->id;
@@ -2098,21 +2096,21 @@ class JS_Api extends Page
 							$info['type_code']			= $minor_asset->type();
 							$info['link_type']			= $link['link_type'];
 							$info['link_value']			= $link['value'];
-							$info['linkid']				= $link['linkid'];					
+							$info['linkid']				= $link['linkid'];
 							$info['parent_assetid']		= $major_asset->id;
 							$info['parent_type_code']	= $major_asset->type();
-						
+
 							$data[] = $info;
 						}
 						$linkid_done[] = $link['linkid'];
 					}
 				}//end foreach
-				
+
 				// Get the link info for the next lineage, one level up, if any
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($minorid);
-				$minorid = $majorid;				
+				$minorid = $majorid;
 			}//end foreach
-			
+
 			$result_lineages = array_merge($result_lineages, array_reverse($data));
 		}//end foreach
 
@@ -2143,23 +2141,22 @@ class JS_Api extends Page
 		if (empty($url)) return Array('error' => 'No URL supplied');
 
 		$url_bits = parse_url($url);
-		
+
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL($url_bits['scheme'], $url_bits['host'].$url_bits['path']);
-		
+
 		if (is_null($asset)) return Array('error' => 'URL supplied does not point to asset in Matrix');
-		
+
 		if(!$asset->readAccess()) return Array('error' => 'You do not have permissions to access this asset');
-		
+
 
 		$result_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL($url_bits['scheme'], $url_bits['host'].$url_bits['path']);
 		if(empty($result_lineage)) return Array('error' => 'No lineage found');
-		
+
 		return $result_lineage;
 
 	}// end _getLineageFromUrl()
-	
-	
-	
+
+
 	/**
 	* get url from passed lineage array (asset ids)
 	*
@@ -2179,10 +2176,10 @@ class JS_Api extends Page
 		$lineage = trim(array_get_index($args, 'lineage', ''));
 		$root_url = trim(array_get_index($args, 'root_url', NULL));
 		$protocol = trim(array_get_index($args, 'protocol', NULL));
-	
-		if(empty($root_url)) $root_url = NULL;		
+
+		if(empty($root_url)) $root_url = NULL;
 		if (empty($lineage)) return Array('error' => 'No lineage supplied');
-		
+
 		$lineage = explode('\\,', $lineage);
 
 		$current_asset_id = trim(array_pop($lineage));
@@ -2190,22 +2187,21 @@ class JS_Api extends Page
 		If(!$current_asset) return FALSE;
 
 		if(!$current_asset->readAccess()) return Array('error' => 'You do not have permissions to access this asset');
-		
+
 		$candidate_urls = $GLOBALS['SQ_SYSTEM']->am->getURLs($current_asset_id);
 		if(empty($candidate_urls)) return Array('error' => 'No URL found for current asset');
-		
+
 		$lineage[] = $current_asset_id;
-		
+
 		$result = $GLOBALS['SQ_SYSTEM']->am->getUrlFromLineage($lineage, $root_url, $protocol);
-		
+
 		if (empty($result)) return Array('error' => 'No URL found for supplied lineage');
-		
+
 		return $result;
 
 	}// end _getUrlFromLineage()
-	
-	
-	
+
+
 	/**
 	* clone the given asset under a new parent
 	*
@@ -2246,7 +2242,7 @@ class JS_Api extends Page
 			$position	= array_get_index($args, 'new_position', -1);
 			$value		= array_get_index($args, 'link_value', '');
 			$link_type	= defined($args['link_type']) ? constant($args['link_type']) : SQ_LINK_TYPE_1;
-			
+
 			if (!is_null($asset)) {
 				$hh	= $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 				$running_vars	= Array (
@@ -2279,7 +2275,7 @@ class JS_Api extends Page
 					$data['success'] = $asset->name.'(#'.$asset->id.') has been successfully cloned to '.$cloned_assets_string;
 				} else {
 					$data['error'] = $all_errors;
-				}	
+				}
 			} else {
 				$data['error'] = 'Asset to clone was not provided';
 			}
@@ -2326,7 +2322,7 @@ class JS_Api extends Page
 
 			if (empty($paint_layout_1) || empty($paint_layout_2)) {
 				// we dont care about the paint layout
-				// get the content without them	
+				// get the content without them
 				ob_start();
 					$asset->printBody();
 					$content1 = ob_get_contents();
@@ -2372,7 +2368,7 @@ class JS_Api extends Page
 				// of the bodycopy containers ..this will always be different while comparing 2 assets
 				// and this will cause the output to be malformed even if the content was same
 				$contents[$index] = preg_replace($pattern, $replacement, $contents[$index]);
-				// replace &nbsp; with proper space. this is to prevent html_entity_decode 
+				// replace &nbsp; with proper space. this is to prevent html_entity_decode
 				// in matrix_diff_highlighter.inc to convert it to a "\xa0"
 				// which is break the putput when were are json_encode'ing the results
 				// to be sent back to API
@@ -2737,7 +2733,7 @@ class JS_Api extends Page
 					}
 					$new_link_id = $am->createAssetLink($parent_asset, $child_asset, $link_type, $link_value, $sort_order, $link_id['is_dependant'], $link_id['is_exclusive'], FALSE, $lock);
 				}
-			
+
 			} else {
 				$new_link_id = $am->updateLink($link_id['link_id'], $link_type, $link_value, $sort_order, $locked);
 			}
@@ -3048,7 +3044,7 @@ class JS_Api extends Page
 					foreach ($parents as $parentid => $parent_link_info) {
 						$parent_asset = $am->getAsset($parentid);
 						if ($parent_link_info['locked'] == '1') {
-							// found the link locked.... 
+							// found the link locked....
 							$response[] = 'Link between Asset "'.$asset->name.'" (#'.$asset->id.') and Asset "'.$parent_asset->name.'" (#'.$parent_asset->id.') is locked';
 						} else {
 							//link not locked....lets get it done with
@@ -3174,7 +3170,7 @@ class JS_Api extends Page
 				if (!$regen_all_contexts && (!$field->attr('is_contextable') || $field instanceof Metadata_Field_Select)) {
 					$regen_all_contexts = TRUE;
 				}
-				
+
 				$field_name		= $field->attr('name');
 				$metadata_info	= Array (
 									$fieldid[$i]	=> Array (
@@ -3293,7 +3289,7 @@ class JS_Api extends Page
 				return TRUE;
 			}//end if
 		}//end if
-	
+
 		return FALSE;
 
 	}//end hasLink
@@ -3344,7 +3340,7 @@ class JS_Api extends Page
 				return Array('error' => 'Parent asset passed does not match the restricted Parents type configured');
 			}
 		}
-		
+
 		$am->includeAsset($type_code);
 
 		$object_name = str_replace(' ', '_', ucwords(str_replace('_', ' ', $type_code)));
@@ -3409,8 +3405,8 @@ class JS_Api extends Page
 		}
 
 	}//end checkParentType
-	
-	
+
+
 	/**
 	* Description: Check out see if the passed asset is under the root restriction
 	*
@@ -3575,7 +3571,7 @@ class JS_Api extends Page
 			$return_array[] = '"'.$screen.'" type lock doesnt exist for Asset "'.$asset->name.'" (#'.$asset->id.').';
 			return $return_array;
 		}
-		
+
 		//lets prepare a hipo running vars
 		$res = NULL;
 		$locks = $this->getLocksInfo($asset->id, $screen);
@@ -3612,7 +3608,7 @@ class JS_Api extends Page
 		}
 
 		return array_unique($return_array);
-	
+
 	}//end acquireLocks()
 
 
@@ -3620,7 +3616,7 @@ class JS_Api extends Page
 	* Returns an array of information about the current lock on this asset (if any)
 	*
 	* @param string		$assetid		the assetid of the asset that we want lock info for
-	* @param string		$lock_type		any valid lock type for the passed asset's type, plus 'all' which will return all locks that this asset has - 
+	* @param string		$lock_type		any valid lock type for the passed asset's type, plus 'all' which will return all locks that this asset has -
 	*
 	* @return array
 	* @access public
@@ -3716,9 +3712,9 @@ class JS_Api extends Page
 
 
 	/**
-	* Returns the JSON output 
+	* Returns the JSON output
 	*
-	* @param array	 $data	The array of information to return as JSON	
+	* @param array	 $data	The array of information to return as JSON
 	*
 	* @access public
 	*/
@@ -3833,7 +3829,7 @@ class JS_Api extends Page
 	* @return array
 	* @access public
 	*/
-	function array_utf8_encode_recursive($dat) 
+	function array_utf8_encode_recursive($dat)
 	{
 		if (is_string($dat)) {
 			return utf8_encode($dat);
@@ -3846,10 +3842,10 @@ class JS_Api extends Page
 				$new->$k= $this->array_utf8_encode_recursive($new->$k);
 			}
 			return $new;
-		} 
+		}
 
-		if (!is_array($dat)) return $dat; 
-		$ret = array(); 
+		if (!is_array($dat)) return $dat;
+		$ret = array();
 		foreach($dat as $i=>$d) {
 			$ret[$i] = $this->array_utf8_encode_recursive($d);
 		}
