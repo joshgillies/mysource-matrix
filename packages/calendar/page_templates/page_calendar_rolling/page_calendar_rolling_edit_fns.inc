@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling_edit_fns.inc,v 1.10 2008/11/24 23:17:15 mbrydon Exp $
+* $Id: page_calendar_rolling_edit_fns.inc,v 1.10.22.1 2012/08/07 06:14:59 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *	Functions to help print and process the backend interface of rolling calendar page assets
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.10.22.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -536,6 +536,78 @@ class Page_Calendar_Rolling_Edit_Fns extends Page_Edit_Fns
 		return TRUE;
 
 	}//end processTypeFormats()
+
+
+	/**
+	* Process use format bodycopy dropdown
+	*
+	* This function returns boolean FALSE if write access to links cannot be
+	* gained on the calendar rolling page  asset, TRUE otherwise.
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintUseNoResultsBodycopy(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('links');
+		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'bodycopy', FALSE, 'no_results');
+		$enabled = !empty($bodycopy_link);
+
+		if ($write_access) {
+			$options = Array(
+						'1'	=> translate('yes'),
+						'0'	=> translate('no'),
+					   );
+
+			combo_box($prefix.'_use_bodycopy', $options, FALSE, Array($enabled));
+
+		} else {
+			if ($enabled) {
+				echo translate('yes').' - '.get_asset_tag_line($bodycopy_link['minorid'], 'contents');
+			} else {
+				echo translate('no');
+			}
+		}
+
+		return $write_access;
+
+	}//end paintUseNoResultsBodycopy()
+
+
+	/**
+	* Process use format bodycopy
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processUseNoResultsBodycopy(&$asset, &$o, $prefix)
+	{
+		if (!$asset->writeAccess('links')) return FALSE;
+		$enabled = $_POST[$prefix.'_use_bodycopy'];
+
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		if (!$asset->setUseNoResultsBodycopy($enabled)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			return FALSE;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+		return TRUE;
+
+	}//end processUseNoResultsBodycopy()
 
 
 	/**
