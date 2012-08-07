@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.252 2012/03/30 03:22:11 mhaidar Exp $
+* $Id: search_manager.inc,v 1.253 2012/08/07 08:12:10 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.252 $
+* @version $Revision: 1.253 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -410,6 +410,18 @@ class Search_Manager extends Asset
 					// because we are only adding values for this context after all,
 					// which won't be defaults
 					$this->flushIndexableContent($asset->id, $flush_vars, Array($contextid));
+
+					// Also flush the non-contextable attributes updated in this context
+					// This will be indexed as the general "default context" value (see bug #5832)
+					$flush_non_contextable_vars = Array();
+					foreach($indexable_content as $attr_idx_data) {
+						if (isset($attr_idx_data['contextid']) && $attr_idx_data['contextid'] == 'default' && isset($attr_idx_data['component'])) {
+							$flush_non_contextable_vars[$attr_idx_data['component']] = 1;
+						}//end if
+					}//end foreach
+					if (!empty($flush_non_contextable_vars)) {
+						$this->flushIndexableContent($asset->id, array_keys($flush_non_contextable_vars), Array('default'));
+					}
 				}
 			}
 
@@ -652,15 +664,25 @@ class Search_Manager extends Asset
 				}
 			}
 		} else {
-			$context_list = Array($contextid);
+			$context_list = Array();
+			// We might need the "default" context values for non-contextable attributes
+			if ($contextid !== 0) {
+				$context_list[] = 0;
+				$GLOBALS['SQ_SYSTEM']->changeContext(0);
+				$context_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->id);
+				$asset_vars[0] = $context_asset->vars;
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($context_asset->id);
+				unset($context_asset);
+				$GLOBALS['SQ_SYSTEM']->restoreContext();
+			}
+			$context_list[] = $contextid;
 			$asset_vars[$contextid] = $asset->vars;
 		}
-
+		
 		// We cannot use isset() because we have to handle the possibility of a
 		// NULL default value, so will try and fudge with an array and
 		// array_key_exists(). Hold onto your hats, folks...
 		$default_value = Array();
-
 		foreach ($asset->vars as $var_name => $var_data) {
 
 			// only reindex the attributes that have been changed
@@ -686,7 +708,8 @@ class Search_Manager extends Asset
 				foreach (array_keys($asset_vars) as $this_contextid) {
 					$attr = $GLOBALS['SQ_SYSTEM']->am->getAttribute($attrid);
 					$attr->setValue($asset_vars[$this_contextid][$var_name]['value']);
-					if ((int)$asset_vars[$this_contextid][$var_name]['use_default'] === 1) {
+					// Need to check if the 'use_default' key is set to NULL
+					if (array_key_exists('use_default', $asset_vars[$this_contextid][$var_name]) && (int)$asset_vars[$this_contextid][$var_name]['use_default'] === 1) {
 						// Is the default value for this attribute found yet?
 						// Otherwise, don't bother reloading the attribute.
 						if (isset($default_value[$var_name]) === FALSE) {
