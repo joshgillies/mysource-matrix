@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-*$Id: deja_vu.inc,v 1.6.8.1 2012/05/07 03:14:06 mhaidar Exp $
+*$Id: deja_vu.inc,v 1.6.8.2 2012/08/07 00:12:00 akarelia Exp $
 *
 */
 
@@ -35,7 +35,7 @@ define('SQ_DEJA_VU_LOCALE', 'locale_manager');
 * memory, purely to improve scalability.
 *
 * @author  James Hurst <jhurst@squiz.co.uk>
-* @version $Revision: 1.6.8.1 $
+* @version $Revision: 1.6.8.2 $
 * @package MySource_Matrix
 */
 class Deja_Vu extends MySource_Object
@@ -46,15 +46,15 @@ class Deja_Vu extends MySource_Object
 	 * @var Object Memcache
 	 */
 	private $_memcache;
-	
-	
+
+
 	/**
 	 * Enabled flag.
 	 *
 	 * @var int
 	 */
 	private $_enabled;
-	
+
 
 	/**
 	* Constructor
@@ -71,7 +71,7 @@ class Deja_Vu extends MySource_Object
 			$this->_enabled = (int) file_get_contents(SQ_DEJA_VU_CONTROL);
 			if ($this->_enabled !== 1) $this->_enabled = 0;
 		}
-		
+
 		if ($this->enabled() === 1) {
 			assert_true(extension_loaded('memcache'), 'Cannot use Deja Vu; it requires the memcache PECL extension installed within , which is not installed');
 			assert_true(file_exists(SQ_DATA_PATH.'/private/conf/memcache.inc'), 'Cannot use Deja Vu; the Memcache configuration file is not set');
@@ -104,27 +104,27 @@ class Deja_Vu extends MySource_Object
 												'attributeChange',
 												'AssetTypeUpdate',
 												'MetadataUpdate',
-												'MetadataDeleted',									
+												'MetadataDeleted',
 												)
 											);
 		}
-		
+
 	}//end constructor
-	
-	
+
+
 	/**
 	 * Flag to control enabled/disabled state.
 	 *
 	 * @return bool
 	 * @access public
 	 */
-	public function enabled() 
+	public function enabled()
 	{
 		return $this->_enabled;
-		
+
 	}//end enabled()
-	
-	
+
+
 	/**
 	* Fetch an item from memcached, or null if not found.
 	*
@@ -137,7 +137,10 @@ class Deja_Vu extends MySource_Object
 	public function recall($type, $assetid = NULL, $contextid = NULL)
 	{
 		//ignore shadow assets
-		if(strpos($assetid, ':') !== FALSE) return NULL;
+		if (strpos($assetid, ':') !== FALSE) return NULL;
+		// bug fix #5831 Inconsistent contents when using Deja Vu and Rollback
+		// If in rollback don't worry about getting cached content for assets
+		if (defined('SQ_ROLLBACK_VIEW') && SQ_ROLLBACK_VIEW) return null;
 		$cache_key = $this->_getCacheKey($type, $assetid, $contextid);
 		switch ($type) {
 		case 'asset':
@@ -146,18 +149,18 @@ class Deja_Vu extends MySource_Object
 			//	Cache miss for $cache_key
 				return NULL;
 			}
-			
+
 			// If $obj is an undefined object, it's an asset stored without the class being included yet.
 			// We must include the correct asset and try again.
 			if ($obj instanceof __PHP_Incomplete_Class) {
 				$obj_def = (array) $obj;
 				// Determine the correct type code
 				$type_code = strtolower($obj_def['__PHP_Incomplete_Class_Name']);
-				
+
 				$am	=& $GLOBALS['SQ_SYSTEM']->am;
 				if ($am->installed($type_code)) {
 					$am->includeAsset($type_code);
-					
+
 					// We need to re-get the object to re-unserialize.
 					$obj = $this->_memcache->get($cache_key);
 				} else {
@@ -167,10 +170,10 @@ class Deja_Vu extends MySource_Object
 					return NULL;
 				}
 			}//end if
-			
+
 			return $obj;
 			break;
-			
+
 		default:
 			$data = $this->_memcache->get($cache_key);
 
@@ -180,11 +183,11 @@ class Deja_Vu extends MySource_Object
 				return $data;
 			}
 			break;
-			
+
 		}//end switch
-		
+
 	}//end recall
-	
+
 
 	/**
 	* Store an item in memcached.
@@ -199,7 +202,10 @@ class Deja_Vu extends MySource_Object
 	public function remember($type, $assetid, $object, $contextid = NULL)
 	{
 		//ignore shadow assets
-		if(strpos($assetid, ':') !== FALSE) return NULL;
+		if (strpos($assetid, ':') !== FALSE) return NULL;
+		// bug fix #5831 Inconsistent contents when using Deja Vu and Rollback
+		// If in rollback we shouldn't be really caching the content for asset
+		if (defined('SQ_ROLLBACK_VIEW') && SQ_ROLLBACK_VIEW) return null;
 		return $this->_memcache->set($this->_getCacheKey($type, $assetid, $contextid), $object);
 	}//end remember()
 
@@ -213,11 +219,11 @@ class Deja_Vu extends MySource_Object
 	* @access public
 	*/
 	public function forget($type, $assetid = NULL, $contextid = NULL)
-	{	
+	{
 		return $this->_memcache->delete($this->_getCacheKey($type, $assetid, $contextid));
 	}//end forget()
-	
-	
+
+
 	/**
 	 * Forget everything.
 	 *
@@ -227,10 +233,10 @@ class Deja_Vu extends MySource_Object
 	public function forgetAll()
 	{
 		return $this->_memcache->flush();
-	
+
 	}//end forgetAll()
-	
-	
+
+
 	/**
 	 * Generate the cache key for the given type / assetid.
 	 *
@@ -252,13 +258,13 @@ class Deja_Vu extends MySource_Object
 				return SQ_DEJA_VU_MEMCACHE_PREFIX.$contextid.'\\'.$assetid.'|'.$type;
 				break;
 		}
-		
+
 	}//end _getCacheKey()
-	
-	
+
+
 	/******* EVENT HANDLERS *************************************************/
-		
-	
+
+
 	/**
 	 * Event handler for when asset status changes.
 	 *
@@ -274,9 +280,9 @@ class Deja_Vu extends MySource_Object
 		foreach ($contexts as $contextid => $context) {
 			$this->forget(SQ_DEJA_VU_ASSET, $broadcaster->id, $contextid);
 		}
-				
+
 	}//end onAssetStatusUpdate
-	
+
 	/**
 	 * Event handler for when asset is deleted.
 	 *
@@ -291,7 +297,7 @@ class Deja_Vu extends MySource_Object
 		foreach ($contexts as $contextid => $context) {
 			$this->forget(SQ_DEJA_VU_ASSET, $broadcaster->id, $contextid);
 		}
-	
+
 	}//end onAssetDeleted
 
 
@@ -306,7 +312,7 @@ class Deja_Vu extends MySource_Object
 	public function onAssetUpdate(&$broadcaster, $vars = Array())
 	{
 		$this->forget(SQ_DEJA_VU_ASSET, $broadcaster->id);
-		
+
 	}//end onAssetUpdate
 
 
@@ -321,7 +327,7 @@ class Deja_Vu extends MySource_Object
 	public function onContentsUpdated(&$broadcaster, $vars)
 	{
 		$this->forget(SQ_DEJA_VU_ASSET, $broadcaster->id);
-		
+
 	}//end onContentsUpdated
 
 
@@ -336,10 +342,10 @@ class Deja_Vu extends MySource_Object
 	public function onAttributeChange(&$broadcaster, $vars)
 	{
 		$this->forget(SQ_DEJA_VU_ASSET, $broadcaster->id);
-		
+
 	}//end onAttributeChange
-	
-	
+
+
 	/**
 	 * Event handler for when asset type changes (morphing).
 	 *
@@ -354,10 +360,10 @@ class Deja_Vu extends MySource_Object
 		foreach ($contexts as $contextid => $context) {
 			$this->forget(SQ_DEJA_VU_ASSET, $broadcaster->id, $contextid);
 		}
-		
+
 	}//end onAssetTypeUpdate
-	
-	
+
+
 	/**
 	 * Event handler for when metadata is updated.
 	 *
@@ -369,10 +375,10 @@ class Deja_Vu extends MySource_Object
 	public function onMetadataUpdate(&$broadcaster, $vars)
 	{
 		$this->forget(SQ_DEJA_VU_METADATA, $broadcaster->id);
-		
+
 	}//end onMetadataUpdate
-	
-	
+
+
 	/**
 	 * Event handler for when metadata is deleted.
 	 *
@@ -384,13 +390,13 @@ class Deja_Vu extends MySource_Object
 	public function onMetadataDeleted(&$broadcaster, $vars)
 	{
 		$this->forget(SQ_DEJA_VU_METADATA, $broadcaster->id);
-		
+
 	}//end onMetadataDeleted
-	
-	
+
+
 	/******* UTILITIES *************************************************/
-	
-	
+
+
 	/**
 	 * Enable DeJa Vu
 	 *
@@ -406,10 +412,10 @@ class Deja_Vu extends MySource_Object
 			}
 		}
 		return $rv;
-		
+
 	}//end enable()
-	
-	
+
+
 	/**
 	 * Disable DeJa Vu
 	 *
@@ -426,10 +432,10 @@ class Deja_Vu extends MySource_Object
 			}
 		}
 		return $rv;
-		
+
 	}//end disable()
 
-	
+
 	/**
 	* Failure Callback function for Memcache::addServer
 	* 
@@ -444,7 +450,8 @@ class Deja_Vu extends MySource_Object
 		log_error(get_class()." failure communicating with $hostname:$port", E_USER_WARNING);
 
 	}//end failureCallback()
-	
+
+
 }//end class
 
 ?>
