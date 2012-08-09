@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.77 2012/03/16 06:36:13 mhaidar Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.78 2012/08/09 07:51:02 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.77 $
+* @version $Revision: 1.78 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -294,6 +294,8 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 			foreach ($keywords as $keyword) {
 				// Escape the regex characters in the keyword
 				$regex_safe_keyword = escape_regex_chars($keyword);
+				// Escape the double quotes, newlines and '$' in the keyword
+				$keyword = str_replace('$', '\\\$', str_replace('\n', '\\\\\n', htmlentities($keyword)));
 				
 				$output = preg_replace('|%((<([^>]+?)>)+)?'.$regex_safe_keyword.'((<([^>]+?)>)+)?%|', '\\1<'.'?php echo (isset($keyword_replacements["'.$keyword.'"])) ? $keyword_replacements["'.$keyword.'"] : ""; ?'.'>\\4', $output);
 			}

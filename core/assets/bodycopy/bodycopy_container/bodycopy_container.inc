@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.52 2011/12/05 06:14:02 mhaidar Exp $
+* $Id: bodycopy_container.inc,v 1.53 2012/08/09 07:51:02 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -403,7 +403,16 @@ class Bodycopy_Container extends Asset
 				}
 			}
 		}
-    
+		
+		// Escape the double quotes in the keyword
+		foreach($keyword_replacements as $keyword => $val) {
+			$safe_keyword = htmlentities($keyword);
+			if ($safe_keyword != $keyword) {
+				$keyword_replacements[$safe_keyword] = $val;
+				unset($keyword_replacements[$keyword]);
+			}
+		}
+		
 		$contextid = (int)$GLOBALS['SQ_SYSTEM']->getContextId();
 		$context_suffix = ($contextid === 0) ? '' : ('.'.$contextid);
 		$content_file_name = 'content_file'.$context_suffix.'.php';
