@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.269 2012/07/25 00:00:17 ewang Exp $
+* $Id: general.inc,v 1.270 2012/08/09 05:59:01 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.269 $
+* @version $Revision: 1.270 $
 * @package MySource_Matrix
 */
 
@@ -180,9 +180,8 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 			$error_title = 'background-color: '.$bg_colour.'; font-size: 14px; font-weight: bold; color: #ffffff; font-family: verdana, arial, sans-serif; vertical-align: top;';
 			$error_data  = 'background-color: '.$bg_colour.'; font-size: 12px; color: #ffffff; font-family: verdana, arial, sans-serif; vertical-align: top;';
 			if(empty($buffers)) echo '</script></table></table></table></table><br/>';
+			if(!(SQ_IN_BACKEND || SQ_IN_LIMBO)) echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
 			?>	
-				<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-				</script></table></table></table></table><br/>
 				<table bgcolor="#c0c0c0" cellspacing="0" border="1" cellpadding="2" bordercolor="#ff0000">
 					<tr>
 						<td style="<?php echo $error_title; ?>">
