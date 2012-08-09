@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_bodycopy_management.inc,v 1.11 2012/01/23 03:07:59 akarelia Exp $
+* $Id: paint_layout_bodycopy_management.inc,v 1.11.4.1 2012/08/08 23:59:34 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.11.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -73,24 +73,23 @@ class Paint_Layout_Bodycopy_Management extends Asset_Management
 	{
 		parent::_upgrade($current_version);
 
-		if (version_compare($current_version, '0.5', '<')) {
-			echo('UPGRADING PAINT LAYOUT BODYCOPY FROM '.$current_version." TO VERSION 0.5\n");
+		if (version_compare($current_version, '0.6', '<')) {
+			echo('UPGRADING PAINT LAYOUT BODYCOPY FROM '.$current_version." TO VERSION 0.6\n");
 
 			pre_echo('Updating Paint Layout Bodycopy...');
 			// Get all Search Page assets
 			$paint_layout_bodycopy = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('paint_layout_bodycopy', FALSE, TRUE);
 			foreach ($paint_layout_bodycopy as $id => $type) {
-				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($id);
-				$conditional_keywords = $asset->attr('conditional_keywords');
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($id, '', TRUE);
 
-				if (!empty($conditional_keywords)) {
+				if (!is_null($asset)) {
 					$asset->_updated();
 				}
 
 				$asset = NULL;
 			}//
 
-			pre_echo('SEARCH PAINT LAYOUT BODYCOPY SUCCESSFULLY UPGRADED TO VERSION 0.5');
+			pre_echo('PAINT LAYOUT BODYCOPY SUCCESSFULLY UPGRADED TO VERSION 0.6');
 		}//end if
 
 		return TRUE;
