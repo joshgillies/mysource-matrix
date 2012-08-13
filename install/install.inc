@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.98 2012/02/06 23:05:47 ewang Exp $
+* $Id: install.inc,v 1.98.2.1 2012/08/13 00:13:07 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.98 $
+* @version $Revision: 1.98.2.1 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -662,6 +662,20 @@ function generate_lang_char_map()
 										'Ī' => 'I',
 										'Ō' => 'O',
 										'Ū' => 'U',
+						    				'á' => 'a',
+										'é' => 'e',
+										'í' => 'i',
+										'ó' => 'o',
+										'ú' => 'u',
+										'ü' => 'u',
+										'ñ' => 'n',
+										'Á' => 'A',
+										'É' => 'E',
+										'Í' => 'I',
+										'Ó' => 'O',
+										'Ú' => 'U',
+										'Ü' => 'U',
+										'Ñ' => 'N',
 									  ),
 			 );
 
