@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.883.2.1 2012/06/22 03:40:44 cupreti Exp $
+* $Id: asset_manager.inc,v 1.883.2.2 2012/08/14 07:21:35 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.883.2.1 $
+* @version $Revision: 1.883.2.2 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1183,10 +1183,13 @@ class Asset_Manager extends MySource_Object
 			if ($deja_vu) {
 				$asset = $deja_vu->recall(SQ_DEJA_VU_ASSET, $assetid);
 				if (!empty($asset)) {
-					// Bug #5349: Deja Vu and Safe Editing
-					$asset->_loadDataPaths();
-					// We still want asset cache to do its thing.
-					$this->_asset_cache->add($asset, $contextid.'\\'.$asset->id);
+					if ($asset->status & SQ_SC_STATUS_SAFE_EDITING) {
+					    $asset = NULL;
+					}
+					else {
+					    // We still want asset cache to do its thing.
+					    $this->_asset_cache->add($asset, $contextid.'\\'.$asset->id);
+					}
 				}
 			}
 		}
@@ -1264,7 +1267,7 @@ class Asset_Manager extends MySource_Object
 			$this->_asset_cache->add($asset, $contextid.'\\'.$asset->id);
 			
 			$deja_vu = $GLOBALS['SQ_SYSTEM']->getDejaVu();
-			if ($deja_vu) {
+			if ($deja_vu &&  !($asset->status & SQ_SC_STATUS_SAFE_EDITING)) {
 				$deja_vu->remember(SQ_DEJA_VU_ASSET, $asset->id, $asset);
 			}
 		}
