@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.105.12.2 2012/08/03 01:03:45 cupreti Exp $
+* $Id: hipo_job.inc,v 1.105.12.3 2012/08/14 23:50:03 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.105.12.2 $
+* @version $Revision: 1.105.12.3 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -1436,18 +1436,30 @@ class HIPO_Job extends MySource_Object
 	/**
 	* Cancel the HIPO and cleanup
 	*
+	* @param boolean $abort_source		Whether to abort the job's source job, if any
+	* @param boolean $abort_dependant	Whether to abort the job's dependant job, if any
+	*
 	* @return boolean
 	* @access public
 	*/
-	function abort()
+	function abort($abort_source=TRUE, $abort_dependant=TRUE)
 	{
-		if ($this->source_code_name != $this->code_name) {
+		// If "source_code_name" and "code_name" are differnet then this is a dependant job
+		// Therefore get the job's source and abort it too
+		if ($abort_source && $this->source_code_name != $this->code_name) {
 			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$source_job = $hh->getJob($this->source_code_name);
 			if (is_null($source_job) || ($source_job->source_code_name != $source_job->code_name)) {
 				return FALSE;
 			}
-			$source_job->abort();
+			$source_job->abort(TRUE, FALSE);
+		}
+		// If the job has spawned a dependant job, abort it (Bug #5838)
+		if ($abort_dependant) {
+			$dependant_job = $this->getDependantHipoJob();
+			if (!is_null($dependant_job)) {
+				$dependant_job->abort(FALSE, TRUE);
+			}
 		}
 
 		// if aborting through a web script, but the processing is running on the server we need to inform the server to abort
@@ -1510,21 +1522,6 @@ class HIPO_Job extends MySource_Object
 		return TRUE;
 
 	}//end abort()
-
-
-	/**
-	* Called to do any clean-up for this job
-	*
-	* @return boolean
-	* @access public
-	*/
-	function jobAborted()
-	{
-		$this->setOption('auto_complete', TRUE);
-		$this->_hipo_vars['aborted'] = TRUE;
-		return $this->save();
-
-	}//end jobAborted()
 
 
 	/**
@@ -1699,6 +1696,24 @@ class HIPO_Job extends MySource_Object
 
 	}//end _errorHandler()
 
+
+	/**
+	* Returns the dependent HIPO jobs spawned by this job, if any
+	*
+	* @return object|null
+	* @access public
+	*/
+	function getDependantHipoJob()
+	{	
+		$dependant_job = NULL;
+		if (!empty($this->_running_vars['dependant_hipo_job'])) {
+			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$dependant_job = $hh->getJob($this->_running_vars['dependant_hipo_job']);
+		}
+		
+		return $dependant_job;
+
+	}//end getDependantHipoJob()
 
 }//end class
 ?>
