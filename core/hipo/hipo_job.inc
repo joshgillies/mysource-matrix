@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.105.12.3 2012/08/14 23:50:03 cupreti Exp $
+* $Id: hipo_job.inc,v 1.105.12.4 2012/08/14 23:53:29 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.105.12.3 $
+* @version $Revision: 1.105.12.4 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -1523,7 +1523,22 @@ class HIPO_Job extends MySource_Object
 
 	}//end abort()
 
+	
+	/**
+	* Called to do any clean-up for this job
+	*
+	* @return boolean
+	* @access public
+	*/
+	function jobAborted()
+	{
+		$this->setOption('auto_complete', TRUE);
+		$this->_hipo_vars['aborted'] = TRUE;
+		return $this->save();
 
+	}//end jobAborted()
+
+	
 	/**
 	* Paint a report of errors that were triggered during HIPO execution
 	*
