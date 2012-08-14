@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_manage_incomplete_submissions.inc,v 1.6 2010/10/13 06:11:41 mhaidar Exp $
+* $Id: cron_job_manage_incomplete_submissions.inc,v 1.6.10.1 2012/08/14 02:52:06 ewang Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *    similar way.
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.10.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -275,6 +275,8 @@ class Cron_Job_Manage_Incomplete_Submissions extends Cron_Job
 						$submission_assetid = $submission_record['assetid'];
 						$submission_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($submission_assetid);
 
+						if(empty($submission_asset)) continue;
+						
 						$created_userid = $submission_asset->created_userid;
 
 						if (!isset($warning_assetids[$submission_assetid])) {
@@ -312,11 +314,13 @@ class Cron_Job_Manage_Incomplete_Submissions extends Cron_Job
 											// Get the 'asset_*' keyword from the form PARENT page
 											$sub_keyword = substr($keyword, 11);
 											$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_assetid);
+											if(empty($parent_asset)) continue;
 											$replacement = $parent_asset->getKeywordReplacement('asset_'.$sub_keyword);
 										} else if (substr($keyword, 0, 11) === 'user_asset_') {
 											// Get the 'asset_*' keyword from the created user
 											$sub_keyword = substr($keyword, 11);
 											$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($created_userid);
+											if(empty($user)) continue;
 											$replacement = $user->getKeywordReplacement('asset_'.$sub_keyword);
 										} else if (substr($keyword, 0, 17) === 'submission_asset_') {
 											// Get the 'asset_*' keyword from the submission
