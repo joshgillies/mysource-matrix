@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: requirements.xml,v 1.15 2012/07/10 04:59:48 ewang Exp $
+* $Id: requirements.xml,v 1.16 2012/08/15 05:34:02 ewang Exp $
 *
 */
 -->
@@ -41,7 +41,7 @@
 		<description> - you only need to install this module if DB datasource asset will connect to mysql DB</description>
 	</requirement>
 	<requirement>
-		<php_extension>pdo_sqlsrv</php_extension>
+		<php_extension>pdo_dblib</php_extension>
 		<suggested>1</suggested>
 		<description> - you only need to install this module if DB datasource asset will connect to MS SQL Server</description>
 	</requirement>
