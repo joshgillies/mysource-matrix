@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.66 2012/08/06 05:16:36 ewang Exp $
+* $Id: text.inc,v 1.67 2012/08/15 03:54:32 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.66 $
+* @version $Revision: 1.67 $
 * @package Fudge
 * @subpackage Text
 */
@@ -89,7 +89,7 @@ function _replace_keywords_recursive(&$text, &$replacements)
 
 
 /**
- * Parses a keyword which may contain modifier syntax. 
+ * Parses a keyword which may contain modifier syntax.
  *
  * e.g. asset_contents~maxwords:10
  *
@@ -120,7 +120,7 @@ function parse_keyword($keyword, &$modifiers = NULL)
 
 /**
  * Applies a set of modifiers against given text. $text is updated in place.
- * 
+ *
  * @param string	$text				the text to modify
  * @param array		$modifiers			modifiers to apply to $text
  * @param array		$replace_keywords	info used for 'replace_keywords' modifier,
@@ -134,7 +134,7 @@ function parse_keyword($keyword, &$modifiers = NULL)
  *						'replacements'	=> supply if any keyword replacements available from the caller scope,
  *					)
  * </pre>
- * 
+ *
  * @return void
  * @access public
  */
@@ -151,7 +151,7 @@ function apply_keyword_modifiers(&$text, $modifiers, $replace_keywords=Array())
  * Returns a version of $text piped through a predefined modifier.
  *
  * Most modifiers should be self explanatory.
- * 
+ *
  * @param string	$text				the text to modify
  * @param array		$modifier			the modifier type and its arguments
  * @param array		$replace_keywords	info used for 'replace_keywords' modifier,
@@ -165,7 +165,7 @@ function apply_keyword_modifiers(&$text, $modifiers, $replace_keywords=Array())
  *						'replacements'	=> supply if any keyword replacements available from the caller scope,
  *					)
  * </pre>
- * 
+ *
  * @return string
  * @access public
  */
@@ -182,7 +182,7 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array())
 		 */
 		$nested_modifier = array_get_index($modifier['args'], 0, NULL);
 		$nested_modifier_args = Array();
-		
+
 		$kw_replacements = array_get_index($replace_keywords, 'replacements', Array());
 		$assetid = array_get_index($replace_keywords, 'assetid', 0);
 		$call_fns = array_get_index($replace_keywords, 'call_fns', Array('getKeywordReplacement'));
@@ -191,7 +191,7 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array())
 			$value = $modifier['args'][$i];
 			preg_match_all('/\{([a-zA-Z_]{2,}[a-zA-Z_\-0-9\.:]+)\}/', $value, $matches, PREG_PATTERN_ORDER);
 			$keywords = array_unique($matches[1]);
-			
+
 			$replacements = Array();
 			foreach ($keywords as $keyword){
 				if (isset($kw_replacements[$keyword])){
@@ -208,7 +208,7 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array())
 								}
 							}
 						}
-	
+
 					}
 				}
 			}
@@ -221,7 +221,7 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array())
 		}
 
 		return apply_keyword_modifier($text, Array('modifier' => $nested_modifier, 'args' => $nested_modifier_args));
-		
+
 	case "urlencode":
 		return urlencode($text);
 
@@ -255,7 +255,7 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array())
 	case "maxchars":
 		// One argument; the max characters as an integer.
 		$max = array_get_index($modifier['args'], 0, -1);
-		
+
 		if (SQ_CONF_DEFAULT_CHARACTER_SET == 'utf-8' && extension_loaded('mbstring')) 
 			return mb_substr($text, 0, $max, SQ_CONF_DEFAULT_CHARACTER_SET);
 		else
@@ -300,11 +300,11 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array())
 	case "xpath":
 		// Args are delimeter, xpath
 		//
-		// Example (ordered list of RSS item titles, using tagif modifier to ol list): 
+		// Example (ordered list of RSS item titles, using tagif modifier to ol list):
 		//
 		//    %asset_contents~xpath:</li><li>://item/title~tagif:li~tagif:ol%
 		//
-		// The path lists all titles in the feed, delimited by </li><li>, and then conditionally wrapped in <li>, 
+		// The path lists all titles in the feed, delimited by </li><li>, and then conditionally wrapped in <li>,
 		// which in turn is conditionally wrapped in <ol>.
 		//
 		if (empty($text)) return $text;
@@ -330,7 +330,7 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array())
 						$xml->registerXPathNamespace($ns[0], trim($ns[1]));
 					}
 				}
-							
+
 				$res = $xml->xpath($path);
 				if ($res) {
 					return implode($delim, $xml->xpath($path));
@@ -342,13 +342,13 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array())
 
 		}
 		return $text;
-	
+
 	case "xpathe":
 		// Arg is a xpath query
 		//
 		// PHP state that XPath version 1.0 is supported,
 		// see: http://au.php.net/manual/en/class.domxpath.php
-		// 
+		//
 		// This should mean that all the functions documented by W3C are supported,
 		// see: http://www.w3.org/TR/xpath/
 		//
@@ -357,7 +357,7 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array())
 		//    %asset_contents~xpathe:sum(//item/value)%
 		//
 		// The path takes the mathematical sum() of item/value tags in the XML.
-		// 
+		//
 		// Example:
 		//
 		//    %asset_contents~xpathe:count(//h1)%
@@ -379,9 +379,9 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array())
 		// free up memory
 		unset($xpath);
 		unset($dom);
-		
+
 		return is_scalar($result) ? $result : $text;
-		
+
 	case "empty":
 		// One argument; text to display if the keyword result is empty.
 		if (empty($text)) {
@@ -435,7 +435,7 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array())
 	case "increment":
 		// Increment
 		return ++$text;
-	
+
 	case "decrement":
 		// Decrement
 		return --$text;
@@ -443,7 +443,7 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array())
 	case "negate":
 		// Negate
 		return -$text;
-	
+
 	case "abs":
 		// Returns the absolute number.
 		return abs($text);
@@ -461,7 +461,7 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array())
 		} else {
 			return $zero;
 		}
-	
+
 	case "ceil":
 		// Rounds up to integer.
 		return ceil($text);
@@ -511,8 +511,8 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array())
 	case "date_format":
 		// Format a date string and only prints the field required
 		$format = array_get_index($modifier['args'], 0, '');
-		return date($format, strtotime($text));						   	 
-	
+		return date($format, strtotime($text));
+
 	case "replace":
 		$toReplace   = array_get_index($modifier['args'], 0, NULL);
 		$replaceWith = array_get_index($modifier['args'], 1, NULL);
@@ -521,7 +521,7 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array())
 			return preg_replace('/'.$toReplace.'/', $replaceWith, $text);
 		}
 		return $text;
-                               
+
 	case "contains":
 		$toMatch = array_get_index($modifier['args'], 0, NULL);
 		$success = array_get_index($modifier['args'], 1, NULL);
@@ -535,7 +535,7 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array())
 			}
 		}
 		return $failure ? $failure : 0;
-		
+
 	 case "as_asset":
 		$asset_keyword = array_get_index($modifier['args'], 0, '');
 		if ($asset_keyword != '') {
@@ -614,7 +614,7 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array())
 			if (empty($xsl_assetid)) return $new_text;
 			$xsl_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($xsl_assetid);
 			if (empty($xsl_asset)) return $new_text;
-			
+
 			$xsl = new DOMDocument();
 			if ($xsl_asset instanceof File) {
 				$xsl->load($xsl_asset->data_path.'/'.$xsl_asset->name);
@@ -622,22 +622,59 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array())
 				trigger_error("XSLT keyword modifier: The asset #$xsl_assetid is not a File asset.");
 				return $new_text;
 			}
-	
+
 			//create the xslt object and import the style sheet
 			$xslt = new XSLTProcessor();
 			$xslt->importStylesheet($xsl);
-	
+
 			//load the XML from the keyword replacement text
 			$xml = new DOMDocument();
 			$xml->loadXML($text);
 			$new_text = $xslt->transformToXml($xml);
-		   
+
 		} catch (Exception $e) {
 			trigger_error($e->getMessage());
 		}
-		
+
 		return $new_text;
-		
+
+	case "json_encode":
+		if (!function_exists('json_encode'))  {
+			require_once 'Services/JSON.php';
+			$json = new Services_JSON();
+			$output = $json->encodeUnsafe($text);
+			if (Services_JSON::isError($output)) {
+				trigger_error($output, E_USER_NOTICE);
+			}
+		} else {
+			$output = json_encode($text);
+			if (function_exists('json_last_error') && (json_last_error() != JSON_ERROR_NONE)) {
+				switch (json_last_error()) {
+					case JSON_ERROR_DEPTH:
+						$error = 'Maximum stack depth exceeded';
+						break;
+					case JSON_ERROR_STATE_MISMATCH:
+						$error = 'Underflow or the modes mismatch';
+						break;
+					case JSON_ERROR_CTRL_CHAR:
+						$error = 'Unexpected control character found';
+						break;
+					case JSON_ERROR_SYNTAX:
+						$error = 'Syntax error, malformed JSON';
+						break;
+					case JSON_ERROR_UTF8:
+						$error = 'Malformed UTF-8 characters, possibly incorrectly encoded';
+						break;
+					default:
+						$error = 'Unknown error';
+						break;
+				}
+				trigger_error($error, E_USER_NOTICE);
+			}
+		}
+
+		return $output;
+
 	default:
 		return $text;
 
@@ -688,7 +725,7 @@ function _run_arithmetic_keyword_modifier($modifier, $text)
 		}//end if
 	default:
 		return $text;
-	}	
+	}
 
 }//end _run_arithmetic_keyword_modifier()
 
@@ -834,7 +871,7 @@ function get_word_counts($text, $split_regexp="/\s+/", $word_match_regexp="/\S+/
 * @param boolean	$not_indexing	default is FALSE, when TRUE this function does not remove a number of certain characters.
 * @param boolean	$oracle_keyword when TRUE, apostrophes and email address pattern are not altered in given string. This is relevent when
 									search plugin for Oracle db calls this function to filter the silent chars in search keyword
-									
+
 *
 * @return string
 * @access public
