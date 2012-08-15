@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.160.2.2 2012/02/21 03:39:21 akarelia Exp $
+* $Id: html_form.inc,v 1.160.2.3 2012/08/15 05:12:02 cupreti Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.160.2.2 $
+* @version $Revision: 1.160.2.3 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -775,7 +775,10 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 		if (is_null($asset)) {
 			$assetid = 0;
 		} else {
-			$label = $asset->short_name;
+			// Dont reveal the asset name if the current user has no read permission
+			if ($asset->readAccess()) {
+				$label = $asset->short_name;
+			}
 		}
 	}
 
