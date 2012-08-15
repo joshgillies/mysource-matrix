@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: replace_text.php,v 1.1 2007/03/05 22:03:45 rong Exp $
+* $Id: replace_text.php,v 1.1.26.1 2012/08/15 05:10:26 cupreti Exp $
 *
 */
 
@@ -19,13 +19,17 @@
 *
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
 * @author	Scott Kim <skim@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.26.1 $
 * @package MySource_Matrix
 */
 
 require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
+
+if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAccessBackend() || $GLOBALS['SQ_SYSTEM']->user->type() == 'simple_edit_user')){
+	exit;
+}
 
 if (!isset($_GET['name']))		  $_GET['name'] = '';
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.12 2011/02/15 23:20:38 cupreti Exp $
+* $Id: insert_image.php,v 1.12.6.1 2012/08/15 05:10:26 cupreti Exp $
 *
 */
 
@@ -19,10 +19,14 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.12.6.1 $
 * @package Fudge
 * @subpackage wysiwyg
 */
+require_once dirname(__FILE__).'/../../../../core/include/init.inc';
+if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAccessBackend() || $GLOBALS['SQ_SYSTEM']->user->type() == 'simple_edit_user')){
+	exit;
+}
 ?>
 <html>
 	<head>

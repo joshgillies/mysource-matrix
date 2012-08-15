@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: embed_youtube_search.php,v 1.1 2008/10/31 03:46:51 bpearson Exp $
+* $Id: embed_youtube_search.php,v 1.1.20.1 2012/08/15 05:10:26 cupreti Exp $
 *
 */
 
@@ -18,13 +18,17 @@
 * Insert YouTube Popup for the WYSIWYG
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.20.1 $
 * @package MySource_Matrix
 */
 
 require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once SQ_LIB_PATH.'/backend_search/backend_search.inc';
+
+if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAccessBackend() || $GLOBALS['SQ_SYSTEM']->user->type() == 'simple_edit_user')){
+	exit;
+}
 
 if (Backend_Search::isAvailable()) {
 	$quick_search_for_text = translate('asset_search_default_keyword');
@@ -38,13 +42,13 @@ $search_for = trim(array_get_index($_GET, 'quick-search-for', ''));
 if ($search_for != '') {
 	// check for a url first
 	$asset_by_url = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL('', strip_url($search_for, TRUE), TRUE, TRUE);
-	if (!empty($asset_by_url) && ($asset_by_url->type() != 'file')) {
+	if (!empty($asset_by_url) && ($asset_by_url->type() != 'file' || !$asset_by_url->readAccess())) {
 		$asset_by_url = NULL;
 	}
 
 	if (assert_valid_assetid($search_for, '', TRUE, FALSE)) {
 		$asset_by_id  = $GLOBALS['SQ_SYSTEM']->am->getAsset($search_for, '', TRUE);
-		if (!empty($asset_by_id) && ($asset_by_id->type() != 'file')) {
+		if (!empty($asset_by_id) && ($asset_by_id->type() != 'file' || !$asset_by_id->readAccess())) {
 			$asset_by_id = NULL;
 		}
 	}

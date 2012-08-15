@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_anchor.php,v 1.8 2006/12/06 05:11:10 bcaldwell Exp $
+* $Id: insert_anchor.php,v 1.8.28.1 2012/08/15 05:10:26 cupreti Exp $
 *
 */
 
@@ -19,13 +19,17 @@
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.28.1 $
 * @package MySource_Matrix
 */
 
 require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
+
+if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAccessBackend() || $GLOBALS['SQ_SYSTEM']->user->type() == 'simple_edit_user')){
+	exit;
+}
 
 if (!isset($_GET['name']))		$_GET['name']	= "";
 
