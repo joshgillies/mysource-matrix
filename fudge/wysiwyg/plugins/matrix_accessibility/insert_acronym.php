@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_acronym.php,v 1.7 2006/12/06 05:11:09 bcaldwell Exp $
+* $Id: insert_acronym.php,v 1.7.30.1 2012/08/15 05:08:14 cupreti Exp $
 *
 */
 
@@ -18,13 +18,17 @@
 * Insert Acronym Popup for the WYSIWYG
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.30.1 $
 * @package MySource_Matrix
 */
 
 require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
+
+if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAccessBackend() || $GLOBALS['SQ_SYSTEM']->user->type() == 'simple_edit_user')){
+	exit;
+}
 
 if (!isset($_GET['title']))		  $_GET['title'] = "";
 

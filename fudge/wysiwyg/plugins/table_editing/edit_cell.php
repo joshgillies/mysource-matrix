@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_cell.php,v 1.10.8.1 2012/07/26 05:21:13 ewang Exp $
+* $Id: edit_cell.php,v 1.10.8.2 2012/08/15 05:08:15 cupreti Exp $
 *
 */
 
@@ -18,11 +18,16 @@
 * Cell Edit Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.10.8.1 $
+* @version $Revision: 1.10.8.2 $
 * @package MySource_Matrix
 */
-
+require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 require_once dirname(__FILE__).'/../../wysiwyg_plugin.inc';
+
+if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAccessBackend() || $GLOBALS['SQ_SYSTEM']->user->type() == 'simple_edit_user')){
+	exit;
+}
+
 $wysiwyg = null;
 $plugin = new wysiwyg_plugin($wysiwyg);
 $_GET['f_bgcolor'] = preg_replace('/[^a-zA-Z_0-9 ]+/', '', $_GET['f_bgcolor']);

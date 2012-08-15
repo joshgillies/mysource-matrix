@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: embed_youtube.php,v 1.2 2011/02/15 02:18:14 cupreti Exp $
+* $Id: embed_youtube.php,v 1.2.8.1 2012/08/15 05:08:14 cupreti Exp $
 *
 */
 
@@ -18,13 +18,17 @@
 * Embed YouTube Popup for the WYSIWYG
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.8.1 $
 * @package MySource_Matrix
 */
 
 
 require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+
+if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAccessBackend() || $GLOBALS['SQ_SYSTEM']->user->type() == 'simple_edit_user')){
+	exit;
+}
 
 if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 ?>

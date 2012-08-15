@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: embed_movie.php,v 1.31 2011/02/16 06:35:37 cupreti Exp $
+* $Id: embed_movie.php,v 1.31.8.1 2012/08/15 05:08:14 cupreti Exp $
 *
 */
 
@@ -18,13 +18,17 @@
 * Embed Movie Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.31.8.1 $
 * @package MySource_Matrix
 */
 
 
 require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+
+if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAccessBackend() || $GLOBALS['SQ_SYSTEM']->user->type() == 'simple_edit_user')){
+	exit;
+}
 
 if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 ?>

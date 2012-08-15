@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image_search.php,v 1.4 2012/05/10 04:08:44 akarelia Exp $
+* $Id: insert_image_search.php,v 1.4.2.1 2012/08/15 05:08:14 cupreti Exp $
 *
 */
 
@@ -18,13 +18,17 @@
 * Insert Link Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.2.1 $
 * @package MySource_Matrix
 */
 
 require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once SQ_LIB_PATH.'/backend_search/backend_search.inc';
+
+if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAccessBackend() || $GLOBALS['SQ_SYSTEM']->user->type() == 'simple_edit_user')){
+	exit;
+}
 
 if (Backend_Search::isAvailable()) {
 	$quick_search_for_text = translate('asset_search_default_keyword');
@@ -38,13 +42,13 @@ $search_for = trim(array_get_index($_GET, 'quick-search-for', ''));
 if ($search_for != '') {
 	// check for a url first
 	$asset_by_url = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL('', strip_url($search_for, TRUE), TRUE, TRUE);
-	if (!is_a($asset_by_url, 'image')) {
+	if (!is_a($asset_by_url, 'image') || !$asset_by_url->readAccess()) {
 		$asset_by_url = NULL;
 	}
 
 	if (assert_valid_assetid($search_for, '', TRUE, FALSE)) {
 		$asset_by_id  = $GLOBALS['SQ_SYSTEM']->am->getAsset($search_for, '', TRUE);
-		if (!is_a($asset_by_id, 'image')) {
+		if (!is_a($asset_by_id, 'image') || !$asset_by_id->readAccess()) {
 			$asset_by_id = NULL;
 		}
 	}

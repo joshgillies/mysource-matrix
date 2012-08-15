@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_abbr.php,v 1.9.26.1 2012/07/26 05:21:13 ewang Exp $
+* $Id: insert_abbr.php,v 1.9.26.2 2012/08/15 05:08:14 cupreti Exp $
 *
 */
 
@@ -18,13 +18,17 @@
 * Insert Abbreviation Popup for the WYSIWYG
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.9.26.1 $
+* @version $Revision: 1.9.26.2 $
 * @package MySource_Matrix
 */
 
 require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
+
+if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAccessBackend() || $GLOBALS['SQ_SYSTEM']->user->type() == 'simple_edit_user')){
+	exit;
+}
 
 if (!isset($_GET['title']))		  $_GET['title'] = "";
 
