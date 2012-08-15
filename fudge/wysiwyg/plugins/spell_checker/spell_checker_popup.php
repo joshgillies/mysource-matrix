@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: spell_checker_popup.php,v 1.11 2011/06/02 06:57:08 mhaidar Exp $
+* $Id: spell_checker_popup.php,v 1.12 2012/08/15 03:31:37 cupreti Exp $
 *
 */
 
@@ -18,9 +18,14 @@
 * Spell Checker Popup for the WYSIWYG
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 */
+
+require_once dirname(__FILE__).'/../../../../core/include/init.inc';
+if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAccessBackend() || $GLOBALS['SQ_SYSTEM']->user->type() == 'simple_edit_user')){
+	exit;
+}
 
 require_once dirname(__FILE__).'/../../wysiwyg_plugin.inc';
 $wysiwyg = null;

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.inc,v 1.12 2006/12/06 05:11:09 bcaldwell Exp $
+* $Id: insert_image.inc,v 1.13 2012/08/15 03:42:27 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     in the editable document
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package Fudge
 * @subpackage wysiwyg
 */

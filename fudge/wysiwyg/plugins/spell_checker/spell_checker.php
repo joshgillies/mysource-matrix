@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: spell_checker.php,v 1.12 2007/05/01 06:04:18 rong Exp $
+* $Id: spell_checker.php,v 1.13 2012/08/15 03:31:37 cupreti Exp $
 *
 */
 
@@ -18,10 +18,16 @@
 * Spell Checker Popup for the WYSIWYG
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 */
+require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 include_once dirname(__FILE__).'/../../../../data/private/conf/tools.inc';
+
+if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAccessBackend() || $GLOBALS['SQ_SYSTEM']->user->type() == 'simple_edit_user')){
+	exit;
+}
+
 header('Content-type: text/html; charset: utf-8');
 
 ?>

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: snippet_info_popup.php,v 1.1 2007/10/25 23:19:40 rong Exp $
+* $Id: snippet_info_popup.php,v 1.2 2012/08/15 03:40:11 cupreti Exp $
 *
 */
 
@@ -18,12 +18,15 @@
 * Embed Movie Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 
 
 require_once dirname(__FILE__).'/../../../../core/include/init.inc';
+if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAccessBackend() || $GLOBALS['SQ_SYSTEM']->user->type() == 'simple_edit_user')){
+	exit;
+}
 
 ?>
 <html style="width: 740px; height: 500px;">
