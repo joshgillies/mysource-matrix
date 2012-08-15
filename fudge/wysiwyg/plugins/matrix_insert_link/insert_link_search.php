@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link_search.php,v 1.6 2012/05/10 04:08:44 akarelia Exp $
+* $Id: insert_link_search.php,v 1.7 2012/08/15 03:35:56 cupreti Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Insert Link Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 
@@ -26,6 +26,10 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once SQ_LIB_PATH.'/backend_search/backend_search.inc';
 require_once SQ_FUDGE_PATH.'/general/general.inc';
+
+if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAccessBackend() || $GLOBALS['SQ_SYSTEM']->user->type() == 'simple_edit_user')){
+	exit;
+}
 
 if (Backend_Search::isAvailable()) {
 	$quick_search_for_text = translate('asset_search_default_keyword');
@@ -55,6 +59,12 @@ if ($search_for != '') {
 	if (!empty($asset_by_id)) {
 		$found_asset =& $asset_by_id;
 		$found_asset_line .= '<strong>'.'Matched on Asset ID:'.'</strong>';
+	}
+	
+	// Make sure the user has read permission on the found asset
+	if (!empty($found_asset) && !$found_asset->readAccess()) {
+		$found_asset = NULL;
+		$found_asset_line = '';
 	}
 
 	if (!empty($found_asset)) {
