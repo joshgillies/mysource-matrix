@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.389.2.3 2012/07/04 02:14:14 ewang Exp $
+* $Id: mysource.inc,v 1.389.2.4 2012/08/16 07:37:23 cupreti Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.389.2.3 $
+* @version $Revision: 1.389.2.4 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -2390,7 +2390,7 @@ class MySource extends MySource_Object
 
 		$time_to_live = $user_prefs['persist']; // 1 or 0
 		if (!empty($time_to_live)) {
-			$time_to_live = $user_prefs['timeout'] + 3600; // cookie should last 1 extra day
+			$time_to_live = !empty($user_prefs['timeout']) ? ($user_prefs['timeout'] + 3600) : 0; // cookie should last 1 extra hour
 			if (empty($time_to_live)) {
 				// there is no max inactive time but we do want to persist across browser sessions...
 				$time_to_live = 60 * 60 * 24 * 365; // give them a a year
