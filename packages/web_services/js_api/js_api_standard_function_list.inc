@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_standard_function_list.inc,v 1.11.4.1 2012/04/17 00:09:16 ewang Exp $
+* $Id: js_api_standard_function_list.inc,v 1.11.4.2 2012/08/17 02:32:13 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.11.4.1 $
+* @version $Revision: 1.11.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1800,12 +1800,12 @@ function getUrlFromLineage(lineage, root_url, protocol, dataCallback)
 	var protocol = isset(protocol) && ( protocol.toString().toLowerCase() != 'null' && protocol != '' ) ? encodeURI(protocol) : '';
 	
 	var lineageArray = [];
-	for (var i = 0, l = options.lineage.length; i<l; i+=1) {
-	    if(options.lineage[i].hasOwnProperty("assetid")) {
-		lineageArray.push(options.lineage[i]["assetid"]);
+	for (var i = 0, l = lineage.length; i<l; i+=1) {
+	    if(lineage[i].hasOwnProperty("assetid")) {
+		lineageArray.push(lineage[i]["assetid"]);
 	    }
 	    else {
-		lineageArray.push(options.lineage[i]);
+		lineageArray.push(lineage[i]);
     	    }
 	}
 	
