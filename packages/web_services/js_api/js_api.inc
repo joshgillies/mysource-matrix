@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.96.2.20 2012/08/07 04:45:32 akarelia Exp $
+* $Id: js_api.inc,v 1.96.2.21 2012/08/17 04:24:57 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.96.2.20 $
+* @version $Revision: 1.96.2.21 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -220,6 +220,16 @@ class JS_Api extends Page
 		if (empty($id)) $id = array_get_index($_REQUEST, 'assetid', '');
 		$function_type = array_get_index($_REQUEST, 'type', '');
 
+		// nonce token check
+		$nonce_token = get_unique_token();
+		if(!isset($_POST['nonce_token']) || ($_POST['nonce_token'] !== $nonce_token)) {
+			$this->returnError('nonce token is invalid');
+			restore_error_handler();
+			return;
+		}
+
+		
+		
 		// Check to see if we have a function type
 		if (empty($function_type)) {
 			$this->returnError('You must set a function type');

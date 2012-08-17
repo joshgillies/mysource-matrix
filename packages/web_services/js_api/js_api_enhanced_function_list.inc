@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_enhanced_function_list.inc,v 1.13.4.2 2012/04/17 00:09:16 ewang Exp $
+* $Id: js_api_enhanced_function_list.inc,v 1.13.4.3 2012/08/17 04:24:57 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author  Anthony Barnes <abarnes@squiz.com.au>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.13.4.2 $
+* @version $Revision: 1.13.4.3 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -34,6 +34,7 @@ class Js_Api_Enhanced_Function_List
 	public static function paintJSFunctions(JS_Api $js_api_asset)
 	{
 		$api_url = $js_api_asset->getURL();
+		$nonce_token = get_unique_token();
 ?>
 /**
 * +--------------------------------------------------------------------+
@@ -2449,6 +2450,8 @@ class Js_Api_Enhanced_Function_List
 
 			// Add the 'type' parameter for as the calling function name
 			data.push(['type',fnName]);
+			// Add nonce token
+			data.push(['nonce_token','<?php echo ($nonce_token);?>']);
 			self._http({
 				params: data,
 				onSuccess: function(json) {
