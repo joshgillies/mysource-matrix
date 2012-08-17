@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.113.2.8 2012/08/07 04:44:44 akarelia Exp $
+* $Id: js_api.inc,v 1.113.2.9 2012/08/17 04:24:23 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.113.2.8 $
+* @version $Revision: 1.113.2.9 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -199,6 +199,7 @@ class JS_Api extends Page
 		// Should we print our JS file, or send back some JSON?
 		if (!isset($_REQUEST['key']) && !isset($_REQUEST['id']) && !isset($_REQUEST['type'])) {
 			header('Content-Type: text/javascript');
+			header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
 			if ($this->attr('use_enhanced_js')) {
 				require_once 'js_api_enhanced_function_list.inc';
 				echo Js_Api_Enhanced_Function_List::paintJSFunctions($this);
@@ -220,6 +221,16 @@ class JS_Api extends Page
 		if (empty($id)) $id = array_get_index($_REQUEST, 'assetid', '');
 		$function_type = array_get_index($_REQUEST, 'type', '');
 
+		// nonce token check
+		$nonce_token = get_unique_token();
+		if(!isset($_POST['nonce_token']) || ($_POST['nonce_token'] !== $nonce_token)) {
+			$this->returnError('nonce token is invalid');
+			restore_error_handler();
+			return;
+		}
+
+		
+		
 		// Check to see if we have a function type
 		if (empty($function_type)) {
 			$this->returnError('You must set a function type');

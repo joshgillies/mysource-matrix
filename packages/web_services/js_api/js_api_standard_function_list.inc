@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_standard_function_list.inc,v 1.13.2.1 2012/08/17 02:30:56 ewang Exp $
+* $Id: js_api_standard_function_list.inc,v 1.13.2.2 2012/08/17 04:24:23 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.13.2.1 $
+* @version $Revision: 1.13.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -33,6 +33,7 @@ class Js_Api_Standard_Function_List
 	public static function paintJSFunctions(JS_Api $js_api_asset)
 	{
 		$api_url = $js_api_asset->getURL();
+		$nonce_token = get_unique_token();
 		?>
 
 /**
@@ -181,7 +182,8 @@ function makeRequest(url, receive, dataCallback)
 		};
 	}//end if
 	ajaxRequest.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	ajaxRequest.send(encodeURI(urlarray[1]));
+	var postString = urlarray[1] + '&nonce_token=<?php echo $nonce_token; ?>';
+	ajaxRequest.send(encodeURI(postString));
 
 }//end makeRequest
 
