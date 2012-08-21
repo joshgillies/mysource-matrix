@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: external_tools_config.inc,v 1.41 2012/06/01 03:46:18 cupreti Exp $
+* $Id: external_tools_config.inc,v 1.42 2012/08/21 06:19:28 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    e.g. HTML Tidy, PDFtoHTML, Antiword, etc.
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix
 */
 class External_Tools_Config extends Config
@@ -75,6 +75,7 @@ class External_Tools_Config extends Config
 						'SQ_TOOL_SQUID_URL_PORT'				=> Array('editable' => 1, 'default' => ''),
 						'SQ_TOOL_SENDMAIL_PATH'				=> Array('editable' => 1, 'default' => ''),
 						'SQ_TOOL_SENDMAIL_ARGS'				=> Array('editable' => 1, 'default' => ''),
+						'SQ_TOOL_SIMPLESAMLPHP_PATH'			=> Array('editable' => 1, 'default' => ''),
 				);
 
 
@@ -579,7 +580,15 @@ class External_Tools_Config extends Config
 			$o->closeField();
 		$o->closeSection();	
 				
-				
+		
+		// simplesamlphp
+		$o->openSection(translate('saml_authentication'));
+		$o->openField(translate('simplesamlphp_path'));
+		    echo SQ_TOOL_SIMPLESAMLPHP_PATH;
+		    echo $o->note(translate('simplesamlphp_path_note'));
+		$o->closeField();
+		$o->closeSection();
+
 		if ($write_access) $o->commitButton('', TRUE);
 
 	}//end paintBackend()
