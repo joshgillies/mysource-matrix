@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.64.2.3 2012/08/17 00:52:44 akarelia Exp $
+* $Id: text.inc,v 1.64.2.4 2012/08/22 00:25:11 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.64.2.3 $
+* @version $Revision: 1.64.2.4 $
 * @package Fudge
 * @subpackage Text
 */
@@ -341,7 +341,7 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array())
 			}
 
 		}
-		return $text;
+		return '';
 
 	case "xpathe":
 		// Arg is a xpath query
@@ -380,7 +380,7 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array())
 		unset($xpath);
 		unset($dom);
 
-		return is_scalar($result) ? $result : $text;
+		return is_scalar($result) ? $result : '';
 
 	case "empty":
 		// One argument; text to display if the keyword result is empty.
