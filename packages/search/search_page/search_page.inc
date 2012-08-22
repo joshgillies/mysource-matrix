@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.262 2012/04/10 04:14:57 mhaidar Exp $
+* $Id: search_page.inc,v 1.263 2012/08/22 06:12:11 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.262 $
+* @version $Revision: 1.263 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -368,47 +368,10 @@ class Search_Page extends Listing_Engine
 		}
 
 		// Set this variable to pass to the processSearch() function
-		$search_vars=Array();
-		// If the search is stored, then process the search and show the results
-		// The initial check is here, so it will still allow sis searches
-		$pmap = $this->getAttribute('stored_query_session');
-		$pmap_params = $pmap->getParameters();
-		$fields = $this->attr('fields');
-		$jump_to_result = FALSE;
-		if (is_array($pmap_params) && !empty($pmap_params)) {
-			foreach ($pmap_params as $params) {
-				$sq_index = $pmap->getParameterValue($params);
-
-				if (!is_null($sq_index)) {
-					replace_global_keywords($sq_index);
-					// If a pipe separated list remove
-					$sq_index = str_replace('|', ' ', $sq_index);
-
-					// Now set these variables into $_REQUEST so search_page can read them directly
-					if ($params == 'stored_query') {
-						// Direct match to all fields
-						foreach ($fields as $fieldname => $fieldvalue) {
-							$search_vars[$fieldname] = $sq_index;
-						}
-					} else {
-						// Else match the request to the field
-						$search_vars[$params] = $sq_index;
-					}//end if
-
-					// This stops the search if set and empty
-					if (isset($this->_tmp['searched_queries']) && empty($this->_tmp['searched_queries'])) {
-						unset($this->_tmp['searched_queries']);
-					}
-
-					// Parameter Value loaded, so go to the Results page if the attribute is set
-					$jump_to_result = TRUE;
-
-				}//end if
-			}//end foreach
-		}//end if
+		$search_vars= $this->processSearchVars();
 
 		// If Stored Query is to be used, then jump to the results page directly
-		if ($this->attr('stored_query_show_results') && $mode == 'initial' && $jump_to_result) {
+		if ($this->attr('stored_query_show_results') && $mode == 'initial' && $this->_tmp['jump_to_result']) {
 			$mode = 'results';
 		}//end if
 
@@ -1823,7 +1786,7 @@ class Search_Page extends Listing_Engine
 			$replacement = "%$full_keyword%";
 			$keyword = parse_keyword($keyword, $modifiers);
 			$apply_modifiers = TRUE;
-			
+
 			switch ($keyword) {
 				case 'result_list':
 					// the groupAssetsRecursively() method must be called before the getChunk() method because the getChunk()
@@ -3467,6 +3430,50 @@ class Search_Page extends Listing_Engine
 
 	}//end _sanitizeQueries()
 
+
+	function processSearchVars()
+	{
+		$search_vars = Array();
+		// If the search is stored, then process the search and show the results
+		// The initial check is here, so it will still allow sis searches
+		$pmap = $this->getAttribute('stored_query_session');
+		$pmap_params = $pmap->getParameters();
+		$fields = $this->attr('fields');
+		$this->_tmp['jump_to_result'] = FALSE;
+		if (is_array($pmap_params) && !empty($pmap_params)) {
+			foreach ($pmap_params as $params) {
+				$sq_index = $pmap->getParameterValue($params);
+				if (!is_null($sq_index)) {
+					replace_global_keywords($sq_index);
+					// If a pipe separated list remove
+					$sq_index = str_replace('|', ' ', $sq_index);
+
+					// Now set these variables into $_REQUEST so search_page can read them directly
+					if ($params == 'stored_query') {
+						// Direct match to all fields
+						foreach ($fields as $fieldname => $fieldvalue) {
+							$search_vars[$fieldname] = $sq_index;
+						}
+					} else {
+						// Else match the request to the field
+						$search_vars[$params] = $sq_index;
+					}//end if
+
+					// This stops the search if set and empty
+					if (isset($this->_tmp['searched_queries']) && empty($this->_tmp['searched_queries'])) {
+						unset($this->_tmp['searched_queries']);
+					}
+
+					// Parameter Value loaded, so go to the Results page if the attribute is set
+					$this->_tmp['jump_to_result'] = TRUE;
+
+				}//end if
+			}//end foreach
+		}//end if
+
+		return $search_vars;
+
+	}//end processSearchVars()
 
 
 }//end class
