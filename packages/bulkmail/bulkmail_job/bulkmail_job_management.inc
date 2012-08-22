@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job_management.inc
+* $Id: bulkmail_job_management.inc,v 1.12 2012/08/22 05:59:35 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -81,6 +81,42 @@ class Bulkmail_Job_Management extends Asset_Management
 														'added'			=> '0.2',
 														'type'			=> 'text',
 														'default'		=> '',
+													   ),
+						'user_subscriptions_status'	=> Array(
+														'added'			=> '0.2',
+														'type'			=> 'boolean',
+														'default'		=> FALSE,
+														'parameters'	=> Array(
+																			'allow_empty'	=> FALSE,
+																		   ),
+														'description'	=> 'Determines if the user subscription is activated or not.',
+													   ),
+						'subscriptions'				=> Array(
+														'added'			=> '0.2',
+														'type'			=> 'serialise',
+														'default'		=> Array(),
+														'description'	=> 'Data about the user subscriptions.',
+													   ),
+						'scheduled_time'			=> Array(
+														'added'			=> '0.2',
+														'type'			=> 'serialise',
+														'default'		=> Array(),
+														'description'	=> 'Data about the job scheduling.',
+													   ),
+						'scheduling_status'			=> Array(
+														'added'			=> '0.2',
+														'type'			=> 'boolean',
+														'default'		=> FALSE,
+														'parameters'	=> Array(
+																			'allow_empty'	=> FALSE,
+																		   ),
+														'description'	=> 'Determines if the job scheduling is activated or not.',
+													   ),
+						'last_scheduled_run'		=> Array(
+														'added'			=> '0.2',
+														'type'			=> 'int',
+														'default'		=> 0,
+														'description'	=> 'Registers the last scheduled run performed by cron job',
 													   ),
 					  );
 

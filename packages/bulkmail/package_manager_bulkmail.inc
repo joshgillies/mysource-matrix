@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_bulkmail.inc,v 1.10 2008/11/24 22:28:17 mbrydon Exp $
+* $Id: package_manager_bulkmail.inc,v 1.11 2012/08/22 05:59:35 akarelia Exp $
 *
 */
 
@@ -52,6 +52,7 @@ class Package_Manager_Bulkmail extends Package_Manager
 	{
 		return Array(
 				'bulkmail_manager',
+				'cron_job_queue_scheduled_job',
 			   );
 
 	}//end getSystemAssetTypes()
@@ -80,6 +81,37 @@ class Package_Manager_Bulkmail extends Package_Manager
 		return $bulkmail_manager;
 
 	}//end createBulkmailManager()
+
+
+	/**
+	* Create the Cron Job Batch Broadcast Message System Asset
+	*
+	* @return object
+	* @access public
+	*/
+	function &createCronJobQueueScheduledJob()
+	{
+		$cron_manager = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+		if (is_null($cron_manager)) {
+			trigger_localised_error('CORE0022', E_USER_WARNING);
+			$null = NULL;
+			return $null;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_queue_scheduled_job');
+
+		$cron_job = new Cron_Job_Queue_Scheduled_Job();
+		$root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+		if (!$cron_manager->addJob($cron_job, $root_user, SQ_LINK_TYPE_2)) {
+			trigger_localised_error('CORE0001', E_USER_ERROR, 'Queue Scheduled Bulkmail Cron Job');
+		}
+		pre_echo('Queue Scheduled Bulkmail Job Cron Job Id: '.$cron_job->id);
+
+		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('cron_job_queue_scheduled_job', $cron_job->id);
+
+		return $cron_job;
+
+	}//end createCronJobQueueScheduledJob()
 
 
 }//end class

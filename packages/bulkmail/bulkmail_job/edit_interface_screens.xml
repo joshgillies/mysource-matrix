@@ -10,12 +10,14 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.4 2008/11/24 22:28:19 mbrydon Exp $
+* $Id: edit_interface_screens.xml,v 1.5 2012/08/22 05:59:35 akarelia Exp $
 *
 */
 -->
 
 <screens>
-	<screen code_name="preview" display_name="Preview" lock_type="attributes"/>
-	<screen code_name="paths" display_name="Web Paths" icon="web" lock_type="lookups"/>
+	<screen code_name="preview"				display_name="Preview"							lock_type="attributes"  				 />
+	<screen code_name="paths"				display_name="Web Paths"			icon="web"	lock_type="lookups"						 />
+	<screen code_name="scheduling"			display_name="Job Scheduling"		icon="web"	lock_type="attributes"	force_unlock="0" />
+	<screen code_name="user_subscriptions"	display_name="User Subscription"	icon="web"	lock_type="attributes"	force_unlock="0" />
 </screens>

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.96 2011/10/10 02:17:18 akarelia Exp $
+* $Id: bulk_mailer.inc,v 1.97 2012/08/22 05:59:35 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.96 $
+* @version $Revision: 1.97 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -100,7 +100,6 @@ class Bulk_Mailer
 					if ($this->checkThreshold('excluded_time', $info['details']['threshold'])) {
 						$this->chunkJob($job_id);
 						$this->processJob($job_id);
-						return;
 					}
 				}
 			}
@@ -114,10 +113,9 @@ class Bulk_Mailer
 					$bm->updateJob($job_id, BML_JOB_STATE_RUNNING);
 					$this->chunkJob($job_id);
 					$this->processJob($job_id);
-					break;
 				}
 			}
-		}	
+		}
 		if (MatrixDAL::getDbType() === 'oci') {
 			MatrixDAL::setOciCommitOnSuccess (FALSE);
 		}
@@ -215,6 +213,7 @@ class Bulk_Mailer
 	function processJob($job_id)
 	{
 		$am = $GLOBALS['SQ_SYSTEM']->am;
+		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		$this->_reconnectDB();
 		$bm = $am->getSystemAsset('bulkmail_manager');
 		$info = $bm->getQueuedJobs($job_id);
@@ -232,6 +231,24 @@ class Bulk_Mailer
 		$keywords = retrieve_keywords_replacements($details['subject']);
 		$replacements = Array();
 		$content_asset = $am->getAsset($details['content_id']);
+
+		$details['search_page'] = NULL;
+		$details['user_subscriptions'] = NULL;
+
+		if ((get_class($content_asset) == 'Search_Page') && !$details['user_subscriptions_status']) {
+			trigger_localised_error('BML0020', E_USER_WARNING);
+			return FALSE;
+		} else if ((get_class($content_asset) != 'Search_Page') && $details['user_subscriptions_status']) {
+			trigger_localised_error('BML0021', E_USER_WARNING);
+			return FALSE;
+		} else if ((get_class($content_asset) == 'Search_Page') && $details['user_subscriptions_status'] && empty($details['subscriptions'])) {
+			trigger_localised_error('BML0023', E_USER_WARNING);
+			return FALSE;
+		} else if ((get_class($content_asset) == 'Search_Page') && $details['user_subscriptions_status']) {
+			// the settings seems to be correct
+			$details['search_page'] = $content_asset;
+			$details['user_subscriptions'] = $details['subscriptions'];
+		}
 
 		// If the content asset has a different character set to the default,
 		// then use that instead, otherwise use the default set in System Config
@@ -267,6 +284,7 @@ class Bulk_Mailer
 
 		$GLOBALS['chunk_start'] = get_microtime();
 		// read chunks from cache and process them
+
 		while (file_exists($recipient_path.'/recipient_'.$progress_info['current_chunk'])) {
 
 			// check if job state is paused/cancelled at the beginning of each chunk
@@ -283,6 +301,7 @@ class Bulk_Mailer
 					exit;
 				}
 			}
+
 			// threshold checking
 			if (!$this->checkThreshold('excluded_time', $details['threshold'])) {
 				// current time is in excluded time range
@@ -294,20 +313,28 @@ class Bulk_Mailer
 			include($recipient_path.'/recipient_'.$progress_info['current_chunk']);
 
 			$pid = $this->fork();
+
 			if (!$pid) {
 				$mime = new Mail_mime("\n");
 				$mail_queue = new Mail_Queue($details['queue_details'], $details['server_details']);
-				$job = $am->getAsset($job_id);
+
+				if (strpos($job_id, ':') === FALSE) {
+					$job = $am->getAsset($job_id);
+					$current_post_office = $job->getPostOffice();
+				} else {
+					$job = $current_post_office = NULL;
+				}
 
 				if ($details['content_text_only']) {
 					unset($details['content_design']);
 					unset($details['content_layout']);
 				}
-				$current_post_office = $job->getPostOffice();
 
 				foreach ($recipient_chunk as $r_info) {
+					$this->_reconnectDB();
 					$user_id = $r_info['assetid'];
 					$email = $r_info['custom_val'];
+					$user  = $am->getAsset($user_id, '', TRUE);
 					
 					//do not add the email to queue if there is no recipient's email address. This will make sure that the sendMailsInQueue() method
 					//of Mail_Queue class does not throw an exception when the first email in the chunk of 100 emails is empty which may leaves 99 valid
@@ -317,10 +344,9 @@ class Bulk_Mailer
 						continue;
 					}
 					
-					$this->_reconnectDB();
-
 					// make sure user is not already in mail queue/sent directory
 					$id = md5($user_id);
+
 					if (!file_exists($queue_path.'/'.$id) && !file_exists($sent_path.'/'.$id)) {
 						// fork since we cannot call printFrontend multiple times
 						$pid = $this->fork();
@@ -328,78 +354,142 @@ class Bulk_Mailer
 							$problematic = NULL;
 							$filtered = NULL;
 
-							$content = $this->generateContent($details, $job_path, $user_id, $email);
-							$text_only_content = html_entity_decode(strip_tags($content));
+							if (!is_null($details['search_page']) && !is_null($details['user_subscriptions'])) {
+								$search_asset_list = Array();
+								$user_metadata = NULL;
+								$matches = Array();
+								if (!is_null($user)) {
+									foreach ($details['user_subscriptions'] as $sub_name => $sub_info) {
+										$matches[$sub_name] = Array();
+										foreach ($sub_info as $index => $info) {
+											$match = FALSE;
+											$category_type = array_keys($info);
+											$user_metadata = $mm->getMetadataValueByAssetid($user->id, $info[$category_type[0]]['assetid']);
+											$rule_text = $info[$category_type[0]]['rule_text'];
+											if ($info[$category_type[0]]['rule_cond'] == 'contains') {
+												$match = (stripos($user_metadata, $rule_text) !== FALSE);
+											} else {
+												// needs a exact match
+												$match = (strtolower($user_metadata) == strtolower($rule_text));
+											}
+											if ($match) {
+												$matches[$sub_name][] = $user_metadata;
+											}
+										}//end foreach
+									}//end foreach
+								}//end if
 
-							// If there is a filter set, only continue if the
-							// filter matches (or is ineffective due to empty
-							// text field).
-							if (array_get_index($details, 'content_body_filter')) {
-								$match       = array_get_index($details, 'content_body_filter_match', TRUE);
-								$filter_text = array_get_index($details, 'content_body_filter_text', '');
-
-								if (!empty($filter_text)) {
-									$target_content = ($details['content_text_only'] ? $text_only_content : $content);
-									$ok = (strpos($target_content, $filter_text) !== FALSE);
-									if ($ok != $match) $filtered = TRUE;
+								// check to see if the user is a bulkmail user
+								// we can't set current user as a bulkmail user
+								if ($user instanceof Bulkmail_User) {
+									$user = NULL;
+									$user = $am->getAsset($details['content_gen_as']);
 								}
-							}
 
-							if (is_array($email)) {
-								$header_details['subject'] = $this->replaceContentKeywords($header_details['subject'], $email);
+								$GLOBALS['SQ_SYSTEM']->setCurrentUser($user);
+								$old_get_vars = $_GET;
+								$search_res_details = Array();
+								foreach ($matches as $get_var => $strings_to_srch) {
+									$_GET = Array();
+									foreach ($strings_to_srch as $srch_string) {
+										$_GET[$get_var] = $srch_string;
+										$search_vars    = $content_asset->processSearchVars();
+										$search_results = $content_asset->processSearch($search_vars);
+
+										foreach (array_keys($search_results) as $res) {
+											if (in_array($res, $search_asset_list)) continue;
+											$details['content_id'] = $res;
+											$search_res_details[] = $details;
+											$search_asset_list[] = $res;
+										}//end foreach
+									}//end foreach
+								}//end foreach
+								$_GET = $old_get_vars;
+								$GLOBALS['SQ_SYSTEM']->restoreCurrentUser();
+
+								$details = $search_res_details;
 							} else {
-								$user = $am->getAsset($user_id);
-								$header_details['subject'] = $this->replaceContentKeywords($header_details['subject'], $user);
-							}//end if
-
-							// only queue the mail if we can generate content
-							$problematic = (empty($content)) ? TRUE : FALSE;
-
-							if (!$problematic && !$filtered) {
-								// Check that the email is not the email address array
-								if (is_array($email)) $email = $email['email'];
-
-								// Always set text version, and set html version
-								// if turned on.
-								$mime->setTxtBody($text_only_content);
-								if (!$details['content_text_only']) {
-									$mime->setHTMLBody($content);
-								}
-
-								$body = @$mime->get($mime_param);
-								// pass in custom_id as extra header details, for queue file naming
-								$header_details['custom_id'] = $user_id;
-								$header_details['To'] = $email; // FR: 2515
-								// Check for Test Mode
-								if (!is_null($current_post_office) && $current_post_office->attr('bulkmail_mode') == 'test') {
-									// Log the emails
-									$message_type = 'bulkmail.job.testmode';
-									$msg_reps = Array(
-													'from'		=> $header_details['from'],
-													'to'		=> $header_details['To'],
-													'subject'	=> $header_details['subject'],
-												);
-									$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
-									$message = $ms->newMessage(Array(), $message_type, $msg_reps);
-									$message->parameters['assetid'] = $job_id;
-									$message->send();
-									$am->forgetAsset($message);
-									$am->forgetAsset($ms);
-								} else {
-									$headers = @$mime->headers($header_details);
-									$mail_id = $mail_queue->put('', $email, $headers, $body);
-								}
+								$details = Array($details);
 							}
-							$this->updateProgress($progress_path, $user_id, $problematic, $filtered);
-							$this->enforceSendRate($details['threshold'], $progress_path);
+
+							// if no search results were found then update the progress because we have already processed this user
+							if (empty($details)) $this->updateProgress($progress_path, $user_id, $problematic, $filtered);
+
+							foreach ($details as $detail) {
+								$content = $this->generateContent($detail, $job_path, $user_id, $email);
+								$text_only_content = html_entity_decode(strip_tags($content));
+
+								// If there is a filter set, only continue if the
+								// filter matches (or is ineffective due to empty
+								// text field).
+								if (array_get_index($detail, 'content_body_filter')) {
+									$match       = array_get_index($detail, 'content_body_filter_match', TRUE);
+									$filter_text = array_get_index($detail, 'content_body_filter_text', '');
+
+									if (!empty($filter_text)) {
+										$target_content = ($detail['content_text_only'] ? $text_only_content : $content);
+										$ok = (strpos($target_content, $filter_text) !== FALSE);
+										if ($ok != $match) $filtered = TRUE;
+									}
+								}
+
+								if (is_array($email)) {
+									$header_details['subject'] = $this->replaceContentKeywords($header_details['subject'], $email);
+								} else {
+									$user = $am->getAsset($user_id);
+									$header_details['subject'] = $this->replaceContentKeywords($header_details['subject'], $user);
+								}//end if
+
+								// only queue the mail if we can generate content
+								$problematic = (empty($content)) ? TRUE : FALSE;
+
+								if (!$problematic && !$filtered) {
+									// Check that the email is not the email address array
+									if (is_array($email)) $email = $email['email'];
+
+									// Always set text version, and set html version
+									// if turned on.
+									$mime->setTxtBody($text_only_content);
+									if (!$detail['content_text_only']) {
+										$mime->setHTMLBody($content);
+									}
+
+									$body = @$mime->get($mime_param);
+									// pass in custom_id as extra header detail, for queue file naming
+									$header_details['custom_id'] = $user_id;
+									$header_details['To'] = $email; // FR: 2515
+									// Check for Test Mode
+									if (!is_null($current_post_office) && $current_post_office->attr('bulkmail_mode') == 'test') {
+										// Log the emails
+										$message_type = 'bulkmail.job.testmode';
+										$msg_reps = Array(
+														'from'		=> $header_details['from'],
+														'to'		=> $header_details['To'],
+														'subject'	=> $header_details['subject'],
+													);
+										$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
+										$message = $ms->newMessage(Array(), $message_type, $msg_reps);
+										$message->parameters['assetid'] = $job_id;
+										$message->send();
+
+										$am->forgetAsset($message);
+										$am->forgetAsset($ms);
+									} else {
+										$headers = @$mime->headers($header_details);
+										$mail_id = $mail_queue->put('', $email, $headers, $body);
+									}
+								}
+								$this->updateProgress($progress_path, $user_id, $problematic, $filtered);
+								$this->enforceSendRate($detail['threshold'], $progress_path);
+							}
 							exit;
 						}//end if
 					}//end if
 
 				}//end foreach
 
-				$am->forgetAsset($job);
-				$am->forgetAsset($current_post_office);
+				if (!is_null($job)) $am->forgetAsset($job);
+				if (!is_null($current_post_office)) $am->forgetAsset($current_post_office);
 				try {	
 					$status = $mail_queue->sendMailsInQueue();
 				} catch (Exception $e) {
@@ -430,8 +520,12 @@ class Bulk_Mailer
 		$this->_reconnectDB();
 		$progress_info = $bm->getJobProgress($job_id);
 		if ($progress_info['current_count'] >= $progress_info['total_count']) {
-			$job = $am->getAsset($job_id);
-			$current_post_office = $job->getPostOffice();
+			if (strpos($job_id, ':') === FALSE) {
+				$job = $am->getAsset($job_id);
+				$current_post_office = $job->getPostOffice();
+			} else {
+				$job = $current_post_office = NULL;
+			}
 
 			// remove job entry from the db queue table
 			$bm->deleteJob($job_id);
@@ -481,8 +575,8 @@ class Bulk_Mailer
 				$am->forgetAsset($message);
 				$am->forgetAsset($ms);
 			}
-			$am->forgetAsset($job);
-			$am->forgetAsset($current_post_office);
+			if (!is_null($job)) $am->forgetAsset($job);
+			if (!is_null($current_post_office)) $am->forgetAsset($current_post_office);
 
 		}
 		return TRUE;
@@ -751,9 +845,9 @@ class Bulk_Mailer
 	* @access public
 	*/
 	public function generateContent($job_details, $job_path, $recipient_id=NULL, $email=NULL)
-	{	
-		$am = $GLOBALS['SQ_SYSTEM']->am;
+	{
 
+		$am = $GLOBALS['SQ_SYSTEM']->am;
 		if (isset($job_details['content_id']) && $job_details['content_id']) {
 			$content_asset = $am->getAsset($job_details['content_id']);
 			$GLOBALS['SQ_SYSTEM']->frontend_asset = &$content_asset;
@@ -782,10 +876,9 @@ class Bulk_Mailer
 
 			// Same content for everyone, apart from recipient keywords.
 			// First try the cache, unless we're previewing
+			if ((file_exists($job_path.'/cache/content_file_'.$job_details['content_id'].'.html')) && !empty($recipient_id)) {
 
-			if ((file_exists($job_path.'/cache/content_file.html')) && !empty($recipient_id)) {
-
-				$content = file_to_string($job_path.'/cache/content_file.html');
+				$content = file_to_string($job_path.'/cache/content_file_'.$job_details['content_id'].'.html');
 
 			} else {
 
@@ -808,7 +901,7 @@ class Bulk_Mailer
 
 				// Save to cache, unless previewing or not sending to actual users
 				if (!empty($recipient_id) || !($recipient instanceof Bulkmail_User)) {
-					string_to_file($content, $job_path.'/cache/content_file.html');
+					string_to_file($content, $job_path.'/cache/content_file_'.$job_details['content_id'].'.html');
 				}
 
 

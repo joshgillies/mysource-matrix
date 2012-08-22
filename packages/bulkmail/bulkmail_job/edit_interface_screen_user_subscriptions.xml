@@ -10,13 +10,21 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_create.xml,v 1.4 2012/08/22 05:59:35 akarelia Exp $
+* $Id: edit_interface_screen_user_subscriptions.xml,v 1.1 2012/08/22 05:59:35 akarelia Exp $
 *
 */
 -->
 
-<contents screen="details">
-	<section name="Details">
-		<field attribute="name" />
+<contents>
+	<section name="User Subscriptions" write_access="write:attributes">
+		<field attribute="user_subscriptions_status">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintUserSubscriptions"   />
+				<process_function name="processUserSubscriptions" />
+			</function_call>
+		</field>
 	</section>
 </contents>

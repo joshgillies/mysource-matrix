@@ -10,12 +10,13 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_job_edit_fns.inc,v 1.35 2011/05/17 00:39:30 mhaidar Exp $
+* $Id: bulkmail_job_edit_fns.inc,v 1.36 2012/08/22 05:59:35 akarelia Exp $
 *
 */
 
 
 require_once SQ_PACKAGES_PATH.'/bulkmail/bulkmail_post_office/bulkmail_post_office_edit_fns.inc';
+require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once SQ_FUDGE_PATH.'/general/www.inc';
 
@@ -29,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -602,5 +603,301 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 	}//end processContentBodyFilter()
 
 
+	/**
+	* Paints the user subscriptions
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintUserSubscriptions(&$asset, &$o, $prefix)
+	{
+		$write_access         = $asset->writeAccess('attributes');
+		$subscription_enabled = $asset->attr('user_subscriptions_status');
+		$subscriptions        = $asset->attr('subscriptions');
+
+		$option_type = Array(
+						'matches'		=> 'Matches',
+						'contains'		=> 'Contains',
+					   );
+
+		$new_rule_type = Array(
+							'0'			=> '-- Add New Rule --',
+							'metadata'	=> 'Asset Metadata field',
+						 );
+
+		if ($subscription_enabled) {
+			$o->openField(translate('categories'));
+				echo '<table class ="sq-backend-table" border="1" style="margin-bottom: 7px">';
+				echo '<tr><td rowspan =2 width="12%">Name</td><td colspan="3">Rules</td></tr>';
+				echo '<tr><td width="15%">Type</td><td>Details</td><td>Delete?</td></tr>';
+
+				foreach ($subscriptions as $name => $subscription) {
+					hidden_field($prefix.'_subscriptions['.$name.']', '');
+					$tr = FALSE;
+					echo "<tr>";
+					$rowspan = ($write_access) ? (count($subscription) + 1) : count($subscription);
+					if (empty($subscription)) $rowspan++;
+					echo '<th rowspan='.$rowspan.'>'.$name.'</th>';
+					if (!empty($subscription)) {
+						foreach ($subscription as $index => $rules) {
+							if ($tr) echo "<tr>";
+							$type_data = array_keys($rules);
+							echo '<td>'.$new_rule_type[$type_data[0]].'</td>';
+							echo '<td>';
+							if ($write_access) {
+								asset_finder($prefix.'_subscriptions['.$name.']['.$index.']['.$type_data[0].'][assetid]', $rules[$type_data[0]]['assetid'], Array('metadata_field' => 'D'));
+							} else {
+								echo get_asset_tag_line($rules[$type_data[0]]['assetid']);
+							}
+							echo '&nbsp;&nbsp;&nbsp;';
+							if ($write_access) {
+								combo_box($prefix.'_subscriptions['.$name.']['.$index.']['.$type_data[0].'][rule_cond]', $option_type, FALSE, $rules[$type_data[0]]['rule_cond']);
+							} else {
+								echo $rules[$type_data[0]]['rule_cond'];
+							}
+							echo '&nbsp;&nbsp;&nbsp;';
+							if ($write_access) {
+								text_box($prefix.'_subscriptions['.$name.']['.$index.']['.$type_data[0].'][rule_text]', $rules[$type_data[0]]['rule_text'], 30);
+							} else {
+								echo $rules[$type_data[0]]['rule_text'];
+							}
+
+							echo '</td><td>';
+							if ($write_access) check_box($prefix.'_subscriptions['.$name.']['.$index.'][delete]');
+							echo "</td></tr>";
+
+							$tr = TRUE;
+						}//end foreach
+					} else {
+						echo '<td colspan=3></td></tr>';
+					}
+					if ($write_access) {
+						?>
+							<tr>
+								<td colspan=4>
+									<?php
+										combo_box($prefix.'_subscriptions['.$name.'][new_rule]', $new_rule_type, FALSE);
+									?>
+								</td>
+							</tr>
+						<?php
+					}
+				}//end foreach
+				echo "</table>";
+				if ($write_access) {
+					label(translate('new_category'), $prefix.'_new_category_name');
+					echo '&nbsp;';
+					text_box($prefix.'_new_category_name', '', 15);
+				}
+			$o->closeField();
+
+		}//end if
+
+		return $write_access;
+
+	}//end paintUserSubscriptions()
+
+
+	/**
+	* Processes the User subscriptions
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processUserSubscriptions(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		$subscription_enabled = $asset->attr('user_subscriptions_status');
+
+		if ($write_access) {
+			$new_subscriptions = Array();
+			if ($subscription_enabled) {
+				if (isset($_POST[$prefix.'_subscriptions'])) {
+					foreach ($_POST[$prefix.'_subscriptions'] as $sub_name => $subscription) {
+						foreach ($subscription as $index => $subscription_data) {
+							if ($index === 'new_rule') {
+								if ($subscription['new_rule'] !== '0')  {
+									$new_subscriptions[$sub_name][][$subscription['new_rule']] = Array(
+																									'assetid'	=> 0,
+																									'rule_cond'	=> 'contains',
+																									'rule_text'	=> '',
+																								);
+								}
+								continue;
+							}
+
+							if (!isset($subscription_data['delete'])) {
+								$category = array_keys($subscription_data);
+								$new_subscriptions[$sub_name][][$category[0]] = Array(
+																					'assetid'	=> $subscription_data[$category[0]]['assetid']['assetid'],
+																					'rule_cond'	=> array_get_index($subscription_data[$category[0]], 'rule_cond', 'contains'),
+																					'rule_text'	=> array_get_index($subscription_data[$category[0]], 'rule_text',''),
+																				);
+							}
+						}
+					}
+				}
+				$new_category_name = array_get_index($_POST, $prefix.'_new_category_name', '');
+				if (!empty($new_category_name)) {
+					$new_subscriptions[$new_category_name] = Array();
+				}
+
+				$asset->setAttrValue('subscriptions',  $new_subscriptions);
+				return $asset->saveAttributes();
+			}
+		}
+
+		return $write_access;
+
+	}//end processUserSubscriptions()
+
+
+	/**
+	* Paints the user Scheduling screen
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintScheduling(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		$scheduling   = $asset->attr('scheduled_time');
+		$interval_opt = Array(
+							'empty_val'	=> 'None Selected',
+							'hourly'	=> 'Hourly',
+							'daily'		=> 'Daily',
+							'weekly'	=> 'Weekly',
+							'monthly'	=> 'Monthly',
+							'yearly'	=> 'Yearly',
+						);
+		$interval     = array_get_index(array_keys($scheduling), 0, 'empty_val');
+		$start_date   = array_get_index($scheduling, $interval, date('Y-m-d H:i').':00');
+		?>
+		<table>
+		<tr>
+			<td>
+				<?php
+					echo '<b>'.translate('start_date').'</b>';
+				?>
+			</td>
+			<td>
+			<?php
+				if ($write_access) {
+						$parameters = Array(
+										'min'			=> '2012-01-01 00:00:00',
+										'max'			=> ts_iso8601(time() + (60 * 60 * 24 * 365 * 4)),
+										'allow_circa'	=> '0',
+										'show'			=> Array('y', 'm', 'd', 'h', 'i'),
+										'null'			=> Array(),
+										'style'			=> Array(
+															'y'	=> 's',
+															'm'	=> 's',
+															'd'	=> 's',
+															'h'	=> 's',
+															'i'	=> 's',
+														   ),
+									  );
+
+						$parameters['print_format'] = 'j M Y H:i';
+						$from = new Datetime_Field($prefix.'_from', $start_date, $parameters);
+
+						$from->printField();
+				} else {
+					if ($start_date == date('Y-m-d H:i').':00') {
+						echo translate('not_configured');
+					} else {
+						echo $start_date;
+					}
+				}
+			?>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<?php
+					echo '<b>'.translate('repeating').'</b>';
+				?>
+			</td>
+			<td>
+			<?php
+				if ($write_access) {
+					combo_box($prefix.'_repeating', $interval_opt, FALSE, $interval);
+				} else {
+					echo $interval_opt[$interval];
+				}
+			?>
+			</td>
+		</tr>
+		</table>
+		<?php
+
+		return $write_access;
+
+	}//end paintScheduling()
+
+
+	/**
+	* Processes the Scheduling screen
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processScheduling(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		if ($write_access) {
+			$interval   = array_get_index($_POST, $prefix.'_repeating', 'empty_val');
+			$parameters = Array(
+							'min'			=> '2012-01-01 00:00:00',
+							'max'			=> ts_iso8601(time() + (60 * 60 * 24 * 365 * 4)),
+							'allow_circa'	=> '0',
+							'show'			=> Array('y', 'm', 'd', 'h', 'i'),
+							'null'			=> Array(),
+							'style'			=> Array(
+												'y'	=> 's',
+												'm'	=> 's',
+												'd'	=> 's',
+												'h'	=> 's',
+												'i'	=> 's',
+											   ),
+						  );
+
+			$parameters['print_format'] = 'j M Y H:i';
+			$value = NULL;
+			$from = new Datetime_Field($prefix.'_from', $value, $parameters);
+			$from->processField();
+
+			$scheduling = Array();
+			if ($interval != 'empty_val') {
+				$scheduling = Array(
+								$interval => $from->value,
+							  );
+			}
+			$asset->setAttrValue('scheduled_time', $scheduling);
+			$asset->setAttrValue('last_scheduled_run', 0);
+		}
+
+		return $write_access;
+
+	}//end processScheduling()
+
+
 }//end class
+
 ?>

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_manager.inc,v 1.53 2008/11/24 22:28:20 mbrydon Exp $
+* $Id: bulkmail_manager.inc,v 1.54 2012/08/22 05:59:35 akarelia Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -222,7 +222,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 	* @return boolean
 	* @access public
 	*/
-	function createAdHocJob($from, $recipients, $subject, $content_id, $content_gen_as, $headers=Array(), $post_office_id=0, $server_details=Array(), $design_id=0, $layout_id=0)
+	function createAdHocJob($from, $recipients, $subject, $content_id, $content_gen_as, $headers=Array(), $post_office_id=0, $server_details=Array(), $design_id=0, $layout_id=0, $subscriptions=Array())
 	{
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 
@@ -249,10 +249,14 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 		$bulkmail_job->setAttrValue('content_design', $design_id);
 		$bulkmail_job->setAttrValue('content_layout', $layout_id);
 
+		$subscription_status = empty($subscriptions) ? FALSE : TRUE;
+		$bulkmail_job->setAttrValue('user_subscriptions_status', $subscription_status);
+		$bulkmail_job->setAttrValue('subscriptions', $subscriptions);
+
 		$post_office = NULL;
 		if (empty($post_office_id) && !empty($server_details)) {
 			$post_office = new Post_Office();
-			$post_office->setAttrValue('server_details', $value);
+			$post_office->setAttrValue('server_details', $server_details);
 		} else if ($post_office_id) {
 			$post_office = $am->getAsset($post_office_id, 'bulkmail_post_office');
 			if (is_null($post_office)) return FALSE;
@@ -434,7 +438,8 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 
 		// add progress/details info to each job result
 		foreach ($results as $job_id => $result) {
-			if ($GLOBALS['SQ_SYSTEM']->am->assetExists($job_id)) {
+			$job_id_actual = strtok($job_id, ':');
+			if ($GLOBALS['SQ_SYSTEM']->am->assetExists($job_id_actual)) {
 				$progress_info = $this->getJobProgress($job_id);
 				$results[$job_id]['progress'] = $progress_info;
 				$details_info = $this->getJobDetails($job_id);

@@ -10,13 +10,24 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_create.xml,v 1.4 2012/08/22 05:59:35 akarelia Exp $
+* $Id: lang_screen_user_subscriptions.xml,v 1.1 2012/08/22 05:59:35 akarelia Exp $
 *
 */
 -->
 
-<contents screen="details">
-	<section name="Details">
-		<field attribute="name" />
+<contents>
+	<section name="User Subscriptions" >
+		<field attribute="user_subscriptions_status">
+			<display_name>Enabled?</display_name>
+			<note>When enabled, the below configured categories will be used to determine which of the subscribed users will be mailed.</note>
+		</field>
+		<field>
+			<display_name>Categories</display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintAssetTypes"   />
+				<process_function name="processAssetTypes" />
+			</function_call>
+		</field>
 	</section>
 </contents>

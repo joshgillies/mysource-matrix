@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.16 2008/11/24 22:28:21 mbrydon Exp $
+* $Id: lang_errors.xml,v 1.17 2012/08/22 05:59:35 akarelia Exp $
 *
 *
 * Bulkmail Package Localised Strings File
@@ -41,4 +41,8 @@
 	<error code="BML0018">Unable to send verification email. Please contact your administrator.</error>
 
 	<error code="BML0019">Recipient id skipped due to body filter failing to match: %s.</error>
+	<error code="BML0020">Asset to send is configured as a Search Page but the User subscription for the bulkmail Job is disabled.</error>
+	<error code="BML0021">User subscription for the Bulkmail Job is enabled but the asset to send isn't set to a Search Page Asset.</error>
+	<error code="BML0022">'Generation Method' for the Bulkmail Job '%s' should be set to 'Generate as recipient' when the User Subscription is activated on the Job.</error>
+	<error code="BML0023">No dynamic Subscription configured for the Bulkmail Job</error>
 </errors>

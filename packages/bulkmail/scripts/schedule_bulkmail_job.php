@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: schedule_bulkmail_job.php,v 1.2 2008/12/15 02:38:25 bpearson Exp $
+* $Id: schedule_bulkmail_job.php,v 1.3 2012/08/22 05:59:35 akarelia Exp $
 *
 */
 
@@ -23,12 +23,13 @@
 *		Used to allow cron systems to handle bulkmail jobs.
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 
 // Check for environment/arguments
 error_reporting(E_ALL);
+ini_set('memory_limit', '-1');
 if ((php_sapi_name() != 'cli')) {
 	trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 }

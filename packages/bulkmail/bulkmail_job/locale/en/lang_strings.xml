@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.3 2008/11/24 22:28:20 mbrydon Exp $
+* $Id: lang_strings.xml,v 1.4 2012/08/22 05:59:35 akarelia Exp $
 *
 */
 -->
@@ -27,4 +27,6 @@
 
 	<string source="bulkmail_job_enabled_but_not_valid">Enabled, but not valid</string>
 	<string source="bulkmail_job_enabled_but_not_valid_explanation">The body filter is set to be enabled, however it cannot run without text to match against.</string>
+	<string source="categories">Categories</string>
+	<string source="new_category">New Category</string>
 </strings>

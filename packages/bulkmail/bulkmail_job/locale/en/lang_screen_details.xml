@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.18 2008/11/24 22:28:20 mbrydon Exp $
+* $Id: lang_screen_details.xml,v 1.19 2012/08/22 05:59:35 akarelia Exp $
 *
 */
 -->
@@ -62,7 +62,7 @@
 		</field>
 		<field attribute="content_gen">
 			<display_name>Generation Method</display_name>
-			<note>Unique content per user, or generic content for all users (with keyword replacements). Generating unique content for thousands of users will be quite slow</note>
+			<note>Unique content per user, or generic content for all users (with keyword replacements). Generating unique content for thousands of users will be quite slow.&lt;br /&gt;&lt;b&gt;NOTE:&lt;/b&gt; This option needs to be set to 'Generate as recipient' if 'User Subscription' Filter is enabled.</note>
 		</field>
 		<field attribute="content_text_only">
 			<display_name>Email Type</display_name>
