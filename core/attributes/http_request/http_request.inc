@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: http_request.inc,v 1.16 2012/07/30 02:02:53 ewang Exp $
+* $Id: http_request.inc,v 1.17 2012/08/23 03:42:07 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 * 	<http_request />
 *
 * @author  James Hurst <jhurst@squiz.co.uk>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -215,6 +215,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 						} else {
 							combo_box($prefix.'_cache_options', $this->_cache_options, FALSE, $current_value['cache_options']);
 						}
+						
 					?>
 				</td>
 			</tr>
@@ -972,6 +973,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 			$response['expiry'] = $this->_config['default_cache_expiry'];
 			break;
 		}
+		$response['expiry']  = (int) $response['expiry'];
 	}//end setCacheExpiry()
 
 	
