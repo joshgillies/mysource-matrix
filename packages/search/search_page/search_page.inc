@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.263 2012/08/22 06:12:11 akarelia Exp $
+* $Id: search_page.inc,v 1.264 2012/08/23 01:42:11 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.263 $
+* @version $Revision: 1.264 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -368,7 +368,7 @@ class Search_Page extends Listing_Engine
 		}
 
 		// Set this variable to pass to the processSearch() function
-		$search_vars= $this->processSearchVars();
+		$search_vars = $this->processSearchVars();
 
 		// If Stored Query is to be used, then jump to the results page directly
 		if ($this->attr('stored_query_show_results') && $mode == 'initial' && $this->_tmp['jump_to_result']) {
@@ -3431,6 +3431,14 @@ class Search_Page extends Listing_Engine
 	}//end _sanitizeQueries()
 
 
+	/**
+	* This function will generate an array of the search var to process 
+	* depending on the GET/POST variable defined and the search terms passed
+	*
+	*
+	* @return array
+	* @access public
+	*/
 	function processSearchVars()
 	{
 		$search_vars = Array();
@@ -3443,6 +3451,7 @@ class Search_Page extends Listing_Engine
 		if (is_array($pmap_params) && !empty($pmap_params)) {
 			foreach ($pmap_params as $params) {
 				$sq_index = $pmap->getParameterValue($params);
+
 				if (!is_null($sq_index)) {
 					replace_global_keywords($sq_index);
 					// If a pipe separated list remove
