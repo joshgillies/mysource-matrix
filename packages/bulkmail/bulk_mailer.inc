@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.97 2012/08/22 05:59:35 akarelia Exp $
+* $Id: bulk_mailer.inc,v 1.98 2012/08/23 00:47:24 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.97 $
+* @version $Revision: 1.98 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -394,7 +394,9 @@ class Bulk_Mailer
 									foreach ($strings_to_srch as $srch_string) {
 										$_GET[$get_var] = $srch_string;
 										$search_vars    = $content_asset->processSearchVars();
+										$this->_reconnectDB(TRUE);
 										$search_results = $content_asset->processSearch($search_vars);
+										$this->_reconnectDB();
 
 										foreach (array_keys($search_results) as $res) {
 											if (in_array($res, $search_asset_list)) continue;
@@ -593,11 +595,17 @@ class Bulk_Mailer
 	* @return void
 	* @access private
 	*/
-	function _reconnectDB()
+	function _reconnectDB($dbsearch=FALSE)
 	{
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(TRUE);
-		//force a new oci connection to avoid end-of-communication issue of oracle + fork
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2', TRUE);
+		if (!$dbsearch) {
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(TRUE);
+			//force a new oci connection to avoid end-of-communication issue of oracle + fork
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2', TRUE);
+		} else {
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(TRUE);
+			//force a new oci connection to avoid end-of-communication issue of oracle + fork
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('dbsearch', TRUE);
+		}
 
 	}//end _reconnectDB()
 
