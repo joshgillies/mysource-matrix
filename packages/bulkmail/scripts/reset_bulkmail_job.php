@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: reset_bulkmail_job.php,v 1.3 2012/08/22 05:59:35 akarelia Exp $
+* $Id: reset_bulkmail_job.php,v 1.4 2012/08/23 01:38:28 akarelia Exp $
 *
 */
 
@@ -22,12 +22,12 @@
 *		This script resets a bulkmail job.
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 
 // Check for environment/arguments
-ini_set('memory_limit', '-1');
+if (ini_get('memory_limit') != '-1') ini_set('memory_limit', -1);
 error_reporting(E_ALL);
 if ((php_sapi_name() != 'cli')) {
 	trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
