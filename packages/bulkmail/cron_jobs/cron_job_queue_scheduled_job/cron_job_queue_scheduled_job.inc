@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_queue_scheduled_job.inc,v 1.1 2012/08/22 05:59:35 akarelia Exp $
+* $Id: cron_job_queue_scheduled_job.inc,v 1.2 2012/08/23 03:45:01 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __bulkmail__
 */
@@ -164,10 +164,12 @@ class Cron_Job_Queue_Scheduled_Job extends Cron_Job
 		if (empty($jobs)) return SQ_CRON_JOB_COMPLETED;
 
 		$now = time();
+
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$cm = $am->getSystemAsset('cron_manager');
 		$bm = $am->getSystemAsset('bulkmail_manager');
 		$last_run = $cm->attr('last_run');
+
 		$multiplier = Array(
 						'hourly'	=> (60 * 60),
 						'daily'		=> (60 * 60 * 24),
@@ -180,6 +182,7 @@ class Cron_Job_Queue_Scheduled_Job extends Cron_Job
 			$frequency = array_get_index(array_keys($schedule), 0);
 			$date_time = $schedule[$frequency];
 			$date_time_ts = strtotime($date_time);
+
 			// if the starting time of the scheduling of jobs is in future ignore it
 			if ($date_time_ts > $now) continue;
 
@@ -195,12 +198,14 @@ class Cron_Job_Queue_Scheduled_Job extends Cron_Job
 				// if the job isn't scheduled before the first time
 				// it needs to be scheduled is its epoch time
 				$bulkmail_job->processStatusChange(SQ_STATUS_LIVE);
-				$bulkmail_job->setAttrValue('last_scheduled_run', $now);
-				$bulkmail_job->saveAttributes();
+				$am->acquireLock($bulkmail_job->id, 'all');
+					$bulkmail_job->setAttrValue('last_scheduled_run', $now);
+					$bulkmail_job->saveAttributes();
+				$am->releaseLock($bulkmail_job->id, 'all');
 				continue;
 			}
 
-			// we havr the last time the bulkmail job was queue up time
+			// we have the last time the bulkmail job was queue up time
 			// and we also have the time interval for it to be queued up
 			// calculate and check to see if the frecuency for next
 			// queuing up match our past and current cron manager run
@@ -210,8 +215,10 @@ class Cron_Job_Queue_Scheduled_Job extends Cron_Job
 				// we have calculated the next time weneed to queue the bulkmail job
 				// now queue it up if that time is after the last cron run but before now
 				$bulkmail_job->processStatusChange(SQ_STATUS_LIVE);
-				$bulkmail_job->setAttrValue('last_scheduled_run', $now);
-				$bulkmail_job->saveAttributes();
+				$am->acquireLock($bulkmail_job->id, 'all');
+					$bulkmail_job->setAttrValue('last_scheduled_run', $now);
+					$bulkmail_job->saveAttributes();
+				$am->releaseLock($bulkmail_job->id, 'all');
 				continue;
 			}
 		}
