@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_enhanced_function_list.inc,v 1.18.2.1 2012/08/17 04:24:23 ewang Exp $
+* $Id: js_api_enhanced_function_list.inc,v 1.18.2.2 2012/08/24 06:47:53 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author  Anthony Barnes <abarnes@squiz.com.au>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.18.2.1 $
+* @version $Revision: 1.18.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -2203,8 +2203,6 @@ class Js_Api_Enhanced_Function_List
 			// parameters for the post call
 			var fnConfig = this[fnName].call(this);
 			options = this._options(fnConfig.required,fnConfig.defaults,options);
-
-			options.content = escape(content);
 
 			this._doPost(fnName,[
 				['id', options.asset_id],
