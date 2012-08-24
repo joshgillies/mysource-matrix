@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_enhanced_function_list.inc,v 1.13.4.3 2012/08/17 04:24:57 ewang Exp $
+* $Id: js_api_enhanced_function_list.inc,v 1.13.4.4 2012/08/24 06:48:20 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author  Anthony Barnes <abarnes@squiz.com.au>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.13.4.3 $
+* @version $Revision: 1.13.4.4 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -412,7 +412,7 @@ class Js_Api_Enhanced_Function_List
 		*
 		* @param object		options       JSON string of options
 		* { 
-		*      asset_url:				string		url(inclusing protocol) or the assetid of the asset
+		*      asset_url:				string		url(including protocol) or the assetid of the asset
 		*      significant_link_only:	boolean		if get to get back significant (type_1 and type_2) links only
 		*      dataCallback:			function	Custom callback function
 		* }
@@ -453,7 +453,6 @@ class Js_Api_Enhanced_Function_List
 
 			<?php
 		}// end if(get_lineage)
-
 		
 		
 		if ($js_api_asset->attr('get_lineage_from_url')) {
@@ -561,8 +560,6 @@ class Js_Api_Enhanced_Function_List
 
 			<?php
 		}// end if(get_url_from_lineage)
-		
-		
 		
 		
 		
@@ -2206,8 +2203,6 @@ class Js_Api_Enhanced_Function_List
 			// parameters for the post call
 			var fnConfig = this[fnName].call(this);
 			options = this._options(fnConfig.required,fnConfig.defaults,options);
-
-			options.content = escape(content);
 
 			this._doPost(fnName,[
 				['id', options.asset_id],
