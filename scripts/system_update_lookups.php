@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_update_lookups.php,v 1.13.6.1 2012/07/13 00:42:25 cupreti Exp $
+* $Id: system_update_lookups.php,v 1.13.6.2 2012/08/27 05:53:22 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
 * @author  James Hurst <jhurst@squiz.co.uk>
 * @author  Daniel Simmons <dsimmons@squiz.co.uk>
-* @version $Revision: 1.13.6.1 $
+* @version $Revision: 1.13.6.2 $
 * @package MySource_Matrix
 */
 
@@ -140,6 +140,11 @@ while (!empty($chunk_children)) {
 				$child_asset    = $GLOBALS['SQ_SYSTEM']->am->getAsset($child_assetid);
 				
 				// Update lookups
+				if (!is_object($child_asset)) {
+				    log_to_file('Asset #'.$child_assetid.' does not exist, skipping', LOG_FILE);
+				    if ($config['verbose']) echo '-- Asset #'.$child_assetid.' does not exist, skipping' . "\n";
+				    continue;
+				}
 				$child_asset->updateLookups(FALSE);
 				log_to_file('Updated lookups for #'.$child_assetid, LOG_FILE);
 
