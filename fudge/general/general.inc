@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.54 2012/05/31 23:01:55 ewang Exp $
+* $Id: general.inc,v 1.55 2012/08/27 07:59:44 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package Fudge
 * @subpackage General
 */
@@ -936,5 +936,36 @@ function get_unique_token()
 	return $token;
 
     }//end get_unique_token()
-    
+
+
+/**
+* Converts a given valid XML string to an equivalent associative array
+*
+* @param string $xml	A string representing a well formed xml document
+*
+* @return array|boolean
+* @access publc
+*/
+function xml_to_array($xml) 
+{
+    return @_xml_to_array_helper(new SimpleXmlIterator($xml, null));
+
+}//end xml_to_array()
+
+
+/** 
+* Helper function to xml_to_array()
+*
+* @see xml_to_array()
+*/
+function _xml_to_array_helper($iter) 
+{
+	foreach($iter as $key=>$val) {
+		$arr[$key][] = ($iter->hasChildren()) ? call_user_func (__FUNCTION__, $val) : strval($val);
+	}
+	
+	return $arr;
+
+}//end xml_to_array_helper()
+
 ?>
