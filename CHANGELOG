@@ -1,5 +1,114 @@
 SQUIZ MATRIX CHANGELOG
 
+VERSION 4.10.2
+
+Featured Changes
+===================================
+
+No Results Bodycopy for Rolling Calendar Page [ Feature Request #5812 ]
+-----------------------------------------------------
+
+Squiz Matrix's Rolling Calendar Page asset allows you to show a list of events for a set period, dynamically progressing over time - for example, displaying events occurring within the next seven days.
+
+While this asset has options to display options to configure the layout of the results of the search, no bodycopy was previously available to set the layout when no results were found. This feature adds a new No Result Bodycopy, allowing users to configure the layout of the Rolling Calendar Page when no results are returned.  
+
+The No Results Bodycopy is enabled via a new Customise No Results Bodycopy? field on the Details screen of the Rolling Calendar Page. When this option is enabled, a new Page Contents (No Results) Bodycopy asset will be displayed in the asset map.
+
+The Page Contents (No Results) Bodycopy works in a similar manner to the No Results Bodycopy on a Search Page asset.
+
+This feature has been added to provide users with greater control over the layout of Rolling Calendar Page assets.  
+
+Workflow Bundles: Improved Error Handling for Required Metadata [ Feature Request #5829 ]
+-----------------------------------------------------
+
+When editing multiple assets within Squiz Matrix that have Workflow applied, users can utilise Workflow Bundle assets to create bundles of linked assets that can be taken into workflow and approved in batches.
+
+Previously, if a bundled asset was missing required metadata, the Workflow Bundle would still attempt to change its status to Pending Approval when a user prompted this status change. This would then result in a failed HIPO job, due to this missing metadata, potentially leading to inconsistent asset statuses for the assets under the Workflow Bundle.
+
+This feature introduces improved error handling in these situations, providing users with an error message and a link to the Metadata screen of the offending asset.  
+
+This functionality has also been extended to the Workflow screen of Workflow Bundle assets, if a user tries to approve changes to the bundled assets and one or more of these assets are missing required metadata.
+
+This feature has been introduced to prevent the asset status issues associated with a failed HIPO job, as well as to equip users with more accurate information of these particular issues so that they can swiftly be resolved. 
+
+New Keyword Modifier to Evaluate XPath Expressions [ Feature Request #5830 ]
+-----------------------------------------------------
+
+Squiz Matrix's XPath keyword modifier runs a set xpath argument query on a returned value and inserts a set delimiter argument between each returned element. This modifier, however, does not evaluate XPath expressions. A new keyword modifier has been added to evaluate passed XPath expressions.
+
+xpathe:<expression> 
+
+The xpathe keyword modifier evaluates a set XPath expressionon the returned keyword value.
+
+Example usage of this modifier is as follows:
+
+%asset_contents~xpathe:sum(//item/value)% : The path takes the mathematical sum() of item/value tags in the XML.
+%asset_contents^xpathe:count(//h1)% : Counts the number of heading ones in the supplied markup.  
+
+New Keyword Modifier to Return a JSON Encoded String [ Feature Request #5846 ]
+-----------------------------------------------------
+
+Keyword modifiers within Squiz Matrix allow you to modify the returned values of keyword replacements. This feature introduces a new keyword modifier to provide a JavaScript Object Notation (JSON) representation of a returned value.
+
+The json_encode keyword modifier will take the returned value of the keyword replacement, encoding it into a JSON string (or register a log error if the encode fails). In the example below, the json_encode modifier has been used to provide a JSON encoded string of the value returned on the asset_metadata_text_field keyword.
+
+%asset_metadata_text_field^json_encode%
+
+This modifier is useful when you require content to be formatted in JSON, for example, when transmitting data to a web application. 
+
+SAML Federated Access Management [ Feature Request #5855 ]
+-----------------------------------------------------
+
+Security Assertion Markup Language 2.0 (SAML 2.0) is an XML-based standard for authenticating and authorising access to secure domains, that is, between an identity provider and a service provider. SAML 2.0 enables web-based authentication, providing federated access management through single sign-on and identity verification.
+
+Squiz Matrix will employ this federated access management model to provide authentication via SAML 2.0 identity providers.
+
+Integration with the SAML 2.0 protocol will be enabled through a new SAML Account Manager asset within the Squiz Matrix system. This asset will allow Matrix to serve as a service provider, delegating user authentication to SAML 2.0 identity providers to achieve federated access. 
+
+When a user first accesses the Matrix database via the SAML Account Manager asset, they will be redirected to the SAML 2.0 identity provider for authentication. Once a user's identification has been validated by the identity provider, they will be redirected back to Squiz Matrix.
+
+A user's account within Matrix will be associated with the SAML identity, enabling federated access to Matrix, automatically signing the user into their Matrix account as part of the SAML authentication process. If no associated user account is found, the user will be able to either create a new account within Matrix to use for federated access or sign-in to an existing Matrix account to link to the authenticated identity. 
+
+When a user (using an SAML-linked user account) ends their session within Squiz Matrix, the SAML Account Manager asset will notify the SAML 2.0 identity provider to sign out completely.
+
+
+Additional Changes and Bug Fixes
+=================================== 
+
+Minor Enhancements
+
+Minor Enhancement #5767: Improved Hippo Error Handling.
+Minor Enhancement #5825: New Search Box Design Area Title/Label Attributes.
+Minor Enhancement #5837: Spanish Characters Remapped in Web Paths.
+Minor Enhancement #5863: Improved Error Handling for Nonexistent Assets in system_update_lookup.php Script. 
+
+Core
+
+Fixed Bug #5802: \n in replace keyword turns blank.
+Fixed Bug #5817: Notice Links when Paint Layout is applied to Single Calendar Events.
+Fixed Bug #5819: Matrix should not assume report XML files are valid.
+Fixed Bug #5823: Asset thumbnail printing wrong ALT and TITLE values.
+Fixed Bug #5826: paint_layout_bodycopy update does not account for _asset_metadata_X conditional keywords.
+Fixed Bug #5831: Inconsistent contents when using Deja Vu and Rollback.
+Fixed Bug #5838: When aborting a HIPO job having dependant job, leaves the dependant job orphaned.
+Fixed Bug #5841: Improved error handling on Cron Job Manager for incomplete submissions when replacing keywords.
+Fixed Bug #5843: Further fixes to Deja Vu and Safe Edit.
+Fixed Bug #5849: Issue with Workflow Bundles whilst using Squiz Server.
+Fixed Bug #5850: Matrix sets session cookie expiry time differently than mentioned.
+Fixed Bug #5860: Cosmetic: Icons overlapping on WYSIWYG field. 
+
+Search
+
+Fixed Bug #5832: Cancelling Safe Edit throws error on system having more than two contexts. 
+
+Web Services
+
+Fixed Bug #5820: Links in Workflow Emails generated via EES are wrong.
+Fixed Bug #5848: The JS API's importAssetsFromXML function has an errant call to escape() on the path.
+Fixed Bug #5851: The JS API's getURLFromLineage function in the standard API mode returns a JS error.
+Fixed Bug #5858: Issue with the REST Resource (HTTP Request attribute) cache expiry.
+
+
 VERSION 4.10.1
 
 Featured Changes
