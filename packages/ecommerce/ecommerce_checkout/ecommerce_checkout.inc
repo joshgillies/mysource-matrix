@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.84 2012/04/04 06:12:37 akarelia Exp $
+* $Id: ecommerce_checkout.inc,v 1.85 2012/08/27 07:53:58 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.84 $
+* @version $Revision: 1.85 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -766,6 +766,9 @@ class Ecommerce_Checkout extends Page
 			$this->_tmp['delete_all_orders_after_printing'] = TRUE;
 			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_ecommerce_order_submitted', $order_asset);
 		}
+		
+		// Anything else that needs to be done after the order is processed
+		$this->finishCheckout($order_asset);
 
 	}//end _processOrder()
 
@@ -2122,6 +2125,50 @@ class Ecommerce_Checkout extends Page
 		$order_asset->setAttrValue('order_grand_total', $total_cost);
 
 	}//end _saveOrderSummary()
+
+
+	/**
+	* Stuff that needs to be done at the end of the checkout
+	*
+	* @param object $order_asset
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function finishCheckout(&$order_asset)
+	{
+		// Execute the checkout's completion actions configured for this checkout page
+		$success = $this->_performCheckoutCompletionActions($order_asset);
+
+		return $success;
+		
+	}// end finishCheckout()
+
+
+	/**
+	* Executes the specifed actions configured, if any
+	*
+	* @param object $order_asset
+	*
+	* @return boolean
+	* @accesss private
+	*/
+	private function _performCheckoutCompletionActions(&$order_asset)
+	{
+		$actions = $this->attr('actions');
+		$success = TRUE;
+		foreach($actions as $action) {
+			$action_type = $action['type_code'];
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset($action_type);
+
+			if ($action['active'] && call_user_func(Array($action_type, 'isValid'), $this, $action['settings'])) {
+				$success &= call_user_func(Array($action_type, 'execute'), $this, $order_asset, $action['settings']);
+			}
+		}
+		
+		return $success;
+
+	}//end _performCheckoutCompletionActions()
 
 
 }//end class

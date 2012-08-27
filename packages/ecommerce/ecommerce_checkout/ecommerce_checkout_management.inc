@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout_management.inc,v 1.17 2010/05/07 03:43:01 cupreti Exp $
+* $Id: ecommerce_checkout_management.inc,v 1.18 2012/08/27 07:53:58 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -276,6 +276,13 @@ class Ecommerce_Checkout_Management extends Asset_Management
                                             'default'		=> '',
                                             'description'	=> 'Text to display if some products in cart are non-refundable',
                                             );
+		$this->vars['actions'] = Array(
+										'added'		=> '0.4',
+										'type'		=> 'serialise',
+										'default'	=> Array(),
+										'description' => 'Actions that needs to be executed at the end of checkout',
+									);
+											
 
 
 	}//end constructor

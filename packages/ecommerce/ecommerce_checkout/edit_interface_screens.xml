@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.8 2008/11/25 00:48:04 mbrydon Exp $
+* $Id: edit_interface_screens.xml,v 1.9 2012/08/27 07:53:58 cupreti Exp $
 *
 */
 -->
@@ -21,4 +21,5 @@
 	<screen code_name="region_specific" display_name="Region Specific Options" />
 	<screen code_name="tax_other_fees" display_name="Taxation and Flat Fees" />
 	<screen code_name="quantity_tracking" display_name="Quantity Tracking" />
+	<screen code_name="actions" display_name="Checkout Completion Actions" force_unlock="0" />
 </screens>

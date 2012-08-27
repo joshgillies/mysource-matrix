@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout_edit_fns.inc,v 1.13 2009/08/18 09:45:21 ata Exp $
+* $Id: ecommerce_checkout_edit_fns.inc,v 1.14 2012/08/27 07:53:58 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -995,6 +995,468 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 		return $wa;
 
 	}//end processCustomiseReceipt()
+	
+
+	//--  CHECKOUT COMPLETION ACTIONS        --//
+
+	/**
+	* Paints the interface for printing all existing actions
+	*
+	* @param object	$asset	The form whose interface we are painting
+	* @param object	$o		the outputter class
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	*/
+	public function paintAllActions($asset, Backend_Outputter $o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		$actions = $asset->attr('actions');
+
+		// Get selected action, which may have changed last commit
+		if ($write_access) {
+			$selected_action = array_get_index($_REQUEST, $prefix.'_new_selected_action', NULL);
+			if (!is_numeric($selected_action)) {
+				$selected_action = array_get_index($_POST, $prefix.'_selected_action', NULL);
+			}
+		} else {
+			$selected_action = NULL;
+		}
+
+		$o->openField('');
+
+			hidden_field($prefix.'_new_selected_action', '');
+
+			if (!empty($actions)) {
+				?><table class="sq-backend-table">
+				<colgroup>
+					<col width="60"  align="center" />
+					<col width="150" />
+					<col/>
+					<col width="60"  align="center" />
+					<col width="60"  align="center" />
+				</colgroup>
+				<thead>
+					<th><p>Edit</p></th>
+					<th><p>Action Name / Type</p></th>
+					<th><p>Summary</p></th>
+					<th><p>Valid ?</p></th>
+					<th><p>Active ?</p></th>
+					<th><p>Delete ?</p></th>
+				</thead><tbody><?php
+
+				foreach ($actions as $key => $action) {
+					$is_selected_action = (!is_null($selected_action) && ((string)$selected_action === (string)$key));
+					?><tr<?php
+					if ($is_selected_action) {
+						echo ' class="alt"';
+					}
+					?>><?php
+					$action_type = $action['type_code'];
+					$settings    = $action['settings'];
+					$type_name   = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($action_type, 'name');
+
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset($action_type);
+
+					if ($write_access && !$is_selected_action) {
+						?><td class="sq-backend-table-cell"><p><a href="#" onclick="document.getElementById('<?php echo $prefix ?>_new_selected_action').value = <?php echo $key ?>; document.main_form.submit(); return false;"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/edit_mode.png" width="15" height="15" border="0" /></a></p></td><?php
+					} else {
+						?><td class="sq-backend-table-cell">&nbsp;</td><?php
+					}
+					?><td class="sq-backend-table-cell"><p><strong><?php echo $action['name'] ?></strong><br/>(<?php echo $type_name ?>)</p></td><?php
+					?><td class="sq-backend-table-cell"><?php echo call_user_func(Array($action_type, 'paintSummary'), $asset, $settings, $o, $prefix) ?></td><?php
+					?><td class="sq-backend-table-cell"><p><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo call_user_func(Array($action_type, 'isValid'), $asset, $settings) ? 'tick' : 'cross' ?>.gif" width="15" height="15" border="0" /></p></td><?php
+					if ($write_access) {
+						?><td class="sq-backend-table-cell"><p><?php check_box($prefix.'_rules[active]['.$key.']', '1', $action['active']) ?></p></td><?php
+						?><td class="sq-backend-table-cell"><p><?php check_box($prefix.'_rules[delete]['.$key.']', '1', FALSE) ?></p></td><?php
+					} else {
+						?><td class="sq-backend-table-cell"><p><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $action['active'] ? 'tick' : 'cross' ?>.gif" width="15" height="15" border="0" /></p></td><?php
+						?><td class="sq-backend-table-cell">&nbsp;</td><?php
+					}
+					?></tr><?php
+				}
+				?></tbody></table><?php
+			} else {
+				?><p>There are no actions currently defined for this form.</p><?php
+			}
+
+		$o->closeField();
+		$o->sectionNote('Only actions that are <strong>valid</strong> and <strong>active</strong> will be executed when the checkout is completed. An action can be activated or deactivated with the <strong>Active ?</strong> check box.');
+
+		return $write_access;
+
+	}//end paintAllActions()
+
+
+	/**
+	* Performs processing for the actions table
+	*
+	* @param object	$asset	The form whose interface we are painting
+	* @param object	$o		the outputter class
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	*/
+	public function processAllActions($asset, Backend_Outputter $o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+
+		// If we have selected "edit action", then we don't want this to run,
+		// because we only want active/delete changes to take effect upon
+		// hitting the commit button.
+		$edit_action = array_get_index($_REQUEST, $prefix.'_new_selected_action', NULL);
+		if (!empty($edit_action)) {
+			return $write_access;
+		}
+
+		if ($write_access) {
+			$actions = $asset->attr('actions');
+
+			$rule_changes = array_get_index($_POST, $prefix.'_rules', Array());
+
+			if(!empty($actions)) {
+				foreach ($actions as $key => $action) {
+					if (!isset($rule_changes['active'][$key])) {
+						$rule_changes['active'][$key] = Array();
+					}
+				}
+			} else {
+				if (!isset($rule_changes['active'])) {
+					$rule_changes['active'] = Array();
+				}
+			}
+
+			if (!isset($rule_changes['delete'])) {
+				$rule_changes['delete'] = Array();
+			}
+
+			foreach ($rule_changes['active'] as $key => $value) {
+				$actions[$key]['active'] = (boolean)$value;
+			}
+			foreach ($rule_changes['delete'] as $key => $value) {
+				unset($actions[$key]);
+			}
+
+			$asset->setAttrValue('actions', $actions);
+			if (!$asset->saveAttributes()) return FALSE;
+		}
+
+		return $write_access;
+
+	}//end processAllActions()
+
+
+	/**
+	* Paints the interface for creating a new action
+	*
+	* @param object	$asset	The form whose interface we are painting
+	* @param object	$o		the outputter class
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	*/
+	public function paintNewAction($asset, Backend_Outputter $o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+
+		$types = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('checkout_action');
+		$names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($types, 'name');
+
+		$o->openField('');
+			if ($write_access) {
+				?><p><?php
+					check_box($prefix.'_new', '1', FALSE, 'this.form.'.$prefix.'_new_type.disabled = !this.checked; return true;');
+					?><label for="<?php echo $prefix ?>_new">Create a new action of type:</label> <?php
+					$names = Array('' => 'Select action type...') + $names;
+					combo_box($prefix.'_new_type', $names, FALSE, '', 0, 'disabled="disabled"');
+					?></p><?php
+			} else {
+				?><p>This screen must be locked before you can create a new action.</p><?php
+			}
+
+			// If we have a new action, are we
+		$o->closeField();
+
+		$o->sectionNote('If you create a new action, the new action will be displayed immediately for you to edit. If you already have an action open to edit, the changes to that action will be saved when you commit before the new action is created.');
+
+		return $write_access;
+
+	}//end paintNewAction()
+
+
+	/**
+	* Processes the creation of a new action
+	*
+	* @param object	$asset	The form whose interface we are painting
+	* @param object	$o		the outputter class
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	*/
+	public function processNewAction($asset, Backend_Outputter $o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+
+		if ($write_access) {
+			// First check that we are creating a new rule.
+			$new_action = (int)array_get_index($_POST, $prefix.'_new', '0');
+
+			if ($new_action) {
+				// Paranoia, paranoia...
+				// Check whether the type we've been passed is a valid type,
+				// to protect possible stuffed POSTDATA (including a blank)
+				$action_type = array_get_index($_POST, $prefix.'_new_type', '');
+				if (!empty($action_type)) {
+					if ($GLOBALS['SQ_SYSTEM']->am->installed($action_type)) {
+						// Also check whether it's a valid form action
+						$type_parents = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($action_type);
+						if (in_array('checkout_action', $type_parents)) {
+							// okay, we seem to be in the clear
+							$type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($action_type, 'name');
+							$actions   = $asset->attr('actions');
+
+							if (!empty($actions)) {
+								$new_key = max(array_keys($actions)) + 1;
+							} else {
+								$new_key = 0;
+							}
+
+							$actions[$new_key] = Array(
+													'name'		=> $this->_makeValidActionName($asset, $type_name),
+													'type_code'	=> $action_type,
+													'settings'	=> NULL,
+													'active'	=> TRUE,
+												 );
+							$asset->setAttrValue('actions', $actions);
+
+							// Set new selected action
+							$_POST[$prefix.'_new_selected_action'] = $new_key;
+
+							if (!$asset->saveAttributes()) return FALSE;
+						} else {
+							trigger_error('Cannot create new action; asset type "'.$action_type.'" is not a checkout action', E_USER_WARNING);
+						return FALSE;
+						}
+					} else {
+						trigger_error('Cannot create new action; "'.$action_type.'" is not a valid asset type', E_USER_WARNING);
+						return FALSE;
+					}
+				}
+			}
+
+		}
+
+		return $write_access;
+
+	}//end processNewAction()
+
+
+	/**
+	* Paints the interface for the selected submission action
+	*
+	* @param object	$asset	The form whose interface we are painting
+	* @param object	$o		the outputter class
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	*/
+	public function paintSelectedAction($asset, Backend_Outputter $o, $prefix)
+	{	
+		$write_access = $asset->writeAccess('attributes');
+		$selected_action = array_get_index($_REQUEST, $prefix.'_new_selected_action', NULL);
+		if (!is_numeric($selected_action)) {
+			$selected_action = array_get_index($_POST, $prefix.'_selected_action', NULL);
+		}
+
+		if ($write_access) {
+			if (!is_null($selected_action)) {
+				$actions = $asset->attr('actions');
+
+				// Get the current action and process - but not if we've
+				// already been deleted further up!
+				if (!isset($actions[$selected_action])) {
+					$o->openField('');
+						?><p>No action is currently selected for editing. To edit an action, please select from the "Existing Actions" list above.</p><?php
+					$o->closeField();
+					return FALSE;
+				}
+
+				$action = $actions[$selected_action];
+
+				$type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($action['type_code'], 'name');
+
+				$o->openField('Action Name');
+
+					text_box($prefix.'_selected_name', $action['name'], 30);
+					$o->note('An optional name to identify this particular action. If cleared, the action\'s type ("'.$type_name.'" in this case) will be used, numerically indexed if necessary.');
+
+				$o->closeField();
+				$o->openField('Settings');
+
+					hidden_field($prefix.'_selected_action', $selected_action);
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset($action['type_code']);
+					call_user_func(Array($action['type_code'], 'paintInlineInterface'), $asset, $action['settings'], $o, $prefix);
+
+				$o->closeField();
+
+			} else {
+				$o->openField('');
+					?><p>No action is currently selected for editing. To edit an action, please select from the "Existing Actions" list above.</p><?php
+				$o->closeField();
+
+			}//end if there is a selected action
+		} else {
+			$o->openField('');
+				?><p>This screen must be locked before you can edit an action.</p><?php
+			$o->closeField();
+		}//end if write_access
+
+		return $write_access;
+
+	}//end paintSelectedAction()
+
+	
+	/**
+	* Paints the interface for choosing an asset type.
+	*
+	* Only non-system assets and instantiable assets and their ancestors are printed
+	*
+	* @param string	$field_name			the name to use for the combo box
+	* @param string	$selected_type_code	the type_code that should be currently selected
+	*
+	* @return void
+	* @access private
+	*/
+	function _paintAssetTypeChooser($field_name, $selected_type_code)
+	{
+		$asset_types = $GLOBALS['SQ_SYSTEM']->am->getAssetTypes(TRUE);
+
+		$all_types = Array();
+		foreach ($asset_types as $type_code => $info) {
+			$all_types[$type_code] = $info['name'];
+			$type_anc = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code);
+
+			foreach ($type_anc as $anc_type_code) {
+				if ($anc_type_code == 'asset') continue;
+				// save on db calls if we have this ancestor already
+				if (!in_array($anc_type_code, array_keys($all_types))) {
+					$all_types[$anc_type_code] = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($anc_type_code, 'name');
+				}
+			}
+		}
+		$all_types = array_unique($all_types);
+		arsort($all_types);
+		$all_types['asset'] = '-- '.translate('sch_all_asset_types').' --';
+		$all_types[''] = '';
+		$all_types = array_reverse($all_types);
+
+		combo_box($field_name, $all_types, FALSE, $selected_type_code);
+		echo '&nbsp;';
+		submit_button($field_name.'_go', translate('go'), 'main_form.submit()');
+
+	}//end _paintAssetTypeChooser()
+
+	/**
+	* Processes the interface for the selected action
+	*
+	* @param object	$asset	The form whose interface we are painting
+	* @param object	$o		the outputter class
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	*/
+	public function processSelectedAction($asset, Backend_Outputter $o, $prefix)
+	{	
+		$write_access = $asset->writeAccess('attributes');
+		$actions = $asset->attr('actions');
+		$result = FALSE;
+
+		// If an "edit action" has been clicked, then we've lost the changes
+		// to the current rule.
+		$edit_action = array_get_index($_REQUEST, $prefix.'_new_selected_action', NULL);
+		if (is_numeric($edit_action)) {
+			return FALSE;
+		}
+
+		// If not, then get the current action and process - but not if we've
+		// already been deleted!
+		$selected_action = array_get_index($_POST, $prefix.'_selected_action', NULL);
+		if (!isset($actions[$selected_action])) {
+			return FALSE;
+		}
+
+		if ($write_access) {
+			if (!is_null($selected_action)) {
+				$new_name = array_get_index($_POST, $prefix.'_selected_name', NULL);
+				$action = $actions[$selected_action];
+
+				$new_name = array_get_index($_POST, $prefix.'_selected_name', NULL);
+				if ($new_name != $action['name']) {
+					if (empty($new_name)) {
+						$new_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($action['type_code'], 'name');
+					}
+					$actions[$selected_action]['name'] = $this->_makeValidActionName($asset, $new_name);
+				}
+
+				$GLOBALS['SQ_SYSTEM']->am->includeAsset($action['type_code']);
+				$settings = $action['settings'];
+
+				// Bug Fix #3145
+				// call_user_func doesn't work with pass-by-reference in PHP5, so using call_user_func_array instead
+				$result = call_user_func_array(Array($action['type_code'], 'processInlineInterface'), Array($asset, &$settings, $o, $prefix));
+				if ($result) {
+					$actions[$selected_action]['settings'] = $settings;
+					$asset->setAttrValue('actions', $actions);
+					if (!$asset->saveAttributes()) return FALSE;
+				}
+			} else {
+				return FALSE;
+			}
+		}
+
+		return ($result && $write_access);
+
+	}//end processSelectedAction()
+
+
+	/**
+	* Make an action name valid by adding a numeric index to it if a duplicate
+	*
+	* Returns the base name if no duplicate name is found, or tries "Base Name
+	* 2", "Base Name 3", and so on, until a unique name is found, and returns
+	* the first unique name it finds.
+	*
+	* @param $asset	The form whose interface we are painting
+	* @param string	$base_name	Base name to use
+	*
+	* @return boolean
+	*/
+	protected function _makeValidActionName($asset, $base_name)
+	{
+		$actions = $asset->attr('actions');
+
+		$name = $base_name;
+		$i = 1;
+
+		do {
+			$found = FALSE;
+
+			foreach ($actions as $action) {
+				if ($action['name'] == $name) {
+					$found = TRUE;
+
+					// Incrememt the base name
+					$i++;
+					$name = $base_name.' '.$i;
+					break;
+				}
+			}
+
+		} while ($found);
+
+		return $name;
+
+	}//end _makeValidActionName()	
 
 
 }//end class
