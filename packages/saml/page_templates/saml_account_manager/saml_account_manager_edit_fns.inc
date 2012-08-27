@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: saml_account_manager_edit_fns.inc,v 1.1.1.1 2012/08/21 05:17:12 ewang Exp $
+* $Id: saml_account_manager_edit_fns.inc,v 1.1.1.1.2.1 2012/08/27 04:48:32 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_builder/page_asset
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.1.1.1.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage file
 */
@@ -130,7 +130,7 @@ class SAML_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 	{
 		if($asset->attr('auth_source')) {
 			 $url = $asset->getUrl();
-			 echo $url.'?showMetadata';
+			echo '<a href="'.$url.'?showMetadata">'.$url.'?showMetadata'.'</a>';
 		}
 	}
 	
@@ -375,7 +375,7 @@ class SAML_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 			    trigger_error($e->getMessage());
 			    return TRUE;
 			}
-			pre_echo($output);
+			pre_echo($output['saml20-idp-remote']);
 			return TRUE;
 		    }
 		    else {

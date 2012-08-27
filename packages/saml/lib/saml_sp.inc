@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: saml_sp.inc,v 1.1.1.1 2012/08/21 05:17:13 ewang Exp $
+* $Id: saml_sp.inc,v 1.1.1.1.2.1 2012/08/27 04:48:32 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.1.1.1.2.1 $
 * @package saml
 */
 class SAML_Service_Provider extends sspmod_saml_Auth_Source_SP 
@@ -253,9 +253,8 @@ class SAML_Service_Provider extends sspmod_saml_Auth_Source_SP
 		
 		$lr = sspmod_saml_Message::buildLogoutRequest($this->metadata, $idpMetadata);
 		$lr->setNameId($nameId);
-		$lr->setSessionIndex('ab4008233488ff13a5b3426743fe0689');
-		// removed relay state, because igovt doesn't like it, it's useless in Matrix anyway.
-		//$lr->setRelayState($id);
+		$lr->setSessionIndex($sessionIndex);
+		$lr->setRelayState($id);
 		
 
 		$encryptNameId = $idpMetadata->getBoolean('nameid.encryption', NULL);

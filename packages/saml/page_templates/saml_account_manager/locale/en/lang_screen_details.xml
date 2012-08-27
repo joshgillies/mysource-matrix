@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1.1.1 2012/08/21 05:17:13 ewang Exp $
+* $Id: lang_screen_details.xml,v 1.1.1.1.2.1 2012/08/27 04:48:32 ewang Exp $
 *
 */
 -->
@@ -101,7 +101,7 @@
 	<section name="Parse Metadata XML" >
 	    	<field>
 			<display_name>XML metadata</display_name>
-			<note>A handy tool to convert IDP SAML 2.0 metadata XML to Simplesamlphp metadata configuration array.</note>
+			<note>A handy tool to convert IDP SAML 2.0 metadata XML to Simplesamlphp metadata configuration array. Place the converted array in /path/to/simplesamlphp/metadata/saml20-idp-remote.php.</note>
 			<function_call>
 				<paint_function   name="paintParseMetadata"   />
 			</function_call>
