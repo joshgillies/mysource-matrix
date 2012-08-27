@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: saml_account_manager.inc,v 1.1.1.1 2012/08/21 05:17:12 ewang Exp $
+* $Id: saml_account_manager.inc,v 1.2 2012/08/27 04:41:22 ewang Exp $
 *
 */
 require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_builder/page_asset_builder.inc';
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage file
 */
@@ -419,7 +419,11 @@ class SAML_Account_Manager extends Page_Asset_Builder
 				$options['saml:AuthnContextClassRef'] = $authn_context_class_ref;
 			    }
 			   
-			    
+			    // remove all buffered content, so it won't interrupt the SAML redirect
+			    while (ob_get_level() > SQ_INIT_OB_LEVEL) {
+				ob_end_clean();
+			    }
+    
 			    // login saml, start the dance
 			   $saml_auth_manager->login($options);
 			   exit();
