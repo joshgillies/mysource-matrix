@@ -1,5 +1,41 @@
 SQUIZ MATRIX CHANGELOG
 
+VERSION 4.8.6
+
+Minor Enhancements and Bug Fixes
+=================================== 
+
+Minor Enhancements
+
+Minor Enhancement #5767: Improved Hippo Error Handling.
+Minor Enhancement #5863: Improved Error Handling for Nonexistent Assets in system_update_lookup.php Script.
+
+Core
+
+Fixed Bug #5802: \n in replace keyword turns blank.
+Fixed Bug #5817: Notice Links when Paint Layout is applied to Single Calendar Events.
+Fixed Bug #5819: Matrix should not assume report XML files are valid.
+Fixed Bug #5823: Asset thumbnail printing wrong ALT and TITLE values.
+Fixed Bug #5826: paint_layout_bodycopy update does not account for _asset_metadata_X conditional keywords.
+Fixed Bug #5831: Inconsistent contents when using Deja Vu and Rollback.
+Fixed Bug #5838: When aborting a HIPO job having dependant job, leaves the dependant job orphaned.
+Fixed Bug #5841: Improved error handling on Cron Job Manager for incomplete submissions when replacing keywords.
+Fixed Bug #5843: Further fixes to Deja Vu and Safe Edit.
+Fixed Bug #5849: Issue with Workflow Bundles whilst using Squiz Server.
+Fixed Bug #5850: Matrix sets session cookie expiry time differently than mentioned.
+
+Search
+
+Fixed Bug #5832: Cancelling Safe Edit throws error on system having more than two contexts. 
+
+Web Services
+
+Fixed Bug #5820: Links in Workflow Emails generated via EES are wrong.
+Fixed Bug #5848: The JS API's importAssetsFromXML function has an errant call to escape() on the path.
+Fixed Bug #5851: The JS API's getURLFromLineage function in the standard API mode returns a JS error.
+Fixed Bug #5858: Issue with the REST Resource (HTTP Request attribute) cache expiry.
+
+
 VERSION 4.8.5
 
 Featured Changes
