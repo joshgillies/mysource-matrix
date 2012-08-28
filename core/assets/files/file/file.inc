@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.210 2012/03/30 02:55:01 mhaidar Exp $
+* $Id: file.inc,v 1.211 2012/08/28 06:39:31 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.210 $
+* @version $Revision: 1.211 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -45,8 +45,8 @@ class File extends Asset
 	 * @var boolean
 	 */
 	public $ignore_update = FALSE;
-	
-	
+
+
 	/**
 	* Constructor
 	*
@@ -98,7 +98,7 @@ class File extends Asset
 	public function create(Array &$link, $info=Array())
 	{
 		$this->_tmp['file_create_data'] =& $info;
-	
+
 		if (empty($info)) {
 			// Try getting the uploaded file details
 			$info = get_file_upload_info($this->getPrefix(), isset($info['non_uploaded_file']) && $info['non_uploaded_file']);
@@ -124,7 +124,7 @@ class File extends Asset
 		if (!isset($info['filename'])) {
 			$info['filename'] = array_get_index($info, 'name', '');
 		}
-		
+
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_DATA_VALIDATION)) {
 			if (!$this->validFile($info)) return FALSE;
 		}
@@ -306,16 +306,16 @@ class File extends Asset
 			trigger_localised_error('CORE0051', E_USER_WARNING, $this->name);
 			return FALSE;
 		}
-		
+
 		$contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
-		foreach ($contexts as $contextid => $context_data) { 
+		foreach ($contexts as $contextid => $context_data) {
 			if ($contextid === 0) {
 				$files_to_copy = Array('metadata.php', 'metadata_field_values.php');
 			} else {
 				$files_to_copy = Array('metadata.'.$contextid.'.php', 'metadata_field_values.'.$contextid.'.php');
 			}
 			foreach ($files_to_copy as $filename) {
-				if (file_exists($this->data_path.'/'.$filename) === TRUE) {  
+				if (file_exists($this->data_path.'/'.$filename) === TRUE) {
 					if (!copy_file($this->data_path.'/'.$filename, $this->data_path.'/.sq_system/'.$filename)){
 						trigger_localised_error('SYS0166', E_USER_WARNING, $this->name, $filename);
 						return FALSE;
@@ -415,8 +415,8 @@ class File extends Asset
 		return TRUE;
 
 	}//end revertToSystemVersion()
-	
-	
+
+
 	/**
 	* Clear the directory for saving the system version
 	*
@@ -426,7 +426,7 @@ class File extends Asset
 	public function clearSystemVersion()
 	{
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-		
+
 		// Bug #5084: After safe edit, old files remain in public data directory.
 		// So clean it out, latest version will be checked out from _checkFileState() function.
 		// make sure our data directory exists
@@ -439,7 +439,7 @@ class File extends Asset
 			trigger_localised_error('CORE0305', E_USER_WARNING, $this->name);
 			return FALSE;
 		}
-		
+
 		return parent::clearSystemVersion();
 
 	}//end clearSystemVersion()
@@ -575,7 +575,7 @@ class File extends Asset
 		if ($this->status & SQ_SC_STATUS_SAFE_EDITING || $this->ignore_update == TRUE) {
 			return TRUE;
 		}
-		
+
 		return $this->_checkFileState();
 
 	}//end _updated()
@@ -589,7 +589,7 @@ class File extends Asset
 	* @access public
 	*/
 	public function permissionsUpdated()
-	{	
+	{
 		if ($this->status & SQ_SC_STATUS_SAFE_EDITING) return TRUE; //don't touch public file in safe edit
 		return $this->_checkFileState();
 
@@ -604,16 +604,15 @@ class File extends Asset
 	*/
 	protected function _checkFileState()
 	{
-		
+
 		if ($this->status & SQ_SC_STATUS_SAFE_EDITING) return TRUE; //don't touch public file in safe edit
-		
+
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 		$existing = $this->getExistingFile();
 		if (empty($existing)) return TRUE;
 
 		$unrestricted = $this->data_path_public.'/'.$existing['filename'];
-
 		$changed = FALSE;
 
 		// if we should be storing our file in the public
@@ -662,8 +661,8 @@ class File extends Asset
 		}
 
 	}//end _checkFileState()
-	
-	
+
+
 	/**
 	* Look's after the removing of files in the public directory
 	*
@@ -671,7 +670,7 @@ class File extends Asset
 	* @access private
 	*/
 	protected function _removePublicFile()
-	{	
+	{
 		$existing = $this->getExistingFile();
 		if (empty($existing)) return TRUE;
 
@@ -685,12 +684,12 @@ class File extends Asset
 				return FALSE;
 			}
 		}
-		
+
 		return TRUE;
 
 	}//end _removePublicFile()
 
-	
+
 	/**
 	* Look's after the updating of files in the public directory.
 	* Only call if File::usePublicPath() returns TRUE;
@@ -699,7 +698,7 @@ class File extends Asset
 	* @access private
 	*/
 	protected function _updatePublicFile()
-	{	
+	{
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 		$existing = $this->getExistingFile();
@@ -727,11 +726,11 @@ class File extends Asset
 				return FALSE;
 			}
 		}
-		
+
 		return TRUE;
 
 	}//end _updatePublicFile()
-	
+
 
 	/**
 	* Returns whether to use the public path or not for this file
@@ -755,7 +754,7 @@ class File extends Asset
 	* @see Asset::updateLookups(), Asset::saveWebPaths()
 	*/
 	public function updateLookups($auto_add_remaps = TRUE)
-	{	
+	{
 		$old_urls = $this->getURLs();
 
 		if (!isset($this->_tmp['deleting_file'])) {
@@ -791,7 +790,7 @@ class File extends Asset
 			return TRUE;
 		}
 
-		
+
 		// Basically what we are going to do here is find all our parents that are sites
 		// and take the system root urls that are closest to these site urls and tack on __data/... bit
 		$save_urls = Array();
@@ -842,7 +841,7 @@ class File extends Asset
 			}//end foreach
 
 		}//end else - if SQ_CONF_STATIC_ROOT_URL is not empty
-		
+
 		foreach ($save_urls as $url => $url_data) {
 			try {
 				$bind_vars	= Array (
@@ -875,7 +874,7 @@ class File extends Asset
 		} else {
 			$this->_updatePublicFile();
 		}
-		
+
 		// broadcast the lookup updated trigger event, passing old status as event data
 		$parameter = Array();
 		if (isset($this->_tmp['old_status'])) {
@@ -1048,7 +1047,7 @@ class File extends Asset
 	public function setAttrValue($name, $value)
 	{
 		$uploading_file = (!empty($this->_tmp['uploading_file'])) ? TRUE : FALSE;
-		$created_file = isset($this->_tmp['file_create_data']['created_file']) ? $this->_tmp['file_create_data']['created_file'] : FALSE; 
+		$created_file = isset($this->_tmp['file_create_data']['created_file']) ? $this->_tmp['file_create_data']['created_file'] : FALSE;
 
 		if ($name == 'name' && !$uploading_file) {
 			// check that we are not going to have web path conflicts
@@ -1113,7 +1112,7 @@ class File extends Asset
 		if ($this->_validFileSize($info, $pre_uploaded) && $this->_validFileExtension($info, $pre_uploaded)) {
 			return TRUE;
 		}
-		
+
 		unlink($info['path']);
 
 		return FALSE;
@@ -1280,8 +1279,8 @@ class File extends Asset
 			if (!is_null($protocol) && $protocol == 'https') {
 				$ssl_connection = TRUE;
 			}
-			$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager'); 
-			$using_ie6 = strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 6.') !== FALSE;
+			$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+			$using_ie6_8 = preg_match('/(MSIE\s[0-8]+\.)/', $_SERVER['HTTP_USER_AGENT']);
 
 			// send cacheable headers if file asset meets the credentials
 			if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && SQ_CONF_SEND_CACHEABLE_HEADER && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User) && empty($_POST) && $cm->cacheableHeadersEnabledForCurrentProtocol() && $this->status >= SQ_STATUS_LIVE && $this->readAccess()) {
@@ -1296,10 +1295,9 @@ class File extends Asset
 				header('Cache-Control: max-age='.$browser_cache_expiry.', '.$cm->cacheControlLevel());
 				header('Pragma: cache');
 				header('Last-Modified: '.gmdate('D, d M Y H:i:s',$existing['modified']).' GMT');
-			} else if (!$using_ie6 || !$ssl_connection) {
+			} else if (!$using_ie6_8 || !$ssl_connection) {
 				// Internet Explorer must forcibly reload some file types from the server for correct inline operation in popup windows. (ref. http://support.microsoft.com/default.aspx?scid=kb;EN-US;q297822)
 				// If such files do not load as expected, "Send no-cache header option for HTTP requests" should be set to "No" on the System Configuration screen. The default operation is to send this header (i.e; set to "Yes").
-
 				if (SQ_CONF_SEND_NO_CACHE_HEADER) {
 					header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
 				} else {
@@ -1322,7 +1320,7 @@ class File extends Asset
 			header('Content-Disposition: inline; filename='.$existing['filename'].';');
 			header('Content-Length: '.$existing['size']);
 			ob_end_flush();
-			
+
 			readfile($existing['path']);
 
 		}//end if
@@ -1475,7 +1473,7 @@ class File extends Asset
 		$keywords['asset_file_size_in_bytes'] = translate('core_file_keyword_size_in_bytes');
 		$keywords['asset_file_size_readable'] = translate('core_file_keyword_size_readable');
 		$keywords['asset_file_contents'] = translate('core_file_keyword_file_contents');
-		
+
 
 		return $keywords;
 
@@ -1524,7 +1522,7 @@ class File extends Asset
 		return $file_contents;
 
 	}//end getAssetFileContentsKeywordReplacement()
-	
+
 	/**
 	* Delete this asset from the trash
 	*
@@ -1585,7 +1583,7 @@ class File extends Asset
 
 	}//end scanFile()
 
-	
+
 	/**
 	* Get keyword replacement
 	*
@@ -1593,11 +1591,11 @@ class File extends Asset
 	* @access public
 	*/
 	public function getFileTypeKeywordReplacement()
-	{	
+	{
 		$ext = '';
 		$file_info = $this->getExistingFile();
 		if(isset($file_info['filename'])) {
-			$ext = substr($file_info['filename'], strrpos($file_info['filename'], '.') + 1);			
+			$ext = substr($file_info['filename'], strrpos($file_info['filename'], '.') + 1);
 		}
 		return $ext;
 
@@ -1610,12 +1608,12 @@ class File extends Asset
 	* @return string
 	* @access public
 	*/
-	public function getAssetSummary() 
-	{	
+	public function getAssetSummary()
+	{
 		// Get the summary content defination
 		$summary = $GLOBALS['SQ_SYSTEM']->getUserPrefs('file', 'SQ_FILE_ASSET_SUMMARY');
 		$keywords = retrieve_keywords_replacements($summary);
-		
+
 		$keyword_replacement = Array();
 		foreach($keywords as $full_keyword) {
 			$modifiers = NULL;
