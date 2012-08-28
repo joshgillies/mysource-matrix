@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_log_report_edit_fns.inc,v 1.16 2011/06/16 23:20:11 cupreti Exp $
+* $Id: search_log_report_edit_fns.inc,v 1.17 2012/08/28 01:45:04 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *	A report that lists searches by month, week, or day, and by assetid
 *
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -461,6 +461,8 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 		// bug fix 3587 converting slashes in the search term (if any) to underscore
 		// so that file system doesnt take it as directory structure
 		$term = str_replace('/' , '_' , $term);
+		$term = urlencode($term);
+
 		$term_path = $term_dir_path.'/'.$term.'.term';
 
 		// dump the into the file, serialising as we go
@@ -567,7 +569,7 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 					$data = $data_collection['total'];
 					$output_index_popular .= '
 						<tr>
-							<td class="sq-backend-table-cell">'.$term.'</td>
+							<td class="sq-backend-table-cell">'.urldecode($term).'</td>
 							<td class="sq-backend-table-cell" style="width: 25px;">'.array_get_index($data, 'total_searches', 0).'</td>
 							<td class="sq-backend-table-cell" style="width: 25px;">'.array_get_index($data, 'average_result', 0).'</td>
 							<td class="sq-backend-table-cell" style="width: 25px;">'.array_get_index($data, 'min_result', 0).'</td>
@@ -582,7 +584,7 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 			foreach ($index_failed as $term => $result) {
 				$output_index_failed .= '
 					<tr>
-						<td class="sq-backend-table-cell">'.$term.'</td>
+						<td class="sq-backend-table-cell">'.urldecode($term).'</td>
 						<td class="sq-backend-table-cell" style="width: 25px;">'.$result.'</td>
 					</tr>
 				';
@@ -855,14 +857,14 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 	{
 		$generated_reports = $report->attr('generated_reports');
 		$latest_report = current(array_keys($generated_reports));
-		
+
 		$last_date = NULL;
 		if ($latest_report) {
 			$last_date = strtotime(substr($latest_report, 7));
 		}
 
 		return $last_date;
-	
+
 	}//end _getPreviousDate()
 
 
