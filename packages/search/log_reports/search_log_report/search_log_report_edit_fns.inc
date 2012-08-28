@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_log_report_edit_fns.inc,v 1.17 2012/08/28 01:45:04 akarelia Exp $
+* $Id: search_log_report_edit_fns.inc,v 1.18 2012/08/28 02:12:20 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *	A report that lists searches by month, week, or day, and by assetid
 *
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -138,7 +138,6 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 						$this->_updateTerm($term, $result, $meta);
 					}
 				}
-
 			}//end if (!empty($line))
 
 			// update the progress bar
@@ -462,6 +461,7 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 		// so that file system doesnt take it as directory structure
 		$term = str_replace('/' , '_' , $term);
 		$term = urlencode($term);
+		$term = substr_replace($term, '', 250, strlen($term));
 
 		$term_path = $term_dir_path.'/'.$term.'.term';
 
@@ -747,6 +747,7 @@ class Search_Log_Report_Edit_Fns extends Log_Report_Edit_Fns
 	function _getTermHash($term)
 	{
 		if (trim($term) == '') return FALSE;
+		$term = urldecode($term);
 
 		// how many directory levels to hash to (eg. 2 = '/12/34')
 		$depth = 2;
