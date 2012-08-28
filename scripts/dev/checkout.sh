@@ -82,7 +82,7 @@ if [ $? -gt 0 ]; then
 	echo "There was a problem checking out the matrix core"
     echo "Make sure you have permissions to write to the ${checkoutBase}/${CHECKOUT_DIR}/ directory."
     popd >/dev/null
-	exit
+	exit 1
 fi
 
 echo "Checking out squiz matrix packages .. "
@@ -111,8 +111,12 @@ cd ..
 
 # Generate a manifest file for automatic_upgrades
 # to work with.
-find . -type f -not -path ./MANIFEST -a -not -path "*/CVS/*" -print0 | sort -z -k 2 | xargs -0 md5sum > /tmp/MANIFEST.$$
-mv /tmp/MANIFEST.$$ ./MANIFEST
+find . -type f -not -path ./MANIFEST -a -not -path "*/CVS/*" -print0 | sort -z -k 2 | xargs -0 md5sum > ./MANIFEST
+if [ $? -gt 0 ]; then
+    echo "There was a problem creating the manifest file."
+    popd >/dev/null
+    exit 1
+fi
 
 # Jump back to our original location.
 popd >/dev/null
