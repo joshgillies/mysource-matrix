@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.885 2012/08/14 07:06:22 ewang Exp $
+* $Id: asset_manager.inc,v 1.886 2012/08/29 02:30:25 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.885 $
+* @version $Revision: 1.886 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -931,7 +931,35 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getAttributeValuesByName($attr_name, $asset_type, $assetids, $contextid=NULL)
 	{
-		if (empty($assetids)) return Array();
+		if (empty($assetids)) return Array();		
+
+		// Create a list of separated assetids and shadow assetids
+		$shadowids = Array();
+		$normalids = Array();		
+		foreach ($assetids as $one_id) {
+			$id_parts = explode(':', $one_id);
+			if (isset($id_parts[1])) {
+				$shadowids[$id_parts[0]][] = $one_id;
+			} else {
+				$normalids[] = $one_id;
+			}
+		}//end foreach
+
+		// Set it to the array minus the shadowids
+		$assetids = $normalids;
+
+		// If we have picked up some shadow assets, make each bridge get its info
+		$shadow_results = Array();
+		foreach ($shadowids as $assetid => $shadows) {
+			$asset = $this->getAsset($assetid, '', TRUE);
+			if (is_null($asset) && method_exists($asset, 'getAttributeValuesByName')) {
+				$shadow_results += $asset->getAttributeValuesByName($attr_name, $asset_type, $shadows, $contextid);
+			}//end if
+		}//end foreach
+		
+		// breakout if nothing left to do
+		if (empty($assetids)) return $shadow_results;		
+		
 		if ($contextid === NULL) {
 			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 		}
