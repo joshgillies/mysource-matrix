@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.107 2012/07/31 04:53:49 akarelia Exp $
+* $Id: calendar_event.inc,v 1.108 2012/08/29 02:34:29 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.107 $
+* @version $Revision: 1.108 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1160,6 +1160,47 @@ class Calendar_Event extends Asset
 		return $info;
 
 	}//end getAssetInfo()
+
+	
+	/**
+	* Get the values of the attribute with the given name for the given assetids
+	*
+	* If the assetid is an event instance (shadow assetid), 
+	* get the attribute of the corresponding event asset instead
+	*
+	* @param string	$attr_name	The name of the attribute to get the values of
+	* @param string	$asset_type	The type code of the asset type that defines the attribute
+	* @param array	$assetids	IDs of the assets whose values we want
+	* @param int	$contextid	The ID of the context we wish to get the value of the attr for.
+	*							(If omitted, use the currently active context.)
+	*
+	* @return array
+	* @access public
+	*/
+	public function getAttributeValuesByName($attr_name, $asset_type, $assetids, $contextid=NULL)
+	{
+		if (empty($assetids)) return Array();
+		
+		$real_assetids = Array();
+		foreach($assetids as $full_assetid) {
+			if (strpos($full_assetid, ':') !== FALSE) {
+				list($real_assetids[]) = explode(':', $full_assetid);
+			} else {
+				$real_assetids[] = $full_assetid;
+			}
+		}//end foreach
+		
+		$real_res = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName($attr_name, $asset_type, $real_assetids, $contextid);
+		
+		$res = Array();
+		foreach($assetids as $full_assetid) {
+			list($real_assetid) = explode(':', $full_assetid);
+			$res[$full_assetid] = isset($real_res[$real_assetid]) ? $real_res[$real_assetid] : '';
+		}//end foreach
+		log_dump($res);
+		return $res;
+		
+	}//end getAttributeValuesByName()
 
 
 }//end class
