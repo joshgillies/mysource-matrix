@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.108 2012/08/29 02:34:29 cupreti Exp $
+* $Id: calendar_event.inc,v 1.109 2012/08/29 02:35:52 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.108 $
+* @version $Revision: 1.109 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1197,7 +1197,7 @@ class Calendar_Event extends Asset
 			list($real_assetid) = explode(':', $full_assetid);
 			$res[$full_assetid] = isset($real_res[$real_assetid]) ? $real_res[$real_assetid] : '';
 		}//end foreach
-		log_dump($res);
+		
 		return $res;
 		
 	}//end getAttributeValuesByName()
