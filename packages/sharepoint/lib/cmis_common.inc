@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cmis_common.inc,v 1.8 2011/11/07 22:49:39 csmith Exp $
+* $Id: cmis_common.inc,v 1.8.2.1 2012/08/30 07:31:43 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once 'Mail/mimeDecode.php';
 *     To provide an interface to the CMIS Connecter SOAP server for basic functionality
 *
 * @author  Mohamed Haidar <mhaidar@squiz.com.au>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage sharepoint
 */
@@ -112,7 +112,7 @@ class CMIS_Common
 			$options = array(
 					    'FOLLOWLOCATION' => 1,
 						'RETURNTRANSFER' => 1,
-						'AUTH_BASIC'     => 1,
+						'HTTPAUTH'          => CURLAUTH_BASIC,
 						'TIMEOUT'        => 3,
 						'USERPWD'        => $conn_info['username'].":".$conn_info['password'],
 					   );
