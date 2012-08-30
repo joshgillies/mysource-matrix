@@ -6,11 +6,11 @@
 * +--------------------------------------------------------------------+
 * | IMPORTANT: Your use of this Software is subject to the terms of    |
 * | the Licence provided in the file licence.txt. If you cannot find   |
-* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | this file please contact Squiz (www.squiz.com.au) so we may provide|
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: cmis_bridge_edit_fns.inc,v 1.8 2011/05/03 23:07:46 mhaidar Exp $
+* $Id: cmis_bridge_edit_fns.inc,v 1.9 2012/08/30 00:59:19 ewang Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Mohamed Haidar <mhaidar@squiz.com.au>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage sharepoint
 */

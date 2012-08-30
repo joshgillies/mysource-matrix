@@ -6,11 +6,11 @@
 * +--------------------------------------------------------------------+
 * | IMPORTANT: Your use of this Software is subject to the terms of    |
 * | the Licence provided in the file licence.txt. If you cannot find   |
-* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | this file please contact Squiz (www.squiz.com.au) so we may provide|
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_clear_squid_cache.inc,v 1.9 2011/11/22 05:51:48 ewang Exp $
+* $Id: tool_clear_squid_cache.inc,v 1.10 2012/08/30 00:59:22 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 * Tool to clear Squid cache using asset's URLs
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage squid
 */

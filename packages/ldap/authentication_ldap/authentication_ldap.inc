@@ -6,11 +6,11 @@
 * +--------------------------------------------------------------------+
 * | IMPORTANT: Your use of this Software is subject to the terms of    |
 * | the Licence provided in the file licence.txt. If you cannot find   |
-* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | this file please contact Squiz (www.squiz.com.au) so we may provide|
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_ldap.inc,v 1.31 2012/02/06 23:42:49 cupreti Exp $
+* $Id: authentication_ldap.inc,v 1.32 2012/08/30 00:58:58 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */

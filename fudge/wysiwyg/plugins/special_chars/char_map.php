@@ -2,15 +2,15 @@
 /**
 * +--------------------------------------------------------------------+
 * | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
-* | ACN 084 670 600                                                    |
+* | ABN 77 084 670 600                                                 |
 * +--------------------------------------------------------------------+
 * | IMPORTANT: Your use of this Software is subject to the terms of    |
 * | the Licence provided in the file licence.txt. If you cannot find   |
-* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | this file please contact Squiz (www.squiz.com.au) so we may provide|
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: char_map.php,v 1.6 2010/09/06 03:56:29 ewang Exp $
+* $Id: char_map.php,v 1.7 2012/08/30 00:56:52 ewang Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Character Map popup for the WYSIWYG
 *
 * @author	Darren McKee	<dmckee@squiz.net>
-* @version	$Revision: 1.6 $
+* @version	$Revision: 1.7 $
 * @package	WYSIWYG
 */
 

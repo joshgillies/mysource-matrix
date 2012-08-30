@@ -6,11 +6,11 @@
 * +--------------------------------------------------------------------+
 * | IMPORTANT: Your use of this Software is subject to the terms of    |
 * | the Licence provided in the file licence.txt. If you cannot find   |
-* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | this file please contact Squiz (www.squiz.com.au) so we may provide|
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_ical.inc,v 1.10 2012/05/18 01:46:30 cupreti Exp $
+* $Id: data_source_ical.inc,v 1.11 2012/08/30 00:58:15 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once(SQ_INCLUDE_PATH.'/general_occasional.inc');
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */

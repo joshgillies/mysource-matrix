@@ -2,15 +2,15 @@
 /**
 * +--------------------------------------------------------------------+
 * | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
-* | ACN 084 670 600                                                    |
+* | ABN 77 084 670 600                                                 |
 * +--------------------------------------------------------------------+
 * | IMPORTANT: Your use of this Software is subject to the terms of    |
 * | the Licence provided in the file licence.txt. If you cannot find   |
-* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | this file please contact Squiz (www.squiz.com.au) so we may provide|
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: esec_processor_SSL_interface.inc,v 1.10 2008/11/25 00:48:05 mbrydon Exp $
+* $Id: esec_processor_SSL_interface.inc,v 1.11 2012/08/30 00:58:34 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once dirname(__FILE__).'/esec_processor.inc';
 * Esec payment gateway processing object.
 * Implements a 'Web Redirect Model' or 'Web Proxy Model' scenario
 *
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */

@@ -2,15 +2,15 @@
 /**
 * +--------------------------------------------------------------------+
 * | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
-* | ACN 084 670 600                                                    |
+* | ABN 77 084 670 600                                                 |
 * +--------------------------------------------------------------------+
 * | IMPORTANT: Your use of this Software is subject to the terms of    |
 * | the Licence provided in the file licence.txt. If you cannot find   |
-* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | this file please contact Squiz (www.squiz.com.au) so we may provide|
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_and_replace.php,v 1.2 2010/06/16 07:21:42 cupreti Exp $
+* $Id: search_and_replace.php,v 1.3 2012/08/30 00:56:52 ewang Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Search and replaces given text in the WYSIWYG
 *
 * @author	Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version 	$Revision: 1.2 $
+* @version 	$Revision: 1.3 $
 * @package 	MySource_Matrix
 */
 

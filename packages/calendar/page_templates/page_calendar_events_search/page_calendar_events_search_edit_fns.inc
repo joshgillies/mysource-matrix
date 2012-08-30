@@ -2,15 +2,15 @@
 /**
 * +--------------------------------------------------------------------+
 * | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
-* | ACN 084 670 600                                                    |
+* | ABN 77 084 670 600                                                 |
 * +--------------------------------------------------------------------+
 * | IMPORTANT: Your use of this Software is subject to the terms of    |
 * | the Licence provided in the file licence.txt. If you cannot find   |
-* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | this file please contact Squiz (www.squiz.com.au) so we may provide|
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_events_search_edit_fns.inc,v 1.2 2012/02/05 22:56:06 cupreti Exp $
+* $Id: page_calendar_events_search_edit_fns.inc,v 1.3 2012/08/30 00:57:28 ewang Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_PACKAGES_PATH.'/search/search_page/search_page_edit_fns.inc';
 * Page_Calendar_Events_Search_Page_Edit_Fns
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */

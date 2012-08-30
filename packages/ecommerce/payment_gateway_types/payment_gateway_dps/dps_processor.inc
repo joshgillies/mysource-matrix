@@ -2,15 +2,15 @@
 /**
 * +--------------------------------------------------------------------+
 * | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
-* | ACN 084 670 600                                                    |
+* | ABN 77 084 670 600                                                 |
 * +--------------------------------------------------------------------+
 * | IMPORTANT: Your use of this Software is subject to the terms of    |
 * | the Licence provided in the file licence.txt. If you cannot find   |
-* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | this file please contact Squiz (www.squiz.com.au) so we may provide|
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: dps_processor.inc,v 1.5 2011/11/07 22:49:35 csmith Exp $
+* $Id: dps_processor.inc,v 1.6 2012/08/30 00:58:34 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ define('DPS_LOG_FILE_PREFIX', 'dps_transactions_account_');
 * @see Asset_Management
 *
 * @author  Edison Wang <ewang@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */

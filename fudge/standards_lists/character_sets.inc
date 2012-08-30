@@ -2,15 +2,15 @@
 /**
 * +--------------------------------------------------------------------+
 * | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
-* | ACN 084 670 600                                                    |
+* | ABN 77 084 670 600                                                 |
 * +--------------------------------------------------------------------+
 * | IMPORTANT: Your use of this Software is subject to the terms of    |
 * | the Licence provided in the file licence.txt. If you cannot find   |
-* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | this file please contact Squiz (www.squiz.com.au) so we may provide|
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: character_sets.inc,v 1.8 2010/06/01 03:13:51 kmyothein Exp $
+* $Id: character_sets.inc,v 1.9 2012/08/30 00:56:51 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *     http://msdn.microsoft.com/library/default.asp?url =>/workshop/author/dhtml/reference/charsets/charset4.asp
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package Fudge
 * @subpackage Standards_Lists
 */

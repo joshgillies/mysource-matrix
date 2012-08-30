@@ -2,15 +2,15 @@
 /**
 * +--------------------------------------------------------------------+
 * | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
-* | ACN 084 670 600                                                    |
+* | ABN 77 084 670 600                                                 |
 * +--------------------------------------------------------------------+
 * | IMPORTANT: Your use of this Software is subject to the terms of    |
 * | the Licence provided in the file licence.txt. If you cannot find   |
-* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | this file please contact Squiz (www.squiz.com.au) so we may provide|
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_log_iterator.inc,v 1.1 2010/05/11 07:40:06 bpearson Exp $
+* $Id: funnelback_log_iterator.inc,v 1.2 2012/08/30 00:58:43 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Provides an interface to the reports to handle the reading of a funnelback log (custom logs NOT located under data/private/logs)
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>	
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package Funnelback
 */
 class Funnelback_Log_Iterator

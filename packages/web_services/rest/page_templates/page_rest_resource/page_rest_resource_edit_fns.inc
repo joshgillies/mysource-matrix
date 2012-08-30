@@ -6,11 +6,11 @@
 * +--------------------------------------------------------------------+
 * | IMPORTANT: Your use of this Software is subject to the terms of    |
 * | the Licence provided in the file licence.txt. If you cannot find   |
-* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | this file please contact Squiz (www.squiz.com.au) so we may provide|
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rest_resource_edit_fns.inc,v 1.3 2010/05/05 07:16:13 ewang Exp $
+* $Id: page_rest_resource_edit_fns.inc,v 1.4 2012/08/30 00:59:46 ewang Exp $
 *
 */
 

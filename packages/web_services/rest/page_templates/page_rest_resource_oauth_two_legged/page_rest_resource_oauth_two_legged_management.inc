@@ -6,11 +6,11 @@
 * +--------------------------------------------------------------------+
 * | IMPORTANT: Your use of this Software is subject to the terms of    |
 * | the Licence provided in the file licence.txt. If you cannot find   |
-* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | this file please contact Squiz (www.squiz.com.au) so we may provide|
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rest_resource_oauth_two_legged_management.inc,v 1.2 2012/05/09 01:39:22 akarelia Exp $
+* $Id: page_rest_resource_oauth_two_legged_management.inc,v 1.3 2012/08/30 00:59:46 ewang Exp $
 *
 */
 

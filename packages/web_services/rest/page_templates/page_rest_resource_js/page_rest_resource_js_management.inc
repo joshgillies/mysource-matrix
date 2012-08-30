@@ -6,11 +6,11 @@
 * +--------------------------------------------------------------------+
 * | IMPORTANT: Your use of this Software is subject to the terms of    |
 * | the Licence provided in the file licence.txt. If you cannot find   |
-* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | this file please contact Squiz (www.squiz.com.au) so we may provide|
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rest_resource_js_management.inc,v 1.4 2012/05/09 01:39:22 akarelia Exp $
+* $Id: page_rest_resource_js_management.inc,v 1.5 2012/08/30 00:59:46 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_ATTRIBUTES_PATH.'/http_request/http_request.inc';
 * @see Asset_Management
 *
 * @author  James Hurst <jhurst@squiz.co.uk>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package Squiz_UK_Clients
 * @subpackage rest_resource_js
 */
