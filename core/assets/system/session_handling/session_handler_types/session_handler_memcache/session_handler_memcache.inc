@@ -2,15 +2,15 @@
 /**
 * +--------------------------------------------------------------------+
 * | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
-* | ACN 084 670 600                                                    |
+* | ABN 77 084 670 600                                                 |
 * +--------------------------------------------------------------------+
 * | IMPORTANT: Your use of this Software is subject to the terms of    |
 * | the Licence provided in the file licence.txt. If you cannot find   |
-* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | this file please contact Squiz (www.squiz.com.au) so we may provide|
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: session_handler_memcache.inc,v 1.8 2011/03/30 00:25:07 akarelia Exp $
+* $Id: session_handler_memcache.inc,v 1.9 2012/08/30 01:09:11 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/session_handling/session_handler/sess
 *    within PHP's memcache PECL extension.
 *
 * @author     Luke Wright <lwright@squiz.net>
-* @version    $Revision: 1.8 $
+* @version    $Revision: 1.9 $
 * @package    MySource_Matrix
 * @subpackage __core__
 */

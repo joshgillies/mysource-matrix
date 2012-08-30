@@ -2,15 +2,15 @@
 /**
 * +--------------------------------------------------------------------+
 * | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
-* | ACN 084 670 600                                                    |
+* | ABN 77 084 670 600                                                 |
 * +--------------------------------------------------------------------+
 * | IMPORTANT: Your use of this Software is subject to the terms of    |
 * | the Licence provided in the file licence.txt. If you cannot find   |
-* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | this file please contact Squiz (www.squiz.com.au) so we may provide|
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: check_requirements.php,v 1.21 2012/06/05 03:40:31 akarelia Exp $
+* $Id: check_requirements.php,v 1.22 2012/08/30 01:11:22 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
  * This will help work out what's missing from a server
  *
  * @author  Chris Smith <csmith@squiz.net>
- * @version $Revision: 1.21 $
+ * @version $Revision: 1.22 $
  * @package MySource_Matrix
  * @subpackage install
  */
@@ -731,7 +731,7 @@ function check_requirement($requirement_check, $package_name='core')
 				/**
 				 * $ padre-iw -V
 				 *
-				 * FUNNELBACK_PADRE_9.0.2.1-IFUL 64MDPLFS-VEC3-DNAMS2 (Squiz OEM) $Revision: 1.21 $ 
+				 * FUNNELBACK_PADRE_9.0.2.1-IFUL 64MDPLFS-VEC3-DNAMS2 (Squiz OEM) $Revision: 1.22 $ 
 				 * ....
 				 *
 				 */

@@ -2,15 +2,15 @@
 /**
 * +--------------------------------------------------------------------+
 * | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
-* | ACN 084 670 600                                                    |
+* | ABN 77 084 670 600                                                 |
 * +--------------------------------------------------------------------+
 * | IMPORTANT: Your use of this Software is subject to the terms of    |
 * | the Licence provided in the file licence.txt. If you cannot find   |
-* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | this file please contact Squiz (www.squiz.com.au) so we may provide|
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_update_lookups.php,v 1.16 2012/08/27 05:52:08 ewang Exp $
+* $Id: system_update_lookups.php,v 1.17 2012/08/30 01:04:53 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
 * @author  James Hurst <jhurst@squiz.co.uk>
 * @author  Daniel Simmons <dsimmons@squiz.co.uk>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix
 */
 

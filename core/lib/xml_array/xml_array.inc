@@ -2,15 +2,15 @@
 /**
 * +--------------------------------------------------------------------+
 * | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
-* | ACN 084 670 600                                                    |
+* | ABN 77 084 670 600                                                 |
 * +--------------------------------------------------------------------+
 * | IMPORTANT: Your use of this Software is subject to the terms of    |
 * | the Licence provided in the file licence.txt. If you cannot find   |
-* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | this file please contact Squiz (www.squiz.com.au) so we may provide|
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: xml_array.inc,v 1.17 2010/07/15 04:43:37 csmith Exp $
+* $Id: xml_array.inc,v 1.18 2012/08/30 01:09:21 ewang Exp $
 *
 */
 
@@ -38,7 +38,7 @@
 * @author  Blair Robertson <blair@squiz.net>
 * @package MySource_Matrix
 * @subpackage lib
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 */
 class XML_Array// extends XML_Parser
 {

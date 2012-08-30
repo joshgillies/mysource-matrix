@@ -2,21 +2,21 @@
 /**
 * +--------------------------------------------------------------------+
 * | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
-* | ACN 084 670 600                                                    |
+* | ABN 77 084 670 600                                                 |
 * +--------------------------------------------------------------------+
 * | IMPORTANT: Your use of this Software is subject to the terms of    |
 * | the Licence provided in the file licence.txt. If you cannot find   |
-* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | this file please contact Squiz (www.squiz.com.au) so we may provide|
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: convert_fonz_for_import.php,v 1.2 2006/12/06 05:42:20 bcaldwell Exp $
+* $Id: convert_fonz_for_import.php,v 1.3 2012/08/30 01:04:53 ewang Exp $
 *
 * Script to form valid thesaurus XML from a comma separated file in the form
 * "parent_term","relation","child_term"
 *
 * @author  Elden McDonald <emcdonald@squiz.net
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 * @subpackage __core__
 */
