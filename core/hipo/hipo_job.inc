@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.111 2012/08/30 01:09:18 ewang Exp $
+* $Id: hipo_job.inc,v 1.112 2012/08/31 02:17:44 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.111 $
+* @version $Revision: 1.112 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -678,7 +678,6 @@ class HIPO_Job extends MySource_Object
 
 					// if there is no system taskid then there is nothing we can do
 					if (empty($this->_hipo_vars['server_taskid'])) {
-						trigger_localised_error('HIPO0049', E_USER_NOTICE);
 						return FALSE;
 					}
 
@@ -1457,7 +1456,6 @@ class HIPO_Job extends MySource_Object
 
 			// if there is no system taskid then there is nothing we can do
 			if (empty($this->_hipo_vars['server_taskid'])) {
-				trigger_localised_error('HIPO0049', E_USER_NOTICE);
 				return FALSE;
 			}
 
