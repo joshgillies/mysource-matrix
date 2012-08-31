@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rest_resource_js.inc,v 1.11 2012/08/30 00:59:46 ewang Exp $
+* $Id: page_rest_resource_js.inc,v 1.12 2012/08/31 03:48:28 ewang Exp $
 *
 */
 
@@ -109,8 +109,12 @@ class Page_REST_Resource_JS extends Page_REST_Resource
 
 		// Go!
 		//$rm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('rest_manager');
-		echo $this->_runJavascript($js);
-
+		$engine = $this->attr('js_engine');
+		if($engine == 'spidermonkey')
+		    echo $this->_runJavascript($js);
+		else if($engine == 'v8')
+		    echo $this->_runJavascriptv8($js);
+		
 	}//end _processJavascript()
 
 
@@ -172,6 +176,36 @@ class Page_REST_Resource_JS extends Page_REST_Resource
 				$errors = TRUE;
 			}
 		} 
+
+		return $js_output;
+
+	}//end _runJavascript()
+
+	/**
+	* Runs JavaScript code through the Google V8 library.
+	* http://uk.php.net/manual/en/book.v8js.php
+	*
+	* @return string
+	* @access protected
+	*/
+	public function _runJavascriptv8($js)
+	{
+		if(!extension_loaded('v8js')){
+			trigger_error('PECL v8js extension is required');
+			return;
+		}
+		$js_output = '';
+
+		$v8 = new V8Js();
+		try {
+			ob_start();
+			$v8->executeString($js);
+			$js_output = ob_get_clean();
+		} catch (V8JsException $e) {
+			$js_errors = $e->getMessage() .' - \''.$e->getJsSourceLine().'\' Line: '.$e->getJsLineNumber();
+			trigger_error(__CLASS__ . " (#$this->id) " . $js_errors);
+			$errors = TRUE;
+		}
 
 		return $js_output;
 

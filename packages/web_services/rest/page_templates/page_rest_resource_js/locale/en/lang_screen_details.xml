@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.4 2012/05/09 01:39:22 akarelia Exp $
+* $Id: lang_screen_details.xml,v 1.5 2012/08/31 03:48:28 ewang Exp $
 *
 */
 -->
@@ -47,6 +47,10 @@
 			For example "print(_REST.response.body);" will print the body of the first response.
 			Note, if you are using E4X to process an XML document, you will likely need to use "_REST.response.bodyx" to avoid the XML declaration choking the parser.
 		</note>
+		<field attribute="js_engine">
+			<display_name>JS Engine</display_name>
+			<note>SpideMokey requires engine binary path specified in External Tools Configuration.V8 engine requires v8js PECL extension to be installed.</note>
+		</field>
 		<field>
 			<display_name>Include Files</display_name>
 			<note>These files will be run sequentially before any code entered below.</note>
