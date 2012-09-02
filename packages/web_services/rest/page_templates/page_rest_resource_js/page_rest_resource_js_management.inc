@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rest_resource_js_management.inc,v 1.6 2012/08/31 03:48:28 ewang Exp $
+* $Id: page_rest_resource_js_management.inc,v 1.7 2012/09/02 23:08:11 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_ATTRIBUTES_PATH.'/http_request/http_request.inc';
 * @see Asset_Management
 *
 * @author  James Hurst <jhurst@squiz.co.uk>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package Squiz_UK_Clients
 * @subpackage rest_resource_js
 */
@@ -65,7 +65,7 @@ class Page_REST_Resource_JS_Management extends Asset_Management
 													'default'		=> 'spidemonkey',
 													'parameters'	=> Array(
 														'options'		=> Array(
-																			'spidemonkey'	=> 'SpiderMonkey',
+																			'spidermonkey'	=> 'SpiderMonkey',
 																			'v8'	=> 'V8',
 																	),	
 														'multiple'		=> FALSE,
