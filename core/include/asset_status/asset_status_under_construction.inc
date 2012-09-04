@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_under_construction.inc,v 1.58 2012/09/04 04:11:37 akarelia Exp $
+* $Id: asset_status_under_construction.inc,v 1.59 2012/09/04 04:25:38 akarelia Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *    UNDER_CONSTRUCTION -> LIVE             if no workflow and user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package MySource_Matrix
 */
 class Asset_Status_Under_Construction extends Asset_Status
@@ -258,11 +258,6 @@ class Asset_Status_Under_Construction extends Asset_Status
 			case SQ_STATUS_LIVE:
 				// notify people that the asset has gone live
 				$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
-
-				// we are going approve this asset instead of initiating the workflow
-				$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
-				$wfm->setCurrentUserAsLastStarted($current_userid, $this->owner->id);
-
 				if (!$wfm->notifyOnLive($this->owner->id, $this->status_tag)) {
 					return false;
 				}
@@ -271,6 +266,16 @@ class Asset_Status_Under_Construction extends Asset_Status
 				if (!$this->owner->setDate('published', time())) {
 					return false;
 				}
+			break;
+
+			case SQ_STATUS_APPROVED :
+
+				$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+
+				// we are going approve this asset instead of initiating the workflow
+				$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
+				$wfm->setCurrentUserAsLastStarted($current_userid, $this->owner->id);
+
 			break;
 		}
 
