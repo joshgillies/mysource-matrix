@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: saml_account_manager.inc,v 1.3 2012/08/30 00:59:03 ewang Exp $
+* $Id: saml_account_manager.inc,v 1.4 2012/09/04 07:01:49 ewang Exp $
 *
 */
 require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_builder/page_asset_builder.inc';
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage file
 */
@@ -256,8 +256,9 @@ class SAML_Account_Manager extends Page_Asset_Builder
 		
 		// link current matrix user to the authenticated SAML acount
 		if(isset($_GET['linkAccounts'])) {
+		    $allow_create_link = $this->attr('allow_link');
 		    // logged in saml user
-		    if($saml_auth_manager->isAuthenticated()) {
+		    if($allow_create_link && $saml_auth_manager->isAuthenticated()) {
 			$samlUserid = $this->_getAuthenticatedSamlUserid();
 			if($samlUserid) {
 			    $current_user = $GLOBALS['SQ_SYSTEM']->user;
@@ -281,27 +282,36 @@ class SAML_Account_Manager extends Page_Asset_Builder
 		    }
 		}
 		
+		/*
+		 * probably we don't really need this function because allow user to unlink itself to be able to create new local users could be pointless and annoying
+		 * it's rare to run into this situation and probaly best to inform sysadmin to unlink in backend.
+		 * 
+		// unlink current matrix user to the authenticated SAML account
+		if(isset($_GET['unlinkAccounts'])) {
+		    // logged in saml user
+		    if($saml_auth_manager->isAuthenticated()) {
+			$saml_userid = $this->_getAuthenticatedSamlUserid();
+			if($saml_userid) {
+			    $linked_matrix_userid = $this->_searchLinkedMatrixUser($saml_userid);
+			    $current_user = $GLOBALS['SQ_SYSTEM']->user;
+			    //  logged in matrix user is linked to the samlid
+			    if($current_user && !($current_user instanceof Public_User) && ($current_user->id == $linked_matrix_userid)) {
+				// unlink those 2 accounts
+				$this->_unlinkMatrixUserWithSAML($linked_matrix_userid, $saml_userid);
+				// logout of Matrix and saml, and start a new session
+				$this->_logoutUser();
+				do_redirect($this->getURL());
+				return;
+			    }
+			}  
+		    }
+		}
+		 */
+		
 		// single logout  user
 		if(isset($_GET['logout'])) {
 		    // log out of matrix first
-		    $for_real = ( $GLOBALS['SQ_SYSTEM']->user && !($GLOBALS['SQ_SYSTEM']->user instanceof Public_User));
-		    $old_user = &$GLOBALS['SQ_SYSTEM']->user;
-		    if ($for_real) {
-			    $GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_before_user_logout', $old_user, NULL);
-		    }
-		    foreach (array_keys($_SESSION) as $key) {
-			if ($key == 'SQ_RETURN_TO_HTTP') continue;
-			// do not reset the unsuccessful attempt, 
-			// do not reset current saml session
-			if ($key != 'user_login_attempts' && $key != 'SimpleSAMLphp_SESSION') {
-				unset($_SESSION[$key]);
-			}
-		    }
-		    if ($for_real) {
-			    $GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_user_logout', $old_user, NULL);
-		    }
-		    $GLOBALS['SQ_SYSTEM']->loginPublicUser();
-		    $GLOBALS['SQ_SYSTEM']->generateLoginKey(TRUE);
+		    $this->_logoutUser(FALSE);
 		    
 		    // start single logout of saml
 		    if($saml_auth_manager->isAuthenticated()) {
@@ -373,6 +383,14 @@ class SAML_Account_Manager extends Page_Asset_Builder
 			unset($this->_tmp['created_asset']);
 		}
 
+		// If we don't allow linking saml user to existing Matrix user
+		// and if user already logged in, just do nothing
+		$allow_create_link = $this->attr('allow_link');
+		if(empty($this->_current_state) && !$allow_create_link) {
+		    if(!is_null($current_user) && !($current_user instanceof Public_User))
+			$this->_current_state = 'logged_in';
+		}
+		
 		if (empty($this->_current_state)) {
 			/* 
 			 * SAML authentication starts here
@@ -440,31 +458,27 @@ class SAML_Account_Manager extends Page_Asset_Builder
 			
 			// Log in as the linked Matrix user
 			if ((is_null($current_user) || ($current_user instanceof Public_User)) && $matrixUserid) {
-			   $user =  $GLOBALS['SQ_SYSTEM']->am->getAsset($matrixUserid);
-			   if($user && $user->canLogin()) {
-				unset($_SESSION['SQ_RETURN_TO_HTTP']);
-				$GLOBALS['SQ_SYSTEM']->loginUser($user);
-				$current_user = $GLOBALS['SQ_SYSTEM']->user;
-				// redirect after login
-				if($this->attr('redirect_after_login')) {
-				    if(isset($_SESSION['sq_saml_account_manager_current_state_redirect_url']) && $_SESSION['sq_saml_account_manager_current_state_redirect_url'])  {
-					$redirect_url = $_SESSION['sq_saml_account_manager_current_state_redirect_url'];
-					unset($_SESSION['sq_saml_account_manager_current_state_redirect_url']);
-					do_redirect($redirect_url);
-				    }
-				}
-				// stop further redirects
-				unset($_SESSION['sq_saml_account_manager_current_state_redirect_url']);
-			   }
+			    $this->_loginUser($matrixUserid);
+			    $current_user = $GLOBALS['SQ_SYSTEM']->user;
 			}
 			
 			
 			
 			// can't find a linked matrix user for the authenticated saml user, create a new matrix user
 			if (is_null($current_user) || ($current_user instanceof Public_User)) {
-				$this->_current_state = 'create_user';
-				$this->_replacements['login_invite'] = $this->getKeywordReplacement('login_invite');
-				$this->_replacements['login_form'] = $this->getKeywordReplacement('login_form');
+				$auto_create = $this->attr('auto_create');
+				// automatically create the user asset, skipping the create user form, randomly generates username and password
+				if($auto_create) {
+					$create_type = $this->attr('create_type');
+					$create_type = array_pop(array_keys($create_type));
+					$this->_createUser($create_type);
+				}
+				else {
+				    $this->_current_state = 'create_user';
+				    $this->_replacements['login_invite'] = $this->getKeywordReplacement('login_invite');
+				    $this->_replacements['login_form'] = $this->getKeywordReplacement('login_form');
+				}
+				
 			} else {
 			// if logged in as both Matrix user and SAML user
 			    	if($GLOBALS['SQ_SYSTEM']->currentUserId() == $matrixUserid) {
@@ -494,19 +508,21 @@ class SAML_Account_Manager extends Page_Asset_Builder
 		    if(!empty($attributes_array)) {
 			// get the bodycopy attached to us
 			$bodycopy_data = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, $this->_current_state, 'major', '1');
-			$bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_data['minorid'], $bodycopy_data['minor_type_code']);
-			$keywords = $bodycopy->getKeywords();
-			foreach($keywords as $word) {
-				$keyword = parse_keyword($word, $modifiers);
-				if($keyword === 'user_attributes_xml') {
-				    // replace it with xml version of user's attributes, also enable modifier like xpath.
-				    $xml = new SimpleXMLElement('<root/>');
-				    $this->_arrayToXml($attributes_array, $xml);
-				    $replacement = $xml->asXML();
-				     apply_keyword_modifiers($replacement, $modifiers);
-				    $this->_replacements[$word] = $replacement;
-				  
-				}
+			if(!empty($bodycopy_data)) {
+			    $bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_data['minorid'], $bodycopy_data['minor_type_code']);
+			    $keywords = $bodycopy->getKeywords();
+			    foreach($keywords as $word) {
+				    $keyword = parse_keyword($word, $modifiers);
+				    if($keyword === 'user_attributes_xml') {
+					// replace it with xml version of user's attributes, also enable modifier like xpath.
+					$xml = new SimpleXMLElement('<root/>');
+					arrayToXml($attributes_array, $xml);
+					$replacement = $xml->asXML();
+					apply_keyword_modifiers($replacement, $modifiers);
+					$this->_replacements[$word] = $replacement;
+
+				    }
+			    }
 			}
 		    }
 		    
@@ -558,23 +574,7 @@ class SAML_Account_Manager extends Page_Asset_Builder
 		    if(!empty($samlUserid))
 			$this->_linkMatrixUserWithSAML($this->_tmp['created_asset']->id, $samlUserid);
 		 
-		    // login the user
-		    unset($_SESSION['SQ_RETURN_TO_HTTP']);
-		    if(!$GLOBALS['SQ_SYSTEM']->loginUser($this->_tmp['created_asset'])) {
-			$this->_errors[] = 'Can not login user';
-		    }
-		    
-		    // redirect after sign up
-		    if($this->attr('redirect_after_create')) {
-			if(isset($_SESSION['sq_saml_account_manager_current_state_redirect_url']) && $_SESSION['sq_saml_account_manager_current_state_redirect_url'])  {
-			    $redirect_url = $_SESSION['sq_saml_account_manager_current_state_redirect_url'];
-			    unset($_SESSION['sq_saml_account_manager_current_state_redirect_url']);
-			    do_redirect($redirect_url);
-			}
-		    }
-		    
-		    // stop further redirects
-		    unset($_SESSION['sq_saml_account_manager_current_state_redirect_url']);
+		    $this->_loginUser($this->_tmp['created_asset']->id);
 		    
 		    $this->_current_state = 'logged_in';
 		}
@@ -654,7 +654,30 @@ class SAML_Account_Manager extends Page_Asset_Builder
 	}//end _linkMatrixUserWithSAML()
 	
 	
-	
+	/**
+	* Unlink Matrix user with specified SAML account
+	*
+	* @param varchar	$matrixUserid	Matrix userid  string
+	* @param varchar	$samlUserid	SAML userid string
+	* 
+	* @return int | null
+	* @access protected
+	*/
+	protected function _unlinkMatrixUserWithSAML ($matrixUserid, $samlUserid)
+	{
+		if (empty($matrixUserid) || empty($samlUserid) )
+		    return NULL;
+		
+		// delete entry
+		$bind_vars = Array(
+						'assetid'	=>  $matrixUserid,		    
+						'samlid'	=>  $samlUserid,
+						'entityid'	=> $this->_getEntityid(),
+					    );
+		$result = MatrixDAL::executeQuery('saml_package', 'deleteLink', $bind_vars);
+		 return $result;
+	}//end _linkMatrixUserWithSAML()
+		
 
 	
 	
@@ -864,39 +887,108 @@ class SAML_Account_Manager extends Page_Asset_Builder
 
 	}//end _getBodycopies()
 	
-	
-	
-		
 	/**
-	* Return an simple XML element from array
-	*
-	*  @param array	$array	array to convert
-	* @param object	&$xml	simplexml element
-	*
-	* @return object
-	* @access private
+	* Log in the Matrix user (and do redirects if required)
+	* 
+	* @param string	$userid	matrix user id
+	* 
+	* @return null
+	* @access protected
 	*/
-	private function _arrayToXml($array, &$xml) {
-	    foreach($array as $key => $value) {
-		// remove characters for valid XML
-		$key = preg_replace('/[^a-zA-Z_\-+0-9]+/', '_', $key);
-		if(is_numeric($key)) $key = '_'.$key;
-		
-		// single element no need of index
-		if(is_array($value) && count($value) == 1 && isset($value[0]) && !is_array($value[0])) {
-			 $xml->addChild("$key","$value[0]");
-			 continue;
+	protected function _loginUser($userid)
+	{
+	    $user =  $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
+	    if($user && $user->canLogin()) {
+		unset($_SESSION['SQ_RETURN_TO_HTTP']);
+		$GLOBALS['SQ_SYSTEM']->loginUser($user);
+		// redirect after login
+		if($this->attr('redirect_after_login')) {
+		    if(isset($_SESSION['sq_saml_account_manager_current_state_redirect_url']) && $_SESSION['sq_saml_account_manager_current_state_redirect_url'])  {
+			$redirect_url = $_SESSION['sq_saml_account_manager_current_state_redirect_url'];
+			unset($_SESSION['sq_saml_account_manager_current_state_redirect_url']);
+			do_redirect($redirect_url);
+		    }
 		}
-		
-		if(is_array($value)) {
-		    $subnode = $xml->addChild("$key");
-		    $this->_arrayToXml($value, $subnode);
-		}
-		else {
-		    $xml->addChild("$key","$value");
-		}
+		// stop further redirects
+		unset($_SESSION['sq_saml_account_manager_current_state_redirect_url']);
 	    }
-	}//end _arrayToXml()
+	}// end _loginUser
+	
+	
+	/**
+	* Log out of the Matrix user
+	*
+	* @param bool	$clear_saml_session	clears saml session
+	* @return null
+	* @access protected
+	*/
+	protected function _logoutUser($clear_saml_session = TRUE)
+	{			    
+	    $for_real = ( $GLOBALS['SQ_SYSTEM']->user && !($GLOBALS['SQ_SYSTEM']->user instanceof Public_User));
+	    $old_user = &$GLOBALS['SQ_SYSTEM']->user;
+	    if ($for_real) {
+		    $GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_before_user_logout', $old_user, NULL);
+	    }
+	    foreach (array_keys($_SESSION) as $key) {
+		if ($key == 'SQ_RETURN_TO_HTTP') continue;
+		// do not reset the unsuccessful attempt, 
+		// do not reset current saml session
+		if ($key == 'user_login_attempts') continue;
+		  
+		if( !$clear_saml_session && $key == 'SimpleSAMLphp_SESSION') continue;
+		
+		unset($_SESSION[$key]);
+	    }
+	    if ($for_real) {
+		    $GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_user_logout', $old_user, NULL);
+	    }
+	    $GLOBALS['SQ_SYSTEM']->loginPublicUser();
+	    $GLOBALS['SQ_SYSTEM']->generateLoginKey(TRUE);
+	    
+	    if($clear_saml_session) {
+		$this->saml_auth_manager = null;
+	    }
+	}//end _logoutUser	    
+	
+	
+	/**
+	* Automatically create the local Matrix user
+	* 
+	* @param string	$create_type	matrix user type
+	* 
+	* @return null
+	* @access protected
+	*/
+	protected function _createUser($create_type)
+	{
+	    $_POST['AB_'.$this->id.'_ASSET_BUILDER_ACTION'] = 'create';
+	    $_POST['AB_'.$this->id.'_ASSET_BUILDER_CREATE_TYPE'] = $create_type;
+	    
+	    $GLOBALS['SQ_SYSTEM']->am->includeAsset($create_type);
+	    $new_user = new $create_type();
+	    $prefix = $new_user->getPrefix();
+	    $username_attr = $new_user->getAttribute('username', TRUE);
+	    $password_attr = $new_user->getAttribute('password', TRUE);
+	    $GLOBALS['SQ_SYSTEM']->am->includeAsset('user');
+	    $user = new User();
+	    // username unique value is stored as owning type user
+	    $user_username_attr = $user->getAttribute('username', TRUE);
+	    $_POST['asset_action'] = 'create';
+	    $_REQUEST['asset_action'] = 'create';
+	    
+	    // generate username from samlid, and make up a random password
+	    $samlid = $this->_getAuthenticatedSamlUserid();
+	    $valid_username = $new_user->getValidUsername($user_username_attr->id, $samlid);
+	    $valid_password = random_user_password(Array($valid_username));
+	    
+	    $_REQUEST[$prefix.'_'.$username_attr->id] = $valid_username;
+	    $_REQUEST[$prefix.'_'.$password_attr->id.'_one'] = $valid_password;
+	    $_REQUEST[$prefix.'_'.$password_attr->id.'_two'] = $valid_password;
+	    
+	    $this->_processGlobalActions();
+	    
+	} // end _createUser	
+	
 
 
 }//end class
