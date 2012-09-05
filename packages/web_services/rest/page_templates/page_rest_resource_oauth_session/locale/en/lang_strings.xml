@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2011/12/22 16:48:50 mmaruyama Exp $
+* $Id: lang_strings.xml,v 1.2 2012/09/05 02:59:45 ewang Exp $
 *
 */
 
@@ -21,6 +21,9 @@
 	<string source="oauth_reset_session_vars">Reset Existing Authorisation Data</string>
 	<string source="oauth_reset_session_vars_keyword">Submit Button to reset OAuth related session variables</string>
 	<string source="oauth_access_token_available">OAuth Access Token is available to access user data or not</string>
+	<string source="oauth_access_token">OAuth Access Token</string>
+	<string source="oauth_access_token_secret">OAuth Access Token Secret</string>
+	<string source="oauth_access_token_type">Storage Type</string>
 
 	<string source="oauth_errors">Error(s) encountered during OAuth authorisation</string>
 </strings>

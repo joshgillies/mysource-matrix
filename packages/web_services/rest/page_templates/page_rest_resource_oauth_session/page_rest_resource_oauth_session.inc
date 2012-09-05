@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rest_resource_oauth_session.inc,v 1.8 2012/08/30 00:59:46 ewang Exp $
+* $Id: page_rest_resource_oauth_session.inc,v 1.9 2012/09/05 02:59:45 ewang Exp $
 *
 */
 
@@ -73,11 +73,12 @@ class Page_REST_Resource_OAuth_Session extends Page_REST_Resource
 		// if access token is available, the contents should be controlled in paint layout
 		// using oauth_access_token_available keyword
 		if (!$this->isAccessTokenAvailable()) {
+	
 			if (!empty($this->_res['responses'])) {
 				foreach ($this->_res['responses'] as &$resp) {
-					// if the http code of the response is over 400, it's an error
+					// if the http code of the response is over 401, it's an error
 					// clear the session variable set so far to prepare for a restart
-					if ($resp['info']['http_code'] >= 400) {
+					if ($resp['info']['http_code'] > 401) {
 						$this->resetOAuthSessionVariables();
 					} else {
 						// the response is likely to be authorization/login display provided by the service provider 
@@ -105,7 +106,7 @@ class Page_REST_Resource_OAuth_Session extends Page_REST_Resource
 		$oauth = $this->getAttribute('oauth');
 
 		// if access token already exists in the session, use the existing access token
-		if (isset($_SESSION['oauth'][$this->id]['access_token'])) return;
+		if($this->isAccessTokenAvailable()) return;
 
 		$oauth->setKeywordReplacements($this->_extra_replacements);
 
@@ -135,15 +136,21 @@ class Page_REST_Resource_OAuth_Session extends Page_REST_Resource
 			if (!isset($_SESSION['oauth'][$this->id]['oauth_token'])) {
 				$this->_res = $oauth->getRequestToken();
 				$this->_errors = $oauth->getErrors();
-
+		
 				// if a requst token is returned, have it authorized by the user
 				if (isset($this->_res['request_token']['oauth_token']) && isset($this->_res['request_token']['oauth_token_secret'])) {
 					// set the token and token secret in the session for later use
 					$_SESSION['oauth'][$this->id]['oauth_token'] = $this->_res['request_token']['oauth_token'];
 					$_SESSION['oauth'][$this->id]['oauth_token_secret'] = $this->_res['request_token']['oauth_token_secret'];
 
-					$this->_res =& $oauth->authorize($this->_res['request_token']);
-					$this->_errors = $oauth->getErrors();
+					$redirect_authorise  = $this->attr('redirect_authorise');
+					if($redirect_authorise) {
+					    $oauth->authorizeRedirect($this->_res['request_token']);
+					}
+					else {
+					    $this->_res =& $oauth->authorize($this->_res['request_token']);
+					    $this->_errors = $oauth->getErrors();
+					}
 				}
 			}
 		} else {
@@ -201,13 +208,14 @@ class Page_REST_Resource_OAuth_Session extends Page_REST_Resource
 		if (empty($urls)) return Array();
 
 		$oauth = $this->getAttribute('oauth');
-
+		
 		// if an access token is not available, there is no way user data can be accessed
 		// process each url only when we have an access token
 		if ($this->isAccessTokenAvailable()) {
-			foreach ($urls as $url) {
-				$auth_headers[$url] = $oauth->getUserDataAuthHeader($url, $_SESSION['oauth'][$this->id]['access_token'], $_SESSION['oauth'][$this->id]['access_token_secret']);
-			}
+		    $access_token = $this->getAccessToken();
+		    foreach ($urls as $url) {
+			    $auth_headers[$url] = $oauth->getUserDataAuthHeader($url, $access_token['access_token'], $access_token['access_token_secret']);
+		    }
 		}
 
 		return $auth_headers;
@@ -225,12 +233,37 @@ class Page_REST_Resource_OAuth_Session extends Page_REST_Resource
 	 */
 	public function isAccessTokenAvailable()
 	{
-		if (isset($_SESSION['oauth'][$this->id]['access_token']) && isset($_SESSION['oauth'][$this->id]['access_token_secret'])) {
-			return TRUE;
-		} else {
-			return FALSE;
-		}
+	    $access_token = $this->attr('access_token');
+	    $access_token_secret = $this->attr('access_token_secret');
+	    if(!empty($access_token) && !empty($access_token_secret)) return TRUE;
+	    
+	    if (isset($_SESSION['oauth'][$this->id]['access_token']) && isset($_SESSION['oauth'][$this->id]['access_token_secret'])) {
+		    return TRUE;
+	    } else {
+		    return FALSE;
+	    }
 	}//end isAccessTokenAvailable()
+	
+	/**
+	 * Get access token, either stored or session
+	 *
+	 *
+	 * @return	null | array
+	 * @access	public
+	 */
+	public function getAccessToken()
+	{
+	    $access_token = $this->attr('access_token');
+	    $access_token_secret = $this->attr('access_token_secret');
+	    if(!empty($access_token) && !empty($access_token_secret)) {
+		return (Array('access_token' => $access_token, 'access_token_secret' => $access_token_secret));
+	    }
+	    if (isset($_SESSION['oauth'][$this->id]['access_token']) && isset($_SESSION['oauth'][$this->id]['access_token_secret'])) {
+		return (Array('access_token' => $_SESSION['oauth'][$this->id]['access_token'], 'access_token_secret' => $_SESSION['oauth'][$this->id]['access_token_secret']));
+	    } else {
+		return NULL;
+	    }
+	}//end getAccessToken()
 
 
 	/**
