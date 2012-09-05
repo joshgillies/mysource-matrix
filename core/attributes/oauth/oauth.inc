@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: oauth.inc,v 1.7 2012/08/30 01:09:17 ewang Exp $
+* $Id: oauth.inc,v 1.8 2012/09/05 03:07:11 ewang Exp $
 *
 */
 
@@ -612,6 +612,26 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 	}//end getRequestToken()
 
 
+	/**
+	* get a request token authorized by service provider
+	* redirecting user to the service provider's site
+	*
+	* @param String  $request_token	request token string
+	* 
+	* @return null
+	* @access public
+	*/
+	public function authorizeRedirect($request_token = Array())
+	{
+	    $this->_config = @unserialize($this->value);
+	    if (empty($this->_config)) return;
+	    if (empty($this->_config['authorization_url'])) return;
+	    if(!isset($request_token['oauth_token'])) return;
+	    
+	    $url = $this->_config['authorization_url'].'?oauth_token='.$request_token['oauth_token'];
+	    do_redirect($url);
+	}//end authorizeRedirect()
+	    
 	/**
 	* get a request token authorized by service provider
 	*
