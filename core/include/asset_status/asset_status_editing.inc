@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_editing.inc,v 1.48 2011/08/26 03:47:59 ewang Exp $
+* $Id: asset_status_editing.inc,v 1.48.6.1 2012/09/05 06:05:14 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                the workflow the workflow and all required metadata is complete
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.48.6.1 $
 * @package MySource_Matrix
 */
 class Asset_Status_Editing extends Asset_Status
@@ -262,6 +262,16 @@ class Asset_Status_Editing extends Asset_Status
 					$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
 					$ms->enqueueMessage($log);
 				}
+
+			break;
+
+			case SQ_STATUS_EDITING_APPROVED :
+
+				$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+
+				// we are going approve this asset instead of initiating the workflow
+				$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
+				$wfm->setCurrentUserAsLastStarted($current_userid, $this->owner->id);
 
 			break;
 		}
