@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-*$Id: deja_vu.inc,v 1.10 2012/08/30 01:09:19 ewang Exp $
+*$Id: deja_vu.inc,v 1.11 2012/09/06 06:53:21 cupreti Exp $
 *
 */
 
@@ -21,7 +21,6 @@ define('SQ_DEJA_VU_MEMCACHE_PREFIX', 'sq_deja_vu|');
 
 // Storage types
 define('SQ_DEJA_VU_ASSET', 'asset');
-define('SQ_DEJA_VU_METADATA', 'metadata');
 define('SQ_DEJA_VU_LOCALE', 'locale_manager');
 
 /**
@@ -35,7 +34,7 @@ define('SQ_DEJA_VU_LOCALE', 'locale_manager');
 * memory, purely to improve scalability.
 *
 * @author  James Hurst <jhurst@squiz.co.uk>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 */
 class Deja_Vu extends MySource_Object
@@ -362,36 +361,6 @@ class Deja_Vu extends MySource_Object
 		}
 
 	}//end onAssetTypeUpdate
-
-
-	/**
-	 * Event handler for when metadata is updated.
-	 *
-	 * @param Object broadcaster
-	 * @param Array	 vars
-	 * @return void
-	 * @access public
-	 */
-	public function onMetadataUpdate(&$broadcaster, $vars)
-	{
-		$this->forget(SQ_DEJA_VU_METADATA, $broadcaster->id);
-
-	}//end onMetadataUpdate
-
-
-	/**
-	 * Event handler for when metadata is deleted.
-	 *
-	 * @param Object broadcaster
-	 * @param Array	 vars
-	 * @return void
-	 * @access public
-	 */
-	public function onMetadataDeleted(&$broadcaster, $vars)
-	{
-		$this->forget(SQ_DEJA_VU_METADATA, $broadcaster->id);
-
-	}//end onMetadataDeleted
 
 
 	/******* UTILITIES *************************************************/
