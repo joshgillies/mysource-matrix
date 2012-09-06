@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.394 2012/08/30 01:09:19 ewang Exp $
+* $Id: mysource.inc,v 1.395 2012/09/06 05:41:58 ewang Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.394 $
+* @version $Revision: 1.395 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -1830,7 +1830,10 @@ class MySource extends MySource_Object
 				exit(1);
 			break;
 
-
+			case 'getToken' :
+				echo (get_unique_token());
+				exit(1);
+			break;
 		}//end switch
 
 		// just so it isn't being used anywhere else

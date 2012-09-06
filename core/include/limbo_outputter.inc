@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: limbo_outputter.inc,v 1.39 2012/08/30 01:09:19 ewang Exp $
+* $Id: limbo_outputter.inc,v 1.40 2012/09/06 05:41:58 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/backend_outputter.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix
 */
 class Limbo_Outputter extends Backend_Outputter
@@ -612,6 +612,8 @@ class Limbo_Outputter extends Backend_Outputter
 
 		<?php
 		hidden_field('process_form', '1');
+		// insert nonce token
+		hidden_field('token', get_unique_token());
 		$this->_paintHiddenFields();
 
 	}//end _paintBodyHeader()
