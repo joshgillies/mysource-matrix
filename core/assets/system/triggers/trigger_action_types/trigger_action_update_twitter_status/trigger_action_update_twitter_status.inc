@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_update_twitter_status.inc,v 1.7 2012/08/30 01:09:14 ewang Exp $
+* $Id: trigger_action_update_twitter_status.inc,v 1.8 2012/09/07 00:47:40 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once 'I18N/UnicodeNormalizer.php';
 *
 *
 * @author  Luke Wright <lwright@squiz.com.au>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -119,13 +119,14 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 		$settings['tweet_contents'] = $tweet_format;
 		$return = self::processUpdateStatus($settings);
 
-		$sxml = simplexml_load_string($return);
-		if ($sxml->error) {
-			trigger_localised_error('CORE0293', E_USER_WARNING, (string)$sxml->error);
+		$result = json_decode_array($return);
+
+		if (isset($result['errors'])) {
+			trigger_localised_error('CORE0293', E_USER_WARNING, (string)$result['errors'][0]['message']);
 			return FALSE;
 		} else {
 			// Get the time that Twitter reported it as
-			$tweet_time = strtotime((string) $sxml->created_at);
+			$tweet_time = strtotime((string) $result['created_at']);
 		}
 		
 		return Array(
@@ -195,24 +196,26 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 
 			if ($result !== '1') {
 				$creds_response = self::processVerify($settings);
-				$creds_sxml = simplexml_load_string($creds_response);
+				$response = json_decode_array($creds_response);
 
-				if ($creds_sxml->error) {
+
+				if (isset($response['error'])) {
 					// No longer authenticated!
 					$cache_mgr->saveToCache($trigger->id, 'trigger', $cache_key, '0', FALSE, 1);
 
 					// Authentication issue? We've probably been revoked.
-					if (((string)$creds_sxml->error) === 'Could not authenticate you.') {
+					if (((string)$response['error']) === 'Could not authenticate you.') {
 						$settings['access_token'] = NULL;
 						$settings['access_token_secret'] = NULL;
 						trigger_localised_error('CORE0295', E_USER_NOTICE);
 					} else {
 						// Think it's a temporary issue
-						trigger_localised_error('CORE0296', E_USER_NOTICE, (string)$creds_sxml->error);
+						trigger_localised_error('CORE0296', E_USER_NOTICE, (string)$response['error']);
 					}
 				} else {
 					$cache_mgr->saveToCache($trigger->id, 'trigger', $cache_key, '1', FALSE, 60);
 				}
+
 			}
 		}
 
@@ -543,7 +546,7 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 		$oauth_attr->setValue($oauth_attr_values);
 
 		// Grab a new request token
-		$url = 'http://api.twitter.com/1/account/verify_credentials.xml';
+		$url = 'http://api.twitter.com/1.1/account/verify_credentials.json';
 		$header = $oauth_attr->getUserDataAuthHeader($url, $settings['access_token'], $settings['access_token_secret']);
 
 		$details = fetch_url($url, array('RETURNTRANSFER' => 1), array($header));
@@ -586,7 +589,7 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 		// since OAuth attr only supports adding new fields through query params
 		// so get it to sign using that
 		$settings['tweet_contents'] = str_replace('+', ' ', str_replace('%7E', '~', rawurlencode($settings['tweet_contents'])));
-		$url = 'http://api.twitter.com/1/statuses/update.xml';
+		$url = 'http://api.twitter.com/1.1/statuses/update.json';
 		$url_for_signing = $url.'?status='.$settings['tweet_contents'];
 
 		// It also doesn't seem to like POST. So we will get the header as

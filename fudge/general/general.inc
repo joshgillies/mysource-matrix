@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.57 2012/09/04 07:01:11 ewang Exp $
+* $Id: general.inc,v 1.58 2012/09/07 00:51:59 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 * @package Fudge
 * @subpackage General
 */
@@ -1138,4 +1138,23 @@ function _xml_to_array_helper($iter)
 
 }//end xml_to_array_helper()
 
+
+/** 
+* Decode json string
+*
+* @param string $data	A string representing a well formed json document
+* @return array|null
+*/
+function json_decode_array($data)
+{
+    if (!function_exists('json_decode')) {
+	    require_once 'Services/JSON.php';
+	    $json = new Services_JSON(SERVICES_JSON_LOOSE_TYPE);
+	    $output = $json->decode($data);
+    } else {
+	    $output = json_decode($data, TRUE);
+    }//end else
+    return $output;
+}//end json_decode_array()
+			
 ?>
