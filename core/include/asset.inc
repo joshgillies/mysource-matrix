@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.768 2012/09/07 00:58:33 akarelia Exp $
+* $Id: asset.inc,v 1.769 2012/09/07 01:45:25 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.768 $
+* @version $Revision: 1.769 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4966,6 +4966,7 @@ class Asset extends MySource_Object
 		}
 
 		if ($layout_id) {
+			$replacement = $GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_PAINT_LAYOUT_ID', $layout_id);
 			// we have found the design to use... we might need to fool the system
 			// into thinking we are printing the frontend of that asset
 			$switched_frontend = FALSE;
