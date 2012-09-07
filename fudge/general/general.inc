@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.53.12.1 2012/06/01 02:09:31 ewang Exp $
+* $Id: general.inc,v 1.53.12.2 2012/09/07 00:56:58 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.53.12.1 $
+* @version $Revision: 1.53.12.2 $
 * @package Fudge
 * @subpackage General
 */
@@ -933,5 +933,24 @@ function get_unique_token()
 	return $token;
 
     }//end get_unique_token()
+
     
+/** 
+* Decode json string
+*
+* @param string $data	A string representing a well formed json document
+* @return array|null
+*/
+function json_decode_array($data)
+{
+    if (!function_exists('json_decode')) {
+	    require_once 'Services/JSON.php';
+	    $json = new Services_JSON(SERVICES_JSON_LOOSE_TYPE);
+	    $output = $json->decode($data);
+    } else {
+	    $output = json_decode($data, TRUE);
+    }//end else
+    return $output;
+}//end json_decode_array()
+
 ?>
