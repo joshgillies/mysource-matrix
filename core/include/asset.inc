@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.767 2012/08/30 01:09:19 ewang Exp $
+* $Id: asset.inc,v 1.768 2012/09/07 00:58:33 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.767 $
+* @version $Revision: 1.768 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -248,7 +248,7 @@ class Asset extends MySource_Object
 				assert_not_empty(($link['link_type'] & SQ_SC_LINK_SIGNIFICANT), 'Cannot create asset with an insignificant link type');
 			}
 		}
-		
+
 		// disable the triggering system. we do not want to broadcast any nested events, only our own
 		$trigger_level_changed = FALSE;
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_TRIGGERS)) {
@@ -392,7 +392,7 @@ class Asset extends MySource_Object
 
 					if (!$link['asset']->cloneComponents($this, Array('permissions', 'metadata_schemas', 'workflow', 'content_tags', 'roles'))) {
 							$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-							return $this->_abortCreate($trigger_level_changed);						
+							return $this->_abortCreate($trigger_level_changed);
 					}
 
 				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
@@ -606,26 +606,26 @@ class Asset extends MySource_Object
 		if ($linkid != 0) {
 			// Get the asset's link and its immediate children info before we rollback
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
-			
+
 			$children_assets = Array();
-			if (isset($link['minorid'])) { 
+			if (isset($link['minorid'])) {
 				$children_assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($link['minorid'], '', TRUE, NULL, NULL, NULL, TRUE, NULL, 1);
 			}
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		
+
 		if (!empty($link) && isset($link['linkid']) && isset($link['majorid'])) {
 			// Clear the asset's link left on the link table
 			$GLOBALS['SQ_SYSTEM']->am->deleteAssetLinkByLink($link, TRUE, TRUE);
-      		
+
 			// If there were children created by this asset successfully (that didn't got aborted),
 			// even though those childern will be rolledback when parent asset aborts itself,
 			// however those children will leave links in link table
 			foreach($children_assets as $child_assetid => $val) {
 				$child_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($link['minorid'], $child_assetid);
-				
+
 				if (isset($child_link['linkid'])) {
 					$child_link['majorid'] = $link['minorid'];
 					$child_link['major_type_code'] = $this->type();
@@ -1242,8 +1242,6 @@ class Asset extends MySource_Object
 				}
 			}
 
-			
-
 			if (!$contexted_asset->saveAttributes()) {
 				trigger_localised_error('SYS0164', E_USER_WARNING, $this->name);
 				$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = FALSE;
@@ -1259,7 +1257,7 @@ class Asset extends MySource_Object
 		}//end foreach
 
 		if (!$this->revertNoticeLinksToSystemVersion()) return FALSE;
-		
+
 		// If we have metadata, load the old version so we can revert the values
 		$metadata_filename = $this->data_path.'/.sq_system/metadata_field_values.php';
 		if (is_file($metadata_filename)) {
@@ -1291,7 +1289,7 @@ class Asset extends MySource_Object
 		foreach (get_object_vars($old_version) as $key => $value) {
 			$this->$key = $value;
 		}
-		
+
 		// also keep the data in asset to notify other parts of matrix
 		// that we are reverting back to system version
 		$this->_tmp['reverting_to_system_version'] = TRUE;
@@ -1319,7 +1317,7 @@ class Asset extends MySource_Object
 		$notice_links_file = file_to_string($this->data_path.'/.sq_system/.sq_notice_links');
 
 		// if we have any notice links preserved in the system version file, remove the current notice links
-		// and create new ones based on the information from the system version file 
+		// and create new ones based on the information from the system version file
 		if (!empty($notice_links_file)) {
 			$system_ver_notice_links = unserialize($notice_links_file);
 			$notice_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE);
@@ -1354,7 +1352,7 @@ class Asset extends MySource_Object
 				$run_level_changed = TRUE;
 			}
 
-			// delete existing notice links that are no longer being used. 
+			// delete existing notice links that are no longer being used.
 			// the system version file contains only nest content related notice links with a link value, 'nested_asset' or 'paint_with_layout'
 			// so, what we are deleting here is just nest content related notice links
 			foreach ($notice_links as $link_data) {
@@ -1520,7 +1518,7 @@ class Asset extends MySource_Object
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			
+
 			$em->broadcastEvent($this, 'AssetUpdate', $changed_data);
 
 			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_asset_updated', $this);
@@ -2162,7 +2160,6 @@ class Asset extends MySource_Object
 		  //////////////////
 		 /// ATTRIBUTES ///
 		//////////////////
-
 		if (in_array('attributes', $components) || in_array('all', $components)) {
 			if (!$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS) || $clone->writeAccess('attributes')) {
 				// Save the current variables so we can restore them afterwards
@@ -2261,7 +2258,7 @@ class Asset extends MySource_Object
 					// apply the schemas from the cloner to the clonee
 					// But only if they're set to cascade to new assets
 					$schemas = $mm->getSchemas($this->id, NULL, TRUE);
-					
+
 					$schema_count = 0;
 					$metadata = Array();
 					foreach ($schemas as $schemaid => $granted) {
@@ -2301,7 +2298,7 @@ class Asset extends MySource_Object
 						// (we don't need to change the clone, because saveAttributes()
 						// already works with the current context)
 						$GLOBALS['SQ_SYSTEM']->changeContext($contextid);
-						
+
 						$metadata = $mm->getMetadata($this->id);
 						if (!empty($metadata)) {
 							// apply the metadata from $this to the clone - setMetadata() will ignore any values
@@ -2601,10 +2598,10 @@ class Asset extends MySource_Object
 					return FALSE;
 				}
 			}
-			
+
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			
+
 			// broadcast event notifying of status change
 			$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
 			$data = Array(
@@ -2624,7 +2621,7 @@ class Asset extends MySource_Object
 			$message = $ms->newMessage(Array(), 'asset.status', $msg_reps);
 			$message->parameters['assetid'] = $this->id;
 			$message->send();
-			
+
 			// prepare the event data and fire trigger_event_status_changed
 			$event_data['old_status'] = $old_status;
 			$event_data['new_status'] = $new_status;
@@ -3405,12 +3402,12 @@ class Asset extends MySource_Object
 					$value = filter_content($value);
 					if ($value === FALSE){
 						trigger_localised_error('SYS0346', E_USER_WARNING, $name, $this->type());
-						return FALSE;	
+						return FALSE;
 					}
 				}
 			}
 		}
-		
+
 		$attribute = $this->getAttribute($name);
 		if (!$attribute->setValue($value)) {
 			trigger_localised_error('SYS0073', E_USER_WARNING, $value, $name);
@@ -3857,7 +3854,7 @@ class Asset extends MySource_Object
 			// If we were able to extract a context ID to change to, and it's
 			// different to our current one, then change and then reload a copy
 			// of the asset in that context (as we would need to do anyway)
-			
+
 			if ((int)$contextid !== $GLOBALS['SQ_SYSTEM']->getContextId()) {
 				$GLOBALS['SQ_SYSTEM']->changeContext($contextid);
 				$contexted_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id);
@@ -3867,7 +3864,7 @@ class Asset extends MySource_Object
 
 				// Then apply the ones we had remaining, then return it
 				apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $contexted_asset->id));
-				
+
 				unset($contexted_asset);
 				$GLOBALS['SQ_SYSTEM']->restoreContext();
 				return $replacement;
@@ -3881,7 +3878,7 @@ class Asset extends MySource_Object
 		$tmp_keyword = ucwords($tmp_keyword);
 		$tmp_keyword = preg_replace('/\s+/', '', $tmp_keyword);
 		$func_name = 'get'.$tmp_keyword.'KeywordReplacement';
-		
+
 		//check if the keyword starts with asset_ because the global asset keyword %globals_asset_% would invoke this
 		//method through the replace_global_keywords() function (general.inc) with the keyword starts with asset_
 		$possible_func_name = '';
@@ -3960,7 +3957,7 @@ class Asset extends MySource_Object
 					if ($additional_keyword !== '') {
 						$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 						$field_assetid = $mm->getFieldAssetIdFromName($this->id, $metadata_keyword);
-							
+
 						if ($field_assetid !== FALSE) {
 							$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($field_assetid);
 							$replacement = $field->getAdditionalKeywordReplacement($this->id, $additional_keyword, NULL);
@@ -3972,7 +3969,7 @@ class Asset extends MySource_Object
 					}
 
 				} else if (isset($this->_tmp['mm_replacements'][$current_context][$spaced_metadata_keyword]) === TRUE) {
-						
+
 					// Try it with metadata keyword underscores replaced with spaces
 					// (additional keyword never has its spaces removed when
 					// sent to the metadata field)
@@ -4006,27 +4003,27 @@ class Asset extends MySource_Object
 				$additional_keyword = substr($metadata_keyword, $underscore_pos + 1).$additional_keyword;
 				$metadata_keyword = substr($metadata_keyword, 0, $underscore_pos);
 			}
-			
+
 			// If no replacement yet, then perhaps its a related metadata field keyword
 			if ($replacement === NULL) {
 				$metadata_keyword = substr($keyword, 15);
 				// Related metadata fields names, if any, needs to be sorted out before doing the replacement
 				$related_assetids = $this->_tmp['mm_replacements'][$current_context];
 				array_sort_by_length($related_assetids, FALSE, FALSE);
-				
+
 				foreach($related_assetids as $field_name => $related_assetid) {
 					if (strpos($metadata_keyword, $field_name.'_') !== FALSE) {
 						$asset_keyword = substr($metadata_keyword, strlen($field_name)+1, strlen($metadata_keyword) - strlen($field_name));
 						if ($GLOBALS['SQ_SYSTEM']->am->getAssetInfo($related_assetid)) {
-							$related_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($related_assetid);						
+							$related_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($related_assetid);
 							$replacement = $related_asset->getKeywordReplacement($asset_keyword);
 							$this->_tmp['mm_replacements'][$current_context][$metadata_keyword] = $replacement;
 						}
 						break;
 					}//end if
-				}//end foreach			
+				}//end foreach
 			}//end if
-			
+
 			// No replacement? Oh well, back to square one
 			if ($replacement === NULL) {
 				unset($replacement);
@@ -4049,9 +4046,22 @@ class Asset extends MySource_Object
 				}
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($temp_asset);
 			}
+		} else if (0 === strpos($keyword, 'asset_paint_layout_id')) {
+			$replacement = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('SQ_PAINT_LAYOUT_ID', 0);
+			if (empty($replacement)) {
+				$url = strip_url(current_url(FALSE, TRUE));
+				$layout_name = $this->getCurrentPaintLayoutName();
+				$replacement = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL($url, $layout_name);
+
+				// if no layout was found, try and get the default frontend
+				// layout if we were not already trying to get it
+				if (empty($replacement) && $layout_name != 'paint_layout::system::frontend') {
+					$replacement = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL($url, 'paint_layout::system::frontend');
+				}
+			}
 		} else if (0 === strpos($keyword, 'asset_workflow_')) {
 			$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
-			
+
 			if (!isset($this->_tmp['wfm_schema_workflows'])) {
 				$schema_workflows = $wfm->getSchemaWorkflows($this->id);
 				$this->_tmp['wfm_schema_workflows'] = $schema_workflows;
@@ -4062,10 +4072,10 @@ class Asset extends MySource_Object
 			if (0 === strpos($keyword, 'asset_workflow_current_')){
 				$workflow_keyword = substr($keyword, strlen('asset_workflow_current_'));
 				$workflow_keyword_parts = explode(':', $workflow_keyword);
-				
+
 				$schema_ids = Array();
 				$wf_replacements = Array();
-				
+
 				if (isset($workflow_keyword_parts[1])) {
 					$workflow_keyword = $workflow_keyword_parts[0];
 					$schema_ids[] = $workflow_keyword_parts[1];
@@ -4076,11 +4086,11 @@ class Asset extends MySource_Object
 				foreach($schema_ids as $schema_id) {
 					//filter out non-running schemas
 					if (empty($schema_workflows[$schema_id])) continue;
-					
+
 					if (0 === strpos($workflow_keyword, 'step_')){
 						//filter out schemas with no steps/no current step(complete)
 						if (empty($schema_workflows[$schema_id]['steps']) || empty($schema_workflows[$schema_id]['current_step'])) continue;
-						
+
 						$current_step = $wfm->getCurrentStep($schema_workflows[$schema_id]);
 						switch ($workflow_keyword) {
 							case 'step_name':
@@ -4121,10 +4131,10 @@ class Asset extends MySource_Object
 						}
 					}
 				}
-				
+
 				$replacement = implode(', ', $wf_replacements);
 				if (empty($replacement)) return NULL;
-				
+
 			} else 	{
 				$workflow_keyword = substr($keyword, strlen('asset_workflow_'));
 				switch ($workflow_keyword) {
@@ -4132,24 +4142,24 @@ class Asset extends MySource_Object
 						$replacement = implode(', ', array_keys($schema_workflows));
 						break;
 					default:
-						return $replacement;	
-				}		
+						return $replacement;
+				}
 			}
-			
+
 		} else if (0 === strpos($keyword, 'asset_frontend_metadata')) {
 			// Returns the asset's frontend metadata content
 			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 			$metadata_default_name = 'metadata.php';
 			$metadata_basename = ($contextid === 0) ? 'metadata.php' : 'metadata.'.$contextid.'.php';
-			
+
 			ob_start();
 				if (file_exists($this->data_path.'/'.$metadata_basename)) {
 					require $this->data_path.'/'.$metadata_basename;
 				} else if (file_exists($this->data_path.'/'.$metadata_default_name)) {
 					require $this->data_path.'/'.$metadata_default_name;
 				}
-			$replacement = ob_get_clean();			
-			
+			$replacement = ob_get_clean();
+
 		} else {
 			$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 			$mm_keyword = $mm->generateKeywordReplacements($this, Array($keyword), FALSE);
@@ -4170,7 +4180,7 @@ class Asset extends MySource_Object
 		}
 
 		apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id));
-		
+
 		return $replacement;
 
 	}//end _getKeywordReplacement()
@@ -4347,7 +4357,7 @@ class Asset extends MySource_Object
 			}
 			return $this->writeAccess('', $assetids, FALSE);
 		}
-		
+
 		if ($this->_checkPermissionAccess(SQ_PERMISSION_READ, $assetids)){
 			return TRUE;
 		} else if ($this->status & SQ_SC_STATUS_PENDING) {
@@ -4359,7 +4369,7 @@ class Asset extends MySource_Object
 				return TRUE;
 			}
 		}
-		
+
 		return FALSE;
 
 	}//end readAccess()
@@ -4667,7 +4677,7 @@ class Asset extends MySource_Object
 
 		$grants  = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->id, $perm, TRUE, TRUE, FALSE, FALSE, FALSE);
 		$revokes = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->id, $perm, FALSE, FALSE, FALSE, FALSE, FALSE);
-		
+
 		// has their access been revoked at all?
 		if (!empty($revokes)) {
 			$revoked = array_intersect($assetids, $revokes);
@@ -6409,30 +6419,30 @@ class Asset extends MySource_Object
 		return $string;
 
 	}//end replaceKeywordsInString()
-	
-	
+
+
 	/**
-	* Fast Track is way of flagging on this asset, "it's currently 
-	* safe to skip certain expensive tasks". This is useful when 
+	* Fast Track is way of flagging on this asset, "it's currently
+	* safe to skip certain expensive tasks". This is useful when
 	* trying to avoid things like search reindexing from happening
 	* multiple times when it only needs to happen once (during asset
 	* creation for example).
 	*
-	* As such, it's a less than ideal yet pragmatic way to find a 
-	* "fast path" for the spaghetti that is asset builder / applying 
-	* schemas / regenerating metadata / reindexing search in multiple 
+	* As such, it's a less than ideal yet pragmatic way to find a
+	* "fast path" for the spaghetti that is asset builder / applying
+	* schemas / regenerating metadata / reindexing search in multiple
 	* context sauce.
 	*
 	* e.g.
-	* 
-	* $asset->fastTrack(Array(	'metadata_manager_generate_content_file', 
-	*							'search_manager_reindex_metadata', 
+	*
+	* $asset->fastTrack(Array(	'metadata_manager_generate_content_file',
+	*							'search_manager_reindex_metadata',
 	*							'trigger_event_metadata_updated'));
 	*
 	* // Do stuff that may trigger events in loops for those tasks..
 	*
-	* $asset->unFastTrack(Array(	'metadata_manager_generate_content_file', 
-	*								'search_manager_reindex_metadata', 
+	* $asset->unFastTrack(Array(	'metadata_manager_generate_content_file',
+	*								'search_manager_reindex_metadata',
 	*								'trigger_event_metadata_updated'));
 	*
 	* // Now do those tasks once.
@@ -6447,7 +6457,7 @@ class Asset extends MySource_Object
 	{
 		if (!is_array($tasks)) $tasks = Array($tasks);
 		if (!isset($this->_tmp['fast_track'])) $this->_tmp['fast_track'] = Array();
-		
+
 		foreach($tasks as $task) {
 			// Initialise the "fast tracked assetids" array only if we have not fast tracked this task before,
 			// or if we have removed it from being fast tracked
@@ -6457,10 +6467,10 @@ class Asset extends MySource_Object
 
 			$this->_tmp['fast_track'][$task] = TRUE;
 		}
-		
+
 	}//end fastTrack()
-	
-	
+
+
 	/**
 	* Remove the given task from being fast tracked, usually so that
 	* the caller can finally perform the given tasks sanely (once).
@@ -6475,14 +6485,14 @@ class Asset extends MySource_Object
 	{
 		if (!is_array($tasks)) $tasks = Array($tasks);
 		if (!isset($this->_tmp['fast_track'])) $this->_tmp['fast_track'] = Array();
-		
+
 		foreach($tasks as $task) {
 			$this->_tmp['fast_track'][$task] = FALSE;
 		}
-		
+
 	}//end unFastTrack()
-	
-	
+
+
 	/**
 	* Determine if the given task should be fast tracked. Generally called from the
 	* place doing the expensive task.
@@ -6498,7 +6508,7 @@ class Asset extends MySource_Object
 	public function shouldFastTrack($task, $assetid=NULL)
 	{
 		if (isset($this->_tmp['fast_track'][$task]) && $this->_tmp['fast_track'][$task]) {
-			// Keep track of assetids associated with the task that has been fast tracked 
+			// Keep track of assetids associated with the task that has been fast tracked
 			if (!is_null($assetid)) {
 				$this->_tmp['fast_track'][$task.'_assetids'][] = $assetid;
 			}
@@ -6506,12 +6516,12 @@ class Asset extends MySource_Object
 		}
 
 		return FALSE;
-		
+
 	}//end shouldFastTrack()
 
 
 	/**
-	* Returns a list of assetids associated with the given task 
+	* Returns a list of assetids associated with the given task
 	* that has been fast tracked
 	*
 	* @param $task	string Fasktracked task name
@@ -6524,17 +6534,17 @@ class Asset extends MySource_Object
 		return !empty($this->_tmp['fast_track'][$task.'_assetids']) ? $this->_tmp['fast_track'][$task.'_assetids'] : Array();
 
 	}//end getFaskTrackedTaskAssetids()
-	
-	
+
+
 	/**
 	* If the asset doesn't has URL, get it from the dependant parent, if any
 	*
 	* @return string
 	* @access public
 	*/
-	public function getDependantParentsURL()	
+	public function getDependantParentsURL()
 	{
-		$asset_url = $this->getURL();		
+		$asset_url = $this->getURL();
 		if (empty($asset_url)) {
 			$dependant_parents = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($this->id, '', TRUE, FALSE);
 
@@ -6544,9 +6554,9 @@ class Asset extends MySource_Object
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($dependant_parent);
 			}
 		}//end if
-		
+
 		return $asset_url;
-	
+
 	}//end getDependantParentURL()
 
 }//end class
