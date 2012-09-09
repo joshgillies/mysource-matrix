@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.233.2.3 2012/09/09 23:50:13 cupreti Exp $
+* $Id: metadata_manager.inc,v 1.233.2.4 2012/09/09 23:58:18 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *	 Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.233.2.3 $
+* @version $Revision: 1.233.2.4 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -725,11 +725,6 @@ class Metadata_Manager extends MySource_Object
 		$metadata  = Array();		
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
-
-		// Try Deja vu
-		if ($deja_vu && !($asset->status & SQ_SC_STATUS_SAFE_EDITING)) {
-			$metadata = $deja_vu->recall(SQ_DEJA_VU_METADATA, $assetid, $contextid);
-		}
 
 		// include the file but must not display anything
 		ob_start();
