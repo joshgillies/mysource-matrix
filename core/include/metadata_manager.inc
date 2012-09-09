@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.233.2.2 2012/08/14 07:21:35 ewang Exp $
+* $Id: metadata_manager.inc,v 1.233.2.3 2012/09/09 23:50:13 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *	 Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.233.2.2 $
+* @version $Revision: 1.233.2.3 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -713,7 +713,6 @@ class Metadata_Manager extends MySource_Object
 	
 	/**
 	 * Load metadata values, principally from $metadata_filename
-	 * but trying Deja Vu first for performance.
 	 *
 	 * @param string $assetid
 	 * @param string $metadata_filename
@@ -723,8 +722,7 @@ class Metadata_Manager extends MySource_Object
 	 */
 	function loadMetadataFile($assetid, $metadata_filename)
 	{
-		$metadata  = Array();
-		$deja_vu   = $GLOBALS['SQ_SYSTEM']->getDejaVu();
+		$metadata  = Array();		
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 
@@ -733,23 +731,15 @@ class Metadata_Manager extends MySource_Object
 			$metadata = $deja_vu->recall(SQ_DEJA_VU_METADATA, $assetid, $contextid);
 		}
 
-		// We may have 'fields' in Deja Vu already (see getMetadataInterfaceValueByAssetid), 
-		// but if we don't have 'values' etc then go get them.
-		if (!isset($metadata['values']) || !isset($metadata['value_components']) || !isset($metadata['warnings'])) {
-			// include the file but must not display anything
-			ob_start();
-				include $metadata_filename;
-			ob_end_clean();
+		// include the file but must not display anything
+		ob_start();
+			include $metadata_filename;
+		ob_end_clean();
 			
-			$metadata['values'] = $metadata_values;
-			$metadata['value_components'] = $metadata_value_components;
-			$metadata['warnings'] = $metadata_warnings;
+		$metadata['values'] = $metadata_values;
+		$metadata['value_components'] = $metadata_value_components;
+		$metadata['warnings'] = $metadata_warnings;
 			
-			// Try and rememeber for next time
-			if ($deja_vu &&  !($asset->status & SQ_SC_STATUS_SAFE_EDITING)) {
-				$deja_vu->remember(SQ_DEJA_VU_METADATA, $assetid, $metadata, $contextid);
-			}
-		}
 		return $metadata;
 		
 	}//end loadMetadata
@@ -1972,15 +1962,6 @@ class Metadata_Manager extends MySource_Object
 	{
 		if (empty($assetid)) return NULL;
 		
-		// Try Deja Vu to avoid repeated getParents calls etc.
-		$deja_vu = $GLOBALS['SQ_SYSTEM']->getDejaVu();
-		if ($deja_vu) {
-			$deja_metadata = $deja_vu->recall(SQ_DEJA_VU_METADATA, $assetid, $contextid);
-			if (isset($deja_metadata['fields'][$field_assetid])) {
-				return $deja_metadata['fields'][$field_assetid];
-			}
-		}
-
 		// is this actually a metadata field or what?!
 		if (!$this->isMetadataFieldAssetid($field_assetid)) {
 			$has_errors = TRUE;
@@ -2033,12 +2014,6 @@ class Metadata_Manager extends MySource_Object
 		// Matrix DAL returns FALSE when no rows found, for consistancy we should return NULL
 		if ($value === FALSE) {
 			$value = NULL;
-		} else {
-			// Remember..
-			if ($deja_vu) {
-				$deja_metadata['fields'][$field_assetid] = $value;
-				$deja_vu->remember(SQ_DEJA_VU_METADATA, $assetid, $deja_metadata, $contextid);
-			}
 		}
 
 		return $value;
