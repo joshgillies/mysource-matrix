@@ -2,7 +2,7 @@
 /**
 * +--------------------------------------------------------------------+
 * | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd	   |
-* | ACN 084 670 600													   |
+* | ABN 084 670 600													   |
 * +--------------------------------------------------------------------+
 * | IMPORTANT: Your use of this Software is subject to the terms of    |
 * | the Licence provided in the file licence.txt. If you cannot find   |
@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: checkout_action_call_rest_resource.inc,v 1.2 2012/08/30 00:58:33 ewang Exp $
+* $Id: checkout_action_call_rest_resource.inc,v 1.3 2012/09/11 07:56:22 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ define('ECOM_CHECKOUT_REST_ACTION_LOG_FILE', 'ecom_rest_checkout_action');
 *
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -743,7 +743,9 @@ class Checkout_Action_Call_Rest_Resource extends Checkout_Action
 							if (isset($item_data[$item_index_name])) {
 								$replacement = $item_data[$item_index_name][0];
 							}//end if
-						}//end if
+						} else if ($keyword == 'item_array_index') {
+							$replacement = str_pad($array_index, 4, '0', STR_PAD_LEFT);
+						}
 						if ($replacement == '%'.$keyword.'%') {
 							$replacement = $item_asset->getKeywordReplacement($keyword);
 						}
@@ -837,6 +839,7 @@ class Checkout_Action_Call_Rest_Resource extends Checkout_Action
 	private static function _getOrderArrayKeywords($asset_type)
 	{
 		$keywords = Array();
+		$keywords['item_array_index'] = 'Four digit item\'s position value in the "order array"';
 		$keywords['asset_attribute_name'] = "The full name of the product item";
 		$keywords['product_quantity'] = "Total number of the items of the given type in the order";
 		$keywords['product_item_price'] = "Product item unit price excluding tax";
