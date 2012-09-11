@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: locking_method_default.inc,v 1.5 2012/08/30 01:09:11 ewang Exp $
+* $Id: locking_method_default.inc,v 1.6 2012/09/11 05:41:52 cupreti Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/locking/locking_method/locking_method
 *
 *
 * @author		Luke Wright <lwright@squiz.net>
-* @version		$Revision: 1.5 $
+* @version		$Revision: 1.6 $
 * @package		MySource_Matrix_Packages
 * @subpackage	__core__
 */
@@ -265,35 +265,34 @@ class Locking_Method_Default extends Locking_Method
 
 		// Did I get a string or an array?
 		$where = '';
-		$multiple = FALSE;
 		$locks_passed = Array();
 		if (is_array($lockid)) {
+			$where = ' WHERE lockid IN (';
 			foreach ($lockid as $lock_key => $lock_value) {
-				$lockid[$lock_key] = MatrixDAL::quote($lock_value);
+				$where .= ':lockid'.$lock_key.',';
+				$locks_passed['lockid'.$lock_key] = $lock_value;
 			}
-			$where = ' WHERE lockid IN ('.implode(', ', $lockid).')';
-			$multiple = TRUE;
-			$locks_passed = $lockid;
+			$where = rtrim($where, ',');
+			$where .= ')';
 		} else {
 			$where = ' WHERE lockid = :lockid';
-			$multiple = FALSE;
-			$locks_passed[] = $lockid;
+			$locks_passed['lockid'] = $lockid;
 		}
-
+		
 		$sql = 'SELECT lockid, source_lockid, userid, expires
 				FROM sq_lock'.$where;
 
 		try {
 			$query = MatrixDAL::preparePdoQuery($sql);
-			if (!$multiple) {
-				MatrixDAL::bindValueToPdo($query, 'lockid', $lockid);
+			foreach($locks_passed as $bind_var => $bind_val) {
+				MatrixDAL::bindValueToPdo($query, $bind_var, $bind_val);
 			}
 			$results = MatrixDAL::executePdoAssoc($query);
 		} catch (Exception $e) {
 			$lock_error = (is_array($lockid)) ? ('s '.implode(', ', $lockid)) : (' '.$lockid);
 			throw new Exception('Unable to get lock information for lock ID"'.$lock_error.'" due to database error: '.$e->getMessage());
 		}
-
+		
 		if (!empty($results)) {
 			foreach ($results as $result_key => $result) {
 				$results[$result_key]['expires'] = empty($result['expires']) ? NULL : iso8601_ts($result['expires']);
