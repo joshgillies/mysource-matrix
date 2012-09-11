@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: pdf_file.inc,v 1.33 2011/05/19 04:25:17 akarelia Exp $
+* $Id: pdf_file.inc,v 1.33.8.1 2012/09/11 06:54:14 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.33.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -78,22 +78,76 @@ class PDF_File extends File
 			$cmd = SQ_TOOL_PDFTOHTML_PATH." -i -nomerge -noframes -stdout $pwd $file";
 			$cmd = escapeshellcmd($cmd);
 			// Run the command
-			exec($cmd, $content, $return);
+			$log = Array(
+						'pipe',
+						'w',
+				   );
 
-			// check to see if the command was executed correctly
-			// return value is 0, all good or else log a warning
-			if ($return != '0') {
-				trigger_error('Error occured while getting contents for pdf File Asset #'.$this->id, E_USER_WARNING);
-				return '';
-			}
-		}
+			$status = FALSE;
+			$spec = Array(
+						0	=> Array(
+									'pipe',
+									'r',
+							   ),					// stdin is a pipe that the child will read from
+						1	=> $log,				// stdout is a pipe that the child will write to
+						2	=> $log,				// stderr is a file to write to
+					);
 
+			$cwd = NULL;
+			$env = Array();
+			$process = proc_open($cmd, $spec, $pipes, $cwd, $env);
+
+			if (is_resource($process)) {
+				fclose($pipes[0]);
+
+				// Get the output
+				$content = stream_get_contents($pipes[1]);
+				fclose($pipes[1]);
+
+				// Find the errors ... do NOT throw to output
+				$errors = stream_get_contents($pipes[2]);
+				if (!empty($errors)) {
+					$errors = array_unique(explode(PHP_EOL, $errors));
+					trigger_error('Error occured while getting contents for pdf File Asset #'.$this->id.' : '.trim(implode(', ', $errors), ', '), E_USER_WARNING);
+					return FALSE;
+				}//end if
+				fclose($pipes[2]);
+
+				// Finally, get the status of this command
+				$status = proc_close($process);
+
+				// check to see if the command was executed correctly return value is 0,
+				// all good or else log a warning depending upon the error code returned
+				if ($status != '0') {
+					switch ($status) {
+						case 1:
+							$error_str = 'Invalid Argument.';
+						break;
+
+						case 2:
+							$error_str = 'Invalid Encoded Output.';
+						break;
+
+						case 3:
+							$error_str = 'Copying text from this Document is not allowed.';
+						break;
+
+						case 4:
+							$error_str = 'Error Opening File (e.g. corrupted file).';
+						break;
+
+						default :
+							$error_str = 'Unknown Error.';
+
+					}//end switch
+
+					trigger_error('Error occured while getting contents for pdf File Asset #'.$this->id.' : '.$error_str, E_USER_WARNING);
+					return '';
+				}//end if
+			}//end if
+		}//end if
 		$file = str_replace('"','\\\"',$file);
 		if (empty($content)) return '';
-
-		// the content we are spat out by exec() is in array form
-		// convert it to string so that we can process it further
-		$content = implode(PHP_EOL, $content);
 
 		// strip out the tags
 		$content = trim(strip_tags($content));
