@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.3 2012/05/09 01:39:22 akarelia Exp $
+* $Id: edit_interface_screen_details.xml,v 1.3.2.1 2012/09/11 00:09:55 ewang Exp $
 *
 */
 -->
@@ -30,6 +30,18 @@
 		</field>
 		<field attribute="allow_global_replace">
 			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="redirect_authorise">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="store_token">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintAccessToken" />
+				<process_function name="processAccessToken" />
+			</function_call>
 		</field>
 	</section>	
 </contents>
