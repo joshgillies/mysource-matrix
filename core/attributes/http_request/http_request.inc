@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: http_request.inc,v 1.14.2.3 2012/09/11 00:36:04 ewang Exp $
+* $Id: http_request.inc,v 1.14.2.4 2012/09/11 07:48:21 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 * 	<http_request />
 *
 * @author  James Hurst <jhurst@squiz.co.uk>
-* @version $Revision: 1.14.2.3 $
+* @version $Revision: 1.14.2.4 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -574,9 +574,9 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 					$oauth_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_config['oauth_asset']['assetid'], '', TRUE);
 					if (!is_null($oauth_asset)) {
 						$args = Array();
-						$args['method'] = $this->_config['method'];
-						$args['request_headers'] = $this->_config['request_headers'];
-						$args['request_body'] = $this->_config['request_body'];
+						$args['method'] = $this->_res['request']['method'];
+						$args['request_headers'] = $this->_res['request']['headers'];
+						$args['request_body'] =$this->_res['request']['body'];
 						$this->_res['request']['oauth_headers'] = $oauth_asset->getUserDataRequestAuthHeaders($this->_res['request']['urls'], $args);
 					}
 
