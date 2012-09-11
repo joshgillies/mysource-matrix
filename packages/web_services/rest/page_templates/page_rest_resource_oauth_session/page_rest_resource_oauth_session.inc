@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rest_resource_oauth_session.inc,v 1.7.2.1 2012/09/11 00:09:55 ewang Exp $
+* $Id: page_rest_resource_oauth_session.inc,v 1.7.2.2 2012/09/11 00:36:09 ewang Exp $
 *
 */
 
@@ -207,6 +207,9 @@ class Page_REST_Resource_OAuth_Session extends Page_REST_Resource
 		if (empty($urls)) return Array();
 
 		$oauth = $this->getAttribute('oauth');
+		foreach ($args as $config_name => $config_value) {
+			$oauth->setConfig($config_name, $config_value);
+		}
 
 		// if an access token is not available, there is no way user data can be accessed
 		// process each url only when we have an access token
