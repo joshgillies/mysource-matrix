@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: oauth.inc,v 1.8 2012/09/05 03:07:11 ewang Exp $
+* $Id: oauth.inc,v 1.9 2012/09/11 00:27:04 ewang Exp $
 *
 */
 
@@ -875,6 +875,11 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 		$all_params = $this->_header_params = $this->_encodeParam($this->_header_params);
 		if ($this->getType() == 'THREE_LEGGED') $all_params['oauth_token'] = $this->_header_params['oauth_token'] = $access_token;
 		$query_params = $this->_getQueryParameterArray($url, $url_encode);
+		// include post body in the base string
+		if($this->_config['method'] == 'POST') {
+		    $post_params =  $this->_getQueryParameterArray('?'.$this->_config['request_body']);
+		    $query_params = array_merge($query_params, $post_params);
+		}
 		if (!empty($query_params)) { 
 			// if query parameters exist, they have to be included in the signature
 			// but shouldn't be included in the header parameters

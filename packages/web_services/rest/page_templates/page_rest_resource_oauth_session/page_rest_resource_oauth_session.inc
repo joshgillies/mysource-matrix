@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rest_resource_oauth_session.inc,v 1.9 2012/09/05 02:59:45 ewang Exp $
+* $Id: page_rest_resource_oauth_session.inc,v 1.10 2012/09/11 00:27:44 ewang Exp $
 *
 */
 
@@ -76,9 +76,9 @@ class Page_REST_Resource_OAuth_Session extends Page_REST_Resource
 	
 			if (!empty($this->_res['responses'])) {
 				foreach ($this->_res['responses'] as &$resp) {
-					// if the http code of the response is over 401, it's an error
+					// if the http code of the response is over 400, it's an error
 					// clear the session variable set so far to prepare for a restart
-					if ($resp['info']['http_code'] > 401) {
+					if ($resp['info']['http_code'] >= 400) {
 						$this->resetOAuthSessionVariables();
 					} else {
 						// the response is likely to be authorization/login display provided by the service provider 
@@ -208,6 +208,9 @@ class Page_REST_Resource_OAuth_Session extends Page_REST_Resource
 		if (empty($urls)) return Array();
 
 		$oauth = $this->getAttribute('oauth');
+		foreach ($args as $config_name => $config_value) {
+			$oauth->setConfig($config_name, $config_value);
+		}
 		
 		// if an access token is not available, there is no way user data can be accessed
 		// process each url only when we have an access token

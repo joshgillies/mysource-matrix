@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: http_request.inc,v 1.18 2012/08/30 01:09:17 ewang Exp $
+* $Id: http_request.inc,v 1.19 2012/09/11 00:27:04 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 * 	<http_request />
 *
 * @author  James Hurst <jhurst@squiz.co.uk>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -574,14 +574,10 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 					// at this point, the oauth asset needs to have access token available...otherwise no data will be received back...
 					$oauth_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_config['oauth_asset']['assetid'], '', TRUE);
 					if (!is_null($oauth_asset)) {
-						// 2 legged OAuth needs the calling asset to pass some http request configs such as http method and request body
-						// 3 legged OAuth has its independent http configs and do not require these values to be passed
 						$args = Array();
-						if ($oauth_asset->getAttribute('oauth')->getType() == 'TWO_LEGGED') {
-							$args['method'] = $this->_config['method'];
-							$args['request_headers'] = $this->_config['request_headers'];
-							$args['request_body'] = $this->_config['request_body'];
-						}
+						$args['method'] = $this->_config['method'];
+						$args['request_headers'] = $this->_config['request_headers'];
+						$args['request_body'] = $this->_config['request_body'];
 						$this->_res['request']['oauth_headers'] = $oauth_asset->getUserDataRequestAuthHeaders($this->_res['request']['urls'], $args);
 					}
 
