@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.169.2.3 2012/06/29 07:10:48 ewang Exp $
+* $Id: page_asset_builder.inc,v 1.169.2.4 2012/09/11 06:48:18 akarelia Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.169.2.3 $
+* @version $Revision: 1.169.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -62,7 +62,7 @@ class Page_Asset_Builder extends Page
 	* @var string
 	*/
 	var $_default_state = 'create';
-	
+
 
 	/**
 	* Constructor
@@ -243,7 +243,7 @@ class Page_Asset_Builder extends Page
 	* @access public
 	*/
 	function printBody()
-	{	
+	{
 		if (isset($_POST['AB_'.$this->id.'_ASSET_BUILDER_ACTION'])) {
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		}
@@ -269,7 +269,7 @@ class Page_Asset_Builder extends Page
 
 		// start performance mode timer
 		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'printBody');
-		
+
 		// if a new asset is created, it will be stored in the tmp vars for use by other asset types
 		// that extend this one, but we wont need it any more - so chuck it out, but first, load up
 		// some replacements for the newly created asset
@@ -295,7 +295,7 @@ class Page_Asset_Builder extends Page
 
 		// stop performance mode timer
 		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'printBody');
-		
+
 		if (isset($_POST['AB_'.$this->id.'_ASSET_BUILDER_ACTION'])) {
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		}
@@ -537,12 +537,12 @@ class Page_Asset_Builder extends Page
 										$edit_fns = $mf_asset->getEditFns();
 										$cascade = TRUE;
 										$did_process = $edit_fns->processInlineValueInterface($mf_asset, $result_value, $cascade);
-	
+
 										// When date is not supplied for metadata date field
 										if ($mf_asset->type() == 'metadata_field_date' && $result_value == '---------- --:--:--') {
 											$result_value = '';
 										}
-											
+
 										if (!$did_process) {
 											$valid_value = FALSE;
 										}//end if
@@ -642,7 +642,7 @@ class Page_Asset_Builder extends Page
 					////////////////////////
 					// start performance mode timer
 					$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'createAsset');
-					
+
 					// we'll just use a limbo outputter to do the outputting for us
 					require_once SQ_INCLUDE_PATH.'/limbo_outputter.inc';
 					$o = new Limbo_Outputter();
@@ -682,20 +682,20 @@ class Page_Asset_Builder extends Page
 					if ($this->attr('allow_public_user')) {
 						$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 					}
-					
+
 					// Fast track!
-					// Due to the way that events are broadcast and handled, and the complexity introduced with 
-					// contexts, we can find ourselves re-regenerating/reindexing metadata, and firing off 
+					// Due to the way that events are broadcast and handled, and the complexity introduced with
+					// contexts, we can find ourselves re-regenerating/reindexing metadata, and firing off
 					// multiple trigger events for metadata regeneration with the same details.
 					//
 					// Using these 'fast track' settings, we can skip work we know will be completed later.
 					// They are unset accordingly later..
 					$new_asset->fastTrack(	Array(
-												'metadata_manager_generate_content_file', 
-												'search_manager_reindex_metadata', 
+												'metadata_manager_generate_content_file',
+												'search_manager_reindex_metadata',
 												'trigger_event_metadata_updated',
 											));
-					
+
 					$create_success = $new_asset->processBackend($o, $link);
 					$new_asset_linkid = FALSE;
 					if ($create_success && ($_REQUEST['asset_action'] != 'create')) {
@@ -706,8 +706,8 @@ class Page_Asset_Builder extends Page
 						$new_asset_linkid = array_get_index($new_asset_link, 'linkid', FALSE);
 					}
 
-					if (!$create_success) {						
-						$this->_tmp['new_asset_created_'.$create_type] =& $new_asset;						
+					if (!$create_success) {
+						$this->_tmp['new_asset_created_'.$create_type] =& $new_asset;
 						$this->_abortAssetCreate($new_asset_linkid);
 					} else {
 						// Attributes to be verified by Mollom
@@ -718,7 +718,7 @@ class Page_Asset_Builder extends Page
 						// make sure text attributes dont have javascripts etc
 						foreach ($new_asset->vars as $attr_name => $attr_info) {
 							// Prepare parameters for Mollom spam verification
-							$attr_value = array_get_index($attr_info, 'value', '');							
+							$attr_value = array_get_index($attr_info, 'value', '');
 							if ($attr_value) {
 								$attr_content_type = array_get_index($attr_to_verify, $attr_name, -1);
 								if ($attr_content_type >= 0) {
@@ -738,8 +738,8 @@ class Page_Asset_Builder extends Page
 								}
 							}
 						}
-						
-					
+
+
 						// locks need to be acquired here in case any attribute values change above
 						// saveAttributes() is smart enough to only run queries if values have changed since creation, i.e. a value gets escaped above
 						$GLOBALS['SQ_SYSTEM']->am->acquireLock($new_asset->id, 'attributes');
@@ -748,10 +748,10 @@ class Page_Asset_Builder extends Page
 
 						// stop performance mode timer
 						$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'createAsset');
-					
+
 						// start performance mode timer
 						$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'processMetadata');
-						
+
 						// process metadata
 						$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 						$metadata_values = Array();
@@ -775,16 +775,16 @@ class Page_Asset_Builder extends Page
 
 							// set metadata without reindexing and reset the switch to skip reindex
 							$mm->setMetadata($new_asset->id, $metadata_values);
-							
+
 							// Fast track's mission is accomplished, reset.
 							$new_asset->unFastTrack(	Array(
-														'metadata_manager_generate_content_file', 
-														'search_manager_reindex_metadata', 
+														'metadata_manager_generate_content_file',
+														'search_manager_reindex_metadata',
 														'trigger_event_metadata_updated',
 													));
-													
+
 							$mm->regenerateMetadata($new_asset->id, 'all');
-							
+
 							$GLOBALS['SQ_SYSTEM']->am->releaseLock($new_asset->id, 'metadata');
 							if ($metadata_run_level_changed) {
 								$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
@@ -811,7 +811,7 @@ class Page_Asset_Builder extends Page
 							switch ($mollom_result) {
 								case SQ_MOLLOM_SPAM:
 									// Mollom has identified this submission as spam
-									$error_text = $this->attr('mollom_spam_submission_text'); 
+									$error_text = $this->attr('mollom_spam_submission_text');
 									if ($error_text) {
 										$this->_errors[] = $error_text;
 									} else {
@@ -847,21 +847,21 @@ class Page_Asset_Builder extends Page
 								break;
 							}//end switch
 						}//end if use mollom
-						
+
 						// start performance mode timer
 						$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'processLayouts');
-						
+
 						// process paint layouts
 						$layouts['paint_layout::system::frontend'] = $this->attr('layout_to_apply');
 						$layouts['override::paint_layout::system::frontend'] = $this->attr('override_layout_to_apply');
 						$new_asset->setPaintLayouts($layouts);
-						
+
 						// stop performance mode timer
 						$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'processLayouts');
 
 						// start performance mode timer
 						$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'linkMultipleLocations');
-						
+
 						// if we have multiple locations to create this asset under, create
 						// the new links to all the other parents
 						if (is_array($create_locations)) {
@@ -897,13 +897,13 @@ class Page_Asset_Builder extends Page
 								}
 							}
 						}
-						
+
 						// stop performance mode timer
 						$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'linkMultipleLocations');
-						
+
 						// start performance mode timer
 						$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'setCreateStatus');
-						
+
 						if (empty($this->_errors)) {
 							$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -911,8 +911,9 @@ class Page_Asset_Builder extends Page
 							$success = TRUE;
 							$this->_setCreateStatus($new_asset);
 							$this->_tmp['created_asset'] = $new_asset;
-							// if we have reached so far the asset has been built, even with regards to Account Manager Asset, 
-							// user is created already, so lets celebrate firing (trigger) !!! 
+
+							// if we have reached so far the asset has been built, even with regards to Account Manager Asset,
+							// user is created already, so lets celebrate firing (trigger) !!!
 							$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_after_asset_built', $new_asset);
 						} else {
 							$this->_abortAssetCreate($new_asset_linkid);
@@ -941,10 +942,10 @@ class Page_Asset_Builder extends Page
 		return $success;
 
 	}//end _processGlobalActions()
-	
-	
+
+
 	/*
-	* Abort the asset creation (asset created by Asset Builder) 
+	* Abort the asset creation (asset created by Asset Builder)
 	*
 	* @param int $linkid 	Linkid of the asset that failed while getting created
 	*
@@ -952,20 +953,20 @@ class Page_Asset_Builder extends Page
 	* @access private
 	*/
 	function _abortAssetCreate($linkid=0)
-	{		
+	{
 		$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		
+
 		// Clean up the redundent links left in the link table
 		if ($linkid) {
-			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');			
-			
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
+
 			$sql = '
 				SELECT t.treeid
 				FROM sq_ast_lnk_tree t INNER JOIN sq_ast_lnk l ON t.linkid = l.linkid
 				WHERE l.linkid = :linkid';
 			$sql = db_extras_modify_limit_clause($sql, MatrixDAL::getDbType(), 1);
-			
+
             try {
                 $query = MatrixDAL::preparePdoQuery($sql);
                 MatrixDAL::bindValueToPdo($query, 'linkid', $linkid);
@@ -973,14 +974,14 @@ class Page_Asset_Builder extends Page
             } catch (Exception $e) {
                 throw new Exception('Unable to get treeid for linkid: '.$linkid.' due to database error: '.$e->getMessage());
             }
-			
+
 			if (!empty($treeid)) {
 				$sql = '
 					SELECT t.linkid 
 					FROM sq_ast_lnk_tree t
-					WHERE 						
+					WHERE 
 						t.treeid LIKE :treeid';
-					
+
 				try {
 					$query = MatrixDAL::preparePdoQuery($sql);
 					MatrixDAL::bindValueToPdo($query, 'treeid', $treeid.'%');
@@ -988,50 +989,50 @@ class Page_Asset_Builder extends Page
 				} catch (Exception $e) {
 					throw new Exception('Unable to get linkids like treeid: '.$treeid.' due to database error: '.$e->getMessage());
 				}
-					
+
 				$result[]['linkid'] = '';
 				$to_delete_links = Array();
 				foreach($result as $row) {
-					if (isset($row['linkid']) && $row['linkid']) {						
+					if (isset($row['linkid']) && $row['linkid']) {
 						$to_delete_links[] = $row['linkid'];
 					}
 				}
-				
+
 				// Get rid of redendent links from the link and link tree table
 				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 				$sql = '
 					DELETE FROM sq_ast_lnk
 					WHERE linkid IN ('.implode(', ',$to_delete_links).')';
-				
+
 				try {
-					$query = MatrixDAL::preparePdoQuery($sql);						
+					$query = MatrixDAL::preparePdoQuery($sql);
 					$result = MatrixDAL::executePdoAssoc($query);
 				} catch (Exception $e) {
 					throw new Exception('Unable to delete redundent links from sq_ast_lnk table due to database error: '.$e->getMessage());
 				}
-						
+
 				$sql = '
 					DELETE FROM sq_ast_lnk_tree
 					WHERE linkid IN ('.implode(', ',$to_delete_links).')';
-				
+
 				try {
-					$query = MatrixDAL::preparePdoQuery($sql);						
+					$query = MatrixDAL::preparePdoQuery($sql);
 					$result = MatrixDAL::executePdoAssoc($query);
 				} catch (Exception $e) {
 					throw new Exception('Unable to delete redundent links from sq_ast_lnk_tree table due to database error: '.$e->getMessage());
 				}
-				
+
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			}
-			
+
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		}// end if
-	
+
 	}//end function _abortAssetCreate()
 
-	
+
 	/**
 	* Get the selectable create locations that the user has actually selected for the new asset
 	*
@@ -1425,13 +1426,13 @@ class Page_Asset_Builder extends Page
 	*/
 	function _loadCreateReplacements()
 	{
-		
+
 		  ////////////////////////////
 		 // CREATE CAPTCHA KEYWORD //
 		////////////////////////////
-		
+
 		// Moved to Page_Asset_Builder::_printContents() as per Bug #5518: CAPTCHA settings conflict.
-		
+
 		  ////////////////////////////////
 		 // CREATE MOLLOM SPAM KEYWORD //
 		////////////////////////////////
@@ -1499,7 +1500,8 @@ class Page_Asset_Builder extends Page
 							$i = 0;
 							foreach ($data['locations'] as $id => $name) {
 								check_box($code_name."[$i]", $id, $checked);
-								echo '&nbsp;'.str_replace(' ', '&nbsp;',$options[$id]).'<br />';
+								label(str_replace(' ', '&nbsp;',$options[$id]), $code_name."[$i]");
+								echo "<br />";
 								$checked = FALSE;
 								$i++;
 							}
@@ -1508,7 +1510,8 @@ class Page_Asset_Builder extends Page
 
 							foreach ($data['locations'] as $id => $name) {
 								radio_button($code_name, $id, $checked);
-								echo '&nbsp;'.str_replace(' ', '&nbsp;',$options[$id]).'<br />';
+								label(str_replace(' ', '&nbsp;',$options[$id]), $code_name.'_'.$id);
+								echo "<br />";
 								$checked = FALSE;
 							}
 						}
@@ -1579,7 +1582,7 @@ class Page_Asset_Builder extends Page
 
 		$keywords = $bodycopy->getKeywords();
 		foreach($keywords as $word) {
-			
+
 			// Bug #5518: CAPTCHA settings conflict. Only replace if keyword exists in the content.
 			if ($word == 'create_form' && isset($this->_replacements['create_form'])){
 				$create_form_keywords = extract_keywords($this->_replacements['create_form']);
@@ -1588,15 +1591,15 @@ class Page_Asset_Builder extends Page
 				foreach ($captcha_keywords as $captcha_word){
 					if (in_array($captcha_word, $create_form_keywords)){
 						$captcha_replacements[$captcha_word] = $this->getKeywordReplacement($captcha_word);
-					}	
+					}
 				}
 				replace_keywords($this->_replacements['create_form'], $captcha_replacements);
 			}
-			
+
 			if ((strpos($word, 'form_captcha') === 0)){
 				$this->_replacements[$word] = $this->getKeywordReplacement($word);
 			}
-			
+
 			//pick up any global keywords and replace them
 			if(!isset($this->_replacements[$word]) && (strpos($word, 'globals_') === 0 )){
 				$this->_replacements[$word] = $this->getKeywordReplacement($word);
@@ -1764,7 +1767,7 @@ class Page_Asset_Builder extends Page
 			$keywords['form_captcha_field'] = translate('cms_asset_builder_keyword_form_captcha_field');
 			$keywords['form_captcha_link'] = translate('cms_asset_builder_keyword_form_captcha_link');
 		}
-		
+
 		if ($this->attr('use_mollom')) {
 			$keywords['asset_builder_mollom_captcha']       = translate('cms_asset_builder_mollom_captcha');
 			$keywords['asset_builder_mollom_captcha_image'] = translate('cms_asset_builder_mollom_captcha_image');
@@ -1797,7 +1800,7 @@ class Page_Asset_Builder extends Page
 			$keywords['form_captcha_field'] = translate('cms_asset_builder_keyword_form_captcha_field');
 			$keywords['form_captcha_link'] = translate('cms_asset_builder_keyword_form_captcha_link');
 		}
-		
+
 		if ($this->attr('use_mollom')) {
 			$keywords['asset_builder_mollom_captcha']       = translate('cms_asset_builder_mollom_captcha');
 			$keywords['asset_builder_mollom_captcha_image'] = translate('cms_asset_builder_mollom_captcha_image');
@@ -2258,7 +2261,8 @@ class Page_Asset_Builder extends Page
 		return $res;
 
 	}//end _getCreateFormLayout()
-	
+
 
 }//end class
+
 ?>
