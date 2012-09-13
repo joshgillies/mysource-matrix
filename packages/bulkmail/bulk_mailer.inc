@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.99 2012/08/30 00:57:13 ewang Exp $
+* $Id: bulk_mailer.inc,v 1.100 2012/09/13 06:15:22 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.99 $
+* @version $Revision: 1.100 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -366,6 +366,8 @@ class Bulk_Mailer
 											$category_type = array_keys($info);
 											$user_metadata = $mm->getMetadataValueByAssetid($user->id, $info[$category_type[0]]['assetid']);
 											$rule_text = $info[$category_type[0]]['rule_text'];
+											$GLOBALS['SQ_SYSTEM']->replaceKeyword($rule_text);
+
 											if ($info[$category_type[0]]['rule_cond'] == 'contains') {
 												$match = (stripos($user_metadata, $rule_text) !== FALSE);
 											} else {
