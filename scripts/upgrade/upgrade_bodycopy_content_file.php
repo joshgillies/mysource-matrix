@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_bodycopy_content_file.php,v 1.1.4.2 2012/09/13 07:00:57 cupreti Exp $
+* $Id: upgrade_bodycopy_content_file.php,v 1.1.4.3 2012/09/13 07:08:17 cupreti Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 * This script makes sure that the older bodycopy content files are in the line with this change.
 *
 * @author Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.1.4.2 $
+* @version $Revision: 1.1.4.3 $
 * @package MySource_Matrix
 */
 
@@ -46,18 +46,6 @@ if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')
 }
 
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
-
-// ask for the root password for the system
-echo 'Enter the root password for "'.SQ_CONF_SYSTEM_NAME.'": ';
-$root_password = rtrim(fgets(STDIN, 4094));
-
-// check that the correct root password was entered
-$root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
-if (!$root_user->comparePassword($root_password)) {
-	echo "ERROR: The root password entered was incorrect\n";
-	exit();
-}
-echo "\n";
 
 if ($report_only) {
 	echo "Following Bodycopy Div asset(s) contains unsafe keywords in the cotnent file:\n\n";
