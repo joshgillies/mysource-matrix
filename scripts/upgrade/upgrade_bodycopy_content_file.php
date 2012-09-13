@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_bodycopy_content_file.php,v 1.2 2012/09/13 07:06:56 cupreti Exp $
+* $Id: upgrade_bodycopy_content_file.php,v 1.3 2012/09/13 22:35:20 csmith Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 * This script makes sure that the older bodycopy content files are in the line with this change.
 *
 * @author Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 
@@ -48,7 +48,7 @@ if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
 
 if ($report_only) {
-	echo "Following Bodycopy Div asset(s) contains unsafe keywords in the cotnent file:\n\n";
+	echo "Following Bodycopy Div asset(s) contains unsafe keywords in the content file:\n\n";
 } else {
 	echo "Fixing the unsafe keyword(s) in content file for following Bodycopy Div asset(s):\n\n";
 }
@@ -65,7 +65,7 @@ foreach($assetids as $assetid) {
 	}
 	
 	$file_content = file_get_contents($data_dir);
-	// Extract the keyword replacements in the cotnent file
+	// Extract the keyword replacements in the content file
 	preg_match_all('|echo \(isset\(\$keyword_replacements\["(.*?)\]\)\) \?|mis', $file_content, $matches);
 	if (empty($matches[1])) {
 		// No keywords in the content
