@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_metadata_value.inc,v 1.8 2011/01/26 21:59:31 akarelia Exp $
+* $Id: trigger_condition_metadata_value.inc,v 1.8.8.1 2012/09/13 00:18:30 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_condition/trigger_co
 *
 * @author  Anh Ta <ata@squiz.co.uk>
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -57,6 +57,7 @@ class Trigger_Condition_Metadata_Value extends Trigger_Condition
 		if (!isset($state['asset']) || is_null($state['asset'])) $state['asset'] = $GLOBALS['SQ_SYSTEM']->am->getasset($state['assetid']);
 		
 		$compared_value = $settings['value'];
+		replace_global_keywords($compared_value);
 
 		$unfiltered_metadata_value = $GLOBALS['SQ_SYSTEM']->getMetadataManager()->getMetadataValueByAssetid($state['assetid'], $settings['asset_id'], TRUE);
 		$keywords = extract_keywords($unfiltered_metadata_value);
@@ -73,6 +74,9 @@ class Trigger_Condition_Metadata_Value extends Trigger_Condition
 				case 'exact':
 					return ($compared_value == $metadata_value);
 				case 'partial':
+					if (empty($compared_value)) {
+						return ($compared_value == $metadata_value);
+					}
 					return (strpos($metadata_value, $compared_value) !== FALSE);
 				case 'regex':
 					return (preg_match('/'.str_replace('/', '\/', $compared_value).'/', $metadata_value) > 0);
