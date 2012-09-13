@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.415.2.3 2012/08/07 04:07:09 akarelia Exp $
+* $Id: lang_strings.xml,v 1.415.2.4 2012/09/13 04:19:27 ewang Exp $
 *
 */
 
@@ -2925,4 +2925,8 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="sendmail_path_note">The path to your sendmail binary. Eg. /usr/sbin/sendmail. Use config file data/private/conf/tools.inc.</string>
 	<string source="sendmail_arguments">Arguments</string>
 	<string source="sendmail_arguments_note">Eg. -t will run sendmail as 'sendmail -t'. Use config file data/private/conf/tools.inc.</string>
+	
+	<string source="saml_authentication">SAML Authentication</string>
+	<string source="simplesamlphp_path">Simplesamlphp Path</string>
+	<string source="simplesamlphp_path_note">Install location of Simplesamlphp program</string>
 </strings>
