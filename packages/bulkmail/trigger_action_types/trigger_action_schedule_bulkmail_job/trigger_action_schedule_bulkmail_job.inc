@@ -10,18 +10,19 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_schedule_bulkmail_job.inc,v 1.2 2012/08/30 00:57:14 ewang Exp $
+* $Id: trigger_action_schedule_bulkmail_job.inc,v 1.3 2012/09/13 06:19:49 akarelia Exp $
 *
 */
 
 require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_action.inc';
+require_once SQ_PACKAGES_PATH.'/bulkmail/bulk_mailer.inc';
 
 /**
 * Trigger_Action_Schedule_Bulkmail_Job
 *
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -107,9 +108,50 @@ class Trigger_Action_Schedule_Bulkmail_Job extends Trigger_Action
 			$subscriptions = $job_asset->attr('subscriptions');
 		}
 
-		if (!$bm->createAdHocJob($from, $recipient, $subject, $asset_to_send, $gen_as, $headers, 0, $server_headers, $design, $layout, $subscriptions))
-			return FALSE;
+		// if the subscription is enabled and also we have the config available
+		// check to see if the passed asset is a search page. It it isn't then
+		// we won't be able to search for the assets to send. In this case play
+		// with the asset to send and see if it indeed matches our subscripion
+		$is_search_page = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset_to_send, 'search_page', TRUE);
 
+		if ($sub_status && !empty($subscriptions) && is_null($is_search_page)) {
+			$to_send_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset_to_send);
+			$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+			$bulk_mailer = new Bulk_Mailer();
+			$users_to_mail = $bulk_mailer->getAllRecipients($asset_to_send, $recipient);
+			$recipients = Array();
+
+			foreach ($users_to_mail['recipient'] as $user_info) {
+				$user_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($user_info['assetid']);
+				if (!is_null($user_asset)) {
+					foreach ($subscriptions as $sub_name => $sub_info) {
+						foreach ($sub_info as $index => $info) {
+							$match = FALSE;
+							$category_type = array_keys($info);
+							$user_metadata = $mm->getMetadataValueByAssetid($user_asset->id, $info[$category_type[0]]['assetid']);
+							$rule_text = $info[$category_type[0]]['rule_text'];
+							$GLOBALS['SQ_SYSTEM']->replaceKeyword($rule_text);
+
+							if ($info[$category_type[0]]['rule_cond'] == 'contains') {
+								$match = (stripos($user_metadata, $rule_text) !== FALSE);
+							} else {
+								// needs a exact match
+								$match = (strtolower($user_metadata) == strtolower($rule_text));
+							}
+							if ($match) {
+								$recipients[] = $user_info['assetid'];
+							}
+						}//end foreach
+					}//end foreach
+				}//end if
+			}//end foreach
+			$subscriptions = Array();
+		}//end if
+
+		if (!empty($recipients)) {
+			if (!$bm->createAdHocJob($from, $recipients, $subject, $asset_to_send, $gen_as, $headers, 0, $server_headers, $design, $layout, $subscriptions))
+				return FALSE;
+		}
 
 		return Array(
 				'job_id' => $job_asset->id,
