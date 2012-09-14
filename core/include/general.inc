@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.265.2.5 2012/08/09 05:59:48 ewang Exp $
+* $Id: general.inc,v 1.265.2.6 2012/09/14 01:40:22 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.265.2.5 $
+* @version $Revision: 1.265.2.6 $
 * @package MySource_Matrix
 */
 
@@ -1838,9 +1838,12 @@ function replace_global_keywords(&$text)
 						$replacements[$full_keyword] = clean_keyword_value(array_get_index($_COOKIE, $sub_keyword, ''), $modifiers);
 					}
 					if (0 === strpos($keyword, 'globals_server_')) {
-						$replacements[$full_keyword] = array_get_index($_SERVER, strtoupper(substr($keyword, 15)), '');
-						if (!is_scalar($replacements[$full_keyword])) {
-							$replacements[$full_keyword] = '';
+						$sub_keyword = strtoupper(substr($keyword, 15));
+						if($sub_keyword !== 'HTTP_COOKIE') {
+						    $replacements[$full_keyword] = array_get_index($_SERVER, $sub_keyword, '');
+						    if (!is_scalar($replacements[$full_keyword])) {
+							    $replacements[$full_keyword] = '';
+						    }
 						}
 					}
 					if (0 === strpos($keyword, 'globals_date')) {
