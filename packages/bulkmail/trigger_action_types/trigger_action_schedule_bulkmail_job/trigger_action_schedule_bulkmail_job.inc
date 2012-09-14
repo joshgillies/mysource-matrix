@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_schedule_bulkmail_job.inc,v 1.3 2012/09/13 06:19:49 akarelia Exp $
+* $Id: trigger_action_schedule_bulkmail_job.inc,v 1.4 2012/09/14 03:42:22 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_PACKAGES_PATH.'/bulkmail/bulk_mailer.inc';
 *
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -130,7 +130,11 @@ class Trigger_Action_Schedule_Bulkmail_Job extends Trigger_Action
 							$category_type = array_keys($info);
 							$user_metadata = $mm->getMetadataValueByAssetid($user_asset->id, $info[$category_type[0]]['assetid']);
 							$rule_text = $info[$category_type[0]]['rule_text'];
+
+							$old_frontend_asset = $GLOBALS['SQ_SYSTEM']->frontend_asset;
+							$GLOBALS['SQ_SYSTEM']->frontend_asset = $to_send_asset;
 							$GLOBALS['SQ_SYSTEM']->replaceKeyword($rule_text);
+							$GLOBALS['SQ_SYSTEM']->frontend_asset = $old_frontend_asset;
 
 							if ($info[$category_type[0]]['rule_cond'] == 'contains') {
 								$match = (stripos($user_metadata, $rule_text) !== FALSE);
