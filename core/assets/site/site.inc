@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.129 2012/03/30 02:55:01 mhaidar Exp $
+* $Id: site.inc,v 1.129.2.1 2012/09/14 05:58:55 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.129 $
+* @version $Revision: 1.129.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -315,6 +315,16 @@ class Site extends Folder
 				}
 
 			} else {
+			    	// we are not going to insert same url
+				foreach ($current_urls as $url) {
+				   if($save_urls[$save_urlid]['url'] === $url['url']) {
+					 trigger_localised_error('CORE0081', E_USER_WARNING, $save_urls[$save_urlid]['url'], $this->name, $this->id);
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+					return FALSE;
+				   }
+				}
+				
 				// we are a new one
 				$curr_urlid = MatrixDAL::executeOne('core', 'seqNextVal', Array('seqName' => 'sq_ast_url_seq'));
 
