@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.61 2012/08/30 01:09:20 ewang Exp $
+* $Id: settings.inc,v 1.62 2012/09/14 07:13:05 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 * @package MySource_Matrix
 */
 
@@ -447,16 +447,19 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 						ob_start();
 					}
 					$system_designs = Array(
-										'design::system::frontend'	=> translate('asset_frontend_design'),
-										'design::system::login'		=> translate('asset_design_user_no_permissions'),
+										'design::system::frontend'			=> translate('asset_frontend_design'),
+										'design::system::login'				=> translate('asset_design_user_no_permissions'),
+										'design::system::password_change'	=> translate('asset_design_change_password'),
 									  );
 					$our_designs = Array(
-									'design::system::frontend'	=> 0,
-									'design::system::login'		=> 0,
+									'design::system::frontend'			=> 0,
+									'design::system::login'				=> 0,
+									'design::system::password_change'	=> 0,
 								   );
 					$override_designs = Array(
-											'design::system::frontend'	=> 0,
-											'design::system::login'		=> 0,
+											'design::system::frontend'			=> 0,
+											'design::system::login'				=> 0,
+											'design::system::password_change'	=> 0,
 										);
 
 					$our_design_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($owner->id, SQ_LINK_NOTICE, 'design', FALSE);

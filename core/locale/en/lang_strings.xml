@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.420 2012/09/13 04:16:34 ewang Exp $
+* $Id: lang_strings.xml,v 1.421 2012/09/14 07:13:05 akarelia Exp $
 *
 */
 
@@ -1105,6 +1105,7 @@
 	<string source="add_layout">Add a layout for screen</string>
 	<string source="asset_frontend_design">The Design that is to be used when displaying this asset on the frontend</string>
 	<string source="asset_design_user_no_permissions">The Design that is to be used whenever someone attempts to access this asset without permission</string>
+	<string source="asset_design_change_password">The Design that is to be used whenever the user needs to change their password</string>
 	<string source="config_display_name">%1$s Defined %2$s Design</string>
 	<string source="select_single_period">Select Single Period</string>
 	<string source="select_date_period_config">Select Date Period</string>
