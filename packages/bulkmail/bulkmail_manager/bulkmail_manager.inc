@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_manager.inc,v 1.55 2012/08/30 00:57:13 ewang Exp $
+* $Id: bulkmail_manager.inc,v 1.56 2012/09/14 05:51:57 akarelia Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -255,7 +255,7 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 
 		$post_office = NULL;
 		if (empty($post_office_id) && !empty($server_details)) {
-			$post_office = new Post_Office();
+			$post_office = new Bulkmail_Post_Office();
 			$post_office->setAttrValue('server_details', $server_details);
 		} else if ($post_office_id) {
 			$post_office = $am->getAsset($post_office_id, 'bulkmail_post_office');

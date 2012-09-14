@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_schedule_bulkmail_job.inc,v 1.4 2012/09/14 03:42:22 akarelia Exp $
+* $Id: trigger_action_schedule_bulkmail_job.inc,v 1.5 2012/09/14 05:51:57 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_PACKAGES_PATH.'/bulkmail/bulk_mailer.inc';
 *
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -102,6 +102,7 @@ class Trigger_Action_Schedule_Bulkmail_Job extends Trigger_Action
 		$server_headers = $is_a_bm ? Array() : $post_office->attr('server_details');
 		$design         = $job_asset->attr('content_design') ? $job_asset->attr('content_design') : 0;
 		$layout         = $job_asset->attr('content_layout') ? $job_asset->attr('content_layout') : 0;
+		$post_office_id = $is_a_bm ? 0 : $post_office->id;
 
 		// if the subscription is turned on but no categories are added then borrow from the job
 		if ($sub_status && empty($subscriptions)) {
@@ -153,7 +154,7 @@ class Trigger_Action_Schedule_Bulkmail_Job extends Trigger_Action
 		}//end if
 
 		if (!empty($recipients)) {
-			if (!$bm->createAdHocJob($from, $recipients, $subject, $asset_to_send, $gen_as, $headers, 0, $server_headers, $design, $layout, $subscriptions))
+			if (!$bm->createAdHocJob($from, $recipients, $subject, $asset_to_send, $gen_as, $headers, $post_office_id, $server_headers, $design, $layout, $subscriptions))
 				return FALSE;
 		}
 
