@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_bodycopy_content_file.php,v 1.3 2012/09/13 22:35:20 csmith Exp $
+* $Id: upgrade_bodycopy_content_file.php,v 1.4 2012/09/17 01:21:19 cupreti Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 * This script makes sure that the older bodycopy content files are in the line with this change.
 *
 * @author Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 
@@ -57,10 +57,9 @@ if ($report_only) {
 $assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren(1, 'bodycopy_div'));
 $count = 0;
 foreach($assetids as $assetid) {
-
-	$dir_loc = str_pad(array_sum(str_split($assetid)), 4, '0', STR_PAD_LEFT);
-	$data_dir = $SYSTEM_ROOT.'/data/private/assets/bodycopy_div/'.$dir_loc.'/'.$assetid.'/content_file.php';
-	if (!is_file($data_dir)) {
+	
+	$data_dir = $SYSTEM_ROOT.'/data/private/'.asset_data_path_suffix('bodycopy_div', $assetid).'/content_file.php';
+	if (!is_file($data_dir)) {		
 		continue;
 	}
 	
