@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content_edit_fns.inc,v 1.16 2012/08/30 00:58:09 ewang Exp $
+* $Id: page_remote_content_edit_fns.inc,v 1.17 2012/09/17 23:01:42 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -77,6 +77,8 @@ class Page_Remote_Content_Edit_Fns extends Page_Edit_Fns
 
 			radio_button($prefix.'_rewrite_type', 'all', ($overall == 'all'), '', 'id="'.$prefix.'_rewrite_type_all"');
 			label(translate('cms_remote_content_tunneling_rule_all'), $prefix.'_rewrite_type_all');
+			echo '<br />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+			echo translate('cms_remote_content_tunneling_rule_all_note');
 			echo '<br />';
 
 			radio_button($prefix.'_rewrite_type', 'some', ($overall == 'some'), '', 'id="'.$prefix.'_rewrite_type_some"');
