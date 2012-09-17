@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_bodycopy_content_file.php,v 1.1.2.3 2012/09/13 07:07:41 cupreti Exp $
+* $Id: upgrade_bodycopy_content_file.php,v 1.1.2.4 2012/09/17 01:39:57 cupreti Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 * This script makes sure that the older bodycopy content files are in the line with this change.
 *
 * @author Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.1.2.3 $
+* @version $Revision: 1.1.2.4 $
 * @package MySource_Matrix
 */
 
@@ -48,7 +48,7 @@ if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
 
 if ($report_only) {
-	echo "Following Bodycopy Div asset(s) contains unsafe keywords in the cotnent file:\n\n";
+	echo "Following Bodycopy Div asset(s) contains unsafe keywords in the content file:\n\n";
 } else {
 	echo "Fixing the unsafe keyword(s) in content file for following Bodycopy Div asset(s):\n\n";
 }
@@ -58,14 +58,13 @@ $assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren(1, 'bodycopy_div')
 $count = 0;
 foreach($assetids as $assetid) {
 
-	$dir_loc = str_pad(array_sum(str_split($assetid)), 4, '0', STR_PAD_LEFT);
-	$data_dir = $SYSTEM_ROOT.'/data/private/assets/bodycopy_div/'.$dir_loc.'/'.$assetid.'/content_file.php';
-	if (!is_file($data_dir)) {
+	$data_dir = $SYSTEM_ROOT.'/data/private/'.asset_data_path_suffix('bodycopy_div', $assetid).'/content_file.php';
+	if (!is_file($data_dir)) {		
 		continue;
 	}
 	
 	$file_content = file_get_contents($data_dir);
-	// Extract the keyword replacements in the cotnent file
+	// Extract the keyword replacements in the content file
 	preg_match_all('|echo \(isset\(\$keyword_replacements\["(.*?)\]\)\) \?|mis', $file_content, $matches);
 	if (empty($matches[1])) {
 		// No keywords in the content
