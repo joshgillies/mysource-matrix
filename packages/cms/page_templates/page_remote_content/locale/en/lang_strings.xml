@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.7 2010/05/05 07:09:18 ewang Exp $
+* $Id: lang_strings.xml,v 1.7.12.1 2012/09/17 23:07:24 akarelia Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -28,6 +28,7 @@
 <string source="cms_remote_content_no_tag_clear_display_all">Display all content</string>
 
 <string source="cms_remote_content_tunneling_rule_all">Any URL may be tunneled</string>
+<string source="cms_remote_content_tunneling_rule_all_note">&lt;i&gt;&lt;b&gt;NOTE: &lt;/b&gt;Enabling this option can result in System being used as a Proxy to access &lt;b&gt;any domain&lt;/b&gt;&lt;i&gt;.</string>
 <string source="cms_remote_content_tunneling_rule_none">No URLs may be tunneled</string>
 <string source="cms_remote_content_tunneling_rule_some">Only the following URLs may be tunneled:</string>
 <string source="cms_remote_content_tunneling_option_remote_url">URLs underneath the Remote URL above</string>
