@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.125 2012/09/18 06:37:04 akarelia Exp $
+* $Id: js_api.inc,v 1.126 2012/09/18 06:53:54 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.125 $
+* @version $Revision: 1.126 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -3739,7 +3739,7 @@ class JS_Api extends Page
 			}
 		}
 
-		if(!empty($se_level_keywords)) {log_dump($se_level_keywords);
+		if(!empty($se_level_keywords)) {
 			// create layout on the fly
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('layout');
 			$layout = new Layout();
@@ -3771,8 +3771,8 @@ class JS_Api extends Page
 
 				if (empty($return_array[$se_keyword])) $return_array[$se_keyword] = 'Could not get replacement for keyword : '.$se_keyword ;
 			}
-			log_dump($return_array);
 		}
+
 		return $return_array;
 
 	}//end getKeywordsReplacements()
