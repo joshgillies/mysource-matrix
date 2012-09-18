@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_enhanced_function_list.inc,v 1.23 2012/09/18 06:37:04 akarelia Exp $
+* $Id: js_api_enhanced_function_list.inc,v 1.24 2012/09/18 06:54:24 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author  Anthony Barnes <abarnes@squiz.com.au>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -2550,7 +2550,7 @@ class Js_Api_Enhanced_Function_List
 			options.all_info = (convertToBoolean(options.all_info)) ? 1 : 0;
 
 			this._doPost(fnName,[
-					['all_info', options.all_info],
+					['all_info', options.all_info]
 			],options);
 
 		},// end getAllContexts
@@ -2592,7 +2592,7 @@ class Js_Api_Enhanced_Function_List
 			options = this._options(fnConfig.required,fnConfig.defaults,options);
 
 			this._doPost(fnName,[
-					['context_id', options.context_id],
+					['context_id', options.context_id]
 			],options);
 
 		},//end setContext
