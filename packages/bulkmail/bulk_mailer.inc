@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.101 2012/09/14 03:42:22 akarelia Exp $
+* $Id: bulk_mailer.inc,v 1.102 2012/09/18 03:18:43 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.101 $
+* @version $Revision: 1.102 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -377,7 +377,7 @@ class Bulk_Mailer
 												// needs a exact match
 												$match = (strtolower($user_metadata) == strtolower($rule_text));
 											}
-											if ($match) {
+											if ($match && !in_array($user_metadata, $matches[$sub_name])) {
 												$matches[$sub_name][] = $user_metadata;
 											}
 										}//end foreach
@@ -393,102 +393,111 @@ class Bulk_Mailer
 
 								$GLOBALS['SQ_SYSTEM']->setCurrentUser($user);
 								$old_get_vars = $_GET;
-								$search_res_details = Array();
+								$search_result = '';
+								$_GET = Array();
 								foreach ($matches as $get_var => $strings_to_srch) {
-									$_GET = Array();
 									foreach ($strings_to_srch as $srch_string) {
+										$_REQUEST['mode'] = 'results';
 										$_GET[$get_var] = $srch_string;
 										$search_vars    = $content_asset->processSearchVars();
 										$this->_reconnectDB(TRUE);
-										$search_results = $content_asset->processSearch($search_vars);
-										$this->_reconnectDB();
 
-										foreach (array_keys($search_results) as $res) {
-											if (in_array($res, $search_asset_list)) continue;
-											$details['content_id'] = $res;
-											$search_res_details[] = $details;
-											$search_asset_list[] = $res;
-										}//end foreach
+										$search_res = $content_asset->processSearch($search_vars);
+
+										if (empty($search_res)) unset($_GET[$get_var]);
+
+										$this->_reconnectDB();
 									}//end foreach
 								}//end foreach
+								$this->_reconnectDB(TRUE);
+								if (!empty($_GET)) $search_result .= $this->generateContent($details, $job_path, $user_id, $email);
+								$this->_reconnectDB();
+
 								$_GET = $old_get_vars;
 								$GLOBALS['SQ_SYSTEM']->restoreCurrentUser();
 
-								$details = $search_res_details;
-							} else {
-								$details = Array($details);
-							}
+								$details['content_id'] = NULL;
+								$details['search_content'] = $search_result;
+							}//end if 
 
 							// if no search results were found then update the progress because we have already processed this user
 							if (empty($details)) $this->updateProgress($progress_path, $user_id, $problematic, $filtered);
 
-							foreach ($details as $detail) {
-								$content = $this->generateContent($detail, $job_path, $user_id, $email);
-								$text_only_content = html_entity_decode(strip_tags($content));
-
-								// If there is a filter set, only continue if the
-								// filter matches (or is ineffective due to empty
-								// text field).
-								if (array_get_index($detail, 'content_body_filter')) {
-									$match       = array_get_index($detail, 'content_body_filter_match', TRUE);
-									$filter_text = array_get_index($detail, 'content_body_filter_text', '');
-
-									if (!empty($filter_text)) {
-										$target_content = ($detail['content_text_only'] ? $text_only_content : $content);
-										$ok = (strpos($target_content, $filter_text) !== FALSE);
-										if ($ok != $match) $filtered = TRUE;
-									}
-								}
-
-								if (is_array($email)) {
-									$header_details['subject'] = $this->replaceContentKeywords($header_details['subject'], $email);
-								} else {
-									$user = $am->getAsset($user_id);
-									$header_details['subject'] = $this->replaceContentKeywords($header_details['subject'], $user);
-								}//end if
-
-								// only queue the mail if we can generate content
-								$problematic = (empty($content)) ? TRUE : FALSE;
-
-								if (!$problematic && !$filtered) {
-									// Check that the email is not the email address array
-									if (is_array($email)) $email = $email['email'];
-
-									// Always set text version, and set html version
-									// if turned on.
-									$mime->setTxtBody($text_only_content);
-									if (!$detail['content_text_only']) {
-										$mime->setHTMLBody($content);
-									}
-
-									$body = @$mime->get($mime_param);
-									// pass in custom_id as extra header detail, for queue file naming
-									$header_details['custom_id'] = $user_id;
-									$header_details['To'] = $email; // FR: 2515
-									// Check for Test Mode
-									if (!is_null($current_post_office) && $current_post_office->attr('bulkmail_mode') == 'test') {
-										// Log the emails
-										$message_type = 'bulkmail.job.testmode';
-										$msg_reps = Array(
-														'from'		=> $header_details['from'],
-														'to'		=> $header_details['To'],
-														'subject'	=> $header_details['subject'],
-													);
-										$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
-										$message = $ms->newMessage(Array(), $message_type, $msg_reps);
-										$message->parameters['assetid'] = $job_id;
-										$message->send();
-
-										$am->forgetAsset($message);
-										$am->forgetAsset($ms);
-									} else {
-										$headers = @$mime->headers($header_details);
-										$mail_id = $mail_queue->put('', $email, $headers, $body);
-									}
-								}
-								$this->updateProgress($progress_path, $user_id, $problematic, $filtered);
-								$this->enforceSendRate($detail['threshold'], $progress_path);
+							if (!isset($details['search_content'])) {
+								$content = $this->generateContent($details, $job_path, $user_id, $email);
+							} else {
+								$content = $details['search_content'];
 							}
+							$text_only_content = html_entity_decode(strip_tags($content));
+
+							// If there is a filter set, only continue if the
+							// filter matches (or is ineffective due to empty
+							// text field).
+							if (array_get_index($details, 'content_body_filter')) {
+								$match       = array_get_index($details, 'content_body_filter_match', TRUE);
+								$filter_text = array_get_index($details, 'content_body_filter_text', '');
+
+								if (!empty($filter_text)) {
+									$target_content = ($details['content_text_only'] ? $text_only_content : $content);
+									$ok = (strpos($target_content, $filter_text) !== FALSE);
+									if ($ok != $match) $filtered = TRUE;
+								}
+							}
+
+							if (is_array($email)) {
+								$header_details['subject'] = $this->replaceContentKeywords($header_details['subject'], $email);
+							} else {
+								$user = $am->getAsset($user_id);
+								$header_details['subject'] = $this->replaceContentKeywords($header_details['subject'], $user);
+							}//end if
+
+							// only queue the mail if we can generate content
+							$search_content_empty = FALSE;
+							if (empty($content) && isset($details['search_content'])) {
+								$search_content_empty = TRUE;
+							} else if (empty($content)) {
+								$problematic = TRUE;
+							}
+
+							if (!$problematic && !$filtered && !$search_content_empty) {
+								// Check that the email is not the email address array
+								if (is_array($email)) $email = $email['email'];
+
+								// Always set text version, and set html version
+								// if turned on.
+								$mime->setTxtBody($text_only_content);
+								if (!$details['content_text_only']) {
+									$mime->setHTMLBody($content);
+								}
+
+								$body = @$mime->get($mime_param);
+								// pass in custom_id as extra header detail, for queue file naming
+								$header_details['custom_id'] = $user_id;
+								$header_details['To'] = $email; // FR: 2515
+								// Check for Test Mode
+								if (!is_null($current_post_office) && $current_post_office->attr('bulkmail_mode') == 'test') {
+									// Log the emails
+									$message_type = 'bulkmail.job.testmode';
+									$msg_reps = Array(
+													'from'		=> $header_details['from'],
+													'to'		=> $header_details['To'],
+													'subject'	=> $header_details['subject'],
+												);
+									$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
+									$message = $ms->newMessage(Array(), $message_type, $msg_reps);
+									$message->parameters['assetid'] = $job_id;
+									$message->send();
+
+									$am->forgetAsset($message);
+									$am->forgetAsset($ms);
+								} else {
+									$headers = @$mime->headers($header_details);
+									$mail_id = $mail_queue->put('', $email, $headers, $body);
+								}
+							}
+							$this->updateProgress($progress_path, $user_id, $problematic, $filtered);
+							$this->enforceSendRate($details['threshold'], $progress_path);
+
 							exit;
 						}//end if
 					}//end if
