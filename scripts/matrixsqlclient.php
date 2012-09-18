@@ -51,7 +51,7 @@ mb_internal_encoding("UTF-8");
 // Run the terminal
 try {
 	$matrixSqlTerminal = new InteractiveSqlTerminal('MatrixDAL');
-	$matrixSqlTerminal->connect($_SERVER['argv'][1]);
+	$matrixSqlTerminal->connect((isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '');
 	$matrixSqlTerminal->setOption("HISTFILE", "~/.matrixsqlclient_history");
 	$matrixSqlTerminal->run();
 }
