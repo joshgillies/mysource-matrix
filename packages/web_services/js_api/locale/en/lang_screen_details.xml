@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.24 2012/09/18 04:31:41 cupreti Exp $
+* $Id: lang_screen_details.xml,v 1.25 2012/09/18 06:37:34 akarelia Exp $
 *
 */
 -->
@@ -237,5 +237,15 @@
 		<field attribute="get_metadata_schema">
 			<display_name>Get Metadata Schema</display_name>
 		</field>		
+    </section>
+    <section name="Contexts" write_access="write:attributes">
+        <field attribute="get_context">
+            <display_name>Get Contexts</display_name>
+            <note />
+        </field>
+        <field attribute="set_context">
+            <display_name>Set Context</display_name>
+            <note />
+        </field>
     </section>
 </contents>

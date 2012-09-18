@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_standard_function_list.inc,v 1.16 2012/08/30 00:59:46 ewang Exp $
+* $Id: js_api_standard_function_list.inc,v 1.17 2012/09/18 06:37:04 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1944,10 +1944,175 @@ function showDifference(assetid_1, assetid_2, paint_layout_1, paint_layout_2, da
 			<?php
 		}//end if(show_diff)
 
+		if ($js_api_asset->attr('get_context')) {
+			?>
+
+/**
+* Returns the context we should be using based on the
+* settings on the Context Configuration screen
+*
+* @param boolean		all_info		wheather to get all information of the context or
+*										just get the id/name pairs(by default set to FALSE)
+* @param function		dataCallback	Custom callback function
+*
+* @return string
+* @access public
+*/
+function getAlternateContext(all_info, dataCallback)
+{
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+
+	var all_info = isset(all_info) && (all_info.toString().toLowerCase() != 'null' && all_info.toString() != '' ) ? all_info : 0;
+
+	if (typeof(all_info) == 'string') {
+		if(all_info.toLowerCase() == 'false') {
+			all_info = 0;
+		} else if (all_info.toLowerCase() == 'true') {
+			all_info = 1;
+		}
+	}
+
+
+	var url = '<?php echo $api_url; ?>' + '?key=' + api_key +
+			  '&type=getAlternateContext' +
+			  '&all_info=' + all_info;
+
+	// Make our request
+	makeRequest(url, true, dataCallback);
+
+}//end getAlternateContext()
+
+
+/**
+* Returns details of all the contexts in a system
+*
+* @param boolean		all_info		wheather to get all information of the context of
+*										just get the id/name pairs(by default set to FALSE)
+* @param function		dataCallback	Custom callback function
+*
+* @return string
+* @access public
+*/
+function getAllContexts(all_info, dataCallback)
+{
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+
+	var all_info = isset(all_info) && (all_info.toString().toLowerCase() != 'null' && all_info.toString() != '' ) ? all_info : 0;
+
+	if (typeof(all_info) == 'string') {
+		if(all_info.toLowerCase() == 'false') {
+			all_info = 0;
+		} else if (all_info.toLowerCase() == 'true') {
+			all_info = 1;
+		}
+	}
+
+
+	var url = '<?php echo $api_url; ?>' + '?key=' + api_key +
+			  '&type=getAllContexts' +
+			  '&all_info=' + all_info;
+
+	// Make our request
+	makeRequest(url, true, dataCallback);
+
+}//end getAllContexts()
+
+
+/**
+* Returns the current context active on the system
+*
+* @param boolean		all_info		wheather to get all information of the context of
+*										just get the id/name pairs(by default set to FALSE)
+* @param function		dataCallback	Custom callback function
+*
+* @return string
+* @access public
+*/
+function getCurrentContext(all_info, dataCallback)
+{
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+
+	var all_info = isset(all_info) && (all_info.toString().toLowerCase() != 'null' && all_info.toString() != '' ) ? all_info : 0;
+
+	if (typeof(all_info) == 'string') {
+		if(all_info.toLowerCase() == 'false') {
+			all_info = 0;
+		} else if (all_info.toLowerCase() == 'true') {
+			all_info = 1;
+		}
+	}
+
+
+	var url = '<?php echo $api_url; ?>' + '?key=' + api_key +
+			  '&type=getCurrentContext' +
+			  '&all_info=' + all_info;
+
+	// Make our request
+	makeRequest(url, true, dataCallback);
+
+}//end getCurrentContext()
+
+			<?php
+		}//end if(get_context)
+
+
+		if ($js_api_asset->attr('set_context')) {
+			?>
+
+/**
+* Set the System to the Passed context
+*
+* @param string			context_id		the id of the context we want to activate
+* @param function		dataCallback	Custom callback functio
+*
+* @return string
+* @access public
+*/
+function setContext(context_id, dataCallback)
+{
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+
+	var url = '<?php echo $api_url; ?>' + '?key=' + api_key +
+			  '&type=setContext' + 
+			  '&context_id=' + context_id;
+
+	// Make our request
+	makeRequest(url, true, dataCallback);
+
+}//end setContext()
+
+
+/**
+* Restores the previous context
+*
+* @param string			context_id		the id of the context we want to activate
+* @param function		dataCallback	Custom callback functio
+*
+* @return string
+* @access public
+*/
+function restoreContext(dataCallback)
+{
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+
+	var url = '<?php echo $api_url; ?>' + '?key=' + api_key +
+			  '&type=restoreContext';
+
+	// Make our request
+	makeRequest(url, true, dataCallback);
+
+}//end restoreContext()
+
+			<?php
+		}//end if(set_context)
 
 
 	}//end paintJSFunctions()
-
 
 }// end class
 

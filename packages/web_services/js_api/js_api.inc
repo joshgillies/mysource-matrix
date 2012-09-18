@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.124 2012/09/18 04:31:25 cupreti Exp $
+* $Id: js_api.inc,v 1.125 2012/09/18 06:37:04 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.124 $
+* @version $Revision: 1.125 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -75,6 +75,11 @@ class JS_Api extends Page
 									'batchRequest'					=> 'batch_requests',
 									'cloneAsset'					=> 'clone_asset',
 									'showDifference'				=> 'show_diff',
+									'setContext'					=> 'set_context',
+									'restoreContext'				=> 'set_context',
+									'getAlternateContext'			=> 'get_context',
+									'getCurrentContext'				=> 'get_context',
+									'getAllContexts'				=> 'get_context',
 									'getMetadataSchema'				=> 'get_metadata_schema',
 								  );
 
@@ -125,6 +130,11 @@ class JS_Api extends Page
 									'getLineageFromUrl'				=> Array('no_check'),
 									'getUrlFromLineage'				=> Array('no_check'),
 									'batchRequest'					=> Array('no_check'),
+									'getAlternateContext'			=> Array('no_check'),
+									'getCurrentContext'				=> Array('no_check'),
+									'getAllContexts'				=> Array('no_check'),
+									'setContext'					=> Array('no_check'),
+									'restoreContext'				=> Array('no_check'),
 								   );
 
 
@@ -231,8 +241,6 @@ class JS_Api extends Page
 			return;
 		}
 
-		
-		
 		// Check to see if we have a function type
 		if (empty($function_type)) {
 			$this->returnError('You must set a function type');
@@ -291,12 +299,19 @@ class JS_Api extends Page
 		if (isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER'])) {
 			$referer_url = str_replace(current_protocol().'://', '', $_SERVER['HTTP_REFERER']);
 
+			$suffix_to_check = Array(
+								SQ_CONF_BACKEND_SUFFIX,
+								SQ_CONF_LIMBO_SUFFIX,
+								SQ_CONF_NOCACHE_SUFFIX,
+								SQ_CONF_RECACHE_SUFFIX,
+								SQ_CONF_PERFORMANCE_SUFFIX
+							   );
 			// if we are in Backend or limbo remove everything after /_edit or /_admin
 			// or else getAssetFromURL will get confused and wont return us correct asset
-			if (strpos($_SERVER['HTTP_REFERER'], SQ_CONF_LIMBO_SUFFIX) !== FALSE) {
-				$referer_url = preg_replace('|/'.SQ_CONF_LIMBO_SUFFIX.'(.)*|', '', $referer_url);
-			} else if (strpos($referer_url, SQ_CONF_BACKEND_SUFFIX) !== FALSE) {
-				$referer_url = preg_replace('|/'.SQ_CONF_BACKEND_SUFFIX.'(.)*|', '', $referer_url);
+			foreach ($suffix_to_check as $suffix) {
+				if (strpos($_SERVER['HTTP_REFERER'], $suffix) !== FALSE) {
+					$referer_url = preg_replace('|/'.$suffix.'(.)*|', '', $referer_url);
+				}
 			}
 
 			$url_asset_object = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL(current_protocol(), $referer_url, TRUE, TRUE);
@@ -506,7 +521,7 @@ class JS_Api extends Page
 	/**
 	* Gets all the installed asset types on the system 
 	*
-	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
 	* @param boolean	$read_access	read access check for the asset we 
 	*									are dealing with with respect to current user
@@ -530,7 +545,7 @@ class JS_Api extends Page
 	/**
 	* trashes the supplied assetids
 	*
-	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
 	* @param boolean	$read_access	read access check for the asset we 
 	*									are dealing with with respect to current user
@@ -558,7 +573,7 @@ class JS_Api extends Page
 	* get the child count for the passed assets.
 	* we have an option to go get the child count upto particular level. 
 	*
-	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
 	* @param boolean	$read_access	read access check for the asset we 
 	*									are dealing with with respect to current user
@@ -592,7 +607,7 @@ class JS_Api extends Page
 	/**
 	* Updates multiple links 
 	*
-	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
 	* @param boolean	$read_access	read access check for the asset we 
 	*									are dealing with with respect to current user
@@ -673,7 +688,7 @@ class JS_Api extends Page
 	/**
 	* removes multipls links passed in the argumnets
 	*
-	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
 	* @param boolean	$read_access	read access check for the asset we 
 	*									are dealing with with respect to current user
@@ -740,7 +755,7 @@ class JS_Api extends Page
 	/**
 	* import assets from a structured XML provided
 	*
-	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
 	* @param boolean	$read_access	read access check for the asset we 
 	*									are dealing with with respect to current user
@@ -794,7 +809,7 @@ class JS_Api extends Page
 	/**
 	* get the defined roles for particular assets based on the information passed
 	*
-	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
 	* @param boolean	$read_access	read access check for the asset we 
 	*									are dealing with with respect to current user
@@ -824,7 +839,7 @@ class JS_Api extends Page
 	/**
 	* executes HTML Tidy on the content passed 
 	*
-	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
 	* @param boolean	$read_access	read access check for the asset we 
 	*									are dealing with with respect to current user
@@ -872,7 +887,7 @@ class JS_Api extends Page
 	/**
 	* gets general information (and if configured) attributes of the assets
 	*
-	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
 	* @param boolean	$read_access	read access check for the asset we 
 	*									are dealing with with respect to current user
@@ -899,7 +914,7 @@ class JS_Api extends Page
 	/**
 	* get all the attributes for the passed asset 
 	*
-	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
 	* @param boolean	$read_access	read access check for the asset we 
 	*									are dealing with with respect to current user
@@ -935,7 +950,7 @@ class JS_Api extends Page
 	* sets multipls attributes passed for asset in a single call. 
 	* Basically a wrapper function to _setAttribute
 	*
-	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
 	* @param boolean	$read_access	read access check for the asset we 
 	*									are dealing with with respect to current user
@@ -955,7 +970,7 @@ class JS_Api extends Page
 	/**
 	* set the passed value of attribute for the given asset 
 	*
-	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
 	* @param boolean	$read_access	read access check for the asset we 
 	*									are dealing with with respect to current user
@@ -994,7 +1009,7 @@ class JS_Api extends Page
 	/**
 	* gets all the metadata on the asset we have passed in
 	*
-	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
 	* @param boolean	$read_access	read access check for the asset we 
 	*									are dealing with with respect to current user
@@ -1027,7 +1042,7 @@ class JS_Api extends Page
 	* sets Multiple metadata for field in one go. 
 	* basically the wrapper function for _setMetadata
 	*
-	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
 	* @param boolean	$read_access	read access check for the asset we 
 	*									are dealing with with respect to current user
@@ -1047,7 +1062,7 @@ class JS_Api extends Page
 	/**
 	* set the metadata values to the fields provided for the asset
 	*
-	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
 	* @param boolean	$read_access	read access check for the asset we 
 	*									are dealing with with respect to current user
@@ -1099,7 +1114,7 @@ class JS_Api extends Page
 	* get children assets for the passed asset based on type_code, link_type, link_values
 	* optionally we can also get back all the attributes for the returned children
 	*
-	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
 	* @param boolean	$read_access	read access check for the asset we 
 	*									are dealing with with respect to current user
@@ -1149,7 +1164,7 @@ class JS_Api extends Page
 	* results can be filtered by type_code, link_types, link_values.
 	* optionally we can also get all the attributes for the result assets we get
 	*
-	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
 	* @param boolean	$read_access	read access check for the asset we 
 	*									are dealing with with respect to current user
@@ -1196,7 +1211,7 @@ class JS_Api extends Page
 	/**
 	* returns the defined user for the particular permission for the passed asset 
 	*
-	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
 	* @param boolean	$read_access	read access check for the asset we 
 	*									are dealing with with respect to current user
@@ -1239,7 +1254,7 @@ class JS_Api extends Page
 	/**
 	* creates a new asset with the passed in information
 	*
-	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
 	* @param boolean	$read_access	read access check for the asset we 
 	*									are dealing with with respect to current user
@@ -1282,7 +1297,7 @@ class JS_Api extends Page
 	/**
 	* gets the lock info about the asset passed in with respect to the screen we want
 	*
-	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
 	* @param boolean	$read_access	read access check for the asset we 
 	*									are dealing with with respect to current user
@@ -1324,7 +1339,7 @@ class JS_Api extends Page
 	* forcibly if flag is set
 	* if the locks are already acquired then they are updated and extended
 	*
-	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
 	* @param boolean	$read_access	read access check for the asset we 
 	*									are dealing with with respect to current user
@@ -1359,7 +1374,7 @@ class JS_Api extends Page
 	/**
 	* releases the locks for mentioned screen for the given asset 
 	*
-	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
 	* @param boolean	$read_access	read access check for the asset we 
 	*									are dealing with with respect to current user
@@ -1400,7 +1415,7 @@ class JS_Api extends Page
 	/**
 	* create a new link of the passed asset to the new parent provided with the options given 
 	*
-	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
 	* @param boolean	$read_access	read access check for the asset we 
 	*									are dealing with with respect to current user
@@ -1441,7 +1456,7 @@ class JS_Api extends Page
 	/**
 	* removes the link between the 2 assets specified which matches with the provided details
 	*
-	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
 	* @param boolean	$read_access	read access check for the asset we 
 	*									are dealing with with respect to current user
@@ -1486,7 +1501,7 @@ class JS_Api extends Page
 	*									are dealing with with respect to current user
 	* @param boolean	$write_access	write access check for the asset we 
 	*									are dealing with with respect to current user
-	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param array		$args			bundled array of arguments do be used while performing operations
 	*
 	* @return array
 	* @access private
@@ -1529,7 +1544,7 @@ class JS_Api extends Page
 	/**
 	* updates a link between 2 assets for the linktype/ link_value/ sort_order/ locked option provided:
 	*
-	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
 	* @param boolean	$read_access	read access check for the asset we 
 	*									are dealing with with respect to current user
@@ -1574,7 +1589,7 @@ class JS_Api extends Page
 	/**
 	* see this::getLinkId
 	*
-	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
 	* @param boolean	$read_access	read access check for the asset we 
 	*									are dealing with with respect to current user
@@ -1617,7 +1632,7 @@ class JS_Api extends Page
 	/**
 	* get the asset tree of the passed asset 
 	*
-	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
 	* @param boolean	$read_access	read access check for the asset we 
 	*									are dealing with with respect to current user
@@ -1652,7 +1667,7 @@ class JS_Api extends Page
 	/**
 	* get the replacements for the passed keywords against the current asset 
 	*
-	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
 	* @param boolean	$read_access	read access check for the asset we 
 	*									are dealing with with respect to current user
@@ -1683,7 +1698,7 @@ class JS_Api extends Page
 	/**
 	* sets asset to the passed status for the current asset
 	*
-	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
 	* @param boolean	$read_access	read access check for the asset we 
 	*									are dealing with with respect to current user
@@ -1726,7 +1741,7 @@ class JS_Api extends Page
 	/**
 	* gets all the webpaths for the asset passed 
 	*
-	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
 	* @param boolean	$read_access	read access check for the asset we 
 	*									are dealing with with respect to current user
@@ -1762,7 +1777,7 @@ class JS_Api extends Page
 	* removes the current webpath to the passed asset and set the supplied one
 	* optionally lets the decide user to set the remap too. wow!
 	*
-	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
 	* @param boolean	$read_access	read access check for the asset we 
 	*									are dealing with with respect to current user
@@ -1802,7 +1817,7 @@ class JS_Api extends Page
 	/**
 	* get the applied/denied/running information about the workflow schema on the passed asset 
 	*
-	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
 	* @param boolean	$read_access	read access check for the asset we 
 	*									are dealing with with respect to current user
@@ -1863,7 +1878,7 @@ class JS_Api extends Page
 	* note : it will create an asset container for the file type specified. File needs to be uploaded
 	*		 once the asset is created.
 	*
-	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
 	* @param boolean	$read_access	read access check for the asset we 
 	*									are dealing with with respect to current user
@@ -1978,7 +1993,7 @@ class JS_Api extends Page
 	/**
 	* updates the file content of the editable file types viz: xml_file, xsl_file, css_file, text_file and js_file 
 	*
-	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
 	* @param boolean	$read_access	read access check for the asset we 
 	*									are dealing with with respect to current user
@@ -2029,7 +2044,7 @@ class JS_Api extends Page
 	/**
 	* get the lineage of the passed asset
 	*
-	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
 	* @param boolean	$read_access	read access check for the asset we 
 	*									are dealing with with respect to current user
@@ -2137,7 +2152,7 @@ class JS_Api extends Page
 	/**
 	* get a single lineage of the passed url
 	*
-	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
 	* @param boolean	$read_access	read access check for the asset we 
 	*									are dealing with with respect to current user
@@ -2173,7 +2188,7 @@ class JS_Api extends Page
 	/**
 	* get url from passed lineage array (asset ids)
 	*
-	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
 	* @param boolean	$read_access	read access check for the asset we 
 	*									are dealing with with respect to current user
@@ -2218,7 +2233,7 @@ class JS_Api extends Page
 	/**
 	* clone the given asset under a new parent
 	*
-	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
 	* @param boolean	$read_access	read access check for the asset we 
 	*									are dealing with with respect to current user
@@ -2305,7 +2320,7 @@ class JS_Api extends Page
 	* takes in 2 assets and checks for the difference in their content
 	* optionally lets user to use the paint layout to generate the difference
 	*
-	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
 	* @param boolean	$read_access	read access check for the asset we 
 	*									are dealing with with respect to current user
@@ -2395,13 +2410,181 @@ class JS_Api extends Page
 
 		return $data;
 
-	}// end _showDifference
+	}// end _showDifference()
+
+
+	/**
+	* Returns the context we should be using based on the
+	* settings on the Context Configuration screen
+	*
+	* @param array		$args			bundled array of arguments do be used while performing operations
+	* @param object		$asset			the asset we are executing this function on
+	* @param boolean	$read_access	read access check for the asset we 
+	*									are dealing with with respect to current user
+	* @param boolean	$write_access	write access check for the asset we 
+	*									are dealing with with respect to current user
+	*
+	* @return array
+	* @access private
+	*/
+	private function _getAlternateContext($args=Array(), $asset=NULL, $read_access=FALSE, $write_access=FALSE)
+	{
+		$all_info	 = array_get_index($args, 'all_info', FALSE);
+
+		$system_contexts   = $GLOBALS['SQ_SYSTEM']->getAllContexts();
+		$current_contextid = $GLOBALS['SQ_SYSTEM']->getAlternateContext();
+		$context_info      = Array();
+
+		$currnet_context   = $system_contexts[$current_contextid];
+		if ($all_info) {
+			$context_info[$current_contextid] = $currnet_context;
+		} else {
+			$context_info[$current_contextid] = $currnet_context['name'];
+		}
+
+		$data['success'] = $context_info;
+
+		return $data;
+
+	}// end _getAlternateContext()
+
+
+	/**
+	* Returns the current context active on the system
+	*
+	* @param array		$args			bundled array of arguments do be used while performing operations
+	* @param object		$asset			the asset we are executing this function on
+	* @param boolean	$read_access	read access check for the asset we 
+	*									are dealing with with respect to current user
+	* @param boolean	$write_access	write access check for the asset we 
+	*									are dealing with with respect to current user
+	*
+	* @return array
+	* @access private
+	*/
+	private function _getCurrentContext($args=Array(), $asset=NULL, $read_access=FALSE, $write_access=FALSE)
+	{
+		$all_info	 = array_get_index($args, 'all_info', FALSE);
+
+		$system_contexts   = $GLOBALS['SQ_SYSTEM']->getAllContexts();
+		$current_contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+		$context_info      = Array();
+
+		$currnet_context   = $system_contexts[$current_contextid];
+		if ($all_info) {
+			$context_info[$current_contextid] = $currnet_context;
+		} else {
+			$context_info[$current_contextid] = $currnet_context['name'];
+		}
+
+		$data['success'] = $context_info;
+
+		return $data;
+
+	}// end _getCurrentContext()
+
+
+	/**
+	* Returns details of all the contexts in a system
+	*
+	* @param array		$args			bundled array of arguments do be used while performing operations
+	* @param object		$asset			the asset we are executing this function on
+	* @param boolean	$read_access	read access check for the asset we 
+	*									are dealing with with respect to current user
+	* @param boolean	$write_access	write access check for the asset we 
+	*									are dealing with with respect to current user
+	*
+	* @return array
+	* @access private
+	*/
+	private function _getAllContexts($args=Array(), $asset=NULL, $read_access=FALSE, $write_access=FALSE)
+	{
+		$all_info	 = array_get_index($args, 'all_info', FALSE);
+
+		$system_contexts   = $GLOBALS['SQ_SYSTEM']->getAllContexts();
+		$context_info      = Array();
+
+		foreach ($system_contexts as $context_id => $context_data) {
+			if ($all_info) {
+				$context_info[$context_id] = $context_data;
+			} else {
+				$context_info[$context_id] = $context_data['name'];
+			}
+		}//end foreach
+
+		$data['success'] = $context_info;
+
+		return $data;
+
+	}// end _getAllContexts()
+
+
+	/**
+	* Set the system context to the id provided
+	*
+	* @param array		$args			bundled array of arguments do be used while performing operations
+	* @param object		$asset			the asset we are executing this function on
+	* @param boolean	$read_access	read access check for the asset we 
+	*									are dealing with with respect to current user
+	* @param boolean	$write_access	write access check for the asset we 
+	*									are dealing with with respect to current user
+	*
+	* @return array
+	* @access private
+	*/
+	private function _setContext($args=Array(), $asset=NULL, $read_access=FALSE, $write_access=FALSE)
+	{
+		$context_id = array_get_index($args, 'context_id', NULL);
+
+		if (!is_null($context_id)) {
+			$all_contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
+			if (isset($all_contexts[$context_id])) {
+				// valid context id is provided
+				$GLOBALS['SQ_SYSTEM']->changeContext($context_id);
+				$_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_ALTERNATE_CONTEXT_ID'] = $context_id;
+				$data['success'] = "Context successfully set to '$context_id'.";
+			} else {
+				$data['error'] = 'Context Id Provided doesn\'t exist on the system.';
+			}
+		} else {
+			$data['error'] = 'No Context Id Provided.';
+		}
+
+		return $data;
+
+	}// end _setContext()
+
+
+	/**
+	* restores the previous context
+	*
+	* @param array		$args			bundled array of arguments do be used while performing operations
+	* @param object		$asset			the asset we are executing this function on
+	* @param boolean	$read_access	read access check for the asset we 
+	*									are dealing with with respect to current user
+	* @param boolean	$write_access	write access check for the asset we 
+	*									are dealing with with respect to current user
+	*
+	* @return array
+	* @access private
+	*/
+	private function _restoreContext($args=Array(), $asset=NULL, $read_access=FALSE, $write_access=FALSE)
+	{
+		// valid context id is provided
+		$restored_context = $GLOBALS['SQ_SYSTEM']->restoreContext(TRUE);
+		$_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_ALTERNATE_CONTEXT_ID'] = $restored_context;
+
+		$data['success'] = "Context successfully restored back to '$restored_context'.";
+
+		return $data;
+
+	}// end _restoreContext()
 
 	
 	/**
 	* Get the metadata schema info applied to the given assetid
 	*
-	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
 	* @param boolean	$read_access	read access check for the asset we 
 	*									are dealing with with respect to current user
@@ -2544,12 +2727,10 @@ class JS_Api extends Page
 					'maximum_perm_on_asset'		=>	$effective_permission,
 				);
 
-		if($add_more_attributes) {
-			foreach($am->getAssetTypeAttributes($asset->type()) as $name => $type) {
+		foreach($am->getAssetTypeAttributes($asset->type()) as $name => $type) {
+			if(($add_more_attributes || isset($data[$name])) && $name != 'api_key') {
 				$value = $asset->attr($name);
-				if(!isset($data[$name]) && $name != 'api_key') {
-					$data[$name] = $value;
-				}
+				$data[$name] = $value;
 			}
 		}
 
@@ -3558,7 +3739,7 @@ class JS_Api extends Page
 			}
 		}
 
-		if(!empty($se_level_keywords)) {
+		if(!empty($se_level_keywords)) {log_dump($se_level_keywords);
 			// create layout on the fly
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('layout');
 			$layout = new Layout();
@@ -3590,6 +3771,7 @@ class JS_Api extends Page
 
 				if (empty($return_array[$se_keyword])) $return_array[$se_keyword] = 'Could not get replacement for keyword : '.$se_keyword ;
 			}
+			log_dump($return_array);
 		}
 		return $return_array;
 

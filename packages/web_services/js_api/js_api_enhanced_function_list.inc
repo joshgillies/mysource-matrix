@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_enhanced_function_list.inc,v 1.22 2012/09/18 06:03:43 akarelia Exp $
+* $Id: js_api_enhanced_function_list.inc,v 1.23 2012/09/18 06:37:04 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author  Anthony Barnes <abarnes@squiz.com.au>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -2430,9 +2430,210 @@ class Js_Api_Enhanced_Function_List
 
 			<?php
 		}//end if(show_diff)
+
+
+		if ($js_api_asset->attr('get_context')) {
+			?>
+
+		/**
+		* Returns the context we should be using based on the
+		* settings on the Context Configuration screen
+		*
+		* @param object		options       JSON string of options
+		* {
+		*      all_info:		boolean		wheather to get all information of the context or
+		 *                                  just get the id/name pairs(by default set to FALSE)
+		*      dataCallback:	function	Custom callback function
+		* }
+		*/
+		getAlternateContext: function(options)
+		{
+			var fnName = 'getAlternateContext';
+			if (arguments.length === 0) {
+				return {
+					// Set the default values
+					defaults: {
+						all_info:            0,
+						dataCallback:        function(){}
+					},
+
+					// Set the required arguments
+					required: ['all_info']
+				};
+			}// end if
+
+			// Extract some configuration and use it to build
+			// parameters for the post call
+			var fnConfig = this[fnName].call(this);
+			options = this._options(fnConfig.required,fnConfig.defaults,options);
+
+			options.all_info = (convertToBoolean(options.all_info)) ? 1 : 0;
+
+			this._doPost(fnName,[
+					['all_info', options.all_info]
+			],options);
+
+		},// end getAlternateContext
+
+
+		/**
+		* Returns the current context active on the system
+		*
+		* @param object		options       JSON string of options
+		* {
+		*      all_info:		boolean		wheather to get all information of the context or
+		*                                   just get the id/name pairs(by default set to FALSE)
+		*      dataCallback:	function	Custom callback function
+		* }
+		*/
+		getCurrentContext: function(options)
+		{
+			var fnName = 'getCurrentContext';
+			if (arguments.length === 0) {
+				return {
+					// Set the default values
+					defaults: {
+						all_info:            0,
+						dataCallback:        function(){}
+					},
+
+					// Set the required arguments
+					required: ['all_info']
+				};
+			}// end if
+
+			// Extract some configuration and use it to build
+			// parameters for the post call
+			var fnConfig = this[fnName].call(this);
+			options = this._options(fnConfig.required,fnConfig.defaults,options);
+
+			options.all_info = (convertToBoolean(options.all_info)) ? 1 : 0;
+
+			this._doPost(fnName,[
+					['all_info', options.all_info]
+			],options);
+
+		},// end getCurrentContext
+
+
+		/**
+		* Returns details of all the contexts in a system
+		*
+		* @param object		options       JSON string of options
+		* {
+		*      all_info:		boolean		wheather to get all information of the context or
+		*                                   just get the id/name pairs(by default set to FALSE)
+		*      dataCallback:	function	Custom callback function
+		* }
+		*/
+		getAllContexts: function(options)
+		{
+			var fnName = 'getAllContexts';
+			if (arguments.length === 0) {
+				return {
+					// Set the default values
+					defaults: {
+						all_info:            0,
+						dataCallback:        function(){}
+					},
+
+					// Set the required arguments
+					required: ['all_info']
+				};
+			}// end if
+
+			// Extract some configuration and use it to build
+			// parameters for the post call
+			var fnConfig = this[fnName].call(this);
+			options = this._options(fnConfig.required,fnConfig.defaults,options);
+
+			options.all_info = (convertToBoolean(options.all_info)) ? 1 : 0;
+
+			this._doPost(fnName,[
+					['all_info', options.all_info],
+			],options);
+
+		},// end getAllContexts
+
+			<?php
+		}//end if(get_context)
+		
+		if ($js_api_asset->attr('set_context')) {
+			?>
+
+		/**
+		* Set the System to the Passed context
+		*
+		* @param object		options       JSON string of options
+		* {
+		*      assetid_1:		string/int	assetid of first asset
+		*      dataCallback:	function	Custom callback function
+		* }
+		*/
+		setContext : function(options)
+		{
+			var fnName = 'setContext';
+			if (arguments.length === 0) {
+				return {
+					// Set the default values
+					defaults: {
+						context_id:          null,
+						dataCallback:        function(){}
+					},
+
+					// Set the required arguments
+					required: ['context_id']
+				};
+			}// end if
+
+			// Extract some configuration and use it to build
+			// parameters for the post call
+			var fnConfig = this[fnName].call(this);
+			options = this._options(fnConfig.required,fnConfig.defaults,options);
+
+			this._doPost(fnName,[
+					['context_id', options.context_id],
+			],options);
+
+		},//end setContext
+
+
+		/**
+		* Restores the previous context
+		*
+		* @param object		options       JSON string of options
+		* {
+		*      assetid_1:		string/int	assetid of first asset
+		*      dataCallback:	function	Custom callback function
+		* }
+		*/
+		restoreContext : function(options)
+		{
+			var fnName = 'restoreContext';
+			if (arguments.length === 0) {
+				return {
+					// Set the default values
+					defaults: {
+						dataCallback:        function(){}
+					},
+
+					// Set the required arguments
+					required: []
+				};
+			}// end if
+
+			// Extract some configuration and use it to build
+			// parameters for the post call
+			var fnConfig = this[fnName].call(this);
+			options = this._options(fnConfig.required,fnConfig.defaults,options);
+
+			this._doPost(fnName,[],options);
+
+		},//end restoreContext
+
+			<?php
+		}//end if(set_context)
 		?>
-
-
 
 		/**
 		* Shortcut function for sending post data
