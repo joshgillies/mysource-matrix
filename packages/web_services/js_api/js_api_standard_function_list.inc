@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_standard_function_list.inc,v 1.17 2012/09/18 06:37:04 akarelia Exp $
+* $Id: js_api_standard_function_list.inc,v 1.18 2012/09/18 07:10:15 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -2111,6 +2111,50 @@ function restoreContext(dataCallback)
 			<?php
 		}//end if(set_context)
 
+		if ($js_api_asset->attr('get_metadata_schema')) {
+			?>
+/*
+* Get the info of the Metadata Schema applied to the asset
+*
+* @param string		assetid			the asset to get the info of the schemas applied to
+* @param boolean    granted    		type of access : TRUE = applied, FALSE = denied
+* @param boolean    cascades   		does this schema cascade to newly created assets?
+* @param function	dataCallback	custom callback function
+*
+* @return array
+* @access public
+*/
+function getMetadataSchema(assetid, granted, cascades, dataCallback)
+{
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+		
+	granted = isset(granted) && (granted.toString().toLowerCase() != 'null' && granted.toString() != '') ? granted.toString() : '1';
+	cascades = isset(cascades) && (cascades.toString().toLowerCase() != 'null' && cascades.toString() != '') ? cascades.toString() : '';
+	
+	// we cannot pass TRUE or FALSE as string so lets do our conversion 	
+	if (granted.toLowerCase() == 'false' || granted.toLowerCase() == '0') {
+		granted = 0;
+	} else {
+		granted = 1;
+	}	
+	
+	var url = '<?php echo $api_url; ?>' + '?key=' + api_key 
+				+ '&type=getMetadataSchema&id=' + assetid				
+				+ '&granted=' + granted;	
+	if (cascades.toLowerCase() == 'false' || cascades.toLowerCase() == '0') {
+		url = url + '&cascades=0';
+	} else if (cascades.toLowerCase() == 'true' || cascades.toLowerCase() == '1') {
+		url = url + '&cascades=1';
+	}	
+
+	// Make our request
+	makeRequest(url, true, dataCallback);
+	
+}//end getMetadataSchema()
+
+			<?php
+		}//end if(get_metadata_schema)
 
 	}//end paintJSFunctions()
 

@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_enhanced_function_list.inc,v 1.24 2012/09/18 06:54:24 akarelia Exp $
+* $Id: js_api_enhanced_function_list.inc,v 1.25 2012/09/18 07:10:15 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author  Anthony Barnes <abarnes@squiz.com.au>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -2633,6 +2633,58 @@ class Js_Api_Enhanced_Function_List
 
 			<?php
 		}//end if(set_context)
+		
+		if ($js_api_asset->attr('get_metadata_schema')) {
+			?>
+
+		/**
+		*
+		* gets the content (with or without paint layout) and check for the difference
+		*
+		* @param object		options       JSON string of options
+		* {
+		*      assetid:		string/int		the asset to get the info of the schemas applied to
+		*      granted:		boolean			type of access : TRUE = applied, FALSE = denied
+		*      cascades:	boolean			does this schema cascade to newly created assets?		
+		*      dataCallback:	function	Custom callback function
+		* }
+		*/
+		getMetadataSchema: function(options)
+		{
+			var fnName = 'getMetadataSchema';
+			if (arguments.length === 0) {
+				return {
+					// Set the default values
+					defaults: {
+						assetid:		null,
+						granted:		1,						
+						cascades:		null,
+						dataCallback:	function(){}
+					},
+
+					// Set the required arguments
+					required: ['assetid']
+				};
+			}// end if
+
+			// Extract some configuration and use it to build
+			// parameters for the post call
+			var fnConfig = this[fnName].call(this);
+			options = this._options(fnConfig.required,fnConfig.defaults,options);
+
+			options.granted = (convertToBoolean(options.granted)) ? 1 : 0;
+			
+			this._doPost(fnName,[
+					['id', options.assetid],
+					['granted', options.granted],
+					['cascades', options.cascades],					
+			],options);
+
+		},// end getMetadataSchema
+
+			<?php
+		}//end if(get_metadata_schema)
+		
 		?>
 
 		/**
