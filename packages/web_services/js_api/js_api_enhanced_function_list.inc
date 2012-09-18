@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_enhanced_function_list.inc,v 1.18.2.2 2012/08/24 06:47:53 akarelia Exp $
+* $Id: js_api_enhanced_function_list.inc,v 1.18.2.3 2012/09/18 06:04:25 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author  Anthony Barnes <abarnes@squiz.com.au>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.18.2.2 $
+* @version $Revision: 1.18.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -2269,7 +2269,7 @@ class Js_Api_Enhanced_Function_List
 				['include_assetid', options.include_assetid],
 				['include_globals', options.include_globals],
 				['expand_groups', options.expand_groups],
-				['inc_dependants', options.inc_dependants],
+				['inc_dependants', options.inc_dependants]
 			],options);
 
 		},// end getRoles
@@ -2318,9 +2318,8 @@ class Js_Api_Enhanced_Function_List
 
 			<?php
 		}//end if(execute_html_tidy)
-		?>
 
-			<?php
+
 		if ($js_api_asset->attr('clone_asset')) {
 			?>
 
@@ -2371,16 +2370,15 @@ class Js_Api_Enhanced_Function_List
 					['clone_num', options.clone_num],
 					['new_position', options.new_position],
 					['link_type', options.link_type],
-					['link_value', options.link_value],
+					['link_value', options.link_value]
 			],options);
 
 		},// end cloneAsset
 
 			<?php
 		}//end if(clone_asset)
-		?>
 
-			<?php
+
 		if ($js_api_asset->attr('show_diff')) {
 			?>
 
@@ -2425,7 +2423,7 @@ class Js_Api_Enhanced_Function_List
 					['id', options.assetid_1],
 					['assetid_2', options.assetid_2],
 					['paint_layout_1', options.paint_layout_1],
-					['paint_layout_2', options.paint_layout_2],
+					['paint_layout_2', options.paint_layout_2]
 			],options);
 
 		},// end showDifference
