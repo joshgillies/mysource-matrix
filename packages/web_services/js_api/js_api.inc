@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.123 2012/08/30 00:59:46 ewang Exp $
+* $Id: js_api.inc,v 1.124 2012/09/18 04:31:25 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.123 $
+* @version $Revision: 1.124 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -75,6 +75,7 @@ class JS_Api extends Page
 									'batchRequest'					=> 'batch_requests',
 									'cloneAsset'					=> 'clone_asset',
 									'showDifference'				=> 'show_diff',
+									'getMetadataSchema'				=> 'get_metadata_schema',
 								  );
 
 	/*
@@ -111,6 +112,7 @@ class JS_Api extends Page
 									'setAssetStatus'				=> Array('write_access'),
 									'setWebPath'					=> Array('write_access'),
 									'setContentOfEditableFileAsset'	=> Array('write_access'),
+									'getMetadataSchema'				=> Array('write_access'),
 									'getAssetTypes'					=> Array('no_check'),
 									'trashAsset'					=> Array('no_check'),
 									'getChildCount'					=> Array('no_check'),
@@ -223,7 +225,7 @@ class JS_Api extends Page
 
 		// nonce token check
 		$nonce_token = get_unique_token();
-		if(!isset($_POST['nonce_token']) || ($_POST['nonce_token'] !== $nonce_token)) {
+		if (!isset($_POST['nonce_token']) || ($_POST['nonce_token'] !== $nonce_token)) {
 			$this->returnError('nonce token is invalid');
 			restore_error_handler();
 			return;
@@ -2395,6 +2397,39 @@ class JS_Api extends Page
 
 	}// end _showDifference
 
+	
+	/**
+	* Get the metadata schema info applied to the given assetid
+	*
+	* @param array		$args			bundeled array of arguments do be used while performing operations
+	* @param object		$asset			the asset we are executing this function on
+	* @param boolean	$read_access	read access check for the asset we 
+	*									are dealing with with respect to current user
+	* @param boolean	$write_access	write access check for the asset we 
+	*									are dealing with with respect to current user
+	*
+	* @return array
+	* @access private
+	*/
+	private function _getMetadataSchema($args=Array(), $asset=NULL, $read_access=FALSE, $write_access=FALSE)
+	{
+		if ($write_access) {
+			if (!is_null($asset)) {
+				$granted = array_get_index($args, 'granted', TRUE);
+				$cascades = array_get_index($args, 'cascades', NULL);
+				
+				$data = $this->getMetadataSchema($asset, $granted, $cascades);
+			} else {
+				$data['error'] = 'Asset to get the Metadata Schema applied to it was not provided';
+			}
+		} else {
+			$data['error'] = 'You do not have permissions to access this asset';
+		}//end else
+		
+		return $data;
+
+	}// end _getMetadataSchema()
+	
 
 	/**
 	* Gets general information for the passed in Asset
@@ -3699,6 +3734,43 @@ class JS_Api extends Page
 	}//end setAssetStatus()
 
 
+	/**
+	* Get the info of the Metadata Schema applied to the asset
+	*
+	* @param string		$assetid	The asset to get the info of the schemas applied to
+	* @param boolean    $granted    type of access : TRUE = applied, FALSE = denied
+	* @param boolean    $cascades   does this schema cascade to newly created assets?
+	*
+	* @return array
+	* @access public
+	*/
+	function getMetadataSchema($asset, $granted, $cascades)
+	{
+		$return_array = Array();
+
+		if (is_null($granted)) {
+			$granted = TRUE;
+		}
+
+		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$schemas = $mm->getSchemas($asset->id, $granted, $cascades);
+		if (!empty($schemas)) {		
+			foreach($schemas as $schema_id) {
+				$return_array[$schema_id] = Array();
+				$field_children = $GLOBALS['SQ_SYSTEM']->am->getChildren($schema_id, 'metadata_field', FALSE);
+				foreach($field_children as $field_id => $field_type) {
+					$return_array[$schema_id][$field_id] = $GLOBALS['SQ_SYSTEM']->am->getAllAttributeValues($field_id, 'metadata_field');
+				}//end foreach
+			}//end foreach
+		} else {
+			$return_array['error'] = 'Asset #'.$asset->id.' does not has any Metadata Schema applied to it';
+		}
+
+		return $return_array;
+
+	}//end getMetadataSchema()
+	
+	
 	/**
 	* Returns an error in JSON format
 	*

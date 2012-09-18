@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.21 2012/04/13 06:03:01 ewang Exp $
+* $Id: edit_interface_screen_details.xml,v 1.22 2012/09/18 04:31:25 cupreti Exp $
 *
 */
 -->
@@ -185,6 +185,9 @@
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="set_metadata">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="get_metadata_schema">
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>	
