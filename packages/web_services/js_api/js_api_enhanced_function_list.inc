@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_enhanced_function_list.inc,v 1.25 2012/09/18 07:10:15 cupreti Exp $
+* $Id: js_api_enhanced_function_list.inc,v 1.26 2012/09/18 21:58:50 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author  Anthony Barnes <abarnes@squiz.com.au>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -2645,7 +2645,7 @@ class Js_Api_Enhanced_Function_List
 		* {
 		*      assetid:		string/int		the asset to get the info of the schemas applied to
 		*      granted:		boolean			type of access : TRUE = applied, FALSE = denied
-		*      cascades:	boolean			does this schema cascade to newly created assets?		
+		*      cascades:	boolean			does this schema cascade to newly created assets?
 		*      dataCallback:	function	Custom callback function
 		* }
 		*/
@@ -2657,7 +2657,7 @@ class Js_Api_Enhanced_Function_List
 					// Set the default values
 					defaults: {
 						assetid:		null,
-						granted:		1,						
+						granted:		1,
 						cascades:		null,
 						dataCallback:	function(){}
 					},
@@ -2673,18 +2673,18 @@ class Js_Api_Enhanced_Function_List
 			options = this._options(fnConfig.required,fnConfig.defaults,options);
 
 			options.granted = (convertToBoolean(options.granted)) ? 1 : 0;
-			
+
 			this._doPost(fnName,[
 					['id', options.assetid],
 					['granted', options.granted],
-					['cascades', options.cascades],					
+					['cascades', options.cascades]
 			],options);
 
 		},// end getMetadataSchema
 
 			<?php
 		}//end if(get_metadata_schema)
-		
+
 		?>
 
 		/**

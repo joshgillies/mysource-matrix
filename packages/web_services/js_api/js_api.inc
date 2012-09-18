@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.126 2012/09/18 06:53:54 akarelia Exp $
+* $Id: js_api.inc,v 1.127 2012/09/18 21:58:50 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.126 $
+* @version $Revision: 1.127 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -2580,7 +2580,7 @@ class JS_Api extends Page
 
 	}// end _restoreContext()
 
-	
+
 	/**
 	* Get the metadata schema info applied to the given assetid
 	*
@@ -2600,7 +2600,7 @@ class JS_Api extends Page
 			if (!is_null($asset)) {
 				$granted = array_get_index($args, 'granted', TRUE);
 				$cascades = array_get_index($args, 'cascades', NULL);
-				
+
 				$data = $this->getMetadataSchema($asset, $granted, $cascades);
 			} else {
 				$data['error'] = 'Asset to get the Metadata Schema applied to it was not provided';
@@ -2608,11 +2608,11 @@ class JS_Api extends Page
 		} else {
 			$data['error'] = 'You do not have permissions to access this asset';
 		}//end else
-		
+
 		return $data;
 
 	}// end _getMetadataSchema()
-	
+
 
 	/**
 	* Gets general information for the passed in Asset
@@ -3936,7 +3936,7 @@ class JS_Api extends Page
 
 		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		$schemas = $mm->getSchemas($asset->id, $granted, $cascades);
-		if (!empty($schemas)) {		
+		if (!empty($schemas)) {
 			foreach($schemas as $schema_id) {
 				$return_array[$schema_id] = Array();
 				$field_children = $GLOBALS['SQ_SYSTEM']->am->getChildren($schema_id, 'metadata_field', FALSE);
@@ -3951,8 +3951,8 @@ class JS_Api extends Page
 		return $return_array;
 
 	}//end getMetadataSchema()
-	
-	
+
+
 	/**
 	* Returns an error in JSON format
 	*
