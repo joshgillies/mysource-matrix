@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_files.php,v 1.12.12.1 2012/07/02 07:24:47 akarelia Exp $
+* $Id: import_files.php,v 1.12.12.2 2012/09/19 04:42:28 ewang Exp $
 *
 */
 
@@ -56,7 +56,7 @@
 * fifth argument, if set to --sort the files be alphanumerically sorted before importing
 *
 * @author Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12.12.1 $
+* @version $Revision: 1.12.12.2 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -185,7 +185,7 @@ function getMatrixFolderId($folder_path, &$matrix_ids)
 			if (!empty($matrix_ids[$parent_folder])) {
 				$matrix_ids[$current_folder] = createFolder($matrix_ids[$parent_folder], basename($current_folder));
 			} else {
-				array_push($current_folder, $parent_folder);
+				array_push($folder_to_create, $parent_folder);
 			}
 		}
 	}
