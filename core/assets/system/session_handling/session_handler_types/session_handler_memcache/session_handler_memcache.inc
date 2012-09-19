@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: session_handler_memcache.inc,v 1.9 2012/08/30 01:09:11 ewang Exp $
+* $Id: session_handler_memcache.inc,v 1.10 2012/09/19 01:30:07 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/session_handling/session_handler/sess
 *    within PHP's memcache PECL extension.
 *
 * @author     Luke Wright <lwright@squiz.net>
-* @version    $Revision: 1.9 $
+* @version    $Revision: 1.10 $
 * @package    MySource_Matrix
 * @subpackage __core__
 */
@@ -59,44 +59,7 @@ class Session_Handler_Memcache extends Session_Handler
 	*/
 	public static function init()
 	{
-		assert_true(extension_loaded('memcache'), 'Cannot use Memcache Session Handler; it requires the memcache PECL extension installed within PHP, which is not installed');
-		assert_true(file_exists(SQ_DATA_PATH.'/private/conf/memcache.inc'), 'Cannot use Memcache Session Handler; the Memcache configuration file is not set');
-
-		$memcache_conf = require(SQ_DATA_PATH.'/private/conf/memcache.inc');
-		$hosts =& $memcache_conf['hosts'];
-		$services =& $memcache_conf['services'];
-
-		assert_true(count($hosts) > 0, 'Cannot use Memcache Session Handler; no hosts are defined in the Memcache configuration file');
-		assert_true(array_key_exists('session_handling', $services) === TRUE, 'Cannot use Memcache Session Handler; no Memcache hosts are assigned to session handling');
-		assert_true(count($services['session_handling']) > 0, 'Cannot use Memcache Session Handler; no Memcache hosts are assigned to session handling');
-
-		// Convert the host array (or the ones to be used for sessions) to the
-		// URL format expected by the session handler, which requires options to
-		// be specified by GET variables.
-		$host_str = Array();
-		foreach ($services['session_handling'] as $host_key => $weight) {
-			assert_true(array_key_exists($host_key, $hosts) === TRUE, 'Cannot use Memcache Session Handler; host key "'.$host_key.'" assigned for use in session handling but not defined as a host');
-			$this_host = $hosts[$host_key];
-			$this_host_str = 'tcp://'.$this_host['host'].':'.$this_host['port'];
-
-			$query_str = Array();
-			$query_str[] = 'weight='.rawurlencode($weight);
-
-			if (array_key_exists('persistent', $this_host) === TRUE) {
-				$query_str[] = 'persistent='.rawurlencode($this_host['persistent'] ? '1' : '0');
-			}
-			if (array_key_exists('timeout', $this_host) === TRUE) {
-				$query_str[] = 'timeout='.rawurlencode($this_host['timeout']);
-			}
-			if (array_key_exists('retry_interval', $this_host) === TRUE) {
-				$query_str[] = 'retry_interval='.rawurlencode($this_host['retry_interval']);
-			}
-			if (array_key_exists('status', $this_host) === TRUE) {
-				$query_str[] = 'status='.rawurlencode($this_host['status'] ? '1' : '0');
-			}
-			$host_str[] = $this_host_str.'?'.implode('&', $query_str);
-		}
-		$host_str = implode(', ', $host_str);
+		$host_str = self::getHostString();
 
 		// Calculate the domain and path for the session cookie.
 		$domain = strip_url(sq_web_path('root_url'), TRUE);
@@ -147,8 +110,9 @@ class Session_Handler_Memcache extends Session_Handler
 	*/
 	function unserialiseSession($session_id)
 	{
+		$host_str = self::getHostString();
 		$memcache = new Memcache();
-		$memcache->addServer('tcp://'.SQ_CONF_CUSTOM_SESSION_SAVE_PATH);
+		$memcache->addServer($host_str);
 		$session_str = $memcache->get($session_id);
 
 		if ($session_str === FALSE) {
@@ -184,8 +148,9 @@ class Session_Handler_Memcache extends Session_Handler
 	*/
 	function serialiseSession($session_id, $session_contents)
 	{
+		$host_str = self::getHostString();
 		$memcache = new Memcache();
-		$memcache->addServer('tcp://'.SQ_CONF_CUSTOM_SESSION_SAVE_PATH);
+		$memcache->addServer($host_str);
 
 		if (!is_array($session_contents)) {
 			trigger_localised_error('CORE0004', E_USER_WARNING, gettype($session_contents));
@@ -217,8 +182,9 @@ class Session_Handler_Memcache extends Session_Handler
 	*/
 	public static function sessionExists($session_id)
 	{
+		$host_str = self::getHostString();
 		$memcache = new Memcache();
-		$memcache->addServer('tcp://'.SQ_CONF_CUSTOM_SESSION_SAVE_PATH);
+		$memcache->addServer($host_str);
 		$return = $memcache->get($session_id);
 		return ($return !== FALSE);
 
@@ -239,8 +205,9 @@ class Session_Handler_Memcache extends Session_Handler
 	*/
 	public static function syncSession($primary_session_id)
 	{
+		$host_str = self::getHostString();
 		$memcache = new Memcache();
-		$memcache->addServer('tcp://'.SQ_CONF_CUSTOM_SESSION_SAVE_PATH);
+		$memcache->addServer($host_str);
 
 		$pri_sess = self::unserialiseSession($primary_session_id);
 
@@ -283,6 +250,48 @@ class Session_Handler_Memcache extends Session_Handler
 	}//end syncSession()
 
 
+	public static function getHostString()
+	{
+		    assert_true(extension_loaded('memcache'), 'Cannot use Memcache Session Handler; it requires the memcache PECL extension installed within PHP, which is not installed');
+		    assert_true(file_exists(SQ_DATA_PATH.'/private/conf/memcache.inc'), 'Cannot use Memcache Session Handler; the Memcache configuration file is not set');
+
+		    $memcache_conf = require(SQ_DATA_PATH.'/private/conf/memcache.inc');
+		    $hosts =& $memcache_conf['hosts'];
+		    $services =& $memcache_conf['services'];
+
+		    assert_true(count($hosts) > 0, 'Cannot use Memcache Session Handler; no hosts are defined in the Memcache configuration file');
+		    assert_true(array_key_exists('session_handling', $services) === TRUE, 'Cannot use Memcache Session Handler; no Memcache hosts are assigned to session handling');
+		    assert_true(count($services['session_handling']) > 0, 'Cannot use Memcache Session Handler; no Memcache hosts are assigned to session handling');
+
+		    // Convert the host array (or the ones to be used for sessions) to the
+		    // URL format expected by the session handler, which requires options to
+		    // be specified by GET variables.
+		    $host_str = Array();
+		    foreach ($services['session_handling'] as $host_key => $weight) {
+			    assert_true(array_key_exists($host_key, $hosts) === TRUE, 'Cannot use Memcache Session Handler; host key "'.$host_key.'" assigned for use in session handling but not defined as a host');
+			    $this_host = $hosts[$host_key];
+			    $this_host_str = 'tcp://'.$this_host['host'].':'.$this_host['port'];
+
+			    $query_str = Array();
+			    $query_str[] = 'weight='.rawurlencode($weight);
+
+			    if (array_key_exists('persistent', $this_host) === TRUE) {
+				    $query_str[] = 'persistent='.rawurlencode($this_host['persistent'] ? '1' : '0');
+			    }
+			    if (array_key_exists('timeout', $this_host) === TRUE) {
+				    $query_str[] = 'timeout='.rawurlencode($this_host['timeout']);
+			    }
+			    if (array_key_exists('retry_interval', $this_host) === TRUE) {
+				    $query_str[] = 'retry_interval='.rawurlencode($this_host['retry_interval']);
+			    }
+			    if (array_key_exists('status', $this_host) === TRUE) {
+				    $query_str[] = 'status='.rawurlencode($this_host['status'] ? '1' : '0');
+			    }
+			    $host_str[] = $this_host_str.'?'.implode('&', $query_str);
+		    }
+		    $host_str = implode(', ', $host_str);
+		    return $host_str;
+	}
 }//end class
 
 
