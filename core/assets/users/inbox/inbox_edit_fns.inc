@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox_edit_fns.inc,v 1.63 2012/08/30 01:09:16 ewang Exp $
+* $Id: inbox_edit_fns.inc,v 1.64 2012/09/19 23:27:07 csmith Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.64 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -288,21 +288,19 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processSent(&$asset, &$o, $prefix)
 	{
-
 		$delete = (isset ($_POST[$prefix.'_delete'])) ? array_keys($_POST[$prefix.'_delete']) : Array();
 
-		$user = $asset->_getUser();
+		if (empty($delete)) {
+			return;
+		}
 
 		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
-		$messages = $ms->getMessages($user->id);
 
-		if (!empty ($delete)) {
-			foreach ($delete as $messageid) {
-				// delete message
-				$message = $ms->getMessageById($messageid);
-				if (!$message->updateStatus(SQ_MSG_DELETED)) {
-						trigger_localised_error('CORE0063', E_USER_WARNING, $messageid);
-				}
+		foreach ($delete as $messageid) {
+			// delete message
+			$message = $ms->getMessageById($messageid);
+			if (!$message->updateStatus(SQ_MSG_DELETED)) {
+				trigger_localised_error('CORE0063', E_USER_WARNING, $messageid);
 			}
 		}
 
@@ -570,28 +568,23 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 		$msgs = (isset ($_REQUEST[$prefix.'_messages'])) ? array_keys($_REQUEST[$prefix.'_messages']) : Array ();
 		$read = (isset ($_REQUEST[$prefix.'_mark_as_read'])) ? array_keys($_REQUEST[$prefix.'_mark_as_read']) : Array ();
 
-		$user = $asset->_getUser();
+		if (empty($msgs)) {
+			return;
+		}
 
 		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
-		$messages = $ms->getMessages($user->id);
 
-		if (!empty($messages)) {
-			foreach ($messages as $data) {
-				if (!in_array($data['msgid'], $msgs)) continue;
-
-				$message = $ms->getMessageById($data['msgid']);
-
-				// change message status (read/unread)
-				if (in_array($data['msgid'], $read) && $data['status'] == SQ_MSG_UNREAD) {
-					if (!$message->updateStatus(SQ_MSG_READ)) {
-						trigger_localised_error('CORE0076', E_USER_WARNING, $data['msgid']);
-					}
-				} else {
-					if (!in_array($data['msgid'], $read) && $data['status'] == SQ_MSG_READ) {
-						if (!$message->updateStatus(SQ_MSG_UNREAD)) {
-							trigger_localised_error('CORE0076', E_USER_WARNING, $data['msgid']);
-						}
-					}
+		foreach ($msgs as $msgid) {
+			$message = $ms->getMessageById($msgid);
+			if (in_array($msgid, $read) && $message->status == SQ_MSG_UNREAD) {
+				if (!$message->updateStatus(SQ_MSG_READ)) {
+					trigger_localised_error('CORE0076', E_USER_WARNING, $msgid);
+				}
+				continue;
+			}
+			if (!in_array($msgid, $read) && $message->status == SQ_MSG_READ) {
+				if (!$message->updateStatus(SQ_MSG_UNREAD)) {
+					trigger_localised_error('CORE0076', E_USER_WARNING, $msgid);
 				}
 			}
 		}
@@ -614,22 +607,17 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 		$msgs = (isset ($_POST[$prefix.'_messages'])) ? array_keys($_POST[$prefix.'_messages']) : Array ();
 		$delete = (isset ($_POST[$prefix.'_delete'])) ? array_keys($_POST[$prefix.'_delete']) : Array ();
 
-		$user = $asset->_getUser();
+		if (empty($msgs)) {
+			return;
+		}
 
 		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
-		$messages = $ms->getMessages($user->id);
 
-		if (!empty ($messages)) {
-			foreach ($messages as $data) {
-				if (!in_array($data['msgid'], $msgs)) continue;
-
-				$message = $ms->getMessageById($data['msgid']);
-
-				// delete messages
-				if (in_array($data['msgid'], $delete) && $data['status'] != SQ_MSG_DELETED) {
-					if (!$message->updateStatus(SQ_MSG_DELETED)) {
-						trigger_localised_error('CORE0063', E_USER_WARNING, $data['msgid']);
-					}
+		foreach ($msgs as $msgid) {
+			$message = $ms->getMessageById($msgid);
+			if (in_array($msgid, $delete) && $message->status != SQ_MSG_DELETED) {
+				if (!$message->updateStatus(SQ_MSG_DELETED)) {
+					trigger_localised_error('CORE0063', E_USER_WARNING, $data['msgid']);
 				}
 			}
 		}
@@ -791,10 +779,11 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 		$recover = (isset ($_POST[$prefix.'_recover'])) ? array_keys($_POST[$prefix.'_recover']) : Array();
 		$purge = (isset ($_POST[$prefix.'_purge'])) ? array_keys($_POST[$prefix.'_purge']) : Array();
 
-		$user = $asset->_getUser();
+		if (empty($msgs)) {
+			return;
+		}
 
 		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
-		$messages = $ms->getMessages($user->id);
 
 		if (!empty ($recover)) {
 			foreach ($recover as $messageid) {
