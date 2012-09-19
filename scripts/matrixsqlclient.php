@@ -2225,7 +2225,7 @@ class DbBackend_MatrixDAL extends DbBackendPlugin
 
 		if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
 		    echo "You need to supply the path to the System Root as the first argument\n";
-			exit;;
+			exit(1);
 		}
 
 		require_once $SYSTEM_ROOT.'/fudge/dev/dev.inc';
