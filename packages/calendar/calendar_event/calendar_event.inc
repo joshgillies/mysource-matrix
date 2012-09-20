@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.101.2.4 2012/09/03 23:40:03 cupreti Exp $
+* $Id: calendar_event.inc,v 1.101.2.5 2012/09/20 01:19:22 akarelia Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.101.2.4 $
+* @version $Revision: 1.101.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -380,7 +380,10 @@ class Calendar_Event extends Asset
 			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 			foreach ($events_to_update as $event_id => $info) {
 				$modification_event = $GLOBALS['SQ_SYSTEM']->am->getAsset($event_id);
-				if (!$modification_event->saveAttributes()) return FALSE;
+				if (!$modification_event->saveAttributes()) {
+					$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+					return FALSE;
+				}
 			}
 			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 		}
