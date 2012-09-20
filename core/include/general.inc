@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.272 2012/09/14 01:28:32 ewang Exp $
+* $Id: general.inc,v 1.273 2012/09/20 05:57:48 cupreti Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.272 $
+* @version $Revision: 1.273 $
 * @package MySource_Matrix
 */
 
@@ -1965,7 +1965,7 @@ function replace_global_keywords(&$text)
 									// dont outsource it to asset.inc
 									if (0 === strpos($asset_keyword, 'asset_contents')) {
 										$asset_keyword = preg_replace( '|:([0-9]+)$|', '', $asset_keyword);
-										$this_url = preg_replace('/htt[p|ps]:\/\//', '', $asset->getURL());
+										$this_url = preg_replace('/https?:\/\//', '', $asset->getURL());
 										if (0 === strpos($asset_keyword, 'asset_contents_raw')) {
 
 											ob_start();
