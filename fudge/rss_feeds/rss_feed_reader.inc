@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: rss_feed_reader.inc,v 1.20.10.1 2012/03/27 04:08:52 mhaidar Exp $
+* $Id: rss_feed_reader.inc,v 1.20.10.2 2012/09/21 00:17:11 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * Converts an xml document to different arrays of relative arrays
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.20.10.1 $
+* @version $Revision: 1.20.10.2 $
 * @package Fudge
 * @subpackage RSS_Feeds
 */
@@ -470,7 +470,8 @@ class RSS_Feed_Reader
 			// and var is CHANNEL
 			// if teh tag is an unrecognised tag then the var is unrecognised
 			$key = array_search($element, $this->open_tags);
-
+			if($key === FALSE)
+			    $key = -1;
 			$class_vars = get_class_vars(get_class($this));
 			for ( ; $key != -1; $key--) {
 				if (isset($class_vars[strtolower($this->open_tags[$key])]) && ($this->open_tags[$key] != 'TYPE')) {
