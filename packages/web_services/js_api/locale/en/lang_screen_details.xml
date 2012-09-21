@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.22.2.1 2012/07/03 07:04:44 akarelia Exp $
+* $Id: lang_screen_details.xml,v 1.22.2.2 2012/09/21 06:44:10 cupreti Exp $
 *
 */
 -->
@@ -234,5 +234,8 @@
             <display_name>Set Metadata</display_name>
             <note />
         </field>
+		<field attribute="get_metadata_schema">
+			<display_name>Get Metadata Schema</display_name>
+		</field>				
     </section>
 </contents>
