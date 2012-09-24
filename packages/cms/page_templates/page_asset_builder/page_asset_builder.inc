@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.175 2012/08/30 00:58:08 ewang Exp $
+* $Id: page_asset_builder.inc,v 1.176 2012/09/24 02:08:43 cupreti Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.175 $
+* @version $Revision: 1.176 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1613,6 +1613,16 @@ class Page_Asset_Builder extends Page
 				replace_global_keywords($this->_replacements[$word]);
 			}
 		}
+
+
+		// Apply keyword modifiers to the keyword replacements
+		foreach($keywords as $full_keyword) {
+			$keyword = parse_keyword($full_keyword, $modifiers);
+			if (!empty($modifiers) && isset($this->_replacements[$keyword])) {
+				$this->_replacements[$full_keyword] = $this->_replacements[$keyword];
+				apply_keyword_modifiers($this->_replacements[$full_keyword], $modifiers);
+			}//end if
+		}//end foreach
 
 		$bodycopy->setKeywordReplacements($this->_replacements);
 
