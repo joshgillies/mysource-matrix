@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.127 2012/09/18 21:58:50 akarelia Exp $
+* $Id: js_api.inc,v 1.128 2012/09/24 05:13:06 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.127 $
+* @version $Revision: 1.128 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -3941,7 +3941,7 @@ class JS_Api extends Page
 				$return_array[$schema_id] = Array();
 				$field_children = $GLOBALS['SQ_SYSTEM']->am->getChildren($schema_id, 'metadata_field', FALSE);
 				foreach($field_children as $field_id => $field_type) {
-					$return_array[$schema_id][$field_id] = $GLOBALS['SQ_SYSTEM']->am->getAllAttributeValues($field_id, 'metadata_field');
+					$return_array[$schema_id][$field_id] = $GLOBALS['SQ_SYSTEM']->am->getAllAttributeValues($field_id, $field_type[0]['type_code']);
 				}//end foreach
 			}//end foreach
 		} else {
