@@ -10,7 +10,7 @@
  * | you a copy.                                                        |
  * +--------------------------------------------------------------------+
  *
- * $Id: system_integrity_fix_char_encoding.php,v 1.5 2012/09/10 05:29:43 csmith Exp $
+ * $Id: system_integrity_fix_char_encoding.php,v 1.6 2012/09/24 08:19:07 cupreti Exp $
  */
 
 /**
@@ -20,7 +20,7 @@
  * IMPORTANT: SYSTEM MUST BE BACKEDUP BEFORE RUNNING THIS SCRIPT!!!
  *
  * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  * @package MySource_Matrix
  */
 
@@ -29,9 +29,22 @@ if ((php_sapi_name() != 'cli')) {
     trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 }
 
-$SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
-if (empty($SYSTEM_ROOT)) {
-    echo "ERROR: You need to supply the path to the System Root as the first argument\n";
+/**
+ * Get CLI Argument
+ * Check to see if the argument is set, if it has a value, return the value
+ * otherwise return true if set, or false if not
+ * 
+ * @params $arg string argument
+ * @return string/boolean
+ * @author Matthew Spurrier
+**/
+function getCLIArg($arg) {
+	return (count($match = array_values(preg_grep("/--" . $arg . "(\=(.*)|)/i",$_SERVER['argv']))) > 0 === TRUE) ? ((preg_match('/--(.*)=(.*)/',$match[0],$reg)) ? $reg[2] : true) : false;
+}
+
+$SYSTEM_ROOT = getCLIArg('system');
+if (!$SYSTEM_ROOT) {
+    echo "ERROR: You need to supply the path to the System Root\n";
     print_usage();
     exit(1);
 }
@@ -44,19 +57,30 @@ if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')
 
 if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');
 
-$old_encoding = (isset($_SERVER['argv'][2])) ? $_SERVER['argv'][2] : '';
-if (!$old_encoding || !isValidCharset($old_encoding)) {
-    echo  "\nERROR: The charset you specified '$old_encoding', as system's old encoding as thrid parameter is not valid charset type.\n\n";
+require_once $SYSTEM_ROOT.'/core/include/init.inc';
+
+$SYS_OLD_ENCODING = getCLIArg('old');
+if (!$SYS_OLD_ENCODING || !isValidCharset($SYS_OLD_ENCODING)) {
+    echo  "\nERROR: The charset you specified '$SYS_OLD_ENCODING', as system's old encoding is not valid charset type.\n\n";
+    print_usage();
+    exit(1);
+}
+define('SYS_OLD_ENCODING',$SYS_OLD_ENCODING);
+
+$SYS_NEW_ENCODING = getCLIArg('new');
+if (!isValidCharset($SYS_NEW_ENCODING)) {
+    echo  "\nERROR: The charset you specified '$SYS_NEW_ENCODING', as system's new encoding is not valid charset type.\n\n";
     print_usage();
     exit(1);
 }
 
-$root_node_id = (isset($_SERVER['argv'][3])) ? $_SERVER['argv'][3] : 1;
+require_once $SYSTEM_ROOT.'/core/include/init.inc';
+define('SYS_NEW_ENCODING',($SYS_NEW_ENCODING) ? $SYS_NEW_ENCODING : SQ_CONF_DEFAULT_CHARACTER_SET);
 
-$reportOnly = FALSE;
-if (isset($_SERVER['argv'][4]) && $_SERVER['argv'][4] == '--report') {
-    $reportOnly = TRUE;
-}
+$root_node_id = getCLIArg('rootnode');
+$root_node_id = ($root_node_id) ? $root_node_id : 1;
+
+$reportOnly = getCLIArg('report');
 
 // Make sure iconv is available.
 if (function_exists('iconv') == FALSE) {
@@ -117,11 +141,8 @@ $replacements = Array(
     '133' => '...',
 );
 
-
-require_once $SYSTEM_ROOT.'/core/include/init.inc';
-
-if ($old_encoding == SQ_CONF_DEFAULT_CHARACTER_SET) {
-    echo  "\nERROR: The old encoding ('$old_encoding') is the same as the current character set.\n\n";
+if (SYS_OLD_ENCODING == SYS_NEW_ENCODING) {
+    echo  "\nERROR: The old encoding ('" . SYS_OLD_ENCODING . "') is the same as the current/new character set.\n\n";
     print_usage();
     exit(1);
 }
@@ -130,7 +151,7 @@ if ($root_node_id == 1) {
     echo "\nWARNING: You are running this script on the whole system.\nThis is fine, but it may take a long time\n";
 }
 
-define('SCRIPT_LOG_FILE', SQ_SYSTEM_ROOT.'/data/private/logs'.basename(__FILE__).'.log');
+define('SCRIPT_LOG_FILE', SQ_SYSTEM_ROOT.'/data/private/logs/'.basename(__FILE__).'.log');
 
 // ask for the root password for the system
 echo 'Enter the root password for "'.SQ_CONF_SYSTEM_NAME.'": ';
@@ -182,7 +203,6 @@ $GLOBALS['SQ_SYSTEM']->am->forgetAsset($root_user);
 function fix_char_encoding($root_node, $tables, $replacements)
 {
     global $reportOnly;
-    global $old_encoding;
 
     $target_assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($root_node));
     array_unshift($target_assetids, $root_node);
@@ -233,7 +253,7 @@ function fix_char_encoding($root_node, $tables, $replacements)
                 }
 
                 // If it's the same in the new and old encodings, that's good.
-                $checked = @iconv($old_encoding, SQ_CONF_DEFAULT_CHARACTER_SET.'//IGNORE', $value);
+                $checked = @iconv(SYS_OLD_ENCODING, SYS_NEW_ENCODING.'//IGNORE', $value);
                 if ($value === $checked) {
                     continue;
                 }
@@ -245,7 +265,7 @@ function fix_char_encoding($root_node, $tables, $replacements)
                 );
 
                 // Carryout the non-uft8 smart quotes replacment
-                if (strtolower(SQ_CONF_DEFAULT_CHARACTER_SET) == 'utf-8') {
+                if (strtolower(SYS_NEW_ENCODING) == 'utf-8') {
                     for ($i = 0; $i < strlen($value); $i++) {
                         $ord = ord($value[$i]);
                         if (in_array($ord, $replacement_ords)) {
@@ -259,7 +279,7 @@ function fix_char_encoding($root_node, $tables, $replacements)
                 if (!isValidValue($value)) {
                     // String might also contains the char(s) from older encoding which is/are not valid for current one
                     // See if we can convert these without igonoring or interprating any chars
-                    $converted_value = @iconv($old_encoding, SQ_CONF_DEFAULT_CHARACTER_SET.'//IGNORE', $value);
+                    $converted_value = @iconv(SYS_OLD_ENCODING, SYS_NEW_ENCODING.'//IGNORE', $value);
 
                     // If the converted value is valid in current encoding then its good to go
                     // otherwise we'll just not use this value
@@ -384,7 +404,7 @@ function fix_char_encoding($root_node, $tables, $replacements)
  *
  * return boolean
  */
-function isValidValue($value, $charset=SQ_CONF_DEFAULT_CHARACTER_SET)
+function isValidValue($value, $charset=SYS_NEW_ENCODING)
 {
     $result = ($value == @iconv($charset, $charset."//IGNORE", $value));
     return $result;
@@ -426,9 +446,10 @@ function print_usage()
     echo "\nIf string is still invalid in current charset encoding aftet the replacement then script will perform chaset";
     echo "\nconversion on string from previous charset to the current one.\n\n";
 
-    echo "Usage: php ".basename(__FILE__)." <SYSTEM_ROOT> <OLD_CHARSET> [<ROOT_NODE>] [--report]\n\n";
+    echo "Usage: php ".basename(__FILE__)." --system=<SYSTEM_ROOT> --old=<OLD_CHARSET> [--new=<NEW_CHARSET>] [--rootnode=<ROOT_NODE>] [--report]\n\n";
     echo "\t<SYSTEM_ROOT> : The root directory of Matrix system.\n";
     echo "\t<OLD_CHARSET> : Previous charset of the system. (eg. UTF-8, ISO-8859-1, etc)\n";
+    echo "\t<NEW_CHARSET> : New charset of the system. (eg. UTF-8, ISO-8859-1, etc)\n";
     echo "\t<ROOT_NODE>   : Assetid of the rootnode (all children of the rootnode will be processed by the script).\n";
     echo "\t<--report>    : Issue a report only instead of also trying to convert the assets.\n";
 
