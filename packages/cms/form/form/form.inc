@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.267 2012/08/30 00:58:07 ewang Exp $
+* $Id: form.inc,v 1.268 2012/09/24 04:15:11 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.267 $
+* @version $Revision: 1.268 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -77,7 +77,7 @@ class Form extends Asset implements Bridge
 	var $submission_asset = NULL;
 
 
-	
+
 	/**
 	* Constructor
 	*
@@ -88,13 +88,13 @@ class Form extends Asset implements Bridge
 	*/
 	function Form($assetid=0)
 	{
-		$this->_ser_attrs = TRUE;		
+		$this->_ser_attrs = TRUE;
 		$this->Asset($assetid);
-		
+
 	}//end constructor
 
 
-	
+
 //--        GENERIC ASSET FUNCTIONS        --//
 
 
@@ -1815,11 +1815,11 @@ class Form extends Asset implements Bridge
 			if (!$finished) {
 				// Print the current page or the Confirmation Page if we're confirming things
 				$total_pages = $this->getTotalPages();
-				
+
 				if (($current_page == $total_pages) && $this->attr('use_confirmation_page')) {
 					echo $this->getConfirmationPageContents();
 				}
-				else {				   	
+				else {
 					$this->printPageContentsBodycopy();
 				}
 			} else {
@@ -1836,7 +1836,7 @@ class Form extends Asset implements Bridge
 
 			echo $this->getFormFooter();
 		}
-		
+
 		if ($finished) {
 			$this->_finaliseStepsActions();
 		}
@@ -2477,7 +2477,7 @@ class Form extends Asset implements Bridge
 		$replacements = Array();
 		if (!empty($keyword_list)) {
 			foreach ($keyword_list as $keyword) {
-				$lookup_keyword = $keyword;	
+				$lookup_keyword = $keyword;
 				// If form_info or form_summary, we need to make sure the
 				// HTML version gets printed
 				if (($keyword === 'form_info') || ($keyword == 'form_summary')) {
@@ -2555,18 +2555,18 @@ class Form extends Asset implements Bridge
 	*									is usually only set TRUE when moving
 	*									forward in the form
 	* @param boolean	$mute_errors	Mute validation error
-	* 
+	*
 	* @return boolean
 	*/
 	public function processPage($page_number, $validate_page=TRUE, $mute_errors=FALSE)
-	{	
+	{
 		$ok = TRUE;
 		// If the form has only one page,  it doens't have incomplete submission asset nor session to store captcha_status.
 		// this var is used to make sure captcha status is processed correctly in this case
 		$one_page_captcha_status = FALSE;
 
 		if (is_null($this->submission_errors)) $this->submission_errors = Array();
-		
+
 		// Has a captcha been completed on this page? Error if it is incorrect,
 		// otherwise set the status that we have passed one
 		// Only when we're going forward, though.
@@ -2616,18 +2616,18 @@ class Form extends Asset implements Bridge
 		}
 
 		// only display this error message if captcha error isn't displayed at current page
-		if (($page_number == $this->getTotalPages()) && !in_array($this->attr('captcha_invalid_error_message'),$this->submission_errors) && $validate_page && !$captcha_status && $this->attr('require_captcha')) {			
+		if (($page_number == $this->getTotalPages()) && !in_array($this->attr('captcha_invalid_error_message'),$this->submission_errors) && $validate_page && !$captcha_status && $this->attr('require_captcha')) {
 			$this->submission_errors = array_merge($this->submission_errors, Array($this->attr('captcha_form_invalid_error_message')));
 			$ok = FALSE;
 		}
-		
+
 		// Questions to be verified by Mollom
 		$questions_to_verify = $this->attr('mollom_questions_to_check');
 		$mollom_parameters = Array();
-		
+
 		$questions = $this->getQuestionAssetsOnPage($page_number);
 		for (reset($questions); $question =& $questions[key($questions)]; next($questions)) {
-				
+
 			// There is no point in populating the question if answer is not posted
 			if (isset($_POST['SQ_FORM_'.$this->id.'_PAGE'])) {
 				$question->populate($this);
@@ -2636,7 +2636,7 @@ class Form extends Asset implements Bridge
 					$mollom_parameters[$content_type] = $question->getValue();
 				}
 			}
-			
+
 			// Only fail the page if we are moving forward
 			// File upload question should always get validated
 			$question_type = strtolower($question->type());
@@ -2653,7 +2653,7 @@ class Form extends Asset implements Bridge
 			$this->current_answers[$question->id] = $question->getValue();
 			$this->extra_data[$question->id]      = $question->getExtraData();
 		}
-		
+
 		// Mollom spam check
 		if ($ok && $this->attr('use_mollom') && !empty($mollom_parameters)) {
 			$mollom_result = Mollom::verifySubmission($this->id, $mollom_parameters);
@@ -2696,7 +2696,7 @@ class Form extends Asset implements Bridge
 					}
 					break;
 			}//end switch
-			
+
 			if (!empty($mollom_error)) {
 				$this->submission_errors = array_merge($this->submission_errors, Array($mollom_error));
 				$ok = FALSE;
@@ -2991,7 +2991,7 @@ class Form extends Asset implements Bridge
 
 			// Form contents is printed, which is just like not using a bodycopy(in this context)
 			// So we will print all questions' js code.
-			if (in_array('form_contents', $keywords)) {
+			if (in_array('form_contents', $keywords) || in_array('current_page_contents', $keywords)) {
 				$use_bc = FALSE;
 			} else {
 				// Check if we have section keywords in bodycopy
@@ -3012,7 +3012,7 @@ class Form extends Asset implements Bridge
 						}//end if
 					}//end if
 				}//end foreach
-				
+
 				// Merge the questions (keywords) contained in form section
 				$keywords = array_merge($keywords, $section_keywords);
 			}//end else
@@ -3126,7 +3126,7 @@ class Form extends Asset implements Bridge
 		}
 		// don't bother going further, we don't want gunky file assets
 		if(!$ok) return FALSE;
-		
+
 		foreach ($all_questions as $assetid => $question_info) {
 			$type_code = $question_info['question_type_code'];
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
@@ -3313,7 +3313,7 @@ class Form extends Asset implements Bridge
 				$question_asset->cleanUp($this);
 			}
 		}
-		
+
 		if (!is_null($this->submission_asset)) {
 			$submission_path = $this->data_path.'/incomplete_attachments/s'.$this->submission_asset->id;
 			if (is_dir($submission_path)){
@@ -3321,13 +3321,13 @@ class Form extends Asset implements Bridge
 				if (empty($dirs)) delete_directory($submission_path);
 			}
 		}
-		
+
 		$public_submission_path = $this->data_path.'/incomplete_attachments/'.session_id();
 		if (is_dir($public_submission_path)){
 			$dirs = list_dirs($public_submission_path);
 			if (empty($dirs)) delete_directory($public_submission_path);
 		}
-		
+
 		// Clean-up submission session variable
 		unset($_SESSION['SQ_FORM_'.$this->id.'_SUBMISSION']);
 
@@ -3406,7 +3406,7 @@ class Form extends Asset implements Bridge
 			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 
 			$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
-			
+
 			if (!$am->setPermission($folder->id, $public_userid, SQ_PERMISSION_WRITE, 0, TRUE, TRUE)) {
 				// couldn't deny it - we can't just return the folder with write permission to a public user
 				$ok = FALSE;
@@ -3415,7 +3415,7 @@ class Form extends Asset implements Bridge
 			if (!$am->setPermission($folder->id, $public_userid, SQ_PERMISSION_READ, 0, TRUE, TRUE)) {
 				$ok = FALSE;
 			}
-			
+
 			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 		}
 
@@ -3581,7 +3581,7 @@ class Form extends Asset implements Bridge
 			// Save and stick the value - but only if the question still exists
 			if ($question instanceof Form_Question) {
 				$question->saveValue($this);
-			
+
 				// If the question is sticky, stick the value then
 				if ($question->attr('sticky')) {
 					$question->stickValue($question->getValue());
@@ -3609,8 +3609,8 @@ class Form extends Asset implements Bridge
 
 		// If submission asset has metadata schema applied, broadcast the MetadataUpdate event
 		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-		$applied_schemas = $mm->getSchemas($submission_asset->id);		
-		if (!empty($applied_schemas)) {			
+		$applied_schemas = $mm->getSchemas($submission_asset->id);
+		if (!empty($applied_schemas)) {
 			$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
 			$em->broadCastEvent($submission_asset, 'MetadataUpdate', Array('all'));
 		}
@@ -3816,7 +3816,7 @@ class Form extends Asset implements Bridge
 	/**
 	* Convert a submission stored in a session variable to an asset
 	*/
-	public function convertSubmissionCookieToAsset() 
+	public function convertSubmissionCookieToAsset()
 	{
 		$submission_asset =& $this->createSubmission(TRUE);
 		$this->updateSubmission($submission_asset);
@@ -4139,7 +4139,7 @@ class Form extends Asset implements Bridge
 	}//end _getCaptchaDisplayKeywords()
 
 
-		
+
 	/**
 	* Return Mollom CAPTCHA display keywords so they can be injected where necessary
 	*
@@ -4153,7 +4153,7 @@ class Form extends Asset implements Bridge
 		$keywords['form_mollom_captcha_image'] = translate('cms_form_mollom_captcha_image');
 		$keywords['form_mollom_captcha_audio'] = translate('cms_form_mollom_captcha_audio');
 		$keywords['form_mollom_captcha_field'] = translate('cms_form_mollom_captcha_field');
-		$keywords['form_mollom_captcha_regen_link']  = translate('cms_form_mollom_captcha_link');		
+		$keywords['form_mollom_captcha_regen_link']  = translate('cms_form_mollom_captcha_link');
 
 		return $keywords;
 
@@ -4180,7 +4180,7 @@ class Form extends Asset implements Bridge
 		$is_question_keyword = preg_match('/^question\_(.*)\_(\d+[\_\:]q\d+)$/', $keyword, $question_matches);
 		$is_response_keyword = preg_match('/^response\_(\d+[\_\:]q\d+)(\_raw)?$/', $keyword, $response_matches);
 		$is_section_keyword  = preg_match('/^section\_(.*)\_(\d+)$/', $keyword, $section_matches);
-		$is_form_keyword	 = preg_match('/^form\_(.*)$/', $keyword, $form_matches);		
+		$is_form_keyword	 = preg_match('/^form\_(.*)$/', $keyword, $form_matches);
 
 		if ($is_question_keyword) {
 			// Sub keyword in $matches[1] - eg. 'field', 'id', 'note', 'label'
@@ -4213,7 +4213,7 @@ class Form extends Asset implements Bridge
 					case 'label' :
 						$replacement = $question_asset->getHtmlLabel();
 					break;
-					
+
 				}//end switch
 			}
 
@@ -4268,7 +4268,7 @@ class Form extends Asset implements Bridge
 				case 'mollom_captcha_audio':
 					$replacement = Mollom::getMollomCaptchaAudioKeywordReplacement($this->id);
 				break;
-					
+
 				case 'mollom_captcha_regen_link':
 					$regen_link_text = $this->attr('mollom_captcha_regen_link_text');
 					if (empty($regen_link_text)) {
@@ -4276,7 +4276,7 @@ class Form extends Asset implements Bridge
 					}
 					$replacement = Mollom::getMollomCaptchaRegenLinkKeywordReplacement($this->id, $regen_link_text);
 				break;
-				
+
 				case 'submission_id':
 					$submission = $this->getSubmissionAsset();
 					if ($submission) {
@@ -4987,7 +4987,7 @@ class Form extends Asset implements Bridge
 		if ($replacement == '%'.$keyword.'%') {
 			$replacement = $this->getKeywordReplacement($keyword);
 		}
-		
+
 		$replace_keywords = Array(
 						'assetid' 	=> $this->id,
 						'call_fns'	=> Array ('_getThankYouKeywordReplacement', 'getKeywordReplacement'),
@@ -5009,7 +5009,7 @@ class Form extends Asset implements Bridge
 	* @return boolean
 	*/
 	function performFormSectionActions($page_number)
-	{	
+	{
 		$success = TRUE;
 		if ($this->attr('multi_page')) {
 
@@ -5019,7 +5019,7 @@ class Form extends Asset implements Bridge
 			$section_link = reset(array_slice($section_links, $page_number - 1, 1));
 			if (isset($section_link['minorid'])) {
 				$section = $GLOBALS['SQ_SYSTEM']->am->getAsset($section_link['minorid']);
-			
+
 				$actions = $section->attr('actions');
 				foreach ($actions as $action) {
 					$action_type = $action['type_code'];
@@ -5040,35 +5040,35 @@ class Form extends Asset implements Bridge
 		return $success;
 
 	}//end performFormSectionActions()
-	
-	
+
+
 	/**
-	* Perform any operations that needs to be done for selected section 
-	* submission actions, after all the individual form step actions are 
+	* Perform any operations that needs to be done for selected section
+	* submission actions, after all the individual form step actions are
 	* executed and the form is submitted
 	*
 	* @access public
 	* @return void
 	*/
 	function _finaliseStepsActions()
-	{	
+	{
 		if ($this->attr('multi_page')) {
-		
+
 			$section_links = $this->getSectionLinks();
 			foreach($section_links as $section_link) {
 				if (!isset($section_link['minorid'])) continue;
 				$section = $GLOBALS['SQ_SYSTEM']->am->getAsset($section_link['minorid']);
 				$actions = $section->attr('actions');
-				
-				foreach ($actions as $action) {			
+
+				foreach ($actions as $action) {
 					$action_type = $action['type_code'];
-					$GLOBALS['SQ_SYSTEM']->am->includeAsset($action_type);				
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset($action_type);
 					call_user_func(Array($action_type, 'finalise'), $this);
 				}//end foreach
-				
+
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($section);
 			}//end foreach
-		}//end if		
+		}//end if
 
 	}//end _finaliseStepsActions()
 
@@ -5132,7 +5132,7 @@ class Form extends Asset implements Bridge
 
 			$bodycopy->setKeywordReplacements($replacements);
 			$bodycopy->printBody();
-		} 
+		}
 
 	}//end printSubmissionLimitReachedBodycopy()
 
