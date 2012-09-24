@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.128 2012/09/24 05:13:06 cupreti Exp $
+* $Id: js_api.inc,v 1.129 2012/09/24 06:56:32 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.128 $
+* @version $Revision: 1.129 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -3945,7 +3945,7 @@ class JS_Api extends Page
 				}//end foreach
 			}//end foreach
 		} else {
-			$return_array['error'] = 'Asset #'.$asset->id.' does not has any Metadata Schema applied to it';
+			$return_array['error'] = 'Asset #'.$asset->id.' does not has any Metadata Schema '.($granted ? 'applied' : 'denied') .' to it';
 		}
 
 		return $return_array;
