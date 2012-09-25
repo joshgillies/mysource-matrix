@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.129 2012/09/24 06:56:32 cupreti Exp $
+* $Id: js_api.inc,v 1.130 2012/09/25 02:27:14 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.129 $
+* @version $Revision: 1.130 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -4027,7 +4027,7 @@ class JS_Api extends Page
 				}//end else
 
 				// Send our JSON
-				$output = preg_replace('/(%){1}([globals_snippet_][_A-Za-z0-9\-]*)(%){1}/','&#37;$2&#37;', $output);
+				$output = preg_replace('/(%){1}(globals_[snippet|asset][_A-Za-z0-9\-:]*)(%){1}/','&#37;$2&#37;', $output);
 				$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_REPLACE_MYSOURCE_LEVEL_KEYWORDS', FALSE);
 
 				echo $output;
