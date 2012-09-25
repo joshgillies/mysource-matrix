@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.266.2.1 2012/09/24 04:24:09 akarelia Exp $
+* $Id: form.inc,v 1.266.2.2 2012/09/25 01:03:00 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.266.2.1 $
+* @version $Revision: 1.266.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -3025,7 +3025,12 @@ class Form extends Asset implements Bridge
 		$code = ob_get_contents();
 		ob_end_clean();
 
-		$questions = $this->getAllQuestionAssets();
+		if (!in_array('form_contents', $keywords) && !$use_bc && $this->attr('multi_page')) {
+			$page_num  = $this->getCurrentPageNumber();
+			$questions = $this->getQuestionAssetsOnPage($page_num);
+		} else {
+			$questions = $this->getAllQuestionAssets();
+		}
 
 		foreach (array_keys($questions) as $key) {
 			$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($key);
