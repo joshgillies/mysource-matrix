@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: paint_layout_lookup_value.inc,v 1.17 2012/08/30 01:09:09 ewang Exp $
+* $Id: paint_layout_lookup_value.inc,v 1.18 2012/09/26 00:45:53 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/lookup_value/lookup_value.inc';
 *
 *
 * @author	Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -461,7 +461,13 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 					// set to blank string to delete
 					$lookup_values[$resource][$layout_name]['value'] = '';
 				} else {
-					$lookup_values[$resource][$layout_name]['value'] = $layout_data['value']['assetid'];
+					// check to see if the provided assetid is a paint layout
+					$layout = $GLOBALS['SQ_SYSTEM']->am->getAsset($layout_data['value']['assetid']);
+					if (!is_null($layout) && $layout instanceof Paint_Layout_Page) {
+						$lookup_values[$resource][$layout_name]['value'] = $layout_data['value']['assetid'];
+					} else {
+						trigger_error('Assetid provided, #'.$layout_data['value']['assetid'].', is not of asset type Paint Layout Page', E_USER_WARNING);
+					}
 				}
 
 			}//end foreach
