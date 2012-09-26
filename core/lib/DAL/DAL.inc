@@ -228,7 +228,6 @@ class DAL
 	 */
 	public static function getAssoc(Query $dalQuery, $col=NULL)
 	{
-		self::_startQueryTimer($dalQuery);
 
 		$query	= $dalQuery->prepare();
 		$result = self::executePdoAssoc($query, $col);
@@ -236,7 +235,6 @@ class DAL
 		// OCI8: release any created LOB objects
 		$dalQuery->releaseLobs();
 
-		self::_endQueryTimer();
 
 		return $result;
 
@@ -253,7 +251,6 @@ class DAL
 	 */
 	public static function getAll(Query $dalQuery)
 	{
-		self::_startQueryTimer($dalQuery);
 
 		$query	= $dalQuery->prepare();
 		$result = self::executePdoAll($query);
@@ -261,7 +258,6 @@ class DAL
 		// OCI8: release any created LOB objects
 		$dalQuery->releaseLobs();
 
-		self::_endQueryTimer();
 
 		return $result;
 
@@ -278,7 +274,6 @@ class DAL
 	 */
 	public static function getOne(Query $dalQuery)
 	{
-		self::_startQueryTimer($dalQuery);
 
 		$query = $dalQuery->prepare();
 		$result = self::executePdoOne($query);
@@ -286,7 +281,6 @@ class DAL
 		// OCI8: release any created LOB objects
 		$dalQuery->releaseLobs();
 
-		self::_endQueryTimer();
 
 		return $result;
 
@@ -329,12 +323,10 @@ class DAL
 	 */
 	public static function getGrouped(Query $dalQuery)
 	{
-		self::_startQueryTimer($dalQuery);
 
 		$query	= $dalQuery->prepare();
 		$result = self::executePdoGrouped($query);
 
-		self::_endQueryTimer();
 
 		return $result;
 
@@ -353,12 +345,10 @@ class DAL
 	 */
 	public static function getGroupedAssoc(Query $dalQuery)
 	{
-		self::_startQueryTimer($dalQuery);
 
 		$query	= $dalQuery->prepare();
 		$result = self::executePdoGroupedAssoc($query);
 
-		self::_endQueryTimer();
 
 		return $result;
 
@@ -491,14 +481,12 @@ class DAL
 	{
 		$query = NULL;
 		if (($systemid instanceof Query) === TRUE) {
-			self::_startQueryTimer($systemid);
 			$dalQuery = $systemid;
 			$query = $dalQuery->prepare();
 		} else if ($queryid === NULL) {
 			throw new DALException('No queryid provided for executeQuery.');
 		} else {
 			$dalQuery = self::getQuery($systemid, $queryid);
-			self::_startQueryTimer($dalQuery);
 			$query = $dalQuery->prepare();
 		}
 
@@ -516,7 +504,6 @@ class DAL
 			$rows = 0;
 		}
 
-		self::_endQueryTimer();
 
 		return $rows;
 
@@ -884,7 +871,6 @@ class DAL
 	 */
 	public static function executeSql($sql)
 	{
-		self::_startQueryTimer($sql);
 
 		$dbh  = self::getDb();
 
@@ -904,13 +890,14 @@ class DAL
 			}
 		} else {
 			try {
+				self::_startQueryTimer($sql);
 				$rows = $dbh->exec($sql);
+				self::_endQueryTimer();
 			} catch (PDOException $e) {
 				throw new DALException('DBError!:'.$e->getMessage());
 			}
 		}
-
-		self::_endQueryTimer();
+	
 
 		return $rows;
 
@@ -1086,7 +1073,9 @@ class DAL
 	public static function query($sql)
 	{
 		$dbh	= self::getDb();
+		self::_startQueryTimer($sql);
 		$result = $dbh->query($sql);
+		self::_endQueryTimer();
 		return $result;
 
 	}//end query()
@@ -1811,7 +1800,6 @@ class DAL
 			}
 			self::$_currentQueryLog['start'] = microtime(TRUE);
 		}
-
 
 	}//end _startQueryTimer()
 

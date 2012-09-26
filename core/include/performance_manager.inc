@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-*$Id: performance_manager.inc,v 1.6 2012/08/30 01:09:20 ewang Exp $
+*$Id: performance_manager.inc,v 1.7 2012/09/26 01:05:49 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *     
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 class Performance_Manager extends MySource_Object
@@ -87,8 +87,11 @@ class Performance_Manager extends MySource_Object
 		// record rest of queries
 		if(!isset($this->performance_data['total_num_queries'])) {
 			$this->performance_data['total_num_queries'] = 0;
+			$this->performance_data['total_time_queries'] = 0;
 		}
-		$this->performance_data['total_num_queries'] += count(DAL::getLoggedQueries());
+		$queries = DAL::getLoggedQueries();
+		$this->performance_data['total_num_queries'] += count($queries);
+		$this->performance_data['total_time_queries'] += array_sum($queries);
 		
 		// save all data to temp file for result frame to fetch
 		$this->_savePerformanceData($this->performance_data);
@@ -125,9 +128,14 @@ class Performance_Manager extends MySource_Object
 		// record num of queries
 		if(!isset($this->performance_data['total_num_queries'])) {
 			$this->performance_data['total_num_queries'] = 0;
+			$this->performance_data['total_time_queries'] = 0;
 		}
-		$num_queries = count(DAL::getLoggedQueries());
+		$logged_queries = DAL::getLoggedQueries();
+		$num_queries = count($logged_queries);
+		$time_queries = array_sum($logged_queries);
+
 		$this->performance_data['total_num_queries'] += $num_queries;
+		$this->performance_data['total_time_queries'] += $time_queries;
 		
 									
 		// if there is parent timer in stack
@@ -142,6 +150,7 @@ class Performance_Manager extends MySource_Object
 			$last_position_parent['end'] = $time;
 			$last_position_parent['duration'] = round($time - $last_position_parent['start'], 6);
 			$last_position_parent['num_queries'] = $num_queries;
+			$last_position_parent['time_queries'] = $time_queries;
 
 			// start idle timer of parent
 			$this->performance_data[$parent_assetid]['data'][$parent_step][] = Array (
@@ -186,8 +195,14 @@ class Performance_Manager extends MySource_Object
 		$last_timer['duration'] = round($last_timer['end'] - $last_timer['start'], 6);
 		$last_timer['bar_end'] = TRUE;
 		// record number of queries
-		$last_timer['num_queries'] = count(DAL::getLoggedQueries());
+		$logged_queries = DAL::getLoggedQueries();
+		$count = count($logged_queries);
+		$time_queries = array_sum($logged_queries);
+		
+		$last_timer['num_queries'] = $count;
+		$last_timer['time_queries'] = $time_queries;
 		$this->performance_data['total_num_queries'] += $last_timer['num_queries'];
+		$this->performance_data['total_time_queries'] += $last_timer['time_queries'];
 		DAL::clearLoggedQueries();
 		
 		
@@ -372,6 +387,7 @@ function fillFrame() {
 		$total_start = $this->performance_data['total_start'];
 		$total_assets_count = count($this->performance_data) - 2;
 		$total_num_queries = $this->performance_data['total_num_queries'];
+		$total_time_queries = $this->performance_data['total_time_queries'];
 		$total_system_time = $total_time - $active_total;
 		?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -484,7 +500,7 @@ var addUrlParam = function(search, key, val){
     <div id="productLogo"><img src="<?php echo (sq_web_path('lib').'/web/images/performance/logo-matrix.png');  ?>" alt="logo-matrix" width="160" height="31" /></div>
     
     <div id="perfSummary">
-        <div class="perfTotal">Total Time <strong><?php echo ($this->_printTime($total_time)); ?></strong>,&nbsp; System <strong><?php echo ($this->_printTime($total_system_time)); ?></strong> (<?php echo ($this->_printPercent($total_system_time, $total_time, 2)); ?>), Queries: <strong><?php echo $total_num_queries; ?></strong></div>
+        <div class="perfTotal">Total Time <strong><?php echo ($this->_printTime($total_time)); ?></strong>,&nbsp; System <strong><?php echo ($this->_printTime($total_system_time)); ?></strong> (<?php echo ($this->_printPercent($total_system_time, $total_time, 2)); ?>), Queries: <strong><?php echo ($this->_printTime($total_time_queries)); ?></strong> (<?php echo $total_num_queries; ?>)</div>
         <div  class="perfSwitch">
 	    <a href="javascript:" onclick="javascript:parent.document.location = parent.document.location.pathname + addUrlParam(parent.document.location.search, 'performance_setting_caching', '<?php echo $caching_status_reverse; ?>');" title="Use current Matrix Caching setting or disable Matrix Caching" target="_top">Caching: <?php echo $caching_status; ?></a>
 	    ,&nbsp; 
@@ -559,18 +575,22 @@ var addUrlParam = function(search, key, val){
 				
 				
 				// calculate total metric for the asset
-				$total = 0;
-				$total_active = 0;
-				$total_num_queries = 0;
+				$row_total = 0;
+				$row_total_active = 0;
+				$row_total_num_queries = 0;
+				$row_total_time_queries = 0;
 				foreach($data as $time_data) {
 					$total += $time_data['duration'];
 					if($time_data['active'])
-						$total_active += $time_data['duration'];
-					if(isset($time_data['num_queries']))
-				    	$total_num_queries += $time_data['num_queries'];
+						$row_total_active += $time_data['duration'];
+					if(isset($time_data['num_queries'])) {
+					    $row_total_num_queries += $time_data['num_queries'];
+					    $row_total_time_queries += $time_data['time_queries'];
+					}
 				}
-				$total = $this->_printTime($total);
-				$total_active = $this->_printTime($total_active);
+				$row_total = $this->_printTime($row_total);
+				$row_total_active = $this->_printTime($row_total_active);
+				$row_total_time_queries = $this->_printTime($row_total_time_queries);
 				$special_color = isset($slowest_class[$assetid]) ? $slowest_class[$assetid] : '';
 				$icon_url = $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($content['type_code']);
 				
@@ -590,7 +610,7 @@ var addUrlParam = function(search, key, val){
 ?>
 					    <td rowspan="<?php echo $step_count; ?>" class="assetID">#<?php echo $assetid; ?></td>
 					    <td rowspan="<?php echo $step_count; ?>" class="assetType" style="background-image: url(<?php echo $icon_url; ?>)" title="<?php echo $content['type_code']; ?>" ><img src="<?php echo $icon_url; ?>" alt="<?php echo $content['type_code']; ?>"  width="16" height="16" /></td>
-					    <td rowspan="<?php echo $step_count; ?>" class="assetName" title="<?php echo 'Active: '.$total_active.' / Total: '.$total.' / Queries: '.$total_num_queries; ?>"><?php echo !empty($report) ? $report : ''; echo $content['name']; echo !empty($report) ? '</a>' : ''; ?></td>
+					    <td rowspan="<?php echo $step_count; ?>" class="assetName" title="<?php echo 'Active: '.$row_total_active.' / Total: '.$row_total.' / Queries: '.$row_total_time_queries.' ('.$row_total_num_queries.')'; ?>"><?php echo !empty($report) ? $report : ''; echo $content['name']; echo !empty($report) ? '</a>' : ''; ?></td>
 					    <?php
 						if($expendable) {
 							echo '<td rowspan="'.$step_count.'" class="assetExpand" ><div class="expandIcon" onClick="toggleExpend('.$assetid.')"></div></td>';
@@ -611,6 +631,7 @@ var addUrlParam = function(search, key, val){
 				    		$bar_total_time = 0;
 				    		$bar_active_total_time = 0;
 				    		$bar_num_queries = 0;
+						$bar_time_queries = 0;
 				    		// start of bar, calculate bar total and paint the wrapper
 				    		for ($i = $index, $has_begin = FALSE, $has_end = FALSE; isset($data[$i]) && !($has_begin && $has_end); $i++) {
 				    			if(isset($data[$i]['bar_start'])) $has_begin = TRUE;
@@ -619,17 +640,20 @@ var addUrlParam = function(search, key, val){
 				    			$bar_total_time += $data[$i]['duration'];
 				    			if($data[$i]['active'])
 				    				$bar_active_total_time += $data[$i]['duration'];
-				    			if(isset($data[$i]['num_queries']))
+				    			if(isset($data[$i]['num_queries'])) {
 				    				$bar_num_queries += $data[$i]['num_queries'];
+								$bar_time_queries += $data[$i]['time_queries'];
+							}
 				    		}
 
 				    		$bar_margin_left = $this->_printPercent($time_data['start'] - $total_start - $offset, $total_time);
 				    		$bar_width = $this->_printPercent($bar_total_time, $total_time);
 				    		$bar_total = $this->_printTime($bar_total_time);
 				    		$bar_active_total = $this->_printTime($bar_active_total_time);
+						$bar_time_queries = $this->_printTime($bar_time_queries);
 				    		
 				    		
-				    		echo '<div class="perfBar '.$special_color.'" style="margin-left:'.$bar_margin_left.'; width: '.$bar_width.';" title="Active: '.$bar_active_total.' / Total: '.$bar_total.' / Queries: '.$bar_num_queries.'">';
+				    		echo '<div class="perfBar '.$special_color.'" style="margin-left:'.$bar_margin_left.'; width: '.$bar_width.';" title="Active: '.$bar_active_total.' / Total: '.$bar_total.' / Queries: '.$bar_time_queries.' ('.$bar_num_queries.')">';
 				    		echo '<div style="display:none;">';
 				    		echo '</div>';
 				    	}
@@ -648,7 +672,7 @@ var addUrlParam = function(search, key, val){
 				    
 				   
 				    ?>
-				        <div class="perfBar-totals"><?php echo 'Active: '.$total_active.' / Total: '.$total; ?></div>
+				        <div class="perfBar-totals"><?php echo 'Active: '.$row_total_active.' / Total: '.$row_total; ?></div>
 				    </td>
 				</tr>
 				
