@@ -1,5 +1,56 @@
 SQUIZ MATRIX CHANGELOG
 
+VERSION 4.8.7
+
+Minor Enhancements and Bug Fixes
+===================================
+
+Minor Enhancements
+
+Minor Enhancement #5845: Asset Builder Selectable Create Location Enhancements.
+Minor Enhancement #5861: Improved Error Handling for Malformed PDF Uploads.
+Minor Enhancement #5888: Remote Content Asset URL Tunnelling Option Warning.
+
+Core
+
+Fixed Bug #5828: The reindexSearchIndex.php script consumes too much memory. 
+Fixed Bug #5833: Can't download File Assets over HTTPS using IE7 and IE8.
+Fixed Bug #5844: matrixsqlclient breaks terminal. 
+Fixed Bug #5871: Matrix emailing the workflow initiator from previous workflow process when asset pushed to Live.
+Fixed Bug #5876: Issue with Metadata values when Deja Vu enabled. 
+Fixed Bug #5894: import_file.php script errors.
+Fixed Bug #5895: Cancel Safe Edit status / clone asset via JS API with filter frontend user option turned on does unnecessarily escape HTML to entities.  
+Fixed Bug #5896: SQ_CONF_REDIRECT_URL_WITH_TRAILING_SLASH redirects infinitely for a ROOT URL which is not listed main.inc.
+Fixed Bug #5904: Custom Form current_page_content keyword doesn't do JS frontend validation.
+
+CMS
+
+Fixed Bug #5901: Setting Form Submission asset LIVE can result in loss of all the answers.
+
+Search
+
+Fixed Bug #5864: Using special characters in Oracle Search generates unescaped characters in file names.
+
+LDAP
+
+Fixed Bug #5882: Unable to acquire locks on 'Inbox' of LDAP user with \, in CN.
+
+Calendar
+
+Fixed Bug #5866: Events search not sorting when sorting by the asset attribute value.
+Fixed Bug #5893: Run Level not restored failing to save the attributes of calendar event modification.
+
+Data
+
+Fixed Bug #5902: RSS Data Source timeout error for some feeds.
+
+Web Services
+
+Fixed Bug #5877: SOAP Server asset sends proper HTTP authentication header.
+Fixed Bug #5884: JS API calls to getAttributes on div content assets that contain keywords get evaluated.
+Fixed Bug #5890: JS API throws "Unable to get value of the property '0': object is null or undefined".
+
+
 VERSION 4.8.6
 
 Minor Enhancements and Bug Fixes
