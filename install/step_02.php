@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_02.php,v 1.81 2012/08/30 01:11:22 ewang Exp $
+* $Id: step_02.php,v 1.82 2012/09/26 03:45:43 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.81 $
+* @version $Revision: 1.82 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -151,7 +151,7 @@ $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 */
 
 // With respect to #4440 Feature Request : Spliting System Roles into System Permission Roles and System Workflow Roles
-// lets eplit up the constants and regenerate the config file. Also in this block decide if we have to crereate views
+// lets split up the constants and regenerate the config file. Also in this block decide if we have to re-create views
 if (!defined('SQ_CONF_ENABLE_ROLES_PERM_SYSTEM') && !defined('SQ_CONF_ENABLE_ROLES_WF_SYSTEM')) {
 	if(defined('SQ_CONF_ENABLE_ROLES_SYSTEM') && SQ_CONF_ENABLE_ROLES_SYSTEM == '1' ) {
 		$vars['SQ_CONF_ENABLE_ROLES_PERM_SYSTEM'] = '1';
