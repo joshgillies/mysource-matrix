@@ -1,5 +1,200 @@
 SQUIZ MATRIX CHANGELOG
 
+VERSION 4.12.0 RC1
+
+Featured Changes
+===================================
+
+New Custom Change Password Design [ Feature Request #5788 ]
+-----------------------------------------------------
+
+When a user account is placed up for review within Squiz Matrix, users will be prompted to change their current Squiz Matrix password on a Change Password screen.
+
+Previously, the design of this screen was not configurable. This feature adds new functionality, allowing you to set a custom Change Password design.
+
+The System Defined Password Change Design options can be found on the Settings screen of an asset. These tools work in a similar manner to the System Defined Login Design, enabling you to override the default design of the Change Password screen for the asset, automatically cascaded to any children. 
+
+When users log on to the system and require a password change, the Change Password screen will use the custom design, specified in the System Defined Password Change Design settings.
+
+This feature has been added to complement the other custom log-in designs within Squiz Matrix.
+
+New Trigger Action to Schedule a Bulkmail Job [ Feature Request #5853 ]
+-----------------------------------------------------
+
+Along with the aforementioned Bulkmail Job Scheduling feature, a new trigger action has also been added to Squiz Matrix to schedule a Job to be run when a trigger is fired.
+
+The Schedule Bulkmail Job trigger action can be configured to override the default settings of a selected Bulkmail Job, allowing you to instead send the asset that fired the trigger (or an asset of your selection), as well as selecting the recipients of the job.  
+
+You are also able to enable the Subscription Filter on the selected Bulkmail Job, specifying whether to use the Bulkmail Job's set subscription filters or to override these filters. This is a new feature to the Bulkmail Package which is outlined in more detail below.
+
+This feature has been added to provide users with additional implementation options for their Bulkmail set ups. 
+
+Bulkmail Job: New Scheduling Settings Screen [ Feature Request #5854 ]
+-----------------------------------------------------
+
+Squiz Matrix's Bulkmail Job asset defines the content and recipients of a bulkmail configuration. Previously, for a Bulkmail Job to be run, users would have to manually change the asset's status or use the schedule_bulkmail_job.php script.
+
+This feature adds new settings to the Bulkmail Job asset, allowing you to enable and configure automatic scheduling of your jobs.
+
+The Bulkmail Job Scheduling screen allows you to enable scheduling for the job and provide a start date. You can then specify the frequency of how often the job should be run (either hourly, daily, weekly, monthly, yearly or not at all).  
+
+Once enabled, the Bulkmail Job will be queued to run at the specified start date and time, and then continue to run subsequently at the specified frequency.
+
+This feature has been added to provide users with effortless scheduling of the jobs within their bulkmail configurations.
+
+Bulkmail Job: New User Subscription Screen [ Feature Request #5856 ]
+-----------------------------------------------------
+
+We have one more new screen that has now been added to the Bulkmail Job asset, this time allowing you to configure user subscriptions for the jobs within your bulkmail configuration.
+
+The new User Subscriptions screen allows you to enable user subscriptions for your Bulkmail Job. When subscriptions are enabled, categories can be created, comprised of Asset Metadata Field rules to match a user asset's metadata against a specified value. 
+
+User Subscriptions utilise the use of a Search Page asset to query a selection of assets using the matched subscription metadata value. Assets returned on these searches will then be sent (individually) to the users within the corresponding subscription category.
+
+For example, you could create a location subscription category, matching metadata values such as Sydney and Melbourne. The Search Page would search these queries, and return a selection of articles for these users, sending them content appropriate to their location.
+
+Call REST Resource Completion Action on E-Commerce Checkout Page [ Feature Request #5865 ]
+-----------------------------------------------------
+
+The Custom Form Page's Call REST Resource submission action is used to communicate with a web service exposing itself using Representational State Transfer (REST) methods, upon submission of a form.
+
+This functionality has been extended to the E-Commerce package's Checkout Page asset via a new Call REST Resource completion action that will call a REST resource server after the checkout process has successfully been completed on an e-commerce order.  
+
+The Call REST Resource action can be configured on a new Checkout Completion Actions screen of a Checkout Page asset. This screen is similar to the Submission Actions screen of a Custom Form.
+
+Like the form submission action, the Call REST Resource allows you to configure the HTTP request to the REST web server, passing details of the e-commerce order within the request body content (incl. the order summary, the delivery form responses and the individual item details).
+
+The completion action also allows you to set custom parameters for Product asset types on a new Order Array keyword, as well as configure the Error Response Notification Email for non-2xx responses from the REST server.
+
+REST Resource JavaScript: V8 JS Engine [ Feature Request #5869 ]
+-----------------------------------------------------
+
+Current the REST Resource JavaScript asset only allows you to use the SpiderMonkey JS engine to execute JS commands. This feature introduces the option of using the V8 engine, if the PECL V8js extension installed.
+
+Additional SAML Options for User Linking and Creation [ Feature Request #5873 ]
+-----------------------------------------------------
+
+In this month's releases of Matrix, we unveiled federated access management single sign-on and identity verification through our new SAML Account Manager asset. This feature adds further options to this asset, allowing you to set the linking settings for users (automated in current release), as well as allow Matrix to automatically create linked local users during the authentication process.
+
+The Allow Linking to Existing Users and Automatic Creation options are available on the Details screen of the SAML Account Manager. 
+
+By default, linking to existing users is enabled. This means that is a user is logged in to Squiz Matrix and their account is SAML authenticated, the SAML Account Manager will prompt the user to link their accounts, if they have not yet been. This linking allows for federated access to the system, automatically signing the user into their account as part of the SAML authentication process.
+
+The Automatic Creation option handles the creation of linked local users when a user is not logged into Matrix. By default, this is a manual process, with users being allowed to create a new user account during SAML authentication. Enabling this option will automate this creation, skipping this manual process.
+
+This feature has been added to provide users with more options for configuring SAML federated access management on their systems.
+
+OAuth Session: Redirect to Authorise, Store Access Token [ Feature Request #5874 ]
+-----------------------------------------------------
+
+Squiz Matrix's REST Resource OAuth assets allow you to define the parameters for OAuth authentication when communicating with an OAuth secure REST web service. This feature introduces additional parameters, allowing you to redirect users to an external authorisation page and providing the option of permanently store the access token.
+
+The Redirect to Authorise and Store Access Token options are available on the Details screen of REST Resource OAuth assets. 
+
+By default, neither of these options will be enabled.
+
+Enabling the Redirect to Authorise option will redirect a user to the service provider's authorisation page to authorise the request token instead of simply nesting the authorisation form within Squiz Matrix.
+
+The Store Access Token option allows you to permanently store the access token. By default, this token is stored in the session, meaning that when a user logs out, the token will be lost. Permanently storing this token will prevent users from having to reauthorise in each user session. Disabling this option will remove any permanently stored tokens.
+
+These features have been added to bring Squiz Matrix OAuth more in line with established authentication standards. 
+
+New Keyword to Print the ID of a Paint Layout on an Asset [ Feature Request #5878 ]
+-----------------------------------------------------
+
+A new keyword replacement has been added to Squiz Matrix to print the asset ID of the paint layout on an asset.
+
+%asset_paint_layout_id% 
+
+This keyword will print the asset ID of the Paint layout applicable for the asset on the current URL, whether asset-based, URL-based or user-defined.
+
+This keyword can be used in conjunction with the as_asset keyword modifier which dynamically supplies an asset ID (in this case, of a Paint Layout) on a set asset_keyword. This will allow users to expose the properties and attributes of a Paint Layout within an asset's content.
+
+%asset_paint_layout_id^as_asset:asset_name% 
+
+The above keyword format, for example, would print the name of the asset's Paint Layout.
+
+New Context Functions on JavaScript API [ Feature Request #5891 ]
+-----------------------------------------------------
+
+Five new functions have been added to the JavaScript API for retrieving and setting context information.
+
+	- getAlternateContext() : retrieves the alternate context applicable to current situation where Squiz Matrix will go through each context and evaluate based on the conditions defined in them.
+	- getCurrentContext() : retrieves the current context active on the system.
+	- getAllContexts() : retrieves all contexts defined in the system.
+	- setContext() : sets a context via the API.
+	- restoreContext() : restores the context to what it was previously set to. Should be used in conjunction with setContext().
+
+Performance Mode Enhancements [ Feature Request #5910 ]
+-----------------------------------------------------
+
+The following enhancements have been made to Squiz Matrix's Performance Mode:
+
+	- Performance mode will now display the time spent on queries, together with the number of queries.
+	- Fixed issue where some queries (those called with getXX() style functions) were being repeatedly counted.
+
+
+Additional Changes and Bug Fixes
+=================================== 
+
+Minor Enhancements
+
+Minor Enhancement #5728: Improved Error Handling for Invalid Paths on Installation Step Scripts.
+Minor Enhancement #5730: Rollback Truncation on Automatic System Upgrade.
+Minor Enhancement #5845: Asset Builder Selectable Create Location Enhancements.
+Minor Enhancement #5852: Memcache Session Handler Support on Site Network Assets.
+Minor Enhancement #5861: Improved Error Handling for Malformed PDF Uploads.
+Minor Enhancement #5875: Update Twitter Status Action Upgraded to Support Twitter API 1.1.
+Minor Enhancement #5881: New Report Mode on the system_integrity_fix_char_encoding.php Script.
+Minor Enhancement #5888: Remote Content Asset URL Tunnelling Option Warning.
+Minor Enhancement #5889: New JS API Function to Return Metadata Schema Info. 
+Minor Enhancement #5907: Enhancements to the system_integrity_fix_char_encoding.php Script. 
+Minor Enhancement #5913: Interface to Configure the Related Metadata Field's is_contextable Option. 
+
+Core
+
+Fixed Bug #5828: The reindexSearchIndex.php script consumes too much memory. 
+Fixed Bug #5833: Can't download File Assets over HTTPS using IE7 and IE8.
+Fixed Bug #5844: matrixsqlclient breaks terminal. 
+Fixed Bug #5871: Matrix emailing the workflow initiator from previous workflow process when asset pushed to Live.
+Fixed Bug #5876: Issue with Metadata values when Deja Vu enabled. 
+Fixed Bug #5894: import_file.php script errors.
+Fixed Bug #5895: Cancel Safe Edit status / clone asset via JS API with filter frontend user option turned on does unnecessarily escape HTML to entities.  
+Fixed Bug #5896: SQ_CONF_REDIRECT_URL_WITH_TRAILING_SLASH redirects infinitely for a ROOT URL which is not listed main.inc.
+Fixed Bug #5897: Getting count of internal messages does an unnecessary join.
+Fixed Bug #5898: Viewing an inbox - improvements.
+Fixed Bug #5904: Custom Form current_page_content keyword doesn't do JS frontend validation.
+
+CMS
+
+Fixed Bug #5901: Setting Form Submission asset LIVE can result in loss of all the answers.
+
+Search
+
+Fixed Bug #5864: Using special characters in Oracle Search generates unescaped characters in file names.
+
+LDAP
+
+Fixed Bug #5882: Unable to acquire locks on 'Inbox' of LDAP user with \, in CN.
+
+Calendar
+
+Fixed Bug #5866: Events search not sorting when sorting by the asset attribute value.
+Fixed Bug #5893: Run Level not restored failing to save the attributes of calendar event modification.
+
+Data
+
+Fixed Bug #5902: RSS Data Source timeout error for some feeds.
+
+Web Services
+
+Fixed Bug #5877: SOAP Server asset sends proper HTTP authentication header.
+Fixed Bug #5883: Oath and POST REST call problem.
+Fixed Bug #5884: JS API calls to getAttributes on div content assets that contain keywords get evaluated.
+Fixed Bug #5890: JS API throws "Unable to get value of the property '0': object is null or undefined".
+
+
+
 
 VERSION 4.8.0 RC1
 
