@@ -2,15 +2,15 @@
 /**
 * +--------------------------------------------------------------------+
 * | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
-* | ACN 084 670 600                                                    |
+* | ABN 77 084 670 600                                                  |
 * +--------------------------------------------------------------------+
 * | IMPORTANT: Your use of this Software is subject to the terms of    |
 * | the Licence provided in the file licence.txt. If you cannot find   |
-* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | this file please contact Squiz (www.squiz.com.au) so we may provide   |
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_related_asset_edit_fns.inc,v 1.2 2010/11/11 04:58:15 ewang Exp $
+* $Id: metadata_field_related_asset_edit_fns.inc,v 1.2.10.1 2012/09/26 04:13:15 cupreti Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Metadata_Field_Related_Asset_Edit_Fns
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.10.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -183,7 +183,12 @@ class Metadata_Field_Related_Asset_Edit_Fns extends Metadata_Field_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 
-		$value = $asset->attr('default');
+		if ((boolean)$asset->attr('is_contextable') === TRUE) {
+			$value = $asset->attr('default');
+		} else {
+			$value = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('default', 'metadata_field', Array($asset->id), 0);
+			$value = array_get_index($value, $asset->id, '');
+		}
 
 	   	if (!$write_access) {
             if (!$value) {
@@ -193,7 +198,6 @@ class Metadata_Field_Related_Asset_Edit_Fns extends Metadata_Field_Edit_Fns
             }
         } else {
     	    asset_finder($prefix.'_default', $value);
-	
 		}
 
 		return TRUE;
@@ -217,8 +221,15 @@ class Metadata_Field_Related_Asset_Edit_Fns extends Metadata_Field_Edit_Fns
 			return FALSE;
 		}
 		$new_value = trim(array_get_index($_POST, 'sq_asset_finder_'.$prefix.'_default_assetid', ''));
-		$value = $asset->attr('default');
-		
+
+		$is_contextable = (boolean)$asset->attr('is_contextable');
+		if ($is_contextable === TRUE) {
+			$value = $asset->attr('default');
+		} else {
+			$value = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('default', 'metadata_field', Array($asset->id), 0);
+			$value = array_get_index($value, $asset->id, '');
+		}
+
 		$save_value = FALSE;
 		if ($new_value != $value) {
 			if ($new_value && !$GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($new_value))) {
@@ -226,7 +237,25 @@ class Metadata_Field_Related_Asset_Edit_Fns extends Metadata_Field_Edit_Fns
 				return FALSE;
 			}
 			$save_value = TRUE;
-			$asset->setAttrValue('default', $new_value);
+			if ($is_contextable === TRUE) {
+				// If the metadata value is contextable, just use the contextable default
+				$asset->setAttrValue('default', $new_value);
+				$save_value = TRUE;
+			} else {
+				// Not contextable; in this case the default value authority goes to the default context
+				$GLOBALS['SQ_SYSTEM']->changeContext(0);
+
+				$default_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->id);
+				$default_asset->setAttrValue('default', $new_value);
+				$default_asset->saveAttributes();
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($default_asset);
+				unset($default_asset);
+
+				$GLOBALS['SQ_SYSTEM']->restoreContext();
+
+				// No need to save attributes in THIS context.
+				$save_value = FALSE;
+			}
 		}
 
 		return $save_value;
