@@ -2,15 +2,15 @@
 /**
 * +--------------------------------------------------------------------+
 * | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
-* | ABN 77 084 670 600                                                 |
+* | ACN 084 670 600                                                    |
 * +--------------------------------------------------------------------+
 * | IMPORTANT: Your use of this Software is subject to the terms of    |
 * | the Licence provided in the file licence.txt. If you cannot find   |
-* | this file please contact Squiz (www.squiz.com.au) so we may provide|
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.79 2012/08/30 01:09:05 ewang Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.80 2012/09/26 00:05:45 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.79 $
+* @version $Revision: 1.80 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -267,6 +267,21 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 			return FALSE;
 		}
 
+		require_once SQ_FUDGE_PATH.'/general/text.inc';
+		$keywords = retrieve_keywords_replacements($output);
+
+		// Temporarily remove the keywords containing './?a=xxx' from the contnet
+		// This will ensure the './?a=xxx' urls in the keywords are not replaced here in the bodycopy level 
+		// but rather at global level, hence not breaking the keywords having matrix assetid URLs (bug #5906)
+		$matrix_url_keywords = Array();
+		foreach($keywords as $keyword) {
+			if (strpos($keyword, './?a=') !== FALSE) {
+				$hash = md5($keyword);
+				$matrix_url_keywords[$hash] = $keyword;
+				$output = preg_replace('|%((<([^>]+?)>)+)?'.escape_regex_chars($keyword).'((<([^>]+?)>)+)?%|', '%${1}'.$hash.'$4%', $output);
+			}//end if
+		}//end foreach
+
 		// replacing normal assetids is simple because they can only be numerical chars :)
 		$e = '|\\./\\?a=([0-9]+)([^0-9:])|';
 		$r = '<'.'?php echo array_get_index($sq_asset_url_list, $1, "./?a=$1"); ?'.'>$2';
@@ -286,8 +301,10 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 
 		}// end if
 
-		require_once SQ_FUDGE_PATH.'/general/text.inc';
-		$keywords = retrieve_keywords_replacements($output);
+		// Put the keywords containing './?a=xxx' urls back
+		foreach($matrix_url_keywords as $hash => $keyword) {
+			$output = preg_replace('|%((<([^>]+?)>)+)?'.$hash.'((<([^>]+?)>)+)?%|', '%${1}'.$keyword.'$4%', $output);
+		}
 
 		$attributes = $asset->attr('attributes');
 		if (empty($attributes['disable_keywords'])) {
@@ -296,7 +313,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 				$regex_safe_keyword = escape_regex_chars($keyword);
 				// Escape the double quotes, newlines and '$' in the keyword
 				$keyword = str_replace('$', '\\\$', str_replace('\n', '\\\\\n', htmlentities($keyword)));
-				
+
 				$output = preg_replace('|%((<([^>]+?)>)+)?'.$regex_safe_keyword.'((<([^>]+?)>)+)?%|', '\\1<'.'?php echo (isset($keyword_replacements["'.$keyword.'"])) ? $keyword_replacements["'.$keyword.'"] : ""; ?'.'>\\4', $output);
 			}
 
@@ -324,7 +341,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 
 		$contextid = (int)$GLOBALS['SQ_SYSTEM']->getContextId();
 		$file_name = 'content_file'.(($contextid === 0) ? '' : ('.'.$contextid)).'.php';
-		
+
 		return string_to_file($output, $asset->data_path.'/'.$file_name);
 
 	}//end generateContentFile()
