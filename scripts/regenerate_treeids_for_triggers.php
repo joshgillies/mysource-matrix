@@ -10,17 +10,17 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: regenerate_treeids_for_triggers.php,v 1.4 2012/08/30 01:04:53 ewang Exp $
+* $Id: regenerate_treeids_for_triggers.php,v 1.5 2012/09/26 03:46:51 akarelia Exp $
 *
 */
 
 /**
-* Bug fix #3864  	Rebuilding Link Tree breaks triggers
-* This script will get all the triggers installed int he system and regenerate them
-* this will re-enter values in table, thus fxing up any issue with inconsistent tree_ids
+* Bug fix #3864 Rebuilding Link Tree breaks triggers
+* This script will get all the triggers installed in the system and regenerate them
+* this will re-enter values in table, thus fixing up any issue with inconsistent tree_ids
 *
 * @author  Ashish Karelia <akarelia@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
