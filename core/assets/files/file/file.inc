@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.213 2012/09/28 06:31:29 ewang Exp $
+* $Id: file.inc,v 1.214 2012/09/28 07:53:41 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.213 $
+* @version $Revision: 1.214 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1322,7 +1322,7 @@ class File extends Asset
 				$ssl_connection = TRUE;
 			}
 			$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-			$using_ie6_8 = preg_match('/(MSIE\s[0-8]+\.)/', $_SERVER['HTTP_USER_AGENT']);
+			$using_ie6_8 = isset ($_SERVER['HTTP_USER_AGENT']) ? preg_match('/(MSIE\s[0-8]+\.)/', $_SERVER['HTTP_USER_AGENT']) : FALSE;
 
 			// send cacheable headers if file asset meets the credentials
 			if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && SQ_CONF_SEND_CACHEABLE_HEADER && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User) && empty($_POST) && $cm->cacheableHeadersEnabledForCurrentProtocol() && $this->status >= SQ_STATUS_LIVE && $this->readAccess()) {
