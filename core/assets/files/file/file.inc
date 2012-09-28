@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.212 2012/08/30 01:09:07 ewang Exp $
+* $Id: file.inc,v 1.213 2012/09/28 06:31:29 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.212 $
+* @version $Revision: 1.213 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -331,6 +331,15 @@ class File extends Asset
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
+		// still insert the __data url for safe edit
+		if($this->attr('allow_unrestricted') && $this->effectiveUnrestricted()) {
+		    if(!$this->insertDataLookup()) {
+			    trigger_localised_error('CORE0053', E_USER_WARNING, $this->name);
+			    $GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			    $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			    return FALSE;
+		    }
+		}
 
 		// store the current version of the file
 		$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
@@ -572,8 +581,13 @@ class File extends Asset
 	{
 		if (!parent::_updated($update_parents)) return FALSE;
 
-		if ($this->status & SQ_SC_STATUS_SAFE_EDITING || $this->ignore_update == TRUE) {
+		if ($this->ignore_update == TRUE) {
 			return TRUE;
+		}
+		
+		if($this->status & SQ_SC_STATUS_SAFE_EDITING) {
+		    $this->updateLookups();
+		    return TRUE;	
 		}
 
 		return $this->_checkFileState();
@@ -590,7 +604,10 @@ class File extends Asset
 	*/
 	public function permissionsUpdated()
 	{
-		if ($this->status & SQ_SC_STATUS_SAFE_EDITING) return TRUE; //don't touch public file in safe edit
+		if ($this->status & SQ_SC_STATUS_SAFE_EDITING) {
+		    $this->updateLookups();
+		    return TRUE; //don't touch public file in safe edit
+		}
 		return $this->_checkFileState();
 
 	}//end permissionsUpdated()
@@ -760,10 +777,15 @@ class File extends Asset
 		if (!isset($this->_tmp['deleting_file'])) {
 			$this->_tmp['deleting_file'] = FALSE;
 		}
+		
 		if (!$this->usePublicPath() && !$this->_tmp['deleting_file']) {
 			// this file is either in a safe edit, restricted, or doesnt want to be unrestricted
-			// so we dont worry about __data paths
-			return parent::updateLookups($auto_add_remaps);
+			// so we just call parent to update urls, if the asset is safe edit, but unrestricted otherwise, we still want to insert the __data url
+			$result =  parent::updateLookups($auto_add_remaps);
+			if(($this->status & SQ_SC_STATUS_SAFE_EDITING) && $this->attr('allow_unrestricted') && $this->effectiveUnrestricted()) {
+			    $result = $result && ($this->insertDataLookup());
+			}
+			return $result;
 		}
 
 		// Remove all the old URLs
@@ -781,12 +803,49 @@ class File extends Asset
 		} catch (Exception $e) {
 			throw new Exception('Unable to delete lookup information for asset: '.$this->id.' due to database error: '.$e->getMessage());
 		}
+		
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		// insert __data URL
+		$result = $this->insertDataLookup();
 
+		//Bug #5072: Trashed file assets still accessible via public data URL
+		//We only reached here because we are supposed to have a public web path but
+		//if we e.g. have moved to the trash or under a site with no URL, we should remove the public file.
+		if (empty($result)){
+			$this->_removePublicFile();
+		} else {
+			$this->_updatePublicFile();
+		}
+
+		// broadcast the lookup updated trigger event, passing old status as event data
+		$parameter = Array();
+		if (isset($this->_tmp['old_status'])) {
+			$parameter['old_status'] = $this->_tmp['old_status'];
+		}
+		if (!empty($old_urls)) {
+			$parameter['old_urls'] = $old_urls;
+		}
+		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em->broadcastEvent($this, 'LookupsUpdated', Array('asset_name' => $this->name));
+		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_lookups_updated', $this, $parameter);
+
+		return TRUE;
+
+	}//end updateLookups()
+
+	
+	/**
+	* Called to insert a __data url
+	*
+	* @return int | bool
+	* @access protected
+	*/	
+	protected function insertDataLookup()
+	{
 		$existing = $this->getExistingFile();
 		if (!isset($existing['filename'])) {
 			// there is no filename, so commit the removal of the current web paths and return
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return TRUE;
 		}
 
@@ -841,7 +900,12 @@ class File extends Asset
 			}//end foreach
 
 		}//end else - if SQ_CONF_STATIC_ROOT_URL is not empty
-
+		
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$db = MatrixDAL::getDb();
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		
+		$result = 0;
 		foreach ($save_urls as $url => $url_data) {
 			try {
 				$bind_vars	= Array (
@@ -865,32 +929,10 @@ class File extends Asset
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-
-		//Bug #5072: Trashed file assets still accessible via public data URL
-		//We only reached here because we are supposed to have a public web path but
-		//if we e.g. have moved to the trash or under a site with no URL, we should remove the public file.
-		if (empty($save_urls)){
-			$this->_removePublicFile();
-		} else {
-			$this->_updatePublicFile();
-		}
-
-		// broadcast the lookup updated trigger event, passing old status as event data
-		$parameter = Array();
-		if (isset($this->_tmp['old_status'])) {
-			$parameter['old_status'] = $this->_tmp['old_status'];
-		}
-		if (!empty($old_urls)) {
-			$parameter['old_urls'] = $old_urls;
-		}
-		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
-		$em->broadcastEvent($this, 'LookupsUpdated', Array('asset_name' => $this->name));
-		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_lookups_updated', $this, $parameter);
-
-		return TRUE;
-
-	}//end updateLookups()
-
+		
+		return $result;
+	}//end insertDataLookup()
+	
 
 	/**
 	* Processes a backend submission from this asset, returns TRUE if all OK
