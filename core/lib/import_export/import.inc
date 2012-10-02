@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import.inc,v 1.30 2012/08/30 01:09:21 ewang Exp $
+* $Id: import.inc,v 1.30.2.1 2012/10/02 04:20:52 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * Importing functions, reads an XML file and imports an asset strucutre
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.30.2.1 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -42,9 +42,9 @@ function get_import_actions($import_file)
 	}
 
 	// bug fix #5410 "Import Assets from XML Tool" running out of memory
-	// if we are on command line then dont worry about memory exhaustion 
-	// issue do the whole XML file altogether if the request is coming from 
-	// the web interface as mentioned on the bug report then execute the 
+	// if we are on command line then dont worry about memory exhaustion
+	// issue do the whole XML file altogether if the request is coming from
+	// the web interface as mentioned on the bug report then execute the
 	// code block in else statment
 	if ((php_sapi_name() == 'cli')) {
 		$index				= Array();
@@ -68,7 +68,7 @@ function get_import_actions($import_file)
 		populate_import_action_array($import_actions, $xml_import_vals);
 
 	} else {
-		// get few actions at a time from the XML so that while perforing 
+		// get few actions at a time from the XML so that while perforing
 		// populate_import_action_array() on it we dont run out of memory
 		$actions = Array();
 		$import_actions = Array();
@@ -76,7 +76,7 @@ function get_import_actions($import_file)
 		$old_exec_time = ini_get('max_execution_time');
 		// set higher execution time to allow matrix
 		// to read from the xml that might be quiet big
-		set_time_limit (200); 
+		set_time_limit (200);
 		$xml_header = '';
 		while(!feof($fh)) {
 			$p	= xml_parser_create();
@@ -98,12 +98,12 @@ function get_import_actions($import_file)
 				// but if we are on the </actions> that means we are done with file
 				// break out or else there will be a infinite looping in this do...while
 				if (trim($line) == '') continue;
-				if (preg_match('/(<actions>)$/', $line)) continue;
-				if (preg_match('/(^<\?xml version)/', $line)) {
+				if (preg_match('/(<actions>)$/', trim($line))) continue;
+				if (preg_match('/(^<\?xml version)/', trim($line))) {
 					$xml_header = $line;
 					continue;
 				}
-				if (preg_match('/(<\/actions>)$/', $line)) break;
+				if (preg_match('/(<\/actions>)$/', trim($line))) break;
 
 				$content = $content.$line;
 				$count++;
@@ -286,7 +286,7 @@ function execute_import_action($action, &$outputs, $input_values=array())
 	if ($output === FALSE) return FALSE;
 
 	$outputs[$action['action_id'][0]] = $output;
-	
+
 	if ($action_class == 'trigger_action_set_attribute_value' && isset($output['attribute']) && $output['attribute'] == 'varieties'){
 		if (isset($output['assetid'])) {
 			$image = $GLOBALS['SQ_SYSTEM']->am->getAsset($output['assetid']);
@@ -320,7 +320,7 @@ function execute_import_action($action, &$outputs, $input_values=array())
 				$custom_da_links = $design_customisation->getDesignAreaLink();
 				$data = Array();
 
-				// get all the design_area on our customisations, and remove the ones that are 
+				// get all the design_area on our customisations, and remove the ones that are
 				// already 'customised' by out customisation
 				foreach ($custom_da_links as $custom_da_link) {
 					$parent_da = $parent_design->getDesignAreaLink($custom_da_link['value']);
@@ -343,7 +343,7 @@ function execute_import_action($action, &$outputs, $input_values=array())
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset_imported);
 
 	}//end if (trigger_action_create_asset)
-	
+
 	return TRUE;
 
 }//end execute_import_action()
@@ -432,7 +432,6 @@ function get_import_action_input_value($action, $attribute, $outputs=Array(), $i
 					$value = $dsn[$matches[2][0]];
 				}
 			}
-			
 		}
 
 		// construct-specific calls - will not work on a regular import
