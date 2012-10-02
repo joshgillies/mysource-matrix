@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_session_var.inc,v 1.8 2012/08/30 01:09:14 ewang Exp $
+* $Id: trigger_action_set_session_var.inc,v 1.9 2012/10/02 06:19:40 akarelia Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 * </PRE>
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -108,11 +108,27 @@ class Trigger_Action_Set_Session_Var extends Trigger_Action
 		$var_name = @$settings['name'];
 		if (empty($var_name)) return FALSE;
 
+		if (empty($state['asset'])) {
+			// grab the asset if assetid is given, but not the asset.
+			if (empty($state['assetid'])) {
+				return FALSE;
+			} else {
+				$state['asset'] = $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
+			}
+		}
+
+		$old_current_asset = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CURRENT_ASSET', NULL);
+		$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CURRENT_ASSET', $state['asset']);
 
 		$parameter_map_value = array_get_index($settings, 'value_map', serialize(Array()));
 		$atr_parameter_map = new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
 		$param_map_value = $atr_parameter_map->getParameterValue('value');
 
+		if (is_null($old_current_asset)) {
+			$GLOBALS['SQ_SYSTEM']->unsetGlobalDefine('CURRENT_ASSET');
+		} else {
+			$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CURRENT_ASSET', $old_current_asset);
+		}
 
 		// settings contains the 'fallback' static value.
 		if (!empty($param_map_value)) {
@@ -121,9 +137,7 @@ class Trigger_Action_Set_Session_Var extends Trigger_Action
 			$value = $settings['value'];
 		}
 
-
 		$_SESSION[SQ_SESSION_SANDBOX_INDEX][$var_name] = $value;
-
 
 		return Array(
 				'name'		=> $var_name,
