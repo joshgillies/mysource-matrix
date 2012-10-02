@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.209.2.2 2012/07/26 05:21:04 ewang Exp $
+* $Id: backend.inc,v 1.209.2.3 2012/10/02 05:19:51 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.209.2.2 $
+* @version $Revision: 1.209.2.3 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -1431,14 +1431,14 @@ class Backend extends MySource_Object
 	{
 	    
 	    	// verify nonce secuirty token to make sure the user submitting the request is using Matrix's backend interface
-		if(SQ_IN_BACKEND && isset($_POST['process_form'])) {
+		if((SQ_IN_BACKEND || SQ_IN_LIMBO) && isset($_POST['process_form'])) {
 		    if(!isset($_POST['token'])) {
-			trigger_error('Secuirty token not found');
+			trigger_error('Security token not found');
 			return;
 		    }
 		    $token = get_unique_token();
 		    if($_POST['token'] !== $token) {
-			trigger_error('Invalid secuirty token');
+			trigger_error('Invalid security token');
 			return;
 		    } 
 		}
