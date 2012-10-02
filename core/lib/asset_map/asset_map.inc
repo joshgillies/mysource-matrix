@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.308.2.3 2012/07/26 05:21:04 ewang Exp $
+* $Id: asset_map.inc,v 1.308.2.4 2012/10/02 02:12:25 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.308.2.3 $
+* @version $Revision: 1.308.2.4 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -2315,7 +2315,7 @@ class Asset_Map
 	*
 	* @return object
 	* @access private
-	*/	
+	*/
 	private function _fixUrlencodedAssetids($input)
 	{
 		// Construct a new input object with attribute values correctly escaped
@@ -2324,7 +2324,7 @@ class Asset_Map
 		foreach($input->attributes() as $attr_name => $attr_value) {
 			// Ensure no url friendly values exists for assetids
 			if ($attr_name == 'to_parent_assetid') {
-				$attr_value = urlencode($attr_value);
+				$attr_value = urldecode($attr_value);
 			}
 			$temp_input->addAttribute($attr_name, $attr_value);
 		}
@@ -2338,9 +2338,9 @@ class Asset_Map
 				$new_child->addAttribute($attr_name, $attr_value);
 			}//end foreach
 		}//end foreach
-		
+
 		return $temp_input;
-	
+
 	}//end _fixUrlencodedAssetids()
 
 
