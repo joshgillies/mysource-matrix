@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_record.inc,v 1.5.16.1 2012/07/18 06:52:21 akarelia Exp $
+* $Id: data_record.inc,v 1.5.16.2 2012/10/03 06:22:44 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.5.16.1 $
+* @version $Revision: 1.5.16.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -100,5 +100,24 @@ class Data_Record extends Asset
 	}//end _getName()
 
 
+	/**
+	* Returns an array of all the permitted link type, the type asset and the cardinality
+	*
+	* @return array
+	* @access private
+	* @see Asset::_getAllowLinks()
+	*/
+	public function _getAllowedLinks()
+	{
+		return Array(
+				SQ_LINK_TYPE_1	=> Array(
+									'folder'	=> Array('card' => 'M', 'exclusive' => FALSE),
+								   ),
+			   );
+
+	}//end _getAllowedLinks()
+
+
 }//end class
+
 ?>
