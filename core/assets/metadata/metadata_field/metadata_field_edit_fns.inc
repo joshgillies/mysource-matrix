@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_edit_fns.inc,v 1.63 2012/08/30 01:09:08 ewang Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.64 2012/10/03 07:55:54 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.64 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -306,7 +306,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintInlineValueInterface(Metadata_Field $asset, Backend_Outputter $o, $value_str, $write_access, $print_cascade_values_option = TRUE)
+	function paintInlineValueInterface(Metadata_Field $asset, Backend_Outputter $o, $value_str, $write_access, $print_cascade_values_option = TRUE, $type_code=NULL)
 	{
 		$complete = $this->requiredFieldsComplete($asset, $value_str);
 		// set field header to friendly_name if it is not empty
@@ -323,7 +323,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 		// use description as the note for this field
 		$o->openField($field_name, '', $asset->attr('description'));
 		$writable = $write_access && $asset->attr('editable');
-		$res = $this->paintValueInterface($asset, $o, $value_str, $writable, TRUE, $print_cascade_values_option);
+		$res = $this->paintValueInterface($asset, $o, $value_str, $writable, TRUE, $print_cascade_values_option, $type_code);
 		if (!$write_access && $asset->attr('required') && !$complete) {
 			echo '<b class="sq-backend-warning">['.strtoupper(translate('empty')).']</b>';
 		}
@@ -343,11 +343,12 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	* @param boolean	$write_access	does the current user have write access to the asset
 	*									that we are setting metadata for (NOT THE SAME AS $asset)
 	* @param boolean	$enable_default	Whether to show the 'use default' checkbox
+	* @param string		$type_code      The type_code of the asset that the metadata is being printed
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintValueInterface(Metadata_Field $asset, Backend_Outputter $o, $value_str, $write_access, $enable_default=TRUE, $print_cascade_values_option = TRUE)
+	function paintValueInterface(Metadata_Field $asset, Backend_Outputter $o, $value_str, $write_access, $enable_default=TRUE, $print_cascade_values_option = TRUE, $type_code=NULL)
 	{
 		return FALSE;
 

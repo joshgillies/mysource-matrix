@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema_edit_fns.inc,v 1.58 2012/08/30 01:09:09 ewang Exp $
+* $Id: metadata_schema_edit_fns.inc,v 1.59 2012/10/03 07:53:26 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -266,11 +266,12 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	*
 	* @param Metadata_Schema	$asset			the asset whose interface we are painting
 	* @param array				&$new_values	an array we can store the new values in
+	* @param string				$type_code		The type_code of the asset that the metadata is being printed
 	*
 	* @return boolean
 	* @access public
 	*/
-	public function processInlineValueInterface(Metadata_Schema $asset, Array &$new_values, Array &$schema_cascade_values_asset_ids)
+	public function processInlineValueInterface(Metadata_Schema $asset, Array &$new_values, Array &$schema_cascade_values_asset_ids, $type_code=NULL)
 	{
 		$res = FALSE;
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', FALSE, 'major', NULL, TRUE);
@@ -279,7 +280,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 			$section = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($section)) continue;
 			$edit_fns = $section->getEditFns();
-			if ($edit_fns->processInlineValueInterface($section, $new_values, $section_cascade_values_asset_ids)) {
+			if ($edit_fns->processInlineValueInterface($section, $new_values, $section_cascade_values_asset_ids, $type_code)) {
 				$res = TRUE;
 
 				foreach($section_cascade_values_asset_ids as $asset_id => $val) {
