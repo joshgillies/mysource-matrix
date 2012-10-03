@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_edit_fns.inc,v 1.3 2010/05/05 07:16:12 ewang Exp $
+* $Id: soap_api_edit_fns.inc,v 1.3.14.1 2012/10/03 05:58:17 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.14.1 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -64,7 +64,7 @@ class SOAP_Api_Edit_Fns extends Asset_Edit_Fns
 		<table class="sq-backend-table">
 			<tr>
 				<td class="sq-backend-table-header">
-					<?php echo translate('question'); ?>
+					<?php echo translate('operations'); ?>
 				</td>
 				<td class="sq-backend-table-header">
 					<?php echo translate('enabled'); ?>
