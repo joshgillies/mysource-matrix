@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.130 2012/09/25 02:27:14 akarelia Exp $
+* $Id: js_api.inc,v 1.131 2012/10/03 01:40:11 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.130 $
+* @version $Revision: 1.131 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -246,6 +246,15 @@ class JS_Api extends Page
 			$this->returnError('You must set a function type');
 			restore_error_handler();
 			return;
+		}
+
+		if ($this->attr('sync_context') && isset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_BACKEND_ALTERNATE_CONTEXT_ID'])) {
+			$current_contextid = $_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_BACKEND_ALTERNATE_CONTEXT_ID'];
+			if (!isset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_ALTERNATE_CONTEXT_ID']) || 
+					$_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_ALTERNATE_CONTEXT_ID'] != $current_contextid) {
+				$_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_ALTERNATE_CONTEXT_ID'] = $current_contextid;
+				$GLOBALS['SQ_SYSTEM']->changeContext($current_contextid);
+			}
 		}
 
 		if ($function_type == 'batchRequest') {
@@ -2466,8 +2475,20 @@ class JS_Api extends Page
 	{
 		$all_info	 = array_get_index($args, 'all_info', FALSE);
 
+		// check to se if we can read the contextid from the session first
+		if ($this->attr('sync_context') && isset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_BACKEND_ALTERNATE_CONTEXT_ID'])) {
+			$current_contextid = $_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_BACKEND_ALTERNATE_CONTEXT_ID'];
+			if (!isset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_ALTERNATE_CONTEXT_ID']) || 
+					$_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_ALTERNATE_CONTEXT_ID'] != $current_contextid) {
+				$_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_ALTERNATE_CONTEXT_ID'] = $current_contextid;
+			}
+		} else if (isset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_ALTERNATE_CONTEXT_ID'])) {
+			$current_contextid = $_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_ALTERNATE_CONTEXT_ID'];
+		} else {
+			$current_contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+		}
+
 		$system_contexts   = $GLOBALS['SQ_SYSTEM']->getAllContexts();
-		$current_contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 		$context_info      = Array();
 
 		$currnet_context   = $system_contexts[$current_contextid];
@@ -2542,6 +2563,9 @@ class JS_Api extends Page
 				// valid context id is provided
 				$GLOBALS['SQ_SYSTEM']->changeContext($context_id);
 				$_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_ALTERNATE_CONTEXT_ID'] = $context_id;
+				if ($this->attr('sync_context')) {
+					$_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_BACKEND_ALTERNATE_CONTEXT_ID'] = $context_id;
+				}
 				$data['success'] = "Context successfully set to '$context_id'.";
 			} else {
 				$data['error'] = 'Context Id Provided doesn\'t exist on the system.';
@@ -2573,6 +2597,9 @@ class JS_Api extends Page
 		// valid context id is provided
 		$restored_context = $GLOBALS['SQ_SYSTEM']->restoreContext(TRUE);
 		$_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_ALTERNATE_CONTEXT_ID'] = $restored_context;
+		if ($this->attr('sync_context')) {
+			$_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_BACKEND_ALTERNATE_CONTEXT_ID'] = $restored_context;
+		}
 
 		$data['success'] = "Context successfully restored back to '$restored_context'.";
 
