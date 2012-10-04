@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.888 2012/08/30 01:09:19 ewang Exp $
+* $Id: asset_manager.inc,v 1.888.2.1 2012/10/04 01:07:07 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.888 $
+* @version $Revision: 1.888.2.1 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -8561,6 +8561,17 @@ class Asset_Manager extends MySource_Object
 				if (!isset($result[$assetid])) {
 					$this->_tmp['urls'][$assetid][$url_index][$cache_index] = '';
 				} else {
+					// go through each result and find __data url
+					// if there is __data url, and there are other local urls, we should only pick __data url for public users
+					// for public user, we just return  __data url because having __data url meaning the file asset is effectively unrestricted
+					if(count($result[$assetid]) > 1 && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User)) {
+					    foreach ($result[$assetid] as $index => $data) {
+						if(strpos(current_protocol().'://'.$data['url'], sq_web_path('data')) !== FALSE) {
+							$result[$assetid][0] = $data;
+							break;
+						}
+					    }
+					}
 					$this->_tmp['urls'][$assetid][$url_index][$cache_index] = $result[$assetid][0]['protocol'].'://'.$result[$assetid][0]['url'];
 				}
 				$return_urls[$assetid] = $this->_tmp['urls'][$assetid][$url_index][$cache_index];
