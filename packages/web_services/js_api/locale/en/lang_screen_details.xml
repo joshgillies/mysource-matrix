@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.25 2012/09/18 06:37:34 akarelia Exp $
+* $Id: lang_screen_details.xml,v 1.25.2.1 2012/10/04 05:50:49 akarelia Exp $
 *
 */
 -->
@@ -236,7 +236,7 @@
         </field>
 		<field attribute="get_metadata_schema">
 			<display_name>Get Metadata Schema</display_name>
-		</field>		
+		</field>
     </section>
     <section name="Contexts" write_access="write:attributes">
         <field attribute="get_context">
@@ -246,6 +246,10 @@
         <field attribute="set_context">
             <display_name>Set Context</display_name>
             <note />
+        </field>
+        <field attribute="sync_context">
+            <display_name>Sync Context</display_name>
+            <note>Enabling this option will synchronize the context on backend and the JS API frontend. I.e. changing/restoring context context via JS API will be reflected on backend too and vice versa.</note>
         </field>
     </section>
 </contents>

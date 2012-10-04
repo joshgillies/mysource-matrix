@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_enhanced_function_list.inc,v 1.26 2012/09/18 21:58:50 akarelia Exp $
+* $Id: js_api_enhanced_function_list.inc,v 1.26.2.1 2012/10/04 05:50:49 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author  Anthony Barnes <abarnes@squiz.com.au>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.26.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -139,6 +139,7 @@ class Js_Api_Enhanced_Function_List
 	* API methods
 	*/
 	gscope.Squiz_Matrix_API.prototype = {
+		syncing_enabled : <?php echo $js_api_asset->attr('sync_context'); ?>,
 
 		_http: function(options)
 		{
@@ -2633,7 +2634,7 @@ class Js_Api_Enhanced_Function_List
 
 			<?php
 		}//end if(set_context)
-		
+
 		if ($js_api_asset->attr('get_metadata_schema')) {
 			?>
 
