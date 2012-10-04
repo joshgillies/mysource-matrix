@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.96 2011/10/10 02:17:18 akarelia Exp $
+* $Id: bulk_mailer.inc,v 1.96.4.1 2012/10/04 07:16:44 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.96 $
+* @version $Revision: 1.96.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -117,7 +117,7 @@ class Bulk_Mailer
 					break;
 				}
 			}
-		}	
+		}
 		if (MatrixDAL::getDbType() === 'oci') {
 			MatrixDAL::setOciCommitOnSuccess (FALSE);
 		}
@@ -308,15 +308,20 @@ class Bulk_Mailer
 				foreach ($recipient_chunk as $r_info) {
 					$user_id = $r_info['assetid'];
 					$email = $r_info['custom_val'];
-					
-					//do not add the email to queue if there is no recipient's email address. This will make sure that the sendMailsInQueue() method
-					//of Mail_Queue class does not throw an exception when the first email in the chunk of 100 emails is empty which may leaves 99 valid
-					//email addresses not being sent to
-					if ((is_string($email) && (trim($email) == '')) || (is_array($email) && (trim($email['email']) == ''))) {
+
+					// do not add the email to queue if there is no recipient's email address. This will
+					// make sure that the sendMailsInQueue() method of Mail_Queue class does not throw an
+					// exception when the first email in the chunk of 100 emails is empty which may leaves
+					// 99 valid email addresses not being sent to. Further to that bug fx #5847 Bulkmail
+					// job does not correctly check for duplicate mails in its' queue if the email has
+					// leading/trailing white spaces or line breaks then that should be termed as invalid
+					// and don't allow it to be queued up or else PEAR package will go in infinite loop
+					if ((is_string($email) && (trim($email) == '')) || ($email != trim($email) || !valid_email($email))
+						|| (is_array($email) && (trim($email['email']) == '')) || ($email['email'] != trim($email['email']) || !valid_email($email['email']))) {
 						$this->updateProgress($progress_path, $user_id, FALSE, FALSE);
 						continue;
 					}
-					
+
 					$this->_reconnectDB();
 
 					// make sure user is not already in mail queue/sent directory
@@ -400,14 +405,14 @@ class Bulk_Mailer
 
 				$am->forgetAsset($job);
 				$am->forgetAsset($current_post_office);
-				try {	
+				try {
 					$status = $mail_queue->sendMailsInQueue();
 				} catch (Exception $e) {
 					trigger_localised_error('BML0001', E_USER_WARNING, $e->getMessage());
 					$this->nextChunk($progress_path);
 					exit;
 				}
-				
+
 				if ($status instanceof PEAR_Error) {
 					trigger_localised_error('BML0001', E_USER_WARNING, $status->getMessage());
 					$this->nextChunk($progress_path);
@@ -751,7 +756,7 @@ class Bulk_Mailer
 	* @access public
 	*/
 	public function generateContent($job_details, $job_path, $recipient_id=NULL, $email=NULL)
-	{	
+	{
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 
 		if (isset($job_details['content_id']) && $job_details['content_id']) {
