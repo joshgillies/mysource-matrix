@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_processor.inc,v 1.28 2010/05/07 03:52:25 cupreti Exp $
+* $Id: ecommerce_cart_processor.inc,v 1.28.14.1 2012/10/04 00:23:44 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 * @author Robert Howard <rhoward@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.28.14.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -886,7 +886,7 @@ class Ecommerce_Cart_Processor
 		$content_replacements['receipt_listing'] = ob_get_clean();
 
 		$total_tax = $this->getTotalTax($taxation_rate);
-		$content_replacements['total_tax'] = $remove_tax ? sprintf('-'.$price_format, $total_tax) : sprintf($price_format, $total_tax);
+		$content_replacements['total_tax'] = $remove_tax ? sprintf($price_format, 0) : sprintf($price_format, $total_tax);
 		$content_replacements['tax_name'] = $taxation_name;
 
 		ob_start();
