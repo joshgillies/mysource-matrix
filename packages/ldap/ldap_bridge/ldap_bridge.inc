@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.111 2012/08/30 00:58:58 ewang Exp $
+* $Id: ldap_bridge.inc,v 1.111.2.1 2012/10/04 06:21:53 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.111 $
+* @version $Revision: 1.111.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -282,17 +282,17 @@ class LDAP_Bridge extends Asset implements Bridge
 
 	}//end getAsset()
 
-	
+
 	/**
 	* Used by LDAP_Bridge::getAsset() to return a dummy asset when it fails to load the LDAP user.
-	* 
-	* @param string	$shadowid		
-	* 
+	*
+	* @param string	$shadowid
+	*
 	* @return mixed object|NULL
 	* @access protected
 	*/
-	protected function _getDummyAsset($shadowid){
-		
+	protected function _getDummyAsset($shadowid)
+	{
 		// return 'unknown ldap user' when we cannot find a match
 		$data['objectclass'] = Array();
 		$data['dn'] = $shadowid;
@@ -300,10 +300,10 @@ class LDAP_Bridge extends Asset implements Bridge
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset($user_type);
 		$asset = new $user_type($this->id, $data);
 		return $asset; // this should return a dummy
-		
+
 	}//end _getDummyAsset()
-	
-	
+
+
 	/**
 	* Returns an array of assetid => inherited_types for assets of the passed codes
 	*
@@ -458,11 +458,11 @@ class LDAP_Bridge extends Asset implements Bridge
 			} else {
 
 				$entries = NULL;
-				
+
 				$attr = $this->attr('attributes');
 				$user_attrs = $this->attr('user_attributes');
 				$sort_by = (!empty($user_attrs['sort_by'])) ? $user_attrs['sort_by'] : NULL;
-					
+
 				// If the group defines its own members, use the "Group Members" attribute to
 				// provide links to its members. Note that this is mandatory in Active Directory
 				// so if nothing is provided, the default "member" will be used.
@@ -523,7 +523,7 @@ class LDAP_Bridge extends Asset implements Bridge
 					}
 
 					$base_dn = $this->decodeString($base_dn);
-					
+
 					// Attributes representing the objectclass values are always required + attribute used for sorting
 					$sort_attr = (!empty($sort_by)) ? Array($sort_by) : Array();
 					$required_attrs = array_values(array_unique(array_merge($attr, $sort_attr, Array('c', 'o', 'ou', 'cn', 'dc', 'objectclass'))));
@@ -708,7 +708,7 @@ class LDAP_Bridge extends Asset implements Bridge
 		if (!isset($this->_tmp['getParents'][$assetid])) {
 			$ldap = @$this->connectToLdap();
 			if (is_null($ldap) || is_null($ldap->ptr)) return Array();
-			
+
 			// the attribute mappings to the LDAP schemas
 			$attrs = $this->attr('attributes');
 			$assetid = $this->decodeString($assetid);
@@ -785,11 +785,26 @@ class LDAP_Bridge extends Asset implements Bridge
 				}
 			}
 
-			foreach (array_keys($parents) as $parentid) {
-				// bug fix #5717 Permission cascade issue with Active Directory LDAP user
-				$real_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($parentid, $type_code, $strict_type_code);
-				$parents = $real_parents + $parents;
+			// keep the check on recursion
+			$recursion_check = FALSE;
+			if (!isset($this->_tmp['list_of_all_parents'])) {
+				$this->_tmp['list_of_all_parents'] = array_keys($parents);
+			} else {
+				$this->_tmp['list_of_all_parents'] = array_merge($this->_tmp['list_of_all_parents'], array_keys($parents));
+				$recursion_check = TRUE;
 			}
+
+			foreach (array_keys($parents) as $parentid) {
+				// bug fix #5919 getParents() infinite recursion when cycles in LDAP structure
+				// don't ursion check for the first time we are in this foreach loop
+				// everytime after that make sure to see if the parentid is not already
+				// in the array of the parents we are processing for a give ldap user
+				if (!$recursion_check || !in_array($parentid, $this->_tmp['list_of_all_parents'])) {
+					// bug fix #5717 Permission cascade issue with Active Directory LDAP user
+					$real_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($parentid, $type_code, $strict_type_code);
+					$parents = $real_parents + $parents;
+				}//end if
+			}//end foreach
 
 			$ldap->disconnect();
 			$this->_tmp['getParents'][$assetid] = $parents;
