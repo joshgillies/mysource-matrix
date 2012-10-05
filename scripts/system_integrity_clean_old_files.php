@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_clean_old_files.php,v 1.6 2012/08/30 01:04:53 ewang Exp $
+* $Id: system_integrity_clean_old_files.php,v 1.7 2012/10/05 07:20:38 akarelia Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Deletes the old checked-out files from the data directory for file type of assets
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 */
 
@@ -56,16 +56,8 @@ foreach ($options[0] as $option) {
 
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
 
-// ask for the root password for the system
-echo 'Enter the root password for "'.SQ_CONF_SYSTEM_NAME.'": ';
-$root_password = rtrim(fgets(STDIN, 4094));
-
 // check that the correct root password was entered
 $root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
-if (!$root_user->comparePassword($root_password)) {
-	echo "ERROR: The root password entered was incorrect\n";
-	exit();
-}
 
 // log in as root
 if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {

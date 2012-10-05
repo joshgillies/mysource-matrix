@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_run_tidy.php,v 1.11 2012/08/30 01:04:53 ewang Exp $
+* $Id: system_integrity_run_tidy.php,v 1.12 2012/10/05 07:20:38 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Syntax: system_integrity_run_tidy.php [Matrix_Root] [Root_Assetid]
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -47,16 +47,8 @@ if ($ROOT_ASSETID == 1) {
 	echo "\nWARNING: You are running this checker on the whole system.\nThis is fine but:\n\tit may take a long time; and\n\tit will acquire locks on many of your assets (meaning you wont be able to edit content for a while)\n\n";
 }
 
-// ask for the root password for the system
-echo 'Enter the root password for "'.SQ_CONF_SYSTEM_NAME.'": ';
-$root_password = rtrim(fgets(STDIN, 4094));
-
 // check that the correct root password was entered
 $root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
-if (!$root_user->comparePassword($root_password)) {
-	echo "ERROR: The root password entered was incorrect\n";
-	exit();
-}
 
 // log in as root
 if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {

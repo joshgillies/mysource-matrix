@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_fix_sort_orders.php,v 1.5 2012/08/30 01:04:53 ewang Exp $
+* $Id: system_integrity_fix_sort_orders.php,v 1.6 2012/10/05 07:20:38 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -57,15 +57,7 @@ if (is_null($parent)) {
 	exit();
 }//end if
 
-echo 'Enter the root password for "'.SQ_CONF_SYSTEM_NAME.'": ';
-$root_password = rtrim(fgets(STDIN, 4094));
-
-// check that the correct root password was entered
 $root_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
-if (!$root_user->comparePassword($root_password)) {
-	echo "ERROR: The root password entered was incorrect\n";
-	exit();
-}
 
 if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 	echo "ERROR: Failed login as root user\n";

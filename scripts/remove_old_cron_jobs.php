@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remove_old_cron_jobs.php,v 1.8 2012/08/30 01:04:53 ewang Exp $
+* $Id: remove_old_cron_jobs.php,v 1.9 2012/10/05 07:20:38 akarelia Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 * piled up so much that you can't delete them manually and can't run the cron script
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -38,17 +38,7 @@ if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')
 
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
 
-
-// ask for the root password for the system
-echo 'Enter the root password for "'.SQ_CONF_SYSTEM_NAME.'": ';
-$root_password = rtrim(fgets(STDIN, 4094));
-
-// check that the correct root password was entered
 $root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
-if (!$root_user->comparePassword($root_password)) {
-	echo "ERROR: The root password entered was incorrect\n";
-	exit();
-}
 
 // log in as root
 if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
