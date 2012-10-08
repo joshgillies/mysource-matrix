@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_orphaned_assets.php,v 1.18 2012/08/30 01:04:53 ewang Exp $
+* $Id: system_integrity_orphaned_assets.php,v 1.19 2012/10/08 00:18:25 akarelia Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 * the minor) underneath a specified asset id, preferably a folder
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -58,7 +58,9 @@ if ($ROOT_ASSETID == 1) {
 
 // ask for the root password for the system
 echo 'Enter the root password for "'.SQ_CONF_SYSTEM_NAME.'": ';
+system('stty -echo');
 $root_password = rtrim(fgets(STDIN, 4094));
+system('stty echo');
 
 // check that the correct root password was entered
 $root_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
