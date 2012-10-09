@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_management.php,v 1.5 2012/08/30 01:04:53 ewang Exp $
+* $Id: hipo_management.php,v 1.5.2.1 2012/10/09 01:04:43 akarelia Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Hipo Management 
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.2.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -55,19 +55,10 @@ if (isset($_SERVER['argv'][2]) && $_SERVER['argv'][2] == '-remove_all_jobs') {
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
 require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 
-// ask for the root password for the system
-echo 'Enter the root password for "'.SQ_CONF_SYSTEM_NAME.'": ';
-$root_password = rtrim(fgets(STDIN, 4094));
-
 $am = $GLOBALS['SQ_SYSTEM']->am;
 $hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 
 $root_user = $am->getSystemAsset('root_user');
-if (!$root_user->comparePassword($root_password)) {
-	echo "ERROR: The root password entered was incorrect\n";
-	exit();
-}//end if
-
 $GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user);
 
 $source_jobs = Array();

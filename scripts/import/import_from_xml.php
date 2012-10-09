@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_from_xml.php,v 1.24 2012/08/30 01:04:53 ewang Exp $
+* $Id: import_from_xml.php,v 1.24.2.1 2012/10/09 01:04:43 akarelia Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.24.2.1 $
 * @package MySource_Matrix
 */
 
@@ -60,16 +60,6 @@ if (isset($_SERVER['argv'][3]) && $_SERVER['argv'][3] == '--root-node' ) {
 }
 
 $root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
-
-// ask for the root password for the system
-echo 'Enter the root password for "'.SQ_CONF_SYSTEM_NAME.'": ';
-$root_password = rtrim(fgets(STDIN, 4094));
-
-// check that the correct root password was entered
-if (!$root_user->comparePassword($root_password)) {
-	echo "ERROR: The root password entered was incorrect\n";
-	exit();
-}
 
 require_once SQ_LIB_PATH.'/import_export/import.inc';
 $import_actions = get_import_actions($import_file);

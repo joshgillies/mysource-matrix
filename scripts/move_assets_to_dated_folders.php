@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: move_assets_to_dated_folders.php,v 1.8 2012/08/30 01:04:53 ewang Exp $
+* $Id: move_assets_to_dated_folders.php,v 1.8.2.1 2012/10/09 01:04:43 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 * Credit to Richard Hulse (Radio NZ) for this concept which is now available to the Matrix Community!
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.2.1 $
 * @package MySource_Matrix
 */
 
@@ -520,16 +520,8 @@ foreach ($options[0] as $option) {
 	}//end switch
 }//end foreach
 
-// Ask for the root password for the system
-echo 'Enter the root password for "'.SQ_CONF_SYSTEM_NAME.'": ';
-$root_password = rtrim(fgets(STDIN, 4094));
-
 // Check that the correct root password was entered
 $root_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
-if (!$root_user->comparePassword($root_password)) {
-	echo "ERROR: The root password entered was incorrect\n";
-	exit();
-}
 
 // Log in as root
 if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {

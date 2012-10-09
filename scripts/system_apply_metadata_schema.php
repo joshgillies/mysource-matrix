@@ -19,7 +19,7 @@
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
 * @author  James Hurst <jhurst@squiz.co.uk>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.2.1 $
 * @package MySource_Matrix
 */
 
@@ -48,10 +48,6 @@ define('LOG_FILE', SQ_SYSTEM_ROOT.'/data/private/logs/'.LOG_FILE_NAME);				// Th
 define('SYNCH_FILE', SQ_TEMP_PATH.'/set_metadata_schema.assetid');		// We need this file to store the assetids
 
 
-// ask for the root password for the system
-echo 'Enter the root password for "'.SQ_CONF_SYSTEM_NAME.'": ';
-$root_password = rtrim(fgets(STDIN, 4094));
-
 // Replace space with empty string
 $assetids = preg_replace('/[\s]*/', '', $config['assetids']);
 
@@ -74,16 +70,6 @@ $pid_prepare    = pcntl_fork();
             // the Oracle DB connection will be lost inside the fork.
             // In this case, because a user asset has more than 1 attribute and custom_val in sq_ast_attr_val
             // is of type CLOB, we attempt to check the root password inside our forked process.
-
-            // Check that the correct root password was entered.
-            // Yes this is checked for each site because even if this individual forked process is killed
-            // the parent process still runs and continues to fork more processes.
-            if (!$root_user->comparePassword($root_password)) {
-                // only show the error once
-                echo "The root password entered was incorrect\n";
-                exit;
-            }
-
             // log in as root
             if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
                 echo "Failed logging in as root user\n";

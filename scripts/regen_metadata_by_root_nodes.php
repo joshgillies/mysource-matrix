@@ -17,7 +17,7 @@
 * then it will go find all the children of those root nodes and regenerate metadata for these child assets.
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.2.1 $
 * @package MySource_Matrix
 */
 
@@ -74,10 +74,6 @@ define('BATCH_SIZE', $batch_size);																	// The number of assets being
 define('MAX_CONCURRENCY', $max_thread_num);															// The number of simultaneous threads can be spawned.
 
 
-// ask for the root password for the system
-echo 'Enter the root password : ';
-$root_password = rtrim(fgets(STDIN, 4094));
-
 // Replace space with empty string
 $assetids = preg_replace('/[\s]*/', '', $assetids);
 
@@ -96,16 +92,6 @@ $pid_prepare    = pcntl_fork();
             // the Oracle DB connection will be lost inside the fork.
             // In this case, because a user asset has more than 1 attribute and custom_val in sq_ast_attr_val
             // is of type CLOB, we attempt to check the root password inside our forked process.
-
-            // Check that the correct root password was entered.
-            // Yes this is checked for each site because even if this individual forked process is killed
-            // the parent process still runs and continues to fork more processes.
-            if (!$root_user->comparePassword($root_password)) {
-                // only show the error once
-                echo "ERROR: The root password entered was incorrect\n";
-                exit();
-            }
-
             // log in as root
             if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
                 echo "ERROR: Failed logging in as root user\n";

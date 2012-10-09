@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: move_assets.php,v 1.9 2012/08/30 01:04:53 ewang Exp $
+* $Id: move_assets.php,v 1.9.2.1 2012/10/09 01:04:43 akarelia Exp $
 *
 */
 
@@ -60,16 +60,7 @@ require_once $SYSTEM_ROOT.'/core/include/init.inc';
 //LINK_TYPE
 $LINK_TYPE = (isset($_SERVER['argv'][5])) ? $_SERVER['argv'][5] : SQ_SC_LINK_SIGNIFICANT;
 
-// ask for the root password for the system
-echo 'Enter the root password for "'.SQ_CONF_SYSTEM_NAME.'": ';
-$root_password = rtrim(fgets(STDIN, 4094));
-
-// check that the correct root password was entered
 $root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
-if (!$root_user->comparePassword($root_password)) {
-	echo "ERROR: The root password entered was incorrect\n";
-	exit();
-}
 
 // log in as root
 if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
