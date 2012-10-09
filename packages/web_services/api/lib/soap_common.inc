@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_common.inc,v 1.3 2012/08/30 00:59:45 ewang Exp $
+* $Id: soap_common.inc,v 1.3.2.1 2012/10/09 00:18:49 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ define('MAX_COMPLEX_TYPE_PASRSE_LOOP', 3);
 * This class will have all the common functions used for SOAP trigger and form actions
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -56,8 +56,8 @@ class SOAP_Common
 			if (is_object($value) || is_array($value)) {
 				self::_store_results ($value, $prefix.$index, $soap_response_keywords, $file_keywords);
 			} else {
-				// if the keyword we are trying to save is file 
-				// response and is configured to be saved 
+				// if the keyword we are trying to save is file
+				// response and is configured to be saved
 				// and to provide a link to the file
 				// then deal with it
 				if (in_array('%globals_session_'.$prefix.$index.'%', $file_keywords)) {
@@ -102,7 +102,7 @@ class SOAP_Common
 
 	}//end _parse_type()
 
-	/** 
+	/**
 	* Checks if the given param is array
 	*
 	* @return boolean
@@ -194,7 +194,7 @@ class SOAP_Common
 		}
 
 		foreach ($types as $type) {
-			if (preg_match ('/struct '.$param.'/', $type)) {
+			if (preg_match ('/struct '.$param.'\s*{/', $type)) {
 				// find and return sub types
 				preg_match_all ('/\w+ \w+;/', $type, $matches);
 				return $matches[0];
@@ -323,7 +323,7 @@ class SOAP_Common
 		$options['cache_wsdl'] = WSDL_CACHE_NONE;
 
 		return $options;
-		
+
 	}//end _getSoapOptions()
 
 
@@ -345,7 +345,7 @@ class SOAP_Common
 				$param[] = $object;
 			}
 		}
-		
+
 		// Get an array of parameters
 		$eval_string = '';
 		foreach ($param as $index => $object) {
@@ -391,10 +391,10 @@ class SOAP_Common
 
 		file_put_contents(SQ_DATA_PATH.'/private/soap_action_file_responses/'.$sessionid.'/'.$file_name, $content);
 
-		// generate url for file and throw it back to be used in the 
+		// generate url for file and throw it back to be used in the
 		// the keywords replacement array
 		$file_url = './?SQ_ACTION=get_soap_downloaded_file&soap_filename='.$file_name;
-		
+
 		return $file_url;
 
 	}//end _save_file()
