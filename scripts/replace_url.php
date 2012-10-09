@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: replace_url.php,v 1.7 2012/08/30 01:04:53 ewang Exp $
+* $Id: replace_url.php,v 1.7.2.1 2012/10/09 01:21:27 akarelia Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 * quicker
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.2.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -40,7 +40,9 @@ require_once $SYSTEM_ROOT.'/core/include/init.inc';
 
 // ask for the root password for the system
 echo 'Enter the root password for "'.SQ_CONF_SYSTEM_NAME.'": ';
+system('stty -echo');
 $root_password = rtrim(fgets(STDIN, 4094));
+system('stty echo');
 
 // check that the correct root password was entered
 $root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');

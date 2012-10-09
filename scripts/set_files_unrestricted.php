@@ -34,7 +34,7 @@
 *
 *
 * @author      Luke Wright <lwright@squiz.net>
-* @version     $Revision: 1.5 $
+* @version     $Revision: 1.5.2.1 $
 * @package     Mysource_Matrix
 * @subpackage  __core__
 */
@@ -113,7 +113,9 @@ echo 'Found '.count($file_assetids).' File asset(s) underneath asset ID #'.$ROOT
 if (count($file_assetids) > 0) {
 	// ask for the root password for the system
 	echo 'Enter the root password for "'.SQ_CONF_SYSTEM_NAME.'": ';
+	system('stty -echo');
 	$root_password = rtrim(fgets(STDIN, 4094));
+	system('stty echo');
 
 	// check that the correct root password was entered
 	$root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
