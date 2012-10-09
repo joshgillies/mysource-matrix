@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_management.inc,v 1.21 2009/08/19 05:56:34 lwright Exp $
+* $Id: file_management.inc,v 1.21.16.1 2012/10/09 05:40:14 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.21.16.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -96,6 +96,30 @@ class File_Management extends Asset_Management
 			}
 		}//end if version 0.4
 
+		if (version_compare($current_version, '0.5', '<')) {
+			pre_echo('UPGRADING FILE ASSETS - FROM VERSION '.$current_version);
+			$where = 'type_code IN (
+									SELECT type_code
+									FROM sq_ast_typ_inhd
+									WHERE inhd_type_code = :type_code
+									)';
+			$where .= ' AND (status = \''.SQ_STATUS_EDITING.'\' OR status = \''.SQ_STATUS_EDITING_APPROVAL.'\' OR status = \''.SQ_STATUS_EDITING_APPROVED.'\')';
+			$sql = 'SELECT assetid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast WHERE '.$where;
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdo($query, 'type_code', $this->getAssetType());
+			$children = MatrixDAL::executePdoAssoc($query, 0);
+			if(!empty($children)) {
+			    foreach ($children as $assetid) {
+				    $asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				    if(empty($asset)) continue;
+				    pre_echo('FILE #'.$asset->id.' UPDATED');
+				    $asset->updateLookups();
+				    $GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset, TRUE);
+			    }
+			}
+			pre_echo('FILE ASSETS UPGRADE COMPLETE - VERSION 0.5');
+		}//end if version 0.5
+		
 		return TRUE;
 
 	}//end _upgrade()
