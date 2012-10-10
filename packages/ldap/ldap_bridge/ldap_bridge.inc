@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.112 2012/10/04 05:04:01 akarelia Exp $
+* $Id: ldap_bridge.inc,v 1.113 2012/10/10 00:34:33 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.112 $
+* @version $Revision: 1.113 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -785,28 +785,60 @@ class LDAP_Bridge extends Asset implements Bridge
 				}
 			}
 
-			// keep the check on recursion
-			$recursion_check = FALSE;
-			if (!isset($this->_tmp['list_of_all_parents'])) {
-				$this->_tmp['list_of_all_parents'] = array_keys($parents);
-			} else {
-				$this->_tmp['list_of_all_parents'] = array_merge($this->_tmp['list_of_all_parents'], array_keys($parents));
-				$recursion_check = TRUE;
+			$ldap->disconnect();
+
+			if (!empty($parents)) {
+				// Initialise the list of all parents to prevent infinite recursive loop.
+				// As we use the _tmp attribute of this object to store the list, we need
+				// a flag to unset it when we finish. Otherwise, the list will be used for
+				// the next clean getParents() method call and can cause incorrect results.
+				$bridge_getParents_first_level = FALSE;
+				if (!isset($this->_tmp['all_parents'])) {
+					// Include the asset ID so that it will not be the parent of itself
+					$this->_tmp['all_parents'] = Array($this->id.':'.$assetid => '');
+					$bridge_getParents_first_level = TRUE;
+				}
+
+				// Filter the parents against the list of all parents so that we will not need
+				// to process a parent asset twice. That will also prevent infinite recursive loop.
+				$valid_parents = Array();
+				foreach ($parents as $parent_id => $parent_type_code) {
+					if (!isset($this->_tmp['all_parents'][$parent_id])) {
+						$valid_parents[$parent_id] = $parent_type_code;
+					}
+				}
+
+				// Assign valid parents to the parent list.
+				$parents = $valid_parents;
+
+				if (!empty($valid_parents)) {
+					// Add the valid parents to the list of all parents now to make them
+					// available in the recursive getParents() invocation below.
+					$this->_tmp['all_parents'] += $valid_parents;
+
+					// Get the grandparents of the valid parents recursively.
+					$grandparents = Array();
+					foreach ($valid_parents as $parent_id => $parent_type_code) {
+						$grandparents += $GLOBALS['SQ_SYSTEM']->am->getParents($parent_id, $type_code, $strict_type_code);
+					}
+
+					// Add the grandparents to the parent list
+					$parents += $grandparents;
+
+				}
+
+				if ($bridge_getParents_first_level) {
+					// Unset the list of all parents to prevent it from being used by
+					// the next first level call to this bridge's getParents() method.
+					unset($this->_tmp['all_parents']);
+				} else {
+					// We do not want to cache the parents in the array $this->_tmp['getParents']
+					// if they have been filtered against the list of all parents as they might be
+					// different from the original ones returned from the first level getParents() call.
+					return $parents;
+				}
 			}
 
-			foreach (array_keys($parents) as $parentid) {
-				// bug fix #5919 getParents() infinite recursion when cycles in LDAP structure
-				// don't ursion check for the first time we are in this foreach loop
-				// everytime after that make sure to see if the parentid is not already
-				// in the array of the parents we are processing for a give ldap user
-				if (!$recursion_check || !in_array($parentid, $this->_tmp['list_of_all_parents'])) {
-					// bug fix #5717 Permission cascade issue with Active Directory LDAP user
-					$real_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($parentid, $type_code, $strict_type_code);
-					$parents = $real_parents + $parents;
-				}//end if
-			}//end foreach
-
-			$ldap->disconnect();
 			$this->_tmp['getParents'][$assetid] = $parents;
 
 		}//end if not cached
