@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.171.2.4 2012/09/26 05:15:01 cupreti Exp $
+* $Id: page_asset_builder.inc,v 1.171.2.5 2012/10/10 00:10:48 cupreti Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.171.2.4 $
+* @version $Revision: 1.171.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -540,7 +540,7 @@ class Page_Asset_Builder extends Page
 									if (!is_null($mf_asset)) {
 										$edit_fns = $mf_asset->getEditFns();
 										$cascade = TRUE;
-										$did_process = $edit_fns->processInlineValueInterface($mf_asset, $result_value, $cascade);
+										$did_process = $edit_fns->processInlineValueInterface($mf_asset, $result_value, $cascade, $create_type);
 
 										// When date is not supplied for metadata date field
 										if ($mf_asset->type() == 'metadata_field_date' && $result_value == '---------- --:--:--') {
@@ -773,7 +773,7 @@ class Page_Asset_Builder extends Page
 								$mm->setSchema($new_asset->id, $schema->id, TRUE);
 								if (!is_null($schema)) {
 									$edit_fns = $schema->getEditFns();
-									$edit_fns->processInlineValueInterface($schema, $metadata_values, $cascade_values_asset_ids);
+									$edit_fns->processInlineValueInterface($schema, $metadata_values, $cascade_values_asset_ids, $create_type);
 								}
 							}
 

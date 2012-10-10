@@ -2,15 +2,15 @@
 /**
 * +--------------------------------------------------------------------+
 * | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
-* | ACN 084 670 600                                                    |
+* | ABN 77 084 670 600                                                 |
 * +--------------------------------------------------------------------+
 * | IMPORTANT: Your use of this Software is subject to the terms of    |
 * | the Licence provided in the file licence.txt. If you cannot find   |
-* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | this file please contact Squiz (www.squiz.com.au) so we may provide|
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section_edit_fns.inc,v 1.55 2010/05/20 04:53:58 akarelia Exp $
+* $Id: metadata_section_edit_fns.inc,v 1.55.12.1 2012/10/10 00:08:55 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.55.12.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -354,7 +354,7 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 				$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 				if (is_null($field)) continue;
 				$edit_fns = $field->getEditFns();
-				if ($edit_fns->paintInlineValueInterface($field, $o, (isset($values[$field->id])) ? $values[$field->id][0]['value'] : NULL, $write_access, $print_cascade_values_option)) {
+				if ($edit_fns->paintInlineValueInterface($field, $o, (isset($values[$field->id])) ? $values[$field->id][0]['value'] : NULL, $write_access, $print_cascade_values_option, $type_code)) {
 					$res = TRUE;
 				}
 			}
@@ -377,7 +377,7 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processInlineValueInterface(Metadata_Section $asset, Array &$new_values, Array &$section_cascade_value_asset_ids)
+	function processInlineValueInterface(Metadata_Section $asset, Array &$new_values, Array &$section_cascade_value_asset_ids, $type_code=NULL)
 	{
 		$res = FALSE;
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', FALSE, 'major', NULL, TRUE);
@@ -389,10 +389,9 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 			}
 			$edit_fns = $field->getEditFns();
 			$new_value = '';
-			if ($edit_fns->processInlineValueInterface($field, $new_value, $field_cascade_value)) {
+			if ($edit_fns->processInlineValueInterface($field, $new_value, $field_cascade_value, $type_code)) {
 				// the process fn returned true, meaning something was submitted
 				// $new_value may be NULL, however, which signifies that we are reverting to default
-				
 				// Evaluating %asset_metadata_% keywords in metadata field will create loop
 				if (strpos($new_value, '%asset_metadata_') !== FALSE) {
 					trigger_localised_error('SYS0344', E_USER_WARNING);
