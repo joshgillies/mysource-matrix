@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_ldap.inc,v 1.31 2012/02/06 23:42:49 cupreti Exp $
+* $Id: authentication_ldap.inc,v 1.31.2.1 2012/10/10 04:35:02 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.31.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -173,10 +173,10 @@ class Authentication_LDAP extends Authentication
 		}
 
 		return $user;
-		
+
 	}//end authenticateHttpUser()
 
-	
+
 	/**
 	* Given a username, attempts to locate and return a user object.
 	*
@@ -218,7 +218,7 @@ class Authentication_LDAP extends Authentication
 		}
 
 		return $user;
-		
+
 	}//end locateUser()
 
 	/**
@@ -294,7 +294,7 @@ class Authentication_LDAP extends Authentication
 	*/
 	function &_getLdapEntries($username, &$bridge, &$ldap_conn=NULL)
 	{
-		$null = NULL; 
+		$null = NULL;
 		$ldap = $ldap_conn ? $ldap_conn : $bridge->connectToLdap();
 		// the attribute mappings to the LDAP schemas
 		$attrs = $bridge->attr('attributes');
@@ -315,7 +315,13 @@ class Authentication_LDAP extends Authentication
 		// Check for extra LDAP filtering
 		$auth_filter = trim($bridge->attr('auth_filter'));
 		if (!empty($auth_filter)) {
-			$filter = '(&('.$auth_filter.')('.$attrs['uid'].'='.$username.'))';
+			// Add surrounding parentheses only if the filter does not have them.
+			// If the filter already have surrounding parentheses, adding them will
+			// cause invalid filter, e.g. ((o=Squiz)) is an invalid filter
+			if ($auth_filter[0] != '(') {
+				$auth_filter = '('.$auth_filter.')';
+			}
+			$filter = '(&'.$auth_filter.'('.$attrs['uid'].'='.$username.'))';
 		} else {
 			$filter = '('.$attrs['uid'].'='.$username.')';
 		}//end if
