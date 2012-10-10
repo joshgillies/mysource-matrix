@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_wysiwyg_edit_fns.inc,v 1.7 2012/08/30 01:09:09 ewang Exp $
+* $Id: metadata_field_wysiwyg_edit_fns.inc,v 1.7.2.1 2012/10/10 00:06:51 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_ATTRIBUTES_PATH.'/wysiwyg/wysiwyg.inc';
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,14 +56,14 @@ class Metadata_Field_WYSIWYG_Edit_Fns extends Metadata_Field_Edit_Fns
 	* @param boolean				$write_access	whether to allow editing of this field
 	*												(typically depends on write access to owner and editability of field)
 	* @param boolean				$enable_default	Whether to show the 'use default' checkbox
+	* @param string             	$type_code      The type_code of the asset that the metadata is being printed
 	*
 	* @return boolean
 	* @access public
 	*/
-	public function paintValueInterface(Metadata_Field_WYSIWYG $asset, Backend_Outputter $o, $value_str, $write_access, $enable_default=TRUE, $print_cascade_values_option = TRUE)
+	public function paintValueInterface(Metadata_Field_WYSIWYG $asset, Backend_Outputter $o, $value_str, $write_access, $enable_default=TRUE, $print_cascade_values_option = TRUE, $type_code=NULL)
 	{
-		$prefix = $asset->getPrefix();
-
+		$prefix = $asset->getPrefix().'_'.$type_code;
 		$wysiwyg = $asset->getAttribute('wysiwyg');
 
 		$value = '';
@@ -132,16 +132,18 @@ class Metadata_Field_WYSIWYG_Edit_Fns extends Metadata_Field_Edit_Fns
 	* @param Metadata_Field_Text	$asset					the asset whose interface we are processing
 	* @param string					&$new_value_str			a string by reference that we can store the new values in
 	* @param bool  					&$field_cascade_value	whether value updates to this field should cascade to children
+	* @param string             	$type_code      		The type_code of the asset that the metadata is being printed
 	*
 	* @return boolean
 	* @access public
 	*/
-	public function processInlineValueInterface(Metadata_Field_WYSIWYG $asset, &$new_value_str, &$field_cascade_value)
+	public function processInlineValueInterface(Metadata_Field_WYSIWYG $asset, &$new_value_str, &$field_cascade_value, $type_code=NULL)
 	{
 		if (!$asset->attr('editable')) return FALSE; // nothing for us to do
 
 		$processed = FALSE;
-		$prefix = $asset->getPrefix();
+		$prefix = $asset->getPrefix().'_'.$type_code;
+
 		if (!empty($_POST[$prefix.'_default'])) {
 			// use default
 			$new_value_str = NULL;
