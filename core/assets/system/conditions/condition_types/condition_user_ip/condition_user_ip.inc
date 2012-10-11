@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_user_ip.inc,v 1.11 2012/08/30 01:09:10 ewang Exp $
+* $Id: condition_user_ip.inc,v 1.12 2012/10/11 02:38:31 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once dirname(__FILE__).'/condition_user_ip_edit_fns.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -68,6 +68,11 @@ class Condition_User_IP extends Condition
 		}
 
 		$remote_ip = $_SERVER['REMOTE_ADDR'];
+		// This condition deals with ipv4 only, so if the user ip is ipv6, bail out
+		if (isIpV6($remote_ip)) {
+			return TRUE;
+		}
+
 		$grant = array_get_index($condition_data, 'default_grant', FALSE);
 
 		// sort the IP ranges by subnet mask order
