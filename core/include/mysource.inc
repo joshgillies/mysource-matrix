@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.396 2012/09/19 07:22:07 ewang Exp $
+* $Id: mysource.inc,v 1.397 2012/10/11 02:43:54 cupreti Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.396 $
+* @version $Revision: 1.397 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -584,8 +584,9 @@ class MySource extends MySource_Object
 				$uri = (isset($_SERVER['REQUEST_URI'])) ? $_SERVER['REQUEST_URI'] : FALSE;
 				if ($host && $uri && substr($uri, -1) == '/') {
 					$uri = rtrim($uri, '/');
-					//do not redirect root URLs because browser may append a trailing slash
-					if (!empty($uri)){
+					$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
+					//do not redirect root URLs because apache may append a trailing slash
+					if ($root_urls && !in_array($host.$uri, $root_urls) && !in_array($host.$uri.'/', $root_urls)){
 						$protocol = current_protocol().'://';
 						header('HTTP/1.1 301 Moved Permanently');
 						header('Location: '.$protocol.$host.$uri);
@@ -2456,6 +2457,8 @@ class MySource extends MySource_Object
 					'max_length'	=> '0',
 				 );
 		$current_ip = (isset($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : '';
+		$remote_ip_is_ipv6 = isIpV6($current_ip);
+
 		$patt = '/\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b/';
 		if (is_array($session_prefs)) {
 			foreach ($session_prefs as $id => $sess_pref) {
@@ -2465,7 +2468,7 @@ class MySource extends MySource_Object
 						'max_length'	=> '0',
 						);
 				// Check that the current IP falls between the 'to' and 'from' field (also check an IP was passed)
-				if (isset($sess_pref['ip_from']) && !empty($sess_pref['ip_from']) && preg_match($patt, $sess_pref['ip_from'])) {
+				if (isset($sess_pref['ip_from']) && !empty($sess_pref['ip_from']) && preg_match($patt, $sess_pref['ip_from']) && !$remote_ip_is_ipv6) {
 					$current_ip_value = ip2long($current_ip);
 					$ip_from_value = ip2long($sess_pref['ip_from']);
 					if (($current_ip_value > -1) && ($current_ip_value != FALSE) && ($ip_from_value > -1) && ($ip_from_value != FALSE)) {
@@ -2498,7 +2501,46 @@ class MySource extends MySource_Object
 							continue;
 						}//end if
 					}//end if
-				}//end if
+				} else if (!empty($sess_pref['ip_from']) && isIpV6($sess_pref['ip_from']) && $remote_ip_is_ipv6) {
+					if (!isIpV6($sess_pref['ip_from'])) {
+						continue;
+					}
+					$remote_ip_bits = ipv6ToBits($current_ip);
+					$ip_from_bits = ipv6ToBits($sess_pref['ip_from']);
+					if ($remote_ip_bits === FALSE || $ip_from_bits === FALSE) {
+						continue;
+					}
+
+					// Check if the IP is the first one in the range
+					if (strcmp($remote_ip_bits, $ip_from_bits) === 0) {
+						// Its a match!
+						$prefs['persist'] = $sess_pref['persist'];
+						$prefs['timeout'] = $sess_pref['timeout'];
+						$prefs['max_length'] = $sess_pref['max_length'];
+						break;
+					}
+
+					// If we don't have "to" specifed for the IP range, we don't have the match
+					if (empty($sess_pref['ip_to']) || !isIpV6($sess_pref['ip_to'])) {
+						continue;
+					}
+
+					$ip_to_bits = ipv6ToBits($sess_pref['ip_to']);
+					if ($ip_to_bits === FALSE) {
+						continue;
+					}
+
+					// If the IP lies within the range
+					if (strcmp($remote_ip_bits, $ip_to_bits) === 0 || (strcmp($ip_from_bits, $remote_ip_bits) < 0 && strcmp($remote_ip_bits, $ip_to_bits) < 0)) {
+						$prefs['persist'] = $sess_pref['persist'];
+						$prefs['timeout'] = $sess_pref['timeout'];
+						$prefs['max_length'] = $sess_pref['max_length'];
+						break;
+					} else {
+						continue;
+					}
+
+				}//end else if ipv6
 
 				// No IP Restriction found, so continue
 				$temp['persist'] = $sess_pref['persist'];
