@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.273 2012/09/20 05:57:48 cupreti Exp $
+* $Id: general.inc,v 1.274 2012/10/11 02:40:39 cupreti Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.273 $
+* @version $Revision: 1.274 $
 * @package MySource_Matrix
 */
 
@@ -2717,5 +2717,117 @@ function get_proxy_info_for_url($page_url)
 		   );
 
 }//end get_proxy_info_for_url()
+
+
+/**
+* Returns TRUE if the given IP address string is IPv6
+*
+* @param string $ip
+*
+* @return boolean
+* @access public
+*/
+function isIpV6($ip)
+{
+	return  (strpos($ip, ':') !== FALSE) && (strpos($ip, '.') === FALSE);
+
+}//end isIpV6()
+
+
+/**
+* Converts the IPv6 address to the bits
+*
+* @param string $ip	IPv6 address
+* 
+* @return string|boolean
+* @access public
+*/
+function ipv6ToBits($ip) 
+{	
+	if (!isIpV6($ip)) {
+		return FALSE;
+	}
+	$ip = @inet_pton($ip);
+	if (!$ip) {
+		return FALSE;
+	}
+		
+	$unpacked_array = unpack('A16', $ip);
+	$unpacked = str_split($unpacked_array[1]);
+		
+	$binary_ip = '';
+	foreach ($unpacked as $char) {
+		$binary_ip .= str_pad(decbin(ord($char)), 8, '0', STR_PAD_LEFT);
+	}
+		
+	return $binary_ip;
+
+}//end ipv6ToBits()
+
+
+/**
+* Uncompress the given IPv6 address
+*
+* string 	$address 			An IPv6 address
+* boolean	$leading_zeros
+*
+* @return string|boolean
+* @access public
+*/
+function uncompressIPv6Address($address, $leading_zeros=TRUE)
+{
+	if (strpos($address, ':') === FALSE || strpos($address, '.') !== FALSE || substr_count($address, '::') > 1) {
+		return FALSE;
+	}
+		
+	$ip_parts = explode('::', $address);	
+	$head = $ip_parts[0];	
+	$head_parts = explode(':', $head);	
+	if (isset($ip_parts[1])) {
+		$tail = $ip_parts[1];
+		$tail_parts = explode(':', $tail);
+	} else {
+		$tail_parts = Array();
+		if (count($head_parts) != 8) {
+			return FALSE;
+		}
+	}
+		
+	// IPv6 consists of eight groups
+	$total_groups_count = count($head_parts)+count($tail_parts);
+	if ($total_groups_count > 8) {
+		return FALSE;
+	}
+	
+	// Pad the compressed groups
+	$compressed_groups_count = 8 - (count($head_parts)+count($tail_parts));
+	$head_parts = array_pad($head_parts, count($head_parts)+$compressed_groups_count, '0');
+	
+	$all_parts = array_merge($head_parts, $tail_parts);
+	// If need to pad the leading 0's
+	if ($leading_zeros) {
+		foreach($all_parts as $index => $part) {
+			$all_parts[$index] = str_pad($part, 4, '0', STR_PAD_LEFT);
+		}//end foreach	
+	}//end if	
+		
+	return implode(':', $all_parts);
+	
+}//end uncompressIPv6Address()
+
+
+/**
+* Compress the given IPv6 address
+*
+* string 	$address 		An IPv6 address
+*
+* @return string|boolean
+* @access public
+*/	
+function compressIPv6Address($address)
+{
+	return @inet_ntop(inet_pton($address));
+	
+}//end compressIPv6Address()
 
 ?>
