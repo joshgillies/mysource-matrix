@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: proxy_authentication_config.inc,v 1.17 2012/08/30 01:09:20 ewang Exp $
+* $Id: proxy_authentication_config.inc,v 1.18 2012/10/11 02:47:10 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *    Looks after the creation and editing of the messaging service config
 *
 * @author  Sertan Danis <sdanis@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix
 */
 class Proxy_Authentication_Config extends Config
@@ -369,7 +369,7 @@ class Proxy_Authentication_Config extends Config
 
 	public function processAlternativeProxies(&$vars)
 	{
-
+log_dump($vars);
 	    
 		if (defined('SQ_PA_ALTERNATIVES')) {
 			$all_proxies = SQ_PA_ALTERNATIVES;
@@ -442,8 +442,13 @@ class Proxy_Authentication_Config extends Config
 		if (file_exists($this->config_file)) {
 			require_once $this->config_file;
 		}
-		
+
 		$this->processAlternativeProxies($vars);
+
+		// Compress SSLA IP if its IPv6
+		if (!empty($vars['SQ_SSLA_IP']) && isIpV6($vars['SQ_SSLA_IP'])) {
+			$vars['SQ_SSLA_IP'] = compressIPv6Address($vars['SQ_SSLA_IP']);
+		}
 
 		// encode password
 		if (isset($vars['SQ_PA_PASSWORD']) && !empty($vars['SQ_PA_PASSWORD'])) {
