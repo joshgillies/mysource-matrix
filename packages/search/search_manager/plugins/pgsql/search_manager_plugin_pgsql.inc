@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_pgsql.inc,v 1.40 2012/08/30 00:59:15 ewang Exp $
+* $Id: search_manager_plugin_pgsql.inc,v 1.41 2012/10/11 04:38:14 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * PostgreSQL (7.4+) database system
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -103,7 +103,7 @@ class Search_Manager_Plugin_PgSQL
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return NULL;
 				}
-				
+
 				$attrid = $data_source['params']['attrid'];
 				$attr_info = $GLOBALS['SQ_SYSTEM']->am->getAttributeInfo(Array($attrid));
 				$attr_info = $attr_info[$attrid];
@@ -493,6 +493,7 @@ class Search_Manager_Plugin_PgSQL
 		// ACCESS RESTRICTIONS
 		$user_restrictions = (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 		if ($user_restrictions) {
+
 			$query['join'][] = 'INNER JOIN sq_ast_perm p ON p.assetid = a.assetid';
 			if (SQ_CONF_ENABLE_ROLES_PERM_SYSTEM == '1') {
 				$query['join'][] = 'LEFT JOIN sq_vw_ast_role r ON (p.userid = r.roleid AND r.assetid=a.assetid) ';
@@ -715,7 +716,7 @@ class Search_Manager_Plugin_PgSQL
 			//the wysiwyg tool converts special characters to html entities in the HTML editor so they need to be converted back
 			$contents = html_entity_decode($contents, ENT_QUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
 		}
-		
+
 		if ($data_type == 'float') {
 			$index_content[] = Array(
 								'value'			=> $contents,
@@ -726,7 +727,7 @@ class Search_Manager_Plugin_PgSQL
 								'contextid'		=> $contextid,
 								'use_default'	=> $use_default,
 								);
-			return $index_content;				 
+			return $index_content;
 		}
 
 		//remove silent characters which are not in the silent chars list in remove_silent_chars of text.inc
@@ -904,7 +905,7 @@ class Search_Manager_Plugin_PgSQL
 		$query_comps['group_by'][] = 'ai.assetid';
 
 		$sql = implode_sql($query_comps);
-		$bind_vars = array_get_index($sql, 'bind_vars', Array());
+		$bind_vars = array_get_index($query_comps, 'bind_vars', Array());
 		$query = MatrixDAL::preparePDOQuery($sql);
 		foreach ($bind_vars as $bind_var => $value) {
 			MatrixDAL::bindValueToPdo($query, $bind_var, $value);
