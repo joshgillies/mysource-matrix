@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_schedule_bulkmail_job.inc,v 1.5 2012/09/14 05:51:57 akarelia Exp $
+* $Id: trigger_action_schedule_bulkmail_job.inc,v 1.6 2012/10/12 02:20:22 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_PACKAGES_PATH.'/bulkmail/bulk_mailer.inc';
 *
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -120,7 +120,9 @@ class Trigger_Action_Schedule_Bulkmail_Job extends Trigger_Action
 			$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 			$bulk_mailer = new Bulk_Mailer();
 			$users_to_mail = $bulk_mailer->getAllRecipients($asset_to_send, $recipient);
-			$recipients = Array();
+			// remove all the recipient and add it in the foreach loop below
+			// depending on the subscriptions selected by the individual users
+			$recipient = Array();
 
 			foreach ($users_to_mail['recipient'] as $user_info) {
 				$user_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($user_info['assetid']);
@@ -144,7 +146,7 @@ class Trigger_Action_Schedule_Bulkmail_Job extends Trigger_Action
 								$match = (strtolower($user_metadata) == strtolower($rule_text));
 							}
 							if ($match) {
-								$recipients[] = $user_info['assetid'];
+								$recipient[] = $user_info['assetid'];
 							}
 						}//end foreach
 					}//end foreach
@@ -153,8 +155,8 @@ class Trigger_Action_Schedule_Bulkmail_Job extends Trigger_Action
 			$subscriptions = Array();
 		}//end if
 
-		if (!empty($recipients)) {
-			if (!$bm->createAdHocJob($from, $recipients, $subject, $asset_to_send, $gen_as, $headers, $post_office_id, $server_headers, $design, $layout, $subscriptions))
+		if (!empty($recipient)) {
+			if (!$bm->createAdHocJob($from, $recipient, $subject, $asset_to_send, $gen_as, $headers, $post_office_id, $server_headers, $design, $layout, $subscriptions))
 				return FALSE;
 		}
 
