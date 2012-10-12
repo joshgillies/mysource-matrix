@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: checkout_action_call_rest_resource.inc,v 1.3 2012/09/11 07:56:22 cupreti Exp $
+* $Id: checkout_action_call_rest_resource.inc,v 1.4 2012/10/12 00:00:03 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ define('ECOM_CHECKOUT_REST_ACTION_LOG_FILE', 'ecom_rest_checkout_action');
 *
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -611,7 +611,12 @@ class Checkout_Action_Call_Rest_Resource extends Checkout_Action
 					}//end if
 					$replacement = $item_count;
 				break;
-				
+
+				case 'order_item_type_count':
+					$items = @$order_data['cart'][0]['products'][0]['product'];
+					$replacement = count($items);
+				break;
+
 				case 'order_date':
 					$timezone_offset = substr(date('O', $order->created), 0, 1).str_pad(date('Z', $order->created)/60, 3, '0', STR_PAD_LEFT);
 					$replacement = date('YmdHis000', $order->created).$timezone_offset;
@@ -868,7 +873,8 @@ class Checkout_Action_Call_Rest_Resource extends Checkout_Action
 		$keywords = Array(
 						'order_array' => 'Array of data for the each item in the order (as configured in the "Order Array" section)',
 						'order_response_qX' => 'Response submitted for Delivery Method\'s question "X"',
-						'order_item_count' => 'Total number of quantity in the order',						
+						'order_item_count' => 'Total number of quantity in the order',
+						'order_item_type_count' => 'Total number of item types in the order',						
 						'order_subtotal' => 'Total transaction amount excluding tax and delivery',
 						'order_total_tax' => 'Total transaction amount including tax',
 						'order_total_delivery' => 'Total delivery amount',
