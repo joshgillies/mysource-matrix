@@ -101,7 +101,7 @@
                 </from>
                 <where>
                     <equal table="sq_thes_lnk" column="thesid">:assetid</equal>
-					<equal table="sq_thes_lnk" column="major">:termid</equal>
+					<equal table="sq_thes_lnk" column="minor">:termid</equal>
                 </where>
             </select>
         </primary>
