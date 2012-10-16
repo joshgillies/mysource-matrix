@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.95 2012/08/30 01:09:10 ewang Exp $
+* $Id: cache_manager.inc,v 1.95.2.1 2012/10/16 05:15:40 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.95 $
+* @version $Revision: 1.95.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -474,20 +474,20 @@ class Cache_Manager extends Asset
 	function getAssetHash($assetid=0)
 	{
 		$assetid = trim($assetid);
-		do {
-			$hash = 0;
-			$len = strlen($assetid);
-			for ($i = 0; $i < $len; $i++) {
-				if ((int) $assetid{$i} != $assetid{$i}) {
-					$hash += ord($assetid{$i});
-				} else {
-					$hash += (int) $assetid{$i};
-				}
-			}
-			$assetid = (string) $hash;
-		} while ($hash > $this->attr('num_cache_dirs'));
 
-		while (strlen($hash) != strlen($this->attr('num_cache_dirs'))) {
+		$hash = 0;
+		$bucketsize = $this->attr('num_cache_dirs');
+		$len = strlen($assetid);
+		for ($i = 0; $i < $len; $i++) {
+			if (!is_numeric($assetid{$i})) {
+				$hash += ord($assetid{$i});
+			} else {
+				$hash += (int) $assetid{$i};
+			}
+		}
+		$hash = $hash % $bucketsize;
+
+		while (strlen($hash) != strlen($bucketsize)) {
 			$hash = '0'.$hash;
 		}
 		return $hash;
