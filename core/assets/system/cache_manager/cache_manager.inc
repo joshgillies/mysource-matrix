@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.96 2012/10/16 05:13:04 ewang Exp $
+* $Id: cache_manager.inc,v 1.97 2012/10/16 22:38:56 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.96 $
+* @version $Revision: 1.97 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -241,10 +241,6 @@ class Cache_Manager extends Asset
 			$url = $assetid;
 		}
 		$cache_key = md5($cache_key.$assetid);
-		// work out the file path and expiry time
-		$group = $this->getAssetHash($cache_key).$this->getAssetHash($perm_key);
-		$file_name = md5($cache_key.':'.$perm_key.':'.$url);
-		$file_path = $group.'/'.$file_name;
 
 		$now = time();
 		if (is_int($expiry_override) && ($expiry_override >= 0) && ($expiry_override + $now > $now)) {
