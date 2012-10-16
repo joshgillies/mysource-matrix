@@ -18,7 +18,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: cache_storage_default.inc,v 1.9 2011/05/25 05:34:21 mhaidar Exp $
+ * $Id: cache_storage_default.inc,v 1.10 2012/10/16 22:37:50 ewang Exp $
  *
  */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cache_storage/cache_storage/cache_sto
  *
  * @author  James Hurst <james@riverratrecords.com>
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.10 $
  * @package MySource_Matrix_Packages
  * @subpackage __core__
  */
@@ -488,20 +488,19 @@ class Cache_Storage_Default extends Cache_Storage
 		$cache_manager = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 
 		$assetid = trim($assetid);
-		do {
-			$hash = 0;
-			$len = strlen($assetid);
-			for ($i = 0; $i < $len; $i++) {
-				if ((int) $assetid{$i} != $assetid{$i}) {
-					$hash += ord($assetid{$i});
-				} else {
-					$hash += (int) $assetid{$i};
-				}
+		$hash = 0;
+		$bucketsize = $cache_manager->attr('num_cache_dirs');
+		$len = strlen($assetid);
+		for ($i = 0; $i < $len; $i++) {
+			if (!is_numeric($assetid{$i})) {
+				$hash += ord($assetid{$i});
+			} else {
+				$hash += (int) $assetid{$i};
 			}
-			$assetid = (string) $hash;
-		} while ($hash > $cache_manager->attr('num_cache_dirs'));
+		}
+		$hash = $hash % $bucketsize;
 
-		while (strlen($hash) != strlen($cache_manager->attr('num_cache_dirs'))) {
+		while (strlen($hash) != strlen($bucketsize)) {
 			$hash = '0'.$hash;
 		}
 		return $hash;
