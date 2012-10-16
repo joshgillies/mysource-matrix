@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_asset_lineage.inc,v 1.26 2012/08/30 01:09:06 ewang Exp $
+* $Id: design_area_asset_lineage.inc,v 1.26.2.1 2012/10/16 03:56:26 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.26.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -116,7 +116,7 @@ class Design_Area_Asset_Lineage extends Design_Area
 			case 'asset' :
 				// Make lineage working with ?a=xxx
 				echo '<?php
-				if ( isset($_GET[\'a\']) && $_GET[\'a\'] == $GLOBALS[\'SQ_SYSTEM\']->frontend_asset->id){
+				if ( isset($_GET[\'a\']) && isset($GLOBALS[\'SQ_SYSTEM\']->frontend_asset) && $_GET[\'a\'] == $GLOBALS[\'SQ_SYSTEM\']->frontend_asset->id){
 					$last_ele_index = count($ASSET_LINEAGE) - 1;
 					$ASSET_LINEAGE[] = array (
 										\'url\' => $ASSET_LINEAGE[$last_ele_index][\'url\'].\'?a=\'.$GLOBALS[\'SQ_SYSTEM\']->frontend_asset->id,
@@ -147,7 +147,7 @@ class Design_Area_Asset_Lineage extends Design_Area
 				}
 
 				$levels_to_print = (int) $this->attr('levels_to_print');
-                
+
 				if (is_int($levels_to_print)) {
 					// if we have pages to print, we just adjust the total count factor
 					if ($levels_to_print > 0) {
