@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_soap_call.inc,v 1.23 2012/08/30 00:59:45 ewang Exp $
+* $Id: form_action_soap_call.inc,v 1.24 2012/10/17 23:30:00 akarelia Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once dirname(dirname(dirname(__FILE__))).'/lib/soap_form_based_common.in
 * Make a SOAP call before submitting form
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -226,7 +226,7 @@ class Form_Action_SOAP_Call extends Form_Action
 									$error_msg =  array_get_index($rule, 'error_msg', '');
 									$rule_value = array_get_index($rule, 'value', '');
 									$rule_type = array_get_index($rule, 'type', 'must_contain');;
-									
+
 									$sf_prefix = $prefix.'_'.$settings['action'].'_'.$selected_field;
 									?>
 									<tr>
@@ -269,7 +269,7 @@ class Form_Action_SOAP_Call extends Form_Action
 								foreach($response_keywords as $val) {
 									$val = trim($val, '%');
 									$val = substr_replace($val, '', 0,  strlen('globals_session_soap_'));
-							
+
 									if ($val) {
 										$response_fields[$val] = $val;
 									}
@@ -310,7 +310,7 @@ class Form_Action_SOAP_Call extends Form_Action
 				<tr>
 					<td class="sq-backend-table-header"><?php echo translate('field_keyword_tags'); ?></td>
 				</tr>
-				<?php 
+				<?php
 					$response_to_file = array_get_index($settings, $settings['action'].'_file_response_to_save', Array());
 					$currently_configured = count($response_to_file);
 
@@ -403,7 +403,7 @@ class Form_Action_SOAP_Call extends Form_Action
 					// parse response
 					$xml_response = SOAP_Common::_parse_type ($function_response, $types);
 					if ($xml_response === TRUE || $xml_response === FALSE) {
-						$response_list[$function_name] = SOAP_Common::_formatXmlString('<?xml version=\"1.0\"?'.'>'."<$function_name>??</$function_name>");						
+						$response_list[$function_name] = SOAP_Common::_formatXmlString('<?xml version=\"1.0\"?'.'>'."<$function_name>??</$function_name>");
 						$keywords = 'globals_session_soap'.($xml_response ? '0' : '');
 					} else {
 						$response_list[$function_name] = SOAP_Common::_formatXmlString(empty($xml_response) ? '' : $xml_response->asXML());
@@ -421,18 +421,18 @@ class Form_Action_SOAP_Call extends Form_Action
 		// Currently selected "Check response" fields
 		$current_selected_fields = isset($settings[$settings['action'].'_response_error_fields']) ? $settings[$settings['action'].'_response_error_fields'] : Array();
 		$field_rule = Array();
-		
+
 		// String containg all the SOAP response keywords
 		$keywords_string = '';
 		if (isset($settings['response_keywords'])) {
 			$keywords_string = implode(';',$settings['response_keywords']);
 		}
-		
+
 		foreach ($current_selected_fields as $selected_field => $error_msg) {
 			$sf_prefix = $prefix.'_'.$settings['action'].'_'.$selected_field;
-			
+
 			// If the field is deleted or dosen't exists in SOAP response anymore
-			if ((!isset($_POST[$sf_prefix.'_delete_field'][$selected_field]) || !$_POST[$sf_prefix.'_delete_field'][$selected_field]) && strpos($keywords_string, '%globals_session_soap_'.$selected_field.'%') !== FALSE) {			
+			if ((!isset($_POST[$sf_prefix.'_delete_field'][$selected_field]) || !$_POST[$sf_prefix.'_delete_field'][$selected_field]) && strpos($keywords_string, '%globals_session_soap_'.$selected_field.'%') !== FALSE) {
 				if (isset($_POST[$sf_prefix.'_error_msg'])) {
 					$field_rule[$selected_field] = Array(
 													'type'	=> $_POST[$sf_prefix.'_type'],
@@ -441,7 +441,7 @@ class Form_Action_SOAP_Call extends Form_Action
 												);
 				} else {
 					$field_rule[$selected_field] = $rule;
-				}//end else				
+				}//end else
 			}//end if
 		}//end foreach
 
@@ -483,7 +483,7 @@ class Form_Action_SOAP_Call extends Form_Action
 		if ($settings['run_test']) {
 			foreach($functions as $function) {
 				$function_name = preg_replace('/^\w+ (\w+)\(.*\)/', '$1', $function);
-				$test_results[$function_name] = SOAP_Common::testSoapRequest($client, $settings, $function_name);
+				$test_results[$function_name] = SOAP_Common::testSoapRequest($client, $settings, $function_name, $form);
 			}
 		}//end if
 		$settings['test_results'] = $test_results;
@@ -541,7 +541,7 @@ class Form_Action_SOAP_Call extends Form_Action
 	public static function execute(Form $form, $settings)
 	{
 		$success = TRUE;
-		
+
 		if(!isset($form->submission_errors)) {
 			$form->submission_errors = Array();
 		}
@@ -571,7 +571,7 @@ class Form_Action_SOAP_Call extends Form_Action
 					$object = SOAP_Form_Based_Common::getFileContentReplacementsFromForm($soap_message, $form);
 				} else {
 					// Convert XML to array, replace file content keywords, xml is not friendly for binary data
-					$object = self::_toArray($object, $form);
+					$object = SOAP_Form_Based_Common::toArray($object, $form);
 				}
 
 				$param[] = $object;
@@ -617,7 +617,7 @@ class Form_Action_SOAP_Call extends Form_Action
 		$soap_response_keywords = Array();
 		$file_saving_keywords = array_get_index($settings, $settings['action'].'_file_response_to_save', Array());
 		SOAP_Common::_store_results($data, 'soap_', $soap_response_keywords, $file_saving_keywords);
-		
+
 		// Remove prefix from response keywords
 		foreach($soap_response_keywords as $key => $val) {
 			$soap_response_keywords[substr_replace($key, '', 0,  5)] = $val;
@@ -625,45 +625,17 @@ class Form_Action_SOAP_Call extends Form_Action
 		}
 		// If the SOAP response has one of the non-empty "Check Response" fields, return error
 		if (!empty($settings[$settings['action'].'_response_error_fields'])) {
-			foreach($settings[$settings['action'].'_response_error_fields'] as $check_field => $rule) {				
+			foreach($settings[$settings['action'].'_response_error_fields'] as $check_field => $rule) {
 				if (!isset($soap_response_keywords[$check_field]) || !SOAP_Form_Based_Common::validateValue($soap_response_keywords[$check_field], $rule)) {
 					$form->submission_errors = array_merge($form->submission_errors, Array($rule['error_msg']));
 					$success = FALSE;
 				}
 			}//end foreach
-		}//end if		
+		}//end if
 
 		return $success;
 
 	}//end execute()
-
-
-	/**
-	* Converts xml object to array
-	* Replace file content keyword
-	*
-	* @return array
-	* @access public
-	*/
-	private static function _toArray ($data, &$form)
-	{
-		if (is_object($data)) $data = get_object_vars($data);
-
-		// Don't play with empty object or array
-		if (empty($data) && (is_array($data) || is_object($data))) return '';
-
-		if(is_array($data)) {
-			$result = Array();
-			foreach ($data as $index => $element) {
-				$result[$index] = self::_toArray($element, $form);
-			}
-			return $result;
-		}else {
-			// Also replace file content keyword with actual binary file
-			return (SOAP_Form_Based_Common::getFileContentReplacementsFromForm($data, $form));
-		}
-
-	}//end _toArray
 
 
 	/**

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_make_soap_call.inc,v 1.8 2012/08/30 00:59:45 ewang Exp $
+* $Id: trigger_action_make_soap_call.inc,v 1.9 2012/10/17 23:30:00 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(dirname(dirname(__FILE__))).'/lib/soap_common.inc';
 *
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -90,7 +90,7 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 				$object = @simplexml_load_string($soap_message);
 
 				// Convert XML to array, replace file content keywords, xml is not friendly for binary data
-				$object = self::_toArray($object);
+				$object = SOAP_Common::toArray($object);
 
 				$param[] = $object;
 			}
@@ -119,7 +119,7 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 		catch (Exception $e) {
 			// SOAP error should be treated as normal error
 			trigger_error($e->getMessage());
-			// also store the error in our global_session_vars	
+			// also store the error in our global_session_vars
 			$_SESSION[SQ_SESSION_SANDBOX_INDEX]['soap_trigger_action_error'] = $e->getMessage();
 			return FALSE;
 		}
@@ -146,7 +146,7 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 
 		// If the SOAP response has one of the non-empty "Check Response" fields, return error
 		if (!empty($settings[$settings['action'].'_response_error_fields'])) {
-			foreach($settings[$settings['action'].'_response_error_fields'] as $check_field => $error_msg) {				
+			foreach($settings[$settings['action'].'_response_error_fields'] as $check_field => $error_msg) {
 				if (!empty($soap_response_keywords[$check_field])) {
 					$warning_level = $settings[$settings['action'].'_treat_as_fatal'] ? E_USER_ERROR : E_USER_WARNING;
 					$_SESSION[SQ_SESSION_SANDBOX_INDEX]['soap_trigger_action_error'] = $error_msg;
@@ -155,7 +155,7 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 					$success = FALSE;
 				}
 			}//end foreach
-		}//end if		
+		}//end if
 
 		return $success;
 
@@ -183,10 +183,10 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 				<tr>
 					<td width="120"><p>WSDL</p></td>
 					<td><p>
-					<?php 
+					<?php
 						$wsdl = array_get_index($settings, 'wsdl', '');
 						if ($write_access) {
-							text_box($prefix.'[wsdl]', $wsdl, 120); 
+							text_box($prefix.'[wsdl]', $wsdl, 120);
 						} else {
 							echo $wsdl;
 						}
@@ -208,8 +208,8 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 				<tr>
 					<td><?php echo translate('password'); ?></td>
 					<td><p>
-					<?php 
-						if($write_access) password_box($prefix.'[password]', array_get_index($settings, 'password', ''), 35); 
+					<?php
+						if($write_access) password_box($prefix.'[password]', array_get_index($settings, 'password', ''), 35);
 					?>
 					</p></td>
 				</tr>
@@ -222,7 +222,7 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 					<?php
 						$mute_exp = array_get_index($settings, 'mute_exceptions', 0);
 						if ($write_access) {
-							check_box($prefix.'[mute_exceptions]', 1, $mute_exp); 
+							check_box($prefix.'[mute_exceptions]', 1, $mute_exp);
 						} else {
 							$mute_exp_status = ($mute_exp == '1') ? 'tick' : 'cross';
 							echo '<img class="sq-icon" width="16" height="16" src="'.sq_web_path('lib').'/web/images/'.$mute_exp_status.'.gif" alt="" style="border: 0;" />';
@@ -236,10 +236,10 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 				<tr>
 					<td><p><?php echo translate('local_cert'); ?></p></td>
 					<td><p>
-					<?php 
+					<?php
 						$local_cert = array_get_index($settings, 'local_cert', 0);
 						if ($write_access) {
-							asset_finder($prefix.'[local_cert]', $local_cert, Array('file'=>'D')); 
+							asset_finder($prefix.'[local_cert]', $local_cert, Array('file'=>'D'));
 						} else {
 							if ($local_cert) echo  get_asset_tag_line($local_cert);
 						}
@@ -249,8 +249,8 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 				<tr>
 					<td><p><?php echo translate('passphrase'); ?></p></td>
 					<td><p>
-					<?php 
-						if ($write_access) password_box($prefix.'[passphrase]', array_get_index($settings, 'passphrase', ''), 35); 
+					<?php
+						if ($write_access) password_box($prefix.'[passphrase]', array_get_index($settings, 'passphrase', ''), 35);
 					?>
 					</p></td>
 				</tr>
@@ -258,7 +258,7 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 					<td colspan="2"><?php echo translate('use_https'); ?></td>
 				</tr>
 			</table>
-	
+
 		<p class="sq-backend-section-subheading">Test Response</p>
 		<div id="<?php echo $prefix ?>_test_request_response" style="padding: 0.5em 0px 2em 30px;">
 			<table class="sq-backend-table" >
@@ -346,7 +346,7 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 						</td>
 					</tr>
 				</table>
-			
+
 			<p class="sq-backend-section-subheading"><?php echo translate('response_message'); ?></p>
 
 				<table class="sq-backend-table" >
@@ -360,7 +360,7 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 							?>
 							<br />
 						</td>
-					</tr>			
+					</tr>
 					<tr>
 						<td>
 							<?php echo translate('response_message_note'); ?>
@@ -369,7 +369,7 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 					<tr>
 					</tr>
 				</table>
-	
+
 				<p class="sq-backend-section-subheading"><?php echo translate('response_keywords'); ?></p>
 
 				<table class="sq-backend-table" >
@@ -383,11 +383,11 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 							?>
 							<br />
 						</td>
-					</tr>			
+					</tr>
 					<tr>
 					</tr>
 				</table>
-			
+
 			<p class="sq-backend-section-subheading"><?php echo translate('check_response')?></p>
 
 			<table class="sq-backend-table" >
@@ -411,13 +411,13 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 									?>
 									<tr>
 										<td class="sq-backend-table-cell">
-											<?php 
+											<?php
 												echo $selected_field;
 												$selected_field_names[] = $selected_field;
 											?>
 										</td>
 										<td class="sq-backend-table-cell">
-											<?php 
+											<?php
 												if ($write_access) {
 													text_box($prefix.'['.$settings['action'].'_error_msg_'.$selected_field.']', $error_msg, 110);
 												} else {
@@ -442,10 +442,10 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 							$response_fields = Array('' => '-- Select Field --');
 							if (isset($settings['response_keywords'][$settings['action']])) {
 								$response_keywords = explode('<br/>', $settings['response_keywords'][$settings['action']]);
-								foreach($response_keywords as $val) {								
+								foreach($response_keywords as $val) {
 									$val = trim($val, '%');
 									$val = substr_replace($val, '', 0,  strlen('globals_session_soap_'));
-							
+
 									if ($val) {
 										$response_fields[$val] = $val;
 									}
@@ -461,7 +461,7 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 						<?php
 							$treating_fatal = array_get_index($settings, $settings['action'].'_treat_as_fatal', 0);
 							if ($write_access) {
-								check_box($prefix.'['.$settings['action'].'_treat_as_fatal]', '1', $treating_fatal); 
+								check_box($prefix.'['.$settings['action'].'_treat_as_fatal]', '1', $treating_fatal);
 							} else {
 								$treat_fatal_status = ($treating_fatal == '1') ? 'tick' : 'cross';
 								echo '<img class="sq-icon" width="16" height="16" src="'.sq_web_path('lib').'/web/images/'.$treat_fatal_status.'.gif" alt="" style="border: 0;" />';
@@ -483,7 +483,7 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 				<tr>
 					<td class="sq-backend-table-header"><?php echo translate('field_keyword_tags'); ?></td>
 				</tr>
-				<?php 
+				<?php
 					$response_to_file = array_get_index($settings, $settings['action'].'_file_response_to_save', Array());
 					$currently_configured = count($response_to_file);
 
@@ -582,7 +582,7 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 					$parsed_params = Array();
 					foreach ($function_params as $param) {
 						if (!trim($param)) continue;
-						
+
 						// Get XML representation of params of the functions
 						$xml_param = SOAP_Common::_parse_type ($param, $types);
 						$parsed_params[$param] = SOAP_Common::_formatXmlString(empty($xml_param) ? $param : $xml_param->asXML());
@@ -591,8 +591,9 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 
 					// parse response
 					$xml_response = SOAP_Common::_parse_type ($function_response, $types);
+
 					if ($xml_response === TRUE || $xml_response === FALSE) {
-						$response_list[$function_name] = SOAP_Common::_formatXmlString('<?xml version=\"1.0\"?'.'>'."<$function_name>??</$function_name>");						
+						$response_list[$function_name] = SOAP_Common::_formatXmlString('<?xml version=\"1.0\"?'.'>'."<$function_name>??</$function_name>");
 						$keywords = 'globals_session_soap'.($xml_response ? '0' : '');
 					} else {
 						$response_list[$function_name] = SOAP_Common::_formatXmlString(empty($xml_response) ? '' : $xml_response->asXML());
@@ -620,9 +621,9 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 		if (isset($settings['response_keywords'])) {
 			$keywords_string = implode(';',$settings['response_keywords']);
 		}
-		
+
 		foreach ($current_selected_fields as $index => $selected_field) {
-			
+
 			// If the field is deleted or dosen't exists in SOAP response anymore
 			if ((!isset($request_data[$settings['action'].'_delete_field_'.$selected_field]) || !$request_data[$settings['action'].'_delete_field_'.$selected_field]) && strpos($keywords_string, '%globals_session_soap_'.$selected_field.'%') !== FALSE) {
 				if (isset($request_data[$settings['action'].'_error_msg_'.$selected_field])) {
@@ -678,33 +679,6 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 		return FALSE;
 
 	}//end processInterface()
-
-
-	/**
-	* Converts xml object to array
-	* Replace file content keyword
-	*
-	* @return array
-	* @access public
-	*/
-	public static function _toArray($data)
-	{
-		if (is_object($data)) $data = get_object_vars($data);
-
-		// Don't play with empty object
-		if(empty($data)) return '';
-
-		if(is_array($data)) {
-			$result = Array();
-			foreach ($data as $index => $element) {
-				$result[$index] = self::_toArray($element);
-			}
-			return $result;
-		} else {
-			return $data;
-		}
-
-	}//end _toArray
 
 
 	/**
