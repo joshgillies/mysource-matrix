@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_xml.inc,v 1.32 2012/08/30 00:58:16 ewang Exp $
+* $Id: data_source_xml.inc,v 1.33 2012/10/17 07:14:15 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -596,7 +596,16 @@ class Data_Source_Xml extends Data_Source
 	*/
 	function getDynamicVariableValue($variable_name)
 	{
-		$value = parent::getDynamicVariableValue($variable_name);
+		$dynamic_vars = $this->attr('dynamic_vars');
+		if (!isset($dynamic_vars[$variable_name])) return '';
+
+		$parameter_map = $this->getAttribute('parameter_map');
+		$value = $parameter_map->getParameterValue($variable_name);
+
+		if (empty($value)) {
+			// Default values are already urlencoded
+			return array_get_index($dynamic_vars, $variable_name, '');
+		}
 
 		return urlencode($value);
 
