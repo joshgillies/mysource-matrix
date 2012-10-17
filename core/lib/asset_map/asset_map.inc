@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.313 2012/10/02 02:09:27 cupreti Exp $
+* $Id: asset_map.inc,v 1.314 2012/10/17 02:57:42 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.313 $
+* @version $Revision: 1.314 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -345,7 +345,7 @@ class Asset_Map
 				}
 			}
 		}//end if
-		
+
 		return $initial_selection_lineage;
 
 	}//end _getInitialLineageSelection()
@@ -573,13 +573,13 @@ class Asset_Map
 	function process(&$backend)
 	{
 		ini_set("display_errors", 0);
-		
+
 		// block public users from probing
 		$user = isset($GLOBALS['SQ_SYSTEM']->user) ? $GLOBALS['SQ_SYSTEM']->user : NULL;
 		if (is_null($user) || $user instanceof Public_User || (method_exists($user, 'canAccessBackend') && !($user instanceof Simple_Edit_User || $user->canAccessBackend() || (method_exists($user, 'isShadowSimpleEditUser') && $user->isShadowSimpleEditUser())))) {
 			exit();
 		}
-		
+
 		// set the output type to XML, so any errors raised by the objects will be sent along in XML
 		$GLOBALS['SQ_OUTPUT_TYPE'] = 'xml';
 
@@ -756,7 +756,7 @@ class Asset_Map
 	*/
 	function _getAssetInfo($assetid, $linkid=0)
 	{
-		
+
 		$attrs = Array();
 		if (FALSE !== strpos($assetid, ':')) {
 			// This is a shadow asset so we need to get info differently
@@ -1028,7 +1028,6 @@ class Asset_Map
 		    $asset->status = $status;
 		}
 
-		
 		$db_result = Array();
 		$num_kids = NULL;
 		try {
@@ -1269,7 +1268,7 @@ class Asset_Map
 						$chunk = NULL;
 					}
 
-				} else {	
+				} else {
 					$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2);
 					$skipped = 0;
 					$added = 0;
@@ -1323,7 +1322,7 @@ class Asset_Map
 					$type_code = $asset['type_code'];
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
 					if (implements_interface($type_code, 'bridge')) {
-						$num_kids[$asset['assetid']] = -1; 
+						$num_kids[$asset['assetid']] = -1;
 					}
 				}
 				$asset['num_kids'] = array_get_index($num_kids, $asset['assetid'], $default_kids);
@@ -1377,7 +1376,7 @@ class Asset_Map
 						'web_path'		=> urlencode($asset['path']),
 						'is_dependant'	=> $asset['is_dependant'],
 					 );
-					 
+
 			$attrs['name']	= urlencode($this->_convertCharset($this->_getAssetDisplayName($asset)));
 			if (!$attrs['accessible']) $attrs['child_count'] = 0;
 
@@ -1456,7 +1455,7 @@ class Asset_Map
 	*/
 	function _getAssets(&$input)
 	{
-			
+
 		$output = simplexml_load_string('<xml></xml>');
 		$root = $output->addChild('assets');
 		//$output = new XML_Tree();
@@ -1748,7 +1747,7 @@ class Asset_Map
 		foreach ($input->root->children as $index =>$child) {
 			$input->root->children[$index]->attributes['assetid'] = urldecode($child->attributes['assetid']);
 		}
-	
+
 		$old_parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['from_parent_assetid']);
 		if (is_null($old_parent)) {
 			$this->_error('AMAP0020', $input->root->attributes['from_parent_assetid']);
@@ -1904,8 +1903,8 @@ class Asset_Map
 		$output = simplexml_load_string('<xml></xml>');
 		$responses = $output->addChild('responses');
 
-		$response_count = 0;		
-		
+		$response_count = 0;
+
 		// Make sure urlencoded assetids are restored correctly in xml
 		$input = $this->_fixUrlencodedAssetids($input);
 
@@ -2111,7 +2110,7 @@ class Asset_Map
 			return;
 		}
 
-		$assets = Array();
+		$assets = $assets_with_sort_order = Array();
 
 		foreach ($input->children() as $asset_node) {
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset((string)$asset_node->attributes()->assetid);
@@ -2139,11 +2138,24 @@ class Asset_Map
 				return;
 			}
 
-			$assets[$asset->id] = Array(
-									'linkid'	=> $link['linkid'],
-									'parentid'	=> $old_parent->id,
-								  );
-		}
+			// instead to putting the assets direstly in the array let the index be of the sort order
+			// This will help us squashing bug #5940 Cloning multiple assets sorts them backwards under parent
+			$assets_with_sort_order[$link['sort_order']][$asset->id] = Array(
+																			'linkid'	=> $link['linkid'],
+																			'parentid'	=> $old_parent->id,
+								  									);
+
+		}//end foreach
+
+		// once we have allt he assets to clone now do the
+		// sorting of array elements based on the sort_order
+		ksort($assets_with_sort_order);
+
+		foreach ($assets_with_sort_order as $sorted_assets) {
+			foreach ($sorted_assets as $asset_id => $asset_info){
+				$assets[$asset_id] = $asset_info;
+			}//end foreach
+		}//end foreach
 
 		// if we have only one asset. if we cant clone it under the new parent we dont continue further
 		if (count($assets) == 1) {
@@ -2307,8 +2319,9 @@ class Asset_Map
 
 	}//end _newLinks()
 
+
 	/**
-	* Decode the "urlencoded" assetids and make sure the entities resutling 
+	* Decode the "urlencoded" assetids and make sure the entities resutling
 	* after "urldecoding" are escaped correctly in the input XML
 	*
 	* @param object	&$input	the request info from the Asset Map in the form:
