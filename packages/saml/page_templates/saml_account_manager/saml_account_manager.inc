@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: saml_account_manager.inc,v 1.5 2012/10/17 00:25:49 ewang Exp $
+* $Id: saml_account_manager.inc,v 1.6 2012/10/17 04:53:25 ewang Exp $
 *
 */
 require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_builder/page_asset_builder.inc';
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage file
 */
@@ -495,6 +495,14 @@ class SAML_Account_Manager extends Page_Asset_Builder
 				
 			}
 		}
+		
+		// instead of displaying logged in body, do redirect
+		if( $this->_current_state == 'logged_in' && $this->attr('redirect_after_login') && isset($_SESSION['sq_saml_account_manager_current_state_redirect_url']) && $_SESSION['sq_saml_account_manager_current_state_redirect_url'])  {
+		    $redirect_url = $_SESSION['sq_saml_account_manager_current_state_redirect_url'];
+		    unset($_SESSION['sq_saml_account_manager_current_state_redirect_url']);
+		    do_redirect($redirect_url);
+		}
+				    
 
 		$fn = '_load'.$this->_default_state.'Replacements';
 		$this->_loadcreateReplacements();
