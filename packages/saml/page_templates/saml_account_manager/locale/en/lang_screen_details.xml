@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1.1.1.2.2 2012/08/28 01:24:55 ewang Exp $
+* $Id: lang_screen_details.xml,v 1.1.1.1.2.3 2012/10/17 04:49:30 ewang Exp $
 *
 */
 -->
@@ -49,6 +49,14 @@
 		<field attribute="saml_userid_attribute">
 		    <display_name>Attribute Element Name</display_name>
 		    <note></note>
+		</field>
+		<field attribute="allow_link">
+			<display_name>Allow Linking To Existing Users</display_name>
+			<note><![CDATA[If an user is logged in as a local Matrix user and SAML authenticated,  but those 2 accounts are not linked,  SAML Account Manager displays Create Link bodycopy to allow linking of accounts. <br/>Disabling this option will force SAML Account Manager to only create new local users for new SAML accounts.]]></note>
+		</field>
+		<field attribute="auto_create">
+			<display_name>Automatic Creation</display_name>
+			<note><![CDATA[After authentication of a new user, SAML Account Manager can automatically create the linked local user and log in as the local user. The username is generated from saml id. Password is generated as random string. All other attributes are left blank. Enabling this option to skip Create User process.]]></note>
 		</field>
 	    </section>
 	    <section name="Authentication Request" >

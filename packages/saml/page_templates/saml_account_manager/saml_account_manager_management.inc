@@ -10,7 +10,7 @@
 * | you a copy.                                                                                         |
 * +-----------------------------------------------------------------------------------------+
 *
-* $Id: saml_account_manager_management.inc,v 1.1.1.1 2012/08/21 05:17:12 ewang Exp $
+* $Id: saml_account_manager_management.inc,v 1.1.1.1.2.1 2012/10/17 04:49:30 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.1.1.1.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage file
 */
@@ -153,7 +153,22 @@ class SAML_Account_Manager_Management extends Asset_Management
 												'allow_empty'   => FALSE,
 										    ),
 									    );
-				
+		$this->vars['allow_link']					= Array(
+										'added'		=> '0.1',
+										'type'		=> 'boolean',
+										'default'		=> TRUE,
+										'parameters'    => Array(
+												'allow_empty'   => FALSE,
+										    ),
+									    );
+		$this->vars['auto_create']				= Array(
+										'added'		=> '0.1',
+										'type'		=> 'boolean',
+										'default'		=> FALSE,
+										'parameters'    => Array(
+												'allow_empty'   => FALSE,
+										    ),
+									    );		
 
 	}//end constructor
 

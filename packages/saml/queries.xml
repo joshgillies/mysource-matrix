@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: queries.xml,v 1.1.1.1 2012/08/21 05:17:11 ewang Exp $
+* $Id: queries.xml,v 1.1.1.1.2.1 2012/10/17 04:49:30 ewang Exp $
 *
 */
 -->
@@ -76,6 +76,17 @@
 					<value column="updated">:updated</value>
 				</values>
 			</insert>
+		</primary>
+	</query>
+	<query id="deleteLink">
+		<primary>
+			<delete>
+			    <where>
+				<equal table="sq_saml_lnk" column="assetid">:assetid</equal>
+				<equal table="sq_saml_lnk" column="samlid">:samlid</equal>
+				<equal table="sq_saml_lnk" column="entityid">:entityid</equal>
+			    </where>
+			</delete>
 		</primary>
 	</query>
 </queries>

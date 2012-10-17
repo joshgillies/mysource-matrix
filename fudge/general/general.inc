@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.53.12.2 2012/09/07 00:56:58 ewang Exp $
+* $Id: general.inc,v 1.53.12.3 2012/10/17 04:49:13 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.53.12.2 $
+* @version $Revision: 1.53.12.3 $
 * @package Fudge
 * @subpackage General
 */
@@ -443,7 +443,176 @@ function random_password($length, $include_uppercase=FALSE, $include_numbers=FAL
 
 }//end random_password()
 
+/**
+* Generates a random user pasword based on password rule. 
+* If the genrated password is blacklisted, it retries a couple of times.
+* 
+* @param string	$userinfo	 array of username, first name, last name, email of user to be banned in password
+*
+* @return string
+* @access public
+*/
+function random_user_password($userinfo = Array())
+{
+    $config = new Password_Rules_Config();
+    require_once $config->config_file;
+    
+    $password = generate_random_user_password();
+    
+    // check if this password contains blacklisted word
+    $retry_max = 99;
+    $blacklist = SQ_PASSWD_RULE_BLACK_LIST;
+    $blacklist = str_replace("\r\n","\n", $blacklist);
+    $blacklist = str_replace("\r","\n", $blacklist);
+    $blacklist = explode("\n", $blacklist);
+    
+    for($i=0;  $i<$retry_max; $i++) {
+	$retry = FALSE;
+	 if (!empty($blacklist)){
+	    foreach ($blacklist as $word) {
+		if ((!SQ_PASSWD_RULE_BLACK_LIST_EXACT && preg_match('/'.$word.'/', $password)) || (SQ_PASSWD_RULE_BLACK_LIST_EXACT && (strcmp($password, $word) == 0))) {
+		    $retry = TRUE;
+		 }
+	    }
+	 }
+	if(!empty($userinfo) && defined('SQ_PASSWD_RULE_DISALLOW_USER_INFO') && SQ_PASSWD_RULE_DISALLOW_USER_INFO == 0) {
+	    foreach ($userinfo as $component) {
+		if (!empty($component) && preg_match('/.*'.$component.'.*/i', $password)) {
+		    $retry = TRUE;
+		}
+	    }
+	}
+	if(trim($password) !== $password) $retry = TRUE;
+	if($retry) {
+	    // regenerate a new password
+	    // if it's hopeless, just return empty password
+	    $i == $retry_max - 1 ? $password = '' : $password =  generate_random_user_password();
+	}
+	else {
+	    break;
+	}
+    }
+  
+    return $password;
+}//end random_user_password()
 
+
+/**
+* Generates a random user pasword based on password rule. 
+* It does not take care of backlist word or no username match rule though.
+*
+*
+* @return string
+* @access public
+*/
+function generate_random_user_password ()
+{
+	$config = new Password_Rules_Config();
+	require_once $config->config_file;
+	$capital_chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+	$lowercase_chars = 'abcdefghijklmnopqrstuvwxyz';
+	$numers = '0123456789';
+	$punc_chars = ',.?!';
+	$allowed_chars = '';
+	$total_length = 12;
+	$password = '';
+
+
+	if (defined('SQ_PASSWD_RULE_LENGTH') && SQ_PASSWD_RULE_LENGTH > -1) {
+	    $total_length = SQ_PASSWD_RULE_LENGTH;
+	}
+	$left_length = $total_length;
+	// add minimum required chars
+	if (defined('SQ_PASSWD_RULE_NUM_CAPS') && SQ_PASSWD_RULE_NUM_CAPS > -1) {
+	    $password .= randString(SQ_PASSWD_RULE_NUM_CAPS, $capital_chars);
+	    $left_length -= SQ_PASSWD_RULE_NUM_CAPS;
+	    if(SQ_PASSWD_RULE_NUM_CAPS === 0) $allowed_chars .= $capital_chars;
+	}
+	if (defined('SQ_PASSWD_RULE_NUM_LOWER') && SQ_PASSWD_RULE_NUM_LOWER > -1) {
+	    $password .=  randString(SQ_PASSWD_RULE_NUM_LOWER, $lowercase_chars);
+	$left_length -= SQ_PASSWD_RULE_NUM_LOWER;
+	    if(SQ_PASSWD_RULE_NUM_LOWER === 0) $allowed_chars .= $lowercase_chars;
+	}
+	if (defined('SQ_PASSWD_RULE_NUM_INT') && SQ_PASSWD_RULE_NUM_INT > -1) {
+	    $password .=   randString(SQ_PASSWD_RULE_NUM_INT, $numers);
+	    $left_length -= SQ_PASSWD_RULE_NUM_INT;
+	    if(SQ_PASSWD_RULE_NUM_INT === 0) $allowed_chars .= $numers;
+	}
+	if (defined('SQ_PASSWD_RULE_NUM_PUNC') && SQ_PASSWD_RULE_NUM_PUNC > -1) {
+	    $password .= randString(SQ_PASSWD_RULE_NUM_PUNC, $punc_chars);
+	    $left_length -= SQ_PASSWD_RULE_NUM_PUNC;
+	    if(SQ_PASSWD_RULE_NUM_PUNC === 0) $allowed_chars .= $punc_chars;
+	}
+	if (defined('SQ_PASSWD_RULE_NUM_SPC') && SQ_PASSWD_RULE_NUM_SPC > -1) {
+	    $password .=   randString(SQ_PASSWD_RULE_NUM_SPC, ' ');
+	    $left_length -= SQ_PASSWD_RULE_NUM_SPC;
+	    if(SQ_PASSWD_RULE_NUM_SPC === 0) $allowed_chars .= ' ';
+	}
+
+	// add rest from allowed chars
+	$password .=   randString($left_length, $allowed_chars);
+
+	// shuffle
+	$password =  str_shuffle($password);
+
+
+	return $password;
+
+}//end generate_random_user_password()
+
+
+/**
+* generats a random string from provided chars and in specific length
+*
+* @param int	$length	the length of the password
+* @param string	$source	the source chars
+*
+* @return string
+* @access public
+*/
+    function randString($length, $source)
+    {
+	$return = '';
+	for ($i =0; $i< $length; $i++) {
+	    $int = rand(0,  strlen($source) - 1);
+	    $return .= $source[$int];
+	}
+	return $return;
+    }//end randString
+	
+	
+    /**
+    * Return an simple XML element from array
+    *
+    *  @param array	$array	array to convert
+    * @param object	&$xml	simplexml element
+    *
+    * @return object
+    * @access private
+    */
+     function arrayToXml($array, &$xml)
+     {	foreach($array as $key => $value) {
+	    // remove characters for valid XML
+	    $key = preg_replace('/[^a-zA-Z_\-+0-9]+/', '_', $key);
+	    if(is_numeric($key)) $key = '_'.$key;
+
+	    // single element no need of index
+	    if(is_array($value) && count($value) == 1 && isset($value[0]) && !is_array($value[0])) {
+			$xml->addChild("$key","$value[0]");
+			continue;
+	    }
+
+	    if(is_array($value)) {
+		$subnode = $xml->addChild("$key");
+		arrayToXml($value, $subnode);
+	    }
+	    else {
+		$xml->addChild("$key","$value");
+	    }
+	}
+    }//end arrayToXml()
+    
+    
 /**
 * Chops a string at a certain maximum length and appends an ellipsis
 * ignores HTML tags

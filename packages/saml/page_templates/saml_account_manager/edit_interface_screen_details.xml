@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1.1.1 2012/08/21 05:17:12 ewang Exp $
+* $Id: edit_interface_screen_details.xml,v 1.1.1.1.2.1 2012/10/17 04:49:30 ewang Exp $
 *
 */
 -->
@@ -41,6 +41,12 @@
 		</field>
 		<field attribute="saml_userid_attribute"   show_if="saml_userid_in_attribute">
 		    <text width="25" height="1" />
+		</field>
+		<field attribute="allow_link">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="auto_create">
+			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
 	<section name="Authentication Request" write_access="write:attributes">
