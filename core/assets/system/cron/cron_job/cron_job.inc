@@ -2,15 +2,15 @@
 /**
 * +--------------------------------------------------------------------+
 * | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
-* | ACN 084 670 600                                                    |
+* | ABN 77 084 670 600                                                 |
 * +--------------------------------------------------------------------+
 * | IMPORTANT: Your use of this Software is subject to the terms of    |
 * | the Licence provided in the file licence.txt. If you cannot find   |
-* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | this file please contact Squiz (www.squiz.com.au) so we may provide|
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job.inc,v 1.62 2011/10/10 02:17:16 akarelia Exp $
+* $Id: cron_job.inc,v 1.62.4.1 2012/10/17 23:56:46 cupreti Exp $
 *
 */
 
@@ -32,7 +32,7 @@ define('SQ_CRON_JOB_RETRY',			16);// cron job requests to be retried (only valid
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.62 $
+* @version $Revision: 1.62.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -237,6 +237,13 @@ class Cron_Job extends Asset
 							$then = strtotime('+'.$duration.' years');
 						break;
 					}//end switch
+
+					// If the job is scheduled to run immediately, make sure the current time is not as same as
+					// the Cron Manager's last run, otherwise this job will never be picked (see bug #5943)
+					if ($now == $then && $cron_mgr->attr('last_run') == strtotime(date('Y-m-d H:i', $now))) {
+						// Push it to the next Cron run
+						$then += $cron_mgr->attr('refresh_time');
+					}
 
 					$when_str = 'OO=';
 
