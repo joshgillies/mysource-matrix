@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: saml_account_manager.inc,v 1.1.1.1.2.1 2012/08/27 04:48:32 ewang Exp $
+* $Id: saml_account_manager.inc,v 1.1.1.1.2.2 2012/10/17 00:30:11 ewang Exp $
 *
 */
 require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_builder/page_asset_builder.inc';
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.1.1.1.2.1 $
+* @version $Revision: 1.1.1.1.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage file
 */
@@ -228,9 +228,11 @@ class SAML_Account_Manager extends Page_Asset_Builder
 		$saml_auth_manager = $this->_getAuthManager();
 
 		// set global redirect URL
-		$redirect_url = $this->_getRedirectURL();
-		if(!empty($redirect_url)) 
-		    $_SESSION['sq_saml_account_manager_current_state_redirect_url'] = $redirect_url;
+		if(!isset($_SESSION['sq_saml_account_manager_current_state_redirect_url'])) {
+		    $redirect_url = $this->_getRedirectURL();
+		    if(!empty($redirect_url)) 
+			$_SESSION['sq_saml_account_manager_current_state_redirect_url'] = $redirect_url;
+		}
 	
 	
 			    
