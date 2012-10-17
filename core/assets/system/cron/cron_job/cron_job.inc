@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job.inc,v 1.63 2012/08/30 01:09:10 ewang Exp $
+* $Id: cron_job.inc,v 1.63.2.1 2012/10/17 23:56:12 cupreti Exp $
 *
 */
 
@@ -32,7 +32,7 @@ define('SQ_CRON_JOB_RETRY',			16);// cron job requests to be retried (only valid
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.63.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -237,6 +237,13 @@ class Cron_Job extends Asset
 							$then = strtotime('+'.$duration.' years');
 						break;
 					}//end switch
+
+					// If the job is scheduled to run immediately, make sure the current time is not as same as
+					// the Cron Manager's last run, otherwise this job will never be picked (see bug #5943)
+					if ($now == $then && $cron_mgr->attr('last_run') == strtotime(date('Y-m-d H:i', $now))) {
+						// Push it to the next Cron run
+						$then += $cron_mgr->attr('refresh_time');
+					}
 
 					$when_str = 'OO=';
 
