@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.770 2012/09/20 00:58:59 ewang Exp $
+* $Id: asset.inc,v 1.770.2.1 2012/10/18 23:10:57 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.770 $
+* @version $Revision: 1.770.2.1 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4999,6 +4999,12 @@ class Asset extends MySource_Object
 
 			if ($switched_frontend) {
 				$GLOBALS['SQ_SYSTEM']->frontend_asset = &$current_frontend_asset;
+			}
+
+			if (!is_null($replacement)) {
+				$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_PAINT_LAYOUT_ID', $replacement);
+			} else {
+				$GLOBALS['SQ_SYSTEM']->unsetGlobalDefine('SQ_PAINT_LAYOUT_ID');
 			}
 		} else {
 			// we can't find a layout, oh well let's just print out our body
