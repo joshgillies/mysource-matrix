@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: regenerate_file_system.php,v 1.1 2012/10/15 05:38:39 cupreti Exp $
+* $Id: regenerate_file_system.php,v 1.2 2012/10/19 05:05:15 cupreti Exp $
 *
 */
 
@@ -19,7 +19,7 @@
  * Especially useful for broken file systems after a character encoding change.
  *
  * @author  Matthew Spurrier <mspurrier@squiz.net>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  * @package MySource_Matrix
 **/
 
@@ -423,7 +423,7 @@ USAGE;
 			$contextids = array_keys($GLOBALS['SQ_SYSTEM']->getAllContexts());
 			$assets=array();
 			// If we're processing designs, include them on the list
-			if ($this->processDesigns) $assets['design']=array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($this->rootNode,'design',false));
+			if ($this->processDesigns) $assets['design']=array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($this->rootNode,array('design','design_css'),true));
 			// If we're processing metadata, include them on the list
 			if ($this->processMetadata) {
 				$assets['metadata']=array();
@@ -577,10 +577,18 @@ USAGE;
 							break;
 						case 'design':
 							// If we're not a design for some reason, continue
-							if ($asset->type() != 'design') continue;
+							if (!($asset instanceof Design)) continue;
 							$design_edit_fns = $asset->getEditFns();
 							// Parse and process the design, if successful generate the design file
-							if (@$design_edit_fns->parseAndProcessFile($asset)) @$asset->generateDesignFile();
+							if (@$design_edit_fns->parseAndProcessFile($asset)) @$asset->generateDesignFile(false);
+							// Update respective design customisations
+							$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, SQ_LINK_TYPE_2, 'design_customisation', true, 'major', 'customisation');
+							foreach($customisation_links as $link) {
+								$customisation = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+								if (is_null($customisation)) continue;
+								@$customisation->updateFromParent($design);
+								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($customisation);
+							}
 							break;
 						default:
 							break;

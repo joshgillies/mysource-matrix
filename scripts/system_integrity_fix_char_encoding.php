@@ -10,7 +10,7 @@
  * | you a copy.                                                        |
  * +--------------------------------------------------------------------+
  *
- * $Id: system_integrity_fix_char_encoding.php,v 1.7 2012/10/03 05:12:32 cupreti Exp $
+ * $Id: system_integrity_fix_char_encoding.php,v 1.8 2012/10/19 05:05:15 cupreti Exp $
  */
 
 /**
@@ -21,7 +21,7 @@
  * IMPORTANT: SYSTEM MUST BE BACKEDUP BEFORE RUNNING THIS SCRIPT!!!
  *
  * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  * @package MySource_Matrix
  */
 
@@ -470,7 +470,7 @@ function get_affected_assetids($data)
 
 			case 'sq_ast_attr_val':
 				// Get list of Design assets that needs to be regenerated
-				$affected_assetids['design_file'] = array_keys($GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids, Array('design'), TRUE));
+				$affected_assetids['design_file'] = array_keys($GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids, Array('design','design_css'), TRUE));
 
 				echo ".";
 				// and list of Bodycopy Container assets
@@ -566,15 +566,18 @@ function regenerate_filesystem_content($assets_data, $contextids)
 							// Do not trigger "update asset" event when regenerating metadata
 							$mm->regenerateMetadata($assetid, NULL, FALSE);
 						} else {
-							// else its a design asset
-							if ($asset->type() != 'design') {
-								// This should never execute, but just in case ...
-								continue;
-							}
-
+							// If we're not a design for some reason, continue
+							if (!($asset instanceof Design)) continue;
 							$design_edit_fns = $asset->getEditFns();
-							if ($design_edit_fns->parseAndProcessFile($asset)) {
-								$asset->generateDesignFile();
+							// Parse and process the design, if successful generate the design file
+							if (@$design_edit_fns->parseAndProcessFile($asset)) @$asset->generateDesignFile(false);
+							// Update respective design customisations
+							$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, SQ_LINK_TYPE_2, 'design_customisation', true, 'major', 'customisation');
+							foreach($customisation_links as $link) {
+								$customisation = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+								if (is_null($customisation)) continue;
+								@$customisation->updateFromParent($design);
+								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($customisation);
 							}
 						}
 
