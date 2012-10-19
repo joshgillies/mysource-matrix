@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.103 2012/10/04 07:13:26 akarelia Exp $
+* $Id: bulk_mailer.inc,v 1.104 2012/10/19 01:30:44 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.103 $
+* @version $Revision: 1.104 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -344,7 +344,7 @@ class Bulk_Mailer
 					// leading/trailing white spaces or line breaks then that should be termed as invalid
 					// and don't allow it to be queued up or else PEAR package will go in infinite loop
 					if ((is_string($email) && (trim($email) == '')) || ($email != trim($email) || !valid_email($email))
-						|| (is_array($email) && (trim($email['email']) == '')) || ($email['email'] != trim($email['email']) || !valid_email($email['email']))) {
+						|| (is_array($email) && (trim($email['email']) == '')) || (array_get_index($email, 'email', FALSE) && ($email['email'] != trim($email['email']) || !valid_email($email['email'])))) {
 						$this->updateProgress($progress_path, $user_id, FALSE, FALSE);
 						continue;
 					}
