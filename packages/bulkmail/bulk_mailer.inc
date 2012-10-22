@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.104 2012/10/19 01:30:44 akarelia Exp $
+* $Id: bulk_mailer.inc,v 1.105 2012/10/22 05:36:33 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.104 $
+* @version $Revision: 1.105 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -370,20 +370,36 @@ class Bulk_Mailer
 											$match = FALSE;
 											$category_type = array_keys($info);
 											$user_metadata = $mm->getMetadataValueByAssetid($user->id, $info[$category_type[0]]['assetid']);
+											$metadata_field= $GLOBALS['SQ_SYSTEM']->am->getAsset($info[$category_type[0]]['assetid']);
 											$rule_text = $info[$category_type[0]]['rule_text'];
 											$old_frontend_asset = $GLOBALS['SQ_SYSTEM']->frontend_asset;
+
 											$GLOBALS['SQ_SYSTEM']->frontend_asset = $job;
 											$GLOBALS['SQ_SYSTEM']->replaceKeyword($rule_text);
 											$GLOBALS['SQ_SYSTEM']->frontend_asset = $old_frontend_asset;
 
 											if ($info[$category_type[0]]['rule_cond'] == 'contains') {
-												$match = (stripos($user_metadata, $rule_text) !== FALSE);
+												if ($metadata_field instanceof Metadata_Field_Select) {
+													$rule_text_array = explode(';', $rule_text);
+
+													foreach ($rule_text_array as $individial_text) {
+														$match = (stripos($user_metadata, trim($individial_text)) !== FALSE);
+														if ($match) break;
+													}
+												} else {
+													$match = (stripos($user_metadata, $rule_text) !== FALSE);
+												}
 											} else {
 												// needs a exact match
 												$match = (strtolower($user_metadata) == strtolower($rule_text));
 											}
+
 											if ($match && !in_array($user_metadata, $matches[$sub_name])) {
-												$matches[$sub_name][] = $user_metadata;
+												if ($metadata_field instanceof Metadata_Field_Select && strpos($user_metadata, '\\;') !== FALSE) {
+													$matches[$sub_name] = explode('\;', $user_metadata);
+												} else {
+													$matches[$sub_name][] = $user_metadata;
+												}
 											}
 										}//end foreach
 									}//end foreach
@@ -399,23 +415,30 @@ class Bulk_Mailer
 								$GLOBALS['SQ_SYSTEM']->setCurrentUser($user);
 								$old_get_vars = $_GET;
 								$search_result = '';
-								$_GET = Array();
+								$_GET = $good_query = Array();
 								foreach ($matches as $get_var => $strings_to_srch) {
 									foreach ($strings_to_srch as $srch_string) {
 										$_REQUEST['mode'] = 'results';
 										$_GET[$get_var] = $srch_string;
 										$search_vars    = $content_asset->processSearchVars();
+
 										$this->_reconnectDB(TRUE);
 
 										$search_res = $content_asset->processSearch($search_vars);
 
-										if (empty($search_res)) unset($_GET[$get_var]);
+										unset($_GET[$get_var]);
+										if (!empty($search_res)) {
+											$good_query[$get_var][] = $srch_string;
+										}
 
 										$this->_reconnectDB();
 									}//end foreach
+									$_GET = $good_query;
 								}//end foreach
 								$this->_reconnectDB(TRUE);
+
 								if (!empty($_GET)) $search_result .= $this->generateContent($details, $job_path, $user_id, $email);
+
 								$this->_reconnectDB();
 
 								$_GET = $old_get_vars;
