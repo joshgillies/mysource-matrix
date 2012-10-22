@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: google_map.inc,v 1.30 2012/08/30 00:58:46 ewang Exp $
+* $Id: google_map.inc,v 1.31 2012/10/22 23:33:54 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage google_maps
 */
@@ -385,7 +385,7 @@ class Google_Map extends Page_Asset_Listing
 		}//end if
 
 		?>
-			<script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=<?php echo $api_key; ?>" type="text/javascript"></script>
+			<script src="<?php echo (current_protocol()); ?>://maps.googleapis.com/maps/api/js?key=<?php echo $api_key; ?>&amp;sensor=false" type="text/javascript"></script>
 			<script type="text/javascript">
 			//<![CDATA[
 				<?php if (!empty($popup_html)) {
@@ -397,7 +397,7 @@ class Google_Map extends Page_Asset_Listing
 				var centerLongitude	= <?php echo (float) $lng; ?>;
 				var desc			= '<?php echo $description; ?>';
 				var zoomLevel		= <?php echo (int) $zoom_level; ?>;
-				var map_type		= G_<?php echo strtoupper($map_type);?>_MAP;
+				var map_type		= google.maps.MapTypeId.<?php echo $map_type; ?>;
 				var icon_url		= '<?php echo $icon_url; ?>';
 				var icon_width		= <?php echo $icon_width; ?>;
 				var icon_height		= <?php echo $icon_height; ?>;
@@ -426,7 +426,7 @@ class Google_Map extends Page_Asset_Listing
 				$geocoder	= $this->attr('enable_geocoder');
 				if ($geocoder) {
 				?>
-					geocoder = new GClientGeocoder();
+					geocoder = new google.maps.Geocoder();
 				<?php
 				}//end if
 
@@ -501,7 +501,7 @@ class Google_Map extends Page_Asset_Listing
 						}//end if
 
 						?>
-						var marker = addMarker('<?php echo $title ?>' ,<?php echo $location_lat; ?>, <?php echo $location_lng; ?>, '<?php echo $location_info['icon']; ?>', '<?php echo $html;?>', '<?php echo $street_view ? 'TRUE' : 'FALSE'; ?>');
+						var marker = addMarker('<?php echo $title ?>' ,<?php echo $location_lat; ?>, <?php echo $location_lng; ?>, '<?php echo $location_info['icon']; ?>', '<?php echo $html;?>', <?php echo $street_view ? 'true' : 'false'; ?>);
 						<?php
 							if ($toggle_root_nodes && !$listing_ldap_user) {
 								if (isset($assets_parent[$child_assetid])) {
@@ -543,7 +543,6 @@ class Google_Map extends Page_Asset_Listing
 			}//end if
 		}//end if
 
-		$this->addControls();
 
 	}//end printBody();
 
@@ -567,55 +566,6 @@ class Google_Map extends Page_Asset_Listing
 		return $combination;
 
 	}//end replaceKeywordCombination();
-
-
-	/**
-	* This function add different types of control to the map
-	*
-	* @return void
-	* @access public
-	*/
-	function addControls()
-	{
-		// Adding control and setting map types
-		$map_control		= $this->attr('map_control');
-		$map_type_control	= (boolean) $this->attr('map_type_control');
-		$scale_control		= (boolean) $this->attr('scale_control');
-		$google_earth		= (boolean) $this->attr('enable_google_earth');
-
-		?>
-			<script type="text/javascript">
-				<?php
-					if ($map_control == 'large') {?>
-						if (map) map.addControl(new GLargeMapControl());
-				<?php
-					} else if ($map_control == 'small') {?>
-						if (map) map.addControl(new GSmallMapControl());
-				<?php
-					} else if ($map_control == 'zoom') {?>
-						if (map) map.addControl(new GSmallZoomControl());
-				<?php
-					}//end else if
-					if ($scale_control) {?>
-						if (map) map.addControl(new GScaleControl());
-				<?php
-					}
-					if ($map_type_control) {
-				?>
-						if (map) map.addControl(new GMapTypeControl());
-				<?php
-					}
-					if ($google_earth) {
-				?>
-						if (map) map.addMapType(G_SATELLITE_3D_MAP);
-				<?php
-					}
-				?>
-
-			</script>
-		<?php
-
-	}//end addControls()
 
 
 	/**
@@ -680,7 +630,6 @@ class Google_Map extends Page_Asset_Listing
 		$keywords['google_map']				= translate('google_map_initialisation');
 
 		$keywords['street_view']			= translate('google_map_street_view');
-		$keywords['toggle_overlay']			= translate('google_map_toggle_overlay');
 		$keywords['toggle_street_view_window']	= translate('google_map_toggle_street_view_window');
 		$keywords['toggle_new_address_list']= translate('google_map_toggle_new_address_list');
 		$keywords['toggle_tool_bar']		= translate('google_map_toggle_tool_bar');
@@ -720,8 +669,10 @@ class Google_Map extends Page_Asset_Listing
 			$street_view_code	= $this->attr('street_view_code');
 			return $street_view_code;
 		} else if ($keyword == 'address_finder') {
+			$street_view_enabled =  $this->attr('enable_street_view');
+			$street_view_enabled = $street_view_enabled ? 'true' : 'false';
 			return  '<div id="address_finder" class="address_finder_div">
-						<form action="#" onsubmit="findLocationFromAddress(this.address.value); return false">
+						<form action="#" onsubmit="findLocationFromAddress(this.address.value, null, null, '.$street_view_enabled.'); return false">
 						  <p>
 							<input type="text" style="width:400px;" name="address" value="" />
 							<input type="submit" value="Find Location" />
@@ -734,15 +685,10 @@ class Google_Map extends Page_Asset_Listing
 		} else if ($keyword == 'map_type_menu') {
 			$enable_google_earth = $this->attr('enable_google_earth');
 			$map_menu = '<ul id="map_menu" class="map_type_menu" style="list-style:none;">
-					<li><button onClick="setMapType(G_NORMAL_MAP);">NORMAL</button></li>
-					<li><button onClick="setMapType(G_PHYSICAL_MAP);">TERRAIN</button></li>
-					<li><button onClick="setMapType(G_SATELLITE_MAP);">SATELLITE</button></li>
-					<li><button onClick="setMapType(G_HYBRID_MAP);">HYBRID</button></li>
-					<li><button onClick="setMapType(G_SKY_VISIBLE_MAP);">SKY VISIBLE</button></li>
-					<li><button onClick="setMapType(G_MARS_VISIBLE_MAP);">MARS VISIBLE</button></li>';
-			if ($enable_google_earth) {
-				$map_menu .= '<li><button onClick="setMapType(G_SATELLITE_3D_MAP);">EARTH</button></li>';
-			}
+					<li><button onClick="setMapType(google.maps.MapTypeId.ROADMAP);">ROADMAP</button></li>
+					<li><button onClick="setMapType(google.maps.MapTypeId.SATELLITE);">SATELLITE</button></li>
+					<li><button onClick="setMapType(google.maps.MapTypeId.TERRAIN);">TERRAIN</button></li>
+					<li><button onClick="setMapType(google.maps.MapTypeId.HYBRID);">HYBRID</button></li>';
 			$map_menu .= '</ul>';
 			return $map_menu;
 		} else if ($keyword == 'clear_new_markers') {
@@ -751,8 +697,6 @@ class Google_Map extends Page_Asset_Listing
 			return '<a href="javascript:getClosestLocation();">Get Closest Location</a>';
 		} else if ($keyword == 'asset_builder') {
 			return '<div id="asset_builder" class="asset_builder_div">NEST YOUR ASSET BUILDER HERE</div>';
-		} else if ($keyword == 'toggle_overlay') {
-			return '<a href="javascript:toggleOverlay();" id="toggle_overlay">Street View Overlay</a>';
 		} else if ($keyword == 'toggle_street_view_window') {
 			return '<a href="javascript:toggleDiv(\'street_view\');" id="toggle_street_view">Toggle Street View</a>';
 		} else if ($keyword == 'toggle_new_address_list') {
@@ -760,7 +704,7 @@ class Google_Map extends Page_Asset_Listing
 		} else if ($keyword == 'toggle_address_finder') {
 			return '<a href="javascript:toggleDiv(\'address_finder\');" id="toggle_address_finder">Toggle Address Finder</a>';
 		} else if ($keyword == 'toggle_tool_bar') {
-			return '<a href="javascript:toggleDiv(\'tool_bar\');" id="toggle_tool_bar">Toggle Tool Bar</a>';
+			return '<a href="javascript:toggleDiv(\'tool_bar_list\');" id="toggle_tool_bar">Toggle Tool Bar</a>';
 		} else if ($keyword == 'tool_bar') {
 			return '
 			<ul id="tool_bar_list" class="tool_bar" style="list-style:none;">
@@ -777,11 +721,6 @@ class Google_Map extends Page_Asset_Listing
 				<a href="javascript:addListeners(\'street_view\', this.id);" style="color:white;" title="Street View">
 					<img src="'.sq_web_path('data').'/asset_types/google_map/images/binocular.png'.'" style="border-color:white;border:2px solid;" id="street_view_tool" name="street_view_tool"/>
 					</a>
-				</li>
-				<li>
-				<a href="javascript:toggle_wheel_scrool();" style="color:white;" title="Mouse Scroll Zoom">
-					<img src="'.sq_web_path('data').'/asset_types/google_map/images/glasses.png'.'" style="border-color:white;border:2px solid;" alt="Mouse Scroll Zoom" id="mouse_scroll_zoom_tool" name="address_finder_tool" />
-				</a>
 				</li>
 			</ul>';
 		} else if ($keyword == 'toggle_asset_types') {
@@ -986,18 +925,10 @@ class Google_Map extends Page_Asset_Listing
 		?>
 		<script type="text/javascript">
 		//<![CDATA[
-			var center = new GLatLng(0, 0);
-			panoramaOptions = { latlng:center };
-			myPano = new GStreetviewPanorama(document.getElementById("street_view"), panoramaOptions);
-			GEvent.addListener(myPano, "error", handleNoFlash);
-
-			function handleNoFlash(errorCode)
-			{
-				//if (errorCode == FLASH_UNAVAILABLE) {
-				//	alert("Error: Flash doesnt appear to be supported by your browser");
-				//	return;
-				//}
-			}
+			var center = new  google.maps.LatLng(centerLatitude, centerLongitude);
+			panoramaOptions = { position:center };
+			myPano = new google.maps.StreetViewPanorama(document.getElementById("street_view"), panoramaOptions);
+			map.setStreetView(myPano);
 		//]]>
 		</script>
 		<?php
@@ -1015,8 +946,8 @@ class Google_Map extends Page_Asset_Listing
 		if (empty($this->api_key)) {
 			$this->api_key	= $this->attr('api_key');
 		}//end if
-		$base_url		= "http://maps.google.com/maps/geo?output=xml" . "&key=" . $this->api_key;
-		$request_url	= $base_url."&q=" . urlencode($address);
+		$base_url		= "http://maps.googleapis.com/maps/api/geocode/xml";
+		$request_url	= $base_url."?address=" . urlencode($address).'&sensor=false';
 
 		$geocode_pending = TRUE;
 
@@ -1034,14 +965,19 @@ class Google_Map extends Page_Asset_Listing
 			$maps_xml = $details['response'];
 
 			$xml	= simplexml_load_string($maps_xml) or die("url not loading");
-			$status = $xml->Response->Status->code;
-			if (strcmp($status, "200") == 0) {
+			
+			$status = (string) $xml->status;
+
+			if ($status == "OK") {
 				$geocode_pending = false;
-				$coordinates = $xml->Response->Placemark->Point->coordinates;
-				$coordinates_array = explode(",", $coordinates);
-				$lat = $coordinates_array[1];
-				$lng = $coordinates_array[0];
-			} else if (strcmp($status, "620") == 0) {
+				$result = $xml->result;
+				
+				$coordinates = $result[0]->geometry->location;
+				
+				$lat =  (string) $coordinates->lat;
+				$lng =  (string) $coordinates->lng;
+				
+			} else {
 				// GeoCoder returns this status on 2 conditions: 1. sending addresses too fast 2. exceeding 15000 addresses per 24Hr
 				// slow down, and bail if steps is too great (to prevent an infinite loop, by exceeding 15000 addresses) 
 				if ($steps < 100) {
@@ -1050,10 +986,7 @@ class Google_Map extends Page_Asset_Listing
 				} else {
 					$geocode_pending = FALSE;
 				}//end if
-			} else {
-				// failure to geocode
-				$geocode_pending = FALSE;
-			}//end else
+			}
 			usleep($delay);
 		}//end while
 

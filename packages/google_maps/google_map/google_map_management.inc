@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: google_map_management.inc,v 1.7 2012/08/30 00:58:46 ewang Exp $
+* $Id: google_map_management.inc,v 1.8 2012/10/22 23:33:54 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage google_maps
 */
@@ -53,10 +53,9 @@ class Google_Map_Management extends Asset_Management
 						'map_code'				=> Array (
 													'added'			=> '0.1',
 													'type'			=> 'text',
-													'default'		=> '<div id="map" style="width:300px;height:400px;border:solid 0px;"></div>
+													'default'		=> '<div id="map" style="width:500px;height:500px;border:solid 0px;"></div>
 <script type="text/javascript">
 	gmap_init();
-	window.onunload = GUnload;
 </script>',
 													'description'	=> 'Map code',
 													'is_admin'		=> FALSE,
@@ -67,7 +66,7 @@ class Google_Map_Management extends Asset_Management
 						'street_view_code'		=> Array (
 													'added'			=> '0.1',
 													'type'			=> 'text',
-													'default'		=> '<div id="street_view" style="width:400px; height:300px"></div>',
+													'default'		=> '<div id="street_view" style="width:500px; height:500px"></div>',
 													'description'	=> 'Map code',
 													'is_admin'		=> FALSE,
 													'parameters'	=> Array (
@@ -194,18 +193,14 @@ class Google_Map_Management extends Asset_Management
                         'default_map_type'		=> Array(
 													'added'         => '0.0.1',
 													'type'          => 'selection',
-													'default'       => 'normal',
+													'default'       => 'ROADMAP',
 													'description'   => '',
 													'parameters'    => Array(
 																		'options'       => Array(
-																							'normal'			=> 'Normal Street Map',
-																							'satellite'			=> 'Satellite Map',
-												   											'hybrid'			=> 'Hybrid Map',
-												   											'physical'			=> 'Physical Map',
-												   											'moon_elevation'	=> 'Moon Elevation Map',
-																							'moon_visible'		=> 'Moon Visible Map',
-																							'mars_infrared'		=> 'Mars Infrared Map',
-																							'sky_visible'		=> 'Sky Visible Map',
+																							'ROADMAP'			=> 'Road Map',
+																							'SATELLITE'			=> 'Satellite Map',
+												   											'HYBRID'			=> 'Hybrid Map',
+												   											'TERRAIN'			=> 'Terrain Map',
 																						   ),
 		                                                               	'multiple'      => FALSE,
 		                                                               	'allow_empty'   => FALSE,
@@ -334,16 +329,6 @@ class Google_Map_Management extends Asset_Management
 																		'allow_empty'	=> FALSE,
 																	   ),
 												   ),
-						'enable_google_earth'		=> Array (
-														'added'			=> '0.1',
-														'type'			=> 'boolean',
-														'default'		=> 'FALSE',
-														'description'	=> 'Enable or Disable Google Earth',
-														'is_admin'		=> FALSE,
-														'parameters'	=> Array (
-																			'allow_empty'	=> FALSE,
-																		   ),
-													   ),
 					  );
 
 	}//end constructor
