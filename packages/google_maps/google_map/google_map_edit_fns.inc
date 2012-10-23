@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: google_map_edit_fns.inc,v 1.7 2012/08/30 00:58:46 ewang Exp $
+* $Id: google_map_edit_fns.inc,v 1.7.2.1 2012/10/23 05:39:03 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage google_maps
 */
@@ -279,21 +279,20 @@ class Google_Map_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 						<div id="map" style="width:100%;height:250px;border:1px solid;display:none;">
 						</div>
 						<br /><br />
-						<script src="http://maps.google.com/maps?file=api&amp;v=2&amp;key=<?php echo $api_key; ?>" type="text/javascript"></script>
+						<script src="<?php echo (current_protocol()); ?>://maps.googleapis.com/maps/api/js?key=<?php echo $api_key; ?>&amp;sensor=false" type="text/javascript"></script>
 						<script type="text/javascript">
 						var loaded = false;
 						function init_picker() {
 							var map;
-							if (GBrowserIsCompatible()) {
-								map = new GMap2(document.getElementById("map"));
-								map.setCenter(new GLatLng(<?php echo $default_latitude; ?>, <?php echo $default_longitude; ?>),  <?php echo $default_zoom_level; ?>);
-								map.addControl(new GSmallZoomControl());
-								map.addControl(new GMapTypeControl());
-								map.setMapType(G_NORMAL_MAP);
-						    }//end if
-							GEvent.addListener(map, 'click', function(overlay, latlng) {
-						        var lng  = latlng.lng();
-						        var lat  = latlng.lat();
+							 var mapOptions = {
+							 center: new google.maps.LatLng(<?php echo $default_latitude; ?>, <?php echo $default_longitude; ?>),
+							 zoom: <?php echo $default_zoom_level; ?>,
+							 mapTypeId: google.maps.MapTypeId.ROADMAP
+							};
+							map = new google.maps.Map(document.getElementById("map"), mapOptions);
+							google.maps.event.addListener(map, 'click', function(event) {
+						        var lng  = event.latLng.lng();
+						        var lat  = event.latLng.lat()
 						        document.getElementById('<?php echo $prefix; ?>_default_latitude').style.color = 'red';
 								document.getElementById('<?php echo $prefix; ?>_default_latitude').value = lat;
 
@@ -301,9 +300,10 @@ class Google_Map_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 								document.getElementById('<?php echo $prefix; ?>_default_longitude').value = lng;
 							 }//end function
 							)
-							GEvent.addListener(map, 'zoomend', function(oldLevel, newLevel) {
+							google.maps.event.addListener(map, 'zoom_changed', function() {
+								var zoomLevel = map.getZoom();
 								document.getElementById('<?php echo $prefix; ?>_default_zoom_level').style.color = 'red';
-								document.getElementById('<?php echo $prefix; ?>_default_zoom_level').value = newLevel;
+								document.getElementById('<?php echo $prefix; ?>_default_zoom_level').value = zoomLevel;
 							    }//end function
 							)//end addListener
 						}//end init_picker()
@@ -321,7 +321,6 @@ class Google_Map_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 								loaded = true;
 							}//end if
 						}//end switch_display()
-						window.onunload = GUnload;
 	    				</script>
 
 					<?php
@@ -879,7 +878,7 @@ class Google_Map_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		$street_view	= $asset->attr('enable_street_view');
 		$extra			= 'disabled=disabled';
 
-		$o->openField('Street View Initialisation');
+		$o->openField('Standalone Street View Initialisation');
 		$street_view_code	= $asset->attr('street_view_code');
 		if ($wa) {
 			text_area($prefix.'_street_view_code', $street_view_code, 100, 10, FALSE, $street_view ? '' : $extra);
@@ -887,8 +886,7 @@ class Google_Map_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 			echo nl2br(htmlentities($street_view_code));
 		}//end else
 		$o->closeField();
-
-
+	
 		return $wa;
 
     }//end paintMapInitialisation()

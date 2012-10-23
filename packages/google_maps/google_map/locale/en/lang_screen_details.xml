@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.5 2010/05/05 07:12:36 ewang Exp $
+* $Id: lang_screen_details.xml,v 1.5.16.1 2012/10/23 05:39:03 ewang Exp $
 *
 */
 -->
@@ -30,19 +30,6 @@
 			<display_name>API Key</display_name>
 			<note>The API Key provided by Google</note>
 		</field>
-		<field attribute="map_control">
-			<display_name>Map Control</display_name>
-			<note>Select one of the available control types.</note>
-		</field>
-		<field attribute="scale_control">
-			<display_name>Scale Control</display_name>
-			<note>Enable or Disable the Zoom Control of the map.</note>
-		</field>
-
-		<field attribute="map_type_control">
-			<display_name>Map Type Control</display_name>
-			<note>Enable or Disable the Map Type Control of the map</note>
-		</field>
 		<field attribute="enable_listing">
 			<display_name>Enable Listing</display_name>
 			<note>Enable or Disable the Listing Capability.</note>
@@ -54,7 +41,7 @@
 		<field attribute="toggle_root_nodes">
 			<display_name>Enable root nodes toggling</display_name>
 			<note>Allow toggling markers belongs to different root nodes. Enabling this will cause performance overhead.</note>
-		</field>enable_street_view
+		</field>
 		<field attribute="enable_create_location">
 			<display_name>Enable Create Location</display_name>
 			<note>Allow using an asset builder to add a Google Map Location Asset using this Map.</note>
@@ -64,12 +51,8 @@
 			<note>Allow using the Geocoding Service of Google.</note>
 		</field>
 		<field attribute="enable_street_view">
-			<display_name>Enable Street View</display_name>
-			<note>Allow using the Street View capability of Google.</note>
-		</field>
-		<field attribute="enable_google_earth">
-			<display_name>Enable Google Earth</display_name>
-			<note>Allow using the Google Earth capability. This option requires the installation of the Google Earth plugin</note>
+			<display_name>Enable Standalone Street View</display_name>
+			<note>Allow displaying Street View in a standalone Div.</note>
 		</field>
 	</section>
 	<section name="Default Settings">

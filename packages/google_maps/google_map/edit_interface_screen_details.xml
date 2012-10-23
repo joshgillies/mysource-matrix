@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2010/05/05 07:12:35 ewang Exp $
+* $Id: edit_interface_screen_details.xml,v 1.4.16.1 2012/10/23 05:39:02 ewang Exp $
 *
 */
 -->
@@ -27,15 +27,6 @@
 		<field attribute="api_key">
 			<text width="110" height="1"/>
 		</field>
-        <field attribute="map_control">
-            <selection />
-        </field>
-		<field attribute="scale_control">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-		<field attribute="map_type_control">
-			<boolean true_text="yes" false_text="no" />
-		</field>
 		<field attribute="toggle_root_nodes">
 			<boolean true_text="yes" false_text="no" />
 		</field>
@@ -46,9 +37,6 @@
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="enable_street_view">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-		<field attribute="enable_google_earth">
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>

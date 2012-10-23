@@ -4,13 +4,12 @@
 	*
 	*/
 	function gmap_init()	{
-		if (GBrowserIsCompatible()) {
-			map = new GMap2(document.getElementById("map"));
-			//retrieveMarkers();
-			var location = new GLatLng(centerLatitude, centerLongitude);
-			map.setCenter(location, zoomLevel);
-			map.setMapType(map_type);
-	    }//end if
+		  var mapOptions = {
+		    center: new google.maps.LatLng(centerLatitude, centerLongitude),
+		    zoom: zoomLevel,
+		    mapTypeId: map_type
+		  };
+		  map = new google.maps.Map(document.getElementById("map"), mapOptions);
 
 	}//end gmap_init()
 
@@ -27,43 +26,45 @@
 			}//end if
 		}//end if
 		if (current_listener) {
-			GEvent.removeListener(current_listener);
+			google.maps.event.removeListener(current_listener);
 			current_listener	= null;
 		}//end if
 
 		switch (name) {
 			case 'lat_lng_mouse_location' :
-				current_listener = GEvent.addListener(map, 'mousemove', function(latlng) {
-					var pixelLocation  = map.fromLatLngToDivPixel(latlng);
-				 	GLog.write('Latitude Longtitude:' + latlng + ' at PIXEL LOCATION:' + pixelLocation);
+				current_listener = google.maps.event.addListener(map, 'mousemove', function(event) {
+					var  overlay = new google.maps.OverlayView();
+					overlay.draw = function() {};
+					overlay.setMap(map);
+					var pixelLocation = overlay.getProjection().fromLatLngToDivPixel(event.latLng); 
+				 	console.log('Latitude Longtitude:' + event.latLng + ' at PIXEL LOCATION:' + pixelLocation);
 				 }//end function
 				)//end addListener
 				break;
 
 			case 'zoom_change' :
-				current_listener = GEvent.addListener(map, 'zoomend', function(oldLevel, newLevel) {
-				      GLog.write('ZOOM CHANGED from '+ oldLevel + ' to ' + newLevel);
+				current_listener = google.maps.event.addListener(map, 'zoom_changed', function() {
+				var zoomLevel = map.getZoom();
+				      console.log('ZOOM CHANGED to ' + zoomLevel);
 				     }//end function
 				)//end addListener
 				break;
 
 			case 'add_marker' :
-				current_listener = GEvent.addListener(map, 'click',
-					function(overlay, latlng) {
+				current_listener = google.maps.event.addListener(map, 'click',
+					function(event) {
 						try {
-							if (icon_url != '' && icon_url != null) {
-								var icon = new GIcon();
-								icon.image = icon_url;
-								icon.iconSize = new GSize(icon_width, icon_height);
-								icon.iconAnchor  = new GPoint(14, 25);
-								icon.infoWindowAnchor = new GPoint(14, 14);
-								var marker  = new GMarker(latlng, icon);
-							} else {
-								var marker  = new GMarker(latlng);
-							}//end else
+							var street_view_enabled;
+							if(typeof myPano != 'undefined') {
+							    street_view_enabled = true;
+							}
+							else {
+							
+							    street_view_enabled = false;
+							}
+							var marker = addMarker(null, event.latLng.lat(), event.latLng.lng(), null, null, street_view_enabled);
 							newMarkers.push(marker);
 							current_marker	= marker;
-							map.addOverlay(marker);
 						} catch (e) {}
 					}//end function
 				);
@@ -71,9 +72,9 @@
 				break;
 			case 'street_view':
 				//We should decide whether we should allow set POV dynamically
-				current_listener = GEvent.addListener(map,"click", function(overlay,latlng) {
+				current_listener = google.maps.event.addListener(map,"click", function(event) {
 					if (myPano) {
-						myPano.setLocationAndPOV(latlng);
+						myPano.setPosition(event.latLng);
 					}//end if
 					var div = document.getElementById("street_view");
 					if (div && div.style.display !='block') {
@@ -93,22 +94,6 @@
 
 	}//end addListeners()
 
-
-	/**
-	* This function is used to turn mouse wheel scroll zooming on or off
-	*
-	*/
-	function toggle_wheel_scrool()
-	{
-		var tool	= document.getElementById('mouse_scroll_zoom_tool');
-		if (map.scrollWheelZoomEnabled()) {
-			map.disableScrollWheelZoom();
-			tool.style.color	= 'white';
-		} else {
-			map.enableScrollWheelZoom();
-			tool.style.color	= 'green';
-		}//end else
-	}//end toggle_wheel_scrool()
 
 
 	/**
@@ -144,163 +129,72 @@
 			var icon_url_final = icon_url;
 		}//end if
 		if (icon_url_final != '' && icon_url_final != null) {
-			var icon = new GIcon();
-			icon.image = icon_url_final;
-			icon.iconSize = new GSize(icon_width, icon_height);
-			icon.iconAnchor  = new GPoint(icon_width/2, 25);
-			icon.infoWindowAnchor = new GPoint(icon_width/2, 14);
-			var marker	= new GMarker(new GLatLng(latitude, longitude), icon);
+			 var image = new google.maps.MarkerImage(icon_url_final,
+			    // This marker is 20 pixels wide by 32 pixels tall.
+			    new google.maps.Size(icon_width, icon_height),
+			    // The origin for this image is 0,0.
+			    new google.maps.Point(0,0),
+			    // The anchor for this image is the base of the flagpole at 0,32.
+			    new google.maps.Point(icon_width/2, icon_height));
+
+			    var myLatlng = new google.maps.LatLng(latitude, longitude);
+			    var marker  = new google.maps.Marker({
+				position : myLatlng, 
+				map: map, 
+				title : name,
+				icon : image
+			    });
 		} else {
-			var marker  = new GMarker(new GLatLng(latitude, longitude));
+		 
+			var myLatlng = new google.maps.LatLng(latitude, longitude);
+			var marker  = new google.maps.Marker({
+			    position : myLatlng, 
+			    map: map, 
+			    title : name
+			});
 		}//end else
 
+		
+		
+		var infowindow = new google.maps.InfoWindow({
+		    content: description
+		});
+		
 		if (street_view_enabled) {
-			GEvent.addListener(marker, "click", function() {
+			google.maps.event.addListener(marker, "click", function() {
 				current_marker = marker;
-				marker.openInfoWindowHtml(description);
-				var latlng = marker.getLatLng();
+				if(description != null) {
+				    infowindow.open(map,marker);
+				}
+				var latlng = marker.getPosition();
 				var div = document.getElementById("street_view");
 				if (div && div.style.display !='block') {
 					div.style.display = 'block';
 				}//end if
 				if (myPano) {
-					myPano.setLocationAndPOV(latlng);
+					myPano.setPosition(latlng);
 				}
 
 			});
 		} else {
-			GEvent.addListener(marker, 'click',
+		    
+			google.maps.event.addListener(marker, 'click',
 			  function () {
-			    //map.showMapBlowup(new GLatLng(latitude, longitude), 5, G_HYBRID_MAP);
 			    current_marker = marker;
-			    marker.openInfoWindowHtml(description);
+			    if(description != null) {
+				infowindow.open(map,marker);
+			    }
 			  }//end function
 			)//end addListener
 		}//end else
 
-		map.addOverlay(marker);
 
 		return marker;
 
 	}//end addMarker()
 
 
-	/**
-	* This function is used to store added marker using a script
-	*
-	*/
-	function storeMarker() {
-		var lng  = document.getElementById("longitude").value;
-		var lat  = document.getElementById("latitude").value;
-
-		var getVars = ["?found=" , document.getElementById("found").value
-		      ,  "&depth=" , document.getElementById("depth").value
-		      ,  "&icon=" , document.getElementById("icon").value
-		      ,  "&lng="  , lng
-		      ,  "&lat="  , lat].join('');
-
-		var request = GXmlHttp.create();
-
-		//Open the request to storeMarker.php on the server
-		request.open('GET', 'storeMarker.php' + getVars, true);
-		request.onreadystatechange = function() {
-
-		  if (request.readyState == 4) {
-		      var xmlDoc  = request.responseXML;
-
-		      // get the root node
-		      var responseNode = xmlDoc.documentElement;
-
-		      // get the type attribute
-		      var type  = responseNode.getAttribute("type");
-
-		      // get the content
-		      var content = responseNode.firstChild.nodeValue;
-
-		    if (type != 'success') {
-		      alert(content);
-		    } else {
-		      //create a new marker
-		      var latlng  = new GLatLng(parseFloat(lat), parseFloat(lng));
-		      var iconImage  = responseNode.getAttribute("icon");
-		      var marker  = createMarker(latlng, content, iconImage);
-		      map.addOverlay(marker);
-		      map.closeInfoWindow();
-		    }//end else
-		  }//end if
-		}//end function
-		request.send(null);
-		return false;
-
-	}//end storeMarker()
-
-
-	function createMarker(latlng, html, iconImage) {
-		if (iconImage!='') {
-		  var icon = new GIcon();
-		  icon.image = "http://delta.squiz.net/~hnguyen/Images/"+iconImage+".jpg";
-		  icon.iconSize = new GSize(30, 30);
-		  icon.iconAnchor  = new GPoint(14, 25);
-		  icon.infoWindowAnchor = new GPoint(14, 14);
-		  var marker  = new GMarker(latlng, icon);
-		  //map.addOverlay(marker);
-
-		} else {
-		  var marker  = new GMarker(latlng);
-		}//end else
-
-		//var marker  = new GMarker(latlng);
-		GEvent.addListener(marker, 'click', function() {
-		  var markerHTML = html;
-		  marker.openInfoWindowHtml(markerHTML);
-		 }//end function
-		)//end addListener
-		return marker;
-	}//end createMarker
-
-
-	/**
-	* This function is used to retrieve stored markers using a script
-	*
-	*/
-	function retrieveMarkers() {
-		var request  = GXmlHttp.create();
-
-		request.open('GET', 'retrieveMarkers.php', true);
-		request.onreadystatechange = function() {
-
-		  if (request.readyState == 4) {
-		    var xmlDoc = request.responseXML;
-
-		    var markers = xmlDoc.documentElement.getElementsByTagName("marker");
-
-		    for (var i = 0; i < markers.length; i++) {
-		      var lng  = markers[i].getAttribute("lng");
-		      var lat  = markers[i].getAttribute("lat");
-		      if (lng && lat) {
-		        var latlng  = new GLatLng(parseFloat(lat), parseFloat(lng));
-
-		        var html  = ['<div><b>Found </b>',
-		                markers[i].getAttribute("found"),
-		                '</div><div><b>Depth</b> ',
-		                markers[i].getAttribute("depth"),
-		                '</div>'].join('');
-
-		        var iconImage = markers[i].getAttribute("icon");
-		        if (iconImage == null) iconImage = '';
-		        var marker  = createMarker(latlng, html, iconImage);
-		        map.addOverlay(marker);
-
-		      }//end if
-
-		    }//end for
-		  }//end if
-
-		}//end function
-		request.send(null);
-
-	}//end retrieveMarkers
-
+	
 
 	/**
 	* This function is used to set the map type
@@ -308,18 +202,10 @@
 	*/
 	function setMapType(mapType)
 	{
-		map.setMapType(mapType);
+		map.setMapTypeId(mapType);
 	}//end setMapType
 
 
-	/**
-	* This function is used to get the Earth Instance for Google Earth
-	*
-	*/
-	function getEarthInstanceCB(object)
-	{
-		ge = object;
-	}//end setMapType
 
 
 	/**
@@ -328,7 +214,7 @@
 	*/
 	function getInfo(i)
 	{
-		GEvent.trigger(allMarkerList[i], "click");
+		google.maps.event.trigger(allMarkerList[i], "click");
 	}//end getInfo()
 
 
@@ -340,7 +226,7 @@
 	{
 		for (var i =0; i < marker_array.length; i++) {
 			if (marker_array[i]) {
-				marker_array[i].hide();
+				marker_array[i].setMap(null);
 				marker_array[i] = null;
 			}
 		}//end for
@@ -353,7 +239,7 @@
 	*/
 	function getClosestLocationForMarker(marker)
 	{
-		var current_latlng	= marker.getLatLng();
+		var current_latlng	= marker.getPosition();
 		var current_lat		= current_latlng.lat();
 		var current_lng		= current_latlng.lng();
 
@@ -361,8 +247,8 @@
 		var closest_marker		= null;
 
 		for (var obj in allMarkerList) {
-			if (!allMarkerList[obj].isHidden()) {
-				var latlng	= allMarkerList[obj].getLatLng();
+			if (!allMarkerList[obj].visible) {
+				var latlng	= allMarkerList[obj].getPosition();
 				var lng		= latlng.lng();
 				var lat		= latlng.lat();
 
@@ -393,29 +279,18 @@
 	*/
 	function drawLineBetweenMarkers(coordinate_1, coordinate_2, color)
 	{
-		var polyline = new GPolyline([
-		  coordinate_1,
-		  coordinate_2
-		], color, 10);
+		var path = [coordinate_1, coordinate_2];
+		var polyline = new google.maps.Polyline({
+		    path : path,
+		    strokeColor : color,
+		    strokeWeight: 2   
+		});
 		newPolylines.push(polyline);
-		map.addOverlay(polyline);
+		polyline.setMap(map);
 	}//end drawLineBetweenMarkers()
 
 
-	/**
-	* Turn street view overlay on and off
-	*/
-	function toggleOverlay() {
-	  if (!overlay) {
-	    overlay = new GStreetviewOverlay();
-	    map.addOverlay(overlay);
-	  } else {
-	    map.removeOverlay(overlay);
-	    overlay = null;
-	  }
-	}//end toggleOverlay()
-
-
+	
 	/**
 	* Make a element disappear or appear (mostly used for divs)
 	*/
@@ -432,71 +307,25 @@
 	/**
 	*
 	*/
-	function findLocationFromAddress(address, extra_text, icon_image, uid, street_view_enabled) {
+	function findLocationFromAddress(address, extra_text, icon_image, street_view_enabled) {
 		if (address) {
-		  geocoder.getLatLng(
-		    address,
-		    function(point) {
-		      if (!point) {
-		        //alert(address + " not found");
-		      } else {
-		       if (!uid)  map.setCenter(point);
-
-				if (icon_image != null && icon_image != '') {
-					var icon_url_final = icon_image;
-				} else {
-					var icon_url_final = icon_url;
-				}//end if
-				if (icon_url_final != '' && icon_url_final != null) {
-					var icon = new GIcon();
-					icon.image = icon_url_final;
-					icon.iconSize = new GSize(icon_width, icon_height);
-					icon.iconAnchor  = new GPoint(icon_width/2, 25);
-					icon.infoWindowAnchor = new GPoint(icon_width/2, 14);
-					var marker  = new GMarker(point, icon);
-				} else {
-					var marker  = new GMarker(point);
-				}//end else
-
-		        map.addOverlay(marker);
-
-				if (!extra_text) extra_text = '';
-				GEvent.addListener(marker, 'click',
-				  function () {
-				    marker.openInfoWindowHtml(extra_text+' '+address);
-				  }//end function
-				)//end addListener
-
-		        if (!uid) marker.openInfoWindowHtml(address);
-		       	newMarkers.push(marker);
-		       	updateAddressList(marker, address);
-				current_marker = marker;
-
-				if (street_view_enabled) {
-					GEvent.addListener(marker,"click", function() {
-						current_marker = marker;
-						var latlng = marker.getLatLng();
-						if (myPano) {
-							myPano.setLocationAndPOV(latlng);
-						}
-						var div = document.getElementById("street_view");
-						if (div && div.style.display !='block') {
-							div.style.display = 'block';
-						}//end if
-					});
-				} else {
-					GEvent.addListener(marker, 'click',
-					  function () {
-					    //map.showMapBlowup(new GLatLng(latitude, longitude), 5, G_HYBRID_MAP);
-					    current_marker = marker;
-					    marker.openInfoWindowHtml(extra_text+' '+address);
-					  }//end function
-					)//end addListener
-				}//end else
-
-		      }
+		    if (!extra_text)  {
+			extra_text = '';
 		    }
-		 );
+		    else {
+			extra_text += ' ';
+		    }
+		    geocoder.geocode( { 'address': address}, function(results, status) {
+		    if (status == google.maps.GeocoderStatus.OK) {
+			map.setCenter(results[0].geometry.location);
+			var marker = addMarker(address, results[0].geometry.location.lat(), results[0].geometry.location.lng(), null, extra_text+address, street_view_enabled);
+			newMarkers.push(marker);
+			updateAddressList(marker, address);
+			current_marker	= marker;
+		    } else {
+			alert("Geocode was not successful for the following reason: " + status);
+		    }
+		    });
 		}//end if address
 
 	}//end showAddress()
@@ -538,7 +367,7 @@
 
 		document.getElementById('asset_builder').style.display = 'block';
 
-		var	latlng	= marker.getLatLng();
+		var	latlng	= marker.getPosition();
 		populateElementValue(FormEle.longitude, latlng.lng());
 		populateElementValue(FormEle.latitude, latlng.lat());
 		populateElementValue(FormEle.description, address);
@@ -603,13 +432,13 @@
 		if (!marker_array[key_index].toggle) {
 			for (var obj in marker_array[key_index]) {
 				if (obj != 'toggle') {
-					marker_array[key_index][obj].show();
+					marker_array[key_index][obj].setMap(map);
 				}//end if
 			}//end for
 		} else {
 			for (var obj in marker_array[key_index]) {
 				if (obj != 'toggle') {
-					marker_array[key_index][obj].hide();
+					marker_array[key_index][obj].setMap(null);
 				}//end if
 			}//end for
 		}
@@ -630,7 +459,7 @@
 			if (!color)  {
 				color	= '#ff0000';
 			}//end if
-			drawLineBetweenMarkers(last_marker.getLatLng(), closest_marker.getLatLng(), color);
+			drawLineBetweenMarkers(last_marker.getPosition(), closest_marker.getPosition(), color);
 		}//end if
 
 	}//end getClosestLocation()
