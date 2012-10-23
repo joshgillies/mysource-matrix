@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_update_lookups.php,v 1.17 2012/08/30 01:04:53 ewang Exp $
+* $Id: system_update_lookups.php,v 1.17.2.1 2012/10/23 05:38:37 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
 * @author  James Hurst <jhurst@squiz.co.uk>
 * @author  Daniel Simmons <dsimmons@squiz.co.uk>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.17.2.1 $
 * @package MySource_Matrix
 */
 
@@ -97,6 +97,7 @@ $pid_prepare    = pcntl_fork();
             pcntl_waitpid(-1, $status);
             break;
     }//end switch
+
 
 $children    = Array();
 if (file_exists(SYNCH_FILE)) {
@@ -375,10 +376,6 @@ function getTreeSortedChildren($assetids)
 		if (isset($id_parts[1])) {
 			$todo_shadows = array_merge($todo_shadows, array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($assetid)));
 		} else {
-			$todo_normal[] = Array(
-								'minorid'	=> $assetid,
-								'length'	=> 0,
-							 );
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			if ($asset instanceof Bridge) {
 				if (!method_exists($asset, 'getChildren')) {
@@ -417,7 +414,7 @@ function getTreeSortedChildren($assetids)
 			try {
 				$query = MatrixDAL::preparePdoQuery($sql.$where);
 				MatrixDAL::bindValueToPdo($query, 'treeid', $treeid.'%');
-				$new_assets = MatrixDAL::executePdoAssoc($query, 0);
+				$new_assets = MatrixDAL::executePdoAssoc($query);
 			} catch (Exception $e) {
 				throw new Exception('Unable to get minorids for treeid: '.$treeid[0]['treeid'].' due to database error: '.$e->getMessage());
 			}
@@ -428,30 +425,14 @@ function getTreeSortedChildren($assetids)
 	}//end foreach
 
 	// Make sure lower assets are done after higher ones
-	if (!empty($todo_normal)) {
-		foreach (array_chunk(array_unique($todo_normal), 999) as $chunk) {
-			$quoted = Array();
-			foreach ($chunk as $id) {
-				$quoted[] = '\''.((string) $id).'\'';
-			}
-			$wheres[] = '(l.minorid IN ('.implode(', ', $quoted).'))';
-		}
-		$sql = 'SELECT l.minorid, MAX(LENGTH(t.treeid)) as length
-				FROM sq_ast_lnk l JOIN sq_ast_lnk_tree t on l.linkid = t.linkid';
-		$where = '('.implode(' OR ', $wheres).')
-					GROUP BY l.minorid
-					ORDER BY length ASC';
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-
-		try {
-			$todo_normal = MatrixDAL::executeSqlAssoc($sql.$where, 0);
-		} catch (Exception $e) {
-			throw new Exception('Unable to get minorids due to database error: '.$e->getMessage());
-		}
+	usort($todo_normal, create_function('$a, $b', 'return $a[\'length\'] > $b[\'length\'];'));
+	$todo_assetids = Array();
+	foreach($todo_normal as $asset_info) {
+		$todo_assetids[] = $asset_info['minorid'];
 	}
 
-	$todo_assetids = array_unique(array_merge($todo_normal, $todo_shadows));
+	$todo_assetids = array_unique(array_merge($todo_assetids, $todo_shadows));
+
 	return $todo_assetids;
 
 }//end getTreeSortedChildren()
