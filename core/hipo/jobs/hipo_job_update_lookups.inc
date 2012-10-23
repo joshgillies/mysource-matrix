@@ -2,15 +2,15 @@
 /**
 * +--------------------------------------------------------------------+
 * | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
-* | ACN 084 670 600                                                    |
+* | ABN 77 084 670 600                                                 |
 * +--------------------------------------------------------------------+
 * | IMPORTANT: Your use of this Software is subject to the terms of    |
 * | the Licence provided in the file licence.txt. If you cannot find   |
-* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | this file please contact Squiz (www.squiz.com.au) so we may provide|
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_update_lookups.inc,v 1.55.4.1 2012/06/22 03:24:44 akarelia Exp $
+* $Id: hipo_job_update_lookups.inc,v 1.55.4.2 2012/10/23 05:39:32 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.55.4.1 $
+* @version $Revision: 1.55.4.2 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -205,10 +205,6 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 			if (isset($id_parts[1])) {
 				$todo_shadows = array_merge($todo_shadows, array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($assetid)));
 			} else {
-				$todo_normal[] = Array(
-									'minorid'	=> $assetid,
-									'length'	=> 0,
-								 );
 				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				if ($asset instanceof Bridge) {
 					if (!method_exists($asset, 'getChildren')) {
@@ -249,7 +245,7 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 				try {
 					$query = MatrixDAL::preparePdoQuery($sql.$where);
 					MatrixDAL::bindValueToPdo($query, 'treeid', $treeid.'%');
-					$new_assets = MatrixDAL::executePdoAssoc($query, 0);
+					$new_assets = MatrixDAL::executePdoAssoc($query);
 				} catch (Exception $e) {
 					throw new Exception('Unable to get minorids for treeid: '.$treeid[0]['treeid'].' due to database error: '.$e->getMessage());
 				}
@@ -260,34 +256,21 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 		}//end foreach
 
 		// Make sure lower assets are done after higher ones
-		if (!empty($todo_normal)) {
-			foreach (array_chunk(array_unique($todo_normal), 999) as $chunk) {
-				$quoted = Array();
-				foreach ($chunk as $id) {
-					$quoted[] = '\''.((string) $id).'\'';
-				}
-				$wheres[] = '(l.minorid IN ('.implode(', ', $quoted).'))';
+		if (!empty($todo_normal)) {			
+			usort($todo_normal, create_function('$a, $b', 'return $a[\'length\'] > $b[\'length\'];'));
+			$todo_assetids = Array();
+			foreach($todo_normal as $asset_info) {
+				$todo_assetids[] = $asset_info['minorid'];
 			}
-			$sql = 'SELECT l.minorid, MAX(LENGTH(t.treeid)) as length
-					FROM sq_ast_lnk l JOIN sq_ast_lnk_tree t on l.linkid = t.linkid';
-			$where = '('.implode(' OR ', $wheres).')
-						GROUP BY l.minorid
-						ORDER BY length ASC';
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-
-			try {
-				$todo_normal = MatrixDAL::executeSqlAssoc($sql.$where, 0);
-			} catch (Exception $e) {
-				throw new Exception('Unable to get minorids due to database error: '.$e->getMessage());
-			}
+			unset($todo_normal);
+			unset($new_assets);
 		}
 
 		// Whether to add auto remap
 		$rm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
 		$auto_add_remaps = $rm->attr('remap_upon_webpath_change');
 
-		$this->_running_vars['todo_assetids'] = array_unique(array_merge($todo_normal, $todo_shadows));
+		$this->_running_vars['todo_assetids'] = array_unique(array_merge($todo_assetids, $todo_shadows));
 		if (!isset($this->_running_vars['auto_add_remaps'])) $this->_running_vars['auto_add_remaps'] = $auto_add_remaps;
 		$this->_running_vars['done_assetids'] = Array();
 		return parent::prepare();
