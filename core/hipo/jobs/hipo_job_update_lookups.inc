@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_update_lookups.inc,v 1.59 2012/10/22 04:52:59 cupreti Exp $
+* $Id: hipo_job_update_lookups.inc,v 1.60 2012/10/23 23:31:18 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -256,9 +256,9 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 		}//end foreach
 
 		// Make sure lower assets are done after higher ones
-		if (!empty($todo_normal)) {			
+		$todo_assetids = Array();
+		if (!empty($todo_normal)) {
 			usort($todo_normal, create_function('$a, $b', 'return $a[\'length\'] > $b[\'length\'];'));
-			$todo_assetids = Array();
 			foreach($todo_normal as $asset_info) {
 				$todo_assetids[] = $asset_info['minorid'];
 			}
