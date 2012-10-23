@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.143 2012/07/19 04:49:13 akarelia Exp $
+* $Id: lang_errors.xml,v 1.144 2012/10/23 22:59:10 akarelia Exp $
 *
 */
 
@@ -1425,7 +1425,7 @@ Full Node Contents %3$s</error>
 	<error code="SYS0327">Unable to set metadata values for "%s", permission denied</error>
 	<error code="SYS0328">Unable to set attribute values for "%s", permission denied</error>
 	<error code="SYS0330">Unable to set a layout, no URL has been assigned to the asset</error>
-	
+
 	<error code="SYS0346">Unable to filter content of attribute "%1$s" of asset type "%2$s"</error><!-- core/include/asset.inc: -->
 
 	<!-- Apache Configuration Errors -->
@@ -1442,7 +1442,7 @@ Full Node Contents %3$s</error>
 	<error code="SYS0334">Link "%1$s" cannot be deleted, link is locked</error>
 
 	<error code="SYS0345">Couldn't find treeid for asset #%s in link tree table</error>
-	
+
 
 <!-- CORE ASSETS -->
 
@@ -1806,7 +1806,7 @@ Full Node Contents :
 
 	<!-- Form Question - Select -->
 	<error code="CORE0302">Cannot use 'Empty Text Key' provided. It is duplicate to one of the keys in provided Options</error>
-	
+
 	<!-- Image file -->
 	<error code="CORE0304">Uploaded file is not an image file</error>
 
@@ -1818,9 +1818,12 @@ Full Node Contents :
 
 	<!-- Trigger - Remove future lineage cron -->
 	<error code="CORE0308">Cannot remove future lineage cron job #%1$s</error>
-	
+
 	<error code="CORE0309">More than one default option was set in the CSV file, but the Metadat Field is not set for multiple selection. Only the first default option found will be used.</error>
-	
+
+	<!-- Workflow Manager - setCurrentUserAsLastStarted()  -->
+	<error code="CORE0320">Error updating 'last_started_by' column for Asset #%1$s with Workflow Schema %2$s : %3$s</error>
+
 	<error code="RPRT0000">Could not open temporary file, report generation aborted</error>
 		<!-- packages/cms/reports/report_links/report_links_edit_fns.inc:84: -->
 		<!-- packages/cms/reports/report_links/report_links_edit_fns.inc:91: -->
@@ -1845,7 +1848,7 @@ Full Node Contents :
 	<error code="TRIG0005">Unable to select context #%1$s for use in trigger, the context no longer exists</error>
 	<error code="TRIG0006">Unable to determine Tree ID of the asset the trigger condition: 'Tree Location' is executing on. Revise your Trigger setup.</error>
 	<error code="TRIG0007">More than one link found with the characteristics specified in 'Update Link' Trigger Action.</error>
-	
+
 	<!-- CTX = Context/multi-lingual related errors -->
 	<error code="CTX0001">Cannot create context "%1$s" in database: %2$s</error>
 	<error code="CTX0002">Cannot update context "%1$s" in database: %2$s</error>
