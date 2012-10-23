@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: google_map.inc,v 1.31 2012/10/22 23:33:54 ewang Exp $
+* $Id: google_map.inc,v 1.32 2012/10/23 05:27:02 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage google_maps
 */
@@ -419,8 +419,6 @@ class Google_Map extends Page_Asset_Listing
 				var current_listener	= null;
 				var current_listener_name = 'navigate_tool';
 
-				// Google Earh
-				var ge;
 
 			<?php
 				$geocoder	= $this->attr('enable_geocoder');
@@ -455,16 +453,6 @@ class Google_Map extends Page_Asset_Listing
 
 			<?php
 
-				if ($this->attr('enable_google_earth')) {
-
-				?>
-					ge = map.getEarthInstance(getEarthInstanceCB);
-					if (ge != null) {
-						ge.getLayerRoot().enableLayerById(ge.LAYER_BORDERS, true);
-						ge.getLayerRoot().enableLayerById(ge.LAYER_ROADS, true);
-					}
-				<?php
-				}//end if
 
 				$asset_types	= $this->attr('types');
 				foreach ($asset_types as $type_code	=> $inherit) {
@@ -683,7 +671,6 @@ class Google_Map extends Page_Asset_Listing
 			return '<div id="new_address_list" class="new_address_list">
 					</div>';
 		} else if ($keyword == 'map_type_menu') {
-			$enable_google_earth = $this->attr('enable_google_earth');
 			$map_menu = '<ul id="map_menu" class="map_type_menu" style="list-style:none;">
 					<li><button onClick="setMapType(google.maps.MapTypeId.ROADMAP);">ROADMAP</button></li>
 					<li><button onClick="setMapType(google.maps.MapTypeId.SATELLITE);">SATELLITE</button></li>

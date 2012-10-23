@@ -54,7 +54,15 @@
 				current_listener = google.maps.event.addListener(map, 'click',
 					function(event) {
 						try {
-							var marker = addMarker(null, event.latLng.lat(), event.latLng.lng());
+							var street_view_enabled;
+							if(typeof myPano != 'undefined') {
+							    street_view_enabled = true;
+							}
+							else {
+							
+							    street_view_enabled = false;
+							}
+							var marker = addMarker(null, event.latLng.lat(), event.latLng.lng(), null, null, street_view_enabled);
 							newMarkers.push(marker);
 							current_marker	= marker;
 						} catch (e) {}
@@ -198,14 +206,6 @@
 	}//end setMapType
 
 
-	/**
-	* This function is used to get the Earth Instance for Google Earth
-	*
-	*/
-	function getEarthInstanceCB(object)
-	{
-		ge = object;
-	}//end getEarthInstanceCB
 
 
 	/**
