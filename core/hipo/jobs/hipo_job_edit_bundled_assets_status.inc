@@ -409,10 +409,11 @@ class HIPO_Job_Edit_Bundled_Assets_Status extends HIPO_Job
 		}
 
 		$filters = Array(
-					'start'		=> 'asset.workflow.invitation',
-					'progress'	=> 'asset.workflow.invitation.progress',
-					'approve'	=> 'asset.workflow.announce.approve',
-					'reject'	=> 'asset.workflow.announce.reject',
+					'start'					=> 'asset.workflow.invitation',
+					'progress'				=> 'asset.workflow.invitation.progress',
+					'approve'				=> 'asset.workflow.announce.approve',
+					'reject'				=> 'asset.workflow.announce.reject',
+					'auto_approve_progress'	=> 'asset.workflow.announce.started',
 				   );
 
 		$msg_types = $this->_getRequiredBundleMessages($this->_running_vars['bundle_current_status'], $this->_running_vars['new_status']);
@@ -534,10 +535,11 @@ class HIPO_Job_Edit_Bundled_Assets_Status extends HIPO_Job
 
 		// Convert from our message types to internal message type codes
 		$im_types = Array(
-						'start'		=> 'asset.workflow.bundle.invitation',
-						'progress'	=> 'asset.workflow.bundle.invitation.progress',
-						'approve'	=> 'asset.workflow.bundle.announce.approve',
-						'reject'	=> 'asset.workflow.bundle.announce.reject',
+						'start'				=> 'asset.workflow.bundle.invitation',
+						'progress'				=> 'asset.workflow.bundle.invitation.progress',
+						'approve'				=> 'asset.workflow.bundle.announce.approve',
+						'reject'				=> 'asset.workflow.bundle.announce.reject',
+						'auto_approve_progress'	=> 'asset.workflow.bundle.started',
 					);
 
 		$msg_types = $this->_getRequiredBundleMessages($this->_running_vars['bundle_current_status'], $this->_running_vars['new_status']);
@@ -594,12 +596,12 @@ class HIPO_Job_Edit_Bundled_Assets_Status extends HIPO_Job
 							$msg->body = $body;
 						}
 						$msg_list[] = $msg;
-
 					}//end foreach item in this filter
 
 				}//end if this filter type was used
 
 			}//end foreach message type
+
 
 		}//end if there are message types to take notice of
 
@@ -1100,7 +1102,7 @@ class HIPO_Job_Edit_Bundled_Assets_Status extends HIPO_Job
 						// Catch any possible approve messages that may appear
 						// when the workflow may start (if the starting user can
 						// also approve things)
-						$msg_types = Array('start', 'approve');
+						$msg_types = Array('start', 'approve', 'auto_approve_progress');
 					break;
 
 				}//end switch new status
