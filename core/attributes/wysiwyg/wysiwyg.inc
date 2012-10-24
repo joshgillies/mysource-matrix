@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.40 2012/08/30 01:09:18 ewang Exp $
+* $Id: wysiwyg.inc,v 1.41 2012/10/24 05:48:59 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/wysiwyg/wysiwyg.inc';
 *    <wysiwyg style="div" width="100%" height="300" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -47,10 +47,17 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 	{
 		$this->Asset_Attribute_Text($attributeid, $value);
 
+		// Get the WYSIWYG style from the global preference as the default settings
+		$wysiwyg_style = $GLOBALS['SQ_SYSTEM']->getUserPrefs('content_type_wysiwyg', 'SQ_WYSIWYG_STYLE');
+		$size_unit = '';
+		if (is_numeric($wysiwyg_style['width']) && isset($wysiwyg_style['units']['width'])) {
+			$size_unit = $wysiwyg_style['units']['width'];
+		}
+
 		// set default edit parameters
-		$this->_edit_params['style']		= 'div';
-		$this->_edit_params['width']		= '100%';
-		$this->_edit_params['height']		= '300';
+		$this->_edit_params['style']		= $wysiwyg_style['body_type'];
+		$this->_edit_params['width']		= $wysiwyg_style['width'].$size_unit;
+		$this->_edit_params['height']		= $wysiwyg_style['height'].$size_unit;
 		$this->_edit_params['tidy_status']	= 'wait';
 		$this->_edit_params['tidy_errors']	= '';
 
@@ -122,53 +129,149 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 		$em->broadcastEvent($asset, 'requestKeywords', $keyword_vars);
 
 		$wysiwyg->open_group();
-			if ($iap || in_array('format_text', $ap)) $wysiwyg->add_plugin('format_text');
-			if ($iap || in_array('format_font', $ap)) $wysiwyg->add_plugin('format_font');
-			if ($iap || in_array('general', $ap))     $wysiwyg->add_plugin('general');
-			if ($iap || in_array('s_script', $ap))    $wysiwyg->add_plugin('s_script');
-			if ($iap || in_array('replace_text', $ap))    $wysiwyg->add_plugin('replace_text');
+			if ($iap || in_array('format_text', $ap)) {
+				$wysiwyg->add_plugin('format_text');
+			}
+			if ($iap || in_array('replace_text', $ap)) {
+				$wysiwyg->add_plugin('replace_text');
+			}
+			if ($iap || in_array('search_and_replace', $ap)) {
+				$wysiwyg->add_plugin('search_and_replace');
+			}
+			if ($iap || in_array('format_font', $ap)) {
+				$wysiwyg->add_plugin('format_font');
+			}
+			if ($iap || in_array('general', $ap)) {
+				$wysiwyg->add_plugin('general');
+			}
+			if ($iap || in_array('s_script', $ap)) {
+				$wysiwyg->add_plugin('s_script');
+			}
 		$wysiwyg->close_group();
 
 		$wysiwyg->open_group();
-			if ($iap || in_array('matrix_apply_style', $ap)) $wysiwyg->add_plugin('matrix_apply_style');
+			if ($iap || in_array('matrix_apply_style', $ap)) {
+				$wysiwyg->add_plugin('matrix_apply_style');
+			}
 		$wysiwyg->close_group();
 
-		if ($iap || in_array('justify_text', $ap)) $wysiwyg->add_plugin('justify_text');
+		if ($iap || in_array('justify_text', $ap)) {
+			$wysiwyg->add_plugin('justify_text');
+		}
 		if (($iap || in_array('keyword_replace', $ap)) && !empty($keywords)) {
 			$wysiwyg->add_plugin('keyword_replace');
 			$keyword_replace =& $wysiwyg->get_plugin('keyword_replace');
 			$keyword_replace->keyword_tag = '%';
 			$keyword_replace->keywords = $keywords;
 		}
-		if ($iap || in_array('history', $ap))      $wysiwyg->add_plugin('history');
-		if ($iap || in_array('indenting', $ap))     $wysiwyg->add_plugin('indenting');
-		if ($iap || in_array('listing', $ap))       $wysiwyg->add_plugin('listing');
-		if ($iap || in_array('table_editing', $ap)) $wysiwyg->add_plugin('table_editing');
-		if ($iap || in_array('select_color', $ap))  $wysiwyg->add_plugin('select_color');
+
+		// Snippet global keyword dropdown
+		// However if in frontend do not include this plugin, as it will output global keywords
+		$snippets = $GLOBALS['SQ_SYSTEM']->am->getSnippetKeywords();
+		if ((SQ_IN_BACKEND || SQ_IN_LIMBO) && ($iap || in_array('snippet_keyword_replace', $ap)) && !empty($snippets)) {
+			$wysiwyg->add_plugin('snippet_keyword_replace');
+			$snippet_keyword_replace =& $wysiwyg->get_plugin('snippet_keyword_replace');
+			$snippet_keyword_replace->keyword_tag = '%';
+			$snippet_keyword_replace->keywords = $snippets;
+		}
+
+		if ($iap || in_array('history', $ap)) {
+			$wysiwyg->add_plugin('history');
+		}
+		if ($iap || in_array('indenting', $ap)) {
+			$wysiwyg->add_plugin('indenting');
+		}
+		if ($iap || in_array('listing', $ap)) {
+			$wysiwyg->add_plugin('listing');
+		}
+		if ($iap || in_array('table_editing', $ap)) {
+			$wysiwyg->add_plugin('table_editing');
+		}
+		if ($iap || in_array('select_color', $ap)) {
+			$wysiwyg->add_plugin('select_color');
+		}
+
+		 $wysiwyg->open_group();
+                if ($iap || in_array('matrix_insert_link', $ap) || in_array('insert_link', $ap)) {
+                    $wysiwyg->add_plugin('matrix_insert_link');
+                }
+                if ($iap || in_array('matrix_insert_quick_link', $ap)) {
+                    $wysiwyg->add_plugin('matrix_insert_quick_link');
+                }
+                if ($iap || in_array('matrix_insert_anchor', $ap) || in_array('insert_anchor', $ap)) {
+                    $wysiwyg->add_plugin('matrix_insert_anchor');
+                }
+                if ($iap || in_array('matrix_insert_image', $ap) || in_array('insert_image', $ap)) {
+                    $wysiwyg->add_plugin('matrix_insert_image');
+                }
+                if ($iap || in_array('matrix_embed_movie', $ap)) {
+                    $wysiwyg->add_plugin('matrix_embed_movie');
+                }
+                if ($iap || in_array('matrix_embed_youtube', $ap)) {
+                    $wysiwyg->add_plugin('matrix_embed_youtube');
+                }
+		$wysiwyg->close_group();
 
 		$wysiwyg->open_group();
-			if ($iap || in_array('matrix_insert_link', $ap) || in_array('insert_link', $ap))  $wysiwyg->add_plugin('matrix_insert_link');
-			if ($iap || in_array('matrix_insert_quick_link', $ap) || in_array('quick_link', $ap))  $wysiwyg->add_plugin('matrix_insert_quick_link');
-			if ($iap || in_array('matrix_insert_anchor', $ap) || in_array('insert_anchor', $ap))  $wysiwyg->add_plugin('matrix_insert_anchor');
-			if ($iap || in_array('matrix_insert_image', $ap) || in_array('insert_image', $ap)) $wysiwyg->add_plugin('matrix_insert_image');
-			if ($iap || in_array('matrix_embed_movie', $ap))  $wysiwyg->add_plugin('matrix_embed_movie');
-			if ($iap || in_array('matrix_embed_youtube', $ap))  $wysiwyg->add_plugin('matrix_embed_youtube');
-		$wysiwyg->close_group();
-		$wysiwyg->open_group();
-			if ($iap || in_array('matrix_accessibility', $ap))  $wysiwyg->add_plugin('matrix_accessibility');
-		$wysiwyg->close_group();
-
-		$wysiwyg->open_group();
-			if ($iap || in_array('spell_checker', $ap))  $wysiwyg->add_plugin('spell_checker');
-			if ($iap || in_array('text_indicator', $ap)) $wysiwyg->add_plugin('text_indicator');
-			if ($iap || in_array('view_source', $ap))    $wysiwyg->add_plugin('view_source');
+			if ($iap || in_array('matrix_accessibility', $ap)) {
+				$wysiwyg->add_plugin('matrix_accessibility');
+			}
 		$wysiwyg->close_group();
 
 		// html_tidy needs to be last so other plugins can set options
-		if ($iap || in_array('html_tidy', $ap)) $wysiwyg->add_plugin('html_tidy');
+		if ($iap || in_array('html_tidy', $ap)) {
+			$wysiwyg->add_plugin('html_tidy');
+		}
 
-		if ($iap || in_array('matrix_expand_keywords', $ap)) $wysiwyg->add_plugin('matrix_expand_keywords');
-		// contents must be set AFTER all plugins are loaded
+		if ($iap || in_array('matrix_expand_keywords', $ap)) {
+			$wysiwyg->add_plugin('matrix_expand_keywords');
+		}
+
+		$wysiwyg->open_group();
+			if ($iap || in_array('special_chars', $ap)) {
+				$wysiwyg->add_plugin('special_chars');
+			}
+		$wysiwyg->close_group();
+
+		$wysiwyg->open_group();
+			if ($iap || in_array('choose_language', $ap)) {
+				$wysiwyg->add_plugin('choose_language');
+			}
+		$wysiwyg->close_group();
+
+		$wysiwyg->open_group();
+			if ($iap || in_array('definition_list', $ap)) {
+				$wysiwyg->add_plugin('definition_list');
+			}
+		$wysiwyg->close_group();
+
+		$wysiwyg->open_group();
+			if ($iap || in_array('misc_accessibility', $ap)) {
+				$wysiwyg->add_plugin('misc_accessibility');
+			}
+			if ($iap || in_array('quotation', $ap)) {
+				$wysiwyg->add_plugin('quotation');
+			}
+		$wysiwyg->close_group();
+
+		$wysiwyg->open_group();
+			if ($iap || in_array('visual_aid', $ap)) {
+				$wysiwyg->add_plugin('visual_aid');
+			}
+		$wysiwyg->close_group();
+
+		$wysiwyg->open_group();
+			if ($iap || in_array('spell_checker', $ap)) {
+				$wysiwyg->add_plugin('spell_checker');
+			}
+			if ($iap || in_array('text_indicator', $ap)) {
+				$wysiwyg->add_plugin('text_indicator');
+			}
+			if ($iap || in_array('view_source', $ap)) {
+				$wysiwyg->add_plugin('view_source');
+			}
+		$wysiwyg->close_group();
+
 		$wysiwyg->set_contents($this->value);
 
 		return $wysiwyg;
@@ -186,7 +289,6 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 	*/
 	function paint($prefix, $read_only=false)
 	{
-
 		if ($read_only) {
 			echo $this->value;
 			return;
@@ -235,7 +337,9 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 	function process($prefix, $owner_id=NULL, $cmp_value=TRUE)
 	{
 		$wysiwyg = $this->_createEditor($prefix);
+
 		$html = $wysiwyg->process();
+
 		$this->processed = FALSE;
 		if ($html !== FALSE && (!$cmp_value || $html !== $this->value) && $this->setValue($html, $owner_id)) {
 			$this->processed = TRUE;
