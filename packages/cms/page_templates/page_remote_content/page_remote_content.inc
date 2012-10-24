@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.90.2.2 2012/06/19 00:06:38 cupreti Exp $
+* $Id: page_remote_content.inc,v 1.90.2.3 2012/10/24 05:13:44 ewang Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.90.2.2 $
+* @version $Revision: 1.90.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -219,14 +219,27 @@ class Page_Remote_Content extends Page
 	   	//Avoid using $_SERVER['query_string'], because, some $_GET vars are passed indirectly.We have to trust $_GET[]
 		$first = true;
    		$query_string = '';
-    	foreach($_GET as $key => $value) {
-        	if ($first) {
-        	    $query_string = $key.'='.urlencode($value);
-        	    $first = false;
-       	 	} else {
-        	    $query_string .= '&'.$key.'='.urlencode($value);   
-       		}
-   		}
+		foreach($_GET as $key => $value) {
+		    // if it's array format, e.g test[0]=1, PHP will convert it to multiple level array, convert it to plain string format
+		    if(is_array($value)) {
+			$string_param = http_build_query(array($key => $value));
+			if($first) {
+			    $query_string = $string_param;
+			    $first = false;
+			}
+			else {
+			    $query_string .= '&'.$string_param;
+			}
+		    }
+		    else {
+			    if ($first) {
+				$query_string = $key.'='.urlencode($value);
+				$first = false;
+			    } else {
+				$query_string .= '&'.$key.'='.urlencode($value);   
+			    }
+		    }
+		}
 	
 		if (!empty($query_string) && !is_null($remote_source)) {
 			// we're preparing to pass all the query vars to the remote target
@@ -293,6 +306,20 @@ class Page_Remote_Content extends Page
 				// that's why when content-type is NOT form-data we use the php://input
 				// the reason we don't always use php://input is because when content type is multipart/form-data it is empty
 				$post_data = $_POST;
+	
+				// if it's array format, e.g test[0]=1, PHP will convert it to multiple level array, convert it to string format for CURL
+				foreach ($post_data as $name => $value) {
+				    if(is_array($value)) {
+					$string_param = http_build_query(array($name => $value));
+					$array_param = explode('&', $string_param);
+					foreach ($array_param as $part) {
+					    $part_param = explode('=', $part);
+					    if(isset($part_param[0]) && isset($part_param[1]))
+						$post_data[urldecode($part_param[0])] = urldecode($part_param[1]);
+					}
+					unset($post_data[$name]);
+				    }
+				}
 			}
 
 		}//end if
