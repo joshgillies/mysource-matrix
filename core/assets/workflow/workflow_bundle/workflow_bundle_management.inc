@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_bundle_management.inc,v 1.2 2010/01/06 21:56:51 lwright Exp $
+* $Id: workflow_bundle_management.inc,v 1.2.16.1 2012/10/24 23:46:51 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Luke Wright <lwright@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.16.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -42,53 +42,63 @@ class Workflow_Bundle_Management extends Asset_Management
 		Asset_Management::__construct($pm);
 
 		$this->vars = Array(
-						'name'						=> Array(
-														'added'		=> '0.1',
-														'type'		=> 'text',
-														'default'	=> '',
-													   ),
+						'name'										=> Array(
+																		'added'		=> '0.1',
+																		'type'		=> 'text',
+																		'default'	=> '',
+																	   ),
 						// Messages for each stage in the workflow process
-						'start_workflow_subject'	=> Array(
-														'added'		=> '0.1',
-														'type'		=> 'text',
-														'default'	=> 'Workflow Approval Required',
-													   ),
-						'progress_workflow_subject'	=> Array(
-														'added'		=> '0.1',
-														'type'		=> 'text',
-														'default'	=> 'Workflow Approval Required',
-													   ),
-						'approve_workflow_subject'	=> Array(
-														'added'		=> '0.1',
-														'type'		=> 'text',
-														'default'	=> 'Workflow Approved',
-													   ),
-						'reject_workflow_subject'	=> Array(
-														'added'		=> '0.1',
-														'type'		=> 'text',
-														'default'	=> 'Workflow Rejected',
-													   ),
+						'start_workflow_subject'					=> Array(
+																		'added'		=> '0.1',
+																		'type'		=> 'text',
+																		'default'	=> 'Workflow Approval Required',
+																	   ),
+						'progress_workflow_subject'					=> Array(
+																		'added'		=> '0.1',
+																		'type'		=> 'text',
+																		'default'	=> 'Workflow Approval Required',
+																	   ),
+						'approve_workflow_subject'					=> Array(
+																		'added'		=> '0.1',
+																		'type'		=> 'text',
+																		'default'	=> 'Workflow Approved',
+																	   ),
+						'reject_workflow_subject'					=> Array(
+																		'added'		=> '0.1',
+																		'type'		=> 'text',
+																		'default'	=> 'Workflow Rejected',
+																	   ),
+						'auto_approve_progress_workflow_subject'	=> Array(
+																		'added'		=> '0.1',
+																		'type'		=> 'text',
+																		'default'	=> 'Workflow Started',
+																	   ),
 						// Messages for each stage in the workflow process
-						'start_workflow_msg'		=> Array(
-														'added'		=> '0.1',
-														'type'		=> 'wysiwyg',
-														'default'	=> '',
-													   ),
-						'progress_workflow_msg'		=> Array(
-														'added'		=> '0.1',
-														'type'		=> 'wysiwyg',
-														'default'	=> '',
-													   ),
-						'approve_workflow_msg'		=> Array(
-														'added'		=> '0.1',
-														'type'		=> 'wysiwyg',
-														'default'	=> '',
-													   ),
-						'reject_workflow_msg'		=> Array(
-														'added'		=> '0.1',
-														'type'		=> 'wysiwyg',
-														'default'	=> '',
-													   ),
+						'start_workflow_msg'						=> Array(
+																		'added'		=> '0.1',
+																		'type'		=> 'wysiwyg',
+																		'default'	=> '',
+																	   ),
+						'progress_workflow_msg'						=> Array(
+																		'added'		=> '0.1',
+																		'type'		=> 'wysiwyg',
+																		'default'	=> '',
+																	   ),
+						'approve_workflow_msg'						=> Array(
+																		'added'		=> '0.1',
+																		'type'		=> 'wysiwyg',
+																		'default'	=> '',
+																	   ),
+						'reject_workflow_msg'						=> Array(
+																		'added'		=> '0.1',
+																		'type'		=> 'wysiwyg',
+																		'default'	=> '',
+																	   ),
+						'auto_approve_progress_workflow_msg'		=> Array(
+																		'added'		=> '0.1',
+																		'type'		=> 'wysiwyg',
+																		'default'	=> '',
+																	   ),
 					  );
 
 	}//end constructor

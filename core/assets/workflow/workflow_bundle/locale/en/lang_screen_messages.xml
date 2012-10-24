@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_messages.xml,v 1.1 2010/01/06 03:15:59 lwright Exp $
+* $Id: lang_screen_messages.xml,v 1.1.16.1 2012/10/24 23:46:51 akarelia Exp $
 *
 */
 -->
@@ -22,6 +22,14 @@
 			<note />
 		</field>
 		<field attribute="start_workflow_msg">
+			<display_name>Body</display_name>
+			<note><![CDATA[This message will be sent to users when workflow is started on the bundle, by changing the status from "Editing" to "Approving". Each user will be sent the list of assets for which they have access to the workflow.]]></note>
+		</field>
+		<field attribute="auto_approve_progress_workflow_subject">
+			<display_name>Subject</display_name>
+			<note />
+		</field>
+		<field attribute="auto_approve_progress_workflow_msg">
 			<display_name>Body</display_name>
 			<note><![CDATA[This message will be sent to users when workflow is started on the bundle, by changing the status from "Editing" to "Approving". Each user will be sent the list of assets for which they have access to the workflow.]]></note>
 		</field>
