@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata.inc,v 1.52.2.1 2012/10/24 04:04:48 cupreti Exp $
+* $Id: metadata.inc,v 1.52.2.2 2012/10/24 06:24:52 cupreti Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.52.2.1 $
+* @version $Revision: 1.52.2.2 $
 * @package MySource_Matrix
 */
 
@@ -341,7 +341,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL, Array $layout_options
 						ob_start();
 						$values = $mm->getMetadata($owner->id);
 						$edit_fns = $section->getEditFns();
-						$edit_fns->paintInlineValueInterface($section, $o, $values, $write_access, $print_cascade_values_option);
+						$edit_fns->paintInlineValueInterface($section, $o, $values, $write_access, $print_cascade_values_option, $owner->type());
 						$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][$field_assetid]] = ob_get_contents();
 						ob_end_flush();
 					} else {
