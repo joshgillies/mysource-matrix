@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_messages.xml,v 1.30 2011/05/23 05:10:21 mhaidar Exp $
+* $Id: lang_messages.xml,v 1.30.10.1 2012/10/24 23:39:45 akarelia Exp $
 *
 * Core Internal Messages File
 */
@@ -340,6 +340,13 @@ You can also <![CDATA[<SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_
 A full report for the Workflow of "%asset_name%" can be found on the <![CDATA[<SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>]]>.
 You can also <![CDATA[<SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>]]></body><!-- asset-type, asset-name, asset-name*, asset-name**, workflow-screen-url, (preview-screen-url) -->
 	</message>
+	<message type="asset.workflow.announce.started">
+		<subject>Workflow Started</subject>
+		<body>User "%workflow_user%" has requested %type_code% "%asset_name%" to go live from %status%.
+
+A full report for the Workflow of "%asset_name%" can be found on the <![CDATA[<SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>]]>.
+You can also <![CDATA[<SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>]]></body><!-- user-name, asset-type, asset-name, old-status, asset-name*, workflow-scren-url, (preview-screen-url) -->
+	</message>
 	<message type="asset.workflow.log.started">
 		<subject>Workflow Started</subject>
 		<body>User "%workflow_user%" has requested %type_code% "%asset_name%" to go live from %status%.
@@ -434,6 +441,19 @@ There are assets within this bundle that require your review, and you are now re
 You can approve or reject the above assets one at a time. Clicking on the asset name will take you to its Workflow screen, where you may take action.
 You may also <![CDATA[<SQ_MSG_LINK href="%bundle_approve_url%">Approve</SQ_MSG_LINK>]]> all assets for which you have access to workflow, or <![CDATA[<SQ_MSG_LINK href="%bundle_reject_url%">Reject</SQ_MSG_LINK>]]> the entire bundle's changes.</body>
 	</message>
+
+	<message type="asset.workflow.bundle.started">
+		<subject>Workflow Approval Required</subject>
+		<body>The bundle "%bundle_name%" has been placed into workflow, along with its bundled assets.
+
+There are assets within this bundle that require your review, and you are now required to approve or reject the changes made to them so the workflow process can continue:
+
+%asset_list%
+
+You can approve or reject the above assets one at a time. Clicking on the asset name will take you to its Workflow screen, where you may take action.
+You may also <![CDATA[<SQ_MSG_LINK href="%bundle_approve_url%">Approve</SQ_MSG_LINK>]]> all assets for which you have access to workflow, or <![CDATA[<SQ_MSG_LINK href="%bundle_reject_url%">Reject</SQ_MSG_LINK>]]> the entire bundle's changes.</body>
+	</message>
+
 	<message type="asset.workflow.bundle.invitation.progress">
 		<subject>Workflow Approval Required</subject>
 		<body>The bundle "%bundle_name%" is currently in workflow, along with its bundled assets.
