@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_editing.inc,v 1.50 2012/09/04 04:11:37 akarelia Exp $
+* $Id: asset_status_editing.inc,v 1.51 2012/10/24 05:00:49 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                the workflow the workflow and all required metadata is complete
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix
 */
 class Asset_Status_Editing extends Asset_Status
@@ -225,7 +225,6 @@ class Asset_Status_Editing extends Asset_Status
 			break;
 
 			case SQ_STATUS_EDITING_APPROVAL :
-
 				$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 
 				// we are going to make this asset live by starting the workflow process
@@ -237,8 +236,9 @@ class Asset_Status_Editing extends Asset_Status
 				}
 
 				// send an internal message
-				$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
+				$ms   = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 				$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
+				$msg_reps   = Array();
 
 				if (!$wfm->silentWorkflowParty($this->owner->id)) {
 					$log = $ms->newMessage();
@@ -257,10 +257,34 @@ class Asset_Status_Editing extends Asset_Status
 					} else {
 						$log->replacements['preview_url'] = current_url().$this->owner->getBackendHref('details', FALSE);
 					}
-					$log->type    = 'asset.workflow.log.started';
+
+					$log->type = 'asset.workflow.log.started';
 					$log->parameters['assetid'] = $this->owner->id;
 					$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
 					$ms->enqueueMessage($log);
+
+					$running_schemas = $wfm->getSchemas($this->owner->id, TRUE, TRUE);
+					foreach ($running_schemas as $schemaid) {
+						$publishers = $wfm->whoCanPublish($this->owner->id, $schemaid);
+						$msg = $ms->newMessage();
+						$msg->type = 'asset.workflow.announce.started';
+
+						// see if we have the 'from' field set
+						$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+						if ($schema->attr('schema_reply_to_email_address') != '') {
+							$msg->parameters['reply_to'] = $schema->attr('schema_reply_to_email_address');
+						} else {
+							$msg->parameters['reply_to'] = $GLOBALS['SQ_SYSTEM']->currentUserId();
+						}
+						if ($schema->attr('schema_from_email_address') != '') {
+							$msg->from = $schema->attr('schema_from_email_address');
+						}
+
+						$msg->to = array_merge($msg->to, $publishers);
+						$msg->replacements = $msg_reps;
+						$msg->parameters['assetid'] = $this->owner->id;
+						$ms->enqueueMessage($msg);
+					}
 				}
 
 			break;
