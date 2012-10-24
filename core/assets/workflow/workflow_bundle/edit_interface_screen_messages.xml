@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_messages.xml,v 1.1 2010/01/06 03:15:59 lwright Exp $
+* $Id: edit_interface_screen_messages.xml,v 1.1.18.1 2012/10/24 23:46:52 akarelia Exp $
 *
 */
 -->
@@ -21,6 +21,12 @@
 			<text height="1" width="80" />
 		</field>
 		<field attribute="start_workflow_msg">
+			<wysiwyg height="10em" width="80%" />
+		</field>
+		<field attribute="auto_approve_progress_workflow_subject">
+			<text height="1" width="80" />
+		</field>
+		<field attribute="auto_approve_progress_workflow_msg">
 			<wysiwyg height="10em" width="80%" />
 		</field>
 	</section>
