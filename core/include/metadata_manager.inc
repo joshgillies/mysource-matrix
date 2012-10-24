@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.237 2012/09/06 06:44:22 cupreti Exp $
+* $Id: metadata_manager.inc,v 1.238 2012/10/24 23:45:21 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *	 Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.237 $
+* @version $Revision: 1.238 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -839,7 +839,7 @@ class Metadata_Manager extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function setMetadata($assetid, $metadata, $contextid=NULL, $update_asset=TRUE, $broadcast_all_fields=FALSE)
+	function setMetadata($assetid, $metadata, $contextid=NULL, $update_asset=TRUE, $broadcast_all_fields=FALSE, $ignore_editable=FALSE)
 	{
 		if ($contextid === NULL) {
 			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
@@ -872,7 +872,7 @@ class Metadata_Manager extends MySource_Object
 		foreach (array_keys($metadata) as $fieldid) {
 			$flag_match_found = FALSE;
 			$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($fieldid);
-			if (is_null($field) || !$field->attr('editable')) {
+			if (is_null($field) || !($ignore_editable || $field->attr('editable'))) {
 				unset($metadata[$fieldid]);
 				continue;
 			} else {
