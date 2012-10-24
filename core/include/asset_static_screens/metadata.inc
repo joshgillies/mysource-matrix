@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata.inc,v 1.51 2010/05/05 17:41:57 ata Exp $
+* $Id: metadata.inc,v 1.51.14.1 2012/10/24 04:05:28 cupreti Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.51.14.1 $
 * @package MySource_Matrix
 */
 
@@ -385,7 +385,7 @@ function processMetadata(&$owner, &$o, $ei)
 		foreach ($schemas as $schemaid) {
 			$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 			$edit_fns = $schema->getEditFns();
-			if ($edit_fns->processInlineValueInterface($schema, $new_values, $cascade_values_asset_ids)) {
+			if ($edit_fns->processInlineValueInterface($schema, $new_values, $cascade_values_asset_ids, $owner->type())) {
 				$save = TRUE;
 			}
 		}
