@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_editing.inc,v 1.48.6.2 2012/10/24 23:43:51 akarelia Exp $
+* $Id: asset_status_editing.inc,v 1.48.6.3 2012/10/25 07:11:10 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                the workflow the workflow and all required metadata is complete
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.48.6.2 $
+* @version $Revision: 1.48.6.3 $
 * @package MySource_Matrix
 */
 class Asset_Status_Editing extends Asset_Status
@@ -266,24 +266,26 @@ class Asset_Status_Editing extends Asset_Status
 					$running_schemas = $wfm->getSchemas($this->owner->id, TRUE, TRUE);
 					foreach ($running_schemas as $schemaid) {
 						$publishers = $wfm->whoCanPublish($this->owner->id, $schemaid);
-						$msg = $ms->newMessage();
-						$msg->type = 'asset.workflow.announce.started';
+						if (count($publishers) > 0) {
+							$msg = $ms->newMessage();
+							$msg->type = 'asset.workflow.announce.started';
 
-						// see if we have the 'from' field set
-						$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
-						if ($schema->attr('schema_reply_to_email_address') != '') {
-							$msg->parameters['reply_to'] = $schema->attr('schema_reply_to_email_address');
-						} else {
-							$msg->parameters['reply_to'] = $GLOBALS['SQ_SYSTEM']->currentUserId();
-						}
-						if ($schema->attr('schema_from_email_address') != '') {
-							$msg->from = $schema->attr('schema_from_email_address');
-						}
+							// see if we have the 'from' field set
+							$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+							if ($schema->attr('schema_reply_to_email_address') != '') {
+								$msg->parameters['reply_to'] = $schema->attr('schema_reply_to_email_address');
+							} else {
+								$msg->parameters['reply_to'] = $GLOBALS['SQ_SYSTEM']->currentUserId();
+							}
+							if ($schema->attr('schema_from_email_address') != '') {
+								$msg->from = $schema->attr('schema_from_email_address');
+							}
 
-						$msg->to = array_merge($msg->to, $publishers);
-						$msg->replacements = $msg_reps;
-						$msg->parameters['assetid'] = $this->owner->id;
-						$ms->enqueueMessage($msg);
+							$msg->to = array_merge($msg->to, $publishers);
+							$msg->replacements = $msg_reps;
+							$msg->parameters['assetid'] = $this->owner->id;
+							$ms->enqueueMessage($msg);
+						}
 					}
 				}
 
