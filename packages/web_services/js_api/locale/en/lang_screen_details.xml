@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.22.2.3 2012/09/24 06:42:13 akarelia Exp $
+* $Id: lang_screen_details.xml,v 1.22.2.4 2012/10/25 00:41:38 akarelia Exp $
 *
 */
 -->
@@ -246,6 +246,10 @@
         <field attribute="set_context">
             <display_name>Set Context</display_name>
             <note />
+        </field>
+        <field attribute="sync_context">
+            <display_name>Sync Context</display_name>
+            <note>Enabling this option will synchronise the context on backend and the JS API frontend. I.e. changing/restoring context via JS API will be reflected on backend too and vice versa.</note>
         </field>
     </section>
 </contents>

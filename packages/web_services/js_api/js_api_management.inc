@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_management.inc,v 1.24.2.2 2012/09/24 06:42:13 akarelia Exp $
+* $Id: js_api_management.inc,v 1.24.2.3 2012/10/25 00:41:38 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.24.2.2 $
+* @version $Revision: 1.24.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -421,6 +421,14 @@ class JS_Api_Management extends Asset_Management
 																		   ),
 														),
 						'get_metadata_schema'		=> Array(
+														'added'			=> '0.6',
+														'type'			=> 'boolean',
+														'default'		=> FALSE,
+														'parameters'	=> Array(
+																			'allow_empty'=> FALSE,
+																		   ),
+														),
+						'sync_context'				=> Array(
 														'added'			=> '0.6',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,

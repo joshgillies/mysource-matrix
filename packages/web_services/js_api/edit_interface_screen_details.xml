@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.21.2.2 2012/09/24 06:42:13 akarelia Exp $
+* $Id: edit_interface_screen_details.xml,v 1.21.2.3 2012/10/25 00:41:38 akarelia Exp $
 *
 */
 -->
@@ -196,6 +196,9 @@
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="set_context">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="sync_context">
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
