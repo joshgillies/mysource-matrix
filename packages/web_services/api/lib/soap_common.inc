@@ -10,12 +10,13 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_common.inc,v 1.3.2.1 2012/10/09 00:18:49 akarelia Exp $
+* $Id: soap_common.inc,v 1.3.2.2 2012/10/28 23:42:19 akarelia Exp $
 *
 */
 
 
 require_once SQ_FUDGE_PATH.'/general/text.inc';
+require_once 'soap_form_based_common.inc';
 
 
 // WSDL sometime defines a complex type in a loop, we need to get out of this loop if it repeats too many times while parsing
@@ -26,7 +27,7 @@ define('MAX_COMPLEX_TYPE_PASRSE_LOOP', 3);
 * This class will have all the common functions used for SOAP trigger and form actions
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.3.2.1 $
+* @version $Revision: 1.3.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -333,7 +334,7 @@ class SOAP_Common
 	* @return array
 	* @access public
 	*/
-	public static function testSoapRequest($client, $settings, $function)
+	public static function testSoapRequest($client, $settings, $function, $form=NULL)
 	{
 		// Work out the parameters of that soap function
 		for($i = 0, $param = Array(); $i < count($settings['actions'][$settings['action']]); $i++) {
@@ -341,6 +342,12 @@ class SOAP_Common
 
 				$soap_message = $settings[$settings['action'].'parameters'.$i];
 				$object = @simplexml_load_string($soap_message);
+				if (is_null($form)) {
+					// Convert XML to array, replace file content keywords, xml is not friendly for binary data
+					$object = self::toArray($object);
+				} else {
+					$object = SOAP_Form_Based_Common::toArray($object, $form);
+				}
 
 				$param[] = $object;
 			}
@@ -398,6 +405,34 @@ class SOAP_Common
 		return $file_url;
 
 	}//end _save_file()
+
+
+	/**
+	* Converts xml object to array
+	* Replace file content keyword
+	*
+	* @return array
+	* @access public
+	*/
+	public static function toArray($data)
+	{
+		if (is_object($data)) $data = get_object_vars($data);
+
+		// Don't play with empty object
+		if(empty($data)) return '';
+
+		if(is_array($data)) {
+			$result = Array();
+			foreach ($data as $index => $element) {
+				$result[$index] = self::toArray($element);
+			}
+			return $result;
+		} else {
+			return $data;
+		}
+
+	}//end toArray
+
 
 
 }//end class

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_form_based_common.inc,v 1.4 2012/08/30 00:59:45 ewang Exp $
+* $Id: soap_form_based_common.inc,v 1.4.2.1 2012/10/28 23:42:19 akarelia Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 * This class will have all the common functions used for SOAP Form Actions and SOAP Form Section Action
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -139,7 +139,7 @@ class SOAP_Form_Based_Common
 
 
 	/**
-	* Get the array of validation rules for 
+	* Get the array of validation rules for
 	* the value in SOAP response
 	*
 	* @access public
@@ -162,7 +162,7 @@ class SOAP_Form_Based_Common
 
 	}// end validationRules()
 
-	
+
 	/**
 	* Validate the value based on the applied rule
 	*
@@ -177,7 +177,7 @@ class SOAP_Form_Based_Common
 		$valid = FALSE;
 		$rule_type = array_get_index($rule, 'type', '');
 		$rule_value = array_get_index($rule, 'value', '');
-		
+
 		switch ($rule_type) {
 
 			case 'must_contain':
@@ -203,7 +203,7 @@ class SOAP_Form_Based_Common
 			case 'equals_not':
 				$valid = !($value == $rule_value);
 			break;
-			
+
 			case 'less_than':
 				$valid = $value < $rule_value;
 			break;
@@ -224,6 +224,34 @@ class SOAP_Form_Based_Common
 		return $valid;
 
 	}// end validateValue()
+
+
+	/**
+	* Converts xml object to array
+	* Replace file content keyword
+	*
+	* @return array
+	* @access public
+	*/
+	public static function toArray($data, &$form)
+	{
+		if (is_object($data)) $data = get_object_vars($data);
+
+		// Don't play with empty object or array
+		if (empty($data) && (is_array($data) || is_object($data))) return '';
+
+		if(is_array($data)) {
+			$result = Array();
+			foreach ($data as $index => $element) {
+				$result[$index] = self::toArray($element, $form);
+			}
+			return $result;
+		}else {
+			// Also replace file content keyword with actual binary file
+			return (self::getFileContentReplacementsFromForm($data, $form));
+		}
+
+	}//end toArray
 
 
 }//end class
