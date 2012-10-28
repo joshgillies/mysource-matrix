@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_cookie.inc,v 1.4 2012/08/30 01:09:13 ewang Exp $
+* $Id: trigger_action_set_cookie.inc,v 1.4.2.1 2012/10/28 23:06:35 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 * Purpose
 * 	Trigger Action to send a cookie to web client along with other HTTP headers. Therefore, this trigger must be fired before
-* 	any output 
+* 	any output
 *
 * The settings used by this action are in the form:<BR />
 * <PRE>
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 * </PRE>
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -71,18 +71,7 @@ class Trigger_Action_Set_Cookie extends Trigger_Action
 		// check required settings
 		$name = array_get_index($settings, 'name', '');
 		if ($name == '') return FALSE;
-		
-		$parameter_map_value = array_get_index($settings, 'value_map', serialize(Array()));
-		$atr_parameter_map = new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
-		$param_map_value = $atr_parameter_map->getParameterValue('value');
-		
-		// value in parameter map has higher priority than the value in the input textbox
-		if (!empty($param_map_value)) {
-			$value = $param_map_value;
-		} else {
-			$value = $settings['value'];
-		}
-		
+
 		//replace keywords for $value
 		if (empty($state['asset'])) {
 			// grab the asset if assetid is given, but not the asset.
@@ -94,19 +83,51 @@ class Trigger_Action_Set_Cookie extends Trigger_Action
 		}
 
 		if (is_null($state['asset'])) return FALSE;
-		
+
+		$old_current_asset = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CURRENT_ASSET', NULL);
+		$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CURRENT_ASSET', $state['asset']);
+
+		$parameter_map_value = array_get_index($settings, 'value_map', serialize(Array()));
+		$atr_parameter_map = new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
+		$param_map_value = $atr_parameter_map->getParameterValue('value');
+
+		// value in parameter map has higher priority than the value in the input textbox
+		if (!empty($param_map_value)) {
+			$value = $param_map_value;
+		} else {
+			$value = $settings['value'];
+		}
+
+		if (is_null($old_current_asset)) {
+			$GLOBALS['SQ_SYSTEM']->unsetGlobalDefine('CURRENT_ASSET');
+		} else {
+			$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CURRENT_ASSET', $old_current_asset);
+		}
+
+		//replace keywords for $value
+		if (empty($state['asset'])) {
+			// grab the asset if assetid is given, but not the asset.
+			if (empty($state['assetid'])) {
+				return FALSE;
+			} else {
+				$state['asset'] = $GLOBALS['SQ_SYSTEM']->am->getAsset($state['assetid']);
+			}
+		}
+
+		if (is_null($state['asset'])) return FALSE;
+
 		$value = self::replaceKeywords($value, $state['asset']);
-		
+
 		$expire_time = array_get_index($settings, 'expire_time', 0);
 		$path = array_get_index($settings, 'path', '');
 		$domain = array_get_index($settings, 'domain', '');
 		$secure = array_get_index($settings, 'secure', FALSE);
 		$http_only = array_get_index($settings, 'http_only', FALSE);
-		
+
 		if ($expire_time != 0) {
 			$expire_time = time() + $expire_time;
 		}
-		
+
 		if (empty($path) || empty($domain)) {
 			// Calculate the domain and path like the session cookie (look at session_handler_default.inc)
 			$temp_domain = strip_url(sq_web_path('root_url'), TRUE);
@@ -116,29 +137,29 @@ class Trigger_Action_Set_Cookie extends Trigger_Action
 				$temp_path = substr($temp_domain, $pos);
 				$temp_domain = substr($temp_domain, 0, $pos);
 			}
-	
+
 			// Remove the port number from the host part, if any.
 			// Session cookies cannot have a port in the domain.
 			$temp_domain = preg_replace('|:\d+$|', '', $temp_domain);
-			
+
 			if (empty($path)) {
 				$path = $temp_path;
 			}
-			
+
 			if (empty($domain)) {
 				$domain = $temp_domain;
 			}
 		}
-		
+
 		if(headers_sent()) return FALSE;
-		
+
 		header('Set-Cookie: ' . rawurlencode($name) . '=' . rawurlencode($value)
                           . (empty($expire_time) ? '' : '; expires=' . gmdate('D, d-M-Y H:i:s', $expire_time) . ' GMT')
                           . (empty($path) ? '' : '; path=' . $path)
                           . (empty($domain) ? '' : '; domain=' . $domain)
                           . (!$secure ? '' : '; secure')
                           . (!$http_only ? '' : '; HttpOnly'), false);
-                          
+
         return Array(
 					'name'			=> $name,
 					'value'			=> $value,
@@ -173,7 +194,7 @@ class Trigger_Action_Set_Cookie extends Trigger_Action
 			echo '<b>'.$name.'</b>';
 		}
 		$name_input = ob_get_clean();
-		
+
 		//value textbox
 		ob_start();
 		$value = array_get_index($settings, 'value');
@@ -183,7 +204,7 @@ class Trigger_Action_Set_Cookie extends Trigger_Action
 			echo '<b>'.$value.'</b>';
 		}
 		$value_input = ob_get_clean();
-		
+
 		//expire time textbox
 		ob_start();
 		$expire_time = array_get_index($settings, 'expire_time', 0);
@@ -193,7 +214,7 @@ class Trigger_Action_Set_Cookie extends Trigger_Action
 			echo '<b>'.$expire_time.'</b>';
 		}
 		$expire_time_input = ob_get_clean();
-		
+
 		//path textbox
 		ob_start();
 		$path = array_get_index($settings, 'path');
@@ -203,7 +224,7 @@ class Trigger_Action_Set_Cookie extends Trigger_Action
 			echo '<b>'.$path.'</b>';
 		}
 		$path_input = ob_get_clean();
-		
+
 		//domain textbox
 		ob_start();
 		$domain = array_get_index($settings, 'domain');
@@ -213,7 +234,7 @@ class Trigger_Action_Set_Cookie extends Trigger_Action
 			echo '<b>'.$domain.'</b>';
 		}
 		$domain_input = ob_get_clean();
-		
+
 		//secure combobox
 		ob_start();
 		$secure = array_get_index($settings, 'secure', FALSE);
@@ -223,7 +244,7 @@ class Trigger_Action_Set_Cookie extends Trigger_Action
 			echo '<b>'.($secure ? translate('yes') : translate('no')).'</b>';
 		}
 		$secure_input = ob_get_clean();
-		
+
 		//http only combobox
 		ob_start();
 		$http_only = array_get_index($settings, 'http_only', FALSE);
@@ -233,7 +254,7 @@ class Trigger_Action_Set_Cookie extends Trigger_Action
 			echo '<b>'.($http_only ? translate('yes') : translate('no')).'</b>';
 		}
 		$http_only_input = ob_get_clean();
-		
+
 		//value parameter map
 		ob_start();
 		echo '<div>';
@@ -254,7 +275,7 @@ class Trigger_Action_Set_Cookie extends Trigger_Action
 		$output .= '<br />'.translate('trigger_action_set_cookie_set_domain', $domain_input).'<br /><i>'.translate('trigger_action_set_cookie_domain_note').'</i>';
 		$output .= '<br />'.translate('trigger_action_set_cookie_set_secure', $secure_input, translate('yes'));
 		$output .= '<br />'.translate('trigger_action_set_cookie_set_http_only', $http_only_input, translate('yes')).'<br /><br />';
-		
+
 		$output .= $parameter_map_input;
 
 		return $output;
@@ -285,7 +306,7 @@ class Trigger_Action_Set_Cookie extends Trigger_Action
 		$settings['secure'] 		= $secure == '1' ? TRUE : FALSE;
 		$http_only	= array_get_index($request_data, 'http_only', '0');
 		$settings['http_only'] 		= $http_only == '1' ? TRUE : FALSE;
-		
+
 		$settings['value_map'] = '';
 
 		$new_prefix = str_replace(array('[',']'), '_', array_get_index($request_data, 'new_prefix', ''));
@@ -299,7 +320,7 @@ class Trigger_Action_Set_Cookie extends Trigger_Action
 
 	}//end processInterface()
 
-	
+
 	/**
 	* Replaces all the keywords in a string.
 	* Global keywords are also replaced.
@@ -328,8 +349,8 @@ class Trigger_Action_Set_Cookie extends Trigger_Action
 		return $value;
 
 	}//end replaceKeywordsInWebPath()
-	
-	
+
+
 }//end class
 
 ?>

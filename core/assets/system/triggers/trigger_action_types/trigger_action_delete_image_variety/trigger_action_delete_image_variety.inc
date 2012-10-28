@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Ash Karelia<akarelia@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -63,9 +63,18 @@ class Trigger_Action_Delete_Image_Variety extends Trigger_Action
 
 		if (is_null($state['asset'])) return FALSE;
 
+		$old_current_asset = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CURRENT_ASSET', NULL);
+		$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CURRENT_ASSET', $state['asset']);
+
 		$parameter_map_value = array_get_index($settings, 'value_map', serialize(Array()));
 		$atr_parameter_map = new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
 		$param_map_value = $atr_parameter_map->getParameterValue('image_var');
+
+		if (is_null($old_current_asset)) {
+			$GLOBALS['SQ_SYSTEM']->unsetGlobalDefine('CURRENT_ASSET');
+		} else {
+			$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CURRENT_ASSET', $old_current_asset);
+		}
 
 		// check if we have one of the variable set to point us tot he variety to delete
 		if (empty($param_map_value) && empty($settings['variety_name']) && !$settings['delete_all']) return FALSE;
@@ -75,11 +84,11 @@ class Trigger_Action_Delete_Image_Variety extends Trigger_Action
 			$settings['image_assetid'] = $state['asset']->id;
 			$image_to_use = $state['asset'];
 		} else {
-			//get the asset 
+			//get the asset
 			$image_to_use = $GLOBALS['SQ_SYSTEM']->am->getAsset($settings['image_assetid']);
 		}
 
-		// make sure the asset exists 
+		// make sure the asset exists
 		if (!$GLOBALS['SQ_SYSTEM']->am->assetExists($image_to_use->id)) return FALSE;
 
 		// get all the varieties from the image
@@ -200,7 +209,7 @@ class Trigger_Action_Delete_Image_Variety extends Trigger_Action
 						} else {
 							echo '<img src="'.sq_web_path('lib').'/web/images/'.($delete_all ? 'tick' : 'cross').'.gif" alt="'.($delete_all ? translate('yes') : translate('no')).'" /> ';
 						}
-						echo translate('trigger_action_delete_image_variety_del_all_note'); 
+						echo translate('trigger_action_delete_image_variety_del_all_note');
 					?>
 					</td>
 				</tr>
