@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.125 2012/08/30 01:09:19 ewang Exp $
+* $Id: init.inc,v 1.125.2.1 2012/10/28 23:16:47 cupreti Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * The file that needs to be included to do anything
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.125 $
+* @version $Revision: 1.125.2.1 $
 * @package MySource_Matrix
 */
 
@@ -246,6 +246,7 @@ require_once SQ_INCLUDE_PATH.'/assertions.inc';
 require_once SQ_INCLUDE_PATH.'/general.inc';
 ini_set('display_errors', 1); // we'll manage whether to display the errors or not in the error_handler
 set_error_handler('sq_error_handler');
+set_exception_handler('sq_exception_handler');
 
 // turn off error reporting on the front end (errors are still caught and displayed/hidden by the error handler)
 if (!(SQ_IN_BACKEND | SQ_IN_LIMBO | SQ_IN_CRON) & hide_frontend_errors()) {

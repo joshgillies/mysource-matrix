@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.273 2012/09/20 05:57:48 cupreti Exp $
+* $Id: general.inc,v 1.273.2.1 2012/10/28 23:16:47 cupreti Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.273 $
+* @version $Revision: 1.273.2.1 $
 * @package MySource_Matrix
 */
 
@@ -314,6 +314,74 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 	}//end if ($terminate)
 
 }//end sq_error_handler()
+
+
+/**
+* Function that gets set as the exception_handler
+*
+* @param object	$e	Exception object that was thrown
+*
+* @return void
+* @access public
+*/
+function sq_exception_handler($e)
+{
+	// Should the exeception error be shown?
+	if (SQ_PHP_CLI || SQ_IN_BACKEND || SQ_IN_LIMBO || !hide_frontend_errors()) {
+
+		$nl = SQ_PHP_CLI ? "\n" : "<br />";
+
+		// Sanatise the exception message
+		$msg = SQ_PHP_CLI ? $e->getMessage() : htmlspecialchars($e->getMessage(), ENT_QUOTES);
+		$fileline = (SQ_CONF_DEBUG & 1) ? "' in ".$e->getFile()."(".$e->getLine()."): " : '';
+
+		// Build the backtrace, if required
+		$backtrace = '';
+		if (SQ_CONF_DEBUG & 2) {
+			$trace = $e->getTrace();
+			foreach($trace as $key => $val) {
+				$file = $val['file'];
+				$func_name = $val['function'];
+				$line = $val['line'];
+				$args_str = '';
+				foreach($val['args'] as $arg) {
+					if (is_array($arg)) {
+						$args_str .= "Array, ";
+					} else if (is_object($arg)) {
+						$args_str .= "Object(".get_class($arg)."), ";
+					} else if (is_bool($arg)) {
+						$args_str .= ($arg === TRUE ? "true" : "false").", ";
+					} else if ($arg === null) {
+						$args_str .= "null, ";
+					} else {
+						// Treat rest of the types as a string
+						if (strlen($arg > 20)) {
+							$arg = substr($arg,0, 20)."...";
+						}
+						$arg = str_replace("'", "\'", $arg);
+						if (!SQ_PHP_CLI) {
+							// Sanatise the arguments
+							$arg = htmlspecialchars($arg, ENT_QUOTES);
+						}
+						$args_str .= "'".$arg."', ";
+					}
+				}//end foreach
+				$args_str = rtrim($args_str, ', ' );
+
+				if ($key == 0) {
+					$backtrace .= $func_name."(".$args_str.")".$nl;
+				} else {
+					$backtrace .= "#".$key." ".$file."(".$line."): ".$func_name."(".$args_str.")".$nl;
+				}
+			}//end foreach
+		}//end if
+
+		echo "Fatal error: Uncaught exception '".get_class($e)."' with message: '".$msg.$fileline.$backtrace;
+	}
+
+	exit(1);
+
+}//end sq_exception_handler()
 
 
 /**
