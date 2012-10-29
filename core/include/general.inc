@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.267.2.6 2012/10/28 23:17:23 cupreti Exp $
+* $Id: general.inc,v 1.267.2.7 2012/10/29 00:36:56 cupreti Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.267.2.6 $
+* @version $Revision: 1.267.2.7 $
 * @package MySource_Matrix
 */
 
@@ -326,57 +326,67 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 */
 function sq_exception_handler($e)
 {
+	$nl = SQ_PHP_CLI ? "\n" : "<br />";
+
+	// Sanatise the exception message
+	$msg = SQ_PHP_CLI ? $e->getMessage() : htmlspecialchars($e->getMessage(), ENT_QUOTES);
+	$fileline = "' in ".$e->getFile()."(".$e->getLine()."): ";
+	$trace = $e->getTrace();
+	// Build the backtrace
+	$backtrace = '';
+	foreach($trace as $key => $val) {
+		$file = $val['file'];
+		$func_name = $val['function'];
+		$line = $val['line'];
+		$args_str = '';
+		foreach($val['args'] as $arg) {
+			if (is_array($arg)) {
+				$args_str .= "Array, ";
+			} else if (is_object($arg)) {
+				$args_str .= "Object(".get_class($arg)."), ";
+			} else if (is_bool($arg)) {
+				$args_str .= ($arg === TRUE ? "true" : "false").", ";
+			} else if ($arg === null) {
+				$args_str .= "null, ";
+			} else {
+				// Treat rest of the types as a string
+				if (strlen($arg > 20)) {
+					$arg = substr($arg,0, 20)."...";
+				}
+				$arg = str_replace("'", "\'", $arg);
+				if (!SQ_PHP_CLI) {
+					// Sanatise the arguments
+					$arg = htmlspecialchars($arg, ENT_QUOTES);
+				}
+				$args_str .= "'".$arg."', ";
+			}
+		}//end foreach
+		$args_str = rtrim($args_str, ', ' );
+
+		if ($key == 0) {
+			$backtrace .= $func_name."(".$args_str.")".$nl;
+		} else {
+			$backtrace .= "#".$key." ".$file."(".$line."): ".$func_name."(".$args_str.")".$nl;
+		}
+	}//end foreach
+
+	$err_msg =  "Fatal error: Uncaught exception '".get_class($e)."' with message: '".$msg;
 	// Should the exeception error be shown?
 	if (SQ_PHP_CLI || SQ_IN_BACKEND || SQ_IN_LIMBO || !hide_frontend_errors()) {
-
-		$nl = SQ_PHP_CLI ? "\n" : "<br />";
-
-		// Sanatise the exception message
-		$msg = SQ_PHP_CLI ? $e->getMessage() : htmlspecialchars($e->getMessage(), ENT_QUOTES);
-		$fileline = (SQ_CONF_DEBUG & 1) ? "' in ".$e->getFile()."(".$e->getLine()."): " : '';
-
-		// Build the backtrace, if required
-		$backtrace = '';
+		$display_msg = $err_msg;
+		if (SQ_CONF_DEBUG & 1) {
+			$display_msg .= $fileline;
+		}
 		if (SQ_CONF_DEBUG & 2) {
-			$trace = $e->getTrace();
-			foreach($trace as $key => $val) {
-				$file = $val['file'];
-				$func_name = $val['function'];
-				$line = $val['line'];
-				$args_str = '';
-				foreach($val['args'] as $arg) {
-					if (is_array($arg)) {
-						$args_str .= "Array, ";
-					} else if (is_object($arg)) {
-						$args_str .= "Object(".get_class($arg)."), ";
-					} else if (is_bool($arg)) {
-						$args_str .= ($arg === TRUE ? "true" : "false").", ";
-					} else if ($arg === null) {
-						$args_str .= "null, ";
-					} else {
-						// Treat rest of the types as a string
-						if (strlen($arg > 20)) {
-							$arg = substr($arg,0, 20)."...";
-						}
-						$arg = str_replace("'", "\'", $arg);
-						if (!SQ_PHP_CLI) {
-							// Sanatise the arguments
-							$arg = htmlspecialchars($arg, ENT_QUOTES);
-						}
-						$args_str .= "'".$arg."', ";
-					}
-				}//end foreach
-				$args_str = rtrim($args_str, ', ' );
+			$display_msg .= $backtrace;
+		}
+		echo $display_msg;
+	}
 
-				if ($key == 0) {
-					$backtrace .= $func_name."(".$args_str.")".$nl;
-				} else {
-					$backtrace .= "#".$key." ".$file."(".$line."): ".$func_name."(".$args_str.")".$nl;
-				}
-			}//end foreach
-		}//end if
-
-		echo "Fatal error: Uncaught exception '".get_class($e)."' with message: '".$msg.$fileline.$backtrace;
+	// Send a report to the system error log
+	if (ini_get('log_errors')) {
+		$log_msg = str_replace('<br />', "\n", htmlspecialchars_decode($err_msg.$fileline.$backtrace));
+		log_error($log_msg, E_ERROR);
 	}
 
 	exit(1);
