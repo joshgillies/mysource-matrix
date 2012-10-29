@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: requirements.xml,v 1.6 2012/08/31 03:50:21 ewang Exp $
+* $Id: requirements.xml,v 1.7 2012/10/29 02:29:46 csmith Exp $
 *
 */
 -->
@@ -30,7 +30,7 @@
 		<expected_return_code>2</expected_return_code>
 		<suggested>1</suggested>
 		<alternative>
-		    <pecl_extension>v8js</pecl_extension>
+		    <pecl_package>v8js</pecl_package>
 		    <suggested>1</suggested>
 		    <description> - you only need to install this module if Rest Resource JS asset is used and V8 JS engine selected.</description> 
 		</alternative>
