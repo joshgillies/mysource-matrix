@@ -1,5 +1,86 @@
 SQUIZ MATRIX CHANGELOG
 
+VERSION 4.10.4
+
+Featured Changes
+===================================
+
+Google Maps Package Updated to Google Maps API Version 3 [ Feature Request #5909 ]
+-----------------------------------------------------
+
+Squiz Matrix's Google Maps package allows you to embed Google Maps within your site that your users can view and navigate with. These maps can contain a variety of map type options, plotted locations and other functionality. 
+
+Google is currently in the process of depreciating version 2 of its Google Maps JavaScript API after the new release of version 3 of the API. As a result, the Google Maps package within Matrix has been upgraded to this release.
+
+Changes resulting from this upgrade include:
+
+   A number of configuration options on the Details screen of the Google Map asset are now automated by Google Maps and are no longer available.
+   The Street View overlay functionality (including the related keyword replacements) are no longer available. The Google Maps API now uses the familiar peg man feature to initiate Street View.
+   Google Earth is no longer supported. This includes the Moon Elevation, Moon Visible, Mars Infrared and Sky Visible map types. These options will no longer be available for selection.
+   Mouse zoom scrolling is no longer customisable, it is enabled by default.
+   The map initialisation code has been modified.
+
+The resulting functionality is a more accessible and intuitive mapping experience.
+
+Most users should be able to continue using their existing implementations without complication. Users using functionality that has been removed, however, should review their implementations and make any necessary modifications before upgrading your system.
+
+
+Additional Changes and Bug Fixes
+=================================== 
+
+Minor Enhancements
+
+Minor Enhancement #5234: Folder Linking Under Data Record Assets.
+Minor Enhancement #5769: Image Asset __data and local URL enhancements.
+Minor Enhancement #5917: Context Synchronisation on the JavaScript API.
+
+Core
+
+Fixed Bug #5827: Can't use WYSIWYG metadata when there are multiple type code choices on Asset Builder.
+Fixed Bug #5899: Lookup Settings screen assetid unchecked.
+Fixed Bug #5903: Set Session Var Trigger Action , current asset ID error. 
+Fixed Bug #5916: Thesaurus Term linking issues.
+Fixed Bug #5920: Import from XML tool breaks on CR.
+Fixed Bug #5931: Cache folder hashing method breaks with a low num_cache_dirs setting.
+Fixed Bug #5938: Deleting just one of the many Thesarus Term links removes the asset tagging.
+Fixed Bug #5940: Cloning multiple assets sorts them backwards under parent.
+Fixed Bug #5942: Issue using an 'asset_lineage' design area along with login page.
+Fixed Bug #5943: If the cron job is scheduled to run immediately, it will never be picked up under certain scenarios.
+Fixed Bug #5947: XML Data source dynamic inputs re-encodes, re-emerging bug.
+Fixed Bug #5949: Paint Layout ID keyword does not reset global SQ_PAINT_LAYOUT_ID after printing.
+Fixed Bug #5953: Workflow approval invitation not sent if approver's requests workflow.
+Fixed Bug #5957: The system_update_lookups.php script is lengthy when preparing the assetid list to update lookups.
+Fixed Bug #5960: Remote content page got errors on POST/GET variables from array style input. 
+
+Search
+
+Fixed Bug #5930: Search List throws fatal error when using a non-admin user. 
+
+LDAP
+
+Fixed Bug #5919: getParents() infinite recursion when cycles in LDAP structure.
+Fixed Bug #5928: LDAP Bridge Auth Filter fails when the filter string has valid surrounding parentheses. 
+
+Bulkmail
+
+Fixed Bug #5847: Bulkmail job does not correctly check for duplicate mails in its queue.
+
+E-Commerce
+
+Fixed Bug #5921: The total_tax keyword on the E-Commerce Checkout Page receipt shouldn't show negative integers for excluded countries.  
+
+Web Services
+
+Fixed Bug #5918: SOAP API services have strange column name in Interface Settings.
+Fixed Bug #5924: Make SOAP Call Action fails to show all the response keywords.
+Fixed Bug #5948: Difference of behaviour between actual execution and Run Test for Make Soap Call Actions.
+
+SAML
+
+Fixed Bug #5946: SAML Account Manager return location, redirect order glitch.
+
+
+
 VERSION 4.10.3
 
 Featured Changes
