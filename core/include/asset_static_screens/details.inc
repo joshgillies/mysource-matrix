@@ -10,17 +10,18 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.51 2012/08/30 01:09:20 ewang Exp $
+* $Id: details.inc,v 1.52 2012/10/30 04:17:15 akarelia Exp $
 *
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 /**
 * Details Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix
 */
 
