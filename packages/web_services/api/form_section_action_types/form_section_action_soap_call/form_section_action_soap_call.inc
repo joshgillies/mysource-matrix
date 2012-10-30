@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_action_soap_call.inc,v 1.17 2012/10/17 23:30:00 akarelia Exp $
+* $Id: form_section_action_soap_call.inc,v 1.18 2012/10/30 05:24:26 akarelia Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once dirname(dirname(dirname(__FILE__))).'/lib/soap_form_based_common.in
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -487,6 +487,7 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 		if ($settings['run_test']) {
 			foreach($functions as $function) {
 				$function_name = preg_replace('/^\w+ (\w+)\(.*\)/', '$1', $function);
+				if($function_name != $settings['action']) continue;
 				$test_results[$function_name] = SOAP_Common::testSoapRequest($client, $settings, $function_name, $form_section);
 			}
 		}//end if
