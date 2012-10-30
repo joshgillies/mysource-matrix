@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.770.2.1 2012/10/18 23:10:57 akarelia Exp $
+* $Id: asset.inc,v 1.770.2.2 2012/10/30 06:11:21 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.770.2.1 $
+* @version $Revision: 1.770.2.2 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2891,7 +2891,7 @@ class Asset extends MySource_Object
 				SQ_LINK_TYPE_2	=> Array(),
 				SQ_LINK_TYPE_3	=> Array(),
 				SQ_LINK_NOTICE	=> Array(
-									'image'				=> Array('card' => 1, 'exclusive' => FALSE),
+									'image'				=> Array('card' => 'M', 'exclusive' => FALSE),
 									'design'			=> Array('card' => 'M', 'exclusive' => FALSE),
 									'paint_layout_page'	=> Array('card' => 'M', 'exclusive' => FALSE),
 								   ),
