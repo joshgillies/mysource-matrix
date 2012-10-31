@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_diff_highlighter.inc,v 1.13 2012/10/31 01:08:10 cupreti Exp $
+* $Id: matrix_diff_highlighter.inc,v 1.14 2012/10/31 02:17:15 cupreti Exp $
 *
 */
 
@@ -32,7 +32,7 @@ include_once 'Text/Diff/Renderer/inline.php';
 *
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -213,7 +213,7 @@ class Matrix_Diff_Highlighter extends Text_Diff_Renderer_Inline
 					$previous_tag = $opened_tags[count($opened_tags)-1]['tag'];
 					$current_tag = preg_replace('#[</>]#', '', $tag);
 					if ($previous_tag != $current_tag) {
-						// It does has matching opened tag, get rid of it
+						// It does not has a matching opened tag, get rid of it
 						$lines[$index] = '';
 					} else {
 						array_pop($opened_tags);
