@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_diff_highlighter.inc,v 1.12 2012/10/31 01:05:15 cupreti Exp $
+* $Id: matrix_diff_highlighter.inc,v 1.13 2012/10/31 01:08:10 cupreti Exp $
 *
 */
 
@@ -32,7 +32,7 @@ include_once 'Text/Diff/Renderer/inline.php';
 *
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -188,7 +188,6 @@ class Matrix_Diff_Highlighter extends Text_Diff_Renderer_Inline
 			$lines[$begin_index] = $prefix.$lines[$begin_index];
 			$lines[$end_index] .= $suffix;
 
-			$lines[1]=''; $lines[2]='';
 			return $this->_lines($lines, ' ', FALSE);
 		}
 
