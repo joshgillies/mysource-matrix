@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_diff_highlighter.inc,v 1.11 2012/08/30 01:09:06 ewang Exp $
+* $Id: matrix_diff_highlighter.inc,v 1.12 2012/10/31 01:05:15 cupreti Exp $
 *
 */
 
@@ -32,7 +32,7 @@ include_once 'Text/Diff/Renderer/inline.php';
 *
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -172,6 +172,8 @@ class Matrix_Diff_Highlighter extends Text_Diff_Renderer_Inline
 			return $this->_lines($lines, ' ', FALSE);
 
 		} else {
+			// First get rid of any invalid non matching block tags (bug #5932)
+			$this->_removeInvalidBlockTags($lines);
 
 			// simple case, just make sure we put the mod tags in the right place
 			$begin_index = 0;
@@ -182,13 +184,53 @@ class Matrix_Diff_Highlighter extends Text_Diff_Renderer_Inline
 			while ($this->_isOpenTag($lines[$end_index]) && ($end_index > 0)) {
 				$end_index--;
 			}
+
 			$lines[$begin_index] = $prefix.$lines[$begin_index];
 			$lines[$end_index] .= $suffix;
-			
+
+			$lines[1]=''; $lines[2]='';
 			return $this->_lines($lines, ' ', FALSE);
 		}
 
 	}//end _markChanges()
+
+
+	/**
+	* Remove any non-matching /incorrectly nested block tags in the given lines block
+	*
+	* @param array $lines
+	*
+	* @return void
+	* @access private
+	*/
+	private function _removeInvalidBlockTags(&$lines)
+	{
+		$opened_tags = Array();
+		foreach($lines as $index => $tag) {
+			if ($this->_isOpenBlockTag($tag)) {
+				$opened_tags[] = Array('line' => $index, 'tag' => preg_replace('#[</>]#', '', $tag));
+			} else if ($this->_isCloseBlockTag($tag)) {
+				if (!empty($opened_tags)) {
+					$previous_tag = $opened_tags[count($opened_tags)-1]['tag'];
+					$current_tag = preg_replace('#[</>]#', '', $tag);
+					if ($previous_tag != $current_tag) {
+						// It does has matching opened tag, get rid of it
+						$lines[$index] = '';
+					} else {
+						array_pop($opened_tags);
+					}
+				} else {
+					$lines[$index] = '';
+				}
+			}//end else if
+		}//end foreach
+
+		// Also get rid of remaing non-closed opened tags
+		foreach($opened_tags as $opened_tag) {
+			$lines[$opened_tag['line']] = '';
+		}//end foreach
+
+	}//end _removeInvalidBlockTags()
 
 
 	/**
