@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.47 2012/08/30 01:09:07 ewang Exp $
+* $Id: form_question.inc,v 1.48 2012/11/01 05:52:29 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -809,6 +809,7 @@ class Form_Question extends Asset
 				}
 
 				replace_keywords($default_value, $replacements);
+				replace_global_keywords($default_value);
 
 				// If the default value is a dud, blank it
 				if (!$this->hasValidValue($default_value, TRUE)) {
