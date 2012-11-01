@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.23 2011/06/07 04:41:27 akarelia Exp $
+* $Id: edit_interface_screen_details.xml,v 1.23.8.1 2012/11/01 06:49:02 cupreti Exp $
 *
 */
 -->
@@ -80,6 +80,9 @@
 			<int width="5" />
 		</field>
 		<field attribute="allow_redirect">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="verify_ssl">
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>

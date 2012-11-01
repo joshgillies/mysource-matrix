@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.94.2.1 2012/10/24 05:13:17 ewang Exp $
+* $Id: page_remote_content.inc,v 1.94.2.2 2012/11/01 06:49:02 cupreti Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.94.2.1 $
+* @version $Revision: 1.94.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -438,6 +438,7 @@ class Page_Remote_Content extends Page
 			}
 		}
 
+		$options['ssl_verifypeer']=$this->attr('verify_ssl');
 		$result = fetch_url($url, $options);
 
 		if ($result['errornumber'] != 0) {
