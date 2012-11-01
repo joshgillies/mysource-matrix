@@ -10,7 +10,7 @@
  * | you a copy.                                                        |
  * +--------------------------------------------------------------------+
  *
- * $Id: system_integrity_fix_char_encoding.php,v 1.8 2012/10/19 05:05:15 cupreti Exp $
+ * $Id: system_integrity_fix_char_encoding.php,v 1.9 2012/11/01 01:24:04 ewang Exp $
  */
 
 /**
@@ -21,7 +21,7 @@
  * IMPORTANT: SYSTEM MUST BE BACKEDUP BEFORE RUNNING THIS SCRIPT!!!
  *
  * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  * @package MySource_Matrix
  */
 
@@ -135,8 +135,15 @@ $replacements = Array(
     '148' => "\"",
     '150' => "-",
     '151' => "-",
-	'152' => "'",
+    '152' => "'",
     '133' => '...',
+    '187' => '»',
+    '8217' => '\'',
+    '186' => 'º',
+    '8220' => '“',
+    '8221' => '”',
+    '65533' => '&euml;',
+    
 );
 
 if (SYS_OLD_ENCODING == SYS_NEW_ENCODING) {
