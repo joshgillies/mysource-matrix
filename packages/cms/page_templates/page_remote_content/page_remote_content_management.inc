@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content_management.inc,v 1.27 2012/08/30 00:58:09 ewang Exp $
+* $Id: page_remote_content_management.inc,v 1.28 2012/11/01 06:27:10 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -47,6 +47,12 @@ class Page_Remote_Content_Management extends Asset_Management
 												   ),
 						'load_links'			=> Array(
 													'added'			=> '0.1',
+													'type'			=> 'boolean',
+													'default'		=> TRUE,
+													'parameters'	=> Array('allow_empty'	=> FALSE),
+												   ),
+						'verify_ssl'			=> Array(
+													'added'			=> '1.7',
 													'type'			=> 'boolean',
 													'default'		=> TRUE,
 													'parameters'	=> Array('allow_empty'	=> FALSE),

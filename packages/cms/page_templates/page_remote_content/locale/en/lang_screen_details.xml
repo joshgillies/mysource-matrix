@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.12 2011/01/11 02:48:23 mhaidar Exp $
+* $Id: lang_screen_details.xml,v 1.13 2012/11/01 06:28:05 cupreti Exp $
 *
 */
 -->
@@ -107,6 +107,10 @@
 		<field attribute="allow_redirect">
 			<display_name>Allow Redirects</display_name>
 			<note>If enabled, this asset will redirect to the necessary location automatically. It is important to leave this YES in the general case because many sites do silent redirects. If a redirect is required and this is set to NO, you will get an Error Message</note>
+		</field>
+		<field attribute="verify_ssl">
+			<display_name>Verify SSL</display_name>
+			<note>If enabled, the SSL certificate of the remote content page will be verified, if the certificate fails verification an error message will be displayed</note>
 		</field>
 	</section>
 	<section name="HTTP Authentication">
