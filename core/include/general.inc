@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.276 2012/10/29 00:24:14 cupreti Exp $
+* $Id: general.inc,v 1.277 2012/11/02 02:48:53 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.276 $
+* @version $Revision: 1.277 $
 * @package MySource_Matrix
 */
 
@@ -2599,6 +2599,7 @@ function fetch_url($url='', $options=array(), $headers=array(), $use_proxy=TRUE)
 		}
 	}
 
+	$proxy_set = FALSE;
 	if ($use_proxy === TRUE) {
 		if ($_proxies_loaded === FALSE) {
 			$proxy_auth_file = SQ_DATA_PATH.'/private/conf/proxy_authentication.inc';
@@ -2630,9 +2631,11 @@ function fetch_url($url='', $options=array(), $headers=array(), $use_proxy=TRUE)
 						curl_setopt($curl_res, CURLOPT_PROXYUSERPWD, $proxy['user'].':'.$proxy['password']);
 					}
 				}
+				$proxy_set = TRUE;
 			}
 		}//end if
 	}
+	if(!$proxy_set) curl_setopt($curl_res, CURLOPT_PROXY, NULL);
 	
 	$result = curl_exec($curl_res);
 
