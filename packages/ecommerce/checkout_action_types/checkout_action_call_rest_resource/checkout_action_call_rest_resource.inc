@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: checkout_action_call_rest_resource.inc,v 1.5 2012/10/29 05:01:24 cupreti Exp $
+* $Id: checkout_action_call_rest_resource.inc,v 1.6 2012/11/02 00:55:06 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ define('ECOM_CHECKOUT_REST_ACTION_LOG_FILE', 'ecom_rest_checkout_action');
 *
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -51,7 +51,7 @@ class Checkout_Action_Call_Rest_Resource extends Checkout_Action
 	* @access public
 	* @return void
 	*/
-	public static function paintInlineInterface(Ecommerce_Checkout &$checkout, $settings, Backend_Outputter $o, $prefix)
+	public static function paintInlineInterface(Ecommerce_Checkout $checkout, $settings, Backend_Outputter $o, $prefix)
 	{	
 		if (!isset($settings['http_request'])) {
 			$req_settings = serialize(Array());
@@ -103,7 +103,7 @@ class Checkout_Action_Call_Rest_Resource extends Checkout_Action
 	* @access private
 	* @return void
 	*/
-	private static function _paintOrderArraySetup(Ecommerce_Checkout &$checkout, $settings, Backend_Outputter $o, $prefix)
+	private static function _paintOrderArraySetup(Ecommerce_Checkout $checkout, $settings, Backend_Outputter $o, $prefix)
 	{	
 		$order_array = array_get_index($settings, 'order_array', Array());
 		
@@ -371,7 +371,7 @@ class Checkout_Action_Call_Rest_Resource extends Checkout_Action
 	* @access public
 	* @return boolean
 	*/
-	public static function processInlineInterface(Ecommerce_Checkout &$checkout, &$settings, Backend_Outputter $o, $prefix)
+	public static function processInlineInterface(Ecommerce_Checkout $checkout, &$settings, Backend_Outputter $o, $prefix)
 	{
 		// Process "http request" settings
 		if (!isset($settings['http_request'])) {
@@ -407,7 +407,7 @@ class Checkout_Action_Call_Rest_Resource extends Checkout_Action
 	* @access public
 	* @return boolean
 	*/
-	public static function _processOrderArraySetup(Ecommerce_Checkout &$checkout, &$settings, Backend_Outputter $o, $prefix)
+	public static function _processOrderArraySetup(Ecommerce_Checkout $checkout, &$settings, Backend_Outputter $o, $prefix)
 	{			
 		$order_array = isset($settings['order_array']) ? $settings['order_array'] : Array();
 		$selected_asset_type = isset($_POST[$prefix.'_asset_type_submitted']) ? $_POST[$prefix.'_asset_type_submitted'] : '';
@@ -460,7 +460,7 @@ class Checkout_Action_Call_Rest_Resource extends Checkout_Action
 	* @access public
 	* @return void
 	*/
-	public static function paintSummary(Ecommerce_Checkout &$checkout, $settings, Backend_Outputter $o, $prefix)
+	public static function paintSummary(Ecommerce_Checkout $checkout, $settings, Backend_Outputter $o, $prefix)
 	{
 		if (!isset($settings['http_request'])) {
 			$req_settings = Array();
@@ -510,7 +510,7 @@ class Checkout_Action_Call_Rest_Resource extends Checkout_Action
 	* @access public
 	* @return boolean
 	*/
-	public static function execute(Ecommerce_Checkout &$checkout, Ecommerce_Order &$order, $settings)
+	public static function execute(Ecommerce_Checkout $checkout, Ecommerce_Order $order, $settings)
 	{
 		$req_settings = $settings['http_request'];
 
@@ -834,7 +834,7 @@ class Checkout_Action_Call_Rest_Resource extends Checkout_Action
 	 * @access public
 	 * @return boolean
 	 */
-	public static function isValid(Ecommerce_Checkout $checkout, &$settings)
+	public static function isValid(Ecommerce_Checkout $checkout, $settings)
 	{		
 		if (!isset($settings['http_request'])) {
 			$req_settings = Array();
