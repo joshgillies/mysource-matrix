@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image_search.php,v 1.4.2.1 2012/08/15 05:08:14 cupreti Exp $
+* $Id: insert_image_search.php,v 1.4.2.2 2012/11/05 22:40:07 akarelia Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Insert Link Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.4.2.1 $
+* @version $Revision: 1.4.2.2 $
 * @package MySource_Matrix
 */
 
@@ -69,7 +69,7 @@ if ($search_for != '') {
 
 	if (!empty($found_asset)) {
 		$asset_title = $found_asset->attr('title');
-		$asset_alt = $found_asset->attr('alt');
+		$asset_alt = addslashes($found_asset->attr('alt'));
 		$asset_width = $found_asset->attr('width');
 		$asset_height = $found_asset->attr('height');
 		$asset_name = $found_asset->name;
@@ -167,7 +167,7 @@ if ($search_for != '') {
 				$asset_height = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('height', 'image', Array($result_assetid));
 
 				$result_list[] = Array(
-									'tag_line'	=> get_asset_tag_line($result_assetid, 'javascript:set_asset_finder_from_search(\''.$result_assetid.'\', \''.htmlspecialchars(array_get_index($asset_title, $result_assetid, ''), ENT_QUOTES).'\', \'\', \'0\', \''.array_get_index($asset_name, $result_assetid, '').'\', \''.array_get_index($asset_alt, $result_assetid, '').'\', \''.array_get_index($asset_width, $result_assetid, '').'\', \''.array_get_index($asset_height, $result_assetid, '').'\');'),
+									'tag_line'	=> get_asset_tag_line($result_assetid, 'javascript:set_asset_finder_from_search(\''.$result_assetid.'\', \''.htmlspecialchars(array_get_index($asset_title, $result_assetid, ''), ENT_QUOTES).'\', \'\', \'0\', \''.array_get_index($asset_name, $result_assetid, '').'\', \''.addslashes(array_get_index($asset_alt, $result_assetid, '')).'\', \''.array_get_index($asset_width, $result_assetid, '').'\', \''.array_get_index($asset_height, $result_assetid, '').'\');'),
 									'detail'	=> implode($this_detail, '<br/>'),
 								 );
 			}//end foreach
