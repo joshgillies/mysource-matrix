@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.75 2012/08/30 00:56:52 ewang Exp $
+* $Id: html_tidy.inc,v 1.75.2.1 2012/11/05 03:33:11 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 * @author	Greg Sherwood <greg@squiz.net>
 * @author	Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author	Scott Kim <skim@squiz.net>
-* @version $Revision: 1.75 $
+* @version $Revision: 1.75.2.1 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -187,7 +187,6 @@ class HTML_Tidy extends Wysiwyg_Plugin
 							'--show-errors'			=> 1,
 							'--show-warnings'		=> TRUE,
 							'--wrap'				=> FALSE,
-							'--quote-marks'			=> TRUE,
 							'--word-2000'			=> TRUE,
 							'--force-output'		=> TRUE,
 							'--logical-emphasis'	=> TRUE,
