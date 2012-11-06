@@ -2,15 +2,15 @@
 /**
 * +--------------------------------------------------------------------+
 * | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
-* | ACN 084 670 600                                                    |
+* | ABN 77 084 670 600                                                 |
 * +--------------------------------------------------------------------+
 * | IMPORTANT: Your use of this Software is subject to the terms of    |
 * | the Licence provided in the file licence.txt. If you cannot find   |
-* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | this file please contact Squiz (www.squiz.com.au) so we may provide|
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link.php,v 1.51.2.1 2012/08/15 05:08:14 cupreti Exp $
+* $Id: insert_link.php,v 1.51.2.2 2012/11/06 00:13:22 cupreti Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Insert Link Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.51.2.1 $
+* @version $Revision: 1.51.2.2 $
 * @package MySource_Matrix
 */
 
@@ -268,6 +268,7 @@ if (isset($_GET['assetid']) && $_GET['assetid']) {
 							}
 						}
 						highlight_combo_value(f.url_protocol, '');
+						enable_type_selector(false);
 					}
 				}
 				setTimeout('self.focus()',100);
@@ -289,6 +290,16 @@ if (isset($_GET['assetid']) && $_GET['assetid']) {
 				for (var i=0; i < new_window_bool_options.length; i++) {
 					f.elements[new_window_bool_options[i]].disabled = disable;
 				}
+			};
+
+			function enable_type_selector(enable)
+			{
+				if (enable == undefined) {
+					enable = true;
+				}
+
+				var type_selector = document.getElementById('asset_type_selector');
+				type_selector.disabled = !enable;
 			};
 
 		</script>
@@ -652,6 +663,23 @@ if (isset($_GET['assetid']) && $_GET['assetid']) {
 																</span>
 																<span id="asset_finder_redirect_asset" style="display:none">
 																	<?php asset_finder('page_redirect_assetid', $_GET['assetid'], Array('page_redirect' => 'I'), '', FALSE, 'setUrl'); ?>
+																	<script type="text/javascript">
+																		// Add event listener for Asset Selector's clear button
+																		var all_clr_btn = document.getElementById('sq_asset_finder_assetid_clear_btn');
+																		var link_clr_btn = document.getElementById('sq_asset_finder_link_assetid_clear_btn');
+																		var page_redirect_clr_btn = document.getElementById('sq_asset_finder_page_redirect_assetid_clear_btn');
+																		if (all_clr_btn.addEventListener) {
+																			all_clr_btn.addEventListener('click', enable_type_selector, false);
+																			link_clr_btn.addEventListener('click', enable_type_selector, false);
+																			page_redirect_clr_btn.addEventListener('click', enable_type_selector, false);
+																		} else if (all_clr_btn.attachEvent) {
+																			// IE browser
+																			all_clr_btn.attachEvent('onclick', enable_type_selector);
+																			link_clr_btn.attachEvent('onclick', enable_type_selector);
+																			page_redirect_clr_btn.attachEvent('onclick', enable_type_selector);
+
+																		}
+																</script>
 																</span>
 															</td>
 														</tr>
