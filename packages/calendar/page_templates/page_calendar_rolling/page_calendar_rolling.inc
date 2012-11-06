@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling.inc,v 1.42 2012/08/30 00:57:28 ewang Exp $
+* $Id: page_calendar_rolling.inc,v 1.43 2012/11/06 06:36:01 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Greg Sherwoood <greg@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -431,8 +431,8 @@ class Page_Calendar_Rolling extends Page
 		$event_list = '';
 		if (!empty($all_events)) {
 			$all_ids = Array();
-			foreach ($all_events as $day => $event_list) {
-				$all_ids = array_merge($all_ids, array_keys($event_list));
+			foreach ($all_events as $day => $day_event_list) {
+				$all_ids = array_merge($all_ids, array_keys($day_event_list));
 			}
 			if ($somebody_doesnt_need_asset) {
 				$asset_infos = $am->getAssetInfo($all_ids);
