@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.346 2012/08/30 00:58:08 ewang Exp $
+* $Id: listing_engine.inc,v 1.346.2.1 2012/11/06 02:43:05 ewang Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.346 $
+* @version $Revision: 1.346.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -262,6 +262,13 @@ class Listing_Engine extends Page
 		if (!empty($asset_folder_link)) {
 			if ($asset_folder_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
 				return translate('cms_listing_cannot_delete_position_formats_link', str_replace('_',' ', $this->type()));
+			}
+		}
+		
+		$asset_folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'group_formats');
+		if (!empty($asset_folder_link)) {
+			if ($asset_folder_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
+				return translate('cms_listing_cannot_delete_group_formats_link', str_replace('_',' ', $this->type()));
 			}
 		}
 
