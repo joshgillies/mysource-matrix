@@ -2,15 +2,15 @@
 /**
 * +--------------------------------------------------------------------+
 * | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
-* | ACN 084 670 600                                                    |
+* | ABN 77 084 670 600                                                 |
 * +--------------------------------------------------------------------+
 * | IMPORTANT: Your use of this Software is subject to the terms of    |
 * | the Licence provided in the file licence.txt. If you cannot find   |
-* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | this file please contact Squiz (www.squiz.com.au) so we may provide|
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_custom_form.inc,v 1.26 2011/06/30 04:49:38 ewang Exp $
+* $Id: page_custom_form.inc,v 1.26.6.1 2012/11/07 03:28:11 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.26.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -102,7 +102,7 @@ class Page_Custom_Form extends Page
 	{
 		$form = $this->getForm();
 
-		if (is_null($form)) {
+		if (is_null($form) && !array_get_index($this->_tmp, '__creating__', FALSE)) {
 			trigger_localised_error('CMS0023', E_USER_ERROR, $this->name, $this->id);
 			return FALSE;
 		}
@@ -123,14 +123,17 @@ class Page_Custom_Form extends Page
 	{
 		// start performance mode timer
 		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this);
-		
+
 		$form = $this->getForm();
 
-		if (is_null($form)) {
-			trigger_localised_error('CMS0023', E_USER_ERROR, $this->name, $this->id);
-			return FALSE;
+		// If we are still being created, we will not have the "form" asset yet (bug #5979)
+		if (!array_get_index($this->_tmp, '__creating__', FALSE)) {
+			if (is_null($form)) {
+				trigger_localised_error('CMS0023', E_USER_ERROR, $this->name, $this->id);
+				return FALSE;
+			}
+			$form->printBody();
 		}
-		$form->printBody();
 
 		// stop performance mode timer
 		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this);
