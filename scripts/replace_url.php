@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: replace_url.php,v 1.7.2.1 2012/10/09 01:21:27 akarelia Exp $
+* $Id: replace_url.php,v 1.7.2.2 2012/11/07 03:11:03 cupreti Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 * quicker
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.7.2.1 $
+* @version $Revision: 1.7.2.2 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -49,6 +49,9 @@ $root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 if (!$root_user->comparePassword($root_password)) {
 	echo "ERROR: The root password entered was incorrect\n";
 	exit();
+}
+if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
+	trigger_error("Failed logging in as root user\n", E_USER_ERROR);
 }
 
 echo "\n";
