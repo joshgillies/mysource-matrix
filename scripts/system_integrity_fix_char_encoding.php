@@ -10,7 +10,7 @@
  * | you a copy.                                                        |
  * +--------------------------------------------------------------------+
  *
- * $Id: system_integrity_fix_char_encoding.php,v 1.9 2012/11/01 01:24:04 ewang Exp $
+ * $Id: system_integrity_fix_char_encoding.php,v 1.10 2012/11/08 04:32:17 ewang Exp $
  */
 
 /**
@@ -21,7 +21,7 @@
  * IMPORTANT: SYSTEM MUST BE BACKEDUP BEFORE RUNNING THIS SCRIPT!!!
  *
  * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.10 $
  * @package MySource_Matrix
  */
 
@@ -122,30 +122,6 @@ $tables = Array(
     ),
 );
 
-// Define the replacement chars
-// Relevant only when the "new charset" is utf-8
-//
-// Array(
-//	<ASCII value of char to replace> => <replacement char>
-// )
-$replacements = Array(
-    '145' => "'",
-    '146' => "'",
-    '147' => "\"",
-    '148' => "\"",
-    '150' => "-",
-    '151' => "-",
-    '152' => "'",
-    '133' => '...',
-    '187' => '»',
-    '8217' => '\'',
-    '186' => 'º',
-    '8220' => '“',
-    '8221' => '”',
-    '65533' => '&euml;',
-    
-);
-
 if (SYS_OLD_ENCODING == SYS_NEW_ENCODING) {
     echo  "\nERROR: The old encoding ('" . SYS_OLD_ENCODING . "') is the same as the current/new character set.\n\n";
     print_usage();
@@ -187,7 +163,7 @@ if (!$pid) {
     // the Oracle DB connection will be lost inside the fork
 	require_once $SYSTEM_ROOT.'/core/include/init.inc';
 
-	$summary = fix_db($root_node_id, $tables, $replacements);
+	$summary = fix_db($root_node_id, $tables);
 
 	// Get the list of assetids for which we need to regenerate  the filesystem content
 	// to reflect the changes made in the db
@@ -236,12 +212,10 @@ exit();
  *
  * @param int 	$root_node		Assetid of rootnode, all childern of rootnode will be processed for char replacement
  * @param array	$tables			DB tables and colunms info
- * @param array	$replacements	Char replacement array
- Array("ASCII Value of Char to be replced" => "New Char",)
  *
  * @return void
  */
-function fix_db($root_node, $tables, $replacements)
+function fix_db($root_node, $tables)
 {
     global $reportOnly;
 
@@ -253,8 +227,6 @@ function fix_db($root_node, $tables, $replacements)
         return;
     }
     echo "\n\nNumber of assets to look into : ".count($target_assetids)." \n";
-
-    $replacement_ords = array_keys($replacements);
 
     $errors                = Array();
     $records_fixed_count   = 0;
@@ -305,20 +277,9 @@ function fix_db($root_node, $tables, $replacements)
                 $update_required = FALSE;
                 $invalid_asset_records[] = array(
                     'asset' => $assetid,
-                    'table' => $table
+                    'table' => $table,
+                    'value' => $value,
                 );
-
-                // Carryout the non-uft8 smart quotes replacment (relevant only when target charset is "utf-8")
-                if (strtolower(SYS_NEW_ENCODING) == 'utf-8') {
-                    for ($i = 0; $i < strlen($value); $i++) {
-                        $ord = ord($value[$i]);
-
-                        if (in_array($ord, $replacement_ords)) {
-                            $value[$i] = $replacements[$ord];
-							$update_required = TRUE;
-                        }
-                    }//end for
-                }//end if
 
 				// Check if the value is now valid
                 if (!isValidValue($value)) {
@@ -397,17 +358,19 @@ function fix_db($root_node, $tables, $replacements)
                 } else {
                     // This record contained invalid value. Either the invalid char(s) in it was/were not in the replacement array
                     // or trying to carryout charset conversion (without losing any data) still resulted into invalid value
-                    // Hence replacement was not carried out
+                    // Hence replacement was not carried out.
                     $errors[] = array(
-                        'asset' => $assetid,
-                        'table' => $table,
-                    );
+                                 'asset' => $assetid,
+                                 'table' => $table,
+                                 'value' => $value,
+                                );
 
                     $msg = "Asset with ".$fields['assetid']."=#$assetid, ".
                         (!is_null($key) ? $fields['key']."=#$key, and " : "and ").
                         $fields['contextid']."=#$contextid in table $table ".
                         "contains invalid char(s), which were not replaced because ".
-                        "either those invalid chars were not defined in the replacement array or the charset conversion was not successful";
+                        "either those invalid chars were not defined in the replacement array or the charset conversion was not successful".
+                        "\nPotentially invalid characters include: ".listProblematicCharacters($value);
                     log_error_msg($msg);
                 }
 
@@ -425,7 +388,8 @@ function fix_db($root_node, $tables, $replacements)
     echo "Number of db records with invalid char(s): ".$invalid_count."\n";
     if ($invalid_count > 0) {
         foreach ($invalid_asset_records as $k => $details) {
-            echo "\tAsset: ".$details['asset']." in table ".$details['table']."\n";
+            echo "\tAsset: ".$details['asset']." in table ".$details['table'];
+            echo "\tPossibly problematic characters: ".listProblematicCharacters($details['value'])."\n";
         }
         echo "\n";
     }
@@ -707,8 +671,8 @@ function print_usage()
 
     echo "Usage: php ".basename(__FILE__)." --system=<SYSTEM_ROOT> --old=<OLD_CHARSET> [--new=<NEW_CHARSET>] [--rootnode=<ROOT_NODE>] [--report]\n\n";
     echo "\t<SYSTEM_ROOT> : The root directory of Matrix system.\n";
-    echo "\t<OLD_CHARSET> : Previous charset of the system. (eg. UTF-8, ISO-8859-1, etc)\n";
-    echo "\t<NEW_CHARSET> : New charset of the system. (eg. UTF-8, ISO-8859-1, etc)\n";
+    echo "\t<OLD_CHARSET> : Previous charset of the system. (eg. UTF-8, Windows-1252, etc)\n";
+    echo "\t<NEW_CHARSET> : New charset of the system. (eg. UTF-8, Windows-1252, etc)\n";
     echo "\t<ROOT_NODE>   : Assetid of the rootnode (all children of the rootnode will be processed by the script).\n";
     echo "\t<--report>    : Issue a report only instead of also trying to convert the assets.\n";
 
@@ -716,4 +680,58 @@ function print_usage()
 
 }//end print_usage()
 
+
+/**
+ * Convert all multi-byte characters to entities.
+ *
+ * @param string $str The string to convert.
+ *
+ * @return string
+ */
+function htmlallentities($str)
+{
+    $res    = '';
+    $strlen = strlen($str);
+    for ($i = 0; $i < $strlen; $i++) {
+        $byte = ord($str[$i]);
+        if($byte < 128) // 1-byte char
+            $res .= $str[$i];
+        elseif($byte < 192) // invalid utf8
+            $res .= '&#'.ord($str[$i]).';';
+        elseif($byte < 224) // 2-byte char
+            $res .= '&#'.((63&$byte)*64 + (63&ord($str[++$i]))).';';
+        elseif($byte < 240) // 3-byte char
+            $res .= '&#'.((15&$byte)*4096 + (63&ord($str[++$i]))*64 + (63&ord($str[++$i]))).';';
+        elseif($byte < 248) // 4-byte char
+        $res .= '&#'.((15&$byte)*262144 + (63&ord($str[++$i]))*4096 + (63&ord($str[++$i]))*64 + (63&ord($str[++$i]))).';';
+    }
+
+    return $res;
+
+}//end htmlallentities()
+
+
+/**
+ * Report potentially problematic characters.
+ *
+ * @param string $value A string containing problematic characters.
+ *
+ * @return string
+ */
+function listProblematicCharacters($value)
+{
+    $entified = htmlallentities($value);
+    preg_match_all('/&#([0-9]+);/', $entified, $matches);
+    $codes     = array_unique($matches[1]);
+    $probChars = '';
+    foreach ($codes as $code) {
+		$probChars .= html_entity_decode('&#'.$code.';', ENT_COMPAT, 'utf-8').' ('.$code.'), ';
+    }
+
+    return preg_replace('/,\s*$/', '', $probChars);
+
+}//end listProblematicCharacters()
+
+
 ?>
+
