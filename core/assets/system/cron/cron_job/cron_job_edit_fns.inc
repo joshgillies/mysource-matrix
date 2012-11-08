@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_edit_fns.inc,v 1.43 2012/08/30 01:09:10 ewang Exp $
+* $Id: cron_job_edit_fns.inc,v 1.44 2012/11/08 06:19:58 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -184,11 +184,12 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 				echo $when_arr['month'];
 			}
 
-			// year (this year - ten years later)
+			// year (this year - specified years later)
 			echo '&nbsp;/&nbsp;';
 			if ($write_access) {
 				$years = Array('--' => '--');
-				$end_year = max($when_arr['year'], $now['year']) + 10;
+				$max_years = (int) $cron_mgr->attr('max_years');
+				$end_year = max($when_arr['year'], $now['year']) + ($max_years > 0 ? $max_years : 10);
 				for ($i = $now['year']; $i <= $end_year; $i++) {
 					$years[str_pad($i, 4, '0', STR_PAD_LEFT)] = str_pad($i, 4, '0', STR_PAD_LEFT);
 				}
