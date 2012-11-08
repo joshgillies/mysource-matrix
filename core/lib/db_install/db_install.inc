@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.70 2012/01/31 18:55:58 ata Exp $
+* $Id: db_install.inc,v 1.70.4.1 2012/11/08 04:55:24 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.70 $
+* @version $Revision: 1.70.4.1 $
 * @package MySource_Matrix
 * @subpackage lib`
 */
@@ -1061,7 +1061,7 @@ function install_rollback_triggers($table_columns, $verbose=TRUE, $override=FALS
 		// key columns in oracle
 		$remove_rollback_collision = 'DELETE FROM '.
 									 $rollback_table.
-									 ' WHERE sq_eff_to = '.$get_timestamp_fn.
+									 ' WHERE sq_eff_from = '.$get_timestamp_fn.
 									 ' AND '.$new_primary_key_where;
 
 		// if we are inserting then we just want to insert the new
