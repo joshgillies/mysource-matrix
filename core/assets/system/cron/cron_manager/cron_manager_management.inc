@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager_management.inc,v 1.22 2012/08/30 01:09:10 ewang Exp $
+* $Id: cron_manager_management.inc,v 1.22.2.1 2012/11/09 01:15:14 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.22.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -111,6 +111,14 @@ class Cron_Manager_Management extends Asset_Management
 														'default'		=> Array(),
 														'description'	=> 'Users to send the cron deadlock email to',
 													   ),
+						'max_years'					=> Array(
+														'added'			=> '0.3',
+														'type'			=> 'int',
+														'default'		=> 10,
+														'description'	=> 'Number of years in the future to display in the dropdown that be set when setting up a cron job',
+													),
+
+
 
 					  );
 

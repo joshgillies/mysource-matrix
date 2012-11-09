@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_options.xml,v 1.6 2011/05/19 04:45:16 akarelia Exp $
+* $Id: lang_screen_options.xml,v 1.6.10.1 2012/11/09 01:15:14 cupreti Exp $
 *
 */
 -->
@@ -52,6 +52,10 @@
 				<paint_function   name="paintLogRotateTime" />
 				<process_function name="processLogRotateTime" />
 			</function_call>
+		</field>
+		<field attribute="max_years">
+			<display_name>Maximum Years</display_name>
+			<note>Maximum number of years in future to display in a date's year field when setting up a cron job</note>
 		</field>
 	</section>
 	<section name="Emailing Options">

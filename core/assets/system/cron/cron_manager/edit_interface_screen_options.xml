@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_options.xml,v 1.14 2011/05/13 01:05:32 akarelia Exp $
+* $Id: edit_interface_screen_options.xml,v 1.14.10.1 2012/11/09 01:15:14 cupreti Exp $
 *
 */
 -->
@@ -43,6 +43,9 @@
 				<paint_function   name="paintLogRotateTime" />
 				<process_function name="processLogRotateTime" />
 			</function_call>
+		</field>
+		<field attribute="max_years">
+			<int width="3" />
 		</field>
 	</section>
 	<section name="Emailing Options" write_access="root:all" read_access="write:">
