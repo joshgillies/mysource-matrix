@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.87 2012/08/30 00:58:07 ewang Exp $
+* $Id: form_edit_fns.inc,v 1.87.2.1 2012/11/09 02:58:36 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.87 $
+* @version $Revision: 1.87.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -589,7 +589,12 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 				return FALSE;
 			}
 
-			// regen the content file
+			// Our form section depends on form_email it is linked under although the 
+			// is_dependent flag on the link isn't set we still have to make sure the
+			// status of the section is in sync with the Custom form
+			if ($section[$i]->status != $asset->status && in_array($asset->status, array_keys($section[$i]->getAvailableStatii()))) {
+				$section[$i]->processStatusChange($asset->status, FALSE, FALSE);
+			}
 
 		}//end for
 		if (count($sections) > 0) $asset->_updated();
