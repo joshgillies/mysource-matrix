@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_interface_mode.inc,v 1.3 2012/08/30 01:09:15 ewang Exp $
+* $Id: trigger_condition_interface_mode.inc,v 1.3.2.1 2012/11/09 02:28:47 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -124,9 +124,9 @@ class Trigger_Condition_Interface_Mode extends Trigger_Condition
 					<tbody>
 						<tr>
 						<?php
-							foreach ($options as $option) {
-								echo '<td>'.check_box($prefix.'[]', $option, in_array($option, $selected)).'</td>';
-								echo '<td>'.label(translate('condition_interface_mode_'.$option), $prefix.'_condition_'.$option).'</td>';
+							foreach ($options as $idx => $option) {
+								echo '<td>'.check_box($prefix.'['.$idx.']', $option, in_array($option, $selected)).'</td>';
+								echo '<td>'.label(translate('condition_interface_mode_'.$option), $prefix.'['.$idx.']').'</td>';
 							}
 						?>
 						</tr>
