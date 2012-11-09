@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_asset_csv_to_matrix.php,v 1.13 2012/08/30 01:04:53 ewang Exp $
+* $Id: import_asset_csv_to_matrix.php,v 1.13.2.1 2012/11/09 04:12:36 cupreti Exp $
 *
 */
 
@@ -159,7 +159,7 @@ function importAssets($source_csv_filename, $asset_type_code, $parent_id, $schem
 	// Set to true if temporary trash folder is created, where all the assets to be deleted are moved to
 	$temp_trash_folder = FALSE;
 
-	while (($data = fgetcsv($csv_fd, 1024, ',')) !== FALSE) {
+	while (($data = fgetcsv($csv_fd, 0, ',')) !== FALSE) {
 		$num_fields = count($data);
 
 		$asset_spec = Array();
@@ -702,7 +702,7 @@ if (!$csv_fd) {
 
 $metadata_mapping = Array();
 
-while (($data = fgetcsv($csv_fd, 1024, ',')) !== FALSE) {
+while (($data = fgetcsv($csv_fd, 0, ',')) !== FALSE) {
 	$num_fields = count($data);
 
 	if ($num_fields == 2) {
@@ -721,7 +721,7 @@ if (!$csv_fd) {
 
 $attribute_mapping = Array();
 
-while (($data = fgetcsv($csv_fd, 1024, ',')) !== FALSE) {
+while (($data = fgetcsv($csv_fd, 0, ',')) !== FALSE) {
 	$num_fields = count($data);
 
 	if ($num_fields == 2) {
@@ -741,7 +741,7 @@ if ($ignore_csv_filename != '') {
 		exit(-42);
 	}
 
-	while (($data = fgetcsv($csv_fd, 1024, ',')) !== FALSE) {
+	while (($data = fgetcsv($csv_fd, 0, ',')) !== FALSE) {
 		$num_fields = count($data);
 
 		if ($num_fields == 1) {
