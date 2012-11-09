@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: table-editor.js,v 1.31 2012/03/22 02:56:33 akarelia Exp $
+* $Id: table-editor.js,v 1.31.2.1 2012/11/09 03:53:08 ewang Exp $
 *
 */
 
@@ -150,7 +150,7 @@ TCell = function(parent)
 		else out = '<td';
 		var r = this.parent.row;
 		var name = this.parent.parent.id;
-		out += ' id="' + name + '_td' + r + '_' + c + '"';
+		if (name != null && name != "") out += ' id="' + name + '_td' + r + '_' + c + '"';
 		if (this.className != null && this.className != "") out += ' class="' + this.className + '"';
 		if (this.colspan > 1) out += ' colspan="' + this.colspan + '"';
 		if (this.rowspan > 1) out += ' rowspan="' + this.rowspan + '"';
@@ -555,9 +555,10 @@ TTable = function(name, rows, cols)
 
 	this.Export = function()
 	{
-		var out = '<table id="' + this.id +'"';
-		if (!isNaN(this.cellSpacing) && this.cellSpacing != "") out += '" cellspacing="' + this.cellSpacing + '"';
-		if (!isNaN(this.cellPadding) && this.cellPadding != "") out += '" cellpadding="' + this.cellPadding + '"';
+		var out = '<table ';
+		if (this.id != null && this.id != "") out += ' id="' + this.id + '"';
+		if (!isNaN(this.cellSpacing) && this.cellSpacing != "") out += ' cellspacing="' + this.cellSpacing + '"';
+		if (!isNaN(this.cellPadding) && this.cellPadding != "") out += ' cellpadding="' + this.cellPadding + '"';
 		if (this.className != null) out += ' class="' + this.className + '"';
 		if (this.htmlwidth != "") out += ' width=' + this.htmlwidth;
 		if (this.htmlborder != null) out += ' border=' + this.htmlborder;
