@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: sagepay_processor.inc,v 1.4 2012/08/30 00:58:34 ewang Exp $
+* $Id: sagepay_processor.inc,v 1.4.2.1 2012/11/13 00:13:32 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ define('SAGEPAY_LOG_FILE_PREFIX', 'sagepay_transactions_account_');
 * Sage Pay payment gateway processing object
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -749,8 +749,8 @@ class SagePay_Processor
 				 'POSTFIELDS'     => $this->_post_string,
 				 'RETURNTRANSFER' => 1,
 				 'TIMEOUT'        => $this->_timeout,
-				 'SSL_VERIFYPEER' => FALSE,
-				 'SSL_VERIFYHOST' => 1,
+				 'SSL_VERIFYPEER' => 1,
+				 'SSL_VERIFYHOST' => 2,
 				);
 		$details  = fetch_url($url, $options);
 		$response = $details['response'];
