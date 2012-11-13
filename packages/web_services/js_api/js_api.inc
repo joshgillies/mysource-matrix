@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.131 2012/10/03 01:40:11 akarelia Exp $
+* $Id: js_api.inc,v 1.132 2012/11/13 23:13:56 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.131 $
+* @version $Revision: 1.132 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -352,7 +352,20 @@ class JS_Api extends Page
 				$args = $functions_info[$track_func]['args'];
 				$blocking = (isset($functions_info[$track_func]['blocking']) && $functions_info[$track_func]['blocking']) ? TRUE : FALSE;
 				// let the user use 'id' and 'asset_id' to pass in the asset id to work on in the argmunets
-				if (!isset($args['id']) && isset($args['asset_id'])) $args['id'] = $args['asset_id'];
+				// bug fix #5945 Inconsistency witht he parameter needs to be passed to (advanced) JS API functions
+				// few of the functions in the advanced API passes the assetid as a different index name. Make sure
+				// to look for them and change it here.
+				if (!isset($args['id'])) {
+					if (isset($args['asset_id'])) {
+						$args['id'] = $args['asset_id'];
+					} else if (isset($args['child_id'])) {
+						$args['id'] = $args['child_id'];
+					} else if (isset($args['parentID'])) {
+						$args['id'] = $args['parentID'];
+					} else if (isset($args['parent_id'])) {
+						$args['id'] = $args['parent_id'];
+					}
+				}
 
 				// so we are batching requests
 				// in this case we get the assetid needed
@@ -1535,7 +1548,7 @@ class JS_Api extends Page
 			$old_link_value	= $args['old_link_value'];
 			$new_link_type	= defined($args['new_link_type']) ? constant($args['new_link_type']) : SQ_LINK_TYPE_1 ;
 			$new_link_value	= $args['new_link_value'];
-			$new_position	= $args['new_position'];
+			$new_position	= isset($args['new_position']) ? $args['new_position'] : -1;
 
 			// Remove our link
 			$data = $this->moveLink($old_parent->id, $asset->id, $old_link_type, $old_link_value, $new_parent->id, $new_link_type, $new_link_value, $new_position);
@@ -2072,7 +2085,7 @@ class JS_Api extends Page
 					'error' => 'No URL supplied'
 					);
 		}
-		$significant_link_only = array_get_index($args, 'significant_link_only', TRUE);	
+		$significant_link_only = array_get_index($args, 'significant_link_only', TRUE);
 
 		// cant get lineage of root_folder, DUHH !
 		if ($url == '1') return Array();
