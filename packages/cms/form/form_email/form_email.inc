@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.78 2012/08/30 00:58:08 ewang Exp $
+* $Id: form_email.inc,v 1.79 2012/11/13 04:57:04 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.78 $
+* @version $Revision: 1.79 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -645,6 +645,7 @@ class Form_Email extends Form
 					.' '.$current_value['text_format']
 					.' '.implode(', ', $current_value['to'])
 					.' '.$current_value['from']
+					.' '.$current_value['reply_to']
 					.' '.$current_value['subject'];
 
 		$all_keywords = extract_keywords($all_text);
