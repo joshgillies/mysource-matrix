@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: esec_processor_integration_interface.inc,v 1.11 2011/11/07 22:49:35 csmith Exp $
+* $Id: esec_processor_integration_interface.inc,v 1.11.4.1 2012/11/13 00:14:14 ewang Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/esec_processor.inc';
 *
 * @author  Andrei Railean		<arailean@squiz.net>
 * @author  Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.11.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -117,8 +117,8 @@ class Esec_Processor_Integration_Interface extends Esec_Processor
 				 'POST'           => 1,
 				 'POSTFIELDS'     => $post_params,
 				 'RETURNTRANSFER' => 1,
-				 'SSL_VERIFYPEER' => FALSE,
-				 'SSL_VERIFYHOST' => 1,
+				 'SSL_VERIFYPEER' => 1,
+				 'SSL_VERIFYHOST' => 2,
 				);
 		$details  = fetch_url($this->_url, $options);
 		$response = $details['response'];

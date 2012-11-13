@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: dps_processor.inc,v 1.5 2011/11/07 22:49:35 csmith Exp $
+* $Id: dps_processor.inc,v 1.5.4.1 2012/11/13 00:14:14 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ define('DPS_LOG_FILE_PREFIX', 'dps_transactions_account_');
 * @see Asset_Management
 *
 * @author  Edison Wang <ewang@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -433,8 +433,8 @@ class Dps_Processor
 				 'POST'           => 1,
 				 'POSTFIELDS'     => $cmdDoTxnTransaction,
 				 'RETURNTRANSFER' => 1,
-				 //'SSL_VERIFYPEER' => 1,//Needs to be included if no *.crt is available to verify SSL certificates
-				 'SSL_VERIFYHOST' => 1,
+				 'SSL_VERIFYPEER' => 1,//Needs to be included if no *.crt is available to verify SSL certificates
+				 'SSL_VERIFYHOST' => 2,
 				 'SSLVERSION'     => 3,
 				);
 
