@@ -10,36 +10,24 @@
  * | you a copy.                                                        |
  * +--------------------------------------------------------------------+
  *
- * $Id: system_integrity_fix_char_encoding.php,v 1.2.6.1 2012/09/26 00:46:13 cupreti Exp $
+ * $Id: system_integrity_fix_char_encoding.php,v 1.2.6.2 2012/11/13 00:28:20 ewang Exp $
  */
 
 /**
  * Script to replace the non-utf8 smart quotes chars by their regular counterpart chars and
  * if string is still invalid after replacement, perform charset conversion on string
+ * and then regenerates the content files (bodycopy, metadata and design) of the affected assets
  *
  * IMPORTANT: SYSTEM MUST BE BACKEDUP BEFORE RUNNING THIS SCRIPT!!!
  *
  * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
- * @version $Revision: 1.2.6.1 $
+ * @version $Revision: 1.2.6.2 $
  * @package MySource_Matrix
  */
 
 error_reporting(E_ALL);
 if ((php_sapi_name() != 'cli')) {
     trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
-}
-
-/**
- * Get CLI Argument
- * Check to see if the argument is set, if it has a value, return the value
- * otherwise return true if set, or false if not
- *
- * @params $arg string argument
- * @return string/boolean
- * @author Matthew Spurrier
-**/
-function getCLIArg($arg) {
-	return (count($match = array_values(preg_grep("/--" . $arg . "(\=(.*)|)/i",$_SERVER['argv']))) > 0 === TRUE) ? ((preg_match('/--(.*)=(.*)/',$match[0],$reg)) ? $reg[2] : true) : false;
 }
 
 $SYSTEM_ROOT = getCLIArg('system');
@@ -57,8 +45,6 @@ if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')
 
 if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');
 
-require_once $SYSTEM_ROOT.'/core/include/init.inc';
-
 $SYS_OLD_ENCODING = getCLIArg('old');
 if (!$SYS_OLD_ENCODING || !isValidCharset($SYS_OLD_ENCODING)) {
     echo  "\nERROR: The charset you specified '$SYS_OLD_ENCODING', as system's old encoding is not valid charset type.\n\n";
@@ -69,13 +55,23 @@ define('SYS_OLD_ENCODING',$SYS_OLD_ENCODING);
 
 $SYS_NEW_ENCODING = getCLIArg('new');
 if (!isValidCharset($SYS_NEW_ENCODING)) {
-    echo  "\nERROR: The charset you specified '$SYS_NEW_ENCODING', as system's new encoding is not valid charset type.\n\n";
+    echo  "\nERROR: The charset you specified '".$SYS_NEW_ENCODING."', as system's new encoding is not valid charset type.\n\n";
     print_usage();
     exit(1);
 }
 
-require_once $SYSTEM_ROOT.'/core/include/init.inc';
-define('SYS_NEW_ENCODING',($SYS_NEW_ENCODING) ? $SYS_NEW_ENCODING : SQ_CONF_DEFAULT_CHARACTER_SET);
+if (!empty($SYS_NEW_ENCODING)) {
+	define('SYS_NEW_ENCODING', $SYS_NEW_ENCODING);
+} else {
+	$config_file = file_get_contents($SYSTEM_ROOT.'/data/private/conf/main.inc');
+	preg_match("|SQ_CONF_DEFAULT_CHARACTER_SET',\s*'(.*?)'\);|", $config_file, $match);
+	if (empty($match[1])) {
+		echo "\nERROR: The default charset is not specified in the main.inc. Pleas specify the new charset to convert the system to.\n\n";
+		print_usage();
+		exit(1);
+	}
+	define('SYS_NEW_ENCODING', $match[1]);
+}
 
 $root_node_id = getCLIArg('rootnode');
 $root_node_id = ($root_node_id) ? $root_node_id : 1;
@@ -126,21 +122,6 @@ $tables = Array(
     ),
 );
 
-// Define the replacement chars
-//
-// Array(
-//	<ASCII value of char to replace> 	=> <replacement char>
-// )
-$replacements = Array(
-    '145' => "'",
-    '146' => "'",
-    '147' => "\"",
-    '148' => "\"",
-    '150' => "-",
-    '151' => "-",
-    '133' => '...',
-);
-
 if (SYS_OLD_ENCODING == SYS_NEW_ENCODING) {
     echo  "\nERROR: The old encoding ('" . SYS_OLD_ENCODING . "') is the same as the current/new character set.\n\n";
     print_usage();
@@ -151,23 +132,7 @@ if ($root_node_id == 1) {
     echo "\nWARNING: You are running this script on the whole system.\nThis is fine, but it may take a long time\n";
 }
 
-define('SCRIPT_LOG_FILE', SQ_SYSTEM_ROOT.'/data/private/logs/'.basename(__FILE__).'.log');
-
-// ask for the root password for the system
-echo 'Enter the root password for "'.SQ_CONF_SYSTEM_NAME.'": ';
-$root_password = rtrim(fgets(STDIN, 4094));
-
-// check that the correct root password was entered
-$root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
-if (!$root_user->comparePassword($root_password)) {
-    echo "ERROR: The root password entered was incorrect\n";
-    exit();
-}
-
-// log in as root
-if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
-    trigger_error("Failed login in as root user\n", E_USER_ERROR);
-}
+define('SCRIPT_LOG_FILE', $SYSTEM_ROOT.'/data/private/logs/'.basename(__FILE__).'.log');
 
 if (!$reportOnly) {
     echo "\nIMPORTANT: This script will replace all the smart quote chars by their regular counterpart chars. And if value string is still\n";
@@ -182,25 +147,75 @@ if (!$reportOnly) {
     }
 }
 
-// No turning back now. Start char fixing.
-fix_char_encoding($root_node_id, $tables, $replacements);
+// File to communicate between the child and parent process
+define('SYNC_FILE', $SYSTEM_ROOT.'/data/temp/system_integrity_fix_char_encoding.data');
+// Batch size when processing the asset contnet file regeneration
+define('BATCH_SIZE', '100');
 
-$GLOBALS['SQ_SYSTEM']->am->forgetAsset($root_user);
+ // No turning back now. Start char fixing.
+$start_time = microtime(TRUE);
+
+$pid = fork();
+if (!$pid) {
+
+    // NOTE: This seemingly ridiculousness allows us to workaround Oracle, forking and CLOBs
+    // if a query is executed that returns more than 1 LOB before a fork occurs,
+    // the Oracle DB connection will be lost inside the fork
+	require_once $SYSTEM_ROOT.'/core/include/init.inc';
+
+	$summary = fix_db($root_node_id, $tables);
+
+	// Get the list of assetids for which we need to regenerate  the filesystem content
+	// to reflect the changes made in the db
+	$affected_assetids = get_affected_assetids($summary['affected_assetids']);
+
+	// Also get the context ids
+	$contextids = array_keys($GLOBALS['SQ_SYSTEM']->getAllContexts());
+
+	file_put_contents(SYNC_FILE, serialize(Array('affected_assetids' => $affected_assetids, 'db_summary' => $summary, 'contextids' => $contextids)));
+
+	exit();
+
+}//end child process
+
+if (!is_file(SYNC_FILE)) {
+	echo "Expected sync file containing the affected assetids not found. Only database was updated\n";
+	exit(1);
+}
+
+$summary = unserialize(file_get_contents(SYNC_FILE));
+
+// Fix the filesystem content to reflect the changes made in the db
+if ($reportOnly == FALSE) {
+	regenerate_filesystem_content($summary['affected_assetids'], $summary['contextids']);
+
+	echo "Number of db records replaced successfully: ".$summary['db_summary']['records_fixed_count']."\n";
+	echo "Total errors recorded: ".$summary['db_summary']['error_count']."\n";
+} else {
+	echo "Number of db records that need replacing: ".$summary['db_summary']['records_fixed_count']."\n";
+}
+
+echo "Total time taken to run the script: ".round(microtime(TRUE)-$start_time, 2)." second(s)\n";
+
+if ($summary['db_summary']['error_count'] > 0)	{
+	echo "\nPlease check ".SCRIPT_LOG_FILE." file for errors\n\n";
+}
+echo "\n";
+
+exit();
 
 // End of Main program /////////////////////////////////
 
 
 /**
- * Fixes the char encoding in the given tables
+ * Fixes the char encoding in the given tables in the database
  *
  * @param int 	$root_node		Assetid of rootnode, all childern of rootnode will be processed for char replacement
  * @param array	$tables			DB tables and colunms info
- * @param array	$replacements	Char replacement array
- Array("ASCII Value of Char to be replced" => "New Char",)
  *
  * @return void
  */
-function fix_char_encoding($root_node, $tables, $replacements)
+function fix_db($root_node, $tables)
 {
     global $reportOnly;
 
@@ -213,12 +228,12 @@ function fix_char_encoding($root_node, $tables, $replacements)
     }
     echo "\n\nNumber of assets to look into : ".count($target_assetids)." \n";
 
-    $replacement_ords = array_keys($replacements);
-    $start_time = microtime(TRUE);
-
-    $errors                = array();
+    $errors                = Array();
     $records_fixed_count   = 0;
-    $invalid_asset_records = array();
+    $invalid_asset_records = Array();
+
+	// Assets that will require filesystem content regeneration
+	$affected_assetids = Array();
 
     $GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 
@@ -229,7 +244,7 @@ function fix_char_encoding($root_node, $tables, $replacements)
     foreach ($chunks as $assetids) {
         foreach($tables as $table => $fields) {
             $sql  = 'SELECT '.trim(implode(',',$fields),',').' FROM '.$table;
-            $sql .= ' WHERE assetid IN ('.implode(',', $assetids).')';
+            $sql .= ' WHERE assetid IN (\''.implode('\',\'', $assetids).'\')';
 
             $results = MatrixDAL::executeSqlAssoc($sql);
 
@@ -254,6 +269,7 @@ function fix_char_encoding($root_node, $tables, $replacements)
 
                 // If it's the same in the new and old encodings, that's good.
                 $checked = @iconv(SYS_OLD_ENCODING, SYS_NEW_ENCODING.'//IGNORE', $value);
+
                 if ($value === $checked) {
                     continue;
                 }
@@ -261,21 +277,11 @@ function fix_char_encoding($root_node, $tables, $replacements)
                 $update_required = FALSE;
                 $invalid_asset_records[] = array(
                     'asset' => $assetid,
-                    'table' => $table
+                    'table' => $table,
+                    'value' => $value,
                 );
 
-                // Carryout the non-uft8 smart quotes replacment
-                if (strtolower(SYS_NEW_ENCODING) == 'utf-8') {
-                    for ($i = 0; $i < strlen($value); $i++) {
-                        $ord = ord($value[$i]);
-                        if (in_array($ord, $replacement_ords)) {
-                            $value[$i] = $replacements[$ord];
-                            $update_required = TRUE;
-                        }
-                    }//end for
-                }//end if
-
-                // Check if the value is now valid
+				// Check if the value is now valid
                 if (!isValidValue($value)) {
                     // String might also contains the char(s) from older encoding which is/are not valid for current one
                     // See if we can convert these without igonoring or interprating any chars
@@ -332,9 +338,13 @@ function fix_char_encoding($root_node, $tables, $replacements)
 
                             $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
                             $records_fixed_count++;
+							$affected_assetids[$table][] = $assetid;
 
                         } catch (Exception $e) {
-                            $error++;
+                            $errors[] = array(
+								'asset' => $assetid,
+								'table' => $table,
+							);
                             $msg = "Unexpected error occured while updating database: ".$e->getMessage();
                             log_error_msg($msg);
 
@@ -342,21 +352,25 @@ function fix_char_encoding($root_node, $tables, $replacements)
                         }
                     } else {
                         $records_fixed_count++;
+						// For reporting purpose only
+						$affected_assetids[$table][] = $assetid;
                     }
                 } else {
                     // This record contained invalid value. Either the invalid char(s) in it was/were not in the replacement array
                     // or trying to carryout charset conversion (without losing any data) still resulted into invalid value
-                    // Hence replacement was not carried out
+                    // Hence replacement was not carried out.
                     $errors[] = array(
-                        'asset' => $assetid,
-                        'table' => $table,
-                    );
+                                 'asset' => $assetid,
+                                 'table' => $table,
+                                 'value' => $value,
+                                );
 
                     $msg = "Asset with ".$fields['assetid']."=#$assetid, ".
                         (!is_null($key) ? $fields['key']."=#$key, and " : "and ").
                         $fields['contextid']."=#$contextid in table $table ".
                         "contains invalid char(s), which were not replaced because ".
-                        "either those invalid chars were not defined in the replacement array or the charset conversion was not successful";
+                        "either those invalid chars were not defined in the replacement array or the charset conversion was not successful".
+                        "\nPotentially invalid characters include: ".listProblematicCharacters($value);
                     log_error_msg($msg);
                 }
 
@@ -374,26 +388,190 @@ function fix_char_encoding($root_node, $tables, $replacements)
     echo "Number of db records with invalid char(s): ".$invalid_count."\n";
     if ($invalid_count > 0) {
         foreach ($invalid_asset_records as $k => $details) {
-            echo "\tAsset: ".$details['asset']." in table ".$details['table']."\n";
+            echo "\tAsset: ".$details['asset']." in table ".$details['table'];
+            echo "\tPossibly problematic characters: ".listProblematicCharacters($details['value'])."\n";
         }
         echo "\n";
     }
 
-    $error_count = sizeof(array_keys($errors));
-    if ($reportOnly == FALSE) {
-        echo "Number of db records replaced successfully: $records_fixed_count\n";
-        echo "Total errors recorded: ".$error_count."\n";
-    } else {
-        echo "Number of db records that need replacing: $records_fixed_count\n";
-    }
-    echo "Total time taken to run the script: ".round(microtime(TRUE)-$start_time, 2)." second(s)\n";
+	return Array(
+			'error_count' => sizeof(array_keys($errors)),
+			'records_fixed_count' => $records_fixed_count,
+			'affected_assetids' => $affected_assetids,
+		);
 
-    if ($error_count > 0)	{
-        echo "\nPlease check ".SCRIPT_LOG_FILE." file for errors\n\n";
-    }
-    echo "\n";
+}//end fix_db()
 
-}//end replace_characters()
+
+/**
+* Get the list of affected assetids based in data updated in the db
+* (see fix_db())
+*
+* @param array $data	Info about the assetids updated in the in db
+* Array(<table_name> => Array(<list of assetids>))
+*
+* @return array
+*/
+function get_affected_assetids($data)
+{
+	// List of relevant assetids to regenerate the filesystem content
+	$affected_assetids = Array(
+				'bodycopy_content_file' => Array(),
+				'metadata_file' => Array(),
+				'design_file' => Array(),
+			);
+
+	echo "Getting the list of assetids that needs content regeneration ...";
+	foreach($data as $table_type => $assetids) {
+		switch($table_type) {
+			case 'sq_ast_mdata_val':
+				$affected_assetids['metadata_file'] = array_merge($affected_assetids['metadata_file'], $assetids);
+				echo ".";
+			break;
+
+			case 'sq_ast_mdata_dflt_val':
+				$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+				foreach($assetids as $mfield_assetid) {
+					// Get all the asset that has this schema applied
+					$schemaid = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($mfield_assetid, 'metadata_schema'));
+					$affected_assetids['metadata_file'] = array_merge($affected_assetids['metadata_file'], $mm->getSchemaAssetids());
+					echo ".";
+				}//end foreach
+			break;
+
+			case 'sq_ast_attr_val':
+				// Get list of Design assets that needs to be regenerated
+				$affected_assetids['design_file'] = array_keys($GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids, Array('design','design_css'), TRUE));
+
+				echo ".";
+				// and list of Bodycopy Container assets
+				$content_type_assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids, Array('content_type'), FALSE));
+				foreach($content_type_assetids as $assetid) {
+					$bodycopy_container_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, SQ_LINK_TYPE_2, Array('bodycopy_container'), FALSE, 'minor');
+					if (isset($bodycopy_container_link[0]['majorid'])) {
+						// This bodycopy content file needs to be generated
+						$affected_assetids['bodycopy_content_file'][] = $bodycopy_container_link[0]['majorid'];
+					}
+					echo ".";
+				}//end foreach
+
+			break;
+		}//end switch
+	}//end foreach
+
+	// Remove the duplicates from the assetid list
+	$affected_assetids['metadata_file'] = array_unique($affected_assetids['metadata_file']);
+	$affected_assetids['bodycopy_content_file'] = array_unique($affected_assetids['bodycopy_content_file']);
+	$affected_assetids['design_file'] = array_unique($affected_assetids['design_file']);
+
+	// Chunk the assets into the batches
+	$batched_assetids = Array();
+	foreach($affected_assetids as $type => $type_assetids) {
+		$start_index = 0;
+		$asset_count = count($type_assetids);
+		$batched_assetids[$type] = Array();
+		while($start_index < $asset_count) {
+			$batched_assetids[$type][] = array_slice($type_assetids, $start_index, BATCH_SIZE);
+			$start_index += BATCH_SIZE;
+		}//end while
+	}//end foreach
+
+	unset($affected_assetids);
+	echo " done.\n";
+
+	return $batched_assetids;
+
+}//end get_affected_assetids()
+
+
+/**
+* Regenerate the content files in the file system
+*
+* @param array	$assets_data	Asset that needs content regeneration
+* Array(
+*	'bodycopy_content_file' => Array(<bodycopy container assetids>),
+*	'metadata_file' => Array(<assetids>),
+*	'design_file' => Array(<design assetids>),
+*   )
+* @param array	$contextids
+*
+* @return void
+*/
+function regenerate_filesystem_content($assets_data, $contextids)
+{
+	global $SYSTEM_ROOT;
+
+	echo "\n";
+
+	foreach($assets_data as $type => $assets_batch) {
+		if (empty($assets_batch)) {
+			continue;
+		}
+
+		echo "Regenerating the ".str_replace('_', ' ', $type). " ...";
+		foreach($assets_batch as $assetids) {
+			$pid = fork();
+			if (!$pid) {
+
+				// Do the stuff in the child process
+				require_once $SYSTEM_ROOT.'/core/include/init.inc';
+				$root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+				$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user);
+
+				$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+				$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+
+				foreach($contextids as $contextid) {
+					$GLOBALS['SQ_SYSTEM']->changeContext($contextid);
+
+					foreach($assetids as $assetid) {
+						$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+						if (is_null($asset)) {
+							continue;
+						}
+						if ($type == 'bodycopy_content_file') {
+							// Its a bodycopy container asset
+							$bodycopy_container_edit_fns = $asset->getEditFns();
+							$bodycopy_container_edit_fns->generateContentFile($asset);
+						} else if ($type == 'metadata_file') {
+							// Do not trigger "update asset" event when regenerating metadata
+							$mm->regenerateMetadata($assetid, NULL, FALSE);
+						} else {
+							// If we're not a design for some reason, continue
+							if (!($asset instanceof Design)) continue;
+							$design_edit_fns = $asset->getEditFns();
+							// Parse and process the design, if successful generate the design file
+							if (@$design_edit_fns->parseAndProcessFile($asset)) @$asset->generateDesignFile(false);
+							// Update respective design customisations
+							$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, SQ_LINK_TYPE_2, 'design_customisation', true, 'major', 'customisation');
+							foreach($customisation_links as $link) {
+								$customisation = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+								if (is_null($customisation)) continue;
+								@$customisation->updateFromParent($design);
+								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($customisation);
+							}
+						}
+
+						$asset = $GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+
+						echo ".";
+					}//end foreach assetids
+
+					$GLOBALS['SQ_SYSTEM']->restoreContext();
+				}//end foreach contexts
+
+				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+				$GLOBALS['SQ_SYSTEM']->restoreCurrentUser();
+
+				exit();
+			}//end child process
+
+		}//end foreach asset batch
+		echo " done.\n";
+
+	}//end foreach type
+
+}//end regenerate_filesystem_content()
 
 
 /**
@@ -436,9 +614,54 @@ function log_error_msg($msg)
 }
 
 
+/*
+* Fork child process. The parent process will sleep until the child
+* exits
+*
+* @return string
+*/
+function fork()
+{
+    $child_pid = pcntl_fork();
+
+    switch ($child_pid) {
+        case -1:
+            trigger_error("Forking failed!");
+            return null;
+        break;
+        case 0: // child process
+            return $child_pid;
+        break;
+        default : // parent process
+            $status = null;
+            pcntl_waitpid(-1, $status);
+            return $child_pid;
+        break;
+    }
+}//end fork()
+
+
+/**
+ * Get CLI Argument
+ * Check to see if the argument is set, if it has a value, return the value
+ * otherwise return true if set, or false if not
+ *
+ * @params $arg string argument
+ *
+ * @return string/boolean
+ * @author Matthew Spurrier
+ */
+function getCLIArg($arg)
+{
+	return (count($match = array_values(preg_grep("/--" . $arg . "(\=(.*)|)/i",$_SERVER['argv']))) > 0 === TRUE) ? ((preg_match('/--(.*)=(.*)/',$match[0],$reg)) ? $reg[2] : true) : false;
+
+}//end getCLIArg()
+
+
 /**
  * Print the usage of this script
  *
+ * @return void
  */
 function print_usage()
 {
@@ -448,8 +671,8 @@ function print_usage()
 
     echo "Usage: php ".basename(__FILE__)." --system=<SYSTEM_ROOT> --old=<OLD_CHARSET> [--new=<NEW_CHARSET>] [--rootnode=<ROOT_NODE>] [--report]\n\n";
     echo "\t<SYSTEM_ROOT> : The root directory of Matrix system.\n";
-    echo "\t<OLD_CHARSET> : Previous charset of the system. (eg. UTF-8, ISO-8859-1, etc)\n";
-    echo "\t<NEW_CHARSET> : New charset of the system. (eg. UTF-8, ISO-8859-1, etc)\n";
+    echo "\t<OLD_CHARSET> : Previous charset of the system. (eg. UTF-8, Windows-1252, etc)\n";
+    echo "\t<NEW_CHARSET> : New charset of the system. (eg. UTF-8, Windows-1252, etc)\n";
     echo "\t<ROOT_NODE>   : Assetid of the rootnode (all children of the rootnode will be processed by the script).\n";
     echo "\t<--report>    : Issue a report only instead of also trying to convert the assets.\n";
 
@@ -457,4 +680,58 @@ function print_usage()
 
 }//end print_usage()
 
+
+/**
+ * Convert all multi-byte characters to entities.
+ *
+ * @param string $str The string to convert.
+ *
+ * @return string
+ */
+function htmlallentities($str)
+{
+    $res    = '';
+    $strlen = strlen($str);
+    for ($i = 0; $i < $strlen; $i++) {
+        $byte = ord($str[$i]);
+        if($byte < 128) // 1-byte char
+            $res .= $str[$i];
+        elseif($byte < 192) // invalid utf8
+            $res .= '&#'.ord($str[$i]).';';
+        elseif($byte < 224) // 2-byte char
+            $res .= '&#'.((63&$byte)*64 + (63&ord($str[++$i]))).';';
+        elseif($byte < 240) // 3-byte char
+            $res .= '&#'.((15&$byte)*4096 + (63&ord($str[++$i]))*64 + (63&ord($str[++$i]))).';';
+        elseif($byte < 248) // 4-byte char
+        $res .= '&#'.((15&$byte)*262144 + (63&ord($str[++$i]))*4096 + (63&ord($str[++$i]))*64 + (63&ord($str[++$i]))).';';
+    }
+
+    return $res;
+
+}//end htmlallentities()
+
+
+/**
+ * Report potentially problematic characters.
+ *
+ * @param string $value A string containing problematic characters.
+ *
+ * @return string
+ */
+function listProblematicCharacters($value)
+{
+    $entified = htmlallentities($value);
+    preg_match_all('/&#([0-9]+);/', $entified, $matches);
+    $codes     = array_unique($matches[1]);
+    $probChars = '';
+    foreach ($codes as $code) {
+		$probChars .= html_entity_decode('&#'.$code.';', ENT_COMPAT, 'utf-8').' ('.$code.'), ';
+    }
+
+    return preg_replace('/,\s*$/', '', $probChars);
+
+}//end listProblematicCharacters()
+
+
 ?>
+
