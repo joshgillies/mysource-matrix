@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.888.2.1 2012/10/04 01:07:07 ewang Exp $
+* $Id: asset_manager.inc,v 1.888.2.2 2012/11/14 23:58:05 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.888.2.1 $
+* @version $Revision: 1.888.2.2 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -931,11 +931,11 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getAttributeValuesByName($attr_name, $asset_type, $assetids, $contextid=NULL)
 	{
-		if (empty($assetids)) return Array();		
+		if (empty($assetids)) return Array();
 
 		// Create a list of separated assetids and shadow assetids
 		$shadowids = Array();
-		$normalids = Array();		
+		$normalids = Array();
 		foreach ($assetids as $one_id) {
 			$id_parts = explode(':', $one_id);
 			if (isset($id_parts[1])) {
@@ -956,10 +956,10 @@ class Asset_Manager extends MySource_Object
 				$shadow_results += $asset->getAttributeValuesByName($attr_name, $asset_type, $shadows, $contextid);
 			}//end if
 		}//end foreach
-		
+
 		// breakout if nothing left to do
-		if (empty($assetids)) return $shadow_results;		
-		
+		if (empty($assetids)) return $shadow_results;
+
 		if ($contextid === NULL) {
 			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 		}
@@ -1015,7 +1015,7 @@ class Asset_Manager extends MySource_Object
 				$where .= ' AND contextid = :contextid';
 				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 				$sql .= $where;
-				$bind_vars['contextid'] = $contextid;				
+				$bind_vars['contextid'] = $contextid;
 			}
 			else {
 				/**
@@ -1030,19 +1030,19 @@ class Asset_Manager extends MySource_Object
 				* the second part gets the right asset id's
 				* then intersect
 				*/
-	
+
 				$sql1 = 'SELECT assetid, custom_val
 						FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val';
 				$where1 = 'attrid IN ('.$sub_sql.') ';
 				$where1 .= ' AND contextid = :contextid_1';
 				$where1 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where1);
-	
+
 				$sql2 = 'SELECT assetid, custom_val
 						FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val';
 				$where2 = $in;
 				$where2 .= ' AND contextid = :contextid_2';
 				$where2 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where2);
-	
+
 				$sql = $sql1 . $where1 . ' INTERSECT ' . $sql2 . $where2;
 				$bind_vars['contextid_1'] = $contextid;
 				$bind_vars['contextid_2'] = $contextid;
@@ -1098,12 +1098,12 @@ class Asset_Manager extends MySource_Object
 
 	}//end getAttributeValuesByName()
 
-	
+
 	/**
 	* Get all the attribute values of the given assetid and type code.
 	* This method is similar to asset:_loadVars() except it does not unserialize any attributes.
 	* Return array of name => array (attrid, type, value, is_contextable, use_default)
-	* 
+	*
 	* If there are no custom value for an attribute, its default value will be loaded.
 	* If no asset ID is provided, this function just loads the default values for the asset type.
 	* This method will also allow you to get attribute values for a different context.
@@ -1118,7 +1118,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getAllAttributeValues($assetid='', $type_code, $contextid=NULL)
 	{
-		
+
 		if ($contextid === NULL) {
 			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 		}
@@ -1172,7 +1172,7 @@ class Asset_Manager extends MySource_Object
 		return $vars;
 
 	}//end getAllAttributeValues()
-	
+
 //--        ASSETS        --//
 
 
@@ -1257,7 +1257,7 @@ class Asset_Manager extends MySource_Object
 			$this->forgetAsset($bridge);
 
 		} else {
-		
+
 			if (empty($type_code)) {
 				$sql = 'SELECT type_code FROM '.SQ_TABLE_RUNNING_PREFIX.'ast ';
 				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('assetid = :assetid');
@@ -1293,7 +1293,7 @@ class Asset_Manager extends MySource_Object
 		if (isset($asset)) {
 			$this->_get_asset_history[] = $assetid;
 			$this->_asset_cache->add($asset, $contextid.'\\'.$asset->id);
-			
+
 			$deja_vu = $GLOBALS['SQ_SYSTEM']->getDejaVu();
 			if ($deja_vu &&  !($asset->status & SQ_SC_STATUS_SAFE_EDITING)) {
 				$deja_vu->remember(SQ_DEJA_VU_ASSET, $asset->id, $asset);
@@ -2105,9 +2105,9 @@ class Asset_Manager extends MySource_Object
 				if (!$link['asset']->cloneComponents($clone, $nonlink_parent_components)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-					
+
 					$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-					
+
 					return $null;
 				}
 				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
@@ -2141,6 +2141,10 @@ class Asset_Manager extends MySource_Object
 			return $clone_result;
 		}
 
+		// enhancement #5988 Cloning an asset loses it "Force Secure" option
+		// set the required properties of the cloned asset same as the source
+		$clone->setForceSecure($source->force_secure);
+
 		// clone the other links
 		if (!$source->cloneLinks($clone)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -2166,9 +2170,9 @@ class Asset_Manager extends MySource_Object
 				if (!empty($link_parent_components) && !$link['asset']->cloneComponents($clone, $link_parent_components)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-					
+
 					$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-					
+
 					return $null;
 				}
 				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
@@ -2388,7 +2392,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 		// contents and some other components are not index for this cloned asset because the
-		// asset link wasnt created to its parent. 
+		// asset link wasnt created to its parent.
 		// Bug Fix - #4615 Cloning an Asset doesnt re-index all the components
 		$sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 		if(!is_null($sm)) {
@@ -3726,7 +3730,7 @@ class Asset_Manager extends MySource_Object
 			return $link_lineages;
 
 		}//end if shadow asset
-		
+
 		// Bug Fix #3535 - Binocular icon disappears if NOTICE links overcrowd other links
 		if ($only_significant) {
 			$link_types = SQ_SC_LINK_SIGNIFICANT;
@@ -3746,7 +3750,7 @@ class Asset_Manager extends MySource_Object
 		$bind_vars['link_types'] = $link_types;
 		$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'l');
 		$sub_sql  .= $sub_where;
-		
+
 		$sql = 'SELECT ct.treeid as our_treeid, cl.minorid, pt.treeid as parent_treeid, a.assetid, '.$fields_str.'
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk cl
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree ct ON cl.linkid = ct.linkid
@@ -3803,7 +3807,7 @@ class Asset_Manager extends MySource_Object
 				MatrixDAL::bindValueToPdo($tree_query, $bind_var, $bind_value);
 			}
 			$tree_result = MatrixDAL::executePdoAssoc($tree_query);
-		
+
 		} catch (Exception $e) {
 			throw $e;
 		}
@@ -3855,7 +3859,7 @@ class Asset_Manager extends MySource_Object
 			 */
 			$result = array();
 		}
-		
+
 		$asset_links = $this->getLinks($assetid, $link_types, '', TRUE, 'minor');
 
 		$link_info = Array();
@@ -4085,8 +4089,8 @@ class Asset_Manager extends MySource_Object
 	* @param string|array	$link_value_wanted		Link value wanted
 	* @param array			$link_types_wanted		link_type we want our results to be filtered by. By default it uses
 	*												empty array which mean it will return all the link_types
-	*												Other values that can be used in the array : SQ_LINK_TYPE_1, SQ_LINK_TYPE_2, 
-	*												SQ_LINK_TYPE_3, SQ_LINK_NOTICE, SQ_SC_LINK_FRONTEND_NAV, 
+	*												Other values that can be used in the array : SQ_LINK_TYPE_1, SQ_LINK_TYPE_2,
+	*												SQ_LINK_TYPE_3, SQ_LINK_NOTICE, SQ_SC_LINK_FRONTEND_NAV,
 	*												SQ_SC_LINK_BACKEND_NAV, SQ_SC_LINK_SIGNIFICANT, SQ_SC_LINK_WEB_PATHS
 	* @param boolean		$expand_shadows			Get shadow children of shadow asset links. Enable this where necessary but keep performance in mind.
 	*
@@ -4159,9 +4163,9 @@ class Asset_Manager extends MySource_Object
 					$children = $this->getChildren($child_id, $type_code, $strict_type_code, $dependant, $sort_by);
 					$result += $children;
 				}
-			}	
+			}
 		}
-		
+
 		if (!is_null($sort_by)) {
 			$children = Array();
 			foreach ($result as $assetid => $asset_info) {
@@ -5229,7 +5233,7 @@ class Asset_Manager extends MySource_Object
 
 				try {
 					$sql = db_extras_modify_limit_clause($sql, MatrixDAL::getDbType(), 1);
-				
+
 					$bind_vars = Array();
 					if (!$is_oci) {
 						$sql = str_replace(':treeid_wildcard', MatrixDAL::quote($treeid.$free_treeid.':%'), $sql);
@@ -5276,7 +5280,7 @@ class Asset_Manager extends MySource_Object
 					try {
 						$bind_vars = Array();
 						if (!$is_oci) {
-							$sql = str_replace(':treeid_wildcard', MatrixDAL::quote($treeid.$free_treeid.':%'), $sql);							
+							$sql = str_replace(':treeid_wildcard', MatrixDAL::quote($treeid.$free_treeid.':%'), $sql);
 						} else {
 							$bind_vars['treeid_wildcard'] = $treeid.$free_treeid.':%';
 						}
@@ -5298,7 +5302,7 @@ class Asset_Manager extends MySource_Object
 					// link ID worked, then we've won this tree ID
 					if ($aff_rows != 0) {
 						// before we declare won tree ID, we have to double check if other processes also declare won tree ID
-						// this could happen because above "UPDATE .. AND NOT EXISTS" query is not granular enough. 
+						// this could happen because above "UPDATE .. AND NOT EXISTS" query is not granular enough.
 						// every concurrent processes may think others NOT EXIST, and therefore all UPDATE at the same time.
 						$sql = 'SELECT count(1) FROM sq_ast_lnk_tree
 						    WHERE
@@ -5311,7 +5315,7 @@ class Asset_Manager extends MySource_Object
 						$bind_vars = Array();
 						$bind_vars['treeid'] = $treeid.$free_treeid;
 						if (!$is_oci) {
-							$sql = str_replace(':treeid_wildcard', MatrixDAL::quote($treeid.$free_treeid.':%'), $sql);							
+							$sql = str_replace(':treeid_wildcard', MatrixDAL::quote($treeid.$free_treeid.':%'), $sql);
 						} else {
 							$bind_vars['treeid_wildcard'] = $treeid.$free_treeid.':%';
 						}
@@ -5347,7 +5351,7 @@ class Asset_Manager extends MySource_Object
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 				$i++;
-			// only try to do this 200 times. more tries, better chance to avoid concurrency deadlock. 
+			// only try to do this 200 times. more tries, better chance to avoid concurrency deadlock.
 			// but too many tries could freeze the process by exceeding max execution time
 			} while ($i < 200);
 
@@ -6404,7 +6408,7 @@ class Asset_Manager extends MySource_Object
 	*
 	* @param Array		$link			the link we are supposed to delete
 	* @param boolean	$check_locked	Check if the link is locked or not
-	* @param boolean	$aborting	    set to TRUE when link to be deleted belongs an asset 
+	* @param boolean	$aborting	    set to TRUE when link to be deleted belongs an asset
 										that was just aborted (TRUE when called by Asset->_abortCreate())
 	*
 	* @return boolean
@@ -6416,7 +6420,7 @@ class Asset_Manager extends MySource_Object
 			return FALSE;
 		}
 		$linkid = $link['linkid'];
-		
+
 		// Check if link is locked and cannot be deleted
 		if ($check_locked && $link['locked'] == '1') {
 			trigger_localised_error('SYS0334', E_USER_WARNING, $linkid);
@@ -6428,10 +6432,10 @@ class Asset_Manager extends MySource_Object
 		if (is_null($major) || is_null($minor)) {
 			return FALSE;
 		}
-		
+
 		$asset_was_locked = FALSE;
 		$parent_was_locked = FALSE;
-		
+
 		if (!$aborting) {
             // Acquire some locks if necessary
             if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
@@ -6700,9 +6704,9 @@ class Asset_Manager extends MySource_Object
                 }
             }
 		}
-		
+
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(); // finished with db2
-		
+
 		return TRUE;
 
 	}//end deleteAssetLinkByLink()
@@ -6789,7 +6793,7 @@ class Asset_Manager extends MySource_Object
 		if (strpos($assetid, ':') !== FALSE) {
 			return $trash_errors;
 		}
-		
+
 		$asset = $this->getAsset($assetid);
 
 		// If we are ignoring other backend links (so we can provide a status),
@@ -6900,7 +6904,7 @@ class Asset_Manager extends MySource_Object
 		// trash requests are charged at $4.95 a minute
 		// please ask your parents for permission before trashing
 		$parent_links = $this->getLinks($assetid, SQ_SC_LINK_ALL, '', TRUE, 'minor');
-		
+
 		$locked = Array();
 		foreach ($parent_links as $index => $link_details) {
 			$asset = $this->getAsset($link_details['majorid']);
@@ -6936,7 +6940,7 @@ class Asset_Manager extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$trashid = $this->getSystemAssetid('trash_folder');
-		
+
 		$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() | SQ_SECURITY_LINK_INTEGRITY);
 		foreach ($parent_links as $link_details) {
 			// don't delete the link to the trash, we don't want to end up with an orphan asset
@@ -6954,7 +6958,7 @@ class Asset_Manager extends MySource_Object
 			}
 		}
 		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-		
+
 		foreach ($locked as $aid) {
 			$this->releaseLock($aid, 'links');
 		}
@@ -7595,7 +7599,7 @@ class Asset_Manager extends MySource_Object
 			trigger_localised_error('SYS0313', E_USER_WARNING, $asset->name);
 			return FALSE;
 		}
-		
+
 		// Validate role and user assets
 		if (!empty($roleid)) {
 			$role_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($roleid, Array('role'));
@@ -7979,7 +7983,7 @@ class Asset_Manager extends MySource_Object
 		$urls = get_url_lineage($url, TRUE);
 		$urls[] = MatrixDAL::quote($url);
 		$in_sql = implode(',', $urls);
-		
+
 		$db_type = MatrixDAL::getDbType();
 
 		$where = 'l.root_urlid = '.(int)$root_url['urlid'].'
@@ -8064,8 +8068,8 @@ class Asset_Manager extends MySource_Object
 			}//end if
 		}//end if
 
-		
-		
+
+
 		// Check whether the asset is in Safe edit. If it is, load the save version of asset.
 		// for name and short_name attribute
 		foreach ($result as $key => $entry) {
@@ -8094,10 +8098,10 @@ class Asset_Manager extends MySource_Object
 
 	}//end getLineageFromURL()
 
-	
+
 	/**
 	* Given lineage of asset ids from top to bottom, this funciton will pick an URL of the bottom asset (current asset)
-	* that matches with given lineage. 
+	* that matches with given lineage.
 	*
 	*
 	* @param array		$lineage		array of asset ids from top to bottom
@@ -8111,7 +8115,7 @@ class Asset_Manager extends MySource_Object
 		// get the current asset's all urls
 		$current_asset_id = array_pop($lineage);
 		$candidate_urls = $this->getURLs($current_asset_id);
-		
+
 		// reverse traverse the lineage array to allow filtering special site urls
 		// e.g siteA has url site.com,  siteB has url site.com/B
 		// if an asset is linked to both sites and given lineage of siteA. we can inspect from bottom lineage to top,
@@ -8120,7 +8124,7 @@ class Asset_Manager extends MySource_Object
 		foreach ($lineage as $assetid) {
 		    $done_urls = Array();
 		    $asset_urls = $this->getURLs(trim($assetid));
-		   
+
 		    foreach ($candidate_urls as $candidate_url) {
 			foreach ($asset_urls as $asset_url) {
 			    if(strpos($candidate_url['url'], $asset_url['url']) === 0) {
@@ -8133,8 +8137,8 @@ class Asset_Manager extends MySource_Object
 		    }
 		    $candidate_urls = array_values($done_urls);
 		}
-		
-		
+
+
 		$result = Array();
 		foreach ($candidate_urls as $url) {
 		    // filter out those don't match with root url
@@ -8142,24 +8146,24 @@ class Asset_Manager extends MySource_Object
 			 $root_url = preg_replace('/^http(s)?:\/\//', '', $root_url);
 			if(strpos($url['url'], $root_url) !== 0) continue;
 		    }
-		    
+
 		    // https and http are different urls
 		    if($url['http']) {
-			if(empty($protocol) ||  $protocol === 'http')		
-			    $result[] = 'http://' . $url['url'];
+				if(empty($protocol) ||  $protocol === 'http')
+				    $result[] = 'http://' . $url['url'];
 		    }
 		    if($url['https']) {
-			if(empty($protocol) ||  $protocol === 'https')
-			    $result[] = 'https://' . $url['url'];
+				if(empty($protocol) ||  $protocol === 'https')
+				    $result[] = 'https://' . $url['url'];
 		    }
-		
+
 		}
 
 		return $result;
-	    
+
 	}//end getUrlFromLineage()
-	
-	
+
+
 	/**
 	* Return the design for the passed URL
 	*
@@ -8177,7 +8181,7 @@ class Asset_Manager extends MySource_Object
 		$urls[] = MatrixDAL::quote($url); //applied
 		$urls[] = MatrixDAL::quote($url.'/'); //override
 		$urls = implode(',', $urls);
-		
+
 		/**
 		* Since we have the url,
 		* we don't need to include the ast_lookup table in the query.
@@ -8253,7 +8257,7 @@ class Asset_Manager extends MySource_Object
 	* @param string	 $url			the url to get the design for
 	* @param string	 $value_name	the code for the design/layout (eg. design/paint_layout::system::frontend),
 	* 								the code pattern if using $like_value (eg. design/paint_layout::%)
-	* @param boolean $like_value	TRUE = LIKE $value_name, otherwise direct match to $value_name	
+	* @param boolean $like_value	TRUE = LIKE $value_name, otherwise direct match to $value_name
 	*
 	* @return string
 	* @access public
@@ -8266,7 +8270,7 @@ class Asset_Manager extends MySource_Object
 		$urls[] = MatrixDAL::quote($url); //applied
 		$urls[] = MatrixDAL::quote($url.'/'); //override
 		$urls = implode(',', $urls);
-		
+
 		$sql = 'SELECT value, depth 
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value';
 
@@ -8275,12 +8279,12 @@ class Asset_Manager extends MySource_Object
 		} else {
 			$where = 'name = :value_name';
 		}
-		
+
 		$where .= ' AND url IN ( '.$urls.' )';
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 		$order_by = ' ORDER BY depth DESC';
-		
+
 		try {
 			$query = MatrixDAL::preparePdoQuery($sql.$where.$order_by);
 			MatrixDAL::bindValueToPdo($query, 'value_name', $value_name);
@@ -9245,8 +9249,8 @@ class Asset_Manager extends MySource_Object
 	*												one call to this function in a query (through a UNION, say).
 	* @param array			$link_types_wanted		link_type we want our results to be filtered by. By default it uses
 	*												empty array which mean it will return all the link_types
-	*												Other values that can be used in the array : SQ_LINK_TYPE_1, SQ_LINK_TYPE_2, 
-	*												SQ_LINK_TYPE_3, SQ_LINK_NOTICE, SQ_SC_LINK_FRONTEND_NAV, 
+	*												Other values that can be used in the array : SQ_LINK_TYPE_1, SQ_LINK_TYPE_2,
+	*												SQ_LINK_TYPE_3, SQ_LINK_NOTICE, SQ_SC_LINK_FRONTEND_NAV,
 	*												SQ_SC_LINK_BACKEND_NAV, SQ_SC_LINK_SIGNIFICANT, SQ_SC_LINK_WEB_PATHS
 	*
 	*
@@ -9412,7 +9416,7 @@ class Asset_Manager extends MySource_Object
 				}
 
 				$ds_where = str_replace(':'.$bind_prefix, ':'.$bind_prefix.'ds_', $where);
-				
+
 				# See bug 4914 for why this is a left join and not a subselect.
 				# We also need to do the link_type check when doing the shadow_ids part.
 				$union_where = "((".$union_where.") OR (shadow_ids.minorid IS NOT NULL AND sl.link_type != ".SQ_LINK_NOTICE."))";
@@ -9827,7 +9831,7 @@ class Asset_Manager extends MySource_Object
 								$where_string .= MatrixDAL::Quote($treeid) . ',';
 								$trees_done[] = $treeid;
 							}
-							
+
 							$treeid = substr($treeid, 0, -SQ_CONF_ASSET_TREE_SIZE);
 						}
 					}
@@ -10378,8 +10382,8 @@ class Asset_Manager extends MySource_Object
 		return $result;
 
 	}//end getDesignHideFrameValues()
-	
-	
+
+
 	/**
 	* Checks whehter the given asset is under specific root nodes
 	*
@@ -10394,7 +10398,7 @@ class Asset_Manager extends MySource_Object
 		assert_valid_assetid($assetid);
 		if (empty($root_nodes)) return FALSE;
 		$matched_root_nodes = Array();
-		
+
 		// get treeids of root nodes
 		$root_node_treeids = $this->getAssetTreeids($root_nodes);
 
@@ -10409,14 +10413,14 @@ class Asset_Manager extends MySource_Object
 		//    [0] => t.treeid LIKE '00060000%'
 		//    [1] => t.treeid LIKE '00060001%'
 		//    [2] => t.treeid LIKE '000600020000%'
-		//)	
+		//)
 		$all_root_treeids = Array();
 		foreach ($root_node_treeids as $root_node_assetid => $treeids) {
 			foreach ($treeids as $treeid) {
 				$all_root_treeids[] = 't.treeid LIKE '. MatrixDAL::quote($treeid[0] . '%');
 			}//end foreach
 		}//end foreach
-		
+
 		// query the db to see if the asset is under the treeids
 		$sql = 'SELECT l.majorid, t.treeid
 				FROM sq_ast_lnk l JOIN sq_ast_lnk_tree t ON l.linkid=t.linkid 
@@ -10447,8 +10451,8 @@ class Asset_Manager extends MySource_Object
 			// return the root nodes that matched
 			return $matched_root_nodes;
 		}
-		
-	
+
+
 	}//end isUnderRootNodes()
 
 }//end class
