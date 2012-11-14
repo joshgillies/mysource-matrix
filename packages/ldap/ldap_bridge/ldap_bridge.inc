@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.111.2.2 2012/10/10 00:55:39 akarelia Exp $
+* $Id: ldap_bridge.inc,v 1.111.2.3 2012/11/14 01:02:06 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.111.2.2 $
+* @version $Revision: 1.111.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -713,7 +713,7 @@ class LDAP_Bridge extends Asset implements Bridge
 			$attrs = $this->attr('attributes');
 			$assetid = $this->decodeString($assetid);
 
-			$result = $ldap->search($assetid,'(objectClass=*)', NULL, TRUE, TRUE, array_merge(array_values($attrs), Array('objectclass')));
+			$result = $ldap->search($assetid,'(objectClass=*)', NULL, FALSE, FALSE, array_merge(array_values($attrs), Array('objectclass')));
 			if (!$result) return Array();
 
 			$data = $ldap->getEntries($result);
@@ -765,7 +765,7 @@ class LDAP_Bridge extends Asset implements Bridge
 
 			foreach ($mo_groups as $group_name) {
 				$group_name = $this->decodeString($group_name);
-				$result = $ldap->search($group_name, '(objectClass=*)', NULL, TRUE, TRUE, array_merge(array_values($attrs), Array('objectclass')));
+				$result = $ldap->search($group_name, '(objectClass=*)', NULL, FALSE, FALSE, array_merge(array_values($attrs), Array('objectclass')));
 				if (!$result) continue;
 				$group_data = $ldap->getEntries($result);
 				if ($group_data['count'] > 0) {
@@ -776,7 +776,7 @@ class LDAP_Bridge extends Asset implements Bridge
 			foreach ($ou_groups as $group_name => $group_dn) {
 				$group_name = $this->decodeString($group_name);
 				$ou_value = (isset($attrs['ou']) && $attrs['ou'] != '') ? $attrs['ou'] : 'ou';
-				$result = $ldap->search($ou_value.'='.$group_name.','.$group_dn,'(&(objectClass=organizationalUnit)('.$ou_value.'='.$group_name.'))', NULL, TRUE, TRUE, array_merge(array_values($attrs), Array('objectclass')));
+				$result = $ldap->search($ou_value.'='.$group_name.','.$group_dn, '(objectClass=organizationalUnit)', NULL, FALSE, FALSE, array_merge(array_values($attrs), Array('objectclass')));
 				if (!$result) continue;
 				$group_data = $ldap->getEntries($result);
 
@@ -842,7 +842,6 @@ class LDAP_Bridge extends Asset implements Bridge
 			$this->_tmp['getParents'][$assetid] = $parents;
 
 		}//end if not cached
-
 
 		return $this->_tmp['getParents'][$assetid];
 
