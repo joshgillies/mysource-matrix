@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: parameter_map.inc,v 1.32 2011/03/16 05:27:42 cupreti Exp $
+* $Id: parameter_map.inc,v 1.32.8.1 2012/11/14 23:14:51 akarelia Exp $
 *
 */
 
@@ -48,7 +48,7 @@ define('SQ_PARAM_MAP_DEFAULT_KEYWORD', 'asset_assetid');
 *		*GLOBALS:	Any Super Global variable like GET, POST, SESSION
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.32.8.1 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -429,7 +429,7 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 				break;
 
 				case 'SET_VALUE':
-					if (!empty($rule['value'])) {
+					if (isset($rule['value'])) {
 						return replace_global_keywords($rule['value']);
 					}//end if
 				break;
