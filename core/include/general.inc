@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.267.2.7 2012/10/29 00:36:56 cupreti Exp $
+* $Id: general.inc,v 1.267.2.8 2012/11/15 21:38:54 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.267.2.7 $
+* @version $Revision: 1.267.2.8 $
 * @package MySource_Matrix
 */
 
@@ -181,7 +181,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 			$error_data  = 'background-color: '.$bg_colour.'; font-size: 12px; color: #ffffff; font-family: verdana, arial, sans-serif; vertical-align: top;';
 			if(empty($buffers)) echo '</script></table></table></table></table><br/>';
 			if(!(SQ_IN_BACKEND || SQ_IN_LIMBO)) echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
-			?>
+			?>	
 				<table bgcolor="#c0c0c0" cellspacing="0" border="1" cellpadding="2" bordercolor="#ff0000">
 					<tr>
 						<td style="<?php echo $error_title; ?>">
@@ -2407,6 +2407,7 @@ function xml_entity_decode($string, $decode_html_entities = TRUE)
 
 }//end xml_entity_decode()
 
+
 /**
 * Filters Content (strip script tags, strip keywords, escape html).
 * Passes content to appropiate filtering function. Returns FALSE on failure.
@@ -2416,8 +2417,8 @@ function xml_entity_decode($string, $decode_html_entities = TRUE)
 * @return mixed string|array|boolean
 * @access public
 */
-function filter_content($attr_value) {
-	
+function filter_content($attr_value)
+{
 	$unser_str = @unserialize($attr_value);
 	if ($unser_str !== FALSE) {
 		if (is_array($unser_str)){
@@ -2444,8 +2445,11 @@ function filter_content($attr_value) {
    			return FALSE;
 		}
 	}
+
 	return $attr_value;
-}
+
+}//end filter_content()
+
 
 /**
 * Runs a set of filters on the content (strip script tags, strip keywords, escape html).
@@ -2456,23 +2460,25 @@ function filter_content($attr_value) {
 * @return mixed string|boolean 
 * @access public
 */
-function simple_content_filter($attr_value) {
-
+function simple_content_filter($attr_value)
+{
 	$reg = "%<\/?script ?[^>]*>%i";
 	$attr_value = preg_replace($reg, "", $attr_value);
-	if ($attr_value == NULL) return FALSE;
+	if ($attr_value === NULL) return FALSE;
 	
 	$keywords = extract_keywords($attr_value);
 	foreach ($keywords as $keyword){
 		$attr_value = str_ireplace("%$keyword%", "", $attr_value);
-		if ($attr_value == NULL) return FALSE;
+		if ($attr_value === NULL) return FALSE;
 	}
 	//decode first to avoid double encoding
 	$attr_value = htmlspecialchars_decode($attr_value, ENT_COMPAT);
 	$attr_value = htmlspecialchars($attr_value, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 	
 	return $attr_value;
-}
+
+}//end simple_content_filter()
+
 
 /**
 * Ideally run with PHP array_walk().
@@ -2484,8 +2490,8 @@ function simple_content_filter($attr_value) {
 *
 * @access public
 */
-function recursive_content_filter(&$item){
-
+function recursive_content_filter(&$item)
+{
 	//recursive: could not use array_walk_recursive because of a bug in PHP 5.2
 	if(is_array($item)){
 		$success = array_walk($item, __FUNCTION__);
@@ -2508,8 +2514,9 @@ function recursive_content_filter(&$item){
 				if ($item === FALSE) throw new Exception('Content Filtering Failed.');
 			}
 		}
-	}
-}
+	}//end if
+
+}//end recursive_content_filter()
 
 
 /**
@@ -2543,6 +2550,7 @@ function file_mime_type($filename)
 	return $mime_type;
 	
 }//end file_mime_type()
+
 
 /**
  * Open a url via curl.
