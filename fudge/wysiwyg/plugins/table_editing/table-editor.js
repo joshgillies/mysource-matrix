@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: table-editor.js,v 1.31.2.1 2012/11/09 03:53:08 ewang Exp $
+* $Id: table-editor.js,v 1.31.2.2 2012/11/15 00:22:56 cupreti Exp $
 *
 */
 
@@ -199,11 +199,10 @@ TCell = function(parent)
 			style += ' style="' + this.style;
 		}
 
-		if (style != '' && style.search('style=') != -1) {
+		if (style != '' && style != ' style="' && style.search('style=') != -1) {
 			out += style + '"';
-		} else {
-			out += ' style="' + style + '"';
 		}
+
 		out += this.extra + '>' + this.content;
 		if (this.th) out += '</th>';
 		else out += '</td>';
@@ -535,11 +534,15 @@ TTable = function(name, rows, cols)
 		if (this.className != null) out += ' class="' + this.className + '"';
 		if (this.htmlwidth != "") out += ' width=' + this.htmlwidth;
 		if (this.htmlborder != null) out += ' border=' + this.htmlborder;
-		out += ' style="width:' + this.width + ';';
-		if (this.borderColor != null) out += 'border-color:' + this.borderColor + ';';
-		if (this.borderStyle != null) out += 'border-style:' + this.borderStyle + ';';
-		if (this.border != null) out += 'border-width:' + this.border + ';';
-		out += 'background-color: ' + this.bg + ';"';
+
+		var style = '';
+		if (this.width != "" && this.width != null) style += 'width:' + this.width + ';';
+		if (this.borderColor != "" && this.borderColor != null) out += 'border-color:' + this.borderColor + ';';
+		if (this.borderStyle != "" && this.borderStyle != null) out += 'border-style:' + this.borderStyle + ';';
+		if (this.border != "" && this.border != null) out += 'border-width:' + this.border + ';';
+		if (this.bg != "" && this.bg != null) style += 'background=color: ' + this.bg + ';';
+		if (style != "") out += ' style="' + style + '"';
+
 		if (this.summary != null) out += ' summary="' + this.summary + '"';
 		if (this.frame != "") out += ' frame="' + this.frame + '"';
 		if (this.rules != "") out += ' rules="' + this.rules + '"';
@@ -549,6 +552,7 @@ TTable = function(name, rows, cols)
 			out += this.matrix[r];
 		}
 		out += '</table>';
+
 		return out;
 
 	}
@@ -562,11 +566,16 @@ TTable = function(name, rows, cols)
 		if (this.className != null) out += ' class="' + this.className + '"';
 		if (this.htmlwidth != "") out += ' width=' + this.htmlwidth;
 		if (this.htmlborder != null) out += ' border=' + this.htmlborder;
-		out += ' style="width:' + this.width + ';' + this.style + ';';
-		if (this.borderColor != null) out += 'border-color:' + this.borderColor + ';';
-		if (this.borderStyle != null) out += 'border-style:' + this.borderStyle + ';';
-		if (this.border != null) out += 'border-width:' + this.border + ';';
-		out += 'background: ' + this.bg + ';"';
+
+		var style = '';
+		if (this.width != "" && this.width != null) style += 'width:' + this.width + ';';
+		if (this.style != "" && this.style != null) style += this.style + ';';
+		if (this.borderColor != "" && this.borderColor != null) style += 'border-color:' + this.borderColor + ';';
+		if (this.borderStyle != "" && this.borderStyle != null) style += 'border-style:' + this.borderStyle + ';';
+		if (this.border != "" && this.border != null) style += 'border-width:' + this.border + ';';
+		if (this.bg != "" && this.bg != null) style += 'background: ' + this.bg + ';';
+		if (style != "") out += ' style="' + style + '"';
+
 		if (this.summary != null && this.summary != "") out += ' summary="' + this.summary + '"';
 		if (this.frame != "") out += ' frame="' + this.frame + '"';
 		if (this.rules != "") out += ' rules="' + this.rules + '"';
@@ -582,6 +591,7 @@ TTable = function(name, rows, cols)
 			out += row_code;
 		}
 		out += '</table>';
+
 		return out;
 
 	}
