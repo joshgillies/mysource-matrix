@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.70 2012/08/30 00:56:51 ewang Exp $
+* $Id: text.inc,v 1.71 2012/11/16 05:53:22 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.70 $
+* @version $Revision: 1.71 $
 * @package Fudge
 * @subpackage Text
 */
@@ -538,7 +538,7 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array())
 
 	 case "as_asset":
 		$asset_keyword = array_get_index($modifier['args'], 0, '');
-		if ($asset_keyword != '') {
+		if ($asset_keyword != '' && assert_valid_assetid($text, '', TRUE, FALSE)) {
 			if ($GLOBALS['SQ_SYSTEM']->am->assetExists($text)) {
 				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($text);
 				if ($asset->readAccess()) {
@@ -602,7 +602,14 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array())
 						return $asset->getKeywordReplacement($asset_keyword);
 					}
 				}
+			} else {
+				// assetid is numeric but the asset doesn't exist
+				trigger_localised_error('SYS0087', E_USER_WARNING, $text);
 			}
+		} else {
+			// the  keyword is not empty but is also not a assetid let
+			// the user know about this so that they kno what happened
+			trigger_localised_error('CORE0321', E_USER_WARNING, $text);
 		}
 		return '';
 
