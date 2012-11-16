@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_clear_squid_cache.inc,v 1.11 2012/05/11 08:09:05 cupreti Exp $
+* $Id: hipo_job_tool_clear_squid_cache.inc,v 1.11.2.1 2012/11/16 00:32:52 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.11.2.1 $
 * @package MySource_Matrix
 * @subpackage squid
 */
@@ -186,7 +186,9 @@ class HIPO_Job_Tool_Clear_Squid_Cache extends HIPO_Job
 			$cascade = $this->_running_vars['cascade'];
 			$index = array_shift(array_keys($this->_running_vars['todo_urls']));
 			$urls = Array($this->_running_vars['todo_urls'][$index]['url']);
-			if ($this->_running_vars['slash']) {
+
+			// For the top level URL, include the one with trailing slash too (bug #5996)
+			if ($this->_running_vars['slash'] || strpos($this->_running_vars['todo_urls'][$index]['url'], '/') === FALSE) {
 				// include the same url, with a trailing slash
 				$urls[] = $this->_running_vars['todo_urls'][$index]['url'].'/';
 			}
