@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_sagepay.inc,v 1.11 2012/08/30 00:58:34 ewang Exp $
+* $Id: payment_gateway_sagepay.inc,v 1.12 2012/11/16 05:02:30 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@ define('MAX_LINE_IN_ADDRESS', 3);
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -1020,7 +1020,7 @@ HEREDOC;
 	function getCardNameKeywordReplacement()
 	{
 		$card = $this->getPrefix().'_card';
-		$string = '<input name="'.$card.'[name]" />';
+		$string = '<input name="'.$card.'[name]" autocomplete="off" />';
 		return $string;
 
 	}//end getCardNameKeywordReplacement()
@@ -1046,7 +1046,7 @@ HEREDOC;
 			}
 			$card_number .= '</select>';
 		} else {
-			$card_number = '<input name="'.$card.'[number]" />';
+			$card_number = '<input name="'.$card.'[number]" autocomplete="off" />';
 		}
 
 		return $card_number;
@@ -1064,7 +1064,7 @@ HEREDOC;
 	{
 		$card = $this->getPrefix().'_card';
 
-		$string = '<input name="'.$card.'[start_month]" size="2" />';
+		$string = '<input name="'.$card.'[start_month]" size="2" autocomplete="off" />';
 		
 		return $string;
 
@@ -1104,7 +1104,7 @@ HEREDOC;
 	{
 		$card = $this->getPrefix().'_card';
 
-		$string = '<input name="'.$card.'[start_year]" size="2" />';
+		$string = '<input name="'.$card.'[start_year]" size="2" autocomplete="off" />';
 		
 		return $string;
 
@@ -1145,7 +1145,7 @@ HEREDOC;
 	{
 		$card = $this->getPrefix().'_card';
 
-		$string = '<input name="'.$card.'[expiry_month]" size="2" />';
+		$string = '<input name="'.$card.'[expiry_month]" size="2" autocomplete="off" />';
 		
 		return $string;
 
@@ -1185,7 +1185,7 @@ HEREDOC;
 	{
 		$card = $this->getPrefix().'_card';
 
-		$string = '<input name="'.$card.'[expiry_year]" size="2" />';
+		$string = '<input name="'.$card.'[expiry_year]" size="2" autocomplete="off" />';
 		
 		return $string;
 
@@ -1226,7 +1226,7 @@ HEREDOC;
 	{
 		$card = $this->getPrefix().'_card';
 
-		$string = '<input name="'.$card.'[issue_number]" size="4" />';
+		$string = '<input name="'.$card.'[issue_number]" size="4" autocomplete="off" />';
 		
 		return $string;
 
@@ -1243,7 +1243,7 @@ HEREDOC;
 	{
 		$card = $this->getPrefix().'_card';
 
-		$string = '<input name="'.$card.'[cv2]" size="4" />';
+		$string = '<input name="'.$card.'[cv2]" size="4" autocomplete="off" />';
 		
 		return $string;
 
@@ -1427,7 +1427,7 @@ HEREDOC;
 	function getBillingPhoneKeywordReplacement()
 	{
 		$card = $this->getPrefix().'_card';
-		$string = '<input name="'.$card.'[billing_phone]" />';
+		$string = '<input name="'.$card.'[billing_phone]" autocomplete="off" />';
 		return $string;
 
 	}//end getBillingPhoneKeywordReplacement()

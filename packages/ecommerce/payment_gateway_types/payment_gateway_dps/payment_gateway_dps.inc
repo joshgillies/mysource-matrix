@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_dps.inc,v 1.4 2012/08/30 00:58:34 ewang Exp $
+* $Id: payment_gateway_dps.inc,v 1.5 2012/11/16 05:01:17 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/dps_processor.inc';
 * @see Asset_Management
 *
 * @author  Edison Wang <ewang@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -600,7 +600,7 @@ HEREDOC;
 			}
 			$card_number .= '</select>';
 		} else {
-			$card_number = '<input name="'.$card.'[number]" />';
+			$card_number = '<input name="'.$card.'[number]" autocomplete="off" />';
 		}
 
 		return $card_number;
@@ -618,7 +618,7 @@ HEREDOC;
 	{
 
 		$card = $this->getPrefix().'_card';
-		$string = '<input name="'.$card.'[name]" />';
+		$string = '<input name="'.$card.'[name]" autocomplete="off" />';
 		return $string;
 
 	}//end getCardNameKeywordReplacement()
@@ -634,7 +634,7 @@ HEREDOC;
 	{
 		$card = $this->getPrefix().'_card';
 
-		$string = '<input name="'.$card.'[start_month]" size="2" />';
+		$string = '<input name="'.$card.'[start_month]" size="2" autocomplete="off" />';
 		
 		return $string;
 
@@ -651,7 +651,7 @@ HEREDOC;
 	{
 		$card = $this->getPrefix().'_card';
 
-		$string = '<input name="'.$card.'[start_year]" size="2" />';
+		$string = '<input name="'.$card.'[start_year]" size="2" autocomplete="off" />';
 		
 		return $string;
 
@@ -668,7 +668,7 @@ HEREDOC;
 	{
 		$card = $this->getPrefix().'_card';
 
-		$string = '<input name="'.$card.'[expiry_month]" size="2" />';
+		$string = '<input name="'.$card.'[expiry_month]" size="2" autocomplete="off" />';
 		
 		return $string;
 
@@ -685,7 +685,7 @@ HEREDOC;
 	{
 		$card = $this->getPrefix().'_card';
 
-		$string = '<input name="'.$card.'[expiry_year]" size="2" />';
+		$string = '<input name="'.$card.'[expiry_year]" size="2" autocomplete="off" />';
 		
 		return $string;
 
@@ -702,7 +702,7 @@ HEREDOC;
 	{
 		$card = $this->getPrefix().'_card';
 
-		$string = '<input name="'.$card.'[issue_number]" size="4" />';
+		$string = '<input name="'.$card.'[issue_number]" size="4" autocomplete="off" />';
 		
 		return $string;
 
@@ -719,7 +719,7 @@ HEREDOC;
 	{
 		$card = $this->getPrefix().'_card';
 
-		$string = '<input name="'.$card.'[cv2]" size="4" />';
+		$string = '<input name="'.$card.'[cv2]" size="4" autocomplete="off" />';
 		
 		return $string;
 

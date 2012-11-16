@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_utransact.inc,v 1.5 2012/08/30 00:58:34 ewang Exp $
+* $Id: payment_gateway_utransact.inc,v 1.6 2012/11/16 05:02:56 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once dirname(__FILE__).'/utransact_processor.inc';
 * Interface for online credit card processing using Utransact payment gateway
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -785,7 +785,7 @@ class Payment_Gateway_UTransact extends Payment_Gateway
 		$prefix = $this->getPrefix();
 		$card = $prefix.'_card';
 		
-		$card_number = '<input name="'.$card.'[number]" />';
+		$card_number = '<input name="'.$card.'[number]" autocomplete="off" />';
 
 		return $card_number;
 
@@ -801,7 +801,7 @@ class Payment_Gateway_UTransact extends Payment_Gateway
 	function getCreditCardNameKeywordReplacement()
 	{
 		$card = $this->getPrefix().'_card';
-		$string = '<input name="'.$card.'[name]" />';
+		$string = '<input name="'.$card.'[name]" autocomplete="off" />';
 		return $string;
 
 	}//end getCreditCardNameKeywordReplacement()
@@ -818,7 +818,7 @@ class Payment_Gateway_UTransact extends Payment_Gateway
 		if (!$this->attr('display_ccv')) return '';
 		
 		$card = $this->getPrefix().'_card';
-		$string = 'CV2 <input name="'.$card.'[ccv]" size="4" />';
+		$string = 'CV2 <input name="'.$card.'[ccv]" size="4" autocomplete="off" />';
 		return $string;
 
 	}//end getCreditCardCcvKeywordReplacement()
@@ -898,7 +898,7 @@ class Payment_Gateway_UTransact extends Payment_Gateway
 
 		$card = $this->getPrefix().'_card';
 
-		$string = '<input name="'.$card.'[year]" size="2" />';
+		$string = '<input name="'.$card.'[year]" size="2" autocomplete="off" />';
 		return $string;
 
 	}//end getCreditCardExpiryYearKeywordReplacement()
@@ -915,7 +915,7 @@ class Payment_Gateway_UTransact extends Payment_Gateway
 
 		$card = $this->getPrefix().'_card';
 
-		$string = '<input name="'.$card.'[month]" size="2" />';
+		$string = '<input name="'.$card.'[month]" size="2" autocomplete="off" />';
 		return $string;
 
 	}//end getCreditCardExpiryMonthKeywordReplacement()
