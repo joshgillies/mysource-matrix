@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_esec.inc,v 1.26 2012/08/30 00:58:34 ewang Exp $
+* $Id: payment_gateway_esec.inc,v 1.26.2.1 2012/11/16 05:13:59 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/esec_processor_integration_interface.inc';
 *
 * @author  Andrei Railean		<arailean@squiz.net>
 * @author  Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.26.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -300,7 +300,7 @@ class Payment_Gateway_Esec extends Payment_Gateway
 			}
 			$card_number .= '</select>';
 		} else {
-			$card_number = '<input name="'.$card.'[number]" />';
+			$card_number = '<input name="'.$card.'[number]" autocomplete="off" />';
 		}
 
 		// check for errors
@@ -327,7 +327,7 @@ class Payment_Gateway_Esec extends Payment_Gateway
 			<table cellpadding="5">
 				<tr>
 					<td align="right">Name on Card</td>
-					<td><input name="<?php echo $card; ?>[name]" /></td>
+					<td><input name="<?php echo $card; ?>[name]" autocomplete="off" /></td>
 				</tr>
 				<tr>
 					<td align="right">Number</td>
@@ -338,14 +338,14 @@ class Payment_Gateway_Esec extends Payment_Gateway
 				?>
 				<tr>
 					<td  align="right">CCV</td>
-					<td><input name="<?php echo $card; ?>[ccv]" size='4' /> - from the back of your credit card</td>
+					<td><input name="<?php echo $card; ?>[ccv]" size='4' autocomplete="off" /> - from the back of your credit card</td>
 				</tr>
 				<?php
 				}
 				?>
 				<tr>
 					<td align="right">Expiry Date (MM/YY)</td>
-					<td><input name="<?php echo $card; ?>[month]" size="2" /> / <input name="<?php echo $card; ?>[year]" size="2" /></td>
+					<td><input name="<?php echo $card; ?>[month]" size="2" autocomplete="off" /> / <input name="<?php echo $card; ?>[year]" size="2" autocomplete="off" /></td>
 				</tr>
 				<tr>
 					<td align="right">Type</td>
@@ -492,7 +492,7 @@ class Payment_Gateway_Esec extends Payment_Gateway
 			}
 			$card_number .= '</select>';
 		} else {
-			$card_number = '<input name="'.$card.'[number]" />';
+			$card_number = '<input name="'.$card.'[number]" autocomplete="off" />';
 		}
 
 		return $card_number;
@@ -510,7 +510,7 @@ class Payment_Gateway_Esec extends Payment_Gateway
 	{
 
 		$card = $this->getPrefix().'_card';
-		$string = '<input name="'.$card.'[name]" />';
+		$string = '<input name="'.$card.'[name]" autocomplete="off" />';
 		return $string;
 
 	}//end getCreditCardNameKeywordReplacement()
@@ -526,7 +526,7 @@ class Payment_Gateway_Esec extends Payment_Gateway
 	{
 
 		$card = $this->getPrefix().'_card';
-		$string = '<input name="'.$card.'[ccv]" size="4" />';
+		$string = '<input name="'.$card.'[ccv]" size="4" autocomplete="off" />';
 		return $string;
 
 	}//end getCreditCardCcvKeywordReplacement()
@@ -603,7 +603,7 @@ class Payment_Gateway_Esec extends Payment_Gateway
 
 		$card = $this->getPrefix().'_card';
 
-		$string = '<input name="'.$card.'[year]" size="2" />';
+		$string = '<input name="'.$card.'[year]" size="2" autocomplete="off" />';
 		return $string;
 
 	}//end getCreditCardExpiryYearKeywordReplacement()
@@ -620,7 +620,7 @@ class Payment_Gateway_Esec extends Payment_Gateway
 
 		$card = $this->getPrefix().'_card';
 
-		$string = '<input name="'.$card.'[month]" size="2" />';
+		$string = '<input name="'.$card.'[month]" size="2" autocomplete="off" />';
 		return $string;
 
 	}//end getCreditCardExpiryMonthKeywordReplacement()
