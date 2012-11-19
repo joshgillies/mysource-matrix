@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager_edit_fns.inc,v 1.23 2012/02/28 02:06:50 ewang Exp $
+* $Id: cache_manager_edit_fns.inc,v 1.23.2.1 2012/11/19 04:59:48 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.23 $ - 1.0
+* @version $Revision: 1.23.2.1 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackag __core__
 */
@@ -147,7 +147,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintCustomiseTypeCodeCaching(&$asset, &$o, $prefix)
 	{
-		
+
 		$write_access = $asset->writeAccess('attributes');
 
 		if (isset($_REQUEST[$prefix.'_select_type'])) {
@@ -252,8 +252,8 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 					check_box($prefix.'_default_browser_cache_expiry', '1', $using_default);
 					echo ' '.translate('use_default');
 				}
-			$o->closeField();	
-				
+			$o->closeField();
+
 				$o->openField(translate('http_header_cacheable_field'));
 				$using_default = !isset($current_values[$selected]['send_cacheable_header']);
 				if ($using_default) {
@@ -269,7 +269,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 					check_box($prefix.'_default_send_cacheable_header', '1', $using_default);
 					echo ' '.translate('use_default');
 				}
-			
+
 				// field closed by asset_edit_interface
 		}
 
@@ -405,17 +405,19 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 								}
 								if ($wa && !empty($assetid)) {
 									$radio_name = $prefix.'_customise_root_node';
-									check_box($radio_name, $assetid, FALSE, 'this.form.submit();');
+									$radio_id = $prefix.'_'.$assetid.'_customise_root_node';
+									check_box($radio_name, $assetid, FALSE, 'this.form.submit();', 'id="'.$radio_id.'"');
 									if ($customised) {
-										label(translate('view_customisations'), $radio_name);
+										label(translate('view_customisations'), $radio_id);
 									} else {
-										label(translate('customise'), $radio_name);
+										label(translate('customise'), $radio_id);
 									}
 								} else {
 									if ($customised) {
 										$radio_name = $prefix.'_customise_root_node';
-										check_box($radio_name, $assetid, FALSE, 'this.form.submit();');
-										label('<i>'.translate('view_customisations').'</i>', $radio_name);
+										$radio_id = $prefix.'_'.$assetid.'_customise_root_node';
+										check_box($radio_name, $assetid, FALSE, 'this.form.submit();', 'id="'.$radio_id.'"');
+										label('<i>'.translate('view_customisations').'</i>', $radio_id);
 									} else {
 										if (!empty($assetid)) {
 											echo '<i>'.translate('not_yet_customised').'</i>';
@@ -1303,7 +1305,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Paint the interface for choosing root URLs that would send 
+	* Paint the interface for choosing root URLs that would send
 	* cacheable headers regardless of other Matrix cache settings
 	*
 	* @param object	&$asset	the asset we are working on
@@ -1361,7 +1363,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 			</tbody>
 		</table>
 		<?php
-		
+
 		return $wa;
 
 	}//end processCacheableHeadersRootURLs()
@@ -1387,8 +1389,8 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 				$cachable[] = $url;
 			}
 		}
-		// NOTE: Though it might look little confusing, we save the root URLs that shouldn't send cacheable headers, 
-		// so that any new URLs send cacheable headers by default. 
+		// NOTE: Though it might look little confusing, we save the root URLs that shouldn't send cacheable headers,
+		// so that any new URLs send cacheable headers by default.
 		$non_cachable = array_diff($root_urls, $cachable);
 
 		$user_cachable = Array();
@@ -1400,12 +1402,12 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 		// save urls that we will send headers for ALL users
 		$user_cacheable = array_diff($root_urls, $user_cachable);
 		$asset->setAttrValue('user_cacheable_header_urls', $user_cacheable);
-		
+
 		return $asset->setAttrValue('non_cacheable_header_urls', $non_cachable);
 
 	}//end processCacheableHeadersRootURLs()
-	
-	
+
+
 	/**
 	* Displays the current "Send Cacheable Header" settings
 	*
@@ -1417,7 +1419,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 	* @access public
 	*/
 	function paintCacheableHeadersSettings(&$asset, &$o, $prefix)
-	{   
+	{
         $o->openField(translate('http_header_cacheable_field'));
             echo (SQ_CONF_SEND_CACHEABLE_HEADER) ? translate('yes') : translate('no');
         $o->note(translate('cache_manager_send_cacheable_headers_settings_node'));
