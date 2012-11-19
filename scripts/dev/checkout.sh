@@ -74,14 +74,16 @@ CHECKOUT_DIR=`basename $CHECKOUT_DIR`
 
 echo "Checking out squiz matrix core .. "
 
+# Remember which directory we are in
+mydir=`pwd`
 # Need to jump to the base dir to checkout to.
-pushd $checkoutBase >/dev/null
+cd $checkoutBase
 $CVS -q -d :pserver:$USER:@$SERVER:$CVS_PUBLIC_PATH/core co -P -r $VERSION -d $CHECKOUT_DIR mysource_matrix > /dev/null
 
 if [ $? -gt 0 ]; then
 	echo "There was a problem checking out the matrix core"
     echo "Make sure you have permissions to write to the ${checkoutBase}/${CHECKOUT_DIR}/ directory."
-    popd >/dev/null
+    cd $mydir
 	exit 1
 fi
 
@@ -114,12 +116,12 @@ cd ..
 find . -type f -not -path ./MANIFEST -a -not -path "*/CVS/*" -print0 | sort -z -k 2 | xargs -0 md5sum > ./MANIFEST
 if [ $? -gt 0 ]; then
     echo "There was a problem creating the manifest file."
-    popd >/dev/null
+    cd $mydir
     exit 1
 fi
 
 # Jump back to our original location.
-popd >/dev/null
+cd $mydir
 
 echo ""
 echo "Everything has been checked out into the ${checkoutBase}/${CHECKOUT_DIR}/ folder."
