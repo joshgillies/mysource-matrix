@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: format_text.inc,v 1.13 2012/08/30 00:56:51 ewang Exp $
+* $Id: format_text.inc,v 1.13.2.1 2012/11/20 05:49:07 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     and strikethrough. Also has remove all formatting function
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.13.2.1 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -48,6 +48,94 @@ class Format_Text extends WYSIWYG_Plugin
 		$this->_add_button('underline','Underline','Underline','false','16');
 		$this->_add_button('strikethrough','StrikeThrough','StrikeThrough','false','17');
 	}
+
+
+    /**
+    * Prints generic functions
+    *
+    * @return void
+    * @access public
+    */
+    function paint_generic()
+    {
+        ?>
+        <script type="text/javascript" language="Javascript">
+
+		// Replaces the 'fromTag' tag to 'toTag' in the given selection
+		HTMLArea.prototype._convertTags = function(fromTag, toTag)	{
+
+			if (HTMLArea.is_ie) {
+				// We dont need to convert tags for IE, as IE will have the required tags already
+				return;
+			}
+
+			if (fromTag == null || toTag == null) {
+				return;
+			}
+
+			fromTag = fromTag.toLowerCase();
+			toTag = toTag.toLowerCase();
+
+			// Get the required tags within the selection
+			var sel = this._getSelection();
+			var parent = this.parentBlock(this.getParentElement());
+			var elements = parent.getElementsByTagName(fromTag);
+
+			// Restrict the element list to within the selection
+			var elementsArray = [];
+			for(var i = 0; i<elements.length; i++) {
+				if (sel.containsNode(elements[i], true)) {
+					elementsArray.push(elements[i]);
+				}
+			}
+
+			// Get the selection anchor and focus nodes
+			var anchorNode = sel.anchorNode;
+			var anchorOffset = sel.anchorOffset;
+			var focusNode = sel.focusNode;
+			var focusOffset = sel.focusOffset;
+
+			// Carry out the replacement
+			for(var j = 0; j< elementsArray.length; j++) {
+				var replacementEl = document.createElement(toTag);
+				replacementEl.innerHTML = elementsArray[j].innerHTML;
+				elementsArray[j].parentNode.replaceChild(replacementEl, elementsArray[j]);
+
+				// Update the anchor and focus nodes
+				var oldAnchorTextNode = elementsArray[j].firstChild;
+				var newAnchorTextNode = replacementEl.firstChild;
+				while(oldAnchorTextNode.nodeName != '#text' && oldAnchorTextNode.hasChildNodes()) {
+					newAnchorTextNode = newAnchorTextNode.firstChild;
+					oldAnchorTextNode = oldAnchorTextNode.firstChild;
+				}
+				var oldFocusTextNode = elementsArray[j].lastChild;
+				var newFocusTextNode = replacementEl.lastChild;
+				while(oldFocusTextNode.nodeName != '#text' && oldFocusTextNode.hasChildNodes()) {
+					newFocusTextNode = newFocusTextNode.lastChild;
+					oldFocusTextNode = oldFocusTextNode.lastChild;
+				}
+				if (oldAnchorTextNode === anchorNode) {
+					anchorNode = newAnchorTextNode;
+				}
+				if (oldFocusTextNode === focusNode) {
+					focusNode = newFocusTextNode;
+				}
+			}
+
+			// Update the selection range
+			if (anchorNode != null && focusNode != null) {
+				var range = this._createRange();
+				range.setStart(anchorNode, anchorOffset);
+				range.setEnd(focusNode, focusOffset);
+				sel.removeAllRanges();
+				sel.addRange(range);
+			}
+		}
+		</script>
+
+		<?php
+
+	}//end paint_generic()
 
 
 	/**
@@ -88,32 +176,24 @@ class Format_Text extends WYSIWYG_Plugin
 	{
 		?>
 		case "bold":
-			if (!this._doc.queryCommandState("bold")) {
-				this.surroundHTML("<b>", "</b>");
-			} else {
-				this._doc.execCommand(cmdID, UI, param);
+			this._doc.execCommand(cmdID, UI, param);
+			// Convert the added 'b' tags to 'strong'
+			if (this._doc.queryCommandState("bold")) {
+				this._convertTags('b', 'strong');
 			}
 		break;
 		case "italic":
-			if (!this._doc.queryCommandState("italic")) {
-				this.surroundHTML("<i>", "</i>");
-			} else {
-				this._doc.execCommand(cmdID, UI, param);
+			this._doc.execCommand(cmdID, UI, param);
+			// Convert the added 'i' tags to 'em'
+			if (this._doc.queryCommandState("italic")) {
+				this._convertTags('i', 'em');
 			}
 		break;
 		case "underline":
-			if (!this._doc.queryCommandState("underline")) {
-				this.surroundHTML("<u>", "</u>");
-			} else {
-				this._doc.execCommand(cmdID, UI, param);
-			}
+			this._doc.execCommand(cmdID, UI, param);
 		break;
 		case "strikethrough":
-			if (!this._doc.queryCommandState("strikethrough")) {
-				this.surroundHTML("<strike>", "</strike>");
-			} else {
-				this._doc.execCommand(cmdID, UI, param);
-			}
+			this._doc.execCommand(cmdID, UI, param);
 		break;
 		<?php
 
