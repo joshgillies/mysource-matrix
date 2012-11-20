@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.132 2012/11/13 23:13:56 akarelia Exp $
+* $Id: js_api.inc,v 1.133 2012/11/20 00:53:18 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.132 $
+* @version $Revision: 1.133 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -952,6 +952,7 @@ class JS_Api extends Page
 			// Get available attributes
 			$attributes = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($asset->type());
 			foreach ($attributes as $key => $val) {
+				if ($val['type'] == 'password') continue;
 				if ($key == 'api_key') {
 					// Added security to make sure no one can get API Keys from other API Assets
 					$data[$key] = '';
@@ -2768,7 +2769,7 @@ class JS_Api extends Page
 				);
 
 		foreach($am->getAssetTypeAttributes($asset->type()) as $name => $type) {
-			if(($add_more_attributes || isset($data[$name])) && $name != 'api_key') {
+			if(($add_more_attributes || isset($data[$name])) && $name != 'api_key' && $type['type'] != 'password') {
 				$value = $asset->attr($name);
 				$data[$name] = $value;
 			}
