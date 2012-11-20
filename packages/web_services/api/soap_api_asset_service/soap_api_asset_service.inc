@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_asset_service.inc,v 1.27 2012/08/30 00:59:45 ewang Exp $
+* $Id: soap_api_asset_service.inc,v 1.27.2.1 2012/11/20 01:41:49 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.27.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -120,7 +120,7 @@ class Soap_Api_Asset_Service extends Soap_Api
 		$file_content	= array_get_index($request_info, 'FileContentBase64', '');
 		$file_name		= array_get_index($request_info, 'FileName', '');
 		$attributes		= array_get_index($request_info, 'AttributeInfo', Array());
-		
+
 		$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($parentid);
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
@@ -150,10 +150,10 @@ class Soap_Api_Asset_Service extends Soap_Api
 						'is_dependant'	=> $is_dependant,
 						'is_exclusive'	=> $is_exclusive,
 					  );
-		  
-	
+
+
 		// Create a file asset
-		$type_ancestors = $asset->getTypeAncestors(FALSE);		  
+		$type_ancestors = $asset->getTypeAncestors(FALSE);
 		if(!empty($file_name) && !empty($file_content) && (in_array('file', $type_ancestors) || $type_code === 'file')) {
 			$tmp_file_name	= Soap_Api_File_Retrieval_Service::getRandomFilename($file_name);
 			// We are going to write to the Matrix Data tmp dir
@@ -175,13 +175,13 @@ class Soap_Api_Asset_Service extends Soap_Api
 					  );
 			$asset->_tmp['uploading_file'] = 1;
 			$asset->setAttrValue('title', $asset_name);
-			$linkid = $asset->create($link_info, $info);	
-			
+			$linkid = $asset->create($link_info, $info);
+
 			// Remove the tmp file before we return
 			if (file_exists($destination_file)) {
 				unlink($destination_file);
 			}//end if
-			
+
 		}
 		// Create a normal asset
 		else {
@@ -189,10 +189,10 @@ class Soap_Api_Asset_Service extends Soap_Api
 			if (isset($asset->vars['name']) && ($asset_name != '')) {
 				$asset->setAttrValue('name', $asset_name);
 			}
-			$linkid = $asset->create($link_info);	
+			$linkid = $asset->create($link_info);
 		}
 
-		
+
 		if ($linkid) {
 			return Array (
 					'CreateMessage' => 'Asset was created successfully. Link id #'.$linkid,
@@ -226,9 +226,16 @@ class Soap_Api_Asset_Service extends Soap_Api
 		if (!empty($assetid)) {
 			$asset	= $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			$asset_xml	= '';
+
 			if (!is_null($asset)) {
+				foreach ($asset->vars as $attr_name => $attr_info) {
+					if ($attr_info['type'] == 'password') {
+						unset($asset->vars[$attr_name]);
+					}
+				}
 				$asset_xml	= self::objectToXML($asset);
 			}//end if
+
 			return Array (
 					'GetAssetResult'	=> $asset_xml,
 				   );
@@ -255,7 +262,7 @@ class Soap_Api_Asset_Service extends Soap_Api
 		$key = preg_replace('/\s+/', '', $key);
 		if (empty($key)) continue;
 		if(preg_match('/^xml$/i', $key)) continue;
-		if (is_numeric($key)) {			
+		if (is_numeric($key)) {
 		    $key = '_'.$key;
 		}
 
@@ -354,7 +361,7 @@ class Soap_Api_Asset_Service extends Soap_Api
 			$url_split	= preg_split($pattern, $url, -1, PREG_SPLIT_DELIM_CAPTURE);
 			$protocol	= rtrim($url_split[1], '://');
 			$main_url	= $url_split[2];
-			
+
 			$asset	= $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL($protocol, $main_url, TRUE, TRUE);
 			$asset_xml	= '';
 			if (!is_null($asset)) {
@@ -583,7 +590,7 @@ class Soap_Api_Asset_Service extends Soap_Api
 		$request_info 	= (Array) $request;
 		$type_code			= array_get_index($request_info, 'TypeCode', '');
 		$details			= array_get_index($request_info, 'AttributeDetail', Array ('name', 'type'));
-		
+
 		if (!is_array($details)) $details = Array($details);
 		//need to group by 'name' field so make sure its first.
 		if (!in_array('name', $details)) {
@@ -596,7 +603,7 @@ class Soap_Api_Asset_Service extends Soap_Api
 				array_unshift($details, 'name');
 			}
 		}
-		
+
 		if (!empty($type_code)) {
 			$attribute_details	= $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($type_code, $details);
 			$i = 0;
@@ -717,7 +724,7 @@ class Soap_Api_Asset_Service extends Soap_Api
 							$treeids[]   = $treeid;
 						}//end if
 					}//end if
-	
+
 					$lineages        = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($assetid, 0, $treeids);
 					$lineages_result = array();
 					foreach ($lineages as $lineage_info) {
@@ -738,7 +745,7 @@ class Soap_Api_Asset_Service extends Soap_Api
 					}//end foreach
 					$assetsInfo[$assetid]['AssetLineage'] = $lineages_result;
 				}//end if
-				
+
 				if (isset($type_codes_ancestor[$result['type_code']]) === TRUE) {
 					$ancestor = $type_codes_ancestor[$result['type_code']];
 				} else {
@@ -845,7 +852,7 @@ class Soap_Api_Asset_Service extends Soap_Api
 		if (!empty($assetid)) {
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			$descendantTypes = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($asset->type());
-			if (in_array('page', $descendantTypes)) {	
+			if (in_array('page', $descendantTypes)) {
 				$root_path_url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($root_path_id);
 				$pro_asset_url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($assetid, $root_path_url);
 				$asset_url     = preg_replace('/http[s]?:\/\//i', '', $pro_asset_url);
@@ -1073,8 +1080,8 @@ class Soap_Api_Asset_Service extends Soap_Api
 					'SessionKey' => '',
 				);
 		}
-		                
-                
+
+
 		$session_id = session_id();
 		$session_key = $GLOBALS['SQ_SYSTEM']->getUniqueSOAPSessionKey();
 		$_SESSION['activated'] = 0;
@@ -1085,8 +1092,8 @@ class Soap_Api_Asset_Service extends Soap_Api
 			   );
 
 	}//end LoginUser()
-	
-	
+
+
 	/**
 	* Description: This operation will return the user asset ID of the request username
 	*
@@ -1106,13 +1113,13 @@ class Soap_Api_Asset_Service extends Soap_Api
 			return;
 		}
 		$auth_systems = $auth_folder->getAuthSystems();
-		
+
 		// try each auth system in order to see if we can load a user asset
 		$user = NULL;
 		foreach ($auth_systems as $systemid) {
 			$system = $GLOBALS['SQ_SYSTEM']->am->getAsset($systemid);
 			if (is_null($system)) continue;
-			
+
 			$user = $system->locateUser($username);
 			if (!is_null($user)) break;
 		}
@@ -1123,12 +1130,12 @@ class Soap_Api_Asset_Service extends Soap_Api
 		} else {
 			$assetid = $user->id;
 		}
-		
+
 		return Array('AssetID' => $assetid);
-		
+
 	}//end GetUserIdByUsername()
 
-	
+
 	/**
 	* Description: This operation will set status for an asset
 	*
@@ -1159,7 +1166,7 @@ class Soap_Api_Asset_Service extends Soap_Api
 			if(!isset($statuses[$status])) {
 				throw new SoapFault('Server', $status.' is not a valid status of the asset');
 			}
-				
+
 			$running_vars	= Array (
 								'assetid'			=> $assetid,
 								'new_status'		=> $status,
@@ -1495,7 +1502,7 @@ class Soap_Api_Asset_Service extends Soap_Api
 		foreach ($asset_types_info as $asset_type_info) {
 			$asset_types[] = $asset_type_info['type_code'];
 		}//end foreach
-		
+
 		$asset_status = Array (
 							SQ_STATUS_ARCHIVED,
 							SQ_STATUS_UNDER_CONSTRUCTION,
@@ -1507,7 +1514,7 @@ class Soap_Api_Asset_Service extends Soap_Api
 							SQ_STATUS_EDITING_APPROVAL,
 							SQ_STATUS_EDITING_APPROVED,
 						);
-						
+
 		$attribute_details	= Array (
 								'attrid',
 								'type_code',
@@ -1557,7 +1564,7 @@ class Soap_Api_Asset_Service extends Soap_Api
 										'SetAssetStatus'		=> Array (
 																   	'StatusValue'		=> Array (
 																   								'restriction_base'	=> 'string',
-																   								'enumeration'		=> $asset_status,	
+																   								'enumeration'		=> $asset_status,
 																   							),
 																   ),
 									  );
@@ -1568,6 +1575,6 @@ class Soap_Api_Asset_Service extends Soap_Api
 
 	}//end getSimpleRestrictedTypes()
 
-	
+
 }//end class
 ?>
