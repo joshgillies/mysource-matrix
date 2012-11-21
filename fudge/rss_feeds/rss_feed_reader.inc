@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: rss_feed_reader.inc,v 1.28 2012/09/21 00:14:24 ewang Exp $
+* $Id: rss_feed_reader.inc,v 1.29 2012/11/21 04:06:17 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * Converts an xml document to different arrays of relative arrays
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package Fudge
 * @subpackage RSS_Feeds
 */
@@ -245,19 +245,19 @@ class RSS_Feed_Reader
 									break;
 								}
 							}
-						} 
+						}
 					}
-					
+
 					if ($found_xml && !xml_parse($this->parser, $data)) {
 						return 'Error in the feed';
 					}
 				}
-				
+
 				// still did not find the XML
 				if (!$found_xml){
 					return 'Error in the feed';
 				}
-				
+
 			} else {
 				if (!xml_parse($this->parser, $this->fp)) {
 					return 'Error in the feed';
@@ -455,9 +455,7 @@ class RSS_Feed_Reader
 	public function characterHandler($xp, $data, $attributes=FALSE)
 	{
 		$index = NULL;
-		// if the data is a string and has any white spaces then trim them off
-		if (is_string($data)) $data = trim($data);
-		if (!empty($data)) {
+		if ((is_array($data) && !empty($data)) || (is_string($data) && trim($data) != '')) {
 			$element = $this->element;
 			$var = NULL;
 			// get the key for the current element in the open tags and get its parents from teh open tags
@@ -522,14 +520,14 @@ class RSS_Feed_Reader
 				}
 			} else {
 				// RSS feeds should only have one LINK. But Atom may have multiple, with different REL attributes ('enclosure', 'alternate').
-				// Since multiple links are not part of the design here, ensure we only get 'alternate' links if attributes are provided.	
-				// This is essentially a hack, but provides better Atom support than without it. 
+				// Since multiple links are not part of the design here, ensure we only get 'alternate' links if attributes are provided.
+				// This is essentially a hack, but provides better Atom support than without it.
 				// @see http://www.atomenabled.org/developers/syndication/atom-format-spec.php#element.link
 				// @see http://bugs.matrix.squiz.net/view_bug.php?bug_id=4700
 				if ($element == 'LINK') {
 					if ((is_array ($data)) && (array_key_exists('REL', $data)) && ($data['REL'] != 'alternate')) return;
 				}
-			
+
 				// if the array exists and it is not empty
 				// then we get the index in which this data has to be inserted
 				if (!empty($this->{$var})) {
