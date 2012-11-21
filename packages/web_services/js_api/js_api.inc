@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.130.2.3 2012/11/20 01:41:49 akarelia Exp $
+* $Id: js_api.inc,v 1.130.2.4 2012/11/21 00:39:28 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.130.2.3 $
+* @version $Revision: 1.130.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1702,9 +1702,15 @@ class JS_Api extends Page
 	*/
 	private function _getKeywordsReplacements($args=Array(), $asset=NULL, $read_access=FALSE, $write_access=FALSE)
 	{
+		if (!isset($arg['keywords']) && isset($args['keywords_array'])) {
+			// if this IF statement is true that means the batchRequest() is used to call
+			// getKeywordReplacement(). Make sure the keywords index expected is always populated.
+			$args['keywords'] = $args['keywords_array'];
+		}
+
 		if ($read_access) {
 			if (isset($args['keywords']) && !empty ($args['keywords']) ){
-				$keywords = explode('\\,', $args['keywords']);
+				$keywords = is_array($args['keywords']) ? $args['keywords'] : explode('\\,', $args['keywords']);
 				$data = $this->getKeywordsReplacements($asset, $keywords);
 			} else {
 				$data['error'] = 'Please provide keywords to get replacement for';
