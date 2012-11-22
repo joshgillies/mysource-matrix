@@ -9,7 +9,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: Makefile,v 1.12 2010/10/04 23:26:00 csmith Exp $
+#* $Id: Makefile,v 1.13 2012/11/22 22:37:20 csmith Exp $
 #*
 #*/
 
@@ -50,13 +50,13 @@ default:
 # create and sign assetmap.jar
 simple: default
 	cd src && $(javapath)/jar cvfm ../assetmap.jar ../simplemanifest $(componentclassfiles) META-INF
-	$(javapath)/jarsigner -keystore SquizKeyStore assetmap.jar squiz
+	$(javapath)/jarsigner -storetype pkcs12 -keystore SquizKeyStore assetmap.jar 1
 	$(javapath)/jarsigner -verify assetmap.jar
 
 # create and sign complexassetmap.jar
 complex: simple
 	cd src && $(javapath)/jar cvfm ../complexassetmap.jar ../complexmanifest $(componentclassfiles) META-INF
-	$(javapath)/jarsigner -keystore SquizKeyStore complexassetmap.jar squiz
+	$(javapath)/jarsigner -storetype pkcs12 -keystore SquizKeyStore complexassetmap.jar 1
 	$(javapath)/jarsigner -verify complexassetmap.jar
 
 # get rid of the class files
