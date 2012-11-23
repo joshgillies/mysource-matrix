@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_asset_service.inc,v 1.29 2012/11/23 03:07:52 ewang Exp $
+* $Id: soap_api_asset_service.inc,v 1.30 2012/11/23 03:11:03 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -784,6 +784,7 @@ class Soap_Api_Asset_Service extends Soap_Api
     * <pre>
     * Array (
 	*		'AssetID' => [The ID of the asset in query],
+    *			'TypeCode' => [The type code of asset],
     *       )
     * </pre>
 	*
@@ -813,7 +814,7 @@ class Soap_Api_Asset_Service extends Soap_Api
 					'GetAssetAvailableKeywordsResult'	=> array_keys($keywords),
 				   );
 		} else {
-			throw new SoapFault('Server', 'Asset ID is not valid. Please provide a valid Asset ID');
+			throw new SoapFault('Server', 'Asset ID or Type Code is not valid. Please provide a valid Asset ID or Type Code');
 		}//end else
 
 	}//end GetAssetAvailableKeywords()
