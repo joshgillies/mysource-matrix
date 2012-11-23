@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_asset_service.inc,v 1.28 2012/11/20 00:53:18 akarelia Exp $
+* $Id: soap_api_asset_service.inc,v 1.29 2012/11/23 03:07:52 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -794,9 +794,21 @@ class Soap_Api_Asset_Service extends Soap_Api
 	{
 		$request_info 	= (Array) $request;
 		$assetid			= array_get_index($request_info, 'AssetID', '');
-		if (!empty($assetid)) {
-			$asset	= $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-			$keywords	= $asset->getAvailableKeywords();
+		$type_code			= array_get_index($request_info, 'TypeCode', '');
+		
+		if (!empty($assetid) || !empty($type_code)) {
+			if(!empty($assetid)) {
+			    $asset	= $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			    $keywords	= $asset->getAvailableKeywords();
+			}
+			else if (!empty($type_code)) {
+			    $object_name = str_replace(' ', '_', ucwords(str_replace('_', ' ', $type_code)));
+			    $GLOBALS['SQ_SYSTEM']->am->includeAsset($object_name);
+			    $dummy_asset = new $object_name();
+			    $keywords = $dummy_asset->getAvailableKeywords();
+			    unset($dummy_asset);
+			}
+			
 			return Array (
 					'GetAssetAvailableKeywordsResult'	=> array_keys($keywords),
 				   );
@@ -1322,7 +1334,8 @@ class Soap_Api_Asset_Service extends Soap_Api
                                                            ),
 							'GetAssetAvailableKeywords'	=> Array (
 															'GetAssetAvailableKeywords'	=> Array (
-														   								'AssetID'			=> self::$string_non_optional,
+														   								'AssetID'			=> self::$string_optional,
+																						'TypeCode'			=> self::getArgType('AssetType', 0, 1),
 														   							   ),
 														   	'GetAssetAvailableKeywordsResponse'=> Array (
 																						'GetAssetAvailableKeywordsResult'	=> $keywords,
