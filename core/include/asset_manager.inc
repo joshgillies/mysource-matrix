@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.891 2012/11/12 04:03:23 akarelia Exp $
+* $Id: asset_manager.inc,v 1.892 2012/11/25 23:56:45 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.891 $
+* @version $Revision: 1.892 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1704,7 +1704,7 @@ class Asset_Manager extends MySource_Object
 
 		// need to do some checking on the field to make sure it's in the table
 		// but only do it if the field is specified
-		if (!empty($field)) {
+        if (!empty($field)) {
 			if (empty($this->_tmp['sq_tables'])) {
 				require SQ_DATA_PATH.'/private/db/table_columns.inc';
 				$this->_tmp['sq_tables'] = $tables;
@@ -1758,9 +1758,15 @@ class Asset_Manager extends MySource_Object
 			// if we want all the column info, get a list of columns
 			// and append them after the assetid so we can use getAssoc
 			// to produce assetid => Array(info)
-			require SQ_DATA_PATH.'/private/db/table_columns.inc';
+			if (empty($this->_tmp['sq_tables'])) {
+				require SQ_DATA_PATH.'/private/db/table_columns.inc';
+				$this->_tmp['sq_tables'] = $tables;
+            } else {
+                $tables = $this->_tmp['sq_tables'];
+            }
 			unset($tables['ast']['columns'][array_search('assetid', $tables['ast']['columns'])]);
 			$col_string = implode(', ', $tables['ast']['columns']);
+
 		}
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
@@ -2447,6 +2453,10 @@ class Asset_Manager extends MySource_Object
 		// Instead of throwing a fatal error, we just return false here, getAsset has already given a warning if the asset does not exists.
 		if (is_null($asset)) return FALSE;
 
+		// because lock_type can be expanded, we need to keep the original type
+		// to check if we can force getting it.
+		$orig_lock_type = $lock_type;
+
 		$current_locks = $this->getLockInfo($assetid, $lock_type, TRUE, TRUE);
 		if (empty($current_locks)) return FALSE;
 
@@ -2455,7 +2465,16 @@ class Asset_Manager extends MySource_Object
 
 		$success = TRUE;
 
-		$can_force = ($force) ? $asset->canForceablyAcquireLock($lock_type) : FALSE;
+		// Set this to unknown for now.
+		// This is a fairly expensive operation. we only need this info if
+		// a lock is held by someone other than ourselves.
+		// On the other hand, if we're not trying to force acquiring a lock,
+		// we can immediately set this to FALSE.
+		$can_force = NULL;
+		if ($force === FALSE) {
+			$can_force = FALSE;
+		}
+
 		$lock_updated = FALSE;
 		foreach ($current_locks as $lock_type => $lock) {
 
@@ -2469,6 +2488,10 @@ class Asset_Manager extends MySource_Object
 					$success = FALSE;
 					break;
 				}
+			}
+
+			if ($can_force === NULL) {
+				$can_force = $asset->canForceablyAcquireLock($orig_lock_type);
 			}
 
 			// special case where the current user is actually
@@ -2552,6 +2575,9 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Release the locks that the passed asset holds
 	*
+	* Assume that the current user has the lock to release before trying to see if
+	* it can be released by force.
+	*
 	* @param int	$assetid	the assetid of the asset that we want to release
 	* @param string	$lock_type	the type of the lock (eg 'contents', 'permissions', etc)
 	*
@@ -2566,6 +2592,10 @@ class Asset_Manager extends MySource_Object
 			return FALSE;
 		}
 
+		// because lock_type can be expanded, we need to keep the original type
+		// to check if we can force getting it.
+		$orig_lock_type = $lock_type;
+
 		$current_locks = $this->getLockInfo($assetid, $lock_type, TRUE, FALSE);
 		if (empty($current_locks)) return TRUE;
 
@@ -2574,17 +2604,26 @@ class Asset_Manager extends MySource_Object
 
 		$success = TRUE;
 
-		$can_force = $asset->canForceablyAcquireLock($lock_type);
+		// Set this to unknown for now.
+		// This is a fairly expensive operation. we only need this info if
+		// a lock is held by someone other than ourselves.
+		$can_force = NULL;
 
 		foreach ($current_locks as $lock_type => $lock) {
 			if (empty($lock)) continue;
 
-			// is this asset already locked by someone else and we can't forceably acquire it, error
-			if ((int) $lock['userid'] != $GLOBALS['SQ_SYSTEM']->currentUserid() && !$can_force) {
-				$user = $this->getAsset($lock['userid']);
-				trigger_localised_error('SYS0264', E_USER_WARNING, $lock_type, $asset->name, $user->name);
-				$success = FALSE;
-				continue;
+			if ((int) $lock['userid'] != $GLOBALS['SQ_SYSTEM']->currentUserid()) {
+				if ($can_force === NULL) {
+					$can_force = $asset->canForceablyAcquireLock($orig_lock_type);
+				}
+
+				// is this asset already locked by someone else and we can't forceably acquire it, error
+				if (!$can_force) {
+					$user = $this->getAsset($lock['userid']);
+					trigger_localised_error('SYS0264', E_USER_WARNING, $lock_type, $asset->name, $user->name);
+					$success = FALSE;
+					continue;
+				}
 			}
 
 			if (TRUE !== ($err_msg = $GLOBALS['SQ_SYSTEM']->releaseLock('asset.'.$assetid.'.'.$lock_type))) {
