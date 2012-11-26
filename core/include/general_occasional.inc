@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.104 2012/08/30 01:09:19 ewang Exp $
+* $Id: general_occasional.inc,v 1.104.2.1 2012/11/26 22:13:53 csmith Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.104 $
+* @version $Revision: 1.104.2.1 $
 * @package MySource_Matrix
 */
 
@@ -136,19 +136,37 @@ function get_bit_names($prefix, $bit_value, $force_array=FALSE, $exact_value=FAL
 		$bit_values = bit_elements($bit_value);
 	}
 
-	$constants = get_defined_constants();
+	/**
+	 * Make a quick cache so we don't need to process looking for the same
+	 * settings all the time.
+	 * Include all parts of the function params in the cache 'key'.
+	 */
+	static $_cache = array();
+	$hash = $prefix.'.'.$bit_value.'.'.(int)$force_array.'.'.(int)$exact_value;
+	if (isset($_cache[$hash]) === TRUE) {
+		return $_cache[$hash];
+	}
+
+	// We only care about the ones we've defined ourselves.
+	static $_userConstants = array();
+	if (empty($_userConstants) === TRUE) {
+		$constants = get_defined_constants(TRUE);
+		$_userConstants = $constants['user'];
+	}
 
 	$names = Array();
 
-	foreach ($constants as $name => $value) {
+	foreach ($_userConstants as $name => $value) {
 		if (preg_match('/^'.$prefix.'(.*)$/', $name, $matches) && in_array($value, $bit_values)) {
 			$names[] = $matches[1];
 		}
 	}
 
 	if ($force_array || count($names) > 1) {
+		$_cache[$hash] = $names;
 		return $names;
 	} else if (count($names)) {
+		$_cache[$hash] = $names[0];
 		return $names[0];
 	}
 
@@ -167,14 +185,29 @@ function get_bit_names($prefix, $bit_value, $force_array=FALSE, $exact_value=FAL
 */
 function get_constant_values($prefix)
 {
-	$constants = get_defined_constants();
+	// Check our local cache first.
+	// The names are based on defined variables
+	// and can't change, so we can cache them nicely.
+	static $_cache = array();
+	if (isset($_cache[$prefix]) === TRUE) {
+		return $_cache[$prefix];
+	}
+
+	// We only care about the ones we've defined ourselves.
+	static $_userConstants = array();
+	if (empty($_userConstants) === TRUE) {
+		$constants = get_defined_constants(TRUE);
+		$_userConstants = $constants['user'];
+	}
 
 	$names = Array();
-	foreach ($constants as $name => $value) {
+	foreach ($_userConstants as $name => $value) {
 		if (preg_match('/^'.$prefix.'(.*)$/', $name, $matches)) {
 			$names[$name] = $value;
 		}
 	}
+
+	$_cache[$prefix] = $names;
 
 	return $names;
 
