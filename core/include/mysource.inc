@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.397 2012/10/11 02:43:54 cupreti Exp $
+* $Id: mysource.inc,v 1.398 2012/11/26 04:04:09 cupreti Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.397 $
+* @version $Revision: 1.398 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -584,9 +584,8 @@ class MySource extends MySource_Object
 				$uri = (isset($_SERVER['REQUEST_URI'])) ? $_SERVER['REQUEST_URI'] : FALSE;
 				if ($host && $uri && substr($uri, -1) == '/') {
 					$uri = rtrim($uri, '/');
-					$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
 					//do not redirect root URLs because apache may append a trailing slash
-					if ($root_urls && !in_array($host.$uri, $root_urls) && !in_array($host.$uri.'/', $root_urls)){
+					if (!empty($uri)){
 						$protocol = current_protocol().'://';
 						header('HTTP/1.1 301 Moved Permanently');
 						header('Location: '.$protocol.$host.$uri);
