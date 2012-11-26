@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.883.2.5 2012/11/14 23:59:14 akarelia Exp $
+* $Id: asset_manager.inc,v 1.883.2.6 2012/11/26 22:55:39 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.883.2.5 $
+* @version $Revision: 1.883.2.6 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3831,7 +3831,13 @@ class Asset_Manager extends MySource_Object
 				}
 			}
 
-			$where .= ' AND pt.treeid IN (' . implode(',', $treeids) . ')';
+			// Break up the treeids into chunks of 1000 so that oracle does not complain
+			$in_clauses = Array();
+			foreach (array_chunk($treeids, 999) as $chunk) {
+				$in_clauses[] = ' pt.treeid IN ('.implode(', ', $chunk).')';
+			}
+			$where .= ' AND ('.implode(' OR ', $in_clauses).')';
+			unset($in_clauses);
 			unset($treeids);
 
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'cl');
