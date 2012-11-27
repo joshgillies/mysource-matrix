@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.308.2.5 2012/10/17 03:09:25 akarelia Exp $
+* $Id: asset_map.inc,v 1.308.2.6 2012/11/27 06:23:42 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.308.2.5 $
+* @version $Revision: 1.308.2.6 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -590,6 +590,8 @@ class Asset_Map
 		if (function_exists('libxml_disable_entity_loader'))
 			libxml_disable_entity_loader(TRUE);
 		$root = simplexml_load_string($xml);
+		if (function_exists('libxml_disable_entity_loader'))
+			libxml_disable_entity_loader(FALSE);
 
 		switch ($root['action']) {
 			case 'get translations' :
