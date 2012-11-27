@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: oauth.inc,v 1.9 2012/09/11 00:27:04 ewang Exp $
+* $Id: oauth.inc,v 1.10 2012/11/27 05:04:01 ewang Exp $
 *
 */
 
@@ -429,10 +429,6 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 		
 		$query_parameters = Array();
 
-		// the url might already be url encoded - decode it to avoid double encoding later on 
-		// so that it'll work whehter the url has been encoded or not        
-		if($url_encode)
-		    $url = urldecode($url);
 
 		// if the url has the parameters part, return the parameters as an array
 		$url_param = explode('?', $url);
@@ -440,6 +436,12 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 			$params = explode('&', $url_param[1]);
 			foreach ($params as $param) {
 				$param_val = explode('=', $param);
+				// the url might already be url encoded - decode it to avoid double encoding later on 
+				// so that it'll work whehter the url has been encoded or not     
+				if($url_encode) {
+				    $param_val[0] = urldecode($param_val[0]);
+				    $param_val[1] = urldecode($param_val[1]);
+				}
 				$query_parameters[$this->_encodeParam($param_val[0], $url_encode)] = $this->_encodeParam($param_val[1], $url_encode);				
 			}
 		}
