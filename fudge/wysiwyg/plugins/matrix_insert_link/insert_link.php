@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link.php,v 1.53.2.1 2012/11/06 00:11:45 cupreti Exp $
+* $Id: insert_link.php,v 1.53.2.2 2012/11/26 23:58:15 cupreti Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Insert Link Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.53.2.1 $
+* @version $Revision: 1.53.2.2 $
 * @package MySource_Matrix
 */
 
@@ -256,6 +256,29 @@ if (isset($_GET['assetid']) && $_GET['assetid']) {
 						assetid = '%globals_asset_attribute_redirect_url:'+ f.elements["page_redirect_assetid[assetid]"].value +'%';
 					}
 
+					// Selected asset's type code
+					var asset_type = '';
+					if (f.elements["assetid[type_code]"].value != '') {
+						asset_type = f.elements["assetid[type_code]"].value;
+					} else if (f.elements["link_assetid[type_code]"].value != '') {
+						asset_type = f.elements["link_assetid[type_code]"].value;
+					} else if (f.elements["page_redirect_assetid[type_code]"].value != '') {
+						asset_type = f.elements["page_redirect_assetid[type_code]"].value;
+					}
+					if (asset_type != '') {
+						// Disable the irrelevant asset type option based on the currently selected asset
+						asset_type = asset_type.toLowerCase();
+						options = f.elements["asset_type_selector"].getElementsByTagName("option");
+						for(var i=0; i<options.length; i++) {
+							options[i].disabled = false;
+							if (asset_type != 'link' && options[i].value == 'link_manager') {
+								options[i].disabled = true;
+							} else if (asset_type != 'page_redirect' && options[i].value == 'redirect') {
+								options[i].disabled = true;
+							}
+						}
+					}
+
 					if (assetid != '') {
 						// shadow asset
 						if (assetid.search('globals_asset_attribute') != -1) {
@@ -268,7 +291,6 @@ if (isset($_GET['assetid']) && $_GET['assetid']) {
 							}
 						}
 						highlight_combo_value(f.url_protocol, '');
-						enable_type_selector(false);
 					}
 				}
 				setTimeout('self.focus()',100);
@@ -292,14 +314,18 @@ if (isset($_GET['assetid']) && $_GET['assetid']) {
 				}
 			};
 
-			function enable_type_selector(enable)
+			function reset_type_selector()
 			{
-				if (enable == undefined) {
-					enable = true;
+				// Enable all the asset selector options (default)
+				options = document.main_form.elements["asset_type_selector"].getElementsByTagName("option");
+				for(var i=0; i<options.length; i++) {
+					options[i].disabled = false;
 				}
 
-				var type_selector = document.getElementById('asset_type_selector');
-				type_selector.disabled = !enable;
+				document.getElementById('assetid[type_code]').value = '';
+				document.getElementById('link_assetid[type_code]').value = '';
+				document.getElementById('page_redirect_assetid[type_code]').value = '';
+
 			};
 
 		</script>
@@ -577,18 +603,34 @@ if (isset($_GET['assetid']) && $_GET['assetid']) {
 																		function chooseSourceType(type, span_all, span_link_manager, span_redirect_page) {
 																			all_asset_picker = document.getElementById('assetid[assetid]');
 																			all_asset_picker_id = document.getElementById('sq_asset_finder_assetid_assetid');
+																			all_asset_picker_label = document.getElementById('sq_asset_finder_assetid_label');
 
 																			link_asset_picker = document.getElementById('link_assetid[assetid]');
 																			link_asset_picker_id = document.getElementById('sq_asset_finder_link_assetid_assetid');
+																			link_asset_picker_label = document.getElementById('sq_asset_finder_link_assetid_label');
 
 																			redirect_asset_picker = document.getElementById('page_redirect_assetid[assetid]');
 																			redirect_asset_picker_id = document.getElementById('sq_asset_finder_page_redirect_assetid_assetid');
+																			redirect_asset_picker_label = document.getElementById('sq_asset_finder_page_redirect_assetid_label');
+																			var selected_assetid = '';
+																			var selected_label = '';
+																			if (all_asset_picker_id.value != '') {
+																				selected_assetid = all_asset_picker_id.value;
+																				selected_label = all_asset_picker_label.value;
+																			} else if (link_asset_picker_id.value != '') {
+																				selected_assetid = link_asset_picker_id.value;
+																				selected_label = link_asset_picker_label.value;
+																			} else if (redirect_asset_picker_id.value != '') {
+																				selected_assetid = redirect_asset_picker_id.value;
+																				selected_label = redirect_asset_picker_label.value;
+																			}
 
 																			if (type == 'all_assets') {
-																				all_asset_picker.value='';
+																				all_asset_picker.value=selected_assetid;
 																				all_asset_picker.disabled=false;
-																				all_asset_picker_id.value='';
+																				all_asset_picker_id.value=selected_assetid;
 																				all_asset_picker_id.disabled=false;
+																				all_asset_picker_label.value=selected_label;
 																				span_all.style.display='block';
 																				span_all.disabled=false;
 																				span_link_manager.style.display='none';
@@ -597,38 +639,44 @@ if (isset($_GET['assetid']) && $_GET['assetid']) {
 																				link_asset_picker.disabled=true;
 																				link_asset_picker_id.value='';
 																				link_asset_picker_id.disabled=true;
+																				link_asset_picker_label.value='';
 																				span_redirect_page.style.display='none';
 																				span_redirect_page.disabled=true;
 																				redirect_asset_picker.value='';
 																				redirect_asset_picker.disabled=true;
 																				redirect_asset_picker_id.value='';
 																				redirect_asset_picker_id.disabled=true;
+																				redirect_asset_picker_label.value='';
 
 																			} else if (type == 'link_manager') {
 																				all_asset_picker.value='';
 																				all_asset_picker.disabled=true;
 																				all_asset_picker_id.value='';
 																				all_asset_picker_id.disabled=true;
+																				all_asset_picker_label.value='';
 																				span_all.style.display='none';
 																				span_all.disabled=true;
 																				span_link_manager.style.display='block';
 																				span_link_manager.disabled=false;
-																				link_asset_picker.value='';
+																				link_asset_picker.value=selected_assetid;
 																				link_asset_picker.disabled=false;
-																				link_asset_picker_id.value='';
+																				link_asset_picker_id.value=selected_assetid;
 																				link_asset_picker_id.disabled=false;
+																				link_asset_picker_label.value=selected_label;
 																				span_redirect_page.style.display='none';
 																				span_redirect_page.disabled=true;
 																				redirect_asset_picker.value='';
 																				redirect_asset_picker.disabled=true;
 																				redirect_asset_picker_id.value='';
 																				redirect_asset_picker_id.disabled=true;
+																				redirect_asset_picker_label.value='';
 
 																			} else {
 																				all_asset_picker.value='';
 																				all_asset_picker.disabled=true;
 																				all_asset_picker_id.value='';
 																				all_asset_picker_id.disabled=true;
+																				all_asset_picker_label.value='';
 																				span_all.style.display='none';
 																				span_all.disabled=true;
 																				span_link_manager.style.display='none';
@@ -637,13 +685,16 @@ if (isset($_GET['assetid']) && $_GET['assetid']) {
 																				link_asset_picker.disabled=true;
 																				link_asset_picker_id.value='';
 																				link_asset_picker_id.disabled=true;
+																				link_asset_picker_label.value='';
 																				span_redirect_page.style.display='block';
 																				span_redirect_page.disabled=false;
-																				redirect_asset_picker.value='';
+																				redirect_asset_picker.value=selected_assetid;
 																				redirect_asset_picker.disabled=false;
-																				redirect_asset_picker_id.value='';
+																				redirect_asset_picker_id.value=selected_assetid;
 																				redirect_asset_picker_id.disabled=false;
+																				redirect_asset_picker_label.value=selected_label;
 																			}
+																			setUrl();
 																		}
 																	</script>
 																	<?php
@@ -669,14 +720,14 @@ if (isset($_GET['assetid']) && $_GET['assetid']) {
 																		var link_clr_btn = document.getElementById('sq_asset_finder_link_assetid_clear_btn');
 																		var page_redirect_clr_btn = document.getElementById('sq_asset_finder_page_redirect_assetid_clear_btn');
 																		if (all_clr_btn.addEventListener) {
-																			all_clr_btn.addEventListener('click', enable_type_selector, false);
-																			link_clr_btn.addEventListener('click', enable_type_selector, false);
-																			page_redirect_clr_btn.addEventListener('click', enable_type_selector, false);
+																			all_clr_btn.addEventListener('click', reset_type_selector, false);
+																			link_clr_btn.addEventListener('click', reset_type_selector, false);
+																			page_redirect_clr_btn.addEventListener('click', reset_type_selector, false);
 																		} else if (all_clr_btn.attachEvent) {
 																			// IE browser
-																			all_clr_btn.attachEvent('onclick', enable_type_selector);
-																			link_clr_btn.attachEvent('onclick', enable_type_selector);
-																			page_redirect_clr_btn.attachEvent('onclick', enable_type_selector);
+																			all_clr_btn.attachEvent('onclick', reset_type_selector);
+																			link_clr_btn.attachEvent('onclick', reset_type_selector);
+																			page_redirect_clr_btn.attachEvent('onclick', reset_type_selector);
 
 																		}
 																</script>

@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.js,v 1.29 2012/08/30 01:09:20 ewang Exp $
+* $Id: asset_map.js,v 1.29.2.1 2012/11/26 23:59:29 cupreti Exp $
 *
 */
 
@@ -233,10 +233,12 @@ function asset_finder_change_btn_press(name, safe_name, type_codes, done_fn)
 * @param Array params the params array
 * @param string label the label to give this asset
 * @param string url the url of this asset
+* @param string linkid 
+* @param string type_code
 *
 * @access public
 */
-function asset_finder_done(params, label, url, linkid)
+function asset_finder_done(params, label, url, linkid, type_code)
 {
 	resizer_frame = window.top.frames['sq_resizer'];
 	if (resizer_frame) {
@@ -261,6 +263,7 @@ function asset_finder_done(params, label, url, linkid)
 		ASSET_FINDER_OBJ.set_hidden_field(ASSET_FINDER_FIELD_NAME + '[assetid]', assetid);
 		ASSET_FINDER_OBJ.set_hidden_field(ASSET_FINDER_FIELD_NAME + '[url]', url);
 		ASSET_FINDER_OBJ.set_hidden_field(ASSET_FINDER_FIELD_NAME + '[linkid]', linkid);
+		ASSET_FINDER_OBJ.set_hidden_field(ASSET_FINDER_FIELD_NAME + '[type_code]', type_code);
 		ASSET_FINDER_OBJ.set_text_field(ASSET_FINDER_FIELD_SAFE_NAME + '_label', (assetid == 0) ? '' : label);
 		ASSET_FINDER_OBJ.set_text_field(ASSET_FINDER_FIELD_SAFE_NAME + '_assetid', (assetid == 0) ? '' : assetid );
 	}
