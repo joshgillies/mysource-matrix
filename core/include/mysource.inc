@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.389.2.6 2012/10/31 01:56:35 ewang Exp $
+* $Id: mysource.inc,v 1.389.2.7 2012/11/27 07:03:56 ewang Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.389.2.6 $
+* @version $Revision: 1.389.2.7 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -239,6 +239,10 @@ class MySource extends MySource_Object
 			}
 		}
 
+		// force saving the session to memcache before respond to browser, otherwise, it would take forever, and concurrent session access issue happens.
+		if(SQ_CONF_SESSION_HANDLER === 'memcache')
+		    session_write_close();
+		
 	}//end destructor
 
 
