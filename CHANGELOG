@@ -1,5 +1,91 @@
 SQUIZ MATRIX CHANGELOG
 
+VERSION 4.12.1
+
+Featured Changes
+===================================
+
+Filter Frontend User Input Now Supports Metadata Text & WYSIWYG Inputs [ Feature Request #5941 ]
+-----------------------------------------------------
+
+The Filter Frontend User Input global preference allows you to filter front end user inputs in forms such as Asset Builders and Custom Forms. This filtering will strip script tags and keyword replacements, and escape html from user inputs.
+
+This option improves the security of your system by eradicating the risk of such inputs that, in rare cases, can affect the backend operations of Squiz Matrix, causing unexpected and potentially adverse behaviour.
+
+This feature extends this functionality to also include both Text (both single and multiple) and WYSIWYG metadata field types when filtering user inputs. When this option is enabled, any user inputs of these types will be filtered to protect your system.
+
+
+Additional Changes and Bug Fixes
+=================================== 
+
+Minor Enhancements
+
+Minor Enhancement #5927: Improved Performance on LDAP Bridge's getParents() Function.
+Minor Enhancement #5952: New SSL Verification Option on the Remote Content Asset.
+Minor Enhancement #5956: Custom Form Sections Now Respect Parent Form's Asset Status.
+Minor Enhancement #5968: Multiple NOTICE Linked Child Images Now Permitted on Assets.
+Minor Enhancement #5969: Global Keyword Replacement Support on Custom Form Default Values.
+Minor Enhancement #5972: Enhancements to the WYSIWYG Editor's Handling of Quote Characters.
+Minor Enhancement #5973: Disabling Squiz Matrix's Proxy Settings Sets the libcurl Proxy Parameter to Null.
+Minor Enhancement #5978: Improved Handling of WYSIWYG Formatting on Multiple Block Elements.
+Minor Enhancement #5984: Enhancements to the Interface Mode Trigger Condition.
+Minor Enhancement #5985: Autocomplete Attribute on E-Commerce Payment Gateway Fields.
+Minor Enhancement #5986: Problematic Char Report on system_integrity_fix_char_encoding.php Script.
+Minor Enhancement #5987: Cron Manager: Set Max Future Year.
+Minor Enhancement #5988: Force Secure Option Maintained on Cloned Assets.
+Minor Enhancement #5994: Improved Error Handling on the as_asset Keyword Modifier.
+Minor Enhancement #5998: Security Enhancement: APIs Blocked from Returning Passwords.
+Minor Enhancement #6005: SOAP API: GetAssetAvailableKeywords for Asset Type Code.
+
+Core
+
+Fixed Bug #5908: Cache Manager root node specific issues when clicking the 'Customize' label.
+Fixed Bug #5932: Minor issues with Show Diff option on the Preview screen.
+Fixed Bug #5951: Test Run on a SOAP submission action throws errors.
+Fixed Bug #5958: Saving table properties with empty values creates invalid code.
+Fixed Bug #5962: Hit Count Asset Listing Page - more than one root node.
+Fixed Bug #5967: Single quote/apostrophe in the alt attribute of an image breaks the Insert Image plugin. 
+Fixed Bug #5975: Deleting a listing page's Group Format folder breaks the page. 
+Fixed Bug #5976: replace_url.php throws uncaught exception on some sites. 
+Fixed Bug #5977: WYSIWYG Insert Link plugin not uploading link's value when asset type is changed. 
+Fixed Bug #5979: Unable to create Custom Form with a default metadata value referencing the asset. 
+Fixed Bug #5981: Lookup updates result in missing URLs in Rollback mode. 
+Fixed Bug #5990: Filter Frontend User Input throws errors in Asset Builders when entering matrix keywords.
+Fixed Bug #5992: Style attribute unnecessarily added when editing table properties in the WYSIWYG editor. 
+Fixed Bug #5995: Typo in the System Configuration - Global Preferences screen for Comment Preferences. 
+Fixed Bug #5996: Clear Squid Caching tool should always clear a top level URL with a trailing slash. 
+Fixed Bug #6008: Getting lineage for asset linked to more 1000 parents throws error in Oracle system. 
+Fixed Bug #6010: SOAP can not load external entity error while loading WSDL file. 
+
+
+CMS
+
+Fixed Bug #5993: Keywords not working in Custom Form's email option "Reply-To" field.   
+
+Search
+
+Fixed Bug #5991: Empty stored search issues.
+
+Calendar
+
+Fixed Bug #5980: Rolling Calendar Page has 'Array' written at the top.
+
+E-Commerce
+
+Fixed Bug #5964: Keyword replacements in the E-Commmerce REST Resource action always includes a tax value. 
+
+Data
+
+Fixed Bug #5970: The RSS Data Source asset unexpectedly removes white spaces. 
+
+Web Services
+
+Fixed Bug #5945: Inconsistency with the parameters that are passed to JS API functions (advanced mode).
+Fixed Bug #6000: getKeywordsReplacements() used within a batchRequest() won't take array of keywords.
+Fixed Bug #6009: OAuth invalid signature for REST calls with body parameter containing ampersand (&).
+
+
+
 VERSION 4.12.0 RC1
 
 Featured Changes
