@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.398 2012/11/26 04:04:09 cupreti Exp $
+* $Id: mysource.inc,v 1.399 2012/11/27 07:00:45 ewang Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.398 $
+* @version $Revision: 1.399 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -238,7 +238,11 @@ class MySource extends MySource_Object
 				$deja_vu->remember(SQ_DEJA_VU_LOCALE, NULL, $this->lm);
 			}
 		}
-
+		
+		// force saving the session to memcache before respond to browser, otherwise, it would take forever, and concurrent session access issue happens.
+		if(SQ_CONF_SESSION_HANDLER === 'memcache')
+		    session_write_close();
+		
 	}//end destructor
 
 
