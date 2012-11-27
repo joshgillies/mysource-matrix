@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixMenus.java,v 1.12 2007/05/08 02:28:37 rong Exp $
+* $Id: MatrixMenus.java,v 1.12.26.1 2012/11/27 00:03:16 cupreti Exp $
 *
 */
 
@@ -207,6 +207,7 @@ public class MatrixMenus implements MatrixConstants {
 					node.getName(),
 					node.getURL(),
 					node.getLinkid(),
+					asset.getType().toString(),
 				};
 				netscape.javascript.JSObject window = netscape.javascript.JSObject.getWindow(AssetMap.getApplet());
 				window.call("asset_finder_done", info);

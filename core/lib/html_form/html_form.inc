@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.163.2.1 2012/08/15 05:09:09 cupreti Exp $
+* $Id: html_form.inc,v 1.163.2.2 2012/11/27 00:01:50 cupreti Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.163.2.1 $
+* @version $Revision: 1.163.2.2 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -810,6 +810,7 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 	hidden_field($name.'[assetid]', $assetid);
 	hidden_field($name.'[url]', '');
 	hidden_field($name.'[linkid]', '');
+	hidden_field($name.'[type_code]', '');
 	// call the js function to set where the finder frame is
 
 	text_box($safe_name.'_label', $label, 20, 0, FALSE, 'readonly="readonly" class="sq-form-asset-finder" onfocus="this.tmp = this.value;" onblur="this.value = this.tmp;"');
