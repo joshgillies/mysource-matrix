@@ -18,7 +18,7 @@
 * a URL applied to it.
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 */
 
@@ -209,15 +209,22 @@ Make sure you have all you information you need before Proceeding\n");
                                         INNER JOIN sq_ast_lookup l
                                         ON (l.url = v.url OR l.url || \'/\' = v.url)
                                         INNER JOIN sq_ast_lnk k
-                                        ON (v.value=k.minorid AND k.majorid=l.assetid)
+                                        ON (v.value=k.minorid)
                                         WHERE 
+                                        k.majorid=l.assetid
+                                        AND
                                         (
                                             (
                                                 k.value = \'paint_layout::system::frontend\'
                                                 or k.value = \'override::paint_layout::system::frontend\'
                                             )
-                                            OR v.name like \'design%\'
-                                            or v.name like \'override::design%\'
+                                            OR 
+                                            (
+                                              (
+                                                  v.name like \'design%\' AND (k.value=v.name OR k.value = \'override::\' || v.name)
+                                              )
+                                              or v.name like \'override::design%\'
+                                            )
                                         )
                                         AND rtrim(v.url, \'/\') = l.url
                                         AND l.root_urlid = :existing_urlid
