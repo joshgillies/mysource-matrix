@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.138 2012/08/30 01:09:05 ewang Exp $
+* $Id: design_edit_fns.inc,v 1.139 2012/11/29 07:29:42 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.138 $
+* @version $Revision: 1.139 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -88,7 +88,18 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$new_version = FALSE;
 
 		$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
-
+		
+		$info = get_file_upload_info($prefix.'_parse_file');
+		if(!isset($info['tmp_name'])) {
+		    trigger_error('Design parse file is not found', E_USER_WARNING);
+		    return FALSE;
+		}
+		$parse_file_content = file_get_contents($info['tmp_name']);
+		if(empty($parse_file_content)) {
+		     trigger_error('Empty design parse file is not allowed', E_USER_WARNING);
+		     return FALSE;
+		}
+		
 		// delete existing parse file if it exists
 		if (is_file($parse_file)) {
 			$new_version = TRUE;
@@ -322,12 +333,11 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 			$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 
-			// delete existing parse file
-			if (!unlink($parse_file)) {
-				trigger_localised_error('CORE0164', E_USER_WARNING);
-				return FALSE;
+			if(empty($new_file)) {
+			    trigger_error('Empty design parse file is not allowed', E_USER_WARNING);
+			    return;
 			}
-
+			
 			// copy over the uploaded file
 			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 			if (string_to_file($new_file, $parse_file)) {
