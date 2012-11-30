@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_from_xml.php,v 1.25 2012/10/05 07:20:38 akarelia Exp $
+* $Id: import_from_xml.php,v 1.26 2012/11/30 06:58:06 ewang Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix
 */
 
@@ -80,10 +80,12 @@ if (isset($_SERVER['argv'][3]) && $_SERVER['argv'][3] == '--root-node' ) {
 
 }
 
+// overcom oracle 'end of communication' bug
+_disconnectFromMatrixDatabase();
 
-$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_OPEN);
-$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+// temp file to store global data, so child process can access it
+define('TEMP_FILE', SQ_TEMP_PATH.'/import_from_xml.tmp');	
+if(is_file(TEMP_FILE)) unlink(TEMP_FILE);
 
 $import_action_outputs = Array();
 $nest_content_to_fix = Array();
@@ -98,20 +100,61 @@ foreach ($import_actions['actions'][0]['action'] as $action) {
 		$designs_to_fix[] = $action['action_id'][0];
 	}
 	
-	// check if there is hard coded assetid reference which doesn't exist in the target system
-	if(!checkAssetExists($action, 'parentid') || !checkAssetExists($action, 'assetid') || !checkAssetExists($action, 'asset')) {
-		trigger_error('Action ID "'.$action['action_id'][0].'" contains non-exist assetid reference. Action skipped.', E_USER_WARNING);
-		continue;
-	}
-	// Execute the action
-	printActionId($action['action_id'][0]);
-	if (!execute_import_action($action, $import_action_outputs)) {
-		printStatus('--');
-		trigger_error('Action ID "'.$action['action_id'][0].'" could not be executed', E_USER_WARNING);
-	} else {
-		printStatus('OK');
-	}
+
+ 
+	// Use forked process to make sure memory usage is stable
+	$pid = pcntl_fork();
+	switch ($pid) {
+		case -1: 
+			trigger_error('Process failed to fork', E_USER_ERROR);
+			exit(1);
+			break;
+		case 0:
+			// process action in forked child process
+			// connect to DB within the child process to overcome oracle stupidness
+			_connectToMatrixDatabase();          
+			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_OPEN);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+			// restore the temp data from file
+			if(is_file(TEMP_FILE))
+			    $import_action_outputs = unserialize(file_get_contents(TEMP_FILE));
+			
+			// check if there is hard coded assetid reference which doesn't exist in the target system
+			if(!checkAssetExists($action, 'parentid') || !checkAssetExists($action, 'assetid') || !checkAssetExists($action, 'asset')) {
+				trigger_error('Action ID "'.$action['action_id'][0].'" contains non-exist assetid reference. Action skipped.', E_USER_WARNING);
+				_disconnectFromMatrixDatabase();
+				exit(0);
+				break;
+			}
+			
+			// Execute the action
+			printActionId($action['action_id'][0]);
+			if (!execute_import_action($action, $import_action_outputs)) {
+				printStatus('--');
+				trigger_error('Action ID "'.$action['action_id'][0].'" could not be executed', E_USER_WARNING);
+			} else {
+				printStatus('OK');
+			}
+			
+			// save global temp data to file
+			$temp_string = serialize($import_action_outputs);
+			string_to_file($temp_string, TEMP_FILE);
+			
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+			// Disconnect from DB
+			_disconnectFromMatrixDatabase();
+			exit(0);
+			break;
+
+		default:
+			$status = null;
+			pcntl_waitpid(-1, $status);
+			break;
+	}//end switch
+	
 }
+
 
 // fix nest content type, regenerate the bodycopy
 foreach ($nest_content_to_fix as $actionid) {
@@ -132,9 +175,10 @@ foreach ($designs_to_fix as $design) {
 		$hh->freestyleHipo('hipo_job_regenerate_design', $vars);
 	}
 }
-$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+// remove the temp file
+if(is_file(TEMP_FILE)) unlink(TEMP_FILE);
+
 
 
 /**
@@ -186,5 +230,36 @@ function checkAssetExists($action, $type='asset')
 	}	
 	return TRUE;
 }
+
+
+/**
+* Disconnects from the Oracle Matrix DB
+*
+* @return void
+* @access private
+*/
+function _disconnectFromMatrixDatabase()
+{
+    $conn_id = MatrixDAL::getCurrentDbId();
+    if (isset($conn_id) && !empty($conn_id)) {
+        MatrixDAL::restoreDb();
+        MatrixDAL::dbClose($conn_id);
+    }//end if
+        
+}//end _disconnectFromMatrixDatabase()
+
+
+/**
+* Connects to the Oracle Matrix DB
+*
+* @return void
+* @access private
+*/
+function _connectToMatrixDatabase()
+{
+    $GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+
+}//end _connectToMatrixDatabase()
+
 
 ?>
