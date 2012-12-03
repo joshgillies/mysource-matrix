@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_asset_counter_edit_fns.inc,v 1.17 2012/08/30 01:09:09 ewang Exp $
+* $Id: report_asset_counter_edit_fns.inc,v 1.17.2.1 2012/12/03 22:42:14 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.17.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -81,13 +81,27 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 			$children = Array();
 			if (!empty($types)) {
 				foreach ($types as $type => $inherit_bool) {
-					$children_one = $am->getChildren($this->getRootAssetid($owner), $type, !$inherit_bool);
+					$children_one = $am->getChildren($this->getRootAssetid($owner), $type, !$inherit_bool, NULL, NULL, NULL, TRUE, NULL, NULL, TRUE, NULL, Array(), TRUE);
 					$children = array_merge($children, $children_one);
 				}
 			} else {
 				// if types are not provided we search for all type codes
-				$children = $am->getChildren($this->getRootAssetid($owner));
+				$children = $am->getChildren($this->getRootAssetid($owner), '', TRUE, NULL, NULL, NULL, TRUE, NULL, NULL, TRUE, NULL, Array(), TRUE);
 			}
+
+			// Get the missing types for shadow assets if any
+			foreach($children as $child_id => $child_info) {
+				$id_parts = explode(':', $child_id);
+				// If its a shadow asset and has missing type info, get it from the bridge
+				if (isset($id_parts[1]) && empty($child_info[0]['type_code'])) {
+					$shdw_asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($child_id, Array(), TRUE, 'type_code');
+					if (!empty($shdw_asset_info[$child_id])) {
+						$children[$child_id][0]['type_code'] = $shdw_asset_info[$child_id];
+					} else {
+						$children[$child_id][0]['type_code'] = 'unknown_asset_type';
+					}
+				}//end if
+			}//end foreach
 
 			// check if there is anything to do
 			if (empty($children)) {
