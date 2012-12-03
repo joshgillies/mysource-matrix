@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.3 2011/11/03 04:42:12 ewang Exp $
+* $Id: lang_strings.xml,v 1.3.6.1 2012/12/03 00:54:42 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 	<string source="tool_rollback_reset_all_note">WARNING: Resetting rollback will delete all existing rollback data. This data will not be recoverable. Ensure you have made a backup of your system before resetting rollback.</string>
 	<string source="tool_rollback_purge_rb_entries_before">Purge Rollback Entries Before (period)</string>
 	<string source="tool_rollback_purge_file_versioning_entries_before">Purge Files and File Versioning Entries Before (period)</string>
-	<string source="tool_rollback_usage_note">This tool provides options to manage Rollback data. Rollback can be enabled or disabled and existing rollback data can be removed, either by age or in its entirety. Existing entries can also be set to a certain point in time.</string>
+	<string source="tool_rollback_usage_note">This tool provides options to manage Rollback data. Rollback can be enabled or disabled and existing rollback data can be removed, either by age or in its entirety.</string>
 	<string source="tool_delete_redundant_entries">Delete Redundant Entries</string>
 	<string source="tool_delete_redundant_entries_confirm" js="1">Are you sure you want to delete all the redundant entries?</string>
 	<string source="tool_delete_redundant_entries_note">This will delete all the redundant Cron Manager rollback entries</string>

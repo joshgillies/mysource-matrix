@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_rollback_management.inc,v 1.5 2012/08/30 01:09:12 ewang Exp $
+* $Id: tool_rollback_management.inc,v 1.5.2.1 2012/12/03 00:54:42 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/rollback_management.inc';
 * 	A tool to manage the amount of data stored in Rollback
 *
 * @author Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -81,42 +81,7 @@ class Tool_Rollback_Management extends Tool
 			combo_box($type_code.'_rollback_status', $options, FALSE, (SQ_CONF_ROLLBACK_ENABLED) ? '1' : '0');
 		$o->closeField();
 
-		$o->openField(translate('tool_rollback_effective_date'));
-			require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
-			$date = getdate();
-
-			$value_arr = Array(
-							'y'	=> $date['year'],
-							'm'	=> $date['mon'],
-							'd'	=> $date['mday'],
-							'h'	=> $date['hours'],
-							'i'	=> $date['minutes'],
-							's'	=> $date['seconds'],
-						 );
-
-			$parameters = Array(
-							'min'			=> '2003-01-01 00:00:00',
-							'max'			=> $date['year'].'-12-31 23:59:59',
-							'allow_circa'	=> '0',
-							'print_format'	=> 'd/m/y h:i:s',
-							'show'			=> Array('y', 'm', 'd', 'h', 'i', 's'),
-							'style'			=> Array(
-												'y'	=> 's',
-												'm'	=> 's',
-												'd'	=> 's',
-												'h'	=> 's',
-												'i'	=> 's',
-												's'	=> 's',
-											   ),
-						  );
-
-			$value = '';
-			$field = new DateTime_Field($type_code.'_date', $value, $parameters);
-			$value = $field->unitsArrayToStr($value_arr);
-			$field->setValue($value);
-
-			$field->printField();
-		$o->closeField();
+		
 
 		$o->openField('');
 		$o->closeField();
@@ -228,15 +193,7 @@ class Tool_Rollback_Management extends Tool
 
 		$reset_rollback_entries = $_REQUEST[$type_code.'_reset_rollback_entries'];
 
-		if ($reset_rollback_entries == '1') {
-			$rollback_date_value = $_REQUEST[$type_code.'_datevalue'];
-			$rollback_date = $_REQUEST[$type_code.'_datevalue']['y'].'-'.
-					 str_pad($_REQUEST[$type_code.'_datevalue']['m'], 2, '0', STR_PAD_LEFT).'-'.
-					 str_pad($_REQUEST[$type_code.'_datevalue']['d'], 2, '0', STR_PAD_LEFT).' '.
-					 str_pad($_REQUEST[$type_code.'_datevalue']['h'], 2, '0', STR_PAD_LEFT).':'.
-					 str_pad($_REQUEST[$type_code.'_datevalue']['i'], 2, '0', STR_PAD_LEFT).':'.
-					 str_pad($_REQUEST[$type_code.'_datevalue']['s'], 2, '0', STR_PAD_LEFT);
-		}
+		
 
 		$purge_rb_period = (int) $_REQUEST[$type_code.'_purge_rollback_entries_period_amount'];
 		$purge_fv_period = (int) $_REQUEST[$type_code.'_purge_file_entries_period_amount'];
