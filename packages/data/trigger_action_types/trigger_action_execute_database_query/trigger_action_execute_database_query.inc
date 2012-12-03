@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_execute_database_query.inc,v 1.6 2012/08/30 00:58:16 ewang Exp $
+* $Id: trigger_action_execute_database_query.inc,v 1.6.2.1 2012/12/03 00:53:55 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -137,26 +137,27 @@ class Trigger_Action_Execute_Database_Query extends Trigger_Action
 		$patterns = Array();
 		$replacements = Array();
 		$bind_vars = Array();
-		$includes_globals = FALSE;
 		foreach ($keywords as $id => $keyword) {
 			$value = '';
 			if (!is_null($state['asset'])) {
 				$value = $state['asset']->getKeywordReplacement($keyword);
 			}//end if
+			if ($value != $keyword_wrapper.$keyword.$keyword_wrapper) {
+				// Keyword cannot be found, don't bother doing anything else
+				$value = str_replace('$', '\$', $value);
+				$replacements[] = ':'.$keyword.$id;
+				$patterns[] = '/('.$keyword_wrapper.$keyword.$keyword_wrapper.')/';
+				$bind_vars[$keyword.$id] = $value;
+			}//end if
+		}//end foreach
 
-			// Treat the global keywords separately
+		// Treat the global keywords separately
+		$includes_globals = FALSE;
+		foreach(array_unique($keywords) as $keyword) {
 			if (0 === strpos($keyword, 'globals_')) {
 				$whole_keyword = $keyword_wrapper.$keyword.$keyword_wrapper;
 				$sql = str_replace($whole_keyword, MatrixDAL::quote($whole_keyword), $sql);
 				$includes_globals = TRUE;
-			} else {
-				if ($value != $keyword_wrapper.$keyword.$keyword_wrapper) {
-					// Keyword cannot be found, don't bother doing anything else
-					$value = str_replace('$', '\$', $value);
-					$replacements[] = ':'.$keyword.$id;
-					$patterns[] = '/('.$keyword_wrapper.$keyword.$keyword_wrapper.')/';
-					$bind_vars[$keyword.$id] = $value;
-				}//end if
 			}//end if
 		}//end foreach
 
