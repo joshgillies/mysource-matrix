@@ -10,7 +10,7 @@
  * | you a copy.                                                        |
  * +--------------------------------------------------------------------+
  *
- * $Id: system_integrity_fix_char_encoding.php,v 1.10 2012/11/08 04:32:17 ewang Exp $
+ * $Id: system_integrity_fix_char_encoding.php,v 1.11 2012/12/03 00:55:04 csmith Exp $
  */
 
 /**
@@ -21,7 +21,7 @@
  * IMPORTANT: SYSTEM MUST BE BACKEDUP BEFORE RUNNING THIS SCRIPT!!!
  *
  * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
- * @version $Revision: 1.10 $
+ * @version $Revision: 1.11 $
  * @package MySource_Matrix
  */
 
@@ -128,10 +128,44 @@ if (SYS_OLD_ENCODING == SYS_NEW_ENCODING) {
     exit(1);
 }
 
+// Oracle requires that the encoding be set when you connect to the database.
+// Let's make sure:
+// 1) It's set to something
+// 2) If we're converting to utf-8, it's set to the right thing
+//
+$conf = require $SYSTEM_ROOT.'/data/private/conf/db.inc';
+if ($conf['db']['type'] === 'oci') {
+    if (isset($conf['db']['encoding']) === FALSE) {
+        echo "Using an oracle database, you must also set the encoding during the database connection.";
+        if (SYS_NEW_ENCODING === 'utf-8') {
+       echo "\nIt should be set to 'AL32UTF8', but currently it's not set.";
+        } else {
+       echo "\nIt should be set to match '".SYS_NEW_ENCODING."', but currently it's not set.";
+        }
+        echo "\nContinue [y/N] ? ";
+        $response = trim(fgets(STDIN, 1024));
+        if (strtolower($response) != 'y') {
+            echo "\nAborting\n";
+            exit();
+        }
+    }
+    $dbEncoding = $conf['db']['encoding'];
+    if (SYS_NEW_ENCODING === 'utf-8' && strtolower($dbEncoding) != 'al32utf8') {
+        echo "You are converting the character set to utf-8 but have the database connection";
+        echo "\nencoding currently set to '".$dbEncoding."'";
+        echo "\nContinue [y/N] ? ";
+        $response = trim(fgets(STDIN, 1024));
+        if (strtolower($response) != 'y') {
+            echo "\nAborting\n";
+            exit();
+        }
+    }
+}
+
 if ($root_node_id == 1) {
     echo "\nWARNING: You are running this script on the whole system.\nThis is fine, but it may take a long time\n";
 }
-
+ 
 define('SCRIPT_LOG_FILE', $SYSTEM_ROOT.'/data/private/logs/'.basename(__FILE__).'.log');
 
 if (!$reportOnly) {
