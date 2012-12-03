@@ -10,7 +10,7 @@
  * | you a copy.                                                        |
  * +--------------------------------------------------------------------+
  *
- * $Id: system_integrity_fix_char_encoding.php,v 1.11 2012/12/03 00:55:04 csmith Exp $
+ * $Id: system_integrity_fix_char_encoding.php,v 1.12 2012/12/03 21:17:50 csmith Exp $
  */
 
 /**
@@ -21,7 +21,7 @@
  * IMPORTANT: SYSTEM MUST BE BACKEDUP BEFORE RUNNING THIS SCRIPT!!!
  *
  * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
- * @version $Revision: 1.11 $
+ * @version $Revision: 1.12 $
  * @package MySource_Matrix
  */
 
@@ -148,16 +148,17 @@ if ($conf['db']['type'] === 'oci') {
             echo "\nAborting\n";
             exit();
         }
-    }
-    $dbEncoding = $conf['db']['encoding'];
-    if (SYS_NEW_ENCODING === 'utf-8' && strtolower($dbEncoding) != 'al32utf8') {
-        echo "You are converting the character set to utf-8 but have the database connection";
-        echo "\nencoding currently set to '".$dbEncoding."'";
-        echo "\nContinue [y/N] ? ";
-        $response = trim(fgets(STDIN, 1024));
-        if (strtolower($response) != 'y') {
-            echo "\nAborting\n";
-            exit();
+    } else {
+        $dbEncoding = $conf['db']['encoding'];
+        if (SYS_NEW_ENCODING === 'utf-8' && strtolower($dbEncoding) != 'al32utf8') {
+            echo "You are converting the character set to utf-8 but have the database connection";
+            echo "\nencoding currently set to '".$dbEncoding."'";
+            echo "\nContinue [y/N] ? ";
+            $response = trim(fgets(STDIN, 1024));
+            if (strtolower($response) != 'y') {
+                echo "\nAborting\n";
+                exit();
+            }
         }
     }
 }
