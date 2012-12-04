@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.94.2.2 2012/11/01 06:49:02 cupreti Exp $
+* $Id: page_remote_content.inc,v 1.94.2.3 2012/12/04 03:26:23 ewang Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.94.2.2 $
+* @version $Revision: 1.94.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -355,7 +355,16 @@ class Page_Remote_Content extends Page
 			}
 		}
 
-		$cookie_filename = $this->data_path.'/.cookies';
+		// restore cookie from user's session storage
+		// since we really want to make sure Matrix user got individual cookie jar for the remote content
+		if (!is_dir($this->data_path)) {
+			create_directory($this->data_path);
+		}
+		$sessionid = session_id();
+		$cookie_filename = $this->data_path."/cookies_".$sessionid;
+		if(isset($_SESSION['SQ_REMOTE_CONTENT_COOKIE'][$this->id])) {
+		    string_to_file($_SESSION['SQ_REMOTE_CONTENT_COOKIE'][$this->id], $cookie_filename);
+		}
 
 		$options = array(
 					'CONNECTTIMEOUT' => $this->attr('timeout'),
@@ -441,6 +450,10 @@ class Page_Remote_Content extends Page
 		$options['ssl_verifypeer']=$this->attr('verify_ssl');
 		$result = fetch_url($url, $options);
 
+		// save cookie content to session
+		$_SESSION['SQ_REMOTE_CONTENT_COOKIE'][$this->id] =  file_get_contents($cookie_filename);
+		unlink($cookie_filename);
+		
 		if ($result['errornumber'] != 0) {
 			trigger_localised_error('CMS0063', E_USER_WARNING, $url, $result['errorstring']);
 			return FALSE;
