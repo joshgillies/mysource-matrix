@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: table-editor.js,v 1.32.2.2 2012/11/15 00:22:43 cupreti Exp $
+* $Id: table-editor.js,v 1.32.2.3 2012/12/04 00:41:29 cupreti Exp $
 *
 */
 
@@ -99,7 +99,8 @@ TCell = function(parent)
 		this.style = this.style.replace(new RegExp('border\-width:.*?;', 'gi'), '');
 		this.style = this.style.replace(new RegExp('background\-color:.*?;', 'gi'), '');
 		this.style = this.style.replace(new RegExp('border\-style:.*?;', 'gi'), '');
-		
+		this.style = this.style.replace(new RegExp('border\-color:.*?;', 'gi'), '');
+
 		if (this.borderColor != null) {
 			style += 'border-color:' + this.borderColor + ';';
 			this.style = this.style.replace(new RegExp('border\-color:.*?;', 'gi'), '');
