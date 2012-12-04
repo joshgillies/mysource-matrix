@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: external_tools_config.inc,v 1.43 2012/08/30 01:09:19 ewang Exp $
+* $Id: external_tools_config.inc,v 1.43.2.1 2012/12/04 00:35:34 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    e.g. HTML Tidy, PDFtoHTML, Antiword, etc.
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.43.2.1 $
 * @package MySource_Matrix
 */
 class External_Tools_Config extends Config
@@ -55,7 +55,7 @@ class External_Tools_Config extends Config
 						'SQ_TOOL_MARKDOWN_ENABLED'				=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_TOOL_MARKDOWNIFY_PATH'				=> Array('editable' => 1, 'default' => '/usr/bin/markdownify.php'),
 						'SQ_TOOL_MARKDOWNIFY_ENABLED'			=> Array('editable' => 1, 'default' => FALSE),
-						'SQ_TOOL_GETID3_PATH'					=> Array('editable' => 1, 'default' => '/usr/bin/getid3'),
+						'SQ_TOOL_GETID3_PATH'					=> Array('editable' => 1, 'default' => '/usr/share/php/getid3'),
 						'SQ_TOOL_GETID3_ENABLED'				=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_TOOL_VIRUS_CHECKER_PATH'			=> Array('editable' => 1, 'default' => ''),
 						'SQ_TOOL_VIRUS_CHECKER_ENABLED'			=> Array('editable' => 1, 'default' => FALSE),
