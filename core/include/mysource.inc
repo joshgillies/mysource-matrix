@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.396.2.1 2012/11/27 07:03:29 ewang Exp $
+* $Id: mysource.inc,v 1.396.2.2 2012/12/04 00:11:01 ewang Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.396.2.1 $
+* @version $Revision: 1.396.2.2 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -555,9 +555,10 @@ class MySource extends MySource_Object
 					if ($design->type() === 'design_customisation') {
 						// Get the design from the design customisation.
 						$parent_designs = $GLOBALS['SQ_SYSTEM']->am->getParents($designid['designid'], 'design', TRUE);
-						//$effective_designid = NULL;
-						if (count($parent_designs) == 1) {
-							$effective_designid = key($parent_designs);
+						$effective_designid = NULL;
+						if (count($parent_designs) > 0) {
+							$effective_designid = array_keys($parent_designs);
+							$effective_designid = $effective_designid[0];
 						}//end if
 					} else {
 						$effective_designid = $designid['designid'];
