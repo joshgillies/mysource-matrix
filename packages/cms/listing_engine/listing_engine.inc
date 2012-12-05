@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.346.2.1 2012/11/06 02:43:05 ewang Exp $
+* $Id: listing_engine.inc,v 1.346.2.2 2012/12/05 03:09:29 cupreti Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.346.2.1 $
+* @version $Revision: 1.346.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -679,9 +679,14 @@ class Listing_Engine extends Page
 
 		// get children of exclude root nodes, add them to the exclude list
 		$exclude_root_nodes = $this->attr('exclude_root_nodes');
+		$exlcude_rootids_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($exclude_root_nodes, Array(), TRUE, 'type_code');
 		foreach($exclude_root_nodes as $key =>$value) {
-			$exclude_children = $GLOBALS['SQ_SYSTEM']->am->getChildren($value);
-			$exclude_assets = array_merge($exclude_assets, array_keys($exclude_children));
+			if (isset($exlcude_rootids_info[$value])) {
+				$exclude_children = $GLOBALS['SQ_SYSTEM']->am->getChildren($value);
+				$exclude_assets = array_merge($exclude_assets, array_keys($exclude_children));
+			} else {
+				trigger_error('Cannot find the asset #'.$value.' that has been set as an exclude root node on the listing asset #'.$this->id);
+			}
 		}
 
 		if (!empty($exclude_assets)) {
