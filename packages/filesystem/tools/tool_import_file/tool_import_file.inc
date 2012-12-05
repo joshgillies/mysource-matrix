@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_import_file.inc,v 1.3 2012/08/30 00:58:36 ewang Exp $
+* $Id: tool_import_file.inc,v 1.4 2012/12/05 05:43:28 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 *    Tool for importing a file/folder from under a file bridge
 *
 * @author Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage file
 */
@@ -75,6 +75,10 @@ class Tool_Import_File extends Tool
 				check_box($type_code.'_recursive', '1');
 				$o->note(translate('file_recursive_note'));
 			$o->closeField();
+			$o->openField(translate('file_index_file'));
+				check_box($type_code.'_index_file', '1');
+				$o->note(translate('file_index_file_note'));
+			$o->closeField();
 		$o->closeSection();
 
 	}//end paintTool()
@@ -104,6 +108,7 @@ class Tool_Import_File extends Tool
 		}
 
 		$recursive = (array_get_index($_REQUEST, $type_code.'_recursive', FALSE)) ? TRUE : FALSE;
+		$index_file = (array_get_index($_REQUEST, $type_code.'_index_file', FALSE)) ? TRUE : FALSE;
 
 		$sanity_check = TRUE;
 		$allowable_root_nodes = Array('physical_file', 'physical_folder', 'file_bridge');
@@ -120,6 +125,7 @@ class Tool_Import_File extends Tool
 						'root_assetid' 		=> Array($importr),
 						'parent_assetid'	=> $importp,
 						'recursive'			=> $recursive,
+						'index_file'        => $index_file,
 					);
 
 			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
