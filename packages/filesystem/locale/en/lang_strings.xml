@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.2 2010/03/30 00:44:14 bpearson Exp $
+* $Id: lang_strings.xml,v 1.2.16.1 2012/12/05 05:51:28 cupreti Exp $
 *
 *
 * File Package Localised Strings File
@@ -27,4 +27,6 @@
 	<string source="file_importing_folder">Importing Folder "%s"</string>
 	<string source="file_hipo_import_file_threshold">Importing File Threshold</string>
 	<string source="file_hipo_name_import_file">Import File from File Bridge</string>
+	<string source="file_index_file">Import "index.html" as a Standard Page</string>
+	<string source="file_index_file_note">If selected, the file "index.html", if any, will be imported as a Standard Page asset and will replace the folder containing this index file</string>
 </strings>
