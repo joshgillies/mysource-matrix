@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.130.2.4 2012/11/21 00:39:28 akarelia Exp $
+* $Id: js_api.inc,v 1.130.2.5 2012/12/06 05:04:38 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.130.2.4 $
+* @version $Revision: 1.130.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -843,14 +843,18 @@ class JS_Api extends Page
 	*/
 	private function _getRoles($args=Array(), $asset=NULL, $read_access=FALSE, $write_access=FALSE)
 	{
-		$assetid			= isset($args['assetid']) && $args['assetid'] != '' ? $args['assetid'] : NULL;
+		$assetid			= isset($args['id']) && $args['id'] != '' ? $args['id'] : NULL;
 		$roleid				= isset($args['roleid']) && $args['roleid'] != '' ? $args['roleid'] : NULL;
 		$userid				= isset($args['userid']) && $args['userid'] != '' ? $args['userid'] : NULL;
 		$include_assetid	= isset($args['include_assetid']) && $args['include_assetid'] != '' ? $args['include_assetid'] : FALSE;
 		$include_globals	= isset($args['include_globals']) && $args['include_globals'] != '' ? $args['include_globals'] : FALSE;
 		$expand_groups		= isset($args['expand_groups']) && $args['expand_groups'] != '' ? $args['expand_groups'] : FALSE;
 		$inc_dependants		= isset($args['inc_dependants']) && $args['inc_dependants'] != '' ? $args['inc_dependants'] : TRUE;
-		$data				= $GLOBALS['SQ_SYSTEM']->am->getRole($assetid, $roleid, $userid, $include_assetid, $include_globals, $expand_groups, $inc_dependants);
+		$include_parents		= isset($args['include_parents']) && $args['include_parents'] != '' ? $args['include_parents'] : FALSE;
+		$type_codes		= (isset($args['type_codes']) && $args['type_codes'] != '') ? explode('\\,', $args['type_codes']) : Array();
+		$strict_type_code		= isset($args['strict_type_code']) && $args['strict_type_code'] != '' ? $args['strict_type_code'] : TRUE;
+
+		$data				= $GLOBALS['SQ_SYSTEM']->am->getRole($assetid, $roleid, $userid, $include_assetid, $include_globals, $expand_groups, $inc_dependants, $include_parents, $type_codes,$strict_type_code);
 
 		if(empty($data)) $data[] = 'No roles data is found';
 		return $data;
