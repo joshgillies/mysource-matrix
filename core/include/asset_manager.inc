@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.883.2.6 2012/11/26 22:55:39 cupreti Exp $
+* $Id: asset_manager.inc,v 1.883.2.7 2012/12/06 05:43:26 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.883.2.6 $
+* @version $Revision: 1.883.2.7 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -7461,11 +7461,14 @@ class Asset_Manager extends MySource_Object
 	*										replaced with the userids in that group.
 	*										If FALSE, return the groupids
 	* @param boolean	$inc_dependants		If false it will filter out the dependant assets
-	*
+	* @param boolean	$include_parents		When $userid is specified. This will include the roles applied directly to the user and indirectly to user parent groups.
+	* @param array	$type_codes		When $include_assetid is TRUE. This is a type code filter for returned assetids.
+	* @param array	$strict_type_code		Use strict type code for type code filter
+	* 
 	* @return array
 	* @access public
 	*/
-	function getRole($assetid=NULL, $roleid=NULL, $userid=NULL, $include_assetid=FALSE, $include_globals=FALSE, $expand_groups=FALSE, $inc_dependants=TRUE)
+	function getRole($assetid=NULL, $roleid=NULL, $userid=NULL, $include_assetid=FALSE, $include_globals=FALSE, $expand_groups=FALSE, $inc_dependants=TRUE, $include_parents=FALSE, $type_codes=Array(),  $strict_type_code=TRUE)
 	{
 		if (SQ_CONF_ENABLE_ROLES_PERM_SYSTEM == '0' && SQ_CONF_ENABLE_ROLES_WF_SYSTEM == '0') return Array();
 
@@ -7481,12 +7484,35 @@ class Asset_Manager extends MySource_Object
 		}
 
 		if (!is_null($userid)) {
-			$where[] = 'r.userid = :userid';
+		    // find all parent user groups of user id to search roles
+		    if($include_parents && !empty($userid)) {
+			$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($userid, 'user_group', FALSE);
+			foreach ($parents as $usergroupid => $type_code) {
+			    if($type_code == 'role') {
+				unset ($parents[$usergroupid]);
+			    }
+			}
+			$parents = array_keys($parents);
+			for ($i = 0; $i < count($parents); $i++) {
+			    $parents[$i] = MatrixDAL::quote($parents[$i]);
+			}
+			$parents[] =':userid';
+			$in_clause = Array();
+			// break up the assets into chunks of 1000 so that oracle does not complain
+			foreach (array_chunk($parents, 999) as $chunk) {
+				$in_clause[] = ' r.userid IN ('.implode(', ', $chunk).')';
+			}
+			$where[] = '('.implode(' OR ',$in_clause).')';
+		    }
+		   else {
+		       // just use the user id
+		    $where[] = 'r.userid = :userid';    
+		   }
 		}
 
 		$where_clause = '';
 		if (!empty($where)) {
-			$where_clause = 'WHERE '.implode(' AND ', $where);
+		    $where_clause = 'WHERE '.implode(' AND ', $where);
 		}
 
 		$table = ($include_globals) ? 'vw_ast_role r' : 'ast_role r';
@@ -7494,9 +7520,37 @@ class Asset_Manager extends MySource_Object
 
 		if (!$inc_dependants) {
 			// join to link table to get the non dependant assets
-			$where_clause .= ' AND r.assetid = l.minorid AND l.is_dependant = :is_dependant';
+			$where_or_and = ' AND ';
+			if(empty($where_clause)) {
+			    $where_or_and = 'WHERE ';
+			}
+			$where_clause .= $where_or_and.'r.assetid = l.minorid AND l.is_dependant = :is_dependant';
 			$table .= ', '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l';
 			$where_clause = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where_clause, 'l');
+		}
+		
+		// type code filter
+		if ($include_assetid && !empty($type_codes)) {
+			// join to asset table to get type codes
+		    	$where_or_and = ' AND ';
+			if(empty($where_clause)) {
+			    $where_or_and = 'WHERE ';
+			}
+			$where_clause .= $where_or_and.'r.assetid = a.assetid';
+			$table .= ', '.SQ_TABLE_RUNNING_PREFIX.'ast a';
+			$type_codes_quoted = Array();
+			foreach ($type_codes as $tc) {
+				$type_codes_quoted[] = MatrixDAL::quote($tc);
+			}
+			if (!$strict_type_code) {
+				foreach ($type_codes as $tc) {
+					$ancestors = $this->getTypeDescendants($tc);
+					foreach ($ancestors as $ancestor) {
+						$type_codes_quoted[] = MatrixDAL::quote($ancestor);
+					}
+				}
+			}
+			$where_clause .= ' AND a.type_code IN ('.implode(',', $type_codes_quoted).')';
 		}
 		$where_clause = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where_clause, 'r');
 		$sql = 'SELECT DISTINCT r.roleid, r.userid'.$additional.'
