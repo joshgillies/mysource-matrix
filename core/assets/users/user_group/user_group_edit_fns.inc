@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group_edit_fns.inc,v 1.48 2010/09/22 04:00:17 ewang Exp $
+* $Id: user_group_edit_fns.inc,v 1.48.12.1 2012/12/06 00:07:23 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.48.12.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -497,7 +497,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 						continue;
 					}
 					if ($roles_pointer >= $start_printing_at + $num_per_page) {
-						break 3;
+						break 2;
 					}
 
 					if (!isset($asset_tag_lines[$assetid])) {
