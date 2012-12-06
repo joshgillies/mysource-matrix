@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_enhanced_function_list.inc,v 1.27 2012/10/03 01:40:11 akarelia Exp $
+* $Id: js_api_enhanced_function_list.inc,v 1.28 2012/12/06 04:51:34 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author  Anthony Barnes <abarnes@squiz.com.au>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -2218,7 +2218,7 @@ class Js_Api_Enhanced_Function_List
 		if ($js_api_asset->attr('get_roles')) {
 			?>
 
-		/**
+				/**
 		* Returns an array of roles and the users/groups which can perform it
 		*
 		* @param object		options       JSON string of options
@@ -2233,6 +2233,9 @@ class Js_Api_Enhanced_Function_List
 		*										replaced with the userids in that group
 		*										If FALSE, return the groupids
 		*      inc_dependants:		boolean		If false it will filter out the dependant assets
+		*      include_parents:		boolean		When userid is specified. This will include the roles applied directly to the user and indirectly to user parent groups.
+		*      type_codes:		array		When include_assetid is TRUE. This is a type code filter for returned assetids.
+		*      strict_type_code:		boolean		Use strict type code for type code filter
 		*      dataCallback:		function	Custom callback function
 		* }
 		*/
@@ -2243,18 +2246,21 @@ class Js_Api_Enhanced_Function_List
 				return {
 					// Set the default values
 					defaults: {
-						asset_id:           null,
+						asset_id:           '',
 						role_id:            '',
 						user_id:            '',
 						include_assetid:    0,
 						include_globals:    0,
 						expand_groups:      0,
 						inc_dependants:     0,
+						include_parents:    0,
+						type_codes:      [],
+						strict_type_code:     1,
 						dataCallback:       function(){}
 					},
 
 					// Set the required arguments
-					required: ['asset_id','role_id']
+					required: []
 				};
 			}// end if
 
@@ -2262,6 +2268,13 @@ class Js_Api_Enhanced_Function_List
 			// parameters for the post call
 			var fnConfig = this[fnName].call(this);
 			options = this._options(fnConfig.required,fnConfig.defaults,options);
+			
+			options.include_assetid = (convertToBoolean(options.include_assetid)) ? 1 : 0;
+			options.include_globals = (convertToBoolean(options.include_globals)) ? 1 : 0;
+			options.expand_groups = (convertToBoolean(options.expand_groups)) ? 1 : 0;
+			options.inc_dependants = (convertToBoolean(options.inc_dependants)) ? 1 : 0;
+			options.include_parents = (convertToBoolean(options.include_parents)) ? 1 : 0;
+			options.strict_type_code = (convertToBoolean(options.strict_type_code)) ? 1 : 0;
 
 			this._doPost(fnName,[
 				['id', options.asset_id],
@@ -2270,7 +2283,10 @@ class Js_Api_Enhanced_Function_List
 				['include_assetid', options.include_assetid],
 				['include_globals', options.include_globals],
 				['expand_groups', options.expand_groups],
-				['inc_dependants', options.inc_dependants]
+				['inc_dependants', options.inc_dependants],
+				['include_parents', options.include_parents],
+				['type_codes', options.type_codes],
+				['strict_type_code', options.strict_type_code],
 			],options);
 
 		},// end getRoles

@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_standard_function_list.inc,v 1.18 2012/09/18 07:10:15 cupreti Exp $
+* $Id: js_api_standard_function_list.inc,v 1.19 2012/12/06 04:51:34 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1641,31 +1641,51 @@ function importAssetsFromXML(assetID, filePath, dataCallback)
 *										replaced with the userids in that group.
 *										If FALSE, return the groupids
 * @param boolean	inc_dependants		If false it will filter out the dependant assets
+* @param boolean	include_parents		When userid is specified. This will include the roles applied directly to the user and indirectly to user parent groups.
+* @param array	type_codes			When include_assetid is TRUE. This is a type code filter for returned assetids.
+* @param boolean	strict_type_code		Use strict type code for type code filter
 * @param function	dataCallback		Custom callback function
 *
 * @return array
 * @access public
 */
-function getRoles(assetid, roleid, userid, include_assetid, include_globals, expand_groups, inc_dependants, dataCallback) 
+function getRoles(assetid, roleid, userid, include_assetid, include_globals, expand_groups, inc_dependants, include_parents, type_codes, strict_type_code,  dataCallback) 
 {
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
 	var assetid = isset(assetid) ? assetid : '';
 	var roleid = isset(roleid) ? roleid : '';
 	var userid = isset(userid) ? userid : '';
+
 	var include_assetid = isset(include_assetid) && ( include_assetid.toString().toLowerCase() != 'null' && include_assetid != '' ) ? include_assetid : 0;
 	var include_globals = isset(include_globals) && ( include_globals.toString().toLowerCase() != 'null' && include_globals != '' ) ? include_globals : 0;
 	var expand_groups = isset(expand_groups) && ( expand_groups.toString().toLowerCase() != 'null' && expand_groups != '' ) ? expand_groups : 0;
-	var inc_dependants = isset(inc_dependants) && ( inc_dependants.toString().toLowerCase() != 'null' && inc_dependants != '' ) ? inc_dependants : 1;
-
+	var inc_dependants = isset(inc_dependants) && ( inc_dependants.toString().toLowerCase() != 'null') ? inc_dependants : 1;
+	var include_parents = isset(include_parents) && ( include_parents.toString().toLowerCase() != 'null' && include_parents != '' ) ? include_parents : 0;
+	var type_code = '';
+	if(isset(type_codes) && type_codes != '') {
+		if(typeof(type_codes) == 'object' ) {
+			for (var idx in type_codes) {
+				type_code = type_code + type_codes[idx] + '\\,';
+			}
+			type_code = type_code.substring(0, type_code.length-2);
+		} else {
+			type_code = type_codes;
+		}
+	}
+	var strict_type_code = isset(strict_type_code) && ( strict_type_code.toString().toLowerCase() != 'null' && strict_type_code != '' ) ? strict_type_code : 1;
+	
 	// Build our string
-	var url = '<?php echo $api_url; ?>' + '?key=' + api_key + '&type=getRoles&assetid=' + assetid
+	var url = '<?php echo $api_url; ?>' + '?key=' + api_key + '&type=getRoles&id=' + assetid
 	 + '&roleid=' + roleid
 	 + '&userid=' + userid
 	 + '&include_assetid=' + include_assetid
 	 + '&include_globals=' + include_globals  
 	 + '&expand_groups=' + expand_groups
-	 + '&inc_dependants=' + inc_dependants;
+	 + '&inc_dependants=' + inc_dependants
+	 + '&include_parents=' + include_parents
+	 + '&type_codes=' + type_code
+	 + '&strict_type_code=' + strict_type_code;
 
 	// Make our request
 	makeRequest(url, true, dataCallback);
