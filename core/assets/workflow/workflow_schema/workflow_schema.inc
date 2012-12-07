@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_schema.inc,v 1.20 2012/08/30 01:09:17 ewang Exp $
+* $Id: workflow_schema.inc,v 1.21 2012/12/07 04:30:07 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -221,6 +221,20 @@ class Workflow_Schema extends Folder
 		MatrixDAL::bindValueToPdo($query, 'tree_size_1', SQ_CONF_ASSET_TREE_SIZE);
 		$results = MatrixDAL::executePdoAssoc($query);
 
+		// check for running schema
+		$running_schema = FALSE;
+		$running_id = array();
+		foreach ($results as $index => $info) {
+		    if(!empty($info['wflow'])) {
+			$running_schema = TRUE;
+			$running_id[] = $info['assetid'];
+		    }
+		}
+		if($running_schema) {
+		    trigger_error('Purged Workflow Schema Id #'.$this->id.' is applied and running on assets with Id: '.  implode(', ', $running_id), E_USER_NOTICE);
+		    return FALSE;
+		}
+		
 		// guess what? someone is deleting schema even when it might be applied to assets.
 		// lets be smart and remove from the assets where schema is NOT running
 		foreach ($results as $index => $info) {
@@ -232,6 +246,7 @@ class Workflow_Schema extends Folder
 				// oops someone is deleting the workflow without considering that it might
 				// be running on some assets. log warnings but don't stop the purging process
 				trigger_error('Purged Workflow Schema Id #'.$this->id.' is applied and running on Asset Id #'.$info['assetid'].'. This needs to be fixed manually', E_USER_NOTICE);
+				return FALSE;
 			}
 		}
 
