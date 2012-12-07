@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_schema.inc,v 1.21 2012/12/07 04:30:07 ewang Exp $
+* $Id: workflow_schema.inc,v 1.22 2012/12/07 05:33:46 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -244,8 +244,8 @@ class Workflow_Schema extends Folder
 				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 			} else {
 				// oops someone is deleting the workflow without considering that it might
-				// be running on some assets. log warnings but don't stop the purging process
-				trigger_error('Purged Workflow Schema Id #'.$this->id.' is applied and running on Asset Id #'.$info['assetid'].'. This needs to be fixed manually', E_USER_NOTICE);
+				// be running on some assets.
+				trigger_error('Purged Workflow Schema Id #'.$this->id.' is applied and running on Asset Id #'.$info['assetid'].'.', E_USER_NOTICE);
 				return FALSE;
 			}
 		}
