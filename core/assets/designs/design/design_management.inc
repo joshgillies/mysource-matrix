@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_management.inc,v 1.25 2012/08/30 01:09:05 ewang Exp $
+* $Id: design_management.inc,v 1.26 2012/12/07 02:46:46 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -116,6 +116,23 @@ class Design_Management extends Asset_Management
 				$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 				$hh->freestyleHipo('hipo_job_regenerate_design', $vars);
 			}
+			
+		}//end if
+		
+		if (version_compare($current_version, '0.5', '<')) {
+			pre_echo('UPGRADING DESIGN FROM v < 0.5');
+
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+			$sql = 'UPDATE sq_ast_lnk SET is_exclusive = \'1\' WHERE link_type = \'2\' AND value = \'customisation\' AND minorid IN ';
+			$sql .= '(SELECT assetid from sq_ast WHERE type_code = \'design_customisation\')';
+			try {
+				$result = MatrixDAL::executeSql($sql);
+			} catch (Exception $e) {
+				throw new Exception('Failed to get package information for package "'.$package_name.'" due to database error: '.$e->getMessage());
+			}
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			
 		}//end if
 		

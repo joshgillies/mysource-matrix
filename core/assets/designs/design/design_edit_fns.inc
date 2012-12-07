@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.139 2012/11/29 07:29:42 ewang Exp $
+* $Id: design_edit_fns.inc,v 1.140 2012/12/07 02:46:46 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.139 $
+* @version $Revision: 1.140 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -650,7 +650,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		}
 
 		// and link it back to ourselves
-		if (!$asset->createLink($cloned, SQ_LINK_TYPE_2, 'customisation', NULL, '1')) {
+		if (!$asset->createLink($cloned, SQ_LINK_TYPE_2, 'customisation', NULL, '1', '1')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
