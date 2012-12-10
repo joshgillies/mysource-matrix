@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_clear_squid_cache.inc,v 1.13 2012/11/16 00:29:47 cupreti Exp $
+* $Id: hipo_job_tool_clear_squid_cache.inc,v 1.14 2012/12/10 23:49:25 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix
 * @subpackage squid
 */
@@ -187,6 +187,7 @@ class HIPO_Job_Tool_Clear_Squid_Cache extends HIPO_Job
 			$index = array_shift(array_keys($this->_running_vars['todo_urls']));
 			$urls = Array($this->_running_vars['todo_urls'][$index]['url']);
 
+
 			// For the top level URL, include the one with trailing slash too (bug #5996)
 			if ($this->_running_vars['slash'] || strpos($this->_running_vars['todo_urls'][$index]['url'], '/') === FALSE) {
 				// include the same url, with a trailing slash
@@ -225,7 +226,7 @@ class HIPO_Job_Tool_Clear_Squid_Cache extends HIPO_Job
 
 						$system_log_command = "$path -h $hostname $port $options -m PURGE $protocol://$url";
 						error_log('Running: '.$system_log_command);
-						exec($system_log_command, $output, $status);
+						exec(escapeshellcmd($system_log_command), $output, $status);
 
 						// error_log("\n\t"."$path -h $hostname $port $options -m PURGE $protocol://$url \n". serialize($output)."\n");
 						if (empty($output)) {
