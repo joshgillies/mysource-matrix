@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.97 2012/12/04 03:21:51 ewang Exp $
+* $Id: page_remote_content.inc,v 1.98 2012/12/10 02:32:56 ewang Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.97 $
+* @version $Revision: 1.98 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -451,8 +451,10 @@ class Page_Remote_Content extends Page
 		$result = fetch_url($url, $options);
 
 		// save cookie content to session
-		$_SESSION['SQ_REMOTE_CONTENT_COOKIE'][$this->id] =  file_get_contents($cookie_filename);
-		unlink($cookie_filename);
+		if(is_file($cookie_filename)) {
+		    $_SESSION['SQ_REMOTE_CONTENT_COOKIE'][$this->id] =  file_get_contents($cookie_filename);
+		    unlink($cookie_filename);
+		}
 		
 		if ($result['errornumber'] != 0) {
 			trigger_localised_error('CMS0063', E_USER_WARNING, $url, $result['errorstring']);
