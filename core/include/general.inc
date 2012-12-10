@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.267.2.9 2012/12/10 05:13:16 ewang Exp $
+* $Id: general.inc,v 1.267.2.10 2012/12/10 23:02:13 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.267.2.9 $
+* @version $Revision: 1.267.2.10 $
 * @package MySource_Matrix
 */
 
@@ -2586,8 +2586,8 @@ function fetch_url($url='', $options=array(), $headers=array(), $use_proxy=TRUE)
 	    curl_setopt($curl_res, CURLOPT_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS | CURLPROTO_FTP | CURLPROTO_FTPS);
 	}
 	else {
-	   if(!preg_match('/^(http)|(ftp)/i', $url)) {
-	       trigger_error('protocol not supported.');
+	  if(strpos($url, ':') !== FALSE && !preg_match('/^(http)|(ftp)/i', $url)) {
+	       trigger_error('protocol not supported:'.$url);
 	       return FALSE;
 	   }
 	}	
