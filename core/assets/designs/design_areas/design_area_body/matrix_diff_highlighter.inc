@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_diff_highlighter.inc,v 1.14 2012/10/31 02:17:15 cupreti Exp $
+* $Id: matrix_diff_highlighter.inc,v 1.15 2012/12/10 06:47:52 cupreti Exp $
 *
 */
 
@@ -32,7 +32,7 @@ include_once 'Text/Diff/Renderer/inline.php';
 *
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -206,12 +206,12 @@ class Matrix_Diff_Highlighter extends Text_Diff_Renderer_Inline
 	{
 		$opened_tags = Array();
 		foreach($lines as $index => $tag) {
-			if ($this->_isOpenBlockTag($tag)) {
-				$opened_tags[] = Array('line' => $index, 'tag' => preg_replace('#[</>]#', '', $tag));
-			} else if ($this->_isCloseBlockTag($tag)) {
+			if ($this->_isOpenTag($tag)) {
+				$opened_tags[] = Array('line' => $index, 'tag' => trim(preg_replace('|<([^\s]+).*?>|', '$1', $tag)));
+			} else if ($this->_isCloseTag($tag)) {
 				if (!empty($opened_tags)) {
 					$previous_tag = $opened_tags[count($opened_tags)-1]['tag'];
-					$current_tag = preg_replace('#[</>]#', '', $tag);
+					$current_tag = trim(preg_replace('|</([^>]+)>|', '$1', $tag));
 					if ($previous_tag != $current_tag) {
 						// It does not has a matching opened tag, get rid of it
 						$lines[$index] = '';
