@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_clear_squid_cache.inc,v 1.11.2.1 2012/11/16 00:32:52 cupreti Exp $
+* $Id: hipo_job_tool_clear_squid_cache.inc,v 1.11.2.2 2012/12/10 23:51:06 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.11.2.1 $
+* @version $Revision: 1.11.2.2 $
 * @package MySource_Matrix
 * @subpackage squid
 */
@@ -225,7 +225,7 @@ class HIPO_Job_Tool_Clear_Squid_Cache extends HIPO_Job
 
 						$system_log_command = "$path -h $hostname $port $options -m PURGE $protocol://$url";
 						error_log('Running: '.$system_log_command);
-						exec($system_log_command, $output, $status);
+						exec(escapeshellcmd($system_log_command), $output, $status);
 
 						// error_log("\n\t"."$path -h $hostname $port $options -m PURGE $protocol://$url \n". serialize($output)."\n");
 						if (empty($output)) {
