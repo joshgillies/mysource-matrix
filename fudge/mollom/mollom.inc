@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mollom.inc,v 1.3 2011/11/07 22:49:33 csmith Exp $
+* $Id: mollom.inc,v 1.3.4.1 2012/12/12 05:04:18 cupreti Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 * Purpose: Allows Matrix to communicate with Mollom (http://mollom.com)
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.4.1 $
 * @package Fudge
 */
 
@@ -921,72 +921,77 @@ class Mollom
 	* @access public
 	*/
 	public static function verifySubmission($assetid, $parameters)
-	{	
-		self::refreshMollomSession($assetid);
-		
+	{
 		// Whether to accept the submission if Mollom fails to respond expectedly
 		$unknown_submission = SQ_TOOL_MOLLOM_ACCEPT_BYPASSED_SUBMISSION ? SQ_MOLLOM_HAM : SQ_MOLLOM_SPAM;
 
-		if (!self::loadMollom()) {
-			// Cannot load Mollom client, hence cannot check the response for spam.
-			return $unknown_submission;
-		}
-		
-		if (self::checkCaptchaResponse($assetid)) {
-			// Captcha check correct	
-			unset($_SESSION['SQ_MOLLOM_CAPTCHA_'.$assetid]);
-			return SQ_MOLLOM_HAM;
+		try {
+			self::refreshMollomSession($assetid);
 
-		} else if (isset($_SESSION['SQ_MOLLOM_CAPTCHA_'.$assetid])) {
-			return SQ_MOLLOM_INCORRECT_CAPTCHA;
-		}
-		
-		$response = self::checkContent(
-								null,
-								isset($parameters[0]) ? $parameters[0] : null,
-								isset($parameters[1]) ? $parameters[1] : null,
-								isset($parameters[2]) ? $parameters[2] : null,
-								isset($parameters[3]) ? $parameters[3] : null,
-								isset($parameters[4]) ? $parameters[4] : null,
-								isset($parameters[5]) ? $parameters[5] : null,
-								isset($parameters[6]) ? $parameters[6] : null
-			);
-		
-		if (empty($response)) {
-			// No response from server, cannot check spam. Accept it anyway
-			// Better accept a spam rather than reject a legit answer
-			return $unknown_submission;
-		}
-		
-		$spam_status 	= array_get_index($response, 'spam', 'unknown');
-		$quality 		= array_get_index($response, 'quality', 0);
-		$session_id 	= array_get_index($response, 'session_id', '');
-		
-		switch ($spam_status) {
+			if (!self::loadMollom()) {
+				// Cannot load Mollom client, hence cannot check the response for spam.
+				return $unknown_submission;
+			}
 
-			case 'unsure':
-				$mollom_captcha = Array();
-				$image_captcha = self::getImageCaptcha($session_id);
-				$mollom_captcha['session_id'] = $session_id;
-				$mollom_captcha['image_url'] = array_get_index($image_captcha, 'url', '');
-				$mollom_captcha['session_time'] = time();
-				
-				$_SESSION['SQ_MOLLOM_CAPTCHA_'.$assetid] = $mollom_captcha;
-				return SQ_MOLLOM_UNSURE;
-			
-			case 'spam':
-				// Reject the answer
-				return SQ_MOLLOM_SPAM;
-
-			case 'ham':
-				// Its not a spam
+			if (self::checkCaptchaResponse($assetid)) {
+				// Captcha check correct
+				unset($_SESSION['SQ_MOLLOM_CAPTCHA_'.$assetid]);
 				return SQ_MOLLOM_HAM;
+
+			} else if (isset($_SESSION['SQ_MOLLOM_CAPTCHA_'.$assetid])) {
+				return SQ_MOLLOM_INCORRECT_CAPTCHA;
+			}
+
+			$response = self::checkContent(
+									null,
+									isset($parameters[0]) ? $parameters[0] : null,
+									isset($parameters[1]) ? $parameters[1] : null,
+									isset($parameters[2]) ? $parameters[2] : null,
+									isset($parameters[3]) ? $parameters[3] : null,
+									isset($parameters[4]) ? $parameters[4] : null,
+									isset($parameters[5]) ? $parameters[5] : null,
+									isset($parameters[6]) ? $parameters[6] : null
+				);
+
+			if (empty($response)) {
+				// No response from server, cannot check spam. Accept it anyway
+				// Better accept a spam rather than reject a legit answer
+				return $unknown_submission;
+			}
+
+			$spam_status 	= array_get_index($response, 'spam', 'unknown');
+			$quality 		= array_get_index($response, 'quality', 0);
+			$session_id 	= array_get_index($response, 'session_id', '');
+
+			switch ($spam_status) {
+
+				case 'unsure':
+					$mollom_captcha = Array();
+					$image_captcha = self::getImageCaptcha($session_id);
+					$mollom_captcha['session_id'] = $session_id;
+					$mollom_captcha['image_url'] = array_get_index($image_captcha, 'url', '');
+					$mollom_captcha['session_time'] = time();
+
+					$_SESSION['SQ_MOLLOM_CAPTCHA_'.$assetid] = $mollom_captcha;
+					return SQ_MOLLOM_UNSURE;
+
+				case 'spam':
+					// Reject the answer
+					return SQ_MOLLOM_SPAM;
+
+				case 'ham':
+					// Its not a spam
+					return SQ_MOLLOM_HAM;
+			}
+		} catch (Exception $e) {
+			$add_msg = SQ_TOOL_MOLLOM_ACCEPT_BYPASSED_SUBMISSION ? 'Submission accepted anyway.' : 'Submission not accepted.';
+			trigger_error("Error occured when trying to verify the submission with the Mollom: ".$e->getMessage()."\n".$add_msg, E_USER_WARNING);
 		}
-		
+
 		return $unknown_submission;
 
-	}//end evaluate()
-	
+	}//end verifySubmission()
+
 
 	//--   MOLLOM MATRIX KEYWORD REPLACEMENT FUNCTIONS        --//
 	
