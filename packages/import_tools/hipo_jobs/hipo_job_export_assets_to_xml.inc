@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 * @subpackage import_tools/hipo_jobs
 *
@@ -111,18 +111,15 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 	* @return boolean
 	* @access public
 	*/
-	function freestyle()
-	{
-		$step_data['complete'] = FALSE;
+	function freestyle() {
+		$step_data = reset($this->getInitialStepData());
+		
 		while(!$step_data['complete']) {
-			if($this->processExportAsset($step_data, '')) {
-				return FALSE;
-			}
+			$this->processExportAsset($step_data, '');
 		}
 
 		return TRUE;
-
-	}//end freestyle()
+	} // end freestyle()
 
 
 	/**
@@ -159,7 +156,7 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 		$initial_link_type = SQ_LINK_TYPE_1;
 		$action = array_shift($this->_running_vars['sections']);
 		ob_start();
-		if (!$step_data['header_set']) {
+		if (!isset($step_data['header_set']) || !$step_data['header_set']) {
 			echo "<?xml version=\"1.0\" encoding=\"".SQ_CONF_DEFAULT_CHARACTER_SET."\"?>\n";
 			$step_data['header_set'] = TRUE;
 		}
@@ -396,7 +393,7 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 				echo "   <asset>[[output://create_".$this->_running_vars['asset_id_map'][$asset_id].".assetid]]</asset>\n";
 				echo "   <attribute>".$attr_name."</attribute>\n";
 				if ($attr_name == 'html') { $value = $this->_parseValue($value); }
-				echo "   <value><![CDATA[".$value."]]></value>\n";
+				echo "   <value><![CDATA[".$this->_escapeCDATA($value)."]]></value>\n";
 				echo "</action>\n\n";
 			}
 		}
@@ -669,7 +666,7 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 				echo "   <action_type>set_metadata_value</action_type>\n";				
 				echo "   <asset>[[output://create_".$this->_running_vars['asset_id_map'][$asset_id].".assetid]]</asset>\n";
 				echo "   <fieldid>".(isset($this->_running_vars['asset_id_map'][$field_id]) ? "[[output://create_".$this->_running_vars['asset_id_map'][$field_id].".assetid]]" : $field_id)."</fieldid>\n";
-				echo "   <value><![CDATA[".$field_info[0]['value']."]]></value>\n";
+				echo "   <value><![CDATA[".$this->_escapeCDATA($field_info[0]['value'])."]]></value>\n";
 				echo "</action>\n\n";
 			} // end foreach metadata
 		} // end foreach schema
@@ -818,7 +815,19 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
    	 	return ($str == serialize(false) || @unserialize($str) !== false);
 	}
 	
+    /**
+	 * If the value string contains CDATA section, escape it
+	 *
+	 * @param string     $value
+	 *
+	 * @return string
+	 * @access public
+	 */
+    function _escapeCDATA($value)
+    {
+        return preg_replace('|(<\!\[CDATA\[.*?)\]\]\>|ms', '$1]]]]><![CDATA[>', $value);
 
+    }// end _escapeCDATA()
 
 }//end class
 
