@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: external_tools_config.inc,v 1.40.4.3 2012/12/04 00:36:46 ewang Exp $
+* $Id: external_tools_config.inc,v 1.40.4.4 2012/12/12 05:06:31 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    e.g. HTML Tidy, PDFtoHTML, Antiword, etc.
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.40.4.3 $
+* @version $Revision: 1.40.4.4 $
 * @package MySource_Matrix
 */
 class External_Tools_Config extends Config
@@ -211,7 +211,7 @@ class External_Tools_Config extends Config
 			} else {
 				echo $html_standards[$html_standard_selected];
 			}
-			
+
 			require_once SQ_FUDGE_PATH.'/standards_lists/character_sets.inc';
 			$tidy_char_set = array_get_index($standards_lists_tidy_char_sets, SQ_CONF_DEFAULT_CHARACTER_SET);
 
@@ -491,19 +491,23 @@ class External_Tools_Config extends Config
 				// Check that keys are valid
 				if (SQ_TOOL_MOLLOM_PRIVATE_KEY && SQ_TOOL_MOLLOM_PUBLIC_KEY) {
 					require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
-					Mollom::setPublicKey(SQ_TOOL_MOLLOM_PUBLIC_KEY);
-					Mollom::setPrivateKey(SQ_TOOL_MOLLOM_PRIVATE_KEY);
-      				if (!empty($_SESSION['SQ_MOLLOM_SERVER_LIST'])) {
-			            $server_list = unserialize($_SESSION['SQ_MOLLOM_SERVER_LIST']);
-            			Mollom::setServerList($server_list);
-			        } else {
-						$server_list = Mollom::getServerList();
-            			$_SESSION['SQ_MOLLOM_SERVER_LIST'] = serialize($server_list);
-			        }
-					$valid_keys = Mollom::verifyKey();
-					echo $valid_keys ? '<span style="color: green"><b>'.translate('valid').'</b></span>' : '<span style="color: red"><b>'.translate('invalid').'</b></span>';
+					try {
+						Mollom::setPublicKey(SQ_TOOL_MOLLOM_PUBLIC_KEY);
+						Mollom::setPrivateKey(SQ_TOOL_MOLLOM_PRIVATE_KEY);
+      					if (!empty($_SESSION['SQ_MOLLOM_SERVER_LIST'])) {
+				            $server_list = unserialize($_SESSION['SQ_MOLLOM_SERVER_LIST']);
+            				Mollom::setServerList($server_list);
+			        	} else {
+							$server_list = Mollom::getServerList();
+	            			$_SESSION['SQ_MOLLOM_SERVER_LIST'] = serialize($server_list);
+				        }
+						$valid_keys = Mollom::verifyKey();
+						echo $valid_keys ? '<span style="color: green"><b>'.translate('valid').'</b></span>' : '<span style="color: red"><b>'.translate('invalid').'</b></span>';
+					} catch (Exception $e) {
+						echo '<span style="color: black"><b>'.translate('unknown').'</b></span>';
+					}
 				}
-				
+
 			$o->openField(translate('mollom_accept_bypassed_submission_question'));
 				if ($write_access && $is_root) {
 					combo_box($class.'[SQ_TOOL_MOLLOM_ACCEPT_BYPASSED_SUBMISSION]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_TOOL_MOLLOM_ACCEPT_BYPASSED_SUBMISSION);
