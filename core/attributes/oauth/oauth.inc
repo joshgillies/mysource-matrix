@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: oauth.inc,v 1.5.4.4 2012/11/27 05:06:32 ewang Exp $
+* $Id: oauth.inc,v 1.5.4.5 2012/12/12 04:21:30 ewang Exp $
 *
 */
 
@@ -878,7 +878,7 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 		if ($this->getType() == 'THREE_LEGGED') $all_params['oauth_token'] = $this->_header_params['oauth_token'] = $access_token;
 		$query_params = $this->_getQueryParameterArray($url, $url_encode);
 		// include post body in the base string
-		if($this->_config['method'] == 'POST') {
+		if($this->_config['method'] == 'POST' && !empty($this->_config['request_body'])) {
 		    $post_params =  $this->_getQueryParameterArray('?'.$this->_config['request_body']);
 		    $query_params = array_merge($query_params, $post_params);
 		}

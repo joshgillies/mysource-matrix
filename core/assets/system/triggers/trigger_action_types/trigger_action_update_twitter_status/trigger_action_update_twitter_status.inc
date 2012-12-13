@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_update_twitter_status.inc,v 1.6.4.1 2012/09/07 00:56:53 ewang Exp $
+* $Id: trigger_action_update_twitter_status.inc,v 1.6.4.2 2012/12/12 03:59:46 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once 'I18N/UnicodeNormalizer.php';
 *
 *
 * @author  Luke Wright <lwright@squiz.com.au>
-* @version $Revision: 1.6.4.1 $
+* @version $Revision: 1.6.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -146,7 +146,7 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 	* @return boolean
 	* @access public
 	*/
-	public static function getInterface(&$settings, $prefix, $write_access=FALSE, Trigger $trigger=NULL, $action_id=NULL)
+	public static function getInterface($settings, $prefix, $write_access=FALSE, Trigger $trigger=NULL, $action_id=NULL)
 	{
 
 		$settings['tweet_contents'] = array_get_index($settings, 'tweet_contents', '');
