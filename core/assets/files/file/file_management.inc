@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_management.inc,v 1.22.2.1 2012/10/09 05:39:40 ewang Exp $
+* $Id: file_management.inc,v 1.22.2.2 2012/12/12 01:18:21 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22.2.1 $
+* @version $Revision: 1.22.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -110,8 +110,10 @@ class File_Management extends Asset_Management
 			$children = MatrixDAL::executePdoAssoc($query, 0);
 			if(!empty($children)) {
 			    foreach ($children as $assetid) {
-				    $asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				   $asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				    $url = $asset->getURL();
 				    if(empty($asset)) continue;
+				    if(empty($url)) continue;
 				    pre_echo('FILE #'.$asset->id.' UPDATED');
 				    $asset->updateLookups();
 				    $GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset, TRUE);

@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: checkout_action_call_rest_resource.inc,v 1.3.2.1 2012/10/12 00:03:27 cupreti Exp $
+* $Id: checkout_action_call_rest_resource.inc,v 1.3.2.3 2012/11/02 00:58:02 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ define('ECOM_CHECKOUT_REST_ACTION_LOG_FILE', 'ecom_rest_checkout_action');
 *
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.3.2.1 $
+* @version $Revision: 1.3.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -51,7 +51,7 @@ class Checkout_Action_Call_Rest_Resource extends Checkout_Action
 	* @access public
 	* @return void
 	*/
-	public static function paintInlineInterface(Ecommerce_Checkout &$checkout, $settings, Backend_Outputter $o, $prefix)
+	public static function paintInlineInterface(Ecommerce_Checkout $checkout, $settings, Backend_Outputter $o, $prefix)
 	{	
 		if (!isset($settings['http_request'])) {
 			$req_settings = serialize(Array());
@@ -103,7 +103,7 @@ class Checkout_Action_Call_Rest_Resource extends Checkout_Action
 	* @access private
 	* @return void
 	*/
-	private static function _paintOrderArraySetup(Ecommerce_Checkout &$checkout, $settings, Backend_Outputter $o, $prefix)
+	private static function _paintOrderArraySetup(Ecommerce_Checkout $checkout, $settings, Backend_Outputter $o, $prefix)
 	{	
 		$order_array = array_get_index($settings, 'order_array', Array());
 		
@@ -371,7 +371,7 @@ class Checkout_Action_Call_Rest_Resource extends Checkout_Action
 	* @access public
 	* @return boolean
 	*/
-	public static function processInlineInterface(Ecommerce_Checkout &$checkout, &$settings, Backend_Outputter $o, $prefix)
+	public static function processInlineInterface(Ecommerce_Checkout $checkout, &$settings, Backend_Outputter $o, $prefix)
 	{
 		// Process "http request" settings
 		if (!isset($settings['http_request'])) {
@@ -407,7 +407,7 @@ class Checkout_Action_Call_Rest_Resource extends Checkout_Action
 	* @access public
 	* @return boolean
 	*/
-	public static function _processOrderArraySetup(Ecommerce_Checkout &$checkout, &$settings, Backend_Outputter $o, $prefix)
+	public static function _processOrderArraySetup(Ecommerce_Checkout $checkout, &$settings, Backend_Outputter $o, $prefix)
 	{			
 		$order_array = isset($settings['order_array']) ? $settings['order_array'] : Array();
 		$selected_asset_type = isset($_POST[$prefix.'_asset_type_submitted']) ? $_POST[$prefix.'_asset_type_submitted'] : '';
@@ -460,7 +460,7 @@ class Checkout_Action_Call_Rest_Resource extends Checkout_Action
 	* @access public
 	* @return void
 	*/
-	public static function paintSummary(Ecommerce_Checkout &$checkout, $settings, Backend_Outputter $o, $prefix)
+	public static function paintSummary(Ecommerce_Checkout $checkout, $settings, Backend_Outputter $o, $prefix)
 	{
 		if (!isset($settings['http_request'])) {
 			$req_settings = Array();
@@ -510,7 +510,7 @@ class Checkout_Action_Call_Rest_Resource extends Checkout_Action
 	* @access public
 	* @return boolean
 	*/
-	public static function execute(Ecommerce_Checkout &$checkout, Ecommerce_Order &$order, $settings)
+	public static function execute(Ecommerce_Checkout $checkout, Ecommerce_Order $order, $settings)
 	{
 		$req_settings = $settings['http_request'];
 
@@ -556,7 +556,7 @@ class Checkout_Action_Call_Rest_Resource extends Checkout_Action
 		// Get list of keywords in email attribute
 		$keywords_list = array_merge($keywords_list, extract_keywords($email_val['html_format'].', '.$email_val['text_format'].', '.$email_val['subject'].', '.$email_val['from'].', '.$email_val['reply_to'].', '.implode(', ', $email_val['to'])));		
 		
-		// Get order data		
+		// Get order data
 		$order_xml = $order->attr('order_xml');
 		// If "strip HTML tags" global preference is enabled, 
 		// then we will need to decode the encoded xml data to get proper xml
@@ -564,7 +564,14 @@ class Checkout_Action_Call_Rest_Resource extends Checkout_Action
 			$order_xml = htmlspecialchars_decode($order_xml, ENT_COMPAT);
 		}
 		$order_data = xml_to_array($order_xml);
-		
+
+		// If the order was tax exempted (i.e. for non-taxable country)
+		if (isset($order_data['cart'][0]['total_tax'][0]) && ($order_data['cart'][0]['total_tax'][0] > 0)) {
+			$order_data['taxable'] = TRUE;
+		} else {
+			$order_data['cart'][0]['total_tax'][0] = '0';
+			$order_data['taxable'] = FALSE;
+		}
 		
 		// Get all the keyword replacements		
 		$keywords_list = array_unique($keywords_list);
@@ -616,6 +623,7 @@ class Checkout_Action_Call_Rest_Resource extends Checkout_Action
 					$items = @$order_data['cart'][0]['products'][0]['product'];
 					$replacement = count($items);
 				break;
+
 				case 'order_date':
 					$timezone_offset = substr(date('O', $order->created), 0, 1).str_pad(date('Z', $order->created)/60, 3, '0', STR_PAD_LEFT);
 					$replacement = date('YmdHis000', $order->created).$timezone_offset;
@@ -720,6 +728,7 @@ class Checkout_Action_Call_Rest_Resource extends Checkout_Action
 			}			
 		}
 		
+		$taxable = $order_info['taxable'];
 		$items_asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($ordered_items));
 		$array_index = 0;
 		foreach($items_asset_info as $item_id => $item_asset_info) {
@@ -745,7 +754,45 @@ class Checkout_Action_Call_Rest_Resource extends Checkout_Action
 						if (strpos($keyword, 'product_') !== FALSE) {
 							$item_index_name = substr($keyword, 8);							
 							if (isset($item_data[$item_index_name])) {
-								$replacement = $item_data[$item_index_name][0];
+								switch ($item_index_name) {
+									case 'item_price_incl_tax':
+										// The product pricing data in the order will include tax value,
+										// so for tax exempted order, fix the pricings for the keyword replcements here
+										if (!$taxable) {
+											$replacement = @$item_data['item_price'][0];
+										} else {
+											$replacement = $item_data[$item_index_name][0];
+										}
+									break;
+
+									case 'total_item_price_incl_tax':
+										if (!$taxable) {
+											$replacement = @$item_data['total_item_price'][0];
+										} else {
+											$replacement = $item_data[$item_index_name][0];
+										}
+									break;
+
+									case 'item_tax':
+										if (!$taxable) {
+											$replacement = '0';
+										} else {
+											$replacement = $item_data[$item_index_name][0];
+										}
+									break;
+
+									case 'total_item_tax':
+										if (!$taxable) {
+											$replacement = '0';
+										} else {
+											$replacement = $item_data[$item_index_name][0];
+										}
+									break;
+
+									default:
+										$replacement = $item_data[$item_index_name][0];
+									break;
+								}//end switch
 							}//end if
 						} else if ($keyword == 'item_array_index') {
 							$replacement = str_pad($array_index, 4, '0', STR_PAD_LEFT);
@@ -787,7 +834,7 @@ class Checkout_Action_Call_Rest_Resource extends Checkout_Action
 	 * @access public
 	 * @return boolean
 	 */
-	public static function isValid(Ecommerce_Checkout $checkout, &$settings)
+	public static function isValid(Ecommerce_Checkout $checkout, $settings)
 	{		
 		if (!isset($settings['http_request'])) {
 			$req_settings = Array();
