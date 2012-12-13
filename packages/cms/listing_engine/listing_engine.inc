@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.346.2.2 2012/12/05 03:09:29 cupreti Exp $
+* $Id: listing_engine.inc,v 1.346.2.3 2012/12/13 06:21:38 cupreti Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.346.2.2 $
+* @version $Revision: 1.346.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -617,7 +617,7 @@ class Listing_Engine extends Page
 			foreach ($replacements as $kw => $res) {
 				if ($res == '%'.$kw.'%') {
 					$plain_keyword = parse_keyword($kw, $modifiers);
-					if (isset($replacements[$plain_keyword]) && !empty($modifiers)) {
+					if (isset($replacements[$plain_keyword]) && $replacements[$plain_keyword] !== '%'.$plain_keyword.'%' && !empty($modifiers)) {
 						$replacements[$kw] = $replacements[$plain_keyword];
 						// Apply modifiers
 						apply_keyword_modifiers($replacements[$kw], $modifiers, Array('assetid' => $this->id, 'replacements' => $replacements));
