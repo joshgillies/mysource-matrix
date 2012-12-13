@@ -117,7 +117,7 @@ class Page_Hit_Count_Listing extends Listing_Engine
 		$full_query      = '';
 		$full_bind_vars  = Array();
 
-		foreach ($root_asset_ids as $index => $root_asset_id) {
+		foreach ($root_asset_ids as $key => $root_asset_id) {
 			$root_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($root_asset_id);
 			$no_hit_query = '';
 
@@ -238,7 +238,7 @@ class Page_Hit_Count_Listing extends Listing_Engine
 			}
 
 			// if we are not the last index of $root_asset_ids we are doing an union with next query
-			if ($index < (count($root_asset_ids) - 1)) {
+			if ($key < (count($root_asset_ids) - 1)) {
 				$full_query .= ' UNION ALL ';
 			}
 
