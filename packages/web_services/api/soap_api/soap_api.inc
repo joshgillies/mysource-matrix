@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api.inc,v 1.11 2010/05/05 07:16:12 ewang Exp $
+* $Id: soap_api.inc,v 1.11.14.1 2012/12/13 04:50:33 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.11.14.1 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -337,6 +337,22 @@ class SOAP_Api extends Asset
 
 	}//end array_get_index_restricted_value()
 
+	
+	/**
+	* updates the lookup of the assetid passed and all its childrens, (runs freestyle HIPO)
+	*
+	* @return assetid
+	* @access public
+	*/
+	public function updateLookupsforAsset($assetid)
+	{
+		require_once SQ_SYSTEM_ROOT.'/core/hipo/jobs/hipo_job_update_lookups.inc';
+		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 
+		$vars = Array('assetids' => Array($assetid));
+		$hh->freestyleHipo('hipo_job_update_lookups', $vars);
+
+	}//end updateLookupsforAsset()
+	
 }//end class
 ?>

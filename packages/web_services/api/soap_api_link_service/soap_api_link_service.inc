@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_link_service.inc,v 1.11 2012/03/06 00:43:14 akarelia Exp $
+* $Id: soap_api_link_service.inc,v 1.11.2.1 2012/12/13 04:50:33 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.11.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -111,6 +111,9 @@ class Soap_Api_Link_Service extends Soap_Api
 			if ($new_link_id == 0) {
 				throw new SoapFault('Server', 'Unable to create link');
 			}//end if
+			
+			$this->updateLookupsforAsset($minorid);
+			
 			return Array (
 					'CreateAssetLinkResult'	=> $new_link_id,
 				   );
@@ -153,6 +156,8 @@ class Soap_Api_Link_Service extends Soap_Api
 					$result	= $GLOBALS['SQ_SYSTEM']->am->trashAsset($link['minorid']);
 				}//end if
 
+				$this->updateLookupsforAsset($link['minorid']);
+				
 				$GLOBALS['SQ_SYSTEM']->am->releaseLock($link['minorid'], 'all');
 				$GLOBALS['SQ_SYSTEM']->am->releaseLock($link['majorid'], 'all');
 
@@ -405,6 +410,10 @@ class Soap_Api_Link_Service extends Soap_Api
 		if (!empty($linkid) && !empty($to_parent_id)) {
 			$new_link_id	= $GLOBALS['SQ_SYSTEM']->am->moveLink($linkid, $to_parent_id, $link_type, $to_parent_position);
 
+			$new_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($new_link_id);
+			$minorid =  array_get_index($new_link, 'minorid', '');
+			$this->updateLookupsforAsset($minorid);
+			
 			if (!empty($new_link_id)) {
 				return Array (
 						'MoveLinkResult'	=> $new_link_id,
