@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.215 2012/09/07 00:17:30 ewang Exp $
+* $Id: backend.inc,v 1.215.2.1 2012/12/06 00:56:39 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.215 $
+* @version $Revision: 1.215.2.1 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -1438,7 +1438,7 @@ class Backend extends MySource_Object
 		    }
 		    $token = get_unique_token();
 		    if($_POST['token'] !== $token) {
-			trigger_error('Invalid secuirty token');
+			trigger_error('Invalid security token');
 			return;
 		    } 
 		}
