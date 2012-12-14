@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.57 2012/08/30 01:09:11 ewang Exp $
+* $Id: remap_manager.inc,v 1.58 2012/12/14 02:03:41 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -227,6 +227,17 @@ class Remap_Manager extends Asset
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// check if the new URL is already remapping to something else, and delete it
+		$sql = 'DELETE FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_remap';
+		$where = ' WHERE url = :url';
+
+		try {
+			$query = MatrixDAL::preparePdoQuery($sql.$where);
+			MatrixDAL::bindValueToPdo($query, 'url', $new_url);
+			MatrixDAL::executePdoOne($query, 0);
+		} catch (Exception $e) {
+			throw new Exception('Unable to delete old remap URLs for URL: '.$new_url.' due to database error: '.$e->getMessage());
+		}
+		
 		try {
 			$bind_vars	= Array (
 							'url'		=> $old_url,
