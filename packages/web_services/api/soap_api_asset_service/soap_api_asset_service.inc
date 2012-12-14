@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_asset_service.inc,v 1.30 2012/11/23 03:11:03 ewang Exp $
+* $Id: soap_api_asset_service.inc,v 1.31 2012/12/14 04:31:17 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -74,6 +74,7 @@ class Soap_Api_Asset_Service extends Soap_Api
 				'SetAttributeValue'			=> '1',
 				'SetTag'					=> '1',
 				'SetAssetStatus'			=> '1',
+	    			'SetAssetWebPaths'			=> '1',
 				'TrashAsset'				=> '1',
 				'LoginUser'					=> '1',
 				'GetUserIdByUsername'		=> '1',
@@ -1147,8 +1148,8 @@ class Soap_Api_Asset_Service extends Soap_Api
 		return Array('AssetID' => $assetid);
 
 	}//end GetUserIdByUsername()
-
-
+	
+	
 	/**
 	* Description: This operation will set status for an asset
 	*
@@ -1202,6 +1203,43 @@ class Soap_Api_Asset_Service extends Soap_Api
 	}//end SetAssetStatus()
 
 
+	
+	/**
+	* Description: This operation will set multiple paths for an asset
+	*
+	* @param string  $request  The request information
+	*
+	* <pre>
+	* Array (
+	    *		'AssetID'	 		=> [The ID of the asset in query],
+	*        )
+	* </pre>
+	*
+	* @return void
+	* @access public
+	*/
+	function SetAssetWebPaths($request)
+	{
+		$request_info 	= (Array) $request;
+		$assetid			= array_get_index($request_info, 'AssetID', '');
+		if (!empty($assetid)) {
+			$path			= array_get_index($request_info, 'Path', Array());
+			if(!is_array($path)) $path = Array($path);
+			$addRemaps			= array_get_index($request_info, 'AddRemaps', TRUE);
+			
+			$asset		= $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$result	= $asset->saveWebPaths($path, $addRemaps);
+			return Array (
+					'SetAssetWebPathsResult'	=> $result,
+				   );
+		} else {
+			throw new SoapFault('Server', 'Asset ID is not valid. Please provide a valid Asset ID');
+		}//end else
+
+	}//end SetAssetWebPaths()
+	
+	
+	
 	/**
 	* getComplexElements
 	*
@@ -1420,6 +1458,17 @@ class Soap_Api_Asset_Service extends Soap_Api
                                                                                            	  'AssetID'		=> self::$string_non_optional,
                                                                                              ),
                                                               ),
+		    
+	'SetAssetWebPaths'			=> Array (
+						'SetAssetWebPaths'	=> Array (
+									'AssetID'			=> self::$string_non_optional,
+									'Path'			=> self::$string_optional_unbounded,	
+									'AddRemaps'		=> self::$boolean_optional,
+								    ),	
+						'SetAssetWebPathsResponse'=> Array (
+									'SetAssetWebPathsResult'	=> self::$boolean_optional,
+								    ),
+					    ),
 						  );
 
 		$complex_types_available = parent::getComplexElements($complex_types);
