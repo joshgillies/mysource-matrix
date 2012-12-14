@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission.inc,v 1.46 2012/08/30 00:58:08 ewang Exp $
+* $Id: form_submission.inc,v 1.47 2012/12/14 06:51:26 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -309,16 +309,17 @@ class Form_Submission extends Asset
 	* Save attributes set with setAttrValue to the database
 	*
 	* @param boolean	$dont_run_updated	if true this->_updated() won't be run
-	*										(THIS IS ONLY EVER CALLED FROM Asset::create())
+	* @param boolean	$log_message	if FALSE attrubutes change won't be logged in system log										(THIS IS ONLY EVER CALLED FROM Asset::create())
 	*
 	* @return boolean
 	* @access public
 	* @see asset::setAttrValue()
 	*/
-	function saveAttributes($dont_run_updated=FALSE)
+	function saveAttributes($dont_run_updated=FALSE, $log_message=TRUE)
 	{
+
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-		$val = parent::saveAttributes($dont_run_updated);
+		$val = parent::saveAttributes($dont_run_updated, $log_message);
 		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 		return $val;
