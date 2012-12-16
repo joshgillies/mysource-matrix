@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.770.2.2 2012/10/30 06:11:21 ewang Exp $
+* $Id: asset.inc,v 1.770.2.3 2012/12/16 23:38:14 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.770.2.2 $
+* @version $Revision: 1.770.2.3 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3113,13 +3113,14 @@ class Asset extends MySource_Object
 	* Save attributes set with setAttrValue to the database
 	*
 	* @param boolean	$dont_run_updated	if TRUE this->_updated() won't be run
+	* @param boolean        $log_message    if FALSE attrubutes change won't be logged in system log
 	*										(THIS IS ONLY EVER CALLED FROM Asset::create())
 	*
 	* @return boolean
 	* @access public
 	* @see setAttrValue()
 	*/
-	public function saveAttributes($dont_run_updated=FALSE)
+	public function saveAttributes($dont_run_updated=FALSE, $log_message=TRUE)
 	{
 		if (!$this->id) return TRUE;
 		if (empty($this->_tmp['vars_set'])) return TRUE;
@@ -3177,32 +3178,34 @@ class Asset extends MySource_Object
 			$attr_ids[] = $attr_id;
 
 			// log a message for the asset - this wont get logged until we close the queue
-			$msg_reps = Array(
-							'asset_name'	=> $this->name,
-							'attr_name'		=> $attribute->name,
-						);
-			$msg_type = 'asset.attributes.fulllog';
-			if (is_scalar($var_data['old_value']) && is_scalar($attr_value)) {
-				$msg_reps['old_value'] = $var_data['old_value'];
-				$msg_reps['new_value'] = $attr_value;
-				$msg_type .= '.scalar';
-			}
-			$message = $ms->newMessage(Array(), $msg_type, $msg_reps);
-			$message->parameters['assetid'] = $this->id;
-			$ms->logMessage($message);
+			if($log_message) {
+			    $msg_reps = Array(
+							    'asset_name'	=> $this->name,
+							    'attr_name'		=> $attribute->name,
+						    );
+			    $msg_type = 'asset.attributes.fulllog';
+			    if (is_scalar($var_data['old_value']) && is_scalar($attr_value)) {
+				    $msg_reps['old_value'] = $var_data['old_value'];
+				    $msg_reps['new_value'] = $attr_value;
+				    $msg_type .= '.scalar';
+			    }
+			    $message = $ms->newMessage(Array(), $msg_type, $msg_reps);
+			    $message->parameters['assetid'] = $this->id;
+			    $ms->logMessage($message);
 
-			// log a smaller message for users to view - this wont get logged until we close the queue
-			require_once SQ_FUDGE_PATH.'/general/general.inc';
-			$msg_type = 'asset.attributes';
-			if (is_scalar($var_data['old_value']) && is_scalar($attr_value)) {
-				$msg_reps['old_value'] = ellipsisize($var_data['old_value'],30);
-				$msg_reps['new_value'] = ellipsisize($attr_value,30);
-				$msg_type .= '.scalar';
-			}
+			    // log a smaller message for users to view - this wont get logged until we close the queue
+			    require_once SQ_FUDGE_PATH.'/general/general.inc';
+			    $msg_type = 'asset.attributes';
+			    if (is_scalar($var_data['old_value']) && is_scalar($attr_value)) {
+				    $msg_reps['old_value'] = ellipsisize($var_data['old_value'],30);
+				    $msg_reps['new_value'] = ellipsisize($attr_value,30);
+				    $msg_type .= '.scalar';
+			    }
 
-			$sml_message = $ms->newMessage(Array(), $msg_type, $msg_reps);
-			$sml_message->parameters['assetid'] = $this->id;
-			$ms->logMessage($sml_message);
+			    $sml_message = $ms->newMessage(Array(), $msg_type, $msg_reps);
+			    $sml_message->parameters['assetid'] = $this->id;
+			    $ms->logMessage($sml_message);
+			}
 
 			// add attribute to the event broadcaster array (for notification of what has changed)
 			// this allows event listener to act only on what has changed

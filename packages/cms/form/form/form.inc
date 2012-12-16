@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.269 2012/09/25 01:00:35 akarelia Exp $
+* $Id: form.inc,v 1.269.2.1 2012/12/16 23:38:22 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.269 $
+* @version $Revision: 1.269.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1799,7 +1799,7 @@ class Form extends Asset implements Bridge
 					if ($current_page > $latest_page) {
 						$submission->setAttrValue('latest_page', $current_page);
 					}
-					$submission->saveAttributes();
+					$submission->saveAttributes(FALSE, $this->attr('log_submissions'));
 				} else if (isset($submission_var)) {
 					$_SESSION['SQ_FORM_'.$this->id.'_SUBMISSION']['current_page'] = $current_page;
 					if ($current_page > $latest_page) {
@@ -2578,7 +2578,7 @@ class Form extends Asset implements Bridge
 
 				if (!empty($submission)) {
 					$submission->setAttrValue('captcha_status', TRUE);
-					$submission->saveAttributes();
+					$submission->saveAttributes(FALSE, $this->attr('log_submissions'));
 				} else if (isset($_SESSION['SQ_FORM_'.$this->id.'_SUBMISSION'])) {
 					$submission_var =& $_SESSION['SQ_FORM_'.$this->id.'_SUBMISSION'];
 					$submission_var['captcha_status'] = TRUE;
@@ -3500,7 +3500,7 @@ class Form extends Asset implements Bridge
 		$submission_asset->setAttrValue('complete', FALSE);
 		// initially created submission asset should have current page set to first page.
 		$submission_asset->setAttrValue('current_page', 1);
-		$submission_asset->saveAttributes();
+		$submission_asset->saveAttributes(FALSE, $this->attr('log_submissions'));
 
 		// The current user will receive write access to this submission
 		// (as long as one is actually logged in, ie. we are not public)
@@ -3610,7 +3610,7 @@ class Form extends Asset implements Bridge
 			}
 		}
 
-		$submission_asset->saveAttributes();
+		$submission_asset->saveAttributes(FALSE, $this->attr('log_submissions'));
 
 		// If submission asset has metadata schema applied, broadcast the MetadataUpdate event
 		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
