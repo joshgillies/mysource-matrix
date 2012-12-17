@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.53 2012/05/08 06:49:59 cupreti Exp $
+* $Id: report_links_edit_fns.inc,v 1.53.2.1 2012/12/17 04:27:54 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.53.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1616,9 +1616,9 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			}
 			if (!empty($_POST[$prefix.'_remove_rl'])) {
 				if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($cron_mgr->id, 'links')) {
-					for ($i = 0; $i < count($rl_jobs); $i++) {
-						if (in_array($rl_jobs[$i]->id, $_POST[$prefix.'_remove_rl'])) {
-							if ($cron_mgr->removeJob($rl_jobs[$i])) {
+					foreach ($rl_jobs as $rl_job) {
+						if (in_array($rl_job->id, $_POST[$prefix.'_remove_rl'])) {
+							if ($cron_mgr->removeJob($rl_job)) {
 								$is_updated = TRUE;
 							}
 						}// end if
