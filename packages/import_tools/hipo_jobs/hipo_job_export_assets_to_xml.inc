@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_export_assets_to_xml.inc,v 1.10 2012/12/17 05:45:18 dschoen Exp $
+* $Id: hipo_job_export_assets_to_xml.inc,v 1.11 2012/12/17 06:51:52 dschoen Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author  David Schoen <dschoen@squiz.com.au>
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 * @subpackage import_tools/hipo_jobs
 *
@@ -138,6 +138,10 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 		// whether we have warned about attribute values that have been mapped(?)
 		$this->_running_vars['warned'] = FALSE;
 
+		// by default we save to a file, but optionally we can output to stdout
+		// (which only makes sense when being called via a freestyle hipo on the cli)
+		if (!isset($this->_running_vars['stdout'])) $this->_running_vars['stdout'] = false;
+
 		return parent::prepare();
 
 	}//end prepare()
@@ -158,7 +162,11 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 		$asset_infos = $this->_running_vars['root_node_mapping'];
 		$initial_link_type = SQ_LINK_TYPE_1;
 		$action = array_shift($this->_running_vars['sections']);
-		ob_start();
+		
+		if (!$this->_running_vars['stdout']) {
+			ob_start();
+		}
+
 		if (!isset($step_data['header_set']) || !$step_data['header_set']) {
 			echo "<?xml version=\"1.0\" encoding=\"".SQ_CONF_DEFAULT_CHARACTER_SET."\"?>\n";
 			$step_data['header_set'] = TRUE;
@@ -212,11 +220,11 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 				$step_data['complete']     = TRUE;
 			break;		
 		}
-
-		$output = ob_get_clean();
 		
-		file_put_contents($path.'/export.xml', $output, FILE_APPEND | LOCK_EX);
-	
+		if (!$this->_running_vars['stdout']) {
+			$output = ob_get_clean();
+			file_put_contents($path.'/export.xml', $output, FILE_APPEND | LOCK_EX);
+		}
 		
 		return TRUE;
 
@@ -251,6 +259,7 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 
 		$action_code = $this->getAssetType($asset).'_'.$asset->id;
 
+		$this->echo_headline('CREATING ASSET: '.$asset->name);
 		$this->_running_vars['asset_id_map'][$asset->id] = $action_code;
 
 		echo "<action>\n";
@@ -830,7 +839,7 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 	* @param object $asset          the (file type )asset we are saving file for
 	* @param array  $file           the info about the file we are trying to copy
 	*
-	* @return string
+	* @return string  the path the file was saved to
 	* @access private
 	*/
 	private function _saveFileAsset(&$asset, $file=Array()) {
@@ -870,7 +879,6 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 		// path that we return should be relative
 		return 'export/'.$file_type.'/'.$file_info['filename'];
 	}//end _saveFileAsset()
-
 	
 	/**
 	* process the attribute value for reference of asset ids. e.g ?a=xx links should be replaced if the referred the asset is exported together
@@ -1063,6 +1071,36 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 		}
 
 	}// end _updateParseFileForDesign()
+       
+	/**
+	 * Print a headline to STDERR
+	 *
+	 * Only happens if $this->_running_vars['stdout'] == true
+	 *
+	 * @param string     $s  the headline
+	 *
+	 * @return void
+	 * @access public
+	 */
+	public function echo_headline($s) {
+		$this->echo_text("--------------------------------------\n$s\n--------------------------------------");
+	} // end echo_headline()
+
+	/**
+	 * Print a headline to STDERR
+	 *
+	 * Only happens if $this->_running_vars['stdout'] == true
+	 *
+	 * @param string     $s  the headline
+	 *
+	 * @return void
+	 * @access public
+	 */
+	public function echo_text($s) {
+		if ($this->_running_vars['stdout']) {
+			fwrite(STDERR, "$s\n");
+		}
+	}//end echo_text()
 
 }//end class
 
