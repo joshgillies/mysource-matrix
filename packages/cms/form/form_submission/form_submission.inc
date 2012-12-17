@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission.inc,v 1.47 2012/12/14 06:51:26 ewang Exp $
+* $Id: form_submission.inc,v 1.48 2012/12/17 00:10:22 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -309,7 +309,7 @@ class Form_Submission extends Asset
 	* Save attributes set with setAttrValue to the database
 	*
 	* @param boolean	$dont_run_updated	if true this->_updated() won't be run
-	* @param boolean	$log_message	if FALSE attrubutes change won't be logged in system log										(THIS IS ONLY EVER CALLED FROM Asset::create())
+	* @param boolean	$log_message	if FALSE attrubutes change won't be logged in system log
 	*
 	* @return boolean
 	* @access public
