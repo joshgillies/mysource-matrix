@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.888.2.5 2012/12/06 05:03:13 ewang Exp $
+* $Id: asset_manager.inc,v 1.888.2.6 2012/12/17 23:55:29 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.888.2.5 $
+* @version $Revision: 1.888.2.6 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -8416,105 +8416,53 @@ class Asset_Manager extends MySource_Object
 		$db = MatrixDAL::getDb();
 
 		/**
-		* There are two possible queries here.
-		*
-		* If we include treeid's, we end up with something like this
-		* in simplified form:
-		*
-		* select minorid as assetid, treeid, 'override' from
-		* sq_ast_lnk al join sq_ast_lnk_tree lt
-		* where al.minorid in
-		* (
-		*    select assetid from sq_ast_lookup l join sq_ast_lookup_value lv
-		*    where name='X' and value='Y'
-		* )
-		*
-		* This performs a lot better than joining all of the tables together
-		* when you have a lot of urls in ast_lookup
-		*
-		* We need to do this because there's no way to get the treeid's from
-		* just the lookup & lookup_value tables. It has to come from the lnk_tree table
-		*
-		*
-		* If we don't include treeid's, we don't bother with the whole subquery,
-		* we can just get the assetid's from the lookup & lookup_values tables
-		* and end up with something like this in simplified form:
-		*
-		* select assetid, treeid, 'override' from
-		* sq_ast_lookup l join sq_ast_lookup_value lv
-		* where name='X' and value='Y'
-		*/
+		 * Query 1 gets all the override values.
+		 * Query 2 gets all the inherited values.
+		 *
+		 * These are both DISTINCT's because we're potentially joining to the ast_lnk
+		 * table which can have different link values for the same assetid.
+		 */
+		$query1 = 'SELECT DISTINCT l.assetid'.($include_treeids ? ', lt.treeid' : '').', \'override\' as override';
+		$query2 = 'SELECT DISTINCT l.assetid'.($include_treeids ? ', lt.treeid' : '').', \'not_override\' as override';
+
+		/**
+		 * The joins are a little different.
+		 * override values are based on (almost) matching urls.
+		 */
+		$query1 .= '
+			FROM sq_ast_lookup l
+			JOIN sq_ast_lookup_value lv ON (lv.url = l.url OR (lv.url = l.url || \'/\'))
+			';
+
+		/**
+		 * inherited values are based on like urls (basically, they start the same).
+		 */
+		$query2 .= '
+			FROM sq_ast_lookup l
+			JOIN sq_ast_lookup_value lv ON (l.url LIKE lv.url || \'/%\')';
+
+		/**
+		 * If we're including tree id's, we need to join to the lnk table,
+		 * which has the matching of lookup.assetid = lnk.minorid
+		 * so then we can get to the treeid.
+		 */
+		$where = '';
 		if ($include_treeids) {
-			$select = array(
-				'minorid AS assetid',
-				'lt.treeid',
-			);
-			$query_one_select = "l.assetid";
-			$query_two_select = "l.assetid";
+			$where = '
+				JOIN sq_ast_lnk al ON l.assetid = al.minorid
+				JOIN sq_ast_lnk_tree lt ON lt.linkid = al.linkid
+				';
 		}
 
-		if (!$include_treeids) {
-			$select = array(
-				'l.assetid',
-			);
-			$query_one_select = implode(',', $select) . ", 'override' AS override";
-			$query_two_select = implode(',', $select) . ", 'not_override' AS override";
-		}
-
-		$where_clause = "
-			lv.name ".$name_operator." ".MatrixDAL::quote($lookup_name_exp) . "
-			AND lv.value ".$value_operator." ".MatrixDAL::quote($lookup_value_exp);
-
 		/**
-		* first query is concerned with override values, so inherited values are ignored
-		*/
-		$query_one = "
-			SELECT
-				" . $query_one_select . "
-			FROM
-				sq_ast_lookup l
-				JOIN sq_ast_lookup_value lv ON (lv.url = l.url OR (lv.url = l.url || '/'))
-				WHERE
-				" . $where_clause;
-
-		/**
-		* for inherited values
-		*/
-		$query_two = "
-			SELECT
-				" . $query_two_select . "
-			FROM
-				sq_ast_lookup l
-				JOIN sq_ast_lookup_value lv ON (l.url LIKE lv.url || '/%')
+		 * Both queries need to restrict based on the lookup name and the value.
+		 */
+		$where .= '
 			WHERE
-				" . $where_clause;
+			lv.name '.$name_operator.' '.MatrixDAL::quote($lookup_name_exp).'
+			AND lv.value '.$value_operator.' '.MatrixDAL::quote($lookup_value_exp);
 
-		if ($include_treeids) {
-			$from_clause = "
-				FROM
-					sq_ast_lnk al
-					JOIN sq_ast_lnk_tree lt ON lt.linkid=al.linkid
-				WHERE
-					al.minorid in
-			";
-			$sql = "
-				SELECT " . implode(',', $select) . ",
-					'override' AS override
-					" . $from_clause . "
-					(
-						" . $query_one . "
-					)
-				UNION ALL
-				SELECT " . implode(',', $select) . ",
-					'not_override' AS override
-					" . $from_clause . "
-					(
-						" . $query_two . "
-					)
-			";
-		} else {
-			$sql = $query_one . " UNION ALL " . $query_two;
-		}
+		$sql = $query1.$where.' UNION ALL '.$query2.$where;
 
 		$res = NULL;
 		try {
