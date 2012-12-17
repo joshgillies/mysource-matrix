@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.58 2012/12/14 02:03:41 ewang Exp $
+* $Id: remap_manager.inc,v 1.59 2012/12/17 20:08:34 csmith Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -233,7 +233,7 @@ class Remap_Manager extends Asset
 		try {
 			$query = MatrixDAL::preparePdoQuery($sql.$where);
 			MatrixDAL::bindValueToPdo($query, 'url', $new_url);
-			MatrixDAL::executePdoOne($query, 0);
+			MatrixDAL::execPdoQuery($query);
 		} catch (Exception $e) {
 			throw new Exception('Unable to delete old remap URLs for URL: '.$new_url.' due to database error: '.$e->getMessage());
 		}
