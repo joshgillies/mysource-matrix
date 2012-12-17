@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_export_assets_to_xml.inc,v 1.8 2012/12/17 00:56:59 dschoen Exp $
+* $Id: hipo_job_export_assets_to_xml.inc,v 1.9 2012/12/17 03:23:11 dschoen Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author  David Schoen <dschoen@squiz.com.au>
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 * @subpackage import_tools/hipo_jobs
 *
@@ -414,6 +414,25 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 			$assets_done[$asset->id] = TRUE;
 
 			if (!empty($value) && !(($this->getAssetType($asset) == 'Design' || $this->getAssetType($asset) == 'Design_Css') && $attr_name == 'contents')) {
+				// if default character set is utf-8 we dont wanna mess around the characters
+				// we are for now just checking for it not to be utf-8 but can append other encoding
+				// we might want to skip later on
+				if (strtolower(SQ_CONF_DEFAULT_CHARACTER_SET) != 'utf-8') {
+					$result = '';
+					// escape everything else (chars > 126)
+					for ($i = 0; $i < strlen($value); ++$i) {
+						$ord = ord($value[$i]);
+						if ($ord > 126) {
+							$result .= '&#'.$ord.';';
+						} else {
+							$result .= $value[$i];
+						}
+					}// end for
+
+					if ($result !== '') $value = $result;
+					$value = preg_replace('/(\r\n)+/', '<br/>' ,$value);
+				}
+
 				echo "<action>\n";
 				echo "   <action_id>set_".$this->_running_vars['asset_id_map'][$asset_id].'_'.$attr_name."</action_id>\n";
 				echo "   <action_type>set_attribute_value</action_type>\n";
@@ -734,6 +753,26 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 
 			$metadata = $mm->getMetadata($asset_id, $schema_id);
 			foreach ($metadata as $field_id => $field_info) {
+				$field_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($mm->getFieldAssetIdFromName($asset_id, $field_info[0]['name']));
+				if($field_asset->type() == 'metadata_field_text') {
+					$value = $field_info[0]['value'];
+					if (strtolower(SQ_CONF_DEFAULT_CHARACTER_SET) != 'utf-8') {
+						$result = '';
+						// escape everything else (chars > 126)
+						for ($i = 0; $i < strlen($value); ++$i) {
+							$ord = ord($value[$i]);
+							if ($ord > 126) {
+								$result .= '&#'.$ord.';';
+							} else {
+								$result .= $value[$i];
+							}
+						}// end for
+						if ($result !== '') $value = $result;
+						$value = preg_replace('/(\r\n)+/', '<br/>' ,$value);
+					}
+					$field_info[0]['value']= $value;
+				}
+
 				echo "<action>\n";
 				echo "   <action_id>set_".$this->_running_vars['asset_id_map'][$asset_id]."_metadata_field_".$field_id."</action_id>\n";
 				echo "   <action_type>set_metadata_value</action_type>\n";				
