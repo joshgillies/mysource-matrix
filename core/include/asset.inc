@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.770.2.3 2012/12/16 23:38:14 ewang Exp $
+* $Id: asset.inc,v 1.770.2.4 2012/12/17 00:03:19 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.770.2.3 $
+* @version $Revision: 1.770.2.4 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3114,7 +3114,7 @@ class Asset extends MySource_Object
 	*
 	* @param boolean	$dont_run_updated	if TRUE this->_updated() won't be run
 	* @param boolean        $log_message    if FALSE attrubutes change won't be logged in system log
-	*										(THIS IS ONLY EVER CALLED FROM Asset::create())
+	*										
 	*
 	* @return boolean
 	* @access public
