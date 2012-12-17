@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_export_assets_to_xml.inc,v 1.7 2012/12/13 06:41:27 dschoen Exp $
+* $Id: hipo_job_export_assets_to_xml.inc,v 1.8 2012/12/17 00:56:59 dschoen Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author  David Schoen <dschoen@squiz.com.au>
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 * @subpackage import_tools/hipo_jobs
 *
@@ -481,6 +481,7 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset_id);
 
 		foreach ($notice_links as $notice_link) {
+			if (strpos($notice_link['minorid'], ':')) continue;
 			// if we created the asset, get it from array, otherwise, if it's a system asset, we have to use system asset name.
 			if (isset($this->_running_vars['asset_id_map'][$asset_id])){
 				$remap_id =	"[[output://create_".$this->_running_vars['asset_id_map'][$asset_id].".assetid]]" ;
