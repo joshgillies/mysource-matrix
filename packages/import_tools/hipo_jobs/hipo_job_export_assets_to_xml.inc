@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_export_assets_to_xml.inc,v 1.9 2012/12/17 03:23:11 dschoen Exp $
+* $Id: hipo_job_export_assets_to_xml.inc,v 1.10 2012/12/17 05:45:18 dschoen Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author  David Schoen <dschoen@squiz.com.au>
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 * @subpackage import_tools/hipo_jobs
 *
@@ -863,13 +863,12 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 		// create a directory for this file based on the assetid
 		mkdir($path.'/export/'.$file_type.'/'.$assetid, 0775);
 
-		if (copy($file_info['path'], $export_path)) {
-			return $export_path;
-		} else {
+		if (!copy($file_info['path'], $export_path)) {
 			die('Could not copy file');
 		}
 
-
+		// path that we return should be relative
+		return 'export/'.$file_type.'/'.$file_info['filename'];
 	}//end _saveFileAsset()
 
 	
