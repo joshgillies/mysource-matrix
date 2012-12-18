@@ -1,5 +1,52 @@
 SQUIZ MATRIX CHANGELOG
 
+VERSION 4.10.6
+
+Minor Enhancements and Bug Fixes
+=================================== 
+
+Minor Enhancements
+
+Minor Enhancement #6017: Asset Counter Report Now Supports Shadow Asset Counts.
+Minor Enhancement #6036: JS API Enhancement to the getRoles() Operation. 
+
+Core
+
+Fixed Bug #5997: Mollom sometimes fails and only renders half of a page
+Fixed Bug #6015: Rollback Management Tool interface has a useless Effective Date selector.
+Fixed Bug #6020: Matrix will throw warnings if assets selected as excluded root nodes are deleted.
+Fixed Bug #6021: Update Twitter Status trigger action cannot authenticate.
+Fixed Bug #6026: Remote Content Page shares same cookies for different users, regression bug.
+Fixed Bug #6028: Minor error handling fix, undefined effective_designid error when logging.
+Fixed Bug #6029: WYSIWYG's Table Editor plugin adds border colour "#99CCFF" style to the table cells.
+Fixed Bug #6032: Importing files using File Bridge import tool in the backend throws warnings. 
+Fixed Bug #6033: Bug when purging a workflow schema that is still applied to assets and running.
+Fixed Bug #6034: A pagination issue in the Role Assignment screen for User/User Group. 
+Fixed Bug #6037: Design Customisation should be exclusively linked to design. 
+Fixed Bug #6040: Show Diff preview issue if diff markup tags wrap unclosed tags. 
+Fixed Bug #6042: Error in Update Twitter Status trigger action. 
+Fixed Bug #6049: Keyword modifiers not working on global keywords in no results bodycopy. 
+Fixed Bug #6050: WYWIWYG metadata Simple Edit value does not save to backend. 
+Fixed Bug #6052: Changing web path can create an infinite remap loop. 
+
+CMS
+
+Fixed Bug #6059: Cannot delete the "Future Report Regeneration" cron job in Links Report.
+
+LDAP
+
+Fixed Bug #6031: LDAP Data Source doesn't handle attributes that exist in one object but not another.
+
+Data
+
+Fixed Bug #6016: Trigger - Execute DB Query wraps keywords with too many single quotes.
+
+Web Services
+
+Fixed Bug #6046: SOAP deleteAssetLink() does not remove web path if deleting last asset link.
+
+
+
 VERSION 4.10.5
 
 Minor Enhancements and Bug Fixes
