@@ -1,5 +1,103 @@
 SQUIZ MATRIX CHANGELOG
 
+VERSION 4.12.2
+
+Featured Changes
+===================================
+
+Import From XML Script Enhancements [ Feature Request #6018 ]
+-----------------------------------------------------
+
+The Squiz Matrix Import From XML system script, is used to perform actions passed to it in the form of an import file (this can include the creation of assets, setting metadata, or any other actions that are available when creating a trigger).
+
+This feature addresses the following two issues or limitations with the import_from_xml.php script, providing improvements to its performance:
+
+1. Previously, when using this script, invalid links could be left when the import process was aborted. This was due to the entire script being run as a single transaction. This would require Matrix's linking system to abort the entire transaction, leaving any links in the database that it had previously inserted as reserves.
+
+This feature modifies this script to use single transactions for individual actions, rather than for the entire script. This will eradicate the risk of invalid links when the import process is aborted, especially when dealing with larger imports.
+
+Additionally, this change means that, as assets are now created while the script is running, failure at any point will not negate its previous actions. So, for example, if your script has been running for a significant period of time and fails towards the end of its run, all previous work by this script will be preserved. Users will only need to rerun the script for the actions that failed to initially complete.
+
+2. Previously, this script would create all assets within a single process. As a result, the script could potentially consume extensive memory on the database, leading to memory failure.
+
+This feature modifies the way this script creates assets so that each import action is processed in a single thread, closed when the action is completed. This will ensure that memory used by each action is freed once it is finished.
+
+Please note, however, that this adjustment may result in the script running slower than previously. This is due to the overhead of forking actions to each new thread. Despite this, we believe this fix was necessary and improves the processing of this script, which will now be able to handle larger import jobs that it previously couldn't. 
+
+SOAP API: New Function to Set the Web Path of an Asset [ Feature Request #6044 ]
+-----------------------------------------------------
+
+Squiz Matrix's SOAP API Asset Service manages the asset functions of the SOAP Server including the creation and editing of assets, statuses and tags.
+
+This feature introduces the new setAssetWebPaths() function to this asset service, to set the web path(s) of an asset. This function takes the following parameters:
+
+- AssetID: the ID of the asset to set the web path(s) of.
+- Path: the web path to set on the asset.
+- AddRemaps: whether or not to automatically add remaps for web paths that are changed.  
+
+An example usage of this script is as follows:
+
+<SetAssetWebPaths xmlns="~/_web_services/soap">
+<AssetID xsi:type="xsd:string">1598</AssetID>
+<Path xsi:type="xsd:string">home</Path>
+<AddRemaps xsi:type="xsd:boolean">false</AddRemaps>
+</SetAssetWebPaths>
+
+Save and Resume Progress on the Import From XML Script [ Feature Request #6062 ]
+-----------------------------------------------------
+
+The Squiz Matrix Import From XML system script, is used to perform actions passed to it in the form of an import file (this can include the creation of assets, setting metadata, or any other actions that are available when creating a trigger).
+
+This feature adds new save and resume progress tools on this script, allowing you to resume the import process of this script if it is previously terminated, for example, by force cancellation or fatal error.
+
+
+Additional Changes and Bug Fixes
+=================================== 
+
+Minor Enhancements
+
+Minor Enhancement #6013: Improved Error Handling When Uploading an Empty Design Parse File.
+Minor Enhancement #6017: Asset Counter Report Now Supports Shadow Asset Counts.
+Minor Enhancement #6036: JS API Enhancement to the getRoles() Operation. 
+Minor Enhancement #6047: Improved Performance of Usage Screen on Designs and Paint Layouts. 
+Minor Enhancement #6053: Submissions Will No Longer Log Attributes Changes when Submission Logging is Disabled. 
+
+Core
+
+Fixed Bug #5997: Mollom sometimes fails and only renders half of a page
+Fixed Bug #6015: Rollback Management Tool interface has a useless Effective Date selector.
+Fixed Bug #6020: Matrix will throw warnings if assets selected as excluded root nodes are deleted.
+Fixed Bug #6021: Update Twitter Status trigger action cannot authenticate.
+Fixed Bug #6026: Remote Content Page shares same cookies for different users, regression bug.
+Fixed Bug #6028: Minor error handling fix, undefined effective_designid error when logging.
+Fixed Bug #6029: WYSIWYG's Table Editor plugin adds border colour "#99CCFF" style to the table cells.
+Fixed Bug #6032: Importing files using File Bridge import tool in the backend throws warnings. 
+Fixed Bug #6033: Bug when purging a workflow schema that is still applied to assets and running.
+Fixed Bug #6034: A pagination issue in the Role Assignment screen for User/User Group. 
+Fixed Bug #6037: Design Customisation should be exclusively linked to design. 
+Fixed Bug #6040: Show Diff preview issue if diff markup tags wrap unclosed tags. 
+Fixed Bug #6042: Error in Update Twitter Status trigger action. 
+Fixed Bug #6049: Keyword modifiers not working on global keywords in no results bodycopy. 
+Fixed Bug #6050: WYWIWYG metadata Simple Edit value does not save to backend. 
+Fixed Bug #6052: Changing web path can create an infinite remap loop. 
+
+CMS
+
+Fixed Bug #6059: Cannot delete the "Future Report Regeneration" cron job in Links Report.
+
+LDAP
+
+Fixed Bug #6031: LDAP Data Source doesn't handle attributes that exist in one object but not another.
+
+Data
+
+Fixed Bug #6016: Trigger - Execute DB Query wraps keywords with too many single quotes.
+
+Web Services
+
+Fixed Bug #6046: SOAP deleteAssetLink() does not remove web path if deleting last asset link.
+
+
 VERSION 4.12.1
 
 Featured Changes
