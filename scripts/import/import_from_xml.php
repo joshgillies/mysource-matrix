@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_from_xml.php,v 1.26 2012/11/30 06:58:06 ewang Exp $
+* $Id: import_from_xml.php,v 1.27 2012/12/18 04:10:19 ewang Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix
 */
 
@@ -29,6 +29,11 @@ define ('SQ_IN_IMPORT', 1);
 
 error_reporting(E_ALL);
 if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');
+
+// enable gabage collection
+if(function_exists ('gc_enable')) {
+    gc_enable();
+}
 
 if ((php_sapi_name() != 'cli')) trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 
@@ -79,19 +84,34 @@ if (isset($_SERVER['argv'][3]) && $_SERVER['argv'][3] == '--root-node' ) {
 	$import_actions['actions'][0]['action'][0]['parentid'][0] = $root_node_id;
 
 }
+$total_number = count($import_actions['actions'][0]['action']);
 
 // overcom oracle 'end of communication' bug
 _disconnectFromMatrixDatabase();
 
 // temp file to store global data, so child process can access it
-define('TEMP_FILE', SQ_TEMP_PATH.'/import_from_xml.tmp');	
-if(is_file(TEMP_FILE)) unlink(TEMP_FILE);
+// also used as a progress file to resume previous progress
+$import_file_name_hash = md5($import_file);
+define('TEMP_FILE', SQ_TEMP_PATH.'/import_from_xml_'.$import_file_name_hash.'.tmp');	
+if(is_file(TEMP_FILE)) {
+    echo "Previous progress file is detected, resuming to previous import.\n";
+    echo "Using ".TEMP_FILE."\n\n";
+    $actions_done = unserialize(file_get_contents(TEMP_FILE));
+}
+
 
 $import_action_outputs = Array();
 $nest_content_to_fix = Array();
 $designs_to_fix = Array();
 // Loop through the Actions from the XML File
-foreach ($import_actions['actions'][0]['action'] as $action) {
+foreach ($import_actions['actions'][0]['action'] as $index => $action) {
+	// skip actions that have done before
+	// also try those previous failed actions
+	if(isset($actions_done[$action['action_id'][0]])) { 
+	    continue;
+	}
+	
+	
 	// remember nest content to fix
 	if($action['action_type'][0] === 'create_asset' && $action['type_code'][0] === 'Content_Type_Nest_Content') {	
 		$nest_content_to_fix[] = $action['action_id'][0];
@@ -118,7 +138,7 @@ foreach ($import_actions['actions'][0]['action'] as $action) {
 			// restore the temp data from file
 			if(is_file(TEMP_FILE))
 			    $import_action_outputs = unserialize(file_get_contents(TEMP_FILE));
-			
+
 			// check if there is hard coded assetid reference which doesn't exist in the target system
 			if(!checkAssetExists($action, 'parentid') || !checkAssetExists($action, 'assetid') || !checkAssetExists($action, 'asset')) {
 				trigger_error('Action ID "'.$action['action_id'][0].'" contains non-exist assetid reference. Action skipped.', E_USER_WARNING);
@@ -126,15 +146,23 @@ foreach ($import_actions['actions'][0]['action'] as $action) {
 				exit(0);
 				break;
 			}
-			
+
 			// Execute the action
 			printActionId($action['action_id'][0]);
 			if (!execute_import_action($action, $import_action_outputs)) {
-				printStatus('--');
 				trigger_error('Action ID "'.$action['action_id'][0].'" could not be executed', E_USER_WARNING);
 			} else {
-				printStatus('OK');
+				$count = $index + 1;
+				printStatus($count.'/'.$total_number);
 			}
+			
+			// blank out old value and new value returned from set attribute action. 
+			// recording the attribute value content will flood our temp data file and memory
+			$new_entry = array_slice( $import_action_outputs, -1, 1, TRUE );
+			$new_entry_key = key($new_entry);
+			if(isset($new_entry[$new_entry_key]['old_value'])) unset($new_entry[$new_entry_key]['old_value']);
+			if(isset($new_entry[$new_entry_key]['new_value'])) unset($new_entry[$new_entry_key]['new_value']);
+			$import_action_outputs = array_merge($import_action_outputs, $new_entry);
 			
 			// save global temp data to file
 			$temp_string = serialize($import_action_outputs);
@@ -179,7 +207,10 @@ foreach ($designs_to_fix as $design) {
 // remove the temp file
 if(is_file(TEMP_FILE)) unlink(TEMP_FILE);
 
-
+// disable gabage collection
+if(function_exists ('gc_disable')) {
+    gc_disable();
+}
 
 /**
 * Prints the Action ID as a padded string
