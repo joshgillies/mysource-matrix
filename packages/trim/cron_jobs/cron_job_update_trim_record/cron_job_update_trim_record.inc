@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_update_trim_record.inc,v 1.4 2012/08/30 00:59:28 ewang Exp $
+* $Id: cron_job_update_trim_record.inc,v 1.5 2012/12/20 00:17:08 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -174,11 +174,13 @@ class Cron_Job_Update_Trim_Record extends Cron_Job
 				$trash_link	= $GLOBALS['SQ_SYSTEM']->am->getParents($assetid, 'trash_folder', TRUE);
 				if (empty($trash_link)) {
 					$ss	= $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-					$connection	= $ss->getConnection();
-					$test_connection	= TRIM_Common::test_trim_connection($connection);
-					if ($test_connection) {
-						$ss->updateCachedResult();
-					}//end if
+					if(!empty($ss)) {
+					    $connection	= $ss->getConnection();
+					    $test_connection	= TRIM_Common::test_trim_connection($connection);
+					    if ($test_connection) {
+						    $ss->updateCachedResult();
+					    }//end if
+					}
 				}//end if
 			}//end if
 		}//end if
