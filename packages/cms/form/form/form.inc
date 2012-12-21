@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.270 2012/12/14 06:51:26 ewang Exp $
+* $Id: form.inc,v 1.271 2012/12/21 04:35:55 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.270 $
+* @version $Revision: 1.271 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2796,28 +2796,9 @@ class Form extends Asset implements Bridge
 
 		}
 
-		// now sections
-		$sections = $this->getSections();
-		for (reset($sections); NULL !== ($k = key($sections)); next($sections)) {
-			$section =& $sections[$k];
-			echo '<section id="'.$section->id.'" name="'.$section->attr('name').'">';
-
-			$sort_order = $section->attr('sort_order');
-
-			foreach ($sort_order as $sort_order_index => $assetid) {
-
-				// check to see whether this belongs to the section
-				if ($section->id == strtok($assetid, ':')) {
-					$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-					echo $question->getXML($question->getValue($assetid));
-				}
-
-			}
-
-			echo '</section>';
-
-		}
-
+		// bug fix #6070 Custom Form XML Export does not work with nested sections
+		// get the section's XML recursively
+		$this->getSectionXML();
 		echo '</submission>';
 
 		$contents = ob_get_contents();
@@ -2826,6 +2807,41 @@ class Form extends Asset implements Bridge
 		return $contents;
 
 	}//end getXML()
+
+
+	/**
+	* returns a summary about the answers in the form submission
+	*
+	* @param object	$asset the form/section object under which we look to get the related XML
+	*
+	* @return void
+	* @access public
+	*/
+	function getSectionXML($asset=NULL)
+	{
+		if (is_null($asset)) $asset = $this;
+
+		// now sections
+		$sections = $asset->getSections();
+		for (reset($sections); NULL !== ($k = key($sections)); next($sections)) {
+			$section =& $sections[$k];
+			echo '<section id="'.$section->id.'" name="'.$section->attr('name').'">';
+
+			$sort_order = $section->attr('sort_order');
+			foreach ($sort_order as $sort_order_index => $assetid) {
+				// check to see whether this belongs to the section
+				if ($section->id == strtok($assetid, ':')) {
+					$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+					echo $question->getXML($question->getValue($assetid));
+				}
+			}//end foreach
+			$this->getSectionXML($section);
+
+			echo '</section>';
+
+		}//end for
+
+	}//end getSectionXML()
 
 
 	/**
