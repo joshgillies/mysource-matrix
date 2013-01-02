@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_from_xml.php,v 1.27 2012/12/18 04:10:19 ewang Exp $
+* $Id: import_from_xml.php,v 1.28 2013/01/02 02:29:19 akarelia Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix
 */
 
@@ -40,17 +40,20 @@ if ((php_sapi_name() != 'cli')) trigger_error("You can only run this script from
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
 if (empty($SYSTEM_ROOT)) {
 	echo "ERROR: You need to supply the path to the System Root as the first argument\n";
+	usage();
 	exit();
 }
 
 if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
 	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
+	usage();
 	exit();
 }
 
 $import_file = (isset($_SERVER['argv'][2])) ? $_SERVER['argv'][2] : '';
 if (empty($import_file) || !is_file($import_file)) {
 	echo "You need to supply the path to the import file as the second argument\n";
+	usage();
 	exit();
 }
 
@@ -60,12 +63,12 @@ if (isset($_SERVER['argv'][3]) && $_SERVER['argv'][3] == '--root-node' ) {
 	$root_node_id = (isset($_SERVER['argv'][4])) ? $_SERVER['argv'][4] : '';
 	if (empty($root_node_id)) {
 		echo "you need to supply root node under which the assets are to be imported as fourth argument\n";
+		usage();
 		exit();
 	}
-}
+}//end if
 
 $root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
-
 require_once SQ_LIB_PATH.'/import_export/import.inc';
 $import_actions = get_import_actions($import_file);
 
@@ -76,14 +79,19 @@ if (isset($_SERVER['argv'][3]) && $_SERVER['argv'][3] == '--root-node' ) {
 	$root_node = $GLOBALS['SQ_SYSTEM']->am->getAsset($root_node_id);
 	if (is_null($root_node)) {
 		echo "\nProvided assetid is not valid for given system, Script will stop execution\n";
+		usage();
 		exit;
 	}
 	//restore error reporting
 	error_reporting(E_ALL);
-
 	$import_actions['actions'][0]['action'][0]['parentid'][0] = $root_node_id;
+}//end if
 
-}
+$force_create = FALSE;
+if (isset($_SERVER['argv'][3]) && $_SERVER['argv'][3] == '--force-create-dependants' || isset($_SERVER['argv'][5]) && $_SERVER['argv'][5] == '--force-create-dependants') {
+	$force_create = TRUE;
+}//end if
+
 $total_number = count($import_actions['actions'][0]['action']);
 
 // overcom oracle 'end of communication' bug
@@ -92,7 +100,7 @@ _disconnectFromMatrixDatabase();
 // temp file to store global data, so child process can access it
 // also used as a progress file to resume previous progress
 $import_file_name_hash = md5($import_file);
-define('TEMP_FILE', SQ_TEMP_PATH.'/import_from_xml_'.$import_file_name_hash.'.tmp');	
+define('TEMP_FILE', SQ_TEMP_PATH.'/import_from_xml_'.$import_file_name_hash.'.tmp');
 if(is_file(TEMP_FILE)) {
     echo "Previous progress file is detected, resuming to previous import.\n";
     echo "Using ".TEMP_FILE."\n\n";
@@ -107,33 +115,36 @@ $designs_to_fix = Array();
 foreach ($import_actions['actions'][0]['action'] as $index => $action) {
 	// skip actions that have done before
 	// also try those previous failed actions
-	if(isset($actions_done[$action['action_id'][0]])) { 
+	if(isset($actions_done[$action['action_id'][0]])) {
 	    continue;
 	}
-	
-	
+
+
 	// remember nest content to fix
-	if($action['action_type'][0] === 'create_asset' && $action['type_code'][0] === 'Content_Type_Nest_Content') {	
+	if($action['action_type'][0] === 'create_asset' && $action['type_code'][0] === 'Content_Type_Nest_Content') {
 		$nest_content_to_fix[] = $action['action_id'][0];
 	}
-	if($action['action_type'][0] === 'create_asset' && $action['type_code'][0] === 'Design') {	
+	if($action['action_type'][0] === 'create_asset' && $action['type_code'][0] === 'Design') {
 		$designs_to_fix[] = $action['action_id'][0];
 	}
-	
 
- 
+
 	// Use forked process to make sure memory usage is stable
 	$pid = pcntl_fork();
 	switch ($pid) {
-		case -1: 
+		case -1:
 			trigger_error('Process failed to fork', E_USER_ERROR);
 			exit(1);
 			break;
 		case 0:
 			// process action in forked child process
 			// connect to DB within the child process to overcome oracle stupidness
-			_connectToMatrixDatabase();          
-			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_OPEN);
+			_connectToMatrixDatabase();
+			if ($force_create) {
+				$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_SECURITY_INTEGRITY);
+			} else {
+				$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_OPEN);
+			}
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 			// restore the temp data from file
 			if(is_file(TEMP_FILE))
@@ -155,19 +166,19 @@ foreach ($import_actions['actions'][0]['action'] as $index => $action) {
 				$count = $index + 1;
 				printStatus($count.'/'.$total_number);
 			}
-			
-			// blank out old value and new value returned from set attribute action. 
+
+			// blank out old value and new value returned from set attribute action.
 			// recording the attribute value content will flood our temp data file and memory
 			$new_entry = array_slice( $import_action_outputs, -1, 1, TRUE );
 			$new_entry_key = key($new_entry);
 			if(isset($new_entry[$new_entry_key]['old_value'])) unset($new_entry[$new_entry_key]['old_value']);
 			if(isset($new_entry[$new_entry_key]['new_value'])) unset($new_entry[$new_entry_key]['new_value']);
 			$import_action_outputs = array_merge($import_action_outputs, $new_entry);
-			
+
 			// save global temp data to file
 			$temp_string = serialize($import_action_outputs);
 			string_to_file($temp_string, TEMP_FILE);
-			
+
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 			// Disconnect from DB
@@ -180,7 +191,7 @@ foreach ($import_actions['actions'][0]['action'] as $index => $action) {
 			pcntl_waitpid(-1, $status);
 			break;
 	}//end switch
-	
+
 }
 
 
@@ -258,7 +269,7 @@ function checkAssetExists($action, $type='asset')
 {
     	if(isset($action[$type][0]) && preg_match('/^[0-9]+$/', $action[$type][0])){
 	    return ($GLOBALS['SQ_SYSTEM']->am->assetExists ($action[$type][0]));
-	}	
+	}
 	return TRUE;
 }
 
@@ -276,7 +287,7 @@ function _disconnectFromMatrixDatabase()
         MatrixDAL::restoreDb();
         MatrixDAL::dbClose($conn_id);
     }//end if
-        
+
 }//end _disconnectFromMatrixDatabase()
 
 
@@ -292,5 +303,23 @@ function _connectToMatrixDatabase()
 
 }//end _connectToMatrixDatabase()
 
+
+/**
+* Prints the usage details about the script on command line
+*
+* @return void
+* @access public
+*/
+function usage()
+{
+	echo "\nUSAGE:\n".basename(__FILE__)." <system_root> <import_xml_file_to_read_from> [--root-node XX] [--force-create-dependants]\n\n";
+	echo "system_root                   :The path to the Matrix install\n";
+	echo "import_xml_file_to_read_from  :The XML file that contains the asset data\n";
+	echo "--root-node                   :Optional argument used to let the script know the assetid to import the assets under.\n";
+	echo "                               --root-node needs to be followed by assetid after a space\n";
+	echo "--force-create-dependants     :Optional argument used to tell script to force create the dependant assets (like bodycopy under standard page)\n";
+	echo "                               if the actions to create these isn't in the XML import file\n";
+
+}//end usage()
 
 ?>
