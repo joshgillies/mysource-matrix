@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: password.inc,v 1.29 2012/08/30 01:09:17 ewang Exp $
+* $Id: password.inc,v 1.30 2013/01/03 23:54:12 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_ATTRIBUTES_PATH.'/text/text.inc';
 *    <password width="8" min_length="6" />
 *    <password width="8" min_length="6" autocomplete="off" />
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -66,6 +66,10 @@ class Asset_Attribute_Password extends Asset_Attribute_Text
         if(isset($node->attributes()->autocomplete)){
 			$this->_edit_params['autocomplete'] = $node->attributes()->autocomplete;
         }
+
+		// Whether to include an extra password feild to confirm the input
+		$this->_edit_params['confirm_field'] = isset($node->attributes()->confirm_field) ? (int) $node->attributes()->confirm_field : 1;
+
 		return true;
 
 	}//end setEditParams()
@@ -87,11 +91,12 @@ class Asset_Attribute_Password extends Asset_Attribute_Text
 		}
 
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-
 		// NOTE: we deliberatly don't set the value
 		password_box($prefix.'_one', '', $this->_edit_params['width'], $this->_params['max_length'],isset($this->_edit_params['autocomplete']) ? 'autocomplete="'.$this->_edit_params['autocomplete'].'"' : '');
-		echo '<br />';
-		password_box($prefix.'_two', '', $this->_edit_params['width'], $this->_params['max_length'],isset($this->_edit_params['autocomplete']) ? 'autocomplete="'.$this->_edit_params['autocomplete'].'"' : '');
+		if ($this->_edit_params['confirm_field']) {
+			echo '<br />';
+			password_box($prefix.'_two', '', $this->_edit_params['width'], $this->_params['max_length'],isset($this->_edit_params['autocomplete']) ? 'autocomplete="'.$this->_edit_params['autocomplete'].'"' : '');
+		}
 
 		return true;
 
@@ -107,6 +112,14 @@ class Asset_Attribute_Password extends Asset_Attribute_Text
 	*/
 	function process($prefix)
 	{
+		if (!$this->_edit_params['confirm_field'] && isset($_REQUEST[$prefix.'_one'])) {
+			$one = $_REQUEST[$prefix.'_one'];
+			$this->validateValue($one);
+			$this->processed = $one && $this->setValue($one);
+
+			return;
+		}
+
 		if (!isset($_REQUEST[$prefix.'_one']) && !isset($_REQUEST[$prefix.'_two'])) {
 			return false;
 		}
