@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_common.inc,v 1.5 2012/10/17 23:30:00 akarelia Exp $
+* $Id: soap_common.inc,v 1.6 2013/01/04 01:29:59 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ define('MAX_COMPLEX_TYPE_PASRSE_LOOP', 3);
 * This class will have all the common functions used for SOAP trigger and form actions
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -313,11 +313,11 @@ class SOAP_Common
 			$options['passphrase'] = $settings['passphrase'];
 		}
 
-		if ($settings['run_test']) {
+		if (isset($settings['run_test']) && $settings['run_test']) {
 			$options['trace'] = 1;
 		}
 
-		if ($settings['mute_exceptions']) {
+		if (isset($settings['mute_exceptions']) && $settings['mute_exceptions']) {
 			$options['exceptions'] = 0;
 		}
 
@@ -419,7 +419,7 @@ class SOAP_Common
 		if (is_object($data)) $data = get_object_vars($data);
 
 		// Don't play with empty object
-		if(empty($data)) return '';
+		if (empty($data) && (is_array($data) || is_object($data))) return '';
 
 		if(is_array($data)) {
 			$result = Array();
@@ -433,6 +433,124 @@ class SOAP_Common
 
 	}//end toArray
 
+
+	/**
+	* Returns the SOAP client object with the WSSE header set, if applicable
+	*
+	* @param string $wsdl		WSDL address
+	* @param array 	$options	SOAP options
+	* @param array 	$ws_options	WEES parameters (username, password & namespace)
+	*
+	* @return null|object
+	* @access public
+	*/
+	public static function &getSoapClient($wsdl, $options, $ws_options=Array())
+	{
+		$null = NULL;
+
+		try {
+			$soap_client = new SoapClient($wsdl, $options);
+			if (!empty($ws_options['username']) && !empty($ws_options['password']) && !empty($ws_options['namespace'])) {
+				self::setWsseSoapHeader($soap_client, $ws_options['username'], $ws_options['password'], $ws_options['namespace']);
+			}
+		} catch (Exception $e) {
+			trigger_error('Error occured when trying to access the SOAP service: '.htmlentities($e->getMessage()));
+			return $null;
+		}
+
+		return $soap_client;
+
+	}//end getSoapClient()
+
+
+	/**
+	* Add WSSE header to the SOAP client object
+	*
+	* @return boolean
+	* @access public
+	*/
+	public static function setWsseSoapHeader(&$soap_client, $ws_username, $ws_password, $ws_namespace)
+	{
+		if (empty($ws_username) || empty($ws_password) || empty($ws_namespace)) {
+			return FALSE;
+		}
+		if ($soap_client instanceof SoapClient) {
+			$ws_header = '
+			    <soapenv:Header>
+					<wsse:Security soapenv:mustUnderstand="1" xmlns:wsse="'.$ws_namespace.'">
+						<wsse:UsernameToken>
+							<wsse:Username>'.$ws_username.'</wsse:Username>
+							<wsse:Password>'.$ws_password.'</wsse:Password>
+						</wsse:UsernameToken>
+					</wsse:Security>
+				</soapenv:Header>';
+
+			try {
+				$ws_header_var = @new SoapVar($ws_header, XSD_ANYXML);
+				$ws_header = @new SoapHeader($ws_namespace, "wsse", $ws_header_var);
+				$soap_client->__setSoapHeaders($ws_header);
+			}catch (Exception $e) {
+				trigger_error('Error occured when setting the WSSE SOAP header: '.htmlentities($e->getMessage()));
+				return FALSE;
+			}
+
+			return TRUE;
+		}
+
+		return FALSE;
+
+	}//end addUsernameTokenHeader()
+
+
+	/**
+	* Converts an object or an array structure into an xml string
+	*
+	* Example:
+	*       Array(
+	*           "Profile" => Array(
+	*               "Name"  => "Maxx",
+	*               "Age"   => "22",
+	*               ),
+	*           )
+	* will be converted into string:
+	*   "
+	*   <Profile>
+	*       <Name>Maxx</Name>
+	*       <Age>22</Age>
+	*   </Profile>
+	*   "
+	*
+	* @parm Array $str
+	*
+	* @return string
+	* @access public
+	*/
+	function arrayToXml($str)
+	{
+		if (is_object($str)) {
+			$str = get_object_vars($str);
+		}
+		if (!is_array($str)) {
+			return '<![CDATA['.$str.']]>';
+		}
+
+		$xml = '';
+		foreach($str as $key => $value) {
+
+			if (is_int($key)) {
+				$xml .= self::arrayToXml($value);
+			} else {
+				// apply xml element naming rules
+				$key = preg_replace('/\s+/', '', $key);
+				if (empty($key) || preg_match('/^xml$/i', $key)) continue;
+
+				$xml .= "\n".'<'.$key.'>'.self::arrayToXml($value).'</'.preg_replace('|\s.*$|', '', $key).'>';
+			}
+		}//end foreach
+
+		return $xml;
+
+	}//end arrayToXml()
 
 
 }//end class
