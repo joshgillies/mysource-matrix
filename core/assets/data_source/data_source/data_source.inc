@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source.inc,v 1.35 2012/08/30 01:09:05 ewang Exp $
+* $Id: data_source.inc,v 1.36 2013/01/07 02:46:23 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -198,6 +198,15 @@ class Data_Source extends Asset implements Bridge
 		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		$r = $cm->saveToCache($this->id, $this->type(), $cache_key, serialize($result), FALSE);
 
+		// Being here means result set has been updated. Clear all the previous data recordset assets 
+		// from the asset cache that has same assetids as that of ones in the updated result set
+		foreach($result as $key => $info) {
+			$recordset_asset = $this->getAsset($this->id.':'.$key, '', TRUE, TRUE);
+			if (!is_null($recordset_asset)) {
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($recordset_asset, TRUE);
+			}
+		}//end foreach
+
 	}//end cacheResultSet()
 
 
@@ -312,6 +321,7 @@ class Data_Source extends Asset implements Bridge
 									'status_changed_userid'	=> $asset->status_changed_userid,
 								  );
 			}//end if field not empty
+
 		}//end foreach of assetids
 		return $info;
 
