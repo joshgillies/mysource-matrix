@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source.inc,v 1.36 2013/01/07 02:46:23 cupreti Exp $
+* $Id: data_source.inc,v 1.37 2013/01/08 23:48:54 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -198,13 +198,16 @@ class Data_Source extends Asset implements Bridge
 		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		$r = $cm->saveToCache($this->id, $this->type(), $cache_key, serialize($result), FALSE);
 
-		// Being here means result set has been updated. Clear all the previous data recordset assets 
+		// Being here means result set has been updated. Clear all the previous data recordset assets
 		// from the asset cache that has same assetids as that of ones in the updated result set
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('data_source_record_set');
 		foreach($result as $key => $info) {
-			$recordset_asset = $this->getAsset($this->id.':'.$key, '', TRUE, TRUE);
-			if (!is_null($recordset_asset)) {
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($recordset_asset, TRUE);
-			}
+			// Fake a recordset asset
+			$record = Array('shadow_asset_id' => $key);
+			$recordset_asset = new Data_Source_Record_Set($this->id, $record);
+
+			// If asset cache exists for this recordset asset id, it will be cleared off
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($recordset_asset, TRUE);
 		}//end foreach
 
 	}//end cacheResultSet()
