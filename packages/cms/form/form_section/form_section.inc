@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.82 2012/08/30 00:58:08 ewang Exp $
+* $Id: form_section.inc,v 1.82.2.1 2013/01/09 03:29:44 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.82 $
+* @version $Revision: 1.82.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1100,6 +1100,28 @@ class Form_Section extends Asset implements Bridge
 		return $result;
 
 	}//end getSectionLinks()
+
+
+	/**
+	* returns immediate sections under this section in order of 'sort_order'
+	*
+	* Structure of return array is Array(object Form_Section).
+	*
+	* @return array
+	* @access public
+	*/
+	function &getSections()
+	{
+		$am = $GLOBALS['SQ_SYSTEM']->am;
+		$section_links = $this->getSectionLinks();
+		$sections = Array();
+
+		foreach ($section_links as $link) {
+			$sections[$link['sort_order']] = $am->getAsset($link['minorid'], $link['minor_type_code']);
+		}
+		return $sections;
+
+	}//end getSections()
 
 
 //--        PAINTING FUNCTIONS        --//
