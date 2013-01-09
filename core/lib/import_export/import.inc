@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import.inc,v 1.30.2.1 2012/10/02 04:20:52 akarelia Exp $
+* $Id: import.inc,v 1.30.2.2 2013/01/09 02:51:14 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * Importing functions, reads an XML file and imports an asset strucutre
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.30.2.1 $
+* @version $Revision: 1.30.2.2 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -103,7 +103,20 @@ function get_import_actions($import_file)
 					$xml_header = $line;
 					continue;
 				}
-				if (preg_match('/(<\/actions>)$/', trim($line))) break;
+				if (preg_match('/(<\/actions>)$/', trim($line))) {
+					// bug fix #6075 Import from XML Tool reports erroneous XML
+					// if the XML content doesn't have proper line breaks.
+					// first check to see if the line only contains </actions> tag
+					// or does it have some tags that we need to make our XML valid
+					// something like <granted>1</granted></action></actions>
+					if (trim($line) != '</actions>') {
+						$line = preg_replace('/(<\/actions>)$/', '',trim($line));
+						if (trim($line) != '') {
+							$content .= $line;
+						}
+					}
+					break;
+				}
 
 				$content = $content.$line;
 				$count++;
