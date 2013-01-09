@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_db_query.inc,v 1.8 2012/08/30 00:58:16 ewang Exp $
+* $Id: form_action_db_query.inc,v 1.8.2.1 2013/01/09 03:00:57 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/form/form_action/form_action.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -453,6 +453,16 @@ class Form_Action_DB_Query extends Form_Action
 			$password   = $settings['password'];
 
 			$db_type = substr($dsn_string, 0, strpos($dsn_string, ':'));
+
+			// If there is an "oci:" prefix, strip it and store this data in the DB type index
+			if (substr($dsn_string, 0, 4) == 'oci:') {
+				$dsn_string = substr($dsn_string, 4);
+				// Also we may have arrived from the separate fields interface or manually entered a "dbname=" PDO_OCI-type DSN
+				// In such cases we will be nice and strip the leading "dbname=" for a simple PHP OCI-friendly format
+				if (substr($dsn_string, 0, 7) == 'dbname=') {
+					$dsn_string = substr($dsn_string, 7);
+				}
+			}
 
 			$dsn = Array(
 					'DSN'		=> $dsn_string,
