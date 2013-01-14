@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.112 2012/08/30 00:58:08 ewang Exp $
+* $Id: form_email_edit_fns.inc,v 1.112.2.1 2013/01/14 00:36:17 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.112 $
+* @version $Revision: 1.112.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -852,7 +852,20 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 		// defining the file as attachment forces most browsers to offer it for download
 		header('Content-Disposition: attachment; filename=submission_log.xml;');
-		
+
+		//This is known that Internet Explorer has problems with SSL connection (https).
+		//http://support.microsoft.com/default.aspx?scid=kb;en-us;812935
+		//http://support.microsoft.com/default.aspx?scid=kb;en-us;316431
+		// do not send no cache header in https for IE
+		$url_info = parse_url(current_url());
+		$protocol = (isset($url_info['scheme'])) ? $url_info['scheme'] : NULL;
+		$using_ie6_8 = isset ($_SERVER['HTTP_USER_AGENT']) ? preg_match('/(MSIE\s[0-8]+\.)/', $_SERVER['HTTP_USER_AGENT']) : FALSE;
+		if (!is_null($protocol) && $protocol == 'https' && $using_ie6_8) {
+			header('Cache-Control: private, max-age=0, must-revalidate');
+			header('Pragma: private');
+			header('Expires: '.gmdate('D, d M Y H:i:s', time()-3600).' GMT');
+		}
+
 		// get the from and to values
 		$from_value = isset($_POST[$prefix.'_export_fromvalue']) ? ts_iso8601(mktime(0,0,0,$_POST[$prefix.'_export_fromvalue']['m'],$_POST[$prefix.'_export_fromvalue']['d'],$_POST[$prefix.'_export_fromvalue']['y'])) : '---------- --:--:--';
 		$to_value = isset($_POST[$prefix.'_export_tovalue']) ? ts_iso8601(mktime(0,0,0,$_POST[$prefix.'_export_tovalue']['m'],$_POST[$prefix.'_export_tovalue']['d'],$_POST[$prefix.'_export_tovalue']['y'])) : '---------- --:--:--';

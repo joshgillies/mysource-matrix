@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: csv.inc,v 1.23 2012/08/30 00:56:51 ewang Exp $
+* $Id: csv.inc,v 1.23.2.1 2013/01/14 00:36:28 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     A class used to create and parse CSV files
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.23.2.1 $
 * @package Fudge
 * @subpackage CSV
 */
@@ -204,7 +204,7 @@ class CSV
 		} else {
 			header('Content-Type: application/csv');
 			header('Content-Disposition: attachment; filename='.$this->_filename.';');
-			
+
 			//This is known that Internet Explorer has problems with SSL connection (https).
 			//http://support.microsoft.com/default.aspx?scid=kb;en-us;812935
 			//http://support.microsoft.com/default.aspx?scid=kb;en-us;316431
@@ -213,13 +213,12 @@ class CSV
 			// get protocol information
         	$url_info = parse_url(current_url());
         	$protocol = (isset($url_info['scheme'])) ? $url_info['scheme'] : NULL;
-       		$using_ie6 = strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE 6.') !== FALSE;
-
-			if (!is_null($protocol) && $protocol == 'https' && $using_ie6) {
+			$using_ie6_8 = isset ($_SERVER['HTTP_USER_AGENT']) ? preg_match('/(MSIE\s[0-8]+\.)/', $_SERVER['HTTP_USER_AGENT']) : FALSE;
+			if (!is_null($protocol) && $protocol == 'https' && $using_ie6_8) {
 				header('Cache-Control: private, max-age=0, must-revalidate');
             	header('Pragma: private');
              	header('Expires: '.gmdate('D, d M Y H:i:s', time()-3600).' GMT');
-	
+
 			}
 
 		}
