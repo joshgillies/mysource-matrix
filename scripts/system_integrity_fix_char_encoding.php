@@ -10,7 +10,7 @@
  * | you a copy.                                                        |
  * +--------------------------------------------------------------------+
  *
- * $Id: system_integrity_fix_char_encoding.php,v 1.12 2012/12/03 21:17:50 csmith Exp $
+ * $Id: system_integrity_fix_char_encoding.php,v 1.13 2013/01/15 03:44:04 cupreti Exp $
  */
 
 /**
@@ -21,7 +21,7 @@
  * IMPORTANT: SYSTEM MUST BE BACKEDUP BEFORE RUNNING THIS SCRIPT!!!
  *
  * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
- * @version $Revision: 1.12 $
+ * @version $Revision: 1.13 $
  * @package MySource_Matrix
  */
 
@@ -254,6 +254,10 @@ function fix_db($root_node, $tables)
 {
     global $reportOnly;
 
+	// Get the list of attrids of the type 'serialise'
+	$sql = "SELECT attrid FROM sq_ast_attr where type='serialise'";
+	$serialise_attrids = array_keys(MatrixDAL::executeSqlGrouped($sql));
+
     $target_assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($root_node));
     array_unshift($target_assetids, $root_node);
 
@@ -320,7 +324,21 @@ function fix_db($root_node, $tables)
                 if (!isValidValue($value)) {
                     // String might also contains the char(s) from older encoding which is/are not valid for current one
                     // See if we can convert these without igonoring or interprating any chars
-                    $converted_value = @iconv(SYS_OLD_ENCODING, SYS_NEW_ENCODING.'//IGNORE', $value);
+					if ($table == 'sq_ast_attr_val' && in_array($key, $serialise_attrids)) {
+						// Need to handle serialised data differently
+						$us_value = @unserialize($value);
+						if (is_array($us_value)) {
+							array_walk_recursive($us_value, 'fix_char');
+							$converted_value = serialize($us_value);
+						} else if (is_string($us_value)) {
+							$us_value = @iconv(SYS_OLD_ENCODING, SYS_NEW_ENCODING.'//IGNORE', $us_value);
+							$converted_value = serialize($us_value);
+						} else {
+							$converted_value = $value;
+						}
+					} else {
+                    	$converted_value = @iconv(SYS_OLD_ENCODING, SYS_NEW_ENCODING.'//IGNORE', $value);
+					}
 
                     // If the converted value is valid in current encoding then its good to go
                     // otherwise we'll just not use this value
@@ -436,6 +454,28 @@ function fix_db($root_node, $tables)
 		);
 
 }//end fix_db()
+
+
+/**
+* Callback function for array_walk_recursive()
+* to fix the chars in the serialised value
+*
+* @param $val	Array value
+* @param $key	Array key
+*
+* @return void
+*/
+function fix_char(&$val, $key)
+{
+	if (is_string($val)) {
+		$check = @iconv(SYS_OLD_ENCODING, SYS_NEW_ENCODING.'//IGNORE', $val);
+		// If it requires converting
+		if ($val != $check) {
+			$val = @iconv(SYS_OLD_ENCODING, SYS_NEW_ENCODING.'//IGNORE', $val);
+		}
+	}
+
+}//end fix_char
 
 
 /**
