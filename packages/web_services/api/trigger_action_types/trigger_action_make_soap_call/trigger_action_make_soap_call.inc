@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_make_soap_call.inc,v 1.9 2012/10/17 23:30:00 akarelia Exp $
+* $Id: trigger_action_make_soap_call.inc,v 1.10 2013/01/17 05:28:25 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(dirname(dirname(__FILE__))).'/lib/soap_common.inc';
 *
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -114,6 +114,17 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 		// Make SOAP call
 		try {
 			$client = new SoapClient($wsdl, $options);
+
+			// For authentication using JSESSIONID cookie
+			if ($settings['auth_type'] == 'JSESSIONID') {
+				$username = array_get_index($settings, 'login', '');
+				$password = array_get_index($settings, 'password', '');
+				$login_url = array_get_index($settings, 'login_url', '');
+				if (!SOAP_Common::setJSessionCookie($client, $username, $password, $login_url)) {
+					throw new Exception('Error occured when setting the JSESSIONID cookie');
+				}
+			}
+
 			eval('$data = $client->$function('.$eval_string.');');
 		}
 		catch (Exception $e) {
@@ -174,9 +185,28 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 	*/
 	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
+		$auth_types = Array(
+						'HTTP_BASIC' => 'HTTP Basic',
+						'JSESSIONID' => 'Using JESSIONID Cookie',
+					);
+		$selected_caching_type  = array_get_index($settings, 'cache_wsdl', WSDL_CACHE_NONE);
+		$disabled = $write_access ? '' : 'disabled';
+		$prefix_str = md5($prefix);
+
 		ob_start();
 		?>
 
+		<script type="text/javascript">
+            function showLoginUrlField<?php echo $prefix_str;?>() {
+                var auth_type = document.getElementById('<?php echo $prefix.'[auth_type]'; ?>').value;
+                var login_url_field = document.getElementById('<?php echo $prefix.'[login_url_tr]'; ?>');
+                if (auth_type == 'JSESSIONID') {
+                    login_url_field.style.display = '';
+                } else {
+                    login_url_field.style.display = 'none';
+                }
+            }//end function
+        </script>
 		<p class="sq-backend-section-subheading">Connection Details</p>
 
 			<table class="sq-backend-table" >
@@ -193,7 +223,41 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 					?></p></td>
 				</tr>
 				<tr>
-					<td><?php echo translate('login'); ?></td>
+					<td width="120">Auth Type</td>
+					<td><p>
+					<?php
+						$selected_auth_type = array_get_index($settings, 'auth_type', 'HTTP_BASIC');
+						combo_box($prefix.'[auth_type]', $auth_types, FALSE, $selected_auth_type, 0, "onChange='showLoginUrlField".$prefix_str."()' $disabled");
+					?></p></td>
+				</tr>
+				<tr id="<?php echo $prefix; ?>[login_url_tr]" style="display: <?php echo ($selected_auth_type == 'HTTP_BASIC' ? 'none' : '') ?>;">
+					<td width="120">Auth URL</td>
+					<td>
+						<p>
+						<?php
+							if ($write_access) {
+								text_box($prefix.'[login_url]', array_get_index($settings, 'login_url', ''), 100);
+								check_box($prefix.'[test_auth]', '1', FALSE);
+								echo " Test Authentication";
+							} else {
+								echo array_get_index($settings, 'login_url', '');
+							}
+						?>
+						</p>
+						<?php
+							if ($write_access && isset($settings['crm_auth_success']) && is_bool($settings['crm_auth_success'])) {
+								if ($settings['crm_auth_success'] === TRUE) {
+									echo '<p><span style="color: green"><b>Authentication successful</b></span></p>';
+								} else {
+									echo '<p><span style="color: red"><b>Authentication Failed</b></span></p>';
+								}
+							}
+						?>
+					</td>
+				</tr>
+
+				<tr>
+					<td><?php echo translate('username'); ?></td>
 					<td><p>
 					<?php
 						$login = array_get_index($settings, 'login', '');
@@ -229,6 +293,10 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 						}
 					?>
 					</p></td>
+				</tr>
+				<tr>
+					<td width="120"><p>Cache WSDL</p></td>
+					<td><p><?php combo_box($prefix.'[cache_wsdl]', SOAP_Common::$wsdl_caching_opts, FALSE, $selected_caching_type); ?></p></td>
 				</tr>
 			</table>
 
@@ -547,6 +615,10 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 		$settings['passphrase']			= array_get_index($request_data, 'passphrase', '');
 		$settings['run_test']			= array_get_index($request_data, 'run_test', 0);
 		$settings['action']				= array_get_index($request_data, 'action', NULL);
+		$settings['auth_type']			= array_get_index($request_data, 'auth_type', NULL);
+		$settings['login_url']			= array_get_index($request_data, 'login_url', NULL);
+		$settings['cache_wsdl']			= array_get_index($request_data, 'cache_wsdl', NULL);
+		$settings['test_crm_auth']		= array_get_index($request_data, 'test_auth', NULL);
 
 		if(isset ($settings['wsdl']) && !empty($settings['wsdl'])) {
 
@@ -675,6 +747,14 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 		}//end if
 		$settings['test_results'] = $test_results;
 
+		unset($settings['crm_auth_success']);
+		if ($settings['auth_type'] == 'JSESSIONID' && $settings['test_crm_auth']) {
+			$crm_auth_test = FALSE;
+			if (SOAP_Common::getJSessionId($settings['login'], $settings['password'], $settings['login_url'])) {
+				$crm_auth_test = TRUE;
+			}
+			$settings['crm_auth_success'] = $crm_auth_test;
+		}
 
 		return FALSE;
 

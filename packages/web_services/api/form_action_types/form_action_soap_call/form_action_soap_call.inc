@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_soap_call.inc,v 1.25 2012/10/30 05:24:26 akarelia Exp $
+* $Id: form_action_soap_call.inc,v 1.26 2013/01/17 05:25:29 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once dirname(dirname(dirname(__FILE__))).'/lib/soap_form_based_common.in
 * Make a SOAP call before submitting form
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -55,10 +55,26 @@ class Form_Action_SOAP_Call extends Form_Action
 	*/
 	public static function paintInlineInterface(Form $form, $settings, Backend_Outputter $o, $prefix)
 	{
+		$auth_types = Array(
+						'HTTP_BASIC' => 'HTTP Basic',
+						'JSESSIONID' => 'Using JESSIONID Cookie',
+					);
+		$selected_auth_type = array_get_index($settings, 'auth_type', 'HTTP_BASIC');
+		$selected_caching_type  = array_get_index($settings, 'cache_wsdl', WSDL_CACHE_NONE);
 		?>
 
 		<p class="sq-backend-section-subheading">Connection Details</p>
-
+        <script type="text/javascript">
+            function showLoginUrlField<?php echo $prefix;?>() {
+                var auth_type = document.getElementById('<?php echo $prefix.'_auth_type'; ?>').value;
+                var login_url_field = document.getElementById('<?php echo $prefix.'_login_url_tr'; ?>');
+                if (auth_type == 'JSESSIONID') {
+                    login_url_field.style.display = '';
+                } else {
+                    login_url_field.style.display = 'none';
+                }
+            }//end function
+        </script>
 		<div id="<?php echo $prefix ?>_connection_div" style="padding: 0.5em 0px 2em 30px;">
 			<table class="sq-backend-table" >
 				<tr>
@@ -66,7 +82,29 @@ class Form_Action_SOAP_Call extends Form_Action
 					<td><p><?php text_box($prefix.'_wsdl', array_get_index($settings, 'wsdl', ''), 120); ?></p></td>
 				</tr>
 				<tr>
-					<td><?php echo translate('login'); ?></td>
+					<td width="120"><p>Auth Type</p></td>
+					<td><p><?php combo_box($prefix.'_auth_type', $auth_types, FALSE, $selected_auth_type, 0, "onChange='showLoginUrlField".$prefix."()'"); ?></p></td>
+				</tr>
+				<tr id="<?php echo $prefix; ?>_login_url_tr" style="display: <?php echo ($selected_auth_type == 'HTTP_BASIC' ? 'none' : '') ?>;">
+					<td width="120"><p>Auth URL</p></td>
+					<td>
+						<p>
+							<?php text_box($prefix.'_login_url', array_get_index($settings, 'login_url', ''), 100); ?>
+							<?php check_box($prefix.'_test_auth', '1', FALSE); ?> Test Authentication
+						</p>
+						<?php
+							if (isset($settings['crm_auth_success']) && is_bool($settings['crm_auth_success'])) {
+								if ($settings['crm_auth_success'] === TRUE) {
+									echo '<p><span style="color: green"><b>Authentication successful</b></span></p>';
+								} else {
+									echo '<p><span style="color: red"><b>Authentication Failed</b></span></p>';
+								}
+							}
+						?>
+					</td>
+				</tr>
+				<tr>
+					<td><?php echo translate('username'); ?></td>
 					<td><p><?php text_box($prefix.'_login', array_get_index($settings, 'login', ''), 35); ?><br />
 					</p></td>
 				</tr>
@@ -75,11 +113,7 @@ class Form_Action_SOAP_Call extends Form_Action
 					<td><p><?php password_box($prefix.'_password', array_get_index($settings, 'password', ''), 35); ?></p></td>
 				</tr>
 				<tr>
-					<td colspan="2"><?php echo translate('use_http_authentication'); ?></td>
-				</tr>
-				<tr>
-					<td><?php echo translate('mute_exceptions'); ?></td>
-					<td><p><?php check_box($prefix.'_mute_exceptions', 1, array_get_index($settings, 'mute_exceptions', 0)); ?></p></td>
+					<td colspan="2"><p><?php echo translate('use_http_authentication'); ?></p></td>
 				</tr>
 			</table>
 		</div>
@@ -100,7 +134,22 @@ class Form_Action_SOAP_Call extends Form_Action
 			</table>
 		</div>
 
-				<p class="sq-backend-section-subheading">Test Response</p>
+		<p class="sq-backend-section-subheading">SOAP Options</p>
+		<div id="<?php echo $prefix ?>_https_div" style="padding: 0.5em 0px 2em 30px;">
+			<table class="sq-backend-table" >
+				<tr>
+					<td width="120"><p>Cache WSDL</p></td>
+					<td><p><?php combo_box($prefix.'_cache_wsdl', SOAP_Common::$wsdl_caching_opts, FALSE, $selected_caching_type); ?></p></td>
+				</tr>
+				<tr>
+					<td><?php echo translate('mute_exceptions'); ?></td>
+					<td><p><?php check_box($prefix.'_mute_exceptions', 1, array_get_index($settings, 'mute_exceptions', 0)); ?></p></td>
+				</tr>
+			</table>
+		</div>
+
+
+		<p class="sq-backend-section-subheading">Test Response</p>
 		<div id="<?php echo $prefix ?>_test_request_response" style="padding: 0.5em 0px 2em 30px;">
 			<table class="sq-backend-table" >
 				<tr>
@@ -363,7 +412,10 @@ class Form_Action_SOAP_Call extends Form_Action
 		$settings['run_test'] 				= array_get_index($_POST, $prefix.'_run_test', NULL);
 		$settings['passphrase']				= array_get_index($_POST, $prefix.'_passphrase', NULL);
 		$settings['action']					= array_get_index($_POST, $prefix.'_action', NULL);
-
+		$settings['auth_type']				= array_get_index($_POST, $prefix.'_auth_type', NULL);
+		$settings['login_url']				= array_get_index($_POST, $prefix.'_login_url', NULL);
+		$settings['cache_wsdl']				= array_get_index($_POST, $prefix.'_cache_wsdl', NULL);
+		$settings['test_crm_auth']			= array_get_index($_POST, $prefix.'_test_auth', NULL);
 
 		// This submission needs to be executed before form get submitted
 		$settings['before_submit']			= TRUE;
@@ -402,6 +454,7 @@ class Form_Action_SOAP_Call extends Form_Action
 
 					// parse response
 					$xml_response = SOAP_Common::_parse_type ($function_response, $types);
+					// Issue in parse type
 					if ($xml_response === TRUE || $xml_response === FALSE) {
 						$response_list[$function_name] = SOAP_Common::_formatXmlString('<?xml version=\"1.0\"?'.'>'."<$function_name>??</$function_name>");
 						$keywords = 'globals_session_soap'.($xml_response ? '0' : '');
@@ -488,6 +541,15 @@ class Form_Action_SOAP_Call extends Form_Action
 			}
 		}//end if
 		$settings['test_results'] = $test_results;
+
+		unset($settings['crm_auth_success']);
+		if ($settings['auth_type'] == 'JSESSIONID' && $settings['test_crm_auth']) {
+			$crm_auth_test = FALSE;
+			if (SOAP_Common::getJSessionId($settings['login'], $settings['password'], $settings['login_url'])) {
+				$crm_auth_test = TRUE;
+			}
+			$settings['crm_auth_success'] = $crm_auth_test;
+		}
 
 		return TRUE;
 
@@ -597,6 +659,17 @@ class Form_Action_SOAP_Call extends Form_Action
 		// Make SOAP call
 		try {
 			$client = new SoapClient($wsdl, $options);
+
+			// For CRM OnDemand access using JSESSIONID cookie
+			if ($settings['auth_type'] == 'JSESSIONID') {
+				$username = array_get_index($settings, 'login', '');
+				$password = array_get_index($settings, 'password', '');
+				$login_url = array_get_index($settings, 'login_url', '');
+				if (!SOAP_Common::setJSessionCookie($client, $username, $password, $login_url)) {
+					throw new Exception('Error occured when setting the JSESSIONID cookie');
+				}
+			}
+
 			eval('$data = $client->$function('.$eval_string.');');
 		}
 		catch (Exception $e) {

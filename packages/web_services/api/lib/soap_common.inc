@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_common.inc,v 1.6 2013/01/04 01:29:59 cupreti Exp $
+* $Id: soap_common.inc,v 1.7 2013/01/17 05:24:57 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ define('MAX_COMPLEX_TYPE_PASRSE_LOOP', 3);
 * This class will have all the common functions used for SOAP trigger and form actions
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -38,6 +38,13 @@ class SOAP_Common
 
 
 	private static $recent_parsed_type = Array();
+
+	public static $wsdl_caching_opts = Array(
+											WSDL_CACHE_NONE => 'Never cache',
+											WSDL_CACHE_DISK => 'Cache to disk',
+											WSDL_CACHE_MEMORY => 'Cache to memory',
+											WSDL_CACHE_BOTH => 'Cache to both disk and memory',
+										);
 
 
 	/**
@@ -293,7 +300,7 @@ class SOAP_Common
 	public static function _getSoapOptions($settings, $form=NULL)
 	{
 		// Work out HTTP auth
-		if (isset($settings['login']) && isset($settings['password'])) {
+		if ($settings['auth_type'] == 'HTTP_BASIC' && isset($settings['login']) && isset($settings['password'])) {
 			$options['login'] = $settings['login'];
 			$options['password'] = $settings['password'];
 		}
@@ -321,7 +328,7 @@ class SOAP_Common
 			$options['exceptions'] = 0;
 		}
 
-		$options['cache_wsdl'] = WSDL_CACHE_NONE;
+		$options['cache_wsdl'] = isset($settings['cache_wsdl']) ? $settings['cache_wsdl'] : WSDL_CACHE_NONE;
 
 		return $options;
 
@@ -366,8 +373,7 @@ class SOAP_Common
 			$soap_request = $client->__getLastRequest();
 			$soap_response = $client->__getLastResponse();
 
-		}
-		catch (Exception $e) {
+		} catch (Exception $e) {
 			trigger_error($e->getMessage());
 			return FALSE;
 		}
@@ -500,6 +506,90 @@ class SOAP_Common
 		return FALSE;
 
 	}//end addUsernameTokenHeader()
+
+
+	/**
+	* Set JSESSIONID cookie to the SOAP client
+	*
+	* @param object	$soap_client
+	* @param string	$username
+	* @param string $password
+	* @param string $login_url
+	*
+	* @return boolean
+	* @access public
+	*/
+	public static function setJSessionCookie(&$soap_client, $username, $password, $login_url)
+	{
+		if (!($soap_client instanceof SoapClient)) {
+			trigger_error('First parameter supplied is not a SOAP client object');
+			return FALSE;
+		}
+
+		// First obtain the the JSESSIONID
+		$jsessionid = self::getJSessionId($username, $password, $login_url);
+		if (empty($jsessionid)) {
+			trigger_error('JESSIONID not found in the response: '.htmlentities($result));
+			return FALSE;
+		}
+
+		// Set the the JSESSIONID cookie
+		try {
+			$soap_client->__setCookie("JSESSIONID", $jsessionid);
+		}catch (Exception $e) {
+			trigger_error('Error occured when setting the JSESSIONID cookie: '.htmlentities($e->getMessage()));
+			return FALSE;
+		}
+
+		return TRUE;
+
+	}//end setJSessionCookie()
+
+
+	/**
+	* Returns JSESSIONID from the given CRM login
+	*
+	* @param $username
+	* @param $password
+	* @param $login_url
+	*
+	* @return boolean|string
+	* @access public
+	*/
+	function getJSessionId($username, $password, $login_url)
+	{
+		$url_parts = parse_url($login_url);
+		$login_page = isset($url_parts['host']) ? $url_parts['host'] : '';
+		if (empty($username) || empty($password) || empty($login_page)) {
+			trigger_error('Cannot obtain JESSIONID, required parameters not set login');
+			return FALSE;
+		}
+
+		// Login and obtain the JSESSIONID
+		$headers = Array(
+						'GET '.$login_page.' HTTP/1.0',
+						'UserName: '.$username,
+						'Password: '.$password,
+					);
+		$curl = curl_init($login_url);
+		curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
+		curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+		curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
+		curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, FALSE);
+		curl_setopt($curl, CURLOPT_HEADER, TRUE);
+		$result = curl_exec($curl);
+		if (!$result) {
+			trigger_error('Error occured when login to '.$login_url.': '.curl_error($curl));
+			return FALSE;
+		}
+
+		// Extract the JSESSIONID from the response
+		preg_match('|Set\-Cookie: JSESSIONID=(.+?);|', $result, $match);
+		$jsessionid = isset($match[1]) ? $match[1] : '';
+
+		return $jsessionid;
+
+	}//end getJSessionId()
 
 
 	/**
