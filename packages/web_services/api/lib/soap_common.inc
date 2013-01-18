@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_common.inc,v 1.7 2013/01/17 05:24:57 cupreti Exp $
+* $Id: soap_common.inc,v 1.8 2013/01/18 07:30:13 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ define('MAX_COMPLEX_TYPE_PASRSE_LOOP', 3);
 * This class will have all the common functions used for SOAP trigger and form actions
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -300,7 +300,8 @@ class SOAP_Common
 	public static function _getSoapOptions($settings, $form=NULL)
 	{
 		// Work out HTTP auth
-		if ($settings['auth_type'] == 'HTTP_BASIC' && isset($settings['login']) && isset($settings['password'])) {
+		$auth_type = array_get_index($settings, 'auth_type', 'HTTP_BASIC');
+		if ($auth_type == 'HTTP_BASIC' && isset($settings['login']) && isset($settings['password'])) {
 			$options['login'] = $settings['login'];
 			$options['password'] = $settings['password'];
 		}
