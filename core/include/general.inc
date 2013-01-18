@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.280 2012/12/10 23:01:22 ewang Exp $
+* $Id: general.inc,v 1.281 2013/01/18 03:17:28 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.280 $
+* @version $Revision: 1.281 $
 * @package MySource_Matrix
 */
 
@@ -1829,6 +1829,22 @@ function get_asset_lineage_sort_order($asset_lineage=Array())
 			if (!empty($link)) {
 				if (isset($link['sort_order']) && $link['sort_order']!='') {
 					$sort_order = $link['sort_order'];
+					if(!empty($sort_order)){
+					    // adjust real sort order for links that are not visible on nav
+					    $sql = 'SELECT count(*) FROM sq_ast_lnk
+							    WHERE majorid = :previd
+									    AND sort_order < :sort_order
+									    AND link_type > 2';
+					    try {
+						    $query = MatrixDAL::preparePdoQuery($sql);
+						    MatrixDAL::bindValueToPdo($query, 'previd', $asset_lineage[$i], PDO::PARAM_STR);
+						    MatrixDAL::bindValueToPdo($query, 'sort_order', $sort_order, PDO::PARAM_INT);
+						    $count = MatrixDAL::executePdoOne($query);
+					    } catch (Exception $e) {
+						    throw new Exception('Unable to adjust real sort order for majorid: '.$previd.' due to database error: '.$e->getMessage());
+					    }
+					    if ($count > 0) $sort_order = $sort_order - $count;
+					}
 				}
 			}
 		}
