@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remove_internal_message.php,v 1.9 2012/08/30 01:04:53 ewang Exp $
+* $Id: remove_internal_message.php,v 1.10 2013/01/20 23:09:09 csmith Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Delete internal messages
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -28,7 +28,7 @@ if ((php_sapi_name() != 'cli')) {
 
 require_once 'Console/Getopt.php';
 
-$shortopt = 's:p:f:t:y:u:';
+$shortopt = 's:p:f:t:y:u:a:';
 $longopt = Array('quiet', 'show-query-only');
 
 $args = Console_Getopt::readPHPArgv();
@@ -45,10 +45,16 @@ $MSG_TYPE = '';
 $MSG_STATUS = '';
 $SHOW_QUERY_ONLY = FALSE;
 $QUIET = FALSE;
+$ASSETIDS = array();
 
 foreach ($options[0] as $option) {
 
 	switch ($option[0]) {
+
+		case 'a':
+			if (empty($option[1])) usage();
+			$ASSETIDS[] = $option[1];
+		break;
 
 		case 's':
 			if (empty($option[1])) usage();
@@ -142,7 +148,7 @@ $GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 $db =& $GLOBALS['SQ_SYSTEM']->db;
 
-purge_internal_message($PERIOD, $USER_FROM, $USER_TO, $MSG_TYPE, $MSG_STATUS);
+purge_internal_message($PERIOD, $USER_FROM, $USER_TO, $MSG_TYPE, $MSG_STATUS, $ASSETIDS);
 
 if ($SHOW_QUERY_ONLY) {
 	$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -160,11 +166,12 @@ $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 * @param string	$user_to	The userid that the message is sent to
 * @param string	$msg_type	The type of internal message to remove, e.g. asset.linking.create, cron.*
 * @param string	$msg_status	The status of internal message to remove, e.g. U or D
+* @param array	$assetids	The asset id's to delete messages for.
 *
 * @return void
 * @access public
 */
-function purge_internal_message($period, $user_from='', $user_to='', $msg_type='', $msg_status='')
+function purge_internal_message($period, $user_from='', $user_to='', $msg_type='', $msg_status='', $assetids=array())
 {
 	global $db, $QUIET, $SHOW_QUERY_ONLY;
 	$bind_vars = Array();
@@ -184,7 +191,7 @@ function purge_internal_message($period, $user_from='', $user_to='', $msg_type='
 					'field_name'	=> 'userto',
 					'value'			=> (string)$user_to,
 				),
-			   );
+			);
 
 	foreach ($userids as $userid) {
 
@@ -250,6 +257,14 @@ function purge_internal_message($period, $user_from='', $user_to='', $msg_type='
 			$sql .= '    AND status = :msg_status'."\n";
 			$bind_vars['msg_status'] = $msg_status;
 		}
+	}
+
+	if (!empty($assetids)) {
+		$sql .= ' and assetid IN (';
+		foreach ($assetids as $_id => $assetid) {
+			$sql .= MatrixDAL::quote($assetid).', ';
+		}
+		$sql = substr($sql, 0, -2).")\n";
 	}
 
 	$query = MatrixDAL::preparePdoQuery($sql);
