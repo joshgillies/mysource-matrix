@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_action_soap_call.inc,v 1.19 2013/01/17 05:27:10 cupreti Exp $
+* $Id: form_section_action_soap_call.inc,v 1.20 2013/01/21 00:12:13 cupreti Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once dirname(dirname(dirname(__FILE__))).'/lib/soap_form_based_common.in
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -661,7 +661,9 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 			$client = new SoapClient($wsdl, $options);
 
 			// For CRM OnDemand access using JSESSIONID cookie
-			if ($settings['auth_type'] == 'JSESSIONID') {
+			$auth_type = array_get_index($settings, 'auth_type', 'HTTP_BASIC');
+
+			if ($auth_type == 'JSESSIONID') {
 				$username = array_get_index($settings, 'login', '');
 				$password = array_get_index($settings, 'password', '');
 				$login_url = array_get_index($settings, 'login_url', '');

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_soap_call.inc,v 1.26 2013/01/17 05:25:29 cupreti Exp $
+* $Id: form_action_soap_call.inc,v 1.27 2013/01/21 00:11:17 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once dirname(dirname(dirname(__FILE__))).'/lib/soap_form_based_common.in
 * Make a SOAP call before submitting form
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -656,12 +656,13 @@ class Form_Action_SOAP_Call extends Form_Action
 			$options['exceptions'] = 0;
 		}
 
+		$auth_type = array_get_index($settings, 'auth_type', 'HTTP_BASIC');
 		// Make SOAP call
 		try {
 			$client = new SoapClient($wsdl, $options);
 
 			// For CRM OnDemand access using JSESSIONID cookie
-			if ($settings['auth_type'] == 'JSESSIONID') {
+			if ($auth_type == 'JSESSIONID') {
 				$username = array_get_index($settings, 'login', '');
 				$password = array_get_index($settings, 'password', '');
 				$login_url = array_get_index($settings, 'login_url', '');

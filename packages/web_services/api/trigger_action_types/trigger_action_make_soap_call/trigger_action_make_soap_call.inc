@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_make_soap_call.inc,v 1.10 2013/01/17 05:28:25 cupreti Exp $
+* $Id: trigger_action_make_soap_call.inc,v 1.11 2013/01/21 00:12:38 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(dirname(dirname(__FILE__))).'/lib/soap_common.inc';
 *
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -111,12 +111,13 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 			$options['exceptions'] = 0;
 		}
 
+		$auth_type = array_get_index($settings, 'auth_type', 'HTTP_BASIC');
 		// Make SOAP call
 		try {
 			$client = new SoapClient($wsdl, $options);
 
 			// For authentication using JSESSIONID cookie
-			if ($settings['auth_type'] == 'JSESSIONID') {
+			if ($auth_type == 'JSESSIONID') {
 				$username = array_get_index($settings, 'login', '');
 				$password = array_get_index($settings, 'password', '');
 				$login_url = array_get_index($settings, 'login_url', '');
