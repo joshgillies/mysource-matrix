@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage.inc,v 1.39 2013/01/21 07:51:12 cupreti Exp $
+* $Id: cron_job_future_lineage.inc,v 1.40 2013/01/21 08:03:35 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -451,8 +451,6 @@ class Cron_Job_Future_Lineage extends Cron_Job
 			}//end if
 		}
 		if (!$delete_link_success) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();			
 			return $failed_ret_val;
 		}		
 		
@@ -506,6 +504,8 @@ class Cron_Job_Future_Lineage extends Cron_Job
 
 		if (!$delete_ok) {
 			trigger_localised_error('CRON0007', E_USER_WARNING, $linkid);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 		return TRUE;
