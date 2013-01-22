@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_01.php,v 1.51 2012/08/30 01:11:22 ewang Exp $
+* $Id: step_01.php,v 1.52 2013/01/22 05:03:49 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -85,6 +85,11 @@ if (!file_exists(SQ_DATA_PATH.'/private/conf/db.inc')) {
 // Do the same with the memcache config file
 if (!file_exists(SQ_DATA_PATH.'/private/conf/memcache.inc')) {
 	copy(dirname(__FILE__).'/memcache-inc.sample', SQ_DATA_PATH.'/private/conf/memcache.inc');
+}
+
+// Do the same with the Redis config file
+if (!file_exists(SQ_DATA_PATH.'/private/conf/redis.inc')) {
+	copy(dirname(__FILE__).'/redis-inc.sample', SQ_DATA_PATH.'/private/conf/redis.inc');
 }
 
 // reminder for chmod
