@@ -18,7 +18,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: cache_storage_redis.inc,v 1.1 2013/01/22 05:03:07 ewang Exp $
+ * $Id: cache_storage_redis.inc,v 1.2 2013/01/22 05:29:12 ewang Exp $
  *
  */
 
@@ -38,7 +38,7 @@ define('SQ_CACHE_REDIS_URL_INDEX_PREFIX', 'sq_cache_url_index|');
  *
  * @author  James Hurst <james@riverratrecords.com>
  * @author  Hamish Forbes <hforbes@squiz.co.uk>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  * @package MySource_Matrix_Packages
  * @subpackage __core__
  */
@@ -71,7 +71,8 @@ class Cache_Storage_Redis extends Cache_Storage
 		assert_true(is_file(SQ_DATA_PATH.'/private/conf/redis.inc'), 'Cannot use Redis Cache Storage; the Redis configuration file is not set');
 
 		$redis_conf = require(SQ_DATA_PATH.'/private/conf/redis.inc');
-		$hosts =& $redis_conf['services']['cache_manager'];
+		$services =& $redis_conf['services']['cache_manager'];
+		$hosts =& $redis_conf['hosts'];
 
 		assert_true(count($hosts) > 0, 'Cannot use Redis Cache Storage; no hosts are defined in the Redis configuration file');
 
@@ -79,7 +80,8 @@ class Cache_Storage_Redis extends Cache_Storage
 		$this->_redis = new Redis();
 
 		// Attempt to connect to defined redis hosts in order, break on success
-		foreach ($hosts as $host) {
+		foreach ($services as $host_key => $weight) {
+			$host = $hosts[$host_key];
 			if ($host['socket'] !== FALSE) {
 				if ($this->_redis->connect($host['socket'])) {
 					break;
