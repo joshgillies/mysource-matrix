@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: requirements.xml,v 1.16 2012/08/15 05:34:02 ewang Exp $
+* $Id: requirements.xml,v 1.17 2013/01/23 04:05:29 ewang Exp $
 *
 */
 -->
@@ -62,6 +62,13 @@
 		<description> - you only need to install this module if you plan on using memcache for caching or locking.</description>
 		<version>2.0.0</version>
 	</requirement>
+	<requirement>
+		<php_extension>redis</php_extension>
+		<suggested>1</suggested>
+		<description> - you only need to install this module if you plan on using redis for caching.</description>
+		<version>2.0.0</version>
+	</requirement>
+
 	<requirement>
 		<php_extension>pspell</php_extension>
 	</requirement>
