@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_events_search.inc,v 1.13 2012/08/30 00:57:28 ewang Exp $
+* $Id: page_calendar_events_search.inc,v 1.13.2.1 2013/01/23 05:55:28 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 * Page_Calendar_Events_Search
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.13.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -349,6 +349,10 @@ class Page_Calendar_Events_Search extends Search_Page
 		
 		$empty = $grouping_logic == 'AND' ? TRUE : FALSE;
 		foreach($query as $field => $val) {
+			if ($grouping_logic == 'OR' && empty($val)) {
+				$empty = TRUE;
+				break;
+			}
 			foreach($val as $query_data) {
 				if ($grouping_logic == 'AND' && !empty($query_data['from']) && !empty($query_data['to'])) {
 					$empty = FALSE;
