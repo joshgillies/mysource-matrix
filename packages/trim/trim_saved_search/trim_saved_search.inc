@@ -11,7 +11,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search.inc,v 1.32 2012/08/30 00:59:28 ewang Exp $
+* $Id: trim_saved_search.inc,v 1.33 2013/01/23 06:22:41 ewang Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -531,6 +531,29 @@ class TRIM_Saved_Search extends Data_Source
 					$object_list[$index]['recContainerTitle'] = '';
 				}
 			}
+		}
+		
+		// replace all locations uris with its full title
+		$location_fields = Array('recCreatorLoc', 'recOwnerLoc', 'recAuthorLoc', 'recClientLoc', 'recCurrentLoc', 'recHomeLoc', 'recOtherLoc', 'recPrimaryContactLoc', 'recRepresentLoc', 'recAssignee');
+		$uris = Array();
+		$object_to_fix = Array();
+		foreach ($object_list as $index => $record_info) {
+		    foreach ($record_info as $name => $value) {
+			if( in_array($name, $location_fields) && !empty($value)) {
+			    $uris[] = $value;
+			    $object_to_fix[$index][$name] = $value;
+			}
+		    }
+		}
+		// now do the replacement
+		if(!empty($uris)) {
+		    $location_titles = TRIM_Common::getLocationTitleFromUris($connection, $uris);
+		    foreach ($object_to_fix as $index => $name_value) {
+			foreach ($name_value as $name => $value) {
+			    $title = $location_titles[$value];
+			    $object_list[$index][$name] = $title;
+			}
+		    }
 		}
 		
 		return $object_list;

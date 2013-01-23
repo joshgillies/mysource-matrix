@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_common.inc,v 1.21 2012/08/30 00:59:28 ewang Exp $
+* $Id: trim_common.inc,v 1.22 2013/01/23 06:22:41 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage trim
 */
@@ -1382,4 +1382,44 @@ class TRIM_Common
 		return $object_list;
 	}
 
+	
+	/**
+	* This function returns the location title from uris
+	*
+	* @return array
+	* @access public
+	*/
+	public static function getLocationTitleFromUris($connection, $uris)
+	{
+		$results	= Array();
+		$loc_names = Array();
+		$specific_items = Array();
+		$specific_items['locFullFormattedName'] = 1;
+
+		$operations = Array (
+						'LocationUrisSelect'	=> Array (
+																		'Uris'				=>	$uris,
+																		'IsForUpdate'		=>	FALSE,
+																		'TargetForUpdate'	=>	FALSE,
+																		'Limit'			=>	100000,
+																		'HideActiveLocations'	=>	FALSE,
+																		'HideInactiveLocations'	=>	FALSE,
+																		'HideInternalLocations'	=>	FALSE,
+																		'HideExternalLocations'	=>	FALSE,
+																		'HideAdhocLocations'	=>	FALSE,
+														),
+						'Fetch'							=> self::constructFetch($specific_items, 100000),							
+					  );
+
+		$results = self::executeRequest($connection, $operations, 'Fetch');
+	
+		foreach ($results as $record_info) {
+			$loc_names[$record_info['Uri']] = $record_info['locFullFormattedName'];
+		}
+
+		return $loc_names;
+
+	}//end getLocationTitleFromUris()
+	
+	
 }//end class
