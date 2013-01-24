@@ -11,7 +11,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search.inc,v 1.32.2.2 2013/01/24 03:11:07 ewang Exp $
+* $Id: trim_saved_search.inc,v 1.32.2.3 2013/01/24 03:42:24 ewang Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.32.2.2 $
+* @version $Revision: 1.32.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -534,7 +534,9 @@ class TRIM_Saved_Search extends Data_Source
 		}
 		
 		// replace all locations uris with its full title
-		$location_fields = Array('recCreatorLoc', 'recOwnerLoc', 'recAuthorLoc', 'recClientLoc', 'recCurrentLoc', 'recHomeLoc', 'recOtherLoc', 'recPrimaryContactLoc', 'recRepresentLoc', 'recAssignee');
+		$trim6_locations = Array('recCreatorLoc',  'recOwnerLoc', 'recAuthorLoc', 'recClientLoc', 'recCurrentLoc',  'recHomeLoc',  'recOtherLoc',  'recPrimaryContactLoc',  'recRepresentLoc');
+		$trim7_locations = Array( 'recCreator',  'recOwnerLocation',    'recAuthor',  'recClient',   'recAssignee',  'recHomeLocation', 'recOtherContact',  'recPrimaryContact',  'recRepresentative');
+		$location_fields = array_merge($trim6_locations, $trim7_locations);
 		$uris = Array();
 		$object_to_fix = Array();
 		foreach ($object_list as $index => $record_info) {
