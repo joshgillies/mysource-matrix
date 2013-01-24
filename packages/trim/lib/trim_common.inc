@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_common.inc,v 1.21.2.1 2013/01/23 06:26:47 ewang Exp $
+* $Id: trim_common.inc,v 1.21.2.2 2013/01/24 06:39:24 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.21.2.1 $
+* @version $Revision: 1.21.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage trim
 */
@@ -65,8 +65,12 @@ class TRIM_Common
 
 		if (!isset ($search_clause['search_groups'])) return '';
 		$group_clause = new SimpleXMLElement('<RecordSearchGroups/>');
+		$i = 0;
+		$global_logic = isset($search_clause['global_logic']) ? $search_clause['global_logic'] : 'AND';
 		foreach ($search_clause['search_groups'] as $group) {
 			if (isset ($group['content'])) {
+				$group_logic = isset($group['group_logic']) ? $group['group_logic'] : 'AND';
+				$j = 0;
 				foreach ($group['content'] as $field) {
 					if (preg_match('/^udf:/', $field['name'])) {
 						$RecordUserFieldSearchClause = $group_clause->addChild('RecordUserFieldSearchClause');
@@ -78,28 +82,29 @@ class TRIM_Common
 						$RecordStringSearchClause->addChild('Type', $field['name']) ;
 						$RecordStringSearchClause->addChild('Arg', $field['keyword']) ;
 					}
-				}
-				// add group logic operator
-				$group_logic = isset($group['group_logic']) ? $group['group_logic'] : 'AND';
-				if (count($group['content']) > 1) {
-					if($group_logic === 'AND') {
+					// add group logic operator
+					if($j > 0) {
+					    if($group_logic === 'AND') {
 						$group_clause->addChild('RecordAndSearchClause');
-					}
-					else {
+					    }
+					    else {
 						$group_clause->addChild('RecordOrSearchClause');
+					    }
 					}
+					$j++;
 				}
+				
 			}
-		}
-		// add global logic operator
-		if (count($search_clause['search_groups']) > 1) {
-			$global_logic = isset($search_clause['global_logic']) ? $search_clause['global_logic'] : 'AND';
-			if($global_logic === 'AND') {
-				$group_clause->addChild('RecordAndSearchClause');
+			if($i > 0) {
+			    // add global logic operator
+			    if($global_logic === 'AND') {
+				    $group_clause->addChild('RecordAndSearchClause');
+			    }
+			    else {
+				    $group_clause->addChild('RecordOrSearchClause');
+			    }
 			}
-			else {
-				$group_clause->addChild('RecordOrSearchClause');
-			}
+			$i++;
 		}
 		
 		// add classification restrictions
