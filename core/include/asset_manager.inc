@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.888.2.7 2013/01/24 07:10:51 cupreti Exp $
+* $Id: asset_manager.inc,v 1.888.2.8 2013/01/24 07:19:35 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.888.2.7 $
+* @version $Revision: 1.888.2.8 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -8407,7 +8407,7 @@ class Asset_Manager extends MySource_Object
 	* @return array
 	* @access public
 	*/
-	function __getAssetidsByLookupValue($lookup_name_exp, $lookup_value_exp, $include_treeids)
+	function getAssetidsByLookupValue($lookup_name_exp, $lookup_value_exp, $include_treeids)
 	{
 		$use_like_for_name = ((FALSE !== strpos($lookup_name_exp, '?')) || (FALSE !== strpos($lookup_name_exp, '%')));
 		$name_operator = $use_like_for_name ? 'LIKE' : '=';
@@ -8476,67 +8476,7 @@ class Asset_Manager extends MySource_Object
 
 	}//end getAssetidsByLookupValue()
 
-	function getAssetidsByLookupValue($lookup_name_exp, $lookup_value_exp, $include_treeids)
-	{
-		$use_like_for_name = ((FALSE !== strpos($lookup_name_exp, '?')) || (FALSE !== strpos($lookup_name_exp, '%')));
-		$name_operator = $use_like_for_name ? 'LIKE' : '=';
-		$use_like_for_value = ((FALSE !== strpos($lookup_value_exp, '?')) || (FALSE !== strpos($lookup_value_exp, '%')));
-		$value_operator = $use_like_for_value ? 'LIKE' : '=';
-		$db = MatrixDAL::getDb();
 
-		$sql = '';
-		for ($i=0; $i<2; $i++) {
-			// first sub query collects all override values
-			if ($i === 0) {
-				$sql .= '
-						SELECT l.assetid'.($include_treeids ? ', lt.treeid' : '').', \'override\' as override';
-			} else {
-				$sql .= '
-						SELECT l.assetid'.($include_treeids ? ', lt.treeid' : '').', \'not_override\' as override';
-			}
-
-			if ($i === 0) {
-				// first loop concerned with override values, so inherited values are ignored
-				$sql .= '
-						FROM sq_ast_lookup l
-							JOIN sq_ast_lookup_value lv ON l.url = lv.url';
-			} else {
-				// for inherited values
-				$sql .= '
-						FROM sq_ast_lookup l
-							JOIN sq_ast_lookup_value lv ON (l.url LIKE lv.url || \'/%\')';
-			}
-
-			if ($i === 0) {
-				$sql .= ' OR (l.url || \'/\' = lv.url)';
-			}
-
-			if ($include_treeids) {
-				$sql .= '
-						JOIN sq_ast_lnk al ON l.assetid = al.minorid
-						JOIN sq_ast_lnk_tree lt ON lt.linkid = al.linkid';
-			}
-
-			$sql .= '
-					WHERE lv.name '.$name_operator.' '.MatrixDAL::quote($lookup_name_exp).'
-						AND lv.value '.$value_operator.' '.MatrixDAL::quote($lookup_value_exp);
-
-			if ($i === 0) {
-				$sql .= ' UNION ALL';
-			}
-		}
-
-		$res = NULL;
-		try {
-			$query = MatrixDAL::preparePdoQuery($sql);
-			$res = MatrixDAL::executePdoGrouped($query);
-		} catch (Exception $e) {
-			throw new Exception('Unable to get asset ids: '.$e->getMessage());
-		}
-
-		return $res;
-
-	}//end getAssetidsByLookupValue()
 	/**
 	* Returns the URL for an asset, closest to the $base_url
 	*
