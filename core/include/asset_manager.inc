@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.883.2.7 2012/12/06 05:43:26 ewang Exp $
+* $Id: asset_manager.inc,v 1.883.2.8 2013/01/24 07:11:03 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.883.2.7 $
+* @version $Revision: 1.883.2.8 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -9323,237 +9323,233 @@ class Asset_Manager extends MySource_Object
 		assert_valid_assetid($asset->id);
 		$bind_vars = Array();
 
-		// if we are the root folder then we just need to select from the asset table
-		if (get_class($asset) == 'Root_Folder') {
-			$select = 'SELECT a.assetid'.(($inc_type_code) ? ', a.type_code' : '');
-			$from   = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'ast a';
-			$where  = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('', 'a');
+		// OK, normal asset, let's find a reference to them in the tree and go from there
+		$where = 'l.minorid = :minorid';
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+		$sql = 'SELECT t.treeid
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid
+				'.$where;
+		$sql = db_extras_modify_limit_clause($sql, MatrixDAL::getDbType(), 1);
 
-			$group_by = '';
-			$having = '';
-			$union_select = '';
-			$union_from = '';
-			$union_where = '';
+		try {
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdo($query, 'minorid', $asset->id);
+			$treeid = MatrixDAL::executePdoOne($query);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get treeid for asset: '.$asset->id.' due to database error: '.$e->getMessage());
+		}
 
+		if (empty($treeid)) {
+			trigger_localised_error('SYS0345', E_USER_WARNING, $asset->id);
+			return Array();
+		}
+
+		$select = 'SELECT DISTINCT l.minorid'.(($inc_type_code) ? ', a.type_code' : '');
+		$from   = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t
+						 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid
+						 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON l.minorid = a.assetid
+				';
+
+		/**
+		 * We do need the ast table if we're in rollback mode though
+		 * so shadow assets can check dates/times
+		 */
+		if (SQ_ROLLBACK_VIEW) {
+			$union_from_list = $from;
+		}
+
+		// Keep WHERE bind vars in a separate array (then merge in) - as this
+		// segment could well be duplicated by the "direct shadows only" part
+		// of the query.
+		$where_bind_vars = Array();
+
+		if ($asset->type() == 'root_folder') {
+			// Since Root Folder is the parent of all the assets in the System,
+			// dont filter the link tree table
+			$where = '1=1';
+			// Treeid for the Root Folder is '-', which is 1 char long, instead of expected 0 length
+			// The min/max tree depth paramrter in the query will not work expectedly if the treeid
+			// length is not the multiple of SQ_CONF_ASSET_TREE_SIZE
+			$treeid_len = 0;
 		} else {
-			// OK, normal asset, let's find a reference to them in the tree and go from there
-			$where = 'l.minorid = :minorid';
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-			$sql = 'SELECT t.treeid
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid
-					'.$where;
-			$sql = db_extras_modify_limit_clause($sql, MatrixDAL::getDbType(), 1);
-
-			try {
-				$query = MatrixDAL::preparePdoQuery($sql);
-				MatrixDAL::bindValueToPdo($query, 'minorid', $asset->id);
-				$treeid = MatrixDAL::executePdoOne($query);
-			} catch (Exception $e) {
-				throw new Exception('Unable to get treeid for asset: '.$asset->id.' due to database error: '.$e->getMessage());
-			}
-
-			if (empty($treeid)) {
-				trigger_localised_error('SYS0345', E_USER_WARNING, $asset->id);
-				return Array();
-			}
-
-			$select = 'SELECT DISTINCT l.minorid'.(($inc_type_code) ? ', a.type_code' : '');
-			$from   = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t
-							 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid
-							 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON l.minorid = a.assetid
-					';
-
-			/**
-			 * We do need the ast table if we're in rollback mode though
-			 * so shadow assets can check dates/times
-			 */
-			if (SQ_ROLLBACK_VIEW) {
-				$union_from_list = $from;
-			}
-
-			// Keep WHERE bind vars in a separate array (then merge in) - as this
-			// segment could well be duplicated by the "direct shadows only" part
-			// of the query.
-			$where_bind_vars = Array();
-
 			$where = 't.treeid LIKE '.MatrixDAL::Quote($treeid.'%').'
 						AND t.treeid > '.MatrixDAL::Quote($treeid);
+			$treeid_len = strlen($treeid);
+		}
 
-			if (!is_null($min_depth) && !is_null($max_depth)) {
-				if ($min_depth < $max_depth) {
-					$where .= ' AND LENGTH(t.treeid) BETWEEN :'.$bind_prefix.'treeid_min_length AND :'.$bind_prefix.'treeid_max_length';
-					$where_bind_vars[$bind_prefix.'treeid_min_length'] = (strlen($treeid) + $min_depth * SQ_CONF_ASSET_TREE_SIZE);
-					$where_bind_vars[$bind_prefix.'treeid_max_length'] = (strlen($treeid) + $max_depth * SQ_CONF_ASSET_TREE_SIZE);
-				} else if ($min_depth > $max_depth) {
-					$where .= ' AND LENGTH(t.treeid) BETWEEN :'.$bind_prefix.'treeid_max_length AND :'.$bind_prefix.'treeid_min_length';
-					$where_bind_vars[$bind_prefix.'treeid_min_length'] = (strlen($treeid) + $min_depth * SQ_CONF_ASSET_TREE_SIZE);
-					$where_bind_vars[$bind_prefix.'treeid_max_length'] = (strlen($treeid) + $max_depth * SQ_CONF_ASSET_TREE_SIZE);
-				} else {
-					$where .= ' AND LENGTH(t.treeid) = :'.$bind_prefix.'treeid_length';
-					$where_bind_vars[$bind_prefix.'treeid_length'] = (strlen($treeid) + $min_depth * SQ_CONF_ASSET_TREE_SIZE);
-				}
-			} else if (!is_null($min_depth)) {
-				$where .= ' AND LENGTH(t.treeid) >= :'.$bind_prefix.'treeid_length';
-				$where_bind_vars[$bind_prefix.'treeid_length'] = (strlen($treeid) + $min_depth * SQ_CONF_ASSET_TREE_SIZE);
-			} else if (!is_null($max_depth)) {
-				$where .= ' AND LENGTH(t.treeid) <= :'.$bind_prefix.'treeid_length';
-				$where_bind_vars[$bind_prefix.'treeid_length'] = (strlen($treeid) + $max_depth * SQ_CONF_ASSET_TREE_SIZE);
+		if (!is_null($min_depth) && !is_null($max_depth)) {
+			if ($min_depth < $max_depth) {
+				$where .= ' AND LENGTH(t.treeid) BETWEEN :'.$bind_prefix.'treeid_min_length AND :'.$bind_prefix.'treeid_max_length';
+				$where_bind_vars[$bind_prefix.'treeid_min_length'] = ($treeid_len + $min_depth * SQ_CONF_ASSET_TREE_SIZE);
+				$where_bind_vars[$bind_prefix.'treeid_max_length'] = ($treeid_len + $max_depth * SQ_CONF_ASSET_TREE_SIZE);
+			} else if ($min_depth > $max_depth) {
+				$where .= ' AND LENGTH(t.treeid) BETWEEN :'.$bind_prefix.'treeid_max_length AND :'.$bind_prefix.'treeid_min_length';
+				$where_bind_vars[$bind_prefix.'treeid_min_length'] = ($treeid_len + $min_depth * SQ_CONF_ASSET_TREE_SIZE);
+				$where_bind_vars[$bind_prefix.'treeid_max_length'] = ($treeid_len + $max_depth * SQ_CONF_ASSET_TREE_SIZE);
+			} else {
+				$where .= ' AND LENGTH(t.treeid) = :'.$bind_prefix.'treeid_length';
+				$where_bind_vars[$bind_prefix.'treeid_length'] = ($treeid_len + $min_depth * SQ_CONF_ASSET_TREE_SIZE);
 			}
+		} else if (!is_null($min_depth)) {
+			$where .= ' AND LENGTH(t.treeid) >= :'.$bind_prefix.'treeid_length';
+			$where_bind_vars[$bind_prefix.'treeid_length'] = ($treeid_len + $min_depth * SQ_CONF_ASSET_TREE_SIZE);
+		} else if (!is_null($max_depth)) {
+			$where .= ' AND LENGTH(t.treeid) <= :'.$bind_prefix.'treeid_length';
+			$where_bind_vars[$bind_prefix.'treeid_length'] = ($treeid_len + $max_depth * SQ_CONF_ASSET_TREE_SIZE);
+		}
 
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 
-			// adding a new filter 'link value'
-			// If $link_value_wanted is  '', we should get all records including '' and NULL,
-			// because Oracle will think '' same as NULL.
-			$is_oci = (MatrixDAL::getDbType() === 'oci') ? TRUE : FALSE;
-			if (!is_null($link_value_wanted) && is_array($link_value_wanted)) {
-				$link_value = Array();
-				$has_empty = FALSE;
-				for (reset($link_value_wanted['link_value']); NULL !== ($i = key($link_value_wanted['link_value'])); next($link_value_wanted['link_value'])) {
-					if ($link_value_wanted['link_value'][$i] === '') {
-						$has_empty = TRUE;
-						if ($is_oci === TRUE) {
-							unset($link_value_wanted['link_value'][$i]);
-							continue;
-						}
-					}
-					$link_value[] = ':'.$bind_prefix.'link_value_wanted_'.$i;
-					$where_bind_vars[$bind_prefix.'link_value_wanted_'.$i] = $link_value_wanted['link_value'][$i];
-				}
-
-				$equal_prefix = $link_value_wanted['equal'] ? '': 'NOT ';
-				if (count($link_value) === 0) {
-					$in_clause = '';
-				} else {
-					$in_clause = '(l.value '.$equal_prefix.'IN ('.implode(', ', $link_value).'))';
-				}
-				$null_clause = '';
-				if ($is_oci === TRUE) {
-					if ((!$link_value_wanted['equal']) ^ $has_empty) {
-						$null_clause = ' l.value IS NULL';
-						if (!($in_clause === '')) $null_clause = ' OR '.$null_clause;
-					} else {
-						if ($in_clause === '') {
-							$null_clause = ' l.value IS NOT NULL';
-						}
+		// adding a new filter 'link value'
+		// If $link_value_wanted is  '', we should get all records including '' and NULL,
+		// because Oracle will think '' same as NULL.
+		$is_oci = (MatrixDAL::getDbType() === 'oci') ? TRUE : FALSE;
+		if (!is_null($link_value_wanted) && is_array($link_value_wanted)) {
+			$link_value = Array();
+			$has_empty = FALSE;
+			for (reset($link_value_wanted['link_value']); NULL !== ($i = key($link_value_wanted['link_value'])); next($link_value_wanted['link_value'])) {
+				if ($link_value_wanted['link_value'][$i] === '') {
+					$has_empty = TRUE;
+					if ($is_oci === TRUE) {
+						unset($link_value_wanted['link_value'][$i]);
+						continue;
 					}
 				}
-				$where .= ' AND ('.$in_clause.$null_clause.')';
+				$link_value[] = ':'.$bind_prefix.'link_value_wanted_'.$i;
+				$where_bind_vars[$bind_prefix.'link_value_wanted_'.$i] = $link_value_wanted['link_value'][$i];
 			}
 
-			if (!empty($link_types_wanted)) {
-				foreach ($link_types_wanted as $index => $link_type_wanted) {
-					$link_types_wanted[$index] = db_extras_bitand(MatrixDAL::getDbType(), 'l.link_type', $link_type_wanted).' > 0';
+			$equal_prefix = $link_value_wanted['equal'] ? '': 'NOT ';
+			if (count($link_value) === 0) {
+				$in_clause = '';
+			} else {
+				$in_clause = '(l.value '.$equal_prefix.'IN ('.implode(', ', $link_value).'))';
+			}
+			$null_clause = '';
+			if ($is_oci === TRUE) {
+				if ((!$link_value_wanted['equal']) ^ $has_empty) {
+					$null_clause = ' l.value IS NULL';
+					if (!($in_clause === '')) $null_clause = ' OR '.$null_clause;
+				} else {
+					if ($in_clause === '') {
+						$null_clause = ' l.value IS NOT NULL';
+					}
 				}
-				$where .= ' AND (('.implode(') OR (', $link_types_wanted).'))';
+			}
+			$where .= ' AND ('.$in_clause.$null_clause.')';
+		}
+
+		if (!empty($link_types_wanted)) {
+			foreach ($link_types_wanted as $index => $link_type_wanted) {
+				$link_types_wanted[$index] = db_extras_bitand(MatrixDAL::getDbType(), 'l.link_type', $link_type_wanted).' > 0';
+			}
+			$where .= ' AND (('.implode(') OR (', $link_types_wanted).'))';
+		}
+
+		// now merge the bind vars into the master array
+		$bind_vars = array_merge($bind_vars, $where_bind_vars);
+
+		// if direct shadow asset children should be returned
+		$union_select = ' UNION ALL SELECT sl.minorid';
+		if ($inc_type_code) {
+			$union_select .= ', null AS type_code';
+		}
+		if (!is_null($sort_by)) {
+			$union_select .= ', null AS sort_value';
+		}
+		$union_from = ' FROM '.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk sl';
+		// if all shadow asset children should be returned
+		$union_where = 'sl.majorid = :'.$bind_prefix.'union_majorid';
+		$union_where .= ' AND sl.link_type != '.SQ_LINK_NOTICE;
+		$bind_vars[$bind_prefix.'union_majorid'] = $asset->id;
+		if (!$direct_shadows_only) {
+			// need to dupe where bind vars here, because we're trying to include
+			// the "where" section of the query again.
+			foreach ($where_bind_vars as $bind_var => $bind_value) {
+				$new_bind_var = str_replace($bind_prefix, $bind_prefix.'ds_', $bind_var);
+				$bind_vars[$new_bind_var] = $bind_value;
 			}
 
-			// now merge the bind vars into the master array
-			$bind_vars = array_merge($bind_vars, $where_bind_vars);
+			$ds_where = str_replace(':'.$bind_prefix, ':'.$bind_prefix.'ds_', $where);
 
-			// if direct shadow asset children should be returned
-			$union_select = ' UNION ALL SELECT sl.minorid';
-			if ($inc_type_code) {
-				$union_select .= ', null AS type_code';
-			}
-			if (!is_null($sort_by)) {
-				$union_select .= ', null AS sort_value';
-			}
-			$union_from = ' FROM '.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk sl';
-			// if all shadow asset children should be returned
-			$union_where = 'sl.majorid = :'.$bind_prefix.'union_majorid';
-			$union_where .= ' AND sl.link_type != '.SQ_LINK_NOTICE;
-			$bind_vars[$bind_prefix.'union_majorid'] = $asset->id;
-			if (!$direct_shadows_only) {
-				// need to dupe where bind vars here, because we're trying to include
-				// the "where" section of the query again.
-				foreach ($where_bind_vars as $bind_var => $bind_value) {
-					$new_bind_var = str_replace($bind_prefix, $bind_prefix.'ds_', $bind_var);
-					$bind_vars[$new_bind_var] = $bind_value;
-				}
+			# See bug 4914 for why this is a left join and not a subselect.
+			# We also need to do the link_type check when doing the shadow_ids part.
+			$union_where = "((".$union_where.") OR (shadow_ids.minorid IS NOT NULL AND sl.link_type != ".SQ_LINK_NOTICE."))";
+			$union_from .= " LEFT JOIN (SELECT DISTINCT l.minorid $from $ds_where) shadow_ids ON (sl.majorid=shadow_ids.minorid)";
+		}
 
-				$ds_where = str_replace(':'.$bind_prefix, ':'.$bind_prefix.'ds_', $where);
+		$union_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($union_where, 'sl');
 
-				# See bug 4914 for why this is a left join and not a subselect.
-				# We also need to do the link_type check when doing the shadow_ids part.
-				$union_where = "((".$union_where.") OR (shadow_ids.minorid IS NOT NULL AND sl.link_type != ".SQ_LINK_NOTICE."))";
-				$union_from .= " LEFT JOIN (SELECT DISTINCT l.minorid $from $ds_where) shadow_ids ON (sl.majorid=shadow_ids.minorid)";
-			}
+		if (!empty($where) && (!empty($type_code) || !is_null($access) || !is_null($dependant))) {
+			$where .= ' AND ';
+		}
 
-			$union_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($union_where, 'sl');
-
-			if (!empty($where) && (!empty($type_code) || !is_null($access) || !is_null($dependant))) {
+		if (!is_null($dependant)) {
+			$where .= ' l.is_dependant = :'.$bind_prefix.'dependant';
+			$bind_vars[$bind_prefix.'dependant'] = $dependant ? '1' : '0';
+			if (!empty($type_code) || !is_null($access)) {
 				$where .= ' AND ';
 			}
+		}
 
-			if (!is_null($dependant)) {
-				$where .= ' l.is_dependant = :'.$bind_prefix.'dependant';
-				$bind_vars[$bind_prefix.'dependant'] = $dependant ? '1' : '0';
-				if (!empty($type_code) || !is_null($access)) {
-					$where .= ' AND ';
+		$group_by = '';
+		$having = '';
+		if (!is_null($access)) {
+			$access = (String)$access;
+			$userid_cond = '';
+			$group_by = 'GROUP BY l.minorid, a.type_code, a.name';
+			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+				$from .= ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON p.assetid = a.assetid ';
+				$from .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r ON (p.userid = r.roleid AND r.assetid = a.assetid) ';
+
+				$current_user = $this->getAsset($GLOBALS['SQ_SYSTEM']->user->id);
+				$userids = $current_user->getUserGroups();
+				$this->forgetAsset($current_user);
+
+				$userids[] = (String)$GLOBALS['SQ_SYSTEM']->user->id;
+				$public_userid = (String)$this->getSystemAssetid('public_user');
+				$userids[] = $public_userid;
+
+				$p_userids_str = Array();
+				$r_userids_str = Array();
+				for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
+					$p_userids_str[$i] = ':'.$bind_prefix.'p_userids_'.$i;
+					$r_userids_str[$i] = ':'.$bind_prefix.'r_userids_'.$i;
+					$bind_vars[$bind_prefix.'p_userids_'.$i] = (string)$userids[$i];
+					$bind_vars[$bind_prefix.'r_userids_'.$i] = (string)$userids[$i];
 				}
+
+				$p_userids_str = implode(',', $p_userids_str);
+				$r_userids_str = implode(',', $r_userids_str);
+				$userid_cond = ' (p.userid IN ('.$p_userids_str.') OR r.userid IN ('.$r_userids_str.'))';
+				$where .= $userid_cond.'
+					AND (
+							(p.permission = :'.$bind_prefix.'_access AND (
+									p.userid <> :'.$bind_prefix.'_public_userid
+									OR r.userid <> :'.$bind_prefix.'_public_userid_1
+									OR (p.userid = :'.$bind_prefix.'_public_userid_2 AND p.granted = \'1\')
+									OR (r.userid = :'.$bind_prefix.'_public_userid_3 AND p.granted = \'1\')
+								)
+							)';
+
+				$bind_vars[$bind_prefix.'_access'] = $access;
+				$bind_vars[$bind_prefix.'_public_userid'] = $public_userid;
+				$bind_vars[$bind_prefix.'_public_userid_1'] = $public_userid;
+				$bind_vars[$bind_prefix.'_public_userid_2'] = $public_userid;
+				$bind_vars[$bind_prefix.'_public_userid_3'] = $public_userid;
+
+				if ($effective) {
+					$where .= ' OR (p.permission > :'.$bind_prefix.'_access_effective AND p.granted = \'1\')';
+					$bind_vars[$bind_prefix.'_access_effective'] = $access;
+				}
+				$where .= ') AND ';
+				$having .= 'HAVING MIN(p.granted) <> \'0\'';
+				$group_by .= ', p.assetid';
 			}
-
-			$group_by = '';
-			$having = '';
-			if (!is_null($access)) {
-				$access = (String)$access;
-				$userid_cond = '';
-				$group_by = 'GROUP BY l.minorid, a.type_code, a.name';
-				if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-					$from .= ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON p.assetid = a.assetid ';
-					$from .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r ON (p.userid = r.roleid AND r.assetid = a.assetid) ';
-
-					$current_user = $this->getAsset($GLOBALS['SQ_SYSTEM']->user->id);
-					$userids = $current_user->getUserGroups();
-					$this->forgetAsset($current_user);
-
-					$userids[] = (String)$GLOBALS['SQ_SYSTEM']->user->id;
-					$public_userid = (String)$this->getSystemAssetid('public_user');
-					$userids[] = $public_userid;
-
-					$p_userids_str = Array();
-					$r_userids_str = Array();
-					for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
-						$p_userids_str[$i] = ':'.$bind_prefix.'p_userids_'.$i;
-						$r_userids_str[$i] = ':'.$bind_prefix.'r_userids_'.$i;
-						$bind_vars[$bind_prefix.'p_userids_'.$i] = (string)$userids[$i];
-						$bind_vars[$bind_prefix.'r_userids_'.$i] = (string)$userids[$i];
-					}
-
-					$p_userids_str = implode(',', $p_userids_str);
-					$r_userids_str = implode(',', $r_userids_str);
-					$userid_cond = ' (p.userid IN ('.$p_userids_str.') OR r.userid IN ('.$r_userids_str.'))';
-					$where .= $userid_cond.'
-						AND (
-								(p.permission = :'.$bind_prefix.'_access AND (
-										p.userid <> :'.$bind_prefix.'_public_userid
-										OR r.userid <> :'.$bind_prefix.'_public_userid_1
-										OR (p.userid = :'.$bind_prefix.'_public_userid_2 AND p.granted = \'1\')
-										OR (r.userid = :'.$bind_prefix.'_public_userid_3 AND p.granted = \'1\')
-									)
-								)';
-
-					$bind_vars[$bind_prefix.'_access'] = $access;
-					$bind_vars[$bind_prefix.'_public_userid'] = $public_userid;
-					$bind_vars[$bind_prefix.'_public_userid_1'] = $public_userid;
-					$bind_vars[$bind_prefix.'_public_userid_2'] = $public_userid;
-					$bind_vars[$bind_prefix.'_public_userid_3'] = $public_userid;
-
-					if ($effective) {
-						$where .= ' OR (p.permission > :'.$bind_prefix.'_access_effective AND p.granted = \'1\')';
-						$bind_vars[$bind_prefix.'_access_effective'] = $access;
-					}
-					$where .= ') AND ';
-					$having .= 'HAVING MIN(p.granted) <> \'0\'';
-					$group_by .= ', p.assetid';
-				}
-			}//end if access is not null
-
-		}// End else
+		}//end if access is not null
 
 		if (!empty($type_code)) {
 
