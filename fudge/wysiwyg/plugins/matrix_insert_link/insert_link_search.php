@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link_search.php,v 1.6.2.1 2012/08/15 05:08:14 cupreti Exp $
+* $Id: insert_link_search.php,v 1.6.2.2 2013/01/24 00:48:14 akarelia Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Insert Link Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.6.2.1 $
+* @version $Revision: 1.6.2.2 $
 * @package MySource_Matrix
 */
 
@@ -70,7 +70,7 @@ if ($search_for != '') {
 	if (!empty($found_asset)) {
 		$asset_name = $found_asset->name;
 		$found_asset_line .= '<div class="search-result">';
-		$found_asset_line .= get_asset_tag_line($found_asset->id, 'javascript:set_asset_finder_from_search(\''.$found_asset->id.'\', \''.htmlspecialchars($asset_name, ENT_QUOTES).'\', \'\', \'0\')');
+		$found_asset_line .= get_asset_tag_line($found_asset->id, 'javascript:set_asset_finder_from_search(\''.$found_asset->id.'\', \''.htmlspecialchars($asset_name, ENT_QUOTES).'\', \'\', \'0\',\''.$found_asset->type().'\')');
 		$found_asset_line .= '</div>';
 	} else {
 
@@ -157,9 +157,10 @@ if ($search_for != '') {
 				}//end foreach
 
 				$asset_name = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($result_assetid, 'asset', FALSE, 'name');
+				$asset_type = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($result_assetid, 'asset', FALSE, 'type_code');
 
 				$result_list[] = Array(
-									'tag_line'	=> get_asset_tag_line($result_assetid, 'javascript:set_asset_finder_from_search(\''.$result_assetid.'\', \''.htmlspecialchars($asset_name[$result_assetid], ENT_QUOTES).'\', \'\', \'0\');'),
+									'tag_line'	=> get_asset_tag_line($result_assetid, 'javascript:set_asset_finder_from_search(\''.$result_assetid.'\', \''.htmlspecialchars($asset_name[$result_assetid], ENT_QUOTES).'\', \'\', \'0\', \''.$asset_type[$result_assetid].'\');'),
 									'detail'	=> implode($this_detail, '<br/>'),
 								 );
 			}//end foreach
