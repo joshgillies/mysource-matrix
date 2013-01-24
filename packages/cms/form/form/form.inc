@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.271 2012/12/21 04:35:55 akarelia Exp $
+* $Id: form.inc,v 1.272 2013/01/24 23:30:12 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.271 $
+* @version $Revision: 1.272 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -76,6 +76,12 @@ class Form extends Asset implements Bridge
 	*/
 	var $submission_asset = NULL;
 
+
+	/**
+	* the questions on the current page of the form
+	* @var object
+	*/
+	var $current_page_questions = null;
 
 
 	/**
@@ -1686,6 +1692,10 @@ class Form extends Asset implements Bridge
 			$latest_page = array_get_index($submission_var, 'latest_page', NULL);
 		} else {
 			$current_page = $latest_page = NULL;
+		}
+
+		if ($current_page) {
+			$this->current_page_questions = array_keys($this->getQuestionAssetsOnPage($current_page));
 		}
 
 		$prefix         = $this->getPrefix();
@@ -3597,6 +3607,9 @@ class Form extends Asset implements Bridge
 	public function updateSubmission(Form_Submission $submission_asset)
 	{
 		foreach ($this->current_answers as $assetid => $response) {
+
+			if (!is_null($this->current_page_questions) && !in_array($assetid, $this->current_page_questions)) continue;
+
 			$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 			// Save and stick the value - but only if the question still exists
@@ -3804,6 +3817,9 @@ class Form extends Asset implements Bridge
 		}
 
 		foreach ($this->current_answers as $assetid => $response) {
+
+			if (!is_null($this->current_page_questions) && !in_array($assetid, $this->current_page_questions)) continue;
+
 			$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 			// Save and stick the value
