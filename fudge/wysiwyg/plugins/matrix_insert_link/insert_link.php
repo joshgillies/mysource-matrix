@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link.php,v 1.53.2.2 2012/11/26 23:58:15 cupreti Exp $
+* $Id: insert_link.php,v 1.53.2.3 2013/01/24 00:47:05 akarelia Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Insert Link Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.53.2.2 $
+* @version $Revision: 1.53.2.3 $
 * @package MySource_Matrix
 */
 
@@ -867,16 +867,21 @@ if (isset($_GET['assetid']) && $_GET['assetid']) {
 				current = page;
 			}
 
-			function set_asset_finder_from_search(assetid, label, url, linkid) {
+			function set_asset_finder_from_search(assetid, label, url, linkid, type_code) {
 				document.cookie = 'lastSelectedAssetId=' + escape(assetid);
-
-				ASSET_FINDER_OBJ.set_hidden_field('assetid[assetid]', assetid);
-				ASSET_FINDER_OBJ.set_hidden_field('assetid[url]', url);
-				ASSET_FINDER_OBJ.set_hidden_field('assetid[linkid]', linkid);
+				reset_type_selector();
+				var prefix ='';
+				if (type_code == 'link' || type_code == 'page_redirect') {
+					prefix = type_code + '_';
+				}
+				ASSET_FINDER_OBJ.set_hidden_field(prefix+'assetid[assetid]', assetid);
+				ASSET_FINDER_OBJ.set_hidden_field(prefix+'assetid[url]', url);
+				ASSET_FINDER_OBJ.set_hidden_field(prefix+'assetid[linkid]', linkid);
+				ASSET_FINDER_OBJ.set_hidden_field(prefix+'assetid[type_code]', type_code);
 				ASSET_FINDER_OBJ.set_text_field('sq_asset_finder_assetid_label', (assetid == 0) ? '' : label + ' (Id : #' + assetid + ')');
 
 				document.getElementById("new-message-popup").style.display = 'none';
-				setUrl('', './?a=' + assetid);
+				setUrl();
 			}
 
 		// --></script>
