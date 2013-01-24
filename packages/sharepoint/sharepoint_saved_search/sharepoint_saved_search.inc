@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: sharepoint_saved_search.inc,v 1.6 2010/06/24 07:05:06 cupreti Exp $
+* $Id: sharepoint_saved_search.inc,v 1.6.12.1 2013/01/24 03:12:25 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/sharepoint/lib/sharepoint_common.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.12.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __sharepoint__
 */
@@ -304,6 +304,11 @@ class Sharepoint_Saved_Search extends Data_Source
 	*/
 	public function printFrontend()
 	{	
+	    	// don't let browser cache it
+	    	header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
+		header('Pragma: no-cache');
+		header('Expires: '.gmdate('D, d M Y H:i:s', time()-3600).' GMT');
+		
 		// We are only doing synching in this asset, there's no need to check for update
 		if (isset($_GET['synch_now']) && !empty($_GET['synch_now'])) {
 			if ($this->adminAccess()) {
