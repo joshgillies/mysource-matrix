@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_common.inc,v 1.23 2013/01/24 06:35:33 ewang Exp $
+* $Id: trim_common.inc,v 1.24 2013/01/24 06:37:36 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage trim
 */
@@ -107,9 +107,6 @@ class TRIM_Common
 			$i++;
 		}
 		
-		if (count($search_clause['search_groups']) > 1) {
-			
-		}
 		
 		// add classification restrictions
 		if (!empty($classifications)) {
