@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.140 2012/12/07 02:46:46 ewang Exp $
+* $Id: design_edit_fns.inc,v 1.141 2013/01/25 03:39:47 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.140 $
+* @version $Revision: 1.141 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -530,7 +530,10 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			// appropriate asset type
 			switch (get_file_type($info['name'])) {
 				case 'css' :
-						$new_asset_type = 'text_file';
+						$new_asset_type = 'css_file';
+				break;
+			    	case 'js' :
+						$new_asset_type = 'js_file';
 				break;
 				case 'gif' :
 				case 'jpg' :
