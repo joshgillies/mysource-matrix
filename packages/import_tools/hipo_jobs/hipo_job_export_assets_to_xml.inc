@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.2.1 $
 * @package MySource_Matrix
 * @subpackage import_tools/hipo_jobs
 *
@@ -111,18 +111,15 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 	* @return boolean
 	* @access public
 	*/
-	function freestyle()
-	{
-		$step_data['complete'] = FALSE;
+	function freestyle() {
+		$step_data = reset($this->getInitialStepData());
+		
 		while(!$step_data['complete']) {
-			if($this->processExportAsset($step_data, '')) {
-				return FALSE;
-			}
+			$this->processExportAsset($step_data, '');
 		}
 
 		return TRUE;
-
-	}//end freestyle()
+	} // end freestyle()
 
 
 	/**
@@ -137,6 +134,12 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 		$this->_running_vars['sections'] = Array('create', 'attribute', 'metadata', 'link', 'permission');
 		// a temp array to record all imported asset ids
 		$this->_running_vars['asset_id_map'] = Array();
+		// whether we have warned about attribute values that have been mapped(?)
+		$this->_running_vars['warned'] = FALSE;
+
+		// by default we save to a file, but optionally we can output to stdout
+		// (which only makes sense when being called via a freestyle hipo on the cli)
+		if (!isset($this->_running_vars['stdout'])) $this->_running_vars['stdout'] = false;
 
 		return parent::prepare();
 
@@ -158,8 +161,12 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 		$asset_infos = $this->_running_vars['root_node_mapping'];
 		$initial_link_type = SQ_LINK_TYPE_1;
 		$action = array_shift($this->_running_vars['sections']);
-		ob_start();
-		if (!$step_data['header_set']) {
+		
+		if (!$this->_running_vars['stdout']) {
+			ob_start();
+		}
+
+		if (!isset($step_data['header_set']) || !$step_data['header_set']) {
 			echo "<?xml version=\"1.0\" encoding=\"".SQ_CONF_DEFAULT_CHARACTER_SET."\"?>\n";
 			$step_data['header_set'] = TRUE;
 		}
@@ -212,11 +219,11 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 				$step_data['complete']     = TRUE;
 			break;		
 		}
-
-		$output = ob_get_clean();
 		
-		file_put_contents($path.'/export.xml', $output, FILE_APPEND | LOCK_EX);
-	
+		if (!$this->_running_vars['stdout']) {
+			$output = ob_get_clean();
+			file_put_contents($path.'/export.xml', $output, FILE_APPEND | LOCK_EX);
+		}
 		
 		return TRUE;
 
@@ -224,8 +231,8 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 	
 	
 	
-	
-	
+
+
 	/**
 	* Lovely recursing function to create the XML
 	*
@@ -251,6 +258,7 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 
 		$action_code = $this->getAssetType($asset).'_'.$asset->id;
 
+		$this->echo_headline('CREATING ASSET: '.$asset->name);
 		$this->_running_vars['asset_id_map'][$asset->id] = $action_code;
 
 		echo "<action>\n";
@@ -285,9 +293,33 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 			echo "</action>\n\n";
 		}
 
+		$dependants = Array();
+		if ($this->getAssetType($asset) != 'Design_Customisation' && $this->getAssetType($asset) != 'Design' && $this->getAssetType($asset) != 'Design_Css') {
+			// Then, if it has dependant children, we add those too
+			$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, '', FALSE, 'major', NULL, TRUE);
+		} else if ($this->getAssetType($asset) == 'Design' || $this->getAssetType($asset) == 'Design_Css') {
+			
+			// okie this part is a bit tricky
+			// we need to check if 
+			//	- we are dealing with design
+			//	- if design has a parse file attached
+			//	- and the attribute name we are dealing is 'contents'
+			//	- last but not least the value isnt not empty
+			$parse_file = $asset->data_path.'/parse.txt';
+			if (is_file($parse_file)) $this->_updateParseFileForDesign($this->_running_vars['asset_id_map'][$asset_id], $parse_file);
 
-		// Then, if it has dependant children, we add those too
-		$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, '', FALSE, 'major', NULL, TRUE);
+			$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_BACKEND_NAV, '', FALSE, 'major', NULL, TRUE);
+
+		} else if ($this->getAssetType($asset) == 'Design_Customisation') {
+			// if we are dealing with customisations, then only deal with
+			// the design areas that are customised rest of the design areas
+			// will be generated once Matrix processes the parse file
+			$dependants = $asset->getCustomisedAreas();
+			// now this customistation can further have customisations
+			// take care of those ones too in our export
+			$dependants = array_merge($dependants, $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_BACKEND_NAV, 'design_customisation'));
+		}
+
 		foreach ($dependants as $link_info) {
 			if (!strpos($link_info['minorid'], ':')) {
 				$parent = '[[output://create_'.$action_code.'.assetid]]';
@@ -389,20 +421,54 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 			}
 			$assets_done[$asset->id] = TRUE;
 
-			if (!empty($value)) {
+			if (!empty($value) && !(($this->getAssetType($asset) == 'Design' || $this->getAssetType($asset) == 'Design_Css') && $attr_name == 'contents')) {
+				// if default character set is utf-8 we dont wanna mess around the characters
+				// we are for now just checking for it not to be utf-8 but can append other encoding
+				// we might want to skip later on
+				if (strtolower(SQ_CONF_DEFAULT_CHARACTER_SET) != 'utf-8') {
+					$result = '';
+					// escape everything else (chars > 126)
+					for ($i = 0; $i < strlen($value); ++$i) {
+						$ord = ord($value[$i]);
+						if ($ord > 126) {
+							$result .= '&#'.$ord.';';
+						} else {
+							$result .= $value[$i];
+						}
+					}// end for
+
+					if ($result !== '') $value = $result;
+					$value = preg_replace('/(\r\n)+/', '<br/>' ,$value);
+				}
+
 				echo "<action>\n";
 				echo "   <action_id>set_".$this->_running_vars['asset_id_map'][$asset_id].'_'.$attr_name."</action_id>\n";
 				echo "   <action_type>set_attribute_value</action_type>\n";
 				echo "   <asset>[[output://create_".$this->_running_vars['asset_id_map'][$asset_id].".assetid]]</asset>\n";
 				echo "   <attribute>".$attr_name."</attribute>\n";
-				if ($attr_name == 'html') { $value = $this->_parseValue($value); }
-				echo "   <value><![CDATA[".$value."]]></value>\n";
+				$value = $this->_parseValue($value, $attr_name, 'set_'.$this->_running_vars['asset_id_map'][$asset_id].'_'.$attr_name);
+
+				echo "   <value><![CDATA[".$this->_escapeCDATA($value)."]]></value>\n";
 				echo "</action>\n\n";
 			}
 		}
 
-		// Then, if it has dependant children, we add those too
-		$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, '', FALSE, 'major', NULL, TRUE);
+		$dependants = Array();
+		if ($this->getAssetType($asset) != 'Design_Customisation' && $this->getAssetType($asset) != 'Design' && $this->getAssetType($asset) != 'Design_Css') {
+			// Then, if it has dependant children, we add those too
+			$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, '', FALSE, 'major', NULL, TRUE);
+		} else if ($this->getAssetType($asset) == 'Design' || $this->getAssetType($asset) == 'Design_Css') {
+			$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_BACKEND_NAV, '', FALSE, 'major', NULL, TRUE);
+		} else if ($this->getAssetType($asset) == 'Design_Customisation') {
+			// if we are dealing with customisations, then only deal with
+			// the design areas that are customised rest of the design areas
+			// will be generated once Matrix processes the parse file
+			$dependants = $asset->getCustomisedAreas();
+			// now this customistation can further have customisations
+			// take care of those ones too in our export
+			$dependants = array_merge($dependants, $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_BACKEND_NAV, 'design_customisation'));
+		}
+
 		foreach ($dependants as $link_info) {
 			if (!strpos($link_info['minorid'], ':')) {
 				if (!array_key_exists($link_info['minorid'], $assets_done)) {
@@ -439,8 +505,10 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 		$assets_done = Array();
 
 		$notice_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset_id, SQ_LINK_NOTICE, '', FALSE, 'major');
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset_id);
 
 		foreach ($notice_links as $notice_link) {
+			if (strpos($notice_link['minorid'], ':')) continue;
 			// if we created the asset, get it from array, otherwise, if it's a system asset, we have to use system asset name.
 			if (isset($this->_running_vars['asset_id_map'][$asset_id])){
 				$remap_id =	"[[output://create_".$this->_running_vars['asset_id_map'][$asset_id].".assetid]]" ;
@@ -457,8 +525,22 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 
 		$assets_done[$asset_id] = TRUE;
 
-		// Then, if it has dependant children, we add those too
-		$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset_id, SQ_SC_LINK_SIGNIFICANT, '', FALSE, 'major', NULL, TRUE);
+		$dependants = Array();
+		if ($this->getAssetType($asset) != 'Design_Customisation' && $this->getAssetType($asset) != 'Design') {
+			// Then, if it has dependant children, we add those too
+			$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, '', FALSE, 'major', NULL, TRUE);
+		} else if ($this->getAssetType($asset) == 'Design') {
+			$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_BACKEND_NAV, '', FALSE, 'major', NULL, TRUE);
+		} else if ($this->getAssetType($asset) == 'Design_Customisation') {
+			// if we are dealing with customisations, then only deal with
+			// the design areas that are customised rest of the design areas
+			// will be generated once Matrix processes the parse file
+			$dependants = $asset->getCustomisedAreas();
+			// now this customistation can further have customisations
+			// take care of those ones too in our export
+			$dependants = array_merge($dependants, $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_BACKEND_NAV, 'design_customisation'));
+		}
+
 		foreach ($dependants as $link_info) {
 			if (!strpos($link_info['minorid'], ':')) {
 				if (!array_key_exists($link_info['minorid'], $assets_done)) {
@@ -495,6 +577,7 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 	function printPermissionXML($asset_id) {
 
 		$assets_done = Array();
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset_id);
 
 		// Now, some permissions
 		$read_permissions = $GLOBALS['SQ_SYSTEM']->am->getPermission($asset_id, SQ_PERMISSION_READ, NULL, FALSE, FALSE, TRUE, TRUE);
@@ -611,8 +694,22 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 
 		$assets_done[$asset_id] = TRUE;
 
-		// Then, if it has dependant children, we add those too
-		$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset_id, SQ_SC_LINK_SIGNIFICANT, '', FALSE, 'major', NULL, TRUE);
+		$dependants = Array();
+		if ($this->getAssetType($asset) != 'Design_Customisation' && $this->getAssetType($asset) != 'Design') {
+			// Then, if it has dependant children, we add those too
+			$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, '', FALSE, 'major', NULL, TRUE);
+		} else if ($this->getAssetType($asset) == 'Design') {
+			$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_BACKEND_NAV, '', FALSE, 'major', NULL, TRUE);
+		} else if ($this->getAssetType($asset) == 'Design_Customisation') {
+			// if we are dealing with customisations, then only deal with
+			// the design areas that are customised rest of the design areas
+			// will be generated once Matrix processes the parse file
+			$dependants = $asset->getCustomisedAreas();
+			// now this customistation can further have customisations
+			// take care of those ones too in our export
+			$dependants = array_merge($dependants, $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_BACKEND_NAV, 'design_customisation'));
+		}
+
 		foreach ($dependants as $link_info) {
 			if (!strpos($link_info['minorid'], ':')) {
 				if (!array_key_exists($link_info['minorid'], $assets_done)) {
@@ -664,18 +761,52 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 
 			$metadata = $mm->getMetadata($asset_id, $schema_id);
 			foreach ($metadata as $field_id => $field_info) {
+				$field_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($mm->getFieldAssetIdFromName($asset_id, $field_info[0]['name']));
+				if($field_asset->type() == 'metadata_field_text') {
+					$value = $field_info[0]['value'];
+					if (strtolower(SQ_CONF_DEFAULT_CHARACTER_SET) != 'utf-8') {
+						$result = '';
+						// escape everything else (chars > 126)
+						for ($i = 0; $i < strlen($value); ++$i) {
+							$ord = ord($value[$i]);
+							if ($ord > 126) {
+								$result .= '&#'.$ord.';';
+							} else {
+								$result .= $value[$i];
+							}
+						}// end for
+						if ($result !== '') $value = $result;
+						$value = preg_replace('/(\r\n)+/', '<br/>' ,$value);
+					}
+					$field_info[0]['value']= $value;
+				}
+
 				echo "<action>\n";
 				echo "   <action_id>set_".$this->_running_vars['asset_id_map'][$asset_id]."_metadata_field_".$field_id."</action_id>\n";
 				echo "   <action_type>set_metadata_value</action_type>\n";				
 				echo "   <asset>[[output://create_".$this->_running_vars['asset_id_map'][$asset_id].".assetid]]</asset>\n";
 				echo "   <fieldid>".(isset($this->_running_vars['asset_id_map'][$field_id]) ? "[[output://create_".$this->_running_vars['asset_id_map'][$field_id].".assetid]]" : $field_id)."</fieldid>\n";
-				echo "   <value><![CDATA[".$field_info[0]['value']."]]></value>\n";
+				echo "   <value><![CDATA[".$this->_escapeCDATA($field_info[0]['value'])."]]></value>\n";
 				echo "</action>\n\n";
 			} // end foreach metadata
 		} // end foreach schema
-		
-		// Then, if it has dependant children, we add those too
-		$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, '', FALSE, 'major', NULL, TRUE);
+
+		$dependants = Array();
+		if ($this->getAssetType($asset) != 'Design_Customisation' && $this->getAssetType($asset) != 'Design') {
+			// Then, if it has dependant children, we add those too
+			$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, '', FALSE, 'major', NULL, TRUE);
+		} else if ($this->getAssetType($asset) == 'Design') {
+			$dependants = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_BACKEND_NAV, '', FALSE, 'major', NULL, TRUE);
+		} else if ($this->getAssetType($asset) == 'Design_Customisation') {
+			// if we are dealing with customisations, then only deal with
+			// the design areas that are customised rest of the design areas
+			// will be generated once Matrix processes the parse file
+			$dependants = $asset->getCustomisedAreas();
+			// now this customistation can further have customisations
+			// take care of those ones too in our export
+			$dependants = array_merge($dependants, $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_BACKEND_NAV, 'design_customisation'));
+		}
+
 		foreach ($dependants as $link_info) {
 			if (!strpos($link_info['minorid'], ':')) {
 				if (!array_key_exists($link_info['minorid'], $assets_done)) {
@@ -700,18 +831,31 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 		
 	
 	/**
-	* export a file asset by copying the physical file to export directory
+	* Saves the file on the file system to keep a copy for our import.
+	* if the asset id provided the information about the file like 'name', 'path'
+	* is grabbed from it or else we need to provide it in an array form
 	*
-	* @param string	$asset		the file asset to export
+	* @param object $asset          the (file type )asset we are saving file for
+	* @param array  $file           the info about the file we are trying to copy
 	*
-	* @return void
+	* @return string  the path the file was saved to
 	* @access private
 	*/
-	private function _saveFileAsset(&$asset) {
+	private function _saveFileAsset(&$asset, $file=Array()) {
+		if (!is_null($asset)) {
+			$file_info = $asset->getExistingFile();
+			if (empty($file_info)) {
+				trigger_error('File not found in data directory for the file asset #'.$asset->id, E_USER_ERROR);
+			}
+			$file_type = $this->getAssetType($asset);
+			$assetid = $asset->id;
+		} else {
+			$file_info = $file;
+			$file_type = $file['type'];
+			$assetid = substr($file_info['filename'], 0 ,strpos($file_info['filename'], '_'));
+		}		
 
 		$path = $this->_running_vars['export_path'];
-		$file_info = $asset->getExistingFile();
-		$file_type = $this->getAssetType($asset);
 		$export_path = $path.'/export/'.$file_type.'/'.$file_info['filename'];
 
 		// check to see if an export/ directory exists. If not, create it.
@@ -724,15 +868,16 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 			mkdir($path.'/export/'.$file_type, 0775);
 		}
 
-		if (copy($file_info['path'], $export_path)) {
-			return 'export/'.$file_type.'/'.$file_info['filename'];
-		} else {
+		// create a directory for this file based on the assetid
+		mkdir($path.'/export/'.$file_type.'/'.$assetid, 0775);
+
+		if (!copy($file_info['path'], $export_path)) {
 			die('Could not copy file');
 		}
 
-
+		// path that we return should be relative
+		return 'export/'.$file_type.'/'.$file_info['filename'];
 	}//end _saveFileAsset()
-
 	
 	/**
 	* process the attribute value for reference of asset ids. e.g ?a=xx links should be replaced if the referred the asset is exported together
@@ -742,13 +887,15 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 	* @return void
 	* @access private
 	*/
-	function _parseValue($value) {
+	function _parseValue($value, $attribute_name, $actionid) {
+		$assetid_mapped = Array();
+
 		$shadow_reg = '|.\/?a=(\d+:\w*)|';
 		$normal_reg = '|.\/?a=(\d+)|';
 		$shadow_matches = Array();
 		$normal_matches = Array();
 
-        preg_match_all($shadow_reg, $value, $shadow_matche);
+        preg_match_all($shadow_reg, $value, $shadow_matches);
 		preg_match_all($normal_reg, $value, $normal_matches);
 
 		if(isset($shadow_matches[1]))		$shadow_matches = $shadow_matches[1];
@@ -760,12 +907,72 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 		foreach ($normal_matches as $data) {
 				$replace_assetids[] = $data;
 		}
-		$replace_assetids = array_unique($replace_assetids);
 
 		foreach ($replace_assetids as $replace_assetid) {
 			if (isset($this->_running_vars['asset_id_map'][$replace_assetid])) {
 				$value = preg_replace('|.\/?a='.$replace_assetid.'|', '?a=[[output://create_'.$this->_running_vars['asset_id_map'][$replace_assetid].'.assetid]]', $value);
+				$assetid_mapped[] = $replace_assetid;
 			}
+		}
+
+		$globals_processed = FALSE;
+		// we have got the /?a=XX type assetids to be replaced
+		// lets not leave away the %globals_xxxxxx_xxx:assetid%
+		$kywrd_reg_global_shdw = '|%globals_asset_[a-z]+:(\d+:\w*)%|';
+		$kywrd_reg_global_real = '|%globals_asset_[a-z]+:(\d+)%|';
+		preg_match_all($kywrd_reg_global_shdw, $value, $globals_match);
+		preg_match_all($kywrd_reg_global_real, $value, $globals_match_2);
+
+		if(isset($globals_match[1]))$globals_match = $globals_match[1];
+		if(isset($globals_match_2[1]))$globals_match_2 = $globals_match_2[1];
+
+		$replace_globals_assetids = Array();
+		foreach ($globals_match as $data) {
+				$replace_globals_assetids[] = $data;
+		}
+		foreach ($globals_match_2 as $data) {
+				$replace_globals_assetids[] = $data;
+		}
+
+		foreach ($replace_globals_assetids as $replace_globals_assetid) {
+			if (isset($this->_running_vars['asset_id_map'][$replace_globals_assetid])) {
+				$value = preg_replace('|%globals_asset_([a-z]+):'.$replace_globals_assetid.'%|',
+									  '%globals_asset_$1:[[output://create_'.$this->_running_vars['asset_id_map'][$replace_globals_assetid].'.assetid]]',
+									   $value);
+				$assetid_mapped[] = $replace_globals_assetid;
+				$globals_processed = TRUE;
+			}
+		}
+
+		// lastly if we are adding the 'additional_get' attribute
+		// check for the directly mentioned assetids
+		// do this only if we have NOT processed globals keywords
+		if (!$globals_processed && $attribute_name != 'html' && $attribute_name != 'quiz_answers' && $attribute_name != 'statuses') {
+			preg_match_all('/\'([0-9]+)\'/', $value, $assetid_match);
+			if (isset($assetid_match[1])) {
+				foreach (array_unique($assetid_match[1]) as $assetid) {
+					// check to see
+					//	- the assetid isnt 0
+					//	- the asset exists on the system
+					//	- and also that we are importing it
+					// if any of the above fails we can be certain that it is something we do nto want
+					if ($assetid != '0' && array_key_exists($assetid, $this->_running_vars['asset_id_map']) && $GLOBALS['SQ_SYSTEM']->am->assetExists($assetid)) {
+						$value = preg_replace('/'.$assetid.'/', '[[output://create_'.$this->_running_vars['asset_id_map'][$assetid].'.assetid]]', $value);
+						$assetid_mapped[] = $assetid;
+					}
+				}
+			}
+		}// end if
+
+		if(!empty($assetid_mapped)) {
+			if(!$this->_running_vars['warned']) {
+				trigger_error("Matrix has found following Assetid(s) appearing in attribute value and mapped. This should be reviewed !!!\n", E_USER_WARNING);
+				$this->_running_vars['warned'] = TRUE;
+			}
+
+			$mapped_str = implode('", "', $assetid_mapped);
+			$echo_str = '"'.$mapped_str.'" for Action ID "'.$actionid.'" to set attribute "'.$attribute_name.'"'."\n";
+			trigger_error($echo_str, E_USER_WARNING);
 		}
 
 		return $value;
@@ -818,7 +1025,81 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
    	 	return ($str == serialize(false) || @unserialize($str) !== false);
 	}
 	
+    /**
+	 * If the value string contains CDATA section, escape it
+	 *
+	 * @param string     $value
+	 *
+	 * @return string
+	 * @access public
+	 */
+    function _escapeCDATA($value)
+    {
+        return preg_replace('|(<\!\[CDATA\[.*?)\]\]\>|ms', '$1]]]]><![CDATA[>', $value);
 
+    }// end _escapeCDATA()
+	/**
+	* copies parse file from old design to newer one
+	*
+	* @param string		$value
+	*
+	* @return string
+	* @access public
+	*/
+	function _updateParseFileForDesign($design_id, $parse_file_path)
+	{
+		$file_info = Array(
+						'filename'	=> $design_id.'_parse.txt',
+						'path'		=> $parse_file_path,
+						'type'		=> 'txt_file',
+					 );
+
+		$null_asset = NULL;
+
+		// lets copy the parse file to a location and 
+		// then add an action to add it to our new design asset
+		$new_file_path = $this->_saveFileAsset($null_asset, $file_info);
+
+		if ($new_file_path != '') {
+			echo "<action>\n";
+			echo "   <action_id>set_".$design_id."_parse_file</action_id>\n";
+			echo "   <action_type>set_design_parse_file</action_type>\n";				
+			echo "   <asset>[[output://create_".$design_id.".assetid]]</asset>\n";
+			echo "   <file_path>".$new_file_path."</file_path>\n";
+			echo "</action>\n\n";
+		}
+
+	}// end _updateParseFileForDesign()
+       
+	/**
+	 * Print a headline to STDERR
+	 *
+	 * Only happens if $this->_running_vars['stdout'] == true
+	 *
+	 * @param string     $s  the headline
+	 *
+	 * @return void
+	 * @access public
+	 */
+	public function echo_headline($s) {
+		$this->echo_text("--------------------------------------\n$s\n--------------------------------------");
+	} // end echo_headline()
+
+	/**
+	 * Print a headline to STDERR
+	 *
+	 * Only happens if $this->_running_vars['stdout'] == true
+	 *
+	 * @param string     $s  the headline
+	 *
+	 * @return void
+	 * @access public
+	 */
+	public function echo_text($s) {
+		if ($this->_running_vars['stdout']) {
+			fwrite(STDERR, "$s\n");
+		}
+	}//end echo_text()
 
 }//end class
 
