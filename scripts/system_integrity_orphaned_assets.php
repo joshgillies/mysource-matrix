@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_orphaned_assets.php,v 1.16 2008/09/16 06:59:15 ewang Exp $
+* $Id: system_integrity_orphaned_assets.php,v 1.16.22.1 2013/01/29 05:48:41 ewang Exp $
 *
 */
 
@@ -19,17 +19,23 @@
 * the minor) underneath a specified asset id, preferably a folder
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.16.22.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
+ini_set('memory_limit', '-1');
 if ((php_sapi_name() != 'cli')) {
 	trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 }
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
-if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
+if (empty($SYSTEM_ROOT)) {
 	echo "ERROR: You need to supply the path to the System Root as the first argument\n";
+	exit();
+}
+
+if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
 	exit();
 }
 
@@ -46,10 +52,6 @@ if (empty($MAP_ASSETID) || empty($map_asset_info)) {
 	$map_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($MAP_ASSETID);
 }
 
-$ROOT_ASSETID = (isset($_SERVER['argv'][3])) ? $_SERVER['argv'][3] : '1';
-if ($ROOT_ASSETID == 1) {
-	echo "\nWARNING: You are running this integrity checker on the whole system.\nThis is fine, but it may take a long time\n\n";
-}
 
 // ask for the root password for the system
 echo 'Enter the root password for "'.SQ_CONF_SYSTEM_NAME.'": ';
@@ -64,17 +66,22 @@ if (!$root_user->comparePassword($root_password)) {
 
 // log in as root
 if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
-	trigger_error("Failed login in as root user\n", E_USER_ERROR);
+	echo "ERROR: Failed login in as root user\n";
+	exit();
 }
 
 $db =& $GLOBALS['SQ_SYSTEM']->db;
 
 $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 
-// go through each child of the specified asset, lock it, validate it, unlock it
-$assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($ROOT_ASSETID, 'asset', FALSE);
-foreach ($assets as $assetid => $type_code_data) {
-	$type_code = $type_code_data[0]['type_code'];
+// go entire asset DB, lock it, validate it, unlock it
+$sql = 'SELECT assetid, type_code	FROM sq_ast';
+$query = MatrixDAL::preparePdoQuery($sql);
+$assets = MatrixDAL::executePdoAssoc($query);
+	
+foreach ($assets as $data) {
+	$assetid = $data['assetid'];
+	$type_code = $data['type_code'];
 
 	printAssetName($assetid);
 
@@ -222,9 +229,10 @@ foreach ($assets as $assetid => $type_code_data) {
 		continue;
 	}
 
-	if (empty($links)) {			// no links
+	if (empty($links)) {	
+		// no links
 		$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
-		if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($map_asset, $asset, SQ_LINK_TYPE_2, 'Orphaned Asset')) {
+		if (empty($asset) || !$GLOBALS['SQ_SYSTEM']->am->createAssetLink($map_asset, $asset, SQ_LINK_TYPE_2, 'Orphaned Asset')) {
 			printUpdateStatus('FAILED');
 			continue;
 		}
