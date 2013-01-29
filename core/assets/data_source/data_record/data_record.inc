@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_record.inc,v 1.8 2012/10/03 06:21:27 akarelia Exp $
+* $Id: data_record.inc,v 1.9 2013/01/29 06:42:16 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -109,11 +109,10 @@ class Data_Record extends Asset
 	*/
 	public function _getAllowedLinks()
 	{
-		return Array(
-				SQ_LINK_TYPE_1	=> Array(
-									'folder'	=> Array('card' => 'M', 'exclusive' => FALSE),
-								   ),
-			   );
+		$links = parent::_getAllowedLinks();
+		$links[SQ_LINK_TYPE_1]['folder'] = Array('card' => 'M', 'exclusive' => FALSE);
+
+		return $links;
 
 	}//end _getAllowedLinks()
 
