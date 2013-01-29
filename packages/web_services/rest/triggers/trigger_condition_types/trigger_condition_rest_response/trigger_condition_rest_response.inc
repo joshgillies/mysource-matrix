@@ -10,11 +10,12 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_rest_response.inc,v 1.2 2012/08/30 00:59:46 ewang Exp $
+* $Id: trigger_condition_rest_response.inc,v 1.2.2.1 2013/01/29 00:25:17 cupreti Exp $
 *
 */
 
 require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_condition/trigger_condition.inc';
 
 /**
 * Trigger Condition REST Response
@@ -23,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author   Maki Maruyama <mmaruyama@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
