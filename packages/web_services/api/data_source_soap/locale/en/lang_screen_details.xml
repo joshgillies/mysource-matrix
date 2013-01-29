@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1 2013/01/04 01:37:19 cupreti Exp $
+* $Id: lang_screen_details.xml,v 1.2 2013/01/29 23:38:29 cupreti Exp $
 *
 */
 -->
@@ -31,7 +31,7 @@
 			<note>Authentication type to use for accessing the SOAP service</note>
 		</field>
 
-		<field attribute="login">
+		<field attribute="username">
 			<display_name>Username</display_name>
 			<note></note>
 		</field>

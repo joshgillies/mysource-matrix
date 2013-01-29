@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1 2013/01/04 01:37:19 cupreti Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2013/01/29 23:38:12 cupreti Exp $
 *
 */
 -->
@@ -28,7 +28,7 @@
 		<field attribute="auth_type">
 			<selection style="list" />
 		</field>
-		<field attribute="login">
+		<field attribute="username">
 			<text width="20" height="1" />
 		</field>
 		<field attribute="password">
