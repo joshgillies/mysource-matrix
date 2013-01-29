@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_link.inc,v 1.54 2012/08/30 00:56:52 ewang Exp $
+* $Id: matrix_insert_link.inc,v 1.54.2.1 2013/01/29 06:38:43 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *     a link in the editable document using an asset from MySoure Matrix
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.54.2.1 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -326,16 +326,12 @@ class matrix_insert_link extends wysiwyg_plugin
 
 					// check for multiple list items <li>
 					var para_html = inside_html.replace(/(<\/?)LI/gi, "$1li");
+
 					if (para_html.indexOf("<li") > -1) {
 						if (para_html.indexOf("<li") != para_html.lastIndexOf("<li")) {
 							alert(js_translate('select_one_list_at_a_time'));
 							return;
-						} else if (para_html.indexOf("</li") > -1) {
-							// we don't want our href's going around a pair of list tags (IE problem)
-							// eg. <a href='url'> <li>item1</li> <li></a>item2</li>
-							alert(js_translate('select_one_list_at_a_time'));
-							return;
-						}
+						} 
 					}
 
 				}// end if existing link
@@ -385,20 +381,14 @@ class matrix_insert_link extends wysiwyg_plugin
 							param["target"] = "";
 						}
 
-						// This fixes some probs IE has with Paragraphs
-						var lower_range = '';
-						if (HTMLArea.is_ie) {
-							lower_range = range.htmlText;
-							lower_range = lower_range.replace(/(<\/?)P/gi, "$1p");
-							lower_range = lower_range.substring(0, lower_range.indexOf('</p>') + 4);
-						}
-
-						if (HTMLArea.is_ie && lower_range.indexOf('<p') != -1) {
+						// This fixes some probs IE has with Paragraphs and list
+						if (HTMLArea.is_ie && (range.htmlText.indexOf('<p') != -1 || range.htmlText.indexOf('<P') != -1 || range.htmlText.indexOf('<li') != -1  || range.htmlText.indexOf('<LI') != -1)) {
 							//See bug #987 for details on why this is done
 							//It avoids <a> tags outside <p> tags
-							var start_new = lower_range.substring(0, lower_range.indexOf('>') + 1);
-							var end_new = lower_range.substring(lower_range.lastIndexOf('<'));
-							var new_middle = lower_range.substring(start_new.length, lower_range.length - end_new.length);
+							var start_new = range.htmlText.substring(0, range.htmlText.indexOf('>') + 1);
+							var end_new = range.htmlText.substring(range.htmlText.lastIndexOf('<'));
+							var new_middle = range.htmlText.substring(start_new.length, range.htmlText.length - end_new.length);
+							
 							html = '<a href="' + param["url"] + '"';
 							if (param["class_name"] != "") {
 								html += ' class="' + htmlspecialchars(param["class_name"]).replace(/\'/gi, "\\'") + '"';
@@ -432,9 +422,8 @@ class matrix_insert_link extends wysiwyg_plugin
 							else {
 								html += '>' + new_middle + '</a>';
 							}
-							
-							editor.insertHTML('', range);
-							editor.insertHTML(start_new + html + end_new);
+
+							editor.insertHTML(start_new + html + end_new, range);
 						} else {
 							//We don't have IE, or there is no paragraph present to warrant different handling
 							html += '<a href="' + param["url"] + '"';
