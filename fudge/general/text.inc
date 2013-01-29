@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.70.2.1 2012/11/19 05:17:24 akarelia Exp $
+* $Id: text.inc,v 1.70.2.2 2013/01/29 23:10:34 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.70.2.1 $
+* @version $Revision: 1.70.2.2 $
 * @package Fudge
 * @subpackage Text
 */
@@ -267,7 +267,7 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array())
 
 		if (is_numeric($max)) {
 			$text  = str_replace('&nbsp;', ' ', trim($text));
-			$words = preg_split("/[\s,]+/", $text);
+			$words = preg_split("/[\s]+/", $text);
 
 			if ($max >= count($words)) {
 				return $text;
