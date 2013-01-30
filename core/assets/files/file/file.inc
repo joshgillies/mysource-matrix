@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.210.2.4 2012/10/30 03:01:08 ewang Exp $
+* $Id: file.inc,v 1.210.2.5 2013/01/30 01:58:10 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.210.2.4 $
+* @version $Revision: 1.210.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -843,7 +843,21 @@ class File extends Asset
 	*/	
 	protected function insertDataLookup()
 	{
+		// if the file is efffectively safe edit, we will only need to insert __data url pointing to the previous live version of it
+		// pretend we are public user, and get file's previous public file info
+		$restore = FALSE;
+		if(($this->status & SQ_SC_STATUS_SAFE_EDITING) && $this->attr('allow_unrestricted') && $this->effectiveUnrestricted()) {
+		    $public_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('public_user');
+		    $GLOBALS['SQ_SYSTEM']->setCurrentUser($public_user);
+		    $this->reload();
+		    $restore = TRUE;
+		}
 		$existing = $this->getExistingFile();
+		if($restore) {
+		    $GLOBALS['SQ_SYSTEM']->restoreCurrentUser();
+		    $this->reload();
+		}
+		
 		if (!isset($existing['filename'])) {
 			// there is no filename, so commit the removal of the current web paths and return
 			return TRUE;
@@ -1440,6 +1454,7 @@ class File extends Asset
 				$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 				$rep_file = $this->data_path_suffix.'/'.$this->name;
 				$info = $fv->_checkOutCheck($rep_file, $file_version);
+				$existing['filename'] = $info['filename'];
 				$path = $info['source_file'];
 			}
 		} else {
