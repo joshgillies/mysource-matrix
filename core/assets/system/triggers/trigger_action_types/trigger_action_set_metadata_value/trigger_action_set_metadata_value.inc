@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_metadata_value.inc,v 1.42 2012/08/30 01:09:14 ewang Exp $
+* $Id: trigger_action_set_metadata_value.inc,v 1.42.2.1 2013/01/30 02:04:50 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 * A trigger action that applies or denies a metadata value
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.42.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -116,7 +116,7 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 			require_once SQ_CORE_PACKAGE_PATH.'/metadata/metadata_field/metadata_field.inc';
 			$value = Metadata_Field::encodeValueString($value, Array());
 		} else {
-			if (!isset($settings['value'])) {
+			if (!array_key_exists('value', $settings)) {
 				return FALSE;
 			}
 			$value = $settings['value'];
