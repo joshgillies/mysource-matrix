@@ -1,5 +1,64 @@
 SQUIZ MATRIX CHANGELOG
 
+VERSION 4.10.7
+
+Minor Enhancements and Bug Fixes
+=================================== 
+
+Minor Enhancements
+
+Minor Enhancement #6103: WYSIWYG Insert Link Plug-in: Populate Global Keywords When Linking Searched Asset.
+
+Core
+
+Fixed Bug #6054: Cannot attach thumbnail to Data Record asset.
+Fixed Bug #6069: Safe edit file assets are generating invalid /__data URLs on live pages. 
+Fixed Bug #6070: Custom Form XML Export does not work with nested sections.
+Fixed Bug #6076: Could not locate asset (#123).
+Fixed Bug #6093: Calendar Event Search Page returns no results when a date field is not present on front-end.
+Fixed Bug #6094: Script system_integrity_fix_char_encoding.php not handling the serialised data correctly.
+Fixed Bug #6095: Cache CSS File option not working correctly for CSS File Customisation.
+Fixed Bug #6099: Non-existent linkid scheduled to deleted by Future Lineage cron job will deadlock the Cron Manager.
+Fixed Bug #6104: Asset manager getChildren() function not returning the correct children for Root Folder asset.
+Fixed Bug #6105: Asset Counter report asset does works with shadow asset type code if no root node is specified.
+Fixed Bug #6110: File in safe edit failed to display local Matrix URL for logged in user in some case.
+Fixed Bug #6112: IE8 WYSIWYG select list item and insert link could cause popup warning.
+Fixed Bug #6113: Set Metadata Value trigger action fails when setting default value.
+Fixed Bug #6116: Create Image functionality of the WYSIWYG fails in IE. 
+Fixed Bug #6117: system_integrity_orphaned_assets.php script will now run system wide.
+Fixed Bug #6119: maxwords keyword modifier removes commas.
+
+CMS
+
+Fixed Bug #6090: Can't download/export Custom Form submission over HTTPS using IE7 and IE8. 
+
+LDAP
+
+Fixed Bug #6089: Error when running ldap_change_dn.php script in the Oracle db. 
+
+Import Tools
+
+Fixed Bug #6043: CDATA not escaped in hipo_job_export_assets_to_xml.
+Fixed Bug #6048: hipo_job_export_assets_to_xml code path should export design parse files.
+Fixed Bug #6056: hipo_job_export_assets_to_xml shouldn't export shadow links.
+Fixed Bug #6057: hipo_job_export_assets_to_xml breaks on non utf-8 characters.
+Fixed Bug #6075: Import from XML Tool reports erroneous XML if the XML content doesn't have proper line breaks.
+
+Data
+
+Fixed Bug #6068: Using DSN string in Form Action Run DB Query doesn't work for Oracle.
+Fixed Bug #6081: Updating the Data Source asset's result set dynamically can output incorrect data Recordset items.
+
+TRIM
+
+Fixed Bug #6108: TRIM / Sharepoint Saved Search asset syncronise button issue.
+Fixed Bug #6109: TRIM Saved Search search term grouping logic issue. 
+
+Web Services
+
+Fixed Bug #6115: REST Response trigger condition does not include the required file defining the base class.
+
+
 VERSION 4.10.6
 
 Minor Enhancements and Bug Fixes
