@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_soap.inc,v 1.1 2013/01/04 01:37:19 cupreti Exp $
+* $Id: data_source_soap.inc,v 1.2 2013/01/30 05:49:18 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/lib/soap_common.inc';
 * Data_Source_Soap
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -247,13 +247,17 @@ class Data_Source_Soap extends Data_Source
 		$soap_function = $this->attr('request_fn');
 		try {
 			$soap_client = $this->getSoapClient();
-			@eval('$response = $soap_client->$soap_function('.$eval_string.');');
-		}
-		catch (Exception $e) {
+			eval('$response = $soap_client->$soap_function('.$eval_string.');');
+		} catch (Exception $e) {
+			// Save the last request
+			$data = $soap_client->__getLastRequest();
+			$this->setAttrValue('last_request', $data);
+			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+				$this->saveAttributes();
+			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 			trigger_error($e->getMessage());
 			return Array();
 		}
-
 		$result_attr = $soap_function.'Result';
 
 		// Save the last request and response
@@ -286,7 +290,6 @@ class Data_Source_Soap extends Data_Source
 			$response_xml = '<'.$result_attr.'>'.$response_val.'</'.$result_attr.'>';
 		}
 		$response_xml = '<'.$soap_function.'Response>'.$response_xml.'</'.$soap_function.'Response>';
-		log_dump($response_xml);
 		$result = $this->_createParser($response_xml);
 
 		return $result;

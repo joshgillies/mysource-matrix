@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_soap_edit_fns.inc,v 1.1 2013/01/04 01:37:19 cupreti Exp $
+* $Id: data_source_soap_edit_fns.inc,v 1.2 2013/01/30 05:49:18 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -197,7 +197,11 @@ class Data_Source_Soap_Edit_Fns extends Data_Source_Edit_Fns
 				if (!empty($value)) {
 					// Only alter the request message for the selected function
 					$existing_value[$selected_fn] = $value;
-					return $asset->setAttrValue('soap_requests', $existing_value);
+					if (!$asset->setAttrValue('soap_requests', $existing_value)) {
+						return FALSE;
+					}
+					// Recache the result set if required
+					$asset->getResultSet();
 				}
 			}
 		}//end if
