@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source.inc,v 1.35.2.1 2013/01/09 23:13:55 cupreti Exp $
+* $Id: data_source.inc,v 1.35.2.2 2013/01/30 02:37:19 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.35.2.1 $
+* @version $Revision: 1.35.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -816,6 +816,7 @@ class Data_Source extends Asset implements Bridge
 				$field_value = $filter['value'];
 				$match_type = $filter['match_type'];
 				$match_case = $filter['match_case'];
+				$allow_empty = array_get_index($filter, 'allow_empty', 0);
 				if (!isset($recordset[$field_name])) {
 					continue;
 				}
@@ -843,8 +844,13 @@ class Data_Source extends Asset implements Bridge
 						$condition_matched = preg_match('/'.str_replace('/', '\/',$field_value).'/'.($match_case == 'ignore_case' ? 'i' : ''), $record_value);
 					break;
 				}//end switch
-				
-				// Allow empty string comparision
+
+				// If empty filter value is set as a wildcard to match all the records
+				if ($allow_empty && empty($field_value)) {
+					$condition_matched = TRUE;
+				}
+
+				// If both record value and value to match are empty string, its match)
 				if (!$condition_matched && empty($record_value) && empty($field_value)) {
 					$condition_matched = TRUE;
 				}

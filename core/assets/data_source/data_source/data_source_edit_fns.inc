@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_edit_fns.inc,v 1.11 2012/08/30 01:09:05 ewang Exp $
+* $Id: data_source_edit_fns.inc,v 1.11.2.1 2013/01/30 02:37:19 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.11.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -188,10 +188,11 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 		?>
 		<table class ="sq-backend-table" border="1" style="margin-bottom: 7px">
 			<tr>
-				<th width="20%"><?php echo translate('data_source_filter_name'); ?></th>
-				<th width="45%"><?php echo translate('data_source_value_to_match'); ?></th>
+				<th width="15%"><?php echo translate('data_source_filter_name'); ?></th>
+				<th width="40%"><?php echo translate('data_source_value_to_match'); ?></th>
 				<th><?php echo translate('data_source_match_type'); ?></th>
 				<th><?php echo translate('data_source_match_case'); ?></th>
+				<th><?php echo translate('data_source_allow_empty'); ?></th>
 				<?php
 				if ($wa) {
 					?>
@@ -211,13 +212,19 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 								'ignore_case' => 'No',
 								'match_case' => 'Yes',
 							);
+			$allow_empty_options = Array(
+								0 => 'No',
+								1 => 'Yes',
+							);
+			
 			
 			foreach ($filters as $index => $field_data) {
 				$field_name = $field_data['name'];
 				$field_value = $field_data['value'];
 				$match_type = $field_data['match_type'];
-				$match_case = $field_data['match_case'];				
-				
+				$match_case = $field_data['match_case'];
+				$allow_empty = array_get_index($field_data, 'allow_empty', 0);
+
 				?>
 				<tr>				
 					<td>
@@ -253,6 +260,15 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 								combo_box($prefix.'_filter['.$index.'][match_case]', $case_options, FALSE, $match_case);
 							} else {
 								echo $case_options[$match_case];
+							}
+						?>
+					</td>
+					<td>
+						<?php
+							if ($wa) {
+								combo_box($prefix.'_filter['.$index.'][allow_empty]', $allow_empty_options, FALSE, $allow_empty);
+							} else {
+								echo $allow_empty_options[$allow_empty];
 							}
 						?>
 					</td>
@@ -308,6 +324,7 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 				$filter_value = $filter_data['value'];
 				$match_type = $filter_data['match_type'];
 				$match_case = $filter_data['match_case'];
+				$allow_empty = $filter_data['allow_empty'];
 				
 				// Validate the regex string
 				if ($match_type == 'regex' && !empty($filter_value)) {
@@ -323,6 +340,7 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 									'value' => $filter_value,
 									'match_type' => $match_type,
 									'match_case' => $match_case,
+									'allow_empty' => $allow_empty,
 								);
 			}//end foreach
 		}//end if
@@ -333,6 +351,7 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 								'value' => '',
 								'match_type' => 'contains',
 								'match_case' => 'ignore_case',
+								'allow_empty' => 0,
 							);
 		}		
 		
