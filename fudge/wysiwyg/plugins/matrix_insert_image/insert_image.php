@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.57 2012/08/30 00:56:52 ewang Exp $
+* $Id: insert_image.php,v 1.57.2.1 2013/01/30 00:39:00 akarelia Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.57.2.1 $
 * @package MySource_Matrix
 */
 
@@ -228,7 +228,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 			function submitCreateImage() {
 				document.getElementById('main-form').action = "upload_image.php";
 				document.getElementById('main-form').method = "post";
-				if (navigator.appName == "Microsoft Internet Explorer") {
+				if (navigator.appName == "Microsoft Internet Explorer" && navigator.userAgent.indexOf('MSIE 9') == -1) {
 					// Hack for IE, Files don't get uploaded unless this is set a very special way
 					var encType = document.getElementById('main-form').getAttributeNode("enctype");
 					encType.value = "multipart/form-data";
