@@ -1,5 +1,136 @@
 SQUIZ MATRIX CHANGELOG
 
+VERSION 4.14.0 RC1
+
+Featured Changes
+===================================
+
+IPv6 Support for User IP Condition Restrictions [ Feature Request #5915 ]
+-----------------------------------------------------
+
+The User IP Condition restriction can be used to specify an IP range rule on a user account to determine its user groups. Previously, this condition only supported Internet Protocol Version 4 (IPv6) IP addresses.
+
+This feature adds support for IPv6 IP addresses when setting the User IP Condition on a user account.
+
+New Script to Regenerate the Asset File Contents [ Feature Request #5939 ]
+-----------------------------------------------------
+
+A new script has been added to Squiz Matrix to regenerate the asset file contents within the system. This includes metadata files, design files and bodycopy content files.
+
+The regenerate_file_systems.php script is found in the system's Scripts directory and takes the following parameters:
+
+   --system=<SYSTEM_ROOT> : the root directory of your Squiz Matrix system.
+   --rootnode=<ROOT_NODE> : the root node you wish to regenerate the file contents from.
+   --designs : specifies to only regenerate design files.
+   --metadata : specifies to only regenerate metadata files.
+   --bodycopies : specifies to only regenerate bodycopy content files.
+   --all : specifies to regenerate all file content (metadata, design and bodycopy content files).
+
+Usage of this script is as follows:
+
+$ php scripts/regenerate_file_system.php --system=<SYSTEM_ROOT> --rootnode=100 --all
+
+Retrieving Asset Data                   [DONE]
+Processing Designs                      [DONE]
+Processing Metadata                     [DONE]
+Processing Bodycopies                   [DONE]  
+
+New Trigger Action: Clear Session Var [ Feature Request #6082 ]
+-----------------------------------------------------
+
+Trigger actions allow you to specify tasks that will be performed when a fired trigger meets a specified set of conditions. Squiz Matrix boasts an extensive array of trigger actions that are available, from creating new assets to updating your twitter status.
+
+This feature introduces a brand new trigger action to clear Squiz Matrix sandbox session variables. 
+
+The Clear Session Vars trigger action can be configured on the Details screen of a trigger and allows you to clear sandbox session variables on the system, or to identify particular session variable(s) to clear, specified by either name or prefix.
+
+This new trigger action compliments and can be used in conjunction with the existing Set Session Var trigger action, to store a value in a session-level array temporarily, before removing the variable. 
+
+Additionally, this action can be used to clear session variables created by form submission actions, such as the Make SOAP Call action, addressing an issue previously reported within Matrix (#6058).  
+
+Redis Cache Storage [ Feature Request #6100 ]
+-----------------------------------------------------
+
+This feature introduces new Redis cache storage for Squiz Matrix. Redis (http://redis.io/) is a data structure store similar to memcache, but supports additional data structure types/operations and is extremely efficient.
+
+Redis outperforms memcache cache storage when large numbers of cache objects are created for individual assets (e.g. by viewing different URLs). This is due to a limitation with existing memcache cache storage that introduces performance hits in such situations.
+
+There is no known disadvantage of using Redis cache storage when compared with memcache.  
+
+TRIM Saved Search: Convert Result Fields from URI to Full Title [ Feature Request #6107 ]
+-----------------------------------------------------
+
+The TRIM Saved Search asset allows you to configure a set of TRIM search criteria in Squiz Matrix, storing and updating the results of the search on the system.
+
+Previously, search results returned on the TRIM Saved Search would return result fields (such as Author, Assignee and Creator) as URIs (TRIM's internal ID). This is, however, not ideal as these URIs would not make sense when displayed on the frontend.
+
+This feature will automatically convert result fields to to their full titles. The fields covered are as followed: recCreatorLoc, recOwnerLoc, recAuthorLoc, recClientLoc, recCurrentLoc, recHomeLoc, recOtherLoc, recPrimaryContactLoc, recRepresentLoc, recAssignee.
+
+
+Additional Changes and Bug Fixes
+=================================== 
+
+Minor Enhancements
+
+Minor Enhancement #5922: Fix Character Encoding Script Enhancements.
+Minor Enhancement #6073: Import From XML Script: New Param to Force the Creation of Dependant Assets.
+Minor Enhancement #6078: New Option to Disable the Password Confirmation Field for Password Asset Attributes.
+Minor Enhancement #6097: Remove Internal Message Script: New Param to Remove by Asset ID.
+Minor Enhancement #6102: Multi-Page Custom Form Performance Enhancement.
+Minor Enhancement #6103: WYSIWYG Insert Link Plug-in: Populate Global Keywords When Linking Searched Asset.
+Minor Enhancement #6111: Option to Set Empty Filter Value to Return all the Datasource Asset Records.
+
+Core
+
+Fixed Bug #6054: Cannot attach thumbnail to Data Record asset.
+Fixed Bug #6069: Safe edit file assets are generating invalid /__data URLs on live pages. 
+Fixed Bug #6070: Custom Form XML Export does not work with nested sections.
+Fixed Bug #6076: Could not locate asset (#123).
+Fixed Bug #6093: Calendar Event Search Page returns no results when a date field is not present on front-end.
+Fixed Bug #6094: Script system_integrity_fix_char_encoding.php not handling the serialised data correctly.
+Fixed Bug #6095: Cache CSS File option not working correctly for CSS File Customisation.
+Fixed Bug #6099: Non-existent linkid scheduled to deleted by Future Lineage cron job will deadlock the Cron Manager.
+Fixed Bug #6104: Asset manager getChildren() function not returning the correct children for Root Folder asset.
+Fixed Bug #6105: Asset Counter report asset does works with shadow asset type code if no root node is specified.
+Fixed Bug #6110: File in safe edit failed to display local Matrix URL for logged in user in some case.
+Fixed Bug #6112: IE8 WYSIWYG select list item and insert link could cause popup warning.
+Fixed Bug #6113: Set Metadata Value trigger action fails when setting default value.
+Fixed Bug #6116: Create Image functionality of the WYSIWYG fails in IE. 
+Fixed Bug #6117: system_integrity_orphaned_assets.php script will now run system wide.
+Fixed Bug #6119: maxwords keyword modifier removes commas.
+
+CMS
+
+Fixed Bug #6090: Can't download/export Custom Form submission over HTTPS using IE7 and IE8. 
+
+LDAP
+
+Fixed Bug #6089: Error when running ldap_change_dn.php script in the Oracle db. 
+
+Import Tools
+
+Fixed Bug #6043: CDATA not escaped in hipo_job_export_assets_to_xml.
+Fixed Bug #6048: hipo_job_export_assets_to_xml code path should export design parse files.
+Fixed Bug #6056: hipo_job_export_assets_to_xml shouldn't export shadow links.
+Fixed Bug #6057: hipo_job_export_assets_to_xml breaks on non utf-8 characters.
+Fixed Bug #6075: Import from XML Tool reports erroneous XML if the XML content doesn't have proper line breaks.
+
+Data
+
+Fixed Bug #6068: Using DSN string in Form Action Run DB Query doesn't work for Oracle.
+Fixed Bug #6081: Updating the Data Source asset's result set dynamically can output incorrect data Recordset items.
+
+TRIM
+
+Fixed Bug #6108: TRIM / Sharepoint Saved Search asset syncronise button issue.
+Fixed Bug #6109: TRIM Saved Search search term grouping logic issue. 
+
+Web Services
+
+Fixed Bug #6115: REST Response trigger condition does not include the required file defining the base class.
+
+
+
 VERSION 4.12.0 RC1
 
 Featured Changes
