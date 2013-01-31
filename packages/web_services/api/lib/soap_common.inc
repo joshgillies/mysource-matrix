@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_common.inc,v 1.8 2013/01/18 07:30:13 cupreti Exp $
+* $Id: soap_common.inc,v 1.9 2013/01/31 01:30:17 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ define('MAX_COMPLEX_TYPE_PASRSE_LOOP', 3);
 * This class will have all the common functions used for SOAP trigger and form actions
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -483,14 +483,12 @@ class SOAP_Common
 		}
 		if ($soap_client instanceof SoapClient) {
 			$ws_header = '
-			    <soapenv:Header>
-					<wsse:Security soapenv:mustUnderstand="1" xmlns:wsse="'.$ws_namespace.'">
+					<wsse:Security SOAP-ENV:mustUnderstand="1" xmlns:wsse="'.$ws_namespace.'">
 						<wsse:UsernameToken>
 							<wsse:Username>'.$ws_username.'</wsse:Username>
 							<wsse:Password>'.$ws_password.'</wsse:Password>
 						</wsse:UsernameToken>
-					</wsse:Security>
-				</soapenv:Header>';
+					</wsse:Security>';
 
 			try {
 				$ws_header_var = @new SoapVar($ws_header, XSD_ANYXML);
