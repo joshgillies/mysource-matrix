@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_common.inc,v 1.21.2.2 2013/01/24 06:39:24 ewang Exp $
+* $Id: trim_common.inc,v 1.21.2.3 2013/01/31 05:17:04 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.21.2.2 $
+* @version $Revision: 1.21.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage trim
 */
@@ -107,6 +107,7 @@ class TRIM_Common
 			$i++;
 		}
 		
+		
 		// add classification restrictions
 		if (!empty($classifications)) {
 			$i = 0;
@@ -153,6 +154,7 @@ class TRIM_Common
 							'TargetForUpdate'					=> FALSE,
 							'IsForUpdate'						=> FALSE,
 							'Limit'								=> $record_search_options['limit'],
+							'Skip'								=> 0,
 							'Sort1'								=> $record_search_options['sort_1'],
 							'Sort2'								=> $record_search_options['sort_2'],
 							'Sort3'								=> $record_search_options['sort_3'],
@@ -190,7 +192,8 @@ class TRIM_Common
 					'TargetForUpdate'	=> TRUE,
 					'IsForUpdate'		=> TRUE,
 					'Limit'				=> 0,
-				  );
+					'Skip'				=>0,
+				  );	
 
 		return $sru;
 
@@ -212,7 +215,8 @@ class TRIM_Common
 					'TargetForUpdate'	=> FALSE,
 					'IsForUpdate'		=> FALSE,
 					'Limit'				=> 10,
-				  );
+					'Skip'				=> 0,    
+				  );	
 		return $srus;
 
 	}//end constructShortcutRecordUris()
@@ -418,6 +422,7 @@ class TRIM_Common
 																		'TargetForUpdate'	=>	FALSE,
 																		'IsForUpdate'		=>	FALSE,
 																		'Limit'				=>	100000,
+																		'Skip'			=> 0,    
 														),
 						'Fetch'							=> self::constructFetch($specific_items, 100000),							
 					  );
@@ -452,6 +457,7 @@ class TRIM_Common
 																		'TargetForUpdate'	=>	FALSE,
 																		'IsForUpdate'		=>	FALSE,
 																		'Limit'				=>	100000,
+																		'Skip'			=> 0,
 														),
 						'Fetch'							=> self::constructFetch($specific_items, 100000),							
 					  );
@@ -490,6 +496,7 @@ class TRIM_Common
 																		'TargetForUpdate'	=>	FALSE,
 																		'IsForUpdate'		=>	FALSE,
 																		'Limit'				=>	100000,
+																		 'Skip'			=> 0 ,  
 														),
 						'Fetch'							=> self::constructFetch($specific_items, 100000),								
 					  );
@@ -967,7 +974,7 @@ class TRIM_Common
 				trigger_error($error_message, E_USER_WARNING);
 				return Array();
 			}
-
+			
 			// The data returned is in XML format, so we have to parse it.
 			$object_list = self::parseTRIMData($data->ExecuteXmlResult, $display_type);
 
@@ -1011,6 +1018,7 @@ class TRIM_Common
 											'TargetForUpdate'		=> FALSE,
 											'IsForUpdate'			=> FALSE,
 											'Limit'					=> 1,
+											'Skip'					=> 0,    
 										   );
 		// END GET ASSIGNEE URI
 		$FetchInjectionUriLocationId	= Array (
@@ -1094,6 +1102,7 @@ class TRIM_Common
 											'TargetForUpdate'	=> FALSE,
 											'IsForUpdate'		=> FALSE,
 											'Limit'				=> 10,
+											'Skip'				=> 0,    
 											'BehaviorFilter'	=> ucwords($new_record_info['record_type']),
 											'TypeFilter'		=> 'All',
 										  );
@@ -1407,6 +1416,7 @@ class TRIM_Common
 																		'IsForUpdate'		=>	FALSE,
 																		'TargetForUpdate'	=>	FALSE,
 																		'Limit'			=>	100000,
+																		'Skip'			=> 0,    
 																		'HideActiveLocations'	=>	FALSE,
 																		'HideInactiveLocations'	=>	FALSE,
 																		'HideInternalLocations'	=>	FALSE,
@@ -1425,5 +1435,6 @@ class TRIM_Common
 		return $loc_names;
 
 	}//end getLocationTitleFromUris()
+	
 	
 }//end class
