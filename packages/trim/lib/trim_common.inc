@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_common.inc,v 1.25 2013/01/31 05:13:30 ewang Exp $
+* $Id: trim_common.inc,v 1.26 2013/01/31 05:16:18 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage trim
 */
@@ -974,7 +974,7 @@ class TRIM_Common
 				trigger_error($error_message, E_USER_WARNING);
 				return Array();
 			}
-			log_dump($data);
+			
 			// The data returned is in XML format, so we have to parse it.
 			$object_list = self::parseTRIMData($data->ExecuteXmlResult, $display_type);
 
