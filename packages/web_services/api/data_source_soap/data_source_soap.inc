@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_soap.inc,v 1.2 2013/01/30 05:49:18 cupreti Exp $
+* $Id: data_source_soap.inc,v 1.3 2013/01/31 01:33:08 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/lib/soap_common.inc';
 * Data_Source_Soap
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -258,38 +258,32 @@ class Data_Source_Soap extends Data_Source
 			trigger_error($e->getMessage());
 			return Array();
 		}
-		$result_attr = $soap_function.'Result';
 
 		// Save the last request and response
 		$data = $soap_client->__getLastRequest();
 		$this->setAttrValue('last_request', $data);
 		$data = Array();
 		$data['response_xml'] = $soap_client->__getLastResponse();
-		$data['response_obj'] = !is_null($response) && isset($response->$result_attr) ? serialize($response->$result_attr) : '';
+		$data['response_obj'] = !is_null($response) ? serialize($response) : '';
 		$this->setAttrValue('last_response', $data);
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 			$this->saveAttributes();
 		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 		// Process the response and the result
-		if (is_null($response) || !isset($response->$result_attr)) {
+		if (is_null($response)) {
 			return Array();
 		}
 
-		// Make the response object xml
-		$response_val = $response->$result_attr;
-		if (!@simplexml_load_string($response_val)) {
-			if (!is_array($response_val)) {
-				$response_val = Array($response_val);
-			}
-			$response_xml = '';
-			foreach($response_val as $response_item) {
-				$response_xml .= '<'.$result_attr.'>'.SOAP_Common::arrayToXml($response_item).'</'.$result_attr.'>';
-			}
-		} else {
-			$response_xml = '<'.$result_attr.'>'.$response_val.'</'.$result_attr.'>';
+		// Make the response xml
+		$sxml = new SimpleXMLElement($data['response_xml']);
+		$xpath_res = $sxml->xpath('/SOAP-ENV:Envelope/SOAP-ENV:Body');
+		$response_xml = @$xpath_res[0]->asXML();
+		if (empty($response_xml)) {
+			trigger_error("Expected xml content not found in the SOAP response");
+			return Array();
 		}
-		$response_xml = '<'.$soap_function.'Response>'.$response_xml.'</'.$soap_function.'Response>';
+
 		$result = $this->_createParser($response_xml);
 
 		return $result;
