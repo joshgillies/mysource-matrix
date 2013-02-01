@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_events_search.inc,v 1.14 2013/01/22 03:54:40 cupreti Exp $
+* $Id: page_calendar_events_search.inc,v 1.15 2013/02/01 00:58:10 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 * Page_Calendar_Events_Search
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -51,7 +51,8 @@ class Page_Calendar_Events_Search extends Search_Page
 								'previous_month' => 1, 
 								'this_year' => 0, 
 								'next_year' => 0, 
-								'previous_year' => 0, 
+								'previous_year' => 0,
+								'upcoming_events' => 0,
 								'anytime' => 0
 							);
 	
@@ -392,9 +393,9 @@ class Page_Calendar_Events_Search extends Search_Page
 			$query_var = 'queries_'.$field_name.'_fquery';
 			$clean_query_var = str_replace('.', '_', $query_var);
 
-			$queries[$field_name] = $this->_processDateFilter($query_var, $field_details['type']);
+			$queries[$field_name] = $this->_processDateFilter($query_var, $field_details);
 			if (!isset($queries[$field_name][0]['from'])) {
-				$queries[$field_name] = $this->_getStoredQueryValue($field_name, $filters[$field_name]['type']);
+				$queries[$field_name] = $this->_getStoredQueryValue($field_name, $filters[$field_name]);
 			}
 
 		}//end foreach fields
@@ -483,19 +484,20 @@ class Page_Calendar_Events_Search extends Search_Page
 	* for the given field, if any
 	*
 	* @param string $filter_name
-	* @param string $filter_type
+	* @param string $details
 	*
 	* @return array
 	* @access private
 	*/	
-	function _getStoredQueryValue($filter_name, $filter_type)
+	function _getStoredQueryValue($filter_name, $details)
 	{
 		$query = Array();		
-		
+
 		// Don't touch it if there was some SESSION var already set
 		$pmap = $this->getAttribute('stored_query_session');
 		$pmap_params = $pmap->getParameters();
 		
+		$filter_type = $details['type'];
 		if (is_array($pmap_params) && !empty($pmap_params)) {
 			// Check for current field
 			if (in_array('f:'.$filter_name, $pmap_params)) {
@@ -530,16 +532,18 @@ class Page_Calendar_Events_Search extends Search_Page
 					case 'fuzzy_dropdown':
 					$raw_val = trim($raw_val);
 					if (isset($this->fuzzy_date_types[$raw_val])) {
-						$query[] = $this->_processFuzzyDate($raw_val);
+						$event_horizon = array_get_index($details, 'event_horizon', 180);
+						$query[] = $this->_processFuzzyDate($raw_val, $event_horizon);
 					}
 					break;
 			
 					case 'fuzzy_checkboxes':
 						$fuzzy_types = explode(',', $raw_val);
+						$event_horizon = array_get_index($details, 'event_horizon', 180);
 						foreach($fuzzy_types as $fuzzy_type) {
 							$fuzzy_type = trim($fuzzy_type);
 							if (isset($this->fuzzy_date_types[$fuzzy_type])) {
-								$query[] = $this->_processFuzzyDate($fuzzy_type);
+								$query[] = $this->_processFuzzyDate($fuzzy_type, $event_horizon);
 							}
 						}
 					break;
@@ -575,9 +579,9 @@ class Page_Calendar_Events_Search extends Search_Page
 		}
 		$read_only = FALSE;
 		
-		$current_value = $this->_processDateFilter('queries_'.$query_var, $filters[$filter_name]['type']);
+		$current_value = $this->_processDateFilter('queries_'.$query_var, $filters[$filter_name]);
 		if (!isset($current_value[0]['from'])) {
-			$current_value = $this->_getStoredQueryValue($filter_name, $filters[$filter_name]['type']);
+			$current_value = $this->_getStoredQueryValue($filter_name, $filters[$filter_name]);
 		}
 
 		$fuzzy_date_options = array_get_index($filters[$filter_name], 'fuzzy_options', Array());
@@ -828,15 +832,16 @@ class Page_Calendar_Events_Search extends Search_Page
 	* Process the date range selection
 	*
 	* @param string	$field_name	the name of the field we are processing
-	* @param string $type
+	* @param string $details	field details
 	*
 	* @return array
 	* @access private
 	*/
-	function _processDateFilter($field_name, $type)
+	function _processDateFilter($field_name, $details)
 	{
 		$result = Array();
 		
+		$type = $details['type'];
 		switch ($type) {
 			case 'single_date':
 			case 'date_range':
@@ -857,7 +862,8 @@ class Page_Calendar_Events_Search extends Search_Page
 			
 			case 'fuzzy_dropdown':
 				if (isset($_REQUEST[$field_name])) {
-					$result[0] = $this->_processFuzzyDate($_REQUEST[$field_name]);
+					$event_horizon = array_get_index($details, 'event_horizon', 180);
+					$result[0] = $this->_processFuzzyDate($_REQUEST[$field_name], $event_horizon);
 				}
 			break;
 			
@@ -872,8 +878,9 @@ class Page_Calendar_Events_Search extends Search_Page
 				}
 				
 				if (!empty($fuzzy_types)) {
+					$event_horizon = array_get_index($details, 'event_horizon', 180);
 					foreach($fuzzy_types as $index => $selected_date_type) {
-						$result[$index] = $this->_processFuzzyDate(trim($selected_date_type));
+						$result[$index] = $this->_processFuzzyDate(trim($selected_date_type), $event_horizon);
 					}//end foreach
 				}
 			break;
@@ -889,11 +896,12 @@ class Page_Calendar_Events_Search extends Search_Page
 	* Returns the date range for given fuzzy date type
 	*
 	* @param string $type
+	* @param string $event_horizon
 	*
 	* @return array
 	* @access private
 	*/
-	function _processFuzzyDate($type)
+	function _processFuzzyDate($type, $event_horizon=180)
 	{
 		// Current date
 		$today = date("Y-m-d");
@@ -1006,7 +1014,16 @@ class Page_Calendar_Events_Search extends Search_Page
 				$from = date("Y-m-d", strtotime('01/01/'.$year));
 				$to = date("Y-m-d", strtotime('12/31/'.$year));			
 			break;
-			
+
+			case 'upcoming_events':
+				$event_horizon = (int) $event_horizon;
+				if ($event_horizon < 0) {
+					$event_horizon = 180;
+				}
+				$from = date("Y-m-d", strtotime($today. " +1 day"));
+				$to = date("Y-m-d", strtotime($from. " +".($event_horizon-1)." day"));
+			break;
+
 			case 'anytime':
 				$from = '1970-01-01';
 				$to = '2030-12-31';

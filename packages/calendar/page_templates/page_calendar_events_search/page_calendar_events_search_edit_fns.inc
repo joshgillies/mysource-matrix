@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_events_search_edit_fns.inc,v 1.3 2012/08/30 00:57:28 ewang Exp $
+* $Id: page_calendar_events_search_edit_fns.inc,v 1.4 2013/02/01 00:58:10 cupreti Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_PACKAGES_PATH.'/search/search_page/search_page_edit_fns.inc';
 * Page_Calendar_Events_Search_Page_Edit_Fns
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -67,7 +67,7 @@ class Page_Calendar_Events_Search_Edit_Fns extends Search_Page_Edit_Fns
 		$fuzzy_options = Array();
 		$default_fuzzy_options = Array();
 		foreach($asset->fuzzy_date_types as $fuzzy_opt => $default) {
-			$fuzzy_options[$fuzzy_opt] = ucfirst($fuzzy_opt);
+			$fuzzy_options[$fuzzy_opt] = ucwords(str_replace('_', ' ',$fuzzy_opt));
 			
 			if ($default) {
 				$default_fuzzy_options[] = $fuzzy_opt;
@@ -106,8 +106,16 @@ class Page_Calendar_Events_Search_Edit_Fns extends Search_Page_Edit_Fns
 						case 'fuzzy_dropdown':
 						case 'fuzzy_checkboxes':							
 							$selected_fuzzy_options = array_get_index($filter_data, 'fuzzy_options', $default_fuzzy_options);
+							// Selected "event horizon" in days for "upcoming events" type
+							$event_horizon = array_get_index($filter_data, 'event_horizon', 180);
 							echo "<br /><br />";
 							combo_box($prefix.'_filters['.$filter_name.'][fuzzy_options]', $fuzzy_options, TRUE, $selected_fuzzy_options, 8, $input_box_extra);
+							if (in_array('upcoming_events', $selected_fuzzy_options)) {
+								echo "<br />";
+								echo "Event Horizon for Upcoming Events: ";
+								text_box($prefix.'_filters['.$filter_name.'][event_horizon]', $event_horizon, 3, '', FALSE, $input_box_extra);
+								echo " days";
+							}
 						break;					
 					}//end switch
 					echo "<br /><br>";
@@ -170,6 +178,11 @@ class Page_Calendar_Events_Search_Edit_Fns extends Search_Page_Edit_Fns
 							if (isset($filter['fuzzy_options'])) {
 								$new_filters[$filter_name]['fuzzy_options'] = $filter['fuzzy_options'];
 							}							
+							if (isset($filter['event_horizon'])) {
+								$new_filters[$filter_name]['event_horizon'] = $filter['event_horizon'];
+							} else if (isset($old_filters[$filter_name]['event_horizon'])) {
+								$new_filters[$filter_name]['event_horizon'] = $old_filters[$filter_name]['event_horizon'];
+							}
 						}//end if
 					}
 					$new_filters[$filter_name]['use_picker']  = isset($filter['use_picker']) ? TRUE : FALSE;					
