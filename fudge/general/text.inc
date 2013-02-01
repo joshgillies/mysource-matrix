@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.72 2013/01/29 23:09:20 ewang Exp $
+* $Id: text.inc,v 1.73 2013/02/01 03:53:45 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.72 $
+* @version $Revision: 1.73 $
 * @package Fudge
 * @subpackage Text
 */
@@ -683,7 +683,36 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array())
 		// our encodeing has added extra double quotes at the start
 		// and end of our string. Remove them before returning text
 		return trim($output, '"');
+	case "css_safe":
+		$prefix = array_get_index($modifier['args'], 0, NULL);
+		$separator = array_get_index($modifier['args'], 1, NULL);
 
+		// ensure separator character is valid
+		if( $separator !== '-' && $separator !== '' ) $separator = '_';
+
+		// ensure prefix character is valid
+		if( !preg_match( '/^[a-z]+$/i' , $prefix ) ) $prefix = 'A';
+
+		// Find all the bad characters
+		$find = array(
+		'/(?:^[^a-zA-Z0-9]+|[^_a-zA-Z0-9-]+$)/' // find bad characters from begining and end of string
+		// (Note: in this version, strings cannot start with a
+		// hyphen or underscores ('-', '_') as these are generally
+		// reserved for browser specific selectors)
+		,'/^(?=[0-9])/' // find numbers at the start of the string
+		,'/[^_a-zA-Z0-9-]+/' // find all bad characters within string
+		,'/[_-]{3}/' // cleaning up
+		);
+
+		// Replace all the bad characters
+		$replace = array(
+		'' // strip bad characters from begining and end of string
+		,$prefix.$separator.'\1' // add underscore to strings starting with a number
+		,$separator // replace multiple bad chars with a single underscore (or separator char)
+		,$separator // cleaned up
+		);
+
+		return preg_replace( $find , $replace , $text );
 	default:
 		return $text;
 
