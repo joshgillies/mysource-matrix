@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: http_request.inc,v 1.20 2012/09/11 07:45:47 ewang Exp $
+* $Id: http_request.inc,v 1.20.4.1 2013/02/01 03:06:38 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 * 	<http_request />
 *
 * @author  James Hurst <jhurst@squiz.co.uk>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.20.4.1 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -375,7 +375,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 						}
 					?>
 				</td>
-			</tr
+			</tr>
 			<tr>
 				<th><?php echo translate('http_request_run_test'); ?></th>
 				<td>
