@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.73 2013/02/01 03:53:45 ewang Exp $
+* $Id: text.inc,v 1.74 2013/02/01 03:55:39 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.73 $
+* @version $Revision: 1.74 $
 * @package Fudge
 * @subpackage Text
 */
@@ -683,6 +683,7 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array())
 		// our encodeing has added extra double quotes at the start
 		// and end of our string. Remove them before returning text
 		return trim($output, '"');
+		
 	case "css_safe":
 		$prefix = array_get_index($modifier['args'], 0, NULL);
 		$separator = array_get_index($modifier['args'], 1, NULL);
