@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remove_form_submission.php,v 1.13 2012/08/30 01:04:53 ewang Exp $
+* $Id: remove_form_submission.php,v 1.13.4.1 2013/02/01 03:00:20 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 *		Require Matrix version 3.12 or newer
 *
 * @author  Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.13.4.1 $
 * @package MySource_Matrix
 */
 
@@ -63,6 +63,9 @@ if (count($argv) != 5) {
 require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 $from_value = iso8601_date_component($argv[3]).' 00:00:00';
 $to_value = iso8601_date_component($argv[4]).' 23:59:59';
+
+$root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user);
 
 // check assetid and asset type
 $assetid = $argv[2];
