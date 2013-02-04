@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.265 2012/08/30 00:59:15 ewang Exp $
+* $Id: search_page.inc,v 1.266 2013/02/04 07:31:29 cupreti Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.265 $
+* @version $Revision: 1.266 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -457,6 +457,9 @@ class Search_Page extends Listing_Engine
 		if (empty($results)) $bc_name = 'no_results';
 
 		$bodycopy =& $this->getBodycopy($bc_name);
+		if (is_null($bodycopy)) {
+			return Array();
+		}
 		$keywords = $bodycopy->getKeywords();
 
 		echo $this->getBodycopyContents($bc_name, $this->getResultsBodyReplacements($results, $bc_name));
@@ -550,7 +553,9 @@ class Search_Page extends Listing_Engine
 		if (array_key_exists($name, $this->bodycopies)) {
 			$am =& $GLOBALS['SQ_SYSTEM']->am;
 			$link = $am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, $name, 'major', '1');
-			$bodycopy = $am->getAsset($link['minorid'], $link['minor_type_code']);
+			 if (!empty($link)) {
+				$bodycopy = $am->getAsset($link['minorid'], $link['minor_type_code']);
+			}
 		}
 
 		return $bodycopy;
@@ -571,8 +576,11 @@ class Search_Page extends Listing_Engine
 	*/
 	function &getBodycopyContents($name, $replacements=Array())
 	{
+		$html = '';
 		$bodycopy =& $this->getBodycopy($name);
-		if (is_null($bodycopy)) return '';
+		if (is_null($bodycopy)) {
+			return $html;
+		}
 
 		$bodycopy->setKeywordReplacements($replacements);
 
@@ -1570,6 +1578,10 @@ class Search_Page extends Listing_Engine
 	function getInitialBodyReplacements()
 	{
 		$bodycopy =& $this->getBodycopy('initial');
+		if (is_null($bodycopy)) {
+			return Array();
+		}
+
 		$keywords = $bodycopy->getKeywords();
 		$replaces = Array();
 
@@ -1717,6 +1729,10 @@ class Search_Page extends Listing_Engine
 	{
 		$mode = array_get_index($_REQUEST, 'mode', 'results');
 		$bodycopy =& $this->getBodycopy($bc_name);
+		if (is_null($bodycopy)) {
+			return Array();
+		}
+
 		$keywords = $bodycopy->getKeywords();
 
 		// if we have %page_list_X% keywords in the array before the %result_list% 
@@ -2138,6 +2154,9 @@ class Search_Page extends Listing_Engine
 	function getResultElementBodyReplacements($assetid)
 	{
 		$bodycopy =& $this->getBodycopy('result_element');
+		if (is_null($bodycopy)) {
+			return Array();
+		}
 		$keywords = $bodycopy->getKeywords();
 
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
