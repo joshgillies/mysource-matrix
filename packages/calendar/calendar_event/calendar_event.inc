@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.111 2012/09/20 01:15:01 akarelia Exp $
+* $Id: calendar_event.inc,v 1.112 2013/02/04 04:45:48 akarelia Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.111 $
+* @version $Revision: 1.112 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1020,23 +1020,52 @@ class Calendar_Event extends Asset
 				// Event instance keywords
 				if (isset($this->vars['start_date_ts'])) {
 					$start_ts = $this->attr('start_date_ts');
-					preg_match('/^instance_start_datetime_(.+)/', $keyword, $matches);
+					preg_match('/^instance_start_(.+)/', $keyword, $matches);
 					if (!empty($matches)) {
-						if ($matches[1] == 'ical') {
+						if ($matches[1] == 'datetime_ical') {
 							$replacement = empty($start_ts) ? '' : date('Ymd\THis', $start_ts);
-						} else {
-							$replacement = empty($start_ts) ? '' : date($matches[1], $start_ts);
+						} else if (strpos($matches[1], 'datetime_') !== FALSE) {
+							$replacement = empty($start_ts) ? '' : date(str_replace('datetime_', '', $matches[1]), $start_ts);
+						} else if ($matches[1] == 'date') {
+							$replacement = empty($start_ts) ? '' : date('jS M Y', iso8601_ts($start_ts));
+						} else if ($matches[1] == 'time') {
+							$iso_formated = iso8601_ts($start_ts);
+							$mins = date('i', $iso_formated);
+							if ($mins == '00') {
+								$replacement = date('ga', $iso_formated);
+							} else {
+								$replacement = date('g:ia', $iso_formated);
+							}
+						} else if ($matches[1] == 'time_12h') {
+							$replacement = empty($start_ts) ? '' : date('h:i a', iso8601_ts($start_ts));
+						} else if ($matches[1] == 'time_24h') {
+							$replacement = empty($start_ts) ? '' : date('H:i', iso8601_ts($start_ts));
 						}
 					}//end if
 				}
+
 				if (isset($this->vars['end_date_ts'])) {
 					$end_ts = $this->attr('end_date_ts');
-					preg_match('/^instance_end_datetime_(.+)/', $keyword, $matches);
+					preg_match('/^instance_end_(.+)/', $keyword, $matches);
 					if (!empty($matches)) {
-						if ($matches[1] == 'ical') {
+						if ($matches[1] == 'datetime_ical') {
 							$replacement = empty($end_ts) ? '' : date('Ymd\THis', $end_ts);
-						} else {
-							$replacement = empty($end_ts) ? '' : date($matches[1], $end_ts);
+						} else if (strpos($matches[1], 'datetime_') !== FALSE){
+							$replacement = empty($end_ts) ? '' : date(str_replace('datetime_', '', $matches[1]), $end_ts);
+						} else if ($matches[1] == 'date') {
+							$replacement = empty($end_ts) ? '' : date('jS M Y', iso8601_ts($end_ts));
+						} else if ($matches[1] == 'time') {
+							$iso_formated = iso8601_ts($end_ts);
+							$mins = date('i', $iso_formated);
+							if ($mins == '00') {
+								$replacement = date('ga', $iso_formated);
+							} else {
+								$replacement = date('g:ia', $iso_formated);
+							}
+						} else if ($matches[1] == 'time_12h') {
+							$replacement = empty($end_ts) ? '' : date('h:i a', iso8601_ts($end_ts));
+						} else if ($matches[1] == 'time_24h') {
+							$replacement = empty($end_ts) ? '' : date('H:i', iso8601_ts($end_ts));
 						}
 					}//end if
 				}

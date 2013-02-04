@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.107 2012/08/30 00:57:28 ewang Exp $
+* $Id: calendar_event_recurring.inc,v 1.108 2013/02/04 04:45:48 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.107 $
+* @version $Revision: 1.108 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1008,6 +1008,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 					// break outta switch block
 					break;
 				}
+
 				$matches = Array();
 				preg_match('/^instance_start_datetime_(.+)/', $keyword, $matches);
 				if (!empty($matches)) {
@@ -1038,6 +1039,53 @@ class Calendar_Event_Recurring extends Calendar_Event
 					// break outta switch block
 					break;
 				}
+
+				$matches = Array();
+				preg_match('/^instance_start_(.+)/', $keyword, $matches);
+				if (!empty($matches)) {
+					if (!empty($_REQUEST['SQ_CALENDAR_DATE'])) {
+						if ($exception_link = $this->getExceptionLink($_REQUEST['SQ_CALENDAR_DATE'])) {
+							// exception today
+							$replacement = '';
+						} else {
+							// we are showing a normal instance of this event
+							$instance_dates = $this->getInstanceDates($_REQUEST['SQ_CALENDAR_DATE']);
+							switch ($matches[1]){
+								case 'date':
+									$replacement = date('jS M Y', iso8601_ts($instance_dates['start']));
+									break;
+
+								case 'time':
+									$iso_formated = iso8601_ts($instance_dates['start']);
+									$mins = date('i', $iso_formated);
+									if ($mins == '00') {
+										$replacement = date('ga', $iso_formated);
+									} else {
+										$replacement = date('g:ia', $iso_formated);
+									}
+									break;
+
+								case 'time_12h':
+									$replacement = date('h:i a', iso8601_ts($instance_dates['start']));
+									break;
+
+								case 'time_24h':
+									$replacement = date('H:i', iso8601_ts($instance_dates['start']));
+									break;
+
+								default:
+									$replacement = '';
+									break;
+							}							
+						}
+					} else {
+						// If the event is the shadow asset, then instance data is available as asset attribute
+						$replacement = parent::getKeywordReplacement($keyword);
+					}
+					// break outta switch block
+					break;
+				}
+
 				$matches = Array();
 				preg_match('/^instance_end_datetime_(.+)/', $keyword, $matches);
 				if (!empty($matches)) { 
@@ -1067,6 +1115,54 @@ class Calendar_Event_Recurring extends Calendar_Event
 					// break outta switch block
 					break;
 				}
+
+				$matches = Array();
+				preg_match('/^instance_end_(.+)/', $keyword, $matches);
+				if (!empty($matches)) {
+					if (!empty($_REQUEST['SQ_CALENDAR_DATE'])) {
+						if ($exception_link = $this->getExceptionLink($_REQUEST['SQ_CALENDAR_DATE'])) {
+							// exception today
+							$replacement = '';
+						} else {
+							// we are showing a normal instance of this event
+							$instance_dates = $this->getInstanceDates($_REQUEST['SQ_CALENDAR_DATE']);
+							switch ($matches[1]){
+								case 'date':
+									$replacement = date('jS M Y', iso8601_ts($instance_dates['end']));
+									break;
+
+								case 'time':
+									$iso_formated = iso8601_ts($instance_dates['end']);
+									$mins = date('i', $iso_formated);
+									if ($mins == '00') {
+										$replacement = date('ga', $iso_formated);
+									} else {
+										$replacement = date('g:ia', $iso_formated);
+									}
+									break;
+
+								case 'time_12h':
+									$replacement = date('h:i a', iso8601_ts($instance_dates['end']));
+									break;
+
+								case 'time_24h':
+									$replacement = date('H:i', iso8601_ts($instance_dates['end']));
+									break;
+
+								default:
+									$replacement = '';
+									break;
+							}							
+						}
+					} else {
+						// If the event is the shadow asset, then instance data is available as asset attribute
+						$replacement = parent::getKeywordReplacement($keyword);
+					}
+					// break outta switch block
+					break;
+				}
+
+
 				$matches = Array();
 				preg_match('/^event_stop_date_(.+)/', $keyword, $matches);
 				$stop_date = $this->attr('stop_date');
@@ -1511,9 +1607,19 @@ class Calendar_Event_Recurring extends Calendar_Event
 		$our_keywords[] = 'event_end_datetime_'; // = dynamic keyword to print end date and time
 		$our_keywords[] = 'event_frequency';
 		$our_keywords[] = 'instance_end_datetime';
-		$our_keywords[] = 'instance_start_datetime';
-		$our_keywords[] = 'instance_start_datetime_';
+		$our_keywords[] = 'instance_end_datetime_ical';
 		$our_keywords[] = 'instance_end_datetime_';
+		$our_keywords[] = 'instance_end_date';
+		$our_keywords[] = 'instance_end_time';
+		$our_keywords[] = 'instance_end_time_12h';
+		$our_keywords[] = 'instance_end_time_24h';
+		$our_keywords[] = 'instance_start_datetime';
+		$our_keywords[] = 'instance_start_datetime_ical';
+		$our_keywords[] = 'instance_start_datetime_';
+		$our_keywords[] = 'instance_start_date';
+		$our_keywords[] = 'instance_start_time';
+		$our_keywords[] = 'instance_start_time_12h';
+		$our_keywords[] = 'instance_start_time_24h';
 		$our_keywords[] = 'event_stop_date_';
 		$our_keywords[] = 'event_ical_frequency';
 		$our_keywords[] = 'event_ical_exceptions';
