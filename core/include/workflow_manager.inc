@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.179 2012/09/04 04:08:34 akarelia Exp $
+* $Id: workflow_manager.inc,v 1.179.4.1 2013/02/04 03:41:45 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.179 $
+* @version $Revision: 1.179.4.1 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -166,9 +166,9 @@ class Workflow_Manager extends MySource_Object
 	*
 	* @return multitype:
 	*/
-	function getAssetSchemaInfo($assetid, $schemaid=NULL, $cascades=NULL, $include_cascades=TRUE, $include_last_started_by=FALSE)
+	function getAssetSchemaInfo($assetid, $schemaid=NULL, $cascades=NULL, $include_cascades=TRUE, $include_last_started_by=FALSE, $include_last_stream=FALSE)
 	{
-		$sql = '  SELECT DISTINCT schemaid, granted, cascades, last_started_by
+		$sql = '  SELECT DISTINCT schemaid, granted, cascades, last_started_by, last_stream
 				  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_wflow ';
 		$where = 'assetid = :assetid';
 		if (!is_null($schemaid)) {
@@ -195,12 +195,13 @@ class Workflow_Manager extends MySource_Object
 
 		$schemas = Array();
 		foreach ($result as $data) {
-			if ($include_cascades || $include_last_started_by) {
+			if ($include_cascades || $include_last_started_by || $include_last_stream) {
 				$schemas[$data['schemaid']] = Array(
 												'granted'	=> $data['granted'],
 											  );
 				if ($include_cascades) $schemas[$data['schemaid']]['cascades'] = $data['cascades'];
 				if ($include_last_started_by) $schemas[$data['schemaid']]['last_started_by'] = $data['last_started_by'];
+				if($include_last_stream) $schemas[$data['schemaid']]['last_stream'] = $data['last_stream'];
 
 			} else {
 				$schemas[$data['schemaid']] = $data['granted'];
@@ -589,7 +590,7 @@ class Workflow_Manager extends MySource_Object
 		}
 
 		// if there are no workflows, we dont notify anyone
-		$schemas = $this->getAssetSchemaInfo($assetid, NULL, NULL, FALSE, TRUE);
+		$schemas = $this->getAssetSchemaInfo($assetid, NULL, NULL, FALSE, TRUE, TRUE);
 		if (empty($schemas)) return TRUE;
 
 		foreach ($schemas as $schemaid => $schema_info) {
@@ -610,8 +611,16 @@ class Workflow_Manager extends MySource_Object
 					}
 				}
 			}
-
-			$conditions = $GLOBALS['SQ_SYSTEM']->am->getChildren($schemaid, 'workflow_step_condition');
+			
+			// only notify conditions in current stream
+			$stream_exists = $GLOBALS['SQ_SYSTEM']->am->assetExists($schema_info['last_stream']);
+			if($stream_exists) {
+			    $conditions = $GLOBALS['SQ_SYSTEM']->am->getChildren($schema_info['last_stream'], 'workflow_step_condition');
+			}
+			else {
+			    $conditions = $GLOBALS['SQ_SYSTEM']->am->getChildren($schemaid, 'workflow_step_condition');
+			}
+			
 			foreach ($conditions as $cond_id => $type_code) {
 				$condition = $GLOBALS['SQ_SYSTEM']->am->getAsset($cond_id, 'workflow_step_condition');
 				if (is_null($condition)) continue;
@@ -1655,7 +1664,8 @@ class Workflow_Manager extends MySource_Object
 						'.SQ_TABLE_RUNNING_PREFIX.'ast_wflow
 					SET
 						wflow = :wflow,
-						last_started_by = :last_started_by
+						last_started_by = :last_started_by,
+						last_stream = :last_stream
 					WHERE
 						assetid	= :assetid
 						AND schemaid = :schemaid';
@@ -1667,6 +1677,7 @@ class Workflow_Manager extends MySource_Object
 								'assetid'			=> $assetid,
 								'schemaid'			=> $schemaid,
 								'last_started_by' 	=> $workflow['started_by'],
+								'last_stream'	=> $workflow['stream_assetid'],
 							 );
 				foreach ($bind_vars as $bind_name => $bind_value){
 					MatrixDAL::bindValueToPdo($query, $bind_name, $bind_value);
