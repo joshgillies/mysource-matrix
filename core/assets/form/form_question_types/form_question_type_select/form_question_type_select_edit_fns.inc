@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select_edit_fns.inc,v 1.20 2012/08/30 01:09:08 ewang Exp $
+* $Id: form_question_type_select_edit_fns.inc,v 1.21 2013/02/04 06:25:49 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question_edit_fns.inc'
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -83,6 +83,7 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 		if (isset($_POST[$prefix.'_default'])) {
 
 			$default = $_POST[$prefix.'_default'];
+
 			if (!is_array($default)) $default = Array($default);
 
 			$old_options = array_get_index($_POST, $prefix.'_old_options', Array());
@@ -109,8 +110,13 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 						$new_default[] = $idx;
 					}
 				}
+				
 				if (!empty($new_default)) {
 					$default = $new_default;
+				}
+				else {
+				   reset($new_options);
+				   $default = Array(key($new_options));
 				}
 			}
 
