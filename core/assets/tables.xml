@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.75 2012/04/20 01:02:11 ewang Exp $
+* $Id: tables.xml,v 1.76 2013/02/04 23:55:18 akarelia Exp $
 *
 */
 -->
@@ -1165,6 +1165,12 @@
 					<type>CHAR(1)</type>
 					<type_variations />
 					<default>'1'</default>
+					<description />
+				</column>
+				<column name="last_stream" allow_null="1">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default />
 					<description />
 				</column>
 			</columns>
