@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source.inc,v 1.39 2013/02/04 04:26:15 cupreti Exp $
+* $Id: data_source.inc,v 1.40 2013/02/04 23:36:51 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -563,7 +563,7 @@ class Data_Source extends Asset implements Bridge
 	*/
 	public function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $sort_by=NULL)
 	{
-		// If the bridge is being purged, no need to go furhter
+		// If the bridge is being purged, no need to go further
 		if ($GLOBALS['SQ_PURGING_TRASH']) {
 			return Array();
 		}
