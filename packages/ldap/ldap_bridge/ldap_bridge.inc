@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.111.2.4 2013/02/05 02:50:44 akarelia Exp $
+* $Id: ldap_bridge.inc,v 1.111.2.5 2013/02/05 03:02:29 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.111.2.4 $
+* @version $Revision: 1.111.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -144,7 +144,7 @@ class LDAP_Bridge extends Asset implements Bridge
 		ldap_set_option($ldap->ptr, LDAP_OPT_DEREF, constant($this->attr('aliases')));
 
 		// if the PHP version being used allows us to add the timeout option then do it
-		if (PHP_VERSION_ID < 50300) {
+		if (PHP_VERSION_ID >= 50300) {
 			ldap_set_option($ldap->ptr, LDAP_OPT_NETWORK_TIMEOUT, 10);
 		}
 
