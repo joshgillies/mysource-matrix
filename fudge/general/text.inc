@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.74 2013/02/01 03:55:39 ewang Exp $
+* $Id: text.inc,v 1.75 2013/02/06 05:10:18 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.74 $
+* @version $Revision: 1.75 $
 * @package Fudge
 * @subpackage Text
 */
@@ -822,14 +822,15 @@ function _run_comparison_keyword_modifier($modifier, $text)
 *
 * @param string	$text		the text or array to search
 * @param string	$additional	additional valid keyword charaters for this match
+* @param bool	$strict		extract strict format keywords	
 *
 * @return array
 * @access public
 * @see extract_keywords
 */
-function retrieve_keywords_replacements($text, $additional='')
+function retrieve_keywords_replacements($text, $additional='', $strict=FALSE)
 {
-	return extract_keywords($text, $additional);
+	return extract_keywords($text, $additional, $strict);
 
 }//end retrieve_keywords_replacements()
 
@@ -839,17 +840,24 @@ function retrieve_keywords_replacements($text, $additional='')
 *
 * @param string	$text		the text or array to search
 * @param string	$additional	additional valid keyword charaters for this match
+* @param bool	$strict		extract strict format keywords	
 *
 * @return array
 * @access public
 */
-function extract_keywords($text, $additional='')
+function extract_keywords($text, $additional='', $strict=FALSE)
 {
 	$matches = Array();
 	$additional = preg_replace('|(.)|', '\\\\\1', $additional);
 
-	// Match any keyword including the filter portion.
-	preg_match_all ('/%([a-zA-Z_]{2,}[a-zA-Z_\-0-9\.:'.$additional.']+(\^{1}[^%]+)*)%/', $text, $matches, PREG_PATTERN_ORDER);
+	if($strict) {
+	    // Keywords should have '_', do not confuse with url encoding characters such as %AAtesturl%BB
+	    preg_match_all ('/%([a-zA-Z]{2,}_[a-zA-Z_\-0-9\.:'.$additional.']+(\^{1}[^%]+)*)%/', $text, $matches, PREG_PATTERN_ORDER);
+	}
+	else {
+	    // Match any keyword including the filter portion. Loose format is normally used in asset custom level, such as %score%
+	    preg_match_all ('/%([a-zA-Z_]{2,}[a-zA-Z_\-0-9\.:'.$additional.']+(\^{1}[^%]+)*)%/', $text, $matches, PREG_PATTERN_ORDER);
+	}
 	return array_unique($matches[1]);
 
 }//end extract_keywords()
