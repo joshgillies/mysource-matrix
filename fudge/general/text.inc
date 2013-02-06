@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.75 2013/02/06 05:10:18 ewang Exp $
+* $Id: text.inc,v 1.76 2013/02/06 05:16:28 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.75 $
+* @version $Revision: 1.76 $
 * @package Fudge
 * @subpackage Text
 */
@@ -852,7 +852,7 @@ function extract_keywords($text, $additional='', $strict=FALSE)
 
 	if($strict) {
 	    // Keywords should have '_', do not confuse with url encoding characters such as %AAtesturl%BB
-	    preg_match_all ('/%([a-zA-Z]{2,}_[a-zA-Z_\-0-9\.:'.$additional.']+(\^{1}[^%]+)*)%/', $text, $matches, PREG_PATTERN_ORDER);
+	    preg_match_all ('/%([a-zA-Z]{3,}_[a-zA-Z_\-0-9\.:'.$additional.']+(\^{1}[^%]+)*)%/', $text, $matches, PREG_PATTERN_ORDER);
 	}
 	else {
 	    // Match any keyword including the filter portion. Loose format is normally used in asset custom level, such as %score%
