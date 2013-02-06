@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.135 2012/12/06 04:51:34 ewang Exp $
+* $Id: js_api.inc,v 1.136 2013/02/06 02:41:06 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.135 $
+* @version $Revision: 1.136 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -350,9 +350,10 @@ class JS_Api extends Page
 			$blocking = FALSE;
 			if ($batching_request) {
 				$args = $functions_info[$track_func]['args'];
+
 				$blocking = (isset($functions_info[$track_func]['blocking']) && $functions_info[$track_func]['blocking']) ? TRUE : FALSE;
 				// let the user use 'id' and 'asset_id' to pass in the asset id to work on in the argmunets
-				// bug fix #5945 Inconsistency witht he parameter needs to be passed to (advanced) JS API functions
+				// bug fix #5945 Inconsistency with the parameter needs to be passed to (advanced) JS API functions
 				// few of the functions in the advanced API passes the assetid as a different index name. Make sure
 				// to look for them and change it here.
 				if (!isset($args['id'])) {
@@ -367,29 +368,34 @@ class JS_Api extends Page
 					}
 				}
 
-				// so we are batching requests
-				// in this case we get the assetid needed
-				// to start with from the first function call
-				// and then every consecutive time get it from the output of previously
-				// executed function is the format there is %results_0_*% type
-				// else it might be a raw input and we use that
-				if ($track_func === 0 || strpos($args['id'], '%results_') === FALSE) {
+				// so we are batching  requests, in this  case we  get the assetid needed to
+				// start with from the first function call  and then every consecutive  time
+				// we  get it from the output of  previously  executed function  so check if
+				// format there is %results_0_*% type else it might be raw input that we use
+				if ($track_func === 0) {
 					$id = $args['id'];
 				} else {
 					// okie so we arent the first called function in batched request
 					// and we are to use the assetid from the previous function exec
-					$keyword = $args['id'];
-					$instructions = explode('_', trim($keyword, '%'));
-					// if we know where to take the new id from, do it or
-					// else just continue with the previous one we have been using
-					$string_to_eval = '';
-					if (count($instructions) >= 3) {
-						for ($i = 1; $i < count($instructions); $i++) {
-							$string_to_eval .= '[$'."instructions[$i]]";
-						}
-						eval('$id = $results'.$string_to_eval.';');
-					}
-				}
+					// but no we look into any of the argument where the  %result_*%
+					// type  keywords might  have been used and  try and evaluate it
+					foreach ($args as $idx => $arg) {
+						if (strpos($args[$idx], '%results_') !== FALSE) {
+							$keyword = $args[$idx];
+							$instructions = explode('_', trim($keyword, '%'));
+							// if we know where to take the new id from, do it or else
+							// just  continue with the previous one we have been using
+							$string_to_eval = '';
+							if (count($instructions) >= 3) {
+								for ($i = 1; $i < count($instructions); $i++) {
+									$string_to_eval .= '[$'."instructions[$i]]";
+								}
+								eval('$args[$idx] = $results'.$string_to_eval.';');
+							}//end if
+						}//end if
+					}//end foreach
+					$id = $args['id'];
+				}//end if/else
 			} else {
 				// old API way
 				$args = $_REQUEST;
