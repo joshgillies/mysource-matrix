@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.774.2.1 2013/01/31 03:54:42 ewang Exp $
+* $Id: asset.inc,v 1.774.2.2 2013/02/06 01:07:56 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.774.2.1 $
+* @version $Revision: 1.774.2.2 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -6262,7 +6262,8 @@ class Asset extends MySource_Object
 										continue 2;
 									}
 								}
-								if (strpos($old_url, SQ_CONF_STATIC_ROOT_URL) !== FALSE) {
+								$static_url = SQ_CONF_STATIC_ROOT_URL;
+								if (!empty($static_url) && strpos($old_url, $static_url) !== FALSE) {
 								    continue;
 								}
 								if ($url_data['http']) {
