@@ -11,7 +11,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search.inc,v 1.35 2013/01/24 03:41:53 ewang Exp $
+* $Id: trim_saved_search.inc,v 1.36 2013/02/07 05:35:39 ewang Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -440,6 +440,10 @@ class TRIM_Saved_Search extends Data_Source
 			$search_clauses['RecordContainerAltClause']	= TRIM_Common::constructRecordContainerAltClause($parent_container_uri);
 		}//end if
 
+		// if no search clause is provided, do not send request, otherwise TRIM 7.3 will be angry
+		if(empty($search_clauses) && empty($search_clauses_xml)) return Array();
+
+		
 		$record_search_options	= $this->getRecordSearchOptions();
 
 		$operations = Array (
