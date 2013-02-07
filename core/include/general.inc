@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.281 2013/01/18 03:17:28 ewang Exp $
+* $Id: general.inc,v 1.282 2013/02/07 06:18:55 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.281 $
+* @version $Revision: 1.282 $
 * @package MySource_Matrix
 */
 
@@ -1919,19 +1919,19 @@ function replace_global_keywords(&$text)
 					}
 					if (0 === strpos($keyword, 'globals_get_')) {
 						$sub_keyword = substr($keyword, 12);
-						$replacements[$full_keyword] = clean_keyword_value(array_get_index($_GET, $sub_keyword, ''), $modifiers);
+						$replacements[$full_keyword] = clean_keyword_value(array_get_index($_GET, $sub_keyword, ''));
 					}
 					if (0 === strpos($keyword, 'globals_post_')) {
 						$sub_keyword = substr($keyword, 13);
-						$replacements[$full_keyword] = clean_keyword_value(array_get_index($_POST, $sub_keyword, ''), $modifiers);
+						$replacements[$full_keyword] = clean_keyword_value(array_get_index($_POST, $sub_keyword, ''));
 					}
 					if (0 === strpos($keyword, 'globals_session_')) {
 						$sub_keyword = substr($keyword, 16);
-						$replacements[$full_keyword] = clean_keyword_value(isset($_SESSION[SQ_SESSION_SANDBOX_INDEX][$sub_keyword]) ? $_SESSION[SQ_SESSION_SANDBOX_INDEX][$sub_keyword] : '', $modifiers);
+						$replacements[$full_keyword] = clean_keyword_value(isset($_SESSION[SQ_SESSION_SANDBOX_INDEX][$sub_keyword]) ? $_SESSION[SQ_SESSION_SANDBOX_INDEX][$sub_keyword] : '');
 					}
 					if ((0 === strpos($keyword, 'globals_cookie_')) && (0 !== strpos($keyword, 'globals_cookie_SQ_'))) {
 						$sub_keyword = substr($keyword, 15);
-						$replacements[$full_keyword] = clean_keyword_value(array_get_index($_COOKIE, $sub_keyword, ''), $modifiers);
+						$replacements[$full_keyword] = clean_keyword_value(array_get_index($_COOKIE, $sub_keyword, ''));
 					}
 					if (0 === strpos($keyword, 'globals_server_')) {
 						$sub_keyword = strtoupper(substr($keyword, 15));
@@ -2255,17 +2255,13 @@ function extract_context_modifier(&$modifiers, $return_part='id')
 * If the given value is not a scalar it will return an empty string
 *
 * @param string		$keyword_value	The value of keyword
-* @param array		$modifiers		The modifiers array
 *
 * @return string
 * @access public
 */
-function clean_keyword_value($keyword_value, $modifiers)
+function clean_keyword_value($keyword_value)
 {
-	// If modifiers are being used we assume they're doing their own escaping
-	if (!empty($modifiers)) {
-		return $keyword_value;
-	} else if (!is_scalar($keyword_value)) {
+	if (!is_scalar($keyword_value)) {
 		// Only scalars are accepted
 		$keyword_value = '';
 	} else {
