@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_prefs.inc,v 1.29 2012/08/30 01:09:05 ewang Exp $
+* $Id: content_type_wysiwyg_prefs.inc,v 1.29.2.1 2013/02/08 06:26:18 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Looks after the creation the WYSIWYG preferences
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.29.2.1 $
 * @package MySource_Matrix
 */
 class Content_Type_WYSIWYG_Prefs extends Prefs
@@ -43,6 +43,12 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 																									'height'	=> 'px',
 																								   ),
 																				   ),
+																'protected'		=> FALSE,
+															   ),
+						 'SQ_WYSIWYG_APPLY_DESIGN_STYLE'						=> Array (
+																'name'			=> 'wysiwyg_apply_design_style',
+																'description'	=> 'Apply css styles of design to wysiwyg',
+																'default'		=> 0,
 																'protected'		=> FALSE,
 															   ),
 						'SQ_WYSIWYG_PLUGINS'				=> Array(
@@ -207,6 +213,25 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 
 		}//end if show SQ_WYSIWYG_STYLE
 
+		if (is_null($pref) || $pref == 'SQ_WYSIWYG_APPLY_DESIGN_STYLE') {			
+						
+			if (is_null($pref)) {
+				$o->openField(translate($this->pref_vars['SQ_WYSIWYG_APPLY_DESIGN_STYLE']['name']));
+			}
+						
+			$pref_var =& $this->pref_vars['SQ_WYSIWYG_APPLY_DESIGN_STYLE']['default'];
+			if ($have_lock && $is_admin) {
+				$options = Array(1 => 'Yes', 0 => 'No');
+				combo_box('prefs[SQ_WYSIWYG_APPLY_DESIGN_STYLE]', $options, FALSE, $pref_var);
+				echo $o->note(translate('wysiwyg_apply_design_style_note'));
+			} else {
+				echo ($pref_var) ? translate('yes') : translate('no');
+			}
+						
+			if (is_null($pref)) $o->closeField();
+			
+		}//end if show SQ_WYSIWYG_APPLY_DESIGN_STYLE
+		
 
 		if (is_null($pref) || $pref == 'SQ_WYSIWYG_PLUGINS') {
 			if (is_null($pref)) {
@@ -443,6 +468,13 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 			}
 		}
 
+		// WYSIWYG APPLY DESIGN STYLE
+		if (is_null($pref) || $pref == 'SQ_WYSIWYG_APPLY_DESIGN_STYLE') {
+			if (isset($_POST['prefs']['SQ_WYSIWYG_APPLY_DESIGN_STYLE'])) {
+				$this->pref_vars['SQ_WYSIWYG_APPLY_DESIGN_STYLE']['default'] = $_POST['prefs']['SQ_WYSIWYG_APPLY_DESIGN_STYLE']['default'];
+			}
+		}
+		
 
 		// WYSIWYG PLUGINS
 		if (is_null($pref) || $pref == 'SQ_WYSIWYG_PLUGINS') {

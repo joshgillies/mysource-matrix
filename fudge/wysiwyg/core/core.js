@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: core.js,v 1.43 2012/08/30 00:56:51 ewang Exp $
+* $Id: core.js,v 1.43.2.1 2013/02/08 06:26:25 ewang Exp $
 *
 */
 
@@ -127,7 +127,15 @@ HTMLArea.prototype.generate = function () {
 		doc.open();
 		var html = "<html>\n";
 		html += "<head>\n";
-		if (editor.config.styleSheet) { html += "<link rel=\"stylesheet\" href=\"" + editor.config.styleSheet + "\" type=\"text/css\">"; }
+		
+		if (editor.config.styleSheets) { 
+		    for (var i=0; i < editor.config.styleSheets.length; i++)
+			{
+			    html += "<link rel=\"stylesheet\" href=\"" + editor.config.styleSheets[i] + "\" type=\"text/css\">"; 
+			}
+		   
+		}
+		
 		html += "<style> body { " + editor.config.bodyStyle + " }\n";
 		html += ".wysiwyg-noborders { border: 1px dashed #3366CC; }\n";
 		html += "</style>\n";

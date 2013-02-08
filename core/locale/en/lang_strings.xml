@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.421 2012/09/14 07:13:05 akarelia Exp $
+* $Id: lang_strings.xml,v 1.421.2.1 2013/02/08 06:26:18 ewang Exp $
 *
 */
 
@@ -407,6 +407,8 @@
 	<string source="wysiwyg_spell_checker_pref_field">Spell Checker Language</string>
 	<string source="wysiwyg_spell_checker_pref_note">Language code consists of the two letter ISO 639 language code and an optional two letter ISO 3166 country code after a dash or underscore</string>
 	<string source="wysiwyg_spell_checker_pref_error">Pspell couldn't open the dictionary, no word lists can be found for the language "%s"</string>
+	<string source="wysiwyg_apply_design_style">Apply css styles</string>
+	<string source="wysiwyg_apply_design_style_note">If yes, it will apply CSS styles to WYSIWYG. The styles is defined in CSS files under the design used for current asset. Matrix Apply Design plugin must be enabled.</string>
 	<string source="warning_-_moving_to_trash">Warning - Moving To Trash</string>
 	<string source="word_list">Word List</string>
 	<string source="word_list_note">New line separated list of words that are not allowed to be used as password</string>

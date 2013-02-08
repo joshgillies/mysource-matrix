@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.97 2012/08/30 00:56:51 ewang Exp $
+* $Id: wysiwyg.inc,v 1.97.2.1 2013/02/08 06:26:25 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.97 $
+* @version $Revision: 1.97.2.1 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -81,7 +81,7 @@ class wysiwyg
 	* @var string
 	* @see paint(), set_stylesheet()
 	*/
-	var $stylesheet  = '';
+	var $stylesheets  = Array();
 
 	/**
 	* The width of the WYSIWYG editor
@@ -1592,7 +1592,8 @@ if (SQ_CONF_DEFAULT_CHARACTER_SET != 'utf-8') {
 					this.sizeIncludesToolbar = true;
 
 					this.bodyStyle = "background-color: #ffffff; font-family: verdana,sans-serif";
-					this.styleSheet = "<?php echo $this->stylesheet?>";
+					this.styleSheets = <?php echo json_encode_array($this->stylesheets); ?>;
+					
 					this.editorURL = "";
 
 					// URL-s
@@ -2126,7 +2127,7 @@ if (SQ_CONF_DEFAULT_CHARACTER_SET != 'utf-8') {
 	*/
 	function set_stylesheet($stylesheet)
 	{
-		$this->stylesheet = $stylesheet;
+		$this->stylesheets[] = $stylesheet;
 
 	}//end set_stylesheet()
 
