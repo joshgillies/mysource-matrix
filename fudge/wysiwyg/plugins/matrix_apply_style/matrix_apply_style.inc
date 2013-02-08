@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_apply_style.inc,v 1.27 2012/08/30 00:56:52 ewang Exp $
+* $Id: matrix_apply_style.inc,v 1.27.4.1 2013/02/08 06:25:11 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     A WYSIWYG plugin to apply a style from the effective design
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.27.4.1 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -71,6 +71,11 @@ class Matrix_Apply_Style extends WYSIWYG_Plugin
 					$stylesheet_src = $css_file['path'];
 				}
 
+				// set the stylesheet to use in the editor
+				$apply_style = $GLOBALS['SQ_SYSTEM']->getUserPrefs('content_type_wysiwyg', 'SQ_WYSIWYG_APPLY_DESIGN_STYLE');
+				if($apply_style)
+				    $wysiwyg->set_stylesheet($css->getURL());
+				
 				// if it exists, parse the stylesheet to get a list of styles we can use
 				if (file_exists($stylesheet_src)) {
 					require_once SQ_FUDGE_PATH.'/general/file_system.inc';
