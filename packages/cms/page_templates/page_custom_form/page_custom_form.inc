@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_custom_form.inc,v 1.28 2012/11/06 05:22:17 cupreti Exp $
+* $Id: page_custom_form.inc,v 1.29 2013/02/11 00:57:59 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -162,5 +162,30 @@ class Page_Custom_Form extends Page
 	}//end getForm()
 
 
+	
+	/**
+	 * Allow form page to replace response keywords from its form
+	 *
+	 * @param string $keyword    Keyword to find a replacement for
+	 *
+	 * @return string
+	 * @access public
+	 */
+	public function getKeywordReplacement($keyword)
+	{
+	    	$is_question_keyword = preg_match('/^question\_(.*)\_(\d+[\_\:]q\d+)$/', $keyword, $question_matches);
+		$is_response_keyword = preg_match('/^response\_(\d+[\_\:]q\d+)(\_raw)?$/', $keyword, $response_matches);
+		$is_section_keyword  = preg_match('/^section\_(.*)\_(\d+)$/', $keyword, $section_matches);
+		$is_form_keyword	 = preg_match('/^form\_(.*)$/', $keyword, $form_matches);
+		
+		if ($is_question_keyword || $is_response_keyword || $is_section_keyword || $is_form_keyword) {
+		    $form = $this->getForm();
+		    return $form->getDisplayKeywordReplacement($keyword);
+		}
+		return parent::getKeywordReplacement($keyword);
+
+	}//end getKewordReplacement()
+	
+	
 }//end class
 ?>
