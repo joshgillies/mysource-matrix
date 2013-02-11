@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.74.4.1 2013/02/11 03:05:38 ewang Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.74.4.2 2013/02/11 22:53:33 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.74.4.1 $
+* @version $Revision: 1.74.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -435,7 +435,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 						$get_value = str_replace('%'.$nested_asset_keyword.'%', $replacement, $get_value);
 					}
 				    }
-				    else if (strpos($nested_asset_keyword, 'globals_') === 0) {
+				    else if (strpos($keyword, 'globals_') === 0) {
 					replace_global_keywords($get_value);
 				    }
 				    else {
@@ -573,7 +573,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 					$get_value = str_replace('%'.$nested_asset_keyword.'%', $replacement, $get_value);
 				}
 			    }
-			    else if (strpos($nested_asset_keyword, 'globals_') === 0) {
+			    else if (strpos($keyword, 'globals_') === 0) {
 				replace_global_keywords($get_value);
 			    }
 			    else {
