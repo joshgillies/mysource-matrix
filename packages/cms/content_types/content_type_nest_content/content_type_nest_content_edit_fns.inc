@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.74 2012/08/30 00:58:07 ewang Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.74.4.1 2013/02/11 03:05:38 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.74 $
+* @version $Revision: 1.74.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -425,31 +425,28 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 			foreach ($additional_get_vars as $get_var) {
 				$get_name = $get_var['name'];
 				$get_value = str_replace('&#37;', '%', $get_var['value']);
-				$found = preg_match_all('/%(asset\_.*)%/U', $get_value, $set_matches, PREG_PATTERN_ORDER);
-				$asset_matches = $set_matches[1];
-
-				foreach ($asset_matches as $asset_keyword) {
-                    $replacement =  $parents_nesting_asset->getKeywordReplacement($asset_keyword);
-                    if (!is_null($replacement)) {
-                        $get_value = str_replace('%'.$asset_keyword.'%', $replacement, $get_value);
-                    }
-                }
-
-				$found = preg_match_all('/%(nested\_asset\_.*)%/U', $get_value, $set_matches, PREG_PATTERN_ORDER);
-				$nested_asset_matches = $set_matches[1];
-
-				foreach ($nested_asset_matches as $nested_asset_keyword) {
-					if (0 === strpos($nested_asset_keyword, 'nested_')) {
-						$nested_asset_keyword = str_replace('nested_','',$nested_asset_keyword);
-					}
+				$keywords_list = extract_keywords($get_value);
+				foreach ($keywords_list as $keyword) {
+				    if(strpos($keyword, 'nested_') === 0) {
+					$nested_asset_keyword = str_replace('nested_','',$keyword);
 					$replacement = $nested_asset->getKeywordReplacement($nested_asset_keyword);
 					if (!is_null($replacement)) {
 						$get_value = str_replace('nested_','',$get_value);
 						$get_value = str_replace('%'.$nested_asset_keyword.'%', $replacement, $get_value);
 					}
-				}
+				    }
+				    else if (strpos($nested_asset_keyword, 'globals_') === 0) {
+					replace_global_keywords($get_value);
+				    }
+				    else {
+					// for all keywords replacement except globals and nested asset
+					$replacement =  $parents_nesting_asset->getKeywordReplacement($keyword);
+					if (!is_null($replacement)) {
+						$get_value = str_replace('%'.$keyword.'%', $replacement, $get_value);
+					}
 
-				replace_global_keywords($get_value);
+				    }
+				}
 
 				preg_match('/([^\[]*)(.*)/', $get_name, $base_name);
 				$array_bits = $base_name[2];
@@ -566,31 +563,29 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 		foreach ($additional_get_vars as $get_var) {
 			$get_name = $get_var['name'];
 			$get_value = $get_var['value'];
-			$found = preg_match_all('/%(asset\_.*)%/U', $get_value, $set_matches, PREG_PATTERN_ORDER);
-			$asset_matches = $set_matches[1];
-			foreach ($asset_matches as $asset_keyword) {
-				$replacement =  $parents_nesting_asset->getKeywordReplacement($asset_keyword);
-				if (!is_null($replacement)) {
-					$get_value = str_replace('%'.$asset_keyword.'%', $replacement, $get_value);
-				}
-			}
-			
-			$found = preg_match_all('/%(nested\_(asset\_.*))%/U', $get_value, $set_matches, PREG_PATTERN_ORDER);
-			$nested_asset_orig_matches = $set_matches[1];
-			$nested_asset_matches = $set_matches[2];
-
-			foreach ($nested_asset_matches as $na_id => $nested_asset_keyword) {
-				if (0 === strpos($nested_asset_keyword, 'nested_')) {
-					$nested_asset_keyword = str_replace('nested_','',$nested_asset_keyword);
-				}
+			$keywords_list = extract_keywords($get_value);
+			foreach ($keywords_list as $keyword) {
+			    if(strpos($keyword, 'nested_') === 0) {
+				$nested_asset_keyword = str_replace('nested_','',$keyword);
 				$replacement = $nested_asset->getKeywordReplacement($nested_asset_keyword);
 				if (!is_null($replacement)) {
 					$get_value = str_replace('nested_','',$get_value);
-					$get_value = str_replace('%'.$nested_asset_orig_matches[$na_id].'%', $replacement, $get_value);
+					$get_value = str_replace('%'.$nested_asset_keyword.'%', $replacement, $get_value);
 				}
+			    }
+			    else if (strpos($nested_asset_keyword, 'globals_') === 0) {
+				replace_global_keywords($get_value);
+			    }
+			    else {
+				// for all keywords replacement except globals and nested asset
+				$replacement =  $parents_nesting_asset->getKeywordReplacement($keyword);
+				if (!is_null($replacement)) {
+					$get_value = str_replace('%'.$keyword.'%', $replacement, $get_value);
+				}
+				
+			    }
 			}
-
-			replace_global_keywords($get_value);
+			
 
 			preg_match('/([^\[]*)(.*)/', $get_name, $base_name);
 			$array_bits = $base_name[2];
