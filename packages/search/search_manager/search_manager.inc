@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.254 2012/08/30 00:59:15 ewang Exp $
+* $Id: search_manager.inc,v 1.255 2013/02/12 22:56:18 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.254 $
+* @version $Revision: 1.255 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -678,7 +678,7 @@ class Search_Manager extends Asset
 			$context_list[] = $contextid;
 			$asset_vars[$contextid] = $asset->vars;
 		}
-		
+
 		// We cannot use isset() because we have to handle the possibility of a
 		// NULL default value, so will try and fudge with an array and
 		// array_key_exists(). Hold onto your hats, folks...
@@ -808,7 +808,7 @@ class Search_Manager extends Asset
 			// we don't want to index any tags so strip them
 
 			$contents = $asset->getContent();
-			
+
 			//strip the formatting tags first because they should not be replace with space (' '), e.g. <b>H</b>ello => Hello
 			$formatting_tags = Array('span', 'b', 'big', 'em', 'i', 'small', 'strong', 'sub', 'sup', 'ins', 'del');
 			$contents = $this->_strip_tags($formatting_tags, $contents);
@@ -835,7 +835,7 @@ class Search_Manager extends Asset
 	* @access public
 	*/
 	function addIndexableContent($assetid, &$index_content)
-	{		
+	{
 		// don't run if indexing turned OFF
 		if (!$this->attr('indexing')) return FALSE;
 		if (!is_array($index_content)) return FALSE;
@@ -871,6 +871,7 @@ class Search_Manager extends Asset
 					break;
 
 					//wysiwyg type would have the same characteristics to text type, e.g. a value which is longer than 255 characters will not be indexed
+					case 'metadata_field_wysiwyg':
 					case 'wysiwyg':
 					case 'text':
 						$value = $this->_getRawNumberInText($value);
@@ -903,7 +904,7 @@ class Search_Manager extends Asset
 				// values... but only if we have not seen them before (lock one
 				// context as the one we saw first, and only accept values from it)
 				if (((int)$bind_vars['use_default'] === 1) && ($bind_vars['contextid'] !== 'default')) {
-					if (array_key_exists($default_key, $defaults_context) === FALSE) {						
+					if (array_key_exists($default_key, $defaults_context) === FALSE) {
 						$defaults_context[$default_key] = $bind_vars['contextid'];
 					}
 					if ($bind_vars['contextid'] === $defaults_context[$default_key]) {
@@ -922,19 +923,19 @@ class Search_Manager extends Asset
 		// autocommit all over the place
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-	
+
 
 		// And finally, add the indexable content
 		// This code was moved outside the loop below which creates both the default and now the content.
 		// This was due to a bug in PHP (<5.2) and Postgres 8.1 dropping transactions silently
-		// when a prepared statement is not executed.		
-		
+		// when a prepared statement is not executed.
+
 		if (!empty($add_content)) {
 			$dal_query = MatrixDAL::getQuery('search_manager', 'addIndexableContent');
 			$query = $dal_query->prepare();
 
 			foreach ($add_content as $bind_vars) {
-				
+
 				try {
 					// Non-default value, or non-contextable. Put it in straight away.
 					foreach ($bind_vars as $bind_var => $bind_value) {
@@ -948,39 +949,39 @@ class Search_Manager extends Asset
 				}
 			}//end foreach
 		}//end if
-		
+
 		// Okay, shove in the default values, which will be determined by what
 		// context values are not already in there.
 		// Pre-pack the query first though, so it doesn't potentially get
 		// prepared 1000's of times over.
 		if (!empty($defaults)) {
 			if (DAL::getDbType() === 'oci') {
-				
+
 				// For Oracle system, we'll use two queries to add content into search index table
-				// First query to the get the contextids which doesn't have context values already there  
+				// First query to the get the contextids which doesn't have context values already there
 				// and second to insert the contextid along with other indexable content into index table
 				// See bug #4136
 				$dal_get_context_query = MatrixDAL::getQuery('search_manager', 'getDefaultContext');
 				$get_context_query = $dal_get_context_query->prepare();
-			
+
 				$dal_insert_query = MatrixDAL::getQuery('search_manager', 'addIndexableContent');
 				$insert_query = $dal_insert_query->prepare();
 
-			
+
 				foreach ($defaults as $bind_vars) {
 					try {
 						MatrixDAL::bindValueToPdo($get_context_query, 'assetid', $bind_vars['assetid']);
 						MatrixDAL::bindValueToPdo($get_context_query, 'component', $bind_vars['component']);
 						$result = MatrixDAL::executePdoAll($get_context_query);
-						
+
 						foreach($result as $asset_context) {
 							$bind_vars['contextid'] = $asset_context['contextid'];
-							foreach ($bind_vars as $bind_var => $bind_value) {					
-									MatrixDAL::bindValueToPdo($insert_query, $bind_var, $bind_value);					
+							foreach ($bind_vars as $bind_var => $bind_value) {
+									MatrixDAL::bindValueToPdo($insert_query, $bind_var, $bind_value);
 							}
 							MatrixDAL::execPdoQuery($insert_query);
 						}
-						
+
 						$index_content_found = TRUE;
 					} catch (Exception $e) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -988,10 +989,10 @@ class Search_Manager extends Asset
 					}
 				}//end foreach
 			} else {
-		
+
 				$dal_query = MatrixDAL::getQuery('search_manager', 'addDefaultIndexableContent');
 				$query = $dal_query->prepare();
-	
+
 				foreach ($defaults as $bind_vars) {
 					try {
 						foreach ($bind_vars as $bind_var => $bind_value) {
@@ -1003,7 +1004,7 @@ class Search_Manager extends Asset
 						MatrixDAL::bindValueToPdo($query, 'component_1', $bind_vars['component']);
 						MatrixDAL::bindValueToPdo($query, 'value_1', $bind_vars['value']);
 						MatrixDAL::execPdoQuery($query);
-						
+
 						$index_content_found = TRUE;
 					} catch (Exception $e) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -1042,7 +1043,7 @@ class Search_Manager extends Asset
 	{
 		// don't run if indexing turned OFF
 		if (!$this->attr('indexing')) return;
-		
+
 		// This could be out of a transaction at this point, and in db1 (the
 		// read-only db). Change to db2, and wrap in a transaction so it doesn't
 		// autocommit all over the place
@@ -1078,7 +1079,7 @@ class Search_Manager extends Asset
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();		
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 	}//end flushIndexableContent()
 
@@ -1124,7 +1125,7 @@ class Search_Manager extends Asset
 			} else {
 				$bind_vars['components'] = NULL;
 			}
-			
+
 			$affected_rows = MatrixDAL::executeQuery('search_manager', 'flushDefaultIndexableContent', $bind_vars);
 		} catch (DALException $e) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -1352,7 +1353,7 @@ class Search_Manager extends Asset
 		if (!$this->attr('indexing')) return FALSE;
 		// We've been told not to do this right now
 		if ($broadcaster->shouldFastTrack('search_manager_reindex_metadata')) return FALSE;
-		
+
 		$this->reindexMetadata($broadcaster->id, $vars, TRUE);
 
 	}//end onMetadataUpdate()
@@ -1396,10 +1397,10 @@ class Search_Manager extends Asset
 	{
 		assert_valid_assetid($assetid);
 		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-		
+
 		$contextid = (int)$GLOBALS['SQ_SYSTEM']->getContextId();
         $all_contextids = array_keys($GLOBALS['SQ_SYSTEM']->getAllContexts());
-		
+
 		if (in_array('all', $vars)) {
 			$schema_ids = array_keys($mm->getSchemas($assetid));
 			$fieldids = $mm->getMetadataFields($schema_ids);
@@ -1427,7 +1428,7 @@ class Search_Manager extends Asset
 				} else {
 					$this->flushIndexableContent($assetid, $flush_fieldids, Array($contextid));
 				}
-			}			
+			}
 		}
 
 		if (!$this->isAssetIndexable($assetid)) return;
@@ -1457,29 +1458,29 @@ class Search_Manager extends Asset
 		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		$plugin =& $this->_getDBPlugin();
 		$type_code = $asset->type();
-		
+
 		if (is_null($asset)) return $index_content;
 
         // Get the current contextid
 		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 		$context_list = $all_contexts ? array_keys($GLOBALS['SQ_SYSTEM']->getAllContexts()) : Array($contextid);
-		
+
 		if (empty($fieldids)) {
 			$fieldids = $mm->getMetadataFields($mm->getSchemas($asset->id, TRUE));
 		}
-		
+
 		// Get all metadata for each context in advance. This is quicker
 		// than getting it for each context for each field later..
 		$all_metadata = Array();
 		foreach ($context_list as $c) {
 			$all_metadata[$c] = $mm->getMetadata($asset->id, 0, $c);
 		}
-		
+
 		foreach ($fieldids as $fieldid => $field_type) {
 
 			$flag_match_found = FALSE;
 			$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($fieldid, SQ_LINK_TYPE_2, 'metadata_section', FALSE, 'minor', NULL, TRUE);
-			
+
 			foreach ($current_links as $link) {
 				$section = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
 				$restrictions = $section->attr('restrict');
@@ -1521,13 +1522,13 @@ class Search_Manager extends Asset
 				$field_type = $field_type[0]['type_code'];
 			}//end if
 			$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($fieldid, $field_type);
-			
+
 			// If metadata field is non-contextable then it means it will have same value for all contexts
 			$is_contextable = (int)$field->attr('is_contextable') === 0 ? FALSE : TRUE;
 			$context_to_index = $is_contextable ? $context_list : Array($context_list[0]);
-			
+
 			foreach($context_to_index as $this_contextid) {
-				
+
 				// Get metadata for this context (here's one we prepared earlier)
 				$metadata = $all_metadata[$this_contextid];
 
@@ -1546,25 +1547,25 @@ class Search_Manager extends Asset
 
 				for($i = 0; $i < 3; $i++) { //attempt to replace nested keywords max 3 levels. See Bug #5295
 					$keywords = retrieve_keywords_replacements($value, '.');
-	
+
 					$the_replacement = $mm->generateKeywordReplacements($asset, $keywords, FALSE);
-	
+
 					foreach($keywords as $keyword) {
-	
+
 						if (!isset($the_replacement[$keyword])) {
 							// Looking for further replacements
 							$the_replacement[$keyword] = str_replace('"', '\"', $asset->getKeywordReplacement($keyword));
-	
+
 						} else if ($the_replacement[$keyword] == '%'.$keyword.'%' && substr($keyword, 0, 15) == 'metadata_field_') {
-	
+
 							 // Remove any modifiers from keyword
 							$full_keyword = $keyword;
 							$keyword = parse_keyword($keyword, $modifiers);
-	
+
 							// searching for keywords that replace the content of another field
 							$fieldid = $mm->getFieldAssetIdFromName($asset->id, substr($keyword, 15));
 							$keyword_replacement = $mm->getMetadataValueByAssetid($asset->id, $fieldid, TRUE, FALSE);
-	
+
 							if ($keyword_replacement !== NULL) {
 								if (count($modifiers) > 0) {
 									apply_keyword_modifiers($keyword_replacement, $modifiers, Array('assetid' => $asset->id));
@@ -1573,14 +1574,14 @@ class Search_Manager extends Asset
 							} else {
 								$the_replacement[$full_keyword] = '%'.$full_keyword.'%';
 							}
-	
+
 						}//end if
-	
+
 					}//end foreach
-	
+
 					replace_keywords($value, $the_replacement);
 				}//end for
-				
+
 				// check field_type to define the indexing way
 				if ($field_type == 'metadata_field_date') {
 					$index_content[] = Array(
@@ -1633,9 +1634,9 @@ class Search_Manager extends Asset
 
 					$index_content = array_merge($index_content, $plugin->splitIndexableContent($value, $type_code, $key_type, 'metadata:'.$field->id, $weighting, $this_contextid, $use_default));
 				}//end else
-			
+
 			}// end foreach contexts_to_use
-			
+
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($field);
 			unset($field);
 
@@ -1926,7 +1927,7 @@ class Search_Manager extends Asset
 	* @param boolean	$type_weights_only			Applies only if $assetid is not NULL and $strict_assetid is FALSE.
 	* 												if TRUE only type weights data according to $strict_type_code is returned.
 	* 												if FALSE $strict_type_code is ineffective & both type_weights & metadata_weights data is returned.
-	* @param boolean	$include_global_weights		if TRUE, the asset tree weights will include the root folder weight which defines global weights.										
+	* @param boolean	$include_global_weights		if TRUE, the asset tree weights will include the root folder weight which defines global weights.
 	*
 	* @return array
 	* @access public
@@ -1938,14 +1939,14 @@ class Search_Manager extends Asset
 		$weightings_file = $this->data_path.'/asset_tree_weightings.inc';
 		if (file_exists($weightings_file)) {
 			require $weightings_file;
-			
+
 			if (!$include_global_weights) {
 				$root_folder_assetid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('root_folder');
 				if (isset($asset_tree_weightings[$root_folder_assetid])) {
 					unset($asset_tree_weightings[$root_folder_assetid]);
 				}
 			}
-			
+
 			if (!is_null($assetid)) {
 
 				if ($strict_assetid) {
@@ -1957,24 +1958,24 @@ class Search_Manager extends Asset
 					// so do a tree lookup for the closest one. getParents ORDER's by treeid
 					// by default so we can be garunteed that the closest assetids are at the top of the array
 					$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($assetid);
-					
+
 					if ($type_weights_only){
 						$type_code = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid), Array(), TRUE, 'type_code');
 						$type_code = array_get_index($type_code, $assetid, '');
-	
+
 						// firstly, check to see if there is an explicit entry for this assetid
 						if (isset($asset_tree_weightings[$assetid]['type_weights'][$type_code])) {
 							return $asset_tree_weightings[$assetid]['type_weights'][$type_code];
 						}
-	
+
 						// check to see if there are customisations for all asset types
 						if (isset($asset_tree_weightings[$assetid]['type_weights']['asset'])) {
 							return $asset_tree_weightings[$assetid]['type_weights']['asset'];
 						}
-	
+
 						// if type code not found for some unknown reason, default to base asset
 						if (empty($type_code)) $type_code = 'asset';
-	
+
 						// find the parent asset types of this type code
 						if (!$strict_type_code) {
 							$type_hier = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code, TRUE);
@@ -1984,7 +1985,7 @@ class Search_Manager extends Asset
 						} else {
 							$type_hier = Array($type_code);
 						}
-	
+
 						// Search by parents first; that way we will always find the
 						// closest asset to what we are using, otherwise having a tree weight and global weight,
 						// the tree weight does not get used when using all asset types
@@ -2005,7 +2006,7 @@ class Search_Manager extends Asset
 						if (isset($asset_tree_weightings[$assetid])) {
 							return $asset_tree_weightings[$assetid];
 						}
-						
+
 						foreach (array_keys($parents) as $parentid) {
                             if (isset($asset_tree_weightings[$parentid])) {
 								return $asset_tree_weightings[$parentid];
@@ -2278,11 +2279,11 @@ class Search_Manager extends Asset
 	* @access public
 	*/
 	function processSearch($search_info, $include_context=FALSE)
-	{	
+	{
 
 		// start performance mode timer
 		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'processSearch');
-		
+
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc'; // will definitely need this later.
 		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 
@@ -2317,11 +2318,11 @@ class Search_Manager extends Asset
 
 		  //////////////////////
 		 //  PREPARE FIELDS  //
-		//////////////////////		
+		//////////////////////
 		foreach ($search_info['fields'] as $field_name => $field_details) {
 			$this->_prepareSearchField($search_info['fields'][$field_name]);
 		}
-		
+
 		if (isset($search_info['exclude'])) {
 			foreach ($search_info['exclude'] as $field_name => $field_details) {
 				$this->_prepareSearchField($search_info['exclude'][$field_name]);
@@ -2375,18 +2376,18 @@ class Search_Manager extends Asset
 		 //  PROCESS EACH FIELD  //
 		//////////////////////////
 		$term_totals = Array();
-		
-		// Search fields types		
+
+		// Search fields types
 		$search_field_types = Array('search' => $search_info['fields']);
 		if (isset($search_info['exclude'])) {
 			$search_field_types['exclude'] = $search_info['exclude'];
-		}		
-		
+		}
+
 		// Search result for 'search' and 'exclude' fields
 		$search_results = Array();
 		foreach($search_field_types as $search_field_type => $search_fields) {
 			$final_search_type_results = NULL;
-			
+
 			// As per existing behaviour, differnet exclude fields are always combined using "OR"
 			$field_logic = $search_field_type == 'exclude' ? 'OR' : array_get_index($search_info, 'field_logic', 'OR');
 
@@ -2455,20 +2456,20 @@ class Search_Manager extends Asset
 				else {
 					$final_search_type_results = $this->_combineResults($final_search_type_results, $field_results, $field_logic);
 				}
-				
+
 			}//end foreach
-			
+
 			$search_results[$search_field_type] = $final_search_type_results;
-			
+
 		}//end foreach
-		
+
 		// Final search results for 'search' terms
 		$final_results = array_get_index($search_results, 'search', NULL);
-		
+
 		  //////////////////////////////
 		 //  PROCESS EXCLUDED TERMS  //
 		//////////////////////////////
-		if (!empty($search_results['exclude'])) {			
+		if (!empty($search_results['exclude'])) {
 
 			foreach (array_keys($search_results['exclude']) as $exclude_assetid) {
 				if (isset($final_results[$exclude_assetid])) {
@@ -2500,7 +2501,7 @@ class Search_Manager extends Asset
 
 		// stop performance mode timer
 		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'processSearch');
-		
+
 		return $final_results;
 
 	}//end processSearch()
@@ -3532,7 +3533,7 @@ class Search_Manager extends Asset
 	* @param array	$results		*CONDENSED* search results (returned by
 	*								getCondensedResults())
 	* @param string	$search_string	string searched for
-	* 
+	*
 	* @param string	$full_content	return full formatted content or not
 	*
 	* @return array
