@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.756.2.6 2012/06/27 23:34:42 cupreti Exp $
+* $Id: asset.inc,v 1.756.2.7 2012/09/20 01:15:54 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.756.2.6 $
+* @version $Revision: 1.756.2.7 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2156,6 +2156,8 @@ class Asset extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		
+		$GLOBALS['SQ_CLONE_COMPONENTS'] = TRUE;
 
 		$all_contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
 
@@ -2180,6 +2182,7 @@ class Asset extends MySource_Object
 							if (!$clone->setAttrValue($name, $data['value'])) {
 								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 								$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+								$GLOBALS['SQ_CLONE_COMPONENTS'] = FALSE;
 								return FALSE;
 							}
 						}
@@ -2187,6 +2190,7 @@ class Asset extends MySource_Object
 					if (!$clone->saveAttributes()) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+						$GLOBALS['SQ_CLONE_COMPONENTS'] = FALSE;
 						return FALSE;
 					}
 
@@ -2215,6 +2219,7 @@ class Asset extends MySource_Object
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 							unset($this->_tmp[__CLASS__.'_in_create_cascading']);
+							$GLOBALS['SQ_CLONE_COMPONENTS'] = FALSE;
 							return FALSE;
 						}
 					}
@@ -2238,6 +2243,7 @@ class Asset extends MySource_Object
 						if (!$GLOBALS['SQ_SYSTEM']->am->setRole($clone->id, $roleid, $userid)) {
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+							$GLOBALS['SQ_CLONE_COMPONENTS'] = FALSE;
 							return FALSE;
 						}
 					}
@@ -2278,6 +2284,7 @@ class Asset extends MySource_Object
 						if (!$mm->setSchema($clone->id, $schemaid, $granted, TRUE, $override)) {
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+							$GLOBALS['SQ_CLONE_COMPONENTS'] = FALSE;
 							return FALSE;
 						}
 					}//end foreach
@@ -2321,6 +2328,7 @@ class Asset extends MySource_Object
 					if ($ok === FALSE) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+						$GLOBALS['SQ_CLONE_COMPONENTS'] = FALSE;
 						return FALSE;
 					}
 
@@ -2344,6 +2352,7 @@ class Asset extends MySource_Object
 					if (!$wfm->setSchema($clone->id, $schemaid, $granted, TRUE, $override)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+						$GLOBALS['SQ_CLONE_COMPONENTS'] = FALSE;
 						return FALSE;
 					}
 				}//end foreach
@@ -2370,6 +2379,7 @@ class Asset extends MySource_Object
 					if (!copy_directory($this->data_path, $clone->data_path)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+						$GLOBALS['SQ_CLONE_COMPONENTS'] = FALSE;
 						return FALSE;
 					}
 				}
@@ -2399,6 +2409,7 @@ class Asset extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		$GLOBALS['SQ_CLONE_COMPONENTS'] = FALSE;
 		return TRUE;
 
 	}//end cloneComponents()
@@ -3396,6 +3407,11 @@ class Asset extends MySource_Object
 
 		if(!SQ_IN_BACKEND && !SQ_IN_LIMBO && !SQ_IN_LOGIN && !SQ_IN_CRON && !SQ_PHP_CLI) {
 			$filter_enabled = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_FILTER_FRONT_END_INPUT');
+			if(isset($GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] ) && $GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'])
+			    $filter_enabled = FALSE;
+			else if (isset($GLOBALS['SQ_CLONE_COMPONENTS'] ) && $GLOBALS['SQ_CLONE_COMPONENTS'])
+			    $filter_enabled = FALSE;
+			
 			//Any identified attributes that shouldn't be filtered
 			$type_excl = Array ('form_submission');
 			$attr_excl = Array ('xml');

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_server.inc,v 1.13.10.1 2012/02/09 00:56:03 csmith Exp $
+* $Id: soap_server.inc,v 1.13.10.4 2012/09/25 08:41:47 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Basil Shkara <bshkara@squiz.net>
 * @author  Benjamin Pearson <bpearson@squiz.net>
 *
-* @version $Revision: 1.13.10.1 $
+* @version $Revision: 1.13.10.4 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -112,11 +112,8 @@ class Soap_Server extends Page
 
 			$logged_in = $this->authenticateHttpUser();
 			if (!$this->readAccess()) {
-				$error_string	= '<?xml version="1.0" encoding="UTF-8"?>
-<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"><SOAP-ENV:Body><SOAP-ENV:Fault><faultcode>SERVER</faultcode><faultstring>Either the credentials provided are invalid or this user does not have access to perform this action.</faultstring></SOAP-ENV:Fault></SOAP-ENV:Body></SOAP-ENV:Envelope>';
-				header(self::XML_CONTENT_TYPE);
-				echo $error_string;
-				// Just return nothing so the SoapClient will be like, wth?
+			    	header('WWW-Authenticate: Basic realm="Squiz Matrix"');
+				header('HTTP/1.0 401 Unauthorized');
 				return;
 
 			}//end if
@@ -127,6 +124,8 @@ class Soap_Server extends Page
 			$logged_in = $this->authenticateHttpUser();
 			if (!$this->readAccess()) {
 				// Just return nothing so the SoapClient will be like, wth?
+			    	header('WWW-Authenticate: Basic realm="Squiz Matrix"');
+				header('HTTP/1.0 401 Unauthorized');
 				return;
 			}//end if
 
