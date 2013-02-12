@@ -1,126 +1,45 @@
-+------------------------------------------------------------------------------+
-| PLEASE NOTE :                                                                |
-+------------------------------------------------------------------------------+
-| This LICENCE file is provided for convenience only, the authoritative        |
-| version of this LICENCE file can be found at http://www.squiz.net/licence    |
-+------------------------------------------------------------------------------+
-
-
 Trade Marks Notice:
 -------------------
 
-Squiz.net, MySource and MySource Matrix, are registered trade marks of Squiz Pty
-Ltd and may not be used without the prior specific written consent of Squiz Pty
-Ltd. All other registered and unregistered trade marks in this document are the
-sole property of their respective owners.
+Squiz, Squiz.net, Squiz Matrix, MySource, MySource Matrix, Squiz CMS and
+Squiz Analytics are registered trademarks of Squiz Pty Limited ("Squiz"), a company
+incorporated in Australia, and may not be used without the prior specific written
+consent of Squiz. All other registered and unregistered trade marks in this document
+are the sole property of their respective owners.
 
 Licence:
 --------
 
-  1. The terms of this Licence constitute an agreement between you, either an
-     individual or a company or similar entity, as the purchaser and/or user of
-     the Software (hereafter "You") and Squiz Pty Ltd - ACN 084 670 600
-     (hereafter "Squiz"). This Licence applies to the Software, Documentation
-     and any updates which have been provided for the Software.
+1. Subject to the clauses below, the terms of this Licence are those provided within
+   the Terms and Conditions of the GNU General Public Licence version 2 ("GPLv2"), a
+   copy of which appears at: http://www.gnu.org/licenses/gpl-2.0.html.
 
-     For the purpose of this Licence,
-         “Core CMS” means the MySource Matrix CMS software developed and owned by
-         Squiz Pty Ltd.
-         “MySource Modules” means the clip-on applications marketed and sold by
-         Squiz, which adds more functionality to the Core CMS
-         "Software" means the Core CMS and/or the MySource Modules.
+2. For the purpose of this Licence and interpretation of GPLv2:
 
+       "Product" means the Squiz Matrix software.
 
-  2. By DOWNLOADING, INSTALLING or USING the Software, You are agreeing to be
-     bound by the terms of this Licence. If You do not agree to all the of the
-     terms of this Licence then DO NOT DOWNLOAD, INSTALL or USE the Software.
+       "You" means an individual, company or any other entity as the party who
+       downloaded, installed or used the Product.
 
+3. By DOWNLOADING, INSTALLING or USING the Product You are agreeing to be bound by
+   the terms of this Licence. If You do not agree to all the of the terms of this
+   Licence then DO NOT DOWNLOAD, INSTALL or USE the Software.
 
-  3. Licence Grant:
-     --------------
+Licence Grant:
+--------------
 
-     Subject to the terms of this Licence, Squiz grants you a royalty free
-     licence to Use the Core CMS. "Use" means storing, loading, installing,
-     executing or displaying the Core CMS.
+4. Subject to the terms of this Licence, Squiz grants you a royalty free licence to
+   use the Product. You must not copy, modify or distribute the Software other than
+   in accordance with this Licence.
 
-     You must not copy, modify or distribute the Software other than in
-     accordance with this Licence.
+Ownership:
+----------
 
-
-  4. Ownership:
-     ----------
-
-     All rights, including, but not limited to, copyrights, trademark and trade
-     secret rights, to the Software and accompanying Documentation, belong to
-     Squiz or its third party suppliers. Your use of the Software is subject to
-     the laws of New South Wales, and other applicable copyright and trademark
-     laws. This Licence confers no title or ownership in the Software and is not
-     a sale or transfer of any rights in the Software. Squiz and Squiz’s third
-     party suppliers may protect their rights in the event of any violation of
-     the terms of this Licence.
-
-
-  5. Copying, Modification and Distribution:
-     ---------------------------------------
-
-     (a) Subject to the terms of clause 5, Squiz grants you a right to elect to
-         use the Core CMS under the GPL or the SSV. The licence you choose will
-          govern your right to copy, modify and/or distribute the Core CMS.
-
-     (b) For the purpose of this Licence, "GPL" means version 2 of the GNU
-         General Public License as published by the Free Software Foundation in
-         June 1991. A copy of the GPL has been included in the file named
-         GPL.txt for your convenience.
-
-     (c) For the purposes of this Licence, “SSV” means the Squiz Supported
-         Version licence agreement. A copy of the SSV has been included in the
-         file named SSV.txt for your convenience.
-
-     (d) The right granted in clause 5(a) does not extend to MySource Modules or
-         the Core CMS when used with MySource Modules. You are not permitted to
-         copy, modify and/or distribute the MySource Modules or the Core CMS
-         when used with MySource Modules, in accordance with the GPL. Your right
-         to copy, modify and/or distribute the MySource Modules or the Core CMS
-         when used with MySource Modules will be subject to the SSV.
-
-         For the avoidance of doubt, the SSV will apply to the use, copying,
-         modification and distribution of
-         (i)   the Core CMS (if you so elect in exercising your right in clause
-               5(a)); and
-         (ii)  the MySource Modules; and
-         (iii) the Core CMS when used with MySource Modules,
-         and will replace the terms of this Licence.
-
-     (c) This Licence and any rights granted herein will immediately terminate
-         if you copy, modify or distribute the Software in any way other than in
-         accordance with what is permitted in this clause 5.
-
-     (d) You must include this Licence, in its entirety, in all copies,
-         modifications and distributions of the Software. Failure to include
-         this Licence would constitute a breach on your part and this Licence
-         and any rights granted herein will immediately terminate.
-
-
-  6. Warranty:
-     ---------
-     Any warranty provided by Squiz to You for the Software, will be in
-     accordance with the terms of the licence under which you have installed
-     the Software into Your system.
-
-
-  7. Termination:
-     ------------
-
-     (a) Squiz may terminate this Licence immediately if you are found to be in
-         breach of any term or condition stated herein.
-
-     (b) Upon termination, You must immediately destroy the Software, together
-         with all copies in any form, as well any accompanying Documentation.
-
-         "Documentation" means all user and technical information relating to
-         the Software.
-
-
-  8. You must not modify, remove or delete any or all copyright notices which
-     are contained in the Software, including any copy in any form.
-
+All rights, including, but not limited to, copyrights, trademark and trade secret
+rights, to the Product and accompanying Documentation, belong to Squiz or its third
+party suppliers. Your use of the Software is subject to the laws of New South Wales,
+Australia and other applicable copyright and trademark laws. This Licence confers no
+title or ownership in the Product and is not a sale or transfer of any rights in the
+Product. Squiz and Squiz's third party suppliers fully reserve their rights in
+respect of the protection and enforcement of such rights in the event of any
+violation of the terms of this Licence.
