@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_bodycopy_content_file.php,v 1.4 2012/09/17 01:21:19 cupreti Exp $
+* $Id: upgrade_bodycopy_content_file.php,v 1.4.4.1 2013/02/12 05:33:33 ewang Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 * This script makes sure that the older bodycopy content files are in the line with this change.
 *
 * @author Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.4.1 $
 * @package MySource_Matrix
 */
 
@@ -51,6 +51,12 @@ if ($report_only) {
 	echo "Following Bodycopy Div asset(s) contains unsafe keywords in the content file:\n\n";
 } else {
 	echo "Fixing the unsafe keyword(s) in content file for following Bodycopy Div asset(s):\n\n";
+}
+
+$root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
+        echo "ERROR: Failed logging in as root user\n";
+        exit();
 }
 
 // Get all the bodycopy divs
