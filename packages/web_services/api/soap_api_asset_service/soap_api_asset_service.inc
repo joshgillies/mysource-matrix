@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_asset_service.inc,v 1.31 2012/12/14 04:31:17 ewang Exp $
+* $Id: soap_api_asset_service.inc,v 1.32 2013/02/12 01:29:38 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -71,6 +71,7 @@ class Soap_Api_Asset_Service extends Soap_Api
 				'GetAssetWebPaths'			=> '1',
 				'GetAssetURLs'				=> '1',
 				'GetPageContents'           => '1',
+				'GetTags'					=> '1',
 				'SetAttributeValue'			=> '1',
 				'SetTag'					=> '1',
 				'SetAssetStatus'			=> '1',
@@ -1022,6 +1023,54 @@ class Soap_Api_Asset_Service extends Soap_Api
 
 	}//end SetTagByName()
 
+	/**
+	* Description: This operation will return all tags links given an asset id.
+	*
+	* @param string  $request  The request information
+	*
+	* <pre>
+	* Array (
+	    *		'AssetID'	=> [The Asset to find tags links under],
+	    *		'ThesaurusIDs'		=> [The thesauruses we use to filter the tags],
+	*        )
+	* </pre>
+	*
+	* @return array
+	* @access public
+	*/
+	function GetTags($request)
+	{
+		$request_info 	= (Array) $request;
+		$assetid			= array_get_index($request_info, 'AssetID', '');    
+		$thesaurus_ids		= array_get_index($request_info, 'ThesaurusIDs', '');
+		if (!is_array($thesaurus_ids)) {
+		    $thesaurus_ids = Array($thesaurus_ids);
+		}
+		if (!empty($assetid)) {
+		    $tags = Array();
+		    $i = 0;
+		    $tag_manager = $GLOBALS['SQ_SYSTEM']->getTagManager();
+		    $am = $GLOBALS['SQ_SYSTEM']->am;
+		    $tag_links = $tag_manager->getTagLinks($assetid, $thesaurus_ids);
+		   foreach ($tag_links as $data) {
+		       $term = $am->getAsset($data['minorid']);
+		       $id = explode(':', $data['minorid']);
+		       $tags[$i]['TagID'] = $data['minorid'];
+		       $tags[$i]['TagName'] = $term->name;
+		       $tags[$i]['ThesaurusID'] = $id[0];
+		       $tags[$i]['Weight'] = $data['value'];
+		       $tags[$i]['LinkID'] = $data['linkid'];
+		       $i++;
+		   }
+		    return Array (
+					'GetTagsResult'	=> $tags,
+				   );
+		} else {
+			throw new SoapFault('Server', 'Asset ID is not valid. Please provide a valid Asset ID');
+		}//end else
+			
+	}//end GetTags()
+	
 
 	/**
 	* Description: This operation will return all statuses of the asset in Matrix
@@ -1260,6 +1309,8 @@ class Soap_Api_Asset_Service extends Soap_Api
 		$urls								= self::$string_optional_unbounded;
 		$link_type							= self::getArgType('LinkType', 0, 1);
 		$asset_info                         = self::getArgType('AssetInfo', 0, 1);
+		$thesaurus_ids	= self::getArgType('string', 0, 'unbounded', TRUE);
+		$tag_details			= self::getArgType('TagDetails', 0, 'unbounded', TRUE);
 
 		$complex_types	= Array (
 							'CreateAsset'				=> Array (
@@ -1399,6 +1450,15 @@ class Soap_Api_Asset_Service extends Soap_Api
 																						'GetAssetWebPathsResult'	=> self::$string_optional_unbounded,
 														   							   ),
 														   ),
+							'GetTags'			=> Array (
+															'GetTags'	=> Array (
+														   								'AssetID'			=> self::$string_non_optional,
+																						'ThesaurusIDs'		=> $thesaurus_ids,
+														   							   ),
+														   	'GetTagsResponse'=> Array (
+																						'GetTagsResult'	=> $tag_details,
+														   							   ),
+														   ),
 							'SetTag'					=> Array (
 													   		'SetTag'				=> Array (
 																						'AssetID'		=> self::$string_non_optional,
@@ -1489,6 +1549,15 @@ class Soap_Api_Asset_Service extends Soap_Api
     {
 		$lineages_details = self::getArgType('LineagesDetails', 0, 'unbounded');
 		$lineage          = self::getArgType('Lineage', 0, 'unbounded');
+		$tag_details	= Array (
+							'TagDetails'	=> Array (
+												'TagID'			=> self::$string_non_optional,
+											   	'TagName'			=> self::$string_non_optional,
+												'ThesaurusID'		=> self::$string_non_optional,
+												'Weight'			=> self::$string_non_optional,
+												'LinkID'			=> self::$string_non_optional,
+											   ),
+						  );
         $complex_types    = Array (
 							'CreateAsset'				=> Array (
 														   	'AttributeInfo'				=> Array (
@@ -1523,26 +1592,27 @@ class Soap_Api_Asset_Service extends Soap_Api
 															   								'AttributeUnique'				=> self::$boolean_optional,
 															   							   ),
 													  	   ),
-                            'GetAssetsInfo'              => Array (
-                                                                'AssetFinderInfo'          => Array (
-                                                                                               'AssetID'           => self::$string_non_optional,
-                                                                                               'AssetType'         => self::$string_optional,
-                                                                                               'AssetTypeAncestor' => self::$string_optional,
-                                                                                               'AssetName'         => self::$string_optional,
-                                                                                               'AssetChildren'     => self::$string_optional_unbounded,
-                                                                                               'AssetLineage'      => $lineages_details,
-                                                                                              ),
-							                                   'LineagesDetails'   => Array (
-							                                                           'LinkID'    => self::$string_non_optional,
-							                                                           'LinkType'  => self::$string_non_optional,
-							                                                           'Lineage'   => $lineage,
-							                                                          ),
-							                                   'Lineage'           => Array (
-							                                                           'AssetID'   => self::$string_non_optional,
-							                                                           'AssetName' => self::$string_non_optional,
-							                                                           'Order'     => self::$int_non_optional,
-							                                                          ),
-                                                           ),
+							'GetAssetsInfo'		=> Array (
+											    'AssetFinderInfo'          => Array (
+															'AssetID'           => self::$string_non_optional,
+															'AssetType'         => self::$string_optional,
+															'AssetTypeAncestor' => self::$string_optional,
+															'AssetName'         => self::$string_optional,
+															'AssetChildren'     => self::$string_optional_unbounded,
+															'AssetLineage'      => $lineages_details,
+															),
+											    'LineagesDetails'   => Array (
+														    'LinkID'    => self::$string_non_optional,
+														    'LinkType'  => self::$string_non_optional,
+														    'Lineage'   => $lineage,
+														    ),
+											    'Lineage'           => Array (
+														    'AssetID'   => self::$string_non_optional,
+														    'AssetName' => self::$string_non_optional,
+														    'Order'     => self::$int_non_optional,
+														    ),
+										),
+							'GetTags'			=> $tag_details,
                           );
 
         $complex_types_available = parent::getComplexElements($complex_types);

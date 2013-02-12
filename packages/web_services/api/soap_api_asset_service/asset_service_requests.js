@@ -382,6 +382,32 @@ function SetTag(assetid, thesaurus_id, tag_name, weight, cascade_tag_change)
 
 
 /**
+* Description: This operation will set tag for an asset
+*
+* @param string  $request  The request information
+*
+* <pre>
+* Array (
+*		'AssetIDs'	 		=> [The ID of the asset in query],
+*		'ThesaurusIDs'		=> [The ID of the thesaurus where the tag is from],
+*        )
+* </pre>
+*
+* @return void
+* @access public
+*/
+function GetTags(assetid, thesaurus_ids)
+{
+	var soapBody	= "\
+<ns1:SetTag>\
+<AssetID>"+assetid+"</AssetID>\
+<ThesaurusIDs>"+thesaurus_ids+"</ThesaurusIDs>\
+</ns1:SetTag>";
+	return soapBody;
+}//end GetTags()
+
+
+/**
 * Description: This operation will return all statuses of the asset in Matrix
 *
 * @param string  $request  The request information
