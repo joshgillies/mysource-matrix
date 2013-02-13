@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.255 2013/02/12 22:56:18 akarelia Exp $
+* $Id: search_manager.inc,v 1.256 2013/02/13 05:36:33 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.255 $
+* @version $Revision: 1.256 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -398,36 +398,38 @@ class Search_Manager extends Asset
 			// Asset is indexable. Yay.
 			$indexable_content = $this->getIndexableAttributeContent($asset, $vars, $all_contexts);
 
-			if ($all_contexts === TRUE) {
-				// If all contexts, we'll consider it a fresh start.
-				$this->flushIndexableContent($asset->id, $flush_vars, array_merge($all_contextids, Array('default')));
-			} else {
-				if ($contextid === 0) {
-					// Flush out all the default values for these
-					$this->flushDefaultIndexableContent($asset->id, $flush_vars);
+			if (!empty($indexable_content)) {
+				if ($all_contexts === TRUE) {
+					// If all contexts, we'll consider it a fresh start.
+					$this->flushIndexableContent($asset->id, $flush_vars, array_merge($all_contextids, Array('default')));
 				} else {
-					// We only have to flush the indexable content for this context,
-					// because we are only adding values for this context after all,
-					// which won't be defaults
-					$this->flushIndexableContent($asset->id, $flush_vars, Array($contextid));
+					if ($contextid === 0) {
+						// Flush out all the default values for these
+						$this->flushDefaultIndexableContent($asset->id, $flush_vars);
+					} else {
+						// We only have to flush the indexable content for this context,
+						// because we are only adding values for this context after all,
+						// which won't be defaults
+						$this->flushIndexableContent($asset->id, $flush_vars, Array($contextid));
 
-					// Also flush the non-contextable attributes updated in this context
-					// This will be indexed as the general "default context" value (see bug #5832)
-					$flush_non_contextable_vars = Array();
-					foreach($indexable_content as $attr_idx_data) {
-						if (isset($attr_idx_data['contextid']) && $attr_idx_data['contextid'] == 'default' && isset($attr_idx_data['component'])) {
-							$flush_non_contextable_vars[$attr_idx_data['component']] = 1;
-						}//end if
-					}//end foreach
-					if (!empty($flush_non_contextable_vars)) {
-						$this->flushIndexableContent($asset->id, array_keys($flush_non_contextable_vars), Array('default'));
+						// Also flush the non-contextable attributes updated in this context
+						// This will be indexed as the general "default context" value (see bug #5832)
+						$flush_non_contextable_vars = Array();
+						foreach($indexable_content as $attr_idx_data) {
+							if (isset($attr_idx_data['contextid']) && $attr_idx_data['contextid'] == 'default' && isset($attr_idx_data['component'])) {
+								$flush_non_contextable_vars[$attr_idx_data['component']] = 1;
+							}//end if
+						}//end foreach
+						if (!empty($flush_non_contextable_vars)) {
+							$this->flushIndexableContent($asset->id, array_keys($flush_non_contextable_vars), Array('default'));
+						}
 					}
 				}
-			}
 
-			// Indexable content includes contextid/use default information. Now
-			// we can add it.
-			$this->addIndexableContent($asset->id, $indexable_content);
+				// Indexable content includes contextid/use default information. Now
+				// we can add it.
+				$this->addIndexableContent($asset->id, $indexable_content);
+			}
 		}
 
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
