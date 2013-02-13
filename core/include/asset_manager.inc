@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.897 2013/01/25 00:58:30 ewang Exp $
+* $Id: asset_manager.inc,v 1.897.2.1 2013/02/13 00:32:04 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.897 $
+* @version $Revision: 1.897.2.1 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -8916,7 +8916,7 @@ class Asset_Manager extends MySource_Object
 					    $bindVars['pathToFix'] = $pathToFix.'%';
 					}
 					else {
-					    $pathToFix = str_replace($extension,'',  $pathToFix);
+					    $pathToFix = substr($pathToFix, 0, strrpos($pathToFix, $extension));
 					    $bindVars['pathToFix'] = $pathToFix.'%'.$extension;
 					}
 				}
