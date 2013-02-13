@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_calendar.js,v 1.17 2012/08/30 00:56:51 ewang Exp $
+* $Id: js_calendar.js,v 1.18 2013/02/13 07:17:27 ewang Exp $
 *
 */
 
@@ -104,8 +104,10 @@ function c_show(e)
 		coordX = e.pageX;
 		coordY = e.pageY;
 	} else if (e.clientX || e.clientY) {
-		coordX = e.clientX + document.body.scrollLeft;
-		coordY = e.clientY + document.body.scrollTop;
+		var top = (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop;
+		var left = (document.documentElement && document.documentElement.scrollLeft) || document.body.scrollLeft;
+		coordX = e.clientX + left;
+		coordY = e.clientY + top;
 	}
 
 	// move the div to the top level of the document tree so that other absolutely-positioned
