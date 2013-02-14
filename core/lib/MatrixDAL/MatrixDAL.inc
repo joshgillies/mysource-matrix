@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixDAL.inc,v 1.11 2012/08/30 01:09:20 ewang Exp $
+* $Id: MatrixDAL.inc,v 1.11.4.1 2013/02/14 05:44:03 ewang Exp $
 *
 */
 
@@ -39,7 +39,7 @@ require_once dirname(__FILE__).'/../DAL/DAL.inc';
 *
 * @since   MySource 3.18.0
 * @author  Squiz Pty Ltd <matrix@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.11.4.1 $
 * @package MySource_Matrix
 */
 class MatrixDAL extends DAL
@@ -473,6 +473,8 @@ class MatrixDAL extends DAL
 				// If PDO won't quote it for us...
 				$quoted_value = '\''.str_replace('\'', '\'\'', $value).'\'';
 			}
+			// enforce E escape constent to allow / escape symbol in postgres
+			$quoted_value = 'E'.$quoted_value;
 		}
 
 		return $quoted_value;
