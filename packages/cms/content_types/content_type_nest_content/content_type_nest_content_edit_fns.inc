@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.74 2012/08/30 00:58:07 ewang Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.74.2.1 2013/02/14 23:00:17 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.74 $
+* @version $Revision: 1.74.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -276,12 +276,12 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 	* @access public
 	*/
 	function paint(&$asset, $editing=FALSE, $generating=FALSE)
-	{  
+	{
 		// get the asset - we can't pass the type in because it could be anything
 		// we also mute errors because we check later on
 		$nested_asset = $this->_getNestedAsset($asset);
 		if (is_null($nested_asset)) return FALSE;
-		
+
 		if ($generating) {
 			$this->paintGenerated($asset, $nested_asset);
 			return TRUE;
@@ -393,7 +393,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 		$get_var_cache_key = md5(serialize($additional_get_vars));
 		echo '<'.'?php'."\n";
 		?>
-		
+
 		if (isset($_GET['<?php  echo $asset->attr('dynamic_nest_get');  ?>'])) {
 			$nested_assetid = $_GET['<?php  echo $asset->attr('dynamic_nest_get');  ?>'];
 			$nested_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($nested_assetid,  '', TRUE);
@@ -414,10 +414,10 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 		if (method_exists($nested_asset, '_getCacheKey')) {
 			$asset_cache_key .= $nested_asset->_getCacheKey();
 		}
-		
+
 		if (!isset($GLOBALS['SQ_NEST_CONTENT_PAINTED'])) $GLOBALS['SQ_NEST_CONTENT_PAINTED'] = Array();
 		if (!isset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$asset_cache_key])) {
-			
+
 			$additional_get_vars = <?php
 			// keyword delimiters need to be replaced temporarily
 			echo str_replace('%', '&#37;', var_export($additional_get_vars, TRUE)); ?>;
@@ -476,7 +476,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 			}
 			$old_get[$asset_cache_key] = $_GET;
 			$_GET = array_merge($_GET, $processed_get_vars);
-			
+
 			// $_REQUEST by default is supposed to contain the contnets of $_GET
 			$old_request[$asset_cache_key] = $_REQUEST;
 			$_REQUEST = array_merge($_REQUEST, $processed_get_vars);
@@ -529,7 +529,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 
 				replace_keywords($asset_contents, $replacements);
 			}
-			
+
 			echo $asset_contents;
 			unset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$asset_cache_key]);
 
@@ -574,7 +574,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 					$get_value = str_replace('%'.$asset_keyword.'%', $replacement, $get_value);
 				}
 			}
-			
+
 			$found = preg_match_all('/%(nested\_(asset\_.*))%/U', $get_value, $set_matches, PREG_PATTERN_ORDER);
 			$nested_asset_orig_matches = $set_matches[1];
 			$nested_asset_matches = $set_matches[2];
@@ -632,7 +632,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 	* @access public
 	*/
 	function processBackend($link, &$asset, $prefix)
-	{	
+	{
 		$ok = FALSE;
 
 		$nested_asset = $this->_getNestedAsset($asset);
@@ -654,25 +654,31 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 		$paint_with = array_get_index($_POST, $prefix.'_paint_with', 'raw');
 		$paint_with_assetid = (isset($_POST[$prefix.'_paint_with_layout']['assetid'])) ? $_POST[$prefix.'_paint_with_layout']['assetid'] : 0;
 
-		if ($paint_with_assetid && ($paint_with == 'arbitrary')) {
-			if ($current_apl_assetid) {
+		$to_update_links = FALSE;
+		if ($paint_with == 'arbitrary') {
+			if ($current_apl_assetid && $current_apl_assetid != $paint_with_assetid) {
 				$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', TRUE, 'paint_with_layout');
 				if (!$asset->deleteLink($link['linkid'])) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return FALSE;
-				}
-			}
+				}//end if
+
+				$to_update_links = TRUE;
+			}//end if
 
 			// create a NOTICE link for delete notification
-			$arbitrary_paint_layout = $GLOBALS['SQ_SYSTEM']->am->getAsset($paint_with_assetid);
-			if (!$asset->createLink($arbitrary_paint_layout, SQ_LINK_NOTICE, 'paint_with_layout')) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return FALSE;
-			}
+			if ($paint_with_assetid) {
+				$arbitrary_paint_layout = $GLOBALS['SQ_SYSTEM']->am->getAsset($paint_with_assetid);
+				if (!$asset->createLink($arbitrary_paint_layout, SQ_LINK_NOTICE, 'paint_with_layout')) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return FALSE;
+				}//end if
 
-			$asset->linksUpdated();
+				$to_update_links = TRUE;
+			}//end if
 
-		}
+			if ($to_update_links) $asset->linksUpdated();
+		}//end if
 
 		if (($dynamic_nest_get != $asset->attr('dynamic_nest_get')) || ($paint_with != $asset->attr('paint_with')) || ($additional_get != $asset->attr('additional_get')) || ($paint_with_assetid != $current_apl_assetid)) {
 			$asset->setAttrValue('paint_with', $paint_with);
@@ -686,7 +692,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 
 			$ok = TRUE;
 		}
-		
+
 		if ($assetid) {
 
 			if ($assetid != $current_assetid) {
@@ -740,7 +746,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 				$ok = TRUE;
 
 				// Fix to Bug #5055	Nested content divs don't save properly across contexts
-				// refresh the content_file.php for all the context here. This content_type(_nest_asset) 
+				// refresh the content_file.php for all the context here. This content_type(_nest_asset)
 				// is different to any other content types. This is more so based on what asset is linked
 				// with the link_value of 'nested_asset'. And since the Links are not contextable
 				// we have to treat all the context w.r.t the changed asset
@@ -779,7 +785,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 	function &_getNestedAsset(&$asset)
 	{
 		$nested_asset = NULL;
-		
+
 		if (isset($_GET[$asset->attr('dynamic_nest_get')])){
 			$nested_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($_GET[$asset->attr('dynamic_nest_get')], '', TRUE);
 		} else {
@@ -788,7 +794,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 				$nested_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($nested_link['minorid'], $nested_link['minor_type_code'], TRUE);
 			}
 		}
-		
+
 		return $nested_asset;
 
 	}//end _getNestedAsset()
