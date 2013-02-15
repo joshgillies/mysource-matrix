@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_editing.inc,v 1.53 2013/02/15 00:15:45 ewang Exp $
+* $Id: asset_status_editing.inc,v 1.54 2013/02/15 07:16:13 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                the workflow the workflow and all required metadata is complete
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix
 */
 class Asset_Status_Editing extends Asset_Status
@@ -87,7 +87,7 @@ class Asset_Status_Editing extends Asset_Status
 		if (!empty($running_schemas)) {
 			// workflow is currently running, but it should not be
 			// because EDITING does not require workflow
-			trigger_error('FIXME: Asset is not in workflow status but running workflow is found');
+			trigger_error('FIXME: Asset #'.$this->owner->id.' is not in workflow status but running workflow is found');
 			log_dump(get_backtrace());
 		} else {
 			// workflow is not currently running for this asset
