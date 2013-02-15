@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_live.inc,v 1.42 2012/08/30 01:06:24 ewang Exp $
+* $Id: asset_status_live.inc,v 1.43 2013/02/15 00:15:45 ewang Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *    LIVE -> UNDER_CONSTRUCTION if the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix
 */
 class Asset_Status_Live extends Asset_Status
@@ -83,7 +83,8 @@ class Asset_Status_Live extends Asset_Status
 		if (!empty($running_schemas)) {
 			// workflow is currently running, but it should not be
 			// because LIVE doesnt need workflow
-			pre_echo('FIXME: SOMETHING HAS GONE WRONG HERE');
+			trigger_error('FIXME: Asset is not in workflow status but running workflow is found');
+			log_dump(get_backtrace());
 		} else {
 			// workflow is not currently running for this asset
 			$statii[SQ_STATUS_LIVE_APPROVAL]          = translate('status_change_place_up_for_review');
