@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_under_construction.inc,v 1.61.2.1 2013/02/15 00:18:34 ewang Exp $
+* $Id: asset_status_under_construction.inc,v 1.61.2.2 2013/02/15 07:18:07 ewang Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *    UNDER_CONSTRUCTION -> LIVE             if no workflow and user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.61.2.1 $
+* @version $Revision: 1.61.2.2 $
 * @package MySource_Matrix
 */
 class Asset_Status_Under_Construction extends Asset_Status
@@ -88,7 +88,7 @@ class Asset_Status_Under_Construction extends Asset_Status
 		if (!empty($running_schemas)) {
 			// workflow is currently running, but it should not be
 			// because UNDER_CONSTRUCTION does not require workflow
-			trigger_error('FIXME: Asset is not in workflow status but running workflow is found');
+			trigger_error('FIXME: Asset #'.$this->owner->id.' is not in workflow status but running workflow is found');
 			log_dump(get_backtrace());
 		} else {
 			// workflow is not currently running for this asset
