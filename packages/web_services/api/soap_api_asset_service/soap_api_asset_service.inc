@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_asset_service.inc,v 1.32 2013/02/12 01:29:38 ewang Exp $
+* $Id: soap_api_asset_service.inc,v 1.33 2013/02/15 03:49:15 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1040,9 +1040,10 @@ class Soap_Api_Asset_Service extends Soap_Api
 	*/
 	function GetTags($request)
 	{
+	    
 		$request_info 	= (Array) $request;
 		$assetid			= array_get_index($request_info, 'AssetID', '');    
-		$thesaurus_ids		= array_get_index($request_info, 'ThesaurusIDs', '');
+		$thesaurus_ids		= array_get_index($request_info, 'ThesaurusIDs', Array());
 		if (!is_array($thesaurus_ids)) {
 		    $thesaurus_ids = Array($thesaurus_ids);
 		}
