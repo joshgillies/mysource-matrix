@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.21 2011/11/28 04:26:13 ewang Exp $
+* $Id: lang_strings.xml,v 1.21.6.1 2013/02/18 00:24:41 ewang Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -101,7 +101,7 @@
 <strong>Note:</strong> Import of large number of assets should be performed by sysadmin using scripts. See <a href="http://manuals.matrix.squizsuite.net/server-administrator/chapters/import-scripts#import_from_xml.php" target="_blank">manual</a> for details.
 ]]></string>
 <string source="tool_import_assets_from_xml_create_under">Import Asset under (optional)</string>
-<string source="tool_import_assets_from_xml_create_under_note">If Asset is specified the assets are imported under that asset</string>
+<string source="tool_import_assets_from_xml_create_under_note">Set the root parent asset of the assets to import. This option should only be used if there is just a single root node to specify. If there are multiple root nodes, these should be specified using the export tool.</string>
 
 <!-- Export Assets to XML Tool -->
 <string source="tool_export_assets_to_xml_hipo_name">Hipo Job Export Assets To XML</string>
