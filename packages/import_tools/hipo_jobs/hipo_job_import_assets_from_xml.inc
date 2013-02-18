@@ -10,11 +10,12 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_import_assets_from_xml.inc,v 1.7.4.1 2013/02/18 00:24:02 ewang Exp $
+* $Id: hipo_job_import_assets_from_xml.inc,v 1.7.4.2 2013/02/18 06:16:31 ewang Exp $
 *
 */
 
 require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
+require_once SQ_SYSTEM_ROOT.'/core/hipo/jobs/hipo_job_regenerate_design.inc';
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 require_once SQ_LIB_PATH.'/import_export/import.inc';
 
@@ -28,7 +29,7 @@ require_once SQ_LIB_PATH.'/import_export/import.inc';
 *
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.7.4.1 $
+* @version $Revision: 1.7.4.2 $
 * @package MySource_Matrix
 * @subpackage import_tools/hipo_jobs
 *
@@ -115,7 +116,7 @@ class HIPO_Job_Import_Assets_From_Xml extends HIPO_Job
 	{
 		$step_data['complete'] = FALSE;
 		while(!$step_data['complete']) {
-			if(!$this->processImportAsset($step_data, '')) {
+			if(!$this->processImportAsset($step_data, '', TRUE)) {
 				return FALSE;
 			}
 		}
@@ -153,6 +154,11 @@ class HIPO_Job_Import_Assets_From_Xml extends HIPO_Job
 			if($action['action_type'][0] === 'create_asset' && $action['type_code'][0] === 'Content_Type_Nest_Content') {
 				$this->_running_vars['nest_content_to_fix'] [] = $action['action_id'][0];
 			}
+			// remember designs to fix
+			if($action['action_type'][0] === 'create_asset' && $action['type_code'][0] === 'Design') {
+				$this->_running_vars['designs_to_fix'] [] = $action['action_id'][0];
+			}
+			
 			
 			// check if there is hard coded assetid reference which doesn't exist in the target system
 			if(!$this->checkAssetExists($action, 'parentid') || !$this->checkAssetExists($action, 'assetid') || !$this->checkAssetExists($action, 'asset')) {
@@ -191,11 +197,12 @@ class HIPO_Job_Import_Assets_From_Xml extends HIPO_Job
 	*
 	* @param array	&$step_data	a reference to the array of information about the current step
 	* @param string	$prefix		prefix for form vars
+	* @param bool	$freestyle		is it run with freestyle?
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processImportAsset(&$step_data, $prefix)
+	function processImportAsset(&$step_data, $prefix, $freestyle=FALSE)
 	{
 		$import_actions = $this->_running_vars['import_actions'];
 		
@@ -235,8 +242,62 @@ class HIPO_Job_Import_Assets_From_Xml extends HIPO_Job
 			   }
 			}
 			
+			// fix designs by spawning sub hipo job
+			// grab the design from to-fix list one at a time and spawn a sub hipo job
+			foreach ($this->_running_vars['designs_to_fix'] as $index => $actionid) {
+			   if(!isset($this->_running_vars['sub_job']) && isset($this->_running_vars['import_action_outputs'][$actionid])) {
+				$design_id = $this->_running_vars['import_action_outputs'][$actionid]['assetid'];
+				$code_name  = $this->spawnRegenerateDesignsHipo($design_id);
+				$this->_running_vars['sub_job'] = $code_name;
+				unset($this->_running_vars['designs_to_fix'][$index]);
+			   }
+			}
+			
+			// if there is a sub hipo job, try process it
+			if(isset($this->_running_vars['sub_job'])) {
+			    $hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			    $sub_job = $hh->getJob($this->_running_vars['sub_job']);
+			    if (empty($sub_job) === TRUE) {
+				    return FALSE;
+			    }
+			    if ($freestyle === TRUE) {
+				// in stereo, with tha freestylah =P
+				if ($sub_job->freestyle() === TRUE) {
+					// Grab the errors from the status sub-job, since we need
+					// to show them to the user afterwards
+					$this->_hipo_vars['errors'] = array_merge($this->_hipo_vars['errors'], $sub_job->_hipo_vars['errors']);
+					unset($this->_running_vars['sub_job']);
+					$sub_job->save();
+					$hh->uncacheJob($sub_job->code_name);
+				} else {
+					// Failed to process! Get the errors at least, and bail
+					$this->_hipo_vars['errors'] = array_merge($this->_hipo_vars['errors'], $sub_job->_hipo_vars['errors']);
+					return FALSE;
+				}
+			    }
+			    else {
+				if ($sub_job->process() === TRUE) {
+				    if ($sub_job->complete() === TRUE) {
+					$this->_hipo_vars['errors'] = array_merge($this->_hipo_vars['errors'], $sub_job->_hipo_vars['errors']);
+					unset($this->_running_vars['sub_job']);
+				    }
+				}
+				else {
+				    // Failed to process! Get the errors at least, and bail
+				    $this->_hipo_vars['errors'] = array_merge($this->_hipo_vars['errors'], $sub_job->_hipo_vars['errors']);
+				    return FALSE;
+				}
+			    }
+			}
+			
+			// if there is more designs to fix, wait for it
+			if(!empty($this->_running_vars['designs_to_fix']))
+			    $step_data['complete']     = FALSE;
+			
+			
+			
 			// done with everything ? delete the file
-			if ($this->_running_vars['delete_after_import']) {
+			if ($step_data['complete'] && $this->_running_vars['delete_after_import']) {
 				// unlink the import dir
 				$command = "rm -rf ".dirname($this->_running_vars['file_info']); 
 				system($command);
@@ -269,6 +330,40 @@ class HIPO_Job_Import_Assets_From_Xml extends HIPO_Job
 		return TRUE;
 	}
 
+	
+	/**
+	* Starts another Hipo_Job_Regenerate_Design to process designs to fix
+	*
+	* @param string	$assetid	The ID of the asset to process dependants of
+	*
+	* @return string
+	* @access private
+	*/
+	function spawnRegenerateDesignsHipo($assetid)
+	{
+		$init_hipo = new HIPO_Job_Regenerate_Design();
+
+		$options['auto_complete'] = TRUE;
+
+		// we pass the asset id of the design to regenerate
+		$running_vars = Array(
+							'assetid'				=> $assetid,
+						);
+
+		
+		$init_hipo->setRunningVars($running_vars);
+		foreach ($options as $k => $v) {
+			$init_hipo->setOption($k, $v);
+		}
+
+		// create our sub-sub-hipo thingy
+		$code_name = $init_hipo->initialise($this->source_code_name);
+		if ($code_name) return $code_name;
+		return FALSE;
+
+	}//end spawnRegenerateDesignsHipo()
+	
+	
 }//end class
 
 ?>
