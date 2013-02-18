@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_soap_edit_fns.inc,v 1.2 2013/01/30 05:49:18 cupreti Exp $
+* $Id: data_source_soap_edit_fns.inc,v 1.3 2013/02/18 04:12:19 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -223,7 +223,12 @@ class Data_Source_Soap_Edit_Fns extends Data_Source_Edit_Fns
 	*/
 	function paintLastSoapRequest(&$asset, &$o, $prefix)
 	{
-		pre_echo($asset->attr('last_request'));
+		$path = $asset->data_path.'/response_data';
+		$data = @unserialize(file_get_contents($path));
+		$request = array_get_index($data, 'request', '');
+		if ($request) {
+			pre_echo($request);
+		}
 
 		return FALSE;
 
@@ -242,14 +247,17 @@ class Data_Source_Soap_Edit_Fns extends Data_Source_Edit_Fns
 	*/
 	function paintLastSoapResponse(&$asset, &$o, $prefix)
 	{
-		$response = $asset->attr('last_response');
+		$path = $asset->data_path.'/response_data';
+		$data = @unserialize(file_get_contents($path));
+		$response = array_get_index($data, 'response', '');
+		if ($response) {
+			echo "<b>XML Message</b>";
+			pre_echo(isset($response['response_xml']) ? $response['response_xml'] : '');
 
-		echo "<b>XML Message</b>";
-		pre_echo(isset($response['response_xml']) ? $response['response_xml'] : '');
-
-		echo "<br/>";
-		echo "<b>Response Object</b>";
-		pre_echo(isset($response['response_obj']) ? unserialize($response['response_obj']) : '');
+			echo "<br/>";
+			echo "<b>Response Object</b>";
+			pre_echo(isset($response['response_obj']) ? unserialize($response['response_obj']) : '');
+		}
 
 		return FALSE;
 

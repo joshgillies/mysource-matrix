@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_soap.inc,v 1.3 2013/01/31 01:33:08 cupreti Exp $
+* $Id: data_source_soap.inc,v 1.4 2013/02/18 04:12:19 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/lib/soap_common.inc';
 * Data_Source_Soap
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -250,25 +250,26 @@ class Data_Source_Soap extends Data_Source
 			eval('$response = $soap_client->$soap_function('.$eval_string.');');
 		} catch (Exception $e) {
 			// Save the last request
-			$data = $soap_client->__getLastRequest();
-			$this->setAttrValue('last_request', $data);
-			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-				$this->saveAttributes();
-			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+			$data = Array();
+			$data['request'] = $soap_client->__getLastRequest();
+			$data['response'] = Array(
+									'response_xml' => '',
+									'response_object' => '',
+								);
+			// Save the response/request data in the data dir
+			$this->saveLastRequestResponse($data);
 			trigger_error($e->getMessage());
 			return Array();
 		}
 
 		// Save the last request and response
-		$data = $soap_client->__getLastRequest();
-		$this->setAttrValue('last_request', $data);
 		$data = Array();
-		$data['response_xml'] = $soap_client->__getLastResponse();
-		$data['response_obj'] = !is_null($response) ? serialize($response) : '';
-		$this->setAttrValue('last_response', $data);
-		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-			$this->saveAttributes();
-		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+		$data['request'] = $soap_client->__getLastRequest();
+		$data['response'] = Array(
+								'response_xml' => $soap_client->__getLastResponse(),
+								'response_obj' => !is_null($response) ? serialize($response) : '',
+							);
+		$this->saveLastRequestResponse($data);
 
 		// Process the response and the result
 		if (is_null($response)) {
@@ -276,7 +277,7 @@ class Data_Source_Soap extends Data_Source
 		}
 
 		// Make the response xml
-		$sxml = new SimpleXMLElement($data['response_xml']);
+		$sxml = new SimpleXMLElement($data['response']['response_xml']);
 		$xpath_res = $sxml->xpath('/SOAP-ENV:Envelope/SOAP-ENV:Body');
 		$response_xml = @$xpath_res[0]->asXML();
 		if (empty($response_xml)) {
@@ -449,6 +450,35 @@ class Data_Source_Soap extends Data_Source
 		return isset($this->_tmp[$hash]) ? $this->_tmp[$hash] : Array();
 
 	}//end getSoapServiceInfo()
+
+
+	/**
+	* Save the given last request/response data
+	* in the asset's data dir
+	*
+	* @param array $data
+	*
+	* @return boolean
+	* @access public
+	*/
+	function saveLastRequestResponse($data)
+	{
+		if (!is_array($data) || !isset($data['request']) || !isset($data['response'])) {
+			return FALSE;
+		}
+
+		$string_data = @serialize($data);
+
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+		if ($string_data === FALSE || !create_directory($this->data_path)) {
+			trigger_error('Could not write the SOAP request/response data to the file', E_USER_WARNING);
+			return FALSE;
+		}
+
+		$file_path = $this->data_path.'/response_data';
+		file_put_contents($file_path, $string_data);
+
+	}//end saveLastRequestResponse()
 
 
 	// XML Parser functions ///

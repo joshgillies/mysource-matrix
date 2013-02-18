@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_soap_management.inc,v 1.1 2013/01/04 01:37:19 cupreti Exp $
+* $Id: data_source_soap_management.inc,v 1.2 2013/02/18 04:12:19 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -139,18 +139,6 @@ class Data_Source_Soap_Management extends Asset_Management
 												'type'			=> 'text',
 												'default'		=> ',',
 												'description'	=> 'Delimiler to seperate data from xml elements with same name',
-											   ),
-						'last_request'		=> Array(
-												'added'		=> '0.1',
-												'type'		=> 'text',
-												'default'	=> '',
-												'description' 	=> 'Stores last SOAP request',
-											   ),
-						'last_response'		=> Array(
-												'added'		=> '0.1',
-												'type'		=> 'serialise',
-												'default'	=> Array(),
-												'description' 	=> 'Stores last SOAP response',
 											   ),
 					  );
 
