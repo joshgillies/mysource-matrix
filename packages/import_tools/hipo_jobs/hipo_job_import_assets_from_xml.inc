@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_import_assets_from_xml.inc,v 1.7 2012/08/30 00:58:50 ewang Exp $
+* $Id: hipo_job_import_assets_from_xml.inc,v 1.7.4.1 2013/02/18 00:24:02 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/import_export/import.inc';
 *
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.4.1 $
 * @package MySource_Matrix
 * @subpackage import_tools/hipo_jobs
 *
@@ -145,7 +145,7 @@ class HIPO_Job_Import_Assets_From_Xml extends HIPO_Job
 		
 		// fix the file import path, it should be relative to the export dir
 		foreach ($import_actions['actions'][0]['action'] as $id => $action) {
-			if($action['action_type'][0] === 'create_file_asset') {
+			if(isset($action['file_path'][0])) {
 				$action['file_path'][0] = dirname($file_info).'/'.$action['file_path'][0];
 				$import_actions['actions'][0]['action'][$id] = $action;
 			}
