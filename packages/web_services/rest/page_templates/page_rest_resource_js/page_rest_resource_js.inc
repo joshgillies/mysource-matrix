@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rest_resource_js.inc,v 1.12 2012/08/31 03:48:28 ewang Exp $
+* $Id: page_rest_resource_js.inc,v 1.13 2013/02/18 05:39:53 ewang Exp $
 *
 */
 
@@ -106,6 +106,11 @@ class Page_REST_Resource_JS extends Page_REST_Resource
 
 		// Run any inline JS.
 		$js .= $this->attr('javascript');
+
+		// Pre-process matrix keywords on the resulting JS.
+		if ($this->attr('preprocess_keywords') && $this->attr('allow_global_replace')) {
+			$js = replace_global_keywords($js);
+		}//end if
 
 		// Go!
 		//$rm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('rest_manager');
