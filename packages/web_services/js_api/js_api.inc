@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.137 2013/02/19 06:25:22 ewang Exp $
+* $Id: js_api.inc,v 1.138 2013/02/19 06:26:59 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.137 $
+* @version $Revision: 1.138 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -381,7 +381,6 @@ class JS_Api extends Page
 					// type  keywords might  have been used and  try and evaluate it
 					foreach ($args as $idx => $arg) {
 						if (preg_match('/[\$%]results_[^\$%]*[\$%]/', $args[$idx], $matches)) {
-						    log_dump($matches);
 							if(!isset($matches[0])) continue;
 							$keyword = $matches[0];
 							$instructions = explode('_', trim($keyword, '$%'));
