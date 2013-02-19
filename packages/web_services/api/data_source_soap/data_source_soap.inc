@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_soap.inc,v 1.4 2013/02/18 04:12:19 cupreti Exp $
+* $Id: data_source_soap.inc,v 1.5 2013/02/19 05:08:10 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/lib/soap_common.inc';
 * Data_Source_Soap
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -116,6 +116,28 @@ class Data_Source_Soap extends Data_Source
 	*
 	*/
 	protected $_complex_elements = Array();
+
+
+	/**
+	* The current tags hierarchy string
+	* For example:
+	*
+	* <info>
+	* 	<name>
+	*		<first>Maxx</first>
+	*		<other>Smith</other>
+	*	</name>
+	*	.
+	*	.
+	*	.
+	* </info>
+	*
+	* If the current tag for above is "first", then the
+	* tags hierarchy array will be Array(0 => 'info', 1 => 'name', 2=> 'first')
+	*
+	* @var array
+	*/
+	protected $_current_tag_hierarchy = Array();
 
 
 	/**
@@ -596,6 +618,10 @@ class Data_Source_Soap extends Data_Source
 			$this->_checkRootTag($name);
 
 			if ($this->_inside_root_tag) {
+
+				// Add the tag in the hierarchy stack
+				$this->_current_tag_hierarchy[] = $name;
+
 				$required_tags = $this->_getRequiredTags();
 				for ($i=0; $i<count($required_tags); $i++) {
 					if ($name === $required_tags[$i]) {
@@ -645,20 +671,21 @@ class Data_Source_Soap extends Data_Source
 	function characterData($parser, $data)
 	{
 		if ($this->_inside_relevant_tag) {
-			if (!isset($this->_result[$this->_record_set_index][$this->_current_tag_name])) {
-				$this->_result[$this->_record_set_index][$this->_current_tag_name] = $data;
+			$record_name = implode('.', $this->_current_tag_hierarchy);
+			if (!isset($this->_result[$this->_record_set_index][$record_name])) {
+				$this->_result[$this->_record_set_index][$record_name] = $data;
 			}
 			// If value for this tag is already set even when it is new tag then it means there are multiple tags with same name in the record
 			// Merge the values using the given delimiter
 			else if ($this->_new_tag) {
-				$this->_result[$this->_record_set_index][$this->_current_tag_name] .=  $this->attr('data_delimiter') . $data;
+				$this->_result[$this->_record_set_index][$record_name] .=  $this->attr('data_delimiter') . $data;
 			}
 			// Being here implies that this function handler has been called more than once for data in the same tag.
 			// Merge the data to get the whole thing.
 			// See bug #4113 - When parser encounters special content in data like &amp;, &apos;, etc., it stops scanning and calls the data handler,
 			// and then calls the handler again for the remaining data in the tag.
 			else {
-				$this->_result[$this->_record_set_index][$this->_current_tag_name] .=  $data;
+				$this->_result[$this->_record_set_index][$record_name] .=  $data;
 			}
 		}
 
@@ -689,6 +716,9 @@ class Data_Source_Soap extends Data_Source
 		}
 		// Move the XML tree level tracker one level down on the closing of the element
 		$this->_tree_level--;
+
+		// Remove the tag in the hierarchy stack
+		array_pop($this->_current_tag_hierarchy);
 
 		$this->_inside_relevant_tag = FALSE;
 
