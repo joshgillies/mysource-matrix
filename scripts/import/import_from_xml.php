@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_from_xml.php,v 1.28 2013/01/02 02:29:19 akarelia Exp $
+* $Id: import_from_xml.php,v 1.28.2.1 2013/02/19 03:24:56 ewang Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.28.2.1 $
 * @package MySource_Matrix
 */
 
@@ -194,6 +194,10 @@ foreach ($import_actions['actions'][0]['action'] as $index => $action) {
 
 }
 
+_connectToMatrixDatabase();
+
+// restore import action outputs from file
+$import_action_outputs = unserialize(file_get_contents(TEMP_FILE));
 
 // fix nest content type, regenerate the bodycopy
 foreach ($nest_content_to_fix as $actionid) {
@@ -284,8 +288,10 @@ function _disconnectFromMatrixDatabase()
 {
     $conn_id = MatrixDAL::getCurrentDbId();
     if (isset($conn_id) && !empty($conn_id)) {
-        MatrixDAL::restoreDb();
-        MatrixDAL::dbClose($conn_id);
+	while(!empty(MatrixDAL::$_dbStack)) {
+	    MatrixDAL::restoreDb();
+	}
+	MatrixDAL::dbClose($conn_id);
     }//end if
 
 }//end _disconnectFromMatrixDatabase()
