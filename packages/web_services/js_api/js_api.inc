@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.136 2013/02/06 02:41:06 akarelia Exp $
+* $Id: js_api.inc,v 1.137 2013/02/19 06:25:22 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.136 $
+* @version $Revision: 1.137 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -371,18 +371,20 @@ class JS_Api extends Page
 				// so we are batching  requests, in this  case we  get the assetid needed to
 				// start with from the first function call  and then every consecutive  time
 				// we  get it from the output of  previously  executed function  so check if
-				// format there is %results_0_*% type else it might be raw input that we use
+				// format there is $results_0_*$ type else it might be raw input that we use
 				if ($track_func === 0) {
 					$id = $args['id'];
 				} else {
 					// okie so we arent the first called function in batched request
 					// and we are to use the assetid from the previous function exec
-					// but no we look into any of the argument where the  %result_*%
+					// but no we look into any of the argument where the  $result_*$
 					// type  keywords might  have been used and  try and evaluate it
 					foreach ($args as $idx => $arg) {
-						if (strpos($args[$idx], '%results_') !== FALSE) {
-							$keyword = $args[$idx];
-							$instructions = explode('_', trim($keyword, '%'));
+						if (preg_match('/[\$%]results_[^\$%]*[\$%]/', $args[$idx], $matches)) {
+						    log_dump($matches);
+							if(!isset($matches[0])) continue;
+							$keyword = $matches[0];
+							$instructions = explode('_', trim($keyword, '$%'));
 							// if we know where to take the new id from, do it or else
 							// just  continue with the previous one we have been using
 							$string_to_eval = '';
