@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remove_internal_message.php,v 1.10 2013/01/20 23:09:09 csmith Exp $
+* $Id: remove_internal_message.php,v 1.11 2013/02/20 03:52:25 cupreti Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Delete internal messages
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -37,7 +37,27 @@ $options = Console_Getopt::getopt($args, $shortopt, $longopt);
 
 if (empty($options[0])) usage();
 
+// Get root folder and include the Matrix init file, first of all
 $SYSTEM_ROOT = '';
+foreach ($options[0] as $index => $option) {
+	if ($option[0] == 's' && !empty($option[1])) {
+		$SYSTEM_ROOT = $option[1];
+		unset($options[0][$index]);
+	}
+}//end foreach
+
+if (empty($SYSTEM_ROOT)) {
+	echo "ERROR: You need to supply the path to the System Root as the first argument\n";
+	usage();
+}
+
+if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
+	usage();
+}
+
+require_once $SYSTEM_ROOT.'/core/include/init.inc';
+
 $PERIOD = '';
 $USER_FROM = '';
 $USER_TO = '';
@@ -54,12 +74,6 @@ foreach ($options[0] as $option) {
 		case 'a':
 			if (empty($option[1])) usage();
 			$ASSETIDS[] = $option[1];
-		break;
-
-		case 's':
-			if (empty($option[1])) usage();
-			if (!is_dir($option[1])) usage();
-			$SYSTEM_ROOT = $option[1];
 		break;
 
 		case 'p':
@@ -130,19 +144,7 @@ foreach ($options[0] as $option) {
 
 }//end foreach arguments
 
-if (empty($SYSTEM_ROOT)) {
-	echo "ERROR: You need to supply the path to the System Root as the first argument\n";
-	usage();
-}
-
-if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
-	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
-	usage();
-}
-
 if (empty($PERIOD)) usage();
-
-require_once $SYSTEM_ROOT.'/core/include/init.inc';
 
 $GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
