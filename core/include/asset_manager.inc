@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.888.2.11 2013/02/20 00:05:11 ewang Exp $
+* $Id: asset_manager.inc,v 1.888.2.12 2013/02/20 23:49:19 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.888.2.11 $
+* @version $Revision: 1.888.2.12 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -8617,8 +8617,8 @@ class Asset_Manager extends MySource_Object
 					// for public user, we just return  __data url because having __data url meaning the file asset is effectively unrestricted
 					if(count($result[$assetid]) > 1) {
 					    foreach ($result[$assetid] as $index => $data) {
-						if((($GLOBALS['SQ_SYSTEM']->user instanceof Public_User) && (strpos(current_protocol().'://'.$data['url'], sq_web_path('data')) !== FALSE))
-						|| (!($GLOBALS['SQ_SYSTEM']->user instanceof Public_User) && (strpos(current_protocol().'://'.$data['url'], sq_web_path('data')) === FALSE))) {
+						if((($GLOBALS['SQ_SYSTEM']->user instanceof Public_User) && (strpos(current_protocol().'://'.$data['url'], '/__data') !== FALSE))
+						|| (!($GLOBALS['SQ_SYSTEM']->user instanceof Public_User) && (strpos(current_protocol().'://'.$data['url'], '/__data') === FALSE))) {
 							$result[$assetid][0] = $data;
 							break;
 						}
