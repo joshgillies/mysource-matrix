@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_import_assets_from_xml.inc,v 1.9 2013/02/18 06:14:21 ewang Exp $
+* $Id: hipo_job_import_assets_from_xml.inc,v 1.10 2013/02/20 04:29:37 ewang Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/import_export/import.inc';
 *
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 * @subpackage import_tools/hipo_jobs
 *
@@ -136,6 +136,7 @@ class HIPO_Job_Import_Assets_From_Xml extends HIPO_Job
 	{
 		$this->_running_vars['import_action_outputs'] = Array();
 		$this->_running_vars['nest_content_to_fix'] = Array();
+		$this->_running_vars['designs_to_fix'] = Array();
 		$file_info = $this->_running_vars['file_info'];
 		$import_actions = get_import_actions($file_info);
 
