@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.248 2012/08/30 00:57:28 ewang Exp $
+* $Id: page_calendar.inc,v 1.249 2013/02/20 02:42:16 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.248 $
+* @version $Revision: 1.249 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -2234,18 +2234,18 @@ class Page_Calendar extends Page
 
 			$replacements = Array();
 			if ($bodycopy['needs_asset']) {
-				$event = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
+				$event_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
 				foreach ($bodycopy['keywords'] as $keyword) {
 					if ($keyword == 'asset_contents') {
 						ob_start();
-							$event->printBody();
+							$event_asset->printBody();
 						$replacements['asset_contents'] = ob_get_clean();
 					} else {
-						$replacements[$keyword] = $event->getKeywordReplacement($keyword);
+						$replacements[$keyword] = $event_asset->getKeywordReplacement($keyword);
 					}
 				}
-				unset($event);
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($event);
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($event_asset);
+				unset($event_asset);
 			} else {
 				foreach ($bodycopy['keywords'] as $keyword) {
 					$replacements[$keyword] = $this->_getEventKeywordReplacement($keyword, $event);
