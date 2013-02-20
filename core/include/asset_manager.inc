@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.888.2.10 2013/02/13 00:32:56 ewang Exp $
+* $Id: asset_manager.inc,v 1.888.2.11 2013/02/20 00:05:11 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.888.2.10 $
+* @version $Revision: 1.888.2.11 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -8893,7 +8893,9 @@ class Asset_Manager extends MySource_Object
 		 * if there are any matches.
 		 */
 		foreach ($fixPaths as $fixid => $pathToFix) {
+			// remove the trailing digits of path, because we will work out new digits
 			$pathToFix = preg_replace('/(.*?)\d+$/', '$1', $pathToFix);
+			$pathToFix = preg_replace('/(.*?)\d+(\.[0-9a-zA-Z_]+)$/', '$1$2', $pathToFix);
 
 			/**
 			 * endPaths keeps a lits of the last path used in each chunk received from the database.
