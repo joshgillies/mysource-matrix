@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.87.2.1 2012/11/09 02:58:36 akarelia Exp $
+* $Id: form_edit_fns.inc,v 1.87.2.2 2013/02/20 06:02:15 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.87.2.1 $
+* @version $Revision: 1.87.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -804,11 +804,11 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 		// Now create the full default file, including the unattached questions
 		$output = '<'.'?php'."\n";
 		$output .= '$form_asset = $GLOBALS["SQ_SYSTEM"]->am->getAsset('.$asset->id.');'."\n";
-		$output .= 'include_once('.str_replace(SQ_DATA_PATH, 'SQ_DATA_PATH."', $asset->data_path).'/content_file_questions.php'.'");'."\n";
+		$output .= 'include('.str_replace(SQ_DATA_PATH, 'SQ_DATA_PATH."', $asset->data_path).'/content_file_questions.php'.'");'."\n";
 		$sections = $asset->getSections();
 		foreach ($sections as $section) {
 			// output an include BUT we want to make what's printed relative to SQ_DATA_PATH
-			$output .= 'include_once('.str_replace(SQ_DATA_PATH, 'SQ_DATA_PATH."', $section->data_path).'/content_file.php'.'");'."\n";
+			$output .= 'include('.str_replace(SQ_DATA_PATH, 'SQ_DATA_PATH."', $section->data_path).'/content_file.php'.'");'."\n";
 		}
 		$output .= '?'.'>';
 

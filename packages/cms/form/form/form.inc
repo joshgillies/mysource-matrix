@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.269.2.3 2013/01/24 23:29:40 akarelia Exp $
+* $Id: form.inc,v 1.269.2.4 2013/02/20 06:02:15 cupreti Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.269.2.3 $
+* @version $Revision: 1.269.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2757,6 +2757,10 @@ class Form extends Asset implements Bridge
 	function printErrors()
 	{
 		if (!empty($this->submission_errors)) {
+
+			// Get rid of duplicate errors, if any
+			$this->submission_errors = array_unique($this->submission_errors);
+
 			echo '<ul>';
 			foreach ($this->submission_errors as $error) {
 				echo '<li>';
