@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: rollback_management.php,v 1.27 2012/08/30 01:04:53 ewang Exp $
+* $Id: rollback_management.php,v 1.27.2.1 2013/02/20 04:06:29 cupreti Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.27.2.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -41,12 +41,33 @@ $options = Console_Getopt::getopt($args, $shortopt, $longopt);
 if ($options instanceof PEAR_Error) {
 	usage();
 }
-
 if (empty($options[0])) usage();
+
+// Get root folder and include the Matrix init file, first of all
+$SYSTEM_ROOT = '';
+foreach ($options[0] as $index => $option) {
+	if ($option[0] == 's' && !empty($option[1])) {
+		$SYSTEM_ROOT = $option[1];
+		unset($options[0][$index]);
+	}
+}//end foreach
+
+if (empty($SYSTEM_ROOT)) {
+	echo "ERROR: You need to supply the path to the System Root as the first argument\n";
+	usage();
+	exit();
+}
+
+if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
+	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
+	usage();
+	exit();
+}
+
+require_once $SYSTEM_ROOT.'/core/include/init.inc';
 
 $PURGE_FV_DATE = '';
 $ROLLBACK_DATE = '';
-$SYSTEM_ROOT = '';
 $ENABLE_ROLLBACK = FALSE;
 $DISABLE_ROLLBACK = FALSE;
 $RESET_ROLLBACK = FALSE;
@@ -131,12 +152,6 @@ foreach ($options[0] as $option) {
 			$valid_option = TRUE;
 		break;
 
-		case 's':
-			if (empty($option[1])) usage();
-			if (!is_dir($option[1])) usage();
-			$SYSTEM_ROOT = $option[1];
-		break;
-
 		case '--enable-rollback':
 			if ($DISABLE_ROLLBACK || $RESET_ROLLBACK || $DELETE_REDUNDANT_ENTRIES) {
 				usage();
@@ -194,19 +209,6 @@ if (!empty($ROLLBACK_DATE) && !empty($PURGE_FV_DATE)) {
 	usage();
 }
 
-if (empty($SYSTEM_ROOT)) {
-	echo "ERROR: You need to supply the path to the System Root as the first argument\n";
-	usage();
-	exit();
-}
-
-if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
-	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
-	usage();
-	exit();
-}
-
-require_once $SYSTEM_ROOT.'/core/include/init.inc';
 require_once SQ_INCLUDE_PATH.'/rollback_management.inc';
 require SQ_DATA_PATH.'/private/db/table_columns.inc';
 
