@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.774 2012/12/17 00:02:15 ewang Exp $
+* $Id: asset.inc,v 1.776 2013/02/06 01:02:59 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.774 $
+* @version $Revision: 1.776 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -6261,6 +6261,10 @@ class Asset extends MySource_Object
 									if (substr($old_url, 0, strlen($data_url)) == $data_url) {
 										continue 2;
 									}
+								}
+								$static_url = SQ_CONF_STATIC_ROOT_URL;
+								if (!empty($static_url) && strpos($old_url, $static_url) !== FALSE) {
+								    continue;
 								}
 								if ($url_data['http']) {
 									$rm->addRemapURL('http://'.$old_url,  'http://'.$closest_url);
