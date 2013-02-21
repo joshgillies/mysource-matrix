@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.888.2.9 2013/01/25 01:02:17 ewang Exp $
+* $Id: asset_manager.inc,v 1.888.2.13 2013/02/21 23:35:53 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.888.2.9 $
+* @version $Revision: 1.888.2.13 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -8616,9 +8616,12 @@ class Asset_Manager extends MySource_Object
 					// if there is __data url, and there are other local urls, we should only pick __data url for public users
 					// for public user, we just return  __data url because having __data url meaning the file asset is effectively unrestricted
 					if(count($result[$assetid]) > 1) {
-					    foreach ($result[$assetid] as $index => $data) {
-						if((($GLOBALS['SQ_SYSTEM']->user instanceof Public_User) && (strpos(current_protocol().'://'.$data['url'], sq_web_path('data')) !== FALSE))
-						|| (!($GLOBALS['SQ_SYSTEM']->user instanceof Public_User) && (strpos(current_protocol().'://'.$data['url'], sq_web_path('data')) === FALSE))) {
+					    foreach ($result[$assetid] as $data) {
+						$file_url = current_protocol().'://'.$data['url'];
+						$is_unrestricted_url = SQ_CONF_STATIC_ROOT_URL ? strpos($file_url, SQ_CONF_STATIC_ROOT_URL.'/') !== FALSE : strpos($file_url, '/__data') !== FALSE;
+						$is_matrix_url = SQ_CONF_STATIC_ROOT_URL ? strpos($file_url, SQ_CONF_STATIC_ROOT_URL.'/') === FALSE : strpos($file_url, '/__data') === FALSE;
+						if((($GLOBALS['SQ_SYSTEM']->user instanceof Public_User) && $is_unrestricted_url) 
+						|| (!($GLOBALS['SQ_SYSTEM']->user instanceof Public_User) && $is_matrix_url)) {
 							$result[$assetid][0] = $data;
 							break;
 						}
@@ -8893,7 +8896,9 @@ class Asset_Manager extends MySource_Object
 		 * if there are any matches.
 		 */
 		foreach ($fixPaths as $fixid => $pathToFix) {
+			// remove the trailing digits of path, because we will work out new digits
 			$pathToFix = preg_replace('/(.*?)\d+$/', '$1', $pathToFix);
+			$pathToFix = preg_replace('/(.*?)\d+(\.[0-9a-zA-Z_]+)$/', '$1$2', $pathToFix);
 
 			/**
 			 * endPaths keeps a lits of the last path used in each chunk received from the database.
@@ -8916,7 +8921,7 @@ class Asset_Manager extends MySource_Object
 					    $bindVars['pathToFix'] = $pathToFix.'%';
 					}
 					else {
-					    $pathToFix = str_replace($extension,'',  $pathToFix);
+					    $pathToFix = substr($pathToFix, 0, strrpos($pathToFix, $extension));
 					    $bindVars['pathToFix'] = $pathToFix.'%'.$extension;
 					}
 				}
