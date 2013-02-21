@@ -60,11 +60,9 @@ touch($LOCK_FILE);
  */
 if (!empty($_GET['checkdb']) || !empty($_GET['checkreplication'])) {
 
-	define('SQ_SYSTEM_ROOT', '/app/matrix/');
-	define('SQ_LOG_PATH', SQ_SYSTEM_ROOT.'/data/private/logs');
 	$return_code = '200';
 
-	require_once SQ_SYSTEM_ROOT.'/core/include/init.inc';
+	require_once '../../core/include/init.inc';
 	require SQ_SYSTEM_ROOT . '/data/private/conf/db.inc';
 
 	if (isset($_GET['checkdb']) && $_GET['checkdb'] == 1) {
@@ -133,7 +131,7 @@ if (!empty($_GET['checkdb']) || !empty($_GET['checkreplication'])) {
 		$db_okay = TRUE;
 
 		// connect to the database as the REPADM user
-		$dsn_info = $db_conf['db'];
+		$dsn_info = isset($db_conf['db'][0]) ? $db_conf['db'][0] :  $db_conf['db'];
 
 		$dsn_info['username'] = 'repadm';
 		$dsn_info['password'] = 'repadm';
@@ -230,10 +228,9 @@ if (!empty($_GET['checkdb']) || !empty($_GET['checkreplication'])) {
 
 $output = '';
 
-define('SQ_SYSTEM_ROOT', realpath(dirname(__FILE__) . '/../..'));
 $return_code = '200';
 
-require_once SQ_SYSTEM_ROOT.'/core/include/init.inc';
+require_once '../../core/include/init.inc';
 
 require SQ_SYSTEM_ROOT . '/data/private/conf/db.inc';
 
@@ -245,7 +242,7 @@ $dsn_list = array(
 	'dbsearch' => 'SELECT count(assetid) FROM sq_sch_idx'
 );
 
-$db_type = $db_conf['db']['type'];
+$db_type = isset($db_conf['db'][0]) ? $db_conf['db'][0]['type'] : $db_conf['db']['type'];
 
 /**
  * Each db will also run these extra queries.
@@ -258,7 +255,17 @@ $all_db_queries = array();
  * - check for idle connections
  */
 if ($db_type == 'pgsql') {
-	$all_db_queries[] = "SELECT count(*) as count from pg_stat_activity where current_query = '<IDLE>'";
+	$sql = 'SELECT version FROM version()';
+	$query = MatrixDAL::preparePdoQuery($sql);
+	$result = MatrixDAL::executePdoOne($query);
+	$matches = Array();
+	preg_match('/[0-9\.]+/', $result, $matches);
+	if(version_compare($matches[0], '9.2.0') >= 0) {
+	    $all_db_queries[] = "SELECT count(*) as count from pg_stat_activity where state = 'idle'";
+	}
+	else {
+	    $all_db_queries[] = "SELECT count(*) as count from pg_stat_activity where current_query = '<IDLE>'";
+	}
 }
 
 /**
@@ -301,7 +308,7 @@ foreach ($dsn_list as $dsn_name => $query) {
 		break;
 	}
 
-	$dsn = $db_conf[$dsn_name]['DSN'];
+	$dsn = isset($db_conf['db'][0]) ? $db_conf['db'][0]['DSN'] : $db_conf[$dsn_name]['DSN'];
 
 	if ($dsn !== $last_dsn) {
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection($dsn_name);
