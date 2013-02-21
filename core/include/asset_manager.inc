@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.883.2.9 2013/01/25 01:04:00 ewang Exp $
+* $Id: asset_manager.inc,v 1.883.2.11 2013/02/21 23:36:33 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.883.2.9 $
+* @version $Revision: 1.883.2.11 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -8629,9 +8629,12 @@ class Asset_Manager extends MySource_Object
 					// if there is __data url, and there are other local urls, we should only pick __data url for public users
 					// for public user, we just return  __data url because having __data url meaning the file asset is effectively unrestricted
 					if(count($result[$assetid]) > 1) {
-					    foreach ($result[$assetid] as $index => $data) {
-						if((($GLOBALS['SQ_SYSTEM']->user instanceof Public_User) && (strpos(current_protocol().'://'.$data['url'], sq_web_path('data')) !== FALSE))
-						|| (!($GLOBALS['SQ_SYSTEM']->user instanceof Public_User) && (strpos(current_protocol().'://'.$data['url'], sq_web_path('data')) === FALSE))) {
+					    foreach ($result[$assetid] as $data) {
+						$file_url = current_protocol().'://'.$data['url'];
+						$is_unrestricted_url = SQ_CONF_STATIC_ROOT_URL ? strpos($file_url, SQ_CONF_STATIC_ROOT_URL.'/') !== FALSE : strpos($file_url, '/__data') !== FALSE;
+						$is_matrix_url = SQ_CONF_STATIC_ROOT_URL ? strpos($file_url, SQ_CONF_STATIC_ROOT_URL.'/') === FALSE : strpos($file_url, '/__data') === FALSE;
+						if((($GLOBALS['SQ_SYSTEM']->user instanceof Public_User) && $is_unrestricted_url) 
+						|| (!($GLOBALS['SQ_SYSTEM']->user instanceof Public_User) && $is_matrix_url)) {
 							$result[$assetid][0] = $data;
 							break;
 						}
