@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remove_internal_message.php,v 1.11 2013/02/20 03:52:25 cupreti Exp $
+* $Id: remove_internal_message.php,v 1.12 2013/02/21 23:45:48 cupreti Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Delete internal messages
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -301,12 +301,13 @@ function purge_internal_message($period, $user_from='', $user_to='', $msg_type='
 */
 function usage($rollback=FALSE)
 {
-	echo "\nUSAGE: remove_internal_message.php -s <system_root> -p <period> [-f userfrom] [-t userto] [-y msg type] [-u status] [--show-query-only] [--quiet]\n\n".
+	echo "\nUSAGE: remove_internal_message.php -s <system_root> -p <period> [-f userfrom] [-t userto] [-y msg type] [-u status] [-a assetid]... [--show-query-only] [--quiet]\n\n".
 		"-p The period to remove internal messages before\n".
 		"-f The userid that the message is sent from, e.g. all or 7, 229*, 229*:323*:7\n".
 		"-t The userid that the message is sent to, e.g. all or 7, 229*, 229*:323*:7\n".
 		"-y The type of internal message to remove, e.g. asset.linking.create, cron.*\n".
 		"-u The status of internal message to remove, e.g. U(nread), R(ead), D(eleted) or multiple like U:R or R:D\n".
+		"-a The assetid that message belongs to, e.g. 7, 12, 111:222. This option can be specified multiple times e.g. \"-a 7 -a 12\".\n".
 		"--show-query-only The script only prints the query without running it.\n".
 		"--quiet No output will be sent\n".
 		"(For -p, the period is in the format nx where n is the number of units and x is one of:\n".
@@ -324,6 +325,8 @@ function usage($rollback=FALSE)
 		"   \$ php remove_internal_message.php -s SYSTEM_ROOT -p 1m -f 0 -y asset.*\n\n".
 		"4. Delete all the internal messages sent to users have been deleted in last 3 days\n".
 		"   \$ php remove_internal_message.php -s SYSTEM_ROOT -p 3d -t all -u D\n\n".
+		"5. Delete all the internal messages belonging to the assets #7 and #12\n".
+		"   \$ php remove_internal_message.php -s SYSTEM_ROOT -a 7 -a 12\n\n".
 		"Inbox Message Examples:\n\n".
 		"1. Delete all read and deleted inbox messages (sent and inbox) in last 3 days\n".
 		"   \$ php remove_internal_message.php -s SYSTEM_ROOT -p 3d -y inbox.* -u R:D\n\n".
