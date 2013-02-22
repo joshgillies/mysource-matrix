@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.350 2013/02/22 05:21:58 ewang Exp $
+* $Id: listing_engine.inc,v 1.351 2013/02/22 06:01:53 ewang Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.350 $
+* @version $Revision: 1.351 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -614,7 +614,6 @@ class Listing_Engine extends Page
 
 			// Apply keyword modifiers
 			$this->applyKeywordModifier($replacements);
-			
 
 			$no_results_bodycopy->setKeywordReplacements($replacements);
 			$no_results_bodycopy->printBody();
@@ -670,14 +669,9 @@ class Listing_Engine extends Page
 
 		// get children of exclude root nodes, add them to the exclude list
 		$exclude_root_nodes = $this->attr('exclude_root_nodes');
-		$exlcude_rootids_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($exclude_root_nodes, Array(), TRUE, 'type_code');
 		foreach($exclude_root_nodes as $key =>$value) {
-			if (isset($exlcude_rootids_info[$value])) {
-				$exclude_children = $GLOBALS['SQ_SYSTEM']->am->getChildren($value);
-				$exclude_assets = array_merge($exclude_assets, array_keys($exclude_children));
-			} else {
-				trigger_error('Cannot find the asset #'.$value.' that has been set as an exclude root node on the listing asset #'.$this->id);
-			}
+			$exclude_children = $GLOBALS['SQ_SYSTEM']->am->getChildren($value);
+			$exclude_assets = array_merge($exclude_assets, array_keys($exclude_children));
 		}
 
 		if (!empty($exclude_assets)) {
@@ -5001,7 +4995,8 @@ class Listing_Engine extends Page
 				// check to see if the keyword is actually replaced and
 				// the replacement isn't just the keyword itself
 				if(!empty($modifiers)) {
-				$keywords_is_replaced = isset($replacements[$plain_keyword]) && $replacements[$plain_keyword] != '%'.$plain_keyword.'%' && $replacements[$plain_keyword] != $plain_keyword;
+				 
+				$keywords_is_replaced = isset($replacements[$plain_keyword]) && $replacements[$plain_keyword] !== '%'.$plain_keyword.'%' && $replacements[$plain_keyword] !== $plain_keyword;
 				    if ($keywords_is_replaced) {
 					    $replacements[$kw] = $replacements[$plain_keyword];
 					    // Apply modifiers
