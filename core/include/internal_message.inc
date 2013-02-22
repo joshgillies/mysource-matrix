@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.103 2012/08/30 01:09:19 ewang Exp $
+* $Id: internal_message.inc,v 1.103.2.1 2013/02/22 02:09:09 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.103 $
+* @version $Revision: 1.103.2.1 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -405,8 +405,10 @@ class Internal_Message extends MySource_Object
 					if (empty($user_locale)) {
 						$user_locale = SQ_CONF_DEFAULT_BACKEND_LOCALE;
 					}
-					
-					$this->replacements['user_name'] = $user->name;
+
+					if (!isset($this->replacements['user_name'])){
+						$this->replacements['user_name'] = $user->name;
+					}
 		
 					$subject = empty($this->subject) ? $lm->getInternalMessageSubject($this->type, $this->replacements, $user_locale) : replace_keywords($this->subject, $this->replacements);
 					$hdrs = Array(
