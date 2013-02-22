@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.15 2012/07/06 04:59:23 akarelia Exp $
+* $Id: lang_strings.xml,v 1.15.4.1 2013/02/22 02:37:30 akarelia Exp $
 *
 *
 * Calendar Package Localised Strings File
@@ -68,7 +68,7 @@
 <string source="cal_evt_recur_keyword_asset_attribute_start_date">First Instance Start (iso8601)</string>
 <string source="cal_evt_recur_keyword_event_duration">Duration of each instance</string>
 <string source="cal_evt_recur_keyword_event_end_date">First Instance End (readable date)</string>
-<string source="cal_evt_recur_keyword_event_end_datetime">First Instance End (Readable date/time</string>
+<string source="cal_evt_recur_keyword_event_end_datetime">First Instance End (Readable date/time)</string>
 <string source="cal_evt_recur_keyword_event_end_datetime_">First Instance End expressed with PHP date format which follow the last underscore character of the keyword.</string>
 <string source="cal_evt_recur_keyword_event_end_time_12h">First Instance End (12 hour time)</string>
 <string source="cal_evt_recur_keyword_event_end_time_24h">First Instance End (24 hour time)</string>
@@ -83,10 +83,20 @@
 <string source="cal_evt_recur_keyword_event_start_time_24h">First Instance Start (24 hour time)</string>
 <string source="cal_evt_recur_keyword_event_start_time_ical">First Instance Start (iCalendar)</string>
 <string source="cal_evt_recur_keyword_event_stop_date_">Event Stop Date expressed with PHP date format which follow the last underscore character of the keyword.</string>
-<string source="cal_evt_recur_keyword_instance_end_datetime">Current Instance End (ISO8601 Forma)</string>
+<string source="cal_evt_recur_keyword_instance_end_datetime">Current Instance End (ISO8601 Format)</string>
+<string source="cal_evt_recur_keyword_instance_end_datetime_ical">Current Instance End (iCalendar)</string>
 <string source="cal_evt_recur_keyword_instance_end_datetime_">Current Instance End expressed with PHP date format which follow the last underscore character of the keyword.</string>
+<string source="cal_evt_recur_keyword_instance_end_date">Current Instance End (readable date)</string>
+<string source="cal_evt_recur_keyword_instance_end_time">Current Instance End (short time)</string>
+<string source="cal_evt_recur_keyword_instance_end_time_12h">Current Instance End (12 hour time)</string>
+<string source="cal_evt_recur_keyword_instance_end_time_24h">Current Instance End (24 hour time)</string>
 <string source="cal_evt_recur_keyword_instance_start_datetime">Current Instance Start (ISO8601 Format)</string>
+<string source="cal_evt_recur_keyword_instance_start_datetime_ical">Current Instance Start (iCalendar)</string>
 <string source="cal_evt_recur_keyword_instance_start_datetime_">Current Instance Start expressed with PHP date format which follow the last underscore character of the keyword.</string>
+<string source="cal_evt_recur_keyword_instance_start_date">Current Instance Start (readable date)</string>
+<string source="cal_evt_recur_keyword_instance_start_time">Current Instance Start (short time)</string>
+<string source="cal_evt_recur_keyword_instance_start_time_12h">Current Instance Start (12 hour time)</string>
+<string source="cal_evt_recur_keyword_instance_start_time_24h">Current Instance Start (24 hour time)</string>
 <string source="calendar_events_frequency">Events frequency threshold</string>
 
 </strings>
