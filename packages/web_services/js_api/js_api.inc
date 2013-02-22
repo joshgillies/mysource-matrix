@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.135.2.1 2013/02/19 06:41:13 ewang Exp $
+* $Id: js_api.inc,v 1.135.2.2 2013/02/22 03:15:19 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.135.2.1 $
+* @version $Revision: 1.135.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -350,9 +350,10 @@ class JS_Api extends Page
 			$blocking = FALSE;
 			if ($batching_request) {
 				$args = $functions_info[$track_func]['args'];
+
 				$blocking = (isset($functions_info[$track_func]['blocking']) && $functions_info[$track_func]['blocking']) ? TRUE : FALSE;
 				// let the user use 'id' and 'asset_id' to pass in the asset id to work on in the argmunets
-				// bug fix #5945 Inconsistency witht he parameter needs to be passed to (advanced) JS API functions
+				// bug fix #5945 Inconsistency with the parameter needs to be passed to (advanced) JS API functions
 				// few of the functions in the advanced API passes the assetid as a different index name. Make sure
 				// to look for them and change it here.
 				if (!isset($args['id'])) {
