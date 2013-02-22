@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.72 2012/11/08 04:36:08 cupreti Exp $
+* $Id: db_install.inc,v 1.72.2.1 2013/02/22 00:45:54 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.72 $
+* @version $Revision: 1.72.2.1 $
 * @package MySource_Matrix
 * @subpackage lib`
 */
@@ -1086,9 +1086,10 @@ function install_rollback_triggers($table_columns, $verbose=TRUE, $override=FALS
 
 		// update any entries that were performed in the current session
 		// where the timestamp is the same as the session timestamp
+		// and if primary key has been changed, we will need do a new insert
 		$replace_sql = 'UPDATE '.$rollback_table.
 					  ' SET '.$update_string.
-					  ' WHERE sq_eff_from = '.$get_timestamp_fn.' AND '.$old_primary_key_where;
+					  ' WHERE sq_eff_from = '.$get_timestamp_fn.' AND '.$new_primary_key_where;
 
 		if (trim($update_string) != '') {
 			$sql .= $if_updating.
