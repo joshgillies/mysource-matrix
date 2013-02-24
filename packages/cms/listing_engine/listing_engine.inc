@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.351 2013/02/22 06:01:53 ewang Exp $
+* $Id: listing_engine.inc,v 1.352 2013/02/24 23:58:43 ewang Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.351 $
+* @version $Revision: 1.352 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -613,7 +613,7 @@ class Listing_Engine extends Page
 			}
 
 			// Apply keyword modifiers
-			$this->applyKeywordModifier($replacements);
+			$this->applyKeywordModifier($replacements, $this->id);
 
 			$no_results_bodycopy->setKeywordReplacements($replacements);
 			$no_results_bodycopy->printBody();
@@ -868,7 +868,7 @@ class Listing_Engine extends Page
 		$replacements['select_all_js_code'] = '%select_all_js_code%';
 
 		// Apply keyword modifiers
-		$this->applyKeywordModifier($replacements);
+		$this->applyKeywordModifier($replacements, $this->id);
 
 		// print the contents of page - replacing the global keywords
 		$format_bodycopy->setKeywordReplacements($replacements);
@@ -2208,7 +2208,9 @@ class Listing_Engine extends Page
 					}
 
 					// Apply keyword modifiers
-					$this->applyKeywordModifier($replacements);
+					// Use parent asset to replace keywords in modifiers arguments if possible
+					$assetid = isset($asset) ? $asset->id : $this->id;
+					$this->applyKeywordModifier($replacements, $assetid);
 
 					array_pop($this->_tmp['group_info']);
 					$format_bodycopy->setKeywordReplacements($replacements);
@@ -2909,7 +2911,7 @@ class Listing_Engine extends Page
 		$keywords += $this->getExtendedAssetKeywordReplacements();
 		
 		// Apply keyword modifiers
-		$this->applyKeywordModifier($keywords);
+		$this->applyKeywordModifier($keywords, $assetid);
 
 		$bodycopy->setKeywordReplacements($keywords);
 		$bodycopy->printBody();
@@ -4983,24 +4985,32 @@ class Listing_Engine extends Page
 	/**
 	* Find and replace keyword modifiers in the listing page speical keyword replacements array
 	*
-	* @param array $replacements
-	*
+	* @param array $replacements 
+	* @param string $assetid        The assetid to replace modifiers against. This is used when keywords are nested in the modifier arguments
+	* 
 	* @return null
 	* @access public
 	*/
-	function applyKeywordModifier(&$replacements)
+	function applyKeywordModifier(&$replacements, $assetid)
 	{
 		foreach ($replacements as $kw => $res) {
 				$plain_keyword = parse_keyword($kw, $modifiers);
 				// check to see if the keyword is actually replaced and
 				// the replacement isn't just the keyword itself
 				if(!empty($modifiers)) {
-				 
-				$keywords_is_replaced = isset($replacements[$plain_keyword]) && $replacements[$plain_keyword] !== '%'.$plain_keyword.'%' && $replacements[$plain_keyword] !== $plain_keyword;
+				    // If this is a keyword with modifiers, first see if context
+				    // is one of them, and if so, augment the plain keyword
+				    // so we get the version in the correct context
+				    $contextid = extract_context_modifier($modifiers);
+				    if ($contextid !== NULL) {
+					$all_contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
+					$plain_keyword .= '^context:'.$all_contexts[$contextid]['name'];
+				    }
+				    $keywords_is_replaced = isset($replacements[$plain_keyword]) && $replacements[$plain_keyword] !== '%'.$plain_keyword.'%' && $replacements[$plain_keyword] !== $plain_keyword;
 				    if ($keywords_is_replaced) {
 					    $replacements[$kw] = $replacements[$plain_keyword];
 					    // Apply modifiers
-					    apply_keyword_modifiers($replacements[$kw], $modifiers,  Array('assetid' => $this->id, 'replacements' => $replacements));
+					    apply_keyword_modifiers($replacements[$kw], $modifiers,  Array('assetid' => $assetid, 'replacements' => $replacements));
 				    }
 				}
 		}
