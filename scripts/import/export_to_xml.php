@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: export_to_xml.php,v 1.28 2013/01/29 00:06:16 ewang Exp $
+* $Id: export_to_xml.php,v 1.28.2.1 2013/02/25 02:41:50 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * @author  David Schoen <dschoen@squiz.net>
 * @author  Edison Wang <ewang@squiz.net>
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.28.2.1 $
 * @package MySource_Matrix
 */
 
@@ -45,24 +45,24 @@ if ((php_sapi_name() != 'cli')) trigger_error("You can only run this script from
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
 if (empty($SYSTEM_ROOT)) {
-	echo "ERROR: You need to supply the path to the System Root as the first argument\n";
+	fwrite(STDERR, "ERROR: You need to supply the path to the System Root as the first argument\n");
 	exit(1);
 }
 
 if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
-	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
+	fwrite(STDERR, "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n");
 	exit(1);
 }
 
 $asset_infos = (isset($_SERVER['argv'][2])) ? explode(',',$_SERVER['argv'][2]) : Array();
 if (empty($asset_infos)) {
-	echo "ERROR: You need to supply the asset id for the asset you want to export and parent asset it will link to as the second argument with format 3:75,4:46 (assetid 3 links to assetid 75, assetid 4 links to asset id 46)\n";
+	fwrite(STDERR, "ERROR: You need to supply the asset id for the asset you want to export and parent asset it will link to as the second argument with format 3:75,4:46 (assetid 3 links to assetid 75, assetid 4 links to asset id 46)\n");
 	exit(1);
 }
 
 $initial_link_type = (isset($_SERVER['argv'][3])) ? $_SERVER['argv'][3] : '';
 if (empty($initial_link_type)) {
-	echo "ERROR: You need to supply the initial link type as the third argument\n";
+	fwrite(STDERR, "ERROR: You need to supply the initial link type as the third argument\n");
 	exit(1);
 }
 
@@ -73,7 +73,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 // log in as root
 $root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
-	echo "Failed logging in as root user\n";
+	fwrite(STDERR, "Failed logging in as root user\n");
 	exit(1);
 }
 
@@ -86,7 +86,14 @@ $vars = array(
 );
 
 $errors = $hh->freestyleHipo('hipo_job_export_assets_to_xml', $vars, SQ_PACKAGES_PATH.'/import_tools/hipo_jobs');
+
 if (count($errors)) {
-    print_r($errors);
+	// write error summary stderr to ensure it's not captured by "... > export.xml"
+	// that this script is normally run with
+	fwrite(STDERR, "Error(s) were encountered while generating the export:\n");
+	foreach ($errors as $error) {
+		$type = $error['warning'] ? 'WARNING' : 'ERROR';
+		fwrite(STDERR, "$type: {$error['message']}\n");
+	}
     exit(1);
 }
