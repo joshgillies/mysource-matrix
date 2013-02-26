@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.146 2012/11/16 05:50:33 akarelia Exp $
+* $Id: lang_errors.xml,v 1.146.2.1 2013/02/26 23:56:49 cupreti Exp $
 *
 */
 
@@ -1443,7 +1443,7 @@ Full Node Contents %3$s</error>
 	<error code="SYS0334">Link "%1$s" cannot be deleted, link is locked</error>
 
 	<error code="SYS0345">Couldn't find treeid for asset #%s in link tree table</error>
-
+	<error code="SYS0348">User asset #%1$s set for the workflow step condition #%2$s does not exist</error><!-- core/assets/workflow/workflow_schema/workflow_schema_edit_fns.inc: -->
 
 <!-- CORE ASSETS -->
 

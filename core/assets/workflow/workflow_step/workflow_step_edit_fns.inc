@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_edit_fns.inc,v 1.40 2012/08/30 01:09:17 ewang Exp $
+* $Id: workflow_step_edit_fns.inc,v 1.40.4.1 2013/02/26 23:55:33 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.40.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -317,7 +317,7 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 		}
 
 		// create a new condition?
-		if (isset($_POST[$prefix.'_new_condition']['assetid']) && $_POST[$prefix.'_new_condition']['assetid'] > 0) {
+		if (isset($_POST[$prefix.'_new_condition']['assetid']) && $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($_POST[$prefix.'_new_condition']['assetid'], Array('user', 'user_group'), FALSE)) {
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('workflow_step_condition');
 			$new_cond = new Workflow_Step_Condition();
 			$step_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'sort_order' => -1, 'is_dependant' => 1, 'is_exclusive' => 1);
