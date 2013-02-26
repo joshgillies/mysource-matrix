@@ -10,7 +10,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.40 2012/02/01 01:10:18 ewang Exp $
+#* $Id: backup.sh,v 1.40.8.1 2013/02/26 00:31:27 csmith Exp $
 #*
 #*/
 #
@@ -736,13 +736,16 @@ if [ "${tar_gzip}" -eq 0 ]; then
 
 	gzip -f ${backupdir}/${backupfilename}
 
+	RESULT=$?
+
 	# gzip *always* adds a .gz extension. You can't stop it.
 	backupfilename="${backupfilename}.gz"
 
-	if [ $? -gt 0 ]; then
+	if [ $RESULT -gt 0 ]; then
 		print_verbose ""
 		print_error "*** Unable to gzip tarball ${backupdir}/${backupfilename}."
 		print_verbose ""
+		rc=$RESULT
 	else
 		print_verbose "Finished gzipping up ${backupdir}/${backupfilename}."
 	fi
@@ -768,10 +771,13 @@ else
 			# Serious Error code is 2.  Shouldn't be any other error codes in use, but catch it with * anyway.
 			print_error "Backup failed"
 			cat $TMPFILE >&2
+			rc=$RESULT
 			;;
 	esac
 	rm $TMPFILE
-	print_verbose "Finished tarring & gzipping up the ${SYSTEM_ROOT} folder to ${backupdir}/${backupfilename}."
+	if [ $RESULT -eq 0 -o $RESULT -eq 1 ]; then
+		print_verbose "Finished tarring & gzipping up the ${SYSTEM_ROOT} folder to ${backupdir}/${backupfilename}."
+	fi
 fi
 
 print_verbose ""
@@ -802,9 +808,11 @@ fi
 
 print_verbose "Finishing cleaning up."
 
-print_info ""
-print_info "Your system is backed up to ${backupdir}/${backupfilename}"
-print_info ""
+if [ $rc -eq 0 ]; then
+	print_info ""
+	print_info "Your system is backed up to ${backupdir}/${backupfilename}"
+	print_info ""
+fi
 
 exit $rc
 
