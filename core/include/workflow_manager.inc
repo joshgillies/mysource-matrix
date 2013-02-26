@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.180 2013/02/04 03:39:44 ewang Exp $
+* $Id: workflow_manager.inc,v 1.181 2013/02/26 01:40:26 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.180 $
+* @version $Revision: 1.181 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -745,6 +745,9 @@ class Workflow_Manager extends MySource_Object
 			// loop through the conditions for the current ste
 			$condition_type_info = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeInfo(array_keys($current_step['conditions']));
 			foreach ($current_step['conditions'] as $conditionid => $condition_details) {
+				if (!isset($condition_type_info[$conditionid])) {
+					continue;
+				}
 				// is a user_group
 				if (in_array('user_group', $condition_type_info[$conditionid])) {
 					$group_users = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($conditionid, Array('user'), FALSE, NULL, NULL, NULL, TRUE, NULL, NULL, FALSE, NULL, Array(), TRUE));
@@ -817,6 +820,9 @@ class Workflow_Manager extends MySource_Object
 				$can_publish_cond = Array();
 
 				// work out who can publish right now
+				if (!$GLOBALS['SQ_SYSTEM']->am->getAssetInfo($pub, Array('user', 'user_group'), FALSE)) {
+					continue;
+				}
 				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
 				if ($asset->id) {
 					$asset_class = get_class($asset);
@@ -1070,7 +1076,7 @@ class Workflow_Manager extends MySource_Object
 			if (!in_array($schemaid, $running_schemas)) continue;
 			$workflow =& $schema_workflows[$schemaid];
 			if ($workflow['complete'] == TRUE) continue;
-			if ($this->_recordPublish($workflow, $publisher, $assetid)) {
+			if ($this->_recordPublish($workflow, $publisher, $assetid, $schemaid)) {
 				$new_workflow = serialize($workflow);
 
 				try {
@@ -1441,7 +1447,7 @@ class Workflow_Manager extends MySource_Object
 				// Try to push workflow forward until we can't publish no more -
 				// either our effort is not enough, or we've completed it
 				while (!$workflow['complete']) {
-					if (!$this->_recordPublish($workflow, $publisher, $assetid)) {
+					if (!$this->_recordPublish($workflow, $publisher, $assetid, $schemaid)) {
 						break;
 					}
 				}
@@ -1466,11 +1472,12 @@ class Workflow_Manager extends MySource_Object
 	* @param array	&$workflow		the workflow add approval to
 	* @param int	$publisherid	the ID of the user who has approved
 	* @param int	$assetid		the ID of the asset being published
+	* @param int	$schemaid		the ID of the workflow schema
 	*
 	* @return boolean
 	* @access public
 	*/
-	function _recordPublish(&$workflow, $publisherid, $assetid)
+	function _recordPublish(&$workflow, $publisherid, $assetid, $schemaid=NULL)
 	{
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$workflow_updated = FALSE;
@@ -1487,6 +1494,10 @@ class Workflow_Manager extends MySource_Object
 				$cond_data =& $step_data['conditions'][$pub];
 				// work out who can publish this condition
 				$can_publish = Array();
+
+				if (!$GLOBALS['SQ_SYSTEM']->am->getAssetInfo($pub, Array('user', 'user_group'), FALSE)) {
+					continue;
+				}
 				$publisher = $GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
 				if ($publisher->id) {
 					$asset_class = get_class($publisher);

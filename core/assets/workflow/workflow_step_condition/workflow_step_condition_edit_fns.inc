@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_condition_edit_fns.inc,v 1.29 2012/08/30 01:09:17 ewang Exp $
+* $Id: workflow_step_condition_edit_fns.inc,v 1.30 2013/02/26 01:38:19 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -68,9 +68,6 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 
 		$userid = $asset->attr('userid');
 
-		$user_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), Array('user', 'user_group'), FALSE);
-		if (empty($user_info)) return FALSE;
-
 		?>
 		<td class="sq-backend-table-cell"><?php echo get_asset_tag_line($userid); ?></td>
 		<td class="sq-backend-table-cell">
@@ -93,6 +90,13 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 			}
 			?>
 		</td>
+		<?php
+			$user_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), Array('user', 'user_group'), FALSE);
+			if (empty($user_info)) {
+				echo '<td>&nbsp;</td>';
+				return TRUE;
+			}
+		?>
 		<td class="sq-backend-table-cell">
 			<?php
 			$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
