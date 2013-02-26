@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_schema_edit_fns.inc,v 1.37 2012/08/30 01:09:17 ewang Exp $
+* $Id: workflow_schema_edit_fns.inc,v 1.37.2.1 2013/02/26 23:58:06 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.37.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -159,10 +159,13 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 								$condition_names[] = '...';
 								break;
 							}
-
 							$userids = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('userid', 'workflow_step_condition', Array($condition['minorid']));
 							$userid = $userids[$condition['minorid']];
 							$user_name = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($userid);
+							if (empty($user_name)) {
+								trigger_localised_error('SYS0348', E_USER_NOTICE, $userid, $condition['minorid']);
+								continue;
+							}
 							$condition_name = $user_name[$userid]['name'].' (Id: #'.$userid.')';
 
 							if ($GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($user_name[$userid]['type_code'], 'user_group') === TRUE) {

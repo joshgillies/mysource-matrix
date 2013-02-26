@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.63 2012/08/30 01:09:20 ewang Exp $
+* $Id: workflow.inc,v 1.63.2.1 2013/02/26 23:59:23 cupreti Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once DIRNAME(__FILE__).'/details.inc';
 * Workflow Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.63.2.1 $
 * @package MySource_Matrix
 */
 
@@ -547,7 +547,7 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 													$cond_logic = $cond_data['logic'];
 													$cond_logic_num = '';
 												} else {
-													if ($cond_data['logic'] != 'all') {
+													if (!empty($cond_data['logic']) && $cond_data['logic'] != 'all') {
 														list($cond_logic, $cond_logic_num) = explode(' ', $cond_data['logic']);
 													} else {
 														$cond_logic = 'all';
@@ -555,7 +555,12 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 													}
 												}
 
-												if ($asset instanceof User) {
+												if (!$GLOBALS['SQ_SYSTEM']->am->getAssetInfo($pub, Array('user', 'user_group'), FALSE)) {
+													$asset = NULL;
+												} else {
+													$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
+												}
+												if (is_null($asset) || $asset instanceof User) {
 													echo '&nbsp;';
 												} else {
 													echo '<i>'.$wfm->_valid_cond_logic[$cond_logic];
@@ -572,8 +577,8 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 															echo '<span style="color:#008800"><b>'.translate('yes').'</b></span>';
 														} else {
 															// do some extra checking
-															if ($asset instanceof User) {
-																echo ((isset($cond_data['published_by'][$asset->id])) ? '<span style="color:#008800"><b>'.translate('yes').'</b></span>' : '&nbsp;');
+															if (is_null($asset) || $asset instanceof User) {
+																echo ((isset($cond_data['published_by'][$pub])) ? '<span style="color:#008800"><b>'.translate('yes').'</b></span>' : '&nbsp;');
 															} else {
 																if ($cond_logic_num) {
 																	$user_count = $cond_logic_num;
