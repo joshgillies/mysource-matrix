@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.181 2013/02/26 01:40:26 cupreti Exp $
+* $Id: workflow_manager.inc,v 1.182 2013/02/26 01:54:37 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.181 $
+* @version $Revision: 1.182 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -1076,7 +1076,7 @@ class Workflow_Manager extends MySource_Object
 			if (!in_array($schemaid, $running_schemas)) continue;
 			$workflow =& $schema_workflows[$schemaid];
 			if ($workflow['complete'] == TRUE) continue;
-			if ($this->_recordPublish($workflow, $publisher, $assetid, $schemaid)) {
+			if ($this->_recordPublish($workflow, $publisher, $assetid)) {
 				$new_workflow = serialize($workflow);
 
 				try {
@@ -1447,7 +1447,7 @@ class Workflow_Manager extends MySource_Object
 				// Try to push workflow forward until we can't publish no more -
 				// either our effort is not enough, or we've completed it
 				while (!$workflow['complete']) {
-					if (!$this->_recordPublish($workflow, $publisher, $assetid, $schemaid)) {
+					if (!$this->_recordPublish($workflow, $publisher, $assetid)) {
 						break;
 					}
 				}
@@ -1472,12 +1472,11 @@ class Workflow_Manager extends MySource_Object
 	* @param array	&$workflow		the workflow add approval to
 	* @param int	$publisherid	the ID of the user who has approved
 	* @param int	$assetid		the ID of the asset being published
-	* @param int	$schemaid		the ID of the workflow schema
 	*
 	* @return boolean
 	* @access public
 	*/
-	function _recordPublish(&$workflow, $publisherid, $assetid, $schemaid=NULL)
+	function _recordPublish(&$workflow, $publisherid, $assetid)
 	{
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$workflow_updated = FALSE;
