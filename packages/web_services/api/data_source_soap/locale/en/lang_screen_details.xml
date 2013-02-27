@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.2 2013/01/29 23:38:29 cupreti Exp $
+* $Id: lang_screen_details.xml,v 1.3 2013/02/27 04:15:35 cupreti Exp $
 *
 */
 -->
@@ -84,6 +84,16 @@
 		<field attribute="data_delimiter">
 			<display_name>Data Delimiter</display_name>
 			<note>Delimiler to seperate data from xml elements with same name</note>
+		</field>
+	</section>
+	<section name="Transformations">
+		<field>
+			<display_name>XSL Transformation</display_name>
+			<function_call>
+				<paint_function   name="paintXslFile"   />
+				<process_function name="processXslFile" />
+			</function_call>
+			<note>Select the XSL file to transform the SOAP response. You can view the XSLT output by previewing the asset.</note>
 		</field>
 	</section>
 	<section name="Record Set Asset Names" write_access="write:attributes">

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_soap.inc,v 1.5 2013/02/19 05:08:10 cupreti Exp $
+* $Id: data_source_soap.inc,v 1.6 2013/02/27 04:15:35 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/lib/soap_common.inc';
 * Data_Source_Soap
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -501,6 +501,70 @@ class Data_Source_Soap extends Data_Source
 		file_put_contents($file_path, $string_data);
 
 	}//end saveLastRequestResponse()
+
+
+	/**
+	* Prints out the Frontend for this asset
+	*
+	* @return void
+	* @access public
+	*/
+	public function printFrontend()
+	{
+		// Get the XSL file, if set
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'xsl_file', FALSE, 'xslt');
+		$assetid = array_get_index($link, 'minorid', 0);
+		$xsl_file = $assetid ? $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid) : NULL;
+
+		if (!is_null($xsl_file) && class_exists('XSLTProcessor')) {
+			Asset::printFrontend();
+		} else {
+			parent::printFrontend();
+		}
+
+	}//end printFrontend()
+
+
+	/**
+	* Called by the design to print the body of this asset
+	*
+	* @return void
+	* @access public
+	*/
+	public function printBody()
+	{
+		// Get the XSL Stylesheet
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'xsl_file', FALSE, 'xslt');
+		$assetid = array_get_index($link, 'minorid', 0);
+		$xsl_content = '';
+		if ($assetid) {
+			$xsl_file = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$xsl_content = $xsl_file->getContent();
+		}
+
+		// Get the last SOAP response xml
+		$path = $this->data_path.'/response_data';
+		$data = @unserialize(file_get_contents($path));
+		$response_xml = isset($data['response']['response_xml']) ? $data['response']['response_xml'] : '';
+
+		if (empty($xsl_content) || empty($response_xml)) {
+			parent::printBody();
+		} else {
+			// Do transformation
+			$xml = new DOMDocument();
+			$xml->loadXML($response_xml);
+			$xsl = new DOMDocument();
+			$xsl->loadXML($xsl_content);
+
+			$parser = new XSLTProcessor();
+			$parser->importStylesheet($xsl);
+
+			$content = $parser->transformToXML($xml);
+			echo $content;
+
+		}//end if
+
+	}//end printBody()
 
 
 	// XML Parser functions ///
