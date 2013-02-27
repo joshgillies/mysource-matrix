@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import.inc,v 1.32 2013/01/03 02:27:14 akarelia Exp $
+* $Id: import.inc,v 1.33 2013/02/27 08:08:52 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * Importing functions, reads an XML file and imports an asset strucutre
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -241,7 +241,7 @@ function execute_import_action($action, &$outputs, $input_values=array())
 	$settings = Array();
 	$state = Array();
 
-	$action_class = 'trigger_action_'.$action['action_type'][0];
+	$action_class = sanitise_eval('trigger_action_'.$action['action_type'][0]);
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset($action_class);
 
 	// we call execute as a static method, but instantiate for method_exists
@@ -284,7 +284,7 @@ function execute_import_action($action, &$outputs, $input_values=array())
 			continue;
 		}
 
-		$function_name = 'addSetting'.ucfirst($key);
+		$function_name = sanitise_eval('addSetting'.ucfirst($key));
 
 		if (method_exists($class_instance, $function_name)) {
 			eval('$settings = '.$action_class.'::'.$function_name.'($value, $settings);');
@@ -421,6 +421,7 @@ function get_import_action_input_value($action, $attribute, $outputs=Array(), $i
 		preg_match_all('|\[\[conf://([^\]]+)\]\]|', $value, $matches);
 		$orig = (isset($matches[0][0]) ? $matches[0][0] : '');
 		foreach ($matches[1] as $key => $match) {
+			$match = sanitise_eval($match);
 			eval('$conf_value = SQ_CONF_'.strtoupper($match).';');
 			if ($match == 'system_root_urls') {
 				$tmp = explode("\n", $conf_value);
@@ -500,5 +501,18 @@ function print_import_action_output_as_xml($action_id, $outputs, $indent='')
 
 }//end print_import_action_output_as_xml()
 
+
+/**
+* Sanitise the input string for eval()
+*
+* @param string	$string  user input string
+*
+* @return string
+* @access public
+*/
+function sanitise_eval($string)
+{
+    return (preg_replace('/[^0-9_a-zA-Z]+/', '', $string));
+}
 
 ?>

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.776 2013/02/06 01:02:59 ewang Exp $
+* $Id: asset.inc,v 1.777 2013/02/27 08:08:52 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.776 $
+* @version $Revision: 1.777 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4586,15 +4586,18 @@ class Asset extends MySource_Object
 			// effective access is only valid for the current user
 			if (!empty($assetids)) return FALSE;
 
-			$locks = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($this->id, $lock_type, TRUE);
-			// if there is no lock or
-			if (empty($locks)) return FALSE;
+			// don't check locks if not required
+			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
+			    $locks = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($this->id, $lock_type, TRUE);
+			    // if there is no lock or
+			    if (empty($locks)) return FALSE;
 
-			foreach ($locks as $lock) {
-				// if any one of these locks is not owned by the current user they can't edit
-				if (empty($lock) || $lock['userid'] != $GLOBALS['SQ_SYSTEM']->currentUserId()) {
-					return FALSE;
-				}
+			    foreach ($locks as $lock) {
+				    // if any one of these locks is not owned by the current user they can't edit
+				    if (empty($lock) || $lock['userid'] != $GLOBALS['SQ_SYSTEM']->currentUserId()) {
+					    return FALSE;
+				    }
+			    }
 			}
 
 			// If we are purging trash, don't bother about statuses
