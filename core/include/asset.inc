@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.774.2.2 2013/02/06 01:07:56 ewang Exp $
+* $Id: asset.inc,v 1.774.2.3 2013/02/28 04:57:28 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.774.2.2 $
+* @version $Revision: 1.774.2.3 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -483,9 +483,12 @@ class Asset extends MySource_Object
 		if (!$this->writeAccess()) {
 			// note, if the user is unknown (NULL or 0), the permissions WILL NOT BE SET, and the creation will not fail
 			$current_user = $GLOBALS['SQ_SYSTEM']->currentUserId();
+			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 			if (!empty($current_user) && !$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, $current_user, SQ_PERMISSION_WRITE, TRUE)) {
+				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 				return $this->_abortCreate(FALSE, $linkid);
 			}
+			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 		}
 
 		unset($this->_tmp['__creating__']);
@@ -4586,15 +4589,18 @@ class Asset extends MySource_Object
 			// effective access is only valid for the current user
 			if (!empty($assetids)) return FALSE;
 
-			$locks = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($this->id, $lock_type, TRUE);
-			// if there is no lock or
-			if (empty($locks)) return FALSE;
+			// don't check locks if not required
+			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
+			    $locks = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($this->id, $lock_type, TRUE);
+			    // if there is no lock or
+			    if (empty($locks)) return FALSE;
 
-			foreach ($locks as $lock) {
-				// if any one of these locks is not owned by the current user they can't edit
-				if (empty($lock) || $lock['userid'] != $GLOBALS['SQ_SYSTEM']->currentUserId()) {
-					return FALSE;
-				}
+			    foreach ($locks as $lock) {
+				    // if any one of these locks is not owned by the current user they can't edit
+				    if (empty($lock) || $lock['userid'] != $GLOBALS['SQ_SYSTEM']->currentUserId()) {
+					    return FALSE;
+				    }
+			    }
 			}
 
 			// If we are purging trash, don't bother about statuses

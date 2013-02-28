@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_import_assets_from_xml.inc,v 1.4 2012/08/30 00:58:50 ewang Exp $
+* $Id: tool_import_assets_from_xml.inc,v 1.4.4.1 2013/02/28 04:57:35 ewang Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *    
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage import_tools
 */
@@ -114,7 +114,7 @@ class Tool_Import_Assets_From_Xml extends Tool
 			umask($om);
 			
 			// untar tarball if required
-			if (substr($file_info['name'], -7) == '.tar.gz' || substr($file_info['name'], -4) == '.tgz') {
+			if (substr($file_info['name'], -7) == '.tar.gz' || substr($file_info['name'], -4) == '.tgz' || substr($file_info['name'], -4) == '.tar') {
 				require_once 'Archive/Tar.php';
 				$tar_ball = new Archive_Tar($import_dir.'/'.$file_info['name']);
 				$tar_ball->extract($import_dir);
