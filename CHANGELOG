@@ -1,5 +1,55 @@
 SQUIZ MATRIX CHANGELOG
 
+VERSION 4.12.4
+
+Minor Enhancements and Bug Fixes
+=================================== 
+
+Minor Enhancements
+
+Minor Enhancement #6001: JavaScript API: %results_id_*% Keyword Replaced on All Arguments. 
+Minor Enhancement #6041: LDAP Connection Timeout Enhancement.
+Minor Enhancement #6121: TRIM Saved Search: Additional Support for TRIM 7.3. 
+Minor Enhancement #6138: Sanitise Global GET/POST Variable Keywords when Using Modifiers. 
+Minor Enhancement #6139: TRIM Saved Search: Additional Support for TRIM 7.3. 
+
+Core
+
+Fixed Bug #6012: Performance Enhancement to the url_manager Script. 
+Fixed Bug #6120: Wrong keywords matching.
+Fixed Bug #6122: Broken HTML in http_request.inc.
+Fixed Bug #6128: Select fields in custom forms don't show the "selected" attribute for the default option value.
+Fixed Bug #6131: Purging an incorrectly configured data source asset can throw warnings.
+Fixed Bug #6135: Files get served under the incorrect/random URL for logged in user
+Fixed Bug #6141: Incorrect user identified in emails and logs when locks forcibly acquired.  
+Fixed Bug #6150: EES creates asset with blank web path.
+Fixed Bug #6156: %context_switcher% keyword not working in SEI.
+Fixed Bug #6160: webPathsInUse() $return_alternatives, doesn't.
+Fixed Bug #6162: test_message.php fails pg_stat_activity query in Postgres 9.2.
+Fixed Bug #6163: Script remove_internal_message.php and rollback_management.php can throwing php warnings.
+Fixed Bug #6166: Changing a content type in bodycopy div can create invalid rollback table entries. 
+
+CMS
+
+Fixed Bug #6154: Cannot remove layout defined for 'arbitrary Paint Layout' on Nest Content Content Type.
+Fixed Bug #6159: Form contents outputted more than once does not prints the form questions.
+
+Search
+
+Fixed Bug #6132: Unable to create Search Page asset with default metadata field value (keywords) referencing the asset.
+Fixed Bug #6148: Matrix doesn't follow the minimum word length rule for WYSIWYG metadata fields.
+Fixed Bug #6151: Matrix Search will delete indexed data for Online Quiz Submission asset when re-indexing.
+
+Calendar
+
+Fixed Bug #6153: Calendar JS date chooser popup window position problem in IE.
+
+Import Tools
+
+Fixed Bug #6144: Import from XML HIPO should be able to import assets with parse files.
+Fixed Bug #6145: Importing design assets with nest content customisations produces DB error.
+
+
 VERSION 4.12.3
 
 Featured Changes
