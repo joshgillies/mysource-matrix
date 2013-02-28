@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import.inc,v 1.34 2013/02/28 02:31:44 ewang Exp $
+* $Id: import.inc,v 1.35 2013/02/28 03:41:48 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * Importing functions, reads an XML file and imports an asset strucutre
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -328,7 +328,8 @@ function execute_import_action($action, &$outputs, $input_values=array())
 		// .. and if it was update the design areas under it
 		if ($asset_imported && $asset_imported->type() == 'design_customisation') {
 			$parent_design = $asset_imported->getParentDesign();
-			$asset_imported->updateFromParent($parent_design);
+			if(!empty($parent_design))
+			    $asset_imported->updateFromParent($parent_design);
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent_design);
 
 		} else if ($asset_imported && strpos($asset_imported->type(), 'design_area') !== FALSE) {
