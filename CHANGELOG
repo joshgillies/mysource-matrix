@@ -1,5 +1,155 @@
 SQUIZ MATRIX CHANGELOG
 
+VERSION 4.14.0
+
+Featured Changes
+===================================
+
+New CSS Safe Keyword Modifier [ Feature Request #5886 ]
+-----------------------------------------------------
+
+This feature introduces a new css_safe keyword modifier to return a keyword string that is suitable for use as an HTML class or ID. This in turn can then be used as a CSS selector.
+
+Example usage of this new keyword modifier is as follows:
+
+EXAMPLE : %asset_name^css_safe%
+
+EFFECT  : 'Welcome to Squiz Matrix!' > 'Welcome_to_Squiz_Matrix' 
+
+New SOAP API System Service to Display the Matrix Version Number [ Feature Request #6055 ]
+-----------------------------------------------------
+
+A new SOAP API System Service has been added to manage the system functions of Squiz Matrix's SOAP Server. This asset can be accessed via the Web Services menu within the asset creation menu and is enabled on the Details screen of the SOAP Server, in the same manner as the existing SOAP API services.
+
+The SOAP API System Service currently manages the new getMatrixVersion() function, that will return the Squiz Matrix version number of the current system.
+
+This function takes no parameters; it's usage is as follows:
+
+<SOAP-ENV:Body>
+ <ns1:GetMatrixVersion />
+</SOAP-ENV:Body>
+
+When run, this function will display the version number of your system within the SOAP response, like so:
+
+<ns1:GetMatrixVersionResponse>
+ <MatrixVersion>4.14.1</MatrixVersion>
+</ns1:GetMatrixVersionResponse>
+
+SOAP API: New Function to Retrieve the Thesaurus Tags of an Asset [ Feature Request #6072 ]
+-----------------------------------------------------
+
+Assets within Squiz Matrix can be tagged with user-created thesaurus terms to classify content within common categories. These tags can then be used in conjunction with other assets within the system, for example, on a Related Asset Listing Page to display assets associated with one another.
+
+This feature introduces a new function on the Squiz Matrix SOAP API Asset Service, to retrieve the thesaurus terms that have been tagged on an asset.
+
+The getTags() function takes the following parameters:
+
+   AssetID: the ID of the asset to retrieve the tagged terms of.
+   ThesaurusIDs: this optional parameter allows you to filter the returned tagged terms to a specific Thesaurus asset(s) (defined by asset ID). 
+
+The format of the getTags() function is as follows:
+
+<ns1:GetTags>
+   <AssetID>86</AssetID>
+   <ThesaurusID>132</ThesaurusID>
+</ns1:GetTags>
+
+A example response for this function is outlined below. The tags returned will display their tag ID, name, weight and link ID, as well as the ID of the Thesaurus the tagged term is under.
+
+<ns1:GetTagsResponse>
+ <GetTagsResult>
+   <TagID>132:4</TagID>
+   <TagName>News</TagName>
+   <ThesaurusID>132</ThesaurusID>
+   <Weight>1</Weight>
+   <LinkID>290</LinkID>
+ </GetTagsResult>
+ <GetTagsResult>
+   <TagID>132:9</TagID>
+   <TagName>Australia</TagName>
+   <ThesaurusID>132</ThesaurusID>
+   <Weight>1</Weight>
+   <LinkID>312</LinkID>
+ </GetTagsResult>
+</ns1:GetTagsResponse> 
+
+Calendar Event Search Page: New Upcoming Events Fuzzy Option [ Feature Request #6127 ]
+-----------------------------------------------------
+
+The Events Date Filter Configuration settings on a Calendar Event Search Page allow you to set the date query fields for filtering event search results.
+
+Whilst configuring these settings, you can choose to include a drop-down or checkbox field of pre-defined date values for users to input the date filter (Fuzzy Dropdown and Fuzzy Checkbox). Values available using these options include Today, Next Week, Previous Month and This Year etc.
+
+This minor enhancements adds a new fuzzy option available in these fields: Upcoming Events. This option allows you to define an Event Horizon that users can select to filter the event search results (by default, 180 days).  
+
+This enhancement has been added to allow you to configure a Calendar Event Search Page that will allow users to conveniently search for any upcoming events.
+
+REST Resource JavaScript: Pre-Process Global Keywords [ Feature Request #6157 ]
+-----------------------------------------------------
+
+The REST Resource JavaScript asset is used by Squiz Matrix to communicate with web services exposing themselves using Representational State Transfer (REST) methods, using JavaScript processing of the REST response.
+
+This feature introduces a new Pre-Process Matrix Global Keywords option on the JavaScript Processing settings of the REST Resource JavaScript asset, allowing global keyword (%globals_XXX%) to be evaluated prior to running JavaScript. By default, this option is disabled.
+
+
+Additional Changes and Bug Fixes
+=================================== 
+
+Minor Enhancements
+
+Minor Enhancement #5950: Current Instance Keywords Listed on Recurring Event Format.
+Minor Enhancement #6001: JavaScript API: %results_id_*% Keyword Replaced on All Arguments.
+Minor Enhancement #6012: Performance Enhancement to url_manager.inc. 
+Minor Enhancement #6041: LDAP Connection Timeout Enhancement.
+Minor Enhancement #6083: Workflow System Notifies Users Involved in Current Stream. 
+Minor Enhancement #6121: TRIM Saved Search: Additional Support for TRIM 7.3. 
+Minor Enhancement #6129: Matrix Asset ID URL Translation at the Global Level. 
+Minor Enhancement #6138: Sanitise Global GET/POST Variable Keywords when Using Modifiers. 
+Minor Enhancement #6139: TRIM Saved Search: Additional Support for TRIM 7.3. 
+Minor Enhancement #6147: JavaScript API batchRequest Function: Result Keywords Not Replaced on Page Load. 
+Minor Enhancement #6152: PostgreSQL Standard Observed for PDO::quote() Function. 
+Minor Enhancement #6155: New Script to Detect Assets with an Inconsistent Workflow Status.
+Minor Enhancement #6168: Listing Assets: Modifier Support on all Keyword Replacements.
+Minor Enhancement #6170: Enhancements to the export_to_xml.php Script. 
+
+Core
+
+Fixed Bug #6012: Performance Enhancement to the url_manager Script. 
+Fixed Bug #6120: Wrong keywords matching.
+Fixed Bug #6122: Broken HTML in http_request.inc.
+Fixed Bug #6128: Select fields in custom forms don't show the "selected" attribute for the default option value.
+Fixed Bug #6131: Purging an incorrectly configured data source asset can throw warnings.
+Fixed Bug #6135: Files get served under the incorrect/random URL for logged in user
+Fixed Bug #6141: Incorrect user identified in emails and logs when locks forcibly acquired.  
+Fixed Bug #6150: EES creates asset with blank web path.
+Fixed Bug #6156: %context_switcher% keyword not working in SEI.
+Fixed Bug #6160: webPathsInUse() $return_alternatives, doesn't.
+Fixed Bug #6162: test_message.php fails pg_stat_activity query in Postgres 9.2.
+Fixed Bug #6163: Script remove_internal_message.php and rollback_management.php can throwing php warnings.
+Fixed Bug #6166: Changing a content type in bodycopy div can create invalid rollback table entries. 
+
+CMS
+
+Fixed Bug #6154: Cannot remove layout defined for 'arbitrary Paint Layout' on Nest Content Content Type.
+Fixed Bug #6159: Form contents outputted more than once does not prints the form questions.
+
+Search
+
+Fixed Bug #6132: Unable to create Search Page asset with default metadata field value (keywords) referencing the asset.
+Fixed Bug #6148: Matrix doesn't follow the minimum word length rule for WYSIWYG metadata fields.
+Fixed Bug #6151: Matrix Search will delete indexed data for Online Quiz Submission asset when re-indexing.
+
+Calendar
+
+Fixed Bug #6153: Calendar JS date chooser popup window position problem in IE.
+
+Import Tools
+
+Fixed Bug #6144: Import from XML HIPO should be able to import assets with parse files.
+Fixed Bug #6145: Importing design assets with nest content customisations produces DB error.
+
+
+
 VERSION 4.14.0 RC1
 
 Featured Changes
