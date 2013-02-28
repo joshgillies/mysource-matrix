@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.777 2013/02/27 08:08:52 ewang Exp $
+* $Id: asset.inc,v 1.778 2013/02/28 02:31:44 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.777 $
+* @version $Revision: 1.778 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -483,9 +483,12 @@ class Asset extends MySource_Object
 		if (!$this->writeAccess()) {
 			// note, if the user is unknown (NULL or 0), the permissions WILL NOT BE SET, and the creation will not fail
 			$current_user = $GLOBALS['SQ_SYSTEM']->currentUserId();
+			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 			if (!empty($current_user) && !$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, $current_user, SQ_PERMISSION_WRITE, TRUE)) {
+				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 				return $this->_abortCreate(FALSE, $linkid);
 			}
+			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 		}
 
 		unset($this->_tmp['__creating__']);
@@ -4712,7 +4715,6 @@ class Asset extends MySource_Object
 		$assetids[] = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
 		// have they been granted access?
 		$common = array_intersect($assetids, $grants);
-
 		return (!empty($common));
 
 	}//end _checkPermissionAccess()

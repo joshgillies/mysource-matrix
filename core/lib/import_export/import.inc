@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import.inc,v 1.33 2013/02/27 08:08:52 ewang Exp $
+* $Id: import.inc,v 1.34 2013/02/28 02:31:44 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * Importing functions, reads an XML file and imports an asset strucutre
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -312,8 +312,18 @@ function execute_import_action($action, &$outputs, $input_values=array())
 	}
 
 	if ($action_class == 'trigger_action_create_asset' && isset($output['assetid'])) {
-		// lets see if the asset we just imported is a design_customisation..
 		$asset_imported = $GLOBALS['SQ_SYSTEM']->am->getAsset($output['assetid']);
+		
+		// cascading permission, schemas etc from parent asset
+		if(isset($output['parentid']) && is_numeric($output['parentid'])) {
+		    $parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($output['parentid']);
+		    $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+		    $parent->_tmp[__CLASS__.'_in_create_cascading'] = TRUE;
+		    $parent->cloneComponents($asset_imported, Array('permissions', 'metadata_schemas', 'workflow', 'content_tags', 'roles'));
+		    unset($parent->_tmp[__CLASS__.'_in_create_cascading']);
+		    $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+		    $GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent);
+		}
 
 		// .. and if it was update the design areas under it
 		if ($asset_imported && $asset_imported->type() == 'design_customisation') {
@@ -421,8 +431,7 @@ function get_import_action_input_value($action, $attribute, $outputs=Array(), $i
 		preg_match_all('|\[\[conf://([^\]]+)\]\]|', $value, $matches);
 		$orig = (isset($matches[0][0]) ? $matches[0][0] : '');
 		foreach ($matches[1] as $key => $match) {
-			$match = sanitise_eval($match);
-			eval('$conf_value = SQ_CONF_'.strtoupper($match).';');
+			$conf_value = constant('SQ_CONF_'.strtoupper($match));
 			if ($match == 'system_root_urls') {
 				$tmp = explode("\n", $conf_value);
 				$conf_value = $tmp[0];
