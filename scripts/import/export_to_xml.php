@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: export_to_xml.php,v 1.27.2.1 2013/01/29 00:07:21 ewang Exp $
+* $Id: export_to_xml.php,v 1.27.2.2 2013/02/28 05:04:46 ewang Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 * @author  Edison Wang <ewang@squiz.net>
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.27.2.1 $
+* @version $Revision: 1.27.2.2 $
 * @package MySource_Matrix
 */
 
@@ -31,7 +31,7 @@
 * @author  David Schoen <dschoen@squiz.net>
 * @author  Edison Wang <ewang@squiz.net>
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.27.2.1 $
+* @version $Revision: 1.27.2.2 $
 * @package MySource_Matrix
 */
 
@@ -94,6 +94,7 @@ $vars = array(
 	'export_path' => getcwd(),
 	'root_node_mapping' => $asset_infos,
 	'stdout' => true,
+	'ignore_permission' => true,
 );
 
 $errors = $hh->freestyleHipo('hipo_job_export_assets_to_xml', $vars, SQ_PACKAGES_PATH.'/import_tools/hipo_jobs');

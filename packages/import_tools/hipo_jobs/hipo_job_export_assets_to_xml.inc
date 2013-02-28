@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.5.2.1 $
+* @version $Revision: 1.5.2.2 $
 * @package MySource_Matrix
 * @subpackage import_tools/hipo_jobs
 *
@@ -140,6 +140,9 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 		// by default we save to a file, but optionally we can output to stdout
 		// (which only makes sense when being called via a freestyle hipo on the cli)
 		if (!isset($this->_running_vars['stdout'])) $this->_running_vars['stdout'] = false;
+		
+		// only in script mode, don't worry about permission checking
+		if (!isset($this->_running_vars['ignore_permission'])) $this->_running_vars['ignore_permission'] = false;
 
 		return parent::prepare();
 
@@ -251,6 +254,12 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($asset_id);
 		if (is_null($asset)) exit();
+		if(!$this->_running_vars['ignore_permission']) {
+		    if(!$asset->readAccess()) {
+			trigger_error("Read access is required to export asset ".$asset->id."!\n", E_USER_ERROR);
+			return;
+		    }
+		}
 
 		// system assets are not allowed to be exported.
 		if ($this->replace_system_assetid($asset->id) != NULL)	trigger_error("Can not export system asset!\n", E_USER_ERROR);
@@ -406,6 +415,12 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($asset_id);
 		if (is_null($asset)) exit();
+		if(!$this->_running_vars['ignore_permission']) {
+		    if(!$asset->readAccess()) {
+			trigger_error("Read access is required to export asset ".$asset->id."!\n", E_USER_ERROR);
+			return;
+		    }
+		}
 
 		// print some attributes
 		foreach ($asset->vars as $attr_name => $attr_info) {
@@ -747,6 +762,12 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($asset_id);
 		if (is_null($asset)) exit();
+		if(!$this->_running_vars['ignore_permission']) {
+		    if(!$asset->readAccess()) {
+			trigger_error("Read access is required to export asset ".$asset->id."!\n", E_USER_ERROR);
+			return;
+		    }
+		}
 
 		foreach($mm->getSchemas($asset_id) as $schema_id => $granted) {
 			$schema_info = $mm->getAssetSchemaInfo($asset_id, $schema_id);

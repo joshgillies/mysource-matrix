@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import.inc,v 1.30.2.2 2013/01/09 02:51:14 akarelia Exp $
+* $Id: import.inc,v 1.30.2.3 2013/02/28 05:04:46 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * Importing functions, reads an XML file and imports an asset strucutre
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.30.2.2 $
+* @version $Revision: 1.30.2.3 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -241,7 +241,7 @@ function execute_import_action($action, &$outputs, $input_values=array())
 	$settings = Array();
 	$state = Array();
 
-	$action_class = 'trigger_action_'.$action['action_type'][0];
+	$action_class = sanitise_eval('trigger_action_'.$action['action_type'][0]);
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset($action_class);
 
 	// we call execute as a static method, but instantiate for method_exists
@@ -284,7 +284,7 @@ function execute_import_action($action, &$outputs, $input_values=array())
 			continue;
 		}
 
-		$function_name = 'addSetting'.ucfirst($key);
+		$function_name = sanitise_eval('addSetting'.ucfirst($key));
 
 		if (method_exists($class_instance, $function_name)) {
 			eval('$settings = '.$action_class.'::'.$function_name.'($value, $settings);');
@@ -312,13 +312,24 @@ function execute_import_action($action, &$outputs, $input_values=array())
 	}
 
 	if ($action_class == 'trigger_action_create_asset' && isset($output['assetid'])) {
-		// lets see if the asset we just imported is a design_customisation..
 		$asset_imported = $GLOBALS['SQ_SYSTEM']->am->getAsset($output['assetid']);
+		
+		// cascading permission, schemas etc from parent asset
+		if(isset($output['parentid']) && is_numeric($output['parentid'])) {
+		    $parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($output['parentid']);
+		    $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+		    $parent->_tmp[__CLASS__.'_in_create_cascading'] = TRUE;
+		    $parent->cloneComponents($asset_imported, Array('permissions', 'metadata_schemas', 'workflow', 'content_tags', 'roles'));
+		    unset($parent->_tmp[__CLASS__.'_in_create_cascading']);
+		    $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+		    $GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent);
+		}
 
 		// .. and if it was update the design areas under it
 		if ($asset_imported && $asset_imported->type() == 'design_customisation') {
 			$parent_design = $asset_imported->getParentDesign();
-			$asset_imported->updateFromParent($parent_design);
+			if(!empty($parent_design))
+			    $asset_imported->updateFromParent($parent_design);
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent_design);
 
 		} else if ($asset_imported && strpos($asset_imported->type(), 'design_area') !== FALSE) {
@@ -421,7 +432,7 @@ function get_import_action_input_value($action, $attribute, $outputs=Array(), $i
 		preg_match_all('|\[\[conf://([^\]]+)\]\]|', $value, $matches);
 		$orig = (isset($matches[0][0]) ? $matches[0][0] : '');
 		foreach ($matches[1] as $key => $match) {
-			eval('$conf_value = SQ_CONF_'.strtoupper($match).';');
+			$conf_value = constant('SQ_CONF_'.strtoupper($match));
 			if ($match == 'system_root_urls') {
 				$tmp = explode("\n", $conf_value);
 				$conf_value = $tmp[0];
@@ -500,5 +511,18 @@ function print_import_action_output_as_xml($action_id, $outputs, $indent='')
 
 }//end print_import_action_output_as_xml()
 
+
+/**
+* Sanitise the input string for eval()
+*
+* @param string	$string  user input string
+*
+* @return string
+* @access public
+*/
+function sanitise_eval($string)
+{
+    return (preg_replace('/[^0-9_a-zA-Z]+/', '', $string));
+}
 
 ?>

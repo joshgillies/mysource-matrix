@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_import_assets_from_xml.inc,v 1.7.2.2 2013/02/20 04:31:17 ewang Exp $
+* $Id: hipo_job_import_assets_from_xml.inc,v 1.7.2.3 2013/02/28 05:04:04 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/import_export/import.inc';
 *
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.7.2.2 $
+* @version $Revision: 1.7.2.3 $
 * @package MySource_Matrix
 * @subpackage import_tools/hipo_jobs
 *
@@ -202,7 +202,7 @@ class HIPO_Job_Import_Assets_From_Xml extends HIPO_Job
 		
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_OPEN);
+		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_SECURITY_PERMISSIONS);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$action = array_shift($import_actions['actions'][0]['action']);
