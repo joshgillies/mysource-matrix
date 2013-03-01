@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import.inc,v 1.30.2.4 2013/02/28 23:21:14 ewang Exp $
+* $Id: import.inc,v 1.30.2.5 2013/03/01 03:13:45 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * Importing functions, reads an XML file and imports an asset strucutre
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.30.2.4 $
+* @version $Revision: 1.30.2.5 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -295,7 +295,7 @@ function execute_import_action($action, &$outputs, $input_values=array())
 
 	}
 
-	$output = call_user_func(Array($action_class, 'execute'), $settings, $state);
+	$output = call_user_func(Array($action_class, 'execute'), $settings, &$state);
 	if ($output === FALSE) return FALSE;
 
 	$outputs[$action['action_id'][0]] = $output;
