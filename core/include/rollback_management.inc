@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: rollback_management.inc,v 1.11 2012/08/30 01:09:20 ewang Exp $
+* $Id: rollback_management.inc,v 1.11.2.1 2013/03/03 23:32:47 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 * @author Marc McIntyre <mmcintyre@squiz.net>
 * @author Greg Sherwood <gsherwood@squiz.net>
 * @author Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.11.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -378,7 +378,9 @@ function purge_file_versioning($date, $num_rows=0)
 	// DB entry shouldn't have been there in the first place
 	foreach ($result as $row) {
 		$ffv_file = SQ_SYSTEM_ROOT.'/data/file_repository/'.$row['path'].'/'.$row['filename'].',ffv'.$row['version'];
-		unlink($ffv_file);
+		if (file_exists($ffv_file)) {
+			unlink($ffv_file);
+		}
 		$count++;
 	}
 
