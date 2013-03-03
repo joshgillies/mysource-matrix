@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_contents_keywords.php,v 1.10 2012/08/30 00:58:07 ewang Exp $
+* $Id: page_contents_keywords.php,v 1.11 2013/03/03 22:33:05 akarelia Exp $
 *
 */
 
@@ -24,6 +24,8 @@
 		trigger_localised_error('CMS0002', E_USER_ERROR, $asset);
 		return FALSE;
 	}
+
+	if ($asset->readAccess()) {
 ?>
 
 <html>
@@ -119,3 +121,8 @@ $o->paint();
 ?>
 	</body>
 </html>
+<?php
+	} else {
+		echo "<b>You do not have required access to view this page</b>";
+	}
+?>
