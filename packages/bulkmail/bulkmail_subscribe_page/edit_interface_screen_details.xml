@@ -12,7 +12,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2008/11/24 22:28:21 mbrydon Exp $
+* $Id: edit_interface_screen_details.xml,v 1.5 2013/03/04 22:44:09 akarelia Exp $
 *
 */
 -->
@@ -69,7 +69,10 @@
 	</section>
 	<section name="Email Verification" write_access="write:attributes">
 		<field attribute="verify_from_address">
-			<text width="40" />
+			<text width="60" />
+		</field>
+		<field attribute="verify_subject_line">
+			<text width="60" />
 		</field>
 		<field attribute="verify_logged_in">
 			<selection style="list" />

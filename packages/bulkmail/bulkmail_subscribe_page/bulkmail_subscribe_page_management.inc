@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_subscribe_page_management.inc,v 1.8 2012/08/30 00:57:13 ewang Exp $
+* $Id: bulkmail_subscribe_page_management.inc,v 1.9 2013/03/04 22:44:09 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayne Ong <rong@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -79,6 +79,12 @@ class Bulkmail_Subscribe_Page_Management extends Asset_Management
 													'type'			=> 'text',
 													'default'		=> SQ_CONF_DEFAULT_EMAIL,
 													'description'	=> 'The email address to appear on the verification email.',
+												   ),
+						'verify_subject_line'	=> Array(
+													'added'			=> '0.0.1',
+													'type'			=> 'text',
+													'default'		=> '',
+													'description'	=> 'The configurable subject line for the email sent for verification',
 												   ),
 					  );
 

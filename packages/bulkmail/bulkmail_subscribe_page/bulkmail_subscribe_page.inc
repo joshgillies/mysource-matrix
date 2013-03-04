@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulkmail_subscribe_page.inc,v 1.34 2012/08/30 00:57:13 ewang Exp $
+* $Id: bulkmail_subscribe_page.inc,v 1.35 2013/03/04 22:44:09 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once 'Mail/mime.php';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayne Ong <rong@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -766,9 +766,10 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 			return;
 		}
 
+		$custom_subject = $this->attr('verify_subject_line');
 		$headers = Array(
 					'From'		=> $from,
-					'Subject'	=> translate('bsp_verification_email_subject'),
+					'Subject'	=> empty($custom_subject) ? translate('bsp_verification_email_subject') : $this->attr('verify_subject_line'),
 				   );
 
 		$body = '';
@@ -798,7 +799,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 			$body .= translate('bsp_verification_email_body_part2', $url);
 		}
 			$body .= translate('bsp_verification_email_note', $from);
-		
+
 
 		$mime = new Mail_mime("\n");
 		$mime->setTXTBody($body);
@@ -809,7 +810,7 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 					  );
 		$body = @$mime->get($param);
 		$headers = @$mime->headers($headers);
-		
+
 		$mf = new Mail();
 		$mail = $mf->factory('mail', "-f$from");
 		$status = @$mail->send($to, $headers, $body);
@@ -840,9 +841,10 @@ class  Bulkmail_Subscribe_Page extends Page_User_Group_Manager
 			return;
 		}
 
+		$custom_subject = $this->attr('verify_subject_line');
 		$headers = Array(
 					'From'		=> $from,
-					'Subject'	=> translate('bsp_verification_email_subject'),
+					'Subject'	=> empty($custom_subject) ? translate('bsp_verification_email_subject') : $this->attr('verify_subject_line'),
 				   );
 
 		$url = current_url();
