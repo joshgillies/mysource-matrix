@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_soap.inc,v 1.6 2013/02/27 04:15:35 cupreti Exp $
+* $Id: data_source_soap.inc,v 1.7 2013/03/04 08:04:35 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/lib/soap_common.inc';
 * Data_Source_Soap
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -542,10 +542,16 @@ class Data_Source_Soap extends Data_Source
 			$xsl_content = $xsl_file->getContent();
 		}
 
-		// Get the last SOAP response xml
-		$path = $this->data_path.'/response_data';
-		$data = @unserialize(file_get_contents($path));
-		$response_xml = isset($data['response']['response_xml']) ? $data['response']['response_xml'] : '';
+		if (!empty($xsl_content)) {
+			// Refresh the SOAP response, if required
+			$this->getResultSet();
+
+			// Get the last SOAP response xml
+			$path = $this->data_path.'/response_data';
+			$data = @unserialize(file_get_contents($path));
+			$response_xml = isset($data['response']['response_xml']) ? $data['response']['response_xml'] : '';
+
+		}
 
 		if (empty($xsl_content) || empty($response_xml)) {
 			parent::printBody();
