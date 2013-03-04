@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import.inc,v 1.30.2.3 2013/02/28 05:04:46 ewang Exp $
+* $Id: import.inc,v 1.30.2.6 2013/03/04 04:54:00 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * Importing functions, reads an XML file and imports an asset strucutre
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.30.2.3 $
+* @version $Revision: 1.30.2.6 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -241,7 +241,7 @@ function execute_import_action($action, &$outputs, $input_values=array())
 	$settings = Array();
 	$state = Array();
 
-	$action_class = sanitise_eval('trigger_action_'.$action['action_type'][0]);
+	$action_class = sanitise('trigger_action_'.$action['action_type'][0]);
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset($action_class);
 
 	// we call execute as a static method, but instantiate for method_exists
@@ -284,10 +284,10 @@ function execute_import_action($action, &$outputs, $input_values=array())
 			continue;
 		}
 
-		$function_name = sanitise_eval('addSetting'.ucfirst($key));
+		$function_name = sanitise('addSetting'.ucfirst($key));
 
 		if (method_exists($class_instance, $function_name)) {
-			eval('$settings = '.$action_class.'::'.$function_name.'($value, $settings);');
+			$settings = call_user_func(Array($action_class, $function_name), $value, $settings);
 			continue;
 		}
 
@@ -295,7 +295,7 @@ function execute_import_action($action, &$outputs, $input_values=array())
 
 	}
 
-	eval('$output = '.$action_class.'::execute($settings, $state);');
+	$output = call_user_func_array(Array($action_class, 'execute'), Array($settings, &$state));
 	if ($output === FALSE) return FALSE;
 
 	$outputs[$action['action_id'][0]] = $output;
@@ -513,14 +513,14 @@ function print_import_action_output_as_xml($action_id, $outputs, $indent='')
 
 
 /**
-* Sanitise the input string for eval()
+* Sanitise the input string for class name or function name
 *
 * @param string	$string  user input string
 *
 * @return string
 * @access public
 */
-function sanitise_eval($string)
+function sanitise($string)
 {
     return (preg_replace('/[^0-9_a-zA-Z]+/', '', $string));
 }
