@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.116 2013/02/05 03:01:50 akarelia Exp $
+* $Id: ldap_bridge.inc,v 1.117 2013/03/05 04:44:35 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.116 $
+* @version $Revision: 1.117 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -377,6 +377,11 @@ class LDAP_Bridge extends Asset implements Bridge
 	*/
 	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $sort_by=NULL, $dependant=NULL, $exclusive=NULL)
 	{
+		$ldap = @$this->connectToLdap();
+		if (is_null($ldap) || is_null($ldap->ptr)) {
+			return Array();
+		}
+
 		// if the wanted link type is not the type of links
 		// that this bridge allows, lets return now
 		if (!($this->ldap_shdw_link_type & $link_types)) {
@@ -479,7 +484,24 @@ class LDAP_Bridge extends Asset implements Bridge
 					if ($asset->type() == 'ldap_user_group' && !empty($attr['gm']) && isset($asset->vars[$attr['gm']])) {
 						$members = $asset->vars[$attr['gm']];
 						$entries = Array();
-						foreach ($members as $dn) {
+						foreach ($members as $member) {
+							// If members are stored as "memeber" then it represnts member's dn
+							if ($attr['gm'] == 'member') {
+								$dn = $member;
+							} else {
+								// Otherwise if its stored as "memberUid" then we have the uid
+								// So get the memeber's dn from the "uid"
+								$base_dn = $this->decodeString($this->attr('root_dn'));
+								$member_result = $ldap->search($base_dn, '(uid='.$member.')', NULL, TRUE, TRUE, array_merge(array_values($attrs), Array('objectclass')));
+								if ($member_result) {
+									$member_entry = $ldap->getEntries($member_result);
+									// There got be just one entry for the given uid
+									if ($member_entry['count'] != 1 || !isset($member_entry[0]['dn'])) {
+										continue;
+									}
+									$dn = $member_entry[0]['dn'];
+								}
+							}
 							$user = $this->getAsset($this->id.':'.$dn, '', FALSE, TRUE);
 							// dn of user group was stripped out in construction, but we need it this time
 							if (!is_null($user)){
@@ -489,7 +511,7 @@ class LDAP_Bridge extends Asset implements Bridge
 						}
 						if (!empty($sort_by)){
 							uasort($entries, create_function('$a,$b',
-												'$a = (isset($a[\''.$sort_by.'\'][\'value\'])) ? $a[\''.$sort_by.'\'][\'value\'] : "";
+												'$a = (isset($a[\''.$sort_by.'\'][\'ovalue\'])) ? $a[\''.$sort_by.'\'][\'value\'] : "";
 												$b = (isset($b[\''.$sort_by.'\'][\'value\'])) ? $b[\''.$sort_by.'\'][\'value\'] : "";
 												if ($a == $b) {
 													return 0;
@@ -561,6 +583,10 @@ class LDAP_Bridge extends Asset implements Bridge
 
 					if (isset($data['objectclass']['value'])) {
 						$data['objectclass'] = $data['objectclass']['value'];
+					}
+
+					if (!is_array($data['objectclass'])) {
+						$data['objectclass'] = Array($data['objectclass']);
 					}
 
 					foreach ($data['objectclass'] as $class) {
@@ -739,7 +765,13 @@ class LDAP_Bridge extends Asset implements Bridge
 				// Group defines its members
 				$base_dn = $this->attr('root_dn');
 				$base_dn = $this->decodeString($base_dn);
-				$result = $ldap->search($base_dn, '('.$attrs['gm'].'='.$ldap->escape_filter_value($assetid).')', NULL, TRUE, TRUE, array_merge(array_values($attrs), Array('objectclass')));
+				$filter = $ldap->escape_filter_value($assetid);
+				// If group stores the memberUid (uid)
+				if (strtolower($attrs['gm']) == 'memberuid' && !empty($data['uid'][0])) {
+					$filter = $data['uid'][0];
+				}
+
+				$result = $ldap->search($base_dn, '('.$attrs['gm'].'='.$filter.')', NULL, TRUE, TRUE, array_merge(array_values($attrs), Array('objectclass')));
 				if ($result) {
 					$groups = $ldap->getEntries($result);
 					if (!$groups['count']) $mo_groups = Array();
@@ -925,6 +957,52 @@ class LDAP_Bridge extends Asset implements Bridge
 		}
 		unset($entries['count']);
 
+		// Go through each linked entry, if its a user group see if has its members defined
+		foreach($entries as $data) {
+			if (empty($data['dn'])) {
+				continue;
+			}
+			unset($data['objectclass']['count']);
+			foreach ($data['objectclass'] as $class) {
+				$class = strtolower($class);
+				if (isset($this->_group_types[$class])) {
+					$ldap_group = $this->getAsset($this->id.':'.$data['dn']);
+					// If "Group Memebers" is set and group defines its memebers
+					if (!empty($attrs['gm']) && isset($ldap_group->vars[$attrs['gm']])) {
+						$members = $ldap_group->vars[$attrs['gm']];
+						if (empty($entries)) {
+							$entries = Array();
+						}
+						foreach ($members as $member) {
+							// If members are stored as "memeber" then it represnts member's dn
+							if ($attrs['gm'] == 'member') {
+								$dn = $member;
+							} else {
+								// Otherwise if its stored as "memberUid" then we have the uid
+								// So get the memeber's dn from the "uid"
+								$base_dn = $this->decodeString($this->attr('root_dn'));
+								$member_result = $ldap->search($base_dn, '(uid='.$member.')', NULL, TRUE, TRUE, array_merge(array_values($attrs), Array('objectclass')));
+								if ($member_result) {
+									$member_entry = $ldap->getEntries($member_result);
+									// There got be just one entry for the given uid
+									if ($member_entry['count'] != 1 || !isset($member_entry[0]['dn'])) {
+										continue;
+									}
+									$dn = $member_entry[0]['dn'];
+								}
+							}
+							$user = $this->getAsset($this->id.':'.$dn, '', FALSE, TRUE);
+							// dn of user group was stripped out in construction, but we need it this time
+							if (!is_null($user)){
+								$user->vars['dn'] = $dn;
+								$entries[] = $user->vars;
+							}//end if
+						}//end foreach
+					}//end if
+				}//end if
+			}//end foreach
+		}//end foreach
+
 		if ($sort_by == 'name') {
 			// we need to sort the entries by name
 			$sorted_array = Array();
@@ -986,7 +1064,17 @@ class LDAP_Bridge extends Asset implements Bridge
 
 		foreach ($entries as $data) {
 			if ($data['dn'] == $assetid) continue;
-			unset($data['objectclass']['count']);
+
+			if (isset($data['objectclass']['count'])) {
+				unset($data['objectclass']['count']);
+			}
+			if (isset($data['objectclass']['value'])) {
+				$data['objectclass'] = $data['objectclass']['value'];
+			}
+			if (!is_array($data['objectclass'])) {
+				$data['objectclass'] = Array($data['objectclass']);
+			}
+
 			foreach ($data['objectclass'] as $class) {
 				$class = strtolower($class);
 				if (isset($this->_group_types[$class])) {
