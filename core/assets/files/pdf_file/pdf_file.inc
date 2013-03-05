@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: pdf_file.inc,v 1.36.4.2 2013/02/27 01:21:29 akarelia Exp $
+* $Id: pdf_file.inc,v 1.36.4.3 2013/03/05 05:10:19 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.36.4.2 $
+* @version $Revision: 1.36.4.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -98,20 +98,25 @@ class PDF_File extends File
 			$process = proc_open($cmd, $spec, $pipes, $cwd, $env);
 
 			if (is_resource($process)) {
-				fclose($pipes[0]);
 
-				// Get the output
-				$content = stream_get_contents($pipes[1]);
-				fclose($pipes[1]);
+				// If STDERR is empty, trying to get content from it will hang the process,
+				// as it will wait forever for the data to be written on it, so set it as non-blocking
+				stream_set_blocking($pipes[2], 0);
+
+				fclose($pipes[0]);
 
 				// Find the errors ... do NOT throw to output
 				$errors = stream_get_contents($pipes[2]);
+				fclose($pipes[2]);
 				if (!empty($errors)) {
 					$errors = array_unique(explode(PHP_EOL, $errors));
 					trigger_error('Error occured while getting contents for pdf File Asset #'.$this->id.' : '.trim(implode(', ', $errors), ', '), E_USER_WARNING);
 					return FALSE;
 				}//end if
-				fclose($pipes[2]);
+
+				// Once we know there are no errors, get the output
+				$content = stream_get_contents($pipes[1]);
+				fclose($pipes[1]);
 
 				// Finally, get the status of this command
 				$status = proc_close($process);
