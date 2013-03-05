@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.138.2.3 2013/01/25 03:41:15 ewang Exp $
+* $Id: design_edit_fns.inc,v 1.138.2.4 2013/03/05 00:48:13 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.138.2.3 $
+* @version $Revision: 1.138.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -719,6 +719,9 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		}
 		$am->forgetAsset($minor);
 
+		// we skipped this step in cloneComponentsAdditional(), now we since got all design areas linked, it's time to generate a design file
+		$cloned->generateDesignFile();
+		
 		// release the lock on the new object
 		if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($cloned->id, 'all')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
