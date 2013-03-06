@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bulk_mailer.inc,v 1.102.2.3 2012/10/22 05:37:55 akarelia Exp $
+* $Id: bulk_mailer.inc,v 1.102.2.4 2013/03/06 03:12:27 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once 'Mail/Queue.php';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Rayn Ong <rong@squiz.net>
 *
-* @version $Revision: 1.102.2.3 $
+* @version $Revision: 1.102.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage bulkmail
 */
@@ -437,7 +437,7 @@ class Bulk_Mailer
 								}//end foreach
 								$this->_reconnectDB(TRUE);
 
-								if (!empty($_GET)) $search_result .= $this->generateContent($details, $job_path, $user_id, $email);
+								if (!empty($_GET)) $search_result .= $this->generateContent($details, $job_path, $user_id, $email, TRUE);
 
 								$this->_reconnectDB();
 
@@ -890,11 +890,12 @@ class Bulk_Mailer
 	* @param string	$job_path		path to the effective job data dir
 	* @param int	$recipient_id	the recipient of this email, empty is for preview mail
 	* @param array	$email			the email of the recipient (or the email details), empty is for preview mail
+	* @param boolen $force_regen	to force regen the content instead of using the cache for bulkmail user
 	*
 	* @return string
 	* @access public
 	*/
-	public function generateContent($job_details, $job_path, $recipient_id=NULL, $email=NULL)
+	public function generateContent($job_details, $job_path, $recipient_id=NULL, $email=NULL, $force_regen=FALSE)
 	{
 
 		$am = $GLOBALS['SQ_SYSTEM']->am;
@@ -924,9 +925,10 @@ class Bulk_Mailer
 
 		if (($job_details['content_gen'] == 'one_user') || ($recipient instanceof Bulkmail_User)) {
 
-			// Same content for everyone, apart from recipient keywords.
-			// First try the cache, unless we're previewing
-			if ((file_exists($job_path.'/cache/content_file_'.$job_details['content_id'].'.html')) && !empty($recipient_id)) {
+			// Same content for everyone, apart from recipient keywords but only if we are not using the user subscription
+			// as the subscription using search page will be dynamic and there is no point in getting it outta cache, unless
+			// we're previewing
+			if ((file_exists($job_path.'/cache/content_file_'.$job_details['content_id'].'.html')) && !empty($recipient_id) && !$force_regen) {
 
 				$content = file_to_string($job_path.'/cache/content_file_'.$job_details['content_id'].'.html');
 
