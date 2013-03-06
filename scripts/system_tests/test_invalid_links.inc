@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: test_invalid_links.inc,v 1.4 2012/08/30 01:04:53 ewang Exp $
+* $Id: test_invalid_links.inc,v 1.5 2013/03/06 04:30:43 ewang Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 class Test_Invalid_Links
@@ -78,20 +78,31 @@ class Test_Invalid_Links
 				$status = FALSE;
 				$count++;
 				$errors[] = 'Content Type #'.$content_type.' could not be loaded';
+				continue;
 			}//end if
 
 			$html = $asset->attr('html');
 			preg_match_all($pattern, $html, $assetids);
 			foreach ($assetids[1] as $assetid) {
-				$link_asset = $am->getAsset($assetid, '', TRUE);
-				if (is_null($link_asset)) {
-					$status = FALSE;
-					if (!$error_in_content_type) $count++;
-					$error_in_content_type = TRUE;
-					$errors[] = 'A link to Asset #'.$assetid.' was found on Content Type #'.$content_type;
-				} else {
-					$am->forgetAsset($link_asset, TRUE);
-				}//end if
+				$invalid_id = FALSE;
+				if(assert_valid_assetid($assetid, '', TRUE, FALSE)) {
+				    $link_asset = $am->getAsset($assetid, '', TRUE);
+				    if (is_null($link_asset)) {
+					    $invalid_id = TRUE;
+				    } else {
+					    $am->forgetAsset($link_asset, TRUE);
+				    }//end if
+				}
+				else {
+				    $invalid_id = TRUE;
+				}
+				
+				if($invalid_id) {
+				    $status = FALSE;
+				    if (!$error_in_content_type) $count++;
+				    $error_in_content_type = TRUE;
+				    $errors[] = 'A link to Asset #'.$assetid.' was found on Content Type #'.$content_type;
+				}
 			}//end foreach
 			$am->forgetAsset($asset, TRUE);
 		}//end foreach
