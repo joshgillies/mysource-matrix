@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_common.inc,v 1.27 2013/03/06 03:00:59 cupreti Exp $
+* $Id: trim_common.inc,v 1.28 2013/03/06 03:20:11 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage trim
 */
@@ -439,52 +439,6 @@ class TRIM_Common
 	}//end getURIsFromClassification()
 	
 	
-	/**
-	* This function return the Unique Resource Identifiers of a classification and all its sub-classifications
-	* based on the given URI
-	*
-	* @return array
-	* @access public
-	*/
-	public static function getURIsFromClassificationURI($connection, $uri_classification)
-	{
-		$results	= Array();
-
-		if (0 && !is_array($uri_classification)) {
-			$uri_classification = Array($uri_classification);
-		}
-		
-		$specified_items = Array(
-								'recTitle' => 1,
-								'recNumber' => 1,
-							);
-
-
-		$operations = Array (
-						'LocationRelationshipSelect'	=> Array (
-													'LocationUri' => $uri_classification,
-													'LocationType' => 'MemberOf',
-																		
-													'HideActiveLocations' => FALSE,
-													'HideInactiveLocations' => FALSE,
-													'HideInternalLocations' => FALSE,
-													'HideExternalLocations' => FALSE,
-													'HideAdhocLocations' => FALSE,
-
-																	'TargetForUpdate'	=>	FALSE,
-																	'IsForUpdate'		=>	FALSE,
-																	'Limit'				=>	100000,
-														),
-						'Fetch'							=> self::constructFetch($specific_items, 100000),							
-					  );
-log_dump($operations);
-		$results = self::executeRequest($connection, $operations, 'Fetch');
-	
-		return $results;
-
-	}//end getURIsFromClassificationURI()
-	
-
 	/**
 	* This function returns the Record Type names from the uris of Record Types
 	*
