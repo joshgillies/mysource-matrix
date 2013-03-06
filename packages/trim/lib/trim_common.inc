@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_common.inc,v 1.26 2013/01/31 05:16:18 ewang Exp $
+* $Id: trim_common.inc,v 1.27 2013/03/06 03:00:59 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage trim
 */
@@ -62,73 +62,78 @@ class TRIM_Common
 	*/
 	public static function constructRecordSearchClauseGroupedXml ($search_clause = Array(), $classifications)
 	{
-
 		if (!isset ($search_clause['search_groups'])) return '';
-		$group_clause = new SimpleXMLElement('<RecordSearchGroups/>');
-		$i = 0;
-		$global_logic = isset($search_clause['global_logic']) ? $search_clause['global_logic'] : 'AND';
-		foreach ($search_clause['search_groups'] as $group) {
-			if (isset ($group['content'])) {
-				$group_logic = isset($group['group_logic']) ? $group['group_logic'] : 'AND';
-				$j = 0;
-				foreach ($group['content'] as $field) {
-					if (preg_match('/^udf:/', $field['name'])) {
-						$RecordUserFieldSearchClause = $group_clause->addChild('RecordUserFieldSearchClause');
-						$RecordUserFieldSearchClause->addChild('UserDefinedFieldName', $field['name']) ;
-						$RecordUserFieldSearchClause->addChild('From', $field['keyword']) ;
-					}
-					else {
-						$RecordStringSearchClause = $group_clause->addChild('RecordStringSearchClause');
-						$RecordStringSearchClause->addChild('Type', $field['name']) ;
-						$RecordStringSearchClause->addChild('Arg', $field['keyword']) ;
-					}
-					// add group logic operator
-					if($j > 0) {
-					    if($group_logic === 'AND') {
-						$group_clause->addChild('RecordAndSearchClause');
-					    }
-					    else {
-						$group_clause->addChild('RecordOrSearchClause');
-					    }
-					}
-					$j++;
-				}
-				
-			}
-			if($i > 0) {
-			    // add global logic operator
-			    if($global_logic === 'AND') {
-				    $group_clause->addChild('RecordAndSearchClause');
-			    }
-			    else {
-				    $group_clause->addChild('RecordOrSearchClause');
-			    }
-			}
-			$i++;
-		}
-		
-		
-		// add classification restrictions
-		if (!empty($classifications)) {
+		try {
+			$group_clause = new SimpleXMLElement('<RecordSearchGroups/>');
 			$i = 0;
-			foreach ($classifications as $uri => $title) {
-				$RecordClassificationSearchClause = $group_clause->addChild('RecordClassificationSearchClause');
-				$RecordClassificationSearchClause->addChild('ClassificationUri', $uri);
-				if($i > 0) {
-					$group_clause->addChild('RecordOrSearchClause');
+			$global_logic = isset($search_clause['global_logic']) ? $search_clause['global_logic'] : 'AND';
+			foreach ($search_clause['search_groups'] as $group) {
+				if (isset ($group['content'])) {
+					$group_logic = isset($group['group_logic']) ? $group['group_logic'] : 'AND';
+					$j = 0;
+					foreach ($group['content'] as $field) {
+						if (preg_match('/^udf:/', $field['name'])) {
+							$RecordUserFieldSearchClause = $group_clause->addChild('RecordUserFieldSearchClause');
+							$RecordUserFieldSearchClause->addChild('UserDefinedFieldName', $field['name']) ;
+							$RecordUserFieldSearchClause->addChild('From', $field['keyword']) ;
+						}
+						else {
+							$RecordStringSearchClause = $group_clause->addChild('RecordStringSearchClause');
+							$RecordStringSearchClause->addChild('Type', $field['name']) ;
+							$RecordStringSearchClause->addChild('Arg', $field['keyword']) ;
+						}
+						// add group logic operator
+						if($j > 0) {
+					    if($group_logic === 'AND') {
+							$group_clause->addChild('RecordAndSearchClause');
+						    }
+						    else {
+							$group_clause->addChild('RecordOrSearchClause');
+						    }
+						}
+						$j++;
+					}
+				
 				}
-				$i++;			
-			}		
-			if(count($search_clause['search_groups']) > 0 )
-				$group_clause->addChild('RecordAndSearchClause');
-		}
+				if($i > 0) {
+				    // add global logic operator
+				    if($global_logic === 'AND') {
+					    $group_clause->addChild('RecordAndSearchClause');
+				    }
+				    else {
+					    $group_clause->addChild('RecordOrSearchClause');
+				    }
+				}
+				$i++;
+			}
 		
 		
-		// convert to string
-		$result = '';
-		foreach ($group_clause->children() as $child) {
-			$result .= $child->asXML();
+			// add classification restrictions
+			if (!empty($classifications)) {
+				$i = 0;
+				foreach ($classifications as $uri => $title) {
+					$RecordClassificationSearchClause = $group_clause->addChild('RecordClassificationSearchClause');
+					$RecordClassificationSearchClause->addChild('ClassificationUri', $uri);
+					if($i > 0) {
+						$group_clause->addChild('RecordOrSearchClause');
+					}
+					$i++;			
+				}		
+				if(count($search_clause['search_groups']) > 0 )
+					$group_clause->addChild('RecordAndSearchClause');
+			}
+		
+		
+			// convert to string
+			$result = '';
+			foreach ($group_clause->children() as $child) {
+				$result .= $child->asXML();
+			}
+		} catch (Exception $e) {
+			trigger_error("Unable to contruct the XML string:".$e->getMessage(), E_USER_WARNING);
+			return '';
 		}
+
 		return $result;
 	}//end constructRecordSearchClauseGroupedXml()
 	
@@ -434,8 +439,52 @@ class TRIM_Common
 	}//end getURIsFromClassification()
 	
 	
+	/**
+	* This function return the Unique Resource Identifiers of a classification and all its sub-classifications
+	* based on the given URI
+	*
+	* @return array
+	* @access public
+	*/
+	public static function getURIsFromClassificationURI($connection, $uri_classification)
+	{
+		$results	= Array();
+
+		if (0 && !is_array($uri_classification)) {
+			$uri_classification = Array($uri_classification);
+		}
+		
+		$specified_items = Array(
+								'recTitle' => 1,
+								'recNumber' => 1,
+							);
+
+
+		$operations = Array (
+						'LocationRelationshipSelect'	=> Array (
+													'LocationUri' => $uri_classification,
+													'LocationType' => 'MemberOf',
+																		
+													'HideActiveLocations' => FALSE,
+													'HideInactiveLocations' => FALSE,
+													'HideInternalLocations' => FALSE,
+													'HideExternalLocations' => FALSE,
+													'HideAdhocLocations' => FALSE,
+
+																	'TargetForUpdate'	=>	FALSE,
+																	'IsForUpdate'		=>	FALSE,
+																	'Limit'				=>	100000,
+														),
+						'Fetch'							=> self::constructFetch($specific_items, 100000),							
+					  );
+log_dump($operations);
+		$results = self::executeRequest($connection, $operations, 'Fetch');
 	
+		return $results;
+
+	}//end getURIsFromClassificationURI()
 	
+
 	/**
 	* This function returns the Record Type names from the uris of Record Types
 	*
@@ -1055,8 +1104,13 @@ class TRIM_Common
 			trigger_error($error_message, E_USER_WARNING);
 			return 0;
 		}
-
-        $return_xml = new SimpleXMLElement((string) $data->ExecuteXmlResult);
+		
+		try {
+	        $return_xml = new SimpleXMLElement((string) $data->ExecuteXmlResult);
+		} catch (Exception $e){
+			trigger_error("Unable to parse the XML result: ".$e->getMessage(), E_USER_WARNING);
+			return 0;
+		}
         $trim_userid = 0;
         if ((string) $return_xml->SearchResult->FoundCount > 0) {
         	$trim_userid = (string) $return_xml->FetchInjectionUriResult->Uri;
@@ -1160,7 +1214,12 @@ class TRIM_Common
 
 		$new_record_uri	= 0;
 		if (!empty($data)) {
-			$return_xml	= new SimpleXMLElement((string) $data->ExecuteXmlResult);
+			try {
+				$return_xml	= new SimpleXMLElement((string) $data->ExecuteXmlResult);
+			} catch (Exception $e){
+				trigger_error("Unable to parse the XML result: ".$e->getMessage(), E_USER_WARNING);
+				return 0;
+			}
 			if (isset($return_xml->ErrorResult)) {
 				// We have an error, the submission has not been successful
 				trigger_error('Unable to create new record. '.(string) $return_xml->ErrorResult->Message.')');
@@ -1266,7 +1325,12 @@ class TRIM_Common
 	private static function parseTRIMData($data, $operation='Fetch')
 	{
 		$object_list = Array();
-		$xml = new SimpleXMLElement($data);
+		try {
+			$xml = new SimpleXMLElement($data);
+		} catch (Exception $e){
+			trigger_error("Unable to parse the XML result: ".$e->getMessage(), E_USER_WARNING);
+			return $object_list;
+		}
 
 		if ($operation == 'Fetch') {
 			if($xml->SearchResult->FoundCount ==  0) return $object_list;
