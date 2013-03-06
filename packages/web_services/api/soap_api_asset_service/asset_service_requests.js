@@ -322,6 +322,33 @@ function GetAssetAvailableKeywords(assetid)
 
 
 /**
+* Description: This operation will return all available keywords of an asset on Paint Layout
+*
+* @param string  $request  The request information
+*
+* <pre>
+* Array (
+*		'AssetID'	 		=> [The ID of the asset in query],
+*		'TypeCode'			=> [The type code to get keywords for]
+*        )
+* </pre>
+*
+* @return void
+* @access public
+*/
+function GetPaintLayoutAvailableKeywords(assetid, type_code)
+{
+	var soapBody	= "\
+<ns1:GetPaintLayoutAvailableKeywords>\
+<AssetID>"+assetid+"</AssetID>\
+<TypeCode>"+type_code+"</TypeCode>\
+</ns1:GetPaintLayoutAvailableKeywords>";
+
+	return soapBody;
+}//end GetPaintLayoutAvailableKeywords()
+
+
+/**
 * Description: This operation will return all attributes belong to an asset type classified by attribute name
 *
 * @param string  $request  The request information
@@ -380,6 +407,7 @@ function SetTag(assetid, thesaurus_id, tag_name, weight, cascade_tag_change)
 	return soapBody;
 }//end SetTag()
 
+
 /**
 * Description: This operation will set tag for an asset
 *
@@ -404,6 +432,7 @@ function GetTags(assetid, thesaurus_ids)
 </ns1:SetTag>";
 	return soapBody;
 }//end GetTags()
+
 
 /**
 * Description: This operation will return all statuses of the asset in Matrix

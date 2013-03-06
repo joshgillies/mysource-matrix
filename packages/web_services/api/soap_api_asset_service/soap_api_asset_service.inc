@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_asset_service.inc,v 1.31.2.2 2013/02/15 03:49:51 ewang Exp $
+* $Id: soap_api_asset_service.inc,v 1.31.2.3 2013/03/06 03:51:03 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.31.2.2 $
+* @version $Revision: 1.31.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -57,28 +57,29 @@ class Soap_Api_Asset_Service extends Soap_Api
     public function getFunctionList()
     {
         return Array(
-				'CreateAsset'				=> '1',
-				'CloneAsset'				=> '1',
-				'GetAllStatuses'			=> '1',
-				'GetAsset'					=> '1',
-				'GetAssetFromURL'			=> '1',
-				'GetAssetTypeAttribute'		=> '1',
-				'GetAssetTypeDescendants'   => '1',
-				'GetAssetsInfo'             => '1',
-				'GetAttributeValuesByName'	=> '1',
-				'GetAssetAvailableKeywords'	=> '1',
-				'GetAssetAvailableStatuses'	=> '1',
-				'GetAssetWebPaths'			=> '1',
-				'GetAssetURLs'				=> '1',
-				'GetPageContents'           => '1',
-				'GetTags'					=> '1',
-				'SetAttributeValue'			=> '1',
-				'SetTag'					=> '1',
-				'SetAssetStatus'			=> '1',
-	    			'SetAssetWebPaths'			=> '1',
-				'TrashAsset'				=> '1',
-				'LoginUser'					=> '1',
-				'GetUserIdByUsername'		=> '1',
+				'CreateAsset'						=> '1',
+				'CloneAsset'						=> '1',
+				'GetAllStatuses'					=> '1',
+				'GetAsset'							=> '1',
+				'GetAssetFromURL'					=> '1',
+				'GetAssetTypeAttribute'				=> '1',
+				'GetAssetTypeDescendants'			=> '1',
+				'GetAssetsInfo'						=> '1',
+				'GetAttributeValuesByName'			=> '1',
+				'GetAssetAvailableKeywords'			=> '1',
+				'GetPaintLayoutAvailableKeywords'	=> '1',
+				'GetAssetAvailableStatuses'			=> '1',
+				'GetAssetWebPaths'					=> '1',
+				'GetAssetURLs'						=> '1',
+				'GetPageContents'					=> '1',
+				'GetTags'							=> '1',
+				'SetAttributeValue'					=> '1',
+				'SetTag'							=> '1',
+				'SetAssetStatus'					=> '1',
+	   			'SetAssetWebPaths'					=> '1',
+				'TrashAsset'						=> '1',
+				'LoginUser'							=> '1',
+				'GetUserIdByUsername'				=> '1',
 			   );
 
     }//end getFunctionList()
@@ -798,7 +799,7 @@ class Soap_Api_Asset_Service extends Soap_Api
 		$request_info 	= (Array) $request;
 		$assetid			= array_get_index($request_info, 'AssetID', '');
 		$type_code			= array_get_index($request_info, 'TypeCode', '');
-		
+
 		if (!empty($assetid) || !empty($type_code)) {
 			if(!empty($assetid)) {
 			    $asset	= $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
@@ -811,12 +812,57 @@ class Soap_Api_Asset_Service extends Soap_Api
 			    $keywords = $dummy_asset->getAvailableKeywords();
 			    unset($dummy_asset);
 			}
-			
+
 			return Array (
 					'GetAssetAvailableKeywordsResult'	=> array_keys($keywords),
 				   );
 		} else {
 			throw new SoapFault('Server', 'Asset ID or Type Code is not valid. Please provide a valid Asset ID or Type Code');
+		}//end else
+
+	}//end GetAssetAvailableKeywords()
+
+
+	/**
+	* Description: This operation will return all available keywords of an asset
+	*
+	* @param string  $request  The request information
+	*
+	* <pre>
+	* Array (
+	*		'AssetID' => [The ID of the asset in query],
+	*			'TypeCode' => [The type code of asset],
+	*       )
+	* </pre>
+	*
+	* @return void
+	* @access public
+	*/
+	function GetPaintLayoutAvailableKeywords($request)
+	{
+		$request_info 	= (Array) $request;
+		$assetid		= array_get_index($request_info, 'AssetID', '');
+		$type_code		= array_get_index($request_info, 'TypeCode', '');
+		$keywords		= Array();
+
+		if (!empty($assetid)) {
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$type_format_folder = $asset->getFolder();
+
+			$format_to_get = !empty($type_code) ? $type_code : 'default_format';
+			$format_link = $GLOBALS['SQ_SYSTEM']->am->getLink($type_format_folder->id, SQ_LINK_TYPE_2, 'paint_layout_bodycopy', TRUE, $format_to_get);
+
+			if (!empty($format_link)) {
+				$bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($format_link['minorid'], $format_link['minor_type_code']);
+			}
+
+			if ($bodycopy) $bodycopy->getKeywordsDescription($keywords, $type_code);
+
+			return Array (
+					'GetPaintLayoutAvailableKeywordsResult'	=> array_keys($keywords),
+				   );
+		} else {
+			throw new SoapFault('Server', 'Please provide a valid Asset ID');
 		}//end else
 
 	}//end GetAssetAvailableKeywords()
@@ -1040,8 +1086,9 @@ class Soap_Api_Asset_Service extends Soap_Api
 	*/
 	function GetTags($request)
 	{
+
 		$request_info 	= (Array) $request;
-		$assetid			= array_get_index($request_info, 'AssetID', '');    
+		$assetid			= array_get_index($request_info, 'AssetID', '');
 		$thesaurus_ids		= array_get_index($request_info, 'ThesaurusIDs', Array());
 		if (!is_array($thesaurus_ids)) {
 		    $thesaurus_ids = Array($thesaurus_ids);
@@ -1068,9 +1115,9 @@ class Soap_Api_Asset_Service extends Soap_Api
 		} else {
 			throw new SoapFault('Server', 'Asset ID is not valid. Please provide a valid Asset ID');
 		}//end else
-			
+
 	}//end GetTags()
-	
+
 
 	/**
 	* Description: This operation will return all statuses of the asset in Matrix
@@ -1197,8 +1244,8 @@ class Soap_Api_Asset_Service extends Soap_Api
 		return Array('AssetID' => $assetid);
 
 	}//end GetUserIdByUsername()
-	
-	
+
+
 	/**
 	* Description: This operation will set status for an asset
 	*
@@ -1252,7 +1299,6 @@ class Soap_Api_Asset_Service extends Soap_Api
 	}//end SetAssetStatus()
 
 
-	
 	/**
 	* Description: This operation will set multiple paths for an asset
 	*
@@ -1275,7 +1321,7 @@ class Soap_Api_Asset_Service extends Soap_Api
 			$path			= array_get_index($request_info, 'Path', Array());
 			if(!is_array($path)) $path = Array($path);
 			$addRemaps			= array_get_index($request_info, 'AddRemaps', TRUE);
-			
+
 			$asset		= $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			$result	= $asset->saveWebPaths($path, $addRemaps);
 			return Array (
@@ -1286,9 +1332,8 @@ class Soap_Api_Asset_Service extends Soap_Api
 		}//end else
 
 	}//end SetAssetWebPaths()
-	
-	
-	
+
+
 	/**
 	* getComplexElements
 	*
@@ -1431,6 +1476,15 @@ class Soap_Api_Asset_Service extends Soap_Api
 																						'GetAssetAvailableKeywordsResult'	=> $keywords,
 														   							   ),
 														   ),
+							'GetPaintLayoutAvailableKeywords'	=> Array (
+															'GetPaintLayoutAvailableKeywords'	=> Array (
+														   								'AssetID'			=> self::$string_non_optional,
+																						'TypeCode'			=> self::getArgType('AssetType', 0, 1),
+														   							   ),
+														   	'GetPaintLayoutAvailableKeywordsResponse'=> Array (
+																						'GetPaintLayoutAvailableKeywordsResult'	=> $keywords,
+														   							   ),
+														   ),
 							'GetAttributeValuesByName'	=> Array (
 															'GetAttributeValuesByName'	=> Array (
 														   								'AssetIDs'			=> self::$string_optional_unbounded,
@@ -1518,17 +1572,17 @@ class Soap_Api_Asset_Service extends Soap_Api
                                                                                            	  'AssetID'		=> self::$string_non_optional,
                                                                                              ),
                                                               ),
-		    
-	'SetAssetWebPaths'			=> Array (
-						'SetAssetWebPaths'	=> Array (
-									'AssetID'			=> self::$string_non_optional,
-									'Path'			=> self::$string_optional_unbounded,	
-									'AddRemaps'		=> self::$boolean_optional,
-								    ),	
-						'SetAssetWebPathsResponse'=> Array (
-									'SetAssetWebPathsResult'	=> self::$boolean_optional,
-								    ),
-					    ),
+
+							'SetAssetWebPaths'			=> Array (
+															'SetAssetWebPaths'			=> Array (
+																							'AssetID'		=> self::$string_non_optional,
+																							'Path'			=> self::$string_optional_unbounded,
+																							'AddRemaps'		=> self::$boolean_optional,
+																					       ),
+															'SetAssetWebPathsResponse'	=> Array (
+																							'SetAssetWebPathsResult'	=> self::$boolean_optional,
+																						   ),
+														   ),
 						  );
 
 		$complex_types_available = parent::getComplexElements($complex_types);
