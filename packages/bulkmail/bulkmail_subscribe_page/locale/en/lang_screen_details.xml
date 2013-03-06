@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.6 2008/11/24 22:28:21 mbrydon Exp $
+* $Id: lang_screen_details.xml,v 1.6.26.1 2013/03/06 03:18:36 akarelia Exp $
 *
 */
 -->
@@ -76,6 +76,10 @@
 		<field attribute="verify_from_address">
 			<display_name>From Address</display_name>
 			<note>Verification emails will be sent out using this as the from address.</note>
+		</field>
+		<field attribute="verify_subject_line">
+			<display_name>Verify Email Subject</display_name>
+			<note>If set this subject header will be used for emails sent out for verification or else the default , 'Please confirm your subscription / unsubscription request', will be used.</note>
 		</field>
 		<field attribute="verify_logged_in">
 			<display_name>Logged In Users</display_name>
