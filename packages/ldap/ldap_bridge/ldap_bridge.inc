@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.117 2013/03/05 04:44:35 cupreti Exp $
+* $Id: ldap_bridge.inc,v 1.118 2013/03/07 03:40:06 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.117 $
+* @version $Revision: 1.118 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -511,7 +511,7 @@ class LDAP_Bridge extends Asset implements Bridge
 						}
 						if (!empty($sort_by)){
 							uasort($entries, create_function('$a,$b',
-												'$a = (isset($a[\''.$sort_by.'\'][\'ovalue\'])) ? $a[\''.$sort_by.'\'][\'value\'] : "";
+												'$a = (isset($a[\''.$sort_by.'\'][\'value\'])) ? $a[\''.$sort_by.'\'][\'value\'] : "";
 												$b = (isset($b[\''.$sort_by.'\'][\'value\'])) ? $b[\''.$sort_by.'\'][\'value\'] : "";
 												if ($a == $b) {
 													return 0;
