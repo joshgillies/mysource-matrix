@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_common.inc,v 1.28 2013/03/06 03:20:11 cupreti Exp $
+* $Id: trim_common.inc,v 1.29 2013/03/07 02:30:31 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage trim
 */
@@ -912,9 +912,9 @@ class TRIM_Common
 	*/
 	public static function executeRequest($connection, $operations=Array(), $display_type='Fetch', $search_clause_xml = '', $hash_key='', &$final_file_path='')
 	{
-			// TRIM API call usually takes a while to search records
+			// TRIM API call usually takes a while to search records, so set it to 24*60*60s
 			$default_socket_timeout = ini_get('default_socket_timeout');
-			ini_set('default_socket_timeout', -1);
+			ini_set('default_socket_timeout', 86400);
 			
 			$Execute		= Array (
 							'req'	=> self::constructTrimRequest(),
@@ -1366,6 +1366,7 @@ class TRIM_Common
 						'RETURNTRANSFER' => 1,
 						'HTTPAUTH'          => CURLAUTH_BASIC,
 						'TIMEOUT'        => 5,
+						'SSL_VERIFYPEER' => 0,
 						'USERPWD'        => $connection['authentication']['login'].":".$connection['authentication']['password'],
 					   );
 			$details  = fetch_url($connection['wsdl'], $options, array(), FALSE);
