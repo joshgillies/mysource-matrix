@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.94.2.4 2012/12/12 04:33:58 ewang Exp $
+* $Id: page_remote_content.inc,v 1.94.2.5 2013/03/08 05:28:22 ewang Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.94.2.4 $
+* @version $Revision: 1.94.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -240,7 +240,7 @@ class Page_Remote_Content extends Page
 			    }
 		    }
 		}
-	
+
 		if (!empty($query_string) && !is_null($remote_source)) {
 			// we're preparing to pass all the query vars to the remote target
 			// remove the query var that contains the reference to the remote target
@@ -306,7 +306,7 @@ class Page_Remote_Content extends Page
 				// that's why when content-type is NOT form-data we use the php://input
 				// the reason we don't always use php://input is because when content type is multipart/form-data it is empty
 				$post_data = $_POST;
-					
+		
 				// if it's array format, e.g test[0]=1, PHP will convert it to multiple level array, convert it to string format for CURL
 				foreach ($post_data as $name => $value) {
 				    if(is_array($value)) {
@@ -398,20 +398,25 @@ class Page_Remote_Content extends Page
 			}
 
 			// Only send files to the remote URL if those files are in the remote content page
-			if (!empty($input_file_names)) {
+			$temp_dirs = Array();
+			if (!empty($input_file_names) && isset($_SESSION['SQ_REMOTE_CONTENT_UPLOAD_FILE']) && $_SESSION['SQ_REMOTE_CONTENT_UPLOAD_FILE']) {
 				foreach ($_FILES as $name => $details) {
 					if (in_array($name, $input_file_names)) {
+						$uniqid = uniqid();
+						$new_dir = SQ_TEMP_PATH.'/remote_content_'.$uniqid;
+						if(!mkdir($new_dir)) continue;
+						$temp_dirs[] = $new_dir;
 						if (is_array($details['tmp_name'])) {
 							foreach ($details['tmp_name'] as $i => $tn) {
 								if ($details['error'][$i] != UPLOAD_ERR_OK) continue;
-								$new_name = SQ_TEMP_PATH.'/'.basename($details['name'][$i]);
+								$new_name = $new_dir.'/'.basename($details['name'][$i]);
 								if (move_uploaded_file($tn, $new_name)) {
 									$post_data[$name.'['.$i.']'] = '@'.$new_name;
 								}
 							}
 						} else {
 							if ($details['error'] != UPLOAD_ERR_OK) continue;
-							$new_name = SQ_TEMP_PATH.'/'.basename($details['name']);
+							$new_name = $new_dir.'/'.basename($details['name']);
 							if (move_uploaded_file($details['tmp_name'], $new_name)) {
 								$post_data[$name] = '@'.$new_name;
 							}
@@ -450,6 +455,19 @@ class Page_Remote_Content extends Page
 		$options['ssl_verifypeer']=$this->attr('verify_ssl');
 		$result = fetch_url($url, $options);
 
+		// remove temp folder and files
+		if(isset($temp_dirs)) {
+		    foreach ($temp_dirs as $dir) {
+			$files = glob($dir.'/*'); // get all file names
+			foreach($files as $file){ // iterate files
+			  if(is_file($file))
+			    unlink($file); // delete file
+			}
+			rmdir($dir);
+		    }
+		}
+
+			
 		// save cookie content to session
 		if(is_file($cookie_filename)) {
 		    $_SESSION['SQ_REMOTE_CONTENT_COOKIE'][$this->id] =  file_get_contents($cookie_filename);
@@ -569,6 +587,7 @@ class Page_Remote_Content extends Page
 				}
 			}
 		}
+		$_SESSION['SQ_REMOTE_CONTENT_UPLOAD_FILE'] = FALSE;
 		if (!empty($file_names)) {
 			$serialized_names = serialize($file_names);
 			require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -577,6 +596,8 @@ class Page_Remote_Content extends Page
 			$hidden_field = ob_get_clean();
 			//put the hidden field right after the first input file type
 			$content = str_replace($matches[0][0], $matches[0][0].$hidden_field, $content);
+			// accept file upload
+			$_SESSION['SQ_REMOTE_CONTENT_UPLOAD_FILE'] = TRUE;
 		}
 		
 	}//end _addInputFileNames()

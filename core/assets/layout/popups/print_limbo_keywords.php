@@ -2,6 +2,18 @@
 	require_once dirname(__FILE__).'/../../../../../core/include/init.inc';
 
 	require_once SQ_SYSTEM_ROOT.'/core/lib/html_form/html_form.inc';
+	if (isset($GLOBALS['SQ_SYSTEM']->user)) {
+		$user = $GLOBALS['SQ_SYSTEM']->user;
+	} else {
+		$user = NULL;
+	}//end if
+
+	// Check for at least simple edit access
+	if (is_null($user) || $user instanceof Public_User) {
+	    echo 'You are not allowed to access this page';
+	    exit();
+	}
+			
 ?>
 
 <html>
@@ -51,7 +63,7 @@
 
 		if (isset($_REQUEST['asset_type']))
 		{
-			$asset_type = $_REQUEST['asset_type'];
+			$asset_type = preg_replace('/[^a-zA-Z0-9_]+/', '', $_REQUEST['asset_type']);
 			$ei= new Asset_Edit_Interface($asset_type);
 			$ei->getSimpleEditKeywords($asset_type, $o);
 		}
