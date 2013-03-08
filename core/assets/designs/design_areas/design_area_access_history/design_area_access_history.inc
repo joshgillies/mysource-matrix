@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_access_history.inc,v 1.16 2012/08/30 01:09:05 ewang Exp $
+* $Id: design_area_access_history.inc,v 1.16.4.1 2013/03/08 03:00:54 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ define('SQ_DESIGN_AREA_HISTORY_STATUS_ABSENT',	'2');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.16.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -629,7 +629,7 @@ class Design_Area_Access_History extends Design_Area
 			$processed_value = Array();
 
 			foreach ($value as $type_content) {
-				preg_match('/(?<type_code>\w+)(\[(?<parameters>[012])\])?/', $type_content, $matches);
+				preg_match('/(?P<type_code>\w+)(\[(?P<parameters>[012])\])?/', $type_content, $matches);
 
 				if (!$GLOBALS['SQ_SYSTEM']->am->installed($matches['type_code'])) {
 					trigger_localised_error('CORE0145', E_USER_WARNING, $matches['type_code']);
