@@ -10,22 +10,22 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: keywords.php,v 1.9 2012/08/30 00:58:08 ewang Exp $
+* $Id: keywords.php,v 1.9.4.1 2013/03/08 05:23:07 ewang Exp $
 *
 */
 -->
 <?php
 	require_once dirname(__FILE__).'/../../../../../core/include/init.inc';
 	if (!isset($_GET['type_code'])) return FALSE;
-
-	$GLOBALS['SQ_SYSTEM']->am->includeAsset($_GET['type_code']);
-	$asset = new $_GET['type_code']();
+	$asset_type = preg_replace('/[^a-zA-Z0-9_]+/', '', $_GET['type_code']);
+	$GLOBALS['SQ_SYSTEM']->am->includeAsset($asset_type);
+	$asset = new $asset_type();
 	$keywords = $asset->getAvailableKeywords();
 ?>
 
 <html>
 	<head>
-		<title><?php echo htmlspecialchars(ucwords(str_replace('_', ' ', $_GET['type_code']))) ?> Format Keyword Replacements</title>
+		<title><?php echo htmlspecialchars(ucwords(str_replace('_', ' ', $asset_type))) ?> Format Keyword Replacements</title>
 		<style>
 			body {
 				background-color:	#FFFFFF;
@@ -49,7 +49,7 @@
 	</head>
 
 	<body>
-		<p><b><i>The following keyword replacements may be used for <?php echo htmlspecialchars(ucwords(str_replace('_', ' ', $_GET['type_code']))); ?> asset values.<br/>Note that the percentage signs (%) are required.</i></b></p>
+		<p><b><i>The following keyword replacements may be used for <?php echo htmlspecialchars(ucwords(str_replace('_', ' ', $asset_type))); ?> asset values.<br/>Note that the percentage signs (%) are required.</i></b></p>
 
 		<p>
 		<fieldset>

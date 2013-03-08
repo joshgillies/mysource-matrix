@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.47 2012/08/30 00:58:43 ewang Exp $
+* $Id: funnelback_search_page.inc,v 1.47.4.1 2013/03/08 05:23:18 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.47.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -3128,10 +3128,11 @@ class Funnelback_Search_Page extends Listing_Engine
 		} else {
 			// sanitise it by removing '%' from keywords so that
 			// they dont go ahead and try to fetch it replacement
+			$queries = str_replace(chr(0), '' , $queries);
 			$keywords = extract_keywords($queries);
 			foreach ($keywords as $keyword) {
-				$pattern = '/(%*)'.$keyword.'(%*)/';
-				$queries = preg_replace($pattern, $keyword, $queries);
+				$pattern = '%'.$keyword.'%';
+				$queries = str_replace($pattern, $keyword, $queries);
 			}
 		}
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.265.4.1 2013/02/05 23:55:41 cupreti Exp $
+* $Id: search_page.inc,v 1.265.4.2 2013/03/08 05:24:34 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.265.4.1 $
+* @version $Revision: 1.265.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -3436,10 +3436,11 @@ class Search_Page extends Listing_Engine
 			} else {
 				// sanitise it by removing '%' from keywords so that
 				// they dont go ahead and try to fetch it replacement
+				$query = str_replace(chr(0), '' , $query);
 				$keywords = extract_keywords($query);
 				foreach ($keywords as $keyword) {
-					$pattern = '/(%*)'.$keyword.'(%*)/';
-					$query = preg_replace($pattern, $keyword, $query);
+					$pattern = '%'.$keyword.'%';
+					$query = str_replace($pattern, $keyword, $query);
 				}
 				$queries[$field] = $query;
 			}

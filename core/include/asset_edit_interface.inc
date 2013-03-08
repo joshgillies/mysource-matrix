@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.378.4.1 2013/02/22 01:57:25 akarelia Exp $
+* $Id: asset_edit_interface.inc,v 1.378.4.2 2013/03/08 05:24:26 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.378.4.1 $
+* @version $Revision: 1.378.4.2 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -76,7 +76,7 @@ class Asset_Edit_Interface extends MySource_Object
 	*/
 	function Asset_Edit_Interface($type_code)
 	{
-		$this->_type_code = $type_code;
+		$this->_type_code = basename($type_code);
 
 		$type_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->_type_code);
 		$asset_dir = SQ_SYSTEM_ROOT.'/'.$type_info['dir'];
