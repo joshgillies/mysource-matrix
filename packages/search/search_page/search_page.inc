@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.266 2013/02/04 07:31:29 cupreti Exp $
+* $Id: search_page.inc,v 1.267 2013/03/08 02:19:58 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.266 $
+* @version $Revision: 1.267 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1759,6 +1759,7 @@ class Search_Page extends Listing_Engine
 		$results_per_page    = array_get_index($_REQUEST, 'results_per_page', $this->_getNumPerPage());
 		$this->_tmp['start_element'] = ($current_result_page - 1) * $results_per_page;
 		$queries = '';
+		
 		foreach ($_GET as $query_name => $query_value) {
 			// skip some get vars that will be added later by the keyword replacements
 			if (!in_array($query_name, Array('mode', 'current_result_page', 'results_per_page', 'result_'.$this->id.'_result_page'))) {
@@ -3436,10 +3437,11 @@ class Search_Page extends Listing_Engine
 			} else {
 				// sanitise it by removing '%' from keywords so that
 				// they dont go ahead and try to fetch it replacement
+				$query = str_replace(chr(0), '' , $query);
 				$keywords = extract_keywords($query);
 				foreach ($keywords as $keyword) {
-					$pattern = '/(%*)'.$keyword.'(%*)/';
-					$query = preg_replace($pattern, $keyword, $query);
+					$pattern = '%'.$keyword.'%';
+					$query = str_replace($pattern, $keyword, $query);
 				}
 				$queries[$field] = $query;
 			}

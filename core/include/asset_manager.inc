@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.901 2013/02/21 23:33:25 ewang Exp $
+* $Id: asset_manager.inc,v 1.902 2013/03/08 02:19:51 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.901 $
+* @version $Revision: 1.902 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -617,7 +617,7 @@ class Asset_Manager extends MySource_Object
 	function includeAsset($type_code, $with_edit_fns=FALSE)
 	{
 		$error_msg = 'Asset "'.$type_code.'" is not installed on the system, unable to include its source file';
-		$type_code = strtolower($type_code);
+		$type_code = strtolower(basename($type_code));
 		assert_isset_array_index($this->_asset_types, $type_code, $error_msg);
 
 		// we only need to require the type_code and its asset string once
