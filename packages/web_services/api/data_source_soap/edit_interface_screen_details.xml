@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.2 2013/01/29 23:38:12 cupreti Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2.2.1 2013/03/08 00:01:01 cupreti Exp $
 *
 */
 -->
@@ -68,6 +68,14 @@
 		</field>
 		<field attribute="data_delimiter">
 			<text width="10" height="1" />
+		</field>
+	</section>
+	<section name="Transformations" write_access="write:links">
+        <field>
+			<function_call>
+				<paint_function   name="paintXslFile"   />
+				<process_function name="processXslFile" />
+			</function_call>
 		</field>
 	</section>
 	<section name="Record Set Asset Names" write_access="write:attributes">

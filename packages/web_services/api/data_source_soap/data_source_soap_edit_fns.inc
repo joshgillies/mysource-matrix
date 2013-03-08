@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_soap_edit_fns.inc,v 1.1 2013/01/04 01:37:19 cupreti Exp $
+* $Id: data_source_soap_edit_fns.inc,v 1.1.2.1 2013/03/08 00:01:01 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -197,7 +197,11 @@ class Data_Source_Soap_Edit_Fns extends Data_Source_Edit_Fns
 				if (!empty($value)) {
 					// Only alter the request message for the selected function
 					$existing_value[$selected_fn] = $value;
-					return $asset->setAttrValue('soap_requests', $existing_value);
+					if (!$asset->setAttrValue('soap_requests', $existing_value)) {
+						return FALSE;
+					}
+					// Recache the result set if required
+					$asset->getResultSet();
 				}
 			}
 		}//end if
@@ -219,7 +223,12 @@ class Data_Source_Soap_Edit_Fns extends Data_Source_Edit_Fns
 	*/
 	function paintLastSoapRequest(&$asset, &$o, $prefix)
 	{
-		pre_echo($asset->attr('last_request'));
+		$path = $asset->data_path.'/response_data';
+		$data = @unserialize(file_get_contents($path));
+		$request = array_get_index($data, 'request', '');
+		if ($request) {
+			pre_echo($request);
+		}
 
 		return FALSE;
 
@@ -238,14 +247,17 @@ class Data_Source_Soap_Edit_Fns extends Data_Source_Edit_Fns
 	*/
 	function paintLastSoapResponse(&$asset, &$o, $prefix)
 	{
-		$response = $asset->attr('last_response');
+		$path = $asset->data_path.'/response_data';
+		$data = @unserialize(file_get_contents($path));
+		$response = array_get_index($data, 'response', '');
+		if ($response) {
+			echo "<b>XML Message</b>";
+			pre_echo(isset($response['response_xml']) ? $response['response_xml'] : '');
 
-		echo "<b>XML Message</b>";
-		pre_echo(isset($response['response_xml']) ? $response['response_xml'] : '');
-
-		echo "<br/>";
-		echo "<b>Response Object</b>";
-		pre_echo(isset($response['response_obj']) ? unserialize($response['response_obj']) : '');
+			echo "<br/>";
+			echo "<b>Response Object</b>";
+			pre_echo(isset($response['response_obj']) ? unserialize($response['response_obj']) : '');
+		}
 
 		return FALSE;
 
@@ -355,6 +367,86 @@ class Data_Source_Soap_Edit_Fns extends Data_Source_Edit_Fns
 		return TRUE;
 
 	} //end processWsUsernameAuth()
+
+
+	/**
+	* Paint the XSL file input field
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintXslFile(&$asset, &$o, $prefix)
+	{
+		$wa = $asset->writeAccess('links');
+
+		// Get existing XSL file assetid
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'xsl_file', FALSE, 'xslt');
+		$assetid = array_get_index($link, 'minorid', 0);
+
+		if ($wa) {
+			asset_finder($prefix.'_xsl_file', $assetid, Array('xsl_file' => 'D'));
+		} else if ($assetid) {
+			echo get_asset_tag_line($assetid);
+		}
+
+		return TRUE;
+
+	} //end paintXslFile()
+
+
+	/**
+	* Process the XSL file input field
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processXslFile(&$asset, &$o, $prefix)
+	{
+		if (!$asset->writeAccess('links')) {
+			return FALSE;
+		}
+
+		$new_assetid = isset($_POST[$prefix.'_xsl_file']['assetid']) ? $_POST[$prefix.'_xsl_file']['assetid'] : 0;
+		if ($new_assetid && !$GLOBALS['SQ_SYSTEM']->am->getAssetInfo($new_assetid, Array('xsl_file'), FALSE)) {
+			return FALSE;
+		}
+
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'xsl_file', FALSE, 'xslt');
+		$old_assetid = array_get_index($link, 'minorid', 0);
+
+		$ok = TRUE;
+		if ($new_assetid != $old_assetid) {
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+			// Delete the existing link
+			if ($old_assetid && !$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid'])) {
+				$ok = FALSE;
+			}
+
+			// Create the new link
+			if ($new_assetid) {
+				$new_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($new_assetid);
+				if (!$asset->createLink($new_asset, SQ_LINK_NOTICE, 'xslt')) {
+					$ok = FALSE;
+				}
+			}
+
+			$GLOBALS['SQ_SYSTEM']->doTransaction($ok ? 'COMMIT' : 'ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		}
+
+		return $ok;
+
+	} //end processXslFile()
 
 
 }//end class

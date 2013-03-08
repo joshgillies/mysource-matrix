@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_soap.inc,v 1.1 2013/01/04 01:37:19 cupreti Exp $
+* $Id: data_source_soap.inc,v 1.1.2.1 2013/03/08 00:01:01 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/lib/soap_common.inc';
 * Data_Source_Soap
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -116,6 +116,28 @@ class Data_Source_Soap extends Data_Source
 	*
 	*/
 	protected $_complex_elements = Array();
+
+
+	/**
+	* The current tags hierarchy string
+	* For example:
+	*
+	* <info>
+	* 	<name>
+	*		<first>Maxx</first>
+	*		<other>Smith</other>
+	*	</name>
+	*	.
+	*	.
+	*	.
+	* </info>
+	*
+	* If the current tag for above is "first", then the
+	* tags hierarchy array will be Array(0 => 'info', 1 => 'name', 2=> 'first')
+	*
+	* @var array
+	*/
+	protected $_current_tag_hierarchy = Array();
 
 
 	/**
@@ -247,46 +269,44 @@ class Data_Source_Soap extends Data_Source
 		$soap_function = $this->attr('request_fn');
 		try {
 			$soap_client = $this->getSoapClient();
-			@eval('$response = $soap_client->$soap_function('.$eval_string.');');
-		}
-		catch (Exception $e) {
+			eval('$response = $soap_client->$soap_function('.$eval_string.');');
+		} catch (Exception $e) {
+			// Save the last request
+			$data = Array();
+			$data['request'] = $soap_client->__getLastRequest();
+			$data['response'] = Array(
+									'response_xml' => '',
+									'response_object' => '',
+								);
+			// Save the response/request data in the data dir
+			$this->saveLastRequestResponse($data);
 			trigger_error($e->getMessage());
 			return Array();
 		}
 
-		$result_attr = $soap_function.'Result';
-
 		// Save the last request and response
-		$data = $soap_client->__getLastRequest();
-		$this->setAttrValue('last_request', $data);
 		$data = Array();
-		$data['response_xml'] = $soap_client->__getLastResponse();
-		$data['response_obj'] = !is_null($response) && isset($response->$result_attr) ? serialize($response->$result_attr) : '';
-		$this->setAttrValue('last_response', $data);
-		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-			$this->saveAttributes();
-		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+		$data['request'] = $soap_client->__getLastRequest();
+		$data['response'] = Array(
+								'response_xml' => $soap_client->__getLastResponse(),
+								'response_obj' => !is_null($response) ? serialize($response) : '',
+							);
+		$this->saveLastRequestResponse($data);
 
 		// Process the response and the result
-		if (is_null($response) || !isset($response->$result_attr)) {
+		if (is_null($response)) {
 			return Array();
 		}
 
-		// Make the response object xml
-		$response_val = $response->$result_attr;
-		if (!@simplexml_load_string($response_val)) {
-			if (!is_array($response_val)) {
-				$response_val = Array($response_val);
-			}
-			$response_xml = '';
-			foreach($response_val as $response_item) {
-				$response_xml .= '<'.$result_attr.'>'.SOAP_Common::arrayToXml($response_item).'</'.$result_attr.'>';
-			}
-		} else {
-			$response_xml = '<'.$result_attr.'>'.$response_val.'</'.$result_attr.'>';
+		// Make the response xml
+		$sxml = new SimpleXMLElement($data['response']['response_xml']);
+		$xpath_res = $sxml->xpath('/SOAP-ENV:Envelope/SOAP-ENV:Body');
+		$response_xml = @$xpath_res[0]->asXML();
+		if (empty($response_xml)) {
+			trigger_error("Expected xml content not found in the SOAP response");
+			return Array();
 		}
-		$response_xml = '<'.$soap_function.'Response>'.$response_xml.'</'.$soap_function.'Response>';
-		log_dump($response_xml);
+
 		$result = $this->_createParser($response_xml);
 
 		return $result;
@@ -454,6 +474,105 @@ class Data_Source_Soap extends Data_Source
 	}//end getSoapServiceInfo()
 
 
+	/**
+	* Save the given last request/response data
+	* in the asset's data dir
+	*
+	* @param array $data
+	*
+	* @return boolean
+	* @access public
+	*/
+	function saveLastRequestResponse($data)
+	{
+		if (!is_array($data) || !isset($data['request']) || !isset($data['response'])) {
+			return FALSE;
+		}
+
+		$string_data = @serialize($data);
+
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+		if ($string_data === FALSE || !create_directory($this->data_path)) {
+			trigger_error('Could not write the SOAP request/response data to the file', E_USER_WARNING);
+			return FALSE;
+		}
+
+		$file_path = $this->data_path.'/response_data';
+		file_put_contents($file_path, $string_data);
+
+	}//end saveLastRequestResponse()
+
+
+	/**
+	* Prints out the Frontend for this asset
+	*
+	* @return void
+	* @access public
+	*/
+	public function printFrontend()
+	{
+		// Get the XSL file, if set
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'xsl_file', FALSE, 'xslt');
+		$assetid = array_get_index($link, 'minorid', 0);
+		$xsl_file = $assetid ? $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid) : NULL;
+
+		if (!is_null($xsl_file) && class_exists('XSLTProcessor')) {
+			Asset::printFrontend();
+		} else {
+			parent::printFrontend();
+		}
+
+	}//end printFrontend()
+
+
+	/**
+	* Called by the design to print the body of this asset
+	*
+	* @return void
+	* @access public
+	*/
+	public function printBody()
+	{
+		// Get the XSL Stylesheet
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'xsl_file', FALSE, 'xslt');
+		$assetid = array_get_index($link, 'minorid', 0);
+		$xsl_content = '';
+		if ($assetid) {
+			$xsl_file = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$xsl_content = $xsl_file->getContent();
+		}
+
+		if (!empty($xsl_content)) {
+			// Refresh the SOAP response, if required
+			$this->getResultSet();
+
+			// Get the last SOAP response xml
+			$path = $this->data_path.'/response_data';
+			$data = @unserialize(file_get_contents($path));
+			$response_xml = isset($data['response']['response_xml']) ? $data['response']['response_xml'] : '';
+
+		}
+
+		if (empty($xsl_content) || empty($response_xml)) {
+			parent::printBody();
+		} else {
+			// Do transformation
+			$xml = new DOMDocument();
+			$xml->loadXML($response_xml);
+			$xsl = new DOMDocument();
+			$xsl->loadXML($xsl_content);
+
+			$parser = new XSLTProcessor();
+			$parser->importStylesheet($xsl);
+
+			$content = $parser->transformToXML($xml);
+			echo $content;
+
+		}//end if
+
+	}//end printBody()
+
+
 	// XML Parser functions ///
 
 	/**
@@ -569,6 +688,10 @@ class Data_Source_Soap extends Data_Source
 			$this->_checkRootTag($name);
 
 			if ($this->_inside_root_tag) {
+
+				// Add the tag in the hierarchy stack
+				$this->_current_tag_hierarchy[] = $name;
+
 				$required_tags = $this->_getRequiredTags();
 				for ($i=0; $i<count($required_tags); $i++) {
 					if ($name === $required_tags[$i]) {
@@ -618,20 +741,21 @@ class Data_Source_Soap extends Data_Source
 	function characterData($parser, $data)
 	{
 		if ($this->_inside_relevant_tag) {
-			if (!isset($this->_result[$this->_record_set_index][$this->_current_tag_name])) {
-				$this->_result[$this->_record_set_index][$this->_current_tag_name] = $data;
+			$record_name = implode('.', $this->_current_tag_hierarchy);
+			if (!isset($this->_result[$this->_record_set_index][$record_name])) {
+				$this->_result[$this->_record_set_index][$record_name] = $data;
 			}
 			// If value for this tag is already set even when it is new tag then it means there are multiple tags with same name in the record
 			// Merge the values using the given delimiter
 			else if ($this->_new_tag) {
-				$this->_result[$this->_record_set_index][$this->_current_tag_name] .=  $this->attr('data_delimiter') . $data;
+				$this->_result[$this->_record_set_index][$record_name] .=  $this->attr('data_delimiter') . $data;
 			}
 			// Being here implies that this function handler has been called more than once for data in the same tag.
 			// Merge the data to get the whole thing.
 			// See bug #4113 - When parser encounters special content in data like &amp;, &apos;, etc., it stops scanning and calls the data handler,
 			// and then calls the handler again for the remaining data in the tag.
 			else {
-				$this->_result[$this->_record_set_index][$this->_current_tag_name] .=  $data;
+				$this->_result[$this->_record_set_index][$record_name] .=  $data;
 			}
 		}
 
@@ -662,6 +786,9 @@ class Data_Source_Soap extends Data_Source
 		}
 		// Move the XML tree level tracker one level down on the closing of the element
 		$this->_tree_level--;
+
+		// Remove the tag in the hierarchy stack
+		array_pop($this->_current_tag_hierarchy);
 
 		$this->_inside_relevant_tag = FALSE;
 
