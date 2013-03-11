@@ -18,7 +18,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: cache_storage_redis.inc,v 1.2 2013/01/22 05:29:12 ewang Exp $
+ * $Id: cache_storage_redis.inc,v 1.3 2013/03/11 23:29:11 ewang Exp $
  *
  */
 
@@ -38,7 +38,7 @@ define('SQ_CACHE_REDIS_URL_INDEX_PREFIX', 'sq_cache_url_index|');
  *
  * @author  James Hurst <james@riverratrecords.com>
  * @author  Hamish Forbes <hforbes@squiz.co.uk>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  * @package MySource_Matrix_Packages
  * @subpackage __core__
  */
@@ -83,11 +83,11 @@ class Cache_Storage_Redis extends Cache_Storage
 		foreach ($services as $host_key => $weight) {
 			$host = $hosts[$host_key];
 			if ($host['socket'] !== FALSE) {
-				if ($this->_redis->connect($host['socket'])) {
+				if ($this->_redis->pconnect($host['socket'])) {
 					break;
 				}
 			} else {
-				if ($this->_redis->connect($host['host'], $host['port'], 1)) {
+				if ($this->_redis->pconnect($host['host'], $host['port'], 2)) {
 					break;
 				}
 			}
@@ -177,12 +177,17 @@ class Cache_Storage_Redis extends Cache_Storage
 		$index_url = trim(preg_replace('/\?.*/', '', $url), '//');
 		$mcache_key = SQ_CACHE_REDIS_PREFIX."$cache_key|$perm_key|$url|$assetid";
 
-		// Update the assetid and url indexes and save the cache entry in an atomic transaction
-		$ret = $this->_redis->multi()
-					->sadd(SQ_CACHE_REDIS_ASSET_INDEX_PREFIX.$assetid, $mcache_key)
-					->sadd(SQ_CACHE_REDIS_URL_INDEX_PREFIX.$index_url, $mcache_key)
-					->setex($mcache_key, $expiry_length, $data)
-					->exec();
+		 // Update the assetid and url indexes and save the cache entry in an atomic transaction
+		 try{
+		    $ret = $this->_redis->multi()
+				    ->sadd(SQ_CACHE_REDIS_ASSET_INDEX_PREFIX.$assetid, $mcache_key)
+				    ->sadd(SQ_CACHE_REDIS_URL_INDEX_PREFIX.$index_url, $mcache_key)
+				    ->setex($mcache_key, $expiry_length, $data)
+				    ->exec();
+		} catch(RedisException $e) {
+			log_write('Redis Write Error: '.$e->getMessage(), 'error', E_USER_NOTICE);
+			return FALSE;
+		}
 		//return result of setting cache entry
 		return (isset($ret[2])) ? $ret[2] : FALSE;
 
@@ -214,12 +219,15 @@ class Cache_Storage_Redis extends Cache_Storage
 
 		$index_url = trim(preg_replace('/\?.*/', '', $url), '//');
 		$mcache_key = SQ_CACHE_REDIS_PREFIX."$cache_key|$perm_key|$url|$assetid";
-
+		try {
 		$exists = $this->_redis->multi()
 							   ->sismember(SQ_CACHE_REDIS_ASSET_INDEX_PREFIX.$assetid, $mcache_key)
 							   ->sismember(SQ_CACHE_REDIS_URL_INDEX_PREFIX.$index_url, $mcache_key)
 							   ->exec();
-
+		} catch(RedisException $e) {
+			log_write('Redis Read Error: '.$e->getMessage(), 'error', E_USER_NOTICE);
+			return FALSE;
+		}
 		if (!$exists[0] || !$exists[1]) {
 			// Cache key has been removed from index sets, consider this key invalid
 			return FALSE;
