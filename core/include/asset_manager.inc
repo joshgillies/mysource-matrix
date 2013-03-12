@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.902 2013/03/08 02:19:51 ewang Exp $
+* $Id: asset_manager.inc,v 1.903 2013/03/12 23:38:12 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.902 $
+* @version $Revision: 1.903 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -9149,6 +9149,13 @@ class Asset_Manager extends MySource_Object
 								  l.type_code, l.sort_order, l.is_dependant, l.is_exclusive, l.locked';
 			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
 				$from .= ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON p.assetid = l.'.$other_side.'id';
+
+				/**
+				 * See bug #6200 for why this is here.
+				 * Even though we're not using the result from the lnk_tree table, it makes
+				 * oracle behave in a much nicer way when it works out how to execute the query.
+				 */
+				$from .= ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t ON t.linkid=l.linkid';
 
 				// get user and group ids
 				$userid1_conds = Array(':'.$bind_prefix.'userids_1_current', ':'.$bind_prefix.'userids_1_public_user');
