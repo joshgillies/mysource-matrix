@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.179.4.2 2013/02/26 23:56:01 cupreti Exp $
+* $Id: workflow_manager.inc,v 1.179.4.3 2013/03/12 00:00:55 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.179.4.2 $
+* @version $Revision: 1.179.4.3 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -1933,14 +1933,16 @@ class Workflow_Manager extends MySource_Object
 		$publishers = $this->whoCanPublish($asset->id);
 		$workflow_values = $this->getSchemaWorkflows($assetid);
 		$workflow = reset($workflow_values);
-		$started_by = $workflow['started_by'];
-		$started_by_user = $GLOBALS['SQ_SYSTEM']->am->getAsset($started_by, '', TRUE);
-		if ($started_by_user){
-			// see bug #4986 Simple Edit User doesnt get workflow emails initiated via EES
-			// and see simple_edit_user::canAccessBackend()
-			if ($started_by_user instanceof Simple_Edit_User) $started_by_user->_tmp['starter_of_workflow'] = TRUE;
+		$started_by = isset($workflow['started_by']) ? $workflow['started_by'] : '';
+		if ($started_by && $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($started_by, Array('user', 'user_group'), FALSE)) {
+			$started_by_user = $GLOBALS['SQ_SYSTEM']->am->getAsset($started_by, '', TRUE);
+			if ($started_by_user){
+				// see bug #4986 Simple Edit User doesnt get workflow emails initiated via EES
+				// and see simple_edit_user::canAccessBackend()
+				if ($started_by_user instanceof Simple_Edit_User) $started_by_user->_tmp['starter_of_workflow'] = TRUE;
+			}
+			$publishers = array_unique(array_merge($publishers, Array($started_by)));
 		}
-		$publishers = array_unique(array_merge($publishers, Array($started_by)));
 
 		$current_steps = $this->getWorkflowCurrentSteps($assetid);
 		if (!$this->_clearWorkflow($assetid)) return FALSE;
