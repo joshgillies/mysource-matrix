@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.778 2013/02/28 02:31:44 ewang Exp $
+* $Id: asset.inc,v 1.779 2013/03/13 03:17:14 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.778 $
+* @version $Revision: 1.779 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2159,7 +2159,7 @@ class Asset extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$GLOBALS['SQ_CLONE_COMPONENTS'] = TRUE;
-		
+
 		$all_contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
 
 		  //////////////////
@@ -3117,7 +3117,7 @@ class Asset extends MySource_Object
 	*
 	* @param boolean	$dont_run_updated	if TRUE this->_updated() won't be run
 	* @param boolean	$log_message	if FALSE attrubutes change won't be logged in system log
-	*										
+	*
 	*
 	* @return boolean
 	* @access public
@@ -3415,7 +3415,7 @@ class Asset extends MySource_Object
 			    $filter_enabled = FALSE;
 			else if (isset($GLOBALS['SQ_CLONE_COMPONENTS'] ) && $GLOBALS['SQ_CLONE_COMPONENTS'])
 			    $filter_enabled = FALSE;
-			
+
 			//Any identified attributes that shouldn't be filtered
 			$type_excl = Array ('form_submission');
 			$attr_excl = Array ('xml');
@@ -4201,7 +4201,9 @@ class Asset extends MySource_Object
 			}
 		}
 
-		apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id));
+		if (trim($replacement, '%') != $keyword) {
+			apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id));
+		}
 
 		return $replacement;
 
