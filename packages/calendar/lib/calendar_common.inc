@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.79 2012/08/30 00:57:28 ewang Exp $
+* $Id: calendar_common.inc,v 1.79.4.1 2013/03/13 00:49:49 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.79 $
+* @version $Revision: 1.79.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -64,17 +64,24 @@ class Calendar_Common
 		$sql .= "\t".'AND (a.status >= '.MatrixDAL::quote(SQ_STATUS_LIVE).")\n\t";
 
 		$sql .= ' AND '.Calendar_Common::_getTreeClause($root_ids);
-		
+
 		$bind_vars = Array();
 		if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin() && !$GLOBALS['SQ_SYSTEM']->userRoot()) {
-			$userids = $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE);
-			$userids[$GLOBALS['SQ_SYSTEM']->user->id] = 1;
-			$userids[$GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user')] = 1;
+			if (isset($_SESSION['sq_effective_user_groups'][$GLOBALS['SQ_SYSTEM']->user->id])) {
+				$userids = $_SESSION['sq_effective_user_groups'][$GLOBALS['SQ_SYSTEM']->user->id];
+			} else {
+				$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
+			}
+
+			$userids[] = $GLOBALS['SQ_SYSTEM']->user->id;
+			$userids[] = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
 			$user_count = 0;
-			foreach ($userids as $userid => $type) {
+			foreach ($userids as $idx => $userid) {
 				$bind_vars[$userid] = 'user'.$user_count++;
 			}
+
 			$userid_cond = ' AND p.userid  IN (:'.implode(',:', $bind_vars).')';
+
 			$sql .= $userid_cond.' AND p.granted = \'1\' AND (p.permission >= '.MatrixDAL::quote(SQ_PERMISSION_WRITE).' OR (status >= '.MatrixDAL::quote(SQ_STATUS_LIVE).' AND p.permission >= '.MatrixDAL::quote(SQ_PERMISSION_READ).'))';
 		}
 
@@ -125,11 +132,15 @@ class Calendar_Common
 		$sql .= "\nFROM ".Calendar_Common::_getTableList()." \nWHERE (a.type_code IN (".implode(',', $type_codes).")) \n\tAND (a.status >= ".MatrixDAL::quote(SQ_STATUS_LIVE).")\n";
 		$bind_vars = Array();
 		if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin() && !$GLOBALS['SQ_SYSTEM']->userRoot()) {
-			$userids = $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE);
-			$userids[$GLOBALS['SQ_SYSTEM']->user->id] = 1;
-			$userids[$GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user')] = 1;
+			if (isset($_SESSION['sq_effective_user_groups'][$GLOBALS['SQ_SYSTEM']->user->id])) {
+				$userids = $_SESSION['sq_effective_user_groups'][$GLOBALS['SQ_SYSTEM']->user->id];
+			} else {
+				$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', FALSE));
+			}
+			$userids[] = $GLOBALS['SQ_SYSTEM']->user->id;
+			$userids[] = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
 			$user_count = 0;
-			foreach ($userids as $userid => $type) {
+			foreach ($userids as $idx => $userid) {
 				$bind_vars[$userid] = 'user'.$user_count++;
 			}
 			$userid_cond = ' AND p.userid  IN (:'.implode(',:', $bind_vars).')';
@@ -621,10 +632,10 @@ class Calendar_Common
 					$id = explode(':', $key);
 					$id = $id[0];
 					if ($event_id == $id) {
-						// get the start date of the calendar_event_modification 
+						// get the start date of the calendar_event_modification
 						// or calendar_event_cancellation (exception)
 						// and compare it with the instance we have
-						// because we need to just cancel/modify that occurance 
+						// because we need to just cancel/modify that occurance
 						// and not all of the occurance of that particular event
 						$exception_date = $exception->attr('start_date');
 						if (strpos($exception_date, date('Y-m-d', $details['start_date_ts'])) !== FALSE) {
@@ -1303,39 +1314,39 @@ class Calendar_Common
 	* @access public
 	*/
 	function limitRecurringEventInstances($events, $instances)
-	{		
+	{
 		$frequency_threshold = $GLOBALS['SQ_SYSTEM']->getUserPrefs('calendar_event_recurring', 'SQ_CALENDAR_EVENTS_FREQUENCY');
-		
+
 		if ($frequency_threshold <= 0) {
 			return $instances;
 		}
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('calendar_event_recurring');
-		
+
 		$limit_events = Array();
 		foreach($events as $event) {
 			$recurring_descandants = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('calendar_event_recurring');
-			if (($event['type_code'] == 'calendar_event_recurring') || in_array($event['type_code'], $recurring_descandants)) {				
+			if (($event['type_code'] == 'calendar_event_recurring') || in_array($event['type_code'], $recurring_descandants)) {
 				$event_frequency = Calendar_Event_Recurring::getEventFrequency($event);
 				if ($event_frequency < $frequency_threshold) {
 					$limit_events[$event['assetid']] = 1;
-				}			
-			}//end if		
+				}
+			}//end if
 		}//end foreach
-		
+
 		// If the events frequnecy is less than the defined frequency threshold,
 		// remove all the instances but the first one
 		foreach($instances as $key => $instance) {
 
-			if (isset($limit_events[$instance['assetid']]) && $key != $instance['assetid'].':0') {			
+			if (isset($limit_events[$instance['assetid']]) && $key != $instance['assetid'].':0') {
 				unset($instances[$key]);
-			}		
+			}
 		}//end foreach
-		
+
 		return $instances;
 
 	}//end limitRecurringEventInstances()
-	
-	
+
+
 	/**
 	* Expands list of single day and/or recurring events into a series of whole event instances
 	*
@@ -1349,29 +1360,29 @@ class Calendar_Common
 	* @access public
 	*/
 	function getWholeEventInstances($events, $first_day, $last_day, $day_start_time='00:00', $day_end_time='23:59')
-	{		
-		$frequency_limit = $GLOBALS['SQ_SYSTEM']->getUserPrefs('calendar_event_recurring', 'SQ_CALENDAR_EVENTS_FREQUENCY');		
-		
+	{
+		$frequency_limit = $GLOBALS['SQ_SYSTEM']->getUserPrefs('calendar_event_recurring', 'SQ_CALENDAR_EVENTS_FREQUENCY');
+
 		$multi_date_event = Array();
 		foreach ($events as $key => $event) {
 			$assetid = $event['assetid'];
 		}
-		
-		$res = Array();		
+
+		$res = Array();
 		foreach ($events as $key => $event) {
 			$assetid = $event['assetid'];
 			$recurring_descandants = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('calendar_event_recurring');
 			if (($event['type_code'] == 'calendar_event_recurring') || in_array($event['type_code'], $recurring_descandants)) {
-				Calendar_Common::_getRecurringEventWholeInstances($res, $event, $assetid, $first_day, $last_day, $day_start_time, $day_end_time, $frequency_limit);				
+				Calendar_Common::_getRecurringEventWholeInstances($res, $event, $assetid, $first_day, $last_day, $day_start_time, $day_end_time, $frequency_limit);
 			} else {
 				Calendar_Common::_getSingleEventWholeInstance($res, $event, $assetid, $first_day, $last_day, $day_start_time, $day_end_time);
 			}
 		}
-		
+
 		return $res;
 
 	}//end expandEventList()
-	
+
 
 	/**
 	* Returns the whole single event instance
@@ -1389,46 +1400,46 @@ class Calendar_Common
 	* @access public
 	*/
 	function _getSingleEventWholeInstance(&$result_list, &$event, $assetid, $limit_start_day, $limit_end_day, $limit_start_time, $limit_end_time)
-	{	
+	{
 		if (empty($limit_start_day ) || empty($limit_end_day)) {
 			return;
 		}
-	
+
 		// Event start time data
 		$start_day = $event['start_date_year'].'-'.$event['start_date_mon'].'-'.$event['start_date_mday'];
 		$start_time = (is_null($event['start_date_hours']) ? '00' : $event['start_date_hours']).':'.(is_null($event['start_date_minutes']) ? '00' : $event['start_date_minutes']).':00';
 		$start_ts = strtotime($start_day.' '.$start_time);
-		$start_time_offset = ((is_null($event['start_date_hours']) ? 0 : $event['start_date_hours'])*3600)+((is_null($event['start_date_minutes']) ? 0 : $event['start_date_minutes'])*60);		
-		
+		$start_time_offset = ((is_null($event['start_date_hours']) ? 0 : $event['start_date_hours'])*3600)+((is_null($event['start_date_minutes']) ? 0 : $event['start_date_minutes'])*60);
+
 		// Event end time data
 		if (!is_null($event['end_date_year'])) {
 			$end_day = $event['end_date_year'].'-'.$event['end_date_mon'].'-'.$event['end_date_mday'];
 			$end_time = (is_null($event['end_date_hours']) ? '23' : $event['end_date_hours']).':'.(is_null($event['end_date_minutes']) ? '59' : $event['end_date_minutes']).':00';
 			if (strpos($end_time,'24:') !== FALSE) $end_time = '23:59:00';
-			$end_ts = strtotime($end_day.' '.$end_time);			
-		} else {		
+			$end_ts = strtotime($end_day.' '.$end_time);
+		} else {
 			$end_day = $start_day;
 			$end_time = '23:59:00';
 			$end_ts = $start_ts;
 		}
-		
+
 		$limit_start_ts = strtotime($limit_start_day.' '.$limit_start_time);
 		$limit_end_ts = strtotime($limit_end_day.' '.$limit_end_time);
-		
+
 		// Check that the event is within the given limit
 		if (($start_ts >= $limit_start_ts && $start_ts <= $limit_end_ts ) || ($start_ts <= $limit_start_ts && $end_ts >= $limit_start_ts )) {
-		
+
 			$type_code = $event['type_code'];
 			$result = Array();
-			
-			$result[$event['assetid'].':start_date_ts='.$start_ts.',end_date_ts='.$end_ts.',type_code='.$type_code] = $start_ts;			
-			
+
+			$result[$event['assetid'].':start_date_ts='.$start_ts.',end_date_ts='.$end_ts.',type_code='.$type_code] = $start_ts;
+
 			$result_list = array_merge($result_list, $result);
 		}//end if
-		
+
 	}//end _getSingleEventWholeInstance()
 
-	
+
 	/**
 	* Expands a list of recurring events into a series of whole events
 	*
@@ -1446,11 +1457,11 @@ class Calendar_Common
 	* @access public
 	*/
 	function _getRecurringEventWholeInstances(&$result_list, $event, $assetid, $first_day, $last_day, $day_start_time, $day_end_time, $frequency_threshold)
-	{	
+	{
 		// Event start time data (first instance)
 		$start_day = $event['start_date_year'].'-'.str_pad($event['start_date_mon'],2,'0',STR_PAD_LEFT).'-'.str_pad($event['start_date_mday'],2,'0',STR_PAD_LEFT);
 		$start_time = (is_null($event['start_date_hours']) ? '00' : $event['start_date_hours']).':'.(is_null($event['start_date_minutes']) ? '00' : $event['start_date_minutes']).':00';
-		
+
 		// Event end time data (first instance)
 		if (!is_null($event['end_date_year'])) {
 			$end_day = $event['end_date_year'].'-'.str_pad($event['end_date_mon'],2,'0',STR_PAD_LEFT).'-'.str_pad($event['end_date_mday'],2,'0',STR_PAD_LEFT);
@@ -1460,38 +1471,38 @@ class Calendar_Common
 			$end_day = $start_day;
 			$end_time = '23:59:00';
 		}
-		
+
 		$event_period_ts = strtotime($end_day.' '.$end_time) - strtotime($start_day.' '.$start_time);
 		if ($event_period_ts < 0) return;
-		
+
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('calendar_event_recurring');
-		
+
 		$after = $first_day;
 		$type_code = $event['type_code'];
 		$event_frequency = Calendar_Event_Recurring::getEventFrequency($event);
 
 		// Event runs untill
 		$stop_day = $event['stop_date'] == '----------'  ? $last_day : $event['stop_date'];
-		
+
 		do {
 			$next_occurance = Calendar_Event_Recurring::getFirstOccurrenceAfter($after, $start_day, $event['frequency'], $event['period'], $stop_day);
 			if ($next_occurance > $last_day) break;
-			
+
 			if ($next_occurance) {
 				$i_start_ts = strtotime($next_occurance.' '.$start_time);
-				$i_end_ts = $i_start_ts+$event_period_ts;				
+				$i_end_ts = $i_start_ts+$event_period_ts;
 				$result_list[$assetid.':start_date_ts='.$i_start_ts.',end_date_ts='.$i_end_ts.',type_code='.$type_code] = $i_start_ts;
-				
+
 				// Based on recurring event frequency set, put only one instance for given recurring event
-				if ($event_frequency < $frequency_threshold) {					
+				if ($event_frequency < $frequency_threshold) {
 					break;
 				}
-				
+
 				$after = add_days_to_iso($next_occurance);
 			}
-		} while($next_occurance);		
-		
-	}//end _getRecurringEventWholeInstances()	
-	
+		} while($next_occurance);
+
+	}//end _getRecurringEventWholeInstances()
+
 }//end class
 ?>
