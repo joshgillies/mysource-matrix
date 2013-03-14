@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.780 2013/03/14 22:38:17 akarelia Exp $
+* $Id: asset.inc,v 1.781 2013/03/14 23:15:10 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.780 $
+* @version $Revision: 1.781 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4047,9 +4047,12 @@ class Asset extends MySource_Object
 			}//end if
 
 			// No replacement? Oh well, back to square one
-			if ($replacement === NULL) {
-				unset($replacement);
-			}
+			// EDIT : not sure why the variable needs to be unset here
+			// looking at the fact that we are running apply_keyword_modifier
+			// on $replacement further down and then returning $replacement var
+			//if ($replacement === NULL) {
+			//	unset($replacement);
+			//}
 
 		} else if (0 === strpos($keyword, 'asset_charset')) {
 			$replacement = ($this->charset) ? $this->charset : SQ_CONF_DEFAULT_CHARACTER_SET;
