@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.423 2013/02/08 06:11:45 ewang Exp $
+* $Id: lang_strings.xml,v 1.424 2013/03/15 02:59:23 ewang Exp $
 *
 */
 
@@ -1150,7 +1150,7 @@
 	<string source="remap_url">Remap URL</string>
 	<string source="url_currently_in_use">This URL is currently in use by %1$s %2$s. This remap is not currently being used. </string>
 	<string source="csv_upload_instructions">You can also upload a CSV file of remap URLs to add to the system. The format for each line must be:&lt;br /&gt; "oldURL, newURL, expiry date (yyyy-mm-dd hh:mm:ss),never delete option (0 or 1)"</string>
-	<string source="csv_upload_instructions_example_1">&lt;b&gt;Example 1 (never delete(OFF)):&lt;/b&gt; http://www.mysite.com/page_1, http://www.mysite.com/home, 2003-17-12 10:27:00, 0</string>
+	<string source="csv_upload_instructions_example_1">&lt;b&gt;Example 1 (never delete(OFF)):&lt;/b&gt; http://www.mysite.com/page_1, http://www.mysite.com/home, 2003-12-17 10:27:00, 0</string>
 	<string source="csv_upload_instructions_example_2">&lt;b&gt;Example 2 (no expiry date and never delete(OFF))):&lt;/b&gt; http://www.mysite.com/page_1, http://www.mysite.com/home, , 0</string>
 	<string source="csv_upload_instructions_example_3">&lt;b&gt;Example 3 (no expiry date and never delete(ON)):&lt;/b&gt; http://www.mysite.com/page_1, http://www.mysite.com/home, , 1</string>
 	<string source="csv_upload_header">Column Headings in CSV File?</string>
