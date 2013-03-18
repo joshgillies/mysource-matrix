@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.238 2012/10/24 23:45:21 ewang Exp $
+* $Id: metadata_manager.inc,v 1.239 2013/03/18 05:28:14 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *	 Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.238 $
+* @version $Revision: 1.239 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -109,15 +109,26 @@ class Metadata_Manager extends MySource_Object
 	*
 	* @param string		$assetid	the ID of the asset to get schemas for
 	* @param boolean	$granted	type of access : null = all, TRUE = applied, FALSE = denied
+	* @param boolean	$cascades	cascade to children : null = all, TRUE = cascaded, FALSE = not cascaded
+	* @param boolean	$sort_name	 sort by alphabetic order of schema name, default FALSE
 	*
 	* @return array
 	* @access public
 	*/
-	function getSchemas($assetid, $granted=NULL, $cascades=NULL)
+	function getSchemas($assetid, $granted=NULL, $cascades=NULL, $sort_name=FALSE)
 	{
-		$sql = '  SELECT DISTINCT schemaid, granted, cascades
-				  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_mdata ';
-		$where = 'assetid = :assetid';
+		if($sort_name) {
+		    $sql = '  SELECT DISTINCT m.schemaid, m.granted, m.cascades, a.name
+				  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_mdata m,  '.SQ_TABLE_RUNNING_PREFIX.'ast a';
+		    $where = 'm.schemaid = a.assetid AND m.assetid = :assetid';
+		    $order_by = ' ORDER BY a.name ASC';
+		}
+		else {
+		    $sql = '  SELECT DISTINCT schemaid, granted, cascades
+				      FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_mdata ';
+		    $where = 'assetid = :assetid';
+		    $order_by = '';
+		}
 		if (!is_null($granted)) {
 			$where .= ' AND granted = :granted';
 		}
@@ -127,7 +138,7 @@ class Metadata_Manager extends MySource_Object
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 		try {
-			$query = MatrixDAL::preparePdoQuery($sql.$where);
+			$query = MatrixDAL::preparePdoQuery($sql.$where.$order_by);
 			MatrixDAL::bindValueToPdo($query, 'assetid', $assetid);
 			if (!is_null($granted)) {
 				MatrixDAL::bindValueToPdo($query, 'granted', $granted ? '1' : '0', PDO::PARAM_STR);
@@ -160,11 +171,21 @@ class Metadata_Manager extends MySource_Object
 	* This is primarily used for showing settings on the Metadata Schemas
 	* screen.
 	*/
-	function getAssetSchemaInfo($assetid, $schemaid=NULL, $cascades=NULL, $include_cascades=TRUE)
+	function getAssetSchemaInfo($assetid, $schemaid=NULL, $cascades=NULL, $include_cascades=TRUE, $sort_name=FALSE)
 	{
-		$sql = '  SELECT DISTINCT schemaid, granted, cascades
+		if($sort_name) {
+		    $sql = '  SELECT DISTINCT m.schemaid, m.granted, m.cascades, a.name
+				  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_mdata m,  '.SQ_TABLE_RUNNING_PREFIX.'ast a';
+		    $where = 'm.schemaid = a.assetid AND m.assetid = :assetid';
+		    $order_by = ' ORDER BY a.name ASC';
+		}
+		else {
+		    $sql = '  SELECT DISTINCT schemaid, granted, cascades
 				  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_mdata ';
-		$where = 'assetid = :assetid';
+		    $where = 'assetid = :assetid';
+		    $order_by = '';
+		}
+		
 		if (!is_null($schemaid)) {
 			$where .= ' AND schemaid = :schemaid';
 		}
@@ -174,7 +195,7 @@ class Metadata_Manager extends MySource_Object
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 		try {
-			$query = MatrixDAL::preparePdoQuery($sql.$where);
+			$query = MatrixDAL::preparePdoQuery($sql.$where.$order_by);
 			MatrixDAL::bindValueToPdo($query, 'assetid', $assetid, PDO::PARAM_STR);
 			if (!is_null($schemaid)) {
 				MatrixDAL::bindValueToPdo($query, 'schemaid', $schemaid, PDO::PARAM_STR);
@@ -1137,7 +1158,7 @@ class Metadata_Manager extends MySource_Object
 			return FALSE;
 		}
 
-		$schemas = $this->getSchemas($asset->id, TRUE);
+		$schemas = $this->getSchemas($asset->id, TRUE, NULL, TRUE);
 		if (empty($schemas)) {
 			$GLOBALS['SQ_SYSTEM']->restoreContext();
 			return FALSE;

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadataSchemas.inc,v 1.33 2012/08/30 01:09:20 ewang Exp $
+* $Id: metadataSchemas.inc,v 1.34 2013/03/18 05:28:14 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Schemas Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix
 */
 
@@ -120,7 +120,7 @@ function paintMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Edit_Int
 	$o->openSection(translate('metadata_schemas'));
 
 	$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-	$schemas = $mm->getAssetSchemaInfo($owner->id);
+	$schemas = $mm->getAssetSchemaInfo($owner->id, NULL, NULL, TRUE, TRUE);
 
 	$direct = Array();
 	foreach ($schemas as $schemaid => $schema_info) {

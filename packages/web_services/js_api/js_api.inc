@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.138 2013/02/19 06:26:59 ewang Exp $
+* $Id: js_api.inc,v 1.139 2013/03/18 05:29:25 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.138 $
+* @version $Revision: 1.139 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -221,6 +221,7 @@ class JS_Api extends Page
 			}
 			return;
 		}
+		
 
 		// Overriding the matrix error handler so HTML doesn't get printed to the screen
 		require_once dirname(__FILE__).'/js_api_error_handler.inc';
@@ -3993,7 +3994,7 @@ class JS_Api extends Page
 		}
 
 		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-		$schemas = $mm->getSchemas($asset->id, $granted, $cascades);
+		$schemas = $mm->getSchemas($asset->id, $granted, $cascades, TRUE);
 		if (!empty($schemas)) {
 			foreach($schemas as $schema_id) {
 				$return_array[$schema_id] = Array();
