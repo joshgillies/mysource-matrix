@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.400.2.2 2013/02/06 05:18:14 ewang Exp $
+* $Id: mysource.inc,v 1.400.2.3 2013/03/18 07:39:36 ewang Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.400.2.2 $
+* @version $Revision: 1.400.2.3 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -1813,7 +1813,7 @@ class MySource extends MySource_Object
 			break;
 
 			case 'get_soap_downloaded_file' :
-				$filename = array_get_index($_GET, 'soap_filename', '');
+				$filename = basename(array_get_index($_GET, 'soap_filename', ''));
 				$sessionid = session_id();
 				$full_file_path = SQ_DATA_PATH.'/private/soap_action_file_responses/'.$sessionid.'/'.$filename;
 
