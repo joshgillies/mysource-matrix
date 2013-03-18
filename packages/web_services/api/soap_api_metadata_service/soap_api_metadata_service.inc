@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_metadata_service.inc,v 1.10 2012/08/30 00:59:45 ewang Exp $
+* $Id: soap_api_metadata_service.inc,v 1.10.4.1 2013/03/18 05:39:32 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.10.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -441,7 +441,7 @@ class Soap_Api_Metadata_Service extends Soap_Api
 
 		if (!empty($assetid)) {
 			$mm	= $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-			$schemaids = $mm->getSchemas($assetid);
+			$schemaids = $mm->getSchemas($assetid, NULL, NULL, TRUE);
 			$formatted_result	= Array();
 			$i	= 0;
 			foreach ($schemaids as $schemaid	=> $grant) {

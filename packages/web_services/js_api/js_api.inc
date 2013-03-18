@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.135.2.2 2013/02/22 03:15:19 akarelia Exp $
+* $Id: js_api.inc,v 1.135.2.3 2013/03/18 05:39:32 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.135.2.2 $
+* @version $Revision: 1.135.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -3993,7 +3993,7 @@ class JS_Api extends Page
 		}
 
 		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-		$schemas = $mm->getSchemas($asset->id, $granted, $cascades);
+		$schemas = $mm->getSchemas($asset->id, $granted, $cascades, TRUE);
 		if (!empty($schemas)) {
 			foreach($schemas as $schema_id) {
 				$return_array[$schema_id] = Array();
