@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixTreeBus.java,v 1.11 2012/08/30 01:09:21 ewang Exp $
+* $Id: MatrixTreeBus.java,v 1.12 2013/03/18 03:20:19 akarelia Exp $
 *
 */
 
@@ -108,7 +108,7 @@ public class MatrixTreeBus {
 			}
 			tree = (MatrixTree)trees.get(0);
 		}
-		tree.loadChildAssets(assetIds, sort_orders, true, false);
+		tree.loadChildAssets(assetIds, sort_orders, false, false);
 	}
 
 	public static void startSimpleAssetLocator(String[] assetIds, String[] sort_orders) {
