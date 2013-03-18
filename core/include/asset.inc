@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.781 2013/03/14 23:15:10 akarelia Exp $
+* $Id: asset.inc,v 1.782 2013/03/18 03:50:46 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.781 $
+* @version $Revision: 1.782 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4525,14 +4525,15 @@ class Asset extends MySource_Object
 		}
 
 		if (!empty($lock_type)) {
-			if ($lock_type != 'attributes') {
+			// make sure user can't live edit attributes and metadata if workflow is used.
+			if ($lock_type !== 'attributes' && $lock_type !== 'metadata') {
 				$locks = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($this->id, $lock_type, TRUE);
 				// if we are getting a lock type that cant be safe edited (eg permissions), you can live edit
-				// if you dont have the attributes lock also (which must be safe edited)
-				if (!in_array('attributes', array_keys($locks))) {
+				if (!in_array('attributes', array_keys($locks)) && !in_array('metadata', array_keys($locks))) {
 					return TRUE;
 				}
 			}
+			
 		}
 
 		$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
