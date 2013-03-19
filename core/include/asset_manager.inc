@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.903 2013/03/12 23:38:12 csmith Exp $
+* $Id: asset_manager.inc,v 1.904 2013/03/19 04:39:07 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.903 $
+* @version $Revision: 1.904 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -8124,7 +8124,9 @@ class Asset_Manager extends MySource_Object
 		}
 
 		$url_asset = $this->getAssetFromURL($protocol, $url);
-		$id_parts = explode(':', $url_asset->id);
+		if (!is_null($url_asset)) {
+			$id_parts = explode(':', $url_asset->id);
+		}
 		if (isset($id_parts[1])) {
 
 			$real_assetid = $id_parts[0];
