@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_common.inc,v 1.9 2013/01/31 01:30:17 cupreti Exp $
+* $Id: soap_common.inc,v 1.10 2013/03/19 06:34:23 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ define('MAX_COMPLEX_TYPE_PASRSE_LOOP', 3);
 * This class will have all the common functions used for SOAP trigger and form actions
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -528,7 +528,7 @@ class SOAP_Common
 		// First obtain the the JSESSIONID
 		$jsessionid = self::getJSessionId($username, $password, $login_url);
 		if (empty($jsessionid)) {
-			trigger_error('JESSIONID not found in the response: '.htmlentities($result));
+			trigger_error('JSESSIONID not found in the response: '.htmlentities($result));
 			return FALSE;
 		}
 
@@ -560,7 +560,7 @@ class SOAP_Common
 		$url_parts = parse_url($login_url);
 		$login_page = isset($url_parts['host']) ? $url_parts['host'] : '';
 		if (empty($username) || empty($password) || empty($login_page)) {
-			trigger_error('Cannot obtain JESSIONID, required parameters not set login');
+			trigger_error('Cannot obtain JSESSIONID, required parameters not set login');
 			return FALSE;
 		}
 
