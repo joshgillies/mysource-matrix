@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_make_soap_call.inc,v 1.11 2013/01/21 00:12:38 cupreti Exp $
+* $Id: trigger_action_make_soap_call.inc,v 1.11.2.1 2013/03/19 06:38:58 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(dirname(dirname(__FILE__))).'/lib/soap_common.inc';
 *
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.11.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -188,7 +188,7 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 	{
 		$auth_types = Array(
 						'HTTP_BASIC' => 'HTTP Basic',
-						'JSESSIONID' => 'Using JESSIONID Cookie',
+						'JSESSIONID' => 'Using JSESSIONID Cookie',
 					);
 		$selected_caching_type  = array_get_index($settings, 'cache_wsdl', WSDL_CACHE_NONE);
 		$disabled = $write_access ? '' : 'disabled';

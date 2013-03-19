@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_soap_call.inc,v 1.27 2013/01/21 00:11:17 cupreti Exp $
+* $Id: form_action_soap_call.inc,v 1.27.2.1 2013/03/19 06:37:55 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once dirname(dirname(dirname(__FILE__))).'/lib/soap_form_based_common.in
 * Make a SOAP call before submitting form
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.27.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -57,7 +57,7 @@ class Form_Action_SOAP_Call extends Form_Action
 	{
 		$auth_types = Array(
 						'HTTP_BASIC' => 'HTTP Basic',
-						'JSESSIONID' => 'Using JESSIONID Cookie',
+						'JSESSIONID' => 'Using JSESSIONID Cookie',
 					);
 		$selected_auth_type = array_get_index($settings, 'auth_type', 'HTTP_BASIC');
 		$selected_caching_type  = array_get_index($settings, 'cache_wsdl', WSDL_CACHE_NONE);

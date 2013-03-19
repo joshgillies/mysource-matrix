@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_action_soap_call.inc,v 1.20 2013/01/21 00:12:13 cupreti Exp $
+* $Id: form_section_action_soap_call.inc,v 1.20.2.1 2013/03/19 06:38:21 cupreti Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once dirname(dirname(dirname(__FILE__))).'/lib/soap_form_based_common.in
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.20.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -56,7 +56,7 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 	{
 		$auth_types = Array(
 						'HTTP_BASIC' => 'HTTP Basic',
-						'JSESSIONID' => 'Using JESSIONID Cookie',
+						'JSESSIONID' => 'Using JSESSIONID Cookie',
 					);
 		$selected_auth_type = array_get_index($settings, 'auth_type', 'HTTP_BASIC');
 		$selected_caching_type  = array_get_index($settings, 'cache_wsdl', WSDL_CACHE_NONE);
