@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_request_vars.inc,v 1.10 2012/08/30 01:09:06 ewang Exp $
+* $Id: design_area_request_vars.inc,v 1.10.4.1 2013/03/19 03:17:41 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *	Display something from the request (GET or POST) in the design
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.10.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -72,7 +72,7 @@ class Design_Area_Request_Vars extends Design_Area
 
 		}
 
-		echo '<?php echo array_get_index('.$target_vars.', \''.addslashes($var).'\', \'\') ?>';
+		echo '<?php echo clean_keyword_value(array_get_index('.$target_vars.', \''.addslashes($var).'\', \'\')); ?>';
 
 	}//end printVar()
 
