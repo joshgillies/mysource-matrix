@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.6 2010/11/26 02:29:14 mhaidar Exp $
+* $Id: edit_interface_screen_details.xml,v 1.7 2013/03/19 03:17:19 ewang Exp $
 *
 */
 -->
@@ -26,11 +26,5 @@
 		<field attribute="cache_globally">
 			<boolean true_text="yes" false_text="no" />
 		</field>
-	</section>
-	<section name="Request Variables" write_access="write:attributes">
-		<function_call>
-			<paint_function   name="paintDecVars" />
-			<process_function name="processDecVars" />
-		</function_call>
 	</section>
 </contents>

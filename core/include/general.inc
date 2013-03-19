@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.282 2013/02/07 06:18:55 ewang Exp $
+* $Id: general.inc,v 1.283 2013/03/19 03:17:19 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.282 $
+* @version $Revision: 1.283 $
 * @package MySource_Matrix
 */
 
@@ -1896,6 +1896,7 @@ function replace_global_keywords(&$text)
 	require_once SQ_FUDGE_PATH.'/general/text.inc';
 	for ($c = 0; ($c < 2 && !(stripos($text, '%globals_') === FALSE)); $c++) {
 		$keywords = retrieve_keywords_replacements($text);
+
 		if (!empty($keywords)) {
 			$replacements = Array();
 			foreach ($keywords as $keyword) {
@@ -2267,7 +2268,7 @@ function clean_keyword_value($keyword_value)
 	} else {
 		// whitelist of characters that will not be stripped out,
 		// for some security
-		$safe_list = 'A-Za-z0-9\.\-\_\%\$\(\)\=\[\] ';
+		$safe_list = 'A-Za-z0-9\.\-\_\%\$\# ';
 		$keyword_value = preg_replace('/[^'.$safe_list.']+/', '', (string)$keyword_value);
 	}
 
