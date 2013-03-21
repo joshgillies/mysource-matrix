@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.131 2012/09/14 05:58:10 ewang Exp $
+* $Id: site.inc,v 1.132 2013/03/21 05:01:20 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.131 $
+* @version $Revision: 1.132 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -224,15 +224,14 @@ class Site extends Folder
 			$paths = explode('/', $save_urls[$save_urlid]['url']);
 			// remove the domain
 			array_shift($paths);
-
 			foreach ($paths as $path) {
 				$clean_paths = make_valid_web_paths(Array($path));
 				$clean_path = (empty($clean_paths)) ? '' : $clean_paths[0];
-				if ($path != $clean_path) {
+				if ($path !== $clean_path) {
 					if ($clean_path != '') {
-						trigger_localised_error('CORE0080', $save_urls[$save_urlid]['url'], $path, $clean_path, E_USER_WARNING);
+						trigger_localised_error('CORE0080', E_USER_WARNING, $save_urls[$save_urlid]['url'], $path, $clean_path);
 					} else {
-						trigger_localised_error('CORE0124', $save_urls[$save_urlid]['url'], $path, E_USER_WARNING);
+						trigger_localised_error('CORE0124', E_USER_WARNING, $save_urls[$save_urlid]['url'], $path);
 					}
 
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
