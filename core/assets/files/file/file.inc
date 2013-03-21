@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.216 2013/01/30 01:56:50 ewang Exp $
+* $Id: file.inc,v 1.217 2013/03/21 07:40:40 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.216 $
+* @version $Revision: 1.217 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -333,12 +333,7 @@ class File extends Asset
 		}
 		// still insert the __data url for safe edit
 		if($this->attr('allow_unrestricted') && $this->effectiveUnrestricted()) {
-		    if(!$this->insertDataLookup()) {
-			    trigger_localised_error('CORE0053', E_USER_WARNING, $this->name);
-			    $GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			    $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			    return FALSE;
-		    }
+		    $this->insertDataLookup();
 		}
 
 		// store the current version of the file
@@ -783,7 +778,7 @@ class File extends Asset
 			// so we just call parent to update urls, if the asset is safe edit, but unrestricted otherwise, we still want to insert the __data url
 			$result =  parent::updateLookups($auto_add_remaps);
 			if(($this->status & SQ_SC_STATUS_SAFE_EDITING) && $this->attr('allow_unrestricted') && $this->effectiveUnrestricted()) {
-			    $result = $result && ($this->insertDataLookup());
+			    $this->insertDataLookup();
 			}
 			return $result;
 		}
@@ -838,7 +833,7 @@ class File extends Asset
 	/**
 	* Called to insert a __data url
 	*
-	* @return int | bool
+	* @return int
 	* @access protected
 	*/	
 	protected function insertDataLookup()
@@ -860,9 +855,13 @@ class File extends Asset
 		
 		if (!isset($existing['filename'])) {
 			// there is no filename, so commit the removal of the current web paths and return
-			return TRUE;
+			return 0;
 		}
-
+		
+		// noting to insert if asset's in trash
+		if ($GLOBALS['SQ_SYSTEM']->am->assetInTrash($this->id, TRUE)){
+		    return 0;
+		}
 
 		// Basically what we are going to do here is find all our parents that are sites
 		// and take the system root urls that are closest to these site urls and tack on __data/... bit
@@ -870,11 +869,9 @@ class File extends Asset
 		$root_urls = explode("\n", trim(SQ_CONF_SYSTEM_ROOT_URLS));
 
 		if (!SQ_CONF_STATIC_ROOT_URL == '') {
-			if (!$GLOBALS['SQ_SYSTEM']->am->assetInTrash($this->id, TRUE)){
-				// use the static root URL data
-				$web_path = str_replace(sq_web_path('data').'/', '', $this->getWebDataPath()).'/'.$existing['filename'];
-				$save_urls[SQ_CONF_STATIC_ROOT_URL] = Array('http' => SQ_CONF_STATIC_ROOT_HTTP, 'https' => SQ_CONF_STATIC_ROOT_HTTPS);
-			}
+		    // use the static root URL data
+		    $web_path = str_replace(sq_web_path('data').'/', '', $this->getWebDataPath()).'/'.$existing['filename'];
+		    $save_urls[SQ_CONF_STATIC_ROOT_URL] = Array('http' => SQ_CONF_STATIC_ROOT_HTTP, 'https' => SQ_CONF_STATIC_ROOT_HTTPS);
 		} else {
 
 			$web_path = str_replace(sq_web_path('root_url').'/', '', $this->getWebDataPath()).'/'.$existing['filename'];
