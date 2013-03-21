@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: dps_processor.inc,v 1.8 2013/03/19 06:25:44 ewang Exp $
+* $Id: dps_processor.inc,v 1.9 2013/03/21 07:54:27 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ define('DPS_LOG_FILE_PREFIX', 'dps_transactions_account_');
 * @see Asset_Management
 *
 * @author  Edison Wang <ewang@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -477,9 +477,10 @@ class Dps_Processor
 				eval($php_stmt);
 			}
 		}
+
 			
 		$success = isset($params['TXN']['SUCCESS']) ? $params['TXN']['SUCCESS'] : FALSE;
-		$responseTxt = isset($params['TXN']['RESPONSETEXT']) ? $params['TXN']['RESPONSETEXT'] : '';
+		$responseTxt = isset($params['TXN']['RESPONSETEXT']) ? $params['TXN']['RESPONSETEXT'] : 'DECLINED';
 		$DPSTxnRef = isset($params['TXN']['DPSTXNREF']) ? $params['TXN']['DPSTXNREF'] : '';			
 		$this->_success = $success == 1 ? 1 : FALSE;
 		
