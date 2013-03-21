@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_server.inc,v 1.18 2012/09/25 08:39:51 ewang Exp $
+* $Id: soap_server.inc,v 1.18.4.1 2013/03/21 08:04:45 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  Basil Shkara <bshkara@squiz.net>
 * @author  Benjamin Pearson <bpearson@squiz.net>
 *
-* @version $Revision: 1.18 $
+* @version $Revision: 1.18.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -882,7 +882,7 @@ class Soap_Server extends Page
 
 		$matches_2 = Array();
 		preg_match('|@return\s+(\w+)|', $doc_comment, $matches_2);
-		$func_args_info['return_type']	= $matches_2[1];
+		$func_args_info['return_type']	= isset($matches_2[1]) ? trim($matches_2[1]) : '' ;
 
 		return $func_args_info;
 
