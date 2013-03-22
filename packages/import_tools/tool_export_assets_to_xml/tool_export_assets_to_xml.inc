@@ -10,7 +10,23 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_export_assets_to_xml.inc,v 1.6 2012/08/30 00:58:50 ewang Exp $
+<<<<<<< tool_export_assets_to_xml.inc
+<<<<<<< tool_export_assets_to_xml.inc
+<<<<<<< tool_export_assets_to_xml.inc
+<<<<<<< tool_export_assets_to_xml.inc
+* $Id: tool_export_assets_to_xml.inc,v 1.7 2013/03/22 06:45:01 cupreti Exp $
+=======
+* $Id: tool_export_assets_to_xml.inc,v 1.7 2013/03/22 06:45:01 cupreti Exp $
+>>>>>>> 1.3
+=======
+* $Id: tool_export_assets_to_xml.inc,v 1.7 2013/03/22 06:45:01 cupreti Exp $
+>>>>>>> 1.4
+=======
+* $Id: tool_export_assets_to_xml.inc,v 1.7 2013/03/22 06:45:01 cupreti Exp $
+>>>>>>> 1.5
+=======
+* $Id: tool_export_assets_to_xml.inc,v 1.7 2013/03/22 06:45:01 cupreti Exp $
+>>>>>>> 1.6
 *
 */
 
@@ -28,7 +44,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *    Tool for exporting assets into xml
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage import_tools
 */
@@ -93,19 +109,20 @@ class Tool_Export_Assets_To_Xml extends Tool
 		}
 		else if (isset($_REQUEST['download'])) {
 			$export_dir = SQ_DATA_PATH.'/private/export_assets';
-            if (!create_directory($export_dir)) return FALSE;
-            
-			$command = "cd $export_dir ; tar -czf export.tgz * --remove-files";
-			exec($command, $output, $return);
+			if (!file_exists($export_dir.'/export.tgz')) {
+	            if (!create_directory($export_dir)) return FALSE;
 
-			// exec populate $return with 0 if successful. If not successful, $return will be an exit status code and 
-			// we don't have a usable compressed file for the user to download
-			if ($return !== 0) {
-				trigger_localised_error('EXP0001', E_USER_ERROR, $return);
-				return;
+				$command = "cd $export_dir ; tar -czf export.tgz * --remove-files";
+				exec($command, $output, $return);
+
+				// exec populate $return with 0 if successful. If not successful, $return will be an exit status code and
+				// we don't have a usable compressed file for the user to download
+				if ($return !== 0) {
+					trigger_localised_error('EXP0001', E_USER_ERROR, $return);
+					return;
+				}
 			}
-			
-			
+
 			// if we don't have a valid filesize, there isn't much point going fruther as the user will end up downloading an unusable file
 			$filesize = filesize($export_dir.'/export.tgz');
 			if (!$filesize) {
