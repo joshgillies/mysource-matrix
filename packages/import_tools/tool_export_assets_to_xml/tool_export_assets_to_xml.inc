@@ -10,23 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-<<<<<<< tool_export_assets_to_xml.inc
-<<<<<<< tool_export_assets_to_xml.inc
-<<<<<<< tool_export_assets_to_xml.inc
-<<<<<<< tool_export_assets_to_xml.inc
-* $Id: tool_export_assets_to_xml.inc,v 1.7 2013/03/22 06:45:01 cupreti Exp $
-=======
-* $Id: tool_export_assets_to_xml.inc,v 1.7 2013/03/22 06:45:01 cupreti Exp $
->>>>>>> 1.3
-=======
-* $Id: tool_export_assets_to_xml.inc,v 1.7 2013/03/22 06:45:01 cupreti Exp $
->>>>>>> 1.4
-=======
-* $Id: tool_export_assets_to_xml.inc,v 1.7 2013/03/22 06:45:01 cupreti Exp $
->>>>>>> 1.5
-=======
-* $Id: tool_export_assets_to_xml.inc,v 1.7 2013/03/22 06:45:01 cupreti Exp $
->>>>>>> 1.6
+* $Id: tool_export_assets_to_xml.inc,v 1.8 2013/03/22 06:46:10 cupreti Exp $
 *
 */
 
@@ -44,7 +28,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *    Tool for exporting assets into xml
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage import_tools
 */
