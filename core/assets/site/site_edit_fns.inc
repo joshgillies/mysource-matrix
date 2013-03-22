@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_edit_fns.inc,v 1.81 2012/08/30 01:09:09 ewang Exp $
+* $Id: site_edit_fns.inc,v 1.81.4.1 2013/03/22 07:01:13 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.81 $
+* @version $Revision: 1.81.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -299,6 +299,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 		for (reset($post); NULL !== ($urlid = key($post)); next($post)) {
 
 			$url = trim($post[$urlid]['url']);
+			$post[$urlid]['url'] = $url;
 
 			// check to see if user has provided 'http://' or 'https://' in the url provided
 			// might have to warn them about the it
