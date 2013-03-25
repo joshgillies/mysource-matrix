@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_soap_call.inc,v 1.28 2013/03/19 06:34:50 cupreti Exp $
+* $Id: form_action_soap_call.inc,v 1.29 2013/03/25 05:26:02 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once dirname(dirname(dirname(__FILE__))).'/lib/soap_form_based_common.in
 * Make a SOAP call before submitting form
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -432,7 +432,7 @@ class Form_Action_SOAP_Call extends Form_Action
 				trigger_error($e->getMessage());
 				return TRUE;
 			}
-			if(!empty($functions)) {
+			if(!empty($functions) && !isset($settings['run_test'])) {
 				foreach ($functions as $function) {
 					$function_name = preg_replace('/^\w+ (\w+)\(.*\)/', '$1', $function);
 					$function_params = explode(', ', preg_replace('/^\w+ \w+\((.*)\)/', '$1', $function));
