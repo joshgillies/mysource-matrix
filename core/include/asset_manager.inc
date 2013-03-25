@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.904 2013/03/19 04:39:07 cupreti Exp $
+* $Id: asset_manager.inc,v 1.905 2013/03/25 03:56:39 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.904 $
+* @version $Revision: 1.905 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1621,10 +1621,11 @@ class Asset_Manager extends MySource_Object
 	*/
 	function canPurgeAsset(&$asset)
 	{
-		// check if we are trying to purge a system asset
-		require SQ_DATA_PATH.'/private/conf/system_assets.inc';
-		$system_asset_ids = array_values($system_assets);
-		if (in_array($asset->id, $system_asset_ids)) {
+		if (empty($this->_system_assetids)) {
+			$this->_reloadSystemAssetList();
+		}
+
+		if (in_array($asset->id, $this->_system_assetids)) {
 			return FALSE;
 		}
 
@@ -1633,7 +1634,7 @@ class Asset_Manager extends MySource_Object
 		// so lets check for that
 		$parents = $this->getDependantParents($asset->id);
 		foreach ($parents as $parentid) {
-			if (in_array($parentid, $system_asset_ids)) {
+			if (in_array($parentid, $this->_system_assetids)) {
 				return FALSE;
 			}
 		}
@@ -1704,7 +1705,7 @@ class Asset_Manager extends MySource_Object
 
 		// need to do some checking on the field to make sure it's in the table
 		// but only do it if the field is specified
-        if (!empty($field)) {
+		if (!empty($field)) {
 			if (empty($this->_tmp['sq_tables'])) {
 				require SQ_DATA_PATH.'/private/db/table_columns.inc';
 				$this->_tmp['sq_tables'] = $tables;
@@ -1761,9 +1762,9 @@ class Asset_Manager extends MySource_Object
 			if (empty($this->_tmp['sq_tables'])) {
 				require SQ_DATA_PATH.'/private/db/table_columns.inc';
 				$this->_tmp['sq_tables'] = $tables;
-            } else {
-                $tables = $this->_tmp['sq_tables'];
-            }
+			} else {
+				$tables = $this->_tmp['sq_tables'];
+			}
 			unset($tables['ast']['columns'][array_search('assetid', $tables['ast']['columns'])]);
 			$col_string = implode(', ', $tables['ast']['columns']);
 
@@ -2013,7 +2014,7 @@ class Asset_Manager extends MySource_Object
 		$null = NULL; // needed because we return by reference
 		if (!$source->id) return $null;
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
-			$lock = $this->getLockInfo($source->id, 'all');
+			$lock = $this->getLockInfo($source, 'all');
 			foreach ($lock as $lock_type => $lock_info) {
 				if (empty($lock_info)) {
 					trigger_localised_error('SYS0266', E_USER_WARNING, $source->id, $lock_type);
@@ -2376,7 +2377,7 @@ class Asset_Manager extends MySource_Object
 
 					if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
 						// lock the new clone in the same chain as we are locked
-						$lock = $this->getLockInfo($cloned_child->id, 'all');
+						$lock = $this->getLockInfo($cloned_child, 'all');
 						if (!empty($lock)) {
 							if (!$this->releaseLock($cloned_child->id, 'all')) {
 								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -2451,14 +2452,20 @@ class Asset_Manager extends MySource_Object
 
 		$asset = $this->getAsset($assetid);
 		// Instead of throwing a fatal error, we just return false here, getAsset has already given a warning if the asset does not exists.
-		if (is_null($asset)) return FALSE;
+		if (is_null($asset)) {
+			return FALSE;
+		}
+
+		$assetType = $asset->type();
 
 		// because lock_type can be expanded, we need to keep the original type
 		// to check if we can force getting it.
 		$orig_lock_type = $lock_type;
 
-		$current_locks = $this->getLockInfo($assetid, $lock_type, TRUE, TRUE);
-		if (empty($current_locks)) return FALSE;
+		$current_locks = $this->getLockInfo($assetid, $lock_type, TRUE, TRUE, TRUE, FALSE, $assetType);
+		if (empty($current_locks)) {
+			return FALSE;
+		}
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -2478,20 +2485,22 @@ class Asset_Manager extends MySource_Object
 		$lock_updated = FALSE;
 		foreach ($current_locks as $lock_type => $lock) {
 
-			if (!empty($lock) && $lock['userid'] == $GLOBALS['SQ_SYSTEM']->currentUserid()) {
-				// the user is asking to acquire a lock they already had
-				// so just update the lock expiry date
-				if ($this->updateLock($assetid, $lock_type, $expires)) {
-					$lock_updated = TRUE;
-					continue;
+			if (!empty($lock)) {
+				if ($lock['userid'] == $GLOBALS['SQ_SYSTEM']->currentUserid()) {
+					// the user is asking to acquire a lock they already had
+					// so just update the lock expiry date
+					if ($this->updateLock($assetid, $lock_type, $expires)) {
+						$lock_updated = TRUE;
+						continue;
+					} else {
+						$success = FALSE;
+						break;
+					}
 				} else {
-					$success = FALSE;
-					break;
+					if ($can_force === NULL) {
+						$can_force = $asset->canForceablyAcquireLock($orig_lock_type);
+					}
 				}
-			}
-
-			if ($can_force === NULL) {
-				$can_force = $asset->canForceablyAcquireLock($orig_lock_type);
 			}
 
 			// special case where the current user is actually
@@ -2541,7 +2550,7 @@ class Asset_Manager extends MySource_Object
 				$ms->closeLog();
 
 				// refresh the lock info, just in case someone has sneaked in while we are sending the message
-				$lock = $this->getLockInfo($assetid, $lock_type, FALSE, TRUE);
+				$lock = $this->getLockInfo($assetid, $lock_type, FALSE, TRUE, TRUE, FALSE, $assetType);
 
 			}//end if
 
@@ -2596,11 +2605,13 @@ class Asset_Manager extends MySource_Object
 		// to check if we can force getting it.
 		$orig_lock_type = $lock_type;
 
-		$current_locks = $this->getLockInfo($assetid, $lock_type, TRUE, FALSE);
-		if (empty($current_locks)) return TRUE;
-
 		$asset = $this->getAsset($assetid);
 		assert_not_null($asset);
+
+		$assetType = $asset->type();
+
+		$current_locks = $this->getLockInfo($assetid, $lock_type, TRUE, FALSE, TRUE, FALSE, $assetType);
+		if (empty($current_locks)) return TRUE;
 
 		$success = TRUE;
 
@@ -2683,19 +2694,29 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Returns an array of information about the current lock on this asset (if any)
 	*
-	* @param int		$assetid		the assetid of the asset that we want lock info for
+	* @param int|object	$asset		Either an asset (object) or just an id.
 	* @param string		$lock_type		any valid lock type for the passed asset's type, plus 'all' which will return all locks that this asset has - will force an array to be returned
 	* @param boolean	$force_array	always return the information in an array, as though more than one lock has been requested
 	* @param boolean	$full_chain		return the info for every asset in the lock chain
 	* @param boolean	$check_expires	check the expiry date and cleanup the lock if it has expired
 	* @param boolean	$allow_only_one	Force only one lock returned
+	* @param string     $assetType      The asset type we're getting a lock for.
+	*                                   If null, it works it out from the asset.
+	*                                   This is passed through to getLockTypes.
 	*
 	* @return array
 	* @access public
 	*/
-	function getLockInfo($assetid, $lock_type, $force_array=FALSE, $full_chain=FALSE, $check_expires=TRUE, $allow_only_one=FALSE)
+	function getLockInfo($asset, $lock_type, $force_array=FALSE, $full_chain=FALSE, $check_expires=TRUE, $allow_only_one=FALSE, $assetType=NULL)
 	{
-		$lock_types = $this->getLockTypes($assetid, $lock_type);
+		if (is_object($asset) === FALSE) {
+			$assetid = $asset;
+		} else {
+			$assetType = $asset->type();
+			$assetid   = $asset->id;
+		}
+
+		$lock_types = $this->getLockTypes($assetid, $lock_type, $assetType);
 		$locks = Array();
 		$lockids = Array();
 		$count = 0;
@@ -2750,15 +2771,16 @@ class Asset_Manager extends MySource_Object
 
 	/**
 	* Returns an array of lock types strings that the passed lock type really represents for the passed asset
-	* eg 'content' could mean 'attributes' and 'links'
+	* eg 'content' could mean 'attributes' and 'links'.
 	*
 	* @param int	$assetid	the assetid of the asset that we want lock info for
 	* @param string	$lock_type	any valid lock type for the passed asset's type, plus 'all' which will return all lock types that this asset has
+	* @param string $assetType  The asset type we're getting lock info for.
 	*
 	* @return array
 	* @access private
 	*/
-	function getLockTypes($assetid, $lock_type)
+	function getLockTypes($assetid, $lock_type, $assetType=NULL)
 	{
 
 		// If the lock_type is not a string (invalid), just return an empty array.
@@ -2766,32 +2788,38 @@ class Asset_Manager extends MySource_Object
 			return Array();
 		}//end if
 
-		if (!isset($this->_tmp['lock_types'][$assetid])) {
+		if ($assetType === NULL || !isset($this->_tmp['lock_types'][$assetType])) {
 			$asset = $this->getAsset($assetid);
 			// If the asset is null, just return an empty array, throwing fatal error is a bit over done.
 			if (is_null($asset)) return Array();
-			$this->_tmp['lock_types'][$assetid] = $asset->lockTypes();
+			$assetType = $asset->type();
+			$this->_tmp['lock_types'][$assetType] = $asset->lockTypes();
 		}
 
 		if ($lock_type !== 'all') {
-			if (!isset($this->_tmp['lock_types'][$assetid][$lock_type])) {
+			if (!isset($this->_tmp['lock_types'][$assetType][$lock_type])) {
 				return Array();
 			}
-			$bits = bit_elements($this->_tmp['lock_types'][$assetid][$lock_type]);
+			$bits = bit_elements($this->_tmp['lock_types'][$assetType][$lock_type]);
 			$lock_types = Array();
 			foreach ($bits as $bit) {
-				if (FALSE !== ($k = array_search($bit, $this->_tmp['lock_types'][$assetid]))) {
+				if (FALSE !== ($k = array_search($bit, $this->_tmp['lock_types'][$assetType]))) {
 					$lock_types[] = $k;
 				}
 			}
 			return $lock_types;
 		} else {
+			if (isset($this->_tmp['lock_types']['all'][$assetType])) {
+				return $this->_tmp['lock_types']['all'][$assetType];
+			}
+
 			$lock_types = Array();
-			foreach ($this->_tmp['lock_types'][$assetid] as $lock_type => $bit) {
+			foreach ($this->_tmp['lock_types'][$assetType] as $lock_type => $bit) {
 				if (preg_match('/^0*10*$/', decbin($bit))) {
 					$lock_types[] = $lock_type;
 				}
 			}
+			$this->_tmp['lock_types']['all'][$assetType] = $lock_types;
 			return $lock_types;
 		}//end if
 
@@ -2929,8 +2957,6 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getShadowLinkByAsset($assetid, $other_assetid=NULL, $link_types=NULL, $value=NULL, $side_of_link='major', $force_array=FALSE)
 	{
-		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-
 		assert_valid_assetid($assetid);
 		assert_false($side_of_link != 'major' && $side_of_link != 'minor', 'Unknown Side of Link "'.$side_of_link.'"');
 
@@ -3076,8 +3102,6 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getLinkByAsset($assetid, $other_assetid, $link_types=NULL, $value=NULL, $side_of_link='major', $force_array=FALSE, $dependant=NULL, $exclusive=NULL)
 	{
-		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-
 		assert_valid_assetid($assetid);
 		assert_valid_assetid($other_assetid);
 		assert_false($side_of_link != 'major' && $side_of_link != 'minor', 'Unknown Side of Link "'.$side_of_link.'"');
@@ -3513,8 +3537,6 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getAllChildLinks($assetid, $link_type=0, $access=NULL, $effective=TRUE, $bind_prefix='gc_', $depth=0)
 	{
-		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-
 		if (!isset($this->_tmp['child_links'][$assetid])) {
 			$id_parts = explode(':', $assetid);
 			if (isset($id_parts[1])) {
@@ -4300,6 +4322,7 @@ class Asset_Manager extends MySource_Object
 		if (!is_null($asset)) {
 
 			$dependant_links = $this->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, $type_code, $strict_type_code, 'minor', NULL, 1);
+
 			if (empty($dependant_links) && !$include_all_dependants) {
 				$parents[] = $assetid;
 			}
@@ -4395,8 +4418,6 @@ class Asset_Manager extends MySource_Object
 	*/
 	function _getAssetTree($majorids, &$tree_data, $levels, $exclude_list, $link_type, $include_type_list, $include_dependants)
 	{
-		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-
 		// Stuff that is only needed once per design file
 		$db = MatrixDAL::getDb();
 
@@ -4573,7 +4594,6 @@ class Asset_Manager extends MySource_Object
 	function getAssetTreeids($assetid, $link_type=NULL)
 	{
 		$db = MatrixDAL::getDb();
-		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 		if (is_array($assetid)) {
 			$assetids_set = Array();
 			foreach ($assetid as $this_assetid) {
@@ -4730,8 +4750,6 @@ class Asset_Manager extends MySource_Object
 	*/
 	function countLinks($assetid, $side_of_link='major', $link_types=0, $type_code='', $strict_type_code=TRUE, $ignore_linkid=0)
 	{
-		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-
 		assert_valid_assetid($assetid);
 		assert_false($side_of_link != 'major' && $side_of_link != 'minor', 'Unknown Side of Link "'.$side_of_link.'"');
 
@@ -4907,7 +4925,7 @@ class Asset_Manager extends MySource_Object
 
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
 			// Acquire lock if necessary, but remember its previous state so we can leave it as we found it
-			$lock_info = @$this->getLockInfo($major->id, 'links');
+			$lock_info = @$this->getLockInfo($major, 'links');
 			$parent_was_locked = !empty($lock_info);
 			if (!$this->acquireLock($major->id, 'links')) {
 				trigger_localised_error('CORE0012', E_USER_WARNING, $major->name);
@@ -4919,7 +4937,6 @@ class Asset_Manager extends MySource_Object
 		// Change to DB3 to deal with the link tables
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
 		$db = MatrixDAL::getDB();
-		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
 		if ($link_type & SQ_SC_LINK_SIGNIFICANT) {
 
@@ -5290,7 +5307,7 @@ class Asset_Manager extends MySource_Object
 					foreach ($bind_vars as $bind_name => $bind_value) {
 						MatrixDAL::bindValueToPdo($query, $bind_name, $bind_value);
 					}
- 					$found_treeid = MatrixDAL::executePdoOne($query);
+					$found_treeid = MatrixDAL::executePdoOne($query);
 				} catch (Exception $e) {
 					throw new Exception('Unable to get tree data due to database error: '.$e->getMessage());
 				}
@@ -5336,7 +5353,7 @@ class Asset_Manager extends MySource_Object
 						foreach ($bind_vars as $bind_name => $bind_value) {
 							MatrixDAL::bindValueToPdo($query, $bind_name, $bind_value);
 						}
- 						$aff_rows = MatrixDAL::execPdoQuery($query);
+						$aff_rows = MatrixDAL::execPdoQuery($query);
 					} catch (Exception $e) {
 						throw new Exception('Unable to attempt to win tree entry for link #'.$linkid.', between "'.$major->name.'" (#'.$major->id.') and "'.$minor->name.'" (#'.$minor->id.'), due to database error: '.$e->getMessage());
 					}
@@ -5368,7 +5385,7 @@ class Asset_Manager extends MySource_Object
 						foreach ($bind_vars as $bind_name => $bind_value) {
 							MatrixDAL::bindValueToPdo($query, $bind_name, $bind_value);
 						}
- 						$result = MatrixDAL::executePdoOne($query);
+						$result = MatrixDAL::executePdoOne($query);
 						if($result <=1) {
 						    $requires_update = TRUE;
 						    break;
@@ -5677,7 +5694,6 @@ class Asset_Manager extends MySource_Object
 	function createShadowAssetLink(Asset $major, Asset $minor, $link_type, $value='')
 	{
 		// we are linking a shadow asset under a normal asset
-		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -5748,7 +5764,6 @@ class Asset_Manager extends MySource_Object
 	*/
 	function canCreateLink(Asset $major, Asset $minor, $link_type, $exclusive)
 	{
-		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 		if (!$major->id) return FALSE;
 
 		if (!($minor instanceof Asset)) {
@@ -5881,8 +5896,9 @@ class Asset_Manager extends MySource_Object
 			if (!empty($allowed_links[$link_type][$type])) break;
 		}
 
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+
 		if (empty($allowed_links[$link_type][$type])) {
-			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 			return translate('asset_type_cannot_be_linktype_linked_to_type', $type_code, link_type_name($link_type), $major->type());
 		}
 
@@ -5891,7 +5907,6 @@ class Asset_Manager extends MySource_Object
 		}
 
 		if (!$exclusive && !empty($allowed_links[$link_type][$type]['exclusive'])) {
-			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 			return translate('asset_type_must_be_linktype_exclusively_linked_to_type', $type_code, link_type_name($link_type), $major->type());
 		}
 
@@ -5902,7 +5917,6 @@ class Asset_Manager extends MySource_Object
 			$num_curr_links = $this->countLinks($major->id, 'major', $link_type, $type, TRUE, $ignore_linkid);
 			//  and we already have our quota of links
 			if ($num_curr_links >= (int) $allowed_links[$link_type][$type]['card']) {
-				require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 				return translate('asset_type_can_have_only_linktypes_links_to_type', $this->getTypeInfo($major->type(), 'name'), ((int) $allowed_links[$link_type][$type]['card']), link_type_name($link_type), $type);
 			}
 		}
@@ -6206,7 +6220,6 @@ class Asset_Manager extends MySource_Object
 
 		}//end if link_locked_changed
 
-		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 		// If the minor is a shadow asset, we need to update the shadow link table instead
 		// There's no order field in the shadow table, so we branch before we add order to the set clause
 		if (isset($minorid_parts[1])) {
@@ -6414,11 +6427,14 @@ class Asset_Manager extends MySource_Object
 	*
 	* @param int		$linkid			the link id of the link to remove
 	* @param boolean	$check_locked	Check if the link is locked or not
+	* @param array|NULL $link           When deleting an asset, we already get the link,
+	*                                   we don't need to do it again.
+	*                                   If it's NULL here, try to get it ourselves.
 	*
 	* @return boolean
 	* @access public
 	*/
-	function deleteAssetLink($linkid, $check_locked=TRUE)
+	function deleteAssetLink($linkid, $check_locked=TRUE, $link=NULL)
 	{
 		if ($linkid == 0) return FALSE;
 		// before anything else is done, check if this is a shadow link, i.e. a link that is managed by a bridge
@@ -6433,8 +6449,11 @@ class Asset_Manager extends MySource_Object
 		// Use the master DB since we are changing things
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 
-		// First, we should try and find the link
-		$link = $this->getLinkById($linkid);
+		if ($link === NULL || empty($link)) {
+			// First, we should try and find the link
+			$link = $this->getLinkById($linkid);
+		}
+
 		if (empty($link)) {
 			trigger_localised_error('SYS0137', E_USER_WARNING, $linkid);
 			return FALSE;
@@ -6482,46 +6501,52 @@ class Asset_Manager extends MySource_Object
 		$parent_was_locked = FALSE;
 
 		if (!$aborting) {
-            // Acquire some locks if necessary
-            if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
-                // Keep a record of the locking state beforehand so we can leave it as we found it
-                $lock_info = @$this->getLockInfo($major->id, 'links');
-                $parent_was_locked = !empty($lock_info);
-                if (!$this->acquireLock($major->id, 'links')) {
-                    trigger_localised_error('SYS0126', E_USER_WARNING, 'major', $major->name);
-                    return FALSE;
-                }
-                // To check if we can delete this link, we need to lock current asset
-                $minor_lock_info = @$this->getLockInfo($minor->id, 'links');
-                $asset_was_locked = !empty($minor_lock_info);
-                if (!$this->acquireLock($minor->id, 'links')) {
-                    trigger_localised_error('SYS0126', E_USER_WARNING, 'minor', $minor->name);
-                    return FALSE;
-                }
-            }
+			// Acquire some locks if necessary
+			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
 
-            // Check permissions if necessary
-            if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LINK_INTEGRITY)) {
-                if ($link['link_type'] == SQ_LINK_NOTICE) {
-                    // to delete a notice link we need effective write access to the major asset
-                    if (!($major->writeAccess() && $major->accessEffective()) && empty($GLOBALS['SQ_PURGING_TRASH'])) {
-                        trigger_localised_error('SYS0319', E_USER_WARNING, $linkid, $major->id, $major->name);
-                        return FALSE;
-                    }
-                } else {
-                    // to delete a significant link we need write permission (but not
-                    // necessarily effective write access) to both assets
-                    if (($err_msg = $minor->canDeleteLink($linkid)) !== TRUE) {
-                        trigger_localised_error('SYS0318', E_USER_WARNING, $linkid, $minor->id, $minor->name, $err_msg);
-                        return FALSE;
-                    }
-                    if (($err_msg = $major->canDeleteLink($linkid)) !== TRUE) {
-                        trigger_localised_error('SYS0302', E_USER_WARNING, $linkid, $major->id, $major->name, $err_msg);
-                        return FALSE;
-                    }
-                }
-            }
+				// If we're purging trash, the hipo has already checked locks.
+				// We don't need to do it again.
+				if (!$GLOBALS['SQ_PURGING_TRASH']) {
+					// Keep a record of the locking state beforehand so we can leave it as we found it
+					$lock_info = @$this->getLockInfo($major, 'links');
+					$parent_was_locked = !empty($lock_info);
+					if (!$this->acquireLock($major->id, 'links')) {
+						trigger_localised_error('SYS0126', E_USER_WARNING, 'major', $major->name);
+						return FALSE;
+					}
+					// To check if we can delete this link, we need to lock current asset
+					$minor_lock_info = @$this->getLockInfo($minor, 'links');
+					$asset_was_locked = !empty($minor_lock_info);
+					if (!$this->acquireLock($minor->id, 'links')) {
+						trigger_localised_error('SYS0126', E_USER_WARNING, 'minor', $minor->name);
+						return FALSE;
+					}
+				}
+			}
+
+			// Check permissions if necessary
+			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LINK_INTEGRITY)) {
+				if ($link['link_type'] == SQ_LINK_NOTICE) {
+					// to delete a notice link we need effective write access to the major asset
+					if (!($major->writeAccess() && $major->accessEffective()) && empty($GLOBALS['SQ_PURGING_TRASH'])) {
+						trigger_localised_error('SYS0319', E_USER_WARNING, $linkid, $major->id, $major->name);
+						return FALSE;
+					}
+				} else {
+					// to delete a significant link we need write permission (but not
+					// necessarily effective write access) to both assets
+					if (($err_msg = $minor->canDeleteLink($linkid)) !== TRUE) {
+						trigger_localised_error('SYS0318', E_USER_WARNING, $linkid, $minor->id, $minor->name, $err_msg);
+						return FALSE;
+					}
+					if (($err_msg = $major->canDeleteLink($linkid)) !== TRUE) {
+						trigger_localised_error('SYS0302', E_USER_WARNING, $linkid, $major->id, $major->name, $err_msg);
+						return FALSE;
+					}
+				}
+			}
 		}
+
 		$minorid_parts = explode(':', $link['minorid']);
 		if (isset($minorid_parts[1])) {
 			// Shadow asset found
@@ -6536,7 +6561,7 @@ class Asset_Manager extends MySource_Object
 			return TRUE;
 
 		}//end if shadow asset
-		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
 		$db = MatrixDAL::getDb();
 
@@ -6564,76 +6589,77 @@ class Asset_Manager extends MySource_Object
 					}
 				}
 			}
+
 			if (!$aborting) {
-                // we create a new link to the trash if this is the last significant link
-                // being deleted and if we are not purging the trash. We check the moving
-                // flag so that if we are the last significant link, we dont create a link
-                // to the trash as the move operation will re-create the link elsewhere
-                if (!$num_other_links && !$GLOBALS['SQ_PURGING_TRASH']) {
+				// we create a new link to the trash if this is the last significant link
+				// being deleted and if we are not purging the trash. We check the moving
+				// flag so that if we are the last significant link, we dont create a link
+				// to the trash as the move operation will re-create the link elsewhere
+				if (!$num_other_links && !$GLOBALS['SQ_PURGING_TRASH']) {
 
-                    if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LINK_INTEGRITY)) {
+					if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LINK_INTEGRITY)) {
 
-                        // some assets may not be able to have their last significant link
-                        // deleted, so lets check first before going ahead
-                        if (!$minor->canDelete()) {
-                            trigger_localised_error('SYS0069', E_USER_WARNING, $minor->name);
-                            $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(); // end db3
-                            $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(); // end db2
-                            return FALSE;
-                        }
+						// some assets may not be able to have their last significant link
+						// deleted, so lets check first before going ahead
+						if (!$minor->canDelete()) {
+							trigger_localised_error('SYS0069', E_USER_WARNING, $minor->name);
+							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(); // end db3
+							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(); // end db2
+							return FALSE;
+						}
 
-                        $trash_folder = $this->getSystemAsset('trash_folder');
-                        if (is_null($trash_folder)) {
-                            $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(); // end db3
-                            $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(); // end db2
-                            return FALSE;
-                        }
+						$trash_folder = $this->getSystemAsset('trash_folder');
+						if (is_null($trash_folder)) {
+							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(); // end db3
+							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(); // end db2
+							return FALSE;
+						}
 
-                        // this asset is destined for the trash, so we need to set its permissions to
-                        // whatever it is inheriting right now so it keeps them while in the trash
-                        $perms = Array(SQ_PERMISSION_ADMIN, SQ_PERMISSION_WRITE, SQ_PERMISSION_READ);
-                        foreach ($perms as $perm) {
-                            $all_permissions = $this->getPermission($minor->id, $perm, NULL, FALSE, FALSE, TRUE);
-                            foreach ($all_permissions as $userid => $granted) {
-                                // we are deliberatly not checking for the return value here
-                                // because if for some reason the permission can't be set that is really just
-                                // bad luck
-                                @$this->setPermission($minor->id, $userid, $perm, $granted);
-                            }
-                        }
+						// this asset is destined for the trash, so we need to set its permissions to
+						// whatever it is inheriting right now so it keeps them while in the trash
+						$perms = Array(SQ_PERMISSION_ADMIN, SQ_PERMISSION_WRITE, SQ_PERMISSION_READ);
+						foreach ($perms as $perm) {
+							$all_permissions = $this->getPermission($minor->id, $perm, NULL, FALSE, FALSE, TRUE);
+							foreach ($all_permissions as $userid => $granted) {
+								// we are deliberatly not checking for the return value here
+								// because if for some reason the permission can't be set that is really just
+								// bad luck
+								@$this->setPermission($minor->id, $userid, $perm, $granted);
+							}
+						}
 
-                        if (!$trash_folder->createLink($minor, SQ_LINK_TYPE_2)) {
-                            $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(); // end db3
-                            $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(); // end db2
-                            return FALSE;
-                        }
-                    }//end if
-                }//end if last significant link
+						if (!$trash_folder->createLink($minor, SQ_LINK_TYPE_2)) {
+							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(); // end db3
+							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(); // end db2
+							return FALSE;
+						}
+					}//end if
+				}//end if last significant link
 			}
 
 			//// UPDATE THE TREE ////
 
 			// update the parents to tell them that they are going to be one kid less
 			$sql = 'UPDATE
-						sq_ast_lnk_tree
-					SET
-						num_kids = num_kids - 1
-					WHERE
-						treeid IN
-						(
-							SELECT
-								CASE WHEN
-									LENGTH(SUBSTR(t.treeid, 1, LENGTH(t.treeid) - '.SQ_CONF_ASSET_TREE_SIZE.')) != 0
-								THEN
-									SUBSTR(t.treeid, 1, LENGTH(t.treeid) - '.SQ_CONF_ASSET_TREE_SIZE.')
-								ELSE
-									\'-\'
-								END
-							FROM
-								sq_ast_lnk_tree t
-							WHERE
-								t.linkid = :linkid
-						)';
+				sq_ast_lnk_tree
+				SET
+				num_kids = num_kids - 1
+				WHERE
+				treeid IN
+				(
+				 SELECT
+				 CASE WHEN
+				 LENGTH(SUBSTR(t.treeid, 1, LENGTH(t.treeid) - '.SQ_CONF_ASSET_TREE_SIZE.')) != 0
+				 THEN
+				 SUBSTR(t.treeid, 1, LENGTH(t.treeid) - '.SQ_CONF_ASSET_TREE_SIZE.')
+				 ELSE
+				 \'-\'
+				 END
+				 FROM
+				 sq_ast_lnk_tree t
+				 WHERE
+				 t.linkid = :linkid
+				)';
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 			try {
@@ -6649,19 +6675,19 @@ class Asset_Manager extends MySource_Object
 			// when we insert into the gap's we create below
 
 			$sql = 'DELETE FROM
-						sq_ast_lnk_tree
-					WHERE
-						treeid in
-						(
-							SELECT
-								ct.treeid
-							FROM
-								sq_ast_lnk_tree pt, sq_ast_lnk_tree ct
-							WHERE
-									pt.linkid	= :linkid
-								AND	(ct.treeid	LIKE pt.treeid || '.'\''.'%'.'\''.'
-								OR ct.treeid	= pt.treeid)
-						)';
+				sq_ast_lnk_tree
+				WHERE
+				treeid in
+				(
+				 SELECT
+				 ct.treeid
+				 FROM
+				 sq_ast_lnk_tree pt, sq_ast_lnk_tree ct
+				 WHERE
+				 pt.linkid	= :linkid
+				 AND	(ct.treeid	LIKE pt.treeid || '.'\''.'%'.'\''.'
+					 OR ct.treeid	= pt.treeid)
+				)';
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 			try {
@@ -6677,12 +6703,12 @@ class Asset_Manager extends MySource_Object
 
 		// Update sort orders of other children of this parent
 		$sql = 'UPDATE
-					sq_ast_lnk
-				SET
-					sort_order = sort_order - 1
-				WHERE
-						majorid		= :majorid
-					AND	sort_order	> :sort_order';
+			sq_ast_lnk
+			SET
+			sort_order = sort_order - 1
+			WHERE
+			majorid	= :majorid
+			AND sort_order > :sort_order';
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		try {
@@ -6699,9 +6725,9 @@ class Asset_Manager extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		try {
 			$bind_vars	= Array (
-							'linkid'	=> $linkid,
-							'majorid'	=> $major->id,
-						  );
+					'linkid'	=> $linkid,
+					'majorid'	=> $major->id,
+					);
 			MatrixDAL::executeQuery('core', 'deleteLink', $bind_vars);
 		} catch (Exception $e) {
 			throw new Exception('Unable to delete link with linkid: '.$linkid.' due to database error: '.$e->getMessage());
@@ -6713,41 +6739,45 @@ class Asset_Manager extends MySource_Object
 		$minor->linksUpdated();
 
 		// Release locks on parent and/or asset if we acquired them
+		// If we're purging trash, the hipo deals with it.
+		//
 		if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
-			if (!$parent_was_locked) {
-				$this->releaseLock($major->id, 'links'); // we don't care if it fails, it's too late to reverse anything
-			}
-			if (!$asset_was_locked) {
-				$this->releaseLock($minor->id, 'links');
+			if (!$GLOBALS['SQ_PURGING_TRASH']) {
+				if (!$parent_was_locked) {
+					$this->releaseLock($major->id, 'links'); // we don't care if it fails, it's too late to reverse anything
+				}
+				if (!$asset_was_locked) {
+					$this->releaseLock($minor->id, 'links');
+				}
 			}
 		}
 		if (!$aborting) {
-            // Send Internal Message
-            $ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
-            $msg_reps = Array(
-                            'major_name'	=> $major->name,
-                            'minor_name'	=> $minor->name,
-                        );
-            $message = $ms->newMessage(Array(), 'asset.linking.delete', $msg_reps);
-            $message->parameters['majorid'] = $major->id;
-            $message->parameters['minorid'] = $minor->id;
-            $message->parameters['linkid']  = $linkid;
-            $message->send();
+			// Send Internal Message
+			$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
+			$msg_reps = Array(
+					'major_name'	=> $major->name,
+					'minor_name'	=> $minor->name,
+					);
+			$message = $ms->newMessage(Array(), 'asset.linking.delete', $msg_reps);
+			$message->parameters['majorid'] = $major->id;
+			$message->parameters['minorid'] = $minor->id;
+			$message->parameters['linkid']  = $linkid;
+			$message->send();
 
-            // Broadcast Event
-            $em = $GLOBALS['SQ_SYSTEM']->getEventManager();
-            $em->broadcastEvent($major, 'DeleteLink', Array('linkid' => $linkid));
+			// Broadcast Event
+			$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
+			$em->broadcastEvent($major, 'DeleteLink', Array('linkid' => $linkid));
 
-            // Fire triggers
-            if ($major->type() != 'trash_folder' && $minor->type() != 'trash_folder') {
-                $event_data = Array('link_info' => $link, 'linkid' => $linkid);
-                if (!$this->assetInTrash($minor->id, TRUE)) {
-                    $GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_link_deleted', $minor, $event_data);
-                }
-                if (!$this->assetInTrash($major->id, TRUE)) {
-                    $GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_link_deleted', $major, $event_data);
-                }
-            }
+			// Fire triggers
+			if ($major->type() != 'trash_folder' && $minor->type() != 'trash_folder') {
+				$event_data = Array('link_info' => $link, 'linkid' => $linkid);
+				if (!$this->assetInTrash($minor->id, TRUE)) {
+					$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_link_deleted', $minor, $event_data);
+				}
+				if (!$this->assetInTrash($major->id, TRUE)) {
+					$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_link_deleted', $major, $event_data);
+				}
+			}
 		}
 
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection(); // finished with db2
@@ -7820,8 +7850,6 @@ class Asset_Manager extends MySource_Object
 	*/
 	function &getAssetFromURL($protocol=NULL, $url=NULL, $exact_match=TRUE, $mute_errors=FALSE)
 	{
-		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-
 		if (is_null($url)) $url = current_url(FALSE, TRUE);
 		if (!is_string($url)) {
 			trigger_localised_error('SYS0189', E_USER_WARNING);
@@ -8826,9 +8854,6 @@ class Asset_Manager extends MySource_Object
 		if (empty($paths)) return Array();
 		$return_paths = Array();
 
-		// db_extras_bitand
-		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-
 		$db     = MatrixDAL::getDb();
 		$dbType = MatrixDAL::getDbType();
 
@@ -9064,8 +9089,6 @@ class Asset_Manager extends MySource_Object
 	*/
 	function generateGetLinksQuery($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $value=NULL, $dependant=NULL, $exclusive=NULL, $sort_by=NULL, $access=NULL, $effective=TRUE, $bind_prefix='gl_')
 	{
-		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-
 
 		assert_false($side_of_link != 'major' && $side_of_link != 'minor', 'Unknown Side of Link "'.$side_of_link.'"');
 		$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
@@ -9979,78 +10002,78 @@ class Asset_Manager extends MySource_Object
 			$order_by = 'ORDER BY depth DESC';
 		}
 
-        if (!is_null($access) && !$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-            $where .= ' AND p.assetid = a.assetid';
+		if (!is_null($access) && !$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+			$where .= ' AND p.assetid = a.assetid';
 		}
 
-        $from .= $where.') ll ';
+		$from .= $where.') ll ';
 
 		$group_by      = '';
 		$having        = '';
 		$outer_where   = '';
 		$public_userid = '';
-        $userids_str   = '';
+		$userids_str   = '';
 
-        if (!is_null($access)) {
+		if (!is_null($access)) {
 			$group_by = 'GROUP BY ll.majorid, ll.treeid, ll.type_code, ll.name';
-            if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-                $having .= 'HAVING MIN(ll.granted) <> \'0\'';
+			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+				$having .= 'HAVING MIN(ll.granted) <> \'0\'';
 
-                $from .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r ON (ll.userid = r.roleid AND r.assetid = ll.assetid)';
+				$from .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_role r ON (ll.userid = r.roleid AND r.assetid = ll.assetid)';
 
-                $current_user = $this->getAsset($GLOBALS['SQ_SYSTEM']->user->id);
-                $userids      = $current_user->getUserGroups();
-                $this->forgetAsset($current_user);
+				$current_user = $this->getAsset($GLOBALS['SQ_SYSTEM']->user->id);
+				$userids      = $current_user->getUserGroups();
+				$this->forgetAsset($current_user);
 
-                $userids[]     = $GLOBALS['SQ_SYSTEM']->user->id;
-                $public_userid = (String)$this->getSystemAssetid('public_user');
-                $userids[]     = $public_userid;
+				$userids[]     = $GLOBALS['SQ_SYSTEM']->user->id;
+				$public_userid = (String)$this->getSystemAssetid('public_user');
+				$userids[]     = $public_userid;
 
-                // Need to regenerate the user conditions because of the need for different bind vars
-                $userid_cond_ll = Array();
-                $userid_cond_r  = Array();
+				// Need to regenerate the user conditions because of the need for different bind vars
+				$userid_cond_ll = Array();
+				$userid_cond_r  = Array();
 
-                for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
-                    $userid_cond_ll[] = ':'.$bind_prefix.'userids_ll_'.$i;
-                    $userid_cond_r[]  = ':'.$bind_prefix.'userids_r_'.$i;
-                    $bind_vars[$bind_prefix.'userids_ll_'.$i] = (string)$userids[$i];
-                    $bind_vars[$bind_prefix.'userids_r_'.$i]  = (string)$userids[$i];
-                }
+				for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
+					$userid_cond_ll[] = ':'.$bind_prefix.'userids_ll_'.$i;
+					$userid_cond_r[]  = ':'.$bind_prefix.'userids_r_'.$i;
+					$bind_vars[$bind_prefix.'userids_ll_'.$i] = (string)$userids[$i];
+					$bind_vars[$bind_prefix.'userids_r_'.$i]  = (string)$userids[$i];
+				}
 
-                $userids_str_ll = implode(', ', $userid_cond_ll);
-                $userids_str_r  = implode(', ', $userid_cond_r);
+				$userids_str_ll = implode(', ', $userid_cond_ll);
+				$userids_str_r  = implode(', ', $userid_cond_r);
 
-                // Main where caluse. This hsould only be printed if we have user conditions i.e not root/sys_admin
-                $outer_where = ' WHERE (
-                                    ll.userid IN ('.$userids_str_ll.') OR r.userid IN ('.$userids_str_r.')
-                                 )
-                                 AND (
-                                        (
-                                            ll.permission = :'.$bind_prefix.'outer_access AND
-                                                                                        (
-                                                                                            ll.userid <> :'.$bind_prefix.'public_userid
-                                                                                            OR r.userid <> :'.$bind_prefix.'public_userid_1
-                                                                                            OR (ll.userid = :'.$bind_prefix.'public_userid_2 AND ll.granted = \'1\')
-                                                                                            OR (r.userid = :'.$bind_prefix.'public_userid_3 AND ll.granted = \'1\')
-                                                                                        )
-                                        )';
+				// Main where caluse. This hsould only be printed if we have user conditions i.e not root/sys_admin
+				$outer_where = ' WHERE (
+					ll.userid IN ('.$userids_str_ll.') OR r.userid IN ('.$userids_str_r.')
+				)
+				AND (
+					(
+						ll.permission = :'.$bind_prefix.'outer_access AND
+						(
+							ll.userid <> :'.$bind_prefix.'public_userid
+							OR r.userid <> :'.$bind_prefix.'public_userid_1
+							OR (ll.userid = :'.$bind_prefix.'public_userid_2 AND ll.granted = \'1\')
+							OR (r.userid = :'.$bind_prefix.'public_userid_3 AND ll.granted = \'1\')
+						)
+					)';
 
-                $bind_vars[$bind_prefix.'outer_access'] = $access;
-                $bind_vars[$bind_prefix.'public_userid'] = $public_userid;
-                $bind_vars[$bind_prefix.'public_userid_1'] = $public_userid;
-                $bind_vars[$bind_prefix.'public_userid_2'] = $public_userid;
-                $bind_vars[$bind_prefix.'public_userid_3'] = $public_userid;
+				$bind_vars[$bind_prefix.'outer_access'] = $access;
+				$bind_vars[$bind_prefix.'public_userid'] = $public_userid;
+				$bind_vars[$bind_prefix.'public_userid_1'] = $public_userid;
+				$bind_vars[$bind_prefix.'public_userid_2'] = $public_userid;
+				$bind_vars[$bind_prefix.'public_userid_3'] = $public_userid;
 
-                if ($effective) {
-                    $outer_where .= ' OR
-                                        (
-                                            ll.permission > :'.$bind_prefix.'outer_access_effective AND ll.granted = \'1\'
-                                        )';
-                    $bind_vars[$bind_prefix.'outer_access_effective'] = $access;
-                }
-                $outer_where .= ')';
-            }
-        }
+				if ($effective) {
+					$outer_where .= ' OR
+						(
+							ll.permission > :'.$bind_prefix.'outer_access_effective AND ll.granted = \'1\'
+						)';
+					$bind_vars[$bind_prefix.'outer_access_effective'] = $access;
+				}
+				$outer_where .= ')';
+			}
+		}
 
 
 		$union_select = ' UNION ALL SELECT sl.majorid, null, null as treeid, null as depth';

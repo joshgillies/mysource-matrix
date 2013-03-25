@@ -10,9 +10,14 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.782 2013/03/18 03:50:46 ewang Exp $
+* $Id: asset.inc,v 1.783 2013/03/25 03:56:39 csmith Exp $
 *
 */
+
+/**
+ * A lot of functions use this, so we'll load it once.
+ */
+require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
 
 /**
@@ -22,7 +27,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.782 $
+* @version $Revision: 1.783 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -255,8 +260,6 @@ class Asset extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() - SQ_SECURITY_TRIGGERS);
 			$trigger_level_changed = TRUE;
 		}
-
-		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
 		// let the system know that we are creating this asset so we dont
 		// do any updating of versions etc. until we are done
@@ -886,8 +889,15 @@ class Asset extends MySource_Object
 		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_ALL, '', TRUE, 'minor');
 		foreach ($links as $link) {
 			$major = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
+
+			// We've got almost everything we need to delete the link,
+			// just need to add the current minor code and id to the array.
+			// This saves deleteLink from having to get it from the database again.
+			$link['minor_type_code'] = $this->type();
+			$link['minorid'] = $this->id;
+
 			if (!is_null($major)) {
-				$major->deleteLink($link['linkid'], $check_locked);
+				$major->deleteLink($link['linkid'], $check_locked, $link);
 			} else {
 				trigger_localised_error('SYS0128', E_USER_WARNING, $link['majorid']);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -907,18 +917,11 @@ class Asset extends MySource_Object
 			}
 		}
 
-		// remove web paths
+		// remove web paths.
+		// saveWebPaths() calls updateLookups() for us, we don't need to
+		// do it again after this.
 		if (!$this->saveWebPaths(Array())) {
 			trigger_localised_error('SYS0133', E_USER_WARNING, $this->name);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return FALSE;
-		}
-
-		// update the lookups to clear them; figures that if there are no web paths there cannot
-		// be any lookups
-		if (!$this->updateLookups()) {
-			trigger_localised_error('SYS0132', E_USER_WARNING, $this->name);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
@@ -1428,7 +1431,6 @@ class Asset extends MySource_Object
 	*/
 	public function _updated($update_parents=TRUE)
 	{
-		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 		require_once SQ_FUDGE_PATH.'/general/general.inc';
 
 		if (isset($this->_tmp['__creating__']) && $this->_tmp['__creating__']) {
@@ -2575,7 +2577,6 @@ class Asset extends MySource_Object
 			// the status has actually changed to a different one
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-			require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 			$db = MatrixDAL::getDb();
 
 			$sql = 'UPDATE
@@ -2687,7 +2688,6 @@ class Asset extends MySource_Object
 		}
 
 		require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
 		// construct a string to represent the current date value
 		if ($this->$date_type != NULL) {
@@ -3061,19 +3061,26 @@ class Asset extends MySource_Object
 	*
 	* @param int		$linkid			the link id of the link to remove
 	* @param boolean	$check_locked	Check if the link is locked or not
+	* @param array      $link           The link (if we've already worked it out).
 	*
 	* @return boolean
 	* @access public
 	* @see Asset_Manager::deleteAssetLink()
 	*/
-	public function deleteLink($linkid, $check_locked=TRUE)
+	public function deleteLink($linkid, $check_locked=TRUE, $link=NULL)
 	{
-		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
+		if ($link === NULL || empty($link)) {
+			// Don't pass the current asset id to getLinkById(), so we can pass
+			// info about the whole link (both major and minor sides) to
+			// deleteAssetLink().
+			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
+		}
+
 		if (empty($link)) {
 			trigger_localised_error('SYS0243', E_USER_NOTICE, $linkid);
 			return FALSE;
 		} else {
-			return $GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($linkid, $check_locked);
+			return $GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($linkid, $check_locked, $link);
 		}
 
 	}//end deleteLink()
@@ -5333,48 +5340,51 @@ class Asset extends MySource_Object
 	*/
 	public function saveWebPaths($paths, $auto_add_remaps = TRUE)
 	{
-		$current_paths = $this->getWebPaths();
 		$save_paths = Array();
 
-		// make sure these paths are compliant
-		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-		$save_paths = make_valid_web_paths($paths, $this->id ? $this->id : '');
+		if (!empty($paths)) {
+			$current_paths = $this->getWebPaths();
 
-		// do not run hipo if any of the paths start with __ or is reserved by Matrix
-		foreach ($paths as $orig_path) {
-			if (preg_match('/^__/', $orig_path) || $orig_path == SQ_CONF_BACKEND_SUFFIX || $orig_path == SQ_CONF_LIMBO_SUFFIX || $orig_path == SQ_CONF_NOCACHE_SUFFIX) {
-				return FALSE;
-			}
-		}
+			// make sure these paths are compliant
+			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+			$save_paths = make_valid_web_paths($paths, $this->id ? $this->id : '');
 
-		// if there is no difference in the arrays (including in the sort order - the index),
-		// then there is nothing to do
-		if (!array_diff_assoc($save_paths, $current_paths) && !array_diff_assoc($current_paths, $save_paths)) {
-			return TRUE;
-		}
-
-		//// CHECK INSERTED PATHS ////
-
-		// change db connection because in a nested db transaction lookup on db1 may not produce a valid result
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-
-		// to make sure that they path name is not in use by any of our siblings
-		$inserts = array_diff($save_paths, $current_paths);
-		if (!empty($inserts)) {
-			// now we need to check that none of our parents have
-			// any nav kids that are also using this path name
-			$parents = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_WEB_PATHS, '', NULL, 'minor');
-			for ($i = 0; $i < count($parents); $i++) {
-				$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['major_type_code']);
-				if (is_null($parent)) continue;
-				$bad_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($parent, $inserts, $this->id);
-				if (!empty($bad_paths)) {
-					trigger_localised_error('SYS0201', E_USER_WARNING, implode('", "', $bad_paths), $parent->name);
-					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			// do not run hipo if any of the paths start with __ or is reserved by Matrix
+			foreach ($paths as $orig_path) {
+				if (preg_match('/^__/', $orig_path) || $orig_path == SQ_CONF_BACKEND_SUFFIX || $orig_path == SQ_CONF_LIMBO_SUFFIX || $orig_path == SQ_CONF_NOCACHE_SUFFIX) {
 					return FALSE;
 				}
 			}
-		}// end if inserts
+
+			// if there is no difference in the arrays (including in the sort order - the index),
+			// then there is nothing to do
+			if (!array_diff_assoc($save_paths, $current_paths) && !array_diff_assoc($current_paths, $save_paths)) {
+				return TRUE;
+			}
+
+			//// CHECK INSERTED PATHS ////
+
+			// change db connection because in a nested db transaction lookup on db1 may not produce a valid result
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+
+			// to make sure that they path name is not in use by any of our siblings
+			$inserts = array_diff($save_paths, $current_paths);
+			if (!empty($inserts)) {
+				// now we need to check that none of our parents have
+				// any nav kids that are also using this path name
+				$parents = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_WEB_PATHS, '', NULL, 'minor');
+				for ($i = 0; $i < count($parents); $i++) {
+					$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['major_type_code']);
+					if (is_null($parent)) continue;
+					$bad_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($parent, $inserts, $this->id);
+					if (!empty($bad_paths)) {
+						trigger_localised_error('SYS0201', E_USER_WARNING, implode('", "', $bad_paths), $parent->name);
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+						return FALSE;
+					}
+				}
+			}// end if inserts
+		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -5758,6 +5768,64 @@ class Asset extends MySource_Object
 
 
 	/**
+	 * Starts the update lookup process.
+	 *
+	 * Clears some _tmp vars,
+	 * connects to the right database,
+	 * also starts a transaction,
+	 * and finally opens the messaging service log.
+	 *
+	 * This is separated so the updateLookup() process can (possibly) be returned quickly.
+	 *
+	 * @return array Returns an array of the messaging service handler, and
+	 *               the database handler.
+	 */
+	private function _beginUpdateLookups()
+	{
+		// get ready to log what happens
+		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms->openLog();
+
+		unset($this->_tmp['lookups']);
+		unset($this->_tmp['design_lookups']);
+		$GLOBALS['SQ_SYSTEM']->am->clearLookupsCache($this->id);
+
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$db = MatrixDAL::getDb();
+
+		return array($ms, $db);
+	}
+
+
+	/**
+	 * Finishes the update lookup process.
+	 * Commits the transaction started by _beginUpdateLookups(),
+	 * broadcasts the LookupsUpdated event and also closes the message log
+	 * that was started before.
+	 *
+	 * This is separated so the updateLookup() process can (possibly) be returned quickly.
+	 *
+	 * @param object $ms The messaging service from _beginUpdateLookups()
+	 * @param object $db The database handler from _beginUpdateLookups()
+	 * @param array  $parameter The parameters to pass through to the broadcast event.
+	 *
+	 * @return void
+	 */
+	private function _finishUpdateLookups($ms, $db, $parameter)
+	{
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+		// notify anyone interested that lookups have been updated
+		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em->broadcastEvent($this, 'LookupsUpdated', Array('asset_name' => $this->name));
+		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_lookups_updated', $this, $parameter);
+		$ms->closeLog();
+	}
+
+
+	/**
 	* Called to force an update of this assets lookup information
 	*
 	* @param boolean	$auto_add_remaps	whether to add  remaps for this asset
@@ -5770,18 +5838,7 @@ class Asset extends MySource_Object
 	{
 		$paths = $this->getWebPaths();
 
-		// get ready to log what happens
-		$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
-		$ms->openLog();
-
-		unset($this->_tmp['lookups']);
-		unset($this->_tmp['design_lookups']);
-		$GLOBALS['SQ_SYSTEM']->am->clearLookupsCache($this->id);
-
-		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db = MatrixDAL::getDb();
+		list($ms, $db) = $this->_beginUpdateLookups();
 
 		// retrieve all existing URLs for this asset
 		// include sort order so that we can figure out which one is which
@@ -5804,6 +5861,25 @@ class Asset extends MySource_Object
 		$this->_tmp['old_urls'] = $old_urls;
 		$parameter['old_urls'] = $old_urls;
 
+		/**
+		 * Since there are no paths left, we can clear out the
+		 * lookup and lookup_value tables.
+		 */
+		if (empty($paths)) {
+			try {
+				$bind_vars = Array('assetid' => $this->id);
+				$result = MatrixDAL::executeQuery('core', 'deleteLookupValueByAssetid', $bind_vars);
+
+				$bind_vars = Array('assetid' => $this->id);
+				$result = MatrixDAL::executeQuery('core', 'deleteLookup', $bind_vars);
+			} catch (Exception $e) {
+				throw new Exception('Unable to delete lookup information for asset: '.$this->id.' due to database error: '.$e->getMessage());
+			}
+
+			$this->_finishUpdateLookups($ms, $db, $parameter);
+			return TRUE;
+		}
+
 		// get all the lookup information that we have set (i.e. no inherited values), ignoring designs as they are set on every url
 		$our_lookup_values = $this->getLookupValues(FALSE, $prefix='design::', FALSE);
 		$our_edit_layouts = $this->getLookupValues(FALSE, 'layout::');
@@ -5814,8 +5890,12 @@ class Asset extends MySource_Object
 		$old_web_paths = Array();
 		foreach ($old_urls as $url_data) {
 			$url = $url_data['url'];
+			// Keep the current url
 			$current_urls[] = $url;
-			if ((strpos($url, '__data') === FALSE) && ($url_data['urlid']) && !empty($paths)) {
+			// and the override url
+			$current_urls[] = $url.'/';
+
+			if ((strpos($url, '__data') === FALSE) && ($url_data['urlid'])) {
 				// get the asset lineage and use that as the basis for indexing old URLs
 				$url_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL(NULL, $url);
 				$url_assetids = Array();
@@ -5856,22 +5936,8 @@ class Asset extends MySource_Object
 
 		if (!empty($current_urls)) {
 			// delete rows which have normal values applied
-			$url_chunks = array_chunk($current_urls, 1000, TRUE);
-			foreach ($url_chunks as $url_chunk) {
-				try {
-					$bind_vars = Array(
-									'urls'	=> $url_chunk,
-								 );
-					MatrixDAL::executeQuery('core', 'deleteLookupValueByUrls', $bind_vars);
-				} catch (Exception $e) {
-					throw new Exception('Unable to delete URLs from lookup value table due to database error: '.$e->getMessage());
-				}
-			}//end foreach
-
-			// delete rows which have override values applied
-			for ($i=0; $i<count($current_urls); $i++) {
-				$current_urls[$i] .= '/';
-			}
+			// and rows which have override values applied
+			// We added both sets of rows when looking at the old urls.
 			$url_chunks = array_chunk($current_urls, 1000, TRUE);
 			foreach ($url_chunks as $url_chunk) {
 				try {
@@ -5891,414 +5957,403 @@ class Asset extends MySource_Object
 				throw new Exception('Unable to delete lookup information for asset: '.$this->id.' due to database error: '.$e->getMessage());
 			}
 		}//end if
-		// if we have paths then do some URL inserting
-		if (!empty($paths)) {
 
-			$num_paths = count($paths);
+		$num_paths = count($paths);
 
-			$our_design_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, 'design', FALSE);
-			$our_designs = Array();
-			foreach ($our_design_links as $link) {
-				if (preg_match('/^design::(system|user)::.*$/', $link['value'])) {
-					$our_designs[$link['value']] = Array(
-													'value'	=> $link['minorid'],
-												   );
-				}
-			}
-
-			// override designs take priority over normal, inheritable designs
-			$override_designs = Array();
-			foreach ($our_design_links as $link) {
-				if (preg_match('/^override::design::(system|user)::.*$/', $link['value'])) {
-					$name = preg_replace('/^override::(.*)$/', '$1', $link['value']);
-					$override_designs[$name] = Array(
+		$our_design_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, 'design', FALSE);
+		$our_designs = Array();
+		foreach ($our_design_links as $link) {
+			if (preg_match('/^design::(system|user)::.*$/', $link['value'])) {
+				$our_designs[$link['value']] = Array(
 												'value'	=> $link['minorid'],
 											   );
-				}
 			}
-			unset($our_design_links);
+		}
 
-			$our_layout_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, 'paint_layout_page', FALSE);
-			$layouts = Array();
-			foreach ($our_layout_links as $link) {
-				if (preg_match('/^paint_layout::(system|user)::.*$/', $link['value'])) {
-					$layouts[$link['value']] = Array(
-													'value'	=> $link['minorid'],
-												   );
-				}
+		// override designs take priority over normal, inheritable designs
+		$override_designs = Array();
+		foreach ($our_design_links as $link) {
+			if (preg_match('/^override::design::(system|user)::.*$/', $link['value'])) {
+				$name = preg_replace('/^override::(.*)$/', '$1', $link['value']);
+				$override_designs[$name] = Array(
+											'value'	=> $link['minorid'],
+										   );
 			}
+		}
+		unset($our_design_links);
 
-			// override layouts take priority over normal, inheritable layouts
-			$override_layouts = Array();
-			foreach ($our_layout_links as $link) {
-				if (preg_match('/^override::paint_layout::system::.*$/', $link['value'])) {
-					$name = preg_replace('/^override::(.*)$/', '$1', $link['value']);
-					$override_layouts[$name] = Array(
+		$our_layout_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, 'paint_layout_page', FALSE);
+		$layouts = Array();
+		foreach ($our_layout_links as $link) {
+			if (preg_match('/^paint_layout::(system|user)::.*$/', $link['value'])) {
+				$layouts[$link['value']] = Array(
 												'value'	=> $link['minorid'],
 											   );
-				}
 			}
-			unset($link);
-			unset($our_layout_links);
+		}
 
-			// edit layouts applied to the asset
-			$edit_layouts = Array();
-			foreach($our_edit_layouts as $layout_url => $layouts) {
-				foreach($layouts as $name => $layout_data) {
-					if (!isset($edit_layouts[$name])) {
-						$edit_layouts[$name] = Array(
-												'value' => $layout_data['value'],
-												);
-					}//end if
-				}//end foreach
+		// override layouts take priority over normal, inheritable layouts
+		$override_layouts = Array();
+		foreach ($our_layout_links as $link) {
+			if (preg_match('/^override::paint_layout::system::.*$/', $link['value'])) {
+				$name = preg_replace('/^override::(.*)$/', '$1', $link['value']);
+				$override_layouts[$name] = Array(
+											'value'	=> $link['minorid'],
+										   );
+			}
+		}
+		unset($link);
+		unset($our_layout_links);
+
+		// edit layouts applied to the asset
+		$edit_layouts = Array();
+		foreach($our_edit_layouts as $layout_url => $layouts) {
+			foreach($layouts as $name => $layout_data) {
+				if (!isset($edit_layouts[$name])) {
+					$edit_layouts[$name] = Array(
+											'value' => $layout_data['value'],
+											);
+				}//end if
 			}//end foreach
-			unset($our_edit_layouts);
+		}//end foreach
+		unset($our_edit_layouts);
 
-			$parents = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_WEB_PATHS, '', NULL, 'minor');
+		$parents = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_WEB_PATHS, '', NULL, 'minor');
 
-			$done_urls    = Array();
-			$done_parents = Array();
-			for ($i = 0; $i < count($parents); $i++) {
-				if (in_array($parents[$i]['majorid'], $done_parents)) {
-					continue;
-				}
-				$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['major_type_code']);
-				if (is_null($parent) || !is_object($parent)) {
-					continue;
-				}
-				$done_parents[] = $parent->id;
+		$done_urls    = Array();
+		$done_parents = Array();
+		for ($i = 0; $i < count($parents); $i++) {
+			if (in_array($parents[$i]['majorid'], $done_parents)) {
+				continue;
+			}
+			$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['major_type_code']);
+			if (is_null($parent) || !is_object($parent)) {
+				continue;
+			}
+			$done_parents[] = $parent->id;
 
-				$parent_urls = $parent->getLookups();
+			$parent_urls = $parent->getLookups();
 
-				for ($j = 0, $num_parent_urls = count($parent_urls); $j < $num_parent_urls; $j++) {
+			for ($j = 0, $num_parent_urls = count($parent_urls); $j < $num_parent_urls; $j++) {
 
-					for ($k = 0; $k < $num_paths; $k++) {
-						$new_url = $parent_urls[$j]['url'].'/'.$paths[$k];
-						if (isset($done_urls[$new_url])) continue;
+				for ($k = 0; $k < $num_paths; $k++) {
+					$new_url = $parent_urls[$j]['url'].'/'.$paths[$k];
+					if (isset($done_urls[$new_url])) continue;
 
-						// Get the protocol info for this new url
-						$site_url_info = $GLOBALS['SQ_SYSTEM']->am->getRootURL($new_url);
+					// Get the protocol info for this new url
+					$site_url_info = $GLOBALS['SQ_SYSTEM']->am->getRootURL($new_url);
 
-						$site_https = isset($site_url_info['https']) ? $site_url_info['https'] : 0;
-						$site_http = isset($site_url_info['http']) ? $site_url_info['http'] : 0;
+					$site_https = isset($site_url_info['https']) ? $site_url_info['https'] : 0;
+					$site_http = isset($site_url_info['http']) ? $site_url_info['http'] : 0;
 
-						$https = ($this->force_secure === '-') ? '0' : $site_https;
-						$http  = ($this->force_secure === '1') ? '0' : $site_http;
+					$https = ($this->force_secure === '-') ? '0' : $site_https;
+					$http  = ($this->force_secure === '1') ? '0' : $site_http;
 
-						if (!$http && !$https) {
-							$https = $site_https;
-							$http = $site_http;
-						}
+					if (!$http && !$https) {
+						$https = $site_https;
+						$http = $site_http;
+					}
 
-						// if we have no protocol then we can just ignore this URL
-						if (!$http && !$https) {
-							continue;
-						}
+					// if we have no protocol then we can just ignore this URL
+					if (!$http && !$https) {
+						continue;
+					}
 
-						// check if another asset is using the new URL
-						$sql = 'SELECT assetid FROM sq_ast_lookup WHERE url = :new_url';
-						$existing_asset_with_url_id = NULL;
-						try {
-							$query = MatrixDAL::preparePdoQuery($sql);
-							MatrixDAL::bindValueToPdo($query, 'new_url', $new_url);
-							$existing_asset_with_url_id = MatrixDAL::executePdoAssoc($query, 0);
-						} catch (Exception $e) {
-							throw new Exception('Cannot check if another asset is already using URL "'.$new_url.'": '.$e->getMessage());
-						}
-						if (!empty($existing_asset_with_url_id)) {
-							// if an existing asset has the same url as the new URL throw an error and rollback
-							$existing_asset_with_url_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($existing_asset_with_url_id);
-							trigger_localised_error('CORE0081', E_USER_WARNING, $new_url, $existing_asset_with_url_info[$existing_asset_with_url_id[0]]['name'], $existing_asset_with_url_id[0]);
-							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-							return FALSE;
-						}
+					// check if another asset is using the new URL
+					$sql = 'SELECT assetid FROM sq_ast_lookup WHERE url = :new_url';
+					$existing_asset_with_url_id = NULL;
+					try {
+						$query = MatrixDAL::preparePdoQuery($sql);
+						MatrixDAL::bindValueToPdo($query, 'new_url', $new_url);
+						$existing_asset_with_url_id = MatrixDAL::executePdoAssoc($query, 0);
+					} catch (Exception $e) {
+						throw new Exception('Cannot check if another asset is already using URL "'.$new_url.'": '.$e->getMessage());
+					}
+					if (!empty($existing_asset_with_url_id)) {
+						// if an existing asset has the same url as the new URL throw an error and rollback
+						$existing_asset_with_url_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($existing_asset_with_url_id);
+						trigger_localised_error('CORE0081', E_USER_WARNING, $new_url, $existing_asset_with_url_info[$existing_asset_with_url_id[0]]['name'], $existing_asset_with_url_id[0]);
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+						return FALSE;
+					}
 
-						try {
-							$bind_vars	= Array (
-											'url'			=> $new_url,
-											'assetid'		=> $this->id,
-											'http'			=> $http,
-											'https'			=> $https,
-											'root_urlid'	=> $parent_urls[$j]['root_urlid'],
-										  );
-							$result = MatrixDAL::executeQuery('core', 'insertLookup', $bind_vars);
-						} catch (Exception $e) {
-							throw new Exception('Unable to insert lookups for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
-						}
+					try {
+						$bind_vars	= Array (
+										'url'			=> $new_url,
+										'assetid'		=> $this->id,
+										'http'			=> $http,
+										'https'			=> $https,
+										'root_urlid'	=> $parent_urls[$j]['root_urlid'],
+									  );
+						$result = MatrixDAL::executeQuery('core', 'insertLookup', $bind_vars);
+					} catch (Exception $e) {
+						throw new Exception('Unable to insert lookups for asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
+					}
 
-						$done_urls[] = $new_url;
+					$done_urls[] = $new_url;
 
-						// get the asset lineage and use that as the index
-						$url_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL(NULL, $parent_urls[$j]['url']);
-						$new_url_assetids = Array();
-						foreach ($url_lineage as $url_lineage_item) {
-							$new_url_assetids[] = $url_lineage_item['assetid'];
-						}
-						$new_url_assetids[] = $this->id;
+					// get the asset lineage and use that as the index
+					$url_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL(NULL, $parent_urls[$j]['url']);
+					$new_url_assetids = Array();
+					foreach ($url_lineage as $url_lineage_item) {
+						$new_url_assetids[] = $url_lineage_item['assetid'];
+					}
+					$new_url_assetids[] = $this->id;
 
-						// holds paint layout values and design values
-						$lookup_values = Array();
-						// holds override paint layout values and override design values
-						$override_lookup_values = Array();
+					// holds paint layout values and design values
+					$lookup_values = Array();
+					// holds override paint layout values and override design values
+					$override_lookup_values = Array();
 
-						// look for valid paint layouts to insert or update
-						foreach ($tmp_old_urls as $tmp_old_url) {
-							if ($tmp_old_url['url'] == $new_url) {
-								// exact same URL as before
+					// look for valid paint layouts to insert or update
+					foreach ($tmp_old_urls as $tmp_old_url) {
+						if ($tmp_old_url['url'] == $new_url) {
+							// exact same URL as before
+							$lookup_values = isset($our_lookup_values[$tmp_old_url['url']]) ? $our_lookup_values[$tmp_old_url['url']] : Array();
+							// look for an override paint layout value
+							$override_lookup_values = isset($our_lookup_values[$tmp_old_url['url'].'/']) ? $our_lookup_values[$tmp_old_url['url'].'/'] : Array();
+							break;
+						} else if (($tmp_old_url['parent_url'] == $parent_urls[$j]['url']) && ($tmp_old_url['web_path'] == $paths[$k])) {
+							// the same parent URL and the same web path
+							$lookup_values = isset($our_lookup_values[$tmp_old_url['url']]) ? $our_lookup_values[$tmp_old_url['url']] : Array();
+							// look for an override paint layout value
+							$override_lookup_values = isset($our_lookup_values[$tmp_old_url['url'].'/']) ? $our_lookup_values[$tmp_old_url['url'].'/'] : Array();
+							break;
+						} else if ($tmp_old_url['parent_url'] == $parent_urls[$j]['url']) {
+							// same parent URL but different web path so change the affected paint layout entries
+
+							// ensure web path changes are valid
+							if (isset($web_path_changes[$tmp_old_url['web_path']]) && $web_path_changes[$tmp_old_url['web_path']] == $paths[$k]) {
+								// retrieve normal paint layout lookup value
 								$lookup_values = isset($our_lookup_values[$tmp_old_url['url']]) ? $our_lookup_values[$tmp_old_url['url']] : Array();
 								// look for an override paint layout value
 								$override_lookup_values = isset($our_lookup_values[$tmp_old_url['url'].'/']) ? $our_lookup_values[$tmp_old_url['url'].'/'] : Array();
-								break;
-							} else if (($tmp_old_url['parent_url'] == $parent_urls[$j]['url']) && ($tmp_old_url['web_path'] == $paths[$k])) {
-								// the same parent URL and the same web path
-								$lookup_values = isset($our_lookup_values[$tmp_old_url['url']]) ? $our_lookup_values[$tmp_old_url['url']] : Array();
-								// look for an override paint layout value
-								$override_lookup_values = isset($our_lookup_values[$tmp_old_url['url'].'/']) ? $our_lookup_values[$tmp_old_url['url'].'/'] : Array();
-								break;
-							} else if ($tmp_old_url['parent_url'] == $parent_urls[$j]['url']) {
-								// same parent URL but different web path so change the affected paint layout entries
 
-								// ensure web path changes are valid
-								if (isset($web_path_changes[$tmp_old_url['web_path']]) && $web_path_changes[$tmp_old_url['web_path']] == $paths[$k]) {
-									// retrieve normal paint layout lookup value
-									$lookup_values = isset($our_lookup_values[$tmp_old_url['url']]) ? $our_lookup_values[$tmp_old_url['url']] : Array();
-									// look for an override paint layout value
-									$override_lookup_values = isset($our_lookup_values[$tmp_old_url['url'].'/']) ? $our_lookup_values[$tmp_old_url['url'].'/'] : Array();
+								// update each affected paint layout's URL
+								try {
+									$bind_vars	= Array (
+													'url'	=> $tmp_old_url['url'].'%',
+													'name'	=> 'paint_layout::%',
+												  );
+									$applied_layout = MatrixDAL::executeAssoc('core', 'getLookupValueUrlsByPattern', 0, $bind_vars);
+								} catch (Exception $e) {
+									throw new Exception('Unable to get paint layouts for URL pattern: '.$tmp_old_url['url'].'%'.' due to database error: '.$e->getMessage());
+								}
 
-									// update each affected paint layout's URL
+								foreach ($applied_layout as $key => $old_layout_url) {
+									$new_layout_url = str_replace($tmp_old_url['url'], $new_url, $old_layout_url);
 									try {
 										$bind_vars	= Array (
-														'url'	=> $tmp_old_url['url'].'%',
-														'name'	=> 'paint_layout::%',
+														'seturl'	=> $new_layout_url,
+														'whereurl'	=> $old_layout_url,
 													  );
-										$applied_layout = MatrixDAL::executeAssoc('core', 'getLookupValueUrlsByPattern', 0, $bind_vars);
+										$result = MatrixDAL::executeQuery('core', 'updateLookupValueUrl', $bind_vars);
 									} catch (Exception $e) {
-										throw new Exception('Unable to get paint layouts for URL pattern: '.$tmp_old_url['url'].'%'.' due to database error: '.$e->getMessage());
+										throw new Exception('Unable to update lookup value table for existing URL: '.$old_layout_url.' with new URL: '.$new_layout_url.' due to database error: '.$e->getMessage());
 									}
-
-									foreach ($applied_layout as $key => $old_layout_url) {
-										$new_layout_url = str_replace($tmp_old_url['url'], $new_url, $old_layout_url);
-										try {
-											$bind_vars	= Array (
-															'seturl'	=> $new_layout_url,
-															'whereurl'	=> $old_layout_url,
-														  );
-											$result = MatrixDAL::executeQuery('core', 'updateLookupValueUrl', $bind_vars);
-										} catch (Exception $e) {
-											throw new Exception('Unable to update lookup value table for existing URL: '.$old_layout_url.' with new URL: '.$new_layout_url.' due to database error: '.$e->getMessage());
-										}
-									}
-									break;
 								}
-							}//end if
-						}//end foreach
+								break;
+							}
+						}//end if
+					}//end foreach
 
-						// merge in design lookup values with our paint layout lookup values
-						foreach ($our_designs as $name => $data) {
+					// merge in design lookup values with our paint layout lookup values
+					foreach ($our_designs as $name => $data) {
+						$lookup_values[$name] = $data;
+					}
+					foreach ($override_designs as $name => $data) {
+						$override_lookup_values[$name] = $data;
+					}
+
+					// merge in asset based paint layout values if they don't exist currently for this URL
+					foreach ($layouts as $name => $data) {
+						if (!in_array($name, array_keys($lookup_values))) {
 							$lookup_values[$name] = $data;
 						}
-						foreach ($override_designs as $name => $data) {
+					}
+					foreach ($override_layouts as $name => $data) {
+						if (!in_array($name, array_keys($override_lookup_values))) {
 							$override_lookup_values[$name] = $data;
 						}
+					}
 
-						// merge in asset based paint layout values if they don't exist currently for this URL
-						foreach ($layouts as $name => $data) {
-							if (!in_array($name, array_keys($lookup_values))) {
-								$lookup_values[$name] = $data;
-							}
+					// merge in edit layout lookup values
+					foreach($edit_layouts as $name => $data) {
+						if (!in_array($name, array_keys($lookup_values))) {
+							$lookup_values[$name] = $data;
 						}
-						foreach ($override_layouts as $name => $data) {
-							if (!in_array($name, array_keys($override_lookup_values))) {
-								$override_lookup_values[$name] = $data;
+					}
+
+					// calculate the depth of the url
+					$exploded_url = explode('/', $new_url);
+					$page_depth = count($exploded_url)-1;
+
+					foreach ($lookup_values as $name => $data) {
+						try {
+							$bind_vars	= Array (
+											'url'	=> $new_url,
+											'name'	=> $name,
+										  );
+							$result = MatrixDAL::executeAssoc('core', 'getLookupValueUrls', $bind_vars);
+							if (isset($result[0])) {
+								$result = $result[0];
 							}
+						} catch (Exception $e) {
+							throw new Exception('Unable to get lookup value URL for specified URL: '.$new_url.' due to database error: '.$e->getMessage());
 						}
 
-						// merge in edit layout lookup values
-						foreach($edit_layouts as $name => $data) {
-							if (!in_array($name, array_keys($lookup_values))) {
-								$lookup_values[$name] = $data;
-							}
-						}
-
-						// calculate the depth of the url
-						$exploded_url = explode('/', $new_url);
-						$page_depth = count($exploded_url)-1;
-
-						foreach ($lookup_values as $name => $data) {
+						// if the lookup value already exists, re-use it (this could happen
+						// when a file changes back from a __data url)
+						if (empty($result)) {
 							try {
 								$bind_vars	= Array (
 												'url'	=> $new_url,
 												'name'	=> $name,
+												'value'	=> $data['value'],
+												'depth'	=> $page_depth,
 											  );
-								$result = MatrixDAL::executeAssoc('core', 'getLookupValueUrls', $bind_vars);
-								if (isset($result[0])) {
-									$result = $result[0];
-								}
+								$result = MatrixDAL::executeQuery('core', 'insertLookupValue', $bind_vars);
 							} catch (Exception $e) {
-								throw new Exception('Unable to get lookup value URL for specified URL: '.$new_url.' due to database error: '.$e->getMessage());
+								throw new Exception('Unable to insert new lookup value for specified URL: '.$new_url.' due to database error: '.$e->getMessage());
 							}
-
-							// if the lookup value already exists, re-use it (this could happen
-							// when a file changes back from a __data url)
-							if (empty($result)) {
-								try {
-									$bind_vars	= Array (
-													'url'	=> $new_url,
-													'name'	=> $name,
-													'value'	=> $data['value'],
-													'depth'	=> $page_depth,
-												  );
-									$result = MatrixDAL::executeQuery('core', 'insertLookupValue', $bind_vars);
-								} catch (Exception $e) {
-									throw new Exception('Unable to insert new lookup value for specified URL: '.$new_url.' due to database error: '.$e->getMessage());
-								}
-							} else {
-								try {
-									$bind_vars	= Array (
-													'value'	=> $data['value'],
-													'url'	=> $new_url,
-													'name'	=> $name,
-												  );
-									$result = MatrixDAL::executeQuery('core', 'updateLookupValue', $bind_vars);
-								} catch (Exception $e) {
-									throw new Exception('Unable to update lookup value for specified URL: '.$new_url.' due to database error: '.$e->getMessage());
-								}
+						} else {
+							try {
+								$bind_vars	= Array (
+												'value'	=> $data['value'],
+												'url'	=> $new_url,
+												'name'	=> $name,
+											  );
+								$result = MatrixDAL::executeQuery('core', 'updateLookupValue', $bind_vars);
+							} catch (Exception $e) {
+								throw new Exception('Unable to update lookup value for specified URL: '.$new_url.' due to database error: '.$e->getMessage());
 							}
+						}
 
-						}//end foreach
+					}//end foreach
 
-						// for override values
-						foreach ($override_lookup_values as $name => $data) {
+					// for override values
+					foreach ($override_lookup_values as $name => $data) {
+						try {
+							$bind_vars	= Array (
+											'url'	=> $new_url.'/',
+											'name'	=> $name,
+										  );
+							$result = MatrixDAL::executeAssoc('core', 'getLookupValueUrls', $bind_vars);
+							if (isset($result[0])) {
+								$result = $result[0];
+							}
+						} catch (Exception $e) {
+							throw new Exception('Unable to get lookup value URL for specified URL: '.$new_url.' due to database error: '.$e->getMessage());
+						}
+
+						// if the lookup value already exists, re-use it (this could happen
+						// when a file changes back from a __data url)
+						if (empty($result)) {
 							try {
 								$bind_vars	= Array (
 												'url'	=> $new_url.'/',
 												'name'	=> $name,
+												'value'	=> $data['value'],
+												'depth'	=> $page_depth+1,
 											  );
-								$result = MatrixDAL::executeAssoc('core', 'getLookupValueUrls', $bind_vars);
-								if (isset($result[0])) {
-									$result = $result[0];
-								}
+								$result = MatrixDAL::executeQuery('core', 'insertLookupValue', $bind_vars);
 							} catch (Exception $e) {
-								throw new Exception('Unable to get lookup value URL for specified URL: '.$new_url.' due to database error: '.$e->getMessage());
+								throw new Exception('Unable to insert new lookup value for specified URL: '.$new_url.' due to database error: '.$e->getMessage());
+							}
+						} else {
+							try {
+								$bind_vars	= Array (
+												'value'	=> $data['value'],
+												'url'	=> $new_url,
+												'name'	=> $name,
+											  );
+								$result = MatrixDAL::executeQuery('core', 'updateLookupValue', $bind_vars);
+							} catch (Exception $e) {
+								throw new Exception('Unable to update lookup value for specified URL: '.$new_url.' due to database error: '.$e->getMessage());
+							}
+						}
+
+					}//end foreach
+
+				}//end for paths
+
+			}//end for parent_urls
+
+		}//end for parents
+
+		// send a message to tell everyone the good news
+		$msg = $ms->newMessage();
+		$msg->subject = 'Asset Lookups Updated';
+		$msg->type = 'asset.lookups.updated';
+
+		$msg_reps = Array(
+						'asset_name'	=> $this->name,
+					);
+		$msg->replacements = $msg_reps;
+		$msg->parameters['assetid'] = $this->id;
+		$msg->send();
+
+		if (!empty($old_urls)) {
+			if ($auto_add_remaps) {
+				$rm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
+
+				// get the first new URL
+				// don't add a remap if we don't have a URL to map to
+				if (count($done_urls) > 0) {
+					foreach ($old_urls as $url_data) {
+						$old_url = $url_data['url'];
+
+						// Search the new URLs for the one closest to an old
+						// URL..
+						$closest_url = NULL;
+						$most_bits_matched = -1;
+
+						foreach ($done_urls as $new_url) {
+							$new_url = strip_url($new_url, TRUE);
+							$new_url_bits = explode('/', $new_url);
+							$old_url_bits = explode('/', $old_url);
+
+							for ($bits = 0; $bits < count($old_url_bits); $bits++) {
+								if ((string)$old_url_bits[$bits] !== (string)$new_url_bits[$bits]) {
+									break;
+								}
+							}//end for
+
+							if ($bits > $most_bits_matched) {
+								$closest_url = $new_url;
+								$most_bits_matched = $bits;
 							}
 
-							// if the lookup value already exists, re-use it (this could happen
-							// when a file changes back from a __data url)
-							if (empty($result)) {
-								try {
-									$bind_vars	= Array (
-													'url'	=> $new_url.'/',
-													'name'	=> $name,
-													'value'	=> $data['value'],
-													'depth'	=> $page_depth+1,
-												  );
-									$result = MatrixDAL::executeQuery('core', 'insertLookupValue', $bind_vars);
-								} catch (Exception $e) {
-									throw new Exception('Unable to insert new lookup value for specified URL: '.$new_url.' due to database error: '.$e->getMessage());
-								}
-							} else {
-								try {
-									$bind_vars	= Array (
-													'value'	=> $data['value'],
-													'url'	=> $new_url,
-													'name'	=> $name,
-												  );
-									$result = MatrixDAL::executeQuery('core', 'updateLookupValue', $bind_vars);
-								} catch (Exception $e) {
-									throw new Exception('Unable to update lookup value for specified URL: '.$new_url.' due to database error: '.$e->getMessage());
+						}//end foreach URL
+
+						// this URL is already in the list of new URLs, therefore we don't need a remap
+						// because we're only making a remap to ourselves
+						if (!in_array($old_url, $done_urls)) {
+							// don't remap __data URLs, because they aren't served by Matrix
+							foreach (explode("\n", SQ_CONF_SYSTEM_ROOT_URLS) as $root_url) {
+								$data_url = $root_url.'/__data';
+								if (substr($old_url, 0, strlen($data_url)) == $data_url) {
+									continue 2;
 								}
 							}
-
-						}//end foreach
-
-					}//end for paths
-
-				}//end for parent_urls
-
-			}//end for parents
-
-			// send a message to tell everyone the good news
-			$msg = $ms->newMessage();
-			$msg->subject = 'Asset Lookups Updated';
-			$msg->type = 'asset.lookups.updated';
-
-			$msg_reps = Array(
-							'asset_name'	=> $this->name,
-						);
-			$msg->replacements = $msg_reps;
-			$msg->parameters['assetid'] = $this->id;
-			$msg->send();
-
-			if (!empty($old_urls)) {
-				if ($auto_add_remaps) {
-					$rm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
-
-					// get the first new URL
-					// don't add a remap if we don't have a URL to map to
-					if (count($done_urls) > 0) {
-						foreach ($old_urls as $url_data) {
-							$old_url = $url_data['url'];
-
-							// Search the new URLs for the one closest to an old
-							// URL..
-							$closest_url = NULL;
-							$most_bits_matched = -1;
-
-							foreach ($done_urls as $new_url) {
-								$new_url = strip_url($new_url, TRUE);
-								$new_url_bits = explode('/', $new_url);
-								$old_url_bits = explode('/', $old_url);
-
-								for ($bits = 0; $bits < count($old_url_bits); $bits++) {
-									if ((string)$old_url_bits[$bits] !== (string)$new_url_bits[$bits]) {
-										break;
-									}
-								}//end for
-
-								if ($bits > $most_bits_matched) {
-									$closest_url = $new_url;
-									$most_bits_matched = $bits;
-								}
-
-							}//end foreach URL
-
-							// this URL is already in the list of new URLs, therefore we don't need a remap
-							// because we're only making a remap to ourselves
-							if (!in_array($old_url, $done_urls)) {
-								// don't remap __data URLs, because they aren't served by Matrix
-								foreach (explode("\n", SQ_CONF_SYSTEM_ROOT_URLS) as $root_url) {
-									$data_url = $root_url.'/__data';
-									if (substr($old_url, 0, strlen($data_url)) == $data_url) {
-										continue 2;
-									}
-								}
-								$static_url = SQ_CONF_STATIC_ROOT_URL;
-								if (!empty($static_url) && strpos($old_url, $static_url) !== FALSE) {
-								    continue;
-								}
-								if ($url_data['http']) {
-									$rm->addRemapURL('http://'.$old_url,  'http://'.$closest_url);
-								}
-								if ($url_data['https']) {
-									$rm->addRemapURL('https://'.$old_url, 'https://'.$closest_url);
-								}
+							$static_url = SQ_CONF_STATIC_ROOT_URL;
+							if (!empty($static_url) && strpos($old_url, $static_url) !== FALSE) {
+								continue;
+							}
+							if ($url_data['http']) {
+								$rm->addRemapURL('http://'.$old_url,  'http://'.$closest_url);
+							}
+							if ($url_data['https']) {
+								$rm->addRemapURL('https://'.$old_url, 'https://'.$closest_url);
 							}
 						}
 					}
 				}
-			}//end if !empty($old_urls)
+			}
+		}//end if !empty($old_urls)
 
-		}//end if count paths
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-
-		// notify anyone interested that lookups have been updated
-		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
-		$em->broadcastEvent($this, 'LookupsUpdated', Array('asset_name' => $this->name));
-		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_lookups_updated', $this, $parameter);
-		$ms->closeLog();
+		$this->_finishUpdateLookups($ms, $db, $parameter);
 
 		return TRUE;
 

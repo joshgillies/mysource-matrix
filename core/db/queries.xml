@@ -303,6 +303,29 @@
 		</primary>
 	</query>
 
+	<query id="deleteLookupValueByAssetid">
+		<!-- Delete lookup values that match a certain assetid. Do this before doing a deleteLookup. -->
+		<primary>
+			<delete>
+				<where>
+					<in table="sq_ast_lookup_value" column="url">
+						<select>
+							<fields>
+								<field table="sq_ast_lookup" column="url" />
+							</fields>
+							<from>
+								<table>sq_ast_lookup</table>
+							</from>
+							<where>
+								<equal table="sq_ast_lookup" column="assetid">:assetid</equal>
+							</where>
+						</select>
+					</in>
+				</where>
+			</delete>
+		</primary>
+	</query>
+
 	<query id="deleteLookupValueByUrls">
 		<!-- Delete lookup values that match a certain URL(s) -->
 		<primary>
