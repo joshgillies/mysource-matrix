@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.54 2012/08/30 01:09:05 ewang Exp $
+* $Id: bodycopy_container.inc,v 1.55 2013/03/25 03:28:56 csmith Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -271,38 +271,6 @@ class Bodycopy_Container extends Asset
 		return FALSE;
 
 	}//end prepareLink()
-
-
-	/**
-	* Removes a link where this asset is the major player
-	*
-	* @param int	$linkid	the link id of the link to remove
-	*
-	* @return boolean
-	* @access public
-	*/
-	public function deleteLink($linkid)
-	{
-		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
-		if (!parent::deleteLink($linkid)) return FALSE;
-
-		// link has been deleted, check urls to see if this link
-		// was a HREF or SRC etc and get rid of them
-		ob_start();
-			$edit_fns = $this->getEditFns();
-			$edit_fns->paint($this, TRUE);
-			$output = ob_get_contents();
-		ob_end_clean();
-
-		// NOTE: don't need to worry about shadow assets here because we never link to them anyway
-		$e = '/\\.\\/\\?a=([0-9]+)/';
-		$matches = Array();
-		preg_match_all($e, $output, $matches);
-		$replace_assetids = $matches[1];
-
-		return TRUE;
-
-	}//end deleteLink()
 
 
 	/**
