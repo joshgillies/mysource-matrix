@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.165.2.1 2012/11/26 23:58:56 cupreti Exp $
+* $Id: html_form.inc,v 1.165.2.2 2013/03/25 22:31:27 akarelia Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.165.2.1 $
+* @version $Revision: 1.165.2.2 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -561,8 +561,8 @@ function file_upload($name, $extras='')
 function get_file_upload_info($name, $pre_uploaded=FALSE)
 {
 	// browsers of handheld iOS devices disables the file upload
-	// input so the _FILES var will be totally empty but this 
-	// doesn't mean there was error uploading the file. see more 
+	// input so the _FILES var will be totally empty but this
+	// doesn't mean there was error uploading the file. see more
 	// on bug #5574 Form file upload problem with  iOS device
 	if (empty($_FILES)) return Array();
 	if (empty($_FILES[$name])) return FALSE;
@@ -610,7 +610,7 @@ function get_file_upload_info($name, $pre_uploaded=FALSE)
 			trigger_localised_error('SYS0023', E_USER_WARNING, $nice_name);
 			return FALSE;
 		break;
-	
+
 	}//end switch
 
 	if (empty($_FILES[$name]['name']) || !is_uploaded_file($_FILES[$name]['tmp_name'])) {
@@ -1438,7 +1438,7 @@ function get_url_tester_url($name)
 * @return array
 * @access protected
 */
-function structured_drop_down($name, $root_id, $type_codes, $selected=Array(), $width=0, $height=0, $max_depth=0, $allow_multiple=FALSE, $seperator='-', $include_root=FALSE, $root_text='', $check_boxes=FALSE, $statuses=Array(), $structured=TRUE, $link_types=Array(), $allow_empty=FALSE, $permission=NULL)
+function structured_drop_down($name, $root_id, $type_codes, $selected=Array(), $width=0, $height=0, $max_depth=0, $allow_multiple=FALSE, $seperator='-', $include_root=FALSE, $root_text='', $check_boxes=FALSE, $statuses=Array(), $structured=TRUE, $link_types=Array(), $allow_empty=FALSE, $permission=NULL, $skip_assetids=Array())
 {
 	$all_child_links = $GLOBALS['SQ_SYSTEM']->am->getAllChildLinks($root_id, 0, $permission, TRUE, 'gc_', $max_depth);
 
@@ -1489,6 +1489,17 @@ function structured_drop_down($name, $root_id, $type_codes, $selected=Array(), $
 		if (!empty($link_types) && !in_array($data['link_type'], $link_types)) {
 			unset($child_links[$treeid]);
 			$invalid[] = $treeid;
+			continue;
+		}
+
+		if (!empty($skip_assetids) && in_array($data['assetid'], $skip_assetids)) {
+			// Issue #6193 Exclude asset/root node settings ignored in Asset Listing
+			// allow the assets to be skipped if they are in skip list. we are doing
+			// this to make sure the root nodes we are trying to exclude do not app-
+			// ear in the dropdown in the frontend as there must be a reason it is skipped
+			unset($child_links[$treeid]);
+			$invalid[] = $treeid;
+			continue;
 		}
 	}//end foreach
 
@@ -1700,7 +1711,7 @@ function sort_tree(&$tree)
 
 /**
 * Comparison function for use in uasort()
-* 
+*
 * @param array	$left
 * @param array 	$right
 *
@@ -1708,7 +1719,7 @@ function sort_tree(&$tree)
 * @access public
 */
 function sort_compare($left, $right)
-{	
+{
 	if (!is_array($left) || !is_array($right)) {
 		return 0;
 	}
