@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.783 2013/03/25 03:56:39 csmith Exp $
+* $Id: asset.inc,v 1.784 2013/03/25 22:41:11 csmith Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.783 $
+* @version $Revision: 1.784 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -5384,6 +5384,11 @@ class Asset extends MySource_Object
 					}
 				}
 			}// end if inserts
+		} else {
+			// change db connection because in a nested db transaction lookup on db1 may not produce a valid result
+			// We did it if there are paths to add, but if there aren't, we need to switch
+			// so the updateLookups() below works in the right connection.
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
