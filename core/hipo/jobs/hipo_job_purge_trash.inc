@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_purge_trash.inc,v 1.59 2012/08/30 01:09:18 ewang Exp $
+* $Id: hipo_job_purge_trash.inc,v 1.60 2013/03/25 03:31:41 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -217,7 +217,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 		} catch (Exception $e) {
 			throw new Exception('Failed to get delete order for purge trash HIPO: '.$e->getMessage());
 		}
-		
+
 		// Sort the 'to_check' assetid list by asset tree level. The parent assets will come on top of the array.
 		$ordered_to_check_list = Array();
 		foreach ($this->_running_vars['delete_order'] as $assetid) {
@@ -312,6 +312,10 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 			$step_data['percent_done'] = 100;
 			$step_data['complete']     = TRUE;
 			$this->_running_vars['total_to_delete'] = count($this->_running_vars['to_delete']);
+
+			// Now we've got everything sorted, we don't need the delete order.
+			// Everything is sorted for us in the to_delete list.
+			unset($this->_running_vars['delete_order']);
 		} else {
 			$step_data['percent_done'] = (int)((($this->_running_vars['total_assets'] - count($this->_running_vars['to_check'])) / $this->_running_vars['total_assets']) * 100);
 			$step_data['complete']     = FALSE;
@@ -335,15 +339,15 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 	{
 		$GLOBALS['SQ_PURGING_TRASH'] = TRUE;
 		if (!empty($this->_running_vars['to_delete'])) {
-
-			$assetid = NULL;
-			while (!isset($this->_running_vars['to_delete'][$assetid])) {
-				$assetid = array_pop($this->_running_vars['delete_order']);
-				if (is_null($assetid)) break;
-			}
-			if (!is_null($assetid)) {
-				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $this->_running_vars['to_delete'][$assetid][0]['type_code']);
+			$assetid    = NULL;
+			$asset_info = end($this->_running_vars['to_delete']);
+			if ($asset_info !== FALSE) {
+				$assetid = key($this->_running_vars['to_delete']);
 				unset($this->_running_vars['to_delete'][$assetid]);
+			}
+
+			if (!is_null($assetid)) {
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_info[0]['type_code']);
 
 				$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
