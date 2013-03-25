@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.349.2.1 2013/02/26 06:53:14 ewang Exp $
+* $Id: listing_engine.inc,v 1.349.2.2 2013/03/25 22:29:12 akarelia Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.349.2.1 $
+* @version $Revision: 1.349.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -264,7 +264,7 @@ class Listing_Engine extends Page
 				return translate('cms_listing_cannot_delete_position_formats_link', str_replace('_',' ', $this->type()));
 			}
 		}
-		
+
 		$asset_folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'group_formats');
 		if (!empty($asset_folder_link)) {
 			if ($asset_folder_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) {
@@ -4691,7 +4691,7 @@ class Listing_Engine extends Page
 		}
 
 		ob_start();
-			structured_drop_down($options['name'], $options['root_node'], $pass_codes, $selected, $options['width'], $options['height'], $options['max_depth'], $this->attr('check_boxes') == 2 ? TRUE : FALSE, $options['seperator'], TRUE, $options['all_text'], $this->attr('check_boxes'));
+			structured_drop_down($options['name'], $options['root_node'], $pass_codes, $selected, $options['width'], $options['height'], $options['max_depth'], $this->attr('check_boxes') == 2 ? TRUE : FALSE, $options['seperator'], TRUE, $options['all_text'], $this->attr('check_boxes'), Array(), TRUE, Array(), FALSE, NULL, $this->attr('exclude_root_nodes'));
 			$replacement = ob_get_contents();
 		ob_end_clean();
 		return $replacement;
