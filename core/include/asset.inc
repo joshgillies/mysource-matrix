@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.774.2.4 2013/03/18 03:51:55 ewang Exp $
+* $Id: asset.inc,v 1.774.2.5 2013/03/25 22:18:40 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.774.2.4 $
+* @version $Revision: 1.774.2.5 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2159,7 +2159,7 @@ class Asset extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$GLOBALS['SQ_CLONE_COMPONENTS'] = TRUE;
-		
+
 		$all_contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
 
 		  //////////////////
@@ -3117,7 +3117,7 @@ class Asset extends MySource_Object
 	*
 	* @param boolean	$dont_run_updated	if TRUE this->_updated() won't be run
 	* @param boolean	$log_message	if FALSE attrubutes change won't be logged in system log
-	*										
+	*
 	*
 	* @return boolean
 	* @access public
@@ -3415,7 +3415,7 @@ class Asset extends MySource_Object
 			    $filter_enabled = FALSE;
 			else if (isset($GLOBALS['SQ_CLONE_COMPONENTS'] ) && $GLOBALS['SQ_CLONE_COMPONENTS'])
 			    $filter_enabled = FALSE;
-			
+
 			//Any identified attributes that shouldn't be filtered
 			$type_excl = Array ('form_submission');
 			$attr_excl = Array ('xml');
@@ -4047,9 +4047,12 @@ class Asset extends MySource_Object
 			}//end if
 
 			// No replacement? Oh well, back to square one
-			if ($replacement === NULL) {
-				unset($replacement);
-			}
+			// EDIT : not sure why the variable needs to be unset here
+			// looking at the fact that we are running apply_keyword_modifier
+			// on $replacement further down and then returning $replacement var
+			//if ($replacement === NULL) {
+			//	unset($replacement);
+			//}
 
 		} else if (0 === strpos($keyword, 'asset_charset')) {
 			$replacement = ($this->charset) ? $this->charset : SQ_CONF_DEFAULT_CHARACTER_SET;
@@ -4201,7 +4204,9 @@ class Asset extends MySource_Object
 			}
 		}
 
-		apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id));
+		if (!is_null($replacement) && trim($replacement, '%') != $keyword) {
+			apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id));
+		}
 
 		return $replacement;
 
@@ -4528,7 +4533,6 @@ class Asset extends MySource_Object
 					return TRUE;
 				}
 			}
-			
 		}
 
 		$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
