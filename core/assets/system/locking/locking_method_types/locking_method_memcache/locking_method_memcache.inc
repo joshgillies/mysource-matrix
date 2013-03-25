@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: locking_method_memcache.inc,v 1.5 2012/08/30 01:09:11 ewang Exp $
+* $Id: locking_method_memcache.inc,v 1.6 2013/03/25 03:20:39 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/locking/locking_method/locking_method
 *
 *
 * @author		Luke Wright <lwright@squiz.net>
-* @version		$Revision: 1.5 $
+* @version		$Revision: 1.6 $
 * @package		MySource_Matrix_Packages
 * @subpackage	__core__
 */
@@ -116,21 +116,6 @@ class Locking_Method_Memcache extends Locking_Method
 	{
 		if (self::$memcache === NULL) {
 			self::_initMemcache();
-		}
-
-		$current_lock = $GLOBALS['SQ_SYSTEM']->getLockInfo($lockid);
-		$current_time = time();
-
-		// is this asset already locked
-		if (!empty($current_lock)) {
-			// the user is asking to acquire a lock they already had
-			// so just update the lock expiry date
-			if ($current_lock['userid'] == $GLOBALS['SQ_SYSTEM']->currentUserid()) {
-				return self::updateLock($lockid, $expires);
-			} else {
-				$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($current_lock['userid']);
-				throw new Exception('Lock already held by "'.$user->name.'"');
-			}
 		}
 
 		// if we have no source, we are the asset aquiring the locks

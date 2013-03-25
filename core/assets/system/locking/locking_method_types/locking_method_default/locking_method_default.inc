@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: locking_method_default.inc,v 1.6 2012/09/11 05:41:52 cupreti Exp $
+* $Id: locking_method_default.inc,v 1.7 2013/03/25 03:20:39 csmith Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/locking/locking_method/locking_method
 *
 *
 * @author		Luke Wright <lwright@squiz.net>
-* @version		$Revision: 1.6 $
+* @version		$Revision: 1.7 $
 * @package		MySource_Matrix_Packages
 * @subpackage	__core__
 */
@@ -83,20 +83,6 @@ class Locking_Method_Default extends Locking_Method
 	*/
 	public static function acquireLock($lockid, $source_lockid='', $expires=0)
 	{
-		$current_lock = $GLOBALS['SQ_SYSTEM']->getLockInfo($lockid);
-
-		// is this asset already locked
-		if (!empty($current_lock)) {
-			// the user is asking to acquire a lock they already had
-			// so just update the lock expiry date
-			if ($current_lock['userid'] == $GLOBALS['SQ_SYSTEM']->currentUserid()) {
-				return self::updateLock($lockid, $expires);
-			} else {
-				$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($current_lock['userid']);
-				throw new Exception('Lock already held by "'.$user->name.'"');
-			}
-		}
-
 		// if we have no source, we are the asset aquiring the locks
 		if (empty($source_lockid)) $source_lockid = $lockid;
 
@@ -157,13 +143,6 @@ class Locking_Method_Default extends Locking_Method
 	*/
 	public static function updateLock($lockid, $expires=0)
 	{
-		$current_lock = self::getLockInfo($lockid);
-
-		// If there is no current lock (it may have expired), or if the lock
-		// is indefinite, do nothing
-		if (empty($current_lock) || empty($current_lock['expires'])) {
-			return TRUE;
-		}
 
 		if (!is_null($expires)) {
 			$expires = (!$expires) ? (time() + SQ_CONF_LOCK_LENGTH) : (int) $expires;
@@ -173,14 +152,20 @@ class Locking_Method_Default extends Locking_Method
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
+		/**
+		 * Set new expiry on locks where the $lockid passed in is the source.
+		 * But - only where the expiry is not indefinite.
+		 * Locks with indefinite expiries should be left alone and not get a new expiry.
+		 */
 		$sql = 'UPDATE sq_lock
 				   SET expires = :expires
-				   WHERE source_lockid = :source_lockid';
+				   WHERE source_lockid IN (SELECT source_lockid FROM sq_lock WHERE lockid = :lockid)
+				   AND expires IS NOT NULL';
 
 		try {
 			$query = MatrixDAL::preparePdoQuery($sql);
-			MatrixDAL::bindValueToPdo($query, 'expires',       $expires);
-			MatrixDAL::bindValueToPdo($query, 'source_lockid', $current_lock['source_lockid']);
+			MatrixDAL::bindValueToPdo($query, 'expires', $expires);
+			MatrixDAL::bindValueToPdo($query, 'lockid',  $lockid);
 			MatrixDAL::execPdoQuery($query);
 		} catch (Exception $e) {
 			// Rollback and then re-throw, let parent call handle the exception
@@ -210,18 +195,16 @@ class Locking_Method_Default extends Locking_Method
 	*/
 	public static function releaseLock($lockid)
 	{
-		$current_lock = self::getLockInfo($lockid, FALSE, FALSE);
-		if (empty($current_lock)) return TRUE;
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$sql = 'DELETE FROM sq_lock
-			WHERE source_lockid = :source_lockid';
+			WHERE source_lockid IN (SELECT source_lockid FROM sq_lock WHERE lockid = :lockid)';
 
 		try {
 			$query = MatrixDAL::preparePdoQuery($sql);
-			MatrixDAL::bindValueToPdo($query, 'source_lockid', $current_lock['source_lockid']);
+			MatrixDAL::bindValueToPdo($query, 'lockid', $lockid);
 			$result = MatrixDAL::execPdoQuery($query);
 		} catch (Exception $e) {
 			// Rather than throwing our own exception, keep the previous format
@@ -335,6 +318,12 @@ class Locking_Method_Default extends Locking_Method
 						}
 					}//end foreach
 				}//end if
+
+				// If we only need one result, no need checking
+				// any other locks, we have our one result.
+				if ($allow_only_one) {
+					break;
+				}
 			}//end foreach
 		}//end if
 		if (!empty($results) && $allow_only_one) {
@@ -438,25 +427,25 @@ class Locking_Method_Default extends Locking_Method
 	}//end supportsChangeLockOwner()
 
 
-    /**
-     * Does this locking method support deleting expired locks?
-     *
-     * @return boolean
-     */
-    public static function supportsDeletingExpiredLocks()
-    {
-        return TRUE;
+	/**
+	 * Does this locking method support deleting expired locks?
+	 *
+	 * @return boolean
+	 */
+	public static function supportsDeletingExpiredLocks()
+	{
+		return TRUE;
 
-    }//end supportsDeletingExpiredLocks()
+	}//end supportsDeletingExpiredLocks()
 
 
-    public static function deleteExpiredLocks()
-    {
-        $bind_vars['expire_time'] = ts_iso8601(time());
+	public static function deleteExpiredLocks()
+	{
+		$bind_vars['expire_time'] = ts_iso8601(time());
 
 		MatrixDAL::executeQuery('core', 'deleteExpiredLocks', $bind_vars);
-        return TRUE;
-    }
+		return TRUE;
+	}
 }//end class
 
 ?>
