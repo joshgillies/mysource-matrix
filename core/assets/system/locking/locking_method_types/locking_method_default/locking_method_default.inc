@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: locking_method_default.inc,v 1.7 2013/03/25 03:20:39 csmith Exp $
+* $Id: locking_method_default.inc,v 1.8 2013/03/26 00:29:58 csmith Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/locking/locking_method/locking_method
 *
 *
 * @author		Luke Wright <lwright@squiz.net>
-* @version		$Revision: 1.7 $
+* @version		$Revision: 1.8 $
 * @package		MySource_Matrix_Packages
 * @subpackage	__core__
 */
@@ -152,6 +152,8 @@ class Locking_Method_Default extends Locking_Method
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
+		list($where, $locks_passed) = self::_expandLockForSql($lockid);
+
 		/**
 		 * Set new expiry on locks where the $lockid passed in is the source.
 		 * But - only where the expiry is not indefinite.
@@ -159,13 +161,15 @@ class Locking_Method_Default extends Locking_Method
 		 */
 		$sql = 'UPDATE sq_lock
 				   SET expires = :expires
-				   WHERE source_lockid IN (SELECT source_lockid FROM sq_lock WHERE lockid = :lockid)
+			       WHERE source_lockid IN (SELECT source_lockid FROM sq_lock '.$where.')
 				   AND expires IS NOT NULL';
 
 		try {
 			$query = MatrixDAL::preparePdoQuery($sql);
 			MatrixDAL::bindValueToPdo($query, 'expires', $expires);
-			MatrixDAL::bindValueToPdo($query, 'lockid',  $lockid);
+			foreach($locks_passed as $bind_var => $bind_val) {
+				MatrixDAL::bindValueToPdo($query, $bind_var, $bind_val);
+			}
 			MatrixDAL::execPdoQuery($query);
 		} catch (Exception $e) {
 			// Rollback and then re-throw, let parent call handle the exception
@@ -199,12 +203,16 @@ class Locking_Method_Default extends Locking_Method
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
+		list($where, $locks_passed) = self::_expandLockForSql($lockid);
+
 		$sql = 'DELETE FROM sq_lock
-			WHERE source_lockid IN (SELECT source_lockid FROM sq_lock WHERE lockid = :lockid)';
+			WHERE source_lockid IN (SELECT source_lockid FROM sq_lock '.$where.')';
 
 		try {
 			$query = MatrixDAL::preparePdoQuery($sql);
-			MatrixDAL::bindValueToPdo($query, 'lockid', $lockid);
+			foreach($locks_passed as $bind_var => $bind_val) {
+				MatrixDAL::bindValueToPdo($query, $bind_var, $bind_val);
+			}
 			$result = MatrixDAL::execPdoQuery($query);
 		} catch (Exception $e) {
 			// Rather than throwing our own exception, keep the previous format
@@ -220,6 +228,43 @@ class Locking_Method_Default extends Locking_Method
 		return TRUE;
 
 	}//end releaseLock()
+
+
+	/**
+	 * Expand a lockid into a where clause and an array of lockid's
+	 * ready for putting into an sql statement.
+	 *
+	 * @param string|array $lockid The lockid to expand.
+	 *                             If it's a single value, it returns a where clause
+	 *                             with a single value and a single lockid in the array
+	 *                             for binding to the query.
+	 *                             If it's an array, it returns an in() clause and multiple
+	 *                             id's in the array for binding.
+	 *
+	 * @return Returns an array with 2 elements.
+	 * The first element is the 'WHERE' clause for sql,
+	 * either 'WHERE lockid=:x' or 'WHERE lockid IN (:x,:y)'
+	 * The 2nd element is the lock id's to bind in the query.
+	 */
+	private function _expandLockForSql($lockid)
+	{
+		// Did I get a string or an array?
+		$where = '';
+		$locks_passed = Array();
+		if (is_array($lockid)) {
+			$where = ' WHERE lockid IN (';
+			foreach ($lockid as $lock_key => $lock_value) {
+				$where .= ':lockid'.$lock_key.',';
+				$locks_passed['lockid'.$lock_key] = $lock_value;
+			}
+			$where = rtrim($where, ',');
+			$where .= ')';
+		} else {
+			$where = ' WHERE lockid = :lockid';
+			$locks_passed['lockid'] = $lockid;
+		}
+		return array($where, $locks_passed);
+	}
 
 
 	/**
