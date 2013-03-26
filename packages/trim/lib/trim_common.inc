@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_common.inc,v 1.29 2013/03/07 02:30:31 cupreti Exp $
+* $Id: trim_common.inc,v 1.30 2013/03/26 02:13:08 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage trim
 */
@@ -962,8 +962,9 @@ class TRIM_Common
 			}
 			else if (isset($operations['Fetch']) && isset($operations['RecordTypeSimpleSelect'])) {
 				$xml = self::SwapElement($xml, 'RecordTypeSimpleSelect', 'Fetch');
+			} else if (isset($operations['Fetch']) && isset($operations['ShortcutRecordUri'])) {
+				$xml = self::SwapElement($xml, 'ShortcutRecordUri', 'Fetch');
 			}
-			
 
 			// Now its time to get the data
 			try {
