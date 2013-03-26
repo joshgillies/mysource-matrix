@@ -485,7 +485,9 @@ class Query
 
 
 	/**
-	 * Recurses the query array and replaces the place holder with given value.
+	 * Replaces the place holder with given value.
+	 * If the value is empty, it's forced to be an empty string so the
+	 * query generated doesn't become invalid.
 	 *
 	 * @param string $placeHolder Name of the place holder.
 	 * @param mixed  $value	   Value that will replace the placeHolder.
@@ -494,6 +496,12 @@ class Query
 	 */
 	private function _findAndReplacePlaceHolder($placeHolder, $value)
 	{
+
+		// If it's an empty value, force it to be an empty string.
+		if (empty($value) === TRUE) {
+			$value = "''";
+		}
+
 		$count = 0;
 		$sql   = $this->getSql();
 		$sql   = preg_replace('/'.$placeHolder.'([^a-zA-Z0-9]|$)/', $value.'$1', $sql, 1, $count);
