@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.905 2013/03/25 03:56:39 csmith Exp $
+* $Id: asset_manager.inc,v 1.906 2013/03/26 23:58:12 csmith Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.905 $
+* @version $Revision: 1.906 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2606,7 +2606,10 @@ class Asset_Manager extends MySource_Object
 		$orig_lock_type = $lock_type;
 
 		$asset = $this->getAsset($assetid);
-		assert_not_null($asset);
+		// Instead of throwing a fatal error, we just return here, getAsset has already given a warning if the asset does not exist.
+		if (is_null($asset)) {
+			return TRUE;
+		}
 
 		$assetType = $asset->type();
 
@@ -2662,7 +2665,15 @@ class Asset_Manager extends MySource_Object
 	*/
 	function updateLock($assetid, $lock_type, $expires=0)
 	{
-		$current_locks = $this->getLockInfo($assetid, $lock_type, TRUE, TRUE, TRUE, TRUE);
+		// Make sure this is working on a proper asset.
+		$asset = $this->getAsset($assetid);
+		if (is_null($asset)) {
+			return TRUE;
+		}
+
+		$assetType = $asset->type();
+
+		$current_locks = $this->getLockInfo($assetid, $lock_type, TRUE, TRUE, TRUE, TRUE, $assetType);
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
