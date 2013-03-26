@@ -1,5 +1,50 @@
 SQUIZ MATRIX CHANGELOG
 
+
+VERSION 4.12.5
+
+Minor Enhancements and Bug Fixes
+=================================== 
+
+Minor Enhancements
+
+Minor Enhancement #6175: Enhancement to User Subscriptions for Bulkmail Users.
+Minor Enhancement #6193: Asset Listing: Enhancement to the Exclude Asset/Root Node Settings.
+Minor Enhancement #6196: Calendar Package: Improved Performance for Base Query Generation.
+
+Core
+
+Fixed Bug #6164: pdftohtml integration can cause Matrix to hang.
+Fixed Bug #6176: Image variety URL charcount is always detected as > 0 if image has at least 1 image variety.
+Fixed Bug #6177: rollback_management script throwing PHP errors when deleting file versioning entries.
+Fixed Bug #6182: Design customisation isn't found when created outside of Designs Folder.
+Fixed Bug #6189: Access History design area throws PHP/Matrix warnings.
+Fixed Bug #6192: Old up for review workflows cause fatal error.
+Fixed Bug #6211: Accessing "./?a" URL with an non-existent lineage can cause fatal error.
+Fixed Bug #6215: Matrix permits site URLs with trailing spaces under certain conditions.
+Fixed Bug #6220: Deleting a File asset in Safe Edit will display HIPO errors.
+
+LDAP
+
+Fixed Bug #6184: Ldap_Bridge->getChildren() does not returns members defined by the group.
+
+Import Tools
+
+Fixed Bug #6218: Downloading export.tgz twice should be possible.
+
+TRIM
+
+Fixed Bug #6185: Invalid XML returned by TRIM service can cause Matrix fatal error.
+Fixed Bug #6188: Issues when accessing TRIM service over https using Matrix TRIM saved search. 
+Fixed Bug #6226: "Container Title" for a record empty in Trim Saved Search using Trim 7.3. 
+
+Web Services
+
+Fixed Bug #6216: EAccelerator breaks API Documentation.
+
+
+
+
 VERSION 4.12.4
 
 Minor Enhancements and Bug Fixes
