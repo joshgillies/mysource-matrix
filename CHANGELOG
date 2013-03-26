@@ -1,5 +1,87 @@
 SQUIZ MATRIX CHANGELOG
 
+VERSION 4.14.1
+
+Featured Changes
+===================================
+
+SOAP API: New Function to Retrieve Available Keywords for a Paint Layout [ Feature Request #6171 ]
+-----------------------------------------------------
+
+Squiz Matrix's Paint Layout asset allows you to configure conditional keywords, to display a variety of content based on a number of configurable conditions (e.g. asset status or user type). 
+
+The SOAP API's getAssetAvailableKeywords() function (which is used to return the keywords available for use on a specified asset or asset type), however, was not able to return these conditional keywords that had been configured on an Paint Layout asset.
+
+This feature introduces a new function on the Squiz Matrix SOAP API's Asset Service, to retrieve the keywords of a Paint Layout asset, including any configured conditional keywords.
+
+The getPaintLayoutAvailableKeywords() function takes the following parameters:
+
+- AssetID: the asset ID of the Paint Layout to return available keywords of.
+- TypeCode: an optional parameter to specify a customised asset type format to return the available keywords for. 
+
+The format of the getPaintLayoutAvailableKeywords() function is as follows
+
+<ns1:GetPaintLayoutAvailableKeywords>
+<AssetID>123</AssetID>
+<TypeCode>page_standard</TypeCode>
+</ns1:GetPaintLayoutAvailableKeywords>
+
+Bulkmail Subscribe Page: Custom Verification Email Subject Header [ Feature Request #6180 ]
+-----------------------------------------------------
+
+Squiz Matrix's Bulkmail Subscribe Page asset allows your users to subscribe and unsubscribe to bulkmail emails.
+
+As part of this subscription process, an optional verification email can be configured, requiring users to confirm when subscribing or unsubscribing from bulkmail. Previously, however, the subject header for this verification email was unable to be manually configured; by default, the subject of the email was: Please confirm your subscription / unsubscription request.
+
+This feature adds a new Verify Email Subject to the Details screen of the Bulkmail Subscribe Page, allowing you to configure a custom subject line for verification emails.
+
+
+Additional Changes and Bug Fixes
+=================================== 
+
+Minor Enhancements
+
+Minor Enhancement #6175: Enhancement to User Subscriptions for Bulkmail Users.
+Minor Enhancement #6181: Link Asset: Relation Attribute is Indexed and Searchable.
+Minor Enhancement #6193: Asset Listing: Enhancement to the Exclude Asset/Root Settings.
+Minor Enhancement #6194: Redis Cache Storage: Improved Error Handling and Persistent Connection.
+Minor Enhancement #6196: Calendar Package: Improved Performance for Base Query Generation.
+Minor Enhancement #6205: Workflow Approval on the Editing of Metadata.
+Minor Enhancement #6206: Sort Metadata Schemas Alphabetically on Metadata Screen. 
+Minor Enhancement #6207: Show in Asset Map Icon to Highlight Current Asset Only. 
+
+Core
+
+Fixed Bug #6164: pdftohtml integration can cause Matrix to hang.
+Fixed Bug #6176: Image variety URL charcount is always detected as > 0 if image has at least 1 image variety.
+Fixed Bug #6177: rollback_management script throwing PHP errors when deleting file versioning entries.
+Fixed Bug #6182: Design customisation isn't found when created outside of Designs Folder.
+Fixed Bug #6189: Access History design area throws PHP/Matrix warnings.
+Fixed Bug #6192: Old up for review workflows cause fatal error.
+Fixed Bug #6211: Accessing "./?a" URL with an non-existent lineage can cause fatal error.
+Fixed Bug #6215: Matrix permits site URLs with trailing spaces under certain conditions.
+Fixed Bug #6220: Deleting a File asset in Safe Edit will display HIPO errors.
+
+LDAP
+
+Fixed Bug #6184: Ldap_Bridge->getChildren() does not returns members defined by the group.
+
+Import Tools
+
+Fixed Bug #6218: Downloading export.tgz twice should be possible.
+
+TRIM
+
+Fixed Bug #6185: Invalid XML returned by TRIM service can cause Matrix fatal error.
+Fixed Bug #6188: Issues when accessing TRIM service over https using Matrix TRIM saved search. 
+Fixed Bug #6226: "Container Title" for a record empty in Trim Saved Search using Trim 7.3. 
+
+Web Services
+
+Fixed Bug #6216: EAccelerator breaks API Documentation.
+
+
+
 VERSION 4.14.0
 
 Featured Changes
