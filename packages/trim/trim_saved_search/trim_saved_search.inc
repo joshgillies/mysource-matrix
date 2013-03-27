@@ -11,7 +11,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search.inc,v 1.32.2.4 2013/02/07 05:36:28 ewang Exp $
+* $Id: trim_saved_search.inc,v 1.32.2.5 2013/03/27 02:33:06 cupreti Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.32.2.4 $
+* @version $Revision: 1.32.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -236,8 +236,10 @@ class TRIM_Saved_Search extends Data_Source
 				foreach ($new_object_list as $new_index	=> $new_record_info) {
 					// Comparing the same record based on the URI
 					if ($record_info['Uri'] == $new_record_info['Uri']) {					
+						$old_version = array_get_index($record_info, 'recLastActionDate', $record_info['Version']);
+						$new_version = array_get_index($new_record_info, 'recLastActionDate', $new_record_info['Version']);
 						// If Forced, dont even care about version number, update anyway.
-						if ($record_info['Version'] !== $new_record_info['Version'] || $forced) {
+						if ($old_version !== $new_version || $forced) {
 							// UPDATE Check						
 							if ($this->attr('download_files')) {				
 								$this->storeDocumentList($connection, $new_record_info);
@@ -751,7 +753,9 @@ class TRIM_Saved_Search extends Data_Source
 							foreach ($new_object_list as $new_index	=> $new_record_info) {
 								// Comparing the same record based on the URI
 								if ($record_info['Uri'] == $new_record_info['Uri']) {
-									if ($record_info['Version'] !== $new_record_info['Version']) {
+									$old_version = array_get_index($record_info, 'recLastActionDate', $record_info['Version']);
+									$new_version = array_get_index($new_record_info, 'recLastActionDate', $new_record_info['Version']);
+									if ($old_version !== $new_version) {
 										$i++;
 									}//end if
 								}//end if
