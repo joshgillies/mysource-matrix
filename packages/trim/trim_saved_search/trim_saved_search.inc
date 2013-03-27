@@ -11,7 +11,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search.inc,v 1.37 2013/03/27 02:25:25 cupreti Exp $
+* $Id: trim_saved_search.inc,v 1.38 2013/03/27 05:39:31 cupreti Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -334,7 +334,21 @@ class TRIM_Saved_Search extends Data_Source
 		require_once SQ_FUDGE_PATH.'/standards_lists/mime_types.inc';
 
 		$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_REPLACE_MYSOURCE_LEVEL_KEYWORDS', FALSE);
-		
+
+		// Check if the URI is valid and has file attached
+		$result = $this->getResultSet();
+		$valid_uri = FALSE;
+		foreach($result as $record) {
+			if (isset($record['Uri']) && $record['Uri'] == $uri && !empty($record['document_url'])) {
+				$valid_uri = TRUE;
+				break;
+			}
+		}
+		if (!$valid_uri) {
+			// Either this URI is not valid, or no file is attached to this URI
+			return FALSE;
+		}
+
 		$dir_path	= $this->data_path.'/'.$uri;
 		$path_parts	= Array();
 		if (file_exists($dir_path)) {
@@ -347,13 +361,15 @@ class TRIM_Saved_Search extends Data_Source
 			}
 			
 			if (empty($dir)) return FALSE;
+
+			// Get the latest modified file
 			$pre_mtime = 0;
 			foreach ($dir as $file) {
 				$mtime = $file->getMTime();
 				if($mtime > $pre_mtime) {
 					$file_path	= $file->getPathname();
 					$path_parts	= pathinfo($file_path);
-					break;
+					$pre_mtime = $mtime;
 				}
 			}//end foreach
 		} else {
