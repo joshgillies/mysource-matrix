@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: http_request.inc,v 1.20.4.1 2013/02/01 03:06:38 cupreti Exp $
+* $Id: http_request.inc,v 1.20.4.2 2013/04/02 23:39:21 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 * 	<http_request />
 *
 * @author  James Hurst <jhurst@squiz.co.uk>
-* @version $Revision: 1.20.4.1 $
+* @version $Revision: 1.20.4.2 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -44,6 +44,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		'HTTP_Basic' => 'HTTP Basic',
 		'Matrix' => 'Matrix Cookie Passthrough',
 		'OAuth' => 'OAuth',
+		'Digest' => 'Digest Auth',
 	);
 
 	private $_cache_options = Array(
@@ -125,6 +126,10 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		if (!isset($current_value['document_encoding'])) $current_value['document_encoding'] = 'Auto';
 		if (!isset($current_value['run_test'])) $current_value['run_test'] = FALSE;
 		if (!isset($current_value['oauth_asset']['assetid'])) $current_value['oauth_asset'] = Array('assetid' => '0', 'url' => '', 'linkid' => '');
+		if (!isset($current_value['enable_http_10'])) $current_value['enable_http_10'] = FALSE;
+		if (!isset($current_value['ssl_cert'])) $current_value['ssl_cert'] = '';
+		if (!isset($current_value['ssl_key'])) $current_value['ssl_key'] = '';
+		if (!isset($current_value['ca_file'])) $current_value['ca_file'] = '';
 		?>
 
 		<table border="0" class="sq-backend-table">
@@ -136,6 +141,18 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 							echo htmlspecialchars($current_value['method']);
 						} else {
 							combo_box($prefix.'_method', $this->_methods, FALSE, $current_value['method']);
+						}
+					?>
+				</td>
+			</tr>
+			<tr>
+				<th><?php echo translate('http_request_enable_http_10'); ?></th>
+				<td>
+					<?php
+						if ($read_only) {
+							echo htmlspecialchars($current_value['enable_http_10'] ? 'Yes' : 'No');
+						} else {
+							check_box($prefix.'_enable_http_10', 1, $current_value['enable_http_10']);
 						}
 					?>
 				</td>
@@ -205,7 +222,42 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 					?>
 				</td>
 			</tr>
-			<tr>		
+			<tr>
+				<th><?php echo translate('http_request_ssl_cert'); ?></th>
+				<td>
+					<?php
+						if ($read_only) {
+							echo htmlspecialchars($current_value['ssl_cert']);
+						} else {
+							text_box($prefix.'_ssl_cert', $current_value['ssl_cert'], 60);
+						}
+					?>
+				</td>
+			</tr>
+			<tr>
+				<th><?php echo translate('http_request_ssl_key'); ?></th>
+				<td>
+					<?php
+						if ($read_only) {
+							echo htmlspecialchars($current_value['ssl_key']);
+						} else {
+							text_box($prefix.'_ssl_key', $current_value['ssl_key'], 60);
+						}
+					?>
+				</td>
+			</tr>
+			<tr>
+				<th><?php echo translate('http_request_ca_file'); ?></th>
+				<td>
+					<?php
+						if ($read_only) {
+							echo htmlspecialchars($current_value['ca_file']);
+						} else {
+							text_box($prefix.'_ca_file', $current_value['ca_file'], 60);
+						}
+					?>
+				</td>
+			</tr>		
 			<tr>
 				<th><?php echo translate('http_request_cache_options'); ?></th>
 				<td>
@@ -241,6 +293,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 							combo_box($prefix.'_authentication_type', $this->_authentication_types, FALSE, $current_value['authentication_type']);
 
 							switch ($current_value['authentication_type']) {
+							case 'Digest':
 							case 'HTTP_Basic':
 								?>
 								<table>
@@ -430,6 +483,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		
 		// Assign values
 		$value['method'] = (isset($_REQUEST[$prefix.'_method'])) ? $_REQUEST[$prefix.'_method'] : '';
+		$value['enable_http_10'] = (isset($_REQUEST[$prefix.'_enable_http_10'])) ? $_REQUEST[$prefix.'_enable_http_10'] : FALSE;
 
 		$ol = new Asset_Attribute_Option_List();
 		$ol->process($prefix.'_urls');
@@ -438,6 +492,9 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		$value['timeout'] 				= (isset($_REQUEST[$prefix.'_timeout'])) ? $_REQUEST[$prefix.'_timeout'] : 0;
 		$value['follow_redirect'] 		= (isset($_REQUEST[$prefix.'_follow_redirect'])) ? $_REQUEST[$prefix.'_follow_redirect'] : FALSE;
 		$value['disable_ssl_verify']	= (isset($_REQUEST[$prefix.'_disable_ssl_verify'])) ? $_REQUEST[$prefix.'_disable_ssl_verify'] : FALSE;
+		$value['ssl_cert']				= (isset($_REQUEST[$prefix.'_ssl_cert'])) ? $_REQUEST[$prefix.'_ssl_cert'] : FALSE;
+		$value['ssl_key']				= (isset($_REQUEST[$prefix.'_ssl_key'])) ? $_REQUEST[$prefix.'_ssl_key'] : FALSE;
+		$value['ca_file']				= (isset($_REQUEST[$prefix.'_ca_file'])) ? $_REQUEST[$prefix.'_ca_file'] : FALSE;
 		$value['cache_options'] 		= (isset($_REQUEST[$prefix.'_cache_options'])) ? $_REQUEST[$prefix.'_cache_options'] : 'HTTP';
 		$value['cache_post_requests'] 	= (isset($_REQUEST[$prefix.'_cache_post_requests'])) ? $_REQUEST[$prefix.'_cache_post_requests'] : FALSE;
 		$value['default_cache_expiry']	= (isset($_REQUEST[$prefix.'_default_cache_expiry'])) ? $_REQUEST[$prefix.'_default_cache_expiry'] : 60;
@@ -564,6 +621,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 
 		// Auth options.
 		switch ($this->_res['request']['auth']['type']) {
+			case 'Digest':
 			case 'HTTP_Basic':
 				$this->_res['request']['auth']['http_auth_options'] = $this->_config['http_auth_options'];
 				$this->_replaceKeywords($this->_res['request']['auth']['http_auth_options']['username']);
@@ -778,6 +836,22 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		curl_setopt($ch, CURLOPT_HEADERFUNCTION, Array($this, '_readCurlHeaders'));
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $this->_res['request']['headers']);
 
+		// Enable HTTP 1.0 requests - useful for older proxies
+		if (isset($this->_config['enable_http_10']) && $this->_config['enable_http_10']) {
+			curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_0);
+		}
+
+		// Use specified SSL certs
+		if (isset($this->_config['ssl_cert']) && !empty($this->_config['ssl_cert'])) {
+			curl_setopt($ch, CURLOPT_SSLCERT, $this->_config['ssl_cert']);
+		}
+		if (isset($this->_config['ssl_key']) && !empty($this->_config['ssl_key'])) {
+			curl_setopt($ch, CURLOPT_SSLKEY, $this->_config['ssl_key']);
+		}
+		if (isset($this->_config['ca_file']) && !empty($this->_config['ca_file'])) {
+			curl_setopt($ch, CURLOPT_CAINFO, $this->_config['ca_file']);
+		}
+
 		// Use proxy if set
 		if (SQ_PA_ENABLED) {
 			$proxy = get_proxy_info_for_url($url);
@@ -821,6 +895,10 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		switch ($this->_res['request']['auth']['type']) {
 		case "HTTP_Basic":
 			curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+			curl_setopt($ch, CURLOPT_USERPWD, $this->_res['request']['auth']['http_auth_options']['username'].':'.$this->_res['request']['auth']['http_auth_options']['password']);
+			break;
+		 case "Digest":
+			curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_DIGEST);
 			curl_setopt($ch, CURLOPT_USERPWD, $this->_res['request']['auth']['http_auth_options']['username'].':'.$this->_res['request']['auth']['http_auth_options']['password']);
 			break;
 		case "Matrix":
