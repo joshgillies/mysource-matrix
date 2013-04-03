@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.81 2012/09/26 00:09:59 cupreti Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.82 2013/04/03 23:45:05 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.81 $
+* @version $Revision: 1.82 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -387,20 +387,32 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 			$existing_links[] = $link_data['minorid'];
 		}
 
-		// only matches './?a=(normal or shadow id)'
-		$shadow_reg = '|\./\?a=(\d+:[0-9a-zA-Z]*)\$|';
-		$normal_reg = '|\./\?a=(\d+)|';
+		// not only matches './?a=(normal or shadow id)'
+		// but also %globals_asset_attribute_link_url:XXX%
+		// and %globals_asset_attribute_redirect_url:XXX%
+		$shadow_reg  = '|\./\?a=(\d+:[0-9a-zA-Z]*)\$|';
+		$normal_reg  = '|\./\?a=(\d+)|';
+		$keyword_reg = '/(%globals_asset_attribute_(redirect|link)_url:)([0-9]*)%/';
 		$shadow_matches = Array();
 		$normal_matches = Array();
-		preg_match_all($shadow_reg, $output, $shadow_matches);
-		preg_match_all($normal_reg, $output, $normal_matches);
-		$shadow_matches = $shadow_matches[1];
-		$normal_matches = $normal_matches[1];
+		$keyword_match  = Array();
+
+		preg_match_all($shadow_reg,  $output, $shadow_matches);
+		preg_match_all($normal_reg,  $output, $normal_matches);
+		preg_match_all($keyword_reg, $output, $keyword_matches);
+
+		$shadow_matches  = $shadow_matches[1];
+		$normal_matches  = $normal_matches[1];
+		$keyword_matches = $keyword_matches[3];
+
 		$replace_assetids = Array();
 		foreach ($shadow_matches as $data) {
 			$replace_assetids[] = $data;
 		}
 		foreach ($normal_matches as $data) {
+			$replace_assetids[] = $data;
+		}
+		foreach ($keyword_matches as $data) {
 			$replace_assetids[] = $data;
 		}
 		$replace_assetids = array_unique($replace_assetids);
