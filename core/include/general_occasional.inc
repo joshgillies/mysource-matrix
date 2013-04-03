@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.105 2012/11/25 23:31:45 csmith Exp $
+* $Id: general_occasional.inc,v 1.106 2013/04/03 03:28:26 cupreti Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.105 $
+* @version $Revision: 1.106 $
 * @package MySource_Matrix
 */
 
@@ -720,5 +720,45 @@ function sizeInBytes($size)
 	return $value;
 
 }//end sizeInBytes()
+
+
+/**
+* Returns the full number string that satisfies the
+* "modulus 10" formula (aka Luhn algorithm)
+*
+* @param int $input	Input number
+*
+* @return string
+* @access public
+*/
+function mod10($input)
+{
+	$input = (string) $input;
+	$digit_sum = 0;
+
+	$double_digit=TRUE;
+	for($i=(strlen($input)-1); $i >= 0; $i--) {
+		$digit = (int) $input[$i];
+		//Double every 2nd digit
+		if ($double_digit) {
+			$digit *= 2;
+			$double_digit = FALSE;
+		} else {
+			$double_digit = TRUE;
+		}
+
+		if (strlen($digit) == 2) {
+			$digit = (string) $digit;
+			$digit_sum += (int) $digit[0] + (int) $digit[1];
+		} else {
+			$digit_sum += $digit;
+		}
+	}//end for
+
+	$check_digit = (9*$digit_sum)%10;
+
+	return $input.$check_digit;
+
+}//end mod10()
 
 ?>
