@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.79 2012/11/13 04:57:04 cupreti Exp $
+* $Id: form_email.inc,v 1.80 2013/04/03 03:37:45 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.79 $
+* @version $Revision: 1.80 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -673,7 +673,7 @@ class Form_Email extends Form
 	{
 		$success = TRUE;
 		$actions = $this->attr('actions');
-		foreach ($actions as $action) {
+		foreach ($actions as $action_id => $action) {
 			$action_type = $action['type_code'];
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($action_type);
 			
@@ -684,7 +684,7 @@ class Form_Email extends Form
 			
 				
 			if ($action['active'] && call_user_func(Array($action_type, 'isValid'), $this, $action['settings'])) {
-				$success &= call_user_func(Array($action_type, 'execute'), $this, $action['settings']);
+				$success &= call_user_func(Array($action_type, 'execute'), $this, $action['settings'], $action_id);
 			}
 		}
 		
