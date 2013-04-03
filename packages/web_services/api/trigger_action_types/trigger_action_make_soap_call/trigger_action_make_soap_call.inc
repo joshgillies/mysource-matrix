@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_make_soap_call.inc,v 1.8.2.1 2012/10/28 23:42:19 akarelia Exp $
+* $Id: trigger_action_make_soap_call.inc,v 1.8.2.2 2013/04/03 21:48:33 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(dirname(dirname(__FILE__))).'/lib/soap_common.inc';
 *
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.8.2.1 $
+* @version $Revision: 1.8.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -270,7 +270,7 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 						if ($write_access) {
 							check_box($prefix.'[run_test]', 1, $run_test);
 						} else {
-							$run_test_status = ($mute_exp == '1') ? 'tick' : 'cross';
+							$run_test_status = ($run_test == '1') ? 'tick' : 'cross';
 							echo '<img class="sq-icon" width="16" height="16" src="'.sq_web_path('lib').'/web/images/'.$run_test_status.'.gif" alt="" style="border: 0;" />';
 						}
 					?>
