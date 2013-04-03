@@ -126,6 +126,6 @@ cd $mydir
 echo ""
 echo "Everything has been checked out into the ${checkoutBase}/${CHECKOUT_DIR}/ folder."
 echo "For installation instructions, please visit"
-echo "http://matrix.squizsuite.net/quick-start-guide/manual-installation/"
+echo "http://manuals.matrix.squizsuite.net/evaluate-squiz-matrix/manual-installation-guide/"
 echo ""
 
