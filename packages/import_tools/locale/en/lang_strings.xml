@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.21.6.1 2013/02/18 00:24:41 ewang Exp $
+* $Id: lang_strings.xml,v 1.21.6.2 2013/04/03 00:09:21 akarelia Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -27,7 +27,7 @@
 
 <!-- Structured File Import Tool -->
 <string source="import_tools_not_ready">Import Tool is not ready to use</string>
-<string source="import_tools_not_ready_msg">Please set the import directory in Import Tool Manager under System Management.</string>
+<string source="import_tools_not_ready_msg">Please set the import directory using config file data/private/conf/import_tools_manager.inc.</string>
 <string source="import_tools_new_doc">New Document Import</string>
 <string source="import_tools_new_word_select">Select Document to Upload</string>
 <string source="import_tools_overwrite_existing">Overwrite existing document</string>
@@ -65,7 +65,7 @@
 <string source="file_import_tools_warning">Warning</string>
 <string source="file_import_tools_select_file">Select a directory to import into the system</string>
 <string source="file_import_tools_not_ready">File Import Tool is not ready</string>
-<string source="file_import_tools_not_ready_msg">Please set the file import directory in Import Tool Manager under System Management</string>
+<string source="file_import_tools_not_ready_msg">Please set the file import directory using config file data/private/conf/import_tools_manager.inc.</string>
 <string source="file_import_tools_allow_unrestricted_note">Set to Yes to allow this file to be be served by the web server if it is Live and publicly readable.</string>
 <string source="file_import_tools_file_link_type_msg">Each asset will be linked to the selected parent using this link type.</string>
 <string source="file_import_tools_file_chunk">These files are located under %s and they will be imported at once.</string>
