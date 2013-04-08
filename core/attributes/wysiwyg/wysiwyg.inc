@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.40.2.1 2012/10/25 00:35:06 cupreti Exp $
+* $Id: wysiwyg.inc,v 1.40.2.2 2013/04/08 05:53:03 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/wysiwyg/wysiwyg.inc';
 *    <wysiwyg style="div" width="100%" height="300" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.40.2.1 $
+* @version $Revision: 1.40.2.2 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -49,15 +49,13 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 
 		// Get the WYSIWYG style from the global preference as the default settings
 		$wysiwyg_style = $GLOBALS['SQ_SYSTEM']->getUserPrefs('content_type_wysiwyg', 'SQ_WYSIWYG_STYLE');
-		$size_unit = '';
-		if (is_numeric($wysiwyg_style['width']) && isset($wysiwyg_style['units']['width'])) {
-			$size_unit = $wysiwyg_style['units']['width'];
-		}
+		$width_size_unit = isset($wysiwyg_style['units']['width']) ? $wysiwyg_style['units']['width'] : '';
+		$height_size_unit = isset($wysiwyg_style['units']['height']) ? $wysiwyg_style['units']['height'] : '';
 
 		// set default edit parameters
 		$this->_edit_params['style']		= $wysiwyg_style['body_type'];
-		$this->_edit_params['width']		= $wysiwyg_style['width'].$size_unit;
-		$this->_edit_params['height']		= $wysiwyg_style['height'].$size_unit;
+		$this->_edit_params['width']		= $wysiwyg_style['width'].$width_size_unit;
+		$this->_edit_params['height']		= $wysiwyg_style['height'].$height_size_unit;
 		$this->_edit_params['tidy_status']	= 'wait';
 		$this->_edit_params['tidy_errors']	= '';
 
