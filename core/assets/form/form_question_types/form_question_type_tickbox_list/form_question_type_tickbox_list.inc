@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list.inc,v 1.15 2012/08/30 01:09:08 ewang Exp $
+* $Id: form_question_type_tickbox_list.inc,v 1.16 2013/04/08 07:52:53 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -97,10 +97,12 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 		}
 		$name  = 'q'.$this->id;
 		$safe_name = str_replace(':', '_', $name);
-
-		$html = '<ul>';
+		
+		
 		$defaults = $this->getValue();
 		if (!is_array($defaults)) $defaults = Array($defaults);
+		$html = '<ul>';
+
 		foreach ($options as $key => $value) {
 			$html .= '<li>';
 
@@ -113,7 +115,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 			}
 			$html .= ($extras == '') ? '/>' : ' '.$extras.' />';
 
-			$html .= '&nbsp;<label for="'.$safe_name.'_'.$key.'">'.$value.'</label>';
+			$html .= ' <label for="'.$safe_name.'_'.$key.'">'.$value.'</label>';
 
 			$html .= '</li>';
 		}
@@ -333,7 +335,17 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	*/
 	function getHtmlLabel()
 	{
-		return $this->attr('name');
+		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
+		if($form->useAccessibleFormat()) {
+		    $required_mark = '';
+		    if($this->attr('is_required')) {
+			$required_mark = $form->getRequiredFieldMark();
+		    }
+		    return '<legend class="sq-form-question-title">'.$this->attr('name').$required_mark.'</legend>';
+		}
+		else {
+		    return $this->attr('name');
+		}
 
 	}//end getHtmlLabel()
 
@@ -354,5 +366,18 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 
 	}//end populate()
 	
+	
+	/**
+	* Use fieldset tag to group question content?
+	*
+	* @return bool
+	* @access public
+	*/
+	function useFieldset()
+	{
+		return TRUE;
+	}//end useFieldset()
+	
+
 }//end class
 ?>

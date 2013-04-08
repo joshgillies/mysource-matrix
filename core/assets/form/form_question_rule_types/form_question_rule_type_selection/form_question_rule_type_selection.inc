@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_selection.inc,v 1.6 2012/08/30 01:09:08 ewang Exp $
+* $Id: form_question_rule_type_selection.inc,v 1.7 2013/04/08 07:52:53 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -142,7 +142,12 @@ class Form_Question_Rule_Type_Selection extends Form_Question_Rule
 		$operator = array_get_index($rule_data, 'operator', 1);
 		$value = array_get_index($rule_data, 'value', '');
 
-		return translate('core_form_rule_selection_desc_'.($operator ? 'true' : 'false'), $q_asset->getSummary($value), $q_asset->attr('name'));
+		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($q_asset->_formid);
+	    	$use_accessible_string = $form->useAccessibleFormat();
+		if($use_accessible_string)
+		    return translate('core_form_rule_selection_desc_'.($operator ? 'true' : 'false').'_accessible', $q_asset->getSummary($value));
+		else
+		    return translate('core_form_rule_selection_desc_'.($operator ? 'true' : 'false'), $q_asset->getSummary($value), $q_asset->attr('name'));
 
 	}//end ruleDescription()
 

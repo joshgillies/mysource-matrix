@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_file_size.inc,v 1.8 2012/08/30 01:09:07 ewang Exp $
+* $Id: form_question_rule_type_file_size.inc,v 1.9 2013/04/08 07:52:52 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 * @static
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -134,7 +134,12 @@ class Form_Question_Rule_Type_File_Size extends Form_Question_Rule
 		$operator = array_get_index($rule_data, 'operator', '<=');
 		$comparison = array_get_index($rule_data, 'value', '').' '.array_get_index($rule_data, 'multiplier', '');
 
-		$error_str = translate('core_form_rule_file_size_desc_'.$operator, $q_asset->attr('name'), $comparison);
+		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($q_asset->_formid);
+		$use_accessible_string = $form->useAccessibleFormat();
+		if($use_accessible_string)
+		    $error_str = translate('core_form_rule_file_size_desc_'.$operator.'_accessible', $comparison);
+		else
+		    $error_str = translate('core_form_rule_file_size_desc_'.$operator, $q_asset->attr('name'), $comparison);
 
 		return $error_str;
 

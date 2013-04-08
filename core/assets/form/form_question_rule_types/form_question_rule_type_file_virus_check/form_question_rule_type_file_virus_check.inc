@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_file_virus_check.inc,v 1.3 2012/08/30 01:09:07 ewang Exp $
+* $Id: form_question_rule_type_file_virus_check.inc,v 1.4 2013/04/08 07:52:52 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/antivirus/antivirus.inc';
 *
 *
 * @author  Edison Wang <ewang@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -144,8 +144,12 @@ class Form_Question_Rule_Type_File_Virus_Check extends Form_Question_Rule
 	*/
 	function defaultError(&$q_asset, $rule_data)
 	{
-		return translate('core_form_rule_file_virus_check_error_true', $q_asset->getValue(), $q_asset->attr('name'));
-
+		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($q_asset->_formid);
+	    	$use_accessible_string = $form->useAccessibleFormat();
+		if($use_accessible_string)
+		    return translate('core_form_rule_file_virus_check_error_true_accessible', $q_asset->getValue());
+		else
+		    return translate('core_form_rule_file_virus_check_error_true', $q_asset->getValue(), $q_asset->attr('name'));
 	}//end defaultError()
 
 

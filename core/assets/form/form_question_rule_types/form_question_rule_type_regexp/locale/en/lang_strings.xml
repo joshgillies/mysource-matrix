@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.4 2008/08/22 06:59:49 ewang Exp $
+* $Id: lang_strings.xml,v 1.5 2013/04/08 07:52:53 ewang Exp $
 *
 * Localised Strings File for Regular Expression Form Question Rule Asset
 */
@@ -25,4 +25,6 @@
 <string source="core_form_rule_regexp_true">Must Match the Regular Expression</string>
 <string source="core_form_rule_regexp_false">Must NOT Match the Regular Expression</string>
 <string source="core_form_rule_regexp_note">Enter a <![CDATA[<a href="http://www.php.net/pcre"  target = "_blank">Perl-compatible regular expression</a>]]> into the text box, without any delimiters.</string>
+
+<string source="core_form_rule_regexp_error_accessible">The response is not in the correct format.</string>
 </strings>

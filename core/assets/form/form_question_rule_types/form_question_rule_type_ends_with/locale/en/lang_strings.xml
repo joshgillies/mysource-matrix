@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.4 2006/12/06 00:35:28 emcdonald Exp $
+* $Id: lang_strings.xml,v 1.5 2013/04/08 07:52:52 ewang Exp $
 *
 * Localised Strings File for Ends With Form Question Rule Asset
 */
@@ -27,4 +27,9 @@
 <string source="core_form_rule_ends_with_edit_false_q">Response must NOT end with the response to %s</string>
 <string source="core_form_rule_ends_with_edit_true">Response must end with "%s"</string>
 <string source="core_form_rule_ends_with_edit_false">Response must NOT end with "%s"</string>
+
+<string source="core_form_rule_ends_with_desc_true_q_accessible">The response must end with the response to question "%1$s".</string>
+<string source="core_form_rule_ends_with_desc_false_q_accessible">The response must NOT end with the response to question "%1$s".</string>
+<string source="core_form_rule_ends_with_desc_true_accessible">The response must end with "%1$s".</string>
+<string source="core_form_rule_ends_with_desc_false_accessible">The response must NOT end with "%1$s".</string>
 </strings>

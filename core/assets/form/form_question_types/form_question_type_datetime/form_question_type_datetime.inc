@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime.inc,v 1.25 2012/08/30 01:09:08 ewang Exp $
+* $Id: form_question_type_datetime.inc,v 1.26 2013/04/08 07:52:53 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -113,9 +113,25 @@ class Form_Question_Type_Datetime extends Form_Question
 			// we will allow null if this field is required then check for blank value
 			$parameters['null'][] = $t;
 		}
+		 
+		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
+		if($form->useAccessibleFormat()) {
+		    $parameters['print_label'] = TRUE;
+		}
+		// don't print duplicate JS inclusions
+		$include_js = TRUE;
+		if(isset($form->_tmp['datetime_js_files_included'])) {
+		    $include_js = FALSE;
+		}
+		if($include_js) {
+		    $form->_tmp['datetime_js_files_included'] = TRUE;
+		    $parameters['include_js'] = TRUE;
+		}
+		// use js validation or not
+		$parameters['use_js'] = $this->attr('use_js');
+		$dt_field = new Datetime_Field(str_replace(':', '_', $name).'_', $value, $parameters);
 
-		$dt_field = new Datetime_Field($name, $value, $parameters);
-
+		
 		ob_start();
 		$dt_field->printField();
 		$html .= ob_get_contents();
@@ -437,7 +453,7 @@ class Form_Question_Type_Datetime extends Form_Question
 	function populate()
 	{
 		$val = '';
-		$name = 'q'.$this->id;
+		$name = str_replace(':', '_', 'q'.$this->id).'_';
 		$value = array_get_index($_POST, $name.'value', '');
 		$show = array_get_index($_POST, $name.'show', '');
 
@@ -510,5 +526,40 @@ class Form_Question_Type_Datetime extends Form_Question
 	}//end populate()
 
 
+	/**
+	* Use fieldset tag to group question content?
+	*
+	* @return bool
+	* @access public
+	*/
+	function useFieldset()
+	{
+		return TRUE;
+	}//end useFieldset()
+	
+	
+	/**
+	* Get the HTML label for this form question
+	*
+	* @return boolean
+	* @access public
+	*/
+	function getHtmlLabel()
+	{
+		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
+		if($form->useAccessibleFormat()) {
+		    $required_mark = '';
+		    if($this->attr('is_required')) {
+			$required_mark = $form->getRequiredFieldMark();
+		    }
+		    return '<legend class="sq-form-question-title">'.$this->attr('name').$required_mark.'</legend>';
+		}
+		else {
+		    return $this->attr('name');
+		}
+
+	}//end getHtmlLabel()
+	
+	
 }//end class
 ?>

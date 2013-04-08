@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_found_in.inc,v 1.10 2012/08/30 01:09:08 ewang Exp $
+* $Id: form_question_rule_type_found_in.inc,v 1.11 2013/04/08 07:52:52 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -201,7 +201,12 @@ class Form_Question_Rule_Type_Found_In extends Form_Question_Rule
 			$value = array_get_index($rule_data, 'value', '');
 		}
 
-		$error_str = translate($string_code, $q_asset->name, $value).' '.translate('core_form_'.($case_sensitive ? '' : 'not_').'case_sensitive');
+		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($q_asset->_formid);
+	    	$use_accessible_string = $form->useAccessibleFormat();
+		if($use_accessible_string)
+		    $error_str = translate($string_code.'_accessible', $value).' '.translate('core_form_'.($case_sensitive ? '' : 'not_').'case_sensitive');
+		else 
+		    $error_str = translate($string_code, $q_asset->name, $value).' '.translate('core_form_'.($case_sensitive ? '' : 'not_').'case_sensitive');
 
 		return $error_str;
 

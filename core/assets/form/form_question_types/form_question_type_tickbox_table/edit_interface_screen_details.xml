@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.5 2009/03/02 22:16:01 bpearson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.6 2013/04/08 07:52:53 ewang Exp $
 */
 -->
 <contents>
@@ -27,6 +27,12 @@
 			<text width="20" height="1" />
 		</field>
 		<field attribute="note">
+			<text width="40" height="2" />
+		</field>
+		<field attribute="caption">
+			<text width="40" height="1" />
+		</field>
+		<field attribute="summary">
 			<text width="40" height="2" />
 		</field>
 		<field>

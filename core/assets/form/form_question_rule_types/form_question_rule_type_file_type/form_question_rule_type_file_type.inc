@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_file_type.inc,v 1.16 2012/08/30 01:09:07 ewang Exp $
+* $Id: form_question_rule_type_file_type.inc,v 1.17 2013/04/08 07:52:52 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -210,11 +210,12 @@ class Form_Question_Rule_Type_File_Type extends Form_Question_Rule
 
 		$comparison = str_replace("\r", '', $comparison);
 		$comparison = str_replace("\n", ', ', $comparison);
-
-		return translate('core_form_rule_file_type_error_'.($operator ? 'true' : 'false'), $q_asset->getValue(), $q_asset->attr('name'), $comparison);
-
-		return $error_text;
-
+		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($q_asset->_formid);
+		$use_accessible_string = $form->useAccessibleFormat();
+		if($use_accessible_string)
+		    return translate('core_form_rule_file_type_error_'.($operator ? 'true' : 'false').'_accessible', $q_asset->getValue(), $comparison);
+		else
+		    return translate('core_form_rule_file_type_error_'.($operator ? 'true' : 'false'), $q_asset->getValue(), $q_asset->attr('name'), $comparison);
 	}//end defaultError()
 
 

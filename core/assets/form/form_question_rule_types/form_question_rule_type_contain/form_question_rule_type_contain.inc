@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_contain.inc,v 1.9 2012/08/30 01:09:07 ewang Exp $
+* $Id: form_question_rule_type_contain.inc,v 1.10 2013/04/08 07:52:52 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -191,6 +191,8 @@ class Form_Question_Rule_Type_Contain extends Form_Question_Rule
 
 		$string_code = 'core_form_rule_contain_desc_'.($operator ? 'true' : 'false');
 		$cq_id = array_get_index($rule_data, 'comparison_question_id', 0);
+		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($q_asset->_formid);
+		$use_accessible_string = $form->useAccessibleFormat();
 
 		if ($cq_id != 0) {
 			$string_code .= '_q';
@@ -199,8 +201,10 @@ class Form_Question_Rule_Type_Contain extends Form_Question_Rule
 		} else {	// sent just a value
 			$value = array_get_index($rule_data, 'value', '');
 		}
-
-		$error_str = translate($string_code, $q_asset->name, $value).' '.translate('core_form_'.($case_sensitive ? '' : 'not_').'case_sensitive');
+		if($use_accessible_string)
+		    $error_str = translate($string_code.'_accessible', $value).' '.translate('core_form_'.($case_sensitive ? '' : 'not_').'case_sensitive');
+		else
+		    $error_str = translate($string_code, $q_asset->name, $value).' '.translate('core_form_'.($case_sensitive ? '' : 'not_').'case_sensitive');
 
 		return $error_str;
 
