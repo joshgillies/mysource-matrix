@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: MatrixDAL.inc,v 1.11.4.1 2013/02/14 05:44:03 ewang Exp $
+* $Id: MatrixDAL.inc,v 1.11.4.2 2013/04/08 04:23:32 akarelia Exp $
 *
 */
 
@@ -39,7 +39,7 @@ require_once dirname(__FILE__).'/../DAL/DAL.inc';
 *
 * @since   MySource 3.18.0
 * @author  Squiz Pty Ltd <matrix@squiz.net>
-* @version $Revision: 1.11.4.1 $
+* @version $Revision: 1.11.4.2 $
 * @package MySource_Matrix
 */
 class MatrixDAL extends DAL
@@ -460,13 +460,12 @@ class MatrixDAL extends DAL
 	 *
 	 * @return string
 	 */
-	public static function quote($value)
+	public static function quote($value, $db_type=NULL)
 	{
 		$quoted_value = NULL;
-		if (self::getDbType() == 'oci') {
-			// We don't have PDO to help us here
-			$quoted_value = '\''.str_replace('\'', '\'\'', $value).'\'';
-		} else {
+		if (is_null($db_type)) $db_type = self::getDbType();
+
+		if ($db_type == 'pgsql') {
 			$db = self::getDb();
 			$quoted_value = $db->quote($value);
 			if ($quoted_value === FALSE) {
@@ -475,6 +474,9 @@ class MatrixDAL extends DAL
 			}
 			// enforce E escape constent to allow / escape symbol in postgres
 			$quoted_value = 'E'.$quoted_value;
+		} else {
+			// We don't have PDO to help us here
+			$quoted_value = '\''.str_replace('\'', '\'\'', $value).'\'';
 		}
 
 		return $quoted_value;
