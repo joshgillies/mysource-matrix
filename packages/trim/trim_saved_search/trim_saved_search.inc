@@ -11,7 +11,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search.inc,v 1.32.2.6 2013/03/27 05:58:56 cupreti Exp $
+* $Id: trim_saved_search.inc,v 1.32.2.7 2013/04/08 00:46:46 cupreti Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.32.2.6 $
+* @version $Revision: 1.32.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -447,6 +447,10 @@ class TRIM_Saved_Search extends Data_Source
 			// make sure classification is in the returned results
 			$record_properties['recClassification'] = 'Classification';
 		}
+
+		// Get the "last action" date for the trim records, as since TRIM 7.1 we can't rely on "last updated" ("version") 
+		// anymore to check if the a record needs to updated from the TRIM (bug #6229)
+		$record_properties['recLastActionDate'] = 'Last Action Date';
 	
 		// Search clauses will be directly inserted to xml request
 		// Because TRIM convertToXml will mess up the order	
