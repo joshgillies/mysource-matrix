@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_contents.xml,v 1.38 2012/03/13 06:02:07 akarelia Exp $
+* $Id: edit_interface_screen_contents.xml,v 1.39 2013/04/08 07:58:55 ewang Exp $
 *
 */
 -->
@@ -45,6 +45,18 @@
 		</field>
 	</section>
 	<section name="Formatting">
+	    	<field>
+			<function_call>
+				<paint_function   name="paintUseAccessibleFormat"   />
+				<process_function name="processUseAccessibleFormat" />
+			</function_call>
+		</field>
+		<field attribute="required_field_mark">
+			<text width="120" height="1" />
+		</field>
+		<field attribute="required_field_note">
+			<text width="120" height="1" />
+		</field>
 		<field attribute="use_confirmation_page">
 			<boolean true_text="yes" false_text="no" />
 		</field>
@@ -94,7 +106,7 @@
 			<int width="5" />
 		</field>
 		<field attribute="captcha_zoom">
-			<int width="5" />
+			<float width="5" />
 		</field>
 		<field attribute="captcha_link_text">
 			<text width="50" />
@@ -162,6 +174,9 @@
 		<field attribute="captcha_form_invalid_error_message">
 			<text width="50" height="1" />
 		</field>
+		<field attribute="captcha_title_text">
+			<text width="50" height="1" />
+		</field>	
 	</section>
 	<section name="Multiple Page Form Options">
 		<field attribute="multi_page">
@@ -237,6 +252,9 @@
 			<text width="50" />
 		</field>		
 		<field attribute="mollom_captcha_regen_link_text">
+			<text width="50" />
+		</field>
+		<field attribute="mollom_captcha_label_text">
 			<text width="50" />
 		</field>
 	</section>

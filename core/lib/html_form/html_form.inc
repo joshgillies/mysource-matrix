@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.167 2013/03/14 00:26:54 akarelia Exp $
+* $Id: html_form.inc,v 1.168 2013/04/08 08:01:26 ewang Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.167 $
+* @version $Revision: 1.168 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -206,14 +206,17 @@ function text_box($name, $value='', $size='', $max='', $hide_value=FALSE, $extra
 *									level 3 accessability standards)
 * @param boolean	$allow_empty	allow the text box to be empty?
 * @param string		$extras			any input field attributes that should be placed in the <input ... > tag
+* @param boolean		$include_js			include js file
+* @param boolean		$use_js			use js validation
 *
 * @return void
 * @access public
 */
-function int_text_box($name, $value, $allow_negative=TRUE, $size='', $range_min=NULL, $range_max=NULL, $max_chars='', $hide_value=FALSE, $allow_empty=FALSE, $extras='')
+function int_text_box($name, $value, $allow_negative=TRUE, $size='', $range_min=NULL, $range_max=NULL, $max_chars='', $hide_value=FALSE, $allow_empty=FALSE, $extras='', $include_js=TRUE, $use_js=TRUE)
 {
+	if($use_js && $include_js) {
 	?><script type="text/javascript" src="<?php echo sq_web_path('lib')?>/html_form/html_form.js"></script><?php
-
+	}
 	$allow_negative = $allow_negative ? 'true' : 'false';
 
 	// ranges
@@ -235,14 +238,16 @@ function int_text_box($name, $value, $allow_negative=TRUE, $size='', $range_min=
 	}
 
 	$ranges_js  = implode(', ', $ranges);
-	$javascript = '
-		onkeyup="validate_numeric_text_field(this, '.$allow_negative.(!empty($ranges_js) ? ', '.$ranges_js : '').');"
-		onblur="validate_numeric_range(this'.(!empty($ranges_js) ? ', '.$ranges_js : '').', '.($allow_empty ? 'true' : 'false').');"
-	';
-	if (!$hide_value) {
-		$javascript .= '	onchange="validate_numeric_text_field(this, '.$allow_negative.(!empty($ranges_js) ? ', '.$ranges_js : '').');"';
+	$javascript = '';
+	if($use_js) {
+	    $javascript = '
+		    onkeyup="validate_numeric_text_field(this, '.$allow_negative.(!empty($ranges_js) ? ', '.$ranges_js : '').');"
+		    onblur="validate_numeric_range(this'.(!empty($ranges_js) ? ', '.$ranges_js : '').', '.($allow_empty ? 'true' : 'false').');"
+	    ';
+	    if (!$hide_value) {
+		    $javascript .= '	onchange="validate_numeric_text_field(this, '.$allow_negative.(!empty($ranges_js) ? ', '.$ranges_js : '').');"';
+	    }
 	}
-
 	text_box($name, $value, $size, $max_chars, $hide_value, $javascript.$extras);
 
 }//end int_text_box()
@@ -306,16 +311,11 @@ function text_area($name, $contents, $cols=0, $rows=0, $max=0, $extras='')
 		$extras .= ' id="'.htmlspecialchars($name).'"';
 	}
 
-	// add JS translation files
-	echo '<script type="text/javascript" src="'.sq_web_path('lib').'/js/general.js"></script>';
-	foreach ($GLOBALS['SQ_SYSTEM']->lm->getJavascriptIncludes() as $js_include) {
-		echo '<script type="text/javascript" src="'.$js_include.'"></script>';
-	}
 
 	echo 	'<textarea name="', htmlspecialchars($name), '" ',
 			'cols="'.$cols.'" ',
 			'rows="'.$rows.'" ',
-			(($max)   ? 'onkeypress="if (this.value.length > '.$max.') { this.value = this.value.substr(0,'.$max.'); alert(js_translate(\'max_characters_warning\', \''.$max.'\')); this.focus()}" ' : ''),
+			(($max)   ? 'onkeypress="if (this.value.length > '.$max.') { this.value = this.value.substr(0,'.$max.'); alert(\'This field can contain no more than '.$max.' characters.\'); this.focus()}" ' : ''),
 			$extras,
 			'>',
 			htmlspecialchars($contents),
@@ -561,8 +561,8 @@ function file_upload($name, $extras='')
 function get_file_upload_info($name, $pre_uploaded=FALSE)
 {
 	// browsers of handheld iOS devices disables the file upload
-	// input so the _FILES var will be totally empty but this
-	// doesn't mean there was error uploading the file. see more
+	// input so the _FILES var will be totally empty but this 
+	// doesn't mean there was error uploading the file. see more 
 	// on bug #5574 Form file upload problem with  iOS device
 	if (empty($_FILES)) return Array();
 	if (empty($_FILES[$name])) return FALSE;
@@ -610,7 +610,7 @@ function get_file_upload_info($name, $pre_uploaded=FALSE)
 			trigger_localised_error('SYS0023', E_USER_WARNING, $nice_name);
 			return FALSE;
 		break;
-
+	
 	}//end switch
 
 	if (empty($_FILES[$name]['name']) || !is_uploaded_file($_FILES[$name]['tmp_name'])) {
@@ -918,11 +918,14 @@ function multiple_asset_finder($name, $assetids=Array(), $type_codes=Array(), $m
 * @param boolean	$include_uppercase			whether to include uppercase characters in the CAPTCHA text
 * @param boolean	$include_numbers			whether to include numbers in the CAPTCHA text
 * @param boolean	$provide_accessible_captcha	whether to display a link and interface to enter an email address for an accessible CAPTCHA
+* @param boolean	$accessible_format	                   print accessible format 
+* @param string	$title	text label used to prompt user to enter CAPTCHA 
+* @param string	$error	error message to display if wrong CAPTCHA is entered
 *
 * @return void
 * @access public
 */
-function security_key($key_len, $box_len, $zoom=1, $img_on_newline=FALSE, $bg='FFFFFF', $text='000000', $border='000000', $use_colours=FALSE, $use_font=FALSE, $font='', $font_size=20, $min_angle=10, $max_angle=20, $x_start=20, $min_dist=20, $max_dist=20, $ttf_width=200, $ttf_height=36, $use_arc=FALSE, $arc_colour='D20A0A', $include_uppercase=FALSE, $include_numbers=FALSE, $provide_accessible_captcha = FALSE)
+function security_key($key_len, $box_len, $zoom=1, $img_on_newline=FALSE, $bg='FFFFFF', $text='000000', $border='000000', $use_colours=FALSE, $use_font=FALSE, $font='', $font_size=20, $min_angle=10, $max_angle=20, $x_start=20, $min_dist=20, $max_dist=20, $ttf_width=200, $ttf_height=36, $use_arc=FALSE, $arc_colour='D20A0A', $include_uppercase=FALSE, $include_numbers=FALSE, $provide_accessible_captcha = FALSE, $accessible_format = FALSE, $title='', $error="")
 {
 
 	// generate a random security key string
@@ -965,26 +968,44 @@ function security_key($key_len, $box_len, $zoom=1, $img_on_newline=FALSE, $bg='F
 
 	// generate the url to get the security image to print
 	$img_url = $_SERVER['PHP_SELF'].'?SQ_ACTION=send_security_key';
-	?>
+	if ($accessible_format) {
+	    echo '<img id="sq_security_key" src="'.$img_url.'" alt="Security key" border="0" /><br/>';
+	    if(empty($title)) $title = 'Text in the box: ';
+	    label($title, 'SQ_SYSTEM_SECURITY_KEY_VALUE');
+	    echo '<br/>';
+	    echo text_box('SQ_SYSTEM_SECURITY_KEY_VALUE', '', $box_len);
+	    if(!empty($error))
+		echo '<br/>';
+		echo '<span id="error_SQ_SYSTEM_SECURITY_KEY_VALUE" class="sq-form-error sq-captcha-error">'.$error.'</span>';
+	    if ($provide_accessible_captcha) {
+		print_accessible_captcha_interface();
+	    }
+	    echo '<br/>';
+	    $replacements_link = '<a href="#" onclick="var img = document.getElementById(\'sq_security_key\'); img.src = \''.$img_url.'&amp;regen_key=1&amp;t=\' + new Date().getTime(); return false;">'.translate('security_key_link').'</a>';
+	    echo '<i>'. translate('security_key_question', $replacements_link).'</i>'; 
+				
+	}
+	else {
+	    	?>
 	<table border="0">
 		<tr>
 			<td valign="top"><?php echo text_box('SQ_SYSTEM_SECURITY_KEY_VALUE', '', $box_len); ?></td>
-	<?php
-	if ($img_on_newline) {
-	?>
-		</tr>
-		<tr>
-	<?php
-	}//end if
-	?>
-			<td valign="top"><img id="sq_security_key" src="<?php echo $img_url; ?>" alt="Security key" border="0" />
-	<?php
+		<?php
+		if ($img_on_newline) {
+		?>
+			</tr>
+			<tr>
+		<?php
+		}//end if
+		?>
+				<td valign="top"><img id="sq_security_key" src="<?php echo $img_url; ?>" alt="Security key" border="0" />
+		<?php
 
-	if ($provide_accessible_captcha) {
-		print_accessible_captcha_interface();
-	}
-?>
-</td>
+		if ($provide_accessible_captcha) {
+			print_accessible_captcha_interface();
+		}
+		?>
+		</td>
 		</tr>
 		<tr>
 		<?php
@@ -997,6 +1018,8 @@ function security_key($key_len, $box_len, $zoom=1, $img_on_newline=FALSE, $bg='F
 		</tr>
 	</table>
 	<?php
+	}
+	
 
 }//end security_key()
 
@@ -1491,7 +1514,7 @@ function structured_drop_down($name, $root_id, $type_codes, $selected=Array(), $
 			$invalid[] = $treeid;
 			continue;
 		}
-
+		
 		if (!empty($skip_assetids) && in_array($data['assetid'], $skip_assetids)) {
 			// Issue #6193 Exclude asset/root node settings ignored in Asset Listing
 			// allow the assets to be skipped if they are in skip list. we are doing
@@ -1711,7 +1734,7 @@ function sort_tree(&$tree)
 
 /**
 * Comparison function for use in uasort()
-*
+* 
 * @param array	$left
 * @param array 	$right
 *
@@ -1719,7 +1742,7 @@ function sort_tree(&$tree)
 * @access public
 */
 function sort_compare($left, $right)
-{
+{	
 	if (!is_array($left) || !is_array($right)) {
 		return 0;
 	}

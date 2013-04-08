@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mollom.inc,v 1.5 2012/12/12 04:50:18 cupreti Exp $
+* $Id: mollom.inc,v 1.6 2013/04/08 08:02:22 ewang Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 * Purpose: Allows Matrix to communicate with Mollom (http://mollom.com)
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package Fudge
 */
 
@@ -121,7 +121,7 @@ class Mollom
 	 *
 	 * @var	string
 	 */
-	private static $serverHost = 'xmlrpc.mollom.com';
+	private static $serverHost = 'http://xmlrpc.mollom.com';
 
 
 	/**
@@ -1000,11 +1000,12 @@ class Mollom
 	* Get Mollom captcha  keyword replacement 
 	*	
 	* @param string	$assetid	Assetid of Matrix asset using the Mollom
+	* @param array	$errors	Errors messages to display
 	*
 	* @return string
 	* @access public
 	*/
-	public static function getMollomCaptchaKeywordReplacement($assetid)
+	public static function getMollomCaptchaKeywordReplacement($assetid, $errors = Array())
 	{	
 		self::refreshMollomSession($assetid);
 
@@ -1015,6 +1016,10 @@ class Mollom
 		$captcha = self::getMollomCaptchaImageKeywordReplacement($assetid).
 						self::getMollomCaptchaRegenLinkKeywordReplacement($assetid).
 						"<br />".self::getMollomCaptchaFieldKeywordReplacement($assetid);
+		if(!empty($errors)) {
+		    $error = array_pop($errors);
+		    $captcha .= "<br/>".self::getMollomCaptchaErrorsKeywordReplacement($assetid, $error);
+		}
 
 		return $captcha;
 	}
@@ -1039,8 +1044,12 @@ class Mollom
 		$name 	= 'sq_mollom_captcha_'.$assetid.'_input';
 		$width 	= 7;
 		$max 	= 20;
+		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		$label = $form->attr('mollom_captcha_label_text');
 
 		ob_start();
+			label($label, $name);
+			echo '<br/>';
 			text_box($name, '', $width, $max, FALSE, '');
 			hidden_field($name.'_session', $_SESSION['SQ_MOLLOM_CAPTCHA_'.$assetid]['session_id']);
 			$input_box = ob_get_contents();
@@ -1126,6 +1135,31 @@ class Mollom
 	}
 
 
+	/**
+	* Get Mollom captcha error keyword replacement
+	*	
+	* @param string	$assetid	Assetid of Matrix asset using the Mollom
+	* @param string	$error         Error message to display
+	*
+	* @return string
+	* @access public
+	*/
+	public static function getMollomCaptchaErrorsKeywordReplacement($assetid, $error='Incorrect security key. Please try again')
+	{
+		self::refreshMollomSession($assetid);
+			
+		if (empty($_SESSION['SQ_MOLLOM_CAPTCHA_'.$assetid]['session_id'])) {
+			return '';
+		}
+		
+		$name 	= 'errror_sq_mollom_captcha_'.$assetid.'_input';
+		
+		$error_span = '<span id="'.$name.'" class="sq-form-error sq-captcha-error">'.$error.'</span>';
+
+		return $error_span;
+	}
+	
+	
     /**
     * Check the value submitted for captcha
     *

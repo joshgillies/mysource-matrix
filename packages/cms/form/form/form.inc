@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.274 2013/04/08 07:01:34 ewang Exp $
+* $Id: form.inc,v 1.275 2013/04/08 07:58:55 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.274 $
+* @version $Revision: 1.275 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -68,6 +68,24 @@ class Form extends Asset implements Bridge
 	* @var object
 	*/
 	var $submission_errors = NULL;
+	
+	/**
+	* the question validation errors
+	* @var object
+	*/
+	var $question_errors = NULL;
+	
+	/**
+	* the captcha validation errors
+	* @var object
+	*/
+	var $captcha_errors = NULL;
+	
+	/**
+	* the mollom validation errors
+	* @var object
+	*/
+	var $mollom_errors = NULL;
 
 
 	/**
@@ -1123,8 +1141,58 @@ class Form extends Asset implements Bridge
 	* @return array
 	* @access public
 	*/
+	/**
+	* Get details of the link with specified linkid
+	*
+	* @param int	$linkid			id of the link were returning
+	* @param int	$assetid		id of the the $side_of_link asset
+	*								if zero no check is made and both major and minor information is returned
+	* @param string	$side_of_link	Which side of the link the asset represented by $assetid is on ('major' or 'minor')
+	*
+	* @return array
+	* @access public
+	*/
 	function getLinkById($linkid, $assetid=0, $side_of_link='major')
 	{
+		if (!is_numeric($assetid)) {
+			if ($side_of_link == 'minor') {
+				return Array(
+						'linkid'			=> 0,
+						'majorid'			=> $this->id,
+						'minorid'			=> $this->id.':'.$assetid,
+						'major_type_code'	=> $this->type(),
+						'value'				=> '',
+						'link_type'			=> SQ_LINK_TYPE_2,
+						'is_dependant'		=> TRUE,
+						'is_exclusive'		=> FALSE,
+						'sort_order'		=> 0,
+						'locked'			=> 0,
+					   );
+			}
+			return Array();
+		}
+
+		$id_parts = explode(':', $linkid);
+		if (isset($id_parts[1]) && isset($id_parts[2])) {
+			$looking_for = $id_parts[1].':'.$id_parts[2];
+			$tmp_question_nb = str_replace('q', '', $id_parts[2]);
+			$questions = $this->attr('questions');
+			if (isset($questions[$tmp_question_nb])) {
+				return Array(
+						'linkid'			=> $linkid,
+						'majorid'			=> $this->id,
+						'minorid'			=> $this->id.':q'.$tmp_question_nb,
+						'minor_type_code'	=> $questions[$tmp_question_nb]['question_type_code'],
+						'value'				=> '',
+						'link_type'			=> SQ_LINK_TYPE_2,
+						'is_dependant'		=> TRUE,
+						'is_exclusive'		=> FALSE,
+						'sort_order'		=> 0,
+						'locked'			=> 0,
+					   );
+			}
+		}
+
 		return Array();
 
 	}//end getLinkById()
@@ -1205,6 +1273,15 @@ class Form extends Asset implements Bridge
 	*/
 	function deleteAssetLink($linkid, $moving=FALSE)
 	{
+		$id_parts = explode(':', $linkid);
+		if (isset($id_parts[1]) && isset($id_parts[2])) {
+			$question_to_delete = $id_parts[1].':'.$id_parts[2];
+			$asset_to_delete = $this->getAsset($question_to_delete);
+			if ($asset_to_delete != NULL) {
+				return $this->deleteQuestion($asset_to_delete);
+			}
+		}
+
 		return FALSE;
 
 	}//end deleteAssetLink()
@@ -1737,6 +1814,7 @@ class Form extends Asset implements Bridge
 			if (!is_null($jump_to_page)) {
 				$current_page = $jump_to_page;
 			} else {
+			    
 				// Only validate the page responses if the "Next/Submit" button is pressed.
 				// In other words, allow gunky data to be stored because we
 				// aren't actually progressing in the form; we will get sto it
@@ -1820,9 +1898,10 @@ class Form extends Asset implements Bridge
 
 
 
-			echo $this->getFormHeader();
+			
 
 			if (!$finished) {
+				echo $this->getFormHeader();
 				// Print the current page or the Confirmation Page if we're confirming things
 				$total_pages = $this->getTotalPages();
 
@@ -1832,6 +1911,7 @@ class Form extends Asset implements Bridge
 				else {
 					$this->printPageContentsBodycopy();
 				}
+				echo $this->getFormFooter();
 			} else {
 				$ok = $this->completeSubmission();
 				if ($ok) {
@@ -1839,12 +1919,13 @@ class Form extends Asset implements Bridge
 					// the form
 					$this->finishForm();
 				} else {
+					echo $this->getFormHeader();
 					// We had problems, so re-print the last page
 					$this->printPageContentsBodycopy();
+					echo $this->getFormFooter();
 				}
 			}
 
-			echo $this->getFormFooter();
 		}
 
 		if ($finished) {
@@ -1865,12 +1946,13 @@ class Form extends Asset implements Bridge
 		$form_prefix = $this->getPrefix();
 		$form_action = $this->getFormAction();
 
+		$header = '';
 		if ($this->attr('use_client_side')) {
 			$on_submit = 'onsubmit="return beforeSubmit_'.$form_prefix.'(this);"';
-			$header = '<form id="'.$form_prefix.'" enctype="multipart/form-data" action="'.$form_action.'" method="post" '.$on_submit.'>';
+			$header .= '<form id="'.$form_prefix.'" enctype="multipart/form-data" action="'.$form_action.'" method="post" '.$on_submit.'>';
 			$header .= $this->getClientSideFunction();
 		} else {
-			$header = '<form id="'.$form_prefix.'" enctype="multipart/form-data" action="'.$form_action.'" method="post">';
+			$header .= '<form id="'.$form_prefix.'" enctype="multipart/form-data" action="'.$form_action.'" method="post">';
 		}
 
 		$current_submission = $this->getSubmissionAsset();
@@ -2008,7 +2090,7 @@ class Form extends Asset implements Bridge
 					// re-based by array_values
 					$section_link = reset(array_slice($sections, $page_number - 1, 1));
 					$section = $GLOBALS['SQ_SYSTEM']->am->getAsset($section_link['minorid']);
-					$section->printBody($this, FALSE);
+					$section->printBody($this);
 				}
 			} else {
 				$this->printPageContentsBodycopy();
@@ -2110,7 +2192,7 @@ class Form extends Asset implements Bridge
 
 		} else {
 			$multi_page = $this->attr('multi_page');
-			echo $this->printDefaultPageContents($multi_page ? FALSE : TRUE);
+			echo $this->printDefaultPageContents($multi_page);
 
 		}//end else
 
@@ -2120,65 +2202,115 @@ class Form extends Asset implements Bridge
 	/**
 	* Prints the default page contents
 	*
-	* @param boolean	$also_print_sections	Whether to also print the sections
+	* @param boolean	$multi_page	Whether to print single section in multiple mode or all sections
 	*											of this form. If multi-page is turned on,
 	*											this should be FALSE.
 	*
 	* @return string
 	*/
-	public function printDefaultPageContents($also_print_sections=TRUE)
+	public function printDefaultPageContents($multi_page=FALSE)
 	{
 		$current_page = $this->getCurrentPageNumber();
 
 		$error = !empty($this->submission_errors);
 
-		$form_width = $this->attr('form_width');
-
-		if (!empty($form_width)) {
-			$form_width = ' width="'.$form_width.'"';
-		}
-
-		$question_width = $this->attr('question_col_width');
-		if (!empty($question_width)) {
-			$question_width = ' width="'.$question_width.'"';
-		}
-
-		$answer_width = $this->attr('answer_col_width');
-		if (!empty($answer_width)) {
-			$answer_width = ' width="'.$answer_width.'"';
-		}
-
-		// note: the HTML section below is using the keywords so that it's easier
-		// to move it to a bodycopy later (as a default value)
-		// that way we will not need 2 paths of processing
-		ob_start();
-		?>
-		%<?php echo $also_print_sections ? 'form' : 'current_page' ?>_contents%<table <?php echo $form_width; ?>>
-			<tr>
-			<td <?php echo $question_width; ?>>&nbsp;</td>
-			<td <?php echo $answer_width; ?>>
-				<?php
-				if ($this->attr('require_captcha') && ($current_page == $this->getTotalPages())) {
-					?>
-					%form_captcha%
-					<?php
-				}
-				?>
-				%submit_button%
-				%reset_button%
-			</td>
-			</tr>
-			<?php
-			if ($error) {
-				?>
-				<tr><td colspan="2">%form_errors%</td></tr>
-				<?php
+		if($this->attr('use_accessible_format')) {
+		    $is_required_field = FALSE;
+		    $questions = $this->getAllQuestions();
+		    foreach ($questions as $question) {
+			if(isset($question['attributes']['is_required']) && $question['attributes']['is_required']) {
+			    $is_required_field = TRUE;
 			}
-			?>
-			</table>
-		<?php
-		$content = ob_get_clean();
+		    }
+		    $require_note = $this->attr('required_field_note');
+		    if(empty($require_note))
+			$is_required_field =  FALSE;
+		    
+		    // new semantic format
+		    ob_start();
+		    // if there is required field, display the required field note
+		    if($is_required_field) {
+		    ?>
+		<div class="sq-form-required-field-note"><?php echo $require_note; ?></div>
+		    <?php
+		    }?>
+		    %<?php echo $multi_page ? 'current_page' : 'form' ?>_contents%
+		    <div class="sq-form-control">
+		    <?php
+				    if ($this->attr('require_captcha') && ($current_page == $this->getTotalPages())) {
+					    ?>
+					    <div class="sq-form-captcha">
+					    %form_captcha%
+					    </div>
+					    <?php
+				    }
+				    else if($this->attr('use_mollom')) {
+					  ?>
+					    <div class="sq-form-captcha">
+					    %form_mollom_captcha%
+					    </div>
+					    <?php
+				    }
+				    ?>
+				    %submit_button%
+				    <?php
+				    if ($error) {
+					    ?>
+					    <div class="sq-form-error">%form_errors%</div>
+					    <?php
+				    }
+				    ?>
+		  </div>
+		  <?php  
+		    $content = ob_get_clean();
+		}
+		else {
+		    // old tabular format
+		    $form_width = $this->attr('form_width');
+		    if (!empty($form_width))     $form_width = ' width="'.$form_width.'"';
+		 
+		    $question_width = $this->attr('question_col_width');
+		    if (!empty($question_width))     $question_width = ' width="'.$question_width.'"';
+		    
+		    $answer_width = $this->attr('answer_col_width');
+		    if (!empty($answer_width))     $answer_width = ' width="'.$answer_width.'"';
 
+		    ob_start();
+		    ?>
+		    %<?php echo $multi_page ? 'current_page' : 'form' ?>_contents%<table <?php echo $form_width; ?>>
+			    <tr>
+			    <td <?php echo $question_width; ?>>&nbsp;</td>
+			    <td <?php echo $answer_width; ?>>
+				    <?php
+				    if ($this->attr('require_captcha') && ($current_page == $this->getTotalPages())) {
+					    ?>
+					    %form_captcha%
+					    <?php
+				    }
+				    else if($this->attr('use_mollom')) {
+					  ?>
+					    <div class="sq-form-captcha">
+					    %form_mollom_captcha%
+					    </div>
+					    <?php
+				    }
+				    ?>
+				    %submit_button%
+				    %reset_button%
+			    </td>
+			    </tr>
+			    <?php
+			    if ($error) {
+				    ?>
+				    <tr><td colspan="2">%form_errors%</td></tr>
+				    <?php
+			    }
+			    ?>
+			    </table>
+		    <?php
+		    $content = ob_get_clean();
+		}
+		
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 
 		$keyword_list = extract_keywords($content);
@@ -2190,7 +2322,6 @@ class Form extends Asset implements Bridge
 
 			replace_keywords($content, $replacements);
 		}
-
 		return $content;
 
 	}//end printDefaultPageContents()
@@ -2519,13 +2650,21 @@ class Form extends Asset implements Bridge
 	public function getDefaultConfirmationPageContents()
 	{
 		ob_start();
+		if($this->useAccessibleFormat()) {
+		?>
+		%form_summary_semantic%
+
+		<?php
+		}
+		else {
 		?>
 		%form_summary_html%
 
 		<?php
+		}
 		if ($this->attr('require_captcha')) {
 			?>
-			<p>%form_captcha%</p>
+			<p class="sq-form-captcha">%form_captcha%</p>
 			<?php
 		}
 		?>
@@ -2575,7 +2714,8 @@ class Form extends Asset implements Bridge
 		// this var is used to make sure captcha status is processed correctly in this case
 		$one_page_captcha_status = FALSE;
 
-		if (is_null($this->submission_errors)) $this->submission_errors = Array();
+
+		
 
 		// Has a captcha been completed on this page? Error if it is incorrect,
 		// otherwise set the status that we have passed one
@@ -2597,7 +2737,7 @@ class Form extends Asset implements Bridge
 				}
 
 			} else {
-				$this->submission_errors = array_merge($this->submission_errors, Array($this->attr('captcha_invalid_error_message')));
+				$this->registerErrors('captcha_errors', Array($this->attr('captcha_invalid_error_message')));
 				$ok = FALSE;
 			}
 		}
@@ -2621,13 +2761,13 @@ class Form extends Asset implements Bridge
 		$submission_limit = $this->attr('submission_limit');
 		if ($submission_limit != 0 && $submission_limit <= $this->getSubmissionCount()){
 			$error_text = $this->attr('submission_limit_reached_text');
-			$this->submission_errors = array_merge($this->submission_errors, Array($error_text));
+			$this->registerErrors('submission_errors', Array($error_text));
 			$ok = FALSE;
 		}
 
 		// only display this error message if captcha error isn't displayed at current page
-		if (($page_number == $this->getTotalPages()) && !in_array($this->attr('captcha_invalid_error_message'),$this->submission_errors) && $validate_page && !$captcha_status && $this->attr('require_captcha')) {
-			$this->submission_errors = array_merge($this->submission_errors, Array($this->attr('captcha_form_invalid_error_message')));
+		if (($page_number == $this->getTotalPages()) && empty($this->captcha_errors)  && $validate_page && !$captcha_status && $this->attr('require_captcha')) {
+			$this->registerErrors('captcha_errors', Array($this->attr('captcha_form_invalid_error_message')));
 			$ok = FALSE;
 		}
 
@@ -2655,10 +2795,10 @@ class Form extends Asset implements Bridge
 		    if (!$valid_value && (($question_type == 'form_question_type_file_upload') || $validate_page)) {
 		    	//mute error if there is no action, such as a public user refreshs page when there is a file upload question
 		    	if (!$mute_errors) {
-                	$this->submission_errors = array_merge($this->submission_errors, $question->failed_rules);
-		    	}
-                $ok = FALSE;
-            }
+			    $this->registerErrors('question_errors', Array($question->id => $question->failed_rules));
+			 }
+			$ok = FALSE;
+		    }
 
 			$this->current_answers[$question->id] = $question->getValue();
 			$this->extra_data[$question->id]      = $question->getExtraData();
@@ -2708,7 +2848,7 @@ class Form extends Asset implements Bridge
 			}//end switch
 
 			if (!empty($mollom_error)) {
-				$this->submission_errors = array_merge($this->submission_errors, Array($mollom_error));
+				$this->registerErrors('mollom_errors', Array($mollom_error));
 				$ok = FALSE;
 			}
 
@@ -2760,12 +2900,11 @@ class Form extends Asset implements Bridge
 
 			// Get rid of duplicate errors, if any
 			$this->submission_errors = array_unique($this->submission_errors);
-
 			echo '<ul>';
 			foreach ($this->submission_errors as $error) {
-				echo '<li>';
-				echo $error;
-				echo '</li>';
+			    echo '<li>';
+			    echo $error;
+			    echo '</li>';
 			}
 			echo '</ul>';
 		}
@@ -3149,13 +3288,14 @@ class Form extends Asset implements Bridge
 
 		$ok = TRUE;
 
+		
 		// if it's a multi page form, we have to revalidate all questions to prevent hacky behaviour
 		if($this->attr('multi_page')) {
 			foreach ($all_questions as $assetid => $question_info) {
 				$question_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				if(!$question_asset->hasValidValue()) {
-					$this->submission_errors = array_merge($this->submission_errors, $question_asset->failed_rules);
-					$ok = FALSE;
+				    $this->registerErrors('question_errors', Array($question_asset->id => $question_asset->failed_rules));
+				    $ok = FALSE;
 				}
 			}
 		}
@@ -3170,9 +3310,8 @@ class Form extends Asset implements Bridge
 				$question_asset->onSubmitForm($this);
 
 				if (!empty($question_asset->failed_rules)) {
-					if (!is_array($this->submission_errors)) $this->submission_errors = Array();
-					$this->submission_errors = array_merge($this->submission_errors, $question_asset->failed_rules);
-					$ok = FALSE;
+				    $this->registerErrors('question_errors', Array($question_asset->id => $question_asset->failed_rules));
+				    $ok = FALSE;
 				}
 			}
 		}
@@ -3300,7 +3439,10 @@ class Form extends Asset implements Bridge
 		$tyb = $this->getBodycopy('Thank You');
 
 		ob_start();
-		$this->printSummary(TRUE);
+		if($this->useAccessibleFormat())
+		    $this->printSemanticSummary();
+		else
+		    $this->printSummary(TRUE);
 		$summary_info = ob_get_contents();
 		ob_end_clean();
 
@@ -3611,6 +3753,7 @@ class Form extends Asset implements Bridge
 	*/
 	public function updateSubmission(Form_Submission $submission_asset, $force=FALSE)
 	{
+	
 		foreach ($this->current_answers as $assetid => $response) {
 
 			if (!$force && !is_null($this->current_page_questions) && !in_array($assetid, $this->current_page_questions)) continue;
@@ -3945,6 +4088,7 @@ class Form extends Asset implements Bridge
 		$keywords['current_page_contents'] = translate('cms_current_page_contents');
 		$keywords['form_errors']           = translate('cms_form_errors');
 		$keywords['form_errors_message']   = translate('cms_form_errors_message');
+		$keywords['form_required_field_note']   = ucfirst(translate('cms_form_required_field_note'));
 
 		foreach ($questions as $question) {
 			$keywords['question_name_' .$question->id] = translate('cms_form_question_name',  ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
@@ -3965,7 +4109,9 @@ class Form extends Asset implements Bridge
 			$keywords['previous_page_button'] = translate('cms_form_previous_page_button');
 		}
 
-		$keywords += $this->_getCaptchaDisplayKeywords();
+		if ($this->attr('require_captcha')) {
+		    $keywords += $this->_getCaptchaDisplayKeywords();
+		}
 
 		if ($this->attr('use_mollom')) {
 			$keywords += $this->_getMollomCaptchaDisplayKeywords();
@@ -4006,6 +4152,7 @@ class Form extends Asset implements Bridge
 
 		$keywords['form_summary']               = translate('cms_form_submission_summary');
 		$keywords['form_summary_html']          = translate('cms_form_submission_summary').' (html)';
+		$keywords['form_summary_semantic']          = translate('cms_form_submission_summary').' (semantic)';
 		$keywords['form_info']                  = translate('cms_form_submission_info');
 		$keywords['form_info_html']             = translate('cms_form_submission_info').' (html)';
 		$keywords['form_submission_id']         = translate('cms_form_submission_id');
@@ -4048,6 +4195,8 @@ class Form extends Asset implements Bridge
 		$keywords = Array();
 
 		$keywords['form_summary'] = translate('cms_form_submission_summary');
+		$keywords['form_summary_html']          = translate('cms_form_submission_summary').' (html)';
+		$keywords['form_summary_semantic']          = translate('cms_form_submission_summary').' (semantic)';
 		$keywords['form_info']    = translate('cms_form_submission_info');
 
 		foreach ($questions as $question) {
@@ -4097,12 +4246,14 @@ class Form extends Asset implements Bridge
 			$keywords['question_id_'   .$keyword_assetid] = translate('cms_form_section_q_id',    $parent->attr('name'), ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
 			$keywords['question_note_' .$keyword_assetid] = translate('cms_form_section_q_note',  $parent->attr('name'), ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
 			$keywords['question_label_'.$keyword_assetid] = translate('cms_form_section_q_label', $parent->attr('name'), ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
+			$keywords['question_error_'.$keyword_assetid] = translate('cms_form_section_q_error', $parent->attr('name'), ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
 		} else {
 			$keywords['question_field_' .$keyword_assetid] = translate('cms_form_question_field',  ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
 			$keywords['question_name_' .$keyword_assetid] = translate('cms_form_question_name',  ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
 			$keywords['question_id_'   .$keyword_assetid] = translate('cms_form_question_id',    ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
 			$keywords['question_note_' .$keyword_assetid] = translate('cms_form_question_note',  ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
 			$keywords['question_label_'.$keyword_assetid] = translate('cms_form_question_label', ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
+			$keywords['question_error_'.$keyword_assetid] = translate('cms_form_question_error', ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
 		}
 
 		return $keywords;
@@ -4175,6 +4326,8 @@ class Form extends Asset implements Bridge
 		$keywords['form_captcha_image'] = translate('cms_form_captcha_image');
 		$keywords['form_captcha_field'] = translate('cms_form_captcha_field');
 		$keywords['form_captcha_link']  = translate('cms_form_captcha_link');
+		$keywords['form_captcha_errors']  = translate('cms_form_captcha_errors');
+		$keywords['form_captcha_label']       = translate('cms_form_captcha_label');
 
 		return $keywords;
 
@@ -4196,6 +4349,8 @@ class Form extends Asset implements Bridge
 		$keywords['form_mollom_captcha_audio'] = translate('cms_form_mollom_captcha_audio');
 		$keywords['form_mollom_captcha_field'] = translate('cms_form_mollom_captcha_field');
 		$keywords['form_mollom_captcha_regen_link']  = translate('cms_form_mollom_captcha_link');
+		$keywords['form_mollom_captcha_errors']       = translate('cms_form_mollom_captcha_errors');
+		$keywords['form_mollom_captcha_label']       = translate('cms_form_mollom_captcha_label');
 
 		return $keywords;
 
@@ -4255,6 +4410,13 @@ class Form extends Asset implements Bridge
 					case 'label' :
 						$replacement = $question_asset->getHtmlLabel();
 					break;
+				    
+				    	case 'error' :
+						if(isset($this->question_errors[$question_asset->id])) {
+						    $errors = $this->question_errors[$question_asset->id];
+						    $replacement = array_pop($errors);
+						}
+					break;
 
 				}//end switch
 			}
@@ -4297,7 +4459,7 @@ class Form extends Asset implements Bridge
 			list(, $sub_keyword) = $form_matches;
 			switch ($sub_keyword) {
 				case 'mollom_captcha':
-					$replacement = Mollom::getMollomCaptchaKeywordReplacement($this->id);
+					$replacement = Mollom::getMollomCaptchaKeywordReplacement($this->id, $this->mollom_errors);
 				break;
 				case 'mollom_captcha_field':
 					$replacement = Mollom::getMollomCaptchaFieldKeywordReplacement($this->id);
@@ -4317,6 +4479,14 @@ class Form extends Asset implements Bridge
 						$regen_link_text = translate('cms_form_mollom_regen_link_text');
 					}
 					$replacement = Mollom::getMollomCaptchaRegenLinkKeywordReplacement($this->id, $regen_link_text);
+				break;
+				
+				case 'mollom_captcha_errors':
+					$replacement = empty($this->mollom_errors) ? '' : array_pop($this->mollom_errors);
+				break;
+			    
+			    	case 'mollom_captcha_label':
+					$replacement = $this->attr('mollom_captcha_label_text');
 				break;
 
 				case 'submission_id':
@@ -4346,6 +4516,20 @@ class Form extends Asset implements Bridge
 					} else {
 						$replacement = '';
 					}
+				break;
+				
+				case 'required_field_note':
+					$is_required_field = FALSE;
+					$questions = $this->getAllQuestions();
+					foreach ($questions as $question) {
+					    if(isset($question['attributes']['is_required']) && $question['attributes']['is_required']) {
+						$is_required_field = TRUE;
+					    }
+					}
+					$require_note = $this->attr('required_field_note');
+					if(empty($require_note))
+					    $is_required_field =  FALSE;
+					$replacement = $is_required_field ? $require_note : '';
 				break;
 			}//end switch
 
@@ -4493,7 +4677,8 @@ class Form extends Asset implements Bridge
 		} else {
 			$file_path = '';
 		}
-
+		$errors = $this->captcha_errors;
+		$error = !empty($errors) ? array_pop($errors) : '';
 		ob_start();
 			security_key(
 				$this->attr('captcha_length'),
@@ -4518,7 +4703,10 @@ class Form extends Asset implements Bridge
 				trim($this->attr('captcha_arc_colour'), '#'),
 				$this->attr('captcha_include_uppercase'),
 				$this->attr('captcha_include_numbers'),
-				$this->attr('provide_accessible_captcha')
+				$this->attr('provide_accessible_captcha'),
+				TRUE,
+				$this->attr('captcha_label_text'),
+				$error
 			);
 		return ob_get_clean();
 
@@ -4597,7 +4785,34 @@ class Form extends Asset implements Bridge
 		return ob_get_clean();
 
 	}//end getFormCaptchaLinkKeywordReplacement()
+	
+	
+	/**
+	* Form Captcha error keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getFormCaptchaErrorsKeywordReplacement()
+	{
+		$errors = $this->captcha_errors;
+		return empty($errors) ? '' : array_pop($errors);
 
+	}//end getFormCaptchaErrorsKeywordReplacement()
+
+	/**
+	* Form Captcha Field keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getFormCaptchaLabelKeywordReplacement()
+	{
+		return $this->attr('captcha_label_text');
+
+	}//end getFormCaptchaLabelTextKeywordReplacement()
+	
+	
 
 	/**
 	* Form Errors keyword replacement
@@ -4647,9 +4862,12 @@ class Form extends Asset implements Bridge
 		} else {
 			$button_name = ($this->attr('next_button')) ? $this->attr('next_button') : translate('next');
 		}
+		$extra = $this->attr('submit_button_extras');
+		if (empty($extra))
+		    $extra = 'class="sq-form-submit"';
 
 		ob_start();
-			submit_button($this->getPrefix().'_submit', $button_name, '', $this->attr('submit_button_extras'));
+			submit_button($this->getPrefix().'_submit', $button_name, '', $extra);
 		return ob_get_clean();
 
 	}//end getSubmitButtonKeywordReplacement()
@@ -4664,9 +4882,9 @@ class Form extends Asset implements Bridge
 	function getSaveButtonKeywordReplacement()
 	{
 		$button_name = ($this->attr('save_button')) ? $this->attr('save_button') : translate('save');
-
+		$extra = 'class="sq-form-submit"';
 		ob_start();
-			submit_button($this->getPrefix().'_save', $button_name);
+			submit_button($this->getPrefix().'_save', $button_name, $extra);
 		return ob_get_clean();
 
 	}//end getSaveButtonKeywordReplacement()
@@ -4705,9 +4923,9 @@ class Form extends Asset implements Bridge
 
 		if ($bodycopy) {
 			$button_name = ($this->attr('save_and_exit_button')) ? $this->attr('save_and_exit_button') : translate('save_and_exit');
-
+			$extra = 'class="sq-form-submit"';
 			ob_start();
-				submit_button($this->getPrefix().'_save_and_exit', $button_name);
+				submit_button($this->getPrefix().'_save_and_exit', $button_name, $extra);
 			$replacement = ob_get_clean();
 		} else {
 			$replacement = NULL;
@@ -4727,9 +4945,11 @@ class Form extends Asset implements Bridge
 	function getResetButtonKeywordReplacement()
 	{
 		$button_name = ($this->attr('reset_button')) ? $this->attr('reset_button') : translate('reset');
-
+		$extra = $this->attr('reset_button_extras');
+		if (empty($extra))
+		    $extra = 'class="sq-form-reset"';
 		ob_start();
-			reset_button($this->getPrefix().'_reset', $button_name, '', $this->attr('reset_button_extras'));
+			reset_button($this->getPrefix().'_reset', $button_name, '', $extra);
 		return ob_get_clean();
 
 	}//end getResetButtonKeywordReplacement()
@@ -4748,8 +4968,9 @@ class Form extends Asset implements Bridge
 
 		if ($current_page > 1) {
 			$button_name = ($this->attr('previous_button')) ? $this->attr('previous_button') : translate('previous_page');
+			$extra = 'class="sq-form-submit"';
 			ob_start();
-				submit_button($this->getPrefix().'_previous_page', $button_name);
+				submit_button($this->getPrefix().'_previous_page', $button_name, $extra);
 			$replacement = ob_get_clean();
 		} else {
 			$replacement = '';
@@ -5178,6 +5399,62 @@ class Form extends Asset implements Bridge
 
 	}//end printSubmissionLimitReachedBodycopy()
 
+	
+	/**
+	* add submission errors
+	* @param string	$type submission_errors / captcha_errors / question_errors / mollom_errors
+	* @param array	$error the error message array							
+	*
+	* @return null
+	* @access public
+	*/
+	function registerErrors($type, $error)
+	{
+	    if(!$this->useAccessibleFormat()) {
+		 // question errors are special, take out the question id
+		 if($type === 'question_errors') {
+		     foreach ($error as $e) {
+			 $generic_error = array_values($e);
+		     }
+		 }
+		 else {
+		     $generic_error = $error;
+		 }
+		$generic_type = 'submission_errors';
+		if (is_null($this->$generic_type)) $this->$generic_type = Array();
+		$this->$generic_type = array_merge($this->$generic_type, $generic_error);
+	    }
+
+	    if (is_null($this->$type)) $this->$type = Array();
+	    $this->$type = array_merge($this->$type, $error);
+
+	}//end registerErrors()
+	
+	
+	/**
+	* Check if  form's using accessible format
+	*								
+	*
+	* @return boolean
+	* @access public
+	*/
+	function useAccessibleFormat()
+	{
+		return $this->attr('use_accessible_format');
+	}//end useAccessibleFormat()
+	
+	
+	/**
+	* Get required field mark attribute
+	*								
+	*
+	* @return boolean
+	* @access public
+	*/
+	function getRequiredFieldMark()
+	{
+		return ' '.$this->attr('required_field_mark');
+	}//end getRequiredFieldMark()
 
 }//end class
 ?>

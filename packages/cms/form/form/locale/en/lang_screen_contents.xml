@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_contents.xml,v 1.22 2012/03/13 06:02:07 akarelia Exp $
+* $Id: lang_screen_contents.xml,v 1.23 2013/04/08 07:58:55 ewang Exp $
 *
 */
 -->
@@ -53,6 +53,22 @@
 		</field>
 	</section>
 	<section name="Formatting">
+	    	<field>
+			<display_name>Accessible Format</display_name>
+			<note>Enable this option to output WCAG 2.0 accessible HTML content on the form, rather than the standard tabular format.</note>
+			<function_call>
+				<paint_function   name="paintUseAccessibleFormat"   />
+				<process_function name="processUseAccessibleFormat" />
+			</function_call>
+		</field>
+		<field attribute="required_field_mark">
+			<display_name>Required field mark</display_name>
+			<note>HTML included in label to indicate the question is required</note>
+		</field>
+		<field attribute="required_field_note">
+			<display_name>Required field note</display_name>
+			<note>The meaning of required field mark is defined at the start of form</note>
+		</field>
 		<field attribute="use_confirmation_page">
 			<display_name>Use Confirmation Page?</display_name>
 			<note>If "Yes", a confirmation page will appear after the form (or the last page) is completed, but before the form as a whole is fully submitted. This will allow the form's users to confirm that they have filled all parts of the form correctly, before they submit the form.</note>
@@ -121,7 +137,7 @@
 		</field>
 		<field attribute="captcha_zoom">
 			<display_name>CAPTCHA Character Zoom</display_name>
-			<note>Each character will be randomly zoomed between x1 and this figure.</note>
+			<note>Easier reading with zoomed text.</note>
 		</field>
 		<field attribute="captcha_link_text">
 			<display_name>CAPTCHA Regen Link Text</display_name>
@@ -210,6 +226,10 @@
 		<field attribute="captcha_form_invalid_error_message">
 			<display_name>Captcha Required Form Error Message</display_name>
 			<note>Custom error message if valid CAPTCHA is not found for entire form submission.</note>
+		</field>
+		<field attribute="captcha_title_text">
+			<display_name>Captcha Label Text</display_name>
+			<note>Custom the text of label for CAPTCHA input field.</note>
 		</field>
 	</section>
 
@@ -311,12 +331,16 @@
 			<note>Error message to dispay when Mollom identifies a submission as spam</note>
 		</field>
 		<field attribute="mollom_captcha_incorrect_text">
-			<display_name>Captcha Incorrect Text</display_name>
-			<note>Error message to dispay when user enters incorrect captcha value</note>
+			<display_name>CAPTCHA Incorrect Text</display_name>
+			<note>Error message to dispay when user enters incorrect CAPTCHA value</note>
 		</field>		
 		<field attribute="mollom_captcha_regen_link_text">
 			<display_name>CAPTCHA Regen Link Text</display_name>
-			<note>This text will appear when the %form_mollom_captcha_regen_link% keyword is used.</note>
+			<note>This text will appear when the %form_mollom_captcha_regen_link% keyword is used</note>
+		</field>
+		<field attribute="mollom_captcha_label_text">
+			<display_name>CAPTCHA Label Text</display_name>
+			<note>This text will appear as a label for CAPTCHA input box</note>
 		</field>
 	</section>
 	<section name="Security Enhancement">

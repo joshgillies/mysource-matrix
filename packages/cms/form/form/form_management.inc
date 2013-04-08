@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_management.inc,v 1.70 2012/08/30 00:58:07 ewang Exp $
+* $Id: form_management.inc,v 1.71 2013/04/08 07:58:55 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.70 $
+* @version $Revision: 1.71 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -181,8 +181,8 @@ class Form_Management extends Asset_Management
 													   ),
 						'captcha_zoom'				=> Array(
 														'added'		=> '0.9',
-														'type'		=> 'int',
-														'default'	=> 1,
+														'type'		=> 'float',
+														'default'	=> 2,
 													   ),
 						'captcha_link_text'			=> Array(
 														'added'		=> '0.9',
@@ -410,7 +410,13 @@ class Form_Management extends Asset_Management
 														'type'		=> 'text',
 														'default'	=> 'Valid CAPTCHA is required, but none is found in this form submission',
 														'is_contextable'	=> TRUE,
-														   ),			
+														   ),	
+						'captcha_label_text'	=> Array(
+														'added'		=> '0.16',
+														'type'		=> 'text',
+														'default'	=> 'Text in the box: ',
+														'is_contextable'	=> TRUE,
+														   ),
 			
 			// Mollom Spam Check question response ///////
 						'use_mollom'					=>	Array(
@@ -451,6 +457,12 @@ class Form_Management extends Asset_Management
 															'default'		=> 'Regenerate security key',
 															'description'	=> 'Mollom CAPTCHA regen link text',
 														),
+						'mollom_captcha_label_text'	=> Array(
+														'added'		=> '0.16',
+														'type'		=> 'text',
+														'default'	=> 'Text in the box: ',
+														'is_contextable'	=> TRUE,
+														   ),
 						'disable_keyword_replacements'	=> Array(
 															'added'			=> '0.16',
 															'type'			=> 'boolean',
@@ -471,7 +483,27 @@ class Form_Management extends Asset_Management
 															'type'			=> 'text',
 															'default'		=> 'Submission limit has been reached on this form. No more submission will be accepted',
 															'is_contextable'=> TRUE,
-														   ),
+										   ),
+						'use_accessible_format'					=>	Array(
+															'added'			=> '0.16',
+															'type'			=> 'boolean',
+															'default'		=> TRUE,
+															'parameters'	=> Array(
+																				'allow_empty'	=> FALSE,
+																			),
+														  ),
+						'required_field_mark'		=> Array(
+															'added'			=> '0.16',
+															'type'			=> 'text',
+															'default'		=> '<abbr class="sq-form-required-field" title="required">*</abbr>',
+															'is_contextable'=> TRUE,
+										   ),
+						'required_field_note'	=> Array(
+															'added'			=> '0.16',
+															'type'			=> 'text',
+															'default'		=> 'Required fields are marked with an asterisk (<abbr class="sq-form-required-field" title="required">*</abbr>).',
+															'is_contextable'=> TRUE,
+										   ),		    
 					  );
 
 	}//end constructor
@@ -518,6 +550,56 @@ class Form_Management extends Asset_Management
 			   );
 
 	}//end _getFileList()
+	
+	
+	
+	
+	/**
+	* Upgrade
+	*
+	* @param string	$current_version	the version of the asset that is currenly installed
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _upgrade($current_version)
+	{
+		if (!parent::_upgrade($current_version)) return FALSE;
+
+		$asset_name = strtoupper($this->_pm->getTypeInfo($this->getAssetType(), 'name'));
+
+		if (version_compare($current_version, '0.17', '<')) {
+			// Added accessible format feature
+			// For existing forms, we do not enable this feature by default
+			pre_echo('STARTING '.$asset_name.' UPGRADE - FROM VERSION 0.16');
+			$forms = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), FALSE, TRUE);
+			
+			foreach ($forms as $assetid => $type_code) {
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code['type_code']);
+				if (is_null($asset)) continue;
+
+				if (!$asset->setAttrValue('use_accessible_format',   FALSE)) {
+					echo 'Asset #', $asset->id, ' (', $asset->name,') Unable to disable accessible format', "\n";
+					continue;
+				}
+
+
+				if (!$asset->saveAttributes()) {
+					echo 'Asset #', $asset->id, ' (', $asset->name,') Unable to save attributes', "\n";
+					continue;
+				}
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+				unset($asset);
+
+			}//end foreach
+			pre_echo($asset_name.' UPGRADE COMPLETE - FROM VERSION 0.16');
+
+		}//end if - upgrade to version 0.2
+
+		return TRUE;
+
+	}//end _upgrade()
+
 
 }//end class
 ?>

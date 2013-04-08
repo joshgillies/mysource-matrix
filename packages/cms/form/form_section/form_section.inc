@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.83 2012/12/21 04:35:55 akarelia Exp $
+* $Id: form_section.inc,v 1.84 2013/04/08 07:58:55 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.83 $
+* @version $Revision: 1.84 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -68,6 +68,12 @@ class Form_Section extends Asset implements Bridge
 	* @var Array
 	*/
 	var $submission_errors = Array();
+	
+	/**
+	* parent form/section id
+	* @var Array
+	*/
+	var $parent_form_id = null;
 
 
 	/**
@@ -876,6 +882,7 @@ class Form_Section extends Asset implements Bridge
 		$result = Array();
 
 		$questions = $this->attr('questions');
+		
 		if (!empty($questions)) {
 			foreach ($questions as $q_id => $question) {
 				if (empty($type_code) || ($question['question_type_code'] === $type_code)) {
@@ -1134,20 +1141,17 @@ class Form_Section extends Asset implements Bridge
 	*										since the section can be shared amongst other forms,
 	*										but some settings are made at a Form level, such as
 	*										client side validation.
-	* @param boolean	$submit_buttons		Whether to paint the submit and cancel buttons. If
-	*										FALSE, these buttons will be blanked out upon painting.
-	*										Will be set to TRUE in a multi-page form.
 	*
 	* @return void
 	* @access public
 	*/
-	function printBody(Form $form, $submit_buttons=FALSE)
+	function printBody(Form $form)
 	{
 		// if format bodycopy enabled, print with that, otherwise print default
 		if ($this->isFormatBodycopyEnabled()) {
-			$this->printCustomFormat($form, $submit_buttons);
+			$this->printCustomFormat($form);
 		} else {
-			$this->printDefaultFormat($form, $submit_buttons);
+			$this->printDefaultFormat($form);
 		}
 
 	}//end printBody()
@@ -1157,48 +1161,13 @@ class Form_Section extends Asset implements Bridge
 	* Paints the form section using a default bodycopy
 	*
 	* @param Form		$form				The form we are printing from
-	* @param boolean	$submit_buttons		Whether to paint the submit and cancel buttons.
 	*
 	* @return void
 	* @access private
 	*/
-	function printDefaultFormat(Form $form, $submit_buttons=FALSE)
+	function printDefaultFormat(Form $form)
 	{
-		// Default format definitions to keep the section looking in line with
-		// its current parent form
-		$form_width     = $form->attr('form_width');
-		$question_width = $form->attr('question_col_width');
-		$response_width = $form->attr('answer_col_width');
-
 		include $this->data_path.'/content_file.php';
-
-		if ($submit_buttons) {
-			ob_start();
-			?>
-			<table width="<?php echo $form_width; ?>">
-				<tr>
-				<td width="<?php echo $question_width; ?>">&nbsp;</td>
-				<td width="<?php echo $response_width; ?>">
-					%submit_button%
-					%reset_button%
-				</td>
-				</tr>
-				</table>
-			<?php
-			$content = ob_get_clean();
-
-			require_once SQ_FUDGE_PATH.'/general/text.inc';
-
-			$keyword_list = extract_keywords($content);
-			if (!empty($keyword_list)) {
-				foreach ($keyword_list as $keyword) {
-					if (isset($replacements[$keyword])) continue;
-					$replacements[$keyword] = $form->getKeywordReplacement($keyword);
-				}
-				replace_keywords($content, $replacements);
-			}
-			echo $content;
-		}
 
 	}//end printCustomFormat()
 
@@ -1207,12 +1176,11 @@ class Form_Section extends Asset implements Bridge
 	* Paints the form section using a custom format bodycopy
 	*
 	* @param Form		$form				The form we are printing from
-	* @param boolean	$submit_buttons		Whether to paint the submit and cancel buttons.
 	*
 	* @return void
 	* @access private
 	*/
-	function printCustomFormat(Form $form, $submit_buttons=FALSE)
+	function printCustomFormat(Form $form)
 	{
 		// return custom bodycopy but ONLY if enabled
 		$format_bodycopy = $this->getFormatBodycopy(TRUE);
@@ -1476,6 +1444,7 @@ class Form_Section extends Asset implements Bridge
 			$keywords['question_id_'.$this->id.'_q'.$shadowid]    = 'Question ID: '.ellipsisize($question['attributes']['name'], 30).' ('.$this->id.':q'.$shadowid.')';
 			$keywords['question_note_'.$this->id.'_q'.$shadowid]  = 'Question Note: '.ellipsisize($question['attributes']['name'], 30).' ('.$this->id.':q'.$shadowid.')';
 			$keywords['question_label_'.$this->id.'_q'.$shadowid] = 'Question Label: '.ellipsisize($question['attributes']['name'], 30).' ('.$this->id.':q'.$shadowid.')';
+			$keywords['question_error_'.$this->id.'_q'.$shadowid] = 'Question Error: '.ellipsisize($question['attributes']['name'], 30).' ('.$this->id.':q'.$shadowid.')';
 		}
 
 		foreach ($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'form_section', FALSE) as $link) {
@@ -1629,6 +1598,61 @@ class Form_Section extends Asset implements Bridge
 
 	}//end getDisplayKeywordReplacements()
 
+	
+	
 
+	/**
+	* Check if parent form's using accessible format
+	*								
+	*
+	* @return boolean
+	* @access public
+	*/
+	function useAccessibleFormat()
+	{
+		$parent = $this->getParentForm();
+		return $parent->useAccessibleFormat();
+	}//end useAccessibleFormat()
+	
+	/**
+	* Get required field mark attribute
+	*								
+	*
+	* @return boolean
+	* @access public
+	*/
+	function getRequiredFieldMark()
+	{
+		$parent = $this->getParentForm();
+		return $parent->getRequiredFieldMark();
+	}//end getRequiredFieldMark()
+	
+	
+	/**
+	* Get parent form / section
+	*								
+	*
+	* @return object
+	* @access public
+	*/
+	function getParentForm()
+	{
+	    if(!empty($this->parent_form_id)) {
+		$parent_form_id = $this->parent_form_id;
+	    }
+	    else {
+		$form_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'form', FALSE, NULL, 'minor');
+		if(!isset($form_link['majorid'])) {
+		    $form_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'form_section', FALSE, NULL, 'minor');
+		}
+		$parent_form_id = $form_link['majorid'];
+		$this->parent_form_id = $parent_form_id;
+	    }
+	    return $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_form_id);
+	}
+	
+	
+	
+	
 }//end class
 ?>
