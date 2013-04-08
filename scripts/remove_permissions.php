@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remove_permissions.php,v 1.1.2.2 2013/04/03 07:29:49 ewang Exp $
+* $Id: remove_permissions.php,v 1.1.2.3 2013/04/08 05:11:13 ewang Exp $
 *
 */
 error_reporting(E_ALL);
@@ -44,7 +44,7 @@ if (empty($root_nodes_string)) {
 
 
 
-$sql = 'DELETE FROM SQ_AST_PERM p WHERE ';
+$sql = 'DELETE FROM SQ_AST_PERM WHERE ';
 
 // root node condition
 $root_nodes = explode(',', $root_nodes_string);
@@ -58,7 +58,7 @@ foreach (array_chunk($assets, 999) as $chunk) {
 	foreach ($chunk as $key => $value) {
 		$chunk[$key] = MatrixDAL::quote($chunk[$key]);
 	}
-	$in_clause[] = '(p.assetid IN ('.implode(', ', $chunk).'))';
+	$in_clause[] = '(assetid IN ('.implode(', ', $chunk).'))';
 }
 $in_clause_sql = implode(' OR ', $in_clause);
 $in_clause_sql = '( '.$in_clause_sql.')';
@@ -72,7 +72,7 @@ if (!empty($include_user_string)) {
     foreach ($include_users as $key => $value) {
 	    $include_users[$key] = MatrixDAL::quote($include_users[$key]);
     }
-    $include_user_sql = ' AND p.userid IN ('.  implode(', ', $include_users).')';
+    $include_user_sql = ' AND userid IN ('.  implode(', ', $include_users).')';
 }
 
 // exclude user condition
@@ -83,7 +83,7 @@ if (!empty($exclude_user_string)) {
     foreach ($exclude_users as $key => $value) {
 	    $exclude_users[$key] = MatrixDAL::quote($exclude_users[$key]);
     }
-    $exclude_user_sql = ' AND p.userid NOT IN ('.  implode(', ', $exclude_users).')';
+    $exclude_user_sql = ' AND userid NOT IN ('.  implode(', ', $exclude_users).')';
 }
 
 
@@ -95,7 +95,7 @@ if (!empty($type_string)) {
     foreach ($types as $key => $value) {
 	    $types[$key] = MatrixDAL::quote($types[$key]);
     }
-    $type_sql = ' AND p.permission IN ('.  implode(', ', $types).')';
+    $type_sql = ' AND permission IN ('.  implode(', ', $types).')';
 }
 
 $sql = $sql.$in_clause_sql.$include_user_sql.$exclude_user_sql.$type_sql;
