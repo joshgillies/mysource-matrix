@@ -11,7 +11,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search.inc,v 1.35.2.4 2013/04/08 00:46:16 cupreti Exp $
+* $Id: trim_saved_search.inc,v 1.35.2.5 2013/04/08 01:40:18 ewang Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.35.2.4 $
+* @version $Revision: 1.35.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -337,6 +337,7 @@ class TRIM_Saved_Search extends Data_Source
 
 		// Check if the URI is valid and has file attached
 		$result = $this->getResultSet();
+
 		$valid_uri = FALSE;
 		foreach($result as $record) {
 			if (isset($record['Uri']) && $record['Uri'] == $uri && !empty($record['document_url'])) {
@@ -464,6 +465,7 @@ class TRIM_Saved_Search extends Data_Source
 
 		// if no search clause is provided, do not send request, otherwise TRIM 7.3 will be angry
 		if(empty($search_clauses) && empty($search_clauses_xml)) return Array();
+
 		
 		$record_search_options	= $this->getRecordSearchOptions();
 
@@ -702,8 +704,10 @@ class TRIM_Saved_Search extends Data_Source
 				create_directory($final_file_path);
 
 				$res = TRIM_Common::executeRequest($connection, $operations, 'Download', '',  $hash_key, $final_file_path);
-
-				$record_info['document_url']	= $this->getURL().'?Uri='.$record_info['Uri'];
+				
+				// use RecordNumber as id of downloaded file because it makes sense to user. Uri is only internal to developer
+				$record_info['document_url'] = isset($record_info['recNumber']) ? $this->getURL().'?RecordNumber='.urlencode($record_info['recNumber'])  : $this->getURL().'?Uri='.$record_info['Uri'];
+				     
 			}//end if
 		}//end if
 
@@ -758,7 +762,22 @@ class TRIM_Saved_Search extends Data_Source
 				if (!$download_result) {
 					trigger_error('Unable to retrieve file', E_USER_WARNING);
 				}//end if
-			} else if (isset($_GET['check_update']) && !empty($_GET['check_update'])) {
+			} 
+			if (isset($_GET['RecordNumber']) && !empty($_GET['RecordNumber'])) {
+				$results = $this->getResultSet();
+				$uri = NULL;
+				foreach ($results as $result) {
+				    if(isset($result['recNumber']) && $result['recNumber'] === $_GET['RecordNumber'] && isset($result['Uri'])) {
+					$uri = $result['Uri'];
+					break;
+				    }
+				}
+				$download_result	= $this->getAttachedFile($uri);
+				if (!$download_result) {
+					trigger_error('Unable to retrieve file', E_USER_WARNING);
+				}//end if
+			}
+			else if (isset($_GET['check_update']) && !empty($_GET['check_update'])) {
 				if ($this->adminAccess()) {
 					echo 'var numUpdate = false;';
 					$new_object_list	= $this->getTRIMRecords($connection);
