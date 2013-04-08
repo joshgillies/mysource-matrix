@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_common.inc,v 1.24.2.5 2013/03/27 02:32:02 cupreti Exp $
+* $Id: trim_common.inc,v 1.24.2.6 2013/04/08 00:46:03 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.24.2.5 $
+* @version $Revision: 1.24.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage trim
 */
@@ -284,11 +284,6 @@ class TRIM_Common
 	*/
 	public static function constructFetch($record_properties=Array(), $search_limit)
 	{
-		// Get the "last action" date for all the 'Fetch' operations,
-		// as since TRIM 7.1 we can't rely on "last updated" ("version") anymore
-		// to check if the a record needs to updated from the TRIM (bug #6229)
-		$record_properties['recLastActionDate'] = 'Last Action Date';
-
 		$spec_props = Array();
 		foreach ($record_properties as $key => $value) {
 			$spec_props[]	= Array (
