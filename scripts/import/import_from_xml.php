@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_from_xml.php,v 1.24.2.5 2013/02/19 03:25:56 ewang Exp $
+* $Id: import_from_xml.php,v 1.24.2.6 2013/04/09 02:00:53 ewang Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.24.2.5 $
+* @version $Revision: 1.24.2.6 $
 * @package MySource_Matrix
 */
 
@@ -286,13 +286,17 @@ function checkAssetExists($action, $type='asset')
 */
 function _disconnectFromMatrixDatabase()
 {
-    $conn_id = MatrixDAL::getCurrentDbId();
-    if (isset($conn_id) && !empty($conn_id)) {
-	while(!empty(MatrixDAL::$_dbStack)) {
-	    MatrixDAL::restoreDb();
+    while (TRUE) {
+	try {
+	    $conn_id = MatrixDAL::getCurrentDbId();
 	}
+	catch (Exception $e) {
+	    // run out of connections, that's it
+	    break;
+	}
+	MatrixDAL::restoreDb();
 	MatrixDAL::dbClose($conn_id);
-    }//end if
+    }
 
 }//end _disconnectFromMatrixDatabase()
 
