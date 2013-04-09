@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.272.2.1 2013/02/20 06:01:07 cupreti Exp $
+* $Id: form.inc,v 1.272.2.2 2013/04/08 07:07:14 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.272.2.1 $
+* @version $Revision: 1.272.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -3184,7 +3184,7 @@ class Form extends Asset implements Bridge
 					// Fill new submission asset with current answers
 					$submission_asset = $this->createSubmission(TRUE);
 					$this->submission_asset = $submission_asset;
-					$this->updateSubmission($submission_asset);
+					$this->updateSubmission($submission_asset, TRUE);
 				} else {
 					// It'll exist in Incomplete. Move to completed (as long
 					// as the Incomplete folder actually exists...)
@@ -3208,7 +3208,7 @@ class Form extends Asset implements Bridge
 				// Handle file uploads depending on whether create location is set
 				// We then need to update the Submission to handle any changed Extra Data
 				$this->_handleCompletedFileUploads();
-				$this->updateSubmission($submission_asset);
+				$this->updateSubmission($submission_asset, TRUE);
 
 				$submission_asset->setIP($_SERVER['REMOTE_ADDR']);
 				$submission_asset->setAttrValue('complete', TRUE);
@@ -3605,14 +3605,15 @@ class Form extends Asset implements Bridge
 	* Updates the submission with the current page's processed data
 	*
 	* @param Form_Submission	$submission_asset	The submission asset to update
+	* @param boolean                $force          Force update submission with all questions
 	*
 	* @return void
 	*/
-	public function updateSubmission(Form_Submission $submission_asset)
+	public function updateSubmission(Form_Submission $submission_asset, $force=FALSE)
 	{
 		foreach ($this->current_answers as $assetid => $response) {
 
-			if (!is_null($this->current_page_questions) && !in_array($assetid, $this->current_page_questions)) continue;
+			if (!$force && !is_null($this->current_page_questions) && !in_array($assetid, $this->current_page_questions)) continue;
 
 			$question = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
@@ -3860,7 +3861,7 @@ class Form extends Asset implements Bridge
 	public function convertSubmissionCookieToAsset()
 	{
 		$submission_asset =& $this->createSubmission(TRUE);
-		$this->updateSubmission($submission_asset);
+		$this->updateSubmission($submission_asset, TRUE);
 
 	}//end convertSubmissionCookieToAsset()
 
