@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_contents.xml,v 1.1 2007/03/21 03:35:31 arailean Exp $
+* $Id: lang_screen_contents.xml,v 1.1.32.1 2013/04/09 07:52:57 ewang Exp $
 *
 */
 -->
@@ -53,6 +53,22 @@
 		</field>
 	</section>
 	<section name="Formatting">
+	    	<field>
+			<display_name>Accessible Format</display_name>
+			<note>Enable this option to output WCAG 2.0 accessible HTML content on the form, rather than the standard tabular format.</note>
+			<function_call>
+				<paint_function   name="paintUseAccessibleFormat"   />
+				<process_function name="processUseAccessibleFormat" />
+			</function_call>
+		</field>
+		<field attribute="required_field_mark">
+			<display_name>Required field mark</display_name>
+			<note>HTML included in label to indicate the question is required</note>
+		</field>
+		<field attribute="required_field_note">
+			<display_name>Required field note</display_name>
+			<note>The meaning of required field mark is defined at the start of form</note>
+		</field>
 		<field attribute="submit_button">
 			<display_name>Submit Button Text</display_name>
 			<note>If no custom text is entered here, &quot;Submit&quot; will be used.</note>

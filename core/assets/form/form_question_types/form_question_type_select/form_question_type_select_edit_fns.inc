@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select_edit_fns.inc,v 1.20.4.1 2013/02/04 06:32:39 ewang Exp $
+* $Id: form_question_type_select_edit_fns.inc,v 1.20.4.2 2013/04/09 07:49:44 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question_edit_fns.inc'
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.20.4.1 $
+* @version $Revision: 1.20.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -83,6 +83,7 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 		if (isset($_POST[$prefix.'_default'])) {
 
 			$default = $_POST[$prefix.'_default'];
+
 			if (!is_array($default)) $default = Array($default);
 
 			$old_options = array_get_index($_POST, $prefix.'_old_options', Array());
@@ -109,6 +110,7 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 						$new_default[] = $idx;
 					}
 				}
+				
 				if (!empty($new_default)) {
 					$default = $new_default;
 				}
@@ -547,6 +549,14 @@ function processOptions(&$asset, &$o, $prefix)
 	}
 
 	$processed_value = $values;
+	// set a default value even if default value wasn't set before or the new options doesn't match the old default value
+	// otherwise if we just commit once in backend, it could print a selection list without "selected" option
+	$default = $asset->attr('default');
+	if(!empty($processed_value) && (!isset($default[0]) || !isset($processed_value[$default[0]]))) {
+	    reset($processed_value);
+	    $new_default = Array(key($processed_value));
+	    $asset->setAttrValue('default', $new_default);
+	}
 	if ($asset->writeAccess('attributes')) {
 		$asset->setAttrValue('options', $processed_value);
 		$asset->saveAttributes();

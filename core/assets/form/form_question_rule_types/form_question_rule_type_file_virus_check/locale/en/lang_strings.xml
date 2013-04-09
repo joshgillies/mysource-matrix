@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2009/05/15 06:34:01 ewang Exp $
+* $Id: lang_strings.xml,v 1.1.24.1 2013/04/09 07:49:43 ewang Exp $
 *
 * Localised Strings File for Uploaded File Type Form Question Rule Asset
 */
@@ -29,4 +29,7 @@
 <string source="core_form_rule_file_virus_check_note">Virus scanning progress indicator can only be displayed and customised when client side validation is turned on.</string>
 <string source="core_form_rule_file_virus_check_error_true">Name of uploaded file "%1$s" at question "%2$s" is invalid - Virus was detected</string>
 
+<string source="core_form_rule_file_virus_check_error_true_accessible">Virus is detected in uploaded file "%1$s".</string>
+
 </strings>
+

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.7 2006/12/06 00:35:30 emcdonald Exp $
+* $Id: edit_interface_screen_details.xml,v 1.7.34.1 2013/04/09 07:49:44 ewang Exp $
 */
 -->
 
@@ -89,6 +89,9 @@
 		</field>
 		<field attribute="cust_required_error">
 			<text width="60" />
+		</field>
+		<field attribute="use_js">
+			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
 </contents>

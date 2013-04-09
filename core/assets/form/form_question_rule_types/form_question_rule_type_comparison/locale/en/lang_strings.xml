@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.4 2006/12/06 00:35:27 emcdonald Exp $
+* $Id: lang_strings.xml,v 1.4.34.1 2013/04/09 07:49:43 ewang Exp $
 *
 * Localised Strings File for Value Comparison Form Question Rule Asset
 */
@@ -48,4 +48,18 @@
 <string source="core_form_rule_comparison_edit_&lt;=_q">Response must be less than or equal to the response to %s</string>
 <string source="core_form_rule_comparison_edit_&lt;=">Response must be less than or equal to "%s"</string>
 <string source="core_form_rule_comparison_required">Question "%s" is a required field; it must be filled in</string>
+
+<string source="core_form_rule_comparison_desc_==_accessible">The response must be equal to "%1$s".</string>
+<string source="core_form_rule_comparison_desc_==_q_accessible">The response must be equal to the response to question "%1$s".</string>
+<string source="core_form_rule_comparison_desc_!=_accessible">The response must NOT be equal to "%1$s".</string>
+<string source="core_form_rule_comparison_desc_!=_q_acessible">The response must NOT be equal to the response to question "%1$s".</string>
+<string source="core_form_rule_comparison_desc_&gt;_accessible">The response must be greater than "%1$s".</string>
+<string source="core_form_rule_comparison_desc_&gt;_q_accessible">The response must be greater than the response to question "%1$s".</string>
+<string source="core_form_rule_comparison_desc_&lt;_accessible">The response must be less than "%1$s".</string>
+<string source="core_form_rule_comparison_desc_&lt;_q_accessible">The response must be less than the response to question "%1$s".</string>
+<string source="core_form_rule_comparison_desc_&gt;=_accessible">The response must be greater than or equal to "%1$s".</string>
+<string source="core_form_rule_comparison_desc_&gt;=_q_accessible">The response must be greater than or equal to the response to question "%1$s".</string>
+<string source="core_form_rule_comparison_desc_&lt;_accessible=">The response must be less than or equal to "%1$s".</string>
+<string source="core_form_rule_comparison_desc_&lt;_q_accessible=">The response must be less than or equal to question "%1$s".</string>
+<string source="core_form_rule_comparison_required_accessible">This field is required. Please enter a value.</string>
 </strings>

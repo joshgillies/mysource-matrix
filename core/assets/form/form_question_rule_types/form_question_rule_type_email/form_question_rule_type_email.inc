@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_email.inc,v 1.11 2012/08/30 01:09:07 ewang Exp $
+* $Id: form_question_rule_type_email.inc,v 1.11.4.1 2013/04/09 07:49:43 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.11.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -154,7 +154,12 @@ class Form_Question_Rule_Type_Email extends Form_Question_Rule
 	*/
 	function ruleDescription(&$q_asset, $rule_data)
 	{
-		$error_str = translate('core_form_rule_email_desc_'.(array_get_index($rule_data, 'operator', 1) ? 'true' : 'false'), $q_asset->attr('name'));
+		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($q_asset->_formid);
+		$use_accessible_string = $form->useAccessibleFormat();
+		if($use_accessible_string)
+		    $error_str = translate('core_form_rule_email_desc_'.(array_get_index($rule_data, 'operator', 1) ? 'true' : 'false').'_accessible');
+		 else
+		    $error_str = translate('core_form_rule_email_desc_'.(array_get_index($rule_data, 'operator', 1) ? 'true' : 'false'), $q_asset->attr('name'));
 
 		return $error_str;
 

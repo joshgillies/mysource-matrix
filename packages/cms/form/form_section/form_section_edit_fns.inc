@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_edit_fns.inc,v 1.57 2012/08/30 00:58:08 ewang Exp $
+* $Id: form_section_edit_fns.inc,v 1.57.4.1 2013/04/09 07:50:28 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.57.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -624,37 +624,87 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 		// Do we have any questions of our own?
 		$sort_order = $asset->attr('sort_order');
 		$output = '';
+		
+		
 
 		if (!empty($sort_order)) {
 
 			$asset_name = $asset->attr('name');
 			escape_php($asset_name);
 
-			$output .= '<h3>'.$asset_name.'</h3>';
-
-			$output .= '<table width="'.$asset->attr('section_width').'">';
-
-			foreach ($sort_order as $i => $assetid) {
-				$q = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-				// skip over if asset doesn't exist anymore
-				if (is_null($q)) continue;
-
-				$output .= '<tr>';
-				$output .= '<td valign="top"';
-				$output .= ($asset->attr('question_col_width')) ? ' width="'.$asset->attr('question_col_width').'">' : '>';
-				$label   = $q->getHtmlLabel();
-				escape_php($label);
-				$output .= $label;
-				if ($q->getVal('note')) {
-					$output .= '<br /><span style="font-size: <'.'?php echo $form_asset->attr("note_size") ?'.'>">'.$q->getVal('note').'</span>';
-				}
-				$output .= '</td><td';
-				$output .= ($asset->attr('answer_col_width')) ? ' width="'.$asset->attr('answer_col_width').'">' : '>';
-				$output .= '<'.'?php echo $GLOBALS["SQ_SYSTEM"]->am->getAsset("'.$assetid.'")->getHtmlField(); ?'.'>'."\n";
-				$output .= '</td></tr>';
+			if($asset->useAccessibleFormat()) {
+			    // new semantic format
+			    $output .= '<fieldset class="sq-form-section">';
+			    $output .= '<legend class="sq-form-section-title">'.$asset_name.'</legend>';
+			     foreach ($sort_order as $i => $assetid) {
+				    $q = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				    $output .= '<'.'?php $question = $GLOBALS["SQ_SYSTEM"]->am->getAsset("'.$assetid.'"); ?'.'>'."\n";
+				    // skip over if asset doesn't exist anymore
+				    if (is_null($q)) continue;
+				    $type = str_replace('_', '-', str_replace('form_question_type_', '', $q->type()));
+				    // add error class
+				    $output .= '<'.'?php 
+					$error_class = isset($form_asset->question_errors[$question->id]) ? "sq-form-question-error" : "";
+					 ?'.'>'."\n";
+				    // question wrapper
+				    // use fieldset to group complex questions
+				    $isFieldset = $q->useFieldset();
+				    $output .= '<div class="sq-form-question sq-form-question-'.$type.' <?php echo $error_class; ?>">';
+				    if($isFieldset)
+					$output .= '<fieldset>';
+				    // label
+				    $label   = $q->getHtmlLabel();
+				    $label .= ' ';
+				    escape_php($label);
+				    $output .= $label;
+				    // note
+				    if ($q->getVal('note')) {
+					    $output .= '<em class="sq-form-question-note">'.$q->getVal('note').'</em> ';
+				    }
+				    // question content
+				    $output .= '<div class="sq-form-question-answer" ><'.'?php echo $question->getHtmlField(); ?'.'></div>'."\n";
+				    // question error
+				    $output .= '<'.'?php 
+					if(isset($form_asset->question_errors[$question->id])) {
+					    $errors = $form_asset->question_errors[$question->id];
+					    $error = array_pop($errors);
+					    echo " <p id=\"error_".str_replace(":", "_", $question->id)."\" class=\"sq-form-error\"  >".$error."</p>";
+					}
+				   ?'.'>'."\n";
+				    if($isFieldset)
+					$output .= '</fieldset>';
+				    $output .= '</div>';
+			    }
+			    $output .= '</fieldset>';
 			}
+			else {
+			     // deprecated tabular format
+			    $output .= '<h3>'.$asset_name.'</h3>';
 
-			$output .= '</table>';
+			    $output .= '<table width="'.$asset->attr('section_width').'">';
+
+			    foreach ($sort_order as $i => $assetid) {
+				    $q = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				    // skip over if asset doesn't exist anymore
+				    if (is_null($q)) continue;
+
+				    $output .= '<tr>';
+				    $output .= '<td valign="top"';
+				    $output .= ($asset->attr('question_col_width')) ? ' width="'.$asset->attr('question_col_width').'">' : '>';
+				    $label   = $q->getHtmlLabel();
+				    escape_php($label);
+				    $output .= $label;
+				    if ($q->getVal('note')) {
+					    $output .= '<br /><span style="font-size: <'.'?php echo $form_asset->attr("note_size") ?'.'>">'.$q->getVal('note').'</span>';
+				    }
+				    $output .= '</td><td';
+				    $output .= ($asset->attr('answer_col_width')) ? ' width="'.$asset->attr('answer_col_width').'">' : '>';
+				    $output .= '<'.'?php echo $GLOBALS["SQ_SYSTEM"]->am->getAsset("'.$assetid.'")->getHtmlField(); ?'.'>'."\n";
+				    $output .= '</td></tr>';
+			    }
+
+			    $output .= '</table>';
+			}
 		}
 
 		// Print nested sections as part of default bodycopy

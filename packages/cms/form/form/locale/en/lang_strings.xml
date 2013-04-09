@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.15 2012/03/13 06:02:07 akarelia Exp $
+* $Id: lang_strings.xml,v 1.15.6.1 2013/04/09 07:50:28 ewang Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -47,11 +47,13 @@
 <string source="cms_form_question_note">Question Note: %s</string>
 <string source="cms_form_question_name">Question Name: %s</string>
 <string source="cms_form_question_label">Question Label: %s</string>
+<string source="cms_form_question_error">Question Error: %s</string>
 <string source="cms_form_section_q_field">Input Field: %1$s: %2$s</string>
 <string source="cms_form_section_q_id">Question ID: %1$s: %2$s</string>
 <string source="cms_form_section_q_note">Question Note: %1$s: %2$s</string>
 <string source="cms_form_section_q_name">Question Name: %1$s: %2$s</string>
 <string source="cms_form_section_q_label">Question Label: %1$s: %2$s</string>
+<string source="cms_form_section_q_error">Question Error: %1$s: %2$s</string>
 
 <string source="cms_form_save_confirmation">Your progress has been saved.</string>
 
@@ -70,6 +72,8 @@
 <string source="cms_form_captcha_image">CAPTCHA image</string>
 <string source="cms_form_captcha_field">CAPTCHA input field</string>
 <string source="cms_form_captcha_link">CAPTCHA regeneration link</string>
+<string source="cms_form_captcha_errors">CAPTCHA error message</string>
+<string source="cms_form_captcha_label">CAPTCHA input label</string>
 
 <string source="cms_form_submit_button">Submit Button</string>
 <string source="cms_form_reset_button">Reset Button</string>
@@ -82,7 +86,7 @@
 
 <string source="cms_form_new_mollom_question">New question to check ?</string>
 <string source="cms_form_mollom_no_question_to_check">No attributes are set be checked for spam</string>
-<string source="cms_form_mollom_spam_submission_message"> 	 This submission does not seem legitimate. This submission has not been accepted.</string>
+<string source="cms_form_mollom_spam_submission_message">This submission does not seem legitimate. This submission has not been accepted.</string>
 <string source="cms_form_mollom_unsure_spam_submission_message">Please enter the characters in the image to verify your submission</string>
 <string source="cms_form_mollom_invalid_captcha_message">Incorrect security key. Please try again</string>
 <string source="cms_form_mollom_regen_link_text">Regenerate security key</string>
@@ -92,5 +96,9 @@
 <string source="cms_form_mollom_captcha_audio">Mollom CAPTCHA audio</string>
 <string source="cms_form_mollom_captcha_field">Mollom CAPTCHA input field</string>
 <string source="cms_form_mollom_captcha_link">Mollom CAPTCHA regeneration link</string>
+<string source="cms_form_mollom_captcha_errors">Mollom CAPTCHA error message</string>
+<string source="cms_form_mollom_captcha_label">Mollom CAPTCHA input label</string>
+
+<string source="cms_form_required_field_note">Required field note</string>
 
 </strings>

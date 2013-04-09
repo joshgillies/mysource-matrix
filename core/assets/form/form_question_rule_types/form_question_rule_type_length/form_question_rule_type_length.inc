@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_length.inc,v 1.8 2012/08/30 01:09:08 ewang Exp $
+* $Id: form_question_rule_type_length.inc,v 1.8.4.1 2013/04/09 07:49:43 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -145,7 +145,12 @@ class Form_Question_Rule_Type_Length extends Form_Question_Rule
 		$operator = array_get_index($rule_data, 'operator', '==');
 
 		$value = array_get_index($rule_data, 'value', '');
-		$error_str = translate('core_form_rule_length_desc_'.$operator, $q_asset->attr('name'), $value);
+		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($q_asset->_formid);
+	    	$use_accessible_string = $form->useAccessibleFormat();
+		if($use_accessible_string)
+		    $error_str = translate('core_form_rule_length_desc_'.$operator.'_accessible', $value);
+		else
+		     $error_str = translate('core_form_rule_length_desc_'.$operator, $q_asset->attr('name'), $value);
 
 		return $error_str;
 

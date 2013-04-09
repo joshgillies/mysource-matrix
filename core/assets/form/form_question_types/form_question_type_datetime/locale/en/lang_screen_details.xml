@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.11 2011/09/09 01:01:35 akarelia Exp $
+* $Id: lang_screen_details.xml,v 1.11.10.1 2013/04/09 07:49:44 ewang Exp $
 */
 -->
 
@@ -76,6 +76,10 @@
 		<field attribute="cust_required_error">
 			<display_name>Custom Error Message</display_name>
 			<note>Error message that will be displayed if the entered date/time is invalid</note>
+		</field>
+		<field attribute="use_js">
+			<display_name>JS assistance</display_name>
+			<note>Use JS to vadlidate date range and automatically correct input date.</note>
 		</field>
 	</section>
 </contents>

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.5 2010/03/09 00:15:49 akarelia Exp $
+* $Id: lang_strings.xml,v 1.5.18.1 2013/04/09 07:49:43 ewang Exp $
 *
 * Localised Strings File for Uploaded File Type Form Question Rule Asset
 */
@@ -28,4 +28,8 @@
 <string source="core_form_rule_file_type_error_true">Name of uploaded file "%1$s" at question "%2$s" is invalid - extension/MIME must match one of the following: %3$s</string>
 <string source="core_form_rule_file_type_error_false">Name of uploaded file "%1$s" at question "%2$s" is invalid - extension/MIME must NOT match one of the following: %3$s</string>
 <string source="core_form_rule_file_type_enforce_check_mime">Enforce MIME Check</string>
+
+<string source="core_form_rule_file_type_error_true_accessible">Uploaded file "%1$s" is invalid - extension/MIME must match one of the following: %2$s.</string>
+<string source="core_form_rule_file_type_error_false_accessible">Uploaded file "%1$s" is invalid - extension/MIME must NOT match one of the following: %2$s.</string>
+
 </strings>

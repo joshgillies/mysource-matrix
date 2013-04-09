@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_password_management.inc,v 1.4 2012/08/30 01:09:08 ewang Exp $
+* $Id: form_question_type_password_management.inc,v 1.4.4.1 2013/04/09 07:49:44 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -73,6 +73,16 @@ class Form_Question_Type_Password_Management extends Asset_Management
 										'added'		=> '0.0.1',
 										'type'		=> 'text',
 										'default'	=> '',
+									   ),
+		    				'field_name'		=> Array(
+										'added'		=> '0.0.1',
+										'type'		=> 'text',
+										'default'	=> 'Password',
+									   ),
+		    		    		'confirm_field_name'	=> Array(
+										'added'		=> '0.0.1',
+										'type'		=> 'text',
+										'default'	=> 'Confirm Password',
 									   ),
 					  );
 

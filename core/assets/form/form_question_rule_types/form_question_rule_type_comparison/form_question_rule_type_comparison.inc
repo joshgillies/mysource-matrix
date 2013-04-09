@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_comparison.inc,v 1.11 2012/08/30 01:09:07 ewang Exp $
+* $Id: form_question_rule_type_comparison.inc,v 1.11.4.1 2013/04/09 07:49:43 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.11.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -190,12 +190,17 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 		$operator = array_get_index($rule_data, 'operator', '==');
 		$cq_id = array_get_index($rule_data, 'comparison_question_id', 0);
 		$value = array_get_index($rule_data, 'value', '');
-
+		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($q_asset->_formid);
+		$use_accessible_string = $form->useAccessibleFormat();
+		
 		if (($value == '') && ($operator == '!=')) {
 			if (strlen($q_asset->attr('cust_required_error'))) {
 				$error_str = $q_asset->attr('cust_required_error');
 			} else {
-				$error_str = translate('core_form_rule_comparison_required', $q_asset->attr('name'));
+				if($use_accessible_string)
+				    $error_str = translate('core_form_rule_comparison_required_accessible');
+				 else
+				    $error_str = translate('core_form_rule_comparison_required', $q_asset->attr('name'));
 			}
 		} else {
 			$operator_list = $this->getOperators();
@@ -208,8 +213,10 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 			} else {	// sent just a value
 				$value = array_get_index($rule_data, 'value', '');
 			}
-
-			$error_str = translate($string_code, $q_asset->name, $value);
+			if($use_accessible_string)
+			    $error_str = translate($string_code.'_accessible', $value);
+			else
+			    $error_str = translate($string_code, $q_asset->name, $value);
 		}
 
 		return $error_str;

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_contents.xml,v 1.1 2007/03/21 03:35:31 arailean Exp $
+* $Id: edit_interface_screen_contents.xml,v 1.1.32.1 2013/04/09 07:52:57 ewang Exp $
 *
 */
 -->
@@ -45,6 +45,18 @@
 		</field>
 	</section>
 	<section name="Formatting">
+		<field>
+			<function_call>
+				<paint_function   name="paintUseAccessibleFormat"   />
+				<process_function name="processUseAccessibleFormat" />
+			</function_call>
+		</field>
+		<field attribute="required_field_mark">
+			<text width="120" height="1" />
+		</field>
+		<field attribute="required_field_note">
+			<text width="120" height="1" />
+		</field>
 		<field attribute="submit_button">
 			<text width="30" height="1" />
 		</field>
@@ -71,7 +83,7 @@
 			<int width="5" />
 		</field>
 		<field attribute="captcha_zoom">
-			<int width="5" />
+			<float width="5" />
 		</field>
 		<field attribute="captcha_link_text">
 			<text width="50" />

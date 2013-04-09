@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.88.2.1 2013/02/20 06:01:07 cupreti Exp $
+* $Id: form_edit_fns.inc,v 1.88.2.2 2013/04/09 07:50:28 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.88.2.1 $
+* @version $Revision: 1.88.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -856,35 +856,82 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function generateGenericSection(&$asset)
 	{
-		$output = '<table';
-		if ((int)$asset->attr('form_width')) {
-			$output .= ' width="'.$asset->attr('form_width').'"';
-		}
-		$output .= '>';
+		$output = '';
 		$sort_order = $asset->attr('sort_order');
 		if (empty($sort_order)) return;
-
-		foreach ($sort_order as $i => $assetid) {
+		
+		if($asset->useAccessibleFormat()) {
+		    // new semantic format
+		    $output .= '<div class="sq-form-unattached">';
+		     foreach ($sort_order as $i => $assetid) {
 			$q = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-			if (is_null($q)) continue;
-
-			$output .= '<tr>';
-			$output .= '<td valign="top"';
-			$output .= ($asset->attr('question_col_width')) ? ' width="'.$asset->attr('question_col_width').'">' : '>';
-			$label   = $q->getHtmlLabel();
-			escape_php($label);
-			$output .= $label;
-			if ($q->getVal('note')) {
-				$output .= '<br /><span style="font-size:'.($asset->attr('note_size') ? $asset->attr('note_size') : '80%').'">'.$q->getVal('note').'</span>';
-			}
-			$output .= '</td><td';
-			$output .= ($asset->attr('answer_col_width')) ? ' width="'.$asset->attr('answer_col_width').'">' : '>';
-			$output .= '<'.'?php $q = $GLOBALS["SQ_SYSTEM"]->am->getAsset("'.$assetid.'");
-			echo $q->getHtmlField(); ?'.'>'."\n";
-			$output .= '</td></tr>';
+				    $output .= '<'.'?php $question = $GLOBALS["SQ_SYSTEM"]->am->getAsset("'.$assetid.'"); ?'.'>'."\n";
+				    // skip over if asset doesn't exist anymore
+				    if (is_null($q)) continue;
+				    $type = str_replace('_', '-', str_replace('form_question_type_', '', $q->type()));
+				    // add error class
+				    $output .= '<'.'?php 
+					$error_class = isset($this->question_errors[$question->id]) ? "sq-form-question-error" : "";
+					 ?'.'>'."\n";
+				    // question wrapper
+				    // use fieldset to group complex questions
+				    $isFieldset = $q->useFieldset();
+				    $output .= '<div class="sq-form-question sq-form-question-'.$type.' <?php echo $error_class; ?>">';
+				    if($isFieldset)
+					$output .= '<fieldset>';
+				    // label
+				    $label   = $q->getHtmlLabel();
+				    $label .= ' ';
+				    escape_php($label);
+				    $output .= $label;
+				    // note
+				    if ($q->getVal('note')) {
+					    $output .= '<em class="sq-form-question-note">'.$q->getVal('note').'</em> ';
+				    }
+				    // question content
+				    $output .= '<div class="sq-form-question-answer"><'.'?php echo $question->getHtmlField(); ?'.'></div>'."\n";
+				    // question error
+				    $output .= '<'.'?php 
+					if(isset($this->question_errors[$question->id])) {
+					    $errors = $this->question_errors[$question->id];
+					    $error = array_pop($errors);
+					    echo " <p id=\"error_".str_replace(":", "_", $question->id)."\" class=\"sq-form-error\"  >".$error."</p>";
+					}
+				   ?'.'>'."\n";
+				    if($isFieldset)
+					$output .= '</fieldset>';
+				    $output .= '</div>';
+		    }
+		    $output .= '</div>';
 		}
-		$output .= '</table>';
+		else {
+		    $output = '<table';
+		    if ((int)$asset->attr('form_width')) {
+			    $output .= ' width="'.$asset->attr('form_width').'"';
+		    }
+		    $output .= '>';
+		    foreach ($sort_order as $i => $assetid) {
+			    $q = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			    if (is_null($q)) continue;
 
+			    $output .= '<tr>';
+			    $output .= '<td valign="top"';
+			    $output .= ($asset->attr('question_col_width')) ? ' width="'.$asset->attr('question_col_width').'">' : '>';
+			    $label   = $q->getHtmlLabel();
+			    escape_php($label);
+			    $output .= $label;
+			    if ($q->getVal('note')) {
+				    $output .= '<br /><span style="font-size:'.($asset->attr('note_size') ? $asset->attr('note_size') : '80%').'">'.$q->getVal('note').'</span>';
+			    }
+			    $output .= '</td><td';
+			    $output .= ($asset->attr('answer_col_width')) ? ' width="'.$asset->attr('answer_col_width').'">' : '>';
+			    $output .= '<'.'?php $q = $GLOBALS["SQ_SYSTEM"]->am->getAsset("'.$assetid.'");
+			    echo $q->getHtmlField(); ?'.'>'."\n";
+			    $output .= '</td></tr>';
+		    }
+		    $output .= '</table>';    
+		}
+			
 		return $output;
 
 	}//end generateGenericSection()
@@ -1121,5 +1168,67 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	}//end processSubmissionLimit()
 
 
+	/**
+	* Paint the use accessible format attribute
+	*
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintUseAccessibleFormat(&$asset, &$o, $prefix)
+	{
+		
+		$write_access = $asset->writeAccess('all');
+		$useAccessibleFormat = $asset->attr('use_accessible_format');
+		if (!$write_access) {
+			echo $useAccessibleFormat ? translate('true') : translate('false');
+		} else {
+			$options[1] = translate('true');
+			$options[0] = translate('false');
+			combo_box($prefix.'_use_accessible_format', $options, FALSE, $useAccessibleFormat);
+		}
+
+		return $write_access;
+
+	}//end paintUseAccessibleFormat()
+
+
+	/**
+	* Regenerate content file not only for the form, but also for all its sections
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processUseAccessibleFormat(&$asset, &$o, $prefix)
+	{
+		if (!$asset->writeAccess('attributes')) return FALSE;
+		if (!isset($_POST[$prefix.'_use_accessible_format'])) return FALSE;
+
+		$old_option = $asset->attr('use_accessible_format');
+		$new_option = $_POST[$prefix.'_use_accessible_format'];
+		
+		$asset->setAttrValue('use_accessible_format', $new_option);
+		
+		// make sure we regenerate content file for all sections
+		if($new_option !== $old_option) {
+		    $sections = $asset->getAllSections();
+		    foreach ($sections as $section) {
+			   $section->fileRegeneration(FALSE);
+		    }
+		}
+		
+		return TRUE;
+
+	}//end processUseAccessibleFormat()
+	
+	
 }//end class
 ?>

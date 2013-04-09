@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_regexp.inc,v 1.11 2012/08/30 01:09:08 ewang Exp $
+* $Id: form_question_rule_type_regexp.inc,v 1.11.4.1 2013/04/09 07:49:44 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.11.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -143,7 +143,12 @@ class Form_Question_Rule_Type_Regexp extends Form_Question_Rule
 	*/
 	function defaultError(&$q_asset, $rule_data)
 	{
-		$error_str = translate('core_form_rule_regexp_error', $q_asset->name);
+		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($q_asset->_formid);
+		$use_accessible_string = $form->useAccessibleFormat();
+		if($use_accessible_string)
+		    $error_str = translate('core_form_rule_regexp_error_accessible');
+		else
+		    $error_str = translate('core_form_rule_regexp_error', $q_asset->name);
 
 		return $error_str;
 

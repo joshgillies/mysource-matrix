@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_password.inc,v 1.11 2012/08/30 01:09:08 ewang Exp $
+* $Id: form_question_type_password.inc,v 1.11.4.1 2013/04/09 07:49:44 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.11.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -74,7 +74,10 @@ class Form_Question_Type_Password extends Form_Question
 		$extras = $this->attr('extra');
 		$name_a   = 'q'.$this->id;
 		$name_b  = 'q'.$this->id.'_2';
-
+		$title = $this->attr('name');
+		$field_name = $this->attr('field_name');
+		$confirm_field_name = $this->attr('confirm_field_name');
+		
 		// prepare a valid value for the field id
 		$extras_a = $extras.' id="'.str_replace(':', '_', $name_a).'"';
 		$extras_b = $extras.' id="'.str_replace(':', '_', $name_b).'"';
@@ -86,17 +89,34 @@ class Form_Question_Type_Password extends Form_Question
 
 		$value = $this->attr('default');
 
+		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
 		ob_start();
-		password_box($name_a, $value, $width, $max, $extras_a);
-		if ($this->attr('verify')) {
-			echo '<br />';
+		if($form->useAccessibleFormat()) {
+		    echo '<div class="sq-form-question-password">';
+		    label($field_name, str_replace(':', '_', $name_a), 'class="sq-form-question-title"');
+		    echo '<div  class="sq-form-question-password-answer">';
+		    password_box($name_a, $value, $width, $max, $extras_a);
+		    echo '</div>';
+		    echo '</div>';
+		    if ($this->attr('verify')) {
+			echo '<div class="sq-form-question-password-verify">';
+			label($confirm_field_name, str_replace(':', '_', $name_b), 'class="sq-form-question-title"');
+			echo '<div class="sq-form-question-password-verify-answer">';
 			password_box($name_b, $value, $width, $max, $extras_b);
+			echo '</div>';
+			echo '</div>';
+		     }
+		 
+		}
+		else {
+		    password_box($name_a, $value, $width, $max, $extras_a);
+		    if ($this->attr('verify')) {
+			    echo '<br />';
+			    password_box($name_b, $value, $width, $max, $extras_b);
+		    }
 		}
 		$html = ob_get_contents();
 		ob_end_clean();
-
-		// calling text_box will convert the open and close php tags into their html counter-parts
-		// so we need to convert them back to proper php tags
 
 		return $html;
 
@@ -122,16 +142,30 @@ class Form_Question_Type_Password extends Form_Question
 	{
 		if (is_null($answer)) $answer = $this->getValue();
 
+		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);   
+		$use_accessible_string = $form->useAccessibleFormat();
+		if($use_accessible_string) {
+		    $core_form_password_entered_differently = translate('core_form_password_entered_differently_accessible');
+		    $core_form_password_length_min = translate('core_form_password_length_>=_accessible', $this->attr('min'));
+		    $core_form_password_length_max = translate('core_form_password_length_<=_accessible', $this->attr('max'));
+		}
+		else {
+		    $core_form_password_entered_differently = translate('core_form_password_entered_differently', $this->attr('name'));
+		    $core_form_password_length_min = translate('core_form_password_length_>=', $this->attr('name'), $this->attr('min'));
+		    $core_form_password_length_max = translate('core_form_password_length_<=', $this->attr('name'), $this->attr('max'));
+		}
+	
 		// Only try to check "passwords entered differently" if we've actually
 		// submitted something to the form
 		if ($this->attr('verify') && isset($this->_tmp['verify_value']) && ($answer != $this->_tmp['verify_value'])) {
-			$this->failed_rules[] = translate('core_form_password_entered_differently', $this->attr('name'));
+			
+			$this->failed_rules[] = $core_form_password_entered_differently;
 		}
 		if (strlen($answer) < $this->attr('min')) {
-			$this->failed_rules[] = translate('core_form_password_length_>=', $this->attr('name'), $this->attr('min'));
+			$this->failed_rules[] = $core_form_password_length_min;
 		}
 		if (strlen($answer) > $this->attr('max')) {
-			$this->failed_rules[] = translate('core_form_password_length_<=', $this->attr('name'), $this->attr('max'));
+			$this->failed_rules[] = $core_form_password_length_max;
 		}
 
 		if (!empty($this->failed_rules)) return FALSE;
@@ -232,6 +266,18 @@ class Form_Question_Type_Password extends Form_Question
 
 
 	/**
+	* Use fieldset tag to group question content?
+	*
+	* @return bool
+	* @access public
+	*/
+	function useFieldset()
+	{
+		return TRUE;
+	}//end useFieldset()
+	
+	
+	/**
 	* Get the HTML label for this form question
 	*
 	* @return boolean
@@ -239,10 +285,20 @@ class Form_Question_Type_Password extends Form_Question
 	*/
 	function getHtmlLabel()
 	{
-		return $this->attr('name');
+		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
+		if($form->useAccessibleFormat()) {
+		    $required_mark = '';
+		    if($this->attr('is_required')) {
+			$required_mark = $form->getRequiredFieldMark();
+		    }
+		    return '<legend class="sq-form-question-title">'.$this->attr('name').$required_mark.'</legend>';
+		}
+		else {
+		    return $this->attr('name');
+		}
 
 	}//end getHtmlLabel()
-
+	
 
 }//end class
 ?>

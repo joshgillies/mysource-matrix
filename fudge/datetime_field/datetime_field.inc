@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime_field.inc,v 1.57 2012/08/30 00:56:51 ewang Exp $
+* $Id: datetime_field.inc,v 1.57.4.1 2013/04/09 07:52:23 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *     it uses: show, style, min, max, null, allow_circa, print_format
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.57.4.1 $
 * @package Fudge
 * @subpackage DateTime_Field
 */
@@ -174,6 +174,10 @@ class DateTime_Field
 		$null =& $this->getParam('null');
 		if (!is_array($show)) $show = Array();
 		if (!is_array($null)) $null = Array();
+		$include_js =& $this->getParam('include_js');
+		$use_js =& $this->getParam('use_js');
+		// only include JS function if required
+		if($use_js && $include_js) {
 		?>
 
 		<script type="text/javascript">
@@ -199,6 +203,7 @@ class DateTime_Field
 		</script>
 
 		<?php
+		}
 		echo '<input type="hidden" name="'.$this->prefix.'show" value="'.implode('', $show).'" />';
 		$this->prefix .= 'value';
 		if ($this->getParam('allow_circa')) {
@@ -242,6 +247,9 @@ class DateTime_Field
 		$increments =& $this->getParam('increment');
 		$min_array =& $this->getParam('min');
 		$max_array =& $this->getParam('max');
+		$print_label =& $this->getParam('print_label');
+		$include_js =& $this->getParam('include_js');
+		$use_js =& $this->getParam('use_js');
 
 		$min = (int) $this->getUnit($u, $min_array);
 		$max = (int) $this->getUnit($u, $max_array);
@@ -389,13 +397,43 @@ class DateTime_Field
 				}
 			break;
 		}//end switch
-
+		
+		// print label
+		if($print_label) {
+		    $text = '';
+		    switch ($u) {
+			case 'y':
+			    $text = 'Year';
+			    break;
+			case 'm':
+			    $text = 'Month';
+			    break;
+			case 'd':
+			    $text = 'Day';
+			    break;
+			case 'h':
+			    $text = 'Hour';
+			    break;
+			case 'm':
+			    $text = 'Minute';
+			    break;
+			case 's':
+			    $text = 'Second';
+			    break;
+			default:
+			    break;
+		    }
+		    label($text, $prefix.'_'.$u);
+		    echo ' ';
+		}
+		
 		// print which ever form of input is desired
 		if (($u == 'a') || ($input_style[$u] == 's')) {
 			if (!isset($extras[$u])) $extras[$u] = '';
 			if (!stristr($extras[$u], 'id=')) $extras[$u] .= ' id="'.$prefix.'_'.$u.'"';
 			// select box
 			combo_box($prefix.'['.$u.']', $options, FALSE, $value, 0, $extras[$u]);
+			echo ' ';
 			return;
 		} else {
 			// plain text
@@ -406,12 +444,18 @@ class DateTime_Field
 				$value = sprintf('%02d', $value);
 			}
 			if (!isset($extras[$u])) $extras[$u] = '';
-			if (!stristr($extras[$u], 'id=')) {
-				$adjustExtra = 'onkeydown="adjustDate(this, event)" onfocus="this.select()" id="'.$prefix.'_'.$u.'"';
-			} else {
-				$adjustExtra = 'onkeydown="adjustDate(this, event)" onfocus="this.select()"';
+			$adjustDate = '';
+			if($use_js) {
+			    $adjustDate = 'onkeydown="adjustDate(this, event)"';
 			}
-			int_text_box($prefix.'['.$u.']', $value, FALSE, $size, $min, $max, $size, FALSE, $allow_null, $extras[$u].' '.$adjustExtra);
+			if (!stristr($extras[$u], 'id=')) {
+				$adjustExtra = $adjustDate.' onfocus="this.select()" id="'.$prefix.'_'.$u.'"';
+			} else {
+				$adjustExtra = $adjustDate.'onfocus="this.select()"';
+			}
+			
+			int_text_box($prefix.'['.$u.']', $value, FALSE, $size, $min, $max, $size, FALSE, $allow_null, $extras[$u].' '.$adjustExtra, $include_js, $use_js);
+			echo ' ';
 			return;
 		}
 		echo '<input type="hidden" name="'.$prefix.'['.$u.']" value="'.$value.'" '.$extras[$u].' />';

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.48.2.1 2013/03/08 05:24:27 ewang Exp $
+* $Id: form_question.inc,v 1.48.2.2 2013/04/09 07:49:43 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.48.2.1 $
+* @version $Revision: 1.48.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1123,14 +1123,31 @@ class Form_Question extends Asset
 	*/
 	function getHtmlLabel()
 	{
+		$required_mark = '';
+		if($this->attr('is_required')) {
+		    $form = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
+		    $required_mark = $form->getRequiredFieldMark();
+		 }
 		ob_start();
-		label($this->attr('name'), 'q'.str_replace(':', '_', $this->id));
+		label($this->attr('name').$required_mark, 'q'.str_replace(':', '_', $this->id), 'class="sq-form-question-title"');
 		$label = ob_get_contents();
 		ob_end_clean();
 		return $label;
 
 	}//end getHtmlLabel()
 
+
+	/**
+	* Use fieldset tag to group question content?
+	*
+	* @return bool
+	* @access public
+	*/
+	function useFieldset()
+	{
+		return FALSE;
+	}//end useFieldset()
+	
 
 }//end class
 ?>

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_table.inc,v 1.9 2012/08/30 01:09:08 ewang Exp $
+* $Id: form_question_type_tickbox_table.inc,v 1.9.4.1 2013/04/09 07:49:44 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.9.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -147,9 +147,15 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 
 			// active and passive part for front-end and unlocked back-end view
 			default:
-				$to_output =	'<table border="0" cellpadding="0" cellspacing="0" class="sq-backend-table" id="'.$prefix.'">'.
-								'	<tr>'.
-								'		<td class="sq-backend-table-header">';
+				$summary = $this->attr('summary');
+				$summary_string = '';
+				if(!empty($summary))
+				    $summary_string = 'summary="'.$summary.'"';
+				$to_output =	'<table border="0" cellpadding="0" cellspacing="0" class="sq-backend-table" id="'.$prefix.'" '.$summary_string.'>';
+				$caption = $this->attr('caption');
+				If(!empty($caption)) 
+				    $to_output .= '<caption>'.$caption.'</caption>';
+				$to_output .='	<tr>		<th class="sq-backend-table-header" scope="col">';
 				if (empty($question_contents) || empty($question_contents[0])) {
 					$to_output .= '<div align="center">'.translate('core_form_tickbox_table_not_properly_defined');
 					if ($type == 'passive') {
@@ -166,7 +172,7 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 					$header = array_shift($question_contents);
 					$to_output .= array_shift($header).'</td>';
 					foreach ($header as $key=>$title) {
-						$to_output .= '<td class="sq-backend-table-header">'.$title.'</td>';
+						$to_output .= '<th class="sq-backend-table-header" scope="col">'.$title.'</th>';
 					}
 					$to_output .= "</tr>\n";
 					$j = 0;
@@ -176,21 +182,23 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 						if ($j % 2 == 0) $to_output .= ' class="even"';
 						$to_output .= '>';
 
-						$to_output .= '<td class="sq-backend-table-header">'.array_shift($question).'</td>';
+						$to_output .= '<th class="sq-backend-table-header" scope="row">'.array_shift($question).'</td>';
 						foreach ($question as $option_id=>$option) {
 							$to_output .= '<td class="sq-backend-table-cell">';
 							if (empty($option)) {
 								$to_output .= '&mdash;';
 							} else if ($type != 'passive') {
 								ob_start();
+									$id = $prefix.'_'.$question_id.'_'.$option_id;
+									$extras = ' id="'.$id.'"';
 									check_box($prefix.'['.$question_id.']['.$option_id.']', '1', $submission && isset($submission[$question_id][$option_id]), NULL, $extras);
 									$to_output .= ob_get_contents();
 								ob_end_clean();
 								ob_start();
-									label($option, $prefix.'['.$question_id.']['.$option_id.']');
+									label($option, $id);
 									$label = ob_get_contents();
 								ob_end_clean();
-								$to_output .= ' <span onclick="this.previousSibling.previousSibling.checked = !this.previousSibling.previousSibling.checked">'.$label.'</span>';
+								$to_output .= $label;
 							} else {
 								$to_output .= $option;
 							}
@@ -303,7 +311,7 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 	*/
 	function getSafePrefix()
 	{
-		return $prefix = 'q'.str_replace(':', '_', $this->getPrefix());
+		return $prefix = 'q'.str_replace(':', '_', $this->id);
 
 	}//end getSafePrefix()
 
@@ -419,5 +427,39 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 	}//end populate()
 
 
+	/**
+	* Use fieldset tag to group question content?
+	*
+	* @return bool
+	* @access public
+	*/
+	function useFieldset()
+	{
+		return TRUE;
+	}//end useFieldset()
+	
+	
+	/**
+	* Get the HTML label for this form question
+	*
+	* @return boolean
+	* @access public
+	*/
+	function getHtmlLabel()
+	{
+		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
+		if($form->useAccessibleFormat()) {
+		    $required_mark = '';
+		    if($this->attr('is_required')) {
+			$required_mark = $form->getRequiredFieldMark();
+		    }
+		    return '<legend class="sq-form-question-title">'.$this->attr('name').$required_mark.'</legend>';
+		}
+		else {
+		    return $this->attr('name');
+		}
+
+	}//end getHtmlLabel()
+	
 }//end class
 ?>
