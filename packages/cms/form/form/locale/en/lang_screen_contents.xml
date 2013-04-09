@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_contents.xml,v 1.23 2013/04/08 07:58:55 ewang Exp $
+* $Id: lang_screen_contents.xml,v 1.24 2013/04/09 01:21:03 ewang Exp $
 *
 */
 -->
@@ -227,7 +227,7 @@
 			<display_name>Captcha Required Form Error Message</display_name>
 			<note>Custom error message if valid CAPTCHA is not found for entire form submission.</note>
 		</field>
-		<field attribute="captcha_title_text">
+		<field attribute="captcha_label_text">
 			<display_name>Captcha Label Text</display_name>
 			<note>Custom the text of label for CAPTCHA input field.</note>
 		</field>

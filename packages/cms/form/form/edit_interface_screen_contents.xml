@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_contents.xml,v 1.39 2013/04/08 07:58:55 ewang Exp $
+* $Id: edit_interface_screen_contents.xml,v 1.40 2013/04/09 01:21:03 ewang Exp $
 *
 */
 -->
@@ -174,7 +174,7 @@
 		<field attribute="captcha_form_invalid_error_message">
 			<text width="50" height="1" />
 		</field>
-		<field attribute="captcha_title_text">
+		<field attribute="captcha_label_text">
 			<text width="50" height="1" />
 		</field>	
 	</section>
