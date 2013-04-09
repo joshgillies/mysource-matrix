@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_edit_fns.inc,v 1.58 2013/04/08 07:58:55 ewang Exp $
+* $Id: form_section_edit_fns.inc,v 1.59 2013/04/09 05:58:38 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -644,7 +644,7 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 				    $type = str_replace('_', '-', str_replace('form_question_type_', '', $q->type()));
 				    // add error class
 				    $output .= '<'.'?php 
-					$error_class = isset($this->question_errors[$question->id]) ? "sq-form-question-error" : "";
+					$error_class = isset($form_asset->question_errors[$question->id]) ? "sq-form-question-error" : "";
 					 ?'.'>'."\n";
 				    // question wrapper
 				    // use fieldset to group complex questions
@@ -665,8 +665,8 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 				    $output .= '<div class="sq-form-question-answer" ><'.'?php echo $question->getHtmlField(); ?'.'></div>'."\n";
 				    // question error
 				    $output .= '<'.'?php 
-					if(isset($this->question_errors[$question->id])) {
-					    $errors = $this->question_errors[$question->id];
+					if(isset($form_asset->question_errors[$question->id])) {
+					    $errors = $form_asset->question_errors[$question->id];
 					    $error = array_pop($errors);
 					    echo " <p id=\"error_".str_replace(":", "_", $question->id)."\" class=\"sq-form-error\"  >".$error."</p>";
 					}
