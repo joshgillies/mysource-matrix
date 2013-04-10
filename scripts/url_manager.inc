@@ -18,7 +18,7 @@
 * a URL applied to it.
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.11.2.1 $
 * @package MySource_Matrix
 */
 
@@ -83,7 +83,7 @@ Make sure you have all you information you need before Proceeding\n");
 		$update_file_public_live_assets = FALSE;
 		$new_url = NULL;
 		while (is_null($new_url)) {
-			$new_url = get_line('Enter the New URL:');
+			$new_url = get_line('Enter the New URL: ');
 
 			if (!(self::checkNewUrlExists($new_url))) {
 				echo "The new URL : ".$new_url." is already exist.\n";
@@ -200,11 +200,22 @@ Make sure you have all you information you need before Proceeding\n");
 
 
 		// Copy lookup value from existing url for new url. 
-		//These urls have to be restricted to  1. both paint_layout and override paint layout which are asset based (not URL specified).
-		//										2. or Design look up
+		// These urls have to be restricted to:
+		// 1. both paint_layout and override paint layout which are asset based (not URL specified).
+		// 2. or Design look up
+		//
+		// The distinct is required because we are doing a join on both the url and url with a /
+		// This captures both the 'design::' and 'override::design::'.
+		// They have the same url but different values (in lookup_value).
+		//
+		// This is equivalent to doing a union of
+		// lookup_value v inner join lookup l on (l.url=v.url)
+		// and
+		// lookup_value v inner join lookup l on (l.url || '/' = v.url)
+		//
 		$sql_update_sq_ast_lookup_value 	=
 		'INSERT INTO sq_ast_lookup_value (url, name, value, depth)
-										SELECT replace(v.url, :existing_url, :new_url), v.name, v.value, v.depth
+										SELECT DISTINCT replace(v.url, :existing_url, :new_url), v.name, v.value, v.depth
                                         FROM sq_ast_lookup_value v
                                         INNER JOIN sq_ast_lookup l
                                         ON (l.url = v.url OR l.url || \'/\' = v.url)
