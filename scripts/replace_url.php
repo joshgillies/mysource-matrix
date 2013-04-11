@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: replace_url.php,v 1.9 2012/11/07 03:08:31 cupreti Exp $
+* $Id: replace_url.php,v 1.9.2.1 2013/04/11 02:22:50 cupreti Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 * quicker
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.9.2.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -210,7 +210,7 @@ if (trim(SQ_CONF_STATIC_ROOT_URL) == '') {
 	// Going to pass on adding new lookups to this situation, because lookups are usually meant
 	// to be URL-based. How can we tell whether a lookup value is meant to be per-asset or per-URL?
 	for (; $x < count($matching_roots); $x++) {
-		$sql = 'INSERT INTO sq_ast_lookup (url, root_urlid, http, https, assetid) SELECT DISTINCT :to_url || SUBSTR(url, STRPOS(url, \'/__data/\')), 0, http, https, assetid FROM sq_ast_lookup WHERE assetid IN (SELECT minorid FROM sq_ast_lnk WHERE linkid IN (SELECT linkid FROM sq_ast_lnk_tree t1 WHERE treeid LIKE (SELECT treeid || \'_%\' FROM sq_ast_lnk_tree t2 WHERE linkid IN (SELECT linkid FROM sq_ast_lnk WHERE minorid = :site_assetid) '.$limit_clause.')))';
+		$sql = 'INSERT INTO sq_ast_lookup (url, root_urlid, http, https, assetid) SELECT DISTINCT :to_url || SUBSTR(url, STRPOS(url, \'/__data/\')), 0, http, https, assetid FROM sq_ast_lookup WHERE url LIKE \'%/__data/%\' AND assetid IN (SELECT minorid FROM sq_ast_lnk WHERE linkid IN (SELECT linkid FROM sq_ast_lnk_tree t1 WHERE treeid LIKE (SELECT treeid || \'_%\' FROM sq_ast_lnk_tree t2 WHERE linkid IN (SELECT linkid FROM sq_ast_lnk WHERE minorid = :site_assetid) '.$limit_clause.')))';
 		if (MatrixDAL::getDbType() == 'oci') {
 			// String position function is called INSTR() in Oracle
 			$sql = str_replace('STRPOS(', 'INSTR(', $sql);
@@ -241,7 +241,7 @@ if (trim(SQ_CONF_STATIC_ROOT_URL) == '') {
 
 }//end if - no static root set
 
-bam('LOOKUPS CHANGED FROM '.$from_url.' TO '.$to_url);
+pre_echo('LOOKUPS CHANGED FROM '.$from_url.' TO '.$to_url);
 
 $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
