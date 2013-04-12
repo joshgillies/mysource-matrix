@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_status.inc,v 1.73 2012/08/30 01:09:18 ewang Exp $
+* $Id: hipo_job_edit_status.inc,v 1.74 2013/04/12 04:03:20 cupreti Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to change the status of an asset
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.73 $
+* @version $Revision: 1.74 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -35,6 +35,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	*/
 	function HIPO_Job_Edit_Status($code_name='')
 	{
+		$this->uses_trans = FALSE;
 		$this->HIPO_Job($code_name);
 
 	}//end constructor
