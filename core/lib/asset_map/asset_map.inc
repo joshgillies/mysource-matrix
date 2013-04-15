@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.312.2.3 2012/11/27 06:22:51 ewang Exp $
+* $Id: asset_map.inc,v 1.312.2.4 2013/04/15 00:19:28 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.312.2.3 $
+* @version $Revision: 1.312.2.4 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -413,7 +413,7 @@ class Asset_Map
 			}//end if
 
 			// Check for at least simple edit access
-			if (is_null($user) || $user instanceof Public_User || (method_exists($user, 'canAccessBackend') && !($user instanceof Simple_Edit_User || $user->canAccessBackend()))) {
+			if (is_null($user) || $user instanceof Public_User || (method_exists($user, 'canAccessBackend') && !($user instanceof Simple_Edit_User || $user->canAccessBackend() || (method_exists($user, 'isShadowSimpleEditUser') && $user->isShadowSimpleEditUser())))) {
 			?>
 				<b>You need Simple Edit access or higher to view the Asset Map</b>
 			<?php
