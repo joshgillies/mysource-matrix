@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.81 2013/04/04 22:39:10 akarelia Exp $
+* $Id: form_email.inc,v 1.82 2013/04/15 07:05:58 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.81 $
+* @version $Revision: 1.82 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -306,12 +306,17 @@ class Form_Email extends Form
 			$current_page = $this->getCurrentPageNumber();
 			$total_pages = $this->getTotalPages();
 			
+			echo $this->getFormHeader();
+			
 			if (($current_page == $total_pages) && $this->attr('use_confirmation_page')) {
 				echo $this->getConfirmationPageContents();
 			}
 			else {				   	
 				$this->printPageContentsBodycopy();
 			}
+			
+			echo $this->getFormFooter();
+			
 			return FALSE;
 		}
 				
