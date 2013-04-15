@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime_field.inc,v 1.57.4.1 2013/04/09 07:52:23 ewang Exp $
+* $Id: datetime_field.inc,v 1.57.4.2 2013/04/15 06:36:25 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *     it uses: show, style, min, max, null, allow_circa, print_format
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.57.4.1 $
+* @version $Revision: 1.57.4.2 $
 * @package Fudge
 * @subpackage DateTime_Field
 */
@@ -176,6 +176,7 @@ class DateTime_Field
 		if (!is_array($null)) $null = Array();
 		$include_js =& $this->getParam('include_js');
 		$use_js =& $this->getParam('use_js');
+		$print_label =& $this->getParam('print_label');
 		// only include JS function if required
 		if($use_js && $include_js) {
 		?>
@@ -218,10 +219,10 @@ class DateTime_Field
 				echo '<input type="hidden" name="'.$this->prefix.'['.$t.']" value="'.$u.'" />';
 			}
 			if ($t == 'y') echo ' ';
-			if ($t == 'h' && in_array('h', $show) && in_array('i', $show)) {
+			if (!$print_label && $t == 'h' && in_array('h', $show) && in_array('i', $show)) {
 				echo ':';
 			}
-			if ($t == 'i' && in_array('i', $show) && in_array('s', $show)) {
+			if (!$print_label && $t == 'i' && in_array('i', $show) && in_array('s', $show)) {
 				echo ':';
 			}
 		}
@@ -414,7 +415,7 @@ class DateTime_Field
 			case 'h':
 			    $text = 'Hour';
 			    break;
-			case 'm':
+			case 'i':
 			    $text = 'Minute';
 			    break;
 			case 's':
