@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_edit_fns.inc,v 1.11 2012/08/30 01:09:12 ewang Exp $
+* $Id: trigger_edit_fns.inc,v 1.12 2013/04/15 00:59:34 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * Trigger_Edit_Fns
 *
 * @author Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -365,7 +365,7 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 
 		// get event types
 		$condition_type_list = $tm->_getConditionList();
-		ksort($condition_type_list);
+		asort($condition_type_list);
 
 		$conditions = $asset->attr('conditions');
 
@@ -605,7 +605,7 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 
 		// get event types
 		$action_type_list = $tm->_getActionList();
-		ksort($action_type_list);
+		asort($action_type_list);
 
 		$actions = $asset->attr('actions');
 
