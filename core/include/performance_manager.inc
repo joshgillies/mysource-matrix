@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-*$Id: performance_manager.inc,v 1.7 2012/09/26 01:05:49 ewang Exp $
+*$Id: performance_manager.inc,v 1.8 2013/04/16 07:09:00 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *     
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 */
 class Performance_Manager extends MySource_Object
@@ -279,11 +279,11 @@ class Performance_Manager extends MySource_Object
 		$title =  $asset->name . ' - Squiz Matrix Performance Mode';
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">
-<html style="height: 100%;"><head>
-<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+<html>
 <HEAD>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
 <TITLE><?php echo $title; ?></TITLE>
-<SCRIPT LANGUAGE="JavaScript">
+<SCRIPT LANGUAGE="JavaScript" type="text/javascript">
 <!-- Begin
 // set page frame as blank first, then loaded with page url
 // this workaround is making sure waiting screen appears first in IE
@@ -296,9 +296,9 @@ function fillFrame() {
 //  End -->
 </script>
 </HEAD>
-<frameset name="frames" rows="90%,350" frameborder="1" framespacing="2" border="3" bordercolor=#000 onLoad="fillFrame();">
-  <frame name="content_frame" id='content_frame' src="about:blank"/>
-  <frame name="result_frame" id='result_frame' src="<?php echo $result_url; ?>" />
+<frameset  rows="90%,350"  onLoad="fillFrame();">
+  <frame name="content_frame" id='content_frame' src="about:blank" >
+  <frame name="result_frame" id='result_frame' src="<?php echo $result_url; ?>" >
 </frameset>
 </HTML>
 <?php 
@@ -393,10 +393,11 @@ function fillFrame() {
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
+    <title>Performance Results</title>
 <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
-<link rel="stylesheet" href="<?php echo (sq_web_path('lib').'/web/css/performance.css');  ?>" />
+<link rel="stylesheet" href="<?php echo (sq_web_path('lib').'/web/css/performance.css');  ?>" >
 <!--[if gte IE 6]>
-    <link rel="stylesheet" href="<?php echo (sq_web_path('lib').'/web/css/performance-ie.css');  ?>" />
+    <link rel="stylesheet" href="<?php echo (sq_web_path('lib').'/web/css/performance-ie.css');  ?>" >
 <![endif]-->
 <script type="text/javascript">
 // expand/fold the row where there are performance sub steps
@@ -497,7 +498,7 @@ var addUrlParam = function(search, key, val){
 <div id="perfToolBar">
 <div id="perfToolBarPadder">
 
-    <div id="productLogo"><img src="<?php echo (sq_web_path('lib').'/web/images/performance/logo-matrix.png');  ?>" alt="logo-matrix" width="160" height="31" /></div>
+    <div id="productLogo"><img src="<?php echo (sq_web_path('lib').'/web/images/performance/logo-matrix.png');  ?>" alt="logo-matrix" width="160" height="31" ></div>
     
     <div id="perfSummary">
         <div class="perfTotal">Total Time <strong><?php echo ($this->_printTime($total_time)); ?></strong>,&nbsp; System <strong><?php echo ($this->_printTime($total_system_time)); ?></strong> (<?php echo ($this->_printPercent($total_system_time, $total_time, 2)); ?>), Queries: <strong><?php echo ($this->_printTime($total_time_queries)); ?></strong> (<?php echo $total_num_queries; ?>)</div>
@@ -535,6 +536,7 @@ var addUrlParam = function(search, key, val){
             
             echo '<span class="highRoller GUI-colourList-position-other" style="width: '.$other_width.'" title="Other '.$other_time.', '.$other_queries.' queries"><span class="highRoller-details">Other '.$other_time.', '.$other_queries.' queries</span></span>';
             ?> 
+	    </span>
             </div>
         </div>
     </div>
@@ -609,7 +611,7 @@ var addUrlParam = function(search, key, val){
 			
 ?>
 					    <td rowspan="<?php echo $step_count; ?>" class="assetID">#<?php echo $assetid; ?></td>
-					    <td rowspan="<?php echo $step_count; ?>" class="assetType" style="background-image: url(<?php echo $icon_url; ?>)" title="<?php echo $content['type_code']; ?>" ><img src="<?php echo $icon_url; ?>" alt="<?php echo $content['type_code']; ?>"  width="16" height="16" /></td>
+					    <td rowspan="<?php echo $step_count; ?>" class="assetType" style="background-image: url(<?php echo $icon_url; ?>)" title="<?php echo $content['type_code']; ?>" ><img src="<?php echo $icon_url; ?>" alt="<?php echo $content['type_code']; ?>"  width="16" height="16" ></td>
 					    <td rowspan="<?php echo $step_count; ?>" class="assetName" title="<?php echo 'Active: '.$row_total_active.' / Total: '.$row_total.' / Queries: '.$row_total_time_queries.' ('.$row_total_num_queries.')'; ?>"><?php echo !empty($report) ? $report : ''; echo $content['name']; echo !empty($report) ? '</a>' : ''; ?></td>
 					    <?php
 						if($expendable) {
