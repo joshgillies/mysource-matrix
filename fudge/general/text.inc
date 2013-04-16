@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.72.2.2 2013/02/06 05:18:20 ewang Exp $
+* $Id: text.inc,v 1.72.2.3 2013/04/16 01:15:31 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.72.2.2 $
+* @version $Revision: 1.72.2.3 $
 * @package Fudge
 * @subpackage Text
 */
@@ -518,6 +518,7 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array())
 		$replaceWith = array_get_index($modifier['args'], 1, NULL);
 
 		if (!is_null($toReplace) && !is_null($replaceWith)) {
+			$toReplace = str_replace(chr(0), '' , $toReplace);
 			return preg_replace('/'.$toReplace.'/', $replaceWith, $text);
 		}
 		return $text;
