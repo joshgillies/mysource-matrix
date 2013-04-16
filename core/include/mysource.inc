@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.403 2013/03/18 07:37:57 ewang Exp $
+* $Id: mysource.inc,v 1.404 2013/04/16 01:38:38 akarelia Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.403 $
+* @version $Revision: 1.404 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -861,10 +861,6 @@ class MySource extends MySource_Object
 
 			// translate all urls to performance mode style url _performance and target=_top
 			$this->_translatePerformanceModeURL($content);
-
-			// remove any sq_wysiwyg_* tags used as placeholders for plugins
-			// such as Embed Movie/Youtube
-			$content = preg_replace('|<sq_wysiwyg_([^ >]*)([^>]*)>(.*)</sq_wysiwyg_\1>|si', '$3', $content);
 
 			echo $content;
 
