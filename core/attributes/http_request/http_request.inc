@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: http_request.inc,v 1.20.2.1 2013/01/31 02:45:22 cupreti Exp $
+* $Id: http_request.inc,v 1.20.2.2 2013/04/16 05:37:47 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 * 	<http_request />
 *
 * @author  James Hurst <jhurst@squiz.co.uk>
-* @version $Revision: 1.20.2.1 $
+* @version $Revision: 1.20.2.2 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -32,15 +32,15 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 {
 	// Options.
 	private $_methods = Array(
-		'GET'    => 'GET', 
-		'POST'   => 'POST', 
-		'HEAD'   => 'HEAD', 
-		'PUT'    => 'PUT', 
+		'GET'    => 'GET',
+		'POST'   => 'POST',
+		'HEAD'   => 'HEAD',
+		'PUT'    => 'PUT',
 		'DELETE' => 'DELETE'
 	);
 
 	private $_authentication_types = Array(
-		'NONE' => 'None', 
+		'NONE' => 'None',
 		'HTTP_Basic' => 'HTTP Basic',
 		'Matrix' => 'Matrix Cookie Passthrough',
 		'OAuth' => 'OAuth',
@@ -67,7 +67,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		'EUC-JP' => 'EUC-JP',
 		'UTF-8' => 'UTF-8',
 	);
-	
+
 
 	// Data.
 	protected $_res = Array(); // This is where everything lives.
@@ -140,7 +140,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 					?>
 				</td>
 			</tr>
-			<?php 
+			<?php
 				if ($current_value['method'] == 'POST') {
 					?>
 					<tr>
@@ -205,7 +205,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 					?>
 				</td>
 			</tr>
-			<tr>		
+			<tr>
 			<tr>
 				<th><?php echo translate('http_request_cache_options'); ?></th>
 				<td>
@@ -215,7 +215,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 						} else {
 							combo_box($prefix.'_cache_options', $this->_cache_options, FALSE, $current_value['cache_options']);
 						}
-						
+
 					?>
 				</td>
 			</tr>
@@ -302,7 +302,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 					?>
 				</td>
 			</tr>
-			<?php 
+			<?php
 			if (($current_value['method'] == 'POST') || ($current_value['method'] == 'PUT')) {
 			?>
 			<tr>
@@ -317,10 +317,10 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 					?>
 				</td>
 			</tr>
-			<?php 
+			<?php
 			} else {
 				hidden_field($prefix.'_request_body', $current_value['request_body']);
-			}	
+			}
 			?>
 			<tr>
 				<th><?php echo translate('http_request_convert_to_utf8'); ?></th>
@@ -334,7 +334,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 					?>
 				</td>
 			</tr>
-			<?php 
+			<?php
 				if ($current_value['convert_to_utf8'] == TRUE) {
 					?>
 					<tr>
@@ -401,7 +401,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 								// This is not a debug statement.
 								pre_echo($res);
 							}
-							
+
 						}
 					?>
 				</td>
@@ -425,16 +425,16 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		$prefix = str_replace(':', '_', $prefix);
 
 		$value = Array();
-		
+
 		if (!isset($_REQUEST[$prefix.'_method'])) return FALSE;
-		
+
 		// Assign values
 		$value['method'] = (isset($_REQUEST[$prefix.'_method'])) ? $_REQUEST[$prefix.'_method'] : '';
 
 		$ol = new Asset_Attribute_Option_List();
 		$ol->process($prefix.'_urls');
 		$value['urls'] = trim($ol->value) ? explode($ol->delimiter, $ol->value) : NULL;
-		
+
 		$value['timeout'] 				= (isset($_REQUEST[$prefix.'_timeout'])) ? $_REQUEST[$prefix.'_timeout'] : 0;
 		$value['follow_redirect'] 		= (isset($_REQUEST[$prefix.'_follow_redirect'])) ? $_REQUEST[$prefix.'_follow_redirect'] : FALSE;
 		$value['disable_ssl_verify']	= (isset($_REQUEST[$prefix.'_disable_ssl_verify'])) ? $_REQUEST[$prefix.'_disable_ssl_verify'] : FALSE;
@@ -443,7 +443,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		$value['default_cache_expiry']	= (isset($_REQUEST[$prefix.'_default_cache_expiry'])) ? $_REQUEST[$prefix.'_default_cache_expiry'] : 60;
 		$value['authentication_type'] 	= (isset($_REQUEST[$prefix.'_authentication_type'])) ? $_REQUEST[$prefix.'_authentication_type'] : '';
 		$value['request_body'] 			= (isset($_REQUEST[$prefix.'_request_body'])) ? trim($_REQUEST[$prefix.'_request_body']) : '';
-		
+
 		$hl = new Asset_Attribute_Option_List();
 		$hl->process($prefix.'_request_headers');
 		$value['request_headers'] = trim($hl->value) ? explode($hl->delimiter, $hl->value) : NULL;
@@ -513,7 +513,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 			$this->_replaceKeywords($url);
 		}
 
-		if ($this->_config['append_get_vars']) {
+		if (array_get_index($this->_config, 'append_get_vars', FALSE)) {
 			$query_vars = $collection_var = '';
 			foreach ($_GET as $query => $param) {
 				$param = str_replace(' ', '+', $param);
@@ -523,7 +523,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 				}
 				$prefix = empty($query_vars) ? '' : '&';
 				$query_vars .= $prefix.$query.'='.$param;
-				
+
 			}
 			if(!empty($query_vars) || !empty($collection_var)) {
 			    foreach ($this->_res['request']['urls'] as $index => $url) {
@@ -537,7 +537,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 
 		// if we are configured to forward the user information
 		// send the user ip address and also the user keys
-		if ($this->_config['forward_user_keys']) {
+		if (array_get_index($this->_config, 'forward_user_keys', FALSE)) {
 			$user_info = Array($GLOBALS['SQ_SYSTEM']->user->id);
 			$user_info = array_merge($GLOBALS['SQ_SYSTEM']->user->getUserGroups(), $user_info);
 			$user_keys = 'userkeys='.implode(',', $user_info);
@@ -555,7 +555,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 
 			// Discard badly formatted headers.
 			if (preg_match('/(.+):(.+)/', $this->_res['request']['headers'][$i]) == 0) {
-				unset($this->_res['request']['headers'][$i]); 
+				unset($this->_res['request']['headers'][$i]);
 			}
 		}
 
@@ -609,7 +609,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 				}
 			}
 		}
-		
+
 		// Set url to the first in urls
 		$this->_res['request']['url'] = &$this->_res['request']['urls'][0];
 
@@ -672,8 +672,8 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		}
 
 	}//end _replaceKeywords()
-	
-	
+
+
 	/**
 	 * Run request and cacheing logic for each URL
 	 *
@@ -685,7 +685,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		if ($this->_canCacheResponses()) {
 			$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 			$rm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('rest_manager');
-			
+
 			// For each URL, we must create a serialized object of the request combined with the URL
 			// to make a unique cache key for this request.
 			// This way, a URL with the same settings will be a cache hit even if it was requested somewhere
@@ -695,12 +695,12 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 
 				// We'll need a new request structure for each url
 				$current_request = $this->_res['request'];
-				$current_request['urls'] = NULL; 
+				$current_request['urls'] = NULL;
 				$current_request['current_url'] = $url;
 				$cache_key = serialize($current_request);
 
-				// Attempt to load from cache. 
-				// We pin the cache entries against the REST Manager, 
+				// Attempt to load from cache.
+				// We pin the cache entries against the REST Manager,
 				// so that they can be shared across multiple assets.
 				$cache =& $cm->loadFromCache($rm->id, 'rest_manager', $cache_key, FALSE);
 
@@ -725,7 +725,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		// Go!
 		$this->_curlExec();
 
-	}//end _performRequests()	
+	}//end _performRequests()
 
 
 	/**
@@ -738,7 +738,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 	{
 		switch ($this->_config['cache_options']) {
 		case 'NEVER':
-			return FALSE; 
+			return FALSE;
 		case 'HTTP':
 		case 'DEFAULT':
 			switch ($this->_res['request']['method']) {
@@ -794,7 +794,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
 			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
 		}
-		
+
 		// Determine the HTTP method
 		switch ($this->_res['request']['method']) {
 		case 'GET':
@@ -897,10 +897,10 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 
 
 	/**
-	 * Calculates the appropriate cache expiry, based on config settings and 
+	 * Calculates the appropriate cache expiry, based on config settings and
 	 * values in the HTTP response headers.
 	 *
-	 * This is not an exhaustive implementation, but is based on 
+	 * This is not an exhaustive implementation, but is based on
 	 * RFC2616 http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9
 	 *
 	 * @access protected
@@ -934,7 +934,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 					$cache_ext = explode('=', $directive);
 
 					// no-cache and equivalents override max-age
-					
+
 					switch (strtolower(trim($cache_ext[0]))) {
 					case 'no-cache':
 					case 'must-revalidate':
@@ -962,7 +962,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 			if (empty($response['expiry'])) {
 				$response['expiry'] = 0;
 			}
-			
+
 			break;
 
 		case 'DEFAULT':
@@ -972,13 +972,13 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		$response['expiry']  = (int) $response['expiry'];
 	}//end setCacheExpiry()
 
-	
-	/**    
+
+	/**
 	* Callback to read CURL headers.
-	*  
+	*
 	* @return integer
 	* @access protected
-	*/    
+	*/
 	protected function _readCurlHeaders($ch, $header)
 	{
 		// Indicates we're following a redirect.. so we can discard the last set of headers.
