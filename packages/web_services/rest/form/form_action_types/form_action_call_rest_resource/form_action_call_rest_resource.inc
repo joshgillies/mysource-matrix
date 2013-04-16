@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_call_rest_resource.inc,v 1.7 2012/08/30 00:59:46 ewang Exp $
+* $Id: form_action_call_rest_resource.inc,v 1.7.4.1 2013/04/16 01:46:11 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_ATTRIBUTES_PATH.'/http_request/http_request.inc';
 *
 *
 * @author  Maki Maruyama <mmaruyama@squiz.co.uk>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage rest
 */
@@ -57,10 +57,47 @@ class Form_Action_Call_Rest_Resource extends Form_Action
 			$req_settings = $settings['http_request'];
 		}
 
-		// Set up HTTP request attribute
+		// Set up HTTP request attribute and validation rule
+		?>
+		<div style="padding: 5px">
+			<p class="sq-backend-section-subheading"><?php echo translate('form_action_call_rest_resource_http_request') ?></p>
+			<?php
 		$http_request = new Asset_Attribute_HTTP_Request(0, $req_settings);
 
 		$http_request->paint($prefix);
+
+			$options = self::_getOptions();
+			?>
+		</div>
+		<div style="padding: 5px">
+			<p class="sq-backend-section-subheading"><?php echo translate('form_action_call_rest_resource_details') ?></p>
+			<table class="sq-backend-table">
+				<col width="20%" />
+				<col width="80%" />
+				<tr>
+					<th><?php echo translate('form_action_call_rest_resource_validation'); ?></th>
+					<td><?php 
+						$validation_enabled = isset($settings['validation_enabled']) && $settings['validation_enabled'] ? TRUE : FALSE;
+						check_box($prefix.'[validation_enabled]', 1, $validation_enabled); 
+						?>
+					</td>
+				</tr>
+				<tr>
+					<th><?php echo translate('form_action_call_rest_resource_details'); ?></th>
+					<td><?php 
+						combo_box($prefix.'[validation_scope]', $options['scope'], false, array_get_index($settings, 'validation_scope', 0));
+						combo_box($prefix.'[validation_target]', $options['targets'], false, array_get_index($settings, 'validation_target', 0));
+						combo_box($prefix.'[validation_operator]', $options['operators'], false, array_get_index($settings, 'validation_operator', 0));
+						text_box($prefix.'[validation_value]', array_get_index($settings, 'validation_value', ''), 50);
+						?>
+					</td>
+				</tr>
+				<tr>
+					<th><?php echo translate('form_action_call_rest_resource_custom_error_text'); ?></th>
+					<td><?php text_box($prefix.'[validation_error_text]', array_get_index($settings, 'validation_error_text', ''), 80); ?></td>
+				</tr>
+			</table>
+		</div><?php
 
 	}//end paintInlineInterface()
 
@@ -86,6 +123,29 @@ class Form_Action_Call_Rest_Resource extends Form_Action
 
 		$settings['http_request'] = $http_request->value;
 
+		// and process validation rule settings
+		$request_data = $_REQUEST[$prefix];
+		
+		$settings['validation_enabled']    = array_get_index($request_data, 'validation_enabled', 0);
+		$settings['validation_scope']      = array_get_index($request_data, 'validation_scope', 0);
+		$settings['validation_target']     = array_get_index($request_data, 'validation_target', 0);
+		$settings['validation_operator']   = array_get_index($request_data, 'validation_operator', 0);
+		$settings['validation_value']      = array_get_index($request_data, 'validation_value');
+		$settings['validation_error_text'] = array_get_index($request_data, 'validation_error_text', '');
+		
+		// if validation is enabled, we need to run this submission action before submitting the form so that
+		// a validation failure can be picked up and prevent the form from being submitted.
+		// if the validation is not enabled, then we just need to run this submission action at the normal timing
+		// after submitting the form along with other submission actions.
+		if ($settings['validation_enabled']) {
+			$settings['before_submit'] = TRUE;
+		} else {
+			// whether the submission action should be run or not is checked by the existence of
+			// the 'before_submit' key, so, we'll remove the key from settings if we don't have to validate
+			// so that this action will run after submitting the form
+			unset($settings['before_submit']);
+		}
+		
 		return TRUE;
 
 	}//end processInlineInterface()
@@ -210,6 +270,25 @@ class Form_Action_Call_Rest_Resource extends Form_Action
 		// send the request
 		$res =& $http_request->run();
 
+		// if the validation is enabled, validate the response according to the rule specified
+		if (isset($settings['validation_enabled']) && $settings['validation_enabled']) {
+			$failed_URLs = self::_validate($settings, $res['responses']);
+			
+			// if the validation failed, set an appropriate error message to be printed on the frontend
+			if (!empty($failed_URLs)){
+				// use custom error text if it's set, otherwise use a default error message
+				$error_text = array_get_index($settings, 'validation_error_text', '');
+				$failed_URLs_text = implode(', ', $failed_URLs);
+				if (!strlen(trim($error_text))) {
+					$error_text = translate('form_action_call_rest_resource_false', $failed_URLs_text);
+				}
+				trigger_error('Call REST Resource Submission Action: Validation failed. (Id: #'.$form->id.', URLs: '.$failed_URLs_text.')', E_USER_WARNING);
+				$form->submission_errors[] = $error_text;
+
+				return FALSE;
+			}
+		}
+		
 		return TRUE;
 
 	}//end execute()
@@ -237,6 +316,109 @@ class Form_Action_Call_Rest_Resource extends Form_Action
 		return TRUE;
 
 	}//end isValid
+
+	
+	/**
+	* Returns available options
+	*
+	* @access protected
+	* @return array
+	*/
+	protected function _getOptions() {
+		$options['scope'] = Array(
+							translate('form_action_call_rest_resource_all'), 
+							translate('form_action_call_rest_resource_one'),
+						);
+		$options['targets'] = Array(
+							translate('form_action_call_rest_resource_http_code'), 
+							translate('form_action_call_rest_resource_response_bodies'),
+						);
+		$options['operators'] = Array(
+							translate('form_action_call_rest_resource_match'), 
+							translate('form_action_call_rest_resource_not_match'),
+							translate('form_action_call_rest_resource_greater'),
+							translate('form_action_call_rest_resource_less'),
+						);
+		
+		return $options;
+	}
+	
+	
+	/**
+	* Validates responses from REST Calls
+	*
+	* This examins the responses based on the validation rule specified on the form submission action
+	* and returns a list of URLs of which response failed the validation.
+	* 
+	* @param array	$settings	form submission action settings including the validation rule
+	* @param array	$responses	responses from REST Calls 
+	*
+	* @access protected
+	* @return array
+	*/
+	protected function _validate($settings, $responses) {
+		// if validation is not enabled, nothing needs to be validated
+		if (isset($settings['validation_enabled']) && !$settings['validation_enabled']) return TRUE;
+		
+		// get the validation rule
+		$scope    = array_get_index($settings, 'validation_scope', 0);
+		$target   = array_get_index($settings, 'validation_target', 0);
+		$operator = array_get_index($settings, 'validation_operator', 0);
+		$value    = array_get_index($settings, 'validation_value', '');
+	
+		// response validation
+		// loop through the responses back from the REST call to a web service and
+		// validate the part of a response specified by this rule
+		$failed_URLs = Array();
+		foreach ($responses as $response) {
+			// find the part of the response we need to validate
+			switch ($target) {
+				case 0: // HTTP Code
+					$target_value = isset($response['info']['http_code']) ? $response['info']['http_code'] : NULL;
+					break;
+				case 1: // Response Body
+					$target_value = isset($response['body']) ? $response['body'] : NULL;
+					break;
+				default:
+					$target_value = NULL;
+			}
+			
+			// find if the target value satisfies the validation rule
+			if (!is_null($target_value) && strlen(trim($operator))) {
+				switch ($operator) {
+					case 0: // match
+						$pass = preg_match('/'.$value.'/', $target_value);
+						break;
+					case 1: // not match
+						$pass = !preg_match('/'.$value.'/', $target_value);
+						break;
+					case 2: // greater than
+						$pass = $target_value > $value;
+						break;
+					case 3: // less than
+						$pass = $target_value < $value;
+						break;
+					default:
+						$pass = FALSE;
+				}
+			} else {
+				$pass = FALSE;
+			}
+			
+			if (!$pass) $failed_URLs[] = $response['info']['url'];
+
+			// if the scope is all targets ($scope == 0) every response will need to be checked but
+			// if the scope is at least one target ($scope == 1) and found this response passed the validation
+			// then there is no need to iterate the rest as we already know the validation result
+			if (($scope == 1 && $pass)) {
+				$failed_URLs = Array();
+				break;
+			}
+		}
+		
+		return $failed_URLs;
+	}
+	
 
 }//end class
 
