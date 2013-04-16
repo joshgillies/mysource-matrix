@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.57 2012/08/30 01:09:05 ewang Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.58 2013/04/16 01:41:26 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -357,6 +357,13 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	public function paint(Content_Type_WYSIWYG $asset, $editing=FALSE, $generating=FALSE)
 	{
 		$html = $asset->attr('html');
+
+		// remove any sq_wysiwyg_* tags used as placeholders for plugins
+		// such as Embed Movie/Youtube
+		if (!SQ_IN_BACKEND && !SQ_IN_LIMBO) {
+			$html = preg_replace('|<sq_wysiwyg_([^ >]*)([^>]*)>(.*)</sq_wysiwyg_\1>|si', '$3', $html);
+		}
+
 		$html = preg_replace('|(<htmlarea_special[^>]*?>)(.*?)(</htmlarea_special>)|si', '$2', $html);
 		if ($generating) {
 			// escape dangerous content

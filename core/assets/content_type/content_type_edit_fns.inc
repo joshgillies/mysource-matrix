@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_edit_fns.inc,v 1.18 2012/08/30 01:09:05 ewang Exp $
+* $Id: content_type_edit_fns.inc,v 1.19 2013/04/16 01:41:58 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -65,6 +65,13 @@ class Content_Type_Edit_Fns extends Asset_Edit_Fns
 	function paint(Content_Type $asset, $editing=FALSE, $generating=FALSE)
 	{
 		$html = $asset->attr('html');
+
+		// remove any sq_wysiwyg_* tags used as placeholders for plugins
+		// such as Embed Movie/Youtube
+		if (!SQ_IN_BACKEND && !SQ_IN_LIMBO) {
+			$html = preg_replace('|<sq_wysiwyg_([^ >]*)([^>]*)>(.*)</sq_wysiwyg_\1>|si', '$3', $html);
+		}
+
 		if ($generating) {
 			// escape dangerous content
 			require_once SQ_FUDGE_PATH.'/general/text.inc';
