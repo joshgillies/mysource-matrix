@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.275 2013/04/08 07:58:55 ewang Exp $
+* $Id: form.inc,v 1.276 2013/04/16 00:58:20 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.275 $
+* @version $Revision: 1.276 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2669,6 +2669,7 @@ class Form extends Asset implements Bridge
 		}
 		?>
 		%submit_button% %previous_page_button%
+		<div class="sq-form-error">%form_errors%</div>
 		<?php
 		$contents = ob_get_clean();
 
