@@ -1812,7 +1812,7 @@ class DAL
 	 */
 	protected static function _endQueryTimer()
 	{
-		if (self::$_currentQueryLog !== NULL || defined('SQ_IN_PERFORMANCE_TIMING')) {
+		if (self::$_currentQueryLog !== NULL) {
 			self::$_queryLog[] = (microtime(TRUE) - self::$_currentQueryLog['start']);
 			if (isset($GLOBALS['THE_CONSTRUCT']) === TRUE) {
 				$GLOBALS['THE_CONSTRUCT']->recordDatabaseQuery(self::$_currentQueryLog['sql'], self::$_currentQueryLog['start'], microtime(TRUE));
