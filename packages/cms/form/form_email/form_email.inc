@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.82 2013/04/15 07:05:58 ewang Exp $
+* $Id: form_email.inc,v 1.83 2013/04/17 06:52:35 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.82 $
+* @version $Revision: 1.83 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -710,6 +710,7 @@ class Form_Email extends Form
 	*/
 	public function _getThankYouKeywordReplacement($keyword)
 	{
+		$full_keyword = $keyword;
 		$keyword = parse_keyword($keyword, $modifiers);
 		$prefix = $this->getPrefix();
 		$replacement = NULL;
@@ -752,12 +753,17 @@ class Form_Email extends Form
 		} else {
 			$replacement = parent::_getThankYouKeywordReplacement($keyword);
 		}
-		
-		$replace_keywords = Array(
-								'assetid' 	=> $this->id,
-								'call_fns'	=> Array ('_getThankYouKeywordReplacement', 'getKeywordReplacement'),
-							);
-		apply_keyword_modifiers($replacement, $modifiers, $replace_keywords);
+
+		// If keyword was not replaced, put it back to be replaced later
+		if ($replacement == '%'.$keyword.'%') {
+			$replacement = '%'.$full_keyword.'%';
+		} else {
+			$replace_keywords = Array(
+									'assetid' 	=> $this->id,
+									'call_fns'	=> Array ('_getThankYouKeywordReplacement', 'getKeywordReplacement'),
+								);
+			apply_keyword_modifiers($replacement, $modifiers, $replace_keywords);
+		}
 
 		return $replacement;
 
