@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tools.inc,v 1.12 2012/08/30 01:09:20 ewang Exp $
+* $Id: tools.inc,v 1.13 2013/04/17 04:29:59 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 */
 class Tools extends MySource_Object
@@ -73,9 +73,18 @@ class Tools extends MySource_Object
 						<th><?php echo translate('description'); ?></th>
 					</tr>
 				<?php
+
+				// Get the info for the each tool
+				$tools_info = Array();
 				foreach ($tools as $tool) {
-					$tool_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($tool);
-					$backend_url = $backend->getBackendUrl('main');
+					$tools_info[$tool] = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($tool);
+				}//end foreach
+
+				// Sort the list by "name"
+				uasort($tools_info, create_function('$a,$b', 'return strtolower($a["name"]) > strtolower($b["name"]);'));
+
+				$backend_url = $backend->getBackendUrl('main');
+				foreach($tools_info as $tool => $tool_info) {
 					?>
 					<tr>
 						<td class="sq-backend-table-cell"><a href="<?php echo $backend_url; ?>&backend_section=tools&tool_type_code=<?php echo $tool; ?>"><?php echo $tool_info['name']; ?></a></td>
