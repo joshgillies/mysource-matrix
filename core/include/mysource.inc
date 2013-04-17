@@ -10,11 +10,10 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.400.2.3 2013/03/18 07:39:36 ewang Exp $
+* $Id: mysource.inc,v 1.400.2.4 2013/04/17 22:44:06 akarelia Exp $
 *
 */
 
-//require_once 'DB.php';
 require_once SQ_LIB_PATH.'/MatrixDAL/MatrixDAL.inc';
 
 require_once SQ_INCLUDE_PATH.'/mysource_object.inc';
@@ -32,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.400.2.3 $
+* @version $Revision: 1.400.2.4 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -861,10 +860,6 @@ class MySource extends MySource_Object
 
 			// translate all urls to performance mode style url _performance and target=_top
 			$this->_translatePerformanceModeURL($content);
-
-			// remove any sq_wysiwyg_* tags used as placeholders for plugins
-			// such as Embed Movie/Youtube
-			$content = preg_replace('|<sq_wysiwyg_([^ >]*)([^>]*)>(.*)</sq_wysiwyg_\1>|si', '$3', $content);
 
 			echo $content;
 
