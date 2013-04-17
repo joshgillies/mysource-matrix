@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.770.2.8 2013/03/25 22:21:04 akarelia Exp $
+* $Id: asset.inc,v 1.770.2.9 2013/04/17 22:49:14 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.770.2.8 $
+* @version $Revision: 1.770.2.9 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3514,7 +3514,16 @@ class Asset extends MySource_Object
 			trigger_localised_error('SYS0092', E_USER_WARNING, $name, $this->name, $this->id);
 			return NULL;
 		}
-		return $this->vars[$name]['value'];
+
+		$return_value = $this->vars[$name]['value'];
+
+		// remove any sq_wysiwyg_* tags used as placeholders for plugins
+		// such as Embed Movie/Youtube but only on frontend
+		if ($this->vars[$name]['type'] == 'wysiwyg' && !SQ_IN_BACKEND && !SQ_IN_LIMBO) {
+			$return_value = preg_replace('|<sq_wysiwyg_([^ >]*)([^>]*)>(.*)</sq_wysiwyg_\1>|si', '$3', $return_value);
+		}
+
+		return $return_value;
 
 	}//end attr()
 
