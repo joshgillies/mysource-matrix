@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.54 2012/08/30 01:09:17 ewang Exp $
+* $Id: email_format.inc,v 1.55 2013/04/19 08:20:34 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 *    <email_format with_asset_finder="1" show_inc_attachments="1" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -615,7 +615,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 
 			$hdrs = $mime->headers($hdrs);
 
-			$msg = @$mail->send($to_email, $hdrs, $body);
+			$msg = $mail->send($to_email, $hdrs, $body);
 
 		}//end foreach
 
