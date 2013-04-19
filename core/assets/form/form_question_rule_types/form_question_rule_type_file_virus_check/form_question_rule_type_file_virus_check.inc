@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_file_virus_check.inc,v 1.4 2013/04/08 07:52:52 ewang Exp $
+* $Id: form_question_rule_type_file_virus_check.inc,v 1.5 2013/04/19 06:36:00 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/antivirus/antivirus.inc';
 *
 *
 * @author  Edison Wang <ewang@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -114,7 +114,15 @@ class Form_Question_Rule_Type_File_Virus_Check extends Form_Question_Rule
 		
 		$content = isset($rule_data['indicator_content']) && !empty ($rule_data['indicator_content']) ? $rule_data['indicator_content'] : translate('core_form_rule_file_virus_check_indicator_content_default');
 		$class = isset($rule_data['indicator_class']) && !empty ($rule_data['indicator_class']) ? $rule_data['indicator_class'] : translate('core_form_rule_file_virus_check_indicator_class_default');
+		
+		// if the validation condition is set, we need to output the part that checks whether the condition is met or not as well
+		$condition_js = parent::generateConditionJSCode($rule_data);
+		$additional_condition = '';
+		if (strlen(trim($condition_js))) {
+			$additional_condition = 'if ('.$condition_js.') {';
+		}
 		ob_start();
+		echo $additional_condition;
 		?>
 		var newdiv = document.createElement('div');
 		var divIdName = 'file_upload_virus_check_indicator';
@@ -126,6 +134,7 @@ class Form_Question_Rule_Type_File_Virus_Check extends Form_Question_Rule
 			form.appendChild(newdiv);
 		}
 		<?php
+		if (strlen(trim($additional_condition))) echo '}';
 		$contents = ob_get_contents();
 		ob_end_clean();
 		return $contents;

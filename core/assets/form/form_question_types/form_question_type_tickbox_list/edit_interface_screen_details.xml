@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.7 2008/12/22 23:53:29 bpearson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.8 2013/04/19 06:36:02 ewang Exp $
 */
 -->
 
@@ -53,12 +53,19 @@
 		</field>
 	</section>
 	<section name="Simple Validation Rules" write_access="write:attributes">
+
 	    <field attribute="is_required">
 			<boolean true_text="required" false_text="optional" />
 		</field>
 		<field attribute="cust_required_error">
 			<text width="60" />
 		</field>
+	    <field>
+		<function_call>
+			<paint_function   name="paintCondition"   />
+			<process_function name="processCondition" />
+		</function_call>
+	    </field>
 	</section>
 	<section name="Complex Validation Rules" write_access="write:attributes">
 		<function_call>

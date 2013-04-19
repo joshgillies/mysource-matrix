@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.7 2008/12/22 23:53:29 bpearson Exp $
+* $Id: lang_screen_details.xml,v 1.8 2013/04/19 06:36:02 ewang Exp $
 */
 -->
 
@@ -71,6 +71,13 @@
 		<field attribute="cust_required_error">
 			<display_name>Custom Required Error</display_name>
 			<note>This message will replace the default required error message</note>
+		</field>
+		<field>
+			<display_name>Condition</display_name>
+			<function_call>
+				<paint_function   name="paintCondition"   />
+				<process_function name="processCondition" />
+			</function_call>
 		</field>
 	</section>
 </contents>

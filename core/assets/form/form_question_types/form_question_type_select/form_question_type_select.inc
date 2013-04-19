@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select.inc,v 1.20 2012/08/30 01:09:08 ewang Exp $
+* $Id: form_question_type_select.inc,v 1.21 2013/04/19 06:36:02 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/csv/csv.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -58,7 +58,7 @@ class Form_Question_Type_Select extends Form_Question
 	*/
 	function getAllowedRules()
 	{
-		return Array('select_limit', 'selection');
+		return Array('select_limit', 'selection', 'regexp');
 
 	}//end getAllowedRules()
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_begins_with_edit_fns.inc,v 1.5 2012/08/30 01:09:07 ewang Exp $
+* $Id: form_question_rule_type_begins_with_edit_fns.inc,v 1.6 2013/04/19 06:36:00 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule_edi
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -45,6 +45,7 @@ class Form_Question_Rule_Type_Begins_With_Edit_Fns extends Form_Question_Rule_Ed
 
 	function paintRule(&$asset, &$o, $prefix, $rule_data, $write_access)
 	{
+		
 		$operator_list = $asset->getOperators();
 
 		if (!$write_access) {
@@ -83,7 +84,7 @@ class Form_Question_Rule_Type_Begins_With_Edit_Fns extends Form_Question_Rule_Ed
 
 			$o->sectionNote(translate('core_form_rule_static_or_question_note'));
 		}
-
+		parent::paintRule($asset, $o, $prefix, $rule_data, $write_access);
 		return $write_access;
 
 	}//end paintRule()
@@ -98,6 +99,7 @@ class Form_Question_Rule_Type_Begins_With_Edit_Fns extends Form_Question_Rule_Ed
 	function processRule(&$asset, &$o, $prefix, &$rule_data)
 	{
 		if (!isset($_POST[$prefix])) return false;
+		parent::processRule($asset, $o, $prefix, $rule_data);
 
 		$operator = array_get_index($_POST[$prefix], 'operator', 1);
 		$comparison = array_get_index($_POST[$prefix], 'value', null);

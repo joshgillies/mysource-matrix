@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_ends_with.inc,v 1.10 2013/04/08 07:52:52 ewang Exp $
+* $Id: form_question_rule_type_ends_with.inc,v 1.11 2013/04/19 06:36:00 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -86,6 +86,13 @@ class Form_Question_Rule_Type_Ends_With extends Form_Question_Rule
 		$value = array_get_index($rule_data, 'value', '');
 		$case_sensitive = array_get_index($rule_data, 'case_sensitive', 1);
 
+		// if the validation condition is set, we need to output the part that checks whether the condition is met or not as well
+		$condition_js = parent::generateConditionJSCode($rule_data);
+		$additional_condition = '';
+		if (strlen(trim($condition_js))) {
+			$additional_condition = 'if (!'.$condition_js.') return true;';
+		}
+		
 		ob_start();			// buffer this please
 
 			if (!$printed_fn) {
@@ -94,6 +101,7 @@ class Form_Question_Rule_Type_Ends_With extends Form_Question_Rule
 					?>
 					function sq_form_validate_ends_with(answer, comparison, case_sensitive)
 					{
+						<?php echo $additional_condition; ?>
 						if (case_sensitive) {
 							pos = answer.indexOf(comparison);
 						} else {

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_comparison.inc,v 1.12 2013/04/08 07:52:52 ewang Exp $
+* $Id: form_question_rule_type_comparison.inc,v 1.13 2013/04/19 06:36:00 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -86,6 +86,10 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 		$cq_id = array_get_index($rule_data, 'comparison_question_id', 0);
 		$value = array_get_index($rule_data, 'value', '');
 
+		// if the validation condition is set, we need to output the part that checks whether the condition is met or not as well
+		$condition_js = parent::generateConditionJSCode($rule_data);
+		if (strlen(trim($condition_js))) $condition_js = ' && '.$condition_js;
+
 		ob_start();			// buffer this please
 
 			if ($cq_id != 0) {
@@ -97,9 +101,9 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 			// if it's a numeric field, make sure that JavaScript
 			// interprets it as a number
 			if ($q_asset instanceof Form_Question_Type_Numeric) {
-				?>if (!(parseFloat(form.elements["q<?php echo $q_asset->id; ?>"].value) <?php echo $operator ?> parseFloat(<?php echo $comparison ?>))) {<?php
+				?>if (!(parseFloat(form.elements["q<?php echo $q_asset->id; ?>"].value) <?php echo $operator ?> parseFloat(<?php echo $comparison ?>))<?php echo $condition_js; ?>) {<?php
 			} else {
-				?>if (!(form.elements["q<?php echo $q_asset->id; ?>"].value <?php echo $operator ?> <?php echo $comparison ?>)) {<?php
+				?>if (!(form.elements["q<?php echo $q_asset->id; ?>"].value <?php echo $operator ?> <?php echo $comparison ?>)<?php echo $condition_js; ?>) {<?php
 			}
 			?>submission_errors[submission_errors.length] = "<?php
 						if (empty($rule_data['custom_text'])) {

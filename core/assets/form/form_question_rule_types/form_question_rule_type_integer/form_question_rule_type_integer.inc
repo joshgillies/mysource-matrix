@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_integer.inc,v 1.9 2013/04/08 07:52:53 ewang Exp $
+* $Id: form_question_rule_type_integer.inc,v 1.10 2013/04/19 06:36:01 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -82,6 +82,13 @@ class Form_Question_Rule_Type_Integer extends Form_Question_Rule
 		// regex code - allow leading plus or minus, digits, no dec pt though
 		$regex_code = '/^[-+]?\d+$/';
 
+		// if the validation condition is set, we need to output the part that checks whether the condition is met or not as well
+		$condition_js = parent::generateConditionJSCode($rule_data);
+		$additional_condition = '';
+		if (strlen(trim($condition_js))) {
+			$additional_condition = 'if (!'.$condition_js.') return true;';
+		}
+		
 		ob_start();			// buffer this please
 
 			if (!$printed_fn) {
@@ -90,6 +97,7 @@ class Form_Question_Rule_Type_Integer extends Form_Question_Rule
 					?>
 					function sq_form_validate_integer(answer)
 					{
+						<?php echo $additional_condition; ?>
 						answer.replace(/,/, "");
 						return answer.match(<?php echo $regex_code ?>);
 

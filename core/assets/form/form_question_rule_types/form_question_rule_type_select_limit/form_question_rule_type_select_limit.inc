@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_select_limit.inc,v 1.12 2013/04/08 07:52:53 ewang Exp $
+* $Id: form_question_rule_type_select_limit.inc,v 1.13 2013/04/19 06:36:01 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -104,6 +104,13 @@ class Form_Question_Rule_Type_Select_Limit extends Form_Question_Rule
 
 		$q_safe_name = str_replace(':', '_', $q_name);
 
+		// if the validation condition is set, we need to output the part that checks whether the condition is met or not as well
+		$condition_js = parent::generateConditionJSCode($rule_data);
+		$additional_condition = '';
+		if (strlen(trim($condition_js))) {
+			$additional_condition = 'if ('.$condition_js.') {';
+		}
+
 		// since this is going to be a generic rule type applicable to both select lists and tickbox
 		// lists, we need different types of magic for each possible question type.
 
@@ -114,6 +121,7 @@ class Form_Question_Rule_Type_Select_Limit extends Form_Question_Rule
 			var selectCount = 0;
 
 			<?php
+			echo $additional_condition;
 			if ($q_asset instanceof Form_Question_Type_Select) {
 				?>var select = form.elements["<?php echo $q_id ?>"];
 				for(i=0; i<select.options.length; i++) {
@@ -163,6 +171,7 @@ class Form_Question_Rule_Type_Select_Limit extends Form_Question_Rule
 				?>";
 			}
 			<?php
+			if (strlen(trim($additional_condition))) echo '}';
 		$contents = ob_get_contents();
 		ob_end_clean();
 

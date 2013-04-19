@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_length.inc,v 1.9 2013/04/08 07:52:53 ewang Exp $
+* $Id: form_question_rule_type_length.inc,v 1.10 2013/04/19 06:36:01 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -85,10 +85,14 @@ class Form_Question_Rule_Type_Length extends Form_Question_Rule
 		$operator = array_get_index($rule_data, 'operator', 1);
 		$value = array_get_index($rule_data, 'value', '');
 
+		// if the validation condition is set, we need to output the part that checks whether the condition is met or not as well
+		$condition_js = parent::generateConditionJSCode($rule_data);
+		if (strlen(trim($condition_js))) $condition_js = ' && '.$condition_js;
+		
 		ob_start();			// buffer this please
 
 			?>
-				if (!(form.elements["q<?php echo $q_asset->id; ?>"].value.length <?php echo $operator ?> <?php echo $value ?>)) {
+				if (!(form.elements["q<?php echo $q_asset->id; ?>"].value.length <?php echo $operator ?> <?php echo $value ?>)<?php echo $condition_js; ?>) {
 					submission_errors[submission_errors.length] = "<?php
 						if (empty($rule_data['custom_text'])) {
 							echo addslashes($this->defaultError($q_asset, $rule_data));

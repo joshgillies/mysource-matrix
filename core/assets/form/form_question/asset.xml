@@ -13,7 +13,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.6 2006/12/06 00:35:26 emcdonald Exp $
+* $Id: asset.xml,v 1.7 2013/04/19 06:36:00 ewang Exp $
 *
 *
 */
@@ -22,7 +22,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>__core__</package>
 	<type_code>form_question</type_code>
-	<version>0.8</version>
+	<version>0.9</version>
 	<name>Form Question</name>
 	<description>Question for the form template</description>
 	<instantiable>yes</instantiable>

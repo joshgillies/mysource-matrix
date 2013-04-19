@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_management.inc,v 1.10 2012/08/30 01:09:07 ewang Exp $
+* $Id: form_question_management.inc,v 1.11 2013/04/19 06:36:00 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -82,6 +82,11 @@ class Form_Question_Management extends Asset_Management
 																		'allow_empty'		=> TRUE,
 																		'range_upper'		=> 32767,
 																	   ),
+												   ),
+						'validation_condition' => Array(
+													'added'		=> '0.9',
+													'type'		=> 'serialise',
+													'default'	=> Array(),	
 												   ),
 					  );
 

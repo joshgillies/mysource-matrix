@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_file_type_edit_fns.inc,v 1.8 2012/08/30 01:09:07 ewang Exp $
+* $Id: form_question_rule_type_file_type_edit_fns.inc,v 1.9 2013/04/19 06:36:00 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/option_list/option_list.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -73,7 +73,7 @@ class Form_Question_Rule_Type_File_Type_Edit_Fns extends Form_Question_Rule_Edit
 
 			$o->sectionNote(translate('core_form_rule_file_type_note'));
 		}
-
+		parent::paintRule($asset, $o, $prefix, $rule_data, $write_access);
 		return $write_access;
 
 	}//end paintRule()
@@ -88,6 +88,7 @@ class Form_Question_Rule_Type_File_Type_Edit_Fns extends Form_Question_Rule_Edit
 	function processRule(&$asset, &$o, $prefix, &$rule_data)
 	{
 		if (!isset($_POST[$prefix])) return false;
+		parent::processRule($asset, $o, $prefix, $rule_data);
 
 		$operator = array_get_index($_POST[$prefix], 'operator', null);
 		$comparison = trim(implode("\r\n", array_get_index($_POST, str_replace(':', '_', $prefix).'_value_options', Array())));

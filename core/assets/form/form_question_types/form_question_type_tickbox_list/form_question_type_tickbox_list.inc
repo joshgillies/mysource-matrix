@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list.inc,v 1.16 2013/04/08 07:52:53 ewang Exp $
+* $Id: form_question_type_tickbox_list.inc,v 1.17 2013/04/19 06:36:02 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -173,14 +173,14 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 		}
 		$value = $this->getAnswerByOffset($answer);
 
-		if ($this->attr('is_required')) {
+		if ($this->attr('is_required') && $this->_isValidationRequired()) {
 			$req_rule = Array('rule_code' => 'select_limit', 'operator' => '>=', 'value' => '1');
 			array_push($this->vars['rules']['value'], $req_rule);
 		}
 
 		$ok = parent::hasValidValue($value, $mute_errors);
 
-		if ($this->attr('is_required')) {
+		if ($this->attr('is_required') && $this->_isValidationRequired()) {
 			array_pop($this->vars['rules']['value']);
 		}
 
@@ -203,6 +203,8 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	{
 		if ($this->attr('is_required')) {
 			$req_rule = Array('rule_code' => 'select_limit', 'operator' => '>=', 'value' => '1');
+			$rule_data = $this->attr('validation_condition');
+			$req_rule = array_merge($req_rule, $rule_data);
 			array_push($this->vars['rules']['value'], $req_rule);
 		}
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_email.inc,v 1.12 2013/04/08 07:52:52 ewang Exp $
+* $Id: form_question_rule_type_email.inc,v 1.13 2013/04/19 06:36:00 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -85,10 +85,18 @@ class Form_Question_Rule_Type_Email extends Form_Question_Rule
 			$local = '\da-zA-Z-_+'; // allowed in the first char
 			$local_middle = $local.'.\w'; // allowed in the rest of the username
 			$regex_code = '/^(['.$local.']['.$local_middle.'\']*['.$local.']@[\da-zA-Z][\'-.\w]*[\da-zA-Z]\.[a-zA-Z]{2,7})$/';
+			
+			// if the validation condition is set, we need to output the part that checks whether the condition is met or not as well
+			$condition_js = parent::generateConditionJSCode($rule_data);
+			$additional_condition = '';
+			if (strlen(trim($condition_js))) {
+				$additional_condition = 'if (!'.$condition_js.') return true;';
+			}
 			?>
 			function sq_form_validate_email_<?php echo $function_id; ?>(answer)
 			{
 				<?php
+					echo $additional_condition;
 					if (!$q_asset->attr('is_required')) {
 						?>
 						if (answer.length == 0) {

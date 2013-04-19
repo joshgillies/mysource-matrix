@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_edit_fns.inc,v 1.10 2012/08/30 01:09:07 ewang Exp $
+* $Id: form_question_edit_fns.inc,v 1.11 2013/04/19 06:36:00 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -324,6 +324,84 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 
 	}//end processLockMessage()
 
+
+	/**
+	* Paint the validation condition for simple validation. 
+	* Validation condition can be set up so that, only when a condition is met, the validation rule will be executed.
+	* Only use vlidation condition when the quesiton is required.
+	*
+	* 
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintCondition(&$asset, &$o, $prefix)
+	{
+		// this condition is only available when the simple validation is set up as a required field
+		if (!$asset->attr('is_required')) {
+			echo translate('core_form_required_validation_condition');
+			return TRUE;
+		}
+
+		// fabricate a form question rule to make use of the same condition feature handled there
+		$write_access = $asset->writeAccess('attributes');		
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('form_question_rule');
+		$rule_asset = new Form_Question_Rule();
+		$rule_edit_fns = $rule_asset->getEditFns();
+
+		// if we already have a condition previously set, use the condition settings otherwise print an empty condition
+		$rule_data = $asset->attr('validation_condition');
+		if (!$rule_data) $rule_data = Array();
+		
+		$rule_edit_fns->paintRule($rule_asset, $o, $prefix, $rule_data, $write_access, FALSE);
+		
+
+		return TRUE;
+	}//end paintCondition()
+	
+	
+	/**
+	* Process validation condition settings
+	*
+	* This feature is available only when this question requies an answer.
+	* 
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processCondition(&$asset, &$o, $prefix)
+	{
+		// this condition is only available when the simple validation is set up as a required field 
+		if (!$asset->attr('is_required')) return TRUE;
+		
+		// if we don't have any relevant data committed, there's nothing we can do...
+		if (!isset($_POST[$prefix])) return FALSE;
+
+		// save the condition settings in validation_condition attribute
+		$condition_asset = array_get_index($_POST[$prefix], 'condition_asset', 0);
+		$condition_asset = $condition_asset['assetid'];
+		$condition_operator = array_get_index($_POST[$prefix], 'condition_operator', '=');
+		$condition_value = array_get_index($_POST[$prefix], 'condition_value', null);
+		$enabled = array_get_index($_POST[$prefix], 'enable', 0);
+		
+		$condition = Array();
+		if($enabled) {		
+		    $condition['condition_asset'] = $condition_asset;
+		    $condition['condition_operator'] = $condition_operator;
+		    $condition['condition_value'] = $condition_value;
+		}
+		
+		$asset->setAttrValue('validation_condition', $condition);
+		return $asset->saveAttributes();
+		
+
+	}//end processCondition()
 
 }//end class
 ?>

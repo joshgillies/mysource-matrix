@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_file_virus_check_edit_fns.inc,v 1.2 2012/08/30 01:09:07 ewang Exp $
+* $Id: form_question_rule_type_file_virus_check_edit_fns.inc,v 1.3 2013/04/19 06:36:00 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Edison Wang <ewang@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -86,7 +86,7 @@ class Form_Question_Rule_Type_File_Virus_Check_Edit_Fns extends Form_Question_Ru
 
 			$o->sectionNote(translate('core_form_rule_file_virus_check_note'));
 		}
-
+		parent::paintRule($asset, $o, $prefix, $rule_data, $write_access);
 		return $write_access;
 
 	}//end paintRule()
@@ -101,6 +101,8 @@ class Form_Question_Rule_Type_File_Virus_Check_Edit_Fns extends Form_Question_Ru
 	function processRule(&$asset, &$o, $prefix, &$rule_data)
 	{
 		if (!isset($_POST[$prefix])) return false;
+		parent::processRule($asset, $o, $prefix, $rule_data);
+		
 	 	$check_virus = array_get_index($_POST[$prefix], 'check_virus', null);
 		$rule_data['check_virus'] = $check_virus;
 		

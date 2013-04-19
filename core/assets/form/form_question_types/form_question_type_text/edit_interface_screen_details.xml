@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.6 2006/12/06 00:35:31 emcdonald Exp $
+* $Id: edit_interface_screen_details.xml,v 1.7 2013/04/19 06:36:02 ewang Exp $
 */
 -->
 
@@ -58,6 +58,12 @@
 		</field>
 		<field attribute="cust_required_error">
 			<text width="60" />
+		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintCondition"   />
+				<process_function name="processCondition" />
+			</function_call>
 		</field>
 	</section>
 	<section name="Complex Validation Rules" write_access="write:attributes">

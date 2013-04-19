@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.50 2013/04/08 07:52:52 ewang Exp $
+* $Id: form_question.inc,v 1.51 2013/04/19 06:36:00 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -725,6 +725,11 @@ class Form_Question extends Asset
 
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
 			$rule_asset = new $type_code();
+			
+			// If a validation condition (cross field validation) is set, we need to validate only when
+			// the condition is met, otherwise the validation shouldn't be run.
+			// Check if the validation needs to be run or not and run it only when it's necessary.
+			if ($rule_asset->isValidationRequired($rule)) {
 			$rule_ok = $rule_asset->evaluate($answer, $rule, $this);
 
 			if (!$rule_ok) {
@@ -741,6 +746,7 @@ class Form_Question extends Asset
 					// more rules, so we can just short-circuit and return now
 					return FALSE;
 				}
+			}
 			}
 
 		}
@@ -1149,5 +1155,28 @@ class Form_Question extends Asset
 	}//end useFieldset()
 	
 
+	/**
+	* Checks if validation is required for simple validation rules
+	*
+	* When a validation condition is set, the validation needs to be executed only when the condition is met.
+	* This function determins if such a condition is set and if so the condition is met, in which case the validation
+	* is required to be executed. 
+	*
+	* @return bool
+	* @access public
+	*/
+	function _isValidationRequired() 
+	{
+		// fabricate a form question rule as a temporary vehicle to check the condition
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('form_question_rule');
+		$rule_asset = new Form_Question_Rule();
+		
+		// if the condition settings are specified in simple validation rules, check if the condition is met or not 
+		$rule_data = $this->attr('validation_condition');
+		if (!$rule_data || empty($rule_data)) return TRUE;
+		
+		return $rule_asset->isValidationRequired($rule_data);
+	}
+	
 }//end class
 ?>

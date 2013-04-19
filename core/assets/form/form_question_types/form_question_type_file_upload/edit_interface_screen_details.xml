@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.5 2006/12/06 00:35:30 emcdonald Exp $
+* $Id: edit_interface_screen_details.xml,v 1.6 2013/04/19 06:36:02 ewang Exp $
 */
 -->
 
@@ -52,6 +52,12 @@
 		</field>
 		<field attribute="overwrite_rule">
 			<selection style="list" />
+		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintCondition"   />
+				<process_function name="processCondition" />
+			</function_call>
 		</field>
 	</section>
 	<section name="Complex Validation Rules" write_access="write:attributes">
