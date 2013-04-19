@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.272.2.4 2013/04/16 00:59:37 ewang Exp $
+* $Id: form.inc,v 1.272.2.5 2013/04/19 02:04:54 cupreti Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.272.2.4 $
+* @version $Revision: 1.272.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -5066,6 +5066,7 @@ class Form extends Asset implements Bridge
 	*/
 	public function _getThankYouKeywordReplacement($keyword)
 	{
+		$full_keyword = $keyword;
 		$replacement = '%'.$keyword.'%';
 		$prefix = $this->getPrefix();
 		$keyword = parse_keyword($keyword, $modifiers);
@@ -5252,11 +5253,14 @@ class Form extends Asset implements Bridge
 			$replacement = $this->getKeywordReplacement($keyword);
 		}
 
-		$replace_keywords = Array(
-						'assetid' 	=> $this->id,
-						'call_fns'	=> Array ('_getThankYouKeywordReplacement', 'getKeywordReplacement'),
-					);
-		apply_keyword_modifiers($replacement, $modifiers, $replace_keywords);
+		// If replacement still not found, leave it to be replaced later
+		if ($replacement != '%'.$full_keyword.'%') {
+			$replace_keywords = Array(
+							'assetid' 	=> $this->id,
+							'call_fns'	=> Array ('_getThankYouKeywordReplacement', 'getKeywordReplacement'),
+						);
+			apply_keyword_modifiers($replacement, $modifiers, $replace_keywords);
+		}
 
 		return $replacement;
 
