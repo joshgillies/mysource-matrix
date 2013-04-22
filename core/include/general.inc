@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.281.2.2 2013/03/19 03:17:41 ewang Exp $
+* $Id: general.inc,v 1.281.2.3 2013/04/22 06:34:12 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.281.2.2 $
+* @version $Revision: 1.281.2.3 $
 * @package MySource_Matrix
 */
 
@@ -768,19 +768,21 @@ function current_url($inc_protocol=TRUE, $strip_backend_suffix=FALSE)
 				trigger_localised_error('SYS0107', E_USER_ERROR);
 			}
 		}
-		$url = (($inc_protocol) ? current_protocol().'://' : '').$host.$_SERVER['PHP_SELF'];
+		$uri = array_shift(explode('?',$_SERVER['REQUEST_URI']));
+		$url = (($inc_protocol) ? current_protocol().'://' : '').$host.$uri;
 
 		// if we are in the backend remove the suffix
 		if ($strip_backend_suffix && (SQ_IN_BACKEND || SQ_IN_LIMBO || SQ_IN_LOGIN)) {
-			$url = preg_replace('/'.SQ_CONF_BACKEND_SUFFIX.'\/?$/', '', $url);
-			$url = preg_replace('/'.SQ_CONF_LIMBO_SUFFIX.'\/?$/', '', $url);
-			$url = preg_replace('/'.SQ_CONF_LOGIN_SUFFIX.'\/?$/', '', $url);
+			$url = preg_replace('/('.SQ_CONF_BACKEND_SUFFIX.'|'.SQ_CONF_LIMBO_SUFFIX.'|'.SQ_CONF_LOGIN_SUFFIX.')\/?$/', '', $url);
 		}
-		$url = preg_replace('/'.SQ_CONF_NOCACHE_SUFFIX.'\/?$/', '', $url);
-		$url = preg_replace('/\/'.SQ_CONF_RECACHE_SUFFIX.'\/?$/', '', $url);
-		$url = preg_replace('/\/'.SQ_CONF_PERFORMANCE_SUFFIX.'\/?$/', '', $url);
-		$url = preg_replace('/\/'.SQ_CONF_PERFORMANCE_TIMING_SUFFIX.'\/?$/', '', $url);
-		$url = preg_replace('/\/'.SQ_CONF_PERFORMANCE_RESULT_SUFFIX.'\/?$/', '', $url);
+		$regex = '/\/(';
+		$regex .= SQ_CONF_NOCACHE_SUFFIX.'|';
+		$regex .= SQ_CONF_RECACHE_SUFFIX.'|';
+		$regex .= SQ_CONF_PERFORMANCE_SUFFIX.'|';
+		$regex .= SQ_CONF_PERFORMANCE_TIMING_SUFFIX.'|';
+		$regex .= SQ_CONF_PERFORMANCE_RESULT_SUFFIX;
+		$regex .= ')\/?$/';
+		$url = preg_replace($regex, '', $url);
 	}
 
 	if (empty($url)) {	// url empty, just use the first system root url
