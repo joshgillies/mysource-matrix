@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule.inc,v 1.6.4.1 2013/04/22 03:02:35 ewang Exp $
+* $Id: form_question_rule.inc,v 1.6.4.2 2013/04/22 03:30:56 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @static
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.6.4.1 $
+* @version $Revision: 1.6.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -203,7 +203,7 @@ class Form_Question_Rule extends Asset
 		$target_value = $target_asset->value;
 		$condition_operator = isset($rule_data['condition_operator']) ? $rule_data['condition_operator'] : NULL;
 		$condition_value = isset($rule_data['condition_value']) ? $rule_data['condition_value'] : NULL;
-		if (is_null($condition_operator) || is_null($condition_value) || is_null($target_value)) return FALSE;
+		if (is_null($condition_operator) || is_null($condition_value) || is_null($target_value)) return $result;
 
 		// evaluate the condition to see if we need to run the validation
 		switch ($condition_operator) {
