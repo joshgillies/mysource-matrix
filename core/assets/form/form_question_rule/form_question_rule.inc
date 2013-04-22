@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule.inc,v 1.7 2013/04/19 06:36:00 ewang Exp $
+* $Id: form_question_rule.inc,v 1.8 2013/04/22 02:49:56 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @static
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -195,13 +195,15 @@ class Form_Question_Rule extends Asset
 		// if the target question asset to evaluate the condition is not set, the validation is for all cases without a condition 
 		// and need to run the validation
 		if (!isset($rule_data['condition_asset']) || empty($rule_data['condition_asset'])) return $result;
-		
-		// get the data we need to evaluate the condition. if any setting is missing, then we cannot evaluate properly - resort to
-		// making the validation applicable to all cases without a condition
-		$target_value = isset($_POST['q'.$rule_data['condition_asset']]) ? $_POST['q'.$rule_data['condition_asset']] : '';
+		$target_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($rule_data['condition_asset']);
+		if(empty($target_asset))  return $result;
+			
+		// get the data we need to evaluate the condition.
+		// not using getValue() here because it could cause infinate loop
+		$target_value = $target_asset->value;
 		$condition_operator = isset($rule_data['condition_operator']) ? $rule_data['condition_operator'] : NULL;
 		$condition_value = isset($rule_data['condition_value']) ? $rule_data['condition_value'] : NULL;
-		if (is_null($condition_operator) || is_null($condition_value)) return $result;
+		if (is_null($condition_operator) || is_null($condition_value) || is_null($target_value)) return FALSE;
 
 		// evaluate the condition to see if we need to run the validation
 		switch ($condition_operator) {
