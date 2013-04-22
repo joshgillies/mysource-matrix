@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.84 2013/04/08 07:58:55 ewang Exp $
+* $Id: form_section.inc,v 1.85 2013/04/22 05:17:27 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.84 $
+* @version $Revision: 1.85 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -110,7 +110,9 @@ class Form_Section extends Asset implements Bridge
 	function _updated($update_parents=TRUE)
 	{
 		if (!parent::_updated($update_parents)) return FALSE;
-		if (SQ_IN_BACKEND) return $this->fileRegeneration();
+		// do not regenerate file during clone, do it afterwards
+		$in_clone = isset($GLOBALS['SQ_CLONE_COMPONENTS']) && $GLOBALS['SQ_CLONE_COMPONENTS'];
+		if (SQ_IN_BACKEND && !$in_clone) return $this->fileRegeneration();
 		return TRUE;
 
 	}//end _updated()
@@ -217,7 +219,9 @@ class Form_Section extends Asset implements Bridge
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
-
+		
+		$GLOBALS['SQ_CLONE_COMPONENTS'] = TRUE;
+		
 		if (in_array('attributes', $components) || in_array('all', $components)) {
 			$sort_order = $this->attr('sort_order');
 			$sort_order = str_replace($this->id.':q', $clone->id.':q', $sort_order);
@@ -264,14 +268,45 @@ class Form_Section extends Asset implements Bridge
 				$form->saveAttributes();
 			}
 		}//end if
-
+		
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		
+		$GLOBALS['SQ_CLONE_COMPONENTS'] = FALSE;
 		return TRUE;
 
 	}//end cloneComponents()
 
 
+	/**
+	* Perform any additional processing required during the cloning of this asset
+	*
+	* This function is being called by asset_manager after the dependants of asset
+	* have been cloned.
+	*
+	* @param Asset	$clone		the clone asset shell
+	* @param array	$components	the wanted components to clone eg.
+	*							Array(
+	*							'attributes',
+	*							'metadata_schemas',
+	*							'metadata',
+	*							'workflow',
+	*							'permissions',
+	*							'data',
+	*							);
+	*							or alternately
+	*							Array('all');
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function cloneComponentsAdditional(Asset $clone, Array $components)
+	{
+		if (SQ_IN_BACKEND) return $clone->fileRegeneration();
+	}//end cloneComponentsAdditional()
+
+	
+	
 	/**
 	* Returns name of the asset
 	*
@@ -1611,6 +1646,7 @@ class Form_Section extends Asset implements Bridge
 	function useAccessibleFormat()
 	{
 		$parent = $this->getParentForm();
+		if(is_null($parent)) return TRUE;
 		return $parent->useAccessibleFormat();
 	}//end useAccessibleFormat()
 	
@@ -1624,6 +1660,7 @@ class Form_Section extends Asset implements Bridge
 	function getRequiredFieldMark()
 	{
 		$parent = $this->getParentForm();
+		if(is_null($parent)) return  ' '.'<abbr class="sq-form-required-field" title="required">*</abbr>';
 		return $parent->getRequiredFieldMark();
 	}//end getRequiredFieldMark()
 	
@@ -1644,6 +1681,10 @@ class Form_Section extends Asset implements Bridge
 		$form_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'form', FALSE, NULL, 'minor');
 		if(!isset($form_link['majorid'])) {
 		    $form_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'form_section', FALSE, NULL, 'minor');
+		}
+		// if this form section is not linked to any asset
+		if(!isset($form_link['majorid'])) {
+		    return NULL;
 		}
 		$parent_form_id = $form_link['majorid'];
 		$this->parent_form_id = $parent_form_id;
