@@ -10,9 +10,10 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.6 2008/10/10 03:33:09 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.6.26.1 2013/04/22 03:02:36 ewang Exp $
 */
 -->
+
 
 <contents>
 	<section name="Locking / Editing">
@@ -67,6 +68,13 @@
 			<li><strong>Rename Uploaded File:</strong> Apply a numeric suffix to the uploaded file's name (<em>file.ext</em> would be renamed <em>file2.ext</em>, then <em>file3.ext</em>, and so on), until the conflict is resolved.</li>
 			<li><strong>Raise a Submission Error:</strong> Do not overwrite or rename the uploaded file. An submission error will appear on the <em>last</em> page of the form if a naming conflict arises.</li>
 			</ul>]]>The Overwrite Rule will be applied after the form is finally submitted. If a <![CDATA[<em>Create Location</em>]]> is not specified, this option has no effect.</note>
+		</field>
+		<field>
+			<display_name>Condition</display_name>
+			<function_call>
+				<paint_function   name="paintCondition"   />
+				<process_function name="processCondition" />
+			</function_call>
 		</field>
 	</section>
 	<section name="Complex Validation Rules" />

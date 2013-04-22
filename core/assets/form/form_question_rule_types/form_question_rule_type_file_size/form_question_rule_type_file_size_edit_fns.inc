@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_file_size_edit_fns.inc,v 1.5 2012/08/30 01:09:07 ewang Exp $
+* $Id: form_question_rule_type_file_size_edit_fns.inc,v 1.5.4.1 2013/04/22 03:02:35 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -73,7 +73,7 @@ class Form_Question_Rule_Type_File_Size_Edit_Fns extends Form_Question_Rule_Edit
 
 			$o->sectionNote(translate('core_form_rule_file_size_config_note', strtoupper(easy_filesize($this->_maxUploadSize()))));
 		}
-
+		parent::paintRule($asset, $o, $prefix, $rule_data, $write_access);
 		return $write_access;
 
 	}//end paintRule()
@@ -88,6 +88,7 @@ class Form_Question_Rule_Type_File_Size_Edit_Fns extends Form_Question_Rule_Edit
 	function processRule(&$asset, &$o, $prefix, &$rule_data)
 	{
 		if (!isset($_POST[$prefix])) return false;
+		parent::processRule($asset, $o, $prefix, $rule_data);
 
 		$multipliers = Array(0 => '', 1 => 'KB', 2 => 'MB', 3 => 'GB');
 

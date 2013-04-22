@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_found_in_edit_fns.inc,v 1.5 2012/08/30 01:09:08 ewang Exp $
+* $Id: form_question_rule_type_found_in_edit_fns.inc,v 1.5.4.1 2013/04/22 03:02:35 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule_edi
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -82,7 +82,7 @@ class Form_Question_Rule_Type_Found_In_Edit_Fns extends Form_Question_Rule_Edit_
 
 			$o->sectionNote(translate('core_form_rule_static_or_question_note'));
 		}
-
+		parent::paintRule($asset, $o, $prefix, $rule_data, $write_access);
 		return $write_access;
 
 	}//end paintRule()
@@ -97,6 +97,7 @@ class Form_Question_Rule_Type_Found_In_Edit_Fns extends Form_Question_Rule_Edit_
 	function processRule(&$asset, &$o, $prefix, &$rule_data)
 	{
 		if (!isset($_POST[$prefix])) return false;
+		parent::processRule($asset, $o, $prefix, $rule_data);
 
 		$operator = array_get_index($_POST[$prefix], 'operator', 1);
 		$comparison = array_get_index($_POST[$prefix], 'value', null);

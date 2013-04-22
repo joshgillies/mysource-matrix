@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_text.inc,v 1.9 2012/08/30 01:09:08 ewang Exp $
+* $Id: form_question_type_text.inc,v 1.9.4.1 2013/04/22 03:02:36 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.9.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -120,14 +120,14 @@ class Form_Question_Type_Text extends Form_Question
 	{
 		if (is_null($answer)) $answer = $this->getValue();
 
-		if ($this->attr('is_required')) {
+		if ($this->attr('is_required') && $this->_isValidationRequired()) {
 			$req_rule = Array('rule_code' => 'comparison', 'operator' => '!=', 'value' => '');
 			array_push($this->vars['rules']['value'], $req_rule);
 		}
 
 		$ok = parent::hasValidValue($answer, $mute_errors);
 
-		if ($this->attr('is_required')) {
+		if ($this->attr('is_required') && $this->_isValidationRequired()) {
 			array_pop($this->vars['rules']['value']);
 		}
 
@@ -150,6 +150,8 @@ class Form_Question_Type_Text extends Form_Question
 	{
 		if ($this->attr('is_required')) {
 			$req_rule = Array('rule_code' => 'comparison', 'operator' => '!=', 'value' => '');
+			$rule_data = $this->attr('validation_condition');
+			$req_rule = array_merge($req_rule, $rule_data);
 			array_push($this->vars['rules']['value'], $req_rule);
 		}
 

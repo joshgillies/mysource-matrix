@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.4 2006/12/06 00:35:26 emcdonald Exp $
+* $Id: lang_strings.xml,v 1.4.34.1 2013/04/22 03:02:35 ewang Exp $
 *
 * Localised Strings File for Form Question Asset
 */
@@ -30,4 +30,6 @@
 <string source="core_form_rule_static_value">Static Value</string>
 <string source="core_form_rule_static_or_question_note">Enter either a static value to compare responses against, or select another question from this form to compare with that question's response. The selection of a question takes precedence over a static value.</string>
 <string source="core_form_submission_errors">The following errors must be corrected before the form can be submitted:</string>
+<string source="core_form_required_validation_condition_description">If this question requires an entry in any case, leave the asset empty in this condition</string>
+<string source="core_form_required_validation_condition">Validation condition can be specified only when this question requires an entry </string>
 </strings>

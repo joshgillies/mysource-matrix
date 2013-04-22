@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_numeric.inc,v 1.12.4.1 2013/04/09 07:49:43 ewang Exp $
+* $Id: form_question_rule_type_numeric.inc,v 1.12.4.2 2013/04/22 03:02:36 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.12.4.1 $
+* @version $Revision: 1.12.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -89,6 +89,13 @@ class Form_Question_Rule_Type_Numeric extends Form_Question_Rule
         // regex code - allow leading plus or minute, digits, decimal point, but not empty
         $regex_code_required = '/^[-+]?\d*\.?\d+$/';
 
+		// if the validation condition is set, we need to output the part that checks whether the condition is met or not as well
+		$condition_js = parent::generateConditionJSCode($rule_data);
+		$additional_condition = '';
+		if (strlen(trim($condition_js))) {
+			$additional_condition = 'if (!'.$condition_js.') return true;';
+		}
+			
 		ob_start();			// buffer this please
 
             // output js function for *required* validation
@@ -98,6 +105,7 @@ class Form_Question_Rule_Type_Numeric extends Form_Question_Rule
 					?>
 					function sq_form_validate_numeric_required(answer)
 					{
+						<?php echo $additional_condition; ?>
 						answer.replace(/,/, "");
 						return answer.match(<?php echo $regex_code_required ?>);
 
@@ -110,6 +118,7 @@ class Form_Question_Rule_Type_Numeric extends Form_Question_Rule
 					?>
 					function sq_form_validate_numeric_not_required(answer)
 					{
+						<?php echo $additional_condition; ?>
 						answer.replace(/,/, "");
 						return answer.match(<?php echo $regex_code_not_required ?>);
 

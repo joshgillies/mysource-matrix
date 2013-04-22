@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_numeric.inc,v 1.6 2012/08/30 01:09:08 ewang Exp $
+* $Id: form_question_type_numeric.inc,v 1.6.4.1 2013/04/22 03:02:36 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -121,6 +121,8 @@ class Form_Question_Type_Numeric extends Form_Question_Type_Text
 	{
 		// Add Force Numeric in any case
 		$req_rule = Array('rule_code' => 'numeric', 'operator' => 1);
+		$rule_data = $this->attr('validation_condition');
+		$req_rule = array_merge($req_rule, $rule_data);
 		array_unshift($this->vars['rules']['value'], $req_rule);
 
 		// Add Force Integer if required

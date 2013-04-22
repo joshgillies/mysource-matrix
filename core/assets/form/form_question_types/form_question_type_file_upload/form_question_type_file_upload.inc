@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.48 2012/08/30 01:09:08 ewang Exp $
+* $Id: form_question_type_file_upload.inc,v 1.48.4.1 2013/04/22 03:02:36 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.48.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -150,7 +150,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 		$none_uploaded = !isset($this->_tmp['file_info']) || (is_array($this->_tmp['file_info']) && empty($this->_tmp['file_info']));
 		$previously_uploaded = !empty($this->extra_data['temp_filesystem_path']);
 
-		if ($none_uploaded && !$previously_uploaded && $this->attr('is_required')) {
+		if ($none_uploaded && !$previously_uploaded && $this->attr('is_required') && $this->_isValidationRequired()) {
 			// no file uploaded to required field (and none previously uploaded either)
 			if (strlen($this->attr('cust_required_error'))) {
 				$this->failed_rules[] = $this->attr('cust_required_error');

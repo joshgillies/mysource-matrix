@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_edit_fns.inc,v 1.4 2012/08/30 01:09:07 ewang Exp $
+* $Id: form_question_rule_edit_fns.inc,v 1.4.4.1 2013/04/22 03:02:35 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -46,6 +46,9 @@ class Form_Question_Rule_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paints the rule's interface
 	*
+	* New question rule type must call this function from its overridden function by 'parent::paintRule($asset, $o, $prefix, $rule_data, $write_access, $open_field)'
+	* in order to allow the new question rule type to set a condition to execute the validation.
+	* 
 	* @param object		&$asset			The asset to paint
 	* @param object		&$o				The backend outputter
 	* @param string		$prefix			String prefix for this interface/asset
@@ -55,8 +58,41 @@ class Form_Question_Rule_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintRule(&$asset, &$o, $prefix, $rule_data, $write_access)
+	function paintRule(&$asset, &$o, $prefix, $rule_data, $write_access, $open_field=TRUE)
 	{
+		// paint validation condition that is generic to every question rule type
+		$condition_operators = $asset->getConditionOperators();
+		$condition_exists = isset($rule_data['condition_asset']) && $rule_data['condition_asset'];
+		
+		if ($open_field) $o->openField(translate('core_form_rule_condition'));
+		if (!$write_access) {
+			if (!$condition_exists) {
+				echo translate('core_form_rule_condition_not_set');
+			} else {
+				$target_question = $GLOBALS['SQ_SYSTEM']->am->getAsset($rule_data['condition_asset']);
+				$target = $target_question->getVal('title');
+				$operators = $asset->getConditionOperators();
+				$operator = isset($rule_data['condition_operator']) && isset($operators[$rule_data['condition_operator']]) ? $operators[$rule_data['condition_operator']] : NULL;
+				$value = isset($rule_data['condition_value']) ? '/'.$rule_data['condition_value'].'/' : '';
+				echo translate('core_form_rule_condition_set', $target, $operator, $value);
+			}
+		} else {
+			$enabled = isset($_POST[$prefix]) ? array_get_index($_POST[$prefix], 'enable', 0) : FALSE;
+			label( translate('core_form_rule_condition_add_condition'), $prefix.'[enable]');
+			check_box($prefix.'[enable]', '1', $enabled || $condition_exists);
+			
+			// only display condition configuration interface when required
+			if($enabled || $condition_exists) {
+			    echo '<br>';
+			    echo translate('core_form_rule_condition_text');
+			    asset_finder($prefix.'[condition_asset]', array_get_index($rule_data, 'condition_asset', '0'), Array('form_question' => 'D'));
+			    combo_box($prefix.'[condition_operator]', $condition_operators, false, array_get_index($rule_data, 'condition_operator', 1));
+			    text_box($prefix.'[condition_value]', array_get_index($rule_data, 'condition_value', ''), 50);
+			}
+		}
+		if ($open_field) $o->closeField();
+		
+		return $write_access;
 
 	}//end paintRule()
 
@@ -64,6 +100,9 @@ class Form_Question_Rule_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Process the rule's interface
 	*
+	* 
+	* New question rule type must call this function from its overridden function by 'parent::processRule($asset, $o, $prefix, $rule_data)'
+	* in order to allow the new question rule type to set a condition to execute the validation.
 	* @param object	&$asset		The asset to paint
 	* @param object	&$o			The backend outputter
 	* @param string	$prefix		String prefix for this interface/asset
@@ -74,6 +113,28 @@ class Form_Question_Rule_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processRule(&$asset, &$o, $prefix, &$rule_data)
 	{
+		// process validation condition settings that are generic to every question rule type
+		if (!isset($_POST[$prefix])) return false;
+
+		$condition_asset = array_get_index($_POST[$prefix], 'condition_asset', 0);
+		$condition_operator = array_get_index($_POST[$prefix], 'condition_operator', '=');
+		$condition_value = array_get_index($_POST[$prefix], 'condition_value', null);
+		$enabled = array_get_index($_POST[$prefix], 'enable', 0);
+
+		// remove the condition
+		if(!$enabled) {
+		    unset($rule_data['condition_asset']);
+		    unset($rule_data['condition_operator']);
+		    unset($rule_data['condition_value']);
+		}
+		else {
+		    $condition_asset = $condition_asset['assetid'];
+		    $rule_data['condition_asset'] = $condition_asset;
+		    $rule_data['condition_operator'] = $condition_operator;
+		    $rule_data['condition_value'] = $condition_value;
+		}
+
+		return true;
 
 	}//end processRule()
 

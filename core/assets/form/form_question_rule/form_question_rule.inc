@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule.inc,v 1.6 2012/08/30 01:09:07 ewang Exp $
+* $Id: form_question_rule.inc,v 1.6.4.1 2013/04/22 03:02:35 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @static
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -159,6 +159,118 @@ class Form_Question_Rule extends Asset
 
 	}//end ruleDescription()
 
+
+	/**
+	* Returns a list of operators available for a validation condition
+	*
+	* @return array
+	* @access public
+	*/
+	public static function getConditionOperators()
+	{
+		return Array(
+				'='	 => translate('core_form_rule_condition_match'),
+				'!=' => translate('core_form_rule_condition_not_match'),
+				'>'	 => translate('core_form_rule_condition_greater_than'),
+				'<'	 => translate('core_form_rule_condition_less_than'),
+			   );
+
+	}//end getOperators()
+	
+	
+	/**
+	* Returns whehter validation needs to be executed or not
+	*
+	* If the validation condition is set, the validation should not be executed when the condition doesn't match.
+	* This function checks if the condition to run the validation is met or not. 
+	*
+	* @param array	$rule_data	the rule data
+	*
+	* @return boolean
+	* @access public
+	*/
+	public static function isValidationRequired($rule_data) {
+		$result = TRUE;
+		
+		// if the target question asset to evaluate the condition is not set, the validation is for all cases without a condition 
+		// and need to run the validation
+		if (!isset($rule_data['condition_asset']) || empty($rule_data['condition_asset'])) return $result;
+		$target_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($rule_data['condition_asset']);
+		if(empty($target_asset))  return $result;
+
+		// get the data we need to evaluate the condition.
+		// not using getValue() here because it could cause infinate loop
+		$target_value = $target_asset->value;
+		$condition_operator = isset($rule_data['condition_operator']) ? $rule_data['condition_operator'] : NULL;
+		$condition_value = isset($rule_data['condition_value']) ? $rule_data['condition_value'] : NULL;
+		if (is_null($condition_operator) || is_null($condition_value) || is_null($target_value)) return FALSE;
+
+		// evaluate the condition to see if we need to run the validation
+		switch ($condition_operator) {
+			case '=':
+				$result = preg_match('/'.$condition_value.'/', $target_value);
+				break;
+			case '!=':
+				$result = !preg_match('/'.$condition_value.'/', $target_value);
+				break;
+			case '>':
+				$result = $target_value > $condition_value;
+				break;
+			case '<':
+				$result = $target_value < $condition_value;
+				break;
+			default:
+				$result = TRUE;
+		}
+		
+		return $result;
+
+	}
+
+	
+	/**
+	* Writes JavaScript code for the validation condition part for client side validation
+	*
+	* The validation condition allows users to set a condition depending on the answer to another question.
+	* For example, if the submitted answer to Question1 is 'a', then the answer to Question2 needs to be either '1' or '2'.
+	* If such a validation condition is set, this function returns the JavaScript for determining if the condition has been
+	* met or not.      
+	* 
+	* @param array	$rule_data	the rule data
+	*
+	* @return boolean
+	* @access public
+	*/
+	function generateConditionJSCode($rule_data)
+	{
+		$condition_asset    = isset($rule_data['condition_asset']) ? $rule_data['condition_asset'] : NULL;
+		$condition_operator = isset($rule_data['condition_operator']) ? $rule_data['condition_operator'] : NULL;
+		$condition_value    = isset($rule_data['condition_value']) ? $rule_data['condition_value'] : NULL;
+		
+		if (!$condition_asset) return '';
+		
+		$form_element = 'form.elements["q'.$condition_asset.'"].value';
+		
+		switch ($condition_operator) {
+			case '=':
+				$js_condition = $form_element.'.match(/'.$condition_value.'/)';
+				break;
+			case '!=':
+				$js_condition = '!'.$form_element.'.match(/'.$condition_value.'/)';
+				break;
+			case '>':
+				$js_condition = $form_element.' > '.$condition_value;
+				break;
+			case '<':
+				$js_condition = $form_element.' < '.$condition_value;
+				break;
+			default:
+				$js_condition = '';
+		}
+		
+		return $js_condition;
+
+	}//end generateJSCode()
 
 }//end class
 

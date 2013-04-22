@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_regexp.inc,v 1.11.4.1 2013/04/09 07:49:44 ewang Exp $
+* $Id: form_question_rule_type_regexp.inc,v 1.11.4.2 2013/04/22 03:02:36 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.11.4.1 $
+* @version $Revision: 1.11.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -77,11 +77,15 @@ class Form_Question_Rule_Type_Regexp extends Form_Question_Rule
 		$value = array_get_index($rule_data, 'value', '');
 		$case_sensitive = array_get_index($rule_data, 'case_sensitive', 1) ? '' : 'i';
 		
+		// if the validation condition is set, we need to output the part that checks whether the condition is met or not as well
+		$condition_js = parent::generateConditionJSCode($rule_data);
+		if (strlen(trim($condition_js))) $condition_js = ' && '.$condition_js; 
+	
 		ob_start();			// buffer this please
 
 			// JavaScript only accepts forward slashes for their regexs
 			?>
-				if (<?php echo ($operator == 1) ? '!' : ''; ?>form.elements["q<?php echo $q_asset->id; ?>"].value.match(/<?php echo str_replace('/', '\/', $value) ?>/<?php echo $case_sensitive; ?>)) {
+				if (<?php echo ($operator == 1) ? '!' : ''; ?>form.elements["q<?php echo $q_asset->id; ?>"].value.match(/<?php echo str_replace('/', '\/', $value) ?>/<?php echo $case_sensitive; ?>)<?php echo $condition_js; ?>) {
 					submission_errors[submission_errors.length] = "<?php
 						if (empty($rule_data['custom_text'])) {
 							echo addslashes($this->defaultError($q_asset, $rule_data));
