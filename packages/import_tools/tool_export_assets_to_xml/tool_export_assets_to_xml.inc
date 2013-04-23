@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_export_assets_to_xml.inc,v 1.6.4.1 2013/03/22 06:48:34 cupreti Exp $
+* $Id: tool_export_assets_to_xml.inc,v 1.6.4.2 2013/04/23 02:11:33 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *    Tool for exporting assets into xml
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.6.4.1 $
+* @version $Revision: 1.6.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage import_tools
 */
@@ -94,7 +94,7 @@ class Tool_Export_Assets_To_Xml extends Tool
 		else if (isset($_REQUEST['download'])) {
 			$export_dir = SQ_DATA_PATH.'/private/export_assets';
 			if (!file_exists($export_dir.'/export.tgz')) {
-	            if (!create_directory($export_dir)) return FALSE;
+				if (!create_directory($export_dir)) return FALSE;
 
 				$command = "cd $export_dir ; tar -czf export.tgz * --remove-files";
 				exec($command, $output, $return);
@@ -105,6 +105,24 @@ class Tool_Export_Assets_To_Xml extends Tool
 					trigger_localised_error('EXP0001', E_USER_ERROR, $return);
 					return;
 				}
+			}
+			
+			// get the first export root asset id
+			$root_id = '';
+			$export_xml_file = $export_dir.'/export.xml';
+			if(is_file($export_xml_file)) {
+			    $handle = @fopen($export_xml_file, "r");
+			    if ($handle) {
+				while (($buffer = fgets($handle, 4096)) !== false) {
+				    if(strpos($buffer, 'action_id') !== FALSE) {
+					$matches = Array();
+					preg_match('/_([0-9]+)</', $buffer, $matches);
+					$root_id = isset($matches[1]) ? '-'.$matches[1] : '';
+					break;
+				    }
+				}
+				fclose($handle);
+			    }
 			}
 
 			// if we don't have a valid filesize, there isn't much point going fruther as the user will end up downloading an unusable file
@@ -129,7 +147,7 @@ class Tool_Export_Assets_To_Xml extends Tool
 			header('Content-Type: '.$type);
 	
 			// Set the name of the file
-			header('Content-Disposition: attachment; filename="export.tgz";');
+			header('Content-Disposition: attachment; filename="export'.$root_id.'.tgz";');
 			header('Content-Length: '.$filesize);
 	
 			 // Get the source file
