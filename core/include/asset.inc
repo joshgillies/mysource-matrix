@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.785 2013/04/16 03:43:16 akarelia Exp $
+* $Id: asset.inc,v 1.786 2013/04/23 06:56:09 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.785 $
+* @version $Revision: 1.786 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2568,15 +2568,19 @@ class Asset extends MySource_Object
 			}
 		}
 
+		// Place the workflow and status change in a transaction block
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 		$status = $this->getStatus();
 		if (!$status->processStatusChange($new_status)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
 
 		if ($new_status != $old_status) {
 			// the status has actually changed to a different one
-			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 			$db = MatrixDAL::getDb();
 
 			$sql = 'UPDATE
@@ -2613,10 +2617,13 @@ class Asset extends MySource_Object
 					return FALSE;
 				}
 			}
+		}
 
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		// Commit before we broadcast the status change event (bug #5232)
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
+		if ($new_status != $old_status) {
 			// broadcast event notifying of status change
 			$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
 			$data = Array(
