@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.284 2013/04/22 06:33:23 ewang Exp $
+* $Id: general.inc,v 1.285 2013/04/23 04:51:37 cupreti Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.284 $
+* @version $Revision: 1.285 $
 * @package MySource_Matrix
 */
 
@@ -775,8 +775,11 @@ function current_url($inc_protocol=TRUE, $strip_backend_suffix=FALSE)
 		if ($strip_backend_suffix && (SQ_IN_BACKEND || SQ_IN_LIMBO || SQ_IN_LOGIN)) {
 			$url = preg_replace('/('.SQ_CONF_BACKEND_SUFFIX.'|'.SQ_CONF_LIMBO_SUFFIX.'|'.SQ_CONF_LOGIN_SUFFIX.')\/?$/', '', $url);
 		}
+		// NOTE: We shouldn't strip off '/' at the end of url
+		// otherwise it will create issues when generating relative herf
+		$url = preg_replace('/'.SQ_CONF_NOCACHE_SUFFIX.'\/?$/', '', $url);
+
 		$regex = '/\/(';
-		$regex .= SQ_CONF_NOCACHE_SUFFIX.'|';
 		$regex .= SQ_CONF_RECACHE_SUFFIX.'|';
 		$regex .= SQ_CONF_PERFORMANCE_SUFFIX.'|';
 		$regex .= SQ_CONF_PERFORMANCE_TIMING_SUFFIX.'|';
