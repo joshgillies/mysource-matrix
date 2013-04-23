@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_manager.inc,v 1.32 2012/08/30 01:09:11 ewang Exp $
+* $Id: log_manager.inc,v 1.33 2013/04/23 00:51:11 ewang Exp $
 */
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -600,6 +600,8 @@ class Log_Manager extends Asset
 			}
 			// Bug #4499 - if the file is locked a move file will not capture log data, so copy and truncate
 			if (copy_file($orig_filename, $file.'.'.$new_rotation)) {
+				// Set the original modification time on the rotated file
+				touch($file.'.'.$new_rotation, filemtime($orig_filename));
 				return truncate_file($orig_filename);
 			} else {
 				return FALSE;
