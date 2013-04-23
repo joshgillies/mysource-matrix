@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_call_rest_resource.inc,v 1.8 2012/08/30 00:59:46 ewang Exp $
+* $Id: trigger_action_call_rest_resource.inc,v 1.8.2.1 2013/04/23 06:35:23 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_ATTRIBUTES_PATH.'/http_request/http_request.inc';
 *
 *
 * @author  Maki Maruyama <mmaruyama@squiz.co.uk>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage rest
 */
@@ -108,8 +108,18 @@ class Trigger_Action_Call_Rest_Resource extends Trigger_Action
 
 		$http_request_attr->setKeywordReplacements($replacements);
 
+		// Set the current asset temporaily to one that fired this trigger action
+		$old_current_asset = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CURRENT_ASSET', NULL);
+		$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CURRENT_ASSET', $state['asset']);
+
 		// send the request
 		$res =& $http_request_attr->run();
+
+		if (is_null($old_current_asset)) {
+			$GLOBALS['SQ_SYSTEM']->unsetGlobalDefine('CURRENT_ASSET');
+		} else {
+			$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CURRENT_ASSET', $old_current_asset);
+		}
 
 		// pass the triggering asset and REST responses received
 		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_rest_response_received', $state['asset'], $res);
