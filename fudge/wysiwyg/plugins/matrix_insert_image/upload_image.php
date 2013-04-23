@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: upload_image.php,v 1.9 2013/04/23 08:08:32 cupreti Exp $
+* $Id: upload_image.php,v 1.10 2013/04/23 08:54:32 cupreti Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Upload Image Popup for the WYSIWYG
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 */
 
@@ -40,7 +40,7 @@ if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAcce
 	trigger_error('Invalid secuirty token');
 	exit;
     } 
-log_dump($_FILES);
+
 // Check if something was submitted
 if (!isset($_FILES['create_image_upload']['name']) || !isset($_FILES['create_image_upload']['tmp_name']) || empty($_FILES['create_image_upload']['tmp_name']) || !isset($_FILES['create_image_upload']['error']) || !empty($_FILES['create_image_upload']['error'])) {
 	// No file submitted
