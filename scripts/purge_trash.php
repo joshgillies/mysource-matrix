@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: purge_trash.php,v 1.9 2012/08/30 01:04:53 ewang Exp $
+* $Id: purge_trash.php,v 1.10 2013/04/23 06:42:48 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 *        all assets underneath this rootnode (inclusive) will be purged from the trash folder.
 *        useful when the system runs out of memory when purging all assets
 *
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 */
 
@@ -89,8 +89,6 @@ $errors = $hh->freestyleHipo('hipo_job_purge_trash', $vars);
 if (count($errors)) {
 	trigger_error(print_r($errors, TRUE), E_USER_WARNING);
 	exit(1);
-} else {
-	echo "\npurge_trash.php: Completed.\n";
 }
 
 ?>
