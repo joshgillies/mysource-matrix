@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: upload_image.php,v 1.8 2012/09/07 00:17:37 ewang Exp $
+* $Id: upload_image.php,v 1.9 2013/04/23 08:08:32 cupreti Exp $
 *
 */
 
@@ -18,14 +18,14 @@
 * Upload Image Popup for the WYSIWYG
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 */
 
 require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 require_once dirname(__FILE__).'/../../../../core/assets/files/image/image.inc';
 
-if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAccessBackend() || $GLOBALS['SQ_SYSTEM']->user->type() == 'simple_edit_user')) {
+if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAccessBackend() || $GLOBALS['SQ_SYSTEM']->user->type() == 'simple_edit_user' || (method_exists($GLOBALS['SQ_SYSTEM']->user, 'isShadowSimpleEditUser') && $GLOBALS['SQ_SYSTEM']->user->isShadowSimpleEditUser()))) {
 	echo return_javascript_error('You cannot upload file as a non-backend user');
 	exit;
 }
@@ -40,7 +40,7 @@ if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAcce
 	trigger_error('Invalid secuirty token');
 	exit;
     } 
-
+log_dump($_FILES);
 // Check if something was submitted
 if (!isset($_FILES['create_image_upload']['name']) || !isset($_FILES['create_image_upload']['tmp_name']) || empty($_FILES['create_image_upload']['tmp_name']) || !isset($_FILES['create_image_upload']['error']) || !empty($_FILES['create_image_upload']['error'])) {
 	// No file submitted
