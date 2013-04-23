@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: upload_image.php,v 1.8 2012/09/07 00:17:37 ewang Exp $
+* $Id: upload_image.php,v 1.8.4.1 2013/04/23 08:55:34 cupreti Exp $
 *
 */
 
@@ -18,14 +18,14 @@
 * Upload Image Popup for the WYSIWYG
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.4.1 $
 * @package MySource_Matrix
 */
 
 require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 require_once dirname(__FILE__).'/../../../../core/assets/files/image/image.inc';
 
-if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAccessBackend() || $GLOBALS['SQ_SYSTEM']->user->type() == 'simple_edit_user')) {
+if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAccessBackend() || $GLOBALS['SQ_SYSTEM']->user->type() == 'simple_edit_user' || (method_exists($GLOBALS['SQ_SYSTEM']->user, 'isShadowSimpleEditUser') && $GLOBALS['SQ_SYSTEM']->user->isShadowSimpleEditUser()))) {
 	echo return_javascript_error('You cannot upload file as a non-backend user');
 	exit;
 }

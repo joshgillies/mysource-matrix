@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_anchor.php,v 1.10 2012/08/30 00:56:52 ewang Exp $
+* $Id: insert_anchor.php,v 1.10.4.1 2013/04/23 08:55:34 cupreti Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.10.4.1 $
 * @package MySource_Matrix
 */
 
@@ -27,7 +27,7 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 
-if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAccessBackend() || $GLOBALS['SQ_SYSTEM']->user->type() == 'simple_edit_user')){
+if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAccessBackend() || $GLOBALS['SQ_SYSTEM']->user->type() == 'simple_edit_user' || (method_exists($GLOBALS['SQ_SYSTEM']->user, 'isShadowSimpleEditUser') && $GLOBALS['SQ_SYSTEM']->user->isShadowSimpleEditUser()))) {
 	exit;
 }
 
