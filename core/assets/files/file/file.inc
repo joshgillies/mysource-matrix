@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.216.2.1 2013/03/21 07:42:29 ewang Exp $
+* $Id: file.inc,v 1.216.2.2 2013/04/24 05:47:23 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.216.2.1 $
+* @version $Revision: 1.216.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -344,6 +344,9 @@ class File extends Asset
 			trigger_localised_error('CORE0051', E_USER_WARNING, $this->name);
 			return FALSE;
 		}
+		
+		//  we need to save the current notice links
+		if(!$this->saveNoticeLinksForSystemVersion()) return FALSE;
 
 		return TRUE;
 

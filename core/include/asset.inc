@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.774.2.7 2013/04/24 01:12:14 cupreti Exp $
+* $Id: asset.inc,v 1.774.2.8 2013/04/24 05:47:23 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.774.2.7 $
+* @version $Revision: 1.774.2.8 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1124,28 +1124,7 @@ class Asset extends MySource_Object
 		}
 
 		//  we need to save the current notice links
-		$replace_assetids = Array();
-		$notice_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE);
-
-		// preserve the nest content related notice links so that we can recreate the links when reverting to system version
-		$links_to_preserve = Array(
-								'nested_asset',
-								'paint_with_layout',
-								'root',
-								'redirect_asset',
-								'thumbnail',
-							 );
-		foreach ($notice_links as $link) {
-			if (in_array($link['value'], $links_to_preserve)) {
-				$replace_assetids[] = $link;
-			}
-		}
-
-		// save the notice links we currently have in .sq_notice_links file
-		if (!string_to_file(serialize($replace_assetids), $this->data_path.'/.sq_system/.sq_notice_links')) {
-			trigger_localised_error('CORE0048', E_USER_WARNING, $this->name);
-			return FALSE;
-		}
+		if(!$this->saveNoticeLinksForSystemVersion()) return FALSE;
 
 		return TRUE;
 
@@ -1305,6 +1284,42 @@ class Asset extends MySource_Object
 
 	}//end revertToSystemVersion()
 
+	
+	/**
+	* Save the  notice links in system (live) version so it can be reverted later
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function saveNoticeLinksForSystemVersion()
+	{
+		$replace_assetids = Array();
+		$notice_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE);
+
+		// preserve the nest content related notice links so that we can recreate the links when reverting to system version
+		$links_to_preserve = Array(
+								'nested_asset',
+								'paint_with_layout',
+								'root',
+								'redirect_asset',
+								'thumbnail',
+							 );
+		foreach ($notice_links as $link) {
+			if (in_array($link['value'], $links_to_preserve)) {
+				$replace_assetids[] = $link;
+			}
+		}
+
+		// save the notice links we currently have in .sq_notice_links file
+		if (!string_to_file(serialize($replace_assetids), $this->data_path.'/.sq_system/.sq_notice_links')) {
+			trigger_localised_error('CORE0048', E_USER_WARNING, $this->name);
+			return FALSE;
+		}
+		
+		return TRUE;
+		
+	}//end saveNoticeLinksForSystemVersion
+	
 
 	/**
 	* Replaces the  notice links in editing version with the system (live) version
