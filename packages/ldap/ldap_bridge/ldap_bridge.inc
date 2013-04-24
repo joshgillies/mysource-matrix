@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.114.2.3 2013/03/07 03:44:03 cupreti Exp $
+* $Id: ldap_bridge.inc,v 1.114.2.4 2013/04/24 06:47:40 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.114.2.3 $
+* @version $Revision: 1.114.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -1693,37 +1693,59 @@ class LDAP_Bridge extends Asset implements Bridge
 		$user->vars['dn']['value'] = $data['dn'];
 		$user->vars['dn']['type'] = 'text';
 
-		if (isset($attrs['uid']) && isset($data[$attrs['uid']])) {
-			$user->vars['username']['value'] = $data[$attrs['uid']][0];
-		} else {
-			$user->vars['username']['value'] = $data['dn'];
-		}
-
+		$user->vars['username']['value'] = $data['dn'];
 		$user->vars['username']['type'] = 'text';
-
-		if (isset($attrs['email']) && isset($data[$attrs['email']])) {
-			$user->vars['email']['value'] = $data[$attrs['email']][0];
-		} else {
-			$user->vars['email']['value'] = '';
+		if (isset($attrs['uid'])) {
+			$name = $attrs['uid'];
+			$name_lowercase = strtolower($name);
+			// try case sensitive first and then lowercase match. It seems PHP always returns LDAP search results in lowercase
+			if(isset($data[$name])) {
+			    $user->vars['username']['value'] =$data[$name][0];
+			}
+			else if (isset($data[$name_lowercase])) {
+			     $user->vars['username']['value'] =$data[$name_lowercase][0];
+			}
 		}
-
+		
+		$user->vars['email']['value'] = '';
 		$user->vars['email']['type'] = 'email';
-
-		if (isset($attrs['fn']) && isset($data[$attrs['fn']])) {
-			$user->vars['first_name']['value'] = $data[$attrs['fn']][0];
-		} else {
-			$user->vars['first_name']['value'] = '';
+		if (isset($attrs['email'])) {
+			$name = $attrs['email'];
+			$name_lowercase = strtolower($name);
+			if(isset($data[$name])) {
+			    $user->vars['email']['value'] =$data[$name][0];
+			}
+			else if (isset($data[$name_lowercase])) {
+			     $user->vars['email']['value'] =$data[$name_lowercase][0];
+			}
 		}
 
+		$user->vars['first_name']['value'] = '';
 		$user->vars['first_name']['type'] = 'text';
-
-		if (isset($attrs['sn']) && isset($data[$attrs['sn']])) {
-			$user->vars['last_name']['value'] = $data[$attrs['sn']][0];
-		} else {
-			$user->vars['last_name']['value'] = '';
+		if (isset($attrs['fn'])) {
+			$name = $attrs['fn'];
+			$name_lowercase = strtolower($name);
+			if(isset($data[$name])) {
+			    $user->vars['first_name']['value'] =$data[$name][0];
+			}
+			else if (isset($data[$name_lowercase])) {
+			     $user->vars['first_name']['value'] =$data[$name_lowercase][0];
+			}
 		}
 
+		$user->vars['last_name']['value'] = '';
 		$user->vars['last_name']['type'] = 'text';
+		if (isset($attrs['sn'])) {
+			$name = $attrs['sn'];
+			$name_lowercase = strtolower($name);
+			if(isset($data[$name])) {
+			    $user->vars['last_name']['value'] =$data[$name][0];
+			}
+			else if (isset($data[$name_lowercase])) {
+			     $user->vars['last_name']['value'] =$data[$name_lowercase][0];
+			}
+		}
+
 
 	}//end initUser()
 
