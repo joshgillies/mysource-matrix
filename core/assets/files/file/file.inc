@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.212.2.5 2013/03/21 07:43:08 ewang Exp $
+* $Id: file.inc,v 1.212.2.6 2013/04/24 05:49:41 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.212.2.5 $
+* @version $Revision: 1.212.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -345,6 +345,9 @@ class File extends Asset
 			return FALSE;
 		}
 
+		//  we need to save the current notice links
+		if(!$this->saveNoticeLinksForSystemVersion()) return FALSE;
+		
 		return TRUE;
 
 	}//end saveSystemVersion()
