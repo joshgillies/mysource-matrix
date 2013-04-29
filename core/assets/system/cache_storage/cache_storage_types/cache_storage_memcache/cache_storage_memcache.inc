@@ -18,7 +18,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: cache_storage_memcache.inc,v 1.13 2012/05/07 03:21:19 mhaidar Exp $
+ * $Id: cache_storage_memcache.inc,v 1.14 2013/04/29 09:40:53 cupreti Exp $
  *
  */
 
@@ -38,7 +38,7 @@ define('SQ_CACHE_MEMCACHE_URL_INDEX_PREFIX', 'sq_cache_url_index|');
  *
  * @author  James Hurst <james@riverratrecords.com>
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.13 $
+ * @version $Revision: 1.14 $
  * @package MySource_Matrix_Packages
  * @subpackage __core__
  */
@@ -169,14 +169,18 @@ class Cache_Storage_Memcache extends Cache_Storage
 			$assetid_hits = isset($indexes[SQ_CACHE_MEMCACHE_ASSET_INDEX_PREFIX.$assetid]) ? $indexes[SQ_CACHE_MEMCACHE_ASSET_INDEX_PREFIX.$assetid] : Array();
 			if (!in_array($mcache_key, $assetid_hits)) {
 				array_push($assetid_hits, $mcache_key);
-				$this->_memcache->set(SQ_CACHE_MEMCACHE_ASSET_INDEX_PREFIX.$assetid, $assetid_hits);
+				if (!$this->_memcache->set(SQ_CACHE_MEMCACHE_ASSET_INDEX_PREFIX.$assetid, $assetid_hits)) {
+					return FALSE;
+				}
 			}
 			
 			// Update the url index if necessary.
 			$url_hits = isset($indexes[SQ_CACHE_MEMCACHE_URL_INDEX_PREFIX.$index_url]) ? $indexes[SQ_CACHE_MEMCACHE_URL_INDEX_PREFIX.$index_url] : Array();
 			if (!in_array($mcache_key, $url_hits)) {
 				array_push($url_hits, $mcache_key);
-				$this->_memcache->set(SQ_CACHE_MEMCACHE_URL_INDEX_PREFIX.$index_url, $url_hits);
+				if (!$this->_memcache->set(SQ_CACHE_MEMCACHE_URL_INDEX_PREFIX.$index_url, $url_hits)) {
+					return FALSE;
+				}
 			}
 
 			// Save the actual cache entry
