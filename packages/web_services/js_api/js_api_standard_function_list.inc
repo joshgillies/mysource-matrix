@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_standard_function_list.inc,v 1.19 2012/12/06 04:51:34 ewang Exp $
+* $Id: js_api_standard_function_list.inc,v 1.19.2.1 2013/04/29 02:56:23 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.19.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -571,8 +571,8 @@ function getChildren(asset_id, levels, type_codes, link_types, link_values, get_
 				'&type=getChildren&id=' + asset_id +
 				'&levels=' + levels +
 				'&type_codes=' + type_code +
-				'&link_type=' + link_type +
-				'&link_value=' + link_value +
+				'&link_types=' + link_type +
+				'&link_values=' + link_value +
 				'&get_attributes=' + get_attributes;
 
 	// Make our request
@@ -654,8 +654,8 @@ function getParents(asset_id, levels, type_codes, link_types, link_values, get_a
 				'&type=getParents&id=' + asset_id +
 				'&levels=' + levels +
 				'&type_codes=' + type_code +
-				'&link_type=' + link_type +
-				'&link_value=' + link_value +
+				'&link_types=' + link_type +
+				'&link_values=' + link_value +
 				'&get_attributes=' + get_attributes;
 
 
