@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_enhanced_function_list.inc,v 1.26.2.2 2012/12/06 05:04:38 ewang Exp $
+* $Id: js_api_enhanced_function_list.inc,v 1.26.2.3 2013/04/29 03:03:03 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author  Anthony Barnes <abarnes@squiz.com.au>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.26.2.2 $
+* @version $Revision: 1.26.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -954,8 +954,8 @@ class Js_Api_Enhanced_Function_List
 				['id', options.asset_id],
 				['levels', options.levels],
 				['type_codes', options.type_codes.join('\\,')],
-				['link_type', options.link_types.join('\\,')],
-				['link_value', options.link_values.join('\\,')],
+				['link_types', options.link_types.join('\\,')],
+				['link_values', options.link_values.join('\\,')],
 				['get_attributes', options.get_attributes]
 			],options);
 
@@ -1026,8 +1026,8 @@ class Js_Api_Enhanced_Function_List
 				['id', options.asset_id],
 				['levels', options.levels],
 				['type_codes', options.type_codes.join('\\,')],
-				['link_type', options.link_types.join('\\,')],
-				['link_value', options.link_values.join('\\,')],
+				['link_types', options.link_types.join('\\,')],
+				['link_values', options.link_values.join('\\,')],
 				['get_attributes', options.get_attributes]
 			],options);
 

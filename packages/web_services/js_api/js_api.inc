@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.130.2.6 2013/02/22 03:26:28 akarelia Exp $
+* $Id: js_api.inc,v 1.130.2.7 2013/04/29 03:03:03 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.130.2.6 $
+* @version $Revision: 1.130.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -221,6 +221,7 @@ class JS_Api extends Page
 			}
 			return;
 		}
+		
 
 		// Overriding the matrix error handler so HTML doesn't get printed to the screen
 		require_once dirname(__FILE__).'/js_api_error_handler.inc';
@@ -371,18 +372,19 @@ class JS_Api extends Page
 				// so we are batching  requests, in this  case we  get the assetid needed to
 				// start with from the first function call  and then every consecutive  time
 				// we  get it from the output of  previously  executed function  so check if
-				// format there is %results_0_*% type else it might be raw input that we use
+				// format there is $results_0_*$ type else it might be raw input that we use
 				if ($track_func === 0) {
 					$id = $args['id'];
 				} else {
 					// okie so we arent the first called function in batched request
 					// and we are to use the assetid from the previous function exec
-					// but no we look into any of the argument where the  %result_*%
+					// but no we look into any of the argument where the  $result_*$
 					// type  keywords might  have been used and  try and evaluate it
 					foreach ($args as $idx => $arg) {
-						if (strpos($args[$idx], '%results_') !== FALSE) {
-							$keyword = $args[$idx];
-							$instructions = explode('_', trim($keyword, '%'));
+						if (preg_match('/[\$%]results_[^\$%]*[\$%]/', $args[$idx], $matches)) {
+							if(!isset($matches[0])) continue;
+							$keyword = $matches[0];
+							$instructions = explode('_', trim($keyword, '$%'));
 							// if we know where to take the new id from, do it or else
 							// just  continue with the previous one we have been using
 							$string_to_eval = '';
@@ -585,8 +587,14 @@ class JS_Api extends Page
 	*/
 	private function _trashAsset($args=Array(), $asset=NULL, $read_access=FALSE, $write_access=FALSE)
 	{
-		if (isset($args['assetid']) && !empty($args['assetid'])) {
-			$assetids = explode('\\,', $args['assetid']);
+		if (isset($args['asset_ids']) || (isset($args['assetid']) && !empty($args['assetid']))) {
+			$assetids = Array();
+			if(isset($args['asset_ids'])) {
+			    $assetids = $args['asset_ids'];
+			}
+			else {
+			    $assetids = explode('\\,', $args['assetid']);
+			}
 			$data = $this->trashAsset($assetids);
 		} else {
 			$data['error'] = 'Please Enter Asset Id(s) to move to Trash';
@@ -648,14 +656,30 @@ class JS_Api extends Page
 	private function _updateMultipleLinks($args=Array(), $asset=NULL, $read_access=FALSE, $write_access=FALSE)
 	{
 		$links = $data = Array();
-		$links['parents']  = explode('\\,', $args['parent_id']);
-		$links['children'] = explode('\\,', $args['child_id']);
-		$links['existing_link_type'] = explode('\\,', $args['existing_link_type']);
-		$links['existing_link_value'] = explode('\\,', $args['existing_link_value']);
-		$links['link_type'] = explode('\\,', $args['link_type']);
-		$links['link_value'] = explode('\\,', $args['link_value']);
-		$links['sort_order'] = explode('\\,', $args['sort_order']);
-		$links['lock'] = explode('\\,', $args['locked']);
+		if(isset($args['link_info']['links'])) {
+		    foreach ($args['link_info']['links'] as $link) {
+			$links['parents'][] = $link['parent'];
+			$links['children'][] = $link['child'];
+			$links['existing_link_type'][] = $link['existing_link_type'];
+			$links['existing_link_value'][] = $link['existing_link_value'];
+			$links['link_type'][] = $link['link_type'];
+			$links['link_value'][] = $link['link_value'];
+			$links['sort_order'][] = $link['sort_order'];
+			$links['lock'][] = $link['link_lock'];
+		    }
+		}
+		else {
+		    $links['parents']  = explode('\\,', $args['parent_id']);
+		    $links['children'] = explode('\\,', $args['child_id']);
+		    $links['existing_link_type'] = explode('\\,', $args['existing_link_type']);
+		    $links['existing_link_value'] = explode('\\,', $args['existing_link_value']);
+		    $links['link_type'] = explode('\\,', $args['link_type']);
+		    $links['link_value'] = explode('\\,', $args['link_value']);
+		    $links['sort_order'] = explode('\\,', $args['sort_order']);
+		    $links['lock'] = explode('\\,', $args['locked']);
+		}
+		
+
 
 		foreach ($links as $elements) {
 			if (count($elements) != count($links['parents'])) {
@@ -729,11 +753,21 @@ class JS_Api extends Page
 	private function _removeMultipleLinks($args=Array(), $asset=NULL, $read_access=FALSE, $write_access=FALSE)
 	{
 		$links = $data = Array();
-		$links['parents']  = explode('\\,', $args['parent_id']);
-		$links['children'] = explode('\\,', $args['child_id']);
-		$links['link_type'] = explode('\\,', $args['link_type']);
-		$links['link_value'] = explode('\\,', $args['link_value']);
-
+		if(isset($args['link_info']['links'])) {
+		    foreach ($args['link_info']['links'] as $link) {
+			$links['parents'][] = $link['parent'];
+			$links['children'][] = $link['child'];
+			$links['link_type'][] = $link['link_type'];
+			$links['link_value'][] = $link['link_value'];
+		    }
+		}
+		else {
+		    $links['parents']  = explode('\\,', $args['parent_id']);
+		    $links['children'] = explode('\\,', $args['child_id']);
+		    $links['link_type'] = explode('\\,', $args['link_type']);
+		    $links['link_value'] = explode('\\,', $args['link_value']);
+		}
+		
 		foreach ($links as $elements) {
 			if (count($elements) != count($links['parents'])) {
 				$data['error'] = 'Please provide correct number of link elements';
@@ -1016,9 +1050,21 @@ class JS_Api extends Page
 	private function _setAttribute($args=Array(), $asset=NULL, $read_access=FALSE, $write_access=FALSE)
 	{
 		if ($write_access) {
-			if (isset($args['attr_name']) && isset($args['attr_val'])) {
-				$attr_names = explode('\\,', $args['attr_name']);
-				$attr_vals  = explode('\\,', $args['attr_val']);
+			if (isset($args['field_info']) || (isset($args['attr_name']) && isset($args['attr_val']))) {
+			    	$attr_names = Array();
+				$attr_vals = Array();
+				
+				if(isset($args['field_info'])) {
+				    foreach($args['field_info'] as $key => $value){
+					$attr_names[] = $key;
+					$attr_vals[] = $value;
+				    }
+				}
+				else {
+				    $attr_names = explode('\\,', $args['attr_name']);
+				    $attr_vals = explode('\\,', $args['attr_val']);
+				}
+				
 
 				// Set our new values
 				$success = $this->setAttributeValue($asset->id, $attr_names, $attr_vals);;
@@ -1108,15 +1154,24 @@ class JS_Api extends Page
 	private function _setMetadata($args=Array(), $asset=NULL, $read_access=FALSE, $write_access=FALSE)
 	{
 		if ($write_access) {
-			if (isset($args['field_id']) && isset($args['field_val'])) {
+			if (isset($args['field_info']) || (isset($args['field_id']) && isset($args['field_val']))) {
 				require_once SQ_CORE_PACKAGE_PATH.'/metadata/metadata_field/metadata_field.inc';
-
-				$field_ids = explode('\\,', $args['field_id']);
-				$field_vals = explode('\\,', $args['field_val']);
+				$field_ids = Array();
+				$field_vals = Array();
+				
+				if(isset($args['field_info'])) {
+				    foreach($args['field_info'] as $key => $value){
+					$field_ids[] = $key;
+					$field_vals[] = $value;
+				    }
+				}
+				else {
+				    $field_ids = explode('\\,', $args['field_id']);
+				    $field_vals = explode('\\,', $args['field_val']);
+				}
 
 				foreach($field_vals as $index =>  $fieldVal) {
-					$field_vals[$index] = $fieldVal;
-					$field_vals[$index] = Metadata_Field::encodeValueString($field_vals[$index], Array());
+					$field_vals[$index] = Metadata_Field::encodeValueString($fieldVal, Array());
 				}
 
 				$result = $this->setAssetMetadata($asset->id, $field_ids, $field_vals);
@@ -1173,9 +1228,15 @@ class JS_Api extends Page
 			}
 
 			// lets check for the type_codes, link_types, and link_values
-			$type_codes		= (isset($args['type_codes']) && $args['type_codes'] != '') ? explode('\\,', $args['type_codes']) : Array();
-			$link_types		= (isset($args['link_type']) && $args['link_type'] != '') ? explode('\\,', $args['link_type']) : Array();
-			$link_values	= (isset($args['link_value']) && $args['link_value'] != '') ? explode('\\,', $args['link_value']) : Array() ;
+			if(isset($args['type_codes'])) {
+			    $type_codes = is_array($args['type_codes']) ? $args['type_codes'] : explode('\\,', $args['type_codes']);
+			}
+			if(isset($args['link_types'])) {
+			    $link_types = is_array($args['link_types']) ? $args['link_types'] : explode('\\,', $args['link_types']);
+			}
+			if(isset($args['link_values'])) {
+			    $link_values = is_array($args['link_values']) ? $args['link_values'] : explode('\\,', $args['link_values']);
+			}
 			$get_attributes	= isset($args['get_attributes']) ? $args['get_attributes'] : FALSE;
 
 			$data = $this->getChildren($asset->id, $level, $type_codes, $link_types, $link_values, $get_attributes);
@@ -1226,9 +1287,15 @@ class JS_Api extends Page
 			}
 
 			// lets check for the type_codes, link_types, and link_values
-			$type_codes		= (isset($args['type_codes']) && $args['type_codes'] != '') ? explode('\\,', $args['type_codes']) : Array();
-			$link_types		= (isset($args['link_type']) && $args['link_type'] != '') ? explode('\\,', $args['link_type']) : Array();
-			$link_values	= (isset($args['link_value']) && $args['link_value'] != '') ? explode('\\,', $args['link_value']) : Array();
+			if(isset($args['type_codes'])) {
+			    $type_codes = is_array($args['type_codes']) ? $args['type_codes'] : explode('\\,', $args['type_codes']);
+			}
+			if(isset($args['link_types'])) {
+			    $link_types = is_array($args['link_types']) ? $args['link_types'] : explode('\\,', $args['link_types']);
+			}
+			if(isset($args['link_values'])) {
+			    $link_values = is_array($args['link_values']) ? $args['link_values'] : explode('\\,', $args['link_values']);
+			}
 			$get_attributes	= isset($args['get_attributes']) ? $args['get_attributes'] : FALSE;
 
 			$data = $this->getParents($asset->id, $level, $type_codes, $link_types, $link_values, $get_attributes);
@@ -1829,9 +1896,8 @@ class JS_Api extends Page
 	private function _setWebPath($args=Array(), $asset=NULL, $read_access=FALSE, $write_access=FALSE)
 	{
 		if($write_access) {
-			$webpaths = explode('\\,', $args['webpath']);
+			$webpaths = isset($args['paths']) && is_array($args['paths']) ? $args['paths'] : explode('\\,', $args['webpath']);
 			if (!empty($webpaths)) {
-				$webpaths = explode('\\,', $args['webpath']);
 				$auto_remap = (isset($args['auto_remap']) && $args['auto_remap'] != '') ? $args['auto_remap'] : TRUE;
 				$response = $asset->saveWebpaths($webpaths, $auto_remap);
 
@@ -2240,14 +2306,16 @@ class JS_Api extends Page
 	private function _getUrlFromLineage($args=Array(), $asset=NULL, $read_access=FALSE, $write_access=FALSE)
 	{
 
-		$lineage = trim(array_get_index($args, 'lineage', ''));
+		$lineage = array_get_index($args, 'lineage', NULL);
 		$root_url = trim(array_get_index($args, 'root_url', NULL));
 		$protocol = trim(array_get_index($args, 'protocol', NULL));
 
 		if(empty($root_url)) $root_url = NULL;
 		if (empty($lineage)) return Array('error' => 'No lineage supplied');
 
-		$lineage = explode('\\,', $lineage);
+		if(!is_array($lineage)) {
+		    $lineage = explode('\\,', trim($lineage));
+		}
 
 		$current_asset_id = trim(array_pop($lineage));
 		$current_asset = $this->setAsset($current_asset_id);
@@ -3992,7 +4060,7 @@ class JS_Api extends Page
 		}
 
 		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-		$schemas = $mm->getSchemas($asset->id, $granted, $cascades);
+		$schemas = $mm->getSchemas($asset->id, $granted, $cascades, TRUE);
 		if (!empty($schemas)) {
 			foreach($schemas as $schema_id) {
 				$return_array[$schema_id] = Array();
