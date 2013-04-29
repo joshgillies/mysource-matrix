@@ -10,7 +10,7 @@
 #* | you a copy.                                                        |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.41 2013/02/26 00:02:53 csmith Exp $
+#* $Id: backup.sh,v 1.42 2013/04/29 04:40:43 csmith Exp $
 #*
 #*/
 #
@@ -52,6 +52,12 @@ The database dump filenames are still named after the date the script was run.
 This will not create a tar file containing the matrix files.
 
 $0 /path/to/matrix [/path/to/backup/folder] [--verbose] --database-only
+
+The database dump can be skipped completely by passing in --database-exclude instead of --database-only.
+This can be useful if the database is backed up via different means to the rest of Matrix or you do not have access to
+the database server to perform backups.
+
+$0 /path/to/matrix [/path/to/backup/folder] [--verbose] --database-exclude
 
 EOF
 	exit 1
@@ -273,11 +279,15 @@ backupfilename_prefix=`basename $SYSTEM_ROOT`
 backupfilename="${backupfilename_prefix}-`date +%Y-%m-%d_%H-%M`-backup.tar.gz"
 
 database_only=0
+database_exclude=0
 
 while true; do
 	case "$1" in
 		--verbose)
 			VERBOSE=1
+		;;
+		--database-exclude)
+			database_exclude=1
 		;;
 		--database-only)
 			database_only=1
@@ -301,6 +311,20 @@ while true; do
 
 	shift
 done
+
+# Quick check for silly things.
+#
+# 1) You can't do a database-only and database-exclude
+if [ $database_only -eq 1 -a $database_exclude -eq 1 ]; then
+	print_error "You can't use both --database-exclude and --database-only at the same time."
+	exit 1
+fi
+
+# 2) You can't do a remotedb= and database-exclude
+if [ $database_exclude -eq 1 -a "${REMOTE_USER}" != "" ]; then
+	print_error "You can't use both --database-exclude and --remotedb at the same time."
+	exit 1
+fi
 
 if [ "x$backupdir" = "x" ]; then
 	backupdir="."
@@ -496,6 +520,7 @@ oracle_dbdump()
 		if [ "x$remote_user" = "x" ]; then
 			print_verbose ""
 			print_error "To do remote oracle backups, please supply '--remotedb=username@hostname'"
+			print_error "or supply --database-exclude to skip the database backup."
 			print_error "The database has not been included in the backup."
 			print_verbose ""
 			return 1
@@ -600,52 +625,54 @@ oracle_dbdump()
 }
 
 dumpdir="${SYSTEM_ROOT}/data"
-if [ "${database_only}" -eq 1 ]; then
+if [ ${database_only} -eq 1 ]; then
 	dumpdir="${backupdir}"
 fi
 
 # this will be the return code for the backup script
 # if the db dump fails, we'll give a non-zero exit code
 rc=0
-case "${DB_TYPE}" in
-	"pgsql")
-		pg_dbdump "${dumpdir}" "${DB_DBNAME}" "${DB_USERNAME}" "${DB_PASSWORD}" "${DB_HOST}" "${DB_PORT}"
-		if [ $? -gt 0 ]; then
-			rc=7
-		fi
-		# If the cache db variable is set,
-		# do a schema only dump of the cache db.
-		if [ "${CACHE_DB_DBNAME}" ]; then
-			pg_dbdump "${dumpdir}" "${CACHE_DB_DBNAME}" "${CACHE_DB_USERNAME}" "${CACHE_DB_PASSWORD}" "${CACHE_DB_HOST}" "${CACHE_DB_PORT}" 1
+if [ $database_exclude -eq 0 ]; then
+	case "${DB_TYPE}" in
+		"pgsql")
+			pg_dbdump "${dumpdir}" "${DB_DBNAME}" "${DB_USERNAME}" "${DB_PASSWORD}" "${DB_HOST}" "${DB_PORT}"
 			if [ $? -gt 0 ]; then
 				rc=7
 			fi
-		fi
-	;;
+			# If the cache db variable is set,
+			# do a schema only dump of the cache db.
+			if [ "${CACHE_DB_DBNAME}" ]; then
+				pg_dbdump "${dumpdir}" "${CACHE_DB_DBNAME}" "${CACHE_DB_USERNAME}" "${CACHE_DB_PASSWORD}" "${CACHE_DB_HOST}" "${CACHE_DB_PORT}" 1
+				if [ $? -gt 0 ]; then
+					rc=7
+				fi
+			fi
+		;;
 
-	"oci")
-		oracle_dbdump "${dumpdir}" "${REMOTE_USER}" "${DB_USERNAME}" "${DB_PASSWORD}" "${DB_HOST}"
-		if [ $? -gt 0 ]; then
-			rc=7
-		fi
-
-		# If the cache db variable is set,
-		# do a schema only dump of the cache db.
-		if [ "${CACHE_DB_DBNAME}" ]; then
-			oracle_dbdump "${dumpdir}" "${REMOTE_USER}" "${DB_USERNAME}" "${DB_PASSWORD}" "${DB_HOST}" 1
+		"oci")
+			oracle_dbdump "${dumpdir}" "${REMOTE_USER}" "${DB_USERNAME}" "${DB_PASSWORD}" "${DB_HOST}"
 			if [ $? -gt 0 ]; then
 				rc=7
 			fi
-		fi
-	;;
 
-	*)
-		print_error "ERROR: DATABASE TYPE '${DB_TYPE}' NOT KNOWN"
-		exit 6
-esac
+			# If the cache db variable is set,
+			# do a schema only dump of the cache db.
+			if [ "${CACHE_DB_DBNAME}" ]; then
+				oracle_dbdump "${dumpdir}" "${REMOTE_USER}" "${DB_USERNAME}" "${DB_PASSWORD}" "${DB_HOST}" 1
+				if [ $? -gt 0 ]; then
+					rc=7
+				fi
+			fi
+		;;
+
+		*)
+			print_error "ERROR: DATABASE TYPE '${DB_TYPE}' NOT KNOWN"
+			exit 6
+	esac
+fi
 
 # We've specified database-only, so stop
-if [ "${database_only}" = "1" ]; then
+if [ ${database_only} -eq 1 ]; then
 	if [ -f "${SYSTEM_ROOT}/data/.extra_backup_files" ]; then
 		rm -f "${SYSTEM_ROOT}/data/.extra_backup_files"
 	fi
