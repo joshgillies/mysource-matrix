@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.272.2.5 2013/04/19 02:04:54 cupreti Exp $
+* $Id: form.inc,v 1.272.2.6 2013/04/30 09:02:02 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.272.2.5 $
+* @version $Revision: 1.272.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -4705,7 +4705,7 @@ class Form extends Asset implements Bridge
 				$this->attr('captcha_include_uppercase'),
 				$this->attr('captcha_include_numbers'),
 				$this->attr('provide_accessible_captcha'),
-				TRUE,
+				$this->useAccessibleFormat(),
 				$this->attr('captcha_label_text'),
 				$error
 			);

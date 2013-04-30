@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.88.2.2 2013/04/09 07:50:28 ewang Exp $
+* $Id: form_edit_fns.inc,v 1.88.2.3 2013/04/30 09:02:02 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.88.2.2 $
+* @version $Revision: 1.88.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1185,10 +1185,10 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 		$write_access = $asset->writeAccess('all');
 		$useAccessibleFormat = $asset->attr('use_accessible_format');
 		if (!$write_access) {
-			echo $useAccessibleFormat ? translate('true') : translate('false');
+			echo $useAccessibleFormat ? translate('yes') : translate('no');
 		} else {
-			$options[1] = translate('true');
-			$options[0] = translate('false');
+			$options[1] = translate('yes');
+			$options[0] = translate('no');
 			combo_box($prefix.'_use_accessible_format', $options, FALSE, $useAccessibleFormat);
 		}
 
