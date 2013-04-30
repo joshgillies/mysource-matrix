@@ -10,7 +10,7 @@
  * | you a copy.                                                        |
  * +--------------------------------------------------------------------+
  *
- * $Id: system_integrity_fix_char_encoding.php,v 1.6.2.2 2013/01/17 23:29:42 cupreti Exp $
+ * $Id: system_integrity_fix_char_encoding.php,v 1.6.2.3 2013/04/30 03:21:46 ewang Exp $
  */
 
 /**
@@ -21,7 +21,7 @@
  * IMPORTANT: SYSTEM MUST BE BACKEDUP BEFORE RUNNING THIS SCRIPT!!!
  *
  * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
- * @version $Revision: 1.6.2.2 $
+ * @version $Revision: 1.6.2.3 $
  * @package MySource_Matrix
  */
 
@@ -128,10 +128,45 @@ if (SYS_OLD_ENCODING == SYS_NEW_ENCODING) {
     exit(1);
 }
 
+// Oracle requires that the encoding be set when you connect to the database.
+// Let's make sure:
+// 1) It's set to something
+// 2) If we're converting to utf-8, it's set to the right thing
+//
+$conf = require $SYSTEM_ROOT.'/data/private/conf/db.inc';
+if ($conf['db']['type'] === 'oci') {
+    if (isset($conf['db']['encoding']) === FALSE) {
+        echo "Using an oracle database, you must also set the encoding during the database connection.";
+        if (SYS_NEW_ENCODING === 'utf-8') {
+       echo "\nIt should be set to 'AL32UTF8', but currently it's not set.";
+        } else {
+       echo "\nIt should be set to match '".SYS_NEW_ENCODING."', but currently it's not set.";
+        }
+        echo "\nContinue [y/N] ? ";
+        $response = trim(fgets(STDIN, 1024));
+        if (strtolower($response) != 'y') {
+            echo "\nAborting\n";
+            exit();
+        }
+    } else {
+        $dbEncoding = $conf['db']['encoding'];
+        if (SYS_NEW_ENCODING === 'utf-8' && strtolower($dbEncoding) != 'al32utf8') {
+            echo "You are converting the character set to utf-8 but have the database connection";
+            echo "\nencoding currently set to '".$dbEncoding."'";
+            echo "\nContinue [y/N] ? ";
+            $response = trim(fgets(STDIN, 1024));
+            if (strtolower($response) != 'y') {
+                echo "\nAborting\n";
+                exit();
+            }
+        }
+    }
+}
+
 if ($root_node_id == 1) {
     echo "\nWARNING: You are running this script on the whole system.\nThis is fine, but it may take a long time\n";
 }
-
+ 
 define('SCRIPT_LOG_FILE', $SYSTEM_ROOT.'/data/private/logs/'.basename(__FILE__).'.log');
 
 if (!$reportOnly) {
@@ -312,6 +347,15 @@ function fix_db($root_node, $tables)
                         $update_required = TRUE;
                     }
                 }
+               else {
+	// if it's a valid encoded value, but was convertable before with iconv using old encoding
+	// it might be only because value is already properly encoded with new encoding.  so use md_detect to double check
+	$encoding = mb_detect_encoding($value);
+	if($encoding === SYS_NEW_ENCODING) {
+		 array_pop($invalid_asset_records);
+		continue;
+	}
+              }
 
                 if ($update_required) {
                     if (!$reportOnly) {
