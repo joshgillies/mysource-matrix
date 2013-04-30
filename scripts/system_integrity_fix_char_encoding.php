@@ -10,7 +10,7 @@
  * | you a copy.                                                        |
  * +--------------------------------------------------------------------+
  *
- * $Id: system_integrity_fix_char_encoding.php,v 1.13 2013/01/15 03:44:04 cupreti Exp $
+ * $Id: system_integrity_fix_char_encoding.php,v 1.13.2.1 2013/04/30 03:20:26 ewang Exp $
  */
 
 /**
@@ -21,7 +21,7 @@
  * IMPORTANT: SYSTEM MUST BE BACKEDUP BEFORE RUNNING THIS SCRIPT!!!
  *
  * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
- * @version $Revision: 1.13 $
+ * @version $Revision: 1.13.2.1 $
  * @package MySource_Matrix
  */
 
@@ -347,6 +347,15 @@ function fix_db($root_node, $tables)
                         $update_required = TRUE;
                     }
                 }
+               else {
+	// if it's a valid encoded value, but was convertable before with iconv using old encoding
+	// it might be only because value is already properly encoded with new encoding.  so use md_detect to double check
+	$encoding = mb_detect_encoding($value);
+	if($encoding === SYS_NEW_ENCODING) {
+		 array_pop($invalid_asset_records);
+		continue;
+	}
+              }
 
                 if ($update_required) {
                     if (!$reportOnly) {
