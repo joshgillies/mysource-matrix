@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_invalid_links.php,v 1.9 2012/08/30 01:04:53 ewang Exp $
+* $Id: system_integrity_invalid_links.php,v 1.10 2013/04/30 06:19:08 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Nathan Callahan <ncallahan@squiz.net>
 * @author  Mohamed Haidar <mhaidar@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 */
 
@@ -71,10 +71,10 @@ if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 }
 
 $GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db');
-$sql  = "SELECT * FROM sq_ast_lnk a WHERE a.minorid NOT IN (SELECT assetid FROM sq_ast)";
+$sql  = "SELECT * FROM sq_ast_lnk a WHERE NOT EXISTS (SELECT assetid FROM sq_ast WHERE assetid = a.minorid)"
 if (!$remove_notice_links && $ACTION != 'check') $sql .= " AND a.link_type <> :link_type";
 
-$sql .= " UNION SELECT * FROM sq_ast_lnk b WHERE b.majorid NOT IN (SELECT assetid FROM sq_ast) AND b.majorid <> '0'";
+$sql .= " UNION SELECT * FROM sq_ast_lnk b WHERE NOT EXISTS (SELECT assetid FROM sq_ast WHERE assetid = b.majorid) AND b.majorid <> '0'";
 if (!$remove_notice_links && $ACTION != 'check') $sql .= " AND b.link_type <> :link_type";
 
 try {
@@ -202,11 +202,9 @@ $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 $GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db');
 
-$sql = 'SELECT count(*) 
-		FROM sq_ast a 
-		WHERE a.assetid NOT IN (SELECT minorid from sq_ast_lnk) 
-		AND a.assetid NOT IN (SELECT majorid from sq_ast_lnk)';
-
+$sql = 'SELECT count(*)
+		FROM sq_ast a
+		WHERE NOT EXISTS (SELECT linkid FROM sq_ast_lnk WHERE minorid = a.assetid OR majorid = a.assetid);';
 try {
 	$query = MatrixDAL::preparePdoQuery($sql);
 	$orphans = DAL::executePdoOne($query);
