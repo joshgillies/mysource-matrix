@@ -230,7 +230,7 @@ $output = '';
 
 $return_code = '200';
 
-require_once '../../core/include/init.inc';
+require_once dirname(__FILE__).'/../../core/include/init.inc';
 
 require SQ_SYSTEM_ROOT . '/data/private/conf/db.inc';
 
@@ -310,9 +310,16 @@ foreach ($dsn_list as $dsn_name => $query) {
 
 	$dsn = isset($db_conf['db'][0]) ? $db_conf['db'][0]['DSN'] : $db_conf[$dsn_name]['DSN'];
 
+	$restoreConnection = FALSE;
 	if ($dsn !== $last_dsn) {
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection($dsn_name);
+		$restoreConnection = TRUE;
 	}
+
+	// Do explicit transactions for the database connection, particularly
+	// important for oracle where it self-starts transactions.
+	// Otherwise, it can cause deadlocks.
+	$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 	$qry = MatrixDAL::preparePdoQuery($query);
 	try {
@@ -352,6 +359,13 @@ foreach ($dsn_list as $dsn_name => $query) {
 	$output .="\n";
 
 	$last_dsn = $dsn;
+
+	$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+	// Switch the db back if required.
+	if ($restoreConnection) {
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+	}
 }
 
 if ($db_type == 'pgsql') {
@@ -368,6 +382,8 @@ if ($db_type == 'pgsql') {
 	$db_conf['dbslon'] = $db_conf['db2'];
 	MatrixDAL::dbConnect($db_conf['dbslon'], 'dbslon');
 	$db = MatrixDAL::getDb('dbslon');
+
+	$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 	$start_time = time();
 	$query = MatrixDAL::preparePdoQuery($slon_schema_query);
@@ -391,6 +407,8 @@ if ($db_type == 'pgsql') {
 		$output .= '0:';
 	}
 	$output .= $lag.':'.ceil(time() - $start_time) ."\n";
+
+	$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 }
 
 if ($return_code == '200') {
@@ -402,4 +420,3 @@ if ($return_code == '200') {
 print $output;
 
 ?>
-
