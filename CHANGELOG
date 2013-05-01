@@ -1,5 +1,61 @@
 SQUIZ MATRIX CHANGELOG
 
+VERSION 4.12.6
+
+Minor Enhancements and Bug Fixes
+=================================== 
+
+Minor Enhancements
+
+Minor Enhancement #6210: NOTICE Links for Asset Attribute Link and Redirect URL Global Keywords.
+Minor Enhancement #6217: New Script to Rename a Thesaurus Term. 
+
+Core
+
+Fixed Bug #6179: Ignore incompatible statuses on cascade status change.
+Fixed Bug #6219: Instructions to change import directory are wrong.
+Fixed Bug #6229: TRIM Saved Search downloading the record's file even if record has not been updated.
+Fixed Bug #6248: Form submissions from public users not being properly logged when confirmation page used.
+Fixed Bug #6249: Height's unit set for WYSIWYG in global preference not respected by WYSIWYG attribute.
+Fixed Bug #6252: replace_url.php script can add some unnecessary entries in the asset lookup table.
+Fixed Bug #6256: Large pages with an embedded YouTube or movie may break Matrix stripping of sq_wysiwyg_* tags.
+Fixed Bug #6258: Performance Manager HTML Invalid.
+Fixed Bug #6259: Insert Link WYSIWYG plugin shows empty interface when logged in as LDAP Simple Edit User.
+Fixed Bug #6260: Trigger Conditions and Actions lists should be in ABC order.
+Fixed Bug #6266: Performance Mode glitch query time.
+Fixed Bug #6267: System Tools should be in ABC order.
+Fixed Bug #6269: Keyword modifiers do not work on %globals_X% keywords in email submission action.
+Fixed Bug #6278: Problem with Keyword Modifiers ^json_encode.
+Fixed Bug #6281: Possibility of asset getting into invalid workflow status.
+Fixed Bug #6282: PDF put into Apply for Approval status shows warning.
+Fixed Bug #6291: Unable to remove memcache cache if assetid/url indexes are corrupted.
+Fixed Bug #6292: test_message can cause deadlocks.
+Fixed Bug #6293: system_integrity_fix_char_encoding.php false warning on already encoded character.  
+
+CMS
+
+Fixed Bug #6242: Bug fix #5993 breaks upgraded form_email assets.
+
+LDAP
+
+Fixed Bug #6257: LDAP Attribute Setup should be performing case-insensitive matches for attribute names.
+
+Import Tools
+
+Fixed Bug #6250: Import script broken; connection cannot be closed.
+
+TRIM
+
+Fixed Bug #6231: TRIM Saved Search not serving the latest file attached to the given record.
+
+Web Services
+
+Fixed Bug #6240: Make SOAP Call trigger action doesn't show ticked image when trigger locked.
+Fixed Bug #6254: Undefined index error on the http_request attribute.
+Fixed Bug #6271: Call REST Resource trigger action does not replace global keywords correctly.
+Fixed Bug #6289: JS API: Batching using the setMetadataAllFields function doesn't work.
+
+
 
 VERSION 4.12.5
 
