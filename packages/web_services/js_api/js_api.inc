@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.130.2.7 2013/04/29 03:03:03 ewang Exp $
+* $Id: js_api.inc,v 1.130.2.8 2013/05/01 08:00:05 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.130.2.7 $
+* @version $Revision: 1.130.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1228,13 +1228,13 @@ class JS_Api extends Page
 			}
 
 			// lets check for the type_codes, link_types, and link_values
-			if(isset($args['type_codes'])) {
+			if(isset($args['type_codes']) && !empty($args['type_codes'])) {
 			    $type_codes = is_array($args['type_codes']) ? $args['type_codes'] : explode('\\,', $args['type_codes']);
 			}
-			if(isset($args['link_types'])) {
+			if(isset($args['link_types']) && !empty($args['link_types'])) {
 			    $link_types = is_array($args['link_types']) ? $args['link_types'] : explode('\\,', $args['link_types']);
 			}
-			if(isset($args['link_values'])) {
+			if(isset($args['link_values']) && !empty($args['link_values'])) {
 			    $link_values = is_array($args['link_values']) ? $args['link_values'] : explode('\\,', $args['link_values']);
 			}
 			$get_attributes	= isset($args['get_attributes']) ? $args['get_attributes'] : FALSE;
@@ -1287,13 +1287,13 @@ class JS_Api extends Page
 			}
 
 			// lets check for the type_codes, link_types, and link_values
-			if(isset($args['type_codes'])) {
+			if(isset($args['type_codes']) && !empty($args['type_codes'])) {
 			    $type_codes = is_array($args['type_codes']) ? $args['type_codes'] : explode('\\,', $args['type_codes']);
 			}
-			if(isset($args['link_types'])) {
+			if(isset($args['link_types']) && !empty($args['type_codes'])) {
 			    $link_types = is_array($args['link_types']) ? $args['link_types'] : explode('\\,', $args['link_types']);
 			}
-			if(isset($args['link_values'])) {
+			if(isset($args['link_values']) && !empty($args['type_codes'])) {
 			    $link_values = is_array($args['link_values']) ? $args['link_values'] : explode('\\,', $args['link_values']);
 			}
 			$get_attributes	= isset($args['get_attributes']) ? $args['get_attributes'] : FALSE;
