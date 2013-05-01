@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_management.inc,v 1.72 2013/04/09 01:02:56 ewang Exp $
+* $Id: form_management.inc,v 1.73 2013/05/01 02:42:54 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.72 $
+* @version $Revision: 1.73 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -177,7 +177,7 @@ class Form_Management extends Asset_Management
 						'captcha_length'			=> Array(
 														'added'		=> '0.9',
 														'type'		=> 'int',
-														'default'	=> 4,
+														'default'	=> 5,
 													   ),
 						'captcha_zoom'				=> Array(
 														'added'		=> '0.9',
@@ -414,7 +414,7 @@ class Form_Management extends Asset_Management
 						'captcha_label_text'	=> Array(
 														'added'		=> '0.16',
 														'type'		=> 'text',
-														'default'	=> 'Text in the box: ',
+														'default'	=> 'Type the characters you see in the picture above: ',
 														'is_contextable'	=> TRUE,
 														   ),
 			
@@ -436,7 +436,7 @@ class Form_Management extends Asset_Management
 						'mollom_unsure_submission_text'	=> Array(
 															'added'			=> '0.15',
 															'type'			=> 'text',
-															'default'		=> 'Please enter the characters in the image to verify your submission',
+															'default'		=> '',
 															'description'	=> 'Mollom error message text for unsure submission',
 														),
 						'mollom_spam_submission_text' 	=> Array(
@@ -460,7 +460,7 @@ class Form_Management extends Asset_Management
 						'mollom_captcha_label_text'	=> Array(
 														'added'		=> '0.16',
 														'type'		=> 'text',
-														'default'	=> 'Text in the box: ',
+														'default'	=> 'Type the characters you see in the picture above: ',
 														'is_contextable'	=> TRUE,
 														   ),
 						'disable_keyword_replacements'	=> Array(

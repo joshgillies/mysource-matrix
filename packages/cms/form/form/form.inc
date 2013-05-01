@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.278 2013/04/30 09:00:33 ewang Exp $
+* $Id: form.inc,v 1.279 2013/05/01 02:42:54 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.278 $
+* @version $Revision: 1.279 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2826,7 +2826,8 @@ class Form extends Asset implements Bridge
 					if ($error_text) {
 						$mollom_error = $error_text;
 					} else {
-						$mollom_error = translate('cms_form_mollom_unsure_spam_submission_message');
+						// do not display error message if it's not required
+						$ok = FALSE;
 					}
 				break;
 
