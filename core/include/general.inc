@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.285 2013/04/23 04:51:37 cupreti Exp $
+* $Id: general.inc,v 1.286 2013/05/01 03:08:17 cupreti Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.285 $
+* @version $Revision: 1.286 $
 * @package MySource_Matrix
 */
 
@@ -330,12 +330,12 @@ function sq_exception_handler($e)
 
 	// Sanatise the exception message
 	$msg = SQ_PHP_CLI ? $e->getMessage() : htmlspecialchars($e->getMessage(), ENT_QUOTES);
-	$fileline = "' in ".$e->getFile()."(".$e->getLine()."): ";
+	$fileline = "' in ".hide_system_root($e->getFile())."(".$e->getLine()."): ";
 	$trace = $e->getTrace();
 	// Build the backtrace
 	$backtrace = '';
 	foreach($trace as $key => $val) {
-		$file = $val['file'];
+		$file = hide_system_root($val['file']);
 		$func_name = $val['function'];
 		$line = $val['line'];
 		$args_str = '';
