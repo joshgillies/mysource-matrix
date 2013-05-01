@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.83.2.2 2013/04/22 05:19:06 ewang Exp $
+* $Id: form_section.inc,v 1.83.2.3 2013/05/01 08:53:05 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.83.2.2 $
+* @version $Revision: 1.83.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -303,6 +303,7 @@ class Form_Section extends Asset implements Bridge
 	public function cloneComponentsAdditional(Asset $clone, Array $components)
 	{
 		if (SQ_IN_BACKEND) return $clone->fileRegeneration();
+		return TRUE;
 	}//end cloneComponentsAdditional()
 
 	
