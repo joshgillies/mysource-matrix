@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.166.2.2 2013/04/09 07:51:50 ewang Exp $
+* $Id: html_form.inc,v 1.166.2.3 2013/05/01 02:47:50 ewang Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.166.2.2 $
+* @version $Revision: 1.166.2.3 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -561,8 +561,8 @@ function file_upload($name, $extras='')
 function get_file_upload_info($name, $pre_uploaded=FALSE)
 {
 	// browsers of handheld iOS devices disables the file upload
-	// input so the _FILES var will be totally empty but this
-	// doesn't mean there was error uploading the file. see more
+	// input so the _FILES var will be totally empty but this 
+	// doesn't mean there was error uploading the file. see more 
 	// on bug #5574 Form file upload problem with  iOS device
 	if (empty($_FILES)) return Array();
 	if (empty($_FILES[$name])) return FALSE;
@@ -610,7 +610,7 @@ function get_file_upload_info($name, $pre_uploaded=FALSE)
 			trigger_localised_error('SYS0023', E_USER_WARNING, $nice_name);
 			return FALSE;
 		break;
-
+	
 	}//end switch
 
 	if (empty($_FILES[$name]['name']) || !is_uploaded_file($_FILES[$name]['tmp_name'])) {
@@ -969,20 +969,20 @@ function security_key($key_len, $box_len, $zoom=1, $img_on_newline=FALSE, $bg='F
 	// generate the url to get the security image to print
 	$img_url = $_SERVER['PHP_SELF'].'?SQ_ACTION=send_security_key';
 	if ($accessible_format) {
+	    echo '<span id="sq_normal_captcha">';
 	    echo '<img id="sq_security_key" src="'.$img_url.'" alt="Security key" border="0" /><br/>';
-	    if(empty($title)) $title = 'Text in the box: ';
+	    if(empty($title)) $title = 'Type the characters you see in the picture above: ';
 	    label($title, 'SQ_SYSTEM_SECURITY_KEY_VALUE');
 	    echo '<br/>';
 	    echo text_box('SQ_SYSTEM_SECURITY_KEY_VALUE', '', $box_len);
 	    if(!empty($error))
-		echo '<br/>';
-		echo '<span id="error_SQ_SYSTEM_SECURITY_KEY_VALUE" class="sq-form-error sq-captcha-error">'.$error.'</span>';
+		echo '<br /><span id="SQ_SYSTEM_SECURITY_KEY_VALUE_ERROR" class="sq-form-error sq-captcha-error">'.$error.'</span>';
+	    echo '</span>';
 	    if ($provide_accessible_captcha) {
 		print_accessible_captcha_interface();
 	    }
-	    echo '<br/>';
 	    $replacements_link = '<a href="#" onclick="var img = document.getElementById(\'sq_security_key\'); img.src = \''.$img_url.'&amp;regen_key=1&amp;t=\' + new Date().getTime(); return false;">'.translate('security_key_link').'</a>';
-	    echo '<i>'. translate('security_key_question', $replacements_link).'</i>'; 
+	    echo '<span id="sq_regen_captcha"><br /><i>'. translate('security_key_question', $replacements_link).'</i></span>'; 
 				
 	}
 	else {
@@ -1019,7 +1019,6 @@ function security_key($key_len, $box_len, $zoom=1, $img_on_newline=FALSE, $bg='F
 	</table>
 	<?php
 	}
-	
 
 }//end security_key()
 
@@ -1127,11 +1126,16 @@ function print_accessible_captcha_interface()
 <span style="display: none; visibility: hidden;" id="sq_accessible_captcha">
 <?php
     echo '<label for="SQ_SYSTEM_SECURITY_KEY_EMAIL">Please enter your email address: </label>';
-    echo text_box('SQ_SYSTEM_SECURITY_KEY_EMAIL', '', 40, '', FALSE, 'onkeypress="enable_submission_button();"');
+    echo '<br />';
+    echo text_box('SQ_SYSTEM_SECURITY_KEY_EMAIL', '', 30, '', FALSE, 'onkeypress="enable_submission_button();"');
 ?>
 	<input type="button" id="sq_submit_accessible_captcha" value="Submit address" onclick="submit_email_captcha('<?php echo sq_web_path('lib'); ?>');" />
 </span>
 <span id="sq_accessible_validation_link">&nbsp;<a href="javascript:show_accessible_captcha();">Use accessible validation</a></span>
+<span id="sq_accessible_captcha_message">
+    <span id="sq_accessible_captcha_error" style="display: none; visibility: hidden;"><br />Invalid email address</span>
+    <span id="sq_accessible_captcha_instruction" style="display: none; visibility: hidden;"><br />A validation email has been sent to the address specified.<br />Please click the link in this email to validate and continue your form submission.</span>
+</span>
     <?php
 
 }//end print_accessible_captcha_interface()
@@ -1514,7 +1518,7 @@ function structured_drop_down($name, $root_id, $type_codes, $selected=Array(), $
 			$invalid[] = $treeid;
 			continue;
 		}
-
+		
 		if (!empty($skip_assetids) && in_array($data['assetid'], $skip_assetids)) {
 			// Issue #6193 Exclude asset/root node settings ignored in Asset Listing
 			// allow the assets to be skipped if they are in skip list. we are doing
@@ -1734,7 +1738,7 @@ function sort_tree(&$tree)
 
 /**
 * Comparison function for use in uasort()
-*
+* 
 * @param array	$left
 * @param array 	$right
 *
@@ -1742,7 +1746,7 @@ function sort_tree(&$tree)
 * @access public
 */
 function sort_compare($left, $right)
-{
+{	
 	if (!is_array($left) || !is_array($right)) {
 		return 0;
 	}
