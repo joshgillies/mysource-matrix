@@ -1,5 +1,187 @@
 SQUIZ MATRIX CHANGELOG
 
+VERSION 4.14.2
+
+Featured Changes
+===================================
+
+New SOAP Data Source Asset [ Feature Request #6079 ]
+-----------------------------------------------------
+
+A new data source asset has been added to Squiz Matrix to make a SOAP call to a remote SOAP service and generate the data record sets based on the returned SOAP response. You can use either HTTP Basic or WS Username Token Header authentication types to access the SOAP service.
+
+Like other data source assets, the SOAP Data Source will include standard features such as record filtering, data source keywords and dynamic inputs.
+
+REST Resource: HTTP Request Digest Auth Authentication Type [ Feature Request #6136 ]
+-----------------------------------------------------
+
+This feature introduces a new Digest Auth authentication type on the HTTP Request of Squiz Matrix's REST Resource assets.
+
+Selecting this Authentication Type option will display new fields, allowing you to input the username and password for authentication.
+
+E-Commerce: PayPal Payflo Pro Payment Gateway [ Feature Request #6208 ]
+-----------------------------------------------------
+
+Squiz Matrix's E-Commerce package contains a number of payment gateway options for your e-commerce setup, including the SecurePay eSec, Datacash, SagePay, DPS and uTransact payment gateways.
+
+This feature introduces a new payment gateway for PayPal's Payflo Pro payment solution.
+
+The Payflo Pro payment gateway differs from Matrix's existing PayPal payment gateway as, while the existing payment options redirect you to PayPal during the payment process, Payflow Pro is fully integrated into your site. This gives you complete control over the look, feel and functionality of the payment process.
+
+Currently, the PayPal Payflo Pro payment gateway will support credit and debit card payment processing only. The settings of the payment gateway allow you to configure the accepted card types, as well as the currency to use for the transfer.
+
+Accessible Custom Form [ Feature Request #6228 ]
+-----------------------------------------------------
+
+Squiz Matrix's Custom Form asset allows you to create and manage a form to collect data and other information from your users, for example, a Contact Us form or a custom survey.
+
+Previously, this asset used table tags to structure the questions and answers of the form. This, however, could potentially cause accessibility issues on the form.
+
+This feature addresses these issues by introducing a new option on the Custom Form asset to output form content as WCAG 2.0 accessible HTML content rather than the standard tabular format. 
+
+The new Accessible Format option can be configured on the Form Contents screen of the Custom Form's Form Contents asset. By default, this option will be enabled on all newly created Custom Form assets. Any existing forms on a system will retain their original format, with this option disabled. 
+
+This new option will present accessible HTML for the form and its questions in a semantic format, as well as the following additional accessibility features:
+
+Improved default and Mollom CAPTCHA formats to meet accessibility standards.
+Required questions are now marked in the label tag of the question.
+Form question and CAPTCHA errors will now be displayed next to the corresponding fields. General form errors will continue to be displayed, by default, at the bottom of the form.
+Tickbox Question: table format improved.
+Date/Time Question: option to turn off JavaScript input assistance.
+Password Question: configurable titles for Password and Confirm Password fields.
+Semantic summary used for the default Thank You page rather than tabular summary. 
+
+These accessibility features have also been extended to the eCommerce Form Page asset. 
+
+REST Resource: Specify SSL Certificate and Key File Paths [ Feature Request #6238 ]
+-----------------------------------------------------
+
+This feature introduces a number of new fields on the HTTP request of Squiz Matrix's REST Resource assets, allowing you to specify SSL certificate and Key file paths to be used on the request. This allows the REST assets to connect to web services that require 2WAY or Mutual SSL authentication.
+
+This feature also includes a new check-box to force requests to made using HTTP/1.0 rather than 1.1. This is useful in some advanced configurations with older proxy servers that do not fully support HTTP/1.1.
+
+New Remove Permissions Script [ Feature Request #6239 ]
+-----------------------------------------------------
+
+Squiz Matrix's system_apply_permissions.php script is commonly used to apply permissions to a set of specified assets and their children, for example, granting Admin permissions. Previously, however, there was no script available to remove permissions in the same efficient manner.
+
+This feature introduces the new remove_permissions.php script, allowing you to remove the permissions of assets under a specified root node. This script takes the following parameters:
+
+--system=<SYSTEM_ROOT>: the root directory of your Squiz Matrix system.
+--rootnode=<ROOTNODES> : the asset IDs of the root nodes to be processed.
+--includeuser=<INCLUDE_USERIDS> : an optional parameter allowing you to only remove permissions for a set of specified users.
+--excludeuser=<EXCLUDE_USERIDS> : an optional parameter allowing you to specify a set of users to not remove permissions for.
+--type=<PERMISSION_TYPE>  an optional parameter allowing you to specify the permission types to remove (1 for Read, 2 for Write, 3 for Admin).
+
+An example usage of this script is outlined below. This example will remove any Write permissions on assets #100, #130, #205 and all their children; permissions will not be removed for user #65.
+
+$ php remove_permissions.php --system=. --rootnode=100,130,205 --excludeuser=65 --type=2  
+
+New Trigger Action: Urban Airship Push Notification [ Feature Request #6245 ]
+-----------------------------------------------------
+
+Urban Airship is a push messing and marketing solution providing management of push notifications to both IOS and Android mobile devices.
+
+This feature introduces a new trigger action, allowing Squiz Matrix to integrate with Urban Airship, sending a push notification to a mobile device application.  
+
+The Urban Airship Push Notification trigger action allows you to input the details of your Urban Airship API, as well as the push notification, itself. This includes Badge number, notification Sound and Alert message options, all of which support Squiz Matrix keyword replacements.
+
+When a trigger is fired, this action will send the configured push notification to a mobile application, as specified within the settings of your Urban Airship configuration. 
+
+This new trigger action can be set up in conjunction with any trigger event. As a result, push notifications can be utilised to be sent for a variety of purposes, for example, when an asset is updated, when workflow approval is required on an asset or when the status of an asset is changed.
+
+As mentioned earlier, this feature was kindly contributed by Nic Hubbard (http://www.zedsaid.com).   
+
+New Trigger Event: Tagging Update [ Feature Request #6253 ]
+-----------------------------------------------------
+
+Trigger events within Squiz Matrix define the actions that a trigger is listening for before it is fired. So, for example, you can configure your triggers to fire when an asset is created in the system or when the status of an asset is changed. Once an event fires a trigger, the configured conditions are checked and, if approved, the specified actions on the trigger will be performed. 
+
+This feature introduces a new trigger event that will fire a trigger when a tagging change is made to an asset, for example, when a tag is added, deleted or updated. The Asset Cloned trigger event can be selected when configuring the Details screen of a trigger.
+
+Call REST Resource Submission Action: Response Validation Rule [ Feature Request #6264 ]
+-----------------------------------------------------
+
+This feature adds a new Validation Rule section to the Call REST Resource form submission action. These settings allow you to enable validation on the REST call response, checking the HTTP response code or body against set validation rules.
+
+If a response fails the validation process, the submission of the form will be stopped and a custom error message will be displayed to the user (also logged within Matrix).
+
+Custom Form: Validation Rule Conditions [ Feature Request #6275 ]
+-----------------------------------------------------
+
+For each question on a Custom Form page, validation rules can be configured to outline the requirements of a question. These can be Simple validation rules, such as, if an answer to the question is required, or Complex rules, such as, file type restrictions on a File Upload question.
+
+This feature allows you to add Conditions to the validation rules you have configured on your form questions. These conditions give you the ability of only enabling a validation rule if a certain condition is met. 
+
+For example, a restaurant booking form requires patrons to select a banquet option from the Set Menu question if a booking is made for groups of 8 or more people (specified in the No. of Guests question). This can be done using this new condition feature by configuring a validation rule on the Set Menu question to require a response if the response of the No. of Guests question is greater than seven (8 or more).
+
+
+Additional Changes and Bug Fixes
+=================================== 
+
+Minor Enhancements
+
+Minor Enhancement #6210: NOTICE Links for Asset Attribute Link and Redirect URL Global Keywords.
+Minor Enhancement #6217: New Script to Rename a Thesaurus Term. 
+Minor Enhancement #6246: TRIM Saved Search: Access a File Using its Record Number. 
+Minor Enhancement #6268: purge_trash.php Silent When Running From Cron. 
+Minor Enhancement #6274: Matrix Export Assets to XML Tool: Root Asset ID Included in Export File Name. 
+Minor Enhancement #6277: Improvements to the current_url() Function. 
+Minor Enhancement #6280: Enhancement to Matrix Log File Rotation Process. 
+Minor Enhancement #6290: Custom Form: Accessible CAPTCHA.
+
+Core
+
+Fixed Bug #6179: Ignore incompatible statuses on cascade status change.
+Fixed Bug #6219: Instructions to change import directory are wrong.
+Fixed Bug #6229: TRIM Saved Search downloading the record's file even if record has not been updated.
+Fixed Bug #6248: Form submissions from public users not being properly logged when confirmation page used.
+Fixed Bug #6249: Height's unit set for WYSIWYG in global preference not respected by WYSIWYG attribute.
+Fixed Bug #6251: add_remove_url.php script can cause duplicate urls.
+Fixed Bug #6252: replace_url.php script can add some unnecessary entries in the asset lookup table.
+Fixed Bug #6256: Large pages with an embedded YouTube or movie may break Matrix stripping of sq_wysiwyg_* tags.
+Fixed Bug #6258: Performance Manager HTML Invalid.
+Fixed Bug #6259: Insert Link WYSIWYG plugin shows empty interface when logged in as LDAP Simple Edit User.
+Fixed Bug #6260: Trigger Conditions and Actions lists should be in ABC order.
+Fixed Bug #6266: Performance Mode glitch query time.
+Fixed Bug #6267: System Tools should be in ABC order.
+Fixed Bug #6269: Keyword modifiers do not work on %globals_X% keywords in email submission action.
+Fixed Bug #6278: Problem with Keyword Modifiers ^json_encode.
+Fixed Bug #6281: Possibility of asset getting into invalid workflow status.
+Fixed Bug #6282: PDF put into Apply for Approval status shows warning.
+Fixed Bug #6291: Unable to remove memcache cache if assetid/url indexes are corrupted.
+Fixed Bug #6292: test_message can cause deadlocks.
+Fixed Bug #6293: system_integrity_fix_char_encoding.php false warning on already encoded character.  
+
+CMS
+
+Fixed Bug #6242: Bug fix #5993 breaks upgraded form_email assets.
+
+LDAP
+
+Fixed Bug #6257: LDAP Attribute Setup should be performing case-insensitive matches for attribute names.
+
+Import Tools
+
+Fixed Bug #6250: Import script broken; connection cannot be closed.
+
+Data
+
+Fixed Bug #6244: Using MYSQL database on the DB Data Source Asset may break after upgrade to 4.14.0.
+
+TRIM
+
+Fixed Bug #6231: TRIM Saved Search not serving the latest file attached to the given record.
+
+Web Services
+
+Fixed Bug #6240: Make SOAP Call trigger action doesn't show ticked image when trigger locked.
+Fixed Bug #6254: Undefined index error on the http_request attribute.
+Fixed Bug #6271: Call REST Resource trigger action does not replace global keywords correctly.
+Fixed Bug #6289: JS API: Batching using the setMetadataAllFields function doesn't work.
+
+
+
 VERSION 4.14.1
 
 Featured Changes
