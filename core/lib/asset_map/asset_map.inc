@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.316 2013/04/12 08:37:43 cupreti Exp $
+* $Id: asset_map.inc,v 1.317 2013/05/01 00:53:55 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.316 $
+* @version $Revision: 1.317 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -462,15 +462,12 @@ class Asset_Map
 
 					$parameters = Array(
 									'parameter.backendsuffix'			=> SQ_CONF_BACKEND_SUFFIX,
-									'parameter.sessionid'				=> $_COOKIE['SQ_SYSTEM_SESSION'],
-									'parameter.sessionkey'				=> $GLOBALS['SQ_SYSTEM']->getUniqueSessionKey(),
 									'parameter.url.iconurl'				=> '__lib/web/images/icons',
 									'parameter.url.typecodeurl'			=> '__data/asset_types',
 									'parameter.url.notaccessibleicon'	=> 'asset_map/not_accessible.png',
 									'parameter.url.type2icon'			=> 'asset_map/not_visible.png',
 									'parameter.url.assetmapiconurl'		=> '__lib/web/images/icons/asset_map',
 									'parameter.url.baseurl'				=> $root_url,
-									'parameter.url.execurl'				=> $root_url.SQ_CONF_BACKEND_SUFFIX.'?SQ_ACTION=asset_map_request&SESSION_ID='.$_COOKIE['SQ_SYSTEM_SESSION'].'&SESSION_KEY='.$GLOBALS['SQ_SYSTEM']->getUniqueSessionKey(),
 									'parameter.asset.limit'				=> SQ_CONF_ASSET_MAP_ASSET_LIMIT,
 									'parameter.java.supportedversion'	=> '1.4.2,1.5.0,1.6.0',
 									'parameter.java.sunurl'				=> 'http://java.sun.com/webapps/getjava/BrowserRedirect?locale=en&host=www.java.com:80',

@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: Matrix.java,v 1.8 2012/08/30 01:09:20 ewang Exp $
+* $Id: Matrix.java,v 1.9 2013/05/01 00:53:55 ewang Exp $
 *
 */
 
@@ -129,8 +129,7 @@ public class Matrix {
 						try {
 								String basePath = getProperty("parameter.url.baseurl");
 								String execPath = basePath + getProperty("parameter.backendsuffix")
-								+ "/?SQ_ACTION=asset_map_request&SESSION_ID="
-								+ getProperty("parameter.sessionid") + "&SESSION_KEY=" + getProperty("parameter.sessionkey");
+								+ "/?SQ_ACTION=asset_map_request";
 								execURL = new URL(execPath);
 						} catch (MalformedURLException mue) {
 								mue.printStackTrace(); 
@@ -150,7 +149,6 @@ public class Matrix {
 								conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 								conn.setRequestProperty("Cache-Control", "no-store, no-cache, " +
 												"must-revalidate, post-check=0, pre-check=0");
-
 								byteStream.writeTo(conn.getOutputStream());
 
 						} catch (IOException ioe) {
