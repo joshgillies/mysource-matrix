@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_contents.xml,v 1.24 2013/04/09 01:21:03 ewang Exp $
+* $Id: lang_screen_contents.xml,v 1.25 2013/05/07 09:05:27 cupreti Exp $
 *
 */
 -->
@@ -297,6 +297,62 @@
 		<field attribute="save_confirmation_message">
 			<display_name>Save Confirmation Text</display_name>
 			<note>This text is accessible through the %save_confirmation% keyword, to be used on a Page Contents or page format bodycopy when a user clicks on the "Save" button. If omitted, a default message ("Your progress has been saved") will be used.</note>
+		</field>
+		<field attribute="saved_submission_access_message">
+			<display_name>Submission Access Info Text</display_name>
+			<note><![CDATA[This text is accessible through the %submission_access_info% keyword, to be used on a Page Contents or page format bodycopy when a user clicks on the "Save" button, to display the form submission access information to the public user. The following keywords are allowed:
+			<ul>
+				<li><strong>%submission_url%</strong> - The URL to resume the form submission</li>
+				<li><strong>%submission_password%</strong> - Password required to resume the form submission</li>
+			</ul>]]></note>
+		</field>
+	</section>
+	<section name="Public User Incomplete Submission">
+		<field attribute="public_incomplete_submission">
+			<display_name>Allow Public Incomplete Submission</display_name>
+			<note>Whether to allow Public User to save their form submission progress. Useful in the multi-page form.</note>
+		</field>
+		<field attribute="public_auth_email_q">
+			<display_name>Public User Email Question</display_name>
+			<note>The address entered in response to this question will regarded as the Public User's authorised email. If not set, no email notification/reminder will be sent to the Public User</note>
+		</field>
+		<field attribute="public_email_notification_format">
+			<display_name>Submission Retrieval Email Format</display_name>
+			<note><![CDATA[<p>This email will be sent to the Public User after they save the submission. The following keywords are available:</p>
+				<ul>
+					<li><strong>%form_submission_password%</strong> - Password required to access the submission saved by the <em>Public User</em>.</li>
+					<li><strong>%form_total_pages%</strong> - The total number of pages in the form.</li>
+					<li><strong>%return_to_form_url_current%</strong> - The URL that will return the user to the form, on the <em>Current Page</em>.</li>
+					<li><strong>%return_to_form_url_latest%</strong> - The URL that will return the user to the form, on the <em>Latest Page</em>.</li>
+				</ul>
+				<p>In addition, the following keyword wildcards are available (where "*" is any valid keyword for the appropriate asset):</p>
+				<ul>
+					<li><strong>%user_asset_*%</strong> - Replaced with the value of the %asset_*% keyword for the user that owns the incomplete submission.</li>
+					<li><strong>%form_asset_*%</strong> - Replaced with the value of the %asset_*% keyword for the form's parent page.</li>
+					<li><strong>%submission_asset_*%</strong> - Replaced with the value of the %asset_*% keyword for the incomplete submission.</li>
+				</ul>]]></note>
+		</field>
+		<field attribute="public_auth_info_format">
+			<display_name>Submission Retrieval Message Format</display_name>
+			<note><![CDATA[Text format to display the form submission retrieval information. This text is accessible through the %submission_access_info% keyword, to be used on a Page Contents or Page Format bodycopy when a user clicks on the "Save" button. Keywords available are same as in "Submission Retrieval Email Format".
+			]]></note>
+		</field>
+		<field attribute="public_auth_form_format">
+			<display_name>Password Verification Form Format</display_name>
+			<note><![CDATA[<p>This form will be presented to the public user, when trying retrive the previously saved incomplete submission. Additional to the "Public User Email Question" keywords, following keywords are available:</p>
+			<ul>
+				<li><strong>%public_form_error_message%</strong> - Invalid password error message</li>
+				<li><strong>%public_form_password_input%</strong> - Input text box to enter the submission's password</li>
+				<li><strong>%public_form_submit_button%</strong> - Submit button to submit the password verification form</li>
+			</ul>]]></note>
+		</field>
+		<field attribute="public_auth_submit_button_text">
+			<display_name>Submit Button Text</display_name>
+			<note>Submit button text in the Public User password verification form. If no custom text is entered here, "Submit" will be used.</note>
+		</field>
+		<field attribute="public_auth_error_message">
+			<display_name>Incorrect Password Message</display_name>
+			<note>Error message to display when the password entered by the Public User is incorrect. If empty "Invalid password" will be used.</note>
 		</field>
 	</section>
 	<section name="Complex Formatting">

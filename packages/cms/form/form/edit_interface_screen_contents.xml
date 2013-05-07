@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_contents.xml,v 1.40 2013/04/09 01:21:03 ewang Exp $
+* $Id: edit_interface_screen_contents.xml,v 1.41 2013/05/07 09:04:03 cupreti Exp $
 *
 */
 -->
@@ -205,6 +205,29 @@
 		</field>
 		<field attribute="save_confirmation_message">
 			<text width="30" height="1" />
+		</field>
+	</section>
+	<section name="Public User Incomplete Submission">
+		<field attribute="public_incomplete_submission">
+			<boolean true_text="yes" false_text="no"/>
+		</field>
+		<field attribute="public_auth_email_q">
+			<assetid type_codes="form_question_type_email_address:D" />
+		</field>
+		<field attribute="public_email_notification_format">
+			<email_format with_asset_finder="1" />
+		</field>
+		<field attribute="public_auth_info_format">
+			<wysiwyg height="120" />
+		</field>
+		<field attribute="public_auth_form_format">
+			<wysiwyg height="120" />
+		</field>
+		<field attribute="public_auth_submit_button_text">
+			<text width="30" height="1" />
+		</field>
+		<field attribute="public_auth_error_message">
+			<text width="60" height="1" />
 		</field>
 	</section>
 	<section name="Simple Formatting">

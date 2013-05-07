@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_management.inc,v 1.73 2013/05/01 02:42:54 ewang Exp $
+* $Id: form_management.inc,v 1.74 2013/05/07 09:04:03 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.73 $
+* @version $Revision: 1.74 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -279,6 +279,13 @@ class Form_Management extends Asset_Management
 														'added'		=> '0.13',
 														'type'		=> 'email_format',
 														'default'	=> Array(),
+														'description' => 'Incomplete submission warning email format for the logged user',
+													   ),
+						'warning_email_format_public'	=> Array(
+														'added'		=> '0.17',
+														'type'		=> 'email_format',
+														'default'	=> Array(),
+														'description' => 'Incomplete submissions warning email format for the public user',
 													   ),
 						'captcha_use_colours'		=> Array(
 														'type'			=> 'boolean',
@@ -503,7 +510,54 @@ class Form_Management extends Asset_Management
 															'type'			=> 'text',
 															'default'		=> 'Required fields are marked with an asterisk (<abbr class="sq-form-required-field" title="required">*</abbr>).',
 															'is_contextable'=> TRUE,
-										   ),		    
+										   ),
+						'public_incomplete_submission'		=>	Array(
+																'added'			=> '0.17',
+																'type'			=> 'boolean',
+																'default'		=> FALSE,
+																'parameters'	=> Array(
+																				'allow_empty'	=> FALSE,
+																				),
+																'description' 	=> 'Whether to allow Public User to save the incomplete submission',
+															),
+						'public_auth_email_q'				=> Array(
+																'added'		=> '0.17',
+																'type'		=> 'assetid',
+																'default'	=> '',
+																'description' => 'The asset id of the form question containing the public user email',
+															),
+						'public_auth_submit_button_text'	=> Array(
+																'added'		=> '0.17',
+																'type'		=> 'text',
+																'default'	=> 'Submit',
+																'description' => 'Submit button text for the public user password verification form',
+															),
+						'public_auth_error_message'			=> Array(
+																'added'		=> '0.17',
+																'type'		=> 'text',
+																'default'	=> '',
+																'description' => 'Error message when Public user password validation fails',
+															),
+						'public_email_notification_format'	=> Array(
+																'added'		=> '0.17',
+																'type'		=> 'email_format',
+																'default'	=> Array(),
+																'description' => 'Email sent to the Public User when incomplete form submission is saved',
+													   		),
+						'public_auth_form_format'			=> Array(
+																'added'		=> '0.17',
+																'type'		=> 'wysiwyg',
+																'default'	=> '',
+																'description'	=> 'Form format for the punlic user password verification form. HTML allowed.',
+																'is_contextable'	=> TRUE,
+															),
+						'public_auth_info_format'			=> Array(
+																'added'		=> '0.17',
+																'type'		=> 'wysiwyg',
+																'default'	=> '',
+																'description'	=> 'The %submission_access_info% keyword will be replaced with this just after the Save button is pressed, otherwise keyword is blank. HTML allowed.',
+																'is_contextable'	=> TRUE,
+															),
 					  );
 
 	}//end constructor
