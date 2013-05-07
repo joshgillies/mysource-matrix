@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_permission_role_service.inc,v 1.7 2012/08/30 00:59:45 ewang Exp $
+* $Id: soap_api_permission_role_service.inc,v 1.7.2.1 2013/05/07 00:54:41 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -320,9 +320,9 @@ class Soap_Api_Permission_Role_Service extends Soap_Api
 			} else {
 				// Check that this is a user, but only if it is not global role assignment
 				if ($userid !== 0) {
-					$user	= $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
-					if (!($user instanceof User)) {
-						throw new SoapFault('Server', 'The provided User ID does not belong to a User');
+					$user_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($userid, Array('user', 'user_group'), FALSE);
+					if (empty($user_info)) {
+						throw new SoapFault('Server', 'The provided User ID does not belong to a User/User Group');
 					}//end if
 				}//end if
 			}//end
