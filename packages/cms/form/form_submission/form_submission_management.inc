@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission_management.inc,v 1.26 2012/08/30 00:58:08 ewang Exp $
+* $Id: form_submission_management.inc,v 1.27 2013/05/07 09:22:11 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -90,6 +90,13 @@ class Form_Submission_Management extends Asset_Management
 												'type'		=> 'int',
 												'default'	=> 0,
 												'description'	=> 'The last page the user saw - ie. the page furthest along the line that has been seen, irrespective of whether a user backtracked to a previous page',
+												'is_admin'	=> FALSE,
+											   ),
+						'passcode'			=> Array(
+												'added'		=> '0.8',
+												'type'		=> 'text',
+												'default'	=> '',
+												'description'	=> 'Unquie code assigned to the submission. Used as password for Public User to access the incomplete submission',
 												'is_admin'	=> FALSE,
 											   ),
 					  );

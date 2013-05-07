@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission.inc,v 1.48 2012/12/17 00:10:22 ewang Exp $
+* $Id: form_submission.inc,v 1.49 2013/05/07 09:22:11 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -41,6 +41,8 @@ class Form_Submission extends Asset
 	function Form_Submission($assetid=0)
 	{
 		$this->_ser_attrs = TRUE;
+
+
 		return $this->Asset($assetid);
 
 	}//end constructor
@@ -599,6 +601,44 @@ class Form_Submission extends Asset
 		return $this->getIP();
 
 	}//end getSubmissionIpAddressKeywordReplacement()
+
+
+	/**
+	* Sets a random unqiue passcode to the submission asset
+	* Relevant to Public User submissions only
+	*
+	* @return string|boolean
+	* @access public
+	*/
+	function setSubmissionPasscode()
+	{
+		$existing_passcode = $this->attr('passcode');
+		//This is to be set only ever once
+		if (!empty($existing_passcode)) {
+			return $existing_passcode;
+		}
+
+		$unique_code = str_pad(rand(0,999), 3, '0', STR_PAD_LEFT).uniqid();
+		if (!$this->setAttrValue('passcode', $unique_code)) {
+			return FALSE;
+		}
+
+		return $unique_code;
+
+	}//end setSubmissionPasscode()
+
+
+	/**
+	* Returns the passcode set to submission asset
+	*
+	* @return string|boolean
+	* @access public
+	*/
+	function getSubmissionPasscode()
+	{
+		return $this->attr('passcode');
+
+	}//end getSubmissionPasscode()
 
 
 	/**
