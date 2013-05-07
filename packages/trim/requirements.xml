@@ -1,9 +1,0 @@
-<requirement_info>
-        <package_name>trim</package_name>
-        <requirement>
-                <php_extension>SimpleXML</php_extension>
-        </requirement>
-        <requirement>
-                <php_extension>soap</php_extension>
-        </requirement>
-</requirement_info>
