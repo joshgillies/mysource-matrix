@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.2 2013/05/08 07:11:11 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.3 2013/05/08 22:24:04 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.2 $
+ * @version $Revision: 1.1.2.3 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -217,6 +217,12 @@ var JS_Asset_Map = new function() {
         this.drawStatusList();
         this.drawMessageLine();
 
+        var treeDiv    = document.getElementsByClassName('tree')[0];
+        var toolbarDiv = document.getElementsByClassName('toolbar')[0];
+        var messageDiv = document.getElementsByClassName('messageLine')[0];
+        var statusList = document.getElementsByClassName('statusList')[0];
+        treeDiv.style.height = (assetMap.clientHeight - toolbarDiv.clientHeight - messageDiv.clientHeight - statusList.clientHeight) + 'px';
+
         this.message('Initialising...', true);
         this.doRequest({
             _attributes: {
@@ -274,11 +280,14 @@ var JS_Asset_Map = new function() {
             }
 
             var target = e.target;
-            while (target && (target.className !== 'asset')) {
+            while (target && (target.className !== 'branch-status')) {
                 target = target.parentNode;
             }
 
             if (target) {
+                target.className += ' expanded';
+                // Set the target to the asset line.
+                var target       = target.parentNode;
                 var assetid      = target.getAttribute('data-assetid');
                 var linkid       = target.getAttribute('data-linkid');
                 var rootIndentId = 'child-indent-' + encodeURIComponent(assetid);

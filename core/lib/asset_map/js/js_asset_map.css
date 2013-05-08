@@ -78,6 +78,9 @@
 
 #asset_map_container .tree {
     padding: 2px;
+    overflow: scroll;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
 }
 
 #asset_map_container .childIndent {
