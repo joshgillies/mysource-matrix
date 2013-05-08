@@ -1,0 +1,243 @@
+.statusArchived {
+    background-color: #C2B0A0;
+    border: 1px solid #887B6F;
+}
+
+.statusUnderConstruction {
+    background-color: #AACCDD;
+    border: 1px solid #748D9A;
+}
+
+.statusPendingApproval {
+    background-color: #DCD2E6;
+    border: 1px solid #9A94A1;
+}
+
+.statusApproved {
+    background-color: #F4D425;
+    border: 1px solid #AD9200;
+}
+
+.statusLive {
+    background-color: #DBF18A;
+    border: 1px solid #9BA65C;
+}
+
+.statusLiveApproval {
+    background-color: #50D000;
+    border: 1px solid #368D00;
+}
+
+.statusEditing {
+    background-color: #F25C86;
+    border: 1px solid #AD455C;
+}
+
+.statusEditingApproval {
+    background-color: #CC7CC7;
+    border: 1px solid #8F5A8C;
+}
+
+.statusEditingApproved {
+    background-color: #FF9A00;
+    border: 1px solid #B66B00;
+}
+
+#asset_map_container {
+    position: relative;
+}
+
+#asset_map_container .toolbar {
+    background-color: #f5f5f5;
+    border-bottom: 1px solid #999;
+    padding: 5px;
+}
+
+#asset_map_container .messageLine {
+    background-color: #f5f5f5;
+    border-top: 1px solid #999;
+    padding: 5px;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+
+#asset_map_container .messageLine .spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin-right: 2px;
+    background: url(../../web/images/icons/asset_map/spinner.png) 50% 50% no-repeat;
+}
+
+#asset_map_container .messageLine .message {
+    display: inline-block;
+    height: 12px;
+    padding: 2px 0;
+}
+
+#asset_map_container .tree {
+    padding: 2px;
+}
+
+#asset_map_container .childIndent {
+    padding-left: 18px;
+}
+
+#asset_map_container .asset {
+    padding: 1px 3px;
+    position: relative;
+    cursor: pointer;
+    font-size: 11px;
+}
+
+#asset_map_container .asset > * {
+    vertical-align: middle;
+}
+
+#asset_map_container .asset .assetName {
+    padding: 1px 3px;
+}
+
+#asset_map_container .statusList {
+    position: absolute;
+    bottom: 27px;
+    width: 100%;
+    padding: 1px 0;
+}
+
+#asset_map_container .statusList .asset {
+    cursor: default;
+}
+
+#asset_map_container .statusListIcon {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    margin-right: 2px;
+}
+
+#asset_map_container .statusDivider {
+    background-color: #f5f5f5;
+    border-top: 1px outset #999;
+    border-bottom: 1px outset #999;
+    padding: 0px;
+    height: 8px;
+    margin-bottom: 1px;
+}
+
+#asset_map_container .asset .icon {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    background: transparent 50% 50% no-repeat;
+    margin-right: 2px;
+}
+
+#asset_map_container .asset .leaf {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin-right: 2px;
+}
+
+#asset_map_container .asset .branch-status,
+#asset_map_container .asset .tree-status {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    position: absolute;
+    top: 0;
+    left: 4px;
+}
+
+#asset_map_container .asset .type2-link,
+#asset_map_container .asset .not-accessible {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    position: absolute;
+    top: 2px;
+    left: 21px;
+    z-index: 1;
+}
+
+#asset_map_container .asset .type2-link {
+    background: url(../../web/images/icons/asset_map/not_visible.png) 50% 50% no-repeat;
+}
+
+#asset_map_container .asset .not-accessible {
+    background: url(../../web/images/icons/asset_map/not_accessible.png) 50% 50% no-repeat;
+}
+
+#asset_map_container .asset .leaf.branch {
+    background: url(../../web/images/tree/branch.gif) 50% 50% no-repeat;
+}
+
+#asset_map_container .asset .leaf.stalk {
+    background: url(../../web/images/tree/stalk.gif) 50% 50% no-repeat;
+}
+
+#asset_map_container .asset .branch-status {
+    background: url(../../web/images/tree/branch_closed.gif) 50% 50% no-repeat;
+}
+
+#asset_map_container .asset .branch-status.expanded {
+    background: url(../../web/images/tree/branch_open.gif) 50% 50% no-repeat;
+}
+
+#asset_map_container .toolbar:after {
+    content: "";
+    display: block;
+    clear: both;
+}
+
+#asset_map_container .addButton {
+    border-radius: 9px;
+    border: 0px;
+    height: 18px;
+    width: 53px;
+    padding: 0px;
+    margin-right: 5px;
+    background-color: #ddd;
+    display: inline-block;
+    cursor: pointer;
+    float: left;
+    background: url(../../web/images/icons/asset_map/add_off.png) 50% 50% no-repeat;
+}
+
+#asset_map_container .tbButtons {
+    float: right;
+}
+
+#asset_map_container .tbButton {
+    border-radius: 8px;
+    border: 0px;
+    width: 18px;
+    height: 18px;
+    padding: 0px;
+    margin-right: 5px;
+    background-color: #ddd;
+    display: inline-block;
+    cursor: pointer;
+}
+
+#asset_map_container .tbButton.selected {
+    background-color: #ccc;
+}
+
+#asset_map_container .tbButton.refresh {
+    background: url(../../web/images/icons/asset_map/refresh_off.png) 50% 50% no-repeat;
+}
+
+#asset_map_container .tbButton.restore {
+    background: url(../../web/images/icons/asset_map/teleport_off.png) 50% 50% no-repeat;
+}
+
+#asset_map_container .tbButton.collapse {
+    background: url(../../web/images/icons/asset_map/collapse_off.png) 50% 50% no-repeat;
+}
+
+#asset_map_container .tbButton.statuses {
+    background: url(../../web/images/icons/asset_map/status_off.png) 50% 50% no-repeat;
+}
