@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_future_status.inc,v 1.28 2012/08/30 01:09:14 ewang Exp $
+* $Id: trigger_action_set_future_status.inc,v 1.28.2.1 2013/05/08 04:46:48 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 * @author  Avi Miller <amiller@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.28.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -118,7 +118,22 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 
 			// Grab the Metadata for the asset which fired this trigger
 			$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-			$val = $mm->getMetadataValueByAssetid($state['assetid'], $settings['when_meta_field_id'], FALSE, TRUE);
+			// when getting the value from the Metadata_Mangager try to get the value off DB
+			// as if this trigger is fired of because of event 'metadata_update' then by the time
+			// code execution reached here, the metadata file for the asset is yet not update
+			// so trying to use the metadata value from there will give us old value
+			$val = $mm->getMetadataValueByAssetid($state['assetid'], $settings['when_meta_field_id']);
+
+			// replace any keyword if found in value returned from above 
+			$keyword_list = extract_keywords($val);
+			if (!empty($keyword_list)) {
+				foreach ($keyword_list as $keyword) {
+					$replacements[$keyword] = $state['asset']->getKeywordReplacement($keyword);
+
+				}//end foreach
+				replace_keywords($val, $replacements);
+
+			}//end if
 
 			// Now attempt to find our relevant Metadata Field
 			// If everything is fine then we should have a date value of some sort - otherwise fail
