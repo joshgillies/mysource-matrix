@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.317.2.1 2013/05/08 00:13:30 lwright Exp $
+* $Id: asset_map.inc,v 1.317.2.2 2013/05/08 07:09:12 lwright Exp $
 *
 */
 require_once(SQ_LIB_PATH.'/xml_array/xml_array.inc');
@@ -23,7 +23,7 @@ require_once(SQ_LIB_PATH.'/xml_array/xml_array.inc');
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.317.2.1 $
+* @version $Revision: 1.317.2.2 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -573,7 +573,13 @@ class Asset_Map
         $json = array_get_index($_GET, 'json', '');
         if ($json === '1') {
             header('Content-Type: application/json; encoding=utf-8');
-            $contents = $output->asXML();
+
+            if ($output instanceof SimpleXMLElement) {
+                $contents = $output->asXML();
+            } else {
+                $contents = $output;
+            }
+
             $contents = $this->_fromXML($contents);
             $contents = json_encode($contents);
             echo $contents;
@@ -629,7 +635,6 @@ class Asset_Map
     public function process(&$backend)
     {
         ini_set("display_errors", 0);
-        error_log($_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING']);
         $json = array_get_index($_GET, 'json', '');
 
         // block public users from probing
@@ -690,11 +695,6 @@ class Asset_Map
         }//end switch
         $contents = ob_get_clean();
 
-        if ($json === '1') {
-            $contents = $this->_fromXML($contents);
-            $contents = json_encode($contents);
-        }
-
         echo $contents;
 
     }//end process()
@@ -728,7 +728,7 @@ class Asset_Map
             $out = ob_get_contents();
         ob_end_clean();
 
-        echo $out;
+        $this->_send($out);
 
     }//end _getTranslations()
 
@@ -777,7 +777,8 @@ class Asset_Map
 
         // just get the root's XML not the tree's, because it is part of
         // bigger things and we dont want the version info
-        header('Content-Type: text/xml');
+        $out = '';
+
         ob_start();
                 echo "<initialisation>\n";
                         echo "<asset_types>\n";
@@ -786,7 +787,8 @@ class Asset_Map
                                         while (($file = readdir($d)) !== FALSE) {
                                                 if (substr($file, -4) == '.xml') {
                                                         @readfile($dir.'/'.$file);
-                                                        @ob_flush();
+                                                        $out .= ob_get_contents();
+                                                        @ob_clean();
                                                 }
                                         }
                                         closedir($d);
@@ -795,9 +797,9 @@ class Asset_Map
                         echo $current_user_xml;
                         echo $assets_xml;
                 echo "</initialisation>\n";
-                $out = ob_get_contents();
+                $out .= ob_get_contents();
         ob_end_clean();
-        echo $out;
+        $this->_send($out);
 
     }//end _doInitialise()
 
@@ -2444,7 +2446,7 @@ class Asset_Map
      */
     private function _fromXML($input)
     {
-        $doc  = new DOMDocument('1.0', 'utf-8');
+        $doc = new DOMDocument('1.0', 'utf-8');
         $doc->loadXML($input);
 
         $output = array();
