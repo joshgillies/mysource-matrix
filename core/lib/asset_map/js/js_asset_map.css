@@ -89,6 +89,7 @@
     position: relative;
     cursor: pointer;
     font-size: 11px;
+    white-space: nowrap;
 }
 
 #asset_map_container .asset > * {

@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.1 2013/05/08 00:13:30 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.2 2013/05/08 07:11:11 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.1 $
+ * @version $Revision: 1.1.2.2 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -93,6 +93,11 @@ var JS_Asset_Map = new function() {
     var currentTreeid = 0;
 
     /**
+     * @var {Number}
+     */
+    var msgTimeoutId = null;
+
+    /**
      * List of trees. By default, this will be an array of no more than two
      * trees, although it is possible to support more.
      * @var {Array}
@@ -120,10 +125,12 @@ var JS_Asset_Map = new function() {
         return retval;
     };
 
-    var _formatAsset = function(assetid, displayName, typeCode, status, childCount, linkType, accessible) {
+    var _formatAsset = function(assetid, displayName, typeCode, status, childCount, linkid, linkType, accessible) {
         var assetLine = targetElement.ownerDocument.createElement('div');
         assetLine.className = 'asset';
         assetLine.id = 'asset-' + encodeURIComponent(assetid);
+        assetLine.setAttribute('data-assetid', assetid);
+        assetLine.setAttribute('data-linkid', linkid);
 
         var leafSpan = targetElement.ownerDocument.createElement('span');
         leafSpan.className = 'leaf';
@@ -191,6 +198,11 @@ var JS_Asset_Map = new function() {
         xhr.send(str);
     };
 
+    /**
+     * Start the asset map.
+     *
+     * @param {Object} options
+     */
     this.start = function(options) {
         var self = this;
 
@@ -205,6 +217,7 @@ var JS_Asset_Map = new function() {
         this.drawStatusList();
         this.drawMessageLine();
 
+        this.message('Initialising...', true);
         this.doRequest({
             _attributes: {
                 action: 'initialise'
@@ -231,17 +244,92 @@ var JS_Asset_Map = new function() {
                     self.drawTree(assets[i], container);
                 }
             }
+
+            self.initEvents();
+            self.message('Success!', false, 2000);
         });
     };
 
+    /**
+     * Start the simple asset map.
+     *
+     * @param {Object} options
+     */
     this.startSimple = function(options) {
         targetElement = options.targetElement;
     };
 
+    /**
+     * Initialise events.
+     *
+     * @param {Object} options
+     */
     this.initEvents = function() {
-        targetElement.onclick = function() {
-            //
-        }
+        var document = targetElement.ownerDocument;
+        var self     = this;
+
+        targetElement.onclick = function(e) {
+            if (e === undefined) {
+                e = event;
+            }
+
+            var target = e.target;
+            while (target && (target.className !== 'asset')) {
+                target = target.parentNode;
+            }
+
+            if (target) {
+                var assetid      = target.getAttribute('data-assetid');
+                var linkid       = target.getAttribute('data-linkid');
+                var rootIndentId = 'child-indent-' + encodeURIComponent(assetid);
+                var container    = document.getElementById(rootIndentId);
+
+                if (!container) {
+                    var container       = document.createElement('div');
+                    container.className = 'childIndent';
+                    container.id        = rootIndentId;
+                    target.parentNode.insertBefore(container, target.nextSibling);
+
+                    // Loading.
+                    self.message('Requesting children...', true);
+
+                    self.doRequest({
+                        _attributes: {
+                            action: 'get assets',
+                        },
+                        asset: [
+                            {
+                                _attributes: {
+                                    assetid: assetid,
+                                    start: 0,
+                                    limit: 50,  // replace with set limit
+                                    linkid: linkid
+                                }
+                            }
+                        ]
+                    }, function(response) {
+                        // Cache all the asset types.
+                        var assets     = response['asset'][0];
+                        if (!assets.asset) {
+                            self.message('No children loaded', false, 2000);
+                        } else {
+                            var assetCount = assets.asset.length;
+                            self.drawTree(assets, container);
+
+                            switch (assetCount) {
+                                case 1:
+                                    self.message('Loaded one child', false, 2000);
+                                break;
+
+                                default:
+                                    self.message('Loaded ' + assetCount + ' children', false, 2000);
+                                break;
+                            }//end switch
+                        }//end if
+                    });
+                }//end if
+            }//end if
+        };//end onclick
     }
 
     this.raiseError = function(message) {
@@ -295,13 +383,7 @@ var JS_Asset_Map = new function() {
     };
 
     this.drawTree = function(rootAsset, container) {
-        if (rootAsset._attributes.type_code !== 'root_folder') {
-            var el = targetElement.ownerDocument.createElement('div');
-            el.className = 'childIndent';
-            container.appendChild(el);
-        } else {
             el = container;
-        }
 
         for (var i = 0; i < rootAsset.asset.length; i++) {
             var asset  = rootAsset.asset[i];
@@ -315,8 +397,10 @@ var JS_Asset_Map = new function() {
                 asset._attributes.type_code,
                 Number(asset._attributes.status),
                 Number(asset._attributes.num_kids),
+                asset._attributes.linkid,
                 Number(asset._attributes.link_type),
-                Number(asset._attributes.accessible));
+                Number(asset._attributes.accessible)
+            );
             el.appendChild(assetLine);
         }
     };
@@ -360,17 +444,28 @@ var JS_Asset_Map = new function() {
         container.className = 'messageLine';
         targetElement.appendChild(container);
 
-        /*
-        var spinnerDiv = targetElement.ownerDocument.createElement('div');
-        spinnerDiv.className = 'spinner';
-        spinnerDiv.innerHTML = '&nbsp;';
-        container.appendChild(spinnerDiv);
-        */
-
         var messageDiv = targetElement.ownerDocument.createElement('div');
+        messageDiv.id        = 'asset_map_message';
         messageDiv.className = 'message';
         messageDiv.innerHTML = 'Loading...';
         container.appendChild(messageDiv);
+    }
+
+    this.message = function(message, spinner, timeout) {
+        var messageDiv       = targetElement.ownerDocument.getElementById('asset_map_message');
+        messageDiv.innerHTML = message;
+
+        if (msgTimeoutId) {
+            clearTimeout(msgTimeoutId);
+        }
+
+        if (timeout !== undefined) {
+            msgTimeoutId = setTimeout(function() {
+                messageDiv.innerHTML = '&nbsp;';
+                msgTimeoutId = null;
+            }, timeout);
+        }
+
     }
 
     this.addAsset = function(assetid, parentAssetid, linkType) {
@@ -395,7 +490,7 @@ var JS_Asset_Map = new function() {
     this.createLink = function(assetid, newParentAssetid, sortOrder) {
         if (assetid === newParentAssetid) {
             // Shouldn't get here, but assets cannot be multiply linked.
-            this.raiseError('');
+            this.raiseError(js_translate('asset_map_error_multiply_linked'));
         }
     };
 
