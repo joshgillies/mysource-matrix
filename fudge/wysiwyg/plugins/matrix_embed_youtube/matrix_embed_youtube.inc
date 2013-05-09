@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_embed_youtube.inc,v 1.9 2012/08/30 00:56:52 ewang Exp $
+* $Id: matrix_embed_youtube.inc,v 1.9.4.1 2013/05/09 06:00:41 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     A WYSIWYG plugin to allow the user to insert a YouTube movie
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.9.4.1 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -278,6 +278,7 @@ class matrix_embed_youtube extends wysiwyg_plugin
 			}
 
 			$movie_url_vars = '&playerapiid=matrixytplayer';
+
 			foreach($movie_vars as $var_name => $var_value) {
 				switch ($var_name) {
 					case 'colour1':
@@ -304,8 +305,6 @@ class matrix_embed_youtube extends wysiwyg_plugin
 					case 'auto_start':
 						if ($var_value == '1') {
 							$movie_url_vars .= '&autoplay='.$var_value;
-						} else {
-							$movie_url_vars .= '&autoplay=0';
 						}
 					break;
 					case 'loop':
