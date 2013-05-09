@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.7 2013/05/09 03:37:09 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.8 2013/05/09 04:44:37 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.7 $
+ * @version $Revision: 1.1.2.8 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -414,7 +414,7 @@ var JS_Asset_Map = new function() {
     };
 
     this.drawTree = function(rootAsset, container) {
-            el = container;
+        var assetLine = null;
 
         for (var i = 0; i < rootAsset.asset.length; i++) {
             var asset  = rootAsset.asset[i];
@@ -422,7 +422,7 @@ var JS_Asset_Map = new function() {
             asset._attributes.assetid    = decodeURIComponent(asset._attributes.assetid.replace(/\+/g, '%20'));
             asset._attributes.type_code  = decodeURIComponent(asset._attributes.type_code.replace(/\+/g, '%20'));
 
-            var assetLine = _formatAsset(
+            assetLine = _formatAsset(
                 asset._attributes.assetid,
                 asset._attributes.name,
                 asset._attributes.type_code,
@@ -432,7 +432,12 @@ var JS_Asset_Map = new function() {
                 Number(asset._attributes.link_type),
                 Number(asset._attributes.accessible)
             );
-            el.appendChild(assetLine);
+
+            container.appendChild(assetLine);
+        }
+
+        if (assetLine) {
+            assetLine.className += ' last-child';
         }
     };
 
