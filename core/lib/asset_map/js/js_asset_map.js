@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.8 2013/05/09 04:44:37 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.9 2013/05/09 04:48:18 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.8 $
+ * @version $Revision: 1.1.2.9 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -278,6 +278,11 @@ var JS_Asset_Map = new function() {
     this.initEvents = function() {
         var document = targetElement.ownerDocument;
         var self     = this;
+
+        document.defaultView.onresize = function() {
+            var assetMap = document.getElementById('asset_map_container');
+            assetMap.style.height = (document.documentElement.clientHeight - 120) + 'px';
+        }
 
         targetElement.onclick = function(e) {
             if (e === undefined) {
