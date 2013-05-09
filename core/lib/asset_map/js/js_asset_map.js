@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.6 2013/05/09 00:36:19 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.7 2013/05/09 03:37:09 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.6 $
+ * @version $Revision: 1.1.2.7 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -145,7 +145,6 @@ var JS_Asset_Map = new function() {
         iconSpan.className = 'icon';
         iconSpan.setAttribute('style', 'background-image: url(../__data/asset_types/' + typeCode + '/icon.png)');
 
-        // Flags if any
         if (accessible === 0) {
             var flagSpan = document.createElement('span');
             flagSpan.className = 'not-accessible';

@@ -136,7 +136,7 @@
 }
 
 #asset_map_container .asset {
-    padding: 1px 3px;
+    padding: 0px 3px;
     position: relative;
     cursor: pointer;
     font-size: 11px;
@@ -148,6 +148,7 @@
 }
 
 #asset_map_container .asset .assetName {
+    margin: 1px 0;
     padding: 1px 3px;
 }
 
@@ -189,22 +190,20 @@
 #asset_map_container .asset .leaf {
     display: inline-block;
     width: 16px;
-    height: 16px;
+    height: 18px;
     margin-right: 2px;
+    position: relative;
+    top: 0px;
 }
 
 #asset_map_container .asset .branch-status {
-    z-index: 1;
-}
-
-#asset_map_container .asset .branch-status,
-#asset_map_container .asset .tree-status {
     display: inline-block;
     width: 16px;
     height: 16px;
     position: absolute;
-    top: 0;
-    left: 4px;
+    top: 1px;
+    left: 3px;
+    z-index: 1;
 }
 
 #asset_map_container .asset .type2-link,
@@ -226,12 +225,20 @@
     background: url(../../web/images/icons/asset_map/not_accessible.png) 50% 50% no-repeat;
 }
 
-#asset_map_container .asset .leaf.branch {
-    background: url(../../web/images/tree/branch.gif) 50% 50% no-repeat;
+#asset_map_container .asset .leaf {
+    background: url(../../web/images/tree/branch_mid.gif) 50% 50% no-repeat;
 }
 
-#asset_map_container .asset .leaf.stalk {
-    background: url(../../web/images/tree/stalk.gif) 50% 50% no-repeat;
+#asset_map_container .asset:first-child .leaf {
+    background: url(../../web/images/tree/branch_start.gif) 50% 50% no-repeat;
+}
+
+#asset_map_container .childIndent .asset:first-child .leaf {
+    background: url(../../web/images/tree/branch_mid.gif) 50% 50% no-repeat;
+}
+
+#asset_map_container .asset:last-child .leaf {
+    background: url(../../web/images/tree/branch.gif) 50% 50% no-repeat;
 }
 
 #asset_map_container .asset .branch-status {
