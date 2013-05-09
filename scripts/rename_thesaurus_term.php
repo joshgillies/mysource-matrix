@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: rename_thesaurus_term.php,v 1.1.2.2 2013/04/29 04:15:54 akarelia Exp $
+* $Id: rename_thesaurus_term.php,v 1.1.2.3 2013/05/09 05:11:50 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    - regen_metadata_schemas.php
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.1.2.2 $
+* @version $Revision: 1.1.2.3 $
 * @package MySource_Matrix
 */
 
@@ -86,7 +86,12 @@ $pid_prepare    = pcntl_fork();
 			// the Oracle DB connection will be lost inside the fork.
 			// have to place all queries inside a forked process, and store back results to a physical file
 
-			$THES_TERM_ASSET = $GLOBALS['SQ_SYSTEM']->am->getAsset($THES_TERM_ID);
+			$THES_TERM_ASSET = $GLOBALS['SQ_SYSTEM']->am->getAsset($THES_TERM_ID, 'thesaurus_term', FALSE);
+
+			if (is_null($THES_TERM_ASSET)) exit(1);
+
+			if ($THES_TERM_ASSET->name != $THES_TERM_NAME_NOW) exit(1);
+
 			// all the things we need are provided?
 			// lets get the ball rolling
 			echo "Renaming Thesaurus Term.\t\t\t";
@@ -151,7 +156,7 @@ $total_assets    = Array();
 if (file_exists(SYNCH_FILE)) {
 	$total_assets_str    = file_get_contents(SYNCH_FILE);
 } else {
-	trigger_error ("Unable to find Synch File, probably because the user executing this script does not have permission to write to this folder.", E_USER_WARNING);
+	trigger_error ("Unable to find Synch File, probably because the user executing this script does not have permission to write to this folder \nOR\nThe supplied assetid of the Thersaurus Term is not not valid", E_USER_WARNING);
 	exit(0);
 }//end else
 
