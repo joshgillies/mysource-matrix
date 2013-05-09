@@ -43,6 +43,42 @@
     border: 1px solid #B66B00;
 }
 
+.asset.selected .statusArchived {
+    background-color: #887B6F;
+}
+
+.asset.selected .statusUnderConstruction {
+    background-color: #748D9A;
+}
+
+.asset.selected .statusPendingApproval {
+    background-color: #9A94A1;
+}
+
+.asset.selected .statusApproved {
+    background-color: #AD9200;
+}
+
+.asset.selected .statusLive {
+    background-color: #9BA65C;
+}
+
+.asset.selected .statusLiveApproval {
+    background-color: #368D00;
+}
+
+.asset.selected .statusEditing {
+    background-color: #AD455C;
+}
+
+.asset.selected .statusEditingApproval {
+    background-color: #8F5A8C;
+}
+
+.asset.selected .statusEditingApproved {
+    background-color: #B66B00;
+}
+
 #asset_map_container {
     position: relative;
 }
@@ -85,6 +121,18 @@
 
 #asset_map_container .childIndent {
     padding-left: 18px;
+}
+
+#asset_map_container .childIndent.collapsed {
+    display: none;
+}
+
+#asset_map_container .childIndent.loading {
+    padding: 3px 3px;
+    padding-left: 40px;
+    color: #999;
+    font-size: 11px;
+    font-style: italic;
 }
 
 #asset_map_container .asset {
@@ -143,6 +191,10 @@
     width: 16px;
     height: 16px;
     margin-right: 2px;
+}
+
+#asset_map_container .asset .branch-status {
+    z-index: 1;
 }
 
 #asset_map_container .asset .branch-status,

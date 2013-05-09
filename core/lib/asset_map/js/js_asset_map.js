@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.3 2013/05/08 22:24:04 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.4 2013/05/09 00:06:33 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.3 $
+ * @version $Revision: 1.1.2.4 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -189,8 +189,7 @@ var JS_Asset_Map = new function() {
 
         xhr.open(
            'POST',
-           url,
-           false
+           url
         );
 
         xhr.setRequestHeader('Content-type', 'application/json');
@@ -208,6 +207,7 @@ var JS_Asset_Map = new function() {
 
         targetElement      = options.targetElement || document.getElementById('asset_map_container');
         assetDisplayFormat = options.displayFormat || '%asset_short_name%';
+        //var document       = targetElement.ownerDocument;
 
         var assetMap = document.getElementById('asset_map_container');
         assetMap.style.height = (document.documentElement.clientHeight - 120) + 'px';
@@ -280,12 +280,13 @@ var JS_Asset_Map = new function() {
             }
 
             var target = e.target;
-            while (target && (target.className !== 'branch-status')) {
+            while (target && (/branch-status/.test(target.className) === false)) {
                 target = target.parentNode;
             }
 
             if (target) {
-                target.className += ' expanded';
+                var branchTarget  = target;
+
                 // Set the target to the asset line.
                 var target       = target.parentNode;
                 var assetid      = target.getAttribute('data-assetid');
@@ -293,10 +294,21 @@ var JS_Asset_Map = new function() {
                 var rootIndentId = 'child-indent-' + encodeURIComponent(assetid);
                 var container    = document.getElementById(rootIndentId);
 
-                if (!container) {
+                if (container) {
+                    if (/collapsed/.test(container.className) === true) {
+                        branchTarget.className += ' expanded';
+                        container.className = container.className.replace(/ collapsed/, '');
+                    } else {
+                        container.className += ' collapsed';
+                        branchTarget.className = branchTarget.className.replace(/ expanded/, '');
+                    }
+                } else {
+                    branchTarget.className += ' expanded';
+
                     var container       = document.createElement('div');
-                    container.className = 'childIndent';
+                    container.className = 'childIndent loading';
                     container.id        = rootIndentId;
+                    container.innerHTML = 'Loading...';
                     target.parentNode.insertBefore(container, target.nextSibling);
 
                     // Loading.
@@ -318,10 +330,15 @@ var JS_Asset_Map = new function() {
                         ]
                     }, function(response) {
                         // Cache all the asset types.
-                        var assets     = response['asset'][0];
+                        container.className = container.className.replace(/ loading/, '');
+                        var assets          = response['asset'][0];
+
                         if (!assets.asset) {
                             self.message('No children loaded', false, 2000);
+                            container.parentNode.insertBefore(container);
+                            branchTarget.parentNode.removeChild(branchTarget);
                         } else {
+                            container.innerHTML = '';
                             var assetCount = assets.asset.length;
                             self.drawTree(assets, container);
 
