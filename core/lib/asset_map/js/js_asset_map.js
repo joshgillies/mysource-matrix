@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.4 2013/05/09 00:06:33 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.5 2013/05/09 00:31:28 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.4 $
+ * @version $Revision: 1.1.2.5 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -335,7 +335,7 @@ var JS_Asset_Map = new function() {
 
                         if (!assets.asset) {
                             self.message('No children loaded', false, 2000);
-                            container.parentNode.insertBefore(container);
+                            container.parentNode.removeChild(container);
                             branchTarget.parentNode.removeChild(branchTarget);
                         } else {
                             container.innerHTML = '';
