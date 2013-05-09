@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.5 2013/05/09 00:31:28 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.6 2013/05/09 00:36:19 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.5 $
+ * @version $Revision: 1.1.2.6 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -77,7 +77,7 @@ var JS_Asset_Map = new function() {
      * Asset type cache
      * @var {String}
      */
-    var assetTypeCache = [];
+    var assetTypeCache = {};
 
     /**
      * The display format of asset names, including keywords
@@ -131,6 +131,12 @@ var JS_Asset_Map = new function() {
         assetLine.id = 'asset-' + encodeURIComponent(assetid);
         assetLine.setAttribute('data-assetid', assetid);
         assetLine.setAttribute('data-linkid', linkid);
+
+        if (assetTypeCache[typeCode]) {
+            assetLine.setAttribute('title', assetTypeCache[typeCode].name + ' [' + assetid + ']');
+        } else {
+            assetLine.setAttribute('title', 'Unknown Asset Type [' + assetid + ']');
+        }
 
         var leafSpan = targetElement.ownerDocument.createElement('span');
         leafSpan.className = 'leaf';
