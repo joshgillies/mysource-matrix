@@ -174,7 +174,7 @@
     width: 14px;
     height: 14px;
     margin-right: 2px;
-}
+}*
 
 #asset_map_container .statusDivider {
     background-color: #f5f5f5;
@@ -205,11 +205,11 @@
 
 #asset_map_container .asset .branch-status {
     display: inline-block;
-    width: 16px;
-    height: 16px;
+    width: 11px;
+    height: 11px;
     position: absolute;
-    top: 1px;
-    left: 5px;
+    top: 4px;
+    left: 7px;
     z-index: 1;
 }
 
