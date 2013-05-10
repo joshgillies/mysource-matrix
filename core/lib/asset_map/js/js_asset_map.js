@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.10 2013/05/10 01:37:30 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.11 2013/05/10 04:25:29 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.10 $
+ * @version $Revision: 1.1.2.11 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -222,11 +222,7 @@ var JS_Asset_Map = new function() {
         this.drawStatusList();
         this.drawMessageLine();
 
-        var treeDiv    = document.getElementsByClassName('tree')[0];
-        var toolbarDiv = document.getElementsByClassName('toolbar')[0];
-        var messageDiv = document.getElementsByClassName('messageLine')[0];
-        var statusList = document.getElementsByClassName('statusList')[0];
-        treeDiv.style.height = (assetMap.clientHeight - toolbarDiv.clientHeight - messageDiv.clientHeight - statusList.clientHeight) + 'px';
+        this.resizeTree(0);
 
         this.message('Initialising...', true);
         this.doRequest({
@@ -284,6 +280,18 @@ var JS_Asset_Map = new function() {
             assetMap.style.height = (document.documentElement.clientHeight - 120) + 'px';
         }
 
+        var statusDivider = document.getElementById('asset_map_status_list_divider');
+        statusDivider.onclick = function() {
+            var statusList = statusDivider.parentNode;
+            if (/ expanded/.test(statusList.className) === true) {
+                statusList.className = statusList.className.replace(/ expanded/, '');
+            } else {
+                statusList.className += ' expanded';
+            }
+
+            self.resizeTree(0);
+        };
+
         document.getElementById('asset_map_button_statuses').onclick = function() {
             var assetMap = document.getElementById('asset_map_container');
             if (/ statuses-shown/.test(assetMap.className) === true) {
@@ -300,7 +308,7 @@ var JS_Asset_Map = new function() {
 
             for (var i = 0; i < childIndents.length; i++) {
                 if (/ collapsed/.test(childIndents[i].className) === false) {
-                    childIndents[i].className += ' collapsed';
+                    childIndents[i].className += ' collapassed';
                 }
             }
 
@@ -312,7 +320,7 @@ var JS_Asset_Map = new function() {
         };
 
         targetElement.oncontextmenu = function(e) {
-            return false;
+            //return false;
         }
 
         targetElement.onmousedown = function(e) {
@@ -501,8 +509,18 @@ var JS_Asset_Map = new function() {
         targetElement.appendChild(container);
 
         var divider = targetElement.ownerDocument.createElement('div');
+        divider.id        = 'asset_map_status_list_divider';
         divider.className = 'statusDivider';
         container.appendChild(divider);
+
+        var dividerIcon = targetElement.ownerDocument.createElement('div');
+        dividerIcon.className = 'icon';
+        divider.appendChild(dividerIcon);
+
+        var dividerText = targetElement.ownerDocument.createElement('span');
+        dividerText.className = 'text';
+        dividerText.innerHTML = 'Status colour key';
+        divider.appendChild(dividerText);
 
         for (var x in Status) {
             var displayName = js_translate('status_' + x.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase());
@@ -593,5 +611,21 @@ var JS_Asset_Map = new function() {
     this.getUrl = function(assetid, screen) {
 
     };
+
+    this.resizeTree = function() {
+        var document   = targetElement.ownerDocument;
+
+        var assetMap = document.getElementById('asset_map_container');
+        var toolbarDiv = document.getElementsByClassName('toolbar')[0];
+        var messageDiv = document.getElementsByClassName('messageLine')[0];
+        var statusList = document.getElementsByClassName('statusList')[0];
+
+        var treeDivs = document.getElementsByClassName('tree');
+
+        assetMap.style.height = (document.documentElement.clientHeight - 120) + 'px';
+        for (var i = 0; i < treeDivs.length; i++) {
+            treeDivs[i].style.height = (assetMap.clientHeight - toolbarDiv.clientHeight - messageDiv.clientHeight - statusList.clientHeight) + 'px';
+        }
+    }
 
 };

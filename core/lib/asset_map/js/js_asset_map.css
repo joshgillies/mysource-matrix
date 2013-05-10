@@ -184,10 +184,21 @@
     position: absolute;
     bottom: 27px;
     width: 100%;
-    padding: 1px 0;
+    padding: 0;
+    margin-bottom: -1px;
 }
 
-#asset_map_container .statusList .asset {
+#asset_map_container .statusList.expanded {
+    padding: 1px 0;
+    margin-bottom: 0;
+}
+
+#asset_map_container .statusList  .asset {
+    display: none;
+}
+
+#asset_map_container .statusList.expanded .asset {
+    display: block;
     cursor: default;
     margin: 2px 0;
 }
@@ -203,9 +214,16 @@
     background-color: #f5f5f5;
     border-top: 1px outset #999;
     border-bottom: 1px outset #999;
-    padding: 0px;
-    height: 8px;
-    margin-bottom: 1px;
+    padding: 3px 3px;
+    position: relative;
+}
+
+#asset_map_container .statusDivider .text {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 0 3px 23px;
+    font-style: italic;
+    color: #555;
 }
 
 #asset_map_container .asset .icon {
@@ -226,10 +244,21 @@
     top: 0px;
 }
 
+#asset_map_container .statusDivider .icon,
 #asset_map_container .asset .branch-status {
     display: inline-block;
     width: 11px;
     height: 11px;
+    z-index: 1;
+}
+
+#asset_map_container .statusDivider .icon {
+    position: absolute;
+    top: 6px;
+    left: 7px;
+}
+
+#asset_map_container .asset .branch-status {
     position: absolute;
     top: 4px;
     left: 7px;
@@ -275,10 +304,12 @@
     background: url(../../web/images/tree/branch.gif) 50% 50% no-repeat;
 }
 
+#asset_map_container .statusDivider .icon,
 #asset_map_container .asset .branch-status {
     background: url(../../web/images/tree/branch_closed.gif) 50% 50% no-repeat;
 }
 
+#asset_map_container .statusList.expanded .statusDivider .icon,
 #asset_map_container .asset .branch-status.expanded {
     background: url(../../web/images/tree/branch_open.gif) 50% 50% no-repeat;
 }
