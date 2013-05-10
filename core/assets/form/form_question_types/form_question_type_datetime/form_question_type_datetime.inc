@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime.inc,v 1.27 2013/05/10 05:37:22 cupreti Exp $
+* $Id: form_question_type_datetime.inc,v 1.28 2013/05/10 09:01:13 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -287,7 +287,10 @@ class Form_Question_Type_Datetime extends Form_Question
 		if ($show_params['c']) $allow_circa = TRUE;
 
 		if ($allow_circa) {
-			list($date, $time, $circa) = explode(' ', $this->getValue());
+			$value_array = explode(' ', $this->getValue());
+			$date = $value_array[0];
+			$time = $value_array[1];
+			$circa = isset($value_array[2]) ? $value_array[2] : 0;
 		} else {
 			list($date, $time) = explode(' ', $this->getValue());
 			$circa = 0;
