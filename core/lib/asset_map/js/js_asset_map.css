@@ -216,6 +216,7 @@
     border-bottom: 1px outset #999;
     padding: 3px 3px;
     position: relative;
+    cursor: pointer;
 }
 
 #asset_map_container .statusDivider .text {
