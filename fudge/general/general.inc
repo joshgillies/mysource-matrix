@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.59 2013/02/08 06:10:22 ewang Exp $
+* $Id: general.inc,v 1.60 2013/05/10 11:05:35 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package Fudge
 * @subpackage General
 */
@@ -1093,6 +1093,7 @@ function array_sort_by_length(&$array, $sort_order=TRUE, $value_sort=TRUE)
 */
 function get_unique_token()
     {
+
 	if(isset($_SESSION['SQ_SYSTEM_NONCE_SECURITY_TOKEN'])) {
 	    return $_SESSION['SQ_SYSTEM_NONCE_SECURITY_TOKEN'];
 	}
@@ -1102,7 +1103,6 @@ function get_unique_token()
 	$token       = sha1(uniqid($prefix, $moreEntropy));
 
 	$_SESSION['SQ_SYSTEM_NONCE_SECURITY_TOKEN'] = $token;
-	
 	return $token;
 
     }//end get_unique_token()
@@ -1166,10 +1166,12 @@ function json_decode_array($data)
 */
 function json_encode_array($data)
 {
-    if (!function_exists('json_decode')) {
+    if (!function_exists('json_encode')) {
 	    require_once 'Services/JSON.php';
 	    $json = new Services_JSON(SERVICES_JSON_LOOSE_TYPE);
-	    $output = $json->encode($data);
+		// Json::encode() will set the content type header to "application/json"
+		// which is not desired here (see #6315)
+	    $output = $json->encodeUnsafe($data);
     } else {
 	    $output = json_encode($data);
     }//end else
