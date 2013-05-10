@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.169 2013/05/01 02:41:21 ewang Exp $
+* $Id: html_form.inc,v 1.170 2013/05/10 07:40:49 cupreti Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.169 $
+* @version $Revision: 1.170 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -311,11 +311,12 @@ function text_area($name, $contents, $cols=0, $rows=0, $max=0, $extras='')
 		$extras .= ' id="'.htmlspecialchars($name).'"';
 	}
 
+	$js = 'if (this.value.length > '.$max.') { this.value = this.value.substr(0,'.$max.'); alert(\'This field can contain no more than '.$max.' characters.\'); this.focus()}';
 
 	echo 	'<textarea name="', htmlspecialchars($name), '" ',
 			'cols="'.$cols.'" ',
 			'rows="'.$rows.'" ',
-			(($max)   ? 'onkeypress="if (this.value.length > '.$max.') { this.value = this.value.substr(0,'.$max.'); alert(\'This field can contain no more than '.$max.' characters.\'); this.focus()}" ' : ''),
+			(($max)   ? 'onkeyup="'.$js.'" onblur="'.$js.'"' : ''),
 			$extras,
 			'>',
 			htmlspecialchars($contents),
