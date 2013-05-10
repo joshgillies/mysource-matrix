@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime.inc,v 1.25 2012/08/30 01:09:08 ewang Exp $
+* $Id: form_question_type_datetime.inc,v 1.25.2.1 2013/05/10 05:43:36 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.25.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -194,6 +194,12 @@ class Form_Question_Type_Datetime extends Form_Question
 		$required_fields = $this->attr('null');
 		$show_params = $this->attr('show');
 
+		$allow_circa = $show_params['c'];
+		if ($allow_circa) {
+			// Get rid of the "circa" bit while validating the date
+			$answer = preg_replace('/(.*?) [0|1]$/', '$1', $answer);
+		}
+
 		$custom_error = $this->attr('cust_required_error');
 		if (empty($custom_error)) {
 			$custom_error = translate('core_form_datetime_invalid_date_time');
@@ -261,8 +267,6 @@ class Form_Question_Type_Datetime extends Form_Question
 	*/
 	function getSummary()
 	{
-
-
 		$allow_circa = FALSE;
 		$show_params = $this->attr('show');
 		if ($show_params['c']) $allow_circa = TRUE;
@@ -502,7 +506,12 @@ class Form_Question_Type_Datetime extends Form_Question
 		} else {
 			$val .= str_pad($_POST[$name.'value']['s'], 2, '0', STR_PAD_LEFT);
 		}
-		
+
+		if (isset($_POST[$name.'value']['c'])) {
+			// '1' means allow circa, '0' means no
+			$val .= ((string) $_POST[$name.'value']['c'] === '1') ? ' 1' : ' 0';
+		}
+
 		$this->setValue($val);
 
 		return TRUE;
