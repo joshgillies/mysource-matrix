@@ -1,81 +1,99 @@
-.statusArchived {
+#asset_map_container.statuses-shown .tree .statusArchived,
+#asset_map_container .statusList .statusArchived,
+.asset.selected .statusArchived {
     background-color: #C2B0A0;
     border: 1px solid #887B6F;
 }
 
-.statusUnderConstruction {
+#asset_map_container.statuses-shown .tree .statusUnderConstruction,
+#asset_map_container .statusList .statusUnderConstruction,
+.asset.selected .statusUnderConstruction {
     background-color: #AACCDD;
     border: 1px solid #748D9A;
 }
 
-.statusPendingApproval {
+#asset_map_container.statuses-shown .tree .statusPendingApproval,
+#asset_map_container .statusList .statusPendingApproval,
+.asset.selected .statusPendingApproval {
     background-color: #DCD2E6;
     border: 1px solid #9A94A1;
 }
 
-.statusApproved {
+#asset_map_container.statuses-shown .tree .statusApproved,
+#asset_map_container .statusList .statusApproved,
+.asset.selected .statusApproved {
     background-color: #F4D425;
     border: 1px solid #AD9200;
 }
 
-.statusLive {
+#asset_map_container.statuses-shown .tree .statusLive,
+#asset_map_container .statusList .statusLive,
+.asset.selected .statusLive {
     background-color: #DBF18A;
     border: 1px solid #9BA65C;
 }
 
-.statusLiveApproval {
+#asset_map_container.statuses-shown .tree .statusLiveApproval,
+#asset_map_container .statusList .statusLiveApproval,
+.asset.selected .statusLiveApproval {
     background-color: #50D000;
     border: 1px solid #368D00;
 }
 
-.statusEditing {
+#asset_map_container.statuses-shown .tree .statusEditing,
+#asset_map_container .statusList .statusEditing,
+.asset.selected .statusEditing {
     background-color: #F25C86;
     border: 1px solid #AD455C;
 }
 
-.statusEditingApproval {
+#asset_map_container.statuses-shown .tree .statusEditingApproval,
+#asset_map_container .statusList .statusEditingApproval,
+.asset.selected .statusEditingApproval {
     background-color: #CC7CC7;
     border: 1px solid #8F5A8C;
 }
 
-.statusEditingApproved {
+#asset_map_container.statuses-shown .tree .statusEditingApproved,
+#asset_map_container .statusList .statusEditingApproved,
+.asset.selected .statusEditingApproved {
     background-color: #FF9A00;
     border: 1px solid #B66B00;
 }
 
-.asset.selected .statusArchived {
+#asset_map_container.statuses-shown .tree .asset.selected .statusArchived {
     background-color: #887B6F;
 }
 
-.asset.selected .statusUnderConstruction {
+#asset_map_container.statuses-shown .tree .asset.selected .statusUnderConstruction {
     background-color: #748D9A;
 }
 
-.asset.selected .statusPendingApproval {
+#asset_map_container.statuses-shown .tree .asset.selected .statusPendingApproval {
     background-color: #9A94A1;
 }
 
-.asset.selected .statusApproved {
+#asset_map_container.statuses-shown .tree .asset.selected .statusApproved {
     background-color: #AD9200;
 }
 
-.asset.selected .statusLive {
+#asset_map_container.statuses-shown .tree .asset.selected .statusLive {
     background-color: #9BA65C;
 }
 
-.asset.selected .statusLiveApproval {
+#asset_map_container.statuses-shown .tree .asset.selected .statusLiveApproval {
     background-color: #368D00;
 }
 
-.asset.selected .statusEditing {
+#asset_map_container.statuses-shown .tree .asset.selected .statusEditing {
     background-color: #AD455C;
 }
 
-.asset.selected .statusEditingApproval {
+#asset_map_container.statuses-shown .tree .asset.selected .statusEditingApproval {
     background-color: #8F5A8C;
 }
 
-.asset.selected .statusEditingApproved {
+#asset_map_container.statuses-shown .tree .asset.selected .statusEditingApproved {
     background-color: #B66B00;
 }
 
@@ -154,6 +172,11 @@
 
 #asset_map_container .asset .assetName {
     margin: 1px 0;
+    padding: 1px 4px;
+}
+
+#asset_map_container.statuses-shown .asset .assetName,
+#asset_map_container .asset.selected .assetName {
     padding: 1px 3px;
 }
 

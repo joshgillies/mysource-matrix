@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.9 2013/05/09 04:48:18 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.10 2013/05/10 01:37:30 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.9 $
+ * @version $Revision: 1.1.2.10 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -284,21 +284,63 @@ var JS_Asset_Map = new function() {
             assetMap.style.height = (document.documentElement.clientHeight - 120) + 'px';
         }
 
-        targetElement.onclick = function(e) {
+        document.getElementById('asset_map_button_statuses').onclick = function() {
+            var assetMap = document.getElementById('asset_map_container');
+            if (/ statuses-shown/.test(assetMap.className) === true) {
+                assetMap.className = assetMap.className.replace(/ statuses-shown/, '');
+            } else {
+                assetMap.className += ' statuses-shown';
+            }
+        };
+
+        document.getElementById('asset_map_button_collapse').onclick = function() {
+            var assetMap      = document.getElementById('asset_map_container');
+            var childIndents  = assetMap.getElementsByClassName('childIndent');
+            var branchButtons = assetMap.getElementsByClassName('branch-status');
+
+            for (var i = 0; i < childIndents.length; i++) {
+                if (/ collapsed/.test(childIndents[i].className) === false) {
+                    childIndents[i].className += ' collapsed';
+                }
+            }
+
+            for (var i = 0; i < branchButtons.length; i++) {
+                if (/ expanded/.test(branchButtons[i].className) === true) {
+                    branchButtons[i].className = branchButtons[i].className.replace(/ expanded/, '');
+                }
+            }
+        };
+
+        targetElement.oncontextmenu = function(e) {
+            return false;
+        }
+
+        targetElement.onmousedown = function(e) {
             if (e === undefined) {
                 e = event;
             }
 
+            var branchTarget = null;
+            var assetTarget  = null;
+
             var target = e.target;
-            while (target && (/branch-status/.test(target.className) === false)) {
+            while (target && !branchTarget && !assetTarget) {
+                if (/branch-status/.test(target.className) === true) {
+                    branchTarget = target;
+                } else if ((/assetName/.test(target.className) === true) || (/icon/.test(target.className) === true)) {
+                    if (/asset/.test(target.parentNode.className) === true) {
+                        assetTarget = target.parentNode;
+                    }
+                }
                 target = target.parentNode;
             }
 
-            if (target) {
-                var branchTarget  = target;
-
+            if (assetTarget) {
+                self.message('Button: ' + event.button, false);
+                return false;
+            } else if (branchTarget) {
                 // Set the target to the asset line.
-                var target       = target.parentNode;
+                var target       = branchTarget.parentNode;
                 var assetid      = target.getAttribute('data-assetid');
                 var linkid       = target.getAttribute('data-linkid');
                 var rootIndentId = 'child-indent-' + encodeURIComponent(assetid);
@@ -364,7 +406,10 @@ var JS_Asset_Map = new function() {
                         }//end if
                     });
                 }//end if
+
+                return false;
             }//end if
+
         };//end onclick
     }
 
@@ -386,24 +431,28 @@ var JS_Asset_Map = new function() {
         container.appendChild(tbButtons);
 
         var tbButton = targetElement.ownerDocument.createElement('div');
+        tbButton.id        = 'asset_map_button_refresh';
         tbButton.className = 'tbButton refresh';
         tbButton.innerHTML = '&nbsp;';
         tbButton.setAttribute('title', 'Refresh');
         tbButtons.appendChild(tbButton);
 
         var tbButton = targetElement.ownerDocument.createElement('div');
+        tbButton.id        = 'asset_map_button_restore';
         tbButton.className = 'tbButton restore';
         tbButton.innerHTML = '&nbsp;';
         tbButton.setAttribute('title', 'Restore root');
         tbButtons.appendChild(tbButton);
 
         var tbButton = targetElement.ownerDocument.createElement('div');
+        tbButton.id        = 'asset_map_button_collapse';
         tbButton.className = 'tbButton collapse';
         tbButton.innerHTML = '&nbsp;';
         tbButton.setAttribute('title', 'Collapse all');
         tbButtons.appendChild(tbButton);
 
         var tbButton = targetElement.ownerDocument.createElement('div');
+        tbButton.id        = 'asset_map_button_statuses';
         tbButton.className = 'tbButton statuses';
         tbButton.innerHTML = '&nbsp;';
         tbButton.setAttribute('title', 'Show status');
