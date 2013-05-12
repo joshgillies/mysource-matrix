@@ -1,1 +1,0 @@
-this file is placed to make sure cache directory can be CVS checked out correctly
