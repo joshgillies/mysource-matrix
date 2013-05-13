@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.11 2013/05/10 04:25:29 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.12 2013/05/13 23:27:17 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.11 $
+ * @version $Revision: 1.1.2.12 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -98,20 +98,22 @@ var JS_Asset_Map = new function() {
     var msgTimeoutId = null;
 
     /**
+     * @var {Node}
+     */
+    var selectedAsset = null;
+
+    /**
      * List of trees. By default, this will be an array of no more than two
      * trees, although it is possible to support more.
      * @var {Array}
      */
     var trees = [];
 
-    /*var Asset = new function(options) {
-        this.assetid    = options.assetid;
-        this.name       = options.name;
-        this.shortName  = options.shortName;
-        this.typeCode   = options.typeCode;
-        this.status     = options.status;
-        this.childCount = options.childCount;
-    };*/
+    var _createEl = function(tagName) {
+        var el = targetElement.ownerDocument.createElement(tagName);
+        el.setAttribute('unselectable', 'on');
+        return el;
+    }
 
     var _statusClass = function(statusNum) {
         var retval = 'Unknown';
@@ -126,7 +128,7 @@ var JS_Asset_Map = new function() {
     };
 
     var _formatAsset = function(assetid, displayName, typeCode, status, childCount, linkid, linkType, accessible) {
-        var assetLine = targetElement.ownerDocument.createElement('div');
+        var assetLine = _createEl('div');
         assetLine.className = 'asset';
         assetLine.id = 'asset-' + encodeURIComponent(assetid);
         assetLine.setAttribute('data-assetid', assetid);
@@ -138,30 +140,30 @@ var JS_Asset_Map = new function() {
             assetLine.setAttribute('title', 'Unknown Asset Type [' + assetid + ']');
         }
 
-        var leafSpan = targetElement.ownerDocument.createElement('span');
+        var leafSpan = _createEl('span');
         leafSpan.className = 'leaf';
 
-        var iconSpan = targetElement.ownerDocument.createElement('span');
+        var iconSpan = _createEl('span');
         iconSpan.className = 'icon';
         iconSpan.setAttribute('style', 'background-image: url(../__data/asset_types/' + typeCode + '/icon.png)');
 
         if (accessible === 0) {
-            var flagSpan = document.createElement('span');
+            var flagSpan = _createEl('span');
             flagSpan.className = 'not-accessible';
             assetLine.appendChild(flagSpan);
         } else if (linkType === LinkType.Type2) {
-            var flagSpan = document.createElement('span');
+            var flagSpan = _createEl('span');
             flagSpan.className = 'type2-link';
             assetLine.appendChild(flagSpan);
         }
 
         if ((accessible !== 0) && (childCount !== 0)) {
-            var expandSpan = targetElement.ownerDocument.createElement('span');
+            var expandSpan = _createEl('span');
             expandSpan.className = 'branch-status';
             assetLine.appendChild(expandSpan);
         }
 
-        var nameSpan = targetElement.ownerDocument.createElement('span');
+        var nameSpan = _createEl('span');
         if (nameSpan.textContent !== undefined) {
             nameSpan.textContent = displayName;
         } else if (nameSpan.innerText !== undefined) {
@@ -182,7 +184,9 @@ var JS_Asset_Map = new function() {
         url = '.?SQ_BACKEND_PAGE=asset_map_request&json=1';
         var xhr = new XMLHttpRequest();
         var str = JSON.stringify(command);
+        var self = this;
         var readyStateCb = function() {
+            self.message('Requesting...' + xhr.readyState, true);
             if (xhr.readyState === 4) {
                 var response = xhr.responseText;
                 if (response !== null) {
@@ -197,6 +201,8 @@ var JS_Asset_Map = new function() {
            url
         );
 
+        self.message('Requesting...', true);
+
         xhr.setRequestHeader('Content-type', 'application/json');
         xhr.onreadystatechange = readyStateCb;
         xhr.send(str);
@@ -210,11 +216,11 @@ var JS_Asset_Map = new function() {
     this.start = function(options) {
         var self = this;
 
-        targetElement      = options.targetElement || document.getElementById('asset_map_container');
+        targetElement      = options.targetElement || dfx.getId('asset_map_container');
         assetDisplayFormat = options.displayFormat || '%asset_short_name%';
         //var document       = targetElement.ownerDocument;
 
-        var assetMap = document.getElementById('asset_map_container');
+        var assetMap = dfx.getId('asset_map_container');
         assetMap.style.height = (document.documentElement.clientHeight - 120) + 'px';
 
         this.drawToolbar();
@@ -222,7 +228,7 @@ var JS_Asset_Map = new function() {
         this.drawStatusList();
         this.drawMessageLine();
 
-        this.resizeTree(0);
+        this.resizeTree();
 
         this.message('Initialising...', true);
         this.doRequest({
@@ -242,12 +248,14 @@ var JS_Asset_Map = new function() {
                     var screencode = typeinfo['screen'][j]['_attributes']['code_name'];
                     var screenname = typeinfo['screen'][j]['_content'];
                     assetTypeCache[typecode]['screens'][screencode] = screenname;
+                    self.message('Cache ' + i + '.' + j, true);
                 }
             }
 
             var assets = response['assets'][0]['asset'];
             for (var i = 0; i < assets.length; i++) {
                 if (assets[i]._attributes.type_code === 'root_folder') {
+                    self.message('Draw tree', true);
                     self.drawTree(assets[i], container);
                 }
             }
@@ -273,70 +281,49 @@ var JS_Asset_Map = new function() {
      */
     this.initEvents = function() {
         var document = targetElement.ownerDocument;
+        var assetMap = dfx.getId('asset_map_container');
+        var trees    = dfx.getClass('tree', assetMap);
         var self     = this;
 
-        document.defaultView.onresize = function() {
-            var assetMap = document.getElementById('asset_map_container');
+        dfx.addEvent(this.getDefaultView(document), 'resize', function() {
+            var assetMap = dfx.getId('asset_map_container');
             assetMap.style.height = (document.documentElement.clientHeight - 120) + 'px';
-        }
+        });
 
-        var statusDivider = document.getElementById('asset_map_status_list_divider');
-        statusDivider.onclick = function() {
-            var statusList = statusDivider.parentNode;
-            if (/ expanded/.test(statusList.className) === true) {
-                statusList.className = statusList.className.replace(/ expanded/, '');
-            } else {
-                statusList.className += ' expanded';
-            }
+        var statusDivider = dfx.getId('asset_map_status_list_divider');
+        dfx.addEvent(statusDivider, 'click', function() {
+            dfx.toggleClass(statusDivider.parentNode, 'expanded');
+            self.resizeTree();
+        });
 
-            self.resizeTree(0);
-        };
+        dfx.addEvent(dfx.getId('asset_map_button_statuses'), 'click', function() {
+            var assetMap = dfx.getId('asset_map_container');
+            dfx.toggleClass(assetMap, 'statuses-shown');
+        });
 
-        document.getElementById('asset_map_button_statuses').onclick = function() {
-            var assetMap = document.getElementById('asset_map_container');
-            if (/ statuses-shown/.test(assetMap.className) === true) {
-                assetMap.className = assetMap.className.replace(/ statuses-shown/, '');
-            } else {
-                assetMap.className += ' statuses-shown';
-            }
-        };
+        dfx.addEvent(dfx.getId('asset_map_button_collapse'), 'click', function() {
+            var assetMap      = dfx.getId('asset_map_container');
+            var childIndents  = dfx.getClass('childIndent', assetMap);
+            var branchButtons = dfx.getClass('branch-status', assetMap);
 
-        document.getElementById('asset_map_button_collapse').onclick = function() {
-            var assetMap      = document.getElementById('asset_map_container');
-            var childIndents  = assetMap.getElementsByClassName('childIndent');
-            var branchButtons = assetMap.getElementsByClassName('branch-status');
+            dfx.addClass(childIndents, 'collapsed');
+            dfx.addClass(branchButtons, 'expanded');
+        });
 
-            for (var i = 0; i < childIndents.length; i++) {
-                if (/ collapsed/.test(childIndents[i].className) === false) {
-                    childIndents[i].className += ' collapassed';
-                }
-            }
+        dfx.addEvent(targetElement, 'contextmenu', function() {
+            return false;
+        });
 
-            for (var i = 0; i < branchButtons.length; i++) {
-                if (/ expanded/.test(branchButtons[i].className) === true) {
-                    branchButtons[i].className = branchButtons[i].className.replace(/ expanded/, '');
-                }
-            }
-        };
-
-        targetElement.oncontextmenu = function(e) {
-            //return false;
-        }
-
-        targetElement.onmousedown = function(e) {
-            if (e === undefined) {
-                e = event;
-            }
-
+        dfx.addEvent(trees, 'mousedown', function(e) {
             var branchTarget = null;
             var assetTarget  = null;
 
             var target = e.target;
             while (target && !branchTarget && !assetTarget) {
-                if (/branch-status/.test(target.className) === true) {
+                if (dfx.hasClass(target, 'branch-status') === true) {
                     branchTarget = target;
-                } else if ((/assetName/.test(target.className) === true) || (/icon/.test(target.className) === true)) {
-                    if (/asset/.test(target.parentNode.className) === true) {
+                } else if ((dfx.hasClass(target, 'assetName') === true) || (dfx.hasClass(target, 'icon') === true)) {
+                    if (dfx.hasClass(target.parentNode, 'asset') === true) {
                         assetTarget = target.parentNode;
                     }
                 }
@@ -344,28 +331,40 @@ var JS_Asset_Map = new function() {
             }
 
             if (assetTarget) {
-                self.message('Button: ' + event.button, false);
-                return false;
+                if (e.which === 1) {
+                    // Left mouse button
+                    self.message('Select asset ' + assetTarget.getAttribute('data-assetid'), false);
+
+                    if (e.ctrlKey === false) {
+                        dfx.removeClass(dfx.getClass('asset', assetMap), 'selected');
+                    }
+
+                    dfx.addClass(assetTarget, 'selected');
+                } else if (e.which === 3) {
+                    // Right mouse button
+                    self.message('Asset screens dropdown for asset ' + assetTarget.getAttribute('data-assetid'), false);
+
+                    if (e.ctrlKey === false) {
+                        dfx.removeClass(dfx.getClass('asset', assetMap), 'selected');
+                    }
+
+                    dfx.addClass(assetTarget, 'selected');
+                }
             } else if (branchTarget) {
                 // Set the target to the asset line.
                 var target       = branchTarget.parentNode;
                 var assetid      = target.getAttribute('data-assetid');
                 var linkid       = target.getAttribute('data-linkid');
                 var rootIndentId = 'child-indent-' + encodeURIComponent(assetid);
-                var container    = document.getElementById(rootIndentId);
+                var container    = dfx.getId(rootIndentId);
 
                 if (container) {
-                    if (/collapsed/.test(container.className) === true) {
-                        branchTarget.className += ' expanded';
-                        container.className = container.className.replace(/ collapsed/, '');
-                    } else {
-                        container.className += ' collapsed';
-                        branchTarget.className = branchTarget.className.replace(/ expanded/, '');
-                    }
+                    dfx.toggleClass(branchTarget, 'expanded');
+                    dfx.toggleClass(container, 'collapsed');
                 } else {
                     branchTarget.className += ' expanded';
 
-                    var container       = document.createElement('div');
+                    var container       = _createEl('div');
                     container.className = 'childIndent loading';
                     container.id        = rootIndentId;
                     container.innerHTML = 'Loading...';
@@ -416,50 +415,67 @@ var JS_Asset_Map = new function() {
                 }//end if
 
                 return false;
+            } else {
+                // Deselect everything.
+                self.message('Deselect', false);
+                dfx.removeClass(dfx.getClass('asset', trees), 'selected');
             }//end if
 
-        };//end onclick
+        });
+    }
+
+    this.currentSelection = function(treeid) {
+        if (treeid === undefined) {
+            treeid = 0;
+        }
+
+        var assetMap = dfx.getId('asset_map_container');
+        var trees    = dfx.getClass('tree', assetMap);
+        var assets   = dfx.getClass(dfx.getClass('asset', trees[treeid]), 'selected');
+
+        return assets;
     }
 
     this.raiseError = function(message) {
         var message = js_translate(message);
+
     };
 
     this.drawToolbar = function() {
-        var container = targetElement.ownerDocument.createElement('div');
+        var container = _createEl('div');
         container.className = 'toolbar';
         targetElement.appendChild(container);
 
-        var addButton = targetElement.ownerDocument.createElement('div');
+        var addButton = _createEl('div');
         addButton.className = 'addButton';
         container.appendChild(addButton);
 
-        var tbButtons = targetElement.ownerDocument.createElement('div');
+        var tbButtons = _createEl('div');
         tbButtons.className = 'tbButtons';
         container.appendChild(tbButtons);
 
-        var tbButton = targetElement.ownerDocument.createElement('div');
+        var tbButton = _createEl('div');
         tbButton.id        = 'asset_map_button_refresh';
         tbButton.className = 'tbButton refresh';
         tbButton.innerHTML = '&nbsp;';
         tbButton.setAttribute('title', 'Refresh');
         tbButtons.appendChild(tbButton);
 
-        var tbButton = targetElement.ownerDocument.createElement('div');
+        var tbButton = _createEl('div');
         tbButton.id        = 'asset_map_button_restore';
         tbButton.className = 'tbButton restore';
         tbButton.innerHTML = '&nbsp;';
         tbButton.setAttribute('title', 'Restore root');
         tbButtons.appendChild(tbButton);
 
-        var tbButton = targetElement.ownerDocument.createElement('div');
+        var tbButton = _createEl('div');
         tbButton.id        = 'asset_map_button_collapse';
         tbButton.className = 'tbButton collapse';
         tbButton.innerHTML = '&nbsp;';
         tbButton.setAttribute('title', 'Collapse all');
         tbButtons.appendChild(tbButton);
 
-        var tbButton = targetElement.ownerDocument.createElement('div');
+        var tbButton = _createEl('div');
         tbButton.id        = 'asset_map_button_statuses';
         tbButton.className = 'tbButton statuses';
         tbButton.innerHTML = '&nbsp;';
@@ -468,7 +484,7 @@ var JS_Asset_Map = new function() {
     };
 
     this.drawTreeContainer = function() {
-        var container = targetElement.ownerDocument.createElement('div');
+        var container = _createEl('div');
         container.className = 'tree';
         targetElement.appendChild(container);
 
@@ -504,20 +520,20 @@ var JS_Asset_Map = new function() {
     };
 
     this.drawStatusList = function() {
-        var container = targetElement.ownerDocument.createElement('div');
+        var container = _createEl('div');
         container.className = 'statusList';
         targetElement.appendChild(container);
 
-        var divider = targetElement.ownerDocument.createElement('div');
+        var divider = _createEl('div');
         divider.id        = 'asset_map_status_list_divider';
         divider.className = 'statusDivider';
         container.appendChild(divider);
 
-        var dividerIcon = targetElement.ownerDocument.createElement('div');
+        var dividerIcon = _createEl('div');
         dividerIcon.className = 'icon';
         divider.appendChild(dividerIcon);
 
-        var dividerText = targetElement.ownerDocument.createElement('span');
+        var dividerText = _createEl('span');
         dividerText.className = 'text';
         dividerText.innerHTML = 'Status colour key';
         divider.appendChild(dividerText);
@@ -525,14 +541,14 @@ var JS_Asset_Map = new function() {
         for (var x in Status) {
             var displayName = js_translate('status_' + x.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase());
 
-            var assetLine = targetElement.ownerDocument.createElement('div');
+            var assetLine = _createEl('div');
             assetLine.className = 'asset';
 
-            var iconSpan = targetElement.ownerDocument.createElement('span');
+            var iconSpan = _createEl('span');
             iconSpan.className = 'statusListIcon status' + x;
             iconSpan.innerHTML = '&nbsp;';
 
-            var nameSpan = targetElement.ownerDocument.createElement('span');
+            var nameSpan = _createEl('span');
             if (nameSpan.textContent !== undefined) {
                 nameSpan.textContent = displayName;
             } else if (nameSpan.innerText !== undefined) {
@@ -548,11 +564,11 @@ var JS_Asset_Map = new function() {
     };
 
     this.drawMessageLine = function() {
-        var container = targetElement.ownerDocument.createElement('div');
+        var container = _createEl('div');
         container.className = 'messageLine';
         targetElement.appendChild(container);
 
-        var messageDiv = targetElement.ownerDocument.createElement('div');
+        var messageDiv = _createEl('div');
         messageDiv.id        = 'asset_map_message';
         messageDiv.className = 'message';
         messageDiv.innerHTML = 'Loading...';
@@ -615,12 +631,12 @@ var JS_Asset_Map = new function() {
     this.resizeTree = function() {
         var document   = targetElement.ownerDocument;
 
-        var assetMap = document.getElementById('asset_map_container');
-        var toolbarDiv = document.getElementsByClassName('toolbar')[0];
-        var messageDiv = document.getElementsByClassName('messageLine')[0];
-        var statusList = document.getElementsByClassName('statusList')[0];
+        var assetMap = dfx.getId('asset_map_container');
+        var toolbarDiv = dfx.getClass('toolbar')[0];
+        var messageDiv = dfx.getClass('messageLine')[0];
+        var statusList = dfx.getClass('statusList')[0];
 
-        var treeDivs = document.getElementsByClassName('tree');
+        var treeDivs = dfx.getClass('tree');
 
         assetMap.style.height = (document.documentElement.clientHeight - 120) + 'px';
         for (var i = 0; i < treeDivs.length; i++) {
@@ -628,4 +644,13 @@ var JS_Asset_Map = new function() {
         }
     }
 
+    this.getDefaultView = function(document) {
+        if (document.defaultView) {
+            return document.defaultView;
+        } else if (document.parentWindow) {
+            return document.parentWindow;
+        }
+
+        return null;
+    };
 };

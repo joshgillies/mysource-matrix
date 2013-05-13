@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.317.2.2 2013/05/08 07:09:12 lwright Exp $
+* $Id: asset_map.inc,v 1.317.2.3 2013/05/13 23:27:16 lwright Exp $
 *
 */
 require_once(SQ_LIB_PATH.'/xml_array/xml_array.inc');
@@ -23,7 +23,7 @@ require_once(SQ_LIB_PATH.'/xml_array/xml_array.inc');
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.317.2.2 $
+* @version $Revision: 1.317.2.3 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -105,7 +105,7 @@ class Asset_Map
 
         // Auto-adjust height if set to zero
         if ($height <= 0) {
-            $height = "(document.body.offsetHeight - ".(SQ_IN_LIMBO ? 51 : 70).")";
+            $height = "(document.documentElement.clientHeight - ".(SQ_IN_LIMBO ? 51 : 70).")";
         }
 
         ?>
