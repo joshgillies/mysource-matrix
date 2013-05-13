@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.141 2013/05/01 07:56:04 ewang Exp $
+* $Id: js_api.inc,v 1.142 2013/05/13 03:50:36 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.141 $
+* @version $Revision: 1.142 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1227,6 +1227,10 @@ class JS_Api extends Page
 				$level = $args['levels'];
 			}
 
+			$type_codes  = Array();
+			$link_types  = Array();
+			$link_values = Array();
+
 			// lets check for the type_codes, link_types, and link_values
 			if(isset($args['type_codes']) && !empty($args['type_codes'])) {
 			    $type_codes = is_array($args['type_codes']) ? $args['type_codes'] : explode('\\,', $args['type_codes']);
@@ -1285,6 +1289,10 @@ class JS_Api extends Page
 			} else {
 				$level = $args['levels'];
 			}
+
+			$type_codes  = Array();
+			$link_types  = Array();
+			$link_values = Array();
 
 			// lets check for the type_codes, link_types, and link_values
 			if(isset($args['type_codes']) && !empty($args['type_codes'])) {
