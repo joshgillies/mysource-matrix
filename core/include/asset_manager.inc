@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.906 2013/03/26 23:58:12 csmith Exp $
+* $Id: asset_manager.inc,v 1.907 2013/05/13 09:07:09 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.906 $
+* @version $Revision: 1.907 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -9909,7 +9909,7 @@ class Asset_Manager extends MySource_Object
 				$where_array = Array();
 				$trees_done = array();
 				foreach (array_chunk($tree_result, 499) as $chunk) {
-					$where_string = '(t.treeid IN (';
+					$where_string = '';
 					foreach ($chunk as $tree_row) {
 						$treeid = $tree_row['treeid'];
 						while (strlen($treeid) > 0) {
@@ -9923,10 +9923,13 @@ class Asset_Manager extends MySource_Object
 								$where_string .= MatrixDAL::Quote($treeid) . ',';
 								$trees_done[] = $treeid;
 							}
-
 							$treeid = substr($treeid, 0, -SQ_CONF_ASSET_TREE_SIZE);
 						}
 					}
+					if (empty($where_string)) {
+						continue;
+					}
+					$where_string = '(t.treeid IN ('.$where_string;
 					$where_string = rtrim($where_string, ',');
 					$where_string .= '))';
 					$where_array[] = $where_string;
