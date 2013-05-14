@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.14 2013/05/14 06:55:03 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.15 2013/05/14 07:58:20 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.14 $
+ * @version $Revision: 1.1.2.15 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -351,6 +351,7 @@ var JS_Asset_Map = new function() {
             if (assetTarget) {
                 if (e.which === 1) {
                     // Left mouse button
+                    dfx.remove(dfx.getClass('menu', container));
                     if (e.ctrlKey === false) {
                         // Normal click.
                         dfx.removeClass(dfx.getClass('asset', assetMap), 'selected');
