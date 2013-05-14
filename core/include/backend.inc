@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.216.4.2 2013/05/13 23:27:16 lwright Exp $
+* $Id: backend.inc,v 1.216.4.3 2013/05/14 07:59:00 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.216.4.2 $
+* @version $Revision: 1.216.4.3 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -301,7 +301,6 @@ class Backend extends MySource_Object
                 $sidenav_width = SQ_IN_LIMBO ? 0 : ($am_width+5);
                 $resizer_width = $limbo_hide_frames ? 0 : 10;
                 $frameset_cols = $sidenav_width.','.$resizer_width.',*';
-                ob_start();
                 ?>
                 <body style="margin: 0; overflow: hidden"><div style="position: absolute; top: 0; left: 0; box-sizing: border-box; -moz-box-sizing: border-box; width: 100%; height: <?php echo $header_height ?>px; box-sizing: border-box; -moz-box-sizing: border-box; z-index: 1">
                     <iframe src="<?php echo $frame_urls['header']; ?>" name="sq_header" scrolling="no" marginwidth="0" marginheight="0" border="0" style="border: 0; width: 100%; height: 100%; z-index: 3"></iframe>
@@ -314,8 +313,6 @@ class Backend extends MySource_Object
                         <iframe src="<?php echo $frame_urls['main']; ?>" name="sq_main" scrolling="yes" marginwidth="0" marginheight="0" border="0" style="border: 0; width: 100%; height: 100%"></iframe>
                     </div></div></body>
                 <?php
-                $contents = ob_get_clean();
-                echo preg_replace('/\s{2,}/', '', $contents);
             }
             ?>
         </html>
