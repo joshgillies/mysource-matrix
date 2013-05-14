@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.13 2013/05/14 00:23:30 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.14 2013/05/14 06:55:03 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.13 $
+ * @version $Revision: 1.1.2.14 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -75,16 +75,24 @@ var JS_Asset_Map = new function() {
 
     /**
      * Asset type cache
-     * @var {String}
+     * @var {Object}
      */
     var assetTypeCache = {};
+
+    /**
+     * Asset category cache
+     *
+     * Empty category is category name '_EMPTY_'.
+     *
+     * @var {Object}
+     */
+    var assetCategories = {};
 
     /**
      * The display format of asset names, including keywords
      * @var {String}
      */
     var assetDisplayFormat = '';
-
 
     /**
      * The current tree ID (zero-based)
@@ -93,14 +101,16 @@ var JS_Asset_Map = new function() {
     var currentTreeid = 0;
 
     /**
+     * setTimeout() return value for the status bar
      * @var {Number}
      */
     var msgTimeoutId = null;
 
     /**
-     * @var {Node}
+     * Denotes the last created asset type, so the add menu can show it
+     * @var {String}
      */
-    var selectedAsset = null;
+    var lastCreatedType = null;
 
     /**
      * List of trees. By default, this will be an array of no more than two
@@ -129,10 +139,11 @@ var JS_Asset_Map = new function() {
 
     var _formatAsset = function(assetid, displayName, typeCode, status, childCount, linkid, linkType, accessible) {
         var assetLine = _createEl('div');
-        assetLine.className = 'asset';
+        dfx.addClass(assetLine, 'asset');
         assetLine.id = 'asset-' + encodeURIComponent(assetid);
         assetLine.setAttribute('data-assetid', assetid);
         assetLine.setAttribute('data-linkid', linkid);
+        assetLine.setAttribute('data-typecode', typeCode);
 
         if (assetTypeCache[typeCode]) {
             assetLine.setAttribute('title', assetTypeCache[typeCode].name + ' [' + assetid + ']');
@@ -141,25 +152,25 @@ var JS_Asset_Map = new function() {
         }
 
         var leafSpan = _createEl('span');
-        leafSpan.className = 'leaf';
+        dfx.addClass(leafSpan, 'leaf');
 
         var iconSpan = _createEl('span');
-        iconSpan.className = 'icon';
+        dfx.addClass(iconSpan, 'icon');
         iconSpan.setAttribute('style', 'background-image: url(../__data/asset_types/' + typeCode + '/icon.png)');
 
         if (accessible === 0) {
             var flagSpan = _createEl('span');
-            flagSpan.className = 'not-accessible';
+            dfx.addClass(flagSpan, 'not-accessible');
             assetLine.appendChild(flagSpan);
         } else if (linkType === LinkType.Type2) {
             var flagSpan = _createEl('span');
-            flagSpan.className = 'type2-link';
+            dfx.addClass(flagSpan, 'type2-link');
             assetLine.appendChild(flagSpan);
         }
 
         if ((accessible !== 0) && (childCount !== 0)) {
             var expandSpan = _createEl('span');
-            expandSpan.className = 'branch-status';
+            dfx.addClass(expandSpan, 'branch-status');
             assetLine.appendChild(expandSpan);
         }
 
@@ -171,7 +182,8 @@ var JS_Asset_Map = new function() {
         }
 
         var statusClass = _statusClass(status);
-        nameSpan.className = 'assetName status' + statusClass;
+        dfx.addClass(nameSpan, 'assetName');
+        dfx.addClass(nameSpan, 'status' + statusClass);
 
         assetLine.appendChild(leafSpan);
         assetLine.appendChild(iconSpan);
@@ -241,6 +253,12 @@ var JS_Asset_Map = new function() {
             for (var i = 0; i < assetTypes.length; i++) {
                 var typeinfo = assetTypes[i];
                 var typecode = typeinfo['_attributes']['type_code'];
+                var category = typeinfo['_attributes']['flash_menu_path'];
+                if (category) {
+                    assetCategories[category] = assetCategories[category] || [];
+                    assetCategories[category].push(typecode);
+                }
+
                 assetTypeCache[typecode] = typeinfo['_attributes'];
                 assetTypeCache[typecode]['screens'] = {};
 
@@ -364,6 +382,14 @@ var JS_Asset_Map = new function() {
                     }
 
                     dfx.addClass(assetTarget, 'selected');
+
+                    var mousePos = dfx.getMouseEventPosition(e);
+                    var menu     = self.drawScreensMenu(target.getAttribute('data-typecode'));
+                    target.parentNode.appendChild(menu, target);
+
+                    var mapRect = dfx.getBoundingRectangle(assetMap);
+                    dfx.setStyle(menu, 'left', (mousePos.x - mapRect.x1) + 'px');
+                    dfx.setStyle(menu, 'top', (mousePos.y - mapRect.y1) + 'px');
                 }
             } else if (branchTarget) {
                 // Set the target to the asset line.
@@ -377,10 +403,11 @@ var JS_Asset_Map = new function() {
                     dfx.toggleClass(branchTarget, 'expanded');
                     dfx.toggleClass(container, 'collapsed');
                 } else {
-                    branchTarget.className += ' expanded';
+                    dfx.addClass(branchTarget, 'expanded');
 
-                    var container       = _createEl('div');
-                    container.className = 'childIndent loading';
+                    var container = _createEl('div');
+                    dfx.addClass(container, 'childIndent');
+                    dfx.addClass(container, 'loading');
                     container.id        = rootIndentId;
                     container.innerHTML = 'Loading...';
                     target.parentNode.insertBefore(container, target.nextSibling);
@@ -404,13 +431,13 @@ var JS_Asset_Map = new function() {
                         ]
                     }, function(response) {
                         // Cache all the asset types.
-                        container.className = container.className.replace(/ loading/, '');
-                        var assets          = response['asset'][0];
+                        dfx.removeClass(container, 'loading');
+                        var assets = response['asset'][0];
 
                         if (!assets.asset) {
                             self.message('No children loaded', false, 2000);
-                            container.parentNode.removeChild(container);
-                            branchTarget.parentNode.removeChild(branchTarget);
+                            dfx.remove(container);
+                            dfx.remove(branchTarget);
                         } else {
                             container.innerHTML = '';
                             var assetCount = assets.asset.length;
@@ -434,6 +461,7 @@ var JS_Asset_Map = new function() {
                 // Deselect everything.
                 self.message('Deselect', false);
                 dfx.removeClass(dfx.getClass('asset', trees), 'selected');
+                dfx.remove(dfx.getClass('menu', container));
             }//end if
 
         });
@@ -457,50 +485,143 @@ var JS_Asset_Map = new function() {
     };
 
     this.drawToolbar = function() {
+        var self = this;
+
         var container = _createEl('div');
-        container.className = 'toolbar';
+        dfx.addClass(container, 'toolbar');
         targetElement.appendChild(container);
 
         var addButton = _createEl('div');
-        addButton.className = 'addButton';
+        dfx.addClass(addButton, 'addButton');
         container.appendChild(addButton);
+        dfx.addEvent(addButton, 'click', function(e) {
+            var assetMap = dfx.getId('asset_map_container');
+            var target   = dfx.getMouseEventTarget(e);
+            var mousePos = dfx.getMouseEventPosition(e);
+            var menu     = self.drawAddMenu();
+            target.parentNode.appendChild(menu, target);
+
+            var mapRect = dfx.getBoundingRectangle(assetMap);
+            dfx.setStyle(menu, 'left', (mousePos.x - mapRect.x1) + 'px');
+            dfx.setStyle(menu, 'top', (mousePos.y - mapRect.y1) + 'px');
+        });
 
         var tbButtons = _createEl('div');
-        tbButtons.className = 'tbButtons';
+        dfx.addClass(tbButtons, 'tbButtons');
         container.appendChild(tbButtons);
 
         var tbButton = _createEl('div');
         tbButton.id        = 'asset_map_button_refresh';
-        tbButton.className = 'tbButton refresh';
+        dfx.addClass(tbButton, 'tbButton');
+        dfx.addClass(tbButton, 'refresh');
         tbButton.innerHTML = '&nbsp;';
         tbButton.setAttribute('title', 'Refresh');
         tbButtons.appendChild(tbButton);
 
         var tbButton = _createEl('div');
         tbButton.id        = 'asset_map_button_restore';
-        tbButton.className = 'tbButton restore';
+        dfx.addClass(tbButton, 'tbButton');
+        dfx.addClass(tbButton, 'restore');
         tbButton.innerHTML = '&nbsp;';
         tbButton.setAttribute('title', 'Restore root');
         tbButtons.appendChild(tbButton);
 
         var tbButton = _createEl('div');
         tbButton.id        = 'asset_map_button_collapse';
-        tbButton.className = 'tbButton collapse';
+        dfx.addClass(tbButton, 'tbButton');
+        dfx.addClass(tbButton, 'collapse');
         tbButton.innerHTML = '&nbsp;';
         tbButton.setAttribute('title', 'Collapse all');
         tbButtons.appendChild(tbButton);
 
         var tbButton = _createEl('div');
         tbButton.id        = 'asset_map_button_statuses';
-        tbButton.className = 'tbButton statuses';
+        dfx.addClass(tbButton, 'tbButton');
+        dfx.addClass(tbButton, 'statuses');
         tbButton.innerHTML = '&nbsp;';
         tbButton.setAttribute('title', 'Show status');
         tbButtons.appendChild(tbButton);
     };
 
+    this.drawScreensMenu = function(assetType) {
+        dfx.remove(dfx.getClass('menu', container));
+        var container = _createEl('div');
+        dfx.addClass(container, 'menu');
+
+        var screens = assetTypeCache[assetType]['screens'];
+        for (var i in screens) {
+            var menuItem = this.drawMenuItem(screens[i], null);
+            container.appendChild(menuItem);
+        }
+
+        var sep = this.drawMenuSeparator();
+        container.appendChild(sep);
+
+        var menuItem = this.drawMenuItem('Teleport', null);
+        container.appendChild(menuItem);
+
+        var menuItem = this.drawMenuItem('Refresh', null);
+        container.appendChild(menuItem);
+
+        var menuItem = this.drawMenuItem('No Previous Child', null);
+        dfx.addClass(menuItem, 'disabled');
+        container.appendChild(menuItem);
+
+        var menuItem = this.drawMenuItem('Add Child', null, true);
+        container.appendChild(menuItem);
+
+        return container;
+    }
+
+    this.drawAddMenu = function() {
+        dfx.remove(dfx.getClass('menu', container));
+        var container = _createEl('div');
+        dfx.addClass(container, 'menu');
+        for (var i in assetCategories) {
+            var menuItem = this.drawMenuItem(i, null, true);
+            container.appendChild(menuItem);
+        }
+
+        var menuItem = this.drawMenuItem('Folder', 'folder');
+        container.appendChild(menuItem);
+
+        return container;
+    }
+
+    this.drawMenuSeparator = function() {
+        var sep = _createEl('div');
+        dfx.addClass(sep, 'menuSep');
+        return sep;
+    }
+
+    this.drawMenuItem = function(text, assetType, hasChildren) {
+        var menuItem = _createEl('div');
+        dfx.addClass(menuItem, 'menuItem');
+
+        if (assetType) {
+            var icon = _createEl('div');
+            dfx.addClass(icon, 'menuIcon');
+            dfx.setStyle(icon, 'background-image', 'url(../__data/asset_types/' + assetType + '/icon.png)');
+            menuItem.appendChild(icon);
+        }
+
+        var textSpan = _createEl('span');
+        dfx.addClass(textSpan, 'menuText');
+        textSpan.innerHTML = text;
+        menuItem.appendChild(textSpan);
+
+        if (hasChildren === true) {
+            var icon = _createEl('div');
+            dfx.addClass(icon, 'menuChild');
+            menuItem.appendChild(icon);
+        }
+
+        return menuItem;
+    }
+
     this.drawTreeContainer = function() {
         var container = _createEl('div');
-        container.className = 'tree';
+        dfx.addClass(container, 'tree');
         targetElement.appendChild(container);
 
         return container;
@@ -530,26 +651,26 @@ var JS_Asset_Map = new function() {
         }
 
         if (assetLine) {
-            assetLine.className += ' last-child';
+            dfx.addClass(assetLine, 'last-child');
         }
     };
 
     this.drawStatusList = function() {
         var container = _createEl('div');
-        container.className = 'statusList';
+        dfx.addClass(container, 'statusList');
         targetElement.appendChild(container);
 
         var divider = _createEl('div');
         divider.id        = 'asset_map_status_list_divider';
-        divider.className = 'statusDivider';
+        dfx.addClass(divider, 'statusDivider');
         container.appendChild(divider);
 
         var dividerIcon = _createEl('div');
-        dividerIcon.className = 'icon';
+        dfx.addClass(dividerIcon, 'icon');
         divider.appendChild(dividerIcon);
 
         var dividerText = _createEl('span');
-        dividerText.className = 'text';
+        dfx.addClass(dividerText, 'text');
         dividerText.innerHTML = 'Status colour key';
         divider.appendChild(dividerText);
 
@@ -557,10 +678,11 @@ var JS_Asset_Map = new function() {
             var displayName = js_translate('status_' + x.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase());
 
             var assetLine = _createEl('div');
-            assetLine.className = 'asset';
+            dfx.addClass(assetLine, 'asset');
 
             var iconSpan = _createEl('span');
-            iconSpan.className = 'statusListIcon status' + x;
+            dfx.addClass(iconSpan, 'statusListIcon');
+            dfx.addClass(iconSpan, 'status' + x);
             iconSpan.innerHTML = '&nbsp;';
 
             var nameSpan = _createEl('span');
@@ -570,7 +692,7 @@ var JS_Asset_Map = new function() {
                 nameSpan.innerText = displayName;
             }
 
-            nameSpan.className = 'assetName';
+            dfx.addClass(nameSpan, 'assetName');
 
             assetLine.appendChild(iconSpan);
             assetLine.appendChild(nameSpan);
@@ -580,12 +702,12 @@ var JS_Asset_Map = new function() {
 
     this.drawMessageLine = function() {
         var container = _createEl('div');
-        container.className = 'messageLine';
+        dfx.addClass(container, 'messageLine');
         targetElement.appendChild(container);
 
         var messageDiv = _createEl('div');
         messageDiv.id        = 'asset_map_message';
-        messageDiv.className = 'message';
+        dfx.addClass(messageDiv, 'message');
         messageDiv.innerHTML = 'Loading...';
         container.appendChild(messageDiv);
     }
