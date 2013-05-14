@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.12 2013/05/13 23:27:17 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.13 2013/05/14 00:23:30 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.12 $
+ * @version $Revision: 1.1.2.13 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -333,13 +333,28 @@ var JS_Asset_Map = new function() {
             if (assetTarget) {
                 if (e.which === 1) {
                     // Left mouse button
-                    self.message('Select asset ' + assetTarget.getAttribute('data-assetid'), false);
-
                     if (e.ctrlKey === false) {
+                        // Normal click.
                         dfx.removeClass(dfx.getClass('asset', assetMap), 'selected');
+                        dfx.addClass(assetTarget, 'selected');
+                    } else {
+                        // Ctrl+click. Toggle the selection of this asset, which
+                        // could leave the map with multiple or zero selection.
+                        dfx.toggleClass(assetTarget, 'selected');
                     }
 
-                    dfx.addClass(assetTarget, 'selected');
+                    var assets = self.currentSelection();
+                    switch (assets.length) {
+                        case 1:
+                            self.message('Asset ' + assets[0].getAttribute('data-assetid') + ' selected', false);
+                        break;
+                        case 0:
+                            self.message('No assets selected', false);
+                        break;
+                        default:
+                            self.message(assets.length + ' assets selected', false);
+                        break;
+                    }
                 } else if (e.which === 3) {
                     // Right mouse button
                     self.message('Asset screens dropdown for asset ' + assetTarget.getAttribute('data-assetid'), false);
@@ -431,7 +446,7 @@ var JS_Asset_Map = new function() {
 
         var assetMap = dfx.getId('asset_map_container');
         var trees    = dfx.getClass('tree', assetMap);
-        var assets   = dfx.getClass(dfx.getClass('asset', trees[treeid]), 'selected');
+        var assets   = dfx.getClass('asset.selected', trees[treeid]);
 
         return assets;
     }
