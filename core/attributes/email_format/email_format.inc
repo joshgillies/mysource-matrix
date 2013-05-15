@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.55 2013/04/19 08:20:34 ewang Exp $
+* $Id: email_format.inc,v 1.56 2013/05/15 01:58:21 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 *    <email_format with_asset_finder="1" show_inc_attachments="1" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -488,6 +488,9 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		$text_body = replace_keywords($current_value['text_format'], $replacements);
 		$html_body = replace_keywords($current_value['html_format'], $replacements);
 
+		// Comma seperated emails in the "to" parameter
+		$cs_emails = Array();
+
 		// Firefox fix for html body
 		if (trim($html_body) == '<br>') $html_body = '';
 		if (isset($current_value['asset_to_send']) && $current_value['asset_to_send'] != 0) {
@@ -505,8 +508,13 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 			$old_current_asset = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CURRENT_ASSET', NULL);
 			$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CURRENT_ASSET', $GLOBALS['SQ_SYSTEM']->am->getAsset($current_value['asset_to_send']));
 
-			foreach ($to as &$to_str) {
-				replace_global_keywords($to_str);
+			foreach ($to as $key => $val) {
+				replace_global_keywords($to[$key]);
+				// If its got comma seperated values
+				if (strpos($to[$key], ',') !== FALSE) {
+					$cs_emails = array_merge($cs_emails, explode(',', $to[$key]));
+					unset($to[$key]);
+				}
 			}
 			replace_global_keywords($from);
 			replace_global_keywords($reply_to);
@@ -528,8 +536,13 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 				$html_body = preg_replace('|\./\?a='.$assetid.'([^0-9])|', $url.'\\1', $html_body);
 			}
 
-			foreach ($to as &$to_str) {
-				replace_global_keywords($to_str);
+			foreach ($to as $key => $val) {
+				replace_global_keywords($to[$key]);
+				if (strpos($to[$key], ',') !== FALSE) {
+					// If its got comma seperated values
+					$cs_emails = array_merge($cs_emails, explode(',', $to[$key]));
+					unset($to[$key]);
+				}
 			}
 			replace_global_keywords($from);
 			replace_global_keywords($reply_to);
@@ -539,7 +552,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 
 		}
 
-		$to =  array_unique(array_merge($to, $assetid_emails));
+		$to = array_unique(array_merge($to, $assetid_emails, $cs_emails));
 
 		// if no 'From:' address (possibly because of empty keyword replacement)
 		// send from the system's default email address
