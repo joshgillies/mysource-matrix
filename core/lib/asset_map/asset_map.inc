@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.317.2.3 2013/05/13 23:27:16 lwright Exp $
+* $Id: asset_map.inc,v 1.317.2.4 2013/05/15 02:13:03 lwright Exp $
 *
 */
 require_once(SQ_LIB_PATH.'/xml_array/xml_array.inc');
@@ -23,7 +23,7 @@ require_once(SQ_LIB_PATH.'/xml_array/xml_array.inc');
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.317.2.3 $
+* @version $Revision: 1.317.2.4 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -2446,6 +2446,7 @@ class Asset_Map
      */
     private function _fromXML($input)
     {
+        $startTime = microtime(TRUE);
         $doc = new DOMDocument('1.0', 'utf-8');
         $doc->loadXML($input);
 
@@ -2458,39 +2459,51 @@ class Asset_Map
                   );
 
         while (count($todo) > 0) {
-            $elList = array_shift($todo);
+            $elList = array_pop($todo);
             $el     = $elList[0];
             $target = &$elList[1];
 
-            $target['_content'] = (string) $el->textContent;
             if (count($el->attributes) > 0) {
                 foreach ($el->attributes as $attr) {
                     $target['_attributes'][$attr->name] = (string) $attr->value;
                 }
             }
 
-            if (count($el->childNodes) > 0) {
-                foreach ($el->childNodes as $node) {
-                    if ($node->nodeType === XML_ELEMENT_NODE) {
-                        $nodeName = $node->nodeName;
-                        if (array_key_exists($nodeName, $target) === FALSE) {
-                            $newKey = 0;
-                        } else {
-                            $newKey = count($target[$nodeName]);
-                        }
+            unset($attr);
 
-                        $target[$nodeName][$newKey] = array();
-                        $newTodo = array(
-                                    $node,
-                                    &$target[$nodeName][$newKey],
-                                   );
-                        array_push($todo, $newTodo);
+            $target['_content'] = '';
+            foreach ($el->childNodes as $node) {
+                if ($node->nodeType === XML_ELEMENT_NODE) {
+                    $nodeName = $node->nodeName;
+                    if (array_key_exists($nodeName, $target) === FALSE) {
+                        $newKey = 0;
+                    } else {
+                        $newKey = count($target[$nodeName]);
                     }
-                }//end foreach
-            }//end if
 
+                    $target[$nodeName][$newKey] = array();
+                    $newTodo = array(
+                                $node,
+                                &$target[$nodeName][$newKey],
+                               );
+                    $todo[] = $newTodo;
+                } else if ($node->nodeType === XML_TEXT_NODE) {
+                    $target['_content'] .= $node->data;
+                } else if ($node->nodeType === XML_CDATA_SECTION_NODE) {
+                    $target['_content'] .= $node->data;
+                }
+            }//end foreach
+
+            $target['_content'] = trim($target['_content']);
+            if ($target['_content'] === '') {
+                unset($target['_content']);
+            }
+
+            unset($node);
             unset($target);
         }//end while
+
+        error_log('* '.number_format((microtime(TRUE) - $startTime), 4).' sec');
 
         return $output;
 
@@ -2520,7 +2533,7 @@ class Asset_Map
                   );
 
         while (count($todo) > 0) {
-            $elList = array_shift($todo);
+            $elList = array_pop($todo);
             $source = $elList[0];
             $el     = &$elList[1];
 
@@ -2544,7 +2557,7 @@ class Asset_Map
                                         $subvalue,
                                         &$node,
                                        );
-                            array_push($todo, $newTodo);
+                            $todo[] = $newTodo;
 
                             unset($node);
                         }

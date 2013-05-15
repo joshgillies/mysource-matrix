@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.15 2013/05/14 07:58:20 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.16 2013/05/15 02:13:03 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.15 $
+ * @version $Revision: 1.1.2.16 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -192,34 +192,6 @@ var JS_Asset_Map = new function() {
         return assetLine;
     };
 
-    this.doRequest = function(command, callback) {
-        url = '.?SQ_BACKEND_PAGE=asset_map_request&json=1';
-        var xhr = new XMLHttpRequest();
-        var str = JSON.stringify(command);
-        var self = this;
-        var readyStateCb = function() {
-            self.message('Requesting...' + xhr.readyState, true);
-            if (xhr.readyState === 4) {
-                var response = xhr.responseText;
-                if (response !== null) {
-                    response = JSON.parse(response);
-                    callback(response);
-                }
-            }
-        }
-
-        xhr.open(
-           'POST',
-           url
-        );
-
-        self.message('Requesting...', true);
-
-        xhr.setRequestHeader('Content-type', 'application/json');
-        xhr.onreadystatechange = readyStateCb;
-        xhr.send(str);
-    };
-
     /**
      * Start the asset map.
      *
@@ -253,10 +225,13 @@ var JS_Asset_Map = new function() {
             for (var i = 0; i < assetTypes.length; i++) {
                 var typeinfo = assetTypes[i];
                 var typecode = typeinfo['_attributes']['type_code'];
-                var category = typeinfo['_attributes']['flash_menu_path'];
-                if (category) {
-                    assetCategories[category] = assetCategories[category] || [];
-                    assetCategories[category].push(typecode);
+
+                if (((typeinfo['_attributes']['instantiable'] !== '0')) && (typeinfo['_attributes']['allowed_access'] !== 'system')) {
+                    var category = typeinfo['_attributes']['flash_menu_path'];
+                    if (category) {
+                        assetCategories[category] = assetCategories[category] || [];
+                        assetCategories[category].push(typecode);
+                    }
                 }
 
                 assetTypeCache[typecode] = typeinfo['_attributes'];
@@ -267,8 +242,8 @@ var JS_Asset_Map = new function() {
                     var screenname = typeinfo['screen'][j]['_content'];
                     assetTypeCache[typecode]['screens'][screencode] = screenname;
                     self.message('Cache ' + i + '.' + j, true);
-                }
-            }
+                }//end for
+            }//end for
 
             var assets = response['assets'][0]['asset'];
             for (var i = 0; i < assets.length; i++) {
@@ -281,6 +256,34 @@ var JS_Asset_Map = new function() {
             self.initEvents();
             self.message('Success!', false, 2000);
         });
+    };
+
+    this.doRequest = function(command, callback) {
+        url = '.?SQ_BACKEND_PAGE=asset_map_request&json=1';
+        var xhr = new XMLHttpRequest();
+        var str = JSON.stringify(command);
+        var self = this;
+        var readyStateCb = function() {
+            self.message('Requesting...' + xhr.readyState, true);
+            if (xhr.readyState === 4) {
+                var response = xhr.responseText;
+                if (response !== null) {
+                    response = JSON.parse(response);
+                    callback(response);
+                }
+            }
+        }
+
+        xhr.open(
+           'POST',
+           url
+        );
+
+        self.message('Requesting...', true);
+
+        xhr.setRequestHeader('Content-type', 'application/json');
+        xhr.onreadystatechange = readyStateCb;
+        xhr.send(str);
     };
 
     /**
@@ -351,7 +354,7 @@ var JS_Asset_Map = new function() {
             if (assetTarget) {
                 if (e.which === 1) {
                     // Left mouse button
-                    dfx.remove(dfx.getClass('menu', container));
+                    self.clearMenus();
                     if (e.ctrlKey === false) {
                         // Normal click.
                         dfx.removeClass(dfx.getClass('asset', assetMap), 'selected');
@@ -386,11 +389,11 @@ var JS_Asset_Map = new function() {
 
                     var mousePos = dfx.getMouseEventPosition(e);
                     var menu     = self.drawScreensMenu(target.getAttribute('data-typecode'));
-                    target.parentNode.appendChild(menu, target);
+                    self.topDocumentElement(target).appendChild(menu);
 
                     var mapRect = dfx.getBoundingRectangle(assetMap);
-                    dfx.setStyle(menu, 'left', (mousePos.x - mapRect.x1) + 'px');
-                    dfx.setStyle(menu, 'top', (mousePos.y - mapRect.y1) + 'px');
+                    dfx.setStyle(menu, 'left', (mousePos.x) + 'px');
+                    dfx.setStyle(menu, 'top', (mousePos.y) + 'px');
                 }
             } else if (branchTarget) {
                 // Set the target to the asset line.
@@ -462,7 +465,7 @@ var JS_Asset_Map = new function() {
                 // Deselect everything.
                 self.message('Deselect', false);
                 dfx.removeClass(dfx.getClass('asset', trees), 'selected');
-                dfx.remove(dfx.getClass('menu', container));
+                self.clearMenus();
             }//end if
 
         });
@@ -500,11 +503,9 @@ var JS_Asset_Map = new function() {
             var target   = dfx.getMouseEventTarget(e);
             var mousePos = dfx.getMouseEventPosition(e);
             var menu     = self.drawAddMenu();
-            target.parentNode.appendChild(menu, target);
-
-            var mapRect = dfx.getBoundingRectangle(assetMap);
-            dfx.setStyle(menu, 'left', (mousePos.x - mapRect.x1) + 'px');
-            dfx.setStyle(menu, 'top', (mousePos.y - mapRect.y1) + 'px');
+            self.topDocumentElement(target).appendChild(menu);
+            dfx.setStyle(menu, 'left', (mousePos.x) + 'px');
+            dfx.setStyle(menu, 'top', (mousePos.y) + 'px');
         });
 
         var tbButtons = _createEl('div');
@@ -545,11 +546,12 @@ var JS_Asset_Map = new function() {
     };
 
     this.drawScreensMenu = function(assetType) {
-        dfx.remove(dfx.getClass('menu', container));
+        this.clearMenus();
         var container = _createEl('div');
-        dfx.addClass(container, 'menu');
+        dfx.addClass(container, 'assetMapMenu');
 
         var screens = assetTypeCache[assetType]['screens'];
+        console.info(assetTypeCache[assetType]);
         for (var i in screens) {
             var menuItem = this.drawMenuItem(screens[i], null);
             container.appendChild(menuItem);
@@ -575,16 +577,44 @@ var JS_Asset_Map = new function() {
     }
 
     this.drawAddMenu = function() {
-        dfx.remove(dfx.getClass('menu', container));
+        var self = this;
+        this.clearMenus();
         var container = _createEl('div');
-        dfx.addClass(container, 'menu');
+        dfx.addClass(container, 'assetMapMenu');
         for (var i in assetCategories) {
             var menuItem = this.drawMenuItem(i, null, true);
+            menuItem.setAttribute('data-category', i);
             container.appendChild(menuItem);
+
+            dfx.addEvent(menuItem, 'mouseover', function(e) {
+                var target = e.currentTarget;
+
+                var submenu = self.drawAssetTypeMenu(target.getAttribute('data-category'));
+                self.topDocumentElement(targetElement).appendChild(submenu);
+                var targetRect = dfx.getBoundingRectangle(target);
+                dfx.setStyle(submenu, 'left', (targetRect.x2 + 'px'));
+                dfx.setStyle(submenu, 'top', (targetRect.y1 + 'px'));
+            });
         }
 
         var menuItem = this.drawMenuItem('Folder', 'folder');
         container.appendChild(menuItem);
+
+        return container;
+    }
+
+    this.drawAssetTypeMenu = function(category) {
+        this.clearMenus('subtype');
+        var container = _createEl('div');
+        dfx.addClass(container, 'assetMapMenu');
+        dfx.addClass(container, 'subtype');
+        for (var i = 0; i < assetCategories[category].length; i++) {
+            var typeCode = assetCategories[category][i];
+            var type     = assetTypeCache[typeCode];
+
+            var menuItem = this.drawMenuItem(type.name, typeCode);
+            container.appendChild(menuItem);
+        }
 
         return container;
     }
@@ -791,4 +821,17 @@ var JS_Asset_Map = new function() {
 
         return null;
     };
+
+    this.topDocumentElement = function(target) {
+        var topDoc = this.getDefaultView(target.ownerDocument).top.document.documentElement;
+        return topDoc;
+    }
+
+    this.clearMenus = function(type) {
+        if (type === undefined) {
+            dfx.remove(dfx.getClass('assetMapMenu', this.topDocumentElement(targetElement)));
+        } else {
+            dfx.remove(dfx.getClass('assetMapMenu.' + type, this.topDocumentElement(targetElement)));
+        }
+    }
 };

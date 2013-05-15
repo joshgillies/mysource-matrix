@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.216.4.3 2013/05/14 07:59:00 lwright Exp $
+* $Id: backend.inc,v 1.216.4.4 2013/05/15 02:13:03 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.216.4.3 $
+* @version $Revision: 1.216.4.4 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -280,6 +280,7 @@ class Backend extends MySource_Object
             <head>
                 <title><?php echo $page_title; ?></title>
                 <meta http-equiv="Content-Type" content="text/html; charset=<?php echo SQ_CONF_DEFAULT_CHARACTER_SET; ?>">
+                <link rel="stylesheet" type="text/css" href=<?php echo '"'.sq_web_path('lib').'/asset_map/js/js_asset_map.css"'; ?>/>
                 <link rel="shortcut icon" href=<?php echo '"'.sq_web_path('lib').'/web/images/icons/favicon.ico"'; ?>/>
                 <?php
                 if ($limbo_hipo) {
