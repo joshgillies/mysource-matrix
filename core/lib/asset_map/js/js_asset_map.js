@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.17 2013/05/15 04:24:04 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.18 2013/05/16 02:13:08 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.17 $
+ * @version $Revision: 1.1.2.18 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -208,7 +208,10 @@ var JS_Asset_Map = new function() {
         assetMap.style.height = (document.documentElement.clientHeight - 120) + 'px';
 
         this.drawToolbar();
-        var container = this.drawTreeContainer();
+        var containers = [
+			this.drawTreeContainer(),
+			this.drawTreeContainer()
+		];
         this.drawStatusList();
         this.drawMessageLine();
 
@@ -249,14 +252,52 @@ var JS_Asset_Map = new function() {
             for (var i = 0; i < assets.length; i++) {
                 if (assets[i]._attributes.type_code === 'root_folder') {
                     self.message('Draw tree', true);
-                    self.drawTree(assets[i], container);
+                    self.drawTree(assets[i], containers[0]);
+                    self.drawTree(assets[i], containers[1]);
                 }
             }
 
+			self.drawTreeList();
+			self.selectTree(0);
             self.initEvents();
             self.message('Success!', false, 2000);
         });
     };
+
+    this.drawTreeList = function() {
+		var self     = this;
+		var treeList = _createEl('div');
+		dfx.addClass(treeList, 'tree-list');
+		
+	    var tree1 = _createEl('div');
+		dfx.addClass(tree1, 'tab');
+		tree1.innerHTML = 'Tree One';
+		treeList.appendChild(tree1);
+		dfx.addEvent(tree1, 'click', function() {
+			self.selectTree(0);
+		});
+		
+	    var tree2 = _createEl('div');
+		dfx.addClass(tree2, 'tab');
+		tree2.innerHTML = 'Tree Two';
+		treeList.appendChild(tree2);
+		dfx.addEvent(tree2, 'click', function() {
+			self.selectTree(1);
+		});
+
+		targetElement.appendChild(treeList);
+    }
+
+    this.selectTree = function(treeid) {
+        var trees = dfx.getClass('tree', targetElement);
+		dfx.removeClass(trees, 'selected');
+		dfx.addClass(trees[treeid], 'selected');
+
+        var treeList = dfx.getClass('tree-list', targetElement)[0];
+		var tabs     = dfx.getClass('tab', targetElement);
+		dfx.removeClass(tabs, 'selected');
+		dfx.addClass(tabs[treeid], 'selected');
+    }
 
     this.doRequest = function(command, callback) {
         url = '.?SQ_BACKEND_PAGE=asset_map_request&json=1';

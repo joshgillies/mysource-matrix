@@ -99,6 +99,7 @@
 
 #asset_map_container {
     position: relative;
+	margin-left: 18px;
 }
 
 #asset_map_container * {
@@ -108,6 +109,31 @@
     -webkit-user-select: none;
     user-select: none;
     cursor: default;
+}
+
+#asset_map_container .tree-list {
+	transform: rotate(270deg);
+    -ms-transform: rotate(270deg);
+    -webkit-transform: rotate(270deg);
+    filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+    position: absolute;
+	white-space: nowrap;
+    top: 107px;
+    left: -18px;
+    width: 18px;
+}
+
+#asset_map_container .tree-list .tab {
+	display: inline-block;
+    white-space: nowrap;
+	padding: 2px 5px;
+    background-color: #d2d2d2;
+    border-radius: 3px 3px 0 0;
+}
+
+#asset_map_container .tree-list .tab.selected {
+    background-color: #f5f5f5;
+	padding: 2px 5px 3px;
 }
 
 .assetMapMenu {
@@ -221,6 +247,11 @@
     overflow: scroll;
     box-sizing: border-box;
     -moz-box-sizing: border-box;
+    display: none;
+}
+
+#asset_map_container .tree.selected {
+    display: block;
 }
 
 #asset_map_container .childIndent {
