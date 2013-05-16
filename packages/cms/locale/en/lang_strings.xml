@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.21 2012/03/23 02:09:25 cupreti Exp $
+* $Id: lang_strings.xml,v 1.21.6.1 2013/05/16 10:09:37 cupreti Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -98,6 +98,7 @@
 <string source="xml_detail_note">Toggle the level of detail in the submission XML</string>
 <string source="xml_key">XML Value to Store</string>
 <string source="xml_key_note">Use which value from lists in the submission XML</string>
+<string source="xml_answer_sort">Sort Answers</string>
 <string source="cms_current_url">The current URL</string>
 <string source="cms_this_page_own_url">This page's own URL</string>
 <string source="cms_ct_nest_content_currently_nesting">Currently nesting the contents of "<![CDATA[<i>%s</i>]]>"</string>
