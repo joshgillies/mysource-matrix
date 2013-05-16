@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_save_xml.inc,v 1.10 2012/08/30 00:58:07 ewang Exp $
+* $Id: form_action_save_xml.inc,v 1.11 2013/05/16 10:04:56 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/form/form_action/form_action.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -101,6 +101,15 @@ class Form_Action_Save_Xml extends Form_Action
 					?>
 				</td>
 			</tr>
+			<tr>
+				<td><?php echo translate('xml_answer_sort');?></td>
+				<td>
+					<?php
+					$key = array_get_index($xml_settings, 'sort', '0');
+					check_box($prefix.'_sort', 1, $key); 
+					?>
+				</td>
+			</tr>
 		</table>
 		<?php
 
@@ -123,6 +132,7 @@ class Form_Action_Save_Xml extends Form_Action
 		$xml_settings['location'] = array_get_index($_POST, $prefix.'_location', '');
 		$xml_settings['detail'] = array_get_index($_POST, $prefix.'_detail', 'simple');
 		$xml_settings['key'] = array_get_index($_POST, $prefix.'_key', 'value');
+		$xml_settings['sort'] = array_get_index($_POST, $prefix.'_sort', '0');
 
 		$settings['save_xml'] = $xml_settings;
 
@@ -183,12 +193,34 @@ class Form_Action_Save_Xml extends Form_Action
 		$location = $xml_settings['location'];
 		$detail = ($xml_settings['detail'] == 'complex') ? TRUE : FALSE;
 		$use_keys = ($xml_settings['key'] == 'key') ? TRUE : FALSE;
+		$sort_ans = ($xml_settings['sort'] == '1') ? TRUE : FALSE;
 		$questions = $form->getAllQuestions();
 		$submission = $form->getSubmissionAsset();
 		$complete = $submission->attr('complete');
 		$attributes = $submission->attr('attributes');
 		$answers = array_get_index($attributes, 'answers', Array());
 		$file = $location.'/submission-'.$submission->id.'-'.date('YmdHis', $submission->created).'.xml';
+
+		// Whether to sort by the sort settings in the form/form section
+		// By default, questions are sorted by assetid
+		if ($sort_ans) {
+			$sections = $form->getAllSections();
+			$sort_order = $form->attr('sort_order');
+			if (!empty($sections)) {
+			    foreach($sections as $section) {
+			        $sort_order = array_merge($sort_order, $section->attr('sort_order'));
+			    }//end foreach
+			}//end if
+
+			$sorted_ans = Array();
+			foreach($sort_order as $ordered_qid) {
+				if (isset($answers[$ordered_qid])) {
+			        $sorted_ans[$ordered_qid] = $answers[$ordered_qid];
+			    }//end if
+			}//end foreach
+			$answers = $sorted_ans;
+			unset($sorted_ans);
+		}
 
 		// Start the submission XML
 		if ($complete && !empty($answers)) {
