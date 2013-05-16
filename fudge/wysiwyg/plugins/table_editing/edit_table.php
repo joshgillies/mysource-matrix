@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_table.php,v 1.33 2012/08/30 00:56:53 ewang Exp $
+* $Id: edit_table.php,v 1.33.4.1 2013/05/16 01:31:05 cupreti Exp $
 *
 */
 
@@ -18,11 +18,17 @@
 * Table Edit Popup for the WYSIWYG
 *
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.33.4.1 $
 * @package MySource_Matrix
 */
 
+require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 require_once dirname(__FILE__).'/../../wysiwyg_plugin.inc';
+
+if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAccessBackend() || $GLOBALS['SQ_SYSTEM']->user->type() == 'simple_edit_user' || (method_exists($GLOBALS['SQ_SYSTEM']->user, 'isShadowSimpleEditUser') && $GLOBALS['SQ_SYSTEM']->user->isShadowSimpleEditUser()))) {
+	exit;
+}
+
 $wysiwyg = null;
 $plugin = new wysiwyg_plugin($wysiwyg);
 ?>
