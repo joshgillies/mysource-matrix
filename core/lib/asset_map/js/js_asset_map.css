@@ -99,7 +99,7 @@
 
 #asset_map_container {
     position: relative;
-	margin-left: 18px;
+    margin-left: 18px;
 }
 
 #asset_map_container * {
@@ -112,28 +112,28 @@
 }
 
 #asset_map_container .tree-list {
-	transform: rotate(270deg);
+    transform: rotate(270deg);
     -ms-transform: rotate(270deg);
     -webkit-transform: rotate(270deg);
     filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
     position: absolute;
-	white-space: nowrap;
+    white-space: nowrap;
     top: 130px;
     left: -18px;
     width: 18px;
 }
 
 #asset_map_container .tree-list .tab {
-	display: inline-block;
+    display: inline-block;
     white-space: nowrap;
-	padding: 2px 5px 2px 20px;
+    padding: 2px 5px 2px 20px;
     background: url(../../web/images/icons/asset_map/tree.png) left 50% no-repeat #d2d2d2;
     border-radius: 3px 3px 0 0;
 }
 
 #asset_map_container .tree-list .tab.selected {
     background-color: #f5f5f5;
-	padding-bottom: 3px;
+    padding-bottom: 3px;
 }
 
 .assetMapMenu {
@@ -282,6 +282,10 @@
     white-space: nowrap;
 }
 
+#asset_map_container .asset.teleported {
+    margin-left: 3px;
+}
+
 #asset_map_container .asset > * {
     vertical-align: middle;
 }
@@ -381,6 +385,11 @@
     left: 7px;
     z-index: 1;
     cursor: pointer;
+}
+
+#asset_map_container .asset.teleported .leaf,
+#asset_map_container .asset.teleported .branch-status {
+    display: none;
 }
 
 #asset_map_container .asset .type2-link,

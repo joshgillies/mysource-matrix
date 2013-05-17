@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.20 2013/05/17 01:34:39 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.21 2013/05/17 03:03:52 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.20 $
+ * @version $Revision: 1.1.2.21 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -297,6 +297,10 @@ var JS_Asset_Map = new function() {
                     if (String(assetid) !== '1') {
                         var assetCount   = rootAsset.asset.length;
                         var rootIndentId = 'child-indent-' + encodeURIComponent(assetid);
+
+                        rootAsset._attributes.name       = decodeURIComponent(rootAsset._attributes.name.replace(/\+/g, '%20'));
+                        rootAsset._attributes.assetid    = decodeURIComponent(rootAsset._attributes.assetid.replace(/\+/g, '%20'));
+                        rootAsset._attributes.type_code  = decodeURIComponent(rootAsset._attributes.type_code.replace(/\+/g, '%20'));
 
                         assetLine = _formatAsset(
                             rootAsset._attributes.assetid,
