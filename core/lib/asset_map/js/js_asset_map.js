@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.22 2013/05/17 03:18:59 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.23 2013/05/17 04:59:39 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.22 $
+ * @version $Revision: 1.1.2.23 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -429,6 +429,7 @@ var JS_Asset_Map = new function() {
         });
 
         dfx.addEvent(dfx.getId('asset_map_button_restore'), 'click', function() {
+            // Teleport back to root.
             self.teleport(1, 1);
         });
 
@@ -672,6 +673,7 @@ var JS_Asset_Map = new function() {
         var self = this;
         var container = _createEl('div');
         dfx.addClass(container, 'assetMapMenu');
+        dfx.addClass(container, 'screens');
         dfx.addEvent(container, 'contextmenu', function(e) {
             e.preventDefault();
         });
@@ -706,11 +708,17 @@ var JS_Asset_Map = new function() {
             dfx.addEvent(menuItem, 'mouseover', function(e) {
                 var assetMap = dfx.getId('asset_map_container');
                 var target   = dfx.getMouseEventTarget(e);
-                var menu     = self.drawAddMenu(false);
-                self.topDocumentElement(target).appendChild(menu);
-                var targetRect = dfx.getBoundingRectangle(target);
-                dfx.setStyle(menu, 'left', (targetRect.x2) + 'px');
-                dfx.setStyle(menu, 'top', (targetRect.y1) + 'px');
+
+                var existingMenu = dfx.getClass('assetMapMenu.addMenu', self.topDocumentElement(target));
+                if (existingMenu.length === 0) {
+                    var menu     = self.drawAddMenu(false);
+                    self.topDocumentElement(target).appendChild(menu);
+                    var elementHeight = self.topDocumentElement(targetElement).clientHeight;
+                    var submenuHeight = dfx.getElementHeight(menu);
+                    var targetRect = dfx.getBoundingRectangle(target);
+                    dfx.setStyle(menu, 'left', (Math.max(10, targetRect.x2) + 'px'));
+                    dfx.setStyle(menu, 'top', (Math.min(elementHeight - submenuHeight - 10, targetRect.y1) + 'px'));
+                }
             });
         }
 
@@ -725,6 +733,7 @@ var JS_Asset_Map = new function() {
 
         var container = _createEl('div');
         dfx.addClass(container, 'assetMapMenu');
+        dfx.addClass(container, 'addMenu');
 
         dfx.addEvent(container, 'contextmenu', function(e) {
             e.preventDefault();
@@ -738,11 +747,18 @@ var JS_Asset_Map = new function() {
             dfx.addEvent(menuItem, 'mouseover', function(e) {
                 var target = e.currentTarget;
 
-                var submenu = self.drawAssetTypeMenu(target.getAttribute('data-category'));
-                self.topDocumentElement(targetElement).appendChild(submenu);
-                var targetRect = dfx.getBoundingRectangle(target);
-                dfx.setStyle(submenu, 'left', (targetRect.x2 + 'px'));
-                dfx.setStyle(submenu, 'top', (targetRect.y1 + 'px'));
+                var existingMenu = dfx.getClass('assetMapMenu.subtype', self.topDocumentElement(target));
+
+                if ((existingMenu.length === 0) || (existingMenu[0].getAttribute('data-category') !== target.getAttribute('data-category'))) {
+                    dfx.remove(existingMenu);
+                    var submenu = self.drawAssetTypeMenu(target.getAttribute('data-category'));
+                    self.topDocumentElement(targetElement).appendChild(submenu);
+                    var elementHeight = self.topDocumentElement(targetElement).clientHeight;
+                    var submenuHeight = dfx.getElementHeight(submenu);
+                    var targetRect = dfx.getBoundingRectangle(target);
+                    dfx.setStyle(submenu, 'left', (Math.max(10, targetRect.x2) + 'px'));
+                    dfx.setStyle(submenu, 'top', (Math.min(elementHeight - submenuHeight - 10, targetRect.y1) + 'px'));
+                }
             });
         }
 
@@ -757,6 +773,7 @@ var JS_Asset_Map = new function() {
         var container = _createEl('div');
         dfx.addClass(container, 'assetMapMenu');
         dfx.addClass(container, 'subtype');
+        container.setAttribute('data-category', category);
 
         dfx.addEvent(container, 'contextmenu', function(e) {
             e.preventDefault();
