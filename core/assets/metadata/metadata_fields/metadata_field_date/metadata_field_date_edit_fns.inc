@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_edit_fns.inc,v 1.49 2012/08/30 01:09:08 ewang Exp $
+* $Id: metadata_field_date_edit_fns.inc,v 1.50 2013/05/17 09:04:20 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -187,6 +187,10 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 			
 			if (!empty($value)) {
 				$default = '%'.trim($value).'%';
+				$processed = TRUE;
+			} else if (!empty($_POST[$prefix.'_duration']) && $_POST[$prefix.'_duration'] != '0'  && $_POST[$prefix.'_period'] != '-') {
+				$value = trim(date('Y-m-d H:i:s', strtotime($_POST[$prefix.'_duration'].' '.$_POST[$prefix.'_period'])));
+				$default = trim($value);
 				$processed = TRUE;
 			} else {
 				$field = $asset->_getDateTimeField($prefix);
