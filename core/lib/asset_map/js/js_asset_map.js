@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.23 2013/05/17 04:59:39 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.24 2013/05/17 07:59:47 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.23 $
+ * @version $Revision: 1.1.2.24 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -681,6 +681,9 @@ var JS_Asset_Map = new function() {
         var screens = assetTypeCache[assetType]['screens'];
         for (var i in screens) {
             var menuItem = this.drawMenuItem(screens[i], null);
+            dfx.addEvent(menuItem, 'click', function(e) {
+                self.clearMenus();
+            });
             container.appendChild(menuItem);
         }
 
@@ -695,6 +698,9 @@ var JS_Asset_Map = new function() {
         });
 
         var menuItem = this.drawMenuItem('Refresh', null);
+        dfx.addEvent(menuItem, 'click', function(e) {
+            self.clearMenus();
+        });
         container.appendChild(menuItem);
 
         if (assetType !== 'trash_folder') {
@@ -769,6 +775,7 @@ var JS_Asset_Map = new function() {
     }
 
     this.drawAssetTypeMenu = function(category) {
+        var self = this;
         this.clearMenus('subtype');
         var container = _createEl('div');
         dfx.addClass(container, 'assetMapMenu');
@@ -784,6 +791,9 @@ var JS_Asset_Map = new function() {
             var type     = assetTypeCache[typeCode];
 
             var menuItem = this.drawMenuItem(type.name, typeCode);
+            dfx.addEvent(menuItem, 'click', function(e) {
+                self.clearMenus();
+            });
             container.appendChild(menuItem);
         }
 
