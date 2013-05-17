@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.19 2013/05/16 03:59:21 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.20 2013/05/17 01:34:39 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.19 $
+ * @version $Revision: 1.1.2.20 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -209,8 +209,8 @@ var JS_Asset_Map = new function() {
 
         this.drawToolbar();
         var containers = [
-            this.drawTreeContainer(),
-            this.drawTreeContainer()
+            this.drawTreeContainer(0),
+            this.drawTreeContainer(1)
         ];
         this.drawStatusList();
         this.drawMessageLine();
@@ -249,13 +249,8 @@ var JS_Asset_Map = new function() {
             }//end for
 
             var assets = response['assets'][0]['asset'];
-            for (var i = 0; i < assets.length; i++) {
-                if (assets[i]._attributes.type_code === 'root_folder') {
-                    self.message('Draw tree', true);
-                    self.drawTree(assets[i], containers[0]);
-                    self.drawTree(assets[i], containers[1]);
-                }
-            }
+            self.drawTree(assets[0], containers[0]);
+            self.drawTree(assets[0], containers[1]);
 
             self.drawTreeList();
             self.selectTree(0);
@@ -264,11 +259,82 @@ var JS_Asset_Map = new function() {
         });
     };
 
+    this.teleport = function(assetid, linkid, treeid) {
+        var self = this;
+        if (treeid === undefined) {
+            var tree = dfx.getClass('tree.selected', targetElement)[0];
+        } else {
+            var tree = dfx.getClass('tree', targetElement)[treeid];
+        }
+
+        if (tree) {
+            self.doRequest({
+                _attributes: {
+                    action: 'get assets',
+                },
+                asset: [
+                    {
+                        _attributes: {
+                            assetid: assetid,
+                            start: 0,
+                            limit: 50,  // replace with set limit
+                            linkid: linkid
+                        }
+                    }
+                ]
+            }, function(response) {
+                // Cache all the asset types.
+                //dfx.removeClass(tree, 'loading');
+                var rootAsset = response['asset'][0];
+
+                if (!rootAsset.asset) {
+                    self.message('No children loaded', false, 2000);
+                    dfx.remove(container);
+                    dfx.remove(branchTarget);
+                } else {
+                    tree.innerHTML = '';
+
+                    if (String(assetid) !== '1') {
+                        var assetCount   = rootAsset.asset.length;
+                        var rootIndentId = 'child-indent-' + encodeURIComponent(assetid);
+
+                        assetLine = _formatAsset(
+                            rootAsset._attributes.assetid,
+                            rootAsset._attributes.name,
+                            rootAsset._attributes.type_code,
+                            Number(rootAsset._attributes.status),
+                            Number(rootAsset._attributes.num_kids),
+                            rootAsset._attributes.linkid,
+                            Number(rootAsset._attributes.link_type),
+                            Number(rootAsset._attributes.accessible)
+                        );
+
+                        dfx.addClass(assetLine, 'teleported');
+                        tree.appendChild(assetLine);
+                    }//end if
+
+                    self.drawTree(rootAsset, tree);
+
+                    switch (assetCount) {
+                        case 1:
+                            self.message('Loaded one child', false, 2000);
+                        break;
+
+                        default:
+                            self.message('Loaded ' + assetCount + ' children', false, 2000);
+                        break;
+                    }//end switch
+                }//end if
+            });
+
+        }
+    }
+
     this.drawTreeList = function() {
         var self     = this;
         var treeList = _createEl('div');
         dfx.addClass(treeList, 'tree-list');
-        
+
         var tree1 = _createEl('div');
         dfx.addClass(tree1, 'tab');
         tree1.innerHTML = 'Tree One';
@@ -276,7 +342,7 @@ var JS_Asset_Map = new function() {
         dfx.addEvent(tree1, 'click', function() {
             self.selectTree(0);
         });
-        
+
         var tree2 = _createEl('div');
         dfx.addClass(tree2, 'tab');
         tree2.innerHTML = 'Tree Two';
@@ -358,6 +424,10 @@ var JS_Asset_Map = new function() {
             self.resizeTree();
         });
 
+        dfx.addEvent(dfx.getId('asset_map_button_restore'), 'click', function() {
+            self.teleport(1, 1);
+        });
+
         dfx.addEvent(dfx.getId('asset_map_button_statuses'), 'click', function() {
             var assetMap = dfx.getId('asset_map_container');
             dfx.toggleClass(assetMap, 'statuses-shown');
@@ -372,8 +442,8 @@ var JS_Asset_Map = new function() {
             dfx.addClass(branchButtons, 'expanded');
         });
 
-        dfx.addEvent(targetElement, 'contextmenu', function() {
-            return false;
+        dfx.addEvent(targetElement, 'contextmenu', function(e) {
+            e.preventDefault();
         });
 
         dfx.addEvent(trees, 'mousedown', function(e) {
@@ -393,6 +463,8 @@ var JS_Asset_Map = new function() {
             }
 
             if (assetTarget) {
+                var tree   = dfx.getParents('.tree', assetTarget)[0];
+                var treeid = tree.getAttribute('data-treeid');
                 if (e.which === 1) {
                     // Left mouse button
                     self.clearMenus();
@@ -428,8 +500,13 @@ var JS_Asset_Map = new function() {
 
                     dfx.addClass(assetTarget, 'selected');
 
+                    e.preventDefault();
                     var mousePos = dfx.getMouseEventPosition(e);
-                    var menu     = self.drawScreensMenu(target.getAttribute('data-typecode'));
+                    var menu     = self.drawScreensMenu(
+                        target.getAttribute('data-assetid'),
+                        target.getAttribute('data-linkid'),
+                        target.getAttribute('data-typecode')
+                    );
                     self.topDocumentElement(target).appendChild(menu);
 
                     var mapRect = dfx.getBoundingRectangle(assetMap);
@@ -586,7 +663,7 @@ var JS_Asset_Map = new function() {
         tbButtons.appendChild(tbButton);
     };
 
-    this.drawScreensMenu = function(assetType) {
+    this.drawScreensMenu = function(assetid, linkid, assetType) {
         this.clearMenus();
         var self = this;
         var container = _createEl('div');
@@ -606,6 +683,10 @@ var JS_Asset_Map = new function() {
 
         var menuItem = this.drawMenuItem('Teleport', null);
         container.appendChild(menuItem);
+        dfx.addEvent(menuItem, 'click', function(e) {
+            self.clearMenus();
+            self.teleport(assetid, linkid);
+        });
 
         var menuItem = this.drawMenuItem('Refresh', null);
         container.appendChild(menuItem);
@@ -617,7 +698,7 @@ var JS_Asset_Map = new function() {
 
             var menuItem = this.drawMenuItem('Add Child', null, true);
             container.appendChild(menuItem);
-            
+
             dfx.addEvent(menuItem, 'mouseover', function(e) {
                 var assetMap = dfx.getId('asset_map_container');
                 var target   = dfx.getMouseEventTarget(e);
@@ -719,9 +800,10 @@ var JS_Asset_Map = new function() {
         return menuItem;
     }
 
-    this.drawTreeContainer = function() {
+    this.drawTreeContainer = function(treeid) {
         var container = _createEl('div');
         dfx.addClass(container, 'tree');
+        container.setAttribute('data-treeid', treeid);
         targetElement.appendChild(container);
 
         return container;
