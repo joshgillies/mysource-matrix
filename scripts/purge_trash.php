@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: purge_trash.php,v 1.10 2013/04/23 06:42:48 ewang Exp $
+* $Id: purge_trash.php,v 1.11 2013/05/17 09:54:21 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 *        all assets underneath this rootnode (inclusive) will be purged from the trash folder.
 *        useful when the system runs out of memory when purging all assets
 *
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 */
 
@@ -81,6 +81,9 @@ if (!empty($purge_rootnode)) {
 	if (!empty($linkid)) {
 		// purge trash hipo will know what to do
 		$vars['purge_root_linkid'] = $linkid;
+	} else {
+		echo "ERROR: Purge root node assetid id #".$purge_rootnode." not be found\n";
+		exit(1);
 	}
 }
 
