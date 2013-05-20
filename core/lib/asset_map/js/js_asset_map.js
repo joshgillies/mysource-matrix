@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.26 2013/05/20 03:25:30 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.27 2013/05/20 06:14:47 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.26 $
+ * @version $Revision: 1.1.2.27 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -119,6 +119,10 @@ var JS_Asset_Map = new function() {
      */
     var trees = [];
 
+
+//--        UTILITY FUNCTIONS        --//
+
+
     /**
      * Create an element with unselectable attribute set on (for IE<=9).
      *
@@ -133,7 +137,7 @@ var JS_Asset_Map = new function() {
     }
 
     /**
-     * Convert a single status number (1, 2, 4) into a status class name.
+     * Convert a single status number (1, 2, 4, ..., 256) into a status class name.
      *
      * If not a valid status ID, "Unknown" returned.
      *
@@ -222,6 +226,10 @@ var JS_Asset_Map = new function() {
         return assetLine;
     };
 
+
+//--        INITIALISATION        --//
+
+
     /**
      * Start the asset map.
      *
@@ -232,9 +240,7 @@ var JS_Asset_Map = new function() {
 
         targetElement      = options.targetElement || dfx.getId('asset_map_container');
         assetDisplayFormat = options.displayFormat || '%asset_short_name%';
-        //var document       = targetElement.ownerDocument;
-
-        var assetMap = dfx.getId('asset_map_container');
+        var assetMap       = dfx.getId('asset_map_container');
         assetMap.style.height = (document.documentElement.clientHeight - 120) + 'px';
 
         this.drawToolbar();
@@ -288,177 +294,6 @@ var JS_Asset_Map = new function() {
             self.message('Success!', false, 2000);
         });
     };
-
-    /**
-     * Teleport to a specific asset.
-     *
-     * Also use this to restore root, using assetid=1 and linkid=1.
-     *
-     * @param {String} assetid  The asset ID to teleport to.
-     * @param {String} linkid   The link ID of the location being teleported to.
-     * @param {Number} [treeid] Tree ID (default = selected tree).
-     */
-    this.teleport = function(assetid, linkid, treeid) {
-        var self = this;
-        if (treeid === undefined) {
-            var tree = dfx.getClass('tree.selected', targetElement)[0];
-        } else {
-            var tree = dfx.getClass('tree', targetElement)[treeid];
-        }
-
-        if (tree) {
-            self.doRequest({
-                _attributes: {
-                    action: 'get assets',
-                },
-                asset: [
-                    {
-                        _attributes: {
-                            assetid: assetid,
-                            start: 0,
-                            limit: 50,  // replace with set limit
-                            linkid: linkid
-                        }
-                    }
-                ]
-            }, function(response) {
-                // Cache all the asset types.
-                //dfx.removeClass(tree, 'loading');
-                var rootAsset = response['asset'][0];
-
-                if (!rootAsset.asset) {
-                    self.message('No children loaded', false, 2000);
-                    dfx.remove(container);
-                    dfx.remove(branchTarget);
-                } else {
-                    tree.innerHTML = '';
-
-                    if (String(assetid) !== '1') {
-                        var assetCount   = rootAsset.asset.length;
-                        var rootIndentId = 'child-indent-' + encodeURIComponent(assetid);
-
-                        rootAsset._attributes.name       = decodeURIComponent(rootAsset._attributes.name.replace(/\+/g, '%20'));
-                        rootAsset._attributes.assetid    = decodeURIComponent(rootAsset._attributes.assetid.replace(/\+/g, '%20'));
-                        rootAsset._attributes.type_code  = decodeURIComponent(rootAsset._attributes.type_code.replace(/\+/g, '%20'));
-
-                        assetLine = _formatAsset(rootAsset);
-
-                        dfx.addClass(assetLine, 'teleported');
-                        tree.appendChild(assetLine);
-                    }//end if
-
-                    rootAsset._attributes.asset_path = rootAsset._attributes.assetid;
-                    rootAsset._attributes.link_path  = rootAsset._attributes.linkid;
-                    self.drawTree(rootAsset, tree);
-
-                    switch (assetCount) {
-                        case 1:
-                            self.message('Loaded one child', false, 2000);
-                        break;
-
-                        default:
-                            self.message('Loaded ' + assetCount + ' children', false, 2000);
-                        break;
-                    }//end switch
-                }//end if
-            });
-
-        }
-    }
-
-    /**
-     * Draw the list of trees.
-     *
-     */
-    this.drawTreeList = function() {
-        var self     = this;
-        var treeList = _createEl('div');
-        dfx.addClass(treeList, 'tree-list');
-
-        var tree1 = _createEl('div');
-        dfx.addClass(tree1, 'tab');
-        tree1.innerHTML = 'Tree One';
-        treeList.appendChild(tree1);
-        dfx.addEvent(tree1, 'click', function() {
-            self.selectTree(0);
-        });
-
-        var tree2 = _createEl('div');
-        dfx.addClass(tree2, 'tab');
-        tree2.innerHTML = 'Tree Two';
-        treeList.appendChild(tree2);
-        dfx.addEvent(tree2, 'click', function() {
-            self.selectTree(1);
-        });
-
-        targetElement.appendChild(treeList);
-    }
-
-    /**
-     * Bring the selected tree to the foreground.
-     *
-     * @param {Number} treeid The tree ID (zero-indexed; use 0 for Tree One).
-     */
-    this.selectTree = function(treeid) {
-        var trees = dfx.getClass('tree', targetElement);
-        dfx.removeClass(trees, 'selected');
-        dfx.addClass(trees[treeid], 'selected');
-
-        var treeList = dfx.getClass('tree-list', targetElement)[0];
-        var tabs     = dfx.getClass('tab', targetElement);
-        dfx.removeClass(tabs, 'selected');
-        dfx.addClass(tabs[treeid], 'selected');
-    }
-
-    /**
-     * Do a request to the asset map PHP code.
-     *
-     * @param {Object}   command  The command (and params) to request.
-     * @param {Function} callback The callback function.
-     */
-    this.doRequest = function(command, callback) {
-        url = '.?SQ_BACKEND_PAGE=asset_map_request&json=1';
-        var xhr = new XMLHttpRequest();
-        var str = JSON.stringify(command);
-        var self = this;
-        var readyStateCb = function() {
-            self.message('Requesting...' + xhr.readyState, true);
-            if (xhr.readyState === 4) {
-                var response = xhr.responseText;
-                if (response !== null) {
-                    response = JSON.parse(response);
-                    callback(response);
-                }
-            }
-        }
-
-        xhr.open(
-           'POST',
-           url
-        );
-
-        self.message('Requesting...', true);
-
-        xhr.setRequestHeader('Content-type', 'application/json');
-        xhr.onreadystatechange = readyStateCb;
-        xhr.send(str);
-    };
-
-
-    /**
-     * Request a URL in a specified frame (or main frame if no frame specified).
-     *
-     * @param {String} url               The URL to request.
-     * @param {String} [frame='sq_main'] The frame to pop up.
-     */
-    this.frameRequest = function(url, frame) {
-        if (!frame) {
-            frame = 'sq_main';
-        }
-
-        var top = this.getDefaultView(target.ownerDocument);
-        top.frames[frame].location.href = url;
-    }
 
     /**
      * Start the simple asset map.
@@ -570,11 +405,7 @@ var JS_Asset_Map = new function() {
 
                     e.preventDefault();
                     var mousePos = dfx.getMouseEventPosition(e);
-                    var menu     = self.drawScreensMenu(
-                        target.getAttribute('data-assetid'),
-                        target.getAttribute('data-linkid'),
-                        target.getAttribute('data-typecode')
-                    );
+                    var menu     = self.drawScreensMenu(target);
                     self.topDocumentElement(target).appendChild(menu);
 
                     var mapRect = dfx.getBoundingRectangle(assetMap);
@@ -659,11 +490,41 @@ var JS_Asset_Map = new function() {
             }//end if
 
         });
-    }
+    };
 
+
+//--        CORE ACTIONS        --//
+
+
+    /**
+     * Bring the selected tree to the foreground.
+     *
+     * @param {Number} treeid The tree ID (zero-indexed; use 0 for Tree One).
+     */
+    this.selectTree = function(treeid) {
+        var trees = dfx.getClass('tree', targetElement);
+        dfx.removeClass(trees, 'selected');
+        dfx.addClass(trees[treeid], 'selected');
+
+        var treeList = dfx.getClass('tree-list', targetElement)[0];
+        var tabs     = dfx.getClass('tab', targetElement);
+        dfx.removeClass(tabs, 'selected');
+        dfx.addClass(tabs[treeid], 'selected');
+    };
+
+
+    /**
+     * Return the asset nodes that have been selected on a specified tree.
+     *
+     * @param {Number} [treeid] Tree ID (zero-indexed, default = selected tree).
+     *
+     * @returns {Array.<Node>}
+     */
     this.currentSelection = function(treeid) {
         if (treeid === undefined) {
-            treeid = 0;
+            var tree = dfx.getClass('tree.selected', targetElement)[0];
+        } else {
+            var tree = dfx.getClass('tree', targetElement)[treeid];
         }
 
         var assetMap = dfx.getId('asset_map_container');
@@ -671,12 +532,233 @@ var JS_Asset_Map = new function() {
         var assets   = dfx.getClass('asset.selected', trees[treeid]);
 
         return assets;
-    }
+    };
 
-    this.raiseError = function(message) {
-        var message = js_translate(message);
+
+    /**
+     * Teleport to a specific asset.
+     *
+     * Also use this to restore root, using assetid=1 and linkid=1.
+     *
+     * @param {String} assetid  The asset ID to teleport to.
+     * @param {String} linkid   The link ID of the location being teleported to.
+     * @param {Number} [treeid] Tree ID (zero-indexed, default = selected tree).
+     */
+    this.teleport = function(assetid, linkid, treeid) {
+        var self = this;
+        if (treeid === undefined) {
+            var tree = dfx.getClass('tree.selected', targetElement)[0];
+        } else {
+            var tree = dfx.getClass('tree', targetElement)[treeid];
+        }
+
+        if (tree) {
+            self.doRequest({
+                _attributes: {
+                    action: 'get assets',
+                },
+                asset: [
+                    {
+                        _attributes: {
+                            assetid: assetid,
+                            start: 0,
+                            limit: 50,  // replace with set limit
+                            linkid: linkid
+                        }
+                    }
+                ]
+            }, function(response) {
+                // Cache all the asset types.
+                //dfx.removeClass(tree, 'loading');
+                var rootAsset = response['asset'][0];
+
+                if (!rootAsset.asset) {
+                    self.message('No children loaded', false, 2000);
+                    dfx.remove(container);
+                    dfx.remove(branchTarget);
+                } else {
+                    tree.innerHTML = '';
+
+                    if (String(assetid) !== '1') {
+                        var assetCount   = rootAsset.asset.length;
+                        var rootIndentId = 'child-indent-' + encodeURIComponent(assetid);
+
+                        rootAsset._attributes.name       = decodeURIComponent(rootAsset._attributes.name.replace(/\+/g, '%20'));
+                        rootAsset._attributes.assetid    = decodeURIComponent(rootAsset._attributes.assetid.replace(/\+/g, '%20'));
+                        rootAsset._attributes.type_code  = decodeURIComponent(rootAsset._attributes.type_code.replace(/\+/g, '%20'));
+
+                        assetLine = _formatAsset(rootAsset);
+
+                        dfx.addClass(assetLine, 'teleported');
+                        tree.appendChild(assetLine);
+                    }//end if
+
+                    rootAsset._attributes.asset_path = rootAsset._attributes.assetid;
+                    rootAsset._attributes.link_path  = rootAsset._attributes.linkid;
+                    self.drawTree(rootAsset, tree);
+
+                    switch (assetCount) {
+                        case 1:
+                            self.message('Loaded one child', false, 2000);
+                        break;
+
+                        default:
+                            self.message('Loaded ' + assetCount + ' children', false, 2000);
+                        break;
+                    }//end switch
+                }//end if
+            });
+
+        }
+    };
+
+
+    /**
+     * Add a new asset.
+     *
+     * @param {String} assetid
+     * @param {String} parentAssetid
+     * @param {Number} [sortOrder] New sort order (last child if omitted)
+     */
+    this.addAsset = function(assetid, parentAssetid, sortOrder) {
 
     };
+
+
+    /**
+     * Move an asset to a new parent.
+     *
+     * @param {String} assetid
+     * @param {String} parentAssetid
+     * @param {Number} [sortOrder] New sort order (last child if omitted)
+     */
+    this.moveAsset = function(assetid, newParentAssetid, sortOrder) {
+        if (assetid === newParentAssetid) {
+            // Changing the sort order only
+        } else {
+            // Moving to a new assetid.
+        }
+    };
+
+
+    /**
+     * Create a new link to an asset to a new parent.
+     *
+     * @param {String} assetid
+     * @param {String} parentAssetid
+     * @param {Number} [sortOrder] New sort order (last child if omitted)
+     */
+    this.createLink = function(assetid, newParentAssetid, sortOrder) {
+        if (assetid === newParentAssetid) {
+            // Shouldn't get here, but assets cannot be multiply linked.
+            this.raiseError(js_translate('asset_map_error_cannot_link_to_itself'));
+        }
+    };
+
+
+    /**
+     * Clone an asset.
+     *
+     * @param {String} assetid
+     * @param {String} parentAssetid
+     * @param {Number} [sortOrder] New sort order (last child if omitted)
+     */
+    this.cloneAsset = function(assetid, newParentAssetid, sortOrder) {
+
+    };
+
+    /**
+     * Resize the tree in response to height changes.
+     *
+     */
+    this.resizeTree = function() {
+        var document   = targetElement.ownerDocument;
+
+        var assetMap = dfx.getId('asset_map_container');
+        var toolbarDiv = dfx.getClass('toolbar')[0];
+        var messageDiv = dfx.getClass('messageLine')[0];
+        var statusList = dfx.getClass('statusList')[0];
+
+        var treeDivs = dfx.getClass('tree');
+
+        assetMap.style.height = (document.documentElement.clientHeight - 120) + 'px';
+        for (var i = 0; i < treeDivs.length; i++) {
+            treeDivs[i].style.height = (assetMap.clientHeight - toolbarDiv.clientHeight - messageDiv.clientHeight - statusList.clientHeight) + 'px';
+        }
+    };
+
+
+    /**
+     * Show a message on the bottom status bar of the asset map.
+     *
+     * If spinner is false, the spinner will appear but "idle".
+     * If timeout not set, it will appear indefinitely until cleared.
+     * Any timeout set for a previous message will be cleared.
+     *
+     * @param {String}  message   The message to print.
+     * @param {Boolean} spinner   Whether to show a moving spinner.
+     * @param {Number}  [timeout] Message timeout in milliseconds.
+     */
+    this.message = function(message, spinner, timeout) {
+        var messageDiv       = targetElement.ownerDocument.getElementById('asset_map_message');
+        messageDiv.innerHTML = message;
+
+        if (msgTimeoutId) {
+            clearTimeout(msgTimeoutId);
+        }
+
+        if (timeout !== undefined) {
+            msgTimeoutId = setTimeout(function() {
+                messageDiv.innerHTML = '&nbsp;';
+                msgTimeoutId = null;
+            }, timeout);
+        }
+
+    }
+
+    /**
+     * Raise an error message.
+     *
+     * @param {String} message Message to display.
+     */
+    this.raiseError = function(message) {
+
+    };
+
+    /**
+     * Get the default view/parent window of a document.
+     *
+     * @param {Document} document The document.
+     *
+     * @returns {Window}
+     */
+    this.getDefaultView = function(document) {
+        if (document.defaultView) {
+            return document.defaultView;
+        } else if (document.parentWindow) {
+            return document.parentWindow;
+        }
+
+        return null;
+    };
+
+    /**
+     * Get the top window's document element.
+     *
+     * Used for placing menus.
+     *
+     * @param {Node} target The target element.
+     *
+     * @returns {Node}
+     */
+    this.topDocumentElement = function(target) {
+        var topDoc = this.getDefaultView(target.ownerDocument).top.document.documentElement;
+        return topDoc;
+    }
+
+
+//--        DRAWING METHODS        --//
+
 
     /**
      * Draw toolbar.
@@ -738,261 +820,6 @@ var JS_Asset_Map = new function() {
         tbButton.innerHTML = '&nbsp;';
         tbButton.setAttribute('title', 'Show status');
         tbButtons.appendChild(tbButton);
-    };
-
-    /**
-     * Draw list of screens menu (from right-clicking on an asset).
-     *
-     * @param {String} assetid
-     * @param {String} linkid
-     * @param {String} assetType
-     *
-     * @returns {Node}
-     */
-    this.drawScreensMenu = function(assetid, linkid, assetType) {
-        this.clearMenus();
-        var self = this;
-        var container = _createEl('div');
-        dfx.addClass(container, 'assetMapMenu');
-        dfx.addClass(container, 'screens');
-        dfx.addEvent(container, 'contextmenu', function(e) {
-            e.preventDefault();
-        });
-
-        var screens = assetTypeCache[assetType]['screens'];
-        for (var i in screens) {
-            var menuItem = this.drawMenuItem(screens[i], null);
-            dfx.addEvent(menuItem, 'click', function(e) {
-                self.clearMenus();
-            });
-            container.appendChild(menuItem);
-        }
-
-        var sep = this.drawMenuSeparator();
-        container.appendChild(sep);
-
-        var menuItem = this.drawMenuItem('Teleport', null);
-        container.appendChild(menuItem);
-        dfx.addEvent(menuItem, 'click', function(e) {
-            self.clearMenus();
-            self.teleport(assetid, linkid);
-        });
-
-        var menuItem = this.drawMenuItem('Refresh', null);
-        dfx.addEvent(menuItem, 'click', function(e) {
-            self.clearMenus();
-        });
-        container.appendChild(menuItem);
-
-        // Don't show child options in the trash folder.
-        // TODO: try to do this where no children are allowed for an asset type
-        //       (needs additional handling in asset_map.inc).
-        if (assetType !== 'trash_folder') {
-            var menuItem = this.drawMenuItem('No Previous Child', null);
-            dfx.addClass(menuItem, 'disabled');
-            container.appendChild(menuItem);
-
-            var menuItem = this.drawMenuItem('Add Child', null, true);
-            container.appendChild(menuItem);
-
-            dfx.addEvent(menuItem, 'mouseover', function(e) {
-                var assetMap = dfx.getId('asset_map_container');
-                var target   = dfx.getMouseEventTarget(e);
-
-                var existingMenu = dfx.getClass('assetMapMenu.addMenu', self.topDocumentElement(target));
-                if (existingMenu.length === 0) {
-                    var menu     = self.drawAddMenu(false);
-                    self.topDocumentElement(target).appendChild(menu);
-                    var elementHeight = self.topDocumentElement(targetElement).clientHeight;
-                    var submenuHeight = dfx.getElementHeight(menu);
-                    var targetRect = dfx.getBoundingRectangle(target);
-                    dfx.setStyle(menu, 'left', (Math.max(10, targetRect.x2) + 'px'));
-                    dfx.setStyle(menu, 'top', (Math.min(elementHeight - submenuHeight - 10, targetRect.y1) + 'px'));
-                }
-            });
-        }
-
-        return container;
-    }
-
-    /**
-     * Draw "add child" main menu.
-     *
-     * Triggered by the "Add Child" option in the screens menu, or the "Add" button
-     * in the toolbar.
-     *
-     * @param {Boolean} [clear=true]
-     *
-     * @returns {Node}
-     */
-    this.drawAddMenu = function(clear) {
-        var self = this;
-        if (clear !== false) {
-            this.clearMenus();
-        }
-
-        var container = _createEl('div');
-        dfx.addClass(container, 'assetMapMenu');
-        dfx.addClass(container, 'addMenu');
-
-        dfx.addEvent(container, 'contextmenu', function(e) {
-            e.preventDefault();
-        });
-
-        for (var i in assetCategories) {
-            var menuItem = this.drawMenuItem(i, null, true);
-            menuItem.setAttribute('data-category', i);
-            container.appendChild(menuItem);
-
-            dfx.addEvent(menuItem, 'mouseover', function(e) {
-                var target = e.currentTarget;
-
-                var existingMenu = dfx.getClass('assetMapMenu.subtype', self.topDocumentElement(target));
-
-                if ((existingMenu.length === 0) || (existingMenu[0].getAttribute('data-category') !== target.getAttribute('data-category'))) {
-                    dfx.remove(existingMenu);
-                    var submenu = self.drawAssetTypeMenu(target.getAttribute('data-category'));
-                    self.topDocumentElement(targetElement).appendChild(submenu);
-                    var elementHeight = self.topDocumentElement(targetElement).clientHeight;
-                    var submenuHeight = dfx.getElementHeight(submenu);
-                    var targetRect = dfx.getBoundingRectangle(target);
-                    dfx.setStyle(submenu, 'left', (Math.max(10, targetRect.x2) + 'px'));
-                    dfx.setStyle(submenu, 'top', (Math.min(elementHeight - submenuHeight - 10, targetRect.y1) + 'px'));
-                }
-            });
-        }
-
-        var menuItem = this.drawMenuItem('Folder', 'folder');
-        container.appendChild(menuItem);
-
-        return container;
-    }
-
-    /**
-     * Draw menu of asset types in a given category (or "flash menu path").
-     *
-     * @param {String} category
-     *
-     * @returns {Node}
-     */
-    this.drawAssetTypeMenu = function(category) {
-        var self = this;
-        this.clearMenus('subtype');
-        var container = _createEl('div');
-        dfx.addClass(container, 'assetMapMenu');
-        dfx.addClass(container, 'subtype');
-        container.setAttribute('data-category', category);
-
-        dfx.addEvent(container, 'contextmenu', function(e) {
-            e.preventDefault();
-        });
-
-        for (var i = 0; i < assetCategories[category].length; i++) {
-            var typeCode = assetCategories[category][i];
-            var type     = assetTypeCache[typeCode];
-
-            var menuItem = this.drawMenuItem(type.name, typeCode);
-            dfx.addEvent(menuItem, 'click', function(e) {
-                self.clearMenus();
-            });
-            container.appendChild(menuItem);
-        }
-
-        return container;
-    }
-
-    /**
-     * Draw a separator menu item.
-     *
-     * @returns {Node}
-     */
-    this.drawMenuSeparator = function() {
-        var sep = _createEl('div');
-        dfx.addClass(sep, 'menuSep');
-        return sep;
-    }
-
-    /**
-     * Draw a normal menu item.
-     *
-     * @param {String}  text                The text for the menu item.
-     * @param {String}  [assetType]         The asset type icon to paint, if any.
-     * @param {Boolean} [hasChildren=FALSE] If TRUE a sub-menu arrow will be painted.
-     *
-     * @returns {Node}
-     */
-    this.drawMenuItem = function(text, assetType, hasChildren) {
-        var menuItem = _createEl('div');
-        dfx.addClass(menuItem, 'menuItem');
-
-        if (assetType) {
-            var icon = _createEl('div');
-            dfx.addClass(icon, 'menuIcon');
-            dfx.setStyle(icon, 'background-image', 'url(../__data/asset_types/' + assetType + '/icon.png)');
-            menuItem.appendChild(icon);
-        }
-
-        var textSpan = _createEl('span');
-        dfx.addClass(textSpan, 'menuText');
-        textSpan.innerHTML = text;
-        menuItem.appendChild(textSpan);
-
-        if (hasChildren === true) {
-            var icon = _createEl('div');
-            dfx.addClass(icon, 'menuChild');
-            menuItem.appendChild(icon);
-        }
-
-        return menuItem;
-    }
-
-    /**
-     * Draw a tree container.
-     *
-     * @returns {Node}
-     */
-    this.drawTreeContainer = function(treeid) {
-        var container = _createEl('div');
-        dfx.addClass(container, 'tree');
-        container.setAttribute('data-treeid', treeid);
-        targetElement.appendChild(container);
-
-        return container;
-    };
-
-    /**
-     * Draw a tree of child assets.
-     *
-     * @returns {Node}
-     */
-    this.drawTree = function(rootAsset, container) {
-        var assetLine = null;
-
-        for (var i = 0; i < rootAsset.asset.length; i++) {
-            var asset  = rootAsset.asset[i];
-            asset._attributes.name      = decodeURIComponent(asset._attributes.name.replace(/\+/g, '%20'));
-            asset._attributes.assetid   = decodeURIComponent(asset._attributes.assetid.replace(/\+/g, '%20'));
-            asset._attributes.type_code = decodeURIComponent(asset._attributes.type_code.replace(/\+/g, '%20'));
-
-            if (!rootAsset._attributes.asset_path) {
-                asset._attributes.asset_path = asset._attributes.assetid;
-            } else {
-                asset._attributes.asset_path = rootAsset._attributes.asset_path + ',' + asset._attributes.assetid;
-            }
-
-            if (!rootAsset._attributes.link_path) {
-                asset._attributes.link_path = asset._attributes.linkid;
-            } else {
-                asset._attributes.link_path  = rootAsset._attributes.link_path + ',' + asset._attributes.linkid;
-            }
-
-            assetLine = _formatAsset(asset);
-            container.appendChild(assetLine);
-        }
-
-        if (assetLine) {
-            dfx.addClass(assetLine, 'last-child');
-        }
     };
 
     /**
@@ -1059,122 +886,316 @@ var JS_Asset_Map = new function() {
         dfx.addClass(messageDiv, 'message');
         messageDiv.innerHTML = 'Loading...';
         container.appendChild(messageDiv);
+    };
+
+
+    /**
+     * Draw the list of tree tabs.
+     *
+     */
+    this.drawTreeList = function() {
+        var self     = this;
+        var treeList = _createEl('div');
+        dfx.addClass(treeList, 'tree-list');
+
+        var tree1 = _createEl('div');
+        dfx.addClass(tree1, 'tab');
+        tree1.innerHTML = 'Tree One';
+        treeList.appendChild(tree1);
+        dfx.addEvent(tree1, 'click', function() {
+            self.selectTree(0);
+        });
+
+        var tree2 = _createEl('div');
+        dfx.addClass(tree2, 'tab');
+        tree2.innerHTML = 'Tree Two';
+        treeList.appendChild(tree2);
+        dfx.addEvent(tree2, 'click', function() {
+            self.selectTree(1);
+        });
+
+        targetElement.appendChild(treeList);
     }
 
     /**
-     * Show a message on the bottom status bar of the asset map.
-     *
-     * If spinner is false, the spinner will appear but "idle".
-     * If timeout not set, it will appear indefinitely until cleared.
-     * Any timeout set for a previous message will be cleared.
-     *
-     * @param {String}  message   The message to print.
-     * @param {Boolean} spinner   Whether to show a moving spinner.
-     * @param {Number}  [timeout] Message timeout in milliseconds.
-     */
-    this.message = function(message, spinner, timeout) {
-        var messageDiv       = targetElement.ownerDocument.getElementById('asset_map_message');
-        messageDiv.innerHTML = message;
-
-        if (msgTimeoutId) {
-            clearTimeout(msgTimeoutId);
-        }
-
-        if (timeout !== undefined) {
-            msgTimeoutId = setTimeout(function() {
-                messageDiv.innerHTML = '&nbsp;';
-                msgTimeoutId = null;
-            }, timeout);
-        }
-
-    }
-
-    this.addAsset = function(assetid, parentAssetid, linkType) {
-
-    };
-
-
-    this.refreshTree = function(treeNum) {
-
-    };
-
-
-    this.moveAsset = function(assetid, newParentAssetid, sortOrder) {
-        if (assetid === newParentAssetid) {
-            // Changing the sort order only
-        } else {
-            // Moving to a new assetid.
-        }
-    };
-
-
-    this.createLink = function(assetid, newParentAssetid, sortOrder) {
-        if (assetid === newParentAssetid) {
-            // Shouldn't get here, but assets cannot be multiply linked.
-            this.raiseError(js_translate('asset_map_error_multiply_linked'));
-        }
-    };
-
-
-    this.cloneAsset = function(assetid, newParentAssetid, sortOrder) {
-
-    };
-
-
-    this.getUrl = function(assetid, screen) {
-
-    };
-
-    /**
-     * Resize the tree in response to height changes.
-     *
-     */
-    this.resizeTree = function() {
-        var document   = targetElement.ownerDocument;
-
-        var assetMap = dfx.getId('asset_map_container');
-        var toolbarDiv = dfx.getClass('toolbar')[0];
-        var messageDiv = dfx.getClass('messageLine')[0];
-        var statusList = dfx.getClass('statusList')[0];
-
-        var treeDivs = dfx.getClass('tree');
-
-        assetMap.style.height = (document.documentElement.clientHeight - 120) + 'px';
-        for (var i = 0; i < treeDivs.length; i++) {
-            treeDivs[i].style.height = (assetMap.clientHeight - toolbarDiv.clientHeight - messageDiv.clientHeight - statusList.clientHeight) + 'px';
-        }
-    }
-
-    /**
-     * Get the default view/parent window of a document.
-     *
-     * @param {Document} document The document.
-     *
-     * @returns {Window}
-     */
-    this.getDefaultView = function(document) {
-        if (document.defaultView) {
-            return document.defaultView;
-        } else if (document.parentWindow) {
-            return document.parentWindow;
-        }
-
-        return null;
-    };
-
-    /**
-     * Get the top window's document element.
-     *
-     * Used for placing menus.
-     *
-     * @param {Node} target The target element.
+     * Draw a tree container.
      *
      * @returns {Node}
      */
-    this.topDocumentElement = function(target) {
-        var topDoc = this.getDefaultView(target.ownerDocument).top.document.documentElement;
-        return topDoc;
-    }
+    this.drawTreeContainer = function(treeid) {
+        var container = _createEl('div');
+        dfx.addClass(container, 'tree');
+        container.setAttribute('data-treeid', treeid);
+        targetElement.appendChild(container);
+
+        return container;
+    };
+
+    /**
+     * Draw a tree of child assets.
+     *
+     * The container can be the top of the tree (if the parent is the Root Folder)
+     * or an indenting container if further down.
+     *
+     * @param {Object} rootAsset The root (or parent) asset of this tree branch.
+     * @param {Node}   container The container to draw the tree into.
+     */
+    this.drawTree = function(rootAsset, container) {
+        var assetLine = null;
+
+        for (var i = 0; i < rootAsset.asset.length; i++) {
+            var asset  = rootAsset.asset[i];
+            asset._attributes.name      = decodeURIComponent(asset._attributes.name.replace(/\+/g, '%20'));
+            asset._attributes.assetid   = decodeURIComponent(asset._attributes.assetid.replace(/\+/g, '%20'));
+            asset._attributes.type_code = decodeURIComponent(asset._attributes.type_code.replace(/\+/g, '%20'));
+
+            if (!rootAsset._attributes.asset_path) {
+                asset._attributes.asset_path = asset._attributes.assetid;
+            } else {
+                asset._attributes.asset_path = rootAsset._attributes.asset_path + ',' + asset._attributes.assetid;
+            }
+
+            if (!rootAsset._attributes.link_path) {
+                asset._attributes.link_path = asset._attributes.linkid;
+            } else {
+                asset._attributes.link_path  = rootAsset._attributes.link_path + ',' + asset._attributes.linkid;
+            }
+
+            assetLine = _formatAsset(asset);
+            container.appendChild(assetLine);
+        }
+
+        if (assetLine) {
+            dfx.addClass(assetLine, 'last-child');
+        }
+    };
+
+
+//--        MENUS        --//
+
+
+    /**
+     * Draw list of screens menu (from right-clicking on an asset).
+     *
+     * @param {Node} assetNode The node that triggered the
+     *
+     * @returns {Node}
+     */
+    this.drawScreensMenu = function(assetNode) {
+        var assetid   = assetNode.getAttribute('data-assetid');
+        var assetPath = assetNode.getAttribute('data-asset-path');
+        var linkid    = assetNode.getAttribute('data-linkid');
+        var linkPath  = assetNode.getAttribute('data-link-path');
+        var assetType = assetNode.getAttribute('data-typecode');
+
+        this.clearMenus();
+        var self = this;
+        var container = _createEl('div');
+        dfx.addClass(container, 'assetMapMenu');
+        dfx.addClass(container, 'screens');
+        dfx.addEvent(container, 'contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        var screens = assetTypeCache[assetType]['screens'];
+        for (var i in screens) {
+            var menuItem = this.drawMenuItem(screens[i], null);
+            menuItem.setAttribute('data-screen', i);
+            dfx.addEvent(menuItem, 'click', function(e) {
+                var target = e.currentTarget;
+                self.clearMenus();
+
+                var url = './?SQ_BACKEND_PAGE=main&backend_section=am&' +
+                    'am_section=edit_asset&assetid=' + assetid +
+                    '&sq_asset_path=' + assetPath + '&sq_link_path=' +
+                    linkPath + '&asset_ei_screen=' + target.getAttribute('data-screen');
+                self.frameRequest(url);
+            });
+            container.appendChild(menuItem);
+        }
+
+        var sep = this.drawMenuSeparator();
+        container.appendChild(sep);
+
+        var menuItem = this.drawMenuItem('Teleport', null);
+        container.appendChild(menuItem);
+        dfx.addEvent(menuItem, 'click', function(e) {
+            self.clearMenus();
+            self.teleport(assetid, linkid);
+        });
+
+        var menuItem = this.drawMenuItem('Refresh', null);
+        dfx.addEvent(menuItem, 'click', function(e) {
+            self.clearMenus();
+        });
+        container.appendChild(menuItem);
+
+        // Don't show child options in the trash folder.
+        // TODO: try to do this where no children are allowed for an asset type
+        //       (needs additional handling in asset_map.inc).
+        if (assetType !== 'trash_folder') {
+            var menuItem = this.drawMenuItem('No Previous Child', null);
+            dfx.addClass(menuItem, 'disabled');
+            container.appendChild(menuItem);
+
+            var menuItem = this.drawMenuItem('Add Child', null, true);
+            container.appendChild(menuItem);
+
+            dfx.addEvent(menuItem, 'mouseover', function(e) {
+                var assetMap = dfx.getId('asset_map_container');
+                var target   = dfx.getMouseEventTarget(e);
+
+                var existingMenu = dfx.getClass('assetMapMenu.addMenu', self.topDocumentElement(target));
+                if (existingMenu.length === 0) {
+                    var menu     = self.drawAddMenu(false);
+                    self.topDocumentElement(target).appendChild(menu);
+                    var elementHeight = self.topDocumentElement(targetElement).clientHeight;
+                    var submenuHeight = dfx.getElementHeight(menu);
+                    var targetRect = dfx.getBoundingRectangle(target);
+                    dfx.setStyle(menu, 'left', (Math.max(10, targetRect.x2) + 'px'));
+                    dfx.setStyle(menu, 'top', (Math.min(elementHeight - submenuHeight - 10, targetRect.y1) + 'px'));
+                }
+            });
+        }
+
+        return container;
+    };
+
+
+    /**
+     * Draw "add child" main menu.
+     *
+     * Triggered by the "Add Child" option in the screens menu, or the "Add" button
+     * in the toolbar.
+     *
+     * @param {Boolean} [clear=true]
+     *
+     * @returns {Node}
+     */
+    this.drawAddMenu = function(clear) {
+        var self = this;
+        if (clear !== false) {
+            this.clearMenus();
+        }
+
+        var container = _createEl('div');
+        dfx.addClass(container, 'assetMapMenu');
+        dfx.addClass(container, 'addMenu');
+
+        dfx.addEvent(container, 'contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        for (var i in assetCategories) {
+            var menuItem = this.drawMenuItem(i, null, true);
+            menuItem.setAttribute('data-category', i);
+            container.appendChild(menuItem);
+
+            dfx.addEvent(menuItem, 'mouseover', function(e) {
+                var target = e.currentTarget;
+
+                var existingMenu = dfx.getClass('assetMapMenu.subtype', self.topDocumentElement(target));
+
+                if ((existingMenu.length === 0) || (existingMenu[0].getAttribute('data-category') !== target.getAttribute('data-category'))) {
+                    dfx.remove(existingMenu);
+                    var submenu = self.drawAssetTypeMenu(target.getAttribute('data-category'));
+                    self.topDocumentElement(targetElement).appendChild(submenu);
+                    var elementHeight = self.topDocumentElement(targetElement).clientHeight;
+                    var submenuHeight = dfx.getElementHeight(submenu);
+                    var targetRect = dfx.getBoundingRectangle(target);
+                    dfx.setStyle(submenu, 'left', (Math.max(10, targetRect.x2) + 'px'));
+                    dfx.setStyle(submenu, 'top', (Math.min(elementHeight - submenuHeight - 10, targetRect.y1) + 'px'));
+                }
+            });
+        }
+
+        var menuItem = this.drawMenuItem('Folder', 'folder');
+        container.appendChild(menuItem);
+
+        return container;
+    };
+
+
+    /**
+     * Draw menu of asset types in a given category (or "flash menu path").
+     *
+     * @param {String} category
+     *
+     * @returns {Node}
+     */
+    this.drawAssetTypeMenu = function(category) {
+        var self = this;
+        this.clearMenus('subtype');
+        var container = _createEl('div');
+        dfx.addClass(container, 'assetMapMenu');
+        dfx.addClass(container, 'subtype');
+        container.setAttribute('data-category', category);
+
+        dfx.addEvent(container, 'contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        for (var i = 0; i < assetCategories[category].length; i++) {
+            var typeCode = assetCategories[category][i];
+            var type     = assetTypeCache[typeCode];
+
+            var menuItem = this.drawMenuItem(type.name, typeCode);
+            dfx.addEvent(menuItem, 'click', function(e) {
+                self.clearMenus();
+            });
+            container.appendChild(menuItem);
+        }
+
+        return container;
+    };
+
+
+    /**
+     * Draw a normal menu item.
+     *
+     * @param {String}  text                The text for the menu item.
+     * @param {String}  [assetType]         The asset type icon to paint, if any.
+     * @param {Boolean} [hasChildren=FALSE] If TRUE a sub-menu arrow will be painted.
+     *
+     * @returns {Node}
+     */
+    this.drawMenuItem = function(text, assetType, hasChildren) {
+        var menuItem = _createEl('div');
+        dfx.addClass(menuItem, 'menuItem');
+
+        if (assetType) {
+            var icon = _createEl('div');
+            dfx.addClass(icon, 'menuIcon');
+            dfx.setStyle(icon, 'background-image', 'url(../__data/asset_types/' + assetType + '/icon.png)');
+            menuItem.appendChild(icon);
+        }
+
+        var textSpan = _createEl('span');
+        dfx.addClass(textSpan, 'menuText');
+        textSpan.innerHTML = text;
+        menuItem.appendChild(textSpan);
+
+        if (hasChildren === true) {
+            var icon = _createEl('div');
+            dfx.addClass(icon, 'menuChild');
+            menuItem.appendChild(icon);
+        }
+
+        return menuItem;
+    };
+
+
+    /**
+     * Draw a separator menu item.
+     *
+     * @returns {Node}
+     */
+    this.drawMenuSeparator = function() {
+        var sep = _createEl('div');
+        dfx.addClass(sep, 'menuSep');
+        return sep;
+    };
+
 
     /**
      * Clear all menus or those of a certain type.
@@ -1187,5 +1208,61 @@ var JS_Asset_Map = new function() {
         } else {
             dfx.remove(dfx.getClass('assetMapMenu.' + type, this.topDocumentElement(targetElement)));
         }
-    }
+    };
+
+
+//--        BACKGROUND REQUESTS        --//
+
+
+    /**
+     * Do a request to the asset map PHP code.
+     *
+     * @param {Object}   command  The command (and params) to request.
+     * @param {Function} callback The callback function.
+     */
+    this.doRequest = function(command, callback) {
+        url = '.?SQ_BACKEND_PAGE=asset_map_request&json=1';
+        var xhr = new XMLHttpRequest();
+        var str = JSON.stringify(command);
+        var self = this;
+        var readyStateCb = function() {
+            self.message('Requesting...' + xhr.readyState, true);
+            if (xhr.readyState === 4) {
+                var response = xhr.responseText;
+                if (response !== null) {
+                    response = JSON.parse(response);
+                    callback(response);
+                }
+            }
+        }
+
+        xhr.open(
+           'POST',
+           url
+        );
+
+        self.message('Requesting...', true);
+
+        xhr.setRequestHeader('Content-type', 'application/json');
+        xhr.onreadystatechange = readyStateCb;
+        xhr.send(str);
+    };
+
+
+    /**
+     * Request a URL in a specified frame (or main frame if no frame specified).
+     *
+     * @param {String} url               The URL to request.
+     * @param {String} [frame='sq_main'] The frame to request into.
+     */
+    this.frameRequest = function(url, frame) {
+        if (!frame) {
+            frame = 'sq_main';
+        }
+
+        var top = this.getDefaultView(targetElement.ownerDocument).top;
+        top.frames[frame].location.href = url;
+    };
+
+
 };
