@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.24 2013/05/17 07:59:47 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.25 2013/05/20 00:33:28 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.24 $
+ * @version $Revision: 1.1.2.25 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -137,12 +137,23 @@ var JS_Asset_Map = new function() {
         return retval;
     };
 
-    var _formatAsset = function(assetid, displayName, typeCode, status, childCount, linkid, linkType, accessible) {
+    var _formatAsset = function(asset) {
+        var assetid    = asset._attributes.assetid;
+        var name       = asset._attributes.name;
+        var typeCode   = asset._attributes.type_code;
+        var status     = Number(asset._attributes.status);
+        var numKids    = Number(asset._attributes.num_kids);
+        var linkid     = asset._attributes.linkid;
+        var linkType   = Number(asset._attributes.link_type);
+        var accessible = Number(asset._attributes.accessible);
+
         var assetLine = _createEl('div');
         dfx.addClass(assetLine, 'asset');
-        assetLine.id = 'asset-' + encodeURIComponent(assetid);
+        //assetLine.id = 'asset-' + encodeURIComponent(assetid);
         assetLine.setAttribute('data-assetid', assetid);
+        assetLine.setAttribute('data-asset-path', asset._attributes.asset_path);
         assetLine.setAttribute('data-linkid', linkid);
+        assetLine.setAttribute('data-link-path', asset._attributes.link_path);
         assetLine.setAttribute('data-typecode', typeCode);
 
         if (assetTypeCache[typeCode]) {
@@ -168,7 +179,7 @@ var JS_Asset_Map = new function() {
             assetLine.appendChild(flagSpan);
         }
 
-        if ((accessible !== 0) && (childCount !== 0)) {
+        if ((accessible !== 0) && (numKids !== 0)) {
             var expandSpan = _createEl('span');
             dfx.addClass(expandSpan, 'branch-status');
             assetLine.appendChild(expandSpan);
@@ -176,9 +187,9 @@ var JS_Asset_Map = new function() {
 
         var nameSpan = _createEl('span');
         if (nameSpan.textContent !== undefined) {
-            nameSpan.textContent = displayName;
+            nameSpan.textContent = name;
         } else if (nameSpan.innerText !== undefined) {
-            nameSpan.innerText = displayName;
+            nameSpan.innerText = name;
         }
 
         var statusClass = _statusClass(status);
@@ -302,21 +313,14 @@ var JS_Asset_Map = new function() {
                         rootAsset._attributes.assetid    = decodeURIComponent(rootAsset._attributes.assetid.replace(/\+/g, '%20'));
                         rootAsset._attributes.type_code  = decodeURIComponent(rootAsset._attributes.type_code.replace(/\+/g, '%20'));
 
-                        assetLine = _formatAsset(
-                            rootAsset._attributes.assetid,
-                            rootAsset._attributes.name,
-                            rootAsset._attributes.type_code,
-                            Number(rootAsset._attributes.status),
-                            Number(rootAsset._attributes.num_kids),
-                            rootAsset._attributes.linkid,
-                            Number(rootAsset._attributes.link_type),
-                            Number(rootAsset._attributes.accessible)
-                        );
+                        assetLine = _formatAsset(rootAsset);
 
                         dfx.addClass(assetLine, 'teleported');
                         tree.appendChild(assetLine);
                     }//end if
 
+                    rootAsset._attributes.asset_path = rootAsset._attributes.assetid;
+                    rootAsset._attributes.link_path  = rootAsset._attributes.linkid;
                     self.drawTree(rootAsset, tree);
 
                     switch (assetCount) {
@@ -396,6 +400,11 @@ var JS_Asset_Map = new function() {
         xhr.onreadystatechange = readyStateCb;
         xhr.send(str);
     };
+
+    this.frameRequest = function(url, frame) {
+        var top = this.getDefaultView(target.ownerDocument);
+        top.frames[frame].location.href = url;
+    }
 
     /**
      * Start the simple asset map.
@@ -523,6 +532,8 @@ var JS_Asset_Map = new function() {
                 var target       = branchTarget.parentNode;
                 var assetid      = target.getAttribute('data-assetid');
                 var linkid       = target.getAttribute('data-linkid');
+                var assetPath    = target.getAttribute('data-asset-path');
+                var linkPath     = target.getAttribute('data-link-path');
                 var rootIndentId = 'child-indent-' + encodeURIComponent(assetid);
                 var container    = dfx.getId(rootIndentId);
 
@@ -568,6 +579,8 @@ var JS_Asset_Map = new function() {
                         } else {
                             container.innerHTML = '';
                             var assetCount = assets.asset.length;
+                            assets._attributes.asset_path = assetPath;
+                            assets._attributes.link_path  = linkPath;
                             self.drawTree(assets, container);
 
                             switch (assetCount) {
@@ -845,21 +858,23 @@ var JS_Asset_Map = new function() {
 
         for (var i = 0; i < rootAsset.asset.length; i++) {
             var asset  = rootAsset.asset[i];
-            asset._attributes.name       = decodeURIComponent(asset._attributes.name.replace(/\+/g, '%20'));
-            asset._attributes.assetid    = decodeURIComponent(asset._attributes.assetid.replace(/\+/g, '%20'));
-            asset._attributes.type_code  = decodeURIComponent(asset._attributes.type_code.replace(/\+/g, '%20'));
+            asset._attributes.name      = decodeURIComponent(asset._attributes.name.replace(/\+/g, '%20'));
+            asset._attributes.assetid   = decodeURIComponent(asset._attributes.assetid.replace(/\+/g, '%20'));
+            asset._attributes.type_code = decodeURIComponent(asset._attributes.type_code.replace(/\+/g, '%20'));
 
-            assetLine = _formatAsset(
-                asset._attributes.assetid,
-                asset._attributes.name,
-                asset._attributes.type_code,
-                Number(asset._attributes.status),
-                Number(asset._attributes.num_kids),
-                asset._attributes.linkid,
-                Number(asset._attributes.link_type),
-                Number(asset._attributes.accessible)
-            );
+            if (!rootAsset._attributes.asset_path) {
+                asset._attributes.asset_path = asset._attributes.assetid;
+            } else {
+                asset._attributes.asset_path = rootAsset._attributes.asset_path + ',' + asset._attributes.assetid;
+            }
 
+            if (!rootAsset._attributes.link_path) {
+                asset._attributes.link_path = asset._attributes.linkid;
+            } else {
+                asset._attributes.link_path  = rootAsset._attributes.link_path + ',' + asset._attributes.linkid;
+            }
+
+            assetLine = _formatAsset(asset);
             container.appendChild(assetLine);
         }
 
