@@ -9,7 +9,7 @@
 * | this file please contact Squiz (www.squiz.com.au) so we may provide|
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
-* $Id: lang_screen_details.xml,v 1.1 2013/03/18 04:13:10 cupreti Exp $
+* $Id: lang_screen_details.xml,v 1.2 2013/05/20 05:52:13 cupreti Exp $
 *
 */
 -->
@@ -35,7 +35,7 @@
 			<note>User ID authorized to process transactions. If you have not setup additional users for the account, "User Id" will have same value as "Merchant ID"</note>
 		</field>
 		<field attribute="partner">
-			<display_name>Parner ID</display_name>
+			<display_name>Partner ID</display_name>
 			<note>The ID provided to you by the authorized PayPal Reseller who registered you or the Payflow SDK. If you purchased your account directly from PayPal, use PayPal</note>
 		</field>
 		<field attribute="password">
@@ -74,31 +74,31 @@
 	<section name="Pass through Variables" write_access="write:attributes">
 		<field attribute="first_name_var_name">
 			<display_name>First Name Variable Name</display_name>
-			<note>Name of the pass through variable for Billing Address's First Name</note>
+			<note>Name of the pass through variable for the First Name of the Billing Address</note>
 		</field>
 		<field attribute="last_name_var_name">
 			<display_name>Last Name Variable Name</display_name>
-			<note>Name of the pass through variable for Billing Address's Last Name</note>
+			<note>Name of the pass through variable for the Last Name of the Billing Address</note>
 		</field>
 		<field attribute="addr_street_var_name">
 			<display_name>Street Variable Name</display_name>
-			<note>Name of the pass through variable for Billing Address's Street</note>
+			<note>Name of the pass through variable for the Street of the Billing Address</note>
 		</field>
 		<field attribute="city_var_name">
 			<display_name>City Variable Name</display_name>
-			<note>Name of the pass through variable for Billing Address's City</note>
+			<note>Name of the pass through variable for the City of the Billing Address</note>
 		</field>
 		<field attribute="postcode_var_name">
 			<display_name>Postcode Variable Name</display_name>
-			<note>Name of the pass through variable for Billing Address's Postcode</note>
+			<note>Name of the pass through variable for the Postcode of the Billing Address</note>
 		</field>
 		<field attribute="state_var_name">
 			<display_name>State Variable Name</display_name>
-			<note>Name of the pass through variable for Billing Address's State</note>
+			<note>Name of the pass through variable for the State of the Billing Address</note>
 		</field>
 		<field attribute="country_var_name">
 			<display_name>Country Variable Name</display_name>
-			<note>Name of the pass through variable for Billing Country</note>
+			<note>Name of the pass through variable for the Billing Country</note>
 		</field>
 	</section>
 	<section name="Interface Options">
