@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.25 2013/05/20 00:33:28 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.26 2013/05/20 03:25:30 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.25 $
+ * @version $Revision: 1.1.2.26 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -119,12 +119,28 @@ var JS_Asset_Map = new function() {
      */
     var trees = [];
 
+    /**
+     * Create an element with unselectable attribute set on (for IE<=9).
+     *
+     * @param {String} tagName The name of the tag to create.
+     *
+     * @param {Node}
+     */
     var _createEl = function(tagName) {
         var el = targetElement.ownerDocument.createElement(tagName);
         el.setAttribute('unselectable', 'on');
         return el;
     }
 
+    /**
+     * Convert a single status number (1, 2, 4) into a status class name.
+     *
+     * If not a valid status ID, "Unknown" returned.
+     *
+     * @param {Number} statusNum The status number to convert.
+     *
+     * @returns {String}
+     */
     var _statusClass = function(statusNum) {
         var retval = 'Unknown';
         for (var x in Status) {
@@ -137,6 +153,9 @@ var JS_Asset_Map = new function() {
         return retval;
     };
 
+    /**
+     * Format an asset tree node.
+     */
     var _formatAsset = function(asset) {
         var assetid    = asset._attributes.assetid;
         var name       = asset._attributes.name;
@@ -270,6 +289,15 @@ var JS_Asset_Map = new function() {
         });
     };
 
+    /**
+     * Teleport to a specific asset.
+     *
+     * Also use this to restore root, using assetid=1 and linkid=1.
+     *
+     * @param {String} assetid  The asset ID to teleport to.
+     * @param {String} linkid   The link ID of the location being teleported to.
+     * @param {Number} [treeid] Tree ID (default = selected tree).
+     */
     this.teleport = function(assetid, linkid, treeid) {
         var self = this;
         if (treeid === undefined) {
@@ -338,6 +366,10 @@ var JS_Asset_Map = new function() {
         }
     }
 
+    /**
+     * Draw the list of trees.
+     *
+     */
     this.drawTreeList = function() {
         var self     = this;
         var treeList = _createEl('div');
@@ -362,6 +394,11 @@ var JS_Asset_Map = new function() {
         targetElement.appendChild(treeList);
     }
 
+    /**
+     * Bring the selected tree to the foreground.
+     *
+     * @param {Number} treeid The tree ID (zero-indexed; use 0 for Tree One).
+     */
     this.selectTree = function(treeid) {
         var trees = dfx.getClass('tree', targetElement);
         dfx.removeClass(trees, 'selected');
@@ -373,6 +410,12 @@ var JS_Asset_Map = new function() {
         dfx.addClass(tabs[treeid], 'selected');
     }
 
+    /**
+     * Do a request to the asset map PHP code.
+     *
+     * @param {Object}   command  The command (and params) to request.
+     * @param {Function} callback The callback function.
+     */
     this.doRequest = function(command, callback) {
         url = '.?SQ_BACKEND_PAGE=asset_map_request&json=1';
         var xhr = new XMLHttpRequest();
@@ -401,7 +444,18 @@ var JS_Asset_Map = new function() {
         xhr.send(str);
     };
 
+
+    /**
+     * Request a URL in a specified frame (or main frame if no frame specified).
+     *
+     * @param {String} url               The URL to request.
+     * @param {String} [frame='sq_main'] The frame to pop up.
+     */
     this.frameRequest = function(url, frame) {
+        if (!frame) {
+            frame = 'sq_main';
+        }
+
         var top = this.getDefaultView(target.ownerDocument);
         top.frames[frame].location.href = url;
     }
@@ -624,6 +678,11 @@ var JS_Asset_Map = new function() {
 
     };
 
+    /**
+     * Draw toolbar.
+     *
+     * @returns {Node}
+     */
     this.drawToolbar = function() {
         var self = this;
 
@@ -681,6 +740,15 @@ var JS_Asset_Map = new function() {
         tbButtons.appendChild(tbButton);
     };
 
+    /**
+     * Draw list of screens menu (from right-clicking on an asset).
+     *
+     * @param {String} assetid
+     * @param {String} linkid
+     * @param {String} assetType
+     *
+     * @returns {Node}
+     */
     this.drawScreensMenu = function(assetid, linkid, assetType) {
         this.clearMenus();
         var self = this;
@@ -716,6 +784,9 @@ var JS_Asset_Map = new function() {
         });
         container.appendChild(menuItem);
 
+        // Don't show child options in the trash folder.
+        // TODO: try to do this where no children are allowed for an asset type
+        //       (needs additional handling in asset_map.inc).
         if (assetType !== 'trash_folder') {
             var menuItem = this.drawMenuItem('No Previous Child', null);
             dfx.addClass(menuItem, 'disabled');
@@ -744,6 +815,16 @@ var JS_Asset_Map = new function() {
         return container;
     }
 
+    /**
+     * Draw "add child" main menu.
+     *
+     * Triggered by the "Add Child" option in the screens menu, or the "Add" button
+     * in the toolbar.
+     *
+     * @param {Boolean} [clear=true]
+     *
+     * @returns {Node}
+     */
     this.drawAddMenu = function(clear) {
         var self = this;
         if (clear !== false) {
@@ -787,6 +868,13 @@ var JS_Asset_Map = new function() {
         return container;
     }
 
+    /**
+     * Draw menu of asset types in a given category (or "flash menu path").
+     *
+     * @param {String} category
+     *
+     * @returns {Node}
+     */
     this.drawAssetTypeMenu = function(category) {
         var self = this;
         this.clearMenus('subtype');
@@ -813,12 +901,26 @@ var JS_Asset_Map = new function() {
         return container;
     }
 
+    /**
+     * Draw a separator menu item.
+     *
+     * @returns {Node}
+     */
     this.drawMenuSeparator = function() {
         var sep = _createEl('div');
         dfx.addClass(sep, 'menuSep');
         return sep;
     }
 
+    /**
+     * Draw a normal menu item.
+     *
+     * @param {String}  text                The text for the menu item.
+     * @param {String}  [assetType]         The asset type icon to paint, if any.
+     * @param {Boolean} [hasChildren=FALSE] If TRUE a sub-menu arrow will be painted.
+     *
+     * @returns {Node}
+     */
     this.drawMenuItem = function(text, assetType, hasChildren) {
         var menuItem = _createEl('div');
         dfx.addClass(menuItem, 'menuItem');
@@ -844,6 +946,11 @@ var JS_Asset_Map = new function() {
         return menuItem;
     }
 
+    /**
+     * Draw a tree container.
+     *
+     * @returns {Node}
+     */
     this.drawTreeContainer = function(treeid) {
         var container = _createEl('div');
         dfx.addClass(container, 'tree');
@@ -853,6 +960,11 @@ var JS_Asset_Map = new function() {
         return container;
     };
 
+    /**
+     * Draw a tree of child assets.
+     *
+     * @returns {Node}
+     */
     this.drawTree = function(rootAsset, container) {
         var assetLine = null;
 
@@ -883,6 +995,11 @@ var JS_Asset_Map = new function() {
         }
     };
 
+    /**
+     * Draw the list of possible statuses and their colours.
+     *
+     * @returns {Node}
+     */
     this.drawStatusList = function() {
         var container = _createEl('div');
         dfx.addClass(container, 'statusList');
@@ -928,6 +1045,10 @@ var JS_Asset_Map = new function() {
         }//end for
     };
 
+    /**
+     * Draw the message line on the asset map.
+     *
+     */
     this.drawMessageLine = function() {
         var container = _createEl('div');
         dfx.addClass(container, 'messageLine');
@@ -940,6 +1061,17 @@ var JS_Asset_Map = new function() {
         container.appendChild(messageDiv);
     }
 
+    /**
+     * Show a message on the bottom status bar of the asset map.
+     *
+     * If spinner is false, the spinner will appear but "idle".
+     * If timeout not set, it will appear indefinitely until cleared.
+     * Any timeout set for a previous message will be cleared.
+     *
+     * @param {String}  message   The message to print.
+     * @param {Boolean} spinner   Whether to show a moving spinner.
+     * @param {Number}  [timeout] Message timeout in milliseconds.
+     */
     this.message = function(message, spinner, timeout) {
         var messageDiv       = targetElement.ownerDocument.getElementById('asset_map_message');
         messageDiv.innerHTML = message;
@@ -993,6 +1125,10 @@ var JS_Asset_Map = new function() {
 
     };
 
+    /**
+     * Resize the tree in response to height changes.
+     *
+     */
     this.resizeTree = function() {
         var document   = targetElement.ownerDocument;
 
@@ -1009,6 +1145,13 @@ var JS_Asset_Map = new function() {
         }
     }
 
+    /**
+     * Get the default view/parent window of a document.
+     *
+     * @param {Document} document The document.
+     *
+     * @returns {Window}
+     */
     this.getDefaultView = function(document) {
         if (document.defaultView) {
             return document.defaultView;
@@ -1019,11 +1162,25 @@ var JS_Asset_Map = new function() {
         return null;
     };
 
+    /**
+     * Get the top window's document element.
+     *
+     * Used for placing menus.
+     *
+     * @param {Node} target The target element.
+     *
+     * @returns {Node}
+     */
     this.topDocumentElement = function(target) {
         var topDoc = this.getDefaultView(target.ownerDocument).top.document.documentElement;
         return topDoc;
     }
 
+    /**
+     * Clear all menus or those of a certain type.
+     *
+     * @param {String} [type] The type of menu to clear (omit for all menus).
+     */
     this.clearMenus = function(type) {
         if (type === undefined) {
             dfx.remove(dfx.getClass('assetMapMenu', this.topDocumentElement(targetElement)));
