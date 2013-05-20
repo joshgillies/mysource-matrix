@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_bulk_file_import.inc,v 1.13 2012/08/30 00:58:50 ewang Exp $
+* $Id: hipo_job_bulk_file_import.inc,v 1.13.4.1 2013/05/20 07:00:35 cupreti Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 * HIPO for importing files into Matrix assets
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.13.4.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -286,6 +286,10 @@ class HIPO_Job_Bulk_File_Import extends HIPO_Job
 			switch ($file_type) {
 				case 'doc' :
 				case 'dot' :
+				case 'docx':
+				case 'docm':
+				case 'dotx':
+				case 'dotm':
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset('word_doc');
 					$new_asset_type = 'word_doc';
 				break;
@@ -350,6 +354,8 @@ class HIPO_Job_Bulk_File_Import extends HIPO_Job
 				case 'm4v' :
 				case 'mpg' :
 				case 'mpeg':
+				case 'ogv':
+				case 'ogg':
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset('video_file');
 					$new_asset_type = 'video_file';
 				break;
