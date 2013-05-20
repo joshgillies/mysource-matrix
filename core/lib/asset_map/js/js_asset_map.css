@@ -250,6 +250,10 @@
     display: none;
 }
 
+#asset_map_container.useMeMode .tree {
+    background-color: #D9C4F4;
+}
+
 #asset_map_container .tree.selected {
     display: block;
 }

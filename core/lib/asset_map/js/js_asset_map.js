@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.27 2013/05/20 06:14:47 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.28 2013/05/20 22:22:28 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.27 $
+ * @version $Revision: 1.1.2.28 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -968,6 +968,36 @@ var JS_Asset_Map = new function() {
         if (assetLine) {
             dfx.addClass(assetLine, 'last-child');
         }
+    };
+
+
+//--        USE ME MODE        --//
+
+
+    /**
+     * Enable/stop the "Use Me" mode.
+     *
+     * This allows Asset Finder widgets to
+     *
+     * @param {Boolean} status The status of Use Me mode (TRUE = on, FALSE = off).
+     *
+     */
+    this.setUseMeMode = function(status) {
+        var assetMap = dfx.getId('asset_map_container');
+
+        if (status === true) {
+            dfx.addClass(assetMap, 'useMeMode');
+        } else {
+            dfx.removeClass(assetMap, 'useMeMode');
+        }
+    };
+
+
+    this.drawUseMeMenu = function(assetNode) {
+    };
+
+
+    this.selectAssetForUseMe = function(assetNode) {
     };
 
 
