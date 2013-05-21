@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.2 2011/10/21 05:54:50 ewang Exp $
+* $Id: lang_strings.xml,v 1.2.8.1 2013/05/21 06:28:00 cupreti Exp $
 *
 */
 -->
@@ -18,7 +18,7 @@
 <strings>
 <string source="default_bodycopy_content"><![CDATA[
 %%processing_error%%
-<div style="background-color: #CCC; padding: 5px"><strong>$%%transaction_amount%%</strong>(%%transaction_gst%% percent GST)  dollors are about to be debited from your card</div>
+<div style="background-color: #CCC; padding: 5px"><strong>$%%transaction_amount%%</strong> (%%transaction_gst%% percent GST)  dollars are about to be debited from your card</div>
 <table cellpadding="5">
 	<tr>
 		<td align="right">Name on Card</td>
@@ -37,7 +37,7 @@
 		<td>%%credit_card_type_selector%%</td>
 	</tr>
 	<tr>
-	`	<td>&nbsp;</td>
+		<td>&nbsp;</td>
 		<td>%%submit_button%% %%reset_button%% %%cancel_button%%</td>
 	</tr>
 </table>
