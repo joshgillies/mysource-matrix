@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.28 2013/05/20 22:22:28 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.29 2013/05/21 23:47:32 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.28 $
+ * @version $Revision: 1.1.2.29 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -616,12 +616,39 @@ var JS_Asset_Map = new function() {
     /**
      * Add a new asset.
      *
-     * @param {String} assetid
-     * @param {String} parentAssetid
-     * @param {Number} [sortOrder] New sort order (last child if omitted)
+     * @param {String} typeCode      The type of asset being created.
+     * @param {String} parentAssetid The parent asset.
+     * @param {Number} [sortOrder]   New sort order (last child if omitted).
      */
-    this.addAsset = function(assetid, parentAssetid, sortOrder) {
+    this.addAsset = function(typeCode, parentAssetid, sortOrder) {
+        var self = this;
+        if (sortOrder === undefined) {
+            sortOrder = -1;
+        }
 
+        var command = {
+            _attributes: {
+                action: 'get url',
+                cmd: 'add',
+                parent_assetid: parentAssetid,
+                pos: sortOrder,
+                type_code: typeCode
+            }
+        };
+
+        this.doRequest(command, function(response) {
+            console.info(response);
+        
+            if (response.url) {
+                for (var i = 0; i < response.url.length; i++) {
+                    var frame    = response.url[i]._attributes.frame;
+                    var redirURL = response.url[i]._content;
+                    self.frameRequest(redirURL, frame);
+                }
+            } else if (response.error) {
+                
+            }
+        });
     };
 
 
@@ -1077,7 +1104,7 @@ var JS_Asset_Map = new function() {
 
                 var existingMenu = dfx.getClass('assetMapMenu.addMenu', self.topDocumentElement(target));
                 if (existingMenu.length === 0) {
-                    var menu     = self.drawAddMenu(false);
+                    var menu     = self.drawAddMenu(false, assetid);
                     self.topDocumentElement(target).appendChild(menu);
                     var elementHeight = self.topDocumentElement(targetElement).clientHeight;
                     var submenuHeight = dfx.getElementHeight(menu);
@@ -1098,11 +1125,20 @@ var JS_Asset_Map = new function() {
      * Triggered by the "Add Child" option in the screens menu, or the "Add" button
      * in the toolbar.
      *
-     * @param {Boolean} [clear=true]
+     * When the Add button in the toolbar is clicked, send no parameters to this
+     * method. This will clear previous menus.
+     *
+     * If triggered from "Add Child" submenu, send clear=false and the asset ID
+     * that the menu was triggered from. This will alert the subtype menu that
+     * this is an "Add Child", so not to allow selection of where the new child
+     * is placed, and not to hide the screens menu.
+     *
+     * @param {Boolean} [clear=true] Whether to clear existing menus first.
+     * @param {String}  [parentid]   Parent asset ID.
      *
      * @returns {Node}
      */
-    this.drawAddMenu = function(clear) {
+    this.drawAddMenu = function(clear, parentid) {
         var self = this;
         if (clear !== false) {
             this.clearMenus();
@@ -1128,7 +1164,7 @@ var JS_Asset_Map = new function() {
 
                 if ((existingMenu.length === 0) || (existingMenu[0].getAttribute('data-category') !== target.getAttribute('data-category'))) {
                     dfx.remove(existingMenu);
-                    var submenu = self.drawAssetTypeMenu(target.getAttribute('data-category'));
+                    var submenu = self.drawAssetTypeMenu(target.getAttribute('data-category'), parentid);
                     self.topDocumentElement(targetElement).appendChild(submenu);
                     var elementHeight = self.topDocumentElement(targetElement).clientHeight;
                     var submenuHeight = dfx.getElementHeight(submenu);
@@ -1149,11 +1185,15 @@ var JS_Asset_Map = new function() {
     /**
      * Draw menu of asset types in a given category (or "flash menu path").
      *
+     * If a parent ID was sent from the main add menu, send it here. This will
+     * alert the menu that we have decided on the parent and we should add it
+     * as the last child of that parent.
+     *
      * @param {String} category
      *
      * @returns {Node}
      */
-    this.drawAssetTypeMenu = function(category) {
+    this.drawAssetTypeMenu = function(category, parentid) {
         var self = this;
         this.clearMenus('subtype');
         var container = _createEl('div');
@@ -1170,8 +1210,18 @@ var JS_Asset_Map = new function() {
             var type     = assetTypeCache[typeCode];
 
             var menuItem = this.drawMenuItem(type.name, typeCode);
+            menuItem.setAttribute('data-typecode', typeCode);
             dfx.addEvent(menuItem, 'click', function(e) {
                 self.clearMenus();
+                var target   = e.currentTarget;
+                var typeCode = target.getAttribute('data-typecode');
+
+                if (parentid !== undefined) {
+                    self.addAsset(typeCode, parentid, -1);
+                } else {
+                    // Picked through add menu.
+                    // Select a parent asset or empty slot.
+                }
             });
             container.appendChild(menuItem);
         }
