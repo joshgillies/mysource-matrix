@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.317.2.5 2013/05/15 10:10:55 lwright Exp $
+* $Id: asset_map.inc,v 1.317.2.6 2013/05/22 23:53:41 lwright Exp $
 *
 */
 require_once(SQ_LIB_PATH.'/xml_array/xml_array.inc');
@@ -23,7 +23,7 @@ require_once(SQ_LIB_PATH.'/xml_array/xml_array.inc');
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.317.2.5 $
+* @version $Revision: 1.317.2.6 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -114,7 +114,8 @@ class Asset_Map
                 dfxLoadedCallback = function() {
                     document.getElementById('asset_map_container').style.height = <?php echo $height ?> + 'px';
                     JS_Asset_Map.<?php echo $startCmd ?>({
-                        displayFormat: '<?php echo addslashes(SQ_CONF_ASSET_MAP_ASSET_DISPLAY_NAME); ?>'
+                        displayFormat: '<?php echo addslashes(SQ_CONF_ASSET_MAP_ASSET_DISPLAY_NAME); ?>',
+                        assetsPerPage: <?php echo SQ_CONF_ASSET_MAP_ASSET_LIMIT; ?>
                     });
                 }
             </script>

@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.31 2013/05/22 03:10:12 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.32 2013/05/22 23:53:41 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.31 $
+ * @version $Revision: 1.1.2.32 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -66,6 +66,11 @@ var JS_Asset_Map = new function() {
      */
     var targetElement = null;
 
+    /**
+     * Options passed to the asset map.
+     * @var {Object}
+     */
+    var options = {};
 
     /**
      * The current user
@@ -235,11 +240,13 @@ var JS_Asset_Map = new function() {
      *
      * @param {Object} options
      */
-    this.start = function(options) {
+    this.start = function(startOptions) {
         var self = this;
 
         targetElement      = options.targetElement || dfx.getId('asset_map_container');
         assetDisplayFormat = options.displayFormat || '%asset_short_name%';
+        options            = startOptions;
+
         var assetMap       = dfx.getId('asset_map_container');
         assetMap.style.height = (document.documentElement.clientHeight - 120) + 'px';
 
@@ -371,8 +378,9 @@ var JS_Asset_Map = new function() {
                 if (e.which === 1) {
                     // Left mouse button
                     self.clearMenus();
-                    if (e.ctrlKey === false) {
-                        // Normal click.
+                    if ((e.ctrlKey === false) || (self.isInUseMeMode() === true)) {
+                        // Normal click, or if in Use Me mode where multiple
+                        // selection is not permitted.
                         dfx.removeClass(dfx.getClass('asset', assetMap), 'selected');
                         dfx.addClass(assetTarget, 'selected');
                     } else {
@@ -397,7 +405,9 @@ var JS_Asset_Map = new function() {
                     // Right mouse button
                     self.message('Asset screens dropdown for asset ' + assetTarget.getAttribute('data-assetid'), false);
 
-                    if (e.ctrlKey === false) {
+                    if ((e.ctrlKey === false) || (self.isInUseMeMode() === true)) {
+                        // Normal click, or if in Use Me mode where multiple
+                        // selection is not permitted.
                         dfx.removeClass(dfx.getClass('asset', assetMap), 'selected');
                     }
 
@@ -449,7 +459,7 @@ var JS_Asset_Map = new function() {
                                 _attributes: {
                                     assetid: assetid,
                                     start: 0,
-                                    limit: 50,  // replace with set limit
+                                    limit: self.options.assetsPerPage,
                                     linkid: linkid
                                 }
                             }
@@ -564,7 +574,7 @@ var JS_Asset_Map = new function() {
                         _attributes: {
                             assetid: assetid,
                             start: 0,
-                            limit: 50,  // replace with set limit
+                            limit: self.options.assetsPerPage,
                             linkid: linkid
                         }
                     }
@@ -640,7 +650,7 @@ var JS_Asset_Map = new function() {
 
         this.doRequest(command, function(response) {
             console.info(response);
-        
+
             if (response.url) {
                 for (var i = 0; i < response.url.length; i++) {
                     var frame    = response.url[i]._attributes.frame;
@@ -648,7 +658,7 @@ var JS_Asset_Map = new function() {
                     self.frameRequest(redirURL, frame);
                 }
             } else if (response.error) {
-                
+
             }
         });
     };
@@ -679,7 +689,7 @@ var JS_Asset_Map = new function() {
      */
     this.createLink = function(assetid, newParentAssetid, sortOrder) {
         if (assetid === newParentAssetid) {
-            // Shouldn't get here, but assets cannot be multiply linked.
+            // Shouldn't get here, but assets cannot be linked to itself.
             this.raiseError(js_translate('asset_map_error_cannot_link_to_itself'));
         }
     };
@@ -1005,11 +1015,11 @@ var JS_Asset_Map = new function() {
 
     /**
      * Locate asset.
-	 */
-	this.locateAsset = function(assetids, sortOrders) {
-		console.info([assetids, sortOrders]);
-		
-	}
+     */
+    this.locateAsset = function(assetids, sortOrders) {
+        console.info([assetids, sortOrders]);
+
+    }
 
 
 //--        USE ME MODE        --//
@@ -1034,11 +1044,36 @@ var JS_Asset_Map = new function() {
     };
 
 
+    /**
+     * Draw the "Use Me" menu.
+     *
+     * @param {Node} assetNode
+     *
+     */
     this.drawUseMeMenu = function(assetNode) {
     };
 
 
+    /**
+     * Select the asset for "Use Me" mode.
+     *
+     * @param {Node} assetNode The asset being selected.
+     *
+     */
     this.selectAssetForUseMe = function(assetNode) {
+    };
+
+
+    /**
+     * Return TRUE if the asset map is in "Use Me" mode.
+     *
+     * @returns {Boolean}
+     */
+    this.isInUseMeMode = function() {
+        var assetMap = dfx.getId('asset_map_container');
+        var hasUseMe = dfx.hasClass(assetMap, 'useMeMode');
+        return hasUseMe;
+
     };
 
 
