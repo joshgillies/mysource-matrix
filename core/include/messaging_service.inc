@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.81 2012/09/19 22:36:01 csmith Exp $
+* $Id: messaging_service.inc,v 1.82 2013/05/22 03:39:56 akarelia Exp $
 *
 */
 
@@ -37,7 +37,7 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 *    Facilitate the sending and management of internal messages
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.81 $
+* @version $Revision: 1.82 $
 * @package MySource_Matrix
 */
 class Messaging_Service extends MySource_Object
@@ -725,7 +725,7 @@ class Messaging_Service extends MySource_Object
 		$mime = new Mail_mime($crlf);
 
 		foreach ($this->_emails as $from => $from_emails) {
-			if ($from == 'reply_to') continue;
+			if ($from === 'reply_to') continue;
 			// work out the email address the the email will be sent from
 			$from_email = SQ_CONF_DEFAULT_EMAIL;
 			$from_string = '';
