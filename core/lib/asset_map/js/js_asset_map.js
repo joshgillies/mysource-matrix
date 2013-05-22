@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.29 2013/05/21 23:47:32 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.30 2013/05/22 00:27:12 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.29 $
+ * @version $Revision: 1.1.2.30 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -408,9 +408,11 @@ var JS_Asset_Map = new function() {
                     var menu     = self.drawScreensMenu(target);
                     self.topDocumentElement(target).appendChild(menu);
 
-                    var mapRect = dfx.getBoundingRectangle(assetMap);
-                    dfx.setStyle(menu, 'left', (mousePos.x) + 'px');
-                    dfx.setStyle(menu, 'top', (mousePos.y) + 'px');
+                    var elementHeight = self.topDocumentElement(targetElement).clientHeight;
+                    var submenuHeight = dfx.getElementHeight(menu);
+                    var targetRect = dfx.getBoundingRectangle(target);
+                    dfx.setStyle(menu, 'left', (Math.max(10, mousePos.x) + 'px'));
+                    dfx.setStyle(menu, 'top', (Math.min(elementHeight - submenuHeight - 10, mousePos.y) + 'px'));
                 }
             } else if (branchTarget) {
                 // Set the target to the asset line.
