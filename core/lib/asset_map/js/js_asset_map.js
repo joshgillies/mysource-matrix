@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.30 2013/05/22 00:27:12 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.31 2013/05/22 03:10:12 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.30 $
+ * @version $Revision: 1.1.2.31 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -998,6 +998,18 @@ var JS_Asset_Map = new function() {
             dfx.addClass(assetLine, 'last-child');
         }
     };
+
+
+//--		LOCATE ASSET (BINOCULARS)        --//
+
+
+    /**
+     * Locate asset.
+	 */
+	this.locateAsset = function(assetids, sortOrders) {
+		console.info([assetids, sortOrders]);
+		
+	}
 
 
 //--        USE ME MODE        --//

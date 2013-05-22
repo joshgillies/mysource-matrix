@@ -61,6 +61,42 @@
     border: 1px solid #B66B00;
 }
 
+#asset_map_container .tree .asset.located .statusArchived {
+    border: 1px solid #887B6F;
+}
+
+#asset_map_container .tree .asset.located .statusUnderConstruction {
+    border: 1px solid #748D9A;
+}
+
+#asset_map_container .tree .asset.located .statusPendingApproval {
+    border: 1px solid #9A94A1;
+}
+
+#asset_map_container .tree .asset.located .statusApproved {
+    border: 1px solid #AD9200;
+}
+
+#asset_map_container .tree .asset.located .statusLive {
+    border: 1px solid #9BA65C;
+}
+
+#asset_map_container .tree .asset.located .statusLiveApproval {
+    border: 1px solid #368D00;
+}
+
+#asset_map_container .tree .asset.located .statusEditing {
+    border: 1px solid #AD455C;
+}
+
+#asset_map_container .tree .asset.located .statusEditingApproval {
+    border: 1px solid #8F5A8C;
+}
+
+#asset_map_container .tree .asset.located .statusEditingApproved {
+    border: 1px solid #B66B00;
+}
+
 #asset_map_container.statuses-shown .tree .asset.selected .statusArchived {
     background-color: #887B6F;
 }
