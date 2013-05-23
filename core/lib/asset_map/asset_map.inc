@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.317.2.6 2013/05/22 23:53:41 lwright Exp $
+* $Id: asset_map.inc,v 1.317.2.7 2013/05/23 03:10:30 lwright Exp $
 *
 */
 require_once(SQ_LIB_PATH.'/xml_array/xml_array.inc');
@@ -23,7 +23,7 @@ require_once(SQ_LIB_PATH.'/xml_array/xml_array.inc');
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.317.2.6 $
+* @version $Revision: 1.317.2.7 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -107,6 +107,9 @@ class Asset_Map
         if ($height <= 0) {
             $height = "(document.documentElement.clientHeight - ".(SQ_IN_LIMBO ? 51 : 70).")";
         }
+
+        // Make room for tabs.
+        $width -= 18;
 
         ?>
         <div id="asset_map_container" style="width: <?php echo $width ?>px; background: white">
@@ -2457,6 +2460,7 @@ class Asset_Map
                        ),
                   );
 
+        $output['_rootTag'] = $doc->documentElement->nodeName;
         while (count($todo) > 0) {
             $elList = array_pop($todo);
             $el     = $elList[0];

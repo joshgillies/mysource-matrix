@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.32 2013/05/22 23:53:41 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.33 2013/05/23 03:10:31 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.32 $
+ * @version $Revision: 1.1.2.33 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -649,16 +649,14 @@ var JS_Asset_Map = new function() {
         };
 
         this.doRequest(command, function(response) {
-            console.info(response);
-
             if (response.url) {
                 for (var i = 0; i < response.url.length; i++) {
                     var frame    = response.url[i]._attributes.frame;
                     var redirURL = response.url[i]._content;
                     self.frameRequest(redirURL, frame);
                 }
-            } else if (response.error) {
-
+            } else if (response._rootTag === 'error') {
+                self.raiseError(response._content);
             }
         });
     };
@@ -761,7 +759,42 @@ var JS_Asset_Map = new function() {
      * @param {String} message Message to display.
      */
     this.raiseError = function(message) {
+        var codeRegexp = / \[([A-Z]{1,4}\d{4})\]$/;
+        var title = js_translate('error');
+        if (codeRegexp.test(message) === true) {
+            var matches = codeRegexp.exec(message);
+            title   = js_translate('asset_map_matrix_error', matches[1]);
+            message = message.replace(codeRegexp, '');
+        }
 
+        var assetMap = dfx.getId('asset_map_container');
+
+        var errorDiv = _createEl('div');
+        dfx.addClass(errorDiv, 'errorPopup');
+
+        var titleDiv = _createEl('div');
+        dfx.addClass(titleDiv, 'errorTitle');
+        titleDiv.innerHTML = title;
+
+        var bodyDiv = _createEl('div');
+        dfx.addClass(bodyDiv, 'errorBody');
+        bodyDiv.innerHTML = message;
+
+        var bottomDiv = _createEl('div');
+        dfx.addClass(bottomDiv, 'errorBottom');
+
+        var buttonDiv = _createEl('button');
+        buttonDiv.innerHTML = js_translate('ok');
+
+        bottomDiv.appendChild(buttonDiv);
+        errorDiv.appendChild(titleDiv);
+        errorDiv.appendChild(bodyDiv);
+        errorDiv.appendChild(bottomDiv);
+        assetMap.appendChild(errorDiv);
+
+        dfx.addEvent(buttonDiv, 'click', function() {
+            dfx.remove(errorDiv);
+        });
     };
 
     /**
@@ -1019,6 +1052,9 @@ var JS_Asset_Map = new function() {
     this.locateAsset = function(assetids, sortOrders) {
         console.info([assetids, sortOrders]);
 
+        for (var i = 0; i < assetids.length; i++) {
+
+        }
     }
 
 
@@ -1359,7 +1395,15 @@ var JS_Asset_Map = new function() {
             if (xhr.readyState === 4) {
                 var response = xhr.responseText;
                 if (response !== null) {
-                    response = JSON.parse(response);
+                    try {
+                        response = JSON.parse(response);
+                    } catch (ex) {
+                        // self.raiseError(ex.message);
+                        // That we made it here means it couldn't be handled.
+                        self.raiseError(response);
+                        return;
+                    }
+
                     callback(response);
                 }
             }

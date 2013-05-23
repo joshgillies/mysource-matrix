@@ -151,7 +151,7 @@
     transform: rotate(270deg);
     -ms-transform: rotate(270deg);
     -webkit-transform: rotate(270deg);
-    filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+    -ms-filter: "progid: DXImageTransform.Microsoft.BasicImage(rotation=3)";
     position: absolute;
     white-space: nowrap;
     top: 130px;
@@ -246,7 +246,45 @@
 
 .assetMapMenu .menuItem.disabled {
     opacity: 0.5;
-    filter: alpha(opacity=50);
+    -ms-filter: "progid: DXImageTransform.Microsoft.Alpha(opacity=50)";
+}
+
+#asset_map_container .errorPopup {
+    position: absolute;
+    left: 5%;
+    width: 90%;
+    border-radius: 5px;
+    top: 40%;
+    z-index: 100;
+    background-color: #622;
+
+    -moz-box-shadow: 3px 3px 4px #999;
+    -webkit-box-shadow: 3px 3px 4px #999;
+    box-shadow: 3px 3px 4px #000;
+    -ms-filter: "progid: DXImageTransform.Microsoft.Shadow(Strength=4, Direction=135, Color='#999999')";
+
+}
+
+#asset_map_container .errorTitle {
+    text-align: center;
+    font-weight: bold;
+    color: #FFF;
+    padding: 5px;
+    border-radius: 5px 5px 0 0;
+    border-bottom: 1px solid #000;
+    background-color: #933;
+}
+
+#asset_map_container .errorBody,
+#asset_map_container .errorBottom {
+    padding: 5px;
+    text-align: center;
+    color: #F5F5F5;
+}
+
+#asset_map_container .errorButton {
+    width: 40%;
+    text-align: center;
 }
 
 #asset_map_container .toolbar {

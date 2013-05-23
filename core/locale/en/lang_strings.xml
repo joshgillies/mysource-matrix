@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.427.2.1 2013/05/08 07:04:33 lwright Exp $
+* $Id: lang_strings.xml,v 1.427.2.2 2013/05/23 03:10:31 lwright Exp $
 *
 */
 
@@ -18,6 +18,8 @@
 -->
 
 <strings>
+    <string source="error" js="1">Error</string>
+    <string source="asset_map_matrix_error" js="1">Matrix Error [%s]</string>
     <string source="acquire_lock_threshold">Acquire Lock Threshold</string>
     <string source="edit_role_threshold">Edit Role Threshold</string>
     <string source="add_field">Add Field</string>
@@ -1446,7 +1448,6 @@ Force that this asset can only be viewed through a Secure (SSL) connection</stri
     <string source="htmlwidth">HTML Width</string>
     <string source="css">CSS</string>
     <string source="not">Not</string>
-    <string source="error">ERROR</string>
     <string source="assets">assets</string>
     <string source="workflow">Workflow</string>
     <string source="revoke">Revoke</string>
@@ -1473,7 +1474,7 @@ Force that this asset can only be viewed through a Secure (SSL) connection</stri
     <string source="layout">Layout</string>
     <string source="rows">Rows</string>
     <string source="columns">Columns</string>
-    <string source="ok" java="1">Ok</string>
+    <string source="ok" js="1" java="1">Ok</string>
     <string source="custom">Custom</string>
     <string source="sub">Sub</string>
     <string source="or">Or</string>
