@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_upcoming_events_list.inc,v 1.39 2013/05/23 00:22:23 cupreti Exp $
+* $Id: page_upcoming_events_list.inc,v 1.40 2013/05/23 00:25:56 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -317,7 +317,7 @@ class Page_Upcoming_Events_List extends Page
 						}
 					}
 					if (strpos($keyword, 'asset_metadata_') === 0) {
-						// This array holds the metadata field names, in the asset_metadata_[FIELDNAME] keywords
+						// This array holds the metadata field names, extracted from the asset_metadata_[FIELDNAME] keywords
 						$metadata_keywords[$link['value']][] = substr($keyword, 15);
 					}
 				}
