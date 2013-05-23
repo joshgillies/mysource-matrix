@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.35 2013/05/23 05:07:45 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.36 2013/05/23 05:16:21 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.35 $
+ * @version $Revision: 1.1.2.36 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -1270,6 +1270,15 @@ var JS_Asset_Map = new function() {
         }
 
         var menuItem = this.drawMenuItem('Folder', 'folder');
+        dfx.addEvent(menuItem, 'click', function(e) {
+            self.clearMenus();
+            if (parentid !== undefined) {
+                self.addAsset('folder', parentid, -1);
+            } else {
+                // Picked through add menu.
+                // Select a parent asset or empty slot.
+            }
+        });
         container.appendChild(menuItem);
 
         return container;
