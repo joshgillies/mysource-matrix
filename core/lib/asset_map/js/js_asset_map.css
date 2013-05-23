@@ -282,11 +282,6 @@
     color: #F5F5F5;
 }
 
-#asset_map_container .errorButton {
-    width: 40%;
-    text-align: center;
-}
-
 #asset_map_container .toolbar {
     background-color: #f5f5f5;
     border-bottom: 1px solid #999;

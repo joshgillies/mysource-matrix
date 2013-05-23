@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.33 2013/05/23 03:10:31 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.34 2013/05/23 03:28:18 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.33 $
+ * @version $Revision: 1.1.2.34 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -459,7 +459,7 @@ var JS_Asset_Map = new function() {
                                 _attributes: {
                                     assetid: assetid,
                                     start: 0,
-                                    limit: self.options.assetsPerPage,
+                                    limit: options.assetsPerPage,
                                     linkid: linkid
                                 }
                             }
@@ -574,7 +574,7 @@ var JS_Asset_Map = new function() {
                         _attributes: {
                             assetid: assetid,
                             start: 0,
-                            limit: self.options.assetsPerPage,
+                            limit: options.assetsPerPage,
                             linkid: linkid
                         }
                     }
