@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.36 2013/05/23 05:16:21 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.37 2013/05/23 23:53:49 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.36 $
+ * @version $Revision: 1.1.2.37 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -388,11 +388,12 @@ var JS_Asset_Map = new function() {
                     if ((e.ctrlKey === false) || (self.isInUseMeMode() === true)) {
                         // Normal click, or if in Use Me mode where multiple
                         // selection is not permitted.
-                        dfx.removeClass(dfx.getClass('asset', assetMap), 'selected');
+                        dfx.removeClass(dfx.getClass('asset', assetMap), 'located selected');
                         dfx.addClass(assetTarget, 'selected');
                     } else {
                         // Ctrl+click. Toggle the selection of this asset, which
                         // could leave the map with multiple or zero selection.
+                        dfx.removeClass(dfx.getClass('asset', assetMap), 'located');
                         dfx.toggleClass(assetTarget, 'selected');
                     }
 
@@ -415,7 +416,9 @@ var JS_Asset_Map = new function() {
                     if ((e.ctrlKey === false) || (self.isInUseMeMode() === true)) {
                         // Normal click, or if in Use Me mode where multiple
                         // selection is not permitted.
-                        dfx.removeClass(dfx.getClass('asset', assetMap), 'selected');
+                        dfx.removeClass(dfx.getClass('asset', assetMap), 'selected located');
+                    } else {
+                        dfx.removeClass(dfx.getClass('asset', assetMap), 'located');
                     }
 
                     dfx.addClass(assetTarget, 'selected');
@@ -504,7 +507,7 @@ var JS_Asset_Map = new function() {
             } else {
                 // Deselect everything.
                 self.message('Deselect', false);
-                dfx.removeClass(dfx.getClass('asset', trees), 'selected');
+                dfx.removeClass(dfx.getClass('asset', trees), 'selected located');
                 self.clearMenus();
             }//end if
 
@@ -513,6 +516,22 @@ var JS_Asset_Map = new function() {
 
 
 //--        CORE ACTIONS        --//
+
+
+    /**
+     * Get the currently selected tree element.
+     *
+     * @return {Node|Null}
+     */
+    this.getCurrentTreeElement = function() {
+        var trees = dfx.getClass('tree.selected', targetElement);
+
+        if (trees.length > 0) {
+            return trees[0];
+        } else {
+            return null;
+        }
+    };
 
 
     /**
@@ -541,7 +560,7 @@ var JS_Asset_Map = new function() {
      */
     this.currentSelection = function(treeid) {
         if (treeid === undefined) {
-            var tree = dfx.getClass('tree.selected', targetElement)[0];
+            var tree = this.getCurrentTreeElement();
         } else {
             var tree = dfx.getClass('tree', targetElement)[treeid];
         }
@@ -566,7 +585,7 @@ var JS_Asset_Map = new function() {
     this.teleport = function(assetid, linkid, treeid) {
         var self = this;
         if (treeid === undefined) {
-            var tree = dfx.getClass('tree.selected', targetElement)[0];
+            var tree = this.getCurrentTreeElement();
         } else {
             var tree = dfx.getClass('tree', targetElement)[treeid];
         }
@@ -1061,8 +1080,40 @@ var JS_Asset_Map = new function() {
     this.locateAsset = function(assetids, sortOrders) {
         console.info([assetids, sortOrders]);
 
-        for (var i = 0; i < assetids.length; i++) {
+        var savedAssets  = assetids.concat([]);
+        var tree         = this.getCurrentTreeElement();
+        var container    = tree;
+        var locatedNodes = [];
+        while (assetids.length > 0) {
+            var assetid    = assetids.shift();
+            var sortOrder  = sortOrders.shift();
+            var assetLines = dfx.find(container, 'div[data-assetid=' + assetid + ']');
 
+            if (assetLines.length === 0) {
+                this.raiseError('Cannot locate asset.');
+            } else {
+                var assetLine = assetLines[0];
+                locatedNodes.push(assetLine);
+
+                container = assetLine.nextSibling;
+                if (dfx.hasClass(container, 'childIndent') === false) {
+                    break;
+                } else {
+                    var branchTarget = dfx.getClass('branch-status', assetLine);
+                    dfx.addClass(branchTarget, 'expanded');
+                    dfx.removeClass(container, 'collapsed');
+                }
+            }
+        }//end while
+
+        if (assetids.length > 0) {
+            this.raiseError('[' + assetids.join(', ') + '] assets to look up.');
+        } else {
+            dfx.removeClass(dfx.getClass('asset', tree), 'located selected');
+
+            var selectedNode = locatedNodes.pop();
+            dfx.addClass(selectedNode, 'selected');
+            dfx.addClass(locatedNodes, 'located');
         }
     }
 

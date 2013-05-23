@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.317.2.7 2013/05/23 03:10:30 lwright Exp $
+* $Id: asset_map.inc,v 1.317.2.8 2013/05/23 23:53:49 lwright Exp $
 *
 */
 require_once(SQ_LIB_PATH.'/xml_array/xml_array.inc');
@@ -23,7 +23,7 @@ require_once(SQ_LIB_PATH.'/xml_array/xml_array.inc');
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.317.2.7 $
+* @version $Revision: 1.317.2.8 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -2105,8 +2105,12 @@ class Asset_Map
             $can_create = $new_parent->canCreateLink($asset, $link_type, $exclusive);
             if ($can_create !== TRUE) {
                 if ($can_create === FALSE) {
+                    // We got a generic "can't create". Return "Unable to move asset
+                    // with ID #<assetid> to parent with asset ID #<parentid>"
                     $this->_error('HIPO0020', $asset->id, $new_parent->id);
                 } else {
+                    // We got a string stating why we can't create a link here. Pass
+                    // that back directly.
                     $this->_error('AMAP0018', $can_create);
                 }
                 return;
