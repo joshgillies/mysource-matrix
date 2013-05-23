@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.34 2013/05/23 03:28:18 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.35 2013/05/23 05:07:45 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.34 $
+ * @version $Revision: 1.1.2.35 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -129,15 +129,22 @@ var JS_Asset_Map = new function() {
 
 
     /**
-     * Create an element with unselectable attribute set on (for IE<=9).
+     * Create an element with optional unselectable attribute set on (for IE<=9).
      *
-     * @param {String} tagName The name of the tag to create.
+     * @param {String}  tagName The name of the tag to create.
+     * @param {Boolean} [selectable=false] Whether the text should be selectable.
      *
      * @param {Node}
      */
-    var _createEl = function(tagName) {
+    var _createEl = function(tagName, selectable) {
         var el = targetElement.ownerDocument.createElement(tagName);
-        el.setAttribute('unselectable', 'on');
+
+        if (selectable !== true) {
+            el.setAttribute('unselectable', 'on');
+        } else {
+            dfx.addClass(el, 'usersel');
+        }
+
         return el;
     }
 
@@ -776,7 +783,9 @@ var JS_Asset_Map = new function() {
         dfx.addClass(titleDiv, 'errorTitle');
         titleDiv.innerHTML = title;
 
-        var bodyDiv = _createEl('div');
+        // Body text should be selectable so it can be copy+pasted for
+        // support purposes.
+        var bodyDiv = _createEl('div', true);
         dfx.addClass(bodyDiv, 'errorBody');
         bodyDiv.innerHTML = message;
 

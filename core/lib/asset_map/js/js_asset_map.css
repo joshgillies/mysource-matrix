@@ -147,6 +147,13 @@
     cursor: default;
 }
 
+#asset_map_container .usersel {
+    -moz-user-select: text;
+    -ms-user-select: text;
+    -webkit-user-select: text;
+    user-select: text;
+}
+
 #asset_map_container .tree-list {
     transform: rotate(270deg);
     -ms-transform: rotate(270deg);
@@ -280,6 +287,7 @@
     padding: 5px;
     text-align: center;
     color: #F5F5F5;
+
 }
 
 #asset_map_container .toolbar {
