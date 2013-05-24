@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.37 2013/05/23 23:53:49 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.38 2013/05/24 04:49:12 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.37 $
+ * @version $Revision: 1.1.2.38 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -109,7 +109,7 @@ var JS_Asset_Map = new function() {
      * setTimeout() return value for the status bar
      * @var {Number}
      */
-    var msgTimeoutId = null;
+    var timeouts = {};
 
     /**
      * Denotes the last created asset type, so the add menu can show it
@@ -475,7 +475,6 @@ var JS_Asset_Map = new function() {
                             }
                         ]
                     }, function(response) {
-                        // Cache all the asset types.
                         dfx.removeClass(container, 'loading');
                         var assets = response['asset'][0];
 
@@ -763,15 +762,31 @@ var JS_Asset_Map = new function() {
      * @param {Number}  [timeout] Message timeout in milliseconds.
      */
     this.message = function(message, spinner, timeout) {
-        var messageDiv       = targetElement.ownerDocument.getElementById('asset_map_message');
+        var spinnerDiv       = dfx.getClass('spinner', dfx.getClass('messageLine', dfx.getId('asset_map_container')))[0];
+        var messageDiv       = dfx.getId('asset_map_message');
         messageDiv.innerHTML = message;
 
-        if (msgTimeoutId) {
-            clearTimeout(msgTimeoutId);
+        if (timeouts.message) {
+            clearTimeout(timeouts.message);
+			timeouts.message = null;
         }
 
+		// The spinner is a sprite, so handle it using an interval.
+        if ((spinner === false) && (timeouts.spinner)) {
+            clearInterval(timeouts.spinner);
+			dfx.setStyle(spinnerDiv, 'background-position', '0 0'); 
+			timeouts.spinner = null;
+        } else if ((spinner === true) && (!timeouts.spinner)) {
+			dfx.setStyle(spinnerDiv, 'background-position', '-15px 0'); 
+			timeouts.spinner = setInterval(function() {
+				var bpPos   = dfx.getStyle(spinnerDiv, 'background-position').split(' ');
+				var newLeft = ((parseInt(bpPos[0], 10) % 180) - 15);
+				dfx.setStyle(spinnerDiv, 'background-position', newLeft + 'px 0px'); 
+			}, 100);
+		}
+
         if (timeout !== undefined) {
-            msgTimeoutId = setTimeout(function() {
+            timeouts.message = setTimeout(function() {
                 messageDiv.innerHTML = '&nbsp;';
                 msgTimeoutId = null;
             }, timeout);
@@ -965,7 +980,6 @@ var JS_Asset_Map = new function() {
             }
 
             dfx.addClass(nameSpan, 'assetName');
-
             assetLine.appendChild(iconSpan);
             assetLine.appendChild(nameSpan);
             container.appendChild(assetLine);
@@ -981,7 +995,11 @@ var JS_Asset_Map = new function() {
         dfx.addClass(container, 'messageLine');
         targetElement.appendChild(container);
 
-        var messageDiv = _createEl('div');
+        var spinnerDiv = _createEl('div');
+        dfx.addClass(spinnerDiv, 'spinner');
+        container.appendChild(spinnerDiv);
+        
+		var messageDiv = _createEl('div');
         messageDiv.id        = 'asset_map_message';
         dfx.addClass(messageDiv, 'message');
         messageDiv.innerHTML = 'Loading...';
@@ -1078,12 +1096,12 @@ var JS_Asset_Map = new function() {
      * Locate asset.
      */
     this.locateAsset = function(assetids, sortOrders) {
-        console.info([assetids, sortOrders]);
-
+        var self         = this;
         var savedAssets  = assetids.concat([]);
         var tree         = this.getCurrentTreeElement();
         var container    = tree;
-        var locatedNodes = [];
+
+        dfx.removeClass(dfx.getClass('asset', tree), 'located selected');
         while (assetids.length > 0) {
             var assetid    = assetids.shift();
             var sortOrder  = sortOrders.shift();
@@ -1093,27 +1111,48 @@ var JS_Asset_Map = new function() {
                 this.raiseError('Cannot locate asset.');
             } else {
                 var assetLine = assetLines[0];
-                locatedNodes.push(assetLine);
 
-                container = assetLine.nextSibling;
-                if (dfx.hasClass(container, 'childIndent') === false) {
-                    break;
+                if (assetids.length === 0) {
+                    dfx.addClass(assetLine, 'selected');
                 } else {
-                    var branchTarget = dfx.getClass('branch-status', assetLine);
-                    dfx.addClass(branchTarget, 'expanded');
-                    dfx.removeClass(container, 'collapsed');
-                }
-            }
+                    dfx.addClass(assetLine, 'located');
+                    container = assetLine.nextSibling;
+                    if (dfx.hasClass(container, 'childIndent') === false) {
+                        assetids.unshift(assetid);
+                        break;
+                    } else {
+                        var branchTarget = dfx.getClass('branch-status', assetLine);
+                        dfx.addClass(branchTarget, 'expanded');
+                        dfx.removeClass(container, 'collapsed');
+                    }//end if
+                }//end if
+            }//end if
         }//end while
 
         if (assetids.length > 0) {
-            this.raiseError('[' + assetids.join(', ') + '] assets to look up.');
-        } else {
-            dfx.removeClass(dfx.getClass('asset', tree), 'located selected');
+            var assetRequests = [];
+            while (sortOrders.length > 0) {
+                var assetid    = assetids.shift();
+                var sortOrder  = sortOrders.shift();
+                sortOrder      = Math.max(0, Math.floor(sortOrder / options.assetsPerPage) * options.assetsPerPage);
 
-            var selectedNode = locatedNodes.pop();
-            dfx.addClass(selectedNode, 'selected');
-            dfx.addClass(locatedNodes, 'located');
+                assetRequests.push({
+                    assetid: assetid,
+                    linkid: null,
+                    start: sortOrder,
+                    limit: options.assetsPerPage
+                });
+            }
+
+            console.info(assetRequests);
+            this.doRequest({
+                _attributes: {
+                    action: 'get assets',
+                },
+                asset: assetRequests,
+            }, function(response) {
+                console.info(response);
+            });
         }
     }
 

@@ -61,40 +61,53 @@
     border: 1px solid #B66B00;
 }
 
+#asset_map_container .tree .asset.located {
+	zoom: 1;
+}
+
 #asset_map_container .tree .asset.located .statusArchived {
-    border: 1px solid #887B6F;
+	background-color: rgba(194, 176, 160, 0.5);
+    -ms-filter: "progid:DXImageTransform.Microsoft.Gradient(StartColorStr=#7FC2B0A0, EndColorStr=#7FC2B0A0)";
 }
 
 #asset_map_container .tree .asset.located .statusUnderConstruction {
-    border: 1px solid #748D9A;
+	background-color: rgba(170, 204, 221, 0.5);
+    -ms-filter: "progid:DXImageTransform.Microsoft.Gradient(StartColorStr=#7FAACCDD, EndColorStr=#7FAACCDD)";
 }
 
 #asset_map_container .tree .asset.located .statusPendingApproval {
-    border: 1px solid #9A94A1;
+	background-color: rgba(220, 210, 230, 0.5);
+    -ms-filter: "progid:DXImageTransform.Microsoft.Gradient(StartColorStr=#7FDCD2E6, EndColorStr=#7FDCD2E6)";
 }
 
 #asset_map_container .tree .asset.located .statusApproved {
-    border: 1px solid #AD9200;
+	background-color: rgba(244, 212, 37, 0.5);
+    -ms-filter: "progid:DXImageTransform.Microsoft.Gradient(StartColorStr=#7FF4D425, EndColorStr=#7FF4D425)";
 }
 
 #asset_map_container .tree .asset.located .statusLive {
-    border: 1px solid #9BA65C;
+    background-color: rgba(219, 241, 138, 0.5);
+    -ms-filter: "progid:DXImageTransform.Microsoft.Gradient(StartColorStr=#7FDBF18A, EndColorStr=#7FDBF18A)";
 }
 
 #asset_map_container .tree .asset.located .statusLiveApproval {
-    border: 1px solid #368D00;
+	background-color: rgba(80, 208, 0, 0.5);
+    -ms-filter: "progid:DXImageTransform.Microsoft.Gradient(StartColorStr=#7F50D000, EndColorStr=#7F50D000)";
 }
 
 #asset_map_container .tree .asset.located .statusEditing {
-    border: 1px solid #AD455C;
+    background-color: rgba(242, 92, 134, 0.5);
+    -ms-filter: "progid:DXImageTransform.Microsoft.Gradient(StartColorStr=#7FF25C86, EndColorStr=#7FF25C86)";
 }
 
 #asset_map_container .tree .asset.located .statusEditingApproval {
-    border: 1px solid #8F5A8C;
+	background-color: rgba(204, 124, 199, 0.5);
+    -ms-filter: "progid:DXImageTransform.Microsoft.Gradient(StartColorStr=#7FCC7CC7, EndColorStr=#7FCC7CC7)";
 }
 
 #asset_map_container .tree .asset.located .statusEditingApproved {
-    border: 1px solid #B66B00;
+	background-color: rgba(238, 154, 0, 0.5);
+    -ms-filter: "progid:DXImageTransform.Microsoft.Gradient(StartColorStr=#7FEE9A00, EndColorStr=#7FEE9A00)";
 }
 
 #asset_map_container.statuses-shown .tree .asset.selected .statusArchived {
@@ -307,10 +320,11 @@
 
 #asset_map_container .messageLine .spinner {
     display: inline-block;
-    width: 16px;
+	vertical-align: middle;
+    width: 15px;
     height: 16px;
-    margin-right: 2px;
-    background: url(../../web/images/icons/asset_map/spinner.png) 50% 50% no-repeat;
+    margin-right: 4px;
+    background: url(../../web/images/icons/asset_map/spinner.png) 0px -1px no-repeat;
 }
 
 #asset_map_container .messageLine .message {
@@ -377,8 +391,8 @@
 }
 
 #asset_map_container.statuses-shown .asset .assetName,
-#asset_map_container .asset.selected .assetName,
-#asset_map_container .asset.located .assetName {
+#asset_map_container .asset.selected .assetName
+/* #asset_map_container .asset.located .assetName */ {
     padding: 1px 2px;
 }
 
