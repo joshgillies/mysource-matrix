@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_asset_csv_to_matrix.php,v 1.14 2012/11/09 04:03:06 cupreti Exp $
+* $Id: import_asset_csv_to_matrix.php,v 1.14.2.1 2013/05/24 01:27:41 cupreti Exp $
 *
 */
 
@@ -220,7 +220,7 @@ function importAssets($source_csv_filename, $asset_type_code, $parent_id, $schem
 				$existing_assets = findAsset($parent_id, $asset_type_code, $search);
 				if (count($existing_assets) > 1) {
 					// Multiple matching assets - skip
-					printStdErr("\n*\t* The record for '".$search_value."' matched multiple existing assets. Cannot determine how to proceed - continuing to the next record.\n");
+					echo "\n*\t* The record for '".$search_value."' matched multiple existing assets. Cannot determine how to proceed - continuing to the next record.\n";
 					continue;
 				}
 
@@ -228,26 +228,26 @@ function importAssets($source_csv_filename, $asset_type_code, $parent_id, $schem
 
 				// If it is an (E)dit request and the asset was not found, then let's make it an (A)dd instead
 				if (empty($existing_assets) && ($record_handling == IMPORT_EDIT_RECORD)) {
-					printStdErr("\n*\t* The following 'Edit' request for '".$search_value."' has been changed to 'Add' as there is not an existing matching asset\n");
+					echo "\n*\t* The following 'Edit' request for '".$search_value."' has been changed to 'Add' as there is not an existing matching asset\n";
 					$record_handling = IMPORT_ADD_RECORD;
 				}
 
 				// If it's there and we wanted to (A)dd, then make it an (E)dit instead
 				if (($existing_asset_id > 0) && ($record_handling == IMPORT_ADD_RECORD)) {
-					printStdErr("\n*\t* The following 'Add' request for '".$search_value."' has been changed to 'Edit' as this asset already exists.\n");
+					echo "\n*\t* The following 'Add' request for '".$search_value."' has been changed to 'Edit' as this asset already exists.\n";
 					$record_handling = IMPORT_EDIT_RECORD;
 				}
 
 				// If it is a (D)elete request and the asset was not found, then skip this record gracefully
 				if (empty($existing_assets) && ($record_handling == IMPORT_DELETE_RECORD)) {
-					printStdErr("\n*\t* Deletion request for asset with unique field value '".$search_value."' was aborted due to a missing matching asset. Continuing to the next record.\n");
+					echo "\n*\t* Deletion request for asset with unique field value '".$search_value."' was aborted due to a missing matching asset. Continuing to the next record.\n";
 					continue;
 				}
 
 				if ($record_handling == IMPORT_DELETE_RECORD) {
 
 					// Deletify
-					printStdErr('- Deleting asset');
+					echo '- Deleting asset';
 					$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($existing_asset_id);
 
 					if ($asset) {
@@ -268,7 +268,7 @@ function importAssets($source_csv_filename, $asset_type_code, $parent_id, $schem
 
 							// If cannot create the temporary trash folder then we cannot delete any asset
 							if (!$linkid) {
-								printStdErr("\n*\t* Deletion request for asset with unique field value '".$search_value."' was aborted due to unable to create temporary trash folder. Continuing to the next record.\n");
+								echo "\n*\t* Deletion request for asset with unique field value '".$search_value."' was aborted due to unable to create temporary trash folder. Continuing to the next record.\n";
 
 								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 								continue;
@@ -281,7 +281,7 @@ function importAssets($source_csv_filename, $asset_type_code, $parent_id, $schem
 
 						// If cannot move the asset to temporary trash folder then it cannot be deleted
 						if (!$linkid) {
-								printStdErr("\n*\t* Deletion request for asset with unique field value '".$search_value."' was aborted due to unable to move this asset to temporary trash folder. Continuing to the next record.\n");
+								echo "\n*\t* Deletion request for asset with unique field value '".$search_value."' was aborted due to unable to move this asset to temporary trash folder. Continuing to the next record.\n";
 
 								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 								continue;
@@ -301,7 +301,7 @@ function importAssets($source_csv_filename, $asset_type_code, $parent_id, $schem
 						}
 					}
 
-					printStdErr('- Modifying asset with unique field value');
+					echo '- Modifying asset with unique field value';
 					editAsset($existing_asset_id, $asset_spec, $attribute_mapping, $metadata_mapping, $schema_id);
 					echo $search_value.','.$existing_asset_id.",E\n";
 					$num_assets_modified++;
@@ -386,16 +386,16 @@ function editAsset($asset_id, Array $asset_spec, Array $attribute_mapping, Array
 
 	// Set attributes
 	editAttributes($asset, $asset_spec, $attribute_mapping);
-	printStdErr('.');
+	echo '.';
 
 	// Assign metadata schema and values to the asset
 	editMetadata($asset, $asset_spec, $metadata_mapping, $schema_id);
-	printStdErr('.');
+	echo '.';
 
 	// Free memory
 	$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 
-	printStdErr(' => asset ID '.$asset_id."\n");
+	echo ' => asset ID '.$asset_id."\n";
 
 }//end editAsset()
 
@@ -522,27 +522,27 @@ function createAsset(Array $asset_spec, $asset_type_code, Asset &$parent_asset, 
 {
 	$attribs = Array();
 
-	printStdErr('- Creating asset');
+	echo '- Creating asset';
 
 	$asset = new $asset_type_code();
-	printStdErr('.');
+	echo '.';
 
 	// Set attributes
 	editAttributes($asset, $asset_spec, $attribute_mapping);
-	printStdErr('.');
+	echo '.';
 
 	// Link the new asset under the parent folder
 	$link_id = createLink($parent_asset, $asset);
-	printStdErr('.');
+	echo '.';
 
 	// Assign metadata schema and values to the asset
 	editMetadata($asset, $asset_spec, $metadata_mapping, $schema_id);
-	printStdErr('.');
+	echo '.';
 
 	// Free memory
 	$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 
-	printStdErr(' => asset ID '.$asset->id."\n");
+	echo ' => asset ID '.$asset->id."\n";
 
 	return Array(reset($asset_spec) => $asset->id);
 
@@ -561,7 +561,7 @@ function editAttributes(Asset &$asset, Array $asset_spec, Array $attribute_mappi
 	foreach ($attribute_mapping as $supplied_name => $attribute_name) {
 		if ($first_attr_name == '') {
 			$first_attr_name = $supplied_name;
-			printStdErr(' '.$asset_spec[$first_attr_name]);
+			echo ' '.$asset_spec[$first_attr_name];
 		}
 
 		// Only set attributes when they are not set to that value already
@@ -758,9 +758,9 @@ $status_report = importAssets($source_csv_filename, $asset_type_code, $parent_id
 
 $GLOBALS['SQ_SYSTEM']->restoreCurrentUser();
 
-printStdErr("\n- All done\n");
-printStdErr("\tAssets added    : ".$status_report['num_added']."\n");
-printStdErr("\tAssets modified : ".$status_report['num_modified']."\n");
-printStdErr("\tAssets deleted  : ".$status_report['num_deleted']."\n");
+echo "\n- All done\n";
+echo "\tAssets added    : ".$status_report['num_added']."\n";
+echo "\tAssets modified : ".$status_report['num_modified']."\n";
+echo "\tAssets deleted  : ".$status_report['num_deleted']."\n";
 
 ?>
