@@ -324,7 +324,7 @@
     width: 15px;
     height: 16px;
     margin-right: 4px;
-    background: url(../../web/images/icons/asset_map/spinner.png) 0px -1px no-repeat;
+    background: url(../../web/images/icons/asset_map/spinner.png) 0px 0px no-repeat;
 }
 
 #asset_map_container .messageLine .message {
