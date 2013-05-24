@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.272.2.7 2013/05/01 02:47:57 ewang Exp $
+* $Id: form.inc,v 1.272.2.8 2013/05/24 07:39:13 cupreti Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.272.2.7 $
+* @version $Revision: 1.272.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1754,11 +1754,20 @@ class Form extends Asset implements Bridge
 	function printBody()
 	{
 		// Pick up the current submission, if any.
-		if ($GLOBALS['SQ_SYSTEM']->userPublic()) {
+		$submission = $this->getSubmissionAsset();
+		if ($submission === TRUE) {
+			// Public User is accessing a previously saved submission,
+			// hence will have to go through the password verification form first
+			return;
+		}
+
+		// If Public User is allowed to save the incomplete submission
+		$public_save = $this->attr('public_incomplete_submission');
+
+		// If user is public and the submission is unsaved
+		if (is_null($submission) && $GLOBALS['SQ_SYSTEM']->userPublic()) {
 			$this->restoreFromSubmissionCookie();
 			$submission_var =& $_SESSION['SQ_FORM_'.$this->id.'_SUBMISSION'];
-		} else {
-			$submission = $this->getSubmissionAsset();
 		}
 
 		if (isset($submission)) {
@@ -1873,6 +1882,20 @@ class Form extends Asset implements Bridge
 			$latest_page = $current_page = 1;
 		}
 
+		// Save the incomplete submission for the Public User
+		// For the logged user, submission is saved automatically
+		if ($public_save && !isset($submission) && !$finished && isset($submission_var) && ($action == 'save_and_exit' || $action == 'save')) {
+			$submission = $this->createSubmission($total_pages == 1);
+			$this->submission_asset = $submission;
+			$this->updateSubmission($submission, TRUE);
+
+			// Send the email notification to the Public User
+			$this->sendPublicUserSubmissionInfoEmail();
+
+			// Get rid of public user submission data in the session, we wont be needing it anymore
+			unset($_SESSION['SQ_FORM_'.$this->id.'_SUBMISSION']);
+		}
+
 		// We have to do this here, because we cannot break the old behaviour
 		// where even the summary/thank you page is surrounded by form tags
 
@@ -1895,10 +1918,6 @@ class Form extends Asset implements Bridge
 					}
 				}
 			}
-
-
-
-			
 
 			if (!$finished) {
 				echo $this->getFormHeader();
@@ -1997,7 +2016,7 @@ class Form extends Asset implements Bridge
 			$matches = array_combine($matches[1], $matches[2]);
 
 			foreach ($matches as $key => $value) {
-				if (($key === 'SQ_FORM_'.$this->id.'_PAGE') || ($key === 'SQ_FORM_'.$this->id.'_SUBMISSION')) {
+				if (($key === 'SQ_FORM_'.$this->id.'_PAGE') || ($key === 'SQ_FORM_'.$this->id.'_SUBMISSION') || ($key === 'SQ_FORM_'.$this->id.'_ACCESSID')) {
 					unset($matches[$key]);
 				} else {
 					// URLdecode the match because make_raw_post_data() will re-encode it
@@ -2387,6 +2406,10 @@ class Form extends Asset implements Bridge
 				$keyword_list = $bodycopy->getKeywords();
 				$replacements = Array();
 
+				// Get the keyword replacement for "incomplete submissions"
+				$keywords_str = !empty($keyword_list) ? ('%'.implode('%%', $keyword_list).'%') : '';
+				$replacements = $this->getIncompleteSubmissionMessageKeywordsReplacement($keywords_str);
+
 				foreach ($keyword_list as $keyword) {
 					// Allow all other display keywords, but explicitly prohibit
 					// HTML field keywords
@@ -2714,9 +2737,6 @@ class Form extends Asset implements Bridge
 		// If the form has only one page,  it doens't have incomplete submission asset nor session to store captcha_status.
 		// this var is used to make sure captcha status is processed correctly in this case
 		$one_page_captcha_status = FALSE;
-
-
-		
 
 		// Has a captcha been completed on this page? Error if it is incorrect,
 		// otherwise set the status that we have passed one
@@ -3321,7 +3341,8 @@ class Form extends Asset implements Bridge
 		// create the submission asset
 		if ($ok) {
 			if ($this->attr('log_submissions')) {
-				if ($GLOBALS['SQ_SYSTEM']->userPublic()) {
+				// If public user has not saved the submission yet
+				if ($GLOBALS['SQ_SYSTEM']->userPublic() && is_null($submission_asset)) {
 					// Fill new submission asset with current answers
 					$submission_asset = $this->createSubmission(TRUE);
 					$this->submission_asset = $submission_asset;
@@ -3507,6 +3528,11 @@ class Form extends Asset implements Bridge
 			if (empty($dirs)) delete_directory($public_submission_path);
 		}
 
+		// Remove the "public submission" password, if set
+		if (isset($_SESSION['SQ_FORM_'.$this->id.'_SUBMISSION_CODE'])) {
+			unset($_SESSION['SQ_FORM_'.$this->id.'_SUBMISSION_CODE']);
+		}
+
 		// Clean-up submission session variable
 		unset($_SESSION['SQ_FORM_'.$this->id.'_SUBMISSION']);
 
@@ -3671,12 +3697,21 @@ class Form extends Asset implements Bridge
 			return FALSE;
 		}
 
+		if ($GLOBALS['SQ_SYSTEM']->userPublic()) {
+			// Set a unique passcode to the submission
+			$passcode = $submission_asset->setSubmissionPasscode();
+			// Store the passcode in the session
+			if (!empty($passcode)) {
+				$_SESSION['SQ_FORM_'.$this->id.'_SUBMISSION_CODE'] = $passcode;
+			}
+		}
+
 		$submission_asset->setAttrValue('complete', FALSE);
 		// initially created submission asset should have current page set to first page.
 		$submission_asset->setAttrValue('current_page', 1);
 		$submission_asset->saveAttributes(FALSE, $this->attr('log_submissions'));
 
-		// The current user will receive write access to this submission
+		// The current user will receive write access to this submission,
 		// (as long as one is actually logged in, ie. we are not public)
 		$public_userid  = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
 		$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserid();
@@ -3701,10 +3736,13 @@ class Form extends Asset implements Bridge
 	/**
 	* Returns the current submission asset
 	*
-	* @return object
+	* @param boolean $verify_passcode	Whether to verify the passcode for the
+	*									public user submission
+	*
+	* @return object|boolean
 	* @access public
 	*/
-	function &getSubmissionAsset()
+	function &getSubmissionAsset($verify_passcode=TRUE)
 	{
 		if (!$this->submission_asset) {
 			// Find the submission asset, but ensure we are getting it from _POST first
@@ -3714,16 +3752,34 @@ class Form extends Asset implements Bridge
 
 			}
 
-			if (!is_null($submission_assetid)) {
+			// Validate the submission assetid
+			if ($GLOBALS['SQ_SYSTEM']->am->getAssetInfo($submission_assetid, Array('form_submission'))) {
+				// Check if asset exists first
 				$this->submission_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($submission_assetid, 'form_submission');
-
-				if (!$this->submission_asset || !$this->submission_asset->writeAccess()) {
-					$this->submission_asset = NULL;
-				}
 			}
 
-			if (!$this->submission_asset) {
+			// If we have the submission asset, make sure the user has the write access
+			if (!$this->submission_asset || !$this->canEditSubmission()) {
 				$this->submission_asset = NULL;
+			}
+
+			// If public user, make sure the user has the authority
+			if ($verify_passcode && $this->submission_asset && $GLOBALS['SQ_SYSTEM']->userPublic()) {
+				$var_name = 'SQ_FORM_'.$this->id.'_SUBMISSION_CODE';
+				// Get the submission password from the POST first
+				$password = array_get_index($_POST, $var_name, array_get_index($_SESSION, $var_name, ''));
+				if (empty($password) || $password !== $this->submission_asset->attr('passcode')) {
+					$this->submission_asset = NULL;
+					if ($this->publicUserPasswordVerificationForm($submission_assetid)) {
+						$pending_auth = TRUE;
+						// Need to return by ref
+						return $pending_auth;
+					}
+
+				} else if (isset($_POST[$var_name])) {
+					// Set/Update the public passcode in the session
+					$_SESSION[$var_name] = $password;
+				}
 			}
 
 			// Fill up the current answers from previous parts of the submission
@@ -3755,7 +3811,6 @@ class Form extends Asset implements Bridge
 	*/
 	public function updateSubmission(Form_Submission $submission_asset, $force=FALSE)
 	{
-	
 		foreach ($this->current_answers as $assetid => $response) {
 
 			if (!$force && !is_null($this->current_page_questions) && !in_array($assetid, $this->current_page_questions)) continue;
@@ -3850,11 +3905,12 @@ class Form extends Asset implements Bridge
 	*/
 	public function getCurrentPageNumber()
 	{
-		if ($GLOBALS['SQ_SYSTEM']->userPublic()) {
+		$submission_asset = $this->getSubmissionAsset();
+
+		if ($GLOBALS['SQ_SYSTEM']->userPublic() && is_null($submission_asset)) {
 			$submission_var =& $_SESSION['SQ_FORM_'.$this->id.'_SUBMISSION'];
 			$current_page = array_get_index($submission_var, 'current_page', 1);
 		} else {
-			$submission_asset = $this->getSubmissionAsset();
 			if ($submission_asset) {
 				$current_page = $submission_asset->attr('current_page');
 			} else {
@@ -4813,8 +4869,7 @@ class Form extends Asset implements Bridge
 		return $this->attr('captcha_label_text');
 
 	}//end getFormCaptchaLabelTextKeywordReplacement()
-	
-	
+
 
 	/**
 	* Form Errors keyword replacement
@@ -4906,6 +4961,33 @@ class Form extends Asset implements Bridge
 		} else {
 			$message = '';
 		}
+		return $message;
+
+	}//end getSaveConfirmationKeywordReplacement()
+
+
+	/**
+	* Saved incomplete submission asset info keyword replacement
+	* Relevant to the Public User only
+	*
+	* @return string
+	* @access public
+	*/
+	function getSubmissionAccessInfoKeywordReplacement()
+	{
+		$prefix = $this->getPrefix();
+		if (!isset($_POST[$prefix.'_save']) || !$GLOBALS['SQ_SYSTEM']->userPublic() || !$this->attr('public_incomplete_submission')) {
+			return '';
+		}
+
+		$message = $this->attr('public_auth_info_format');
+		$message = $message ? $message : translate('cms_public_auth_info_format');
+
+		if (!empty($message)) {
+			$replacements = $this->getIncompleteSubmissionMessageKeywordsReplacement($message);
+			$message = replace_keywords($message, $replacements);
+		}
+
 		return $message;
 
 	}//end getSaveConfirmationKeywordReplacement()
@@ -5461,6 +5543,234 @@ class Form extends Asset implements Bridge
 	{
 		return ' '.$this->attr('required_field_mark');
 	}//end getRequiredFieldMark()
+
+
+	/**
+	* If the current user is allowed to edit the submission
+	*
+	* @return boolean
+	* @access public
+	*/
+	function canEditSubmission()
+	{
+		if (is_null($this->submission_asset)) {
+			return FALSE;
+		}
+
+		// Public user will not have write access on submission assets
+		// However if it was created by them then they might be allowed to edit it (feature #6306)
+		$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
+		if ($GLOBALS['SQ_SYSTEM']->userPublic() && $public_userid == $this->submission_asset->created_userid) {
+			return TRUE;
+		}
+
+		return $this->submission_asset->writeAccess();
+
+	}//end canEditSubmission()
+
+
+	/**
+	* Get the special keywords used in in the incomplete form
+	* submission notification message/email
+	*
+	* @param $text
+	* @param $submission_assetid
+	*
+	* @return string|null
+	* @access public
+	*/
+	function getIncompleteSubmissionMessageKeywordsReplacement($text, $submission_assetid='')
+	{
+		$keywords = extract_keywords($text);
+		$replacements = Array();
+
+		if (empty($keywords)) {
+			return $replacements;
+		}
+
+		if (empty($submission_assetid)) {
+			$submission_asset = $this->getSubmissionAsset(FALSE);
+			if (is_null($submission_asset)) {
+				return $replacements;
+			}
+			$submission_assetid = $submission_asset->id;
+		} else {
+			$submission_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($submission_assetid);
+		}
+		if (is_null($submission_asset)) {
+			return $replacements;
+		}
+
+		// Generate a unique hash string for the submission access url. Relevant to Public User only
+		$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
+		$url_hash = $submission_asset->created_userid == $public_userid ? '&SQ_FORM_'.$this->id.'_ACCESSID='.md5($submission_asset->created.$submission_asset->id) : '';
+
+		$parent_assetids = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($this->id);
+		$parent_assetid = reset($parent_assetids);
+		$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_assetid);
+		$form_url = $parent_asset->getUrl();
+
+		foreach($keywords as $full_keyword) {
+			$replacement = NULL;
+
+			$keyword = parse_keyword($full_keyword, $modifiers);
+
+			switch ($keyword) {
+				case 'form_submission_password':
+					// Relevant to the Public Submissions only
+					$replacement = $submission_asset->attr('passcode');
+				break;
+
+				case 'form_submission_url_id' :
+					$replacement = $submission_assetid;
+				break;
+
+				case 'form_total_pages' :
+					$replacement = $this->getTotalPages();
+				break;
+
+				case 'return_to_form_url_current' :
+					$replacement = $form_url.'?SQ_FORM_'.$this->id.'_SUBMISSION='.$submission_assetid.'&SQ_FORM_'.$this->id.'_PAGE='.$submission_asset->attr('current_page').$url_hash;
+				break;
+
+				case 'return_to_form_url_latest' :
+					$replacement = $form_url.'?SQ_FORM_'.$this->id.'_SUBMISSION='.$submission_assetid.'&SQ_FORM_'.$this->id.'_PAGE='.$submission_asset->attr('latest_page').$url_hash;
+				break;
+
+				default:
+					if (substr($keyword, 0, 11) === 'form_asset_') {
+						// Get the 'asset_*' keyword from the form PARENT page
+						$sub_keyword = substr($keyword, 11);
+						$replacement = $parent_asset->getKeywordReplacement('asset_'.$sub_keyword);
+					} else if (substr($keyword, 0, 11) === 'user_asset_') {
+						// Get the 'asset_*' keyword from the created user
+						$sub_keyword = substr($keyword, 11);
+						$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($created_userid);
+						if(empty($user)) continue;
+						$replacement = $user->getKeywordReplacement('asset_'.$sub_keyword);
+					} else if (substr($keyword, 0, 17) === 'submission_asset_') {
+						// Get the 'asset_*' keyword from the submission
+						$sub_keyword = substr($keyword, 17);
+						$replacement = $submission_asset->getKeywordReplacement('asset_'.$sub_keyword);
+					}
+			}//end switch on keyword
+
+			if (!is_null($replacement)) {
+				apply_keyword_modifiers($replacement, $modifiers);
+				$replacements[$full_keyword] = $replacement;
+			}
+		}//end foreach
+
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent_asset);
+
+		return $replacements;
+
+	}//end getIncompleteSubmissionMessageKeywordsReplacement()
+
+
+	/**
+	* Outputs a simple form with a text field and submit button to authorise 
+	* the Public User to allow retrival of the previously saved submission
+	*
+	* @param int	$submission_assetid
+	*
+	* @return boolean
+	* @access public
+	*/
+	function publicUserPasswordVerificationForm($submission_assetid)
+	{
+		if (!$GLOBALS['SQ_SYSTEM']->userPublic() || empty($submission_assetid)) {
+			return FALSE;
+		}
+
+		// Check the public user has the authorised URL
+		$access_code = array_get_index($_GET, 'SQ_FORM_'.$this->id.'_ACCESSID', '');
+		if (empty($access_code)) {
+			return FALSE;
+		}
+		$submission_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($submission_assetid, 'form_submission');
+		if ($access_code != md5($submission_asset->created.$submission_asset->id)) {
+			return FALSE;
+		}
+
+		$prefix = $this->getPrefix();
+		$form_format = $this->attr('public_auth_form_format');
+		$form_format = trim($form_format) ? $form_format : translate('cms_public_auth_form_format');
+		$submit_button_text = $this->attr('public_auth_submit_button_text');
+		$submit_button_text = trim($submit_button_text) ? $submit_button_text : translate('cms_public_auth_submit_button_text');
+
+		ob_start();
+			password_box('SQ_FORM_'.$this->id.'_SUBMISSION_CODE', '', 17);
+		$password_text_input = ob_get_clean();
+
+		ob_start();
+			submit_button($prefix.'_public_auth', $submit_button_text);
+		$submit_button_input = ob_get_clean();
+
+		// Incorrect password message
+		$error_message = $this->attr('public_auth_error_message');
+		if (empty($error_message)) {
+			$error_message = translate('cms_public_auth_error_message');
+		}
+		// If form was previously submitted and we are still here means - the password is incorrect
+		$error_message = isset($_POST[$prefix.'_public_auth']) ? $error_message : '';
+
+		// Replacements for the password verification form
+		$replacements = $this->getIncompleteSubmissionMessageKeywordsReplacement($form_format, $submission_assetid);
+		$replacements += Array(
+							'public_form_error_message' => $error_message,
+							'public_form_password_input' => $password_text_input,
+							'public_form_submit_button' => $submit_button_input,
+						);
+		$form_format = replace_keywords($form_format, $replacements);
+
+		// Print the password validation form
+		$action_url = $_SERVER['REQUEST_URI'];
+		echo '<form method="post" action="'.$action_url.'">';
+		echo $form_format;
+		echo '</form>';
+
+		return TRUE;
+
+	}//end publicUserPasswordVerificationForm()
+
+
+	/**
+	* Sends the submission info email notification to the Public User
+	*
+	* @return void
+	* @access public
+	*/
+	function sendPublicUserSubmissionInfoEmail()
+	{
+		$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
+		if (is_null($this->submission_asset) || $this->submission_asset->created_userid != $public_userid) {
+			return;
+		}
+
+		// Authorised Public User email address, if any
+		$public_email_qid = $this->attr('public_auth_email_q');
+		$public_reg_email = $public_email_qid ? $this->submission_asset->getAnswer($public_email_qid) : '';
+		$email_format = $this->getAttribute('public_email_notification_format');
+		$old_value = $new_value = unserialize($email_format->value);
+		if (!empty($public_reg_email)) {
+			$new_value['to'][] = $public_reg_email;
+		}
+
+		if (empty($new_value['to']) && empty($new_value['to_assetids'])) {
+			return;
+		}
+
+		$keywords = $email_format->getKeywords();
+		$keywords_str = !empty($keywords) ? ('%'.implode('%%', $keywords).'%') : '';
+		$replacements = $this->getIncompleteSubmissionMessageKeywordsReplacement($keywords_str);
+
+		$email_format->setValue(serialize($new_value));
+		$email_format->sendMail($replacements);
+		$email_format->setValue(serialize($old_value));
+
+	}//end sendPublicUserSubmissionInfoEmail()
+
 
 }//end class
 ?>

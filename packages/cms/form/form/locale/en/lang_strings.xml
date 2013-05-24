@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.15.6.1 2013/04/09 07:50:28 ewang Exp $
+* $Id: lang_strings.xml,v 1.15.6.2 2013/05/24 07:39:13 cupreti Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -54,8 +54,12 @@
 <string source="cms_form_section_q_name">Question Name: %1$s: %2$s</string>
 <string source="cms_form_section_q_label">Question Label: %1$s: %2$s</string>
 <string source="cms_form_section_q_error">Question Error: %1$s: %2$s</string>
-
 <string source="cms_form_save_confirmation">Your progress has been saved.</string>
+
+<string source="cms_public_auth_info_format"><![CDATA[Use the link below to resume the form submission:<br/>Link: %%return_to_form_url_latest%%<br/>Password: %%form_submission_password%%]]></string>
+<string source="cms_public_auth_form_format"><![CDATA[Please enter the password to retrieve the submission:<br /><br />%%public_form_password_input%% %%public_form_submit_button%%]]></string>
+<string source="cms_public_auth_submit_button_text">Submit</string>
+<string source="cms_public_auth_error_message">Incorrect password</string>
 
 <!-- Form Bodycopy Names -->
 <string source="cms_form_bodycopy_main">Page Contents</string>

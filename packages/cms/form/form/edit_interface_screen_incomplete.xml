@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_incomplete.xml,v 1.1 2008/10/10 04:25:25 lwright Exp $
+* $Id: edit_interface_screen_incomplete.xml,v 1.1.26.1 2013/05/24 07:39:13 cupreti Exp $
 *
 */
 -->
@@ -26,6 +26,9 @@
 	</section>
 	<section name="Reminder Email">
 		<field attribute="warning_email_format">
+			<email_format with_asset_finder="1" />
+		</field>
+		<field attribute="warning_email_format_public">
 			<email_format with_asset_finder="1" />
 		</field>
 	</section>

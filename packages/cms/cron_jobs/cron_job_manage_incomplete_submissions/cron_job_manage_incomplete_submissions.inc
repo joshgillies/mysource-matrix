@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_manage_incomplete_submissions.inc,v 1.8 2012/08/30 00:58:07 ewang Exp $
+* $Id: cron_job_manage_incomplete_submissions.inc,v 1.8.4.1 2013/05/24 07:39:37 cupreti Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *    similar way.
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -186,6 +186,8 @@ class Cron_Job_Manage_Incomplete_Submissions extends Cron_Job
 
 		$assetids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('form', FALSE);
 
+		$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
+
 		// Store our list of assets that we have previously warned about
 		$filepath = $this->data_path.'/warning_assets.php';
 		if (is_file($filepath)) {
@@ -242,7 +244,7 @@ class Cron_Job_Manage_Incomplete_Submissions extends Cron_Job
 						// Don't need the incomplete attachments anymore, cleanup....
 						$path = $asset->data_path.'/incomplete_attachments/s'.$submission_assetid;
 						if (is_dir($path)) {
-							delete_directory($path);	
+							delete_directory($path);
 						}//end if
 
 						unset($submission_asset);
@@ -254,7 +256,11 @@ class Cron_Job_Manage_Incomplete_Submissions extends Cron_Job
 				$warning_period = $asset->attr('submission_warning_time');
 
 				if ($warning_period > 0) {
-					$email_format = $asset->getAttribute('warning_email_format');
+					// Email question assetid for the Public User
+					$public_email_qid = $asset->attr('public_auth_email_q');
+
+					$email_format_logged = $asset->getAttribute('warning_email_format');
+					$email_format_public = $asset->getAttribute('warning_email_format_public');
 					$date_sql = db_extras_todate(MatrixDAL::getDbType(), ':created', FALSE);
 
 					$sql = 'SELECT DISTINCT
@@ -274,66 +280,34 @@ class Cron_Job_Manage_Incomplete_Submissions extends Cron_Job
 					foreach($submission_assetids as $submission_record) {
 						$submission_assetid = $submission_record['assetid'];
 						$submission_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($submission_assetid);
-						
+						$submission_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($submission_assetid);
+
 						if(empty($submission_asset)) continue;
-						
+
 						$created_userid = $submission_asset->created_userid;
 
 						if (!isset($warning_assetids[$submission_assetid])) {
-							// Get the Email Format's value afresh, and add the
-							// submission's user to the list
-							$previous_value = $current_value = unserialize($email_format->value);
-							$current_value['to_assetids'][] = $created_userid;
+							// Use the respective email format based on the user type
+							if ($public_userid == $created_userid) {
+								$email_format = $email_format_public;
+								$previous_value = $current_value = unserialize($email_format->value);
+								if ($public_email_qid) {
+									// If we have the email address registered for Public User for this submission
+									$public_reg_email = $submission_asset->getAnswer($public_email_qid);
+									if (!empty($public_reg_email)) {
+										$current_value['to'][] = $public_reg_email;
+									}
+								}
+							} else {
+								$email_format = $email_format_logged;
+								$previous_value = $current_value = unserialize($email_format->value);
+								$current_value['to_assetids'][] = $created_userid;
+							}
 
 							// Add keyword replacements
 							$keywords = $email_format->getKeywords();
-							$replacements = Array();
-
-							foreach ($keywords as $keyword) {
-								$replacement = NULL;
-
-								switch ($keyword) {
-									case 'form_submission_url_id' :
-										$replacement = $submission_assetid;
-									break;
-
-									case 'form_total_pages' :
-										$replacement = $asset->getTotalPages();
-									break;
-
-									case 'return_to_form_url_current' :
-										$replacement = $form_url.'?SQ_FORM_'.$asset->id.'_SUBMISSION='.$submission_assetid.'&SQ_FORM_'.$asset->id.'_PAGE='.$submission_asset->attr('current_page');
-									break;
-
-									case 'return_to_form_url_latest' :
-										$replacement = $form_url.'?SQ_FORM_'.$asset->id.'_SUBMISSION='.$submission_assetid.'&SQ_FORM_'.$asset->id.'_PAGE='.$submission_asset->attr('latest_page');
-									break;
-
-									default:
-										if (substr($keyword, 0, 11) === 'form_asset_') {
-											// Get the 'asset_*' keyword from the form PARENT page
-											$sub_keyword = substr($keyword, 11);
-											$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_assetid);
-											if(empty($parent_asset)) continue;
-											$replacement = $parent_asset->getKeywordReplacement('asset_'.$sub_keyword);
-										} else if (substr($keyword, 0, 11) === 'user_asset_') {
-											// Get the 'asset_*' keyword from the created user
-											$sub_keyword = substr($keyword, 11);
-											$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($created_userid);
-											if(empty($user)) continue;
-											$replacement = $user->getKeywordReplacement('asset_'.$sub_keyword);
-										} else if (substr($keyword, 0, 17) === 'submission_asset_') {
-											// Get the 'asset_*' keyword from the submission
-											$sub_keyword = substr($keyword, 17);
-											$replacement = $submission_asset->getKeywordReplacement('asset_'.$sub_keyword);
-										}
-
-								}//end switch on keyword
-
-								if ($replacement !== NULL) {
-									$replacements[$keyword] = $replacement;
-								}
-							}//end foreach keyword
+							$keywords_str = !empty($keywords) ? ('%'.implode('%%', $keywords).'%') : '';
+							$replacements = $asset->getIncompleteSubmissionMessageKeywordsReplacement($keywords_str, $submission_assetid);
 
 							$email_format->setValue(serialize($current_value));
 							$email_format->sendMail($replacements);
