@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: purge_trash.php,v 1.9.4.3 2013/05/17 09:58:50 cupreti Exp $
+* $Id: purge_trash.php,v 1.9.4.4 2013/05/24 04:27:16 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 *        all assets underneath this rootnode (inclusive) will be purged from the trash folder.
 *        useful when the system runs out of memory when purging all assets
 *
-* @version $Revision: 1.9.4.3 $
+* @version $Revision: 1.9.4.4 $
 * @package MySource_Matrix
 */
 
@@ -38,13 +38,13 @@ if (php_sapi_name() != 'cli') {
 
 $SYSTEM_ROOT = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
 if (empty($SYSTEM_ROOT)) {
-	echo "ERROR: You need to supply the path to the System Root as the first argument\n";
-	exit();
+	printStdErr("You need to supply the path to the System Root as the first argument\n");
+	exit(1);
 }
 
 if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
-	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
-	exit();
+	printStdErr("Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n");
+	exit(1);
 }
 
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
@@ -52,8 +52,8 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
 $root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
-	echo "ERROR: Failed logging in as root user\n";
-	exit();
+	printStdErr("Failed logging in as root user\n");
+	exit(1);
 }
 
 $vars = Array();
@@ -82,16 +82,35 @@ if (!empty($purge_rootnode)) {
 		// purge trash hipo will know what to do
 		$vars['purge_root_linkid'] = $linkid;
 	} else {
-		echo "ERROR: Purge root node assetid id #".$purge_rootnode." not found\n";
+		printStdErr("Purge root node assetid id #".$purge_rootnode." not found\n");
 		exit(1);
 	}
 }
 
 $hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 $errors = $hh->freestyleHipo('hipo_job_purge_trash', $vars);
-if (count($errors)) {
-	trigger_error(print_r($errors, TRUE), E_USER_WARNING);
+if (!empty($errors)) {
+	$error_msg = '';
+	foreach($errors as $error) {
+		$error_msg .= ' * '.$error['message'];
+	}
+	printStdErr("Following errors occured while deleting asset(s):\n$error_msg\n");
 	exit(1);
 }
+
+/**
+* Prints the supplied string to "standard error" (STDERR) instead of the "standard output" (STDOUT) stream
+*
+* @param string $string The string to write to STDERR
+*
+* @return void
+* @access public
+*/
+function printStdErr($string)
+{
+	fwrite(STDERR, "$string");
+
+}//end printStdErr()
+
 
 ?>
