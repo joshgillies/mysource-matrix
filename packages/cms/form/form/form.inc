@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.272.2.8 2013/05/24 07:39:13 cupreti Exp $
+* $Id: form.inc,v 1.272.2.9 2013/05/27 08:23:05 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.272.2.8 $
+* @version $Revision: 1.272.2.9 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -5541,6 +5541,7 @@ class Form extends Asset implements Bridge
 	*/
 	function getRequiredFieldMark()
 	{
+		if(!$this->useAccessibleFormat()) return '';
 		return ' '.$this->attr('required_field_mark');
 	}//end getRequiredFieldMark()
 
