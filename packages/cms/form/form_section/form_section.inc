@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.86 2013/05/01 08:52:20 ewang Exp $
+* $Id: form_section.inc,v 1.87 2013/05/27 08:11:26 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.86 $
+* @version $Revision: 1.87 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1660,6 +1660,7 @@ class Form_Section extends Asset implements Bridge
 	*/
 	function getRequiredFieldMark()
 	{
+		if(!$this->useAccessibleFormat()) return '';
 		$parent = $this->getParentForm();
 		if(is_null($parent)) return  ' '.'<abbr class="sq-form-required-field" title="required">*</abbr>';
 		return $parent->getRequiredFieldMark();
