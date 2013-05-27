@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.130.2.9 2013/05/13 03:55:22 lwright Exp $
+* $Id: js_api.inc,v 1.130.2.10 2013/05/27 08:38:31 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.130.2.9 $
+* @version $Revision: 1.130.2.10 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -4095,6 +4095,9 @@ class JS_Api extends Page
 	*/
 	function returnError($error)
 	{
+		// Sanitise the error message
+		$error = htmlspecialchars($error);
+
 		// Set our error
 		trigger_error($error, E_USER_WARNING);
 
