@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: session_handler_default.inc,v 1.9.2.1 2013/05/27 07:46:18 ewang Exp $
+* $Id: session_handler_default.inc,v 1.9.2.2 2013/05/27 08:02:38 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/session_handling/session_handler/sess
 *    defined within PHP.
 *
 * @author     Luke Wright <lwright@squiz.net>
-* @version    $Revision: 1.9.2.1 $
+* @version    $Revision: 1.9.2.2 $
 * @package    MySource_Matrix
 * @subpackage __core__
 */
@@ -81,7 +81,7 @@ class Session_Handler_Default extends Session_Handler
 		// Now, set to the default 'files' module and set the
 		// appropriate cookie parameters.
 		session_module_name('files');
-		if ($php_version_suits && !SQ_IN_BACKEND) {
+		if ($php_version_suits && !(SQ_IN_BACKEND || SQ_IN_LIMBO)) {
 			session_set_cookie_params(0, $path, $domain, $secure, $http_only);
 		} else {
 			session_set_cookie_params(0, $path, $domain, $secure);
