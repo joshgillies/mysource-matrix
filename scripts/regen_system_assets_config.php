@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: regen_system_assets_config.php,v 1.10 2012/08/30 01:04:53 ewang Exp $
+* $Id: regen_system_assets_config.php,v 1.10.2.1 2013/05/27 09:03:43 cupreti Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 * that get updated and need this file generated
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.10.2.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -30,13 +30,9 @@ if ((php_sapi_name() == 'cli')) {
 	$err_msg = "ERROR: You need to supply the path to the System Root as the first argument\n";
 
 } else {
-	if (isset($_GET['SYSTEM_ROOT'])) $SYSTEM_ROOT = $_GET['SYSTEM_ROOT'];
-	$err_msg = '
-	<div style="background-color: red; color: white; font-weight: bold;">
-		You need to supply the path to the System Root as a query string variable called SYSTEM_ROOT
-	</div>
-	';
+	trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 }
+
 if (empty($SYSTEM_ROOT)) {
 	echo $err_msg;
 	exit();
