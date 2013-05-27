@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: get_design_area_setable_attrs.php,v 1.10 2012/08/30 01:04:53 ewang Exp $
+* $Id: get_design_area_setable_attrs.php,v 1.11 2013/05/27 08:58:31 cupreti Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Small script to return the design areas setable attributes and their descriptions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -27,14 +27,8 @@ $SYSTEM_ROOT = '';
 if ((php_sapi_name() == 'cli')) {
 	if (isset($_SERVER['argv'][1])) $SYSTEM_ROOT = $_SERVER['argv'][1];
 	$err_msg = "You need to supply the path to the System Root as the first argument\n";
-
 } else {
-	if (isset($_GET['SYSTEM_ROOT'])) $SYSTEM_ROOT = $_GET['SYSTEM_ROOT'];
-	$err_msg = '
-	<div style="background-color: red; color: white; font-weight: bold;">
-		You need to supply the path to the System Root as a query string variable called SYSTEM_ROOT
-	</div>
-	';
+	trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 }
 
 if (empty($SYSTEM_ROOT)) {
