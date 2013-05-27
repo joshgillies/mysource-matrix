@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.39 2013/05/27 01:31:12 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.40 2013/05/27 04:06:56 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.39 $
+ * @version $Revision: 1.1.2.40 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -1109,10 +1109,12 @@ var JS_Asset_Map = new function() {
 
             if (assetLines.length === 0) {
                 this.raiseError('Cannot locate asset.');
+				return;
             } else {
                 var assetLine = assetLines[0];
                 if (assetids.length === 0) {
                     dfx.addClass(assetLine, 'selected');
+					assetLine.scrollIntoView(true);
                 } else {
                     dfx.addClass(assetLine, 'located');
                     container = assetLine.nextSibling;
@@ -1120,10 +1122,17 @@ var JS_Asset_Map = new function() {
                         assetids.unshift(assetid);
                         break;
                     } else {
-                        var branchTarget = dfx.getClass('branch-status', assetLine);
-                        dfx.addClass(branchTarget, 'expanded');
-                        dfx.removeClass(container, 'collapsed');
-                    }//end if
+            			var nextAsset = dfx.find(container, 'div[data-assetid=' + assetids[0] + ']');
+						if (nextAsset.length === 0) {
+							dfx.remove(container);
+							assetids.unshift(assetid);
+							break;
+						} else {					
+							var branchTarget = dfx.getClass('branch-status', assetLine);
+							dfx.addClass(branchTarget, 'expanded');
+							dfx.removeClass(container, 'collapsed');
+	                	}//end if
+					}//end if
                 }//end if
             }//end if
         }//end while
@@ -1163,6 +1172,7 @@ var JS_Asset_Map = new function() {
                         dfx.addClass(assetLine, 'located');
                     } else {
                         dfx.addClass(assetLine, 'selected');
+						assetLine.scrollIntoView(true);
                     }
                 }
 
