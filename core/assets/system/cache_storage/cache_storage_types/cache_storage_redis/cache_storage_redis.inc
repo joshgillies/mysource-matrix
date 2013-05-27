@@ -18,7 +18,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: cache_storage_redis.inc,v 1.2.2.1 2013/03/11 23:30:18 ewang Exp $
+ * $Id: cache_storage_redis.inc,v 1.2.2.2 2013/05/27 03:51:23 ewang Exp $
  *
  */
 
@@ -38,7 +38,7 @@ define('SQ_CACHE_REDIS_URL_INDEX_PREFIX', 'sq_cache_url_index|');
  *
  * @author  James Hurst <james@riverratrecords.com>
  * @author  Hamish Forbes <hforbes@squiz.co.uk>
- * @version $Revision: 1.2.2.1 $
+ * @version $Revision: 1.2.2.2 $
  * @package MySource_Matrix_Packages
  * @subpackage __core__
  */
@@ -178,12 +178,16 @@ class Cache_Storage_Redis extends Cache_Storage
 		$mcache_key = SQ_CACHE_REDIS_PREFIX."$cache_key|$perm_key|$url|$assetid";
 
 		 // Update the assetid and url indexes and save the cache entry in an atomic transaction
-		 try{
-		    $ret = $this->_redis->multi()
-				    ->sadd(SQ_CACHE_REDIS_ASSET_INDEX_PREFIX.$assetid, $mcache_key)
-				    ->sadd(SQ_CACHE_REDIS_URL_INDEX_PREFIX.$index_url, $mcache_key)
-				    ->setex($mcache_key, $expiry_length, $data)
-				    ->exec();
+		try{
+			$multi = $this->_redis->multi();
+			if ($multi === FALSE) {
+				log_write('Redis Error: Failed entering transaction', 'error', E_USER_NOTICE);
+				return FALSE;
+			}
+			$ret = $this->_redis->sadd(SQ_CACHE_REDIS_ASSET_INDEX_PREFIX.$assetid, $mcache_key)
+								->sadd(SQ_CACHE_REDIS_URL_INDEX_PREFIX.$index_url, $mcache_key)
+								->setex($mcache_key, $expiry_length, $data)
+								->exec();
 		} catch(RedisException $e) {
 			log_write('Redis Write Error: '.$e->getMessage(), 'error', E_USER_NOTICE);
 			return FALSE;
@@ -219,11 +223,16 @@ class Cache_Storage_Redis extends Cache_Storage
 
 		$index_url = trim(preg_replace('/\?.*/', '', $url), '//');
 		$mcache_key = SQ_CACHE_REDIS_PREFIX."$cache_key|$perm_key|$url|$assetid";
+
 		try {
-		$exists = $this->_redis->multi()
-							   ->sismember(SQ_CACHE_REDIS_ASSET_INDEX_PREFIX.$assetid, $mcache_key)
-							   ->sismember(SQ_CACHE_REDIS_URL_INDEX_PREFIX.$index_url, $mcache_key)
-							   ->exec();
+			$multi = $this->_redis->multi();
+			if ($multi === FALSE) {
+				log_write('Redis Error: Failed entering transaction', 'error', E_USER_NOTICE);
+				return FALSE;
+			}
+			$exists = $this->_redis->sismember(SQ_CACHE_REDIS_ASSET_INDEX_PREFIX.$assetid, $mcache_key)
+						 ->sismember(SQ_CACHE_REDIS_URL_INDEX_PREFIX.$index_url, $mcache_key)
+						 ->exec();
 		} catch(RedisException $e) {
 			log_write('Redis Read Error: '.$e->getMessage(), 'error', E_USER_NOTICE);
 			return FALSE;
