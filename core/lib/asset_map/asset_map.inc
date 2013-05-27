@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.317.2.8 2013/05/23 23:53:49 lwright Exp $
+* $Id: asset_map.inc,v 1.317.2.9 2013/05/27 01:31:12 lwright Exp $
 *
 */
 require_once(SQ_LIB_PATH.'/xml_array/xml_array.inc');
@@ -23,7 +23,7 @@ require_once(SQ_LIB_PATH.'/xml_array/xml_array.inc');
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.317.2.8 $
+* @version $Revision: 1.317.2.9 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -2510,8 +2510,6 @@ class Asset_Map
             unset($target);
         }//end while
 
-        error_log('* '.number_format((microtime(TRUE) - $startTime), 4).' sec');
-
         return $output;
 
     }//end _fromXML()
@@ -2557,17 +2555,19 @@ class Asset_Map
                     break;
 
                     default:
-                        foreach ($source[$key] as $i => $subvalue) {
-                            $node    = $doc->createElement($key);
-                            $el->appendChild($node);
-                            $newTodo = array(
-                                        $subvalue,
-                                        &$node,
-                                       );
-                            $todo[] = $newTodo;
+						if (is_array($source[$key]) === TRUE) {
+							foreach ($source[$key] as $i => $subvalue) {
+								$node    = $doc->createElement($key);
+								$el->appendChild($node);
+								$newTodo = array(
+											$subvalue,
+											&$node,
+										   );
+								$todo[] = $newTodo;
 
-                            unset($node);
-                        }
+								unset($node);
+							}//end foreach
+                        }//end if
 
                     break;
                 }//end switch

@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.38 2013/05/24 04:49:12 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.39 2013/05/27 01:31:12 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.38 $
+ * @version $Revision: 1.1.2.39 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -768,22 +768,22 @@ var JS_Asset_Map = new function() {
 
         if (timeouts.message) {
             clearTimeout(timeouts.message);
-			timeouts.message = null;
+            timeouts.message = null;
         }
 
-		// The spinner is a sprite, so handle it using an interval.
+        // The spinner is a sprite, so handle it using an interval.
         if ((spinner === false) && (timeouts.spinner)) {
             clearInterval(timeouts.spinner);
-			dfx.setStyle(spinnerDiv, 'background-position', '0 0'); 
-			timeouts.spinner = null;
+            dfx.setStyle(spinnerDiv, 'background-position', '0 0'); 
+            timeouts.spinner = null;
         } else if ((spinner === true) && (!timeouts.spinner)) {
-			dfx.setStyle(spinnerDiv, 'background-position', '-15px 0'); 
-			timeouts.spinner = setInterval(function() {
-				var bpPos   = dfx.getStyle(spinnerDiv, 'background-position').split(' ');
-				var newLeft = ((parseInt(bpPos[0], 10) % 180) - 15);
-				dfx.setStyle(spinnerDiv, 'background-position', newLeft + 'px 0px'); 
-			}, 100);
-		}
+            dfx.setStyle(spinnerDiv, 'background-position', '-15px 0'); 
+            timeouts.spinner = setInterval(function() {
+                var bpPos   = dfx.getStyle(spinnerDiv, 'background-position').split(' ');
+                var newLeft = ((parseInt(bpPos[0], 10) % 180) - 15);
+                dfx.setStyle(spinnerDiv, 'background-position', newLeft + 'px 0px'); 
+            }, 100);
+        }
 
         if (timeout !== undefined) {
             timeouts.message = setTimeout(function() {
@@ -999,7 +999,7 @@ var JS_Asset_Map = new function() {
         dfx.addClass(spinnerDiv, 'spinner');
         container.appendChild(spinnerDiv);
         
-		var messageDiv = _createEl('div');
+        var messageDiv = _createEl('div');
         messageDiv.id        = 'asset_map_message';
         dfx.addClass(messageDiv, 'message');
         messageDiv.innerHTML = 'Loading...';
@@ -1089,7 +1089,7 @@ var JS_Asset_Map = new function() {
     };
 
 
-//--		LOCATE ASSET (BINOCULARS)        --//
+//--        LOCATE ASSET (BINOCULARS)        --//
 
 
     /**
@@ -1111,7 +1111,6 @@ var JS_Asset_Map = new function() {
                 this.raiseError('Cannot locate asset.');
             } else {
                 var assetLine = assetLines[0];
-
                 if (assetids.length === 0) {
                     dfx.addClass(assetLine, 'selected');
                 } else {
@@ -1131,28 +1130,51 @@ var JS_Asset_Map = new function() {
 
         if (assetids.length > 0) {
             var assetRequests = [];
+            var allAssetids   = [].concat(assetids);
+            allAssetids.shift();
             while (sortOrders.length > 0) {
                 var assetid    = assetids.shift();
                 var sortOrder  = sortOrders.shift();
                 sortOrder      = Math.max(0, Math.floor(sortOrder / options.assetsPerPage) * options.assetsPerPage);
 
                 assetRequests.push({
-                    assetid: assetid,
-                    linkid: null,
-                    start: sortOrder,
-                    limit: options.assetsPerPage
+                    _attributes: {
+                        assetid: assetid,
+                        linkid: null,
+                        start: sortOrder,
+                        limit: options.assetsPerPage
+                    }
                 });
             }
 
-            console.info(assetRequests);
+            var processAssets = function(response) {
+                for (var i = 0; i < response.asset.length; i++) {
+                    var thisAsset = response.asset[i];
+                    var container = _createEl('div');
+                    dfx.addClass(assetLine, 'expanded');
+                    dfx.addClass(container, 'childIndent');
+                    assetLine.parentNode.insertBefore(container, assetLine.nextSibling);
+                    self.drawTree(thisAsset, container);
+
+                    var nextAssetid = allAssetids[i];
+                    assetLine       = dfx.find(container, 'div[data-assetid=' + nextAssetid + ']')[0];
+
+                    if (i < (response.asset.length - 1)) {
+                        dfx.addClass(assetLine, 'located');
+                    } else {
+                        dfx.addClass(assetLine, 'selected');
+                    }
+                }
+
+                self.message('Success!', false, 2000);
+            };
+
             this.doRequest({
                 _attributes: {
                     action: 'get assets',
                 },
-                asset: assetRequests,
-            }, function(response) {
-                console.info(response);
-            });
+                asset: assetRequests
+            }, processAssets);
         }
     }
 
