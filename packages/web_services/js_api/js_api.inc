@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.142 2013/05/13 03:50:36 lwright Exp $
+* $Id: js_api.inc,v 1.143 2013/05/27 08:36:39 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.142 $
+* @version $Revision: 1.143 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -207,7 +207,7 @@ class JS_Api extends Page
 			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
 			return;
 		}
-
+		
 		// Should we print our JS file, or send back some JSON?
 		if (!isset($_REQUEST['key']) && !isset($_REQUEST['id']) && !isset($_REQUEST['type'])) {
 			header('Content-Type: text/javascript');
@@ -4095,6 +4095,9 @@ class JS_Api extends Page
 	*/
 	function returnError($error)
 	{
+		// Sanitise the error message
+		$error = htmlspecialchars($error);
+
 		// Set our error
 		trigger_error($error, E_USER_WARNING);
 
