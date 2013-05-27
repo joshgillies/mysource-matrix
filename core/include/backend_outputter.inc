@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.174.6.1 2013/05/08 07:03:13 lwright Exp $
+* $Id: backend_outputter.inc,v 1.174.6.2 2013/05/27 23:21:34 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.174.6.1 $
+* @version $Revision: 1.174.6.2 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -1017,7 +1017,21 @@ class Backend_Outputter
                 var SQ_DOCUMENT_LOADED = false;
                 function page_on_load()
                 {
-                    <?php
+					<?php
+					// If you click on a window outside of the asset map frame,
+					// clear out any menus from the (JS) asset map.
+					if ($backendPage !== 'sidenav') {
+					?>
+						window.onclick = function(event) {
+							event = event || window.event;
+							var sidenavFrame = top.frames.sq_sidenav;
+							if (sidenavFrame.JS_Asset_Map) {
+								sidenavFrame.JS_Asset_Map.clearMenus();
+							}
+						}
+					<?php
+					}//end if
+
                     if (isset($_SESSION['backend_outputter_msgs'])) {
                         $this->_messages = array_merge($this->_messages, $_SESSION['backend_outputter_msgs']);
                         $_SESSION['backend_outputter_msgs'] = Array();
