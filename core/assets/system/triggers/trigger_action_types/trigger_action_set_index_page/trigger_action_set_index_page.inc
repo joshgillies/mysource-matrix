@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 *
 * @author   Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.10.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -138,7 +138,7 @@ class Trigger_Action_Set_Index_Page extends Trigger_Action
 
 		ob_start();
 			if ($write_access) {
-				asset_finder($prefix.'[index_page]', $selected_assetid, Array('page_standard' => 'P'));
+				asset_finder($prefix.'[index_page]', $selected_assetid);
 				echo translate('trigger_set_index_page_select');
 
 			} else {
