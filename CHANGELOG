@@ -1,5 +1,99 @@
 SQUIZ MATRIX CHANGELOG
 
+VERSION 4.16.0 RC1
+
+Featured Changes
+===================================
+
+New Script to Morph Asset Types [ Feature Request #6262 ]
+-----------------------------------------------------
+
+A new script has been added to Squiz Matrix to morph an asset from from one asset type to another. This is useful when dealing with file and user asset types, for example, morphing a User asset into a Backend User asset.
+
+The morph_assets.php script is found in the system's Scripts directory and takes the following parameters:
+
+* the root directory of your Squiz Matrix system.
+* the root ID to morph the child assets of.
+* the asset type code that you want to morph assets from.
+* the asset type code that you want to morph assets to.
+* --simulate: runs the script in simulation mode. 
+
+Usage of this script is as follows:
+
+$ php scripts/morph_assets.php <SYSTEM_ROOT> 100 user backend_user --simulate 
+
+Simulate Morphing assets...
+Simulate Morph Asset #202
+Finished simulating morphing assets. 1 of 1 user assets can be morphed to backend_user assets.
+
+$ php scripts/morph_assets.php <SYSTEM_ROOT> 100 user backend_user
+
+There are 1 user assets to morph, are you sure you want to continue? Type 'yes' to continue: yes
+Morphing assets...
+Morph Asset #202
+Finished morphing assets. 1 of 1 user assets were morphed to backend_user assets.
+
+This feature was kindly contributed by Nic Hubbard (http://www.zedsaid.com).
+
+Custom Form: Allow Public Users to Save Form Submissions [ Feature Request #6306 ]
+-----------------------------------------------------
+
+Squiz Matrix's Custom Form allows logged-in users to Save and Exit their form submission, retaining the content of their incomplete submission, which they can return to finish at a later time.
+
+Previously, however, this functionality was not available for public users. This feature extends the Save and Exit function to also include public users, allowing them to save the content of a form submission to complete later.
+
+When a public user saves their submission and exits the form, they will be sent an email, containing a link to return to the form and a password, allowing them to access and complete their submission.
+
+This feature can be enabled and configured via the new Public User Incomplete Submission section on the Form Contents screen of the Custom Form's Form Contents asset.
+
+The settings available allow you to configure the format of the Submission Retrieval Email for a public user, as well as the Submission Retrieval Message (displayed when the user Saves their form content) and Password Verification Form (when returning to a previously saved form).
+
+
+Additional Changes and Bug Fixes
+=================================== 
+
+Minor Enhancements
+
+Minor Enhancement #6187: New Option for the Backup Script to Exclude the Database. 
+Minor Enhancement #6197: Performance Improvement to system_integrity_invalid_links.php.
+Minor Enhancement #6310: Comma-Separated List of Addresses on Email Forms Within Matrix.
+Minor Enhancement #6323: Save As XML Submission Form Action: Sort Submission Answers Option. 
+
+Core
+
+Fixed Bug #6299: Using a metadata field on the Set Future Status trigger action gives misleading results.
+Fixed Bug #6300: Metadata relative date not saved.
+Fixed Bug #6301: Redis cache can trigger a fatal error in transaction mode.
+Fixed Bug #6308: YouTube videos embedded within Matrix assets will always auto-play.
+Fixed Bug #6309: Purging trash with a requested purge root should fail if the root is not found.
+Fixed Bug #6312: Circa option in the Date Form Question field is not working.
+Fixed Bug #6314: The Test field's Max Char client-side validator not validating fully.
+Fixed Bug #6315: Incorrect content type header breaking the front end page with WYSIWYG.
+Fixed Bug #6317: Asset_Manager::getParents() throwing fatal db exception for a special scenario.
+Fixed Bug #6325: Assets that use a Password field for sign-up throw undefined index: confirm_field error.
+Fixed Bug #6332: Broken Links email are not getting sent.
+Fixed Bug #6333: WYSIWYG editor doesn't work fully with IE10.
+Fixed Bug #6336: Asset Map breaks when HTTP Only cookie option set.
+Fixed Bug #6337: Script import_asset_csv_to_matrix.php sends regular output to STDERR. 
+
+CMS
+
+Fixed Bug #6318: Custom Form non-Accessible still shows required asterisk. 
+
+Calendar
+
+Fixed Bug #6327: Event assets don't print metadata in Upcoming Events page until any date value is printed. 
+
+Import Tools
+
+Fixed Bug #6328: Import Bulk File tool ignores some supported file extensions.
+
+Web Services
+
+Fixed Bug #6307: SetRole does not work with Group ID.
+
+
+
 VERSION 4.12.0 RC1
 
 Featured Changes
