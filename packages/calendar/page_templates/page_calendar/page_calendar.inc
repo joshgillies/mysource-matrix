@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.249 2013/02/20 02:42:16 ewang Exp $
+* $Id: page_calendar.inc,v 1.250 2013/05/28 07:59:05 cupreti Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.249 $
+* @version $Revision: 1.250 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -2251,8 +2251,23 @@ class Page_Calendar extends Page
 					$replacements[$keyword] = $this->_getEventKeywordReplacement($keyword, $event);
 				}
 			}
+
+			// Allows listing within the Calendar Page (see #5966)
+			if (isset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['list_current_asset_id'])) {
+				$prev_list_current_asset_id = $_SESSION[SQ_SESSION_SANDBOX_INDEX]['list_current_asset_id'];
+			} else {
+				$prev_list_current_asset_id = NULL;
+			}
+			$_SESSION[SQ_SESSION_SANDBOX_INDEX]['list_current_asset_id'] = $assetid;
+
 			$bodycopy['obj']->setKeywordReplacements($replacements);
 			$bodycopy['obj']->printBody();
+
+			if ($prev_list_current_asset_id) {
+				$_SESSION[SQ_SESSION_SANDBOX_INDEX]['list_current_asset_id'] = $prev_list_current_asset_id;
+			} else {
+				unset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['list_current_asset_id']);
+			}
 
 		}//end foreach event
 
