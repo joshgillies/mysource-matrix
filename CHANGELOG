@@ -1,5 +1,44 @@
 SQUIZ MATRIX CHANGELOG
 
+VERSION 4.12.7
+
+Minor Enhancements and Bug Fixes
+=================================== 
+
+Minor Enhancements
+
+Minor Enhancement #6197: Performance Improvement to system_integrity_invalid_links.php.
+
+Core
+
+Fixed Bug #6299: Using a metadata field on the Set Future Status trigger action gives misleading results.
+Fixed Bug #6300: Metadata relative date not saved.
+Fixed Bug #6308: YouTube videos embedded within Matrix assets will always auto-play.
+Fixed Bug #6309: Purging trash with a requested purge root should fail if the root is not found.
+Fixed Bug #6312: Circa option in the Date Form Question field is not working.
+Fixed Bug #6314: The Test field's Max Char client-side validator not validating fully.
+Fixed Bug #6315: Incorrect content type header breaking the front end page with WYSIWYG.
+Fixed Bug #6317: Asset_Manager::getParents() throwing fatal db exception for a special scenario.
+Fixed Bug #6325: Assets that use a Password field for sign-up throw undefined index: confirm_field error.
+Fixed Bug #6332: Broken Links email are not getting sent.
+Fixed Bug #6333: WYSIWYG editor doesn't work fully with IE10.
+Fixed Bug #6336: Asset Map breaks when HTTP Only cookie option set.
+Fixed Bug #6337: Script import_asset_csv_to_matrix.php sends regular output to STDERR.
+
+Calendar
+
+Fixed Bug #6327: Event assets don't print metadata in Upcoming Events page until any date value is printed. 
+
+Import Tools
+
+Fixed Bug #6328: Import Bulk File tool ignores some supported file extensions.
+
+Web Services
+
+Fixed Bug #6307: SetRole does not work with Group ID.
+
+
+
 VERSION 4.12.6
 
 Minor Enhancements and Bug Fixes

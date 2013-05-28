@@ -10,11 +10,11 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: version.inc,v 1.56.2.7 2013/05/01 06:43:18 ewang Exp $
+* $Id: version.inc,v 1.56.2.8 2013/05/28 02:07:24 ewang Exp $
 *
 */
 
-define('SQ_SYSTEM_VERSION',        '4.12.6');
+define('SQ_SYSTEM_VERSION',        '4.12.7');
 define('SQ_SYSTEM_SHORT_NAME',     'MySource');
 define('SQ_SYSTEM_LONG_NAME',      'Squiz Matrix v'.SQ_SYSTEM_VERSION);
 define('SQ_SYSTEM_URL',            'http://matrix.squizsuite.net/');
