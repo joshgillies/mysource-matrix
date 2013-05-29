@@ -390,6 +390,13 @@
     padding: 1px 3px;
 }
 
+#asset_map_container .asset.disabled .assetName,
+#asset_map_container .asset.disabled .flag,
+#asset_map_container .asset.disabled .icon {
+	opacity: 0.5;
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(opacity=50)";
+}
+
 #asset_map_container.statuses-shown .asset .assetName,
 #asset_map_container .asset.selected .assetName
 /* #asset_map_container .asset.located .assetName */ {

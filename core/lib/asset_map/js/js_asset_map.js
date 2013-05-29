@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.41 2013/05/27 05:34:57 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.42 2013/05/29 05:48:47 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.41 $
+ * @version $Revision: 1.1.2.42 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -94,6 +94,11 @@ var JS_Asset_Map = new function() {
     var assetCategories = {};
 
     /**
+     * List of parents of asset types.
+     */
+    var assetTypeParents = {};
+
+    /**
      * The display format of asset names, including keywords
      * @var {String}
      */
@@ -106,8 +111,8 @@ var JS_Asset_Map = new function() {
     var currentTreeid = 0;
 
     /**
-     * setTimeout() return value for the status bar
-     * @var {Number}
+     * Hash of timeouts/intervals.
+     * @var {Object}
      */
     var timeouts = {};
 
@@ -123,6 +128,12 @@ var JS_Asset_Map = new function() {
      * @var {Array}
      */
     var trees = [];
+
+    /**
+     * Use me status.
+     * @var {Object]
+     */
+    var useMeStatus = null;
 
 
 //--        UTILITY FUNCTIONS        --//
@@ -239,8 +250,26 @@ var JS_Asset_Map = new function() {
     };
 
 
-//--        INITIALISATION        --//
+    var _isAncestorType = function(typecode, parentType) {
+        var ok = false;
+        if (parentType === 'asset') {
+            ok = true;
+        } else {
+            while (typecode) {
+                if (typecode === parentType) {
+                    ok = true;
+                    break;
+                }
 
+                typecode = assetTypeParents[typecode];
+            }//end while
+        }//end if
+
+        return ok;
+    };
+
+
+//--        INITIALISATION        --//
 
     /**
      * Start the asset map.
@@ -287,8 +316,13 @@ var JS_Asset_Map = new function() {
                     }
                 }
 
+                var parentType = typeinfo['_attributes']['parent_type'];
                 assetTypeCache[typecode] = typeinfo['_attributes'];
                 assetTypeCache[typecode]['screens'] = {};
+
+                if (parentType !== 'asset') {
+                    assetTypeParents[typecode] = parentType;
+                }
 
                 for (var j = 0; j < typeinfo['screen'].length; j++) {
                     var screencode = typeinfo['screen'][j]['_attributes']['code_name'];
@@ -410,8 +444,6 @@ var JS_Asset_Map = new function() {
                     }
                 } else if (e.which === 3) {
                     // Right mouse button
-                    self.message('Asset screens dropdown for asset ' + assetTarget.getAttribute('data-assetid'), false);
-
                     if ((e.ctrlKey === false) || (self.isInUseMeMode() === true)) {
                         // Normal click, or if in Use Me mode where multiple
                         // selection is not permitted.
@@ -420,19 +452,28 @@ var JS_Asset_Map = new function() {
                         dfx.removeClass(dfx.getClass('asset', assetMap), 'located');
                     }
 
-                    dfx.addClass(assetTarget, 'selected');
-
                     e.preventDefault();
-                    var mousePos = dfx.getMouseEventPosition(e);
-                    var menu     = self.drawScreensMenu(target);
-                    self.topDocumentElement(target).appendChild(menu);
+                    if (dfx.hasClass(assetTarget, 'disabled') === false) {
+                        dfx.addClass(assetTarget, 'selected');
+                        var mousePos = dfx.getMouseEventPosition(e);
 
-                    var elementHeight = self.topDocumentElement(targetElement).clientHeight;
-                    var submenuHeight = dfx.getElementHeight(menu);
-                    var targetRect = dfx.getBoundingRectangle(target);
-                    dfx.setStyle(menu, 'left', (Math.max(10, mousePos.x) + 'px'));
-                    dfx.setStyle(menu, 'top', (Math.min(elementHeight - submenuHeight - 10, mousePos.y) + 'px'));
-                }
+                        if (self.isInUseMeMode() === true) {
+                            var menu = self.drawUseMeMenu(assetTarget);
+                        } else {
+                            var menu = self.drawScreensMenu(target);
+                        }
+
+                        self.topDocumentElement(target).appendChild(menu);
+
+                        var elementHeight = self.topDocumentElement(targetElement).clientHeight;
+                        var submenuHeight = dfx.getElementHeight(menu);
+                        var targetRect = dfx.getBoundingRectangle(target);
+                        dfx.setStyle(menu, 'left', (Math.max(10, mousePos.x) + 'px'));
+                        dfx.setStyle(menu, 'top', (Math.min(elementHeight - submenuHeight - 10, mousePos.y) + 'px'));
+                    } else {
+                        self.clearMenus();
+                    }//end if
+                }//end if
             } else if (branchTarget) {
                 // Set the target to the asset line.
                 var target       = branchTarget.parentNode;
@@ -847,6 +888,10 @@ var JS_Asset_Map = new function() {
      * @returns {Window}
      */
     this.getDefaultView = function(document) {
+        if (document.ownerDocument) {
+            document = document.ownerDocument;
+        }
+
         if (document.defaultView) {
             return document.defaultView;
         } else if (document.parentWindow) {
@@ -1082,6 +1127,8 @@ var JS_Asset_Map = new function() {
             container.appendChild(assetLine);
         }
 
+        this.updateAssetsForUseMe(container);
+
         if (assetLine) {
             dfx.addClass(assetLine, 'last-child');
         }
@@ -1191,22 +1238,105 @@ var JS_Asset_Map = new function() {
 //--        USE ME MODE        --//
 
 
+    this.getUseMeFrame = function() {
+        var win    = this.getDefaultView(targetElement);
+        var retval = win;
+
+		// We're inside a frame, so check for the main frame.
+        if (win.frameElement) {
+            retval = win.top.frames.sq_main;
+			if (!retval) {
+				// Main frame isn't there.
+				retval = win;
+			}
+        }
+
+        return retval;
+    };
+
+
     /**
      * Enable/stop the "Use Me" mode.
      *
-     * This allows Asset Finder widgets to
+     * This allows Asset Finder widgets to select an asset from the asset map,
+     * optionally filtered by type code.
      *
-     * @param {Boolean} status The status of Use Me mode (TRUE = on, FALSE = off).
+     * The type filter is either omitted (in which case all assets are selectable),
+     * or a list of asset types.
+     *
+     *
+     *
+     * @param {Node}  element     
+     * @param {Array} [typeFilter] The type filter.
      *
      */
-    this.setUseMeMode = function(status) {
-        var assetMap = dfx.getId('asset_map_container');
+    this.setUseMeMode = function(name, safeName, typeFilter, doneCallback) {
+		var self = this;
 
-        if (status === true) {
-            dfx.addClass(assetMap, 'useMeMode');
+        if (this.isInUseMeMode() === true) {
+            alert(js_translate('asset_finder_in_use'));
         } else {
-            dfx.removeClass(assetMap, 'useMeMode');
+			var sourceFrame = self.getUseMeFrame();
+			var oldOnUnload = sourceFrame.onunload;
+			dfx.addEvent(sourceFrame, 'unload', function() {
+				self.cancelUseMeMode();
+				if (dfx.isFn(oldOnUnload) === true) {
+					oldOnUnload.call(sourceFrame);
+				}
+			});
+
+            var assetMap    = dfx.getId('asset_map_container');
+            dfx.addClass(assetMap, 'useMeMode');
+            useMeStatus = {
+                namePrefix: name,
+                idPrefix: safeName,
+                typeFilter: typeFilter,
+                doneCallback: doneCallback,
+            };
+            this.updateAssetsForUseMe();
+        }//end if
+    };
+
+
+    /**
+     * Cancel use me mode
+     *
+     */
+    this.cancelUseMeMode = function() {
+        var assetMap = dfx.getId('asset_map_container');
+        dfx.removeClass(assetMap, 'useMeMode');
+        useMeStatus = null;
+        this.updateAssetsForUseMe();
+    };
+
+
+    /**
+      * Update the enabled/disabled status for 
+     */
+    this.updateAssetsForUseMe = function(rootTree) {
+        if (rootTree === undefined) {
+            rootTree = dfx.getClass('tree', dfx.getId('asset_map_container'));
         }
+
+        var assets = dfx.getClass('asset', rootTree);
+
+        if (useMeStatus === null) {
+            // Not in use me mode.
+            dfx.removeClass(assets, 'disabled');
+        } else if (!useMeStatus.typeFilter || (useMeStatus.typeFilter.length === 0)) {
+            // No type filter = enable all assets.
+            dfx.removeClass(assets, 'disabled');
+        } else {
+            for (var i = 0; i < assets.length; i++) {
+                var assetLine = assets[i];
+                var typecode  = assetLine.getAttribute('data-typecode');
+                if (useMeStatus.typeFilter.find(typecode) === -1) {
+                    dfx.addClass(assetLine, 'disabled');
+                } else {
+                    dfx.removeClass(assetLine, 'disabled');
+                }
+            }//end for
+        }//end if
     };
 
 
@@ -1217,6 +1347,49 @@ var JS_Asset_Map = new function() {
      *
      */
     this.drawUseMeMenu = function(assetNode) {
+        var self    = this;
+        var assetid = assetNode.getAttribute('data-assetid');
+        this.clearMenus();
+
+        var container = _createEl('div');
+        dfx.addClass(container, 'assetMapMenu');
+        dfx.addClass(container, 'useMeMenu');
+
+        dfx.addEvent(container, 'contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        var menuItem = this.drawMenuItem('Use Me');
+        dfx.addEvent(menuItem, 'click', function(e) {
+			var sourceFrame = self.getUseMeFrame().document;
+            self.clearMenus();
+
+			var assetNameLabel  = dfx.getId(useMeStatus.idPrefix + '_label', sourceFrame);
+			var assetidBox      = dfx.getId(useMeStatus.idPrefix + '_assetid', sourceFrame);
+			var assetidHidden   = dfx.getId(useMeStatus.namePrefix + '[assetid]', sourceFrame);
+			var assetLinkHidden = dfx.getId(useMeStatus.namePrefix + '[linkid]', sourceFrame);
+			var assetTypeHidden = dfx.getId(useMeStatus.namePrefix + '[type_code]', sourceFrame);
+			var assetUrlHidden  = dfx.getId(useMeStatus.namePrefix + '[url]', sourceFrame);
+            
+			assetNameLabel.value  = dfx.getNodeTextContent(dfx.getClass('assetName', assetNode)[0]);
+			assetidBox.value      = assetNode.getAttribute('data-assetid');
+			assetidHidden.value   = assetNode.getAttribute('data-assetid');
+			assetLinkHidden.value = assetNode.getAttribute('data-linkid');
+			assetTypeHidden.value = assetNode.getAttribute('data-typecode');
+			assetUrlHidden.value  = '';
+
+			var changeButton = dfx.getId(useMeStatus.idPrefix + '_change_btn', sourceFrame);
+			changeButton.value = js_translate('change');
+
+			if (dfx.isFn(useMeStatus.doneCallback)) {
+                useMeStatus.doneCallback(assetid);
+            }
+
+            self.cancelUseMeMode();
+        });
+        container.appendChild(menuItem);
+
+        return container;
     };
 
 
@@ -1235,9 +1408,16 @@ var JS_Asset_Map = new function() {
      *
      * @returns {Boolean}
      */
-    this.isInUseMeMode = function() {
+    this.isInUseMeMode = function(excludePrefix) {
         var assetMap = dfx.getId('asset_map_container');
         var hasUseMe = dfx.hasClass(assetMap, 'useMeMode');
+
+		if (hasUseMe === true) {
+			if (excludePrefix === useMeStatus.namePrefix) {
+				hasUseMe = false;
+			}
+		}
+
         return hasUseMe;
 
     };
@@ -1578,3 +1758,73 @@ var JS_Asset_Map = new function() {
 
 
 };
+
+
+//--        LEGACY FUNCTIONS FOR ASSET FINDER        --//
+
+
+function asset_finder_change_btn_press(name, safeName, typeCodes, doneCallback)
+{
+    if (typeCodes === '') {
+        typeCodes = undefined;
+    } else {
+        // Split piped type codes into an array, but if there's only one
+        // type code then there's a trailing pipe at the end. 
+        var typeCodes = typeCodes.split('|');
+        if ((typeCodes.length === 2) && (typeCodes[1] === '')) {
+            typeCodes.pop();
+        }
+    }//end if
+	
+	var mainWin      = JS_Asset_Map.getUseMeFrame();
+	var changeButton = dfx.getId(safeName + '_change_btn', mainWin.document);
+	if (JS_Asset_Map.isInUseMeMode(name) === true) {
+		alert(js_translate('asset_finder_in_use'));
+	} else if (JS_Asset_Map.isInUseMeMode() === true) {
+		changeButton.setAttribute('value', js_translate('change'));
+		JS_Asset_Map.cancelUseMeMode();
+	} else {
+		changeButton.setAttribute('value', js_translate('cancel'));
+		JS_Asset_Map.setUseMeMode(name, safeName, typeCodes, doneCallback);
+	}
+
+}//asset_finder_change_btn_press()
+
+function asset_finder_clear_btn_press(name, safeName)
+{
+	var sourceFrame = JS_Asset_Map.getUseMeFrame().document;
+	dfx.getId(name + '[assetid]', sourceFrame).value    = '0';
+	dfx.getId(name + '[url]', sourceFrame).value        = '';
+	dfx.getId(name + '[linkid]', sourceFrame).value     = '';
+	dfx.getId(name + '[type_code]', sourceFrame).value  = '';
+	dfx.getId(safeName + '_label', sourceFrame).value   = '';
+	dfx.getId(safeName + '_assetid', sourceFrame).value = '';
+
+}//end asset_finder_clear_btn_press()
+
+function asset_finder_reset_btn_press(name, safeName, assetid, label)
+{
+	var sourceFrame = JS_Asset_Map.getUseMeFrame().document;
+	dfx.getId(name + '[assetid]', sourceFrame).value    = assetid;
+	dfx.getId(name + '[url]', sourceFrame).value        = '';
+	dfx.getId(name + '[linkid]', sourceFrame).value     = '';
+	dfx.getId(name + '[type_code]', sourceFrame).value  = '';
+	dfx.getId(safeName + '_label', sourceFrame).value   = label;
+	dfx.getId(safeName + '_assetid', sourceFrame).value = assetid;
+
+}//end asset_finder_clear_btn_press()
+
+function asset_finder_assetid_changed(name, safeName, typeCodes, doneCallback, value)
+{
+	var sourceFrame = JS_Asset_Map.getUseMeFrame().document;
+	dfx.getId(name + '[assetid]', sourceFrame).value = value;
+	
+}//end asset_finder_assetid_changed()
+
+function asset_finder_cancel()
+{
+}//end asset_finder_cancel()
+
+function asset_finder_onunload()
+{
+}//end asset_finder_onunload()

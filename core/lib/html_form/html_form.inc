@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.169.2.1 2013/05/12 23:27:38 lwright Exp $
+* $Id: html_form.inc,v 1.169.2.2 2013/05/29 05:48:47 lwright Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.169.2.1 $
+* @version $Revision: 1.169.2.2 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -828,15 +828,17 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 			normal_button($safe_name.'_reset_btn', translate('reset'), $map_frame.'.asset_finder_reset_btn_press(\''.$escaped_name.'\', \''.$safe_name.'\', \''.$assetid.'\', \''.addslashes($label).'\');');
 		}
 		?><script type="text/javascript">
-				if (!window.top.frames['sq_resizer'] || <?php echo $map_frame; ?>.SQ_DOCUMENT_LOADED) {
-					<?php echo $map_frame; ?>.set_finder(<?php echo $finder_frame; ?>);
-				} else {
-					// this gets overridden when multiple asset finders exist anyway,
-					// so no harm at the moment in only saving the latest set_finder call
-					if (typeof currentOnload == 'undefined') {
-						currentOnload = <?php echo $map_frame; ?>.onload;
+				if (!<?php echo $map_frame; ?>.JS_Asset_Map) {
+					if (!window.top.frames['sq_resizer'] || <?php echo $map_frame; ?>.SQ_DOCUMENT_LOADED) {
+						<?php echo $map_frame; ?>.set_finder(<?php echo $finder_frame; ?>);
+					} else {
+						// this gets overridden when multiple asset finders exist anyway,
+						// so no harm at the moment in only saving the latest set_finder call
+						if (typeof currentOnload == 'undefined') {
+							currentOnload = <?php echo $map_frame; ?>.onload;
+						}
+						<?php echo $map_frame; ?>.onload = function() { <?php echo $map_frame; ?>.set_finder(<?php echo $finder_frame; ?>); currentOnload(); }
 					}
-					<?php echo $map_frame; ?>.onload = function() { <?php echo $map_frame; ?>.set_finder(<?php echo $finder_frame; ?>); currentOnload(); }
 				}
 			</script><?php
 	}
