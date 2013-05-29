@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: session_handler_memcache.inc,v 1.10.4.2 2013/05/27 08:02:15 ewang Exp $
+* $Id: session_handler_memcache.inc,v 1.10.4.3 2013/05/29 01:52:42 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/session_handling/session_handler/sess
 *    within PHP's memcache PECL extension.
 *
 * @author     Luke Wright <lwright@squiz.net>
-* @version    $Revision: 1.10.4.2 $
+* @version    $Revision: 1.10.4.3 $
 * @package    MySource_Matrix
 * @subpackage __core__
 */
@@ -84,7 +84,7 @@ class Session_Handler_Memcache extends Session_Handler
 		// appropriate save path (ie. the connection string to thee
 		// memcached server).
 		session_name('SQ_SYSTEM_SESSION');
-		if ($php_version_suits && !(SQ_IN_BACKEND || SQ_IN_LIMBO)) {
+		if ($php_version_suits) {
 			session_set_cookie_params(0, $path, $domain, $secure, $http_only);
 		} else {
 			session_set_cookie_params(0, $path, $domain, $secure);
