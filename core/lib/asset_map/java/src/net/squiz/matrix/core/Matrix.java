@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: Matrix.java,v 1.9 2013/05/01 00:53:55 ewang Exp $
+* $Id: Matrix.java,v 1.10 2013/05/29 01:28:15 ewang Exp $
 *
 */
 
@@ -130,6 +130,11 @@ public class Matrix {
 								String basePath = getProperty("parameter.url.baseurl");
 								String execPath = basePath + getProperty("parameter.backendsuffix")
 								+ "/?SQ_ACTION=asset_map_request";
+								// post session is required when httponly cookie is used which blocks java applet access cookie
+								String postSession = getProperty("parameter.postsession");
+								if (postSession.equals("1")) {
+								    execPath += "&SESSION_ID=" + getProperty("parameter.sessionid") + "&SESSION_KEY=" + getProperty("parameter.sessionkey");
+								}
 								execURL = new URL(execPath);
 						} catch (MalformedURLException mue) {
 								mue.printStackTrace(); 
