@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.315.2.2 2013/05/01 01:01:43 ewang Exp $
+* $Id: asset_map.inc,v 1.315.2.3 2013/05/29 01:39:06 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.315.2.2 $
+* @version $Revision: 1.315.2.3 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -462,6 +462,10 @@ class Asset_Map
 
 					$parameters = Array(
 									'parameter.backendsuffix'			=> SQ_CONF_BACKEND_SUFFIX,
+					    				// only need to pass session id to assetmap if HTTPOnly cookie is used, otherwise java can share cookie automatically
+									'parameter.postsession'				=> SQ_CONF_COOKIE_OPTION_HTTP_ONLY,
+									'parameter.sessionid'				=> $_COOKIE['SQ_SYSTEM_SESSION'],
+									'parameter.sessionkey'				=> $GLOBALS['SQ_SYSTEM']->getUniqueSessionKey(),
 									'parameter.url.iconurl'				=> '__lib/web/images/icons',
 									'parameter.url.typecodeurl'			=> '__data/asset_types',
 									'parameter.url.notaccessibleicon'	=> 'asset_map/not_accessible.png',
