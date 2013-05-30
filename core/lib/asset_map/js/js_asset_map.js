@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.43 2013/05/30 00:23:31 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.44 2013/05/30 06:34:49 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.43 $
+ * @version $Revision: 1.1.2.44 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -135,6 +135,25 @@ var JS_Asset_Map = new function() {
      */
     var useMeStatus = null;
 
+    /**
+     * Move me status.
+     *
+     * If the whole variable is null, move me status is disabled.
+     * - source: {Array.<Node>} the asset lines that is/are being moved/cloned/linked.
+     *   - This can be null, in this case we are placing a new asset created with
+     *     the "Add Menu".
+     * - callback: {Function} the callback when a drop location has been selected.
+     *   - param {Node} Echoes the source of the move me action.
+     *   - param {Node} When an asset line node, it's been dropped directly on an asset.
+     *                  If it's a placeholder, it's been dropped in-between assets.
+     *                  The placeholder node should have dataset attributes of assetid,
+     *                  linkid of parent, and sort order of the following asset (sort
+     *                  order is -1 if dropped after the last child).
+     *
+     * @var {Object}
+     */
+    var moveMeStatus = null;
+
 
 //--        UTILITY FUNCTIONS        --//
 
@@ -188,6 +207,7 @@ var JS_Asset_Map = new function() {
         var name       = asset._attributes.name;
         var typeCode   = asset._attributes.type_code;
         var status     = Number(asset._attributes.status);
+        var sortOrder  = Number(asset._attributes.sort_order);
         var numKids    = Number(asset._attributes.num_kids);
         var linkid     = asset._attributes.linkid;
         var linkType   = Number(asset._attributes.link_type);
@@ -200,6 +220,7 @@ var JS_Asset_Map = new function() {
         assetLine.setAttribute('data-asset-path', asset._attributes.asset_path);
         assetLine.setAttribute('data-linkid', linkid);
         assetLine.setAttribute('data-link-path', asset._attributes.link_path);
+        assetLine.setAttribute('data-sort-order', sortOrder);
         assetLine.setAttribute('data-typecode', typeCode);
 
         if (assetTypeCache[typeCode]) {
@@ -699,7 +720,7 @@ var JS_Asset_Map = new function() {
         };
 
         this.doRequest(command, function(response) {
-			lastCreatedType = typeCode;
+            lastCreatedType = typeCode;
             if (response.url) {
                 for (var i = 0; i < response.url.length; i++) {
                     var frame    = response.url[i]._attributes.frame;
@@ -1221,6 +1242,140 @@ var JS_Asset_Map = new function() {
     }
 
 
+//--        MOVE ME MODE        --//
+
+
+    /**
+      * Set on "move me" mode.
+     *
+     * Move Me mode is the mode triggered when:
+     * - An asset dragged for moving, linking or cloning.
+      * - An asset is added using the toolbar's "Add" dropdown, to select a position.
+     *
+      * Source may be null. This is used for selecting a target for an asset added
+     * using the toolbar's "Add" dropdown.
+     *
+     * @param {Node}     [source=null] The asset node being moved.
+     * @param {Function} [callback]    The function to call after selecting target.
+     */
+    this.setMoveMeMode = function(source, callback) {
+        source = source || null;
+
+		var self     = this;
+        var assetMap = dfx.getId('asset_map_container');
+        dfx.addClass(assetMap, 'moveMeMode');
+        moveMeStatus = {
+            source: source,
+            callback: callback,
+            selection: null
+        };
+
+		var lineEl = _createEl('div');
+		dfx.addClass(lineEl, 'selectLine');
+		assetMap.appendChild(lineEl);
+		moveMeStatus.selection = lineEl;
+
+        dfx.addEvent(dfx.getClass('tree', assetMap), 'mousedown.moveMe', function(e) {
+			if (moveMeStatus.selection) {
+				callback(source, moveMeStatus.selection);
+			}
+		
+			// if there's no valid target when they click, then that's too bad.	
+			self.cancelMoveMeMode();
+		});
+
+        dfx.addEvent(dfx.getClass('tree', assetMap), 'mousemove.moveMe', function(e) {
+			dfx.removeClass(dfx.getClass('asset', assetMap), 'moveTarget');
+			dfx.removeClass(lineEl, 'active');
+            var target = dfx.getMouseEventTarget(e);
+			while (target) {
+				if (dfx.hasClass(target, 'asset') === true) {
+					break;
+				}
+				target = target.parentNode;
+			}//end while
+
+			if (target) {
+				dfx.addClass(lineEl, 'active');
+				var position     = dfx.getMouseEventPosition(e);
+
+				// Find the next closest parent.
+				var parentAsset  = dfx.getParents(target, '.childIndent')[0];
+				if (parentAsset) {
+					parentAsset = parentAsset.previousSibling;
+				}
+
+				var assetMapCoords = dfx.getElementCoords(assetMap);
+				var assetRect    = dfx.getBoundingRectangle(target);
+				var fromTop      = position.y - assetRect.y1;
+				var fromBottom   = assetRect.y2 - position.y + 1;
+
+				var assetNameSpan = dfx.getClass('assetName', target)[0];
+				var assetNameRect = dfx.getBoundingRectangle(assetNameSpan);
+
+				moveMeStatus.selection = {
+					parentid: 1,
+					linkid: 1,
+					before: -1
+				};
+
+				if (fromTop <= 3) {
+					if (parentAsset) {
+						moveMeStatus.selection.parentid = parentAsset.getAttribute('data-assetid');
+						moveMeStatus.selection.linkid   = parentAsset.getAttribute('data-linkid');
+					}
+					
+					moveMeStatus.selection.before = target.getAttribute('data-sort-order');
+					dfx.setCoords(lineEl, (assetNameRect.x1 - assetMapCoords.x), (assetRect.y1 - assetMapCoords.y));
+				} else if (fromBottom <= 3) {
+					if (parentAsset) {
+						moveMeStatus.selection.parentid = parentAsset.getAttribute('data-assetid');
+						moveMeStatus.selection.linkid   = parentAsset.getAttribute('data-linkid');
+					}
+
+					var insertBefore = target.nextSibling;
+					if (insertBefore) {
+						moveMeStatus.selection.before = insertBefore.getAttribute('data-sort-order');
+					}
+
+					dfx.setCoords(lineEl, (assetNameRect.x1 - assetMapCoords.x), (assetRect.y2 - assetMapCoords.y));
+				} else {
+					moveMeStatus.selection = {
+						parentid: target.getAttribute('data-assetid'),
+						linkid: target.getAttribute('data-linkid'),
+						before: -1
+					};
+
+					dfx.addClass(target, 'moveTarget');
+					dfx.setCoords(lineEl, (assetNameRect.x2 - assetMapCoords.x), (((assetRect.y1 + assetRect.y2) / 2) - assetMapCoords.y));
+				}//end if
+			} else {
+				moveMeStatus.selection = null;
+			}
+        });
+
+        dfx.addEvent(dfx.getClass('tree', assetMap), 'mouseout.moveMe', function(e) {
+            
+        });
+    };
+
+
+    /**
+      * Cancel "move me" mode.
+     *
+     */
+    this.cancelMoveMeMode = function() {
+        var assetMap = dfx.getId('asset_map_container');
+        dfx.removeClass(assetMap, 'moveMeMode');
+        moveMeStatus = null;
+
+        dfx.remove(dfx.getClass('selectLine', assetMap));
+        dfx.removeEvent(dfx.getClass('tree', assetMap), 'mousedown.moveMe');
+        dfx.removeEvent(dfx.getClass('tree', assetMap), 'mousemove.moveMe');
+        dfx.removeEvent(dfx.getClass('tree', assetMap), 'mouseout.moveMe');
+    };
+
+
 //--        USE ME MODE        --//
 
 
@@ -1228,13 +1383,13 @@ var JS_Asset_Map = new function() {
         var win    = this.getDefaultView(targetElement);
         var retval = win;
 
-		// We're inside a frame, so check for the main frame.
+        // We're inside a frame, so check for the main frame.
         if (win.frameElement) {
             retval = win.top.frames.sq_main;
-			if (!retval) {
-				// Main frame isn't there.
-				retval = win;
-			}
+            if (!retval) {
+                // Main frame isn't there.
+                retval = win;
+            }
         }
 
         return retval;
@@ -1257,19 +1412,19 @@ var JS_Asset_Map = new function() {
      *
      */
     this.setUseMeMode = function(name, safeName, typeFilter, doneCallback) {
-		var self = this;
+        var self = this;
 
         if (this.isInUseMeMode() === true) {
             alert(js_translate('asset_finder_in_use'));
         } else {
-			var sourceFrame = self.getUseMeFrame();
-			var oldOnUnload = sourceFrame.onunload;
-			dfx.addEvent(sourceFrame, 'unload', function() {
-				self.cancelUseMeMode();
-				if (dfx.isFn(oldOnUnload) === true) {
-					oldOnUnload.call(sourceFrame);
-				}
-			});
+            var sourceFrame = self.getUseMeFrame();
+            var oldOnUnload = sourceFrame.onunload;
+            dfx.addEvent(sourceFrame, 'unload', function() {
+                self.cancelUseMeMode();
+                if (dfx.isFn(oldOnUnload) === true) {
+                    oldOnUnload.call(sourceFrame);
+                }
+            });
 
             var assetMap    = dfx.getId('asset_map_container');
             dfx.addClass(assetMap, 'useMeMode');
@@ -1347,27 +1502,27 @@ var JS_Asset_Map = new function() {
 
         var menuItem = this.drawMenuItem('Use Me');
         dfx.addEvent(menuItem, 'click', function(e) {
-			var sourceFrame = self.getUseMeFrame().document;
+            var sourceFrame = self.getUseMeFrame().document;
             self.clearMenus();
 
-			var assetNameLabel  = dfx.getId(useMeStatus.idPrefix + '_label', sourceFrame);
-			var assetidBox      = dfx.getId(useMeStatus.idPrefix + '_assetid', sourceFrame);
-			var assetidHidden   = dfx.getId(useMeStatus.namePrefix + '[assetid]', sourceFrame);
-			var assetLinkHidden = dfx.getId(useMeStatus.namePrefix + '[linkid]', sourceFrame);
-			var assetTypeHidden = dfx.getId(useMeStatus.namePrefix + '[type_code]', sourceFrame);
-			var assetUrlHidden  = dfx.getId(useMeStatus.namePrefix + '[url]', sourceFrame);
+            var assetNameLabel  = dfx.getId(useMeStatus.idPrefix + '_label', sourceFrame);
+            var assetidBox      = dfx.getId(useMeStatus.idPrefix + '_assetid', sourceFrame);
+            var assetidHidden   = dfx.getId(useMeStatus.namePrefix + '[assetid]', sourceFrame);
+            var assetLinkHidden = dfx.getId(useMeStatus.namePrefix + '[linkid]', sourceFrame);
+            var assetTypeHidden = dfx.getId(useMeStatus.namePrefix + '[type_code]', sourceFrame);
+            var assetUrlHidden  = dfx.getId(useMeStatus.namePrefix + '[url]', sourceFrame);
             
-			assetNameLabel.value  = dfx.getNodeTextContent(dfx.getClass('assetName', assetNode)[0]);
-			assetidBox.value      = assetNode.getAttribute('data-assetid');
-			assetidHidden.value   = assetNode.getAttribute('data-assetid');
-			assetLinkHidden.value = assetNode.getAttribute('data-linkid');
-			assetTypeHidden.value = assetNode.getAttribute('data-typecode');
-			assetUrlHidden.value  = '';
+            assetNameLabel.value  = dfx.getNodeTextContent(dfx.getClass('assetName', assetNode)[0]);
+            assetidBox.value      = assetNode.getAttribute('data-assetid');
+            assetidHidden.value   = assetNode.getAttribute('data-assetid');
+            assetLinkHidden.value = assetNode.getAttribute('data-linkid');
+            assetTypeHidden.value = assetNode.getAttribute('data-typecode');
+            assetUrlHidden.value  = '';
 
-			var changeButton = dfx.getId(useMeStatus.idPrefix + '_change_btn', sourceFrame);
-			changeButton.value = js_translate('change');
+            var changeButton = dfx.getId(useMeStatus.idPrefix + '_change_btn', sourceFrame);
+            changeButton.value = js_translate('change');
 
-			if (dfx.isFn(useMeStatus.doneCallback)) {
+            if (dfx.isFn(useMeStatus.doneCallback)) {
                 useMeStatus.doneCallback(assetid);
             }
 
@@ -1398,11 +1553,11 @@ var JS_Asset_Map = new function() {
         var assetMap = dfx.getId('asset_map_container');
         var hasUseMe = dfx.hasClass(assetMap, 'useMeMode');
 
-		if (hasUseMe === true) {
-			if (excludePrefix === useMeStatus.namePrefix) {
-				hasUseMe = false;
-			}
-		}
+        if (hasUseMe === true) {
+            if (excludePrefix === useMeStatus.namePrefix) {
+                hasUseMe = false;
+            }
+        }
 
         return hasUseMe;
 
@@ -1434,15 +1589,15 @@ var JS_Asset_Map = new function() {
         dfx.addEvent(container, 'contextmenu', function(e) {
             e.preventDefault();
         });
-		dfx.addEvent(container, 'mouseover', function(e) {
-			if (!timeouts.addTypeSubmenu) {
-				timeouts.addTypeSubmenu = setTimeout(function() {
-					self.clearMenus('addMenu');
-					self.clearMenus('subtype');
-					timeouts.addTypeSubmenu = null;
-				}, 400);
-			}
-		}); 
+        dfx.addEvent(container, 'mouseover', function(e) {
+            if (!timeouts.addTypeSubmenu) {
+                timeouts.addTypeSubmenu = setTimeout(function() {
+                    self.clearMenus('addMenu');
+                    self.clearMenus('subtype');
+                    timeouts.addTypeSubmenu = null;
+                }, 400);
+            }
+        }); 
 
         var screens = assetTypeCache[assetType]['screens'];
         for (var i in screens) {
@@ -1481,27 +1636,27 @@ var JS_Asset_Map = new function() {
         // TODO: try to do this where no children are allowed for an asset type
         //       (needs additional handling in asset_map.inc).
         if (assetType !== 'trash_folder') {
-			if (lastCreatedType === null) {
-            	var menuItem = this.drawMenuItem('No Previous Child', null);
-	            dfx.addClass(menuItem, 'disabled');
-			} else {
-            	var menuItem = this.drawMenuItem('New ' + assetTypeCache[lastCreatedType].name, lastCreatedType);
-				dfx.addEvent(menuItem, 'click', function(e) {
-					self.clearMenus();
-					self.addAsset(lastCreatedType, assetid, -1);
-				});
-			}
+            if (lastCreatedType === null) {
+                var menuItem = this.drawMenuItem('No Previous Child', null);
+                dfx.addClass(menuItem, 'disabled');
+            } else {
+                var menuItem = this.drawMenuItem('New ' + assetTypeCache[lastCreatedType].name, lastCreatedType);
+                dfx.addEvent(menuItem, 'click', function(e) {
+                    self.clearMenus();
+                    self.addAsset(lastCreatedType, assetid, -1);
+                });
+            }
             container.appendChild(menuItem);
 
             var menuItem = this.drawMenuItem('New Child', null, true);
             container.appendChild(menuItem);
 
             dfx.addEvent(menuItem, 'mouseover', function(e) {
-				if (timeouts.addTypeSubmenu) {
-					clearTimeout(timeouts.addTypeSubmenu);
-					timeouts.addTypeSubmenu = null;
-				}
-				e.stopPropagation();
+                if (timeouts.addTypeSubmenu) {
+                    clearTimeout(timeouts.addTypeSubmenu);
+                    timeouts.addTypeSubmenu = null;
+                }
+                e.stopPropagation();
 
                 var assetMap = dfx.getId('asset_map_container');
                 var target   = dfx.getMouseEventTarget(e);
@@ -1555,13 +1710,13 @@ var JS_Asset_Map = new function() {
         dfx.addEvent(container, 'contextmenu', function(e) {
             e.preventDefault();
         });
-		dfx.addEvent(container, 'mouseover', function(e) {
-			if (timeouts.addTypeSubmenu) {
-				clearTimeout(timeouts.addTypeSubmenu);
-				timeouts.addTypeSubmenu = null;
-			}
-			self.clearMenus('subtype');
-		}); 
+        dfx.addEvent(container, 'mouseover', function(e) {
+            if (timeouts.addTypeSubmenu) {
+                clearTimeout(timeouts.addTypeSubmenu);
+                timeouts.addTypeSubmenu = null;
+            }
+            self.clearMenus('subtype');
+        }); 
 
         for (var i in assetCategories) {
             var menuItem = this.drawMenuItem(i, null, true);
@@ -1570,7 +1725,7 @@ var JS_Asset_Map = new function() {
 
             dfx.addEvent(menuItem, 'mouseover', function(e) {
                 var target = e.currentTarget;
-				e.stopPropagation();
+                e.stopPropagation();
 
                 var existingMenu = dfx.getClass('assetMapMenu.subtype', self.topDocumentElement(target));
 
@@ -1593,15 +1748,15 @@ var JS_Asset_Map = new function() {
             if (parentid !== undefined) {
                 self.addAsset('folder', parentid, -1);
             } else {
-                // Picked through add menu.
-                // Select a parent asset or empty slot.
+				self.setMoveMeMode(null, function(source, selection) {
+					self.addAsset('folder', selection.parentid, selection.before);
+				});
             }
         });
         container.appendChild(menuItem);
 
         return container;
     };
-
 
     /**
      * Draw menu of asset types in a given category (or "flash menu path").
@@ -1640,8 +1795,9 @@ var JS_Asset_Map = new function() {
                 if (parentid !== undefined) {
                     self.addAsset(typeCode, parentid, -1);
                 } else {
-                    // Picked through add menu.
-                    // Select a parent asset or empty slot.
+					self.setMoveMeMode(null, function(source, selection) {
+						self.addAsset(typeCode, selection.parentid, selection.before);
+					});
                 }
             });
             container.appendChild(menuItem);
@@ -1733,11 +1889,11 @@ var JS_Asset_Map = new function() {
                 if (response !== null) {
                     try {
                         response = JSON.parse(response);
-            			self.message('', false);
+                        self.message('', false);
                     } catch (ex) {
                         // self.raiseError(ex.message);
                         // That we made it here means it couldn't be handled.
-            			self.message('Failed!', false, 2000);
+                        self.message('Failed!', false, 2000);
                         self.raiseError(ex.message);
                         return;
                     }
@@ -1807,10 +1963,10 @@ var JS_Asset_Map = new function() {
  * on the PHP side but they are converted to individual types for JS/Java.
  * If no type code restriction is set, all types are allowed.
  *
- * @param {String}   name			The prefix for asset finder name attributes
- * @param {String}   safeName       The prefix for asset finder ID attributes
- * @param {String}   [typeCodes]    Pipe-separated list of restricted type codes
- * @param {Function} [doneCallback] Callback to call once a selection is made
+ * @param {String}   name           The prefix for asset finder name attributes.
+ * @param {String}   safeName       The prefix for asset finder ID attributes.
+ * @param {String}   [typeCodes]    Pipe-separated list of restricted type codes.
+ * @param {Function} [doneCallback] Callback to call once a selection is made.
  */
 function asset_finder_change_btn_press(name, safeName, typeCodes, doneCallback)
 {
@@ -1824,62 +1980,79 @@ function asset_finder_change_btn_press(name, safeName, typeCodes, doneCallback)
             typeCodes.pop();
         }
     }//end if
-	
-	var mainWin      = JS_Asset_Map.getUseMeFrame();
-	var changeButton = dfx.getId(safeName + '_change_btn', mainWin.document);
-	if (JS_Asset_Map.isInUseMeMode(name) === true) {
-		alert(js_translate('asset_finder_in_use'));
-	} else if (JS_Asset_Map.isInUseMeMode() === true) {
-		changeButton.setAttribute('value', js_translate('change'));
-		JS_Asset_Map.cancelUseMeMode();
-	} else {
-		changeButton.setAttribute('value', js_translate('cancel'));
-		JS_Asset_Map.setUseMeMode(name, safeName, typeCodes, doneCallback);
-	}
+    
+    var mainWin      = JS_Asset_Map.getUseMeFrame();
+    var changeButton = dfx.getId(safeName + '_change_btn', mainWin.document);
+    if (JS_Asset_Map.isInUseMeMode(name) === true) {
+        alert(js_translate('asset_finder_in_use'));
+    } else if (JS_Asset_Map.isInUseMeMode() === true) {
+        changeButton.setAttribute('value', js_translate('change'));
+        JS_Asset_Map.cancelUseMeMode();
+    } else {
+        changeButton.setAttribute('value', js_translate('cancel'));
+        JS_Asset_Map.setUseMeMode(name, safeName, typeCodes, doneCallback);
+    }
 
 }//asset_finder_change_btn_press()
+
 
 /**
  * Handler for clicking of the Clear button of an asset finder.
  *
- * The type codes are pipe separated (eg. 'page_standard|news_item') and a
- * single type code restriction has a trailing pipe (eg. 'page_standard|').
- * Type code restrictions do not match ancestors - descendants can be specified
- * on the PHP side but they are converted to individual types for JS/Java.
- * If no type code restriction is set, all types are allowed.
- *
- * @param {String}   name			The prefix for asset finder name attributes
- * @param {String}   safeName       The prefix for asset finder ID attributes
- * @param {String}   [typeCodes]    Pipe-separated list of restricted type codes
- * @param {Function} [doneCallback] Callback to call once a selection is made
+ * @param {String} name     The prefix for asset finder name attributes.
+ * @param {String} safeName The prefix for asset finder ID attributes.
  */
 function asset_finder_clear_btn_press(name, safeName)
 {
-	var sourceFrame = JS_Asset_Map.getUseMeFrame().document;
-	dfx.getId(name + '[assetid]', sourceFrame).value    = '0';
-	dfx.getId(name + '[url]', sourceFrame).value        = '';
-	dfx.getId(name + '[linkid]', sourceFrame).value     = '';
-	dfx.getId(name + '[type_code]', sourceFrame).value  = '';
-	dfx.getId(safeName + '_label', sourceFrame).value   = '';
-	dfx.getId(safeName + '_assetid', sourceFrame).value = '';
+    var sourceFrame = JS_Asset_Map.getUseMeFrame().document;
+    dfx.getId(name + '[assetid]', sourceFrame).value    = '0';
+    dfx.getId(name + '[url]', sourceFrame).value        = '';
+    dfx.getId(name + '[linkid]', sourceFrame).value     = '';
+    dfx.getId(name + '[type_code]', sourceFrame).value  = '';
+    dfx.getId(safeName + '_label', sourceFrame).value   = '';
+    dfx.getId(safeName + '_assetid', sourceFrame).value = '';
 
 }//end asset_finder_clear_btn_press()
 
+
+/**
+ * Handler for clicking of the Reset button of an asset finder.
+ *
+ * @param {String} name     The prefix for asset finder name attributes.
+ * @param {String} safeName The prefix for asset finder ID attributes.
+ * @param {String} assetid  The asset ID the asset finder is to be reset to.
+ * @param {String} label    The asset name label used for the reset.
+ */
 function asset_finder_reset_btn_press(name, safeName, assetid, label)
 {
-	var sourceFrame = JS_Asset_Map.getUseMeFrame().document;
-	dfx.getId(name + '[assetid]', sourceFrame).value    = assetid;
-	dfx.getId(name + '[url]', sourceFrame).value        = '';
-	dfx.getId(name + '[linkid]', sourceFrame).value     = '';
-	dfx.getId(name + '[type_code]', sourceFrame).value  = '';
-	dfx.getId(safeName + '_label', sourceFrame).value   = label;
-	dfx.getId(safeName + '_assetid', sourceFrame).value = assetid;
+    var sourceFrame = JS_Asset_Map.getUseMeFrame().document;
+    dfx.getId(name + '[assetid]', sourceFrame).value    = assetid;
+    dfx.getId(name + '[url]', sourceFrame).value        = '';
+    dfx.getId(name + '[linkid]', sourceFrame).value     = '';
+    dfx.getId(name + '[type_code]', sourceFrame).value  = '';
+    dfx.getId(safeName + '_label', sourceFrame).value   = label;
+    dfx.getId(safeName + '_assetid', sourceFrame).value = assetid;
 
 }//end asset_finder_clear_btn_press()
 
-function asset_finder_assetid_changed(name, safeName, typeCodes, doneCallback, value)
+
+/**
+ * Handler for changing the assetid textbox of an asset finder.
+ *
+ * @param {String}   name         The prefix for asset finder name attributes.
+ * @param {String}   safeName     The prefix for asset finder ID attributes.
+ * @param {String}   typeCodes    Asset type restriction. Currently unused.
+ * @param {Function} doneCallback Callback to be fired after the change. 
+ * @param {String}   assetid      The entered asset ID.
+ */
+function asset_finder_assetid_changed(name, safeName, typeCodes, doneCallback, assetid)
 {
-	var sourceFrame = JS_Asset_Map.getUseMeFrame().document;
-	dfx.getId(name + '[assetid]', sourceFrame).value = value;
-	
+    var sourceFrame = JS_Asset_Map.getUseMeFrame().document;
+    var assetidBox = dfx.getId(name + '[assetid]', sourceFrame);
+    assetidBox.value = assetid;
+    
+    if (dfx.isFn(doneCallback) === true) {
+        doneCallback.call(assetidBox, assetid);
+    }
+    
 }//end asset_finder_assetid_changed()
