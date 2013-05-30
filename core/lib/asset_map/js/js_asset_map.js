@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.42 2013/05/29 05:48:47 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.43 2013/05/30 00:23:31 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.42 $
+ * @version $Revision: 1.1.2.43 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -328,7 +328,6 @@ var JS_Asset_Map = new function() {
                     var screencode = typeinfo['screen'][j]['_attributes']['code_name'];
                     var screenname = typeinfo['screen'][j]['_content'];
                     assetTypeCache[typecode]['screens'][screencode] = screenname;
-                    self.message('Cache ' + i + '.' + j, true);
                 }//end for
             }//end for
 
@@ -428,19 +427,6 @@ var JS_Asset_Map = new function() {
                         // could leave the map with multiple or zero selection.
                         dfx.removeClass(dfx.getClass('asset', assetMap), 'located');
                         dfx.toggleClass(assetTarget, 'selected');
-                    }
-
-                    var assets = self.currentSelection();
-                    switch (assets.length) {
-                        case 1:
-                            self.message('Asset ' + assets[0].getAttribute('data-assetid') + ' selected', false);
-                        break;
-                        case 0:
-                            self.message('No assets selected', false);
-                        break;
-                        default:
-                            self.message(assets.length + ' assets selected', false);
-                        break;
                     }
                 } else if (e.which === 3) {
                     // Right mouse button
@@ -545,7 +531,6 @@ var JS_Asset_Map = new function() {
                 return false;
             } else {
                 // Deselect everything.
-                self.message('Deselect', false);
                 dfx.removeClass(dfx.getClass('asset', trees), 'selected located');
                 self.clearMenus();
             }//end if
@@ -714,6 +699,7 @@ var JS_Asset_Map = new function() {
         };
 
         this.doRequest(command, function(response) {
+			lastCreatedType = typeCode;
             if (response.url) {
                 for (var i = 0; i < response.url.length; i++) {
                     var frame    = response.url[i]._attributes.frame;
@@ -1448,6 +1434,15 @@ var JS_Asset_Map = new function() {
         dfx.addEvent(container, 'contextmenu', function(e) {
             e.preventDefault();
         });
+		dfx.addEvent(container, 'mouseover', function(e) {
+			if (!timeouts.addTypeSubmenu) {
+				timeouts.addTypeSubmenu = setTimeout(function() {
+					self.clearMenus('addMenu');
+					self.clearMenus('subtype');
+					timeouts.addTypeSubmenu = null;
+				}, 400);
+			}
+		}); 
 
         var screens = assetTypeCache[assetType]['screens'];
         for (var i in screens) {
@@ -1486,14 +1481,28 @@ var JS_Asset_Map = new function() {
         // TODO: try to do this where no children are allowed for an asset type
         //       (needs additional handling in asset_map.inc).
         if (assetType !== 'trash_folder') {
-            var menuItem = this.drawMenuItem('No Previous Child', null);
-            dfx.addClass(menuItem, 'disabled');
+			if (lastCreatedType === null) {
+            	var menuItem = this.drawMenuItem('No Previous Child', null);
+	            dfx.addClass(menuItem, 'disabled');
+			} else {
+            	var menuItem = this.drawMenuItem('New ' + assetTypeCache[lastCreatedType].name, lastCreatedType);
+				dfx.addEvent(menuItem, 'click', function(e) {
+					self.clearMenus();
+					self.addAsset(lastCreatedType, assetid, -1);
+				});
+			}
             container.appendChild(menuItem);
 
-            var menuItem = this.drawMenuItem('Add Child', null, true);
+            var menuItem = this.drawMenuItem('New Child', null, true);
             container.appendChild(menuItem);
 
             dfx.addEvent(menuItem, 'mouseover', function(e) {
+				if (timeouts.addTypeSubmenu) {
+					clearTimeout(timeouts.addTypeSubmenu);
+					timeouts.addTypeSubmenu = null;
+				}
+				e.stopPropagation();
+
                 var assetMap = dfx.getId('asset_map_container');
                 var target   = dfx.getMouseEventTarget(e);
 
@@ -1546,6 +1555,13 @@ var JS_Asset_Map = new function() {
         dfx.addEvent(container, 'contextmenu', function(e) {
             e.preventDefault();
         });
+		dfx.addEvent(container, 'mouseover', function(e) {
+			if (timeouts.addTypeSubmenu) {
+				clearTimeout(timeouts.addTypeSubmenu);
+				timeouts.addTypeSubmenu = null;
+			}
+			self.clearMenus('subtype');
+		}); 
 
         for (var i in assetCategories) {
             var menuItem = this.drawMenuItem(i, null, true);
@@ -1554,6 +1570,7 @@ var JS_Asset_Map = new function() {
 
             dfx.addEvent(menuItem, 'mouseover', function(e) {
                 var target = e.currentTarget;
+				e.stopPropagation();
 
                 var existingMenu = dfx.getClass('assetMapMenu.subtype', self.topDocumentElement(target));
 
@@ -1710,16 +1727,18 @@ var JS_Asset_Map = new function() {
         var str = JSON.stringify(command);
         var self = this;
         var readyStateCb = function() {
-            self.message('Requesting...' + xhr.readyState, true);
+            self.message('Requesting...', true);
             if (xhr.readyState === 4) {
                 var response = xhr.responseText;
                 if (response !== null) {
                     try {
                         response = JSON.parse(response);
+            			self.message('', false);
                     } catch (ex) {
                         // self.raiseError(ex.message);
                         // That we made it here means it couldn't be handled.
-                        self.raiseError(response);
+            			self.message('Failed!', false, 2000);
+                        self.raiseError(ex.message);
                         return;
                     }
 
@@ -1763,6 +1782,36 @@ var JS_Asset_Map = new function() {
 //--        LEGACY FUNCTIONS FOR ASSET FINDER        --//
 
 
+/*
+ * NOTE:
+ * These legacy functions exist mainly to allow custom Simple Edit interfaces
+ * that expect the old-style functions (in the global space) to still work.
+ *
+ * Only the functions that are accessed from the asset finder are implemented.
+ * Other functions existed that were called from the Java applet which are not
+ * replicated here. Functions should perform a minimum of their own processing
+ * and defer to JS_Asset_Map for as much as possible.
+ */
+
+
+/**
+ * Handler for clicking of the Change/Cancel button of an asset finder.
+ *
+ * Sets or cancels Use Me mode as appropriate, or fires an alert message if
+ * the Change button is clicked on an Asset Finder while another already has
+ * a claim on the asset map.
+ *
+ * The type codes are pipe separated (eg. 'page_standard|news_item') and a
+ * single type code restriction has a trailing pipe (eg. 'page_standard|').
+ * Type code restrictions do not match ancestors - descendants can be specified
+ * on the PHP side but they are converted to individual types for JS/Java.
+ * If no type code restriction is set, all types are allowed.
+ *
+ * @param {String}   name			The prefix for asset finder name attributes
+ * @param {String}   safeName       The prefix for asset finder ID attributes
+ * @param {String}   [typeCodes]    Pipe-separated list of restricted type codes
+ * @param {Function} [doneCallback] Callback to call once a selection is made
+ */
 function asset_finder_change_btn_press(name, safeName, typeCodes, doneCallback)
 {
     if (typeCodes === '') {
@@ -1790,6 +1839,20 @@ function asset_finder_change_btn_press(name, safeName, typeCodes, doneCallback)
 
 }//asset_finder_change_btn_press()
 
+/**
+ * Handler for clicking of the Clear button of an asset finder.
+ *
+ * The type codes are pipe separated (eg. 'page_standard|news_item') and a
+ * single type code restriction has a trailing pipe (eg. 'page_standard|').
+ * Type code restrictions do not match ancestors - descendants can be specified
+ * on the PHP side but they are converted to individual types for JS/Java.
+ * If no type code restriction is set, all types are allowed.
+ *
+ * @param {String}   name			The prefix for asset finder name attributes
+ * @param {String}   safeName       The prefix for asset finder ID attributes
+ * @param {String}   [typeCodes]    Pipe-separated list of restricted type codes
+ * @param {Function} [doneCallback] Callback to call once a selection is made
+ */
 function asset_finder_clear_btn_press(name, safeName)
 {
 	var sourceFrame = JS_Asset_Map.getUseMeFrame().document;
@@ -1820,11 +1883,3 @@ function asset_finder_assetid_changed(name, safeName, typeCodes, doneCallback, v
 	dfx.getId(name + '[assetid]', sourceFrame).value = value;
 	
 }//end asset_finder_assetid_changed()
-
-function asset_finder_cancel()
-{
-}//end asset_finder_cancel()
-
-function asset_finder_onunload()
-{
-}//end asset_finder_onunload()
