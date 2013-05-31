@@ -11,7 +11,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search.inc,v 1.40 2013/04/05 07:54:59 ewang Exp $
+* $Id: trim_saved_search.inc,v 1.41 2013/05/31 02:34:07 cupreti Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -250,7 +250,7 @@ class TRIM_Saved_Search extends Data_Source
 							$ordered_result[$new_index]	= $new_record_info;
 
 							// INTEGRITY Check
-							if (isset($new_record_info['recDocumentType']) && $new_record_info['recDocumentType'] != 'Record has no document attached.') {
+							if ($this->attr('download_files') && isset($new_record_info['recDocumentType']) && $new_record_info['recDocumentType'] != 'Record has no document attached.') {
 								// We have a file here, have to check whether it is still in the system
 								$final_file_path	= $this->data_path.'/'.$new_record_info['Uri'];
 								$files_stored		= glob($final_file_path.'/*');
@@ -294,15 +294,12 @@ class TRIM_Saved_Search extends Data_Source
 			// Data source expect the key values to be correctly sorted.
 			$result	= array_values($ordered_result);
 			if ($updated) {
-				if (!empty($result)) {
-					$this->cacheResult($result, $hash);
-					return TRUE;
-				}//end if
+				$this->cacheResult($result, $hash);
+				return TRUE;
 			}//end if
 			return FALSE;
 		} else {
-			$this->getResultSet();
-			return TRUE;
+			return $this->getResultSet() ? TRUE : FALSE;
 		}//end else
 
 	}//end updateCachedResult()
