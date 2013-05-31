@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_search_page.inc,v 1.47.4.1 2013/03/08 05:23:18 ewang Exp $
+* $Id: funnelback_search_page.inc,v 1.47.4.2 2013/05/31 03:08:28 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Page
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.47.4.1 $
+* @version $Revision: 1.47.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -448,7 +448,7 @@ class Funnelback_Search_Page extends Listing_Engine
 			$binary = $fm->getFunnelbackPath().'/bin/clix2anx';
 			$coll_path = $fm->getCollectionDataPath($collection);
 			$log_file = $fm->getCollectionDataPath($collection, 'log').'/click.log';
-			$command = $binary.' '.$query.' '.$url.' '.$rank.' '.$log_file;
+			$command = $binary.' '.escapeshellarg($query).' '.escapeshellarg($url).' '.escapeshellarg($rank).' '.escapeshellarg($log_file);
 			$output = '';
 			$fm->runCommand($command, $output, NULL, NULL, $coll_path);
 			header('Location: '.$url);
@@ -2314,7 +2314,8 @@ class Funnelback_Search_Page extends Listing_Engine
 		$search_term = array_get_index($params, 'query', '');
 		$scope = array_get_index($params, 'scope', '');
 		$page = array_get_index($params, 'page', 1);
-		$num_per_page = array_get_index($params, 'num_per_page', $this->_getNumPerPage());
+		$num_per_page = intval(array_get_index($params, 'num_per_page', $this->_getNumPerPage()));
+		
 		$sort = array_get_index($params, 'sort', $this->attr('sort_order'));
 		$metadata_scope = $this->_getMetadataScope();
 		if (empty($scope)) {
@@ -2355,7 +2356,7 @@ class Funnelback_Search_Page extends Listing_Engine
 			case 'date':
 			case 'title':
 			case 'url':
-				$command .= ' -sort '.$sort;
+				$command .= ' -sort '.escapeshellarg($sort);
 			break;
 
 			case 'rank':
