@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.81.2.1 2013/05/22 03:42:37 akarelia Exp $
+* $Id: messaging_service.inc,v 1.81.2.2 2013/05/31 03:09:36 ewang Exp $
 *
 */
 
@@ -37,7 +37,7 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 *    Facilitate the sending and management of internal messages
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.81.2.1 $
+* @version $Revision: 1.81.2.2 $
 * @package MySource_Matrix
 */
 class Messaging_Service extends MySource_Object
@@ -740,11 +740,7 @@ class Messaging_Service extends MySource_Object
 				$from_email = $from;
 			}
 			if (empty($from_email)) {
-				if (isset($_SERVER['HOSTNAME']) && isset($_SERVER['HTTP_HOST'])) {
-					$from_email = 'webmaster@'.((SQ_PHP_CLI) ? $_SERVER['HOSTNAME'] : $_SERVER['HTTP_HOST']);
-				} else {
-					$from_email = SQ_CONF_DEFAULT_EMAIL;
-				}
+				$from_email = SQ_CONF_DEFAULT_EMAIL;
 			}
 			if (empty($from_string)) {
 				$from_string = '"'.SQ_SYSTEM_SHORT_NAME.' System" <'.$from_email.'>';
