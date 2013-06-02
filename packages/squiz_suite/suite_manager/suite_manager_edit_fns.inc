@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: suite_manager_edit_fns.inc,v 1.9 2012/08/30 00:59:25 ewang Exp $
+* $Id: suite_manager_edit_fns.inc,v 1.9.6.1 2013/06/02 23:54:13 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.9.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage squiz_suite
 */
@@ -328,7 +328,8 @@ class Suite_Manager_Edit_Fns extends Page_Edit_Fns
         foreach ($activate as $activate_system) {
             // If found here, then removing the system, so skip activation...
             if (in_array($activate_system, $remove)) continue;
-
+	
+	    $asset->updateProduct($activate_system, 'status', 'pending ack');
             $response = $asset->sendMessage($activate_system, 'suiteConnectAck');
 
 		if (!headers_sent()) {
