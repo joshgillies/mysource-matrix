@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: suite_manager.inc,v 1.18 2012/08/30 00:59:25 ewang Exp $
+* $Id: suite_manager.inc,v 1.18.4.1 2013/06/02 23:54:57 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.18.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage squiz_suite
 */
@@ -1944,8 +1944,8 @@ class Suite_Manager extends Page
 		$filePath = $this->data_path.'/'.$filename;
 		file_put_contents($filePath, $data);
 
-		$command  = '/usr/bin/openssl enc -'.$algorithm.' -a -salt -in '.$filePath;
-		$command .= ' -out '.$filePath.'.enc -pass pass:'.$password;
+		$command  = '/usr/bin/openssl enc -'.$algorithm.' -a -salt -in '.escapeshellarg($filePath);
+		$command .= ' -out '.escapeshellarg($filePath.'.enc').' -pass '.escapeshellarg('pass:'.$password);
 		exec($command, $output, $returnVal);
 		if ($returnVal === 0 && file_exists($filePath.'.enc') === TRUE) {
 			$encrypted = file_get_contents($filePath.'.enc');
@@ -1981,8 +1981,8 @@ class Suite_Manager extends Page
 		$filePath = $this->data_path.'/'.$filename;
 		file_put_contents($filePath, $data);
 
-		$command  = '/usr/bin/openssl enc -d -'.$algorithm.' -a -salt -in '.$filePath;
-		$command .= ' -out '.$filePath.'.dec  -pass pass:'.$password;
+		$command  = '/usr/bin/openssl enc -d -'.$algorithm.' -a -salt -in '.escapeshellarg($filePath);
+		$command .= ' -out '.escapeshellarg($filePath.'.dec').'  -pass '.escapeshellarg('pass:'.$password);
 		exec($command, $output, $returnVal);
 		if ($returnVal === 0 && file_exists($filePath.'.dec') === TRUE) {
 			$encrypted = file_get_contents($filePath.'.dec');

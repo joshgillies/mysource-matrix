@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: squiz_suite_system_suite.inc,v 1.12 2012/08/30 00:59:25 ewang Exp $
+* $Id: squiz_suite_system_suite.inc,v 1.12.4.1 2013/06/02 23:54:57 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/squiz_suite/systems/squiz_suite_system/squiz_sui
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.12.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage squiz_suite
 */
@@ -410,7 +410,7 @@ class Squiz_Suite_System_Suite extends Squiz_Suite_System
 			$suite_manager->logReceivedMessage($systemid, 'suiteConnectAckAck');
 
 			$suiteid = $productInfo['suiteid'];
-			if ($productInfo['status'] === 'pending approval') {
+			if ($productInfo['status'] === 'pending ack') {
 				$suite_manager->updateProduct($suiteid, 'status', 'live');
 				$suite_manager->updateProduct($suiteid, 'sync_status', 'A');
 			}
