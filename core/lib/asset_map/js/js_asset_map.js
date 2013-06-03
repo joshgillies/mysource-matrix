@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.44 2013/05/30 06:34:49 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.45 2013/06/03 23:45:58 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.44 $
+ * @version $Revision: 1.1.2.45 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -176,7 +176,28 @@ var JS_Asset_Map = new function() {
         }
 
         return el;
-    }
+    };
+
+
+    /**
+     * Create a child container for an asset.
+     *
+     * Returns a div with the correct class, ID and parentid dataset attribute.
+     * It's the responsibility of the caller to spot the container in the DOM
+     * at the place it wants.
+     *
+     * @param {String} parentid The parent asset of this container.
+     *
+      * @returns {Node}
+     */
+    var _createChildContainer = function(parentid) {
+        var containerId = 'child-indent-' + encodeURIComponent(parentid);
+        var container   = _createEl('div');
+        container.id    = containerId;
+        container.setAttribute('data-parentid', parentid);
+        dfx.addClass(container, 'childIndent');
+        return container;
+    };
 
     /**
      * Convert a single status number (1, 2, 4, ..., 256) into a status class name.
@@ -497,10 +518,8 @@ var JS_Asset_Map = new function() {
                 } else {
                     dfx.addClass(branchTarget, 'expanded');
 
-                    var container = _createEl('div');
-                    dfx.addClass(container, 'childIndent');
+                    var container = _createChildContainer(assetid);
                     dfx.addClass(container, 'loading');
-                    container.id        = rootIndentId;
                     container.innerHTML = 'Loading...';
                     target.parentNode.insertBefore(container, target.nextSibling);
 
@@ -821,14 +840,14 @@ var JS_Asset_Map = new function() {
         // The spinner is a sprite, so handle it using an interval.
         if ((spinner === false) && (timeouts.spinner)) {
             clearInterval(timeouts.spinner);
-            dfx.setStyle(spinnerDiv, 'background-position', '0 0'); 
+            dfx.setStyle(spinnerDiv, 'background-position', '0 0');
             timeouts.spinner = null;
         } else if ((spinner === true) && (!timeouts.spinner)) {
-            dfx.setStyle(spinnerDiv, 'background-position', '-15px 0'); 
+            dfx.setStyle(spinnerDiv, 'background-position', '-15px 0');
             timeouts.spinner = setInterval(function() {
                 var bpPos   = dfx.getStyle(spinnerDiv, 'background-position').split(' ');
                 var newLeft = ((parseInt(bpPos[0], 10) % 180) - 15);
-                dfx.setStyle(spinnerDiv, 'background-position', newLeft + 'px 0px'); 
+                dfx.setStyle(spinnerDiv, 'background-position', newLeft + 'px 0px');
             }, 100);
         }
 
@@ -962,6 +981,9 @@ var JS_Asset_Map = new function() {
         tbButton.innerHTML = '&nbsp;';
         tbButton.setAttribute('title', 'Refresh');
         tbButtons.appendChild(tbButton);
+        dfx.addEvent(tbButton, 'click', function(e) {
+            self.refreshTree();
+        });
 
         var tbButton = _createEl('div');
         tbButton.id        = 'asset_map_button_restore';
@@ -1049,7 +1071,7 @@ var JS_Asset_Map = new function() {
         var spinnerDiv = _createEl('div');
         dfx.addClass(spinnerDiv, 'spinner');
         container.appendChild(spinnerDiv);
-        
+
         var messageDiv = _createEl('div');
         messageDiv.id        = 'asset_map_message';
         dfx.addClass(messageDiv, 'message');
@@ -1111,6 +1133,7 @@ var JS_Asset_Map = new function() {
      */
     this.drawTree = function(rootAsset, container) {
         var assetLine = null;
+        container.setAttribute('data-parentid', rootAsset._attributes.assetid);
 
         for (var i = 0; i < rootAsset.asset.length; i++) {
             var asset  = rootAsset.asset[i];
@@ -1139,6 +1162,90 @@ var JS_Asset_Map = new function() {
         if (assetLine) {
             dfx.addClass(assetLine, 'last-child');
         }
+    };
+
+    /**
+     * Refresh the current tree.
+     *
+      * To refresh the full tree, pass no parameters. Otherwise, the root asset will
+     * be used to refresh a partial tree (whether
+     *
+     * @param {String} [rootAsset] The root asset to refresh.
+     */
+    this.refreshTree = function(rootAsset) {
+        var self     = this;
+        var tree     = this.getCurrentTreeElement();
+        if (rootAsset === undefined) {
+            rootAsset = tree.getAttribute('data-parentid');
+        }
+
+        var assetids = [];
+        if (String(rootAsset) === '1') {
+            var rootNode = tree;
+        } else {
+            var rootNode = dfx.find(tree, 'div.childIndent[data-parentid="' + rootAsset + '"]')[0];
+        }
+
+        if (rootNode) {
+            assetids.push(rootAsset);
+            var children = dfx.getClass('childIndent', rootNode);
+            for (var i = 0; i < children.length; i++) {
+                assetids.push(children[i].getAttribute('data-parentid'));
+            }
+        }
+
+        if (assetids.length > 0) {
+            var assetRequests = [];
+            while (assetids.length > 0) {
+                var assetid    = assetids.shift();
+                sortOrder      = 0;
+
+                assetRequests.push({
+                    _attributes: {
+                        assetid: assetid,
+                        linkid: null,
+                        start: sortOrder,
+                        limit: options.assetsPerPage
+                    }
+                });
+            }//end while
+
+            var processAssets = function(response) {
+                var container = null;
+
+                for (var i = 0; i < response.asset.length; i++) {
+                    var thisAsset = response.asset[i];
+                    var assetid   = thisAsset._attributes.assetid;
+
+                    if (String(assetid) === '1') {
+                        container = tree;
+                    } else {
+                        var assetNode = dfx.find(tree, 'div.asset[data-assetid=' + assetid  + ']')[0];
+                        dfx.addClass(assetNode, 'expanded');
+
+                        container = dfx.find(tree, 'div.childIndent[data-parentid=' + assetid  + ']')[0];
+                        if (!container) {
+                            if (dfx.hasClass(assetNode.nextSibling, 'childIndent') === false) {
+                                container = _createChildContainer(assetid);
+                                assetNode.parentNode.insertBefore(container, assetNode.nextSibling);
+                            }//end if
+                        }//end if
+                    }//end if
+
+                    container.innerHTML = '';
+                    self.drawTree(thisAsset, container);
+                }//end for
+
+                self.message('Success!', false, 2000);
+            };
+
+            this.doRequest({
+                _attributes: {
+                    action: 'get assets',
+                },
+                asset: assetRequests
+            }, processAssets);
+        }//end if
     };
 
 
@@ -1180,7 +1287,7 @@ var JS_Asset_Map = new function() {
                             dfx.remove(container);
                             assetids.unshift(assetid);
                             break;
-                        } else {                    
+                        } else {
                             var branchTarget = dfx.getClass('branch-status', assetLine);
                             dfx.addClass(branchTarget, 'expanded');
                             dfx.removeClass(container, 'collapsed');
@@ -1212,9 +1319,8 @@ var JS_Asset_Map = new function() {
             var processAssets = function(response) {
                 for (var i = 0; i < response.asset.length; i++) {
                     var thisAsset = response.asset[i];
-                    var container = _createEl('div');
+                    var container = _createChildContainer(thisAsset._attributes.assetid);
                     dfx.addClass(assetLine, 'expanded');
-                    dfx.addClass(container, 'childIndent');
                     assetLine.parentNode.insertBefore(container, assetLine.nextSibling);
                     self.drawTree(thisAsset, container);
 
@@ -1261,7 +1367,7 @@ var JS_Asset_Map = new function() {
     this.setMoveMeMode = function(source, callback) {
         source = source || null;
 
-		var self     = this;
+        var self     = this;
         var assetMap = dfx.getId('asset_map_container');
         dfx.addClass(assetMap, 'moveMeMode');
         moveMeStatus = {
@@ -1270,92 +1376,92 @@ var JS_Asset_Map = new function() {
             selection: null
         };
 
-		var lineEl = _createEl('div');
-		dfx.addClass(lineEl, 'selectLine');
-		assetMap.appendChild(lineEl);
-		moveMeStatus.selection = lineEl;
+        var lineEl = _createEl('div');
+        dfx.addClass(lineEl, 'selectLine');
+        assetMap.appendChild(lineEl);
+        moveMeStatus.selection = lineEl;
 
         dfx.addEvent(dfx.getClass('tree', assetMap), 'mousedown.moveMe', function(e) {
-			if (moveMeStatus.selection) {
-				callback(source, moveMeStatus.selection);
-			}
-		
-			// if there's no valid target when they click, then that's too bad.	
-			self.cancelMoveMeMode();
-		});
+            if (moveMeStatus.selection) {
+                callback(source, moveMeStatus.selection);
+            }
+
+            // if there's no valid target when they click, then that's too bad.
+            self.cancelMoveMeMode();
+        });
 
         dfx.addEvent(dfx.getClass('tree', assetMap), 'mousemove.moveMe', function(e) {
-			dfx.removeClass(dfx.getClass('asset', assetMap), 'moveTarget');
-			dfx.removeClass(lineEl, 'active');
+            dfx.removeClass(dfx.getClass('asset', assetMap), 'moveTarget');
+            dfx.removeClass(lineEl, 'active');
             var target = dfx.getMouseEventTarget(e);
-			while (target) {
-				if (dfx.hasClass(target, 'asset') === true) {
-					break;
-				}
-				target = target.parentNode;
-			}//end while
+            while (target) {
+                if (dfx.hasClass(target, 'asset') === true) {
+                    break;
+                }
+                target = target.parentNode;
+            }//end while
 
-			if (target) {
-				dfx.addClass(lineEl, 'active');
-				var position     = dfx.getMouseEventPosition(e);
+            if (target) {
+                dfx.addClass(lineEl, 'active');
+                var position     = dfx.getMouseEventPosition(e);
 
-				// Find the next closest parent.
-				var parentAsset  = dfx.getParents(target, '.childIndent')[0];
-				if (parentAsset) {
-					parentAsset = parentAsset.previousSibling;
-				}
+                // Find the next closest parent.
+                var parentAsset  = dfx.getParents(target, '.childIndent')[0];
+                if (parentAsset) {
+                    parentAsset = parentAsset.previousSibling;
+                }
 
-				var assetMapCoords = dfx.getElementCoords(assetMap);
-				var assetRect    = dfx.getBoundingRectangle(target);
-				var fromTop      = position.y - assetRect.y1;
-				var fromBottom   = assetRect.y2 - position.y + 1;
+                var assetMapCoords = dfx.getElementCoords(assetMap);
+                var assetRect    = dfx.getBoundingRectangle(target);
+                var fromTop      = position.y - assetRect.y1;
+                var fromBottom   = assetRect.y2 - position.y + 1;
 
-				var assetNameSpan = dfx.getClass('assetName', target)[0];
-				var assetNameRect = dfx.getBoundingRectangle(assetNameSpan);
+                var assetNameSpan = dfx.getClass('assetName', target)[0];
+                var assetNameRect = dfx.getBoundingRectangle(assetNameSpan);
 
-				moveMeStatus.selection = {
-					parentid: 1,
-					linkid: 1,
-					before: -1
-				};
+                moveMeStatus.selection = {
+                    parentid: 1,
+                    linkid: 1,
+                    before: -1
+                };
 
-				if (fromTop <= 3) {
-					if (parentAsset) {
-						moveMeStatus.selection.parentid = parentAsset.getAttribute('data-assetid');
-						moveMeStatus.selection.linkid   = parentAsset.getAttribute('data-linkid');
-					}
-					
-					moveMeStatus.selection.before = target.getAttribute('data-sort-order');
-					dfx.setCoords(lineEl, (assetNameRect.x1 - assetMapCoords.x), (assetRect.y1 - assetMapCoords.y));
-				} else if (fromBottom <= 3) {
-					if (parentAsset) {
-						moveMeStatus.selection.parentid = parentAsset.getAttribute('data-assetid');
-						moveMeStatus.selection.linkid   = parentAsset.getAttribute('data-linkid');
-					}
+                if (fromTop <= 3) {
+                    if (parentAsset) {
+                        moveMeStatus.selection.parentid = parentAsset.getAttribute('data-assetid');
+                        moveMeStatus.selection.linkid   = parentAsset.getAttribute('data-linkid');
+                    }
 
-					var insertBefore = target.nextSibling;
-					if (insertBefore) {
-						moveMeStatus.selection.before = insertBefore.getAttribute('data-sort-order');
-					}
+                    moveMeStatus.selection.before = target.getAttribute('data-sort-order');
+                    dfx.setCoords(lineEl, (assetNameRect.x1 - assetMapCoords.x), (assetRect.y1 - assetMapCoords.y));
+                } else if (fromBottom <= 3) {
+                    if (parentAsset) {
+                        moveMeStatus.selection.parentid = parentAsset.getAttribute('data-assetid');
+                        moveMeStatus.selection.linkid   = parentAsset.getAttribute('data-linkid');
+                    }
 
-					dfx.setCoords(lineEl, (assetNameRect.x1 - assetMapCoords.x), (assetRect.y2 - assetMapCoords.y));
-				} else {
-					moveMeStatus.selection = {
-						parentid: target.getAttribute('data-assetid'),
-						linkid: target.getAttribute('data-linkid'),
-						before: -1
-					};
+                    var insertBefore = target.nextSibling;
+                    if (insertBefore) {
+                        moveMeStatus.selection.before = insertBefore.getAttribute('data-sort-order');
+                    }
 
-					dfx.addClass(target, 'moveTarget');
-					dfx.setCoords(lineEl, (assetNameRect.x2 - assetMapCoords.x), (((assetRect.y1 + assetRect.y2) / 2) - assetMapCoords.y));
-				}//end if
-			} else {
-				moveMeStatus.selection = null;
-			}
+                    dfx.setCoords(lineEl, (assetNameRect.x1 - assetMapCoords.x), (assetRect.y2 - assetMapCoords.y));
+                } else {
+                    moveMeStatus.selection = {
+                        parentid: target.getAttribute('data-assetid'),
+                        linkid: target.getAttribute('data-linkid'),
+                        before: -1
+                    };
+
+                    dfx.addClass(target, 'moveTarget');
+                    dfx.setCoords(lineEl, (assetNameRect.x2 - assetMapCoords.x), (((assetRect.y1 + assetRect.y2) / 2) - assetMapCoords.y));
+                }//end if
+            } else {
+                moveMeStatus.selection = null;
+            }
         });
 
         dfx.addEvent(dfx.getClass('tree', assetMap), 'mouseout.moveMe', function(e) {
-            
+
         });
     };
 
@@ -1407,7 +1513,7 @@ var JS_Asset_Map = new function() {
      *
      *
      *
-     * @param {Node}  element     
+     * @param {Node}  element
      * @param {Array} [typeFilter] The type filter.
      *
      */
@@ -1452,7 +1558,7 @@ var JS_Asset_Map = new function() {
 
 
     /**
-      * Update the enabled/disabled status for 
+      * Update the enabled/disabled status for
      */
     this.updateAssetsForUseMe = function(rootTree) {
         if (rootTree === undefined) {
@@ -1511,7 +1617,7 @@ var JS_Asset_Map = new function() {
             var assetLinkHidden = dfx.getId(useMeStatus.namePrefix + '[linkid]', sourceFrame);
             var assetTypeHidden = dfx.getId(useMeStatus.namePrefix + '[type_code]', sourceFrame);
             var assetUrlHidden  = dfx.getId(useMeStatus.namePrefix + '[url]', sourceFrame);
-            
+
             assetNameLabel.value  = dfx.getNodeTextContent(dfx.getClass('assetName', assetNode)[0]);
             assetidBox.value      = assetNode.getAttribute('data-assetid');
             assetidHidden.value   = assetNode.getAttribute('data-assetid');
@@ -1597,7 +1703,7 @@ var JS_Asset_Map = new function() {
                     timeouts.addTypeSubmenu = null;
                 }, 400);
             }
-        }); 
+        });
 
         var screens = assetTypeCache[assetType]['screens'];
         for (var i in screens) {
@@ -1629,6 +1735,7 @@ var JS_Asset_Map = new function() {
         var menuItem = this.drawMenuItem('Refresh', null);
         dfx.addEvent(menuItem, 'click', function(e) {
             self.clearMenus();
+            self.refreshTree(assetid);
         });
         container.appendChild(menuItem);
 
@@ -1716,7 +1823,7 @@ var JS_Asset_Map = new function() {
                 timeouts.addTypeSubmenu = null;
             }
             self.clearMenus('subtype');
-        }); 
+        });
 
         for (var i in assetCategories) {
             var menuItem = this.drawMenuItem(i, null, true);
@@ -1748,9 +1855,9 @@ var JS_Asset_Map = new function() {
             if (parentid !== undefined) {
                 self.addAsset('folder', parentid, -1);
             } else {
-				self.setMoveMeMode(null, function(source, selection) {
-					self.addAsset('folder', selection.parentid, selection.before);
-				});
+                self.setMoveMeMode(null, function(source, selection) {
+                    self.addAsset('folder', selection.parentid, selection.before);
+                });
             }
         });
         container.appendChild(menuItem);
@@ -1795,9 +1902,9 @@ var JS_Asset_Map = new function() {
                 if (parentid !== undefined) {
                     self.addAsset(typeCode, parentid, -1);
                 } else {
-					self.setMoveMeMode(null, function(source, selection) {
-						self.addAsset(typeCode, selection.parentid, selection.before);
-					});
+                    self.setMoveMeMode(null, function(source, selection) {
+                        self.addAsset(typeCode, selection.parentid, selection.before);
+                    });
                 }
             });
             container.appendChild(menuItem);
@@ -1974,13 +2081,13 @@ function asset_finder_change_btn_press(name, safeName, typeCodes, doneCallback)
         typeCodes = undefined;
     } else {
         // Split piped type codes into an array, but if there's only one
-        // type code then there's a trailing pipe at the end. 
+        // type code then there's a trailing pipe at the end.
         var typeCodes = typeCodes.split('|');
         if ((typeCodes.length === 2) && (typeCodes[1] === '')) {
             typeCodes.pop();
         }
     }//end if
-    
+
     var mainWin      = JS_Asset_Map.getUseMeFrame();
     var changeButton = dfx.getId(safeName + '_change_btn', mainWin.document);
     if (JS_Asset_Map.isInUseMeMode(name) === true) {
@@ -2042,7 +2149,7 @@ function asset_finder_reset_btn_press(name, safeName, assetid, label)
  * @param {String}   name         The prefix for asset finder name attributes.
  * @param {String}   safeName     The prefix for asset finder ID attributes.
  * @param {String}   typeCodes    Asset type restriction. Currently unused.
- * @param {Function} doneCallback Callback to be fired after the change. 
+ * @param {Function} doneCallback Callback to be fired after the change.
  * @param {String}   assetid      The entered asset ID.
  */
 function asset_finder_assetid_changed(name, safeName, typeCodes, doneCallback, assetid)
@@ -2050,9 +2157,9 @@ function asset_finder_assetid_changed(name, safeName, typeCodes, doneCallback, a
     var sourceFrame = JS_Asset_Map.getUseMeFrame().document;
     var assetidBox = dfx.getId(name + '[assetid]', sourceFrame);
     assetidBox.value = assetid;
-    
+
     if (dfx.isFn(doneCallback) === true) {
         doneCallback.call(assetidBox, assetid);
     }
-    
+
 }//end asset_finder_assetid_changed()
