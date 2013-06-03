@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_invalid_links.php,v 1.9.4.1 2013/05/09 22:54:17 akarelia Exp $
+* $Id: system_integrity_invalid_links.php,v 1.9.4.2 2013/06/03 04:53:12 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Nathan Callahan <ncallahan@squiz.net>
 * @author  Mohamed Haidar <mhaidar@squiz.net>
-* @version $Revision: 1.9.4.1 $
+* @version $Revision: 1.9.4.2 $
 * @package MySource_Matrix
 */
 
@@ -71,7 +71,7 @@ if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 }
 
 $GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db');
-$sql  = "SELECT * FROM sq_ast_lnk a WHERE NOT EXISTS (SELECT assetid FROM sq_ast WHERE assetid = a.minorid)"
+$sql  = "SELECT * FROM sq_ast_lnk a WHERE NOT EXISTS (SELECT assetid FROM sq_ast WHERE assetid = a.minorid)";
 if (!$remove_notice_links && $ACTION != 'check') $sql .= " AND a.link_type <> :link_type";
 
 $sql .= " UNION SELECT * FROM sq_ast_lnk b WHERE NOT EXISTS (SELECT assetid FROM sq_ast WHERE assetid = b.majorid) AND b.majorid <> '0'";
