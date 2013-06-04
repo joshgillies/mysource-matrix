@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_execute_database_query.inc,v 1.7 2012/12/03 00:43:11 cupreti Exp $
+* $Id: trigger_action_execute_database_query.inc,v 1.7.4.1 2013/06/04 00:46:38 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -156,7 +156,7 @@ class Trigger_Action_Execute_Database_Query extends Trigger_Action
 		foreach(array_unique($keywords) as $keyword) {
 			if (0 === strpos($keyword, 'globals_')) {
 				$whole_keyword = $keyword_wrapper.$keyword.$keyword_wrapper;
-				$sql = str_replace($whole_keyword, MatrixDAL::quote($whole_keyword), $sql);
+				$sql = str_replace($whole_keyword, MatrixDAL::quote($whole_keyword, array_get_index($connect_dsn, 'type', NULL)), $sql);
 				$includes_globals = TRUE;
 			}//end if
 		}//end foreach
