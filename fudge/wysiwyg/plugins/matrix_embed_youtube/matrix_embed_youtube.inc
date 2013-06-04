@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_embed_youtube.inc,v 1.10 2013/05/09 05:56:55 akarelia Exp $
+* $Id: matrix_embed_youtube.inc,v 1.11 2013/06/04 00:28:05 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     A WYSIWYG plugin to allow the user to insert a YouTube movie
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -244,11 +244,13 @@ class matrix_embed_youtube extends wysiwyg_plugin
 			$movie_url_prefix = 'http://www.youtube.com/v/';
 			$movie_url = '';
 			$add_suffix_vars = TRUE;
+			$current_video_id = '';
 			if (isset($movie_vars['video_url']) && !empty($movie_vars['video_url'])) {
 				if (preg_match('/youtu(\.?)be(.*)(v?)[\/|=](.+?)&/', $movie_vars['video_url'], $v_match)) {
 					if (isset($v_match[4]) && !empty($v_match[4])) {
 						// I found the video id
 						$movie_url = $movie_url_prefix.$v_match[4];
+						$current_video_id = $v_match[4];
 					} else {
 						// Pray, the url is correct
 						$movie_url = $movie_vars['video_url'];
@@ -277,7 +279,7 @@ class matrix_embed_youtube extends wysiwyg_plugin
 				}
 			}
 
-			$movie_url_vars = '&playerapiid=matrixytplayer';
+			$movie_url_vars = '?playerapiid=matrixytplayer';
 
 			foreach($movie_vars as $var_name => $var_value) {
 				switch ($var_name) {
@@ -305,11 +307,13 @@ class matrix_embed_youtube extends wysiwyg_plugin
 					case 'auto_start':
 						if ($var_value == '1') {
 							$movie_url_vars .= '&autoplay='.$var_value;
+						} else {
+							$movie_url_vars .= '&autoplay=0';
 						}
 					break;
 					case 'loop':
 						if ($var_value == '1') {
-							$movie_url_vars .= '&loop='.$var_value;
+							$movie_url_vars .= '&loop='.$var_value.'&playlist='.$current_video_id;
 						} else {
 							$movie_url_vars .= '&loop=0';
 						}
@@ -344,10 +348,12 @@ class matrix_embed_youtube extends wysiwyg_plugin
 					break;
 				}//end switch
 			}//end foreach
+
 			$movie_url_vars = htmlentities($movie_url_vars, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 
-			ob_start();
+			if (strpos($movie_url, '?') !== FALSE) $movie_url_vars = ltrim($movie_url_vars, '?');
 
+			ob_start();
 			?>
 			<sq_wysiwyg_embed_youtube <?php echo $match; ?>>
 			<script src="http://swfobject.googlecode.com/svn/tags/rc3/swfobject/src/swfobject.js" type="text/javascript"></script>
