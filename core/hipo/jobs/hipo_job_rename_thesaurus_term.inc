@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_rename_thesaurus_term.inc,v 1.6 2012/08/30 01:09:19 ewang Exp $
+* $Id: hipo_job_rename_thesaurus_term.inc,v 1.7 2013/06/04 03:42:39 ewang Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -322,6 +322,8 @@ class HIPO_Job_Rename_Thesaurus_Term extends HIPO_Job
 		if (!empty($old_term) || !empty($new_term)) {
 			// Do the rename per asset and play nice with ORACLE
 			$chunk_size = 1000;
+			$old_term     = str_replace(chr(0), '', $old_term);
+			$new_term     = str_replace(chr(0), '', $new_term);
 			$field_chunks = array_chunk($this->_running_vars['fieldids'], $chunk_size);
 			foreach ($field_chunks as $field_chunk) {
 				// Quoting Shakespeare
@@ -331,7 +333,10 @@ class HIPO_Job_Rename_Thesaurus_Term extends HIPO_Job
 
 				// bug fix #4430 Thesaurus Terms Update this term system wide Issue
 				// if we have more than one term applied, then we do it differently
-				$sql = "SELECT value, assetid, fieldid, contextid FROM sq_ast_mdata_val WHERE value like '$old_term,%' OR value like '%,$old_term' OR value like '%,$old_term,%'";
+				$sql  = 'SELECT value, assetid, fieldid, contextid FROM sq_ast_mdata_val';
+				$sql .= ' WHERE value like '.MatrixDAL::quote($old_term.',%');
+				$sql .= ' OR value like '.MatrixDAL::quote('%,'.$old_term);
+				$sql .= ' OR value like '.MatrixDAL::quote('%,'.$old_term.',%');
 
 				$results = MatrixDAL::executeSqlAssoc($sql);
 				if (!empty($results)) {
