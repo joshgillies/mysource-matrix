@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_password_reset.inc,v 1.17 2012/08/30 00:58:09 ewang Exp $
+* $Id: page_password_reset.inc,v 1.18 2013/06/04 06:33:47 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *	Allows a user to reset their password.
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -458,13 +458,17 @@ class Page_Password_Reset extends Page
 			$bodycopy = $this->_getBodycopy($action);
 			$keywords = $bodycopy->getKeywords();
 
-			foreach ($keywords as $keyword) {
+			foreach ($keywords as $whole_keyword) {
+				$keyword = parse_keyword($whole_keyword, $modifiers);
+
 				if (!in_array($keyword, array_keys($new_replacements))) {
-					$replacements[$keyword] = $this->getKeywordReplacement($keyword);
+					$replacements[$whole_keyword] = $this->getKeywordReplacement($keyword);
 				} else {
-					$replacements[$keyword] = $new_replacements[$keyword];
+					$replacements[$whole_keyword] = $new_replacements[$keyword];
 				}
-			}
+				apply_keyword_modifiers($replacements[$whole_keyword], $modifiers, Array('assetid' => $this->id));
+			}//end foreach
+
 			$bodycopy->setKeywordReplacements($replacements);
 			$bodycopy->printBody();
 
