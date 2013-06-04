@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.77 2013/02/14 03:40:14 akarelia Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.77.2.1 2013/06/04 04:27:55 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.77 $
+* @version $Revision: 1.77.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -519,11 +519,17 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 				$replacements = Array();
 				foreach ($keywords as $idx => $keyword) {
 					if (strpos($keyword, 'nested_get_') === 0) {
-						$sub_keyword = substr($keyword, 11);
-						$replacements[$keyword] = array_get_index($_GET, $sub_keyword, '');
+						$modifiers = NULL;
+						$part_keyword = parse_keyword($keyword, $modifiers);
+						$get_var = substr($part_keyword, 11);
+						$value = array_get_index($_GET, $get_var, '');
+						if ($part_keyword != $keyword) {
+							apply_keyword_modifiers($value, $modifiers, Array('assetid' => $nested_asset->id));
+						}
+
+						$replacements[$keyword] = $value;
 					}
 				}
-
 				replace_keywords($asset_contents, $replacements);
 			}
 
