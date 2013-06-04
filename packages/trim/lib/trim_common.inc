@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_common.inc,v 1.32 2013/04/05 07:17:30 cupreti Exp $
+* $Id: trim_common.inc,v 1.32.2.1 2013/06/04 04:08:59 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.32.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage trim
 */
@@ -1022,7 +1022,8 @@ class TRIM_Common
 											'TargetForUpdate'		=> FALSE,
 											'IsForUpdate'			=> FALSE,
 											'Limit'					=> 1,
-											'Skip'					=> 0,    
+											'Skip'					=> 0,   
+											'Reserved'				=> FALSE,
 										   );
 		// END GET ASSIGNEE URI
 		$FetchInjectionUriLocationId	= Array (
@@ -1442,6 +1443,8 @@ class TRIM_Common
 																		'HideInternalLocations'	=>	FALSE,
 																		'HideExternalLocations'	=>	FALSE,
 																		'HideAdhocLocations'	=>	FALSE,
+																		'Reserved'				=>  FALSE,
+
 														),
 						'Fetch'							=> self::constructFetch($specific_items, 100000),							
 					  );
