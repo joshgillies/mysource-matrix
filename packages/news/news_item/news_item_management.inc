@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: news_item_management.inc,v 1.13 2012/08/30 00:59:01 ewang Exp $
+* $Id: news_item_management.inc,v 1.14 2013/06/04 04:13:11 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -138,6 +138,15 @@ class News_Item_Management extends Asset_Management
 																   ),
 												'is_admin'      => false,
 											);
+		$this->vars['shadow_links'] 		= Array(
+												'added'			=> '0.3',
+												'type'			=> 'serialise',
+												'default'		=> Array(),
+												'parameters'	=> Array(
+																	'allow_empty'	=> TRUE,
+																   ),
+												'is_admin'      => TRUE,
+											  );
 
 		$this->components['summary'] = Array (
 										'description'		=> 'Summary',
