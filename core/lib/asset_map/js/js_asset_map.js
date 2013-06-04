@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.45 2013/06/03 23:45:58 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.46 2013/06/04 06:11:55 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.45 $
+ * @version $Revision: 1.1.2.46 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -155,6 +155,26 @@ var JS_Asset_Map = new function() {
     var moveMeStatus = null;
 
 
+    /**
+     * List of assets to refresh, sent from elsewhere in the Matrix system.
+     *
+     * This will get processed every 2 seconds if it contains something, similar to the
+     * Java asset map. It does this rather than doing it for each request because a HIPO
+     * processing a large number of assets (for instance, something that cascades a
+     * status change throughout a whole site) would make multiple requests to update a
+     * single asset (enforced by Matrix's event system), particularly if a large threshold
+     * for changes is set for the HIPO. This allows some form of batching to occur for
+     * these updates.
+     *
+     * These refreshes should be for the asset itself, not their whole tree. If the
+     * asset is shown at multiple places in the tree (whether or not it has been since
+     * re-collapsed), it should be updated in all places, and all trees.
+     *
+     * @var {Array.<String>}
+     */
+    var refreshQueue = [];
+
+
 //--        UTILITY FUNCTIONS        --//
 
 
@@ -222,6 +242,8 @@ var JS_Asset_Map = new function() {
 
     /**
      * Format an asset tree node.
+     *
+     * @param {Object} asset The asset (as returned from JSON) to format.
      */
     var _formatAsset = function(asset) {
         var assetid    = asset._attributes.assetid;
@@ -292,6 +314,16 @@ var JS_Asset_Map = new function() {
     };
 
 
+    /**
+     * Returns true if the type code passed is a parent type.
+     *
+     * Reserved - may be used in future to test .
+     *
+     * @param {String} typecode   The child type code.
+     * @param {String} parentType The prospective parent type code.
+     *
+     * @returns {Boolean}
+     */
     var _isAncestorType = function(typecode, parentType) {
         var ok = false;
         if (parentType === 'asset') {
@@ -403,6 +435,12 @@ var JS_Asset_Map = new function() {
         var assetMap = dfx.getId('asset_map_container');
         var trees    = dfx.getClass('tree', assetMap);
         var self     = this;
+
+        timeouts.refreshQueue = setInterval(function() {
+            if (refreshQueue.length > 0) {
+                self.processRefreshQueue();
+            }
+        }, 2000);
 
         dfx.addEvent(this.getDefaultView(document), 'resize', function() {
             self.resizeTree();
@@ -1155,13 +1193,75 @@ var JS_Asset_Map = new function() {
 
             assetLine = _formatAsset(asset);
             container.appendChild(assetLine);
-        }
+        }//end for
 
         this.updateAssetsForUseMe(container);
 
         if (assetLine) {
             dfx.addClass(assetLine, 'last-child');
         }
+    };
+
+    this.addToRefreshQueue = function(assetids) {
+        refreshQueue = refreshQueue.concat(assetids);
+    };
+
+    this.processRefreshQueue = function() {
+        // Take a local copy of the refresh queue, and clear it.
+        var processQueue = refreshQueue.concat([]);
+        refreshQueue     = [];
+
+        // Requests to be made. However, we are going to try and request zero children.
+        var assetMap      = dfx.getId('asset_map_container');
+        var assetRequests = [];
+
+        for (var i = 0; i < processQueue.length; i++) {
+            assetRequests.push({
+                _attributes: {
+                    assetid: processQueue[i],
+                    linkid: null,
+                    start: 0,
+                    limit: 1 
+                }
+            });
+        }//end for
+
+        var processAssets = function(response) {
+            for (var i = 0; i < response.asset.length; i++) {
+                var thisAsset  = response.asset[i];
+                thisAsset._attributes.name       = decodeURIComponent(thisAsset._attributes.name.replace(/\+/g, '%20'));
+                thisAsset._attributes.assetid    = decodeURIComponent(thisAsset._attributes.assetid.replace(/\+/g, '%20'));
+                thisAsset._attributes.type_code  = decodeURIComponent(thisAsset._attributes.type_code.replace(/\+/g, '%20'));
+
+                var assetid    = thisAsset._attributes.assetid;
+                var assetNodes = dfx.find(assetMap, 'div.asset[data-assetid=' + assetid  + ']');
+                for (var j = 0; j < assetNodes.length; j++) {
+                    var assetNode = assetNodes[j];
+                    var newNode   = _formatAsset(thisAsset);
+
+                    if (dfx.hasClass(assetNode, 'not-accessible') === true) {
+                        dfx.addClass(assetNode, 'not-accessible');
+                    }
+
+                    newNode.setAttribute('data-linkid', assetNode.getAttribute('data-linkid'));
+                    newNode.setAttribute('data-asset-path', assetNode.getAttribute('data-asset-path'));
+                    newNode.setAttribute('data-link-path', assetNode.getAttribute('data-link-path'));
+
+                    dfx.addClass(newNode, 'located');
+                    assetNode.parentNode.replaceChild(newNode, assetNode);
+                }//end for
+            }//end for
+
+            self.message('Success!', false, 2000);
+        };
+
+        this.doRequest({
+            _attributes: {
+                action: 'get assets',
+            },
+            asset: assetRequests
+        }, processAssets);
+
     };
 
     /**
@@ -2163,3 +2263,19 @@ function asset_finder_assetid_changed(name, safeName, typeCodes, doneCallback, a
     }
 
 }//end asset_finder_assetid_changed()
+
+
+/**
+ * Reload assets as requested by other parts of Matrix.
+ *
+ * Replaces the polling in the old Java asset map.
+ */
+function reload_assets(assetids)
+{
+    if (dfx.isArray(assetids) === false) {
+        assetids = assetids.split('|');
+    }
+
+    JS_Asset_Map.addToRefreshQueue(assetids);
+
+}//end reload_assets()
