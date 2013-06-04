@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.52 2012/08/30 01:09:09 ewang Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.53 2013/06/04 04:32:51 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -467,8 +467,9 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 	*/
 	public function paintOptionUpload(Metadata_Field_Select $asset, Backend_Outputter $o, $prefix)
 	{
-		$write_access = $asset->writeAccess();
-		file_upload($prefix.'_option_upload');
+		$write_access = $asset->writeAccess('attributes');
+		if ($write_access) file_upload($prefix.'_option_upload');
+
 		return $write_access;
 
 	}//end paintOptionUpload()
@@ -486,8 +487,9 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 	*/
 	public function paintOptionUploadHeader(Metadata_Field_Select $asset, Backend_Outputter $o, $prefix)
 	{
-		$write_access = $asset->writeAccess();
-		check_box($prefix.'_csv_header', '1');
+		$write_access = $asset->writeAccess('attributes');
+		if ($write_access) check_box($prefix.'_csv_header', '1');
+
 		return $write_access;
 
 	}//end paintOptionUploadHeader()
