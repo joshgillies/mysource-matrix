@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.46 2013/06/04 06:11:55 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.47 2013/06/04 06:55:05 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.46 $
+ * @version $Revision: 1.1.2.47 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -1240,14 +1240,19 @@ var JS_Asset_Map = new function() {
                     var newNode   = _formatAsset(thisAsset);
 
                     if (dfx.hasClass(assetNode, 'not-accessible') === true) {
-                        dfx.addClass(assetNode, 'not-accessible');
+                        dfx.addClass(newNode, 'not-accessible');
                     }
+
+                    if (dfx.hasClass(assetNode, 'selected') === true) {
+                        dfx.addClass(newNode, 'selected');
+                    } else {
+	                    dfx.addClass(newNode, 'located');
+					}
 
                     newNode.setAttribute('data-linkid', assetNode.getAttribute('data-linkid'));
                     newNode.setAttribute('data-asset-path', assetNode.getAttribute('data-asset-path'));
                     newNode.setAttribute('data-link-path', assetNode.getAttribute('data-link-path'));
 
-                    dfx.addClass(newNode, 'located');
                     assetNode.parentNode.replaceChild(newNode, assetNode);
                 }//end for
             }//end for
