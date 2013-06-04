@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: linking.inc,v 1.50 2012/08/30 01:09:20 ewang Exp $
+* $Id: linking.inc,v 1.50.6.1 2013/06/04 01:37:23 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Linking Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.50.6.1 $
 * @package MySource_Matrix
 */
 
@@ -490,7 +490,7 @@ function processLinking(&$owner, &$o, &$ei)
 
 	// Refresh the Asset Map to show linking changes
 	if ($done_something) {
-		$o->addOnLoad('if (window.top.frames["sq_sidenav"] && window.top.frames["sq_sidenav"].reload_asset) window.top.frames["sq_sidenav"].reload_asset("'.$owner->id.'");');
+		$o->addOnLoad('if (window.top.frames["sq_sidenav"] && window.top.frames["sq_sidenav"].reload_assets) window.top.frames["sq_sidenav"].reload_assets(["'.addslashes($owner->id).']");');
 	}
 
 	$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');

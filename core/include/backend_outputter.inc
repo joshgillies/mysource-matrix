@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.174.6.2 2013/05/27 23:21:34 lwright Exp $
+* $Id: backend_outputter.inc,v 1.174.6.3 2013/06/04 01:37:23 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define('SQ_BO_MSG_ERROR',   4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.174.6.2 $
+* @version $Revision: 1.174.6.3 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -1725,7 +1725,7 @@ class Backend_Outputter
     {
         if (!is_null($broadcaster) && isset($broadcaster->id)) {
             if (!in_array($broadcaster->id, $this->_refreshing_assets)) {
-                $this->addOnLoad('if (parent.frames["sq_sidenav"] && parent.frames["sq_sidenav"].reload_asset) parent.frames["sq_sidenav"].reload_asset("'.$broadcaster->id.'");');
+                $this->addOnLoad('if (parent.frames["sq_sidenav"] && parent.frames["sq_sidenav"].reload_assets) parent.frames["sq_sidenav"].reload_assets(["'.addslashes($broadcaster->id).'"]);');
                 $this->_refreshing_assets[] = $broadcaster->id;
             }
         }//end if
@@ -1746,7 +1746,7 @@ class Backend_Outputter
     {
         if (!($broadcaster instanceof Asset)) return;
         if (!in_array($broadcaster->id, $this->_refreshing_assets)) {
-            $this->addOnLoad('if (parent.frames["sq_sidenav"] && parent.frames["sq_sidenav"].reload_asset) parent.frames["sq_sidenav"].reload_asset("'.$broadcaster->id.'");');
+            $this->addOnLoad('if (parent.frames["sq_sidenav"] && parent.frames["sq_sidenav"].reload_assets) parent.frames["sq_sidenav"].reload_assets(["'.addslashes($broadcaster->id).'"]);');
             $this->_refreshing_assets[] = $broadcaster->id;
         }
 
@@ -1766,7 +1766,7 @@ class Backend_Outputter
     {
         if (!($broadcaster instanceof Asset)) return;
         if (!in_array($broadcaster->id, $this->_refreshing_assets)) {
-            $this->addOnLoad('if (parent.frames["sq_sidenav"] && parent.frames["sq_sidenav"].reload_asset) parent.frames["sq_sidenav"].reload_asset("'.$broadcaster->id.'");');
+            $this->addOnLoad('if (parent.frames["sq_sidenav"] && parent.frames["sq_sidenav"].reload_assets) parent.frames["sq_sidenav"].reload_assets(["'.addslashes($broadcaster->id).'"]);');
             $this->_refreshing_assets[] = $broadcaster->id;
         }
 
@@ -1787,7 +1787,7 @@ class Backend_Outputter
         if (!($broadcaster instanceof Asset)) return;
         if (!in_array($broadcaster->id, $this->_refreshing_assets)) {
             if ($event_data['old_type'] != $event_data['new_type']) {
-                $this->addOnLoad('if (parent.frames["sq_sidenav"] && parent.frames["sq_sidenav"].reload_asset) parent.frames["sq_sidenav"].reload_asset("'.$broadcaster->id.'");');
+            	$this->addOnLoad('if (parent.frames["sq_sidenav"] && parent.frames["sq_sidenav"].reload_assets) parent.frames["sq_sidenav"].reload_assets(["'.addslashes($broadcaster->id).'"]);');
                 $this->_refreshing_assets[] = $broadcaster->id;
             }
         }
@@ -1809,7 +1809,7 @@ class Backend_Outputter
         if (!($broadcaster instanceof Asset)) return;
         if (!in_array($broadcaster->id, $this->_refreshing_assets)) {
             if ($event_data['old_status'] != $event_data['new_status']) {
-                $this->addOnLoad('if (parent.frames["sq_sidenav"] && parent.frames["sq_sidenav"].reload_asset) parent.frames["sq_sidenav"].reload_asset("'.$broadcaster->id.'");');
+	            $this->addOnLoad('if (parent.frames["sq_sidenav"] && parent.frames["sq_sidenav"].reload_assets) parent.frames["sq_sidenav"].reload_assets(["'.addslashes($broadcaster->id).'"]);');
                 $this->_refreshing_assets[] = $broadcaster->id;
             }
         }
