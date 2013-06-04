@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_common.inc,v 1.32.2.2 2013/06/04 04:13:11 cupreti Exp $
+* $Id: trim_common.inc,v 1.32.2.3 2013/06/04 04:21:26 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.32.2.2 $
+* @version $Revision: 1.32.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage trim
 */
@@ -72,6 +72,8 @@ class TRIM_Common
 					$group_logic = isset($group['group_logic']) ? $group['group_logic'] : 'AND';
 					$j = 0;
 					foreach ($group['content'] as $field) {
+						$field['name'] = htmlspecialchars($field['name']);
+						$field['keyword'] = htmlspecialchars($field['keyword']);
 						if (preg_match('/^udf:/', $field['name'])) {
 							$RecordUserFieldSearchClause = $group_clause->addChild('RecordUserFieldSearchClause');
 							$RecordUserFieldSearchClause->addChild('UserDefinedFieldName', $field['name']) ;
