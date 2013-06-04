@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_manage_pending_accounts.inc,v 1.15 2012/08/30 00:58:07 ewang Exp $
+* $Id: cron_job_manage_pending_accounts.inc,v 1.15.6.1 2013/06/04 01:03:23 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.15.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -252,17 +252,22 @@ class Cron_Job_Manage_Pending_Accounts extends Cron_Job
 
 						// Delete the inbox and remove its URLs
 						$inbox_link = $user->getInboxLink();
-						$inbox = $GLOBALS['SQ_SYSTEM']->am->getAsset($inbox_link['minorid']);
-						$GLOBALS['SQ_SYSTEM']->am->trashAsset($inbox->id);
-						$inbox->updateLookups();
+						if (!empty($inbox_link)) {
+							$inbox = $GLOBALS['SQ_SYSTEM']->am->getAsset($inbox_link['minorid']);
+							$GLOBALS['SQ_SYSTEM']->am->trashAsset($inbox->id);
+							$inbox->updateLookups();
+							$inbox->delete(false);
+						}
 
 						// Delete the workspace and remove its URLs
-						$workspace = $user->getWorkspace();
-						$GLOBALS['SQ_SYSTEM']->am->trashAsset($workspace->id);
-						$workspace->updateLookups();
+						$workspace_link = $user->getWorkspaceLink();
+						if (!empty($workspace_link)) {
+							$workspace = $GLOBALS['SQ_SYSTEM']->am->getAsset($workspace_link['minorid']);
+							$GLOBALS['SQ_SYSTEM']->am->trashAsset($workspace->id);
+							$workspace->updateLookups();
+							$workspace->delete(false);
+						}
 
-						$inbox->delete(false);
-						$workspace->delete(false);
 						unset($GLOBALS['SQ_PURGING_TRASH']);
 
 						// Delete the account
