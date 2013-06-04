@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.787 2013/04/24 05:42:29 ewang Exp $
+* $Id: asset.inc,v 1.787.2.1 2013/06/04 21:41:04 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.787 $
+* @version $Revision: 1.787.2.1 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3905,6 +3905,8 @@ class Asset extends MySource_Object
 		if (($keyword == 'asset_contents') || (0 === strpos($keyword, 'globals_'))) {
 			return "%$keyword%";
 		}
+		// The full keyword with the modifier(s), if any
+		$full_keyword = $keyword;
 
 		// Remove any modifiers from keyword, and keep them for later.
 		$keyword = parse_keyword($keyword, $modifiers);
@@ -4237,7 +4239,7 @@ class Asset extends MySource_Object
 					$replacement = $this->getKeywordReplacement($keyword);
 				} else {
 					// replace at higher level
-					return "%$keyword%";
+					return "%$full_keyword%";
 				}//end if
 			}
 		}

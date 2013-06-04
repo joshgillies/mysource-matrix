@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.104 2013/02/08 02:09:29 akarelia Exp $
+* $Id: internal_message.inc,v 1.104.2.1 2013/06/04 21:41:04 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.104 $
+* @version $Revision: 1.104.2.1 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -273,11 +273,7 @@ class Internal_Message extends MySource_Object
 			}
 
 			if (empty($from_email)) {
-				if (isset($_SERVER['HOSTNAME']) && isset($_SERVER['HTTP_HOST'])) {
-					$from_email = 'webmaster@'.((SQ_PHP_CLI) ? $_SERVER['HOSTNAME'] : $_SERVER['HTTP_HOST']);
-				} else {
-					$from_email = SQ_CONF_DEFAULT_EMAIL;
-				}
+				$from_email = SQ_CONF_DEFAULT_EMAIL;
 			}
 			if (empty($from_string)) {
 				$from_string = '"'.SQ_SYSTEM_SHORT_NAME.' System" <'.$from_email.'>';

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.55 2013/03/25 03:28:56 csmith Exp $
+* $Id: bodycopy_container.inc,v 1.55.2.1 2013/06/04 21:41:04 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.55.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -332,7 +332,7 @@ class Bodycopy_Container extends Asset
 	public function printBody($keyword_replacements=NULL)
 	{
 		if (!$this->readAccess()) return;
-		
+
 		// if we don't have any keyword replacements passed as an argument,
 		// check if we really don't have any keywords in the contents because in some rare cases,
 		// such as an asset listing that lists bodycopies and use %asset_contents% in the type format, 
@@ -416,6 +416,12 @@ class Bodycopy_Container extends Asset
 				ob_end_clean();
 				replace_keywords($content, $this->keyword_replacements);
 
+				// remove any sq_wysiwyg_* tags used as placeholders for plugins
+				// such as Embed Movie/Youtube but only on frontend
+				if (!SQ_IN_BACKEND && !SQ_IN_LIMBO) {
+					$content = preg_replace('|<sq_wysiwyg_([^ >]*)([^>]*)>(.*)</sq_wysiwyg_\1>|si', '$3', $content);
+				}
+
 				echo $content;
 			}
 		} else {
@@ -464,6 +470,12 @@ class Bodycopy_Container extends Asset
 				// replace keywords in the content
 				replace_keywords($output, $keyword_replacements);
 
+				// remove any sq_wysiwyg_* tags used as placeholders for plugins
+				// such as Embed Movie/Youtube but only on frontend
+				if (!SQ_IN_BACKEND && !SQ_IN_LIMBO) {
+					$output = preg_replace('|<sq_wysiwyg_([^ >]*)([^>]*)>(.*)</sq_wysiwyg_\1>|si', '$3', $output);
+				}
+
 				echo $output;
 				return;
 			}
@@ -477,7 +489,19 @@ class Bodycopy_Container extends Asset
 			if (!is_file($this->data_path.'/'.$content_file_name)) {
 				trigger_localised_error('CORE0009', E_USER_WARNING, $this->name);
 			} else {
-				include($this->data_path.'/'.$content_file_name);
+
+				ob_start();
+					include($this->data_path.'/'.$content_file_name);
+					$content = ob_get_contents();
+				ob_end_clean();
+
+				// remove any sq_wysiwyg_* tags used as placeholders for plugins
+				// such as Embed Movie/Youtube but only on frontend
+				if (!SQ_IN_BACKEND && !SQ_IN_LIMBO) {
+					$content = preg_replace('|<sq_wysiwyg_([^ >]*)([^>]*)>(.*)</sq_wysiwyg_\1>|si', '$3', $content);
+				}
+
+				echo $content;
 			}
 		}//end else
 
