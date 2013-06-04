@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: decision_tree_question_type_select_edit_fns.inc,v 1.2 2012/08/30 00:58:08 ewang Exp $
+* $Id: decision_tree_question_type_select_edit_fns.inc,v 1.2.6.1 2013/06/04 08:58:16 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_decision_tree/decision_t
 *
 *
 * @author  Mohamed Haidar <mhaidar@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -394,6 +394,10 @@ class Decision_Tree_Question_Type_Select_Edit_Fns extends Decision_Tree_Question
 		// Save the key fields
 		if (!isset($_REQUEST[$prefix.'_options_keys'])) return;
 		$key_value = $_REQUEST[$prefix.'_options_keys'];
+
+		// Restrict the allowed characters in the "key"
+		$key_value = preg_replace('/[^A-Za-z0-9\-]/', '_', $key_value);
+
 		foreach ($key_value as $j => $k) {
 			$key_value[$j] = htmlentities($k, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 			if (($k == '') && (isset($value[$j]) && !($value[$j] == ''))) {
