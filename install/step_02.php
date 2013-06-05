@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_02.php,v 1.82 2012/09/26 03:45:43 akarelia Exp $
+* $Id: step_02.php,v 1.83 2013/06/05 04:20:18 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.82 $
+* @version $Revision: 1.83 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -38,15 +38,7 @@ if ((php_sapi_name() == 'cli')) {
 	$err_msg = "ERROR: You need to supply the path to the System Root as the first argument.\n";
 
 } else {
-	if (isset($_GET['SYSTEM_ROOT'])) {
-		$SYSTEM_ROOT = $_GET['SYSTEM_ROOT'];
-	}
-
-	$err_msg = '
-	<div style="background-color: red; color: white; font-weight: bold;">
-		You need to supply the path to the System Root as a query string variable called SYSTEM_ROOT
-	</div>
-	';
+	trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 }
 
 if (empty($SYSTEM_ROOT)) {

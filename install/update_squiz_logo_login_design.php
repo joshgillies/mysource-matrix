@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: update_squiz_logo_login_design.php,v 1.7 2012/08/30 01:11:22 ewang Exp $
+* $Id: update_squiz_logo_login_design.php,v 1.8 2013/06/05 04:20:18 akarelia Exp $
 *
 */
 
@@ -37,15 +37,7 @@ if ((php_sapi_name() == 'cli')) {
 	$err_msg = "ERROR: You need to supply the path to the System Root as the first argument\n";
 
 } else {
-	if (isset($_GET['SYSTEM_ROOT'])) {
-		$SYSTEM_ROOT = $_GET['SYSTEM_ROOT'];
-	}
-
-	$err_msg = '
-	<div style="background-color: red; color: white; font-weight: bold;">
-		You need to supply the path to the System Root as a query string variable called SYSTEM_ROOT
-	</div>
-	';
+	trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 }
 
 if (empty($SYSTEM_ROOT)) {
