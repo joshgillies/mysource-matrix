@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: check_requirements.php,v 1.22 2012/08/30 01:11:22 ewang Exp $
+* $Id: check_requirements.php,v 1.22.8.1 2013/06/05 04:26:03 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
  * This will help work out what's missing from a server
  *
  * @author  Chris Smith <csmith@squiz.net>
- * @version $Revision: 1.22 $
+ * @version $Revision: 1.22.8.1 $
  * @package MySource_Matrix
  * @subpackage install
  */
@@ -37,15 +37,7 @@ if ((php_sapi_name() == 'cli')) {
 	$err_msg = "ERROR: You need to supply the path to the System Root as the first argument\n";
 
 } else {
-	if (isset($_GET['SYSTEM_ROOT'])) {
-		$SYSTEM_ROOT = $_GET['SYSTEM_ROOT'];
-	}
-
-	$err_msg = '
-	<div style="background-color: red; color: white; font-weight: bold;">
-		You need to supply the path to the System Root as a query string variable called SYSTEM_ROOT
-	</div>
-	';
+	trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 }
 
 if (empty($SYSTEM_ROOT)) {
@@ -731,7 +723,7 @@ function check_requirement($requirement_check, $package_name='core')
 				/**
 				 * $ padre-iw -V
 				 *
-				 * FUNNELBACK_PADRE_9.0.2.1-IFUL 64MDPLFS-VEC3-DNAMS2 (Squiz OEM) $Revision: 1.22 $ 
+				 * FUNNELBACK_PADRE_9.0.2.1-IFUL 64MDPLFS-VEC3-DNAMS2 (Squiz OEM) $Revision: 1.22.8.1 $ 
 				 * ....
 				 *
 				 */
