@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.87 2012/08/30 01:11:22 ewang Exp $
+* $Id: step_03.php,v 1.87.4.1 2013/06/05 04:28:50 akarelia Exp $
 *
 */
 
@@ -35,7 +35,7 @@
 * would update all the asset types for core and cms only
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.87 $
+* @version $Revision: 1.87.4.1 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -69,16 +69,7 @@ if ((php_sapi_name() == 'cli')) {
 	$err_msg = "ERROR: You need to supply the path to the System Root as the first argument.\n";
 
 } else {
-	$cli = FALSE;
-	if (isset($_GET['SYSTEM_ROOT'])) {
-		$SYSTEM_ROOT = $_GET['SYSTEM_ROOT'];
-	}
-
-	$err_msg = '
-	<div style="background-color: red; color: white; font-weight: bold;">
-		You need to supply the path to the System Root as a query string variable called SYSTEM_ROOT
-	</div>
-	';
+	trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 }
 
 if (empty($SYSTEM_ROOT)) {

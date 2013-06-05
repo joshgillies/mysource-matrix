@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: generate_install_key.php,v 1.7 2012/08/30 01:11:22 ewang Exp $
+* $Id: generate_install_key.php,v 1.7.4.1 2013/06/05 04:28:50 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.4.1 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -35,15 +35,7 @@ if ((php_sapi_name() == 'cli')) {
 	$err_msg = "ERROR: You need to supply the path to the System Root as the first argument\n";
 
 } else {
-	if (isset($_GET['SYSTEM_ROOT'])) {
-		$SYSTEM_ROOT = $_GET['SYSTEM_ROOT'];
-	}
-
-	$err_msg = '
-	<div style="background-color: red; color: white; font-weight: bold;">
-		You need to supply the path to the System Root as a query string variable called SYSTEM_ROOT
-	</div>
-	';
+	trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 }
 
 if (empty($SYSTEM_ROOT)) {
