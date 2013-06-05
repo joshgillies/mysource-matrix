@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mime_types.inc,v 1.23 2012/08/30 00:56:51 ewang Exp $
+* $Id: mime_types.inc,v 1.24 2013/06/05 00:45:32 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *     Originally stolen from Apaches configuration
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package Fudge
 * @subpackage Standards_Lists
 */
@@ -99,6 +99,7 @@ $standards_lists_mime_types = Array(
 									'sit'		=> 'application/x-stuffit',
 									'sv4cpio'	=> 'application/x-sv4cpio',
 									'sv4crc'	=> 'application/x-sv4crc',
+									'svg'		=>  'image/svg+xml',
 									'tar'		=> 'application/x-tar',
 									'tcl'		=> 'application/x-tcl',
 									'tex'		=> 'application/x-tex',
