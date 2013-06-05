@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.49 2013/06/05 03:38:21 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.50 2013/06/05 04:29:02 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.49 $
+ * @version $Revision: 1.1.2.50 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -71,6 +71,8 @@ var JS_Asset_Map = new function() {
      * @var {Object}
      */
     var options = {};
+
+    var loadRootAsset = null;
 
     /**
      * The current user
@@ -427,9 +429,10 @@ var JS_Asset_Map = new function() {
                 }//end for
             }//end for
 
-            var assets = response['assets'][0]['asset'];
-            self.drawTree(assets[0], containers[0]);
-            self.drawTree(assets[0], containers[1]);
+            var assets    = response['assets'][0]['asset'];
+            loadRootAsset = assets[0];
+            self.drawTree(loadRootAsset, containers[0]);
+            self.drawTree(loadRootAsset, containers[1]);
 
             self.drawTreeList();
             self.selectTree(0);
@@ -497,7 +500,14 @@ var JS_Asset_Map = new function() {
             e.preventDefault();
         });
 
-        dfx.addEvent(trees, 'mousedown', function(e) {
+        for (var i = 0; i < trees.length; i++) {
+            this.initTreeEvents(trees[i]);
+        }
+    };
+
+    this.initTreeEvents = function(tree) {
+        var self = this;
+        dfx.addEvent(tree, 'mousedown', function(e) {
             var branchTarget = null;
             var assetTarget  = null;
 
@@ -1190,7 +1200,7 @@ var JS_Asset_Map = new function() {
 
         var tree1 = _createEl('div');
         dfx.addClass(tree1, 'tab');
-        tree1.innerHTML = 'Tree One';
+        tree1.innerHTML = 'Tree 1';
         treeList.appendChild(tree1);
         dfx.addEvent(tree1, 'click', function() {
             self.selectTree(0);
@@ -1198,10 +1208,32 @@ var JS_Asset_Map = new function() {
 
         var tree2 = _createEl('div');
         dfx.addClass(tree2, 'tab');
-        tree2.innerHTML = 'Tree Two';
+        tree2.innerHTML = 'Tree 2';
         treeList.appendChild(tree2);
         dfx.addEvent(tree2, 'click', function() {
             self.selectTree(1);
+        });
+
+        var addTree = _createEl('div');
+        dfx.addClass(addTree, 'tab new');
+        addTree.innerHTML = '+';
+        treeList.appendChild(addTree);
+        dfx.addEvent(addTree, 'click', function(e) {            
+            var treeNum = dfx.getClass('tab', treeList).length - 1;
+            var newTree = _createEl('div');
+            dfx.addClass(newTree, 'tab');
+            newTree.innerHTML = 'Tree ' + (treeNum + 1);
+            treeList.insertBefore(newTree, addTree);
+
+            var newContainer = self.drawTreeContainer(treeNum);
+            self.initTreeEvents(newContainer);
+            self.drawTree(loadRootAsset, newContainer);
+            self.resizeTree();
+            self.selectTree(treeNum);
+
+            dfx.addEvent(newTree, 'click', function() {
+                self.selectTree(treeNum);
+            });
         });
 
         targetElement.appendChild(treeList);
