@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.78 2013/04/23 01:18:37 ewang Exp $
+* $Id: text.inc,v 1.79 2013/06/05 01:32:37 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.78 $
+* @version $Revision: 1.79 $
 * @package Fudge
 * @subpackage Text
 */
@@ -280,7 +280,7 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array())
 		}
 
 	case "wordcount":
-		return str_word_count($text);
+		return str_word_count($text, 0, '0123456789');
 
 	case "charcount":
 		return strlen($text);
