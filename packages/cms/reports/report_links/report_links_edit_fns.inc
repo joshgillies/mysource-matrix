@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.55 2012/12/17 04:24:11 cupreti Exp $
+* $Id: report_links_edit_fns.inc,v 1.55.4.1 2013/06/05 05:33:06 ewang Exp $
 *
 */
 
@@ -24,13 +24,17 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.55.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Report_Links_Edit_Fns extends Report_Edit_Fns
 {
 
+	var $follow_redirect = FALSE;
+	var $redirect_counter = 0;
+	var $max_redirect = 10;
+	
 
 	/**
 	* Constructor
@@ -61,6 +65,9 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		$owner = $GLOBALS['SQ_SYSTEM']->am->getAsset($job->_running_vars['assetid'], 'report_links');
 
+		$this->follow_redirect = $owner->attr('follow_link_redirect');
+			
+			
 		if (!isset($job->_running_vars['results'])) {
 			$list_content_types = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->getRootAssetid($owner), 'content_type', FALSE);
 			$list_page_redirects = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->getRootAssetid($owner), 'page_redirect', FALSE);
@@ -429,11 +436,11 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			if (!SQ_PA_ENABLED || !$socket) {
 				// if proxy authentication is not enabled, or fopen fails, do the old trick
 				$socket = @fsockopen($url_parts['host'], $url_parts['port'], $errno, $errstr, 15);
+			}
+			
 				if ($socket) {
 					fwrite ($socket, 'HEAD '.$url_path." HTTP/1.0\r\nHost: ".$url_parts['host']."\r\n\r\n");
 				}
-			}
-
 			if (!$socket) {
 				$validated_results['description'] = translate('cms_report_links_invalid_url');
 				$validated_results['valid'] = '0';
@@ -508,6 +515,19 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 	*/
 	function _checkResponse($headers, $response, $info)
 	{
+		if (preg_match('|30[127] |', $response)) {
+		    if($this->follow_redirect && $this->redirect_counter < $this->max_redirect) {
+			preg_match('|Location:\s*(.+)\r|i', $headers, $matches);
+			if (isset($matches[1])) {
+			    // follow redirect link but limit recursive loop
+			    $this->redirect_counter = $this->redirect_counter + 1;
+			    $result = $this->validateExternalLink($matches[1]);
+			    $this->redirect_counter  = 0;
+			    return $result;
+			}
+		    }
+		}
+			
 		if (preg_match('|200 ok|i', $response)) {
 			$description = '';
 			$valid = '1';

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.7 2012/03/22 04:21:00 mhaidar Exp $
+* $Id: edit_interface_screen_details.xml,v 1.7.8.1 2013/06/05 05:33:06 ewang Exp $
 *
 */
 -->
@@ -46,6 +46,9 @@
 			</function_call>
 		</field>
 		<field attribute="report_broken_links">
+			 <boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="follow_link_redirect">
 			 <boolean true_text="yes" false_text="no" />
 		</field>
 		<field>

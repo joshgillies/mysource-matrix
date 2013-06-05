@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_management.inc,v 1.9 2012/08/30 00:58:09 ewang Exp $
+* $Id: report_links_management.inc,v 1.9.6.1 2013/06/05 05:33:06 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.9.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -71,6 +71,14 @@ class Report_Links_Management extends Asset_Management
 									'default'		=> Array('16'),
 									'description'	=> 'Statuses that are being listed.',
 								  );
+		$this->vars['follow_link_redirect'] = Array(
+												'added'			=> '0.2',
+												'type'			=> 'boolean',
+												'default'		=> TRUE,
+												'parameters'	=> Array(
+																	'allow_empty'	=> FALSE,
+																   ),
+											 );
 		$this->Asset_Management($pm);
 
 	}//end constructor

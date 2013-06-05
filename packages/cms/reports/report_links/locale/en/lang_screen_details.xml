@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.9 2012/03/22 04:21:00 mhaidar Exp $
+* $Id: lang_screen_details.xml,v 1.9.8.1 2013/06/05 05:33:06 ewang Exp $
 *
 */
 -->
@@ -54,6 +54,10 @@
 		<field attribute="report_broken_links">
 			<display_name>Report Broken Links?</display_name>
 			<note>Notify the asset administrators if a broken link is found during the report generation process. You will have to add 'asset.report.brokenlink' to 'Log To Email White List' in the Messaging Service Configuration for this to work.</note>
+		</field>
+		<field attribute="follow_link_redirect">
+			<display_name>Follow Redirect Link?</display_name>
+			<note>Follow redirect of external link to check the final url.</note>
 		</field>
 		<field>
 			<function_call>
