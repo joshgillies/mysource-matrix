@@ -172,19 +172,27 @@
     user-select: text;
 }
 
+/**
+ * NOTE: The RTL direction is intentional - it is there to ensure the tabs can be
+ *       ordered top-to-bottom (ie. tree 1 top) when rotated without affecting their
+ *       semantic order when rotated. It is reversed back to LTR in the tabs.
+ */
 #asset_map_container .tree-list {
+    direction: rtl;
     transform: rotate(270deg);
     -ms-transform: rotate(270deg);
     -webkit-transform: rotate(270deg);
     -ms-filter: "progid: DXImageTransform.Microsoft.BasicImage(rotation=3)";
     position: absolute;
     white-space: nowrap;
-    top: 130px;
-    left: -18px;
+    top: 2px;
+    left: -17px;
     width: 18px;
+    font-size: 0.909em;
 }
 
 #asset_map_container .tree-list .tab {
+    direction: ltr;
     display: inline-block;
     white-space: nowrap;
     padding: 2px 5px 2px 20px;

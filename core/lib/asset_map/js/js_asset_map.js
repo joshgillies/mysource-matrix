@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.48 2013/06/05 00:55:53 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.49 2013/06/05 03:38:21 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.48 $
+ * @version $Revision: 1.1.2.49 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -62,7 +62,7 @@ var JS_Asset_Map = new function() {
 
     /**
      * The target element where the asset map will be drawn
-     * @var {String}
+     * @var {Node}
      */
     var targetElement = null;
 
@@ -85,7 +85,7 @@ var JS_Asset_Map = new function() {
     var assetTypeCache = {};
 
     /**
-     * Asset category cache
+     * Asset category cache.
      *
      * Empty category is category name '_EMPTY_'.
      *
@@ -94,7 +94,8 @@ var JS_Asset_Map = new function() {
     var assetCategories = {};
 
     /**
-     * List of parents of asset types.
+     * List of parents of asset types, keyed by child type.
+     * @var {Object}
      */
     var assetTypeParents = {};
 
@@ -188,7 +189,14 @@ var JS_Asset_Map = new function() {
     /**
      * Create an element with optional unselectable attribute set on (for IE<=9).
      *
-     * @param {String}  tagName The name of the tag to create.
+     * This is required because unselectable="on" does not cascade, it must be set
+     * on all elements that require it (unlike user-select in CSS).
+     *
+     * On those browsers that support CSS, user-select: none is the default for the
+     * asset map, so if something is selectable we *add* the ability to select it
+     * using a class.
+     *
+     * @param {String}  tagName            The name of the tag to create.
      * @param {Boolean} [selectable=false] Whether the text should be selectable.
      *
      * @param {Node}
@@ -249,6 +257,11 @@ var JS_Asset_Map = new function() {
 
     /**
      * Format an asset tree node.
+     *
+     * Returns a div representing a single asset node in the tree, including branch
+     * and expand/collapse element, based on what is set in the passed asset JSON.
+     * It's the responsibility of the caller to spot the asset node in the DOM
+     * at the place it wants.
      *
      * @param {Object} asset The asset (as returned from JSON) to format.
      */
@@ -358,15 +371,16 @@ var JS_Asset_Map = new function() {
     /**
      * Start the asset map.
      *
-     * @param {Object} options
+     * @param {Object} startOptions
      */
     this.start = function(startOptions) {
         var self = this;
 
-        targetElement = options.targetElement || dfx.getId('asset_map_container');
-        options       = startOptions;
         var assetMap  = dfx.getId('asset_map_container');
+        targetElement = options.targetElement || assetMap;
+        options       = startOptions;
 
+        // Draw two trees only. 
         this.drawToolbar();
         var containers = [
             this.drawTreeContainer(0),
