@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.216.4.4 2013/05/15 02:13:03 lwright Exp $
+* $Id: backend.inc,v 1.216.4.5 2013/06/05 00:54:06 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.216.4.4 $
+* @version $Revision: 1.216.4.5 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -1144,6 +1144,9 @@ class Backend extends MySource_Object
             .sidenav-tab-end-active {
                 background:	url("<?php echo sq_web_path('lib'); ?>/web/images/sidenav_active_tab_end.png") no-repeat;
             }
+            .sq-backend-header-item {
+                font-size: 1em;
+            }
 
             .sidenav-tab-icon, .sidenav-tab-icon-active {
                 padding-left:		5px;
@@ -1237,9 +1240,9 @@ class Backend extends MySource_Object
         <?php
         if (SQ_IN_LIMBO) {
             ?>
-                <table cellspacing="0" cellpadding="0" border="0" width="100%" height="100%">
+                <table cellspacing="0" cellpadding="0" border="0" width="100%" height="100%" style="position: absolute;">
                     <tr>
-                        <td class="sq-backend-header-item" style="width: 100%;"><img style="margin-left: 21px; margin-bottom: 5px;" src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/matrix_logo.gif" alt="MySource Matrix" /></td>
+                        <td class="sq-backend-header-item" style="width: 100%;"><img style="margin-left: 21px; margin-bottom: 5px;" src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/matrix_logo.gif" alt="Squiz Matrix" /></td>
                     </tr>
                     <tr>
                         <td height="100%" valign="top">&nbsp;</td>
@@ -1262,9 +1265,9 @@ class Backend extends MySource_Object
         } else {
             // we are on the backend
             ?>
-                <table cellspacing="0" cellpadding="0" border="0" width="100%" height="100%">
+                <table cellspacing="0" cellpadding="0" border="0" width="100%" height="100%" style="position: absolute; padding-top: 28px">
                     <tr>
-                        <td class="sq-backend-header-item" style="width: 100%;"><img style="margin-left: 21px; margin-bottom: 5px;" src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/matrix_logo.gif" alt="MySource Matrix" /></td>
+                        <td class="sq-backend-header-item" style="width: 100%;"><img style="margin-left: 21px; margin-bottom: 5px;" src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/matrix_logo.gif" alt="Squiz Matrix" /></td>
                     </tr>
                     <tr>
                         <td height="100%" valign="top">
@@ -1296,7 +1299,7 @@ class Backend extends MySource_Object
                     </tr>
                 </table>
 
-                <div id="asset_map" style="position: absolute; top: 47px; left: 6px; visibility: visible; border-top: 0px none; border-left: 0px none;">
+                <div id="asset_map" style="position: absolute; top: 75px; left: 6px; visibility: visible; border-top: 0px none; border-left: 0px none;">
                     <?php
                     require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
                     $asset_map = new Asset_Map();
@@ -1304,7 +1307,7 @@ class Backend extends MySource_Object
                     $asset_map->embedJSAssetMap('complex', $am_width);
                     ?>
                 </div>
-                <div id="my_space" style="position: absolute; top: 44px; left: 0px; visibility: hidden;">
+                <div id="my_space" style="position: absolute; top: 75px; left: 0px; visibility: hidden;">
                     <?php
                     $user = $GLOBALS['SQ_SYSTEM']->user;
                     $inbox_link = $GLOBALS['SQ_SYSTEM']->am->getLink($user->id, SQ_LINK_TYPE_2, 'inbox', TRUE, NULL, 'major', '1');
