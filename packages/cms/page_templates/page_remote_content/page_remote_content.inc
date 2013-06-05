@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.99 2013/03/08 02:17:41 ewang Exp $
+* $Id: page_remote_content.inc,v 1.99.2.1 2013/06/05 05:37:46 akarelia Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.99 $
+* @version $Revision: 1.99.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1296,11 +1296,25 @@ class Page_Remote_Content extends Page
 		if (empty($this->_tmp['_white_list_'])) return FALSE;
 
 		$url_parts = parse_url($url);
-		$url       = $url_parts['host'];
+
+		// fix for #6326 remote content url tunneling php notices
+		// better  error check than to throw  notices in the logs
+		if (isset($url_parts['host']) === TRUE) {
+			$url = $url_parts['host'];
+		} else {
+			$url = '';
+		}
+
 		if (isset($url_parts['path']) === TRUE) {
 			$url .= $url_parts['path'];
 		}
 		$url = strtolower($url);
+
+		// see if there is a URL before goign any further
+		// the the patch was relative or something like
+		// file://blah/blah then the url var below will be blank
+		// we are not going to use this anyways in that case
+		if (empty($url)) return FALSE;
 
 		foreach ($this->_tmp['_white_list_'] as $white_url) {
 			$white_url_len = strlen(trim($white_url));
