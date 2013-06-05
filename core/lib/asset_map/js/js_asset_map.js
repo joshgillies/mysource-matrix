@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.47 2013/06/04 06:55:05 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.48 2013/06/05 00:55:53 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.47 $
+ * @version $Revision: 1.1.2.48 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -99,13 +99,7 @@ var JS_Asset_Map = new function() {
     var assetTypeParents = {};
 
     /**
-     * The display format of asset names, including keywords
-     * @var {String}
-     */
-    var assetDisplayFormat = '';
-
-    /**
-     * The current tree ID (zero-based)
+     * The current tree ID (zero-based).
      * @var {Number}
      */
     var currentTreeid = 0;
@@ -117,40 +111,54 @@ var JS_Asset_Map = new function() {
     var timeouts = {};
 
     /**
-     * Denotes the last created asset type, so the add menu can show it
+     * Denotes the last created asset type, so the add menu can show it.
      * @var {String}
      */
     var lastCreatedType = null;
 
     /**
-     * List of trees. By default, this will be an array of no more than two
+     * List of trees.
+     *
+     * By default, this will be an array of no more than two
      * trees, although it is possible to support more.
+     *
      * @var {Array}
      */
     var trees = [];
 
     /**
-     * Use me status.
-     * @var {Object]
+     * Tracks the status of "Use Me" (ie. asset finder) mode.
+     *
+     * If this is null, Use Me mode is not active.
+     *
+     * @var {Object}
+     * @property {String}   namePrefix     The prefix for name attributes in the
+     *                                     asset finder that activated Use Me mode.
+     * @property {String}   idPrefix       The prefix for ID attributes in that
+     *                                     asset finder.
+     * @property {Array}    [typeFilter]   The restriction on types that can be
+     *                                     selected. 
+     * @property {Function} [doneCallback] When selection occurs, run this function.
      */
     var useMeStatus = null;
 
     /**
-     * Move me status.
+     * Tracks the status of "Move Me" mode.
      *
-     * If the whole variable is null, move me status is disabled.
-     * - source: {Array.<Node>} the asset lines that is/are being moved/cloned/linked.
-     *   - This can be null, in this case we are placing a new asset created with
-     *     the "Add Menu".
-     * - callback: {Function} the callback when a drop location has been selected.
-     *   - param {Node} Echoes the source of the move me action.
-     *   - param {Node} When an asset line node, it's been dropped directly on an asset.
-     *                  If it's a placeholder, it's been dropped in-between assets.
-     *                  The placeholder node should have dataset attributes of assetid,
-     *                  linkid of parent, and sort order of the following asset (sort
-     *                  order is -1 if dropped after the last child).
+	 * Move Me is used when an asset is being moved, cloned or relinked.
+     * Move Me mode is also used when selecting a location for assets created using
+     * the "Add" toolbar button - in which case "source" becomes null.
+     *
+     * - If the whole variable is null, move me status is disabled.
+     * - Source can be null, as "Move Me" mode is also 
      *
      * @var {Object}
+     * @property {Array.<Node>} source   The asset line(s) being moved/cloned/linked.
+     * @property {Function}     callback The callback fired when a drop location has
+     *                                   been selected.
+     * @param {Node}   callback.source   Echoes the source of the move me action.
+     * @param {Object} callback.data     Data sent from the move. Parent ID and sort
+     *                                   order.
      */
     var moveMeStatus = null;
 
@@ -158,16 +166,15 @@ var JS_Asset_Map = new function() {
     /**
      * List of assets to refresh, sent from elsewhere in the Matrix system.
      *
-     * This will get processed every 2 seconds if it contains something, similar to the
-     * Java asset map. It does this rather than doing it for each request because a HIPO
-     * processing a large number of assets (for instance, something that cascades a
-     * status change throughout a whole site) would make multiple requests to update a
-     * single asset (enforced by Matrix's event system), particularly if a large threshold
-     * for changes is set for the HIPO. This allows some form of batching to occur for
-     * these updates.
+     * This will get processed every 2 seconds if it contains something, similar to
+     * the Java asset map. It does this rather than doing it for each request because
+     * a HIPO processing a large number of assets (for instance, one that cascades a
+     * status change throughout a whole site) would make multiple requests to update
+     * a single asset (enforced by Matrix's event system) - particularly if a large
+     * HIPO threshold is set. This allows some form of batching.
      *
      * These refreshes should be for the asset itself, not their whole tree. If the
-     * asset is shown at multiple places in the tree (whether or not it has been since
+     * asset is shown at multiple places in the tree (whether or not it has been
      * re-collapsed), it should be updated in all places, and all trees.
      *
      * @var {Array.<String>}
@@ -267,7 +274,8 @@ var JS_Asset_Map = new function() {
         assetLine.setAttribute('data-typecode', typeCode);
 
         if (assetTypeCache[typeCode]) {
-            assetLine.setAttribute('title', assetTypeCache[typeCode].name + ' [' + assetid + ']');
+            assetLine.setAttribute('title', assetTypeCache[typeCode].name + ' [' +
+			    assetid + ']');
         } else {
             assetLine.setAttribute('title', 'Unknown Asset Type [' + assetid + ']');
         }
@@ -277,7 +285,8 @@ var JS_Asset_Map = new function() {
 
         var iconSpan = _createEl('span');
         dfx.addClass(iconSpan, 'icon');
-        iconSpan.setAttribute('style', 'background-image: url(../__data/asset_types/' + typeCode + '/icon.png)');
+        iconSpan.setAttribute('style', 'background-image: url(../__data/' + 
+			'asset_types/' + typeCode + '/icon.png)');
 
         if (accessible === 0) {
             var flagSpan = _createEl('span');
@@ -317,7 +326,8 @@ var JS_Asset_Map = new function() {
     /**
      * Returns true if the type code passed is a parent type.
      *
-     * Reserved - may be used in future to test .
+     * Reserved - may be used in future to test cases where knowing ancestor types
+     * is useful (for instance in disallowing assets to link to each other).
      *
      * @param {String} typecode   The child type code.
      * @param {String} parentType The prospective parent type code.
@@ -353,12 +363,9 @@ var JS_Asset_Map = new function() {
     this.start = function(startOptions) {
         var self = this;
 
-        targetElement      = options.targetElement || dfx.getId('asset_map_container');
-        assetDisplayFormat = options.displayFormat || '%asset_short_name%';
-        options            = startOptions;
-
-        var assetMap       = dfx.getId('asset_map_container');
-        assetMap.style.height = (document.documentElement.clientHeight - 120) + 'px';
+        targetElement = options.targetElement || dfx.getId('asset_map_container');
+        options       = startOptions;
+        var assetMap  = dfx.getId('asset_map_container');
 
         this.drawToolbar();
         var containers = [
@@ -382,7 +389,8 @@ var JS_Asset_Map = new function() {
                 var typeinfo = assetTypes[i];
                 var typecode = typeinfo['_attributes']['type_code'];
 
-                if (((typeinfo['_attributes']['instantiable'] !== '0')) && (typeinfo['_attributes']['allowed_access'] !== 'system')) {
+                if (((typeinfo['_attributes']['instantiable'] !== '0')) &&
+                    (typeinfo['_attributes']['allowed_access'] !== 'system')) {
                     var category = typeinfo['_attributes']['flash_menu_path'];
                     if (category) {
                         assetCategories[category] = assetCategories[category] || [];
@@ -483,7 +491,8 @@ var JS_Asset_Map = new function() {
             while (target && !branchTarget && !assetTarget) {
                 if (dfx.hasClass(target, 'branch-status') === true) {
                     branchTarget = target;
-                } else if ((dfx.hasClass(target, 'assetName') === true) || (dfx.hasClass(target, 'icon') === true)) {
+                } else if ((dfx.hasClass(target, 'assetName') === true) ||
+                       (dfx.hasClass(target, 'icon') === true)) {
                     if (dfx.hasClass(target.parentNode, 'asset') === true) {
                         assetTarget = target.parentNode;
                     }
@@ -500,7 +509,10 @@ var JS_Asset_Map = new function() {
                     if ((e.ctrlKey === false) || (self.isInUseMeMode() === true)) {
                         // Normal click, or if in Use Me mode where multiple
                         // selection is not permitted.
-                        dfx.removeClass(dfx.getClass('asset', assetMap), 'located selected');
+                        dfx.removeClass(
+                            dfx.getClass('asset', assetMap),
+                            'located selected'
+                        );
                         dfx.addClass(assetTarget, 'selected');
                     } else {
                         // Ctrl+click. Toggle the selection of this asset, which
@@ -513,7 +525,10 @@ var JS_Asset_Map = new function() {
                     if ((e.ctrlKey === false) || (self.isInUseMeMode() === true)) {
                         // Normal click, or if in Use Me mode where multiple
                         // selection is not permitted.
-                        dfx.removeClass(dfx.getClass('asset', assetMap), 'selected located');
+                        dfx.removeClass(
+                            dfx.getClass('asset', assetMap),
+                            'selected located'
+                        );
                     } else {
                         dfx.removeClass(dfx.getClass('asset', assetMap), 'located');
                     }
@@ -534,8 +549,19 @@ var JS_Asset_Map = new function() {
                         var elementHeight = self.topDocumentElement(targetElement).clientHeight;
                         var submenuHeight = dfx.getElementHeight(menu);
                         var targetRect = dfx.getBoundingRectangle(target);
-                        dfx.setStyle(menu, 'left', (Math.max(10, mousePos.x) + 'px'));
-                        dfx.setStyle(menu, 'top', (Math.min(elementHeight - submenuHeight - 10, mousePos.y) + 'px'));
+                        dfx.setStyle(
+                            menu,
+                            'left',
+                            (Math.max(10, mousePos.x) + 'px')
+                        );
+                        dfx.setStyle(
+                            menu,
+                            'top',
+                            (Math.min(
+                                elementHeight - submenuHeight - 10,
+                                mousePos.y
+                            ) + 'px')
+                        );
                     } else {
                         self.clearMenus();
                     }//end if
@@ -599,7 +625,11 @@ var JS_Asset_Map = new function() {
                                 break;
 
                                 default:
-                                    self.message('Loaded ' + assetCount + ' children', false, 2000);
+                                    self.message(
+                                        'Loaded ' + assetCount + ' children',
+                                        false,
+                                        2000
+                                    );
                                 break;
                             }//end switch
                         }//end if
@@ -721,11 +751,18 @@ var JS_Asset_Map = new function() {
 
                     if (String(assetid) !== '1') {
                         var assetCount   = rootAsset.asset.length;
-                        var rootIndentId = 'child-indent-' + encodeURIComponent(assetid);
+                        var rootIndentId = 'child-indent-' +
+                            encodeURIComponent(assetid);
 
-                        rootAsset._attributes.name       = decodeURIComponent(rootAsset._attributes.name.replace(/\+/g, '%20'));
-                        rootAsset._attributes.assetid    = decodeURIComponent(rootAsset._attributes.assetid.replace(/\+/g, '%20'));
-                        rootAsset._attributes.type_code  = decodeURIComponent(rootAsset._attributes.type_code.replace(/\+/g, '%20'));
+                        rootAsset._attributes.name      = decodeURIComponent(
+                            rootAsset._attributes.name.replace(/\+/g, '%20')
+                        );
+                        rootAsset._attributes.assetid   = decodeURIComponent(
+                            rootAsset._attributes.assetid.replace(/\+/g, '%20')
+                        );
+                        rootAsset._attributes.type_code = decodeURIComponent(
+                            rootAsset._attributes.type_code.replace(/\+/g, '%20')
+                        );
 
                         assetLine = _formatAsset(rootAsset);
 
@@ -743,7 +780,11 @@ var JS_Asset_Map = new function() {
                         break;
 
                         default:
-                            self.message('Loaded ' + assetCount + ' children', false, 2000);
+                            self.message(
+                                'Loaded ' + assetCount + ' children',
+                                false,
+                                2000
+                            );
                         break;
                     }//end switch
                 }//end if
@@ -846,8 +887,7 @@ var JS_Asset_Map = new function() {
         var statusList = dfx.getClass('statusList')[0];
 
         var treeDivs = dfx.getClass('tree');
-
-        assetMap.style.height = (document.documentElement.clientHeight - 120) + 'px';
+        assetMap.style.height = (document.documentElement.clientHeight - 100) + 'px';
         for (var i = 0; i < treeDivs.length; i++) {
             treeDivs[i].style.height = (assetMap.clientHeight - toolbarDiv.clientHeight - messageDiv.clientHeight - statusList.clientHeight) + 'px';
         }
@@ -866,7 +906,13 @@ var JS_Asset_Map = new function() {
      * @param {Number}  [timeout] Message timeout in milliseconds.
      */
     this.message = function(message, spinner, timeout) {
-        var spinnerDiv       = dfx.getClass('spinner', dfx.getClass('messageLine', dfx.getId('asset_map_container')))[0];
+        var spinnerDiv       = dfx.getClass(
+            'spinner',
+            dfx.getClass(
+                'messageLine',
+                dfx.getId('asset_map_container')
+            )
+        )[0];
         var messageDiv       = dfx.getId('asset_map_message');
         messageDiv.innerHTML = message;
 
@@ -975,7 +1021,8 @@ var JS_Asset_Map = new function() {
      * @returns {Node}
      */
     this.topDocumentElement = function(target) {
-        var topDoc = this.getDefaultView(target.ownerDocument).top.document.documentElement;
+        var defaultView = this.getDefaultView(target.ownerDocument);
+        var topDoc      = defaultView.top.document.documentElement;
         return topDoc;
     }
 
@@ -1206,6 +1253,17 @@ var JS_Asset_Map = new function() {
         refreshQueue = refreshQueue.concat(assetids);
     };
 
+    /**
+     * Replace occurrences of an asset in a tree with updated information.
+     *
+     * @param {Object} newAsset The new asset info.
+     * @param {String} assetid  The asset ID to replace.
+     * @param {Number} [linkid] Only nodes with this linkid will be updated.
+     *                          (Omit to update all nodes with passed assetid.)
+     */
+    this.updateAsset = function(newAsset, assetid, linkid) {
+    };
+
     this.processRefreshQueue = function() {
         // Take a local copy of the refresh queue, and clear it.
         var processQueue = refreshQueue.concat([]);
@@ -1246,8 +1304,8 @@ var JS_Asset_Map = new function() {
                     if (dfx.hasClass(assetNode, 'selected') === true) {
                         dfx.addClass(newNode, 'selected');
                     } else {
-	                    dfx.addClass(newNode, 'located');
-					}
+                        dfx.addClass(newNode, 'located');
+                    }
 
                     newNode.setAttribute('data-linkid', assetNode.getAttribute('data-linkid'));
                     newNode.setAttribute('data-asset-path', assetNode.getAttribute('data-asset-path'));
