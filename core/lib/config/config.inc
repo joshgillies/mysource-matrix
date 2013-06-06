@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: config.inc,v 1.35 2012/08/30 01:09:21 ewang Exp $
+* $Id: config.inc,v 1.35.4.1 2013/06/06 23:05:01 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *    Looks after the creation of the config files that are in PHP code
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.35.4.1 $
 * @package MySource_Matrix
 */
 class Config extends MySource_Object
@@ -147,17 +147,25 @@ class Config extends MySource_Object
 		if ($changed_vars && $send_message) {
 			$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
 			$ms->openQueue();
+
 			foreach ($changed_vars as $var_name => $values) {
-				$message_body = $var_name.' changed from '.var_export($values['old'], true).' to '.var_export($values['new'], true)."\n";
-				$config_name = ucwords(str_replace('_', ' ', get_class($this)));
-				$msg_reps = Array(
-								'setting'	=> $var_name,
-								'old_value'	=> var_export($values['old'], true),
-								'new_value'	=> var_export($values['new'], true),
-							);
-				$message = $ms->newMessage(Array(), 'config.'.get_class_lower($this), $msg_reps);
+				if (array_get_index($this->config_vars[$var_name], 'skip_mailing', FALSE)) {
+					$msg_reps = Array(
+									'setting'	=> $var_name,
+								);
+					$message = $ms->newMessage(Array(), 'config.'.get_class_lower($this).'.no_show_values', $msg_reps);
+				} else {
+					$msg_reps = Array(
+									'setting'	=> $var_name,
+									'old_value'	=> var_export($values['old'], true),
+									'new_value'	=> var_export($values['new'], true),
+								);
+					$message = $ms->newMessage(Array(), 'config.'.get_class_lower($this), $msg_reps);
+				}
+
 				$ms->enqueueMessage($message);
-			}
+			}//end foreach
+
 			$ms->closeQueue();
 
 		}// end if
@@ -395,6 +403,7 @@ class Config extends MySource_Object
 	{
 		$saved = FALSE;
 		if (!empty($_POST['process_form'])) {
+
 
 			if (!empty($_POST[get_class_lower($this)])) {
 				$saved = $this->save($_POST[get_class_lower($this)]);
