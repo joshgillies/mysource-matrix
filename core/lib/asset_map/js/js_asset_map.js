@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.51 2013/06/06 01:07:50 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.52 2013/06/06 01:38:24 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.51 $
+ * @version $Revision: 1.1.2.52 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -64,7 +64,7 @@ var JS_Asset_Map = new function() {
      * The target element where the asset map will be drawn
      * @var {Node}
      */
-    var targetElement = null;
+    var assetMapContainer = null;
 
     /**
      * Options passed to the asset map.
@@ -204,7 +204,7 @@ var JS_Asset_Map = new function() {
      * @param {Node}
      */
     var _createEl = function(tagName, selectable) {
-        var el = targetElement.ownerDocument.createElement(tagName);
+        var el = assetMapContainer.ownerDocument.createElement(tagName);
 
         if (selectable !== true) {
             el.setAttribute('unselectable', 'on');
@@ -378,9 +378,8 @@ var JS_Asset_Map = new function() {
     this.start = function(startOptions) {
         var self = this;
 
-        var assetMap  = dfx.getId('asset_map_container');
-        targetElement = options.targetElement || assetMap;
-        options       = startOptions;
+        options           = startOptions;
+        assetMapContainer = options.targetElement || dfx.getId('asset_map_container');
 
         // Draw two trees only. 
         this.drawToolbar();
@@ -447,7 +446,7 @@ var JS_Asset_Map = new function() {
      * @param {Object} options
      */
     this.startSimple = function(options) {
-        targetElement = options.targetElement;
+        assetMapContainer = options.targetElement;
     };
 
     /**
@@ -456,9 +455,8 @@ var JS_Asset_Map = new function() {
      * @param {Object} options
      */
     this.initEvents = function() {
-        var document = targetElement.ownerDocument;
-        var assetMap = dfx.getId('asset_map_container');
-        var trees    = dfx.getClass('tree', assetMap);
+        var document = assetMapContainer.ownerDocument;
+        var trees    = dfx.getClass('tree', assetMapContainer);
         var self     = this;
 
         timeouts.refreshQueue = setInterval(function() {
@@ -483,20 +481,18 @@ var JS_Asset_Map = new function() {
         });
 
         dfx.addEvent(dfx.getId('asset_map_button_statuses'), 'click', function() {
-            var assetMap = dfx.getId('asset_map_container');
-            dfx.toggleClass(assetMap, 'statuses-shown');
+            dfx.toggleClass(assetMapContainer, 'statuses-shown');
         });
 
         dfx.addEvent(dfx.getId('asset_map_button_collapse'), 'click', function() {
-            var assetMap      = dfx.getId('asset_map_container');
-            var childIndents  = dfx.getClass('childIndent', assetMap);
-            var branchButtons = dfx.getClass('branch-status', assetMap);
+            var childIndents  = dfx.getClass('childIndent', assetMapContainer);
+            var branchButtons = dfx.getClass('branch-status', assetMapContainer);
 
             dfx.addClass(childIndents, 'collapsed');
             dfx.removeClass(branchButtons, 'expanded');
         });
 
-        dfx.addEvent(targetElement, 'contextmenu', function(e) {
+        dfx.addEvent(assetMapContainer, 'contextmenu', function(e) {
             e.preventDefault();
         });
 
@@ -506,7 +502,6 @@ var JS_Asset_Map = new function() {
     };
 
     this.initTreeEvents = function(tree) {
-        var assetMap = targetElement;
         var self     = this;
         dfx.addEvent(tree, 'mousedown', function(e) {
             var branchTarget = null;
@@ -535,14 +530,14 @@ var JS_Asset_Map = new function() {
                         // Normal click, or if in Use Me mode where multiple
                         // selection is not permitted.
                         dfx.removeClass(
-                            dfx.getClass('asset', assetMap),
+                            dfx.getClass('asset', assetMapContainer),
                             'located selected'
                         );
                         dfx.addClass(assetTarget, 'selected');
                     } else {
                         // Ctrl+click. Toggle the selection of this asset, which
                         // could leave the map with multiple or zero selection.
-                        dfx.removeClass(dfx.getClass('asset', assetMap), 'located');
+                        dfx.removeClass(dfx.getClass('asset', assetMapContainer), 'located');
                         dfx.toggleClass(assetTarget, 'selected');
                     }
                 } else if (e.which === 3) {
@@ -551,11 +546,11 @@ var JS_Asset_Map = new function() {
                         // Normal click, or if in Use Me mode where multiple
                         // selection is not permitted.
                         dfx.removeClass(
-                            dfx.getClass('asset', assetMap),
+                            dfx.getClass('asset', assetMapContainer),
                             'selected located'
                         );
                     } else {
-                        dfx.removeClass(dfx.getClass('asset', assetMap), 'located');
+                        dfx.removeClass(dfx.getClass('asset', assetMapContainer), 'located');
                     }
 
                     e.preventDefault();
@@ -571,7 +566,7 @@ var JS_Asset_Map = new function() {
 
                         self.topDocumentElement(target).appendChild(menu);
 
-                        var elementHeight = self.topDocumentElement(targetElement).clientHeight;
+                        var elementHeight = self.topDocumentElement(assetMapContainer).clientHeight;
                         var submenuHeight = dfx.getElementHeight(menu);
                         var targetRect = dfx.getBoundingRectangle(target);
                         dfx.setStyle(
@@ -681,7 +676,7 @@ var JS_Asset_Map = new function() {
      * @return {Node|Null}
      */
     this.getCurrentTreeElement = function() {
-        var trees = dfx.getClass('tree.selected', targetElement);
+        var trees = dfx.getClass('tree.selected', assetMapContainer);
 
         if (trees.length > 0) {
             return trees[0];
@@ -697,12 +692,12 @@ var JS_Asset_Map = new function() {
      * @param {Number} treeid The tree ID (zero-indexed; use 0 for Tree One).
      */
     this.selectTree = function(treeid) {
-        var trees = dfx.getClass('tree', targetElement);
+        var trees = dfx.getClass('tree', assetMapContainer);
         dfx.removeClass(trees, 'selected');
         dfx.addClass(trees[treeid], 'selected');
 
-        var treeList = dfx.getClass('tree-list', targetElement)[0];
-        var tabs     = dfx.getClass('tab', targetElement);
+        var treeList = dfx.getClass('tree-list', assetMapContainer)[0];
+        var tabs     = dfx.getClass('tab', assetMapContainer);
         dfx.removeClass(tabs, 'selected');
         dfx.addClass(tabs[treeid], 'selected');
     };
@@ -719,13 +714,10 @@ var JS_Asset_Map = new function() {
         if (treeid === undefined) {
             var tree = this.getCurrentTreeElement();
         } else {
-            var tree = dfx.getClass('tree', targetElement)[treeid];
+            var tree = dfx.getClass('tree', assetMapContainer)[treeid];
         }
 
-        var assetMap = dfx.getId('asset_map_container');
-        var trees    = dfx.getClass('tree', assetMap);
-        var assets   = dfx.getClass('asset.selected', trees[treeid]);
-
+        var assets = dfx.getClass('asset.selected', tree);
         return assets;
     };
 
@@ -744,7 +736,7 @@ var JS_Asset_Map = new function() {
         if (treeid === undefined) {
             var tree = this.getCurrentTreeElement();
         } else {
-            var tree = dfx.getClass('tree', targetElement)[treeid];
+            var tree = dfx.getClass('tree', assetMapContainer)[treeid];
         }
 
         if (tree) {
@@ -904,17 +896,16 @@ var JS_Asset_Map = new function() {
      *
      */
     this.resizeTree = function() {
-        var document   = targetElement.ownerDocument;
+        var document   = assetMapContainer.ownerDocument;
 
-        var assetMap = dfx.getId('asset_map_container');
         var toolbarDiv = dfx.getClass('toolbar')[0];
         var messageDiv = dfx.getClass('messageLine')[0];
         var statusList = dfx.getClass('statusList')[0];
 
         var treeDivs = dfx.getClass('tree');
-        assetMap.style.height = (document.documentElement.clientHeight - 100) + 'px';
+        assetMapContainer.style.height = (document.documentElement.clientHeight - 100) + 'px';
         for (var i = 0; i < treeDivs.length; i++) {
-            treeDivs[i].style.height = (assetMap.clientHeight - toolbarDiv.clientHeight - messageDiv.clientHeight - statusList.clientHeight) + 'px';
+            treeDivs[i].style.height = (assetMapContainer.clientHeight - toolbarDiv.clientHeight - messageDiv.clientHeight - statusList.clientHeight) + 'px';
         }
     };
 
@@ -935,7 +926,7 @@ var JS_Asset_Map = new function() {
             'spinner',
             dfx.getClass(
                 'messageLine',
-                dfx.getId('asset_map_container')
+                assetMapContainer
             )
         )[0];
         var messageDiv       = dfx.getId('asset_map_message');
@@ -983,8 +974,6 @@ var JS_Asset_Map = new function() {
             message = message.replace(codeRegexp, '');
         }
 
-        var assetMap = dfx.getId('asset_map_container');
-
         var errorDiv = _createEl('div');
         dfx.addClass(errorDiv, 'errorPopup');
 
@@ -1008,7 +997,7 @@ var JS_Asset_Map = new function() {
         errorDiv.appendChild(titleDiv);
         errorDiv.appendChild(bodyDiv);
         errorDiv.appendChild(bottomDiv);
-        assetMap.appendChild(errorDiv);
+        assetMapContainer.appendChild(errorDiv);
 
         dfx.addEvent(buttonDiv, 'click', function() {
             dfx.remove(errorDiv);
@@ -1065,13 +1054,12 @@ var JS_Asset_Map = new function() {
 
         var container = _createEl('div');
         dfx.addClass(container, 'toolbar');
-        targetElement.appendChild(container);
+        assetMapContainer.appendChild(container);
 
         var addButton = _createEl('div');
         dfx.addClass(addButton, 'addButton');
         container.appendChild(addButton);
         dfx.addEvent(addButton, 'click', function(e) {
-            var assetMap = dfx.getId('asset_map_container');
             var target   = dfx.getMouseEventTarget(e);
             var mousePos = dfx.getMouseEventPosition(e);
             var menu     = self.drawAddMenu();
@@ -1128,7 +1116,7 @@ var JS_Asset_Map = new function() {
     this.drawStatusList = function() {
         var container = _createEl('div');
         dfx.addClass(container, 'statusList');
-        targetElement.appendChild(container);
+        assetMapContainer.appendChild(container);
 
         var divider = _createEl('div');
         divider.id        = 'asset_map_status_list_divider';
@@ -1176,7 +1164,7 @@ var JS_Asset_Map = new function() {
     this.drawMessageLine = function() {
         var container = _createEl('div');
         dfx.addClass(container, 'messageLine');
-        targetElement.appendChild(container);
+        assetMapContainer.appendChild(container);
 
         var spinnerDiv = _createEl('div');
         dfx.addClass(spinnerDiv, 'spinner');
@@ -1201,7 +1189,7 @@ var JS_Asset_Map = new function() {
 
         var tree1 = _createEl('div');
         dfx.addClass(tree1, 'tab');
-        tree1.innerHTML = 'Tree 1';
+        tree1.innerHTML = 'Tree One';
         treeList.appendChild(tree1);
         dfx.addEvent(tree1, 'click', function() {
             self.selectTree(0);
@@ -1209,35 +1197,13 @@ var JS_Asset_Map = new function() {
 
         var tree2 = _createEl('div');
         dfx.addClass(tree2, 'tab');
-        tree2.innerHTML = 'Tree 2';
+        tree2.innerHTML = 'Tree Two';
         treeList.appendChild(tree2);
         dfx.addEvent(tree2, 'click', function() {
             self.selectTree(1);
         });
 
-        var addTree = _createEl('div');
-        dfx.addClass(addTree, 'tab new');
-        addTree.innerHTML = '+';
-        treeList.appendChild(addTree);
-        dfx.addEvent(addTree, 'click', function(e) {            
-            var treeNum = dfx.getClass('tab', treeList).length - 1;
-            var newTree = _createEl('div');
-            dfx.addClass(newTree, 'tab');
-            newTree.innerHTML = 'Tree ' + (treeNum + 1);
-            treeList.insertBefore(newTree, addTree);
-
-            var newContainer = self.drawTreeContainer(treeNum);
-            self.initTreeEvents(newContainer);
-            self.drawTree(loadRootAsset, newContainer);
-            self.resizeTree();
-            self.selectTree(treeNum);
-
-            dfx.addEvent(newTree, 'click', function() {
-                self.selectTree(treeNum);
-            });
-        });
-
-        targetElement.appendChild(treeList);
+        assetMapContainer.appendChild(treeList);
     }
 
     /**
@@ -1249,7 +1215,7 @@ var JS_Asset_Map = new function() {
         var container = _createEl('div');
         dfx.addClass(container, 'tree');
         container.setAttribute('data-treeid', treeid);
-        targetElement.appendChild(container);
+        assetMapContainer.appendChild(container);
 
         return container;
     };
@@ -1319,7 +1285,6 @@ var JS_Asset_Map = new function() {
         refreshQueue     = [];
 
         // Requests to be made. However, we are going to try and request zero children.
-        var assetMap      = dfx.getId('asset_map_container');
         var assetRequests = [];
 
         for (var i = 0; i < processQueue.length; i++) {
@@ -1341,7 +1306,7 @@ var JS_Asset_Map = new function() {
                 thisAsset._attributes.type_code  = decodeURIComponent(thisAsset._attributes.type_code.replace(/\+/g, '%20'));
 
                 var assetid    = thisAsset._attributes.assetid;
-                var assetNodes = dfx.find(assetMap, 'div.asset[data-assetid=' + assetid  + ']');
+                var assetNodes = dfx.find(assetMapContainer, 'div.asset[data-assetid=' + assetid  + ']');
                 for (var j = 0; j < assetNodes.length; j++) {
                     var assetNode = assetNodes[j];
                     var newNode   = _formatAsset(thisAsset);
@@ -1580,8 +1545,7 @@ var JS_Asset_Map = new function() {
         source = source || null;
 
         var self     = this;
-        var assetMap = dfx.getId('asset_map_container');
-        dfx.addClass(assetMap, 'moveMeMode');
+        dfx.addClass(assetMapContainer, 'moveMeMode');
         moveMeStatus = {
             source: source,
             callback: callback,
@@ -1590,10 +1554,10 @@ var JS_Asset_Map = new function() {
 
         var lineEl = _createEl('div');
         dfx.addClass(lineEl, 'selectLine');
-        assetMap.appendChild(lineEl);
+        assetMapContainer.appendChild(lineEl);
         moveMeStatus.selection = lineEl;
 
-        dfx.addEvent(dfx.getClass('tree', assetMap), 'mousedown.moveMe', function(e) {
+        dfx.addEvent(dfx.getClass('tree', assetMapContainer), 'mousedown.moveMe', function(e) {
             if (moveMeStatus.selection) {
                 callback(source, moveMeStatus.selection);
             }
@@ -1602,8 +1566,8 @@ var JS_Asset_Map = new function() {
             self.cancelMoveMeMode();
         });
 
-        dfx.addEvent(dfx.getClass('tree', assetMap), 'mousemove.moveMe', function(e) {
-            dfx.removeClass(dfx.getClass('asset', assetMap), 'moveTarget');
+        dfx.addEvent(dfx.getClass('tree', assetMapContainer), 'mousemove.moveMe', function(e) {
+            dfx.removeClass(dfx.getClass('asset', assetMapContainer), 'moveTarget');
             dfx.removeClass(lineEl, 'active');
             var target = dfx.getMouseEventTarget(e);
             while (target) {
@@ -1623,7 +1587,7 @@ var JS_Asset_Map = new function() {
                     parentAsset = parentAsset.previousSibling;
                 }
 
-                var assetMapCoords = dfx.getElementCoords(assetMap);
+                var assetMapCoords = dfx.getElementCoords(assetMapContainer);
                 var assetRect    = dfx.getBoundingRectangle(target);
                 var fromTop      = position.y - assetRect.y1;
                 var fromBottom   = assetRect.y2 - position.y + 1;
@@ -1672,7 +1636,7 @@ var JS_Asset_Map = new function() {
             }
         });
 
-        dfx.addEvent(dfx.getClass('tree', assetMap), 'mouseout.moveMe', function(e) {
+        dfx.addEvent(dfx.getClass('tree', assetMapContainer), 'mouseout.moveMe', function(e) {
 
         });
     };
@@ -1683,14 +1647,13 @@ var JS_Asset_Map = new function() {
      *
      */
     this.cancelMoveMeMode = function() {
-        var assetMap = dfx.getId('asset_map_container');
-        dfx.removeClass(assetMap, 'moveMeMode');
+        dfx.removeClass(assetMapContainer, 'moveMeMode');
         moveMeStatus = null;
 
-        dfx.remove(dfx.getClass('selectLine', assetMap));
-        dfx.removeEvent(dfx.getClass('tree', assetMap), 'mousedown.moveMe');
-        dfx.removeEvent(dfx.getClass('tree', assetMap), 'mousemove.moveMe');
-        dfx.removeEvent(dfx.getClass('tree', assetMap), 'mouseout.moveMe');
+        dfx.remove(dfx.getClass('selectLine', assetMapContainer));
+        dfx.removeEvent(dfx.getClass('tree', assetMapContainer), 'mousedown.moveMe');
+        dfx.removeEvent(dfx.getClass('tree', assetMapContainer), 'mousemove.moveMe');
+        dfx.removeEvent(dfx.getClass('tree', assetMapContainer), 'mouseout.moveMe');
     };
 
 
@@ -1698,7 +1661,7 @@ var JS_Asset_Map = new function() {
 
 
     this.getUseMeFrame = function() {
-        var win    = this.getDefaultView(targetElement);
+        var win    = this.getDefaultView(assetMapContainer);
         var retval = win;
 
         // We're inside a frame, so check for the main frame.
@@ -1744,8 +1707,7 @@ var JS_Asset_Map = new function() {
                 }
             });
 
-            var assetMap    = dfx.getId('asset_map_container');
-            dfx.addClass(assetMap, 'useMeMode');
+            dfx.addClass(assetMapContainer, 'useMeMode');
             useMeStatus = {
                 namePrefix: name,
                 idPrefix: safeName,
@@ -1762,8 +1724,7 @@ var JS_Asset_Map = new function() {
      *
      */
     this.cancelUseMeMode = function() {
-        var assetMap = dfx.getId('asset_map_container');
-        dfx.removeClass(assetMap, 'useMeMode');
+        dfx.removeClass(assetMapContainer, 'useMeMode');
         useMeStatus = null;
         this.updateAssetsForUseMe();
     };
@@ -1774,7 +1735,7 @@ var JS_Asset_Map = new function() {
      */
     this.updateAssetsForUseMe = function(rootTree) {
         if (rootTree === undefined) {
-            rootTree = dfx.getClass('tree', dfx.getId('asset_map_container'));
+            rootTree = dfx.getClass('tree', assetMapContainer);
         }
 
         var assets = dfx.getClass('asset', rootTree);
@@ -1868,8 +1829,7 @@ var JS_Asset_Map = new function() {
      * @returns {Boolean}
      */
     this.isInUseMeMode = function(excludePrefix) {
-        var assetMap = dfx.getId('asset_map_container');
-        var hasUseMe = dfx.hasClass(assetMap, 'useMeMode');
+        var hasUseMe = dfx.hasClass(assetMapContainer, 'useMeMode');
 
         if (hasUseMe === true) {
             if (excludePrefix === useMeStatus.namePrefix) {
@@ -1977,14 +1937,13 @@ var JS_Asset_Map = new function() {
                 }
                 e.stopPropagation();
 
-                var assetMap = dfx.getId('asset_map_container');
                 var target   = dfx.getMouseEventTarget(e);
 
                 var existingMenu = dfx.getClass('assetMapMenu.addMenu', self.topDocumentElement(target));
                 if (existingMenu.length === 0) {
                     var menu     = self.drawAddMenu(false, assetid);
                     self.topDocumentElement(target).appendChild(menu);
-                    var elementHeight = self.topDocumentElement(targetElement).clientHeight;
+                    var elementHeight = self.topDocumentElement(assetMapContainer).clientHeight;
                     var submenuHeight = dfx.getElementHeight(menu);
                     var targetRect = dfx.getBoundingRectangle(target);
                     dfx.setStyle(menu, 'left', (Math.max(10, targetRect.x2) + 'px'));
@@ -2051,8 +2010,8 @@ var JS_Asset_Map = new function() {
                 if ((existingMenu.length === 0) || (existingMenu[0].getAttribute('data-category') !== target.getAttribute('data-category'))) {
                     dfx.remove(existingMenu);
                     var submenu = self.drawAssetTypeMenu(target.getAttribute('data-category'), parentid);
-                    self.topDocumentElement(targetElement).appendChild(submenu);
-                    var elementHeight = self.topDocumentElement(targetElement).clientHeight;
+                    self.topDocumentElement(assetMapContainer).appendChild(submenu);
+                    var elementHeight = self.topDocumentElement(assetMapContainer).clientHeight;
                     var submenuHeight = dfx.getElementHeight(submenu);
                     var targetRect = dfx.getBoundingRectangle(target);
                     dfx.setStyle(submenu, 'left', (Math.max(10, targetRect.x2) + 'px'));
@@ -2180,9 +2139,9 @@ var JS_Asset_Map = new function() {
      */
     this.clearMenus = function(type) {
         if (type === undefined) {
-            dfx.remove(dfx.getClass('assetMapMenu', this.topDocumentElement(targetElement)));
+            dfx.remove(dfx.getClass('assetMapMenu', this.topDocumentElement(assetMapContainer)));
         } else {
-            dfx.remove(dfx.getClass('assetMapMenu.' + type, this.topDocumentElement(targetElement)));
+            dfx.remove(dfx.getClass('assetMapMenu.' + type, this.topDocumentElement(assetMapContainer)));
         }
     };
 
@@ -2246,7 +2205,7 @@ var JS_Asset_Map = new function() {
             frame = 'sq_main';
         }
 
-        var top = this.getDefaultView(targetElement.ownerDocument).top;
+        var top = this.getDefaultView(assetMapContainer.ownerDocument).top;
         top.frames[frame].location.href = url;
     };
 
