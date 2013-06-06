@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.50 2013/06/05 04:29:02 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.51 2013/06/06 01:07:50 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.50 $
+ * @version $Revision: 1.1.2.51 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -506,7 +506,8 @@ var JS_Asset_Map = new function() {
     };
 
     this.initTreeEvents = function(tree) {
-        var self = this;
+        var assetMap = targetElement;
+        var self     = this;
         dfx.addEvent(tree, 'mousedown', function(e) {
             var branchTarget = null;
             var assetTarget  = null;
@@ -1311,6 +1312,8 @@ var JS_Asset_Map = new function() {
     };
 
     this.processRefreshQueue = function() {
+        var self = this;
+
         // Take a local copy of the refresh queue, and clear it.
         var processQueue = refreshQueue.concat([]);
         refreshQueue     = [];
