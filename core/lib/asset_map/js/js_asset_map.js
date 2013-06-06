@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.52 2013/06/06 01:38:24 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.53 2013/06/06 06:45:21 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.52 $
+ * @version $Revision: 1.1.2.53 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -1286,6 +1286,7 @@ var JS_Asset_Map = new function() {
 
         // Requests to be made. However, we are going to try and request zero children.
         var assetRequests = [];
+        var treeRefresh   = [];
 
         for (var i = 0; i < processQueue.length; i++) {
             assetRequests.push({
@@ -1308,16 +1309,11 @@ var JS_Asset_Map = new function() {
                 var assetid    = thisAsset._attributes.assetid;
                 var assetNodes = dfx.find(assetMapContainer, 'div.asset[data-assetid=' + assetid  + ']');
                 for (var j = 0; j < assetNodes.length; j++) {
-                    var assetNode = assetNodes[j];
-                    var newNode   = _formatAsset(thisAsset);
+                    var assetNode     = assetNodes[j];
+                    var newNode       = _formatAsset(thisAsset);
+                    newNode.className = assetNode.className;
 
-                    if (dfx.hasClass(assetNode, 'not-accessible') === true) {
-                        dfx.addClass(newNode, 'not-accessible');
-                    }
-
-                    if (dfx.hasClass(assetNode, 'selected') === true) {
-                        dfx.addClass(newNode, 'selected');
-                    } else {
+                    if (dfx.hasClass(assetNode, 'selected') === false) {
                         dfx.addClass(newNode, 'located');
                     }
 
@@ -1327,8 +1323,24 @@ var JS_Asset_Map = new function() {
 
                     assetNode.parentNode.replaceChild(newNode, assetNode);
                 }//end for
+
+                var expansions = dfx.find(assetMapContainer, '.childIndent[data-parentid=" + assetid + "]');
+                if (expansions.length > 0) {
+                    treeRefresh.push(assetid);
+                    for (var j = 0; j < childIndents.length; j++) {
+                        var parentid = childIndents[j].getAttribute('data-parentid');
+                        if (treeRefresh.inArray(parentid) === false) {
+                            treeRefresh.push(parentid);
+                        }
+                    }//end for
+                }//end if
             }//end for
 
+            if (treeRefresh.length > 0) {
+                for (var j = 0; j < treeRefresh.length; j++) {
+                    self.refreshTree(treeRefresh[j]);
+                }
+            }
             self.message('Success!', false, 2000);
         };
 
@@ -2173,6 +2185,7 @@ var JS_Asset_Map = new function() {
                         // That we made it here means it couldn't be handled.
                         self.message('Failed!', false, 2000);
                         self.raiseError(ex.message);
+                        console.info(response);
                         return;
                     }
 
