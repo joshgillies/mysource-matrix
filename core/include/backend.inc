@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.216.4.5 2013/06/05 00:54:06 lwright Exp $
+* $Id: backend.inc,v 1.216.4.6 2013/06/06 05:52:41 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.216.4.5 $
+* @version $Revision: 1.216.4.6 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -442,7 +442,7 @@ class Backend extends MySource_Object
             if (!empty($updated_assetids)) {
                 $this->out->addOnLoad('
                     if (parent.frames["sq_sidenav"] && parent.frames["sq_sidenav"].reload_assets) {
-                        parent.frames["sq_sidenav"].reload_assets("'.addslashes(implode(',', $updated_assetids)).'");
+                        parent.frames["sq_sidenav"].reload_assets(["'.implode('","', $updated_assetids).'"]);
                     }
                 ');
             }
