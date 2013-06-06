@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_messages.xml,v 1.31 2012/10/24 04:56:44 akarelia Exp $
+* $Id: lang_messages.xml,v 1.31.6.1 2013/06/06 23:03:07 akarelia Exp $
 *
 * Core Internal Messages File
 */
@@ -507,6 +507,10 @@ The status of the bundle "%bundle_name%" is now "%new_status%"</body>
 	<message type="config.proxy_authentication_config">
 		<subject>Proxy Authentication Config Updated</subject>
 		<body>%setting% changed from %old_value% to %new_value%</body>
+	</message>
+	<message type="config.proxy_authentication_config.no_show_values">
+		<subject>Proxy Authentication Config Updated</subject>
+		<body>Value (not shown here) for %setting% has been changed</body>
 	</message>
 	<message type="prefs.system">
 		<subject>Global Preferences Updated</subject>
