@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_edit_fns.inc,v 1.64 2012/08/30 01:09:07 ewang Exp $
+* $Id: image_edit_fns.inc,v 1.65 2013/06/07 02:33:49 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -499,6 +499,8 @@ class Image_Edit_Fns extends File_Edit_Fns
 				$options[$filename] = $filename;
 			}
 		}
+		ksort($options);
+
 		return $options;
 
 	}//end getPreUploadOptions()
