@@ -171,7 +171,13 @@
 
 #asset_map_container .selectionRect {
     position: absolute;
-    border: 1px dotted #000;
+    border: 1px solid #666;
+    background-color: #DDD;
+    opacity: 0.5;
+    -ms-filter: "progid: DXImageTransform.Microsoft.Alpha(opacity=50)";
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    z-index: 20;
 }
 
 #asset_map_container .usersel {
