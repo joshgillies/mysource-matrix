@@ -11,7 +11,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search.inc,v 1.43 2013/06/03 08:01:54 ewang Exp $
+* $Id: trim_saved_search.inc,v 1.44 2013/06/07 04:28:10 ewang Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -114,6 +114,7 @@ class TRIM_Saved_Search extends Data_Source
 		$hash	= $this->getHashKey();
 
 		$result = $this->getCachedResults($hash);
+
 		if (empty($result)) {
 			try {
 				// Not cached at all, so lets send a request
@@ -260,7 +261,7 @@ class TRIM_Saved_Search extends Data_Source
 									$this->storeDocumentList($connection, $new_record_info);
 								} else if (!isset($record_info['download_url'])) {
 	
-									$ordered_result[$new_index]['document_url']		= isset($new_record_info['recNumber']) ? $this->getURL().'?RecordNumber='.urlencode($new_record_info['recNumber'])  : $this->getURL().'?Uri='.$new_record_info['Uri'];
+									$ordered_result[$new_index]['document_url']		= isset($new_record_info['recNumber']) ? './?a='.$this->id.'?RecordNumber='.urlencode($new_record_info['recNumber'])  : $this->getURL().'?Uri='.$new_record_info['Uri'];
 								}//end else if
 							}//end if
 
@@ -703,7 +704,7 @@ class TRIM_Saved_Search extends Data_Source
 				$res = TRIM_Common::executeRequest($connection, $operations, 'Download', '',  $hash_key, $final_file_path);
 				
 				// use RecordNumber as id of downloaded file because it makes sense to user. Uri is only internal to developer
-				$record_info['document_url'] = isset($record_info['recNumber']) ? $this->getURL().'?RecordNumber='.urlencode($record_info['recNumber'])  : $this->getURL().'?Uri='.$record_info['Uri'];
+				$record_info['document_url'] = isset($record_info['recNumber']) ? './?a='.$this->id.'?RecordNumber='.urlencode($record_info['recNumber'])  : $this->getURL().'?Uri='.$record_info['Uri'];
 				     
 			}//end if
 		}//end if
