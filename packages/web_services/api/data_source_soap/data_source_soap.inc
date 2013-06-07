@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_soap.inc,v 1.7 2013/03/04 08:04:35 cupreti Exp $
+* $Id: data_source_soap.inc,v 1.8 2013/06/07 08:33:25 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/lib/soap_common.inc';
 * Data_Source_Soap
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -300,7 +300,10 @@ class Data_Source_Soap extends Data_Source
 
 		// Make the response xml
 		$sxml = new SimpleXMLElement($data['response']['response_xml']);
-		$xpath_res = $sxml->xpath('/SOAP-ENV:Envelope/SOAP-ENV:Body');
+		$xpath_res = @$sxml->xpath('/SOAP-ENV:Envelope/SOAP-ENV:Body');
+		if (!$xpath_res) {
+			$xpath_res = @$sxml->xpath('/soap:Envelope/soap:Body');
+		}
 		$response_xml = @$xpath_res[0]->asXML();
 		if (empty($response_xml)) {
 			trigger_error("Expected xml content not found in the SOAP response");
