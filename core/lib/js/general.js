@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.js,v 1.21 2012/08/30 01:09:21 ewang Exp $
+* $Id: general.js,v 1.21.4.1 2013/06/07 01:39:42 akarelia Exp $
 *
 */
 
@@ -262,9 +262,11 @@ function _number_format_thousand_separators(str, sep) {
 // prints an icon using transparency in IE
 // ensures that PNGs have transparent background in IE and Mozilla
 function sq_print_icon(path, width, height, alt) {
+	var is_ie10 = (navigator.userAgent.toLowerCase().indexOf("msie 10") != -1);
 
-	if ((typeof window.ActiveXObject != "undefined")) {
-		// IE cant handle transparent PNGs
+	// issue seems to have been fixed in IE 10
+	if ((typeof window.ActiveXObject != "undefined") && !is_ie10) {
+		// IE < 10, cant handle transparent PNGs
 		document.write ('<span style="height:'+height+'px;width:'+width+'px; filter:progid:DXImageTransform.Microsoft.AlphaImageLoader (src=\''+path+'\', sizingMethod=\'scale\')" title="' + alt + '"></span>');
 	} else {
 		document.write('<img src="'+path+'" width="'+width+'" height="'+height+'" border="0" alt="'+alt+'" />');
