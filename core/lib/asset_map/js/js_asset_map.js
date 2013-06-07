@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.53 2013/06/06 06:45:21 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.54 2013/06/07 03:44:09 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.53 $
+ * @version $Revision: 1.1.2.54 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -72,6 +72,10 @@ var JS_Asset_Map = new function() {
      */
     var options = {};
 
+    /**
+     * The root asset that was initially loaded.
+     * @var {Object}
+     */
     var loadRootAsset = null;
 
     /**
@@ -477,7 +481,7 @@ var JS_Asset_Map = new function() {
 
         dfx.addEvent(dfx.getId('asset_map_button_restore'), 'click', function() {
             // Teleport back to root.
-            self.teleport(1, 1);
+            self.teleport(1oadRootAsset._attributes.assetid, loadRootAsset._attributes.linkid);
         });
 
         dfx.addEvent(dfx.getId('asset_map_button_statuses'), 'click', function() {
@@ -1324,11 +1328,11 @@ var JS_Asset_Map = new function() {
                     assetNode.parentNode.replaceChild(newNode, assetNode);
                 }//end for
 
-                var expansions = dfx.find(assetMapContainer, '.childIndent[data-parentid=" + assetid + "]');
+                var expansions = dfx.find(assetMapContainer, '.childIndent[data-parentid="' + assetid + '"]');
                 if (expansions.length > 0) {
                     treeRefresh.push(assetid);
-                    for (var j = 0; j < childIndents.length; j++) {
-                        var parentid = childIndents[j].getAttribute('data-parentid');
+                    for (var j = 0; j < expansions.length; j++) {
+                        var parentid = expansions[j].getAttribute('data-parentid');
                         if (treeRefresh.inArray(parentid) === false) {
                             treeRefresh.push(parentid);
                         }

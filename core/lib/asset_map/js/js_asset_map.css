@@ -169,6 +169,11 @@
     cursor: default;
 }
 
+#asset_map_container .selectionRect {
+    position: absolute;
+    border: 1px dotted #000;
+}
+
 #asset_map_container .usersel {
     -moz-user-select: text;
     -ms-user-select: text;
