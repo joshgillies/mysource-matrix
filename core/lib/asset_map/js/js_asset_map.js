@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.57 2013/06/12 02:33:05 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.58 2013/06/12 07:00:28 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.57 $
+ * @version $Revision: 1.1.2.58 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -1477,6 +1477,7 @@ var JS_Asset_Map = new function() {
 
         var tree1 = _createEl('div');
         dfx.addClass(tree1, 'tab');
+        tree1.setAttribute('data-treeid', 0);
         tree1.innerHTML = 'Tree One';
         treeList.appendChild(tree1);
         dfx.addEvent(tree1, 'click', function() {
@@ -1485,6 +1486,7 @@ var JS_Asset_Map = new function() {
 
         var tree2 = _createEl('div');
         dfx.addClass(tree2, 'tab');
+        tree2.setAttribute('data-treeid', 1);
         tree2.innerHTML = 'Tree Two';
         treeList.appendChild(tree2);
         dfx.addEvent(tree2, 'click', function() {
@@ -1939,6 +1941,7 @@ var JS_Asset_Map = new function() {
          */
         this.updatePosition = function(target, mousePos) {
             // Find the next closest parent.
+            dfx.removeClass(dfx.getClass('asset', assetMapContainer), 'moveTarget');
             while (target) {
                 if (dfx.hasClass(target, 'asset') === true) {
                     break;
@@ -1947,10 +1950,11 @@ var JS_Asset_Map = new function() {
             }//end while
 
             if (!target) {
+                dfx.removeClass(_lineEl, 'active');
+                this.selection = null;
                 return;
             }
 
-            dfx.removeClass(dfx.getClass('asset', assetMapContainer), 'moveTarget');
             dfx.addClass(_lineEl, 'active');
             var parentAsset  = dfx.getParents(target, '.childIndent')[0];
             if (parentAsset) {
@@ -2345,21 +2349,21 @@ var JS_Asset_Map = new function() {
             e.preventDefault();
         });
 
-        var menuItem = this.drawMenuItem('Move', null);
+        var menuItem = this.drawMenuItem('Move here', null);
         dfx.addEvent(menuItem, 'click', function(e) {
             self.clearMenus();
             self.moveAsset(AssetActions.Move, moveTarget.source, moveTarget.selection.parentid, moveTarget.selection.before);
         });
         container.appendChild(menuItem);
 
-        var menuItem = this.drawMenuItem('New Link', null);
+        var menuItem = this.drawMenuItem('New Link here', null);
         dfx.addEvent(menuItem, 'click', function(e) {
             self.clearMenus();
             self.moveAsset(AssetActions.NewLink, moveTarget.source, moveTarget.selection.parentid, moveTarget.selection.before);
         });
         container.appendChild(menuItem);
 
-        var menuItem = this.drawMenuItem('Clone', null);
+        var menuItem = this.drawMenuItem('Clone here', null);
         dfx.addEvent(menuItem, 'click', function(e) {
             self.clearMenus();
             self.moveAsset(AssetActions.Clone, moveTarget.source, moveTarget.selection.parentid, moveTarget.selection.before);
