@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: keywords.php,v 1.8 2012/08/30 01:09:08 ewang Exp $
+* $Id: keywords.php,v 1.8.8.1 2013/06/12 06:21:38 ewang Exp $
 *
 */
 
@@ -20,6 +20,8 @@
 	$assetid = array_get_index($_GET, 'assetid');
 	if (is_null($assetid)) return FALSE;
 	assert_valid_assetid($assetid);
+	$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+	if (is_null($asset) || !$asset->writeAccess()) exit();
 
 	$all = array_get_index($_REQUEST, 'all', FALSE);
 
