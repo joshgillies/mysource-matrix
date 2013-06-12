@@ -160,6 +160,20 @@
     -moz-box-sizing: border-box;
 }
 
+#asset_map_container .dragAsset {
+    opacity: 0.5;
+    -ms-filter: "progid: DXImageTransform.Microsoft.Alpha(opacity=50)";
+    position: absolute;
+}
+
+#asset_map_container .dragAsset .asset .branch-status,
+#asset_map_container .dragAsset .asset .left {
+    display: none;
+}
+
+#asset_map_container .dragAsset.multiple .asset .icon {
+}
+
 #asset_map_container * {
     -moz-user-select: none;
     -moz-user-select: -moz-none;
@@ -504,7 +518,7 @@
     display: inline-block;
     width: 16px;
     height: 16px;
-    background: transparent 50% 50% no-repeat;
+    background: url(../../web/images/icons/asset_map/default_asset.png) 50% 50% no-repeat transparent;
     margin-right: 2px;
     z-index: 2;
 }

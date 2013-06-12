@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.55 2013/06/07 09:08:24 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.56 2013/06/12 00:39:35 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.55 $
+ * @version $Revision: 1.1.2.56 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -155,27 +155,6 @@ var JS_Asset_Map = new function() {
      * @property {Function} [doneCallback] When selection occurs, run this function.
      */
     var useMeStatus = null;
-
-    /**
-     * Tracks the status of the target "Move Me" mode.
-     *
-	 * Move Me is used when an asset is being moved, cloned or relinked.
-     * Move Me mode is also used when selecting a location for assets created using
-     * the "Add" toolbar button - in which case "source" becomes null.
-     *
-     * - If the whole variable is null, move me status is disabled.
-     * - Source can be null, as "Move Me" mode is also 
-     *
-     * @var {Object}
-     * @property {Array.<Node>} source   The asset line(s) being moved/cloned/linked.
-     * @property {Function}     callback The callback fired when a drop location has
-     *                                   been selected.
-     * @param {Node}   callback.source   Echoes the source of the move me action.
-     * @param {Object} callback.data     Data sent from the move. Parent ID and sort
-     *                                   order.
-     */
-    var moveTargetStatus = null;
-
 
     /**
      * Tracks the status of a drag.
@@ -312,26 +291,50 @@ var JS_Asset_Map = new function() {
      * It's the responsibility of the caller to spot the asset node in the DOM
      * at the place it wants.
      *
-     * @param {Object} asset The asset (as returned from JSON) to format.
+     * Pass the _attributes subelement of an asset to this function.
+     *
+     * @param {Object} assetAttrs The asset attributes, as returned from JSON.
      */
-    var _formatAsset = function(asset) {
-        var assetid    = asset._attributes.assetid;
-        var name       = asset._attributes.name;
-        var typeCode   = asset._attributes.type_code;
-        var status     = Number(asset._attributes.status);
-        var sortOrder  = Number(asset._attributes.sort_order);
-        var numKids    = Number(asset._attributes.num_kids);
-        var linkid     = asset._attributes.linkid;
-        var linkType   = Number(asset._attributes.link_type);
-        var accessible = Number(asset._attributes.accessible);
+    var _formatAsset = function(assetAttrs) {
+        var assetid    = assetAttrs.assetid;
+        var name       = assetAttrs.name;
+        var typeCode   = assetAttrs.type_code;
+        var status     = Number(assetAttrs.status);
+
+        if (assetAttrs.sort_order === undefined) {
+            assetAttrs.sort_order = -1;
+        }
+        var sortOrder  = Number(assetAttrs.sort_order);
+
+        if (assetAttrs.num_kids === undefined) {
+            assetAttrs.num_kids = 0;
+        }
+        var numKids    = Number(assetAttrs.num_kids);
+
+        if (assetAttrs.linkid === undefined) {
+            assetAttrs.linkid = '';
+            assetAttrs.asset_path = '';
+            assetAttrs.link_path = '';
+        }
+        var linkid     = assetAttrs.linkid;
+
+        if (assetAttrs.link_type === undefined) {
+            assetAttrs.link_type = LinkType.Type1;
+        }
+        var linkType   = Number(assetAttrs.link_type);
+
+        if (assetAttrs.accessible === undefined) {
+            assetAttrs.accessible = 1;
+        }
+        var accessible = Number(assetAttrs.accessible);
 
         var assetLine = _createEl('div');
         dfx.addClass(assetLine, 'asset');
         //assetLine.id = 'asset-' + encodeURIComponent(assetid);
         assetLine.setAttribute('data-assetid', assetid);
-        assetLine.setAttribute('data-asset-path', asset._attributes.asset_path);
+        assetLine.setAttribute('data-asset-path', assetAttrs.asset_path);
         assetLine.setAttribute('data-linkid', linkid);
-        assetLine.setAttribute('data-link-path', asset._attributes.link_path);
+        assetLine.setAttribute('data-link-path', assetAttrs.link_path);
         assetLine.setAttribute('data-sort-order', sortOrder);
         assetLine.setAttribute('data-typecode', typeCode);
 
@@ -347,8 +350,10 @@ var JS_Asset_Map = new function() {
 
         var iconSpan = _createEl('span');
         dfx.addClass(iconSpan, 'icon');
-        iconSpan.setAttribute('style', 'background-image: url(../__data/' + 
-			'asset_types/' + typeCode + '/icon.png)');
+        if (typeCode !== '') {
+            iconSpan.setAttribute('style', 'background-image: url(../__data/' + 
+		    	'asset_types/' + typeCode + '/icon.png)');
+        }
 
         if (accessible === 0) {
             var flagSpan = _createEl('span');
@@ -556,7 +561,9 @@ var JS_Asset_Map = new function() {
                 return true;
             }
 
-            self.clearMenus();            
+            self.clearMenus();
+            self.clearLocatedAssets();
+ 
             var which       = e.which;
             var allButtons  = e.buttons;
             if (!allButtons) {
@@ -597,344 +604,77 @@ var JS_Asset_Map = new function() {
             }
 
             if (assetTarget) {
-                // We're dragging an asset. Select it.
-                if ((which === 1) && (e.ctrlKey === true) && (self.isInUseMeMode() === false)) {
-                    dragStatus.ctrlClick = assetTarget;
-                } else {                
-                    dragStatus.assetDrag = {
-                        initialAsset: assetTarget,
-                        selection: self.currentSelection()
+                var assetTargetCoords = dfx.getElementCoords(assetTarget);
+                if (self.isInUseMeMode() === true) {
+                    // Use me mode. No multi-select, no drag.
+                    // Either mouse button should be a single asset selection.
+                    if ((which === 1) || (which === 3)) {
+                        self.clearSelection();
+                        dfx.toggleClass(assetTarget, 'selected');
+
+                        if (which === 3) {
+                            var menu = self.drawUseMeMenu(assetTarget);
+                            self.positionMenu(menu, dragStatus.startPoint);
+                        }
+                        e.stopImmediatePropagation();
                     }
-                }
-            } else if (branchTarget) {
-                dragStatus.branchClick = branchTarget;
-            } else {
-                dragStatus.selectionDrag = {
-                    selection: []
-                }
-            } 
-        });
+                } else {
+                    if (which === 3) {
+                        // Right mouse button. No drag, no multi-select, but
+                        // preserve existing selections.
+                        if (dfx.hasClass(assetTarget, 'selected') === false) {
+                            self.clearSelection();
+                            dfx.toggleClass(assetTarget, 'selected');
+                        }
 
-        dfx.addEvent(tree, 'mousemove', function(e) {
-            if (dragStatus) {
-                if (dragStatus.selectionDrag) {
-                    var selectionRect = dfx.getClass('selectionRect', assetMapContainer)[0];
-                    if (!selectionRect) {
-                        var selectionRect = _createEl('div');
-                        dfx.addClass(selectionRect, 'selectionRect');
-                        assetMapContainer.appendChild(selectionRect);
-                    }
+                        var selection = self.currentSelection();
+                        if (selection.length > 1) {
+                            // Multiple selection. Show move/clone/new-link menu.
+                            var menu = self.drawMultiSelectMenu(selection);
+                        } else {
+                            // Single selection. Show screens menu.
+                            var menu = self.drawScreensMenu(assetTarget);
+                        }//end if (multiple selection)
 
-                    var assetMapCoords = dfx.getElementCoords(assetMapContainer);
-                    dfx.setCoords(
-                        selectionRect,
-                        Math.min(e.clientX, dragStatus.startPoint.x) - assetMapCoords.x,
-                        Math.min(e.clientY, dragStatus.startPoint.y) - assetMapCoords.y
-                    );
-                    dfx.setStyle(selectionRect, 'height', (Math.abs(e.clientY - dragStatus.startPoint.y) + 1) + 'px');
-                    dfx.setStyle(selectionRect, 'width', (Math.abs(e.clientX - dragStatus.startPoint.x) + 1) + 'px');
-                } else if (dragStatus.assetDrag) {
-                    //
-                    if (self.isInUseMeMode() === false) {
-                        self.setMoveMeMode(self.currentSelection());
-                    }
-                }//end if
-            }//end if
-        });
-
-        dfx.addEvent(assetMapContainer, 'mouseup', function(e) {
-            var mousePos = dfx.getMouseEventPosition(e);
-            var menu     = null;
-
-            if (dragStatus) {
-                if (dragStatus.selectionDrag) {
-                    var selectionRect = dfx.getClass('selectionRect', assetMapContainer);
-                    if (selectionRect) {
-                        dfx.remove(selectionRect);
-                    }
-
-                    if (Math.abs(e.clientX - dragStatus.startPoint.x) < 2 && 
-                        Math.abs(e.clientY - dragStatus.startPoint.y) < 2) {
-                        // Treat as a click.
-                        dfx.removeClass(
-                            dfx.getClass('asset', assetMapContainer),
-                            'selected located'
-                        );
-                    } else {
-                    }
-                } else if (dragStatus.ctrlClick) {
-                    // Ctrl left-click.
-                    dfx.removeClass(
-                        dfx.getClass('asset', assetMapContainer),
-                        'located'
-                    );
-                    dfx.toggleClass(dragStatus.ctrlClick, 'selected');
-                } else if (dragStatus.branchClick) {
-                    var target = dragStatus.branchClick;
-                    var branchTarget = dfx.getClass('branch-status', target)[0];
-
-                    // Set the target to the asset line.
-                    var target       = branchTarget.parentNode;
-                    var assetid      = target.getAttribute('data-assetid');
-                    var linkid       = target.getAttribute('data-linkid');
-                    var assetPath    = target.getAttribute('data-asset-path');
-                    var linkPath     = target.getAttribute('data-link-path');
-                    var rootIndentId = 'child-indent-' + encodeURIComponent(assetid);
-                    var container    = dfx.getId(rootIndentId);
-
-                    if (container) {
-                        dfx.toggleClass(branchTarget, 'expanded');
-                        dfx.toggleClass(container, 'collapsed');
-                    } else {
-                        dfx.addClass(branchTarget, 'expanded');
-
-                        var container = _createChildContainer(assetid);
-                        dfx.addClass(container, 'loading');
-                        container.innerHTML = 'Loading...';
-                        target.parentNode.insertBefore(container, target.nextSibling);
-
-                        // Loading.
-                        self.message('Requesting children...', true);
-
-                        self.doRequest({
-                            _attributes: {
-                                action: 'get assets',
-                            },
-                            asset: [
-                                {
-                                    _attributes: {
-                                        assetid: assetid,
-                                        start: 0,
-                                        limit: options.assetsPerPage,
-                                        linkid: linkid
-                                    }
-                                }
-                            ]
-                        }, function(response) {
-                            dfx.removeClass(container, 'loading');
-                            var assets = response['asset'][0];
-
-                            if (!assets.asset) {
-                                self.message('No children loaded', false, 2000);
-                                dfx.remove(container);
-                                dfx.remove(branchTarget);
-                            } else {
-                                container.innerHTML = '';
-                                var assetCount = assets.asset.length;
-                                assets._attributes.asset_path = assetPath;
-                                assets._attributes.link_path  = linkPath;
-                                self.drawTree(assets, container);
-
-                                switch (assetCount) {
-                                    case 1:
-                                        self.message('Loaded one child', false, 2000);
-                                    break;
-
-                                    default:
-                                        self.message(
-                                            'Loaded ' + assetCount + ' children',
-                                            false,
-                                            2000
-                                        );
-                                    break;
-                                }//end switch
-                            }//end if
-                        });
-                    }//end if
-
-                    e.stopImmediatePropagation();                
-                } else if (dragStatus.assetDrag) {
-                    if (Math.abs(e.clientX - dragStatus.startPoint.x) < 2 && 
-                        Math.abs(e.clientY - dragStatus.startPoint.y) < 2) {
-                        // No drag at all. It's a click on the asset. (We allow +/- 2
-                        // pixel tolerance either way.
-                        var assetTarget = dragStatus.assetDrag.initialAsset;
-
-                        if ((self.isInUseMeMode() === false) && (e.ctrlKey === true) && (dragStatus.button === 1)) {
-                            // Ctrl left-click.
-                            dfx.removeClass(
-                                dfx.getClass('asset', assetMapContainer),
-                                'located'
-                            );
+                        self.positionMenu(menu, dragStatus.startPoint);
+                    } else if (which === 1) {
+                        if (e.ctrlKey === true) {
+                            // Control-left click. No drag, toggle selection of clicked asset.
                             dfx.toggleClass(assetTarget, 'selected');
                         } else {
-                            if (dragStatus.button === 3) {
-                                // Proper right click.
-                                if ((self.isInUseMeMode() === true) || (dfx.hasClass(assetTarget, 'selected') === false)) {
-                                    // Outside existing selection. Start a new selection.
-                                    // Or, in Use Me mode, dragStatus.button doesn't permit multiples.
-                                    dfx.removeClass(
-                                        dfx.getClass('asset', assetMapContainer),
-                                        'selected located'
-                                    );
-                                    dfx.addClass(assetTarget, 'selected');
-                                } else {
-                                    // We're already selected. Don't remove existing selections.
-                                    dfx.removeClass(
-                                        dfx.getClass('asset', assetMapContainer),
-                                        'located'
-                                    );
-                                }
-
-                                var selection = self.currentSelection();
-                                if (selection.length > 1) {
-                                    // Multiple selection. Show move/clone/new-link menu.
-                                    var menu = self.drawMultiSelectMenu(selection);
-                                } else {
-                                    // Single selection. Show screens menu.
-                                    if (self.isInUseMeMode() === true) {
-                                        var menu = self.drawUseMeMenu(assetTarget);
-                                    } else {
-                                        var menu = self.drawScreensMenu(assetTarget);
-                                    }
-
-                                }
-                            } else if (dragStatus.button === 1) {
-                                // Normal left click.
-                                dfx.removeClass(
-                                    dfx.getClass('asset', assetMapContainer),
-                                    'selected located'
-                                );
+                            // Left click. Possible drag. If clicked asset is already selected,
+                            // maintain current selection, otherwise deselect all previous
+                            // selection and select this one.
+                            if (dfx.hasClass(assetTarget, 'selected') === false) {
+                                self.clearSelection();
                                 dfx.addClass(assetTarget, 'selected');
-                           }//end if 
+                            }
 
-                        }
-                    } else {
-                        // Work out our selection and show the dropdown menu.
-                        if (moveTargetStatus) {
-                            var moveTarget = {
-                                source: moveTargetStatus.source,
-                                selection: moveTargetStatus.selection
-                            };
-                            var menu = self.drawMoveTargetMenu(moveTarget);
-                            self.cancelMoveMeMode();
-                        }
-                    }
-
-                    e.stopImmediatePropagation();
-                }//end if
-            }//end if
-
-            if (menu) {
-                self.topDocumentElement(assetMapContainer).appendChild(menu);
-                var elementHeight = self.topDocumentElement(assetMapContainer).clientHeight;
-                var submenuHeight = dfx.getElementHeight(menu);
-                dfx.setStyle(
-                    menu,
-                    'left',
-                    (Math.max(10, mousePos.x) + 'px')
-                );
-                dfx.setStyle(
-                    menu,
-                    'top',
-                    (Math.min(
-                        elementHeight - submenuHeight - 10,
-                        mousePos.y
-                    ) + 'px')
-                );
-            };
-
-            dragStatus = null;
-        });
-/*
-        dfx.addEvent(tree, 'mousedown', function(e) {
-            var branchTarget = null;
-            var assetTarget  = null;
-
-            var target = e.target;
-            while (target && !branchTarget && !assetTarget) {
-                if (dfx.hasClass(target, 'branch-status') === true) {
-                    branchTarget = target;
-                } else if ((dfx.hasClass(target, 'assetName') === true) ||
-                       (dfx.hasClass(target, 'icon') === true)) {
-                    if (dfx.hasClass(target.parentNode, 'asset') === true) {
-                        assetTarget = target.parentNode;
-                    }
-                }
-                target = target.parentNode;
-            }
-
-            if (assetTarget) {
-                var tree   = dfx.getParents('.tree', assetTarget)[0];
-                var treeid = tree.getAttribute('data-treeid');
-                if (e.which === 1) {
-                    // Left mouse button
-                    self.clearMenus();
-                    if ((e.ctrlKey === false) || (self.isInUseMeMode() === true)) {
-                        // Normal click, or if in Use Me mode where multiple
-                        // selection is not permitted.
-                        dfx.removeClass(
-                            dfx.getClass('asset', assetMapContainer),
-                            'located selected'
-                        );
-                        dfx.addClass(assetTarget, 'selected');
-                    } else {
-                        // Ctrl+click. Toggle the selection of this asset, which
-                        // could leave the map with multiple or zero selection.
-                        dfx.removeClass(dfx.getClass('asset', assetMapContainer), 'located');
-                        dfx.toggleClass(assetTarget, 'selected');
-                    }
-                } else if (e.which === 3) {
-                    // Right mouse button
-                    if ((e.ctrlKey === false) || (self.isInUseMeMode() === true)) {
-                        // Normal click, or if in Use Me mode where multiple
-                        // selection is not permitted.
-                        dfx.removeClass(
-                            dfx.getClass('asset', assetMapContainer),
-                            'selected located'
-                        );
-                    } else {
-                        dfx.removeClass(dfx.getClass('asset', assetMapContainer), 'located');
-                    }
-
-                    e.preventDefault();
-                    if (dfx.hasClass(assetTarget, 'disabled') === false) {
-                        dfx.addClass(assetTarget, 'selected');
-                        var mousePos = dfx.getMouseEventPosition(e);
-
-                        if (self.isInUseMeMode() === true) {
-                            var menu = self.drawUseMeMenu(assetTarget);
-                        } else {
-                            var menu = self.drawScreensMenu(target);
-                        }
-
-                        self.topDocumentElement(target).appendChild(menu);
-
-                        var elementHeight = self.topDocumentElement(assetMapContainer).clientHeight;
-                        var submenuHeight = dfx.getElementHeight(menu);
-                        var targetRect = dfx.getBoundingRectangle(target);
-                        dfx.setStyle(
-                            menu,
-                            'left',
-                            (Math.max(10, mousePos.x) + 'px')
-                        );
-                        dfx.setStyle(
-                            menu,
-                            'top',
-                            (Math.min(
-                                elementHeight - submenuHeight - 10,
-                                mousePos.y
-                            ) + 'px')
-                        );
-                    } else {
-                        self.clearMenus();
-                    }//end if
-                }//end if
+                            dragStatus.assetDrag = {
+                                initialAsset: assetTarget,
+                                selection: self.currentSelection(),
+                                offset: {
+                                    x: assetTargetCoords.x - dragStatus.startPoint.x,
+                                    y: assetTargetCoords.y - dragStatus.startPoint.y
+                                }
+                            }
+                        }//end if (ctrl-click)
+                    }//end if (use me mode)
+                }//end if (asset target)
             } else if (branchTarget) {
-                // Set the target to the asset line.
-                var target       = branchTarget.parentNode;
-                var assetid      = target.getAttribute('data-assetid');
-                var linkid       = target.getAttribute('data-linkid');
-                var assetPath    = target.getAttribute('data-asset-path');
-                var linkPath     = target.getAttribute('data-link-path');
+                // Clicked the expand/collapse button.
+                var assetid      = branchTarget.getAttribute('data-assetid');
+                var linkid       = branchTarget.getAttribute('data-linkid');
+                var assetPath    = branchTarget.getAttribute('data-asset-path');
+                var linkPath     = branchTarget.getAttribute('data-link-path');
                 var rootIndentId = 'child-indent-' + encodeURIComponent(assetid);
                 var container    = dfx.getId(rootIndentId);
 
                 if (container) {
-                    dfx.toggleClass(branchTarget, 'expanded');
+                    dfx.toggleClass(dfx.getClass('branch-status', branchTarget), 'expanded');
                     dfx.toggleClass(container, 'collapsed');
                 } else {
-                    dfx.addClass(branchTarget, 'expanded');
+                    dfx.addClass(dfx.getClass('branch-status', branchTarget), 'expanded');
 
                     var container = _createChildContainer(assetid);
                     dfx.addClass(container, 'loading');
@@ -965,7 +705,7 @@ var JS_Asset_Map = new function() {
                         if (!assets.asset) {
                             self.message('No children loaded', false, 2000);
                             dfx.remove(container);
-                            dfx.remove(branchTarget);
+                            dfx.remove(dfx.getClass('branch-status', branchTarget));
                         } else {
                             container.innerHTML = '';
                             var assetCount = assets.asset.length;
@@ -988,17 +728,151 @@ var JS_Asset_Map = new function() {
                             }//end switch
                         }//end if
                     });
-                }//end if
+                }//end if (container exists)
 
-                return false;
+                e.stopImmediatePropagation();
             } else {
-                // Deselect everything.
-                dfx.removeClass(dfx.getClass('asset', trees), 'selected located');
-                self.clearMenus();
+                dragStatus.selectionDrag = {
+                    selection: []
+                }
+            }//end if (type of target)
+        });
+
+        dfx.addEvent(tree, 'mousemove', function(e) {
+            if (dragStatus) {
+                var assetMapCoords = dfx.getElementCoords(assetMapContainer);
+                var mousePos       = dfx.getMouseEventPosition(e);
+                if (dragStatus.selectionDrag) {
+                    var selectionRect = dfx.getClass('selectionRect', assetMapContainer)[0];
+                    if (!selectionRect) {
+                        var selectionRect = _createEl('div');
+                        dfx.addClass(selectionRect, 'selectionRect');
+                        assetMapContainer.appendChild(selectionRect);
+                    }
+
+                    dfx.setCoords(
+                        selectionRect,
+                        Math.min(e.clientX, dragStatus.startPoint.x) - assetMapCoords.x,
+                        Math.min(e.clientY, dragStatus.startPoint.y) - assetMapCoords.y
+                    );
+                    dfx.setStyle(selectionRect, 'height', (Math.abs(e.clientY - dragStatus.startPoint.y) + 1) + 'px');
+                    dfx.setStyle(selectionRect, 'width', (Math.abs(e.clientX - dragStatus.startPoint.x) + 1) + 'px');
+                } else if (dragStatus.assetDrag) {
+                    dragStatus.currentPoint = {
+                        x: mousePos.x - assetMapCoords.x + dragStatus.assetDrag.offset.x,
+                        y: mousePos.y - assetMapCoords.y + dragStatus.assetDrag.offset.y,
+                    }
+
+                    if (self.isInUseMeMode() === false) {
+                        var selection = self.currentSelection();
+
+                        if (self.moveMe.isActive() === false) {
+                            self.moveMe.enable(selection);
+                        }
+
+                        var dragAsset = dfx.getClass('dragAsset', assetMapContainer)[0];
+                        if (!dragAsset) {
+                            var dragAsset = _createEl('div');
+                            dfx.addClass(dragAsset, 'dragAsset');
+                            assetMapContainer.appendChild(dragAsset);
+
+                            if (selection.length > 1) {
+                                // _formatAsset with base asset icon and "2 assets", eg.
+                                var assetAttrs = {
+                                    assetid: 0,
+                                    name: js_translate('%s_assets', selection.length),
+                                    type_code: '',
+                                    status: 0
+                                    
+                                }
+                                dfx.addClass(dragAsset, 'multiple');
+                            } else {
+                                // _formatAsset with asset details 
+                                var assetAttrs = {
+                                    assetid: selection[0].getAttribute('data-assetid'),
+                                    name: dfx.getNodeTextContent(dfx.getClass('assetName', selection[0])[0]),
+                                    type_code: selection[0].getAttribute('data-typecode'),
+                                    status: 0
+                                }
+                            }//end if
+
+                            var formattedAsset = _formatAsset(assetAttrs);
+                            dragAsset.appendChild(formattedAsset);
+                            formattedAsset.removeAttribute('title');
+                            dfx.remove(dfx.getClass('leaf', formattedAsset));
+                            dfx.remove(dfx.getClass('branch-status', formattedAsset));
+
+                            dfx.addEvent(dragAsset, 'mousemove', function(e) {
+                                // We moved but not enough to move off the draggable.
+                                var mousePos = dfx.getMouseEventPosition(e);
+                                dragStatus.currentPoint.x = mousePos.x - assetMapCoords.x + dragStatus.assetDrag.offset.x;
+                                dragStatus.currentPoint.y = mousePos.y - assetMapCoords.y + dragStatus.assetDrag.offset.y;
+
+                                dfx.setStyle(dragAsset, 'left', (dragStatus.currentPoint.x) + 'px');
+                                dfx.setStyle(dragAsset, 'top', (dragStatus.currentPoint.y) + 'px');
+
+                                // We need to determine what's underneath the
+                                // draggable, too, to set the Move Me mode's pointer.
+                                dfx.setStyle(dragAsset, 'display', 'none');
+                                var underlyingEl = assetMapContainer.ownerDocument.elementFromPoint(mousePos.x, mousePos.y);
+                                self.moveMe.updatePosition(underlyingEl, mousePos);
+                                dfx.setStyle(dragAsset, 'display', 'block');
+                            });
+                        }
+    
+                        dfx.setStyle(dragAsset, 'left', dragStatus.currentPoint.x + 'px');
+                        dfx.setStyle(dragAsset, 'top', dragStatus.currentPoint.y + 'px');                         
+                    }
+                }//end if
+            }//end if
+        });
+
+        dfx.addEvent(assetMapContainer, 'mouseup', function(e) {
+            var mousePos = dfx.getMouseEventPosition(e);
+            var menu     = null;
+
+            dfx.remove(dfx.getClass('dragAsset', assetMapContainer));
+            if (dragStatus) {
+                if (dragStatus.selectionDrag) {
+                    var selectionRect = dfx.getClass('selectionRect', assetMapContainer);
+                    if (selectionRect) {
+                        dfx.remove(selectionRect);
+                    }
+
+                    var dragAsset = dfx.getClass('dragAsset', assetMapContainer);
+                    if (dragAsset) {
+                        dfx.remove(dragAsset);
+                    }
+                    if (Math.abs(e.clientX - dragStatus.startPoint.x) < 2 && 
+                        Math.abs(e.clientY - dragStatus.startPoint.y) < 2) {
+                        // Treat as a click.
+                        self.clearSelection();
+                    }
+                } else if (dragStatus.assetDrag) {
+                    // We moved far enough between events that we're not on the
+                    // draggable anymore.
+                    timeouts.assetDrag = null;
+
+                    if (Math.abs(e.clientX - dragStatus.startPoint.x) > 2 ||
+                        Math.abs(e.clientY - dragStatus.startPoint.y) > 2) {
+                        // Work out our selection and show the dropdown menu.
+                        if (self.moveMe.isActive()) {
+                            var moveTarget = {
+                                source: self.moveMe.source,
+                                selection: self.moveMe.selection
+                            };
+                            var menu = self.drawMoveTargetMenu(moveTarget);
+                            self.positionMenu(menu, mousePos);
+                            self.moveMe.cancel();
+                        }
+                    }
+
+                    e.stopImmediatePropagation();
+                }//end if
             }//end if
 
+            dragStatus = null;
         });
-*/
     };
 
 
@@ -1057,6 +931,52 @@ var JS_Asset_Map = new function() {
     };
 
 
+    this.clearSelection = function(treeid) {
+        if (treeid === undefined) {
+            var tree = this.getCurrentTreeElement();
+        } else {
+            var tree = dfx.getClass('tree', assetMapContainer)[treeid];
+        }
+
+        dfx.removeClass(
+            dfx.getClass('asset', tree),
+            'selected located'
+        );
+    }
+    this.clearLocatedAssets = function(treeid) {
+        if (treeid === undefined) {
+            var tree = this.getCurrentTreeElement();
+        } else {
+            var tree = dfx.getClass('tree', assetMapContainer)[treeid];
+        }
+
+        dfx.removeClass(
+            dfx.getClass('asset', tree),
+            'located'
+        );
+    }
+    
+    this.positionMenu = function(menu, mousePos) {
+        var topDoc = this.topDocumentElement(assetMapContainer);
+        topDoc.appendChild(menu);
+        var elementHeight = topDoc.clientHeight;
+        var submenuHeight = dfx.getElementHeight(menu);
+        dfx.setStyle(
+            menu,
+            'left',
+            (Math.max(10, mousePos.x) + 'px')
+        );
+        dfx.setStyle(
+            menu,
+            'top',
+            (Math.min(
+                elementHeight - submenuHeight - 10,
+                mousePos.y
+            ) + 'px')
+        );
+    };
+    
+ 
     /**
      * Teleport to a specific asset.
      *
@@ -1116,7 +1036,7 @@ var JS_Asset_Map = new function() {
                             rootAsset._attributes.type_code.replace(/\+/g, '%20')
                         );
 
-                        assetLine = _formatAsset(rootAsset);
+                        assetLine = _formatAsset(rootAsset._attributes);
 
                         dfx.addClass(assetLine, 'teleported');
                         tree.appendChild(assetLine);
@@ -1615,7 +1535,7 @@ var JS_Asset_Map = new function() {
                 asset._attributes.link_path  = rootAsset._attributes.link_path + ',' + asset._attributes.linkid;
             }
 
-            assetLine = _formatAsset(asset);
+            assetLine = _formatAsset(asset._attributes);
             container.appendChild(assetLine);
         }//end for
 
@@ -1674,7 +1594,7 @@ var JS_Asset_Map = new function() {
                 var assetNodes = dfx.find(assetMapContainer, 'div.asset[data-assetid=' + assetid  + ']');
                 for (var j = 0; j < assetNodes.length; j++) {
                     var assetNode     = assetNodes[j];
-                    var newNode       = _formatAsset(thisAsset);
+                    var newNode       = _formatAsset(thisAsset._attributes);
                     newNode.className = assetNode.className;
 
                     if (dfx.hasClass(assetNode, 'selected') === false) {
@@ -1904,39 +1824,116 @@ var JS_Asset_Map = new function() {
 //--        MOVE ME MODE        --//
 
 
-    /**
-      * Set on "move me" mode.
-     *
-     * Move Me mode is the mode triggered when:
-     * - An asset dragged for moving, linking or cloning.
-      * - An asset is added using the toolbar's "Add" dropdown, to select a position.
-     *
-      * Source may be null. This is used for selecting a target for an asset added
-     * using the toolbar's "Add" dropdown.
-     *
-     * @param {Node}     [source=null] The asset node being moved.
-     * @param {Function} [callback]    The function to call after selecting target.
-     */
-    this.setMoveMeMode = function(source, callback) {
-        source = source || null;
+    this.moveMe = new function() {
+        /**
+         * Source of the move.
+         *
+         * May remain null if there is no asset source. This occurs when placing a
+         * new asset created through the "Add" menu.
+         *
+         * @var {Node}
+         */
+        this.source = null;
 
-        var self     = this;
-        dfx.addClass(assetMapContainer, 'moveMeMode');
-        moveTargetStatus = {
-            source: source,
-            callback: callback,
-            selection: null
+        /**
+         * Current selection.
+         * @var {Node}
+         */
+        this.selection = null;
+
+
+        /**
+         * Callback to call after selecting a target.
+         * @var {Function}
+         */
+        this.doneCallback = null;
+
+
+        /**
+         * The node that is used to mark the current selection of the Move Me mode.
+         *
+         * Null when inactive.
+         *
+         * @private
+         * @var {Node}
+         */
+        var _lineEl = null;
+
+        /**
+         * Set on "move me" mode.
+         *
+         * Move Me mode is the mode triggered when:
+         * - An asset dragged for moving, linking or cloning.
+         * - An asset is added using the toolbar's "Add" dropdown, to select a position.
+         *
+         * Source may be null. This is used for selecting a target for an asset added
+         * using the toolbar's "Add" dropdown.
+         *
+         * @param {Node}     [source=null] The asset node being moved.
+         * @param {Function} [callback]    The function to call after selecting target.
+         */
+        this.enable = function(source, callback) {
+            source = source || null;
+
+            var self = this;
+            dfx.addClass(assetMapContainer, 'moveMeMode');
+            this.source       = source;
+            this.doneCallback = callback;
+            this.selection    = null;
+
+            _lineEl = _createEl('div');
+            dfx.addClass(_lineEl, 'selectLine');
+            assetMapContainer.appendChild(_lineEl);
+            
+            dfx.addEvent(dfx.getClass('tree', assetMapContainer), 'mousedown.moveMe', function(e) {
+                if (self.selection) {
+                    self.doneCallback.call(self, self.source, self.selection);
+                }
+                
+                // if there's no valid target when they click, then that's too bad.
+                self.cancel();
+            });
+
+            dfx.addEvent(dfx.getClass('tree', assetMapContainer), 'mousemove.moveMe', function(e) {
+                dfx.removeClass(dfx.getClass('asset', assetMapContainer), 'moveTarget');
+                dfx.removeClass(_lineEl, 'active');
+                var target = dfx.getMouseEventTarget(e);
+                while (target) {
+                    if (dfx.hasClass(target, 'asset') === true) {
+                        break;
+                    }
+                    target = target.parentNode;
+                }//end while
+
+                if (target) {
+                    var position = dfx.getMouseEventPosition(e);
+                    self.updatePosition.call(self, target, position);
+                } else {
+                    self.selection = null;
+                }
+            });
         };
 
-        var lineEl = _createEl('div');
-        dfx.addClass(lineEl, 'selectLine');
-        assetMapContainer.appendChild(lineEl);
-        moveTargetStatus.selection = lineEl;
 
-        dfx.addEvent(dfx.getClass('tree', assetMapContainer), 'mousemove.moveMe', function(e) {
-            dfx.removeClass(dfx.getClass('asset', assetMapContainer), 'moveTarget');
-            dfx.removeClass(lineEl, 'active');
-            var target = dfx.getMouseEventTarget(e);
+        this.isActive = function() {
+            return (this.selection !== null);
+        }
+
+        /**
+         * Update the position of the selection line.
+         *
+         * The mouse position is required because we need it to determine whether
+         * to highlight the asset or the "in-between" zone between assets. We treat
+         * witihin 3 pixels of the top or bottom of an asset as selecting the space
+         * between an asset and its sibling.
+         *
+         * @param {Node}      target     The asset being targeted by the mouse.
+         * @param {Object}    mousePos   Mouse position.
+         * @property {Number} mousePos.x X position of the mouse.
+         * @property {Number} mousePos.y Y position of the mouse.
+         */
+        this.updatePosition = function(target, mousePos) {
+            // Find the next closest parent.
             while (target) {
                 if (dfx.hasClass(target, 'asset') === true) {
                     break;
@@ -1944,95 +1941,79 @@ var JS_Asset_Map = new function() {
                 target = target.parentNode;
             }//end while
 
-            if (target) {
-                dfx.addClass(lineEl, 'active');
-                var position     = dfx.getMouseEventPosition(e);
+            if (!target) {
+                return;
+            }
 
-                // Find the next closest parent.
-                var parentAsset  = dfx.getParents(target, '.childIndent')[0];
+            dfx.addClass(_lineEl, 'active');
+            var parentAsset  = dfx.getParents(target, '.childIndent')[0];
+            if (parentAsset) {
+                parentAsset = parentAsset.previousSibling;
+            }
+
+            var assetMapCoords = dfx.getElementCoords(assetMapContainer);
+            var assetRect    = dfx.getBoundingRectangle(target);
+            var fromTop      = mousePos.y - assetRect.y1;
+            var fromBottom   = assetRect.y2 - mousePos.y + 1;
+
+            var assetNameSpan = dfx.getClass('assetName', target)[0];
+            var assetNameRect = dfx.getBoundingRectangle(assetNameSpan);
+
+            this.selection = {
+                parentid: 1,
+                linkid: 1,
+                before: -1
+            };
+
+            if (fromTop <= 3) {
                 if (parentAsset) {
-                    parentAsset = parentAsset.previousSibling;
+                    this.selection.parentid = parentAsset.getAttribute('data-assetid');
+                    this.selection.linkid   = parentAsset.getAttribute('data-linkid');
                 }
 
-                var assetMapCoords = dfx.getElementCoords(assetMapContainer);
-                var assetRect    = dfx.getBoundingRectangle(target);
-                var fromTop      = position.y - assetRect.y1;
-                var fromBottom   = assetRect.y2 - position.y + 1;
+                this.selection.before = target.getAttribute('data-sort-order');
+                dfx.setCoords(_lineEl, (assetNameRect.x1 - assetMapCoords.x), (assetRect.y1 - assetMapCoords.y));
+            } else if (fromBottom <= 3) {
+                if (parentAsset) {
+                    this.selection.parentid = parentAsset.getAttribute('data-assetid');
+                    this.selection.linkid   = parentAsset.getAttribute('data-linkid');
+                }
 
-                var assetNameSpan = dfx.getClass('assetName', target)[0];
-                var assetNameRect = dfx.getBoundingRectangle(assetNameSpan);
+                var insertBefore = target.nextSibling;
+                if (insertBefore) {
+                    this.selection.before = insertBefore.getAttribute('data-sort-order');
+                }
 
-                moveTargetStatus.selection = {
-                    parentid: 1,
-                    linkid: 1,
+                dfx.setCoords(_lineEl, (assetNameRect.x1 - assetMapCoords.x), (assetRect.y2 - assetMapCoords.y));
+            } else {
+                this.selection = {
+                    parentid: target.getAttribute('data-assetid'),
+                    linkid: target.getAttribute('data-linkid'),
                     before: -1
                 };
 
-                if (fromTop <= 3) {
-                    if (parentAsset) {
-                        moveTargetStatus.selection.parentid = parentAsset.getAttribute('data-assetid');
-                        moveTargetStatus.selection.linkid   = parentAsset.getAttribute('data-linkid');
-                    }
-
-                    moveTargetStatus.selection.before = target.getAttribute('data-sort-order');
-                    dfx.setCoords(lineEl, (assetNameRect.x1 - assetMapCoords.x), (assetRect.y1 - assetMapCoords.y));
-                } else if (fromBottom <= 3) {
-                    if (parentAsset) {
-                        moveTargetStatus.selection.parentid = parentAsset.getAttribute('data-assetid');
-                        moveTargetStatus.selection.linkid   = parentAsset.getAttribute('data-linkid');
-                    }
-
-                    var insertBefore = target.nextSibling;
-                    if (insertBefore) {
-                        moveTargetStatus.selection.before = insertBefore.getAttribute('data-sort-order');
-                    }
-
-                    dfx.setCoords(lineEl, (assetNameRect.x1 - assetMapCoords.x), (assetRect.y2 - assetMapCoords.y));
-                } else {
-                    moveTargetStatus.selection = {
-                        parentid: target.getAttribute('data-assetid'),
-                        linkid: target.getAttribute('data-linkid'),
-                        before: -1
-                    };
-
-                    dfx.addClass(target, 'moveTarget');
-                    dfx.setCoords(lineEl, (assetNameRect.x2 - assetMapCoords.x), (((assetRect.y1 + assetRect.y2) / 2) - assetMapCoords.y));
-                }//end if
-            } else {
-                moveTargetStatus.selection = null;
-            }
-        });
-
-        dfx.addEvent(dfx.getClass('tree', assetMapContainer), 'mouseout.moveMe', function(e) {
-
-        });
-    };
+                dfx.addClass(target, 'moveTarget');
+                dfx.setCoords(_lineEl, (assetNameRect.x2 - assetMapCoords.x), (((assetRect.y1 + assetRect.y2) / 2) - assetMapCoords.y));
+            }//end if
+        };
 
 
+        /**
+         * Cancel "move me" mode.
+         *
+         */
+        this.cancel = function() {
+            dfx.removeClass(assetMapContainer, 'moveMeMode');
+            dfx.remove(_lineEl);
 
-    /**
-     *
-     */
-    this.finaliseMoveMeMode = function(callback) {
-        if (moveTargetStatus.selection) {
-            callback(moveTargetStatus.source, moveTargetStatus.selection);
-        }
-        
-        this.cancelMoveMeMode();
-    }
+            _lineEl           = null;
+            this.source       = null;
+            this.selection    = null;
+            this.doneCallback = null;
 
-    /**
-      * Cancel "move me" mode.
-     *
-     */
-    this.cancelMoveMeMode = function() {
-        dfx.removeClass(assetMapContainer, 'moveMeMode');
-        moveTargetStatus = null;
-
-        dfx.remove(dfx.getClass('selectLine', assetMapContainer));
-        dfx.removeEvent(dfx.getClass('tree', assetMapContainer), 'mousedown.moveMe');
-        dfx.removeEvent(dfx.getClass('tree', assetMapContainer), 'mousemove.moveMe');
-        dfx.removeEvent(dfx.getClass('tree', assetMapContainer), 'mouseout.moveMe');
+            dfx.removeEvent(dfx.getClass('tree', assetMapContainer), 'mousedown.moveMe');
+            dfx.removeEvent(dfx.getClass('tree', assetMapContainer), 'mousemove.moveMe');
+        };
     };
 
 
@@ -2503,7 +2484,7 @@ var JS_Asset_Map = new function() {
             if (parentid !== undefined) {
                 self.addAsset('folder', parentid, -1);
             } else {
-                self.setMoveMeMode(null, function(source, selection) {
+                self.moveMe.enable(null, function(source, selection) {
                     self.addAsset('folder', selection.parentid, selection.before);
                 });
             }
@@ -2550,7 +2531,7 @@ var JS_Asset_Map = new function() {
                 if (parentid !== undefined) {
                     self.addAsset(typeCode, parentid, -1);
                 } else {
-                    self.setMoveMeMode(null, function(source, selection) {
+                    self.moveMe.enable(null, function(source, selection) {
                         self.addAsset(typeCode, selection.parentid, selection.before);
                     });
                 }
