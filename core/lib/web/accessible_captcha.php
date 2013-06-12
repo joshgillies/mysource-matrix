@@ -13,7 +13,7 @@
 * Accessible CAPTCHA Functions
 * @author Mark Brydon <mbrydon@squiz.net>
 *
-* $Id: accessible_captcha.php,v 1.3 2012/08/30 01:09:21 ewang Exp $
+* $Id: accessible_captcha.php,v 1.3.4.1 2013/06/12 06:22:28 ewang Exp $
 *
 */
 
@@ -133,6 +133,12 @@ if (isset($_GET['email'])) {
 
 	// Ensure that we have *one* valid email address
 	if ((strpos($user_email, ',') === FALSE) || (strpos($user_email, ';') === FALSE)) {
+	    	// sanitize email address
+		$user_email=filter_var($user_email, FILTER_SANITIZE_EMAIL);
+		if(!filter_var($user_email, FILTER_VALIDATE_EMAIL)) {
+		    exit;
+		}
+		
 		// Return a key to be used in an email message to clear this CAPTCHA hurdle
 		// The trinity of email address, timestamp, user ID and a locally-generated integer should be unique enough to generate a robust key
 		$local_megadice = rand(1, 1000000);
