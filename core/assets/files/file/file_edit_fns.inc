@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.98 2012/08/30 01:09:07 ewang Exp $
+* $Id: file_edit_fns.inc,v 1.98.6.1 2013/06/12 23:19:21 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.98 $
+* @version $Revision: 1.98.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -465,6 +465,8 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			if (substr($filename, 0, 1) == '.') continue;
 			$options[$filename] = $filename;
 		}
+		ksort($options);
+
 		return $options;
 
 	}//end getPreuploadOptions()

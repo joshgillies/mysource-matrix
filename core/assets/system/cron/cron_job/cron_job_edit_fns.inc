@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_edit_fns.inc,v 1.44 2012/11/08 06:19:58 cupreti Exp $
+* $Id: cron_job_edit_fns.inc,v 1.44.4.1 2013/06/12 23:19:21 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.44.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -122,15 +122,32 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 				unset($time_unit[3600]);
 			}
 
-			combo_box($prefix.'_interval_mins', $mins, FALSE, $mins['--'], NULL, $form_extra_elements);
-			combo_box($prefix.'_interval_hours', $hours, FALSE, $hours['--'], NULL, $form_extra_elements);
-			text_box($prefix.'_interval_days', '-', 2, '', TRUE, $form_extra_elements);
+			// Set the current values
+			$current_mins = $mins['--'];
+			$current_hours = $hours['--'];
+			$current_days = '-';
+			$current_time_unit = current($time_unit);
+
+			if (!empty($when_arr['minute'])) {
+				$current_mins = $when_arr['minute'];
+				$current_time_unit = isset($time_unit['60']) ? '60' : $current_time_unit;
+			} else if (!empty($when_arr['hour'])) {
+				$current_hours = $when_arr['hour'];
+				$current_time_unit = isset($time_unit['3600']) ? '3600' : $current_time_unit;
+			} else {
+				$current_days = $when_arr['day'];
+				$current_time_unit = '86400';
+			}
+
+			combo_box($prefix.'_interval_mins', $mins, FALSE, $current_mins, NULL, $form_extra_elements);
+			combo_box($prefix.'_interval_hours', $hours, FALSE, $current_hours, NULL, $form_extra_elements);
+			text_box($prefix.'_interval_days', $current_days, 2, '', TRUE, $form_extra_elements);
 			echo '&nbsp;&nbsp;';
 
 			// time interval unit selection, minute/hour/day (based on cron manager's refresh time)
 			// javascript will show/hide selection based on the refresh time setting
 			$onChange = 'onChange="switchInterval(this.value)"';
-			combo_box($prefix.'_interval_unit', $time_unit, FALSE, current($time_unit), NULL, $onChange.$form_extra_elements);
+			combo_box($prefix.'_interval_unit', $time_unit, FALSE, $current_time_unit, NULL, $onChange.$form_extra_elements);
 			echo '<br />';
 
 			// javascipt to show/hide input based on the current time unit selection
