@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.56 2013/06/12 00:39:35 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.57 2013/06/12 02:33:05 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.56 $
+ * @version $Revision: 1.1.2.57 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -818,8 +818,10 @@ var JS_Asset_Map = new function() {
                                 self.moveMe.updatePosition(underlyingEl, mousePos);
                                 dfx.setStyle(dragAsset, 'display', 'block');
                             });
-                        }
+                        }//end if (draggable exists)
     
+                        // We moved far enough between events that we're not on the
+                        // draggable anymore.
                         dfx.setStyle(dragAsset, 'left', dragStatus.currentPoint.x + 'px');
                         dfx.setStyle(dragAsset, 'top', dragStatus.currentPoint.y + 'px');                         
                     }
@@ -849,23 +851,25 @@ var JS_Asset_Map = new function() {
                         self.clearSelection();
                     }
                 } else if (dragStatus.assetDrag) {
-                    // We moved far enough between events that we're not on the
-                    // draggable anymore.
                     timeouts.assetDrag = null;
 
+                    // If the draggable was moved two pixels or less in both
+                    // directions, do not treat as a drag.
                     if (Math.abs(e.clientX - dragStatus.startPoint.x) > 2 ||
                         Math.abs(e.clientY - dragStatus.startPoint.y) > 2) {
                         // Work out our selection and show the dropdown menu.
                         if (self.moveMe.isActive()) {
-                            var moveTarget = {
-                                source: self.moveMe.source,
-                                selection: self.moveMe.selection
-                            };
-                            var menu = self.drawMoveTargetMenu(moveTarget);
-                            self.positionMenu(menu, mousePos);
+                            if (self.moveMe.selection) {
+                                var moveTarget = {
+                                    source: self.moveMe.source,
+                                    selection: self.moveMe.selection
+                                };
+                                var menu = self.drawMoveTargetMenu(moveTarget);
+                                self.positionMenu(menu, mousePos);
+                            }
                             self.moveMe.cancel();
-                        }
-                    }
+                        }//end if (move me active)
+                    }//end if (dragged by enough)
 
                     e.stopImmediatePropagation();
                 }//end if
@@ -1895,8 +1899,6 @@ var JS_Asset_Map = new function() {
             });
 
             dfx.addEvent(dfx.getClass('tree', assetMapContainer), 'mousemove.moveMe', function(e) {
-                dfx.removeClass(dfx.getClass('asset', assetMapContainer), 'moveTarget');
-                dfx.removeClass(_lineEl, 'active');
                 var target = dfx.getMouseEventTarget(e);
                 while (target) {
                     if (dfx.hasClass(target, 'asset') === true) {
@@ -1909,6 +1911,8 @@ var JS_Asset_Map = new function() {
                     var position = dfx.getMouseEventPosition(e);
                     self.updatePosition.call(self, target, position);
                 } else {
+                    dfx.removeClass(dfx.getClass('asset', assetMapContainer), 'moveTarget');
+                    dfx.removeClass(_lineEl, 'active');
                     self.selection = null;
                 }
             });
@@ -1916,7 +1920,8 @@ var JS_Asset_Map = new function() {
 
 
         this.isActive = function() {
-            return (this.selection !== null);
+            var hasClass = dfx.hasClass(assetMapContainer, 'moveMeMode');
+            return hasClass;
         }
 
         /**
@@ -1945,6 +1950,7 @@ var JS_Asset_Map = new function() {
                 return;
             }
 
+            dfx.removeClass(dfx.getClass('asset', assetMapContainer), 'moveTarget');
             dfx.addClass(_lineEl, 'active');
             var parentAsset  = dfx.getParents(target, '.childIndent')[0];
             if (parentAsset) {
