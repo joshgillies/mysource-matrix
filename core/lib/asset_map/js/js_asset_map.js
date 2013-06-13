@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.58 2013/06/12 07:00:28 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.59 2013/06/13 07:15:03 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.58 $
+ * @version $Revision: 1.1.2.59 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -663,73 +663,7 @@ var JS_Asset_Map = new function() {
                 }//end if (asset target)
             } else if (branchTarget) {
                 // Clicked the expand/collapse button.
-                var assetid      = branchTarget.getAttribute('data-assetid');
-                var linkid       = branchTarget.getAttribute('data-linkid');
-                var assetPath    = branchTarget.getAttribute('data-asset-path');
-                var linkPath     = branchTarget.getAttribute('data-link-path');
-                var rootIndentId = 'child-indent-' + encodeURIComponent(assetid);
-                var container    = dfx.getId(rootIndentId);
-
-                if (container) {
-                    dfx.toggleClass(dfx.getClass('branch-status', branchTarget), 'expanded');
-                    dfx.toggleClass(container, 'collapsed');
-                } else {
-                    dfx.addClass(dfx.getClass('branch-status', branchTarget), 'expanded');
-
-                    var container = _createChildContainer(assetid);
-                    dfx.addClass(container, 'loading');
-                    container.innerHTML = 'Loading...';
-                    target.parentNode.insertBefore(container, target.nextSibling);
-
-                    // Loading.
-                    self.message('Requesting children...', true);
-
-                    self.doRequest({
-                        _attributes: {
-                            action: 'get assets',
-                        },
-                        asset: [
-                            {
-                                _attributes: {
-                                    assetid: assetid,
-                                    start: 0,
-                                    limit: options.assetsPerPage,
-                                    linkid: linkid
-                                }
-                            }
-                        ]
-                    }, function(response) {
-                        dfx.removeClass(container, 'loading');
-                        var assets = response['asset'][0];
-
-                        if (!assets.asset) {
-                            self.message('No children loaded', false, 2000);
-                            dfx.remove(container);
-                            dfx.remove(dfx.getClass('branch-status', branchTarget));
-                        } else {
-                            container.innerHTML = '';
-                            var assetCount = assets.asset.length;
-                            assets._attributes.asset_path = assetPath;
-                            assets._attributes.link_path  = linkPath;
-                            self.drawTree(assets, container);
-
-                            switch (assetCount) {
-                                case 1:
-                                    self.message('Loaded one child', false, 2000);
-                                break;
-
-                                default:
-                                    self.message(
-                                        'Loaded ' + assetCount + ' children',
-                                        false,
-                                        2000
-                                    );
-                                break;
-                            }//end switch
-                        }//end if
-                    });
-                }//end if (container exists)
-
+                self.expandAsset(branchTarget);
                 e.stopImmediatePropagation();
             } else {
                 dragStatus.selectionDrag = {
@@ -815,19 +749,48 @@ var JS_Asset_Map = new function() {
                                 // draggable, too, to set the Move Me mode's pointer.
                                 dfx.setStyle(dragAsset, 'display', 'none');
                                 var underlyingEl = assetMapContainer.ownerDocument.elementFromPoint(mousePos.x, mousePos.y);
+
+                                if (dfx.hasClass(underlyingEl, 'asset') === false) {
+                                    underlyingEl = dfx.getParents(underlyingEl, '.asset')[0];                           
+                                }
+                                if (underlyingEl && (dfx.getClass('branch-status', underlyingEl).length > 0) &&
+                                    (dfx.getClass('expanded', underlyingEl).length === 0)) {
+                                    var hoverAssetid = underlyingEl.getAttribute('data-assetid');
+                                    self.setHoverAsset(hoverAssetid, function(assetid) {
+                                        self.expandAsset(underlyingEl);
+                                    });
+                                } else {
+                                    self.clearHoverAsset();
+                                }
+
                                 self.moveMe.updatePosition(underlyingEl, mousePos);
                                 dfx.setStyle(dragAsset, 'display', 'block');
+                                e.stopImmediatePropagation();
                             });
                         }//end if (draggable exists)
     
                         // We moved far enough between events that we're not on the
                         // draggable anymore.
+                        var underlyingEl = assetMapContainer.ownerDocument.elementFromPoint(mousePos.x, mousePos.y);
                         dfx.setStyle(dragAsset, 'left', dragStatus.currentPoint.x + 'px');
-                        dfx.setStyle(dragAsset, 'top', dragStatus.currentPoint.y + 'px');                         
+                        dfx.setStyle(dragAsset, 'top', dragStatus.currentPoint.y + 'px');
+                        if (dfx.hasClass(underlyingEl, 'asset') === false) {
+                            underlyingEl = dfx.getParents(underlyingEl, '.asset')[0];                           
+                        }
+                        if (underlyingEl && (dfx.getClass('branch-status', underlyingEl).length > 0) &&
+                            (dfx.getClass('expanded', underlyingEl).length === 0)) {
+                            var hoverAssetid = underlyingEl.getAttribute('data-assetid');
+                            self.setHoverAsset(hoverAssetid, function(assetid) {
+                                self.expandAsset(underlyingEl);
+                            });
+                        } else {
+                            self.clearHoverAsset();
+                        }
                     }
                 }//end if
             }//end if
         });
+
 
         dfx.addEvent(assetMapContainer, 'mouseup', function(e) {
             var mousePos = dfx.getMouseEventPosition(e);
@@ -851,6 +814,7 @@ var JS_Asset_Map = new function() {
                         self.clearSelection();
                     }
                 } else if (dragStatus.assetDrag) {
+                    self.clearHoverAsset();
                     timeouts.assetDrag = null;
 
                     // If the draggable was moved two pixels or less in both
@@ -878,6 +842,107 @@ var JS_Asset_Map = new function() {
             dragStatus = null;
         });
     };
+
+
+    this.expandAsset = function(branchTarget) {
+        var self         = this;
+        var assetid      = branchTarget.getAttribute('data-assetid');
+        var linkid       = branchTarget.getAttribute('data-linkid');
+        var assetPath    = branchTarget.getAttribute('data-asset-path');
+        var linkPath     = branchTarget.getAttribute('data-link-path');
+        var rootIndentId = 'child-indent-' + encodeURIComponent(assetid);
+        var container    = dfx.getId(rootIndentId);
+
+        if (container) {
+            dfx.toggleClass(dfx.getClass('branch-status', branchTarget), 'expanded');
+            dfx.toggleClass(container, 'collapsed');
+        } else {
+            dfx.addClass(dfx.getClass('branch-status', branchTarget), 'expanded');
+
+            var container = _createChildContainer(assetid);
+            dfx.addClass(container, 'loading');
+            container.innerHTML = 'Loading...';
+            branchTarget.parentNode.insertBefore(container, branchTarget.nextSibling);
+
+            // Loading.
+            this.message('Requesting children...', true);
+
+            this.doRequest({
+                _attributes: {
+                    action: 'get assets',
+                },
+                asset: [
+                    {
+                        _attributes: {
+                            assetid: assetid,
+                            start: 0,
+                            limit: options.assetsPerPage,
+                            linkid: linkid
+                        }
+                    }
+                ]
+            }, function(response) {
+                dfx.removeClass(container, 'loading');
+                var assets = response['asset'][0];
+
+                if (!assets.asset) {
+                    self.message('No children loaded', false, 2000);
+                    dfx.remove(container);
+                    dfx.remove(dfx.getClass('branch-status', branchTarget));
+                } else {
+                    container.innerHTML = '';
+                    var assetCount = assets.asset.length;
+                    assets._attributes.asset_path = assetPath;
+                    assets._attributes.link_path  = linkPath;
+                    self.drawTree(assets, container);
+
+                    switch (assetCount) {
+                        case 1:
+                            self.message('Loaded one child', false, 2000);
+                        break;
+
+                        default:
+                            self.message(
+                                'Loaded ' + assetCount + ' children',
+                                false,
+                                2000
+                            );
+                        break;
+                    }//end switch
+                }//end if
+            });
+        }//end if (container exists)
+
+    };
+
+    this.setHoverAsset = function(assetid, callback) {
+        // Check whether we already have a timeout for this asset.
+        if (timeouts.hoverAsset) {
+            if (timeouts.hoverAsset.assetid !== assetid) {
+                // A timeout exists for a different asset.
+                this.clearHoverAsset();
+            }
+        }
+
+        // If we are now clear, then create the new timeout.
+        if (!timeouts.hoverAsset) {
+            var timeout = setTimeout(function() {
+                callback(assetid);
+            }, 1000);
+            timeouts.hoverAsset = {
+                timeout: timeout,
+                assetid: assetid
+            };
+        }
+    }
+
+
+    this.clearHoverAsset = function() {
+        if (timeouts.hoverAsset) {
+            clearTimeout(timeouts.hoverAsset.timeout);
+        }
+        timeouts.hoverAsset = null;
+    }
 
 
 //--        CORE ACTIONS        --//
