@@ -13,7 +13,7 @@
 * Accessible CAPTCHA Functions
 * @author Mark Brydon <mbrydon@squiz.net>
 *
-* $Id: accessible_captcha.php,v 1.4 2013/06/12 06:01:19 ewang Exp $
+* $Id: accessible_captcha.php,v 1.5 2013/06/13 01:16:56 ewang Exp $
 *
 */
 
@@ -134,9 +134,15 @@ if (isset($_GET['email'])) {
 	// Ensure that we have *one* valid email address
 	if ((strpos($user_email, ',') === FALSE) || (strpos($user_email, ';') === FALSE)) {
 		// sanitize email address
-		$user_email=filter_var($user_email, FILTER_SANITIZE_EMAIL);
-		if(!filter_var($user_email, FILTER_VALIDATE_EMAIL)) {
-		    exit;
+		if(function_exists('filter_var')) {
+		    $user_email=filter_var($user_email, FILTER_SANITIZE_EMAIL);
+		    if(!filter_var($user_email, FILTER_VALIDATE_EMAIL)) {
+			exit;
+		    }
+		}
+		else {
+		    require_once SQ_FUDGE_PATH.'/general/www.inc';
+		    if(!valid_email($user_email)) exit;
 		}
 		
 		// Return a key to be used in an email message to clear this CAPTCHA hurdle
