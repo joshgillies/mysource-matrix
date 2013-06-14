@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.10 2008/11/24 23:17:14 mbrydon Exp $
+* $Id: edit_interface_screen_details.xml,v 1.10.28.1 2013/06/14 02:05:04 akarelia Exp $
 *
 */
 -->
@@ -20,7 +20,7 @@
 			<text width="30" height="1" />
 		</field>
 		<field attribute="description">
-			<wysiwyg style="div" width="100%" height="100" />
+			<wysiwyg />
 		</field>
 		<field keyword="start_end">
 			<function_call>

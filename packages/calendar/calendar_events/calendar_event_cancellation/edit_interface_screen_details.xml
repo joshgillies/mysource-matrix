@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.9 2011/10/10 03:44:37 akarelia Exp $
+* $Id: edit_interface_screen_details.xml,v 1.9.10.1 2013/06/14 02:05:04 akarelia Exp $
 *
 */
 -->
@@ -30,7 +30,7 @@
 			</function_call>
 		</field>
 		<field attribute="description">
-			<wysiwyg style="div" width="100%" height="100" />
+			<wysiwyg />
 		</field>
 		<field attribute="name">
 			<text width="30" height="1" />
