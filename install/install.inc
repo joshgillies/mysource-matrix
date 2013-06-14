@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.100 2012/08/30 01:11:22 ewang Exp $
+* $Id: install.inc,v 1.101 2013/06/14 04:34:24 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.100 $
+* @version $Revision: 1.101 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -1788,6 +1788,7 @@ function extract_strings_from_xml($file, $root_element, $child_element, $key_att
 				$js_strings[$source_code] = $extracted_strings[$source_code];
 			}
 			if ($string_node->hasAttribute('java') && ($string_node->getAttribute('java') == 1)) {
+				$js_strings[$source_code]   = $extracted_strings[$source_code];
 				$java_strings[$source_code] = $extracted_strings[$source_code];
 			}
 		}
