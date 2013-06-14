@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.59 2013/06/13 07:15:03 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.60 2013/06/14 00:03:20 lwright Exp $
 *
 */
 
@@ -18,6 +18,8 @@
  *
  * Purpose
  *    JavaScript version of the Asset Map.
+ *    A more modern JavaScript version of the Asset Map, intended to compliment
+ *    and eventually replace the original Java asset map.
  *
  *    Required browser versions:
  *    IE 8 or later, recent versions of Firefox, Chrome or Safari.
@@ -25,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.59 $
+ * @version $Revision: 1.1.2.60 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -672,25 +674,35 @@ var JS_Asset_Map = new function() {
             }//end if (type of target)
         });
 
-        dfx.addEvent(tree, 'mousemove', function(e) {
+        dfx.addEvent(assetMapContainer, 'mousemove', function(e) {
+            var target     = dfx.getMouseEventTarget(e);
+            var insideTree = null;
+            if (dfx.hasClass(target, 'tree') === true) {
+                insideTree = target;
+            } else {
+                insideTree = dfx.getParents(target, '.tree')[0];
+            }
+
             if (dragStatus) {
                 var assetMapCoords = dfx.getElementCoords(assetMapContainer);
                 var mousePos       = dfx.getMouseEventPosition(e);
                 if (dragStatus.selectionDrag) {
-                    var selectionRect = dfx.getClass('selectionRect', assetMapContainer)[0];
-                    if (!selectionRect) {
-                        var selectionRect = _createEl('div');
-                        dfx.addClass(selectionRect, 'selectionRect');
-                        assetMapContainer.appendChild(selectionRect);
-                    }
+                    if (insideTree) {
+                        var selectionRect = dfx.getClass('selectionRect', assetMapContainer)[0];
+                        if (!selectionRect) {
+                            var selectionRect = _createEl('div');
+                            dfx.addClass(selectionRect, 'selectionRect');
+                            assetMapContainer.appendChild(selectionRect);
+                        }
 
-                    dfx.setCoords(
-                        selectionRect,
-                        Math.min(e.clientX, dragStatus.startPoint.x) - assetMapCoords.x,
-                        Math.min(e.clientY, dragStatus.startPoint.y) - assetMapCoords.y
-                    );
-                    dfx.setStyle(selectionRect, 'height', (Math.abs(e.clientY - dragStatus.startPoint.y) + 1) + 'px');
-                    dfx.setStyle(selectionRect, 'width', (Math.abs(e.clientX - dragStatus.startPoint.x) + 1) + 'px');
+                        dfx.setCoords(
+                            selectionRect,
+                            Math.min(e.clientX, dragStatus.startPoint.x) - assetMapCoords.x,
+                            Math.min(e.clientY, dragStatus.startPoint.y) - assetMapCoords.y
+                        );
+                        dfx.setStyle(selectionRect, 'height', (Math.abs(e.clientY - dragStatus.startPoint.y) + 1) + 'px');
+                        dfx.setStyle(selectionRect, 'width', (Math.abs(e.clientX - dragStatus.startPoint.x) + 1) + 'px');
+                    }//end if
                 } else if (dragStatus.assetDrag) {
                     dragStatus.currentPoint = {
                         x: mousePos.x - assetMapCoords.x + dragStatus.assetDrag.offset.x,
@@ -749,6 +761,14 @@ var JS_Asset_Map = new function() {
                                 // draggable, too, to set the Move Me mode's pointer.
                                 dfx.setStyle(dragAsset, 'display', 'none');
                                 var underlyingEl = assetMapContainer.ownerDocument.elementFromPoint(mousePos.x, mousePos.y);
+                                if (dfx.hasClass(underlyingEl, 'tab') === true) {
+                                    var hoverTreeid = underlyingEl.getAttribute('data-treeid');
+                                    self.setHoverTab(hoverTreeid, function(treeid) {
+                                        self.selectTree(treeid);
+                                    });                                
+                                } else {
+                                    self.clearHoverTab();
+                                }
 
                                 if (dfx.hasClass(underlyingEl, 'asset') === false) {
                                     underlyingEl = dfx.getParents(underlyingEl, '.asset')[0];                           
@@ -774,6 +794,7 @@ var JS_Asset_Map = new function() {
                         var underlyingEl = assetMapContainer.ownerDocument.elementFromPoint(mousePos.x, mousePos.y);
                         dfx.setStyle(dragAsset, 'left', dragStatus.currentPoint.x + 'px');
                         dfx.setStyle(dragAsset, 'top', dragStatus.currentPoint.y + 'px');
+
                         if (dfx.hasClass(underlyingEl, 'asset') === false) {
                             underlyingEl = dfx.getParents(underlyingEl, '.asset')[0];                           
                         }
@@ -791,6 +812,28 @@ var JS_Asset_Map = new function() {
             }//end if
         });
 
+        dfx.addEvent(dfx.getClass('tab', assetMapContainer), 'mouseenter', function(e) {
+            if (dragStatus && dragStatus.assetDrag) {
+                var target = dfx.getMouseEventTarget(e);
+                var hoverTreeid = target.getAttribute('data-treeid');
+                self.setHoverTab(hoverTreeid, function(treeid) {
+                    self.selectTree(treeid);
+                });                                
+
+                var dragAsset = dfx.getClass('dragAsset', assetMapContainer)[0];                
+                var mousePos = dfx.getMouseEventPosition(e);
+                dragStatus.currentPoint = {
+                    x: mousePos.x - assetMapCoords.x + dragStatus.assetDrag.offset.x,
+                    y: mousePos.y - assetMapCoords.y + dragStatus.assetDrag.offset.y,
+                }
+                dfx.setStyle(dragAsset, 'left', dragStatus.currentPoint.x + 'px');
+                dfx.setStyle(dragAsset, 'top', dragStatus.currentPoint.y + 'px');
+            }
+        });
+
+        dfx.addEvent(dfx.getClass('tab', assetMapContainer), 'mouseleave', function(e) {
+            self.clearHoverTab();
+        });
 
         dfx.addEvent(assetMapContainer, 'mouseup', function(e) {
             var mousePos = dfx.getMouseEventPosition(e);
@@ -914,6 +957,36 @@ var JS_Asset_Map = new function() {
         }//end if (container exists)
 
     };
+
+    this.setHoverTab = function(treeid, callback) {
+        // Check whether we already have a timeout for this tree.
+        if (timeouts.hoverTab) {
+            if (timeouts.hoverTab.treeid !== treeid) {
+                // A timeout exists for a different tree.
+                this.clearHoverTab();
+            }
+        }
+
+        // If we are now clear, then create the new timeout.
+        if (!timeouts.hoverTab) {
+            var timeout = setTimeout(function() {
+                callback(treeid);
+            }, 1000);
+            timeouts.hoverTab = {
+                timeout: timeout,
+                treeid: treeid
+            };
+        }
+    }
+
+
+    this.clearHoverTab = function() {
+        if (timeouts.hoverTab) {
+            clearTimeout(timeouts.hoverTab.timeout);
+        }
+        timeouts.hoverTab = null;
+    }
+
 
     this.setHoverAsset = function(assetid, callback) {
         // Check whether we already have a timeout for this asset.
