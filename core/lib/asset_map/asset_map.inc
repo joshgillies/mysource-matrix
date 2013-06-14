@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.317.2.11 2013/06/05 04:29:02 lwright Exp $
+* $Id: asset_map.inc,v 1.317.2.12 2013/06/14 06:11:05 lwright Exp $
 *
 */
 require_once(SQ_LIB_PATH.'/xml_array/xml_array.inc');
@@ -23,7 +23,7 @@ require_once(SQ_LIB_PATH.'/xml_array/xml_array.inc');
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.317.2.11 $
+* @version $Revision: 1.317.2.12 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -99,6 +99,39 @@ class Asset_Map
             $startCmd = 'start';
         }
 
+        // Find the teleport root.
+        $prefs = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_LINEAGE');
+
+        $assetids = explode(',',$prefs);
+        $rootlineage = '';
+
+        $common_parentid = $this->_findCommonRoot($assetids);
+
+        if (!empty($common_parentid)) {
+            $lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($common_parentid);
+
+            // Find the first SQ_SC_LINK_BACKEND_NAV, rather than simply getting it from the beginning
+            $first_lineage = Array();
+            if (!empty($lineages)) {
+                foreach ($lineages as $lineage) {
+                    if ((int) $lineage['link_type'] & SQ_SC_LINK_BACKEND_NAV) {
+                        $first_lineage = $lineage;
+                        break;
+                    }
+                }
+            }
+
+            if (!empty($first_lineage)) {
+                $lineage_assetids = array_keys($first_lineage['lineage']);
+                $lineage_assetids[] = $common_parentid;
+                $rootlineage = get_asset_lineage_sort_order($lineage_assetids);
+
+                // Initial Lineage Selection will be disabled if the Root Node is set for the user
+                // Simply asset map does not work for this option
+                $initial_selection_lineage = '';
+            }
+        }
+
         ?>
         <script type="text/javascript" src="<?php echo sq_web_path('lib').'/asset_map/js/js_asset_map.js';?>"></script>
         <?php
@@ -118,7 +151,8 @@ class Asset_Map
                     document.getElementById('asset_map_container').style.height = <?php echo $height ?> + 'px';
                     JS_Asset_Map.<?php echo $startCmd ?>({
                         displayFormat: '<?php echo addslashes(SQ_CONF_ASSET_MAP_ASSET_DISPLAY_NAME); ?>',
-                        assetsPerPage: <?php echo SQ_CONF_ASSET_MAP_ASSET_LIMIT; ?>
+                        assetsPerPage: <?php echo SQ_CONF_ASSET_MAP_ASSET_LIMIT; ?>,
+                        teleportRoot: <?php echo $common_parentid ?>
                     });
                 }
             </script>

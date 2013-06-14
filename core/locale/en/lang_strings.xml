@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.427.2.3 2013/06/12 23:19:21 lwright Exp $
+* $Id: lang_strings.xml,v 1.427.2.4 2013/06/14 06:11:05 lwright Exp $
 *
 */
 
@@ -1428,8 +1428,8 @@ Force that this asset can only be viewed through a Secure (SSL) connection</stri
     <string source="present">present</string>
     <string source="locked">LOCKED</string>
     <string source="unlocked">UNLOCKED</string>
-    <string source="yes">Yes</string>
-    <string source="no">No</string>
+    <string source="yes" js="1">Yes</string>
+    <string source="no" js="1">No</string>
     <string source="when">When</string>
     <string source="status">Status</string>
     <string source="statuses">Statuses</string>
@@ -2480,10 +2480,10 @@ If you are ready to continue, please click <strong>Next</strong> to proceed with
     <string source="minor_is_not_asset">Variable passed in minor asset parameter is not an asset object</string>
     <string source="type_code_is_not_string">Variable passed in type code parameter is not a string</string>
     <string source="link_type_is_not_integer">Variable passed in link type parameter is not numeric</string>
-    <string source="asset_type_cannot_be_linktype_linked_to_type">Assets of Type "%1$s" cannot be "%2$s" linked to a "%3$s"</string>
+    <string source="asset_type_cannot_be_linktype_linked_to_type">%1$s assets cannot be %2$s-linked to a %3$s</string>
     <string source="exclusive_links_must_be_significant">In order for a link to be exclusive it must also be a significant link</string>
-    <string source="asset_type_must_be_linktype_exclusively_linked_to_type">Assets of Type "%1$s" must be "%2$s" exclusively linked to a "%3$s"</string>
-    <string source="asset_type_can_have_only_linktypes_links_to_type">"%1$s" Assets can only have %2$s "%3$s" link(s) to a "%4$s"</string>
+    <string source="asset_type_must_be_linktype_exclusively_linked_to_type">%2$s links between %1$s and %3$s assets must be exclusive</string>
+    <string source="asset_type_can_have_only_linktypes_links_to_type">%1$s assets can only have %2$s %3$s link(s) to %4$s assets</string>
     <string source="asset_not_created">Asset not created</string>
 
     <string source="asset_field_assetid">Asset ID</string>

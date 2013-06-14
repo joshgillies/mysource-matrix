@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.61 2013/06/14 00:04:11 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.62 2013/06/14 06:11:05 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.61 $
+ * @version $Revision: 1.1.2.62 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -82,16 +82,21 @@ var JS_Asset_Map = new function() {
     var options = {};
 
     /**
-     * The root asset that was initially loaded.
-     * @var {Object}
-     */
-    var loadRootAsset = null;
-
-    /**
      * The current user
      * @var {String}
      */
     var currentUser = '';
+
+
+    /**
+     * The trash folder assetid.
+     *
+     * Save the trash folder ID so even if we are teleported out of view, we
+     * know where to go when the DEL button is pressed.
+     * 
+     * @var {String}
+     */
+    var trashFolder = '';
 
     /**
      * Asset type cache
@@ -432,8 +437,9 @@ var JS_Asset_Map = new function() {
     this.start = function(startOptions) {
         var self = this;
 
-        options           = startOptions;
-        assetMapContainer = options.targetElement || dfx.getId('asset_map_container');
+        options              = startOptions;
+        assetMapContainer    = options.targetElement || dfx.getId('asset_map_container');
+        options.teleportRoot = options.teleportRoot  || '1';
 
         // Draw two trees only. 
         this.drawToolbar();
@@ -482,10 +488,17 @@ var JS_Asset_Map = new function() {
                 }//end for
             }//end for
 
+            // Initialising gives us the root folder's immediate children.
             var assets    = response['assets'][0]['asset'];
-            loadRootAsset = assets[0];
-            self.drawTree(loadRootAsset, containers[0]);
-            self.drawTree(loadRootAsset, containers[1]);
+            for (var i = 0; i < assets[0]['asset'].length; i++) {
+                var asset = assets[0]['asset'][i];
+                if (asset._attributes.type_code === 'trash_folder') {
+                    trashFolder = asset._attributes.assetid;
+                }
+            }
+ 
+            self.teleport(options.teleportRoot, null, 0);
+            self.teleport(options.teleportRoot, null, 1);
 
             self.drawTreeList();
             self.selectTree(0);
@@ -531,7 +544,7 @@ var JS_Asset_Map = new function() {
 
         dfx.addEvent(dfx.getId('asset_map_button_restore'), 'click', function() {
             // Teleport back to root.
-            self.teleport(loadRootAsset._attributes.assetid, loadRootAsset._attributes.linkid);
+            self.teleport(options.teleportRoot, null);
         });
 
         dfx.addEvent(dfx.getId('asset_map_button_statuses'), 'click', function() {
@@ -550,6 +563,33 @@ var JS_Asset_Map = new function() {
             e.preventDefault();
         });
 
+        dfx.addEvent(assetMapContainer.ownerDocument.body, 'keypress', function(e) {
+            var code = e.keyCode ? e.keyCode : e.which;
+            switch (code) {
+                case 46:
+                    // Delete pressed.
+                    var msg       = '';
+                    var title     = '';
+                    var selection = self.currentSelection();
+
+                    if (selection.length !== 0) {
+                        if (selection.length > 1) {
+                            msg   = 'Are you sure you want to move these ' + selection.length + ' assets to the trash?';
+                            title = 'Trash Assets';
+                        } else if (selection.length === 1) {
+                            msg = 'Are you sure you want to move "' + dfx.getNodeTextContent(dfx.getClass('assetName', selection[0])[0]) + '" to the trash?';
+                            title = 'Trash Asset';
+                        }
+
+                        self.confirmPopup(msg, title, function() {
+                            // Moving to trash.
+                            self.moveAsset(AssetActions.Move, selection, trashFolder, -1);
+                        });
+                    }//end if
+                break;
+            }//end switch
+        });
+
         for (var i = 0; i < trees.length; i++) {
             this.initTreeEvents(trees[i]);
         }
@@ -557,6 +597,7 @@ var JS_Asset_Map = new function() {
 
     this.initTreeEvents = function(tree) {
         var self     = this;
+
         dfx.addEvent(tree, 'mousedown', function(e) {
             if (dragStatus) {
                 // Don't handle overlapping button clicks.
@@ -1387,6 +1428,55 @@ var JS_Asset_Map = new function() {
 
     }
 
+    /**
+     * Raise an error message.
+     *
+     * @param {String} message Message to display.
+     */
+    this.confirmPopup = function(message, title, yesCallback, noCallback) {
+        var confirmDiv = _createEl('div');
+        dfx.addClass(confirmDiv, 'confirmPopup');
+
+        var titleDiv = _createEl('div');
+        dfx.addClass(titleDiv, 'confirmTitle');
+        titleDiv.innerHTML = title;
+
+        // Body text should be selectable so it can be copy+pasted for
+        // support purposes.
+        var bodyDiv = _createEl('div', true);
+        dfx.addClass(bodyDiv, 'confirmBody');
+        bodyDiv.innerHTML = message;
+
+        var bottomDiv = _createEl('div');
+        dfx.addClass(bottomDiv, 'confirmBottom');
+
+        var buttonYesDiv = _createEl('button');
+        buttonYesDiv.innerHTML = js_translate('yes');
+
+        var buttonNoDiv = _createEl('button');
+        buttonNoDiv.innerHTML = js_translate('no');
+
+        bottomDiv.appendChild(buttonYesDiv);
+        bottomDiv.appendChild(buttonNoDiv);
+        confirmDiv.appendChild(titleDiv);
+        confirmDiv.appendChild(bodyDiv);
+        confirmDiv.appendChild(bottomDiv);
+        assetMapContainer.appendChild(confirmDiv);
+
+        dfx.addEvent(buttonYesDiv, 'click', function() {
+            dfx.remove(confirmDiv);
+            if (dfx.isFn(yesCallback) === true) {
+                yesCallback();
+            }
+        });
+
+        dfx.addEvent(buttonNoDiv, 'click', function() {
+            dfx.remove(confirmDiv);
+            if (dfx.isFn(noCallback) === true) {
+                noCallback();
+            }
+        });
+    };
     /**
      * Raise an error message.
      *

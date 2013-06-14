@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.906.2.1 2013/05/21 21:35:33 lwright Exp $
+* $Id: asset_manager.inc,v 1.906.2.2 2013/06/14 06:11:05 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.906.2.1 $
+* @version $Revision: 1.906.2.2 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -5896,6 +5896,14 @@ class Asset_Manager extends MySource_Object
 
 		$allowed_links = $major->_getAllowedLinks();
 
+        $typeNames = $this->getTypeInfo(
+                        array(
+                         $type_code,
+                         $major->type(),
+                        ),
+                        'name'
+                    );
+
 		// we will be ascending up the parent tree from the current asset type.
 		// that way the major asset can have specific cardinality for different assets types
 		// EG, assets => 'M', user => '1' -> this means that many assets can be linked to this asset
@@ -5910,7 +5918,7 @@ class Asset_Manager extends MySource_Object
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
 		if (empty($allowed_links[$link_type][$type])) {
-			return translate('asset_type_cannot_be_linktype_linked_to_type', $type_code, link_type_name($link_type), $major->type());
+			return translate('asset_type_cannot_be_linktype_linked_to_type', $typeNames[$type_code], link_type_name($link_type), $typeNames[$major->type()]);
 		}
 
 		if (!($link_type & SQ_SC_LINK_SIGNIFICANT) && $exclusive) {
@@ -5918,7 +5926,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 		if (!$exclusive && !empty($allowed_links[$link_type][$type]['exclusive'])) {
-			return translate('asset_type_must_be_linktype_exclusively_linked_to_type', $type_code, link_type_name($link_type), $major->type());
+			return translate('asset_type_must_be_linktype_exclusively_linked_to_type', $typeNames[$type_code], link_type_name($link_type), $typeNames[$major->type()]);
 		}
 
 		//// Now we need to check that the cardinality is kept valid ////
@@ -5928,7 +5936,8 @@ class Asset_Manager extends MySource_Object
 			$num_curr_links = $this->countLinks($major->id, 'major', $link_type, $type, TRUE, $ignore_linkid);
 			//  and we already have our quota of links
 			if ($num_curr_links >= (int) $allowed_links[$link_type][$type]['card']) {
-				return translate('asset_type_can_have_only_linktypes_links_to_type', $this->getTypeInfo($major->type(), 'name'), ((int) $allowed_links[$link_type][$type]['card']), link_type_name($link_type), $type);
+                $cardTypeName = $this->getTypeInfo($type, 'name');
+				return translate('asset_type_can_have_only_linktypes_links_to_type', $typeNames[$major->type()], ((int) $allowed_links[$link_type][$type]['card']), link_type_name($link_type), $cardTypeName);
 			}
 		}
 
