@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.60 2013/06/14 00:03:20 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.61 2013/06/14 00:04:11 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.60 $
+ * @version $Revision: 1.1.2.61 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -814,8 +814,9 @@ var JS_Asset_Map = new function() {
 
         dfx.addEvent(dfx.getClass('tab', assetMapContainer), 'mouseenter', function(e) {
             if (dragStatus && dragStatus.assetDrag) {
-                var target = dfx.getMouseEventTarget(e);
-                var hoverTreeid = target.getAttribute('data-treeid');
+                var assetMapCoords = dfx.getElementCoords(assetMapContainer);
+                var target         = dfx.getMouseEventTarget(e);
+                var hoverTreeid    = target.getAttribute('data-treeid');
                 self.setHoverTab(hoverTreeid, function(treeid) {
                     self.selectTree(treeid);
                 });                                
