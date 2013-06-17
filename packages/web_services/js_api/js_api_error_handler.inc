@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_error_handler.inc,v 1.4 2012/08/30 00:59:46 ewang Exp $
+* $Id: js_api_error_handler.inc,v 1.5 2013/06/17 01:46:11 lwright Exp $
 *
 */
 
@@ -27,8 +27,9 @@
 */
 function js_api_error_handler($err_no, $err_msg, $err_file, $err_line)
 {
-	if ($err_no & (E_USER_ERROR | E_ERROR | E_USER_WARNING)) {
-		log_dump('ERROR: '.$err_msg .'. Error Number:'.$err_no);
+	if ((defined('E_RECOVERABLE_ERROR') && $error_code == E_RECOVERABLE_ERROR) ||
+		($err_no & (E_USER_ERROR | E_ERROR | E_USER_WARNING))) {
+		log_dump(strtoupper(get_error_name($err_no)).': '.$err_msg);
 	}//end if
 
 }//end js_api_error_handler()
