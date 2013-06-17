@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form.inc,v 1.44 2012/08/30 01:09:08 ewang Exp $
+* $Id: simple_form.inc,v 1.45 2013/06/17 04:10:54 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1626,6 +1626,20 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>(form) {
 
 	}//end getAssetMapAssetInfo()
 
+	
+	
+	/**
+	* Check if  form's using accessible format
+	*								
+	*
+	* @return boolean
+	* @access public
+	*/
+	function useAccessibleFormat()
+	{
+		return TRUE;
+	}//end useAccessibleFormat()
+	
 
 }//end class
 
