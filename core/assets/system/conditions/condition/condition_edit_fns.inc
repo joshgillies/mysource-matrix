@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_edit_fns.inc,v 1.9 2012/08/30 01:09:10 ewang Exp $
+* $Id: condition_edit_fns.inc,v 1.10 2013/06/19 00:32:20 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,7 +55,7 @@ class Condition_Edit_Fns extends Asset_Edit_Fns
 	* @return void
 	* @access public
 	*/
-	public static function paintEditInterface(Array &$condition_data, Backend_Outputter $o, $prefix, $write_access)
+	public static function paintEditInterface(Array $condition_data, Backend_Outputter $o, $prefix, $write_access)
 	{
 
 	}//end paintEditInterface()
