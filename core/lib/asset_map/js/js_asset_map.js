@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.62 2013/06/14 06:11:05 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.63 2013/06/19 04:47:39 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.62 $
+ * @version $Revision: 1.1.2.63 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -67,6 +67,11 @@ var JS_Asset_Map = new function() {
         Move: 'move asset',
         NewLink: 'new link',
         Clone: 'clone'
+    }
+
+    var KeyCode = {
+        Delete: 46,
+        Escape: 27
     }
 
     /**
@@ -136,6 +141,8 @@ var JS_Asset_Map = new function() {
      * @var {String}
      */
     var lastCreatedType = null;
+
+    var lastSelection = null;
 
     /**
      * List of trees.
@@ -566,8 +573,7 @@ var JS_Asset_Map = new function() {
         dfx.addEvent(assetMapContainer.ownerDocument.body, 'keypress', function(e) {
             var code = e.keyCode ? e.keyCode : e.which;
             switch (code) {
-                case 46:
-                    // Delete pressed.
+                case KeyCode.Delete:
                     var msg       = '';
                     var title     = '';
                     var selection = self.currentSelection();
@@ -586,6 +592,10 @@ var JS_Asset_Map = new function() {
                             self.moveAsset(AssetActions.Move, selection, trashFolder, -1);
                         });
                     }//end if
+                break;
+
+                case KeyCode.Escape:
+                    self.moveMe.cancel();
                 break;
             }//end switch
         });
@@ -668,6 +678,7 @@ var JS_Asset_Map = new function() {
                         if (dfx.hasClass(assetTarget, 'selected') === false) {
                             self.clearSelection();
                             dfx.toggleClass(assetTarget, 'selected');
+                            lastSelection = assetTarget;
                         }
 
                         var selection = self.currentSelection();
@@ -681,7 +692,30 @@ var JS_Asset_Map = new function() {
 
                         self.positionMenu(menu, dragStatus.startPoint);
                     } else if (which === 1) {
-                        if (e.ctrlKey === true) {
+                        if (e.shiftKey === true) {
+                            var selection = self.currentSelection();
+                            if (selection.length > 0) {
+                                // dfx.getElementsBetween is a one-way function. Take
+                                // the direction that yields a result.
+                                var between = dfx.getElementsBetween(lastSelection, assetTarget);
+                                if (between.length === 0) {
+                                    between = dfx.getElementsBetween(assetTarget, lastSelection);
+                                }
+                                between.push(assetTarget);
+                                for (var i = 0; i < between.length; i++) {
+                                    if (dfx.hasClass(between[i], 'asset') === true) {
+                                        if (e.ctrlKey === true) {
+                                            dfx.toggleClass(between[i], 'selected');
+                                        } else {
+                                            dfx.addClass(between[i], 'selected');
+                                        }
+                                    }//end if
+                                }//end for
+                                e.preventDefault();
+                            } else {
+                                dfx.addClass(assetTarget, 'selected');
+                            }//end if
+                        } else if (e.ctrlKey === true) {
                             // Control-left click. No drag, toggle selection of clicked asset.
                             dfx.toggleClass(assetTarget, 'selected');
                         } else {
@@ -702,6 +736,8 @@ var JS_Asset_Map = new function() {
                                 }
                             }
                         }//end if (ctrl-click)
+                        
+                        lastSelection = assetTarget;
                     }//end if (use me mode)
                 }//end if (asset target)
             } else if (branchTarget) {
@@ -1126,6 +1162,7 @@ var JS_Asset_Map = new function() {
             dfx.getClass('asset', tree),
             'selected located'
         );
+        lastSelection = null;
     }
     this.clearLocatedAssets = function(treeid) {
         if (treeid === undefined) {
@@ -1832,10 +1869,6 @@ var JS_Asset_Map = new function() {
                     var newNode       = _formatAsset(thisAsset._attributes);
                     newNode.className = assetNode.className;
 
-                    if (dfx.hasClass(assetNode, 'selected') === false) {
-                        dfx.addClass(newNode, 'located');
-                    }
-
                     newNode.setAttribute('data-linkid', assetNode.getAttribute('data-linkid'));
                     newNode.setAttribute('data-asset-path', assetNode.getAttribute('data-asset-path'));
                     newNode.setAttribute('data-link-path', assetNode.getAttribute('data-link-path'));
@@ -1982,6 +2015,7 @@ var JS_Asset_Map = new function() {
                 var assetLine = assetLines[0];
                 if (assetids.length === 0) {
                     dfx.addClass(assetLine, 'selected');
+                    lastSelection = assetLine;
                     assetLine.scrollIntoView(true);
                 } else {
                     dfx.addClass(assetLine, 'located');
@@ -2039,6 +2073,7 @@ var JS_Asset_Map = new function() {
                         dfx.addClass(assetLine, 'located');
                     } else {
                         dfx.addClass(assetLine, 'selected');
+                        lastSelection = assetLine;
                         assetLine.scrollIntoView(true);
                     }
                 }
