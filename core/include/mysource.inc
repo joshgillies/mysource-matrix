@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.404 2013/04/16 01:38:38 akarelia Exp $
+* $Id: mysource.inc,v 1.405 2013/06/19 02:02:12 ewang Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.404 $
+* @version $Revision: 1.405 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -1218,7 +1218,11 @@ class MySource extends MySource_Object
 			}
 
 			if (!is_null($design)) {
+				ob_start();
 				$design->paint($current_asset);
+				$content = ob_get_clean();
+				$this->replaceKeyword($content);
+				echo $content;
 				return;
 			}
 
@@ -1289,7 +1293,11 @@ class MySource extends MySource_Object
 			}
 
 			if (!is_null($design)) {
+				ob_start();
 				$design->paint($current_asset);
+				$content = ob_get_clean();
+				$this->replaceKeyword($content);
+				echo $content;
 				return;
 			}
 
