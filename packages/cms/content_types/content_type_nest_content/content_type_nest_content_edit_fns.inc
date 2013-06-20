@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.78 2013/06/03 06:47:28 cupreti Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.79 2013/06/20 00:37:55 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.78 $
+* @version $Revision: 1.79 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -669,13 +669,17 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 
 			// create a NOTICE link for delete notification
 			if ($paint_with_assetid) {
-				$arbitrary_paint_layout = $GLOBALS['SQ_SYSTEM']->am->getAsset($paint_with_assetid);
-				if (!$asset->createLink($arbitrary_paint_layout, SQ_LINK_NOTICE, 'paint_with_layout')) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return FALSE;
-				}//end if
+				// see if link exists first
+				$link_exists = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($asset->id, $paint_with_assetid, SQ_LINK_NOTICE, 'paint_with_layout');
+				if (empty($link_exists)) {
+					$arbitrary_paint_layout = $GLOBALS['SQ_SYSTEM']->am->getAsset($paint_with_assetid);
+					if (!$asset->createLink($arbitrary_paint_layout, SQ_LINK_NOTICE, 'paint_with_layout')) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						return FALSE;
+					}//end if
 
-				$to_update_links = TRUE;
+					$to_update_links = TRUE;
+				}//end if
 			}//end if
 
 			if ($to_update_links) $asset->linksUpdated();
