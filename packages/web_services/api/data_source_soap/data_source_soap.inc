@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_soap.inc,v 1.8 2013/06/07 08:33:25 cupreti Exp $
+* $Id: data_source_soap.inc,v 1.9 2013/06/20 01:30:54 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/lib/soap_common.inc';
 * Data_Source_Soap
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -198,7 +198,6 @@ class Data_Source_Soap extends Data_Source
 				$this->attr('wsdl').
 				$this->attr('username').
 				$this->attr('password').
-				$this->attr('ws_namespace').
 				$this->attr('auth_type').
 				$this->attr('local_cert').
 				$this->attr('passphrase').
@@ -225,7 +224,6 @@ class Data_Source_Soap extends Data_Source
 				$this->attr('wsdl').
 				$this->attr('username').
 				$this->attr('password').
-				$this->attr('ws_namespace').
 				$this->attr('auth_type').
 				$this->attr('local_cert').
 				$this->attr('passphrase').
@@ -300,10 +298,7 @@ class Data_Source_Soap extends Data_Source
 
 		// Make the response xml
 		$sxml = new SimpleXMLElement($data['response']['response_xml']);
-		$xpath_res = @$sxml->xpath('/SOAP-ENV:Envelope/SOAP-ENV:Body');
-		if (!$xpath_res) {
-			$xpath_res = @$sxml->xpath('/soap:Envelope/soap:Body');
-		}
+		$xpath_res = @$sxml->xpath("/*[local-name() = 'Envelope']/*[local-name() = 'Body']");
 		$response_xml = @$xpath_res[0]->asXML();
 		if (empty($response_xml)) {
 			trigger_error("Expected xml content not found in the SOAP response");
@@ -388,13 +383,15 @@ class Data_Source_Soap extends Data_Source
 				$soap_options = SOAP_Common::_getSoapOptions($settings);
 
 				$ws_options = Array();
-				if ($this->attr('auth_type') == 'USERNAME_TOKEN') {
+				$auth_type = $this->attr('auth_type');
+				if ($auth_type === 'USERNAME_TOKEN' || $auth_type === 'WSS_DIGEST') {
 					$ws_options = Array(
 									'username' => $settings['login'],
 									'password' => $settings['password'],
-									'namespace' => $this->attr('ws_namespace'),
+									'passwordDigest' => $auth_type === 'WSS_DIGEST' ? TRUE : FALSE,
 								);
 				}
+
 				$this->_soap_client = SOAP_Common::getSoapClient($wsdl, $soap_options, $ws_options);
 
 			}//end if
