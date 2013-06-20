@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_soap_management.inc,v 1.2 2013/02/18 04:12:19 cupreti Exp $
+* $Id: data_source_soap_management.inc,v 1.2.2.1 2013/06/20 01:38:30 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -74,16 +74,11 @@ class Data_Source_Soap_Management extends Asset_Management
 																		'allow_empty'   => FALSE,
 																		'options'       => Array(
 																							'HTTP_BASIC'        => 'HTTP Basic',
-																							'USERNAME_TOKEN'	=> 'WS Username Token',
+																							'USERNAME_TOKEN'	=> 'WSS Username Token',
+																							'WSS_DIGEST'	=>	'WSS Passoword Digest',
 																						),
 																	),
 												'description' 	=> 'Authentication type to use',
-											   ),
-						'ws_namespace'		=> Array(
-												'added'			=> '0.1',
-												'type'			=> 'text',
-												'default'		=> '',
-												'description'	=> 'Namespace for the WS authentication',
 											   ),
 						'local_cert'		=> Array(
 												'added'			=> '0.1',

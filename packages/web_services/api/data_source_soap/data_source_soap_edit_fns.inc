@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_soap_edit_fns.inc,v 1.4 2013/02/27 04:15:35 cupreti Exp $
+* $Id: data_source_soap_edit_fns.inc,v 1.4.2.1 2013/06/20 01:38:30 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -281,7 +281,6 @@ class Data_Source_Soap_Edit_Fns extends Data_Source_Edit_Fns
 		$ws_auth = $asset->attr('ws_auth');
 		$username = array_get_index($ws_auth, 'username', '');
 		$password = array_get_index($ws_auth, 'password', '');
-		$namespace = array_get_index($ws_auth, 'namespace', '');
 		$enabled = !empty($ws_auth['enabled']);
 
 		$prefix .= '_wsua';
@@ -305,14 +304,7 @@ class Data_Source_Soap_Edit_Fns extends Data_Source_Edit_Fns
 		}
 		echo '</td></tr>';
 
-		echo '<tr>';
-		echo '<td>Namespace:</td><td>';
-		if ($wa) {
-			text_box($prefix.'_namespace', $namespace, 65);
-		} else {
-			echo $namespace;
-		}
-		echo '</td></tr></table>';
+		echo '</table>';
 		echo '</span>';
 		?>
 		<script type="text/javascript">
@@ -354,7 +346,6 @@ class Data_Source_Soap_Edit_Fns extends Data_Source_Edit_Fns
 			if (isset($_POST[$prefix.'_enabled'])) {
 				$ws_auth['enabled'] = 1;
 				$ws_auth['username'] = isset($_POST[$prefix.'_username']) ? $_POST[$prefix.'_username'] : '';
-				$ws_auth['namespace'] = isset($_POST[$prefix.'_namespace']) ? $_POST[$prefix.'_namespace'] : '';
 				if (!empty($_POST[$prefix.'_password'])) {
 					$ws_auth['password'] =  $_POST[$prefix.'_password'];
 				}

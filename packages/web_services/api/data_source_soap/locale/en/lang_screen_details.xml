@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.3 2013/02/27 04:15:35 cupreti Exp $
+* $Id: lang_screen_details.xml,v 1.3.2.1 2013/06/20 01:38:30 ewang Exp $
 *
 */
 -->
@@ -38,10 +38,6 @@
 		<field attribute="password">
 			<display_name>Password</display_name>
 			<note>Username and password for the authentication</note>
-		</field>
-		<field attribute="ws_namespace">
-			<display_name>WS Namespace</display_name>
-			<note>WS Namespace, if using 'WS Username Token' authentication type</note>
 		</field>
 		<field attribute="local_cert">
 			<display_name>Local Certificate</display_name>

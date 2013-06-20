@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_make_soap_call.inc,v 1.13 2013/04/03 21:45:16 akarelia Exp $
+* $Id: trigger_action_make_soap_call.inc,v 1.13.2.1 2013/06/20 01:38:30 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(dirname(dirname(__FILE__))).'/lib/soap_common.inc';
 *
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.13.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -114,7 +114,15 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 		$auth_type = array_get_index($settings, 'auth_type', 'HTTP_BASIC');
 		// Make SOAP call
 		try {
-			$client = new SoapClient($wsdl, $options);
+			$ws_options = Array();
+			if ($auth_type === 'WSS_USERNAME_TOKEN' || $auth_type === 'WSS_PASSWORD_DIGEST') {
+				$ws_options = Array(
+								'username' => $settings['login'],
+								'password' => $settings['password'],
+								'passwordDigest' => $auth_type === 'WSS_PASSWORD_DIGEST' ? TRUE : FALSE,
+							);
+			}
+			$client = SOAP_Common::getSoapClient($settings['wsdl'], $options, $ws_options);
 
 			// For authentication using JSESSIONID cookie
 			if ($auth_type == 'JSESSIONID') {
@@ -188,7 +196,9 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 	{
 		$auth_types = Array(
 						'HTTP_BASIC' => 'HTTP Basic',
-						'JSESSIONID' => 'Using JSESSIONID Cookie',
+						'JSESSIONID' => 'JSESSIONID Cookie',
+						'WSS_USERNAME_TOKEN' => 'WSS Username Token',
+						'WSS_PASSWORD_DIGEST' => 'WSS Password Digest',
 					);
 		$selected_caching_type  = array_get_index($settings, 'cache_wsdl', WSDL_CACHE_NONE);
 		$disabled = $write_access ? '' : 'disabled';
@@ -632,7 +642,16 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 			}
 
 			try {
-				$client = new SoapClient($settings['wsdl'], $options);
+				$ws_options = Array();
+				$auth_type = $settings['auth_type'];
+				if ($auth_type === 'WSS_USERNAME_TOKEN' || $auth_type === 'WSS_PASSWORD_DIGEST') {
+					$ws_options = Array(
+									'username' => $settings['login'],
+									'password' => $settings['password'],
+									'passwordDigest' => $auth_type === 'WSS_PASSWORD_DIGEST' ? TRUE : FALSE,
+								);
+				}
+				$client = SOAP_Common::getSoapClient($settings['wsdl'], $options, $ws_options);
 				$functions = $client->__getFunctions();
 				$types = $client->__getTypes();
 			}
@@ -681,8 +700,8 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 				$settings['response_keywords'] = $keywords_list;
 			}
 		}
-
-		$settings[$settings['action'].'_treat_as_fatal'] = array_get_index($request_data, $request_data['action'].'_treat_as_fatal',0);
+		if(isset($settings['action']))
+		    $settings[$settings['action'].'_treat_as_fatal'] = array_get_index($request_data, $request_data['action'].'_treat_as_fatal',0);
 
 		// Currently selected "Check response" fields
 		$current_selected_fields = (isset($request_data[$settings['action'].'_response_error_fields']) && $request_data[$settings['action'].'_response_error_fields'] != '')? $request_data[$settings['action'].'_response_error_fields'] : Array();
@@ -738,7 +757,7 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 
 		// Run test request
 		$test_results = Array();
-		if ($settings['run_test']) {
+		if ($settings['run_test'] && isset($functions)) {
 			// run test only for test selected
 			foreach($functions as $function) {
 				$function_name = preg_replace('/^\w+ (\w+)\(.*\)/', '$1', $function);
