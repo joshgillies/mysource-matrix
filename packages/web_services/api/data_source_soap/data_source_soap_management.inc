@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_soap_management.inc,v 1.2.2.1 2013/06/20 01:38:30 ewang Exp $
+* $Id: data_source_soap_management.inc,v 1.2.2.2 2013/06/20 05:02:09 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.2.2.1 $
+* @version $Revision: 1.2.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -76,6 +76,7 @@ class Data_Source_Soap_Management extends Asset_Management
 																							'HTTP_BASIC'        => 'HTTP Basic',
 																							'USERNAME_TOKEN'	=> 'WSS Username Token',
 																							'WSS_DIGEST'	=>	'WSS Passoword Digest',
+																							'JSESSIONID'		=> 'JSESSIONID Cookie',
 																						),
 																	),
 												'description' 	=> 'Authentication type to use',
@@ -134,6 +135,12 @@ class Data_Source_Soap_Management extends Asset_Management
 												'type'			=> 'text',
 												'default'		=> ',',
 												'description'	=> 'Delimiler to seperate data from xml elements with same name',
+											   ),
+		    				'jsessionid_url'				=> Array(
+												'added'			=> '0.1',
+												'type'			=> 'text',
+												'default'		=> '',
+												'description'	=> 'JSESSION ID Authentication URL',
 											   ),
 					  );
 

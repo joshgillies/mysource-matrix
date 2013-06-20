@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_soap.inc,v 1.7.2.2 2013/06/20 01:38:30 ewang Exp $
+* $Id: data_source_soap.inc,v 1.7.2.3 2013/06/20 05:02:09 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/lib/soap_common.inc';
 * Data_Source_Soap
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.7.2.2 $
+* @version $Revision: 1.7.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -386,13 +386,25 @@ class Data_Source_Soap extends Data_Source
 				$auth_type = $this->attr('auth_type');
 				if ($auth_type === 'USERNAME_TOKEN' || $auth_type === 'WSS_DIGEST') {
 					$ws_options = Array(
-									'username' => $settings['login'],
-									'password' => $settings['password'],
+									'username' => array_get_index($settings, 'login', ''),
+									'password' => array_get_index($settings, 'password', ''),
 									'passwordDigest' => $auth_type === 'WSS_DIGEST' ? TRUE : FALSE,
 								);
 				}
 
-				$this->_soap_client = SOAP_Common::getSoapClient($wsdl, $soap_options, $ws_options);
+				$client  = SOAP_Common::getSoapClient($wsdl, $soap_options, $ws_options);
+				
+				// For CRM OnDemand access using JSESSIONID cookie
+				if ($auth_type === 'JSESSIONID') {
+					$username = array_get_index($settings, 'login', '');
+					$password = array_get_index($settings, 'password', '');
+					$login_url = $this->attr('jsessionid_url');
+					if (!SOAP_Common::setJSessionCookie($client, $username, $password, $login_url)) {
+						throw new Exception('Error occured when setting the JSESSIONID cookie');
+					}
+				}
+				
+				$this->_soap_client = $client;
 
 			}//end if
 		}

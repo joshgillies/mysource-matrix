@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_common.inc,v 1.10.2.1 2013/06/20 01:39:47 ewang Exp $
+* $Id: soap_common.inc,v 1.10.2.2 2013/06/20 05:02:09 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ define('MAX_COMPLEX_TYPE_PASRSE_LOOP', 3);
 * This class will have all the common functions used for SOAP trigger and form actions
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.10.2.1 $
+* @version $Revision: 1.10.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -543,6 +543,9 @@ class SOAP_Common
 	*/
 	public static function setJSessionCookie(&$soap_client, $username, $password, $login_url)
 	{
+		if(empty($username) || empty($password) || empty($login_url))
+		    return TRUE;
+		
 		if (!($soap_client instanceof SoapClient)) {
 			trigger_error('First parameter supplied is not a SOAP client object');
 			return FALSE;
