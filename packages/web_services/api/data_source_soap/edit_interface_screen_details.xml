@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2013/06/20 01:30:54 ewang Exp $
+* $Id: edit_interface_screen_details.xml,v 1.5 2013/06/20 04:55:38 ewang Exp $
 *
 */
 -->
@@ -39,6 +39,9 @@
 		</field>
 		<field attribute="passphrase">
 			<password width="20" height="1" confirm_field="0" />
+		</field>
+		<field attribute="jsessionid_url">
+			<text width="80" height="1" />
 		</field>
 		<field attribute="mute_exception">
 			<boolean true_text="yes" false_text="no" />

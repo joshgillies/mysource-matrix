@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.4 2013/06/20 01:30:54 ewang Exp $
+* $Id: lang_screen_details.xml,v 1.5 2013/06/20 04:55:38 ewang Exp $
 *
 */
 -->
@@ -46,6 +46,10 @@
 		<field attribute="passphrase">
 			<display_name>Passphrase</display_name>
 			<note>Certificate file and passphrase for HTTPS client certificate authentication</note>
+		</field>
+		<field attribute="jsessionid_url">
+			<display_name>JSESSIONID Auth URL</display_name>
+			<note>Only used for Oracle CRM JSESSIONID authentication</note>
 		</field>
 		<field attribute="mute_exception">
 			<display_name>Mute Exceptions</display_name>
