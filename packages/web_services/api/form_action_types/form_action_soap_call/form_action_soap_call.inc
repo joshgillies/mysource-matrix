@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_soap_call.inc,v 1.29 2013/03/25 05:26:02 ewang Exp $
+* $Id: form_action_soap_call.inc,v 1.30 2013/06/20 01:17:15 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once dirname(dirname(dirname(__FILE__))).'/lib/soap_form_based_common.in
 * Make a SOAP call before submitting form
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -57,7 +57,9 @@ class Form_Action_SOAP_Call extends Form_Action
 	{
 		$auth_types = Array(
 						'HTTP_BASIC' => 'HTTP Basic',
-						'JSESSIONID' => 'Using JSESSIONID Cookie',
+						'JSESSIONID' => 'JSESSIONID Cookie',
+						'WSS_USERNAME_TOKEN' => 'WSS Username Token',
+						'WSS_PASSWORD_DIGEST' => 'WSS Password Digest',
 					);
 		$selected_auth_type = array_get_index($settings, 'auth_type', 'HTTP_BASIC');
 		$selected_caching_type  = array_get_index($settings, 'cache_wsdl', WSDL_CACHE_NONE);
@@ -424,7 +426,16 @@ class Form_Action_SOAP_Call extends Form_Action
 
 			$options = SOAP_Common::_getSoapOptions($settings, $form);
 			try {
-				$client = new SoapClient($settings['wsdl'], $options);
+				$ws_options = Array();
+				$auth_type = $settings['auth_type'];
+				if ($auth_type === 'WSS_USERNAME_TOKEN' || $auth_type === 'WSS_PASSWORD_DIGEST') {
+					$ws_options = Array(
+									'username' => $settings['login'],
+									'password' => $settings['password'],
+									'passwordDigest' => $auth_type === 'WSS_PASSWORD_DIGEST' ? TRUE : FALSE,
+								);
+				}
+				$client = SOAP_Common::getSoapClient($settings['wsdl'], $options, $ws_options);
 				$functions = $client->__getFunctions();
 				$types = $client->__getTypes();
 			}
@@ -659,7 +670,15 @@ class Form_Action_SOAP_Call extends Form_Action
 		$auth_type = array_get_index($settings, 'auth_type', 'HTTP_BASIC');
 		// Make SOAP call
 		try {
-			$client = new SoapClient($wsdl, $options);
+			$ws_options = Array();
+			if ($auth_type === 'WSS_USERNAME_TOKEN' || $auth_type === 'WSS_DIGEST') {
+				$ws_options = Array(
+								'username' => $settings['login'],
+								'password' => $settings['password'],
+								'passwordDigest' => $auth_type === 'WS_DIGEST' ? TRUE : FALSE,
+							);
+			}
+			$client = SOAP_Common::getSoapClient($settings['wsdl'], $options, $ws_options);
 
 			// For CRM OnDemand access using JSESSIONID cookie
 			if ($auth_type == 'JSESSIONID') {

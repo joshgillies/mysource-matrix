@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_common.inc,v 1.10 2013/03/19 06:34:23 cupreti Exp $
+* $Id: soap_common.inc,v 1.11 2013/06/20 01:18:07 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ define('MAX_COMPLEX_TYPE_PASRSE_LOOP', 3);
 * This class will have all the common functions used for SOAP trigger and form actions
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -379,6 +379,7 @@ class SOAP_Common
 			return FALSE;
 		}
 
+
 		return Array('request' => $soap_request, 'response' => $soap_response);
 
 	}//end testSoapRequest()
@@ -446,7 +447,7 @@ class SOAP_Common
 	*
 	* @param string $wsdl		WSDL address
 	* @param array 	$options	SOAP options
-	* @param array 	$ws_options	WEES parameters (username, password & namespace)
+	* @param array 	$ws_options	WEES parameters (username, password)
 	*
 	* @return null|object
 	* @access public
@@ -457,8 +458,8 @@ class SOAP_Common
 
 		try {
 			$soap_client = new SoapClient($wsdl, $options);
-			if (!empty($ws_options['username']) && !empty($ws_options['password']) && !empty($ws_options['namespace'])) {
-				self::setWsseSoapHeader($soap_client, $ws_options['username'], $ws_options['password'], $ws_options['namespace']);
+			if (isset($ws_options['username']) && isset($ws_options['password']) && isset($ws_options['passwordDigest'])) {				
+				self::setWsseSoapHeader($soap_client, $ws_options['username'], $ws_options['password'], $ws_options['passwordDigest']);
 			}
 		} catch (Exception $e) {
 			trigger_error('Error occured when trying to access the SOAP service: '.htmlentities($e->getMessage()));
@@ -476,23 +477,45 @@ class SOAP_Common
 	* @return boolean
 	* @access public
 	*/
-	public static function setWsseSoapHeader(&$soap_client, $ws_username, $ws_password, $ws_namespace)
+	public static function setWsseSoapHeader(&$soap_client, $ws_username, $ws_password, $ws_passwordDigest = FALSE)
 	{
-		if (empty($ws_username) || empty($ws_password) || empty($ws_namespace)) {
+		if (empty($ws_username) || empty($ws_password)) {
 			return FALSE;
 		}
+		
 		if ($soap_client instanceof SoapClient) {
-			$ws_header = '
-					<wsse:Security SOAP-ENV:mustUnderstand="1" xmlns:wsse="'.$ws_namespace.'">
-						<wsse:UsernameToken>
-							<wsse:Username>'.$ws_username.'</wsse:Username>
-							<wsse:Password>'.$ws_password.'</wsse:Password>
-						</wsse:UsernameToken>
-					</wsse:Security>';
-
+			if ($ws_passwordDigest)
+			{
+			
+				$nonce = mt_rand();
+				$timestamp = gmdate('Y-m-d\TH:i:s\Z');
+				$packedNonce = pack('H*', $nonce);
+				$packedTimestamp = pack('a*', $timestamp);
+				$packedPassword = pack('a*',  $ws_password);
+				$hash = sha1($packedNonce . $packedTimestamp . $packedPassword);
+				$packedHash = pack('H*', $hash);
+				$ws_header = '
+						<wsse:Security SOAP-ENV:mustUnderstand="1" xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+							<wsse:UsernameToken>
+								<wsse:Username>'.$ws_username.'</wsse:Username>
+								<wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordDigest">'.base64_encode($packedHash).'</wsse:Password>
+								<wsse:Nonce EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary">'.base64_encode(pack('H*', $nonce)).'</wsse:Nonce>
+								<wsu:Created xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">' . $timestamp . '</wsu:Created>
+							</wsse:UsernameToken>
+						</wsse:Security>';	
+			}
+			else {
+				$ws_header = '
+						<wsse:Security SOAP-ENV:mustUnderstand="1" xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+							<wsse:UsernameToken>
+								<wsse:Username>'.$ws_username.'</wsse:Username>
+								<wsse:Password>'.$ws_password.'</wsse:Password>
+							</wsse:UsernameToken>
+						</wsse:Security>';
+			}
 			try {
-				$ws_header_var = @new SoapVar($ws_header, XSD_ANYXML);
-				$ws_header = @new SoapHeader($ws_namespace, "wsse", $ws_header_var);
+				$ws_header_var = new SoapVar($ws_header, XSD_ANYXML);
+				$ws_header = new SoapHeader('http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd', "Security", $ws_header_var);
 				$soap_client->__setSoapHeaders($ws_header);
 			}catch (Exception $e) {
 				trigger_error('Error occured when setting the WSSE SOAP header: '.htmlentities($e->getMessage()));
