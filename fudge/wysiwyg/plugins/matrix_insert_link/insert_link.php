@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link.php,v 1.56.2.1 2013/04/15 00:18:33 cupreti Exp $
+* $Id: insert_link.php,v 1.56.2.2 2013/06/20 06:10:22 akarelia Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Insert Link Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.56.2.1 $
+* @version $Revision: 1.56.2.2 $
 * @package MySource_Matrix
 */
 
@@ -114,6 +114,7 @@ if (isset($_GET['assetid']) && $_GET['assetid']) {
 <html style="width: 750px; height: 488px; ">
 	<head>
 		<title>Insert Link</title>
+		<meta http-equiv="content-type" content="text/html; charset=<?php echo SQ_CONF_DEFAULT_CHARACTER_SET;?>" />
 		<?php
 		// add required js translation files, as we are using asset finder
 		$include_list = Array(sq_web_path('lib').'/js/translation.js');
