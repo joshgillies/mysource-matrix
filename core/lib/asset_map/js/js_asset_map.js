@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.63 2013/06/19 04:47:39 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.64 2013/06/21 02:15:23 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.63 $
+ * @version $Revision: 1.1.2.64 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -164,6 +164,10 @@ var JS_Asset_Map = new function() {
      *                                     asset finder that activated Use Me mode.
      * @property {String}   idPrefix       The prefix for ID attributes in that
      *                                     asset finder.
+     * @property {Boolean}  closeWhenDone  Set to true to close the asset finder when
+     *                                     either cancelled or selected. Default when
+     *                                     omitted is false. Enable this in Simple Edit
+     *                                     mode or when initially hidden in Admin.
      * @property {Array}    [typeFilter]   The restriction on types that can be
      *                                     selected. 
      * @property {Function} [doneCallback] When selection occurs, run this function.
@@ -595,6 +599,8 @@ var JS_Asset_Map = new function() {
                 break;
 
                 case KeyCode.Escape:
+                    dfx.remove(dfx.getClass('dragAsset', assetMapContainer));
+                    dragStatus = null;
                     self.moveMe.cancel();
                 break;
             }//end switch
@@ -2348,6 +2354,14 @@ var JS_Asset_Map = new function() {
                 typeFilter: typeFilter,
                 doneCallback: doneCallback,
             };
+
+            // toggle frame
+            var thisFrame    = this.getDefaultView(assetMapContainer.ownerDocument).top.frames['sq_sidenav'];
+            var resizerFrame = this.getDefaultView(assetMapContainer.ownerDocument).top.frames['sq_resizer'];
+            if (thisFrame.frameElement.parentNode.style.display === 'none') {
+                resizerFrame.toggleFrame();
+                useMeStatus.closeWhenDone = true;
+            }
             this.updateAssetsForUseMe();
         }//end if
     };
@@ -2358,6 +2372,10 @@ var JS_Asset_Map = new function() {
      *
      */
     this.cancelUseMeMode = function() {
+        if (useMeStatus && (useMeStatus.closeWhenDone === true)) {
+            var resizerFrame = this.getDefaultView(assetMapContainer.ownerDocument).top.frames['sq_resizer'];
+            resizerFrame.toggleFrame();
+        }
         dfx.removeClass(assetMapContainer, 'useMeMode');
         useMeStatus = null;
         this.updateAssetsForUseMe();

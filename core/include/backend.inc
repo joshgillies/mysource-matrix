@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.216.4.6 2013/06/06 05:52:41 lwright Exp $
+* $Id: backend.inc,v 1.216.4.7 2013/06/21 02:15:23 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.216.4.6 $
+* @version $Revision: 1.216.4.7 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -1393,17 +1393,19 @@ class Backend extends MySource_Object
 
             function toggleFrame() {
                 if (hidden == false) {
-                    if (fset.cols == "<?php echo $am_width; ?>,10,*") {
-                        fset.cols = "0,10,*";
-                    } else if (fset.cols == "<?php echo $am_width; ?>,0,*") {
-                        fset.cols = "0,0,*";
+                    top.frames['sq_sidenav'].frameElement.parentNode.style.display = 'none';
+                    if (top.frames['sq_resizer'].frameElement.parentNode.style.display !== 'none') {
+                        top.frames['sq_main'].frameElement.parentNode.style.paddingLeft = '10px';
+                    } else {
+                        top.frames['sq_main'].frameElement.parentNode.style.paddingLeft = '0px';
                     }
                     hidden = true;
                 } else {
-                    if (fset.cols == "0,10,*") {
-                        fset.cols = "<?php echo $am_width; ?>,10,*";
-                    } else if (fset.cols == "0,0,*") {
-                        fset.cols = "<?php echo $am_width; ?>,0,*";
+                    top.frames['sq_sidenav'].frameElement.parentNode.style.display = 'inline-block';
+                    if (top.frames['sq_resizer'].frameElement.parentNode.style.display !== 'none') {
+                        top.frames['sq_main'].frameElement.parentNode.style.paddingLeft = '<?php echo ($am_width + 10); ?>px';
+                    } else {
+                        top.frames['sq_main'].frameElement.parentNode.style.paddingLeft = '<?php echo $am_width; ?>px';
                     }
                     hidden = false;
                 }
