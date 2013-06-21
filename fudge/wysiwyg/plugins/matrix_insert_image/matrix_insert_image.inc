@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_image.inc,v 1.40 2012/08/30 00:56:52 ewang Exp $
+* $Id: matrix_insert_image.inc,v 1.40.8.1 2013/06/21 05:26:35 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.40.8.1 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -156,7 +156,7 @@ class matrix_insert_image extends wysiwyg_plugin
 				if (this._inPopup == true) { in_popup = '1'; }
 
 				editor_<?php echo $this->wysiwyg->name?>._object = this;
-				strPage = "<?php echo $this->get_popup_href('insert_image_frames.php')?>?f_imageid=" + escape(imageid) + "&f_align=" + escape(align) + "&f_width=" + escape(width) + "&f_height=" + escape(height) + "&f_alt=" + escape(alt) + "&f_title=" + escape(title) + "&f_longdesc=" + escape(longdesc) + "&f_horiz=" + escape(hspace) + "&f_vert=" + escape(vspace) + "&f_border=" + escape(border) + "&f_image_class=" + escape(image_class) + "&f_image_id=" + escape(image_id) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + escape(in_popup);
+				strPage = "<?php echo $this->get_popup_href('insert_image_frames.php')?>?f_imageid=" + encodeURIComponent(imageid) + "&f_align=" + encodeURIComponent(align) + "&f_width=" + encodeURIComponent(width) + "&f_height=" + encodeURIComponent(height) + "&f_alt=" + encodeURIComponent(alt) + "&f_title=" + encodeURIComponent(title) + "&f_longdesc=" + encodeURIComponent(longdesc) + "&f_horiz=" + encodeURIComponent(hspace) + "&f_vert=" + encodeURIComponent(vspace) + "&f_border=" + encodeURIComponent(border) + "&f_image_class=" + encodeURIComponent(image_class) + "&f_image_id=" + encodeURIComponent(image_id) + "&editor_name=" + encodeURIComponent("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + encodeURIComponent(in_popup);
 
 				var popup_height = 630;
 

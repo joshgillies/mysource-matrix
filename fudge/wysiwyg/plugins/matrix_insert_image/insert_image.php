@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.59 2013/04/23 08:08:32 cupreti Exp $
+* $Id: insert_image.php,v 1.59.4.1 2013/06/21 05:26:35 akarelia Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.59.4.1 $
 * @package MySource_Matrix
 */
 
@@ -42,6 +42,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 <html style="width: 800px; height: 600px;">
 	<head>
 		<title>Insert Image</title>
+		<meta http-equiv="content-type" content="text/html; charset=<?php echo SQ_CONF_DEFAULT_CHARACTER_SET;?>" />
 
 		<?php
 		//add required js translation files, as we are using asset finder
