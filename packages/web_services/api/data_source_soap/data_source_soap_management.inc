@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_soap_management.inc,v 1.4 2013/06/20 04:55:38 ewang Exp $
+* $Id: data_source_soap_management.inc,v 1.5 2013/06/21 05:19:58 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -75,7 +75,7 @@ class Data_Source_Soap_Management extends Asset_Management
 																		'options'       => Array(
 																							'HTTP_BASIC'        => 'HTTP Basic',
 																							'USERNAME_TOKEN'	=> 'WSS Username Token',
-																							'WSS_DIGEST'	=>	'WSS Passoword Digest',
+																							'WSS_DIGEST'	=>	'WSS Password Digest',
 																							'JSESSIONID'		=> 'JSESSIONID Cookie',
 																						),
 																	),
