@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_edit_fns.inc,v 1.82 2013/03/21 05:01:20 cupreti Exp $
+* $Id: site_edit_fns.inc,v 1.83 2013/06/21 04:27:14 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.82 $
+* @version $Revision: 1.83 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -298,20 +298,12 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 		$urls = Array();
 		for (reset($post); NULL !== ($urlid = key($post)); next($post)) {
 
-			$url = trim($post[$urlid]['url']);
-			$post[$urlid]['url'] = $url;
-
-			// check to see if user has provided 'http://' or 'https://' in the url provided
-			// might have to warn them about the it
-			if(preg_match('/^http(s)?:/', $url)) {
-				trigger_localised_error('CORE0303', E_USER_WARNING, $url);
-				return FALSE;
-			}
+			$url = preg_replace('/^http(s)?:\/\//', '', trim($post[$urlid]['url']));
 
 			// if there is a url or some selected protocols, then let's save it
 			if ($url && !empty($post[$urlid]['protocols'])) {
 				$urls[$urlid] = Array(
-									'url'				=> $post[$urlid]['url'],
+									'url'				=> $url,
 									'base_contextid'	=> array_get_index($post[$urlid], 'base_contextid', 0),
 								);
 				for ($k = 0; $k < count($this->protos); $k++) {
