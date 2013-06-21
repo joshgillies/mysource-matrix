@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.272.2.9 2013/05/27 08:23:05 ewang Exp $
+* $Id: form.inc,v 1.272.2.10 2013/06/21 01:01:35 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.272.2.9 $
+* @version $Revision: 1.272.2.10 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -4896,7 +4896,7 @@ class Form extends Asset implements Bridge
 	*/
 	function getFormErrorsMessageKeywordReplacement()
 	{
-		if (empty($this->submission_errors)) return '';
+		if (empty($this->submission_errors) && empty($this->question_errors)) return '';
 
 		return $this->attr('submission_errors_msg');
 
