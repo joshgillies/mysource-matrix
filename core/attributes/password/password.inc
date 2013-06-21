@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: password.inc,v 1.31 2013/05/20 01:14:59 akarelia Exp $
+* $Id: password.inc,v 1.32 2013/06/21 00:12:09 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_ATTRIBUTES_PATH.'/text/text.inc';
 *    <password width="8" min_length="6" />
 *    <password width="8" min_length="6" autocomplete="off" />
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -112,7 +112,7 @@ class Asset_Attribute_Password extends Asset_Attribute_Text
 	*/
 	function process($prefix)
 	{
-		if (array_get_index($this->_edit_params, 'confirm_field', FALSE) && isset($_REQUEST[$prefix.'_one'])) {
+		if (isset($this->_edit_params['confirm_field']) && !$this->_edit_params['confirm_field'] && isset($_REQUEST[$prefix.'_one'])) {
 			$one = $_REQUEST[$prefix.'_one'];
 			$this->validateValue($one);
 			$this->processed = $one && $this->setValue($one);
