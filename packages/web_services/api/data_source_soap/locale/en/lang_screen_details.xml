@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.5 2013/06/20 04:55:38 ewang Exp $
+* $Id: lang_screen_details.xml,v 1.6 2013/06/21 02:05:16 cupreti Exp $
 *
 */
 -->
@@ -83,7 +83,7 @@
 		</field>
 		<field attribute="data_delimiter">
 			<display_name>Data Delimiter</display_name>
-			<note>Delimiler to seperate data from xml elements with same name</note>
+			<note>Delimiter to separate data from xml elements with same name</note>
 		</field>
 	</section>
 	<section name="Transformations">
@@ -104,7 +104,7 @@
 				<process_function name="processShadow" />
 			</function_call>
 		</field>
-		<note>The above keywords are avaialable for the record set assets exposed by this data source and can be used in the asset name (above) or when listing these assets.</note>
+		<note>Enter the name that should be used for record set assets exposed by this data source. It can either be a normal string or a combination of string and keywords. See the Available Keywords section below for the keywords available for use in this field.</note>
 	</section>
 	<section name="Available Keywords" write_access="write:attributes">
 		<field>
@@ -114,6 +114,6 @@
 				<process_function name="processKeywords" />
 			</function_call>
 		</field>
-		<note>Enter the name that should be used for record set assets exposed by this data source. It can either be a normal string or a combination of string and keywords. See the Available Keywords section below for the keywords available for use in this field.</note>
+		<note>The above keywords are avaialable for the record set assets exposed by this data source and can be used in the asset name (above) or when listing these assets.</note>
 	</section>
 </contents>
