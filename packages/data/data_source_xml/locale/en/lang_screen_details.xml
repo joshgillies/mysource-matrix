@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.7.18.1 2013/06/21 01:56:56 cupreti Exp $
+* $Id: lang_screen_details.xml,v 1.7.18.2 2013/06/21 02:03:01 cupreti Exp $
 *
 */
 -->
@@ -53,7 +53,7 @@
 		</field>
 		<field attribute="data_delimiter">
 			<display_name>Data Delimiter</display_name>
-			<note>Delimiler to separate data from xml elements with same name..</note>
+			<note>Delimiter to separate data from xml elements with same name.</note>
 		</field>
 
 	</section>
