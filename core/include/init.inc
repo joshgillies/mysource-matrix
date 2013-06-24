@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.126 2012/10/23 04:26:35 cupreti Exp $
+* $Id: init.inc,v 1.126.6.1 2013/06/24 23:37:00 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * The file that needs to be included to do anything
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.126 $
+* @version $Revision: 1.126.6.1 $
 * @package MySource_Matrix
 */
 
@@ -41,8 +41,9 @@ if (PHP_VERSION_ID < 50300) {
 	// pear http/client module contains deprecated syntax which will cause trouble
 	// E_DEPRECATED is introduced in PHP 5.3 and included in E_ALL, so has to remove E_DEPRECATED for php 5.3 and above
 	error_reporting(E_ALL);
-}
-else {
+} else if (PHP_VERSION_ID >= 50400) {
+	error_reporting(E_ALL ^ E_DEPRECATED ^ E_STRICT);
+} else {
 	error_reporting(E_ALL ^ E_DEPRECATED);
 }
 
