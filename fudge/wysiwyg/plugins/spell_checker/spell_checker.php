@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: spell_checker.php,v 1.14.4.1 2013/04/23 09:03:14 cupreti Exp $
+* $Id: spell_checker.php,v 1.14.4.2 2013/06/24 23:54:14 akarelia Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Spell Checker Popup for the WYSIWYG
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.14.4.1 $
+* @version $Revision: 1.14.4.2 $
 * @package MySource_Matrix
 */
 require_once dirname(__FILE__).'/../../../../core/include/init.inc';
@@ -111,10 +111,10 @@ header('Content-type: text/html; charset: utf-8');
 		require_once DIRNAME(__FILE__).'/spell_parser.inc';
 		require_once 'XML/XML_HTMLSax.php';
 
-		$handler =& new Spell_Parser();
+		$handler = new Spell_Parser();
 		$handler->setLanguage($GLOBALS['dict']);
 
-		$parser =& new XML_HTMLSax();
+		$parser = new XML_HTMLSax();
 		$parser->set_object($handler);
 		$parser->set_element_handler('openHandler', 'closeHandler');
 		$parser->set_data_handler('dataHandler');

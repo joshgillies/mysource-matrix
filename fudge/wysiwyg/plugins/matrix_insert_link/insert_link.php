@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link.php,v 1.56.2.2 2013/06/20 06:10:22 akarelia Exp $
+* $Id: insert_link.php,v 1.56.2.3 2013/06/24 23:54:14 akarelia Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Insert Link Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.56.2.2 $
+* @version $Revision: 1.56.2.3 $
 * @package MySource_Matrix
 */
 
@@ -563,7 +563,7 @@ if (isset($_GET['assetid']) && $_GET['assetid']) {
 					<td valign="top">
 						<?php
 							include_once(SQ_LIB_PATH.'/asset_map/asset_map.inc');
-							$asset_map =& new Asset_Map();
+							$asset_map = new Asset_Map();
 							$asset_map->embedAssetMap('simple', 200, 400);
 						?>
 					</td>
