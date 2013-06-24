@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: locale_manager.inc,v 1.20 2012/08/30 01:09:19 ewang Exp $
+* $Id: locale_manager.inc,v 1.20.8.1 2013/06/24 05:26:52 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    number/date formats
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.20.8.1 $
 * @package MySource_Matrix
 */
 class Locale_Manager extends MySource_Object
@@ -579,14 +579,17 @@ class Locale_Manager extends MySource_Object
 		if (!isset($this->_errors[$locale][$code])) {
 			$valid_code = FALSE;
 		}
-
+		
+		// do not dump array data here
+		foreach ($func_args as $index => $arg) {
+		    if(!is_scalar($arg)) {
+			$func_args[$index] = '';
+		    }
+		}
 		if ($valid_code) {
 			$error_msg = vsprintf($this->_errors[$locale][$code], $func_args).' ['.$code.']';
 		} else {
 			$error_msg = 'Error text not found for this code and locale ['.$code.']';
-			if (!empty($func_args)) {
-				$error_msg .= "\n".var_export($func_args, 1);
-			}
 		}
 
 		return $error_msg;
