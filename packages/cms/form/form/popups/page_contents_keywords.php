@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_contents_keywords.php,v 1.10.4.1 2013/03/08 06:25:32 ewang Exp $
+* $Id: page_contents_keywords.php,v 1.10.4.2 2013/06/24 05:27:47 ewang Exp $
 *
 */
 
@@ -21,7 +21,7 @@
 	assert_valid_assetid($_GET['assetid']);
 	$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($_GET['assetid']);
 	if (!($asset instanceof Form)) {
-		trigger_localised_error('CMS0002', E_USER_ERROR, $asset);
+		trigger_error('Asset is not a form');
 		return FALSE;
 	}
 
