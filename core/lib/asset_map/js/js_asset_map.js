@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.65 2013/06/24 00:32:30 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.66 2013/06/24 02:51:12 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.65 $
+ * @version $Revision: 1.1.2.66 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -458,6 +458,16 @@ var JS_Asset_Map = new function() {
         assetMapContainer    = options.targetElement || dfx.getId('asset_map_container');
         options.teleportRoot = options.teleportRoot  || '1';
 
+        if (options.initialSelection !== '') {
+            var selParts = options.initialSelection.split('~');
+            options.initialSelection = {
+                assetids: selParts[0].split('|'),
+                sortOrders: selParts[1].split('|')
+            };
+        } else {
+            options.initialSelection = null;
+        }
+
         // Draw two trees only.
         this.drawToolbar();
         var containers = [
@@ -514,12 +524,22 @@ var JS_Asset_Map = new function() {
                 }
             }
 
-            self.teleport(options.teleportRoot, null, 0);
+            self.teleport(options.teleportRoot, null, 0, function() {
+                // If an initial selection is passed, try to locate the current
+                // asset from the URL.
+                if (options.initialSelection) {
+                    self.locateAsset(
+                        options.initialSelection.assetids,
+                        options.initialSelection.sortOrders
+                    );
+                }
+            });
             self.teleport(options.teleportRoot, null, 1);
 
             self.drawTreeList();
             self.selectTree(0);
             self.initEvents();
+
             self.message('Success!', false, 2000);
         });
     };
@@ -1253,7 +1273,7 @@ var JS_Asset_Map = new function() {
      * @param {String} linkid   The link ID of the location being teleported to.
      * @param {Number} [treeid] Tree ID (zero-indexed, default = selected tree).
      */
-    this.teleport = function(assetid, linkid, treeid) {
+    this.teleport = function(assetid, linkid, treeid, callback) {
         var self = this;
         if (treeid === undefined) {
             var tree = this.getCurrentTreeElement();
@@ -1312,6 +1332,10 @@ var JS_Asset_Map = new function() {
                     rootAsset._attributes.asset_path = rootAsset._attributes.assetid;
                     rootAsset._attributes.link_path  = rootAsset._attributes.linkid;
                     self.drawTree(rootAsset, tree);
+
+                    if (dfx.isFn(callback) === true) {
+                        callback();
+                    }
 
                     switch (assetCount) {
                         case 1:

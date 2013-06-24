@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.317.2.13 2013/06/24 00:32:30 lwright Exp $
+* $Id: asset_map.inc,v 1.317.2.14 2013/06/24 02:51:12 lwright Exp $
 *
 */
 require_once(SQ_LIB_PATH.'/xml_array/xml_array.inc');
@@ -23,7 +23,7 @@ require_once(SQ_LIB_PATH.'/xml_array/xml_array.inc');
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.317.2.13 $
+* @version $Revision: 1.317.2.14 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -132,6 +132,11 @@ class Asset_Map
             }
         }
 
+        if (empty($rootlineage)) {
+            // Initial lineage selection (i.e ..com/site1/blah/_admin will expand the lineage of that asset)
+            $initial_selection_lineage = $this->_getInitialLineageSelection($type);
+        }
+
         ?>
         <script type="text/javascript" src="<?php echo sq_web_path('lib').'/asset_map/js/js_asset_map.js';?>"></script>
         <?php
@@ -153,6 +158,7 @@ class Asset_Map
                         assetIconPath: '<?php echo sq_web_path('data') ?>/asset_types',
                         displayFormat: '<?php echo addslashes(SQ_CONF_ASSET_MAP_ASSET_DISPLAY_NAME); ?>',
                         assetsPerPage: <?php echo SQ_CONF_ASSET_MAP_ASSET_LIMIT; ?>,
+                        initialSelection: '<?php echo $initial_selection_lineage ?>',
                         teleportRoot: <?php echo $common_parentid ?>
                     });
                 }
