@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.317.2.12 2013/06/14 06:11:05 lwright Exp $
+* $Id: asset_map.inc,v 1.317.2.13 2013/06/24 00:32:30 lwright Exp $
 *
 */
 require_once(SQ_LIB_PATH.'/xml_array/xml_array.inc');
@@ -23,7 +23,7 @@ require_once(SQ_LIB_PATH.'/xml_array/xml_array.inc');
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.317.2.12 $
+* @version $Revision: 1.317.2.13 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -150,6 +150,7 @@ class Asset_Map
                 dfxLoadedCallback = function() {
                     document.getElementById('asset_map_container').style.height = <?php echo $height ?> + 'px';
                     JS_Asset_Map.<?php echo $startCmd ?>({
+                        assetIconPath: '<?php echo sq_web_path('data') ?>/asset_types',
                         displayFormat: '<?php echo addslashes(SQ_CONF_ASSET_MAP_ASSET_DISPLAY_NAME); ?>',
                         assetsPerPage: <?php echo SQ_CONF_ASSET_MAP_ASSET_LIMIT; ?>,
                         teleportRoot: <?php echo $common_parentid ?>
@@ -547,10 +548,10 @@ class Asset_Map
 
                     $parameters = Array(
                                     'parameter.backendsuffix'			=> SQ_CONF_BACKEND_SUFFIX,
-									// only need to pass session id to assetmap if HTTPOnly cookie is used, otherwise java can share cookie automatically
-									'parameter.postsession'				=> SQ_CONF_COOKIE_OPTION_HTTP_ONLY,
-									'parameter.sessionid'				=> $_COOKIE['SQ_SYSTEM_SESSION'],
-									'parameter.sessionkey'				=> $GLOBALS['SQ_SYSTEM']->getUniqueSessionKey(),
+                                    // only need to pass session id to assetmap if HTTPOnly cookie is used, otherwise java can share cookie automatically
+                                    'parameter.postsession'				=> SQ_CONF_COOKIE_OPTION_HTTP_ONLY,
+                                    'parameter.sessionid'				=> $_COOKIE['SQ_SYSTEM_SESSION'],
+                                    'parameter.sessionkey'				=> $GLOBALS['SQ_SYSTEM']->getUniqueSessionKey(),
                                     'parameter.url.iconurl'				=> '__lib/web/images/icons',
                                     'parameter.url.typecodeurl'			=> '__data/asset_types',
                                     'parameter.url.notaccessibleicon'	=> 'asset_map/not_accessible.png',
@@ -2593,18 +2594,18 @@ class Asset_Map
                     break;
 
                     default:
-						if (is_array($source[$key]) === TRUE) {
-							foreach ($source[$key] as $i => $subvalue) {
-								$node    = $doc->createElement($key);
-								$el->appendChild($node);
-								$newTodo = array(
-											$subvalue,
-											&$node,
-										   );
-								$todo[] = $newTodo;
+                        if (is_array($source[$key]) === TRUE) {
+                            foreach ($source[$key] as $i => $subvalue) {
+                                $node    = $doc->createElement($key);
+                                $el->appendChild($node);
+                                $newTodo = array(
+                                            $subvalue,
+                                            &$node,
+                                           );
+                                $todo[] = $newTodo;
 
-								unset($node);
-							}//end foreach
+                                unset($node);
+                            }//end foreach
                         }//end if
 
                     break;

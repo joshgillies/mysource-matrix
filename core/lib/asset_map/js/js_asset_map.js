@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.64 2013/06/21 02:15:23 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.65 2013/06/24 00:32:30 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.64 $
+ * @version $Revision: 1.1.2.65 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -98,7 +98,7 @@ var JS_Asset_Map = new function() {
      *
      * Save the trash folder ID so even if we are teleported out of view, we
      * know where to go when the DEL button is pressed.
-     * 
+     *
      * @var {String}
      */
     var trashFolder = '';
@@ -142,6 +142,13 @@ var JS_Asset_Map = new function() {
      */
     var lastCreatedType = null;
 
+    /**
+     * The last actually-clicked asset.
+     *
+     * Used primarily for block-selection using SHIFT+click.
+     *
+     * @var {Node}
+     */
     var lastSelection = null;
 
     /**
@@ -169,7 +176,7 @@ var JS_Asset_Map = new function() {
      *                                     omitted is false. Enable this in Simple Edit
      *                                     mode or when initially hidden in Admin.
      * @property {Array}    [typeFilter]   The restriction on types that can be
-     *                                     selected. 
+     *                                     selected.
      * @property {Function} [doneCallback] When selection occurs, run this function.
      */
     var useMeStatus = null;
@@ -194,7 +201,7 @@ var JS_Asset_Map = new function() {
      * When no drag is active, this will be null.
      * When a drag is active, startPoint will be filled, and either "assetDrag" or
      * "selectionDrag" will be available.
-     * 
+     *
      * @property {Object} startPoint   The coordinates of the starting point.
      * @property {Number} startPoint.x The clientX of the starting point.
      * @property {Number} startPoint.y The clientY of the starting point.
@@ -358,7 +365,7 @@ var JS_Asset_Map = new function() {
 
         if (assetTypeCache[typeCode]) {
             assetLine.setAttribute('title', assetTypeCache[typeCode].name + ' [' +
-			    assetid + ']');
+                assetid + ']');
         } else {
             assetLine.setAttribute('title', 'Unknown Asset Type [' + assetid + ']');
         }
@@ -369,8 +376,7 @@ var JS_Asset_Map = new function() {
         var iconSpan = _createEl('span');
         dfx.addClass(iconSpan, 'icon');
         if (typeCode !== '') {
-            iconSpan.setAttribute('style', 'background-image: url(../__data/' + 
-		    	'asset_types/' + typeCode + '/icon.png)');
+            iconSpan.setAttribute('style', 'background-image: url(' + options.assetIconPath + '/' + typeCode + '/icon.png)');
         }
 
         if (accessible === 0) {
@@ -452,7 +458,7 @@ var JS_Asset_Map = new function() {
         assetMapContainer    = options.targetElement || dfx.getId('asset_map_container');
         options.teleportRoot = options.teleportRoot  || '1';
 
-        // Draw two trees only. 
+        // Draw two trees only.
         this.drawToolbar();
         var containers = [
             this.drawTreeContainer(0),
@@ -507,7 +513,7 @@ var JS_Asset_Map = new function() {
                     trashFolder = asset._attributes.assetid;
                 }
             }
- 
+
             self.teleport(options.teleportRoot, null, 0);
             self.teleport(options.teleportRoot, null, 1);
 
@@ -622,7 +628,7 @@ var JS_Asset_Map = new function() {
 
             self.clearMenus();
             self.clearLocatedAssets();
- 
+
             var which       = e.which;
             var allButtons  = e.buttons;
             if (!allButtons) {
@@ -742,7 +748,7 @@ var JS_Asset_Map = new function() {
                                 }
                             }
                         }//end if (ctrl-click)
-                        
+
                         lastSelection = assetTarget;
                     }//end if (use me mode)
                 }//end if (asset target)
@@ -785,6 +791,36 @@ var JS_Asset_Map = new function() {
                         );
                         dfx.setStyle(selectionRect, 'height', (Math.abs(e.clientY - dragStatus.startPoint.y) + 1) + 'px');
                         dfx.setStyle(selectionRect, 'width', (Math.abs(e.clientX - dragStatus.startPoint.x) + 1) + 'px');
+
+                        dfx.addEvent(selectionRect, 'mousemove', function(e) {
+                            dfx.setCoords(
+                                selectionRect,
+                                Math.min(e.clientX, dragStatus.startPoint.x) - assetMapCoords.x,
+                                Math.min(e.clientY, dragStatus.startPoint.y) - assetMapCoords.y
+                            );
+                            dfx.setStyle(selectionRect, 'height', (Math.abs(e.clientY - dragStatus.startPoint.y) + 1) + 'px');
+                            dfx.setStyle(selectionRect, 'width', (Math.abs(e.clientX - dragStatus.startPoint.x) + 1) + 'px');
+                        });
+/*
+                        dfx.addEvent(dfx.getClass('asset', assetMapContainer), 'mouseover.rectSelection', function(e) {
+                            var target = e.currentTarget;
+                            if (dfx.hasClass(target, 'newly-selected') === false) {
+                                dfx.addClass(target, 'selected');
+                                dfx.addClass(target, 'newly-selected');
+                                console.info(target.getAttribute('data-assetid') + ' enter');
+                                lastSelection = target;
+                            }
+                        });
+
+                        dfx.addEvent(dfx.getClass('asset', assetMapContainer), 'mouseout.rectSelection', function(e) {
+                            var target = e.currentTarget;
+                            if (dfx.hasClass(target, 'newly-selected') === true) {
+                                dfx.removeClass(target, 'newly-selected');
+                                dfx.removeClass(target, 'selected');
+                                console.info(target.getAttribute('data-assetid') + ' leave');
+                            }
+                        });
+*/
                     }//end if
                 } else if (dragStatus.assetDrag) {
                     dragStatus.currentPoint = {
@@ -812,11 +848,11 @@ var JS_Asset_Map = new function() {
                                     name: js_translate('%s_assets', selection.length),
                                     type_code: '',
                                     status: 0
-                                    
+
                                 }
                                 dfx.addClass(dragAsset, 'multiple');
                             } else {
-                                // _formatAsset with asset details 
+                                // _formatAsset with asset details
                                 var assetAttrs = {
                                     assetid: selection[0].getAttribute('data-assetid'),
                                     name: dfx.getNodeTextContent(dfx.getClass('assetName', selection[0])[0]),
@@ -848,13 +884,13 @@ var JS_Asset_Map = new function() {
                                     var hoverTreeid = underlyingEl.getAttribute('data-treeid');
                                     self.setHoverTab(hoverTreeid, function(treeid) {
                                         self.selectTree(treeid);
-                                    });                                
+                                    });
                                 } else {
                                     self.clearHoverTab();
                                 }
 
                                 if (dfx.hasClass(underlyingEl, 'asset') === false) {
-                                    underlyingEl = dfx.getParents(underlyingEl, '.asset')[0];                           
+                                    underlyingEl = dfx.getParents(underlyingEl, '.asset')[0];
                                 }
                                 if (underlyingEl && (dfx.getClass('branch-status', underlyingEl).length > 0) &&
                                     (dfx.getClass('expanded', underlyingEl).length === 0)) {
@@ -871,7 +907,7 @@ var JS_Asset_Map = new function() {
                                 e.stopImmediatePropagation();
                             });
                         }//end if (draggable exists)
-    
+
                         // We moved far enough between events that we're not on the
                         // draggable anymore.
                         var underlyingEl = assetMapContainer.ownerDocument.elementFromPoint(mousePos.x, mousePos.y);
@@ -879,7 +915,7 @@ var JS_Asset_Map = new function() {
                         dfx.setStyle(dragAsset, 'top', dragStatus.currentPoint.y + 'px');
 
                         if (dfx.hasClass(underlyingEl, 'asset') === false) {
-                            underlyingEl = dfx.getParents(underlyingEl, '.asset')[0];                           
+                            underlyingEl = dfx.getParents(underlyingEl, '.asset')[0];
                         }
                         if (underlyingEl && (dfx.getClass('branch-status', underlyingEl).length > 0) &&
                             (dfx.getClass('expanded', underlyingEl).length === 0)) {
@@ -902,9 +938,9 @@ var JS_Asset_Map = new function() {
                 var hoverTreeid    = target.getAttribute('data-treeid');
                 self.setHoverTab(hoverTreeid, function(treeid) {
                     self.selectTree(treeid);
-                });                                
+                });
 
-                var dragAsset = dfx.getClass('dragAsset', assetMapContainer)[0];                
+                var dragAsset = dfx.getClass('dragAsset', assetMapContainer)[0];
                 var mousePos = dfx.getMouseEventPosition(e);
                 dragStatus.currentPoint = {
                     x: mousePos.x - assetMapCoords.x + dragStatus.assetDrag.offset.x,
@@ -926,6 +962,10 @@ var JS_Asset_Map = new function() {
             dfx.remove(dfx.getClass('dragAsset', assetMapContainer));
             if (dragStatus) {
                 if (dragStatus.selectionDrag) {
+/*
+                    dfx.removeEvent(dfx.getClass('asset', assetMapContainer), 'mouseover.rectSelection');
+                    dfx.removeEvent(dfx.getClass('asset', assetMapContainer), 'mouseout.rectSelection');
+*/
                     var selectionRect = dfx.getClass('selectionRect', assetMapContainer);
                     if (selectionRect) {
                         dfx.remove(selectionRect);
@@ -935,7 +975,7 @@ var JS_Asset_Map = new function() {
                     if (dragAsset) {
                         dfx.remove(dragAsset);
                     }
-                    if (Math.abs(e.clientX - dragStatus.startPoint.x) < 2 && 
+                    if (Math.abs(e.clientX - dragStatus.startPoint.x) < 2 &&
                         Math.abs(e.clientY - dragStatus.startPoint.y) < 2) {
                         // Treat as a click.
                         self.clearSelection();
@@ -1182,7 +1222,7 @@ var JS_Asset_Map = new function() {
             'located'
         );
     }
-    
+
     this.positionMenu = function(menu, mousePos) {
         var topDoc = this.topDocumentElement(assetMapContainer);
         topDoc.appendChild(menu);
@@ -1202,8 +1242,8 @@ var JS_Asset_Map = new function() {
             ) + 'px')
         );
     };
-    
- 
+
+
     /**
      * Teleport to a specific asset.
      *
@@ -1856,7 +1896,7 @@ var JS_Asset_Map = new function() {
                     assetid: processQueue[i],
                     linkid: null,
                     start: 0,
-                    limit: 1 
+                    limit: 1
                 }
             });
         }//end for
@@ -2160,12 +2200,12 @@ var JS_Asset_Map = new function() {
             _lineEl = _createEl('div');
             dfx.addClass(_lineEl, 'selectLine');
             assetMapContainer.appendChild(_lineEl);
-            
+
             dfx.addEvent(dfx.getClass('tree', assetMapContainer), 'mousedown.moveMe', function(e) {
                 if (self.selection) {
                     self.doneCallback.call(self, self.source, self.selection);
                 }
-                
+
                 // if there's no valid target when they click, then that's too bad.
                 self.cancel();
             });
@@ -2963,9 +3003,9 @@ var JS_Asset_Map = new function() {
 
     this.openHipoWindow = function(url) {
         var window = this.getDefaultView(assetMapContainer).top;
-	    window.focus();
-    	var popup = window.open(url, 'hipo_job', 'width=650,height=400,scrollbars=1,toolbar=0,menubar=0,location=0,resizable=1');
-    	popup.focus();
+        window.focus();
+        var popup = window.open(url, 'hipo_job', 'width=650,height=400,scrollbars=1,toolbar=0,menubar=0,location=0,resizable=1');
+        popup.focus();
 
     };
 
