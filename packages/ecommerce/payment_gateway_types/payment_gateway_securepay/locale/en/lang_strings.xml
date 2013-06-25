@@ -1,0 +1,44 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ABN 77 084 670 600                                                 |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.com.au) so we may provide|
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* $Id: lang_strings.xml,v 1.1.2.2 2013/06/25 06:57:06 cupreti Exp $
+*
+*/
+-->
+
+<strings>
+<string source="default_bodycopy_content"><![CDATA[
+%%processing_error%%
+<div style="background-color: #CCC; padding: 5px"><strong>$%%transaction_amount%%</strong> (%%transaction_gst%% percent GST)  dollars are about to be debited from your card</div>
+<table cellpadding="5">
+	<tr>
+		<td align="right">Card Number</td>
+		<td>%%card_number%%  %%card_ccv%%</td>
+	</tr>
+	<tr>
+		<td align="right">Expiry Date (MM/YY)</td>
+		<td>%%card_expiry_month_select%% / %%card_expiry_year_select%%</td>
+	</tr>
+	<tr>
+		<td align="right">Card Type</td>
+		<td>%%card_type%%</td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td>%%submit_button%% %%reset_button%% %%cancel_button%%</td>
+	</tr>
+</table>
+]]></string>
+
+<string source="securepay_account_not_set">Required transaction parameters not set to start the SecurePay transaction</string>
+<string source="securepay_expected_parameter_not_returned">Expected parameters not returned by SecurePay</string>
+<string source="securepay_fingerprint_verification_failed">Transaction fingerprint verification failed</string>
+</strings>
