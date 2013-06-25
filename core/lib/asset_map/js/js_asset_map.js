@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.68 2013/06/25 06:33:18 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.69 2013/06/25 07:38:45 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.68 $
+ * @version $Revision: 1.1.2.69 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -1380,9 +1380,8 @@ var JS_Asset_Map = new function() {
                     dfx.remove(branchTarget);
                 } else {
                     tree.innerHTML = '';
-
+                    var assetCount = rootAsset.asset.length;
                     if (String(assetid) !== '1') {
-                        var assetCount   = rootAsset.asset.length;
                         var rootIndentId = 'child-indent-' +
                             encodeURIComponent(assetid);
 
@@ -1883,7 +1882,7 @@ var JS_Asset_Map = new function() {
         var messageDiv = _createEl('div');
         messageDiv.id        = 'asset_map_message';
         dfx.addClass(messageDiv, 'message');
-        messageDiv.innerHTML = js_translate('asset_map_status_bar_loading');
+        messageDiv.innerHTML = '';
         container.appendChild(messageDiv);
     };
 
@@ -2721,7 +2720,7 @@ var JS_Asset_Map = new function() {
                 var menuItem = this.drawMenuItem(js_translate('asset_map_menu_no_previous_child'), null);
                 dfx.addClass(menuItem, 'disabled');
             } else {
-                var menuItem = this.drawMenuItem(js_translate('asset_map_menu_new_child_previous', assetTypeCache[lastCreatedType].name), lastCreatedType);
+                var menuItem = this.drawMenuItem(js_translate('asset_map_menu_new_previous', assetTypeCache[lastCreatedType].name), lastCreatedType);
                 dfx.addEvent(menuItem, 'click', function(e) {
                     self.clearMenus();
                     self.addAsset(lastCreatedType, assetid, -1);

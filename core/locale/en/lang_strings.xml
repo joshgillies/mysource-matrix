@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.427.2.5 2013/06/25 06:33:18 lwright Exp $
+* $Id: lang_strings.xml,v 1.427.2.6 2013/06/25 07:38:45 lwright Exp $
 *
 */
 
@@ -2230,6 +2230,7 @@ If you are ready to continue, please click <strong>Next</strong> to proceed with
     <string source="asset_map_menu_add_new" java="1">Add New</string>
     <string source="asset_map_menu_remove" java="1">Remove</string>
     <string source="asset_map_menu_new_child_previous" java="1">New Child: %s</string>
+    <string source="asset_map_menu_new_previous" js="1">New %s</string>
     <string source="asset_map_menu_no_previous_child" java="1">No Previous Child</string>
 
     <string source="asset_map_confirm_move_child" java="1">Are you sure you want to move the asset "%s" to the Trash?</string>
