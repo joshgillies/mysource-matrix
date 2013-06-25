@@ -58,6 +58,11 @@ The listed numbers are the amount of products which have been ordered but which 
 														'default'		=> TRUE,
 														'parameters'	=> Array('allow_empty'	=> FALSE),
 													   ),
+						'payment_gateways'			=> Array(
+														'added'		=> '0.4',
+														'type'		=> 'serialise',
+														'default'	=> Array(),
+													   ),
 					  );
 
 	}//end constructor
@@ -88,6 +93,44 @@ The listed numbers are the amount of products which have been ordered but which 
 			   );
 
 	}//end getEventList()
+
+
+	/**
+	* Upgrade
+	*
+	* @param string	$current_version	the version of the asset that is currenly installed
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _upgrade($current_version)
+	{
+		// first do things as normal
+		$res = parent::_upgrade($current_version);
+
+		if (version_compare($current_version, '0.4', '<')) {
+			pre_echo('Upgrading Default Delivery Method to v0.4');
+			$assetid_list = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('default_delivery_method', FALSE);
+			foreach ($assetid_list as $assetid) {
+				$ecom = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$gateway_assetid = $ecom->attr('payment_gateway');
+				if (empty($gateway_assetid)) continue;
+
+				$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+				$ecom->setAttrValue('payment_gateways', Array($gateway_assetid));
+				if (!$ecom->saveAttributes()) {
+					pre_echo('UPGRADE FAILED - Could not save attributes');
+					return FALSE;
+				}//end if
+				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($ecom, TRUE);
+			}
+			pre_echo(count($assetid_list).' Default Delivery Method updated');
+		}
+
+		return $res;
+
+	}//end _upgrade()
 
 
 }//end class

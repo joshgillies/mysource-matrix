@@ -6,9 +6,13 @@
 		</field>
 	</section>
 	<section name="Payment Gateway" write_access="write:attributes">
-		<field attribute="payment_gateway">
+		<field>
 			<display_name>Payment Gateway</display_name>
-			<note>Select the payment gateway which you would like to use to process items after the checkout process.</note>
+			<note>Select the payment gateway(s) which you would like to use to process items after the checkout process.</note>
+			<function_call>
+				<paint_function name="paintPaymentGateways"  />
+				<process_function name="processPaymentGateways" />
+			</function_call>
 		</field>
 		<field attribute="gateway_required">
 			<display_name>Gateway Required?</display_name>

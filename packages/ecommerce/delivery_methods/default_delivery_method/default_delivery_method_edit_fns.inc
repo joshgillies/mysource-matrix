@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: default_delivery_method_edit_fns.inc,v 1.13 2012/08/30 00:58:33 ewang Exp $
+* $Id: default_delivery_method_edit_fns.inc,v 1.13.6.1 2013/06/25 06:31:56 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/delivery_methods/ecommerce_delivery_me
 * Purpose
 *
 *
-* @version $Revision: 1.13 $
+* @version $Revision: 1.13.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -234,6 +234,67 @@ class Default_Delivery_Method_Edit_Fns extends Ecommerce_Delivery_Method_Edit_Fn
 		return TRUE;
 
 	}//end processPassthroughVarQuestionLinks()
+	
+	
+	/**
+	* Paint the interface for selecting the Payment Gateways
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintPaymentGateways(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+
+		$gateways = $asset->attr('payment_gateways');
+
+		if ($write_access) {
+			require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+			multiple_asset_finder($prefix.'_gateways', $gateways, Array('payment_gateway' => 'D'));
+		} else {
+				echo '<ul>';
+				foreach ($gateways as $index => $assetid) {
+						echo '<li>'.get_asset_tag_line($assetid).'</li>';
+				}
+				echo '</ul>';
+		}
+
+		return $write_access;
+
+	}//end paintPaymentGateways()
+
+
+	/**
+	* Paint the interface for selecting the Payment Gateways
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processPaymentGateways(&$asset, &$o, $prefix)
+	{
+		// need to have write access to make any changes
+		if (!$asset->writeAccess('attributes')) return FALSE;
+		if (empty($_POST[$prefix.'_gateways'])) return FALSE;
+
+		$gateways = $_POST[$prefix.'_gateways'];
+		$save_gateways = Array();
+		foreach ($gateways as $index => $asset_info) {
+			if (!empty($asset_info['assetid'])) {
+				$save_gateways[] = $asset_info['assetid'];
+			}//end if
+		}//end foreach
+
+		return $asset->setAttrValue('payment_gateways', $save_gateways);
+
+	}//end processPaymentGateways()	
 	
 
 }//end class

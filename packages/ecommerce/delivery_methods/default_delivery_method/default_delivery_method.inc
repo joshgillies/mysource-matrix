@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_cart_processor.inc';
 * Purpose
 *
 *
-* @version $Revision: 1.30 $
+* @version $Revision: 1.30.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -810,14 +810,21 @@ HEREDOC;
 	* Sets up SESSION vars for the payment gateway and sends user to it
 	* Called by the checkout asset
 	*
-	* @param float	$total_cost The total cost of all the items in the cart
+	* @param float	$total_cost 		The total cost of all the items in the cart
+	* @param int	$gateway_assetid	Gateway to use to process the payment
 	*
 	* @return void
 	* @access public
 	*/
-	function processPaymentGateway($total_cost)
+	function processPaymentGateway($total_cost, $gateway_assetid='')
 	{
-		$gateway_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($this->attr('payment_gateway'));
+		// If no gateway is supplied, use the first one from the list
+		if (empty($gateway_assetid)) {
+			$gateways = $this->attr('payment_gateways');
+			$gateway_assetid = $gateways[0];
+		}
+
+		$gateway_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($gateway_assetid);
 		$gateway_asset_url = $gateway_asset->getURL();
 		// set up expected session vars
 		$_SESSION['SQ_ECOM_AMOUNT'] = $total_cost;

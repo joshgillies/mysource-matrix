@@ -5,8 +5,11 @@
 		</field>
 	</section>
 	<section name="Payment Gateway" write_access="write:attributes">
-		<field attribute="payment_gateway">
-			<assetid type_codes="payment_gateway:D" />
+		<field>
+			<function_call>
+				<paint_function name="paintPaymentGateways"  />
+				<process_function name="processPaymentGateways" />
+			</function_call>
 		</field>
 		<field attribute="gateway_required">
 			<boolean true_text="yes" false_text="no" />
