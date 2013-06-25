@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.86 2012/08/30 00:58:33 ewang Exp $
+* $Id: ecommerce_checkout.inc,v 1.86.6.1 2013/06/25 06:40:25 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.86 $
+* @version $Revision: 1.86.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -618,13 +618,27 @@ class Ecommerce_Checkout extends Page
 			}
 
 			if (!$payment_response) {
+
+				// If the user have selected the gateway
+				$selected_gateway = trim(array_get_index($_REQUEST, $this->getPrefix().'_selected_gw', ''));
+
 				// process the payment gateway if one is present and if we haven't done so already
-				$payment_gateway_attr   =& $delivery_method->getAttribute('payment_gateway', TRUE);
+				$payment_gateway_attr   =& $delivery_method->getAttribute('payment_gateways', TRUE);
 				$payment_gateway_id     = NULL;
 				// Only try to find payment gateway if this delivery method support payment gateway, some methods might not.
 				if (!is_null($payment_gateway_attr)) {
-						$payment_gateway_id = $delivery_method->attr('payment_gateway');
+					$payment_gateway_ids = $delivery_method->attr('payment_gateways');
+					if (!empty($payment_gateway_ids)) {
+						// Make sure the supplied gateway is the valid
+						if (!empty($selected_gateway) && in_array($selected_gateway, $payment_gateway_ids)) {
+							$payment_gateway_id = $selected_gateway;
+						} else {
+							// No valid gateway selected. Get the first gateway from configured list
+							$payment_gateway_id = $payment_gateway_ids[0];
+						}
+					}
 				}//end if
+
 				if (!empty($payment_gateway_id)) {
 					// get cart total cost
 					$cart = new Ecommerce_Cart_Processor();
@@ -636,7 +650,7 @@ class Ecommerce_Checkout extends Page
 
 					// customer pays here!
 					$this->_logOrderAction(translate('ecom_order_history_payment_gateway'));
-					$delivery_method->processPaymentGateway(round($total_cost + $delivery_cost, $this->attr('float_precision')));
+					$delivery_method->processPaymentGateway(round($total_cost + $delivery_cost, $this->attr('float_precision')), $payment_gateway_id);
 					return;
 
 				} else if ($delivery_method->attr('gateway_required')){
@@ -1158,6 +1172,21 @@ class Ecommerce_Checkout extends Page
 
 
 	/**
+	* Check if the field is already registered
+	*
+	* @param string	$field_name	Name of the form field
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _fieldRegistered($field_name)
+	{
+		return in_array($field_name, $this->_tmp['registered_form_fields']);
+
+	}//end _fieldRegistered()
+
+
+	/**
 	* Register a form field name
 	*
 	* This helps determine whether the output should be wrapped in a form
@@ -1410,9 +1439,16 @@ class Ecommerce_Checkout extends Page
 				}
 			}//end if (!empty($order))
 		}//end if
-		
+
 		if (!$keyword_replaced) {
-			$replacement = parent::getKeywordReplacement($keyword);
+			// Keyword replacement for "Confirm Order" button for the specified gateway
+			if (strpos($keyword, 'confirm_order_button_gateway_') !== FALSE) {
+				$replacement = '';
+				$gateway_id = trim(substr($keyword, 29));
+				$replacement = $this->printGatewayCheckoutButton($gateway_id);
+			} else {
+				$replacement = parent::getKeywordReplacement($keyword);
+			}
 		}
 
 		return $replacement;
@@ -1527,7 +1563,10 @@ class Ecommerce_Checkout extends Page
 
 		$keywords['cart_summary']				= translate('ecom_checkout_keyword_cart_summary');
 		$keywords['confirmation_summary']		= translate('ecom_checkout_keyword_confirmation_summary');
+		$keywords['gateway_selector_dropdown']	= translate('ecom_checkout_keyword_gateway_selector_dropdown');
+		$keywords['gateway_selector_radio']		= translate('ecom_checkout_keyword_gateway_selector_radio');
 		$keywords['confirm_order_button']		= translate('ecom_checkout_keyword_confirm_order_button');
+		$keywords['confirm_order_button_gateway_X'] = translate('ecom_checkout_keyword_confirm_order_button_gateway');
 		$keywords['return_to_checkout_button']	= translate('ecom_checkout_keyword_return_to_checkout_button');
 		$keywords['items_count']				= translate('ecom_checkout_keyword_items_count');
 		$keywords['items_total_count']			= translate('ecom_checkout_keyword_total_items_count');
@@ -1620,6 +1659,52 @@ class Ecommerce_Checkout extends Page
 
 	}//end _getReceiptContentsContextKeywords()
 
+	/**
+	* Print the "Confrim Order' button for the specifed gateway
+	*
+	* @param int $gateway_id
+	*
+	* @return string
+	* @access public
+	*/
+	function printGatewayCheckoutButton($gateway_id)
+	{
+		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($gateway_id, 'payment_gateway', FALSE, 'name');
+		if (empty($asset_info[$gateway_id])) {
+			return '';
+		}
+
+		// If the gateway has their own button image
+		$gateway = $GLOBALS['SQ_SYSTEM']->am->getAsset($gateway_id);
+		$image_url = '';
+		if (method_exists($gateway, 'checkoutButtonImageUrl')) {
+			$image_url = $gateway->checkoutButtonImageUrl();
+		}
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($gateway);
+
+		$field_name = $this->getPrefix().'_action[confirm_order]';
+		$field_id = $this->getPrefix().'_action_confirm_order';
+		$gateway_field = $this->getPrefix().'_selected_gw';
+
+		$this->_registerFormField($field_name);
+
+		// Set the gateway id based on the
+		$onclick = 'onClick="document.getElementById(\''.$gateway_field.'\').value='.$gateway_id.'"';
+		ob_start();
+			// Print this field only once in the output
+			if (!$this->_fieldRegistered($gateway_field)) {
+				hidden_field($gateway_field, '', 'id="'.$gateway_field.'"');
+				$this->_registerFormField($gateway_field);
+			}
+			if (empty($image_url)) {
+				submit_button($field_name, $this->attr('confirm_order_button_text'), '', ' id="'.$field_id.'" '.$onclick);
+			} else {
+				echo '<input type="image" name="'. $field_name.'"  src="'.$image_url.'" id="'.$field_id.'" '.$onclick.'/>';
+			}
+		return ob_get_clean();
+
+	}//end printGatewayCheckoutButton()
+
 
 	//// -- Replacements
 
@@ -1711,6 +1796,71 @@ class Ecommerce_Checkout extends Page
 		return ob_get_clean();
 
 	}//end getDeliveryInterfaceKeywordReplacement()
+
+
+	/**
+	* Get Keyword Replacement for 'gateway_selector_dropdown' button keyword
+	*
+	* @return string
+	* @access public
+	*/
+	function getGatewaySelectorDropdownKeywordReplacement()
+	{
+		$delivery_method = $this->_getActiveDeliveryMethod();
+		if (!$delivery_method->getAttribute('payment_gateways', TRUE)) {
+			return '';
+		}
+		$payment_gateways = $delivery_method->attr('payment_gateways');
+		if (empty($payment_gateways)) {
+			return '';
+		}
+		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($payment_gateways, 'payment_gateway', FALSE, 'name');
+
+		$replacement = '';
+		$field_name = $this->getPrefix().'_selected_gw';
+		$this->_registerFormField($field_name);
+		ob_start();
+			combo_box($field_name, $asset_info);
+			$replacement = ob_get_contents();
+		ob_end_clean();
+
+		return $replacement;
+
+	}//end getGatewaySelectorRadioKeywordReplacement()
+
+
+	/**
+	* Get Keyword Replacement for 'gateway_selector_radio' button keyword
+	*
+	* @return string
+	* @access public
+	*/
+	function getGatewaySelectorRadioKeywordReplacement()
+	{
+		$delivery_method = $this->_getActiveDeliveryMethod();
+		if (!$delivery_method->getAttribute('payment_gateways', TRUE)) {
+			return '';
+		}
+		$payment_gateways = $delivery_method->attr('payment_gateways');
+		if (empty($payment_gateways)) {
+			return '';
+		}
+		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($payment_gateways, 'payment_gateway', FALSE, 'name');
+
+		$replacement = '';
+		$field_name = $this->getPrefix().'_selected_gw';
+		$this->_registerFormField($field_name);
+		ob_start();
+			foreach($asset_info as $assetid => $name) {
+				radio_button($field_name, $assetid);
+				echo ' '.$name;
+			}
+			$replacement = ob_get_contents();
+		ob_end_clean();
+
+		return $replacement;
+
+	}//end getGatewaySelectorRadioKeywordReplacement()
 
 
 	/**

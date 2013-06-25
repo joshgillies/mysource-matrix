@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.15 2010/06/03 10:49:54 ata Exp $
+* $Id: lang_strings.xml,v 1.15.18.1 2013/06/25 06:40:25 cupreti Exp $
 *
 *
 * Ecommerce Package Localised Strings File
@@ -30,7 +30,10 @@
 
 	<string source="ecom_checkout_keyword_go_to_confirmation_button">Go To Confirmation Button</string>
 
+	<string source="ecom_checkout_keyword_gateway_selector_dropdown">Gateway Selector Dropdown Button</string>
+	<string source="ecom_checkout_keyword_gateway_selector_radio">Gateway Selector Radio Button</string>
 	<string source="ecom_checkout_keyword_confirm_order_button">Confirm Order Button</string>
+	<string source="ecom_checkout_keyword_confirm_order_button_gateway">Confirm Order Button for Gateway assetid 'X'</string>
 	<string source="ecom_checkout_keyword_return_to_checkout_button">Return to Checkout Button</string>
 
 	<string source="ecom_checkout_keyword_receipt_summary">Receipt Summary</string>
