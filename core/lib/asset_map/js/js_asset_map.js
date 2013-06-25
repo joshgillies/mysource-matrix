@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.66 2013/06/24 02:51:12 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.67 2013/06/25 00:59:53 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.66 $
+ * @version $Revision: 1.1.2.67 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -457,6 +457,7 @@ var JS_Asset_Map = new function() {
         options              = startOptions;
         assetMapContainer    = options.targetElement || dfx.getId('asset_map_container');
         options.teleportRoot = options.teleportRoot  || '1';
+        options.simple       = false;
 
         if (options.initialSelection !== '') {
             var selParts = options.initialSelection.split('~');
@@ -549,8 +550,73 @@ var JS_Asset_Map = new function() {
      *
      * @param {Object} options
      */
-    this.startSimple = function(options) {
-        assetMapContainer = options.targetElement;
+    this.startSimple = function(startOptions) {
+        var self = this;
+
+        options              = startOptions;
+        assetMapContainer    = options.targetElement || dfx.getId('asset_map_container');
+        options.teleportRoot = options.teleportRoot  || '1';
+        options.simple       = true;
+        dfx.addClass(assetMapContainer, 'simple');
+
+        // Simple asset map is one tree only, and the toolbar has no add menu.
+        this.drawToolbar(false);
+        this.drawTreeContainer(0);
+        this.drawMessageLine();
+
+        this.resizeTree();
+
+        this.message('Initialising...', true);
+        this.doRequest({
+            _attributes: {
+                action: 'initialise'
+            }
+        }, function(response) {
+            // Cache all the asset types.
+            var assetTypes = response['asset_types'][0]['type'];
+            for (var i = 0; i < assetTypes.length; i++) {
+                var typeinfo = assetTypes[i];
+                var typecode = typeinfo['_attributes']['type_code'];
+
+                if (((typeinfo['_attributes']['instantiable'] !== '0')) &&
+                    (typeinfo['_attributes']['allowed_access'] !== 'system')) {
+                    var category = typeinfo['_attributes']['flash_menu_path'];
+                    if (category) {
+                        assetCategories[category] = assetCategories[category] || [];
+                        assetCategories[category].push(typecode);
+                    }
+                }
+
+                var parentType = typeinfo['_attributes']['parent_type'];
+                assetTypeCache[typecode] = typeinfo['_attributes'];
+                assetTypeCache[typecode]['screens'] = {};
+
+                if (parentType !== 'asset') {
+                    assetTypeParents[typecode] = parentType;
+                }
+
+                for (var j = 0; j < typeinfo['screen'].length; j++) {
+                    var screencode = typeinfo['screen'][j]['_attributes']['code_name'];
+                    var screenname = typeinfo['screen'][j]['_content'];
+                    assetTypeCache[typecode]['screens'][screencode] = screenname;
+                }//end for
+            }//end for
+
+            // Initialising gives us the root folder's immediate children.
+            var assets    = response['assets'][0]['asset'];
+            for (var i = 0; i < assets[0]['asset'].length; i++) {
+                var asset = assets[0]['asset'][i];
+                if (asset._attributes.type_code === 'trash_folder') {
+                    trashFolder = asset._attributes.assetid;
+                }
+            }
+
+            self.teleport(options.teleportRoot, null, 0);
+            self.selectTree(0);
+            self.initEvents();
+
+            self.message('Success!', false, 2000);
+        });
     };
 
     /**
@@ -604,24 +670,26 @@ var JS_Asset_Map = new function() {
             var code = e.keyCode ? e.keyCode : e.which;
             switch (code) {
                 case KeyCode.Delete:
-                    var msg       = '';
-                    var title     = '';
-                    var selection = self.currentSelection();
+                    if (options.simple === false) {
+                        var msg       = '';
+                        var title     = '';
+                        var selection = self.currentSelection();
 
-                    if (selection.length !== 0) {
-                        if (selection.length > 1) {
-                            msg   = 'Are you sure you want to move these ' + selection.length + ' assets to the trash?';
-                            title = 'Trash Assets';
-                        } else if (selection.length === 1) {
-                            msg = 'Are you sure you want to move "' + dfx.getNodeTextContent(dfx.getClass('assetName', selection[0])[0]) + '" to the trash?';
-                            title = 'Trash Asset';
-                        }
+                        if (selection.length !== 0) {
+                            if (selection.length > 1) {
+                                msg   = 'Are you sure you want to move these ' + selection.length + ' assets to the trash?';
+                                title = 'Trash Assets';
+                            } else if (selection.length === 1) {
+                                msg = 'Are you sure you want to move "' + dfx.getNodeTextContent(dfx.getClass('assetName', selection[0])[0]) + '" to the trash?';
+                                title = 'Trash Asset';
+                            }
 
-                        self.confirmPopup(msg, title, function() {
-                            // Moving to trash.
-                            self.moveAsset(AssetActions.Move, selection, trashFolder, -1);
-                        });
-                    }//end if
+                            self.confirmPopup(msg, title, function() {
+                                // Moving to trash.
+                                self.moveAsset(AssetActions.Move, selection, trashFolder, -1);
+                            });
+                        }//end if
+                    }
                 break;
 
                 case KeyCode.Escape:
@@ -713,18 +781,20 @@ var JS_Asset_Map = new function() {
                             lastSelection = assetTarget;
                         }
 
-                        var selection = self.currentSelection();
-                        if (selection.length > 1) {
-                            // Multiple selection. Show move/clone/new-link menu.
-                            var menu = self.drawMultiSelectMenu(selection);
-                        } else {
-                            // Single selection. Show screens menu.
-                            var menu = self.drawScreensMenu(assetTarget);
-                        }//end if (multiple selection)
+                        if (options.simple === false) {
+                            var selection = self.currentSelection();
+                            if (selection.length > 1) {
+                                // Multiple selection. Show move/clone/new-link menu.
+                                var menu = self.drawMultiSelectMenu(selection);
+                            } else {
+                                // Single selection. Show screens menu.
+                                var menu = self.drawScreensMenu(assetTarget);
+                            }//end if (multiple selection)
 
-                        self.positionMenu(menu, dragStatus.startPoint);
+                            self.positionMenu(menu, dragStatus.startPoint);
+                        }
                     } else if (which === 1) {
-                        if (e.shiftKey === true) {
+                        if ((e.shiftKey === true) && (options.simple === false)) {
                             var selection = self.currentSelection();
                             if (selection.length > 0) {
                                 // dfx.getElementsBetween is a one-way function. Take
@@ -747,7 +817,7 @@ var JS_Asset_Map = new function() {
                             } else {
                                 dfx.addClass(assetTarget, 'selected');
                             }//end if
-                        } else if (e.ctrlKey === true) {
+                        } else if ((e.ctrlKey === true) && (options.simple === false)) {
                             // Control-left click. No drag, toggle selection of clicked asset.
                             dfx.toggleClass(assetTarget, 'selected');
                         } else {
@@ -759,12 +829,14 @@ var JS_Asset_Map = new function() {
                                 dfx.addClass(assetTarget, 'selected');
                             }
 
-                            dragStatus.assetDrag = {
-                                initialAsset: assetTarget,
-                                selection: self.currentSelection(),
-                                offset: {
-                                    x: assetTargetCoords.x - dragStatus.startPoint.x,
-                                    y: assetTargetCoords.y - dragStatus.startPoint.y
+                            if (options.simple === false) {
+                                dragStatus.assetDrag = {
+                                    initialAsset: assetTarget,
+                                    selection: self.currentSelection(),
+                                    offset: {
+                                        x: assetTargetCoords.x - dragStatus.startPoint.x,
+                                        y: assetTargetCoords.y - dragStatus.startPoint.y
+                                    }
                                 }
                             }
                         }//end if (ctrl-click)
@@ -777,8 +849,10 @@ var JS_Asset_Map = new function() {
                 self.expandAsset(branchTarget);
                 e.stopImmediatePropagation();
             } else {
-                dragStatus.selectionDrag = {
-                    selection: []
+                if (options.simple === false) {
+                    dragStatus.selectionDrag = {
+                        selection: []
+                    }
                 }
             }//end if (type of target)
         });
@@ -1477,10 +1551,16 @@ var JS_Asset_Map = new function() {
         var messageDiv = dfx.getClass('messageLine')[0];
         var statusList = dfx.getClass('statusList')[0];
 
+        // Only add the status height if it exists (ie. not in simple mode).
+        var statusHeight = 0;
+        if (statusList) {
+            statusHeight = statusList.clientHeight;
+        }
+
         var treeDivs = dfx.getClass('tree');
         assetMapContainer.style.height = (document.documentElement.clientHeight - 100) + 'px';
         for (var i = 0; i < treeDivs.length; i++) {
-            treeDivs[i].style.height = (assetMapContainer.clientHeight - toolbarDiv.clientHeight - messageDiv.clientHeight - statusList.clientHeight) + 'px';
+            treeDivs[i].style.height = (assetMapContainer.clientHeight - toolbarDiv.clientHeight - messageDiv.clientHeight - statusHeight) + 'px';
         }
     };
 
@@ -1671,26 +1751,33 @@ var JS_Asset_Map = new function() {
     /**
      * Draw toolbar.
      *
+     * The add button is disabled in simple asset map mode - the other items in
+     * the toolbar are still drawn.
+     *
+     * @param {Boolean} [drawAddButton=true] Draw the Add button.
+     *
      * @returns {Node}
      */
-    this.drawToolbar = function() {
+    this.drawToolbar = function(drawAddButton) {
         var self = this;
 
         var container = _createEl('div');
         dfx.addClass(container, 'toolbar');
         assetMapContainer.appendChild(container);
 
-        var addButton = _createEl('div');
-        dfx.addClass(addButton, 'addButton');
-        container.appendChild(addButton);
-        dfx.addEvent(addButton, 'click', function(e) {
-            var target   = dfx.getMouseEventTarget(e);
-            var mousePos = dfx.getMouseEventPosition(e);
-            var menu     = self.drawAddMenu();
-            self.topDocumentElement(target).appendChild(menu);
-            dfx.setStyle(menu, 'left', (mousePos.x) + 'px');
-            dfx.setStyle(menu, 'top', (mousePos.y) + 'px');
-        });
+        if (drawAddButton !== false) {
+            var addButton = _createEl('div');
+            dfx.addClass(addButton, 'addButton');
+            container.appendChild(addButton);
+            dfx.addEvent(addButton, 'click', function(e) {
+                var target   = dfx.getMouseEventTarget(e);
+                var mousePos = dfx.getMouseEventPosition(e);
+                var menu     = self.drawAddMenu();
+                self.topDocumentElement(target).appendChild(menu);
+                dfx.setStyle(menu, 'left', (mousePos.x) + 'px');
+                dfx.setStyle(menu, 'top', (mousePos.y) + 'px');
+            });
+        }
 
         var tbButtons = _createEl('div');
         dfx.addClass(tbButtons, 'tbButtons');

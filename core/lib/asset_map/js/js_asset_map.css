@@ -160,6 +160,11 @@
     -moz-box-sizing: border-box;
 }
 
+#asset_map_container.simple {
+    margin-left: 0;
+    padding-left: 0;
+}
+
 #asset_map_container .dragAsset {
     opacity: 0.5;
     -ms-filter: "progid: DXImageTransform.Microsoft.Alpha(opacity=50)";
@@ -405,6 +410,10 @@
     margin-left: -8px;
 }
 
+#asset_map_container.simple .messageLine {
+    margin-left: 0;
+}
+
 #asset_map_container .messageLine .spinner {
     display: inline-block;
     vertical-align: middle;
@@ -428,6 +437,10 @@
     -moz-box-sizing: border-box;
     background-color: white;
     display: none;
+}
+
+#asset_map_container.simple .tree {
+    border-left: none;
 }
 
 #asset_map_container.useMeMode .tree {

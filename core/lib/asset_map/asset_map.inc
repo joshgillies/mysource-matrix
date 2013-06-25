@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.317.2.14 2013/06/24 02:51:12 lwright Exp $
+* $Id: asset_map.inc,v 1.317.2.15 2013/06/25 00:59:53 lwright Exp $
 *
 */
 require_once(SQ_LIB_PATH.'/xml_array/xml_array.inc');
@@ -23,7 +23,7 @@ require_once(SQ_LIB_PATH.'/xml_array/xml_array.inc');
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.317.2.14 $
+* @version $Revision: 1.317.2.15 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -95,7 +95,9 @@ class Asset_Map
     public function embedJSAssetMap($type='simple', $width=200, $height=0)
     {
         $startCmd = 'startSimple';
-        if ($type === 'complex') {
+        if ($type !== 'simple') {
+            // Make room for tabs.
+            $width   -= 18;
             $startCmd = 'start';
         }
 
@@ -147,7 +149,6 @@ class Asset_Map
         }
 
         // Make room for tabs.
-        $width -= 18;
 
         ?>
         <div id="asset_map_container" style="width: <?php echo $width ?>px;">
