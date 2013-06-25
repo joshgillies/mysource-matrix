@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.427.2.4 2013/06/14 06:11:05 lwright Exp $
+* $Id: lang_strings.xml,v 1.427.2.5 2013/06/25 06:33:18 lwright Exp $
 *
 */
 
@@ -1410,7 +1410,7 @@ Force that this asset can only be viewed through a Secure (SSL) connection</stri
     <string source="go">Go</string>
     <string source="automatic">Automatic</string>
     <string source="manual">Manual</string>
-    <string source="unknown">Unknown</string>
+    <string source="unknown" js="1">Unknown</string>
     <string source="default">Default</string>
     <string source="login">Login</string>
     <string source="apply">Apply</string>
@@ -1759,6 +1759,8 @@ Force that this asset can only be viewed through a Secure (SSL) connection</stri
     <string source="column(s)">Column(s)</string>
     <string source="inherit_question">Inherit ?</string>
     <string source="unknown_asset">Unknown asset</string>
+    <string source="unknown_asset_type" js="1">Unknown Asset Type</string>
+    <string source="asset_type_id" js="1">%1$s [%2$s]</string>
     <string source="character(s)">character(s)</string>
     <string source="allow_blank_question">Allow Blank ?</string>
     <string source="show_question">Show ?</string>
@@ -2176,6 +2178,7 @@ If you are ready to continue, please click <strong>Next</strong> to proceed with
     <string source="asset_map_tooltip_restore_root" java="1">Restore the root folder</string>
     <string source="asset_map_tooltip_collapse_all" java="1">Collapse all</string>
     <string source="asset_map_tooltip_toggle_status" java="1">Show status colours</string>
+    <string source="asset_map_status_colour_key" js="1">Status colour key</string>
     <string source="asset_map_tooltip_add_asset" java="1">Add new asset</string>
 
     <string source="asset_map_dialog_title_error" java="1">Error</string>
