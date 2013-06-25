@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce_management.inc,v 1.19 2012/08/30 00:58:33 ewang Exp $
+* $Id: form_ecommerce_management.inc,v 1.19.6.1 2013/06/25 06:46:53 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once  SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.19.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -200,6 +200,12 @@ class Form_Ecommerce_Management extends Asset_Management
 														'type'		=> 'text',
 														'default'	=> '',
 													   ),
+						'gateway_assetids'			=> Array(
+														'added'			=> '0.3',
+														'type'			=> 'serialise',
+														'default'		=> Array(),
+														'description'	=> 'Gateway Asset(s) that will process the e-commerce transaction',
+													   ),
 					  );
 
 	}//end constructor
@@ -260,6 +266,26 @@ class Form_Ecommerce_Management extends Asset_Management
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($ecom);
 			}
 			pre_echo(count($assetid_list).' Ecom FORMS UPDATED');
+		}
+
+		if (version_compare($current_version, '0.3', '<')) {
+			pre_echo('Upgrading Ecom Form to v0.3');
+			$assetid_list = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('form_ecommerce', FALSE);
+			foreach ($assetid_list as $assetid) {
+				$ecom = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$gateway_assetid = $ecom->attr('gateway_assetid');
+				if (empty($gateway_assetid)) continue;
+
+				$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+				$ecom->setAttrValue('gateway_assetids', Array($gateway_assetid));
+				if (!$ecom->saveAttributes()) {
+					pre_echo('UPGRADE FAILED - Could not save attributes');
+					return FALSE;
+				}//end if
+				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($ecom, TRUE);
+			}
+			pre_echo(count($assetid_list).' Ecom Forms updated');
 		}
 
 

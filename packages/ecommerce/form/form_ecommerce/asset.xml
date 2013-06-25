@@ -13,7 +13,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.7 2013/05/14 05:55:56 lwright Exp $
+* $Id: asset.xml,v 1.7.2.1 2013/06/25 06:46:53 cupreti Exp $
 *
 */
 -->
@@ -21,7 +21,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
     <package>ecommerce</package>
     <type_code>form_ecommerce</type_code>
-    <version>0.2</version>
+    <version>0.3</version>
     <name>Ecommerce Form</name>
     <description>Form Ecommerce - Form with Ecommerce Functionality</description>
     <instantiable>yes</instantiable>

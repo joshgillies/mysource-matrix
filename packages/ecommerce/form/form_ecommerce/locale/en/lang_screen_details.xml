@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.9 2010/08/19 10:49:57 ata Exp $
+* $Id: lang_screen_details.xml,v 1.9.18.1 2013/06/25 06:46:53 cupreti Exp $
 *
 */
 -->
@@ -23,9 +23,13 @@
 		</field>
 	</section>
 	<section name="Payment Gateway">
-		<field attribute="gateway_assetid">
-			<display_name>Linked Gateway</display_name>
-			<note>In order for the form to display e-commerce functionality it has to be linked to an e-commerce gateway. Otherwise it will act as a normal custom form.</note>
+		<field>
+			<display_name>Linked Gateway(s)</display_name>
+			<note>In order for the form to display e-commerce functionality it has to be linked to atleast one e-commerce gateway. Otherwise it will act as a normal custom form.</note>
+			<function_call>
+				<paint_function name="paintPaymentGateways"  />
+				<process_function name="processPaymentGateways" />
+			</function_call>
 		</field>
 	</section>
 	<section name="Taxation">

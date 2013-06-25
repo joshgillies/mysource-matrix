@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.15 2010/08/19 10:49:57 ata Exp $
+* $Id: edit_interface_screen_details.xml,v 1.15.18.1 2013/06/25 06:46:53 cupreti Exp $
 *
 */
 -->
@@ -21,9 +21,12 @@
 			<text width="15" />
 		</field>
 	</section>
-	<section name="Payment Gateway">
-		<field write_access="write:attributes"  attribute="gateway_assetid">
-			<assetid type_codes="payment_gateway:D" />
+	<section name="Payment Gateway" write_access="write:attributes">
+		<field>
+			<function_call>
+				<paint_function name="paintPaymentGateways"  />
+				<process_function name="processPaymentGateways" />
+			</function_call>
 		</field>
 	</section>
 	<section name="Taxation" write_access="write:attributes">

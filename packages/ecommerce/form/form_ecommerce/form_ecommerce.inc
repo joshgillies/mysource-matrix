@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.59 2012/08/30 00:58:33 ewang Exp $
+* $Id: form_ecommerce.inc,v 1.59.6.1 2013/06/25 06:46:53 cupreti Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/orders/order/order.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.59.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -369,15 +369,22 @@ class Form_Ecommerce extends Form_Email
 
 
 			case ('process'):
-				$gateway = $this->attr('gateway_assetid');
-				if (empty($gateway)) {
+				// Array of configured gateway assetids for this ecomm form
+				$gateways = $this->attr('gateway_assetids');
+				if (empty($gateways)) {
 					trigger_error('Payment Gateway not configured. Cannot proceed.', E_USER_NOTICE);
 					$this->printConfirmationView();
 					return TRUE;
 				}
 
-				$gateway = $this->attr('gateway_assetid');
-				$gateway_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($gateway);
+				$supplied_gateway = trim(array_get_index($_REQUEST, 'selected_gw', ''));
+				if (!empty($supplied_gateway) && in_array($supplied_gateway, $gateways)) {
+					$selected_gateway = $supplied_gateway;
+				} else {
+					// No valid gateway selected. Get the first gateway from configured list
+					$selected_gateway = $gateways[0];
+				}
+				$gateway_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($selected_gateway);
 				$gateway_asset_url = $gateway_asset->getURL();
 
 				header('Location: '.$gateway_asset_url);
