@@ -1,5 +1,114 @@
 SQUIZ MATRIX CHANGELOG
 
+VERSION 4.16.0
+
+Featured Changes
+===================================
+
+New Trigger Condition: Current User is an LDAP User [ Feature Request #6202 ]
+-----------------------------------------------------
+
+A new trigger condition has been added to Squiz Matrix to evaluate whether the user who fired the trigger is an LDAP user or not.
+
+When this condition is added, you can specify whether the condition is met if the user IS or IS NOT an LDAP user. This condition will match against any LDAP user types, including Simple Edit LDAP users, Backend LDAP users and regular LDAP users.
+
+NOTICE Links for News Item Summary and Body [ Feature Request #6235 ]
+-----------------------------------------------------
+
+NOTICE links within Squiz Matrix are created to indicate that something will be affected if the linked asset is deleted, for example, if an asset is the Index or Home Page of your site, or if an asset has been linked within the bodycopy content of another asset. 
+
+Previously, however, NOTICE links were not supported for linked assets within the Summary and Body content fields of News Item assets. This could cause potential issues with Safe Trash, which would look for any NOTICE links before deleting trashed items; no warning would be given.
+
+This feature extends the usage of NOTICE links to also include links within News Items Summary and Body.
+
+Multiple Payment Gateways on E-Commerce Checkout and Form Page Set Ups [ Feature Request #6375 ]
+-----------------------------------------------------
+
+Previously within Squiz Matrix, the E-Commerce package (both the Delivery Method and Ecommerce Form Page assets) did not support multiple Payment Gateways. This meant that users could not be given the option to choose the specific payment method to complete the e-commerce process.
+
+This feature introduces the ability to set multiple payment gateways on a single e-commerce set up within Squiz Matrix.
+
+New PayPal Express Checkout Payment Gateway [ Feature Request #6376 ]
+-----------------------------------------------------
+
+This feature introduces a new payment method to Squiz Matrix's E-Commerce Package: The PayPal Express Checkout Payment Gateway. 
+
+New SecurePay Direct Post Payment Gateway [ Feature Request #6385 ]
+-----------------------------------------------------
+
+This feature introduces a new payment method to Squiz Matrix's E-Commerce Package: The SecurePay Direct Post Payment Gateway.
+
+
+Additional Changes and Bug Fixes
+=================================== 
+
+Minor Enhancements
+
+Minor Enhancement #5966: Calendar Page: Support for the List Current Asset ID Session Variable.
+Minor Enhancement #6183: SQ_PA_PASSWORD No Longer Emailed on Password Change.
+Minor Enhancement #6233: Pre-Uploaded Files Listed in Alphabetical Order.
+Minor Enhancement #6334: Modifier Support on Password Reset Page Error Keyword Replacement.
+Minor Enhancement #6339: Broken Link Report to Follow External Redirect Links.
+Minor Enhancement #6350: Keyword Modifier Support on nested_get Keywords.
+Minor Enhancement #6353: New MIME Type Added for Scalable Vector Graphics (SVG).
+Minor Enhancement #6358: Comma Support in GET, POST and Cookie Value Global Keywords.
+Minor Enhancement #6364: Dynamic URL for Downloaded TRIM Records.
+Minor Enhancement #6368: WYSIWYG Size Global Preference for Asset Attributes.
+Minor Enhancement #6373: Global Keyword Replacements on a Squiz Matrix Login Design.
+Minor Enhancement #6380: SOAP: WS-Security Password Digest Authentication.
+Minor Enhancement #6384: Automatically Strip HTTP Protocol When Adding URL on a Site Asset.
+Minor Enhancement #6387: Enhancements for Squiz Matrix on PHP 5.4. 
+
+Core
+
+Fixed Bug #6178: Special characters and registry-R.
+Fixed Bug #6297: Special UTF-8 characters.
+Fixed Bug #6311: No Write access on Details screen of Metadata Selection Field; CSV Upload option remain selectable.
+Fixed Bug #6326: Remote content URL tunneling; PHP notices.
+Fixed Bug #6338: Asset Builder Page: Wrong image error.
+Fixed Bug #6340: Set Index Page trigger does not allow all asset types like a Site's Details screen does.
+Fixed Bug #6351: Embedded YouTube videos are not adhering to their settings.
+Fixed Bug #6352: sq_wysiwyg_* tags are making it to the front-end since fix for Bug #6256.
+Fixed Bug #6360: Globals keyword stripping encoded URL parameter.
+Fixed Bug #6361: Editing a Send Submission Log Cron Job; Time of Next Run selection forgotten.
+Fixed Bug #6363: Icon in the top right for Matrix Admin interface doesn't appear on IE10.
+Fixed Bug #6366: Visual aid plugin for WYSIWYG Editor not working on IE10.
+Fixed Bug #6367: remove_form_submission.php fails if submission folder has notice links.
+Fixed Bug #6369: Online Quiz: Question types Datetime and Password break User Details form.
+Fixed Bug #6372: Parameter 1 to Condition_Edit_Fns::paintEditInterface() expected to be a reference; Value given. 
+Fixed Bug #6378: REST Resource Trigger Action throws errors if triggered by running system script. 
+Fixed Bug #6383: Password Confirm field not respected when setting password.
+
+CMS
+
+Fixed Bug #6345: Account Manager Page's cron job to remove the pending accounts can deadlock the cron manager.
+Fixed Bug #6556: Keywords "maxwords" and "wordcount" consider number words like "52" differently.
+Fixed Bug #6357: Unable to save Answer Destination for Decision Tree Select Question's answers.
+Fixed Bug #6365: Nested content div with arbitrary paint layout throws warning. 
+
+Calendar
+
+Fixed Bug #6305: Text coding problem on Prev and Next links. 
+
+Data
+
+Fixed Bug #6349: Using MYSQL database on the 'Execute DB query' Trigger action may break after upgrade to 4.14.0. 
+
+TRIM
+
+Fixed Bug #6342: Required TRIM function parameter "Reserved" not sent by Matrix TRIM package.
+Fixed Bug #6346: TRIM Saved Search does not refresh the "trim records" if no records are found in the TRIM.
+Fixed Bug #6348: TRIM Saved Search throws error if search keyword contains "&" character.
+Fixed Bug #6355: Record number in URL of TRIM downloaded file revert to URI. 
+
+Web Services
+
+Fixed Bug #6362: SOAP Data Source is not working if the response using soap; as envelope.
+
+
+
+
+
 VERSION 4.16.0 RC1
 
 Featured Changes
