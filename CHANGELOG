@@ -1,5 +1,68 @@
 SQUIZ MATRIX CHANGELOG
 
+
+VERSION 4.14.4
+
+Minor Enhancements and Bug Fixes
+=================================== 
+
+Minor Enhancements
+
+Minor Enhancement #6183: SQ_PA_PASSWORD No Longer Emailed on Password Change.
+Minor Enhancement #6233: Pre-Uploaded Files Listed in Alphabetical Order.
+Minor Enhancement #6334: Modifier Support on Password Reset Page Error Keyword Replacement.
+Minor Enhancement #6364: Dynamic URL for Downloaded TRIM Records.
+Minor Enhancement #6373: Global Keyword Replacements on a Squiz Matrix Login Design.
+Minor Enhancement #6387: Enhancements for Squiz Matrix on PHP 5.4. 
+
+Core
+
+Fixed Bug #6178: Special characters and registry-R.
+Fixed Bug #6297: Special UTF-8 characters.
+Fixed Bug #6311: No Write access on Details screen of Metadata Selection Field; CSV Upload option remain selectable.
+Fixed Bug #6326: Remote content URL tunneling; PHP notices.
+Fixed Bug #6338: Asset Builder Page: Wrong image error.
+Fixed Bug #6340: Set Index Page trigger does not allow all asset types like a Site's Details screen does.
+Fixed Bug #6351: Embedded YouTube videos are not adhering to their settings.
+Fixed Bug #6352: sq_wysiwyg_* tags are making it to the front-end since fix for Bug #6256.
+Fixed Bug #6360: Globals keyword stripping encoded URL parameter.
+Fixed Bug #6361: Editing a Send Submission Log Cron Job; Time of Next Run selection forgotten.
+Fixed Bug #6363: Icon in the top right for Matrix Admin interface doesn't appear on IE10.
+Fixed Bug #6366: Visual aid plugin for WYSIWYG Editor not working on IE10.
+Fixed Bug #6367: remove_form_submission.php fails if submission folder has notice links.
+Fixed Bug #6369: Online Quiz: Question types Datetime and Password break User Details form.
+Fixed Bug #6372: Parameter 1 to Condition_Edit_Fns::paintEditInterface() expected to be a reference; Value given. 
+Fixed Bug #6378: REST Resource Trigger Action throws errors if triggered by running system script. 
+Fixed Bug #6383: Password Confirm field not respected when setting password.
+
+CMS
+
+Fixed Bug #6345: Account Manager Page's cron job to remove the pending accounts can deadlock the cron manager.
+Fixed Bug #6556: Keywords "maxwords" and "wordcount" consider number words like "52" differently.
+Fixed Bug #6357: Unable to save Answer Destination for Decision Tree Select Question's answers.
+Fixed Bug #6365: Nested content div with arbitrary paint layout throws warning. 
+
+Calendar
+
+Fixed Bug #6305: Text coding problem on Prev and Next links. 
+
+Data
+
+Fixed Bug #6349: Using MYSQL database on the 'Execute DB query' Trigger action may break after upgrade to 4.14.0. 
+
+TRIM
+
+Fixed Bug #6342: Required TRIM function parameter "Reserved" not sent by Matrix TRIM package.
+Fixed Bug #6346: TRIM Saved Search does not refresh the "trim records" if no records are found in the TRIM.
+Fixed Bug #6348: TRIM Saved Search throws error if search keyword contains "&" character.
+Fixed Bug #6355: Record number in URL of TRIM downloaded file revert to URI. 
+
+Web Services
+
+Fixed Bug #6362: SOAP Data Source is not working if the response using soap; as envelope.
+
+
+
 VERSION 4.14.3
 
 Featured Changes
