@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.69 2013/06/25 07:38:45 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.70 2013/06/27 05:35:41 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.69 $
+ * @version $Revision: 1.1.2.70 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -1318,6 +1318,7 @@ var JS_Asset_Map = new function() {
 
     this.positionMenu = function(menu, mousePos) {
         var topDoc = this.topDocumentElement(assetMapContainer);
+
         topDoc.appendChild(menu);
         var elementHeight = topDoc.clientHeight;
         var submenuHeight = dfx.getElementHeight(menu);
@@ -1738,7 +1739,12 @@ var JS_Asset_Map = new function() {
      */
     this.topDocumentElement = function(target) {
         var defaultView = this.getDefaultView(target.ownerDocument);
-        var topDoc      = defaultView.top.document.documentElement;
+
+        if (defaultView.frameElement.name === 'sq_sidenav') {
+            var topDoc = defaultView.top.document.documentElement;
+        } else {
+            var topDoc = target.ownerDocument.documentElement;
+        }
         return topDoc;
     }
 
@@ -3055,12 +3061,13 @@ var JS_Asset_Map = new function() {
      * @param {Function} callback The callback function.
      */
     this.doRequest = function(command, callback) {
-        url = '.?SQ_BACKEND_PAGE=asset_map_request&json=1';
+        url = options.rootEditUrl + '/?SQ_BACKEND_PAGE=asset_map_request&json=1';
+        //url = '.' + '?SQ_BACKEND_PAGE=asset_map_request&json=1';
         var xhr = new XMLHttpRequest();
         var str = JSON.stringify(command);
         var self = this;
         var readyStateCb = function() {
-            self.message('Requesting...', true);
+            self.message(js_translate('asset_map_status_bar_requesting'), true);
             if (xhr.readyState === 4) {
                 var response = xhr.responseText;
                 if (response !== null) {

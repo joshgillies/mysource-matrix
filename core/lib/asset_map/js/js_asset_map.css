@@ -158,11 +158,13 @@
     background-color: #f5f5f5;
     box-sizing: border-box;
     -moz-box-sizing: border-box;
+    font: 11px 'Arial', sans-serif;
 }
 
 #asset_map_container.simple {
     margin-left: 0;
     padding-left: 0;
+    border: 1px solid #E2E2E2;
 }
 
 #asset_map_container .dragAsset {
@@ -251,7 +253,6 @@
 
 .assetMapMenu {
     background-color: #f5f5f5;
-    border: 1px outset #999;
     border-left: 1px solid #ccc;
     border-top: 1px solid #ccc;
     border-bottom: 1px solid #999;
@@ -299,7 +300,6 @@
 
 .assetMapMenu .menuSep {
     border-bottom: 1px solid #ccc;
-    /*border-top: 1px solid #999;*/
     height: 1px;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
@@ -396,18 +396,20 @@
 
 #asset_map_container .toolbar {
     background-color: #f5f5f5;
-    border-bottom: 1px solid #999;
+    border-bottom: 1px solid #e2e2e2;
     padding: 5px;
 }
 
 #asset_map_container .messageLine {
     background-color: #f5f5f5;
-    border-top: 1px solid #999;
+    border-top: 1px solid #e2e2e2;
     padding: 5px;
     position: absolute;
     bottom: 0;
     width: 100%;
     margin-left: -8px;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
 }
 
 #asset_map_container.simple .messageLine {
@@ -430,8 +432,7 @@
 }
 
 #asset_map_container .tree {
-    border-left: 1px solid #999;
-    border-bottom: 1px solid #FFF;
+    border-left: 1px solid #e2e2e2;
     overflow: scroll;
     box-sizing: border-box;
     -moz-box-sizing: border-box;
@@ -521,6 +522,7 @@
     padding: 0;
     margin-bottom: -1px;
     margin-left: -8px;
+    background-color: #fff;
 }
 
 #asset_map_container .statusList.expanded {
@@ -535,7 +537,7 @@
 #asset_map_container .statusList.expanded .asset {
     display: block;
     cursor: default;
-    margin: 2px 0;
+    margin: 2px;
 }
 
 #asset_map_container .statusListIcon {
@@ -547,7 +549,7 @@
 
 #asset_map_container .statusDivider {
     background-color: #f5f5f5;
-    border-bottom: 1px outset #999;
+    border-bottom: 1px solid #e2e2e2;
     padding: 3px 3px;
     position: relative;
     cursor: pointer;

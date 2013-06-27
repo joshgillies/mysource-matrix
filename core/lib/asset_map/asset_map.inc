@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.317.2.15 2013/06/25 00:59:53 lwright Exp $
+* $Id: asset_map.inc,v 1.317.2.16 2013/06/27 05:35:41 lwright Exp $
 *
 */
 require_once(SQ_LIB_PATH.'/xml_array/xml_array.inc');
@@ -23,7 +23,7 @@ require_once(SQ_LIB_PATH.'/xml_array/xml_array.inc');
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.317.2.15 $
+* @version $Revision: 1.317.2.16 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -99,6 +99,10 @@ class Asset_Map
             // Make room for tabs.
             $width   -= 18;
             $startCmd = 'start';
+        } else {
+            if (!defined('SQ_PAINTED_SIMPLE_ASSET_MAP')) {
+                define('SQ_PAINTED_SIMPLE_ASSET_MAP', TRUE);
+            }
         }
 
         // Find the teleport root.
@@ -156,6 +160,7 @@ class Asset_Map
                 dfxLoadedCallback = function() {
                     document.getElementById('asset_map_container').style.height = <?php echo $height ?> + 'px';
                     JS_Asset_Map.<?php echo $startCmd ?>({
+                        rootEditUrl: '<?php echo sq_web_path('root_url').'/'.SQ_CONF_BACKEND_SUFFIX ?>',
                         assetIconPath: '<?php echo sq_web_path('data') ?>/asset_types',
                         displayFormat: '<?php echo addslashes(SQ_CONF_ASSET_MAP_ASSET_DISPLAY_NAME); ?>',
                         assetsPerPage: <?php echo SQ_CONF_ASSET_MAP_ASSET_LIMIT; ?>,
