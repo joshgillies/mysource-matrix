@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.251 2013/06/20 04:40:58 akarelia Exp $
+* $Id: page_calendar.inc,v 1.252 2013/06/27 01:37:50 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.251 $
+* @version $Revision: 1.252 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -684,6 +684,7 @@ class Page_Calendar extends Page
 						'next_link'			=> translate('cal_page_next_link'),
 						'current_user'		=> translate('cal_page_current_user'),
 						'today_link'		=> translate('cal_page_today_link'),
+						'root_nodes'		=> translate('root_node'),
 					);
 
 		return $keywords;
@@ -3478,6 +3479,23 @@ class Page_Calendar extends Page
 		return TRUE;
 
 	}//end createNoResultsBodycopy()
-	
+
+
+	/**
+	* Get the replacement for "root_nodes" keyword
+	*
+	* @return string
+	* @access public
+	*/
+	function getRootNodesKeywordReplacement()
+	{
+		$root_nodes = array_keys($this->attr('root_nodes'));
+
+		return implode(', ',$root_nodes);
+
+	}//end getRootNodesKeywordReplacement()
+
+
 }//end class
+
 ?>

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_upcoming_events_list.inc,v 1.40 2013/05/23 00:25:56 cupreti Exp $
+* $Id: page_upcoming_events_list.inc,v 1.41 2013/06/27 01:37:50 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -143,6 +143,7 @@ class Page_Upcoming_Events_List extends Page
 		} else if (isset($broadcaster_parents[$this->id])) {
 			// it's the contents BC
 			$vars['keywords']['event_list'] = 'List of Events';
+			$vars['keywords']['root_nodes'] = translate('root_node');
 			return TRUE;
 		}
 		return FALSE;
@@ -742,6 +743,21 @@ class Page_Upcoming_Events_List extends Page
 		return $folder;
 
 	}//end getFolder()
+
+
+	/**
+	* Get the replacement for "root_nodes" keyword
+	*
+	* @return string
+	* @access public
+	*/
+	function getRootNodesKeywordReplacement()
+	{
+		$root_nodes = array_keys($this->attr('root_nodes'));
+
+		return implode(', ',$root_nodes);
+
+	}//end getRootNodesKeywordReplacement()
 
 
 }//end class
