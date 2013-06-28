@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.70 2013/06/27 05:35:41 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.71 2013/06/28 01:56:23 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.70 $
+ * @version $Revision: 1.1.2.71 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -1740,7 +1740,7 @@ var JS_Asset_Map = new function() {
     this.topDocumentElement = function(target) {
         var defaultView = this.getDefaultView(target.ownerDocument);
 
-        if (defaultView.frameElement.name === 'sq_sidenav') {
+        if ((!defaultView.frameElement) || (defaultView.frameElement.name === 'sq_sidenav')) {
             var topDoc = defaultView.top.document.documentElement;
         } else {
             var topDoc = target.ownerDocument.documentElement;
@@ -2901,9 +2901,18 @@ var JS_Asset_Map = new function() {
             self.clearMenus('subtype');
         });
 
-        for (var i in assetCategories) {
-            var menuItem = this.drawMenuItem(i, null, true);
-            menuItem.setAttribute('data-category', i);
+        // Load up the asset category names so we can sort them.
+        var assetCatSort = [];
+        for (i in assetCategories) {
+            assetCatSort.push(i);
+        }
+
+        assetCatSort.sort();
+
+        for (var i = 0; i < assetCatSort.length; i++) {
+            var catid    = assetCatSort[i];
+            var menuItem = this.drawMenuItem(catid, null, true);
+            menuItem.setAttribute('data-category', catid);
             container.appendChild(menuItem);
 
             dfx.addEvent(menuItem, 'mouseover', function(e) {
@@ -2925,6 +2934,7 @@ var JS_Asset_Map = new function() {
             });
         }
 
+        // Folder always sits at the bottom.
         var menuItem = this.drawMenuItem('Folder', 'folder');
         dfx.addEvent(menuItem, 'click', function(e) {
             self.clearMenus();
@@ -2964,9 +2974,27 @@ var JS_Asset_Map = new function() {
             e.preventDefault();
         });
 
+        // Load up the asset type names so we can sort them.
+        var assetTypeSort = [];
         for (var i = 0; i < assetCategories[category].length; i++) {
             var typeCode = assetCategories[category][i];
             var type     = assetTypeCache[typeCode];
+            assetTypeSort.push(type);
+        }
+
+        assetTypeSort.sort(function(a, b) {
+            if (a.name > b.name) {
+                return 1;
+            } else if (a.name < b.name) {
+                return -1;
+            } else {
+                return 0;
+            }
+        });
+
+        for (var i = 0; i < assetTypeSort.length; i++) {
+            var type     = assetTypeSort[i];
+            var typeCode = type.type_code;
 
             var menuItem = this.drawMenuItem(type.name, typeCode);
             menuItem.setAttribute('data-typecode', typeCode);
