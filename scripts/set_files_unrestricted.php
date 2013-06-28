@@ -34,7 +34,7 @@
 *
 *
 * @author      Luke Wright <lwright@squiz.net>
-* @version     $Revision: 1.7 $
+* @version     $Revision: 1.8 $
 * @package     Mysource_Matrix
 * @subpackage  __core__
 */
@@ -267,6 +267,7 @@ function do_set_unrestricted($root_node, $setting, $file_assetids)
 			status_message_result('OK');
 		} else {
 			status_message_result('ERRORS');
+			pre_echo($errors);
 		}
 	}
 
