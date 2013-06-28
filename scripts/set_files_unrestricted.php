@@ -34,7 +34,7 @@
 *
 *
 * @author      Luke Wright <lwright@squiz.net>
-* @version     $Revision: 1.6 $
+* @version     $Revision: 1.6.6.1 $
 * @package     Mysource_Matrix
 * @subpackage  __core__
 */
@@ -248,18 +248,26 @@ function do_set_unrestricted($root_node, $setting, $file_assetids)
 			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 		}
 
+		$assetids_to_update =  array_merge($result, $additional_assets);
+		$deja_vu = $GLOBALS['SQ_SYSTEM']->getDejaVu();
+		if ($deja_vu->enabled()) {
+			foreach($assetids_to_update as $assetid) {
+				$deja_vu->forget('asset', $assetid);
+			}//end foreach
+		}//end if
+
 		// Now update lookups
 		status_message_start('Updating lookups...');
 		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$vars = Array(
-					'assetids'	=> array_merge($result, $additional_assets),
+					'assetids'	=> $assetids_to_update,
 				);
 		$errors = $hh->freestyleHipo('hipo_job_update_lookups', $vars);
 		if (empty($errors)) {
 			status_message_result('OK');
 		} else {
 			status_message_result('ERRORS');
-			bam($errors);
+			pre_echo($errors);
 		}
 	}
 
