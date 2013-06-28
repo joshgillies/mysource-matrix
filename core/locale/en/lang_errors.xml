@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.147.4.1 2013/06/04 03:56:33 cupreti Exp $
+* $Id: lang_errors.xml,v 1.147.4.2 2013/06/28 01:04:29 akarelia Exp $
 *
 */
 
@@ -1876,6 +1876,12 @@ Full Node Contents :
 	<error code="SYS0342">Cannot clean up metadata values of asset ID #%1$s, DB error while deleting: "%2$s"</error>
 	<error code="SYS0343">Cannot get interface value of metadata field ID #%1$s for asset ID #%2$s in context ID #%3$s, DB error while getting: "%4$s"</error>
 	<error code="SYS0344">Cannot use asset_metadata_XXX keyword for metadata field value. Replacing asset_metadata_XXX keyword by metadata_field_XXX</error>
+
+	<!-- core/lib/html_form/html_form.inc::get_file_upload_info() -->
+	<error code="SYS0349">Upload error for "%s" file: No file was uploaded.</error>
+	<error code="SYS0350">Upload error for "%s" file: Missing a temporary folder to upload the file to.</error>
+	<error code="SYS0351">Upload error for "%s" file: Failed to write file to disk. Please check the permission or the space on tmp directory.</error>
+	<error code="SYS0352">Upload error for "%s" file: A PHP extension stopped the file upload. PHP does not provide a way to ascertain which extension caused the file upload to stop; examining the list of loaded extensions with phpinfo() may help.</error>
 
 	<!-- XSL Transformation Errors -->
 	<error code="XSL0001">XSL Module is not installed. Feature is not available</error>
