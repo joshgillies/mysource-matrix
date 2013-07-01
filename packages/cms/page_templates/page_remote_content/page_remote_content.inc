@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.100 2013/06/05 05:33:43 akarelia Exp $
+* $Id: page_remote_content.inc,v 1.101 2013/07/01 01:03:45 ewang Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.100 $
+* @version $Revision: 1.101 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -254,7 +254,7 @@ class Page_Remote_Content extends Page
 		if (isset($url_parts[1])) {
 			// Replace global keywords on the HARD CODED portion of the query string only
 			replace_global_keywords($url_parts[1]);
-			$query_string = $url_parts[1].'&'.$query_string;
+			$query_string = empty($query_string) ? $url_parts[1] : $url_parts[1].'&'.$query_string;
 		}
 		$url = $url_parts[0];
 		if (empty($query_string) === FALSE) {
