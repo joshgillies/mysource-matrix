@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2013/06/20 07:38:21 cupreti Exp $
+* $Id: lang_strings.xml,v 1.2 2013/07/01 01:01:41 cupreti Exp $
 *
 */
 -->
@@ -18,7 +18,7 @@
 <strings>
 <string source="default_bodycopy_content"><![CDATA[
 %%processing_error%%
-<div style="background-color: #CCC; padding: 5px">Conform payment <strong>$%%transaction_amount%%</strong>(%%transaction_gst%% percent GST)</div>
+<div style="background-color: #CCC; padding: 5px">Confirm payment <strong>$%%transaction_amount%%</strong>(%%transaction_gst%% percent GST)</div>
 <table cellpadding="5">
 	<tr>
 		<td>&nbsp;</td>
