@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.3.2.3 2013/06/21 02:09:28 cupreti Exp $
+* $Id: lang_screen_details.xml,v 1.3.2.4 2013/07/01 01:06:07 cupreti Exp $
 *
 */
 -->
@@ -71,7 +71,7 @@
 				<paint_function   name="paintSoapRequestBody"   />
 				<process_function name="processSoapRequestBody" />
 			</function_call>
-			<note>SOAP requset message body</note>
+			<note>SOAP request message body</note>
 		</field>
 		<field attribute="root_tag">
 			<display_name>Root Tag</display_name>
