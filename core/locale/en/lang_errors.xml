@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.147.4.2 2013/06/28 01:04:29 akarelia Exp $
+* $Id: lang_errors.xml,v 1.147.4.3 2013/07/01 03:56:31 akarelia Exp $
 *
 */
 
@@ -1779,7 +1779,7 @@ Full Node Contents :
 	<error code="CORE0275">Tag already set on asset #%1$s with a different weighting (%2$s)</error>
 	<error code="CORE0279">You do not have permission to clear the cache of this asset</error>
 	<error code="CORE0280">Email link to process workflow is invalid because asset version is unknown or the workflow step has already been completed.</error>
-	<error code="CORE0281">It is either that the workflow has already been %1$s or you do not have access to edit the workflow of the asset</error>
+	<error code="CORE0281">The workflow has already been %1$s or you do not have access to edit the workflow of the asset</error>
 
 	<!-- Asset based paint layouts -->
 	<error code="CORE0283">Unable to delete paint layout notice link with linkid: %1$s and value: %2$s for asset: #%3$s</error>
