@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_anchor.inc,v 1.19 2012/08/30 00:56:52 ewang Exp $
+* $Id: matrix_insert_anchor.inc,v 1.20 2013/07/02 04:07:08 akarelia Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -255,7 +255,6 @@ class matrix_insert_anchor extends wysiwyg_plugin
 								}
 
 								// replace with new URL
-								html = editor.make_absolute_urls(html);
 								editor.insertHTML(html, range);
 							}
 

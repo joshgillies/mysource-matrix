@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.42 2013/04/08 05:51:06 cupreti Exp $
+* $Id: wysiwyg.inc,v 1.43 2013/07/02 04:07:16 akarelia Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/wysiwyg/wysiwyg.inc';
 *    <wysiwyg style="div" width="100%" height="300" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -105,20 +105,6 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 		$wysiwyg->set_show_status_bar(false);
 		$wysiwyg->set_width($this->_edit_params['width']);
 		$wysiwyg->set_height($this->_edit_params['height']);
-
-		// Bug fix #5092 Asset Builder insert link via WYSIWYG removing the dot (.) before the /?a=
-		// remove ANY suffix from our URL or ele the regex working on it will result in malformed output
-		$base_php_self = str_replace('/'.SQ_CONF_BACKEND_SUFFIX, '', $_SERVER['PHP_SELF']);
-		$base_php_self = str_replace('/'.SQ_CONF_LIMBO_SUFFIX, '', $base_php_self);
-		$base_php_self = str_replace('/'.SQ_CONF_NOCACHE_SUFFIX, '', $base_php_self);
-		$base_php_self = str_replace('/'.SQ_CONF_RECACHE_SUFFIX, '', $base_php_self);
-		$base_php_self = rtrim($base_php_self, '/ ');
-
-		$wysiwyg->add_relative_href_check('(http[s]?://'.$_SERVER['HTTP_HOST'].')'.$_SERVER['PHP_SELF'], '$1'.$base_php_self);
-		$wysiwyg->add_relative_href_check('http[s]?://'.$_SERVER['HTTP_HOST'].$base_php_self.'/?(\?a=[0-9]+)', './$1');
-		$wysiwyg->add_relative_href_check('([^.][^/])(\?a=[0-9]+)', '$1./$2');
-		$wysiwyg->add_relative_href_check('http[s]?://'.$_SERVER['HTTP_HOST'].$base_php_self.'/?%([a-zA-Z_\-0-9]+)%', '%$1%');
-		$wysiwyg->add_absolute_url_check('\./\?(a=[0-9]+)', 'http://'.$_SERVER['HTTP_HOST'].$base_php_self.'/?$1');
 
 		// get the keyword replacements
 		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();

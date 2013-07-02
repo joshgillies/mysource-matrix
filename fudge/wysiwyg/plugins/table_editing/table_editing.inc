@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: table_editing.inc,v 1.32 2012/08/30 00:56:53 ewang Exp $
+* $Id: table_editing.inc,v 1.33 2013/07/02 04:07:13 akarelia Exp $
 *
 */
 
@@ -227,7 +227,7 @@ class Table_Editing extends WYSIWYG_Plugin
 				strPage = "<?php echo $this->get_popup_href('edit_table.php')?>";
 				var width = 835;
 				var height = 730;
-				table_structure = this.make_absolute_urls(table_structure);
+
 				this._popupDialog("editTableProperties", strPage, width, height, true, function(params) {
 					if (!params) {
 						// user must have pressed Cancel
