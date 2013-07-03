@@ -9,7 +9,7 @@
 * | this file please contact Squiz (www.squiz.com.au) so we may provide|
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
-* $Id: lang_strings.xml,v 1.1.2.2 2013/06/25 06:57:06 cupreti Exp $
+* $Id: lang_strings.xml,v 1.1.2.3 2013/07/03 04:02:26 cupreti Exp $
 *
 */
 -->
@@ -21,7 +21,7 @@
 <table cellpadding="5">
 	<tr>
 		<td align="right">Card Number</td>
-		<td>%%card_number%%  %%card_ccv%%</td>
+		<td>%%card_number%%  %%card_cv2%%</td>
 	</tr>
 	<tr>
 		<td align="right">Expiry Date (MM/YY)</td>
