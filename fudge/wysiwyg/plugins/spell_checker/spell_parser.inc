@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: spell_parser.inc,v 1.14 2012/08/30 00:56:53 ewang Exp $
+* $Id: spell_parser.inc,v 1.14.8.1 2013/07/03 05:45:14 ewang Exp $
 *
 */
 
@@ -22,13 +22,14 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.14.8.1 $
 * @package Fudge
 * @subpackage wysiwyg
 */
 Class Spell_Parser
 {
-
+	var $skip = 0;
+	
 	/**
 	* Gets called when a start tag is parsed
 	*
@@ -41,11 +42,11 @@ Class Spell_Parser
 	*/
 	function openHandler(&$parser, $elem, $attribs)
 	{
-		echo '<'.$elem.' ';
-		foreach ($attribs as $key => $val) {
-			echo $key.'="'.str_replace('"', '\\"', $val).'" ';
+		if(strtolower($elem) === 'script') {
+		   $this->skip++;
+		    return true;
 		}
-		echo ' >';
+		echo '<'.$elem.' >';
 		return true;
 
 	}//end openHandler()
@@ -62,6 +63,10 @@ Class Spell_Parser
 	*/
 	function closeHandler(&$parser, $elem)
 	{
+		if(strtolower($elem)  === 'script') {
+		   $this->skip--;
+		    return true;
+		}
 		echo '</'.$elem.'>';
 		return true;
 
@@ -79,7 +84,7 @@ Class Spell_Parser
 	function spellCallback($match)
 	{
 		$check_spelling = true;
-		$word = $match[1];
+		$word = htmlspecialchars($match[1]);
 
 		// ignore numbers
 		if ($check_spelling) {
@@ -126,6 +131,8 @@ Class Spell_Parser
 	*/
 	function dataHandler(&$parser, $data)
 	{
+		if($this->skip != 0) return true;
+		
 		$matches = preg_match('|[^\w]|', $data);
 		if ($matches) {
 			// we add an extra character to the end (which we strip out later)
