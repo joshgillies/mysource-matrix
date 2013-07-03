@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.216 2012/12/06 00:55:40 ewang Exp $
+* $Id: backend.inc,v 1.217 2013/07/03 05:23:16 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.216 $
+* @version $Revision: 1.217 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -502,7 +502,7 @@ class Backend extends MySource_Object
 
 				if (empty($results)) {
 					$msg = (!empty($error_msg)) ? 'failed_searching_for_error' : 'failed_searching_for';
-					$html = $this->_getDHTMLMessage(translate('search_failed'), translate($msg, addslashes($_POST['asset_search'])), 'search-failed', 'info');
+					$html = $this->_getDHTMLMessage(translate('search_failed'), translate($msg, htmlspecialchars($_POST['asset_search'])), 'search-failed', 'info');
 					$dhtml_messages['search_failed'] = Array('html' => str_replace("\n", '', $html), 'width' => '400', 'timeout' => 6.0);
 				} else {
 					$detail_lines[] = '<strong>'.'Matched on Keyword ('.count($results).' asset'.(count($results) == 1 ? '' : 's').'):'.'</strong>';
@@ -591,6 +591,9 @@ class Backend extends MySource_Object
 									// Cut it down to a certain number of characters anyway
 									$value = ellipsisize($value, 120);
 
+									$value = htmlspecialchars($value);
+									$name_detail = htmlspecialchars($name_detail);
+									
 									$value = preg_replace('/('.addslashes(implode('|', $words)).')/i', '<span class="sq-backend-search-results-highlight">$1</span>', $value);
 
 									// remove
