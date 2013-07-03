@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_securepay.inc,v 1.1.2.2 2013/06/25 06:57:06 cupreti Exp $
+* $Id: payment_gateway_securepay.inc,v 1.1.2.3 2013/07/03 04:06:14 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/securepay_processor.inc';
 * @see Payment_Gateway
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.1.2.2 $
+* @version $Revision: 1.1.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -138,6 +138,7 @@ class Payment_Gateway_Securepay extends Payment_Gateway
 		$keywords['card_expiry_year'] = 'Card Expiry Year (text box)';
 		$keywords['card_expiry_year_select_X'] = 'Card Expiry Year (dropdown box)';
 		$keywords['card_cv2'] = 'Card CV2';
+		$keywords['card_type'] = 'Card Type';
 
 		$keywords['billing_address_first_name'] = 'Card holder\'s first name';
 		$keywords['billing_address_last_name'] = 'Card holder\'s last name';
