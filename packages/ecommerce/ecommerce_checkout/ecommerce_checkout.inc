@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.87 2013/06/20 07:27:36 cupreti Exp $
+* $Id: ecommerce_checkout.inc,v 1.88 2013/07/03 06:58:43 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.87 $
+* @version $Revision: 1.88 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -312,7 +312,7 @@ class Ecommerce_Checkout extends Page
 				$need_update = FALSE;
 				if ($local_cart_empty) {
 					// if global is not empty, update
-					if ($global_cart->getCount() != 0) {
+					if (!$global_cart->isEmpty()) {
 						$need_update = TRUE;
 					}
 				} else {
