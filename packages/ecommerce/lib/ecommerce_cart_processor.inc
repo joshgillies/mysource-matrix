@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_processor.inc,v 1.30 2012/10/04 00:18:57 ewang Exp $
+* $Id: ecommerce_cart_processor.inc,v 1.31 2013/07/03 07:00:15 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 * @author Robert Howard <rhoward@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -392,6 +392,19 @@ class Ecommerce_Cart_Processor
 		return $count;
 
 	}//end getCount()
+
+
+	/**
+	* Returns TRUE if the cart is empty
+	*
+	* @return float
+	* @access public
+	*/
+	function isEmpty()
+	{
+		return is_null($this->cart) || (count($this->cart) <= 0);
+
+	}//end isEmpty()
 
 
 	/**
@@ -772,7 +785,6 @@ class Ecommerce_Cart_Processor
 			} else {
 				echo sprintf($row_format, 'Total', sprintf($price_format, $sub_total));
 			}
-
 			if (($total_tax > 0) || ($flat_charges_total > 0.0)) {
 				if ($total_tax > 0) {
 					$row_title = $remove_tax ? 'Excluded Tax ('.$taxation_name.')' : 'Total ('.$taxation_name.')';
