@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.249.2.2 2013/06/20 04:45:56 akarelia Exp $
+* $Id: page_calendar.inc,v 1.249.2.3 2013/07/03 07:07:53 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.249.2.2 $
+* @version $Revision: 1.249.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -397,7 +397,7 @@ class Page_Calendar extends Page
 					$calendar_replacements = $replacements;
 					$keywords = $contents_bodycopy->getKeywords();
 					foreach ($keywords as $word) {
-						if (isset($calendar_replacements[$word]) && !empty($calendar_replacements[$word])) {
+						if (isset($calendar_replacements[$word])) {
 							$replacements[$word] = $calendar_replacements[$word];
 						} else {
 							$replacements[$word] = $this->getKeywordReplacement($word);
