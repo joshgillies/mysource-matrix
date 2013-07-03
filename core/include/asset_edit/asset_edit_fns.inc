@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.89 2012/08/30 01:09:20 ewang Exp $
+* $Id: asset_edit_fns.inc,v 1.89.4.1 2013/07/03 05:46:14 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.89 $
+* @version $Revision: 1.89.4.1 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Fns extends MySource_Object
@@ -182,7 +182,7 @@ class Asset_Edit_Fns extends MySource_Object
 		$total_assets = count($remap_urls);
 		$num_pages = ceil($total_assets / $num_per_page);
 
-		$page_num = array_get_index($_POST, $prefix.'_remap_urls_page', 1);
+		$page_num = (int) array_get_index($_POST, $prefix.'_remap_urls_page', 1);
 		$page_num = max($page_num, 1);
 		$page_num = min($page_num, $num_pages);
 
