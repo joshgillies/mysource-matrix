@@ -10,7 +10,7 @@
  * | you a copy.                                                        |
  * +--------------------------------------------------------------------+
  *
- * $Id: system_integrity_inconsistent_workflow_status.php,v 1.1 2013/02/15 07:05:55 ewang Exp $
+ * $Id: system_integrity_inconsistent_workflow_status.php,v 1.2 2013/07/04 05:18:44 cupreti Exp $
  */
 
 /**
@@ -28,7 +28,7 @@
  *
  *
  * @author  Edison Wang <ewang@squiz.com.au>
- * @version $Revision: 1.1 $
+ * @version $Revision: 1.2 $
  * @package MySource_Matrix
  */
 
@@ -56,7 +56,7 @@ $toFix = getCLIArg('fix');
 $toEmail = getCLIArg('email');
 
 // asset is Live, Safe Editting, Approved To Go Live, Under Construction but it has running workflow by mistake.
-$sql = 'SELECT a.assetid, a.status FROM sq_ast_wflow AS w, sq_ast AS a WHERE a.assetid = w.assetid AND w.wflow is not null and a.status in (2, 8, 16, 64)';
+$sql = 'SELECT a.assetid, a.status FROM sq_ast_wflow w, sq_ast a WHERE a.assetid = w.assetid AND w.wflow is not null and a.status in (2, 8, 16, 64)';
 try {
     $query = MatrixDAL::preparePdoQuery($sql);
     $assets_should_not_have_workflow = MatrixDAL::executePdoAssoc($query);
@@ -67,7 +67,7 @@ try {
     
     
  // asset is Pending Approval but it does't have running workflow by mistake.
-$sql = 'SELECT a.assetid, a.status FROM sq_ast_wflow AS w, sq_ast AS a WHERE a.assetid = w.assetid AND w.wflow is null and a.status in (4)';
+$sql = 'SELECT a.assetid, a.status FROM sq_ast a LEFT JOIN sq_ast_wflow w ON a.assetid = w.assetid WHERE w.wflow is null and a.status in (4)';
 try {
     $query = MatrixDAL::preparePdoQuery($sql);
     $assets_should_have_workflow = MatrixDAL::executePdoAssoc($query);
@@ -80,20 +80,24 @@ try {
  if(empty($assets_should_have_workflow) && empty($assets_should_not_have_workflow)) {
      exit();
  }
- 
+
+$workflows_to_update = Array();
+$assets_to_update = Array();
     
 ob_start();
 if(!empty($assets_should_not_have_workflow)) {
     echo "\nFollowing assets are found to be in running workflow state but not in workflow status\n";
     foreach ($assets_should_not_have_workflow as $data) {
-	echo "#".$data['assetid']." has status ".$data['status']."\n";
+		echo "#".$data['assetid']." has status ".$data['status']."\n";
+		$workflows_to_update[$data['assetid']] = MatrixDAL::quote($data['assetid']);
     }
 }
 
 if(!empty($assets_should_have_workflow)) {
-    echo "\nFollowing assets are found to be in workflow status but not in running workflow state";
+    echo "\nFollowing assets are found to be in workflow status but not in running workflow state\n";
     foreach ($assets_should_have_workflow as $data) {
-	echo "#".$data['assetid']." has status ".$data['status']."\n";
+		echo "#".$data['assetid']." has status ".$data['status']."\n";
+		$assets_to_update[$data['assetid']] = MatrixDAL::quote($data['assetid']);
     }
 }
 $content = ob_get_contents();
@@ -102,22 +106,38 @@ ob_end_clean();
     
 if($toFix) {
     $GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+	$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-    $sql ='UPDATE sq_ast_wflow SET wflow = null WHERE sq_ast_wflow.assetid IN (SELECT a.assetid FROM sq_ast_wflow AS w, sq_ast AS a WHERE a.assetid = w.assetid AND w.wflow is not null and a.status in (2, 8, 16, 64))';
-    $query = MatrixDAL::preparePdoQuery($sql);
-    $result = MatrixDAL::execPdoQuery($query);	
-    if($result) {
-	echo "\n".$result." asset(s) fixed by removing running workflow state.\n";
-    }
+	if (!empty($workflows_to_update)) {
+	    $sql ='UPDATE sq_ast_wflow SET wflow = null WHERE assetid IN ('.implode(',', $workflows_to_update).')';
+    	$query = MatrixDAL::preparePdoQuery($sql);
+	    $result = MatrixDAL::execPdoQuery($query);	
+    	if($result) {
+			echo "\n".$result." asset(s) fixed by removing running workflow state.\n";
+	    }
+	}
 
-    $sql ='UPDATE sq_ast SET status = 2 WHERE assetid IN (SELECT a.assetid FROM sq_ast_wflow AS w, sq_ast AS a WHERE a.assetid = w.assetid AND w.wflow is null and a.status in (4))';
-    $query = MatrixDAL::preparePdoQuery($sql);
-    $result = MatrixDAL::execPdoQuery($query);	
-    if($result) {
-	echo "\n".$result." asset(s) fixed by setting status to Under Construction.\n";
-    }
+	if (!empty($assets_to_update)) {
+	    $sql ='UPDATE sq_ast SET status = 2 WHERE assetid IN ('.implode(',', $assets_to_update).')';
+    	$query = MatrixDAL::preparePdoQuery($sql);
+	    $result = MatrixDAL::execPdoQuery($query);	
+    	if($result) {
+			echo "\n".$result." asset(s) fixed by setting status to Under Construction.\n";
+    	}
+	}
 
+	$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
     $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+	// Also flush the Deja Vu cache for the updated assets
+	$deja_vu = $GLOBALS['SQ_SYSTEM']->getDejaVu();
+	if ($deja_vu->enabled()) {
+		$assets_to_update = array_keys($assets_to_update);
+		foreach($assets_to_update as $assetid) {
+			$deja_vu->forget('asset', $assetid);
+		}//end foreach
+	}//end if
+
 }
 else {
     if($toEmail) {
