@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_csv_management.inc,v 1.3 2012/08/30 00:58:15 ewang Exp $
+* $Id: data_source_csv_management.inc,v 1.4 2013/07/04 04:49:04 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -40,6 +40,15 @@ class Data_Source_Csv_Management extends Asset_Management
 		$this->Asset_Management($pm);
 		$this->vars = Array(
 							'header_row'	=> Array(
+												'added'			=> '0.1',
+												'type'			=> 'boolean',
+												'default'		=> TRUE,
+												'parameters'	=> Array(
+																	'allow_empty'	=> FALSE,
+																   ),
+												'is_admin'		=> TRUE,
+											   ),
+							'header_col'	=> Array(
 												'added'			=> '0.1',
 												'type'			=> 'boolean',
 												'default'		=> TRUE,

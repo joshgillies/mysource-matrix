@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.2 2010/05/05 07:11:14 ewang Exp $
+* $Id: edit_interface_screen_details.xml,v 1.3 2013/07/04 04:49:04 akarelia Exp $
 *
 */
 -->
@@ -21,6 +21,9 @@
 			<text width="30" height="1" />
 		</field>
 		<field attribute="header_row">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="header_col">
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
