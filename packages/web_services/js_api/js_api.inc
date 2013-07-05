@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.143 2013/05/27 08:36:39 cupreti Exp $
+* $Id: js_api.inc,v 1.143.2.1 2013/07/05 02:26:16 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.143 $
+* @version $Revision: 1.143.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -304,7 +304,9 @@ class JS_Api extends Page
 		// #4372  Feature Request : JS API ability to specify _admin/_edit access
 		// Lets populate our $_REQUEST var so that we can use it later :)
 		$_REQUEST['force_simple_edit'] = $this->attr('force_simple_edit');
-		$temp_server_vars = $_SERVER['PHP_SELF'];
+
+		$temp_server_vars_php_self = array_get_index($_SERVER, 'PHP_SELF', NULL);;
+		$temp_server_vars_request_uri = array_get_index($_SERVER, 'REQUEST_URI', NULL);
 
 		if (isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER'])) {
 			$referer_url = str_replace(current_protocol().'://', '', $_SERVER['HTTP_REFERER']);
@@ -334,6 +336,11 @@ class JS_Api extends Page
 				$_SERVER['PHP_SELF'] = preg_replace('|/'.SQ_CONF_BACKEND_SUFFIX.'(.)*|', '', $_SERVER['PHP_SELF']);
 				$_SERVER['PHP_SELF'] = $_SERVER['PHP_SELF'].'/';
 				$_REQUEST['force_simple_edit'] = TRUE;
+			}
+			
+			// If 'PHP_SELF' was updated, set the same to 'REQUEST_URI'
+			if (!is_null($url_asset_object) ) {
+				$_SERVER['REQUEST_URI'] = $_SERVER['PHP_SELF'];
 			}
 		}
 
@@ -481,7 +488,9 @@ class JS_Api extends Page
 
 		// lets restor PHP_SELF just incase if Matrix is going to check if $_SERVER var is
 		// exactly the same when it went in THIS function and when it goes out
-		$_SERVER['PHP_SELF'] = $temp_server_vars;
+		$_SERVER['PHP_SELF'] = $temp_server_vars_php_self;
+		$_SERVER['REQUEST_URI'] = $temp_server_vars_request_uri;
+
 
 		// Restore error handler
 		restore_error_handler();
