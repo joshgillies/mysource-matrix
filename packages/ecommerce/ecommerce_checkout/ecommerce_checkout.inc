@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.86.6.2 2013/07/03 07:26:11 cupreti Exp $
+* $Id: ecommerce_checkout.inc,v 1.86.6.3 2013/07/05 05:59:32 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.86.6.2 $
+* @version $Revision: 1.86.6.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -650,7 +650,7 @@ class Ecommerce_Checkout extends Page
 
 					// customer pays here!
 					$this->_logOrderAction(translate('ecom_order_history_payment_gateway'));
-					$delivery_method->processPaymentGateway(round($total_cost + $delivery_cost, $this->attr('float_precision')), $payment_gateway_id);
+					$delivery_method->processPaymentGateway(round($total_cost + $delivery_cost, $this->attr('float_precision')), $payment_gateway_id, $this->id);
 					return;
 
 				} else if ($delivery_method->attr('gateway_required')){
