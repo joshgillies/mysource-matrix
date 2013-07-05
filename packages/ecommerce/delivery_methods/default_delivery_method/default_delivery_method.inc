@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_cart_processor.inc';
 * Purpose
 *
 *
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -812,12 +812,18 @@ HEREDOC;
 	*
 	* @param float	$total_cost 		The total cost of all the items in the cart
 	* @param int	$gateway_assetid	Gateway to use to process the payment
+	* @param int	$checkout_assetid	The checkout asset using this delivery method
 	*
 	* @return void
 	* @access public
 	*/
-	function processPaymentGateway($total_cost, $gateway_assetid='')
+	function processPaymentGateway($total_cost, $gateway_assetid='', $checkout_assetid='')
 	{
+		if (!$checkout_assetid) {
+			// Cannot proceed without the checkout
+			return;
+		}
+
 		// If no gateway is supplied, use the first one from the list
 		if (empty($gateway_assetid)) {
 			$gateways = $this->attr('payment_gateways');
@@ -829,9 +835,8 @@ HEREDOC;
 		// set up expected session vars
 		$_SESSION['SQ_ECOM_AMOUNT'] = $total_cost;
 		// get checkout asset URL
-		$checkout_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'ecommerce_checkout', TRUE, 'delivery_method', 'minor');
-		$checkout_url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($checkout_link['majorid']);
-		$checkout =& $GLOBALS['SQ_SYSTEM']->am->getAsset($checkout_link['majorid']);
+		$checkout_url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($checkout_assetid);
+		$checkout = $GLOBALS['SQ_SYSTEM']->am->getAsset($checkout_assetid);
 
 		$_SESSION['SQ_ECOM_SUCCESS_URL'] = $checkout_url.'?'.$checkout->getPrefix().'_action=payment_gateway_successful';
 		$_SESSION['SQ_ECOM_CANCEL_URL'] = $checkout_url.'?'.$checkout->getPrefix().'_action=return_to_checkout';
