@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.144 2013/07/05 00:19:59 cupreti Exp $
+* $Id: js_api.inc,v 1.145 2013/07/05 01:39:17 hlliauw Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.144 $
+* @version $Revision: 1.145 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -3534,6 +3534,7 @@ class JS_Api extends Page
 				$field	= $am->getAsset($fieldid[$i]);
 				if (!($field instanceof Metadata_Field)) {
 					$this->returnError('The Field ID provided does not belong to a metadata field');
+					return FALSE;
 				}//end if
 
 				if (!$regen_all_contexts && (!$field->attr('is_contextable') || $field instanceof Metadata_Field_Select)) {
