@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.286.4.2 2013/06/21 04:56:41 ewang Exp $
+* $Id: general.inc,v 1.286.4.3 2013/07/08 07:57:33 cupreti Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.286.4.2 $
+* @version $Revision: 1.286.4.3 $
 * @package MySource_Matrix
 */
 
@@ -1877,6 +1877,7 @@ function get_available_global_keywords()
 					'globals_cookie_'	=> 'Global Keywords - Cookie',
 					'globals_server_'	=> 'Global Keywords - Server',
 					'globals_date'		=> 'Global Keywords - Current Date and Time',
+					'globals_date_relative_'	=> 'Gloabl Keywords - Relative Date and Time',
 					'globals_site_'		=> 'Global Keywords - Current Site',
 					'globals_asset_'	=> 'Global Keywords - Front End Asset',
 					'globals_snippet_'	=> 'Global Keywords - Snippet',
@@ -1950,14 +1951,34 @@ function replace_global_keywords(&$text)
 					}
 					if (0 === strpos($keyword, 'globals_date')) {
 						require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-						$date_keyword = readable_datetime();
-						$formatting = substr($keyword, 12);
-						$format = ltrim($formatting, '_');
-						if ($format == 'readable') {
-							$date_keyword = readable_datetime();
+						$date_keyword = '';
+						if (0 === strpos($keyword, 'globals_date_relative_')) {
+							$sub_keyword = substr($keyword, 22);
+							$argv =  explode("_", $sub_keyword);
+							$occurance_type = array_get_index($argv, 0, '');
+							$day_of_next = array_get_index($argv, 1, '');
+							if (!empty($occurance_type) && !empty($day_of_next)) {
+								$date_keyword = readable_datetime(strtotime($occurance_type." ".$day_of_next));
+								if (isset($argv[2])) {
+									if ($argv[2] == 'readable') {
+										$date_keyword = readable_datetime(strtotime($occurance_type." ".$day_of_next));
+									} else {
+										if (!empty($argv[2])) {
+											$date_keyword = date($argv[2], strtotime($occurance_type." ".$day_of_next));
+										}//end if
+									}//end if
+								}//end if
+							}//end if
 						} else {
-							if (!empty($format)) {
-								$date_keyword = date($format);
+							$date_keyword = readable_datetime();
+							$formatting = substr($keyword, 12);
+							$format = ltrim($formatting, '_');
+							if ($format == 'readable') {
+								$date_keyword = readable_datetime();
+							} else {
+								if (!empty($format)) {
+									$date_keyword = date($format);
+								}//end if
 							}//end if
 						}//end if
 						$replacements[$full_keyword] = $date_keyword;
@@ -2177,7 +2198,6 @@ function replace_global_keywords(&$text)
 								$context_name = $all_contexts[$contextid]['name'];
 							}
 						}
-						
 						$replacements[$full_keyword] = $context_name;
 					}//end if
 
