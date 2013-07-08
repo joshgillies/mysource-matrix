@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.78.4.1 2013/06/05 01:33:42 ewang Exp $
+* $Id: text.inc,v 1.78.4.2 2013/07/08 07:59:40 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.78.4.1 $
+* @version $Revision: 1.78.4.2 $
 * @package Fudge
 * @subpackage Text
 */
@@ -196,6 +196,12 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array())
 			foreach ($keywords as $keyword){
 				if (isset($kw_replacements[$keyword])){
 					$replacements[$keyword] = $kw_replacements[$keyword];
+				} else if (strpos($keyword, 'globals_') === 0) {
+					$global_keyword = '%'.$keyword.'%';
+					replace_global_keywords($global_keyword);
+					if (strpos($global_keyword, '%') !== 0) {
+						$replacements[$keyword] = $global_keyword;
+					}
 				} else if (!empty($assetid)){
 					if (!isset($asset)) $asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 					if ($asset){
