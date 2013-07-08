@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.907 2013/05/13 09:07:09 cupreti Exp $
+* $Id: asset_manager.inc,v 1.907.2.1 2013/07/08 04:25:06 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.907 $
+* @version $Revision: 1.907.2.1 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -9283,6 +9283,7 @@ class Asset_Manager extends MySource_Object
 			// order by sort order (by default)
 			$order_by = 'ORDER BY l.sort_order, l.type_code';
 		} else {
+			$sort_by = preg_replace('/[^a-zA-Z_0-9]+/', '', $sort_by);
 			// order by a specific field in the asset table
 			$order_by = 'ORDER BY l.'.$sort_by;
 			if ($sort_by != 'type_code') {
@@ -9480,6 +9481,7 @@ class Asset_Manager extends MySource_Object
 
 		if (!empty($link_types_wanted)) {
 			foreach ($link_types_wanted as $index => $link_type_wanted) {
+				if(!is_numeric($link_type_wanted)) $link_type_wanted = SQ_LINK_TYPE_1;
 				$link_types_wanted[$index] = db_extras_bitand(MatrixDAL::getDbType(), 'l.link_type', $link_type_wanted).' > 0';
 			}
 			$where .= ' AND (('.implode(') OR (', $link_types_wanted).'))';
@@ -9618,6 +9620,7 @@ class Asset_Manager extends MySource_Object
 		$order_by = '';
 
 		if (!is_null($sort_by)) {
+			$sort_by = preg_replace('/[^a-zA-Z_0-9]+/', '', $sort_by);
 			$order_by = 'ORDER BY sort_value';
 			$select .= ', a.'.$sort_by.' AS sort_value';
 			if (!is_null($access)) {
@@ -10010,6 +10013,7 @@ class Asset_Manager extends MySource_Object
 		// order by a field if required
 		$order_by = '';
 		if (!is_null($sort_by)) {
+			$sort_by = preg_replace('/[^a-zA-Z_0-9]+/', '', $sort_by);
 			$order_by = 'ORDER BY sort_value';
 			$select .= ', ll.'.$sort_by.' AS sort_value';
 		} else {
