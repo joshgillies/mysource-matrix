@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.78.4.2 2013/07/08 07:59:40 cupreti Exp $
+* $Id: text.inc,v 1.78.4.3 2013/07/08 08:03:04 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.78.4.2 $
+* @version $Revision: 1.78.4.3 $
 * @package Fudge
 * @subpackage Text
 */
@@ -519,6 +519,18 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array())
 		$format = array_get_index($modifier['args'], 0, '');
 		return date($format, strtotime($text));
 
+	// Comparison date modifiers. By default these return '1' if true and '' if false.
+	// Return values can be overriden with the subsequent args, e.g:
+	//
+	//  %asset_contents~eq:Hello:MATCH:NOMATCH%
+	case "eq_date":
+	case "neq_date":
+	case "lt_date":
+	case "lte_date":
+	case "gt_date":
+	case "gte_date":
+		return _run_date_comparison_keyword_modifier($modifier, $text);
+
 	case "replace":
 		$toReplace   = array_get_index($modifier['args'], 0, NULL);
 		$replaceWith = array_get_index($modifier['args'], 1, NULL);
@@ -820,6 +832,62 @@ function _run_comparison_keyword_modifier($modifier, $text)
 	}
 
 }//end _run_comparison_keyword_modifier()
+
+
+/**
+ * Returns a version of $text piped through a predefined comparison operator modifier.
+ *
+ * Mofifiers should be self explanatory.
+ *
+ * @return string
+ * @access public
+ */
+function _run_date_comparison_keyword_modifier($modifier, $text)
+{
+	// If "compare time" is not supplied, use the current timestamp
+	$c = strtotime(array_get_index($modifier['args'], 0, ''));
+	if (!$c) {
+		$c = time();
+	}
+	// Greater than. Returns '1' or ''.
+	$t = array_get_index($modifier['args'], 1, '1');
+	$f = array_get_index($modifier['args'], 2, '');
+
+	// Invalid date to compare to
+	$date = strtotime($text);
+	if (!$date) {
+		return $f;
+	}
+
+	$ret = FALSE;
+	switch ($modifier['modifier']) {
+		case "eq_date":
+			$ret = $date == $c;
+		break;
+		case "neq_date":
+			$ret = $date != $c;
+		break;
+		case "lt_date":
+			$ret = $date < $c;
+		break;
+		case "lte_date":
+			$ret = $date <= $c;
+		break;
+		case "gt_date":
+			$ret = $date > $c;
+		break;
+		case "gte_date":
+			$ret = $date >= $c;
+		break;
+	}
+	
+	if ($ret) {
+		return $t;
+	} else {
+		return $f;
+	}
+
+}//end  _run_date_comparison_keyword_modifier()
 
 
 /**
