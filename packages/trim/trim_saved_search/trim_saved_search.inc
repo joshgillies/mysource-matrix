@@ -11,7 +11,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search.inc,v 1.40.2.3 2013/06/07 04:32:23 ewang Exp $
+* $Id: trim_saved_search.inc,v 1.40.2.4 2013/07/09 08:27:57 ewang Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.40.2.3 $
+* @version $Revision: 1.40.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -114,6 +114,7 @@ class TRIM_Saved_Search extends Data_Source
 		$hash	= $this->getHashKey();
 
 		$result = $this->getCachedResults($hash);
+
 		if (empty($result)) {
 			try {
 				// Not cached at all, so lets send a request
@@ -411,6 +412,9 @@ class TRIM_Saved_Search extends Data_Source
 	*/
 	public function getTRIMRecords($connection)
 	{
+		// Set a socket timeout limit
+		$default_socket_timeout = ini_get('default_socket_timeout');
+		ini_set('default_socket_timeout', $this->attr('sync_time_limit'));
 		
 		$containers = Array();
 	
@@ -582,6 +586,7 @@ class TRIM_Saved_Search extends Data_Source
 		    }
 		}
 		
+		ini_set('default_socket_timeout', $default_socket_timeout);
 		return $object_list;
 
 	}//end getTRIMRecords();
@@ -685,7 +690,11 @@ class TRIM_Saved_Search extends Data_Source
 	function storeDocumentList($connection, &$record_info)
 	{
 	
+	
 		if (isset($record_info['Uri']) && $record_info['Uri'] != 0 && (!isset($record_info['error']))) {
+		    	// Set a socket timeout limit
+			$default_socket_timeout = ini_get('default_socket_timeout');
+			ini_set('default_socket_timeout', $this->attr('download_time_limit'));
 			$record_info['document_url']	= '';
 		
 			if (isset($record_info['recDocumentType']) && $record_info['recDocumentType']	!= 'Record has no document attached.') {
@@ -706,6 +715,8 @@ class TRIM_Saved_Search extends Data_Source
 				$record_info['document_url'] = isset($record_info['recNumber']) ? './?a='.$this->id.'?RecordNumber='.urlencode($record_info['recNumber'])  : './?a='.$this->id.'?Uri='.$record_info['Uri'];
 				     
 			}//end if
+			
+			ini_set('default_socket_timeout', $default_socket_timeout);
 		}//end if
 
 	}//end storeDocumentList()

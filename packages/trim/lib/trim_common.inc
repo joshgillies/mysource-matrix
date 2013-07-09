@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_common.inc,v 1.32.2.3 2013/06/04 04:21:26 cupreti Exp $
+* $Id: trim_common.inc,v 1.32.2.4 2013/07/09 08:27:57 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.32.2.3 $
+* @version $Revision: 1.32.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage trim
 */
@@ -913,9 +913,6 @@ class TRIM_Common
 	*/
 	public static function executeRequest($connection, $operations=Array(), $display_type='Fetch', $search_clause_xml = '', $hash_key='', &$final_file_path='')
 	{
-			// TRIM API call usually takes a while to search records, so set it to 24*60*60s
-			$default_socket_timeout = ini_get('default_socket_timeout');
-			ini_set('default_socket_timeout', 86400);
 			
 			$Execute		= Array (
 							'req'	=> self::constructTrimRequest(),
@@ -992,8 +989,7 @@ class TRIM_Common
 					echo 'Upload Successful, new UploadId: '.$object_list['UploadId'];
 				}
 			}//end else if
-			
-			ini_set('default_socket_timeout', $default_socket_timeout);
+
 
 	}//end execute
 
