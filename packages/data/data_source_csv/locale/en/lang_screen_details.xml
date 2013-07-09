@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.4 2013/07/04 04:49:04 akarelia Exp $
+* $Id: lang_screen_details.xml,v 1.5 2013/07/09 07:14:56 akarelia Exp $
 *
 */
 -->
@@ -26,8 +26,8 @@
 			<note>If enabled, the first row of the CSV file will be used as attribute names for the exposed assets</note>
 		</field>
 		<field attribute="header_col">
-			<display_name>Use first column  as row identifier?</display_name>
-			<note>If enabled, the first column  of the CSV file will be used as an identifier for that row.</note>
+			<display_name>Use first column as row identifier?</display_name>
+			<note>If enabled, the first column of the CSV file will be used as an identifier for that row.</note>
 		</field>
 	</section>
 	<section name="Upload new CSV file">
@@ -58,7 +58,7 @@
 			<process_function name="processKeywords" />
 		</function_call>
 		<display_name>Available Keywords For the Data Source Record Set Asset</display_name>
-		<note>The above are the avaialable keywords for the record set assets. You can choose to have one or more keywords
+		<note>The above are the available keywords for the record set assets. You can choose to have one or more keywords
 		or a combination of strings and keywords as the name of the record set assets. Please remember that the keywords
 		have to be preceded and succeeded with a '%' sign or else it can be considered as a normal string.  </note>
 		</field>
