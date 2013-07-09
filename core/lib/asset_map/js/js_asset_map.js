@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.71 2013/06/28 01:56:23 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.72 2013/07/09 04:26:58 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.71 $
+ * @version $Revision: 1.1.2.72 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -870,6 +870,27 @@ var JS_Asset_Map = new function() {
                 var mousePos       = dfx.getMouseEventPosition(e);
                 if (dragStatus.selectionDrag) {
                     if (insideTree) {
+                        if (!timeouts.selectionDrag) {
+                            timeouts.selectionDrag = setInterval(function() {
+                                var rectDims = dfx.getBoundingRectangle(selectionRect);
+                                var assets   = dfx.getClass('asset', tree);
+                                for (var i = 0; i < assets.length; i++) {
+                                    var asset    = assets[i];
+                                    var iconDims = dfx.getBoundingRectangle(dfx.getClass('icon', asset)[0]);
+                                    var nameDims = dfx.getBoundingRectangle(dfx.getClass('assetName', asset)[0]);
+
+                                    // Work out if this asset is being touched by the selection.
+                                    if ((rectDims.x2 < iconDims.x1) || (rectDims.x1 > nameDims.x2)) {
+                                        dfx.removeClass(asset, 'selected');
+                                    } else if ((rectDims.y2 < iconDims.y1) || (rectDims.y1 > iconDims.y2)) {
+                                        dfx.removeClass(asset, 'selected');
+                                    } else {
+                                        dfx.addClass(asset, 'selected');
+                                    }
+                                }
+                            }, 40);
+                        }
+
                         var selectionRect = dfx.getClass('selectionRect', assetMapContainer)[0];
                         if (!selectionRect) {
                             var selectionRect = _createEl('div');
@@ -894,26 +915,6 @@ var JS_Asset_Map = new function() {
                             dfx.setStyle(selectionRect, 'height', (Math.abs(e.clientY - dragStatus.startPoint.y) + 1) + 'px');
                             dfx.setStyle(selectionRect, 'width', (Math.abs(e.clientX - dragStatus.startPoint.x) + 1) + 'px');
                         });
-/*
-                        dfx.addEvent(dfx.getClass('asset', assetMapContainer), 'mouseover.rectSelection', function(e) {
-                            var target = e.currentTarget;
-                            if (dfx.hasClass(target, 'newly-selected') === false) {
-                                dfx.addClass(target, 'selected');
-                                dfx.addClass(target, 'newly-selected');
-                                console.info(target.getAttribute('data-assetid') + ' enter');
-                                lastSelection = target;
-                            }
-                        });
-
-                        dfx.addEvent(dfx.getClass('asset', assetMapContainer), 'mouseout.rectSelection', function(e) {
-                            var target = e.currentTarget;
-                            if (dfx.hasClass(target, 'newly-selected') === true) {
-                                dfx.removeClass(target, 'newly-selected');
-                                dfx.removeClass(target, 'selected');
-                                console.info(target.getAttribute('data-assetid') + ' leave');
-                            }
-                        });
-*/
                     }//end if
                 } else if (dragStatus.assetDrag) {
                     dragStatus.currentPoint = {
@@ -1073,6 +1074,9 @@ var JS_Asset_Map = new function() {
                         // Treat as a click.
                         self.clearSelection();
                     }
+
+                    clearInterval(timeouts.selectionDrag);
+                    timeouts.selectionDrag = null;
                 } else if (dragStatus.assetDrag) {
                     self.clearHoverAsset();
                     timeouts.assetDrag = null;
