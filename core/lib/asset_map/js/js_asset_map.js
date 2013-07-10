@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.73 2013/07/09 23:23:18 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.74 2013/07/10 00:00:38 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.73 $
+ * @version $Revision: 1.1.2.74 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -699,6 +699,10 @@ var JS_Asset_Map = new function() {
             }//end switch
         });
 
+        dfx.addEvent(assetMapContainer, 'mousedown', function(e) {
+            self.clearMenus();
+        });
+
         for (var i = 0; i < trees.length; i++) {
             this.initTreeEvents(trees[i]);
         }
@@ -713,7 +717,6 @@ var JS_Asset_Map = new function() {
                 return true;
             }
 
-            self.clearMenus();
             self.clearLocatedAssets();
 
             var which       = e.which;
@@ -756,6 +759,7 @@ var JS_Asset_Map = new function() {
             }
 
             if (assetTarget) {
+                e.stopImmediatePropagation();
                 var assetTargetCoords = dfx.getElementCoords(assetTarget);
                 if (self.isInUseMeMode() === true) {
                     // Use me mode. No multi-select, no drag.
