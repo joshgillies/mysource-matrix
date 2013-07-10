@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.75 2013/07/10 01:11:15 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.76 2013/07/10 02:44:04 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.75 $
+ * @version $Revision: 1.1.2.76 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -853,8 +853,14 @@ var JS_Asset_Map = new function() {
                 e.stopImmediatePropagation();
             } else {
                 if (options.simple === false) {
-                    dragStatus.selectionDrag = {
-                        selection: []
+                    if (which === 1) {
+                        dragStatus.selectionDrag = {
+                            selection: []
+                        }
+                    } else if (which === 3) {
+                        var menu = self.drawAddMenu();
+                        self.positionMenu(menu, {x: e.clientX, y: e.clientY});
+                        e.stopImmediatePropagation();
                     }
                 }
             }//end if (type of target)
@@ -2100,7 +2106,11 @@ var JS_Asset_Map = new function() {
             assetids.push(rootAsset);
             var children = dfx.getClass('childIndent', rootNode);
             for (var i = 0; i < children.length; i++) {
-                assetids.push(children[i].getAttribute('data-parentid'));
+                if (dfx.hasClass(children[i], 'collapsed') === true) {
+                    dfx.remove(children[i]);
+                } else {
+                    assetids.push(children[i].getAttribute('data-parentid'));
+                }
             }
         }
 
@@ -2130,8 +2140,9 @@ var JS_Asset_Map = new function() {
                     if (String(assetid) === '1') {
                         container = tree;
                     } else {
-                        var assetNode = dfx.find(tree, 'div.asset[data-assetid=' + assetid  + ']')[0];
-                        dfx.addClass(assetNode, 'expanded');
+                        var assetNode    = dfx.find(tree, 'div.asset[data-assetid=' + assetid  + ']')[0];
+                        var branchButton = dfx.getClass('branch-status', assetNode);
+                        dfx.addClass(branchButton, 'expanded');
 
                         container = dfx.find(tree, 'div.childIndent[data-parentid=' + assetid  + ']')[0];
                         if (!container) {
