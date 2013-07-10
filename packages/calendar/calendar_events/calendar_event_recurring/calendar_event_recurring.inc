@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.108 2013/02/04 04:45:48 akarelia Exp $
+* $Id: calendar_event_recurring.inc,v 1.109 2013/07/10 08:56:32 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.108 $
+* @version $Revision: 1.109 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -930,6 +930,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 	*/
 	function getKeywordReplacement($keyword)
 	{
+		$full_keyword = $keyword;
 		$keyword = parse_keyword($keyword, $modifiers);
 
 		switch ($keyword) {
@@ -1200,7 +1201,11 @@ class Calendar_Event_Recurring extends Calendar_Event
 
 		}//end switch
 
-		apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id));
+		if ($replacement != '%'.$keyword.'%') {
+			apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id));
+		} else {
+			$replacement = '%'.$full_keyword.'%';
+		}
 
 		return $replacement;
 

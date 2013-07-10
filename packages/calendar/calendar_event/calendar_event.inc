@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.112 2013/02/04 04:45:48 akarelia Exp $
+* $Id: calendar_event.inc,v 1.113 2013/07/10 08:55:21 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.112 $
+* @version $Revision: 1.113 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -867,6 +867,7 @@ class Calendar_Event extends Asset
 		$start_time_not_set = ($this->getStartTime() === FALSE);
 		$end_time_not_set = ($this->getEndTime() === FALSE);
 
+		$full_keyword = $keyword;
 		$keyword = parse_keyword($keyword, $modifiers);
 
 		switch ($keyword) {
@@ -1075,7 +1076,13 @@ class Calendar_Event extends Asset
 
 		}//end switch
 
-		apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id));
+		// If replacement found, apply the modifiers
+		// Otherwise put the it back, so it can get replaced at the higher level
+		if ($replacement != '%'.$keyword.'%') {
+			apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id));
+		} else {
+			$replacement = '%'.$full_keyword.'%';
+		}
 
 		return $replacement;
 

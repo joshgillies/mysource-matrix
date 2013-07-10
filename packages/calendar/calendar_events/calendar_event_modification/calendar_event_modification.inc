@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_modification.inc,v 1.32 2012/08/30 00:57:28 ewang Exp $
+* $Id: calendar_event_modification.inc,v 1.33 2013/07/10 08:55:55 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * of a recurring event have changed for a particular instance of that event.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -276,6 +276,7 @@ class Calendar_Event_Modification extends Calendar_Event
 	*/
 	function getKeywordReplacement($keyword)
 	{
+		$full_keyword = $keyword;
 		$keyword = parse_keyword($keyword, $modifiers);
 
 		if (in_array($keyword, Array('instance_start_datetime', 'instance_end_datetime'))) {
@@ -305,7 +306,12 @@ class Calendar_Event_Modification extends Calendar_Event
 		if (empty($replacement)) {
 			$replacement = parent::getKeywordReplacement($keyword);
 		}
-		apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id));
+
+		if ($replacement != '%'.$keyword.'%') {
+			apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id));
+		} else {
+			$replacement = '%'.$full_keyword.'%';
+		}
 
 		return $replacement;
 
