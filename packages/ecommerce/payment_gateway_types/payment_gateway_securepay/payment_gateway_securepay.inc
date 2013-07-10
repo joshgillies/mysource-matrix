@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_securepay.inc,v 1.2 2013/07/03 04:05:26 cupreti Exp $
+* $Id: payment_gateway_securepay.inc,v 1.3 2013/07/10 00:50:28 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/securepay_processor.inc';
 * @see Payment_Gateway
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -311,7 +311,7 @@ class Payment_Gateway_Securepay extends Payment_Gateway
 
 			if ($this->attr('test_mode')) {
 				echo '<h2 class="gateway-test-mode" style="color: white; background-color: #C00; padding: 5px">TEST MODE</h2>';
-				echo '<h3>In test mode, only amount ending with 00 and 08 will be approved by the gateway. All other amounts will return differnt unsuccessful codes</h3';
+				echo '<h3>In test mode, only amount ending with 00 and 08 will be approved by the gateway. All other amounts will return different unsuccessful codes</h3>';
 			}
 
 			?>
