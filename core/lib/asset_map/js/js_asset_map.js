@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.74 2013/07/10 00:00:38 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.75 2013/07/10 01:11:15 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.74 $
+ * @version $Revision: 1.1.2.75 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -2852,18 +2852,27 @@ var JS_Asset_Map = new function() {
         var menuItem = this.drawMenuItem(js_translate('asset_map_menu_move'), null);
         dfx.addEvent(menuItem, 'click', function(e) {
             self.clearMenus();
+            self.moveMe.enable(assetNodes, function(source, selection) {
+                self.moveAsset(AssetActions.Move, assetNodes, selection.parentid, selection.before);
+            });
         });
         container.appendChild(menuItem);
 
         var menuItem = this.drawMenuItem(js_translate('asset_map_menu_link'), null);
         dfx.addEvent(menuItem, 'click', function(e) {
             self.clearMenus();
+            self.moveMe.enable(assetNodes, function(source, selection) {
+                self.moveAsset(AssetActions.NewLink, assetNodes, selection.parentid, selection.before);
+            });
         });
         container.appendChild(menuItem);
 
         var menuItem = this.drawMenuItem(js_translate('asset_map_menu_clone'), null);
         dfx.addEvent(menuItem, 'click', function(e) {
             self.clearMenus();
+            self.moveMe.enable(assetNodes, function(source, selection) {
+                self.moveAsset(AssetActions.Clone, assetNodes, selection.parentid, selection.before);
+            });
         });
         container.appendChild(menuItem);
 
