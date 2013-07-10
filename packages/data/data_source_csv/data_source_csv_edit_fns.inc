@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_csv_edit_fns.inc,v 1.7 2013/07/04 04:49:04 akarelia Exp $
+* $Id: data_source_csv_edit_fns.inc,v 1.8 2013/07/10 01:34:35 akarelia Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -101,16 +101,47 @@ class Data_Source_Csv_Edit_Fns extends Data_Source_Edit_Fns
 				$old_row_headers = ($asset->attr('header_row') && isset($old_values[0])) ? array_keys($old_values[0]) : $old_values[0];
 				$new_row_headers = ($asset->attr('header_row') && isset($new_values[0])) ? array_keys($new_values[0]) : $new_values[0];
 
-				$the_difference = array_diff($old_row_headers, $new_row_headers);
-				if (!empty($the_difference) || count($old_row_headers) != count($new_row_headers)) {
+				$difference_one = array_diff($old_row_headers, $new_row_headers);
+				$difference_two = array_diff($new_row_headers, $old_row_headers);
+
+				// the new file uploaded has more coloumns then previous file
+				// upload the file but warn the user about the new coloumns
+				if (!empty($difference_two)) {
+					trigger_error('Upload Warning: Number or names of the coloumns in the newly uploaded CSV file are more than previous CSV file.', E_USER_WARNING);
+				} else if (!empty($difference_one)) {
 					// there is some difference in the content
 					// abort.... abort..... abort........
-					trigger_error('Upload Aborted: Number or names of the coloumns in the previous CSV file doesn\'t match with the newly uploaded CSV.', E_USER_WARNING);
+					trigger_error('Upload Aborted: Number or names of the coloumns in the previous CSV file are more than the ones in newly uploaded CSV.', E_USER_WARNING);
 					$asset->setAttrValue('cached_content', $old_content);
 				} else {
-					if (count($old_values) !=  count($new_values)) {
-						trigger_error('Upload Aborted: Number of rows in the previous CSV file doesn\'t match with the newly uploaded CSV.', E_USER_WARNING);
-						$asset->setAttrValue('cached_content', $old_content);
+					if ($asset->attr('header_col')) {
+						$old_row_id = $new_row_id = Array();
+						// make sure all the coloumn identifier are present as previous CSV
+						foreach ($old_values as $values) {
+							$old_row_id[] = $values[$old_row_headers[0]];
+						}
+						foreach ($new_values as $values) {
+							$new_row_id[] = $values[$new_row_headers[0]];
+						}
+
+						$row_diff_one = array_diff($old_row_id, $new_row_id);
+						$row_diff_two = array_diff($new_row_id, $old_row_id);
+
+						// if our previuos CSV had more rows in it then stop upload 
+						// or just warn the user about the added coloumns
+						if (!empty($row_diff_two)) {
+							trigger_error('Upload Warning: Number of rows in the newly uploaded CSV file are more than the previous CSV file.', E_USER_WARNING);
+						} else if (!empty($row_diff_one)) {
+							trigger_error('Upload Aborted: Number of rows in the previous CSV are more than the newly uploaded CSV.', E_USER_WARNING);
+							$asset->setAttrValue('cached_content', $old_content);
+						}
+					} else {
+						if (count($old_values) <  count($new_values)) {
+							trigger_error('Upload Warning: Number of rows in the newly uploaded CSV file are more than the previous CSV file.', E_USER_WARNING);
+						} else if (count($old_values) >  count($new_values)) {
+							trigger_error('Upload Aborted: Number of rows in the previous CSV are more than the newly uploaded CSV.', E_USER_WARNING);
+							$asset->setAttrValue('cached_content', $old_content);
+						}
 					}
 				}
 
