@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_upcoming_events_list.inc,v 1.38.4.1 2013/05/24 05:31:18 cupreti Exp $
+* $Id: page_upcoming_events_list.inc,v 1.38.4.2 2013/07/11 01:00:44 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.38.4.1 $
+* @version $Revision: 1.38.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -300,6 +300,7 @@ class Page_Upcoming_Events_List extends Page
 								'published',
 								'published_userid',
 							  );
+
 		foreach ($type_format_links as $link) {
 			if (!empty($link['value'])) {
 				$needs_asset[$link['value']] = FALSE;
@@ -311,16 +312,16 @@ class Page_Upcoming_Events_List extends Page
 					if (strpos($keyword, 'asset_') !== 0) {
 						$needs_asset[$link['value']] = TRUE;
 					} else {
+						$sub_keyword = parse_keyword($keyword, $modifiers);
 						// the keyword starts with 'asset_' but it might still require the asset
-						if ((strpos($keyword, 'asset_metadata_') !== 0) && (!in_array(substr($keyword, 6), $asset_info_fields))) {
+						if ((strpos($keyword, 'asset_metadata_') !== 0) && (!in_array(substr($sub_keyword, 6), $asset_info_fields))) {
 							$needs_asset[$link['value']] = TRUE;
 						}
 					}
 					if (strpos($keyword, 'asset_metadata_') === 0) {
-						// This array holds the metadata field names, extracted from the asset_metadata_[FIELDNAME] keywords
-						$metadata_keywords[$link['value']][] = substr($keyword, 15);
+						$metadata_keywords[$link['value']][] = $keyword;
 					}
-				}
+				}//end foreach
 				if (!$needs_asset[$link['value']]) {
 					$somebody_doesnt_need_asset = TRUE;
 				}
@@ -376,32 +377,50 @@ class Page_Upcoming_Events_List extends Page
 			$format_type = $asset->type();
 
 			if (isset($required_keywords[$format_type])) {
-				foreach ($required_keywords[$format_type] as $keyword) {
+				foreach ($required_keywords[$format_type] as $full_keyword) {
+					$keyword = parse_keyword($full_keyword, $modifiers);
 					if ($keyword == 'asset_contents') {
 						ob_start();
 							$asset->printBody();
-							$replacements[$keyword] = ob_get_contents();
+							$value = ob_get_contents();
 						ob_end_clean();
 					} else {
-						$replacements[$keyword] = $asset->getKeywordReplacement($keyword);
+						$value = $asset->getKeywordReplacement($keyword);
 					}
+
+					if ($value != '%'.$keyword.'%') {
+						apply_keyword_modifiers($value, $modifiers, Array('assetid' => $asset->id));
+					} else {
+						$value = '%'.$full_keyword.'%';
+					}
+					$replacements[$full_keyword] = $value;
 				}
 			}
 
 			// get metadata keywords
 			if (!empty($metadata_keywords[$type_code])) {
-				if (!empty($metadata_keywords)) {
-					if (is_null($mm)) {
-						$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-					}
-					// get all the metadata keywords for this asset
-					$metadata_values = $mm->getMetadataFieldValues($id, $metadata_keywords[$type_code]);
-
-					foreach ($metadata_values as $field => $value) {
-						$replacements['asset_metadata_'.$field] = $value;
-					}
+				if (is_null($mm)) {
+					$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 				}
-			}
+				$metadata_fields = Array();
+				foreach($metadata_keywords[$event['type_code']] as $full_keyword) {
+					$keyword = parse_keyword($full_keyword, $modifiers);
+					$metadata_fields[] = substr($keyword, 15);
+				}
+				// get all the metadata keywords for this asset
+				$metadata_values = $mm->getMetadataFieldValues($id, $metadata_fields);
+
+				foreach ($metadata_keywords[$type_code] as $full_keyword) {
+					$keyword = parse_keyword($full_keyword, $modifiers);
+					$field_name = substr($full_keyword, 15);
+					$value = '';
+					if (isset($metadata_values[$field_name])) {
+						$value = $metadata_values[$field_name];
+						apply_keyword_modifiers($value, $modifiers, Array('assetid' => $asset->id));
+					}//end if
+					$replacements[$full_keyword] = $value;
+				}//end foreach
+			}//end if
 
 			if (isset($required_keywords[$format_type])) {
 				$entry = $type_formats[$format_type];
@@ -489,40 +508,60 @@ class Page_Upcoming_Events_List extends Page
 			}
 
 			// get asset keywords
-			if ($asset && $needs_asset[$format_type] ) {
-				foreach ($required_keywords[$format_type] as $keyword) {
+			foreach ($required_keywords[$format_type] as $full_keyword) {
+				$keyword = parse_keyword($full_keyword, $modifiers);
+				$value = '';
+				if ($asset && $needs_asset[$format_type]) {
 					if ($keyword == 'asset_contents') {
 						ob_start();
 							$asset->printBody();
-							$replacements[$keyword] = ob_get_contents();
+							$value = ob_get_contents();
 						ob_end_clean();
 					} else {
-						$replacements[$keyword] = $asset->getKeywordReplacement($keyword);
+						$value = $asset->getKeywordReplacement($keyword);
+					}
+				} else {
+					if (isset($asset_infos[$id][substr($keyword, 6)])) {
+						$value = $asset_infos[$id][substr($keyword, 6)];
+					} else if ($keyword == 'asset_assetid') {
+						$value = $id;
 					}
 				}
-			} else {
-				// we can do this without the asset
-				foreach ($asset_infos[$id] as $field => $value) {
-					$replacements['asset_'.$field] = $value;
-				}
-				$replacements['asset_assetid'] = $id;
-			}
 
+				if ($value != '%'.$keyword.'%') {
+					apply_keyword_modifiers($value, $modifiers, Array('assetid' => $id));
+				} else {
+					$value = '%'.$full_keyword.'%';
+				}
+				$replacements[$full_keyword] = $value;
+
+			}//end foreach
 
 			// get metadata keywords
 			if (!empty($metadata_keywords[$event['type_code']])) {
-				if (!empty($metadata_keywords)) {
-					if (is_null($mm)) {
-						$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-					}
-					// get all the metadata keywords for this asset
-					$metadata_values = $mm->getMetadataFieldValues($id, $metadata_keywords[$event['type_code']]);
-
-					foreach ($metadata_values as $field => $value) {
-						$replacements['asset_metadata_'.$field] = $value;
-					}
+				if (is_null($mm)) {
+					$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 				}
-			}
+
+				$metadata_fields = Array();
+				foreach($metadata_keywords[$event['type_code']] as $full_keyword) {
+					$keyword = parse_keyword($full_keyword, $modifiers);
+					$metadata_fields[] = substr($keyword, 15);
+				}
+				// get all the metadata keywords for this asset
+				$metadata_values = $mm->getMetadataFieldValues($id, $metadata_fields);
+
+				foreach ($metadata_keywords[$event['type_code']] as $full_keyword) {
+					$keyword = parse_keyword($full_keyword, $modifiers);
+					$field_name = substr($keyword, 15);
+					$value = '';
+					if (isset($metadata_values[$field_name])) {
+						$value = $metadata_values[$field_name];
+						apply_keyword_modifiers($value, $modifiers, Array('assetid' => $id));
+					}//end if
+					$replacements[$full_keyword] = $value;
+				}//end foreach
+			}//end if
 
 			$entry = $type_formats[$format_type];
 			replace_keywords($entry, $replacements);
@@ -532,7 +571,7 @@ class Page_Upcoming_Events_List extends Page
 				$_REQUEST['SQ_CALENDAR_DATE'] = $recuring_event_last_occurance_date;
 
 		}//end foreach events
-		
+
 		// Sort the resulting events based on their instance start time
 		uasort($events_data, Array('Calendar_Common', 'compareStartDates'));
 		foreach($events_data as $event_data) {
