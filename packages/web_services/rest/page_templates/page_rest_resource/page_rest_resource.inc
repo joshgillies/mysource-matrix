@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rest_resource.inc,v 1.9 2012/08/30 00:59:46 ewang Exp $
+* $Id: page_rest_resource.inc,v 1.9.4.1 2013/07/11 07:32:12 ewang Exp $
 *
 */
 
@@ -104,9 +104,10 @@ class Page_REST_Resource extends Page
 
 			// Send the response. If there are multiple responses, send them all. This might
 			// seem odd, but occasionally you might be building a document from multiple fragments.
+			$error_response = $this->attr('error_response');
 			foreach ($this->_res['responses'] as &$resp) {
-				if ($resp['info']['http_code'] >= 400) {
-					echo $this->attr('error_response');
+				if ($resp['info']['http_code'] >= 400 && !empty($error_response)) {
+					echo $error_response;
 				} else {
 					echo $resp['body'];
 				}
