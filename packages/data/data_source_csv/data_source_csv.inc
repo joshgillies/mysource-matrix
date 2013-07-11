@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_csv.inc,v 1.8 2013/07/04 04:49:04 akarelia Exp $
+* $Id: data_source_csv.inc,v 1.9 2013/07/11 05:58:37 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -147,13 +147,13 @@ class Data_Source_Csv extends Data_Source
 
 	/**
 	* Returns an keyword replacement for 
-	* %globals_asset_data_source_csv_content_colname-rowidentifier:ASSET_ID% or 
-	* %asset_data_source_csv_content_colname-rowidentifier% type
+	* %globals_asset_ds_csv_colname-rowidentifier:ASSET_ID% or 
+	* %asset_ds_csv_colname-rowidentifier% type
 	*
 	* @return array
 	* @access public
 	*/
-	function getDataSourceCsvContentKeywordReplacement($original_keyword, $row_col=Array())
+	function getDsCsvKeywordReplacement($original_keyword, $row_col=Array())
 	{
 		if (empty($original_keyword)) return '';
 		if (empty($row_col)) return '';
@@ -194,7 +194,7 @@ class Data_Source_Csv extends Data_Source
 
 		return $replacement;
 
-	}//end getDataSourceCsvContentKeywordReplacement()
+	}//end getDsCsvKeywordReplacement()
 
 
 }//end class
