@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.317.2.16 2013/06/27 05:35:41 lwright Exp $
+* $Id: asset_map.inc,v 1.317.2.17 2013/07/11 00:07:39 lwright Exp $
 *
 */
 require_once(SQ_LIB_PATH.'/xml_array/xml_array.inc');
@@ -23,7 +23,7 @@ require_once(SQ_LIB_PATH.'/xml_array/xml_array.inc');
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.317.2.16 $
+* @version $Revision: 1.317.2.17 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -2126,7 +2126,10 @@ class Asset_Map
             if (!$GLOBALS['SQ_SYSTEM']->am->moveLinkPos($link_info['linkid'], $new_parent_pos)) {
                 return;
             }
-            if ($new_parent_pos <= $link_info['sort_order']) {
+
+            // If the sort ordering of the new position has changed, change it -
+            // but not if it's been set to position "-1" which is after the last position.
+            if (($new_parent_pos >= 0) && ($new_parent_pos <= $link_info['sort_order'])) {
                 $new_parent_pos++;
             }
             $success_node = $responses->addChild('success');
