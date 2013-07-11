@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.101 2013/07/01 01:03:45 ewang Exp $
+* $Id: page_remote_content.inc,v 1.102 2013/07/11 00:23:58 akarelia Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.101 $
+* @version $Revision: 1.102 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -78,7 +78,7 @@ class Page_Remote_Content extends Page
 	{
 		// start performance mode timer
 		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'printFrontend');
-		
+
 		if (!$this->readAccess()) {
 			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
 			return;
@@ -110,7 +110,7 @@ class Page_Remote_Content extends Page
 			$content = array_get_index($this->_tmp, 'content', Array());
 			echo array_get_index($content, $url, '');
 		}
-		
+
 		// stop performance mode timer
 		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'printFrontend');
 
@@ -133,7 +133,7 @@ class Page_Remote_Content extends Page
 	{
 		// start performance mode timer
 		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'printBody');
-		
+
 		// Encoded URLs look like they've got keywords in them. Disable blanking out of unknown keywords
 		$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_REPLACE_MYSOURCE_LEVEL_KEYWORDS', FALSE);
 
@@ -162,7 +162,7 @@ class Page_Remote_Content extends Page
 				}
 			}
 		}
-		
+
 		// stop performance mode timer
 		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'printBody');
 		return TRUE;
@@ -183,7 +183,7 @@ class Page_Remote_Content extends Page
 	* @access public
 	*/
 	function _process()
-	{ 
+	{
 		$remote_url		= trim($this->attr('remote_url'));
 		$remote_source	= array_get_index($_REQUEST, SQ_REMOTE_SOURCE);
 
@@ -236,7 +236,7 @@ class Page_Remote_Content extends Page
 				$query_string = $key.'='.urlencode($value);
 				$first = false;
 			    } else {
-				$query_string .= '&'.$key.'='.urlencode($value);   
+				$query_string .= '&'.$key.'='.urlencode($value);
 			    }
 		    }
 		}
@@ -248,7 +248,7 @@ class Page_Remote_Content extends Page
 			$source = $is_post ? $remote_source : urlencode($remote_source);
 			$query_string = trim(str_replace(SQ_REMOTE_SOURCE.'='.$source, '', $query_string));
 		}
-		
+
 		// merge the get vars of current request with those of the source string
 		$url_parts = explode('?', $url);
 		if (isset($url_parts[1])) {
@@ -267,7 +267,7 @@ class Page_Remote_Content extends Page
 			// "NULL" implies that the URL was processed successfully before
 			return $processed[$url] ? NULL : FALSE;
 		}
-		
+
 		// here we mark that we've attempted processing of this request
 		// if the processing turns out to successfull later, we will set as "TRUE" then
 		$this->_tmp['processed'][$url] = FALSE;
@@ -306,7 +306,7 @@ class Page_Remote_Content extends Page
 				// that's why when content-type is NOT form-data we use the php://input
 				// the reason we don't always use php://input is because when content type is multipart/form-data it is empty
 				$post_data = $_POST;
-		
+
 				// if it's array format, e.g test[0]=1, PHP will convert it to multiple level array, convert it to string format for CURL
 				foreach ($post_data as $name => $value) {
 				    if(is_array($value)) {
@@ -399,9 +399,9 @@ class Page_Remote_Content extends Page
 
 			// Only send files to the remote URL if those files are in the remote content page
 			$temp_dirs = Array();
-			if (!empty($input_file_names) && isset($_SESSION['SQ_REMOTE_CONTENT_UPLOAD_FILE']) && $_SESSION['SQ_REMOTE_CONTENT_UPLOAD_FILE']) {
+			if (!empty($input_file_names)) {
 				foreach ($_FILES as $name => $details) {
-					if (in_array($name, $input_file_names)) {
+					if (in_array($name, $input_file_names) && isset($_SESSION['SQ_REMOTE_CONTENT_UPLOAD_FILE'][$name])) {
 						$uniqid = uniqid();
 						$new_dir = SQ_TEMP_PATH.'/remote_content_'.$uniqid;
 						if(!mkdir($new_dir)) continue;
@@ -424,7 +424,7 @@ class Page_Remote_Content extends Page
 					}//end if
 				}//end for
 			}//end if
-			
+
 			// a workaround for curl's inability to handle empty post data
 			if (empty($post_data) && empty($files)) {
 				if ($post_is_encoded) {
@@ -467,13 +467,13 @@ class Page_Remote_Content extends Page
 		    }
 		}
 
-			
+
 		// save cookie content to session
 		if(is_file($cookie_filename)) {
 		    $_SESSION['SQ_REMOTE_CONTENT_COOKIE'][$this->id] =  file_get_contents($cookie_filename);
 		    unlink($cookie_filename);
 		}
-		
+
 		if ($result['errornumber'] != 0) {
 			trigger_localised_error('CMS0063', E_USER_WARNING, $url, $result['errorstring']);
 			return FALSE;
@@ -562,18 +562,18 @@ class Page_Remote_Content extends Page
 				$content = str_replace($matches[0][$key], $rep, $content);
 			}
 		}
-		
+
 		// Store the input file type's names if they exist
 		$this->_addInputFileNames($content);
 
 	}//end _transformContent()
 
-	
+
 	/*
 	 * Add the names of file inputs (<input type="file">) into the HTML content under an hidden field SQ_REMOTE_INPUT_FILE_NAMES
-	 * 
+	 *
 	 * @param string	&$content	The HTML content this remote content page will display
-	 * 
+	 *
 	 */
 	function _addInputFileNames(&$content) {
 		$pattern = '/<input\s+[^>]*type\s*=\s*(?:"|\')?file(?:"|\')?[^>]*>/i';
@@ -587,7 +587,7 @@ class Page_Remote_Content extends Page
 				}
 			}
 		}
-		$_SESSION['SQ_REMOTE_CONTENT_UPLOAD_FILE'] = FALSE;
+
 		if (!empty($file_names)) {
 			$serialized_names = serialize($file_names);
 			require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -597,9 +597,11 @@ class Page_Remote_Content extends Page
 			//put the hidden field right after the first input file type
 			$content = str_replace($matches[0][0], $matches[0][0].$hidden_field, $content);
 			// accept file upload
-			$_SESSION['SQ_REMOTE_CONTENT_UPLOAD_FILE'] = TRUE;
+			foreach ($file_names as $f_name) {
+				$_SESSION['SQ_REMOTE_CONTENT_UPLOAD_FILE'][$f_name] = TRUE;
+			}
 		}
-		
+
 	}//end _addInputFileNames()
 
 	/**
