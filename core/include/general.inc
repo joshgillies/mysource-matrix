@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.281.2.6 2013/06/21 04:57:34 ewang Exp $
+* $Id: general.inc,v 1.281.2.7 2013/07/11 06:39:52 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.281.2.6 $
+* @version $Revision: 1.281.2.7 $
 * @package MySource_Matrix
 */
 
@@ -1255,7 +1255,12 @@ function log_write($data, $logname=SQ_CONF_LOG_FILE_SYSTEM, $level=E_USER_NOTICE
 	}
 
 	// grab metadata
-	$current_user = $GLOBALS['SQ_SYSTEM']->user;
+	$current_user = null;
+	// If Matrix is in the middle of shutting down the SQ_SYSTEM global
+	// may not be around
+	if (isset($GLOBALS['SQ_SYSTEM'])) {
+		$current_user = $GLOBALS['SQ_SYSTEM']->user;
+	}
 	$userid = 0;
 	$username = '';
 
