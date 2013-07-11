@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_upcoming_events_list.inc,v 1.42 2013/07/10 03:41:40 cupreti Exp $
+* $Id: page_upcoming_events_list.inc,v 1.43 2013/07/11 00:37:38 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -389,8 +389,10 @@ class Page_Upcoming_Events_List extends Page
 						$value = $asset->getKeywordReplacement($keyword);
 					}
 
-					if ($full_keyword != $keyword) {
+					if ($value != '%'.$keyword.'%') {
 						apply_keyword_modifiers($value, $modifiers, Array('assetid' => $asset->id));
+					} else {
+						$value = '%'.$full_keyword.'%';
 					}
 					$replacements[$full_keyword] = $value;
 				}
@@ -415,7 +417,7 @@ class Page_Upcoming_Events_List extends Page
 					$value = '';
 					if (isset($metadata_values[$field_name])) {
 						$value = $metadata_values[$field_name];
-						if ($full_keyword != $keyword) {
+						if ($value != '%'.$keyword.'%') {
 							apply_keyword_modifiers($value, $modifiers, Array('assetid' => $asset->id));
 						}
 					}//end if
@@ -529,8 +531,10 @@ class Page_Upcoming_Events_List extends Page
 					}
 				}
 
-				if ($full_keyword != $keyword) {
+				if ($value != '%'.$keyword.'%') {
 					apply_keyword_modifiers($value, $modifiers, Array('assetid' => $id));
+				} else {
+					$value = '%'.$full_keyword.'%';
 				}
 				$replacements[$full_keyword] = $value;
 
@@ -556,9 +560,7 @@ class Page_Upcoming_Events_List extends Page
 					$value = '';
 					if (isset($metadata_values[$field_name])) {
 						$value = $metadata_values[$field_name];
-						if ($full_keyword != $keyword) {
-							apply_keyword_modifiers($value, $modifiers, Array('assetid' => $id));
-						}
+						apply_keyword_modifiers($value, $modifiers, Array('assetid' => $id));
 					}//end if
 					$replacements[$full_keyword] = $value;
 				}//end foreach
