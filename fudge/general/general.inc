@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.61 2013/05/10 11:07:00 cupreti Exp $
+* $Id: general.inc,v 1.61.2.1 2013/07/11 04:10:14 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.61.2.1 $
 * @package Fudge
 * @subpackage General
 */
@@ -1098,7 +1098,7 @@ function get_unique_token()
 	    return $_SESSION['SQ_SYSTEM_NONCE_SECURITY_TOKEN'];
 	}
 	
-	$prefix      = '';
+	$prefix      = rand();
 	$moreEntropy = TRUE;
 	$token       = sha1(uniqid($prefix, $moreEntropy));
 
