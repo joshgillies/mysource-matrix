@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_upcoming_events_list.inc,v 1.43 2013/07/11 00:37:38 cupreti Exp $
+* $Id: page_upcoming_events_list.inc,v 1.44 2013/07/11 00:42:55 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -417,9 +417,7 @@ class Page_Upcoming_Events_List extends Page
 					$value = '';
 					if (isset($metadata_values[$field_name])) {
 						$value = $metadata_values[$field_name];
-						if ($value != '%'.$keyword.'%') {
-							apply_keyword_modifiers($value, $modifiers, Array('assetid' => $asset->id));
-						}
+						apply_keyword_modifiers($value, $modifiers, Array('assetid' => $asset->id));
 					}//end if
 					$replacements[$full_keyword] = $value;
 				}//end foreach
