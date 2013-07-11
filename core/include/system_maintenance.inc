@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_maintenance.inc,v 1.4 2012/08/30 01:09:20 ewang Exp $
+* $Id: system_maintenance.inc,v 1.4.4.1 2013/07/11 07:00:16 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    useful for performance analysis and tuning.
 *
 * @author Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.4.1 $
 * @package MySource_Matrix
 */
 class System_Maintenance extends MySource_Object
@@ -39,6 +39,15 @@ class System_Maintenance extends MySource_Object
 	*/
 	public function paintBackend(&$backend)
 	{
+		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
+		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+
+		// if we dont have access, go away
+		if (!$is_admin) {
+			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset'));
+			exit();
+		}
+
 		$o =& $backend->out;
 
 		if (isset($_GET['report_type_code'])) {
