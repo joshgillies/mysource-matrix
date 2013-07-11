@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.76 2012/11/05 03:31:54 ewang Exp $
+* $Id: html_tidy.inc,v 1.76.2.1 2013/07/11 05:25:50 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 * @author	Greg Sherwood <greg@squiz.net>
 * @author	Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author	Scott Kim <skim@squiz.net>
-* @version $Revision: 1.76 $
+* @version $Revision: 1.76.2.1 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -160,7 +160,6 @@ class HTML_Tidy extends Wysiwyg_Plugin
 			$html = preg_replace('|<([\w]+)([^>]+?)class="?mso[^">]+"?([^>]+)?>|is', '<\\1>', $html);
 			$html = preg_replace('|<([\w]+)([^>]+?)style="([^"]+)?mso([^"]+)?"([^>]+)?>|is', '<\\1>', $html);
 			$html = preg_replace('|<\/?\w+:[^>]*>|is', '', $html);
-			$html = preg_replace('|<font[^>]+>(.+?)</font>|is', '\\1', $html);
 			$html = preg_replace('|<span([^>]+?)lang=[^\s]+([^>]+?)xml:lang="[^\s]+">(.+?)</span>|is', '\\3', $html);
 			$html = preg_replace('|<\?xml[^>]+microsoft[^>]+\?>|is', '', $html);
 			$html = preg_replace('|<\/?\w+:[^>]*>|is', '', $html);
@@ -227,12 +226,12 @@ class HTML_Tidy extends Wysiwyg_Plugin
 					1 => Array("file", $output_file, "w"),  // file that the child will write to
 					2 => Array("file", $error_file, "w"),  // stderr is a file to write to
 				);
-				
+
 				$process = proc_open("$path_to_tidy $args ", $descriptorspec, $pipes);
-				
+
 				if (is_resource($process)) {
 					$return = proc_close($process);
-				
+
 					$tidy = file_get_contents($output_file);
 					$error = file_get_contents($error_file);
 				}
@@ -253,11 +252,11 @@ class HTML_Tidy extends Wysiwyg_Plugin
 				}
 
 				$this->htmltidy_errors = trim($error);
-				
+
 				// A return of 2 from tidy indicates there were fatal errors.
 				// (0 = no messages; 1 = only warnings, which we allow)
 				if (($return >= 2) || empty($tidy) || empty($tidy_char_set)) {
-					$this->htmltidy_status = 'fail';					
+					$this->htmltidy_status = 'fail';
 				} else {
 					// Only now we update the HTML
 					$html = $tidy;
