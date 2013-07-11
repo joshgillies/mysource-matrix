@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.81 2013/07/08 07:00:24 cupreti Exp $
+* $Id: text.inc,v 1.82 2013/07/11 05:34:42 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.81 $
+* @version $Revision: 1.82 $
 * @package Fudge
 * @subpackage Text
 */
@@ -199,7 +199,7 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array())
 				} else if (strpos($keyword, 'globals_') === 0) {
 					$global_keyword = '%'.$keyword.'%';
 					replace_global_keywords($global_keyword);
-					if (strpos($global_keyword, '%') !== 0) {
+					if ($global_keyword != '%'.$keyword.'%') {
 						$replacements[$keyword] = $global_keyword;
 					}
 				} else if (!empty($assetid)){
