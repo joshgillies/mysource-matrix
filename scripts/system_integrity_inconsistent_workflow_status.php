@@ -10,7 +10,7 @@
  * | you a copy.                                                        |
  * +--------------------------------------------------------------------+
  *
- * $Id: system_integrity_inconsistent_workflow_status.php,v 1.2 2013/07/04 05:18:44 cupreti Exp $
+ * $Id: system_integrity_inconsistent_workflow_status.php,v 1.3 2013/07/12 03:36:06 akarelia Exp $
  */
 
 /**
@@ -28,7 +28,7 @@
  *
  *
  * @author  Edison Wang <ewang@squiz.com.au>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  * @package MySource_Matrix
  */
 
@@ -55,8 +55,8 @@ if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');
 $toFix = getCLIArg('fix');
 $toEmail = getCLIArg('email');
 
-// asset is Live, Safe Editting, Approved To Go Live, Under Construction but it has running workflow by mistake.
-$sql = 'SELECT a.assetid, a.status FROM sq_ast_wflow w, sq_ast a WHERE a.assetid = w.assetid AND w.wflow is not null and a.status in (2, 8, 16, 64)';
+// asset is Live, Safe Editting, Approved To Go Live, Under Construction, Safe Edit Approved to Go Live but it has running workflow by mistake.
+$sql = 'SELECT a.assetid, a.status FROM sq_ast_wflow w, sq_ast a WHERE a.assetid = w.assetid AND w.wflow is not null and a.status in (2, 8, 16, 64, 256)';
 try {
     $query = MatrixDAL::preparePdoQuery($sql);
     $assets_should_not_have_workflow = MatrixDAL::executePdoAssoc($query);
