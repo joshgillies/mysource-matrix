@@ -10,7 +10,7 @@
  * | you a copy.                                                        |
  * +--------------------------------------------------------------------+
  *
- * $Id: system_integrity_inconsistent_workflow_status.php,v 1.1.2.4 2013/07/12 03:36:50 akarelia Exp $
+ * $Id: system_integrity_inconsistent_workflow_status.php,v 1.1.2.5 2013/07/12 06:13:46 cupreti Exp $
  */
 
 /**
@@ -28,7 +28,7 @@
  *
  *
  * @author  Edison Wang <ewang@squiz.com.au>
- * @version $Revision: 1.1.2.4 $
+ * @version $Revision: 1.1.2.5 $
  * @package MySource_Matrix
  */
 
@@ -56,7 +56,8 @@ $toFix = getCLIArg('fix');
 $toEmail = getCLIArg('email');
 
 // asset is Live, Safe Editting, Approved To Go Live, Under Construction, Safe Edit Approved to Go Live but it has running workflow by mistake.
-$sql = 'SELECT a.assetid, a.status FROM sq_ast_wflow w, sq_ast a WHERE a.assetid = w.assetid AND w.wflow is not null and a.status in (2, 8, 16, 64, 256)';
+$where  = MatrixDAL::getDbType() === 'oci'  ? ' AND DBMS_LOB.GETLENGTH(w.wflow) > 0' : ' AND w.wflow IS NOT NULL';
+$sql = 'SELECT a.assetid, a.status FROM sq_ast_wflow w, sq_ast a WHERE a.assetid = w.assetid AND a.status IN (2, 8, 16, 64, 256)'.$where;
 try {
     $query = MatrixDAL::preparePdoQuery($sql);
     $assets_should_not_have_workflow = MatrixDAL::executePdoAssoc($query);
@@ -67,7 +68,8 @@ try {
     
     
  // asset is Pending Approval but it does't have running workflow by mistake.
-$sql = 'SELECT a.assetid, a.status FROM sq_ast a LEFT JOIN sq_ast_wflow w ON a.assetid = w.assetid WHERE w.wflow is null and a.status in (4)';
+$where  = MatrixDAL::getDbType() === 'oci'  ? ' AND (w.wflow IS NULL OR DBMS_LOB.GETLENGTH(w.wflow) = 0)' : ' AND w.wflow IS NULL';
+$sql = 'SELECT a.assetid, a.status FROM sq_ast a LEFT JOIN sq_ast_wflow w ON a.assetid = w.assetid WHERE a.status IN (4)'.$where;
 try {
     $query = MatrixDAL::preparePdoQuery($sql);
     $assets_should_have_workflow = MatrixDAL::executePdoAssoc($query);
@@ -109,7 +111,13 @@ if($toFix) {
 	$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 	if (!empty($workflows_to_update)) {
-	    $sql ='UPDATE sq_ast_wflow SET wflow = null WHERE assetid IN ('.implode(',', $workflows_to_update).')';
+		// Break up the assets into chunks of 1000 so that oracle does not complain
+		$in_clauses = Array();
+		foreach(array_chunk($workflows_to_update, 999) as $chunk) {
+			$in_clauses[] = ' assetid IN ('.implode(', ', $chunk).')';
+		}
+		$where = '('.implode(' OR ', $in_clauses).')';
+	    $sql ='UPDATE sq_ast_wflow SET wflow = null WHERE '.$where;
     	$query = MatrixDAL::preparePdoQuery($sql);
 	    $result = MatrixDAL::execPdoQuery($query);	
     	if($result) {
@@ -118,7 +126,13 @@ if($toFix) {
 	}
 
 	if (!empty($assets_to_update)) {
-	    $sql ='UPDATE sq_ast SET status = 2 WHERE assetid IN ('.implode(',', $assets_to_update).')';
+		// Break up the assets into chunks of 1000 so that oracle does not complain
+		$in_clauses = Array();
+		foreach(array_chunk($assets_to_update, 999) as $chunk) {
+			$in_clauses[] = ' assetid IN ('.implode(', ', $chunk).')';
+		}
+		$where = '('.implode(' OR ', $in_clauses).')';
+	    $sql ='UPDATE sq_ast SET status = 2 WHERE '.$where;
     	$query = MatrixDAL::preparePdoQuery($sql);
 	    $result = MatrixDAL::execPdoQuery($query);	
     	if($result) {
@@ -187,4 +201,3 @@ function print_usage()
 
 
 ?>
-
