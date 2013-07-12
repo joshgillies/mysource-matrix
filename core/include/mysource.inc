@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.400.2.5 2013/06/19 02:05:32 ewang Exp $
+* $Id: mysource.inc,v 1.400.2.6 2013/07/12 05:46:30 ewang Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.400.2.5 $
+* @version $Revision: 1.400.2.6 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -3070,7 +3070,7 @@ class MySource extends MySource_Object
 									$item_bits[1] = 'q=1.0';
 								}
 								list($header_language, $header_q_value) = $item_bits;
-								$header_language = trim($header_language);
+								$header_language = strtolower(trim($header_language));
 								$header_q_value = (float)str_replace('q=', '', trim($header_q_value));
 
 								// ??? List of Matrix's languages only handle language and not locale
