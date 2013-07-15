@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.239 2013/03/18 05:28:14 ewang Exp $
+* $Id: metadata_manager.inc,v 1.240 2013/07/15 04:03:23 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *	 Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.239 $
+* @version $Revision: 1.240 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -778,6 +778,7 @@ class Metadata_Manager extends MySource_Object
 		if ($contextid === NULL) {
 			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 		}
+		$contextid = (Int) $contextid;
 		
 		if ($contextid === 0) {
 			$metadata_basename = 'metadata.php';
@@ -1136,7 +1137,8 @@ class Metadata_Manager extends MySource_Object
 		if ($contextid === NULL) {
 			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 		}
-
+		$contextid = (Int) $contextid;
+		
 		if ($contextid === 0) {
 			$metadata_filename = 'metadata.php';
 		} else {
@@ -2063,7 +2065,8 @@ class Metadata_Manager extends MySource_Object
 		if ($contextid === NULL) {
 			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 		}
-
+		$contextid = (Int) $contextid;
+		
 		if ($contextid === 0) {
 			$metadata_basename = 'metadata.php';
 		} else {

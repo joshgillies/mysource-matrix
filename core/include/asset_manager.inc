@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.908 2013/07/08 04:03:05 ewang Exp $
+* $Id: asset_manager.inc,v 1.909 2013/07/15 04:03:23 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.908 $
+* @version $Revision: 1.909 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -330,8 +330,8 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getTypeInfo($type_code, $field='')
 	{
-		$field = trim($field);
-
+		$field = preg_replace('/[^a-zA-Z_0-9]+/', '', trim($field));
+		
 		// if the file does not exist, then we must be installing so get the info from the database
 		if (!is_file(SQ_DATA_PATH.'/private/db/asset_types.inc')) {
 
@@ -878,6 +878,9 @@ class Asset_Manager extends MySource_Object
 	function getAssetTypeAttributes($type_code, $details=Array('name', 'type'))
 	{
 		if (!is_string($type_code)) return Array();
+		foreach ($details as $index => $detail) {
+		    $details[$index] = preg_replace('/[^a-zA-Z_0-9]+/', '', trim($detail));
+		}
 
 		$db = MatrixDAL::getDb();
 		require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
@@ -3737,9 +3740,14 @@ class Asset_Manager extends MySource_Object
 		$db = MatrixDAL::getDb();
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
+
 		if (is_array($fields)) {
+		    	foreach ($fields as $index => $field) {
+			    $fields[$index] = preg_replace('/[^a-zA-Z_0-9]+/', '', trim($field));
+			}
 			$fields_str = 'a.'.implode(', a.', $fields);
 		} else {
+			$fields = preg_replace('/[^a-zA-Z_0-9]+/', '', trim($fields));
 			$fields_str = 'a.'.$fields;
 		}
 
@@ -9179,7 +9187,7 @@ class Asset_Manager extends MySource_Object
 		$group_by = '';
 		$having = '';
 		if (!is_null($access)) {
-			$access = (String)$access;
+			$access = (Int)$access;
 			$userid_cond = '';
 			$group_by = 'GROUP BY l.linkid, l.'.$side_of_link.'id, l.'.$other_side.'id, l.value, l.link_type,
 								  l.type_code, l.sort_order, l.is_dependant, l.is_exclusive, l.locked';

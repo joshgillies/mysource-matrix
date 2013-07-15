@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.145 2013/07/05 01:39:17 hlliauw Exp $
+* $Id: js_api.inc,v 1.146 2013/07/15 04:02:48 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.145 $
+* @version $Revision: 1.146 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -737,7 +737,7 @@ class JS_Api extends Page
 										($links['lock'][$i] != '' && $links['lock'][$i] != 'undefined') ? $links['lock'][$i] : TRUE
 									);
 			} else {
-				$data[$i] = 'Not enough permission to update link between Asset "'.$child_asset->name.'" (#'.$child_asset->id.') and for Asset "'.$parent_asset->name.'" (#'.$parent_asset->id.')';
+				$data[$i] = 'Not enough permission to update link between Asset (#'.$child_asset->id.') and Asset (#'.$parent_asset->id.')';
 			}
 		}
 
@@ -814,7 +814,7 @@ class JS_Api extends Page
 
 				$data[$i] = $this->removeLink($parent_asset->id, $child_asset->id, $link_type, $link_value);
 			} else {
-				$data[$i] = 'Not enough permission to remove link between Asset "'.$child_asset->name.'" (#'.$child_asset->id.') and for Asset "'.$parent_asset->name.'" (#'.$parent_asset->id.')';
+				$data[$i] = 'Not enough permission to remove link between Asset (#'.$child_asset->id.') and Asset (#'.$parent_asset->id.')';
 			}
 		}
 
@@ -3407,7 +3407,7 @@ class JS_Api extends Page
 				}
 
 				if ($already_in_trash) {
-					$response[] = 'Asset "'.$asset->name.'" (#'.$asset->id.') is already in the trash';
+					$response[] = 'Asset (#'.$asset->id.') is already in the trash';
 				} else if ($locked && $asset->writeAccess()){
 					// few or all the links are locked so lets go through each one of them and try to delete the links
 					foreach ($parents as $parentid => $parent_link_info) {
@@ -3440,7 +3440,7 @@ class JS_Api extends Page
 					}
 					$am->releaseLock($id, 'all');
 				} else {
-					$response[] = 'Not enough permision to delete Asset "'.$asset->name.'" (#'.$asset->id.')';
+					$response[] = 'Not enough permission to delete Asset (#'.$asset->id.')';
 				}
 
 			}
