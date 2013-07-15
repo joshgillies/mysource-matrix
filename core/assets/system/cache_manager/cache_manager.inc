@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.97 2012/10/16 22:38:56 ewang Exp $
+* $Id: cache_manager.inc,v 1.97.2.1 2013/07/15 05:09:34 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.97 $
+* @version $Revision: 1.97.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -580,19 +580,20 @@ class Cache_Manager extends Asset
 			return FALSE;
 		}
 		
+		// if it's non-public user and we should only send to public user on current URL, do not send header
+		$is_public = $GLOBALS['SQ_SYSTEM']->user instanceof Public_User;
+		if (!$is_public && !in_array($current_root_url, $this->attr('user_cacheable_header_urls'))) {
+			return FALSE;
+		}
+		
 		// check type code and root node specific settings
 		// these take priority over the global setting
 		$specific = $this->_specificCacheManagementSettings($type_code, $assetid, 'send_cacheable_header');
 		if ($specific !== FALSE) {
 			return $specific;
 		}
-		
-		$is_public = $GLOBALS['SQ_SYSTEM']->user instanceof Public_User;
-		if (!$is_public && in_array($current_root_url, $this->attr('user_cacheable_header_urls'))) {
-			return TRUE;
-		}
 
-		return $is_public && SQ_CONF_SEND_CACHEABLE_HEADER;
+		return SQ_CONF_SEND_CACHEABLE_HEADER;
 
 	}//end sendCacheableHeaders()
 
