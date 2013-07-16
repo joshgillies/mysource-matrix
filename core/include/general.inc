@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.286.4.4 2013/07/11 06:39:03 ewang Exp $
+* $Id: general.inc,v 1.286.4.5 2013/07/16 04:33:38 cupreti Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.286.4.4 $
+* @version $Revision: 1.286.4.5 $
 * @package MySource_Matrix
 */
 
@@ -1939,11 +1939,11 @@ function replace_global_keywords(&$text)
 					}
 					if (0 === strpos($keyword, 'globals_session_')) {
 						$sub_keyword = substr($keyword, 16);
-						$replacements[$full_keyword] = clean_keyword_value(isset($_SESSION[SQ_SESSION_SANDBOX_INDEX][$sub_keyword]) ? $_SESSION[SQ_SESSION_SANDBOX_INDEX][$sub_keyword] : '');
+						$replacements[$full_keyword] = clean_keyword_value(isset($_SESSION[SQ_SESSION_SANDBOX_INDEX][$sub_keyword]) ? $_SESSION[SQ_SESSION_SANDBOX_INDEX][$sub_keyword] : '', TRUE);
 					}
 					if ((0 === strpos($keyword, 'globals_cookie_')) && (0 !== strpos($keyword, 'globals_cookie_SQ_'))) {
 						$sub_keyword = substr($keyword, 15);
-						$replacements[$full_keyword] = clean_keyword_value(array_get_index($_COOKIE, $sub_keyword, ''));
+						$replacements[$full_keyword] = clean_keyword_value(array_get_index($_COOKIE, $sub_keyword, ''), TRUE);
 					}
 					if (0 === strpos($keyword, 'globals_server_')) {
 						$sub_keyword = strtoupper(substr($keyword, 15));
@@ -2286,20 +2286,18 @@ function extract_context_modifier(&$modifiers, $return_part='id')
 * If the given value is not a scalar it will return an empty string
 *
 * @param string		$keyword_value	The value of keyword
+* @param boolean	$allow_quotes	Whether to encode the quotes
 *
 * @return string
 * @access public
 */
-function clean_keyword_value($keyword_value)
+function clean_keyword_value($keyword_value, $allow_quotes=FALSE)
 {
 	if (!is_scalar($keyword_value)) {
 		// Only scalars are accepted
 		$keyword_value = '';
 	} else {
-		// whitelist of characters that will not be stripped out,
-		// for some security
-		$safe_list = 'A-Za-z0-9\.\-\_\%\$\#, :\/';
-		$keyword_value = preg_replace('/[^'.$safe_list.']+/', '', (string)$keyword_value);
+		$keyword_value = htmlspecialchars($keyword_value, $allow_quotes ? ENT_NOQUOTES : ENT_QUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
 	}
 
 	return $keyword_value;
