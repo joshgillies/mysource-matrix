@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: core.js,v 1.44 2013/02/08 05:52:52 ewang Exp $
+* $Id: core.js,v 1.44.2.1 2013/07/16 02:06:14 lwright Exp $
 *
 */
 
@@ -135,6 +135,7 @@ HTMLArea.prototype.generate = function () {
 			}
 		   
 		}
+
 		html += "<style> body { " + editor.config.bodyStyle + " }\n";
 		html += ".wysiwyg-noborders { border: 1px dashed #3366CC; }\n";
 		html += "</style>\n";
@@ -197,7 +198,7 @@ HTMLArea.prototype.generate = function () {
 				 return editor._editorEvent(event);
 			 });
 		editor._docContent = contentDiv;
-		editor._doc = editor._docContent.document;
+		editor._doc = editor._docContent.document || editor._docContent.ownerDocument;;
 		editor.updateToolbar();
 		editor.focusEditor();
 		editor._initialised = true;

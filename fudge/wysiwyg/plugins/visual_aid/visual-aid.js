@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: visual-aid.js,v 1.10 2012/08/30 00:56:53 ewang Exp $
+* $Id: visual-aid.js,v 1.10.6.1 2013/07/16 02:06:14 lwright Exp $
 *
 */
 
@@ -90,7 +90,7 @@ visual_aid_span = function(element)
 				element.innerHTML = element.innerHTML.replace(/<span id="wysiwyg-visual-aid-plugin-lang".*<\/span>/g, '');
 				element.style.backgroundColor = "";
 			} else if (HTMLArea.is_ie) {
-				var e = '<span ([^>]*)id=wysiwyg-visual-aid-plugin-lang.*<\/span>';
+				var e = '<span ([^>]*)id="?wysiwyg-visual-aid-plugin-lang"?.*<\/span>';
 				var re = new RegExp(e, "ig");
 				var new_html = element.innerHTML.replace(re, '');
 				element.innerHTML = new_html;
@@ -136,7 +136,7 @@ visual_aid_a = function(element)
 			}
 		} else if (HTMLArea.is_ie) {
 			if (href_attr == "" && name_attr != "") {
-				var e = '<span ([^>]*)id=wysiwyg-visual-aid-plugin-anchor.*<\/span>';
+				var e = '<span ([^>]*)id="?wysiwyg-visual-aid-plugin-anchor"?.*<\/span>';
 				var re = new RegExp(e, "ig");
 				var new_html = element.innerHTML.replace(re, '');
 				element.innerHTML = new_html;
@@ -183,7 +183,7 @@ visual_aid_th = function(element)
 		if (HTMLArea.is_gecko) {
 			element.innerHTML = element.innerHTML.replace(/<img id="wysiwyg-visual-aid-plugin-th"([^>]*)>(&nbsp;| )/g, '');
 		} else if (HTMLArea.is_ie) {
-			var e = '<img ([^>]*)id=wysiwyg-visual-aid-plugin-th.*>&nbsp;';
+			var e = '<img ([^>]*)id="?wysiwyg-visual-aid-plugin-th"?.*>&nbsp;';
 			var re = new RegExp(e, "ig");
 			var new_html = element.innerHTML.replace(re, '');
 			element.innerHTML = new_html;
@@ -214,7 +214,7 @@ visual_aid_td = function(element)
 		if (HTMLArea.is_gecko) {
 			element.innerHTML = element.innerHTML.replace(/<img id="wysiwyg-visual-aid-plugin-td"([^>]*)>(&nbsp;| )/g, '');
 		} else if (HTMLArea.is_ie) {
-			var e = '<img ([^>]*)id=wysiwyg-visual-aid-plugin-td.*>&nbsp;';
+			var e = '<img ([^>]*)id="?wysiwyg-visual-aid-plugin-td"?.*>&nbsp;';
 			var re = new RegExp(e, "ig");
 			var new_html = element.innerHTML.replace(re, '');
 			element.innerHTML = new_html;
@@ -245,7 +245,7 @@ visual_aid_p = function(element, editor)
 		if (HTMLArea.is_gecko) {
 			element.innerHTML = element.innerHTML.replace(/<img id="wysiwyg-visual-aid-plugin-p"([^>]*)>(&nbsp;| )/g, '');
 		} else if (HTMLArea.is_ie) {
-			var e = '<img ([^>]*)id=wysiwyg-visual-aid-plugin-p.*>&nbsp;';
+			var e = '<img ([^>]*)id="?wysiwyg-visual-aid-plugin-p"?.*>&nbsp;';
 			var re = new RegExp(e, "ig");
 			var new_html = element.innerHTML.replace(re, '');
 			element.innerHTML = new_html;

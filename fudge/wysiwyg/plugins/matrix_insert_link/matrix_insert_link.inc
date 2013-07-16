@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_link.inc,v 1.55 2013/01/29 06:37:00 ewang Exp $
+* $Id: matrix_insert_link.inc,v 1.55.4.1 2013/07/16 02:06:14 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *     a link in the editable document using an asset from MySoure Matrix
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.55.4.1 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -340,7 +340,7 @@ class matrix_insert_link extends wysiwyg_plugin
 				if (this._inPopup == true) { in_popup = '1'; }
 
 				editor_<?php echo $this->wysiwyg->name?>._object = this;
-				var strPage = "<?php echo $this->get_popup_href('insert_link_frames.php')?>?assetid=" + escape(currArgs["assetid"]) + "&url=" + escape(currArgs["url"]) + "&status_text=" + escape(currArgs["status_text"]) + "&link_title=" + escape(currArgs["link_title"])+ "&target=" + escape(currArgs["target"]) +  "&new_window=" + escape(currArgs["new_window"]) + "&new_window_options=" + escape(var_serialise(currArgs["new_window_options"])) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + escape(in_popup) + "&class_name=" + escape(currArgs["class_name"]) + "&id_name=" + escape(currArgs["id_name"]);;
+				var strPage = "<?php echo $this->get_popup_href('insert_link_frames.php')?>?assetid=" + encodeURIComponent(currArgs["assetid"]) + "&url=" + encodeURIComponent(currArgs["url"]) + "&status_text=" + encodeURIComponent(currArgs["status_text"]) + "&link_title=" + encodeURIComponent(currArgs["link_title"])+ "&target=" + encodeURIComponent(currArgs["target"]) + "&new_window=" + encodeURIComponent(currArgs["new_window"]) + "&new_window_options=" + encodeURIComponent(var_serialise(currArgs["new_window_options"])) + "&editor_name=" + encodeURIComponent("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + encodeURIComponent(in_popup) + "&class_name=" + encodeURIComponent(currArgs["class_name"]) + "&id_name=" + encodeURIComponent(currArgs["id_name"]);
 
 				var popup_height = 465;
 
@@ -473,8 +473,6 @@ class matrix_insert_link extends wysiwyg_plugin
 								html += '>' + inside_html + '</a>';
 							}
 								
-							html = editor.make_absolute_urls(html);
-		
 							// replace with new URL
 							editor.insertHTML(html, range);
 						}

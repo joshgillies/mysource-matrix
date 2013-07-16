@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_embed_movie.inc,v 1.31 2012/08/30 00:56:52 ewang Exp $
+* $Id: matrix_embed_movie.inc,v 1.31.6.1 2013/07/16 02:06:14 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     in the editable document using a file asset from MySoure Matrix
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.31.6.1 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -169,7 +169,6 @@ class matrix_embed_movie extends wysiwyg_plugin
 					html += ' show_controls="' + param["f_show_controls"] + '"';
 					html += ' embed_loop="'    + param["f_embed_loop"] + '"';
 					html += '>';
-					html = editor.make_absolute_urls(html);
 
 					if (!is_file || HTMLArea.is_gecko) {
 						// replace text with new image
