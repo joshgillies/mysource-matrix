@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.787.2.1 2013/06/04 21:41:04 lwright Exp $
+* $Id: asset.inc,v 1.787.2.2 2013/07/16 00:51:17 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.787.2.1 $
+* @version $Revision: 1.787.2.2 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4225,6 +4225,9 @@ class Asset extends MySource_Object
 				}
 			$replacement = ob_get_clean();
 
+		} else if (strpos($keyword, 'asset_ds_csv') !== FALSE) {
+			$row_col = explode('-', str_replace('asset_ds_csv_', '', $keyword));
+			$replacement = $this->getDsCsvKeywordReplacement($keyword, $row_col);
 		} else {
 			$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 			$mm_keyword = $mm->generateKeywordReplacements($this, Array($keyword), FALSE);

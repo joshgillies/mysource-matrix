@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.286.2.2 2013/06/12 23:19:21 lwright Exp $
+* $Id: general.inc,v 1.286.2.3 2013/07/16 00:51:18 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.286.2.2 $
+* @version $Revision: 1.286.2.3 $
 * @package MySource_Matrix
 */
 
@@ -1255,7 +1255,12 @@ function log_write($data, $logname=SQ_CONF_LOG_FILE_SYSTEM, $level=E_USER_NOTICE
 	}
 
 	// grab metadata
-	$current_user = $GLOBALS['SQ_SYSTEM']->user;
+	$current_user = null;
+	// If Matrix is in the middle of shutting down the SQ_SYSTEM global
+	// may not be around
+	if (isset($GLOBALS['SQ_SYSTEM'])) {
+		$current_user = $GLOBALS['SQ_SYSTEM']->user;
+	}
 	$userid = 0;
 	$username = '';
 
@@ -1887,6 +1892,7 @@ function get_available_global_keywords()
 					'globals_cookie_'	=> 'Global Keywords - Cookie',
 					'globals_server_'	=> 'Global Keywords - Server',
 					'globals_date'		=> 'Global Keywords - Current Date and Time',
+					'globals_date_relative_'	=> 'Gloabl Keywords - Relative Date and Time',
 					'globals_site_'		=> 'Global Keywords - Current Site',
 					'globals_asset_'	=> 'Global Keywords - Front End Asset',
 					'globals_snippet_'	=> 'Global Keywords - Snippet',
@@ -1943,11 +1949,11 @@ function replace_global_keywords(&$text)
 					}
 					if (0 === strpos($keyword, 'globals_session_')) {
 						$sub_keyword = substr($keyword, 16);
-						$replacements[$full_keyword] = clean_keyword_value(isset($_SESSION[SQ_SESSION_SANDBOX_INDEX][$sub_keyword]) ? $_SESSION[SQ_SESSION_SANDBOX_INDEX][$sub_keyword] : '');
+						$replacements[$full_keyword] = clean_keyword_value(isset($_SESSION[SQ_SESSION_SANDBOX_INDEX][$sub_keyword]) ? $_SESSION[SQ_SESSION_SANDBOX_INDEX][$sub_keyword] : '', TRUE);
 					}
 					if ((0 === strpos($keyword, 'globals_cookie_')) && (0 !== strpos($keyword, 'globals_cookie_SQ_'))) {
 						$sub_keyword = substr($keyword, 15);
-						$replacements[$full_keyword] = clean_keyword_value(array_get_index($_COOKIE, $sub_keyword, ''));
+						$replacements[$full_keyword] = clean_keyword_value(array_get_index($_COOKIE, $sub_keyword, ''), TRUE);
 					}
 					if (0 === strpos($keyword, 'globals_server_')) {
 						$sub_keyword = strtoupper(substr($keyword, 15));
@@ -1960,14 +1966,34 @@ function replace_global_keywords(&$text)
 					}
 					if (0 === strpos($keyword, 'globals_date')) {
 						require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-						$date_keyword = readable_datetime();
-						$formatting = substr($keyword, 12);
-						$format = ltrim($formatting, '_');
-						if ($format == 'readable') {
-							$date_keyword = readable_datetime();
+						$date_keyword = '';
+						if (0 === strpos($keyword, 'globals_date_relative_')) {
+							$sub_keyword = substr($keyword, 22);
+							$argv =  explode("_", $sub_keyword);
+							$occurance_type = array_get_index($argv, 0, '');
+							$day_of_next = array_get_index($argv, 1, '');
+							if (!empty($occurance_type) && !empty($day_of_next)) {
+								$date_keyword = readable_datetime(strtotime($occurance_type." ".$day_of_next));
+								if (isset($argv[2])) {
+									if ($argv[2] == 'readable') {
+										$date_keyword = readable_datetime(strtotime($occurance_type." ".$day_of_next));
+									} else {
+										if (!empty($argv[2])) {
+											$date_keyword = date($argv[2], strtotime($occurance_type." ".$day_of_next));
+										}//end if
+									}//end if
+								}//end if
+							}//end if
 						} else {
-							if (!empty($format)) {
-								$date_keyword = date($format);
+							$date_keyword = readable_datetime();
+							$formatting = substr($keyword, 12);
+							$format = ltrim($formatting, '_');
+							if ($format == 'readable') {
+								$date_keyword = readable_datetime();
+							} else {
+								if (!empty($format)) {
+									$date_keyword = date($format);
+								}//end if
 							}//end if
 						}//end if
 						$replacements[$full_keyword] = $date_keyword;
@@ -2187,7 +2213,6 @@ function replace_global_keywords(&$text)
 								$context_name = $all_contexts[$contextid]['name'];
 							}
 						}
-						
 						$replacements[$full_keyword] = $context_name;
 					}//end if
 
@@ -2271,20 +2296,18 @@ function extract_context_modifier(&$modifiers, $return_part='id')
 * If the given value is not a scalar it will return an empty string
 *
 * @param string		$keyword_value	The value of keyword
+* @param boolean	$allow_quotes	Whether to encode the quotes
 *
 * @return string
 * @access public
 */
-function clean_keyword_value($keyword_value)
+function clean_keyword_value($keyword_value, $allow_quotes=FALSE)
 {
 	if (!is_scalar($keyword_value)) {
 		// Only scalars are accepted
 		$keyword_value = '';
 	} else {
-		// whitelist of characters that will not be stripped out,
-		// for some security
-		$safe_list = 'A-Za-z0-9\.\-\_\%\$\#, ';
-		$keyword_value = preg_replace('/[^'.$safe_list.']+/', '', (string)$keyword_value);
+		$keyword_value = htmlspecialchars($keyword_value, $allow_quotes ? ENT_NOQUOTES : ENT_QUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
 	}
 
 	return $keyword_value;

@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.76 2013/07/10 02:44:04 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.77 2013/07/16 00:51:18 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.76 $
+ * @version $Revision: 1.1.2.77 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -803,8 +803,10 @@ var JS_Asset_Map = new function() {
                                 // dfx.getElementsBetween is a one-way function. Take
                                 // the direction that yields a result.
                                 var between = dfx.getElementsBetween(lastSelection, assetTarget);
+                                console.info(between);
                                 if (between.length === 0) {
                                     between = dfx.getElementsBetween(assetTarget, lastSelection);
+                                    console.info(between);
                                 }
                                 between.push(assetTarget);
                                 for (var i = 0; i < between.length; i++) {
@@ -1836,6 +1838,41 @@ var JS_Asset_Map = new function() {
         tbButton.setAttribute('title', js_translate('asset_map_tooltip_toggle_status'));
         tbButtons.appendChild(tbButton);
     };
+
+
+    /**
+     * Draw a pagination tool.
+     *
+     * @param {String} direction     Direction of pagination ("up" or "down").
+     * @param {Number} offset        Offset number of assets to start from.
+     * @param {Number} [totalAssets] Total number of assets. Omit or "-1" for bridges.
+     *
+     * @returns {Node}
+     */
+    this.drawPaginationTool = function(direction, offset, totalAssets) {
+        var pageDiv = _createEl('div');
+        pageDiv.id  = 'asset_map_pagination_tool';
+
+        if (direction === 'up') {
+            var tb1Button = _createEl('div');
+            dfx.addClass(tb1Button, 'page-button previous-page');
+
+            var tb2Button = _createEl('div');
+            dfx.addClass(tb2Button, 'page-button first-page');
+        } else {
+            var tb1Button = _createEl('div');
+            dfx.addClass(tb1Button, 'page-button next-page');
+
+            var tb2Button = _createEl('div');
+            dfx.addClass(tb2Button, 'page-button last-page');
+        }
+
+        pageDiv.appendChild(tb1Button);
+        pageDiv.appendChild(tb2Button);
+
+        return pageDiv;
+    }
+
 
     /**
      * Draw the list of possible statuses and their colours.

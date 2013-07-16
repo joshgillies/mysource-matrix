@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: locking_method_memcache.inc,v 1.6 2013/03/25 03:20:39 csmith Exp $
+* $Id: locking_method_memcache.inc,v 1.6.2.1 2013/07/16 00:51:17 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/locking/locking_method/locking_method
 *
 *
 * @author		Luke Wright <lwright@squiz.net>
-* @version		$Revision: 1.6 $
+* @version		$Revision: 1.6.2.1 $
 * @package		MySource_Matrix_Packages
 * @subpackage	__core__
 */
@@ -120,6 +120,8 @@ class Locking_Method_Memcache extends Locking_Method
 
 		// if we have no source, we are the asset aquiring the locks
 		if (empty($source_lockid)) $source_lockid = $lockid;
+
+		$current_time = time();
 
 		if (!is_null($expires)) {
 			$expires = (empty($expires)) ? ($current_time + SQ_CONF_LOCK_LENGTH) : (int) $expires;

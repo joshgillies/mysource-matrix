@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.183 2013/03/12 00:00:27 cupreti Exp $
+* $Id: workflow_manager.inc,v 1.183.2.1 2013/07/16 00:51:18 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.183 $
+* @version $Revision: 1.183.2.1 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -1511,10 +1511,15 @@ class Workflow_Manager extends MySource_Object
 							$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($assetid, $publisher->id, NULL, FALSE, $fetch_global_roles, TRUE);
 							foreach ($roles as $roleid => $userids) {
 								foreach ($userids as $userid) {
-									$can_publish[] = $userid;
-								}
-							}
-						}
+									$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), Array(), FALSE, 'type_code');
+									if ($GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($info[$userid], 'user_group')) {
+										$can_publish = array_merge($can_publish, array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($userid, Array('user'), FALSE, NULL, NULL, NULL, TRUE, NULL, NULL, FALSE, NULL, Array(), TRUE)));
+									} else {
+										$can_publish[] = $userid;
+									}
+								}//end foreach
+							}//end foreach
+						}//end if
 					} else if ($am->isTypeDecendant($asset_class, 'user_group')) {
 						$can_publish = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($publisher->id, Array('user'), FALSE, NULL, NULL, NULL, TRUE, NULL, NULL, FALSE, NULL, Array(), TRUE));
 					}

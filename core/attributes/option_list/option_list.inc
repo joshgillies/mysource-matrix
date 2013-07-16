@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: option_list.inc,v 1.43 2012/08/30 01:09:17 ewang Exp $
+* $Id: option_list.inc,v 1.43.6.1 2013/07/16 00:51:17 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ define('SQ_OPTION_LIST_DELIMITER_MAC', "\n");
 *    <option_list />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.43.6.1 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -267,17 +267,22 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 	*
 	* @param string		$prefix			prefix for the form elements
 	* @param boolean	$use_delimiter	Use the delimiter (TRUE) or was the value an array (FALSE)
+	* @param boolean	$remove_duplicates	Whether to remove duplicates from the list
 	*
 	* @return void
 	* @access public
 	*/
-	function process($prefix, $use_delimiter=TRUE)
+	function process($prefix, $use_delimiter=TRUE, $remove_duplicates=FALSE)
 	{
 		$prefix = str_replace(':','_',$prefix);	// handle shadow assets
 		if (!isset($_REQUEST[$prefix.'_options'])) return;
 		$value = $_REQUEST[$prefix.'_options'];
 		foreach ($value as $i => $v) {
 			if ($v == '') unset($value[$i]);
+		}
+
+		if ($remove_duplicates) {
+			$value = array_unique($value);
 		}
 
 		if (!$use_delimiter) {

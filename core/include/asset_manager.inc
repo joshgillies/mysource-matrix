@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.906.2.2 2013/06/14 06:11:05 lwright Exp $
+* $Id: asset_manager.inc,v 1.906.2.3 2013/07/16 00:51:17 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.906.2.2 $
+* @version $Revision: 1.906.2.3 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -330,8 +330,8 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getTypeInfo($type_code, $field='')
 	{
-		$field = trim($field);
-
+		$field = preg_replace('/[^a-zA-Z_0-9]+/', '', trim($field));
+		
 		// if the file does not exist, then we must be installing so get the info from the database
 		if (!is_file(SQ_DATA_PATH.'/private/db/asset_types.inc')) {
 
@@ -878,6 +878,9 @@ class Asset_Manager extends MySource_Object
 	function getAssetTypeAttributes($type_code, $details=Array('name', 'type'))
 	{
 		if (!is_string($type_code)) return Array();
+		foreach ($details as $index => $detail) {
+		    $details[$index] = preg_replace('/[^a-zA-Z_0-9]+/', '', trim($detail));
+		}
 
 		$db = MatrixDAL::getDb();
 		require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
@@ -3737,9 +3740,14 @@ class Asset_Manager extends MySource_Object
 		$db = MatrixDAL::getDb();
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
+
 		if (is_array($fields)) {
+		    	foreach ($fields as $index => $field) {
+			    $fields[$index] = preg_replace('/[^a-zA-Z_0-9]+/', '', trim($field));
+			}
 			$fields_str = 'a.'.implode(', a.', $fields);
 		} else {
+			$fields = preg_replace('/[^a-zA-Z_0-9]+/', '', trim($fields));
 			$fields_str = 'a.'.$fields;
 		}
 
@@ -9188,7 +9196,7 @@ class Asset_Manager extends MySource_Object
 		$group_by = '';
 		$having = '';
 		if (!is_null($access)) {
-			$access = (String)$access;
+			$access = (Int)$access;
 			$userid_cond = '';
 			$group_by = 'GROUP BY l.linkid, l.'.$side_of_link.'id, l.'.$other_side.'id, l.value, l.link_type,
 								  l.type_code, l.sort_order, l.is_dependant, l.is_exclusive, l.locked';
@@ -9292,6 +9300,7 @@ class Asset_Manager extends MySource_Object
 			// order by sort order (by default)
 			$order_by = 'ORDER BY l.sort_order, l.type_code';
 		} else {
+			$sort_by = preg_replace('/[^a-zA-Z_0-9]+/', '', $sort_by);
 			// order by a specific field in the asset table
 			$order_by = 'ORDER BY l.'.$sort_by;
 			if ($sort_by != 'type_code') {
@@ -9489,6 +9498,7 @@ class Asset_Manager extends MySource_Object
 
 		if (!empty($link_types_wanted)) {
 			foreach ($link_types_wanted as $index => $link_type_wanted) {
+				if(!is_numeric($link_type_wanted)) $link_type_wanted = SQ_LINK_TYPE_1;
 				$link_types_wanted[$index] = db_extras_bitand(MatrixDAL::getDbType(), 'l.link_type', $link_type_wanted).' > 0';
 			}
 			$where .= ' AND (('.implode(') OR (', $link_types_wanted).'))';
@@ -9627,6 +9637,7 @@ class Asset_Manager extends MySource_Object
 		$order_by = '';
 
 		if (!is_null($sort_by)) {
+			$sort_by = preg_replace('/[^a-zA-Z_0-9]+/', '', $sort_by);
 			$order_by = 'ORDER BY sort_value';
 			$select .= ', a.'.$sort_by.' AS sort_value';
 			if (!is_null($access)) {
@@ -10019,6 +10030,7 @@ class Asset_Manager extends MySource_Object
 		// order by a field if required
 		$order_by = '';
 		if (!is_null($sort_by)) {
+			$sort_by = preg_replace('/[^a-zA-Z_0-9]+/', '', $sort_by);
 			$order_by = 'ORDER BY sort_value';
 			$select .= ', ll.'.$sort_by.' AS sort_value';
 		} else {

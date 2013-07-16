@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: password.inc,v 1.30.4.1 2013/05/21 21:35:33 lwright Exp $
+* $Id: password.inc,v 1.30.4.2 2013/07/16 00:51:17 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_ATTRIBUTES_PATH.'/text/text.inc';
 *    <password width="8" min_length="6" />
 *    <password width="8" min_length="6" autocomplete="off" />
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.30.4.1 $
+* @version $Revision: 1.30.4.2 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -93,7 +93,7 @@ class Asset_Attribute_Password extends Asset_Attribute_Text
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 		// NOTE: we deliberatly don't set the value
 		password_box($prefix.'_one', '', $this->_edit_params['width'], $this->_params['max_length'],isset($this->_edit_params['autocomplete']) ? 'autocomplete="'.$this->_edit_params['autocomplete'].'"' : '');
-		if ($this->_edit_params['confirm_field']) {
+		if (isset($this->_edit_params['confirm_field']) && $this->_edit_params['confirm_field']) {
 			echo '<br />';
 			password_box($prefix.'_two', '', $this->_edit_params['width'], $this->_params['max_length'],isset($this->_edit_params['autocomplete']) ? 'autocomplete="'.$this->_edit_params['autocomplete'].'"' : '');
 		}
@@ -112,7 +112,7 @@ class Asset_Attribute_Password extends Asset_Attribute_Text
 	*/
 	function process($prefix)
 	{
-		if (array_get_index($this->_edit_params, 'confirm_field', FALSE) && isset($_REQUEST[$prefix.'_one'])) {
+		if (isset($this->_edit_params['confirm_field']) && !$this->_edit_params['confirm_field'] && isset($_REQUEST[$prefix.'_one'])) {
 			$one = $_REQUEST[$prefix.'_one'];
 			$this->validateValue($one);
 			$this->processed = $one && $this->setValue($one);

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.149 2013/04/11 03:47:29 cupreti Exp $
+* $Id: system_config.inc,v 1.149.2.1 2013/07/16 00:51:18 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.149 $
+* @version $Revision: 1.149.2.1 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -1118,7 +1118,7 @@ class System_Config extends Config
 						 );
 
 		foreach ($list_settings as $list_setting) {
-			$option_list->process($list_setting);
+			$option_list->process($list_setting, TRUE, TRUE);
 			$_POST[$class][$list_setting] = $option_list->value;
 		}
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config_edit_interface.inc,v 1.45 2012/08/30 01:09:20 ewang Exp $
+* $Id: system_config_edit_interface.inc,v 1.45.6.1 2013/07/16 00:51:18 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *    Looks after the editing of the system config
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.45.6.1 $
 * @package MySource_Matrix
 */
 class System_Config_Edit_Interface extends MySource_Object
@@ -54,7 +54,7 @@ class System_Config_Edit_Interface extends MySource_Object
 
 		// if we dont have access, go away
 		if (!$is_admin) {
-			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $owner->name));
+			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset'));
 			exit();
 		}
 

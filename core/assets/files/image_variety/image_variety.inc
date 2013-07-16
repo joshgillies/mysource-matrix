@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.62 2012/08/30 01:09:07 ewang Exp $
+* $Id: image_variety.inc,v 1.62.6.1 2013/07/16 00:51:17 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.62 $
+* @version $Revision: 1.62.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -602,14 +602,13 @@ class Image_Variety extends Asset
 				foreach ($urls as $urlid => $data) {
 
 					$root_url = '';
-
 					foreach ($root_urls as $tmp_url) {
-						if (substr($data['url'], 0, strlen($tmp_url)) == $tmp_url) {
+						$tmp_url = rtrim($tmp_url, '/');
+						if ($data['url'] == $tmp_url || substr($data['url'], 0, strlen($tmp_url.'/')) == $tmp_url.'/') {
 							$root_url = $tmp_url;
 							continue;
 						}
 					}
-
 					if (empty($root_url)) continue;
 
 					if (isset($save_urls[$root_url])) {

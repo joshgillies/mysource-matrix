@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.427.2.6 2013/06/25 07:38:45 lwright Exp $
+* $Id: lang_strings.xml,v 1.427.2.7 2013/07/16 00:51:18 lwright Exp $
 *
 */
 
@@ -1321,6 +1321,7 @@ Force that this asset can only be viewed through a Secure (SSL) connection</stri
     <string source="trigger_asset_type">Asset is of type %s</string>
     <string source="trigger_asset_sysadmin">Current user %s effectively a system administrator</string>
     <string source="trigger_asset_public_user">Current user %s a public user</string>
+    <string source="trigger_asset_ldap_user">Current user %s a LDAP user</string>
 
     <string source="trigger_request_method">HTTP Request Method:%s</string>
 

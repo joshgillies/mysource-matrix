@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_standard.inc,v 1.36 2012/08/30 01:09:09 ewang Exp $
+* $Id: page_standard.inc,v 1.36.6.1 2013/07/16 00:51:17 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.36.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -143,9 +143,11 @@ class Page_Standard extends Page
 		$page_links = parent::_getAllowedLinks();
 		$page_links[SQ_LINK_TYPE_1]['calendar_event_single']    = Array('card' => 'M', 'exclusive' => FALSE);
 		$page_links[SQ_LINK_TYPE_1]['calendar_event_recurring'] = Array('card' => 'M', 'exclusive' => FALSE);
+		$page_links[SQ_LINK_TYPE_1]['data_record'] = Array('card' => 'M', 'exclusive' => FALSE);
 		$page_links[SQ_LINK_TYPE_2]['calendar_event_single']    = Array('card' => 'M', 'exclusive' => FALSE);
 		$page_links[SQ_LINK_TYPE_2]['calendar_event_recurring'] = Array('card' => 'M', 'exclusive' => FALSE);
 		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => 1, 'exclusive' => TRUE);
+		$page_links[SQ_LINK_TYPE_2]['data_record'] = Array('card' => 'M', 'exclusive' => FALSE);
 		$page_links[SQ_LINK_NOTICE]['calendar_event_single']    = Array('card' => 'M', 'exclusive' => FALSE);
 		$page_links[SQ_LINK_NOTICE]['calendar_event_recurring'] = Array('card' => 'M', 'exclusive' => FALSE);
 		return $page_links;

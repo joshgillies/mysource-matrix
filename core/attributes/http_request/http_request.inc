@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: http_request.inc,v 1.23 2013/04/16 05:33:17 akarelia Exp $
+* $Id: http_request.inc,v 1.23.2.1 2013/07/16 00:51:17 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 * 	<http_request />
 *
 * @author  James Hurst <jhurst@squiz.co.uk>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.23.2.1 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -851,6 +851,8 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		if (isset($this->_config['ca_file']) && !empty($this->_config['ca_file'])) {
 			curl_setopt($ch, CURLOPT_CAINFO, $this->_config['ca_file']);
 		}
+
+		if (!defined('SQ_PA_ENABLED')) require_once(SQ_DATA_PATH.'/private/conf/proxy_authentication.inc');
 
 		// Use proxy if set
 		if (SQ_PA_ENABLED) {
