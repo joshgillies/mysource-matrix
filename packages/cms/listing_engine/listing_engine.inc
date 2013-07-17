@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.353 2013/03/14 00:29:23 akarelia Exp $
+* $Id: listing_engine.inc,v 1.354 2013/07/17 08:09:54 ewang Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.353 $
+* @version $Revision: 1.354 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -3481,6 +3481,25 @@ class Listing_Engine extends Page
 							if (!is_null($parent_asset)) {
 								$value = $mm->getMetadataValueByAssetid($current_parent, $metadata_field_id, TRUE, $presentation_value);
 								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent_asset);
+							}
+							
+							// if it's multi-options field, we need to extract individual option
+							$individual_entry_grouping = array_get_index($group_level,'group_by_individual',  TRUE);
+							if($individual_entry_grouping) {
+							    $field_type = $metadata_field->type();
+							    switch($field_type) {
+								case 'metadata_field_multiple_text':
+								case 'metadata_field_hierarchy':
+								    $value = explode($presentation_value ? '; ' : '\; ', $value);
+								    break;
+								case 'metadata_field_select':
+								    if($metadata_field->attr('multiple'))
+									$value = explode($presentation_value ? '; ' : '\; ', $value);
+								    break;
+								case 'metadata_field_thesaurus':
+								    $value = explode(',', $value);
+								    break;
+							    }
 							}
 						}
 					break;
