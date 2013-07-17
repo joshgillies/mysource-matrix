@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.77 2013/07/16 00:51:18 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.78 2013/07/17 02:10:06 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.77 $
+ * @version $Revision: 1.1.2.78 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -665,7 +665,9 @@ var JS_Asset_Map = new function() {
             e.preventDefault();
         });
 
-        dfx.addEvent(assetMapContainer.ownerDocument.body, 'keypress', function(e) {
+        // Set this to keyup - Webkit does not emit keypress on non-printable keys,
+        // similar IE.
+        dfx.addEvent(assetMapContainer.ownerDocument.body, 'keyup', function(e) {
             var code = e.keyCode ? e.keyCode : e.which;
             switch (code) {
                 case KeyCode.Delete:
