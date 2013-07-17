@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.82 2013/07/11 05:34:42 cupreti Exp $
+* $Id: text.inc,v 1.83 2013/07/17 03:24:48 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.82 $
+* @version $Revision: 1.83 $
 * @package Fudge
 * @subpackage Text
 */
@@ -233,7 +233,13 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array())
 
 	case "urldecode":
 		return urldecode($text);
+	
+	case "rawurlencode":
+		return rawurlencode($text);
 
+	case "rawurldecode":
+		return rawurldecode($text);
+	    
 	case "base64encode":
 		return base64_encode($text);
 
