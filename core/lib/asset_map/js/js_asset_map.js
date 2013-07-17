@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.78 2013/07/17 02:10:06 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.79 2013/07/17 07:01:45 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.78 $
+ * @version $Revision: 1.1.2.79 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -238,6 +238,18 @@ var JS_Asset_Map = new function() {
 
 //--        UTILITY FUNCTIONS        --//
 
+    /**
+     * Unique IDs for certain DIVs, so we can individually reference them.
+     *
+     * We can't use asset IDs or link IDs for this purpose, as they are not unique.
+     * Better that we can target an individual ID for testing purposes.
+     *
+     * @var {Object}
+     */
+    var _uniqueElIds = {
+        asset: 0,
+        childIndent: 0
+    }
 
     /**
      * Create an element with optional unselectable attribute set on (for IE<=9).
@@ -279,10 +291,11 @@ var JS_Asset_Map = new function() {
       * @returns {Node}
      */
     var _createChildContainer = function(parentid) {
-        var containerId = 'child-indent-' + encodeURIComponent(parentid);
-        var container   = _createEl('div');
-        container.id    = containerId;
+        _uniqueElIds.childIndent++;
+        var container = _createEl('div');
+        container.id  = 'child-indent-uid-' + encodeURIComponent(_uniqueElIds.childIndent);
         container.setAttribute('data-parentid', parentid);
+        dfx.addClass(container, 'for-asset-' + encodeURIComponent(parentid));
         dfx.addClass(container, 'childIndent');
         return container;
     };
@@ -354,8 +367,11 @@ var JS_Asset_Map = new function() {
         var accessible = Number(assetAttrs.accessible);
 
         var assetLine = _createEl('div');
+
+        _uniqueElIds.asset++;
+        assetLine.id = 'asset-uid-' + encodeURIComponent(_uniqueElIds.asset);
+
         dfx.addClass(assetLine, 'asset');
-        //assetLine.id = 'asset-' + encodeURIComponent(assetid);
         assetLine.setAttribute('data-assetid', assetid);
         assetLine.setAttribute('data-asset-path', assetAttrs.asset_path);
         assetLine.setAttribute('data-linkid', linkid);
@@ -802,14 +818,27 @@ var JS_Asset_Map = new function() {
                         if ((e.shiftKey === true) && (options.simple === false)) {
                             var selection = self.currentSelection();
                             if (selection.length > 0) {
-                                // dfx.getElementsBetween is a one-way function. Take
-                                // the direction that yields a result.
-                                var between = dfx.getElementsBetween(lastSelection, assetTarget);
-                                console.info(between);
-                                if (between.length === 0) {
-                                    between = dfx.getElementsBetween(assetTarget, lastSelection);
-                                    console.info(between);
+                                // dfx.getElementsBetween best works in a forward
+                                // direction. Work out which way that is.
+                                if (lastSelection.compareDocumentPosition) {
+                                    // IE9+ and other browsers.
+                                    // A bit field of 0x04 indicates that the argument
+                                    // follows the reference node.
+                                    var docPos = lastSelection.compareDocumentPosition(assetTarget);
+                                    var forwardSelection = (docPos & 0x04) > 0;
+                                } else {
+                                    // Make IE8 happy using sourceIndex.
+                                    var forwardSelection = (assetTarget.sourceIndex > lastSelection.sourceIndex);
                                 }
+
+                                var between = [];
+                                if (forwardSelection) {
+                                    between = dfx.getElementsBetween(lastSelection, assetTarget);
+                                } else {
+                                    between = dfx.getElementsBetween(assetTarget, lastSelection);
+                                }
+
+                                console.info(between);
                                 between.push(assetTarget);
                                 for (var i = 0; i < between.length; i++) {
                                     if (dfx.hasClass(between[i], 'asset') === true) {
@@ -1128,8 +1157,8 @@ var JS_Asset_Map = new function() {
         var linkid       = branchTarget.getAttribute('data-linkid');
         var assetPath    = branchTarget.getAttribute('data-asset-path');
         var linkPath     = branchTarget.getAttribute('data-link-path');
-        var rootIndentId = 'child-indent-' + encodeURIComponent(assetid);
-        var container    = dfx.getId(rootIndentId);
+        var rootIndentId = 'childIndent.for-asset-' + encodeURIComponent(assetid);
+        var container    = dfx.getClass(rootIndentId)[0];
 
         if (container) {
             dfx.toggleClass(dfx.getClass('branch-status', branchTarget), 'expanded');
@@ -1401,9 +1430,6 @@ var JS_Asset_Map = new function() {
                     tree.innerHTML = '';
                     var assetCount = rootAsset.asset.length;
                     if (String(assetid) !== '1') {
-                        var rootIndentId = 'child-indent-' +
-                            encodeURIComponent(assetid);
-
                         rootAsset._attributes.name      = decodeURIComponent(
                             rootAsset._attributes.name.replace(/\+/g, '%20')
                         );
