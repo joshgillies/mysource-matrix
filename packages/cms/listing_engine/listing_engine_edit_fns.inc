@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.102 2012/08/30 00:58:08 ewang Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.102.6.1 2013/07/17 08:18:06 ewang Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.102 $
+* @version $Revision: 1.102.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2588,6 +2588,24 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 			$o->note(translate('cms_listing_default_metadata_sort_type_note'));
 		$o->closeField();
+		
+		
+		$o->openField(translate('cms_listing_group_by_individual_entry'));
+
+		$group_by_individual = array_get_index($group_by_option, 'group_by_individual', 1);
+		$option = Array(
+					1			=> translate('yes'),
+					0	=> translate('no'),
+				  );
+
+		if ($write_access) {
+			combo_box($prefix.'[group_by_individual]', $option, FALSE, $group_by_individual);
+		} else {
+			echo ($group_by_individual == 1) ? translate('yes') : translate('no');
+		}
+
+			$o->note(translate('cms_listing_group_by_individual_entry_note'));
+		$o->closeField();
 
 		return $write_access;
 
@@ -2624,6 +2642,10 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 		if (isset($posted_option['metadata_sort_type'])) {
 			$group_by_option['metadata_sort_type'] = $posted_option['metadata_sort_type'];
+		}
+		
+		if (isset($posted_option['group_by_individual'])) {
+			$group_by_option['group_by_individual'] = $posted_option['group_by_individual'];
 		}
 
 		return TRUE;

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.41 2012/11/06 02:40:42 ewang Exp $
+* $Id: lang_strings.xml,v 1.41.4.1 2013/07/17 08:18:06 ewang Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -143,6 +143,8 @@
 <string source="cms_listing_access_include_effective">Include effective permissions</string>
 <string source="cms_listing_default_metadata_sort_type">Default Metadata Sort Type</string>
 <string source="cms_listing_default_metadata_sort_type_note">To sort by the raw metadata value entered on the metadata screen, select Raw Value. To sort by the value displayed on the frontend, select Presentation Value. Sorting by Raw Value will perform the sort before keywords are replaced and presentation formats are applied.</string>
+<string source="cms_listing_group_by_individual_entry">Group By Individual Entry</string>
+<string source="cms_listing_group_by_individual_entry_note">If the Metadata Field contains mutiple entries such as a Multiple Selection Field or a Multiple Text Field, use the individual entry as grouping source.</string>
 <string source="cms_listing_raw_value">Raw Value</string>
 <string source="cms_listing_presentation_value">Presentation Value</string>
 

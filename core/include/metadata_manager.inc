@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.239 2013/03/18 05:28:14 ewang Exp $
+* $Id: metadata_manager.inc,v 1.239.4.1 2013/07/17 08:17:09 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *	 Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.239 $
+* @version $Revision: 1.239.4.1 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -2088,7 +2088,8 @@ class Metadata_Manager extends MySource_Object
 				if (isset($metadata['values'])) {
 					$metadata_values = $metadata['values'];
 					$field_names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($field_assetid), 'metadata_field', FALSE, 'name');
-					$value = $metadata_values[$field_names[$field_assetid]];
+					if(isset($metadata_values[$field_names[$field_assetid]]))
+					    $value = $metadata_values[$field_names[$field_assetid]];
 				}	
 			}
 		}
