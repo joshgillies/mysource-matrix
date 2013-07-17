@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.79 2013/07/17 07:01:45 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.80 2013/07/17 07:38:59 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.79 $
+ * @version $Revision: 1.1.2.80 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -838,7 +838,6 @@ var JS_Asset_Map = new function() {
                                     between = dfx.getElementsBetween(assetTarget, lastSelection);
                                 }
 
-                                console.info(between);
                                 between.push(assetTarget);
                                 for (var i = 0; i < between.length; i++) {
                                     if (dfx.hasClass(between[i], 'asset') === true) {
