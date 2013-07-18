@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.102.6.1 2013/07/17 08:18:06 ewang Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.102.6.2 2013/07/18 08:12:29 ewang Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.102.6.1 $
+* @version $Revision: 1.102.6.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2559,13 +2559,18 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		$write_access = $asset->writeAccess('attributes');
 
 		$o->openField(translate('metadata_field'));
-			$field_assetid = array_get_index($group_by_option, 'metadata_field', 0);
-
+			$field_assetid = array_get_index($group_by_option, 'metadata_field', Array());
+			if(is_scalar($field_assetid)) $field_assetid = Array($field_assetid);
+			
 			if ($write_access) {
-				asset_finder($prefix.'[metadata_field]', $field_assetid, Array('metadata_field' => 'D'));
+				multiple_asset_finder($prefix.'[metadata_field]', $field_assetid, Array('metadata_field' => 'D'));
 			} else {
 				if ($field_assetid) {
-					echo get_asset_tag_line($field_assetid);
+					echo '<ul>';
+					foreach ($field_assetid as $assetid) {
+							echo '<li>'.get_asset_tag_line($assetid).'</li>';
+					}
+					echo '</ul>';
 				}
 			}
 
@@ -2630,7 +2635,11 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 		if (!is_array($posted_option)) return FALSE;
 
 		if (isset($posted_option['metadata_field'])) {
-			$group_by_option['metadata_field'] = $posted_option['metadata_field']['assetid'];
+			$group_by_option['metadata_field'] = Array();
+			foreach ($posted_option['metadata_field'] as $data) {
+			    if(empty($data['assetid'])) continue;
+			    $group_by_option['metadata_field'][] = $data['assetid'];
+			}
 		}
 		$group_by_option['sort_order'] = $posted_option['sort_order'];
 

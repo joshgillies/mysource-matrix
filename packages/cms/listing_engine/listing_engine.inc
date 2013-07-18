@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.353.2.1 2013/07/17 08:18:06 ewang Exp $
+* $Id: listing_engine.inc,v 1.353.2.2 2013/07/18 08:12:29 ewang Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.353.2.1 $
+* @version $Revision: 1.353.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -3457,10 +3457,8 @@ class Listing_Engine extends Page
 						$metadata_field = NULL;
 						$metadate_field_id = NULL;
 						if (!empty($group_level['metadata_field'])) {
-							$metadata_field_id = $group_level['metadata_field'];
-						}
-						if (!empty($metadata_field_id)) {
-							$metadata_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_field_id);
+							$metadata_field_ids = $group_level['metadata_field'];
+							if(is_scalar($metadata_field_ids)) $metadata_field_ids = Array($metadata_field_ids);
 						}
 
 						$presentation_value = FALSE;
@@ -3469,20 +3467,27 @@ class Listing_Engine extends Page
 								$presentation_value = TRUE;
 							}
 						}
-
-						$value = '';
-						if (!is_null($metadata_field)) {
-							// get the metadata manager if we haven't already
-							if (!isset($mm)) {
-								$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-							}
-
-							$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($current_parent);
-							if (!is_null($parent_asset)) {
-								$value = $mm->getMetadataValueByAssetid($current_parent, $metadata_field_id, TRUE, $presentation_value);
-								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent_asset);
-							}
+						// get the metadata manager if we haven't already
+						if (!isset($mm)) {
+							$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+						}
+						$value = Array();
+						foreach($metadata_field_ids as $metadata_field_id) {
+							$metadata_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_field_id);
+							if(empty($metadata_field)) continue;
+							$new_value = $mm->getMetadataValueByAssetid($current_parent, $metadata_field_id, TRUE, $presentation_value);
+							if(empty($new_value)) continue;
 							
+							// port the feature added #4039, although not perfectly sensible but still have to keep it
+							// if using raw value and the frontend format of the multi-select metadata field is 'key', grab the value of the option as grouping source
+							// if using presentation value, frontend format is 'key', it should use the key
+							// if using raw value and the frontend format is 'value', it should use the key
+							// if using presentation value, frontend format is 'value', it should use the value
+							if (method_exists($metadata_field, 'getKeyFromValue') && !$presentation_value && $metadata_field->attr('visible_part') === 'key')  {
+							    $new_value= $metadata_field->getKeyFromValue($new_value);
+							}
+								
+			
 							// if it's multi-options field, we need to extract individual option
 							$individual_entry_grouping = array_get_index($group_level,'group_by_individual',  TRUE);
 							if($individual_entry_grouping) {
@@ -3490,17 +3495,22 @@ class Listing_Engine extends Page
 							    switch($field_type) {
 								case 'metadata_field_multiple_text':
 								case 'metadata_field_hierarchy':
-								    $value = explode($presentation_value ? '; ' : '\; ', $value);
-								    break;
 								case 'metadata_field_select':
-								    if($metadata_field->attr('multiple'))
-									$value = explode($presentation_value ? '; ' : '\; ', $value);
+								    $new_value = explode($presentation_value ? '; ' : '\; ', $new_value);
 								    break;
 								case 'metadata_field_thesaurus':
-								    $value = explode(',', $value);
+								    $new_value = explode(',', $new_value);
 								    break;
 							    }
 							}
+							
+							if(!is_array($new_value)) {
+							    $value[] = $new_value;
+							}
+							else {
+							    $value = array_merge($value, $new_value);
+							}
+							if(empty($value)) $value = '';
 						}
 					break;
 
@@ -3896,39 +3906,6 @@ class Listing_Engine extends Page
 			break;
 
 			case 'metadata':
-				$group_order = Array();
-				if (!empty($group_type['metadata_field'])) {
-					$metadata_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($group_type['metadata_field']);
-					if(!is_null($metadata_field)) {
-						if (!isset($mm)) {
-							$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-						}//end if
-
-						$presentation_value = FALSE;
-						if (!empty($group_type['metadata_sort_type'])) {
-							if ($group_type['metadata_sort_type'] === 'presentation') {
-								$presentation_value = TRUE;
-							}
-						}
-
-						foreach ($results as $key => $arrayInfo) {
-							// if the metadata field types are of Metadata_Field_Hierarchy OR Metadata_Field_Select
-							// for other metadata fields the key is the value
-							if (method_exists($metadata_field, 'getKeyFromValue') && !$presentation_value && $metadata_field->attr('visible_part') === 'key') {
-								//we are sure its a metadata select field lets see whats been printed on frontend key OR value
-								$raw_value = $metadata_field->getKeyFromValue($key);
-								$group_order[$raw_value] = $arrayInfo;
-								unset($results[$key]);
-							}
-						}//end foreach
-					}
-				} else {
-					$group_order = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($results), 'asset', FALSE,array_get_index($group_type, 'sort_by', 'assetid'));
-
-				}//end else
-
-				if (!empty($group_order) )$results = $group_order;
-				//dont break here, just go with the flow ;)
 			case 'standard_asset':
 			case 'keyword':
 				// metadata and standard asset field groups are sorted just on
