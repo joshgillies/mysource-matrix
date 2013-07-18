@@ -2,7 +2,7 @@
 * Copyright (c) 2002 - interactivetools.com, inc.
 * Portions Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: spell_checker.js,v 1.7 2005/05/16 06:36:36 lwright Exp $
+* $Id: spell_checker.js,v 1.7.44.1 2013/07/18 05:12:34 akarelia Exp $
 *
 */
 
@@ -138,7 +138,7 @@ function initDocument() {
 	var field = document.getElementById("f_content");
 
 	var html = parent_object.getHTML();
-	html = parent_object.make_absolute_urls(html);
+
 	field.value = html;
 	field.form.submit();
 	document.getElementById("f_init").value = "0";

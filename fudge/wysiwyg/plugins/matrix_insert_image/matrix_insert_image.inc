@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_image.inc,v 1.40.8.1 2013/06/21 05:26:35 akarelia Exp $
+* $Id: matrix_insert_image.inc,v 1.40.8.2 2013/07/18 05:12:38 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.40.8.1 $
+* @version $Revision: 1.40.8.2 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -231,7 +231,6 @@ class matrix_insert_image extends wysiwyg_plugin
 						html += ' style="border: ' + param["f_border"] + 'px solid rgb(0, 0, 0);"';
 					}
 					html += '>';
-					html = editor.make_absolute_urls(html);
 
 					if (!is_image || HTMLArea.is_gecko) {
 						// replace text with new image

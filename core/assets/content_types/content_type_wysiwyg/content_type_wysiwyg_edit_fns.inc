@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.58 2013/04/16 01:41:26 akarelia Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.58.4.1 2013/07/18 05:12:45 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.58.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -80,16 +80,6 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 				$size_unit = $wysiwyg_style['units']['height'];
 			}
 			$wysiwyg->set_height($wysiwyg_style['height'].$size_unit);
-
-			$base_php_self = str_replace('/'.SQ_CONF_BACKEND_SUFFIX, '', $_SERVER['PHP_SELF']);
-			$base_php_self = str_replace('/'.SQ_CONF_LIMBO_SUFFIX, '', $base_php_self);
-			$base_php_self = rtrim($base_php_self, '/ ');
-
-			$wysiwyg->add_relative_href_check('(http[s]?://'.$_SERVER['HTTP_HOST'].')'.$_SERVER['PHP_SELF'], '$1'.$base_php_self);
-			$wysiwyg->add_relative_href_check('http[s]?://'.$_SERVER['HTTP_HOST'].$base_php_self.'/?(\?a=[0-9]+)', './$1');
-			$wysiwyg->add_relative_href_check('([^.][^/])(\?a=[0-9]+)', '$1./$2');
-			$wysiwyg->add_relative_href_check('http[s]?://'.$_SERVER['HTTP_HOST'].$base_php_self.'/?%([a-zA-Z_\-0-9]+)%', '%$1%');
-			$wysiwyg->add_absolute_url_check('\./\?(a=[0-9]+)', 'http://'.$_SERVER['HTTP_HOST'].$base_php_self.'/?$1');
 
 			// get the keyword replacements
 			$em = $GLOBALS['SQ_SYSTEM']->getEventManager();

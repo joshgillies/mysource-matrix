@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_embed_youtube.inc,v 1.10.2.1 2013/06/04 00:30:05 akarelia Exp $
+* $Id: matrix_embed_youtube.inc,v 1.10.2.2 2013/07/18 05:12:39 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     A WYSIWYG plugin to allow the user to insert a YouTube movie
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.10.2.1 $
+* @version $Revision: 1.10.2.2 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -164,7 +164,6 @@ class matrix_embed_youtube extends wysiwyg_plugin
 					html += ' egm="'          + param["f_egm"] + '"';
 					html += ' enable_js="'    + param["f_enable_js"] + '"';
 					html += '>';
-					html = editor.make_absolute_urls(html);
 
 					if (!is_file || HTMLArea.is_gecko) {
 						// replace text with new image

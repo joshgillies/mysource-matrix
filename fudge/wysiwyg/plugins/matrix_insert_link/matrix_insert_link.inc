@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_link.inc,v 1.55.6.1 2013/06/20 06:09:55 akarelia Exp $
+* $Id: matrix_insert_link.inc,v 1.55.6.2 2013/07/18 05:12:35 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *     a link in the editable document using an asset from MySoure Matrix
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.55.6.1 $
+* @version $Revision: 1.55.6.2 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -473,8 +473,6 @@ class matrix_insert_link extends wysiwyg_plugin
 								html += '>' + inside_html + '</a>';
 							}
 								
-							html = editor.make_absolute_urls(html);
-		
 							// replace with new URL
 							editor.insertHTML(html, range);
 						}
