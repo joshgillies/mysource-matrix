@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_rolling.inc,v 1.43 2012/11/06 06:36:01 akarelia Exp $
+* $Id: page_calendar_rolling.inc,v 1.43.2.1 2013/07/18 01:30:45 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Greg Sherwoood <greg@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.43.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -209,6 +209,7 @@ class Page_Calendar_Rolling extends Page
 		switch ($format_bodycopy) {
 			case '':
 				$vars['keywords']['event_list'] = translate('cal_rolling_keyword_event_list');
+				$vars['keywords']['root_nodes'] = translate('root_node');
 				return TRUE;
 			break;
 			case 'time_unit':
@@ -995,6 +996,21 @@ class Page_Calendar_Rolling extends Page
 		return TRUE;
 
 	}//end setUseNoResultsBodycopy()
+
+
+	/**
+	* Get the replacement for "root_nodes" keyword
+	*
+	* @return string
+	* @access public
+	*/
+	function getRootNodesKeywordReplacement()
+	{
+		$root_nodes = array_keys($this->attr('root_nodes'));
+
+		return implode(', ',$root_nodes);
+
+	}//end getRootNodesKeywordReplacement()
 
 
 }//end class

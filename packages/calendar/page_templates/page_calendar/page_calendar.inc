@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.248.4.3 2013/07/03 07:08:22 ewang Exp $
+* $Id: page_calendar.inc,v 1.248.4.4 2013/07/18 01:30:45 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.248.4.3 $
+* @version $Revision: 1.248.4.4 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -403,6 +403,7 @@ class Page_Calendar extends Page
 							$replacements[$word] = $this->getKeywordReplacement($word);
 						}
 					}
+
 					$contents_bodycopy->setKeywordReplacements($replacements);
 					$contents_bodycopy->printBody();
 					if (!empty($cache_key)) {
@@ -684,6 +685,7 @@ class Page_Calendar extends Page
 						'next_link'			=> translate('cal_page_next_link'),
 						'current_user'		=> translate('cal_page_current_user'),
 						'today_link'		=> translate('cal_page_today_link'),
+						'root_nodes'		=> translate('root_node'),
 					);
 
 		return $keywords;
@@ -3463,6 +3465,23 @@ class Page_Calendar extends Page
 		return TRUE;
 
 	}//end createNoResultsBodycopy()
-	
+
+
+	/**
+	* Get the replacement for "root_nodes" keyword
+	*
+	* @return string
+	* @access public
+	*/
+	function getRootNodesKeywordReplacement()
+	{
+		$root_nodes = array_keys($this->attr('root_nodes'));
+
+		return implode(', ',$root_nodes);
+
+	}//end getRootNodesKeywordReplacement()
+
+
 }//end class
+
 ?>
