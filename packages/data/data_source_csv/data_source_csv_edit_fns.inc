@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_csv_edit_fns.inc,v 1.8 2013/07/10 01:34:35 akarelia Exp $
+* $Id: data_source_csv_edit_fns.inc,v 1.9 2013/07/18 00:03:19 akarelia Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -104,14 +104,14 @@ class Data_Source_Csv_Edit_Fns extends Data_Source_Edit_Fns
 				$difference_one = array_diff($old_row_headers, $new_row_headers);
 				$difference_two = array_diff($new_row_headers, $old_row_headers);
 
-				// the new file uploaded has more coloumns then previous file
-				// upload the file but warn the user about the new coloumns
+				// the new file uploaded has more columns then previous file
+				// upload the file but warn the user about the new columns
 				if (!empty($difference_two)) {
-					trigger_error('Upload Warning: Number or names of the coloumns in the newly uploaded CSV file are more than previous CSV file.', E_USER_WARNING);
+					trigger_error('Number or names of the columns in the newly uploaded CSV file are more than previous CSV file. The file has been updated.', E_USER_NOTICE);
 				} else if (!empty($difference_one)) {
 					// there is some difference in the content
 					// abort.... abort..... abort........
-					trigger_error('Upload Aborted: Number or names of the coloumns in the previous CSV file are more than the ones in newly uploaded CSV.', E_USER_WARNING);
+					trigger_error('Number or names of the columns in the previous CSV file are more than the ones in newly uploaded CSV. The file has not been updated.', E_USER_WARNING);
 					$asset->setAttrValue('cached_content', $old_content);
 				} else {
 					if ($asset->attr('header_col')) {
@@ -128,18 +128,18 @@ class Data_Source_Csv_Edit_Fns extends Data_Source_Edit_Fns
 						$row_diff_two = array_diff($new_row_id, $old_row_id);
 
 						// if our previuos CSV had more rows in it then stop upload 
-						// or just warn the user about the added coloumns
+						// or just warn the user about the added columns
 						if (!empty($row_diff_two)) {
-							trigger_error('Upload Warning: Number of rows in the newly uploaded CSV file are more than the previous CSV file.', E_USER_WARNING);
+							trigger_error('Number of rows in the newly uploaded CSV file are more than the previous CSV file. The file has been updated.', E_USER_NOTICE);
 						} else if (!empty($row_diff_one)) {
-							trigger_error('Upload Aborted: Number of rows in the previous CSV are more than the newly uploaded CSV.', E_USER_WARNING);
+							trigger_error('Number of rows in the previous CSV are more than the newly uploaded CSV. The file has not been updated.', E_USER_WARNING);
 							$asset->setAttrValue('cached_content', $old_content);
 						}
 					} else {
 						if (count($old_values) <  count($new_values)) {
-							trigger_error('Upload Warning: Number of rows in the newly uploaded CSV file are more than the previous CSV file.', E_USER_WARNING);
+							trigger_error('Number of rows in the newly uploaded CSV file are more than the previous CSV file. The file has been updated.', E_USER_NOTICE);
 						} else if (count($old_values) >  count($new_values)) {
-							trigger_error('Upload Aborted: Number of rows in the previous CSV are more than the newly uploaded CSV.', E_USER_WARNING);
+							trigger_error('Number of rows in the previous CSV are more than the newly uploaded CSV. The file has not been updated.', E_USER_WARNING);
 							$asset->setAttrValue('cached_content', $old_content);
 						}
 					}
