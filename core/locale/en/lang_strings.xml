@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.427.2.7 2013/07/16 00:51:18 lwright Exp $
+* $Id: lang_strings.xml,v 1.427.2.8 2013/07/18 02:27:54 lwright Exp $
 *
 */
 
@@ -2215,6 +2215,8 @@ If you are ready to continue, please click <strong>Next</strong> to proceed with
     <string source="asset_map_dialog_delete" java="1">Trash Assets</string>
     <string source="asset_map_dialog_jump" java="1">Jump To Asset</string>
 
+    <string source="trash_asset" js="1">Trash Asset</string>
+    <string source="trash_assets" js="1">Trash Assets</string>
 
     <string source="asset_map_menu_move_here" java="1">Move here</string>
     <string source="asset_map_menu_link_here" java="1">New Link here</string>

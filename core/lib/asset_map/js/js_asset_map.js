@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.80 2013/07/17 07:38:59 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.81 2013/07/18 02:27:54 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.80 $
+ * @version $Revision: 1.1.2.81 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -234,6 +234,8 @@ var JS_Asset_Map = new function() {
      * @var {Array.<String>}
      */
     var refreshQueue = [];
+
+    var self = this;
 
 
 //--        UTILITY FUNCTIONS        --//
@@ -656,8 +658,10 @@ var JS_Asset_Map = new function() {
 
         var statusDivider = dfx.getId('asset_map_status_list_divider');
         dfx.addEvent(statusDivider, 'click', function() {
-            dfx.toggleClass(statusDivider.parentNode, 'expanded');
-            self.resizeTree();
+            if (self.isModalActive() === false) {
+                dfx.toggleClass(statusDivider.parentNode, 'expanded');
+                self.resizeTree();
+            }
         });
 
         dfx.addEvent(dfx.getId('asset_map_button_restore'), 'click', function() {
@@ -1657,6 +1661,46 @@ var JS_Asset_Map = new function() {
 
     }
 
+    this.isModalActive = function() {
+        var confirms = dfx.getClass('confirmPopup', assetMapContainer);
+        var errors   = dfx.getClass('errorPopup', assetMapContainer);
+        if ((confirms.length + errors.length) > 0) {
+            return true;
+        }
+
+        return false;
+    }
+
+    this.overlay = {
+        show: function() {
+            var overlay = dfx.getClass('overlay', assetMapContainer);
+            if (overlay.length === 0) {
+                overlay = _createEl('div');
+                dfx.addClass(overlay, 'overlay');
+                assetMapContainer.appendChild(overlay);
+                self.overlay.resize();
+            }
+        },
+
+        hide: function() {
+            var overlay = dfx.getClass('overlay', assetMapContainer);
+            if (overlay.length > 0) {
+                dfx.remove(overlay);
+            }
+        },
+        resize: function() {
+            var overlay = dfx.getClass('overlay', assetMapContainer);
+            if (overlay.length > 0) {
+                var tree     = self.getCurrentTreeElement();
+                var toolbar  = dfx.getClass('toolbar', assetMapContainer)[0];
+                dfx.setStyle(overlay, 'left', tree.offsetLeft + 'px');
+                dfx.setStyle(overlay, 'top', toolbar.offsetTop + 'px');
+                dfx.setStyle(overlay, 'width', tree.clientWidth + 'px');
+                dfx.setStyle(overlay, 'height', (toolbar.clientHeight + tree.clientHeight) + 'px');
+            }
+        }
+    }
+
     /**
      * Raise an error message.
      *
@@ -1665,6 +1709,7 @@ var JS_Asset_Map = new function() {
     this.confirmPopup = function(message, title, yesCallback, noCallback) {
         var confirmDiv = _createEl('div');
         dfx.addClass(confirmDiv, 'confirmPopup');
+        self.overlay.show();
 
         var titleDiv = _createEl('div');
         dfx.addClass(titleDiv, 'confirmTitle');
@@ -1694,6 +1739,7 @@ var JS_Asset_Map = new function() {
 
         dfx.addEvent(buttonYesDiv, 'click', function() {
             dfx.remove(confirmDiv);
+            self.overlay.hide();
             if (dfx.isFn(yesCallback) === true) {
                 yesCallback();
             }
@@ -1701,6 +1747,7 @@ var JS_Asset_Map = new function() {
 
         dfx.addEvent(buttonNoDiv, 'click', function() {
             dfx.remove(confirmDiv);
+            self.overlay.hide();
             if (dfx.isFn(noCallback) === true) {
                 noCallback();
             }
@@ -1719,6 +1766,8 @@ var JS_Asset_Map = new function() {
             title   = js_translate('asset_map_matrix_error', matches[1]);
             message = message.replace(codeRegexp, '');
         }
+
+        self.overlay.show();
 
         var errorDiv = _createEl('div');
         dfx.addClass(errorDiv, 'errorPopup');
@@ -1746,6 +1795,7 @@ var JS_Asset_Map = new function() {
         assetMapContainer.appendChild(errorDiv);
 
         dfx.addEvent(buttonDiv, 'click', function() {
+            self.overlay.hide();
             dfx.remove(errorDiv);
         });
     };
@@ -1986,7 +2036,9 @@ var JS_Asset_Map = new function() {
         tree1.innerHTML = js_translate('asset_map_tree1_name');
         treeList.appendChild(tree1);
         dfx.addEvent(tree1, 'click', function() {
-            self.selectTree(0);
+            if (self.isModalActive() === false) {
+                self.selectTree(0);
+            }
         });
 
         var tree2 = _createEl('div');
@@ -1995,7 +2047,9 @@ var JS_Asset_Map = new function() {
         tree2.innerHTML = js_translate('asset_map_tree2_name');
         treeList.appendChild(tree2);
         dfx.addEvent(tree2, 'click', function() {
-            self.selectTree(1);
+            if (self.isModalActive() === false) {
+                self.selectTree(1);
+            }
         });
 
         assetMapContainer.appendChild(treeList);
