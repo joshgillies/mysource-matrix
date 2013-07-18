@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.253 2013/07/03 07:06:31 ewang Exp $
+* $Id: page_calendar.inc,v 1.254 2013/07/18 01:38:36 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.253 $
+* @version $Revision: 1.254 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -403,7 +403,7 @@ class Page_Calendar extends Page
 							$replacements[$word] = $this->getKeywordReplacement($word);
 						}
 					}
-					
+
 					$contents_bodycopy->setKeywordReplacements($replacements);
 					$contents_bodycopy->printBody();
 					if (!empty($cache_key)) {
@@ -1609,7 +1609,7 @@ class Page_Calendar extends Page
 					if (!empty($event['description'])) {
 						if (!isset($this->_tmp['popup_printed'][$assetid])) {
 							$popup_div_id = $assetid.'_'.$id;
-							echo '<div id="event_'.$popup_div_id.'_description" class="popup">'.$event['description'].'</div>';
+							echo '<div id="event_'.$popup_div_id.'_description" class="popup" style="display: none;">'.$event['description'].'</div>';
 							$this->_tmp['popup_printed'][$assetid] = 1;
 						}
 						$current_mouse_over_out_code = 'onmouseover="startTrailingPopup(\'event_'.$popup_div_id.'_description\')" onmouseout="stopTrailingPopup()"';
@@ -1766,7 +1766,7 @@ class Page_Calendar extends Page
 
 			if (!empty($details['description'])) {
 				if (!isset($this->_tmp['popup_printed'][$assetid])) {
-					$res .= '<div id="event_'.$assetid.'_description" class="popup">'.$details['description'].'</div>';
+					$res .= '<div id="event_'.$assetid.'_description" class="popup" style="display: none;">'.$details['description'].'</div>';
 					$this->_tmp['popup_printed'][$assetid] = 1;
 				}
 				$current_mouse_over_out_code = 'onmouseover="startTrailingPopup(\'event_'.$assetid.'_description\')"  onmouseout="stopTrailingPopup()"';
@@ -1830,7 +1830,7 @@ class Page_Calendar extends Page
 
 			if (!empty($details['description'])) {
 				if (!isset($this->_tmp['popup_printed'][$assetid])) {
-					$res .= '<div id="event_'.$assetid.'_description" class="popup">'.$details['description'].'</div>';
+					$res .= '<div id="event_'.$assetid.'_description" class="popup" style="display: none;">'.$details['description'].'</div>';
 					$this->_tmp['popup_printed'][$assetid] = 1;
 				}
 				$current_mouse_over_out_code = 'onmouseover="startTrailingPopup(\'event_'.$assetid.'_description\')" onmouseout="stopTrailingPopup()"';
