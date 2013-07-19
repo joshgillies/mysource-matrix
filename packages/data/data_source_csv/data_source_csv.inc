@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_csv.inc,v 1.7 2012/08/30 00:58:15 ewang Exp $
+* $Id: data_source_csv.inc,v 1.7.4.1 2013/07/19 05:28:03 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -79,14 +79,23 @@ class Data_Source_Csv extends Data_Source
 	function getResultSet()
 	{
 		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this);
-		$result = Array();
-		$result = parent::getResultSet($this->name);
+		// Check the local cache
+		$result = isset($this->_tmp[$this->name]) ? $this->_tmp[$this->name] : Array();
+
 		if (empty($result)) {
-				if (empty($result)) $result = $this->getItems();
-				if (!empty($result)) {
-					parent::setResultSet($result, $this->name);
-				}
+			// Try from the system cache
+			$result = parent::getResultSet($this->name);
+			if (empty($result)) {
+					if (empty($result)) $result = $this->getItems();
+					if (!empty($result)) {
+						$this->_tmp[$this->name] = $result;
+						parent::setResultSet($result, $this->name);
+					}
+			} else {
+				$this->_tmp[$this->name] = $result;
+			}
 		}
+
 		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this);
 		return $result;
 
