@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_send_submission_log.inc,v 1.3 2012/08/30 00:58:07 ewang Exp $
+* $Id: cron_job_send_submission_log.inc,v 1.3.6.1 2013/07/19 06:34:35 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __cms__
 */
@@ -344,10 +344,38 @@ class Cron_Job_Send_Submission_Log extends Cron_Job
 		$edit_fns = $form->getEditFns();
 		
 		// Pick the submissions starting from this date
-		$start_date = str_replace('--:', '00:', str_replace(':--', ':00', $this->attr('submissions_from_date')));		
-		// If any date component is not setup
-		$pick_from_date = strpos($start_date, '--') !== FALSE ? '' : strtotime($start_date);
-		
+		$start_date = str_replace('--:', '00:', str_replace(':--', ':00', $this->attr('submissions_from_date')));
+		// If the specified start date is relative
+		if (preg_match('|^([\-\+])(\d+)([ymwdhi])$|', $start_date, $match)) {
+			switch ($match[3]) {
+				case 'y':
+					$format_type = 'years';
+				break;
+				case 'm':
+					$format_type = 'months';
+				break;
+				case 'w':
+					$format_type = 'weeks';
+				break;
+				case 'd':
+					$format_type = 'days';
+				break;
+				case 'h':
+					$format_type = 'hours';
+				break;
+				case 'i':
+					$format_type = 'minutes';
+				break;
+				default:
+					$format_type = '';
+				break;
+			}
+			$pick_from_date = $format_type ? strtotime($match[1].$match[2].' '.$format_type) : '';
+		} else {
+			// If any date component is not setup, dont use that date
+			$pick_from_date = strpos($start_date, '--') !== FALSE ? '' : strtotime($start_date);
+		}
+
 		// Last time the job actually ran
 		$previous_run = $this->attr('previous_run');
 		
