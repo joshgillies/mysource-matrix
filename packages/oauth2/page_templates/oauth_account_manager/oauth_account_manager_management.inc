@@ -10,7 +10,7 @@
 * | you a copy.                                                                                         |
 * +-----------------------------------------------------------------------------------------+
 *
-* $Id: oauth_account_manager_management.inc,v 1.1.1.1 2013/07/19 00:29:27 ewang Exp $
+* $Id: oauth_account_manager_management.inc,v 1.2 2013/07/19 05:27:41 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage oauth2
 */
@@ -50,7 +50,7 @@ class Oauth_Account_Manager_Management extends Asset_Management
 										'type'			=> 'text',
 										'default'		=> '',
 										'is_admin'		=> FALSE,
-										'description'	=> 'URL to redirect to after successful SAML authentication',
+										'description'	=> 'URL to redirect to after successful Oauth authentication',
 								
 									);
 		$this->vars['use_querystring_parameter']			= Array(
