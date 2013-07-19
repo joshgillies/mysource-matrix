@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.353.2.2 2013/07/18 08:12:29 ewang Exp $
+* $Id: listing_engine.inc,v 1.353.2.3 2013/07/19 05:53:28 ewang Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.353.2.2 $
+* @version $Revision: 1.353.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -3476,7 +3476,7 @@ class Listing_Engine extends Page
 							$metadata_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_field_id);
 							if(empty($metadata_field)) continue;
 							$new_value = $mm->getMetadataValueByAssetid($current_parent, $metadata_field_id, TRUE, $presentation_value);
-							if(empty($new_value)) continue;
+							
 							
 							// port the feature added #4039, although not perfectly sensible but still have to keep it
 							// if using raw value and the frontend format of the multi-select metadata field is 'key', grab the value of the option as grouping source
