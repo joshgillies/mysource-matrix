@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: saml_account_manager.inc,v 1.6 2012/10/17 04:53:25 ewang Exp $
+* $Id: saml_account_manager.inc,v 1.7 2013/07/19 03:40:43 ewang Exp $
 *
 */
 require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_builder/page_asset_builder.inc';
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage file
 */
@@ -68,6 +68,20 @@ class SAML_Account_Manager extends Page_Asset_Builder
 		$this->idp_entityid = null;
 		
 	}//end __wakeup()
+	
+	/**
+	* Determine whether this asset should send cacheable header
+	*
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function canSendCacheableHeader()
+	{
+		return FALSE;
+	}//end canSendCacheableHeader()
+	
+	
 	
 	/**
 	* Get SAML Auth Manager class
