@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: http_request.inc,v 1.24 2013/06/21 01:24:53 akarelia Exp $
+* $Id: http_request.inc,v 1.25 2013/07/19 03:42:16 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 * 	<http_request />
 *
 * @author  James Hurst <jhurst@squiz.co.uk>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -44,6 +44,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		'HTTP_Basic' => 'HTTP Basic',
 		'Matrix' => 'Matrix Cookie Passthrough',
 		'OAuth' => 'OAuth',
+		'OAuth2' => 'OAuth2',
 		'Digest' => 'Digest Auth',
 	);
 
@@ -126,6 +127,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		if (!isset($current_value['document_encoding'])) $current_value['document_encoding'] = 'Auto';
 		if (!isset($current_value['run_test'])) $current_value['run_test'] = FALSE;
 		if (!isset($current_value['oauth_asset']['assetid'])) $current_value['oauth_asset'] = Array('assetid' => '0', 'url' => '', 'linkid' => '');
+		if (!isset($current_value['oauth2_token']['assetid'])) $current_value['oauth2_token'] = Array('assetid' => '0', 'url' => '', 'linkid' => '');
 		if (!isset($current_value['enable_http_10'])) $current_value['enable_http_10'] = FALSE;
 		if (!isset($current_value['ssl_cert'])) $current_value['ssl_cert'] = '';
 		if (!isset($current_value['ssl_key'])) $current_value['ssl_key'] = '';
@@ -339,6 +341,23 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 								</table>
 								<?php
 								break;
+							    case 'OAuth2':
+								$type_codes = Array(
+									'oauth2_token' => 'D',
+									);
+								?>
+								<table>
+									<tr>
+										<th><?php translate('oauth2_token'); ?></th>
+										<td>
+										<?php
+											asset_finder($prefix.'_oauth2_token', $current_value['oauth2_token']['assetid'], $type_codes);
+										?>
+										</td>
+									</tr>
+								</table>
+								<?php
+								break;
 							}
 						}
 					?>
@@ -514,6 +533,8 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		$value['http_auth_options']['password'] = (isset($_REQUEST[$prefix.'_http_auth_pass'])) ? $_REQUEST[$prefix.'_http_auth_pass'] : '';
 
 		$value['oauth_asset'] = (isset($_REQUEST[$prefix.'_oauth_asset'])) ? $_REQUEST[$prefix.'_oauth_asset'] : '';
+		
+		$value['oauth2_token'] = (isset($_REQUEST[$prefix.'_oauth2_token'])) ? $_REQUEST[$prefix.'_oauth2_token'] : '';
 
 		$this->processed = $this->setValue($value);
 
@@ -546,6 +567,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		$this->_config = @unserialize($this->value);
 		if (empty($this->_config)) return;
 		if ($this->_config['authentication_type'] == 'OAuth' && $this->_config['oauth_asset']['assetid'] == 0) return;
+		if ($this->_config['authentication_type'] == 'OAuth2' && $this->_config['oauth2_token']['assetid'] == 0) return;
 
 		// Build the result data structure. This will be returned eventually, and is also used to form the cache keys.
 		$this->_res = Array(
@@ -638,7 +660,55 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 						$args['request_body'] =$this->_res['request']['body'];
 						$this->_res['request']['oauth_headers'] = $oauth_asset->getUserDataRequestAuthHeaders($this->_res['request']['urls'], $args);
 					}
-
+					break;
+				case 'OAuth2':
+					// at this point, the oauth asset needs to have access token available...otherwise no data will be received back...
+					$oauth2_token = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_config['oauth2_token']['assetid'], '', TRUE);
+					if (!is_null($oauth2_token)) {
+						$access_token_param_name = $oauth2_token->attr('access_token_param_name');
+						$access_token = array_get_index($oauth2_token->getAccessToken(isset($_GET['force'])), 'access_token', '');
+						$token_type = $oauth2_token->attr('access_token_type');
+						switch($token_type) {
+						    case 'uri':
+							switch($this->_res['request']['method']) {
+							    case 'GET':
+							    case 'HEAD':
+							    case 'DELETE':
+								foreach ($this->_res['request']['urls'] as $index => $url) {	
+								    $query = parse_url($url, PHP_URL_QUERY);
+								    // Returns a string if the URL has parameters or NULL if not
+								    if( $query ) {
+									$url .= '&'.$access_token_param_name.'='.$access_token;
+								    }
+								    else {
+									$url .= '?'.$access_token_param_name.'='.$access_token;
+								    }
+								    $this->_res['request']['urls'][$index] = $url;	
+								 }
+								break;
+							    case 'POST':
+							    case 'PUT':
+								if(empty($this->_res['request']['body'])) {
+								    $this->_res['request']['body'] = $access_token_param_name.'='.$access_token;
+								}
+								else {
+								     $this->_res['request']['body'] = '&'.$access_token_param_name.'='.$access_token;
+								}
+								break;
+					
+							}
+							
+							break;
+						case  'bearer':
+							$this->_res['request']['headers'][] = 'Authorization: Bearer '.$access_token;
+							break;
+					    	case  'oauth':
+							$this->_res['request']['headers'][] = 'Authorization: Oauth '.$access_token;
+							break;
+						    
+						}
+					}
+					break;
 				// Other auth types here.
 				}
 

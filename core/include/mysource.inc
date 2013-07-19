@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.406 2013/07/12 05:42:07 ewang Exp $
+* $Id: mysource.inc,v 1.407 2013/07/19 03:42:17 ewang Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.406 $
+* @version $Revision: 1.407 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -823,7 +823,7 @@ class MySource extends MySource_Object
 					$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_asset_recached', $asset);
 
 					// Finally recache
-					if (SQ_CONF_SEND_CACHEABLE_HEADER && $cm->cacheableHeadersEnabledForCurrentProtocol() && $cm->sendCacheableHeaders($asset->type(), $asset->id)) {
+					if (SQ_CONF_SEND_CACHEABLE_HEADER && $asset->canSendCacheableHeader() && $cm->cacheableHeadersEnabledForCurrentProtocol() && $cm->sendCacheableHeaders($asset->type(), $asset->id)) {
 						$this->_sendHTTPHeaders($asset);
 					} else {
 						$asset->printFrontend();
@@ -833,6 +833,7 @@ class MySource extends MySource_Object
 				// however not send if user have just logged out (see bug #3766)
 				else if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && 
 						 SQ_CONF_SEND_CACHEABLE_HEADER &&  
+						 $asset->canSendCacheableHeader() &&
 						 empty($_POST) && $asset->status >= SQ_STATUS_LIVE && 
 						 $asset->readAccess() && 
 						 !(isset($_REQUEST['just_logged_out']) && $_REQUEST['just_logged_out']) && 
@@ -937,6 +938,7 @@ class MySource extends MySource_Object
 
 		// save/load the cache information of this asset
 		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+		
 		$cache_info = $cm->loadFromCache($asset->id, $asset->type(), $cache_key);
 
 		$cache_expiry = $cm->getExpiry($asset->type(), $asset->id);
