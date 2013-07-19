@@ -1,0 +1,39 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_messages.xml,v 1.1.1.1 2013/07/19 00:29:27 ewang Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Login">
+		<field attribute="login_invite">
+			<display_name>Invite</display_name>
+			<note>This message is displayed above the form used to log into the system</note>
+		</field>
+		<field attribute="login_error">
+			<display_name>Error</display_name>
+			<note>This message is displayed if the user tried to log into the system but the login failed (probably due to an incorrect username or password)</note>
+		</field>
+	</section>
+	<section name="Create Asset">
+		<field attribute="create_invite">
+			<display_name>Invite</display_name>
+			<note>This message is displayed above the form used to create a new asset</note>
+		</field>
+		<field attribute="create_error">
+			<display_name>Error</display_name>
+			<note>This message is displayed if the new asset could not be created</note>
+		</field>
+	</section>
+</contents>

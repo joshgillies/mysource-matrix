@@ -1,0 +1,177 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: queries.xml,v 1.1.1.1 2013/07/19 00:29:26 ewang Exp $
+*
+*/
+-->
+<queries id="oauth2_package">
+	<query id="getToken">
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_oauth2_token" column="assetid" />
+					<field table="sq_oauth2_token" column="userid" />
+					<field table="sq_oauth2_token" column="access_token" />
+					<field table="sq_oauth2_token" column="refresh_token" />
+					<field table="sq_oauth2_token" column="expires_at" />
+					<field table="sq_oauth2_token" column="created" />
+				</fields>
+				<from>
+					<table>sq_oauth2_token</table>
+				</from>
+				<where>
+					<equal table="sq_oauth2_token" column="assetid">:assetid</equal>
+					<equal table="sq_oauth2_token" column="userid">:userid</equal>
+				</where>
+			</select>
+		</primary>
+	</query>
+	<query id="addToken">
+		<primary>
+			<insert>
+				<fields table="sq_oauth2_token">
+					<field>assetid</field>
+					<field>userid</field>
+					<field>access_token</field>
+					<field>refresh_token</field>
+					<field>expires_at</field>
+					<field>created</field>
+				</fields>
+				<values>
+					<value column="assetid">:assetid</value>
+					<value column="userid">:userid</value>
+					<value column="access_token">:access_token</value>
+					<value column="refresh_token">:refresh_token</value>
+					<value column="expires_at">:expires_at</value>
+					<value column="created">:created</value>
+				</values>
+			</insert>
+		</primary>
+	</query>
+	<query id="deleteToken">
+		<primary>
+			<delete>
+			    <where>
+				<equal table="sq_oauth2_token" column="assetid">:assetid</equal>
+				<equal table="sq_oauth2_token" column="userid">:userid</equal>
+			    </where>
+			</delete>
+		</primary>
+	</query>
+	<query id="deleteAllTokens">
+		<primary>
+			<delete>
+			    <where>
+				<equal table="sq_oauth2_token" column="assetid">:assetid</equal>
+			    </where>
+			</delete>
+		</primary>
+	</query>
+	
+	<!-- oauth account manager links -->
+	
+	<query id="getUserid">
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_oauth_lnk" column="matrix_userid" />
+					<field table="sq_oauth_lnk" column="oauth_userid" />
+					<field table="sq_oauth_lnk" column="created" />
+				</fields>
+				<from>
+					<table>sq_oauth_lnk</table>
+				</from>
+				<where>
+					<equal table="sq_oauth_lnk" column="oauth_userid">:oauth_userid</equal>
+					<equal table="sq_oauth_lnk" column="assetid">:assetid</equal>
+				</where>
+			</select>
+		</primary>
+	</query>
+	<query id="getLinks">
+		<primary>
+			<select>
+				<fields>
+					<field table="sq_oauth_lnk" column="matrix_userid" />
+					<field table="sq_oauth_lnk" column="oauth_userid" />
+					<field table="sq_oauth_lnk" column="created" />
+				</fields>
+				<from>
+					<table>sq_oauth_lnk</table>
+					<table>sq_ast</table>
+				</from>
+				<joins>
+					<join>
+						<field table="sq_oauth_lnk" column="matrix_userid" />
+						<field table="sq_ast"  column="assetid" />
+					</join>
+				</joins>
+				<where>
+					<equal table="sq_oauth_lnk" column="assetid">:assetid</equal>
+				</where>
+				<order-by>
+				    <field table="sq_oauth_lnk" column="created" />
+				</order-by>
+			</select>
+		</primary>
+	</query>
+	<query id="addLink">
+		<primary>
+			<insert>
+				<fields table="sq_oauth_lnk">
+					<field>assetid</field>
+					<field>matrix_userid</field>
+					<field>oauth_userid</field>
+					<field>created</field>
+				</fields>
+				<values>
+					<value column="assetid">:assetid</value>
+					<value column="matrix_userid">:matrix_userid</value>
+					<value column="oauth_userid">:oauth_userid</value>
+					<value column="created">:created</value>
+				</values>
+			</insert>
+		</primary>
+	</query>
+	<query id="deleteLink">
+		<primary>
+			<delete>
+			    <where>
+				<equal table="sq_oauth_lnk" column="assetid">:assetid</equal>
+				<equal table="sq_oauth_lnk" column="matrix_userid">:matrix_userid</equal>
+				<equal table="sq_oauth_lnk" column="oauth_userid">:oauth_userid</equal>
+			    </where>
+			</delete>
+		</primary>
+	</query>
+	<query id="deleteLinkOauthUser">
+		<primary>
+			<delete>
+			    <where>
+				<equal table="sq_oauth_lnk" column="assetid">:assetid</equal>
+				<equal table="sq_oauth_lnk" column="oauth_userid">:oauth_userid</equal>
+			    </where>
+			</delete>
+		</primary>
+	</query>
+	<query id="deleteAllLinks">
+		<primary>
+			<delete>
+			    <where>
+				<equal table="sq_oauth_lnk" column="assetid">:assetid</equal>
+			    </where>
+			</delete>
+		</primary>
+	</query>
+	
+</queries>
