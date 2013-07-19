@@ -1,0 +1,90 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_screen_locations.xml,v 1.1.1.1 2013/07/19 00:29:27 ewang Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Fixed Create Locations">
+		<field>
+			<display_name />
+			<note />
+			<function_call>
+				<paint_function   name="paintFixedCreateLocations"   />
+				<process_function name="processFixedCreateLocations" />
+			</function_call>
+		</field>
+		<note>All new assets created will be linked under these assets</note>
+	</section>
+	<section name="Selectable Create Locations">
+		<field>
+			<display_name/>
+			<note />
+			<function_call>
+				<paint_function   name="paintSelectableLocationSets"   />
+				<process_function name="processSelectableLocationSets" />
+			</function_call>
+		</field>
+		<note>When creating a new asset, the frontend user will be asked to choose a location from the listed options in each of these sets</note>
+	</section>
+	<section name="Dynamic Create Locations">
+		<field>
+			<display_name />
+			<note />
+			<function_call>
+				<paint_function   name="paintDynamicCreateLocations"   />
+				<process_function name="processDynamicCreateLocations" />
+			</function_call>
+		</field>
+		<note>When creating a new asset, the frontend user will be asked to chose a location (or locations) from the assets that match the conditions for each of these sets.  (The lists of options are calculated dynamically at run-time so new options will appear automatically).</note>
+	</section>
+	<section name="Create Location Rules">
+		<field>
+			<display_name />
+			<note />
+			<function_call>
+				<paint_function   name="paintConditionalCreateLocations"   />
+				<process_function name="processConditionalCreateLocations" />
+			</function_call>
+		</field>
+		<note>New assets will be linked under additional locations according to these rules.</note>
+	</section>
+	<section name="Additional Create Locations">
+		<field attribute="parameter_map">
+			<display_name>Additional Location Data Sources</display_name>
+			<note>If the source is either GET or POST, the passed value is the ID of the asset to link the created asset under, optionally followed by the link type (eg. "145-2", for an asset to be created under asset #145, with a Type 2 link).</note>
+		</field>
+		<field attribute="additional_location_default_link_type">
+			<display_name>Default Link Type</display_name>
+			<note>This value is used for any of the Additional Location Data Sources above that don't specify a link type.</note>
+		</field>
+		<field>
+			<display_name>Permitted Tree Locations</display_name>
+			<note>Create locations gathered from the data sources above will only be processed if they or one of their ancestor assets is listed above.</note>
+			<function_call>
+				<paint_function		name="paintAdditionalLocationParents" />
+				<process_function	name="processAdditionalLocationParents" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Permitted Asset Types</display_name>
+			<note>Create locations gathered from the data sources above will only be processed if their asset type or one of its ancestor types is listed above.</note>
+			<function_call>
+				<paint_function		name="paintAdditionalLocationTypes" />
+				<process_function	name="processAdditionalLocationTypes" />
+			</function_call>
+		</field>
+		<note>This is an advanced option.  If you specify some data sources to get additional location data from, and the assetids supplied by those data sources at runtime satisfy the conditions above, the created asset will be linked under those locations as well.  Lists of locations can be supplied in the format assetid;assetid;assetid or assetid-linktype;assetid-linktype;</note>
+	</section>
+</contents>

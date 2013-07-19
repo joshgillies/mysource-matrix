@@ -1,0 +1,32 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.1.1.1 2013/07/19 00:29:26 ewang Exp $
+*
+*
+*/
+-->
+
+<strings>
+	<string source="oauth2_access_token">Access Token</string>
+	<string source="oauth2_access_token_expires_at">Expires At</string>
+	<string source="oauth2_refresh_token">Refresh Token</string>
+	<string source="oauth2_not_available">N/A</string>
+	
+	<string source="oauth2_permission_save_token">You do not have write permission to save the Access Token</string>
+	<string source="oauth2_permission_get_token">You do not have read permission to get the Access Token</string>
+	<string source="oauth2_public_user_save_token">Access Token can not be stored for a Public User</string>
+	<string source="oauth2_global_token_not_shared">Globally stored Access Token can not be displayed</string>
+	
+	<string source="oauth2_state_param_invalid">State parameter in response is invalid</string>
+	<string source="oauth2_no_access_token_response">There is no Access Token in response</string>
+</strings>

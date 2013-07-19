@@ -1,0 +1,26 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<?xml-stylesheet href="../package.xsl" type="text/xsl"?>
+
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: package.xml,v 1.1.1.1 2013/07/19 00:29:26 ewang Exp $
+*
+*/
+-->
+
+<package_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../package.xsd">
+	<code_name>oauth2</code_name>
+	<version>0.1</version>
+	<name>Oauth2 Package</name>
+	<description>Contains the assets for Oauth 2.0 authentication</description>
+</package_info>
