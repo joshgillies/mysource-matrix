@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.355 2013/07/18 08:09:31 ewang Exp $
+* $Id: listing_engine.inc,v 1.356 2013/07/19 05:52:26 ewang Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.355 $
+* @version $Revision: 1.356 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -3476,7 +3476,6 @@ class Listing_Engine extends Page
 							$metadata_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_field_id);
 							if(empty($metadata_field)) continue;
 							$new_value = $mm->getMetadataValueByAssetid($current_parent, $metadata_field_id, TRUE, $presentation_value);
-							if(empty($new_value)) continue;
 							
 							// port the feature added #4039, although not perfectly sensible but still have to keep it
 							// if using raw value and the frontend format of the multi-select metadata field is 'key', grab the value of the option as grouping source
@@ -3484,6 +3483,7 @@ class Listing_Engine extends Page
 							// if using raw value and the frontend format is 'value', it should use the key
 							// if using presentation value, frontend format is 'value', it should use the value
 							if (method_exists($metadata_field, 'getKeyFromValue') && !$presentation_value && $metadata_field->attr('visible_part') === 'key')  {
+
 							    $new_value= $metadata_field->getKeyFromValue($new_value);
 							}
 								
