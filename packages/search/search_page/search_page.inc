@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.267 2013/03/08 02:19:58 ewang Exp $
+* $Id: search_page.inc,v 1.268 2013/07/22 01:36:40 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.267 $
+* @version $Revision: 1.268 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1790,14 +1790,29 @@ class Search_Page extends Listing_Engine
 		$this->_tmp['assets_info'] = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($asset_info));
 		$this->_tmp['asset_urls'] = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_keys($asset_info));
 
+		// get any extra keyword replacements from asset_listing
+		$parent_replaces = $this->getContentsKeywordReplacements($keywords);
+		
+		if ($this->attr('group_by') == 'grouped') {
+			$this->groupAssetsRecursively($this->attr('asset_grouping'), $asset_info, $asset_info);
+			$this->sortGroups($this->attr('asset_grouping'), $asset_info, $asset_info);
+		}
+		
+		$total_assets_count = $this->_arrayCountRecursive($asset_info);
+		
+		$asset_info = $this->getChunk($asset_info, $parent_replaces, $keywords, $current_result_page, $results_per_page);
+		// For the 'select all' code
+		$this->_analyseCheckAllRelations($asset_info);
+					
 		if ($results_per_page != 0) {
-			$total_pages = ceil(count($asset_info) / $results_per_page);
+			$total_pages = isset($parent_replaces['total_pages']) ? $parent_replaces['total_pages'] : ceil(count($asset_info) / $results_per_page);
 		} else {
 			$total_pages = 1;
 		}
+		
 
-		// get any extra keyword replacements from asset_listing
-		$parent_replaces = $this->getContentsKeywordReplacements($keywords);
+					
+
 		foreach ($keywords as $keyword) {
 			$full_keyword = $keyword;
 			$replacement = "%$full_keyword%";
@@ -1806,25 +1821,9 @@ class Search_Page extends Listing_Engine
 
 			switch ($keyword) {
 				case 'result_list':
-					// the groupAssetsRecursively() method must be called before the getChunk() method because the getChunk()
-					// method expect the data structure returned by the groupAssetsRecursively() method. Otherwise, there will
-					// be PHP errors in _groupChunk() function ($todo is not an array like it is expected) if asset grouping
-					// is used to format the search results
-					$result_list = $asset_info;
-
-					if ($this->attr('group_by') == 'grouped') {
-						$this->groupAssetsRecursively($this->attr('asset_grouping'), $result_list, $result_list);
-						$this->sortGroups($this->attr('asset_grouping'), $result_list, $result_list);
-					}
-
-					$result_list = $this->getChunk($result_list, $parent_replaces, $keywords, $current_result_page, $results_per_page);
-
-					// For the 'select all' code
-					$relations = $this->_analyseCheckAllRelations($result_list);
-
 					// print the asset list from the listing engine
 					ob_start();
-						$this->printAssetList($result_list);
+						$this->printAssetList($asset_info);
 						$replacement = ob_get_contents();
 					ob_end_clean();
 				break;
@@ -1835,7 +1834,7 @@ class Search_Page extends Listing_Engine
 				break;
 
 				case 'result_count':
-					$replacement = $this->_arrayCountRecursive($asset_info);
+					$replacement = $total_assets_count;
 				break;
 
 				case 'current_result_page':
@@ -1849,8 +1848,8 @@ class Search_Page extends Listing_Engine
 
 				case 'current_result_page_end':
 					$end_record = (($current_result_page) * $results_per_page);
-					if ($end_record > $this->_arrayCountRecursive($asset_info)) {
-						$end_record = $this->_arrayCountRecursive($asset_info);
+					if ($end_record > $total_assets_count || $end_record == 0) {
+						$end_record = $total_assets_count;
 					}//end if
 					$replacement = $end_record;
 
