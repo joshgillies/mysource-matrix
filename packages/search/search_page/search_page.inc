@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.268 2013/07/22 01:36:40 ewang Exp $
+* $Id: search_page.inc,v 1.269 2013/07/22 07:54:08 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.268 $
+* @version $Revision: 1.269 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1793,8 +1793,11 @@ class Search_Page extends Listing_Engine
 		// get any extra keyword replacements from asset_listing
 		$parent_replaces = $this->getContentsKeywordReplacements($keywords);
 		
+		// filter out inrelevent groups if group name must match query string feature is enabled.
+		$group_name_filters = $this->_getSearchedQueries();
+		
 		if ($this->attr('group_by') == 'grouped') {
-			$this->groupAssetsRecursively($this->attr('asset_grouping'), $asset_info, $asset_info);
+			$this->groupAssetsRecursively($this->attr('asset_grouping'), $asset_info, $asset_info, $group_name_filters);
 			$this->sortGroups($this->attr('asset_grouping'), $asset_info, $asset_info);
 		}
 		

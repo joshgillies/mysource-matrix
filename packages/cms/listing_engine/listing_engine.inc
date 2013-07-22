@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.356 2013/07/19 05:52:26 ewang Exp $
+* $Id: listing_engine.inc,v 1.357 2013/07/22 07:52:51 ewang Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.356 $
+* @version $Revision: 1.357 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1654,7 +1654,7 @@ class Listing_Engine extends Page
 				if ($result_page > count($chunks)) {
 					$result_page = count($chunks);
 				}
-				$todo = $chunks[($result_page-1)];
+				$todo = isset($chunks[($result_page-1)]) ? $chunks[($result_page-1)] : Array();
 
 				// previous page link
 				if ($result_page <= 1) {
@@ -3354,11 +3354,12 @@ class Listing_Engine extends Page
 	* @param array	$group_levels	remaining group levels to iterate
 	* @param array	$assetids		asset ids that we are working with in this iteration
 	* @param array	&$results		reference to the array/section of array we are working on
+	* @param array	$group_name_filters	a list of values that must match with group name
 	*
 	* @return void
 	* @access public
 	*/
-	function groupAssetsRecursively($group_levels, $assetids, &$results)
+	function groupAssetsRecursively($group_levels, $assetids, &$results, $group_name_filters = Array())
 	{
 		$min_depth = $this->attr('min_depth');
 		if ($min_depth == '') $min_depth = NULL;
@@ -3476,7 +3477,7 @@ class Listing_Engine extends Page
 							$metadata_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_field_id);
 							if(empty($metadata_field)) continue;
 							$new_value = $mm->getMetadataValueByAssetid($current_parent, $metadata_field_id, TRUE, $presentation_value);
-							
+
 							// port the feature added #4039, although not perfectly sensible but still have to keep it
 							// if using raw value and the frontend format of the multi-select metadata field is 'key', grab the value of the option as grouping source
 							// if using presentation value, frontend format is 'key', it should use the key
@@ -3554,15 +3555,29 @@ class Listing_Engine extends Page
 					break;
 				}//end switch
 
-				if (!is_array($value)) {
-					$group_data['group'][$group_key] = $value;
-					$new_asset_groups[] = $group_data;
-				} else {
-					foreach ($value as $sub_value) {
-						$group_data['group'][$group_key] = $sub_value;
-						$new_asset_groups[] = $group_data;
-					}
+				
+				if(!is_array($value)) $value = Array($value);
 
+				foreach ($value as $sub_value) {
+					// should we allow empty group name?
+					$allow_blank_group_name = array_get_index($group_level, 'group_by_blank', TRUE);
+					if(!$allow_blank_group_name && empty($sub_value)) continue;
+					
+					// should we allow group name not matching search query?
+					$group_name_match_search_query = array_get_index($group_level, 'group_name_match_query', FALSE);
+					if($group_name_match_search_query) {
+					    $is_filter = TRUE;
+					    foreach ($group_name_filters as $filter) {
+						if(empty($filter)) continue;
+						if(strpos($sub_value, $filter) !== FALSE)
+							$is_filter = FALSE;
+					    }
+					    if($is_filter) continue;
+					}
+					
+					
+					$group_data['group'][$group_key] = $sub_value;
+					$new_asset_groups[] = $group_data;
 				}
 			}//end foreach on asset groups
 
