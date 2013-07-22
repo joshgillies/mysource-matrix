@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.427.2.8 2013/07/18 02:27:54 lwright Exp $
+* $Id: lang_strings.xml,v 1.427.2.9 2013/07/22 03:39:01 lwright Exp $
 *
 */
 
@@ -2197,6 +2197,8 @@ If you are ready to continue, please click <strong>Next</strong> to proceed with
     <string source="asset_map_expanding_node_two" java="1">Set %1$s of %2$s</string>
     <string source="asset_map_expanding_node_three" java="1">Total assets: %1$s</string>
     <string source="asset_map_expanding_node_four" java="1">Remaining: %1$s</string>
+    <string source="asset_map_expanding_node_one_shadow" java="1">Viewing %1$s to %2$s</string>
+    <string source="asset_map_expanding_node_two_shadow" java="1">Set %1$s</string>
     <string source="asset_map_expanding_node_move_to_next_set" java="1">Move to next set</string>
     <string source="asset_map_expanding_node_move_to_previous_set" java="1">Move to previous set</string>
 
