@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_processor.inc,v 1.31 2013/07/03 07:00:15 cupreti Exp $
+* $Id: ecommerce_cart_processor.inc,v 1.32 2013/07/23 08:15:27 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 * @author Robert Howard <rhoward@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -785,7 +785,11 @@ class Ecommerce_Cart_Processor
 			} else {
 				echo sprintf($row_format, 'Total', sprintf($price_format, $sub_total));
 			}
-			if (($total_tax > 0) || ($flat_charges_total > 0.0)) {
+			
+			$grand_total_ex_delivery = $this->getGrandTotalExDelivery($taxation_rate, $remove_tax, $flat_charges);
+			$total_delivery_cost = $this->getTotalDeliveryCosts($grand_total_ex_delivery);
+
+			if (($total_tax > 0) || ($flat_charges_total > 0.0) || $total_delivery_cost > 0) {
 				if ($total_tax > 0) {
 					$row_title = $remove_tax ? 'Excluded Tax ('.$taxation_name.')' : 'Total ('.$taxation_name.')';
 					echo sprintf($row_format, $row_title, $this->getCount(), sprintf($price_format, $total_tax));
@@ -795,9 +799,6 @@ class Ecommerce_Cart_Processor
 					echo sprintf($row_format, $name, '', sprintf($price_format, $price));
 				}
 
-				$grand_total_ex_delivery = $this->getGrandTotalExDelivery($taxation_rate, $remove_tax, $flat_charges);
-
-				$total_delivery_cost = $this->getTotalDeliveryCosts($grand_total_ex_delivery);
 
 				if ($total_delivery_cost > 0) {
 					echo sprintf($row_format, 'Delivery Fee', '', sprintf($price_format, $total_delivery_cost));
