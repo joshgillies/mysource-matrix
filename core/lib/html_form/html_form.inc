@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.172 2013/07/23 03:56:29 akarelia Exp $
+* $Id: html_form.inc,v 1.173 2013/07/23 04:21:51 akarelia Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.172 $
+* @version $Revision: 1.173 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -628,8 +628,11 @@ function get_file_upload_info($name, $pre_uploaded=FALSE)
 		break;
 		
 		case UPLOAD_ERR_EXTENSION :
-			trigger_localised_error('SYS0352', E_USER_WARNING, $nice_name);
-			return FALSE;
+			// this was introduced in PHP 5.2
+			if (PHP_VERSION_ID > 50200) {
+				trigger_localised_error('SYS0352', E_USER_WARNING, $nice_name);
+				return FALSE;
+			}
 		break;
 
 	}//end switch
