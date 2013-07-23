@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.102.6.2 2013/07/18 08:12:29 ewang Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.102.6.3 2013/07/23 05:29:15 ewang Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 * @author Greg Sherwood <greg@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.102.6.2 $
+* @version $Revision: 1.102.6.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2413,6 +2413,41 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 					break;
 				}
 
+				$o->openField(translate('cms_listing_group_by_blank'));
+
+				$group_by_blank = array_get_index($group_by_option, 'group_by_blank', 1);
+				$option = Array(
+							1			=> translate('yes'),
+							0	=> translate('no'),
+						  );
+
+				if ($write_access) {
+					combo_box($prefix.'['.$level.'][group_by_blank]', $option, FALSE, $group_by_blank);
+				} else {
+					echo ($group_by_blank == 1) ? translate('yes') : translate('no');
+				}
+
+					$o->note(translate('cms_listing_group_by_blank_note'));
+				$o->closeField();
+				
+				$o->openField(translate('cms_listing_group_name_match_query'));
+
+				$group_name_match_query = array_get_index($group_by_option, 'group_name_match_query', 0);
+				$option = Array(
+							1			=> translate('yes'),
+							0	=> translate('no'),
+						  );
+
+				if ($write_access) {
+					combo_box($prefix.'['.$level.'][group_name_match_query]', $option, FALSE, $group_name_match_query);
+				} else {
+					echo ($group_name_match_query == 1) ? translate('yes') : translate('no');
+				}
+
+					$o->note(translate('cms_listing_group_name_match_query_note'));
+				$o->closeField();
+				
+				
 				// common options - sort order, start group on a new page, delete
 				$o->openField(translate('cms_listing_sort_order'));
 
@@ -2442,6 +2477,8 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 					}
 				$o->closeField();
 
+
+		
 
 				// only display Delete option if we have write access
 				if ($write_access) {
@@ -2528,6 +2565,14 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				case 'attribute':
 					// $this->processGroupByAttribute($asset, $o, $prefix, $group_by_key, $group_by_details[$group_by_key]);
 				break;
+			}
+			
+			$posted_option = array_get_index($_POST[$prefix], $group_by_key, NULL);
+			if (isset($posted_option['group_by_blank'])) {
+			    $group_by_details[$group_by_key]['group_by_blank'] = $posted_option['group_by_blank'];
+			}
+			if (isset($posted_option['group_name_match_query'])) {
+			    $group_by_details[$group_by_key]['group_name_match_query'] = $posted_option['group_name_match_query'];
 			}
 		}
 
