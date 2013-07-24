@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.216.4.8 2013/07/16 00:51:18 lwright Exp $
+* $Id: backend.inc,v 1.216.4.9 2013/07/24 00:01:24 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.216.4.8 $
+* @version $Revision: 1.216.4.9 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -304,14 +304,14 @@ class Backend extends MySource_Object
                 $frameset_cols = $sidenav_width.','.$resizer_width.',*';
                 ?>
                 <body style="margin: 0; overflow: hidden"><div style="position: absolute; top: 0; left: 0; box-sizing: border-box; -moz-box-sizing: border-box; width: 100%; height: <?php echo $header_height ?>px; box-sizing: border-box; -moz-box-sizing: border-box; z-index: 1">
-                    <iframe src="<?php echo $frame_urls['header']; ?>" name="sq_header" scrolling="no" marginwidth="0" marginheight="0" border="0" style="border: 0; width: 100%; height: 100%; z-index: 3"></iframe>
+                    <iframe src="<?php echo $frame_urls['header']; ?>" name="sq_header" scrolling="no" marginwidth="0" marginheight="0" border="0" frameborder="0" style="border: 0; width: 100%; height: 100%; z-index: 3"></iframe>
                 </div><div style="position: absolute; top: 0; left: 0; box-sizing: border-box; -moz-box-sizing: border-box; height: 100%; width: 100%; z-index: 0">
                     <div style="float: left; position: relative; display: inline-block; top: 0; left: 0; box-sizing: border-box; -moz-box-sizing: border-box; width: <?php echo $sidenav_width ?>px; height: 100%; z-index: 0">
-                        <iframe src="<?php echo $frame_urls['sidenav']; ?>" name="sq_sidenav" scrolling="no" marginwidth="0" marginheight="0" border="0" style="border: 0; width: 100%; height: 100%"></iframe>
+                        <iframe src="<?php echo $frame_urls['sidenav']; ?>" name="sq_sidenav" scrolling="no" marginwidth="0" marginheight="0" border="0" frameborder="0" style="border: 0; width: 100%; height: 100%"></iframe>
                     </div><div style="float: left; position: relative; display: inline-block; top: 0; left: 0; box-sizing: border-box; -moz-box-sizing: border-box; width: <?php echo $resizer_width ?>px; height: 100%; z-index: 1">
-                        <iframe src="<?php echo $frame_urls['resizer']; ?>" name="sq_resizer" scrolling="no" marginwidth="0" marginheight="0" border="0" style="border: 0; width: 100%; height: 100%"></iframe>
+                        <iframe src="<?php echo $frame_urls['resizer']; ?>" name="sq_resizer" scrolling="no" marginwidth="0" marginheight="0" border="0" frameborder="0" style="border: 0; width: 100%; height: 100%"></iframe>
                     </div><div style="padding-left: <?php echo ($sidenav_width + $resizer_width) ?>px; padding-top: <?php echo $header_height ?>px; box-sizing: border-box; -moz-box-sizing: border-box; width: 100%; height: 100%;">
-                        <iframe src="<?php echo $frame_urls['main']; ?>" name="sq_main" scrolling="yes" marginwidth="0" marginheight="0" border="0" style="border: 0; width: 100%; height: 100%"></iframe>
+                        <iframe src="<?php echo $frame_urls['main']; ?>" name="sq_main" scrolling="yes" marginwidth="0" marginheight="0" border="0" frameborder="0" style="border: 0; width: 100%; height: 100%"></iframe>
                     </div></div></body>
                 <?php
             }
