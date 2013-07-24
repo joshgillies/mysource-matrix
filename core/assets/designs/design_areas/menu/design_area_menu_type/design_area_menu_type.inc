@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.115 2012/08/30 01:09:06 ewang Exp $
+* $Id: design_area_menu_type.inc,v 1.115.8.1 2013/07/24 06:45:01 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.115 $
+* @version $Revision: 1.115.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -690,11 +690,17 @@ class Design_Area_Menu_Type extends Design_Area
 						echo '$keyword = \'',$var, '\';';
 						echo '$ROW_ASSET = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset($'.$id_name.'_row[\'assetid\']);';
 						echo 'if (!is_null($ROW_ASSET)) {';
+						echo '$need_brackets = FALSE;';
+						if(preg_match('/^asset_attribute_(short_)?name/i', $var)) {
+						    echo '$need_brackets = $ROW_ASSET->status & SQ_SC_STATUS_NOT_LIVE;';
+						}
 						echo '$replacement = '.$this->_escapeVar('$ROW_ASSET->getKeywordReplacement($keyword)', $args).';';
 						echo 'if ($replacement == $keyword) {';
 						echo '	echo \'\';';
 						echo '} else {';
+						echo '          echo $need_brackets ? "(( " : "";';
 						echo '	echo $replacement;';
+						echo '          echo $need_brackets ? " ))" : "";';
 						echo '}';
 						echo '$GLOBALS[\'SQ_SYSTEM\']->am->forgetAsset($ROW_ASSET);';
 						echo '} else {';
