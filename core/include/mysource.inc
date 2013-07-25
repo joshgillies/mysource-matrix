@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.404.2.1 2013/07/16 00:51:18 lwright Exp $
+* $Id: mysource.inc,v 1.404.2.2 2013/07/25 22:24:19 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.404.2.1 $
+* @version $Revision: 1.404.2.2 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -823,7 +823,7 @@ class MySource extends MySource_Object
 					$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_asset_recached', $asset);
 
 					// Finally recache
-					if (SQ_CONF_SEND_CACHEABLE_HEADER && $cm->cacheableHeadersEnabledForCurrentProtocol() && $cm->sendCacheableHeaders($asset->type(), $asset->id)) {
+					if (SQ_CONF_SEND_CACHEABLE_HEADER && $asset->canSendCacheableHeader() && $cm->cacheableHeadersEnabledForCurrentProtocol() && $cm->sendCacheableHeaders($asset->type(), $asset->id)) {
 						$this->_sendHTTPHeaders($asset);
 					} else {
 						$asset->printFrontend();
@@ -833,6 +833,7 @@ class MySource extends MySource_Object
 				// however not send if user have just logged out (see bug #3766)
 				else if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && 
 						 SQ_CONF_SEND_CACHEABLE_HEADER &&  
+						 $asset->canSendCacheableHeader() &&
 						 empty($_POST) && $asset->status >= SQ_STATUS_LIVE && 
 						 $asset->readAccess() && 
 						 !(isset($_REQUEST['just_logged_out']) && $_REQUEST['just_logged_out']) && 
@@ -937,6 +938,7 @@ class MySource extends MySource_Object
 
 		// save/load the cache information of this asset
 		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+		
 		$cache_info = $cm->loadFromCache($asset->id, $asset->type(), $cache_key);
 
 		$cache_expiry = $cm->getExpiry($asset->type(), $asset->id);
@@ -2413,24 +2415,29 @@ class MySource extends MySource_Object
 		if (!empty($time_to_live)) {
 			$header .= 'expires='.substr(date('r', time()+$time_to_live-((int)substr(date('O'), 0, 3)*60*60)), 0, -6).' GMT; ';
 		}
-		if (!empty($session_params['domain'])) {
-			$domain = $session_params['domain'];
-			if (defined('SQ_CONF_SYSTEM_PARENT_DOMAINS')) {
-				$parent_domains = explode("\n", SQ_CONF_SYSTEM_PARENT_DOMAINS);
-				if (is_array($parent_domains)) {
-					foreach ($parent_domains as $parent_domain) {
-						$parent_length = strlen($parent_domain);
-						if ((strlen($domain) >= $parent_length) && (substr($domain, -$parent_length) == $parent_domain)) {
-							// our current domain is a subdomain of this parent domain, so we will
-							// actually set the cookie for the parent domain and its children
-							$domain = '.'.$parent_domain;
-							$session_params['path'] = '/';
-							break;
-						}
+		if (defined('SQ_CONF_SYSTEM_PARENT_DOMAINS') && SQ_CONF_SYSTEM_PARENT_DOMAINS !== '') {
+		    	$domain = strip_url(sq_web_path('root_url'), TRUE);
+			$pos =  strpos($domain, '/');
+			if($pos !== FALSE)
+			    $domain = substr($domain, 0, $pos);
+			// Remove the port number from the host part, if any.
+			$domain = preg_replace('|:\d+$|', '', $domain);
+			$new_domain = '';
+			$parent_domains = explode("\n", SQ_CONF_SYSTEM_PARENT_DOMAINS);
+			if (is_array($parent_domains)) {
+				foreach ($parent_domains as $parent_domain) {
+					$parent_length = strlen($parent_domain);
+					if ((strlen($domain) >= $parent_length) && (substr($domain, -$parent_length) === $parent_domain)) {
+						// our current domain is a subdomain of this parent domain, so we will
+						// actually set the cookie for the parent domain and its children
+						$new_domain = '.'.$parent_domain;
+						$session_params['path'] = '/';
+						break;
 					}
 				}
 			}
-			$header .= "domain=$domain; ";
+			if(empty($new_domain))
+			    $header .= "domain=$new_domain; ";
 		}
 		if (!empty($session_params['path'])) {
 			$header .= "path=$session_params[path]; ";

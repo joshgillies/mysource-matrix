@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form.inc,v 1.44.6.1 2013/07/16 00:51:17 lwright Exp $
+* $Id: simple_form.inc,v 1.44.6.2 2013/07/25 22:24:18 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.44.6.1 $
+* @version $Revision: 1.44.6.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1340,7 +1340,7 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>(form) {
 
 		// default form action
 		if (empty($form_action)) {
-			$form_action = $_SERVER['PHP_SELF'];
+			$form_action = current_url();
 		}
 		
 		// We need to print js function even if we are not printing the form here, as another form in higher level (if any) might wanna use it

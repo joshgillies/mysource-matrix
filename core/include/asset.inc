@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.787.2.2 2013/07/16 00:51:17 lwright Exp $
+* $Id: asset.inc,v 1.787.2.3 2013/07/25 22:24:18 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.787.2.2 $
+* @version $Revision: 1.787.2.3 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -847,6 +847,18 @@ class Asset extends MySource_Object
 
 	}//end reload()
 
+	/**
+	* Determine whether this asset should send cacheable header
+	*
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function canSendCacheableHeader()
+	{
+		return TRUE;
+	}//end canSendCacheableHeader()
+	
 
 	/**
 	* Determine whether this asset can have its last significant link removed
