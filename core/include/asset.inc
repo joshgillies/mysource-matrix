@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.791 2013/07/19 03:42:16 ewang Exp $
+* $Id: asset.inc,v 1.792 2013/07/25 23:23:49 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.791 $
+* @version $Revision: 1.792 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object

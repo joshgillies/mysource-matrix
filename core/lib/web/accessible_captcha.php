@@ -13,7 +13,7 @@
 * Accessible CAPTCHA Functions
 * @author Mark Brydon <mbrydon@squiz.net>
 *
-* $Id: accessible_captcha.php,v 1.5 2013/06/13 01:16:56 ewang Exp $
+* $Id: accessible_captcha.php,v 1.6 2013/07/25 23:23:50 lwright Exp $
 *
 */
 

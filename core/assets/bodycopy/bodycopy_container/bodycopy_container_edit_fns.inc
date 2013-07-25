@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.82 2013/04/03 23:45:05 akarelia Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.83 2013/07/25 23:23:47 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.82 $
+* @version $Revision: 1.83 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -195,6 +195,8 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		$updated = FALSE;
 
 		// save any changed attributes
+		error_log(print_r($bc_data, TRUE));
+		error_log(print_r($bc_saved, TRUE));
 		if (!empty($bc_data[$prefix][$asset->id]['attributes']) || !empty($bc_saved[$prefix][$asset->id]['attributes'])) {
 			$attributes_updated = FALSE;
 			$attributes = $asset->attr('attributes');

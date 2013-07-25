@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: session_handler_default.inc,v 1.13 2013/07/25 06:59:33 ewang Exp $
+* $Id: session_handler_default.inc,v 1.14 2013/07/25 23:23:48 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/session_handling/session_handler/sess
 *    defined within PHP.
 *
 * @author     Luke Wright <lwright@squiz.net>
-* @version    $Revision: 1.13 $
+* @version    $Revision: 1.14 $
 * @package    MySource_Matrix
 * @subpackage __core__
 */

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: config.inc,v 1.36 2013/06/06 05:28:36 akarelia Exp $
+* $Id: config.inc,v 1.37 2013/07/25 23:23:50 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *    Looks after the creation of the config files that are in PHP code
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix
 */
 class Config extends MySource_Object

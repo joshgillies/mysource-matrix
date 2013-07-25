@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.112 2012/08/31 02:17:44 cupreti Exp $
+* $Id: hipo_job.inc,v 1.113 2013/07/25 23:23:49 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.112 $
+* @version $Revision: 1.113 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -659,7 +659,7 @@ class HIPO_Job extends MySource_Object
 
 		// previous last_updated - the last_updated var from the last time load() was called
 		$prev_last_updated = array_get_index($this->_hipo_vars, 'timeout_prev_last_updated', $this->last_updated);
-	
+
 		// If this task utilises server processing
 		$running_at_server = isset($this->_steps[$this->_hipo_vars['current_step']]) && isset($this->_steps[$this->_hipo_vars['current_step']]['running_mode']) && $this->_steps[$this->_hipo_vars['current_step']]['running_mode'] == 'server';
 
@@ -824,7 +824,7 @@ class HIPO_Job extends MySource_Object
 
 
 	/**
-	* Update progress 
+	* Update progress
 	*
 	* @return void
 	* @access private
@@ -1554,7 +1554,7 @@ class HIPO_Job extends MySource_Object
 					<table border="0" width="100%" cellspacing="2" cellpadding="1">
 					<?php
 						foreach ($this->_hipo_vars['errors'] as $error) {
-							$err_type = ($error['warning']) ? translate('warning').': ' : translate('error').': ';
+							$err_type = strtoupper(($error['warning']) ? translate('warning').': ' : translate('error').': ');
 							?>
 							<tr>
 								<td align="left" valign="top">
@@ -1707,13 +1707,13 @@ class HIPO_Job extends MySource_Object
 	* @access public
 	*/
 	function getDependantHipoJob()
-	{	
+	{
 		$dependant_job = NULL;
 		if (!empty($this->_running_vars['dependant_hipo_job'])) {
 			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$dependant_job = $hh->getJob($this->_running_vars['dependant_hipo_job']);
 		}
-		
+
 		return $dependant_job;
 
 	}//end getDependantHipoJob()

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: locking_method_memcache.inc,v 1.7 2013/07/10 01:52:54 csmith Exp $
+* $Id: locking_method_memcache.inc,v 1.8 2013/07/25 23:23:48 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/locking/locking_method/locking_method
 *
 *
 * @author		Luke Wright <lwright@squiz.net>
-* @version		$Revision: 1.7 $
+* @version		$Revision: 1.8 $
 * @package		MySource_Matrix_Packages
 * @subpackage	__core__
 */

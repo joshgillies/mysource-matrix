@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_maintenance.inc,v 1.5 2013/07/11 06:59:33 akarelia Exp $
+* $Id: system_maintenance.inc,v 1.6 2013/07/25 23:23:50 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 *    useful for performance analysis and tuning.
 *
 * @author Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 class System_Maintenance extends MySource_Object

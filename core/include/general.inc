@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.291 2013/07/15 08:15:48 cupreti Exp $
+* $Id: general.inc,v 1.292 2013/07/25 23:23:49 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.291 $
+* @version $Revision: 1.292 $
 * @package MySource_Matrix
 */
 
@@ -1721,6 +1721,11 @@ function _asset_locator_onclick($lineage_assetids, $tooltip_hide)
 	//	  => target is the main window (opener) and no need to focus it
 	// 4. Invoking from main window, no WYSWIYG popup
 	//	  => target is the sidenav window, to target the main asset map
+	$asset_so         = get_asset_lineage_sort_order($lineage_assetids);
+	$asset_so         = explode('~', $asset_so);
+	$sort_orders      = explode('|', $asset_so[1]);
+	$lineage_assetids = explode('|', $asset_so[0]);
+
 	$onclick = 'if (self.name == \'sq_wysiwyg_popup_main\') {
 					am = self;
 				} else if (self.name == \'hipo_job\') {
@@ -1733,7 +1738,12 @@ function _asset_locator_onclick($lineage_assetids, $tooltip_hide)
 				} else {
 					am = parent.top.frames[\'sq_sidenav\'];
 				}
-				am.asset_locator_start(\''.get_asset_lineage_sort_order($lineage_assetids).'\');';
+
+				if (am.JS_Asset_Map) {
+					am.JS_Asset_Map.locateAsset(['.str_replace('\'', '\\\'', implode(',', $lineage_assetids)).'], ['.implode(',', $sort_orders).']);
+				} else {
+					am.asset_locator_start(\''.$asset_so.'\');
+				}';
 
 	if ($tooltip_hide) $onclick .= 'tooltip.hide();';
 	$onclick .= 'return false;';

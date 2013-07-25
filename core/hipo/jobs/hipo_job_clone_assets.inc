@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clone_assets.inc,v 1.39 2012/08/30 01:09:18 ewang Exp $
+* $Id: hipo_job_clone_assets.inc,v 1.40 2013/07/25 23:23:49 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -798,7 +798,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	{
 		// Only paint in the later steps (otherwise it performs a double 'get_assets' request to the asset map)
 		if ($step_data['percent_done'] > 0) {
-			$o->addOnLoad('if (window.opener.parent.frames["sq_sidenav"] && window.opener.parent.frames["sq_sidenav"].reload_asset) window.opener.parent.frames["sq_sidenav"].reload_asset("'.$this->_running_vars['to_parent_assetid'].'");');
+			$o->addOnLoad('if (window.opener.parent.frames["sq_sidenav"] && window.opener.parent.frames["sq_sidenav"].reload_assets) window.opener.parent.frames["sq_sidenav"].reload_assets(["'.$this->_running_vars['to_parent_assetid'].'"]);');
 		}//end if
 
 		return TRUE;

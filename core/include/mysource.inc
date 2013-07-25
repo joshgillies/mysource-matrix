@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.408 2013/07/25 06:59:32 ewang Exp $
+* $Id: mysource.inc,v 1.409 2013/07/25 23:23:49 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.408 $
+* @version $Revision: 1.409 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object

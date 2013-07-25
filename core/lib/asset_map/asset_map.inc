@@ -10,10 +10,10 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.318 2013/05/29 01:29:31 ewang Exp $
+* $Id: asset_map.inc,v 1.319 2013/07/25 23:23:50 lwright Exp $
 *
 */
-
+require_once(SQ_LIB_PATH.'/xml_array/xml_array.inc');
 
 /**
 * Asset Map
@@ -23,7 +23,7 @@
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.318 $
+* @version $Revision: 1.319 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -35,7 +35,7 @@ class Asset_Map
 	* Constructor
 	*
 	*/
-	function Asset_Map()
+	public function Asset_Map()
 	{
 
 	}//end constructor
@@ -49,9 +49,10 @@ class Asset_Map
 	* @return void
 	* @access public
 	*/
-	function paint(&$backend)
+	public function paint(&$backend)
 	{
 		$backend->out->addJsInclude(sq_web_path('lib').'/asset_map/asset_map.js');
+		$backend->out->addJsInclude(sq_web_path('lib').'/asset_map/js/js_asset_map.js');
 
 		?>
 		<script type="text/javascript"><!--
@@ -67,7 +68,13 @@ class Asset_Map
 			<tr>
 				<td style="height: 100%; width: 100%;" valign="top">
 				<?php
-					$this->embedAssetMap('complex', '224');
+					$useModern = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_MODERN');
+
+					if ($useModern === TRUE) {
+						$this->embedJSAssetMap('complex', '224');
+					} else {
+						$this->embedAssetMap('complex', '224');
+					}
 				?>
 				</td>
 			</tr>
@@ -75,6 +82,103 @@ class Asset_Map
 		<?php
 
 	}//end paint()
+
+
+	/**
+	 * Embed the JavaScript version of the Asset Map.
+	 *
+	 * If height is zero or not provided, it is sized as if it were being placed as
+	 * the "sidebar", with height set depending on whether in Admin or Simple Edit
+	 * interfaces. Specific height should be used for other locations, such as
+	 * WYSIWYG plugins that use the Simple Asset Map for asset selection.
+	 *
+	 * @param string  $type    The type of asset map to embed, simple or complex
+	 * @param integer $width   The width of the asset map in pixels
+	 * @param integer $height  The height of the asset map in pixels
+	 *
+	 * @return void
+	 */
+	public function embedJSAssetMap($type='simple', $width=200, $height=0)
+	{
+		$startCmd = 'startSimple';
+		if ($type !== 'simple') {
+			// Make room for tabs.
+			$width   -= 18;
+			$startCmd = 'start';
+		} else {
+			if (!defined('SQ_PAINTED_SIMPLE_ASSET_MAP')) {
+				define('SQ_PAINTED_SIMPLE_ASSET_MAP', TRUE);
+			}
+		}
+
+		// Find the teleport root.
+		$prefs = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_LINEAGE');
+
+		$assetids = explode(',',$prefs);
+		$rootlineage = '';
+
+		$common_parentid = $this->_findCommonRoot($assetids);
+
+		if (!empty($common_parentid)) {
+			$lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($common_parentid);
+
+			// Find the first SQ_SC_LINK_BACKEND_NAV, rather than simply getting it from the beginning
+			$first_lineage = Array();
+			if (!empty($lineages)) {
+				foreach ($lineages as $lineage) {
+					if ((int) $lineage['link_type'] & SQ_SC_LINK_BACKEND_NAV) {
+						$first_lineage = $lineage;
+						break;
+					}
+				}
+			}
+
+			if (!empty($first_lineage)) {
+				$lineage_assetids = array_keys($first_lineage['lineage']);
+				$lineage_assetids[] = $common_parentid;
+				$rootlineage = get_asset_lineage_sort_order($lineage_assetids);
+
+				// Initial Lineage Selection will be disabled if the Root Node is set for the user
+				// Simply asset map does not work for this option
+				$initial_selection_lineage = '';
+			}
+		}
+
+		if (empty($rootlineage)) {
+			// Initial lineage selection (i.e ..com/site1/blah/_admin will expand the lineage of that asset)
+			$initial_selection_lineage = $this->_getInitialLineageSelection($type);
+		}
+
+		?>
+		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/asset_map/js/js_asset_map.js';?>"></script>
+		<?php
+
+		// Auto-adjust height if set to zero
+		if ($height <= 0) {
+			$height = "((document.parentWindow ? document.parentWindow : document.defaultView).frameElement.offsetHeight - ".(SQ_IN_LIMBO ? 79 : 98).")";
+		}
+
+		// Make room for tabs.
+
+		?>
+		<div id="asset_map_container" style="width: <?php echo $width ?>px;">
+			<script type="text/javascript">
+				dfxLoadedCallback = function() {
+					document.getElementById('asset_map_container').style.height = <?php echo $height ?> + 'px';
+					JS_Asset_Map.<?php echo $startCmd ?>({
+						rootEditUrl: '<?php echo sq_web_path('root_url').'/'.SQ_CONF_BACKEND_SUFFIX ?>',
+						assetIconPath: '<?php echo sq_web_path('data') ?>/asset_types',
+						displayFormat: '<?php echo addslashes(SQ_CONF_ASSET_MAP_ASSET_DISPLAY_NAME); ?>',
+						assetsPerPage: <?php echo SQ_CONF_ASSET_MAP_ASSET_LIMIT; ?>,
+						initialSelection: '<?php echo $initial_selection_lineage ?>',
+						teleportRoot: <?php echo $common_parentid ?>
+					});
+				}
+			</script>
+		</div>
+		<?php
+
+	}//end embedJSAssetMap()
 
 
 	/**
@@ -86,7 +190,7 @@ class Asset_Map
 	* @return int
 	* @access public
 	*/
-	function _findCommonParentId($assetid1, $assetid2)
+	private function _findCommonParentId($assetid1, $assetid2)
 	{
 		if (!isset($assetid2) || empty($assetid2) || $assetid1 == $assetid2) {
 			return $assetid1;
@@ -133,7 +237,7 @@ class Asset_Map
 	* @return int
 	* @access public
 	*/
-	function _findCommonRoot($assetids)
+	private function _findCommonRoot($assetids)
 	{
 		$count = count($assetids);
 		// if we have only 1 asset then thats the common root
@@ -165,7 +269,7 @@ class Asset_Map
 	* @return string
 	* @access public
 	*/
-	function _getInitialLineageSelection($type='')
+	private function _getInitialLineageSelection($type='')
 	{
 
 		$initial_selection_lineage = '';
@@ -367,8 +471,8 @@ class Asset_Map
 	*
 	* @return void
 	* @access public
-	*/
-	function embedAssetMap($type='simple', $width=200, $height=0)
+	 */
+	public function embedAssetMap($type='simple', $width=200, $height=0)
 	{
 		$classname = '';
 		$jarname = '';
@@ -499,7 +603,7 @@ class Asset_Map
 		ob_end_clean();
 
 		if ($height <= 0) {
-			$height = "' + (document.body.offsetHeight - ".(SQ_IN_LIMBO ? 51 : 70).") + '";
+			$height = "' + ((document.parentWindow ? document.parentWindow : document.defaultView).frameElement.offsetHeight - ".(SQ_IN_LIMBO ? 79 : 98).") + '";
 			$applet_tag = str_replace("\n", ' ', $applet_tag);
 			?>
 			<script type="text/javascript"><!--
@@ -523,10 +627,29 @@ class Asset_Map
 	* @return void
 	* @access private
 	*/
-	function _send($output)
+	private function _send($output)
 	{
-		header('Content-Type: text/xml; encoding=utf-8');
-		echo $output->asXML();
+		$json = array_get_index($_GET, 'json', '');
+		if ($json === '1') {
+			header('Content-Type: application/json; encoding=utf-8');
+
+			if ($output instanceof SimpleXMLElement) {
+				$contents = $output->asXML();
+			} else {
+				$contents = $output;
+			}
+
+			$contents = $this->_fromXML($contents);
+			$contents = json_encode($contents);
+			echo $contents;
+		} else {
+			header('Content-Type: text/xml; encoding=utf-8');
+			if ($output instanceof SimpleXMLElement) {
+				echo $output->asXML();
+			} else {
+				echo $output;
+			}
+		}
 
 	}//end _send()
 
@@ -539,7 +662,7 @@ class Asset_Map
 	* @return void
 	* @access private
 	*/
-	function _error($code)
+	private function _error($code)
 	{
 		// if second parameter is an array, use that as our list of params
 		// otherwise, everything after 1st param is our list of params that we
@@ -557,6 +680,7 @@ class Asset_Map
 			<?xml version="1.0"?>
 			<error>Unable to Move Asset, Link #64 not found [AMAP0032]</error>
 		*/
+
 		$this->_send($responses);
 		exit();
 
@@ -571,9 +695,10 @@ class Asset_Map
 	* @return void
 	* @access public
 	*/
-	function process(&$backend)
+	public function process(&$backend)
 	{
 		ini_set("display_errors", 0);
+		$json = array_get_index($_GET, 'json', '');
 
 		// block public users from probing
 		$user = isset($GLOBALS['SQ_SYSTEM']->user) ? $GLOBALS['SQ_SYSTEM']->user : NULL;
@@ -582,11 +707,21 @@ class Asset_Map
 		}
 
 		// set the output type to XML, so any errors raised by the objects will be sent along in XML
-		$GLOBALS['SQ_OUTPUT_TYPE'] = 'xml';
+		if ($json === '1') {
+			$GLOBALS['SQ_OUTPUT_TYPE'] = 'json';
+		} else {
+			$GLOBALS['SQ_OUTPUT_TYPE'] = 'xml';
+		}
 
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 		$xml = file_get_contents("php://input");
+
+		if ($json === '1') {
+			$xml = json_decode($xml, TRUE);
+			$xml = $this->_toXML($xml, 'xml');
+		}
+
 		// disable loading external entitties to prevent scanning for file existence
 		if (function_exists('libxml_disable_entity_loader'))
 			libxml_disable_entity_loader(TRUE);
@@ -594,6 +729,7 @@ class Asset_Map
 		if (function_exists('libxml_disable_entity_loader'))
 			libxml_disable_entity_loader(FALSE);
 
+		ob_start();
 		switch ($root['action']) {
 			case 'get translations' :
 				$this->_getTranslations($input);
@@ -619,8 +755,10 @@ class Asset_Map
 			default :
 				$this->_error('AMAP0003', (string)$root->attributes()->action);
 				return;
-		}
+		}//end switch
+		$contents = ob_get_clean();
 
+		echo $contents;
 
 	}//end process()
 
@@ -633,7 +771,7 @@ class Asset_Map
 	* @return void
 	* @access private
 	*/
-	function _getTranslations(&$input)
+	private function _getTranslations(&$input)
 	{
 		$current_locale = $GLOBALS['SQ_SYSTEM']->lm->getCurrentLocale();
 
@@ -653,7 +791,7 @@ class Asset_Map
 			$out = ob_get_contents();
 		ob_end_clean();
 
-		echo $out;
+		$this->_send($out);
 
 	}//end _getTranslations()
 
@@ -666,7 +804,7 @@ class Asset_Map
 	* @return void
 	* @access private
 	*/
-	function _doInitialise()
+	private function _doInitialise()
 	{
 
 		$output = simplexml_load_string('<xml></xml>');
@@ -702,7 +840,8 @@ class Asset_Map
 
 		// just get the root's XML not the tree's, because it is part of
 		// bigger things and we dont want the version info
-		header('Content-Type: text/xml');
+		$out = '';
+
 		ob_start();
 				echo "<initialisation>\n";
 						echo "<asset_types>\n";
@@ -711,7 +850,8 @@ class Asset_Map
 										while (($file = readdir($d)) !== FALSE) {
 												if (substr($file, -4) == '.xml') {
 														@readfile($dir.'/'.$file);
-														@ob_flush();
+														$out .= ob_get_contents();
+														@ob_clean();
 												}
 										}
 										closedir($d);
@@ -720,9 +860,9 @@ class Asset_Map
 						echo $current_user_xml;
 						echo $assets_xml;
 				echo "</initialisation>\n";
-				$out = ob_get_contents();
+				$out .= ob_get_contents();
 		ob_end_clean();
-		echo $out;
+		$this->_send($out);
 
 	}//end _doInitialise()
 
@@ -736,7 +876,7 @@ class Asset_Map
 	* @return string
 	* @access private
 	*/
-	function _convertCharset($string='', $charset='UTF-8')
+	private function _convertCharset($string='', $charset='UTF-8')
 	{
 		// mb_ functions require mbstring extension
 		if (function_exists('mb_convert_encoding')) {
@@ -757,7 +897,7 @@ class Asset_Map
 	* @return array
 	* @access private
 	*/
-	function _getAssetInfo($assetid, $linkid=0)
+	private function _getAssetInfo($assetid, $linkid=0)
 	{
 
 		$attrs = Array();
@@ -1017,18 +1157,18 @@ class Asset_Map
 	* @return void
 	* @access private
 	*/
-	function _getChildAssets(&$root, $assetid, $dependants_only=FALSE, $start=0, $limit=0)
+	private function _getChildAssets(&$root, $assetid, $dependants_only=FALSE, $start=0, $limit=0)
 	{
 		// make sure permission is checked for parent asset. asset map doesn't need status check, just assume it's always live
-    	$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if($asset) {
-		    $status = $asset->status;
-		    $asset->status = SQ_STATUS_LIVE;
+			$status = $asset->status;
+			$asset->status = SQ_STATUS_LIVE;
 			if(!($asset->readAccess())) {
 				$this->_error('AMAP0047', $asset->name, $asset->id);
 				exit();
 			}
-		    $asset->status = $status;
+			$asset->status = $status;
 		}
 
 		$db_result = Array();
@@ -1177,23 +1317,23 @@ class Asset_Map
 		// create the result array to be a single (assetid => asset_data)
 		// because the DB result contains multiple entries because of possible multiple URLs
 		$result = Array();
-                $skipped = Array();
-                $res_count = 0;
-                $added = 0;
-                foreach ($db_result as $db_result_v) {
-                        if (isset($skipped[$db_result_v['assetid']]) === true) continue;
-                        if ($res_count >= $start) {
-                                if (isset($result[$db_result_v['assetid']]) === true) continue;
-                                $result[$db_result_v['assetid']] = $db_result_v;
-                                if (($limit > 0) && ($added >= $limit-1)) {
-                                        break;
-                                }
-                                $added++;
-                        } else {
-                                $skipped[$db_result_v['assetid']] = 1;
-                                $res_count++;
-                        }
-                }
+				$skipped = Array();
+				$res_count = 0;
+				$added = 0;
+				foreach ($db_result as $db_result_v) {
+						if (isset($skipped[$db_result_v['assetid']]) === true) continue;
+						if ($res_count >= $start) {
+								if (isset($result[$db_result_v['assetid']]) === true) continue;
+								$result[$db_result_v['assetid']] = $db_result_v;
+								if (($limit > 0) && ($added >= $limit-1)) {
+										break;
+								}
+								$added++;
+						} else {
+								$skipped[$db_result_v['assetid']] = 1;
+								$res_count++;
+						}
+				}
 		unset($db_result);
 		unset($bind_vars);
 		try {
@@ -1401,7 +1541,7 @@ class Asset_Map
 	* @return void
 	* @access private
 	*/
-	function _getAssetDisplayName($asset)
+	private function _getAssetDisplayName($asset)
 	{
 		// get the string from the config var and replace the assetid, name and shortname
 		$display_name = SQ_CONF_ASSET_MAP_ASSET_DISPLAY_NAME;
@@ -1456,7 +1596,7 @@ class Asset_Map
 	* @return void
 	* @access private
 	*/
-	function _getAssets(&$input)
+	private function _getAssets(&$input)
 	{
 
 		$output = simplexml_load_string('<xml></xml>');
@@ -1521,7 +1661,7 @@ class Asset_Map
 	* @return void
 	* @access private
 	*/
-	function _getURL(&$input, &$backend)
+	private function _getURL(&$input, &$backend)
 	{
 		/* input sample
 			<?xml version="1.0"?>
@@ -1634,7 +1774,7 @@ class Asset_Map
 	* @return void
 	* @access private
 	*/
-	function _moveAsset(&$input, &$backend)
+	private function _moveAsset(&$input, &$backend)
 	{
 		$output = new XML_Tree();
 		$output->addRoot('responses');
@@ -1738,7 +1878,7 @@ class Asset_Map
 	* @return void
 	* @access private
 	*/
-	function _cloneAsset(&$input, &$backend)
+	private function _cloneAsset(&$input, &$backend)
 	{
 		$output = new XML_Tree();
 		$output->addRoot('responses');
@@ -1814,7 +1954,7 @@ class Asset_Map
 	* @return void
 	* @access private
 	*/
-	function _newLink(&$input)
+	private function _newLink(&$input)
 	{
 		$output = new XML_Tree();
 		$root = $output->addRoot('responses');
@@ -1894,7 +2034,7 @@ class Asset_Map
 	* @return void
 	* @access private
 	*/
-	function _moveAssets($input)
+	private function _moveAssets($input)
 	{
 		/* EXAMPLE of input
 			<?xml version="1.0"?>
@@ -1996,7 +2136,10 @@ class Asset_Map
 			if (!$GLOBALS['SQ_SYSTEM']->am->moveLinkPos($link_info['linkid'], $new_parent_pos)) {
 				return;
 			}
-			if ($new_parent_pos <= $link_info['sort_order']) {
+
+			// If the sort ordering of the new position has changed, change it -
+			// but not if it's been set to position "-1" which is after the last position.
+			if (($new_parent_pos >= 0) && ($new_parent_pos <= $link_info['sort_order'])) {
 				$new_parent_pos++;
 			}
 			$success_node = $responses->addChild('success');
@@ -2026,8 +2169,12 @@ class Asset_Map
 			$can_create = $new_parent->canCreateLink($asset, $link_type, $exclusive);
 			if ($can_create !== TRUE) {
 				if ($can_create === FALSE) {
+					// We got a generic "can't create". Return "Unable to move asset
+					// with ID #<assetid> to parent with asset ID #<parentid>"
 					$this->_error('HIPO0020', $asset->id, $new_parent->id);
 				} else {
+					// We got a string stating why we can't create a link here. Pass
+					// that back directly.
 					$this->_error('AMAP0018', $can_create);
 				}
 				return;
@@ -2076,7 +2223,7 @@ class Asset_Map
 	/**
 	* Attempts to clone one or more assets
 	* <pre>
-	*    <command action="clone_asset", to_parent_assetid="" to_parent_pos="">
+	*    <command action="clone_asset" to_parent_assetid="" to_parent_pos="">
 	*       <asset assetid="" linkid="" parentid="" />
 	*       <asset assetid="" linkid="" parentid="" />
 	*       <... />
@@ -2088,7 +2235,7 @@ class Asset_Map
 	* @return void
 	* @access private
 	*/
-	function _cloneAssets(&$input)
+	private function _cloneAssets(&$input)
 	{
 
 		/* input example
@@ -2146,7 +2293,7 @@ class Asset_Map
 			$assets_with_sort_order[$link['sort_order']][$asset->id] = Array(
 																			'linkid'	=> $link['linkid'],
 																			'parentid'	=> $old_parent->id,
-								  									);
+																	);
 
 		}//end foreach
 
@@ -2222,11 +2369,11 @@ class Asset_Map
 	* @return void
 	* @access private
 	*/
-	function _newLinks(&$input)
+	private function _newLinks(&$input)
 	{
 		/* input example
 			<?xml version="1.0"?>
-				<command action="new link" to_parent_assetid="38" to_parent_pos="0">
+			<command action="new link" to_parent_assetid="38" to_parent_pos="0">
 				<asset assetid="39" linkid="39" parentid="1"/>
 			</command>
 		*/
@@ -2358,6 +2505,146 @@ class Asset_Map
 		return $temp_input;
 
 	}//end _fixUrlencodedAssetids()
+
+
+	/**
+	 * Translate from XML document (from Java asset map) to an array.
+	 *
+	 * @param string $input
+	 *
+	 * @return array
+	 */
+	private function _fromXML($input)
+	{
+		$startTime = microtime(TRUE);
+		$doc = new DOMDocument('1.0', 'utf-8');
+		$doc->loadXML($input);
+
+		$output = array();
+		$todo   = array(
+					   array(
+							$doc->documentElement,
+							&$output,
+					   ),
+				  );
+
+		$output['_rootTag'] = $doc->documentElement->nodeName;
+		while (count($todo) > 0) {
+			$elList = array_pop($todo);
+			$el     = $elList[0];
+			$target = &$elList[1];
+
+			if (count($el->attributes) > 0) {
+				foreach ($el->attributes as $attr) {
+					$target['_attributes'][$attr->name] = (string) $attr->value;
+				}
+			}
+
+			unset($attr);
+
+			$target['_content'] = '';
+			foreach ($el->childNodes as $node) {
+				if ($node->nodeType === XML_ELEMENT_NODE) {
+					$nodeName = $node->nodeName;
+					if (array_key_exists($nodeName, $target) === FALSE) {
+						$newKey = 0;
+					} else {
+						$newKey = count($target[$nodeName]);
+					}
+
+					$target[$nodeName][$newKey] = array();
+					$newTodo = array(
+								$node,
+								&$target[$nodeName][$newKey],
+							   );
+					$todo[] = $newTodo;
+				} else if ($node->nodeType === XML_TEXT_NODE) {
+					$target['_content'] .= $node->data;
+				} else if ($node->nodeType === XML_CDATA_SECTION_NODE) {
+					$target['_content'] .= $node->data;
+				}
+			}//end foreach
+
+			$target['_content'] = trim($target['_content']);
+			if ($target['_content'] === '') {
+				unset($target['_content']);
+			}
+
+			unset($node);
+			unset($target);
+		}//end while
+
+		return $output;
+
+	}//end _fromXML()
+
+
+	/**
+	 * Translate from array to an XML document for use by the Java asset map.
+	 *
+	 * @param array  $input
+	 * @param string $rootName
+	 *
+	 * @return string
+	 */
+	private function _toXML($input, $rootName)
+	{
+		$doc  = new DOMDocument('1.0', 'utf-8');
+		$root = $doc->createElement($rootName);
+		$doc->appendChild($root);
+
+		$output = array();
+		$todo   = array(
+					   array(
+							$input,
+							&$root,
+					   ),
+				  );
+
+		while (count($todo) > 0) {
+			$elList = array_pop($todo);
+			$source = $elList[0];
+			$el     = &$elList[1];
+
+			foreach ($source as $key => $value) {
+				switch ($key) {
+					case '_content':
+						$el->nodeValue = $source['_content'];
+					break;
+
+					case '_attributes':
+						foreach ($source['_attributes'] as $key => $value) {
+							$el->setAttribute($key, $value);
+						}
+					break;
+
+					default:
+						if (is_array($source[$key]) === TRUE) {
+							foreach ($source[$key] as $i => $subvalue) {
+								$node    = $doc->createElement($key);
+								$el->appendChild($node);
+								$newTodo = array(
+											$subvalue,
+											&$node,
+										   );
+								$todo[] = $newTodo;
+
+								unset($node);
+							}//end foreach
+						}//end if
+
+					break;
+				}//end switch
+
+			}//end foreach
+
+			unset($el);
+		}//end while
+
+		$string = $doc->saveXML();
+		return $string;
+
+	}//end _translateToXML()
 
 
 }//end class

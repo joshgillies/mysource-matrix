@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.428 2013/06/25 01:54:37 akarelia Exp $
+* $Id: lang_strings.xml,v 1.429 2013/07/25 23:23:50 lwright Exp $
 *
 */
 
@@ -18,6 +18,8 @@
 -->
 
 <strings>
+	<string source="error" js="1">Error</string>
+	<string source="asset_map_matrix_error" js="1">Matrix Error [%s]</string>
 	<string source="acquire_lock_threshold">Acquire Lock Threshold</string>
 	<string source="edit_role_threshold">Edit Role Threshold</string>
 	<string source="add_field">Add Field</string>
@@ -393,7 +395,7 @@
 	<string source="version_compare">Compare</string>
 	<string source="comparison">Comparison</string>
 	<string source="workflow_summary">Workflow Summary</string>
-	<string source="warning">WARNING</string>
+	<string source="warning">Warning</string>
 	<string source="wysiwyg_editor_tools">WYSIWYG Editor Tools</string>
 	<string source="wysiwyg_plugins">WYSIWYG Plugins</string>
 	<string source="wysiwyg_style">WYSIWYG Style</string>
@@ -1400,7 +1402,7 @@ Force that this asset can only be viewed through a Secure (SSL) connection</stri
 	<string source="trigger_action_set_site_special_page_use_direct_parent_sites">Use the direct parent sites of the broadcasting asset</string>
 	<string source="trigger_action_set_site_special_page_site_missing">The site is not specified or using the direct parent sites of the broadcasting asset is not selected</string>
 	<string source="trigger_action_set_site_special_page_special_page_type_invalid">The special page type is invalid</string>
-	
+
 	<!-- common single word strings -->
 
 	<string source="all">All</string>
@@ -1447,7 +1449,6 @@ Force that this asset can only be viewed through a Secure (SSL) connection</stri
 	<string source="htmlwidth">HTML Width</string>
 	<string source="css">CSS</string>
 	<string source="not">Not</string>
-	<string source="error">ERROR</string>
 	<string source="assets">assets</string>
 	<string source="workflow">Workflow</string>
 	<string source="revoke">Revoke</string>
@@ -2176,6 +2177,7 @@ If you are ready to continue, please click <strong>Next</strong> to proceed with
 	<string source="asset_map_tooltip_restore_root" java="1">Restore the root folder</string>
 	<string source="asset_map_tooltip_collapse_all" java="1">Collapse all</string>
 	<string source="asset_map_tooltip_toggle_status" java="1">Show status colours</string>
+	<string source="asset_map_status_colour_key" js="1">Status colour key</string>
 	<string source="asset_map_tooltip_add_asset" java="1">Add new asset</string>
 
 	<string source="asset_map_dialog_title_error" java="1">Error</string>
@@ -2193,6 +2195,8 @@ If you are ready to continue, please click <strong>Next</strong> to proceed with
 	<string source="asset_map_expanding_node_two" java="1">Set %1$s of %2$s</string>
 	<string source="asset_map_expanding_node_three" java="1">Total assets: %1$s</string>
 	<string source="asset_map_expanding_node_four" java="1">Remaining: %1$s</string>
+	<string source="asset_map_expanding_node_one_shadow" java="1">Viewing %1$s to %2$s</string>
+	<string source="asset_map_expanding_node_two_shadow" java="1">Set %1$s</string>
 	<string source="asset_map_expanding_node_move_to_next_set" java="1">Move to next set</string>
 	<string source="asset_map_expanding_node_move_to_previous_set" java="1">Move to previous set</string>
 
@@ -2211,6 +2215,8 @@ If you are ready to continue, please click <strong>Next</strong> to proceed with
 	<string source="asset_map_dialog_delete" java="1">Trash Assets</string>
 	<string source="asset_map_dialog_jump" java="1">Jump To Asset</string>
 
+	<string source="trash_asset" js="1">Trash Asset</string>
+	<string source="trash_assets" js="1">Trash Assets</string>
 
 	<string source="asset_map_menu_move_here" java="1">Move here</string>
 	<string source="asset_map_menu_link_here" java="1">New Link here</string>
@@ -2227,10 +2233,12 @@ If you are ready to continue, please click <strong>Next</strong> to proceed with
 	<string source="asset_map_menu_add_new" java="1">Add New</string>
 	<string source="asset_map_menu_remove" java="1">Remove</string>
 	<string source="asset_map_menu_new_child_previous" java="1">New Child: %s</string>
+	<string source="asset_map_menu_new_previous" js="1">New %s</string>
 	<string source="asset_map_menu_no_previous_child" java="1">No Previous Child</string>
 
 	<string source="asset_map_confirm_move_child" java="1">Are you sure you want to move the asset "%s" to the Trash?</string>
 	<string source="asset_map_confirm_move_children" java="1">Are you sure you want to move %s assets to the Trash?</string>
+	<string source="%s_assets" js="1">%s assets</string>
 
 	<string source="asset_map_tooltip_next_node" java="1">View Next Set of Assets</string>
 	<string source="asset_map_tooltip_previous_node" java="1">View Previous Set of Assets</string>
@@ -2372,15 +2380,15 @@ If you are ready to continue, please click <strong>Next</strong> to proceed with
 	<string source="remove_self_links_note">Select 'Yes' if you want all links directing to currently viewed asset removed from content</string>
 
 	<!-- Current Statuses - named with the bit field name -->
-	<string source="status_archived">Archived</string>
-	<string source="status_under_construction">Under Construction</string>
-	<string source="status_pending_approval">Pending Approval</string>
-	<string source="status_approved">Approved To Go Live</string>
-	<string source="status_live">Live</string>
-	<string source="status_live_approval">Up For Review</string>
-	<string source="status_editing">Safe Editing</string>
-	<string source="status_editing_approval">Safe Editing Pending Approval</string>
-	<string source="status_editing_approved">Safe Edit Approved To Go Live</string>
+	<string source="status_archived" js="1">Archived</string>
+	<string source="status_under_construction" js="1">Under Construction</string>
+	<string source="status_pending_approval" js="1">Pending Approval</string>
+	<string source="status_approved" js="1">Approved To Go Live</string>
+	<string source="status_live" js="1">Live</string>
+	<string source="status_live_approval" js="1">Up For Review</string>
+	<string source="status_editing" js="1">Safe Editing</string>
+	<string source="status_editing_approval" js="1">Safe Editing Pending Approval</string>
+	<string source="status_editing_approved" js="1">Safe Edit Approved To Go Live</string>
 
 	<!-- Status Changes -->
 	<string source="status_change_place_under_construction">Place Under Construction</string>
@@ -2479,10 +2487,10 @@ If you are ready to continue, please click <strong>Next</strong> to proceed with
 	<string source="minor_is_not_asset">Variable passed in minor asset parameter is not an asset object</string>
 	<string source="type_code_is_not_string">Variable passed in type code parameter is not a string</string>
 	<string source="link_type_is_not_integer">Variable passed in link type parameter is not numeric</string>
-	<string source="asset_type_cannot_be_linktype_linked_to_type">Assets of Type "%1$s" cannot be "%2$s" linked to a "%3$s"</string>
+	<string source="asset_type_cannot_be_linktype_linked_to_type">%1$s assets cannot be %2$s-linked to a %3$s</string>
 	<string source="exclusive_links_must_be_significant">In order for a link to be exclusive it must also be a significant link</string>
-	<string source="asset_type_must_be_linktype_exclusively_linked_to_type">Assets of Type "%1$s" must be "%2$s" exclusively linked to a "%3$s"</string>
-	<string source="asset_type_can_have_only_linktypes_links_to_type">"%1$s" Assets can only have %2$s "%3$s" link(s) to a "%4$s"</string>
+	<string source="asset_type_must_be_linktype_exclusively_linked_to_type">%2$s links between %1$s and %3$s assets must be exclusive</string>
+	<string source="asset_type_can_have_only_linktypes_links_to_type">%1$s assets can only have %2$s %3$s link(s) to %4$s assets</string>
 	<string source="asset_not_created">Asset not created</string>
 
 	<string source="asset_field_assetid">Asset ID</string>
@@ -2874,7 +2882,7 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="install_key">Install Key</string>
 	<string source="warranty_key">Warranty Key</string>
 	<string source="system_config_install_key_note"><![CDATA[The install key is automatically generated when the <em>step_03.php</em> script is run to reconfigure your system - it cannot be changed here.]]></string>
-	
+
 	<!-- Live Link Only -->
 	<string source="live_link_only">In Live Asset, Only Allow Creating Hyperlink to Live Asset </string>
 	<string source="live_link_only_note">If yes, it will stop user creating a hyperlink from a Live asset to a non-live asset.</string>
@@ -2926,7 +2934,7 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="squid_tool_populate_note">Request each URL after the purge action so that Squid can recache it.</string>
 	<string source="squid_tool_cascade_note">Clear the cache of the selected asset and its children.</string>
 	<string source="squid_tool_note">Note: Repopulate and Cascade option will also be applied to the cron job if you schedule one.</string>
-	
+
 	<string source="squid_tool_url_port_field">Add Port to URL</string>
 	<string source="squid_tool_url_port_note">You can specify a port to add to each URL when submitted to Squid. If you are running Squiz Matrix on a non-standard port behind Squid, you may need to add the port back to the URL to clear the cache.</string>
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.217 2013/07/03 05:23:16 ewang Exp $
+* $Id: backend.inc,v 1.218 2013/07/25 23:23:49 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.217 $
+* @version $Revision: 1.218 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -150,9 +150,9 @@ class Backend extends MySource_Object
 			}
 		}
 
-        if (SQ_DESIGN_NO_FRAME && SQ_IN_LIMBO) {
-            $_REQUEST['SQ_BACKEND_PAGE'] = 'main';
-        }//end if
+		if (SQ_DESIGN_NO_FRAME && SQ_IN_LIMBO) {
+			$_REQUEST['SQ_BACKEND_PAGE'] = 'main';
+		}//end if
 
 		if (empty($_REQUEST['SQ_BACKEND_PAGE']) || $_REQUEST['SQ_BACKEND_PAGE'] == 'frames') {
 			$this->_printFrames();
@@ -275,10 +275,12 @@ class Backend extends MySource_Object
 		}
 
 		?>
+		<!DOCTYPE html>
 		<html>
 			<head>
 				<title><?php echo $page_title; ?></title>
 				<meta http-equiv="Content-Type" content="text/html; charset=<?php echo SQ_CONF_DEFAULT_CHARACTER_SET; ?>">
+				<link rel="stylesheet" type="text/css" href=<?php echo '"'.sq_web_path('lib').'/asset_map/js/js_asset_map.css"'; ?>/>
 				<link rel="shortcut icon" href=<?php echo '"'.sq_web_path('lib').'/web/images/icons/favicon.ico"'; ?>/>
 				<?php
 				if ($limbo_hipo) {
@@ -301,14 +303,16 @@ class Backend extends MySource_Object
 				$resizer_width = $limbo_hide_frames ? 0 : 10;
 				$frameset_cols = $sidenav_width.','.$resizer_width.',*';
 				?>
-				<frameset rows="<?php echo $header_height; ?>,*" frameborder="0" border="0">
-					<frame src="<?php echo $frame_urls['header']; ?>" name="sq_header" scrolling="no" marginwidth="0" marginheight="0">
-					<frameset cols="<?php echo $frameset_cols; ?>" frameborder="0" border="0" id ="main_frameset">
-						<frame src="<?php echo $frame_urls['sidenav']; ?>" name="sq_sidenav" scrolling="no" marginwidth="0" marginheight="0">
-						<frame src="<?php echo $frame_urls['resizer']; ?>" name="sq_resizer" scrolling="no" marginwidth="0" marginheight="0">
-						<frame src="<?php echo $frame_urls['main']; ?>" name="sq_main" marginwidth="0" marginheight="0" scrolling="yes">
-					</frameset>
-				</frameset>
+				<body style="margin: 0; overflow: hidden"><div style="position: absolute; top: 0; left: 0; box-sizing: border-box; -moz-box-sizing: border-box; width: 100%; height: <?php echo $header_height ?>px; box-sizing: border-box; -moz-box-sizing: border-box; z-index: 1">
+					<iframe src="<?php echo $frame_urls['header']; ?>" name="sq_header" scrolling="no" marginwidth="0" marginheight="0" border="0" frameborder="0" style="border: 0; width: 100%; height: 100%; z-index: 3"></iframe>
+				</div><div style="position: absolute; top: 0; left: 0; box-sizing: border-box; -moz-box-sizing: border-box; height: 100%; width: 100%; z-index: 0">
+					<div style="float: left; position: relative; display: inline-block; top: 0; left: 0; box-sizing: border-box; -moz-box-sizing: border-box; width: <?php echo $sidenav_width ?>px; height: 100%; z-index: 0">
+						<iframe src="<?php echo $frame_urls['sidenav']; ?>" name="sq_sidenav" scrolling="no" marginwidth="0" marginheight="0" border="0" frameborder="0" style="border: 0; width: 100%; height: 100%"></iframe>
+					</div><div style="float: left; position: relative; display: inline-block; top: 0; left: 0; box-sizing: border-box; -moz-box-sizing: border-box; width: <?php echo $resizer_width ?>px; height: 100%; z-index: 1">
+						<iframe src="<?php echo $frame_urls['resizer']; ?>" name="sq_resizer" scrolling="no" marginwidth="0" marginheight="0" border="0" frameborder="0" style="border: 0; width: 100%; height: 100%"></iframe>
+					</div><div style="padding-left: <?php echo ($sidenav_width + $resizer_width) ?>px; padding-top: <?php echo $header_height ?>px; box-sizing: border-box; -moz-box-sizing: border-box; width: 100%; height: 100%;">
+						<iframe src="<?php echo $frame_urls['main']; ?>" name="sq_main" scrolling="yes" marginwidth="0" marginheight="0" border="0" frameborder="0" style="border: 0; width: 100%; height: 100%"></iframe>
+					</div></div></body>
 				<?php
 			}
 			?>
@@ -438,7 +442,7 @@ class Backend extends MySource_Object
 			if (!empty($updated_assetids)) {
 				$this->out->addOnLoad('
 					if (parent.frames["sq_sidenav"] && parent.frames["sq_sidenav"].reload_assets) {
-						parent.frames["sq_sidenav"].reload_assets("'.addslashes(implode(',', $updated_assetids)).'");
+						parent.frames["sq_sidenav"].reload_assets(["'.implode('","', $updated_assetids).'"]);
 					}
 				');
 			}
@@ -593,7 +597,7 @@ class Backend extends MySource_Object
 
 									$value = htmlspecialchars($value);
 									$name_detail = htmlspecialchars($name_detail);
-									
+
 									$value = preg_replace('/('.addslashes(implode('|', $words)).')/i', '<span class="sq-backend-search-results-highlight">$1</span>', $value);
 
 									// remove
@@ -698,19 +702,19 @@ class Backend extends MySource_Object
 			$read_messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->user->id, NULL, Array(SQ_MSG_READ), Array(), $from, NULL, NULL, Array(), 0, TRUE);
 			$messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->user->id, NULL, Array(SQ_MSG_UNREAD), Array(), NULL, NULL, NULL, Array(), 0, TRUE);
 			$loading_time = time() - $loading_start;
-			
+
 			// remind user to clean up internal messages if it's taking too slow to load
 			if($loading_time >= 30) {
-			    $html = $this->_getDHTMLMessage('Too slow to load messages','The Internal Messages is taking too long to load. Try running the <a href="http://manuals.matrix.squizsuite.net/server-administrator/chapters/remove-internal-messages-script" target="_blank">Remove Internal Message Script</a> to clean up internal messages within your system.', 'new-message', 'stop', 48, 48);
-			    $dhtml_messages['warning_messsage'] = Array('html' =>str_replace("\n", '', $html), 'width' => '400', 'timeout' => 12.0);
+				$html = $this->_getDHTMLMessage('Too slow to load messages','The Internal Messages is taking too long to load. Try running the <a href="http://manuals.matrix.squizsuite.net/server-administrator/chapters/remove-internal-messages-script" target="_blank">Remove Internal Message Script</a> to clean up internal messages within your system.', 'new-message', 'stop', 48, 48);
+				$dhtml_messages['warning_messsage'] = Array('html' =>str_replace("\n", '', $html), 'width' => '400', 'timeout' => 12.0);
 			}
 
-			
+
 			if (!empty($messages)) {
 				$html = $this->_getDHTMLMessage(translate('new_messages'), translate('new_messages_count', htmlspecialchars($GLOBALS['SQ_SYSTEM']->user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), $messages), 'new-message', 'mail', 31, 37);
 				$dhtml_messages['new_messages'] = Array('html' => str_replace("\n", '', $html), 'width' => '220', 'timeout' => 6.0);
 			}
-			
+
 
 
 		}//end if not in LIMBO
@@ -1110,6 +1114,8 @@ class Backend extends MySource_Object
 	*/
 	function _printSideNav()
 	{
+		$this->out->addJsInclude(sq_web_path('lib').'/web/dfx/dfx.js');
+		$this->out->addCssInclude(sq_web_path('lib').'/asset_map/js/js_asset_map.css');
 		$this->out->openRaw();
 		$include_list = $GLOBALS['SQ_SYSTEM']->lm->getJavascriptIncludes();
 		$include_list[] = sq_web_path('lib').'/js/general.js';
@@ -1140,6 +1146,9 @@ class Backend extends MySource_Object
 			}
 			.sidenav-tab-end-active {
 				background:	url("<?php echo sq_web_path('lib'); ?>/web/images/sidenav_active_tab_end.png") no-repeat;
+			}
+			.sq-backend-header-item {
+				font-size: 1em;
 			}
 
 			.sidenav-tab-icon, .sidenav-tab-icon-active {
@@ -1232,11 +1241,13 @@ class Backend extends MySource_Object
 		</script>
 
 		<?php
+		$useModernAssetMap = (bool) $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_MODERN');
+
 		if (SQ_IN_LIMBO) {
 			?>
-				<table cellspacing="0" cellpadding="0" border="0" width="100%" height="100%">
+				<table cellspacing="0" cellpadding="0" border="0" width="100%" height="100%" style="position: absolute;">
 					<tr>
-						<td class="sq-backend-header-item" style="width: 100%;"><img style="margin-left: 21px; margin-bottom: 5px;" src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/matrix_logo.gif" alt="MySource Matrix" /></td>
+						<td class="sq-backend-header-item" style="width: 100%;"><img style="margin-left: 21px; margin-bottom: 5px;" src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/matrix_logo.gif" alt="Squiz Matrix" /></td>
 					</tr>
 					<tr>
 						<td height="100%" valign="top">&nbsp;</td>
@@ -1252,16 +1263,21 @@ class Backend extends MySource_Object
 					require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
 					$asset_map = new Asset_Map();
 					$am_width = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_WIDTH');
-					$asset_map->embedAssetMap('simple', $am_width);
+
+					if ($useModernAssetMap === TRUE) {
+						$asset_map->embedJSAssetMap('simple', $am_width);
+					} else {
+						$asset_map->embedAssetMap('simple', $am_width);
+					}
 					?>
 				</div>
 			<?php
 		} else {
 			// we are on the backend
 			?>
-				<table cellspacing="0" cellpadding="0" border="0" width="100%" height="100%">
+				<table cellspacing="0" cellpadding="0" border="0" width="100%" height="100%" style="position: absolute; padding-top: 28px">
 					<tr>
-						<td class="sq-backend-header-item" style="width: 100%;"><img style="margin-left: 21px; margin-bottom: 5px;" src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/matrix_logo.gif" alt="MySource Matrix" /></td>
+						<td class="sq-backend-header-item" style="width: 100%;"><img style="margin-left: 21px; margin-bottom: 5px;" src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/matrix_logo.gif" alt="Squiz Matrix" /></td>
 					</tr>
 					<tr>
 						<td height="100%" valign="top">
@@ -1293,15 +1309,20 @@ class Backend extends MySource_Object
 					</tr>
 				</table>
 
-				<div id="asset_map" style="position: absolute; top: 47px; left: 6px; visibility: visible; border-top: 0px none; border-left: 0px none;">
+				<div id="asset_map" style="position: absolute; top: 75px; left: 6px; visibility: visible; border-top: 0px none; border-left: 0px none;">
 					<?php
 					require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
 					$asset_map = new Asset_Map();
 					$am_width = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_WIDTH');
-					$asset_map->embedAssetMap('complex', $am_width);
+
+					if ($useModernAssetMap === TRUE) {
+						$asset_map->embedJSAssetMap('complex', $am_width);
+					} else {
+						$asset_map->embedAssetMap('complex', $am_width);
+					}
 					?>
 				</div>
-				<div id="my_space" style="position: absolute; top: 44px; left: 0px; visibility: hidden;">
+				<div id="my_space" style="position: absolute; top: 75px; left: 0px; visibility: hidden;">
 					<?php
 					$user = $GLOBALS['SQ_SYSTEM']->user;
 					$inbox_link = $GLOBALS['SQ_SYSTEM']->am->getLink($user->id, SQ_LINK_TYPE_2, 'inbox', TRUE, NULL, 'major', '1');
@@ -1387,17 +1408,19 @@ class Backend extends MySource_Object
 
 			function toggleFrame() {
 				if (hidden == false) {
-					if (fset.cols == "<?php echo $am_width; ?>,10,*") {
-						fset.cols = "0,10,*";
-					} else if (fset.cols == "<?php echo $am_width; ?>,0,*") {
-						fset.cols = "0,0,*";
+					top.frames['sq_sidenav'].frameElement.parentNode.style.display = 'none';
+					if (top.frames['sq_resizer'].frameElement.parentNode.style.display !== 'none') {
+						top.frames['sq_main'].frameElement.parentNode.style.paddingLeft = '10px';
+					} else {
+						top.frames['sq_main'].frameElement.parentNode.style.paddingLeft = '0px';
 					}
 					hidden = true;
 				} else {
-					if (fset.cols == "0,10,*") {
-						fset.cols = "<?php echo $am_width; ?>,10,*";
-					} else if (fset.cols == "0,0,*") {
-						fset.cols = "<?php echo $am_width; ?>,0,*";
+					top.frames['sq_sidenav'].frameElement.parentNode.style.display = 'inline-block';
+					if (top.frames['sq_resizer'].frameElement.parentNode.style.display !== 'none') {
+						top.frames['sq_main'].frameElement.parentNode.style.paddingLeft = '<?php echo ($am_width + 10); ?>px';
+					} else {
+						top.frames['sq_main'].frameElement.parentNode.style.paddingLeft = '<?php echo $am_width; ?>px';
 					}
 					hidden = false;
 				}
@@ -1432,21 +1455,21 @@ class Backend extends MySource_Object
 	*/
 	function _printMain()
 	{
-	    
-	       	// verify nonce secuirty token to make sure the user submitting the request is using Matrix's backend interface
+
+			// verify nonce secuirty token to make sure the user submitting the request is using Matrix's backend interface
 		if((SQ_IN_BACKEND || SQ_IN_LIMBO) && isset($_POST['process_form'])) {
-		    if(!isset($_POST['token'])) {
+			if(!isset($_POST['token'])) {
 			trigger_error('Security token not found');
 			return;
-		    }
-		    $token = get_unique_token();
-		    if($_POST['token'] !== $token) {
+			}
+			$token = get_unique_token();
+			if($_POST['token'] !== $token) {
 			trigger_error('Invalid security token');
 			return;
-		    } 
+			}
 		}
 
-		
+
 		if (empty($_REQUEST['backend_section'])) {
 			$_REQUEST['backend_section'] = 'am';
 		}
@@ -1582,7 +1605,7 @@ class Backend extends MySource_Object
 		return $html;
 
 	}//end _getDHTMLMessage()
-	
+
 
 
 }//end class

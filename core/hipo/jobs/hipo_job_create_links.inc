@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.69 2012/08/30 01:09:18 ewang Exp $
+* $Id: hipo_job_create_links.inc,v 1.70 2013/07/25 23:23:49 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.69 $
+* @version $Revision: 1.70 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -419,7 +419,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			$o->openSection(translate('hipo_move_confirmation'));
 
 				if (!empty($this->_tmp['message'])) {
-					$o->openField('<span style="color: #FF0000;">'.translate('error').'</span>');
+					$o->openField('<span style="color: #FF0000;">'.strtoupper(translate('error')).'</span>');
 						echo $this->_tmp['message'];
 					$o->closeField();
 				}
@@ -1635,20 +1635,18 @@ class HIPO_Job_Create_Links extends HIPO_Job
 	{
 		// Only process in the later steps (otherwise it performs a double 'get_assets' request to the asset map)
 		if ($step_data['percent_done'] > 0) {
-			$o->addOnLoad('if (window.opener.parent.frames["sq_sidenav"] && window.opener.parent.frames["sq_sidenav"].reload_asset) window.opener.parent.frames["sq_sidenav"].reload_asset("'.$this->_running_vars['to_parent_assetid'].'");');
-
-			$refreshids = Array();
+			$refreshids = Array(
+						   addslashes($this->running_vars['to_parent_assetid']),
+						  );
 
 			foreach ($this->_running_vars['assets'] as $links) {
 				foreach ($links as $link) {
-					$refreshids[] = $link['parentid'];
+					$refreshids[] = addslashes($link['parentid']);
 				}
 			}
 			$refreshids = array_unique($refreshids);
 
-			foreach ($refreshids as $refreshid) {
-				$o->addOnLoad('if (window.opener.parent.frames["sq_sidenav"] && window.opener.parent.frames["sq_sidenav"].reload_asset) window.opener.parent.frames["sq_sidenav"].reload_asset("'.$refreshid.'");');
-			}
+			$o->addOnLoad('if (window.opener.parent.frames["sq_sidenav"] && window.opener.parent.frames["sq_sidenav"].reload_assets) window.opener.parent.frames["sq_sidenav"].reload_assets(["'.implode('","', $refreshids).'"]);');
 		}//end if
 
 		return TRUE;

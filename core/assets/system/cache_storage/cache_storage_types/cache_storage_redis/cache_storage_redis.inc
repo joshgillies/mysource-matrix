@@ -18,7 +18,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: cache_storage_redis.inc,v 1.4 2013/05/27 03:50:26 ewang Exp $
+ * $Id: cache_storage_redis.inc,v 1.5 2013/07/25 23:23:48 lwright Exp $
  *
  */
 
@@ -38,7 +38,7 @@ define('SQ_CACHE_REDIS_URL_INDEX_PREFIX', 'sq_cache_url_index|');
  *
  * @author  James Hurst <james@riverratrecords.com>
  * @author  Hamish Forbes <hforbes@squiz.co.uk>
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  * @package MySource_Matrix_Packages
  * @subpackage __core__
  */

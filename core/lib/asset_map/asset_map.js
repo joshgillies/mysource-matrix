@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.js,v 1.30 2012/11/22 03:54:18 cupreti Exp $
+* $Id: asset_map.js,v 1.31 2013/07/25 23:23:50 lwright Exp $
 *
 */
 
@@ -87,6 +87,10 @@ function get_java_applet_object()
 */
 function reload_assets(assetids)
 {
+	if (typeof assetids !== 'string') {
+		assetids = assetids.join('|');
+	}
+
 	if (SQ_REFRESH_ASSETIDS != "") {
 		SQ_REFRESH_ASSETIDS += "|";
 	}

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_prefs.inc,v 1.20 2012/08/30 01:09:17 ewang Exp $
+* $Id: user_prefs.inc,v 1.21 2013/07/25 23:23:49 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_ATTRIBUTES_PATH.'/int/int.inc';
 *    Looks after the session expiry prefences for user groups
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix
 */
 class User_Prefs extends Prefs
@@ -45,6 +45,12 @@ class User_Prefs extends Prefs
 														'name'			=> 'user_prefs_asset_map_root_asset_header',
 														'description'	=> 'This preference allows you to change the root node that is displated in the Asset Map',
 														'default'		=> '',
+														'protected'		=> FALSE,
+													   ),
+						'SQ_USER_ASSET_MAP_MODERN'  => Array(
+														'name'			=> 'user_prefs_asset_map_modern_header',
+														'description'	=> 'Controls whether the modern (JS-based) asset map is used where supported, or the original Java version',
+														'default'		=> FALSE,
 														'protected'		=> FALSE,
 													   ),
 						'SQ_USER_SAFE_TYPE3_TRASH'	=> Array(
@@ -282,6 +288,36 @@ class User_Prefs extends Prefs
 			if (is_null($pref)) $o->closeField();
 		}//end if
 
+		if (is_null($pref) || $pref == 'SQ_USER_ASSET_MAP_MODERN') {
+			if (is_null($pref)) {
+				$o->openField(translate($this->pref_vars['SQ_USER_ASSET_MAP_MODERN']['name']));
+			}
+			?>
+			<div class="sq-backend-table sq-backend-table-cell">
+			<?php
+				$description = translate('user_prefs_asset_map_modern_description_1').' '.
+								   translate('user_prefs_asset_map_modern_description_2').' '.
+								   translate('user_prefs_asset_map_modern_description_3');
+				$options     = Array(
+								FALSE	=> 'No',
+								TRUE	=> 'Yes',
+							   );
+				$value = $this->pref_vars['SQ_USER_ASSET_MAP_MODERN']['default'];
+				if ($have_lock && $is_admin) {
+					combo_box('prefs[SQ_USER_ASSET_MAP_MODERN]', $options, FALSE, $value, 0, 'id="prefs_SQ_USER_ASSET_MAP_MODERN"');
+					?><br/><?php
+					label($description, 'prefs_SQ_USER_ASSET_MAP_MODERN');
+				} else {
+					echo $options[$value].'<br/>';
+					echo $description;
+				}
+			?>
+			<br />
+			</div>
+			<?php
+			if (is_null($pref)) $o->closeField();
+		}//end if
+
 		if (is_null($pref) || $pref == 'SQ_USER_ASSET_MAP_LINEAGE') {
 			if (is_null($pref)) {
 				$o->openField(translate($this->pref_vars['SQ_USER_ASSET_MAP_LINEAGE']['name']));
@@ -418,7 +454,7 @@ class User_Prefs extends Prefs
 			<br />
 			</div>
 			<?php
-
+			if (is_null($pref)) $o->closeField();
 		}//end if
 
 		if (is_null($pref) || $pref == 'SQ_USER_ATTRIBUTE_IMAGE') {
@@ -701,6 +737,15 @@ class User_Prefs extends Prefs
 			$system_conf->releaseLock();
 		}
 
+		if (is_null($pref) || $pref == 'SQ_USER_ASSET_MAP_MODERN') {
+			// Modern Asset Map pref (default to Java asset map).
+			if (isset($_POST['prefs']['SQ_USER_ASSET_MAP_MODERN'])) {
+				$this->pref_vars['SQ_USER_ASSET_MAP_MODERN']['default'] = $_POST['prefs']['SQ_USER_ASSET_MAP_MODERN'];
+			} else {
+				$this->pref_vars['SQ_USER_ASSET_MAP_MODERN']['default'] = FALSE;
+			}
+		}
+
 		if (is_null($pref) || $pref == 'SQ_USER_SAFE_TYPE3_TRASH') {
 			// safe trash pref
 			if (isset($_POST['prefs']['SQ_USER_SAFE_TYPE3_TRASH'])) {
@@ -747,7 +792,7 @@ class User_Prefs extends Prefs
 				$this->pref_vars['SQ_USER_LIMBO_HIDE_FRAMES']['default'] = FALSE;
 			}
 		}
-		
+
 		if (is_null($pref) || $pref == 'SQ_USER_FILTER_FRONT_END_INPUT') {
 			// filter front end input
 			if (isset($_POST['prefs']['SQ_USER_FILTER_FRONT_END_INPUT'])) {
@@ -756,7 +801,7 @@ class User_Prefs extends Prefs
 				$this->pref_vars['SQ_USER_FILTER_FRONT_END_INPUT']['default'] = FALSE;
 			}
 		}
-		
+
 		if (is_null($pref) || $pref == 'SQ_USER_ATTRIBUTE_IMAGE') {
 			$new_prefs = Array(
 							'face'	=> 'arial',

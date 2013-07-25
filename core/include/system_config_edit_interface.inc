@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config_edit_interface.inc,v 1.46 2013/07/11 06:51:30 akarelia Exp $
+* $Id: system_config_edit_interface.inc,v 1.47 2013/07/25 23:23:49 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *    Looks after the editing of the system config
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix
 */
 class System_Config_Edit_Interface extends MySource_Object

@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.17 2010/08/04 06:31:17 mhaidar Exp $
+* $Id: lang_strings.xml,v 1.18 2013/07/25 23:23:49 lwright Exp $
 *
 */
 -->
@@ -31,6 +31,10 @@
 	<string source="user_prefs_asset_map_root_asset_explanation">The asset that will be displayed as the Asset Map's root node</string>
 	<string source="user_prefs_set_context_on_login">Set context on login</string>
 	<string source="user_prefs_limbo_hide_frames">Hide frames in the Simple Edit Interface?</string>
+	<string source="user_prefs_asset_map_modern_header">Use Modern Asset Map</string>
+	<string source="user_prefs_asset_map_modern_description_1">Set this preference to "Yes" to use the modern, JavaScript-based asset map, if the user's browser can support it.</string>
+	<string source="user_prefs_asset_map_modern_description_2">Squiz Matrix will fall back to the original Java-based asset map if the browser is not supported (includes Internet Explorer up to 7).</string>
+	<string source="user_prefs_asset_map_modern_description_3">Setting this preference to "No" will instead use the Java asset map at all times.</string>
 	<string source="end_user_session">End the user's session</string>
 	<string source="user_held_locks">%s currently holds %d Locks.</string>
 	<string source="current_locks">Current Locks</string>
