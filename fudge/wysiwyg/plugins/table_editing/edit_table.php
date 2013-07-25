@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_table.php,v 1.34 2013/05/16 01:25:10 cupreti Exp $
+* $Id: edit_table.php,v 1.35 2013/07/25 23:25:17 lwright Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Table Edit Popup for the WYSIWYG
 *
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix
 */
 

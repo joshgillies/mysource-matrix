@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_anchor.inc,v 1.20 2013/07/02 04:07:08 akarelia Exp $
+* $Id: matrix_insert_anchor.inc,v 1.21 2013/07/25 23:25:17 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */

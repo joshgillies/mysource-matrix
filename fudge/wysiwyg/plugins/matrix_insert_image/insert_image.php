@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.60 2013/06/21 05:23:48 akarelia Exp $
+* $Id: insert_image.php,v 1.61 2013/07/25 23:25:17 lwright Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.61 $
 * @package MySource_Matrix
 */
 
@@ -68,6 +68,8 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/JsHttpConnector.js' ?>"></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/general.js' ?>"></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/tooltip.js' ?>"></script>
+		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/web/dfx/dfx.js' ?>"></script>
+		<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('lib').'/asset_map/js/js_asset_map.css' ?>" />
 
 		<script type="text/javascript">
 
@@ -154,9 +156,9 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 			function setImageInfo() {
 				// put a random no in the url to overcome any caching
 				var assetid = document.getElementById("f_imageid[assetid]").value;
-			
+
 				var url = '<?php echo sq_web_path('root_url').'/'.SQ_CONF_LIMBO_SUFFIX; ?>/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid=' + escape(assetid) + '&asset_ei_screen=image_info&ignore_frames=1&t=' + Math.random() * 1000;
-	
+
 				JsHttpConnector.submitRequest(url, populateImageInfo);
 			};
 
@@ -481,18 +483,23 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 	<body onload="Init();" onUnload="asset_finder_onunload();">
 
 		<form action="" method="get" name="main_form" id="main-form">
-		    <?php 
-		    // insert nonce secuirty token.
-		    if( $GLOBALS['SQ_SYSTEM']->user && !($GLOBALS['SQ_SYSTEM']->user instanceof Public_User))
+			<?php
+			// insert nonce secuirty token.
+			if( $GLOBALS['SQ_SYSTEM']->user && !($GLOBALS['SQ_SYSTEM']->user instanceof Public_User))
 			hidden_field('token', get_unique_token());
-		    ?>
+			?>
 			<table width="100%">
 				<tr>
 					<td valign="top">
 						<?php
 							include_once(SQ_LIB_PATH.'/asset_map/asset_map.inc');
 							$asset_map = new Asset_Map();
-							$asset_map->embedAssetMap('simple', 200, 350);
+							$useModern = (boolean) $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_MODERN');
+							if ($useModern === TRUE) {
+								$asset_map->embedJSAssetMap('simple', 200, 350);
+							} else {
+								$asset_map->embedAssetMap('simple', 200, 350);
+							}
 						?>
 					</td>
 					<td valign="top">

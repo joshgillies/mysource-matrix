@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link.php,v 1.59 2013/06/24 05:07:53 akarelia Exp $
+* $Id: insert_link.php,v 1.60 2013/07/25 23:25:17 lwright Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Insert Link Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix
 */
 
@@ -52,7 +52,7 @@ $new_window_bool_options = Array(
 if (!isset($_GET['assetid']))  {
 	$_GET['assetid'] = 0;
 } else {
-	preg_match('/^([0-9A-Z:]*)/i', $_GET['assetid'], $matches);	
+	preg_match('/^([0-9A-Z:]*)/i', $_GET['assetid'], $matches);
 	$_GET['assetid'] = isset($matches[1]) ? $matches[1] : $_GET['assetid'];
 }
 if (!isset($_GET['url']))      $_GET['url'] = 0;
@@ -138,6 +138,8 @@ if (isset($_GET['assetid']) && $_GET['assetid']) {
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/html_form/html_form.js' ?>"></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/general.js' ?>"></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/tooltip.js' ?>"></script>
+		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/web/dfx/dfx.js' ?>"></script>
+		<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('lib').'/asset_map/js/js_asset_map.css' ?>" />
 
 		<script type="text/javascript">
 			function getFocus() {
@@ -190,7 +192,7 @@ if (isset($_GET['assetid']) && $_GET['assetid']) {
 				var f = document.main_form;
 
 				// check for the manual entering in the asset picker
-				if ((form_element_value(f.url_link) == '') && (form_element_value(f.anchor) == '') && 
+				if ((form_element_value(f.url_link) == '') && (form_element_value(f.anchor) == '') &&
 					(((f.elements["assetid[assetid]"].value != '') && (f.elements["assetid[assetid]"].value != 0)) ||
 					 ((f.elements["page_redirect_assetid[assetid]"].value != '') && (f.elements["page_redirect_assetid[assetid]"].value != 0)) ||
 					 ((f.elements["link_assetid[assetid]"].value != '') && (f.elements["link_assetid[assetid]"].value != 0))
@@ -564,7 +566,12 @@ if (isset($_GET['assetid']) && $_GET['assetid']) {
 						<?php
 							include_once(SQ_LIB_PATH.'/asset_map/asset_map.inc');
 							$asset_map = new Asset_Map();
-							$asset_map->embedAssetMap('simple', 200, 400);
+							$useModern = (boolean) $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_MODERN');
+							if ($useModern === TRUE) {
+								$asset_map->embedJSAssetMap('simple', 200, 400);
+							} else {
+								$asset_map->embedAssetMap('simple', 200, 400);
+							}
 						?>
 					</td>
 					<td valign="top">
@@ -763,7 +770,7 @@ if (isset($_GET['assetid']) && $_GET['assetid']) {
 															<tr>
 																<td class="label"><?php echo translate('title'); ?>:</td>
 																<td colspan="2"><?php text_box('link_title', $_GET['link_title'], 50); ?></td>
-																<td><?php 
+																<td><?php
 																	echo translate('include_summary').':';
 																	check_box('show_summary', 1, $_GET['show_summary']); ?>
 																</td>

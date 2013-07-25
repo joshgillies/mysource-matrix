@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.77 2013/07/11 05:25:04 akarelia Exp $
+* $Id: html_tidy.inc,v 1.78 2013/07/25 23:25:16 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 * @author	Greg Sherwood <greg@squiz.net>
 * @author	Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author	Scott Kim <skim@squiz.net>
-* @version $Revision: 1.77 $
+* @version $Revision: 1.78 $
 * @package Fudge
 * @subpackage wysiwyg
 */

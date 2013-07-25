@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: spell_parser.inc,v 1.15 2013/07/03 05:24:18 ewang Exp $
+* $Id: spell_parser.inc,v 1.16 2013/07/25 23:25:17 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package Fudge
 * @subpackage wysiwyg
 */

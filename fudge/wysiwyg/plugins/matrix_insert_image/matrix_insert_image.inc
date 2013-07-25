@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_image.inc,v 1.42 2013/07/02 04:07:10 akarelia Exp $
+* $Id: matrix_insert_image.inc,v 1.43 2013/07/25 23:25:17 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */

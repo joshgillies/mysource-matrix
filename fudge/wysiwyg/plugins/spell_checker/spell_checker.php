@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: spell_checker.php,v 1.16 2013/06/24 05:07:53 akarelia Exp $
+* $Id: spell_checker.php,v 1.17 2013/07/25 23:25:17 lwright Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Spell Checker Popup for the WYSIWYG
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix
 */
 require_once dirname(__FILE__).'/../../../../core/include/init.inc';

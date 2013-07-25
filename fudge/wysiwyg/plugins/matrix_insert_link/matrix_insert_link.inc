@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_link.inc,v 1.57 2013/07/02 04:07:07 akarelia Exp $
+* $Id: matrix_insert_link.inc,v 1.58 2013/07/25 23:25:17 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *     a link in the editable document using an asset from MySoure Matrix
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */

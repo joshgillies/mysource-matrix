@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_and_replace.php,v 1.4 2013/05/16 01:25:32 cupreti Exp $
+* $Id: search_and_replace.php,v 1.5 2013/07/25 23:25:17 lwright Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Search and replaces given text in the WYSIWYG
 *
 * @author	Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version 	$Revision: 1.4 $
+* @version 	$Revision: 1.5 $
 * @package 	MySource_Matrix
 */
 

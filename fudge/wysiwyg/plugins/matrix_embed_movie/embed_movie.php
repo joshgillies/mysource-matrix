@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: embed_movie.php,v 1.34 2013/04/23 08:11:57 cupreti Exp $
+* $Id: embed_movie.php,v 1.35 2013/07/25 23:25:16 lwright Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Embed Movie Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix
 */
 
@@ -60,6 +60,8 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/html_form/html_form.js' ?>"></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/general.js' ?>"></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/tooltip.js' ?>"></script>
+		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/web/dfx/dfx.js' ?>"></script>
+		<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('lib').'/asset_map/js/js_asset_map.css' ?>" />
 
 		<script type="text/javascript">
 
@@ -343,7 +345,12 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 						<?php
 							include_once(SQ_LIB_PATH.'/asset_map/asset_map.inc');
 							$asset_map = new Asset_Map();
-							$asset_map->embedAssetMap('simple', 200, 350);
+							$useModern = (boolean) $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_MODERN');
+							if ($useModern === TRUE) {
+								$asset_map->embedJSAssetMap('simple', 200, 350);
+							} else {
+								$asset_map->embedAssetMap('simple', 200, 350);
+							}
 
 							$url_protocol_options = Array(
 														''			=> '',

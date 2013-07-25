@@ -2,7 +2,7 @@
 * Copyright (c) 2002 - interactivetools.com, inc.
 * Portions Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: spell_checker.js,v 1.8 2013/07/02 04:07:06 akarelia Exp $
+* $Id: spell_checker.js,v 1.9 2013/07/25 23:25:17 lwright Exp $
 *
 */
 

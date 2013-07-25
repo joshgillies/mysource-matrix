@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.99 2013/07/02 04:07:15 akarelia Exp $
+* $Id: wysiwyg.inc,v 1.100 2013/07/25 23:25:16 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.99 $
+* @version $Revision: 1.100 $
 * @package Fudge
 * @subpackage wysiwyg
 */

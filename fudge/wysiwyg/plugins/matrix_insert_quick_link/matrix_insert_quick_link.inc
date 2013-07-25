@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_quick_link.inc,v 1.4 2013/07/02 04:07:12 akarelia Exp $
+* $Id: matrix_insert_quick_link.inc,v 1.5 2013/07/25 23:25:17 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     A WYSIWYG plugin to make quick links from text
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package Fudge
 * @subpackage wysiwyg
 */
