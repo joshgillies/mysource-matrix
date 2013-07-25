@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_paypal_express.inc,v 1.1 2013/06/20 07:40:28 cupreti Exp $
+* $Id: payment_gateway_paypal_express.inc,v 1.2 2013/07/25 06:12:17 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(__FILE__).'/paypal_express_processor.inc';
 * @see Payment_Gateway
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -198,26 +198,33 @@ class Payment_Gateway_Paypal_Express extends Payment_Gateway
 
 		// Get the PayPal Transaction Token from the session
 		$transaction_token = array_get_index($_SESSION, 'PAYPAL_TRANSACTION_TOKEN', '');
-		if (empty($transaction_token)) {
-			// Transaction token not present in session means we have not initated the transaction process
-			// This will get the PayPal transaction token and then redirect user to the PayPal
-			$this->initiateTransaction();
-		}
 
 		// After user logins and confirms the amount at the Paypal,
 		// user will be redirected to the gateway with the "token" and "PayerID"
 		$get_var_transaction_token = array_get_index($_REQUEST, 'token', '');
 		$payer_id = array_get_index($_REQUEST, 'PayerID', '');
-		if (!empty($payer_id) && !empty($get_var_transaction_token) && $get_var_transaction_token == $transaction_token) {
 
+		$valid_token = TRUE;
+
+		if (!empty($payer_id) && !empty($get_var_transaction_token) && $get_var_transaction_token == $transaction_token) {
 			$this->appendPendingOrderAuditLog(translate('paypal_audit_redirected_from_paypal'));
 			// Redirected from PayPal after successful user authentication
 			$_SESSION['PAYPAL_PAYER_ID'] = $payer_id;
+		} else if (!empty($get_var_transaction_token) && $get_var_transaction_token != $transaction_token) {
+			// Token in the session is not valid anymore
+			$valid_token = FALSE;
+		}
+
+		$action = array_get_index($_REQUEST, $this->getPrefix().'_action', FALSE);
+
+		if (!$valid_token || empty($transaction_token) || (empty($get_var_transaction_token) && !$action)) {
+			// Transaction token not present in session means we have not initated the transaction process
+			// This will get the PayPal transaction token and then redirect user to the PayPal
+			$this->initiateTransaction();
 		}
 
 		$success = FALSE;
 		$amount = array_get_index($_SESSION,'SQ_ECOM_AMOUNT', 0);
-		$action = array_get_index($_REQUEST, $this->getPrefix().'_action', FALSE);
 
 		if ($action == $cancel_text) {
 			$this->returnToCaller('CANCEL');
