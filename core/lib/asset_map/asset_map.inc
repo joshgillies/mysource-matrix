@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.317.2.18 2013/07/25 05:04:20 lwright Exp $
+* $Id: asset_map.inc,v 1.317.2.19 2013/07/25 06:26:15 lwright Exp $
 *
 */
 require_once(SQ_LIB_PATH.'/xml_array/xml_array.inc');
@@ -23,7 +23,7 @@ require_once(SQ_LIB_PATH.'/xml_array/xml_array.inc');
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.317.2.18 $
+* @version $Revision: 1.317.2.19 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -68,7 +68,7 @@ class Asset_Map
 			<tr>
 				<td style="height: 100%; width: 100%;" valign="top">
 				<?php
-					$useModern = $GLOBALS['SQ_SYSTEM']->getUserPref('user', 'SQ_USER_ASSET_MAP_MODERN');
+					$useModern = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_MODERN');
 
 					if ($useModern === TRUE) {
 						$this->embedJSAssetMap('complex', '224');
