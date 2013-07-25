@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_design_lookup_service.inc,v 1.11 2012/08/30 00:59:45 ewang Exp $
+* $Id: soap_api_design_lookup_service.inc,v 1.12 2013/07/25 03:20:42 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -92,7 +92,7 @@ class Soap_Api_Design_Lookup_Service extends Soap_Api
 
 		$design_name	= self::getDesignNameFromType($design_type);
 		if (empty($design_name)) throw new SoapFault('Server', 'The Design Type is invalid. Operation Aborted.');
-		
+
 		$designs_ok		= TRUE;
 		$design_changed	= FALSE;
 
@@ -360,7 +360,9 @@ class Soap_Api_Design_Lookup_Service extends Soap_Api
     * Array (
     *		'PaintLayoutID'		=> [The assetid of the paintlayout],
 	*		'AssetID'			=> [The asset being applied paintlayout to],
-	*		'PaintLayoutType'	=> [Type of paint layout Frontend or OverrideFrontend],
+	*		'PaintLayoutType'	=> [Type of paint layout Frontend or OverrideFrontend or UserDefined],
+	*		'AssetUrl'			=> [The asset url to apply the paint layout to (url specific)],
+	*		'PaintLayoutCode'	=> [Layout code for the user defined layout],
     *        )
     * </pre>
 	*
@@ -372,7 +374,9 @@ class Soap_Api_Design_Lookup_Service extends Soap_Api
 		$request_info				= (Array) $request;
 		$paint_layout_id			= array_get_index($request_info, 'PaintLayoutID', '');
 		$assetid					= array_get_index($request_info, 'AssetID', '');
-		$paint_layout_type			= array_get_index($request_info, 'PaintLayoutType', '');		// ( Frontend | OverrideFrontend )
+		$paint_layout_type			= array_get_index($request_info, 'PaintLayoutType', '');		// ( Frontend | OverrideFrontend | UserDefined )
+		$asset_url					= array_get_index($request_info, 'AssetUrl', '');
+		$paint_layout_code			= array_get_index($request_info, 'PaintLayoutCode', '');
 
 		if (!empty($assetid)) {
 			$asset	= $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
@@ -380,7 +384,7 @@ class Soap_Api_Design_Lookup_Service extends Soap_Api
 				throw new SoapFault('Server', 'The PaintLayoutID provided is invalid');
 			}//end if
 
-			$result	= self::changePaintLayout($asset, $paint_layout_id, $paint_layout_type);
+			$result	= self::changePaintLayout($asset, $paint_layout_id, $paint_layout_type, $asset_url, $paint_layout_code);
 
 			return Array (
 					'ApplyAssetPaintLayoutResult'	=> $result,
@@ -401,7 +405,9 @@ class Soap_Api_Design_Lookup_Service extends Soap_Api
     * Array (
     *		'PaintLayoutID'		=> [The assetid of the paintlayout],
 	*		'AssetID'			=> [The asset being remove paintlayout from],
-	*		'PaintLayoutType'	=> [Type of paint layout Frontend or OverrideFrontend],
+	*		'PaintLayoutType'	=> [Type of paint layout Frontend or OverrideFrontend or UserDefined],
+	*		'AssetUrl'			=> [The asset url to apply the paint layout to (url specific)],
+	*		'PaintLayoutCode'	=> [Layout code for the user defined layout],
     *        )
     * </pre>
 	*
@@ -413,78 +419,118 @@ class Soap_Api_Design_Lookup_Service extends Soap_Api
 		$request_info				= (Array) $request;
 		$paint_layout_id			= array_get_index($request_info, 'PaintLayoutID', '');
 		$assetid					= array_get_index($request_info, 'AssetID', '');
-		$paint_layout_type			= array_get_index($request_info, 'PaintLayoutType', '');		// ( Frontend | OverrideFrontEnd )
+		$paint_layout_type			= array_get_index($request_info, 'PaintLayoutType', '');	// ( Frontend | OverrideFrontEnd | UserDefined)
+		$asset_url					= array_get_index($request_info, 'AssetUrl', '');
+		$paint_layout_code			= array_get_index($request_info, 'PaintLayoutCode', '');
 
-		if (!empty($assetid)) {
-			$asset	= $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		if (empty($assetid)) {
+			throw new SoapFault('Server', 'The AssetID supplied is either empty or not valid');
+		}
+		$asset	= $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+
+		if ($paint_layout_type == 'UserDefined' && empty($asset_url)) {
+			throw new SoapFault('Server', 'Cannot apply the user defined paint layout. Asset URL not specifed');
+		}
+
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'all');
+
+		$result	= TRUE;
+
+		if (empty($asset_url) && $paint_layout_type != 'UserDefined') {
+
 			// We should check whether they are telling the truth
 			$paint_layout_end_name	= '::system::frontend';
 			$value_name				= $paint_layout_type == 'Frontend' ? 'paint_layout' : 'override::paint_layout';
 			$paint_layout_name		= $value_name.$paint_layout_end_name;
 			$existing_layout_link	= $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'paint_layout_page', TRUE, $paint_layout_name);
 			if (empty($existing_layout_link) || ($existing_layout_link['minorid'] != $paint_layout_id)) {
-				throw new SoapFault('Server', 'The Asset Does Not Have A PaintLayout Applied With The Provided PaintLayoutID');
+				$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'all');
+				throw new SoapFault('Server', 'The asset does not have a paint layout applied with the provided paint layout ID');
 			}//end if
 
 			$paint_layout_end_name	= '::system::frontend';
 			$value_name				= $paint_layout_type == 'Frontend' ? 'paint_layout' : 'override::paint_layout';
 			$paint_layout_name		= $value_name.$paint_layout_end_name;
 
-			// All we are going to do in here is to delete the linn, delete lookup value and then run update lookup
-		    $GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		    $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		    $GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'all');
-
+			// All we are going to do in here is to delete the link, delete lookup value and then run update lookup
 			$layouts_changed = FALSE;
-			$layouts_ok = TRUE;
-			$result	= FALSE;
 
 			// First we are going to get the link
-			$existing_layout_link	= $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'paint_layout_page', TRUE, $paint_layout_name);
+			$existing_layout_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'paint_layout_page', TRUE, $paint_layout_name);
 
 			// If we have hte link, lets delete it
 			if ($existing_layout_link) {
 				if (!$asset->deleteLink($existing_layout_link['linkid'])) {
-					// If unable to delete, lets roll back
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					$layouts_ok = FALSE;
-					break;
+					$result	= FALSE;
 				} else {
 					$layouts_changed = TRUE;
 				}//end if
 
 				// also need to delete any other URLs which use the same value
 				// deleting an asset based value means all other URLs which use the same value are also deleted
-				if (!$new_values = $asset->deleteLookupValue($paint_layout_name, $existing_layout_link['minorid'])) {
-					// If we can not delete the lookup value, rollback
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					$layouts_ok = FALSE;
-					break;
+				if ($result && !$new_values = $asset->deleteLookupValue($paint_layout_name, $existing_layout_link['minorid'])) {
+					$result = FALSE;
 				}//end if
 			}//end if
 
-			if ($layouts_ok) {
-			    if ($layouts_changed) {
-			        if (!$asset->updateLookups()) {
-			            $GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			            $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			            return FALSE;
-			        } else {
-			        	$result = TRUE;
-			        }//end else
-			    }//end if
+			if ($result && $layouts_changed && !$asset->updateLookups()) {
+				$result = FALSE;
 			}//end if
+		} else {
+			// We need to remove URL based paint layouts, including the user defined
+			if ($paint_layout_type == 'UserDefined') {
+				if (empty($paint_layout_code)) {
+					$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'all');
+					throw new SoapFault('Server', 'The layout code not specified for the User Defined paint layout');
+				}
+				$paint_layout_name = 'paint_layout::user::'.$paint_layout_code;
+			} else {
+				$paint_layout_name = 'paint_layout::system::frontend';
+			}
 
-			$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'all');
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			// Validate the specifed URL
+			$asset_url = rtrim($asset_url, '/');
+			$valid_url = FALSE;
+			$asset_urls = $GLOBALS['SQ_SYSTEM']->am->getURLs($asset->id);
+			foreach($asset_urls as $url_info) {
+				if ($url_info['url'] == $asset_url) {
+					$valid_url = TRUE;
+					break;
+				}//end if
+			}//end foreach
+			if (!$valid_url) {
+				$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'all');
+				throw new SoapFault('Server', 'The specifed URL '.$asset_url.' does not belongs to the asset #'.$asset->id);
+			}
 
-			return Array (
+			$lookup_type = $paint_layout_type == 'OverrideFrontend' ? $asset_url.'/' : $asset_url;
+
+			// Get existing lookup values set on the asset
+			$lookup_values = $asset->getLookupValues(FALSE);
+			log_dump($lookup_values);
+			if (isset($lookup_values[$lookup_type][$paint_layout_name]['value']) && $lookup_values[$lookup_type][$paint_layout_name]['value'] ==$paint_layout_id) {
+				unset($lookup_values[$lookup_type][$paint_layout_name]);
+				if (!$asset->setLookupValues($lookup_values)) {
+					$result =  FALSE;
+				}
+			} else {
+				$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'all');
+				$url_based_type = $paint_layout_type == 'UserDefined' ? 'user defined' : 'URL based';
+				throw new SoapFault('Server', 'The specifed '.$url_based_type.' paint layout #'.$paint_layout_id.' is not applied the asset #'.$asset->id);
+			}
+		}//end else
+
+		$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'all');
+		$GLOBALS['SQ_SYSTEM']->doTransaction($result ? 'COMMIT' : 'ROLLBACK');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+
+		return Array (
 					'RemoveAssetPaintLayoutResult'	=> $result,
 				   );
-		} else {
-			throw new SoapFault('Server', 'The AssetID supplied is either empty or not valid');
-		}//end else
+
 	}//end RemoveAssetPaintLayout()
 
 
@@ -494,122 +540,138 @@ class Soap_Api_Design_Lookup_Service extends Soap_Api
 	* @param $asset				object	The asset being applied paintlayout
 	* @param $paint_layout_id	string	The assetid of the paintlayout
 	* @param $paint_layout_type	string	The paint layout type
+	* @param $asset_url			string	The asset url to apply the paint layout to (url specific)
+	* @param $paint_layout_code	string	The layout code for user defined layout
 	*
 	* @return boolean
 	* @access private
 	*/
-	private static function changePaintLayout($asset, $paint_layout_id, $paint_layout_type)
+	private static function changePaintLayout($asset, $paint_layout_id, $paint_layout_type, $asset_url='', $paint_layout_code='')
 	{
 		$paint_layout			= NULL;
 		// We are removing asset based paint layout
 		if ($paint_layout_id != 0) {
 			$paint_layout			= $GLOBALS['SQ_SYSTEM']->am->getAsset($paint_layout_id);
 			if (!($paint_layout instanceof Paint_Layout_Page)) {
-				throw new SoapFault('Server', 'The PaintLayoutID Provided Does Not Belong To A Paint Layout Page Asset');
+				throw new SoapFault('Server', 'The paint layout ID provided does not belong to a paint layout page asset');
 			}//end if
 		}//end if
 
-		$paint_layout_end_name	= '::system::frontend';
-		$value_name				= $paint_layout_type == 'Frontend' ? 'paint_layout' : 'override::paint_layout';
-		$paint_layout_name		= $value_name.$paint_layout_end_name;
+		if ($paint_layout_type == 'UserDefined' && empty($asset_url)) {
+			throw new SoapFault('Server', 'Cannot apply the user defined paint layout. Asset URL not specifed');
+		}
 
-	    $GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-	    $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		// Get existing lookup values set on the asset
+		$lookup_values = $asset->getLookupValues(FALSE);
+
+    	$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'all');
 
-		$lookup_values			= $asset->getLookupValues(FALSE);
-		$existing_layout_link	= $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'paint_layout_page', TRUE, $paint_layout_name);
-		$layouts_changed		= FALSE;
-		$layouts_ok				= TRUE;
-		$values					= Array (
-									'asset'	=> Array (
-												'paint_layout'				=> Array (
-																				'value'	=> '',
-																			   ),
-												'override::paint_layout'	=> Array (
-																				'value'	=> '',
-																			   ),
-											   ),
-								  );
+		$result = TRUE;
 
-		$create_new	= $delete_existing	= FALSE;
-		if (empty($existing_layout_link)) {
-			$create_new	= TRUE;
-			// We are creating new layout notice link
-		} else if ($existing_layout_link['minorid'] !== $paint_layout_id) {
-			$delete_existing	= TRUE;
-			$create_new			= TRUE;
-		}//end else
-
-		if ($delete_existing) {
-			if ($existing_layout_link) {
-				if (!$asset->deleteLink($existing_layout_link['linkid'])) {
+		if (!empty($asset_url)) {
+			if ($paint_layout_type == 'UserDefined') {
+				if (empty($paint_layout_code)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					$layouts_ok = FALSE;
+					$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+					$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'all');
+					throw new SoapFault('Server', 'The layout code not specified for the User Defined paint layout');
+				}
+				$paint_layout_name = 'paint_layout::user::'.$paint_layout_code;
+			} else {
+				$paint_layout_name = 'paint_layout::system::frontend';
+			}
+
+			// Validate the specifed URL
+			$asset_url = rtrim($asset_url, '/');
+			$valid_url = FALSE;
+			$asset_urls = $GLOBALS['SQ_SYSTEM']->am->getURLs($asset->id);
+			foreach($asset_urls as $url_info) {
+				if ($url_info['url'] == $asset_url) {
+					$valid_url = TRUE;
 					break;
-				} else {
-					$layouts_changed = TRUE;
 				}//end if
+			}//end foreach
+			if (!$valid_url) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+				$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'all');
+				throw new SoapFault('Server', 'The specifed URL '.$asset_url.' does not belongs to the asset #'.$asset->id);
+			}
 
-				// also need to delete any other URLs which use the same value
-				// deleting an asset based value means all other URLs which use the same value are also deleted
-				if (!$new_values = $asset->deleteLookupValue($paint_layout_name, $existing_layout_link['minorid'])) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					$layouts_ok = FALSE;
-					break;
-				} else {
-					$lookup_values = $new_values;
-					unset($new_values);
+			$lookup_type = $paint_layout_type == 'OverrideFrontend' ? $asset_url.'/' : $asset_url;
+
+		} else if ($paint_layout_type != 'UserDefined') {
+			$lookup_type = 'asset';
+			$paint_layout_name = ($paint_layout_type == 'Frontend' ? 'paint_layout' : 'override::paint_layout').'::system::frontend';
+
+			$existing_layout_link	= $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'paint_layout_page', TRUE, $paint_layout_name);
+			$layouts_changed		= FALSE;
+
+			$create_new	= $delete_existing	= FALSE;
+			if (empty($existing_layout_link)) {
+				$create_new	= TRUE;
+				// We are creating new layout notice link
+			} else if ($existing_layout_link['minorid'] !== $paint_layout_id) {
+				$delete_existing	= TRUE;
+				$create_new			= TRUE;
+			}//end else
+
+			if ($delete_existing) {
+				if ($existing_layout_link) {
+					if (!$asset->deleteLink($existing_layout_link['linkid'])) {
+						$result = FALSE;
+					} else {
+						$layouts_changed = TRUE;
+					}//end if
+
+					// also need to delete any other URLs which use the same value
+					// deleting an asset based value means all other URLs which use the same value are also deleted
+					if ($result && !$new_values = $asset->deleteLookupValue($paint_layout_name, $existing_layout_link['minorid'])) {
+						$result = FALSE;
+					} else {
+						$lookup_values = $new_values;
+						unset($new_values);
+					}//end if
 				}//end if
 			}//end if
-		}//end if
 
-		if ($create_new) {
-		    // create new notice link
-		    if (is_null($paint_layout)) {
-		        $GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-		        $layouts_ok = FALSE;
-		    } else if (!$asset->createLink($paint_layout, SQ_LINK_NOTICE, $paint_layout_name)) {
-		        $GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-		        $layouts_ok = FALSE;
-		        break;
-		    } else {
-		        $layouts_changed = TRUE;
-		    }//end else
-		}//end if
-		// delete if no value
+			if ($result && $create_new) {
+				// create new notice link
+				if (is_null($paint_layout)) {
+					$result = FALSE;
+				} else if (!$asset->createLink($paint_layout, SQ_LINK_NOTICE, $paint_layout_name)) {
+					$result = FALSE;
+				} else {
+					$layouts_changed = TRUE;
+				}//end else
+			}//end if
+		}
 
 		if (empty($paint_layout_id)) {
-		    if (isset($lookup_values['asset'][$paint_layout_name])) {
-		        unset($lookup_values['asset'][$paint_layout_name]);
+		    if (isset($lookup_values[$lookup_type][$paint_layout_name])) {
+		        unset($lookup_values[$lookup_type][$paint_layout_name]);
 		    }//end if
 
 		    // if value is deleted, run updateLookups() so the asset based definition can take effect if there is one defined
 		    $layouts_changed = TRUE;
 		} else {
-		    if (!isset($lookup_values['asset'])) {
-		        $lookup_values['asset'] = Array();
+		    if (!isset($lookup_values[$lookup_type])) {
+		        $lookup_values[$lookup_type] = Array();
 		    }//end if
-		    $lookup_values['asset'][$value_name] = Array('value' => $paint_layout_id);
+		    $lookup_values[$lookup_type][$paint_layout_name] = Array('value' => $paint_layout_id);
 		}//end else
 
-		if (!$asset->setLookupValues($lookup_values)) {
-		    $GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-		    $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		    return FALSE;
+		if ($result && !$asset->setLookupValues($lookup_values)) {
+			$result = FALSE;
 		}//end if
 
-		if ($layouts_ok) {
-		    if ($layouts_changed) {
-		        if (!$asset->updateLookups()) {
-		            $GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-		            $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		            return FALSE;
-		        }//end if
-		    }//end if
+		if ($result && $layouts_changed && !$asset->updateLookups()) {
+			$result = FALSE;
 		}//end if
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->doTransaction($result ? 'COMMIT' : 'ROLLBACK');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'all');
 
@@ -667,6 +729,8 @@ class Soap_Api_Design_Lookup_Service extends Soap_Api
 																						'PaintLayoutID'			=> self::$string_non_optional,
 													   									'AssetID'				=> self::$string_optional,
 													   									'PaintLayoutType'		=> self::$string_non_optional,
+													   									'AssetUrl'				=> self::$string_optional,
+													   									'PaintLayoutCode'		=> self::$string_optional,
 													   								   ),
 
 														'ApplyAssetPaintLayoutResponse'	=> Array (
@@ -678,6 +742,8 @@ class Soap_Api_Design_Lookup_Service extends Soap_Api
 																						'PaintLayoutID'			=> self::$string_non_optional,
 													   									'AssetID'				=> self::$string_optional,
 													   									'PaintLayoutType'		=> self::$string_non_optional,
+																						'AssetUrl'				=> self::$string_optional,
+													   									'PaintLayoutCode'		=> self::$string_optional,
 													   								   ),
 
 														'RemoveAssetPaintLayoutResponse'	=> Array (

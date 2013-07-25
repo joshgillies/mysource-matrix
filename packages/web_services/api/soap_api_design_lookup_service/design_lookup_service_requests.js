@@ -105,20 +105,24 @@ function GetDesignFromURL(url, design_type, user_defined_design_name)
 * Array (
 *		'PaintLayoutID'		=> [The assetid of the paintlayout],
 *		'AssetID'			=> [The asset being applied paintlayout to],
-*		'PaintLayoutType'	=> [Type of paint layout Frontend or OverrideFrontend],
+*		'PaintLayoutType'	=> [Type of paint layout Frontend or OverrideFrontend or UserDefined],
+		'AssetUrl'			=> [The asset url to apply the paint layout to (url specific)],
+*		'PaintLayoutCode'   => [Layout code for the user defined layout],
 *        )
 * </pre>
 *
 * @return void
 * @access public
 */
-function ApplyAssetPaintLayout(paint_layout_id, assetid, paint_layout_type)
+function ApplyAssetPaintLayout(paint_layout_id, assetid, paint_layout_type, asset_url, paint_layout_code)
 {
 	var soapBody	= "\
 <ns1:ApplyAssetPaintLayout>\
 <PaintLayoutID>"+paint_layout_id+"</PaintLayoutID>\
 <AssetID>"+assetid+"</AssetID>\
 <PaintLayoutType>"+paint_layout_type+"</PaintLayoutType>\
+<AssetUrl>"+asset_url+"</AssetUrl>\
+<PaintLayoutCode>"+paint_layout_code+"</PaintLayoutCode>\
 </ns1:ApplyAssetPaintLayout>";
 
 	return soapBody;
@@ -134,20 +138,24 @@ function ApplyAssetPaintLayout(paint_layout_id, assetid, paint_layout_type)
 * Array (
 *		'PaintLayoutID'		=> [The assetid of the paintlayout],
 *		'AssetID'			=> [The asset being remove paintlayout from],
-*		'PaintLayoutType'	=> [Type of paint layout Frontend or OverrideFrontend],
+*		'PaintLayoutType'	=> [Type of paint layout Frontend or OverrideFrontend or UserDefined],
+		'AssetUrl'			=> [The asset url to apply the paint layout to (url specific)],
+*		'PaintLayoutCode'   => [Layout code for the user defined layout],
 *        )
 * </pre>
 *
 * @return void
 * @access public
 */
-function RemoveAssetPaintLayout(paint_layout_id, assetid, paint_layout_type)
+function RemoveAssetPaintLayout(paint_layout_id, assetid, paint_layout_type, asset_url, paint_layout_code)
 {
 	var soapBody	= "\
 <ns1:RemoveAssetPaintLayout>\
 <PaintLayoutID>"+paint_layout_id+"</PaintLayoutID>\
 <AssetID>"+assetid+"</AssetID>\
 <PaintLayoutType>"+paint_layout_type+"</PaintLayoutType>\
+<AssetUrl>"+asset_url+"</AssetUrl>\
+<PaintLayoutCode>"+paint_layout_code+"</PaintLayoutCode>\
 </ns1:RemoveAssetPaintLayout>";
 
 	return soapBody;
