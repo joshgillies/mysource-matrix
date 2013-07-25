@@ -1,9 +1,0 @@
-<strings>
-	<string source="record_type">Record Type</string>
-	<string source="creator_username">Create As User</string>
-	<string source="field_name">Field Name</string>
-	<string source="field_value">Field Value</string>
-	<string source="new_field_name">New Field Name</string>
-	<string source="new_field_value">New Field Value</string>
-	<string source="use_proxy_connector">Proxy setting is only available using a connector asset</string>
-</strings>
