@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: session_handler_default.inc,v 1.12 2013/05/29 01:30:10 ewang Exp $
+* $Id: session_handler_default.inc,v 1.13 2013/07/25 06:59:33 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/session_handling/session_handler/sess
 *    defined within PHP.
 *
 * @author     Luke Wright <lwright@squiz.net>
-* @version    $Revision: 1.12 $
+* @version    $Revision: 1.13 $
 * @package    MySource_Matrix
 * @subpackage __core__
 */
@@ -64,13 +64,9 @@ class Session_Handler_Default extends Session_Handler
 		$pos = strpos($domain, '/');
 		$path = '/';
 		if ($pos !== FALSE) {
-			$path = substr($domain, $pos);
-			$domain = substr($domain, 0, $pos);
+			$path = substr($domain, $pos);	
 		}
 
-		// Remove the port number from the host part, if any.
-		// Session cookies cannot have a port in the domain.
-		$domain = preg_replace('|:\d+$|', '', $domain);
 
 		$secure = FALSE;
 		if (current_protocol() === 'https' && (defined('SQ_CONF_COOKIE_OPTION_SECURE') && SQ_CONF_COOKIE_OPTION_SECURE)) $secure = TRUE;
@@ -82,9 +78,9 @@ class Session_Handler_Default extends Session_Handler
 		// appropriate cookie parameters.
 		session_module_name('files');
 		if ($php_version_suits) {
-			session_set_cookie_params(0, $path, $domain, $secure, $http_only);
+			session_set_cookie_params(0, $path, NULL, $secure, $http_only);
 		} else {
-			session_set_cookie_params(0, $path, $domain, $secure);
+			session_set_cookie_params(0, $path, NULL, $secure);
 		}
 		session_name('SQ_SYSTEM_SESSION');
 

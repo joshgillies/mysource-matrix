@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.407 2013/07/19 03:42:17 ewang Exp $
+* $Id: mysource.inc,v 1.408 2013/07/25 06:59:32 ewang Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.407 $
+* @version $Revision: 1.408 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -2415,24 +2415,29 @@ class MySource extends MySource_Object
 		if (!empty($time_to_live)) {
 			$header .= 'expires='.substr(date('r', time()+$time_to_live-((int)substr(date('O'), 0, 3)*60*60)), 0, -6).' GMT; ';
 		}
-		if (!empty($session_params['domain'])) {
-			$domain = $session_params['domain'];
-			if (defined('SQ_CONF_SYSTEM_PARENT_DOMAINS')) {
-				$parent_domains = explode("\n", SQ_CONF_SYSTEM_PARENT_DOMAINS);
-				if (is_array($parent_domains)) {
-					foreach ($parent_domains as $parent_domain) {
-						$parent_length = strlen($parent_domain);
-						if ((strlen($domain) >= $parent_length) && (substr($domain, -$parent_length) == $parent_domain)) {
-							// our current domain is a subdomain of this parent domain, so we will
-							// actually set the cookie for the parent domain and its children
-							$domain = '.'.$parent_domain;
-							$session_params['path'] = '/';
-							break;
-						}
+		if (defined('SQ_CONF_SYSTEM_PARENT_DOMAINS') && SQ_CONF_SYSTEM_PARENT_DOMAINS !== '') {
+		    	$domain = strip_url(sq_web_path('root_url'), TRUE);
+			$pos =  strpos($domain, '/');
+			if($pos !== FALSE)
+			    $domain = substr($domain, 0, $pos);
+			// Remove the port number from the host part, if any.
+			$domain = preg_replace('|:\d+$|', '', $domain);
+			$new_domain = '';
+			$parent_domains = explode("\n", SQ_CONF_SYSTEM_PARENT_DOMAINS);
+			if (is_array($parent_domains)) {
+				foreach ($parent_domains as $parent_domain) {
+					$parent_length = strlen($parent_domain);
+					if ((strlen($domain) >= $parent_length) && (substr($domain, -$parent_length) === $parent_domain)) {
+						// our current domain is a subdomain of this parent domain, so we will
+						// actually set the cookie for the parent domain and its children
+						$new_domain = '.'.$parent_domain;
+						$session_params['path'] = '/';
+						break;
 					}
 				}
 			}
-			$header .= "domain=$domain; ";
+			if(empty($new_domain))
+			    $header .= "domain=$new_domain; ";
 		}
 		if (!empty($session_params['path'])) {
 			$header .= "path=$session_params[path]; ";
