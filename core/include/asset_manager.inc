@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.907.2.1 2013/07/08 04:25:06 ewang Exp $
+* $Id: asset_manager.inc,v 1.907.2.2 2013/07/25 01:17:37 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.907.2.1 $
+* @version $Revision: 1.907.2.2 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -9191,7 +9191,8 @@ class Asset_Manager extends MySource_Object
 				 * Even though we're not using the result from the lnk_tree table, it makes
 				 * oracle behave in a much nicer way when it works out how to execute the query.
 				 */
-				$from .= ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t ON t.linkid=l.linkid';
+				if(!($link_types & SQ_LINK_NOTICE))
+				    $from .= ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t ON t.linkid=l.linkid';
 
 				// get user and group ids
 				$userid1_conds = Array(':'.$bind_prefix.'userids_1_current', ':'.$bind_prefix.'userids_1_public_user');
