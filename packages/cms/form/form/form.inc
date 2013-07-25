@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.272.2.10 2013/06/21 01:01:35 ewang Exp $
+* $Id: form.inc,v 1.272.2.11 2013/07/25 05:26:21 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.272.2.10 $
+* @version $Revision: 1.272.2.11 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2005,7 +2005,7 @@ class Form extends Asset implements Bridge
 	*/
 	public function getFormAction()
 	{
-		$form_action = $_SERVER['PHP_SELF'];
+		$form_action = current_url();
 
 		// Add the query string as well if it exists, so asset references with ?a=###
 		// submit back to themselves.
