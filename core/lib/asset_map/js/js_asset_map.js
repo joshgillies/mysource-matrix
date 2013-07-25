@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.1.2.84 2013/07/24 00:01:24 lwright Exp $
+* $Id: js_asset_map.js,v 1.1.2.85 2013/07/25 00:03:29 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.1.2.84 $
+ * @version $Revision: 1.1.2.85 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -847,7 +847,7 @@ var JS_Asset_Map = new function() {
 								between.push(assetTarget);
 								for (var i = 0; i < between.length; i++) {
 									if (dfx.hasClass(between[i], 'asset') === true) {
-										if (e.ctrlKey === true) {
+										if ((e.ctrlKey === true) || (e.metaKey === true)) {
 											dfx.toggleClass(between[i], 'selected');
 										} else {
 											dfx.addClass(between[i], 'selected');
@@ -858,7 +858,7 @@ var JS_Asset_Map = new function() {
 							} else {
 								dfx.addClass(assetTarget, 'selected');
 							}//end if
-						} else if ((e.ctrlKey === true) && (options.simple === false)) {
+						} else if (((e.ctrlKey === true) || (e.metaKey === true)) && (options.simple === false)) {
 							// Control-left click. No drag, toggle selection of clicked asset.
 							dfx.toggleClass(assetTarget, 'selected');
 						} else {
