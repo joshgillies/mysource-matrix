@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: table_editing.inc,v 1.32.6.1 2013/07/16 02:06:14 lwright Exp $
+* $Id: table_editing.inc,v 1.32.6.2 2013/07/25 21:58:31 lwright Exp $
 *
 */
 
@@ -172,11 +172,20 @@ class Table_Editing extends WYSIWYG_Plugin
 						}
 					}
 
+					if (row_header && param["f_rows"] != 0) {
+						var thead = doc.createElement("thead");
+						table.appendChild(thead);
+					}
+
 					var tbody = doc.createElement("tbody");
 					table.appendChild(tbody);
 					for (var i = 0; i < param["f_rows"]; ++i) {
 						var tr = doc.createElement("tr");
-						tbody.appendChild(tr);
+						if (row_header && i == 0) {
+							thead.appendChild(tr);
+						} else {
+							tbody.appendChild(tr);
+						}
 						for (var j = 0; j < param["f_cols"]; ++j) {
 							var td = null;
 							// create a table header
