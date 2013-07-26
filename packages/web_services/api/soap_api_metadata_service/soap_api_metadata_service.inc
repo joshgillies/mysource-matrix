@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_metadata_service.inc,v 1.11 2013/03/18 05:29:25 ewang Exp $
+* $Id: soap_api_metadata_service.inc,v 1.12 2013/07/26 08:50:50 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -57,6 +57,7 @@ class Soap_Api_Metadata_Service extends Soap_Api
 		return Array(
 				'SetMetadataSchema'				=> '1',
 				'GetMetadataFieldsOfSchema'		=> '1',
+				'GetMetadataFieldsDetailOfSchema'		=> '1',
 				'GetMetadataFieldValues'		=> '1',
 				'RegenerateMetadataSchema'		=> '1',
 				'RegenerateMetadataAsset'		=> '1',
@@ -495,6 +496,75 @@ class Soap_Api_Metadata_Service extends Soap_Api
 
 
 	/**
+	* Description: This operation will return the metadata fields details which belong to a metadata schema
+	*
+	* @param array $request	The request information
+	* <pre>
+	* Array (
+	*		 'SchemaID'			=> [The metadata schema in query],
+	*        )
+	* </pre>
+	*
+	* @return void
+	* @access public
+	*/
+	function GetMetadataFieldsDetailOfSchema($request)
+	{
+		$request_info	= (Array) $request;
+		$schemaid		= array_get_index($request_info, 'SchemaID', '');
+
+		if (!empty($schemaid)) {
+			$schema	= $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+			if (!($schema instanceof Metadata_Schema)) {
+				throw new SoapFault('Server', 'The schema ID provided does not belong to a metadata schema');
+			}//end if
+			$mm	= $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+			$fieldids = $mm->getMetadataFields($schemaid);
+
+			// Metadata field's generic attributes
+			$attrs = Array(
+						'name' 				=> 'Name', 
+						'friendly_name' 	=> 'FriendlyName', 
+						'description' 		=> 'Description', 
+						'default' 			=> 'Default',
+						'scheme' 			=> 'Scheme', 
+						'language' 			=> 'Language', 
+						'editable' 			=> 'Editable', 
+						'is_contextable' 	=> 'IsContextable', 
+						'required' 			=> 'Required', 
+						'frontend' 			=> 'Frontend',
+					);
+
+			$fields_data = Array();
+			$count = 0;
+			foreach($fieldids as $fieldid => $field_info) {
+				$fields_data[$count]['AssetID'] = $fieldid;
+				$fields_data[$count]['TypeCode'] = $field_info[0]['type_code'];
+
+				// Get all attribute values
+				$attrs_val = $GLOBALS['SQ_SYSTEM']->am->getAllAttributeValues($fieldid, $field_info[0]['type_code']);
+				foreach($attrs as $attr_name => $formatted_name) {
+					$attr_val = '';
+					$attr_info = array_get_index($attrs_val, $attr_name, '');
+					if (isset($attr_info['value'])) {
+						$attr_val = $attr_info['value'];
+					}
+					$fields_data[$count][$formatted_name] = $attr_val;
+				}//end foreach
+				$count++;
+			}//end foreach
+
+			return Array (
+					'GetMetadataFieldsDetailOfSchemaResult'	=> $fields_data,
+				   );
+		} else {
+			throw new SoapFault('Server', 'The schema ID provided is not valid. Please provide a valid ID.');
+		}//end else
+
+	}//end GetMetadataFieldsDetailOfSchema()
+
+
+	/**
 	* Description: This operation will return the values of the field names which belong to an asset
 	*
 	* @param array $request	The request information
@@ -559,6 +629,7 @@ class Soap_Api_Metadata_Service extends Soap_Api
 		$field_values					= self::getArgType('FieldInfo', 0, 'unbounded', TRUE);
 		$grant_type						= self::getArgType('Grant', 1, 1);
 		$metadata_info					= self::getArgType('MetadataInfo', 0, 'unbounded', TRUE);
+		$fields_attr_info				= self::getArgType('MetadataFieldAttrInfo', 0, 'unbounded', TRUE);
 
 		$complex_types	= Array (
 							'SetMetadataSchema'					=> Array (
@@ -641,6 +712,14 @@ class Soap_Api_Metadata_Service extends Soap_Api
 																												'GetMetadataFieldsOfSchemaResult'		=> self::$string_optional_unbounded,
 																											   ),
 																   ),
+							'GetMetadataFieldsDetailOfSchema'			=> Array (
+																	'GetMetadataFieldsDetailOfSchema'				=> Array (
+																												'SchemaID'								=> self::$string_non_optional,
+																											   ),
+																	'GetMetadataFieldsDetailOfSchemaResponse'		=> Array (
+																												'GetMetadataFieldsDetailOfSchemaResult'		=> $fields_attr_info,
+																											   ),
+																   ),
 							'GetMetadataFieldValues'			=> Array (
 																	'GetMetadataFieldValues'				=> Array (
 																												'AssetID'								=> self::$string_non_optional,
@@ -694,6 +773,18 @@ class Soap_Api_Metadata_Service extends Soap_Api
 	*/
 	public static function getComplexTypes($func_list=Array())
 	{
+			$attrs = Array(
+						'name' 				=> 'Required', 
+						'friendly_name' 	=> 'FriendlyName', 
+						'description' 		=> 'Description', 
+						'default' 			=> 'Default',
+						'scheme' 			=> 'Scheme', 
+						'language' 			=> 'Language', 
+						'editable' 			=> 'Editable', 
+						'is_contextable' 	=> 'IsContextable', 
+						'required' 			=> 'Required', 
+						'frontend' 			=> 'Frontend',
+					);
 		$complex_types    = Array (
 							'GetMetadataFieldValues'    => Array (
 															'FieldInfo'					=> Array (
@@ -713,6 +804,22 @@ class Soap_Api_Metadata_Service extends Soap_Api
 																							'FieldValue'		=> self::$string_non_optional,
 																						   ),
 														   ),
+							'GetMetadataFieldsDetailOfSchema' => Array(
+																	'MetadataFieldAttrInfo'	=> Array(
+																							'AssetID'			=> self::$string_non_optional,
+																							'TypeCode'			=> self::$string_non_optional,
+																							'Name'				=> self::$string_non_optional,
+																							'FriendlyName'		=> self::$string_non_optional,
+																							'Description'		=> self::$string_non_optional,
+																							'Default'			=> self::$string_non_optional,
+																							'Scheme'			=> self::$string_non_optional,
+																							'Language'			=> self::$string_non_optional,
+																							'Editable'			=> self::$string_non_optional,
+																							'IsContextable'		=> self::$string_non_optional,
+																							'Required'			=> self::$string_non_optional,
+																							'Frontend'			=> self::$string_non_optional,
+																							),
+								),
 						  );
 
 		$complex_types_available = parent::getComplexElements($complex_types);
