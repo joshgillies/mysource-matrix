@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.319 2013/07/25 23:23:50 lwright Exp $
+* $Id: asset_map.inc,v 1.320 2013/07/26 05:16:59 lwright Exp $
 *
 */
 require_once(SQ_LIB_PATH.'/xml_array/xml_array.inc');
@@ -23,7 +23,7 @@ require_once(SQ_LIB_PATH.'/xml_array/xml_array.inc');
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.319 $
+* @version $Revision: 1.320 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -68,7 +68,7 @@ class Asset_Map
 			<tr>
 				<td style="height: 100%; width: 100%;" valign="top">
 				<?php
-					$useModern = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_MODERN');
+					$useModern = (boolean) $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_MODERN');
 
 					if ($useModern === TRUE) {
 						$this->embedJSAssetMap('complex', '224');
@@ -118,7 +118,6 @@ class Asset_Map
 		$rootlineage = '';
 
 		$common_parentid = $this->_findCommonRoot($assetids);
-
 		if (!empty($common_parentid)) {
 			$lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($common_parentid);
 
@@ -142,6 +141,8 @@ class Asset_Map
 				// Simply asset map does not work for this option
 				$initial_selection_lineage = '';
 			}
+		} else {
+			$common_parentid = 1;
 		}
 
 		if (empty($rootlineage)) {
@@ -155,7 +156,7 @@ class Asset_Map
 
 		// Auto-adjust height if set to zero
 		if ($height <= 0) {
-			$height = "((document.parentWindow ? document.parentWindow : document.defaultView).frameElement.offsetHeight - ".(SQ_IN_LIMBO ? 79 : 98).")";
+			$height = "(document.documentElement.clientHeight - ".(SQ_IN_LIMBO ? 51 : 70).")";
 		}
 
 		// Make room for tabs.
@@ -603,7 +604,7 @@ class Asset_Map
 		ob_end_clean();
 
 		if ($height <= 0) {
-			$height = "' + ((document.parentWindow ? document.parentWindow : document.defaultView).frameElement.offsetHeight - ".(SQ_IN_LIMBO ? 79 : 98).") + '";
+			$height = "' + (document.documentElement.clientHeight - ".(SQ_IN_LIMBO ? 51 : 70).") + '";
 			$applet_tag = str_replace("\n", ' ', $applet_tag);
 			?>
 			<script type="text/javascript"><!--
