@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.429 2013/07/25 23:23:50 lwright Exp $
+* $Id: lang_strings.xml,v 1.430 2013/07/26 05:39:20 lwright Exp $
 *
 */
 
@@ -395,7 +395,7 @@
 	<string source="version_compare">Compare</string>
 	<string source="comparison">Comparison</string>
 	<string source="workflow_summary">Workflow Summary</string>
-	<string source="warning">Warning</string>
+    <string source="warning">WARNING</string>
 	<string source="wysiwyg_editor_tools">WYSIWYG Editor Tools</string>
 	<string source="wysiwyg_plugins">WYSIWYG Plugins</string>
 	<string source="wysiwyg_style">WYSIWYG Style</string>
@@ -1411,7 +1411,7 @@ Force that this asset can only be viewed through a Secure (SSL) connection</stri
 	<string source="go">Go</string>
 	<string source="automatic">Automatic</string>
 	<string source="manual">Manual</string>
-	<string source="unknown">Unknown</string>
+    <string source="unknown" js="1">Unknown</string>
 	<string source="default">Default</string>
 	<string source="login">Login</string>
 	<string source="apply">Apply</string>
@@ -1429,8 +1429,8 @@ Force that this asset can only be viewed through a Secure (SSL) connection</stri
 	<string source="present">present</string>
 	<string source="locked">LOCKED</string>
 	<string source="unlocked">UNLOCKED</string>
-	<string source="yes">Yes</string>
-	<string source="no">No</string>
+    <string source="yes" js="1">Yes</string>
+    <string source="no" js="1">No</string>
 	<string source="when">When</string>
 	<string source="status">Status</string>
 	<string source="statuses">Statuses</string>
@@ -1475,7 +1475,7 @@ Force that this asset can only be viewed through a Secure (SSL) connection</stri
 	<string source="layout">Layout</string>
 	<string source="rows">Rows</string>
 	<string source="columns">Columns</string>
-	<string source="ok" java="1">Ok</string>
+    <string source="ok" js="1" java="1">Ok</string>
 	<string source="custom">Custom</string>
 	<string source="sub">Sub</string>
 	<string source="or">Or</string>
@@ -1760,6 +1760,8 @@ Force that this asset can only be viewed through a Secure (SSL) connection</stri
 	<string source="column(s)">Column(s)</string>
 	<string source="inherit_question">Inherit ?</string>
 	<string source="unknown_asset">Unknown asset</string>
+    <string source="unknown_asset_type" js="1">Unknown Asset Type</string>
+    <string source="asset_type_id" js="1">%1$s [%2$s]</string>
 	<string source="character(s)">character(s)</string>
 	<string source="allow_blank_question">Allow Blank ?</string>
 	<string source="show_question">Show ?</string>
