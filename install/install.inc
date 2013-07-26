@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.101 2013/06/14 04:34:24 lwright Exp $
+* $Id: install.inc,v 1.102 2013/07/26 05:51:14 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.101 $
+* @version $Revision: 1.102 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -1439,6 +1439,7 @@ function build_locale_string_file($locale)
 		list($ex_strings, $ex_js_strings, $ex_java_strings) = extract_strings_from_xml($file, 'strings', 'string', 'source');
 		$strings = array_merge($strings, $ex_strings);
 		$js_strings = array_merge($js_strings, $ex_js_strings);
+		$js_strings = array_merge($js_strings, $ex_java_strings);
 		$java_strings = array_merge($java_strings, $ex_java_strings);
 	}
 
@@ -1453,6 +1454,7 @@ function build_locale_string_file($locale)
 			list($ex_strings, $ex_js_strings, $ex_java_strings) = extract_strings_from_xml($file, 'strings', 'string', 'source');
 			$strings = array_merge($strings, $ex_strings);
 			$js_strings = array_merge($js_strings, $ex_js_strings);
+			$js_strings = array_merge($js_strings, $ex_java_strings);
 			$java_strings = array_merge($java_strings, $ex_java_strings);
 		}
 
@@ -1473,6 +1475,7 @@ function build_locale_string_file($locale)
 			list($ex_strings, $ex_js_strings, $ex_java_strings) = extract_strings_from_xml($file, 'strings', 'string', 'source');
 			$strings = array_merge($strings, $ex_strings);
 			$js_strings = array_merge($js_strings, $ex_js_strings);
+			$js_strings = array_merge($js_strings, $ex_java_strings);
 			$java_strings = array_merge($java_strings, $ex_java_strings);
 		}
 
