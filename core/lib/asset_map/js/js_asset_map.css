@@ -1,0 +1,757 @@
+#asset_map_container.statuses-shown .tree .statusArchived,
+#asset_map_container .statusList .statusArchived,
+.asset.selected .statusArchived {
+	background-color: #C2B0A0;
+	border: 1px solid #887B6F;
+}
+
+#asset_map_container.statuses-shown .tree .statusUnderConstruction,
+#asset_map_container .statusList .statusUnderConstruction,
+.asset.selected .statusUnderConstruction {
+	background-color: #AACCDD;
+	border: 1px solid #748D9A;
+}
+
+#asset_map_container.statuses-shown .tree .statusPendingApproval,
+#asset_map_container .statusList .statusPendingApproval,
+.asset.selected .statusPendingApproval {
+	background-color: #DCD2E6;
+	border: 1px solid #9A94A1;
+}
+
+#asset_map_container.statuses-shown .tree .statusApproved,
+#asset_map_container .statusList .statusApproved,
+.asset.selected .statusApproved {
+	background-color: #F4D425;
+	border: 1px solid #AD9200;
+}
+
+#asset_map_container.statuses-shown .tree .statusLive,
+#asset_map_container .statusList .statusLive,
+.asset.selected .statusLive {
+	background-color: #DBF18A;
+	border: 1px solid #9BA65C;
+}
+
+#asset_map_container.statuses-shown .tree .statusLiveApproval,
+#asset_map_container .statusList .statusLiveApproval,
+.asset.selected .statusLiveApproval {
+	background-color: #50D000;
+	border: 1px solid #368D00;
+}
+
+#asset_map_container.statuses-shown .tree .statusEditing,
+#asset_map_container .statusList .statusEditing,
+.asset.selected .statusEditing {
+	background-color: #F25C86;
+	border: 1px solid #AD455C;
+}
+
+#asset_map_container.statuses-shown .tree .statusEditingApproval,
+#asset_map_container .statusList .statusEditingApproval,
+.asset.selected .statusEditingApproval {
+	background-color: #CC7CC7;
+	border: 1px solid #8F5A8C;
+}
+
+#asset_map_container.statuses-shown .tree .statusEditingApproved,
+#asset_map_container .statusList .statusEditingApproved,
+.asset.selected .statusEditingApproved {
+	background-color: #FF9A00;
+	border: 1px solid #B66B00;
+}
+
+#asset_map_container .tree .asset.located {
+	zoom: 1;
+}
+
+#asset_map_container .tree .asset.located .statusArchived {
+	background-color: rgba(194, 176, 160, 0.5);
+	-ms-filter: "progid:DXImageTransform.Microsoft.Gradient(StartColorStr=#7FC2B0A0, EndColorStr=#7FC2B0A0)";
+}
+
+#asset_map_container .tree .asset.located .statusUnderConstruction {
+	background-color: rgba(170, 204, 221, 0.5);
+	-ms-filter: "progid:DXImageTransform.Microsoft.Gradient(StartColorStr=#7FAACCDD, EndColorStr=#7FAACCDD)";
+}
+
+#asset_map_container .tree .asset.located .statusPendingApproval {
+	background-color: rgba(220, 210, 230, 0.5);
+	-ms-filter: "progid:DXImageTransform.Microsoft.Gradient(StartColorStr=#7FDCD2E6, EndColorStr=#7FDCD2E6)";
+}
+
+#asset_map_container .tree .asset.located .statusApproved {
+	background-color: rgba(244, 212, 37, 0.5);
+	-ms-filter: "progid:DXImageTransform.Microsoft.Gradient(StartColorStr=#7FF4D425, EndColorStr=#7FF4D425)";
+}
+
+#asset_map_container .tree .asset.located .statusLive {
+	background-color: rgba(219, 241, 138, 0.5);
+	-ms-filter: "progid:DXImageTransform.Microsoft.Gradient(StartColorStr=#7FDBF18A, EndColorStr=#7FDBF18A)";
+}
+
+#asset_map_container .tree .asset.located .statusLiveApproval {
+	background-color: rgba(80, 208, 0, 0.5);
+	-ms-filter: "progid:DXImageTransform.Microsoft.Gradient(StartColorStr=#7F50D000, EndColorStr=#7F50D000)";
+}
+
+#asset_map_container .tree .asset.located .statusEditing {
+	background-color: rgba(242, 92, 134, 0.5);
+	-ms-filter: "progid:DXImageTransform.Microsoft.Gradient(StartColorStr=#7FF25C86, EndColorStr=#7FF25C86)";
+}
+
+#asset_map_container .tree .asset.located .statusEditingApproval {
+	background-color: rgba(204, 124, 199, 0.5);
+	-ms-filter: "progid:DXImageTransform.Microsoft.Gradient(StartColorStr=#7FCC7CC7, EndColorStr=#7FCC7CC7)";
+}
+
+#asset_map_container .tree .asset.located .statusEditingApproved {
+	background-color: rgba(238, 154, 0, 0.5);
+	-ms-filter: "progid:DXImageTransform.Microsoft.Gradient(StartColorStr=#7FEE9A00, EndColorStr=#7FEE9A00)";
+}
+
+#asset_map_container.statuses-shown .tree .asset.selected .statusArchived {
+	background-color: #887B6F;
+}
+
+#asset_map_container.statuses-shown .tree .asset.selected .statusUnderConstruction {
+	background-color: #748D9A;
+}
+
+#asset_map_container.statuses-shown .tree .asset.selected .statusPendingApproval {
+	background-color: #9A94A1;
+}
+
+#asset_map_container.statuses-shown .tree .asset.selected .statusApproved {
+	background-color: #AD9200;
+}
+
+#asset_map_container.statuses-shown .tree .asset.selected .statusLive {
+	background-color: #9BA65C;
+}
+
+#asset_map_container.statuses-shown .tree .asset.selected .statusLiveApproval {
+	background-color: #368D00;
+}
+
+#asset_map_container.statuses-shown .tree .asset.selected .statusEditing {
+	background-color: #AD455C;
+}
+
+#asset_map_container.statuses-shown .tree .asset.selected .statusEditingApproval {
+	background-color: #8F5A8C;
+}
+
+#asset_map_container.statuses-shown .tree .asset.selected .statusEditingApproved {
+	background-color: #B66B00;
+}
+
+#asset_map_container.moveMeMode .tree .asset.moveTarget .assetName,
+#asset_map_container.moveMeMode .tree .asset.selected.moveTarget .assetName {
+	border: 1px solid black;
+}
+
+#asset_map_container {
+	position: relative;
+	margin-left: 18px;
+	padding-left: 8px;
+	background-color: #f5f5f5;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	font: 11px 'Arial', sans-serif;
+}
+
+#asset_map_container.simple {
+	margin-left: 0;
+	padding-left: 0;
+	border: 1px solid #E2E2E2;
+}
+
+#asset_map_container .paginationTool {
+	background-color: #f5f5f5;
+	border-radius: 9px;
+	display: inline-block;
+}
+
+#asset_map_container .paginationTool .page-button {
+	position: relative;
+	height: 16px;
+	width: 16px;
+	margin-left: 2px;
+	top: 2px;
+	display: inline-block;
+}
+
+#asset_map_container .paginationTool .textSpan {
+	padding: 0 5px 5px;
+	vertical-align: middle;
+	font-size: 10px;
+	color: #555;
+}
+
+#asset_map_container .paginationTool.up {
+	background: url(../../web/images/icons/asset_map/up_arrows.png) 2px 2px no-repeat #f5f5f5;
+}
+
+#asset_map_container .paginationTool.down {
+	background: url(../../web/images/icons/asset_map/down_arrows.png) 2px 2px no-repeat #f5f5f5;
+}
+
+#asset_map_container .dragAsset {
+	opacity: 0.5;
+	-ms-filter: "progid: DXImageTransform.Microsoft.Alpha(opacity=50)";
+	position: absolute;
+}
+
+#asset_map_container .dragAsset .asset .branch-status,
+#asset_map_container .dragAsset .asset .left {
+	display: none;
+}
+
+#asset_map_container .dragAsset.multiple .asset .icon {
+}
+
+#asset_map_container * {
+	-moz-user-select: none;
+	-moz-user-select: -moz-none;
+	-ms-user-select: none;
+	-webkit-user-select: none;
+	user-select: none;
+	cursor: default;
+}
+
+#asset_map_container .selectionRect {
+	position: absolute;
+	border: 1px solid #666;
+	background-color: #DDD;
+	opacity: 0.5;
+	-ms-filter: "progid: DXImageTransform.Microsoft.Alpha(opacity=50)";
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	z-index: 20;
+}
+
+#asset_map_container .usersel {
+	-moz-user-select: text;
+	-ms-user-select: text;
+	-webkit-user-select: text;
+	user-select: text;
+}
+
+/**
+ * NOTE: The RTL direction is intentional - it is there to ensure the tabs can be
+ *       ordered top-to-bottom (ie. tree 1 top) when rotated without affecting their
+ *       semantic order when rotated. It is reversed back to LTR in the tabs.
+ */
+#asset_map_container .tree-list {
+	direction: rtl;
+	transform: rotate(270deg);
+	-ms-transform: rotate(270deg);
+	-webkit-transform: rotate(270deg);
+	-ms-filter: "progid: DXImageTransform.Microsoft.BasicImage(rotation=3)";
+	position: absolute;
+	white-space: nowrap;
+	top: 2px;
+	left: -17px;
+	width: 18px;
+	font-size: 0.909em;
+}
+
+#asset_map_container .tree-list .tab {
+	direction: ltr;
+	display: inline-block;
+	white-space: nowrap;
+	margin: 0 -2px;
+	padding: 2px 7px 1px 22px;
+	height: 18px;
+	background: url(../../web/images/icons/asset_map/tree.png) 4px 1px no-repeat #d2d2d2;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	border-radius: 3px 3px 0 0;
+	border: 1px outset #eee;
+	border-bottom: none;
+}
+
+#asset_map_container .tree-list .tab.selected {
+	background-color: #f5f5f5;
+	padding-bottom: 3px;
+	position: relative;
+	top: -2px;
+	height: 20px;
+	z-index: 2;
+}
+
+#asset_map_container .overlay {
+	background-color: #f5f5f5;
+	opacity: 0.5;
+	-ms-filter: "progid: DXImageTransform.Microsoft.Alpha(opacity=50)";
+	position: absolute;
+	z-index: 99;
+}
+
+.assetMapMenu {
+	background-color: #f5f5f5;
+	border-left: 1px solid #ccc;
+	border-top: 1px solid #ccc;
+	border-bottom: 1px solid #999;
+	border-right: 1px solid #999;
+	position: absolute;
+	top: 0;
+	left: 0;
+	z-index: 10;
+}
+
+.assetMapMenu * {
+	-moz-user-select: none;
+	-moz-user-select: -moz-none;
+	-ms-user-select: none;
+	-webkit-user-select: none;
+	user-select: none;
+	cursor: default;
+}
+
+.assetMapMenu .menuItem {
+	padding: 1px 22px 1px 2px;
+	white-space: nowrap;
+	position: relative;
+}
+
+.assetMapMenu .menuItem:hover {
+	background-color: #c3c3c3;
+}
+
+.assetMapMenu .menuItem.disabled:hover {
+	background-color: #f5f5f5;
+}
+
+.assetMapMenu .menuItem * {
+	vertical-align: middle;
+	white-space: nowrap;
+}
+
+.assetMapMenu .menuItem .menuIcon {
+	width: 16px;
+	height: 16px;
+	display: inline-block;
+	margin-left: 3px;
+}
+
+.assetMapMenu .menuSep {
+	border-bottom: 1px solid #ccc;
+	height: 1px;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+.assetMapMenu .menuItem .menuText {
+	display: inline-block;
+	font: 11px 'Arial', sans-serif;
+	padding: 3px;
+}
+
+.assetMapMenu .menuItem .menuChild {
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	position: absolute;
+	right: 0;
+	top: 3px;
+	background: url(../../web/images/icons/asset_map/right_arrow.png) 50% 50% no-repeat;
+}
+
+.assetMapMenu .menuItem.disabled {
+	opacity: 0.5;
+	-ms-filter: "progid: DXImageTransform.Microsoft.Alpha(opacity=50)";
+}
+
+#asset_map_container .errorPopup {
+	position: absolute;
+	left: 5%;
+	width: 90%;
+	border-radius: 5px;
+	top: 40%;
+	z-index: 100;
+	background-color: #622;
+
+	-moz-box-shadow: 3px 3px 4px #999;
+	-webkit-box-shadow: 3px 3px 4px #999;
+	box-shadow: 3px 3px 4px #000;
+	-ms-filter: "progid: DXImageTransform.Microsoft.Shadow(Strength=4, Direction=135, Color='#999999')";
+
+}
+
+#asset_map_container .errorTitle {
+	text-align: center;
+	font-weight: bold;
+	color: #FFF;
+	padding: 5px;
+	border-radius: 5px 5px 0 0;
+	border-bottom: 1px solid #000;
+	background-color: #933;
+}
+
+#asset_map_container .errorBody,
+#asset_map_container .errorBottom {
+	padding: 5px;
+	text-align: center;
+	color: #F5F5F5;
+
+}
+
+#asset_map_container .confirmPopup {
+	position: absolute;
+	left: 5%;
+	width: 90%;
+	border-radius: 5px;
+	top: 40%;
+	z-index: 100;
+	background-color: #d2d2d2;
+
+	-moz-box-shadow: 3px 3px 4px #999;
+	-webkit-box-shadow: 3px 3px 4px #999;
+	box-shadow: 3px 3px 4px #000;
+	-ms-filter: "progid: DXImageTransform.Microsoft.Shadow(Strength=4, Direction=135, Color='#999999')";
+
+}
+
+#asset_map_container .confirmTitle {
+	text-align: center;
+	font-weight: bold;
+	color: #f5f5f5;
+	padding: 5px;
+	border-radius: 5px 5px 0 0;
+	border-bottom: 1px solid #000;
+	background-color: #342939;
+}
+
+#asset_map_container .confirmBody,
+#asset_map_container .confirmBottom {
+	padding: 5px;
+	text-align: center;
+	color: #000;
+
+}
+
+#asset_map_container .toolbar {
+	background-color: #f5f5f5;
+	border-bottom: 1px solid #e2e2e2;
+	padding: 5px;
+}
+
+#asset_map_container .messageLine {
+	background-color: #f5f5f5;
+	border-top: 1px solid #e2e2e2;
+	padding: 5px;
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+	margin-left: -8px;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+}
+
+#asset_map_container.simple .messageLine {
+	margin-left: 0;
+}
+
+#asset_map_container .messageLine .spinner {
+	display: inline-block;
+	vertical-align: middle;
+	width: 15px;
+	height: 16px;
+	margin-right: 4px;
+	background: url(../../web/images/icons/asset_map/spinner.png) 0px 0px no-repeat;
+}
+
+#asset_map_container .messageLine .message {
+	display: inline-block;
+	height: 12px;
+	padding: 2px 0;
+}
+
+#asset_map_container .tree {
+	border-left: 1px solid #e2e2e2;
+	overflow: scroll;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	background-color: white;
+	display: none;
+}
+
+#asset_map_container.simple .tree {
+	border-left: none;
+}
+
+#asset_map_container.useMeMode .tree {
+	background-color: #D9C4F4;
+}
+
+#asset_map_container .tree.selected {
+	display: block;
+}
+
+#asset_map_container .childIndent {
+	padding-left: 17px;
+}
+
+#asset_map_container .childIndent {
+	background: url(../../web/images/tree/stalk.gif) left 50% repeat-y;
+}
+
+#asset_map_container .childIndent.collapsed {
+	display: none;
+}
+
+#asset_map_container .childIndent.loading {
+	padding: 3px 3px;
+	padding-left: 40px;
+	color: #999;
+	font-size: 11px;
+	font-style: bold;
+}
+
+#asset_map_container .asset {
+	padding-right: 3px;
+	position: relative;
+	font-size: 11px;
+	white-space: nowrap;
+}
+
+#asset_map_container .asset > * {
+	vertical-align: middle;
+}
+
+#asset_map_container .asset .assetName {
+	margin: 1px 0;
+	padding: 1px 3px;
+}
+
+#asset_map_container .asset.disabled .assetName,
+#asset_map_container .asset.disabled .flag,
+#asset_map_container .asset.disabled .icon {
+	opacity: 0.5;
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(opacity=50)";
+}
+
+#asset_map_container.statuses-shown .asset .assetName,
+#asset_map_container .asset.selected .assetName,
+#asset_map_container.moveMeMode .asset.moveTarget .assetName {
+	padding: 1px 2px;
+}
+
+#asset_map_container .selectLine {
+	display: none;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	height: 1px;
+	border-top: 1px solid #000;
+	position: absolute;
+	width: 100%;
+}
+
+#asset_map_container .selectLine.active {
+	display: block;
+}
+
+#asset_map_container .statusList {
+	position: absolute;
+	bottom: 27px;
+	width: 100%;
+	padding: 0;
+	margin-bottom: -1px;
+	margin-left: -8px;
+	background-color: #fff;
+}
+
+#asset_map_container .statusList.expanded {
+	padding: 1px 0;
+	margin-bottom: 0;
+}
+
+#asset_map_container .statusList  .asset {
+	display: none;
+}
+
+#asset_map_container .statusList.expanded .asset {
+	display: block;
+	cursor: default;
+	margin: 2px;
+}
+
+#asset_map_container .statusListIcon {
+	display: inline-block;
+	width: 14px;
+	height: 14px;
+	margin-right: 2px;
+}*
+
+#asset_map_container .statusDivider {
+	background-color: #f5f5f5;
+	border-bottom: 1px solid #e2e2e2;
+	padding: 3px 3px;
+	position: relative;
+	cursor: pointer;
+}
+
+#asset_map_container .statusDivider .text {
+	display: inline-block;
+	font-size: 9.5px;
+	padding: 2px 0 3px 23px;
+	font-style: normal;
+	text-transform: uppercase;
+	color: #555;
+}
+
+#asset_map_container .asset .icon {
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	background: url(../../web/images/icons/asset_map/default_asset.png) 50% 50% no-repeat transparent;
+	margin-right: 2px;
+	z-index: 2;
+}
+
+#asset_map_container .asset .leaf {
+	display: inline-block;
+	width: 20px;
+	height: 18px;
+	margin-right: 0px;
+	position: relative;
+	top: 0px;
+}
+
+#asset_map_container .statusDivider .icon,
+#asset_map_container .asset .branch-status {
+	display: inline-block;
+	width: 12px;
+	height: 11px;
+	z-index: 1;
+}
+
+#asset_map_container .statusDivider .icon {
+	position: absolute;
+	top: 5px;
+	left: 4px;
+}
+
+#asset_map_container .asset .branch-status {
+	position: absolute;
+	top: 4px;
+	left: 4px;
+	z-index: 1;
+	cursor: pointer;
+}
+
+#asset_map_container .asset.teleported {
+	margin: 1px 0 0 3px;
+}
+
+#asset_map_container .asset.teleported .leaf,
+#asset_map_container .asset.teleported .branch-status {
+	display: none;
+}
+
+#asset_map_container .asset .type2-link,
+#asset_map_container .asset .not-accessible {
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	position: absolute;
+	top: 2px;
+	left: 18px;
+	z-index: 1;
+}
+
+#asset_map_container .asset .type2-link {
+	background: url(../../web/images/icons/asset_map/not_visible.png) 50% 50% no-repeat;
+}
+
+#asset_map_container .asset .not-accessible {
+	background: url(../../web/images/icons/asset_map/not_accessible.png) 50% 50% no-repeat;
+}
+
+#asset_map_container .asset .leaf {
+	background: url(../../web/images/tree/branch_mid.gif) 50% 50% no-repeat;
+}
+
+#asset_map_container .asset:first-child .leaf {
+	background: url(../../web/images/tree/branch_start.gif) 50% 50% no-repeat;
+}
+
+#asset_map_container .childIndent .asset:first-child .leaf {
+	background: url(../../web/images/tree/branch_mid.gif) 50% 50% no-repeat;
+}
+#asset_map_container .asset.last-child + .childIndent {
+	background: none;
+}
+
+#asset_map_container .asset.last-child .leaf,
+#asset_map_container .asset:first-child.last-child .leaf {
+	background: url(../../web/images/tree/branch.gif) 50% 50% no-repeat;
+}
+
+#asset_map_container .statusDivider .icon,
+#asset_map_container .asset .branch-status {
+	background: url(../../web/images/tree/branch_closed.gif) 50% -5px no-repeat;
+}
+
+#asset_map_container .statusList.expanded .statusDivider .icon,
+#asset_map_container .asset .branch-status.expanded {
+	background: url(../../web/images/tree/branch_open.gif) 50% -5px no-repeat;
+}
+
+#asset_map_container .toolbar:after {
+	content: "";
+	display: block;
+	clear: both;
+}
+
+#asset_map_container .addButton {
+	border-radius: 9px;
+	border: 0px;
+	height: 18px;
+	width: 53px;
+	padding: 0px;
+	margin-right: 5px;
+	background-color: #ddd;
+	display: inline-block;
+	cursor: pointer;
+	float: left;
+	background: url(../../web/images/icons/asset_map/add_off.png) 50% 50% no-repeat;
+}
+
+#asset_map_container .tbButtons {
+	float: right;
+}
+
+#asset_map_container .tbButton {
+	border-radius: 8px;
+	border: 0px;
+	width: 18px;
+	height: 18px;
+	padding: 0px;
+	margin-right: 5px;
+	background-color: #ddd;
+	display: inline-block;
+	cursor: pointer;
+}
+
+#asset_map_container .tbButton.selected {
+	background-color: #ccc;
+}
+
+#asset_map_container .tbButton.refresh {
+	background: url(../../web/images/icons/asset_map/refresh_off.png) 50% 50% no-repeat;
+}
+
+#asset_map_container .tbButton.restore {
+	background: url(../../web/images/icons/asset_map/teleport_off.png) 50% 50% no-repeat;
+}
+
+#asset_map_container .tbButton.collapse {
+	background: url(../../web/images/icons/asset_map/collapse_off.png) 50% 50% no-repeat;
+}
+
+#asset_map_container .tbButton.statuses {
+	background: url(../../web/images/icons/asset_map/status_off.png) 50% 50% no-repeat;
+}
