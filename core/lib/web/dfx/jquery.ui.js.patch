@@ -1,0 +1,36 @@
+@@ -3884,14 +3884,18 @@
+ 			var item = this.items[i], itemElement = item.item[0], intersection = this._intersectsWithPointer(item);
+ 			if (!intersection) continue;
+
+-			// Only put the placeholder inside the current Container, skip all
+-			// items form other containers. This works because when moving
+-			// an item from one container to another the
+-			// currentContainer is switched before the placeholder is moved.
+-			//
+-			// Without this moving items in "sub-sortables" can cause the placeholder to jitter
+-			// beetween the outer and inner container.
+-			if (item.instance !== this.currentContainer) continue;
++			//This piece of code along with the sortable toleranceElement (undocumented) setting are used
++			//to stop the jittering that occurs when moving items in and out of a sublist.
++			//The toleranceElement (set as the item itself excluding its sublist) restricts the area of
++			//intersection to minimise rearranging but it prevents movement of
++			//e.g. a sub list item to the first top level position after the end of the sublist.
++			//This is because the item in the next list is naturally being asked to move the wrong way so
++			//we will reverse this but need to force a rearrange so the gap opens earlier.
++			var forceRearrange = false;
++			if (itemElement.parentNode != this.placeholder[0].parentNode) {
++				intersection   = intersection == 1 ? 2 : 1;
++				forceRearrange = true;
++			}
+
+ 			if (itemElement != this.currentItem[0] //cannot intersect with itself
+ 				&&	this.placeholder[intersection == 1 ? "next" : "prev"]()[0] != itemElement //no useless actions that have been done before
+@@ -3902,7 +3906,7 @@
+
+ 				this.direction = intersection == 1 ? "down" : "up";
+
+-				if (this.options.tolerance == "pointer" || this._intersectsWithSides(item)) {
++				if (this.options.tolerance == "pointer" || this._intersectsWithSides(item) || forceRearrange == true) {
+ 					this._rearrange(event, item);
+ 				} else {
+ 					break;
