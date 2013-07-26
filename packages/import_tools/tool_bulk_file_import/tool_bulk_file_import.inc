@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_bulk_file_import.inc,v 1.16 2012/08/30 00:58:50 ewang Exp $
+* $Id: tool_bulk_file_import.inc,v 1.16.6.1 2013/07/26 01:40:44 akarelia Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_DATA_PATH.'/private/conf/import_tools_manager.inc';
 *    Tool for importing files into Matrix
 *
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.16.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -96,6 +96,7 @@ class Tool_Bulk_File_Import extends Tool
 
 							// This will get us a list of all the files in the import directory
 							$dirs_array = list_dirs($import_dir, TRUE);
+							asort($dirs_array);
 							?>
 							<table class="sq-backend-table" style="width: 600px;">
 								<tr>
