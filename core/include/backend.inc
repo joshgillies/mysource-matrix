@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.219 2013/07/28 23:02:19 lwright Exp $
+* $Id: backend.inc,v 1.220 2013/07/28 23:36:05 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.219 $
+* @version $Revision: 1.220 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -1151,6 +1151,10 @@ class Backend extends MySource_Object
 				font-size: 1em;
 			}
 
+			.sq-backend-header-item.matrix-icon {
+				padding: 28px 0 5px 21px;
+			}
+
 			.sidenav-tab-icon, .sidenav-tab-icon-active {
 				padding-left:		5px;
 			}
@@ -1257,7 +1261,7 @@ class Backend extends MySource_Object
 			?>
 				<table cellspacing="0" cellpadding="0" border="0" width="100%" height="100%" style="position: absolute;">
 					<tr>
-						<td class="sq-backend-header-item" style="width: 100%;"><img style="margin-left: 21px; margin-bottom: 5px;" src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/matrix_logo.gif" alt="Squiz Matrix" /></td>
+						<td class="sq-backend-header-item matrix-icon"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/matrix_logo.gif" alt="Squiz Matrix" /></td>
 					</tr>
 					<tr>
 						<td height="100%" valign="top">&nbsp;</td>
@@ -1285,9 +1289,9 @@ class Backend extends MySource_Object
 		} else {
 			// we are on the backend
 			?>
-				<table cellspacing="0" cellpadding="0" border="0" width="100%" height="100%" style="position: absolute; padding-top: 28px">
+				<table cellspacing="0" cellpadding="0" border="0" width="100%" height="100%">
 					<tr>
-						<td class="sq-backend-header-item" style="width: 100%;"><img style="margin-left: 21px; margin-bottom: 5px;" src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/matrix_logo.gif" alt="Squiz Matrix" /></td>
+						<td class="sq-backend-header-item matrix-icon" style="padding-top: 28px; padding-left: 21px; padding-bottom: 5px;"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/matrix_logo.gif" alt="Squiz Matrix" /></td>
 					</tr>
 					<tr>
 						<td height="100%" valign="top">
