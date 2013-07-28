@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.218 2013/07/25 23:23:49 lwright Exp $
+* $Id: backend.inc,v 1.219 2013/07/28 23:02:19 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.218 $
+* @version $Revision: 1.219 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -1167,8 +1167,17 @@ class Backend extends MySource_Object
 			#asset_map {
 				margin:				0px;
 				border:				1px solid #342939;
+				border-top:         0px;
+				border-left:        0px;
 				padding:			0px;
 				width:				100%;
+				position:           absolute;
+				top:                75px;
+				left:               6px;
+				visibility:         visible;
+			}
+			#asset_map.in_limbo {
+				top:                27px;
 			}
 
 			#my_space {
@@ -1177,6 +1186,7 @@ class Backend extends MySource_Object
 				padding:			0px;
 				margin:				0px;
 				border:				1px solid #FFFFFF;
+				position: absolute; top: 75px; left: 0px; visibility: hidden;
 			}
 			.myspace-section {
 				background-color:	#FFFFFF;
@@ -1258,7 +1268,7 @@ class Backend extends MySource_Object
 						</td>
 					</tr>
 				</table>
-				<div id="asset_map" style="position: absolute; top: 27px; left: 6px; visibility: visible; border-top: 0px none; border-left: 0px none;">
+				<div id="asset_map" class="in_limbo">
 					<?php
 					require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
 					$asset_map = new Asset_Map();
@@ -1309,7 +1319,7 @@ class Backend extends MySource_Object
 					</tr>
 				</table>
 
-				<div id="asset_map" style="position: absolute; top: 75px; left: 6px; visibility: visible; border-top: 0px none; border-left: 0px none;">
+				<div id="asset_map">
 					<?php
 					require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
 					$asset_map = new Asset_Map();
@@ -1322,7 +1332,7 @@ class Backend extends MySource_Object
 					}
 					?>
 				</div>
-				<div id="my_space" style="position: absolute; top: 75px; left: 0px; visibility: hidden;">
+				<div id="my_space">
 					<?php
 					$user = $GLOBALS['SQ_SYSTEM']->user;
 					$inbox_link = $GLOBALS['SQ_SYSTEM']->am->getLink($user->id, SQ_LINK_TYPE_2, 'inbox', TRUE, NULL, 'major', '1');
