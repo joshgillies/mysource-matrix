@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.221 2013/07/29 01:01:58 lwright Exp $
+* $Id: backend.inc,v 1.222 2013/07/29 02:08:53 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.221 $
+* @version $Revision: 1.222 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -274,6 +274,17 @@ class Backend extends MySource_Object
 			$page_title = translate('page_title_admin_interface', SQ_SYSTEM_LONG_NAME);
 		}
 
+		$body_class = '';
+
+		$header_height = $limbo_hide_frames ? 0 : 28;
+		$am_width = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_WIDTH');
+		$sidenav_width = $am_width+5;
+		$resizer_width = $limbo_hide_frames ? 0 : 10;
+
+		if (SQ_IN_LIMBO) {
+			// Hide Sidenav by default in Simple Edit.
+			$body_class .= ' sidenav-minimised';
+		}
 		?>
 		<!DOCTYPE html>
 		<html>
@@ -291,27 +302,89 @@ class Backend extends MySource_Object
 					<?php
 				}
 				?>
+				<style type="text/css">
+					body {
+						margin: 0;
+						overflow: hidden;
+					}
+
+					div.iframe-container {
+						position: absolute;
+						top: 0;
+						left: 0;
+						width: 100%;
+						height: 100%;
+						padding-top: <?php echo $header_height ?>px;
+						box-sizing: border-box;
+						-moz-box-sizing: border-box;
+					}
+
+					div.iframe-container.header {
+						padding-top: 0;
+						height: 28px;
+						z-index: 3;
+					}
+
+					div.iframe-container.lower-set {
+						padding-top: 0;
+						z-index: 0;
+					}
+
+					div.iframe-container.sidenav {
+						width: <?php echo $sidenav_width ?>px;
+						z-index: 1;
+					}
+
+					body.sidenav-minimised div.iframe-container.sidenav {
+						width: 0;
+					}
+
+					div.iframe-container.resizer {
+						left: <?php echo $sidenav_width ?>px;
+						width: <?php echo $resizer_width ?>px;
+						z-index: 2;
+					}
+
+					body.sidenav-minimised div.iframe-container.resizer {
+						left: 0;
+					}
+
+					div.iframe-container.main {
+						padding-left: <?php echo ($sidenav_width + $resizer_width) ?>px;
+						padding-top: <?php echo $header_height ?>px;
+						z-index: 0;
+					}
+
+					body.sidenav-minimised div.iframe-container.main {
+						padding-left: <?php echo ($resizer_width) ?>px;
+					}
+
+					iframe {
+						border: 0;
+						height: 100%;
+						width: 100%;
+					}
+
+					#sq_header {
+						height: 28px;
+					}
+				</style>
 			</head>
 			<?php
 			if (!$limbo_hipo) {
 				// if hide_frames is set, hide the header and remove the resizer
 				// i.e. one less column in the second frameset
 				// see _printMain() for more info
-				$header_height = $limbo_hide_frames ? 0 : 28;
-				$am_width = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_WIDTH');
-				$sidenav_width = SQ_IN_LIMBO ? 0 : ($am_width+5);
-				$resizer_width = $limbo_hide_frames ? 0 : 10;
-				$frameset_cols = $sidenav_width.','.$resizer_width.',*';
 				?>
-				<body style="margin: 0; overflow: hidden"><div style="position: absolute; top: 0; left: 0; box-sizing: border-box; -moz-box-sizing: border-box; width: 100%; height: <?php echo $header_height ?>px; box-sizing: border-box; -moz-box-sizing: border-box; z-index: 1">
-					<iframe src="<?php echo $frame_urls['header']; ?>" name="sq_header" scrolling="no" marginwidth="0" marginheight="0" border="0" frameborder="0" style="border: 0; width: 100%; height: 28px; z-index: 3"></iframe>
-				</div><div style="position: absolute; top: 0; left: 0; box-sizing: border-box; -moz-box-sizing: border-box; height: 100%; width: 100%; z-index: 0">
-					<div style="position: absolute; top: 0; left: 0; width: <?php echo $sidenav_width ?>px; height: 100%; padding-top: <?php echo $header_height ?>px; box-sizing: border-box; -moz-box-sizing: border-box; z-index: 1">
-						<iframe src="<?php echo $frame_urls['sidenav']; ?>" name="sq_sidenav" scrolling="no" marginwidth="0" marginheight="0" border="0" frameborder="0" style="border: 0; width: 100%; height: 100%"></iframe>
-					</div><div style="position: absolute; top: 0; left: <?php echo $sidenav_width ?>px; width: <?php echo $resizer_width ?>px; height: 100%; padding-top: <?php echo $header_height ?>px; box-sizing: border-box; -moz-box-sizing: border-box; z-index: 2">
-						<iframe src="<?php echo $frame_urls['resizer']; ?>" name="sq_resizer" scrolling="no" marginwidth="0" marginheight="0" border="0" frameborder="0" style="border: 0; width: 100%; height: 100%"></iframe>
-					</div><div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; box-sizing: border-box; -moz-box-sizing: border-box; padding-left: <?php echo ($sidenav_width + $resizer_width) ?>px; padding-top: <?php echo $header_height ?>px; z-index: 0;">
-						<iframe src="<?php echo $frame_urls['main']; ?>" name="sq_main" scrolling="yes" marginwidth="0" marginheight="0" border="0" frameborder="0" style="border: 0; width: 100%; height: 100%"></iframe>
+				<body class="<?php echo $body_class ?>"><div class="iframe-container header">
+					<iframe src="<?php echo $frame_urls['header']; ?>" name="sq_header" id="sq_header" scrolling="no" marginwidth="0" marginheight="0" border="0" frameborder="0"></iframe>
+				</div><div class="iframe-container lower-set">
+					<div class="iframe-container sidenav">
+						<iframe src="<?php echo $frame_urls['sidenav']; ?>" name="sq_sidenav" scrolling="no" marginwidth="0" marginheight="0" border="0" frameborder="0"></iframe>
+					</div><div class="iframe-container resizer">
+						<iframe src="<?php echo $frame_urls['resizer']; ?>" name="sq_resizer" scrolling="no" marginwidth="0" marginheight="0" border="0" frameborder="0"></iframe>
+					</div><div class="iframe-container main">
+						<iframe src="<?php echo $frame_urls['main']; ?>" name="sq_main" scrolling="yes" marginwidth="0" marginheight="0" border="0" frameborder="0"></iframe>
 					</div></div></body>
 				<?php
 			}
@@ -1192,6 +1265,11 @@ class Backend extends MySource_Object
 				border:				1px solid #FFFFFF;
 				position: absolute; top: 75px; left: 0px; visibility: hidden;
 			}
+			#system_version {
+				position: absolute;
+				bottom:   5px;
+				left:     5px;
+			}
 			.myspace-section {
 				background-color:	#FFFFFF;
 				border:				1px solid #A2A2A2;
@@ -1289,7 +1367,7 @@ class Backend extends MySource_Object
 		} else {
 			// we are on the backend
 			?>
-				<table cellspacing="0" cellpadding="0" border="0" width="100%" height="100%">
+				<table cellspacing="0" cellpadding="0" border="0" width="100%">
 					<tr>
 						<td class="sq-backend-header-item matrix-icon"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/matrix_logo.gif" alt="Squiz Matrix" /></td>
 					</tr>
@@ -1311,7 +1389,7 @@ class Backend extends MySource_Object
 								</tr>
 							</table>
 						</td>
-					</tr>
+					</tr><!--
 					<tr>
 						<td class="sq-backend-header-item" style="padding-bottom: 5px;">
 							<a href="<?php echo SQ_SYSTEM_URL;?>" class="sq-backend-header-item" target="_blank" style="text-decoration:none;" <?php
@@ -1320,8 +1398,16 @@ class Backend extends MySource_Object
 								}
 							?>><?php echo SQ_SYSTEM_LONG_NAME;?></a>
 						</td>
-					</tr>
+					</tr>-->
 				</table>
+
+				<div id="system_version">
+					<a href="<?php echo SQ_SYSTEM_URL;?>" class="sq-backend-header-item" target="_blank" style="text-decoration:none;" <?php
+						if (defined('SQ_LICENCE_INSTALL_KEY')) {
+							echo ' title="Install Key: '.SQ_LICENCE_INSTALL_KEY.'"';
+						}
+					?>><?php echo SQ_SYSTEM_LONG_NAME;?></a>
+				</div>
 
 				<div id="asset_map">
 					<?php
@@ -1418,24 +1504,13 @@ class Backend extends MySource_Object
 			var clickSize = 50;
 			var fset = top.document.getElementById('main_frameset');
 			hidden = <?php var_export(SQ_IN_LIMBO); ?>;
-			<?php $am_width = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_WIDTH') + 5; ?>
 
 			function toggleFrame() {
 				if (hidden == false) {
-					top.frames['sq_sidenav'].frameElement.parentNode.style.display = 'none';
-					if (top.frames['sq_resizer'].frameElement.parentNode.style.display !== 'none') {
-						top.frames['sq_main'].frameElement.parentNode.style.paddingLeft = '10px';
-					} else {
-						top.frames['sq_main'].frameElement.parentNode.style.paddingLeft = '0px';
-					}
+					top.document.body.className += ' sidenav-minimised';
 					hidden = true;
 				} else {
-					top.frames['sq_sidenav'].frameElement.parentNode.style.display = 'inline-block';
-					if (top.frames['sq_resizer'].frameElement.parentNode.style.display !== 'none') {
-						top.frames['sq_main'].frameElement.parentNode.style.paddingLeft = '<?php echo ($am_width + 10); ?>px';
-					} else {
-						top.frames['sq_main'].frameElement.parentNode.style.paddingLeft = '<?php echo $am_width; ?>px';
-					}
+					top.document.body.className = top.document.body.className.replace(/ sidenav-minimised/, '');
 					hidden = false;
 				}
 			}
