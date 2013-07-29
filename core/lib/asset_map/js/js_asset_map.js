@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.2 2013/07/26 04:51:45 lwright Exp $
+* $Id: js_asset_map.js,v 1.3 2013/07/29 03:06:46 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.2 $
+ * @version $Revision: 1.3 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -967,8 +967,8 @@ var JS_Asset_Map = new function() {
 				} else if (dragStatus.assetDrag) {
 					dragStatus.currentPoint = {
 						x: mousePos.x - assetMapCoords.x + dragStatus.assetDrag.offset.x,
-						y: mousePos.y - assetMapCoords.y + dragStatus.assetDrag.offset.y,
-					}
+						y: mousePos.y - assetMapCoords.y + dragStatus.assetDrag.offset.y
+					};
 
 					if (self.isInUseMeMode() === false) {
 						var selection = self.currentSelection();
@@ -1086,8 +1086,9 @@ var JS_Asset_Map = new function() {
 				var mousePos = dfx.getMouseEventPosition(e);
 				dragStatus.currentPoint = {
 					x: mousePos.x - assetMapCoords.x + dragStatus.assetDrag.offset.x,
-					y: mousePos.y - assetMapCoords.y + dragStatus.assetDrag.offset.y,
-				}
+					y: mousePos.y - assetMapCoords.y + dragStatus.assetDrag.offset.y
+				};
+
 				dfx.setStyle(dragAsset, 'left', dragStatus.currentPoint.x + 'px');
 				dfx.setStyle(dragAsset, 'top', dragStatus.currentPoint.y + 'px');
 			}
@@ -1183,7 +1184,7 @@ var JS_Asset_Map = new function() {
 
 			this.doRequest({
 				_attributes: {
-					action: 'get assets',
+					action: 'get assets'
 				},
 				asset: [
 					{
@@ -1415,7 +1416,7 @@ var JS_Asset_Map = new function() {
 			// Top-level tree always shows all assets.
 			self.doRequest({
 				_attributes: {
-					action: 'get assets',
+					action: 'get assets'
 				},
 				asset: [
 					{
@@ -1547,7 +1548,7 @@ var JS_Asset_Map = new function() {
 			_attributes: {
 				action: action,
 				to_parent_assetid: newParentAssetid,
-				to_parent_pos: sortOrder,
+				to_parent_pos: sortOrder
 			},
 			asset: assets
 		};
@@ -2270,7 +2271,7 @@ var JS_Asset_Map = new function() {
 
 		this.doRequest({
 			_attributes: {
-				action: 'get assets',
+				action: 'get assets'
 			},
 			asset: assetRequests
 		}, processAssets);
@@ -2305,7 +2306,7 @@ var JS_Asset_Map = new function() {
 
 		this.doRequest({
 			_attributes: {
-				action: 'get assets',
+				action: 'get assets'
 			},
 			asset: assetRequests
 		}, processAssets);
@@ -2406,7 +2407,7 @@ var JS_Asset_Map = new function() {
 
 			this.doRequest({
 				_attributes: {
-					action: 'get assets',
+					action: 'get assets'
 				},
 				asset: assetRequests
 			}, processAssets);
@@ -2516,7 +2517,7 @@ var JS_Asset_Map = new function() {
 
 			this.doRequest({
 				_attributes: {
-					action: 'get assets',
+					action: 'get assets'
 				},
 				asset: assetRequests
 			}, processAssets);
@@ -2780,7 +2781,7 @@ var JS_Asset_Map = new function() {
 				namePrefix: name,
 				idPrefix: safeName,
 				typeFilter: typeFilter,
-				doneCallback: doneCallback,
+				doneCallback: doneCallback
 			};
 
 			// toggle frame
