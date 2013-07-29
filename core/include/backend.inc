@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.220 2013/07/28 23:36:05 lwright Exp $
+* $Id: backend.inc,v 1.221 2013/07/29 01:01:58 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.220 $
+* @version $Revision: 1.221 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -304,13 +304,13 @@ class Backend extends MySource_Object
 				$frameset_cols = $sidenav_width.','.$resizer_width.',*';
 				?>
 				<body style="margin: 0; overflow: hidden"><div style="position: absolute; top: 0; left: 0; box-sizing: border-box; -moz-box-sizing: border-box; width: 100%; height: <?php echo $header_height ?>px; box-sizing: border-box; -moz-box-sizing: border-box; z-index: 1">
-					<iframe src="<?php echo $frame_urls['header']; ?>" name="sq_header" scrolling="no" marginwidth="0" marginheight="0" border="0" frameborder="0" style="border: 0; width: 100%; height: 100%; z-index: 3"></iframe>
+					<iframe src="<?php echo $frame_urls['header']; ?>" name="sq_header" scrolling="no" marginwidth="0" marginheight="0" border="0" frameborder="0" style="border: 0; width: 100%; height: 28px; z-index: 3"></iframe>
 				</div><div style="position: absolute; top: 0; left: 0; box-sizing: border-box; -moz-box-sizing: border-box; height: 100%; width: 100%; z-index: 0">
-					<div style="float: left; position: relative; display: inline-block; top: 0; left: 0; box-sizing: border-box; -moz-box-sizing: border-box; width: <?php echo $sidenav_width ?>px; height: 100%; z-index: 0">
+					<div style="position: absolute; top: 0; left: 0; width: <?php echo $sidenav_width ?>px; height: 100%; padding-top: <?php echo $header_height ?>px; box-sizing: border-box; -moz-box-sizing: border-box; z-index: 1">
 						<iframe src="<?php echo $frame_urls['sidenav']; ?>" name="sq_sidenav" scrolling="no" marginwidth="0" marginheight="0" border="0" frameborder="0" style="border: 0; width: 100%; height: 100%"></iframe>
-					</div><div style="float: left; position: relative; display: inline-block; top: 0; left: 0; box-sizing: border-box; -moz-box-sizing: border-box; width: <?php echo $resizer_width ?>px; height: 100%; z-index: 1">
+					</div><div style="position: absolute; top: 0; left: <?php echo $sidenav_width ?>px; width: <?php echo $resizer_width ?>px; height: 100%; padding-top: <?php echo $header_height ?>px; box-sizing: border-box; -moz-box-sizing: border-box; z-index: 2">
 						<iframe src="<?php echo $frame_urls['resizer']; ?>" name="sq_resizer" scrolling="no" marginwidth="0" marginheight="0" border="0" frameborder="0" style="border: 0; width: 100%; height: 100%"></iframe>
-					</div><div style="padding-left: <?php echo ($sidenav_width + $resizer_width) ?>px; padding-top: <?php echo $header_height ?>px; box-sizing: border-box; -moz-box-sizing: border-box; width: 100%; height: 100%;">
+					</div><div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; box-sizing: border-box; -moz-box-sizing: border-box; padding-left: <?php echo ($sidenav_width + $resizer_width) ?>px; padding-top: <?php echo $header_height ?>px; z-index: 0;">
 						<iframe src="<?php echo $frame_urls['main']; ?>" name="sq_main" scrolling="yes" marginwidth="0" marginheight="0" border="0" frameborder="0" style="border: 0; width: 100%; height: 100%"></iframe>
 					</div></div></body>
 				<?php
@@ -1152,7 +1152,7 @@ class Backend extends MySource_Object
 			}
 
 			.sq-backend-header-item.matrix-icon {
-				padding: 28px 0 5px 21px;
+				padding: 0 0 5px 21px;
 			}
 
 			.sidenav-tab-icon, .sidenav-tab-icon-active {
@@ -1176,7 +1176,7 @@ class Backend extends MySource_Object
 				padding:			0px;
 				width:				100%;
 				position:           absolute;
-				top:                75px;
+				top:                47px;
 				left:               6px;
 				visibility:         visible;
 			}
@@ -1291,7 +1291,7 @@ class Backend extends MySource_Object
 			?>
 				<table cellspacing="0" cellpadding="0" border="0" width="100%" height="100%">
 					<tr>
-						<td class="sq-backend-header-item matrix-icon" style="padding-top: 28px; padding-left: 21px; padding-bottom: 5px;"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/matrix_logo.gif" alt="Squiz Matrix" /></td>
+						<td class="sq-backend-header-item matrix-icon"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/matrix_logo.gif" alt="Squiz Matrix" /></td>
 					</tr>
 					<tr>
 						<td height="100%" valign="top">
