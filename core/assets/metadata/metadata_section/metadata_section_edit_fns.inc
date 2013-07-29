@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section_edit_fns.inc,v 1.57 2012/10/03 07:55:04 cupreti Exp $
+* $Id: metadata_section_edit_fns.inc,v 1.57.6.1 2013/07/29 05:42:55 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.57.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -84,12 +84,13 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 					<table class="sq-backend-table">
 						<tr>
 							<td class="sq-backend-table-header"><?php echo translate('asset_type'); ?></td>
+							<td align="center" class="sq-backend-table-header" width="70"><?php echo translate('inherit').' ?'; ?></td>
 							<?php
 							if ($write_access) {
 							?>
-							<td align="center" class="sq-backend-table-header" width="70"><?php echo translate('remove'); ?></td>
+							<td align="center" class="sq-backend-table-header" width="70"><?php echo translate('remove').' ?'; ?></td>
 							<?php
-							}	
+							}
 							?>
 						</tr>
 						<?php
@@ -98,6 +99,15 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 							<tr>
 								<td class="sq-backend-table-cell">
 									<?php echo ucfirst(str_replace('_', ' ', $asset_type)) ?>
+								</td>
+								<td align="center" class="sq-backend-table-cell">
+									<?php
+									if ($write_access) {
+										check_box($prefix.'_asset_type_inherit['.$asset_type.']', '1', $inheritance);
+									} else {
+										echo '<img src="'.sq_web_path('lib').'/web/images/'.($inheritance ? 'tick' : 'cross').'.gif" width=" 15" height="15" />';
+									}
+									?>
 								</td>
 								<?php
 								if ($write_access) {
@@ -231,6 +241,29 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 			}
 
 			// If something to save, save it, dammit!
+			if ($changes_made) {
+				$asset->setAttrValue('restrict', $current_restrictions);
+				$asset->saveAttributes();
+			}
+		}
+
+		// inherit type setting
+		$current_restrictions = $asset->attr('restrict');
+		$changes_made = FALSE;
+		if (isset($_POST[$prefix.'_asset_type_inherit'])) {
+			$inherit_enabled = $_POST[$prefix.'_asset_type_inherit'];
+			foreach($current_restrictions as $asset_type => $inheritance) {
+				if (isset($inherit_enabled[$asset_type])) {
+					$current_restrictions[$asset_type] = 1;
+				} else {
+					$current_restrictions[$asset_type] = 0;
+				}
+				if ($inheritance != array_get_index($inherit_enabled, $asset_type, 0)) {
+					$changes_made = TRUE;
+				}
+
+			}//end foreach
+
 			if ($changes_made) {
 				$asset->setAttrValue('restrict', $current_restrictions);
 				$asset->saveAttributes();
