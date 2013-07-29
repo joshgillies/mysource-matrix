@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1 2012/01/19 01:33:05 cupreti Exp $
+* $Id: lang_screen_details.xml,v 1.1.8.1 2013/07/29 03:30:33 akarelia Exp $
 *
 */
 -->
@@ -105,6 +105,10 @@
 		<field attribute="current_page_format">
 			<display_name>Current Page Format</display_name>
 			<note>This is the format of current page number in pagination. Available keyword is %page_number%</note>
+		</field>
+		<field attribute="hide_no_href_links">
+			<display_name>Hide Unlinked Navigational Text</display_name>
+			<note>This option lets you define if the navigational text, like 'Previous Page' or 'Next Page', should be hidden if these text is not a link. This is useful to hide 'Next Page' on last page and 'Prev Page' on first page etc.,.</note>
 		</field>
 	</section>
 	<section name="Advanced Settings">
