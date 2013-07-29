@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.3 2013/07/29 03:06:46 lwright Exp $
+* $Id: js_asset_map.js,v 1.4 2013/07/29 22:41:36 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.3 $
+ * @version $Revision: 1.4 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -462,6 +462,7 @@ var JS_Asset_Map = new function() {
 
 
 //--        INITIALISATION        --//
+
 
 	/**
 	 * Start the asset map.
@@ -1612,9 +1613,8 @@ var JS_Asset_Map = new function() {
 		}
 
 		var treeDivs = dfx.getClass('tree');
-		assetMapContainer.style.height = (document.documentElement.clientHeight - 100) + 'px';
+		assetMapContainer.style.height = (document.documentElement.clientHeight - 70) + 'px';
 		for (var i = 0; i < treeDivs.length; i++) {
-			console.info(assetMapContainer);
 			treeDivs[i].style.height = (assetMapContainer.clientHeight - toolbarDiv.clientHeight - messageDiv.clientHeight - statusHeight) + 'px';
 		}
 	};
@@ -1950,35 +1950,6 @@ var JS_Asset_Map = new function() {
 		var pageDiv       = _createEl('div');
 		pageDiv.className = 'paginationTool ' + direction;
 
-		if (direction === 'up') {
-			var tb1Button = _createEl('div');
-			dfx.addClass(tb1Button, 'page-button previous-page');
-			dfx.addEvent(tb1Button, 'click', function() {
-				self.pageContainer(pageDiv.parentNode, Math.max(0, (offset - options.assetsPerPage)), totalAssets);
-			});
-
-			var tb2Button = _createEl('div');
-			dfx.addClass(tb2Button, 'page-button first-page');
-			dfx.addEvent(tb2Button, 'click', function() {
-				self.pageContainer(pageDiv.parentNode, 0, totalAssets);
-			});
-		} else {
-			var tb1Button = _createEl('div');
-			dfx.addClass(tb1Button, 'page-button next-page');
-			dfx.addEvent(tb1Button, 'click', function() {
-				self.pageContainer(pageDiv.parentNode, Math.min(lastPageStart, (offset + options.assetsPerPage)), totalAssets);
-			});
-
-			var tb2Button = _createEl('div');
-			dfx.addClass(tb2Button, 'page-button last-page');
-			dfx.addEvent(tb2Button, 'click', function() {
-				self.pageContainer(pageDiv.parentNode, lastPageStart, totalAssets);
-			});
-		}
-
-		pageDiv.appendChild(tb1Button);
-		pageDiv.appendChild(tb2Button);
-
 		var textSpan   = _createEl('span');
 		var firstAsset = (offset + 1);
 		var lastAsset  = (offset + options.assetsPerPage);
@@ -2015,6 +1986,38 @@ var JS_Asset_Map = new function() {
 			textSpan.setAttribute('data-msg-index', i);
 		});
 
+		if (direction === 'up') {
+			var tb1Button = _createEl('div');
+			dfx.addClass(tb1Button, 'page-button previous-page');
+			dfx.addEvent(tb1Button, 'click', function() {
+				textSpan.innerHTML = js_translate('asset_map_status_bar_requesting');
+				self.pageContainer(pageDiv.parentNode, Math.max(0, (offset - options.assetsPerPage)), totalAssets);
+			});
+
+			var tb2Button = _createEl('div');
+			dfx.addClass(tb2Button, 'page-button first-page');
+			dfx.addEvent(tb2Button, 'click', function() {
+				textSpan.innerHTML = js_translate('asset_map_status_bar_requesting');
+				self.pageContainer(pageDiv.parentNode, 0, totalAssets);
+			});
+		} else {
+			var tb1Button = _createEl('div');
+			dfx.addClass(tb1Button, 'page-button next-page');
+			dfx.addEvent(tb1Button, 'click', function() {
+				textSpan.innerHTML = js_translate('asset_map_status_bar_requesting');
+				self.pageContainer(pageDiv.parentNode, Math.min(lastPageStart, (offset + options.assetsPerPage)), totalAssets);
+			});
+
+			var tb2Button = _createEl('div');
+			dfx.addClass(tb2Button, 'page-button last-page');
+			dfx.addEvent(tb2Button, 'click', function() {
+				textSpan.innerHTML = js_translate('asset_map_status_bar_requesting');
+				self.pageContainer(pageDiv.parentNode, lastPageStart, totalAssets);
+			});
+		}
+
+		pageDiv.appendChild(tb1Button);
+		pageDiv.appendChild(tb2Button);
 		pageDiv.appendChild(textSpan);
 
 		return pageDiv;
