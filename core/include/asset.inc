@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.787.4.2 2013/07/19 04:05:34 ewang Exp $
+* $Id: asset.inc,v 1.787.4.3 2013/07/29 04:51:23 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.787.4.2 $
+* @version $Revision: 1.787.4.3 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -847,7 +847,6 @@ class Asset extends MySource_Object
 
 	}//end reload()
 
-
 	/**
 	* Determine whether this asset should send cacheable header
 	*
@@ -860,7 +859,7 @@ class Asset extends MySource_Object
 		return TRUE;
 	}//end canSendCacheableHeader()
 	
-	
+
 	/**
 	* Determine whether this asset can have its last significant link removed
 	*
@@ -4238,6 +4237,9 @@ class Asset extends MySource_Object
 				}
 			$replacement = ob_get_clean();
 
+		} else if (strpos($keyword, 'asset_ds_csv') !== FALSE) {
+			$row_col = explode('-', str_replace('asset_ds_csv_', '', $keyword));
+			$replacement = $this->getDsCsvKeywordReplacement($keyword, $row_col);
 		} else {
 			$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 			$mm_keyword = $mm->generateKeywordReplacements($this, Array($keyword), FALSE);
