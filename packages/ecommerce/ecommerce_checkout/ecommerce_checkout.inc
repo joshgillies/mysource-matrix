@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.90 2013/07/25 05:10:47 akarelia Exp $
+* $Id: ecommerce_checkout.inc,v 1.91 2013/07/29 08:25:54 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.90 $
+* @version $Revision: 1.91 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -646,7 +646,11 @@ class Ecommerce_Checkout extends Page
 					// whether we are removing tax from this order
 					$remove_tax = isset($_SESSION['sq_region_specific']['remove_tax']) ? $_SESSION['sq_region_specific']['remove_tax'] : FALSE;
 					$total_cost = $cart->getGrandTotalExDelivery($this->attr('taxation_rate')/100, $remove_tax, $this->getFlatCharges());
-					$delivery_cost = $cart->getTotalDeliveryCosts($total_cost);
+					$delivery_tax = 0;
+					$delivery_cost = $cart->getTotalDeliveryCosts($total_cost, $this->attr('taxation_rate')/100, $this->attr('apply_tax_on_delivery'), $this->attr('delivery_includes_tax'), $delivery_tax);
+					if (!$remove_tax) {
+						$delivery_cost += $delivery_tax;
+					}
 
 					// customer pays here!
 					$this->_logOrderAction(translate('ecom_order_history_payment_gateway'));
@@ -742,7 +746,7 @@ class Ecommerce_Checkout extends Page
 		$this->_logOrderAction(translate('ecom_order_history_commence_delivery_method'), $order_asset);
 
 		// process the delivery and provide the tax name and tax rate
-		$delivery_processing_status = $delivery_method->processDelivery($order_asset, $contents_bodycopy, $format_bodycopy, $this->attr('currency_symbol'), $this->attr('float_precision'), $this->attr('taxation_name'), $this->attr('taxation_rate')/100.0, $this->getFlatCharges(), isset($neg_quantity_list) ? $neg_quantity_list : '', isset($neg_quantity_list) ? $delivery_method->attr('negative_quantity_message') : '');
+		$delivery_processing_status = $delivery_method->processDelivery($order_asset, $contents_bodycopy, $format_bodycopy, $this->attr('currency_symbol'), $this->attr('float_precision'), $this->attr('taxation_name'), $this->attr('taxation_rate')/100.0, $this->getFlatCharges(), isset($neg_quantity_list) ? $neg_quantity_list : '', isset($neg_quantity_list) ? $delivery_method->attr('negative_quantity_message') : '', $this->id);
 
 		$this->_logOrderAction(translate('ecom_order_history_end_delivery_method'), $order_asset);
 
@@ -1333,7 +1337,7 @@ class Ecommerce_Checkout extends Page
 
 			// if products are taxed, remove tax from final amount
 			$remove_tax = isset($_SESSION['sq_region_specific']['remove_tax']) ? $_SESSION['sq_region_specific']['remove_tax'] : FALSE;
-			echo $cart->printReceipt($this->attr('taxation_name'), ($this->attr('taxation_rate')/100.0), $this->getFlatCharges(), $remove_tax, $this->attr('currency_symbol'), $this->attr('float_precision'), $this->attr('refund_info_text'));
+			echo $cart->printReceipt($this->attr('taxation_name'), ($this->attr('taxation_rate')/100.0), $this->getFlatCharges(), $remove_tax, $this->attr('currency_symbol'), $this->attr('float_precision'), $this->attr('refund_info_text'), $this->attr('apply_tax_on_delivery'), $this->attr('delivery_includes_tax'));
 
 			if ($html) echo '</pre>';
 		$cart_summary = ob_get_clean();
@@ -1357,7 +1361,7 @@ class Ecommerce_Checkout extends Page
 		// if products are taxed, remove tax from final amount
 		$remove_tax = isset($_SESSION['sq_region_specific']['remove_tax']) ? $_SESSION['sq_region_specific']['remove_tax'] : FALSE;
 		
-		return $cart->getCartXml($this->attr('taxation_name'), ($this->attr('taxation_rate')/100.0), $this->getFlatCharges(), $remove_tax, $this->attr('currency_symbol'), $this->attr('float_precision'));
+		return $cart->getCartXml($this->attr('taxation_name'), ($this->attr('taxation_rate')/100.0), $this->getFlatCharges(), $remove_tax, $this->attr('currency_symbol'), $this->attr('float_precision'), $this->attr('apply_tax_on_delivery'), $this->attr('delivery_includes_tax'));
 
 	}//end _getCartXml()
 
@@ -2100,7 +2104,7 @@ class Ecommerce_Checkout extends Page
 				// get the customised receipt bodycopies
 				$contents_bodycopy = $this->getBodycopy('receipt_contents', TRUE);
 				$format_bodycopy = $this->getBodycopy('receipt_format', TRUE);
-				echo $cart->printCustomisedReceipt($contents_bodycopy, $format_bodycopy, $this->attr('taxation_name'), ($this->attr('taxation_rate')/100.0), $this->getFlatCharges(), $remove_tax, $this->attr('currency_symbol'), $this->attr('float_precision'));
+				echo $cart->printCustomisedReceipt($contents_bodycopy, $format_bodycopy, $this->attr('taxation_name'), ($this->attr('taxation_rate')/100.0), $this->getFlatCharges(), $remove_tax, $this->attr('currency_symbol'), $this->attr('float_precision'), $this->attr('apply_tax_on_delivery'), $this->attr('delivery_includes_tax'));
 
 			$customised_receipt = ob_get_clean();
 			unset($cart);
