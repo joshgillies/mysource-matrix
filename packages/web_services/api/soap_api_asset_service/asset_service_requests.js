@@ -608,3 +608,38 @@ function SetAssetStatus(assetid, status, dependants_only)
 }//end SetAssetStatus
 
 
+/**
+* Description: This operation will set webpath(s) for an asset
+*
+* @param array  $request	The request information
+* <pre>
+* Array (
+*        'AssetID'			=> [The ID of the asset in query],
+*        'Path'				=> Array [this_path, that_path],
+*        'AddRemaps'		=> [0|1],
+*        )
+* </pre>
+*
+* @return void
+* @access public
+*/
+function SetAssetWebPaths(assetid, paths, add_remaps)
+{
+	var soapBody	= "\
+<ns1:SetAssetWebPaths>\
+<AssetID>"+assetid+"</AssetID>\
+<AddRemaps>"+add_remap+"</AddRemaps>";
+
+	var attr_str = "";
+	for (var i in paths) {
+		attr_str += "\
+<Path>"+paths[i]+"</Path>\
+";
+	}
+
+	soapBody += attr_str+"\
+</ns1:SetAssetWebPaths>";
+	return soapBody;
+
+}//end SetAssetWebPaths
+
