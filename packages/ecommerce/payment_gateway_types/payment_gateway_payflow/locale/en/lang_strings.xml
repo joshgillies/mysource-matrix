@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.2 2013/05/21 06:25:07 cupreti Exp $
+* $Id: lang_strings.xml,v 1.3 2013/07/29 08:29:18 cupreti Exp $
 *
 */
 -->
@@ -22,7 +22,7 @@
 <table cellpadding="5">
 	<tr>
 		<td align="right">Card Number</td>
-		<td>%%card_number%%  %%card_ccv%%</td>
+		<td>%%card_number%%  %%card_cv2%%</td>
 	</tr>
 	<tr>
 		<td align="right">Expiry Date (MM/YY)</td>
