@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.2 2010/05/05 07:11:14 ewang Exp $
+* $Id: lang_strings.xml,v 1.2.20.1 2013/07/29 04:49:21 akarelia Exp $
 *
 *
 * CSV DataSource Localised Strings File
@@ -19,4 +19,5 @@
 
 <strings>
 	<string source="data_source_csv_upload_instructions">Upload the CSV file with rows to expose as assets.</string>
+	<string source="compare_current_file">Compare format for Uploaded CSV to existing contents?</string>
 </strings>

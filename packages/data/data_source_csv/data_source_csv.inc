@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_csv.inc,v 1.7.6.1 2013/07/19 05:27:50 akarelia Exp $
+* $Id: data_source_csv.inc,v 1.7.6.2 2013/07/29 04:49:21 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.7.6.1 $
+* @version $Revision: 1.7.6.2 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -152,6 +152,58 @@ class Data_Source_Csv extends Data_Source
 		return $new_content;
 
 	}//end getItems()
+
+
+	/**
+	* Returns an keyword replacement for 
+	* %globals_asset_ds_csv_colname-rowidentifier:ASSET_ID% or 
+	* %asset_ds_csv_colname-rowidentifier% type
+	*
+	* @return array
+	* @access public
+	*/
+	function getDsCsvKeywordReplacement($original_keyword, $row_col=Array())
+	{
+		if (empty($original_keyword)) return '';
+		if (empty($row_col)) return '';
+		$replacement = '';
+
+		$keyword = parse_keyword($original_keyword, $modifiers);
+
+		$results = $this->getResultSet();
+		if (empty($results)) return '';
+
+		foreach ($row_col as $k => $v){
+			$row_col[$k] = strtolower($v);
+		}
+
+		foreach ($results as $idx => $res) {
+			// see if the coloumn name we are looking for exists in the CSV
+			// also check we are allowed to use the first coloumn name as the
+			// idnetifier for every row else skip the replacement business
+			if (isset($res[$row_col[0]]) && $this->attr('header_col')) {
+				if (!isset($row_identifier)) {
+					$col_names = array_keys($res);
+					$row_identifier = $col_names[0];
+				}
+
+				if (strtolower($res[$row_identifier]) == $row_col[1]) {
+					$replacement = $res[$row_col[0]];
+					break;
+				}
+
+			} else {
+				break;
+			}
+		}//end foreach
+
+		if (!empty($replacement)) {
+			apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id));
+		}//end if
+
+		return $replacement;
+
+	}//end getDsCsvKeywordReplacement()
 
 
 }//end class
