@@ -239,6 +239,29 @@ function GetMetadataFieldsOfSchema(schemaid)
 
 
 /**
+* Description: This operation will return the metadata fields details which belong to a metadata schema
+*
+* @param array $request	The request information
+* <pre>
+* Array (
+*		 'SchemaID'			=> [The metadata schema in query],
+*        )
+* </pre>
+*
+* @return void
+* @access public
+*/
+function GetMetadataFieldsDetailOfSchema(schemaid)
+{
+	var soapBody	= "\
+<ns1:GetMetadataFieldsDetailOfSchema>\
+<SchemaID>"+schemaid+"</SchemaID>\
+</ns1:GetMetadataFieldsDetailOfSchema>";
+	return soapBody;
+}//end GetMetadataFieldsDetailOfSchema
+
+
+/**
 * Description: This operation will return the values of the field names which belong to an asset
 *
 * @param array $request	The request information
