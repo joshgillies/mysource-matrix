@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.409 2013/07/25 23:23:49 lwright Exp $
+* $Id: mysource.inc,v 1.410 2013/07/30 05:06:25 ewang Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.409 $
+* @version $Revision: 1.410 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -2436,7 +2436,7 @@ class MySource extends MySource_Object
 					}
 				}
 			}
-			if(empty($new_domain))
+			if(!empty($new_domain))
 			    $header .= "domain=$new_domain; ";
 		}
 		if (!empty($session_params['path'])) {
