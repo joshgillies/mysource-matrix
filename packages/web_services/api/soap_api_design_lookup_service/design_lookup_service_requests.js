@@ -161,3 +161,32 @@ function RemoveAssetPaintLayout(paint_layout_id, assetid, paint_layout_type, ass
 	return soapBody;
 
 }//end RemoveAssetPaintLayout
+
+
+/**
+* Description: This operation returns the paint layout applied to the given url
+*
+* @param array $asset_info the info array to find children of a specific asset
+* <pre>
+* Array (
+*		'URL'					=> [The URL in question],
+*		'PaintLayoutType'		=> [Type of paint layout Frontend or OverrideFrontend or UserDefined],
+*		'PaintLayoutCode'		=> [Layout code for the user defined layout],
+*        )
+* </pre>
+*
+* @return void
+* @access public
+*/
+function GetPaintLayoutFromURL(url, layout_type, layout_code)
+{
+	var soapBody	= "\
+<ns1:GetPaintLayoutFromURL>\
+<URL>"+url+"</URL>\
+<PaintLayoutType>"+layout_type+"</PaintLayoutType>\
+<PaintLayoutCode>"+layout_code+"</PaintLayoutCode>\
+</ns1:GetPaintLayoutFromURL>";
+
+	return soapBody;
+
+}//end GetPaintLayoutFromURL

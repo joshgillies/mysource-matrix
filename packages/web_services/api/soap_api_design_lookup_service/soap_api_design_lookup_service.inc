@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_design_lookup_service.inc,v 1.12 2013/07/25 03:20:42 cupreti Exp $
+* $Id: soap_api_design_lookup_service.inc,v 1.13 2013/07/30 04:57:46 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -60,6 +60,7 @@ class Soap_Api_Design_Lookup_Service extends Soap_Api
 				'GetDesignFromURL'		=> '1',
 				'ApplyAssetPaintLayout'	=> '1',
         		'RemoveAssetPaintLayout'=> '1',
+				'GetPaintLayoutFromURL'	=> '1',
 			   );
 
     }//end getFunctionList()
@@ -681,6 +682,74 @@ class Soap_Api_Design_Lookup_Service extends Soap_Api
 
 
 	/**
+	* Description: This operation returns the paint layout applied to the given url
+	*
+	* @param array $request		the request information
+    * <pre>
+    * Array (
+    *		'URL'					=> [The URL in question],
+	*		'PaintLayoutType'		=> [Type of paint layout applied: Frontend or OverrideFrontend or UserDefined],
+	*		'PaintLayoutCode'		=> [Layout code for the user defined layout],
+    *        )
+    * </pre>
+	*
+	* @return void
+	* @access public
+	*/
+	function GetPaintLayoutFromURL($request)
+	{
+		$request_info = (Array) $request;
+		$url = array_get_index($request_info, 'URL', '');
+		$layout_type = array_get_index($request_info, 'PaintLayoutType', '');
+		$layout_code = array_get_index($request_info, 'PaintLayoutCode', '');
+
+		$valid_types = Array('Frontend', 'OverrideFrontend', 'UserDefined');
+
+		// Input validation
+		if (empty($url) || empty($layout_type)) {
+			throw new SoapFault('Server', 'Value for required parameters "URL" and/or "PaintLayoutType" not specifed');
+		} else if (!in_array($layout_type, $valid_types)) {
+			throw new SoapFault('Server', 'Value for parameter "PaintLayoutType" needs be either "'.implode('" or "', $valid_types).'"');
+		}
+		if ($layout_type == 'UserDefined' && empty($layout_code)) {
+			throw new SoapFault('Server', 'The layout code not specified for the User Defined paint layout');
+		}
+
+		// Get rid of protocol bit from the url
+		$url = str_replace('http://' , '', $url);
+		$url = str_replace('https://', '', $url);
+		$url = rtrim($url, '/'); // get rid of trailing slash if any
+
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL(NULL, $url);
+		if (is_null($asset)) {
+			throw new SoapFault('Server', 'Specifed URL does not belongs to any asset');
+		}
+
+		if ($layout_type == 'UserDefined') {
+			$layout_name = 'paint_layout::user::'.$layout_code;
+		} else {
+			$layout_name = 'paint_layout::system::frontend';
+		}
+
+		if ($layout_type == 'OverrideFrontend') {
+			$url = $url.'/';
+		}
+
+		$lookup_values = $asset->getLookupValues(TRUE);
+		if (isset($lookup_values[$url][$layout_name]['value'])) {
+			$layout_id = $lookup_values[$url][$layout_name]['value'];
+		} else {
+			$layout_id = NULL;
+		}
+
+		return Array (
+				'AssetID'	=> $layout_id,
+			   );
+
+	}//end GetPaintLayoutFromURL()
+
+
+	/**
 	* getComplexElements
 	*
 	* @return array
@@ -760,6 +829,16 @@ class Soap_Api_Design_Lookup_Service extends Soap_Api
 																						'ApplyURLPaintLayoutResult'	=> self::$boolean_optional,
 													   								   ),
 													   ),
+							'GetPaintLayoutFromURL'	=> Array (
+														'GetPaintLayoutFromURL'			=> Array (
+																						'URL'				=> self::$string_non_optional,
+																						'PaintLayoutType'	=> self::$string_non_optional,
+														   								'PaintLayoutCode'	=> self::$string_optional,
+																					   ),
+														'GetPaintLayoutFromURLResponse'	=> Array (
+																							'AssetID' => self::$string_non_optional,
+																						),
+														),
 						  );
 
 		$complex_types_available = parent::getComplexElements($complex_types);
