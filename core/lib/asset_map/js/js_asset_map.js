@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.4 2013/07/29 22:41:36 lwright Exp $
+* $Id: js_asset_map.js,v 1.5 2013/07/30 02:03:26 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.4 $
+ * @version $Revision: 1.5 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -71,7 +71,8 @@ var JS_Asset_Map = new function() {
 
 	var KeyCode = {
 		Delete: 46,
-		Escape: 27
+		Escape: 27,
+		Shift: 16
 	}
 
 	/**
@@ -145,11 +146,26 @@ var JS_Asset_Map = new function() {
 	/**
 	 * The last actually-clicked asset.
 	 *
-	 * Used primarily for block-selection using SHIFT+click.
-	 *
 	 * @var {Node}
 	 */
 	var lastSelection = null;
+
+
+	/**
+	 * Pre-shift selection.
+	 *
+	 * Also used primarily for block-selection using SHIFT+click. When SHIFT is held
+	 * down and multiple asset clicks are recognised before it's released, the
+	 * selection should pivot around the "last" selection and then be added to
+	 * the "pre-Shift" selection (or masked if Ctrl also held down).
+	 *
+	 * We also want to save our "pivot" point (our previous last-clicked asset).
+	 *
+	 * @var {Object}
+	 * @property {Array.<Node>} selection The selection when SHIFT was held down.
+	 * @property {Node}         last      The last selection when SHIFT was held.
+	 */
+	var preShift = null;
 
 	/**
 	 * List of trees.
@@ -686,11 +702,26 @@ var JS_Asset_Map = new function() {
 			e.preventDefault();
 		});
 
+		dfx.addEvent(assetMapContainer.ownerDocument.body, 'keydown', function(e) {
+			var code = e.keyCode ? e.keyCode : e.which;
+			switch (code) {
+				case KeyCode.Shift:
+					preShift = {
+						selection: self.currentSelection(),
+						last: lastSelection
+					};
+				break;
+			}
+		});
+
 		// Set this to keyup - Webkit does not emit keypress on non-printable keys,
 		// similar IE.
 		dfx.addEvent(assetMapContainer.ownerDocument.body, 'keyup', function(e) {
 			var code = e.keyCode ? e.keyCode : e.which;
 			switch (code) {
+				case KeyCode.Shift:
+					preShift = null;
+				break;
 				case KeyCode.Delete:
 					if (options.simple === false) {
 						var msg       = '';
@@ -823,26 +854,34 @@ var JS_Asset_Map = new function() {
 						}
 					} else if (which === 1) {
 						if ((e.shiftKey === true) && (options.simple === false)) {
+							// Replace current selection with what was selected
+							// when SHIFT was first held down, then add/toggle the
+							// difference between the pivot point and what we just
+							// clicked upon.
 							var selection = self.currentSelection();
+
 							if (selection.length > 0) {
+								dfx.removeClass(selection, 'selected');
+								dfx.addClass(preShift.selection, 'selected');
+
 								// dfx.getElementsBetween best works in a forward
 								// direction. Work out which way that is.
-								if (lastSelection.compareDocumentPosition) {
+								if (preShift.last.compareDocumentPosition) {
 									// IE9+ and other browsers.
 									// A bit field of 0x04 indicates that the argument
 									// follows the reference node.
-									var docPos = lastSelection.compareDocumentPosition(assetTarget);
+									var docPos = preShift.last.compareDocumentPosition(assetTarget);
 									var forwardSelection = (docPos & 0x04) > 0;
 								} else {
 									// Make IE8 happy using sourceIndex.
-									var forwardSelection = (assetTarget.sourceIndex > lastSelection.sourceIndex);
+									var forwardSelection = (assetTarget.sourceIndex > preShift.last.sourceIndex);
 								}
 
 								var between = [];
 								if (forwardSelection) {
-									between = dfx.getElementsBetween(lastSelection, assetTarget);
+									between = dfx.getElementsBetween(preShift.last, assetTarget);
 								} else {
-									between = dfx.getElementsBetween(assetTarget, lastSelection);
+									between = dfx.getElementsBetween(assetTarget, preShift.last);
 								}
 
 								between.push(assetTarget);
@@ -858,6 +897,10 @@ var JS_Asset_Map = new function() {
 								e.preventDefault();
 							} else {
 								dfx.addClass(assetTarget, 'selected');
+								preShift = {
+									selection: [assetTarget],
+									last: assetTarget
+								};
 							}//end if
 						} else if (((e.ctrlKey === true) || (e.metaKey === true)) && (options.simple === false)) {
 							// Control-left click. No drag, toggle selection of clicked asset.
@@ -1359,8 +1402,11 @@ var JS_Asset_Map = new function() {
 			dfx.getClass('asset', tree),
 			'selected located'
 		);
+
+		preShift = null;
 		lastSelection = null;
 	}
+
 	this.clearLocatedAssets = function(treeid) {
 		if (treeid === undefined) {
 			var tree = this.getCurrentTreeElement();
