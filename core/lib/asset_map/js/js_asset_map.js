@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.5 2013/07/30 02:03:26 lwright Exp $
+* $Id: js_asset_map.js,v 1.6 2013/07/30 04:06:03 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -702,7 +702,8 @@ var JS_Asset_Map = new function() {
 			e.preventDefault();
 		});
 
-		dfx.addEvent(assetMapContainer.ownerDocument.body, 'keydown', function(e) {
+
+		dfx.addEvent(assetMapContainer.ownerDocument.getElementsByTagName('body'), 'keydown', function(e) {
 			var code = e.keyCode ? e.keyCode : e.which;
 			switch (code) {
 				case KeyCode.Shift:
@@ -716,7 +717,7 @@ var JS_Asset_Map = new function() {
 
 		// Set this to keyup - Webkit does not emit keypress on non-printable keys,
 		// similar IE.
-		dfx.addEvent(assetMapContainer.ownerDocument.body, 'keyup', function(e) {
+		dfx.addEvent(assetMapContainer.ownerDocument.getElementsByTagName('body'), 'keyup', function(e) {
 			var code = e.keyCode ? e.keyCode : e.which;
 			switch (code) {
 				case KeyCode.Shift:
@@ -751,6 +752,10 @@ var JS_Asset_Map = new function() {
 					self.moveMe.cancel();
 				break;
 			}//end switch
+		});
+
+		dfx.addEvent(assetMapContainer, 'mouseenter', function(e) {
+			self.getDefaultView(assetMapContainer).focus();
 		});
 
 		dfx.addEvent(assetMapContainer, 'mousedown', function(e) {
