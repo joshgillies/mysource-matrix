@@ -9,5 +9,5 @@ do
   rm $i
 done
 cd ..
-jarsigner -keystore SquizKeyStore imagej.jar squiz 
+jarsigner -storetype pkcs12 -keystore SquizKeyStore imagej.jar 1 
 jarsigner -verify imagej.jar
