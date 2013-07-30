@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: soap_api_design_lookup_service.inc,v 1.13 2013/07/30 04:57:46 cupreti Exp $
+* $Id: soap_api_design_lookup_service.inc,v 1.14 2013/07/30 05:16:45 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/soap_api/soap_api.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -510,7 +510,6 @@ class Soap_Api_Design_Lookup_Service extends Soap_Api
 
 			// Get existing lookup values set on the asset
 			$lookup_values = $asset->getLookupValues(FALSE);
-			log_dump($lookup_values);
 			if (isset($lookup_values[$lookup_type][$paint_layout_name]['value']) && $lookup_values[$lookup_type][$paint_layout_name]['value'] ==$paint_layout_id) {
 				unset($lookup_values[$lookup_type][$paint_layout_name]);
 				if (!$asset->setLookupValues($lookup_values)) {
