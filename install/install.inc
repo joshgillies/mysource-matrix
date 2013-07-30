@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.102 2013/07/26 05:51:14 lwright Exp $
+* $Id: install.inc,v 1.103 2013/07/30 06:04:22 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.102 $
+* @version $Revision: 1.103 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -752,7 +752,7 @@ function generate_performance_config()
 
 	$performance_config = Array(
 							'page_asset_listing' => Array(
-									'report'	=>	'http://www.squizlabs.com/squiz-matrix/matrix-performance-report-asset-listing-page',		
+									'report'	=>	'http://www.squizlabs.com/squiz-matrix/matrix-performance-report-asset-listing-page',
 							)
 						 );
 
@@ -775,8 +775,8 @@ function generate_performance_config()
 */
 function generate_file_bridge_config()
 {
-                                if(is_file(SQ_DATA_PATH.'/private/conf/file_bridge.inc')) return TRUE;
-                                
+								if(is_file(SQ_DATA_PATH.'/private/conf/file_bridge.inc')) return TRUE;
+
 	$str = "<?php\n";
 	$str .= "#path of file bridge\n";
 	$str .= "define('FILE_BRIDGE_PATH', SQ_DATA_PATH.'/public');\n";
@@ -803,20 +803,20 @@ function generate_import_tools_manager_config()
 	$structured_import_dir = '';
 	$bulk_file_import_dir = '';
 	if( $GLOBALS['SQ_SYSTEM']->am->installed('import_tools_manager')) {
-	    $itm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('import_tools_manager');			
-	    $structured_import_dir = $itm->attr('import_dir');
-	    $bulk_file_import_dir = $itm->attr('bulk_file_import_dir');
+		$itm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('import_tools_manager');
+		$structured_import_dir = $itm->attr('import_dir');
+		$bulk_file_import_dir = $itm->attr('bulk_file_import_dir');
 	}
-		
-	
+
+
 	$str = "<?php\n";
-	
+
 	$str .= "#path of structured file import directory \n";
 	$str .= "define('STRUCTURED_FILE_IMPORT_DIR', '$structured_import_dir');\n";
-	
+
 	$str .= "#path of bulk file import directory \n";
 	$str .= "define('BULK_FILE_IMPORT_DIR', '$bulk_file_import_dir');\n";
-	
+
 	$str .= "?>";
 	if (!string_to_file($str, SQ_DATA_PATH.'/private/conf/import_tools_manager.inc')) {
 		return FALSE;
@@ -836,13 +836,13 @@ function generate_import_tools_manager_config()
 */
 function minify_css_files()
 {
-    pre_echo('Minify JS Files');
-    
-    require_once SQ_SYSTEM_ROOT.'/scripts/ees_minify/jsmin.php';
+	pre_echo('Minify JS Files');
 
-    $file = SQ_SYSTEM_ROOT.'/core/lib/js/matrix.min.js';
+	require_once SQ_SYSTEM_ROOT.'/scripts/ees_minify/jsmin.php';
 
-    $source_files = Array (
+	$file = SQ_SYSTEM_ROOT.'/core/lib/js/matrix.min.js';
+
+	$source_files = Array (
 	SQ_SYSTEM_ROOT.'/fudge/var_serialise/var_serialise.js',
 	SQ_SYSTEM_ROOT.'/core/lib/js/general.js',
 	SQ_SYSTEM_ROOT.'/core/lib/js/debug.js',
@@ -853,24 +853,24 @@ function minify_css_files()
 	SQ_SYSTEM_ROOT.'/core/assets/metadata/metadata_fields/metadata_field_select/js/metadata_field_select.js',
 	SQ_SYSTEM_ROOT.'/core/assets/metadata/metadata_fields/metadata_field_multiple_text/js/metadata_field_multiple_text.js',
 	SQ_SYSTEM_ROOT.'/core/assets/metadata/metadata_fields/metadata_field_hierarchy/js/metadata_field_hierarchy.js',
-    );
+	);
 
-    // Output a minified version
-    $string = '';
-    foreach ($source_files as $source) {
+	// Output a minified version
+	$string = '';
+	foreach ($source_files as $source) {
 	echo 'processing '.$source."\n";
 	$string .= JSMin::minify(file_get_contents($source));
-    }
-    $result = file_put_contents($file, $string);
+	}
+	$result = file_put_contents($file, $string);
 
-    if($result === FALSE) {
+	if($result === FALSE) {
 	trigger_error ("FAILED TO GENREATE MINIFIED JS FILES FOR EES");
 	return FALSE;
-    }
+	}
 
-    echo $file." is completed.\n";
-    
-    return TRUE;
+	echo $file." is completed.\n";
+
+	return TRUE;
 }
 
 
@@ -1439,7 +1439,6 @@ function build_locale_string_file($locale)
 		list($ex_strings, $ex_js_strings, $ex_java_strings) = extract_strings_from_xml($file, 'strings', 'string', 'source');
 		$strings = array_merge($strings, $ex_strings);
 		$js_strings = array_merge($js_strings, $ex_js_strings);
-		$js_strings = array_merge($js_strings, $ex_java_strings);
 		$java_strings = array_merge($java_strings, $ex_java_strings);
 	}
 
@@ -1454,7 +1453,6 @@ function build_locale_string_file($locale)
 			list($ex_strings, $ex_js_strings, $ex_java_strings) = extract_strings_from_xml($file, 'strings', 'string', 'source');
 			$strings = array_merge($strings, $ex_strings);
 			$js_strings = array_merge($js_strings, $ex_js_strings);
-			$js_strings = array_merge($js_strings, $ex_java_strings);
 			$java_strings = array_merge($java_strings, $ex_java_strings);
 		}
 
@@ -1475,7 +1473,6 @@ function build_locale_string_file($locale)
 			list($ex_strings, $ex_js_strings, $ex_java_strings) = extract_strings_from_xml($file, 'strings', 'string', 'source');
 			$strings = array_merge($strings, $ex_strings);
 			$js_strings = array_merge($js_strings, $ex_js_strings);
-			$js_strings = array_merge($js_strings, $ex_java_strings);
 			$java_strings = array_merge($java_strings, $ex_java_strings);
 		}
 
