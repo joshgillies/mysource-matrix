@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_cart_processor.inc';
 * Purpose
 *
 *
-* @version $Revision: 1.30.6.2 $
+* @version $Revision: 1.30.6.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -685,11 +685,12 @@ HEREDOC;
 	* @param array		$flat_charges			Array('Charge Name' => 'Price')
 	* @param string		$neg_quantity_list		List specifying which products have negative quantities
 	* @param string		$neg_quantity_message	Message explaining negative quantities list
+	* @param int		$checkout_assetid		Asset id the checkout asset processing the delivery method
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processDelivery(&$order, &$contents_bodycopy, &$format_bodycopy, $currency_symbol='$', $float_precision=2, $taxation_name='GST', $taxation_rate=0.0, $flat_charges=Array(), $neg_quantity_list='', $neg_quantity_message='')
+	function processDelivery(&$order, &$contents_bodycopy, &$format_bodycopy, $currency_symbol='$', $float_precision=2, $taxation_name='GST', $taxation_rate=0.0, $flat_charges=Array(), $neg_quantity_list='', $neg_quantity_message='', $checkout_assetid='')
 	{
 		$this->state['transaction_id']  = $order->id;
 
@@ -721,6 +722,15 @@ HEREDOC;
 			// get keyword replacements for order receipt
 			$keywords_to_replace[] = 'order_receipt';
 
+			// Get the 'delivery tax info' from the checkout asset
+			$calculate_tax_on_delivery = FALSE;
+			$delivery_includes_tax = FALSE;
+			if (!empty($checkout_assetid)) {
+				$checkout = $GLOBALS['SQ_SYSTEM']->am->getAsset($checkout_assetid);
+				$delivery_includes_tax = $checkout->attr('delivery_includes_tax');
+				$calculate_tax_on_delivery = $checkout->attr('apply_tax_on_delivery');
+			}
+
 			// get the order summary from the cart
 			$cart = new Ecommerce_Cart_Processor();
 			$cart->setCartContainer($_SESSION['sq_local_cart_contents']['cart_contents']);
@@ -730,7 +740,7 @@ HEREDOC;
 			echo 'Order ID: '.$this->state['transaction_id']."\n\n";
 
 			$remove_tax = isset($_SESSION['sq_region_specific']['remove_tax']) ? $_SESSION['sq_region_specific']['remove_tax'] : FALSE;
-			$cart->printReceipt($taxation_name, $taxation_rate, $flat_charges, $remove_tax, $currency_symbol, $float_precision);
+			$cart->printReceipt($taxation_name, $taxation_rate, $flat_charges, $remove_tax, $currency_symbol, $float_precision, '', $calculate_tax_on_delivery, $delivery_includes_tax);
 
 			$tmp_order_receipt_cart_text .= ob_get_contents();
 			ob_end_clean();
@@ -750,7 +760,7 @@ HEREDOC;
 			// get keyword replacements for customised receipt
 			if (!is_null($contents_bodycopy) && !is_null($format_bodycopy)) {
 				$keywords_to_replace[] = 'customised_receipt';
-				$keywords_replacements[] = $cart->printCustomisedReceipt($contents_bodycopy, $format_bodycopy, $taxation_name, $taxation_rate, $flat_charges, $remove_tax, $currency_symbol, $float_precision);
+				$keywords_replacements[] = $cart->printCustomisedReceipt($contents_bodycopy, $format_bodycopy, $taxation_name, $taxation_rate, $flat_charges, $remove_tax, $currency_symbol, $float_precision, $calculate_tax_on_delivery, $delivery_includes_tax);
 			}
 
 			// get keyword replacements for form summary

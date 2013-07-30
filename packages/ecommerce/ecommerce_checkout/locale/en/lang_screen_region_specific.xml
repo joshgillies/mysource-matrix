@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_region_specific.xml,v 1.8 2009/08/27 14:28:03 ata Exp $
+* $Id: lang_screen_region_specific.xml,v 1.8.22.1 2013/07/30 06:22:39 cupreti Exp $
 *
 */
 -->
@@ -35,6 +35,14 @@
 				<paint_function   name="paintTaxableCountries"  />
 				<process_function name="processTaxableCountries" />
 			</function_call>
+		</field>
+		<field attribute="apply_tax_on_delivery">
+			<display_name>Calculate Tax on Delivery?</display_name>
+			<note>Whether to calculate tax on the delivery fee at the checkout.</note>
+		</field>		
+		<field attribute="delivery_includes_tax">
+			<display_name>Delivery Fee Includes Tax?</display_name>
+			<note>Whether the delivery fee already includes the tax amount. If set to 'Yes', no additional tax will added to the delivery fee. This option is relevant only if "Calculate Tax on Delivery?" is set to Yes.</note>
 		</field>
 	</section>
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_processor.inc,v 1.30.4.2 2013/07/25 06:49:43 cupreti Exp $
+* $Id: ecommerce_cart_processor.inc,v 1.30.4.3 2013/07/30 06:21:52 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@
 * @author Robert Howard <rhoward@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.30.4.2 $
+* @version $Revision: 1.30.4.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -241,12 +241,16 @@ class Ecommerce_Cart_Processor
 	/**
 	* Returns the total delivery costs for this cart.
 	*
-	* @param float	$grand_total	Grand total of contents of cart
+	* @param float		$grand_total		Grand total of contents of cart
+	* @param float		$taxation_rate		Taxation rate of the delivery cost
+	* @param boolean	$calculate_tax		Whether to calculate tax on the delivery amount
+	* @param boolean	$includes_tax		Whether the delivery amount includes the tax
+	* @param boolean	$total_delivery_tax	Total tax amount in the delivery cost
 	*
 	* @return float
 	* @access public
 	*/
-	function getTotalDeliveryCosts($grand_total)
+	function getTotalDeliveryCosts($grand_total, $taxation_rate, $calculate_tax, $includes_tax, &$total_delivery_tax=0)
 	{
 		$total_delivery_cost = 0.00;
 		if (isset($_SESSION['sq_region_specific'])) {
@@ -307,7 +311,17 @@ class Ecommerce_Cart_Processor
 		if (isset($_SESSION['sq_region_specific']['max_delivery_fee']) && ($_SESSION['sq_region_specific']['max_delivery_fee'] < $total_delivery_cost)) {
 			$total_delivery_cost = $_SESSION['sq_region_specific']['max_delivery_fee'];
 		}
-		
+
+		// Tax on delivery cost
+		if ($calculate_tax && $total_delivery_cost > 0) {
+			if ($includes_tax) {
+				$total_delivery_tax = $total_delivery_cost - ($total_delivery_cost / (1 + $taxation_rate));
+				$total_delivery_cost -= $total_delivery_tax;  
+			} else {
+				$total_delivery_tax = $total_delivery_cost * $taxation_rate;
+			}
+		}
+
 		return $total_delivery_cost;
 
 	}//end getTotalDeliveryCosts()
@@ -650,11 +664,13 @@ class Ecommerce_Cart_Processor
 	* @param string		$currency_symbol	symbol to use as the currency for all prices
 	* @param int		$float_precision	precision of the floating numbers used for prices	
 	* @param string	    $refund_info		refund info to include if some product in cart are non-refundable
+	* @param boolean	$calculate_del_tax	whether to calculate tax on delivery cost
+	* @param boolean	$del_inc_tax		whether the delivery cost includes tax
 	*
 	* @return void
 	* @access public
 	*/
-	function printReceipt($taxation_name='GST', $taxation_rate=0, $flat_charges=Array(), $remove_tax=FALSE, $currency_symbol='$', $float_precision=2, $refund_info='')
+	function printReceipt($taxation_name='GST', $taxation_rate=0, $flat_charges=Array(), $remove_tax=FALSE, $currency_symbol='$', $float_precision=2, $refund_info='', $calculate_del_tax=FALSE, $del_inc_tax=FALSE)
 	{
 		if (empty($this->cart)) return;
 
@@ -776,7 +792,12 @@ class Ecommerce_Cart_Processor
 		$row_format = '%'.$name_length.'s %10s'.($has_price && $has_products ? ' %10s' : '')."\n";
 
 		if ($has_price) {
-			$total_tax = $this->getTotalTax($taxation_rate);
+			$grand_total_ex_delivery = $this->getGrandTotalExDelivery($taxation_rate, $remove_tax, $flat_charges);
+			$delivery_tax = 0;
+			$total_delivery_cost = $this->getTotalDeliveryCosts($grand_total_ex_delivery, $taxation_rate, $calculate_del_tax, $del_inc_tax, $delivery_tax);
+
+			// Add delivery tax to the total tax amount
+			$total_tax = $this->getTotalTax($taxation_rate) + $delivery_tax;
 
 			$sub_total = $remove_tax ? $this->getTotal($total_tax, $taxation_rate)-$total_tax : $this->getTotal(0, $taxation_rate);
 			
@@ -786,29 +807,34 @@ class Ecommerce_Cart_Processor
 				echo sprintf($row_format, 'Total', sprintf($price_format, $sub_total));
 			}
 			
-			$grand_total_ex_delivery = $this->getGrandTotalExDelivery($taxation_rate, $remove_tax, $flat_charges);
-			$total_delivery_cost = $this->getTotalDeliveryCosts($grand_total_ex_delivery);
-
 			if (($total_tax > 0) || ($flat_charges_total > 0.0) || $total_delivery_cost > 0) {
+				if ($total_delivery_cost > 0 && $calculate_del_tax) {
+					echo sprintf($row_format, 'Delivery Fee', '', sprintf($price_format, $total_delivery_cost));
+					echo $break;
+				} 
+
 				if ($total_tax > 0) {
 					$row_title = $remove_tax ? 'Excluded Tax ('.$taxation_name.')' : 'Total ('.$taxation_name.')';
 					echo sprintf($row_format, $row_title, $this->getCount(), sprintf($price_format, $total_tax));
 				}
-				echo $break;
+				if (!empty($flat_charges) || !$calculate_del_tax) {
+					echo $break;
+				}
 				foreach ($flat_charges as $name => $price) {
 					echo sprintf($row_format, $name, '', sprintf($price_format, $price));
 				}
 
-
-				if ($total_delivery_cost > 0) {
+				if ($total_delivery_cost > 0 && !$calculate_del_tax) {
 					echo sprintf($row_format, 'Delivery Fee', '', sprintf($price_format, $total_delivery_cost));
 				}
 
+
 				// figure out whether to print this last line break
-				if (($total_delivery_cost > 0) || ($flat_charges_total > 0)) {
+				if (($total_delivery_cost > 0) || ($flat_charges_total > 0) || (empty($flat_charges) && $calculate_del_tax)) {
 					echo $break;
 				}
-				echo sprintf($row_format, 'Grand Total', '', sprintf($price_format, $grand_total_ex_delivery + $total_delivery_cost));
+				$grand_total_delivery = $remove_tax ? $total_delivery_cost : $total_delivery_cost + $delivery_tax;
+				echo sprintf($row_format, 'Grand Total', '', sprintf($price_format, $grand_total_ex_delivery + $grand_total_delivery));
 			}
             if (!empty($refund_info) && $non_refundable_flag) {
                 echo "\n".$refund_info."\n";
@@ -835,11 +861,13 @@ class Ecommerce_Cart_Processor
 	* @param boolean	$remove_tax			whether to remove tax from taxed products, i.e. if country is not defined as taxable
 	* @param string		$currency_symbol	symbol to use as the currency for all prices
 	* @param int		$float_precision	precision of the floating numbers used for prices
+	* @param boolean	$calculate_del_tax	whether to calculate tax on delivery cost
+	* @param boolean	$del_inc_tax		whether the delivery cost includes tax
 	*
 	* @return void
 	* @access public
 	*/
-	function printCustomisedReceipt(&$contents_bodycopy, &$format_bodycopy, $taxation_name='GST', $taxation_rate=0, $flat_charges=Array(), $remove_tax=FALSE, $currency_symbol='$', $float_precision=2)
+	function printCustomisedReceipt(&$contents_bodycopy, &$format_bodycopy, $taxation_name='GST', $taxation_rate=0, $flat_charges=Array(), $remove_tax=FALSE, $currency_symbol='$', $float_precision=2, $calculate_del_tax=FALSE, $del_inc_tax=FALSE)
 	{
 		if (empty($this->cart)) return;
 
@@ -898,7 +926,14 @@ class Ecommerce_Cart_Processor
 		// receipt contents bodycopy keyword replacements
 		$content_replacements['receipt_listing'] = ob_get_clean();
 
-		$total_tax = $this->getTotalTax($taxation_rate);
+		$delivery_tax = 0;
+		$grand_total_ex_delivery = $this->getGrandTotalExDelivery($taxation_rate, $remove_tax, $flat_charges);
+		$total_delivery_cost = $this->getTotalDeliveryCosts($grand_total_ex_delivery, $taxation_rate, $calculate_del_tax, $del_inc_tax, $delivery_tax);
+		$content_replacements['delivery_total'] = sprintf($price_format, $total_delivery_cost);
+		$grand_total_delivery = $remove_tax ? $total_delivery_cost : $total_delivery_cost + $delivery_tax;
+		$content_replacements['grand_total'] = sprintf($price_format, $grand_total_ex_delivery + $grand_total_delivery);
+
+		$total_tax = $this->getTotalTax($taxation_rate) + $delivery_tax;
 		$content_replacements['total_tax'] = $remove_tax ? sprintf($price_format, 0) : sprintf($price_format, $total_tax);
 		$content_replacements['tax_name'] = $taxation_name;
 
@@ -915,11 +950,6 @@ class Ecommerce_Cart_Processor
 
 		$sub_total = $remove_tax ? $this->getTotal($total_tax, $taxation_rate)-$total_tax : $this->getTotal(0, $taxation_rate);
 		$content_replacements['sub_total'] = sprintf($price_format, $sub_total);
-
-		$grand_total_ex_delivery = $this->getGrandTotalExDelivery($taxation_rate, $remove_tax, $flat_charges);
-		$total_delivery_cost = $this->getTotalDeliveryCosts($grand_total_ex_delivery);
-		$content_replacements['delivery_total'] = sprintf($price_format, $total_delivery_cost);
-		$content_replacements['grand_total'] = sprintf($price_format, $grand_total_ex_delivery + $total_delivery_cost);
 
 		$contents_bodycopy->setKeywordReplacements($content_replacements);
 
@@ -942,11 +972,13 @@ class Ecommerce_Cart_Processor
 	* @param boolean	$remove_tax			whether to remove tax from taxed products, i.e. if country is not defined as taxable
 	* @param string		$currency_symbol	symbol to use as the currency for all prices
 	* @param int		$float_precision	precision of the floating numbers used for prices
+	* @param boolean	$calculate_del_tax	whether to calculate tax on delivery cost
+	* @param boolean	$del_inc_tax		whether the delivery cost includes tax
 	*
 	* @return void
 	* @access public
 	*/
-	function getCartXml($taxation_name='GST', $taxation_rate=0, $flat_charges=Array(), $remove_tax=FALSE, $currency_symbol='$', $float_precision=2)
+	function getCartXml($taxation_name='GST', $taxation_rate=0, $flat_charges=Array(), $remove_tax=FALSE, $currency_symbol='$', $float_precision=2, $calculate_del_tax=FALSE, $del_inc_tax=FALSE)
 	{
 		if (empty($this->cart)) return '';
 
@@ -1025,10 +1057,6 @@ HEREDOC;
 HEREDOC;
 		}
 		
-		//get total tax
-		$total_tax = $this->getTotalTax($taxation_rate);
-		$total_tax = $remove_tax ? sprintf('-'.$price_format, $total_tax) : sprintf($price_format, $total_tax);
-		
 		//get flat charges string
 		$flat_charge_values_str = '';
 		$flat_charges_total = 0.0;
@@ -1057,12 +1085,18 @@ HEREDOC;
 
 		$sub_total = sprintf($price_format, $this->getTotal(0, $taxation_rate));
 
+		$delivery_tax = 0;
 		$grand_total_ex_delivery = $this->getGrandTotalExDelivery($taxation_rate, $remove_tax, $flat_charges);
-		$delivery_total = $this->getTotalDeliveryCosts($grand_total_ex_delivery);
-		
-		$grand_total = sprintf($price_format, $grand_total_ex_delivery + $delivery_total);
+		$delivery_total = $this->getTotalDeliveryCosts($grand_total_ex_delivery, $taxation_rate, $calculate_del_tax, $del_inc_tax, $delivery_tax);
+		$grand_total_delivery = $remove_tax ? $delivery_total : $delivery_total + $delivery_tax;
+
+		$grand_total = sprintf($price_format, $grand_total_ex_delivery + $grand_total_delivery);
 		$grand_total_ex_delivery = sprintf($price_format, $grand_total_ex_delivery);
 		$delivery_total = sprintf($price_format, $delivery_total);
+		
+		//get total tax
+		$total_tax = $this->getTotalTax($taxation_rate) + $delivery_tax;
+		$total_tax = $remove_tax ? sprintf('-'.$price_format, $total_tax) : sprintf($price_format, $total_tax);
 		
 		$cart_xml = <<<HEREDOC
 	<cart>

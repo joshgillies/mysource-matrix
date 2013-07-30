@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout_management.inc,v 1.19 2012/08/30 00:58:33 ewang Exp $
+* $Id: ecommerce_checkout_management.inc,v 1.19.6.1 2013/07/30 06:22:24 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.19.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -282,7 +282,28 @@ class Ecommerce_Checkout_Management extends Asset_Management
 										'default'	=> Array(),
 										'description' => 'Actions that needs to be executed at the end of checkout',
 									);
-											
+									
+		$this->vars['apply_tax_on_delivery'] = Array(
+												'added'		=> '0.4',
+												'type'		=> 'boolean',
+												'default'	=> FALSE,
+												'parameters'	=> Array(
+																	'allow_empty'	=> FALSE,
+																   ),
+												'description' => 'Whether calculate tax over delivery cost',
+										   );
+									
+
+		$this->vars['delivery_includes_tax'] = Array(
+												'added'		=> '0.4',
+												'type'		=> 'boolean',
+												'default'	=> FALSE,
+												'parameters'	=> Array(
+																	'allow_empty'	=> FALSE,
+																   ),
+												'description' => 'Whether delivery cost includes tax',
+										   );
+										   
 
 
 	}//end constructor
