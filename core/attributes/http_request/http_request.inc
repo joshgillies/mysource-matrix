@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: http_request.inc,v 1.26 2013/07/25 23:23:49 lwright Exp $
+* $Id: http_request.inc,v 1.27 2013/07/31 06:31:18 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 * 	<http_request />
 *
 * @author  James Hurst <jhurst@squiz.co.uk>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -594,16 +594,20 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 
 		if (array_get_index($this->_config, 'append_get_vars', FALSE)) {
 			$query_vars = $collection_var = '';
-			foreach ($_GET as $query => $param) {
+			$get_vars = explode('&', $_SERVER['QUERY_STRING']);
+
+			foreach ($get_vars as $param) {
 				$param = str_replace(' ', '+', $param);
-				if ($query == 'collection') {
-					$collection_var .= $query.'='.$param;
+				$param = str_replace('%20', '+', $param);
+				if (strpos($param, 'collection') !== FALSE) {
+					$collection_var .= $param;
 					continue;
 				}
 				$prefix = empty($query_vars) ? '' : '&';
-				$query_vars .= $prefix.$query.'='.$param;
+				$query_vars .= $prefix.$param;
 
 			}
+
 			if(!empty($query_vars) || !empty($collection_var)) {
 			    foreach ($this->_res['request']['urls'] as $index => $url) {
 				    if (strpos($url, '?') === FALSE) $url .= '?';
