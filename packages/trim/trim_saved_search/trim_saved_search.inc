@@ -11,7 +11,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search.inc,v 1.46 2013/07/09 08:17:38 ewang Exp $
+* $Id: trim_saved_search.inc,v 1.47 2013/07/31 02:40:59 ewang Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -828,6 +828,10 @@ class TRIM_Saved_Search extends Data_Source
 				}//end if
 			}//end else if
 		}//end if
+		else {
+		    	$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
+			return;
+		}
 	}//end printFrontend()
 
 
