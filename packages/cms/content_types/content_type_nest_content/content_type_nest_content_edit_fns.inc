@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.79 2013/06/20 00:37:55 akarelia Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.80 2013/07/31 06:22:09 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.79 $
+* @version $Revision: 1.80 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -219,7 +219,9 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 									<td colspan="3"><a href="" onclick="<?php echo $asset->type() ?>.addGetRow('<?php echo $prefix ?>'); return false;" id="<?php echo $prefix ?>_additional_get_new_row"><?php echo translate('cms_ct_nest_content_additional_get_add'); ?></a></td>
 								</tr>
 								<tr>
-									<td colspan="3">You can use keywords of the form <strong>%nested_asset_*%</strong> to refer to any of the keywords of the asset<br/>being nested. You can also use global keywords (<strong>%globals_*%</strong>). These will be evaluated upon asset load.</td>
+									<td colspan="3">You can use keywords of the form <strong>%nested_*%</strong> (e.g %nested_asset_name%) to refer to any of the keywords of the asset being nested. <br/>You can also use global keywords (<strong>%globals_*%</strong>). These will be evaluated upon asset load.
+									<br/>You can use keywords of the form <strong>%list_current_*%</strong> (e.g %list_current_asset_name%) to refer to the current asset being listed by listing page or search page.     
+									</td>
 								</tr>
 							</tfoot>
 							<tbody id="<?php echo $prefix ?>_additional_get_none" style="display: <?php echo empty($additional_get_vars) ? 'table-row-group' : 'none' ?>">
@@ -438,6 +440,18 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 				    else if (strpos($keyword, 'globals_') === 0) {
 					replace_global_keywords($get_value);
 				    }
+				    else if (strpos($keyword, 'list_current_') === 0) {
+					if(isset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['list_current_asset_id']) && !empty($_SESSION[SQ_SESSION_SANDBOX_INDEX]['list_current_asset_id'])) {
+					    $asset_keyword = str_replace('list_current_','',$keyword);
+					    $current_list_asset_id = $_SESSION[SQ_SESSION_SANDBOX_INDEX]['list_current_asset_id'];
+					    $current_list_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($current_list_asset_id);
+					    $replacement = $current_list_asset->getKeywordReplacement($asset_keyword);
+					    if (!is_null($replacement)) {
+						    $get_value = str_replace('list_current_','',$get_value);
+						    $get_value = str_replace('%'.$asset_keyword.'%', $replacement, $get_value);
+					    }
+					}
+				    }
 				    else {
 					// for all keywords replacement except globals and nested asset
 					$replacement =  $parents_nesting_asset->getKeywordReplacement($keyword);
@@ -581,6 +595,18 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 			    }
 			    else if (strpos($keyword, 'globals_') === 0) {
 				replace_global_keywords($get_value);
+			    }
+			    else if (strpos($keyword, 'list_current_') === 0) {
+				if(isset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['list_current_asset_id']) && !empty($_SESSION[SQ_SESSION_SANDBOX_INDEX]['list_current_asset_id'])) {
+				    $asset_keyword = str_replace('list_current_','',$keyword);
+				    $current_list_asset_id = $_SESSION[SQ_SESSION_SANDBOX_INDEX]['list_current_asset_id'];
+				    $current_list_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($current_list_asset_id);
+				    $replacement = $current_list_asset->getKeywordReplacement($asset_keyword);
+				    if (!is_null($replacement)) {
+					    $get_value = str_replace('list_current_','',$get_value);
+					    $get_value = str_replace('%'.$asset_keyword.'%', $replacement, $get_value);
+				    }
+				}
 			    }
 			    else {
 				// for all keywords replacement except globals and nested asset
