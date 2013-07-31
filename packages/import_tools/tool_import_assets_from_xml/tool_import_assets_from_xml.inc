@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_import_assets_from_xml.inc,v 1.5 2013/02/28 03:56:53 ewang Exp $
+* $Id: tool_import_assets_from_xml.inc,v 1.6 2013/07/31 07:33:55 cupreti Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *    
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage import_tools
 */
@@ -117,10 +117,23 @@ class Tool_Import_Assets_From_Xml extends Tool
 			if (substr($file_info['name'], -7) == '.tar.gz' || substr($file_info['name'], -4) == '.tgz' || substr($file_info['name'], -4) == '.tar') {
 				require_once 'Archive/Tar.php';
 				$tar_ball = new Archive_Tar($import_dir.'/'.$file_info['name']);
-				$tar_ball->extract($import_dir);
+				if (!$tar_ball->extract($import_dir)) {
+					trigger_error('Archive extraction failed.');
+					return FALSE;
+				}
+			} else if (substr($file_info['name'], -4) != '.xml') {
+				trigger_error('Unsupported file type. Uploaded file type needs be xml/tar.gz/tgz');
+				unlink($import_dir.'/'.$file_info['name']);
+				return FALSE;
 			}
+
 			// get the main xml export file, it has to be one
-			$temp_filename = array_shift(glob($import_dir.'/*.xml'));			
+			$xml_files = glob($import_dir.'/*.xml');
+			if (count($xml_files) > 1) {
+				trigger_error('Archive contains multiple xml files');
+				return FALSE;
+			}
+			$temp_filename = array_shift($xml_files);			
 		}
 
 		$root_node_id 	= $_POST[$type_code.'_create_under_assetid']['assetid'];
