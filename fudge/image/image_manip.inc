@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_manip.inc,v 1.9 2012/08/30 00:56:51 ewang Exp $
+* $Id: image_manip.inc,v 1.10 2013/07/31 04:24:24 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once dirname(__FILE__).'/../general/file_system.inc';
 * Image manipulation functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package Fudge
 * @subpackage Image
 */
@@ -138,7 +138,7 @@ class Image_Manip
 	*
 	* @return boolean
 	*/
-	public static function resize($input, $output, $w, $h)
+	public static function resize($input, $output, $w, $h, $input_x = 0, $input_y = 0, $input_w = 0, $input_h = 0)
 	{
 		// NOTE: $s_* = source image vars, $d_* = destination image vars
 		$s_img = Image_Manip::fromFile($input);
@@ -167,7 +167,14 @@ class Image_Manip
 
 		$ret_val = false;
 
-		$ret_val = ImageCopyResampled($d_img, $s_img, 0, 0, 0, 0, $w, $h, imageSx($s_img), imageSy($s_img));
+		if ($input_w == 0) {
+			$input_w = imageSx($s_img);
+		}
+		if ($input_h == 0) {
+			$input_h = imageSy($s_img);
+		}
+
+		$ret_val = ImageCopyResampled($d_img, $s_img, 0, 0, $input_x, $input_y, $w, $h, $input_w, $input_h);
 		imageDestroy($s_img); // kill this to save memory before save
 
 		if ($ret_val) {

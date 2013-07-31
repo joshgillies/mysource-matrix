@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety_management.inc,v 1.10 2012/08/30 01:09:07 ewang Exp $
+* $Id: image_variety_management.inc,v 1.11 2013/07/31 04:23:46 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -75,6 +75,7 @@ class Image_Variety_Management extends Asset_Management
 																					'height'	=> 'Height',
 																					'dimension'	=> 'Both',
 																					'none'		=> 'Neither',
+																					'centre_weighted_square' => 'Square (Centre Weighted)',
 																				   ),
 																'multiple'		=> FALSE,
 																'allow_empty'	=> FALSE,

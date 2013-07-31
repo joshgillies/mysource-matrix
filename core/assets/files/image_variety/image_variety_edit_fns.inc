@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety_edit_fns.inc,v 1.22 2012/08/30 01:09:07 ewang Exp $
+* $Id: image_variety_edit_fns.inc,v 1.23 2013/07/31 04:23:46 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -73,7 +73,7 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 
 		$int_edit_params  = new SimpleXMLElement('<int       width="8" />');
 		$bool_edit_params = new SimpleXMLElement('<boolean   true_text="yes" false_text="no" />');
-		$sel_edit_params  = new SimpleXMLElement('<selection style="box" columns="3" extras="" />');
+		$sel_edit_params  = new SimpleXMLElement('<selection style="box" columns="5" extras="" />');
 
 		if ($asset->name == '') {
 			$o->openField(translate('name'));
@@ -99,7 +99,7 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 					document.getElementById('<?php echo $prefix; ?>_field_constrain').style.display	= (variety_type == 'resize') ? '' : 'none';
 					document.getElementById('<?php echo $prefix; ?>_field_width').style.display		= (variety_type == 'resize' && (constrain == 'width' || constrain == 'none')) ? '' : 'none';
 					document.getElementById('<?php echo $prefix; ?>_field_height').style.display	= (variety_type == 'resize' && (constrain == 'height' || constrain == 'none'))  ? '' : 'none';
-					document.getElementById('<?php echo $prefix; ?>_field_dimension').style.display	= (variety_type == 'resize' && constrain == 'dimension')  ? '' : 'none';
+					document.getElementById('<?php echo $prefix; ?>_field_dimension').style.display	= (variety_type == 'resize' && (constrain == 'dimension' || constrain == 'centre_weighted_square'))  ? '' : 'none';
 					document.getElementById('<?php echo $prefix; ?>_field_upload').style.display	= (variety_type == 'upload') ? '' : 'none';
 					return true;
 					
@@ -137,7 +137,7 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 			unset($attr);
 		$o->closeField();
 
-		$o->openField(translate('dimension'), '', translate('dimension_note'), ($variety_type != 'resize' || $constrain != 'dimension'), $prefix.'_field_dimension');
+		$o->openField(translate('dimension'), '', translate('dimension_note'), ($variety_type != 'resize' || ($constrain != 'dimension' && $constrain != 'centre_weighted_square')), $prefix.'_field_dimension');
 			$attr = $asset->getAttribute('dimension');
 			$attr->setEditParams($int_edit_params);
 			$attr->paint($prefix.'_'.$attr->name, !$wa);

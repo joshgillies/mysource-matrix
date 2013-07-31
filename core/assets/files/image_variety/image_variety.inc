@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.64 2013/07/25 23:23:48 lwright Exp $
+* $Id: image_variety.inc,v 1.65 2013/07/31 04:23:46 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -178,7 +178,7 @@ class Image_Variety extends Asset
 			return FALSE;
 		}
 
-		if ($this->attr('variety_type') == 'resize' && $this->attr('constrain') != 'none') {
+		if ($this->attr('variety_type') == 'resize' && $this->attr('constrain') != 'none' && $this->attr('constrain') != 'centre_weighted_square') {
 			if ((int) $this->attr($this->attr('constrain')) == 0) {
 				trigger_localised_error('CORE0096', E_USER_WARNING, $this->name, $this->id, $this->attr('constrain'));
 				return FALSE;
@@ -274,6 +274,10 @@ class Image_Variety extends Asset
 			$ext = get_file_type($image->name);
 
 			$s_file = $source_image_info['path'];
+			$s_x = 0;
+			$s_y = 0;
+			$s_width = 0;
+			$s_height = 0;
 
 			$d_old_filename = $this->attr('filename');
 			$d_new_filename = $this->name.'.'.$ext;
@@ -314,6 +318,18 @@ class Image_Variety extends Asset
 					$d_width = round($old_width * $proportion);
 					$d_height = round($old_height * $proportion);
 				break;
+
+				case 'centre_weighted_square':
+					// The width and height of the original centre weighted square are the smaller of the width and height of the source image
+					$s_width = (int) ($source_image_info['width'] < $source_image_info['height'] ? $source_image_info['width'] : $source_image_info['height']);
+					$s_height = $s_width;
+					// Calculate the top left position of the centre weighted square
+					$s_x = (int) (($source_image_info['width'] - $s_width)/2);
+					$s_y = (int) (($source_image_info['height'] - $s_height)/2);
+					// The width and height of the square are equal
+					$d_width = $d_dimension;
+					$d_height = $d_width;
+					break;
 			}
 
 			if ($d_width <= 0 || $d_height <= 0) {
@@ -340,7 +356,7 @@ class Image_Variety extends Asset
 			}// endif
 
 			require_once(SQ_FUDGE_PATH.'/image/image_manip.inc');
-			if (!Image_Manip::resize($s_file, $d_new_file, $d_width, $d_height)) {
+			if (!Image_Manip::resize($s_file, $d_new_file, $d_width, $d_height, $s_x, $s_y, $s_width, $s_height)) {
 				return FALSE;
 			}
 
