@@ -1,5 +1,64 @@
 SQUIZ MATRIX CHANGELOG
 
+VERSION 4.14.5
+
+Minor Enhancements and Bug Fixes
+=================================== 
+
+Minor Enhancements
+
+Minor Enhancement #6285: Bulk Import Tool: Alphabetical Server File Import List.
+Minor Enhancement #6302: New Root Nodes Keyword Replacement for Calendar Assets.
+Minor Enhancement #6389: New Error Codes Added for File Upload.
+Minor Enhancement #6397: Inconsistent Workflow Script Usage Extended to Safe Edit Approved to Go Live Assets.
+Minor Enhancement #6434: Absolute URL for href Actions on Form Assets.
+Minor Enhancement #6442: Calendar Search Page: New Hide Unlinked Navigational Text Option. 
+
+Core
+
+Fixed Bug #6344: WYSIWYG background colour selector not working in IE.
+Fixed Bug #6388: Image variety public url not picking up the correct base url.
+Fixed Bug #6390: System config should check for the duplicate entries for "System Root URLs".
+Fixed Bug #6391: Script "set_files_unrestricted.php" does not works in system with Deja Vu enabled.
+Fixed Bug #6393: Issue with roles and workflow with LDAP group.
+Fixed Bug #6395: confirm_field error on Funnelback Manager.
+Fixed Bug #6401: Script system_integrity_inconsistent_workflow_status.php not working in Oracle systems.
+Fixed Bug #6405: Ecom Delivery Method not picking up the correct Checkout.
+Fixed Bug #6416: Deja_Vu causing intermittent failures with JS API when missconfigured.
+Fixed Bug #6418: Single Calendar Event Create Form Layout does not work with %globals_get_var^as_asset:xxxx%.
+Fixed Bug #6420: Context Configuration - Missing some Accept-Language request header for the Chrome.
+Fixed Bug #6421: Public User Only for Root URLs to Send Cacheable Headers ignored.
+Fixed Bug #6424: Custom Form "Send Submissions To Email" sending empty CSV.
+Fixed Bug #6428: WYSIWYG insert table doesn't work as expected.
+Fixed Bug #6432: Condtion "Server variable" throws error if string to match contains regex delimiter.
+Fixed Bug #6435: Asset Listing Pages and NOTICE links.
+Fixed Bug #6446: Asset map warning/error for JS to Applet calls affecting Use Me and Binocular function.
+
+CMS
+
+Fixed Bug #6392: Remote Content page, extra trailing & in url.
+Fixed Bug #6417: Having a file upload field on the target content of Remote Content page can break. 
+
+Calendar
+
+Fixed Bug #6399: Calendar Page %up_link% keyword gets printed as keyword format where it should just print nothing.
+Fixed Bug #6406: Calendar Page "Description Popups" setting prints descriptions on load.
+Fixed Bug #6410: Issues when using modifiers on the asset_metadata keyword on Upcoming Events List page. 
+
+E-Commerce
+
+Fixed Bug #6038: 'Calculate Tax During Checkout' setting controls delivery fees calculation as well. 
+
+Data
+
+Fixed Bug #6422: Large CSV Data Sources displayed with an asset listing fail when _nocache or _recache is used. 
+
+Web Services
+
+Fixed Bug #6403: Incorrect links in the workflow email when using EES.
+Fixed Bug #6414: REST Resource OAuth Session doesn't seem to return any errors.
+
+
 
 VERSION 4.14.4
 
