@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.109 2012/08/30 01:09:18 ewang Exp $
+* $Id: hipo_herder.inc,v 1.109.8.1 2013/08/01 06:23:51 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.109 $
+* @version $Revision: 1.109.8.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -95,7 +95,7 @@ class HIPO_Herder extends MySource_Object
 
 			// we need to get the hipo_dir from the db so we know
 			// where to look for the include file
-			$db = MatrixDAL::getDb();
+			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
 
 			try {
 				$bind_vars['code_name'] = $code_name;
@@ -107,6 +107,8 @@ class HIPO_Herder extends MySource_Object
 			} catch (Exception $e) {
 				throw new Exception('Unable to get HIPO job from code name: '.$code_name.$e->getMessage());
 			}//end try catch
+			
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 			if (!isset($hipo_vars['job_type']) || empty($hipo_vars['job_type'])) {
 				$null = NULL;
