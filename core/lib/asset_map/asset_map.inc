@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.321 2013/08/01 02:49:29 lwright Exp $
+* $Id: asset_map.inc,v 1.322 2013/08/01 04:15:01 lwright Exp $
 *
 */
 require_once(SQ_LIB_PATH.'/xml_array/xml_array.inc');
@@ -23,7 +23,7 @@ require_once(SQ_LIB_PATH.'/xml_array/xml_array.inc');
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.321 $
+* @version $Revision: 1.322 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -191,7 +191,7 @@ class Asset_Map
 	* @return int
 	* @access public
 	*/
-	private function _findCommonParentId($assetid1, $assetid2)
+	function _findCommonParentId($assetid1, $assetid2)
 	{
 		if (!isset($assetid2) || empty($assetid2) || $assetid1 == $assetid2) {
 			return $assetid1;
@@ -238,7 +238,7 @@ class Asset_Map
 	* @return int
 	* @access public
 	*/
-	private function _findCommonRoot($assetids)
+	function _findCommonRoot($assetids)
 	{
 		$count = count($assetids);
 		// if we have only 1 asset then thats the common root
@@ -270,7 +270,7 @@ class Asset_Map
 	* @return string
 	* @access public
 	*/
-	private function _getInitialLineageSelection($type='')
+	function _getInitialLineageSelection($type='')
 	{
 
 		$initial_selection_lineage = '';
@@ -628,7 +628,7 @@ class Asset_Map
 	* @return void
 	* @access private
 	*/
-	private function _send($output)
+	function _send($output)
 	{
 		$json = array_get_index($_GET, 'json', '');
 		if ($json === '1') {
@@ -663,7 +663,7 @@ class Asset_Map
 	* @return void
 	* @access private
 	*/
-	private function _error($code)
+	function _error($code)
 	{
 		// if second parameter is an array, use that as our list of params
 		// otherwise, everything after 1st param is our list of params that we
@@ -772,7 +772,7 @@ class Asset_Map
 	* @return void
 	* @access private
 	*/
-	private function _getTranslations(&$input)
+	function _getTranslations(&$input)
 	{
 		$current_locale = $GLOBALS['SQ_SYSTEM']->lm->getCurrentLocale();
 
@@ -805,7 +805,7 @@ class Asset_Map
 	* @return void
 	* @access private
 	*/
-	private function _doInitialise()
+	function _doInitialise()
 	{
 
 		$output = simplexml_load_string('<xml></xml>');
@@ -877,7 +877,7 @@ class Asset_Map
 	* @return string
 	* @access private
 	*/
-	private function _convertCharset($string='', $charset='UTF-8')
+	function _convertCharset($string='', $charset='UTF-8')
 	{
 		// mb_ functions require mbstring extension
 		if (function_exists('mb_convert_encoding')) {
@@ -898,7 +898,7 @@ class Asset_Map
 	* @return array
 	* @access private
 	*/
-	private function _getAssetInfo($assetid, $linkid=0)
+	function _getAssetInfo($assetid, $linkid=0)
 	{
 
 		$attrs = Array();
@@ -1158,7 +1158,7 @@ class Asset_Map
 	* @return void
 	* @access private
 	*/
-	private function _getChildAssets(&$root, $assetid, $dependants_only=FALSE, $start=0, $limit=0)
+	function _getChildAssets(&$root, $assetid, $dependants_only=FALSE, $start=0, $limit=0)
 	{
 		// make sure permission is checked for parent asset. asset map doesn't need status check, just assume it's always live
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
@@ -1542,7 +1542,7 @@ class Asset_Map
 	* @return void
 	* @access private
 	*/
-	private function _getAssetDisplayName($asset)
+	function _getAssetDisplayName($asset)
 	{
 		// get the string from the config var and replace the assetid, name and shortname
 		$display_name = SQ_CONF_ASSET_MAP_ASSET_DISPLAY_NAME;
@@ -1597,7 +1597,7 @@ class Asset_Map
 	* @return void
 	* @access private
 	*/
-	private function _getAssets(&$input)
+	function _getAssets(&$input)
 	{
 
 		$output = simplexml_load_string('<xml></xml>');
@@ -1662,7 +1662,7 @@ class Asset_Map
 	* @return void
 	* @access private
 	*/
-	private function _getURL(&$input, &$backend)
+	function _getURL(&$input, &$backend)
 	{
 		/* input sample
 			<?xml version="1.0"?>
@@ -1775,7 +1775,7 @@ class Asset_Map
 	* @return void
 	* @access private
 	*/
-	private function _moveAsset(&$input, &$backend)
+	function _moveAsset(&$input, &$backend)
 	{
 		$output = new XML_Tree();
 		$output->addRoot('responses');
@@ -1879,7 +1879,7 @@ class Asset_Map
 	* @return void
 	* @access private
 	*/
-	private function _cloneAsset(&$input, &$backend)
+	function _cloneAsset(&$input, &$backend)
 	{
 		$output = new XML_Tree();
 		$output->addRoot('responses');
@@ -1955,7 +1955,7 @@ class Asset_Map
 	* @return void
 	* @access private
 	*/
-	private function _newLink(&$input)
+	function _newLink(&$input)
 	{
 		$output = new XML_Tree();
 		$root = $output->addRoot('responses');
@@ -2035,7 +2035,7 @@ class Asset_Map
 	* @return void
 	* @access private
 	*/
-	private function _moveAssets($input)
+	function _moveAssets($input)
 	{
 		/* EXAMPLE of input
 			<?xml version="1.0"?>
@@ -2242,7 +2242,7 @@ class Asset_Map
 	* @return void
 	* @access private
 	*/
-	private function _cloneAssets(&$input)
+	function _cloneAssets(&$input)
 	{
 
 		/* input example
@@ -2376,7 +2376,7 @@ class Asset_Map
 	* @return void
 	* @access private
 	*/
-	private function _newLinks(&$input)
+	function _newLinks(&$input)
 	{
 		/* input example
 			<?xml version="1.0"?>
@@ -2486,7 +2486,7 @@ class Asset_Map
 	* @return object
 	* @access private
 	*/
-	private function _fixUrlencodedAssetids($input)
+	function _fixUrlencodedAssetids($input)
 	{
 		// Construct a new input object with attribute values correctly escaped
 		$temp_input = new SimpleXMLElement('<command></command>');
@@ -2521,7 +2521,7 @@ class Asset_Map
 	 *
 	 * @return array
 	 */
-	private function _fromXML($input)
+	function _fromXML($input)
 	{
 		$startTime = microtime(TRUE);
 		$doc = new DOMDocument('1.0', 'utf-8');
@@ -2594,7 +2594,7 @@ class Asset_Map
 	 *
 	 * @return string
 	 */
-	private function _toXML($input, $rootName)
+	function _toXML($input, $rootName)
 	{
 		$doc  = new DOMDocument('1.0', 'utf-8');
 		$root = $doc->createElement($rootName);
