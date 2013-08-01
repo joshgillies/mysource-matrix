@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.320 2013/07/26 05:16:59 lwright Exp $
+* $Id: asset_map.inc,v 1.321 2013/08/01 02:49:29 lwright Exp $
 *
 */
 require_once(SQ_LIB_PATH.'/xml_array/xml_array.inc');
@@ -23,7 +23,7 @@ require_once(SQ_LIB_PATH.'/xml_array/xml_array.inc');
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.320 $
+* @version $Revision: 1.321 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -2114,8 +2114,18 @@ class Asset_Map
 
 		}//end foreach
 
-		// process the re-ordering
+		// process the re-ordering, order them by sort order first.
+		$first_link = TRUE;
+		$compareFn = create_function('$a,$b', 'return ($a["sort_order"] - $b["sort_order"]);');
+		usort($reordered_assets, $compareFn);
 		foreach ($reordered_assets as $assetid => $link_info) {
+			// If the next asset is being moved UP in the sort order, increment
+			// parent position.
+			// But: - If the new parent ID is "-1" (for after last), don't change it.
+			//      - If this is the first link, always slot it into the original parent ID.
+			if (($new_parent_pos >= 0) && ($first_link === FALSE) && ($new_parent_pos < $link_info['sort_order'])) {
+				$new_parent_pos++;
+			}
 
 			// Check write access as appropriate
 			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_PERMISSIONS)) {
@@ -2138,11 +2148,7 @@ class Asset_Map
 				return;
 			}
 
-			// If the sort ordering of the new position has changed, change it -
-			// but not if it's been set to position "-1" which is after the last position.
-			if (($new_parent_pos >= 0) && ($new_parent_pos <= $link_info['sort_order'])) {
-				$new_parent_pos++;
-			}
+			$first_link = FALSE;
 			$success_node = $responses->addChild('success');
 			$success_node->addAttribute('linkid', $link_info['linkid']);
 			$success_node->addAttribute('assetid', $assetid);

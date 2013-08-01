@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.6 2013/07/30 04:06:03 lwright Exp $
+* $Id: js_asset_map.js,v 1.7 2013/08/01 02:49:29 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.6 $
+ * @version $Revision: 1.7 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -1585,6 +1585,7 @@ var JS_Asset_Map = new function() {
 	this.moveAsset = function(action, assetNodes, newParentAssetid, sortOrder) {
 		var self   = this;
 		var assets = [];
+		var sortOrderAdjust = 0;
 		for (var i = 0; i < assetNodes.length; i++) {
 			var parentid = assetNodes[i].parentNode.getAttribute('data-parentid');
 			assets.push({
@@ -1594,13 +1595,19 @@ var JS_Asset_Map = new function() {
 					parentid: parentid
 				}
 			});
+
+			// If we are moving any assets downward, we need to slot in ABOVE the
+			// selected slot, so adjust where we put in the sort order.
+			if (assetNodes[i].getAttribute('data-sort-order') < sortOrder) {
+				sortOrderAdjust = 1;
+			}
 		}
 
 		var command = {
 			_attributes: {
 				action: action,
 				to_parent_assetid: newParentAssetid,
-				to_parent_pos: sortOrder
+				to_parent_pos: (sortOrder - sortOrderAdjust)
 			},
 			asset: assets
 		};
@@ -2783,6 +2790,12 @@ var JS_Asset_Map = new function() {
 //--        USE ME MODE        --//
 
 
+	/**
+	 * Get the source frame for a Use Me mode request.
+	 *
+	 * In the WYSIWYG plugins, it will be the same window as the Asset Map. In Admin
+	 * and Simple Edit (with frames) modes, it will be the main frame.
+	 */
 	this.getUseMeFrame = function() {
 		var win    = this.getDefaultView(assetMapContainer);
 		var retval = win;
