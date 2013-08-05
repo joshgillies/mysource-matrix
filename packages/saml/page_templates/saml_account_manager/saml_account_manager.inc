@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: saml_account_manager.inc,v 1.7 2013/07/19 03:40:43 ewang Exp $
+* $Id: saml_account_manager.inc,v 1.8 2013/08/05 01:56:20 ewang Exp $
 *
 */
 require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_builder/page_asset_builder.inc';
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage file
 */
@@ -66,6 +66,7 @@ class SAML_Account_Manager extends Page_Asset_Builder
 		// don't cache any config
 		$this->saml_auth_manager = null;
 		$this->idp_entityid = null;
+		$this->__construct();
 		
 	}//end __wakeup()
 	
