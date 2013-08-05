@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.222 2013/07/29 02:08:53 lwright Exp $
+* $Id: backend.inc,v 1.223 2013/08/05 23:32:05 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.222 $
+* @version $Revision: 1.223 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -1502,7 +1502,6 @@ class Backend extends MySource_Object
 
 		<script language="Javascript" type="text/javascript">
 			var clickSize = 50;
-			var fset = top.document.getElementById('main_frameset');
 			hidden = <?php var_export(SQ_IN_LIMBO); ?>;
 
 			function toggleFrame() {
