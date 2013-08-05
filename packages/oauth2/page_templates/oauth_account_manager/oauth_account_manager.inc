@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: oauth_account_manager.inc,v 1.1.1.1 2013/07/19 00:29:26 ewang Exp $
+* $Id: oauth_account_manager.inc,v 1.1.1.1.2.1 2013/08/05 02:00:52 ewang Exp $
 *
 */
 require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_builder/page_asset_builder.inc';
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.1.1.1.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage oauth2
 */
@@ -64,7 +64,7 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 		// don't cache any config
 		$this->oauth_user_id = null;
 		$this->oauth_user_profile = null;
-		$this->oauth_token = null;
+		$this->oauth_token = $this->_getSpecialAsset('oauth_token_source');
 		
 	}//end __wakeup()
 	
@@ -98,7 +98,7 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 		    if(!empty($redirect_url)) 
 			$_SESSION['sq_oauth_account_manager_current_state_redirect_url'] = $redirect_url;
 		}
-			   
+	
 		// check MUST have configs
 		if(empty($this->oauth_token)) {
 		    trigger_error(translate('oauth_account_manager_no_token'));

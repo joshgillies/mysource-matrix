@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-*$Id: oauth2_client.inc,v 1.1.1.1 2013/07/19 00:29:27 ewang Exp $
+*$Id: oauth2_client.inc,v 1.1.1.1.2.1 2013/08/05 02:00:52 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.1.1.1.2.1 $
 * @package MySource_Matrix
 */
 class Oauth2_Client extends MySource_Object
@@ -193,7 +193,8 @@ class Oauth2_Client extends MySource_Object
 		    'client_id' => $this->client_id,
 		    'redirect_uri' => $redirect_uri
 		), $extra_parameters);
-		return $auth_endpoint . '?' . http_build_query($parameters, null, '&');
+		$symbol = strpos($auth_endpoint, '?') !== FALSE ? '&' : '?';
+		return $auth_endpoint . $symbol . http_build_query($parameters, null, '&');
 	    }
 
 	    /**
@@ -406,10 +407,11 @@ class Oauth2_Client extends MySource_Object
 			/* No break */
 		    case self::HTTP_METHOD_DELETE:
 		    case self::HTTP_METHOD_GET:
+			$symbol = strpos($url, '?') !== FALSE ? '&' : '?';
 			if (is_array($parameters)) {
-			    $url .= '?' . http_build_query($parameters, null, '&');
+			    $url .= $symbol . http_build_query($parameters, null, '&');
 			} elseif ($parameters) {
-			    $url .= '?' . $parameters;
+			    $url .= $symbol . $parameters;
 			}
 			break;
 		    default:
