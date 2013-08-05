@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.7 2013/08/01 02:49:29 lwright Exp $
+* $Id: js_asset_map.js,v 1.8 2013/08/05 23:33:25 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.7 $
+ * @version $Revision: 1.8 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -72,7 +72,11 @@ var JS_Asset_Map = new function() {
 	var KeyCode = {
 		Delete: 46,
 		Escape: 27,
-		Shift: 16
+		Shift: 16,
+		LeftArrow: 37,
+		UpArrow: 38,
+		RightArrow: 39,
+		DownArrow: 40
 	}
 
 	/**
