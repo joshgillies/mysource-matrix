@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_check_indexes.php,v 1.19 2012/08/30 01:04:53 ewang Exp $
+* $Id: system_integrity_check_indexes.php,v 1.20 2013/08/05 01:29:01 csmith Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 
 /**
 * @author  Chris Smith <csmith@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix
 * @subpackage scripts
 */
@@ -227,19 +227,36 @@ foreach ($packages as $_pkgid => $pkg_details) {
 		}
 
 		if (!empty($table_info['indexes'])) {
-			foreach ($table_info['indexes'] as $index_col => $index_info) {
-				/**
-				 * If the index is for a specific db type (eg the oracle search index),
-				 * check the index db type & current db type match.
-				 */
-				if (isset($index_info['db_type'])) {
-					if ($index_info['db_type'] !== $db_conf['db']['type']) {
-						continue;
-					}
+			foreach ($tables as $tablename) {
+				$tablename = 'sq_' . $tablename;
+				$indexes   = $table_info['indexes'];
+
+				if (substr($tablename, 0, 6) === 'sq_rb_') {
+					// If it's a rollback table, also check the
+					// eff_to (automatically created) index.
+					// Don't need to check eff_from because it's part
+					// of the tables primary key - which is already checked.
+					$indexes['efto'] = array(
+						                'name'    => 'efto',
+						                'columns' => array(
+							                          'sq_eff_to',
+						                             ),
+						                'type'    => NULL,
+						                'db_type' => NULL,
+						               );
 				}
 
-				foreach ($tables as $tablename) {
-					$tablename = 'sq_' . $tablename;
+				foreach ($indexes as $index_col => $index_info) {
+					/**
+					 * If the index is for a specific db type (eg the oracle search index),
+					 * check the index db type & current db type match.
+					 */
+					if (isset($index_info['db_type'])) {
+						if ($index_info['db_type'] !== $db_conf['db']['type']) {
+							continue;
+						}
+					}
+
 					$full_idx_name = $tablename . '_' . $index_info['name'];
 					printName('Checking for index ' . $full_idx_name);
 
