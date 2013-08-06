@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.9 2013/08/06 01:41:08 lwright Exp $
+* $Id: js_asset_map.js,v 1.10 2013/08/06 02:27:46 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.9 $
+ * @version $Revision: 1.10 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -774,7 +774,7 @@ var JS_Asset_Map = new function() {
 						// Use the first asset.
 					} else {
 						var nextAsset = lastSelection;
-						while (dfx.hasClass(nextAsset, 'tree') === false) {
+						while (nextAsset && (dfx.hasClass(nextAsset, 'tree') === false)) {
 							if (nextAsset.nextSibling) {
 								nextAsset = nextAsset.nextSibling;
 							} else {
@@ -798,7 +798,7 @@ var JS_Asset_Map = new function() {
 						}//end while
 					}//end if
 
-					if (dfx.hasClass(nextAsset, 'asset') === true) {
+					if (nextAsset && (dfx.hasClass(nextAsset, 'asset') === true)) {
 						if (e.shiftKey === true) {
 							self.shiftSelectAssetNode(nextAsset, e);
 						} else if ((e.ctrlKey === true) || (e.metaKey === true)) {
@@ -817,7 +817,7 @@ var JS_Asset_Map = new function() {
 						// Use the first asset.
 					} else {
 						var nextAsset = lastSelection;
-						while (dfx.hasClass(nextAsset, 'tree') === false) {
+						while (nextAsset && (dfx.hasClass(nextAsset, 'tree') === false)) {
 							if (nextAsset.previousSibling) {
 								nextAsset = nextAsset.previousSibling;
 							} else {
@@ -841,7 +841,7 @@ var JS_Asset_Map = new function() {
 						}//end while
 					}//end if
 
-					if (dfx.hasClass(nextAsset, 'asset') === true) {
+					if (nextAsset && (dfx.hasClass(nextAsset, 'asset') === true)) {
 						if (e.shiftKey === true) {
 							self.shiftSelectAssetNode(nextAsset, e);
 						} else if ((e.ctrlKey === true) || (e.metaKey === true)) {
@@ -1035,7 +1035,7 @@ var JS_Asset_Map = new function() {
 					if (which === 1) {
 						dragStatus.selectionDrag = {
 							selection: []
-						}
+						};
 					} else if (which === 3) {
 						var menu = self.drawAddMenu();
 						self.positionMenu(menu, {x: e.clientX, y: e.clientY});
