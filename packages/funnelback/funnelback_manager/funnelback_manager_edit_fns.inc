@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: funnelback_manager_edit_fns.inc,v 1.16 2012/08/30 00:58:43 ewang Exp $
+* $Id: funnelback_manager_edit_fns.inc,v 1.17 2013/08/06 05:21:01 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage funnelback
 */
@@ -302,13 +302,13 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 			// New collection
 			$js = 'onChange="javascript:funnelbackDisableURL(this);"';
 			$o->openField(translate('funnelback_collection_id'), '', translate('funnelback_collection_id_note'));
-				text_box($prefix.'_new_collection'); 	
+				text_box($prefix.'_new_collection');
 			$o->closeField();
 			$o->openField(translate('funnelback_collection_name'), '', translate('funnelback_collection_name_note'));
-				text_box($prefix.'_new_collection_name'); 	
+				text_box($prefix.'_new_collection_name');
 			$o->closeField();
 			$o->openField(translate('funnelback_collection_type'));
-				combo_box($prefix.'_new_collection_type', $asset->_getCollectionTypes(), FALSE, 'web', 0, $js); 	
+				combo_box($prefix.'_new_collection_type', $asset->_getCollectionTypes(), FALSE, 'web', 0, $js);
 			$o->closeField();
 		}//end if
 
@@ -497,7 +497,7 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 				$current_url = array_get_index($collections[$collection_id], 'url', Array());
 				$o->openField(translate('funnelback_collection_name'));
 					hidden_field($prefix.'_edit_collection_id', $collection_id);
-					text_box($prefix.'_edit_collection_name', $current_name); 	
+					text_box($prefix.'_edit_collection_name', $current_name);
 				$o->closeField();
 				switch ($current_type) {
 					case 'meta':
@@ -532,7 +532,7 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 
 					default:
 						$o->openField(translate('funnelback_collection_source'));
-							asset_finder($prefix.'_edit_collection_source', $current_assetid); 	
+							asset_finder($prefix.'_edit_collection_source', $current_assetid);
 						$o->closeField();
 						$o->openField(translate('funnelback_collection_url'));
 							$urls = Array();
@@ -1456,10 +1456,10 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 				?>
 				<table class="sq-backend-table">
 				<tr>
-					<td class="sq-backend-table-header" width="15%"><?php echo translate('funnelback_mclass'); ?></td>					
+					<td class="sq-backend-table-header" width="15%"><?php echo translate('funnelback_mclass'); ?></td>
 					<td class="sq-backend-table-header" width="15%"><?php echo translate('funnelback_word_logic'); ?></td>
 					<td class="sq-backend-table-header" width="15%"><?php echo translate('funnelback_flag'); ?></td>
-					<td class="sq-backend-table-header" width="60%"><?php echo translate('funnelback_tag_name'); ?></td>					
+					<td class="sq-backend-table-header" width="60%"><?php echo translate('funnelback_tag_name'); ?></td>
 					<td class="sq-backend-table-header" width="5%"><?php echo translate('delete'); ?></td>
 				</tr>
 				<tr>
@@ -1482,10 +1482,10 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 				foreach ($config as $line) {
 					$alias = array_get_index($line, 'alias', '');
 					$content = array_get_index($line, 'content', '');
-					$metatag = array_get_index($line, 'metatag', '');					
+					$metatag = array_get_index($line, 'metatag', '');
 					$word_logic = array_get_index($line, 'word_logic', 2);
 					$system = array_get_index($line, 'system', FALSE);
-					
+
 
 					// This alias is reserved for Squiz authtentication keys, and for this reason
 					// the keys represented by 'S' will be shown as reserved
@@ -1501,8 +1501,8 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 					} else {
 						combo_box($prefix.'_metamap_alias[]', $alias_options, FALSE, $alias);
 					}//end if
-					echo '</td>';					
-					echo '<td class="sq-table-row">';	
+					echo '</td>';
+					echo '<td class="sq-table-row">';
 					if (!isset($alias_word_logic[$alias])) {
 						combo_box($prefix.'_metamap_word_logic[]', $word_logic_options, FALSE, $word_logic);
 						$alias_word_logic[$alias] = $word_logic;
@@ -1527,7 +1527,7 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 						text_box($prefix.'_metamap_metatag[]', $metatag, 30);
 					}//end if
 					hidden_field($prefix.'_metamap_system[]', (string) $system);
-					echo '</td>';			
+					echo '</td>';
 					echo '<td class="sq-table-row">';
 					if ($system) {
 						hidden_field($prefix.'_metamap_delete['.$metadata_class_count.']', '0');
@@ -1545,7 +1545,7 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 					echo '<tr>';
 					echo '<td class="sq-table-row">';
 					combo_box($prefix.'_metamap_alias[]', $alias_options, FALSE, '');
-					echo '</td>';					
+					echo '</td>';
 					echo '<td class="sq-table-row">';
 					combo_box($prefix.'_metamap_word_logic[]', $word_logic_options, FALSE, 2);
 					echo '</td>';
@@ -1595,7 +1595,7 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 				$data = Array();
 				$alias = array_get_index($_POST, $prefix.'_metamap_alias', Array());
 				$content = array_get_index($_POST, $prefix.'_metamap_content', Array());
-				$metatags = array_get_index($_POST, $prefix.'_metamap_metatag', Array());				
+				$metatags = array_get_index($_POST, $prefix.'_metamap_metatag', Array());
 				$word_logic = array_get_index($_POST, $prefix.'_metamap_word_logic', Array());
 				$system = array_get_index($_POST, $prefix.'_metamap_system', Array());
 				$delete = array_get_index($_POST, $prefix.'_metamap_delete', Array());
@@ -1607,21 +1607,21 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 					$metadata_metag = array_get_index($metatags, $index, '');
 					$metadata_system = array_get_index($system, $index, FALSE);
 					$metadata_delete = array_get_index($delete, $index, '0');
-					
-					// Once the word logic for the particular metadata class is set, 
+
+					// Once the word logic for the particular metadata class is set,
 					// use same value for other metadata in same class
 					if (isset($metamap_word_logic[$mclass])) {
 						$metadata_word_logic = $metamap_word_logic[$mclass];
 					} else {
 						 $metadata_word_logic = array_get_index($word_logic, $index, 2);
-						 $metamap_word_logic[$mclass] = $metadata_word_logic; 
+						 $metamap_word_logic[$mclass] = $metadata_word_logic;
 					}
 
 					if (!empty($metadata_metag) && !(!$metadata_system && $metadata_delete)) {
 						$data[] = Array(
 									'alias'			=> $metadata_class,
 									'content'		=> $metadata_index,
-									'metatag'		=> $metadata_metag,									
+									'metatag'		=> $metadata_metag,
 									'word_logic'	=> $metadata_word_logic,
 									'system'		=> $metadata_system,
 								  );
@@ -1690,12 +1690,14 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 		if ($wa) {
 			require_once SQ_ATTRIBUTES_PATH.'/password/password.inc';
 			$password_field = new Asset_Attribute_Password();
+			$password_field->_edit_params['confirm_field'] = 0;
 			$result = $password_field->process($prefix);
+
 			if ($result !== FALSE && $password_field->processed == TRUE) {
 				$asset->setAttrValue('password', $password_field->value);
 				$status = $asset->saveAttributes();
 			}//end if
-			
+
 			// Regardless of whether a password was entered or not, verify against the user
 			// This only warns the user, it is up to them to change it!
 			$user = $asset->attr('user');
@@ -1735,7 +1737,7 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 		$wa = $asset->writeAccess('attributes');
 		$exclusions = array_get_index($asset->attr('global_exclude'), 'assetid', Array());
 		if ($wa) {
-			multiple_asset_finder($prefix.'_global_assetid_exclusions', $exclusions);	
+			multiple_asset_finder($prefix.'_global_assetid_exclusions', $exclusions);
 		} else {
 			if (empty($exclusions)) {
 				echo translate('funnelback_no_assets');
@@ -1869,7 +1871,7 @@ class Funnelback_Manager_Edit_Fns extends Asset_Edit_Fns
 		$wa = $asset->writeAccess('attributes');
 		$exclusions = array_get_index($asset->attr('global_exclude'), 'tree', Array());
 		if ($wa) {
-			multiple_asset_finder($prefix.'_global_tree_exclusions', $exclusions);	
+			multiple_asset_finder($prefix.'_global_tree_exclusions', $exclusions);
 		} else {
 			if (empty($exclusions)) {
 				echo translate('funnelback_no_root_nodes');
