@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_edit_fns.inc,v 1.16 2012/08/30 01:09:16 ewang Exp $
+* $Id: thesaurus_edit_fns.inc,v 1.17 2013/08/06 04:47:47 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -220,7 +220,7 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 		if (is_readable($filepath)) {
 			header('Content-Type: application/xml');
 			// defining the file as attachment forces most browsers to offer it for download
-			header('Content-Disposition: attachment; filename='.basename($filepath).';');
+			header('Content-Disposition: attachment; filename="'.basename($filepath).'";');
 			header('Content-Length: '.@filesize($filepath));
 
 			readfile($filepath);

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.114 2013/06/20 08:55:08 cupreti Exp $
+* $Id: form_email_edit_fns.inc,v 1.115 2013/08/06 04:51:19 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.114 $
+* @version $Revision: 1.115 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -851,7 +851,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		header('Content-Type: application/xml');
 
 		// defining the file as attachment forces most browsers to offer it for download
-		header('Content-Disposition: attachment; filename=submission_log.xml;');
+		header('Content-Disposition: attachment; filename="submission_log.xml";');
 
 		//This is known that Internet Explorer has problems with SSL connection (https).
 		//http://support.microsoft.com/default.aspx?scid=kb;en-us;812935
@@ -2122,7 +2122,6 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 		$types = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('form_action');
 		$names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($types, 'name');
-
 		$o->openField('');
 			if ($write_access) {
 				?><p><?php
