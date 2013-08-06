@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.284 2013/08/06 01:15:19 ewang Exp $
+* $Id: form.inc,v 1.285 2013/08/06 23:13:47 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.284 $
+* @version $Revision: 1.285 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2024,8 +2024,7 @@ class Form extends Asset implements Bridge
 	*/
 	public function getFormAction()
 	{
-		$page_url = !empty($this->parent_asset) ? $this->parent_asset->getURL() : current_url();
-		$form_action = $this->attr('submit_to_page_url') ? $page_url : current_url();
+		$form_action = $this->attr('submit_to_page_url') && !empty($this->parent_asset) ? $this->parent_asset->getURL() : current_url();
 
 		// Add the query string as well if it exists, so asset references with ?a=###
 		// submit back to themselves.
