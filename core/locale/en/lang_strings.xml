@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.427.4.1 2013/06/25 01:56:52 akarelia Exp $
+* $Id: lang_strings.xml,v 1.427.4.2 2013/08/06 03:27:47 akarelia Exp $
 *
 */
 
@@ -353,6 +353,8 @@
 	<string source="system_recache_suffix">System Clear Cache Suffix</string>
 	<string source="system_performance_suffix">System Performance Mode Suffix</string>
 	<string source="system_timezone">System Timezone</string>
+	<string source="disable_attribution">Disable Attribution</string>
+	<string source="disable_attribution_note">&lt;b&gt;NOTE:&lt;/b&gt; Editing this option will need the designs to be regenerated before this option takes affect.</string>
 	<string source="system_tools">System Tools</string>
 	<string source="system_web_path_separator">System Web Path Separator</string>
 	<string source="system_redirect_url_with_trailing_slash">Redirect URL with Trailing Slash</string>
@@ -1400,7 +1402,7 @@ Force that this asset can only be viewed through a Secure (SSL) connection</stri
 	<string source="trigger_action_set_site_special_page_use_direct_parent_sites">Use the direct parent sites of the broadcasting asset</string>
 	<string source="trigger_action_set_site_special_page_site_missing">The site is not specified or using the direct parent sites of the broadcasting asset is not selected</string>
 	<string source="trigger_action_set_site_special_page_special_page_type_invalid">The special page type is invalid</string>
-	
+
 	<!-- common single word strings -->
 
 	<string source="all">All</string>
@@ -2874,7 +2876,7 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="install_key">Install Key</string>
 	<string source="warranty_key">Warranty Key</string>
 	<string source="system_config_install_key_note"><![CDATA[The install key is automatically generated when the <em>step_03.php</em> script is run to reconfigure your system - it cannot be changed here.]]></string>
-	
+
 	<!-- Live Link Only -->
 	<string source="live_link_only">In Live Asset, Only Allow Creating Hyperlink to Live Asset </string>
 	<string source="live_link_only_note">If yes, it will stop user creating a hyperlink from a Live asset to a non-live asset.</string>
@@ -2926,7 +2928,7 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="squid_tool_populate_note">Request each URL after the purge action so that Squid can recache it.</string>
 	<string source="squid_tool_cascade_note">Clear the cache of the selected asset and its children.</string>
 	<string source="squid_tool_note">Note: Repopulate and Cascade option will also be applied to the cron job if you schedule one.</string>
-	
+
 	<string source="squid_tool_url_port_field">Add Port to URL</string>
 	<string source="squid_tool_url_port_note">You can specify a port to add to each URL when submitted to Squid. If you are running Squiz Matrix on a non-standard port behind Squid, you may need to add the port back to the URL to clear the cache.</string>
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css.inc,v 1.49 2012/08/30 01:09:06 ewang Exp $
+* $Id: design_css.inc,v 1.49.8.1 2013/08/06 03:27:47 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 * in standard Designs
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.49.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -390,6 +390,7 @@ class Design_Css extends Design
 	{
 		switch ($var) {
 			case 'css_header' :
+				if (SQ_CONF_DISABLE_ATTRIBUTION === '0') {
 echo '/*
   Running Squiz Matrix
   Developed by Squiz - http://www.squiz.net
@@ -398,6 +399,7 @@ echo '/*
 */
 
 ';
+				}
 			break;
 
 			default :
