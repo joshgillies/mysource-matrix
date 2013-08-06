@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.8 2013/08/05 23:33:25 lwright Exp $
+* $Id: js_asset_map.js,v 1.9 2013/08/06 01:41:08 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.8 $
+ * @version $Revision: 1.9 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -443,9 +443,13 @@ var JS_Asset_Map = new function() {
 		dfx.addClass(nameSpan, 'assetName');
 		dfx.addClass(nameSpan, 'status' + statusClass);
 
+		var caretSel = _createEl('span');
+		dfx.addClass(caretSel, 'caretSel');
+
 		assetLine.appendChild(leafSpan);
 		assetLine.appendChild(iconSpan);
-		assetLine.appendChild(nameSpan);
+		caretSel.appendChild(nameSpan);
+		assetLine.appendChild(caretSel);
 
 		return assetLine;
 	};
@@ -716,7 +720,139 @@ var JS_Asset_Map = new function() {
 						last: lastSelection
 					};
 				break;
-			}
+
+				case KeyCode.RightArrow:
+					e.preventDefault();
+					if (dfx.getClass('branch-status', lastSelection).length > 0) {
+						var nextNode = lastSelection.nextSibling;
+						if ((!nextNode) ||
+							(dfx.hasClass(nextNode, 'childIndent') === false) ||
+							(dfx.hasClass(nextNode, 'collapsed') === true)) {
+							// Indent node doesn't exist yet, or it's collapsed.
+							self.expandAsset(lastSelection);
+						} else {
+							// Open and expanded. Select the first sibling.
+							if (dfx.getClass('asset', nextNode).length > 0) {
+								self.selectAssetNode(nextNode.firstChild);
+							}//end if
+						}//end if
+					}//end if
+				break;
+
+				case KeyCode.LeftArrow:
+					e.preventDefault();
+
+					if (dfx.getClass('branch-status', lastSelection).length > 0) {
+						var nextNode = lastSelection.nextSibling;
+						if ((!nextNode) ||
+							(dfx.hasClass(nextNode, 'childIndent') === false) ||
+							(dfx.hasClass(nextNode, 'collapsed') === true)) {
+							// Indent node doesn't exist yet, or it's collapsed.
+							// Move up to the parent, if any.
+							var parentNode = lastSelection.parentNode;
+							if (dfx.hasClass(parentNode, 'childIndent') === true) {
+								self.selectAssetNode(parentNode.previousSibling);
+							}
+						} else {
+							// Open and expanded. Close it.
+							// Yes this says expand, it does toggling of expansion,
+							// both ways.
+							self.expandAsset(lastSelection);
+						}//end if
+					} else {
+						var parentNode = lastSelection.parentNode;
+						if (dfx.hasClass(parentNode, 'childIndent') === true) {
+							self.selectAssetNode(parentNode.previousSibling);
+						}
+					}//end if
+				break;
+
+				case KeyCode.DownArrow:
+					e.preventDefault();
+
+					if (lastSelection === null) {
+						// Use the first asset.
+					} else {
+						var nextAsset = lastSelection;
+						while (dfx.hasClass(nextAsset, 'tree') === false) {
+							if (nextAsset.nextSibling) {
+								nextAsset = nextAsset.nextSibling;
+							} else {
+								nextAsset = nextAsset.parentNode.nextSibling;
+							}
+
+							if (dfx.hasClass(nextAsset, 'asset') === true) {
+								break;
+							} else if ((dfx.hasClass(nextAsset, 'childIndent') === true) &&
+								(dfx.hasClass(nextAsset, 'collapsed') === false)) {
+								if (dfx.getClass('asset', nextAsset).length > 0) {
+									// Move to first asset child, skipping over any
+									// pagination tools.
+									nextAsset = nextAsset.firstChild;
+									while (dfx.hasClass(nextAsset, 'asset') === false) {
+										nextAsset = nextAsset.nextSibling;
+									}
+									break;
+								}
+							}
+						}//end while
+					}//end if
+
+					if (dfx.hasClass(nextAsset, 'asset') === true) {
+						if (e.shiftKey === true) {
+							self.shiftSelectAssetNode(nextAsset, e);
+						} else if ((e.ctrlKey === true) || (e.metaKey === true)) {
+							lastSelection = nextAsset;
+							self.updateCaret();
+						} else {
+							self.selectAssetNode(nextAsset);
+						}
+					}
+				break;
+
+				case KeyCode.UpArrow:
+					e.preventDefault();
+
+					if (lastSelection === null) {
+						// Use the first asset.
+					} else {
+						var nextAsset = lastSelection;
+						while (dfx.hasClass(nextAsset, 'tree') === false) {
+							if (nextAsset.previousSibling) {
+								nextAsset = nextAsset.previousSibling;
+							} else {
+								nextAsset = nextAsset.parentNode.previousSibling;
+							}
+
+							if (dfx.hasClass(nextAsset, 'asset') === true) {
+								break;
+							} else if ((dfx.hasClass(nextAsset, 'childIndent') === true) &&
+								(dfx.hasClass(nextAsset, 'collapsed') === false)) {
+								if (dfx.getClass('asset', nextAsset).length > 0) {
+									// Move to last child, skipping over any
+									// pagination tools for now.
+									nextAsset = nextAsset.lastChild;
+									while (dfx.hasClass(nextAsset, 'asset') === false) {
+										nextAsset = nextAsset.previousSibling;
+									}
+									break;
+								}
+							}
+						}//end while
+					}//end if
+
+					if (dfx.hasClass(nextAsset, 'asset') === true) {
+						if (e.shiftKey === true) {
+							self.shiftSelectAssetNode(nextAsset, e);
+						} else if ((e.ctrlKey === true) || (e.metaKey === true)) {
+							lastSelection = nextAsset;
+							self.updateCaret();
+						} else {
+							self.selectAssetNode(nextAsset);
+						}
+					}
+				break;
+			}//end switch
 		});
 
 		// Set this to keyup - Webkit does not emit keypress on non-printable keys,
@@ -809,7 +945,7 @@ var JS_Asset_Map = new function() {
 			var assetTarget  = null;
 			var branchTarget = null;
 			while (target && !assetTarget && !branchTarget) {
-				if ((dfx.hasClass(target, 'assetName') === true) ||
+				if ((dfx.hasClass(target, 'caretSel') === true) ||
 					   (dfx.hasClass(target, 'icon') === true)) {
 					if (dfx.hasClass(target.parentNode, 'asset') === true) {
 						assetTarget = target.parentNode;
@@ -828,10 +964,10 @@ var JS_Asset_Map = new function() {
 				var assetTargetCoords = dfx.getElementCoords(assetTarget);
 				if (self.isInUseMeMode() === true) {
 					// Use me mode. No multi-select, no drag.
-					// Either mouse button should be a single asset selection.
+					// Either mouse button should be a single asset selection, but
+					// only RMB should offer the Use Me menu.
 					if ((which === 1) || (which === 3)) {
-						self.clearSelection();
-						dfx.toggleClass(assetTarget, 'selected');
+						self.selectAssetNode(assetTarget);
 
 						if (which === 3) {
 							var menu = self.drawUseMeMenu(assetTarget);
@@ -844,9 +980,7 @@ var JS_Asset_Map = new function() {
 						// Right mouse button. No drag, no multi-select, but
 						// preserve existing selections.
 						if (dfx.hasClass(assetTarget, 'selected') === false) {
-							self.clearSelection();
-							dfx.toggleClass(assetTarget, 'selected');
-							lastSelection = assetTarget;
+							self.selectAssetNode(assetTarget);
 						}
 
 						if (options.simple === false) {
@@ -863,64 +997,18 @@ var JS_Asset_Map = new function() {
 						}
 					} else if (which === 1) {
 						if ((e.shiftKey === true) && (options.simple === false)) {
-							// Replace current selection with what was selected
-							// when SHIFT was first held down, then add/toggle the
-							// difference between the pivot point and what we just
-							// clicked upon.
-							var selection = self.currentSelection();
-
-							if (selection.length > 0) {
-								dfx.removeClass(selection, 'selected');
-								dfx.addClass(preShift.selection, 'selected');
-
-								// dfx.getElementsBetween best works in a forward
-								// direction. Work out which way that is.
-								if (preShift.last.compareDocumentPosition) {
-									// IE9+ and other browsers.
-									// A bit field of 0x04 indicates that the argument
-									// follows the reference node.
-									var docPos = preShift.last.compareDocumentPosition(assetTarget);
-									var forwardSelection = (docPos & 0x04) > 0;
-								} else {
-									// Make IE8 happy using sourceIndex.
-									var forwardSelection = (assetTarget.sourceIndex > preShift.last.sourceIndex);
-								}
-
-								var between = [];
-								if (forwardSelection) {
-									between = dfx.getElementsBetween(preShift.last, assetTarget);
-								} else {
-									between = dfx.getElementsBetween(assetTarget, preShift.last);
-								}
-
-								between.push(assetTarget);
-								for (var i = 0; i < between.length; i++) {
-									if (dfx.hasClass(between[i], 'asset') === true) {
-										if ((e.ctrlKey === true) || (e.metaKey === true)) {
-											dfx.toggleClass(between[i], 'selected');
-										} else {
-											dfx.addClass(between[i], 'selected');
-										}
-									}//end if
-								}//end for
-								e.preventDefault();
-							} else {
-								dfx.addClass(assetTarget, 'selected');
-								preShift = {
-									selection: [assetTarget],
-									last: assetTarget
-								};
-							}//end if
+							// Shift-left click.
+							self.shiftSelectAssetNode(assetTarget, e);
+							e.preventDefault();
 						} else if (((e.ctrlKey === true) || (e.metaKey === true)) && (options.simple === false)) {
 							// Control-left click. No drag, toggle selection of clicked asset.
-							dfx.toggleClass(assetTarget, 'selected');
+							self.ctrlSelectAssetNode(assetTarget);
 						} else {
 							// Left click. Possible drag. If clicked asset is already selected,
 							// maintain current selection, otherwise deselect all previous
 							// selection and select this one.
 							if (dfx.hasClass(assetTarget, 'selected') === false) {
-								self.clearSelection();
-								dfx.addClass(assetTarget, 'selected');
+								self.selectAssetNode(assetTarget);
 							}
 
 							if (options.simple === false) {
@@ -982,11 +1070,11 @@ var JS_Asset_Map = new function() {
 
 									// Work out if this asset is being touched by the selection.
 									if ((rectDims.x2 < iconDims.x1) || (rectDims.x1 > nameDims.x2)) {
-										dfx.removeClass(asset, 'selected');
+										self.removeFromSelection(asset);
 									} else if ((rectDims.y2 < iconDims.y1) || (rectDims.y1 > iconDims.y2)) {
-										dfx.removeClass(asset, 'selected');
+										self.removeFromSelection(asset);
 									} else {
-										dfx.addClass(asset, 'selected');
+										self.addToSelection(asset);
 									}
 								}
 							}, 40);
@@ -1209,7 +1297,6 @@ var JS_Asset_Map = new function() {
 		});
 	};
 
-
 	this.expandAsset = function(branchTarget) {
 		var self         = this;
 		var assetid      = branchTarget.getAttribute('data-assetid');
@@ -1348,6 +1435,19 @@ var JS_Asset_Map = new function() {
 //--        CORE ACTIONS        --//
 
 
+	this.updateCaret = function() {
+		var tree = this.getCurrentTreeElement();
+		dfx.removeClass(
+			dfx.getClass('asset', tree),
+			'caret'
+		);
+
+		if (lastSelection) {
+			dfx.addClass(lastSelection, 'caret');
+		}
+	}
+
+
 	/**
 	 * Get the currently selected tree element.
 	 *
@@ -1380,6 +1480,119 @@ var JS_Asset_Map = new function() {
 		dfx.addClass(tabs[treeid], 'selected');
 	};
 
+	/**
+	 * Select an asset node normally.
+	 *
+	 * This should de-select all other nodes and then select this one.
+	 *
+	 * @param [Node] assetNode The asset node to select.
+	 */
+	this.selectAssetNode = function(assetNode) {
+		this.clearSelection();
+		dfx.addClass(assetNode, 'selected');
+		lastSelection = assetNode;
+		this.updateCaret();
+	};
+
+	/**
+	 * Select an asset node as if you hit it with the Ctrl key (or Cmd on Mac).
+	 *
+	 * This should hold the current selection and toggle the selected node.
+	 *
+	 * @param [Node] assetNode The asset node to select.
+	 */
+	this.ctrlSelectAssetNode = function(assetNode) {
+		dfx.toggleClass(assetNode, 'selected');
+		lastSelection = assetNode;
+		this.updateCaret();
+	};
+
+	/**
+	 * Select an asset node as if you hit it with the Shift key held.
+	 *
+	 * This should take the last asset selected (from when the Shift key was first
+	 * held - stored in preShift) and extend it to the selected asset.
+	 *
+	 * @param [Node] assetNode The asset node to select.
+	 */
+	this.shiftSelectAssetNode = function(assetNode, e) {
+		var selection = this.currentSelection();
+		if (selection.length > 0) {
+			dfx.removeClass(selection, 'selected');
+			dfx.addClass(preShift.selection, 'selected');
+
+			// dfx.getElementsBetween best works in a forward
+			// direction. Work out which way that is.
+			if (preShift.last.compareDocumentPosition) {
+				// IE9+ and other browsers.
+				// A bit field of 0x04 indicates that the argument
+				// follows the reference node.
+				var docPos = preShift.last.compareDocumentPosition(assetNode);
+				var forwardSelection = (docPos & 0x04) > 0;
+			} else {
+				// Make IE8 happy using sourceIndex.
+				var forwardSelection = (assetNode.sourceIndex > preShift.last.sourceIndex);
+			}
+
+			var between = [];
+			if (forwardSelection) {
+				between = dfx.getElementsBetween(preShift.last, assetNode);
+			} else {
+				between = dfx.getElementsBetween(assetNode, preShift.last);
+			}
+
+			between.push(assetNode);
+			for (var i = 0; i < between.length; i++) {
+				if (dfx.hasClass(between[i], 'asset') === true) {
+					if ((e.ctrlKey === true) || (e.metaKey === true)) {
+						dfx.toggleClass(between[i], 'selected');
+					} else {
+						dfx.addClass(between[i], 'selected');
+					}
+				}//end if
+			}//end for
+		} else {
+			dfx.addClass(assetNode, 'selected');
+			preShift = {
+				selection: [assetNode],
+				last: assetNode
+			};
+		}//end if
+
+		lastSelection = assetNode;
+		this.updateCaret();
+	};
+
+	/**
+	 * Select an asset node as if you hit it with the Ctrl+Shift combination.
+	 *
+	 * TODO: I'm not sure how to treat this yet. Mac interface seems to treat it the
+	 * same as Ctrl (Cmd) only. Need to test the Windows interface too.
+	 *
+	 * @param [Node] assetNode The asset node to select.
+	 */
+	this.ctrlShiftSelectAssetNode = function(assetNode) {
+	};
+
+	/**
+	 * Add an asset node to a selection, preserving current selections.
+	 *
+	 * @param [Node] assetNode The asset node to select.
+	 */
+	this.addToSelection = function(assetNode) {
+		dfx.addClass(assetNode, 'selected');
+	};
+
+	/**
+	 * Remove an asset node from a selection, preserving other current selections.
+	 *
+	 * @param [Node] assetNode The asset node to deselect.
+	 *
+	 * @see clearSelection
+	 */
+	this.removeFromSelection = function(assetNode) {
+		dfx.removeClass(assetNode, 'selected');
+	};
 
 	/**
 	 * Return the asset nodes that have been selected on a specified tree.
@@ -1409,7 +1622,7 @@ var JS_Asset_Map = new function() {
 
 		dfx.removeClass(
 			dfx.getClass('asset', tree),
-			'selected located'
+			'selected located caret'
 		);
 
 		preShift = null;
@@ -2504,7 +2717,7 @@ var JS_Asset_Map = new function() {
 			} else {
 				var assetLine = assetLines[0];
 				if (assetids.length === 0) {
-					dfx.addClass(assetLine, 'selected');
+					self.addToSelection(assetLine);
 					lastSelection = assetLine;
 					assetLine.scrollIntoView(true);
 					this.getDefaultView(assetLine).top.scrollTo(0, 0);
@@ -2570,7 +2783,7 @@ var JS_Asset_Map = new function() {
 					if (i < (response.asset.length - 1)) {
 						dfx.addClass(assetLine, 'located');
 					} else {
-						dfx.addClass(assetLine, 'selected');
+						self.addToSelection(assetLine);
 						lastSelection = assetLine;
 						assetLine.scrollIntoView(true);
 						this.getDefaultView(assetLine).top.scrollTo(0, 0);

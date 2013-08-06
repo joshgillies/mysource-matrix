@@ -61,6 +61,21 @@
 	border: 1px solid #B66B00;
 }
 
+#asset_map_container .tree .asset.caret .caretSel {
+	border: 1px dotted #888;
+}
+
+#asset_map_container .tree .asset.selected.caret .assetName,
+#asset_map_container .tree .asset.located.caret .assetName {
+	padding-left: 1px;
+	padding-right: 1px;
+}
+
+#asset_map_container .tree .asset.caret .assetName {
+	padding-left: 2px;
+	padding-right: 2px;
+}
+
 #asset_map_container .tree .asset.located {
 	zoom: 1;
 }
