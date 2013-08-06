@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.162 2012/08/30 01:09:05 ewang Exp $
+* $Id: design.inc,v 1.162.4.1 2013/08/06 05:04:23 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.162 $
+* @version $Revision: 1.162.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -724,7 +724,7 @@ echo '/*
 			case 'content_attachment' :
 				if (!empty($args['extension'])) {
 					echo '<', '?php $asset_name = htmlspecialchars($ASSET->name).\'.'.$args['extension'].'\'; ?'.'>';
-					echo '<'.'?php header("Content-Disposition: attachment; filename=$asset_name"); ?'.'>';
+					echo '<'.'?php header("Content-Disposition: attachment; filename=\"$asset_name\""); ?'.'>';
 				}
 			break;
 			

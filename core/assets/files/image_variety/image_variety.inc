@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.62.4.1 2013/06/28 02:15:54 cupreti Exp $
+* $Id: image_variety.inc,v 1.62.4.2 2013/08/06 05:08:38 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.62.4.1 $
+* @version $Revision: 1.62.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -822,7 +822,7 @@ class Image_Variety extends Asset
 			}
 
 			header('Content-Type: '.$type);
-			header('Content-Disposition: inline; filename='.$filename.';');
+			header('Content-Disposition: inline; filename="'.$filename.'";');
 			header('Content-Length: '.filesize($file));
 
 			readfile($file);

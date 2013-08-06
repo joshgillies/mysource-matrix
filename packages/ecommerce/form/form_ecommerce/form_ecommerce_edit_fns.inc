@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce_edit_fns.inc,v 1.22 2012/08/30 00:58:33 ewang Exp $
+* $Id: form_ecommerce_edit_fns.inc,v 1.22.4.1 2013/08/06 05:11:49 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.22.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -414,7 +414,7 @@ class Form_Ecommerce_Edit_Fns extends Form_Email_Edit_Fns
 		header('Content-Type: application/xml');
 
 		// defining the file as attachment forces most browsers to offer it for download
-		header('Content-Disposition: attachment; filename=order-summary-'.$asset->id.'.xml;');
+		header('Content-Disposition: attachment; filename="order-summary-'.$asset->id.'.xml";');
 
 		echo '<orders>'."\n";
 

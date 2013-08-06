@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: physical_file.inc,v 1.4 2012/08/30 00:58:36 ewang Exp $
+* $Id: physical_file.inc,v 1.4.4.1 2013/08/06 05:16:00 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.4.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage file
 */
@@ -165,7 +165,7 @@ class Physical_File extends Asset
 
 		$file_path = $this->getFilePath();
 		header('Content-Type: '.$type);
-		header('Content-Disposition: inline; filename='.$this->name.';');
+		header('Content-Disposition: inline; filename="'.$this->name.'";');
 		header('Content-Length: '.filesize($file_path));
 
 		readfile($file_path);

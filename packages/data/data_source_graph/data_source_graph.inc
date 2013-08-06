@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph.inc,v 1.37 2012/08/30 00:58:15 ewang Exp $
+* $Id: data_source_graph.inc,v 1.37.4.1 2013/08/06 05:15:22 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 * @author  Paratibha Gannavarapu <pgannavarapu@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.37.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -836,7 +836,7 @@ class Data_Source_Graph extends Image
 			header('Pragma: cache');
 			header('Expires: '.gmdate('D, d M Y H:i:s', (time() + 86400)).' GMT');
 			header('Content-Type: '.$type);
-			header('Content-Disposition: inline; filename='.$existing['filename'].';');
+			header('Content-Disposition: inline; filename="'.$existing['filename'].'";');
 			header('Last-Modified: '.gmdate('D, d M Y H:i:s',$existing['modified']).' GMT');
 			header('Content-Length: '.$existing['size']);
 			readfile($existing['path']);
