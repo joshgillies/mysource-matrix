@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.142 2013/03/04 05:47:05 ewang Exp $
+* $Id: design_edit_fns.inc,v 1.142.4.1 2013/08/06 04:54:44 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.142 $
+* @version $Revision: 1.142.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -627,7 +627,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() & SQ_RUN_LEVEL_FORCED);
 			// This clone will be morphed to customisation later, so it will NOT clone the parse file.
 			$asset->_tmp['custom'] = TRUE;
-			$clone = $GLOBALS['SQ_SYSTEM']->am->cloneAsset($asset, $create_link, $map, Array('attributes', 'permissions', 'roles'), FALSE);
+			$clone = $GLOBALS['SQ_SYSTEM']->am->cloneAsset($asset, $create_link, $map, Array('attributes', 'permissions', 'roles'), FALSE, FALSE, $asset->status);
 			unset ($asset->_tmp['custom']);
 			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 		}
