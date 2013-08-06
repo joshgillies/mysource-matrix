@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.897.2.8 2013/07/08 04:40:13 ewang Exp $
+* $Id: asset_manager.inc,v 1.897.2.9 2013/08/06 04:55:39 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.897.2.8 $
+* @version $Revision: 1.897.2.9 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1997,11 +1997,12 @@ class Asset_Manager extends MySource_Object
 	*		 								Array('all');
 	* </pre>
 	* @param boolean	$cloning_dependent	by default FALSE, flipped to TRUE if the asset being cloned is another asset's dependent
+	* @param int		$initial_staus		initial asset status of the clone
 	*
 	* @return mixed object|NULL
 	* @access private
 	*/
-	function _cloneAsset(&$source, &$link, &$clone_map, $components, $cloning_dependent=FALSE)
+	function _cloneAsset(&$source, &$link, &$clone_map, $components, $cloning_dependent=FALSE, $initial_status=SQ_STATUS_UNDER_CONSTRUCTION)
 	{
 		if (!empty($link)) {
 			// make sure the initial link information is passed in
@@ -2043,7 +2044,7 @@ class Asset_Manager extends MySource_Object
 							'type_code'				=> $source->type(),
 							'name'					=> $source->name.' - clone',
 							'short_name'			=> $source->short_name.' - clone',
-							'status'				=> SQ_STATUS_UNDER_CONSTRUCTION,
+							'status'				=> $initial_status,
 							'created'				=> $last_updated,
 							'created_userid'		=> $userid,
 							'published'				=> NULL,
@@ -2290,11 +2291,12 @@ class Asset_Manager extends MySource_Object
 	*										and will have their sources components cloned
 	* @param boolean	$cloning_dependent	TRUE mean this call is a recursive call from itself, and it
 	*										is cloning the dependent of an asset (in a recursive manner)
+	* @param int		$initial_staus		initial asset status of the clone
 	*
 	* @return object
 	* @access public
 	*/
-	function &cloneAsset(&$source, &$link, &$clone_map, $components, $clone_dependents=TRUE, $cloning_dependent=FALSE)
+	function &cloneAsset(&$source, &$link, &$clone_map, $components, $clone_dependents=TRUE, $cloning_dependent=FALSE, $initial_status=SQ_STATUS_UNDER_CONSTRUCTION)
 	{
 		$null = NULL;
 		// if the source asset is actually a shadow asset, skip it
@@ -2309,7 +2311,7 @@ class Asset_Manager extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$clone = $this->_cloneAsset($source, $link, $clone_map, $components, $cloning_dependent);
+		$clone = $this->_cloneAsset($source, $link, $clone_map, $components, $cloning_dependent, $initial_status);
 		if (is_null($clone)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
