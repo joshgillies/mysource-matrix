@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: oauth2_token.inc,v 1.2 2013/08/05 01:55:10 ewang Exp $
+* $Id: oauth2_token.inc,v 1.3 2013/08/06 02:52:57 ewang Exp $
 *
 */
 
@@ -194,14 +194,14 @@ class Oauth2_Token extends Page
 		if($expire < time() +10) {
 		    // if it expired, do we have a refresh token?
 		    if(isset($token['refresh_token']) && !empty($token['refresh_token'])) {
-			$params = array('refresh_token' => $token['refresh_token'], 'redirect_uri' => $this->redirect_uri);
+			$params = array('refresh_token' => $token['refresh_token']);
 			// refresh the access token
 			$response = $this->client->getAccessToken($this->token_endpoint, 'refresh_token', $params);
 
 			// keep the previous refresh token if no new refresh token issued
 			if(!isset($response['result']['refresh_token']) || empty($response['result']['refresh_token']))
 			    $response['result']['refresh_token'] = $token['refresh_token'];
-			
+
 			// parse and store the new access token
 			// since we are only refreshing the existing token, no need to worry about permission
 			$token = $this->_parseStoreAccessToken($response);
