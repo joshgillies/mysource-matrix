@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_contents.xml,v 1.25 2013/05/07 09:05:27 cupreti Exp $
+* $Id: lang_screen_contents.xml,v 1.26 2013/08/06 01:15:19 ewang Exp $
 *
 */
 -->
@@ -403,6 +403,11 @@
 		<field attribute="disable_keyword_replacements">
 			<display_name>Disable Keyword Replacements</display_name>
 			<note>If set to Yes, Form will not replace the keywords that might be used in the user input on the frontend.</note>
+		</field>
+	</section>
+	<section name="Advanced Settings" write_access="write:attributes">
+		<field attribute="submit_to_page_url">
+			<display_name>Form Submission URL</display_name>
 		</field>
 	</section>
 </contents>

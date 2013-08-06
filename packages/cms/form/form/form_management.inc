@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_management.inc,v 1.74 2013/05/07 09:04:03 cupreti Exp $
+* $Id: form_management.inc,v 1.75 2013/08/06 01:15:19 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.74 $
+* @version $Revision: 1.75 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -558,6 +558,14 @@ class Form_Management extends Asset_Management
 																'description'	=> 'The %submission_access_info% keyword will be replaced with this just after the Save button is pressed, otherwise keyword is blank. HTML allowed.',
 																'is_contextable'	=> TRUE,
 															),
+		    				'submit_to_page_url'		=> Array(
+														'added'			=> '0.17',
+														'type'			=> 'boolean',
+														'default'		=> FALSE,
+														'parameters'	=> Array(
+																			'allow_empty'	=> FALSE,
+																		   ),
+													   ),
 					  );
 
 	}//end constructor

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_contents.xml,v 1.41 2013/05/07 09:04:03 cupreti Exp $
+* $Id: edit_interface_screen_contents.xml,v 1.42 2013/08/06 01:15:19 ewang Exp $
 *
 */
 -->
@@ -286,5 +286,9 @@
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
-
+	<section name="Advanced Settings" write_access="write:attributes">
+		<field attribute="submit_to_page_url">
+			<boolean true_text="cms_this_page_own_url" false_text="cms_current_url" />
+		</field>
+	</section>
 </contents>

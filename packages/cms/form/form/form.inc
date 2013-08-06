@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.283 2013/07/25 05:10:52 akarelia Exp $
+* $Id: form.inc,v 1.284 2013/08/06 01:15:19 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.283 $
+* @version $Revision: 1.284 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -101,6 +101,12 @@ class Form extends Asset implements Bridge
 	*/
 	var $current_page_questions = null;
 
+	
+	/**
+	* The parent asset of this form, e.g. a Custom Form (page_custom_form)
+	* @var object
+	*/
+	var $parent_asset = NULL;
 
 	/**
 	* Constructor
@@ -118,6 +124,19 @@ class Form extends Asset implements Bridge
 	}//end constructor
 
 
+	/**
+	* Set parent asset
+	*
+	* @param object $parent_asset	The parent asset to set
+	*
+	* @return void
+	* @access public
+	*/
+	function setParentAsset($parent_asset)
+	{
+		$this->parent_asset = $parent_asset;
+
+	}//end setParentAsset()
 
 //--        GENERIC ASSET FUNCTIONS        --//
 
@@ -2005,7 +2024,8 @@ class Form extends Asset implements Bridge
 	*/
 	public function getFormAction()
 	{
-		$form_action = current_url();
+		$page_url = !empty($this->parent_asset) ? $this->parent_asset->getURL() : current_url();
+		$form_action = $this->attr('submit_to_page_url') ? $page_url : current_url();
 
 		// Add the query string as well if it exists, so asset references with ?a=###
 		// submit back to themselves.
