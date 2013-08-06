@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.10 2013/08/06 02:27:46 lwright Exp $
+* $Id: js_asset_map.js,v 1.11 2013/08/06 04:41:52 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.10 $
+ * @version $Revision: 1.11 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -723,17 +723,28 @@ var JS_Asset_Map = new function() {
 
 				case KeyCode.RightArrow:
 					e.preventDefault();
-					if (dfx.getClass('branch-status', lastSelection).length > 0) {
-						var nextNode = lastSelection.nextSibling;
-						if ((!nextNode) ||
-							(dfx.hasClass(nextNode, 'childIndent') === false) ||
-							(dfx.hasClass(nextNode, 'collapsed') === true)) {
-							// Indent node doesn't exist yet, or it's collapsed.
-							self.expandAsset(lastSelection);
+
+					if ((e.ctrlKey === true) || (e.metaKey === true)) {
+						if (e.shiftKey === true) {
+							// CTRL/CMD + SHIFT + Right Arrow = page current set
+							// to the last page (but not on bridges).
 						} else {
-							// Open and expanded. Select the first sibling.
-							if (dfx.getClass('asset', nextNode).length > 0) {
-								self.selectAssetNode(nextNode.firstChild);
+							// CTRL/CMD + Right Arrow = page current set forward one
+							// page.
+						}//end if
+					} else {
+						if (dfx.getClass('branch-status', lastSelection).length > 0) {
+							var nextNode = lastSelection.nextSibling;
+							if ((!nextNode) ||
+								(dfx.hasClass(nextNode, 'childIndent') === false) ||
+								(dfx.hasClass(nextNode, 'collapsed') === true)) {
+								// Indent node doesn't exist yet, or it's collapsed.
+								self.expandAsset(lastSelection);
+							} else {
+								// Open and expanded. Select the first sibling.
+								if (dfx.getClass('asset', nextNode).length > 0) {
+									self.selectAssetNode(nextNode.firstChild);
+								}//end if
 							}//end if
 						}//end if
 					}//end if
@@ -742,28 +753,37 @@ var JS_Asset_Map = new function() {
 				case KeyCode.LeftArrow:
 					e.preventDefault();
 
-					if (dfx.getClass('branch-status', lastSelection).length > 0) {
-						var nextNode = lastSelection.nextSibling;
-						if ((!nextNode) ||
-							(dfx.hasClass(nextNode, 'childIndent') === false) ||
-							(dfx.hasClass(nextNode, 'collapsed') === true)) {
-							// Indent node doesn't exist yet, or it's collapsed.
-							// Move up to the parent, if any.
+					if ((e.ctrlKey === true) || (e.metaKey === true)) {
+						if (e.shiftKey === true) {
+							// CTRL/CMD + SHIFT + Left Arrow = page current set
+							// to the first page.
+						} else {
+							// CTRL/CMD + Left Arrow = page current set back one page.
+						}//end if
+					} else {
+						if (dfx.getClass('branch-status', lastSelection).length > 0) {
+							var nextNode = lastSelection.nextSibling;
+							if ((!nextNode) ||
+								(dfx.hasClass(nextNode, 'childIndent') === false) ||
+								(dfx.hasClass(nextNode, 'collapsed') === true)) {
+								// Indent node doesn't exist yet, or it's collapsed.
+								// Move up to the parent, if any.
+								var parentNode = lastSelection.parentNode;
+								if (dfx.hasClass(parentNode, 'childIndent') === true) {
+									self.selectAssetNode(parentNode.previousSibling);
+								}
+							} else {
+								// Open and expanded. Close it.
+								// Yes this says expand, it does toggling of expansion,
+								// both ways.
+								self.expandAsset(lastSelection);
+							}//end if
+						} else {
 							var parentNode = lastSelection.parentNode;
 							if (dfx.hasClass(parentNode, 'childIndent') === true) {
 								self.selectAssetNode(parentNode.previousSibling);
 							}
-						} else {
-							// Open and expanded. Close it.
-							// Yes this says expand, it does toggling of expansion,
-							// both ways.
-							self.expandAsset(lastSelection);
 						}//end if
-					} else {
-						var parentNode = lastSelection.parentNode;
-						if (dfx.hasClass(parentNode, 'childIndent') === true) {
-							self.selectAssetNode(parentNode.previousSibling);
-						}
 					}//end if
 				break;
 
