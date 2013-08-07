@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.139 2012/08/30 00:58:08 ewang Exp $
+* $Id: page_asset_listing.inc,v 1.140 2013/08/07 00:22:30 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.139 $
+* @version $Revision: 1.140 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -89,6 +89,7 @@ class Page_Asset_Listing extends Listing_Engine
 		if ($this->attr('link_value_filter_enabled')) {
 			// the data stored in the DB was encoded to protect against cross scripting so we use htmlentities
 			$link_value_wanted = htmlentities($this->attr('link_value_filter'));
+			replace_global_keywords($link_value_wanted);
 		}
 
 		$assets_to_list = $this->_getAssetList($group_by, $logic, $wanted_types, $root_asset_ids, $sort_info, $link_value_wanted);
