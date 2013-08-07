@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_global_settings.xml,v 1.6 2010/05/05 07:11:14 ewang Exp $
+* $Id: edit_interface_screen_global_settings.xml,v 1.7 2013/08/07 05:42:40 ewang Exp $
 *
 */
 -->
@@ -22,6 +22,9 @@
 		</field>
 		<field attribute="height">
 			<int width="5" />
+		</field>
+		<field attribute="alt">
+			<text width="40" height="1" />
 		</field>
 		<field attribute="show_graph_title">
 			<boolean true_text="yes" false_text="no" />

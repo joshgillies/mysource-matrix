@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_global_settings.xml,v 1.7 2010/05/05 07:11:14 ewang Exp $
+* $Id: lang_screen_global_settings.xml,v 1.8 2013/08/07 05:42:40 ewang Exp $
 *
 */
 -->
@@ -23,6 +23,10 @@
 		</field>
 		<field attribute="height">
 			<display_name>Height</display_name>
+			<note />
+		</field>
+		<field attribute="alt">
+			<display_name>Alt</display_name>
 			<note />
 		</field>
 		<field attribute="show_graph_title">
