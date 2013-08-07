@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.147.4.4 2013/08/07 03:32:27 akarelia Exp $
+* $Id: lang_errors.xml,v 1.147.4.5 2013/08/07 03:36:31 akarelia Exp $
 *
 */
 
@@ -1824,9 +1824,6 @@ Full Node Contents :
 
 	<!-- Workflow Manager - setCurrentUserAsLastStarted()  -->
 	<error code="CORE0320">Error updating 'last_started_by' column for Asset #%1$s with Workflow Schema %2$s : %3$s</error>
-
-	<!-- fudge/general/text.inc-->
-	<error code="CORE0321">Assetid, '%s', provided to as_asset keyword modifier is not valid</error>
 
 	<error code="RPRT0000">Could not open temporary file, report generation aborted</error>
 		<!-- packages/cms/reports/report_links/report_links_edit_fns.inc:84: -->
