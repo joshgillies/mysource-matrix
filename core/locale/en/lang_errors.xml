@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.146.2.4 2013/07/01 03:56:43 akarelia Exp $
+* $Id: lang_errors.xml,v 1.146.2.5 2013/08/07 03:35:29 akarelia Exp $
 *
 */
 
@@ -633,7 +633,7 @@
 	<error code="AMAP0012">Cannot create link, no write access found, permission denied</error>
 	<error code="AMAP0013">URL Name %s not defined</error>
 	<error code="AMAP0014">Empty XML Attributes for getting URL from server</error>
-	<error code="AMAP0015">Unable to Move Asset, existing parent (Asset #%s not found</error>
+	<error code="AMAP0015">Unable to Move Asset, existing parent (Asset #%s) not found</error>
 	<error code="AMAP0016">Unable to Move Asset, Link #%s not found</error>
 	<error code="AMAP0017">Unable to Move Asset, asset to be moved (Asset #%s) not found</error>
 	<error code="AMAP0018">Unable to Move Asset, %s</error>
@@ -1824,9 +1824,6 @@ Full Node Contents :
 
 	<!-- Workflow Manager - setCurrentUserAsLastStarted()  -->
 	<error code="CORE0320">Error updating 'last_started_by' column for Asset #%1$s with Workflow Schema %2$s : %3$s</error>
-
-	<!-- fudge/general/text.inc-->
-	<error code="CORE0321">Assetid, '%s', provided to as_asset keyword modifier is not valid</error>
 
 	<error code="RPRT0000">Could not open temporary file, report generation aborted</error>
 		<!-- packages/cms/reports/report_links/report_links_edit_fns.inc:84: -->
