@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.83 2013/07/17 03:24:48 ewang Exp $
+* $Id: text.inc,v 1.84 2013/08/07 03:24:25 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.83 $
+* @version $Revision: 1.84 $
 * @package Fudge
 * @subpackage Text
 */
@@ -233,7 +233,7 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array())
 
 	case "urldecode":
 		return urldecode($text);
-	
+
 	case "rawurlencode":
 		return rawurlencode($text);
 
@@ -627,15 +627,9 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array())
 						return $asset->getKeywordReplacement($asset_keyword);
 					}
 				}
-			} else {
-				// assetid is numeric but the asset doesn't exist
-				trigger_localised_error('SYS0087', E_USER_WARNING, $text);
 			}
-		} else {
-			// the  keyword is not empty but is also not a assetid let
-			// the user know about this so that they kno what happened
-			trigger_localised_error('CORE0321', E_USER_WARNING, $text);
 		}
+
 		return '';
 
 	case "xslt":
