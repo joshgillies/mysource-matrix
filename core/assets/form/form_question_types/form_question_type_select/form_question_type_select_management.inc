@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select_management.inc,v 1.7 2012/08/30 01:09:08 ewang Exp $
+* $Id: form_question_type_select_management.inc,v 1.8 2013/08/07 07:21:03 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ define('SQ_DELIMITER_MAC', "\n");
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -89,6 +89,19 @@ class Form_Question_Type_Select_Management extends Asset_Management
 											'added'		=> '0.3',
 											'type'		=> 'text',
 											'default'	=> '-- Leave Empty --',
+										   ),
+						'allow_empty_selected'	=> Array(
+											'added'			=> '0.5',
+											'type'			=> 'boolean',
+											'default'		=> TRUE,
+											'parameters'	=> Array(
+																'allow_empty'	=> FALSE,
+															   ),
+										   ),
+		    				'empty_selected_error'	=> Array(
+											'added'		=> '0.3',
+											'type'		=> 'text',
+											'default'	=> 'Please select a valid option.',
 										   ),
 					  );
 

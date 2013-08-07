@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.8 2008/11/12 05:11:24 lwright Exp $
+* $Id: lang_screen_details.xml,v 1.9 2013/08/07 07:21:03 ewang Exp $
 */
 -->
 
@@ -76,7 +76,7 @@
 			<note></note>
 		</field>
 		<field attribute="allow_empty">
-			<display_name>Allow Empty Option?</display_name>
+			<display_name>Use Empty Option?</display_name>
 			<note></note>
 		</field>
 		<field attribute="empty_key">
@@ -86,6 +86,14 @@
 		<field attribute="empty_text">
 			<display_name>Empty Text</display_name>
 			<note>If 'Allow Empty Option' is enabled, this text will be added as the empty option</note>
+		</field>
+		<field attribute="allow_empty_selected">
+			<display_name>Allow Empty Option To Be Selected?</display_name>
+			<note></note>
+		</field>
+		<field attribute="empty_selected_error">
+			<display_name>Empty Option Selected Error</display_name>
+			<note></note>
 		</field>
 		<field attribute="tabindex">
 			<display_name>Tab Index</display_name>
