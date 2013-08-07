@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new.inc,v 1.46 2012/08/30 00:58:09 ewang Exp $
+* $Id: page_whats_new.inc,v 1.46.6.1 2013/08/07 00:29:18 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.46.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -103,6 +103,7 @@ class Page_Whats_New extends Listing_Engine
 		if ($this->attr('link_value_filter_enabled')) {
 			// the data stored in the DB was encoded to protect against cross scripting so we use htmlentities
 			$link_value_wanted = htmlentities($this->attr('link_value_filter'));
+			replace_global_keywords($link_value_wanted);
 		}
 
 		// work out the where clause that is going to find "new" assets
