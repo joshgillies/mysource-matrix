@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.147.4.3 2013/07/01 03:56:31 akarelia Exp $
+* $Id: lang_errors.xml,v 1.147.4.4 2013/08/07 03:32:27 akarelia Exp $
 *
 */
 
@@ -633,7 +633,7 @@
 	<error code="AMAP0012">Cannot create link, no write access found, permission denied</error>
 	<error code="AMAP0013">URL Name %s not defined</error>
 	<error code="AMAP0014">Empty XML Attributes for getting URL from server</error>
-	<error code="AMAP0015">Unable to Move Asset, existing parent (Asset #%s not found</error>
+	<error code="AMAP0015">Unable to Move Asset, existing parent (Asset #%s) not found</error>
 	<error code="AMAP0016">Unable to Move Asset, Link #%s not found</error>
 	<error code="AMAP0017">Unable to Move Asset, asset to be moved (Asset #%s) not found</error>
 	<error code="AMAP0018">Unable to Move Asset, %s</error>
