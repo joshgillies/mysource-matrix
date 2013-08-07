@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select.inc,v 1.21 2013/04/19 06:36:02 ewang Exp $
+* $Id: form_question_type_select.inc,v 1.21.4.1 2013/08/07 07:24:19 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/csv/csv.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.21.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -58,7 +58,7 @@ class Form_Question_Type_Select extends Form_Question
 	*/
 	function getAllowedRules()
 	{
-		return Array('select_limit', 'selection', 'regexp');
+		return Array('select_limit', 'selection', 'regexp', 'comparison', 'numeric', 'found_in', 'contain', 'length', 'email', 'begins_with', 'ends_with');
 
 	}//end getAllowedRules()
 
@@ -340,5 +340,32 @@ class Form_Question_Type_Select extends Form_Question
 	}//end importOptionsFromCSV()
 
 
+	
+	/**
+	* Look at user-specified and internal rules to see if this question
+	* currently has a valid value
+	*
+	* Returns TRUE if all validation rules pass
+	*
+	* @param mixed		$answer			Custom value to compare with - if left
+	*									NULL (or unspecified), use the current
+	*									value of the question
+	* @param boolean	$mute_errors	If TRUE, do not add to the "Failed
+	*									Rules" log, but simply return FALSE
+	*
+	* @return boolean
+	* @access public
+	*/
+	function hasValidValue($answer=NULL, $mute_errors=FALSE)
+	{
+		if (is_null($answer)) $answer = $this->getValue();
+		if($this->attr('allow_empty') && $this->isEmptyOption($answer) && !$this->attr('allow_empty_selected')) {
+		    $this->failed_rules[] = $this->attr('empty_selected_error');
+		    return FALSE;
+		}
+		return parent::hasValidValue($answer, $mute_errors);
+	}//end hasValidValue()
+	
+	
 }//end class
 ?>
