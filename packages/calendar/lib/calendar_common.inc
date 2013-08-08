@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.79.4.1 2013/03/13 00:49:49 akarelia Exp $
+* $Id: calendar_common.inc,v 1.79.4.2 2013/08/08 01:11:16 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.79.4.1 $
+* @version $Revision: 1.79.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -638,7 +638,7 @@ class Calendar_Common
 						// because we need to just cancel/modify that occurance
 						// and not all of the occurance of that particular event
 						$exception_date = $exception->attr('start_date');
-						if (strpos($exception_date, date('Y-m-d', $details['start_date_ts'])) !== FALSE) {
+						if (strpos($exception_date, gmdate('Y-m-d', $details['start_date_ts'])) !== FALSE) {
 							unset($res[$key]);
 						}
 					}
