@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.55.4.1 2013/06/05 05:33:06 ewang Exp $
+* $Id: report_links_edit_fns.inc,v 1.55.4.2 2013/08/08 01:05:03 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.55.4.1 $
+* @version $Revision: 1.55.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -101,14 +101,14 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			$asset_type = $job->_running_vars['todo'][$assetid][0]['type_code'];
 			unset($job->_running_vars['todo'][$assetid]);
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
-			
+
 			if ($asset_type == 'content_type_nest_content') {
 				$step_data['message'] = translate('cms_report_links_skipping_nest_content', $assetid);
 			}
 			// skip thoese with unwanted status
 			else if (isset($asset->status) && !in_array($asset->status,$owner->attr('statuses'))) {
 				 $step_data['message'] = translate('cms_report_links_skipping_unwanted_status', $assetid);
-			}			
+			}
 			else {
 				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $asset_type);
 
@@ -415,14 +415,13 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 		} else if (empty($url_parts['host'])) {
 			$validated_results['description'] = translate('cms_report_links_missing_hostname');
 			$validated_results['valid'] = '0';
-		} else if ($url_parts['scheme'] != 'http') {
-			$validated_results['description'] = translate('cms_report_links_cannot_test_protocol');
-			$validated_results['valid'] = '1';
 		} else {
 			if (empty($url_parts['path'])) {
 				$url_parts['path'] = '/';
 			}
-			if (empty($url_parts['port'])) {
+			if (empty($url_parts['port']) && !empty($url_parts['scheme']) && $url_parts['scheme'] == 'https') {
+				$url_parts['port'] = '443';
+			} else {
 				$url_parts['port'] = '80';
 			}
 
@@ -1286,8 +1285,8 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 		}
 		return $write_access;
     }//end paintStatusSelection()
-    
-    
+
+
 	/**
 	* Processes the interface for selecting  statuses
 	*
@@ -1313,7 +1312,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 
 		return $asset->setAttrValue('statuses', $statuses);
     }//end processStatusSelection()
-    
+
 	/**
 	* Paints the export block
 	*
@@ -1420,7 +1419,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 					$type = (string) $link->attributes()->type;
 					$html = (string) $link->html;
 					$description = (string) $link->description;
-					
+
 					$display_link = TRUE;
 					switch ($type) {
 						case 'internal':
@@ -1441,7 +1440,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 						case 'external':
 							if (!$display_options['external_section']) {
 								$display_link = FALSE;
-							} else {							
+							} else {
 								if ($valid) {
 									if (!$display_options['external_working']) {
 										$display_link = FALSE;
@@ -1471,19 +1470,19 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 						default:
 						break;
 					}//end switch
-					
+
 					if ($display_link) {
 						$row = $persistent_values;
 						if ($empty_headers) $headers[] = 'type';
 						$row[] = $type;
 						if ($empty_headers) $headers[] = 'valid';
 						$row[] = $valid;
-	
+
 						if ($empty_headers) $headers[] = 'html';
 						$row[] = $html;
 						if ($empty_headers) $headers[] = 'description';
 						$row[] = $description;
-	
+
 						$logs[] = $row;
 						$empty_headers = FALSE;
 					}
