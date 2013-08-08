@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.61 2013/07/25 23:25:17 lwright Exp $
+* $Id: insert_image.php,v 1.62 2013/08/08 01:35:18 lwright Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 * @package MySource_Matrix
 */
 
@@ -109,7 +109,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 				var fields = ["f_alt", "f_title", "f_align", "f_border", "f_image_class", "f_image_id",
 							"f_horiz", "f_vert", "f_width", "f_height"];
 				var param = new Object();
-				for (var i in fields) {
+				for (var i = 0; i < fields.length; i++) {
 					var id = fields[i];
 					var el = document.getElementById(id);
 					param[id] = el.value;
@@ -208,7 +208,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 					//document.getElementById('show_create_image');
 				errorDiv = document.getElementById('show_upload_error');
 				if (changeButton.style.display == "block") {
-					for (i in changeDivElements) {
+					for (var i = 0; i < changeDivElements.length; i++) {
 						var changeDiv = document.getElementById(changeDivElements[i]);
 						changeDiv.style.visibility = "visible";
 						changeDiv.style.display = "block";
@@ -216,7 +216,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 					changeButton.style.visibility = "hidden";
 					changeButton.style.display = "none";
 				} else {
-					for (i in changeDivElements) {
+					for (var i = 0; i < changeDivElements.length; i++) {
 						var changeDiv = document.getElementById(changeDivElements[i]);
 						changeDiv.style.visibility = "hidden";
 						changeDiv.style.display = "none";
