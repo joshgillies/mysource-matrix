@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.432 2013/08/06 03:18:20 akarelia Exp $
+* $Id: lang_strings.xml,v 1.433 2013/08/09 07:03:02 cupreti Exp $
 *
 */
 
@@ -389,6 +389,7 @@
 	<string source="user_not_found">Invalid username or password entered</string>
 	<string source="user_status_not_live">User asset status not live</string>
 	<string source="user_asset_in_trash">User asset is in trash</string>
+	<string source="root_user_disabled">Root User account is disabled in this system</string>
 	<string source="user_switching_access_denied">User cannot be accessed when user switching</string>
 	<string source="value">Value</string>
 	<string source="key">Key</string>
