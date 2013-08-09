@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remove_form_submission.php,v 1.15 2013/06/17 05:55:53 ewang Exp $
+* $Id: remove_form_submission.php,v 1.16 2013/08/09 03:28:18 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 *		Require Matrix version 3.12 or newer
 *
 * @author  Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 */
 
@@ -157,7 +157,7 @@ $sql = 'DELETE FROM sq_ast_lnk WHERE '.$in_minorid;
 MatrixDAL::executeSql($sql);
 
 echo "\tUpdating link tree table ...\n";
-$sql = 'DELETE FROM sq_ast_lnk_tree WHERE linkid NOT IN (SELECT linkid FROM sq_ast_lnk)';
+$sql = 'DELETE FROM sq_ast_lnk_tree t WHERE NOT EXISTS (SELECT linkid FROM sq_ast_lnk WHERE linkid = t.linkid)';
 MatrixDAL::executeSql($sql);
 $sql = "UPDATE sq_ast_lnk_tree SET num_kids=num_kids-$delete_count WHERE linkid = (SELECT linkid FROM sq_ast_lnk WHERE minorid = '".$sub_folder->id."' AND link_type = '".SQ_LINK_TYPE_2."')";
 MatrixDAL::executeSql($sql);
