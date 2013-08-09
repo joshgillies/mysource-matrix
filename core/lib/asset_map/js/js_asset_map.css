@@ -188,6 +188,11 @@
 	display: inline-block;
 }
 
+#asset_map_container .paginationTool.up.selected,
+#asset_map_container .paginationTool.down.selected {
+	background-color: #555;
+}
+
 #asset_map_container .paginationTool .page-button {
 	position: relative;
 	height: 16px;
@@ -201,6 +206,10 @@
 	padding: 0 5px 5px;
 	vertical-align: middle;
 	color: #555;
+}
+
+#asset_map_container .paginationTool.selected .textSpan {
+	color: #fff;
 }
 
 #asset_map_container .paginationTool.up {

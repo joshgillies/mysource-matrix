@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.11 2013/08/06 04:41:52 lwright Exp $
+* $Id: js_asset_map.js,v 1.12 2013/08/09 06:13:59 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.11 $
+ * @version $Revision: 1.12 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -1192,20 +1192,34 @@ var JS_Asset_Map = new function() {
 									self.clearHoverTab();
 								}
 
-								if (dfx.hasClass(underlyingEl, 'asset') === false) {
-									underlyingEl = dfx.getParents(underlyingEl, '.asset')[0];
-								}
-								if (underlyingEl && (dfx.getClass('branch-status', underlyingEl).length > 0) &&
-									(dfx.getClass('expanded', underlyingEl).length === 0)) {
-									var hoverAssetid = underlyingEl.getAttribute('data-assetid');
-									self.setHoverAsset(hoverAssetid, function(assetid) {
-										self.expandAsset(underlyingEl);
-									});
+								var underlyingAsset    = dfx.getParents(underlyingEl, '.asset')[0];
+								var underlyingPageTool = dfx.getParents(underlyingEl, '.paginationTool')[0];
+
+								if (underlyingPageTool || (dfx.hasClass(underlyingEl, 'paginationTool') === true)) {
+									if (underlyingPageTool) {
+										underlyingEl = underlyingPageTool;
+									}
+
+									dfx.addClass(underlyingEl, 'selected');
+									self.moveMe.updatePosition(underlyingEl, mousePos);
 								} else {
-									self.clearHoverAsset();
+									dfx.removeClass(dfx.getClass('paginationTool', assetMapContainer), 'selected');
+									if (dfx.hasClass(underlyingEl, 'asset') === false) {
+										underlyingEl = dfx.getParents(underlyingEl, '.asset')[0];
+									}
+									if (underlyingEl && (dfx.getClass('branch-status', underlyingEl).length > 0) &&
+										(dfx.getClass('expanded', underlyingEl).length === 0)) {
+										var hoverAssetid = underlyingEl.getAttribute('data-assetid');
+										self.setHoverAsset(hoverAssetid, function(assetid) {
+											self.expandAsset(underlyingEl);
+										});
+									} else {
+										self.clearHoverAsset();
+									}
+
+									self.moveMe.updatePosition(underlyingEl, mousePos);
 								}
 
-								self.moveMe.updatePosition(underlyingEl, mousePos);
 								dfx.setStyle(dragAsset, 'display', 'block');
 								e.stopImmediatePropagation();
 							});
@@ -1217,18 +1231,30 @@ var JS_Asset_Map = new function() {
 						dfx.setStyle(dragAsset, 'left', dragStatus.currentPoint.x + 'px');
 						dfx.setStyle(dragAsset, 'top', dragStatus.currentPoint.y + 'px');
 
-						if (dfx.hasClass(underlyingEl, 'asset') === false) {
-							underlyingEl = dfx.getParents(underlyingEl, '.asset')[0];
-						}
-						if (underlyingEl && (dfx.getClass('branch-status', underlyingEl).length > 0) &&
-							(dfx.getClass('expanded', underlyingEl).length === 0)) {
-							var hoverAssetid = underlyingEl.getAttribute('data-assetid');
-							self.setHoverAsset(hoverAssetid, function(assetid) {
-								self.expandAsset(underlyingEl);
-							});
+						var underlyingAsset    = dfx.getParents(underlyingEl, '.asset')[0];
+						var underlyingPageTool = dfx.getParents(underlyingEl, '.paginationTool')[0];
+
+						if (underlyingPageTool || (dfx.hasClass(underlyingEl, 'paginationTool') === true)) {
+							if (underlyingPageTool) {
+								underlyingEl = underlyingPageTool;
+							}
+
+							dfx.addClass(underlyingEl, 'selected');
 						} else {
-							self.clearHoverAsset();
-						}
+							dfx.removeClass(dfx.getClass('paginationTool', assetMapContainer), 'selected');
+							if (underlyingAsset) {
+								underlyingEl = underlyingAsset;
+							}
+							if (underlyingEl && (dfx.getClass('branch-status', underlyingEl).length > 0) &&
+								(dfx.getClass('expanded', underlyingEl).length === 0)) {
+								var hoverAssetid = underlyingEl.getAttribute('data-assetid');
+								self.setHoverAsset(hoverAssetid, function(assetid) {
+									self.expandAsset(underlyingEl);
+								});
+							} else {
+								self.clearHoverAsset();
+							}
+						}//end if
 					}
 				}//end if
 			}//end if
@@ -1288,6 +1314,7 @@ var JS_Asset_Map = new function() {
 					clearInterval(timeouts.selectionDrag);
 					timeouts.selectionDrag = null;
 				} else if (dragStatus.assetDrag) {
+					dfx.removeClass(dfx.getClass('paginationTool', assetMapContainer), 'selected');
 					self.clearHoverAsset();
 					timeouts.assetDrag = null;
 
@@ -2662,7 +2689,7 @@ var JS_Asset_Map = new function() {
 					}
 				}
 
-				if (assetid === options.teleportRoot) {
+				if (String(assetid) === String(options.teleportRoot)) {
 					request._attributes.limit = 0;
 				}
 
@@ -2940,7 +2967,8 @@ var JS_Asset_Map = new function() {
 			// Find the next closest parent.
 			dfx.removeClass(dfx.getClass('asset', assetMapContainer), 'moveTarget');
 			while (target) {
-				if (dfx.hasClass(target, 'asset') === true) {
+				if ((dfx.hasClass(target, 'asset') === true) ||
+					(dfx.hasClass(target, 'paginationTool') === true)) {
 					break;
 				}
 				target = target.parentNode;
@@ -2950,57 +2978,82 @@ var JS_Asset_Map = new function() {
 				dfx.removeClass(_lineEl, 'active');
 				this.selection = null;
 				return;
-			}
+			} else if (dfx.hasClass(target, 'paginationTool') === true) {
+				// Pagination tool.
+				var childIndent = dfx.getParents(target, '.childIndent')[0];
+				if (childIndent) {
+					parentAsset = childIndent.previousSibling;
+					this.selection = {
+						parentid: parentAsset.getAttribute('data-assetid'),
+						linkid: parentAsset.getAttribute('data-linkid'),
+						before: -1
+					};
 
-			dfx.addClass(_lineEl, 'active');
-			var parentAsset  = dfx.getParents(target, '.childIndent')[0];
-			if (parentAsset) {
-				parentAsset = parentAsset.previousSibling;
-			}
-
-			var assetMapCoords = dfx.getElementCoords(assetMapContainer);
-			var assetRect    = dfx.getBoundingRectangle(target);
-			var fromTop      = mousePos.y - assetRect.y1;
-			var fromBottom   = assetRect.y2 - mousePos.y + 1;
-
-			var assetNameSpan = dfx.getClass('assetName', target)[0];
-			var assetNameRect = dfx.getBoundingRectangle(assetNameSpan);
-
-			this.selection = {
-				parentid: 1,
-				linkid: 1,
-				before: -1
-			};
-
-			if (fromTop <= 3) {
-				if (parentAsset) {
-					this.selection.parentid = parentAsset.getAttribute('data-assetid');
-					this.selection.linkid   = parentAsset.getAttribute('data-linkid');
+					var children = dfx.getClass('asset', childIndent);
+					if (dfx.hasClass(target, 'up') === true) {
+						// Going up...?
+						if (children.length > 0) {
+							this.selection.before = children[0].getAttribute('data-sort-order');
+						}
+					} else {
+						// Going down...?
+						if (children.length > 0) {
+							this.selection.before = children[children.length - 1].getAttribute('data-sort-order') + 1;
+						}
+					}
 				}
-
-				this.selection.before = target.getAttribute('data-sort-order');
-				dfx.setCoords(_lineEl, (assetNameRect.x1 - assetMapCoords.x), (assetRect.y1 - assetMapCoords.y));
-			} else if (fromBottom <= 3) {
-				if (parentAsset) {
-					this.selection.parentid = parentAsset.getAttribute('data-assetid');
-					this.selection.linkid   = parentAsset.getAttribute('data-linkid');
-				}
-
-				var insertBefore = target.nextSibling;
-				if (insertBefore) {
-					this.selection.before = insertBefore.getAttribute('data-sort-order');
-				}
-
-				dfx.setCoords(_lineEl, (assetNameRect.x1 - assetMapCoords.x), (assetRect.y2 - assetMapCoords.y));
 			} else {
+				// Asset.
+				dfx.addClass(_lineEl, 'active');
+				var parentAsset  = dfx.getParents(target, '.childIndent')[0];
+				if (parentAsset) {
+					parentAsset = parentAsset.previousSibling;
+				}
+
+				var assetMapCoords = dfx.getElementCoords(assetMapContainer);
+				var assetRect    = dfx.getBoundingRectangle(target);
+				var fromTop      = mousePos.y - assetRect.y1;
+				var fromBottom   = assetRect.y2 - mousePos.y + 1;
+
+				var assetNameSpan = dfx.getClass('assetName', target)[0];
+				var assetNameRect = dfx.getBoundingRectangle(assetNameSpan);
+
 				this.selection = {
-					parentid: target.getAttribute('data-assetid'),
-					linkid: target.getAttribute('data-linkid'),
+					parentid: 1,
+					linkid: 1,
 					before: -1
 				};
 
-				dfx.addClass(target, 'moveTarget');
-				dfx.setCoords(_lineEl, (assetNameRect.x2 - assetMapCoords.x), (((assetRect.y1 + assetRect.y2) / 2) - assetMapCoords.y));
+				if (fromTop <= 3) {
+					if (parentAsset) {
+						this.selection.parentid = parentAsset.getAttribute('data-assetid');
+						this.selection.linkid   = parentAsset.getAttribute('data-linkid');
+					}
+
+					this.selection.before = target.getAttribute('data-sort-order');
+					dfx.setCoords(_lineEl, (assetNameRect.x1 - assetMapCoords.x), (assetRect.y1 - assetMapCoords.y));
+				} else if (fromBottom <= 3) {
+					if (parentAsset) {
+						this.selection.parentid = parentAsset.getAttribute('data-assetid');
+						this.selection.linkid   = parentAsset.getAttribute('data-linkid');
+					}
+
+					var insertBefore = target.nextSibling;
+					if (insertBefore) {
+						this.selection.before = insertBefore.getAttribute('data-sort-order');
+					}
+
+					dfx.setCoords(_lineEl, (assetNameRect.x1 - assetMapCoords.x), (assetRect.y2 - assetMapCoords.y));
+				} else {
+					this.selection = {
+						parentid: target.getAttribute('data-assetid'),
+						linkid: target.getAttribute('data-linkid'),
+						before: -1
+					};
+
+					dfx.addClass(target, 'moveTarget');
+					dfx.setCoords(_lineEl, (assetNameRect.x2 - assetMapCoords.x), (((assetRect.y1 + assetRect.y2) / 2) - assetMapCoords.y));
+				}//end if
 			}//end if
 		};
 
