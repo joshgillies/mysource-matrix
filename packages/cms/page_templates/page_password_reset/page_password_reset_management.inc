@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_password_reset_management.inc,v 1.6 2012/08/30 00:58:09 ewang Exp $
+* $Id: page_password_reset_management.inc,v 1.6.6.1 2013/08/09 02:07:21 ewang Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -48,6 +48,13 @@ class Page_Password_Reset_Management extends Asset_Management
 													'default'		=> 'false',
 													'parameters'    => Array( 'allow_empty' => FALSE,),
 													'description'	=> 'Whether to error out if an invalid username is supplied for password reset request',
+												   );
+		$this->vars['reset_in_same_session']	= Array (
+													'added'			=> '0.1',
+													'type'			=> 'boolean',
+													'default'		=> 'true',
+													'parameters'    => Array( 'allow_empty' => FALSE,),
+													'description'	=> 'Whether to check if user opens the reset link in same session of request',
 												   );
 											  
 
