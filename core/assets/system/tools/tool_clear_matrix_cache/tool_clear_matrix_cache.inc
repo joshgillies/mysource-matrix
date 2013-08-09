@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_clear_matrix_cache.inc,v 1.9 2012/08/30 01:09:12 ewang Exp $
+* $Id: tool_clear_matrix_cache.inc,v 1.9.4.1 2013/08/09 06:16:51 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 * Tool to clear Matrix cache, and to schedule a clear cache cron job
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.9.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -259,7 +259,21 @@ class Tool_Clear_Matrix_Cache extends Tool
 				$repopulate = TRUE;
 			}
 			$run_now = isset($_POST[$type_code.'_clear_now']) && $_POST[$type_code.'_clear_now'];
-			if ($repopulate) $run_now = TRUE;
+			// run HIPO job if the 'clear now' box is checked
+			if ($run_now) {
+				$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+				$vars = Array(
+							'assetid'		=> Array ($assetid),
+							'level'			=> $level,
+							'type_codes'	=> $type_codes,
+							'delete_all'	=> 'no',
+							'repopulate'	=> $repopulate,
+						);
+				$hh->queueHipo('hipo_job_clear_cache', $vars, $_SERVER['REQUEST_URI'].'&tool_type_code=tool_clear_matrix_cache');
+				$url = $hh->runQueuedJobs();
+				if (!empty($url)) $o->setRedirect($url);
+				return TRUE;
+			}
 
 			// one off
 			$new_job = new Cron_Job_Clear_Matrix_Cache();
@@ -288,20 +302,7 @@ class Tool_Clear_Matrix_Cache extends Tool
 				$cron_mgr->addJob($new_job, $GLOBALS['SQ_SYSTEM']->user);
 			}
 
-			// run HIPO job if the 'clear now' box is checked
-			if ($run_now) {
-				$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
-				$vars = Array(
-							'assetid'		=> Array ($assetid),
-							'level'			=> $level,
-							'type_codes'	=> $type_codes,
-							'delete_all'	=> 'no',
-							'repopulate'	=> $repopulate,
-						);
-				$hh->queueHipo('hipo_job_clear_cache', $vars, $_SERVER['REQUEST_URI'].'&tool_type_code=tool_clear_matrix_cache');
-				$url = $hh->runQueuedJobs();
-				if (!empty($url)) $o->setRedirect($url);
-			}
+
 		}//end if asset id is set
 
 		return FALSE;
