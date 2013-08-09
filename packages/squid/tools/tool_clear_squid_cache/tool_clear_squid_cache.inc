@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_clear_squid_cache.inc,v 1.10 2012/08/30 00:59:22 ewang Exp $
+* $Id: tool_clear_squid_cache.inc,v 1.10.6.1 2013/08/09 06:16:10 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 * Tool to clear Squid cache using asset's URLs
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.10.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage squid
 */
@@ -277,6 +277,16 @@ class Tool_Clear_Squid_Cache extends Tool
 
 		if ($owner->adminAccess('')) {
 
+		    	// run HIPO job if the 'clear now' box is checked
+			$run_now = isset($_REQUEST[$type_code.'_clear_now']) && $_REQUEST[$type_code.'_clear_now'];
+			if ($run_now) {
+				$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+				$hh->queueHipo('hipo_job_tool_clear_squid_cache', $vars, '', SQ_PACKAGES_PATH.'/squid/hipo_jobs');
+				$url = $hh->runQueuedJobs();
+				if (!empty($url)) $o->setRedirect($url);
+				return TRUE;
+			}
+			
 			// one off
 			$new_job = new Cron_Job_Squid_Cache_Purge();
 			$edit_fns = $new_job->getEditFns();
@@ -302,15 +312,7 @@ class Tool_Clear_Squid_Cache extends Tool
 				$cron_mgr->addJob($new_job, $GLOBALS['SQ_SYSTEM']->user);
 			}
 
-			// run HIPO job if the 'clear now' box is checked
-			$run_now = isset($_REQUEST[$type_code.'_clear_now']) && $_REQUEST[$type_code.'_clear_now'];
-			if ($populate_now) $run_now = TRUE;
-			if ($run_now) {
-				$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
-				$hh->queueHipo('hipo_job_tool_clear_squid_cache', $vars, '', SQ_PACKAGES_PATH.'/squid/hipo_jobs');
-				$url = $hh->runQueuedJobs();
-				if (!empty($url)) $o->setRedirect($url);
-			}
+
 
 		} else {
 			trigger_localised_error('SQUID0003', E_USER_NOTICE, translate('squid_cron_name', $owner->id));
