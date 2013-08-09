@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_clear_squid_cache.inc,v 1.15 2013/08/08 08:19:44 cupreti Exp $
+* $Id: hipo_job_tool_clear_squid_cache.inc,v 1.16 2013/08/09 07:42:39 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 * @subpackage squid
 */
@@ -147,8 +147,15 @@ class HIPO_Job_Tool_Clear_Squid_Cache extends HIPO_Job
 		$this->_running_vars['slash'] = SQ_TOOL_SQUID_CACHE_SLASH;
 		$this->_running_vars['url_port'] = SQ_TOOL_SQUID_URL_PORT;
 
+		// For backward compatibility
+		if ($this->_running_vars['cascade'] === TRUE) {
+			$this->_running_vars['cascade'] = 'children';
+		} else if ($this->_running_vars['cascade'] === FALSE) {
+			$this->_running_vars['cascade'] = 'single';
+		}
+
 		// if cascade option is enabled, get the children of the selected asset
-		$assetids = $this->_running_vars['assetid'];
+		$assetids = is_array($this->_running_vars['assetid']) ? $this->_running_vars['assetid'] : Array($this->_running_vars['assetid']);
 		if ($this->_running_vars['cascade'] != 'single') {
 			foreach($this->_running_vars['assetid'] as $assetid) {
 				if ($this->_running_vars['cascade'] == 'children') {
