@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_password_reset.inc,v 1.18 2013/06/04 06:33:47 akarelia Exp $
+* $Id: page_password_reset.inc,v 1.19 2013/08/09 01:59:56 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *	Allows a user to reset their password.
 *
 * @author  Ben Caldwell <bcaldwell@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -314,6 +314,9 @@ class Page_Password_Reset extends Page
 				if (!$user_hash) $failure = TRUE;
 			}
 
+			// make sure user opens reset link in the same session in which he requested reset
+			$_SESSION['SQ_PASSWORD_RESET_HASH'] = $user_hash;	
+			
 			// Do not attempt to send mail to anyone if we're not going to go ahead with this, especially
 			// if we did't create any link!
 			if (!$failure) {
@@ -357,7 +360,10 @@ class Page_Password_Reset extends Page
 		} else {
 			$prid = $_REQUEST['prid'];
 			$user_link = $this->_getResetLink($prid);
-			if (empty($user_link)) {
+			if($this->attr('reset_in_same_session') && (!isset($_SESSION['SQ_PASSWORD_RESET_HASH']) || $_SESSION['SQ_PASSWORD_RESET_HASH'] !== $prid)) {
+				$replacements['password_reset_error'] = translate('cms_password_reset_message_invalid_session');
+			}
+			else if (empty($user_link)) {
 				$replacements['password_reset_error'] = translate('cms_password_reset_message_invalid_prid');
 			} else {
 				$userid = $user_link['minorid'];
@@ -403,7 +409,10 @@ class Page_Password_Reset extends Page
 
 			$prid = $_REQUEST['prid'];
 			$user_link = $this->_getResetLink($prid);
-			if (empty($user_link)) {
+			if($this->attr('reset_in_same_session') && (!isset($_SESSION['SQ_PASSWORD_RESET_HASH']) || $_SESSION['SQ_PASSWORD_RESET_HASH'] !== $prid)) {
+				$replacements['password_reset_error'] = translate('cms_password_reset_message_invalid_session');
+			}
+			else if (empty($user_link)) {
 				$replacements['password_reset_error'] = translate('cms_password_reset_message_invalid_prid');
 			} else {
 				$userid = $user_link['minorid'];

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.5 2011/11/04 03:53:18 cupreti Exp $
+* $Id: lang_strings.xml,v 1.6 2013/08/09 01:59:56 ewang Exp $
 */
 -->
 <strings>
@@ -29,6 +29,7 @@
 	<string source="cms_password_reset_message_empty_username">You must specify a username.</string>
 	<string source="cms_password_reset_message_empty_password">You must specify a new password.</string>
 	<string source="cms_password_reset_message_generic_password_error">You specified an invalid password. Please try again.</string>
+	<string source="cms_password_reset_message_invalid_session">Please open the reset link in the same browser session in which the password reset was requested.</string>
 
 	<string source="cms_password_reset_email_msg">A password reset request has been received for the account with username &quot;%1$s&quot;.  To set a new password for this account please visit %2$s</string>
 	<string source="cms_password_reset_email_subject">Password Reset Request</string>
