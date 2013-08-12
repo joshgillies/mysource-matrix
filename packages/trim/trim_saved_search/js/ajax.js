@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ajax.js,v 1.4 2012/08/30 00:59:28 ewang Exp $
+* $Id: ajax.js,v 1.5 2013/08/12 07:07:02 ewang Exp $
 *
 */
 
@@ -61,19 +61,34 @@ function sendRequest(url, call_back_func)
 function updateSynchInterface(response)
 {
 	var update_text = document.getElementById('update_text');
-	if (response == 1) {
+	if (response === "1") {
 		update_text.style.color	= 'green';
 		update_text.innerHTML = 'Successfully Synchronized';
-	} else if (response == 0) {
+	} else if (response === "0") {
 		update_text.style.color	= 'red';
 		update_text.innerHTML = 'No Records Available For Synchronization';
-	}//end else if
+	} else if (!response) {
+		update_text.style.color	= 'red';
+		update_text.innerHTML = 'You do not have admin permission on the URL of this asset';
+	}
+	else {
+	    	update_text.style.color	= 'red';
+		update_text.innerHTML = 'There is an error occured. Check errorlog for details.';
+	}
 }//end updateSynchInterface()
 
 
 function updateCheckInterface(response)
 {
+
+	
 	var update_text = document.getElementById('update_text');
+	if(!response) {
+	    	update_text.style.color	= 'red';
+		update_text.innerHTML = 'You do not have admin permission on the URL of this asset';
+		return;
+	}
+	
 	eval(response);
 	if (numUpdate !== false) {
 		if (numUpdate === 0) {
