@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.12 2013/08/09 06:13:59 lwright Exp $
+* $Id: js_asset_map.js,v 1.13 2013/08/12 03:51:34 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.12 $
+ * @version $Revision: 1.13 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -1240,11 +1240,18 @@ var JS_Asset_Map = new function() {
 							}
 
 							dfx.addClass(underlyingEl, 'selected');
-						} else {
-							dfx.removeClass(dfx.getClass('paginationTool', assetMapContainer), 'selected');
+							self.moveMe.updatePosition(underlyingEl, mousePos);
+						} else if (underlyingAsset || (dfx.hasClass(underlyingEl, 'asset') === true)) {
 							if (underlyingAsset) {
 								underlyingEl = underlyingAsset;
 							}
+
+							if (underlyingEl && (dfx.hasClass(underlyingel, 'dragAsset') === true)) {
+								underlyingEl = null;
+							} else {
+								dfx.removeClass(dfx.getClass('paginationTool', assetMapContainer), 'selected');
+							}
+
 							if (underlyingEl && (dfx.getClass('branch-status', underlyingEl).length > 0) &&
 								(dfx.getClass('expanded', underlyingEl).length === 0)) {
 								var hoverAssetid = underlyingEl.getAttribute('data-assetid');
@@ -2981,6 +2988,7 @@ var JS_Asset_Map = new function() {
 			} else if (dfx.hasClass(target, 'paginationTool') === true) {
 				// Pagination tool.
 				var childIndent = dfx.getParents(target, '.childIndent')[0];
+
 				if (childIndent) {
 					parentAsset = childIndent.previousSibling;
 					this.selection = {
@@ -2990,15 +2998,16 @@ var JS_Asset_Map = new function() {
 					};
 
 					var children = dfx.getClass('asset', childIndent);
+
 					if (dfx.hasClass(target, 'up') === true) {
 						// Going up...?
 						if (children.length > 0) {
-							this.selection.before = children[0].getAttribute('data-sort-order');
+							this.selection.before = Math.max(1, (children[0].getAttribute('data-sort-order') - self.currentSelection().length));
 						}
 					} else {
 						// Going down...?
 						if (children.length > 0) {
-							this.selection.before = children[children.length - 1].getAttribute('data-sort-order') + 1;
+							this.selection.before = (Number(children[children.length - 1].getAttribute('data-sort-order')) + self.currentSelection().length + 1);
 						}
 					}
 				}
@@ -3040,7 +3049,11 @@ var JS_Asset_Map = new function() {
 
 					var insertBefore = target.nextSibling;
 					if (insertBefore) {
-						this.selection.before = insertBefore.getAttribute('data-sort-order');
+						if (dfx.hasClass(insertBefore, 'paginationTool') === true) {
+							this.selection.before = Number(target.getAttribute('data-sort-order')) + 1;
+						} else {
+							this.selection.before = insertBefore.getAttribute('data-sort-order');
+						}
 					}
 
 					dfx.setCoords(_lineEl, (assetNameRect.x1 - assetMapCoords.x), (assetRect.y2 - assetMapCoords.y));
