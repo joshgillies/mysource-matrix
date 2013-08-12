@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_clear_squid_cache.inc,v 1.14 2012/12/10 23:49:25 ewang Exp $
+* $Id: hipo_job_tool_clear_squid_cache.inc,v 1.14.4.1 2013/08/12 02:12:59 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.14.4.1 $
 * @package MySource_Matrix
 * @subpackage squid
 */
@@ -131,7 +131,6 @@ class HIPO_Job_Tool_Clear_Squid_Cache extends HIPO_Job
 	*/
 	public function prepare()
 	{
-
 		require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 
 		// get the prefs setting for squidclient
@@ -148,12 +147,28 @@ class HIPO_Job_Tool_Clear_Squid_Cache extends HIPO_Job
 		$this->_running_vars['slash'] = SQ_TOOL_SQUID_CACHE_SLASH;
 		$this->_running_vars['url_port'] = SQ_TOOL_SQUID_URL_PORT;
 
-		// if cascade option is enabled, get the children of the selected asset
-		$assetids = Array($this->_running_vars['assetid']);
-		if ($this->_running_vars['cascade']) {
-			$children = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($this->_running_vars['assetid']));
-			$assetids = array_merge($assetids, $children);
+		// For backward compatibility
+		if ($this->_running_vars['cascade'] === TRUE) {
+			$this->_running_vars['cascade'] = 'children';
+		} else if ($this->_running_vars['cascade'] === FALSE) {
+			$this->_running_vars['cascade'] = 'single';
 		}
+
+		// if cascade option is enabled, get the children of the selected asset
+		$assetids = is_array($this->_running_vars['assetid']) ? $this->_running_vars['assetid'] : Array($this->_running_vars['assetid']);
+		if ($this->_running_vars['cascade'] != 'single') {
+			foreach($this->_running_vars['assetid'] as $assetid) {
+				if ($this->_running_vars['cascade'] == 'children') {
+					$children = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($assetid, $this->_running_vars['type_codes']));
+				} else if ($this->_running_vars['cascade']) {
+					$children = array_keys($GLOBALS['SQ_SYSTEM']->am->getDependantChildren($assetid, $this->_running_vars['type_codes']));
+				}
+				$assetids = array_merge($assetids, $children);
+			}//end foreach
+		}//end if
+
+		$assetids = array_unique($assetids);
+
 		// add urls applied to each asset into the todo array
 		$this->_running_vars['todo_urls'] = Array();
 		foreach ($assetids as $assetid) {
@@ -161,6 +176,7 @@ class HIPO_Job_Tool_Clear_Squid_Cache extends HIPO_Job
 			$this->_running_vars['todo_urls'] = array_merge($result, $this->_running_vars['todo_urls']);
 		}
 		$this->_running_vars['done_urls'] = Array();
+
 		return parent::prepare();
 
 	}//end prepare()
