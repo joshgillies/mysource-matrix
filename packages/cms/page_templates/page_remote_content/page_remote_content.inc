@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.102 2013/07/11 00:23:58 akarelia Exp $
+* $Id: page_remote_content.inc,v 1.103 2013/08/12 01:40:01 cupreti Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.102 $
+* @version $Revision: 1.103 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1277,23 +1277,25 @@ class Page_Remote_Content extends Page
 
 		if (!isset($this->_tmp['_white_list_'])) {
 			$url_parts = parse_url($this->attr('remote_url'));
-			$host      = $url_parts['host'];
-			$path      = '';
-			if (isset($url_parts['path']) === TRUE) {
-				$path = $url_parts['path'];
-			}
+			if (isset($url_parts['host'])) {
+				$host      = $url_parts['host'];
+				$path      = '';
+				if (isset($url_parts['path']) === TRUE) {
+					$path = $url_parts['path'];
+				}
 
-			$this->_tmp['_white_list_'] = Array();
-			if ($options['remote_domain']) {
-				$this->_tmp['_white_list_'][] = strtolower($host);
-			}
-			if ($options['remote_url']) {
-				$this->_tmp['_white_list_'][] = strtolower($host.$path);
-			}
-			if ($options['white_list']) {
-				$this->_tmp['_white_list_'] = array_merge($this->attr('url_white_list'), $this->_tmp['_white_list_']);
-			}
-		}
+				$this->_tmp['_white_list_'] = Array();
+				if ($options['remote_domain']) {
+					$this->_tmp['_white_list_'][] = strtolower($host);
+				}
+				if ($options['remote_url']) {
+					$this->_tmp['_white_list_'][] = strtolower($host.$path);
+				}
+				if ($options['white_list']) {
+					$this->_tmp['_white_list_'] = array_merge($this->attr('url_white_list'), $this->_tmp['_white_list_']);
+				}
+			}//end if
+		}//end if
 
 		if (empty($this->_tmp['_white_list_'])) return FALSE;
 
@@ -1319,10 +1321,14 @@ class Page_Remote_Content extends Page
 		if (empty($url)) return FALSE;
 
 		foreach ($this->_tmp['_white_list_'] as $white_url) {
-			$white_url_len = strlen(trim($white_url));
+			$white_url = trim($white_url);
+			if (empty($white_url)) {
+				continue;
+			}
+			$white_url_len = strlen($white_url);
 			if ($white_url_len > strlen($url)) {
 				continue;
-			} else if (strtolower(trim($white_url)) == substr($url, 0, $white_url_len)) {
+			} else if (strtolower($white_url) == substr($url, 0, $white_url_len)) {
 				return TRUE;
 			}
 		}
