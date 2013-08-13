@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_export_assets_to_xml.inc,v 1.12 2013/02/27 08:06:45 ewang Exp $
+* $Id: hipo_job_export_assets_to_xml.inc,v 1.13 2013/08/13 03:57:08 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author  David Schoen <dschoen@squiz.com.au>
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 * @subpackage import_tools/hipo_jobs
 *
@@ -429,15 +429,20 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 			$value = $attr->getContent();
 			// unserilize it, we want clean script
 			if($this->isSerialized($value) && !empty($value)){
-				$value = var_export(unserialize($value),TRUE);
+				$value = var_export(unserialize($value),TRUE).';';
 			}
+			$default_value =  $attr->_default_value;
+			if($this->isSerialized($default_value) && !empty($default_value)){
+				$default_value = var_export(unserialize($default_value),TRUE).';';
+			}
+
 			// if the value is an assetid attribute, we should match it with asset_id_map first
 			if (preg_match("/assetid/",$attr_name) && isset($this->_running_vars['asset_id_map'][$value])){
 				$value =	"[[output://create_".$this->_running_vars['asset_id_map'][$value].".assetid]]"; 
 			}
 			$assets_done[$asset->id] = TRUE;
 
-			if (!empty($value) && !(($this->getAssetType($asset) == 'Design' || $this->getAssetType($asset) == 'Design_Css') && $attr_name == 'contents')) {
+			if (($value !== $default_value) && !(($this->getAssetType($asset) == 'Design' || $this->getAssetType($asset) == 'Design_Css') && $attr_name == 'contents')) {
 				// if default character set is utf-8 we dont wanna mess around the characters
 				// we are for now just checking for it not to be utf-8 but can append other encoding
 				// we might want to skip later on
