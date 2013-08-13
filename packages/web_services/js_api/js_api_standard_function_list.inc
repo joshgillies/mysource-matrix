@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_standard_function_list.inc,v 1.20 2013/04/29 02:53:25 ewang Exp $
+* $Id: js_api_standard_function_list.inc,v 1.21 2013/08/13 01:30:48 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -115,7 +115,7 @@ function jsonToObj(json)
 	return jsonObj;
 
 }//end jsonToObj
-	
+
 
 /**
 * Our default callback
@@ -125,7 +125,7 @@ function jsonToObj(json)
 *
 * @version $Revision: 0.1
 */
-function success(ajaxRequest, dataCallback) 
+function success(ajaxRequest, dataCallback)
 {
 	if (ajaxRequest.readyState == 4) {
 		if (ajaxRequest.status == 200) {
@@ -134,7 +134,7 @@ function success(ajaxRequest, dataCallback)
 				// Custom callback
 				dataCallback(response);
 			}//end if
-			
+
 		}//end if
 
 	}//end if
@@ -149,7 +149,7 @@ function success(ajaxRequest, dataCallback)
 *
 * @version $Revision: 0.1
 */
-function setApiKey(api_key) 
+function setApiKey(api_key)
 {
 	// Make this into a global variable
 	window.api_key = api_key;
@@ -222,7 +222,7 @@ function dumpObj(obj, parent) {
 	}//end for
 
 }//end dumpObj
-  
+
 		<?php
 		if ($js_api_asset->attr('get_general')) {
 			?>
@@ -280,7 +280,7 @@ function getChildCount(asset_id, level, dataCallback)
 
 		if ($js_api_asset->attr('get_attributes')) {
 			?>
-	
+
 /**
 * This will return attributes of the specific asset
 *
@@ -289,7 +289,7 @@ function getChildCount(asset_id, level, dataCallback)
 *
 * @version $Revision: 0.1
 */
-function getAttributes(asset_id, dataCallback) 
+function getAttributes(asset_id, dataCallback)
 {
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
@@ -1674,13 +1674,13 @@ function getRoles(assetid, roleid, userid, include_assetid, include_globals, exp
 		}
 	}
 	var strict_type_code = isset(strict_type_code) && ( strict_type_code.toString().toLowerCase() != 'null' && strict_type_code != '' ) ? strict_type_code : 1;
-	
+
 	// Build our string
 	var url = '<?php echo $api_url; ?>' + '?key=' + api_key + '&type=getRoles&id=' + assetid
 	 + '&roleid=' + roleid
 	 + '&userid=' + userid
 	 + '&include_assetid=' + include_assetid
-	 + '&include_globals=' + include_globals  
+	 + '&include_globals=' + include_globals
 	 + '&expand_groups=' + expand_groups
 	 + '&inc_dependants=' + inc_dependants
 	 + '&include_parents=' + include_parents
@@ -1712,7 +1712,7 @@ function executeHTMLTidy(content, dataCallback)
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
 	var content = isset(content) ? content : '';
-	
+
 	// Build our string
 	var url = '<?php echo $api_url; ?>' + '?key=' + api_key + '&type=executeHTMLTidy&content=' + content.replace(/&/g , "%26").replace(/#/g , "%23").replace(/\?/g , "%3F").replace(/\+/g , "%2B");
 
@@ -1766,7 +1766,7 @@ function getLineage(asset_url, significant_link_only, dataCallback)
 			<?php
 		}//end if(get_lineage)
 
-		
+
 				if ($js_api_asset->attr('get_lineage_from_url')) {
 			?>
 
@@ -1786,7 +1786,7 @@ function getLineageFromUrl(asset_url, dataCallback)
 	var asset_url = isset(asset_url) ? asset_url.replace(/&/g , "%26").replace(/#/g , "%23").replace(/\?/g , "%3F").replace(/\+/g , "%2B") : '';
 	var significant_link_only = isset(significant_link_only) && (significant_link_only.toString().toLowerCase() != 'null' && significant_link_only != '' ) ? significant_link_only : 1;
 
-	
+
 	// Build our string
 	var url = '<?php echo $api_url; ?>' + '?key=' + api_key + '&type=getLineageFromUrl&asset_url=' + asset_url;
 
@@ -1798,8 +1798,8 @@ function getLineageFromUrl(asset_url, dataCallback)
 
 			<?php
 		}//end if(get_lineage_from_url)
-		
-		
+
+
 		if ($js_api_asset->attr('get_url_from_lineage')) {
 			?>
 
@@ -1820,7 +1820,7 @@ function getUrlFromLineage(lineage, root_url, protocol, dataCallback)
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
 	var root_url = isset(root_url) && ( root_url.toString().toLowerCase() != 'null' && root_url != '' ) ? encodeURI(root_url) : '';
 	var protocol = isset(protocol) && ( protocol.toString().toLowerCase() != 'null' && protocol != '' ) ? encodeURI(protocol) : '';
-	
+
 	var lineageArray = [];
 	for (var i = 0, l = lineage.length; i<l; i+=1) {
 	    if(lineage[i].hasOwnProperty("assetid")) {
@@ -1830,7 +1830,7 @@ function getUrlFromLineage(lineage, root_url, protocol, dataCallback)
 		lineageArray.push(lineage[i]);
     	    }
 	}
-	
+
 	// Build our string
 	var url = '<?php echo $api_url; ?>' + '?key=' + api_key + '&type=getUrlFromLineage&lineage=' + lineageArray.join('\\,') + '&root_url=' + root_url + '&protocol=' + protocol;
 
@@ -1842,8 +1842,8 @@ function getUrlFromLineage(lineage, root_url, protocol, dataCallback)
 
 			<?php
 		}//end if(get_url_from_lineage)
-		
-		
+
+
 		if ($js_api_asset->attr('batch_requests')) {
 			?>
 
@@ -1911,7 +1911,7 @@ function cloneAsset(assetid, new_parent, clone_num, new_position, link_type, lin
 	var link_type	 = (isset(link_type) && link_type != '') ? link_type : 'SQ_LINK_TYPE_1';
 	var link_value	 = (isset(link_value)) ? link_value : '';
 
-	var url = '<?php echo $api_url; ?>' + '?key=' + api_key 
+	var url = '<?php echo $api_url; ?>' + '?key=' + api_key
 				+ '&type=cloneAsset&id=' + assetid
 				+ '&new_parent=' + new_parent
 				+ '&clone_num=' + clone_num
@@ -1950,7 +1950,7 @@ function showDifference(assetid_1, assetid_2, paint_layout_1, paint_layout_2, da
 	paint_layout_2 = (isset(paint_layout_2)) ? paint_layout_2 : '';
 
 
-	var url = '<?php echo $api_url; ?>' + '?key=' + api_key 
+	var url = '<?php echo $api_url; ?>' + '?key=' + api_key
 				+ '&type=showDifference&id=' + assetid_1
 				+ '&assetid_2=' + assetid_2
 				+ '&paint_layout_1=' + paint_layout_1
@@ -2148,33 +2148,91 @@ function getMetadataSchema(assetid, granted, cascades, dataCallback)
 {
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
-		
+
 	granted = isset(granted) && (granted.toString().toLowerCase() != 'null' && granted.toString() != '') ? granted.toString() : '1';
 	cascades = isset(cascades) && (cascades.toString().toLowerCase() != 'null' && cascades.toString() != '') ? cascades.toString() : '';
-	
-	// we cannot pass TRUE or FALSE as string so lets do our conversion 	
+
+	// we cannot pass TRUE or FALSE as string so lets do our conversion
 	if (granted.toLowerCase() == 'false' || granted.toLowerCase() == '0') {
 		granted = 0;
 	} else {
 		granted = 1;
-	}	
-	
-	var url = '<?php echo $api_url; ?>' + '?key=' + api_key 
-				+ '&type=getMetadataSchema&id=' + assetid				
-				+ '&granted=' + granted;	
+	}
+
+	var url = '<?php echo $api_url; ?>' + '?key=' + api_key
+				+ '&type=getMetadataSchema&id=' + assetid
+				+ '&granted=' + granted;
 	if (cascades.toLowerCase() == 'false' || cascades.toLowerCase() == '0') {
 		url = url + '&cascades=0';
 	} else if (cascades.toLowerCase() == 'true' || cascades.toLowerCase() == '1') {
 		url = url + '&cascades=1';
-	}	
+	}
 
 	// Make our request
 	makeRequest(url, true, dataCallback);
-	
+
 }//end getMetadataSchema()
 
 			<?php
 		}//end if(get_metadata_schema)
+
+
+		if ($js_api_asset->attr('edit_metadata_schema')) {
+			?>
+/*
+* Sets or unsets the passed metadata schema on the asset
+*
+* @param string		assetid			the asset to edit schemas on
+* @param string		schemaid		the metadata schema to be applied
+* @param string		set				set = 1; unset = 0
+* @param boolean    granted    		type of access : TRUE = applied, FALSE = denied
+* @param boolean    cascades   		does this schema cascade to newly created assets?
+* @param function	dataCallback	custom callback function
+*
+* @return array
+* @access public
+*/
+function editMetadataSchema(assetid, schemaid, set, granted, cascades, dataCallback)
+{
+	// Create blank function
+	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+
+	granted = isset(granted) && (granted.toString().toLowerCase() != 'null' && granted.toString() != '') ? granted.toString() : '1';
+	set = isset(set) && (set.toString().toLowerCase() != 'null' && set.toString() != '') ? set.toString() : '';
+	cascades = isset(cascades) && (cascades.toString().toLowerCase() != 'null' && cascades.toString() != '') ? cascades.toString() : '';
+
+	// we cannot pass TRUE or FALSE as string so lets do our conversion
+	if (granted.toLowerCase() == 'false' || granted.toLowerCase() == '0') {
+		granted = 0;
+	} else {
+		granted = 1;
+	}
+
+	if (set.toLowerCase() == 'false' || set.toLowerCase() == '0') {
+		set = 0;
+	} else {
+		set = 1;
+	}
+
+	var url = '<?php echo $api_url; ?>' + '?key=' + api_key
+				+ '&type=editMetadataSchema&id=' + assetid
+				+ '&schemaid=' + schemaid
+				+ '&set=' + set
+				+ '&granted=' + granted;
+
+	if (cascades.toLowerCase() == 'false' || cascades.toLowerCase() == '0') {
+		url = url + '&cascades=0';
+	} else if (cascades.toLowerCase() == 'true' || cascades.toLowerCase() == '1') {
+		url = url + '&cascades=1';
+	}
+
+	// Make our request
+	makeRequest(url, true, dataCallback);
+
+}//end editMetadataSchema()
+
+			<?php
+		}//end if(edit_metadata_schema)
 
 	}//end paintJSFunctions()
 

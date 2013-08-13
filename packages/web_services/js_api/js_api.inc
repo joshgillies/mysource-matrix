@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.147 2013/08/09 07:09:27 cupreti Exp $
+* $Id: js_api.inc,v 1.148 2013/08/13 01:30:48 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.147 $
+* @version $Revision: 1.148 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -81,6 +81,7 @@ class JS_Api extends Page
 									'getCurrentContext'				=> 'get_context',
 									'getAllContexts'				=> 'get_context',
 									'getMetadataSchema'				=> 'get_metadata_schema',
+									'editMetadataSchema'				=> 'edit_metadata_schema',
 								  );
 
 	/*
@@ -118,6 +119,7 @@ class JS_Api extends Page
 									'setWebPath'					=> Array('write_access'),
 									'setContentOfEditableFileAsset'	=> Array('write_access'),
 									'getMetadataSchema'				=> Array('write_access'),
+									'editMetadataSchema'			=> Array('write_access'),
 									'getAssetTypes'					=> Array('no_check'),
 									'trashAsset'					=> Array('no_check'),
 									'getChildCount'					=> Array('no_check'),
@@ -2721,6 +2723,69 @@ class JS_Api extends Page
 		return $data;
 
 	}// end _restoreContext()
+
+
+	/**
+	* Set the metadata schema info applied to the given assetid
+	*
+	* @param array		$args			bundled array of arguments do be used while performing operations
+	* @param object		$asset			the asset we are executing this function on
+	* @param boolean	$read_access	read access check for the asset we 
+	*									are dealing with with respect to current user
+	* @param boolean	$write_access	write access check for the asset we 
+	*									are dealing with with respect to current user
+	*
+	* @return array
+	* @access private
+	*/
+	private function _editMetadataSchema($args=Array(), $asset=NULL, $read_access=FALSE, $write_access=FALSE)
+	{
+		if ($write_access) {
+			if (!is_null($asset)) {
+
+				$set = array_get_index($args, 'set', '');
+
+				if (empty($set) && $set != 0) return $data['error'] = 'Please specify if the Metadata Scheme needs to be set or unset';
+
+				$granted  = array_get_index($args, 'granted', TRUE);
+				$cascades = array_get_index($args, 'cascades', NULL);
+				$schemaid = array_get_index($args, 'schemaid', '');
+
+				if (!empty($schemaid)) {
+
+					$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+					$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'metadata');
+					if ($set) {
+						$schemas = $mm->setSchema($asset->id, $schemaid, $granted, $cascades);
+
+						if ($schemas) {
+							$data['success'] = 'Metadata Schema #'.$schemaid.' successfully '.($granted ? 'applied' : 'denied').' to Asset #'.$asset->id;
+						} else {
+							$data['error'] = 'Could not '.($granted ? 'apply' : 'deny').' Metadata Schema #'.$schemaid.' to Asset #'.$asset->id;
+						}
+					} else {
+						$schemas = $mm->deleteSchema($asset->id, $schemaid);
+						if ($schemas) {
+							$data['success'] = 'Metadata Schema #'.$schemaid.' successfully removed from Asset #'.$asset->id;
+						} else {
+							$data['error'] = 'Could not remove Metadata Schema #'.$schemaid.' from Asset #'.$asset->id;
+						}
+					}
+					$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'metadata');
+
+				} else {
+					$data['error'] = 'Assetid for the Metadata Schema to set on the Asset not provided';
+				}
+			} else {
+				$data['error'] = 'Asset to set the Metadata Schema to was not provided';
+			}
+		} else {
+			$data['error'] = 'You do not have permissions to access this asset';
+		}//end else
+
+		return $data;
+
+	}// end _editMetadataSchema()
 
 
 	/**

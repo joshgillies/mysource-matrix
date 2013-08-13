@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api_enhanced_function_list.inc,v 1.29 2013/04/29 02:53:25 ewang Exp $
+* $Id: js_api_enhanced_function_list.inc,v 1.30 2013/08/13 01:30:48 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *
 * @author  Anthony Barnes <abarnes@squiz.com.au>
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -2701,6 +2701,65 @@ class Js_Api_Enhanced_Function_List
 
 			<?php
 		}//end if(get_metadata_schema)
+
+
+		if ($js_api_asset->attr('edit_metadata_schema')) {
+			?>
+
+		/**
+		*
+		* Sets or unsets the passed metadata schema on the asset
+		*
+		* @param object		options       JSON string of options
+		* {
+		*      assetid:			string/int		the asset to edit schema on
+		*      schemaid:		string/int		the metadata schema to be applied
+		*      set:				boolean			set = 1/TRUE; unset = 0/FALSE
+		*      granted:			boolean			type of access : TRUE = applied, FALSE = denied
+		*      cascades:		boolean			does this schema cascade to newly created assets?
+		*      dataCallback:	function		Custom callback function
+		* }
+		*/
+		editMetadataSchema: function(options)
+		{
+			var fnName = 'editMetadataSchema';
+			if (arguments.length === 0) {
+				return {
+					// Set the default values
+					defaults: {
+						assetid:		null,
+						schemaid:		null,
+						set:			'',
+						granted:		1,
+						cascades:		null,
+						dataCallback:	function(){}
+					},
+
+					// Set the required arguments
+					required: ['assetid', 'schemaid', 'set']
+				};
+			}// end if
+
+			// Extract some configuration and use it to build
+			// parameters for the post call
+			var fnConfig = this[fnName].call(this);
+			options = this._options(fnConfig.required,fnConfig.defaults,options);
+
+			options.set = (convertToBoolean(options.set)) ? 1 : 0;
+			options.granted = (convertToBoolean(options.granted)) ? 1 : 0;
+
+			this._doPost(fnName,[
+					['id', options.assetid],
+					['schemaid', options.schemaid],
+					['set', options.set],
+					['granted', options.granted],
+					['cascades', options.cascades]
+			],options);
+
+		},// end editMetadataSchema
+
+			<?php
+		}//end if(edit_metadata_schema)
 
 		?>
 
