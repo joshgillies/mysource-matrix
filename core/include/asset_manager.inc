@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.912 2013/08/06 04:44:21 cupreti Exp $
+* $Id: asset_manager.inc,v 1.913 2013/08/14 01:21:55 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.912 $
+* @version $Revision: 1.913 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -331,7 +331,7 @@ class Asset_Manager extends MySource_Object
 	function getTypeInfo($type_code, $field='')
 	{
 		$field = preg_replace('/[^a-zA-Z_0-9]+/', '', trim($field));
-		
+
 		// if the file does not exist, then we must be installing so get the info from the database
 		if (!is_file(SQ_DATA_PATH.'/private/db/asset_types.inc')) {
 
@@ -879,7 +879,7 @@ class Asset_Manager extends MySource_Object
 	{
 		if (!is_string($type_code)) return Array();
 		foreach ($details as $index => $detail) {
-		    $details[$index] = preg_replace('/[^a-zA-Z_0-9]+/', '', trim($detail));
+			$details[$index] = preg_replace('/[^a-zA-Z_0-9]+/', '', trim($detail));
 		}
 
 		$db = MatrixDAL::getDb();
@@ -1215,11 +1215,11 @@ class Asset_Manager extends MySource_Object
 				$asset = $deja_vu->recall(SQ_DEJA_VU_ASSET, $assetid);
 				if (!empty($asset)) {
 					if ($asset->status & SQ_SC_STATUS_SAFE_EDITING) {
-					    $asset = NULL;
+						$asset = NULL;
 					}
 					else {
-					    // We still want asset cache to do its thing.
-					    $this->_asset_cache->add($asset, $contextid.'\\'.$asset->id);
+						// We still want asset cache to do its thing.
+						$this->_asset_cache->add($asset, $contextid.'\\'.$asset->id);
 					}
 				}
 			}
@@ -2467,7 +2467,7 @@ class Asset_Manager extends MySource_Object
 		// to check if we can force getting it.
 		$orig_lock_type = $lock_type;
 
-		$current_locks = $this->getLockInfo($assetid, $lock_type, TRUE, TRUE, TRUE, FALSE, $assetType);
+		$current_locks = $this->getLockInfo($assetid, $lock_type, TRUE, FALSE, TRUE, FALSE, $assetType);
 		if (empty($current_locks)) {
 			return FALSE;
 		}
@@ -2526,6 +2526,9 @@ class Asset_Manager extends MySource_Object
 				$user = $this->getAsset($lock['userid']);
 
 				$locked_assetids = Array((int) $assetid);
+
+				// Redefine lock with the chained asset info.
+				$lock = $this->getLockInfo($assetid, $lock_type, FALSE, TRUE, TRUE, FALSE, $assetType);
 				foreach ($lock['chained_assets'] as $row) {
 					$locked_assetids[] = $row['assetid'];
 				}
@@ -2678,7 +2681,7 @@ class Asset_Manager extends MySource_Object
 
 		$assetType = $asset->type();
 
-		$current_locks = $this->getLockInfo($assetid, $lock_type, TRUE, TRUE, TRUE, TRUE, $assetType);
+		$current_locks = $this->getLockInfo($assetid, $lock_type, TRUE, FALSE, TRUE, TRUE, $assetType);
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -3744,8 +3747,8 @@ class Asset_Manager extends MySource_Object
 
 
 		if (is_array($fields)) {
-		    	foreach ($fields as $index => $field) {
-			    $fields[$index] = preg_replace('/[^a-zA-Z_0-9]+/', '', trim($field));
+				foreach ($fields as $index => $field) {
+				$fields[$index] = preg_replace('/[^a-zA-Z_0-9]+/', '', trim($field));
 			}
 			$fields_str = 'a.'.implode(', a.', $fields);
 		} else {
@@ -5388,13 +5391,13 @@ class Asset_Manager extends MySource_Object
 						// this could happen because above "UPDATE .. AND NOT EXISTS" query is not granular enough.
 						// every concurrent processes may think others NOT EXIST, and therefore all UPDATE at the same time.
 						$sql = 'SELECT count(1) FROM sq_ast_lnk_tree
-						    WHERE
+							WHERE
 							(
-							    treeid LIKE :treeid_wildcard
-							    OR treeid = :treeid
+								treeid LIKE :treeid_wildcard
+								OR treeid = :treeid
 							)
-						    AND linkid <> 0
-						    ';
+							AND linkid <> 0
+							';
 						$bind_vars = Array();
 						$bind_vars['treeid'] = $treeid.$free_treeid;
 						if (!$is_oci) {
@@ -5408,8 +5411,8 @@ class Asset_Manager extends MySource_Object
 						}
 						$result = MatrixDAL::executePdoOne($query);
 						if($result <=1) {
-						    $requires_update = TRUE;
-						    break;
+							$requires_update = TRUE;
+							break;
 						}
 					}
 				}//end if
@@ -5906,13 +5909,13 @@ class Asset_Manager extends MySource_Object
 
 		$allowed_links = $major->_getAllowedLinks();
 
-        $typeNames = $this->getTypeInfo(
-                        array(
-                         $type_code,
-                         $major->type(),
-                        ),
-                        'name'
-                    );
+		$typeNames = $this->getTypeInfo(
+						array(
+						 $type_code,
+						 $major->type(),
+						),
+						'name'
+					);
 
 		// we will be ascending up the parent tree from the current asset type.
 		// that way the major asset can have specific cardinality for different assets types
@@ -5946,7 +5949,7 @@ class Asset_Manager extends MySource_Object
 			$num_curr_links = $this->countLinks($major->id, 'major', $link_type, $type, TRUE, $ignore_linkid);
 			//  and we already have our quota of links
 			if ($num_curr_links >= (int) $allowed_links[$link_type][$type]['card']) {
-                $cardTypeName = $this->getTypeInfo($type, 'name');
+				$cardTypeName = $this->getTypeInfo($type, 'name');
 				return translate('asset_type_can_have_only_linktypes_links_to_type', $typeNames[$major->type()], ((int) $allowed_links[$link_type][$type]['card']), link_type_name($link_type), $cardTypeName);
 			}
 		}
@@ -7563,7 +7566,7 @@ class Asset_Manager extends MySource_Object
 	* @param boolean	$include_parents		When $userid is specified. This will include the roles applied directly to the user and indirectly to user parent groups.
 	* @param array	$type_codes		When $include_assetid is TRUE. This is a type code filter for returned assetids.
 	* @param array	$strict_type_code		Use strict type code for type code filter
-	* 
+	*
 	* @return array
 	* @access public
 	*/
@@ -7583,17 +7586,17 @@ class Asset_Manager extends MySource_Object
 		}
 
 		if (!is_null($userid)) {
-		    // find all parent user groups of user id to search roles
-		    if($include_parents && !empty($userid)) {
+			// find all parent user groups of user id to search roles
+			if($include_parents && !empty($userid)) {
 			$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($userid, 'user_group', FALSE);
 			foreach ($parents as $usergroupid => $type_code) {
-			    if($type_code == 'role') {
+				if($type_code == 'role') {
 				unset ($parents[$usergroupid]);
-			    }
+				}
 			}
 			$parents = array_keys($parents);
 			for ($i = 0; $i < count($parents); $i++) {
-			    $parents[$i] = MatrixDAL::quote($parents[$i]);
+				$parents[$i] = MatrixDAL::quote($parents[$i]);
 			}
 			$parents[] =':userid';
 			$in_clause = Array();
@@ -7602,16 +7605,16 @@ class Asset_Manager extends MySource_Object
 				$in_clause[] = ' r.userid IN ('.implode(', ', $chunk).')';
 			}
 			$where[] = '('.implode(' OR ',$in_clause).')';
-		    }
+			}
 		   else {
-		       // just use the user id
-		    $where[] = 'r.userid = :userid';    
+			   // just use the user id
+			$where[] = 'r.userid = :userid';
 		   }
 		}
 
 		$where_clause = '';
 		if (!empty($where)) {
-		    $where_clause = 'WHERE '.implode(' AND ', $where);
+			$where_clause = 'WHERE '.implode(' AND ', $where);
 		}
 
 		$table = ($include_globals) ? 'vw_ast_role r' : 'ast_role r';
@@ -7621,19 +7624,19 @@ class Asset_Manager extends MySource_Object
 			// join to link table to get the non dependant assets
 			$where_or_and = ' AND ';
 			if(empty($where_clause)) {
-			    $where_or_and = 'WHERE ';
+				$where_or_and = 'WHERE ';
 			}
 			$where_clause .= $where_or_and.'r.assetid = l.minorid AND l.is_dependant = :is_dependant';
 			$table .= ', '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l';
 			$where_clause = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where_clause, 'l');
 		}
-		
+
 		// type code filter
 		if ($include_assetid && !empty($type_codes)) {
 			// join to asset table to get type codes
-		    	$where_or_and = ' AND ';
+				$where_or_and = ' AND ';
 			if(empty($where_clause)) {
-			    $where_or_and = 'WHERE ';
+				$where_or_and = 'WHERE ';
 			}
 			$where_clause .= $where_or_and.'r.assetid = a.assetid';
 			$table .= ', '.SQ_TABLE_RUNNING_PREFIX.'ast a';
@@ -8281,40 +8284,40 @@ class Asset_Manager extends MySource_Object
 		// and only select the shortest matched URL, filter out rest. so it won't accidentally include siteB url in the result.
 		$lineage = array_reverse($lineage);
 		foreach ($lineage as $assetid) {
-		    $done_urls = Array();
-		    $asset_urls = $this->getURLs(trim($assetid));
+			$done_urls = Array();
+			$asset_urls = $this->getURLs(trim($assetid));
 
-		    foreach ($candidate_urls as $candidate_url) {
+			foreach ($candidate_urls as $candidate_url) {
 			foreach ($asset_urls as $asset_url) {
-			    if(strpos($candidate_url['url'], $asset_url['url']) === 0) {
+				if(strpos($candidate_url['url'], $asset_url['url']) === 0) {
 				// for candidate urls that matched with same asset url, we only keep the shortest
 				if(!isset($done_urls[$asset_url['url']]) || (strlen($done_urls[$asset_url['url']]['url']) > strlen($candidate_url['url'])))  {
-				    $done_urls[$asset_url['url']] = $candidate_url;
+					$done_urls[$asset_url['url']] = $candidate_url;
 				}
-			    }
+				}
 			}
-		    }
-		    $candidate_urls = array_values($done_urls);
+			}
+			$candidate_urls = array_values($done_urls);
 		}
 
 
 		$result = Array();
 		foreach ($candidate_urls as $url) {
-		    // filter out those don't match with root url
-		    if($root_url) {
+			// filter out those don't match with root url
+			if($root_url) {
 			 $root_url = preg_replace('/^http(s)?:\/\//', '', $root_url);
 			if(strpos($url['url'], $root_url) !== 0) continue;
-		    }
+			}
 
-		    // https and http are different urls
-		    if($url['http']) {
+			// https and http are different urls
+			if($url['http']) {
 				if(empty($protocol) ||  $protocol === 'http')
-				    $result[] = 'http://' . $url['url'];
-		    }
-		    if($url['https']) {
+					$result[] = 'http://' . $url['url'];
+			}
+			if($url['https']) {
 				if(empty($protocol) ||  $protocol === 'https')
-				    $result[] = 'https://' . $url['url'];
-		    }
+					$result[] = 'https://' . $url['url'];
+			}
 
 		}
 
@@ -8430,7 +8433,7 @@ class Asset_Manager extends MySource_Object
 		$urls[] = MatrixDAL::quote($url.'/'); //override
 		$urls = implode(',', $urls);
 
-		$sql = 'SELECT value, depth 
+		$sql = 'SELECT value, depth
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value';
 
 		if ($like_value){
@@ -8676,16 +8679,16 @@ class Asset_Manager extends MySource_Object
 					// if there is __data url, and there are other local urls, we should only pick __data url for public users
 					// for public user, we just return  __data url because having __data url meaning the file asset is effectively unrestricted
 					if(count($result[$assetid]) > 1) {
-					    foreach ($result[$assetid] as $data) {
+						foreach ($result[$assetid] as $data) {
 						$file_url = current_protocol().'://'.$data['url'];
 						$is_unrestricted_url = SQ_CONF_STATIC_ROOT_URL ? strpos($file_url, SQ_CONF_STATIC_ROOT_URL.'/') !== FALSE : strpos($file_url, '/__data') !== FALSE;
 						$is_matrix_url = SQ_CONF_STATIC_ROOT_URL ? strpos($file_url, SQ_CONF_STATIC_ROOT_URL.'/') === FALSE : strpos($file_url, '/__data') === FALSE;
-						if((($GLOBALS['SQ_SYSTEM']->user instanceof Public_User) && $is_unrestricted_url) 
+						if((($GLOBALS['SQ_SYSTEM']->user instanceof Public_User) && $is_unrestricted_url)
 						|| (!($GLOBALS['SQ_SYSTEM']->user instanceof Public_User) && $is_matrix_url)) {
 							$result[$assetid][0] = $data;
 							break;
 						}
-					    }
+						}
 					}
 					$this->_tmp['urls'][$assetid][$url_index][$cache_index] = $result[$assetid][0]['protocol'].'://'.$result[$assetid][0]['url'];
 				}
@@ -8975,11 +8978,11 @@ class Asset_Manager extends MySource_Object
 					// if it's a file name, digits is added to file name part before extension
 					$extension = strrchr($pathToFix,'.');
 					if($extension === FALSE) {
-					    $bindVars['pathToFix'] = $pathToFix.'%';
+						$bindVars['pathToFix'] = $pathToFix.'%';
 					}
 					else {
-					    $pathToFix = substr($pathToFix, 0, strrpos($pathToFix, $extension));
-					    $bindVars['pathToFix'] = $pathToFix.'%'.$extension;
+						$pathToFix = substr($pathToFix, 0, strrpos($pathToFix, $extension));
+						$bindVars['pathToFix'] = $pathToFix.'%'.$extension;
 					}
 				}
 
@@ -9211,7 +9214,7 @@ class Asset_Manager extends MySource_Object
 				 * oracle behave in a much nicer way when it works out how to execute the query.
 				 */
 				if(!($link_types & SQ_LINK_NOTICE))
-				    $from .= ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t ON t.linkid=l.linkid';
+					$from .= ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t ON t.linkid=l.linkid';
 
 				// get user and group ids
 				$userid1_conds = Array(':'.$bind_prefix.'userids_1_current', ':'.$bind_prefix.'userids_1_public_user');
@@ -10542,7 +10545,7 @@ class Asset_Manager extends MySource_Object
 
 		// query the db to see if the asset is under the treeids
 		$sql = 'SELECT l.majorid, t.treeid
-				FROM sq_ast_lnk l JOIN sq_ast_lnk_tree t ON l.linkid=t.linkid 
+				FROM sq_ast_lnk l JOIN sq_ast_lnk_tree t ON l.linkid=t.linkid
 				WHERE l.minorid=:assetid and (' . implode(' OR ', $all_root_treeids) . ')';
 		try {
 			$query = MatrixDAL::preparePdoQuery($sql);
