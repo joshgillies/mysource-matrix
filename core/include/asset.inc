@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.794 2013/08/14 02:35:35 lwright Exp $
+* $Id: asset.inc,v 1.795 2013/08/14 05:18:34 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.794 $
+* @version $Revision: 1.795 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4260,9 +4260,7 @@ class Asset extends MySource_Object
 			}
 		}
 
-		if (!is_null($replacement) && trim($replacement, '%') != $keyword) {
-			apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id));
-		}
+		apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id), $keyword);
 
 		return $replacement;
 
