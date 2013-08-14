@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_csv_edit_fns.inc,v 1.6.6.2 2013/08/07 06:06:17 akarelia Exp $
+* $Id: data_source_csv_edit_fns.inc,v 1.6.6.3 2013/08/14 01:41:31 akarelia Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.6.6.2 $
+* @version $Revision: 1.6.6.3 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -83,7 +83,8 @@ class Data_Source_Csv_Edit_Fns extends Data_Source_Edit_Fns
 		if (!$asset->writeAccess('attributes')) return FALSE;
 
 		$file_info = get_file_upload_info($prefix.'_add_source_csv');
-		if (!empty($file_info)) {
+
+		if (!empty($file_info)&& isset($file_info['name']) && get_file_type($file_info['name']) == 'csv') {
 			require_once SQ_FUDGE_PATH.'/csv/csv.inc';
 			$csv = new CSV($file_info['tmp_name']);
 			$csv->import();
@@ -151,6 +152,9 @@ class Data_Source_Csv_Edit_Fns extends Data_Source_Edit_Fns
 
 			$asset->setResultSet(Array(), $asset->name);
 			$asset->getResultSet($asset->name);
+		} else {
+			trigger_localised_error('CORE0106', E_USER_WARNING, 'CSV', strtoupper(get_file_type($file_info['name'])));
+			return FALSE;
 		}
 
 		return TRUE;
