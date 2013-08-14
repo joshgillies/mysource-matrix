@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.84 2013/08/07 03:24:25 akarelia Exp $
+* $Id: text.inc,v 1.85 2013/08/14 05:22:08 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.84 $
+* @version $Revision: 1.85 $
 * @package Fudge
 * @subpackage Text
 */
@@ -138,10 +138,10 @@ function parse_keyword($keyword, &$modifiers = NULL)
  * @return void
  * @access public
  */
-function apply_keyword_modifiers(&$text, $modifiers, $replace_keywords=Array())
+function apply_keyword_modifiers(&$text, $modifiers, $replace_keywords=Array(), $actual_keyword='')
 {
 	foreach ($modifiers as $m) {
-		$text = apply_keyword_modifier($text, $m, $replace_keywords);
+		$text = apply_keyword_modifier($text, $m, $replace_keywords, $actual_keyword);
 	}
 
 }//end apply_keyword_modifiers()
@@ -169,8 +169,11 @@ function apply_keyword_modifiers(&$text, $modifiers, $replace_keywords=Array())
  * @return string
  * @access public
  */
-function apply_keyword_modifier($text, $modifier, $replace_keywords=Array())
+function apply_keyword_modifier($text, $modifier, $replace_keywords=Array(), $actual_keyword='')
 {
+	if (!empty($actual_keyword) && (trim($text, '%') == trim($actual_keyword, '%'))) {
+		return $text;
+	}
 
 	switch ($modifier['modifier']) {
 
