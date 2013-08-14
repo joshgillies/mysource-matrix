@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_edit_fns.inc,v 1.44.6.1 2013/06/07 02:53:29 cupreti Exp $
+* $Id: cron_job_edit_fns.inc,v 1.44.6.2 2013/08/14 06:37:19 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.44.6.1 $
+* @version $Revision: 1.44.6.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -135,7 +135,8 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 				$current_hours = $when_arr['hour'];
 				$current_time_unit = isset($time_unit['3600']) ? '3600' : $current_time_unit;
 			} else {
-				$current_days = $when_arr['day'];
+				if (!empty($when_arr['day']))
+				    $current_days = $when_arr['day'];
 				$current_time_unit = '86400';
 			}
 
