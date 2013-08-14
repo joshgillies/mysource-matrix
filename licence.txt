@@ -43,3 +43,5 @@ title or ownership in the Product and is not a sale or transfer of any rights in
 Product. Squiz and Squiz's third party suppliers fully reserve their rights in
 respect of the protection and enforcement of such rights in the event of any
 violation of the terms of this Licence.
+
+
