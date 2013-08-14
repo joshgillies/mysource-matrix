@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.292 2013/07/25 23:23:49 lwright Exp $
+* $Id: general.inc,v 1.293 2013/08/14 05:19:39 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.292 $
+* @version $Revision: 1.293 $
 * @package MySource_Matrix
 */
 
@@ -2216,7 +2216,7 @@ function replace_global_keywords(&$text)
 						$replacements[$full_keyword] = $context_name;
 					}//end if
 
-					apply_keyword_modifiers($replacements[$full_keyword], $modifiers);
+					apply_keyword_modifiers($replacements[$full_keyword], $modifiers, Array(), $keyword);
 
 				}//end if is global keyword
 
