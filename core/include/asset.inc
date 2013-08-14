@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.793 2013/08/13 09:39:50 lwright Exp $
+* $Id: asset.inc,v 1.794 2013/08/14 02:35:35 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.793 $
+* @version $Revision: 1.794 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -434,7 +434,6 @@ class Asset extends MySource_Object
 					// The parent was locked before we created this asset and the new asset
 					// is dependantly linked, so make sure we have all the locks of our parent
 					$parent_lock_info = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($link['asset']->id, 'all');
-					speed_check();
 
 					foreach ($parent_lock_info as $lock_name => $lock_details) {
 						if (empty($lock_details)) continue;
@@ -442,7 +441,6 @@ class Asset extends MySource_Object
 							return $this->_abortCreate($trigger_level_changed, $linkid);
 						}
 					}
-					speed_check('Acquire '.$this->id);
 				}
 				if (!$new_link['is_dependant']) {
 					if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'links')) {
