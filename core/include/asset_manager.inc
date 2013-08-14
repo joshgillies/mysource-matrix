@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.907.2.3 2013/08/06 04:54:22 cupreti Exp $
+* $Id: asset_manager.inc,v 1.907.2.4 2013/08/14 06:21:32 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.907.2.3 $
+* @version $Revision: 1.907.2.4 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2464,7 +2464,7 @@ class Asset_Manager extends MySource_Object
 		// to check if we can force getting it.
 		$orig_lock_type = $lock_type;
 
-		$current_locks = $this->getLockInfo($assetid, $lock_type, TRUE, TRUE, TRUE, FALSE, $assetType);
+		$current_locks = $this->getLockInfo($assetid, $lock_type, TRUE, FALSE, TRUE, FALSE, $assetType);
 		if (empty($current_locks)) {
 			return FALSE;
 		}
@@ -2523,6 +2523,9 @@ class Asset_Manager extends MySource_Object
 				$user = $this->getAsset($lock['userid']);
 
 				$locked_assetids = Array((int) $assetid);
+
+				// Redefine lock with the chained asset info.
+				$lock = $this->getLockInfo($assetid, $lock_type, FALSE, TRUE, TRUE, FALSE, $assetType);
 				foreach ($lock['chained_assets'] as $row) {
 					$locked_assetids[] = $row['assetid'];
 				}
@@ -2675,7 +2678,7 @@ class Asset_Manager extends MySource_Object
 
 		$assetType = $asset->type();
 
-		$current_locks = $this->getLockInfo($assetid, $lock_type, TRUE, TRUE, TRUE, TRUE, $assetType);
+		$current_locks = $this->getLockInfo($assetid, $lock_type, TRUE, FALSE, TRUE, TRUE, $assetType);
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');

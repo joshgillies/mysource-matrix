@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.787.4.3 2013/07/29 04:51:23 akarelia Exp $
+* $Id: asset.inc,v 1.787.4.4 2013/08/14 06:21:32 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.787.4.3 $
+* @version $Revision: 1.787.4.4 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -434,9 +434,10 @@ class Asset extends MySource_Object
 					// The parent was locked before we created this asset and the new asset
 					// is dependantly linked, so make sure we have all the locks of our parent
 					$parent_lock_info = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($link['asset']->id, 'all');
-					foreach (array_values($parent_lock_info) as $lock_details) {
+
+					foreach ($parent_lock_info as $lock_name => $lock_details) {
 						if (empty($lock_details)) continue;
-						if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, $lock_details['lock_type'], $lock_details['source_assetid'])) {
+						if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, $lock_name, $lock_details['source_assetid'])) {
 							return $this->_abortCreate($trigger_level_changed, $linkid);
 						}
 					}
@@ -858,7 +859,7 @@ class Asset extends MySource_Object
 	{
 		return TRUE;
 	}//end canSendCacheableHeader()
-	
+
 
 	/**
 	* Determine whether this asset can have its last significant link removed
@@ -1330,12 +1331,12 @@ class Asset extends MySource_Object
 			trigger_localised_error('CORE0048', E_USER_WARNING, $this->name);
 			return FALSE;
 		}
-		
+
 		return TRUE;
-		
+
 	}//end saveNoticeLinksForSystemVersion
-	
-	
+
+
 	/**
 	* Replaces the  notice links in editing version with the system (live) version
 	*
@@ -3223,32 +3224,32 @@ class Asset extends MySource_Object
 
 			// log a message for the asset - this wont get logged until we close the queue
 			if($log_message) {
-			    $msg_reps = Array(
-							    'asset_name'	=> $this->name,
-							    'attr_name'		=> $attribute->name,
-						    );
-			    $msg_type = 'asset.attributes.fulllog';
-			    if (is_scalar($var_data['old_value']) && is_scalar($attr_value)) {
-				    $msg_reps['old_value'] = $var_data['old_value'];
-				    $msg_reps['new_value'] = $attr_value;
-				    $msg_type .= '.scalar';
-			    }
-			    $message = $ms->newMessage(Array(), $msg_type, $msg_reps);
-			    $message->parameters['assetid'] = $this->id;
-			    $ms->logMessage($message);
+				$msg_reps = Array(
+								'asset_name'	=> $this->name,
+								'attr_name'		=> $attribute->name,
+							);
+				$msg_type = 'asset.attributes.fulllog';
+				if (is_scalar($var_data['old_value']) && is_scalar($attr_value)) {
+					$msg_reps['old_value'] = $var_data['old_value'];
+					$msg_reps['new_value'] = $attr_value;
+					$msg_type .= '.scalar';
+				}
+				$message = $ms->newMessage(Array(), $msg_type, $msg_reps);
+				$message->parameters['assetid'] = $this->id;
+				$ms->logMessage($message);
 
-			    // log a smaller message for users to view - this wont get logged until we close the queue
-			    require_once SQ_FUDGE_PATH.'/general/general.inc';
-			    $msg_type = 'asset.attributes';
-			    if (is_scalar($var_data['old_value']) && is_scalar($attr_value)) {
-				    $msg_reps['old_value'] = ellipsisize($var_data['old_value'],30);
-				    $msg_reps['new_value'] = ellipsisize($attr_value,30);
-				    $msg_type .= '.scalar';
-			    }
+				// log a smaller message for users to view - this wont get logged until we close the queue
+				require_once SQ_FUDGE_PATH.'/general/general.inc';
+				$msg_type = 'asset.attributes';
+				if (is_scalar($var_data['old_value']) && is_scalar($attr_value)) {
+					$msg_reps['old_value'] = ellipsisize($var_data['old_value'],30);
+					$msg_reps['new_value'] = ellipsisize($attr_value,30);
+					$msg_type .= '.scalar';
+				}
 
-			    $sml_message = $ms->newMessage(Array(), $msg_type, $msg_reps);
-			    $sml_message->parameters['assetid'] = $this->id;
-			    $ms->logMessage($sml_message);
+				$sml_message = $ms->newMessage(Array(), $msg_type, $msg_reps);
+				$sml_message->parameters['assetid'] = $this->id;
+				$ms->logMessage($sml_message);
 			}
 
 			// add attribute to the event broadcaster array (for notification of what has changed)
@@ -3453,9 +3454,9 @@ class Asset extends MySource_Object
 		if(!SQ_IN_BACKEND && !SQ_IN_LIMBO && !SQ_IN_LOGIN && !SQ_IN_CRON && !SQ_PHP_CLI) {
 			$filter_enabled = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_FILTER_FRONT_END_INPUT');
 			if(isset($GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] ) && $GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'])
-			    $filter_enabled = FALSE;
+				$filter_enabled = FALSE;
 			else if (isset($GLOBALS['SQ_CLONE_COMPONENTS'] ) && $GLOBALS['SQ_CLONE_COMPONENTS'])
-			    $filter_enabled = FALSE;
+				$filter_enabled = FALSE;
 
 			//Any identified attributes that shouldn't be filtered
 			$type_excl = Array ('form_submission');
@@ -4199,12 +4200,12 @@ class Asset extends MySource_Object
 						}
 					} else {
 						switch ($workflow_keyword) {
-						    case 'start_time':
-						        $wf_replacements[] = date('d-m-Y H:i:s', $schema_workflows[$schema_id]['started']);
-						        break;
-						    case 'stream_name':
-						         $wf_replacements[] = $schema_workflows[$schema_id]['stream_name'];
-						        break;
+							case 'start_time':
+								$wf_replacements[] = date('d-m-Y H:i:s', $schema_workflows[$schema_id]['started']);
+								break;
+							case 'stream_name':
+								 $wf_replacements[] = $schema_workflows[$schema_id]['stream_name'];
+								break;
 						}
 					}
 				}
@@ -4588,7 +4589,7 @@ class Asset extends MySource_Object
 					return TRUE;
 				}
 			}
-			
+
 		}
 
 		$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
@@ -4652,16 +4653,16 @@ class Asset extends MySource_Object
 
 			// don't check locks if not required
 			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
-			    $locks = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($this->id, $lock_type, TRUE);
-			    // if there is no lock or
-			    if (empty($locks)) return FALSE;
+				$locks = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($this->id, $lock_type, TRUE);
+				// if there is no lock or
+				if (empty($locks)) return FALSE;
 
-			    foreach ($locks as $lock) {
-				    // if any one of these locks is not owned by the current user they can't edit
-				    if (empty($lock) || $lock['userid'] != $GLOBALS['SQ_SYSTEM']->currentUserId()) {
-					    return FALSE;
-				    }
-			    }
+				foreach ($locks as $lock) {
+					// if any one of these locks is not owned by the current user they can't edit
+					if (empty($lock) || $lock['userid'] != $GLOBALS['SQ_SYSTEM']->currentUserId()) {
+						return FALSE;
+					}
+				}
 			}
 
 			// If we are purging trash, don't bother about statuses
