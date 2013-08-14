@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.411 2013/08/09 07:02:01 cupreti Exp $
+* $Id: mysource.inc,v 1.412 2013/08/14 00:57:00 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.411 $
+* @version $Revision: 1.412 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -238,11 +238,11 @@ class MySource extends MySource_Object
 				$deja_vu->remember(SQ_DEJA_VU_LOCALE, NULL, $this->lm);
 			}
 		}
-		
+
 		// force saving the session to memcache before respond to browser, otherwise, it would take forever, and concurrent session access issue happens.
 		if(SQ_CONF_SESSION_HANDLER === 'memcache')
-		    session_write_close();
-		
+			session_write_close();
+
 	}//end destructor
 
 
@@ -305,14 +305,14 @@ class MySource extends MySource_Object
 
 			// Set up the session handler
 			$session_handler = $this->getSessionHandlerClassName();
-			eval($session_handler.'::init();');
+			call_user_func(Array($session_handler, 'init'));
 
 			if(SQ_CONF_SESSION_HANDLER === 'memcache') {
-			    // memcache can only hold 30 days of cache, otherwise will fail silently
-			    ini_set('session.gc_maxlifetime', SQ_CONF_SESSION_GC_MAXLIFETIME > 2592000 ? 2592000 : SQ_CONF_SESSION_GC_MAXLIFETIME);
+				// memcache can only hold 30 days of cache, otherwise will fail silently
+				ini_set('session.gc_maxlifetime', SQ_CONF_SESSION_GC_MAXLIFETIME > 2592000 ? 2592000 : SQ_CONF_SESSION_GC_MAXLIFETIME);
 			}
 			else {
-			    ini_set('session.gc_maxlifetime', SQ_CONF_SESSION_GC_MAXLIFETIME);
+				ini_set('session.gc_maxlifetime', SQ_CONF_SESSION_GC_MAXLIFETIME);
 			}
 
 			$session_set = FALSE;
@@ -439,27 +439,27 @@ class MySource extends MySource_Object
 
 		// In performance timing mode, set current user if required
 		 if(defined('SQ_IN_PERFORMANCE_TIMING') && SQ_IN_PERFORMANCE_TIMING) {
-		     if(isset($_REQUEST['performance_setting_user'])) {
+			 if(isset($_REQUEST['performance_setting_user'])) {
 			 // set user to either Public user or default user based on GET and SESSION settings
 			 // the default user in SESSION must be in performance manager only with caution, we don't want to expose security hole
 			 if($_REQUEST['performance_setting_user'] === 'Default' && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User) && isset($_SESSION['SQ_PERFORMANCE_SETTING']['default_user'])) {
-			     $user = $GLOBALS['SQ_SYSTEM']->am->getAsset($_SESSION['SQ_PERFORMANCE_SETTING']['default_user']);
-			     $this->setCurrentUser($user);
+				 $user = $GLOBALS['SQ_SYSTEM']->am->getAsset($_SESSION['SQ_PERFORMANCE_SETTING']['default_user']);
+				 $this->setCurrentUser($user);
 			 }
 			 else if ($_REQUEST['performance_setting_user'] === 'Public' && !($GLOBALS['SQ_SYSTEM']->user instanceof Public_User)) {
-			     $user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('public_user');
-			     $this->setCurrentUser($user);
+				 $user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('public_user');
+				 $this->setCurrentUser($user);
 			 }
-		     }
+			 }
 		}
 		// In result mode, print performance result
 		else  if(defined('SQ_IN_PERFORMANCE_RESULT') && SQ_IN_PERFORMANCE_RESULT) {
-		    	// restore to default user
+				// restore to default user
 			 if(isset($_REQUEST['performance_setting_user']) ) {
-			     if($GLOBALS['SQ_SYSTEM']->user instanceof Public_User && isset($_SESSION['SQ_PERFORMANCE_SETTING']['default_user'])) {
+				 if($GLOBALS['SQ_SYSTEM']->user instanceof Public_User && isset($_SESSION['SQ_PERFORMANCE_SETTING']['default_user'])) {
 				 $user = $GLOBALS['SQ_SYSTEM']->am->getAsset($_SESSION['SQ_PERFORMANCE_SETTING']['default_user']);
 				 $this->setCurrentUser($user);
-			     }
+				 }
 			}
 
 			if(empty($GLOBALS['SQ_SYSTEM']->user) || !$GLOBALS['SQ_SYSTEM']->user->canAccessBackend()) exit(1);
@@ -628,7 +628,7 @@ class MySource extends MySource_Object
 						$asset = NULL;
 					}
 				}
-            }
+			}
 
 			if (!is_null($asset) && !$asset->effectiveUnrestricted() && $require_password_change) {
 				$page_name = '"'.$asset->name.'"';
@@ -831,13 +831,13 @@ class MySource extends MySource_Object
 				}//end if
 				// caching is enabled and asset is readable by public user, send HTTP headers
 				// however not send if user have just logged out (see bug #3766)
-				else if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && 
-						 SQ_CONF_SEND_CACHEABLE_HEADER &&  
+				else if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX &&
+						 SQ_CONF_SEND_CACHEABLE_HEADER &&
 						 $asset->canSendCacheableHeader() &&
-						 empty($_POST) && $asset->status >= SQ_STATUS_LIVE && 
-						 $asset->readAccess() && 
-						 !(isset($_REQUEST['just_logged_out']) && $_REQUEST['just_logged_out']) && 
-						 $cm->cacheableHeadersEnabledForCurrentProtocol() && 
+						 empty($_POST) && $asset->status >= SQ_STATUS_LIVE &&
+						 $asset->readAccess() &&
+						 !(isset($_REQUEST['just_logged_out']) && $_REQUEST['just_logged_out']) &&
+						 $cm->cacheableHeadersEnabledForCurrentProtocol() &&
 						 $cm->sendCacheableHeaders($asset->type(), $asset->id)
 						) {
 					$this->_sendHTTPHeaders($asset);
@@ -938,7 +938,7 @@ class MySource extends MySource_Object
 
 		// save/load the cache information of this asset
 		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-		
+
 		$cache_info = $cm->loadFromCache($asset->id, $asset->type(), $cache_key);
 
 		$cache_expiry = $cm->getExpiry($asset->type(), $asset->id);
@@ -952,12 +952,12 @@ class MySource extends MySource_Object
 
 		// not cached or has expired
 		if ($cache_info === FALSE) {
-            ob_start();
-                $loaded_assetids = $GLOBALS['SQ_SYSTEM']->am->_asset_cache->getAssetKeys();
-                $asset->printFrontend();
-                $all_assetids = $GLOBALS['SQ_SYSTEM']->am->_asset_cache->getAssetKeys();
-                $content = ob_get_contents();
-            ob_end_clean();
+			ob_start();
+				$loaded_assetids = $GLOBALS['SQ_SYSTEM']->am->_asset_cache->getAssetKeys();
+				$asset->printFrontend();
+				$all_assetids = $GLOBALS['SQ_SYSTEM']->am->_asset_cache->getAssetKeys();
+				$content = ob_get_contents();
+			ob_end_clean();
 
 			// work out the correct last updated time of this asset
 			$assetids = array_diff($all_assetids, $loaded_assetids);
@@ -2418,10 +2418,10 @@ class MySource extends MySource_Object
 			$header .= 'expires='.substr(date('r', time()+$time_to_live-((int)substr(date('O'), 0, 3)*60*60)), 0, -6).' GMT; ';
 		}
 		if (defined('SQ_CONF_SYSTEM_PARENT_DOMAINS') && SQ_CONF_SYSTEM_PARENT_DOMAINS !== '') {
-		    	$domain = strip_url(sq_web_path('root_url'), TRUE);
+				$domain = strip_url(sq_web_path('root_url'), TRUE);
 			$pos =  strpos($domain, '/');
 			if($pos !== FALSE)
-			    $domain = substr($domain, 0, $pos);
+				$domain = substr($domain, 0, $pos);
 			// Remove the port number from the host part, if any.
 			$domain = preg_replace('|:\d+$|', '', $domain);
 			$new_domain = '';
@@ -2439,7 +2439,7 @@ class MySource extends MySource_Object
 				}
 			}
 			if(!empty($new_domain))
-			    $header .= "domain=$new_domain; ";
+				$header .= "domain=$new_domain; ";
 		}
 		if (!empty($session_params['path'])) {
 			$header .= "path=$session_params[path]; ";
@@ -2799,7 +2799,7 @@ class MySource extends MySource_Object
 							// a particular preference within this type has been defined twice, so we need the prefs
 							// class to decide which value applies
 							require_once SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type, 'dir').'/'.$type.'_prefs.inc'; // can this be more efficient?
-							eval('$final_prefs[$type] = '.$type.'_Prefs::mergePrefs($type_prefs, $final_prefs[$type]);');
+							$final_prefs[$type] = call_user_func(Array($type.'_Prefs', 'mergePrefs'), $type_prefs, $final_prefs[$type]);
 						}
 					}
 					if ($value_only) {
@@ -3891,7 +3891,7 @@ class MySource extends MySource_Object
 		$this->am->includeAsset($class_name);
 
 		try {
-			$ok = eval('return '.$class_name.'::acquireLock($lockid, $source_lockid, $expires);');
+			$ok = call_user_func(array($class_name, 'acquireLock'), $lockid, $source_lockid, $expires);
 		} catch (Exception $e) {
 			return $e->getMessage();
 		}
@@ -3915,7 +3915,7 @@ class MySource extends MySource_Object
 		$this->am->includeAsset($class_name);
 
 		try {
-			$ok = eval('return '.$class_name.'::releaseLock($lockid);');
+			$ok = call_user_func(array($class_name, 'releaseLock'), $lockid);
 		} catch (Exception $e) {
 			return $e->getMessage();
 		}
@@ -3945,7 +3945,7 @@ class MySource extends MySource_Object
 		$this->am->includeAsset($class_name);
 
 		try {
-			$ok = eval('return '.$class_name.'::updateLock($lockid, $expires);');
+			$ok = call_user_func(array($class_name, 'updateLock'), $lockid, $expires);
 		} catch (Exception $e) {
 			return $e->getMessage();
 		}
@@ -3972,7 +3972,7 @@ class MySource extends MySource_Object
 		$this->am->includeAsset($class_name);
 
 		try {
-			$lock_info = eval('return '.$class_name.'::getLockInfo($lockid, $full_chain, $check_expires, $allow_only_one);');
+			$lock_info = call_user_func(array($class_name, 'getLockInfo'), $lockid, $full_chain, $check_expires, $allow_only_one);
 		} catch (Exception $e) {
 			return $e->getMessage();
 		}
