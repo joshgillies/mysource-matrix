@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.84 2013/08/05 06:01:22 akarelia Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.85 2013/08/15 05:21:04 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.84 $
+* @version $Revision: 1.85 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -314,7 +314,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 				// Escape the double quotes, newlines and '$' in the keyword
 				$keyword = str_replace('$', '\\\$', str_replace('\n', '\\\\\n', htmlentities($keyword)));
 
-				$output = preg_replace('|%((<([^>]+?)>)+)?'.$regex_safe_keyword.'((<([^>]+?)>)+)?%|', '\\1<'.'?php echo (isset($keyword_replacements["'.$keyword.'"])) ? $keyword_replacements["'.$keyword.'"] : ""; ?'.'>\\4', $output);
+				$output = preg_replace('|%((<([^>]+?)>)+)?'.$regex_safe_keyword.'((<([^>]+?)>)+)?%|', '\\1<'.'?php echo (isset($keyword_replacements[\''.$keyword.'\'])) ? $keyword_replacements[\''.$keyword.'\'] : ""; ?'.'>\\4', $output);
 			}
 
 		} else {
