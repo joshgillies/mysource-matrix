@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission.inc,v 1.49 2013/05/07 09:22:11 cupreti Exp $
+* $Id: form_submission.inc,v 1.50 2013/08/15 05:48:28 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -360,7 +360,7 @@ class Form_Submission extends Asset
 	*/
 	function printFrontend()
 	{
-		if (isset($_GET['q']) && $_GET['q'] && (SQ_IN_BACKEND || SQ_IN_LIMBO)) {
+		if (isset($_GET['q']) && $_GET['q'] && (SQ_IN_BACKEND || SQ_IN_LIMBO) && $this->readAccess()) {
 			// Download a file upload, but only if we are on the backend somewhere
 			$question_assetid = $_GET['q'];
 			$question_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($question_assetid, '', TRUE);
