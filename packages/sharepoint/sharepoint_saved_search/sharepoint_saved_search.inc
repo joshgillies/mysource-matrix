@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: sharepoint_saved_search.inc,v 1.8 2013/01/24 03:10:42 ewang Exp $
+* $Id: sharepoint_saved_search.inc,v 1.8.4.1 2013/08/15 04:06:56 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/sharepoint/lib/sharepoint_common.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __sharepoint__
 */
@@ -405,7 +405,11 @@ class Sharepoint_Saved_Search extends Data_Source
         if (!file_exists($file_path)) {
 			return FALSE;
         }//end else
-		
+       
+       $file_path = realpath($file_path);
+       if(strpos(dirname($file_path), $this->data_path) !== 0)
+	       return FALSE;
+       
 		$file_info = pathinfo($file_path);
         if (empty($file_info)) {
             return FALSE;
