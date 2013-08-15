@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.15 2013/08/15 02:11:01 lwright Exp $
+* $Id: js_asset_map.js,v 1.16 2013/08/15 06:35:35 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.15 $
+ * @version $Revision: 1.16 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -76,7 +76,11 @@ var JS_Asset_Map = new function() {
 		LeftArrow: 37,
 		UpArrow: 38,
 		RightArrow: 39,
-		DownArrow: 40
+		DownArrow: 40,
+		LetterA: 65,
+		LetterZ: 90,
+		NumberZero: 48,
+		NumberNine: 57,
 	}
 
 	/**
@@ -180,6 +184,13 @@ var JS_Asset_Map = new function() {
 	 * @var {Array}
 	 */
 	var trees = [];
+
+	/**
+	 * Current text search.
+	 *
+	 * @var {String}
+	 */
+	var textSearch = '';
 
 	/**
 	 * Tracks the status of "Use Me" (ie. asset finder) mode.
@@ -753,6 +764,17 @@ var JS_Asset_Map = new function() {
 			e.preventDefault();
 		});
 
+		dfx.addEvent(assetMapContainer.ownerDocument.getElementsByTagName('body'), 'keypress', function(e) {
+			// Handle 0-9/A-Z using keypress.
+			var code = e.keyCode ? e.keyCode : e.which;
+			if (((code >= KeyCode.LetterA) && (code <= KeyCode.LetterZ)) ||
+				((code >= KeyCode.NumberZero) && (code >= KeyCode.NumberNine))) {
+				if (self.isModalActive() === false) {
+					textSearch += String.fromCharCode(code);
+					console.info(textSearch);
+				}
+			}
+		});
 
 		dfx.addEvent(assetMapContainer.ownerDocument.getElementsByTagName('body'), 'keydown', function(e) {
 			var code = e.keyCode ? e.keyCode : e.which;
@@ -766,6 +788,7 @@ var JS_Asset_Map = new function() {
 
 				case KeyCode.RightArrow:
 					e.preventDefault();
+					textSearch = '';
 
 					if ((e.ctrlKey === true) || (e.metaKey === true)) {
 						var childIndents = dfx.getParents(lastSelection, '.childIndent');
@@ -805,6 +828,7 @@ var JS_Asset_Map = new function() {
 
 				case KeyCode.LeftArrow:
 					e.preventDefault();
+					textSearch = '';
 
 					if ((e.ctrlKey === true) || (e.metaKey === true)) {
 						var childIndents = dfx.getParents(lastSelection, '.childIndent');
@@ -852,6 +876,7 @@ var JS_Asset_Map = new function() {
 
 				case KeyCode.DownArrow:
 					e.preventDefault();
+					textSearch = '';
 
 					if (lastSelection === null) {
 						// Use the first asset.
@@ -895,6 +920,7 @@ var JS_Asset_Map = new function() {
 
 				case KeyCode.UpArrow:
 					e.preventDefault();
+					textSearch = '';
 
 					if (lastSelection === null) {
 						// Use the first asset.
@@ -983,6 +1009,7 @@ var JS_Asset_Map = new function() {
 
 		dfx.addEvent(assetMapContainer, 'mousedown', function(e) {
 			self.clearMenus();
+			textSearch = '';
 		});
 
 		for (var i = 0; i < trees.length; i++) {
