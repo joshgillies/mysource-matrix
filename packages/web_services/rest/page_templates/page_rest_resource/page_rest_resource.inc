@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rest_resource.inc,v 1.9.6.1 2013/07/11 07:31:42 ewang Exp $
+* $Id: page_rest_resource.inc,v 1.9.6.2 2013/08/15 05:45:37 ewang Exp $
 *
 */
 
@@ -60,18 +60,6 @@ class Page_REST_Resource extends Page
 	}//end constructor
 
 
-    /**    
-	* Outputs the requested resource(s).
-	*  
-	* @return void    
-	* @access public    
-	*/    
-	public function printFrontend()
-	{
-		$this->_process();
-		return parent::printFrontend();
-
-	}//end printFrontend()
 	 
 
 	/**
