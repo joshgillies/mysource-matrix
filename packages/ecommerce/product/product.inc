@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: product.inc,v 1.20 2012/08/30 00:58:34 ewang Exp $
+* $Id: product.inc,v 1.21 2013/08/15 05:25:30 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../interfaces/buyable/buyable.inc';
 * product class description here
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -143,32 +143,6 @@ class Product extends Page implements Buyable
 	}//end setAttrValue()
 
 
-	/**
-	* Prints out the Frontend for this asset
-	* it's up to the kids to override
-	*
-	* @return void
-	* @access public
-	* 
-	* Potential useless function
-	*/
-	function printFrontend()
-	{
-		// if we just submitted this form
-		if (!is_null($qty = array_get_index($_POST, 'quantity', NULL))) {
-
-			if ($qty > 0) {
-				$this->processSelection();
-			// if form submitted but invalid quantity
-			} else if ($qty < 1 || !is_int($qty)) {
-				// invalid selection - set flag here;
-			}
-		}
-
-		parent::printFrontend();
-
-	}//end printFrontend()
-
 
 	/**
 	* Prints out the body of the asset
@@ -207,83 +181,6 @@ class Product extends Page implements Buyable
 
 	}//end printBody()
 
-
-	/**
-	* Handles finding which cart to add the order to and return a boolean indicating success
-	*
-	* @return boolean
-	* @access public
-	* 
-	* Potential useless function
-	*/
-	function processSelection()
-	{
-
-		$cart_assetid = $this->getActiveCartAssetid();
-
-		if ($cart_assetid === FALSE) {
-			trigger_localised_error('ECOM0011', E_USER_WARNING);
-			return FALSE;
-		}
-
-		if (!is_numeric($qty = $_POST['quantity'])) {
-			trigger_localised_error('ECOM0012', E_USER_WARNING);
-			return FALSE;
-		}
-
-		// get the cart asset
-		$cart =& $GLOBALS['SQ_SYSTEM']->am->getAsset($cart_assetid);
-
-		// update item and quantity to cart
-		if (isset($_SESSION['sq_cart_contents'][$this->id])) {
-			$cart->update($this->id, (int)$qty);
-		} else {
-			$cart->add($this->id, $this->attr('price'), (int)$qty);
-		}
-		return TRUE;
-
-	}//end processSelection()
-
-
-	/**
-	* Get the assetid of the active cart, depending on the current lineage
-	*
-	* @return mixed {string|boolean}	the assetid of the active cart or false if nothing is found
-	* @access public
-	* 
-	* Potential useless function
-	*/
-	function getActiveCartAssetid()
-	{
-		$parents = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'ecommerce_cart', FALSE));
-
-		switch (count($parents)) {
-			case 0:
-				return FALSE;
-			break;
-
-			case 1:
-				return reset($parents);
-			break;
-
-			default:
-				// get current lineage and reverse it so the closest assets are first
-				$lineage = array_reverse($GLOBALS['SQ_SYSTEM']->am->getLineageFromURL());
-
-				// return the first cart we find, ie. the one closest to us
-				foreach ($lineage as $lineage_item) {
-					if (FALSE !== ($index = array_search($lineage_item['assetid'], $parents))) {
-						return $parents[$index];
-					}
-				}
-
-				// can't find any of the carts!
-				return FALSE;
-
-			break;
-		}
-
-	}//end getActiveCartAssetid()
 
 
 	/**

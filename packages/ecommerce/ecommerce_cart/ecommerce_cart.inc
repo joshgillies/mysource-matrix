@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart.inc,v 1.49 2012/08/30 00:58:33 ewang Exp $
+* $Id: ecommerce_cart.inc,v 1.50 2013/08/15 05:25:30 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ define('SQ_CART_PRESET_REMOVE', 'Remove');
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -224,11 +224,12 @@ class Ecommerce_Cart extends Listing_Engine
 	*/
 	function printFrontend()
 	{
+		
 		// Tie the process and following paint together using db2 in order to
 		// avoid possible replication slowdown on db1
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-
-		$this->processAssetSelections();
+		if($this->readAccess())
+		    $this->processAssetSelections();
 		parent::printFrontend();
 
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
