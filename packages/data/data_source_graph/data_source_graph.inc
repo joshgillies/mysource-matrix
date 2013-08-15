@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_graph.inc,v 1.38 2013/08/06 04:51:54 ewang Exp $
+* $Id: data_source_graph.inc,v 1.39 2013/08/15 04:24:58 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 * @author  Paratibha Gannavarapu <pgannavarapu@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1226,6 +1226,9 @@ class Data_Source_Graph extends Image
 	{
 		$info = Array();
 		$path = $this->data_path.'/'.$this->attr('name');
+		$path = realpath($path);
+		if(strpos(dirname($path), $this->data_path) !== 0)
+		    return FALSE;
 
 		if (is_file($path)) {
 			$info['path'] = $path;
