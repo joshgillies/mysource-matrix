@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.78 2013/07/25 23:25:16 lwright Exp $
+* $Id: html_tidy.inc,v 1.79 2013/08/15 07:15:51 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 * @author	Greg Sherwood <greg@squiz.net>
 * @author	Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author	Scott Kim <skim@squiz.net>
-* @version $Revision: 1.78 $
+* @version $Revision: 1.79 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -190,7 +190,7 @@ class HTML_Tidy extends Wysiwyg_Plugin
 							'--force-output'		=> TRUE,
 							'--logical-emphasis'	=> TRUE,
 							'--char-encoding'		=> $tidy_char_set,
-							'-access'				=> SQ_TOOL_HTML_TIDY_ACCESSIBILITY_LEVEL,
+							'-access'				=> (int) SQ_TOOL_HTML_TIDY_ACCESSIBILITY_LEVEL,
 						  );
 
 				// add any inline tags that other plugins may use (possibly for encapsulating plugin specific data)
