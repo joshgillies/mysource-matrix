@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: sharepoint_saved_search.inc,v 1.8 2013/01/24 03:10:42 ewang Exp $
+* $Id: sharepoint_saved_search.inc,v 1.9 2013/08/15 04:04:57 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/sharepoint/lib/sharepoint_common.inc';
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __sharepoint__
 */
@@ -309,6 +309,11 @@ class Sharepoint_Saved_Search extends Data_Source
 		header('Pragma: no-cache');
 		header('Expires: '.gmdate('D, d M Y H:i:s', time()-3600).' GMT');
 		
+		if (!$this->readAccess()) {
+		    	$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
+			return;
+		}
+		
 		// We are only doing synching in this asset, there's no need to check for update
 		if (isset($_GET['synch_now']) && !empty($_GET['synch_now'])) {
 			if ($this->adminAccess()) {
@@ -405,8 +410,12 @@ class Sharepoint_Saved_Search extends Data_Source
         if (!file_exists($file_path)) {
 			return FALSE;
         }//end else
+	
+       $file_path = realpath($file_path);
+       if(strpos(dirname($file_path), $this->data_path) !== 0)
+	       return FALSE;
 		
-		$file_info = pathinfo($file_path);
+	$file_info = pathinfo($file_path);
         if (empty($file_info)) {
             return FALSE;
         }//end if
