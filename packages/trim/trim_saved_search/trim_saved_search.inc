@@ -11,7 +11,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search.inc,v 1.47 2013/07/31 02:40:59 ewang Exp $
+* $Id: trim_saved_search.inc,v 1.48 2013/08/15 04:04:43 ewang Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -349,6 +349,11 @@ class TRIM_Saved_Search extends Data_Source
 		}
 
 		$dir_path	= $this->data_path.'/'.$uri;
+	
+		$dir_path = realpath($dir_path);
+		if(strpos(dirname($dir_path), $this->data_path) !== 0)
+		    return FALSE;
+		    
 		$path_parts	= Array();
 		if (file_exists($dir_path)) {
 			if(defined("RecursiveDirectoryIterator::SKIP_DOTS"))
