@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.13 2013/08/12 03:51:34 lwright Exp $
+* $Id: js_asset_map.js,v 1.14 2013/08/15 01:26:44 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.13 $
+ * @version $Revision: 1.14 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -488,12 +488,55 @@ var JS_Asset_Map = new function() {
 //--        INITIALISATION        --//
 
 
+	this.isSupported = function() {
+		var supported = false;
+		var version   = null;
+		var browser   = navigator.userAgent;
+		if (browser.indexOf('Trident/') !== -1) {
+			// IE: We first look for a "rv 11.0" match for IE11+, then
+			// "MSIE 10.0" etc.
+			version = /rv ([\d.]+)/.exec(browser);
+			if (!version) {
+				version = /MSIE ([\d.]+)/.exec(browser);
+			}
+
+			if (version && (parseFloat(version[1]) >= 8)) {
+				supported = true;
+			}
+		} else if (browser.indexOf('Chrome/') !== -1) {
+			// Chrome - Separated because of Blink.
+			version = /Chrome\/([\d.]+)/.exec(browser);
+			if (version && (parseFloat(version[1]) >= 10)) {
+				supported = true;
+			}
+		} else if (browser.indexOf('AppleWebKit/') !== -1) {
+			// Other Webkit browsers.
+			version = /AppleWebKit\/([\d.]+)/.exec(browser);
+			if (version && (parseFloat(version[1]) >= 529)) {
+				supported = true;
+			}
+		} else if (browser.indexOf('Gecko/') !== -1) {
+			// Other Gecko-based browsers.
+			version = /rv:([\d.]+)/.exec(browser);
+			if (version && (parseFloat(version[1]) >= 17)) {
+				supported = true;
+			}
+		}
+
+		return supported;
+	};
+
+
 	/**
 	 * Start the asset map.
 	 *
 	 * @param {Object} startOptions
 	 */
 	this.start = function(startOptions) {
+		if (this.isSupported() === false) {
+			return false;
+		}
+
 		var self = this;
 
 		options              = startOptions;
@@ -2218,7 +2261,7 @@ var JS_Asset_Map = new function() {
 		dfx.addClass(tbButtons, 'tbButtons');
 		container.appendChild(tbButtons);
 
-		var tbButton = _createEl('div');
+		var tbButton = _createEl('span');
 		tbButton.id        = 'asset_map_button_refresh';
 		dfx.addClass(tbButton, 'tbButton');
 		dfx.addClass(tbButton, 'refresh');
@@ -2229,7 +2272,7 @@ var JS_Asset_Map = new function() {
 			self.refreshTree();
 		});
 
-		var tbButton = _createEl('div');
+		var tbButton = _createEl('span');
 		tbButton.id        = 'asset_map_button_restore';
 		dfx.addClass(tbButton, 'tbButton');
 		dfx.addClass(tbButton, 'restore');
@@ -2237,7 +2280,7 @@ var JS_Asset_Map = new function() {
 		tbButton.setAttribute('title', js_translate('asset_map_tooltip_restore_root'));
 		tbButtons.appendChild(tbButton);
 
-		var tbButton = _createEl('div');
+		var tbButton = _createEl('span');
 		tbButton.id        = 'asset_map_button_collapse';
 		dfx.addClass(tbButton, 'tbButton');
 		dfx.addClass(tbButton, 'collapse');
@@ -2245,7 +2288,7 @@ var JS_Asset_Map = new function() {
 		tbButton.setAttribute('title', js_translate('asset_map_tooltip_collapse_all'));
 		tbButtons.appendChild(tbButton);
 
-		var tbButton = _createEl('div');
+		var tbButton = _createEl('span');
 		tbButton.id        = 'asset_map_button_statuses';
 		dfx.addClass(tbButton, 'tbButton');
 		dfx.addClass(tbButton, 'statuses');
@@ -3058,6 +3101,7 @@ var JS_Asset_Map = new function() {
 
 					dfx.setCoords(_lineEl, (assetNameRect.x1 - assetMapCoords.x), (assetRect.y2 - assetMapCoords.y));
 				} else {
+					// Asset directly selected means make it a child of the selection.
 					this.selection = {
 						parentid: target.getAttribute('data-assetid'),
 						linkid: target.getAttribute('data-linkid'),
@@ -3724,10 +3768,12 @@ var JS_Asset_Map = new function() {
 	 * @param {String} [type] The type of menu to clear (omit for all menus).
 	 */
 	this.clearMenus = function(type) {
-		if (type === undefined) {
-			dfx.remove(dfx.getClass('assetMapMenu', this.topDocumentElement(assetMapContainer)));
-		} else {
-			dfx.remove(dfx.getClass('assetMapMenu.' + type, this.topDocumentElement(assetMapContainer)));
+		if (assetMapContainer) {
+			if (type === undefined) {
+				dfx.remove(dfx.getClass('assetMapMenu', this.topDocumentElement(assetMapContainer)));
+			} else {
+				dfx.remove(dfx.getClass('assetMapMenu.' + type, this.topDocumentElement(assetMapContainer)));
+			}
 		}
 	};
 
