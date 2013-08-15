@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.14 2013/08/15 01:26:44 lwright Exp $
+* $Id: js_asset_map.js,v 1.15 2013/08/15 02:11:01 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.14 $
+ * @version $Revision: 1.15 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -768,12 +768,22 @@ var JS_Asset_Map = new function() {
 					e.preventDefault();
 
 					if ((e.ctrlKey === true) || (e.metaKey === true)) {
-						if (e.shiftKey === true) {
-							// CTRL/CMD + SHIFT + Right Arrow = page current set
-							// to the last page (but not on bridges).
-						} else {
-							// CTRL/CMD + Right Arrow = page current set forward one
-							// page.
+						var childIndents = dfx.getParents(lastSelection, '.childIndent');
+						if (childIndents.length > 0) {
+							var tool = dfx.getClass('paginationTool.down', childIndents);
+							if (tool.length > 0) {
+								if (e.shiftKey === true) {
+									// CTRL/CMD + SHIFT + Right Arrow = page current set
+									// to the last page (but not on bridges).
+									var lastPageBtn = dfx.getClass('last-page', tool);
+									lastPageBtn[0].click();
+								} else {
+									// CTRL/CMD + Right Arrow = page current set forward one
+									// page.
+									var nextPageBtn = dfx.getClass('next-page', tool);
+									nextPageBtn[0].click();
+								}//end if
+							}//end if
 						}//end if
 					} else {
 						if (dfx.getClass('branch-status', lastSelection).length > 0) {
@@ -797,11 +807,21 @@ var JS_Asset_Map = new function() {
 					e.preventDefault();
 
 					if ((e.ctrlKey === true) || (e.metaKey === true)) {
-						if (e.shiftKey === true) {
-							// CTRL/CMD + SHIFT + Left Arrow = page current set
-							// to the first page.
-						} else {
-							// CTRL/CMD + Left Arrow = page current set back one page.
+						var childIndents = dfx.getParents(lastSelection, '.childIndent');
+						if (childIndents.length > 0) {
+							var tool = dfx.getClass('paginationTool.up', childIndents);
+							if (tool.length > 0) {
+								if (e.shiftKey === true) {
+									// CTRL/CMD + SHIFT + Left Arrow = page current set
+									// to the first page.
+									var firstPageBtn = dfx.getClass('first-page', tool);
+									firstPageBtn[0].click();
+								} else {
+									// CTRL/CMD + Left Arrow = page current set back one page.
+									var prevPageBtn = dfx.getClass('previous-page', tool);
+									prevPageBtn[0].click();
+								}//end if
+							}//end if
 						}//end if
 					} else {
 						if (dfx.getClass('branch-status', lastSelection).length > 0) {
