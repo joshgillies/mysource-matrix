@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: physical_file.inc,v 1.4.6.1 2013/08/06 05:02:25 ewang Exp $
+* $Id: physical_file.inc,v 1.4.6.2 2013/08/15 04:36:53 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.4.6.1 $
+* @version $Revision: 1.4.6.2 $
 * @package MySource_Matrix_Packages
 * @subpackage file
 */
@@ -197,6 +197,10 @@ class Physical_File extends Asset
 			$location = rtrim($location, '/');
 			$full_path = $location.'/'.$this->_shadowid;
 
+			$full_path = realpath($full_path);
+			if(strpos(dirname($full_path), $location) !== 0)
+			    return FALSE;
+		
 			$content = file_get_contents($full_path);
 			$content = nl2br($content);
 			echo $content;
@@ -225,6 +229,10 @@ class Physical_File extends Asset
 		$location = rtrim($location, '/');
 		$full_path = $location.'/'.$this->_shadowid;
 
+		$full_path = realpath($full_path);
+		if(strpos(dirname($full_path), $location) !== 0)
+		    exit(1);
+		
 		return $full_path;
 
 	}//end getFilePath()
