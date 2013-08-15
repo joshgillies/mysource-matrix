@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: news_item_edit_fns.inc,v 1.11.6.1 2013/06/04 04:16:08 akarelia Exp $
+* $Id: news_item_edit_fns.inc,v 1.11.6.2 2013/08/15 06:11:43 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * Purpose
 *
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Revision: 1.11.6.1 $
+* @version $Revision: 1.11.6.2 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -125,7 +125,7 @@ class News_Item_Edit_Fns extends Page_Edit_Fns
 	*/
 	public function processShadowLinks(News_Item $asset, Backend_Outputter $o, $prefix)
 	{
-		if (!$asset->writeAccess()) return FALSE;
+		if (!$asset->id || !$asset->writeAccess()) return FALSE;
 		$output = '';
 
 		// get the contents for 'body' and 'summary' attribute
