@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.81 2013/08/01 05:31:07 akarelia Exp $
+* $Id: calendar_common.inc,v 1.82 2013/08/16 00:52:17 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.81 $
+* @version $Revision: 1.82 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -117,7 +117,8 @@ class Calendar_Common
 		if (($view == 'period') && ($length == 0)) {
 			$view = 'day';
 		}
-
+		$length = (int) $length;
+		
 		$now = Calendar_Common::getDateComponents(sprintf('%04d-%02d-%02d', $year, $month, $day));
 		$wdom_list = weekday_dates_in_month($now['wday'], $month, $year);
 

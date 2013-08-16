@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_xml.inc,v 1.33 2012/10/17 07:14:15 cupreti Exp $
+* $Id: data_source_xml.inc,v 1.34 2013/08/16 00:51:50 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -303,6 +303,7 @@ class Data_Source_Xml extends Data_Source
 			$required_tags = $this->_getRequiredTags();
 			if(!empty($required_tags)) {
 				foreach($required_tags as $index => $required_tag) {
+					$required_tag = preg_quote($required_tag);
 					$pattern = '|(<'.$required_tag.')([\s]+[^>]*)/>|i';
 					$replace = "<".$required_tag."$2>\n</".$required_tag.">";
 					$content = preg_replace($pattern, $replace, $content);
@@ -562,6 +563,7 @@ class Data_Source_Xml extends Data_Source
 		foreach ($keywords as $keyword) {
 			$value = $this->getDynamicVariableValue($keyword);
 			$replacements[] = str_replace('$', '\$', $value);
+			$keyword = preg_quote($keyword);
 			$patterns[] = '/('.$keyword_wrapper.$keyword.$keyword_wrapper.')/';
 		}
 
@@ -628,7 +630,7 @@ class Data_Source_Xml extends Data_Source
 		
 		foreach($cdata_tags as $cdata_tag) {
 			if (!$cdata_tag) continue;
-
+			$cdata_tag = preg_quote($cdata_tag);
 			// Replace only if the element data is not already wrapped with CDATA
 			$replace_pattern = "/(\<$cdata_tag(\s[^>]*?)*?(?<!\/)>)(?!\<\!\[CDATA\[)(.*?)(?<!\]\]>)(\<\/$cdata_tag\s*>)/ms";
 			$replacement = "$1<![CDATA[$3]]>$4";
