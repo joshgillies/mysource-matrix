@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.357 2013/07/22 07:52:51 ewang Exp $
+* $Id: listing_engine.inc,v 1.358 2013/08/16 00:53:00 ewang Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.357 $
+* @version $Revision: 1.358 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1345,6 +1345,9 @@ class Listing_Engine extends Page
 			$in_clauses = Array();
 			foreach (array_chunk($query_assetids, 999) as $chunk) {
 				$in_clauses[] = ' assetid IN ('.implode(', ', $chunk).')';
+			}
+			foreach ($wanted_statuses as $index => $status) {
+			    $wanted_statuses[$index] = MatrixDAL::quote($status);
 			}
 			$sql = 'SELECT
 						assetid
