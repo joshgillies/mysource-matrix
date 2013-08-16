@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.16 2013/08/15 06:35:35 lwright Exp $
+* $Id: js_asset_map.js,v 1.17 2013/08/16 01:35:48 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.16 $
+ * @version $Revision: 1.17 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -1144,8 +1144,12 @@ var JS_Asset_Map = new function() {
 				if (options.simple === false) {
 					if (which === 1) {
 						dragStatus.selectionDrag = {
-							selection: []
+							selection: [],
+							originalSelection: []
 						};
+						if ((e.ctrlKey === true) || (e.metaKey === true)) {
+							dragStatus.selectionDrag.originalSelection = self.currentSelection();
+						}
 					} else if (which === 3) {
 						var menu = self.drawAddMenu();
 						self.positionMenu(menu, {x: e.clientX, y: e.clientY});
@@ -1174,21 +1178,35 @@ var JS_Asset_Map = new function() {
 								var rectDims = dfx.getBoundingRectangle(selectionRect);
 								var assets   = dfx.getClass('asset', tree);
 								for (var i = 0; i < assets.length; i++) {
-									var asset    = assets[i];
-									var iconDims = dfx.getBoundingRectangle(dfx.getClass('icon', asset)[0]);
-									var nameDims = dfx.getBoundingRectangle(dfx.getClass('assetName', asset)[0]);
+									var asset     = assets[i];
+									var iconDims  = dfx.getBoundingRectangle(dfx.getClass('icon', asset)[0]);
+									var nameDims  = dfx.getBoundingRectangle(dfx.getClass('assetName', asset)[0]);
+									var ctrlKey   = ((e.ctrlKey === true) || (e.metaKey === true));
+									var inOrigSel = (dragStatus.selectionDrag.originalSelection.find(asset) !== -1);
 
 									// Work out if this asset is being touched by the selection.
 									if ((rectDims.x2 < iconDims.x1) || (rectDims.x1 > nameDims.x2)) {
-										self.removeFromSelection(asset);
+										if ((ctrlKey === true) && (inOrigSel === true)) {
+											self.addToSelection(asset);
+										} else {
+											self.removeFromSelection(asset);
+										}
 									} else if ((rectDims.y2 < iconDims.y1) || (rectDims.y1 > iconDims.y2)) {
-										self.removeFromSelection(asset);
+										if ((ctrlKey === true) && (inOrigSel === true)) {
+											self.addToSelection(asset);
+										} else {
+											self.removeFromSelection(asset);
+										}
 									} else {
-										self.addToSelection(asset);
-									}
-								}
+										if ((ctrlKey === true) && (inOrigSel === true)) {
+											self.removeFromSelection(asset);
+										} else {
+											self.addToSelection(asset);
+										}
+									}//end if
+								}//end for
 							}, 40);
-						}
+						}//end if
 
 						var selectionRect = dfx.getClass('selectionRect', assetMapContainer)[0];
 						if (!selectionRect) {
@@ -1389,10 +1407,6 @@ var JS_Asset_Map = new function() {
 			dfx.remove(dfx.getClass('dragAsset', assetMapContainer));
 			if (dragStatus) {
 				if (dragStatus.selectionDrag) {
-/*
-					dfx.removeEvent(dfx.getClass('asset', assetMapContainer), 'mouseover.rectSelection');
-					dfx.removeEvent(dfx.getClass('asset', assetMapContainer), 'mouseout.rectSelection');
-*/
 					var selectionRect = dfx.getClass('selectionRect', assetMapContainer);
 					if (selectionRect) {
 						dfx.remove(selectionRect);
