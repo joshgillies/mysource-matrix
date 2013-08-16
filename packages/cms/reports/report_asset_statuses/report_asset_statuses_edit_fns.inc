@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_asset_statuses_edit_fns.inc,v 1.15 2012/08/30 00:58:09 ewang Exp $
+* $Id: report_asset_statuses_edit_fns.inc,v 1.16 2013/08/16 06:31:50 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -78,8 +78,11 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 			$where[] = 'l.linkid = t.linkid';
 			$where[] = 'a.assetid = l.minorid';
 		}
-
-		$search_status = str_replace('|', ', ', $owner->attr('search_status'));
+		$search_status = explode('|', $owner->attr('search_status'));
+		foreach ($search_status as $index => $status) {
+		    $search_status[$index] = MatrixDAL::quote($status);
+		}
+		$search_status = str_replace('|', ', ', implode('|', $search_status));
 		if ($search_status != SQ_SC_STATUS_ALL) {
 			$where[] = 'a.status in ('.$search_status.')';
 		}
