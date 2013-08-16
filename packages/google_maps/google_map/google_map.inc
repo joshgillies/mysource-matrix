@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: google_map.inc,v 1.32 2012/10/23 05:27:02 ewang Exp $
+* $Id: google_map.inc,v 1.33 2013/08/16 06:49:17 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage google_maps
 */
@@ -845,7 +845,12 @@ class Google_Map extends Page_Asset_Listing
 	*/
 	public function classifyChildren($root_id, $assetids)
 	{
-		$sql		= 'SELECT minorid FROM sq_ast_lnk WHERE majorid = \''.$root_id.'\' AND minorid IN (\''.implode("', '", $assetids).'\')';
+		$root_id = MatrixDAL::quote($root_id);
+		foreach ($assetids as $index => $id) {
+		    $assetids[$index] = MatrixDAL::quote($id);
+		}
+		$assetids = implode(', ', $assetids);
+		$sql		= 'SELECT minorid FROM sq_ast_lnk WHERE majorid = '.$root_id.' AND minorid IN ('.$assetids.')';
 
 		$query		= MatrixDAL::preparePdoQuery($sql);
 		$children	= MatrixDAL::executePdoAssoc($query);
