@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.140 2013/08/07 00:22:30 akarelia Exp $
+* $Id: page_asset_listing.inc,v 1.141 2013/08/16 05:51:37 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.140 $
+* @version $Revision: 1.141 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -205,6 +205,7 @@ class Page_Asset_Listing extends Listing_Engine
 			} else {
 				$letter_sort_by = $sort_info['params']['field'];
 			}
+			$letter_sort_by = preg_replace('/[^a-zA-Z0-9_]+/', '', $letter_sort_by);
 		}
 
 		if (!is_null($link_value_wanted)) {
