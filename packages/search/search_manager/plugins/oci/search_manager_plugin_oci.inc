@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_plugin_oci.inc,v 1.28 2012/08/30 00:59:15 ewang Exp $
+* $Id: search_manager_plugin_oci.inc,v 1.29 2013/08/16 07:27:00 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * performance under Oracle (9i/10g) by using Oracle's text package
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1391,8 +1391,8 @@ class Search_Manager_Plugin_OCI
 			$query_comps['where'][] = '('.implode(') OR (', $data_source_comps).')';
 		}
 
-		$noise_words	= array_keys($sm->attr('noise_word_list'));
-		$white_words	= array_keys($sm->attr('white_word_list'));
+		$noise_words	= $sm->attr('noise_word_list');
+		$white_words	= $sm->attr('white_word_list');
 		$where_cond = '('.implode(') AND (',$query_comps['where']).')';
 
 		$min_length		= $sm->attr('min_word_length');
@@ -1400,10 +1400,10 @@ class Search_Manager_Plugin_OCI
 		$white_words_str = '"'.implode('", "', $white_words).'"';
 		$sql =	'SELECT * FROM table(
 					sq_search_pkg.get_search_list(\''.
-						str_replace('\'', '"', $where_cond).'\', \''.
-						$min_length.'\', \''.
-						$noise_words_str.'\', \''.
-						$white_words_str.'\'))';
+						str_replace('\'', '"', $where_cond).'\', '.
+						MatrixDAL::quote($min_length).', '.
+						MatrixDAL::quote($noise_words_str).', '.
+						MatrixDAL::quote($white_words_str).'))';
 
 		$results = MatrixDAL::executeSqlAssoc($sql);
 		$children = Array();
