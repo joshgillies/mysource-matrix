@@ -84,6 +84,7 @@ class Page_Hit_Count_Listing extends Listing_Engine
 			} else {
 				$letter_sort_by = $sort_info['params']['field'];
 			}
+			$letter_sort_by = preg_replace('/[^a-zA-Z0-9_]+/', '', $letter_sort_by);
 		}
 
 		// check the sorting order
