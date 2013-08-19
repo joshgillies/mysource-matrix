@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox.inc,v 1.36 2012/08/30 01:09:16 ewang Exp $
+* $Id: inbox.inc,v 1.37 2013/08/19 01:12:24 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -173,31 +173,26 @@ class Inbox extends Asset
 	*/
 	function printBody()
 	{
+		// they want to print all mail
+		if (!SQ_IN_BACKEND) {
+			$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'mail');
+			$user = $this->_getUser();
+			?>
+			<script type="text/javascript" src="<?php echo sq_web_path('lib'); ?>/js/general.js"></script>
+			<script type="text/javascript" src="<?php echo sq_web_path('lib'); ?>/html_form/html_form.js"></script>
+			<h2 style="margin-bottom: 2px">Inbox for <?php echo $user->attr('first_name').' '.$user->attr('last_name'); ?></h2>
+			<form method="POST" action="<?php echo htmlentities($_SERVER['REQUEST_URI'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET); ?>" name="main_form" id="main_form">
+			<?php
+		}
+
+		$null = '';
 		$edit = $this->getEditFns();
-		if (isset($_REQUEST['msgid'])) {
-			// they want to print a single message
-			$edit->paintMessage($_REQUEST['msgid']);
-		} else {
-			// they want to print all mail
-			if (!SQ_IN_BACKEND) {
-				$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'mail');
-				$user = $this->_getUser();
-				?>
-				<script type="text/javascript" src="<?php echo sq_web_path('lib'); ?>/js/general.js"></script>
-				<script type="text/javascript" src="<?php echo sq_web_path('lib'); ?>/html_form/html_form.js"></script>
-				<h2 style="margin-bottom: 2px">Inbox for <?php echo $user->attr('first_name').' '.$user->attr('last_name'); ?></h2>
-				<form method="POST" action="<?php echo htmlentities($_SERVER['REQUEST_URI'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET); ?>" name="main_form" id="main_form">
-				<?php
-			}
+		$edit->paintInbox($this, $null, 'inbox');
 
-			$null = '';
-			$edit->paintInbox($this, $null, 'inbox');
-
-			if (!SQ_IN_BACKEND) {
-				?>
-				</form>
-				<?php
-			}
+		if (!SQ_IN_BACKEND) {
+			?>
+			</form>
+			<?php
 		}
 
 	}//end printBody()
