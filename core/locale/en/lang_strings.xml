@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.433 2013/08/09 07:03:02 cupreti Exp $
+* $Id: lang_strings.xml,v 1.434 2013/08/19 04:28:29 cupreti Exp $
 *
 */
 
@@ -2961,4 +2961,11 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="saml_authentication">SAML Authentication</string>
 	<string source="simplesamlphp_path">Simplesamlphp Path</string>
 	<string source="simplesamlphp_path_note">Install location of Simplesamlphp program</string>
+	
+	<!-- reCAPTCHA Spam Check -->
+	<string source="recaptcha_public_key">Public Key</string>
+	<string source="recaptcha_private_key">Private Key</string>
+	<string source="recaptcha_configuration">Google reCAPTCHA</string>
+	<string source="recaptcha_public_key_note">Global public key supplied by reCAPTCHA</string>
+	<string source="recaptcha_private_key_note">Global private key supplied by reCAPTCHA</string>
 </strings>

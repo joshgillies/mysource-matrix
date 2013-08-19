@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: external_tools_config.inc,v 1.45 2012/12/12 04:54:00 cupreti Exp $
+* $Id: external_tools_config.inc,v 1.46 2013/08/19 04:28:03 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    e.g. HTML Tidy, PDFtoHTML, Antiword, etc.
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix
 */
 class External_Tools_Config extends Config
@@ -76,6 +76,8 @@ class External_Tools_Config extends Config
 						'SQ_TOOL_SENDMAIL_PATH'				=> Array('editable' => 1, 'default' => ''),
 						'SQ_TOOL_SENDMAIL_ARGS'				=> Array('editable' => 1, 'default' => ''),
 						'SQ_TOOL_SIMPLESAMLPHP_PATH'			=> Array('editable' => 1, 'default' => ''),
+						'SQ_TOOL_RECAPTCHA_PUBLIC_KEY'			=> Array('editable' => 1, 'default' => ''),
+						'SQ_TOOL_RECAPTCHA_PRIVATE_KEY'			=> Array('editable' => 1, 'default' => ''),
 				);
 
 
@@ -517,9 +519,6 @@ class External_Tools_Config extends Config
 				?><br /><?php
 				echo translate('mollom_accept_bypassed_submission_note');
 		$o->closeSection();
-
-		
-		
 		
 		// Squid caching
 		$o->openSection(translate('squid_cache_section'));
@@ -591,6 +590,29 @@ class External_Tools_Config extends Config
 		    echo SQ_TOOL_SIMPLESAMLPHP_PATH;
 		    echo $o->note(translate('simplesamlphp_path_note'));
 		$o->closeField();
+		$o->closeSection();
+
+		// Recaptcha
+		$o->openSection(translate('recaptcha_configuration'));
+			$o->openField(translate('recaptcha_public_key'));
+				if ($write_access) {
+					text_box($class.'[SQ_TOOL_RECAPTCHA_PUBLIC_KEY]', SQ_TOOL_RECAPTCHA_PUBLIC_KEY, 50);
+				} else {
+					echo SQ_TOOL_RECAPTCHA_PUBLIC_KEY;
+				}//end if
+				?><br /><?php
+				echo translate('recaptcha_public_key_note');
+			$o->closeField();
+
+			$o->openField(translate('recaptcha_private_key'));
+				if ($write_access) {
+					text_box($class.'[SQ_TOOL_RECAPTCHA_PRIVATE_KEY]', SQ_TOOL_RECAPTCHA_PRIVATE_KEY, 50);
+				} else {
+					echo SQ_TOOL_RECAPTCHA_PRIVATE_KEY;
+				}//end if
+				?><br /><?php
+				echo translate('recaptcha_private_key_note');
+			$o->closeField();
 		$o->closeSection();
 
 		if ($write_access) $o->commitButton('', TRUE);
