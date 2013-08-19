@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.143.2.2 2013/08/13 01:36:14 akarelia Exp $
+* $Id: js_api.inc,v 1.143.2.3 2013/08/19 04:16:17 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.143.2.2 $
+* @version $Revision: 1.143.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -2880,7 +2880,7 @@ class JS_Api extends Page
 		$array_to_check_in = array_merge(Array($user->id), $user->getUserGroups());
 		$effective_permission = '';
 
-		if($user instanceof Root_User || $user instanceof System_User) {
+		if ($GLOBALS['SQ_SYSTEM']->userRoot($user) || $GLOBALS['SQ_SYSTEM']->userSystemAdmin($user)) {
 			$effective_permission = 'Admin Access';
 		}
 

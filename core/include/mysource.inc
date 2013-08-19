@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.404.4.3 2013/07/19 04:05:34 ewang Exp $
+* $Id: mysource.inc,v 1.404.4.4 2013/08/19 04:15:01 cupreti Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.404.4.3 $
+* @version $Revision: 1.404.4.4 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -1553,16 +1553,18 @@ class MySource extends MySource_Object
 						}
 					}
 
-					$failure_reason = translate('user_not_found');
+					$display_message = $failure_reason = translate('user_not_found');
 					if (!is_null($user_status)) {
-						if ($user_status & SQ_SC_STATUS_NOT_LIVE) {
+						if ($login_username === 'root') {
+							$display_message = $failure_reason = translate('root_user_disabled');
+						} else if ($user_status & SQ_SC_STATUS_NOT_LIVE) {
 							$failure_reason = translate('user_status_not_live');
 						} else {
 							$failure_reason = translate('user_asset_in_trash');
 						}
 					}
 
-					$this->addMessage(translate('user_not_found'));
+					$this->addMessage($display_message);
 					// log failed attempt
 					$this->_logSecurityMsg('system.security.login.failed', Array('login_name' => $login_username, 'failure_reason' => $failure_reason), TRUE);
 
@@ -2676,7 +2678,15 @@ class MySource extends MySource_Object
 	{
 		if (is_null($user)) return $this->_user_is_root;
 		if (!$user->id) return FALSE;
-		if (get_class($user) == 'Root_User') return TRUE;
+
+		if (SQ_CONF_ROOT_USER_DISABLED) {
+			if ($this->userSystemAdmin($user)) {
+				return TRUE;
+			}
+		} else if (get_class($user) == 'Root_User') {
+			return TRUE;
+		}
+
 		return FALSE;
 
 	}//end userRoot()

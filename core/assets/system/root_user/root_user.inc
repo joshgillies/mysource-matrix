@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: root_user.inc,v 1.42 2012/08/30 01:09:11 ewang Exp $
+* $Id: root_user.inc,v 1.42.8.1 2013/08/19 04:15:48 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/system_user/system_user.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.42.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -138,7 +138,7 @@ class Root_User extends System_User
 	*/
 	function canLogin()
 	{
-		return TRUE;
+		return SQ_CONF_ROOT_USER_DISABLED ? FALSE : TRUE;
 
 	}//end canLogin()
 
@@ -162,6 +162,19 @@ class Root_User extends System_User
 		return parent::setAttrValue($name, $value);
 
 	}//end setAttrValue()
+
+
+	/**
+	* Check if this user can access the backend interface
+	*
+	* @return boolean
+	* @access public
+	*/
+	function canAccessBackend()
+	{
+		return SQ_CONF_ROOT_USER_DISABLED ? FALSE : TRUE;
+
+	}//end canAccessBackend()
 
 
 }//end class
