@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: oauth_account_manager.inc,v 1.2 2013/08/05 01:55:10 ewang Exp $
+* $Id: oauth_account_manager.inc,v 1.3 2013/08/19 02:00:25 ewang Exp $
 *
 */
 require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_builder/page_asset_builder.inc';
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage oauth2
 */
@@ -540,9 +540,9 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 
 		foreach ($vars as $index => $value) {
 			if (is_object($value) || is_array($value)) {
-				$this->_store_results ($value, $prefix.$index);
+				$this->_store_results ($value, $prefix.$index.'_');
 			} else {
-				$_SESSION[SQ_SESSION_SANDBOX_INDEX][$prefix.'_'.$index] = $value;
+				$_SESSION[SQ_SESSION_SANDBOX_INDEX][$prefix.$index] = $value;
 			}
 		}
 
