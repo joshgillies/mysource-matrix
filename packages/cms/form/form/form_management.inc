@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_management.inc,v 1.75 2013/08/06 01:15:19 ewang Exp $
+* $Id: form_management.inc,v 1.76 2013/08/19 04:32:27 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.75 $
+* @version $Revision: 1.76 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -566,6 +566,71 @@ class Form_Management extends Asset_Management
 																			'allow_empty'	=> FALSE,
 																		   ),
 													   ),
+						'use_recaptcha'				=> Array(
+																'added'			=> '0.17',
+																'type'			=> 'boolean',
+																'default'		=> FALSE,
+																'parameters'	=> Array(
+																					'allow_empty'	=> FALSE,
+																					),
+															),
+						'recaptcha_theme'			=> Array(
+																'added'			=> '0.17',
+																'type'			=> 'selection',
+																'default'		=> 'red',
+																'parameters'	=> Array(
+																					'multiple'		=> FALSE,
+																					'allow_empty'   => FALSE,
+																					'options'       => Array(
+																										'red'	=> 'Red',
+																										'white' => 'White',
+																										'blackglass' => 'Black Glass',
+																										'clean'	=> 'Clean',
+																			),
+																	),
+															),
+						'recaptcha_error_message'		=> Array(
+																'added'		=> '0.17',
+																'type'		=> 'text',
+																'default'	=> '',
+																'description' => 'Error message when Recaptcha validation fails',
+															),
+						'honeypot_name'					=> Array(
+																'added'		=> '0.17',
+																'type'		=> 'text',
+																'default'	=> '',
+																'description' => 'Honeypot input field name',
+															),
+						'honeypot_id'					=> Array(
+																'added'		=> '0.17',
+																'type'		=> 'text',
+																'default'	=> '',
+																'description' => 'Honeypot input field id',
+															),
+						'honeypot_class'				=> Array(
+																'added'		=> '0.17',
+																'type'		=> 'text',
+																'default'	=> '',
+																'description' => 'Honeypot input field class name',
+															),
+						'honeypot_error_message'		=> Array(
+																'added'		=> '0.17',
+																'type'		=> 'text',
+																'default'	=> '',
+																'description' => 'Error message when Honeypot validation fails',
+															),
+						'time_requirement'				=> Array(
+																'added'		=> '0.17',
+																'type'		=> 'text',
+																'default'	=> '0',
+																'description' => 'Time in seconds required to complete the form by a human user',
+															),
+						'time_requirement_error_message'	=> Array(
+																'added'		=> '0.17',
+																'type'		=> 'text',
+																'default'	=> '',
+																'description' => 'Error message when time requirement check fails',
+															),
 					  );
 
 	}//end constructor

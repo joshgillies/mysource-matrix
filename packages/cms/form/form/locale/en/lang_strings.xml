@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.17 2013/05/07 09:05:27 cupreti Exp $
+* $Id: lang_strings.xml,v 1.18 2013/08/19 04:38:34 cupreti Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -102,6 +102,9 @@
 <string source="cms_form_mollom_captcha_link">Mollom CAPTCHA regeneration link</string>
 <string source="cms_form_mollom_captcha_errors">Mollom CAPTCHA error message</string>
 <string source="cms_form_mollom_captcha_label">Mollom CAPTCHA input label</string>
+
+<string source="cms_form_recaptcha">Google reCAPTCHA</string>
+<string source="cms_form_honeypot_field">Honeypot Question</string>
 
 <string source="cms_form_required_field_note">Required field note</string>
 

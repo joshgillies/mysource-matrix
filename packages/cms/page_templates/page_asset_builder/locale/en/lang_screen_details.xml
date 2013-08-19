@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.21 2010/11/03 04:07:43 ewang Exp $
+* $Id: lang_screen_details.xml,v 1.22 2013/08/19 04:38:04 cupreti Exp $
 *
 */
 -->
@@ -209,5 +209,47 @@
 			<display_name>CAPTCHA Regen Link Text</display_name>
 			<note>This text will appear when the %asset_builder_mollom_captcha_regen_link% keyword is used.</note>
 		</field>
-	</section>	
+	</section>
+	<section name="Google reCAPTCHA" write_access="write:attributes">
+		<field attribute="use_recaptcha">
+			<display_name>Use reCAPTCHA</display_name>
+			<note>If this option is set to 'yes', %form_recaptcha% keyword must be included in form content. API keys needs to be set in External Tools Configuration</note>
+		</field>
+		<field attribute="recaptcha_theme">
+			<display_name>Theme</display_name>
+			<note>Standard theme to use for printing the reCAPTCHA box</note>
+		</field>
+		<field attribute="recaptcha_error_message">
+			<display_name>Error Message</display_name>
+			<note>Error message to dispay if reCAPTCHA validation fails</note>
+		</field>
+	</section>
+	<section name="Spam Prevention: Honeypot Question" write_access="write:attributes">
+		<field attribute="honeypot_name">
+			<display_name>Field Name</display_name>
+			<note>Honeypot input field name. %form_honeypot_field% keyword needs to be included in form content to include the Honeypot question in the output</note>
+		</field>
+		<field attribute="honeypot_id">
+			<display_name>Field Id</display_name>
+			<note>Honeypot input field id</note>
+		</field>
+		<field attribute="honeypot_class">
+			<display_name>Field Class</display_name>
+			<note>Honeypot input field CSS class name</note>
+		</field>
+		<field attribute="honeypot_error_message">
+			<display_name>Error Message</display_name>
+			<note>Error message to display if the Honeypot validation fails</note>
+		</field>
+	</section>
+	<section name="Spam Prevention: Submission Time Threshold" write_access="write:attributes">
+		<field attribute="time_requirement">
+			<display_name>Time Period</display_name>
+			<note>Estimated minimum time (in seconds) required by a user to complete the form. If the form gets submitted before the submission time threshold, the submission will not be accepted. If empty or set to '0', the submission time check will be ignored</note>
+		</field>
+		<field attribute="time_requirement_error_message">
+			<display_name>Error Message</display_name>
+			<note>Error message to display if the time requirement check fails</note>
+		</field>
+	</section>
 </contents>

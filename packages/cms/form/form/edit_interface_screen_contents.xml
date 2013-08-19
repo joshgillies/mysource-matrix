@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_contents.xml,v 1.42 2013/08/06 01:15:19 ewang Exp $
+* $Id: edit_interface_screen_contents.xml,v 1.43 2013/08/19 04:32:27 cupreti Exp $
 *
 */
 -->
@@ -289,6 +289,39 @@
 	<section name="Advanced Settings" write_access="write:attributes">
 		<field attribute="submit_to_page_url">
 			<boolean true_text="cms_this_page_own_url" false_text="cms_current_url" />
+		</field>
+	</section>
+	<section name="Google reCAPTCHA" write_access="write:attributes">
+		<field attribute="use_recaptcha">
+			<boolean true_text="yes" false_text="no"/>
+		</field>		
+		<field attribute="recaptcha_theme">
+			<selection style="list" />
+		</field>		
+		<field attribute="recaptcha_error_message">
+			<text width="50" />
+		</field>
+	</section>
+	<section name="Spam Prevention: Honeypot Question" write_access="write:attributes">
+		<field attribute="honeypot_name">
+			<text width="20" />
+		</field>
+		<field attribute="honeypot_id">
+			<text width="20" />
+		</field>
+		<field attribute="honeypot_class">
+			<text width="20" />
+		</field>		
+		<field attribute="honeypot_error_message">
+			<text width="50" />
+		</field>
+	</section>
+	<section name="Spam Prevention: Submission Time Threshold" write_access="write:attributes">
+		<field attribute="time_requirement">
+			<text width="10" />
+		</field>
+		<field attribute="time_requirement_error_message">
+			<text width="50" />
 		</field>
 	</section>
 </contents>
