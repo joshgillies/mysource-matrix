@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: oauth2_token.inc,v 1.1.1.1 2013/07/19 00:29:26 ewang Exp $
+* $Id: oauth2_token.inc,v 1.1.1.1.2.2 2013/08/06 02:53:57 ewang Exp $
 *
 */
 
@@ -42,6 +42,21 @@ class Oauth2_Token extends Page
 	var $redirect_uri = null;
 	
 	var $auth_type = null;
+
+	/**
+	* Wakeup.
+	*
+	* It's important to load components when restored from a serialised
+	* state by Deja Vu.
+	*
+	* @access public
+	*/
+	function __wakeup() 
+	{
+		// don't cache any config
+		$this->__construct();
+	}//end __wakeup()
+	
 	
 	/**
 	* Constructor
@@ -179,7 +194,7 @@ class Oauth2_Token extends Page
 		if($expire < time() +10) {
 		    // if it expired, do we have a refresh token?
 		    if(isset($token['refresh_token']) && !empty($token['refresh_token'])) {
-			$params = array('refresh_token' => $token['refresh_token'], 'redirect_uri' => $this->redirect_uri);
+			$params = array('refresh_token' => $token['refresh_token']);
 			// refresh the access token
 			$response = $this->client->getAccessToken($this->token_endpoint, 'refresh_token', $params);
 

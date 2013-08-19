@@ -1,5 +1,117 @@
 SQUIZ MATRIX CHANGELOG
 
+VERSION 4.16.1
+
+Featured Changes
+===================================
+
+Save as XML Completion Action on E-Commerce Checkout Page [ Feature Request #6413 ]
+-----------------------------------------------------
+
+The Custom Form Page's Save as XML submission action is used to export form submissions as an XML structure.
+
+This functionality has been extended to the E-Commerce package's Checkout Page asset via a new Save XML completion action that will export the details of an e-commerce order to an XML file after the checkout process has successfully been completed.
+
+The Save as XML action can be configured on the Checkout Completion Actions screen of a Checkout Page asset.
+
+Like the form submission action, the Save as XML action allows you to configure the location to save the resulting XML files to. You are also able to specify whether to include the transaction and merchant reference numbers on the XML file.
+
+Search/Listing Assets: Use Individual Entries of Multi-Option Metadata as Group Sources [ Feature Request #6426 ]
+-----------------------------------------------------
+
+This feature introduces a new Group by Individual Entry option to the Grouping Screen of search and listing assets, allowing individual entries of multi-option metadata fields to be used as grouping sources.
+
+This new field supports Multi Text, Selection, Thesaurus and Hierarchy metadata fields.
+
+OAuth 2.0 Integration Within Squiz Matrix [ Feature Request #6430 ]
+-----------------------------------------------------
+
+This feature introduces the new OAuth2 package for Squiz Matrix, providing third-party integration with OAuth 2.0 providers, such as Facebook, Google and LinkedIn.
+
+The package includes two new assets, the OAuth Account Manager and the OAuth2 Token that can be used together, as well as in conjunction with other assets for a variety of authentication option.
+
+The OAuth2 Token asset allows you to configure authentication with an OAuth 2.0 provider. Once authenticated, the token has a variety of storage and refresh options. This asset can be used with the REST Resource assets (including the REST Resource form and trigger actions) to make OAuth protected REST API calls.
+
+Additionally, the OAuth2 Token asset can be used together with the new OAuth Account Manager asset to support single sign-on and identity verification with an OAuth 2.0 account, for example, your Facebook account.
+
+When configured with an OAuth2 Token, the Account Manager asset will allow you to link authenticated third-party accounts with existing Squiz Matrix accounts. If no associated user account is found, the OAuth Account Manager will automatically create a new account within Matrix to link with.
+
+
+Additional Changes and Bug Fixes
+=================================== 
+
+Minor Enhancements
+
+Minor Enhancement #6074: New User Defined Option on Remove/Apply Paint Layout SOAP Functions.
+Minor Enhancement #6114: New GetMetadataFieldsDetailOfSchema SOAP API Function.
+Minor Enhancement #6285: Bulk Import Tool: Alphabetical Server File Import List.
+Minor Enhancement #6298: GET and POST Global Keyword Replacements Will Transmit UTF8 Characters.
+Minor Enhancement #6302: New Root Nodes Keyword Replacement for Calendar Assets.
+Minor Enhancement #6389: New Error Codes Added for File Upload.
+Minor Enhancement #6397: Inconsistent Workflow Script Usage Extended to Safe Edit Approved to Go Live Assets.
+Minor Enhancement #6398: E-Commerce: Donation Support Cart and Checkout Assets.
+Minor Enhancement #6402: CSV Data Source Enhancements.
+Minor Enhancement #6407: Global Keyword Replacement Support on the replace_keywords modifier.
+Minor Enhancement #6408: New Keyword Modifiers for Date Comparison.
+Minor Enhancement #6409: New Relative Date Global Keyword Replacement.
+Minor Enhancement #6412: TRIM Saved Search: New Socket Connection Limit Settings.
+Minor Enhancement #6425: New Keyword Modifiers: Raw URL Encode and Raw URL Decode.
+Minor Enhancement #6429: Group Assets Using Multiple Metadata Fields on Listing Assets.
+Minor Enhancement #6431: New Grouping Options on Search and Listing Assets.
+Minor Enhancement #6433: Brackets for Attribute Keywords on Under Construction Assets Within Menu.
+Minor Enhancement #6434: Absolute URL for href Actions on Form Assets.
+Minor Enhancement #6439: Metadata Schema: Section Restrictions to Display Inherit Status.
+Minor Enhancement #6442: Calendar Search Page: New Hide Unlinked Navigational Text Option.
+
+Core
+
+Fixed Bug #6186: Corrupted href attribute in WYSIWYG.
+Fixed Bug #6344: WYSIWYG background colour selector not working in IE.
+Fixed Bug #6388: Image variety public url not picking up the correct base url.
+Fixed Bug #6390: System config should check for the duplicate entries for "System Root URLs".
+Fixed Bug #6391: Script "set_files_unrestricted.php" does not works in system with Deja Vu enabled.
+Fixed Bug #6393: Issue with roles and workflow with LDAP group.
+Fixed Bug #6395: confirm_field error on Funnelback Manager.
+Fixed Bug #6401: Script system_integrity_inconsistent_workflow_status.php not working in Oracle systems.
+Fixed Bug #6405: Ecom Delivery Method not picking up the correct Checkout.
+Fixed Bug #6415: Memcache locking not setting expiry properly.
+Fixed Bug #6416: Deja_Vu causing intermittent failures with JS API when missconfigured.
+Fixed Bug #6418: Single Calendar Event Create Form Layout does not work with %globals_get_var^as_asset:xxxx%.
+Fixed Bug #6420: Context Configuration - Missing some Accept-Language request header for the Chrome.
+Fixed Bug #6421: Public User Only for Root URLs to Send Cacheable Headers ignored.
+Fixed Bug #6424: Custom Form "Send Submissions To Email" sending empty CSV.
+Fixed Bug #6428: WYSIWYG insert table doesn't work as expected.
+Fixed Bug #6432: Condtion "Server variable" throws error if string to match contains regex delimiter.
+Fixed Bug #6435: Asset Listing Pages and NOTICE links.
+Fixed Bug #6446: Asset map warning/error for JS to Applet calls affecting Use Me and Binocular function.
+
+CMS
+
+Fixed Bug #6392: Remote Content page, extra trailing & in url.
+Fixed Bug #6417: Having a file upload field on the target content of Remote Content page can break. 
+
+Calendar
+
+Fixed Bug #6399: Calendar Page %up_link% keyword gets printed as keyword format where it should just print nothing.
+Fixed Bug #6406: Calendar Page "Description Popups" setting prints descriptions on load.
+Fixed Bug #6410: Issues when using modifiers on the asset_metadata keyword on Upcoming Events List page. 
+
+E-Commerce
+
+Fixed Bug #6038: 'Calculate Tax During Checkout' setting controls delivery fees calculation as well. 
+
+Data
+
+Fixed Bug #6422: Large CSV Data Sources displayed with an asset listing fail when _nocache or _recache is used. 
+
+Web Services
+
+Fixed Bug #6403: Incorrect links in the workflow email when using EES.
+Fixed Bug #6414: REST Resource OAuth Session doesn't seem to return any errors.
+
+
+
+
 VERSION 4.16.0
 
 Featured Changes

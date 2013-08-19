@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_region_specific.xml,v 1.8.22.1 2013/07/30 06:22:24 cupreti Exp $
+* $Id: edit_interface_screen_region_specific.xml,v 1.8 2009/08/27 14:28:03 ata Exp $
 *
 */
 -->
@@ -31,12 +31,6 @@
 				<paint_function   name="paintTaxableCountries"  />
 				<process_function name="processTaxableCountries" />
 			</function_call>
-		</field>
-		<field attribute="apply_tax_on_delivery">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-		<field attribute="delivery_includes_tax">
-			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
 
