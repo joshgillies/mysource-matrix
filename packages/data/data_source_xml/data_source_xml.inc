@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_xml.inc,v 1.34 2013/08/16 00:51:50 ewang Exp $
+* $Id: data_source_xml.inc,v 1.35 2013/08/20 07:51:18 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -303,12 +303,12 @@ class Data_Source_Xml extends Data_Source
 			$required_tags = $this->_getRequiredTags();
 			if(!empty($required_tags)) {
 				foreach($required_tags as $index => $required_tag) {
-					$required_tag = preg_quote($required_tag);
-					$pattern = '|(<'.$required_tag.')([\s]+[^>]*)/>|i';
+					$required_tag_quoted = preg_quote($required_tag);
+					$pattern = '|(<'.$required_tag_quoted.')([\s]+[^>]*)/>|i';
 					$replace = "<".$required_tag."$2>\n</".$required_tag.">";
 					$content = preg_replace($pattern, $replace, $content);
 
-					$pattern = '|(<'.$required_tag.')([\s]+[^>]*)></'.$required_tag.'>|i';
+					$pattern = '|(<'.$required_tag_quoted.')([\s]+[^>]*)></'.$required_tag_quoted.'>|i';
 					$replace = "<".$required_tag."$2>\n</".$required_tag.">";
 			
 					$content = preg_replace($pattern, $replace, $content);
