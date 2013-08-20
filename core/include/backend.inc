@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.223 2013/08/05 23:32:05 lwright Exp $
+* $Id: backend.inc,v 1.224 2013/08/20 06:24:23 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.223 $
+* @version $Revision: 1.224 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -1333,8 +1333,6 @@ class Backend extends MySource_Object
 		</script>
 
 		<?php
-		$useModernAssetMap = (bool) $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_MODERN');
-
 		if (SQ_IN_LIMBO) {
 			?>
 				<table cellspacing="0" cellpadding="0" border="0" width="100%" height="100%" style="position: absolute;">
@@ -1355,12 +1353,7 @@ class Backend extends MySource_Object
 					require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
 					$asset_map = new Asset_Map();
 					$am_width = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_WIDTH');
-
-					if ($useModernAssetMap === TRUE) {
-						$asset_map->embedJSAssetMap('simple', $am_width);
-					} else {
-						$asset_map->embedAssetMap('simple', $am_width);
-					}
+					$asset_map->embedAssetMap('simple', $am_width);
 					?>
 				</div>
 			<?php
@@ -1414,12 +1407,7 @@ class Backend extends MySource_Object
 					require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
 					$asset_map = new Asset_Map();
 					$am_width = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_WIDTH');
-
-					if ($useModernAssetMap === TRUE) {
-						$asset_map->embedJSAssetMap('complex', $am_width);
-					} else {
-						$asset_map->embedAssetMap('complex', $am_width);
-					}
+					$asset_map->embedAssetMap('complex', $am_width);
 					?>
 				</div>
 				<div id="my_space">

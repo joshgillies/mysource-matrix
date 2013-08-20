@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.js,v 1.31 2013/07/25 23:23:50 lwright Exp $
+* $Id: asset_map.js,v 1.32 2013/08/20 06:24:23 lwright Exp $
 *
 */
 
@@ -22,39 +22,92 @@ var SQ_REFRESH_ASSETIDS = "";
 *
 * Checks the browser flavour and version and make some desicions based on that information
 * about whether communication should be stable between the javascript and the asset map
+*
+* @param
 */
-function init_asset_map()
+function init_asset_map(codebase, archive, parameters, width, height)
 {
-	if (matches = navigator.userAgent.match(/MSIE ([0-9.]+)/)) {
+	var supported = test_java_map_support();
+	if (supported === true) {
+		var appletDiv = document.createElement('applet');
+		appletDiv.id = 'sq_asset_map';
+		appletDiv.setAttribute('width', width);
+		appletDiv.setAttribute('height', height);
+		appletDiv.setAttribute('code', codebase);
+		appletDiv.setAttribute('archive', archive);
+		appletDiv.setAttribute('mayscript', 'mayscript');
 
-		if (matches[1] < '6.0') {
-			alert(js_translate('ie6_or_above_required'));
+		var paramNames  = [];
+		var paramTopTag = document.createElement('param');
+		paramTopTag.setAttribute('name', 'parameter.params');
+		var paramTags = [paramTopTag];
+
+		for (x in parameters) {
+			paramNames.push(x);
+			var thisTag = document.createElement('param');
+			thisTag.setAttribute('name', x);
+			thisTag.setAttribute('value', parameters[x]);
+			paramTags.push(thisTag);
 		}
 
-	} else {
-
-		var firebird_re = /(Firebird)\/([0-9.]+)/;
-		var safari_re   = /(Safari)\/([0-9.]+)/;
-		var moz_re      = /^Mozilla\/5\.0.*rv:([^)]+)\)/;
-
-		if ((matches = navigator.userAgent.match(firebird_re)) || (matches = navigator.userAgent.match(safari_re)) || (matches = navigator.userAgent.match(moz_re))) {
-			if (matches[1] == 'Firebird' && matches[2] < '0.6.1') {
-				alert(js_translate('firebird0.6.1_or_above_required'));
-			} else if (matches[1] == 'Safari' && parseFloat(matches[2]) < 125.1) {
-				// Safari 1.2.1 reports as build number '125.1'
-				alert(tjs_translate('safari121_or_above_required'));
-			} else if (matches[1] == 'Mozilla' && matches[2] < '1.4') {
-				alert(js_translate('mozilla14_or_above_required'));
-			}
-		// we don't know about this browser, ah well may as well give it a go ...
-		} else {
-			alert(js_translate('using_untested_browser'));
+		paramTopTag.setAttribute('value', paramNames.join(','));
+		for (var i = 0; i < paramTags.length; i++) {
+			appletDiv.appendChild(paramTags[i]);
 		}
 
-	}//end if
+		document.getElementById('asset_map').appendChild(appletDiv);
+	}
 
 }//end init_asset_map()
 
+
+/**
+* Test Java asset map support.
+*
+* Checks the browser flavour and version and emit an alert if not supported.
+* Supported: IE6+,
+*/
+function test_java_map_support() {
+	var supported = false;
+	var version   = null;
+	var browser   = navigator.userAgent;
+	if (browser.indexOf('Trident/') !== -1) {
+		// Trident/ tokens are available in IE8 or higher. We need this because
+		// IE11+ will not use the "MSIE" token.
+		supported = true;
+	} else if (browser.indexOf('MSIE ') !== -1) {
+		version = /MSIE ([\d.]+)/.exec(browser);
+		if (version && (parseFloat(version[1]) >= 6)) {
+			supported = true;
+		} else {
+			alert(js_translate('ie6_or_above_required'));
+		}
+	} else if (browser.indexOf('Chrome/') !== -1) {
+		// Our support for webkit-based browsers goes further back than
+		// Chrome 1, so allow all Chromium-based browsers.
+		supported = true;
+	} else if (browser.indexOf('AppleWebKit/') !== -1) {
+		// Other Webkit browsers. Safari 1.2.1 or equivalent.
+		version = /AppleWebKit\/([\d.]+)/.exec(browser);
+		if (version && (parseFloat(version[1]) >= 125.1)) {
+			supported = true;
+		} else {
+			alert(tjs_translate('safari121_or_above_required'));
+		}
+	} else if (browser.indexOf('Gecko/') !== -1) {
+		// Other Gecko-based browsers.
+		version = /rv:([\d.]+)/.exec(browser);
+		if (version && (parseFloat(version[1]) >= 1.4)) {
+			supported = true;
+		} else {
+			alert(js_translate('mozilla14_or_above_required'));
+		}
+	} else {
+		alert(js_translate('using_untested_browser'));
+	}
+
+	return supported;
+}//end test_java_map_supported()
 
 /**
 * Opens a new window with a HIPO job in it
@@ -65,7 +118,7 @@ function open_hipo(url)
 	window.focus();
 	var popup = window.open(url, 'hipo_job', 'width=650,height=400,scrollbars=1,toolbar=0,menubar=0,location=0,resizable=1');
 	popup.focus();
-	
+
 }//end open_hipo()
 
 
@@ -237,7 +290,7 @@ function asset_finder_change_btn_press(name, safe_name, type_codes, done_fn)
 * @param Array params the params array
 * @param string label the label to give this asset
 * @param string url the url of this asset
-* @param string linkid 
+* @param string linkid
 * @param string type_code
 *
 * @access public
@@ -395,7 +448,7 @@ window.onunload = asset_finder_onunload;
 
 /**
 * resize the asset map based on the current size of the containing window
-* 
+*
 * @access public
 */
 function resizeAssetMap() {

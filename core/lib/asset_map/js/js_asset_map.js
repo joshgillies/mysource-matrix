@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.17 2013/08/16 01:35:48 lwright Exp $
+* $Id: js_asset_map.js,v 1.18 2013/08/20 06:24:23 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.17 $
+ * @version $Revision: 1.18 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -550,6 +550,8 @@ var JS_Asset_Map = new function() {
 
 		var self = this;
 
+		this.extendLegacy();
+
 		options              = startOptions;
 		assetMapContainer    = options.targetElement || dfx.getId('asset_map_container');
 		options.teleportRoot = options.teleportRoot  || '1';
@@ -639,6 +641,8 @@ var JS_Asset_Map = new function() {
 
 			self.message(js_translate('asset_map_status_bar_success'), false, 2000);
 		});
+
+		return true;
 	};
 
 	/**
@@ -647,7 +651,13 @@ var JS_Asset_Map = new function() {
 	 * @param {Object} options
 	 */
 	this.startSimple = function(startOptions) {
+		if (this.isSupported() === false) {
+			return false;
+		}
+
 		var self = this;
+
+		this.extendLegacy();
 
 		options              = startOptions;
 		assetMapContainer    = options.targetElement || dfx.getId('asset_map_container');
@@ -713,6 +723,8 @@ var JS_Asset_Map = new function() {
 
 			self.message(js_translate('asset_map_status_bar_success'), false, 2000);
 		});
+
+		return true;
 	};
 
 	/**
@@ -3911,143 +3923,138 @@ var JS_Asset_Map = new function() {
 
 	};
 
+	this.extendLegacy = function() {
+		/*
+		 * NOTE:
+		 * These legacy functions exist mainly to allow custom Simple Edit interfaces
+		 * that expect the old-style functions (in the global space) to still work.
+		 *
+		 * Only the functions that are accessed from the asset finder are implemented.
+		 * Other functions existed that were called from the Java applet which are not
+		 * replicated here. Functions should perform a minimum of their own processing
+		 * and defer to JS_Asset_Map for as much as possible.
+		 */
+		dfx.objectMerge(window, {
+			/**
+			 * Handler for clicking of the Change/Cancel button of an asset finder.
+			 *
+			 * Sets or cancels Use Me mode as appropriate, or fires an alert message if
+			 * the Change button is clicked on an Asset Finder while another already has
+			 * a claim on the asset map.
+			 *
+			 * The type codes are pipe separated (eg. 'page_standard|news_item') and a
+			 * single type code restriction has a trailing pipe (eg. 'page_standard|').
+			 * Type code restrictions do not match ancestors - descendants can be specified
+			 * on the PHP side but they are converted to individual types for JS/Java.
+			 * If no type code restriction is set, all types are allowed.
+			 *
+			 * @param {String}   name           The prefix for asset finder name attributes.
+			 * @param {String}   safeName       The prefix for asset finder ID attributes.
+			 * @param {String}   [typeCodes]    Pipe-separated list of restricted type codes.
+			 * @param {Function} [doneCallback] Callback to call once a selection is made.
+			 */
+
+			asset_finder_change_btn_press: function(name, safeName, typeCodes, doneCallback)
+			{
+				if (typeCodes === '') {
+					typeCodes = undefined;
+				} else {
+					// Split piped type codes into an array, but if there's only one
+					// type code then there's a trailing pipe at the end.
+					var typeCodes = typeCodes.split('|');
+					if ((typeCodes.length === 2) && (typeCodes[1] === '')) {
+						typeCodes.pop();
+					}
+				}//end if
+
+				var mainWin      = JS_Asset_Map.getUseMeFrame();
+				var changeButton = dfx.getId(safeName + '_change_btn', mainWin.document);
+				if (JS_Asset_Map.isInUseMeMode(name) === true) {
+					alert(js_translate('asset_finder_in_use'));
+				} else if (JS_Asset_Map.isInUseMeMode() === true) {
+					changeButton.setAttribute('value', js_translate('change'));
+					JS_Asset_Map.cancelUseMeMode();
+				} else {
+					changeButton.setAttribute('value', js_translate('cancel'));
+					JS_Asset_Map.setUseMeMode(name, safeName, typeCodes, doneCallback);
+				}
+
+			},
+
+			/**
+			 * Handler for clicking of the Clear button of an asset finder.
+			 *
+			 * @param {String} name     The prefix for asset finder name attributes.
+			 * @param {String} safeName The prefix for asset finder ID attributes.
+			 */
+			asset_finder_clear_btn_press: function(name, safeName)
+			{
+				var sourceFrame = JS_Asset_Map.getUseMeFrame().document;
+				dfx.getId(name + '[assetid]', sourceFrame).value    = '0';
+				dfx.getId(name + '[url]', sourceFrame).value        = '';
+				dfx.getId(name + '[linkid]', sourceFrame).value     = '';
+				dfx.getId(name + '[type_code]', sourceFrame).value  = '';
+				dfx.getId(safeName + '_label', sourceFrame).value   = '';
+				dfx.getId(safeName + '_assetid', sourceFrame).value = '';
+
+			},
+
+			/**
+			 * Handler for clicking of the Reset button of an asset finder.
+			 *
+			 * @param {String} name     The prefix for asset finder name attributes.
+			 * @param {String} safeName The prefix for asset finder ID attributes.
+			 * @param {String} assetid  The asset ID the asset finder is to be reset to.
+			 * @param {String} label    The asset name label used for the reset.
+			 */
+			asset_finder_reset_btn_press: function(name, safeName, assetid, label)
+			{
+				var sourceFrame = JS_Asset_Map.getUseMeFrame().document;
+				dfx.getId(name + '[assetid]', sourceFrame).value    = assetid;
+				dfx.getId(name + '[url]', sourceFrame).value        = '';
+				dfx.getId(name + '[linkid]', sourceFrame).value     = '';
+				dfx.getId(name + '[type_code]', sourceFrame).value  = '';
+				dfx.getId(safeName + '_label', sourceFrame).value   = label;
+				dfx.getId(safeName + '_assetid', sourceFrame).value = assetid;
+
+			},
+
+			/**
+			 * Handler for changing the assetid textbox of an asset finder.
+			 *
+			 * @param {String}   name         The prefix for asset finder name attributes.
+			 * @param {String}   safeName     The prefix for asset finder ID attributes.
+			 * @param {String}   typeCodes    Asset type restriction. Currently unused.
+			 * @param {Function} doneCallback Callback to be fired after the change.
+			 * @param {String}   assetid      The entered asset ID.
+			 */
+			asset_finder_assetid_changed: function(name, safeName, typeCodes, doneCallback, assetid)
+			{
+				var sourceFrame = JS_Asset_Map.getUseMeFrame().document;
+				var assetidBox = dfx.getId(name + '[assetid]', sourceFrame);
+				assetidBox.value = assetid;
+
+				if (dfx.isFn(doneCallback) === true) {
+					doneCallback.call(assetidBox, assetid);
+				}
+
+			},
+
+			/**
+			 * Reload assets as requested by other parts of Matrix.
+			 *
+			 * Replaces the polling in the old Java asset map.
+			 */
+			reload_assets: function(assetids)
+			{
+				if (dfx.isArray(assetids) === false) {
+					assetids = assetids.split('|');
+				}
+
+				JS_Asset_Map.addToRefreshQueue(assetids);
+
+			}
+		});
+	}
+
 };//end JS_Asset_Map
-
-
-//--        LEGACY FUNCTIONS FOR ASSET FINDER        --//
-
-
-/*
- * NOTE:
- * These legacy functions exist mainly to allow custom Simple Edit interfaces
- * that expect the old-style functions (in the global space) to still work.
- *
- * Only the functions that are accessed from the asset finder are implemented.
- * Other functions existed that were called from the Java applet which are not
- * replicated here. Functions should perform a minimum of their own processing
- * and defer to JS_Asset_Map for as much as possible.
- */
-
-
-/**
- * Handler for clicking of the Change/Cancel button of an asset finder.
- *
- * Sets or cancels Use Me mode as appropriate, or fires an alert message if
- * the Change button is clicked on an Asset Finder while another already has
- * a claim on the asset map.
- *
- * The type codes are pipe separated (eg. 'page_standard|news_item') and a
- * single type code restriction has a trailing pipe (eg. 'page_standard|').
- * Type code restrictions do not match ancestors - descendants can be specified
- * on the PHP side but they are converted to individual types for JS/Java.
- * If no type code restriction is set, all types are allowed.
- *
- * @param {String}   name           The prefix for asset finder name attributes.
- * @param {String}   safeName       The prefix for asset finder ID attributes.
- * @param {String}   [typeCodes]    Pipe-separated list of restricted type codes.
- * @param {Function} [doneCallback] Callback to call once a selection is made.
- */
-function asset_finder_change_btn_press(name, safeName, typeCodes, doneCallback)
-{
-	if (typeCodes === '') {
-		typeCodes = undefined;
-	} else {
-		// Split piped type codes into an array, but if there's only one
-		// type code then there's a trailing pipe at the end.
-		var typeCodes = typeCodes.split('|');
-		if ((typeCodes.length === 2) && (typeCodes[1] === '')) {
-			typeCodes.pop();
-		}
-	}//end if
-
-	var mainWin      = JS_Asset_Map.getUseMeFrame();
-	var changeButton = dfx.getId(safeName + '_change_btn', mainWin.document);
-	if (JS_Asset_Map.isInUseMeMode(name) === true) {
-		alert(js_translate('asset_finder_in_use'));
-	} else if (JS_Asset_Map.isInUseMeMode() === true) {
-		changeButton.setAttribute('value', js_translate('change'));
-		JS_Asset_Map.cancelUseMeMode();
-	} else {
-		changeButton.setAttribute('value', js_translate('cancel'));
-		JS_Asset_Map.setUseMeMode(name, safeName, typeCodes, doneCallback);
-	}
-
-}//asset_finder_change_btn_press()
-
-
-/**
- * Handler for clicking of the Clear button of an asset finder.
- *
- * @param {String} name     The prefix for asset finder name attributes.
- * @param {String} safeName The prefix for asset finder ID attributes.
- */
-function asset_finder_clear_btn_press(name, safeName)
-{
-	var sourceFrame = JS_Asset_Map.getUseMeFrame().document;
-	dfx.getId(name + '[assetid]', sourceFrame).value    = '0';
-	dfx.getId(name + '[url]', sourceFrame).value        = '';
-	dfx.getId(name + '[linkid]', sourceFrame).value     = '';
-	dfx.getId(name + '[type_code]', sourceFrame).value  = '';
-	dfx.getId(safeName + '_label', sourceFrame).value   = '';
-	dfx.getId(safeName + '_assetid', sourceFrame).value = '';
-
-}//end asset_finder_clear_btn_press()
-
-
-/**
- * Handler for clicking of the Reset button of an asset finder.
- *
- * @param {String} name     The prefix for asset finder name attributes.
- * @param {String} safeName The prefix for asset finder ID attributes.
- * @param {String} assetid  The asset ID the asset finder is to be reset to.
- * @param {String} label    The asset name label used for the reset.
- */
-function asset_finder_reset_btn_press(name, safeName, assetid, label)
-{
-	var sourceFrame = JS_Asset_Map.getUseMeFrame().document;
-	dfx.getId(name + '[assetid]', sourceFrame).value    = assetid;
-	dfx.getId(name + '[url]', sourceFrame).value        = '';
-	dfx.getId(name + '[linkid]', sourceFrame).value     = '';
-	dfx.getId(name + '[type_code]', sourceFrame).value  = '';
-	dfx.getId(safeName + '_label', sourceFrame).value   = label;
-	dfx.getId(safeName + '_assetid', sourceFrame).value = assetid;
-
-}//end asset_finder_clear_btn_press()
-
-
-/**
- * Handler for changing the assetid textbox of an asset finder.
- *
- * @param {String}   name         The prefix for asset finder name attributes.
- * @param {String}   safeName     The prefix for asset finder ID attributes.
- * @param {String}   typeCodes    Asset type restriction. Currently unused.
- * @param {Function} doneCallback Callback to be fired after the change.
- * @param {String}   assetid      The entered asset ID.
- */
-function asset_finder_assetid_changed(name, safeName, typeCodes, doneCallback, assetid)
-{
-	var sourceFrame = JS_Asset_Map.getUseMeFrame().document;
-	var assetidBox = dfx.getId(name + '[assetid]', sourceFrame);
-	assetidBox.value = assetid;
-
-	if (dfx.isFn(doneCallback) === true) {
-		doneCallback.call(assetidBox, assetid);
-	}
-
-}//end asset_finder_assetid_changed()
-
-
-/**
- * Reload assets as requested by other parts of Matrix.
- *
- * Replaces the polling in the old Java asset map.
- */
-function reload_assets(assetids)
-{
-	if (dfx.isArray(assetids) === false) {
-		assetids = assetids.split('|');
-	}
-
-	JS_Asset_Map.addToRefreshQueue(assetids);
-
-}//end reload_assets()

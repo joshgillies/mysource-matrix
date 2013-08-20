@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.322 2013/08/01 04:15:01 lwright Exp $
+* $Id: asset_map.inc,v 1.323 2013/08/20 06:24:23 lwright Exp $
 *
 */
 require_once(SQ_LIB_PATH.'/xml_array/xml_array.inc');
@@ -23,7 +23,7 @@ require_once(SQ_LIB_PATH.'/xml_array/xml_array.inc');
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.322 $
+* @version $Revision: 1.323 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -52,12 +52,11 @@ class Asset_Map
 	public function paint(&$backend)
 	{
 		$backend->out->addJsInclude(sq_web_path('lib').'/asset_map/asset_map.js');
-		$backend->out->addJsInclude(sq_web_path('lib').'/asset_map/js/js_asset_map.js');
 
 		?>
 		<script type="text/javascript"><!--
 		//<![CDATA[
-			init_asset_map();
+			//init_asset_map();
 		//]]> -->
 		</script>
 
@@ -68,13 +67,7 @@ class Asset_Map
 			<tr>
 				<td style="height: 100%; width: 100%;" valign="top">
 				<?php
-					$useModern = (boolean) $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_MODERN');
-
-					if ($useModern === TRUE) {
-						$this->embedJSAssetMap('complex', '224');
-					} else {
-						$this->embedAssetMap('complex', '224');
-					}
+					$this->embedAssetMap('complex', '224');
 				?>
 				</td>
 			</tr>
@@ -82,104 +75,6 @@ class Asset_Map
 		<?php
 
 	}//end paint()
-
-
-	/**
-	 * Embed the JavaScript version of the Asset Map.
-	 *
-	 * If height is zero or not provided, it is sized as if it were being placed as
-	 * the "sidebar", with height set depending on whether in Admin or Simple Edit
-	 * interfaces. Specific height should be used for other locations, such as
-	 * WYSIWYG plugins that use the Simple Asset Map for asset selection.
-	 *
-	 * @param string  $type    The type of asset map to embed, simple or complex
-	 * @param integer $width   The width of the asset map in pixels
-	 * @param integer $height  The height of the asset map in pixels
-	 *
-	 * @return void
-	 */
-	public function embedJSAssetMap($type='simple', $width=200, $height=0)
-	{
-		$startCmd = 'startSimple';
-		if ($type !== 'simple') {
-			// Make room for tabs.
-			$width   -= 18;
-			$startCmd = 'start';
-		} else {
-			if (!defined('SQ_PAINTED_SIMPLE_ASSET_MAP')) {
-				define('SQ_PAINTED_SIMPLE_ASSET_MAP', TRUE);
-			}
-		}
-
-		// Find the teleport root.
-		$prefs = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_LINEAGE');
-
-		$assetids = explode(',',$prefs);
-		$rootlineage = '';
-
-		$common_parentid = $this->_findCommonRoot($assetids);
-		if (!empty($common_parentid)) {
-			$lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($common_parentid);
-
-			// Find the first SQ_SC_LINK_BACKEND_NAV, rather than simply getting it from the beginning
-			$first_lineage = Array();
-			if (!empty($lineages)) {
-				foreach ($lineages as $lineage) {
-					if ((int) $lineage['link_type'] & SQ_SC_LINK_BACKEND_NAV) {
-						$first_lineage = $lineage;
-						break;
-					}
-				}
-			}
-
-			if (!empty($first_lineage)) {
-				$lineage_assetids = array_keys($first_lineage['lineage']);
-				$lineage_assetids[] = $common_parentid;
-				$rootlineage = get_asset_lineage_sort_order($lineage_assetids);
-
-				// Initial Lineage Selection will be disabled if the Root Node is set for the user
-				// Simply asset map does not work for this option
-				$initial_selection_lineage = '';
-			}
-		} else {
-			$common_parentid = 1;
-		}
-
-		if (empty($rootlineage)) {
-			// Initial lineage selection (i.e ..com/site1/blah/_admin will expand the lineage of that asset)
-			$initial_selection_lineage = $this->_getInitialLineageSelection($type);
-		}
-
-		?>
-		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/asset_map/js/js_asset_map.js';?>"></script>
-		<?php
-
-		// Auto-adjust height if set to zero
-		if ($height <= 0) {
-			$height = "(document.documentElement.clientHeight - ".(SQ_IN_LIMBO ? 51 : 70).")";
-		}
-
-		// Make room for tabs.
-
-		?>
-		<div id="asset_map_container" style="width: <?php echo $width ?>px;">
-			<script type="text/javascript">
-				dfxLoadedCallback = function() {
-					document.getElementById('asset_map_container').style.height = <?php echo $height ?> + 'px';
-					JS_Asset_Map.<?php echo $startCmd ?>({
-						rootEditUrl: '<?php echo sq_web_path('root_url').'/'.SQ_CONF_BACKEND_SUFFIX ?>',
-						assetIconPath: '<?php echo sq_web_path('data') ?>/asset_types',
-						displayFormat: '<?php echo addslashes(SQ_CONF_ASSET_MAP_ASSET_DISPLAY_NAME); ?>',
-						assetsPerPage: <?php echo SQ_CONF_ASSET_MAP_ASSET_LIMIT; ?>,
-						initialSelection: '<?php echo $initial_selection_lineage ?>',
-						teleportRoot: <?php echo $common_parentid ?>
-					});
-				}
-			</script>
-		</div>
-		<?php
-
-	}//end embedJSAssetMap()
 
 
 	/**
@@ -457,7 +352,12 @@ class Asset_Map
 
 
 	/**
-	* To create the tags that embed the simple asset map into the matrix system
+	* To create the tags that embed the asset map into the matrix system
+	*
+	* This will print the JS asset map where it has been enabled through preferences,
+	* AND when it is supported. Otherwise it will print the Java asset map.
+	* Responsibility for painting the applet tag now rests with the asset_map.js file
+	* inside init_asset_map().
 	*
 	* NB. this function does not attempt to print any form tags. It is up the the printing entity to do this.
 	* The form needs to be in the form:
@@ -485,6 +385,7 @@ class Asset_Map
 		// that has the main function
 		switch (strtolower($type)) {
 			case 'simple':
+				$startCmd = 'startSimple';
 				$classname = 'SimpleAssetMap';
 				$jarname = 'assetmap';
 				if (!defined('SQ_PAINTED_SIMPLE_ASSET_MAP')) {
@@ -492,6 +393,7 @@ class Asset_Map
 				}
 			break;
 			case 'complex':
+				$startCmd = 'start';
 				$classname = 'AssetMap';
 				$jarname = 'complexassetmap';
 			break;
@@ -504,13 +406,14 @@ class Asset_Map
 
 		// we want to use current_url()
 		require_once SQ_INCLUDE_PATH.'/general.inc';
+
 		?>
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/detect.js' ?>"></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('fudge').'/var_serialise/var_serialise.js' ?>"></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/asset_map/asset_map.js';?>"></script>
+		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/asset_map/js/js_asset_map.js';?>"></script>
 
 		<?php
-		ob_start();
 			if (isset($GLOBALS['SQ_SYSTEM']->user)) {
 				$user = $GLOBALS['SQ_SYSTEM']->user;
 			} else {
@@ -523,99 +426,111 @@ class Asset_Map
 				<b>You need Simple Edit access or higher to view the Asset Map</b>
 			<?php
 			} else {
-			?>
-			<applet id="sq_asset_map" width="<?php echo $width; ?>" height="%applet_height%" code="net/squiz/matrix/<?php echo ($type == 'simple') ? $jarname : 'assetmap'; ?>/<?php echo $classname; ?>.class" archive="<?php echo sq_web_path('lib'); ?>/asset_map/java/<?php echo $jarname; ?>.jar?t=<?php echo time(); ?>" MAYSCRIPT>
+				$prefs = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_LINEAGE');
 
-				<?php
+				$assetids = explode(',',$prefs);
+				$rootlineage = '';
 
-					$prefs = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_LINEAGE');
+				$common_parentid = $this->_findCommonRoot($assetids);
 
-					$assetids = explode(',',$prefs);
-					$rootlineage = '';
+				if (!empty($common_parentid)) {
+					$lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($common_parentid);
 
-					$common_parentid = $this->_findCommonRoot($assetids);
-
-					if (!empty($common_parentid)) {
-						$lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($common_parentid);
-
-						// Find the first SQ_SC_LINK_BACKEND_NAV, rather than simply getting it from the beginning
-						$first_lineage = Array();
-						if (!empty($lineages)) {
-							foreach ($lineages as $lineage) {
-								if ((int) $lineage['link_type'] & SQ_SC_LINK_BACKEND_NAV) {
-									$first_lineage = $lineage;
-									break;
-								}
+					// Find the first SQ_SC_LINK_BACKEND_NAV, rather than simply getting it from the beginning
+					$first_lineage = Array();
+					if (!empty($lineages)) {
+						foreach ($lineages as $lineage) {
+							if ((int) $lineage['link_type'] & SQ_SC_LINK_BACKEND_NAV) {
+								$first_lineage = $lineage;
+								break;
 							}
 						}
+					}
 
-						if (!empty($first_lineage)) {
-							$lineage_assetids = array_keys($first_lineage['lineage']);
-							$lineage_assetids[] = $common_parentid;
-							$rootlineage = get_asset_lineage_sort_order($lineage_assetids);
+					if (!empty($first_lineage)) {
+						$lineage_assetids = array_keys($first_lineage['lineage']);
+						$lineage_assetids[] = $common_parentid;
+						$rootlineage = get_asset_lineage_sort_order($lineage_assetids);
 
-							// Initial Lineage Selection will be disabled if the Root Node is set for the user
-							// Simply asset map does not work for this option
-							$initial_selection_lineage = '';
+						// Initial Lineage Selection will be disabled if the Root Node is set for the user
+						// Simply asset map does not work for this option
+						$initial_selection_lineage = '';
+					}
+				}
+
+				if (empty($rootlineage)) {
+					// Initial lineage selection (i.e ..com/site1/blah/_admin will expand the lineage of that asset)
+					$initial_selection_lineage = $this->_getInitialLineageSelection($type);
+				}
+
+				$parameters = Array(
+								'parameter.backendsuffix'			=> SQ_CONF_BACKEND_SUFFIX,
+								// only need to pass session id to assetmap if HTTPOnly cookie is used, otherwise java can share cookie automatically
+								'parameter.postsession'				=> SQ_CONF_COOKIE_OPTION_HTTP_ONLY,
+								'parameter.sessionid'				=> $_COOKIE['SQ_SYSTEM_SESSION'],
+								'parameter.sessionkey'				=> $GLOBALS['SQ_SYSTEM']->getUniqueSessionKey(),
+								'parameter.url.iconurl'				=> '__lib/web/images/icons',
+								'parameter.url.typecodeurl'			=> '__data/asset_types',
+								'parameter.url.notaccessibleicon'	=> 'asset_map/not_accessible.png',
+								'parameter.url.type2icon'			=> 'asset_map/not_visible.png',
+								'parameter.url.assetmapiconurl'		=> '__lib/web/images/icons/asset_map',
+								'parameter.url.baseurl'				=> $root_url,
+								'parameter.asset.limit'				=> SQ_CONF_ASSET_MAP_ASSET_LIMIT,
+								'parameter.java.supportedversion'	=> '1.4.2,1.5.0,1.6.0',
+								'parameter.java.sunurl'				=> 'http://java.sun.com/webapps/getjava/BrowserRedirect?locale=en&host=www.java.com:80',
+								'parameter.rootlineage'				=> $rootlineage,
+								'parameter.initialselection'		=> $initial_selection_lineage,
+							  );
+
+				$codebase = 'net/squiz/matrix/'.(($type == 'simple') ? $jarname : 'assetmap').'/'.$classname.'.class';
+				$archive  = sq_web_path('lib').'/asset_map/java/'.$jarname.'.jar?t='.time();
+
+				if ($height <= 0) {
+					$height = "(document.documentElement.clientHeight - ".(SQ_IN_LIMBO ? 51 : 70).")";
+				}
+
+				$useModern = (boolean) $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_MODERN');
+
+				if ($useModern === TRUE) {
+					$js_width = $width;
+					if ($type !== 'simple') {
+						// Make room for tabs in the JS asset map.
+						$js_width -= 18;
+					}
+				?>
+					<script type="text/javascript">
+						dfxLoadedCallback = function() {
+							var supported = JS_Asset_Map.isSupported();
+							if (supported === false) {
+								init_asset_map("<?php echo $codebase ?>", "<?php echo $archive ?>", <?php echo json_encode($parameters) ?>, <?php echo $width ?>, <?php echo $height ?>);
+							} else {
+								var asset_map_container = document.createElement('div');
+								asset_map_container.id  = 'asset_map_container';
+								asset_map_container.style.width  = <?php echo $js_width ?> + 'px';
+								asset_map_container.style.height = <?php echo $height ?> + 'px';
+								document.getElementById('asset_map').appendChild(asset_map_container);
+								JS_Asset_Map.<?php echo $startCmd ?>({
+									rootEditUrl: '<?php echo sq_web_path('root_url').'/'.SQ_CONF_BACKEND_SUFFIX ?>',
+									assetIconPath: '<?php echo sq_web_path('data') ?>/asset_types',
+									displayFormat: '<?php echo addslashes(SQ_CONF_ASSET_MAP_ASSET_DISPLAY_NAME); ?>',
+									assetsPerPage: <?php echo SQ_CONF_ASSET_MAP_ASSET_LIMIT; ?>,
+									initialSelection: '<?php echo $initial_selection_lineage ?>',
+									teleportRoot: <?php echo ($common_parentid ? $common_parentid : '1') ?>
+								});
+							}
 						}
-					}
-
-					if (empty($rootlineage)) {
-						// Initial lineage selection (i.e ..com/site1/blah/_admin will expand the lineage of that asset)
-						$initial_selection_lineage = $this->_getInitialLineageSelection($type);
-					}
-
-					$parameters = Array(
-									'parameter.backendsuffix'			=> SQ_CONF_BACKEND_SUFFIX,
-									// only need to pass session id to assetmap if HTTPOnly cookie is used, otherwise java can share cookie automatically
-									'parameter.postsession'				=> SQ_CONF_COOKIE_OPTION_HTTP_ONLY,
-									'parameter.sessionid'				=> $_COOKIE['SQ_SYSTEM_SESSION'],
-									'parameter.sessionkey'				=> $GLOBALS['SQ_SYSTEM']->getUniqueSessionKey(),
-									'parameter.url.iconurl'				=> '__lib/web/images/icons',
-									'parameter.url.typecodeurl'			=> '__data/asset_types',
-									'parameter.url.notaccessibleicon'	=> 'asset_map/not_accessible.png',
-									'parameter.url.type2icon'			=> 'asset_map/not_visible.png',
-									'parameter.url.assetmapiconurl'		=> '__lib/web/images/icons/asset_map',
-									'parameter.url.baseurl'				=> $root_url,
-									'parameter.asset.limit'				=> SQ_CONF_ASSET_MAP_ASSET_LIMIT,
-									'parameter.java.supportedversion'	=> '1.4.2,1.5.0,1.6.0',
-									'parameter.java.sunurl'				=> 'http://java.sun.com/webapps/getjava/BrowserRedirect?locale=en&host=www.java.com:80',
-									'parameter.rootlineage'				=> $rootlineage,
-									'parameter.initialselection'		=> $initial_selection_lineage,
-								  );
-
-					// this is important because it tells the asset map what the available
-					// paramters are so that it can load them without explicitly knowing the names
-					$params = implode(',', array_keys($parameters));
-					?><param name="parameter.params" value="<?php echo $params; ?>" /><?php
-
-					foreach ($parameters as $parameter => $value) {
-						?><param name="<?php echo $parameter; ?>" value="<?php echo $value; ?>" /><?php
-					}
-
-					echo '<p class="sq-backend-header-item" style="margin: 10px;">';
-					echo translate('asset_map_error_jre_latest_version_msg', '<a class="sq-backend-header-item" style="text-decoration: underline" href="http://java.sun.com/webapps/getjava/BrowserRedirect?locale=en&host=www.java.com:80" target="_blank">Java Runtime Environment</a>');
-					echo '</p>';
-			?>
-			</applet>
-			<?php
+					</script>
+				<?php
+				} else {
+				?>
+				<script type="text/javascript"><!--
+				//<![CDATA[
+					init_asset_map("<?php echo $codebase ?>", "<?php echo $archive ?>", <?php echo json_encode($parameters) ?>, <?php echo $width ?>, <?php echo $height ?>);
+				//]]> -->
+				</script>
+				<?php
+				}
 			}//end if
-			$applet_tag = ob_get_contents();
-		ob_end_clean();
-
-		if ($height <= 0) {
-			$height = "' + (document.documentElement.clientHeight - ".(SQ_IN_LIMBO ? 51 : 70).") + '";
-			$applet_tag = str_replace("\n", ' ', $applet_tag);
-			?>
-			<script type="text/javascript"><!--
-			//<![CDATA[
-				document.write('<?php echo str_replace('%applet_height%', $height, $applet_tag); ?>');
-			//]]> -->
-			</script>
-			<?php
-		} else {
-			echo str_replace('%applet_height%', $height, $applet_tag);
-		}
 
 	}//end embedAssetMap()
 
