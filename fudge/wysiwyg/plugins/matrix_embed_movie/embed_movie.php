@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: embed_movie.php,v 1.35 2013/07/25 23:25:16 lwright Exp $
+* $Id: embed_movie.php,v 1.36 2013/08/20 06:24:49 lwright Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Embed Movie Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix
 */
 
@@ -345,12 +345,7 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 						<?php
 							include_once(SQ_LIB_PATH.'/asset_map/asset_map.inc');
 							$asset_map = new Asset_Map();
-							$useModern = (boolean) $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_MODERN');
-							if ($useModern === TRUE) {
-								$asset_map->embedJSAssetMap('simple', 200, 350);
-							} else {
-								$asset_map->embedAssetMap('simple', 200, 350);
-							}
+							$asset_map->embedAssetMap('simple', 200, 350);
 
 							$url_protocol_options = Array(
 														''			=> '',

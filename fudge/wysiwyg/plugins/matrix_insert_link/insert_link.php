@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link.php,v 1.60 2013/07/25 23:25:17 lwright Exp $
+* $Id: insert_link.php,v 1.61 2013/08/20 06:24:49 lwright Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Insert Link Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.61 $
 * @package MySource_Matrix
 */
 
@@ -567,11 +567,7 @@ if (isset($_GET['assetid']) && $_GET['assetid']) {
 							include_once(SQ_LIB_PATH.'/asset_map/asset_map.inc');
 							$asset_map = new Asset_Map();
 							$useModern = (boolean) $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_MODERN');
-							if ($useModern === TRUE) {
-								$asset_map->embedJSAssetMap('simple', 200, 400);
-							} else {
-								$asset_map->embedAssetMap('simple', 200, 400);
-							}
+							$asset_map->embedAssetMap('simple', 200, 400);
 						?>
 					</td>
 					<td valign="top">
