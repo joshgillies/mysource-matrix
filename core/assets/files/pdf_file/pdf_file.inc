@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: pdf_file.inc,v 1.38 2013/02/28 07:38:24 cupreti Exp $
+* $Id: pdf_file.inc,v 1.38.4.1 2013/08/20 04:39:23 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.38.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -105,18 +105,16 @@ class PDF_File extends File
 
 				fclose($pipes[0]);
 
+				$content = stream_get_contents($pipes[1]);
+				fclose($pipes[1]);
+				
 				// Find the errors ... do NOT throw to output
 				$errors = stream_get_contents($pipes[2]);
 				fclose($pipes[2]);
 				if (!empty($errors)) {
 					$errors = array_unique(explode(PHP_EOL, $errors));
 					trigger_error('Error occurred while getting contents for pdf File Asset #'.$this->id.' : '.trim(implode(', ', $errors), ', '), E_USER_WARNING);
-					return FALSE;
 				}//end if
-
-				// Once we know there are no errors, get the output
-				$content = stream_get_contents($pipes[1]);
-				fclose($pipes[1]);
 
 				// Finally, get the status of this command
 				$status = proc_close($process);
