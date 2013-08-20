@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: pdf_file.inc,v 1.36.4.4 2013/08/20 04:39:49 ewang Exp $
+* $Id: pdf_file.inc,v 1.36.4.5 2013/08/20 05:55:07 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.36.4.4 $
+* @version $Revision: 1.36.4.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -113,7 +113,7 @@ class PDF_File extends File
 				fclose($pipes[2]);
 				if (!empty($errors)) {
 					$errors = array_unique(explode(PHP_EOL, $errors));
-					trigger_error('Error occurred while getting contents for pdf File Asset #'.$this->id.' : '.trim(implode(', ', $errors), ', '), E_USER_WARNING);
+					log_error('Error occurred while getting contents for pdf File Asset #'.$this->id.' : '.trim(implode(', ', $errors), ', '), E_USER_WARNING);
 				}//end if
 
 				// Finally, get the status of this command
