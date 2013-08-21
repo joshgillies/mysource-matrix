@@ -651,6 +651,13 @@
 	z-index: 1;
 }
 
+#asset_map_container .asset .branch-status {
+	display: inline-block;
+	width: 16px;
+	height: 15px;
+	z-index: 1;
+}
+
 #asset_map_container .statusDivider .icon {
 	position: absolute;
 	top: 5px;
@@ -660,7 +667,7 @@
 #asset_map_container .asset .branch-status {
 	position: absolute;
 	top: 4px;
-	left: 4px;
+	left: 2px;
 	z-index: 1;
 	cursor: pointer;
 }
