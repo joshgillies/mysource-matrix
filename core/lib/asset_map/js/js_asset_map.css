@@ -518,7 +518,7 @@
 }
 
 #asset_map_container .childIndent {
-	background: url(../../web/images/tree/stalk.gif) left 50% repeat-y;
+	background: url(stalk.gif) left 50% repeat-y;
 }
 
 #asset_map_container .childIndent.collapsed {
@@ -694,15 +694,15 @@
 }
 
 #asset_map_container .asset .leaf {
-	background: url(../../web/images/tree/branch_mid.gif) 50% 50% no-repeat;
+	background: url(branch_mid.gif) 50% 50% no-repeat;
 }
 
 #asset_map_container .asset:first-child .leaf {
-	background: url(../../web/images/tree/branch_start.gif) 50% 50% no-repeat;
+	background: url(branch_start.gif) 50% 50% no-repeat;
 }
 
 #asset_map_container .childIndent .asset:first-child .leaf {
-	background: url(../../web/images/tree/branch_mid.gif) 50% 50% no-repeat;
+	background: url(branch_mid.gif) 50% 50% no-repeat;
 }
 #asset_map_container .asset.last-child + .childIndent {
 	background: none;
@@ -710,17 +710,17 @@
 
 #asset_map_container .asset.last-child .leaf,
 #asset_map_container .asset:first-child.last-child .leaf {
-	background: url(../../web/images/tree/branch.gif) 50% 50% no-repeat;
+	background: url(branch.gif) 50% 50% no-repeat;
 }
 
 #asset_map_container .statusDivider .icon,
 #asset_map_container .asset .branch-status {
-	background: url(../../web/images/tree/branch_closed.gif) 50% -5px no-repeat;
+	background: url(branch_closed.png) 50% -5px no-repeat;
 }
 
 #asset_map_container .statusList.expanded .statusDivider .icon,
 #asset_map_container .asset .branch-status.expanded {
-	background: url(../../web/images/tree/branch_open.gif) 50% -5px no-repeat;
+	background: url(branch_open.png) 50% -5px no-repeat;
 }
 
 #asset_map_container .toolbar:after {
