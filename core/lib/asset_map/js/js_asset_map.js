@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.19 2013/08/21 02:01:15 lwright Exp $
+* $Id: js_asset_map.js,v 1.20 2013/08/21 05:00:11 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.19 $
+ * @version $Revision: 1.20 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -1019,8 +1019,10 @@ var JS_Asset_Map = new function() {
 				break;
 
 				case KeyCode.Escape:
+					e.preventDefault();
 					dfx.remove(dfx.getClass('dragAsset', assetMapContainer));
 					dragStatus = null;
+					self.clearSearch();
 					self.moveMe.cancel();
 				break;
 			}//end switch
@@ -1681,12 +1683,30 @@ var JS_Asset_Map = new function() {
 			this.clearSelection();
 			this.message('Search string "' + searchText + '" not found', false, 2000);
 		}
-	}
+
+		// Set a 2-second timeout for searches before new characters become
+		// a brand new search.
+		if (timeouts.textSearch) {
+			clearTimeout(timeouts.textSearch);
+			timeouts.textSearch = null;
+		}
+
+		timeouts.textSearch = setTimeout(function() {
+			self.clearSearch();
+		}, 2000);
+	};
+
 
 	this.clearSearch = function() {
+		if (timeouts.textSearch) {
+			clearTimeout(timeouts.textSearch);
+			timeouts.textSearch = null;
+		}
+
 		textSearch = '';
 		this.message('', false, 100);
-	}
+	};
+
 
 	/**
 	 * Bring the selected tree to the foreground.
