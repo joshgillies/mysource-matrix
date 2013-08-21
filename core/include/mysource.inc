@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.412 2013/08/14 00:57:00 lwright Exp $
+* $Id: mysource.inc,v 1.413 2013/08/21 06:33:25 cupreti Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.412 $
+* @version $Revision: 1.413 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -2948,6 +2948,7 @@ class MySource extends MySource_Object
 			MatrixDAL::executeQuery('core', 'copyContextAttributeData', Array('contextid' => $contextid));
 			MatrixDAL::executeQuery('core', 'copyContextUniqueAttributeData', Array('contextid' => $contextid));
 			MatrixDAL::executeQuery('core', 'copyContextMetadataDefaults', Array('contextid' => $contextid));
+			MatrixDAL::executeQuery('core', 'copyContextAssetMetadata', Array('contextid' => $contextid));
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		} catch (DALException $e) {

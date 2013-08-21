@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.242 2013/07/25 23:23:49 lwright Exp $
+* $Id: metadata_manager.inc,v 1.243 2013/08/21 06:33:25 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *	 Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.242 $
+* @version $Revision: 1.243 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -779,9 +779,10 @@ class Metadata_Manager extends MySource_Object
 			$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 		}
 		$contextid = (Int) $contextid;
-		
+
+		$default_metadata_file = 'metadata.php';
 		if ($contextid === 0) {
-			$metadata_basename = 'metadata.php';
+			$metadata_basename = $default_metadata_file;
 		} else {
 			$metadata_basename = 'metadata.'.$contextid.'.php';
 		}
@@ -812,11 +813,21 @@ class Metadata_Manager extends MySource_Object
 		// this will enhance the speed of this function and will replace any keyword
 		$_metadata_filename = $asset->data_path.'/'.$metadata_basename;
 
+		$metadata_file_exists = TRUE;
 		if (!is_file($_metadata_filename)) {
+			$metadata_file_exists = FALSE;
+			if ($contextid !== 0) {
+				// Use default context metadata file, if the metadata for current context does not exist
+				$_metadata_filename = $asset->data_path.'/'.$default_metadata_file;
+				$metadata_file_exists = is_file($_metadata_filename);
+			}
+		}
+
+		if (!$metadata_file_exists) {
 			$GLOBALS['SQ_SYSTEM']->restoreContext();
 			return $field_values;
 		}
-		
+
 		$metadata = $this->loadMetadataFile($assetid, $_metadata_filename);
 
 		if (isset($metadata['values'])) {
@@ -1062,13 +1073,13 @@ class Metadata_Manager extends MySource_Object
 								'assetid'	=> $asset->id,
 								'fieldid'	=> $fieldid,
 								'value'		=> $metadata[$fieldid][0]['value'],
-								'contextid'	=> $do_contextid,
 							  );
 
 				if (!in_array($fieldid, $updates)) {
 					// for non contextable field, delete all entries first to avoid duplicate insertion error
 					if(!isset($do_contextid)){
 						try {
+							$bind_vars['contextid'] = NULL;
 							$result = MatrixDAL::executeQuery('core', 'deleteMetadataValueForAsset', $bind_vars);
 						} catch (Exception $e) {
 							throw new Exception(translate_error('SYS0339', $fieldid, $metadata[$fieldid][0]['value'], $asset->id, $contextid, $e->getMessage()));
@@ -1076,6 +1087,8 @@ class Metadata_Manager extends MySource_Object
 					}
 					// insert values of contextable field in current context or insert values of non-contextable for all contexts
 					try {
+						$bind_vars['contextid'] = (is_null($do_contextid) || $contextid === 0) ? NULL : $contextid;
+						$bind_vars['use_default'] = is_null($bind_vars['contextid']) ? '1' : '0';
 						$result = MatrixDAL::executeQuery('core', 'setMetadataValueForAsset', $bind_vars);
 					} catch (Exception $e) {
 						// SYS0339 = Cannot set new value of metadata due to DB error
@@ -1084,8 +1097,14 @@ class Metadata_Manager extends MySource_Object
 
 				// we are updating
 				} else {
+					if (is_null($do_contextid) || $contextid === 0) {
+						$query_name = 'updateMetadataValueForAsset';
+					} else {
+						$query_name = 'updateAlternateContextMetadataValueForAsset';
+						$bind_vars['contextid'] = $contextid;
+					}
 					try {
-						$result = MatrixDAL::executeQuery('core', 'updateMetadataValueForAsset', $bind_vars);
+						$result = MatrixDAL::executeQuery('core', $query_name, $bind_vars);
 					} catch (Exception $e) {
 						// SYS0340 = Cannot update value of metadata due to DB error
 						throw new Exception(translate_error('SYS0340', $fieldid, $metadata[$fieldid][0]['value'], $asset->id, $contextid, $e->getMessage()));
