@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.18 2013/08/20 06:24:23 lwright Exp $
+* $Id: js_asset_map.js,v 1.19 2013/08/21 02:01:15 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.18 $
+ * @version $Revision: 1.19 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -73,6 +73,8 @@ var JS_Asset_Map = new function() {
 		Delete: 46,
 		Escape: 27,
 		Shift: 16,
+		Backspace: 8,
+		Spacebar: 32,
 		LeftArrow: 37,
 		UpArrow: 38,
 		RightArrow: 39,
@@ -777,13 +779,14 @@ var JS_Asset_Map = new function() {
 		});
 
 		dfx.addEvent(assetMapContainer.ownerDocument.getElementsByTagName('body'), 'keypress', function(e) {
-			// Handle 0-9/A-Z using keypress.
+			// Handle 0-9/A-Z/Spacebar using keypress.
 			var code = e.keyCode ? e.keyCode : e.which;
-			if (((code >= KeyCode.LetterA) && (code <= KeyCode.LetterZ)) ||
+			if ((code === KeyCode.Spacebar) ||
+				((code >= KeyCode.LetterA) && (code <= KeyCode.LetterZ)) ||
 				((code >= KeyCode.NumberZero) && (code >= KeyCode.NumberNine))) {
 				if (self.isModalActive() === false) {
 					textSearch += String.fromCharCode(code);
-					console.info(textSearch);
+					self.search(textSearch);
 				}
 			}
 		});
@@ -791,6 +794,14 @@ var JS_Asset_Map = new function() {
 		dfx.addEvent(assetMapContainer.ownerDocument.getElementsByTagName('body'), 'keydown', function(e) {
 			var code = e.keyCode ? e.keyCode : e.which;
 			switch (code) {
+				case KeyCode.Backspace:
+					e.preventDefault();
+					if (textSearch.length > 0) {
+						textSearch = textSearch.slice(0, -1);
+						self.search(textSearch);
+					}
+				break;
+
 				case KeyCode.Shift:
 					preShift = {
 						selection: self.currentSelection(),
@@ -800,7 +811,7 @@ var JS_Asset_Map = new function() {
 
 				case KeyCode.RightArrow:
 					e.preventDefault();
-					textSearch = '';
+					self.clearSearch();
 
 					if ((e.ctrlKey === true) || (e.metaKey === true)) {
 						var childIndents = dfx.getParents(lastSelection, '.childIndent');
@@ -840,7 +851,7 @@ var JS_Asset_Map = new function() {
 
 				case KeyCode.LeftArrow:
 					e.preventDefault();
-					textSearch = '';
+					self.clearSearch();
 
 					if ((e.ctrlKey === true) || (e.metaKey === true)) {
 						var childIndents = dfx.getParents(lastSelection, '.childIndent');
@@ -888,7 +899,7 @@ var JS_Asset_Map = new function() {
 
 				case KeyCode.DownArrow:
 					e.preventDefault();
-					textSearch = '';
+					self.clearSearch();
 
 					if (lastSelection === null) {
 						// Use the first asset.
@@ -932,7 +943,7 @@ var JS_Asset_Map = new function() {
 
 				case KeyCode.UpArrow:
 					e.preventDefault();
-					textSearch = '';
+					self.clearSearch();
 
 					if (lastSelection === null) {
 						// Use the first asset.
@@ -1021,7 +1032,7 @@ var JS_Asset_Map = new function() {
 
 		dfx.addEvent(assetMapContainer, 'mousedown', function(e) {
 			self.clearMenus();
-			textSearch = '';
+			self.clearSearch();
 		});
 
 		for (var i = 0; i < trees.length; i++) {
@@ -1633,6 +1644,49 @@ var JS_Asset_Map = new function() {
 		}
 	};
 
+
+	this.search = function(searchText) {
+		if (searchText === '') {
+			this.clearSelection();
+			this.message('', false, 100);
+			return;
+		}
+
+		var tree = this.getCurrentTreeElement();
+
+		var assetNodes = dfx.getClass('asset', tree);
+		var regex = new RegExp('^' + searchText, 'i');
+		var found = false;
+
+		for (var i = 0; i < assetNodes.length; i++) {
+			if (dfx.isShowing(assetNodes[i]) === true) {
+				var nameNode = dfx.getClass('assetName', assetNodes[i])[0];
+				var name = dfx.trim(dfx.getNodeTextContent(nameNode));
+				if (regex.test(name) === true) {
+					this.message('', false, 100);
+
+					if (found === false) {
+						this.clearSelection();
+						this.addToSelection(assetNodes[i]);
+					} else {
+						dfx.addClass(assetNodes[i], 'located');
+					}
+
+					found = true;
+				}
+			}
+		}
+
+		if (found === false) {
+			this.clearSelection();
+			this.message('Search string "' + searchText + '" not found', false, 2000);
+		}
+	}
+
+	this.clearSearch = function() {
+		textSearch = '';
+		this.message('', false, 100);
+	}
 
 	/**
 	 * Bring the selected tree to the foreground.
@@ -3923,17 +3977,18 @@ var JS_Asset_Map = new function() {
 
 	};
 
+	/**
+	 * Override the legacy functions used by Asset Finder.
+	 *
+	 * The asset_map.js file defines a number of functions for use with the Java asset
+	 * map, which can't really be touched due to jsToJavaCall requirements and also
+	 * custom Simple Edit interfaces. This overrides them in the global space with
+	 * ones that will work for the JS asset map.
+	 *
+	 * Functions overridden here should perform a minimum of their own processing,
+	 * and defer to the rest of JS_Asset_Map when possible.
+	 */
 	this.extendLegacy = function() {
-		/*
-		 * NOTE:
-		 * These legacy functions exist mainly to allow custom Simple Edit interfaces
-		 * that expect the old-style functions (in the global space) to still work.
-		 *
-		 * Only the functions that are accessed from the asset finder are implemented.
-		 * Other functions existed that were called from the Java applet which are not
-		 * replicated here. Functions should perform a minimum of their own processing
-		 * and defer to JS_Asset_Map for as much as possible.
-		 */
 		dfx.objectMerge(window, {
 			/**
 			 * Handler for clicking of the Change/Cancel button of an asset finder.
