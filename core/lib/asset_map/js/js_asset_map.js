@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.21 2013/08/22 01:22:53 lwright Exp $
+* $Id: js_asset_map.js,v 1.22 2013/08/22 04:27:29 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.21 $
+ * @version $Revision: 1.22 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -1310,7 +1310,8 @@ var JS_Asset_Map = new function() {
 
 							dfx.addEvent(dragAsset, 'mousemove', function(e) {
 								// We moved but not enough to move off the draggable.
-								var mousePos = dfx.getMouseEventPosition(e);
+								var mousePos     = dfx.getMouseEventPosition(e);
+								var underlyingEl = null;
 								dragStatus.currentPoint.x = mousePos.x - assetMapCoords.x + dragStatus.assetDrag.offset.x;
 								dragStatus.currentPoint.y = mousePos.y - assetMapCoords.y + dragStatus.assetDrag.offset.y;
 
@@ -1320,7 +1321,7 @@ var JS_Asset_Map = new function() {
 								// We need to determine what's underneath the
 								// draggable, too, to set the Move Me mode's pointer.
 								dfx.setStyle(dragAsset, 'display', 'none');
-								var underlyingEl = assetMapContainer.ownerDocument.elementFromPoint(mousePos.x, mousePos.y);
+								underlyingEl = assetMapContainer.ownerDocument.elementFromPoint(mousePos.x, mousePos.y);
 								if (dfx.hasClass(underlyingEl, 'tab') === true) {
 									var hoverTreeid = underlyingEl.getAttribute('data-treeid');
 									self.setHoverTab(hoverTreeid, function(treeid) {
