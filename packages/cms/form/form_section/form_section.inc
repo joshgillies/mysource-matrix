@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.83.2.4 2013/05/27 08:23:05 ewang Exp $
+* $Id: form_section.inc,v 1.83.2.5 2013/08/22 00:37:43 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.83.2.4 $
+* @version $Revision: 1.83.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -68,7 +68,7 @@ class Form_Section extends Asset implements Bridge
 	* @var Array
 	*/
 	var $submission_errors = Array();
-	
+
 	/**
 	* parent form/section id
 	* @var Array
@@ -112,7 +112,8 @@ class Form_Section extends Asset implements Bridge
 		if (!parent::_updated($update_parents)) return FALSE;
 		// do not regenerate file during clone, do it afterwards
 		$in_clone = isset($GLOBALS['SQ_CLONE_COMPONENTS']) && $GLOBALS['SQ_CLONE_COMPONENTS'];
-		if (SQ_IN_BACKEND && !$in_clone) return $this->fileRegeneration();
+		if (!$in_clone) return $this->fileRegeneration();
+
 		return TRUE;
 
 	}//end _updated()
@@ -171,7 +172,7 @@ class Form_Section extends Asset implements Bridge
 	* @access public
 	*/
 	public function prepareLink(Asset $asset, $side_of_link, &$link_type, &$value, &$sort_order, &$dependant, &$exclusive)
-	{	
+	{
 		// if this is a bodycopy container then we need to make it a dependant link
 		if ($side_of_link == 'major' && ($asset instanceof Form_Section) && $dependant != '1') {
 			$dependant = '1';
@@ -219,9 +220,9 @@ class Form_Section extends Asset implements Bridge
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
 		}
-		
+
 		$GLOBALS['SQ_CLONE_COMPONENTS'] = TRUE;
-		
+
 		if (in_array('attributes', $components) || in_array('all', $components)) {
 			$sort_order = $this->attr('sort_order');
 			$sort_order = str_replace($this->id.':q', $clone->id.':q', $sort_order);
@@ -268,10 +269,10 @@ class Form_Section extends Asset implements Bridge
 				$form->saveAttributes();
 			}
 		}//end if
-		
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		
+
 		$GLOBALS['SQ_CLONE_COMPONENTS'] = FALSE;
 		return TRUE;
 
@@ -302,12 +303,66 @@ class Form_Section extends Asset implements Bridge
 	*/
 	public function cloneComponentsAdditional(Asset $clone, Array $components)
 	{
-		if (SQ_IN_BACKEND) return $clone->fileRegeneration();
-		return TRUE;
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		$GLOBALS['SQ_CLONE_COMPONENTS'] = TRUE;
+
+		$bodycopy = $clone->getFormatBodycopy(FALSE);
+		if (!is_null($bodycopy)) {
+			$originals_clones[]	= Array (
+									'original'	=> $this->id,
+									'clone'		=> $clone->id,
+								  );
+			$replace_keywords = Array ( 'question_name', 'response', 'question_field', 'question_id', 'question_note', 'question_label', 'section_title');
+			$form = $this->getParentForm();
+
+			if ($form) {
+				$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() & SQ_RUN_LEVEL_FORCED);
+				$containers = $bodycopy->getContainers();
+				foreach ($containers as $container) {
+					$content_type = $container->getContentType();
+					if ($container->type() == 'bodycopy_table') {
+						if (is_array($content_type)) {
+							foreach ($content_type as $cell_type) {
+								if (!$form->_cloneDIVContents($cell_type, $originals_clones, $replace_keywords)) {
+									$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+									$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+									$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+									return FALSE;
+								}//end if
+							}//end foreach
+						} else {
+							if (!$form->_cloneDIVContents($content_type, $originals_clones, $replace_keywords)) {
+								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+								$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+								$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+								return FALSE;
+							}//end if
+						}//end if
+					} else {
+						if (!$form->_cloneDIVContents($content_type, $originals_clones, $replace_keywords)) {
+							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+							$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+							return FALSE;
+						}//end if
+					}//end if
+				}//end foreach
+				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+			}//end if
+		}//end if
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+		$GLOBALS['SQ_CLONE_COMPONENTS'] = FALSE;
+
+		return $clone->fileRegeneration();
+
 	}//end cloneComponentsAdditional()
 
-	
-	
+
 	/**
 	* Returns name of the asset
 	*
@@ -918,7 +973,7 @@ class Form_Section extends Asset implements Bridge
 		$result = Array();
 
 		$questions = $this->attr('questions');
-		
+
 		if (!empty($questions)) {
 			foreach ($questions as $q_id => $question) {
 				if (empty($type_code) || ($question['question_type_code'] === $type_code)) {
@@ -1634,12 +1689,10 @@ class Form_Section extends Asset implements Bridge
 
 	}//end getDisplayKeywordReplacements()
 
-	
-	
 
 	/**
 	* Check if parent form's using accessible format
-	*								
+	*
 	*
 	* @return boolean
 	* @access public
@@ -1650,10 +1703,11 @@ class Form_Section extends Asset implements Bridge
 		if(is_null($parent)) return TRUE;
 		return $parent->useAccessibleFormat();
 	}//end useAccessibleFormat()
-	
+
+
 	/**
 	* Get required field mark attribute
-	*								
+	*
 	*
 	* @return boolean
 	* @access public
@@ -1665,11 +1719,11 @@ class Form_Section extends Asset implements Bridge
 		if(is_null($parent)) return  ' '.'<abbr class="sq-form-required-field" title="required">*</abbr>';
 		return $parent->getRequiredFieldMark();
 	}//end getRequiredFieldMark()
-	
-	
+
+
 	/**
 	* Get parent form / section
-	*								
+	*
 	*
 	* @return object
 	* @access public
@@ -1677,25 +1731,25 @@ class Form_Section extends Asset implements Bridge
 	function getParentForm()
 	{
 	    if(!empty($this->parent_form_id)) {
-		$parent_form_id = $this->parent_form_id;
+			$parent_form_id = $this->parent_form_id;
+	    } else {
+			$form_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'form', FALSE, NULL, 'minor');
+			if(!isset($form_link['majorid'])) {
+			    $form_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'form_section', FALSE, NULL, 'minor');
+			}
+			// if this form section is not linked to any asset
+			if(!isset($form_link['majorid'])) {
+			    return NULL;
+			}
+			$parent_form_id = $form_link['majorid'];
+			$this->parent_form_id = $parent_form_id;
 	    }
-	    else {
-		$form_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'form', FALSE, NULL, 'minor');
-		if(!isset($form_link['majorid'])) {
-		    $form_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'form_section', FALSE, NULL, 'minor');
-		}
-		// if this form section is not linked to any asset
-		if(!isset($form_link['majorid'])) {
-		    return NULL;
-		}
-		$parent_form_id = $form_link['majorid'];
-		$this->parent_form_id = $parent_form_id;
-	    }
+
 	    return $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_form_id);
-	}
-	
-	
-	
-	
+
+	}//end getParentForm
+
+
 }//end class
+
 ?>
