@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.80.2.1 2013/08/08 01:10:59 akarelia Exp $
+* $Id: calendar_common.inc,v 1.80.2.2 2013/08/22 07:25:11 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.80.2.1 $
+* @version $Revision: 1.80.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -117,7 +117,8 @@ class Calendar_Common
 		if (($view == 'period') && ($length == 0)) {
 			$view = 'day';
 		}
-
+		$length = (int) $length;
+		
 		$now = Calendar_Common::getDateComponents(sprintf('%04d-%02d-%02d', $year, $month, $day));
 		$wdom_list = weekday_dates_in_month($now['wday'], $month, $year);
 
@@ -1432,7 +1433,7 @@ class Calendar_Common
 			$type_code = $event['type_code'];
 			$result = Array();
 
-			$result[$event['assetid'].':start_date_ts='.$start_ts.',end_date_ts='.$end_ts.',type_code='.$type_code] = $start_ts;
+			$result[$event['assetid'].':start_date_ts='.$start_ts.'|end_date_ts='.$end_ts.'|type_code='.$type_code] = $start_ts;
 
 			$result_list = array_merge($result_list, $result);
 		}//end if
@@ -1491,7 +1492,7 @@ class Calendar_Common
 			if ($next_occurance) {
 				$i_start_ts = strtotime($next_occurance.' '.$start_time);
 				$i_end_ts = $i_start_ts+$event_period_ts;
-				$result_list[$assetid.':start_date_ts='.$i_start_ts.',end_date_ts='.$i_end_ts.',type_code='.$type_code] = $i_start_ts;
+				$result_list[$assetid.':start_date_ts='.$i_start_ts.'|end_date_ts='.$i_end_ts.'|type_code='.$type_code] = $i_start_ts;
 
 				// Based on recurring event frequency set, put only one instance for given recurring event
 				if ($event_frequency < $frequency_threshold) {

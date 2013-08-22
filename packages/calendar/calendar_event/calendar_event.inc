@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.112.2.1 2013/07/16 04:16:12 cupreti Exp $
+* $Id: calendar_event.inc,v 1.112.2.2 2013/08/22 07:25:11 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.112.2.1 $
+* @version $Revision: 1.112.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1098,7 +1098,7 @@ class Calendar_Event extends Asset
 	* @access public
 	* @see Asset_Manager::getAsset()
 	*/
-	public function getAsset($whole_assetid)
+	public function getAsset($whole_assetid, $type_code='', $mute_errors=FALSE)
 	{
 		$asset = NULL;
 		$assetid_parts = explode(':', $whole_assetid);
@@ -1107,7 +1107,7 @@ class Calendar_Event extends Asset
 		if (empty($assetid_parts[1])) {
 			return $asset;
 		} else {
-			$shdw_part_data = explode(',', $assetid_parts[1]);
+			$shdw_part_data = explode('|', $assetid_parts[1]);
 			$instance_data = Array();
 			foreach($shdw_part_data as $data) {
 				list($key, $val) = explode("=", $data);
@@ -1126,7 +1126,7 @@ class Calendar_Event extends Asset
 				$event_asset->vars[$attr]['is_contextable'] = 0;
 			}
 		}
-
+		
 		return $event_asset;
 
 	}//end getAsset()
@@ -1155,7 +1155,7 @@ class Calendar_Event extends Asset
 			if (empty($assetid_parts[1])) {
 				$asset_type = $this->type();
 			} else {
-				$event_data_raw = explode(',', $assetid_parts[1]);
+				$event_data_raw = explode('|', $assetid_parts[1]);
 				$event_data = Array();
 				foreach($event_data_raw as $event) {
 					list($key, $val) = explode("=", $event);
@@ -1241,7 +1241,163 @@ class Calendar_Event extends Asset
 		
 	}//end getAttributeValuesByName()
 
+	
+	
+	
+	/**
+	* Get asset info for use by asset map
+	*
+	* @param string	$assetid	Full Asset id to get information for
+	*
+	* @return array
+	* @access public
+	*/
+	public function getAssetMapAssetInfo($assetid)
+	{
+		return Array();
 
+	}//end getAssetMapAssetInfo()
+
+	
+	/**
+	* Return the number of links in the system that involve the specified asset
+	*
+	* Can be restricted by either link type afnd/or asset type code
+	*
+	* @param int		$assetid			id of the the $side_of_link asset
+	* @param string		$side_of_link		Which side of the link this (the current) asset
+	*										is on ('major' or 'minor')
+	* @param int		$link_types			integer that can be the product of bitwise operations
+	*										on the SQ_LINK_* constants
+	* @param mixed		$type_code			the type of asset that is linked (eg 'Page', 'File', etc) (can be a string or an array of strings)
+	*										if an array returns link if matches any
+	*										of the array values
+	* @param boolean	$strict_type_code	whether we are finding assets that are just a $type_code
+	*										or $type_code and any of it's sub-classes
+	* @param int		$ignore_linkid		ignore the link represented by this link id when returning the count
+	*
+	* @return int
+	* @access public
+	*/
+	public function countLinks($assetid, $side_of_link='major', $link_types=0, $type_code='', $strict_type_code=TRUE, $ignore_linkid=0)
+	{
+		return 0;
+
+	}//end countLinks()
+	
+	
+	/**
+	* Return all links that this asset has to other assets
+	*
+	* @param int		$assetid			id of the the $side_of_link asset
+	* @param int		$link_types			integer that can be the product of bitwise operations
+	*										on the SQ_LINK_* constants
+	* @param mixed		$type_code			the type of asset that is linked
+	*										(eg 'Page', 'File', etc)
+	*										if an array returns link if matches any
+	*										of the array values
+	* @param boolean	$strict_type_code	whether we are finding assets that are just a $type_code
+	*										or $type_code and any of it's sub-classes
+	* @param string		$side_of_link		Which side of the link this (the current) asset
+	*										is on ('major' or 'minor')
+	* @param string		$sort_by			a field in the asset table you would like the results
+	*										sorted by (eg. name, short_name etc)
+	* @param boolean	$dependant			Whether we want dependant links, non-dependent or (NULL) don't care
+	* @param boolean	$exclusive			Whether we want exclusive links, non-exclusive or (NULL) don't care
+	*
+	* @return array
+	* @access public
+	* @see Asset_Manager::getLinks()
+	*/
+	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $sort_by=NULL, $dependant=NULL, $exclusive=NULL)
+	{
+	    $id_parts = explode(':', $assetid);
+	    if (isset($id_parts[0])) $assetid = $id_parts[0];
+	    return $GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, $link_types, $type_code, $strict_type_code, $side_of_link, $sort_by, $dependant, $exclusive);
+	}
+	
+	
+	/**
+	* Get all asset ids that are above the passed assetid in the various trees in which it exists
+	*
+	* Can only find parents of type <i>user_group</i>
+	*
+	* @param int		$assetid			the id of the asset to get its parents for
+	* @param mixed		$type_code			the type of asset that is linked (eg 'User', 'User_Group', etc)
+	*										if an array returns link if matches any of the array values
+	* @param boolean	$strict_type_code	whether we are finding assets that are just a $type_code
+	*										or $type_code and any of it's sub-classes
+	*
+	* @return array
+	* @access public
+	* @see Asset_Manager::getParents()
+	*/
+	function getParents($assetid, $type_code='', $strict_type_code=TRUE)
+	{
+	    $id_parts = explode(':', $assetid);
+	    if (isset($id_parts[0])) $assetid = $id_parts[0];
+	    return $GLOBALS['SQ_SYSTEM']->am->getParents($assetid, $type_code, $strict_type_code);
+	}
+	
+	
+		/**
+	* Get all asset ids that are below the passed assetid in the various trees in which it exists
+	*
+	* @param int		$assetid			the id of the asset to get its children for
+	* @param mixed		$type_code			the type of asset that is linked
+	*										(eg 'Page', 'File', etc)
+	*										if an array returns link if matches any
+	*										of the array values
+	* @param boolean	$strict_type_code	whether we are finding assets that are just a $type_code
+	*										or $type_code and any of it's sub-classes
+	* @param boolean	$dependant			if TRUE, results will be filtered to assets that are dependants.
+	*										If FALSE, results will all not be dependants.
+	*										If NULL, results will not be filtered
+	* @param string		$sort_by			a field in the asset table you would like the results
+	*										sorted by (eg. name, short_name etc)
+	*
+	* @return array
+	* @access public
+	* @see Asset_Manager::getChildren()
+	*/
+	function getChildren($assetid, $type_code='', $strict_type_code=TRUE, $dependant=NULL, $sort_by=NULL)
+	{
+	    $id_parts = explode(':', $assetid);
+	    if (isset($id_parts[0])) $assetid = $id_parts[0];
+	    return $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid, $type_code, $strict_type_code, $dependant, $sort_by);
+	}
+	
+	
+	/**
+	* Returns an array of assetid's + info in the order that they propogate out from THIS BRIDGE'S url
+	*
+	* @param string	$assetid	the id of the last asset in the lineage
+	* @param string	$protocol	the protocol to match -> NULL means it is ignored
+	* @param string	$url		the url to check for -> NULL defaults it to current url
+	*
+	* @return array
+	* @access public
+	*/
+	function getLineageFromURL($assetid, $protocol, $url)
+	{
+	    return Array();
+	}
+	
+	/**
+	* Remove a link by id
+	*
+	* @param int		$linkid	the link id of the link to remove
+	* @param boolean	$moving	TRUE if this delete is part of a move operation
+	*
+	* @return boolean
+	* @access public
+	*/
+	function deleteAssetLink($linkid, $moving=FALSE)
+	{
+
+		return FALSE;
+
+	}//end deleteAssetLink()
 }//end class
 
 ?>
