@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.179 2013/08/21 05:58:29 cupreti Exp $
+* $Id: page_asset_builder.inc,v 1.180 2013/08/22 00:46:01 cupreti Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/recaptcha/recaptcha.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.179 $
+* @version $Revision: 1.180 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1640,6 +1640,10 @@ class Page_Asset_Builder extends Page
 					}
 				}
 				replace_keywords($this->_replacements['create_form'], $captcha_replacements);
+			}
+
+			if ((strpos($word, 'form_captcha') === 0)){
+				$this->_replacements[$word] = $this->getKeywordReplacement($word);
 			}
 
 			if ($this->attr('use_recaptcha') && strpos($word, 'form_recaptcha') === 0) {
