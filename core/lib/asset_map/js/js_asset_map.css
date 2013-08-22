@@ -76,10 +76,6 @@
 	padding-right: 2px;
 }
 
-#asset_map_container .tree .asset.located {
-	zoom: 1;
-}
-
 #asset_map_container .tree .asset.located .statusArchived {
 	background-color: rgba(194, 176, 160, 0.5);
 	-ms-filter: "progid:DXImageTransform.Microsoft.Gradient(StartColorStr=#7FC2B0A0, EndColorStr=#7FC2B0A0)";
@@ -248,7 +244,7 @@
 	border: 1px solid #666;
 	background-color: #DDD;
 	opacity: 0.5;
-	-ms-filter: "progid: DXImageTransform.Microsoft.Alpha(opacity=50)";
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(opacity=50)";
 	box-sizing: border-box;
 	-moz-box-sizing: border-box;
 	z-index: 20;
@@ -547,6 +543,7 @@
 #asset_map_container .asset .assetName {
 	margin: 1px 0;
 	padding: 1px 3px;
+	display: inline-block;
 }
 
 #asset_map_container .asset.disabled .assetName,
