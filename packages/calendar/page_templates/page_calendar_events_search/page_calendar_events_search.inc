@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_events_search.inc,v 1.15 2013/02/01 00:58:10 cupreti Exp $
+* $Id: page_calendar_events_search.inc,v 1.16 2013/08/22 07:11:05 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 * Page_Calendar_Events_Search
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -172,8 +172,8 @@ class Page_Calendar_Events_Search extends Search_Page
 		if ($this->attr('main_logic') == 'AND') {
 			foreach($date_filter_result as $event => $start_ts) {
 				$assetid = substr($event, 0, strpos($event, ':'));
-				if (isset($multi_date_events[$assetid]) && strpos($event, ',type_code=') !== FALSE) {					
-					$event = substr($event, 0, strpos($event, ',type_code=')).',type_code=calendar_event_multi_date';
+				if (isset($multi_date_events[$assetid]) && strpos($event, '|type_code=') !== FALSE) {					
+					$event = substr($event, 0, strpos($event, '|type_code=')).'|type_code=calendar_event_multi_date';
 				}
 				if (!isset($result[$event]) && (empty($sm_queries) || in_array($assetid, $sm_result_assetids)))  {
 					$result[$event] = array_get_index($sm_result, $assetid, 1);
@@ -185,8 +185,8 @@ class Page_Calendar_Events_Search extends Search_Page
 			$combined_result = array_merge($sm_fields_result, $date_filter_result);
 			foreach($combined_result as $event => $start_ts) {
 				$assetid = substr($event, 0, strpos($event, ':'));
-				if (isset($multi_date_events[$assetid]) && strpos($event, ',type_code=') !== FALSE) {					
-					$event = substr($event, 0, strpos($event, ',type_code=')).',type_code=calendar_event_multi_date';
+				if (isset($multi_date_events[$assetid]) && strpos($event, '|type_code=') !== FALSE) {					
+					$event = substr($event, 0, strpos($event, '|type_code=')).'|type_code=calendar_event_multi_date';
 				}
 				$result[$event] = array_get_index($sm_result, $assetid, 1);
 			}//end foreach

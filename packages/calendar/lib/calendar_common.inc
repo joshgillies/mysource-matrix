@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.82 2013/08/16 00:52:17 ewang Exp $
+* $Id: calendar_common.inc,v 1.83 2013/08/22 07:11:05 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.82 $
+* @version $Revision: 1.83 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1433,7 +1433,7 @@ class Calendar_Common
 			$type_code = $event['type_code'];
 			$result = Array();
 
-			$result[$event['assetid'].':start_date_ts='.$start_ts.',end_date_ts='.$end_ts.',type_code='.$type_code] = $start_ts;
+			$result[$event['assetid'].':start_date_ts='.$start_ts.'|end_date_ts='.$end_ts.'|type_code='.$type_code] = $start_ts;
 
 			$result_list = array_merge($result_list, $result);
 		}//end if
@@ -1492,7 +1492,7 @@ class Calendar_Common
 			if ($next_occurance) {
 				$i_start_ts = strtotime($next_occurance.' '.$start_time);
 				$i_end_ts = $i_start_ts+$event_period_ts;
-				$result_list[$assetid.':start_date_ts='.$i_start_ts.',end_date_ts='.$i_end_ts.',type_code='.$type_code] = $i_start_ts;
+				$result_list[$assetid.':start_date_ts='.$i_start_ts.'|end_date_ts='.$i_end_ts.'|type_code='.$type_code] = $i_start_ts;
 
 				// Based on recurring event frequency set, put only one instance for given recurring event
 				if ($event_frequency < $frequency_threshold) {
