@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.88 2013/08/05 05:05:32 akarelia Exp $
+* $Id: form_section.inc,v 1.89 2013/08/22 00:27:08 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.88 $
+* @version $Revision: 1.89 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -112,7 +112,8 @@ class Form_Section extends Asset implements Bridge
 		if (!parent::_updated($update_parents)) return FALSE;
 		// do not regenerate file during clone, do it afterwards
 		$in_clone = isset($GLOBALS['SQ_CLONE_COMPONENTS']) && $GLOBALS['SQ_CLONE_COMPONENTS'];
-		if (SQ_IN_BACKEND && !$in_clone) return $this->fileRegeneration();
+		if (!$in_clone) return $this->fileRegeneration();
+
 		return TRUE;
 
 	}//end _updated()
@@ -267,46 +268,6 @@ class Form_Section extends Asset implements Bridge
 
 				$form->saveAttributes();
 			}
-
-			$bodycopy = $this->getFormatBodycopy();
-			if (!is_null($bodycopy)) {
-				$originals_clones[]	= Array (
-										'original'	=> $this->id,
-										'clone'		=> $clone->id,
-									  );
-				$replace_keywords = Array ( 'question_name', 'response', 'question_field', 'question_id', 'question_note', 'question_label', 'section_title');
-				$form = $this->getParentForm();
-
-				if ($form) {
-					$containers = $bodycopy->getContainers();
-					foreach ($containers as $container) {
-						$content_type = $container->getContentType();
-						if ($container->type() == 'bodycopy_table') {
-							if (is_array($content_type)) {
-								foreach ($content_type as $cell_type) {
-									if (!$form->cloneDIVContents($cell_type, $originals_clones, $replace_keywords)) {
-										$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-										$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-										return FALSE;
-									}//end if
-								}//end foreach
-							} else {
-								if (!$form->_cloneDIVContents($content_type, $originals_clones, $replace_keywords)) {
-									$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-									$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-									return FALSE;
-								}//end if
-							}//end if
-						} else {
-							if (!$form->_cloneDIVContents($content_type, $originals_clones, $replace_keywords)) {
-								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-								$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-								return FALSE;
-							}//end if
-						}//end if
-					}//end foreach
-				}//end if
-			}//end if
 		}//end if
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -342,8 +303,63 @@ class Form_Section extends Asset implements Bridge
 	*/
 	public function cloneComponentsAdditional(Asset $clone, Array $components)
 	{
-		if (SQ_IN_BACKEND) return $clone->fileRegeneration();
-		return TRUE;
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		$GLOBALS['SQ_CLONE_COMPONENTS'] = TRUE;
+
+		$bodycopy = $clone->getFormatBodycopy(FALSE);
+		if (!is_null($bodycopy)) {
+			$originals_clones[]	= Array (
+									'original'	=> $this->id,
+									'clone'		=> $clone->id,
+								  );
+			$replace_keywords = Array ( 'question_name', 'response', 'question_field', 'question_id', 'question_note', 'question_label', 'section_title');
+			$form = $this->getParentForm();
+
+			if ($form) {
+				$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() & SQ_RUN_LEVEL_FORCED);
+				$containers = $bodycopy->getContainers();
+				foreach ($containers as $container) {
+					$content_type = $container->getContentType();
+					if ($container->type() == 'bodycopy_table') {
+						if (is_array($content_type)) {
+							foreach ($content_type as $cell_type) {
+								if (!$form->_cloneDIVContents($cell_type, $originals_clones, $replace_keywords)) {
+									$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+									$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+									$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+									return FALSE;
+								}//end if
+							}//end foreach
+						} else {
+							if (!$form->_cloneDIVContents($content_type, $originals_clones, $replace_keywords)) {
+								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+								$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+								$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+								return FALSE;
+							}//end if
+						}//end if
+					} else {
+						if (!$form->_cloneDIVContents($content_type, $originals_clones, $replace_keywords)) {
+							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+							$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+							return FALSE;
+						}//end if
+					}//end if
+				}//end foreach
+				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+			}//end if
+		}//end if
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+		$GLOBALS['SQ_CLONE_COMPONENTS'] = FALSE;
+
+		return $clone->fileRegeneration();
+
 	}//end cloneComponentsAdditional()
 
 
