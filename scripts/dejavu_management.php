@@ -5,7 +5,7 @@
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.8.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -16,12 +16,11 @@ if ((php_sapi_name() != 'cli')) {
 require_once 'Console/Getopt.php';
 
 $shortopt = 's:';
-$longopt = Array('enable', 'disable', 'forget', 'status', 'disable_force');
+$longopt = Array('enable', 'disable', 'forget', 'status', 'disable_force', 'recaching_delay=');
 
 $args = Console_Getopt::readPHPArgv();
 array_shift($args);
 $options = Console_Getopt::getopt($args, $shortopt, $longopt);
-
 if ($options instanceof PEAR_Error) {
 	usage();
 }
@@ -30,6 +29,7 @@ if (empty($options[0])) usage();
 
 $SYSTEM_ROOT = '';
 $ACTION = '';
+$RECACHING_DELAY = '0';
 
 foreach ($options[0] as $option) {
 	switch ($option[0]) {
@@ -41,6 +41,12 @@ foreach ($options[0] as $option) {
 		
 		default:
 			$ACTION = $option[0];
+			if ($ACTION == '--recaching_delay') {
+				if (empty($option[1]) || !is_numeric($option[1])) {
+					usage();
+				}
+				$RECACHING_DELAY = $option[1];
+			}
 		break;
 	}
 }
@@ -72,6 +78,7 @@ switch ($ACTION) {
 			echo "Deja Vu is currently disabled.\n";
 		} else {
 			echo "Deja Vu is currently enabled.\n";
+			echo "Recaching delay time: ".$deja_vu->getRecachingDelay()."s.\n";
 		}
 		break;
 	case '--enable':
@@ -130,6 +137,14 @@ switch ($ACTION) {
 			}
 		}
 		break;
+	case '--recaching_delay':
+		echo "Setting recaching delay time period ...\n";
+		if ($deja_vu->setRecachingDelay($RECACHING_DELAY)) {
+			echo "[DONE]\n";
+		} else {
+			echo "[FAILED]\n";
+		}
+		break;
 	default:
 		usage();
 		break;
@@ -144,12 +159,13 @@ switch ($ACTION) {
 */
 function usage()
 {
-	echo "\nUSAGE: dejavu_management.php -s <system_root> [--enable] [--disable] [--forget]\n".
+	echo "\nUSAGE: dejavu_management.php -s <system_root> [--enable] [--disable] [--forget] [--recache_delay <time_in_seconds>]\n".
 		"--enable  			Enables Deja Vu in MySource Matrix\n".
 		"--disable 			Disables Deja Vu in MySource Matrix\n".
 		"--disable_force			Forcibly disables Deja Vu by editing control file\n".
 		"--forget			Forgets all Deja Vu data in MySource Matrix\n".
 		"--status			Checks the current Deja Vu status\n".
+		"--recaching_delay			Set the time period to delay the asset recaching after the asset has been updated\n".
 		"\nNOTE: only one of [--enable --disable --forget] option is allowed to be specified\n";
 	exit();
 

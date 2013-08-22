@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-*$Id: deja_vu.inc,v 1.11 2012/09/06 06:53:21 cupreti Exp $
+*$Id: deja_vu.inc,v 1.11.8.1 2013/08/22 01:19:45 cupreti Exp $
 *
 */
 
@@ -34,7 +34,7 @@ define('SQ_DEJA_VU_LOCALE', 'locale_manager');
 * memory, purely to improve scalability.
 *
 * @author  James Hurst <jhurst@squiz.co.uk>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.11.8.1 $
 * @package MySource_Matrix
 */
 class Deja_Vu extends MySource_Object
@@ -56,6 +56,14 @@ class Deja_Vu extends MySource_Object
 
 
 	/**
+	 * Time period in seconds to wait before reaching
+	 *
+	 * @var int
+	 */
+	private $_recaching_delay;
+
+
+	/**
 	* Constructor
 	*
 	* Runs a bunch of assertions for the config, which will throw fatals. 
@@ -66,8 +74,12 @@ class Deja_Vu extends MySource_Object
 	function __construct()
 	{
 		$this->_enabled = 0;
+		$this->_recaching_delay = 0;
 		if (is_file(SQ_DEJA_VU_CONTROL)) {
-			$this->_enabled = (int) file_get_contents(SQ_DEJA_VU_CONTROL);
+			$config = explode(',', file_get_contents(SQ_DEJA_VU_CONTROL));
+			$this->_enabled = (int) array_get_index($config, 0, 0);
+			$this->_recaching_delay = array_get_index($config, 1, 0);
+
 			if ($this->_enabled !== 1) $this->_enabled = 0;
 		}
 
@@ -125,6 +137,19 @@ class Deja_Vu extends MySource_Object
 
 
 	/**
+	 * Get the recaching delay time value
+	 *
+	 * @return bool
+	 * @access public
+	 */
+	public function getRecachingDelay()
+	{
+		return $this->_recaching_delay;
+
+	}//end getRecachingDelay()
+
+
+	/**
 	* Fetch an item from memcached, or null if not found.
 	*
 	* @param String $type The type of data sort, asset or metadata currently.
@@ -145,7 +170,13 @@ class Deja_Vu extends MySource_Object
 		case 'asset':
 			$obj = $this->_memcache->get($cache_key);
 			if (!$obj) {
-			//	Cache miss for $cache_key
+				$asset_cache_key = $this->_getAssetCacheKey($assetid);
+				$cache_update_info = explode(',', $this->_memcache->get($asset_cache_key));
+				$update_ts = array_get_index($cache_update_info, 0, '0');
+				// Cache miss means asset will be recached. Set the recaching flag
+				$this->_memcache->set($asset_cache_key, $update_ts.',1');
+
+				// Cache miss for $cache_key
 				return NULL;
 			}
 
@@ -205,7 +236,22 @@ class Deja_Vu extends MySource_Object
 		// bug fix #5831 Inconsistent contents when using Deja Vu and Rollback
 		// If in rollback we shouldn't be really caching the content for asset
 		if (defined('SQ_ROLLBACK_VIEW') && SQ_ROLLBACK_VIEW) return null;
+
+		// Do not re-cache if some concurrent process has just updated this asset
+		// or if the expected db replication delay has not elapsed yet
+		if ($type == 'asset') {
+			$cache_update_info = explode(',', $this->_memcache->get($this->_getAssetCacheKey($assetid)));
+			$updated_time = array_get_index($cache_update_info, 0, '0');
+			$recaching = array_get_index($cache_update_info, 1, '1');
+
+			$current_time = microtime(TRUE);
+			if (!$recaching || ($this->_recaching_delay && $updated_time && ($current_time - $updated_time) <= $this->_recaching_delay)) {
+				return NULL;
+			}
+		}
+
 		return $this->_memcache->set($this->_getCacheKey($type, $assetid, $contextid), $object);
+
 	}//end remember()
 
 
@@ -219,7 +265,19 @@ class Deja_Vu extends MySource_Object
 	*/
 	public function forget($type, $assetid = NULL, $contextid = NULL)
 	{
-		return $this->_memcache->delete($this->_getCacheKey($type, $assetid, $contextid));
+		$contextids = array_keys($GLOBALS['SQ_SYSTEM']->getAllContexts());
+		foreach($contextids as $contextid) {
+			$this->_memcache->delete($this->_getCacheKey($type, $assetid, $contextid));
+		}//end foreach
+
+		// Mark the deletion timestamp and unset the recaching flag
+		// Note that we intentionally use same cache key all the contexts
+		if ($type == 'asset') {
+			$this->_memcache->set($this->_getAssetCacheKey($assetid), microtime(TRUE).',0');
+		}
+
+		return TRUE;
+
 	}//end forget()
 
 
@@ -259,6 +317,25 @@ class Deja_Vu extends MySource_Object
 		}
 
 	}//end _getCacheKey()
+
+
+	/**
+	 * Generate the cache key for the given assetid disregard to the context
+	 *
+	 * @param string $assetid
+	 *
+	 * @return string
+	 * @access private
+	 */
+	private function _getAssetCacheKey($assetid)
+	{
+		if (empty($assetid)) {
+			return FALSE;
+		}
+
+		return SQ_DEJA_VU_MEMCACHE_PREFIX.$assetid.'|update_info';
+
+	}//end _getAssetCacheKey()
 
 
 	/******* EVENT HANDLERS *************************************************/
@@ -375,7 +452,7 @@ class Deja_Vu extends MySource_Object
 	public function enable()
 	{
 		if (!$this->enabled()) {
-			$rv = (bool) file_put_contents(SQ_DEJA_VU_CONTROL, '1');
+			$rv = (bool) file_put_contents(SQ_DEJA_VU_CONTROL, '1'.','.$this->_recaching_delay);
 			if ($rv) {
 				$this->_enabled = 1;
 			}
@@ -395,7 +472,7 @@ class Deja_Vu extends MySource_Object
 	{
 		$rv = FALSE;
 		if ($this->enabled()) {
-			$rv = (bool) file_put_contents(SQ_DEJA_VU_CONTROL, '0');
+			$rv = (bool) file_put_contents(SQ_DEJA_VU_CONTROL, '0'.','.$this->_recaching_delay);
 			if ($rv) {
 				$this->_enabled = 0;
 			}
@@ -403,6 +480,24 @@ class Deja_Vu extends MySource_Object
 		return $rv;
 
 	}//end disable()
+
+
+	/**
+	 * Set Deja Vu recaching delay time
+	 *
+	 * @return bool
+	 * @access public
+	 */
+	public function setRecachingDelay($period)
+	{
+		$rv = (bool) file_put_contents(SQ_DEJA_VU_CONTROL, $this->_enabled.','.$period);
+		if ($rv) {
+			$this->_recaching_delay = $period;
+		}
+
+		return $rv;
+
+	}//end enable()
 
 
 	/**
