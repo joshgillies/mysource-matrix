@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.20 2013/08/21 05:00:11 lwright Exp $
+* $Id: js_asset_map.js,v 1.21 2013/08/22 01:22:53 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.20 $
+ * @version $Revision: 1.21 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -82,7 +82,7 @@ var JS_Asset_Map = new function() {
 		LetterA: 65,
 		LetterZ: 90,
 		NumberZero: 48,
-		NumberNine: 57,
+		NumberNine: 57
 	}
 
 	/**
@@ -506,15 +506,20 @@ var JS_Asset_Map = new function() {
 		var version   = null;
 		var browser   = navigator.userAgent;
 		if (browser.indexOf('Trident/') !== -1) {
-			// IE: We first look for a "rv 11.0" match for IE11+, then
+			// IE (8+): We first look for a "rv:11.0" match for IE11+, then
 			// "MSIE 10.0" etc.
-			version = /rv ([\d.]+)/.exec(browser);
+			// If we are less than IE8, we wouldn't hit this section because the
+			// Trident token only existed from IE8 onward.
+			version = /rv:([\d.]+)/.exec(browser);
 			if (!version) {
 				version = /MSIE ([\d.]+)/.exec(browser);
 			}
 
 			if (version && (parseFloat(version[1]) >= 8)) {
-				supported = true;
+				// If IE8+ detected, make sure we aren't in compatibility view.
+				if ((document.documentMode == 0) || (document.documentMode >= 8)) {
+					supported = true;
+				}
 			}
 		} else if (browser.indexOf('Chrome/') !== -1) {
 			// Chrome - Separated because of Blink.
