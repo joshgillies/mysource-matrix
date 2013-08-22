@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.286 2013/08/19 04:32:26 cupreti Exp $
+* $Id: form.inc,v 1.287 2013/08/22 00:23:59 akarelia Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/recaptcha/recaptcha.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.286 $
+* @version $Revision: 1.287 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -924,8 +924,7 @@ class Form extends Asset implements Bridge
 	function _updated($update_parents=TRUE)
 	{
 		if (!parent::_updated($update_parents)) return FALSE;
-		if (SQ_IN_BACKEND) return $this->fileRegeneration();
-		return TRUE;
+		return $this->fileRegeneration();
 
 	}//end _updated()
 
