@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.272.2.11 2013/07/25 05:26:21 akarelia Exp $
+* $Id: form.inc,v 1.272.2.12 2013/08/22 00:37:22 akarelia Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.272.2.11 $
+* @version $Revision: 1.272.2.12 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -898,8 +898,7 @@ class Form extends Asset implements Bridge
 	function _updated($update_parents=TRUE)
 	{
 		if (!parent::_updated($update_parents)) return FALSE;
-		if (SQ_IN_BACKEND) return $this->fileRegeneration();
-		return TRUE;
+		return $this->fileRegeneration();
 
 	}//end _updated()
 
@@ -2329,7 +2328,7 @@ class Form extends Asset implements Bridge
 		    <?php
 		    $content = ob_get_clean();
 		}
-		
+
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 
 		$keyword_list = extract_keywords($content);
