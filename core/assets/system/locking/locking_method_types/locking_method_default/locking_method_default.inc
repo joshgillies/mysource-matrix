@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: locking_method_default.inc,v 1.8 2013/03/26 00:29:58 csmith Exp $
+* $Id: locking_method_default.inc,v 1.9 2013/08/23 02:47:50 asharpe Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/locking/locking_method/locking_method
 *
 *
 * @author		Luke Wright <lwright@squiz.net>
-* @version		$Revision: 1.8 $
+* @version		$Revision: 1.9 $
 * @package		MySource_Matrix_Packages
 * @subpackage	__core__
 */
@@ -246,7 +246,7 @@ class Locking_Method_Default extends Locking_Method
 	 * either 'WHERE lockid=:x' or 'WHERE lockid IN (:x,:y)'
 	 * The 2nd element is the lock id's to bind in the query.
 	 */
-	private function _expandLockForSql($lockid)
+	protected static function _expandLockForSql($lockid)
 	{
 		// Did I get a string or an array?
 		$where = '';
