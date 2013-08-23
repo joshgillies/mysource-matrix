@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.180 2013/08/22 00:46:01 cupreti Exp $
+* $Id: page_asset_builder.inc,v 1.181 2013/08/23 01:15:37 akarelia Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/recaptcha/recaptcha.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.180 $
+* @version $Revision: 1.181 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -381,7 +381,9 @@ class Page_Asset_Builder extends Page
 				trim($this->attr('captcha_arc_colour'), '#'),
 				$this->attr('captcha_include_uppercase'),
 				$this->attr('captcha_include_numbers'),
-				$this->attr('provide_accessible_captcha')
+				$this->attr('provide_accessible_captcha'),
+				FALSE,
+				$this->attr('captcha_label_text')
 			);
 		return ob_get_clean();
 
@@ -463,6 +465,19 @@ class Page_Asset_Builder extends Page
 
 
 	/**
+	* Form Captcha Field keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getFormCaptchaLabelKeywordReplacement()
+	{
+		return $this->attr('captcha_label_text');
+
+	}//end getFormCaptchaLabelTextKeywordReplacement()
+
+
+	/**
 	* Process any global Asset Builder actions
 	*
 	* These actions include logging into the system and creating an asset
@@ -495,7 +510,7 @@ class Page_Asset_Builder extends Page
 					// verify captcha
 					if ($this->attr('require_captcha')) {
 						if (!validate_security_key()) {
-							$error_text = translate('security_key_incorrect');
+							$error_text = $this->attr('captcha_invalid_error_message');
 							trigger_error($error_text, E_USER_NOTICE);
 							$required_error = TRUE;
 						}
