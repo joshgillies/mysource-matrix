@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.70 2013/07/25 23:23:49 lwright Exp $
+* $Id: hipo_job_create_links.inc,v 1.71 2013/08/23 04:24:20 ewang Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.70 $
+* @version $Revision: 1.71 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -1636,7 +1636,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 		// Only process in the later steps (otherwise it performs a double 'get_assets' request to the asset map)
 		if ($step_data['percent_done'] > 0) {
 			$refreshids = Array(
-						   addslashes($this->running_vars['to_parent_assetid']),
+						   addslashes($this->_running_vars['to_parent_assetid']),
 						  );
 
 			foreach ($this->_running_vars['assets'] as $links) {
