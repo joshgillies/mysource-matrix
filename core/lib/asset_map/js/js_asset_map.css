@@ -556,7 +556,7 @@
 #asset_map_container.statuses-shown .asset .assetName,
 #asset_map_container .asset.selected .assetName,
 #asset_map_container.moveMeMode .asset.moveTarget .assetName {
-	padding: 1px 2px;
+	padding: 0px 2px;
 }
 
 #asset_map_container .selectLine {
