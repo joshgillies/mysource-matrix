@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.164 2013/08/06 04:46:01 ewang Exp $
+* $Id: design.inc,v 1.165 2013/08/23 08:05:15 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.164 $
+* @version $Revision: 1.165 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -119,9 +119,9 @@ class Design extends Design_Area
 				}
 			}
 
-		
-				
-				
+
+
+
 			// Copy the parse file across first, then process it, to make sure
 			if (copy($orig_parse, $clone_parse)) {
 				$edit_fns = $clone->getEditFns();
@@ -147,7 +147,7 @@ class Design extends Design_Area
 				if (!$clone->generateDesignFile()){
 					return FALSE;
 				}
-				
+
 			}//end if
 		}//end if
 
@@ -601,12 +601,12 @@ class Design extends Design_Area
 			case 'edit' :
 				if (parent::processBackend($o, $link)) {
 					// regenerate the design (if necessary) and update customisations in HIPO
-					if (isset($this->_tmp['generate_design']) && $this->_tmp['generate_design']) {						
+					if (isset($this->_tmp['generate_design']) && $this->_tmp['generate_design']) {
 						 $hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
-						     $vars = Array(
+							 $vars = Array(
 								'assetid'    =>$this->id,
-							       );
-						    $hh->queueHipo('hipo_job_regenerate_design', $vars);
+								   );
+							$hh->queueHipo('hipo_job_regenerate_design', $vars);
 
 					}
 
@@ -668,7 +668,8 @@ echo '<!--
   Developed by Squiz - http://www.squiz.net
   Squiz, Squiz Matrix, MySource, MySource Matrix and Squiz.net are registered Trademarks of Squiz Pty Ltd
   Page generated: <?php echo date(\'d F Y H:i:s\')."\n"; ?>
--->';
+-->
+';
 				}
 echo '
 <?php
@@ -729,7 +730,7 @@ echo '/*
 					echo '<'.'?php header("Content-Disposition: attachment; filename=\"$asset_name\""); ?'.'>';
 				}
 			break;
-			
+
 			case 'site_link' :
 				if (!empty($args['full_url']) && in_array($args['full_url'], Array('yes', 'true', '1'))) {
 					$res_exp = '$ASSET_LINEAGE[0][\'protocol\'].\'://\'.$ASSET_LINEAGE[0][\'url\']';
@@ -981,7 +982,7 @@ echo '/*
 	{
 		// start performance mode timer
 		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this);
-		
+
 		// generate an array of all the URLs we are going to need for the files in this design
 		$file_link_ids = Array();
 		$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'file', FALSE);
@@ -1145,7 +1146,7 @@ echo '/*
 			if ($protocol_pos !== FALSE) {
 				$asset_url = substr($asset_url, $protocol_pos + 3);
 			}
-			
+
 			$ASSET_LINEAGE = @$am->getLineageFromURL(null, $asset_url);
 		}
 
