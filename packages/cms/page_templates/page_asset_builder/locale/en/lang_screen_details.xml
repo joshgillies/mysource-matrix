@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.21 2010/11/03 04:07:43 ewang Exp $
+* $Id: lang_screen_details.xml,v 1.21.18.1 2013/08/23 01:21:25 akarelia Exp $
 *
 */
 -->
@@ -179,6 +179,14 @@
 			<display_name>Include Numbers in CAPTCHA Text</display_name>
 			<note>If this option is enabled, the generated CAPTCHA will contain at least one number.</note>
 		</field>
+		<field attribute="captcha_invalid_error_message">
+			<display_name>Captcha Invalid Error Message</display_name>
+			<note>Custom error message if CAPTCHA entered at current page is incorrect.</note>
+		</field>
+		<field attribute="captcha_label_text">
+			<display_name>Captcha Label Text</display_name>
+			<note>Customise the text of label for CAPTCHA input field.</note>
+		</field>
 	</section>
 	<section name="Mollom Spam Check" write_access="write:attributes">
 		<field attribute="use_mollom">
@@ -209,5 +217,5 @@
 			<display_name>CAPTCHA Regen Link Text</display_name>
 			<note>This text will appear when the %asset_builder_mollom_captcha_regen_link% keyword is used.</note>
 		</field>
-	</section>	
+	</section>
 </contents>

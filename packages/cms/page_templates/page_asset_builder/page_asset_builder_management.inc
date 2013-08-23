@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_management.inc,v 1.42 2012/08/30 00:58:08 ewang Exp $
+* $Id: page_asset_builder_management.inc,v 1.42.6.1 2013/08/23 01:21:25 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.42.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -383,6 +383,22 @@ class Page_Asset_Builder_Management extends Asset_Management
 																			'allow_empty'	=> FALSE,
 																		   ),
 													 );
+						
+		$this->vars['captcha_invalid_error_message']		= Array(
+																'added'			=> '0.9',
+																'type'			=> 'text',
+																'default'		=> 'Security Key Incorrect',
+																'is_contextable'=> TRUE,
+															  );
+
+		$this->vars['captcha_label_text']					= Array(
+																'added'			=> '0.9',
+																'type'			=> 'text',
+																'default'		=> 'Type the characters you see in the picture above: ',
+																'is_contextable'=> TRUE,
+															  );
+
+
 
 		$this->vars['layout_to_apply'] = Array(
 											'added'		=> '0.9',

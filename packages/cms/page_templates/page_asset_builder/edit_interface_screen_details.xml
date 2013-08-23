@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.20 2010/09/01 01:08:35 cupreti Exp $
+* $Id: edit_interface_screen_details.xml,v 1.20.18.1 2013/08/23 01:21:25 akarelia Exp $
 *
 */
 -->
@@ -140,6 +140,12 @@
 		<field attribute="captcha_include_numbers">
 			<boolean true_text="yes" false_text="no" />
 		</field>
+		<field attribute="captcha_invalid_error_message">
+			<text width="50" height="1" />
+		</field>
+		<field attribute="captcha_label_text">
+			<text width="50" height="1" />
+		</field>
 	</section>
 	<section name="Mollom Spam Check" write_access="write:attributes">
 		<field attribute="use_mollom">
@@ -163,5 +169,5 @@
 		<field attribute="mollom_captcha_regen_link_text">
 			<text width="50" />
 		</field>
-	</section>		
+	</section>
 </contents>
