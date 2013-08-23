@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.913 2013/08/14 01:21:55 lwright Exp $
+* $Id: asset_manager.inc,v 1.914 2013/08/23 01:15:49 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.913 $
+* @version $Revision: 1.914 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2513,6 +2513,7 @@ class Asset_Manager extends MySource_Object
 			if (!empty($lock) && $can_force) {
 
 				// attempt to remove the lock
+				$lock = $this->getLockInfo($assetid, $lock_type, FALSE, TRUE, TRUE, FALSE, $assetType);
 				if (!$this->releaseLock($assetid, $lock_type)) {
 					$success = FALSE;
 					break;
@@ -2528,7 +2529,6 @@ class Asset_Manager extends MySource_Object
 				$locked_assetids = Array((int) $assetid);
 
 				// Redefine lock with the chained asset info.
-				$lock = $this->getLockInfo($assetid, $lock_type, FALSE, TRUE, TRUE, FALSE, $assetType);
 				foreach ($lock['chained_assets'] as $row) {
 					$locked_assetids[] = $row['assetid'];
 				}
