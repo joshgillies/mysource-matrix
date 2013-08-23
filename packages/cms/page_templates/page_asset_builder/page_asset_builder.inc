@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.177 2012/10/03 08:01:01 cupreti Exp $
+* $Id: page_asset_builder.inc,v 1.177.2.1 2013/08/23 01:29:21 akarelia Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.177 $
+* @version $Revision: 1.177.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -374,7 +374,9 @@ class Page_Asset_Builder extends Page
 				trim($this->attr('captcha_arc_colour'), '#'),
 				$this->attr('captcha_include_uppercase'),
 				$this->attr('captcha_include_numbers'),
-				$this->attr('provide_accessible_captcha')
+				$this->attr('provide_accessible_captcha'),
+				FALSE,
+				$this->attr('captcha_label_text')
 			);
 		return ob_get_clean();
 
@@ -456,6 +458,19 @@ class Page_Asset_Builder extends Page
 
 
 	/**
+	* Form Captcha Field keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getFormCaptchaLabelKeywordReplacement()
+	{
+		return $this->attr('captcha_label_text');
+
+	}//end getFormCaptchaLabelTextKeywordReplacement()
+
+
+	/**
 	* Process any global Asset Builder actions
 	*
 	* These actions include logging into the system and creating an asset
@@ -488,7 +503,7 @@ class Page_Asset_Builder extends Page
 					// verify captcha
 					if ($this->attr('require_captcha')) {
 						if (!validate_security_key()) {
-							$error_text = translate('security_key_incorrect');
+							$error_text = $this->attr('captcha_invalid_error_message');
 							trigger_error($error_text, E_USER_NOTICE);
 							$required_error = TRUE;
 						}
@@ -773,7 +788,8 @@ class Page_Asset_Builder extends Page
 								$mm->setSchema($new_asset->id, $schema->id, TRUE);
 								if (!is_null($schema)) {
 									$edit_fns = $schema->getEditFns();
-									$edit_fns->processInlineValueInterface($schema, $metadata_values, $cascade_values_asset_ids, $create_type);								}
+									$edit_fns->processInlineValueInterface($schema, $metadata_values, $cascade_values_asset_ids, $create_type);
+								}
 							}
 
 							// set metadata without reindexing and reset the switch to skip reindex
