@@ -184,6 +184,10 @@
 	display: inline-block;
 }
 
+#asset_map_container .paginationTool > * {
+	vertical-align: middle;
+}
+
 #asset_map_container .paginationTool.up.selected,
 #asset_map_container .paginationTool.down.selected {
 	background-color: #555;
@@ -522,8 +526,7 @@
 }
 
 #asset_map_container .childIndent.loading {
-	padding: 3px 3px;
-	padding-left: 40px;
+	padding: 3px 2px 2px 40px;
 	color: #999;
 	font-size: 11px;
 	font-style: bold;
