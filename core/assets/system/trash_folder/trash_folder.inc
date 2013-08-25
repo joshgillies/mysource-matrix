@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trash_folder.inc,v 1.63 2013/07/25 23:23:49 lwright Exp $
+* $Id: trash_folder.inc,v 1.64 2013/08/25 23:20:24 asharpe Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.64 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,7 +56,7 @@ class Trash_Folder extends Folder
 	* @access public
 	* @see Asset::create()
 	*/
-	function create(&$link)
+	function create(Array &$link)
 	{
 		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
 		if (!system_asset_fns_create_pre_check($this)) {
@@ -93,7 +93,7 @@ class Trash_Folder extends Folder
 	* @return boolean
 	* @access private
 	*/
-	function _createAdditional(&$link)
+	function _createAdditional(Array &$link)
 	{
 		if (!parent::_createAdditional($link)) return FALSE;
 
@@ -115,7 +115,7 @@ class Trash_Folder extends Folder
 	* @return void
 	* @access public
 	*/
-	function paintBackend(&$o)
+	function paintBackend(Backend_Outputter $o)
 	{
 		$prefix = $this->getPrefix($this);
 		if (isset($_REQUEST[$prefix.'_purge_complete']) && (int)$_REQUEST[$prefix.'_purge_complete'] === 1) {
@@ -210,7 +210,7 @@ class Trash_Folder extends Folder
 	* @return mixed boolean|string
 	* @access public
 	*/
-	function canCreateLink(&$minor, $link_type, $exclusive)
+	function canCreateLink(Asset $minor, $link_type, $exclusive)
 	{
 		if (!$this->id) return FALSE;
 		if (!($minor instanceof Asset)) {
@@ -230,7 +230,7 @@ class Trash_Folder extends Folder
 	* @return boolean
 	* @access public
 	*/
-	function readAccess($assetids=Array())
+	function readAccess(Array $assetids=Array())
 	{
 		return TRUE;
 
@@ -249,7 +249,7 @@ class Trash_Folder extends Folder
 	* @return boolean
 	* @access public
 	*/
-	function writeAccess($lock_type='', $assetids=Array())
+	function writeAccess($lock_type='', Array $assetids=Array(), $only_workflow=TRUE)
 	{
 		return TRUE;
 
