@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.54.4.1 2013/06/03 04:47:50 akarelia Exp $
+* $Id: bodycopy_container.inc,v 1.54.4.2 2013/08/26 04:25:52 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.54.4.1 $
+* @version $Revision: 1.54.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -406,7 +406,7 @@ class Bodycopy_Container extends Asset
 		
 		// Escape the double quotes in the keyword
 		foreach($keyword_replacements as $keyword => $val) {
-			$safe_keyword = htmlentities($keyword);
+			$safe_keyword = str_replace('$', '\\$', str_replace('\n', '\\n', htmlentities($keyword)));
 			if ($safe_keyword != $keyword) {
 				$keyword_replacements[$safe_keyword] = $val;
 				unset($keyword_replacements[$keyword]);
