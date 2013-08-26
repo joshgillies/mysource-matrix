@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.787.4.4 2013/08/14 06:21:32 lwright Exp $
+* $Id: asset.inc,v 1.787.4.5 2013/08/26 03:47:32 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.787.4.4 $
+* @version $Revision: 1.787.4.5 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4204,7 +4204,7 @@ class Asset extends MySource_Object
 								$wf_replacements[] = date('d-m-Y H:i:s', $schema_workflows[$schema_id]['started']);
 								break;
 							case 'stream_name':
-								 $wf_replacements[] = $schema_workflows[$schema_id]['stream_name'];
+								$wf_replacements[] = $schema_workflows[$schema_id]['stream_name'];
 								break;
 						}
 					}
@@ -4260,9 +4260,7 @@ class Asset extends MySource_Object
 			}
 		}
 
-		if (!is_null($replacement) && trim($replacement, '%') != $keyword) {
-			apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id));
-		}
+		apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id), $keyword);
 
 		return $replacement;
 
