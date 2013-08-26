@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_email_address.inc,v 1.14 2013/04/19 06:36:02 ewang Exp $
+* $Id: form_question_type_email_address.inc,v 1.14.4.1 2013/08/26 04:08:13 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.14.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -58,7 +58,7 @@ class Form_Question_Type_Email_Address extends Form_Question_Type_Text
 	*/
 	function getAllowedRules()
 	{
-		return Array('comparison', 'found_in', 'contain', 'length', 'begins_with', 'ends_with');
+		return Array('comparison', 'found_in', 'contain', 'length', 'begins_with', 'ends_with', 'word_count');
 
 	}//end getAllowedRules()
 
