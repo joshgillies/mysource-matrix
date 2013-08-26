@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.281.2.7 2013/07/11 06:39:52 ewang Exp $
+* $Id: general.inc,v 1.281.2.8 2013/08/26 03:46:32 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.281.2.7 $
+* @version $Revision: 1.281.2.8 $
 * @package MySource_Matrix
 */
 
@@ -1906,6 +1906,7 @@ function replace_global_keywords(&$text)
 	require_once SQ_FUDGE_PATH.'/general/text.inc';
 	for ($c = 0; ($c < 2 && !(stripos($text, '%globals_') === FALSE)); $c++) {
 		$keywords = retrieve_keywords_replacements($text);
+
 		if (!empty($keywords)) {
 			$replacements = Array();
 			foreach ($keywords as $keyword) {
@@ -2181,11 +2182,10 @@ function replace_global_keywords(&$text)
 								$context_name = $all_contexts[$contextid]['name'];
 							}
 						}
-						
 						$replacements[$full_keyword] = $context_name;
 					}//end if
 
-					apply_keyword_modifiers($replacements[$full_keyword], $modifiers);
+					apply_keyword_modifiers($replacements[$full_keyword], $modifiers, Array(), $keyword);
 
 				}//end if is global keyword
 
