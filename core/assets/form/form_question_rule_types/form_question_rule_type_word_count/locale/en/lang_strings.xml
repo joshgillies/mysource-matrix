@@ -1,0 +1,48 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: lang_strings.xml,v 1.1.2.2 2013/08/26 03:58:20 akarelia Exp $
+*
+*
+* Localised Strings File for Form Question Rule: Length
+*/
+-->
+<strings>
+<string source="core_form_rule_count_==">Must be this many words in length...</string>
+<string source="core_form_rule_count_!=">Must not be this many words in length...</string>
+<string source="core_form_rule_count_&gt;">Length must be greater than this many words...</string>
+<string source="core_form_rule_count_&lt;">Length must be less than this many words...</string>
+<string source="core_form_rule_count_&gt;=">Length must be at least this many words...</string>
+<string source="core_form_rule_count_&lt;=">Length must be no more than this many words...</string>
+<string source="core_form_rule_count_desc_==">The length of the response to "%1$s" must be %2$s word(s)</string>
+<string source="core_form_rule_count_desc_!=">The length of the response to "%1$s" must not be %2$s word(s)</string>
+<string source="core_form_rule_count_desc_&gt;">The length of the response to "%1$s" must be greater than %2$s word(s)</string>
+<string source="core_form_rule_count_desc_&lt;">The length of the response to "%1$s" must be less than %2$s word(s)</string>
+<string source="core_form_rule_count_desc_&gt;=">The length of the response to "%1$s" must be at least %2$s word(s)</string>
+<string source="core_form_rule_count_desc_&lt;=">The length of the response to "%1$s" must be no more than %2$s word(s)</string>
+<string source="core_form_rule_count_edit_==">Response must be %s word(s) in length</string>
+<string source="core_form_rule_count_edit_!=">Response must not be %s word(s) in length</string>
+<string source="core_form_rule_count_edit_&gt;">Response must be greater than %s word(s) in length</string>
+<string source="core_form_rule_count_edit_&lt;">Response must be less than %s word(s) in length</string>
+<string source="core_form_rule_count_edit_&gt;=">Response must be at least %s word(s) in length</string>
+<string source="core_form_rule_count_edit_&lt;=">Response must be no more than %s word(s) in length</string>
+<string source="core_form_rule_count_section_note">Enter the number of words to compare the length of the response against in the text box above.</string>
+
+<string source="core_form_rule_count_desc_==_accessible">The length of the response must be %1$s word(s).</string>
+<string source="core_form_rule_count_desc_!=_accessible">The length of the response must not be %1$s word(s).</string>
+<string source="core_form_rule_count_desc_&gt;_accessible">The length of the response must be greater than %1$s word(s).</string>
+<string source="core_form_rule_count_desc_&lt;_accessible">The length of the response must be less than %1$s word(s).</string>
+<string source="core_form_rule_count_desc_&gt;=_accessible">The length of the response must be at least %1$s word(s).</string>
+<string source="core_form_rule_count_desc_&lt;=_accessible">The length of the response must be no more than %1$s word(s).</string>
+<string source="word(s)">Word(s).</string>
+<string source="core_form_num_of_words">Number of Words</string>
+</strings>
