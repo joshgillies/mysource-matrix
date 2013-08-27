@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.55.4.2 2013/08/08 01:05:03 akarelia Exp $
+* $Id: report_links_edit_fns.inc,v 1.55.4.3 2013/08/27 05:41:21 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.55.4.2 $
+* @version $Revision: 1.55.4.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -436,10 +436,9 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 				// if proxy authentication is not enabled, or fopen fails, do the old trick
 				$socket = @fsockopen($url_parts['host'], $url_parts['port'], $errno, $errstr, 15);
 			}
-			
-				if ($socket) {
-					fwrite ($socket, 'HEAD '.$url_path." HTTP/1.0\r\nHost: ".$url_parts['host']."\r\n\r\n");
-				}
+			if ($socket) {
+				fwrite ($socket, 'GET '.$url_path." HTTP/1.0\r\nHost: ".$url_parts['host']."\r\n\r\n");
+			}
 			if (!$socket) {
 				$validated_results['description'] = translate('cms_report_links_invalid_url');
 				$validated_results['valid'] = '0';
@@ -459,38 +458,9 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 						$headers .= $next_header."\r\n";
 					}//end if
 				}//end while
+
 				$info = stream_get_meta_data($socket);
-
-				if (preg_match('|405 method not allowed|i', $response) || preg_match('|404 not found|i', $response)) {
-					// Special case need a GET to double check
-					$newsocket = fsockopen($url_parts['host'], $url_parts['port'], $errno, $errstr, 15);
-					if ($newsocket) {
-							fwrite($newsocket, 'GET '.$url_path." HTTP/1.0\r\nHost: ".$url_parts['host']."\r\n\r\n");
-					}
-
-					stream_set_timeout($newsocket, 5);
-					$newresponse = fgets($newsocket);
-					$newheaders = fgets($newsocket);
-					$newresponse = trim($newresponse);
-					$newheaders = trim($newheaders);
-					$finished = (empty($newheaders)) ? TRUE : FALSE;
-					while (!$finished) {
-						$next_header = fgets($newsocket);
-						$next_header = trim($next_header);
-						if (empty($next_header)) {
-							$finished = TRUE;
-						} else {
-							$newheaders .= $next_header."\r\n";
-						}//end if
-					}//end while
-					$newinfo = stream_get_meta_data($newsocket);
-
-					$validated_results = $this->_checkResponse($newheaders, $newresponse, $newinfo);
-
-					fclose($newsocket);
-				} else {
-					$validated_results = $this->_checkResponse($headers, $response, $info);
-				}//end else
+				$validated_results = $this->_checkResponse($headers, $response, $info, $url_parts);
 
 				fclose($socket);
 			}//end else
@@ -508,25 +478,31 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 	* @param	string	$headers	the captured headers
 	* @param	string	$response	the captured response
 	* @param	array	$info		the captured stream info
-	*
+	* @param	array	$url_info	the URL info belonging to the response
+	
 	* @return array
 	* @access private
 	*/
-	function _checkResponse($headers, $response, $info)
+	function _checkResponse($headers, $response, $info, $url_info)
 	{
 		if (preg_match('|30[127] |', $response)) {
 		    if($this->follow_redirect && $this->redirect_counter < $this->max_redirect) {
-			preg_match('|Location:\s*(.+)\r|i', $headers, $matches);
-			if (isset($matches[1])) {
-			    // follow redirect link but limit recursive loop
-			    $this->redirect_counter = $this->redirect_counter + 1;
-			    $result = $this->validateExternalLink($matches[1]);
-			    $this->redirect_counter  = 0;
-			    return $result;
-			}
+				preg_match('|Location:\s*(.+)\r|i', $headers, $matches);
+				$location = array_get_index($matches, 1, '');
+				if ($location) {
+					// if the "location" is not absolute URL
+					if (!preg_match('|^https?://|', $location)) {
+						$location = $url_info['scheme'].'://'.$url_info['host'].'/'.ltrim($location, '/');
+					}
+				    // follow redirect link but limit recursive loop
+				    $this->redirect_counter = $this->redirect_counter + 1;
+				    $result = $this->validateExternalLink($location);
+			    	$this->redirect_counter  = 0;
+				    return $result;
+				}
 		    }
 		}
-			
+
 		if (preg_match('|200 ok|i', $response)) {
 			$description = '';
 			$valid = '1';
