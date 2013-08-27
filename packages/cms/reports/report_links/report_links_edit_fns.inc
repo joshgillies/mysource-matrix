@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_links_edit_fns.inc,v 1.58 2013/08/27 05:32:25 cupreti Exp $
+* $Id: report_links_edit_fns.inc,v 1.59 2013/08/27 05:36:33 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -483,7 +483,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 	* @return array
 	* @access private
 	*/
-	function _checkResponse($headers, $response, $info, $url)
+	function _checkResponse($headers, $response, $info, $url_info)
 	{
 		if (preg_match('|30[127] |', $response)) {
 		    if($this->follow_redirect && $this->redirect_counter < $this->max_redirect) {
@@ -492,7 +492,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 				if ($location) {
 					// if the "location" is not absolute URL
 					if (!preg_match('|^https?://|', $location)) {
-						$location = $url['scheme'].'://'.$url['host'].'/'.ltrim($location, '/');
+						$location = $url_info['scheme'].'://'.$url_info['host'].'/'.ltrim($location, '/');
 					}
 				    // follow redirect link but limit recursive loop
 				    $this->redirect_counter = $this->redirect_counter + 1;
