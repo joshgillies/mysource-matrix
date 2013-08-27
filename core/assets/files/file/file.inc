@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.216.2.2 2013/04/24 05:47:23 ewang Exp $
+* $Id: file.inc,v 1.216.2.3 2013/08/27 06:48:59 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.216.2.2 $
+* @version $Revision: 1.216.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1371,7 +1371,14 @@ class File extends Asset
 				header('Pragma: private');
 				header('Expires: '.gmdate('D, d M Y H:i:s', time()-3600).' GMT');
 			}
-
+			
+			$disposition = 'inline';
+			// stop rendering a html file
+			if(strpos($type, 'html') !== FALSE) {
+			    $type = 'application/download';
+			    $disposition = 'attachment';
+			}
+			
 			header('Content-Type: '.$type);
 			header('Content-Disposition: inline; filename="'.$existing['filename'].'";');
 			header('Content-Length: '.$existing['size']);
