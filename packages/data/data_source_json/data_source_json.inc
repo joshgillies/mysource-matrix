@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_json.inc,v 1.8 2012/08/30 00:58:16 ewang Exp $
+* $Id: data_source_json.inc,v 1.8.4.1 2013/08/27 05:51:18 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Daniel Simmons <dsimmons@squiz.co.uk>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -137,6 +137,7 @@ class Data_Source_Json extends Data_Source
 	public function getRawSourceData()
 	{
 		$source = $this->_getSource();
+		$data = '';
 
 		// Check if source is an asset ID
 		if (substr($source, 0, 2) === 'a=') {
@@ -145,7 +146,46 @@ class Data_Source_Json extends Data_Source
 
 		// Otherwise it's a URI
 		} else {
-			$data = file_get_contents($source);
+			include_once(SQ_DATA_PATH.'/private/conf/proxy_authentication.inc');
+			if (SQ_PA_ENABLED) {
+				$url_parts = parse_url($source);
+				if (empty($url_parts['port']) && !empty($url_parts['scheme']) && $url_parts['scheme'] == 'https') {
+					$url_parts['port'] = '443';
+				} else {
+					$url_parts['port'] = '80';
+				}
+
+				require_once(SQ_INCLUDE_PATH.'/general_occasional.inc');
+				$socket = openSocketConnection($url_parts, $errno, $errstr, TRUE, 15);
+				if ($socket) {
+					fwrite ($socket, 'HEAD '.$url_parts['path']." HTTP/1.0\r\nHost: ".$url_parts['host']."\r\n\r\n");
+				}
+
+				stream_set_timeout($socket, 5);
+				$response = fgets($socket);
+				$headers = fgets($socket);
+				$response = trim($response);
+				$headers = trim($headers);
+				$finished = (empty($headers)) ? TRUE : FALSE;
+				// filter out all the headers from the response
+				while (!$finished) {
+					$next_header = fgets($socket);
+					$next_header = trim($next_header);
+					if (empty($next_header)) {
+						$finished = TRUE;
+					} else {
+						$headers .= $next_header."\r\n";
+					}//end if
+				}//end while
+
+				// this is the body we need
+				while (!feof($socket)) {
+					$data .= fgets($socket);
+				}
+				fclose($socket);
+			} else {
+				$data = file_get_contents($source);
+			}
 		}
 
 		return $data;
@@ -216,11 +256,11 @@ class Data_Source_Json extends Data_Source
 		// Get the source data
 		$original_json_data = $this->getRawSourceData();
 		if (empty($original_json_data)) return;
-		
+
 		// Run data through the parser
 		$results = $this->_parse($original_json_data);
 		if (empty($results)) return;
-		
+
 		// Re-encode data into JSON
 		$output_json = self::_encodeJson($results);
 		if (empty($output_json)) return;
@@ -359,7 +399,7 @@ class Data_Source_Json extends Data_Source
 				return TRUE;
 			}
 		}
-		
+
 		return FALSE;
 
 	}//end _isAssociativeArray()
@@ -389,7 +429,7 @@ class Data_Source_Json extends Data_Source
 	{
 		if (is_array($subject)) {
 
-			// Key path still has more than a single key, we need to recurse further down	
+			// Key path still has more than a single key, we need to recurse further down
 			if (count($key_path) > 1) {
 				$next_level = array_shift($key_path);
 				if (array_key_exists($next_level, $subject)) {
@@ -431,7 +471,7 @@ class Data_Source_Json extends Data_Source
 			trigger_error('No read permission for asset (Id: #'.$assetid.')', E_USER_WARNING);
 			return NULL;
 		}
-		
+
 		if ($asset instanceOf File){
 			$existing = $asset->getExistingFile();
 			if (empty($existing) || !is_file($existing['path'])) return $asset_contents;
@@ -550,7 +590,7 @@ class Data_Source_Json extends Data_Source
 			$results = self::_getArrayValueByJsPath($results, $root_object);
 			if ($results == FALSE || !is_array($results)) return Array();
 		}
-		
+
 		// If the parsed JSON is just a single object, wrap it in an array
 		if (self::_isAssociativeArray($results) || !is_array($results[0])) {
 			$results = Array($results);
@@ -565,7 +605,7 @@ class Data_Source_Json extends Data_Source
 				foreach ($cherry_pick_nodes as $attr) {
 					$attr = trim($attr);
 					$value = self::_getArrayValueByJsPath($asset, $attr);
-	
+
 					if ($value !== FALSE) {
 						// Replace foo[1] with foo_1 as square brackets won't work in keywords
 						if (strpos($attr, '[')) {
