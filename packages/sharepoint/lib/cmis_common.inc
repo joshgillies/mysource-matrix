@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cmis_common.inc,v 1.10 2012/08/30 07:28:26 ewang Exp $
+* $Id: cmis_common.inc,v 1.11 2013/08/27 04:05:23 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once 'Mail/mimeDecode.php';
 *     To provide an interface to the CMIS Connecter SOAP server for basic functionality
 *
 * @author  Mohamed Haidar <mhaidar@squiz.com.au>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage sharepoint
 */
@@ -102,24 +102,39 @@ class CMIS_Common
 		$params['soap_version'] = SOAP_1_1;
 		$params['login'] = $conn_info['username'];
 		$params['password'] = $conn_info['password'];
-		//This is Sharepoint 2010 specific, using basic authentication.
-		if (!$conn_info['ws_security']) $params['location'] = substr($wsdl, 0, strpos($wsdl, '?')).'/basic';
 
+		//This is Sharepoint 2010 specific, using basic authentication.
+		$options = array(
+				    'FOLLOWLOCATION' => 1,
+					'RETURNTRANSFER' => 1,
+					'HTTPAUTH'          => CURLAUTH_BASIC,
+					'TIMEOUT'        => 3,
+					'USERPWD'        => $conn_info['username'].":".$conn_info['password'],
+				   );
+		$details  = fetch_url($wsdl, $options, array(), FALSE);
+		$contents = $details['response'];
+		if (strpos($contents, '?xml') === FALSE) return FALSE;
+		$xml = new SimpleXMLElement($contents);
+		$xml->registerXPathNamespace('wsdl', 'http://schemas.xmlsoap.org/wsdl/');
+		$xml->registerXPathNamespace('soap', 'http://schemas.xmlsoap.org/wsdl/soap/');
+		$result = $xml->xpath('/wsdl:definitions/wsdl:service/wsdl:port/soap:address');
+		foreach($result as $node) {
+		    foreach($node->attributes() as $key => $value) {
+			if($key === 'location') {
+			    if(strpos($value, '/basic') !== FALSE) {
+				$location = $value;
+				break;
+			    }
+			}
+		    }
+		}
+		$params['location'] = $location;
+		
 		// Make sure the pointer is open
 		if ($this->ptr) $this->ptr=NULL;
 		
 		if ($conn_info['verify']){
-			$options = array(
-					    'FOLLOWLOCATION' => 1,
-						'RETURNTRANSFER' => 1,
-						'HTTPAUTH'          => CURLAUTH_BASIC,
-						'TIMEOUT'        => 3,
-						'USERPWD'        => $conn_info['username'].":".$conn_info['password'],
-					   );
-			$details  = fetch_url($wsdl, $options, array(), FALSE);
-			$contents = $details['response'];
 
-			if (strpos($contents, '?xml') === FALSE) return FALSE;
 			
 			try {
 				$this->ptr = new SoapClient($wsdl, $params);
