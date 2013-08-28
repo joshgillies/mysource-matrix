@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.15 2010/09/30 23:08:33 cupreti Exp $
+* $Id: lang_strings.xml,v 1.15.18.1 2013/08/28 02:36:35 cupreti Exp $
 *
 *
 * CMS Package Localised Strings File
@@ -79,6 +79,8 @@
 <string source="cms_asset_builder_mollom_captcha_field">Mollom CAPTCHA Input Field</string>
 <string source="cms_asset_builder_mollom_captcha_link">Mollom CAPTCHA Regeneration Link</string>
 
+<string source="cms_asset_builder_form_recaptcha">Display reCAPTCHA Form</string>
+<string source="cms_asset_builder_form_honeypot_field">Display Honeypot question</string>
 <!-- strings for javascript -->
 
 <string source="cms_asset_builder_delete_dynamic_locations" js="1">Are you sure you want to delete this set of dynamic create locations?</string>

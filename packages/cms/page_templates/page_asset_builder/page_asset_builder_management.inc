@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_management.inc,v 1.42.6.1 2013/08/23 01:21:25 akarelia Exp $
+* $Id: page_asset_builder_management.inc,v 1.42.6.2 2013/08/28 02:36:35 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.42.6.1 $
+* @version $Revision: 1.42.6.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -450,6 +450,71 @@ class Page_Asset_Builder_Management extends Asset_Management
 												'default'		=> 'Regenerate security key',
 												'description'	=> 'Mollom CAPTCHA regen link text',
 											);
+		$this->vars['use_recaptcha'] = 				Array(
+														'added'			=> '0.9',
+														'type'			=> 'boolean',
+														'default'		=> FALSE,
+														'parameters'	=> Array(
+																			'allow_empty'	=> FALSE,
+																				),
+													);
+		$this->vars['recaptcha_theme'] = 			Array(
+														'added'			=> '0.9',
+														'type'			=> 'selection',
+														'default'		=> 'red',
+														'parameters'	=> Array(
+																			'multiple'		=> FALSE,
+																			'allow_empty'   => FALSE,
+																			'options'       => Array(
+																								'red'	=> 'Red',
+																								'white' => 'White',
+																								'blackglass' => 'Black Glass',
+																								'clean'	=> 'Clean',
+																								),
+																				),
+													);
+		$this->vars['recaptcha_error_message'] = 	Array(
+														'added'		=> '0.9',
+														'type'		=> 'text',
+														'default'	=> '',
+														'description' => 'Error message when Recaptcha validation fails',
+													);
+		$this->vars['honeypot_name'] = 				Array(
+														'added'		=> '0.9',
+														'type'		=> 'text',
+														'default'	=> '',
+														'description' => 'Honeypot input field name',
+													);
+		$this->vars['honeypot_id']	= 				Array(
+														'added'		=> '0.9',
+														'type'		=> 'text',
+														'default'	=> '',
+														'description' => 'Honeypot input field id',
+													);
+		$this->vars['honeypot_class'] =				Array(
+														'added'		=> '0.9',
+														'type'		=> 'text',
+														'default'	=> '',
+														'description' => 'Honeypot input field class name',
+													);
+		$this->vars['honeypot_error_message'] = 	Array(
+														'added'		=> '0.9',
+														'type'		=> 'text',
+														'default'	=> '',
+														'description' => 'Error message when Honeypot validation fails',
+													);
+		$this->vars['time_requirement']	=				Array(
+															'added'		=> '0.9',
+															'type'		=> 'text',
+															'default'	=> '0',
+															'description' => 'Time in seconds required to complete the form by a human user',
+														);
+		$this->vars['time_requirement_error_message'] = Array(
+															'added'		=> '0.9',
+															'type'		=> 'text',
+															'default'	=> '',
+															'description' => 'Error message when time requirement check fails',
+														);
 
 	}//end constructor
 

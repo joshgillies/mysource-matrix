@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_management.inc,v 1.74 2013/05/07 09:04:03 cupreti Exp $
+* $Id: form_management.inc,v 1.74.2.1 2013/08/28 02:36:02 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.74 $
+* @version $Revision: 1.74.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -557,6 +557,71 @@ class Form_Management extends Asset_Management
 																'default'	=> '',
 																'description'	=> 'The %submission_access_info% keyword will be replaced with this just after the Save button is pressed, otherwise keyword is blank. HTML allowed.',
 																'is_contextable'	=> TRUE,
+															),
+						'use_recaptcha'				=> Array(
+																'added'			=> '0.17',
+																'type'			=> 'boolean',
+																'default'		=> FALSE,
+																'parameters'	=> Array(
+																					'allow_empty'	=> FALSE,
+																					),
+															),
+						'recaptcha_theme'			=> Array(
+																'added'			=> '0.17',
+																'type'			=> 'selection',
+																'default'		=> 'red',
+																'parameters'	=> Array(
+																					'multiple'		=> FALSE,
+																					'allow_empty'   => FALSE,
+																					'options'       => Array(
+																										'red'	=> 'Red',
+																										'white' => 'White',
+																										'blackglass' => 'Black Glass',
+																										'clean'	=> 'Clean',
+																			),
+																	),
+															),
+						'recaptcha_error_message'		=> Array(
+																'added'		=> '0.17',
+																'type'		=> 'text',
+																'default'	=> '',
+																'description' => 'Error message when Recaptcha validation fails',
+															),
+						'honeypot_name'					=> Array(
+																'added'		=> '0.17',
+																'type'		=> 'text',
+																'default'	=> '',
+																'description' => 'Honeypot input field name',
+															),
+						'honeypot_id'					=> Array(
+																'added'		=> '0.17',
+																'type'		=> 'text',
+																'default'	=> '',
+																'description' => 'Honeypot input field id',
+															),
+						'honeypot_class'				=> Array(
+																'added'		=> '0.17',
+																'type'		=> 'text',
+																'default'	=> '',
+																'description' => 'Honeypot input field class name',
+															),
+						'honeypot_error_message'		=> Array(
+																'added'		=> '0.17',
+																'type'		=> 'text',
+																'default'	=> '',
+																'description' => 'Error message when Honeypot validation fails',
+															),
+						'time_requirement'				=> Array(
+																'added'		=> '0.17',
+																'type'		=> 'text',
+																'default'	=> '0',
+																'description' => 'Time in seconds required to complete the form by a human user',
+															),
+						'time_requirement_error_message'	=> Array(
+																'added'		=> '0.17',
+																'type'		=> 'text',
+																'default'	=> '',
+																'description' => 'Error message when time requirement check fails',
 															),
 					  );
 

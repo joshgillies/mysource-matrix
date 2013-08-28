@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.281.2.3 2013/08/22 00:35:13 akarelia Exp $
+* $Id: form.inc,v 1.281.2.4 2013/08/28 02:36:01 cupreti Exp $
 *
 */
 
@@ -21,6 +21,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 require_once SQ_FUDGE_PATH.'/general/www.inc';
 require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
+require_once SQ_FUDGE_PATH.'/recaptcha/recaptcha.inc';
 
 
 /**
@@ -30,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.281.2.3 $
+* @version $Revision: 1.281.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -86,6 +87,12 @@ class Form extends Asset implements Bridge
 	* @var object
 	*/
 	var $mollom_errors = NULL;
+
+	/**
+	* the captcha validation errors
+	* @var object
+	*/
+	var $recaptcha_errors = NULL;
 
 
 	/**
@@ -1895,6 +1902,11 @@ class Form extends Asset implements Bridge
 			unset($_SESSION['SQ_FORM_'.$this->id.'_SUBMISSION']);
 		}
 
+		// Mark the form load time
+		if (!isset($_SESSION['SQ_FORM_'.$this->id.'_LOAD_TIME'])) {
+			$_SESSION['SQ_FORM_'.$this->id.'_LOAD_TIME'] = time();
+		}
+
 		// We have to do this here, because we cannot break the old behaviour
 		// where even the summary/thank you page is surrounded by form tags
 
@@ -2269,6 +2281,13 @@ class Form extends Asset implements Bridge
 					    </div>
 					    <?php
 				    }
+				    else if($this->attr('use_recaptcha')) {
+					  ?>
+					    <div class="sq-form-captcha">
+					    %form_recaptcha%
+					    </div>
+					    <?php
+					}
 				    ?>
 				    %submit_button%
 				    <?php
@@ -2309,6 +2328,13 @@ class Form extends Asset implements Bridge
 					  ?>
 					    <div class="sq-form-captcha">
 					    %form_mollom_captcha%
+					    </div>
+					    <?php
+				    }
+				    else if($this->attr('use_recaptcha')) {
+					  ?>
+					    <div class="sq-form-captcha">
+					    %form_recaptcha%
 					    </div>
 					    <?php
 				    }
@@ -2874,6 +2900,32 @@ class Form extends Asset implements Bridge
 			}
 
 		}//end use Mollom
+
+		// Spam check - reCAPTCHA validation
+		if ($ok && $this->attr('use_recaptcha')) {
+			$recaptcha_response = Recaptcha::verifyRecaptcha();
+			if (!$recaptcha_response->is_valid) {
+				$custom_err_msg = $this->attr('recaptcha_error_message');
+				// If custom error message is set
+				if (!empty($custom_err_msg)) {
+					$recaptcha_response->error = Array($custom_err_msg);
+				}
+				$this->registerErrors('recaptcha_errors', $recaptcha_response->error);
+				$ok = FALSE;
+			}
+		}
+
+		// Spam check - Honeypot question validation
+		if ($ok && !$this->_honeypotFieldEmpty()) {
+			$this->registerErrors('submission_errors', Array($this->attr('honeypot_error_message')));
+			$ok = FALSE;
+		}
+
+		// Spam check - Minimum time requirement validation
+		if ($ok && !$this->_passedMinimumTimeThreshold()) {
+			$this->registerErrors('submission_errors', Array($this->attr('time_requirement_error_message')));
+			$ok = FALSE;
+		}
 
 		return $ok;
 
@@ -3532,6 +3584,10 @@ class Form extends Asset implements Bridge
 			unset($_SESSION['SQ_FORM_'.$this->id.'_SUBMISSION_CODE']);
 		}
 
+		if (isset($_SESSION['SQ_FORM_'.$this->id.'_LOAD_TIME'])) {
+			unset($_SESSION['SQ_FORM_'.$this->id.'_LOAD_TIME']);
+		}
+
 		// Clean-up submission session variable
 		unset($_SESSION['SQ_FORM_'.$this->id.'_SUBMISSION']);
 
@@ -4174,6 +4230,12 @@ class Form extends Asset implements Bridge
 			$keywords += $this->_getMollomCaptchaDisplayKeywords();
 		}
 
+		if ($this->attr('use_recaptcha')) {
+			$keywords['form_recaptcha'] = translate('cms_form_recaptcha');
+		}
+
+		$keywords['form_honeypot_field'] = translate('cms_form_honeypot_field');
+
 		return $keywords;
 
 	}//end _getPageContentsBodycopyKeywords()
@@ -4587,6 +4649,20 @@ class Form extends Asset implements Bridge
 					if(empty($require_note))
 					    $is_required_field =  FALSE;
 					$replacement = $is_required_field ? $require_note : '';
+				break;
+
+				case 'recaptcha':
+					if ($this->attr('use_recaptcha')) {
+						if ($this->useAccessibleFormat()) {
+							$replacement = Recaptcha::getRecaptcha($this->recaptcha_errors, $this->attr('recaptcha_theme'));
+						} else {
+							$replacement = Recaptcha::getRecaptcha(Array(), $this->attr('recaptcha_theme'));
+						}
+					}
+				break;
+
+				case 'honeypot_field':
+					$replacement = $this->_getHoneypotField();
 				break;
 			}//end switch
 
@@ -5489,7 +5565,7 @@ class Form extends Asset implements Bridge
 	
 	/**
 	* add submission errors
-	* @param string	$type submission_errors / captcha_errors / question_errors / mollom_errors
+	* @param string	$type submission_errors / captcha_errors / question_errors / mollom_errors / recaptcha errors
 	* @param array	$error the error message array							
 	*
 	* @return null
@@ -5770,6 +5846,84 @@ class Form extends Asset implements Bridge
 		$email_format->setValue(serialize($old_value));
 
 	}//end sendPublicUserSubmissionInfoEmail()
+
+
+	/**
+	* Get the Honeypot field
+	* This field must not be visible to the user
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _getHoneypotField()
+	{
+		$name = $this->attr('honeypot_name');
+		$id = $this->attr('honeypot_id');
+		$class = $this->attr('honeypot_class');
+
+		if (empty($name)) {
+			$name = 'q'.$this->id.':comment';
+		}
+		if (empty($id)) {
+			$id = 'q'.$this->id.'_comment';
+		}
+
+		$extras = 'class="'.$class.'"';
+		$extras = $extras.' id="'.$id.'"';
+		ob_start();
+			text_box($name, '', 10, 10, FALSE, $extras);
+
+		return ob_get_clean();
+
+	}//end _getHoneypotField()
+
+
+	/**
+	* Returns TRUE if the Honeypot field was left unanswered
+	* A genuine human user making the form submission will
+	* never answer the Honeypot question
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _honeypotFieldEmpty()
+	{
+		$name = $this->attr('honeypot_name');
+		if (empty($name)) {
+			$name = 'q'.$this->id.':comment';
+		}
+
+		return empty($_POST[$name]);
+
+	}//end _honeypotFieldEmpty()
+
+
+	/**
+	* Returns TRUE if the time since the form page load
+	* has passed the minimum time threshold set
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _passedMinimumTimeThreshold()
+	{
+		$time_threshold = $this->attr('time_requirement');
+		if (!$time_threshold || !is_numeric($time_threshold) || $time_threshold <= 0) {
+			return TRUE;
+		}
+
+		// Get the form load time from the session
+		$load_time = array_get_index($_SESSION, 'SQ_FORM_'.$this->id.'_LOAD_TIME', 0);
+		// Current time, i.e. submission time
+		$now = time();
+
+		if (($now-$load_time) < $time_threshold) {
+			return FALSE;
+		}
+
+		return TRUE;
+
+	}//end _passedMinimumTimeThreshold()
 
 
 }//end class

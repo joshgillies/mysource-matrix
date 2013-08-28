@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.177.4.1 2013/08/23 01:21:25 akarelia Exp $
+* $Id: page_asset_builder.inc,v 1.177.4.2 2013/08/28 02:36:35 cupreti Exp $
 *
 */
 
@@ -19,6 +19,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 require_once SQ_FUDGE_PATH.'/general/text.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
+require_once SQ_FUDGE_PATH.'/recaptcha/recaptcha.inc';
 
 
 /**
@@ -31,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/mollom/mollom.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.177.4.1 $
+* @version $Revision: 1.177.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -298,7 +299,7 @@ class Page_Asset_Builder extends Page
 
 		if (isset($_POST['AB_'.$this->id.'_ASSET_BUILDER_ACTION'])) {
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		}
+		}		
 
 	}//end printBody()
 
@@ -315,6 +316,12 @@ class Page_Asset_Builder extends Page
 			$this->_printContents();
 		} else {
 			$submission_url = $this->attr('submit_to_page_url') ? replace_query_string_vars(Array(), $this->getURL()) : replace_query_string_vars(Array());
+
+			// Mark the form load time
+			if (!isset($_SESSION['SQ_AB_'.$this->id.'_LOAD_TIME'])) {
+				$_SESSION['SQ_AB_'.$this->id.'_LOAD_TIME'] = time();
+			}
+
 			?>
 			<form id="<?php echo $this->getPrefix() ?>" method="post" action="<?php echo htmlentities($submission_url); ?>" enctype="multipart/form-data" onsubmit="return form_on_submit()">
 				<?php
@@ -867,6 +874,28 @@ class Page_Asset_Builder extends Page
 							}//end switch
 						}//end if use mollom
 
+						// reCAPTCHA check
+						if ($this->attr('use_recaptcha')) {
+							$recaptcha_response = Recaptcha::verifyRecaptcha();
+							if (!$recaptcha_response->is_valid) {
+								$error_msg = $this->attr('recaptcha_error_message');
+								if (empty($error_msg)) {
+									$error_msg = array_shift($recaptcha_response->error);
+								}
+								$this->_errors[] = $error_msg;
+							}
+						}//end if
+
+						// Honeypot question validation
+						if (!$this->_honeypotFieldEmpty()) {
+							$this->_errors[] = $this->attr('honeypot_error_message');
+						}//end if
+
+						// Submission time requirement check
+						if (!$this->_passedMinimumTimeThreshold()) {
+							$this->_errors[] = $this->attr('time_requirement_error_message');
+						}//end if
+
 						// start performance mode timer
 						$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'processLayouts');
 
@@ -930,6 +959,10 @@ class Page_Asset_Builder extends Page
 							$success = TRUE;
 							$this->_setCreateStatus($new_asset);
 							$this->_tmp['created_asset'] = $new_asset;
+
+							if (isset($_SESSION['SQ_AB_'.$this->id.'_LOAD_TIME'])) {
+								unset($_SESSION['SQ_AB_'.$this->id.'_LOAD_TIME']);
+							}
 
 							// if we have reached so far the asset has been built, even with regards to Account Manager Asset,
 							// user is created already, so lets celebrate firing (trigger) !!!
@@ -1465,6 +1498,15 @@ class Page_Asset_Builder extends Page
 		$this->_replacements['asset_builder_mollom_captcha_field'] = Mollom::getMollomCaptchaFieldKeywordReplacement($this->id);
 		$this->_replacements['asset_builder_mollom_captcha_regen_link'] = Mollom::getMollomCaptchaRegenLinkKeywordReplacement($this->id, $regen_link_text);
 
+		  ///////////////////////////
+		 // GOOGLE RECAPTCHA 	  //
+		///////////////////////////
+		$this->_replacements['form_recaptcha'] = $this->getKeywordReplacement('form_recaptcha');
+
+		  ///////////////////////////
+		 // HONEYPOT QUESTION	  //
+		///////////////////////////
+		$this->_replacements['form_honeypot_field'] = $this->_getHoneypotField();
 
 		  ///////////////////////////
 		 // CREATE INVITE KEYWORD //
@@ -1474,7 +1516,7 @@ class Page_Asset_Builder extends Page
 		  /////////////////////////
 		 // CREATE FORM KEYWORD //
 		////////////////////////
-		$this->_replacements['create_form'] = $this->getKeywordReplacement('create_form');
+		$this->_replacements['create_form'] = $this->getKeywordReplacement('create_form');		
 
 		  //////////////////////////////////////////
 		 // SELECTABLE CREATE LOCATIONS KEYWORDS //
@@ -1616,6 +1658,10 @@ class Page_Asset_Builder extends Page
 			}
 
 			if ((strpos($word, 'form_captcha') === 0)){
+				$this->_replacements[$word] = $this->getKeywordReplacement($word);
+			}
+
+			if ($this->attr('use_recaptcha') && strpos($word, 'form_recaptcha') === 0) {
 				$this->_replacements[$word] = $this->getKeywordReplacement($word);
 			}
 
@@ -1805,6 +1851,11 @@ class Page_Asset_Builder extends Page
 			$keywords['asset_builder_mollom_captcha_regen_link']  = translate('cms_asset_builder_mollom_captcha_link');
 		}
 
+		if ($this->attr('use_recaptcha')) {
+			$keywords['form_recaptcha'] = translate('cms_asset_builder_form_recaptcha');
+		}
+		$keywords['form_honeypot_field'] = translate('cms_asset_builder_form_honeypot_field');
+
 		return $keywords;
 
 	}//end _getNotLoggedInKeywords()
@@ -1837,6 +1888,11 @@ class Page_Asset_Builder extends Page
 			$keywords['asset_builder_mollom_captcha_field'] = translate('cms_asset_builder_mollom_captcha_field');
 			$keywords['asset_builder_mollom_captcha_regen_link']  = translate('cms_asset_builder_mollom_captcha_link');
 		}
+
+		if ($this->attr('use_recaptcha')) {
+			$keywords['form_recaptcha'] = translate('cms_asset_builder_form_recaptcha');
+		}
+		$keywords['form_honeypot_field'] = translate('cms_asset_builder_form_honeypot_field');
 
 		return $keywords;
 
@@ -2105,6 +2161,24 @@ class Page_Asset_Builder extends Page
 
 
 	/**
+	* Get reCAPTCHA replcement
+	*
+	* @return string
+	* @access public
+	*/
+	function getFormRecaptchaKeywordReplacement()
+	{
+		$replacement = '';
+		if ($this->attr('use_recaptcha')) {
+			$replacement =  Recaptcha::getRecaptcha(Array(), $this->attr('recaptcha_theme'));
+		}
+
+		return $replacement;
+
+	}//end getFormRecaptchaKeywordReplacement()
+
+
+	/**
 	* Get create_form keyword replacement
 	*
 	* @return string
@@ -2291,6 +2365,83 @@ class Page_Asset_Builder extends Page
 
 	}//end _getCreateFormLayout()
 
+
+	/**
+	* Get the Honeypot field
+	* This field must not be visible to the user
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _getHoneypotField()
+	{
+		$name = $this->attr('honeypot_name');
+		$id = $this->attr('honeypot_id');
+		$class = $this->attr('honeypot_class');
+
+		if (empty($name)) {
+			$name = 'q'.$this->id.':comment';
+		}
+		if (empty($id)) {
+			$id = 'q'.$this->id.'_comment';
+		}
+
+		$extras = 'class="'.$class.'"';
+		$extras = $extras.' id="'.$id.'"';
+		ob_start();
+			text_box($name, '', 10, 10, FALSE, $extras);
+
+		return ob_get_clean();
+
+	}//end _getHoneypotField()
+
+
+	/**
+	* Returns TRUE if the Honeypot field was left unanswered
+	* A genuine human user making the form submission will
+	* never answer the Honeypot question
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _honeypotFieldEmpty()
+	{
+		$name = $this->attr('honeypot_name');
+		if (empty($name)) {
+			$name = 'q'.$this->id.':comment';
+		}
+
+		return empty($_POST[$name]);
+
+	}//end _honeypotFieldEmpty()
+
+
+	/**
+	* Returns TRUE if the time since the form page load
+	* has passed the minimum time threshold set
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _passedMinimumTimeThreshold()
+	{
+		$time_threshold = $this->attr('time_requirement');
+		if (!$time_threshold || !is_numeric($time_threshold) || $time_threshold <= 0) {
+			return TRUE;
+		}
+
+		// Get the form load time from the session
+		$load_time = array_get_index($_SESSION, 'SQ_AB_'.$this->id.'_LOAD_TIME', 0);
+		// Current time, i.e. submission time
+		$now = time();
+
+		if (($now-$load_time) < $time_threshold) {
+			return FALSE;
+		}
+
+		return TRUE;
+
+	}//end _passedMinimumTimeThreshold()
 
 }//end class
 
