@@ -1,5 +1,60 @@
 SQUIZ MATRIX CHANGELOG
 
+VERSION 4.14.6
+
+Minor Enhancements and Bug Fixes
+=================================== 
+
+Minor Enhancements
+
+Minor Enhancement #6452: Asset Listing: Keyword Support for Link Value Filtering.
+Minor Enhancement #6471: CSV Data Source Error Enhancement.
+Minor Enhancement #6475: Asset Builder Page: CAPTCHA Enhancement.
+
+Core
+
+Fixed Bug #6313: Design Customisation no longer has independent status.
+Fixed Bug #6396: Links Reports say HTTS URLs cannot be tested.
+Fixed Bug #6440: HIPO Job getJob concurrency with load balanced read databases.
+Fixed Bug #6445: Modifiers not run on metadata keywords in an Asset Listing.
+Fixed Bug #6454: Check index script doesn't check rollback tables correctly.
+Fixed Bug #6457: Cannot set the user's password on the Funnelback manager.
+Fixed Bug #6460: Content-Disposition header of Matrix files has unquoted file name.
+Fixed Bug #6461: Deja Vu issues and enhancements.
+Fixed Bug #6462: Error checking for the as_asset keyword modifier can bombard error.log with warnings.
+Fixed Bug #6463: Performance improvement to remove_form_submission.php script.
+Fixed Bug #6465: Remote Content asset displays arbitrary URLs when no protocol set.
+Fixed Bug #6467: The Clear Matrix Cache and Clear Squid Cache tools' Clear Now option doesn't work as expected.
+Fixed Bug #6469: Zero(s) issue when exporting/importing assets.
+Fixed Bug #6476: Replace keyword modifier strips regex characters.
+Fixed Bug #6486: Uploading a pdf file with pdftohtml enabled shouldn't block content indexing if there is a minor error.
+
+CMS
+
+Fixed Bug #6443: After cloning a form sections need to be committed before displaying.
+
+Data
+
+Fixed Bug #6492: Data source JSON bypasses any proxy settings. 
+
+Search
+
+Fixed Bug #6964: Search and Replace tool can throw db error if replacing many assets.
+
+Calendar
+
+Fixed Bug #6451: Problem with cancelling a Recurring Calendar Event that occurs in the afternoon.
+Fixed Bug #6488: Listing Calendar Events with the Event Search Page getting undefined object/function error.
+
+Sharepoint
+
+Fixed Bug #6491: Sharepoint CMIS issue when using a stored WSDL file.
+
+Funnelback
+
+Fixed Bug #6261: Funnelback REST Search Page passing parameters dot converted to underscore.
+
+
 VERSION 4.14.5
 
 Minor Enhancements and Bug Fixes
