@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: preview.inc,v 1.40 2012/08/30 01:09:20 ewang Exp $
+* $Id: preview.inc,v 1.40.4.1 2013/08/28 01:38:46 ewang Exp $
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -19,7 +19,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Preview Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.40.4.1 $
 * @package MySource_Matrix
 */
 
@@ -122,6 +122,10 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 		foreach ($url_data as $url_info) {
 			$protocol_list = Array();
 
+			// we can't preview pages in other root domain it's a security issue
+			if(SQ_CONF_ENFORCE_FRAME_SAMEORIGIN)
+			    if(strpos($url_info['url'], $current_root_url) !== 0) continue;
+			    
 			if ($url_info['https']) {
 				$protocol_list['https'] = 'https://';
 			}

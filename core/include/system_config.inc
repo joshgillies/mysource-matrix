@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.148.4.2 2013/06/28 02:29:11 cupreti Exp $
+* $Id: system_config.inc,v 1.148.4.3 2013/08/28 01:38:46 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.148.4.2 $
+* @version $Revision: 1.148.4.3 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -114,6 +114,7 @@ class System_Config extends Config
 						'SQ_LICENCE_WARRANTY_KEY'				=> Array('editable' => 1, 'default' => ''),
 						'SQ_CONF_COOKIE_OPTION_HTTP_ONLY'		=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_CONF_COOKIE_OPTION_SECURE'			=> Array('editable' => 1, 'default' => FALSE),
+						'SQ_CONF_ENFORCE_FRAME_SAMEORIGIN'		=> Array('editable' => 1, 'default' => '1'),
 					   );
 
 	/**
@@ -437,6 +438,13 @@ class System_Config extends Config
 				text_box($class.'[SQ_CONF_TIMEZONE]', SQ_CONF_TIMEZONE, 15);
 			} else {
 				echo nl2br(SQ_CONF_TIMEZONE);
+			}
+			$o->openField(translate('enforce_frame_sameorigin'));
+			if ($write_access) {
+				combo_box($class.'[SQ_CONF_ENFORCE_FRAME_SAMEORIGIN]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_CONF_ENFORCE_FRAME_SAMEORIGIN);
+				$o->note(translate('enforce_frame_sameorigin_note'));
+			} else {
+				echo (SQ_CONF_ENFORCE_FRAME_SAMEORIGIN) ? translate('yes') : translate('no');
 			}
 		$o->closeSection();
 

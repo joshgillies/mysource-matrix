@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.400.2.6 2013/07/12 05:46:30 ewang Exp $
+* $Id: mysource.inc,v 1.400.2.7 2013/08/28 01:38:46 ewang Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.400.2.6 $
+* @version $Revision: 1.400.2.7 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -531,6 +531,9 @@ class MySource extends MySource_Object
 		// init perfromance timer
 		$this->pm->begin();
 
+		if(SQ_CONF_ENFORCE_FRAME_SAMEORIGIN)
+		    header('X-Frame-Options: SAMEORIGIN');
+				
 		// if the user is Up For Review, prompt the user to change password
 		$require_password_change = ($this->user && !($this->user instanceof Public_User) && $this->user->status == SQ_STATUS_LIVE_APPROVAL);
 
