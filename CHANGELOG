@@ -1,5 +1,216 @@
 SQUIZ MATRIX CHANGELOG
 
+VERSION 4.16.2
+
+Featured Changes
+===================================
+
+Calculate Tax on Delivery Fee [ Feature Request #6039 ]
+-----------------------------------------------------
+
+New options have been added to the E-Commerce package's Checkout asset's Region Specific Options screen to set the way tax is managed on the delivery fees of e-commerce orders.
+
+* Calculate Tax on Delivery Fee
+* Delivery Fee Includes Tax?
+
+If the Calculate Tax on Delivery Fee option is enabled, the configured taxation rate will be calculated on the delivery fee, and added to the order. Alternatively, you can enable the Delivery Fee Includes Tax setting to specify that the delivery fee already includes the specified tax rate; In such cases, the tax will merely be calculated from the full delivery fee and displayed on the order (for example, if the delivery fee is $10.00 and the tax rate is 10%, the delivery fee will be displayed as $9.00 + $1.00 tax).
+
+Custom Form: Word Count Comparison Validation Rule [ Feature Request #6236 ]
+-----------------------------------------------------
+
+A new Complex Validation Rule had been added to questions on the Custom Form Page asset to allow you to specify the validity of a question's response based on its word count.
+
+The following operators can be selected to validate the response:
+
+* Must be this many words in length...
+* Must not be this many words in length..	.
+* Length must be greater than this many words...
+* Length must be less than this many words...
+* Length must be at least this many words...
+* Length must be no more than this many words...
+
+The Word Count Comparison validation rule is available on both the Text and Email Address question types.
+
+JavaScript API: New Function to Set a Metadata Schema [ Feature Request #6374 ]
+-----------------------------------------------------
+
+A new function has been added to the Javascript API to set or unset a metadata schema on an asset.
+
+The editMetadataSchema function is enabled through a new field on the Details screen of the Javascript API. 
+
+This function takes six parameters:
+
+* assetid: the asset to set or unset the metadata schema on.
+* schemed: the metadata schema to set or unset on the asset.
+* set: whether the metadata schema is being set (1) or unset (0).
+* granted: whether the metadata schema is being applied (TRUE) or denied (FALSE).
+* cascades: whether or not the schema should be cascaded to newly created assets.
+* dataCallback: the custom callback function (optional).
+
+The format of the editMetadataSchema function is shown below:
+
+editMetadataSchema (assetID, schemaid, set, granted, cascade, dataCallback)
+
+In the example below, we are applying metadata schema #405 on asset #612. We do not want this schema cascaded to newly created assets.
+
+editMetadataSchema (612, 405, 1, 1, 0, function(e){console.log(e);})
+
+When using the Enhanced JS API, the above example would be as follows:
+
+js_api.editMetadataSchema({
+assetid: 612,
+schemaid: 405,
+set: 1,
+granted:0,
+cascades:0,
+dataCallback: function(e){console.log(e);
+}}) 
+
+
+Custom Form: Mandatory Select Response With Initial Empty Value [ Feature Request #6436 ]
+-----------------------------------------------------
+
+The Custom Form Page's Select question type allows a user to make a selection from a drop-down list of values.
+
+While, previously, this question type allowed you to specify that a response was mandatory, this was not able to be configured whilst also providing users with an initial empty value - a default value had to be designated.
+
+This was an issue when wanting to create a mandatory Select question, but not wanting to have an option already selected as the default.
+
+The feature combats this issue by adding new options on the Details screen of the Select question type, allowing you to specify whether an empty value option can be selected by the user (i.e. whether the question requires a response or not).  
+
+The Allow Empty Option To Be Selected? setting allows you to specify whether the empty value option on the question can be submitted on the form. If this setting is disabled and the user attempts to submit a form using the empty selection, an error will be displayed, as specified in the Empty Option Selection Error field.
+
+Along with these new settings, the Select question type also sees the introduction of a number of validation rules, including: Value Comparison, Numeric Value, Text Found In, Text Contains, Length Comparison, Valid Email, Value Begins With and Value Ends With.
+
+These new validation rules will check against the answer keys of the Select question type.
+
+Image Variety: New Centred Square Constrain Type [ Feature Request #6448 ]
+-----------------------------------------------------
+
+Image varieties allow you to create alternate versions of Image assets within Squiz Matrix, of varying sizes.
+
+When configuring an image variety, the system will allow you to modify the size of the original image by a variety of different options, including:
+
+* Constrained by a specified height, maintaining the original aspect ratio.
+* Constrained by a specified width, maintaining the original aspect ratio.
+* Constrained by a maximum dimension (applied to both the height and width) and maintaining the original aspect ratio.
+* Resized to a specified height and width.
+
+This feature introduces a new option in the Constrained By field, allowing you to create a square-shaped image variety. 
+
+When selected, the Square (Centre Weighted) option will display a Dimension field, allowing you to specify the size of the square image variety. The image will be cropped (centre weighted) and resized as specified in these settings.
+
+Currently Listed Asset Keywords in Nested Content Listings [ Feature Request #6449 ]
+-----------------------------------------------------
+
+This new feature extends the use of the %list_current_*% keyword replacement (e.g. %list_current_asset_name%) to refer to the current asset being listed by a listing or search page in the Additional GET Variables settings of nested content.
+
+This feature has been added to allow more flexibility in the keyword replacements that can be passed through as variables in nested content areas.
+
+Password Reset Page: New Check Browser Session Option [ Feature Request #6456 ]
+-----------------------------------------------------
+
+Previously, the Password Reset Page was not able to properly handle the resetting of passwords for two users in the system with the same email address, due to the password reset link being sent to their email address.
+
+This feature adds a new option to the Password Reset Page to force users to open the emailed reset link in the same browser session in which the password reset was requested. This helps to rectify the previous issue, ensuring that no other users on the same email address will be able to complete the password reset request on another user's account.
+
+Disable the Root User Account [ Feature Request #6466 ]
+-----------------------------------------------------
+
+Squiz Matrix's root user account has the highest level of access within the system, with the ability to view and modify all fields and screens. System administrator users have a similar level of permission, although they do not have access to all options available within the system configuration and system management settings.
+
+This feature introduces a new option on the system's main.inc file, allowing you to disable the root user account and give root access to system administrators.
+
+SQ_CONF_ROOT_USER_DISABLED 
+
+By default, this new option is set to 0. When this value is set to 1, the root user account on the system will be disabled. This means that, while the actual root user asset will remain in the system, the account will lose its functionality and will not be able to be logged into.
+
+All root privileges, including access to the system configuration and system management settings, will be given to system administrator users.
+
+Once disabled, the root user account can be easily reinstated by changing this new main.inc setting back to 0.
+This feature has been added in order to allow system administrators full access to their Squiz Matrix installation.  
+
+New Spam Prevention Options on the Custom Form and Asset Builder [ Feature Request #6481 ]
+-----------------------------------------------------
+
+Also this week, we have three new spam prevention options available on the Custom Form and Asset Builder assets.
+
+* Google reCAPTCHA: allows you to implement Google's free reCAPTCHA anti-bot service, which also servers to digitize books, newspapers and old time radio shows.
+
+* Honeypot Question: enables the creation of a honeypot or dummy question. This is used to identify spam bots who fill in the field, that would otherwise be left blank by regular users.
+
+* Submission Time Threshold: uses the time taken between the form load and form submission to help identify possible spam bots, based on a set minimum time.
+
+Each of these new spam prevention options are available for configuration on either the Form Contents screen of Custom Form assets, or the Details screen of Asset Builder assets.
+
+These new options have been added to compliment the existing spam prevention options available for forms on Squiz Matrix, by providing more accessible anti-spam alternatives.
+
+
+Additional Changes and Bug Fixes
+=================================== 
+
+Minor Enhancements
+
+Minor Enhancement #6133: New SOAP API Function to Return Paint Layout From URL.
+Minor Enhancement #6294: Improved Error Handling on the Import Assets From XML Tool.
+Minor Enhancement #6303: Clear Squid Cache Trigger Action Enhancements.
+Minor Enhancement #6452: Asset Listing: Keyword Support for Link Value Filtering.
+Minor Enhancement #6455: Data Source Graph: New Alt Field on Global Settings Screen.
+Minor Enhancement #6459: Option to Remove the 'Running Squiz Matrix' Attribution From the Design Source.
+Minor Enhancement #6471: CSV Data Source Error Enhancement.
+Minor Enhancement #6473: Performance Enhancement: Acquiring and Updating Locks.
+Minor Enhancement #6474: Performance Enhancement: Improved Handling When 'All' Locks Acquired.
+Minor Enhancement #6475: Asset Builder Page: CAPTCHA Enhancement.
+
+Core
+
+Fixed Bug #6313: Design Customisation no longer has independent status.
+Fixed Bug #6396: Links Reports say HTTS URLs cannot be tested.
+Fixed Bug #6440: HIPO Job getJob concurrency with load balanced read databases.
+Fixed Bug #6445: Modifiers not run on metadata keywords in an Asset Listing.
+Fixed Bug #6454: Check index script doesn't check rollback tables correctly.
+Fixed Bug #6457: Cannot set the user's password on the Funnelback manager.
+Fixed Bug #6460: Content-Disposition header of Matrix files has unquoted file name.
+Fixed Bug #6461: Deja Vu issues and enhancements.
+Fixed Bug #6462: Error checking for the as_asset keyword modifier can bombard error.log with warnings.
+Fixed Bug #6463: Performance improvement to remove_form_submission.php script.
+Fixed Bug #6464: Asset Builder not creating News Item assets.
+Fixed Bug #6465: Remote Content asset displays arbitrary URLs when no protocol set.
+Fixed Bug #6467: The Clear Matrix Cache and Clear Squid Cache tools' Clear Now option doesn't work as expected.
+Fixed Bug #6469: Zero(s) issue when exporting/importing assets.
+Fixed Bug #6476: Replace keyword modifier strips regex characters.
+Fixed Bug #6482: Text field for "Link" on the insert link plugin shows wrong target link.
+Fixed Bug #6484: Creating new Context and Metadata value.
+Fixed Bug #6486: Uploading a pdf file with pdftohtml enabled shouldn't block content indexing if there is a minor error.
+
+CMS
+
+Fixed Bug #6443: After cloning a form sections need to be committed before displaying.
+Fixed Bug #6493: Links Report incorrectly identifying working links as broken.
+
+Data
+
+Fixed Bug #6492: Data source JSON bypasses any proxy settings. 
+
+Search
+
+Fixed Bug #6964: Search and Replace tool can throw db error if replacing many assets.
+
+Calendar
+
+Fixed Bug #6451: Problem with cancelling a Recurring Calendar Event that occurs in the afternoon.
+Fixed Bug #6488: Listing Calendar Events with the Event Search Page getting undefined object/function error.
+
+Sharepoint
+
+Fixed Bug #6491: Sharepoint CMIS issue when using a stored WSDL file.
+
+Funnelback
+
+Fixed Bug #6261: Funnelback REST Search Page passing parameters dot converted to underscore.
+
+
+
 VERSION 4.16.1
 
 Featured Changes
