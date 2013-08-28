@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.427.4.3 2013/08/19 04:15:34 cupreti Exp $
+* $Id: lang_strings.xml,v 1.427.4.4 2013/08/28 01:30:57 ewang Exp $
 *
 */
 
@@ -355,6 +355,8 @@
 	<string source="system_timezone">System Timezone</string>
 	<string source="disable_attribution">Disable Attribution</string>
 	<string source="disable_attribution_note">&lt;b&gt;NOTE:&lt;/b&gt; Editing this option will need the designs to be regenerated before this option takes affect.</string>
+	<string source="enforce_frame_sameorigin">Enforce Same Origin Frame</string>
+	<string source="enforce_frame_sameorigin_note">If Matrix is nested in a frame of a page, the page must be hosted on same domain of Matrix.</string>
 	<string source="system_tools">System Tools</string>
 	<string source="system_web_path_separator">System Web Path Separator</string>
 	<string source="system_redirect_url_with_trailing_slash">Redirect URL with Trailing Slash</string>
