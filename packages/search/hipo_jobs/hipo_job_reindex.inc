@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_reindex.inc,v 1.37 2012/08/30 00:59:15 ewang Exp $
+* $Id: hipo_job_reindex.inc,v 1.37.4.1 2013/08/28 00:58:43 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    root_assetid	-	the ID of the root asset of the tree that will be reindexed
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.37.4.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -119,7 +119,7 @@ class HIPO_Job_ReIndex extends HIPO_Job
 	*/
 	function getCodeName()
 	{
-		return parent::getCodeName().'-'.  htmlspecialchars(implode(',', $this->_running_vars['root_assetid']));
+		return parent::getCodeName().'-'.md5(implode(',', $this->_running_vars['root_assetid']));
 
 	}//end getCodeName()
 
