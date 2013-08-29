@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.js,v 1.32 2013/08/20 06:24:23 lwright Exp $
+* $Id: asset_map.js,v 1.33 2013/08/29 23:47:09 lwright Exp $
 *
 */
 
@@ -35,7 +35,7 @@ function init_asset_map(codebase, archive, parameters, width, height)
 		appletDiv.setAttribute('height', height);
 		appletDiv.setAttribute('code', codebase);
 		appletDiv.setAttribute('archive', archive);
-		appletDiv.setAttribute('mayscript', 'mayscript');
+		appletDiv.setAttribute('mayscript', 'true');
 
 		var paramNames  = [];
 		var paramTopTag = document.createElement('param');
