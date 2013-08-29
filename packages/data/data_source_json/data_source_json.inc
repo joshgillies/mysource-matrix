@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_json.inc,v 1.10 2013/08/29 03:13:12 akarelia Exp $
+* $Id: data_source_json.inc,v 1.11 2013/08/29 23:03:42 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Daniel Simmons <dsimmons@squiz.co.uk>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -138,14 +138,18 @@ class Data_Source_Json extends Data_Source
 	{
 		$source = $this->_getSource();
 		$data = '';
+		$url_parts = parse_url($source);
 
 		// Check if source is an asset ID
 		if (substr($source, 0, 2) === 'a=') {
 			$source_asset = substr($source, 2);
 			$data = $this->_getAssetContents($source_asset);
 
-		// Otherwise it's a URI
+		} else if(!isset($url_parts['host']) && is_file($source)) {
+			// looks like its a local address
+			$data = file_get_contents($source);
 		} else {
+			// none of the above? then its a url
 			$options = array(
 						'RETURNTRANSFER' => 1,
 						'SSL_VERIFYHOST' => 0,
