@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.435 2013/08/28 01:25:55 ewang Exp $
+* $Id: lang_strings.xml,v 1.436 2013/08/29 06:49:20 ewang Exp $
 *
 */
 
@@ -1083,6 +1083,8 @@
 	<string source="condition_asset_status_false">The current asset is not in the following status</string>
 	<string source="condition_asset_type_true">The current asset has the following types</string>
 	<string source="condition_asset_type_false">The current asset does not have the following types</string>
+	<string source="condition_has_children_true">The current asset has children with following types</string>
+	<string source="condition_has_children_false">The current asset does not have children with following types</string>
 
 	<!-- User IP Condition -->
 	<string source="network_ip_address">Network IP Address</string>
