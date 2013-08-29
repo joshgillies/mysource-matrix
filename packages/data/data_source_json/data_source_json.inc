@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_json.inc,v 1.9 2013/08/27 05:49:23 akarelia Exp $
+* $Id: data_source_json.inc,v 1.10 2013/08/29 03:13:12 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Daniel Simmons <dsimmons@squiz.co.uk>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -146,46 +146,20 @@ class Data_Source_Json extends Data_Source
 
 		// Otherwise it's a URI
 		} else {
-			include_once(SQ_DATA_PATH.'/private/conf/proxy_authentication.inc');
-			if (SQ_PA_ENABLED) {
-				$url_parts = parse_url($source);
-				if (empty($url_parts['port']) && !empty($url_parts['scheme']) && $url_parts['scheme'] == 'https') {
-					$url_parts['port'] = '443';
-				} else {
-					$url_parts['port'] = '80';
-				}
+			$options = array(
+						'RETURNTRANSFER' => 1,
+						'SSL_VERIFYHOST' => 0,
+						'SSL_VERIFYPEER' => 0,
+					   );
 
-				require_once(SQ_INCLUDE_PATH.'/general_occasional.inc');
-				$socket = openSocketConnection($url_parts, $errno, $errstr, TRUE, 15);
-				if ($socket) {
-					fwrite ($socket, 'HEAD '.$url_parts['path']." HTTP/1.0\r\nHost: ".$url_parts['host']."\r\n\r\n");
-				}
+			$responseDetails = fetch_url($source, $options);
 
-				stream_set_timeout($socket, 5);
-				$response = fgets($socket);
-				$headers = fgets($socket);
-				$response = trim($response);
-				$headers = trim($headers);
-				$finished = (empty($headers)) ? TRUE : FALSE;
-				// filter out all the headers from the response
-				while (!$finished) {
-					$next_header = fgets($socket);
-					$next_header = trim($next_header);
-					if (empty($next_header)) {
-						$finished = TRUE;
-					} else {
-						$headers .= $next_header."\r\n";
-					}//end if
-				}//end while
-
-				// this is the body we need
-				while (!feof($socket)) {
-					$data .= fgets($socket);
-				}
-				fclose($socket);
-			} else {
-				$data = file_get_contents($source);
+			if ($responseDetails['errornumber'] != 0) {
+				trigger_localised_error('CMS0063', E_USER_WARNING, $source, $responseDetails['errorstring']);
+				return FALSE;
 			}
+
+			$data = $responseDetails['response'];
 		}
 
 		return $data;
