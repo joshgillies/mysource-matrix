@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.286.4.6 2013/08/26 03:44:58 akarelia Exp $
+* $Id: general.inc,v 1.286.4.7 2013/08/29 03:25:01 akarelia Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.286.4.6 $
+* @version $Revision: 1.286.4.7 $
 * @package MySource_Matrix
 */
 
@@ -2682,14 +2682,14 @@ function fetch_url($url='', $options=array(), $headers=array(), $use_proxy=TRUE)
 					curl_setopt($curl_res, CURLOPT_PROXYPORT, $proxy['port']);
 				}
 				if (isset($options['proxy']) === TRUE) {
-					if (isset($options['proxy']['user']) === TRUE && 
-					isset($options['proxy']['password']) === TRUE) {
+					if (isset($options['proxy']['user']) === TRUE && isset($options['proxy']['password']) === TRUE) {
 						curl_setopt($curl_res, CURLOPT_PROXYUSERPWD, $options['proxy']['user'].':'.$options['proxy']['password']);
 					}
+				} else if ($proxy['user'] && $proxy['password']) {
+					curl_setopt($curl_res, CURLOPT_PROXYUSERPWD, $proxy['user'].':'.$proxy['password']);
 				} else {
-					if ($proxy['user'] && $proxy['password']) {
-						curl_setopt($curl_res, CURLOPT_PROXYUSERPWD, $proxy['user'].':'.$proxy['password']);
-					}
+					curl_setopt($curl_res, CURLOPT_PROXYTYPE, "CURLPROXY_HTTP");
+					curl_setopt($curl_res, CURLOPT_PROXYAUTH, "CURLAUTH_BASIC");
 				}
 				$proxy_set = TRUE;
 			}
