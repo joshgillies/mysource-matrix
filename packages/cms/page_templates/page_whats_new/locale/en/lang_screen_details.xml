@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.14 2012/07/18 04:01:55 akarelia Exp $
+* $Id: lang_screen_details.xml,v 1.14.6.1 2013/08/29 06:29:03 ewang Exp $
 *
 */
 -->
@@ -49,7 +49,7 @@
 		</field>
 		<field attribute="link_value_filter_logic">
 			<display_name>Link Value Filtering Logic</display_name>
-			<note>This specifies if assets returned should have link value equal or diffrent from the 'Link Value' field. You will need to enable 'Link Value Filtering'.</note>
+			<note>This specifies if assets returned should have link value equal or different from the 'Link Value' field. You will need to enable 'Link Value Filtering'.</note>
 		</field>
 		<field attribute="link_value_filter_enabled">
 			<display_name>Enable Link Value Filtering</display_name>
