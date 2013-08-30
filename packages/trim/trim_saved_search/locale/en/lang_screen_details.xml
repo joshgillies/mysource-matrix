@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.10 2013/07/09 08:17:38 ewang Exp $
+* $Id: lang_screen_details.xml,v 1.11 2013/08/30 04:31:39 cupreti Exp $
 *
 */
 -->
@@ -100,7 +100,7 @@
     		</function_call>
     	</field>
     	<note>Specify search clauses and use logical operators to combine them.</note>
-    </section> 
+    </section>
     <section name="Result Fields" write_access="write:attributes">
     	<field>
     		<display_name>Result Fields</display_name>
@@ -113,7 +113,7 @@
     		<display_name>Use Local Time</display_name>
     		<note>Convert all Datetime typed result fields from GMT to local time. Outputted format can be customized using keyword modifier date_format. e.g %ds__recCreated^date_format:Y% will print a full numeric representation of a year in local time.</note>
     	</field>
-    </section>   
+    </section>
     <section name="Classification Options" write_access="write:attributes">
     	<field attribute="classification">
 			<display_name>Classification</display_name>
