@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_common.inc,v 1.35 2013/07/09 08:17:38 ewang Exp $
+* $Id: trim_common.inc,v 1.36 2013/08/30 07:19:48 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage trim
 */
@@ -873,20 +873,23 @@ class TRIM_Common
 	* @return boolean
 	* @access public
 	*/
-	public static function getPackagedFiles($object_list, $hash_key, &$final_file_path)
+	public static function getPackagedFiles($object_list, $file_name, $final_file_path)
 	{
 		if (!isset($object_list['error'])) {
 			$file_content	= base64_decode($object_list['Base64Payload']);
-			$file_name		= $object_list['AttachmentId'].'.'.strtolower($object_list['FileType']);
+			if (empty($file_name)) {
+				// Use 'AttachmentId' as default file name
+				$file_name	= $object_list['AttachmentId'];
+			}
+			$file_name .= '.'.strtolower($object_list['FileType']);
 
-			@mkdir(SQ_TEMP_PATH.'/'.$hash_key);
-			$file_path		= SQ_TEMP_PATH.'/'.$hash_key.'/'.$file_name;
+
 			$file_path 		= $final_file_path.'/'.$file_name;
 			if (file_exists($file_path)) {
 				// Try to unlink it
 				unlink($file_path);
 			}//end if
-			if (!$handle	= fopen($file_path, 'w')) {
+			if (!$handle = fopen($file_path, 'w')) {
 				log_dump('Could not open file '.$file_path);
 			}//end if
 			if (fwrite($handle, $file_content) === FALSE) {
@@ -912,7 +915,7 @@ class TRIM_Common
 	* @return array|void
 	* @access public
 	*/
-	public static function executeRequest($connection, $operations=Array(), $display_type='Fetch', $search_clause_xml = '', $hash_key='', &$final_file_path='')
+	public static function executeRequest($connection, $operations=Array(), $display_type='Fetch', $search_clause_xml = '', $file_name='', $final_file_path='')
 	{
 			
 			$Execute		= Array (
@@ -984,7 +987,7 @@ class TRIM_Common
 			if (isset($operations['Fetch'])) {
 				return $object_list;
 			} else if (isset($operations['Download'])) {
-				$res = self::getPackagedFiles($object_list, $hash_key, $final_file_path);
+				$res = self::getPackagedFiles($object_list, $file_name, $final_file_path);
 			} else if (isset($operations['Upload'])) {
 				if ($object_list['UploadId'] != $up_id) {
 					echo 'Upload Successful, new UploadId: '.$object_list['UploadId'];

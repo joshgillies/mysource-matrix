@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search_edit_fns.inc,v 1.14 2013/08/30 03:36:03 cupreti Exp $
+* $Id: trim_saved_search_edit_fns.inc,v 1.15 2013/08/30 07:20:09 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -1144,6 +1144,68 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 		return ($asset->setAttrValue('dynamic_vars', $var_list));
 
 	}//end processResultFields()
+	
+	
+	/**
+	* Paints the interface for setting up the download file name
+	*
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintDownloadedFileName(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		$current_value = $asset->attr('filename_field');
+		
+		$var_list = $asset->attr('dynamic_vars');		
+		$result_fields = isset($var_list['result_fields']) ? $var_list['result_fields'] : Array();
+		// Append an empty option
+		array_unshift($result_fields, '');
+		
+		if ($write_access) {
+			combo_box($prefix.'_filename_field', $result_fields, FALSE, $current_value);
+		} else {
+			echo array_get_index($result_fields, $current_value, ''); 
+		}
+
+		return TRUE;
+
+	}//end paintDownloadedFileName()
+	
+	
+	/**
+	* Process the interface for setting up the download file name
+	*
+	* @param object	&$asset	the search page asset
+	* @param object	&$o		the backend outputter
+	* @param string	$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processDownloadedFileName(&$asset, &$o, $prefix)
+	{
+		if (!$asset->writeAccess('attributes')) {
+			return FALSE;
+		}
+		
+		$new_value = isset($_POST[$prefix.'_filename_field']) ? $_POST[$prefix.'_filename_field'] : FALSE;		
+		if ($new_value === FALSE) {
+			return FALSE;
+		}
+		
+		$current_value = $asset->attr('filename_field');		
+		if ($current_value == $new_value) {
+			return TRUE;
+		}		
+		
+		return $asset->setAttrValue('filename_field', $new_value);
+
+	}//end processDownloadedFileName()
 
 }//end class
 ?>

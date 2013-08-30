@@ -11,7 +11,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search.inc,v 1.49 2013/08/30 04:59:01 cupreti Exp $
+* $Id: trim_saved_search.inc,v 1.50 2013/08/30 07:20:09 cupreti Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -695,7 +695,6 @@ class TRIM_Saved_Search extends Data_Source
 	function storeDocumentList($connection, &$record_info)
 	{
 
-
 		if (isset($record_info['Uri']) && $record_info['Uri'] != 0 && (!isset($record_info['error']))) {
 		    	// Set a socket timeout limit
 			$default_socket_timeout = ini_get('default_socket_timeout');
@@ -709,12 +708,17 @@ class TRIM_Saved_Search extends Data_Source
 								'ShortcutRecordUri'			=> TRIM_Common::constructShortcutRecordUri($record_info['Uri']),
 							  );
 
-				$hash_key			= $GLOBALS['SQ_SYSTEM']->user->attr('username').time();
 				$final_file_path	= $this->data_path.'/'.$record_info['Uri'];
 				require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 				create_directory($final_file_path);
 
-				$res = TRIM_Common::executeRequest($connection, $operations, 'Download', '',  $hash_key, $final_file_path);
+				$filename = '';
+				$filename_field = $this->attr('filename_field');
+				if (!empty($filename_field)) {
+					$filename = array_get_index($record_info, $filename_field, '');
+				}
+
+				$res = TRIM_Common::executeRequest($connection, $operations, 'Download', '',  $filename, $final_file_path);
 
 				// use RecordNumber as id of downloaded file because it makes sense to user. Uri is only internal to developer
 				$record_info['document_url'] = isset($record_info['recNumber']) ? './?a='.$this->id.'?RecordNumber='.urlencode($record_info['recNumber'])  : './?a='.$this->id.'?Uri='.$record_info['Uri'];

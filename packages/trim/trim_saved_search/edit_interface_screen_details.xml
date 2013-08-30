@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.10 2013/08/30 03:39:32 cupreti Exp $
+* $Id: edit_interface_screen_details.xml,v 1.11 2013/08/30 07:20:09 cupreti Exp $
 *
 */
 -->
@@ -56,6 +56,12 @@
 	<field attribute="download_time_limit">
 		<int width="15" />
 	</field>
+    <field>
+    	<function_call>
+    		<paint_function   name="paintDownloadedFileName"	/>
+    		<process_function name="processDownloadedFileName"	/>
+    	</function_call>
+    </field>
     	<field>
     		<function_call>
     			<paint_function   name="paintSynchCheck"	/>
