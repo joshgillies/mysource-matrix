@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_extras.inc,v 1.29 2012/08/30 00:56:51 ewang Exp $
+* $Id: db_extras.inc,v 1.29.4.1 2013/08/30 03:43:01 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *     Send DAL::getDbType() to the functions instead of $db.
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.29.4.1 $
 * @package Fudge
 * @subpackage DB_Extras
 */
@@ -298,6 +298,9 @@ function db_get_function_result($db_type, $sql, $bind_vars=Array())
 */
 function db_extras_modify_limit_clause($sql, $db_type, $limit, $offset=0)
 {
+    	$limit = (int) $limit;
+	$offset = (int) $offset;
+	
 	if ($db_type == 'oci') {
 		if ($offset > 0) {
 			$inner_sql = 'SELECT original_query.*, rownum rnum FROM (' . $sql . ') original_query WHERE rownum <= ' . ($offset + $limit);
