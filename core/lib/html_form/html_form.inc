@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.170.2.4 2013/08/08 05:07:17 akarelia Exp $
+* $Id: html_form.inc,v 1.170.2.5 2013/08/30 04:35:58 ewang Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.170.2.4 $
+* @version $Revision: 1.170.2.5 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -609,11 +609,6 @@ function get_file_upload_info($name, $pre_uploaded=FALSE)
 
 		case UPLOAD_ERR_PARTIAL :
 			trigger_localised_error('SYS0023', E_USER_WARNING, $nice_name);
-			return FALSE;
-		break;
-
-		case UPLOAD_ERR_NO_FILE :
-			trigger_localised_error('SYS0349', E_USER_WARNING, $nice_name);
 			return FALSE;
 		break;
 	
