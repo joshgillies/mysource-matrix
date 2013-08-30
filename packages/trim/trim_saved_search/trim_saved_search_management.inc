@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search_management.inc,v 1.13 2013/07/09 08:17:38 ewang Exp $
+* $Id: trim_saved_search_management.inc,v 1.14 2013/08/30 03:56:05 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 * @see Asset_Management
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -235,17 +235,17 @@ class TRIM_Saved_Search_Management extends Asset_Management
 		if (version_compare($current_version, '0.2', '<')) {
 			pre_echo('STARTING UPGRADE OF '.$asset_name.' FROM VERSION '.$current_version.' TO VERSION 0.2');
 			$saved_search_ids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('trim_saved_search', FALSE, TRUE);
-			
+
 			$count = 0;
 
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 			pre_echo('Updating TRIM Saved Search...');
-			
+
 			$available_fields = TRIM_Common::getRecordProperties();
 			$available_search_type = TRIM_Common::getRecordStringSearchClauseType();
-			
+
 			// find every trim saved search asset and update the var list
 			foreach ($saved_search_ids as $id => $blank) {
 				$saved_search = $GLOBALS['SQ_SYSTEM']->am->getAsset($id, $blank['type_code']);
@@ -260,7 +260,7 @@ class TRIM_Saved_Search_Management extends Asset_Management
 					unset ($var_list['fields']);
 				}
 				if(isset($var_list['string_search_type'][0]) && isset($var_list['search_keyword'])) {
-					
+
 					$search_name = $var_list['string_search_type'][0];
 					$search_caption = $available_search_type[$search_name];
 					$search_keyword = $var_list['search_keyword'];
@@ -282,7 +282,7 @@ class TRIM_Saved_Search_Management extends Asset_Management
 					unset ($var_list['string_search_type']);
 					unset ($var_list['search_keyword']);
 				}
-				
+
 				// Save the attribute
 				$saved_search->setAttrValue('dynamic_vars', $var_list);
 
@@ -300,35 +300,35 @@ class TRIM_Saved_Search_Management extends Asset_Management
 
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($saved_search);
 				unset($saved_search);
-				
+
 				$count++;
 			}
-			
+
 			pre_echo('Updated TRIM Saved Search - '.$count.' assets(s)...');
 
-			
+
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 			pre_echo($asset_name.' SUCCESSFULLY UPGRADED TO VERSION 0.2');
-			
+
 			$current_version = '0.2';
 		}//end if
 
-		
-		
+
+
 		if (version_compare($current_version, '0.3', '<')) {
 			pre_echo('STARTING UPGRADE OF '.$asset_name.' FROM VERSION '.$current_version.' TO VERSION 0.3');
 			$saved_search_ids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('trim_saved_search', FALSE, TRUE);
-			
+
 			$count = 0;
 
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 			pre_echo('Updating TRIM Saved Search...');
-			
-		
+
+
 			// find every trim saved search asset and update the var list
 			foreach ($saved_search_ids as $id => $blank) {
 				$saved_search = $GLOBALS['SQ_SYSTEM']->am->getAsset($id, $blank['type_code']);
@@ -336,7 +336,7 @@ class TRIM_Saved_Search_Management extends Asset_Management
 				if(!isset($var_list['record_type_filter'])) {
 					$var_list['record_type_filter'] = Array();
 				}
-				
+
 				// Save the attribute
 				$saved_search->setAttrValue('dynamic_vars', $var_list);
 
@@ -354,10 +354,10 @@ class TRIM_Saved_Search_Management extends Asset_Management
 
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($saved_search);
 				unset($saved_search);
-				
+
 				$count++;
 			}
-			
+
 			pre_echo('Updated TRIM Saved Search - '.$count.' assets(s)...');
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -365,11 +365,11 @@ class TRIM_Saved_Search_Management extends Asset_Management
 
 			pre_echo($asset_name.' SUCCESSFULLY UPGRADED TO VERSION 0.3');
 		}//end if
-		
+
 		return TRUE;
 
 	}//end _upgrade()
-	
+
 }//end class
 
 ?>
