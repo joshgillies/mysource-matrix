@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.9 2013/07/09 08:17:38 ewang Exp $
+* $Id: edit_interface_screen_details.xml,v 1.10 2013/08/30 03:39:32 cupreti Exp $
 *
 */
 -->
@@ -78,7 +78,7 @@
     			<process_function name="processSearchFields"	/>
     		</function_call>
     	</field>
-    </section> 
+    </section>
     <section name="Result Fields" write_access="write:attributes">
     	<field>
     		<function_call>
@@ -89,7 +89,7 @@
     	<field attribute="convert_timezone">
     		<boolean true_text="yes" false_text="no" />
     	</field>
-    </section>   
+    </section>
     <section name="Classification Options" write_access="write:attributes">
     <field attribute="classification">
             <text width="35" height="1" />
