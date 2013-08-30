@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.294 2013/08/29 03:23:58 akarelia Exp $
+* $Id: general.inc,v 1.295 2013/08/30 00:50:48 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.294 $
+* @version $Revision: 1.295 $
 * @package MySource_Matrix
 */
 
@@ -181,7 +181,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 			$error_data  = 'background-color: '.$bg_colour.'; font-size: 12px; color: #ffffff; font-family: verdana, arial, sans-serif; vertical-align: top;';
 			if(empty($buffers)) echo '</script></table></table></table></table><br/>';
 			if(!(SQ_IN_BACKEND || SQ_IN_LIMBO)) echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
-			?>	
+			?>
 				<table bgcolor="#c0c0c0" cellspacing="0" border="1" cellpadding="2" bordercolor="#ff0000">
 					<tr>
 						<td style="<?php echo $error_title; ?>">
@@ -924,13 +924,13 @@ function get_url_lineage($url, $db_quote = TRUE)
 		if ($db_quote){
 			$urls[] = MatrixDAL::quote(substr($url, 0, $pos));
 		} else {
-	    	$urls[] = substr($url, 0, $pos);
+			$urls[] = substr($url, 0, $pos);
 		}
-	    $pos = strpos($url, "/", $pos + 1);
+		$pos = strpos($url, "/", $pos + 1);
 	}
-	
+
 	return $urls;
-	
+
 }//end get_url_lineage()
 
 
@@ -1537,7 +1537,7 @@ function get_asset_tag_line($assetid, $screen='')
 		}
 		$real_assetid = $assetid;
 	}
-	
+
 	if (empty($asset_info)) {
 		ob_start();
 			echo '<span class="sq-backend-warning">Unknown asset (Id: #'.$assetid.')</span>';
@@ -1609,7 +1609,7 @@ function get_asset_tag_line($assetid, $screen='')
 		<?php
 		// LINEAGES BOX
 		$lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($assetid, 5, NULL, 'name', TRUE);
-		
+
 		// start an inner buffer for the lineages popup
 		ob_start();
 		?>
@@ -1620,19 +1620,19 @@ function get_asset_tag_line($assetid, $screen='')
 				$lineage_assetids = array_keys($lineage['lineage']);
 				$lineage_assetids[] = str_replace('\\', '\\\\', $assetid);
 
-				$lineage_names = $lineage['lineage'];	
-				
+				$lineage_names = $lineage['lineage'];
+
 				// If we have too many in the lineage, we need to add '...' between first
 				// 2 and last 2 - including the asset itself
 				if (count($lineage['lineage']) > 3) {
 					$lineage_names = $lineage['lineage'];
 					array_splice($lineage_names, 2, -1, Array('...'));
 				}
-				
+
 				foreach ($lineage_names as $id => $name){
 					$lineage_names[$id] = htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 				}
-				
+
 				$lineage_names[$assetid] = $asset_info['name'];
 				$lineages_onclick = _asset_locator_onclick($lineage_assetids, TRUE);
 				?><tr>
@@ -1722,9 +1722,9 @@ function _asset_locator_onclick($lineage_assetids, $tooltip_hide)
 	// 4. Invoking from main window, no WYSWIYG popup
 	//	  => target is the sidenav window, to target the main asset map
 	$asset_so         = get_asset_lineage_sort_order($lineage_assetids);
-	$asset_so         = explode('~', $asset_so);
-	$sort_orders      = explode('|', $asset_so[1]);
-	$lineage_assetids = explode('|', $asset_so[0]);
+	$asset_so_expl    = explode('~', $asset_so);
+	$sort_orders      = explode('|', $asset_so_expl[1]);
+	$lineage_assetids = explode('|', $asset_so_expl[0]);
 
 	$onclick = 'if (self.name == \'sq_wysiwyg_popup_main\') {
 					am = self;
@@ -1739,7 +1739,7 @@ function _asset_locator_onclick($lineage_assetids, $tooltip_hide)
 					am = parent.top.frames[\'sq_sidenav\'];
 				}
 
-				if (am.JS_Asset_Map) {
+				if (am.JS_Asset_Map && am.JS.Asset_Map.modernMapActive) {
 					am.JS_Asset_Map.locateAsset(['.str_replace('\'', '\\\'', implode(',', $lineage_assetids)).'], ['.implode(',', $sort_orders).']);
 				} else {
 					am.asset_locator_start(\''.$asset_so.'\');
@@ -1850,20 +1850,20 @@ function get_asset_lineage_sort_order($asset_lineage=Array())
 				if (isset($link['sort_order']) && $link['sort_order']!='') {
 					$sort_order = $link['sort_order'];
 					if(!empty($sort_order)){
-					    // adjust real sort order for links that are not visible on nav
-					    $sql = 'SELECT count(*) FROM sq_ast_lnk
-							    WHERE majorid = :previd
-									    AND sort_order < :sort_order
-									    AND link_type > 2';
-					    try {
-						    $query = MatrixDAL::preparePdoQuery($sql);
-						    MatrixDAL::bindValueToPdo($query, 'previd', $asset_lineage[$i], PDO::PARAM_STR);
-						    MatrixDAL::bindValueToPdo($query, 'sort_order', $sort_order, PDO::PARAM_INT);
-						    $count = MatrixDAL::executePdoOne($query);
-					    } catch (Exception $e) {
-						    throw new Exception('Unable to adjust real sort order for majorid: '.$previd.' due to database error: '.$e->getMessage());
-					    }
-					    if ($count > 0) $sort_order = $sort_order - $count;
+						// adjust real sort order for links that are not visible on nav
+						$sql = 'SELECT count(*) FROM sq_ast_lnk
+								WHERE majorid = :previd
+										AND sort_order < :sort_order
+										AND link_type > 2';
+						try {
+							$query = MatrixDAL::preparePdoQuery($sql);
+							MatrixDAL::bindValueToPdo($query, 'previd', $asset_lineage[$i], PDO::PARAM_STR);
+							MatrixDAL::bindValueToPdo($query, 'sort_order', $sort_order, PDO::PARAM_INT);
+							$count = MatrixDAL::executePdoOne($query);
+						} catch (Exception $e) {
+							throw new Exception('Unable to adjust real sort order for majorid: '.$previd.' due to database error: '.$e->getMessage());
+						}
+						if ($count > 0) $sort_order = $sort_order - $count;
 					}
 				}
 			}
@@ -1958,10 +1958,10 @@ function replace_global_keywords(&$text)
 					if (0 === strpos($keyword, 'globals_server_')) {
 						$sub_keyword = strtoupper(substr($keyword, 15));
 						if($sub_keyword !== 'HTTP_COOKIE') {
-						    $replacements[$full_keyword] = array_get_index($_SERVER, $sub_keyword, '');
-						    if (!is_scalar($replacements[$full_keyword])) {
-							    $replacements[$full_keyword] = '';
-						    }
+							$replacements[$full_keyword] = array_get_index($_SERVER, $sub_keyword, '');
+							if (!is_scalar($replacements[$full_keyword])) {
+								$replacements[$full_keyword] = '';
+							}
 						}
 					}
 					if (0 === strpos($keyword, 'globals_date')) {
@@ -2462,7 +2462,7 @@ function xml_entity_decode($string, $decode_html_entities = TRUE)
 /**
 * Filters Content (strip script tags, strip keywords, escape html).
 * Passes content to appropiate filtering function. Returns FALSE on failure.
-* 
+*
 * @param mixed string|array $attr_value contains content to be filtered.
 *
 * @return mixed string|array|boolean
@@ -2478,22 +2478,22 @@ function filter_content($attr_value)
 				if (!$success) return FALSE;
 				$attr_value = serialize($unser_str);
 			} catch (Exception $e) {
-   				return FALSE;
+				return FALSE;
 			}
 		} else if (is_scalar($unser_str)){
 			$unser_str = simple_content_filter($unser_str);
 			if ($unser_str === FALSE) return FALSE;
 			$attr_value = serialize($unser_str);
-		}	
+		}
 	} else if (is_scalar($attr_value)) {
 		$attr_value = simple_content_filter($attr_value);
 		if ($attr_value === FALSE) return FALSE;
-	} else if (is_array($attr_value)) { 
+	} else if (is_array($attr_value)) {
 		try {
 			$success = array_walk($attr_value, 'recursive_content_filter');
 			if (!$success) return FALSE;
 		} catch (Exception $e) {
-   			return FALSE;
+			return FALSE;
 		}
 	}
 
@@ -2504,11 +2504,11 @@ function filter_content($attr_value)
 
 /**
 * Runs a set of filters on the content (strip script tags, strip keywords, escape html).
-* Returns FALSE on failure. 
-* 
+* Returns FALSE on failure.
+*
 * @param string $attr_value contains content to be filtered.
 *
-* @return mixed string|boolean 
+* @return mixed string|boolean
 * @access public
 */
 function simple_content_filter($attr_value)
@@ -2516,7 +2516,7 @@ function simple_content_filter($attr_value)
 	$reg = "%<\/?script ?[^>]*>%i";
 	$attr_value = preg_replace($reg, "", $attr_value);
 	if ($attr_value === NULL) return FALSE;
-	
+
 	$keywords = extract_keywords($attr_value);
 	foreach ($keywords as $keyword){
 		$attr_value = str_ireplace("%$keyword%", "", $attr_value);
@@ -2525,7 +2525,7 @@ function simple_content_filter($attr_value)
 	//decode first to avoid double encoding
 	$attr_value = htmlspecialchars_decode($attr_value, ENT_COMPAT);
 	$attr_value = htmlspecialchars($attr_value, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
-	
+
 	return $attr_value;
 
 }//end simple_content_filter()
@@ -2547,9 +2547,9 @@ function recursive_content_filter(&$item)
 	if(is_array($item)){
 		$success = array_walk($item, __FUNCTION__);
 		if (!$success) throw new Exception('Content Filtering Failed.');
-	} else {  
+	} else {
 		$unser_item = @unserialize($item);
-		if ($unser_item !== FALSE) { 
+		if ($unser_item !== FALSE) {
 			if (is_array($unser_item)){
 				$success = array_walk($unser_item, __FUNCTION__);
 				if (!$success) throw new Exception('Content Filtering Failed.');
@@ -2579,14 +2579,14 @@ function recursive_content_filter(&$item)
 * @access public
 */
 function file_mime_type($filename)
-{	
+{
 	$mime_type = '';
 
 	if (class_exists('finfo')) {
 		$finfo = new finfo(FILEINFO_MIME);
 		$mime_info = explode(';', $finfo->file($filename));
 		$mime_type = $mime_info[0];
-		
+
 	} else if (function_exists('mime_content_type')) {
 		$mime_type = mime_content_type($filename);
 
@@ -2597,9 +2597,9 @@ function file_mime_type($filename)
 			$mime_type = array_get_index($standards_lists_mime_types, substr($filename, $ext_pos + 1), '');
 		}
 	}
-	
+
 	return $mime_type;
-	
+
 }//end file_mime_type()
 
 
@@ -2634,15 +2634,15 @@ function fetch_url($url='', $options=array(), $headers=array(), $use_proxy=TRUE)
 
 	// by default, we only allow http, https, ftp, ftps protocol. file protocol is very bad
 	if(defined('CURLOPT_PROTOCOLS')) {
-	    curl_setopt($curl_res, CURLOPT_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS | CURLPROTO_FTP | CURLPROTO_FTPS);
+		curl_setopt($curl_res, CURLOPT_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS | CURLPROTO_FTP | CURLPROTO_FTPS);
 	}
 	else {
 	  if(strpos($url, ':') !== FALSE && !preg_match('/^(http)|(ftp)/i', $url)) {
-	       trigger_error('protocol not supported:'.$url);
-	       return FALSE;
+		   trigger_error('protocol not supported:'.$url);
+		   return FALSE;
 	   }
-	}	
-	
+	}
+
 	foreach ($options as $option => $value) {
 		$option = strtolower($option);
 		if ($option == 'proxy' && is_array($value) === TRUE) {
@@ -2706,7 +2706,7 @@ function fetch_url($url='', $options=array(), $headers=array(), $use_proxy=TRUE)
 		}//end if
 	}
 	if(!$proxy_set) curl_setopt($curl_res, CURLOPT_PROXY, NULL);
-	
+
 	$result = curl_exec($curl_res);
 
 	$info = array(
@@ -2731,7 +2731,7 @@ function fetch_url($url='', $options=array(), $headers=array(), $use_proxy=TRUE)
 			return $info;
 		}
 
-        // Just a refresh, no redirect
+		// Just a refresh, no redirect
 		preg_match('!content\\s*=\\s*("[^"]+"|\'[^\']+\'|\\S+)!is', $matches[1], $urlMatches);
 		if (empty($urlMatches) === TRUE) {
 			return $info;
@@ -2889,12 +2889,12 @@ function isIpV6($ip)
 * Converts the IPv6 address to the bits
 *
 * @param string $ip	IPv6 address
-* 
+*
 * @return string|boolean
 * @access public
 */
-function ipv6ToBits($ip) 
-{	
+function ipv6ToBits($ip)
+{
 	if (!isIpV6($ip)) {
 		return FALSE;
 	}
@@ -2902,15 +2902,15 @@ function ipv6ToBits($ip)
 	if (!$ip) {
 		return FALSE;
 	}
-		
+
 	$unpacked_array = unpack('A16', $ip);
 	$unpacked = str_split($unpacked_array[1]);
-		
+
 	$binary_ip = '';
 	foreach ($unpacked as $char) {
 		$binary_ip .= str_pad(decbin(ord($char)), 8, '0', STR_PAD_LEFT);
 	}
-		
+
 	return $binary_ip;
 
 }//end ipv6ToBits()
@@ -2930,10 +2930,10 @@ function uncompressIPv6Address($address, $leading_zeros=TRUE)
 	if (strpos($address, ':') === FALSE || strpos($address, '.') !== FALSE || substr_count($address, '::') > 1) {
 		return FALSE;
 	}
-		
-	$ip_parts = explode('::', $address);	
-	$head = $ip_parts[0];	
-	$head_parts = explode(':', $head);	
+
+	$ip_parts = explode('::', $address);
+	$head = $ip_parts[0];
+	$head_parts = explode(':', $head);
 	if (isset($ip_parts[1])) {
 		$tail = $ip_parts[1];
 		$tail_parts = explode(':', $tail);
@@ -2943,27 +2943,27 @@ function uncompressIPv6Address($address, $leading_zeros=TRUE)
 			return FALSE;
 		}
 	}
-		
+
 	// IPv6 consists of eight groups
 	$total_groups_count = count($head_parts)+count($tail_parts);
 	if ($total_groups_count > 8) {
 		return FALSE;
 	}
-	
+
 	// Pad the compressed groups
 	$compressed_groups_count = 8 - (count($head_parts)+count($tail_parts));
 	$head_parts = array_pad($head_parts, count($head_parts)+$compressed_groups_count, '0');
-	
+
 	$all_parts = array_merge($head_parts, $tail_parts);
 	// If need to pad the leading 0's
 	if ($leading_zeros) {
 		foreach($all_parts as $index => $part) {
 			$all_parts[$index] = str_pad($part, 4, '0', STR_PAD_LEFT);
-		}//end foreach	
-	}//end if	
-		
+		}//end foreach
+	}//end if
+
 	return implode(':', $all_parts);
-	
+
 }//end uncompressIPv6Address()
 
 
@@ -2974,11 +2974,11 @@ function uncompressIPv6Address($address, $leading_zeros=TRUE)
 *
 * @return string|boolean
 * @access public
-*/	
+*/
 function compressIPv6Address($address)
 {
 	return @inet_ntop(inet_pton($address));
-	
+
 }//end compressIPv6Address()
 
 ?>

@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.22 2013/08/22 04:27:29 lwright Exp $
+* $Id: js_asset_map.js,v 1.23 2013/08/30 00:50:48 lwright Exp $
 *
 */
 
@@ -27,13 +27,23 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.22 $
+ * @version $Revision: 1.23 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
 
 
 var JS_Asset_Map = new function() {
+	/**
+	 * Set true when the modern map is being used.
+	 *
+	 * Use instead of determining whether JS_Asset_Map is defined, because both can
+	 * be defined due to fallback mode.
+	 *
+	 * @var {Boolean}
+	 */
+	this.modernMapActive = false;
+
 
 	/**
 	 * Enumerated list of statuses
@@ -49,7 +59,7 @@ var JS_Asset_Map = new function() {
 		Editing:           0x40, // Safe Editing
 		EditingApproval:   0x80, // Safe Edit Pending Approval
 		EditingApproved:   0x100 // Safe Edit Approved
-	}
+	};
 
 	/**
 	 * Enumerated list of link types
@@ -60,14 +70,14 @@ var JS_Asset_Map = new function() {
 		Type2:  0x02,
 		Type3:  0x04,
 		Notice: 0x08
-	}
+	};
 
 	var AssetActions = {
 		GetUrl: 'get url',
 		Move: 'move asset',
 		NewLink: 'new link',
 		Clone: 'clone'
-	}
+	};
 
 	var KeyCode = {
 		Delete: 46,
@@ -83,7 +93,7 @@ var JS_Asset_Map = new function() {
 		LetterZ: 90,
 		NumberZero: 48,
 		NumberNine: 57
-	}
+	};
 
 	/**
 	 * The target element where the asset map will be drawn
@@ -556,6 +566,7 @@ var JS_Asset_Map = new function() {
 		}
 
 		var self = this;
+		this.modernMapActive = true;
 
 		this.extendLegacy();
 
