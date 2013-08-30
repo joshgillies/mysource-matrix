@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.178 2013/08/30 03:18:09 lwright Exp $
+* $Id: html_form.inc,v 1.179 2013/08/30 04:35:04 ewang Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.178 $
+* @version $Revision: 1.179 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -594,7 +594,6 @@ function get_file_upload_info($name, $pre_uploaded=FALSE)
 	switch ($_FILES[$name]['error']) {
 
 		case UPLOAD_ERR_NO_FILE :
-			trigger_localised_error('SYS0349', E_USER_WARNING, $nice_name);
 			return Array();
 		break;
 
