@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.23 2013/08/30 00:50:48 lwright Exp $
+* $Id: js_asset_map.js,v 1.24 2013/09/01 23:13:19 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.23 $
+ * @version $Revision: 1.24 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -633,7 +633,7 @@ var JS_Asset_Map = new function() {
 			}//end for
 
 			// Initialising gives us the root folder's immediate children.
-			var assets    = response['assets'][0]['asset'];
+			var assets = response['assets'][0]['asset'];
 			for (var i = 0; i < assets[0]['asset'].length; i++) {
 				var asset = assets[0]['asset'][i];
 				if (asset._attributes.type_code === 'trash_folder') {
@@ -727,7 +727,7 @@ var JS_Asset_Map = new function() {
 			}//end for
 
 			// Initialising gives us the root folder's immediate children.
-			var assets    = response['assets'][0]['asset'];
+			var assets = response['assets'][0]['asset'];
 			for (var i = 0; i < assets[0]['asset'].length; i++) {
 				var asset = assets[0]['asset'][i];
 				if (asset._attributes.type_code === 'trash_folder') {
@@ -2121,17 +2121,6 @@ var JS_Asset_Map = new function() {
 
 
 	/**
-	 * Clone an asset.
-	 *
-	 * @param {String} assetid
-	 * @param {String} parentAssetid
-	 * @param {Number} [sortOrder] New sort order (last child if omitted)
-	 */
-	this.cloneAsset = function(assetid, newParentAssetid, sortOrder) {
-
-	};
-
-	/**
 	 * Resize the tree in response to height changes.
 	 *
 	 */
@@ -2247,7 +2236,7 @@ var JS_Asset_Map = new function() {
 	}
 
 	/**
-	 * Raise an error message.
+	 * Raise an confirmation popup.
 	 *
 	 * @param {String} message Message to display.
 	 */
@@ -2298,6 +2287,8 @@ var JS_Asset_Map = new function() {
 			}
 		});
 	};
+
+
 	/**
 	 * Raise an error message.
 	 *
@@ -2344,6 +2335,7 @@ var JS_Asset_Map = new function() {
 			dfx.remove(errorDiv);
 		});
 	};
+
 
 	/**
 	 * Get the default view/parent window of a document.
@@ -2711,14 +2703,19 @@ var JS_Asset_Map = new function() {
 			if (!rootAsset._attributes.link_path) {
 				asset._attributes.link_path = asset._attributes.linkid;
 			} else {
-				asset._attributes.link_path  = rootAsset._attributes.link_path + ',' + asset._attributes.linkid;
+				asset._attributes.link_path = rootAsset._attributes.link_path + ',' + asset._attributes.linkid;
 			}
 
 			assetLine = _formatAsset(asset._attributes);
 			container.appendChild(assetLine);
 		}//end for
 
-		if ((Number(totalAssets) === -1) || (totalAssets > (start + rootAsset.asset.length))) {
+		if (Number(totalAssets) === -1) {
+			if (rootAsset.asset.length === options.assetsPerPage) {
+				var navDownLine = this.drawPaginationTool('down', start, totalAssets);
+				container.appendChild(navDownLine);
+			}
+		} else if (totalAssets > (start + rootAsset.asset.length)) {
 			var navDownLine = this.drawPaginationTool('down', start, totalAssets);
 			container.appendChild(navDownLine);
 		}
@@ -2734,16 +2731,6 @@ var JS_Asset_Map = new function() {
 		refreshQueue = refreshQueue.concat(assetids);
 	};
 
-	/**
-	 * Replace occurrences of an asset in a tree with updated information.
-	 *
-	 * @param {Object} newAsset The new asset info.
-	 * @param {String} assetid  The asset ID to replace.
-	 * @param {Number} [linkid] Only nodes with this linkid will be updated.
-	 *                          (Omit to update all nodes with passed assetid.)
-	 */
-	this.updateAsset = function(newAsset, assetid, linkid) {
-	};
 
 	this.processRefreshQueue = function() {
 		var self = this;
@@ -3473,16 +3460,6 @@ var JS_Asset_Map = new function() {
 
 
 	/**
-	 * Select the asset for "Use Me" mode.
-	 *
-	 * @param {Node} assetNode The asset being selected.
-	 *
-	 */
-	this.selectAssetForUseMe = function(assetNode) {
-	};
-
-
-	/**
 	 * Return TRUE if the asset map is in "Use Me" mode.
 	 *
 	 * @returns {Boolean}
@@ -3616,6 +3593,35 @@ var JS_Asset_Map = new function() {
 
 
 	/**
+	 * Draw "Create Here" menu.
+	 *
+	 * Emitted
+	 *
+	 * @returns {Node}
+	 */
+	this.drawCreateHereMenu = function(moveTarget, callbackFn) {
+		this.clearMenus();
+		var self = this;
+		var container = _createEl('div');
+		dfx.addClass(container, 'assetMapMenu');
+		dfx.addClass(container, 'createHere');
+		dfx.addEvent(container, 'contextmenu', function(e) {
+			e.preventDefault();
+		});
+
+		var menuItem = this.drawMenuItem(js_translate('asset_map_menu_move_here'), null);
+		dfx.addEvent(menuItem, 'click', function(e) {
+			self.clearMenus();
+			if (dfx.isFn(callbackFn) === true) {
+				callbackFn();
+			}
+		});
+		container.appendChild(menuItem);
+
+		return container;
+	};
+
+	/**
 	 * Draw move target menu.
 	 *
 	 * The move target menu pops up after an asset is dragged. It will allow
@@ -3670,6 +3676,7 @@ var JS_Asset_Map = new function() {
 
 		return container;
 	};
+
 
 	/**
 	 * Draw multi-select menu.
@@ -3811,6 +3818,7 @@ var JS_Asset_Map = new function() {
 
 		return container;
 	};
+
 
 	/**
 	 * Draw menu of asset types in a given category (or "flash menu path").
