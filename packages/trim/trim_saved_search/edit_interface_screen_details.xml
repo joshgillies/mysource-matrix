@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.8.12.1 2013/07/09 08:27:57 ewang Exp $
+* $Id: edit_interface_screen_details.xml,v 1.8.12.2 2013/09/02 02:12:11 cupreti Exp $
 *
 */
 -->
@@ -56,6 +56,12 @@
 	<field attribute="download_time_limit">
 		<int width="15" />
 	</field>
+    <field>
+    	<function_call>
+    		<paint_function   name="paintDownloadedFileName"	/>
+    		<process_function name="processDownloadedFileName"	/>
+    	</function_call>
+    </field>
     	<field>
     		<function_call>
     			<paint_function   name="paintSynchCheck"	/>
@@ -78,7 +84,7 @@
     			<process_function name="processSearchFields"	/>
     		</function_call>
     	</field>
-    </section> 
+    </section>
     <section name="Result Fields" write_access="write:attributes">
     	<field>
     		<function_call>
@@ -89,7 +95,7 @@
     	<field attribute="convert_timezone">
     		<boolean true_text="yes" false_text="no" />
     	</field>
-    </section>   
+    </section>
     <section name="Classification Options" write_access="write:attributes">
     <field attribute="classification">
             <text width="35" height="1" />

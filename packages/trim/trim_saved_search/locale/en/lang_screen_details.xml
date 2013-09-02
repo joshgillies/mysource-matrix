@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.9.12.1 2013/07/09 08:27:57 ewang Exp $
+* $Id: lang_screen_details.xml,v 1.9.12.2 2013/09/02 02:12:11 cupreti Exp $
 *
 */
 -->
@@ -74,6 +74,14 @@
 		<display_name>Download Timeout</display_name>
 		<note>Timeout the process if download of a file TRIM conection exceeds the limit in seconds.</note>
 	</field>
+   	<field>
+		<display_name>Record's Filename</display_name>
+		<note>The TRIM record field's value to use to name the downloaded file. If empty, field 'AttachmentId' will be used to name the file.</note>
+   		<function_call>
+   			<paint_function   name="paintDownloadedFileName"	/>
+   			<process_function name="processDownloadedFileName"	/>
+   		</function_call>
+   	</field>
     	<field>
     		<function_call>
     			<paint_function   name="paintSynchCheck"	/>
@@ -100,7 +108,7 @@
     		</function_call>
     	</field>
     	<note>Specify search clauses and use logical operators to combine them.</note>
-    </section> 
+    </section>
     <section name="Result Fields" write_access="write:attributes">
     	<field>
     		<display_name>Result Fields</display_name>
@@ -113,7 +121,7 @@
     		<display_name>Use Local Time</display_name>
     		<note>Convert all Datetime typed result fields from GMT to local time. Outputted format can be customized using keyword modifier date_format. e.g %ds__recCreated^date_format:Y% will print a full numeric representation of a year in local time.</note>
     	</field>
-    </section>   
+    </section>
     <section name="Classification Options" write_access="write:attributes">
     	<field attribute="classification">
 			<display_name>Classification</display_name>
