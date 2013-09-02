@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.27 2013/09/02 22:25:05 lwright Exp $
+* $Id: js_asset_map.js,v 1.28 2013/09/02 22:55:02 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.27 $
+ * @version $Revision: 1.28 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -2068,7 +2068,7 @@ var JS_Asset_Map = new function() {
 			assets.push({
 				_attributes: {
 					assetid: assetNodes[i].getAttribute('data-assetid'),
-					linkid: assetNodes[i].getAttribute('data-linkid'),
+					linkid: decodeURIComponent(assetNodes[i].getAttribute('data-linkid')),
 					parentid: parentid
 				}
 			});
@@ -2916,13 +2916,13 @@ var JS_Asset_Map = new function() {
 						if (!container) {
 							if (dfx.hasClass(assetNode.nextSibling, 'childIndent') === false) {
 								container = _createChildContainer(assetid);
-								container.setAttribute('data-offset', sortOrder);
-								container.setAttribute('data-total', thisAsset._attributes.num_kids);
 								assetNode.parentNode.insertBefore(container, assetNode.nextSibling);
 							}//end if
 						}//end if
 					}//end if
 
+					container.setAttribute('data-offset', sortOrder);
+					container.setAttribute('data-total', thisAsset._attributes.num_kids);
 					container.innerHTML = '';
 					self.drawTree(thisAsset, container, sortOrder, thisAsset._attributes.num_kids);
 				}//end for
@@ -3659,20 +3659,29 @@ var JS_Asset_Map = new function() {
 			self.clearMenus();
 			self.moveAsset(AssetActions.Move, moveTarget.source, moveTarget.selection.parentid, moveTarget.selection.before);
 		});
+
 		container.appendChild(menuItem);
 
 		var menuItem = this.drawMenuItem(js_translate('asset_map_menu_link_here'), null);
-		dfx.addEvent(menuItem, 'click', function(e) {
-			self.clearMenus();
-			self.moveAsset(AssetActions.NewLink, moveTarget.source, moveTarget.selection.parentid, moveTarget.selection.before);
-		});
+		if (moveTarget.selection.parentid === trashFolder) {
+			dfx.addClass(menuItem, 'disabled');
+		} else {
+			dfx.addEvent(menuItem, 'click', function(e) {
+				self.clearMenus();
+				self.moveAsset(AssetActions.NewLink, moveTarget.source, moveTarget.selection.parentid, moveTarget.selection.before);
+			});
+		}
 		container.appendChild(menuItem);
 
 		var menuItem = this.drawMenuItem(js_translate('asset_map_menu_clone_here'), null);
-		dfx.addEvent(menuItem, 'click', function(e) {
-			self.clearMenus();
-			self.moveAsset(AssetActions.Clone, moveTarget.source, moveTarget.selection.parentid, moveTarget.selection.before);
-		});
+		if (moveTarget.selection.parentid === trashFolder) {
+			dfx.addClass(menuItem, 'disabled');
+		} else {
+			dfx.addEvent(menuItem, 'click', function(e) {
+				self.clearMenus();
+				self.moveAsset(AssetActions.Clone, moveTarget.source, moveTarget.selection.parentid, moveTarget.selection.before);
+			});
+		}
 		container.appendChild(menuItem);
 
 		var sep = this.drawMenuSeparator();
