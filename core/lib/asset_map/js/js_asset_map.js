@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.26 2013/09/02 02:03:08 lwright Exp $
+* $Id: js_asset_map.js,v 1.27 2013/09/02 22:25:05 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.26 $
+ * @version $Revision: 1.27 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -1111,7 +1111,7 @@ var JS_Asset_Map = new function() {
 
 			if (assetTarget) {
 				e.preventDefault();
-				e.stopImmediatePropagation();
+				e.stopPropagation();
 				var assetTargetCoords = dfx.getElementCoords(assetTarget);
 				if (self.isInUseMeMode() === true) {
 					// Use me mode. No multi-select, no drag.
@@ -1124,7 +1124,6 @@ var JS_Asset_Map = new function() {
 							var menu = self.drawUseMeMenu(assetTarget);
 							self.positionMenu(menu, dragStatus.startPoint);
 						}
-						e.stopImmediatePropagation();
 					}
 				} else {
 					if (which === 3) {
@@ -3608,6 +3607,7 @@ var JS_Asset_Map = new function() {
 			e.preventDefault();
 		});
 
+		// Create Here.
 		var menuItem = this.drawMenuItem(js_translate('asset_map_menu_create_here'), null);
 		dfx.addEvent(menuItem, 'click', function(e) {
 			self.clearMenus();
@@ -3617,7 +3617,7 @@ var JS_Asset_Map = new function() {
 		});
 		container.appendChild(menuItem);
 
-		// Cancel
+		// Cancel.
 		var menuItem = this.drawMenuItem(js_translate('asset_map_menu_cancel'), null);
 		dfx.addEvent(menuItem, 'click', function(e) {
 			self.clearMenus();
@@ -3626,6 +3626,10 @@ var JS_Asset_Map = new function() {
 
 		return container;
 	};
+
+	this.cancelDrag = function() {
+		dragStatus = null;
+	}
 
 	/**
 	 * Draw move target menu.
@@ -3816,6 +3820,8 @@ var JS_Asset_Map = new function() {
 				self.addAsset('folder', parentid, -1);
 			} else {
 				self.moveMe.enable(null, function(source, selection, e) {
+					self.moveMe.cancel();
+					self.cancelDrag();
 					var createMenu = self.drawCreateHereMenu(function() {
 						self.addAsset('folder', selection.parentid, selection.before);
 					});
@@ -3889,6 +3895,8 @@ var JS_Asset_Map = new function() {
 					self.addAsset(typeCode, parentid, -1);
 				} else {
 					self.moveMe.enable(null, function(source, selection, e) {
+						self.moveMe.cancel();
+						self.cancelDrag();
 						var createMenu = self.drawCreateHereMenu(function() {
 							self.addAsset(typeCode, selection.parentid, selection.before);
 						});
@@ -3901,7 +3909,7 @@ var JS_Asset_Map = new function() {
 				}
 			});
 			container.appendChild(menuItem);
-		}
+		}//end for
 
 		return container;
 	};
