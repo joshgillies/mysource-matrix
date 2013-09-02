@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.359 2013/08/30 01:51:42 cupreti Exp $
+* $Id: listing_engine.inc,v 1.360 2013/09/02 04:39:36 cupreti Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 * @author Andrei Railean <arailean@squiz.net>
 * @author Robert Howard <rhoward@squiz.net>
 *
-* @version $Revision: 1.359 $
+* @version $Revision: 1.360 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1724,7 +1724,7 @@ class Listing_Engine extends Page
 					foreach ($all_letters as $one_letter => $text_value) {
 						if (isset($todo[$one_letter])) {
 							$page_link_format = $this->attr('page_link_format');
-							$letter_link = str_replace(Array('%page_number%', '%page_link%'), Array($text_value, htmlspecialchars(replace_query_string_vars(Array($asset_result_page_var => '#letter_'.$one_letter)))), $page_link_format);
+							$letter_link = str_replace(Array('%page_number%', '%page_link%'), Array($text_value, '#letter_'.$one_letter), $page_link_format);
 							$page_list .= $letter_link;
 							$page_list_without_unused .= $letter_link;
 						} else {
