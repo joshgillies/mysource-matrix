@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_has_children_edit_fns.inc,v 1.1 2013/08/29 06:48:33 ewang Exp $
+* $Id: condition_has_children_edit_fns.inc,v 1.2 2013/09/02 01:39:07 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition_edit_f
 * Based on by condition_asset_type
 * @author Anh Ta <ata@squiz.co.uk>
 * @author  Keith Tait <keith.tait@ed.ac.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -65,9 +65,12 @@ class Condition_Has_Children_Edit_Fns extends Condition_Edit_Fns
 		if (!empty($asset_types)) {
 			$type_list = explode(',', $asset_types);
 		}
-
+		foreach ($type_list as $index => $asset_type) {
+		    $type_list[$index] = trim($asset_type);
+		}
 		if ($write_access) {
 			?><table style="width: auto" border="0" class="no-borders">
+				<tr><td><strong><?php echo translate('asset_type'); ?></strong></td></tr>
 				<tr>
 					<td><?php
 						asset_type_chooser($prefix.'[type_list]', TRUE, $type_list, NULL, FALSE, FALSE, Array('asset'));
@@ -78,7 +81,7 @@ class Condition_Has_Children_Edit_Fns extends Condition_Edit_Fns
 			$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_list, 'name');
 			?><table class="sq-backend-table">
 				<tr>
-					<th><?php echo translate('type') ?></th>
+					<th><?php echo translate('asset_type') ?></th>
 				</tr><?php
 				foreach ($type_list as $type) {
 					?><tr>
@@ -91,6 +94,47 @@ class Condition_Has_Children_Edit_Fns extends Condition_Edit_Fns
 			?></table><?php
 		}
 
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+		$link_types_names = get_link_type_names();
+		$link_types = array_get_index($condition_data, 'link_types', '');
+
+		$link_type_list = Array();
+		if (!empty($link_types)) {
+		    $link_type_list = explode(',', $link_types);
+		    foreach ($link_type_list as $index => $link_type_code) {
+			$link_type_list[$index] = trim($link_type_code);
+		    }
+		}
+		else {
+		    $link_type_list = Array('1', '2');
+		}
+
+		
+		if ($write_access) {
+			?><table style="width: auto" border="0" class="no-borders">
+				<tr><td><strong><?php echo translate('link_type'); ?></strong></td></tr>
+				<tr>
+					<td><?php
+						combo_box($prefix.'[link_types]', $link_types_names, TRUE, $link_type_list);
+					?></td>
+				</tr>
+			</table><?php
+		} else {
+			?><table class="sq-backend-table">
+				<tr>
+					<th><?php echo translate('link_type') ?></th>
+				</tr><?php
+				foreach ($link_type_list as $link_type) {
+					?><tr>
+						<td><?php
+							echo $link_types_names[$link_type];
+						?></td>
+					</tr><?php
+				}
+			?></table><?php
+		}
+		
+		
 	}//end paintEditInterface()
 
 
@@ -108,12 +152,18 @@ class Condition_Has_Children_Edit_Fns extends Condition_Edit_Fns
 		if (!isset($_POST[$prefix]['type_list']) || empty($_POST[$prefix]['type_list'])) {
 			return Array();
 		}
+		
+		$link_types = Array('1', '2');
+		if (isset($_POST[$prefix]['link_types']) && !empty($_POST[$prefix]['link_types'])) {
+			$link_types = $_POST[$prefix]['link_types'];
+		}
 
 		// construct and return data required by this condition
 		// as found in the post data, array required consists of
 		// 'match' and 'condition_data'
 		$results = Array(
 					'types'	=> trim(implode(',', $_POST[$prefix]['type_list']),','),
+					'link_types'	=> trim(implode(',', $link_types),','),
 				   );
 
 		return $results;

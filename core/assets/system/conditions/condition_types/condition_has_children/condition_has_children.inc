@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_has_children.inc,v 1.1 2013/08/29 06:48:33 ewang Exp $
+* $Id: condition_has_children.inc,v 1.2 2013/09/02 01:39:07 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 * Based on by condition_asset_type
 * @author Anh Ta <ata@squiz.co.uk>
 * @author  Keith Tait <keith.tait@ed.ac.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -59,14 +59,28 @@ class Condition_Has_Children extends Condition
 	{
 		if (isset($condition_data['types'])) {
 			$asset_types = explode(',', $condition_data['types']);
+			foreach ($asset_types as $index => $asset_type) {
+			    $asset_types[$index] = trim($asset_type);
+			}
 		}
-		$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, $asset_types, TRUE);
-		if (!empty($children)) {
-		    return TRUE;    
-		} else {
+		else {
 		    return FALSE;
 		}
 
+
+		if (isset($condition_data['link_types'])) {
+			$link_types = explode(',', $condition_data['link_types']);
+			foreach ($link_types as $index => $link_type) {
+			    $link_types[$index] = trim($link_type);
+			}
+		}
+		else {
+		    $link_types = Array('1', '2');
+		}
+
+		$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, $asset_types, TRUE, NULL, NULL, NULL, TRUE, NULL, NULL, TRUE, NULL, $link_types);
+		return !empty($children);
+		
 	}//end evaluate()
 
 
