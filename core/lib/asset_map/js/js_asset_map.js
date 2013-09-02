@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.24 2013/09/01 23:13:19 lwright Exp $
+* $Id: js_asset_map.js,v 1.25 2013/09/02 01:28:47 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.24 $
+ * @version $Revision: 1.25 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -3118,7 +3118,7 @@ var JS_Asset_Map = new function() {
 			dfx.addEvent(dfx.getClass('tree', assetMapContainer), 'mousedown.moveMe', function(e) {
 				e.preventDefault();
 				if (self.selection) {
-					self.doneCallback.call(self, self.source, self.selection);
+					self.doneCallback.call(self, self.source, self.selection, e);
 				}
 
 				// if there's no valid target when they click, then that's too bad.
@@ -3320,8 +3320,6 @@ var JS_Asset_Map = new function() {
 	 * The type filter is either omitted (in which case all assets are selectable),
 	 * or a list of asset types.
 	 *
-	 *
-	 *
 	 * @param {Node}  element
 	 * @param {Array} [typeFilter] The type filter.
 	 *
@@ -3411,6 +3409,7 @@ var JS_Asset_Map = new function() {
 	 *
 	 * @param {Node} assetNode
 	 *
+	 * @returns {Node}
 	 */
 	this.drawUseMeMenu = function(assetNode) {
 		var self    = this;
@@ -3599,7 +3598,7 @@ var JS_Asset_Map = new function() {
 	 *
 	 * @returns {Node}
 	 */
-	this.drawCreateHereMenu = function(moveTarget, callbackFn) {
+	this.drawCreateHereMenu = function(callbackFn) {
 		this.clearMenus();
 		var self = this;
 		var container = _createEl('div');
@@ -3609,7 +3608,7 @@ var JS_Asset_Map = new function() {
 			e.preventDefault();
 		});
 
-		var menuItem = this.drawMenuItem(js_translate('asset_map_menu_move_here'), null);
+		var menuItem = this.drawMenuItem(js_translate('asset_map_menu_create_here'), null);
 		dfx.addEvent(menuItem, 'click', function(e) {
 			self.clearMenus();
 			if (dfx.isFn(callbackFn) === true) {
@@ -3809,8 +3808,15 @@ var JS_Asset_Map = new function() {
 			if (parentid !== undefined) {
 				self.addAsset('folder', parentid, -1);
 			} else {
-				self.moveMe.enable(null, function(source, selection) {
-					self.addAsset('folder', selection.parentid, selection.before);
+				self.moveMe.enable(null, function(source, selection, e) {
+					var createMenu = self.drawCreateHereMenu(function() {
+						self.addAsset('folder', selection.parentid, selection.before);
+					});
+					e.stopImmediatePropagation();
+					self.topDocumentElement(assetMapContainer).appendChild(createMenu);
+					var mousePos = dfx.getMouseEventPosition(e);
+					dfx.setStyle(createMenu, 'left', (mousePos.x) + 'px');
+					dfx.setStyle(createMenu, 'top', (mousePos.y) + 'px');
 				});
 			}
 		});
@@ -3875,8 +3881,15 @@ var JS_Asset_Map = new function() {
 				if (parentid !== undefined) {
 					self.addAsset(typeCode, parentid, -1);
 				} else {
-					self.moveMe.enable(null, function(source, selection) {
-						self.addAsset(typeCode, selection.parentid, selection.before);
+					self.moveMe.enable(null, function(source, selection, e) {
+						var createMenu = self.drawCreateHereMenu(function() {
+							self.addAsset(typeCode, selection.parentid, selection.before);
+						});
+						e.stopImmediatePropagation();
+						self.topDocumentElement(assetMapContainer).appendChild(createMenu);
+						var mousePos = dfx.getMouseEventPosition(e);
+						dfx.setStyle(createMenu, 'left', (mousePos.x) + 'px');
+						dfx.setStyle(createMenu, 'top', (mousePos.y) + 'px');
 					});
 				}
 			});
