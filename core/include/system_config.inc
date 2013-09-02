@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.148.4.3 2013/08/28 01:38:46 ewang Exp $
+* $Id: system_config.inc,v 1.148.4.4 2013/09/02 23:53:44 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.148.4.3 $
+* @version $Revision: 1.148.4.4 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -114,7 +114,7 @@ class System_Config extends Config
 						'SQ_LICENCE_WARRANTY_KEY'				=> Array('editable' => 1, 'default' => ''),
 						'SQ_CONF_COOKIE_OPTION_HTTP_ONLY'		=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_CONF_COOKIE_OPTION_SECURE'			=> Array('editable' => 1, 'default' => FALSE),
-						'SQ_CONF_ENFORCE_FRAME_SAMEORIGIN'		=> Array('editable' => 1, 'default' => '1'),
+						'SQ_CONF_ENFORCE_FRAME_SAMEORIGIN'		=> Array('editable' => 1, 'default' => '0'),
 					   );
 
 	/**
