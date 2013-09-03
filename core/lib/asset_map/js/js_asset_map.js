@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.28 2013/09/02 22:55:02 lwright Exp $
+* $Id: js_asset_map.js,v 1.29 2013/09/03 06:05:13 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.28 $
+ * @version $Revision: 1.29 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -1145,7 +1145,7 @@ var JS_Asset_Map = new function() {
 
 							self.positionMenu(menu, dragStatus.startPoint);
 						}
-					} else if (which === 1) {
+					} else if (which === 1) {						
 						if ((e.shiftKey === true) && (options.simple === false)) {
 							// Shift-left click.
 							self.shiftSelectAssetNode(assetTarget, e);
@@ -1156,7 +1156,7 @@ var JS_Asset_Map = new function() {
 						} else {
 							// Left click. Possible drag. If clicked asset is already selected,
 							// maintain current selection, otherwise deselect all previous
-							// selection and select this one.
+							// selection and select this one.														
 							if (dfx.hasClass(assetTarget, 'selected') === false) {
 								self.selectAssetNode(assetTarget);
 							}
@@ -1459,12 +1459,13 @@ var JS_Asset_Map = new function() {
 					}
 					if (Math.abs(e.clientX - dragStatus.startPoint.x) < 2 &&
 						Math.abs(e.clientY - dragStatus.startPoint.y) < 2) {
-						// Treat as a click.
+						// Treat as a click.						
 						self.clearSelection();
 					}
 
 					clearInterval(timeouts.selectionDrag);
 					timeouts.selectionDrag = null;
+					timeouts.dblClick = null;
 				} else if (dragStatus.assetDrag) {
 					dfx.removeClass(dfx.getClass('paginationTool', assetMapContainer), 'selected');
 					self.clearHoverAsset();
@@ -1486,6 +1487,27 @@ var JS_Asset_Map = new function() {
 							}
 							self.moveMe.cancel();
 						}//end if (move me active)
+					} else {
+						var initialAsset = dragStatus.assetDrag.initialAsset;
+						if (timeouts.dblClick) {							
+							// Double click.							
+							if (timeouts.dblClick.assetid === initialAsset.getAttribute('data-assetid')) {
+								if (dfx.getClass('branch-status', initialAsset).length > 0) {
+									self.expandAsset(initialAsset);
+								}
+								self.cancelDrag();
+							}
+							timeouts.dblClick.assetid = null;
+						}
+						
+						if (!timeouts.dblClick) {
+							timeouts.dblClick = {
+								assetid: dragStatus.assetDrag.initialAsset.getAttribute('data-assetid'),
+								id: setTimeout(function() {
+									timeouts.dblClick = null;  
+								}, 490)
+							};
+						}
 					}//end if (dragged by enough)
 
 					e.stopImmediatePropagation();
@@ -2630,7 +2652,7 @@ var JS_Asset_Map = new function() {
 		var treeList = _createEl('div');
 		dfx.addClass(treeList, 'tree-list');
 
-		var tree1 = _createEl('div');
+		var tree1 = _createEl('span');
 		dfx.addClass(tree1, 'tab');
 		tree1.setAttribute('data-treeid', 0);
 		tree1.innerHTML = js_translate('asset_map_tree1_name');
@@ -2641,7 +2663,7 @@ var JS_Asset_Map = new function() {
 			}
 		});
 
-		var tree2 = _createEl('div');
+		var tree2 = _createEl('span');
 		dfx.addClass(tree2, 'tab');
 		tree2.setAttribute('data-treeid', 1);
 		tree2.innerHTML = js_translate('asset_map_tree2_name');
