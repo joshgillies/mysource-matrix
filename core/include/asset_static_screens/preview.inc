@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: preview.inc,v 1.40.8.1 2013/08/28 01:30:57 ewang Exp $
+* $Id: preview.inc,v 1.40.8.2 2013/09/03 03:26:57 ewang Exp $
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -19,7 +19,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Preview Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.40.8.1 $
+* @version $Revision: 1.40.8.2 $
 * @package MySource_Matrix
 */
 
@@ -119,13 +119,21 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 		}
 
 		$primary_url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($owner->id, $current_root_url);
+
+		// we can't preview primary url from other domain in frame
+		$open_in_new_window = FALSE;
+		if(SQ_CONF_ENFORCE_FRAME_SAMEORIGIN) {
+		    $primary_url_data = parse_url($primary_url);
+		    $primary_url_no_protocol = array_get_index($primary_url_data, 'host',  '').array_get_index($primary_url_data, 'path', '');
+		     if(strpos($primary_url_no_protocol, $current_root_url) !== 0) {
+			$open_in_new_window = TRUE; 
+		     }
+		}
 		foreach ($url_data as $url_info) {
 			$protocol_list = Array();
 
-			// we can't preview pages in other root domain it's a security issue
-			if(SQ_CONF_ENFORCE_FRAME_SAMEORIGIN)
-			    if(strpos($url_info['url'], $current_root_url) !== 0) continue;
-			    
+
+			
 			if ($url_info['https']) {
 				$protocol_list['https'] = 'https://';
 			}
@@ -135,6 +143,12 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 
 			foreach ($protocol_list as $protocol) {
 				$preview_urls[$protocol.$url_info['url']] = $protocol.$url_info['url'];
+				// we can't preview pages in other root domain in frame
+				if(SQ_CONF_ENFORCE_FRAME_SAMEORIGIN) {
+				    if(strpos($url_info['url'], $current_root_url) !== 0) {
+					$preview_urls[$protocol.$url_info['url']] .= ' (open in new window)';
+				    }
+				}
 
 				if (empty($primary_url)) {
 					$primary_url = $protocol.$url_info['url'];
@@ -179,10 +193,23 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 				var preview_url = '<?php echo str_replace("'", "\'", $primary_url); ?>';
 				var xmlHttp = null;
 				var url_calculate;
+				var open_new_window = <?php echo $open_in_new_window ? 'true' : 'false';  ?>
 
+				if(open_new_window) {
+				    window.open(preview_url);
+				}
+				
 				function update_preview_url()
 				{
 					var url = document.getElementById('preview_url').value;
+					var url_key = document.getElementById('preview_url').options[document.getElementById('preview_url').selectedIndex].text;
+					
+					if(/open\sin\snew\swindow/.test(url_key) ) {
+					    open_new_window = true;
+					}
+					else {
+					    open_new_window = false;
+					}
 					var query_args = [];
 
 					var uc = document.getElementById('use_cache');
@@ -223,7 +250,12 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 
 				function do_preview()
 				{
-					document.getElementById('sq_preview_frame').src = preview_url;
+					if(open_new_window) {
+					    window.open(preview_url);
+					}
+					else {
+					    document.getElementById('sq_preview_frame').src = preview_url;
+					}
 				}
 
 				function get_size() {
@@ -286,7 +318,7 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 		<?php
 		//Bug #4708 openRaw and closeRaw incompatible in LIMBO mode with buffering OFF as they behave as sections (creating tables).
 		if (!((!$o->_buffering) && SQ_IN_LIMBO)) $o->closeRaw();
-		
+
 		$o->openSection(translate('preview_options'));
 			$o->openField(translate('url'));
 				if (count($preview_urls) > 1) {
@@ -337,11 +369,13 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 				$o->closeField();
 			}
 			$o->openField('');
-				?>
-				<i><?php echo translate('preview_change_options'); ?></i>
-				<?php
-				if ($contains_diff_domain && !$owner->effectiveUnrestricted()) {
+				if($contains_diff_domain) {
+				    if(SQ_CONF_ENFORCE_FRAME_SAMEORIGIN) {
+					echo translate('different_domain_preview_new_window');
+				    }
+				    else if (!$owner->effectiveUnrestricted()) {
 					echo translate('different_domain_login', $current_url['host']);
+				    }
 				}
 			$o->closeField();
 		
