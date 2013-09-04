@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.30 2013/09/04 03:30:12 lwright Exp $
+* $Id: js_asset_map.js,v 1.31 2013/09/04 05:56:45 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.30 $
+ * @version $Revision: 1.31 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -613,10 +613,14 @@ var JS_Asset_Map = new function() {
 
 		if (options.initialSelection !== '') {
 			var selParts = options.initialSelection.split('~');
-			options.initialSelection = {
-				assetids: selParts[0].split('|'),
-				sortOrders: selParts[1].split('|')
-			};
+			options.initialSelection = null;
+			
+			if ((selParts[0].length > 0) && (selParts[1].length > 0)) {
+				options.initialSelection = {
+					assetids: selParts[0].split('|'),
+					sortOrders: selParts[1].split('|')
+				};						
+			}
 		} else {
 			options.initialSelection = null;
 		}
