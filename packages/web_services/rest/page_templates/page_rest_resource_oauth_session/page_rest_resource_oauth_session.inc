@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rest_resource_oauth_session.inc,v 1.10 2012/09/11 00:27:44 ewang Exp $
+* $Id: page_rest_resource_oauth_session.inc,v 1.11 2013/09/04 03:26:47 akarelia Exp $
 *
 */
 
@@ -54,10 +54,6 @@ class Page_REST_Resource_OAuth_Session extends Page_REST_Resource
 	public function printBody()
 	{
 
-		// let the user decide if they want Matrix to do keyword replacements on the response. See  bug
-		// #5701 Minor Enhancement : Allow REST resources assets to stop replacing keywords in response
-		$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_REPLACE_MYSOURCE_LEVEL_KEYWORDS', $this->attr('allow_global_replace'));
-
 		// reset the oauth related session variables to restart the oauth authorization process in one of the following cases:
 		// - if the user click on 'Reset Existing Authorization Data'
 		// if only request token is available but not access token, which is likely the case that the user didn't complete the authorization process earlier
@@ -73,7 +69,6 @@ class Page_REST_Resource_OAuth_Session extends Page_REST_Resource
 		// if access token is available, the contents should be controlled in paint layout
 		// using oauth_access_token_available keyword
 		if (!$this->isAccessTokenAvailable()) {
-	
 			if (!empty($this->_res['responses'])) {
 				foreach ($this->_res['responses'] as &$resp) {
 					// if the http code of the response is over 400, it's an error
@@ -81,6 +76,16 @@ class Page_REST_Resource_OAuth_Session extends Page_REST_Resource
 					if ($resp['info']['http_code'] >= 400) {
 						$this->resetOAuthSessionVariables();
 					} else {
+						// if we are asked to not allows the keyword replacement on this  response body then
+						// convert the % sign into the  html entity but only  for the %  signs that are part
+						// are part of the text that appears to be keyword like. Bug fix #6505 REST resource
+						// option to  'Allow Keyword replacement'  can stop all the keywords  from replacing
+						if (!$this->attr('allow_global_replace')) {
+							$pattern = '/(%)([a-zA-Z_\-0-9\.^%\^:]*)(%)/';
+							$replacement = '&#37;$2&#37;';
+							$resp['body'] = preg_replace($pattern, $replacement, $resp['body']);
+						}
+
 						// the response is likely to be authorization/login display provided by the service provider 
 						echo $resp['body'];
 					}

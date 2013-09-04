@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rest_resource_oauth_two_legged.inc,v 1.3 2012/08/30 00:59:46 ewang Exp $
+* $Id: page_rest_resource_oauth_two_legged.inc,v 1.4 2013/09/04 03:26:47 akarelia Exp $
 *
 */
 
@@ -53,12 +53,8 @@ class Page_REST_Resource_OAuth_Two_Legged extends Page_REST_Resource
 	 */
 	public function printBody()
 	{
-		// let the user decide if they want Matrix to do keyword replacements on the response. See  bug
-		// #5701 Minor Enhancement : Allow REST resources assets to stop replacing keywords in response
-		$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_REPLACE_MYSOURCE_LEVEL_KEYWORDS', $this->attr('allow_global_replace'));
 
 	}//end printBody()
-
 
 	/**
 	 * Process the requests.
@@ -70,6 +66,7 @@ class Page_REST_Resource_OAuth_Two_Legged extends Page_REST_Resource
 	{
 
 	}//end _process()
+
 
 	/**
 	 * Get Authorization Headers for user data access
