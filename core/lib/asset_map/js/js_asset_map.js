@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.29 2013/09/03 06:05:13 lwright Exp $
+* $Id: js_asset_map.js,v 1.30 2013/09/04 03:30:12 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.29 $
+ * @version $Revision: 1.30 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -512,46 +512,82 @@ var JS_Asset_Map = new function() {
 
 
 	this.isSupported = function() {
+		var ver       = this.getBrowserVersion();
 		var supported = false;
-		var version   = null;
+		
+		switch (ver.browser) {
+			case 'IE':
+				if (ver.version >= 8) {
+					supported = true;
+				}
+			break;
+			
+			case 'Chrome':
+				if (ver.version >= 10) {
+					supported = true;
+				}
+			break;
+			
+			case 'Webkit':
+				if (ver.version >= 533) {
+					supported = true;
+				}
+			break;
+			
+			case 'Gecko':
+				if (ver.version >= 17) {
+					supported = true;
+				}
+			break;
+			
+			default:
+				// No default.
+			break;
+		}//end switch
+
+		return supported;
+	};
+	
+	
+	this.getBrowserVersion = function() {
+		var retval = {
+			browser: null,
+			version: null
+		};
 		var browser   = navigator.userAgent;
 		if (browser.indexOf('Trident/') !== -1) {
 			// IE (8+): We first look for a "rv:11.0" match for IE11+, then
 			// "MSIE 10.0" etc.
 			// If we are less than IE8, we wouldn't hit this section because the
 			// Trident token only existed from IE8 onward.
-			version = /rv:([\d.]+)/.exec(browser);
-			if (!version) {
-				version = /MSIE ([\d.]+)/.exec(browser);
+			retval.browser = 'IE';
+			retval.version = /rv:([\d.]+)/.exec(browser);
+			if (!retval.version) {
+				retval.version = parseFloat(/MSIE ([\d.]+)/.exec(browser)[1]);
 			}
 
-			if (version && (parseFloat(version[1]) >= 8)) {
+			if (retval.version && (retval.version >= 8)) {
 				// If IE8+ detected, make sure we aren't in compatibility view.
-				if ((document.documentMode == 0) || (document.documentMode >= 8)) {
-					supported = true;
+				// If we are, then downgrade our version expectations.
+				if ((document.documentMode > 0) || (document.documentMode < retval.version)) {
+					retval.version = parseFloat(document.documentMode);
 				}
 			}
 		} else if (browser.indexOf('Chrome/') !== -1) {
 			// Chrome - Separated because of Blink.
-			version = /Chrome\/([\d.]+)/.exec(browser);
-			if (version && (parseFloat(version[1]) >= 10)) {
-				supported = true;
-			}
+			retval.browser = 'Chrome';
+			retval.version = parseFloat(/Chrome\/([\d.]+)/.exec(browser)[1]);
 		} else if (browser.indexOf('AppleWebKit/') !== -1) {
 			// Other Webkit browsers.
-			version = /AppleWebKit\/([\d.]+)/.exec(browser);
-			if (version && (parseFloat(version[1]) >= 529)) {
-				supported = true;
-			}
+			retval.browser = 'Webkit';
+			retval.version = parseFloat(/AppleWebKit\/([\d.]+)/.exec(browser)[1]);			
 		} else if (browser.indexOf('Gecko/') !== -1) {
 			// Other Gecko-based browsers.
-			version = /rv:([\d.]+)/.exec(browser);
-			if (version && (parseFloat(version[1]) >= 17)) {
-				supported = true;
-			}
+			retval.browser = 'Gecko';
+			retval.version = parseFloat(/rv:([\d.]+)/.exec(browser)[1]);
 		}
 
-		return supported;
+		return retval;
 	};
 
 
@@ -583,6 +619,15 @@ var JS_Asset_Map = new function() {
 			};
 		} else {
 			options.initialSelection = null;
+		}
+		
+		// If IE 8, set an "old IE" class so we can do some tweaks (eg. different
+		// ways of handling tab rotation) in non-recent browsers
+		var browserVer = this.getBrowserVersion();
+		if ((browserVer.browser === 'IE') && (browserVer.version < 9)) {
+			dfx.addClass(assetMapContainer, 'oldIE');
+		} else {
+			dfx.addClass(assetMapContainer, 'modern');
 		}
 
 		// Draw two trees only.
@@ -683,6 +728,15 @@ var JS_Asset_Map = new function() {
 		options.simple       = true;
 		dfx.addClass(assetMapContainer, 'simple');
 
+		// If IE 8, set an "old IE" class so we can do some tweaks (eg. different
+		// ways of handling tab rotation) in non-recent browsers
+		var browserVer = this.getBrowserVersion();
+		if ((browserVer.browser === 'IE') && (browserVer.version < 9)) {
+			dfx.addClass(assetMapContainer, 'oldIE');
+		} else {
+			dfx.addClass(assetMapContainer, 'modern');
+		}
+		
 		// Simple asset map is one tree only, and the toolbar has no add menu.
 		this.drawToolbar(false);
 		this.drawTreeContainer(0);
