@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rest_resource.inc,v 1.9.6.2 2013/08/15 05:45:37 ewang Exp $
+* $Id: page_rest_resource.inc,v 1.9.6.3 2013/09/04 03:34:09 akarelia Exp $
 *
 */
 
@@ -59,7 +59,6 @@ class Page_REST_Resource extends Page
 
 	}//end constructor
 
-
 	 
 
 	/**
@@ -77,10 +76,6 @@ class Page_REST_Resource extends Page
 		// Run the request(s).
 		$this->_process();
 
-		// let the user decide if they want Matrix to do keyword replacements on the response. See  bug
-		// #5701 Minor Enhancement : Allow REST resources assets to stop replacing keywords in response
-		$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_REPLACE_MYSOURCE_LEVEL_KEYWORDS', $this->attr('allow_global_replace'));
-
 		if (!empty($this->_res['responses'])) {
 			if ($this->attr('send_headers')) {
 				foreach ($this->_response_headers as $h) {
@@ -97,6 +92,15 @@ class Page_REST_Resource extends Page
 				if ($resp['info']['http_code'] >= 400 && !empty($error_response)) {
 					echo $error_response;
 				} else {
+					// if we are asked to not allows the keyword replacement on this  response body then
+					// convert the % sign into the  html entity but only  for the %  signs that are part
+					// are part of the text that appears to be keyword like. Bug fix #6505 REST resource
+					// option to  'Allow Keyword replacement'  can stop all the keywords  from replacing
+					if (!$this->attr('allow_global_replace')) {
+						$pattern = '/(%)([a-zA-Z_\-0-9\.^%\^:]*)(%)/';
+						$replacement = '&#37;$2&#37;';
+						$resp['body'] = preg_replace($pattern, $replacement, $resp['body']);
+					}
 					echo $resp['body'];
 				}
 			}

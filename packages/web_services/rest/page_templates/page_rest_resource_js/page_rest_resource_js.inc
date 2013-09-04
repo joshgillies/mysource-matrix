@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rest_resource_js.inc,v 1.13 2013/02/18 05:39:53 ewang Exp $
+* $Id: page_rest_resource_js.inc,v 1.13.2.1 2013/09/04 03:34:09 akarelia Exp $
 *
 */
 
@@ -56,9 +56,6 @@ class Page_REST_Resource_JS extends Page_REST_Resource
 	{
 		// Run the request(s).
 		$this->_process();
-		// let the user decide if they want Matrix to do keyword replacements on the response. See  bug
-		// #5701 Minor Enhancement : Allow REST resources assets to stop replacing keywords in response
-		$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_REPLACE_MYSOURCE_LEVEL_KEYWORDS', $this->attr('allow_global_replace'));
 
 		$this->_processJavascript();
 
@@ -80,6 +77,16 @@ class Page_REST_Resource_JS extends Page_REST_Resource
 			// Mostly the body doesn't want an XML declaration, as this chokes E4X in JS.
 			// response.bodyx is available with any XML declaration removed.
 			foreach ($this->_res['responses'] as &$resp) {
+				// if we are asked to not allows the keyword replacement on this  response body then
+				// convert the % sign into the  html entity but only  for the %  signs that are part
+				// are part of the text that appears to be keyword like. Bug fix #6505 REST resource
+				// option to  'Allow Keyword replacement'  can stop all the keywords  from replacing
+				if (!$this->attr('allow_global_replace')) {
+					$pattern = '/(%)([a-zA-Z_\-0-9\.^%\^:]*)(%)/';
+					$replacement = '&#37;$2&#37;';
+					$resp['body'] = preg_replace($pattern, $replacement, $resp['body']);
+				}
+
 				$resp['bodyx'] = preg_replace("/^<\?xml\s.*\?>/", "", $resp['body']); 
 			}
 			if (!function_exists('json_encode')) {
