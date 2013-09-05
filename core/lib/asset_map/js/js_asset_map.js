@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.34 2013/09/05 02:41:55 lwright Exp $
+* $Id: js_asset_map.js,v 1.35 2013/09/05 06:46:31 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.34 $
+ * @version $Revision: 1.35 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -2596,6 +2596,7 @@ var JS_Asset_Map = new function() {
 		if (direction === 'up') {
 			var tb1Button = _createEl('div');
 			dfx.addClass(tb1Button, 'page-button previous-page');
+			tb1Button.setAttribute('title', 'Previous page');
 			dfx.addEvent(tb1Button, 'click', function() {
 				textSpan.innerHTML = js_translate('asset_map_status_bar_requesting');
 				self.pageContainer(pageDiv.parentNode, Math.max(0, (offset - options.assetsPerPage)), totalAssets);
@@ -2603,6 +2604,7 @@ var JS_Asset_Map = new function() {
 
 			var tb2Button = _createEl('div');
 			dfx.addClass(tb2Button, 'page-button first-page');
+			tb2Button.setAttribute('title', 'First page');
 			dfx.addEvent(tb2Button, 'click', function() {
 				textSpan.innerHTML = js_translate('asset_map_status_bar_requesting');
 				self.pageContainer(pageDiv.parentNode, 0, totalAssets);
@@ -2610,17 +2612,24 @@ var JS_Asset_Map = new function() {
 		} else {
 			var tb1Button = _createEl('div');
 			dfx.addClass(tb1Button, 'page-button next-page');
+			tb1Button.setAttribute('title', 'Next page');
 			dfx.addEvent(tb1Button, 'click', function() {
 				textSpan.innerHTML = js_translate('asset_map_status_bar_requesting');
 				self.pageContainer(pageDiv.parentNode, Math.min(lastPageStart, (offset + options.assetsPerPage)), totalAssets);
 			});
 
 			var tb2Button = _createEl('div');
-			dfx.addClass(tb2Button, 'page-button last-page');
-			dfx.addEvent(tb2Button, 'click', function() {
-				textSpan.innerHTML = js_translate('asset_map_status_bar_requesting');
-				self.pageContainer(pageDiv.parentNode, lastPageStart, totalAssets);
-			});
+			if (totalAssets > -1) {
+				dfx.addClass(tb2Button, 'page-button last-page');
+				tb2Button.setAttribute('title', 'Last page');			
+				dfx.addEvent(tb2Button, 'click', function() {
+					textSpan.innerHTML = js_translate('asset_map_status_bar_requesting');
+					self.pageContainer(pageDiv.parentNode, lastPageStart, totalAssets);
+				});
+			} else {
+				// Don't show last page button if shadow asset.
+				dfx.addClass(tb2Button, 'page-button');
+			}
 		}
 
 		pageDiv.appendChild(tb1Button);
@@ -2766,6 +2775,11 @@ var JS_Asset_Map = new function() {
 			var navUpLine = this.drawPaginationTool('up', start, totalAssets);
 			container.appendChild(navUpLine);
 		}
+		
+		// If no child assets were passed at all, fill it with an empty array.
+		if (!rootAsset.asset) {
+			rootAsset.asset = [];
+		}
 
 		for (var i = 0; i < rootAsset.asset.length; i++) {
 			var asset  = rootAsset.asset[i];
@@ -2841,7 +2855,7 @@ var JS_Asset_Map = new function() {
 				thisAsset._attributes.type_code  = decodeURIComponent(thisAsset._attributes.type_code.replace(/\+/g, '%20'));
 
 				var assetid    = thisAsset._attributes.assetid;
-				var assetNodes = dfx.find(assetMapContainer, 'div.asset[data-assetid=' + assetid  + ']');
+				var assetNodes = dfx.find(assetMapContainer, 'div.asset[data-assetid="' + assetid  + '"]');
 				for (var j = 0; j < assetNodes.length; j++) {
 					var assetNode     = assetNodes[j];
 					var newNode       = _formatAsset(thisAsset._attributes);
@@ -2988,11 +3002,11 @@ var JS_Asset_Map = new function() {
 					if (String(assetid) === '1') {
 						container = tree;
 					} else {
-						var assetNode    = dfx.find(tree, 'div.asset[data-assetid=' + assetid  + ']')[0];
+						var assetNode    = dfx.find(tree, 'div.asset[data-assetid="' + assetid  + '"]')[0];
 						var branchButton = dfx.getClass('branch-status', assetNode);
 						dfx.addClass(branchButton, 'expanded');
 
-						container = dfx.find(tree, 'div.childIndent[data-parentid=' + assetid  + ']')[0];
+						container = dfx.find(tree, 'div.childIndent[data-parentid="' + assetid  + '"]')[0];
 						if (!container) {
 							if (dfx.hasClass(assetNode.nextSibling, 'childIndent') === false) {
 								container = _createChildContainer(assetid);
@@ -3036,7 +3050,7 @@ var JS_Asset_Map = new function() {
 		while (assetids.length > 0) {
 			var assetid    = assetids.shift();
 			var sortOrder  = sortOrders.shift();
-			var assetLines = dfx.find(container, 'div[data-assetid=' + assetid + ']');
+			var assetLines = dfx.find(container, 'div[data-assetid="' + assetid + '"]');
 
 			if (assetLines.length === 0) {
 				this.raiseError(js_translate('asset_map_error_locate_asset', savedAssets.pop()));
@@ -3055,7 +3069,7 @@ var JS_Asset_Map = new function() {
 						assetids.unshift(assetid);
 						break;
 					} else {
-						var nextAsset = dfx.find(container, 'div[data-assetid=' + assetids[0] + ']');
+						var nextAsset = dfx.find(container, 'div[data-assetid="' + assetids[0] + '"]');
 						if (nextAsset.length === 0) {
 							dfx.remove(container);
 							assetids.unshift(assetid);
@@ -3105,7 +3119,7 @@ var JS_Asset_Map = new function() {
 					self.drawTree(thisAsset, container, sortOrder, thisAsset._attributes.num_kids);
 
 					var nextAssetid = allAssetids[i];
-					assetLine       = dfx.find(container, 'div[data-assetid=' + nextAssetid + ']')[0];
+					assetLine       = dfx.find(container, 'div[data-assetid="' + nextAssetid + '"]')[0];
 
 					if (i < (response.asset.length - 1)) {
 						dfx.addClass(assetLine, 'located');
