@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.98.4.1 2013/07/18 05:12:43 akarelia Exp $
+* $Id: wysiwyg.inc,v 1.98.4.2 2013/09/05 06:49:52 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.98.4.1 $
+* @version $Revision: 1.98.4.2 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -1170,6 +1170,11 @@ if (SQ_CONF_DEFAULT_CHARACTER_SET != 'utf-8') {
 					current_location = current_location.replace(/\&/gi, "&amp;");
 					re = new RegExp(current_location, "gi");
 					html = html.replace(re, "");
+
+					// any other links	 
+					e = 'http[s]?://<?php echo $_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF']?>';	 
+					re = new RegExp(e, "gi");	 
+					html = html.replace(re, "./");
 
 					return html;
 				};
