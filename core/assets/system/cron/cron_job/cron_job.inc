@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job.inc,v 1.64 2012/10/16 04:37:34 cupreti Exp $
+* $Id: cron_job.inc,v 1.65 2013/09/05 00:51:04 ewang Exp $
 *
 */
 
@@ -32,7 +32,7 @@ define('SQ_CRON_JOB_RETRY',			16);// cron job requests to be retried (only valid
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -997,7 +997,11 @@ class Cron_Job extends Asset
 				$interval = $val[1];
 				$interval_unit = $val[2];
 				$next_run = $old_run + ($interval * $interval_unit);
-
+				if($next_run <= $old_run) {
+				    $ti = $next_run - $old_run;
+				    trigger_error('Invalid Repeat Time Interval ('.$ti.'s) set on this cron job #'.$this->id);
+				    return;
+				}
 				while ($next_run < time()) {
 					// if this is a long running job, and we cannot start because it is still running
 					// then we have to skip a few turns to make sure next run time is in the future
