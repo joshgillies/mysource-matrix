@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_clear_squid_cache.inc,v 1.14.4.2 2013/09/05 00:51:57 ewang Exp $
+* $Id: hipo_job_tool_clear_squid_cache.inc,v 1.14.4.3 2013/09/05 01:52:58 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.14.4.2 $
+* @version $Revision: 1.14.4.3 $
 * @package MySource_Matrix
 * @subpackage squid
 */
@@ -148,9 +148,9 @@ class HIPO_Job_Tool_Clear_Squid_Cache extends HIPO_Job
 		$this->_running_vars['url_port'] = SQ_TOOL_SQUID_URL_PORT;
 
 		// For backward compatibility
-		if ($this->_running_vars['cascade'] === '1') {
+		if ($this->_running_vars['cascade'] === '1' || $this->_running_vars['cascade'] === TRUE ) {
 			$this->_running_vars['cascade'] = 'children';
-		} else if ($this->_running_vars['cascade'] === '0') {
+		} else if ($this->_running_vars['cascade'] === '0' || $this->_running_vars['cascade'] === FALSE ) {
 			$this->_running_vars['cascade'] = 'single';
 		}
 
