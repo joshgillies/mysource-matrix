@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.31 2013/09/04 05:56:45 lwright Exp $
+* $Id: js_asset_map.js,v 1.32 2013/09/05 00:58:05 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.31 $
+ * @version $Revision: 1.32 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -1453,7 +1453,7 @@ var JS_Asset_Map = new function() {
 								underlyingEl = underlyingAsset;
 							}
 
-							if (underlyingEl && (dfx.hasClass(underlyingel, 'dragAsset') === true)) {
+							if (underlyingEl && (dfx.hasClass(underlyingEl, 'dragAsset') === true)) {
 								underlyingEl = null;
 							} else {
 								dfx.removeClass(dfx.getClass('paginationTool', assetMapContainer), 'selected');
@@ -2853,7 +2853,7 @@ var JS_Asset_Map = new function() {
 
 					assetNode.parentNode.replaceChild(newNode, assetNode);
 				}//end for
-
+				
 				var expansions = dfx.find(assetMapContainer, '.childIndent[data-parentid="' + assetid + '"]');
 				if (expansions.length > 0) {
 					treeRefresh.push(assetid);
@@ -3015,7 +3015,7 @@ var JS_Asset_Map = new function() {
 					action: 'get assets'
 				},
 				asset: assetRequests
-			}, processAssets);
+			}, processAssets, function() {});
 		}//end if
 	};
 
@@ -4076,7 +4076,7 @@ var JS_Asset_Map = new function() {
 	 * @param {Object}   command  The command (and params) to request.
 	 * @param {Function} callback The callback function.
 	 */
-	this.doRequest = function(command, callback) {
+	this.doRequest = function(command, callback, failedCallback) {
 		url = options.rootEditUrl + '/?SQ_BACKEND_PAGE=asset_map_request&json=1';
 		//url = '.' + '?SQ_BACKEND_PAGE=asset_map_request&json=1';
 		var xhr = new XMLHttpRequest();
@@ -4093,7 +4093,12 @@ var JS_Asset_Map = new function() {
 					} catch (ex) {
 						// That we made it here means it couldn't be handled.
 						self.message(js_translate('asset_map_status_bar_error_requesting'), false, 2000);
-						self.raiseError(ex.message);
+						if (dfx.isFn(failedCallback) === true) {
+							callback(ex);
+						} else {
+							self.raiseError(ex.message);
+						}
+						
 						return;
 					}
 

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.324 2013/09/04 05:56:45 lwright Exp $
+* $Id: asset_map.inc,v 1.325 2013/09/05 00:58:05 lwright Exp $
 *
 */
 require_once(SQ_LIB_PATH.'/xml_array/xml_array.inc');
@@ -23,7 +23,7 @@ require_once(SQ_LIB_PATH.'/xml_array/xml_array.inc');
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.324 $
+* @version $Revision: 1.325 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -1521,6 +1521,17 @@ class Asset_Map
 		//$root = $output->addRoot('assets', '');
 		$done = Array();
 
+		$debug = array();
+		foreach ($input->children() as $k => $v) {
+			// get all the attribute values
+			$tmp_info = Array();
+			foreach ($v->attributes() as $a => $b) {
+				$tmp_info[$a] = urldecode((string)$b);
+			}
+			$debug[] = $tmp_info['assetid'].' - '.$tmp_info['linkid'].' - '.$tmp_info['start'].' - '.$tmp_info['limit'];
+		}
+		error_log(var_export($debug, TRUE));
+		
 		// go through the kids and add them to the $root
 		foreach ($input->children() as $k => $v) {
 
