@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.32 2013/09/05 00:58:05 lwright Exp $
+* $Id: js_asset_map.js,v 1.33 2013/09/05 01:03:29 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.32 $
+ * @version $Revision: 1.33 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -4094,7 +4094,7 @@ var JS_Asset_Map = new function() {
 						// That we made it here means it couldn't be handled.
 						self.message(js_translate('asset_map_status_bar_error_requesting'), false, 2000);
 						if (dfx.isFn(failedCallback) === true) {
-							callback(ex);
+							failedCallback(ex);
 						} else {
 							self.raiseError(ex.message);
 						}
