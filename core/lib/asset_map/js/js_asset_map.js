@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.35 2013/09/05 06:46:31 lwright Exp $
+* $Id: js_asset_map.js,v 1.36 2013/09/05 06:53:59 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.35 $
+ * @version $Revision: 1.36 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -2629,6 +2629,7 @@ var JS_Asset_Map = new function() {
 			} else {
 				// Don't show last page button if shadow asset.
 				dfx.addClass(tb2Button, 'page-button');
+				tb2Button.setAttribute('title', 'Last page is not available on Bridge assets');
 			}
 		}
 
