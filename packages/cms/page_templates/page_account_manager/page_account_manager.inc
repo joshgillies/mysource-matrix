@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.78 2012/08/30 00:58:08 ewang Exp $
+* $Id: page_account_manager.inc,v 1.78.6.1 2013/09/05 03:20:25 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.78 $
+* @version $Revision: 1.78.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -141,6 +141,41 @@ class Page_Account_Manager extends Page_Asset_Builder
 
 		}// end if
 
+		// Create / remove layouts for the logged in customisation
+		if ($this->id && !$GLOBALS['SQ_SYSTEM']->am->assetInTrash($this->id, TRUE)) {
+			$customise_logged_in  = $this->attr('customise_logged_in');
+			$type_code_to_create  = array_keys($this->attr('create_type'));
+			$type_code_to_create  = $type_code_to_create[0];
+			$current_layout_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'layout', TRUE, 'major');
+			$current_layouts = Array();
+
+			if (!empty($current_layout_links)) {
+				foreach ($current_layout_links as $link) {
+					if (strpos($link['value'], '_logged_in_customisation') === FALSE) continue;
+					if ($customise_logged_in && $link['value'] === $type_code_to_create.'_logged_in_customisation') {
+						$current_layouts[] = $link['value'];
+					} else {
+						$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid']);
+					}
+				}
+			}
+
+			if ($customise_logged_in && empty($current_layouts)) {
+				$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo(Array($type_code_to_create), 'name');
+				$GLOBALS['SQ_SYSTEM']->am->includeAsset('layout');
+				$layout = new Layout();
+				$layout->setAttrValue('name', translate('cms_account_manager_logged_in_layout_for_type', $type_names[$type_code_to_create]));
+				$link = Array(
+							'asset'			=> &$this,
+							'link_type'		=> SQ_LINK_TYPE_2,
+							'is_dependant'	=> TRUE,
+							'is_exclusive'	=> TRUE,
+							'value'			=> $type_code_to_create.'_logged_in_customisation',
+						);
+				$layout->create($link);
+			}
+		}
+
 		if (!parent::saveAttributes($dont_run_updated)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -163,7 +198,8 @@ class Page_Account_Manager extends Page_Asset_Builder
 	function printFrontend()
 	{
 		$current_user = $GLOBALS['SQ_SYSTEM']->user;
-		if ((!is_null($current_user) && !($current_user instanceof Public_User)) && !SQ_IN_LIMBO) {
+
+		if ((!is_null($current_user) && !($current_user instanceof Public_User)) && !SQ_IN_LIMBO && !$this->attr('customise_logged_in')) {
 
 			if ($this->attr('enter_edit_mode')) {
 				// this person is logged in - so redirect them to limbo where they can edit their details
@@ -185,6 +221,8 @@ class Page_Account_Manager extends Page_Asset_Builder
 		if (isset($redirect_url)) {
 			header('Location: '.$redirect_url);
 			exit();
+		} else if (!is_null($current_user) && !($current_user instanceof Public_User) && $this->attr('customise_logged_in')){
+			$this->_loadLoggedInBodycopy($current_user);
 		} else {
 			parent::printFrontend();
 		}
@@ -400,7 +438,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 							// notice link the newly-created asset underneath the selected create locations,
 							// so when we validate we know which create locations were selected
 							$new_asset =& $this->_tmp['created_asset'];
-		
+
 							// Remove all permission from the created user, apart from the admin permission the
 							// user is allowed to hold on itself. This means the user will not inherit permissions
 							// from the Pending Accounts folder.
@@ -429,7 +467,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 							$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 							// manually parse the create locations, format into an array in the format Array(locationid => Array('name'=>code_name, 'link_type'=>link_type), ...)
-							$selected_create_locations = Array(); 
+							$selected_create_locations = Array();
 							foreach ($this->attr('create_location_optional') as $set_name => $details) {
 								$tmp_locations = Array();
 								$code_name = $this->_sanitiseLocationSetName($set_name);
@@ -463,7 +501,6 @@ class Page_Account_Manager extends Page_Asset_Builder
 								}
 							}
 
-							
 							// use the formatted array, create the notice links
 							if (!empty($selected_create_locations)) {
 								$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
@@ -752,7 +789,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 					$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 					return FALSE;
 				}
-				
+
 				// Bug #5509: Account Manager User asset webpath conflict.
 				$current_paths = $user->getWebPaths();
 				require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
@@ -801,7 +838,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 			$hipo_empty_array = $hh->freestyleHipo('hipo_job_update_lookups', $vars);
 
 			// Here after moving the asset away from pending accounts folder we check for the
-			// permission/metadata/workflow of the new parent asset and cascade same permission 
+			// permission/metadata/workflow of the new parent asset and cascade same permission
 			// to the new user also if the hipo was not successfull - fullstop and rollback.
 			foreach ($create_locations as $location_id => $link_type) {
 				foreach (Array(SQ_PERMISSION_READ, SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
@@ -883,7 +920,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 	function hipoDeleteUser($index, $item, $settings)
 	{
 		$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($item);
-		$user->saveWebPaths(Array());	
+		$user->saveWebPaths(Array());
 		$GLOBALS['SQ_SYSTEM']->am->trashAsset($item);
 
 		// trick the user asset into thinking we're purging the
@@ -975,7 +1012,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 							$this->_errors[] = translate('cms_account_manager_keyword_resend_validation_cannot_send_user');
 							return FALSE;
 						}
-					
+
 						// let the email format attribute send the email for us
 						$new_email_attr->sendMail($replacements);
 						$this->_replacements['resend_validation_success'] = $this->getKeywordReplacement('re_send_validation_success');
@@ -1349,6 +1386,98 @@ class Page_Account_Manager extends Page_Asset_Builder
 		return $replacement;
 
 	}//end getLogoutFormKeywordReplacement()
+
+
+	/**
+	* Get logout_form keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function _loadLoggedInBodycopy($asset)
+	{
+		$this->_current_state = 'logged_in';
+		$content = '';
+
+		if (!is_null($asset) && !($asset instanceof Public_User)) {
+			// try and acquire a lock on the current user so they can edit their details
+			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$vars = Array(
+						'assetids'			=> Array($asset->id,),
+						'lock_type'			=> 'all',
+						'forceably_acquire'	=> FALSE,
+					);
+			$lock_errors = $hh->freestyleHipo('hipo_job_acquire_locks', $vars);
+
+			$type_code_to_create  = array_keys($this->attr('create_type'));
+			$layout = $this->_getLoggedInFormLayout($type_code_to_create[0]);
+			$ei = $asset->getEI();
+	        require_once SQ_INCLUDE_PATH.'/limbo_outputter.inc';
+	        $o = new Limbo_Outputter();
+
+			if (array_get_index($_POST, 'form_submitted', FALSE)) {
+				$screens = Array();
+				$keywords = $layout->getLayoutKeywords();
+
+				if (isset($keywords['screens']) && !empty($keywords['screens'])) {
+					$screens = array_unique(array_merge(array_keys($keywords['screens']), $screens));
+				}
+
+				if (isset($keywords['entire_screens']) && !empty($keywords['entire_screens'])) {
+					$screens = array_unique(array_merge(array_keys($keywords['entire_screens']), $screens));
+				}
+
+				foreach ($screens as $screen) {
+					$ei->processInline($asset,$o, FALSE, $screen);
+				}
+			}
+
+			ob_start();
+
+				if (!empty($lock_errors)) {
+					$this->_replacements['edit_details_lock_error'] = $this->getKeywordReplacement('edit_details_lock_error');
+					$asset->printBody();
+				} else {
+
+					$o->_paintInlineHeader();
+
+					$GLOBALS['SQ_SYSTEM']->setRunLevel($GLOBALS['SQ_SYSTEM']->getRunLevel() - SQ_SECURITY_PERMISSIONS);
+
+					$o->addHiddenField('form_submitted', '1');
+					$ei->paintLayout($asset, $o, $layout);
+					$o->paint();
+					$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+				}
+
+				$content = ob_get_contents();
+
+				ob_end_clean();
+		}
+
+		echo $content;
+
+	}//end _loadLoggedInBodycopy()
+
+
+	/**
+	* Get the create form layout, if available, for a certain create type
+	*
+	* @param string $type_code  The type code to get the layout for
+	*
+	* @return object
+	* @access private
+	*/
+	function &_getLoggedInFormLayout($type_code)
+	{
+		$res = NULL;
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'layout', TRUE, $type_code.'_logged_in_customisation');
+		if (!empty($link)) {
+			$res = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'layout');
+		}
+
+		return $res;
+
+	}//end _getLoggedInFormLayout()
 
 
 }//end class

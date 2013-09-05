@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager_edit_fns.inc,v 1.28 2012/08/30 00:58:08 ewang Exp $
+* $Id: page_account_manager_edit_fns.inc,v 1.28.6.1 2013/09/05 03:20:25 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.28.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -396,14 +396,14 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('links');
 		$current_value = $asset->attr('use_email_validation');
-		$options = Array(1 => 'Yes', 0 => 'No');  	 
+		$options = Array(1 => 'Yes', 0 => 'No');
 
 		if ($write_access) {
 			combo_box($prefix.'_use_email_validation', $options, FALSE,  $current_value);
 		} else {
 			echo $options[$current_value];
 		}
-		
+
 		return $write_access;
 
 	}//end paintEmailValidation()
@@ -422,22 +422,72 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 	function processUseEmailValidation(&$asset, &$o, $prefix)
 	{
 		if (isset($_POST[$prefix.'_use_email_validation'])) {
-		
-			$use_email_validation = $_POST[$prefix.'_use_email_validation'];			
+
+			$use_email_validation = $_POST[$prefix.'_use_email_validation'];
 			if ($asset->setAttrValue('use_email_validation', $use_email_validation) && $use_email_validation) {
-				
+
 				// if we are using email validation - create validation assets
 				$pending_accounts_groupid = $asset->_getPendingAccountsGroupId();
 				if (empty($pending_accounts_groupid)) {
 					$asset->_createPendingAccountsGroup();
 				}
-			}			
+			}
 
 		}
-		
+
 		return TRUE;
 
-	}//end processEmailValidation()		
+	}//end processEmailValidation()
+
+
+	/**
+	* Paints the interface for choosing create types whose form should be customised
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintLoggedInFormCustomisation(&$asset, &$o, $prefix)
+	{
+		$customised_types = $asset->attr('customise_logged_in');
+		$wa = $asset->writeAccess('attributes');
+		if ($wa) {
+			hidden_field($prefix.'_customise_logged_in_submitted', 1);
+			echo check_box($prefix.'_customise_logged_in', 1, !empty($customised_types));
+			label(translate('cms_account_manager_customise_logged_in'), $prefix.'_customise_form');
+		} else {
+			$fn = !empty($customised_types) ? 'tick' : 'cross';
+			echo '<img src="'.sq_web_path('lib').'/web/images/'.$fn.'.gif" />';
+			echo translate('cms_account_manager_customise_logged_in');
+		}
+
+	}//end paintCreateFormCustomisation()
+
+
+	/**
+	* Processes the interface for choosing create types whose form should be customised
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processLoggedInFormCustomisation(&$asset, &$o, $prefix)
+	{
+		if ($asset->writeAccess('attributes') && isset($_POST[$prefix.'_customise_logged_in_submitted'])) {
+			$customise = array_get_index($_POST, $prefix.'_customise_logged_in');
+			$customised_types = $customise ? array_keys($asset->attr('create_type')) : Array();
+			return $asset->setAttrValue('customise_logged_in', $customised_types);
+		}
+		return FALSE;
+
+	}//end processCreateFormCustomisation()
+
 
 }//end class
 
