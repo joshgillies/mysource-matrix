@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.181 2013/08/23 01:15:37 akarelia Exp $
+* $Id: page_asset_builder.inc,v 1.182 2013/09/05 03:13:53 akarelia Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/recaptcha/recaptcha.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.181 $
+* @version $Revision: 1.182 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -136,6 +136,7 @@ class Page_Asset_Builder extends Page
 			$current_layout_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'layout', TRUE);
 			$current_layouts = Array();
 			foreach ($current_layout_links as $link) {
+				if (strpos($link['value'], '_logged_in_customisation') !== FALSE) continue;
 				if (in_array($link['value'], $custom_types)) {
 					$current_layouts[] = $link['value'];
 				} else {
