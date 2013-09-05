@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.295 2013/08/30 00:50:48 lwright Exp $
+* $Id: general.inc,v 1.296 2013/09/05 02:24:57 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.295 $
+* @version $Revision: 1.296 $
 * @package MySource_Matrix
 */
 
@@ -1739,7 +1739,7 @@ function _asset_locator_onclick($lineage_assetids, $tooltip_hide)
 					am = parent.top.frames[\'sq_sidenav\'];
 				}
 
-				if (am.JS_Asset_Map && am.JS.Asset_Map.modernMapActive) {
+				if (am.JS_Asset_Map && am.JS_Asset_Map.modernMapActive) {
 					am.JS_Asset_Map.locateAsset(['.str_replace('\'', '\\\'', implode(',', $lineage_assetids)).'], ['.implode(',', $sort_orders).']);
 				} else {
 					am.asset_locator_start(\''.$asset_so.'\');
