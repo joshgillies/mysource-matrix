@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.33 2013/09/05 01:03:29 lwright Exp $
+* $Id: js_asset_map.js,v 1.34 2013/09/05 02:41:55 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.33 $
+ * @version $Revision: 1.34 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -2879,7 +2879,7 @@ var JS_Asset_Map = new function() {
 				action: 'get assets'
 			},
 			asset: assetRequests
-		}, processAssets);
+		}, processAssets, function() {});
 
 	};
 
@@ -3047,7 +3047,7 @@ var JS_Asset_Map = new function() {
 					self.addToSelection(assetLine);
 					lastSelection = assetLine;
 					assetLine.scrollIntoView(true);
-					this.getDefaultView(assetLine).top.scrollTo(0, 0);
+					self.getDefaultView(assetLine).top.scrollTo(0, 0);
 				} else {
 					dfx.addClass(assetLine, 'located');
 					container = assetLine.nextSibling;
@@ -3113,7 +3113,7 @@ var JS_Asset_Map = new function() {
 						self.addToSelection(assetLine);
 						lastSelection = assetLine;
 						assetLine.scrollIntoView(true);
-						this.getDefaultView(assetLine).top.scrollTo(0, 0);
+						self.getDefaultView(assetLine).top.scrollTo(0, 0);
 					}
 				}
 
