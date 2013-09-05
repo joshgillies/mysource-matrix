@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.21 2010/11/10 06:20:25 cupreti Exp $
+* $Id: edit_interface_screen_details.xml,v 1.22 2013/09/05 03:11:38 akarelia Exp $
 *
 */
 -->
@@ -83,6 +83,12 @@
 			<function_call>
 				<paint_function   name="paintCreateFormCustomisation" />
 				<process_function name="processCreateFormCustomisation" />
+			</function_call>
+		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintLoggedInFormCustomisation" />
+				<process_function name="processLoggedInFormCustomisation" />
 			</function_call>
 		</field>
 	</section>
