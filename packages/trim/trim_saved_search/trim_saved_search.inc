@@ -11,7 +11,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search.inc,v 1.50 2013/08/30 07:20:09 cupreti Exp $
+* $Id: trim_saved_search.inc,v 1.51 2013/09/05 10:23:58 ewang Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -295,8 +295,10 @@ class TRIM_Saved_Search extends Data_Source
 			// Data source expect the key values to be correctly sorted.
 			$result	= array_values($ordered_result);
 			if ($updated) {
-				$this->cacheResult($result, $hash);
-				return TRUE;
+				if(!empty($result)) {
+				    $this->cacheResult($result, $hash);
+				    return TRUE;
+				}
 			}//end if
 			return FALSE;
 		} else {
