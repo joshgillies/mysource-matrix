@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: run.php,v 1.24 2012/08/30 01:09:18 ewang Exp $
+* $Id: run.php,v 1.24.4.1 2013/09/05 04:06:17 ewang Exp $
 *
 */
 
@@ -20,12 +20,12 @@
 * The one file through which everything runs
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.24.4.1 $
 * @package MySource_Matrix
 */
 
 if (isset($_SERVER['argv'][1])) {
-	define('SQ_SYSTEM_ROOT', $_SERVER['argv'][1]);
+	define('SQ_SYSTEM_ROOT', realpath($_SERVER['argv'][1]));
 } else {
 	define('SQ_SYSTEM_ROOT', dirname(dirname(dirname(__FILE__))));
 }
