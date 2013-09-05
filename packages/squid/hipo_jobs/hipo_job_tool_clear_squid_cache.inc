@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_clear_squid_cache.inc,v 1.16 2013/08/09 07:42:39 cupreti Exp $
+* $Id: hipo_job_tool_clear_squid_cache.inc,v 1.17 2013/09/05 00:48:41 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 *
 * @author Rayn Ong <rong@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix
 * @subpackage squid
 */
@@ -148,20 +148,22 @@ class HIPO_Job_Tool_Clear_Squid_Cache extends HIPO_Job
 		$this->_running_vars['url_port'] = SQ_TOOL_SQUID_URL_PORT;
 
 		// For backward compatibility
-		if ($this->_running_vars['cascade'] === TRUE) {
+		if ($this->_running_vars['cascade'] === '1') {
 			$this->_running_vars['cascade'] = 'children';
-		} else if ($this->_running_vars['cascade'] === FALSE) {
+		} else if ($this->_running_vars['cascade'] === '0') {
 			$this->_running_vars['cascade'] = 'single';
 		}
+		
 
 		// if cascade option is enabled, get the children of the selected asset
 		$assetids = is_array($this->_running_vars['assetid']) ? $this->_running_vars['assetid'] : Array($this->_running_vars['assetid']);
-		if ($this->_running_vars['cascade'] != 'single') {
-			foreach($this->_running_vars['assetid'] as $assetid) {
-				if ($this->_running_vars['cascade'] == 'children') {
-					$children = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($assetid, $this->_running_vars['type_codes']));
+		$type_codes = isset($this->_running_vars['type_codes']) ? $this->_running_vars['type_codes'] : NULL;
+		if ($this->_running_vars['cascade'] !== 'single') {
+			foreach($assetids as $assetid) {
+				if ($this->_running_vars['cascade'] === 'children') {
+					$children = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($assetid, $type_codes));
 				} else if ($this->_running_vars['cascade']) {
-					$children = array_keys($GLOBALS['SQ_SYSTEM']->am->getDependantChildren($assetid, $this->_running_vars['type_codes']));
+					$children = array_keys($GLOBALS['SQ_SYSTEM']->am->getDependantChildren($assetid, $type_codes));
 				}
 				$assetids = array_merge($assetids, $children);
 			}//end foreach
