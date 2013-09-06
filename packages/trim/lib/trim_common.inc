@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_common.inc,v 1.32.2.5 2013/09/02 02:06:30 cupreti Exp $
+* $Id: trim_common.inc,v 1.32.2.6 2013/09/06 04:00:30 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.32.2.5 $
+* @version $Revision: 1.32.2.6 $
 * @package MySource_Matrix_Packages
 * @subpackage trim
 */
@@ -108,6 +108,7 @@ class TRIM_Common
 				}
 				$i++;
 			}
+		
 		
 			// add classification restrictions
 			if (!empty($classifications)) {
@@ -933,10 +934,8 @@ class TRIM_Common
 				$xml = $client->ConvertToXml($Execute);
 			} catch (SoapFault $e) {
 				$error_message = "Failed to ConvertToXml: ".$e->getMessage()."\n";
-				if (SQ_PHP_CLI || SQ_IN_CRON) {
-					$error_message .= "Last Request:\n".$client->__getLastRequest()."\n";
-					$error_message .= "Last Response:\n".$client->__getLastResponse()."\n";
-				}
+				$error_message .= "Last Request:\n".$client->__getLastRequest()."\n";
+				$error_message .= "Last Response:\n".$client->__getLastResponse()."\n";
 				trigger_error($error_message, E_USER_WARNING);
 				return Array();
 			}
@@ -972,10 +971,8 @@ class TRIM_Common
 				$data = $client->ExecuteXml(Array('xml'	=> $xml));
 			} catch (SoapFault $e) {
 				$error_message = "Failed to ExecuteXml: ".$e->getMessage()."\n";
-				if (SQ_PHP_CLI || SQ_IN_CRON) {
-					$error_message .= "Last Request:\n".$client->__getLastRequest()."\n";
-					$error_message .= "Last Response:\n".$client->__getLastResponse()."\n";
-				}
+				$error_message .= "Last Request:\n".$client->__getLastRequest()."\n";
+				$error_message .= "Last Response:\n".$client->__getLastResponse()."\n";
 				trigger_error($error_message, E_USER_WARNING);
 				return Array();
 			}
@@ -983,6 +980,14 @@ class TRIM_Common
 			// The data returned is in XML format, so we have to parse it.
 			$object_list = self::parseTRIMData($data->ExecuteXmlResult, $display_type);
 
+			if(isset($object_list['error'])) {
+			    	$error_message = $object_list['error']."\n";
+				$error_message .= "Last Request:\n".$client->__getLastRequest()."\n";
+				$error_message .= "Last Response:\n".$client->__getLastResponse()."\n";
+				trigger_error($error_message, E_USER_WARNING);
+				return Array();
+			}
+			
 			if (isset($operations['Fetch'])) {
 				return $object_list;
 			} else if (isset($operations['Download'])) {
@@ -1287,7 +1292,10 @@ class TRIM_Common
 			trigger_error("Unable to parse the XML result: ".$e->getMessage(), E_USER_WARNING);
 			return $object_list;
 		}
-
+		if (isset($xml->ErrorResult)) {
+			$object_list['error']	= (string)$xml->ErrorResult->Message;
+			return $object_list;
+		}
 		if ($operation == 'Fetch') {
 			if($xml->SearchResult->FoundCount ==  0) return $object_list;
 			$i = 0;
@@ -1330,21 +1338,13 @@ class TRIM_Common
 			$i++;
 			}//end foreach
 		} else if ($operation == 'Download') {
-			if (isset($xml->ErrorResult)) {
-				$object_list['error']	= (string)$xml->ErrorResult->Message;
-			} else {
-				foreach ($xml->DownloadResult->children() as $key => $value) {
-					$object_list[$key]	= (string)$value;
-				}//end foreach
-			}
+			foreach ($xml->DownloadResult->children() as $key => $value) {
+				$object_list[$key]	= (string)$value;
+			}//end foreach
 		} else if ($operation == 'Upload') {
-			if (isset($xml->ErrorResult)) {
-				$object_list['error']	= (string)$xml->ErrorResult->Message;
-			} else {
-				foreach ($xml->UploadResult->children() as $key => $value) {
-					$object_list[$key]	= (string)$value;
-				}//end foreach
-			}
+			foreach ($xml->UploadResult->children() as $key => $value) {
+				$object_list[$key]	= (string)$value;
+			}//end foreach
 		}
 
 		return $object_list;
