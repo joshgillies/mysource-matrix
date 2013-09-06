@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.39 2013/09/06 06:35:20 lwright Exp $
+* $Id: js_asset_map.js,v 1.40 2013/09/06 06:54:44 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.39 $
+ * @version $Revision: 1.40 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -2927,7 +2927,6 @@ var JS_Asset_Map = new function() {
 			var thisAsset = response.asset[0];
 			var assetid   = thisAsset._attributes.assetid;
 
-			childNode.getAttribute('data-parentid');
 			childNode.innerHTML = '';
 			self.drawTree(thisAsset, childNode, offset, totalAssets);
 
@@ -3017,7 +3016,7 @@ var JS_Asset_Map = new function() {
 
 				for (var i = 0; i < response.asset.length; i++) {
 					var thisAsset = response.asset[i];
-					var assetid   = thisAsset._attributes.assetid;
+					var assetid   = decodeURIComponent(thisAsset._attributes.assetid.replace(/\+/g, '%20'));
 
 					if (String(assetid) === '1') {
 						container = tree;
