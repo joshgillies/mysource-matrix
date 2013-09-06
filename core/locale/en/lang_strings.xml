@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.437 2013/09/03 03:25:40 ewang Exp $
+* $Id: lang_strings.xml,v 1.438 2013/09/06 00:14:16 lwright Exp $
 *
 */
 
@@ -2252,6 +2252,9 @@ If you are ready to continue, please click <strong>Next</strong> to proceed with
 
 	<string source="asset_map_tooltip_next_node" java="1">View Next Set of Assets</string>
 	<string source="asset_map_tooltip_previous_node" java="1">View Previous Set of Assets</string>
+	<string source="asset_map_tooltip_first_node" java="1">View First Set of Assets</string>
+	<string source="asset_map_tooltip_last_node" java="1">View Last Set of Assets</string>
+	<string source="asset_map_tooltip_last_node_bridge" java="1">Last Set is not available on Bridge assets</string>
 	<string source="asset_map_button_cancel" java="1">Cancel</string>
 	<string source="asset_map_button_delete" java="1">Delete...</string>
 	<string source="asset_map_button_jump" java="1">Jump</string>
