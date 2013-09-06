@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.37 2013/09/06 00:21:57 lwright Exp $
+* $Id: js_asset_map.js,v 1.38 2013/09/06 02:14:37 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.37 $
+ * @version $Revision: 1.38 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -2958,13 +2958,22 @@ var JS_Asset_Map = new function() {
 			assetids.push(rootAsset);
 			var children = dfx.getClass('childIndent', rootNode);
 			for (var i = 0; i < children.length; i++) {
+				// Remove if collapsed, also ignore if a removed node means a previously
+				// expanded child is no longer in the document
 				if (dfx.hasClass(children[i], 'collapsed') === true) {
 					dfx.remove(children[i]);
-				} else {
-					assetids.push(children[i].getAttribute('data-parentid'));
-				}
-			}
-		}
+				} else if (children[i].parentNode !== null) {
+					// If there is a collapsed parent, this needs to disappear as
+					// well regardless of if it's expanded.
+					var collapsedParents = dfx.getParents(children[i], '.childIndent.collapsed');
+					if (collapsedParents.length > 0) {
+						dfx.remove(children[i]);
+					} else {
+						assetids.push(children[i].getAttribute('data-parentid'));
+					}//end if
+				}//end if
+			}//end for
+		}//end if
 
 		if (assetids.length > 0) {
 			var savedSortOrders = [];
