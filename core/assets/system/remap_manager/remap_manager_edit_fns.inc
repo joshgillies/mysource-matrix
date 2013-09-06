@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_edit_fns.inc,v 1.45 2012/08/30 01:09:11 ewang Exp $
+* $Id: remap_manager_edit_fns.inc,v 1.45.8.1 2013/09/06 03:01:51 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.45.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -286,26 +286,79 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 						$expires = $GLOBALS['SQ_SYSTEM']->datetime(iso8601_ts($url_info['expires']));
 					}
 
-					// any warning text to show for this remapped URL (any possible problems)
-					$warning = '';
+					
 
 					// To let the process function know the remaps on the current page
 					hidden_field($prefix.'_current_page_remaps['.$url_info['url'].']', $page_num);
 
+					$warning = '';
 					// check to see if the URL is actually being used by a real asset within the system
 					// because if it is, this remap will never be used
-					if (strpos($url_info['url'], '://') !== FALSE) {
-						list($protocol, $url) = explode('://', $url_info['url']);
-						$url_asset = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL($protocol, $url, TRUE, TRUE);
-						if (!is_null($url_asset)) {
-							$warning .= translate('url_currently_in_use', $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($url_asset->type(), 'name'), translate('asset_format', $url_asset->name, $url_asset->id));
-						}
+					$url_asset = null;
+					// ?a=xx sytle url
+					if(strpos($url_info['url'], '//?a=')) {
+					    preg_match('/\?a=([0-9:]+)/', $url_info['url'], $matches);
+					    if(isset($matches[1])) {
+						$url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($matches[1]);
+						if(!empty($url))
+						    $url_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($matches[1]);						    
+					    }
 					}
+					else {
+					    // normal url
+					    $old_url_parts = parse_url($url_info['url']);
+					    $protocol = array_get_index($old_url_parts, 'scheme', NULL);
+					    if(!empty($protocol)) {
+						$url = array_get_index($old_url_parts, 'host', '').array_get_index($old_url_parts, 'path', '');
+						$url_asset = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL($protocol, $url, TRUE, TRUE);
+					    }
+					}
+					 if(!empty($url_asset))
+						$warning .= translate('url_currently_in_use', $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($url_asset->type(), 'name'), translate('asset_format', $url_asset->name, $url_asset->id));
+					 
+					
+					// check to see if the new URL is a valid asset URL
+					$warning_remap = '';
+					$new_url_parts = parse_url($url_info['remap_url']);
+					$protocol = array_get_index($new_url_parts, 'scheme', NULL);
+					if(!empty($protocol)) {
+					    $url = array_get_index($new_url_parts, 'host', '').array_get_index($new_url_parts, 'path', '');
+					    //  does it matche with root matrix url
+					    $root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
+					    $is_matrix_url = FALSE;
+					    foreach($root_urls as $root_url) {
+						if(strpos($url, $root_url) === 0)
+							$is_matrix_url = TRUE;
+					    }
+					   // if it's not a Matrix URL, no need to show warning
+					    if($is_matrix_url) {
+						 // if it's one of special url, no need to show warning
+						if(strpos($url, '__data') === FALSE && strpos($url, '__lib') === FALSE && strpos($url, '__fudge') === FALSE) {
+						    $url_asset = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL($protocol, $url, TRUE, TRUE);
+						    $count_query = 'SELECT count(*) FROM sq_ast_lookup_remap WHERE url = :url ';
+						    $count_result = MatrixDAL::preparePdoQuery($count_query);
+						    MatrixDAL::bindValueToPdo($count_result, 'url', $url_info['remap_url']);
+						    $remap_url = MatrixDAL::executePdoOne($count_result);
+						    
+						    // if the new url is not an valid asset url, neither another redirect url, show warning
+						    if(empty($url_asset) && empty($remap_url))
+							$warning_remap = 'Invalid remap URL';
+						    }
+					    }
+					}
+					
+					// check if the remap has expired
+					$warning_expire = '';
+					if(isset($url_info['expires']) && !empty($url_info['expires'])) {
+					    if(strtotime($url_info['expires']) < time())
+						$warning_expire = 'Remap expired';	
+					}
+					
 				?>
 				<tr>
 					<td class="sq-backend-table-cell"><?php echo $url_info['url']; ?><br/><span style="color: #FF0000;"><b><?php echo $warning; ?></b></span></td>
-					<td class="sq-backend-table-cell"><?php echo $url_info['remap_url']; ?></td>
-					<td class="sq-backend-table-cell"><?php echo $expires; ?></td>
+					<td class="sq-backend-table-cell"><?php echo $url_info['remap_url']; ?><br/><span style="color: #FF0000;"><b><?php echo $warning_remap; ?></b></span></td>
+					<td class="sq-backend-table-cell"><?php echo $expires; ?><br/><span style="color: #FF0000;"><b><?php echo $warning_expire; ?></b></span></td>
 					<td class="sq-backend-table-cell"><?php echo ((int)$url_info['auto_remap'] === 1) ? translate('automatic') : (($url_info['auto_remap'] === NULL) ? translate('unknown') : translate('manual')); ?></td>
 					<?php
 						if ($write_access) {
