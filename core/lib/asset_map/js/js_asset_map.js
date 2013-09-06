@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.38 2013/09/06 02:14:37 lwright Exp $
+* $Id: js_asset_map.js,v 1.39 2013/09/06 06:35:20 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.38 $
+ * @version $Revision: 1.39 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -340,7 +340,6 @@ var JS_Asset_Map = new function() {
 		var container = _createEl('div');
 		container.id  = 'child-indent-uid-' + encodeURIComponent(_uniqueElIds.childIndent);
 		container.setAttribute('data-parentid', parentid);
-		dfx.addClass(container, 'for-asset-' + encodeURIComponent(parentid));
 		dfx.addClass(container, 'childIndent');
 		return container;
 	};
@@ -1582,7 +1581,7 @@ var JS_Asset_Map = new function() {
 		var linkid       = branchTarget.getAttribute('data-linkid');
 		var assetPath    = branchTarget.getAttribute('data-asset-path');
 		var linkPath     = branchTarget.getAttribute('data-link-path');
-		var rootIndentId = 'childIndent.for-asset-' + encodeURIComponent(assetid);
+		var rootIndentId = 'childIndent[data-parentid="' + encodeURIComponent(assetid) + '"]';
 		var container    = dfx.getClass(rootIndentId)[0];
 
 		if (container) {
@@ -2836,6 +2835,7 @@ var JS_Asset_Map = new function() {
 		// Requests to be made. However, we are going to try and request zero children.
 		var assetRequests = [];
 		var treeRefresh   = [];
+		var hasRootFolder = false;
 
 		for (var i = 0; i < processQueue.length; i++) {
 			assetRequests.push({
@@ -2851,36 +2851,46 @@ var JS_Asset_Map = new function() {
 		var processAssets = function(response) {
 			for (var i = 0; i < response.asset.length; i++) {
 				var thisAsset  = response.asset[i];
-				thisAsset._attributes.name       = decodeURIComponent(thisAsset._attributes.name.replace(/\+/g, '%20'));
-				thisAsset._attributes.assetid    = decodeURIComponent(thisAsset._attributes.assetid.replace(/\+/g, '%20'));
-				thisAsset._attributes.type_code  = decodeURIComponent(thisAsset._attributes.type_code.replace(/\+/g, '%20'));
+				thisAsset._attributes.name      = decodeURIComponent(thisAsset._attributes.name.replace(/\+/g, '%20'));
+				thisAsset._attributes.assetid   = decodeURIComponent(thisAsset._attributes.assetid.replace(/\+/g, '%20'));
+				thisAsset._attributes.type_code = decodeURIComponent(thisAsset._attributes.type_code.replace(/\+/g, '%20'));
 
 				var assetid    = thisAsset._attributes.assetid;
-				var assetNodes = dfx.find(assetMapContainer, 'div.asset[data-assetid="' + assetid  + '"]');
-				for (var j = 0; j < assetNodes.length; j++) {
-					var assetNode     = assetNodes[j];
-					var newNode       = _formatAsset(thisAsset._attributes);
-					newNode.className = assetNode.className;
-
-					newNode.setAttribute('data-linkid', assetNode.getAttribute('data-linkid'));
-					newNode.setAttribute('data-asset-path', assetNode.getAttribute('data-asset-path'));
-					newNode.setAttribute('data-link-path', assetNode.getAttribute('data-link-path'));
-
-					assetNode.parentNode.replaceChild(newNode, assetNode);
-				}//end for
-				
-				var expansions = dfx.find(assetMapContainer, '.childIndent[data-parentid="' + assetid + '"]');
-				if (expansions.length > 0) {
-					treeRefresh.push(assetid);
-					for (var j = 0; j < expansions.length; j++) {
-						var parentid = expansions[j].getAttribute('data-parentid');
-						if (treeRefresh.inArray(parentid) === false) {
-							treeRefresh.push(parentid);
-						}
+				if (String(assetid) === '1') {
+					hasRootFolder = true;
+				} else {				
+					var assetNodes = dfx.find(assetMapContainer, 'div.asset[data-assetid="' + assetid  + '"]');
+					for (var j = 0; j < assetNodes.length; j++) {
+						var assetNode     = assetNodes[j];
+						var newNode       = _formatAsset(thisAsset._attributes);
+						newNode.className = assetNode.className;
+	
+						newNode.setAttribute('data-linkid', assetNode.getAttribute('data-linkid'));
+						newNode.setAttribute('data-asset-path', assetNode.getAttribute('data-asset-path'));
+						newNode.setAttribute('data-link-path', assetNode.getAttribute('data-link-path'));
+	
+						assetNode.parentNode.replaceChild(newNode, assetNode);
 					}//end for
+				
+					var expansions = dfx.find(assetMapContainer, '.childIndent[data-parentid="' + assetid + '"]');
+					if (expansions.length > 0) {
+						treeRefresh.push(assetid);
+						for (var j = 0; j < expansions.length; j++) {
+							var parentid = expansions[j].getAttribute('data-parentid');
+							if (treeRefresh.inArray(parentid) === false) {
+								treeRefresh.push(parentid);
+							}
+						}//end for
+					}//end if
 				}//end if
 			}//end for
 
+			if (hasRootFolder) {
+				// If we have the root folder, just refresh the whole tree that
+				// way.
+				treeRefresh = ['1'];					
+			}
+			
 			if (treeRefresh.length > 0) {
 				for (var j = 0; j < treeRefresh.length; j++) {
 					self.refreshTree(treeRefresh[j]);
