@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.36 2013/09/05 06:53:59 lwright Exp $
+* $Id: js_asset_map.js,v 1.37 2013/09/06 00:21:57 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.36 $
+ * @version $Revision: 1.37 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -2596,7 +2596,7 @@ var JS_Asset_Map = new function() {
 		if (direction === 'up') {
 			var tb1Button = _createEl('div');
 			dfx.addClass(tb1Button, 'page-button previous-page');
-			tb1Button.setAttribute('title', 'Previous page');
+			tb1Button.setAttribute('title', js_translate('asset_map_tooltip_previous_node'));
 			dfx.addEvent(tb1Button, 'click', function() {
 				textSpan.innerHTML = js_translate('asset_map_status_bar_requesting');
 				self.pageContainer(pageDiv.parentNode, Math.max(0, (offset - options.assetsPerPage)), totalAssets);
@@ -2604,7 +2604,7 @@ var JS_Asset_Map = new function() {
 
 			var tb2Button = _createEl('div');
 			dfx.addClass(tb2Button, 'page-button first-page');
-			tb2Button.setAttribute('title', 'First page');
+			tb2Button.setAttribute('title', js_translate('asset_map_tooltip_first_node'));
 			dfx.addEvent(tb2Button, 'click', function() {
 				textSpan.innerHTML = js_translate('asset_map_status_bar_requesting');
 				self.pageContainer(pageDiv.parentNode, 0, totalAssets);
@@ -2612,7 +2612,7 @@ var JS_Asset_Map = new function() {
 		} else {
 			var tb1Button = _createEl('div');
 			dfx.addClass(tb1Button, 'page-button next-page');
-			tb1Button.setAttribute('title', 'Next page');
+			tb1Button.setAttribute('title', js_translate('asset_map_tooltip_next_node'));
 			dfx.addEvent(tb1Button, 'click', function() {
 				textSpan.innerHTML = js_translate('asset_map_status_bar_requesting');
 				self.pageContainer(pageDiv.parentNode, Math.min(lastPageStart, (offset + options.assetsPerPage)), totalAssets);
@@ -2621,15 +2621,15 @@ var JS_Asset_Map = new function() {
 			var tb2Button = _createEl('div');
 			if (totalAssets > -1) {
 				dfx.addClass(tb2Button, 'page-button last-page');
-				tb2Button.setAttribute('title', 'Last page');			
+				tb2Button.setAttribute('title', js_translate('asset_map_tooltip_last_node'));			
 				dfx.addEvent(tb2Button, 'click', function() {
 					textSpan.innerHTML = js_translate('asset_map_status_bar_requesting');
 					self.pageContainer(pageDiv.parentNode, lastPageStart, totalAssets);
 				});
 			} else {
 				// Don't show last page button if shadow asset.
-				dfx.addClass(tb2Button, 'page-button');
-				tb2Button.setAttribute('title', 'Last page is not available on Bridge assets');
+				dfx.addClass(tb2Button, 'page-button last-page disabled');
+				tb2Button.setAttribute('title', js_translate('asset_map_tooltip_last_node_bridge'));
 			}
 		}
 
