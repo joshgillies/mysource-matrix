@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.41 2013/09/09 00:44:45 lwright Exp $
+* $Id: js_asset_map.js,v 1.42 2013/09/09 01:40:21 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.41 $
+ * @version $Revision: 1.42 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -3168,6 +3168,8 @@ var JS_Asset_Map = new function() {
 
 
 	this.moveMe = new function() {
+		this.parent = self;
+		
 		/**
 		 * Source of the move.
 		 *
@@ -3346,12 +3348,20 @@ var JS_Asset_Map = new function() {
 						this.selection.linkid   = parentAsset.getAttribute('data-linkid');
 					}
 
+					if (timeouts.hoverAsset) {
+						this.parent.clearHoverAsset();
+					}
+					
 					this.selection.before = target.getAttribute('data-sort-order');
 					dfx.setCoords(_lineEl, (assetNameRect.x1 - assetMapCoords.x), (assetRect.y1 - assetMapCoords.y));
 				} else if (fromBottom <= 3) {
 					if (parentAsset) {
 						this.selection.parentid = parentAsset.getAttribute('data-assetid');
 						this.selection.linkid   = parentAsset.getAttribute('data-linkid');
+					}
+					
+					if (timeouts.hoverAsset) {
+						this.parent.clearHoverAsset();
 					}
 
 					var insertBefore = target.nextSibling;
