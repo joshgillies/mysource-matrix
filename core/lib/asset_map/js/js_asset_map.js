@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.40 2013/09/06 06:54:44 lwright Exp $
+* $Id: js_asset_map.js,v 1.41 2013/09/09 00:44:45 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.40 $
+ * @version $Revision: 1.41 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -2154,7 +2154,8 @@ var JS_Asset_Map = new function() {
 
 			// If we are moving any assets downward, we need to slot in ABOVE the
 			// selected slot, so adjust where we put in the sort order.
-			if (assetNodes[i].getAttribute('data-sort-order') < sortOrder) {
+			if ((String(parentid) === String(newParentAssetid)) &&
+				(assetNodes[i].getAttribute('data-sort-order') < sortOrder)) {
 				sortOrderAdjust = 1;
 			}
 		}
@@ -3355,7 +3356,12 @@ var JS_Asset_Map = new function() {
 
 					var insertBefore = target.nextSibling;
 					if (insertBefore) {
-						if (dfx.hasClass(insertBefore, 'paginationTool') === true) {
+						if (dfx.hasClass(insertBefore, 'childIndent') === true) {
+							insertBefore = insertBefore.firstChild;
+							this.selection.parentid = target.getAttribute('data-assetid');
+							this.selection.linkid   = target.getAttribute('data-linkid');
+							this.selection.before   = 0;
+						} else if (dfx.hasClass(insertBefore, 'paginationTool') === true) {
 							this.selection.before = Number(target.getAttribute('data-sort-order')) + 1;
 						} else {
 							this.selection.before = insertBefore.getAttribute('data-sort-order');
@@ -3374,7 +3380,7 @@ var JS_Asset_Map = new function() {
 					dfx.addClass(target, 'moveTarget');
 					dfx.setCoords(_lineEl, (assetNameRect.x2 - assetMapCoords.x), (((assetRect.y1 + assetRect.y2) / 2) - assetMapCoords.y));
 				}//end if
-			}//end if
+			}//end if			
 		};
 
 
