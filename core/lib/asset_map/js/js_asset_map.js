@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.42 2013/09/09 01:40:21 lwright Exp $
+* $Id: js_asset_map.js,v 1.43 2013/09/09 02:41:55 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.42 $
+ * @version $Revision: 1.43 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -3292,7 +3292,20 @@ var JS_Asset_Map = new function() {
 
 			if (!target) {
 				dfx.removeClass(_lineEl, 'active');
-				this.selection = null;
+				var tree = this.parent.getCurrentTreeElement();
+				
+				var lastAsset = dfx.getClass('asset', tree).pop();
+				var assetRect = dfx.getBoundingRectangle(lastAsset);
+				
+				if (mousePos.y > assetRect.y2) {
+					this.selection = {
+						parentid: 1,
+						linkid: 1,
+						before: -1
+					};
+				} else {
+					this.selection = null;
+				}
 				return;
 			} else if (dfx.hasClass(target, 'paginationTool') === true) {
 				// Pagination tool.
