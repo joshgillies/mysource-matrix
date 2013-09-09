@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: promotional_code.inc,v 1.2 2012/08/30 00:58:34 ewang Exp $
+* $Id: promotional_code.inc,v 1.3 2013/09/09 08:35:57 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
