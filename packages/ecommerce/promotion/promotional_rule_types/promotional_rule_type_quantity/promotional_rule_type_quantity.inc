@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: promotional_rule_type_quantity.inc,v 1.2 2012/08/30 00:58:34 ewang Exp $
+* $Id: promotional_rule_type_quantity.inc,v 1.3 2013/09/09 08:34:53 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../promotional_rule/promotional_rule.inc';
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -112,6 +112,20 @@ class Promotional_Rule_Type_Quantity extends Promotional_Rule
 		
 		$discount_options = $rule_data['discount_options'];
 		$fixed_amount = $rule_data['discount_type'] == 'fixed_amount' ? TRUE : FALSE;
+		
+		// '0' quantity option means its flat discount regardless of the quantity
+		// Rest of the quantity rules will be ignored
+		if (isset($discount_options[0])) {
+			if ($fixed_amount) {
+				$discount = $discount_options[0];
+			} else {
+				$discount = $price * $discount_options[0]/100;
+			}
+
+			$asset_data['discount'] += $discount;
+			return;
+		}
+
 		$discount_options = array_reverse($discount_options, TRUE);
 		foreach ($discount_options as $asset_quantity => $discount_amount) {
 			if ($remaining_quantity >= $asset_quantity) {
@@ -127,7 +141,7 @@ class Promotional_Rule_Type_Quantity extends Promotional_Rule
 			}
 		}
 		
-		$asset_data['discount'] = $discount;
+		$asset_data['discount'] += $discount;
 		
 	}//end evaluate()
 	

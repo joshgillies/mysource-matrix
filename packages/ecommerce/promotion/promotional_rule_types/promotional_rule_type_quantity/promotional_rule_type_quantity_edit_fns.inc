@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: promotional_rule_type_quantity_edit_fns.inc,v 1.2 2012/08/30 00:58:34 ewang Exp $
+* $Id: promotional_rule_type_quantity_edit_fns.inc,v 1.3 2013/09/09 08:34:53 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../promotional_rule/promotional_rule_edit_fn
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -191,7 +191,7 @@ class Promotional_Rule_Type_Quantity_Edit_Fns extends Promotional_Rule_Edit_Fns
 			$discount_amount = array_get_index($option, 'discount_amount');
 			if (is_numeric($asset_quantity) && is_numeric($discount_amount)) {
 				$asset_quantity = (int) $asset_quantity;
-				if ($asset_quantity > 0) {
+				if ($asset_quantity >= 0) {
 					$discount_options[$asset_quantity] = (float) $discount_amount;
 				}
 			}
@@ -203,7 +203,7 @@ class Promotional_Rule_Type_Quantity_Edit_Fns extends Promotional_Rule_Edit_Fns
 		
 		if (is_numeric($new_asset_quantity) && is_numeric($new_discount_amount)) {
 			$new_asset_quantity = (int) $new_asset_quantity;
-			if ($new_asset_quantity > 0) {
+			if ($new_asset_quantity >= 0) {
 				$discount_options[$new_asset_quantity] = (float) $new_discount_amount;
 			}
 		}
