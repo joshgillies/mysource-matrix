@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.61 2013/07/25 05:10:49 akarelia Exp $
+* $Id: form_ecommerce.inc,v 1.62 2013/09/09 07:54:18 cupreti Exp $
 *
 */
 
@@ -18,6 +18,7 @@ require_once SQ_PACKAGES_PATH.'/cms/form/form_email/form_email.inc';
 require_once SQ_FUDGE_PATH.'/general/www.inc';
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 require_once SQ_PACKAGES_PATH.'/ecommerce/orders/order/order.inc';
+require_once SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_common.inc';
 
 /**
 * Form_Ecommerce
@@ -30,7 +31,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/orders/order/order.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.61 $
+* @version $Revision: 1.62 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -1059,9 +1060,75 @@ class Form_Ecommerce extends Form_Email
 		
 		$order->saveAttributes();
 
+		// Link the applied promotions to the asset
+		$this->_linkPromotionAssets($order);		
+
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 	}//end _saveOrderAsset()
+	
+	
+	/**
+	* Link the applied promotions to the order asset
+	*
+	* @return boolean
+	* @access private
+	*/	
+	function _linkPromotionAssets($order)
+	{
+		// Get the applied promotions
+		$promo_codes_in_cart = $this->_getAssetItemPromotionalCodes();
+		$order_promo_assetids = Array();
+		foreach($promo_codes_in_cart as $product_id => $promotion_assetids) {
+			$order_promo_assetids = array_merge($order_promo_assetids, $promotion_assetids);
+		}
+		$order_promo_assetids = array_unique($order_promo_assetids);
+		
+		// Get the existing promotion links on the order
+		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($order->id, SQ_LINK_NOTICE, 'promotional_code', TRUE, 'minor', 'order');
+		$existing_promotions = Array();
+		foreach($links as $link) {
+			$existing_promotions[$link['majorid']] = $link['linkid'];
+		}
+
+		// Link the promotions applied to the order asset		
+		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_OPEN);
+		$success = TRUE;
+		$new_promotions = Array();
+		foreach($order_promo_assetids as $promo_assetid) {
+			if (isset($existing_promotions[$promo_assetid])) {
+				$new_promotions[$promo_assetid] = $existing_promotions[$promo_assetid];
+				continue;
+			}
+			$promo_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($promo_assetid);
+			$linkid = $GLOBALS['SQ_SYSTEM']->am->createAssetLink($promo_asset, $order, SQ_LINK_NOTICE, 'order');
+			if (!$linkid) {
+				$success = FALSE;
+			}
+
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($promo_asset);
+			if (!$success) {
+				break;
+			}
+
+			$new_promotions[$promo_assetid] = $linkid;
+		}//end foreach
+
+		// Delete the promotion links that are not applied anymore
+		if ($success) {
+			foreach($existing_promotions as $promo_assetid => $linkid) {
+				if (!isset($new_promotions[$promo_assetid])) {
+					$success = $GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($linkid);
+					if (!$success) {
+						break;
+					}
+				}//end if
+			}// end foreach
+		}//end if
+
+		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+	
+	}//end _linkPromotionAssets()
 
 
 	/**
@@ -1222,7 +1289,7 @@ class Form_Ecommerce extends Form_Email
 			// process promotional codes
 			$discount = 0;
 			if (isset($promo_codes_in_cart[$asset_id])) {
-				$discount = $this->_getPromotionalCodeDiscount($promo_codes_in_cart[$asset_id], $price, $count);
+				$discount = Ecommerce_Common::getPromotionalDiscount($promo_codes_in_cart[$asset_id], $price, $count);
 			}
 			
 			if ($count > 1) {
@@ -2201,15 +2268,14 @@ class Form_Ecommerce extends Form_Email
 			return;
 		}
 		
-		$promo_code_asset = $this->_getPromotionalCodeAsset($asset, $promo_code);
+		$promo_code_assets = Ecommerce_Common::getPromotionalCodeAssetIds($asset->id, $promo_code);
 		
-		if (!is_null($promo_code_asset)){
+		if (!empty($promo_code_assets)) {
 			// Reset the promo code asset list because _addAssetItem() method also reset the asset list
 			// A new array 'promo_code_assets' is created instead of using the 'assets' array
 			// because we might want to add the promotional code for the whole ecommerce form later (the whole cart, not only individual items)
 			$_SESSION[$this->getPrefix()]['promo_code_assets'] = Array();
-			$_SESSION[$this->getPrefix()]['promo_code_assets'][$assetid] = $promo_code_asset->id;
-			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($promo_code_asset);
+			$_SESSION[$this->getPrefix()]['promo_code_assets'][$assetid] = $promo_code_assets;
 		}
 		
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
@@ -2217,28 +2283,6 @@ class Form_Ecommerce extends Form_Email
 	}//end _addAssetItemPromotionalCode()
 	
 	
-	/**
-	* Get the discount of promotional code on an asset with price and quantity
-	*
-	* @param string	$promo_code_assetid		Asset ID of the promotional code
-	* @param float	$price					The price of the asset to apply the promotional code
-	* @param int	$quantity				The quantity of the asset to apply the promtional code
-	*
-	* @return float
-	* @access private
-	*/
-	function _getPromotionalCodeDiscount($promo_code_assetid, $price, $quantity)
-	{
-		$promo_code_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($promo_code_assetid);
-		$asset_data = Array('price' => $price, 'quantity' => $quantity);
-		
-		$promo_code_asset->process($asset_data);
-		
-		return $asset_data['discount'];
-		
-	}//end _getPromotionalCodeDiscount()
-
-
 	/**
 	* Get the total in current order
 	*
@@ -2506,32 +2550,6 @@ class Form_Ecommerce extends Form_Email
 	}//end _isPurchasableAssetPromotable()
 	
 	
-	/**
-	* Return the promotional code asset if it is linked to the passed asset and has the promotional code matching the passed promotional code string
-	*
-	* @param object	&$asset		The asset to get promotional code asset from
-	* @param string	$promo_code	The promotional code string to search
-	*
-	* @return mixed
-	* @access private
-	*/
-	function _getPromotionalCodeAsset(&$asset, $promo_code)
-	{
-		$am = $GLOBALS['SQ_SYSTEM']->am;
-		$links = $am->getLinks($asset->id, SQ_LINK_NOTICE, 'promotional_code', TRUE, 'minor', $promo_code);
-		
-		foreach ($links as $link) {
-			$promo_code_asset = $am->getAsset($link['majorid']);
-			if (!is_null($promo_code_asset) && ($promo_code_asset->status == SQ_STATUS_LIVE)) {
-				return $promo_code_asset;
-			}
-		}
-		
-		return NULL;
-		
-	}//end _getPromotionalCodeAsset()
-
-
 	/**
 	* Format price amount with 2 decimals
 	*
