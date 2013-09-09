@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.78.6.1 2013/09/05 03:20:25 akarelia Exp $
+* $Id: page_account_manager.inc,v 1.78.6.2 2013/09/09 04:31:40 akarelia Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.78.6.1 $
+* @version $Revision: 1.78.6.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -221,8 +221,6 @@ class Page_Account_Manager extends Page_Asset_Builder
 		if (isset($redirect_url)) {
 			header('Location: '.$redirect_url);
 			exit();
-		} else if (!is_null($current_user) && !($current_user instanceof Public_User) && $this->attr('customise_logged_in')){
-			$this->_loadLoggedInBodycopy($current_user);
 		} else {
 			parent::printFrontend();
 		}
@@ -1394,12 +1392,13 @@ class Page_Account_Manager extends Page_Asset_Builder
 	* @return string
 	* @access public
 	*/
-	function _loadLoggedInBodycopy($asset)
+	function printBody()
 	{
+		$asset = $GLOBALS['SQ_SYSTEM']->user;
 		$this->_current_state = 'logged_in';
 		$content = '';
 
-		if (!is_null($asset) && !($asset instanceof Public_User)) {
+		if (!is_null($asset) && !($asset instanceof Public_User) && $this->attr('customise_logged_in')) {
 			// try and acquire a lock on the current user so they can edit their details
 			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$vars = Array(
@@ -1452,11 +1451,15 @@ class Page_Account_Manager extends Page_Asset_Builder
 				$content = ob_get_contents();
 
 				ob_end_clean();
+
+			echo $content;
+		} else {
+			parent::printBody();
 		}
 
-		echo $content;
+		return TRUE;
 
-	}//end _loadLoggedInBodycopy()
+	}//end printBody()
 
 
 	/**
