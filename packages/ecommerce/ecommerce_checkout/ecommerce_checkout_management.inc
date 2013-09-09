@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout_management.inc,v 1.20 2013/07/29 08:25:54 cupreti Exp $
+* $Id: ecommerce_checkout_management.inc,v 1.21 2013/09/09 08:37:56 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -304,6 +304,23 @@ class Ecommerce_Checkout_Management extends Asset_Management
 												'description' => 'Whether delivery cost includes tax',
 										   );
 										   
+		$this->vars['promotional_code_button_text'] = Array(
+															'added'			=> '0.4',
+															'type'			=> 'text',
+															'default'		=> 'Apply Promotion',
+															'description'	=> 'Apply Promition Button Text',
+															'is_contextable'	=> TRUE,
+														);
+		
+		$this->vars['promotional_code_field_size'] = Array(
+															'added'			=> '0.4',
+															'type'			=> 'int',
+															'default'		=> '20',
+															'description'	=> 'Promition text input field size',
+															'is_contextable'	=> FALSE,
+														);
+
+
 
 
 	}//end constructor

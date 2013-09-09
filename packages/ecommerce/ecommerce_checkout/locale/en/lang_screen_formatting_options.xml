@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_formatting_options.xml,v 1.6 2010/05/07 03:44:57 cupreti Exp $
+* $Id: lang_screen_formatting_options.xml,v 1.7 2013/09/09 08:37:56 cupreti Exp $
 *
 */
 -->
@@ -29,6 +29,14 @@
 		</field>
 		<field attribute="return_to_checkout_button_text">
 			<display_name>Go Back Button Text:</display_name>
+			<note />
+		</field>	
+		<field attribute="promotional_code_button_text">
+			<display_name>Promotional Code Button Text:</display_name>
+			<note />
+		</field>	
+		<field attribute="promotional_code_field_size">
+			<display_name>Promotional Code Text Field Size:</display_name>
 			<note />
 		</field>	
 		<field attribute="refund_info_text">

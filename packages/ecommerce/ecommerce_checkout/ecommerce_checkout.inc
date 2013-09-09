@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.91 2013/07/29 08:25:54 cupreti Exp $
+* $Id: ecommerce_checkout.inc,v 1.92 2013/09/09 08:37:56 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.91 $
+* @version $Revision: 1.92 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -255,7 +255,6 @@ class Ecommerce_Checkout extends Page
 		// edit Ecommerce Order. Check permission and lock order
 		// if the user doesn't have permission or lock, return without setting
 		// print_context
-
 		$order_id = array_get_index($_REQUEST, 'edit_order_id', 0);
 
 		if (!empty($order_id)) {
@@ -346,6 +345,31 @@ class Ecommerce_Checkout extends Page
 		$this->_logOrderAction(translate('ecom_order_history_action', ucwords(str_replace('_',' ', $action))));
 
 		switch ($action) {
+			case 'apply_promotional_code':
+				$cart = new Ecommerce_Cart_Processor();
+				$cart->setCartContainer($_SESSION['sq_local_cart_contents']['cart_contents']);
+				$promo_code = array_get_index($_REQUEST, $this->getPrefix().'_promotional_code', '');
+
+				// We will need "order" to apply the promotions
+				if (isset($_SESSION['sq_local_cart_contents']['editing_order']) && $_SESSION['sq_local_cart_contents']['editing_order'] && isset($_SESSION['sq_local_cart_contents']['order_id'])) {
+					$order = $GLOBALS['SQ_SYSTEM']->am->getAsset($_SESSION['sq_local_cart_contents']['order_id']);
+				} else if (isset($_SESSION['sq_local_cart_contents']['pending_order_id'])) {
+					$order = $GLOBALS['SQ_SYSTEM']->am->getAsset($_SESSION['sq_local_cart_contents']['pending_order_id']);
+				} else {
+					// Pending order is not created yet. So create the pending order
+					$order = $this->_createPendingOrder();
+					// Since we are just creating the order, the above "action" log obviously didnt got logged
+					$this->_logOrderAction(translate('ecom_order_history_action', ucwords(str_replace('_',' ', $action))));
+				}
+
+				// Apply promotion to the items in the cart
+				$cart->applyPromotionalCode($promo_code, $order, $this->attr('taxation_rate')/100);
+
+				// Update global cart in the session
+				$_SESSION['sq_cart_contents'][$this->id] = $cart->cart;
+
+				// We intentially don't "break" here
+
 			case 'go_to_confirmation':
 				$delivery_method_id = array_get_index($_REQUEST, 'sq_delivery_method_id');
 
@@ -544,19 +568,7 @@ class Ecommerce_Checkout extends Page
 					// also check if we are editing an existing order
 					if (!(isset($_SESSION['sq_local_cart_contents']['editing_order']) && $_SESSION['sq_local_cart_contents']['editing_order'])) {
 						// create the pending order
-						$order_asset = $this->_createOrder($_SESSION['sq_local_cart_contents']['cart_contents']);
-						
-						// so everyone knows that there is an existing pending order and to ensure that we do not create new ones unnecessarily
-						$_SESSION['sq_local_cart_contents']['pending_order_id'] = $order_asset->id;
-
-						// Save initial order details here so orders can be tracked in case of the following events:
-						// 1. Failure to contact the remote gateway
-						// 2. Failure to return from the remote gateway with "success"
-						//
-						// This ensures that disputed orders can be manually reconciled between Matrix and gateway records if required
-
-						$this->_saveOrderSummary($order_asset, $delivery_method);
-						$this->_logOrderAction(translate('ecom_order_history_customer_details_saved'), $order_asset);
+						$this->_createPendingOrder();
 					}
 				}
 
@@ -576,6 +588,35 @@ class Ecommerce_Checkout extends Page
 		return;
 
 	}//end _processInterface()
+
+
+	/**
+	* Create a "pending order" asset
+	*
+	* @return Object
+	* @access private
+	*/
+	function _createPendingOrder()
+	{
+		// create the pending order
+		$order_asset = $this->_createOrder($_SESSION['sq_local_cart_contents']['cart_contents']);
+
+		// so everyone knows that there is an existing pending order and to ensure that we do not create new ones unnecessarily
+		$_SESSION['sq_local_cart_contents']['pending_order_id'] = $order_asset->id;
+
+		// Save initial order details here so orders can be tracked in case of the following events:
+		// 1. Failure to contact the remote gateway
+		// 2. Failure to return from the remote gateway with "success"
+		//
+		// This ensures that disputed orders can be manually reconciled between Matrix and gateway records if required
+
+		$delivery_method = $this->_getActiveDeliveryMethod();
+		$this->_saveOrderSummary($order_asset, $delivery_method);
+		$this->_logOrderAction(translate('ecom_order_history_customer_details_saved'), $order_asset);
+
+		return $order_asset;
+
+	}//end _createPendingOrder()
 
 
 	/**
@@ -646,16 +687,28 @@ class Ecommerce_Checkout extends Page
 					// whether we are removing tax from this order
 					$remove_tax = isset($_SESSION['sq_region_specific']['remove_tax']) ? $_SESSION['sq_region_specific']['remove_tax'] : FALSE;
 					$total_cost = $cart->getGrandTotalExDelivery($this->attr('taxation_rate')/100, $remove_tax, $this->getFlatCharges());
+
 					$delivery_tax = 0;
 					$delivery_cost = $cart->getTotalDeliveryCosts($total_cost, $this->attr('taxation_rate')/100, $this->attr('apply_tax_on_delivery'), $this->attr('delivery_includes_tax'), $delivery_tax);
 					if (!$remove_tax) {
 						$delivery_cost += $delivery_tax;
 					}
 
-					// customer pays here!
-					$this->_logOrderAction(translate('ecom_order_history_payment_gateway'));
-					$delivery_method->processPaymentGateway(round($total_cost + $delivery_cost, $this->attr('float_precision')), $payment_gateway_id, $this->id);
-					return;
+					// Substract any promotional discounts
+					$total_discount = $cart->getTotalDiscount();
+					$grand_total = $total_cost + $delivery_cost - $total_discount;
+					if ($grand_total < 0) {
+						$grand_total = 0;
+					}
+
+					// For '0' amount the payment gateway will mark the order as 'has no amount' and then redirect back to the "success" url 
+					// without setting the response 'SQ_ECOM_RESPONSE'. So basically we will get back here again for '0' order amount
+					if ($grand_total != 0 || array_get_index($_REQUEST, $this->getPrefix().'_action', '') != 'payment_gateway_successful') {
+						// customer pays here!
+						$this->_logOrderAction(translate('ecom_order_history_payment_gateway'));
+						$delivery_method->processPaymentGateway(round($grand_total, $this->attr('float_precision')), $payment_gateway_id, $this->id);
+						return;
+					}
 
 				} else if ($delivery_method->attr('gateway_required')){
 					$this->_tmp['delivery_method_errors'][] = translate('ecom_checkout_error_no_payment_gateway_specified');
@@ -1384,7 +1437,16 @@ class Ecommerce_Checkout extends Page
 
 			// if products are taxed, remove tax from final amount
 			$remove_tax = isset($_SESSION['sq_region_specific']['remove_tax']) ? $_SESSION['sq_region_specific']['remove_tax'] : FALSE;
-			echo $cart->getGrandTotalExDelivery($this->attr('taxation_rate')/100, $remove_tax, $this->getFlatCharges());
+			$total_cost = $cart->getGrandTotalExDelivery($this->attr('taxation_rate')/100, $remove_tax, $this->getFlatCharges());
+			// Substract the discount
+			$total_discount = $cart->getTotalDiscount();
+			$total_cost -= $total_discount;
+			if ($total_cost < 0) {
+				$total_cost = 0;
+			}
+
+			// customer pays here!
+			echo $total_cost;
 
 			if ($html) echo '</pre>';
 		$total_cost = ob_get_clean();
@@ -1574,6 +1636,8 @@ class Ecommerce_Checkout extends Page
 		$keywords['return_to_checkout_button']	= translate('ecom_checkout_keyword_return_to_checkout_button');
 		$keywords['items_count']				= translate('ecom_checkout_keyword_items_count');
 		$keywords['items_total_count']			= translate('ecom_checkout_keyword_total_items_count');
+		$keywords['promotional_code_field']			= translate('ecom_checkout_promotional_code_field');
+		$keywords['apply_promotional_code_button']	= translate('ecom_checkout_promotional_code_button');
 
 		return $keywords;
 
@@ -1658,6 +1722,8 @@ class Ecommerce_Checkout extends Page
 		$keywords['sub_total']			= translate('ecom_checkout_keyword_sub_total');
 		$keywords['delivery_total']		= translate('ecom_checkout_keyword_delivery_total');
 		$keywords['grand_total']		= translate('ecom_checkout_keyword_grant_total');
+		$keywords['total_discount']		= translate('ecom_checkout_keyword_total_discount');
+		$keywords['grand_total_ex_discount'] = translate('ecom_checkout_keyword_grand_total_ex_discount');
 
 		return $keywords;
 
@@ -2113,6 +2179,51 @@ class Ecommerce_Checkout extends Page
 		}
 
 	}//end getCustomisedReceiptKeywordReplacement()
+
+	
+	/**
+	* Get Keyword Replacement for promotional code field 
+	*
+	* @return string
+	* @access public
+	*/
+	function getPromotionalCodeFieldKeywordReplacement()
+	{
+		$field_id = $this->getPrefix().'_promotional_code';
+		$size = $this->attr('promotional_code_field_size');
+		if (empty($size)) {
+			$size = 20;
+		}
+
+		$this->_registerFormField($field_id);
+		ob_start();
+			text_box($field_id, '', $size, '', FALSE, ' id="'.$field_id.'"');
+		return ob_get_clean();
+
+	}//end getPromotionalCodeFieldKeywordReplacement()
+
+
+	/**
+	* Get Keyword Replacement for apply promotional code submit button
+	*
+	* @return string
+	* @access public
+	*/
+	function getApplyPromotionalCodeButtonKeywordReplacement()
+	{
+		$field_value = $this->getPrefix().'_action[apply_promotional_code]';
+		$field_id = $this->getPrefix().'_action_apply_promotional_code';
+		$button_value = $this->attr('promotional_code_button_text');
+		if (empty($button_value)) {
+			$button_value = 'Apply Promotion';
+		}
+
+		$this->_registerFormField($field_value);
+		ob_start();
+			submit_button($field_value, $button_value, '', ' id="'.$field_id.'"');
+		return ob_get_clean();
+
+	}//end getApplyPromotionalCodeButtonKeywordReplacement()
 
 
 	/**
