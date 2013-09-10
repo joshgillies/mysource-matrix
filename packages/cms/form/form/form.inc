@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.281.2.4 2013/08/28 02:36:01 cupreti Exp $
+* $Id: form.inc,v 1.281.2.5 2013/09/10 07:19:47 ewang Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/recaptcha/recaptcha.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.281.2.4 $
+* @version $Revision: 1.281.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2016,7 +2016,7 @@ class Form extends Asset implements Bridge
 	*/
 	public function getFormAction()
 	{
-		$form_action = current_url();
+		$form_action = current_url(TRUE, TRUE, FALSE);
 
 		// Add the query string as well if it exists, so asset references with ?a=###
 		// submit back to themselves.
@@ -2024,6 +2024,7 @@ class Form extends Asset implements Bridge
 		// we'll be stuck at the one page once a GET var comes in
 		if (!empty($_SERVER['QUERY_STRING'])) {
 			preg_match_all('/([^=&]*)\=([^&]*)/', $_SERVER['QUERY_STRING'], $matches);
+			if(empty($matches[1]) || empty($matches[2])) return $form_action;
 			$matches = array_combine($matches[1], $matches[2]);
 
 			foreach ($matches as $key => $value) {
