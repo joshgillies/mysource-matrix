@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: http_request.inc,v 1.27 2013/07/31 06:31:18 akarelia Exp $
+* $Id: http_request.inc,v 1.28 2013/09/10 03:19:35 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 * 	<http_request />
 *
 * @author  James Hurst <jhurst@squiz.co.uk>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -594,17 +594,31 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 
 		if (array_get_index($this->_config, 'append_get_vars', FALSE)) {
 			$query_vars = $collection_var = '';
-			$get_vars = explode('&', $_SERVER['QUERY_STRING']);
+			$query_str_vars = explode('&', $_SERVER['QUERY_STRING']);
+			foreach ($query_str_vars as $index => $param) {
+				$exploded = explode('=', $param);
+				if (isset($exploded[0]) && isset($exploded[1])) $query_str_vars[$exploded[0]] = $exploded[1];
+				$exploded = Array();
+				unset($query_str_vars[$index]);
+			}
 
-			foreach ($get_vars as $param) {
+			foreach ($_GET as $index => $param) {
+				// bug fix #6261 Funnelback Rest Search Page passing parameters dot converted to underscore
+				// check to see if the query name has it period character converted to underscore
+				if (array_key_exists(str_replace('_', '.', $index), $query_str_vars) && !array_key_exists($index, $query_str_vars)) {
+					$index = str_replace('_', '.', $index);
+				}
+
+				// try to get the value from QUERY_STRING first or fallback on the _GET
+				$param = isset($query_str_vars[$index]) ? $query_str_vars[$index] : $param;
 				$param = str_replace(' ', '+', $param);
 				$param = str_replace('%20', '+', $param);
-				if (strpos($param, 'collection') !== FALSE) {
-					$collection_var .= $param;
+				if ($index == 'collection') {
+					$collection_var .= $index.'='.$param;
 					continue;
 				}
 				$prefix = empty($query_vars) ? '' : '&';
-				$query_vars .= $prefix.$param;
+				$query_vars .= $prefix.$index.'='.$param;
 
 			}
 
