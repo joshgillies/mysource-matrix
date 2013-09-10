@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_processor.inc,v 1.35 2013/09/10 03:03:39 cupreti Exp $
+* $Id: ecommerce_cart_processor.inc,v 1.36 2013/09/10 03:09:40 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_common.inc';
 * @author Robert Howard <rhoward@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -1321,7 +1321,7 @@ HEREDOC;
 		<grand_total_ex_discount>$grand_total_ex_discount</grand_total_ex_discount>
 		<total_discount>$total_discount</total_discount>
 		<grand_total>$grand_total</grand_total>
-		<promotion_code>$promotion_code</promotion_code>
+		<promotional_code>$promotion_code</promotional_code>
 		<products>$products_str
 		</products>$flat_charges_str
 	</cart>
