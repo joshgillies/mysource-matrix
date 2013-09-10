@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.5 2013/06/20 04:55:38 ewang Exp $
+* $Id: edit_interface_screen_details.xml,v 1.6 2013/09/10 03:15:04 ewang Exp $
 *
 */
 -->
@@ -48,6 +48,12 @@
 		</field>
 	</section>
 	<section name="SOAP Request Configuration" write_access="write:attributes">
+		<field>
+			<function_call>
+				<paint_function   name="paintSoapServiceAddress"   />
+				<process_function name="processSoapServiceAddress" />
+			</function_call>
+		</field>
 		<field>
 			<function_call>
 				<paint_function   name="paintSoapRequestFunction"   />

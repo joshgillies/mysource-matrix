@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_soap.inc,v 1.10 2013/06/20 04:55:38 ewang Exp $
+* $Id: data_source_soap.inc,v 1.11 2013/09/10 03:15:04 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/web_services/api/lib/soap_common.inc';
 * Data_Source_Soap
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -249,7 +249,7 @@ class Data_Source_Soap extends Data_Source
 
 		$params = Array();
 		foreach($soap_messages as $soap_message) {
-			$xml_object = simplexml_load_string($soap_message, 'SimpleXMLElement', LIBXML_NOCDATA);
+			$xml_object = @simplexml_load_string($soap_message, 'SimpleXMLElement', LIBXML_NOCDATA);
 			if ($xml_object === FALSE) {
 				continue;
 			}
@@ -378,6 +378,9 @@ class Data_Source_Soap extends Data_Source
 				}
 				if ($this->attr('mute_exception')) {
 					$settings['mute_exception'] = 1;
+				}
+				if ($this->attr('service_address')) {
+					$settings['service_address'] = $this->attr('service_address');
 				}
 				$settings['run_test'] = 1;
 				$soap_options = SOAP_Common::_getSoapOptions($settings);

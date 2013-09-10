@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_soap_management.inc,v 1.5 2013/06/21 05:19:58 ewang Exp $
+* $Id: data_source_soap_management.inc,v 1.6 2013/09/10 03:15:04 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -141,6 +141,12 @@ class Data_Source_Soap_Management extends Asset_Management
 												'type'			=> 'text',
 												'default'		=> '',
 												'description'	=> 'JSESSION ID Authentication URL',
+											   ),
+		    		    		'service_address'				=> Array(
+												'added'			=> '0.1',
+												'type'			=> 'text',
+												'default'		=> '',
+												'description'	=> 'Selected Service Address to send request to',
 											   ),
 					  );
 
