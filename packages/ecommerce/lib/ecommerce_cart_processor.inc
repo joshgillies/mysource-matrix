@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_processor.inc,v 1.36 2013/09/10 03:09:40 cupreti Exp $
+* $Id: ecommerce_cart_processor.inc,v 1.37 2013/09/10 06:06:32 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_common.inc';
 * @author Robert Howard <rhoward@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -1225,6 +1225,13 @@ class Ecommerce_Cart_Processor
 			$total_item_price_incl_tax = sprintf($price_format, ($cost + $tax_cost) * $quantity);
 			$total_item_tax = sprintf($price_format, $tax_cost * $quantity);
 
+			// Discounts
+			$item_discount = array_get_index($details, 'discount', 0);
+			$item_discount_str = sprintf($price_format, $item_discount);
+
+			$total_item_price_incl_discount = (($cost + ($remove_tax ? 0 : $tax_cost)) * $quantity) - $item_discount;
+			$total_item_price_incl_discount_str = sprintf($price_format, $total_item_price_incl_discount>0 ? $total_item_price_incl_discount : '0');
+
 			//get metadata of the product/donation asset
 			$metadata_values = $mm->getMetadataFieldValues($assetid);
 			$metadata_values_str = '';
@@ -1259,7 +1266,9 @@ HEREDOC;
 				<item_price_incl_tax>$item_price_incl_tax</item_price_incl_tax>
 				<total_item_price_incl_tax>$total_item_price_incl_tax</total_item_price_incl_tax>
 				<item_tax>$tax_cost</item_tax>
-				<total_item_tax>$total_item_tax</total_item_tax>$metadata_str
+				<total_item_tax>$total_item_tax</total_item_tax>
+				<item_discount>$item_discount_str</item_discount>
+				<total_item_price_incl_discount>$total_item_price_incl_discount_str</total_item_price_incl_discount>$metadata_str
 			</product>
 HEREDOC;
 		}
