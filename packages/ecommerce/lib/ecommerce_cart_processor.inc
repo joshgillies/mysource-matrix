@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_processor.inc,v 1.34 2013/09/09 07:52:40 cupreti Exp $
+* $Id: ecommerce_cart_processor.inc,v 1.35 2013/09/10 03:03:39 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_common.inc';
 * @author Robert Howard <rhoward@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -1180,11 +1180,12 @@ class Ecommerce_Cart_Processor
 	* @param int		$float_precision	precision of the floating numbers used for prices
 	* @param boolean	$calculate_del_tax	whether to calculate tax on delivery cost
 	* @param boolean	$del_inc_tax		whether the delivery cost includes tax
+	* @param boolean	$promotion_code		promotion code used in the checkout. FALSE if none used
 	*
 	* @return void
 	* @access public
 	*/
-	function getCartXml($taxation_name='GST', $taxation_rate=0, $flat_charges=Array(), $remove_tax=FALSE, $currency_symbol='$', $float_precision=2, $calculate_del_tax=FALSE, $del_inc_tax=FALSE)
+	function getCartXml($taxation_name='GST', $taxation_rate=0, $flat_charges=Array(), $remove_tax=FALSE, $currency_symbol='$', $float_precision=2, $calculate_del_tax=FALSE, $del_inc_tax=FALSE, $promotion_code=FALSE)
 	{
 		if (empty($this->cart)) return '';
 
@@ -1320,6 +1321,7 @@ HEREDOC;
 		<grand_total_ex_discount>$grand_total_ex_discount</grand_total_ex_discount>
 		<total_discount>$total_discount</total_discount>
 		<grand_total>$grand_total</grand_total>
+		<promotion_code>$promotion_code</promotion_code>
 		<products>$products_str
 		</products>$flat_charges_str
 	</cart>

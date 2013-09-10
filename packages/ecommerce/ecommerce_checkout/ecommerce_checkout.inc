@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.92 2013/09/09 08:37:56 cupreti Exp $
+* $Id: ecommerce_checkout.inc,v 1.93 2013/09/10 03:03:14 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.92 $
+* @version $Revision: 1.93 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -305,6 +305,7 @@ class Ecommerce_Checkout extends Page
 				unset($_SESSION['sq_local_cart_contents']['delivery_state']);
 				unset($_SESSION['sq_local_cart_contents']['editing_order']);
 				unset($_SESSION['sq_local_cart_contents']['success_order_id']);
+				unset($_SESSION['sq_local_cart_contents']['promotion_code']);
 
 				$local_cart_empty = empty($_SESSION['sq_local_cart_contents']['cart_contents']);
 
@@ -363,7 +364,9 @@ class Ecommerce_Checkout extends Page
 				}
 
 				// Apply promotion to the items in the cart
-				$cart->applyPromotionalCode($promo_code, $order, $this->attr('taxation_rate')/100);
+				if ($cart->applyPromotionalCode($promo_code, $order, $this->attr('taxation_rate')/100)) {
+					$_SESSION['sq_local_cart_contents']['promotion_code'] = $promo_code;
+				}
 
 				// Update global cart in the session
 				$_SESSION['sq_cart_contents'][$this->id] = $cart->cart;
@@ -1413,8 +1416,9 @@ class Ecommerce_Checkout extends Page
 
 		// if products are taxed, remove tax from final amount
 		$remove_tax = isset($_SESSION['sq_region_specific']['remove_tax']) ? $_SESSION['sq_region_specific']['remove_tax'] : FALSE;
+		$promo_code = $this->_getPromotionCodeUsed();
 		
-		return $cart->getCartXml($this->attr('taxation_name'), ($this->attr('taxation_rate')/100.0), $this->getFlatCharges(), $remove_tax, $this->attr('currency_symbol'), $this->attr('float_precision'), $this->attr('apply_tax_on_delivery'), $this->attr('delivery_includes_tax'));
+		return $cart->getCartXml($this->attr('taxation_name'), ($this->attr('taxation_rate')/100.0), $this->getFlatCharges(), $remove_tax, $this->attr('currency_symbol'), $this->attr('float_precision'), $this->attr('apply_tax_on_delivery'), $this->attr('delivery_includes_tax'), $promo_code);
 
 	}//end _getCartXml()
 
@@ -2201,6 +2205,19 @@ class Ecommerce_Checkout extends Page
 		return ob_get_clean();
 
 	}//end getPromotionalCodeFieldKeywordReplacement()
+
+
+	/**
+	* Get Promotion Code string used in the checkout, if any
+	*
+	* @return string|boolean
+	* @access private
+	*/
+	function _getPromotionCodeUsed()
+	{
+		return array_get_index($_SESSION['sq_local_cart_contents'], 'promotion_code', FALSE);
+
+	}//end _getPromotionCodeUsed()
 
 
 	/**
