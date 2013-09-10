@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_online_quiz.inc,v 1.45 2013/07/25 05:10:44 akarelia Exp $
+* $Id: page_online_quiz.inc,v 1.46 2013/09/10 07:09:39 ewang Exp $
 *
 */
 
@@ -61,7 +61,7 @@ define('SQ_ONLINE_QUIZ_FLAG_COMPLETE', 'is_complete');
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -645,7 +645,7 @@ class Page_Online_Quiz extends Page_Asset_Listing
 		$form = $this->getForm();
 		if (!is_null($form)) {
 			ob_start();
-				$form->printBody(TRUE, TRUE, current_url().'?'.$this->id.'_formid='.$form->id);
+				$form->printBody(TRUE, TRUE, current_url(TRUE, TRUE, FALSE).'?'.$this->id.'_formid='.$form->id);
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($form);
 			return ob_get_clean();
 		}
