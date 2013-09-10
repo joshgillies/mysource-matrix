@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: checkout_action_call_rest_resource.inc,v 1.7 2013/09/10 03:06:00 cupreti Exp $
+* $Id: checkout_action_call_rest_resource.inc,v 1.8 2013/09/10 06:05:32 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ define('ECOM_CHECKOUT_REST_ACTION_LOG_FILE', 'ecom_rest_checkout_action');
 *
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -911,6 +911,8 @@ class Checkout_Action_Call_Rest_Resource extends Checkout_Action
 		$keywords['product_total_item_price'] = "Total price of the items of the given type in the order excluding tax";
 		$keywords['product_total_item_price_incl_tax'] = "Total price of the items of the given type in the order including tax";
 		$keywords['product_total_item_tax'] = "Total tax for the given item type in the order";
+		$keywords['product_item_discount'] = "Product item's unit discount amount";
+		$keywords['product_total_item_price_incl_discount'] = "Total price of the items of the given type in the order with the discount applied";
 		
 		$keywords += self::_getAvailableKeywords($asset_type);
 		
