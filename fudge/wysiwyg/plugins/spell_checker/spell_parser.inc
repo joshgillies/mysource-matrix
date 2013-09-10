@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: spell_parser.inc,v 1.16 2013/07/25 23:25:17 lwright Exp $
+* $Id: spell_parser.inc,v 1.17 2013/09/10 06:37:30 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -46,7 +46,14 @@ Class Spell_Parser
 		   $this->skip++;
 		    return true;
 		}
-		echo '<'.$elem.' >';
+		$tag = '<'.$elem.' ';
+		foreach ($attribs as $attribute => $value) {
+			$tag .= $attribute.'="'.str_replace('"', '\\"', $value).'" ';
+		}
+		$tag .= '>';
+
+		echo $tag;
+
 		return true;
 
 	}//end openHandler()
