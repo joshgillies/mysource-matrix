@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.281.2.9 2013/08/29 03:25:27 akarelia Exp $
+* $Id: general.inc,v 1.281.2.10 2013/09/10 07:26:36 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.281.2.9 $
+* @version $Revision: 1.281.2.10 $
 * @package MySource_Matrix
 */
 
@@ -749,11 +749,12 @@ function asset_data_path_suffix($type_code, $assetid)
 *
 * @param boolean	$inc_protocol			include the protocol in the return var
 * @param boolean	$strip_backend_suffix	if currently in the backend this causes the backend suffix to be removed
+* @param boolean	$strip_extra_suffix	strip _nocache suffix and etc
 *
 * @return string
 * @access public
 */
-function current_url($inc_protocol=TRUE, $strip_backend_suffix=FALSE)
+function current_url($inc_protocol=TRUE, $strip_backend_suffix=FALSE, $strip_extra_suffix=TRUE)
 {
 	if (SQ_PHP_CLI && !isset($_SERVER['HTTP_HOST'])) {
 		// being called from eg. a squiz server HIPO
@@ -775,17 +776,20 @@ function current_url($inc_protocol=TRUE, $strip_backend_suffix=FALSE)
 		if ($strip_backend_suffix && (SQ_IN_BACKEND || SQ_IN_LIMBO || SQ_IN_LOGIN)) {
 			$url = preg_replace('/('.SQ_CONF_BACKEND_SUFFIX.'|'.SQ_CONF_LIMBO_SUFFIX.'|'.SQ_CONF_LOGIN_SUFFIX.')\/?$/', '', $url);
 		}
-		// NOTE: We shouldn't strip off '/' at the end of url
-		// otherwise it will create issues when generating relative herf
-		$url = preg_replace('/'.SQ_CONF_NOCACHE_SUFFIX.'\/?$/', '', $url);
+		
+		if($strip_extra_suffix) {
+		    // NOTE: We shouldn't strip off '/' at the end of url
+		    // otherwise it will create issues when generating relative herf
+		    $url = preg_replace('/'.SQ_CONF_NOCACHE_SUFFIX.'\/?$/', '', $url);
 
-		$regex = '/\/(';
-		$regex .= SQ_CONF_RECACHE_SUFFIX.'|';
-		$regex .= SQ_CONF_PERFORMANCE_SUFFIX.'|';
-		$regex .= SQ_CONF_PERFORMANCE_TIMING_SUFFIX.'|';
-		$regex .= SQ_CONF_PERFORMANCE_RESULT_SUFFIX;
-		$regex .= ')\/?$/';
-		$url = preg_replace($regex, '', $url);
+		    $regex = '/\/(';
+		    $regex .= SQ_CONF_RECACHE_SUFFIX.'|';
+		    $regex .= SQ_CONF_PERFORMANCE_SUFFIX.'|';
+		    $regex .= SQ_CONF_PERFORMANCE_TIMING_SUFFIX.'|';
+		    $regex .= SQ_CONF_PERFORMANCE_RESULT_SUFFIX;
+		    $regex .= ')\/?$/';
+		    $url = preg_replace($regex, '', $url);
+		}
 	}
 
 	if (empty($url)) {	// url empty, just use the first system root url

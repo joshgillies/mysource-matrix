@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.86.4.2 2013/07/25 05:26:16 akarelia Exp $
+* $Id: ecommerce_checkout.inc,v 1.86.4.3 2013/09/10 07:26:51 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.86.4.2 $
+* @version $Revision: 1.86.4.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -906,7 +906,7 @@ class Ecommerce_Checkout extends Page
 				$onsubmit = '';
 			}
 			
-			echo '<form action="'.current_url().'" method="post" '.$onsubmit.'>';
+			echo '<form action="'.current_url(TRUE, TRUE, FALSE).'" method="post" '.$onsubmit.'>';
 		}
 		
 		$content_bodycopy->setKeywordReplacements($replacements);

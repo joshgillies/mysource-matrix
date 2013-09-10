@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.59.4.1 2013/07/25 05:26:18 akarelia Exp $
+* $Id: form_ecommerce.inc,v 1.59.4.2 2013/09/10 07:26:52 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/orders/order/order.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.59.4.1 $
+* @version $Revision: 1.59.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -596,7 +596,7 @@ class Form_Ecommerce extends Form_Email
 
 		$clientside = ($this->attr('use_client_side')) ? 'onsubmit="return beforeSubmit_'.$prefix.'(this);"' : '';
 
-		$form_action = current_url();
+		$form_action = current_url(TRUE, TRUE, FALSE);
 
 		// Add the query string as well if it exists, so asset references with ?a=###
 		// submit back to themselves.
