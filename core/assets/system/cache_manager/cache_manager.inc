@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.97.6.1 2013/07/15 05:09:11 ewang Exp $
+* $Id: cache_manager.inc,v 1.97.6.2 2013/09/10 01:11:09 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.97.6.1 $
+* @version $Revision: 1.97.6.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -681,6 +681,10 @@ class Cache_Manager extends Asset
 				// if there are a few root nodes, we should use isUnderRootNodes for performance sake
 				if(count($root_nodes) < 10) {
 					$matched_roots = $GLOBALS['SQ_SYSTEM']->am->isUnderRootNodes($assetid, array_keys($root_nodes), TRUE);
+					if ($matched_roots === FALSE) {
+						// All provided root nodes have been deleted.
+						$matched_roots = Array();
+					}
 				}
 				else {
 					$matched_roots = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($assetid));
