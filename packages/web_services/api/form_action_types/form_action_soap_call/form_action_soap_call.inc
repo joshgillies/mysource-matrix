@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_action_soap_call.inc,v 1.29.2.1 2013/06/20 01:38:30 ewang Exp $
+* $Id: form_action_soap_call.inc,v 1.29.2.2 2013/09/10 05:14:59 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once dirname(dirname(dirname(__FILE__))).'/lib/soap_form_based_common.in
 * Make a SOAP call before submitting form
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.29.2.1 $
+* @version $Revision: 1.29.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -63,6 +63,7 @@ class Form_Action_SOAP_Call extends Form_Action
 					);
 		$selected_auth_type = array_get_index($settings, 'auth_type', 'HTTP_BASIC');
 		$selected_caching_type  = array_get_index($settings, 'cache_wsdl', WSDL_CACHE_NONE);
+		$selected_service_address  = array_get_index($settings, 'service_address', NULL);
 		?>
 
 		<p class="sq-backend-section-subheading">Connection Details</p>
@@ -146,6 +147,10 @@ class Form_Action_SOAP_Call extends Form_Action
 				<tr>
 					<td><?php echo translate('mute_exceptions'); ?></td>
 					<td><p><?php check_box($prefix.'_mute_exceptions', 1, array_get_index($settings, 'mute_exceptions', 0)); ?></p></td>
+				</tr>
+				<tr>
+					<td><?php echo translate('service_address'); ?></td>
+					<td><p><?php combo_box($prefix.'_service_address', array_get_index($settings, 'available_service_address', ''), FALSE, $selected_service_address); ?></p></td>
 				</tr>
 			</table>
 		</div>
@@ -418,6 +423,7 @@ class Form_Action_SOAP_Call extends Form_Action
 		$settings['login_url']				= array_get_index($_POST, $prefix.'_login_url', NULL);
 		$settings['cache_wsdl']				= array_get_index($_POST, $prefix.'_cache_wsdl', NULL);
 		$settings['test_crm_auth']			= array_get_index($_POST, $prefix.'_test_auth', NULL);
+		$settings['service_address']			= array_get_index($_POST, $prefix.'_service_address', NULL);
 
 		// This submission needs to be executed before form get submitted
 		$settings['before_submit']			= TRUE;
@@ -482,6 +488,10 @@ class Form_Action_SOAP_Call extends Form_Action
 			}
 		}
 
+		// grab the specified address from WSDL
+		$settings['available_service_address'] = SOAP_Common::getAvailableServiceAddress($settings['wsdl'], $settings['login'], $settings['password']);
+		
+		
 		// Currently selected "Check response" fields
 		$current_selected_fields = isset($settings[$settings['action'].'_response_error_fields']) ? $settings[$settings['action'].'_response_error_fields'] : Array();
 		$field_rule = Array();

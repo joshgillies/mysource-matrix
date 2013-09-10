@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: soap_common.inc,v 1.10.2.2 2013/06/20 05:02:09 ewang Exp $
+* $Id: soap_common.inc,v 1.10.2.3 2013/09/10 05:14:59 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ define('MAX_COMPLEX_TYPE_PASRSE_LOOP', 3);
 * This class will have all the common functions used for SOAP trigger and form actions
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.10.2.2 $
+* @version $Revision: 1.10.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -330,6 +330,10 @@ class SOAP_Common
 		}
 
 		$options['cache_wsdl'] = isset($settings['cache_wsdl']) ? $settings['cache_wsdl'] : WSDL_CACHE_NONE;
+		
+		if(isset($settings['service_address']) && !empty($settings['service_address'])) {
+		    $options['location'] = $settings['service_address'];
+		}
 
 		return $options;
 
@@ -616,6 +620,52 @@ class SOAP_Common
 
 	}//end getJSessionId()
 
+	
+	/**
+	* Returns available service address from WSDL file. Only picks SOAP 1.1 standard one.
+	* @param $wsdl wsdl url
+	* @param $username
+	* @param $password
+	*
+	* @return array
+	* @access public
+	*/
+	function getAvailableServiceAddress($wsdl, $username, $password)
+	{
+		if(empty($wsdl)) return Array();
+		
+		$address_array = Array();
+		$options = array(
+			'FOLLOWLOCATION' => 1,
+			'RETURNTRANSFER' => 1,
+			'HTTPAUTH'          => CURLAUTH_BASIC,
+			'TIMEOUT'        => 3,
+		   );
+		if(!empty($username)) {
+		    $options['USERPWD'] = $username.":".$password;
+		}
+		$details  = fetch_url($wsdl, $options, array(), FALSE);
+		$contents = $details['response'];
+		if (strpos($contents, '?xml') !== FALSE) {
+		    $xml = new SimpleXMLElement($contents);
+		    $xml->registerXPathNamespace('wsdl', 'http://schemas.xmlsoap.org/wsdl/');
+		    $xml->registerXPathNamespace('soap', 'http://schemas.xmlsoap.org/wsdl/soap/');
+		    $results = $xml->xpath('/wsdl:definitions/wsdl:service/wsdl:port/soap:address');
+		    foreach($results as $node) {
+			foreach($node->attributes() as $key => $value) {
+			    if($key === 'location') {
+				$address = (string) $value;
+				$address_array[$address] = $address;
+			    }
+			}
+		    }
+		}
+
+		return $address_array;
+
+	}//end getAvailableServiceAddress()
+	
+	
 
 	/**
 	* Converts an object or an array structure into an xml string

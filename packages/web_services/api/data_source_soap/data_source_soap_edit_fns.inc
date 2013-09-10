@@ -10,12 +10,13 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_soap_edit_fns.inc,v 1.4.2.1 2013/06/20 01:38:30 ewang Exp $
+* $Id: data_source_soap_edit_fns.inc,v 1.4.2.2 2013/09/10 05:14:59 ewang Exp $
 *
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns.inc';
+require_once SQ_PACKAGES_PATH.'/web_services/api/lib/soap_common.inc';
 
 /**
 * Data_Source_Soap_Edit_Fns
@@ -24,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.4.2.1 $
+* @version $Revision: 1.4.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -68,6 +69,57 @@ class Data_Source_Soap_Edit_Fns extends Data_Source_Edit_Fns
 	} //end processAuthType()
 
 
+	/**
+	* Paint the Soap service address field
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintSoapServiceAddress(&$asset, &$o, $prefix)
+	{
+		$wa = $asset->writeAccess('attributes');
+		
+		$available_address = SOAP_Common::getAvailableServiceAddress($asset->attr('wsdl'), $asset->attr('username'), $asset->attr('password'));
+
+		$selected = $asset->attr('service_address');
+		combo_box($prefix.'_service_address', $available_address, FALSE, $selected, 0, ($wa ? '' : 'disabled'));
+
+		return TRUE;
+
+	} //end paintSoapServiceAddress()
+
+
+	/**
+	* Process the Soap service address field
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processSoapServiceAddress(&$asset, &$o, $prefix)
+	{
+		$wa = $asset->writeAccess('attributes');
+		if ($wa && isset($_POST[$prefix.'_service_address'])) {
+			$value = trim($_POST[$prefix.'_service_address']);
+			$selected = $asset->attr('service_address');
+			if ($value != $selected) {
+				return $asset->setAttrValue('service_address', $value);
+			}
+		}
+
+		return TRUE;
+
+	} //end processSoapServiceAddress()
+	
+	
+	
 	/**
 	* Paint the Soap request function selection field
 	*

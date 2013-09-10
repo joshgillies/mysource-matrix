@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_make_soap_call.inc,v 1.13.2.1 2013/06/20 01:38:30 ewang Exp $
+* $Id: trigger_action_make_soap_call.inc,v 1.13.2.2 2013/09/10 05:14:59 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once dirname(dirname(dirname(__FILE__))).'/lib/soap_common.inc';
 *
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
-* @version $Revision: 1.13.2.1 $
+* @version $Revision: 1.13.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -201,6 +201,7 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 						'WSS_PASSWORD_DIGEST' => 'WSS Password Digest',
 					);
 		$selected_caching_type  = array_get_index($settings, 'cache_wsdl', WSDL_CACHE_NONE);
+		$selected_service_address  = array_get_index($settings, 'service_address', NULL);
 		$disabled = $write_access ? '' : 'disabled';
 		$prefix_str = md5($prefix);
 
@@ -304,6 +305,10 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 						}
 					?>
 					</p></td>
+				</tr>
+				<tr>
+					<td><?php echo translate('service_address'); ?></td>
+					<td><p><?php combo_box($prefix.'[service_address]', array_get_index($settings, 'available_service_address', ''), FALSE, $selected_service_address); ?></p></td>
 				</tr>
 				<tr>
 					<td width="120"><p>Cache WSDL</p></td>
@@ -630,6 +635,7 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 		$settings['login_url']			= array_get_index($request_data, 'login_url', NULL);
 		$settings['cache_wsdl']			= array_get_index($request_data, 'cache_wsdl', NULL);
 		$settings['test_crm_auth']		= array_get_index($request_data, 'test_auth', NULL);
+		$settings['service_address']		= array_get_index($request_data, 'service_address', NULL);
 
 		if(isset ($settings['wsdl']) && !empty($settings['wsdl'])) {
 
@@ -703,6 +709,11 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 		if(isset($settings['action']))
 		    $settings[$settings['action'].'_treat_as_fatal'] = array_get_index($request_data, $request_data['action'].'_treat_as_fatal',0);
 
+		
+		// grab the service address from WSDL
+		$settings['available_service_address'] = SOAP_Common::getAvailableServiceAddress($settings['wsdl'], $settings['login'], $settings['password']);
+		
+		
 		// Currently selected "Check response" fields
 		$current_selected_fields = (isset($request_data[$settings['action'].'_response_error_fields']) && $request_data[$settings['action'].'_response_error_fields'] != '')? $request_data[$settings['action'].'_response_error_fields'] : Array();
 

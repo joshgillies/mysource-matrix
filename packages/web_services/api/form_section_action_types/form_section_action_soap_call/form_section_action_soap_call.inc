@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_action_soap_call.inc,v 1.21 2013/03/19 06:35:14 cupreti Exp $
+* $Id: form_section_action_soap_call.inc,v 1.21.2.1 2013/09/10 05:14:59 ewang Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once dirname(dirname(dirname(__FILE__))).'/lib/soap_form_based_common.in
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.21.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage web_service
 */
@@ -60,6 +60,7 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 					);
 		$selected_auth_type = array_get_index($settings, 'auth_type', 'HTTP_BASIC');
 		$selected_caching_type  = array_get_index($settings, 'cache_wsdl', WSDL_CACHE_NONE);
+		$selected_service_address  = array_get_index($settings, 'service_address', NULL);
 		?>
 
 		<p class="sq-backend-section-subheading">Connection Details</p>
@@ -143,6 +144,10 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 				<tr>
 					<td><?php echo translate('mute_exceptions'); ?></td>
 					<td><p><?php check_box($prefix.'_mute_exceptions', 1, array_get_index($settings, 'mute_exceptions', 0)); ?></p></td>
+				</tr>
+				<tr>
+					<td><?php echo translate('service_address'); ?></td>
+					<td><p><?php combo_box($prefix.'_service_address', array_get_index($settings, 'available_service_address', ''), FALSE, $selected_service_address); ?></p></td>
 				</tr>
 			</table>
 		</div>
@@ -417,6 +422,7 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 		$settings['login_url'] = array_get_index($_POST, $prefix.'_login_url', NULL);
 		$settings['cache_wsdl']	= array_get_index($_POST, $prefix.'_cache_wsdl', NULL);
 		$settings['test_crm_auth'] = array_get_index($_POST, $prefix.'_test_auth', NULL);
+		$settings['service_address']			= array_get_index($_POST, $prefix.'_service_address', NULL);
 
 		// This submission needs to be executed before form get submitted
 		$settings['before_submit'] = TRUE;
@@ -426,7 +432,7 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 			$options = SOAP_Common::_getSoapOptions($settings);
 			try {
 				$client = new SoapClient($settings['wsdl'], $options);
-				$ions = $client->__getFunctions();
+				$functions = $client->__getFunctions();
 				$types = $client->__getTypes();
 			}
 			catch (Exception $e) {
@@ -474,6 +480,11 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 			}//end if
 		}//end foreach
 
+		
+		// grab the specified address from WSDL
+		$settings['available_service_address'] = SOAP_Common::getAvailableServiceAddress($settings['wsdl'], $settings['login'], $settings['password']);
+		
+		
 		// Currently selected "Check response" fields
 		$current_selected_fields = isset($settings[$settings['action'].'_response_error_fields']) ? $settings[$settings['action'].'_response_error_fields'] : Array();
 		$field_rule = Array();
@@ -658,7 +669,7 @@ class Form_Section_Action_SOAP_Call extends Form_Section_Action
 
 		// Make SOAP call
 		try {
-			$client = new SoapClient($wsdl, $options);
+			$client = SOAP_Common::getSoapClient($wsdl, $options);
 
 			// For CRM OnDemand access using JSESSIONID cookie
 			$auth_type = array_get_index($settings, 'auth_type', 'HTTP_BASIC');
