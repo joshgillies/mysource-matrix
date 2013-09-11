@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div_edit_fns.inc,v 1.50 2013/09/11 05:16:37 lwright Exp $
+* $Id: bodycopy_div_edit_fns.inc,v 1.51 2013/09/11 05:17:49 lwright Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -338,7 +338,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 				?>				
 				<?php
 				if (count($lineages) > 1) {
-					echo get_asset_tag_line_binoculars($content_type->id, 'Multi-Linked DIV');
+					echo get_asset_tag_line_binoculars($asset->id, 'Multi-Linked DIV');
 				}
 				
 				if (!is_null($content_type)) {
