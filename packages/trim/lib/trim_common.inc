@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_common.inc,v 1.32.2.6 2013/09/06 04:00:30 ewang Exp $
+* $Id: trim_common.inc,v 1.32.2.7 2013/09/11 08:38:47 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.32.2.6 $
+* @version $Revision: 1.32.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage trim
 */
@@ -881,8 +881,9 @@ class TRIM_Common
 				// Use 'AttachmentId' as default file name
 				$file_name	= $object_list['AttachmentId'];
 			}
+			// Replace the invalid chars from the filename by '_'
+			$file_name = preg_replace('@['.preg_quote('\/:*?"<>|').']+@', '_', $file_name);
 			$file_name .= '.'.strtolower($object_list['FileType']);
-
 
 			$file_path 		= $final_file_path.'/'.$file_name;
 			if (file_exists($file_path)) {
