@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_send_submission_log.inc,v 1.4 2013/07/19 06:21:09 cupreti Exp $
+* $Id: cron_job_send_submission_log.inc,v 1.5 2013/09/11 03:00:55 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __cms__
 */
@@ -263,6 +263,11 @@ class Cron_Job_Send_Submission_Log extends Cron_Job
 				// Mark the run time
 				$this->setAttrValue('previous_run', $log_file_info['till']);
 				$this->saveAttributes();
+
+				// Clean up the temporary log file
+				if (file_exists($log_file_info['file'])) {
+					unlink($log_file_info['file']);
+				}
 				
 				$msg = 'Submission log sent for form #'.$form->id.' (job #'.$this->id.')';
 				
