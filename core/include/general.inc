@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.297 2013/09/10 07:09:29 ewang Exp $
+* $Id: general.inc,v 1.298 2013/09/11 05:16:37 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.297 $
+* @version $Revision: 1.298 $
 * @package MySource_Matrix
 */
 
@@ -1611,72 +1611,8 @@ function get_asset_tag_line($assetid, $screen='')
 		</div>
 
 		<?php
-		// LINEAGES BOX
-		$lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($assetid, 5, NULL, 'name', TRUE);
-
-		// start an inner buffer for the lineages popup
-		ob_start();
-		?>
-		<div id="asset-tag-line-<?php echo $assetid ?>-lineages" style="display:none">
-		<table><?php
-		foreach ($lineages as $lineage_key => $lineage) {
-			if ($lineage['link_type'] & SQ_SC_LINK_BACKEND_NAV) {
-				$lineage_assetids = array_keys($lineage['lineage']);
-				$lineage_assetids[] = str_replace('\\', '\\\\', $assetid);
-
-				$lineage_names = $lineage['lineage'];
-
-				// If we have too many in the lineage, we need to add '...' between first
-				// 2 and last 2 - including the asset itself
-				if (count($lineage['lineage']) > 3) {
-					$lineage_names = $lineage['lineage'];
-					array_splice($lineage_names, 2, -1, Array('...'));
-				}
-
-				foreach ($lineage_names as $id => $name){
-					$lineage_names[$id] = htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
-				}
-
-				$lineage_names[$assetid] = $asset_info['name'];
-				$lineages_onclick = _asset_locator_onclick($lineage_assetids, TRUE);
-				?><tr>
-				<td class="sq-backend-table-cell" ><a href="#" onclick="<?php echo $lineages_onclick; ?>"><?php echo implode(' &gt; ', $lineage_names) ?></a></td>
-				</tr><?php
-			} else {
-				unset($lineages[$lineage_key]);
-			}
-		}
-		?></table>
-		</div>
-		<?php
-		$lineages_div = ob_get_clean();
-
-		// If there is more than one lineage, then provide the popup, otherwise
-		// discard it and the icon becomes a direct selection
-		if (count($lineages) > 1) {
-			echo $lineages_div;
-			?><div id="asset-tag-line-<?php echo $assetid ?>-cancel-icon" style="display:none"><?php
-				sq_print_icon(sq_web_path('data').'/asset_types/bodycopy/images/icons/delete.png', 16, 16, translate('cancel'), translate('cancel'), ' style="border:none"');
-			?></div><?php
-			$lineages_onclick = 'tooltip.show(this, document.getElementById(\'asset-tag-line-'.str_replace('\\', '\\\\', $assetid).'-lineages\').innerHTML, \''.translate('lineages').'\', document.getElementById(\'asset-tag-line-'.str_replace('\\', '\\\\', $assetid).'-cancel-icon\').innerHTML)';
-			$lineages_name = translate('show_lineages');
-		} else if (count($lineages) == 1) {
-			sort($lineages);
-			$lineage_names = $lineages[0]['lineage'];
-			foreach ($lineage_names as $id => $name){
-				$lineage_names[$id] = htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
-			}
-			$lineage_names[$assetid] = $asset_info['name'];
-
-			$lineages_onclick = _asset_locator_onclick($lineage_assetids, FALSE);
-			$lineages_name = translate('show_in_asset_map');
-		}
-
 		echo sq_print_icon(sq_web_path('lib').'/web/images/icons/info.png', 16, 16, '', '', ' align="absmiddle" onmouseover="tooltip.show(this, document.getElementById(\'asset-tag-line-'.str_replace('\\', '\\\\', $assetid).'-more-details\').innerHTML, \'More Info\');" onmouseout="tooltip.hide();"');
-
-		if (count($lineages) > 0) {
-			echo sq_print_icon(sq_web_path('lib').'/web/images/icons/asset_locator.png', 16, 16, $lineages_name, $lineages_name, ' class="clickable" align="absmiddle"	onclick="'.$lineages_onclick.'"');
-		}
+		echo get_asset_tag_line_binoculars($assetid);
 
 		// Screen parameter now supports javascript code to be added to the
 		// onclick event in lieu of actually going to a screen
@@ -1704,6 +1640,133 @@ function get_asset_tag_line($assetid, $screen='')
 
 }//end get_asset_tag_line()
 
+
+/**
+ * Build a popup button for the "binoculars" icon in the asset tag line.
+ *
+ * This is to make show-multiple-lineage popups consistent between usages (for
+ * instance, the "multi-linked DIV" binoculars).
+ *
+ * Optional popup title defaults to "Lineages" if not provided.
+ *
+ * @param string $assetid    The asset ID to show lineages of.
+ * @param string $popupTitle Optional popup title. 
+ *
+ * @return string
+ * @access public
+ */
+function get_asset_tag_line_binoculars($assetid, $popupTitle=NULL)
+{
+	if ($popupTitle === NULL) {
+		$popupTitle = translate('lineages');
+	}
+	
+	ob_start();
+	
+	$lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($assetid, 5, NULL, 'name', TRUE);
+
+	if (strpos($assetid, ':') !== FALSE) {
+		list($real_assetid, $shadowid) = explode(':', $assetid, 2);
+		$asset_info = Array();
+		$shadow_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		if ($shadow_asset) {
+			$asset_info['type_code'] = $shadow_asset->type();
+			$asset_info['name'] = $shadow_asset->name;
+			$asset_info['short_name'] = $shadow_asset->short_name;
+			$asset_info['status'] = $shadow_asset->status;
+			$asset_info['created'] = $shadow_asset->created;
+			$asset_info['created_userid'] = $shadow_asset->created_userid;
+			$asset_info['updated'] = $shadow_asset->updated;
+			$asset_info['updated_userid'] = $shadow_asset->updated_userid;
+			$asset_info['published'] = $shadow_asset->published;
+			$asset_info['published_userid'] = $shadow_asset->published_userid;
+			$asset_info['status_changed'] = $shadow_asset->status_changed;
+			$asset_info['status_changed_userid'] = $shadow_asset->status_changed_userid;
+		}
+	} else {
+		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
+		if (isset($asset_info[$assetid])) {
+			$asset_info = $asset_info[$assetid];
+		}
+		$real_assetid = $assetid;
+	}
+	
+	$asset_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, SQ_SC_LINK_ALL, '', TRUE, 'minor');
+	$count_linked_to = count($asset_links);
+	
+	// start an inner buffer for the lineages popup
+	ob_start();
+	?>
+	<div id="asset-tag-line-<?php echo $assetid ?>-lineages" style="display:none">
+	<p style="padding: 2px 5px 0;">This asset is linked to <?php
+	if ($count_linked_to === 1) {
+		?><strong><em><?php echo $count_linked_to ?></em></strong> parent<?php
+	} else {
+		?><strong><em><?php echo $count_linked_to ?></em></strong> parents<?php
+	}
+	?></p>
+	<table><?php
+	foreach ($lineages as $lineage_key => $lineage) {
+		if ($lineage['link_type'] & SQ_SC_LINK_BACKEND_NAV) {
+			$lineage_assetids = array_keys($lineage['lineage']);
+			$lineage_assetids[] = str_replace('\\', '\\\\', $assetid);
+
+			$lineage_names = $lineage['lineage'];
+
+			// If we have too many in the lineage, we need to add '...' between first
+			// 2 and last 2 - including the asset itself
+			if (count($lineage['lineage']) > 3) {
+				$lineage_names = $lineage['lineage'];
+				array_splice($lineage_names, 2, -1, Array('...'));
+			}
+
+			foreach ($lineage_names as $id => $name){
+				$lineage_names[$id] = htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
+			}
+
+			$lineage_names[$assetid] = $asset_info['name'];
+			$lineages_onclick = _asset_locator_onclick($lineage_assetids, TRUE);
+			?><tr>
+			<td class="sq-backend-table-cell" ><a href="#" onclick="<?php echo $lineages_onclick; ?>"><?php echo implode(' &gt; ', $lineage_names) ?></a></td>
+			</tr><?php
+		} else {
+			unset($lineages[$lineage_key]);
+		}
+	}
+	?></table>
+	</div>
+	<?php
+	$lineages_div = ob_get_clean();
+
+	// If there is more than one lineage, then provide the popup, otherwise
+	// discard it and the icon becomes a direct selection
+	if (count($lineages) > 1) {
+		echo $lineages_div;
+		?><div id="asset-tag-line-<?php echo $assetid ?>-cancel-icon" style="display:none"><?php
+			sq_print_icon(sq_web_path('data').'/asset_types/bodycopy/images/icons/delete.png', 16, 16, translate('cancel'), translate('cancel'), ' style="border:none"');
+		?></div><?php
+		$lineages_onclick = 'tooltip.show(this, document.getElementById(\'asset-tag-line-'.str_replace('\\', '\\\\', $assetid).'-lineages\').innerHTML, \''.addslashes($popupTitle).'\', document.getElementById(\'asset-tag-line-'.str_replace('\\', '\\\\', $assetid).'-cancel-icon\').innerHTML)';
+		$lineages_name = translate('show_lineages');
+	} else if (count($lineages) == 1) {
+		sort($lineages);
+		$lineage_names = $lineages[0]['lineage'];
+		foreach ($lineage_names as $id => $name){
+			$lineage_names[$id] = htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
+		}
+		$lineage_names[$assetid] = $asset_info['name'];
+
+		$lineages_onclick = _asset_locator_onclick($lineage_assetids, FALSE);
+		$lineages_name = translate('show_in_asset_map');
+	}
+
+	if (count($lineages) > 0) {
+		echo sq_print_icon(sq_web_path('lib').'/web/images/icons/asset_locator.png', 16, 16, $lineages_name, $lineages_name, ' class="clickable" align="absmiddle"	onclick="'.$lineages_onclick.'"');
+	}
+	
+	$contents = ob_get_clean();
+	return $contents;
+	
+}//end get_asset_tag_line_binoculars()
 
 /**
 * Returns the onclick event used by the binoculars icon for get_asset_tag_line()
