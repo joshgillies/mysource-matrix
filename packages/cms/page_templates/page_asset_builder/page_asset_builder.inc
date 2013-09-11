@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.177.4.3 2013/09/05 03:20:38 akarelia Exp $
+* $Id: page_asset_builder.inc,v 1.177.4.4 2013/09/11 01:49:18 cupreti Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/recaptcha/recaptcha.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.177.4.3 $
+* @version $Revision: 1.177.4.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -517,6 +517,31 @@ class Page_Asset_Builder extends Page
 						}
 					}
 
+					// reCAPTCHA check
+					if ($this->attr('use_recaptcha')) {
+						$recaptcha_response = Recaptcha::verifyRecaptcha();
+						if (!$recaptcha_response->is_valid) {
+							$error_msg = $this->attr('recaptcha_error_message');
+							if (empty($error_msg)) {
+								$error_msg = array_shift($recaptcha_response->error);
+							}
+							trigger_error($error_msg, E_USER_NOTICE);
+							$required_error = TRUE;
+						}
+					}//end if
+
+					// Honeypot question validation
+					if (!$this->_honeypotFieldEmpty()) {
+						trigger_error($this->attr('honeypot_error_message'), E_USER_NOTICE);
+						$required_error = TRUE;
+					}//end if
+
+					// Submission time requirement check
+					if (!$this->_passedMinimumTimeThreshold()) {
+						trigger_error($this->attr('time_requirement_error_message'), E_USER_NOTICE);
+						$required_error = TRUE;
+					}//end if
+
 					// create our dummy asset so we can access all its you beaut functions
 					// to make life easier for ourselves
 					$create_type = $_POST['AB_'.$this->id.'_ASSET_BUILDER_CREATE_TYPE'];
@@ -874,28 +899,6 @@ class Page_Asset_Builder extends Page
 								break;
 							}//end switch
 						}//end if use mollom
-
-						// reCAPTCHA check
-						if ($this->attr('use_recaptcha')) {
-							$recaptcha_response = Recaptcha::verifyRecaptcha();
-							if (!$recaptcha_response->is_valid) {
-								$error_msg = $this->attr('recaptcha_error_message');
-								if (empty($error_msg)) {
-									$error_msg = array_shift($recaptcha_response->error);
-								}
-								$this->_errors[] = $error_msg;
-							}
-						}//end if
-
-						// Honeypot question validation
-						if (!$this->_honeypotFieldEmpty()) {
-							$this->_errors[] = $this->attr('honeypot_error_message');
-						}//end if
-
-						// Submission time requirement check
-						if (!$this->_passedMinimumTimeThreshold()) {
-							$this->_errors[] = $this->attr('time_requirement_error_message');
-						}//end if
 
 						// start performance mode timer
 						$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'processLayouts');
