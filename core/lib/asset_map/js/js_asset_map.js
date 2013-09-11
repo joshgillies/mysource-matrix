@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.46 2013/09/11 03:54:33 lwright Exp $
+* $Id: js_asset_map.js,v 1.47 2013/09/11 04:05:51 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.46 $
+ * @version $Revision: 1.47 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -2033,7 +2033,6 @@ var JS_Asset_Map = new function() {
 
 		if (tree) {
 			// Top-level tree always shows all assets.
-			console.info('tree ' + treeid);
 			self.doRequest({
 				_attributes: {
 					action: 'get assets'
@@ -2058,7 +2057,6 @@ var JS_Asset_Map = new function() {
 					dfx.remove(container);
 					dfx.remove(branchTarget);
 				} else {
-					console.info('tree ' + treeid + ' response');
 					tree.innerHTML = '';
 					var assetCount = rootAsset.asset.length;
 					var assetLine  = null;
