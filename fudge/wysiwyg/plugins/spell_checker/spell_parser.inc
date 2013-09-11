@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: spell_parser.inc,v 1.14.8.2 2013/09/10 06:37:59 akarelia Exp $
+* $Id: spell_parser.inc,v 1.14.8.3 2013/09/11 03:34:32 ewang Exp $
 *
 */
 
@@ -22,13 +22,12 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14.8.2 $
+* @version $Revision: 1.14.8.3 $
 * @package Fudge
 * @subpackage wysiwyg
 */
 Class Spell_Parser
 {
-	var $skip = 0;
 	
 	/**
 	* Gets called when a start tag is parsed
@@ -42,10 +41,6 @@ Class Spell_Parser
 	*/
 	function openHandler(&$parser, $elem, $attribs)
 	{
-		if(strtolower($elem) === 'script') {
-		   $this->skip++;
-		    return true;
-		}
 		$tag = '<'.$elem.' ';
 		foreach ($attribs as $attribute => $value) {
 			$tag .= $attribute.'="'.str_replace('"', '\\"', $value).'" ';
@@ -70,10 +65,6 @@ Class Spell_Parser
 	*/
 	function closeHandler(&$parser, $elem)
 	{
-		if(strtolower($elem)  === 'script') {
-		   $this->skip--;
-		    return true;
-		}
 		echo '</'.$elem.'>';
 		return true;
 
@@ -138,7 +129,6 @@ Class Spell_Parser
 	*/
 	function dataHandler(&$parser, $data)
 	{
-		if($this->skip != 0) return true;
 		
 		$matches = preg_match('|[^\w]|', $data);
 		if ($matches) {
