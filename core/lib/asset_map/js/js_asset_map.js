@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.45 2013/09/11 03:26:03 lwright Exp $
+* $Id: js_asset_map.js,v 1.46 2013/09/11 03:54:33 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.45 $
+ * @version $Revision: 1.46 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -2033,6 +2033,7 @@ var JS_Asset_Map = new function() {
 
 		if (tree) {
 			// Top-level tree always shows all assets.
+			console.info('tree ' + treeid);
 			self.doRequest({
 				_attributes: {
 					action: 'get assets'
@@ -2057,6 +2058,7 @@ var JS_Asset_Map = new function() {
 					dfx.remove(container);
 					dfx.remove(branchTarget);
 				} else {
+					console.info('tree ' + treeid + ' response');
 					tree.innerHTML = '';
 					var assetCount = rootAsset.asset.length;
 					var assetLine  = null;
@@ -2787,7 +2789,6 @@ var JS_Asset_Map = new function() {
 		if (parentAsset) {
 			container.setAttribute('data-parentid', parentAsset.getAttribute('data-assetid'));
 		} else {
-			container = this.getCurrentTreeElement();
 			container.setAttribute('data-parentid', rootAsset._attributes.assetid);
 		}
 
@@ -3099,6 +3100,12 @@ var JS_Asset_Map = new function() {
 						
 						container.setAttribute('data-offset', assetRequests[reqIndex]._attributes.start);
 						container.setAttribute('data-total', thisAsset._attributes.num_kids);
+						
+						if ((thisAsset._attributes.num_kids > 0) && (assetRequests[reqIndex]._attributes.start >= thisAsset._attributes.num_kids)) {
+							container.setAttribute('data-offset', assetRequests[reqIndex]._attributes.start - options.assetsPerPage);
+							self.addToRefreshQueue([assetid]);
+							self.processRefreshQueue();
+						}
 					}
 					
 					container.innerHTML = '';
