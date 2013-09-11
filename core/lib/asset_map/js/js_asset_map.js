@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.44 2013/09/11 02:23:48 lwright Exp $
+* $Id: js_asset_map.js,v 1.45 2013/09/11 03:26:03 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.44 $
+ * @version $Revision: 1.45 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -2980,12 +2980,13 @@ var JS_Asset_Map = new function() {
 
 		var assetids = [];
 		if (String(rootAsset) === '1') {
-			var rootNode = tree;
+			var rootNodes = [tree];
 		} else {
-			var rootNode = dfx.find(tree, 'div.childIndent[data-parentid="' + rootAsset + '"]')[0];
+			var rootNodes = dfx.find(tree, 'div.childIndent[data-parentid="' + rootAsset + '"]');
 		}
 
-		if (rootNode) {			
+		for (var x = 0; x < rootNodes.length; x++) {
+			var rootNode = rootNodes[x];
 			if (rootNode === tree) {
 				assetids.push({
 					assetid: rootAsset,
@@ -3027,8 +3028,8 @@ var JS_Asset_Map = new function() {
 						});
 					}//end if
 				}//end if
-			}//end for
-		}//end if
+			}//end for		
+		}//end for
 
 		if (assetids.length > 0) {
 			var savedSortOrders = [];
