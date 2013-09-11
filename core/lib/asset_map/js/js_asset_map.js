@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.48 2013/09/11 05:43:52 lwright Exp $
+* $Id: js_asset_map.js,v 1.49 2013/09/11 05:56:04 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.48 $
+ * @version $Revision: 1.49 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -840,7 +840,9 @@ var JS_Asset_Map = new function() {
 
 		dfx.addEvent(dfx.getId('asset_map_button_restore'), 'click', function() {
 			// Teleport back to root.
-			self.teleport(options.teleportRoot, null);
+			if (options.simple === false) {
+				self.teleport(options.teleportRoot, null);
+			}
 		});
 
 		dfx.addEvent(dfx.getId('asset_map_button_statuses'), 'click', function() {
@@ -2531,6 +2533,11 @@ var JS_Asset_Map = new function() {
 		dfx.addClass(tbButton, 'restore');
 		tbButton.innerHTML = '&nbsp;';
 		tbButton.setAttribute('title', js_translate('asset_map_tooltip_restore_root'));
+		
+		if (options.simple === true) {			
+			dfx.addClass(tbButton, 'disabled');
+		}
+		
 		tbButtons.appendChild(tbButton);
 
 		var tbButton = _createEl('span');
@@ -3751,10 +3758,14 @@ var JS_Asset_Map = new function() {
 
 		var menuItem = this.drawMenuItem(js_translate('asset_map_menu_teleport'), null);
 		container.appendChild(menuItem);
-		dfx.addEvent(menuItem, 'click', function(e) {
-			self.clearMenus();
-			self.teleport(assetid, linkid);
-		});
+		if (options.simple === false) {
+			dfx.addEvent(menuItem, 'click', function(e) {		
+				self.clearMenus();
+				self.teleport(assetid, linkid);
+			});
+		} else {
+			dfx.addClass(menuItem, 'disabled');
+		}
 
 		var menuItem = this.drawMenuItem(js_translate('asset_map_menu_refresh'), null);
 		dfx.addEvent(menuItem, 'click', function(e) {
