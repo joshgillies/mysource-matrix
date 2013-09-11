@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: spell_checker.php,v 1.14.4.2 2013/06/24 23:54:14 akarelia Exp $
+* $Id: spell_checker.php,v 1.14.4.3 2013/09/11 03:35:37 ewang Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Spell Checker Popup for the WYSIWYG
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.14.4.2 $
+* @version $Revision: 1.14.4.3 $
 * @package MySource_Matrix
 */
 require_once dirname(__FILE__).'/../../../../core/include/init.inc';
@@ -27,6 +27,7 @@ include_once dirname(__FILE__).'/../../../../data/private/conf/tools.inc';
 if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAccessBackend() || $GLOBALS['SQ_SYSTEM']->user->type() == 'simple_edit_user' || (method_exists($GLOBALS['SQ_SYSTEM']->user, 'isShadowSimpleEditUser') && $GLOBALS['SQ_SYSTEM']->user->isShadowSimpleEditUser()))) {
 	exit;
 }
+if(get_unique_token() !== $_POST['token']) exit();
 
 header('Content-type: text/html; charset: utf-8');
 

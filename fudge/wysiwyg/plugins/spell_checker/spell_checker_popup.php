@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: spell_checker_popup.php,v 1.13.4.1 2013/04/23 09:03:14 cupreti Exp $
+* $Id: spell_checker_popup.php,v 1.13.4.2 2013/09/11 03:35:37 ewang Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Spell Checker Popup for the WYSIWYG
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.13.4.1 $
+* @version $Revision: 1.13.4.2 $
 * @package MySource_Matrix
 */
 
@@ -232,6 +232,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 			<input type="hidden" name="content" id="f_content"/>
 			<input type="hidden" name="dictionary" id="f_dictionary"/>
 			<input type="hidden" name="init" id="f_init" value="1"/>
+			<input type="hidden" name="token" id="f_token" value="<?php echo (get_unique_token()); ?>"/>
 		</form>
 		<table class="major_table" cellspacing="0" cellpadding="0">
 			<tr>
