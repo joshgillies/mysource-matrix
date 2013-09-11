@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.47 2013/09/11 04:05:51 lwright Exp $
+* $Id: js_asset_map.js,v 1.48 2013/09/11 05:43:52 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.47 $
+ * @version $Revision: 1.48 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -2256,8 +2256,13 @@ var JS_Asset_Map = new function() {
 				assetMapContainer
 			)
 		)[0];
-		var messageDiv       = dfx.getId('asset_map_message');
-		messageDiv.innerHTML = message;
+		
+		var messageDiv = dfx.getId('asset_map_message');
+		if (dfx.trim(message) === '') {
+			messageDiv.innerHTML = '&nbsp;';
+		} else {
+			messageDiv.innerHTML = message;
+		}
 
 		if (timeouts.message) {
 			clearTimeout(timeouts.message);
@@ -2682,7 +2687,7 @@ var JS_Asset_Map = new function() {
 			var displayName = js_translate('status_' + x.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase());
 
 			var assetLine = _createEl('div');
-			dfx.addClass(assetLine, 'asset');
+			dfx.addClass(assetLine, 'fakeAsset');
 
 			var iconSpan = _createEl('span');
 			dfx.addClass(iconSpan, 'statusListIcon');

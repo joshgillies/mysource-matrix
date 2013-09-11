@@ -589,6 +589,7 @@
 	font-style: bold;
 }
 
+#asset_map_container .fakeAsset,
 #asset_map_container .asset {
 	padding-right: 3px;
 	position: relative;
@@ -596,10 +597,12 @@
 	white-space: nowrap;
 }
 
+#asset_map_container .fakeAsset > *,
 #asset_map_container .asset > * {
 	vertical-align: middle;
 }
 
+#asset_map_container .fakeAsset .assetName,
 #asset_map_container .asset .assetName {
 	margin: 1px 0;
 	padding: 1px 3px;
@@ -648,11 +651,11 @@
 	margin-bottom: 0;
 }
 
-#asset_map_container .statusList  .asset {
+#asset_map_container .statusList .fakeAsset {
 	display: none;
 }
 
-#asset_map_container .statusList.expanded .asset {
+#asset_map_container .statusList.expanded .fakeAsset {
 	display: block;
 	cursor: default;
 	margin: 2px;
@@ -668,7 +671,7 @@
 #asset_map_container .statusDivider {
 	background-color: #f5f5f5;
 	border-bottom: 1px solid #e2e2e2;
-	padding: 3px 3px;
+	padding: 3px 3px 0;
 	position: relative;
 	cursor: pointer;
 }
@@ -777,14 +780,26 @@
 	background: url(branch.gif) 50% 50% no-repeat;
 }
 
-#asset_map_container .statusDivider .icon,
 #asset_map_container .asset .branch-status {
 	background: url(branch_closed.png) 50% -5px no-repeat;
 }
 
-#asset_map_container .statusList.expanded .statusDivider .icon,
 #asset_map_container .asset .branch-status.expanded {
 	background: url(branch_open.png) 50% -5px no-repeat;
+}
+
+#asset_map_container .statusDivider .icon {
+	background: url(../../web/images/tree/branch_closed.gif) 50% -5px no-repeat;
+	cursor: pointer;
+}
+
+#asset_map_container .statusList.expanded .statusDivider .icon {
+	background: url(../../web/images/tree/branch_open.gif) 50% -5px no-repeat;
+}
+
+#asset_map_container .statusDivider .text:hover {
+	text-decoration: underline;
+	cursor: pointer;
 }
 
 #asset_map_container .toolbar:after {
