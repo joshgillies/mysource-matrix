@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_send_submission_log.inc,v 1.5 2013/09/11 03:00:55 cupreti Exp $
+* $Id: cron_job_send_submission_log.inc,v 1.6 2013/09/11 05:11:05 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __cms__
 */
@@ -405,7 +405,7 @@ class Cron_Job_Send_Submission_Log extends Cron_Job
 		}		
 		
 		$till_ts = time();
-		
+		$output = '';
 		switch($this->attr('logs_format')) {
 			case 'csv_nhr':
 			case 'csv':	
@@ -433,8 +433,14 @@ class Cron_Job_Send_Submission_Log extends Cron_Job
 		
 		}//end switch
 		
+		if (empty($output)) {
+			return FALSE;
+		}
+
+		// First three chars of "log_format" spells the extension
+		$extension = substr($this->attr('logs_format'), 0, 3);
 		$job_name = trim(preg_replace('|[^a-z0-9\-_]+|', '_', strtolower($this->displayName())), '_');		
-		$file_name = SQ_TEMP_PATH.'/submissions_log_'.$job_name.'('.date('Y-m-d H:i', $from_ts).' to '.date('Y-m-d H:i', $till_ts).')';
+		$file_name = SQ_TEMP_PATH.'/submissions_log_'.$job_name.'('.date('Y-m-d H:i', $from_ts).' to '.date('Y-m-d H:i', $till_ts).').'.$extension;
 		file_put_contents($file_name, $output);
 
 		return Array(
