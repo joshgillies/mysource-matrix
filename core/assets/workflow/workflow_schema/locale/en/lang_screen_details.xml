@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.8 2012/07/02 07:08:18 akarelia Exp $
+* $Id: lang_screen_details.xml,v 1.8.8.1 2013/09/12 01:32:55 ewang Exp $
 *
 */
 -->
@@ -24,6 +24,14 @@
 		<field attribute="notify_starter_on_live">
 			<display_name>Notify Starter When Live?</display_name>
 			<note>If enabled, will send the Notify on Live message to the initiator of the workflow process.</note>
+		</field>
+		<field attribute="notify_starter_after_approval">
+			<display_name>Notify Starter After Approval?</display_name>
+			<note>If enabled, will send the Asset Changes Approved message to the initiator of the workflow process.</note>
+		</field>
+		<field attribute="notify_approvers_after_approval">
+			<display_name>Notify Approvers After Approval?</display_name>
+			<note>If enabled, will send the Asset Changes Approved message to all approvers in current step.</note>
 		</field>
 		<field attribute="schema_from_email_address">
 			<display_name>Email to be Sent From</display_name>

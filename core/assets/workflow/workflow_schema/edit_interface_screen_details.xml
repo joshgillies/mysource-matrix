@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.14 2012/07/02 07:08:18 akarelia Exp $
+* $Id: edit_interface_screen_details.xml,v 1.14.8.1 2013/09/12 01:32:55 ewang Exp $
 *
 */
 -->
@@ -21,6 +21,12 @@
 			<text width="20" height="1" />
 		</field>
 		<field attribute="notify_starter_on_live">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="notify_starter_after_approval">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+		<field attribute="notify_approvers_after_approval">
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="schema_from_email_address">
