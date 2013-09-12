@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_schema_management.inc,v 1.18 2012/08/30 01:09:17 ewang Exp $
+* $Id: workflow_schema_management.inc,v 1.19 2013/09/12 01:05:50 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -49,6 +49,24 @@ class Workflow_Schema_Management extends Asset_Management
 															'added'			=> '0.1',
 															'type'			=> 'boolean',
 															'default'		=> FALSE,
+															'parameters'	=> Array(
+																				'allow_empty'	=> FALSE,
+																			   ),
+															'description'	=> 'If enabled, will send the Notify on Live message to the initiator of the workflow process.',
+														   ),
+		    				'notify_starter_after_approval'		=> Array (
+															'added'			=> '0.1',
+															'type'			=> 'boolean',
+															'default'		=> FALSE,
+															'parameters'	=> Array(
+																				'allow_empty'	=> FALSE,
+																			   ),
+															'description'	=> 'If enabled, will send the Notify on Live message to the initiator of the workflow process.',
+														   ),
+		    				'notify_approvers_after_approval'		=> Array (
+															'added'			=> '0.1',
+															'type'			=> 'boolean',
+															'default'		=> TRUE,
 															'parameters'	=> Array(
 																				'allow_empty'	=> FALSE,
 																			   ),
