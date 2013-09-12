@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_management.inc,v 1.31 2012/08/30 01:09:17 ewang Exp $
+* $Id: user_management.inc,v 1.32 2013/09/12 06:42:54 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -76,6 +76,11 @@ class User_Management extends Asset_Management
 											'default'	=> '',
 										   ),
 						'restrictions'	=> Array(
+											'added'		=> '0.2',
+											'type'		=> 'serialise',
+											'default'	=> Array(),
+										   ),
+		    				'history_passwords'	=> Array(
 											'added'		=> '0.2',
 											'type'		=> 'serialise',
 											'default'	=> Array(),

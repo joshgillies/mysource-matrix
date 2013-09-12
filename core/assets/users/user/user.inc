@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.142 2012/08/30 01:09:17 ewang Exp $
+* $Id: user.inc,v 1.143 2013/09/12 06:42:54 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.142 $
+* @version $Revision: 1.143 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -187,6 +187,7 @@ class User extends Asset
 	*/
 	function setAttrValue($name, $value)
 	{
+	   
 		// if this is the password, encrypt it
 		if ($name == 'password') {
 			$this->_tmp['password_set'] = TRUE; // so we know at create time whether to throw an extra error
@@ -208,6 +209,14 @@ class User extends Asset
 
 		if (!parent::setAttrValue($name, $value)) return FALSE;
 
+		if ($name === 'password' && defined('SQ_PASSWD_RULE_PASSWORD_HISTORY') && SQ_PASSWD_RULE_PASSWORD_HISTORY > 0) {
+		    $history_passwords = $this->attr('history_passwords');
+		    if(count($history_passwords) >= SQ_PASSWD_RULE_PASSWORD_HISTORY) {
+			array_pop($history_passwords);
+		    }
+		    array_unshift($history_passwords, $value);
+		    parent::setAttrValue('history_passwords', $history_passwords);
+		}
 		// tell the workspace (or anyone else listening) that the username has been updated
 		if ($name == 'username') {
 			$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
@@ -440,6 +449,16 @@ class User extends Asset
 					break;
 				}
 			}
+		}
+		
+		if (defined('SQ_PASSWD_RULE_PASSWORD_HISTORY') && SQ_PASSWD_RULE_PASSWORD_HISTORY > 0) {
+		    $history_passwords = $this->attr('history_passwords');
+		    foreach ($history_passwords as $password) {
+			if(crypt($passwd, $password) === $password) {
+			    		$errors[] = Array('CORE0321');
+					break;
+			}
+		    }
 		}
 
 		$charlist = count_chars($passwd, 1);

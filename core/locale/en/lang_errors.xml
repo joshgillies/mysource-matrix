@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_errors.xml,v 1.152 2013/08/07 03:25:28 akarelia Exp $
+* $Id: lang_errors.xml,v 1.153 2013/09/12 06:42:54 ewang Exp $
 *
 */
 
@@ -1698,6 +1698,7 @@ Full Node Contents :
 	<error code="CORE0232">Unable to create Trigger, incorrect format</error>
 	<error code="CORE0233">This operation requires the System Configuration lock to be acquired, but another user has that lock.  Please try again later.</error>
 	<error code="CORE0234">No design area asset with ID name %s was found.  There must have been a problem initialising the asset for this design area.  Area tag ignored.</error>
+	
 
 	<!-- Thesaurus Support -->
 	<error code="CORE0235">Failed copying uploaded file (%1$s) to destination directory (%2$s)</error>
@@ -1824,6 +1825,12 @@ Full Node Contents :
 
 	<!-- Workflow Manager - setCurrentUserAsLastStarted()  -->
 	<error code="CORE0320">Error updating 'last_started_by' column for Asset #%1$s with Workflow Schema %2$s : %3$s</error>
+
+
+	<!-- password rule -->
+	<error code="CORE0321">You cannot choose a password that has previously been used on this account.</error>
+
+
 
 	<error code="RPRT0000">Could not open temporary file, report generation aborted</error>
 		<!-- packages/cms/reports/report_links/report_links_edit_fns.inc:84: -->

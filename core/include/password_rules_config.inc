@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: password_rules_config.inc,v 1.16 2012/08/30 01:09:20 ewang Exp $
+* $Id: password_rules_config.inc,v 1.17 2013/09/12 06:42:54 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix
 */
 class Password_Rules_Config extends Config
@@ -50,6 +50,7 @@ class Password_Rules_Config extends Config
 						'SQ_PASSWD_RULE_DISABLED'			=> Array('editable' => 0, 'default' => 0),
 						'SQ_PASSWD_RULE_BLACK_LIST'			=> Array('editable' => 1, 'default' => ''),
 						'SQ_PASSWD_RULE_BLACK_LIST_EXACT'	=> Array('editable' => 1, 'default' => 1),
+						'SQ_PASSWD_RULE_PASSWORD_HISTORY'	=> Array('editable' => 1, 'default' => 0),
 					   );
 
 
@@ -255,6 +256,16 @@ class Password_Rules_Config extends Config
 				</table>
 				<?php
 			$o->closeField();
+			
+			
+			$o->openField(translate('password_history_enforcement'), '', translate('password_history_enforcement_note'));
+				if ($write_access && $is_root) {
+					text_box($class.'[SQ_PASSWD_RULE_PASSWORD_HISTORY]', SQ_PASSWD_RULE_PASSWORD_HISTORY, 0);
+				} else {
+					echo SQ_PASSWD_RULE_PASSWORD_HISTORY;
+				}
+			$o->closeField();
+			
 		$o->closeSection();
 
 		$o->openSection(translate('passwd_blacklist'));
