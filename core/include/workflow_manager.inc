@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.185 2013/07/25 23:23:50 lwright Exp $
+* $Id: workflow_manager.inc,v 1.186 2013/09/12 01:11:47 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.185 $
+* @version $Revision: 1.186 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -1128,24 +1128,28 @@ class Workflow_Manager extends MySource_Object
 		$ms->enqueueMessage($log);
 
 		if (!$this->silentWorkflowParty($asset->id)) {
-			// send internal messages to everyone who could approve before to let them know that someone did
 			$base_msg = $ms->newMessage();
 			$base_msg->type    = 'asset.workflow.announce.approve';
 			$base_msg->parameters['assetid'] = $asset->id;
 			$base_msg->replacements = $msg_reps;
 
+			// send internal messages to everyone who could approve before to let them know that someone did
 			// Send custom messages to anything that the publisher is in the workflow of
 			$generic_publishers_before = Array();
 			foreach ($schema_publishers_before as $schemaid => $publishers_step) {
-				$workflow =& $schema_workflows[$schemaid];
-				$current_step = $this->getCurrentStep($workflow, $steps_before[$schemaid]);
+				// only if this message is enabled
+				$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid, 'workflow_schema');
+				if(!$schema->attr('notify_approvers_after_approval')) continue;
+
 				if (in_array($publisher, $publishers_step)) {
+					$workflow =& $schema_workflows[$schemaid];
+					$current_step = $this->getCurrentStep($workflow, $steps_before[$schemaid]);
 					// Does this step have a custom message?
-					if (isset($current_step['message_approve']) && trim($current_step['message_approve']) !== '' ) {
+					if (isset($current_step['message_approve']) || isset($current_step['subject_approve'])) 
+					{
 						$msg = clone $base_msg;
 						$msg->to = $publishers_step;
 						// see if we have the 'from' field set
-						$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid, 'workflow_schema');
 						if ($schema->attr('schema_reply_to_email_address') != '') {
 							$msg->parameters['reply_to'] = $schema->attr('schema_reply_to_email_address');
 						} else {
@@ -1156,26 +1160,9 @@ class Workflow_Manager extends MySource_Object
 						}
 
 						$subject = trim(array_get_index($current_step, 'subject_approve', 'Asset Changes Approved'));
-						$msg->subject = (!empty($subject)) ? $subject : 'Asset Changes Approved';
-						$msg->body = trim($current_step['message_approve']);
-						$this->addMessageReplacements($asset, $msg->subject, $msg->body, $msg->replacements);
-						$ms->enqueueMessage($msg);
-					} else if (isset($current_step['subject_approve']) && trim($current_step['subject_approve']) !== '') {
-						$msg = clone $base_msg;
-						$msg->to = $publishers_step;
-						// see if we have the 'from' field set
-						$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid, 'workflow_schema');
-						if ($schema->attr('schema_reply_to_email_address') != '') {
-							$msg->parameters['reply_to'] = $schema->attr('schema_reply_to_email_address');
-						} else {
-							$msg->parameters['reply_to'] = $GLOBALS['SQ_SYSTEM']->currentUserId();
-						}
-						if ($schema->attr('schema_from_email_address') != '') {
-							$msg->from = $schema->attr('schema_from_email_address');
-						}
-
-						$subject = trim(array_get_index($current_step, 'subject_approve', 'Asset Changes Approved'));
-						$msg->subject = (!empty($subject)) ? $subject : 'Asset Changes Approved';
+						if(!empty($subject)) $msg->subject = $subject;
+						$body = trim(array_get_index($current_step, 'message_approve', ''));
+						if(!empty($body)) $msg->body = $body;
 						$this->addMessageReplacements($asset, $msg->subject, $msg->body, $msg->replacements);
 						$ms->enqueueMessage($msg);
 					} else {
@@ -1196,6 +1183,46 @@ class Workflow_Manager extends MySource_Object
 				$ms->enqueueMessage($msg);
 			}
 
+			
+			// send message to original editor so he knows his work has been approved
+			foreach ($schema_publishers_before as $schemaid => $publishers_step) {
+			    // only if message is required
+			    $schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+			    if(!$schema->attr('notify_starter_after_approval')) continue;
+			    // only if approver is in approver group of current schema step
+			    if (in_array($publisher, $publishers_step)) {
+				$workflow =& $schema_workflows[$schemaid];
+				$current_step = $this->getCurrentStep($workflow, $steps_before[$schemaid]);
+				// find out original editor
+				$data = $this->getAssetSchemaInfo($assetid, $schemaid, NULL, TRUE, TRUE);
+				
+				if(isset($data['last_started_by']) && !empty($data['last_started_by'])) {
+				    $msg = clone $base_msg;
+				    $msg->to = Array($data['last_started_by']);
+				    $schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid, 'workflow_schema');
+				    if ($schema->attr('schema_reply_to_email_address') != '') {
+					    $msg->parameters['reply_to'] = $schema->attr('schema_reply_to_email_address');
+				    } else {
+					    $msg->parameters['reply_to'] = $GLOBALS['SQ_SYSTEM']->currentUserId();
+				    }
+				    if ($schema->attr('schema_from_email_address') != '') {
+					    $msg->from = $schema->attr('schema_from_email_address');
+				    }
+
+				    $subject = trim(array_get_index($current_step, 'subject_approve', 'Asset Changes Approved'));
+				    if(!empty($subject)) $msg->subject = $subject;
+				    $body = trim(array_get_index($current_step, 'message_approve', ''));
+				    if(!empty($body)) $msg->body = $body;
+				    $this->addMessageReplacements($asset, $msg->subject, $msg->body, $msg->replacements);
+				    $ms->enqueueMessage($msg);
+				    // only send 1 email is enough
+				    break;
+				}
+			    }
+			}
+
+			
+			
 			// fire the 'Workflow Approval' event
 			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_workflow_approval', $asset);
 		}
