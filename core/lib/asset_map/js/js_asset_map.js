@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.51 2013/09/13 03:13:04 lwright Exp $
+* $Id: js_asset_map.js,v 1.52 2013/09/13 03:17:06 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.51 $
+ * @version $Revision: 1.52 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -898,9 +898,9 @@ var JS_Asset_Map = new function() {
 					self.clearSearch();
 
 					if ((e.ctrlKey === true) || (e.metaKey === true)) {
-						var childIndents = dfx.getParents(lastSelection, '.childIndent');
-						if (childIndents.length > 0) {
-							var tool = dfx.getClass('paginationTool.down', childIndents);
+						var childIndent = lastSelection.nextSibling;
+						if (childIndent && (dfx.hasClass(childIndent, 'childIndent') === true)) {
+							var tool = dfx.getClass('paginationTool.down', childIndent);
 							if (tool.length > 0) {
 								if (e.shiftKey === true) {
 									// CTRL/CMD + SHIFT + Right Arrow = page current set
@@ -938,9 +938,9 @@ var JS_Asset_Map = new function() {
 					self.clearSearch();
 
 					if ((e.ctrlKey === true) || (e.metaKey === true)) {
-						var childIndents = dfx.getParents(lastSelection, '.childIndent');
-						if (childIndents.length > 0) {
-							var tool = dfx.getClass('paginationTool.up', childIndents);
+						var childIndent = lastSelection.nextSibling;
+						if (childIndent && (dfx.hasClass(childIndent, 'childIndent') === true)) {
+							var tool = dfx.getClass('paginationTool.up', childIndent);
 							if (tool.length > 0) {
 								if (e.shiftKey === true) {
 									// CTRL/CMD + SHIFT + Left Arrow = page current set
