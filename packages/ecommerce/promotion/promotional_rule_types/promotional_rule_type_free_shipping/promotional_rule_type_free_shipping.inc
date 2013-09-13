@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: promotional_rule_type_free_shipping.inc,v 1.1 2013/09/09 08:33:19 cupreti Exp $
+* $Id: promotional_rule_type_free_shipping.inc,v 1.2 2013/09/13 07:59:03 cupreti Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once dirname(__FILE__).'/../../promotional_rule/promotional_rule.inc';
 * Promotional_Rule_Type_Free_Shipping
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -112,11 +112,15 @@ class Promotional_Rule_Type_Free_Shipping extends Promotional_Rule
 	 * @param array &$asset_data	The asset data
 	 * @param array $rule_data		The rule data
 	 * 
-	 * @return void
+	 * @return boolean
 	 * @access public
 	 */
 	public function evaluate(&$asset_data, $rule_data)
 	{
+		if (!parent::evaluate($asset_data, $rule_data)) {
+			return FALSE;
+		}
+		
 		$price = array_get_index($asset_data, 'price', 0);
 		$quanity = array_get_index($asset_data, 'quantity', 0);
 
@@ -128,6 +132,8 @@ class Promotional_Rule_Type_Free_Shipping extends Promotional_Rule
 				$asset_data['free_shipping'] = TRUE;
 			}
 		}
+		
+		return TRUE;
 		
 	}//end evaluate()
 	

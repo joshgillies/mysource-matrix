@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: promotional_rule_type_quantity.inc,v 1.3 2013/09/09 08:34:53 cupreti Exp $
+* $Id: promotional_rule_type_quantity.inc,v 1.4 2013/09/13 07:59:03 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../promotional_rule/promotional_rule.inc';
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -101,11 +101,15 @@ class Promotional_Rule_Type_Quantity extends Promotional_Rule
 	 * @param array &$asset_data	The asset data
 	 * @param array &$rule_data		The rule data
 	 * 
-	 * @return void
+	 * @return boolean
 	 * @access public
 	 */
 	public function evaluate(&$asset_data, $rule_data)
 	{
+		if (!parent::evaluate($asset_data, $rule_data)) {
+			return FALSE;
+		}
+
 		$price = $asset_data['price'];
 		$remaining_quantity = $asset_data['quantity'];
 		$discount = 0;
@@ -123,7 +127,7 @@ class Promotional_Rule_Type_Quantity extends Promotional_Rule
 			}
 
 			$asset_data['discount'] += $discount;
-			return;
+			return TRUE;
 		}
 
 		$discount_options = array_reverse($discount_options, TRUE);
@@ -142,6 +146,8 @@ class Promotional_Rule_Type_Quantity extends Promotional_Rule
 		}
 		
 		$asset_data['discount'] += $discount;
+
+		return TRUE;
 		
 	}//end evaluate()
 	

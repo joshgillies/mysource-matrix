@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: promotional_rule_type_quantity_edit_fns.inc,v 1.3 2013/09/09 08:34:53 cupreti Exp $
+* $Id: promotional_rule_type_quantity_edit_fns.inc,v 1.4 2013/09/13 07:59:03 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../promotional_rule/promotional_rule_edit_fn
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -56,10 +56,7 @@ class Promotional_Rule_Type_Quantity_Edit_Fns extends Promotional_Rule_Edit_Fns
 	 */
 	function paintRule(&$asset, &$o, $prefix, $rule_data, $write_access)
 	{
-		// Setup default values if there is no rule data
-		if (is_null($rule_data)) {
-			$rule_data = $asset->getDefaultRuleData();
-		}
+		parent::paintRule($asset, $o, $prefix, $rule_data, $write_access);
 		
 		// Paint the discount type selection
 		$o->openField(translate('ecom_promotional_rule_type_quantity_discount_type'));
@@ -166,6 +163,8 @@ class Promotional_Rule_Type_Quantity_Edit_Fns extends Promotional_Rule_Edit_Fns
 	 */
 	function processRule(&$asset, &$o, $prefix, &$rule_data)
 	{
+		parent::processRule($asset, $o, $prefix, $rule_data);
+		
 		if (!isset($_POST[$prefix])) return FALSE;
 		
 		// Setup default values if there is no rule data

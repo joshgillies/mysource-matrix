@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: promotional_rule.inc,v 1.2 2012/08/30 00:58:34 ewang Exp $
+* $Id: promotional_rule.inc,v 1.3 2013/09/13 07:57:53 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -53,11 +53,31 @@ class Promotional_Rule extends Asset
 	 * @param array &$asset_data	The asset data
 	 * @param array &$rule_data		The rule data
 	 * 
-	 * @return void
+	 * @return boolean
 	 * @access public
 	 */
 	public function evaluate(&$asset_data, $rule_data)
 	{
+		// Check the conditions applied the rule
+		$success = TRUE;
+		$restrictions = array_get_index($rule_data, 'restrictions', Array());
+		if (!empty($restrictions)) {
+			$restriction_type_codes = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('promotional_rule_restriction');
+			foreach($restrictions as $restriction) {
+				$restriction_type_code = $restriction['restriction_type_code'];
+				if (in_array($restriction_type_code, $restriction_type_codes)) {
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset($restriction_type_code);
+					$restriction_asset = new $restriction_type_code();
+					if (!$restriction_asset->validate($asset_data, $restriction['restrcition_data'])) {
+						// If any condition fails, the rule will not apply
+						$success = FALSE;
+						break;
+					}
+				}// end if
+			}//end foreach
+		}//end if
+
+		return $success;
 		
 	}//end evaluate()
 	
