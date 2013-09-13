@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.50 2013/09/13 03:00:59 lwright Exp $
+* $Id: js_asset_map.js,v 1.51 2013/09/13 03:13:04 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.50 $
+ * @version $Revision: 1.51 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -996,24 +996,34 @@ var JS_Asset_Map = new function() {
 								nextAsset = nextAsset.parentNode.nextSibling;
 							}
 
-							if (dfx.hasClass(nextAsset, 'asset') === true) {
+							if ((dfx.hasClass(nextAsset, 'asset') === true) &&
+								(dfx.hasClass(nextAsset, 'not-selectable') === false)) {
 								break;
 							} else if ((dfx.hasClass(nextAsset, 'childIndent') === true) &&
 								(dfx.hasClass(nextAsset, 'collapsed') === false)) {
 								if (dfx.getClass('asset', nextAsset).length > 0) {
 									// Move to first asset child, skipping over any
 									// pagination tools.
+									var childIndent = nextAsset.firstChild;
 									nextAsset = nextAsset.firstChild;
-									while (dfx.hasClass(nextAsset, 'asset') === false) {
+
+									while (nextAsset && (dfx.hasClass(nextAsset, 'asset') === false) ||
+										(dfx.hasClass(nextAsset, 'not-selectable') === true)) {
 										nextAsset = nextAsset.nextSibling;
 									}
-									break;
+
+									if (!nextAsset) {
+										nextAsset = childIndent;
+									} else {
+										break;
+									}
 								}
 							}
 						}//end while
 					}//end if
 
-					if (nextAsset && (dfx.hasClass(nextAsset, 'asset') === true)) {
+					if (nextAsset && (dfx.hasClass(nextAsset, 'asset') === true) &&
+						(dfx.hasClass(nextAsset, 'not-selectable') === false)) {
 						if (e.shiftKey === true) {
 							self.shiftSelectAssetNode(nextAsset, e);
 						} else if ((e.ctrlKey === true) || (e.metaKey === true)) {
@@ -1040,24 +1050,34 @@ var JS_Asset_Map = new function() {
 								nextAsset = nextAsset.parentNode.previousSibling;
 							}
 
-							if (dfx.hasClass(nextAsset, 'asset') === true) {
+							if ((dfx.hasClass(nextAsset, 'asset') === true) &&
+								(dfx.hasClass(nextAsset, 'not-selectable') === false)) {
 								break;
 							} else if ((dfx.hasClass(nextAsset, 'childIndent') === true) &&
 								(dfx.hasClass(nextAsset, 'collapsed') === false)) {
 								if (dfx.getClass('asset', nextAsset).length > 0) {
 									// Move to last child, skipping over any
 									// pagination tools for now.
+									var childIndent = nextAsset.lastChild;
 									nextAsset = nextAsset.lastChild;
-									while (dfx.hasClass(nextAsset, 'asset') === false) {
+
+									while (nextAsset && (dfx.hasClass(nextAsset, 'asset') === false) ||
+										(dfx.hasClass(nextAsset, 'not-selectable') === true)) {
 										nextAsset = nextAsset.previousSibling;
 									}
-									break;
+
+									if (!nextAsset) {
+										nextAsset = childIndent;
+									} else {
+										break;
+									}
 								}
 							}
 						}//end while
 					}//end if
 
-					if (nextAsset && (dfx.hasClass(nextAsset, 'asset') === true)) {
+					if (nextAsset && (dfx.hasClass(nextAsset, 'asset') === true) &&
+						(dfx.hasClass(nextAsset, 'not-selectable') === false)) {
 						if (e.shiftKey === true) {
 							self.shiftSelectAssetNode(nextAsset, e);
 						} else if ((e.ctrlKey === true) || (e.metaKey === true)) {
