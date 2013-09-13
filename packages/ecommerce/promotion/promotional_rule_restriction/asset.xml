@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<?xml-stylesheet href="../../../asset.xsl" type="text/xsl"?>
+
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ABN 77 084 670 600                                                 |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.com.au) so we may provide|
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: asset.xml,v 1.1 2013/09/13 08:06:44 cupreti Exp $
+*
+*/
+-->
+
+<asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../asset.xsd">
+	<package>ecommerce</package>
+	<type_code>promotional_rule_restriction</type_code>
+	<version>0.1</version>
+	<name>Promotional Rule Restriction</name>
+	<description>Restriction rule for Promotional rule for promotional code</description>
+	<instantiable>no</instantiable>
+	<allowed_access>system</allowed_access>
+	<parent_type>asset</parent_type>
+	<requirements>
+		<requirement type="asset">
+			<code>promotional_code</code>
+			<version>0.1</version>
+		</requirement>
+	</requirements>
+	<flash_menu_path/>
+</asset_info>
