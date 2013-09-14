@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.1 2010/08/19 10:35:40 ata Exp $
+* $Id: lang_screen_details.xml,v 1.2 2013/09/14 01:43:20 cupreti Exp $
 *
 */
 -->
@@ -34,5 +34,6 @@
 			</function_call>
 		</field>
 	</section>
+	<section name="Promotional Conditions" />
 	<section name="Promotional Rules" />
 </contents>

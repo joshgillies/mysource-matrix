@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: promotional_code_management.inc,v 1.2 2012/08/30 00:58:34 ewang Exp $
+* $Id: promotional_code_management.inc,v 1.3 2013/09/14 01:43:20 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -64,6 +64,14 @@ class Promotional_Code_Management extends Asset_Management
 											'is_admin'			=> TRUE,
 											'is_contextable'	=> FALSE,
 										   ),
+						'conditions'	=> Array(
+											'added'				=> '0.1',
+											'type'				=> 'serialise',
+											'default'			=> Array(),
+											'description'		=> 'The conditions applied to this promotional code',
+											'is_admin'			=> TRUE,
+											'is_contextable'	=> FALSE,
+										   ),										   
 					  );
 
 	}//end constructor

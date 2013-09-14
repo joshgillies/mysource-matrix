@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: promotional_rule_edit_fns.inc,v 1.4 2013/09/14 01:43:20 cupreti Exp $
+* $Id: promotional_condition_edit_fns.inc,v 1.1 2013/09/14 01:43:20 cupreti Exp $
 *
 */
 
@@ -18,17 +18,17 @@
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 
 /**
-* Promotional_Rule_Edit_Fns
+* Promotional_Condition_Edit_Fns
 *
 * Purpose
 *
 *
-* @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.4 $
+* @author  Chiranjivi Upreti <cupreti@squiz.com.au>
+* @version $Revision: 1.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
-class Promotional_Rule_Edit_Fns extends Asset_Edit_Fns
+class Promotional_Condition_Edit_Fns extends Asset_Edit_Fns
 {
 	
 	
@@ -54,10 +54,10 @@ class Promotional_Rule_Edit_Fns extends Asset_Edit_Fns
 	 * @return boolean
 	 * @access public
 	 */
-	function paintRule(&$asset, &$o, $prefix, $rule_data, $write_access)
+	function paintRuleRestriction(&$asset, &$o, $prefix, $rule_data, $write_access)
 	{		
 		
-	}//end paintRule()
+	}//end paintRuleRestriction()
 	
 	
 	/**
@@ -71,10 +71,10 @@ class Promotional_Rule_Edit_Fns extends Asset_Edit_Fns
 	 * @return boolean
 	 * @access public
 	 */
-	function processRule(&$asset, &$o, $prefix, &$rule_data)
+	function processRuleRestriction(&$asset, &$o, $prefix, &$rule_data)
 	{
 		
-	}//end processRule()
+	}//end processRuleRestriction()
 	
 	
 }//end class

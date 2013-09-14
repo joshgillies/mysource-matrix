@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: promotional_code_edit_fns.inc,v 1.3 2013/09/09 08:35:57 cupreti Exp $
+* $Id: promotional_code_edit_fns.inc,v 1.4 2013/09/14 01:43:20 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -187,6 +187,118 @@ class Promotional_Code_Edit_Fns extends Asset_Edit_Fns
 		return $success && $asset->setAttrValue('rules', $rules);
 		
 	}//end processRules()
+	
+	/**
+	 * Paints the condition's interface
+	 *
+	 * @param object	&$asset			The asset to paint
+	 * @param object	&$o				The backend outputter
+	 * @param string	$prefix			String prefix for this interface/asset	 
+	 *
+	 * @return boolean
+	 * @access public
+	 */
+	function paintConditions(&$asset, &$o, $prefix)
+	{
+		$conditions = $asset->attr('conditions');
+		$write_access = $asset->writeAccess('attributes');
+		
+		// Paint the condition
+		$condition_type_codes = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('promotional_condition');
+		$condition_types = Array('' => '-- select --');
+		foreach($condition_type_codes as $type_code) {
+			$condition_types[$type_code] = ucwords(str_replace('_', ' ', substr($type_code, strlen('promotional_condition'))));
+		}
+		if ($write_access) {
+			$o->openField('Add New Condition');
+				combo_box($prefix.'[new_condition]', $condition_types, FALSE);
+			$o->closeField();
+		}		
+		if (empty($conditions)) {
+			$o->openField('No conditions set');
+			$o->closeField();
+		}
+
+		$count = 0;		
+		foreach($conditions as $i => $condition) {
+			$condition_type_code = $condition['condition_type_code'];
+			if (!$condition_type_code) {
+				continue;
+			}
+			
+			$o->openSection('Condition #'.(++$count).' '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($condition_type_code, 'name'));
+			if ($write_access) {
+				$o->openField('Delete Condition?');
+					check_box($prefix."_condition[delete][$i]");
+				$o->closeField();
+			}			
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset($condition_type_code);
+			$condition_asset = new $condition_type_code();
+			$condition_edit_fns = $condition_asset->getEditFns();			
+			$condition_edit_fns->paintCondition($condition_asset, $o, $prefix.'_condition_'.$i, $condition['condition_data'], $write_access);
+			
+			$o->closeSection();
+			
+		}//end foreach		
+
+		return TRUE;
+		
+	}//end paintConditions()
+	
+	
+	/**
+	 * Process the condition's interface
+	 *
+	 * @param object	&$asset		The asset to paint
+	 * @param object	&$o			The backend outputter
+	 * @param string	$prefix		String prefix for this interface/asset
+	 *
+	 * @return boolean
+	 * @access public
+	 */
+	function processConditions(&$asset, &$o, $prefix)
+	{
+		$conditions = $asset->attr('conditions');
+
+		// Delete if any selected for deletion
+		$to_delete = isset($_POST[$prefix.'_condition']['delete']) ? $_POST[$prefix.'_condition']['delete'] : Array();
+		foreach($conditions as $i => $val) {
+			if (isset($to_delete[$i])) {
+				unset($conditions[$i]);
+			}
+		}
+
+		$new_condition = array_get_index($_POST[$prefix], 'new_condition', '');
+		$new_condition_index = FALSE;
+		if (!empty($new_condition)) {
+			$condition_type_codes = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('promotional_condition');
+			if (in_array($new_condition, $condition_type_codes)) {
+				$conditions[] = Array('condition_type_code' => $new_condition, 'condition_data' => NULL);
+				end($conditions);
+				$new_condition_index = key($conditions);
+			}
+		}
+
+		$success = TRUE;
+		foreach($conditions as $i => &$condition) {
+			$condition_type_code = $condition['condition_type_code'];
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset($condition_type_code);
+			$condition_asset = new $condition_type_code();
+			$condition_asset_edit_fns = $condition_asset->getEditFns();
+			
+			if ($new_condition_index !== $i && !$condition_asset_edit_fns->processCondition($condition_asset, $o, $prefix.'_condition_'.$i, $condition['condition_data'])) {
+				$success = FALSE;
+				break;
+			}
+		}//end foreach
+
+		if ($success) {
+			$success = $asset->setAttrValue('conditions', $conditions);
+		}
+		
+		return $success;
+		
+	}//end processConditions()	
 	
 	
 }//end class

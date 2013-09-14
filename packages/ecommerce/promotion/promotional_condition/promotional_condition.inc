@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: promotional_rule.inc,v 1.4 2013/09/14 01:43:20 cupreti Exp $
+* $Id: promotional_condition.inc,v 1.1 2013/09/14 01:43:20 cupreti Exp $
 *
 */
 
@@ -18,17 +18,16 @@
 require_once SQ_INCLUDE_PATH.'/asset.inc';
 
 /**
-* Promotional_Rule
+* Promotional_Condition
 *
-* This is the base class for all the promotional rule assets
+* This is the base class for all the promotional condition assets
 *
-*
-* @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.4 $
+* @author  Chiranjivi Upreti <cupreti@squiz.com.au>
+* @version $Revision: 1.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
-class Promotional_Rule extends Asset
+class Promotional_Condition extends Asset
 {
 	
 	
@@ -50,16 +49,17 @@ class Promotional_Rule extends Asset
 	 * 
 	 * This method needs to be overridden by child assets
 	 * 
-	 * @param array &$asset_data	The asset data
-	 * @param array &$rule_data		The rule data
+	 * @param array $asset_data		The asset data
+	 * @param array $condition_data	The condition
 	 * 
 	 * @return boolean
 	 * @access public
 	 */
-	public function evaluate(&$asset_data, $rule_data)
+	public function validate($asset_data, $condition_data)
 	{
+		return TRUE;
 		
-	}//end evaluate()
+	}//end validate()
 	
 	
 }//end class

@@ -10,56 +10,36 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: promotional_rule.inc,v 1.4 2013/09/14 01:43:20 cupreti Exp $
+* $Id: promotional_condition_compare_value_management.inc,v 1.1 2013/09/14 01:43:20 cupreti Exp $
 *
 */
 
 
-require_once SQ_INCLUDE_PATH.'/asset.inc';
+require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 
 /**
-* Promotional_Rule
+* Promotional_Condition_Compare_Value_Management
 *
-* This is the base class for all the promotional rule assets
+* @see Asset_Management
 *
-*
-* @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.4 $
+* @author  Chiranjivi Upreti <cupreti@squiz.com.au>
+* @version $Revision: 1.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
-class Promotional_Rule extends Asset
+class Promotional_Condition_Compare_Value_Management extends Asset_Management
 {
 	
 	
 	/**
 	* Constructor
 	*
-	* @param int	$assetid	the asset id to be loaded
-	*
 	*/
-	function __construct($assetid=0)
+	function __construct(Package_Manager $pm)
 	{
-		parent::__construct($assetid);
-
-	}//end constructor
-	
-	
-	/**
-	 * Evaluate the asset data based on the rule data
-	 * 
-	 * This method needs to be overridden by child assets
-	 * 
-	 * @param array &$asset_data	The asset data
-	 * @param array &$rule_data		The rule data
-	 * 
-	 * @return boolean
-	 * @access public
-	 */
-	public function evaluate(&$asset_data, $rule_data)
-	{
+		Asset_Management::__construct($pm);
 		
-	}//end evaluate()
+	}//end constructor
 	
 	
 }//end class
