@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: embed_movie.php,v 1.36 2013/08/20 06:24:49 lwright Exp $
+* $Id: embed_movie.php,v 1.37 2013/09/15 23:53:23 lwright Exp $
 *
 */
 
@@ -18,7 +18,7 @@
 * Embed Movie Popup for the WYSIWYG
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix
 */
 
@@ -48,6 +48,14 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 				$include_list[] = sq_web_path('data').'/system/core/js_strings.'.$locale.'.js';
 			}
 		}
+
+		$url_protocol_options = Array(
+									''			=> '',
+									'http://'	=> 'http://',
+									'https://'	=> 'https://',
+									'ftp://'	=> 'ftp://',
+									'rtsp://'	=> 'rtsp://',
+								);
 
 		foreach ($include_list as $link) {
 			?><script type="text/javascript" src="<?php echo $link; ?>"></script>
@@ -342,19 +350,13 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 			<table width="100%">
 				<tr>
 					<td valign="top">
+						<div id="asset_map">
 						<?php
 							include_once(SQ_LIB_PATH.'/asset_map/asset_map.inc');
 							$asset_map = new Asset_Map();
 							$asset_map->embedAssetMap('simple', 200, 350);
-
-							$url_protocol_options = Array(
-														''			=> '',
-														'http://'	=> 'http://',
-														'https://'	=> 'https://',
-														'ftp://'	=> 'ftp://',
-														'rtsp://'	=> 'rtsp://',
-													);
 						?>
+						</div>
 					</td>
 					<td valign="top">
 						<table width="100%" cellspacing="0" cellpadding="0">

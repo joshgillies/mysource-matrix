@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.63 2013/08/20 06:24:49 lwright Exp $
+* $Id: insert_image.php,v 1.64 2013/09/15 23:53:23 lwright Exp $
 *
 */
 
@@ -19,7 +19,7 @@
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.64 $
 * @package MySource_Matrix
 */
 
@@ -491,12 +491,13 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 			<table width="100%">
 				<tr>
 					<td valign="top">
+						<div id="asset_map">
 						<?php
 							include_once(SQ_LIB_PATH.'/asset_map/asset_map.inc');
 							$asset_map = new Asset_Map();
-							$useModern = (boolean) $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_MODERN');
 							$asset_map->embedAssetMap('simple', 200, 350);
 						?>
+						</div>
 					</td>
 					<td valign="top">
 						<table cellspacing="0" cellpadding="0">
