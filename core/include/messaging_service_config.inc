@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service_config.inc,v 1.32 2012/08/30 01:09:19 ewang Exp $
+* $Id: messaging_service_config.inc,v 1.32.8.1 2013/09/17 01:04:56 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *    Looks after the creation and editing of the messaging service config
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.32.8.1 $
 * @package MySource_Matrix
 */
 class Messaging_Service_Config extends Config
@@ -43,6 +43,7 @@ class Messaging_Service_Config extends Config
 						'SQ_MS_LOG_TO_DB_BLACK_LIST'	=> Array('editable' => 1, 'default' => "asset.attributes.fulllog\nasset.workflow.invitation\nasset.workflow.announce\nasset.workflow.invitation.*\nasset.workflow.announce.*\ninstall.*"),
 						'SQ_MS_SEND_MAIL_WHITE_LIST'	=> Array('editable' => 1, 'default' => "asset.locking.forced\nconfig.*\nhipo.*\ninbox.*\nasset.status.notify\nasset.workflow.invitation\nasset.workflow.announce\nasset.workflow.invitation.*\nasset.workflow.announce.*\nasset.workflow.stale\nasset.workflow.bundle.*\ncron.deadlock"),
 						'SQ_MS_SEND_MAIL_BLACK_LIST'	=> Array('editable' => 1, 'default' => ''),
+						'SQ_MS_EMAIL_FOOTER'				=> Array('editable' => 1, 'default' => ''),
 					   );
 
 
@@ -136,6 +137,17 @@ class Messaging_Service_Config extends Config
 					echo nl2br(SQ_MS_SEND_MAIL_BLACK_LIST);
 				}
 				$o->note(translate('messaging_service_mail_black_list_note'));
+			$o->closeField();
+		$o->closeSection();
+		
+		$o->openSection(translate('messaging_service_section_email_format'));
+			$o->openField(translate('messaging_service_email_footer'));
+				if ($write_access) {
+					text_area($class.'[SQ_MS_EMAIL_FOOTER]', SQ_MS_EMAIL_FOOTER, 80, 5);
+				} else {
+					echo nl2br(SQ_MS_EMAIL_FOOTER);
+				}
+				$o->note(translate('messaging_service_email_footer_note'));
 			$o->closeField();
 		$o->closeSection();
 
