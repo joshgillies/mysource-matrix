@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_edit_fns.inc,v 1.45 2012/08/30 01:09:11 ewang Exp $
+* $Id: remap_manager_edit_fns.inc,v 1.45.4.1 2013/09/17 22:51:23 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.45.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -447,11 +447,11 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 		$o->closeField();
 
 		$o->openField(translate('old_url'));
-			text_box($prefix.'_add_remap_old_url', '', 50);
+			text_box($prefix.'_add_remap_old_url', '', 100);
 		$o->closeField();
 
 		$o->openField(translate('new_url'));
-			text_box($prefix.'_add_remap_new_url', '', 50);
+			text_box($prefix.'_add_remap_new_url', '', 100);
 		$o->closeField();
 
 		$o->openField(translate('never_delete'));
