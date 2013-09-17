@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.84 2013/07/25 23:23:49 lwright Exp $
+* $Id: messaging_service.inc,v 1.85 2013/09/17 00:07:51 cupreti Exp $
 *
 */
 
@@ -37,7 +37,7 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 *    Facilitate the sending and management of internal messages
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.84 $
+* @version $Revision: 1.85 $
 * @package MySource_Matrix
 */
 class Messaging_Service extends MySource_Object
@@ -860,11 +860,31 @@ class Messaging_Service extends MySource_Object
 
 		$line = ($type == 'text') ? str_repeat('-', 20).$term : '<hr />';
 
-		$footer = $term.$term.$line
-				.'This is an automated message from '.SQ_CONF_SYSTEM_NAME.' running '.SQ_SYSTEM_LONG_NAME.$term
-				.'System Root URLs : '.$term.str_replace("\n", $term, SQ_CONF_SYSTEM_ROOT_URLS).$term
-				.$term
-				.'Contact '.SQ_CONF_SYSTEM_OWNER.' ('.SQ_CONF_TECH_EMAIL.') for support.';
+		if (!SQ_MS_EMAIL_FOOTER) {
+			$footer = 'This is an automated message from '.SQ_CONF_SYSTEM_NAME.' running '.SQ_SYSTEM_LONG_NAME.$term
+					.'System Root URLs : '.$term.str_replace("\n", $term, SQ_CONF_SYSTEM_ROOT_URLS).$term
+					.$term
+					.'Contact '.SQ_CONF_SYSTEM_OWNER.' ('.SQ_CONF_TECH_EMAIL.') for support.';
+		} else {
+			if ($type == 'html') {
+				$footer = nl2br(SQ_MS_EMAIL_FOOTER);
+			} else {
+				$footer = preg_replace('/<br\s*\/?\s*>/i', "\n", SQ_MS_EMAIL_FOOTER);
+			}
+
+			// These keyword replacments are available
+			$replacements = Array(
+							'%system_name%' => SQ_CONF_SYSTEM_NAME,
+							'%system_long_name%' => SQ_SYSTEM_LONG_NAME,
+							'%system_root_urls_list%' => str_replace("\n", $term, SQ_CONF_SYSTEM_ROOT_URLS),
+							'%system_owner_name%' => SQ_CONF_SYSTEM_OWNER,
+							'%system_tech_email%' => SQ_CONF_TECH_EMAIL,
+						);
+			$footer = str_replace(array_keys($replacements), $replacements, $footer);
+		}
+
+		$footer = $term.$term.$line.$footer;
+
 		return $header.$body.$footer;
 
 	}//end formatEmail()
