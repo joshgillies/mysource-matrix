@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_events_search_management.inc,v 1.5 2012/08/30 00:57:28 ewang Exp $
+* $Id: page_calendar_events_search_management.inc,v 1.5.6.1 2013/09/17 07:02:49 cupreti Exp $
 *
 */
 
@@ -21,7 +21,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.5.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -52,7 +52,7 @@ class Page_Calendar_Events_Search_Management extends Asset_Management
        $this->vars['statuses'] = Array(
 									'added'         => '0.8',
 									'type'          => 'serialise',
-									'default'       => Array(0 => SQ_STATUS_LIVE),
+									'default'       => Array(),
 									'description'   => 'Statuses that are being listed.',
                                   );									 
 		$this->vars['events_filters'] = Array(
