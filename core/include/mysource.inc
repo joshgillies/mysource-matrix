@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.400.2.7 2013/08/28 01:38:46 ewang Exp $
+* $Id: mysource.inc,v 1.400.2.8 2013/09/17 06:40:18 ewang Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.400.2.7 $
+* @version $Revision: 1.400.2.8 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -1180,7 +1180,7 @@ class MySource extends MySource_Object
 			if (in_array($current_root_url, explode("\n", SQ_CONF_FORCE_SECURE_LOGIN_URLS))) {
 				// Redirect to HTTPS
 				$_SESSION['SQ_RETURN_TO_HTTP'] = 1;
-				do_redirect('https://'.current_url(FALSE)); // exits
+				do_redirect('https://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']); // exits
 			}
 		}//end if http
 		$GLOBALS['SQ_LOGIN_FORM'] = Array('paint' => 'login', 'heading' => $heading, 'msg' => $msg);
