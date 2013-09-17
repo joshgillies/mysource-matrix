@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: promotional_code.inc,v 1.2 2012/08/30 00:58:34 ewang Exp $
+* $Id: promotional_code.inc,v 1.2.6.1 2013/09/17 02:16:08 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.2.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -204,17 +204,39 @@ class Promotional_Code extends Asset
 	 * @access public
 	 */
 	public function process(&$asset_data)
-	{
-		$rules = $this->attr('rules');
+	{		
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 		
-		foreach ($rules as $rule) {
-			$rule_type_code = $rule['rule_type_code'];
-			$am->includeAsset($rule_type_code);
-			$rule_asset = new $rule_type_code();
-			$rule_asset->evaluate($asset_data, $rule['rule_data']);
-		}
+		// Evaluate the promotional conditions first
+		$conditions = $this->attr('conditions');
+		$success = TRUE;
+		if (!empty($conditions)) {
+			$condition_type_codes = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('promotional_condition');
+			foreach($conditions as $condition) {
+				$condition_type_code = $condition['condition_type_code'];
+				if (in_array($condition_type_code, $condition_type_codes)) {
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset($condition_type_code);
+					$condition_asset = new $condition_type_code();
+					if (!$condition_asset->validate($asset_data, $condition['condition_data'])) {
+						// If any condition fails, the rule will not apply
+						$success = FALSE;
+						break;
+					}
+				}// end if
+			}//end foreach
+		}//end if
 		
+		// Carry out the promtional action only if we satisfy all the promotional conditions
+		if ($success) {			
+			$rules = $this->attr('rules');
+			foreach ($rules as $rule) {
+				$rule_type_code = $rule['rule_type_code'];
+				$am->includeAsset($rule_type_code);
+				$rule_asset = new $rule_type_code();
+				$rule_asset->evaluate($asset_data, $rule['rule_data']);
+			}//end foreach
+		}//end if
+
 	}//end process()
 	
 	
