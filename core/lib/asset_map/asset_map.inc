@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.326 2013/09/16 04:57:10 akarelia Exp $
+* $Id: asset_map.inc,v 1.327 2013/09/17 22:50:16 lwright Exp $
 *
 */
 require_once(SQ_LIB_PATH.'/xml_array/xml_array.inc');
@@ -23,7 +23,7 @@ require_once(SQ_LIB_PATH.'/xml_array/xml_array.inc');
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.326 $
+* @version $Revision: 1.327 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -170,13 +170,13 @@ class Asset_Map
 
 		$initial_selection_lineage = '';
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL(NULL, NULL, TRUE, TRUE);
-		
+
 		if (!is_null($asset) && !empty($asset)) {
 
 			// get assets lineage info
 			$asset_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL();
 			$asset_link_lineage = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($asset->id);
-			
+
 			$assetids = '';
 			$sort_orders = '';
 			$sort_orders_append = '';
@@ -215,7 +215,7 @@ class Asset_Map
 				} catch (Exception $e) {
 					throw new Exception('Unable to get the sort orders for URL: '.$asset_lineage[$i]['url'].' due to database error: '.$e->getMessage());
 				}
-				
+
 				// Bug #3108
 				// No sort order found here - because the site exists under a folder (under the root folder)
 				// Excution stops here because an exception is caught by an empty sort order
@@ -460,7 +460,7 @@ class Asset_Map
 
 				if (empty($rootlineage)) {
 					// Initial lineage selection (i.e ..com/site1/blah/_admin will expand the lineage of that asset)
-					$initial_selection_lineage = $this->_getInitialLineageSelection($type);					
+					$initial_selection_lineage = $this->_getInitialLineageSelection($type);
 				}
 
 				$parameters = Array(
@@ -1521,14 +1521,12 @@ class Asset_Map
 		//$root = $output->addRoot('assets', '');
 		$done = Array();
 
-		$debug = array();
 		foreach ($input->children() as $k => $v) {
 			// get all the attribute values
 			$tmp_info = Array();
 			foreach ($v->attributes() as $a => $b) {
 				$tmp_info[$a] = urldecode((string)$b);
 			}
-			$debug[] = $tmp_info['assetid'].' - '.$tmp_info['linkid'].' - '.$tmp_info['start'].' - '.$tmp_info['limit'];
 		}
 
 		// go through the kids and add them to the $root
