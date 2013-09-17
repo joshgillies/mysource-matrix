@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.79.4.3 2013/08/22 07:25:43 ewang Exp $
+* $Id: calendar_common.inc,v 1.79.4.4 2013/09/17 23:26:40 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.79.4.3 $
+* @version $Revision: 1.79.4.4 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1103,10 +1103,10 @@ class Calendar_Common
 
 					// multiple day
 					$start_time = gmmktime(0, 0, 0, $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year'])+$difference*86400;
-					$start_date = date('Y-m-d', $start_time);
+					$start_date = gmdate('Y-m-d', $start_time);
 
 					$end_time = gmmktime(0, 0, 0, $event['end_date_mon'], $event['end_date_mday'], $event['end_date_year'])+$difference*86400;
-					$end_date = date('Y-m-d', $end_time);
+					$end_date = gmdate('Y-m-d', $end_time);
 
 					if (($start_date >= $first_day) && ($start_date <= $last_day) && (is_null($event_start_dts) || ($event_start_dts <= $day_end_dts))) {
 						// add the first day
@@ -1206,7 +1206,7 @@ class Calendar_Common
 
 				// end date not specified, so it's either just a date or a point in time
 				$start_time = gmmktime(0, 0, 0,  $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year'])+$difference*86400;
-				$start_date = date('Y-m-d', $start_time);
+				$start_date = gmdate('Y-m-d', $start_time);
 
 				if (($start_date >= $first_day) && ($start_date <= $last_day)) {
 					$result_list[$assetid.':'.$i] = Array();
