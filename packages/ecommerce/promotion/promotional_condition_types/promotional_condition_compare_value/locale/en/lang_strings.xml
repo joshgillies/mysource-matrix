@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2013/09/14 01:43:20 cupreti Exp $
+* $Id: lang_strings.xml,v 1.2 2013/09/17 01:58:15 cupreti Exp $
 *
 */
 -->
@@ -21,5 +21,5 @@
 	<string source="ecom_promotional_condition_type_compare_value_comparison_type">Comparison Type</string>
 	<string source="ecom_promotional_condition_type_compare_value_discount_type">Discount Type</string>
 	<string source="ecom_promotional_condition_type_compare_value_discount_value">Discount Value</string>
-    <string source="ecom_promotional_condition_type_compare_value_section_note">This condition is based on the value comparison. "Source Value" and "Compare Value" can be considered as first and second operands respectivly, and "Compare Type" as an operator. If the comparison operation returns TRUE, the discount rule will be applied. Globals keywords can be used in "Source Value" and "Compare Value" fields</string>
+    <string source="ecom_promotional_condition_type_compare_value_section_note">This condition is based on the value comparison. "Source Value" and "Compare Value" can be considered as first and second operands respectivly, and "Compare Type" as an operator. If the comparison operation returns TRUE, this condition will be considered successful. Globals keywords can be used in "Source Value" and "Compare Value" fields</string>
 </strings>
