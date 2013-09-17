@@ -11,7 +11,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search.inc,v 1.51 2013/09/05 10:23:58 ewang Exp $
+* $Id: trim_saved_search.inc,v 1.52 2013/09/17 08:38:35 ewang Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -257,8 +257,8 @@ class TRIM_Saved_Search extends Data_Source
 								$files_stored		= glob($final_file_path.'/*');
 								// If there is no file in there
 								if (empty($files_stored)) {
-
 									$this->storeDocumentList($connection, $new_record_info);
+									$ordered_result[$new_index]	= $new_record_info;
 								} else if (!isset($record_info['download_url'])) {
 
 									$ordered_result[$new_index]['document_url']		= isset($new_record_info['recNumber']) ? './?a='.$this->id.'?RecordNumber='.urlencode($new_record_info['recNumber'])  : './?a='.$this->id.'?Uri='.$new_record_info['Uri'];
@@ -837,6 +837,14 @@ class TRIM_Saved_Search extends Data_Source
 						echo '0';
 					}//end if
 				}//end if
+			} else if (isset($_GET['force_update']) && !empty($_GET['force_update'])) {
+				if ($this->adminAccess()) {
+					if ($this->updateCachedResult(TRUE)) {
+						echo '1';
+					} else {
+						echo '0';
+					}//end if
+				}//end if
 			}//end else if
 		}//end if
 		else {
@@ -861,13 +869,7 @@ class TRIM_Saved_Search extends Data_Source
     */
 	public function setAttrValue($name, $value)
 	{
-		if ($name == 'download_files') {
-			$res_val	= parent::setAttrValue($name, $value);
-			$this->updateCachedResult(TRUE);
-			return $res_val;
-		} else {
-			return parent::setAttrValue($name, $value);
-		}//end if
+		return parent::setAttrValue($name, $value);
 	}//end setAttrValue()
 
 

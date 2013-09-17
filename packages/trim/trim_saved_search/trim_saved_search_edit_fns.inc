@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search_edit_fns.inc,v 1.15 2013/08/30 07:20:09 cupreti Exp $
+* $Id: trim_saved_search_edit_fns.inc,v 1.16 2013/09/17 08:38:35 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/data_source/data_source/data_source_edit_fns
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -522,6 +522,7 @@ class TRIM_Saved_Search_Edit_Fns extends Data_Source_Edit_Fns
 					<td width="150"><span id="update_text">Not Checked</span></td>
 					<td><?php if ($wa) normal_button($prefix.'_update', 'Check for Updates', 'sendRequest(\''.$asset->getURL().'?check_update=1\', \'updateCheckInterface\');'); ?></td>
 					<td><?php if ($wa) normal_button($prefix.'_synch', 'Synchronize Now', 'sendRequest(\''.$asset->getURL().'?synch_now=1\', \'updateSynchInterface\');'); ?></td>
+					<td><?php if ($wa) normal_button($prefix.'_force', 'Force Update', 'sendRequest(\''.$asset->getURL().'?force_update=1\', \'updateSynchInterface\');'); ?></td>
 					<td><img id="trim_saved_search_loader" src="<?php echo sq_web_path('data').'/asset_types/trim_saved_search/images/loader.gif'?>" style="display:none;" height="20" width"20" /></td>
 				</tr>
 			</table>
