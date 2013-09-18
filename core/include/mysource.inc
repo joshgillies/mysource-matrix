@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.404.4.7 2013/09/17 06:39:16 ewang Exp $
+* $Id: mysource.inc,v 1.404.4.8 2013/09/18 01:16:28 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.404.4.7 $
+* @version $Revision: 1.404.4.8 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -514,6 +514,12 @@ class MySource extends MySource_Object
 
 		if ((isset($alternate_context_id) === FALSE) || ($alternate_context_id === NULL)) {
 			$alternate_context_id = $this->getAlternateContext();
+
+			if ((SQ_IN_BACKEND === TRUE) || (SQ_IN_LIMBO === TRUE)) {
+				if (array_key_exists('SQ_BACKEND_ALTERNATE_CONTEXT_ID', array_get_index($_SESSION, SQ_SESSION_SANDBOX_INDEX, Array())) === FALSE) {
+					$_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_BACKEND_ALTERNATE_CONTEXT_ID'] = $alternate_context_id;
+				}
+			}
 		}
 
 		$this->changeContext($alternate_context_id);
@@ -533,8 +539,8 @@ class MySource extends MySource_Object
 		$this->pm->begin();
 
 		if(SQ_CONF_ENFORCE_FRAME_SAMEORIGIN)
-		    header('X-Frame-Options: SAMEORIGIN');
-		    
+			header('X-Frame-Options: SAMEORIGIN');
+
 		// if the user is Up For Review, prompt the user to change password
 		$require_password_change = ($this->user && !($this->user instanceof Public_User) && $this->user->status == SQ_STATUS_LIVE_APPROVAL);
 
