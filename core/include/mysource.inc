@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.416 2013/09/18 01:02:17 lwright Exp $
+* $Id: mysource.inc,v 1.417 2013/09/18 01:14:24 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.416 $
+* @version $Revision: 1.417 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -515,8 +515,10 @@ class MySource extends MySource_Object
 		if ((isset($alternate_context_id) === FALSE) || ($alternate_context_id === NULL)) {
 			$alternate_context_id = $this->getAlternateContext();
 
-			if (array_key_exists('SQ_BACKEND_ALTERNATE_CONTEXT_ID', array_get_index($_SESSION, SQ_SESSION_SANDBOX_INDEX, Array())) === FALSE) {
-				$_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_BACKEND_ALTERNATE_CONTEXT_ID'] = $alternate_context_id;
+			if ((SQ_IN_BACKEND === TRUE) || (SQ_IN_LIMBO === TRUE)) {
+				if (array_key_exists('SQ_BACKEND_ALTERNATE_CONTEXT_ID', array_get_index($_SESSION, SQ_SESSION_SANDBOX_INDEX, Array())) === FALSE) {
+					$_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_BACKEND_ALTERNATE_CONTEXT_ID'] = $alternate_context_id;
+				}
 			}
 		}
 
