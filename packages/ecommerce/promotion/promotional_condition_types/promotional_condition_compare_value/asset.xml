@@ -13,7 +13,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.1 2013/09/14 01:43:20 cupreti Exp $
+* $Id: asset.xml,v 1.2 2013/09/18 00:57:14 cupreti Exp $
 *
 */
 -->
@@ -22,7 +22,7 @@
 	<package>ecommerce</package>
 	<type_code>promotional_condition_compare_value</type_code>
 	<version>0.1</version>
-	<name>Promotional Rule Restriction Compare Value</name>
+	<name>Promotional Condition Compare Value</name>
 	<description>Compare Value condition for the promotional code asset</description>
 	<instantiable>no</instantiable>
 	<allowed_access>system</allowed_access>
