@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_processor.inc,v 1.37 2013/09/10 06:06:32 cupreti Exp $
+* $Id: ecommerce_cart_processor.inc,v 1.38 2013/09/18 02:56:56 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_common.inc';
 * @author Robert Howard <rhoward@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -1002,7 +1002,7 @@ class Ecommerce_Cart_Processor
 				echo sprintf($row_format, 'Total', sprintf($price_format, $sub_total));
 			}
 			
-			if (($total_tax > 0) || ($flat_charges_total > 0.0) || $total_delivery_cost > 0) {
+			if (($total_tax > 0) || ($flat_charges_total > 0.0) || $total_delivery_cost > 0 || $total_discount > 0) {
 				if ($total_delivery_cost > 0 && $calculate_del_tax) {
 					echo sprintf($row_format, 'Delivery Fee', '', sprintf($price_format, $total_delivery_cost));
 					echo $break;
