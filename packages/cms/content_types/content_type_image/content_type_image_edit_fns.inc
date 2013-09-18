@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_image_edit_fns.inc,v 1.13 2012/08/30 00:58:07 ewang Exp $
+* $Id: content_type_image_edit_fns.inc,v 1.14 2013/09/18 05:19:40 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -354,7 +354,21 @@ class Content_Type_Image_Edit_Fns extends Content_Type_Edit_Fns
 				$image_alt = $real_image->attr('alt');
 			}
 			$classes = $GLOBALS['SQ_SYSTEM']->getUserPrefs($asset->type(), 'SQ_CONTENT_TYPE_IMAGE_CLASSES');
-			$caption = ($current_settings['use_caption_attr'] == TRUE) ? $current_image->attr('caption') : $current_settings['caption'];
+
+			// use the caption as requested from the original image or defined on the screen
+			if ($current_settings['use_caption_attr']) {
+				// Image variety do no have the caption  attribute, If asked to  use caption attr
+				// of image request it from further up from the parent image of the image variety
+				if (is_a($current_image, 'Image_Variety')) {
+					$parent_image = $GLOBALS['SQ_SYSTEM']->am->getAsset($current_image->_imageid);
+					$caption = $parent_image->attr('caption');
+				} else {
+					$caption = $current_image->attr('caption');
+				}
+			} else {
+				$caption = $current_settings['caption'];
+			}
+
 			$preview_classes = $GLOBALS['SQ_SYSTEM']->getUserPrefs($asset->type(), 'SQ_CONTENT_TYPE_IMAGE_PREVIEW');
 			ob_start();
 				if ($on_click_option == 'inline') {
