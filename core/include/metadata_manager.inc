@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.243 2013/08/21 06:33:25 cupreti Exp $
+* $Id: metadata_manager.inc,v 1.244 2013/09/18 06:06:03 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *	 Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.243 $
+* @version $Revision: 1.244 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -947,6 +947,8 @@ class Metadata_Manager extends MySource_Object
 			}
 
 		}//end foreach
+		
+		$all_contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
 
 		// log a message for the asset - this wont get logged until we close the queue
 		$metadata_updated = Array();
@@ -1042,26 +1044,36 @@ class Metadata_Manager extends MySource_Object
 
 		if (!empty($remaining)) {
 			// Find any fields that have existing entries...so we know what to update and what to insert
-			$sql = 'SELECT
-						fieldid
-					FROM
-						'.SQ_TABLE_RUNNING_PREFIX.'ast_mdata_val';
-			$where = '	assetid = :assetid AND contextid = :contextid';
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+            $sql = 'SELECT
+                        fieldid, contextid, use_default
+                    FROM
+                        '.SQ_TABLE_RUNNING_PREFIX.'ast_mdata_val';
+            $where = '  assetid = :assetid';
+            $where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
-			try {
-				$query = MatrixDAL::preparePdoQuery($sql.$where);
-				MatrixDAL::bindValueToPdo($query, 'assetid', $asset->id);
-				MatrixDAL::bindValueToPdo($query, 'contextid', $contextid);
-				$updates = MatrixDAL::executePdoAssoc($query, 0);
-			} catch (Exception $e) {
-				// SYS0338 = Unable to get current values due to DB error
-				throw new Exception(translate_error('SYS0338', $asset->id, $contextid, $e->getMessage()));
-			}
+            try {
+                $query = MatrixDAL::preparePdoQuery($sql.$where);
+                MatrixDAL::bindValueToPdo($query, 'assetid', $asset->id);
+                $updates = MatrixDAL::executePdoAll($query);
+            } catch (Exception $e) {
+                // SYS0338 = Unable to get current values due to DB error
+                throw new Exception(translate_error('SYS0338', $asset->id, $contextid, $e->getMessage()));
+            }
+
+            // Group the existing contexted entries by contextid
+			// $existing_fieldids['contextid']['fieldid'] = 'use_default (0/1)';
+			$existing_fieldids = Array();
+			foreach($updates as $row) {
+				if (!isset($existing_fieldids[$row['contextid']])) {
+				$existing_fieldids[$row['contextid']] = Array();
+					$existing_fieldids[$row['contextid']][$row['fieldid']] = Array();
+				}
+				$existing_fieldids[$row['contextid']][$row['fieldid']] = $row['use_default'];
+            }//end foreach
 
 			// Insert or update the remaining metadata fields as required
 			foreach ($remaining as $fieldid) {
-				// If the field is not contextable, set the context ID to null,
+			// If the field is not contextable, set the context ID to null,
 				// so it will be copied to all applicable contexts.
 				if (array_search($fieldid, $contextable_fields[0]) !== FALSE) {
 					$do_contextid = NULL;
@@ -1075,7 +1087,7 @@ class Metadata_Manager extends MySource_Object
 								'value'		=> $metadata[$fieldid][0]['value'],
 							  );
 
-				if (!in_array($fieldid, $updates)) {
+				if (!isset($existing_fieldids[$contextid][$fieldid])) {
 					// for non contextable field, delete all entries first to avoid duplicate insertion error
 					if(!isset($do_contextid)){
 						try {
@@ -1084,16 +1096,63 @@ class Metadata_Manager extends MySource_Object
 						} catch (Exception $e) {
 							throw new Exception(translate_error('SYS0339', $fieldid, $metadata[$fieldid][0]['value'], $asset->id, $contextid, $e->getMessage()));
 						}
-					}
-					// insert values of contextable field in current context or insert values of non-contextable for all contexts
-					try {
-						$bind_vars['contextid'] = (is_null($do_contextid) || $contextid === 0) ? NULL : $contextid;
-						$bind_vars['use_default'] = is_null($bind_vars['contextid']) ? '1' : '0';
-						$result = MatrixDAL::executeQuery('core', 'setMetadataValueForAsset', $bind_vars);
-					} catch (Exception $e) {
-						// SYS0339 = Cannot set new value of metadata due to DB error
-						throw new Exception(translate_error('SYS0339', $fieldid, $metadata[$fieldid][0]['value'], $asset->id, $contextid, $e->getMessage()));
-					}//end try catch
+
+						// insert values of non-contextable for all contexts
+						try {
+							$bind_vars['contextid'] = NULL;
+							$bind_vars['use_default'] = '1';
+							$result = MatrixDAL::executeQuery('core', 'setMetadataValueForAsset', $bind_vars);
+						} catch (Exception $e) {
+							// SYS0339 = Cannot set new value of metadata due to DB error
+							throw new Exception(translate_error('SYS0339', $fieldid, $metadata[$fieldid][0]['value'], $asset->id, $contextid, $e->getMessage()));
+						}//end try catch
+					} else {
+						// insert values to this context
+						try {
+							$bind_vars['contextid'] = $contextid;
+							$bind_vars['use_default'] = $contextid === 0 ? '1' : '0';
+							$result = MatrixDAL::executeQuery('core', 'setMetadataValueForAsset', $bind_vars);
+						} catch (Exception $e) {
+							// SYS0339 = Cannot set new value of metadata due to DB error
+							throw new Exception(translate_error('SYS0339', $fieldid, $metadata[$fieldid][0]['value'], $asset->id, $contextid, $e->getMessage()));
+						}
+
+						// Also copy the default context values to other contexts which are using default context values
+						if ($contextid === 0) {
+							foreach($all_contexts as $ctxid => $val) {
+								if ($ctxid === 0) {
+									// Skip for default context, we just inserted right above
+									continue;
+								}
+								$copy_entry = FALSE;
+								if (isset($existing_fieldids[$ctxid][$fieldid]) && $existing_fieldids[$ctxid][$fieldid]) {
+									// There is an existing value for this field in this context
+									// Remove it first to avoid duplicate insertion error
+									try {
+										$bind_vars['contextid'] = $ctxid;
+										$result = MatrixDAL::executeQuery('core', 'deleteMetadataValueForAsset', $bind_vars);
+									} catch (Exception $e) {
+										throw new Exception(translate_error('SYS0339', $fieldid, $metadata[$fieldid][0]['value'], $asset->id, $contextid, $e->getMessage()));
+									}
+									$copy_entry = TRUE;
+								} else if (!isset($existing_fieldids[$ctxid][$fieldid])) {
+									// Entry does not exist for this context(ctxid) yet
+									$copy_entry = TRUE;
+								}
+
+								if ($copy_entry) {
+									try {
+										$bind_vars['contextid'] = $ctxid;
+										$bind_vars['use_default'] = '1';
+										$result = MatrixDAL::executeQuery('core', 'setMetadataValueForAsset', $bind_vars);
+									} catch (Exception $e) {
+										// SYS0339 = Cannot set new value of metadata due to DB error
+										throw new Exception(translate_error('SYS0339', $fieldid, $metadata[$fieldid][0]['value'], $asset->id, $contextid, $e->getMessage()));
+									}
+								}//end if
+							}//end foreach
+						}//end else
+					}//end else if not contextable
 
 				// we are updating
 				} else {
