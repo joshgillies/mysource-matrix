@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form.inc,v 1.50 2013/09/19 04:52:50 cupreti Exp $
+* $Id: simple_form.inc,v 1.51 2013/09/19 04:54:15 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1334,7 +1334,7 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>(form) {
 	* @param boolean	$print_form_tags	print out the form tags
 	* @param boolean	$submit_buttons		whether to paint the submit and cancel buttons
 	* @param boolean	$print_js			print the client-side validation function (if any)
-	* @param array		answers			answers to populate the form's questions
+	* @param array		$answers			answers to populate the form's questions
 	*
 	* @return void
 	* @access public
