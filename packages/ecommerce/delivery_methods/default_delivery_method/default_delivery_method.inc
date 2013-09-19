@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_cart_processor.inc';
 * Purpose
 *
 *
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -490,9 +490,12 @@ HEREDOC;
 		$interface = parent::getInputInterface();
 
 		$form =& $this->getForm();
+		
+		// Retrieve answers from the session
+		$answers = array_get_index($_SESSION, 'SQ_DELIVERY_'.$this->id.'_ANSWERS', Array());
 
 		ob_start();
-		$form->printBody(FALSE, FALSE);
+		$form->printBody(FALSE, FALSE, '', TRUE, $answers);
 		$contents = ob_get_contents();
 		ob_end_clean();
 
@@ -534,6 +537,9 @@ HEREDOC;
 		}
 		
 		$_SESSION['order_extra_information'] =  serialize($order_extra_info);
+		
+		// Save delivery question answers in the session
+		$_SESSION['SQ_DELIVERY_'.$this->id.'_ANSWERS'] = $answers;
 
 		if (!$ok) {
 			return FALSE;
@@ -810,6 +816,11 @@ HEREDOC;
 			$order->setOrderStatus(SQ_ECOM_ORDER_STATUS_FAILED);
 		}
 		$order->setAttrValue('order_form_value', unserialize($_SESSION['order_extra_information']));
+
+		// Clear the delivery method form answers
+		if (isset($_SESSION['SQ_DELIVERY_'.$this->id.'_ANSWERS'])) {
+			unset($_SESSION['SQ_DELIVERY_'.$this->id.'_ANSWERS']);
+		}
 
 		return TRUE;
 
