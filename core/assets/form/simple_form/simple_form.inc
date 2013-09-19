@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form.inc,v 1.49 2013/09/19 04:41:25 cupreti Exp $
+* $Id: simple_form.inc,v 1.50 2013/09/19 04:52:50 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1091,7 +1091,7 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>(form) {
 	*
 	* @param string	$prefix	the prefix that should be applied to each
 	*						keyword returned by this function
-	* @param boolean	$answers	answers to populate the form's questions
+	* @param array	$answers	answers to populate the form's questions
 	*
 	* @return array
 	* @access public
@@ -1334,7 +1334,7 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>(form) {
 	* @param boolean	$print_form_tags	print out the form tags
 	* @param boolean	$submit_buttons		whether to paint the submit and cancel buttons
 	* @param boolean	$print_js			print the client-side validation function (if any)
-	* @param boolean	$answers			answers to populate the form's questions
+	* @param array		answers			answers to populate the form's questions
 	*
 	* @return void
 	* @access public
@@ -1381,7 +1381,7 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>(form) {
 	* Paints the form using a default format
 	*
 	* @param boolean	$submit_buttons	whether to paint the submit and cancel buttons
-	* @param boolean	$answers		answers to populate the form's questions
+	* @param array		$answers		answers to populate the form's questions
 	*
 	* @return void
 	* @access private
@@ -1429,7 +1429,7 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>(form) {
 	* Paints the form using the custom format bodycopy
 	*
 	* @param object	&$bodycopy	the custom format bodycopy to be used
-	* @param boolean	$answers	answers to populate the form's questions
+	* @param array	$answers	answers to populate the form's questions
 	*
 	* @return void
 	* @access private
