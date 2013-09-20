@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: simple_form.inc,v 1.44.8.3 2013/09/10 07:19:40 ewang Exp $
+* $Id: simple_form.inc,v 1.44.8.4 2013/09/20 05:08:19 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.44.8.3 $
+* @version $Revision: 1.44.8.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1091,11 +1091,12 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>(form) {
 	*
 	* @param string	$prefix	the prefix that should be applied to each
 	*						keyword returned by this function
+	* @param array	$answers	answers to populate the form's questions
 	*
 	* @return array
 	* @access public
 	*/
-	function getDisplayKeywordReplacement($prefix)
+	function getDisplayKeywordReplacement($prefix, $answers=Array())
 	{
 		$questions = $this->attr('questions');
 		$keywords = Array();
@@ -1103,6 +1104,10 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>(form) {
 		foreach ($questions as $shadowid => $question) {
 			// get the question
 			$q = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$shadowid);
+			if (isset($answers[$q->id]['value'])) {
+				$q->setValue($answers[$q->id]['value']);
+			}
+
 			$keywords[$prefix.$this->id.'_q'.$shadowid] = $q->getHtmlField();
 			$keywords[$prefix.$this->id.'_q'.$shadowid.'_note'] = $q->attr('note');
 			$keywords[$prefix.$this->id.'_q'.$shadowid.'_id'] = 'q'.$this->id.'_q'.$shadowid;
@@ -1115,7 +1120,7 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>(form) {
 			$sectionid = $link['minorid'];
 			$s = $GLOBALS['SQ_SYSTEM']->am->getAsset($sectionid);
 
-			$keywords += $s->getDisplayKeywordReplacements($prefix);
+			$keywords += $s->getDisplayKeywordReplacements($prefix, $answers);
 			$keywords[$prefix.$s->id.'_name'] = $s->name;
 
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($s);
@@ -1329,11 +1334,12 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>(form) {
 	* @param boolean	$print_form_tags	print out the form tags
 	* @param boolean	$submit_buttons		whether to paint the submit and cancel buttons
 	* @param boolean	$print_js			print the client-side validation function (if any)
+	* @param array		$answers			answers to populate the form's questions
 	*
 	* @return void
 	* @access public
 	*/
-	function printBody($print_form_tags=TRUE, $submit_buttons=TRUE, $form_action='', $print_js=TRUE)
+	function printBody($print_form_tags=TRUE, $submit_buttons=TRUE, $form_action='', $print_js=TRUE, $answers=Array())
 	{
 		// return custom bodycopy but ONLY if enabled
 		$format_bodycopy = $this->getFormatBodycopy(TRUE);
@@ -1359,9 +1365,9 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>(form) {
 
 		// if format bodycopy enabled, print with that, otherwise print default
 		if ($format_bodycopy) {
-			$this->printCustomFormat($format_bodycopy);
+			$this->printCustomFormat($format_bodycopy, $answers);
 		} else {
-			$this->printDefaultFormat($submit_buttons);
+			$this->printDefaultFormat($submit_buttons, $answers);
 		}
 
 		if ($print_form_tags) {
@@ -1375,16 +1381,21 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>(form) {
 	* Paints the form using a default format
 	*
 	* @param boolean	$submit_buttons	whether to paint the submit and cancel buttons
+	* @param array		$answers		answers to populate the form's questions
 	*
 	* @return void
 	* @access private
 	*/
-	function printDefaultFormat($submit_buttons=TRUE)
+	function printDefaultFormat($submit_buttons=TRUE, $answers=Array())
 	{
 		?>
 		<table>
 		<?php foreach ($this->attr('questions') as $shadowid => $question) {
 			$q = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$shadowid);
+			if (isset($answers[$q->id]['value'])) {
+				$q->setValue($answers[$q->id]['value']);
+			}
+
 			$name = array_get_index($question['attributes'], 'name', '');
 			$note = array_get_index($question['attributes'], 'note', '');
 
@@ -1418,13 +1429,14 @@ function beforeSubmit_<?php echo $this->getPrefix() ?>(form) {
 	* Paints the form using the custom format bodycopy
 	*
 	* @param object	&$bodycopy	the custom format bodycopy to be used
+	* @param array	$answers	answers to populate the form's questions
 	*
 	* @return void
 	* @access private
 	*/
-	function printCustomFormat(&$bodycopy)
+	function printCustomFormat(&$bodycopy, $answers=Array())
 	{
-		$replacements = $this->getDisplayKeywordReplacement('form_');
+		$replacements = $this->getDisplayKeywordReplacement('form_', $answers);
 		$bodycopy->setKeywordReplacements($replacements);
 		$bodycopy->printBody();
 
