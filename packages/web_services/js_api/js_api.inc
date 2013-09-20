@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.150 2013/09/20 02:09:30 lwright Exp $
+* $Id: js_api.inc,v 1.151 2013/09/20 02:17:56 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.150 $
+* @version $Revision: 1.151 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -3542,8 +3542,7 @@ class JS_Api extends Page
 				$attributes = $am->getAssetTypeAttributes($asset->type());
 				if ($attr_name[$i] != '' && array_key_exists($attr_name[$i], $attributes)) {
 					//set our new attribute
-					$user = $GLOBALS['SQ_SYSTEM']->user;
-					if ($user->canAccessBackend() === TRUE) {
+					if ($this->_filterAttrValues() === TRUE) {
 						// Filter goes off if they have backend permission.
 						// Using canAccessBackend() as that has the appropriate settings
 						// for accessing JS API from EES.
@@ -3577,6 +3576,33 @@ class JS_Api extends Page
 		}//end else
 
 	}//end setAttributeValue()
+
+
+	/**
+	 * Determines whether any front-end filter should be overridden for setting attr values.
+	 *
+	 * We allow it for users permitted access to the backend, only where it is
+	 * apparent we are calling the JS API from Simple Edit (ie. in EES-style
+	 * environments).
+	 *
+	 * @return boolean
+	 */
+	private function _filterAttrValues()
+	{
+		$filter = FALSE;
+		if (isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER'])) {
+			$in_limbo = (strpos($_SERVER['HTTP_REFERER'],SQ_CONF_LIMBO_SUFFIX) !== FALSE) ? TRUE : FALSE;
+		}
+
+		if ($in_limbo === TRUE) {
+			$user = $GLOBALS['SQ_SYSTEM']->user;
+			if ($user->canAccessBackend() === TRUE) {
+				$filter = TRUE;
+			}
+		}
+
+		return $filter;
+	}
 
 
 	/**
