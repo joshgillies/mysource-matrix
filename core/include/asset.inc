@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.795 2013/08/14 05:18:34 akarelia Exp $
+* $Id: asset.inc,v 1.796 2013/09/20 01:57:22 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.795 $
+* @version $Revision: 1.796 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3435,39 +3435,38 @@ class Asset extends MySource_Object
 	* Queue the setting of the value of an attribute
 	*
 	* This function sets the value of the attribute locally, but does not database updating.
-	* The change is queued awaiting the call of saveAttributes()
+	* The change is queued awaiting the call of saveAttributes().
 	*
-	* @param string	$name	the name of the attribute
-	* @param string	$value	the new value of the attribute
+	* If $filter is omitted or NULL, the default front-end filter setting is used.
+	*
+	* @param string	 $name   the name of the attribute
+	* @param string	 $value  the new value of the attribute
+	* @param boolean $filter whether to filter the value content.
 	*
 	* @return boolean
 	* @access public
 	* @see saveAttributes()
 	*/
-	public function setAttrValue($name, $value)
+	public function setAttrValue($name, $value, $filter=NULL)
 	{
 		if (empty($this->vars[$name])) {
 			trigger_localised_error('SYS0093', E_USER_WARNING, $name, $this->type());
 			return FALSE;
 		}
 
-		if(!SQ_IN_BACKEND && !SQ_IN_LIMBO && !SQ_IN_LOGIN && !SQ_IN_CRON && !SQ_PHP_CLI) {
-			$filter_enabled = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_FILTER_FRONT_END_INPUT');
-			if(isset($GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] ) && $GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'])
-				$filter_enabled = FALSE;
-			else if (isset($GLOBALS['SQ_CLONE_COMPONENTS'] ) && $GLOBALS['SQ_CLONE_COMPONENTS'])
-				$filter_enabled = FALSE;
+		if ($filter === NULL) {
+			$filter = $GLOBALS['SQ_SYSTEM']->frontendFilterEnabled();
+		}
 
-			//Any identified attributes that shouldn't be filtered
-			$type_excl = Array ('form_submission');
-			$attr_excl = Array ('xml');
-			if ($filter_enabled && !(in_array($this->type(), $type_excl) && in_array($name, $attr_excl))){
-				if (!empty($value)) {
-					$value = filter_content($value);
-					if ($value === FALSE){
-						trigger_localised_error('SYS0346', E_USER_WARNING, $name, $this->type());
-						return FALSE;
-					}
+		//Any identified attributes that shouldn't be filtered
+		$type_excl = Array ('form_submission');
+		$attr_excl = Array ('xml');
+		if ($filter && !(in_array($this->type(), $type_excl) && in_array($name, $attr_excl))){
+			if (!empty($value)) {
+				$value = filter_content($value);
+				if ($value === FALSE){
+					trigger_localised_error('SYS0346', E_USER_WARNING, $name, $this->type());
+					return FALSE;
 				}
 			}
 		}
