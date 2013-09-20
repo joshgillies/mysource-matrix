@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.404.4.8 2013/09/18 01:16:28 lwright Exp $
+* $Id: mysource.inc,v 1.404.4.9 2013/09/20 02:25:52 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.404.4.8 $
+* @version $Revision: 1.404.4.9 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -3320,6 +3320,30 @@ class MySource extends MySource_Object
 		return $use_contextid;
 
 	}//end getAlternateContext()
+
+
+	/**
+	 * Returns TRUE if the frontend filter is enabled for this user.
+	 *
+	 * The front-end filter does not apply to backend/limbo/login screen/cron/CLI
+	 * modes, also in certain other situations.
+	 *
+	 * @return boolean
+	 */
+	public function frontendFilterEnabled()
+	{
+		$filter_enabled = FALSE;
+		if (!SQ_IN_BACKEND && !SQ_IN_LIMBO && !SQ_IN_LOGIN && !SQ_IN_CRON && !SQ_PHP_CLI) {
+			$filter_enabled = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_FILTER_FRONT_END_INPUT');
+			if (isset($GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] ) && $GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION']) {
+				$filter_enabled = FALSE;
+			} else if (isset($GLOBALS['SQ_CLONE_COMPONENTS'] ) && $GLOBALS['SQ_CLONE_COMPONENTS']) {
+				$filter_enabled = FALSE;
+			}
+		}//end if
+
+		return $filter_enabled;
+	}
 
 
 //--        GET MANAGERS        --//
