@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.149 2013/09/20 01:59:34 lwright Exp $
+* $Id: js_api.inc,v 1.150 2013/09/20 02:09:30 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.149 $
+* @version $Revision: 1.150 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1077,17 +1077,7 @@ class JS_Api extends Page
 				}
 
 				// Set our new values
-				$user = $GLOBALS['SQ_SYSTEM']->getCurrentUser();
-				if ($user->canAccessBackend() === TRUE) {
-					// Filter goes off if they have backend permission.
-					// Using canAccessBackend() as that has the appropriate settings
-					// for accessing JS API from EES.
-					$success = $this->setAttributeValue($asset->id, $attr_names, $attr_vals, FALSE);
-				} else {
-					// Filter stays on.
-					$success = $this->setAttributeValue($asset->id, $attr_names, $attr_vals);
-				}
-
+				$success = $this->setAttributeValue($asset->id, $attr_names, $attr_vals);
 				if($success) {
 					$data = $success;
 				} else {
@@ -3552,7 +3542,17 @@ class JS_Api extends Page
 				$attributes = $am->getAssetTypeAttributes($asset->type());
 				if ($attr_name[$i] != '' && array_key_exists($attr_name[$i], $attributes)) {
 					//set our new attribute
-					$attr_set = $asset->setAttrValue($attr_name[$i], $attr_val[$i]);
+					$user = $GLOBALS['SQ_SYSTEM']->user;
+					if ($user->canAccessBackend() === TRUE) {
+						// Filter goes off if they have backend permission.
+						// Using canAccessBackend() as that has the appropriate settings
+						// for accessing JS API from EES.
+						$attr_set = $asset->setAttrValue($attr_name[$i], $attr_val[$i], FALSE);
+					} else {
+						// Filter stays on.
+						$attr_set = $asset->setAttrValue($attr_name[$i], $attr_val[$i]);
+					}
+
 					if(!$attr_set) {
 						$attr_type = $attributes[$attr_name[$i]]['type'];
 						$data[] = 'Attribute "'.$attr_name[$i].'"(of type "'.$attr_type.'") could not be set to "'.$attr_val[$i].'" for Asset "'.$asset->name.'" (#'.$assetid.')';
