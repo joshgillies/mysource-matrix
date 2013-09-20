@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.244 2013/09/18 06:06:03 cupreti Exp $
+* $Id: metadata_manager.inc,v 1.245 2013/09/20 08:33:15 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *	 Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.244 $
+* @version $Revision: 1.245 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -117,6 +117,12 @@ class Metadata_Manager extends MySource_Object
 	*/
 	function getSchemas($assetid, $granted=NULL, $cascades=NULL, $sort_name=FALSE)
 	{
+		// If it shadow assetid, get the schema of the bridge
+		$assetid_parts = explode(':', $assetid);
+		if (isset($assetid_parts[1])) {
+			$assetid = $assetid_parts[0];
+		}
+
 		if($sort_name) {
 		    $sql = '  SELECT DISTINCT m.schemaid, m.granted, m.cascades, a.name
 				  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_mdata m,  '.SQ_TABLE_RUNNING_PREFIX.'ast a';
