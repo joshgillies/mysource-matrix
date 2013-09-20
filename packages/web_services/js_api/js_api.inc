@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.148 2013/08/13 01:30:48 akarelia Exp $
+* $Id: js_api.inc,v 1.149 2013/09/20 01:59:34 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.148 $
+* @version $Revision: 1.149 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -180,20 +180,20 @@ class JS_Api extends Page
 	}//end _createAdditional()
 
 
-    /**
-    * Returns an array of all the permitted links type, the type asset and the cardinality
-    *
-    * @return array
-    * @access private
-    * @see Asset::_getAllowLinks()
-    */
-    public function _getAllowedLinks()
-    {
+	/**
+	* Returns an array of all the permitted links type, the type asset and the cardinality
+	*
+	* @return array
+	* @access private
+	* @see Asset::_getAllowLinks()
+	*/
+	public function _getAllowedLinks()
+	{
 		$links = parent::_getAllowedLinks();
 		$links[SQ_LINK_NOTICE] = Array('asset' => Array('card' => 'M', 'exclusive' => FALSE));
 		return $links;
 
-    }//end _getAllowedLinks()
+	}//end _getAllowedLinks()
 
 
 	/**
@@ -209,7 +209,7 @@ class JS_Api extends Page
 			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
 			return;
 		}
-		
+
 		// Should we print our JS file, or send back some JSON?
 		if (!isset($_REQUEST['key']) && !isset($_REQUEST['id']) && !isset($_REQUEST['type'])) {
 			header('Content-Type: text/javascript');
@@ -223,7 +223,7 @@ class JS_Api extends Page
 			}
 			return;
 		}
-		
+
 
 		// Overriding the matrix error handler so HTML doesn't get printed to the screen
 		require_once dirname(__FILE__).'/js_api_error_handler.inc';
@@ -253,7 +253,7 @@ class JS_Api extends Page
 
 		if ($this->attr('sync_context') && isset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_BACKEND_ALTERNATE_CONTEXT_ID'])) {
 			$current_contextid = $_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_BACKEND_ALTERNATE_CONTEXT_ID'];
-			if (!isset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_ALTERNATE_CONTEXT_ID']) || 
+			if (!isset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_ALTERNATE_CONTEXT_ID']) ||
 					$_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_ALTERNATE_CONTEXT_ID'] != $current_contextid) {
 				$_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_ALTERNATE_CONTEXT_ID'] = $current_contextid;
 				$GLOBALS['SQ_SYSTEM']->changeContext($current_contextid);
@@ -339,7 +339,7 @@ class JS_Api extends Page
 				$_SERVER['PHP_SELF'] = $_SERVER['PHP_SELF'].'/';
 				$_REQUEST['force_simple_edit'] = TRUE;
 			}
-			
+
 			// If 'PHP_SELF' was updated, set the same to 'REQUEST_URI'
 			if (!is_null($url_asset_object) ) {
 				$_SERVER['REQUEST_URI'] = $_SERVER['PHP_SELF'];
@@ -560,13 +560,13 @@ class JS_Api extends Page
 
 
 	/**
-	* Gets all the installed asset types on the system 
+	* Gets all the installed asset types on the system
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	*
 	* @return array
@@ -588,9 +588,9 @@ class JS_Api extends Page
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	*
 	* @return array
@@ -601,10 +601,10 @@ class JS_Api extends Page
 		if (isset($args['asset_ids']) || (isset($args['assetid']) && !empty($args['assetid']))) {
 			$assetids = Array();
 			if(isset($args['asset_ids'])) {
-			    $assetids = $args['asset_ids'];
+				$assetids = $args['asset_ids'];
 			}
 			else {
-			    $assetids = explode('\\,', $args['assetid']);
+				$assetids = explode('\\,', $args['assetid']);
 			}
 			$data = $this->trashAsset($assetids);
 		} else {
@@ -618,13 +618,13 @@ class JS_Api extends Page
 
 	/**
 	* get the child count for the passed assets.
-	* we have an option to go get the child count upto particular level. 
+	* we have an option to go get the child count upto particular level.
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	*
 	* @return array
@@ -652,13 +652,13 @@ class JS_Api extends Page
 
 
 	/**
-	* Updates multiple links 
+	* Updates multiple links
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	*
 	* @return array
@@ -668,7 +668,7 @@ class JS_Api extends Page
 	{
 		$links = $data = Array();
 		if(isset($args['link_info']['links'])) {
-		    foreach ($args['link_info']['links'] as $link) {
+			foreach ($args['link_info']['links'] as $link) {
 			$links['parents'][] = $link['parent'];
 			$links['children'][] = $link['child'];
 			$links['existing_link_type'][] = $link['existing_link_type'];
@@ -677,19 +677,19 @@ class JS_Api extends Page
 			$links['link_value'][] = $link['link_value'];
 			$links['sort_order'][] = $link['sort_order'];
 			$links['lock'][] = $link['link_lock'];
-		    }
+			}
 		}
 		else {
-		    $links['parents']  = explode('\\,', $args['parent_id']);
-		    $links['children'] = explode('\\,', $args['child_id']);
-		    $links['existing_link_type'] = explode('\\,', $args['existing_link_type']);
-		    $links['existing_link_value'] = explode('\\,', $args['existing_link_value']);
-		    $links['link_type'] = explode('\\,', $args['link_type']);
-		    $links['link_value'] = explode('\\,', $args['link_value']);
-		    $links['sort_order'] = explode('\\,', $args['sort_order']);
-		    $links['lock'] = explode('\\,', $args['locked']);
+			$links['parents']  = explode('\\,', $args['parent_id']);
+			$links['children'] = explode('\\,', $args['child_id']);
+			$links['existing_link_type'] = explode('\\,', $args['existing_link_type']);
+			$links['existing_link_value'] = explode('\\,', $args['existing_link_value']);
+			$links['link_type'] = explode('\\,', $args['link_type']);
+			$links['link_value'] = explode('\\,', $args['link_value']);
+			$links['sort_order'] = explode('\\,', $args['sort_order']);
+			$links['lock'] = explode('\\,', $args['locked']);
 		}
-		
+
 
 
 		foreach ($links as $elements) {
@@ -753,9 +753,9 @@ class JS_Api extends Page
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	*
 	* @return array
@@ -765,20 +765,20 @@ class JS_Api extends Page
 	{
 		$links = $data = Array();
 		if(isset($args['link_info']['links'])) {
-		    foreach ($args['link_info']['links'] as $link) {
+			foreach ($args['link_info']['links'] as $link) {
 			$links['parents'][] = $link['parent'];
 			$links['children'][] = $link['child'];
 			$links['link_type'][] = $link['link_type'];
 			$links['link_value'][] = $link['link_value'];
-		    }
+			}
 		}
 		else {
-		    $links['parents']  = explode('\\,', $args['parent_id']);
-		    $links['children'] = explode('\\,', $args['child_id']);
-		    $links['link_type'] = explode('\\,', $args['link_type']);
-		    $links['link_value'] = explode('\\,', $args['link_value']);
+			$links['parents']  = explode('\\,', $args['parent_id']);
+			$links['children'] = explode('\\,', $args['child_id']);
+			$links['link_type'] = explode('\\,', $args['link_type']);
+			$links['link_value'] = explode('\\,', $args['link_value']);
 		}
-		
+
 		foreach ($links as $elements) {
 			if (count($elements) != count($links['parents'])) {
 				$data['error'] = 'Please provide correct number of link elements';
@@ -830,9 +830,9 @@ class JS_Api extends Page
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	*
 	* @return array
@@ -884,9 +884,9 @@ class JS_Api extends Page
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	*
 	* @return array
@@ -914,13 +914,13 @@ class JS_Api extends Page
 
 
 	/**
-	* executes HTML Tidy on the content passed 
+	* executes HTML Tidy on the content passed
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	*
 	* @return array
@@ -966,9 +966,9 @@ class JS_Api extends Page
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	*
 	* @return array
@@ -989,13 +989,13 @@ class JS_Api extends Page
 
 
 	/**
-	* get all the attributes for the passed asset 
+	* get all the attributes for the passed asset
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	*
 	* @return array
@@ -1025,14 +1025,14 @@ class JS_Api extends Page
 
 
 	/**
-	* sets multipls attributes passed for asset in a single call. 
+	* sets multipls attributes passed for asset in a single call.
 	* Basically a wrapper function to _setAttribute
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	*
 	* @return array
@@ -1046,13 +1046,13 @@ class JS_Api extends Page
 
 
 	/**
-	* set the passed value of attribute for the given asset 
+	* set the passed value of attribute for the given asset
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	*
 	* @return array
@@ -1062,23 +1062,32 @@ class JS_Api extends Page
 	{
 		if ($write_access) {
 			if (isset($args['field_info']) || (isset($args['attr_name']) && isset($args['attr_val']))) {
-			    	$attr_names = Array();
+					$attr_names = Array();
 				$attr_vals = Array();
-				
+
 				if(isset($args['field_info'])) {
-				    foreach($args['field_info'] as $key => $value){
+					foreach($args['field_info'] as $key => $value){
 					$attr_names[] = $key;
 					$attr_vals[] = $value;
-				    }
+					}
 				}
 				else {
-				    $attr_names = explode('\\,', $args['attr_name']);
-				    $attr_vals = explode('\\,', $args['attr_val']);
+					$attr_names = explode('\\,', $args['attr_name']);
+					$attr_vals = explode('\\,', $args['attr_val']);
 				}
-				
 
 				// Set our new values
-				$success = $this->setAttributeValue($asset->id, $attr_names, $attr_vals);;
+				$user = $GLOBALS['SQ_SYSTEM']->getCurrentUser();
+				if ($user->canAccessBackend() === TRUE) {
+					// Filter goes off if they have backend permission.
+					// Using canAccessBackend() as that has the appropriate settings
+					// for accessing JS API from EES.
+					$success = $this->setAttributeValue($asset->id, $attr_names, $attr_vals, FALSE);
+				} else {
+					// Filter stays on.
+					$success = $this->setAttributeValue($asset->id, $attr_names, $attr_vals);
+				}
+
 				if($success) {
 					$data = $success;
 				} else {
@@ -1101,9 +1110,9 @@ class JS_Api extends Page
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	*
 	* @return array
@@ -1129,14 +1138,14 @@ class JS_Api extends Page
 
 
 	/**
-	* sets Multiple metadata for field in one go. 
+	* sets Multiple metadata for field in one go.
 	* basically the wrapper function for _setMetadata
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	*
 	* @return array
@@ -1154,9 +1163,9 @@ class JS_Api extends Page
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	*
 	* @return array
@@ -1169,16 +1178,16 @@ class JS_Api extends Page
 				require_once SQ_CORE_PACKAGE_PATH.'/metadata/metadata_field/metadata_field.inc';
 				$field_ids = Array();
 				$field_vals = Array();
-				
+
 				if(isset($args['field_info'])) {
-				    foreach($args['field_info'] as $key => $value){
+					foreach($args['field_info'] as $key => $value){
 					$field_ids[] = $key;
 					$field_vals[] = $value;
-				    }
+					}
 				}
 				else {
-				    $field_ids = explode('\\,', $args['field_id']);
-				    $field_vals = explode('\\,', $args['field_val']);
+					$field_ids = explode('\\,', $args['field_id']);
+					$field_vals = explode('\\,', $args['field_val']);
 				}
 
 				foreach($field_vals as $index =>  $fieldVal) {
@@ -1215,9 +1224,9 @@ class JS_Api extends Page
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	*
 	* @return array
@@ -1244,13 +1253,13 @@ class JS_Api extends Page
 
 			// lets check for the type_codes, link_types, and link_values
 			if(isset($args['type_codes']) && !empty($args['type_codes'])) {
-			    $type_codes = is_array($args['type_codes']) ? $args['type_codes'] : explode('\\,', $args['type_codes']);
+				$type_codes = is_array($args['type_codes']) ? $args['type_codes'] : explode('\\,', $args['type_codes']);
 			}
 			if(isset($args['link_types']) && !empty($args['link_types'])) {
-			    $link_types = is_array($args['link_types']) ? $args['link_types'] : explode('\\,', $args['link_types']);
+				$link_types = is_array($args['link_types']) ? $args['link_types'] : explode('\\,', $args['link_types']);
 			}
 			if(isset($args['link_values']) && !empty($args['link_values'])) {
-			    $link_values = is_array($args['link_values']) ? $args['link_values'] : explode('\\,', $args['link_values']);
+				$link_values = is_array($args['link_values']) ? $args['link_values'] : explode('\\,', $args['link_values']);
 			}
 			$get_attributes	= isset($args['get_attributes']) ? $args['get_attributes'] : FALSE;
 
@@ -1275,9 +1284,9 @@ class JS_Api extends Page
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	*
 	* @return array
@@ -1307,13 +1316,13 @@ class JS_Api extends Page
 
 			// lets check for the type_codes, link_types, and link_values
 			if(isset($args['type_codes']) && !empty($args['type_codes'])) {
-			    $type_codes = is_array($args['type_codes']) ? $args['type_codes'] : explode('\\,', $args['type_codes']);
+				$type_codes = is_array($args['type_codes']) ? $args['type_codes'] : explode('\\,', $args['type_codes']);
 			}
 			if(isset($args['link_types']) && !empty($args['type_codes'])) {
-			    $link_types = is_array($args['link_types']) ? $args['link_types'] : explode('\\,', $args['link_types']);
+				$link_types = is_array($args['link_types']) ? $args['link_types'] : explode('\\,', $args['link_types']);
 			}
 			if(isset($args['link_values']) && !empty($args['type_codes'])) {
-			    $link_values = is_array($args['link_values']) ? $args['link_values'] : explode('\\,', $args['link_values']);
+				$link_values = is_array($args['link_values']) ? $args['link_values'] : explode('\\,', $args['link_values']);
 			}
 			$get_attributes	= isset($args['get_attributes']) ? $args['get_attributes'] : FALSE;
 
@@ -1328,13 +1337,13 @@ class JS_Api extends Page
 
 
 	/**
-	* returns the defined user for the particular permission for the passed asset 
+	* returns the defined user for the particular permission for the passed asset
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	*
 	* @return array
@@ -1375,9 +1384,9 @@ class JS_Api extends Page
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	*
 	* @return array
@@ -1418,9 +1427,9 @@ class JS_Api extends Page
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	*
 	* @return array
@@ -1460,9 +1469,9 @@ class JS_Api extends Page
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	*
 	* @return array
@@ -1491,13 +1500,13 @@ class JS_Api extends Page
 
 
 	/**
-	* releases the locks for mentioned screen for the given asset 
+	* releases the locks for mentioned screen for the given asset
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	*
 	* @return array
@@ -1532,13 +1541,13 @@ class JS_Api extends Page
 
 
 	/**
-	* create a new link of the passed asset to the new parent provided with the options given 
+	* create a new link of the passed asset to the new parent provided with the options given
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	*
 	* @return array
@@ -1577,9 +1586,9 @@ class JS_Api extends Page
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	*
 	* @return array
@@ -1616,9 +1625,9 @@ class JS_Api extends Page
 	* moves links between 2 assets. Also provides option to change link_typ, link_value on move
 	*
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	*
@@ -1665,9 +1674,9 @@ class JS_Api extends Page
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	*
 	* @return array
@@ -1710,9 +1719,9 @@ class JS_Api extends Page
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	*
 	* @return array
@@ -1749,13 +1758,13 @@ class JS_Api extends Page
 
 
 	/**
-	* get the asset tree of the passed asset 
+	* get the asset tree of the passed asset
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	*
 	* @return array
@@ -1784,13 +1793,13 @@ class JS_Api extends Page
 
 
 	/**
-	* get the replacements for the passed keywords against the current asset 
+	* get the replacements for the passed keywords against the current asset
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	*
 	* @return array
@@ -1825,9 +1834,9 @@ class JS_Api extends Page
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	*
 	* @return array
@@ -1864,13 +1873,13 @@ class JS_Api extends Page
 
 
 	/**
-	* gets all the webpaths for the asset passed 
+	* gets all the webpaths for the asset passed
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	*
 	* @return array
@@ -1904,9 +1913,9 @@ class JS_Api extends Page
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	*
 	* @return array
@@ -1939,13 +1948,13 @@ class JS_Api extends Page
 
 
 	/**
-	* get the applied/denied/running information about the workflow schema on the passed asset 
+	* get the applied/denied/running information about the workflow schema on the passed asset
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	*
 	* @return array
@@ -2004,9 +2013,9 @@ class JS_Api extends Page
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	*
 	* @return array
@@ -2014,7 +2023,7 @@ class JS_Api extends Page
 	*/
 	private function _createFileAsset($args=Array(), $asset=NULL, $read_access=FALSE, $write_access=FALSE)
 	{
-	    if ($write_access || $this->attr('ignore_permissions')) {
+		if ($write_access || $this->attr('ignore_permissions')) {
 
 			if ((isset($args['friendly_name']) && $args['friendly_name'] != '' )) {
 				$filename		= $args['friendly_name'];
@@ -2115,13 +2124,13 @@ class JS_Api extends Page
 
 
 	/**
-	* updates the file content of the editable file types viz: xml_file, xsl_file, css_file, text_file and js_file 
+	* updates the file content of the editable file types viz: xml_file, xsl_file, css_file, text_file and js_file
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	*
 	* @return array
@@ -2170,9 +2179,9 @@ class JS_Api extends Page
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	*
 	* @return array
@@ -2278,9 +2287,9 @@ class JS_Api extends Page
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	*
 	* @return array
@@ -2314,9 +2323,9 @@ class JS_Api extends Page
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	*
 	* @return array
@@ -2333,7 +2342,7 @@ class JS_Api extends Page
 		if (empty($lineage)) return Array('error' => 'No lineage supplied');
 
 		if(!is_array($lineage)) {
-		    $lineage = explode('\\,', trim($lineage));
+			$lineage = explode('\\,', trim($lineage));
 		}
 
 		$current_asset_id = trim(array_pop($lineage));
@@ -2361,9 +2370,9 @@ class JS_Api extends Page
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	*
 	* @return array
@@ -2418,9 +2427,9 @@ class JS_Api extends Page
 					$running_vars_copy	= $running_vars;
 					$errors	= $hh->freestyleHipo('hipo_job_clone_assets', $running_vars_copy);
 					if(isset($running_vars_copy['cloned_asset'])) {
-					    $cloned_asset_id = array_pop(array_keys($running_vars_copy['cloned_asset']));
-					    $cloned_asset_id = '#'.$cloned_asset_id;
-					    $cloned_assets[] = $cloned_asset_id;
+						$cloned_asset_id = array_pop(array_keys($running_vars_copy['cloned_asset']));
+						$cloned_asset_id = '#'.$cloned_asset_id;
+						$cloned_assets[] = $cloned_asset_id;
 					}
 					$all_errors	+= $errors;
 				}//end for
@@ -2448,9 +2457,9 @@ class JS_Api extends Page
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	*
 	* @return array
@@ -2545,9 +2554,9 @@ class JS_Api extends Page
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	*
 	* @return array
@@ -2580,9 +2589,9 @@ class JS_Api extends Page
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	*
 	* @return array
@@ -2595,7 +2604,7 @@ class JS_Api extends Page
 		// check to se if we can read the contextid from the session first
 		if ($this->attr('sync_context') && isset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_BACKEND_ALTERNATE_CONTEXT_ID'])) {
 			$current_contextid = $_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_BACKEND_ALTERNATE_CONTEXT_ID'];
-			if (!isset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_ALTERNATE_CONTEXT_ID']) || 
+			if (!isset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_ALTERNATE_CONTEXT_ID']) ||
 					$_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_ALTERNATE_CONTEXT_ID'] != $current_contextid) {
 				$_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_ALTERNATE_CONTEXT_ID'] = $current_contextid;
 			}
@@ -2627,9 +2636,9 @@ class JS_Api extends Page
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	*
 	* @return array
@@ -2662,9 +2671,9 @@ class JS_Api extends Page
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	*
 	* @return array
@@ -2701,9 +2710,9 @@ class JS_Api extends Page
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	*
 	* @return array
@@ -2730,9 +2739,9 @@ class JS_Api extends Page
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	*
 	* @return array
@@ -2793,9 +2802,9 @@ class JS_Api extends Page
 	*
 	* @param array		$args			bundled array of arguments do be used while performing operations
 	* @param object		$asset			the asset we are executing this function on
-	* @param boolean	$read_access	read access check for the asset we 
+	* @param boolean	$read_access	read access check for the asset we
 	*									are dealing with with respect to current user
-	* @param boolean	$write_access	write access check for the asset we 
+	* @param boolean	$write_access	write access check for the asset we
 	*									are dealing with with respect to current user
 	*
 	* @return array
@@ -4100,10 +4109,10 @@ class JS_Api extends Page
 		require_once $job_dir.'/hipo_job_edit_status.inc';
 		$init_hipo = new HIPO_Job_Edit_Status();
 		$running_vars = Array(
-                            'assetid'           => $asset->id,
-                            'new_status'        => $status,
-                            'dependants_only'   => !$cascade,
-                        );
+							'assetid'           => $asset->id,
+							'new_status'        => $status,
+							'dependants_only'   => !$cascade,
+						);
 		if ($workflow_stream !== 'SQ_USE_DEFAULT') {
 			$running_vars['workflow_stream'] = $workflow_stream;
 		}
@@ -4210,7 +4219,7 @@ class JS_Api extends Page
 				} else {
 					// all ISO characters have to be converted to UTF8 encoding
 					if(SQ_CONF_DEFAULT_CHARACTER_SET == 'iso-8859-1')
-					    $data = $this->array_utf8_encode_recursive($data);
+						$data = $this->array_utf8_encode_recursive($data);
 					$output = json_encode($data);
 					if (function_exists('json_last_error') && (json_last_error() != JSON_ERROR_NONE)) {
 						switch (json_last_error()) {
@@ -4281,18 +4290,18 @@ class JS_Api extends Page
 	{
 		$array = Array();
 		if (is_object($obj)) {
-    	    foreach ($obj as $key => $value) {
+			foreach ($obj as $key => $value) {
 				if (is_object($value)) {
 					$array[$key] = $this->object2Array($value);
 				} else {
-	        	    $array[$key] = $value;
+					$array[$key] = $value;
 				}
-	        }
-    	} else {
-	        $array = $obj;
-    	}
+			}
+		} else {
+			$array = $obj;
+		}
 
-	    return $array;
+		return $array;
 
 	}// end object2Array
 
