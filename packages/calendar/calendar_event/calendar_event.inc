@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.114 2013/08/22 07:11:05 ewang Exp $
+* $Id: calendar_event.inc,v 1.115 2013/09/20 08:30:31 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.114 $
+* @version $Revision: 1.115 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1118,7 +1118,7 @@ class Calendar_Event extends Asset
 			}
 			$event_asset = clone $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
-			$event_asset->full_id = $whole_assetid;
+			$event_asset->id = $whole_assetid;
 			foreach($instance_data as $attr => $value) {
 				$event_asset->vars[$attr]['attrid'] = 0;
 				$event_asset->vars[$attr]['type'] = 'text';
