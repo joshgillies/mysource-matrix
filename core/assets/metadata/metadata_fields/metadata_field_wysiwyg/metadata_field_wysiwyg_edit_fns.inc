@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_wysiwyg_edit_fns.inc,v 1.9 2012/11/07 02:28:38 akarelia Exp $
+* $Id: metadata_field_wysiwyg_edit_fns.inc,v 1.10 2013/09/20 01:56:05 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_ATTRIBUTES_PATH.'/wysiwyg/wysiwyg.inc';
 *
 *
 * @author  Basil Shkara <bshkara@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -155,22 +155,15 @@ class Metadata_Field_WYSIWYG_Edit_Fns extends Metadata_Field_Edit_Fns
 			if ($wysiwyg->processed) {
 				$new_value_str = Metadata_Field::encodeValueString(trim($wysiwyg->value), Array());
 
-				if(!SQ_IN_BACKEND && !SQ_IN_LIMBO && !SQ_IN_LOGIN && !SQ_IN_CRON && !SQ_PHP_CLI) {
-					$filter_enabled = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_FILTER_FRONT_END_INPUT');
-					if(isset($GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] ) && $GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION']) {
-						$filter_enabled = FALSE;
-					} else if (isset($GLOBALS['SQ_CLONE_COMPONENTS'] ) && $GLOBALS['SQ_CLONE_COMPONENTS']) {
-						$filter_enabled = FALSE;
-					}
-					
-					if ($filter_enabled && !empty($new_value_str)) {
-						$new_value_str = filter_content($new_value_str);
-						if ($new_value_str === FALSE){
-							trigger_localised_error('SYS0347', E_USER_WARNING, $asset->name, $asset->type());
-							return FALSE;
-						}
+				$filter_enabled = $GLOBALS['SQ_SYSTEM']->frontendFilterEnabled();
+				if ($filter_enabled && !empty($new_value_str)) {
+					$new_value_str = filter_content($new_value_str);
+					if ($new_value_str === FALSE){
+						trigger_localised_error('SYS0347', E_USER_WARNING, $asset->name, $asset->type());
+						return FALSE;
 					}
 				}
+
 				$processed = TRUE;
 			}
 		}
