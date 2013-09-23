@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.103 2013/08/12 01:40:01 cupreti Exp $
+* $Id: page_remote_content.inc,v 1.104 2013/09/23 01:22:26 cupreti Exp $
 *
 */
 
@@ -18,6 +18,7 @@
 require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 require_once SQ_FUDGE_PATH.'/general/www.inc';
 require_once SQ_FUDGE_PATH.'/general/text.inc';
+require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
 // Consider making these constants into attributes of this asset
@@ -34,7 +35,7 @@ define ('SQ_REMOTE_SESSION_COOKIE_NAME', 'sq-active-remote-session');
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.103 $
+* @version $Revision: 1.104 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
