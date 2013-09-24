@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout_edit_fns.inc,v 1.9 2012/08/30 01:09:08 ewang Exp $
+* $Id: layout_edit_fns.inc,v 1.10 2013/09/24 01:16:55 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,7 +56,7 @@ class Layout_Edit_Fns extends Bodycopy_Edit_Fns
 	public function paintLimboKeywords(Layout $asset, Backend_Outputter $o, $prefix)
 	{
 	  ?>
-	  <p>Click here for <a href="#" onClick="javascript: var win = window.open('<?php echo sq_web_path('data')?>/asset_types/layout/popups/print_limbo_keywords.php', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=520')">a list of specific asset keywords available for use in Simple Edit Mode</a>.</p>
+	  <p>Click here for <a href="#" onClick="javascript: var win = window.open('<?php echo sq_web_path('lib')?>/web/popups/print_limbo_keywords.php', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=520')">a list of specific asset keywords available for use in Simple Edit Mode</a>.</p>
 	  <?php
 
 	}//end paintLimboKeywords()

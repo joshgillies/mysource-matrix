@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_edit_fns.inc,v 1.64 2012/10/03 07:55:54 cupreti Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.65 2013/09/24 01:13:01 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -59,7 +59,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	function paintKeywordInstructions(Metadata_Field $asset, Backend_Outputter $o, $prefix)
 	{
 		ob_start();
-			?><a href="#" onClick="Javascript: var win = window.open('<?php echo sq_web_path('data')?>/asset_types/metadata_field/popups/keywords.php?assetid=<?php echo $asset->id; ?>&all=1', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=520'); return false;">click here </a></b><?php
+			?><a href="#" onClick="Javascript: var win = window.open('<?php echo sq_web_path('lib')?>/web/popups/keywords.php?assetid=<?php echo $asset->id; ?>&all=1', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=520'); return false;">click here </a></b><?php
 			$replacements_link = ob_get_contents();
 		ob_end_clean();
 		$o->note(translate('metadata_keyword_replacements_usage', $replacements_link));

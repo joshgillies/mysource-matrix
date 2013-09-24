@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_management.inc,v 1.27 2012/08/30 01:09:08 ewang Exp $
+* $Id: metadata_field_management.inc,v 1.28 2013/09/24 01:13:02 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -128,10 +128,7 @@ class Metadata_Field_Management extends Asset_Management
 	*/
 	public function _getFileList()
 	{
-		return Array(
-				'popups/keywords.php',
-				'popups/keyword_extraction.php',
-			   );
+		return Array();
 
 	}//end _getFileList()
 

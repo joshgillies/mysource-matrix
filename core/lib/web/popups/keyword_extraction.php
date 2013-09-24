@@ -10,10 +10,10 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: keyword_extraction.php,v 1.9 2012/08/30 01:09:08 ewang Exp $
+* $Id: keyword_extraction.php,v 1.1 2013/09/24 01:10:35 ewang Exp $
 *
 */
-	define('SQ_SYSTEM_ROOT', dirname(dirname(dirname(dirname(dirname(dirname($_SERVER['SCRIPT_FILENAME'])))))));
+	define('SQ_SYSTEM_ROOT', dirname(dirname(dirname(dirname(dirname($_SERVER['SCRIPT_FILENAME']))))));
 	require_once SQ_SYSTEM_ROOT.'/core/include/init.inc';
 	require_once SQ_SYSTEM_ROOT.'/core/lib/html_form/html_form.inc';
 	if (!isset($_GET['assetid'])) return FALSE;
@@ -50,7 +50,7 @@
 
 	<body>
 	<?php
-		require_once dirname(__FILE__).'/../../../../../core/include/backend_outputter.inc';
+		require_once dirname(__FILE__).'/../../../../core/include/backend_outputter.inc';
 		$o = new Backend_Outputter();
 
 		$o->openSection(translate('keyword_extraction_for', translate('asset_format', $asset->attr('name'), $asset->id)));

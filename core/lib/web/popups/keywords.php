@@ -10,12 +10,12 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: keywords.php,v 1.10 2013/07/25 23:23:48 lwright Exp $
+* $Id: keywords.php,v 1.1 2013/09/24 01:10:35 ewang Exp $
 *
 */
 
-	require_once dirname(__FILE__).'/../../../../../core/include/init.inc';
-	require_once dirname(__FILE__).'/../../../../../core/lib/html_form/html_form.inc';
+	require_once dirname(__FILE__).'/../../../../core/include/init.inc';
+	require_once dirname(__FILE__).'/../../../../core/lib/html_form/html_form.inc';
 
 	$assetid = array_get_index($_GET, 'assetid');
 	if (is_null($assetid)) return FALSE;

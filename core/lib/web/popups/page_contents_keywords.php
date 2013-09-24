@@ -10,12 +10,12 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_contents_keywords.php,v 1.12 2013/06/24 05:24:25 ewang Exp $
+* $Id: page_contents_keywords.php,v 1.1 2013/09/24 01:10:35 ewang Exp $
 *
 */
 
-	require_once dirname(__FILE__).'/../../../../../core/include/init.inc';
-	require_once dirname(__FILE__).'/../../../../../core/lib/html_form/html_form.inc';
+	require_once dirname(__FILE__).'/../../../../core/include/init.inc';
+	require_once dirname(__FILE__).'/../../../../core/lib/html_form/html_form.inc';
 	if (!isset($_GET['assetid'])) return FALSE;
 
 	assert_valid_assetid($_GET['assetid']);
@@ -55,7 +55,7 @@
 
 	<body>
 	<?php
-		require_once dirname(__FILE__).'/../../../../../core/include/backend_outputter.inc';
+		require_once dirname(__FILE__).'/../../../../core/include/backend_outputter.inc';
 		// $backend = new Backend();
 		$o = new Backend_Outputter();
 

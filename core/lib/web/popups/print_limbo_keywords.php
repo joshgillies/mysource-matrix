@@ -1,5 +1,5 @@
 <?php
-	require_once dirname(__FILE__).'/../../../../../core/include/init.inc';
+	require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 
 	require_once SQ_SYSTEM_ROOT.'/core/lib/html_form/html_form.inc';
 	if (isset($GLOBALS['SQ_SYSTEM']->user)) {

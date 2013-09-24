@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox_edit_fns.inc,v 1.64 2012/09/19 23:27:07 csmith Exp $
+* $Id: inbox_edit_fns.inc,v 1.65 2013/09/24 01:20:42 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -67,7 +67,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 		if ($write_access) {
 ?>
 			<style type="text/css">
-				@import url(<?php echo sq_web_path('data')?>/asset_types/inbox/css/inbox.css.php);
+				@import url(<?php echo sq_web_path('lib')?>/web/css/inbox.css);
 			</style>
 
 			<table border="0" cellspacing="2" cellpadding="2" width="100%">
@@ -185,7 +185,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 		$num_messages = count($messages);
 ?>
 			<style type="text/css">
-				@import url(<?php echo sq_web_path('data')?>/asset_types/inbox/css/inbox.css.php);
+				@import url(<?php echo sq_web_path('lib')?>/web/css/inbox.css);
 			</style>
 			<script type="text/javascript" src="<?php echo sq_web_path('lib'); ?>/js/JsHttpConnector.js"></script>
 			<script type="text/javascript">
@@ -354,7 +354,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			</script>
 			<script type="text/javascript" src="<?php echo sq_web_path('data'); ?>/asset_types/inbox/js/inbox.js"></script>
 			<style type="text/css">
-				@import url(<?php echo sq_web_path('data')?>/asset_types/inbox/css/inbox.css.php);
+				@import url(<?php echo sq_web_path('lib')?>/web/css/inbox.css);
 			</style>
 			<div id="inbox_container">
 			<?php
@@ -650,7 +650,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 		$write_access = $asset->writeAccess('mail');
 ?>
 			<style type="text/css">
-				@import url(<?php echo sq_web_path('data')?>/asset_types/inbox/css/inbox.css.php);
+				@import url(<?php echo sq_web_path('lib')?>/web/css/inbox.css);
 			</style>
 			<script type="text/javascript" >
 			//<![CDATA[

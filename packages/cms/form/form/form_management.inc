@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_management.inc,v 1.76 2013/08/19 04:32:27 cupreti Exp $
+* $Id: form_management.inc,v 1.77 2013/09/24 01:18:52 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.76 $
+* @version $Revision: 1.77 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -671,10 +671,7 @@ class Form_Management extends Asset_Management
 	*/
 	function _getFileList()
 	{
-		return Array(
-				'popups/page_contents_keywords.php',
-				'popups/thank_you_keywords.php',
-			   );
+		return Array();
 
 	}//end _getFileList()
 	

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.91 2013/04/30 09:00:33 ewang Exp $
+* $Id: form_edit_fns.inc,v 1.92 2013/09/24 01:18:52 ewang Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.91 $
+* @version $Revision: 1.92 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -691,8 +691,8 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	{
 		?>
 		<p><?php echo translate('cms_form_complex_formatting_note') ?><br/>
-		<?php echo translate('cms_form_page_contents_popup_link', sq_web_path('data').'/asset_types/form/popups/page_contents_keywords.php?assetid='.$asset->id, 580, 520) ?><br/>
-		<?php echo translate('cms_form_thank_you_popup_link', sq_web_path('data').'/asset_types/form/popups/thank_you_keywords.php?assetid='.$asset->id, 580, 520) ?><br/>
+		<?php echo translate('cms_form_page_contents_popup_link', sq_web_path('lib').'/web/popups/page_contents_keywords.php?assetid='.$asset->id, 580, 520) ?><br/>
+		<?php echo translate('cms_form_thank_you_popup_link', sq_web_path('lib').'/web/popups/thank_you_keywords.php?assetid='.$asset->id, 580, 520) ?><br/>
 		<?php
 		return TRUE;
 
