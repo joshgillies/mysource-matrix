@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.915 2013/09/04 02:22:30 cupreti Exp $
+* $Id: asset_manager.inc,v 1.916 2013/09/24 00:36:40 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.915 $
+* @version $Revision: 1.916 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1311,10 +1311,14 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Determine if the passed assetid or assetids refer(s) to a valid asset in the system
 	*
-	* Note that this will always return FALSE if you pass it a shadow asset
+	* Note shadow assets will not be considered as existing unless the bridge that defines
+	* it properly defines an assetExists() function, and does more than just return FALSE.
 	*
-	* @param int|array	$assetids	the ID of the asset we are going to the check for existence
-	*								or an array of assetids we want to check
+	* If a single asset ID is passed the function will return TRUE or FALSE depending on
+	* whether that asset exists. If an array is passed it will return an array of the
+	* assetids that exist.
+	*
+	* @param string|array	$assetids	the ID(s) of the asset(s) to check.
 	*
 	* @return mixed boolean|array
 	* @access public
