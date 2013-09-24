@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.796 2013/09/20 01:57:22 lwright Exp $
+* $Id: asset.inc,v 1.797 2013/09/24 23:35:29 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.796 $
+* @version $Revision: 1.797 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -4203,7 +4203,7 @@ class Asset extends MySource_Object
 								$wf_replacements[] = date('d-m-Y H:i:s', $schema_workflows[$schema_id]['started']);
 								break;
 							case 'stream_name':
-								 $wf_replacements[] = $schema_workflows[$schema_id]['stream_name'];
+								$wf_replacements[] = $schema_workflows[$schema_id]['stream_name'];
 								break;
 						}
 					}
@@ -5049,7 +5049,8 @@ class Asset extends MySource_Object
 		}
 
 		if ($layout_id) {
-			$replacement = $GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_PAINT_LAYOUT_ID', $layout_id);
+			$replacement = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('SQ_PAINT_LAYOUT_ID');
+			$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_PAINT_LAYOUT_ID', $layout_id);
 			// we have found the design to use... we might need to fool the system
 			// into thinking we are printing the frontend of that asset
 			$switched_frontend = FALSE;
