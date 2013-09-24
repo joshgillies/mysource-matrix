@@ -18,7 +18,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: cache_storage_redis.inc,v 1.5 2013/07/25 23:23:48 lwright Exp $
+ * $Id: cache_storage_redis.inc,v 1.6 2013/09/24 01:36:00 ewang Exp $
  *
  */
 
@@ -38,7 +38,7 @@ define('SQ_CACHE_REDIS_URL_INDEX_PREFIX', 'sq_cache_url_index|');
  *
  * @author  James Hurst <james@riverratrecords.com>
  * @author  Hamish Forbes <hforbes@squiz.co.uk>
- * @version $Revision: 1.5 $
+ * @version $Revision: 1.6 $
  * @package MySource_Matrix_Packages
  * @subpackage __core__
  */
@@ -184,10 +184,14 @@ class Cache_Storage_Redis extends Cache_Storage
 				log_write('Redis Error: Failed entering transaction', 'error', E_USER_NOTICE);
 				return FALSE;
 			}
-			$ret = $this->_redis->sadd(SQ_CACHE_REDIS_ASSET_INDEX_PREFIX.$assetid, $mcache_key)
-								->sadd(SQ_CACHE_REDIS_URL_INDEX_PREFIX.$index_url, $mcache_key)
-								->setex($mcache_key, $expiry_length, $data)
-								->exec();
+			$ret = $this->_redis->sadd(SQ_CACHE_REDIS_ASSET_INDEX_PREFIX.$assetid, $mcache_key);
+			if ($ret === FALSE) {
+				log_write('Redis Error: Failed writing to Redis, is this a slave?', 'error', E_USER_NOTICE);
+				return FALSE;	
+			}
+			$this->_redis->sadd(SQ_CACHE_REDIS_URL_INDEX_PREFIX.$index_url, $mcache_key)
+					->setex($mcache_key, $expiry_length, $data)
+					->exec();
 		} catch(RedisException $e) {
 			log_write('Redis Write Error: '.$e->getMessage(), 'error', E_USER_NOTICE);
 			return FALSE;
