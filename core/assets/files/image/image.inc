@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.95 2012/08/30 01:09:07 ewang Exp $
+* $Id: image.inc,v 1.96 2013/09/24 01:56:32 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.95 $
+* @version $Revision: 1.96 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1278,19 +1278,52 @@ class Image extends File implements Bridge
 
 
 	/**
-	* Determine if the passed assetid or assetids refer(s) to a valid asset in the system
+	* Determine if the passed assetid or assetids refer(s) to a valid asset in the system	
 	*
-	* Note that this will always return FALSE if you pass it a shadow asset
+	* This function shouldn't be called directly - use the Asset Manager's equivalent
+	* function. It will send this function the full asset ID of any shadow assets.
 	*
-	* @param mixed	$assetids	the ID of the asset we are going to the check for existence
-	*							or an array of assetids we want to check
+	* Return TRUE/FALSE if passed a single assetid, or if an array return an array of
+	* assetids that exist.
+	*
+	* @param mixed	$assetids	An assetid (or array of asset IDs) to check.
 	*
 	* @return mixed boolean|array
 	* @access public
+	* @see Asset_Manager::assetExists()
 	*/
 	function assetExists($assetids)
 	{
-		return FALSE;
+		$my_assetids  = Array();
+		$return_array = TRUE;
+		if (is_array($assetids) === FALSE) {
+			$return_array = FALSE;
+			$assetids  = Array($assetids);
+		}
+		
+		$varieties_attr = $this->attr('varieties');
+		foreach ($assetids as $assetid) {
+			$shadow_parts = explode(':', $assetid, 2);
+			if ((string) $shadow_parts[0] === (string) $this->id) {
+				// Correct asset.
+				if ($shadow_parts[1]{0} === 'v') {
+					// Varieties start with "v"
+					if (array_key_exists($shadowid, $varieties_attr['data']) === TRUE) {
+						$my_assetids[] = $assetid;
+					}
+				}
+			}
+		}
+		
+		if ($return_array === TRUE) {
+			return $return_array;
+		} else {
+			if (count($my_assetids) > 0) {
+				return TRUE;
+			} else {
+				return FALSE;
+			}
+		}//end if
 
 	}//end assetExists()
 
