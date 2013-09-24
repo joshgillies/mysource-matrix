@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata.inc,v 1.56 2013/03/18 05:28:14 ewang Exp $
+* $Id: metadata.inc,v 1.56.4.1 2013/09/24 00:58:07 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.56 $
+* @version $Revision: 1.56.4.1 $
 * @package MySource_Matrix
 */
 
@@ -391,7 +391,9 @@ function processMetadata(&$owner, &$o, $ei)
 		}
 	}
 	if ($save) {
-		$mm->setMetadata($owner->id, $new_values);
+ 		// broadcast update event for all fields to refresh search index
+ 		// we are updating most fields here anyway (except non-editable fields), but those non-editable fields might contain keywords, so reindex them all together
+ 		$mm->setMetadata($owner->id, $new_values, NULL, TRUE, TRUE);
 		
 		// All context metadata files need to be regenerated if there is a non-contextable field changed
 		$regen_all_contexts = FALSE;
