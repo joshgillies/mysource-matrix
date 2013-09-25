@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_under_construction.inc,v 1.63 2013/02/15 07:16:13 ewang Exp $
+* $Id: asset_status_under_construction.inc,v 1.63.4.1 2013/09/25 07:45:59 cupreti Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *    UNDER_CONSTRUCTION -> LIVE             if no workflow and user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.63.4.1 $
 * @package MySource_Matrix
 */
 class Asset_Status_Under_Construction extends Asset_Status
@@ -241,13 +241,13 @@ class Asset_Status_Under_Construction extends Asset_Status
 										'status'		=> $this->getDescription(),
 										'workflow_url'	=> current_url().$this->owner->getBackendHref('workflow', FALSE),
 									);
-					$log->replacements = $msg_reps;
 					$asset_edt_fns = $this->owner->getEditFns();
 					if (isset($asset_edt_fns->static_screens['preview'])) {
-						$log->replacements['preview_url'] = current_url().$this->owner->getBackendHref('preview', FALSE);
+						$msg_reps['preview_url'] = current_url().$this->owner->getBackendHref('preview', FALSE);
 					} else {
-						$log->replacements['preview_url'] = current_url().$this->owner->getBackendHref('details', FALSE);
+						$msg_reps['preview_url'] = current_url().$this->owner->getBackendHref('details', FALSE);
 					}
+					$log->replacements = $msg_reps;
 
 					$log->type = 'asset.workflow.log.started';
 					$log->parameters['assetid'] = $this->owner->id;
