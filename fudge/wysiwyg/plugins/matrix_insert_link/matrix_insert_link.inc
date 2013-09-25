@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_link.inc,v 1.59 2013/08/19 03:19:09 akarelia Exp $
+* $Id: matrix_insert_link.inc,v 1.60 2013/09/25 03:18:26 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *     a link in the editable document using an asset from MySoure Matrix
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -276,9 +276,12 @@ class matrix_insert_link extends wysiwyg_plugin
 					// because the editor automatically prepend the http:// business to
 					// all relative urls remove it
 					currArgs["url"] = unescape(editor.make_relative_hrefs(currArgs["url"]));
-					e = '.*(\\?a=[0-9]+)((:[^$]*)\\$)?';
+
+					e = '.*(\\./\\?a=[0-9]+)((:[^$]*)\\$)?';
 					re = new RegExp(e, "gi");
-					currArgs["url"] = "./" + currArgs["url"].replace(re, "$1$3");
+					currArgs["url"] = currArgs["url"].replace(re, "$1$3");
+
+					if (currArgs["url"].substr(-1) == '/') currArgs["url"] = currArgs["url"].substr(0, currArgs["url"].length - 1)
 
 					// if it's hashed and it's disappeared, add it back on here
 					if (needsHash && (currArgs["url"].indexOf('#') == -1)) {
