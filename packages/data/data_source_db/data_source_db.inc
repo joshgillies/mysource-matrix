@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_db.inc,v 1.53 2013/08/16 06:38:19 ewang Exp $
+* $Id: data_source_db.inc,v 1.54 2013/09/25 03:25:32 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -325,28 +325,13 @@ class Data_Source_DB extends Data_Source
 		$dsn = $asset->attr('dsn');
 		$user = $asset->attr('user');
 		$password = $asset->attr('password');
-		$type = $asset->attr('db_type');
-		switch ($type) {
-			case 'mysql':
-				$type = 'mysql';
-			break;
-			case 'oracle':
-			case 'oci':
-				$type = 'oci';
-			break;
-			case 'pgsql':
-				$type = 'pgsql';
-			break;
-			default:
-				$type = 'pgsql';
-			break;
-		}
-		
+		// get type from DSN string
+		preg_match('/^([a-z]+):/', strtolower($dsn), $matches);
+		$type = isset($matches[1]) && !empty($matches[1]) ? $matches[1] : 'pgsql';
+
 		// If there is an "oci:" prefix, strip it and store this data in the DB type index
-		$dsn_lower = strtolower($dsn);
-		if (substr($dsn_lower, 0, 4) == 'oci:') {
+		if ($type === 'oci') {
 			$dsn = substr($dsn, 4);
-			$type = 'oci';
 			// Also we may have arrived from the separate fields interface or manually entered a "dbname=" PDO_OCI-type DSN
 			// In such cases we will be nice and strip the leading "dbname=" for a simple PHP OCI-friendly format
 			$dsn_lower = strtolower($dsn);
