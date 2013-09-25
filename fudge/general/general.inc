@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.58.4.3 2013/07/11 04:11:03 ewang Exp $
+* $Id: general.inc,v 1.58.4.4 2013/09/25 06:34:51 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.58.4.3 $
+* @version $Revision: 1.58.4.4 $
 * @package Fudge
 * @subpackage General
 */
@@ -478,7 +478,7 @@ function random_user_password($userinfo = Array())
 	 }
 	if(!empty($userinfo) && defined('SQ_PASSWD_RULE_DISALLOW_USER_INFO') && SQ_PASSWD_RULE_DISALLOW_USER_INFO == 0) {
 	    foreach ($userinfo as $component) {
-		if (!empty($component) && preg_match('/.*'.$component.'.*/i', $password)) {
+		if (!empty($component) && strpos(strtolower($password), strtolower($component)) !== FALSE) {
 		    $retry = TRUE;
 		}
 	    }
