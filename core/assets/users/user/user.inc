@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.143 2013/09/12 06:42:54 ewang Exp $
+* $Id: user.inc,v 1.144 2013/09/25 05:50:11 ewang Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/password_rules_config.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.143 $
+* @version $Revision: 1.144 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -444,7 +444,7 @@ class User extends Asset
 			$components = Array('username', 'first_name', 'last_name', 'email');
 			foreach ($components as $component) {
 				$attr = $this->attr($component);
-				if (!empty($attr) && preg_match('/.*'.$this->attr($component).'.*/i', $passwd)) {
+				if (!empty($attr) && strpos(strtolower($passwd), strtolower($attr)) !== FALSE) {
 					$errors[] = Array('CORE0221');
 					break;
 				}
