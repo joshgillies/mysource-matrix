@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.427.4.5 2013/08/28 02:35:38 cupreti Exp $
+* $Id: lang_strings.xml,v 1.427.4.6 2013/09/03 03:26:57 ewang Exp $
 *
 */
 
@@ -604,7 +604,8 @@
 	<string source="history_viewed_row">The highlighted row in the version history is the current version of "%s" being viewed in rollback mode</string>
 	<string source="show_cached_asset">Show the cached version of this asset</string>
 	<string source="preview_change_options">Press the Preview button after changing options to preview the asset below , or press the Calculate button to retrieve a size breakdown of this asset and its elements.</string>
-	<string source="different_domain_login">You may be presented with a Login screen if you choose a URL from a domain different to &lt;b&gt;%s&lt;/b&gt;.&lt;br /&gt;Just enter your Username and Password to login as normal.</string>
+	<string source="different_domain_login">You may be presented with a Login screen if you choose a URL from a domain different to &lt;b&gt;%s&lt;/b&gt;.</string>
+	<string source="different_domain_preview_new_window">As the Same Origin Frame setting is enabled, URLs using a different domain than the system's current domain will be opened in a new window.</string>
 	<string source="asset_cannot_preview">This asset cannot be previewed or does not have a URL assigned to it.</string>
 	<string source="no_asset_settings">There are no settings for "%s"</string>
 	<string source="current_version">Current Version</string>
