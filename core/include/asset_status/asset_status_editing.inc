@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_editing.inc,v 1.52.2.2 2013/02/15 07:18:07 ewang Exp $
+* $Id: asset_status_editing.inc,v 1.52.2.3 2013/09/25 07:46:14 cupreti Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                the workflow the workflow and all required metadata is complete
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.52.2.2 $
+* @version $Revision: 1.52.2.3 $
 * @package MySource_Matrix
 */
 class Asset_Status_Editing extends Asset_Status
@@ -251,13 +251,13 @@ class Asset_Status_Editing extends Asset_Status
 									'status'		=> $this->getDescription(),
 									'workflow_url'	=> current_url().$this->owner->getBackendHref('workflow', FALSE),
 								);
-					$log->replacements = $msg_reps;
 					$asset_edt_fns = $this->owner->getEditFns();
 					if (isset($asset_edt_fns->static_screens['preview'])) {
-						$log->replacements['preview_url'] = current_url().$this->owner->getBackendHref('preview', FALSE);
+						$msg_reps['preview_url'] = current_url().$this->owner->getBackendHref('preview', FALSE);
 					} else {
-						$log->replacements['preview_url'] = current_url().$this->owner->getBackendHref('details', FALSE);
+						$msg_reps['preview_url'] = current_url().$this->owner->getBackendHref('details', FALSE);
 					}
+					$log->replacements = $msg_reps;
 
 					$log->type = 'asset.workflow.log.started';
 					$log->parameters['assetid'] = $this->owner->id;
