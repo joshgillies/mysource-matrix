@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_tag.inc,v 1.13 2012/08/30 01:09:14 ewang Exp $
+* $Id: trigger_action_set_tag.inc,v 1.14 2013/09/26 09:09:18 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -359,11 +359,9 @@ class Trigger_Action_Set_Tag extends Trigger_Action
 	*/
 	public static function processInterface(&$settings, $request_data)
 	{
-		// make sure the assetid isn't blank
+		$tagid = '';
 		if (!empty($request_data['tag']['assetid'])) {
 			$tagid = $request_data['tag']['assetid'];
-		} else {
-			return translate('no_tags_set');
 		}
 
 		$settings['tagid']          = $tagid;
