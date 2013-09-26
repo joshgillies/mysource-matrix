@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: preview.inc,v 1.40.8.2 2013/09/03 03:26:57 ewang Exp $
+* $Id: preview.inc,v 1.40.8.3 2013/09/26 05:37:34 cupreti Exp $
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -19,7 +19,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Preview Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.40.8.2 $
+* @version $Revision: 1.40.8.3 $
 * @package MySource_Matrix
 */
 
@@ -71,6 +71,7 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 		throw new Exception('Unable to get the design name and url for assetid #'.$owner->id.' due to the following database error:'.$e->getMessage());
 	}//end try catch
 
+	$dependant_parnet_id = '';
 	if (empty($url_data)) {
 		// there is no direct URL for this asset
 		// so look at the dependant parents to try and find one
@@ -87,6 +88,11 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 			} catch (Exception $e) {
 				throw new Exception('Unable to get the design name and url for assetid #'.$owner->id.' due to the following database error:'.$e->getMessage());
 			}//end try catch
+
+			// Pick the first dependant parent that has URL
+			if (empty($dependant_parnet_id) && !empty($parent_urls)) {
+				$dependant_parnet_id = $parent->id;
+			}
 
 			$url_data = array_merge($url_data, $parent_urls);
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent);
@@ -118,7 +124,12 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 			}
 		}
 
-		$primary_url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($owner->id, $current_root_url);
+		// If we got the URL data from the dependant parents
+		if (!empty($dependant_parnet_id)) {
+			$primary_url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($dependant_parnet_id, $current_root_url);
+		} else {
+			$primary_url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($owner->id, $current_root_url);
+		}
 
 		// we can't preview primary url from other domain in frame
 		$open_in_new_window = FALSE;
