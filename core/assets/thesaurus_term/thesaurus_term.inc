@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_term.inc,v 1.23 2012/08/30 01:09:16 ewang Exp $
+* $Id: thesaurus_term.inc,v 1.23.4.1 2013/09/26 08:45:25 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * Purpose
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.23.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -138,6 +138,7 @@ class Thesaurus_Term extends Asset
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			if ($created) {
 				$em->broadcastEvent($this, 'AssetCreate', Array('name','assetid'));
+				$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_asset_created', $this);
 			}
 			$em->broadcastEvent($this->_thesaurus, 'CreateLink', Array());
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
@@ -165,6 +166,7 @@ class Thesaurus_Term extends Asset
 
 		if ($created) {
 			$em->broadcastEvent($this, 'AssetCreate', Array('name','assetid'));
+			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_asset_created', $this);
 		}
 
 		return $this->_thesaurus->id.':'.$linkid;
