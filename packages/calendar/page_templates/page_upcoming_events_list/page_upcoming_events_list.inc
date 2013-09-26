@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_upcoming_events_list.inc,v 1.40.2.2 2013/07/18 01:29:25 akarelia Exp $
+* $Id: page_upcoming_events_list.inc,v 1.40.2.3 2013/09/26 05:24:56 akarelia Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_PACKAGES_PATH.'/calendar/lib/calendar_common.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.40.2.2 $
+* @version $Revision: 1.40.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -486,7 +486,12 @@ class Page_Upcoming_Events_List extends Page
 						$_REQUEST['SQ_CALENDAR_DATE'] = $next_occurance;
 					}
 				}
-				$event_occurance = strtotime($next_occurance);
+				list($year, $month, $day) = sscanf($next_occurance, '%04d-%02d-%02d');
+				if (!empty($day) && !empty($month) && !empty($year)) {
+					$event_occurance = gmmktime(0, 0, 0, $month, $day, $year);
+				} else {
+					$event_occurance = strtotime($next_occurance);
+				}
 
 			} else if ($asset && $asset->type() == 'calendar_event_modification') {
 
