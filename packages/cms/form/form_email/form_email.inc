@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.79.2.4 2013/04/19 02:05:21 cupreti Exp $
+* $Id: form_email.inc,v 1.79.2.5 2013/09/27 00:58:53 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.79.2.4 $
+* @version $Revision: 1.79.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -74,6 +74,56 @@ class Form_Email extends Form
 		}
 
 	}//end _getName()
+
+
+	/**
+	* Lets asset.inc save a copy of this asset at this point in time
+	* and then updates the reference to content_file_questions.php content_file.php
+	* to point correctly to .sq_system/content_file_questions.php
+	*
+	* This copy gets used when the asset is live and the user does not have write access
+	*
+	* @return boolean
+	* @access public
+	*/
+	function saveSystemVersion()
+	{
+		// let parents do the copying of the files first
+		parent::saveSystemVersion();
+
+		// bug fix #6553 Custom form and safe editing do not play well
+		// the .sq_system/content_file.php is still pointing to the
+		// content_file_questions.php for the logged in users. lets
+		// fix that first and then save the content again for the file
+		$content = file_to_string($this->data_path.'/.sq_system/content_file.php');
+
+		$pattern = '|'.str_replace(SQ_DATA_PATH, 'SQ_DATA_PATH."', $this->data_path).'/content_file_questions.php"|';
+		$replacement = str_replace(SQ_DATA_PATH, 'SQ_DATA_PATH."', $this->data_path).'/.sq_system/content_file_questions.php"';
+
+		$content = preg_replace($pattern, $replacement, $content);
+
+		return string_to_file($content, $this->data_path.'/.sq_system/content_file.php');
+
+	}//end saveSystemVersion()
+
+
+	/**
+	* Let the parent replace the editing version with the system (live) version
+	* and then updates the .sq_system reference within the file
+	*
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function revertToSystemVersion()
+	{
+		// let asset.inc copy across the file back from .sq_system dir
+		parent::revertToSystemVersion();
+
+		// once copied fix the content of the files to not point at .sq_system
+		return  parent::fileRegeneration();
+
+	}//end revertToSystemVersion()
 
 
 	/**
@@ -305,21 +355,20 @@ class Form_Email extends Form
 			// Print the current page or the Confirmation Page if we're confirming things
 			$current_page = $this->getCurrentPageNumber();
 			$total_pages = $this->getTotalPages();
-			
+
 			echo $this->getFormHeader();
-			
+
 			if (($current_page == $total_pages) && $this->attr('use_confirmation_page')) {
 				echo $this->getConfirmationPageContents();
-			}
-			else {				   	
+			} else {
 				$this->printPageContentsBodycopy();
 			}
-			
+
 			echo $this->getFormFooter();
-			
+
 			return FALSE;
 		}
-				
+
 		parent::finishForm();
 		$this->mailRecipients();
 		$this->mailReceipt();
@@ -650,7 +699,7 @@ class Form_Email extends Form
 					.' '.$current_value['text_format']
 					.' '.implode(', ', $current_value['to'])
 					.' '.$current_value['from']
-					.' '.array_get_index($current_value, 'reply_to', '') 
+					.' '.array_get_index($current_value, 'reply_to', '')
 					.' '.$current_value['subject'];
 
 		$all_keywords = extract_keywords($all_text);
@@ -681,18 +730,17 @@ class Form_Email extends Form
 		foreach ($actions as $action_id => $action) {
 			$action_type = $action['type_code'];
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($action_type);
-			
+
 			// If need to perform 'before_submit' actions, skip those 'after_submit' action
 			if ($before_submit && !isset($action['settings']['before_submit'])) continue;
 			// If need to perform 'after_submit' actions, skip those 'before_submit' action
 			if (!$before_submit && isset($action['settings']['before_submit'])) continue;
-			
-				
+
 			if ($action['active'] && call_user_func(Array($action_type, 'isValid'), $this, $action['settings'])) {
 				$success &= call_user_func(Array($action_type, 'execute'), $this, $action['settings'], $action_id);
 			}
 		}
-		
+
 		return $success;
 
 	}//end performSubmissionActions()
