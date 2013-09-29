@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.298 2013/09/11 05:16:37 lwright Exp $
+* $Id: general.inc,v 1.299 2013/09/29 23:28:20 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.298 $
+* @version $Revision: 1.299 $
 * @package MySource_Matrix
 */
 
@@ -70,12 +70,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 	$bt = debug_backtrace();
 
 	if (count($bt) > 1) {
-		$real_bt_index = 0;
-
-		while (($real_bt_index < count($bt)-1) && (((FALSE !== strpos(array_get_index($bt[$real_bt_index], 'class'), 'Locale_Manager')) || (FALSE !== strpos(array_get_index($bt[$real_bt_index], 'file'), 'locale_manager'))) ||  ($real_bt_index === 0 && array_get_index($bt[$real_bt_index], 'function', '') == __FUNCTION__) && array_get_index($bt[$real_bt_index], 'function', '') == __FILE__)) {
-			$real_bt_index++;
-		}
-
+		$real_bt_index = get_true_error_location($bt, 1);
 		$err_file = (($err_no === E_STRICT) || ($real_bt_index == 0 && !isset($bt[$real_bt_index]['file']))) ?	hide_system_root($bt['0']['args']['2']) : hide_system_root($bt[$real_bt_index]['file']);
 		$err_line = (($err_no === E_STRICT) || ($real_bt_index == 0 && !isset($bt[$real_bt_index]['file']))) ?	hide_system_root($bt['0']['args']['3']) : hide_system_root($bt[$real_bt_index]['line']);
 		$err_msg  = hide_system_root($err_msg);
@@ -314,6 +309,48 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 	}//end if ($terminate)
 
 }//end sq_error_handler()
+
+
+/**
+ * Given a backtrace, return the index of where the real error is.
+ *
+ * Mainly filters out effects of the Locale Manager which sends the trigger_error()
+ * messages for localised error codes.
+ * It would be best for error handlers to send the whole backtrace with start_from
+ * set to 1, that way its own contribution would be ignored.
+ *
+ * If start_from exceeds the length of the backtrace, or otherwise no suitable
+ * backtrace entry can be found, the index of the last entry will be returned.
+ *
+ * @param array $bt			 The entire debug_backtrace().
+ * @param int   $start_from  Index of backtrace to start from.
+ *
+ * @return int
+ * @access public
+ */
+function get_true_error_location($bt, $start_from=0)
+{
+	$real_bt_index = min($start_from, count($bt) - 1);
+
+	while ($real_bt_index < count($bt) - 1) {
+		$this_bt = $bt[$real_bt_index];
+		$found   = TRUE;
+
+		if (strtolower(array_get_index($this_bt, 'class', '')) === 'locale_manager') {
+			$found = FALSE;
+		} else if (strpos(strtolower(array_get_index($this_bt, 'file', '')), 'locale_manager') !== FALSE) {
+			$found = FALSE;
+		}
+
+		if ($found === TRUE) {
+			break;
+		} else {
+			$real_bt_index++;
+		}
+	}//end while
+
+	return $real_bt_index;
+}
 
 
 /**
@@ -776,19 +813,19 @@ function current_url($inc_protocol=TRUE, $strip_backend_suffix=FALSE, $strip_ext
 		if ($strip_backend_suffix && (SQ_IN_BACKEND || SQ_IN_LIMBO || SQ_IN_LOGIN)) {
 			$url = preg_replace('/('.SQ_CONF_BACKEND_SUFFIX.'|'.SQ_CONF_LIMBO_SUFFIX.'|'.SQ_CONF_LOGIN_SUFFIX.')\/?$/', '', $url);
 		}
-		
-		if($strip_extra_suffix) {
-		    // NOTE: We shouldn't strip off '/' at the end of url
-		    // otherwise it will create issues when generating relative herf
-		    $url = preg_replace('/'.SQ_CONF_NOCACHE_SUFFIX.'\/?$/', '', $url);
 
-		    $regex = '/\/(';
-		    $regex .= SQ_CONF_RECACHE_SUFFIX.'|';
-		    $regex .= SQ_CONF_PERFORMANCE_SUFFIX.'|';
-		    $regex .= SQ_CONF_PERFORMANCE_TIMING_SUFFIX.'|';
-		    $regex .= SQ_CONF_PERFORMANCE_RESULT_SUFFIX;
-		    $regex .= ')\/?$/';
-		    $url = preg_replace($regex, '', $url);
+		if($strip_extra_suffix) {
+			// NOTE: We shouldn't strip off '/' at the end of url
+			// otherwise it will create issues when generating relative herf
+			$url = preg_replace('/'.SQ_CONF_NOCACHE_SUFFIX.'\/?$/', '', $url);
+
+			$regex = '/\/(';
+			$regex .= SQ_CONF_RECACHE_SUFFIX.'|';
+			$regex .= SQ_CONF_PERFORMANCE_SUFFIX.'|';
+			$regex .= SQ_CONF_PERFORMANCE_TIMING_SUFFIX.'|';
+			$regex .= SQ_CONF_PERFORMANCE_RESULT_SUFFIX;
+			$regex .= ')\/?$/';
+			$url = preg_replace($regex, '', $url);
 		}
 	}
 
@@ -1650,7 +1687,7 @@ function get_asset_tag_line($assetid, $screen='')
  * Optional popup title defaults to "Lineages" if not provided.
  *
  * @param string $assetid    The asset ID to show lineages of.
- * @param string $popupTitle Optional popup title. 
+ * @param string $popupTitle Optional popup title.
  *
  * @return string
  * @access public
@@ -1660,9 +1697,9 @@ function get_asset_tag_line_binoculars($assetid, $popupTitle=NULL)
 	if ($popupTitle === NULL) {
 		$popupTitle = translate('lineages');
 	}
-	
+
 	ob_start();
-	
+
 	$lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($assetid, 5, NULL, 'name', TRUE);
 
 	if (strpos($assetid, ':') !== FALSE) {
@@ -1690,10 +1727,10 @@ function get_asset_tag_line_binoculars($assetid, $popupTitle=NULL)
 		}
 		$real_assetid = $assetid;
 	}
-	
+
 	$asset_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, SQ_SC_LINK_ALL, '', TRUE, 'minor');
 	$count_linked_to = count($asset_links);
-	
+
 	// start an inner buffer for the lineages popup
 	ob_start();
 	?>
@@ -1762,10 +1799,10 @@ function get_asset_tag_line_binoculars($assetid, $popupTitle=NULL)
 	if (count($lineages) > 0) {
 		echo sq_print_icon(sq_web_path('lib').'/web/images/icons/asset_locator.png', 16, 16, $lineages_name, $lineages_name, ' class="clickable" align="absmiddle"	onclick="'.$lineages_onclick.'"');
 	}
-	
+
 	$contents = ob_get_clean();
 	return $contents;
-	
+
 }//end get_asset_tag_line_binoculars()
 
 /**
