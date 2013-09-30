@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.4 2010/05/05 07:11:14 ewang Exp $
+* $Id: lang_screen_details.xml,v 1.5 2013/09/30 05:46:24 ewang Exp $
 *
 */
 -->
@@ -30,6 +30,10 @@
 			</function_call>
 			<display_name>Link For The Feed</display_name>
 			<note>The feed cache will be refreshed every time you modify the link for feed</note>
+		</field>
+		<field attribute="data_delimiter">
+			<display_name>Data Delimiter</display_name>
+			<note>Delimiter to separate data from xml elements with same name.</note>
 		</field>
 	</section>
 	<section name ="Shadow Asset Name">

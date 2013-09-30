@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2010/05/05 07:11:14 ewang Exp $
+* $Id: edit_interface_screen_details.xml,v 1.5 2013/09/30 05:46:24 ewang Exp $
 *
 */
 -->
@@ -27,6 +27,9 @@
 				<paint_function   name="paintRSS"   />
 				<process_function name="processRSS" />
 			</function_call>
+		</field>
+		<field attribute="data_delimiter">
+			<text width="25" height="1"/>
 		</field>
 	</section>
 	<section name="Shadow Asset Name" write_access="write:attributes" show_if="resultSetExists">
