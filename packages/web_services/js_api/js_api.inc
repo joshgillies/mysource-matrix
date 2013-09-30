@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.151 2013/09/20 02:17:56 lwright Exp $
+* $Id: js_api.inc,v 1.152 2013/09/30 04:25:45 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.151 $
+* @version $Revision: 1.152 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -458,6 +458,7 @@ class JS_Api extends Page
 				} catch (Exception $e) {
 					// If any exception was thrown when executing the function, catch it
 					$results[$track_func]['error'] = 'Exception occured when executing JS API function "'.$type.'()": '.$e->getMessage();
+					js_api_error_handler(E_USER_ERROR, 'EXCEPTION: '.$e->getMessage(), $e->getFile(), $e->getLine());
 				}
 
 				// if batching request and one of the function is set to blocking
@@ -2217,7 +2218,7 @@ class JS_Api extends Page
 		if(!$asset->readAccess()) return Array('error' => 'You do not have permissions to access this asset');
 
 		$raw_lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($asset->id, 0, NULL, Array('name', 'type_code'), $significant_link_only);
-		$root_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
+		$root_folder  = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
 
 		$result_lineages = Array();
 		$linkid_done = Array();
@@ -2226,6 +2227,7 @@ class JS_Api extends Page
 		foreach ($raw_lineages as $index => $val) {
 			$data = Array();
 			$minorid = $asset->id;
+			log_dump($val['lineage']);
 			$parent_lineage_assetids = array_merge(array_reverse(array_keys($val['lineage'])), Array($root_folder->id));
 			foreach($parent_lineage_assetids as $majorid) {
 				$major_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($majorid);
@@ -2235,7 +2237,16 @@ class JS_Api extends Page
 				foreach($links as $link) {
 					if (!in_array($link['linkid'], $linkid_done)) {
 						if ($link['link_type'] & SQ_SC_LINK_SIGNIFICANT) {
-							$treeid_data = $GLOBALS['SQ_SYSTEM']->am->getLinkTreeid($link['linkid']);
+							if (strpos($link['linkid'], ':') === FALSE) {
+								$treeid_data = $GLOBALS['SQ_SYSTEM']->am->getLinkTreeid($link['linkid']);
+							} else {
+								// No tree ID for shadow links (yet).
+								$treeids = $GLOBALS['SQ_SYSTEM']->am->getAssetTreeids($major_asset->id);
+								$treeid_data = Array($link['linkid'] => Array(Array()));
+								foreach ($treeids as $treeid) {
+									$treeid_data[$link['linkid']][0][] = $treeid.str_repeat('*', SQ_CONF_ASSET_TREE_SIZE);
+								}
+							}
 						} else {
 							$treeid_data = Array($link['linkid'] => Array(Array(FALSE)));
 						}
