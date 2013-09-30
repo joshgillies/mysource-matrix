@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.96 2013/09/24 01:56:32 lwright Exp $
+* $Id: image.inc,v 1.97 2013/09/30 04:09:59 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.96 $
+* @version $Revision: 1.97 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1153,6 +1153,81 @@ class Image extends File implements Bridge
 
 
 	/**
+	 * Returns link lineage information for assets, relative to this bridge
+	 *
+	 * Also returns basic information about the last link (linkid and link type)
+	 * linkid => Array (
+	 *			  'linkid'     => linkid,
+	 *			  'link_type'  => link_type,
+	 *			  'link_value' => link_value,
+	 *			  'lineage'    => Array(...),
+	 *			 )
+	 *
+	 * This shouldn't be called directly - use Asset_Manager's function and it'll
+	 * work them out. If called directly, lineages and tree IDs will be based from
+	 * this bridge
+	 *
+	 * @param string		$assetid			Full asset ID of the shadow asset
+	 * @param int			$result_limit		limits the number of results returned
+	 * @param string|array	$fields				Returns these asset field(s) in lineage details (e.g name, type_code)
+	 * @param boolean		$only_significant	Only return the significant links, and ignore notice links
+	 *
+	 * @return array
+	 * @access public
+	 * @see Asset_Manager::getLinkLineages()
+	 */
+	function getLinkLineages($assetid, $result_limit=0, $fields='name', $only_significant=FALSE)
+	{
+		$lineages = Array();
+
+		$varieties_attr = $this->attr('varieties');
+		$shadow_parts = explode(':', $assetid, 2);
+		if ((string) $shadow_parts[0] === (string) $this->id) {
+			// Correct asset.
+			if ($shadow_parts[1]{0} === 'v') {
+				// Varieties start with "v"
+				if (array_key_exists($shadow_parts[1], $varieties_attr['data']) === TRUE) {
+					// This shadow asset exists.
+					include_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+
+					$varietyNum = (int) substr($shadow_parts[1], 1);
+					$treeid     = asset_link_treeid_convert($varietyNum - 1);
+
+					$linkid     = $this->id.':'.$assetid;
+					$lineage    = Array(
+								   'linkid'     => $linkid,
+								   'link_type'  => SQ_LINK_TYPE_2,
+								   'link_value' => '',
+								   'lineage'    => Array(),
+								  );
+
+					if (is_array($fields) === TRUE) {
+						foreach ($fields as $field) {
+							if ($field === 'type_code') {
+								$lineage['lineage'][$assetid][$field] = 'image_variety';
+							} else {
+								$lineage['lineage'][$assetid][$field] = array_get_index($varieties_attr['data'][$shadow_parts[1]], $field, '');
+							}
+						}
+					} else {
+						if ($field === 'type_code') {
+							$lineage['lineage'][$assetid] = 'image_variety';
+						} else {
+							$lineage['lineage'][$assetid] = array_get_index($varieties_attr['data'][$shadow_parts[1]], $fields, '');
+						}
+					}
+
+					$lineages[$linkid] = $lineage;
+				}
+			}
+		}
+
+		return $lineages;
+
+	}//end getLinkLineages()
+
+
+	/**
 	* Returns an array of all user or user_group assets that have the passed permission for the passed asset
 	*
 	* @param int		$assetid		the assetid for asset whose permissions to get
@@ -1241,7 +1316,7 @@ class Image extends File implements Bridge
 						$info[$assetid] = $assetid;
 					} else if ($field == 'type_code') {
 						$info[$assetid] = $asset->type();
-					} else if (in_array($field , Array('version', 'name', 'short_name', 'status'))) {
+					} else if (in_array($field, Array('version', 'name', 'short_name', 'status'))) {
 						$info[$assetid] = $asset->$field;
 					} else {
 						$info[$assetid] = $this->$field;
@@ -1278,7 +1353,7 @@ class Image extends File implements Bridge
 
 
 	/**
-	* Determine if the passed assetid or assetids refer(s) to a valid asset in the system	
+	* Determine if the passed assetid or assetids refer(s) to a valid asset in the system
 	*
 	* This function shouldn't be called directly - use the Asset Manager's equivalent
 	* function. It will send this function the full asset ID of any shadow assets.
@@ -1300,7 +1375,7 @@ class Image extends File implements Bridge
 			$return_array = FALSE;
 			$assetids  = Array($assetids);
 		}
-		
+
 		$varieties_attr = $this->attr('varieties');
 		foreach ($assetids as $assetid) {
 			$shadow_parts = explode(':', $assetid, 2);
@@ -1308,13 +1383,13 @@ class Image extends File implements Bridge
 				// Correct asset.
 				if ($shadow_parts[1]{0} === 'v') {
 					// Varieties start with "v"
-					if (array_key_exists($shadowid, $varieties_attr['data']) === TRUE) {
+					if (array_key_exists($shadow_parts[1], $varieties_attr['data']) === TRUE) {
 						$my_assetids[] = $assetid;
 					}
 				}
 			}
 		}
-		
+
 		if ($return_array === TRUE) {
 			return $return_array;
 		} else {
@@ -1424,7 +1499,53 @@ class Image extends File implements Bridge
 	*/
 	function getLinkByAsset($assetid, $other_assetid, $link_types=NULL, $value=NULL, $side_of_link='major', $force_array=FALSE, $dependant=NULL, $exclusive=NULL)
 	{
-		return Array();
+		$links = Array();
+
+		$varieties_attr = $this->attr('varieties');
+
+		if ($side_of_link === 'major') {
+			$shadow_parts 	  = explode(':', $other_assetid, 2);
+			$expected_bridge  = $assetid;
+		} else {
+			$shadow_parts 	  = explode(':', $assetid, 2);
+			$expected_bridge  = $other_assetid;
+		}
+
+		if (((string) $expected_bridge === (string) $this->id) && ((string) $shadow_parts[0] === (string) $this->id)) {
+			// Correct asset.
+			if ($shadow_parts[1]{0} === 'v') {
+				// Varieties start with "v"
+				if (array_key_exists($shadow_parts[1], $varieties_attr['data']) === TRUE) {
+					// This shadow asset exists.
+					$varietyNum = (int) substr($shadow_parts[1], 1);
+					$link       = Array(
+								   'linkid'          => $assetid.':'.$other_assetid,
+								   'value'           => '',
+								   'link_type'       => SQ_LINK_TYPE_2,
+								   'sort_order'      => $varietyNum,
+								   'is_dependant'    => 1,
+								   'is_exclusive'    => 1,
+								   'locked'          => 1,
+								  );
+
+					if ($side_of_link === 'major') {
+						$link['minorid']         = $other_assetid;
+						$link['minor_type_code'] = 'image_variety';
+					} else {
+						$link['majorid']         = $other_assetid;
+						$link['major_type_code'] = $this->type();
+					}
+
+					$links[] = $link;
+				}//end if
+			}//end if
+		}//end if
+
+		if (($force_array === FALSE) && (count($links) === 1)) {
+			$links = $links[0];
+		}
+
+		return $links;
 
 	}//end getLinkByAsset()
 
