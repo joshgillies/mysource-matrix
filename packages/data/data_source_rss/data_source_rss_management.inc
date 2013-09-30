@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_rss_management.inc,v 1.7 2012/08/30 00:58:16 ewang Exp $
+* $Id: data_source_rss_management.inc,v 1.7.4.1 2013/09/30 05:55:00 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.7.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -49,6 +49,12 @@ class Data_Source_RSS_Management extends Asset_Management
 											'type'		=> 'text',
 											'default'	=> '',
 										   ),
+		    				'data_delimiter'			=> Array (
+												'added'			=> '0.3',
+												'type'			=> 'text',
+												'default'		=> ',',
+												'description'	=> 'Delimiter to seperate the data from xml record with mutiple elements with same name',
+											   ),
 					  );
 
 	}//end constructor

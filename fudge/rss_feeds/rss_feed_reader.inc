@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: rss_feed_reader.inc,v 1.31 2012/11/21 04:15:28 akarelia Exp $
+* $Id: rss_feed_reader.inc,v 1.31.2.1 2013/09/30 05:54:57 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * Converts an xml document to different arrays of relative arrays
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.31.2.1 $
 * @package Fudge
 * @subpackage RSS_Feeds
 */
@@ -119,6 +119,13 @@ class RSS_Feed_Reader
 	* @var boolean
 	*/
 	public $parsed = FALSE;
+	
+	/**
+	* delimeter
+	*
+	* @var string
+	*/
+	public $delimiter = ',';
 
 
 	/**
@@ -557,12 +564,12 @@ class RSS_Feed_Reader
 					if (empty($parent)) {
 						if (isset($this->{$var}[$index][$element]['value']) && (!$attributes)) {
 							$value = $this->{$var}[$index][$element]['value'];
-							$data = $value.$data;
+							$data = $value.$this->delimiter.$data;
 						}
 					} else {
 						if (isset($this->{$var}[$index][$parent][$element]['value']) && (!$attributes)) {
 							$value = $this->{$var}[$index][$parent][$element]['value'];
-							$data = $value.$data;
+							$data = $value.$this->delimiter.$data;
 						}
 					}
 					// if it is value that we are dealing with then store it in the array with the 'value' key
