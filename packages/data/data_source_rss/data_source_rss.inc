@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_source_rss.inc,v 1.17 2012/08/30 00:58:16 ewang Exp $
+* $Id: data_source_rss.inc,v 1.17.6.1 2013/09/30 05:50:44 ewang Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.17.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage data
 */
@@ -215,7 +215,9 @@ class Data_Source_RSS extends Data_Source
 		$url = $this->attr('url');
 		require_once SQ_FUDGE_PATH.'/rss_feeds/rss_feed_reader.inc';
 		$feed_reader = new RSS_Feed_Reader();
+		$feed_reader->delimiter = $this->attr('data_delimiter');
 		$this->reader = $feed_reader;
+		
 		if (!empty($url)) {
 			if ($feed_reader->setInputFile($url)) {
 				$result = $feed_reader->parse();
