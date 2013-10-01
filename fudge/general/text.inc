@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.78.4.7 2013/08/26 03:43:28 akarelia Exp $
+* $Id: text.inc,v 1.78.4.8 2013/10/01 01:26:14 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.78.4.7 $
+* @version $Revision: 1.78.4.8 $
 * @package Fudge
 * @subpackage Text
 */
@@ -265,7 +265,13 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array(), $ac
 		return htmlspecialchars($text, ENT_QUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
 
 	case "striphtml":
-		return strip_tags($text);
+		$allowable_tags = array_get_index($modifier['args'], 0, '');
+
+		if (!empty($allowable_tags)) {
+			return strip_tags($text, html_entity_decode($allowable_tags, ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET));
+		} else {
+			return strip_tags($text);
+		}
 
 	case "maxchars":
 		// One argument; the max characters as an integer.
