@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.143.2.4 2013/09/20 02:26:40 lwright Exp $
+* $Id: js_api.inc,v 1.143.2.5 2013/10/02 02:42:38 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.143.2.4 $
+* @version $Revision: 1.143.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1470,7 +1470,7 @@ class JS_Api extends Page
 	private function _acquireLock($args=Array(), $asset=NULL, $read_access=FALSE, $write_access=FALSE)
 	{
 		if ($write_access) {
-			$screen = $args['screen'];
+			$screen = isset($args['screen']) ? $args['screen'] : 'all';
 			$dependants_only = isset($args['dependants_only']) ? $args['dependants_only'] : TRUE ;
 			$force_acquire = isset($args['force_acquire']) ? $args['force_acquire'] : FALSE;
 
@@ -3504,7 +3504,7 @@ class JS_Api extends Page
 					}
 					$am->releaseLock($id, 'all');
 				} else {
-					$response[] = 'Not enough permision to delete Asset "'.$asset->name.'" (#'.$asset->id.')';
+					$response[] = 'Not enough permission to delete Asset "'.$asset->name.'" (#'.$asset->id.')';
 				}
 
 			}
