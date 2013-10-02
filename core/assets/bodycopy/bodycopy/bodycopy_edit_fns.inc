@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+s
 *
-* $Id: bodycopy_edit_fns.inc,v 1.72 2012/08/30 01:09:05 ewang Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.72.8.1 2013/10/02 04:41:19 lwright Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.72 $
+* @version $Revision: 1.72.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -155,7 +155,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		<input type="hidden" name="bodycopy_data"   value="">
 
 		<script type="text/javascript">
-		
+
 			// php vars
 			var backendHref = "<?php echo $asset->getBackendHref('show_popup');?>";
 			var init_layer_width = <?php echo $init_layer_width?>;
@@ -275,8 +275,12 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 
 			?>
 			<tr>
-			<td><?php
-		
+			<td class="bodycopyContainerCell" data-bodycopyid="<?php echo htmlentities($asset->id) ?>" data-containerid="<?php echo htmlentities($container->id) ?>"<?php
+				if ((boolean) $container->writeAccess('content') === FALSE) {
+					echo ' data-readonly="true"';
+				}
+			?>><?php
+
 			if ($container_edit->paintContainer($container, $o, $prefix) == TRUE) {
 				$print_commit_button = TRUE;
 			}
@@ -467,7 +471,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		$new_container = new $asset_type();
 		// Bug #5460 New DIVs created in Safe Edit showing on front end before going Live. See Bodycopy_Container::saveSystemVersion().
 		$new_container->_tmp['skip_save_system_version_content_file'] = TRUE;
-		
+
 		$new_container->setAttrValue('name', 'New '.ucfirst($type));
 		$new_container->setAttrValue('attributes', $bc_data['attributes']);
 		$retval = (bool) $new_container->create($copy_link, $bc_data);
