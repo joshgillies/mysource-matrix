@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.97 2013/09/30 04:09:59 lwright Exp $
+* $Id: image.inc,v 1.98 2013/10/02 02:34:20 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.97 $
+* @version $Revision: 1.98 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1191,7 +1191,7 @@ class Image extends File implements Bridge
 					include_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
 					$varietyNum = (int) substr($shadow_parts[1], 1);
-					$treeid     = asset_link_treeid_convert($varietyNum - 1);
+					$treeid     = asset_link_treeid_convert($varietyNum - 1, TRUE);
 
 					$linkid     = $this->id.':'.$assetid;
 					$lineage    = Array(
@@ -1210,7 +1210,7 @@ class Image extends File implements Bridge
 							}
 						}
 					} else {
-						if ($field === 'type_code') {
+						if ($fields === 'type_code') {
 							$lineage['lineage'][$assetid] = 'image_variety';
 						} else {
 							$lineage['lineage'][$assetid] = array_get_index($varieties_attr['data'][$shadow_parts[1]], $fields, '');
