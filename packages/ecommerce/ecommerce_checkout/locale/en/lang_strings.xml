@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.15.18.1 2013/06/25 06:40:25 cupreti Exp $
+* $Id: lang_strings.xml,v 1.15.18.2 2013/10/02 02:09:17 cupreti Exp $
 *
 *
 * Ecommerce Package Localised Strings File
@@ -57,6 +57,8 @@
 	<string source="ecom_checkout_keyword_sub_total">Sub Total (Grand Total Excluding Tax and Delivery)</string>
 	<string source="ecom_checkout_keyword_delivery_total">Delivery Total</string>
 	<string source="ecom_checkout_keyword_grant_total">Grand Total</string>
+	<string source="ecom_checkout_keyword_total_discount">Total Discount</string>
+	<string source="ecom_checkout_keyword_grand_total_ex_discount">Grand Total Before Discount</string>
 
 	<!-- Various Strings -->
 	<string source="ecom_checkout_select_delivery_method">Select Delivery Method</string>
@@ -68,4 +70,6 @@
 	<string source="ecom_checkout_operator">Operator</string>
 	<string source="ecom_checkout_additional_cost">Additional Cost</string>
 	<string source="ecom_checkout_remove_fees">Remove All Fees</string>
+	<string source="ecom_checkout_promotional_code_field">Promotional code text field</string>
+	<string source="ecom_checkout_promotional_code_button">Promotional code submit button</string>
 </strings>

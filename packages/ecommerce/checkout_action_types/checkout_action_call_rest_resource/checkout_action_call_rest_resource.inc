@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: checkout_action_call_rest_resource.inc,v 1.6 2012/11/02 00:55:06 cupreti Exp $
+* $Id: checkout_action_call_rest_resource.inc,v 1.6.4.1 2013/10/02 02:09:17 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ define('ECOM_CHECKOUT_REST_ACTION_LOG_FILE', 'ecom_rest_checkout_action');
 *
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.6.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -602,6 +602,18 @@ class Checkout_Action_Call_Rest_Resource extends Checkout_Action
 					$replacement = @$order_data['cart'][0]['grand_total'][0];
 				break;
 				
+				case 'order_total_discount':
+					$replacement = @$order_data['cart'][0]['total_discount'][0];
+				break;
+				
+				case 'order_grand_total_ex_discount':
+					$replacement = @$order_data['cart'][0]['grand_total_ex_discount'][0];
+				break;
+				
+				case 'order_promotional_code':
+					$replacement = @$order_data['cart'][0]['promotional_code'][0];
+				break;
+				
 				case 'order_currency_symbol':
 					$replacement = @$order_data['cart'][0]['currency_symbol'][0];					
 				break;
@@ -899,6 +911,8 @@ class Checkout_Action_Call_Rest_Resource extends Checkout_Action
 		$keywords['product_total_item_price'] = "Total price of the items of the given type in the order excluding tax";
 		$keywords['product_total_item_price_incl_tax'] = "Total price of the items of the given type in the order including tax";
 		$keywords['product_total_item_tax'] = "Total tax for the given item type in the order";
+		$keywords['product_item_discount'] = "Product item's unit discount amount";
+		$keywords['product_total_item_price_incl_discount'] = "Total price of the items of the given type in the order with the discount applied";
 		
 		$keywords += self::_getAvailableKeywords($asset_type);
 		
@@ -925,7 +939,10 @@ class Checkout_Action_Call_Rest_Resource extends Checkout_Action
 						'order_total_tax' => 'Total transaction amount including tax',
 						'order_total_delivery' => 'Total delivery amount',
 						'order_grand_total_excl_delivery' => 'Grand total transaction amount excluding delivery',
+						'order_total_discount' => 'Total discount amount',						
+						'order_grand_total_ex_discount' => 'Grand total transaction amount before discount',						
 						'order_grand_total' => 'Grand total transaction amount',						
+						'order_promotional_code' => 'Promotional code used',						
 						'order_date' => 'Order date timestamp in YYYYMMDDHHNNSSKKKs000 format',
 						'order_date_reg' => 'Order date timestamp in YYYY:MM:DD HH:MM:SS format',
 						'order_currency_symbol' => 'Currency symbol for the transaction amount',

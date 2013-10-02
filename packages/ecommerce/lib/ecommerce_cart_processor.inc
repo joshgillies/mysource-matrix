@@ -10,9 +10,12 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_processor.inc,v 1.30.4.3 2013/07/30 06:21:52 cupreti Exp $
+* $Id: ecommerce_cart_processor.inc,v 1.30.4.4 2013/10/02 02:09:17 cupreti Exp $
 *
 */
+
+
+require_once SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_common.inc';
 
 
 /*
@@ -24,7 +27,7 @@
 * @author Robert Howard <rhoward@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.30.4.3 $
+* @version $Revision: 1.30.4.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -252,6 +255,18 @@ class Ecommerce_Cart_Processor
 	*/
 	function getTotalDeliveryCosts($grand_total, $taxation_rate, $calculate_tax, $includes_tax, &$total_delivery_tax=0)
 	{
+		// If cart has free shipping promotion
+		if ($this->freeShipping()) {
+			return 0;
+		}
+
+		// Delivery rules should be evaluted after applying the promotional discount
+		$total_discount = $this->getTotalDiscount();
+		$grand_total -= $total_discount;
+		if ($grand_total < 0) {
+			$grand_total = 0;
+		}
+
 		$total_delivery_cost = 0.00;
 		if (isset($_SESSION['sq_region_specific'])) {
 			foreach ($this->cart as $assetid => $details) {
@@ -485,6 +500,7 @@ class Ecommerce_Cart_Processor
 			$refund_type = 0;
 			$product_code = '';
 			$financial_code = '';
+			$promotable = FALSE;
 
 			if ($asset instanceof Donation) {
 				$price = 1;
@@ -495,6 +511,7 @@ class Ecommerce_Cart_Processor
 				$refund_type = $asset->attr('refund_type');
 				$product_code = $asset->attr('product_code');
 				$financial_code = $asset->attr('financial_code');
+				$promotable = $asset->attr('accept_promotional_code');
 
 				// get the taxable boolean
 				$tmp_price_obj = $asset->attr('price_obj');
@@ -520,6 +537,9 @@ class Ecommerce_Cart_Processor
 										'refund_type' 	    => $refund_type,
 										'product_code'		=> $product_code,
 										'financial_code'	=> $financial_code,
+										'promotable'		=> $promotable,
+										'discount'			=> 0,
+										'free_shipping'		=> FALSE,
 									);
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 			
@@ -578,6 +598,180 @@ class Ecommerce_Cart_Processor
 		return TRUE;
 
 	}//end updateItem()
+
+
+	/**
+	* Apply discount to the items in the cart and 
+	* also link the applied promotion to the order for tracking purpose
+	* 
+	* @param string $promo_code
+	* @param string $order
+	* @param float	$taxation_rate	Taxation rate of each item
+	*
+	* @return boolean
+	* @access public
+	*/
+	function applyPromotionalCode($promo_code, $order, $taxation_rate=0.0)
+	{
+		$org_cart = $this->cart;
+
+		// The discount evaluted should be based on final payable price of the item
+		$tax_adjusted_cart = $this->_getTaxAdjustedCart($taxation_rate);
+
+		// Apply promotion to the items in the cart
+		$order_promo_assetids = Array();
+		foreach($tax_adjusted_cart as $assetid => $data) {
+			// "-1" means unknown price
+			if ($data['price'] == -1 || !$data['promotable']) {
+				continue;
+			}
+			// Get the applicable promotional code assets
+			$promo_code_assetids = Ecommerce_Common::getPromotionalCodeAssetIds($assetid, $promo_code);
+			$order_promo_assetids = array_merge($order_promo_assetids, $promo_code_assetids);
+			// Link the promotion assets to the order/n 
+			
+			$offers = Ecommerce_Common::getApplicablePromotionalInfo($promo_code_assetids, $data['tax_adjusted_cost'], $data['quantity']);
+			if (isset($offers['discount'])) {
+				$this->cart[$assetid]['discount'] = $offers['discount'];
+			}
+			if (isset($offers['free_shipping'])) {
+				$this->cart[$assetid]['free_shipping'] = $offers['free_shipping'];
+			}
+		}//end foreach
+
+		// Get the existing promotion links on the order
+		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($order->id, SQ_LINK_NOTICE, 'promotional_code', TRUE, 'minor', 'order');
+		$existing_promotions = Array();
+		foreach($links as $link) {
+			$existing_promotions[$link['majorid']] = $link['linkid'];
+		}
+
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		// Link the promotions applied to the order asset
+		$order_promo_assetids = array_unique($order_promo_assetids);
+		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_OPEN);
+		$success = TRUE;
+		$new_promotions = Array();
+		foreach($order_promo_assetids as $promo_assetid) {
+			if (isset($existing_promotions[$promo_assetid])) {
+				$new_promotions[$promo_assetid] = $existing_promotions[$promo_assetid];
+				continue;
+			}
+			$promo_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($promo_assetid);
+			$linkid = $GLOBALS['SQ_SYSTEM']->am->createAssetLink($promo_asset, $order, SQ_LINK_NOTICE, 'order');
+			if (!$linkid) {
+				$success = FALSE;
+			}
+
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($promo_asset);
+			if (!$success) {
+				break;
+			}
+
+			$new_promotions[$promo_assetid] = $linkid;
+		}//end foreach
+
+		// Delete the promotion links that are not applied anymore
+		if ($success) {
+			foreach($existing_promotions as $promo_assetid => $linkid) {
+				if (!isset($new_promotions[$promo_assetid])) {
+					$success = $GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($linkid);
+					if (!$success) {
+						break;
+					}
+				}//end if
+			}// end foreach
+		}//end if
+
+		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+		$GLOBALS['SQ_SYSTEM']->doTransaction($success ? 'COMMIT' : 'ROLLBACK');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($order);
+
+		// If not success, revert the discount on the cart
+		if (!$success) {
+			$this->cart = $org_cart;
+		}
+
+		return $success;
+
+	}//end applyPromotionalCode()
+
+	
+	/**
+	* Returns the tax adjusted price of items in the cart
+	*
+	* @param float	$taxation_rate	Taxation rate of each item
+	*
+	* @return array
+	* @access private
+	*/
+	function _getTaxAdjustedCart($taxation_rate=0.0)
+	{
+		$cart = Array();
+		foreach($this->cart as $assetid => $details) {
+			$cart[$assetid] = $details;
+			$cart[$assetid]['tax_adjusted_cost'] = $details['price'];
+			if ($details['price'] != -1) {
+				// adjust product prices
+				$has_tax = array_get_index($details, 'has_tax', FALSE);
+				$calculate_tax = array_get_index($details, 'taxable', FALSE);
+				if ($calculate_tax) {
+					$item_costs = $this->_calculateItemCosts($details['price'], $taxation_rate, $has_tax);
+					$cost = $item_costs['tax_adjusted_cost'];
+				} else {
+					$cost = $details['price'];
+				}
+				$cart[$assetid]['tax_adjusted_cost'] = $cost;
+			}
+		}//end foreach
+
+		return $cart;
+
+	}//end _getTaxAdjustedCart()
+
+
+	/**
+	* Get total discount on the cart
+	*
+	* @return float
+	* @access public
+	*/
+	function getTotalDiscount()
+	{
+		$discount = 0;
+		 foreach($this->cart as $assetid => $details) {
+			$discount += $details['discount'];
+		 }//end foreach
+
+		 return $discount;
+
+	}//end getTotalDiscount()
+
+
+	/**
+	* Returns TRUE if any of the item in the cart
+	* has "free shipping" promotion
+	*
+	* @return boolean
+	* @access public
+	*/
+	function freeShipping()
+	{
+		$free_shipping = 0;
+		foreach($this->cart as $assetid => $details) {
+			if ($details['free_shipping']) {
+				$free_shipping = TRUE;
+				break;
+			}
+		}//end foreach
+
+		return $free_shipping;
+
+	}//end freeShipping()
 
 
 	/**
@@ -792,6 +986,7 @@ class Ecommerce_Cart_Processor
 		$row_format = '%'.$name_length.'s %10s'.($has_price && $has_products ? ' %10s' : '')."\n";
 
 		if ($has_price) {
+			$total_discount = $this->getTotalDiscount();
 			$grand_total_ex_delivery = $this->getGrandTotalExDelivery($taxation_rate, $remove_tax, $flat_charges);
 			$delivery_tax = 0;
 			$total_delivery_cost = $this->getTotalDeliveryCosts($grand_total_ex_delivery, $taxation_rate, $calculate_del_tax, $del_inc_tax, $delivery_tax);
@@ -807,7 +1002,7 @@ class Ecommerce_Cart_Processor
 				echo sprintf($row_format, 'Total', sprintf($price_format, $sub_total));
 			}
 			
-			if (($total_tax > 0) || ($flat_charges_total > 0.0) || $total_delivery_cost > 0) {
+			if (($total_tax > 0) || ($flat_charges_total > 0.0) || $total_delivery_cost > 0 || $total_discount > 0) {
 				if ($total_delivery_cost > 0 && $calculate_del_tax) {
 					echo sprintf($row_format, 'Delivery Fee', '', sprintf($price_format, $total_delivery_cost));
 					echo $break;
@@ -834,7 +1029,14 @@ class Ecommerce_Cart_Processor
 					echo $break;
 				}
 				$grand_total_delivery = $remove_tax ? $total_delivery_cost : $total_delivery_cost + $delivery_tax;
-				echo sprintf($row_format, 'Grand Total', '', sprintf($price_format, $grand_total_ex_delivery + $grand_total_delivery));
+				if ($total_discount > 0) {
+					echo sprintf($row_format, 'Sub Total', '', sprintf($price_format, $grand_total_ex_delivery + $grand_total_delivery));
+					echo sprintf($row_format, 'Discount', '', sprintf($price_format, $total_discount));
+					echo $break;
+
+				}
+				$grand_total = $grand_total_ex_delivery + $grand_total_delivery - $total_discount;				
+				echo sprintf($row_format, 'Grand Total', '', sprintf($price_format, ($grand_total > 0) ? $grand_total : 0));
 			}
             if (!empty($refund_info) && $non_refundable_flag) {
                 echo "\n".$refund_info."\n";
@@ -927,11 +1129,15 @@ class Ecommerce_Cart_Processor
 		$content_replacements['receipt_listing'] = ob_get_clean();
 
 		$delivery_tax = 0;
+		$total_discount = $this->getTotalDiscount();
 		$grand_total_ex_delivery = $this->getGrandTotalExDelivery($taxation_rate, $remove_tax, $flat_charges);
 		$total_delivery_cost = $this->getTotalDeliveryCosts($grand_total_ex_delivery, $taxation_rate, $calculate_del_tax, $del_inc_tax, $delivery_tax);
 		$content_replacements['delivery_total'] = sprintf($price_format, $total_delivery_cost);
 		$grand_total_delivery = $remove_tax ? $total_delivery_cost : $total_delivery_cost + $delivery_tax;
-		$content_replacements['grand_total'] = sprintf($price_format, $grand_total_ex_delivery + $grand_total_delivery);
+		$content_replacements['grand_total_ex_discount'] = sprintf($price_format, $grand_total_ex_delivery + $grand_total_delivery);
+		$content_replacements['total_discount'] = sprintf($price_format, $total_discount);
+		$grand_total = $grand_total_ex_delivery + $grand_total_delivery - $total_discount;
+		$content_replacements['grand_total'] = sprintf($price_format, $grand_total > 0 ? $grand_total : 0);
 
 		$total_tax = $this->getTotalTax($taxation_rate) + $delivery_tax;
 		$content_replacements['total_tax'] = $remove_tax ? sprintf($price_format, 0) : sprintf($price_format, $total_tax);
@@ -974,11 +1180,12 @@ class Ecommerce_Cart_Processor
 	* @param int		$float_precision	precision of the floating numbers used for prices
 	* @param boolean	$calculate_del_tax	whether to calculate tax on delivery cost
 	* @param boolean	$del_inc_tax		whether the delivery cost includes tax
+	* @param boolean	$promotion_code		promotion code used in the checkout. FALSE if none used
 	*
 	* @return void
 	* @access public
 	*/
-	function getCartXml($taxation_name='GST', $taxation_rate=0, $flat_charges=Array(), $remove_tax=FALSE, $currency_symbol='$', $float_precision=2, $calculate_del_tax=FALSE, $del_inc_tax=FALSE)
+	function getCartXml($taxation_name='GST', $taxation_rate=0, $flat_charges=Array(), $remove_tax=FALSE, $currency_symbol='$', $float_precision=2, $calculate_del_tax=FALSE, $del_inc_tax=FALSE, $promotion_code=FALSE)
 	{
 		if (empty($this->cart)) return '';
 
@@ -1018,6 +1225,13 @@ class Ecommerce_Cart_Processor
 			$total_item_price_incl_tax = sprintf($price_format, ($cost + $tax_cost) * $quantity);
 			$total_item_tax = sprintf($price_format, $tax_cost * $quantity);
 
+			// Discounts
+			$item_discount = array_get_index($details, 'discount', 0);
+			$item_discount_str = sprintf($price_format, $item_discount);
+
+			$total_item_price_incl_discount = (($cost + ($remove_tax ? 0 : $tax_cost)) * $quantity) - $item_discount;
+			$total_item_price_incl_discount_str = sprintf($price_format, $total_item_price_incl_discount>0 ? $total_item_price_incl_discount : '0');
+
 			//get metadata of the product/donation asset
 			$metadata_values = $mm->getMetadataFieldValues($assetid);
 			$metadata_values_str = '';
@@ -1052,7 +1266,9 @@ HEREDOC;
 				<item_price_incl_tax>$item_price_incl_tax</item_price_incl_tax>
 				<total_item_price_incl_tax>$total_item_price_incl_tax</total_item_price_incl_tax>
 				<item_tax>$tax_cost</item_tax>
-				<total_item_tax>$total_item_tax</total_item_tax>$metadata_str
+				<total_item_tax>$total_item_tax</total_item_tax>
+				<item_discount>$item_discount_str</item_discount>
+				<total_item_price_incl_discount>$total_item_price_incl_discount_str</total_item_price_incl_discount>$metadata_str
 			</product>
 HEREDOC;
 		}
@@ -1089,10 +1305,14 @@ HEREDOC;
 		$grand_total_ex_delivery = $this->getGrandTotalExDelivery($taxation_rate, $remove_tax, $flat_charges);
 		$delivery_total = $this->getTotalDeliveryCosts($grand_total_ex_delivery, $taxation_rate, $calculate_del_tax, $del_inc_tax, $delivery_tax);
 		$grand_total_delivery = $remove_tax ? $delivery_total : $delivery_total + $delivery_tax;
+		$total_discount = $this->getTotalDiscount();
 
-		$grand_total = sprintf($price_format, $grand_total_ex_delivery + $grand_total_delivery);
+		$grand_total_ex_discount = sprintf($price_format, $grand_total_ex_delivery + $grand_total_delivery);
+		$grand_total_val = $grand_total_ex_delivery + $grand_total_delivery - $total_discount;
+		$grand_total = sprintf($price_format, $grand_total_val > 0 ? $grand_total_val : 0);
 		$grand_total_ex_delivery = sprintf($price_format, $grand_total_ex_delivery);
 		$delivery_total = sprintf($price_format, $delivery_total);
+		$total_discount = sprintf($price_format, $total_discount);
 		
 		//get total tax
 		$total_tax = $this->getTotalTax($taxation_rate) + $delivery_tax;
@@ -1107,7 +1327,10 @@ HEREDOC;
 		<flat_fees_total>$flat_fees_total</flat_fees_total>
 		<delivery_total>$delivery_total</delivery_total>
 		<grand_total_ex_delivery>$grand_total_ex_delivery</grand_total_ex_delivery>
+		<grand_total_ex_discount>$grand_total_ex_discount</grand_total_ex_discount>
+		<total_discount>$total_discount</total_discount>
 		<grand_total>$grand_total</grand_total>
+		<promotional_code>$promotion_code</promotional_code>
 		<products>$products_str
 		</products>$flat_charges_str
 	</cart>

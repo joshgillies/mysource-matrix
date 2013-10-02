@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: promotional_code_edit_fns.inc,v 1.2.6.1 2013/09/17 02:16:08 cupreti Exp $
+* $Id: promotional_code_edit_fns.inc,v 1.2.6.2 2013/10/02 02:09:17 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Anh Ta <ata@squiz.co.uk>
-* @version $Revision: 1.2.6.1 $
+* @version $Revision: 1.2.6.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -94,27 +94,44 @@ class Promotional_Code_Edit_Fns extends Asset_Edit_Fns
 	 */
 	function paintRules(&$asset, &$o, $prefix)
 	{
-		$rules = $asset->attr('rules');
-		if (empty($rules)) {
-			$rules[] = Array('rule_type_code' => 'promotional_rule_type_quantity', 'rule_data' => NULL);
-		}
-		
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$write_access = $asset->writeAccess('attributes');
-		
-		for ($i = 0; $i < count($rules); $i++) {
-			$rule = $rules[$i];
+
+		$rule_type_codes = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('promotional_rule');
+		$rule_types = Array('' => '-- select --');
+		foreach($rule_type_codes as $type_code) {
+			$rule_types[$type_code] = ucwords(str_replace('_', ' ', substr($type_code, 22)));
+		}
+		if ($write_access) {
+			$o->openField('Add New Rule');
+				combo_box($prefix.'[new_rule]', $rule_types, FALSE);
+			$o->closeField();
+		}
+
+		$rules = $asset->attr('rules');
+		if (empty($rules)) {
+			$o->openField('No promotional rules set');
+			$o->closeField();
+		}
+
+		$count = 0;
+		foreach($rules as $i => $rule) {
 			$rule_type_code = $rule['rule_type_code'];
 			$am->includeAsset($rule_type_code);
 			$rule_asset = new $rule_type_code();
 			$rule_edit_fns = $rule_asset->getEditFns();
-			
+
 			// Paint each promotional rule in a section
-			$o->openSection($am->getTypeInfo($rule_type_code, 'name'));
+			$o->openSection('Rule #'.(++$count).' '.$am->getTypeInfo($rule_type_code, 'name'));
+			if ($write_access) {
+				$o->openField('Delete Rule?');
+					check_box($prefix."[delete][$i]");
+				$o->closeField();
+			}
 			$rule_edit_fns->paintRule($rule_asset, $o, $prefix.'_rule_'.$i, $rule['rule_data'], $write_access);
 			$o->closeSection();
 		}
-		
+
 	}//end paintRules()
 	
 	
@@ -132,20 +149,36 @@ class Promotional_Code_Edit_Fns extends Asset_Edit_Fns
 	{
 		if (!$asset->writeAccess('attributes')) return FALSE;
 		
+		// Get existing rules
 		$rules = $asset->attr('rules');
-		if (empty($rules)) {
-			$rules[] = Array('rule_type_code' => 'promotional_rule_type_quantity', 'rule_data' => NULL);
+
+		// Delete if any selected for deletion
+		$to_delete = array_get_index($_POST[$prefix], 'delete', Array());
+		foreach($to_delete as $i => $val) {
+			if (isset($rules[$i])) {
+				unset($rules[$i]);
+			}
+		}
+
+		$new_rule = array_get_index($_POST[$prefix], 'new_rule', '');
+		$new_rule_index = FALSE;
+		if (!empty($new_rule)) {
+			$rule_type_codes = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('promotional_rule');
+			if (in_array($new_rule, $rule_type_codes)) {
+				$rules[] = Array('rule_type_code' => $new_rule, 'rule_data' => NULL);
+				end($rules);
+				$new_rule_index = key($rules);
+			}
 		}
 		
 		$success = TRUE;
-		for ($i = 0; $i < count($rules); $i++) {
-			$rule =& $rules[$i];
+		foreach($rules as $i => &$rule) {
 			$rule_type_code = $rule['rule_type_code'];
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($rule_type_code);
 			$rule_asset = new $rule_type_code();
 			$rule_edit_fns = $rule_asset->getEditFns();
 			
-			if (!$rule_edit_fns->processRule($rule_asset, $o, $prefix.'_rule_'.$i, $rule['rule_data'])) {
+			if ($new_rule_index !== $i && !$rule_edit_fns->processRule($rule_asset, $o, $prefix.'_rule_'.$i, $rule['rule_data'])) {
 				$success = FALSE;
 				break;
 			}
