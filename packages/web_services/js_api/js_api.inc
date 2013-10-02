@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.152 2013/09/30 04:25:45 lwright Exp $
+* $Id: js_api.inc,v 1.153 2013/10/02 02:21:23 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.152 $
+* @version $Revision: 1.153 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -1471,7 +1471,7 @@ class JS_Api extends Page
 	private function _acquireLock($args=Array(), $asset=NULL, $read_access=FALSE, $write_access=FALSE)
 	{
 		if ($write_access) {
-			$screen = $args['screen'];
+			$screen = isset($args['screen']) ? $args['screen'] : 'all';
 			$dependants_only = isset($args['dependants_only']) ? $args['dependants_only'] : TRUE ;
 			$force_acquire = isset($args['force_acquire']) ? $args['force_acquire'] : FALSE;
 
