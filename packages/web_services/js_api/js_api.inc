@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.153 2013/10/02 02:21:23 akarelia Exp $
+* $Id: js_api.inc,v 1.154 2013/10/02 02:41:14 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.153 $
+* @version $Revision: 1.154 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -2218,7 +2218,7 @@ class JS_Api extends Page
 		if(!$asset->readAccess()) return Array('error' => 'You do not have permissions to access this asset');
 
 		$raw_lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($asset->id, 0, NULL, Array('name', 'type_code'), $significant_link_only);
-		$root_folder  = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
+		$root_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
 
 		$result_lineages = Array();
 		$linkid_done = Array();
@@ -2227,7 +2227,6 @@ class JS_Api extends Page
 		foreach ($raw_lineages as $index => $val) {
 			$data = Array();
 			$minorid = $asset->id;
-			log_dump($val['lineage']);
 			$parent_lineage_assetids = array_merge(array_reverse(array_keys($val['lineage'])), Array($root_folder->id));
 			foreach($parent_lineage_assetids as $majorid) {
 				$major_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($majorid);
