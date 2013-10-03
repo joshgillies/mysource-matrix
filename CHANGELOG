@@ -1,5 +1,136 @@
 SQUIZ MATRIX CHANGELOG
 
+
+VERSION 4.16.3
+
+Featured Changes
+===================================
+
+New Script to Clean Invalid Remaps [ Feature Request #6515 ]
+-----------------------------------------------------
+
+A new script has been added to help clean up invalid remaps. These may include useless remaps that lead to non-existent pages or infinite redirect loops.
+
+The usage of the system_integrity_invalid_remaps.php script is as follows:
+
+$ php system_integrity_invalid_remaps.php system=<SYSTEM_ROOT>  [--expired_remaps] [--invalid_old_url] [--redirect_chain]  [--invalid_new_url] [--execute]  
+
+This script takes the following optional arguments:
+
+* [--expired_remaps] : Identify remaps that have expired.
+* [--invalid_old_url] : Identify remaps that have old, invalid URLs that match to existing assets.
+* [--invalid_new_url] : Identify remaps with invalid new, invalid URLs, for example, redirecting to an non-existent asset URL.
+* [--redirect_chain] : Identify redirect chains, shortening remaps if execute is specified.
+* [--execute] : Clean the invalid remaps found in above reports. 
+
+Specify Service Address on SOAP Assets [ Feature Request #6525 ]
+-----------------------------------------------------
+
+Previously, SOAP assets within Squiz Matrix (including trigger actions, form actions and data sources) would only use the default SOAP service address and binding, as specified in the WSDL file.
+
+This feature introduces a new drop-down field on these assets, allowing you to specify the service address to send requests to.
+
+Workflow Schema: New Notification Options [ Feature Request #6530 ]
+-----------------------------------------------------
+
+Squiz Matrix's Workflow Schema assets provide options to notify the initiator of the workflow process on an asset when the process is completed and the asset changes have been made live.
+
+This feature introduces two new options to the Details screen of the Workflow Schema asset, allowing you to specify to notify both the initiator of the workflow process and the workflow approvers after changes have been approved. 
+
+When the Notify Starter After Approval and Notify Approvers After Approval settings are enabled, the configured Workflow Approval Message custom message will be sent to these users when the changes made to an asset are approved.
+By default, the Notify Starter option is disabled, while the Notify Approvers option is enabled, following the existing notification behaviour within Squiz Matrix.
+
+Promotional Code Asset: Condition Variables [ Feature Request #6534 ]
+-----------------------------------------------------
+
+The E-Commerce package's Promotional Code asset allows you to create rule-based promotional codes for your customers to receive discounts on items within your store.
+
+These discounts are determined by promotional rules, either using a Fixed Amount or Percentage discount type.
+
+This feature introduces new promotional conditions to further configure the promotional codes available within your e-commerce store and specify when a discount should be applied.
+
+These new conditions can be configured in the Promotional Conditions section of the Details screen of the promotional code asset. 
+
+This section allows you to configure a Compare Value condition on the Promotional Code asset, allowing you to compare two values in order to meet the condition, based on a variety of comparison types.
+
+You can use global keywords in the Source and Compare value fields, for example, to compare the metadata of the e-commerce user to a specified value.
+
+So, let's say you created a special 20% discount promotional code, which you want to make available to all Australian users of your store. You can achieve this by creating a promotional condition, using the %globals_user_metadata_address% keyword replacement as the source value and Australia as the comparison, with the comparison type as String - Contains.
+
+This example condition would check the address metadata of customers' user accounts, validating the promotional code if their address contained the string Australia. As a result, users from Australia, who entered this code, would have the 20% discount validated on their order.
+
+This feature has been added to allow you to provide greater flexibility when configuring promotional discounts on your store.
+
+
+Additional Changes and Bug Fixes
+=================================== 
+
+Minor Enhancements
+
+Minor Enhancement #4067: E-Commerce Default Delivery Method to Remember Form Answers.
+Minor Enhancement #6501: New Field to Specify the Name of Downloaded Files on a TRIM Saved Search . 
+Minor Enhancement #6516: Improved Error Handling on the TRIM Saved Search asset.
+Minor Enhancement #6519: Promotional Code Asset Enhancements.
+Minor Enhancement #6529: New Force Update Button on the TRIM Saved Search.
+Minor Enhancement #6535: Customise the Email Footer for Emails Sent by Squiz Matrix.
+Minor Enhancement #6542: JavaScript API: Sync Context Enhancements. 
+Minor Enhancement #6563: Asset Created Trigger Event Support for Thesaurus Term Assets. 
+Minor Enhancement #6569: Enhancements to the striphtml Keyword Modifier to Specify Allowed Tags. 
+
+Core
+
+Fixed Bug #6495: Single Page A-Z Listing "Page Link Format" doesn't work.
+Fixed Bug #6507: If asset is deep in the asset tree and also linked to many parents, one might run into ORA-01795 error.
+Fixed Bug #6508: Send Submission Log Cron Job doesn't clean up.
+Fixed Bug #6510: minor problem when cron job script is given path to Matrix as argument.
+Fixed Bug #6511: On IE the links to assets within Matrix get corrupted on frontend.
+Fixed Bug #6512: Spell Checker removing links from the content.
+Fixed Bug #6518: Rest resource asset won't pass additional GET var from nested content.
+Fixed Bug #6523: Specific Cache Management Settings does not handle situations where isUnderRootNodes returns  FALSE.
+Fixed Bug #6526: viewing form with _nocache suffix would not submit.
+Fixed Bug #6536: Metadata fields defaulting to %metadata_field_<name>% do not trigger update when referenced field updates.
+Fixed Bug #6539: minor issue with Force Secure URL redirecting.
+Fixed Bug #6541: Bodycopy div with type Image does not pick up caption for image variety.
+Fixed Bug #6544: metadata in context cancelling "use default" on default context results DB errors duplicate key.
+Fixed Bug #6545: Keyword replacements popup links to system static URL.
+Fixed Bug #6548: Having \' in a matrix URL throws a DB error.
+Fixed Bug #6549: Fatal Error when Redis cache connected to a slave.
+Fixed Bug #6553: Custom form and safe editing do not play well.
+Fixed Bug #6555: Global SQ_PAINT_LAYOUT_ID is not reset correctly.
+Fixed Bug #6556: WYSIWYG insert link popup displays absolute links incorrectly.
+Fixed Bug #6557: DB datasource connection using complete DSN to non pgsql data fail.
+Fixed Bug #6560: %preview_url% not getting replaced in the default workflow start email.
+Fixed Bug #6561: Preview screen not picking the correct URL for the dependant asset.
+Fixed Bug #6564: Cannot set dynamic parameters value without setting the tag id in the Set Tag trigger action. 
+
+CMS
+
+Fixed Bug #6506: AssetCreated event still gets triggered when New reCAPTCHA fails in asset builder.
+Fixed Bug #6513: Send Submissions Cron Job attachment has no extension.
+Fixed Bug #6550: Remote Content page nested in the login design throws fatal error.
+Fixed Bug #6554: Single square bracket ([ or ]) in First Name or Last Name of System Administrator causes warnings on changing password.  
+
+Calendar
+
+Fixed Bug #6520: Upcoming events list gets lists single and recurring events in wrong order.
+Fixed Bug #6538: Calendar Events Search Page not listing events in Safe Edit.
+Fixed Bug #6543: Calendar instance keywords don't work properly with replace_keyword. 
+
+Data
+
+Fixed Bug #6558: RSS Data Source multiple fields reducing to single entity. 
+
+Google Maps
+
+Fixed Bug #6547: Google Maps not rendering basic keywords. 
+
+Web Services
+
+Fixed Bug #6505: REST resource option to 'Allow Keyword replacement' can stop all the keywords from replacing.
+
+
+
+
 VERSION 4.16.2
 
 Featured Changes
