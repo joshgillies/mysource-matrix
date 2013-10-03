@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.224 2013/08/20 06:24:23 lwright Exp $
+* $Id: backend.inc,v 1.225 2013/10/03 02:23:53 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.224 $
+* @version $Revision: 1.225 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -1259,11 +1259,11 @@ class Backend extends MySource_Object
 
 			#my_space {
 				width:				100%;
-				background-color:	#FFFFFF;
+				background-color:	#F5F5F5;
 				padding:			0px;
 				margin:				0px;
-				border:				1px solid #FFFFFF;
-				position: absolute; top: 75px; left: 0px; visibility: hidden;
+				border:				1px solid #F5F5F5;
+				position: absolute; top: 50px; left: 0px; visibility: hidden;
 			}
 			#system_version {
 				position: absolute;
