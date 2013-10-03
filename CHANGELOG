@@ -1,5 +1,59 @@
 SQUIZ MATRIX CHANGELOG
 
+
+
+VERSION 4.14.7
+
+Bug Fixes
+=================================== 
+
+Core
+
+Fixed Bug #6495: Single Page A-Z Listing "Page Link Format" doesn't work.
+Fixed Bug #6507: If asset is deep in the asset tree and also linked to many parents, one might run into ORA-01795 error.
+Fixed Bug #6508: Send Submission Log Cron Job doesn't clean up.
+Fixed Bug #6510: minor problem when cron job script is given path to Matrix as argument.
+Fixed Bug #6512: Spell Checker removing links from the content.
+Fixed Bug #6518: Rest resource asset won't pass additional GET var from nested content.
+Fixed Bug #6526: viewing form with _nocache suffix would not submit.
+Fixed Bug #6536: Metadata fields defaulting to %metadata_field_<name>% do not trigger update when referenced field updates.
+Fixed Bug #6539: minor issue with Force Secure URL redirecting.
+Fixed Bug #6541: Bodycopy div with type Image does not pick up caption for image variety.
+Fixed Bug #6544: metadata in context cancelling "use default" on default context results DB errors duplicate key.
+Fixed Bug #6548: Having \' in a matrix URL throws a DB error.
+Fixed Bug #6549: Fatal Error when Redis cache connected to a slave.
+Fixed Bug #6553: Custom form and safe editing do not play well.
+Fixed Bug #6555: Global SQ_PAINT_LAYOUT_ID is not reset correctly.
+Fixed Bug #6557: DB datasource connection using complete DSN to non pgsql data fail.
+Fixed Bug #6560: %preview_url% not getting replaced in the default workflow start email.
+Fixed Bug #6561: Preview screen not picking the correct URL for the dependant asset.
+Fixed Bug #6564: Cannot set dynamic parameters value without setting the tag id in the Set Tag trigger action. 
+
+CMS
+
+Fixed Bug #6513: Send Submissions Cron Job attachment has no extension.
+Fixed Bug #6550: Remote Content page nested in the login design throws fatal error.
+Fixed Bug #6554: Single square bracket ([ or ]) in First Name or Last Name of System Administrator causes warnings on changing password.  
+
+Calendar
+
+Fixed Bug #6520: Upcoming events list gets lists single and recurring events in wrong order.
+Fixed Bug #6538: Calendar Events Search Page not listing events in Safe Edit.
+Fixed Bug #6543: Calendar instance keywords don't work properly with replace_keyword. 
+
+Data
+
+Fixed Bug #6558: RSS Data Source multiple fields reducing to single entity. 
+
+Google Maps
+
+Fixed Bug #6547: Google Maps not rendering basic keywords. 
+
+Web Services
+
+Fixed Bug #6505: REST resource option to 'Allow Keyword replacement' can stop all the keywords from replacing.
+
+
 VERSION 4.14.6
 
 Minor Enhancements and Bug Fixes
