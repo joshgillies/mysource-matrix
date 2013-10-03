@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission_edit_fns.inc,v 1.37 2013/10/03 05:33:43 ewang Exp $
+* $Id: form_submission_edit_fns.inc,v 1.38 2013/10/03 05:51:08 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -103,7 +103,7 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 		$form_id = key($GLOBALS['SQ_SYSTEM']->am->getParents(key($answers['answers']), 'form', FALSE));
 		if(is_null($form_id)) return TRUE;
 		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($form_id);
-		if(is_null($form_id)) return TRUE;
+		if(is_null($form)) return TRUE;
 		$sections = $form->getSections();
 		for (reset($sections); $section = current($sections); next($sections)) {
 			$section_questions[$section->id] = Array();
@@ -247,7 +247,7 @@ class Form_Submission_Edit_Fns extends Asset_Edit_Fns
 		$form_id = key($GLOBALS['SQ_SYSTEM']->am->getParents(key($attributes['answers']), 'form', FALSE));
 		if(is_null($form_id)) return TRUE;
 		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($form_id);
-		if(is_null($form_id)) return TRUE;
+		if(is_null($form)) return TRUE;
 		$this->_tmp['question_errors'] = Array();
 		$unanswered_questions = $form->getAllQuestionAssets();
 
