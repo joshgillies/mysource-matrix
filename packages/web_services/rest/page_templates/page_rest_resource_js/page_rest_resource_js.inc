@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rest_resource_js.inc,v 1.14 2013/09/04 03:26:47 akarelia Exp $
+* $Id: page_rest_resource_js.inc,v 1.14.2.1 2013/10/04 00:43:38 ewang Exp $
 *
 */
 
@@ -70,6 +70,7 @@ class Page_REST_Resource_JS extends Page_REST_Resource
 	*/    
 	protected function _processJavascript()
 	{
+		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'processJavascript');
 		$js = 'var _REST = Array();';
 
 		// Encode the data to JSON.
@@ -127,6 +128,7 @@ class Page_REST_Resource_JS extends Page_REST_Resource
 		else if($engine == 'v8')
 		    echo $this->_runJavascriptv8($js);
 		
+		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'processJavascript');
 	}//end _processJavascript()
 
 
