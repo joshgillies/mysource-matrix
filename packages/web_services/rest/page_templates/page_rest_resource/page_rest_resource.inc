@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rest_resource.inc,v 1.12 2013/09/04 03:26:47 akarelia Exp $
+* $Id: page_rest_resource.inc,v 1.13 2013/10/04 00:41:11 ewang Exp $
 *
 */
 
@@ -117,6 +117,7 @@ class Page_REST_Resource extends Page
 	 */
 	protected function _process()
 	{
+		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this,'HTTPRequest');
 		// Only run the requests if we are being forced to, or if they have not yet been run.
 		if (($this->attr('allow_multiple_runs')) || (empty($this->_res['responses']))) {
 			// Run the request(s).
@@ -144,7 +145,7 @@ class Page_REST_Resource extends Page
 			// trigger the event with this REST asset as a triggering asset and a response received
 			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_rest_response_received', $this, $this->_res);
 		}
-
+		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this,'HTTPRequest');
 	}//end _process()
 	
 
