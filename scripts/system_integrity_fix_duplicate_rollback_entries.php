@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_fix_duplicate_rollback_entries.php,v 1.1.2.2 2013/10/08 06:42:28 cupreti Exp $
+* $Id: system_integrity_fix_duplicate_rollback_entries.php,v 1.1.2.3 2013/10/08 07:22:39 cupreti Exp $
 *
 */
 
@@ -19,13 +19,8 @@
 * Reports and attempts to fix the rollback tables with overlapping entries with with same "eff_to" in the overlapping entries set
 * The script will remove all duplicate overlapping entries except the one with oldest "eff_from" date, except for table 'sq_ast_attr_val'
 *
-* NOTE: So far the only cause we know to cause the "overlapping" is bug #6166, which affects "rb_ast_attr_val" table only
-* For this particular scenario, this script will set the 'eff_to' to 'eff_from' for the overlapping entires.
-* If other causes (new bug) that affects different tables are found later and needs to be handled specifically then this 
-* script will neeed to be fixed accourdingly then.
-*
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.1.2.2 $
+* @version $Revision: 1.1.2.3 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -159,40 +154,13 @@ function fix_rollback_table($table_name, $table_info, $entries=Array())
 	$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 	$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-	$success = TRUE;	
+	$success = TRUE	
 	switch($table_name) {
-		case 'ast_attr_val':				
-			// Set "eff_to" value equal to "eff_from", which should be expected value as per bug #6166
-			$sql = "UPDATE rb_sq_ast_attr_val
-						SET	sq_eff_to = sq_eff_from
-						WHERE
-							sq_eff_to = :sq_eff_to AND
-							assetid = :assetid AND
-							attrid = :attrid AND
-							contextid = :contextid
-						";						
-			foreach($entries as $entry) {
-				if (!isset($entry['sq_eff_to']) || !isset($entry['assetid']) || !isset($entry['attrid']) || !isset($entry['contextid'])) {
-					continue;
-				}
-				try {
-					$update_sql = MatrixDAL::preparePdoQuery($sql);
-					MatrixDAL::bindValueToPdo($update_sql, 'sq_eff_to', $entry['sq_eff_to']);
-					MatrixDAL::bindValueToPdo($update_sql, 'assetid', $entry['assetid']);
-					MatrixDAL::bindValueToPdo($update_sql, 'attrid', $entry['attrid']);
-					MatrixDAL::bindValueToPdo($update_sql, 'contextid', $entry['contextid']);
-						
-					$execute = MatrixDAL::executePdoAssoc($update_sql);
-				} catch (Exception $e) {                            
-					$success = FALSE;
-					break;
-                           
-				}
-			}//end foreach
-		break;
+
+		// TODO: If individual tables are required to be handled specifically then it should be done here
 
 		default:
-			// For all other rollback tables, delete all the duplicates expect one with min(eff_from) i.e. oldest one
+			// For all rollback tables, delete all the duplicates expect one with min(eff_from) i.e. oldest one
 			$keys = $table_info['primary_key'];
 			if (isset($table_info['unique_key'])) {
 				$keys = array_unique(array_merge($keys, $table_info['unique_key']));
