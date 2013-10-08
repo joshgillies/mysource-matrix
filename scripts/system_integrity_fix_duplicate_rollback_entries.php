@@ -10,17 +10,17 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_fix_duplicate_rollback_entries.php,v 1.1.2.3 2013/10/08 07:22:39 cupreti Exp $
+* $Id: system_integrity_fix_duplicate_rollback_entries.php,v 1.1.2.4 2013/10/08 22:57:43 cupreti Exp $
 *
 */
 
 
 /**
 * Reports and attempts to fix the rollback tables with overlapping entries with with same "eff_to" in the overlapping entries set
-* The script will remove all duplicate overlapping entries except the one with oldest "eff_from" date, except for table 'sq_ast_attr_val'
+* The script will remove all duplicate overlapping entries except the one with oldest "eff_from" date
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.1.2.3 $
+* @version $Revision: 1.1.2.4 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -81,7 +81,7 @@ require_once $SYSTEM_ROOT.'/core/include/init.inc';
 
 if ($fix_overlapping_entries) {
 	if ($fix_table == 'all') {
-		echo "\nIMPORTANT: You have selected the option to fix all the duplicate drollback entries from the Rollback table.";	
+		echo "\nIMPORTANT: You have selected the option to fix all the duplicate rollback entries from the Rollback table.";	
 	} else {
 		echo "\nIMPORTANT: You have selected the option to fix the duplicate rollback entries from the Rollback table \"sq_rb_$fix_table\"";	
 	}
@@ -125,7 +125,7 @@ foreach($rollback_tables as $table => $table_info) {
 			pre_echo($results);
 		}		
 		echo '[ NOT OK ]';
-		if ($fix_overlapping_entries && $fix_table == $table) {
+		if ($fix_overlapping_entries && ($fix_table == $table || $fix_table == 'all')) {
 			echo "\nFixing the rollback table sq_rb_".$table;
 			$table_fixed = fix_rollback_table($table, $table_info, $results);
 			echo ' [ '.($table_fixed ? 'FIXED' : 'FAILED').' ]';
@@ -154,7 +154,7 @@ function fix_rollback_table($table_name, $table_info, $entries=Array())
 	$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 	$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-	$success = TRUE	
+	$success = TRUE;	
 	switch($table_name) {
 
 		// TODO: If individual tables are required to be handled specifically then it should be done here
@@ -176,7 +176,7 @@ function fix_rollback_table($table_name, $table_info, $entries=Array())
 				$where_sql .= $key.' = :'.$key.' AND ';
 			}
 			$where_sql .= 'sq_eff_to = :sq_eff_to' ;
-			// Get the latest 'eff_from'
+			// Get the oldest 'eff_from'
 			$sub_sql = 'SELECT min(sq_eff_from) FROM sq_rb_'.$table_name.' WHERE '.$where_sql;
 			$sql = 'DELETE FROM sq_rb_'.$table_name.' WHERE '.$where_sql.' AND sq_eff_from > ('.$sub_sql.')';
 
