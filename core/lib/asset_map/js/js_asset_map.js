@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.52.2.1 2013/10/09 05:27:22 lwright Exp $
+* $Id: js_asset_map.js,v 1.52.2.2 2013/10/09 22:38:19 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.52.2.1 $
+ * @version $Revision: 1.52.2.2 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -449,11 +449,11 @@ var JS_Asset_Map = new function() {
 		if (accessible === 0) {
 			var flagSpan = _createEl('span');
 			dfx.addClass(assetLine, 'not-selectable');
-			dfx.addClass(flagSpan, 'not-accessible');
+			dfx.addClass(flagSpan, 'flag not-accessible');
 			assetLine.appendChild(flagSpan);
 		} else if (linkType === LinkType.Type2) {
 			var flagSpan = _createEl('span');
-			dfx.addClass(flagSpan, 'type2-link');
+			dfx.addClass(flagSpan, 'flag type2-link');
 			assetLine.appendChild(flagSpan);
 		}
 
@@ -1185,7 +1185,8 @@ var JS_Asset_Map = new function() {
 			var branchTarget = null;
 			while (target && !assetTarget && !branchTarget) {
 				if ((dfx.hasClass(target, 'caretSel') === true) ||
-					   (dfx.hasClass(target, 'icon') === true)) {
+					   (dfx.hasClass(target, 'icon') === true) ||
+					   (dfx.hasClass(target, 'flag') === true)) {
 					if (dfx.hasClass(target.parentNode, 'asset') === true) {
 						assetTarget = target.parentNode;
 						if (dfx.hasClass(assetTarget, 'not-selectable') === true) {
