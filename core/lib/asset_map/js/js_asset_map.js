@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.52 2013/09/13 03:17:06 lwright Exp $
+* $Id: js_asset_map.js,v 1.52.2.1 2013/10/09 05:27:22 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.52 $
+ * @version $Revision: 1.52.2.1 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -1302,6 +1302,43 @@ var JS_Asset_Map = new function() {
 			if (dragStatus) {
 				var assetMapCoords = dfx.getElementCoords(assetMapContainer);
 				var mousePos       = dfx.getMouseEventPosition(e);
+				if (!timeouts.scrollDrag) {
+					// This code triggers during a selection or asset drag.
+					// If the mouse is within 15 pixels of the edges, the tree will
+					// start scrolling. It runs from 20 pixels per second (or just
+					// over 1 asset) if 15 pixels away, to 400 pixels per second at
+					// one pixel from the edge, with exponential increase in-between.
+					timeouts.scrollDrag = {
+						timeout: setInterval(function() {
+							if (timeouts.scrollDrag.mousePos) {
+								var mousePos     = timeouts.scrollDrag.mousePos;
+								var tree         = self.getCurrentTreeElement();
+								var treeCoords   = dfx.getBoundingRectangle(tree, true);
+								var moveFactor   = (Math.log(20) / Math.log(15));
+
+								// Adjust the lower-right tree coords to adjust for
+								// the scrollbar.
+								treeCoords.x2 = treeCoords.x1 + tree.clientWidth;
+								treeCoords.y2 = treeCoords.y1 + tree.clientHeight;
+
+								if (((mousePos.y - treeCoords.y1) >= 0) && ((mousePos.y - treeCoords.y1) < 15)) {
+									tree.scrollTop -= Math.pow(15 - (mousePos.y - treeCoords.y1), moveFactor);
+								} else if (((treeCoords.y2 - mousePos.y) > 0) && ((treeCoords.y2 - mousePos.y) <= 15)) {
+									tree.scrollTop += Math.pow(15 - (treeCoords.y2 - mousePos.y), moveFactor);
+								}
+
+								if (((mousePos.x - treeCoords.x1) >= 0) && ((mousePos.x - treeCoords.x1) < 15)) {
+									tree.scrollLeft -= Math.pow(15 - (mousePos.x - treeCoords.x1), moveFactor);
+								} else if (((treeCoords.x2 - mousePos.x) > 0) && ((treeCoords.x2 - mousePos.x) <= 15)) {
+									tree.scrollLeft += Math.pow(15 - (treeCoords.x2 - mousePos.x), moveFactor);
+								}
+							}
+						}, 50)
+					};
+				}
+
+				timeouts.scrollDrag.mousePos = mousePos;
+
 				if (dragStatus.selectionDrag) {
 					if (insideTree) {
 						if (!timeouts.selectionDrag) {
@@ -1412,6 +1449,11 @@ var JS_Asset_Map = new function() {
 							dfx.addEvent(dragAsset, 'mousemove', function(e) {
 								// We moved but not enough to move off the draggable.
 								var mousePos     = dfx.getMouseEventPosition(e);
+								if (timeouts.scrollDrag) {
+									timeouts.scrollDrag.mousePos = mousePos;
+								}
+
+								var treeCoords   = dfx.getBoundingRectangle(self.getCurrentTreeElement(), true);
 								var underlyingEl = null;
 								dragStatus.currentPoint.x = mousePos.x - assetMapCoords.x + dragStatus.assetDrag.offset.x;
 								dragStatus.currentPoint.y = mousePos.y - assetMapCoords.y + dragStatus.assetDrag.offset.y;
@@ -1535,6 +1577,11 @@ var JS_Asset_Map = new function() {
 		dfx.addEvent(assetMapContainer, 'mouseup', function(e) {
 			var mousePos = dfx.getMouseEventPosition(e);
 			var menu     = null;
+
+			if (timeouts.scrollDrag) {
+				clearInterval(timeouts.scrollDrag.timeout);
+				timeouts.scrollDrag = null;
+			}
 
 			dfx.remove(dfx.getClass('dragAsset', assetMapContainer));
 			if (dragStatus) {
