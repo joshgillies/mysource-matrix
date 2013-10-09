@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.256 2013/02/13 05:36:33 akarelia Exp $
+* $Id: search_manager.inc,v 1.256.4.1 2013/10/09 05:10:19 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.256 $
+* @version $Revision: 1.256.4.1 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -2816,6 +2816,7 @@ class Search_Manager extends Asset
 			} else {
 				$res_results = Array();
 			}
+			if(empty($new_results)) return $res_results;
 			if (isset($results_so_far[0])) {
 				// getAll format, rather than getAssoc format
 				foreach ($new_results as $new_result) {
