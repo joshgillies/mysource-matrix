@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.86 2013/10/01 01:24:51 akarelia Exp $
+* $Id: text.inc,v 1.87 2013/10/09 23:43:50 akarelia Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.86 $
+* @version $Revision: 1.87 $
 * @package Fudge
 * @subpackage Text
 */
@@ -761,37 +761,39 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array(), $ac
 function _run_arithmetic_keyword_modifier($modifier, $text)
 {
 	// Divide
-	$n = array_get_index($modifier['args'], 0, 0);
+	$n = str_replace(',', '', array_get_index($modifier['args'], 0, 0));
+
+	$unformatted_text = str_replace(',', '', $text);
 
 	switch ($modifier['modifier']) {
-	case "add":
-		return $text + $n;
-	case "subtract":
-		return $text - $n;
-	case "multiply":
-		return $text * $n;
-	case "divide":
-		if ($n != 0) {
-			return $text / $n;
-		} else {
-			return '';
-		}
-	case "modulo":
-		if ($n != 0) {
-			return $text % $n;
-		} else {
-			return '';
-		}
-	case "squareroot":
-		if ($text > 0) {
-			return sqrt($text);
-		} else if ($text == '-1') {
-			return 'i';
-		} else {
-			return '';
-		}//end if
-	default:
-		return $text;
+		case "add":
+			return $unformatted_text + $n;
+		case "subtract":
+			return $unformatted_text - $n;
+		case "multiply":
+			return $unformatted_text * $n;
+		case "divide":
+			if ($n != 0) {
+				return $unformatted_text / $n;
+			} else {
+				return '';
+			}
+		case "modulo":
+			if ($n != 0) {
+				return $unformatted_text % $n;
+			} else {
+				return '';
+			}
+		case "squareroot":
+			if ($text > 0) {
+				return sqrt($unformatted_text);
+			} else if ($unformatted_text == '-1') {
+				return 'i';
+			} else {
+				return '';
+			}//end if
+		default:
+			return $text;
 	}
 
 }//end _run_arithmetic_keyword_modifier()
