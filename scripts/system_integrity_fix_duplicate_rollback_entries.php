@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_fix_duplicate_rollback_entries.php,v 1.3 2013/10/08 22:54:33 cupreti Exp $
+* $Id: system_integrity_fix_duplicate_rollback_entries.php,v 1.4 2013/10/10 00:28:15 cupreti Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * The script will remove all duplicate overlapping entries except the one with oldest "eff_from" date
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -48,8 +48,10 @@ $fix_overlapping_entries = FALSE;
 $show_overlapping_entries = FALSE;
 $fix_table = '';
 foreach ($options[0] as $index => $option) {
-	if ($option[0] == 's' && !empty($option[1])) {
+	if ($option[0] == 's' && !empty($option[1]) && empty($SYSTEM_ROOT)) {
 		$SYSTEM_ROOT = $option[1];		
+	} else if ($option[0] == 's') {
+		usage();
 	}
 	
 	if ($option[0] == '--fix-table') {
