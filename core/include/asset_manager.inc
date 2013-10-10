@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.907.2.7 2013/10/02 01:18:59 ewang Exp $
+* $Id: asset_manager.inc,v 1.907.2.8 2013/10/10 07:08:24 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.907.2.7 $
+* @version $Revision: 1.907.2.8 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2394,11 +2394,14 @@ class Asset_Manager extends MySource_Object
 
 		// Now all the dependents are clones. cloneComponentsAdditional()
 		// will process extra processing required for completing cloning
+		$GLOBALS['SQ_CLONE_COMPONENTS'] = TRUE;
 		if (!$source->cloneComponentsAdditional($clone, Array('all'))) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			$GLOBALS['SQ_CLONE_COMPONENTS'] = FALSE;
 			return $null;
 		}
+		$GLOBALS['SQ_CLONE_COMPONENTS'] = FALSE;
 
 		// contents and some other components are not index for this cloned asset because the
 		// asset link wasnt created to its parent.
