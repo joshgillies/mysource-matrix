@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.441 2013/09/17 00:08:24 cupreti Exp $
+* $Id: lang_strings.xml,v 1.442 2013/10/10 23:24:43 akarelia Exp $
 *
 */
 
@@ -2855,6 +2855,7 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="http_request_timeout">Timeout (seconds)</string>
 	<string source="http_request_follow_redirect">Follow Redirects</string>
 	<string source="http_request_disable_ssl_verify">Disable SSL certificate verification</string>
+	<string source="http_request_enable_compression">Enable HTTP Compression</string>
 	<string source="http_request_ssl_cert">SSL certificate filepath</string>
 	<string source="http_request_ssl_key">SSL key filepath</string>
 	<string source="http_request_ca_file">SSL CA filepath</string>
