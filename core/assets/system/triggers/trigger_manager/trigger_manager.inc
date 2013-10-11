@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.75 2012/08/30 01:09:16 ewang Exp $
+* $Id: trigger_manager.inc,v 1.75.10.1 2013/10/11 06:54:01 cupreti Exp $
 *
 */
 
@@ -44,7 +44,7 @@ register_implementation('trigger_manager', 'bridge');
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Edison Wang <ewang@squiz.net>
-* @version $Revision: 1.75 $
+* @version $Revision: 1.75.10.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1053,6 +1053,9 @@ class Trigger_Manager extends Asset implements Bridge
 	*/
 	function broadcastEvent($event_name, &$broadcaster, $parameters=NULL)
 	{
+		if (is_null($broadcaster)) {
+			return FALSE;
+		}
 
 		// triggers do not work in ROLLBACK mode
 		if (SQ_ROLLBACK_VIEW) return TRUE;
