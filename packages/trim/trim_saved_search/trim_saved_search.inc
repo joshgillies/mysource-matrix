@@ -11,7 +11,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search.inc,v 1.52 2013/09/17 08:38:35 ewang Exp $
+* $Id: trim_saved_search.inc,v 1.52.2.1 2013/10/11 03:23:48 ewang Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.52.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -115,37 +115,7 @@ class TRIM_Saved_Search extends Data_Source
 
 		$result = $this->getCachedResults($hash);
 
-		if (empty($result)) {
-			try {
-				// Not cached at all, so lets send a request
-				$res	= Array();
-				$connection	= $this->getConnection();
-				$object_list	= '';
-				if (!empty($connection['wsdl'])) {
-					$object_list	= $this->getTRIMRecords($connection);
-
-					// Only download files if we are asked to
-					if ($this->attr('download_files')) {
-						foreach ($object_list as &$record_info) {
-							$this->storeDocumentList($connection, $record_info);
-						}//end foreach
-					}//end if
-					unset($record_info);
-				}//end if
-
-				if (!isset($res[0]['error'])) {
-						$result	= $object_list;
-						if (!empty($result)) {
-							$this->cacheResult($result, $hash);
-						}//end if
-				} else if (isset($res[0]['FoundCount']) && $res[0]['FoundCount'] != 0) {
-					// We got some result, but there is error, lets throw an error.
-				}//end else if
-			} catch (Exception $sf) {
-				//trigger_error($res['error'], E_USER_WARNING);
-			}//end try catch
-		}//end else
-
+		
 		return $result;
 
 	}//end getResultSet()
