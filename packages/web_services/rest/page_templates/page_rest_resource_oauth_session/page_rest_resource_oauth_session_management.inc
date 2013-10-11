@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rest_resource_oauth_session_management.inc,v 1.7 2012/09/05 02:59:45 ewang Exp $
+* $Id: page_rest_resource_oauth_session_management.inc,v 1.7.8.1 2013/10/11 07:27:46 ewang Exp $
 *
 */
 
@@ -53,7 +53,7 @@ class Page_REST_Resource_OAuth_Session_Management extends Asset_Management
 						'redirect_authorise'	=> Array(
 													'added'			=> '0.1',
 													'type'			=> 'boolean',
-													'default'		=> FALSE,
+													'default'		=> TRUE,
 													'parameters'	=> Array('allow_empty'	=> FALSE),
 												   ),
 		    				'store_token'	=> Array(

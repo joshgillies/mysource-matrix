@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: oauth.inc,v 1.11 2012/12/12 03:46:41 ewang Exp $
+* $Id: oauth.inc,v 1.11.8.1 2013/10/11 07:27:43 ewang Exp $
 *
 */
 
@@ -81,7 +81,7 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 		if (!isset($current_value['consumer_key'])) $current_value['consumer_key'] = '';
 		if (!isset($current_value['consumer_secret'])) $current_value['consumer_secret'] = FALSE;
 		if (!isset($current_value['signature_method'])) $current_value['signature_method'] = 'HMAC-SHA1';
-		if (!isset($current_value['method'])) $current_value['method'] = 'GET';
+		if (!isset($current_value['method'])) $current_value['method'] = 'POST';
 
 		if (!isset($current_value['request_token_url'])) $current_value['request_token_url'] = '';
 		if (!isset($current_value['authorization_url'])) $current_value['authorization_url'] = '';
