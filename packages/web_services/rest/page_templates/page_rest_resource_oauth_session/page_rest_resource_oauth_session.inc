@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_rest_resource_oauth_session.inc,v 1.11 2013/09/04 03:26:47 akarelia Exp $
+* $Id: page_rest_resource_oauth_session.inc,v 1.12 2013/10/11 07:20:35 ewang Exp $
 *
 */
 
@@ -56,8 +56,7 @@ class Page_REST_Resource_OAuth_Session extends Page_REST_Resource
 
 		// reset the oauth related session variables to restart the oauth authorization process in one of the following cases:
 		// - if the user click on 'Reset Existing Authorization Data'
-		// if only request token is available but not access token, which is likely the case that the user didn't complete the authorization process earlier
-		if (isset($_POST[$this->getPrefix().'_oauth_reset_session_vars']) || (isset($_SESSION['oauth'][$this->id]['oauth_token']) && !isset($_SESSION['oauth'][$this->id]['access_token']))) {
+		if (isset($_POST[$this->getPrefix().'_oauth_reset_session_vars'])) {
 			$this->resetOAuthSessionVariables();
 			unset($_POST[$this->getPrefix().'_oauth_reset_session_vars']);
 		}
