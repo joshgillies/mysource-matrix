@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_searchbox.inc,v 1.35 2012/08/30 00:59:15 ewang Exp $
+* $Id: design_area_searchbox.inc,v 1.36 2013/10/13 22:57:49 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -138,12 +138,16 @@ class Design_Area_Searchbox extends Design_Area
 
 				$label_val = $this->attr('querybox_label');
 				$label = '';
+
 				if (!empty($label_val)) {
 					if (!empty($args['id'])) {
-						$label = '<label for="'.$args['id'].'">'.$this->attr('querybox_label').'</label>';
+						$form_field_name = $args['id'];
 					} else {
-						$label = '<label for="'.htmlspecialchars($this->attr('field_name')).'">'.$this->attr('querybox_label').'</label>';
+						$form_field_name = htmlspecialchars($this->attr('field_name'));
+						$form_field_name = 'queries_'.$form_field_name.'_query';
 					}
+
+					$label = '<label for="'.$form_field_name.'">'.$this->attr('querybox_label').'</label>';
 				}
 				echo '
 				<input type="hidden" name="mode" value="results" />
