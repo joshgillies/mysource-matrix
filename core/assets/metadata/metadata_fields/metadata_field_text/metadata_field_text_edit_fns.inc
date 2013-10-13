@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_text_edit_fns.inc,v 1.44 2013/09/20 01:56:05 lwright Exp $
+* $Id: metadata_field_text_edit_fns.inc,v 1.44.2.1 2013/10/13 23:53:41 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.44.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -132,7 +132,7 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 			$num_per_row = 3;
 			$num_done = 0;
 			?>
-			<table class="sq-backend-table">
+			<table class="sq-backend-table sq-value-components">
 				<tr>
 					<?php
 					foreach ($value_components as $vc_name => $vc_value) {
