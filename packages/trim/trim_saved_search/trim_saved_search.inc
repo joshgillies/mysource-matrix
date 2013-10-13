@@ -11,7 +11,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: trim_saved_search.inc,v 1.40.2.9 2013/10/11 03:24:07 ewang Exp $
+* $Id: trim_saved_search.inc,v 1.40.2.10 2013/10/13 23:46:43 ewang Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_PACKAGES_PATH.'/trim/lib/trim_common.inc';
 *
 * @author  Edison Wang <ewang@squiz.com.au>
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.40.2.9 $
+* @version $Revision: 1.40.2.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __trim__
 */
@@ -115,7 +115,6 @@ class TRIM_Saved_Search extends Data_Source
 
 		$result = $this->getCachedResults($hash);
 
-		
 		return $result;
 
 	}//end getResultSet()
@@ -221,10 +220,11 @@ class TRIM_Saved_Search extends Data_Source
 							$ordered_result[$new_index]	= $new_record_info;
 
 							// INTEGRITY Check
-							if (isset($new_record_info['recDocumentType']) && $new_record_info['recDocumentType'] != 'Record has no document attached.') {
+							if ($this->attr('download_files') && isset($new_record_info['recDocumentType']) && $new_record_info['recDocumentType'] != 'Record has no document attached.') {
 								// We have a file here, have to check whether it is still in the system
 								$final_file_path	= $this->data_path.'/'.$new_record_info['Uri'];
 								$files_stored		= glob($final_file_path.'/*');
+	
 								// If there is no file in there
 								if (empty($files_stored)) {
 									$this->storeDocumentList($connection, $new_record_info);
@@ -272,7 +272,27 @@ class TRIM_Saved_Search extends Data_Source
 			}//end if
 			return FALSE;
 		} else {
-			return $this->getResultSet() ? TRUE : FALSE;
+			// Not cached at all, so lets send a request
+			$connection	= $this->getConnection();
+			$object_list	= '';
+			if (!empty($connection['wsdl'])) {
+				$object_list	= $this->getTRIMRecords($connection);
+
+				// Only download files if we are asked to
+				if ($this->attr('download_files')) {
+					foreach ($object_list as &$record_info) {
+						$this->storeDocumentList($connection, $record_info);
+					}//end foreach
+				}//end if
+				unset($record_info);
+			}//end if
+			$result	= $object_list;
+			if (!empty($result)) {
+			    $this->cacheResult($result, $hash);
+			    return TRUE;
+			}//end if
+
+			return FALSE;
 		}//end else
 
 	}//end updateCachedResult()
