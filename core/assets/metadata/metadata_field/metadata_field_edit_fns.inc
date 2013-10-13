@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_edit_fns.inc,v 1.65 2013/09/24 01:13:01 ewang Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.66 2013/10/13 23:44:59 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.65 $
+* @version $Revision: 1.66 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -142,7 +142,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 			$num_per_row = 3;
 			$num_done = 0;
 			?>
-			<table class="sq-backend-table">
+			<table class="sq-backend-table sq-value-components">
 				<tr>
 					<?php
 					foreach ($default_vc as $vc_name => $default_vc_value) {
