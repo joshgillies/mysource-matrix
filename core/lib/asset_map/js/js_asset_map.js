@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.54 2013/10/09 22:36:59 lwright Exp $
+* $Id: js_asset_map.js,v 1.55 2013/10/14 04:21:49 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.54 $
+ * @version $Revision: 1.55 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -3401,7 +3401,7 @@ var JS_Asset_Map = new function() {
 			dfx.addEvent(dfx.getClass('tree', assetMapContainer), 'mousemove.moveMe', function(e) {
 				var target = dfx.getMouseEventTarget(e);
 				while (target) {
-					if (dfx.hasClass(target, 'asset') === true) {
+					if ((dfx.hasClass(target, 'asset') === true) || (dfx.hasClass(target, 'tree') === true)) {
 						break;
 					}
 					target = target.parentNode;
