@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.84 2013/09/26 02:38:29 akarelia Exp $
+* $Id: form_email.inc,v 1.85 2013/10/14 04:26:35 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.84 $
+* @version $Revision: 1.85 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -238,6 +238,8 @@ class Form_Email extends Form
 			return FALSE;
 		}
 
+		 $GLOBALS['SQ_CLONE_COMPONENTS'] = TRUE;
+
 		if (in_array('attributes', $components) || in_array('all', $components)) {
 			// send to a friend format
 			$recip = unserialize($this->attr('recipient_emails_format'));
@@ -289,6 +291,8 @@ class Form_Email extends Form
 			$clone->saveAttributes();
 
 		}//end if
+
+		 $GLOBALS['SQ_CLONE_COMPONENTS'] = FALSE;
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
