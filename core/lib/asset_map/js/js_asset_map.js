@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.52.2.3 2013/10/14 04:28:18 lwright Exp $
+* $Id: js_asset_map.js,v 1.52.2.4 2013/10/14 04:39:40 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.52.2.3 $
+ * @version $Revision: 1.52.2.4 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -3980,7 +3980,24 @@ var JS_Asset_Map = new function() {
 		container.appendChild(menuItem);
 
 		var menuItem = this.drawMenuItem(js_translate('asset_map_menu_link_here'), null);
+
+		// Determine if all of the sources are of the same parent as the selection.
+		// If they are, disable New Link Here as it is not possible.
+		// If they are mixed, allow it and let the HIPO give them the bad news.
+		var allSameParent = true;
+		for (var i = 0; i < moveTarget.source.length; i++) {
+			var assetPath = moveTarget.source[i].getAttribute('data-asset-path').split(',');
+			assetPath.pop();
+			var parentid  = assetPath.pop();
+			if (String(moveTarget.selection.parentid) !== String(parentid)) {
+				allSameParent = false;
+				break;
+			}
+		}
+
 		if (moveTarget.selection.parentid === trashFolder) {
+			dfx.addClass(menuItem, 'disabled');
+		} else if (allSameParent === true) {
 			dfx.addClass(menuItem, 'disabled');
 		} else {
 			dfx.addEvent(menuItem, 'click', function(e) {
