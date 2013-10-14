@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.98 2013/10/02 02:34:20 lwright Exp $
+* $Id: image.inc,v 1.98.2.1 2013/10/14 04:49:17 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.98 $
+* @version $Revision: 1.98.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -86,6 +86,8 @@ class Image extends File implements Bridge
 		// re-upload/create them underneath this asset - to get the file
 		// versioning correct
 
+		 $GLOBALS['SQ_CLONE_COMPONENTS'] = TRUE;
+
 		if (in_array('attributes', $components) || in_array('all', $components)) {
 
 			$varieties = $this->attr('varieties');
@@ -103,21 +105,26 @@ class Image extends File implements Bridge
 					$new_variety_path = $new_base_path.'/'.$variety['filename'];
 
 					if (!copy($old_variety_path, $new_variety_path)) {
+						$GLOBALS['SQ_CLONE_COMPONENTS'] = FALSE;
 						trigger_localised_error('CORE0036', E_USER_WARNING, $old_variety_path, $new_variety_path);
 						return FALSE;
 					}
 
 					if (!$fv->add($clone->data_path_suffix.'/varieties', $new_variety_path)) {
+						$GLOBALS['SQ_CLONE_COMPONENTS'] = FALSE;
 						return FALSE;
 					}
 
 					if (!$fv->checkOut($clone->data_path_suffix.'/varieties/'.$variety['filename'], $clone->data_path.'/varieties')) {
+						$GLOBALS['SQ_CLONE_COMPONENTS'] = FALSE;
 						trigger_localised_error('CORE0103', E_USER_WARNING);
 						return FALSE;
 					}
 				}
 			}
 		}//end if attributes|all
+		
+		$GLOBALS['SQ_CLONE_COMPONENTS'] = FALSE;
 
 		return parent::cloneComponents($clone, $components, $override);
 

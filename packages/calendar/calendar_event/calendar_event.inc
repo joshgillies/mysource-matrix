@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.115 2013/09/20 08:30:31 cupreti Exp $
+* $Id: calendar_event.inc,v 1.115.2.1 2013/10/14 04:48:38 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.115 $
+* @version $Revision: 1.115.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -427,13 +427,18 @@ class Calendar_Event extends Asset
 			return FALSE;
 		}
 
+		$GLOBALS['SQ_CLONE_COMPONENTS'] = TRUE;
+
 		if (in_array('all', $components) || in_array('attributes', $components)) {
 			if (!$clone->cacheCalendarData(FALSE)) {
+				$GLOBALS['SQ_CLONE_COMPONENTS'] = FALSE;
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 				return FALSE;
 			}
 		}
+
+		$GLOBALS['SQ_CLONE_COMPONENTS'] = FALSE;
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.288 2013/09/10 07:09:39 ewang Exp $
+* $Id: form.inc,v 1.288.2.1 2013/10/14 04:48:19 cupreti Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/recaptcha/recaptcha.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.288 $
+* @version $Revision: 1.288.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -303,6 +303,8 @@ class Form extends Asset implements Bridge
 			return FALSE;
 		}
 
+		$GLOBALS['SQ_CLONE_COMPONENTS'] = TRUE;
+
 		if (in_array('attributes', $components) || in_array('all', $components)) {
 			$sort_order = $this->attr('sort_order');
 			$sort_order = str_replace($this->id.':q', $clone->id.':q', $sort_order);
@@ -314,6 +316,8 @@ class Form extends Asset implements Bridge
 			// Change the content of the content type to replace question id.
 
 		}
+
+		$GLOBALS['SQ_CLONE_COMPONENTS'] = FALSE;
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
