@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.218.4.1 2013/08/27 06:48:34 ewang Exp $
+* $Id: file.inc,v 1.218.4.2 2013/10/14 05:04:25 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.218.4.1 $
+* @version $Revision: 1.218.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -241,6 +241,8 @@ class File extends Asset
 	*/
 	public function cloneComponents(Asset $clone, Array $components, $override=FALSE)
 	{
+		$GLOBALS['SQ_CLONE_COMPONENTS'] = TRUE;
+
 		// create some information so we know where to clone the file from
 		$temp_info = Array('name' => $this->name, 'tmp_name' => $this->data_path.'/'.$this->name, 'non_uploaded_file' => TRUE);
 
@@ -248,9 +250,12 @@ class File extends Asset
 		// fix for bug 3625:
 		// we make sure to tell the processFileChooser function that we are cloning and not creating new asset
 		if (!$edit_fns->processFileUpload($clone, $GLOBALS['SQ_SYSTEM']->backend->out, $clone->getPrefix(), $temp_info,TRUE, TRUE)) {
+			$GLOBALS['SQ_CLONE_COMPONENTS'] = FALSE;
 			trigger_localised_error('CORE0010', E_USER_WARNING, $this->name, $this->id);
 			return FALSE;
 		}
+
+		$GLOBALS['SQ_CLONE_COMPONENTS'] = FALSE;
 
 		return parent::cloneComponents($clone, $components, $override);
 

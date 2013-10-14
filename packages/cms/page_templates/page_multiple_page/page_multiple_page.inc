@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_multiple_page.inc,v 1.32 2012/08/30 00:58:09 ewang Exp $
+* $Id: page_multiple_page.inc,v 1.32.6.1 2013/10/14 05:01:50 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.32.6.1 $
 * @package MySource_Matrix_Packages
 * @subpackage CMS
 */
@@ -856,6 +856,8 @@ class Page_Multiple_Page extends Page
 			return FALSE;
 		}
 
+		$GLOBALS['SQ_CLONE_COMPONENTS'] = TRUE;
+
 		if (in_array('attributes', $components) || in_array('all', $components)) {
 			$current_ids = Array();
 			// save the information
@@ -870,6 +872,8 @@ class Page_Multiple_Page extends Page
 		}
 		// if cloning we need this to update webpaths later
 		$this->_tmp['no_sort_order_paths'] = TRUE;
+
+		$GLOBALS['SQ_CLONE_COMPONENTS'] = FALSE;
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
