@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.55 2013/10/14 04:21:49 lwright Exp $
+* $Id: js_asset_map.js,v 1.56 2013/10/14 04:26:08 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.55 $
+ * @version $Revision: 1.56 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -3449,11 +3449,15 @@ var JS_Asset_Map = new function() {
 			}//end while
 
 			if (!target) {
-				dfx.removeClass(_lineEl, 'active');
+
 				var tree = this.parent.getCurrentTreeElement();
 
 				var lastAsset = dfx.getClass('asset', tree).pop();
 				var assetRect = dfx.getBoundingRectangle(lastAsset);
+
+				var assetMapCoords = dfx.getElementCoords(assetMapContainer);
+				var assetNameSpan  = dfx.getClass('assetName', dfx.getClass('asset', tree)[0])[0];
+				var assetNameRect  = dfx.getBoundingRectangle(assetNameSpan);
 
 				if (mousePos.y > assetRect.y2) {
 					this.selection = {
@@ -3461,8 +3465,12 @@ var JS_Asset_Map = new function() {
 						linkid: 1,
 						before: -1
 					};
+
+					dfx.addClass(_lineEl, 'active');
+					dfx.setCoords(_lineEl, (assetNameRect.x1 - assetMapCoords.x), (assetRect.y2 - assetMapCoords.y));
 				} else {
 					this.selection = null;
+					dfx.removeClass(_lineEl, 'active');
 				}
 				return;
 			} else if (dfx.hasClass(target, 'paginationTool') === true) {
