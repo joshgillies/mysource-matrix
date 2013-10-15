@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-*$Id: performance_manager.inc,v 1.8 2013/04/16 07:09:00 ewang Exp $
+*$Id: performance_manager.inc,v 1.9 2013/10/15 02:08:30 ewang Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *     
 *
 * @author  Edison Wang <ewang@squiz.com.au>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 */
 class Performance_Manager extends MySource_Object
@@ -791,7 +791,7 @@ var addUrlParam = function(search, key, val){
 	* @access private
 	*/	
 	private function _savePerformanceData ($data) {
-		$path = SQ_DATA_PATH.'/temp/performance_mode_data';
+		$path = SQ_DATA_PATH.'/temp/performance_mode_data_'.session_id();
 		$file = fopen ($path, "w");
 		fwrite($file, serialize($data));
 		fclose ($file);  
@@ -805,7 +805,7 @@ var addUrlParam = function(search, key, val){
 	* @access private
 	*/	
 	private function _clearPerformanceData () {
-		$path = SQ_DATA_PATH.'/temp/performance_mode_data';
+		$path = SQ_DATA_PATH.'/temp/performance_mode_data_'.session_id();
 		if(file_exists($path))
 			unlink($path); 
 	}// end _clearPerformanceData()
@@ -817,7 +817,7 @@ var addUrlParam = function(search, key, val){
 	* @access private
 	*/	
 	private function _loadPerformanceData () {
-		$path = SQ_DATA_PATH.'/temp/performance_mode_data';
+		$path = SQ_DATA_PATH.'/temp/performance_mode_data_'.session_id();
 		$data = file_exists($path) ? file_get_contents($path) : '';
 		return unserialize($data);
 	}// end _loadPerformanceData()
