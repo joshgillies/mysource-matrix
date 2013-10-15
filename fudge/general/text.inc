@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.78.4.9 2013/10/09 23:50:26 akarelia Exp $
+* $Id: text.inc,v 1.78.4.10 2013/10/15 00:40:33 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.78.4.9 $
+* @version $Revision: 1.78.4.10 $
 * @package Fudge
 * @subpackage Text
 */
@@ -1011,11 +1011,11 @@ function get_word_counts($text, $split_regexp="/\s+/", $word_match_regexp="/\S+/
 */
 function remove_silent_chars($text, $not_indexing=FALSE, $oracle_keyword=FALSE)
 {
-	// Replace period (.) and comma (,) in number, e.g. 1,234.5 => 12345
-	$number_pattern = '/(\d{1})[,.](\d{1})/'; // use that pattern instead of /(\d+)[,.](\d+)/ because this pattern can not replace both period and comma in one number. For example, 1,234.5 => 1234.5
-	$text = preg_replace($number_pattern, '$1$2', $text);
-
 	if (!$oracle_keyword) {
+		// Replace period (.) and comma (,) in number, e.g. 1,234.5 => 12345
+		$number_pattern = '/(\d{1})[,.](\d{1})/'; // use that pattern instead of /(\d+)[,.](\d+)/ because this pattern can not replace both period and comma in one number. For example, 1,234.5 => 1234.5
+		$text = preg_replace($number_pattern, '$1$2', $text);
+
 		// Remove at (@) and period (.) in email addresses, e.g. everyone@squiz.net => everyonesquiznet
 		// The following pattern matches most email addresses, but it will need to be review to match all email addresses
 		$email_pattern = '/([^@\s]+)@(([-a-z0-9]+\.)+[a-z]{2,})/e';
