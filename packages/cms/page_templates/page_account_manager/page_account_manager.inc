@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.80 2013/09/09 04:28:01 akarelia Exp $
+* $Id: page_account_manager.inc,v 1.80.2.1 2013/10/15 00:50:51 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.80 $
+* @version $Revision: 1.80.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -464,52 +464,18 @@ class Page_Account_Manager extends Page_Asset_Builder
 							$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 							$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
-							// manually parse the create locations, format into an array in the format Array(locationid => Array('name'=>code_name, 'link_type'=>link_type), ...)
-							$selected_create_locations = Array();
-							foreach ($this->attr('create_location_optional') as $set_name => $details) {
-								$tmp_locations = Array();
-								$code_name = $this->_sanitiseLocationSetName($set_name);
-								if (isset($_POST[$code_name])) {
-									if ($details['allow_multiple'] && is_array($_POST[$code_name])) {
-										foreach ($_POST[$code_name] as $location_id) {
-											// add it to the list
-											$tmp_locations[] = $location_id;
-										}
-										// check the list options are valid
-										$tmp_locations = array_intersect($tmp_locations, array_keys($details['locations']));
-										// add them to the collection
-										foreach ($tmp_locations as $location_id) {
-											$selected_create_locations[$location_id] = Array(
-																						'set_name'	=> $set_name,
-																						'link_type'	=> (int)$details['link_type'],
-																					   );
-										}
-									} else {
-										// if it's valid, add it to the list
-										if (in_array($_POST[$code_name], array_keys($details['locations']))) {
-											$selected_create_locations[(int)$_POST[$code_name]] = Array(
-																						'set_name'	=> $set_name,
-																						'link_type'	=> (int)$details['link_type'],
-																					   );
-										}
-									}
-								} else if (!$details['allow_empty']) {
-									trigger_localised_error('CMS0036', E_USER_WARNING, $set_name);
-									return FALSE;
-								}
-							}
-
-							// use the formatted array, create the notice links
-							if (!empty($selected_create_locations)) {
+							// Notice link to the additional create locations where user will be linked after validation
+							$additional_create_locations = $this->getSelectedCreateLocations() + $this->getDynamicCreateLocations() + $this->getAdditionalCreateLocations();
+							if (!empty($additional_create_locations)) {
 								$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 
 									$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 									$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-										foreach ($selected_create_locations as $locationid => $link_type) {
+										foreach ($additional_create_locations as $locationid => $link_type) {
 											$location = $GLOBALS['SQ_SYSTEM']->am->getAsset($locationid, '', TRUE);
 											if (is_null($location)) continue;
-											if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($location, $new_asset, SQ_LINK_NOTICE, $this->getPrefix().'_selected_create_location-'.$link_type['link_type'])) {
+											if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($location, $new_asset, SQ_LINK_NOTICE, $this->getPrefix().'_selected_create_location-'.$link_type)) {
 												// bail out
 												$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 												$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
