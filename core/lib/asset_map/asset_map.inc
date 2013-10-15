@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.327 2013/09/17 22:50:16 lwright Exp $
+* $Id: asset_map.inc,v 1.328 2013/10/15 03:50:32 ewang Exp $
 *
 */
 require_once(SQ_LIB_PATH.'/xml_array/xml_array.inc');
@@ -23,7 +23,7 @@ require_once(SQ_LIB_PATH.'/xml_array/xml_array.inc');
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.327 $
+* @version $Revision: 1.328 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -502,7 +502,7 @@ class Asset_Map
 						dfxLoadedCallback = function() {
 							var supported = JS_Asset_Map.isSupported();
 							if (supported === false) {
-								init_asset_map("<?php echo $codebase ?>", "<?php echo $archive ?>", <?php echo json_encode($parameters) ?>, <?php echo $width ?>, <?php echo $height ?>);
+								init_asset_map("<?php echo $codebase ?>", "<?php echo $archive ?>", <?php echo json_encode_array($parameters) ?>, <?php echo $width ?>, <?php echo $height ?>);
 							} else {
 								var asset_map_container = document.createElement('div');
 								asset_map_container.id  = 'asset_map_container';
@@ -525,7 +525,7 @@ class Asset_Map
 				?>
 				<script type="text/javascript"><!--
 				//<![CDATA[
-					init_asset_map("<?php echo $codebase ?>", "<?php echo $archive ?>", <?php echo json_encode($parameters) ?>, <?php echo $width ?>, <?php echo $height ?>);
+					init_asset_map("<?php echo $codebase ?>", "<?php echo $archive ?>", <?php echo json_encode_array($parameters) ?>, <?php echo $width ?>, <?php echo $height ?>);
 				//]]> -->
 				</script>
 				<?php
@@ -556,7 +556,7 @@ class Asset_Map
 			}
 
 			$contents = $this->_fromXML($contents);
-			$contents = json_encode($contents);
+			$contents = json_encode_array($contents);
 			echo $contents;
 		} else {
 			header('Content-Type: text/xml; encoding=utf-8');
@@ -634,7 +634,7 @@ class Asset_Map
 		$xml = file_get_contents("php://input");
 
 		if ($json === '1') {
-			$xml = json_decode($xml, TRUE);
+			$xml = json_decode_array($xml, TRUE);
 			$xml = $this->_toXML($xml, 'xml');
 		}
 
