@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.66 2013/08/06 04:48:29 ewang Exp $
+* $Id: image_variety.inc,v 1.67 2013/10/16 22:29:40 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.66 $
+* @version $Revision: 1.67 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -491,7 +491,7 @@ class Image_Variety extends Asset
 
 	}//end checkFileState()
 
-	
+
 	/**
 	* Look's after the removing of files in the public directory
 	*
@@ -500,10 +500,10 @@ class Image_Variety extends Asset
 	*/
 	protected function _removePublicFile()
 	{
-		
+
 		$filename = $this->attr('filename');
 		if (!$filename) return TRUE;
-		
+
 		$unrestricted = $this->data_path_public.'/'.$filename;
 		if (is_file($unrestricted)) {
 			$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
@@ -512,12 +512,12 @@ class Image_Variety extends Asset
 				return FALSE;
 			}
 		}
-		
+
 		return TRUE;
 
 	}//end _removePublicFile()
 
-	
+
 	/**
 	* Look's after the updating of files in the public directory
 	* Only call if File::usePublicPath() returns TRUE;
@@ -526,12 +526,12 @@ class Image_Variety extends Asset
 	* @access private
 	*/
 	protected function _updatePublicFile()
-	{	
+	{
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 		$filename = $this->attr('filename');
 		if (!$filename) return TRUE;
-		
+
 		$unrestricted = $this->data_path_public.'/'.$filename;
 
 		// make sure our data directory exists
@@ -547,11 +547,11 @@ class Image_Variety extends Asset
 				return FALSE;
 			}
 		}
-		
+
 		return TRUE;
 
 	}//end _updatePublicFile()
-	
+
 
 	/**
 	* Called to force an update of this assets lookup information
@@ -668,7 +668,7 @@ class Image_Variety extends Asset
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		
+
 		//Bug #5072: Trashed file assets still accessible via public data URL
 		//We only reached here because we are supposed to have a public web path but
 		//if we e.g. have moved to the trash or under a site with no URL, we should remove the public file.
@@ -677,7 +677,7 @@ class Image_Variety extends Asset
 		} else {
 			$this->_updatePublicFile();
 		}
-		
+
 		return TRUE;
 
 	}//end updateLookups()
@@ -790,10 +790,10 @@ class Image_Variety extends Asset
 				$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 				$rep_file = $this->data_path_suffix.'/'.$this->attr('filename');
 				$info = $fv->_checkOutCheck($rep_file, $file_version);
-				
+
 				$filename = $info['filename'];
 				$ext = get_file_type($filename);
-				$file = $info['source_file'];				
+				$file = $info['source_file'];
 			}
 		} else {
 			$ext = get_file_type($image->name);
@@ -885,7 +885,7 @@ class Image_Variety extends Asset
 	function getKeywordReplacement($keyword)
 	{
 		$replacement = NULL;
-		
+
 		// Remove any modifiers from keyword
 		$full_keyword = $keyword;
 		$keyword = parse_keyword($keyword, $modifiers);
@@ -905,7 +905,7 @@ class Image_Variety extends Asset
 
 				// Then apply the ones we had remaining, then return it
 				apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $contexted_asset->id));
-				
+
 				unset($contexted_asset);
 				$GLOBALS['SQ_SYSTEM']->restoreContext();
 				return $replacement;
@@ -1079,6 +1079,34 @@ class Image_Variety extends Asset
 		return $image->_checkPermissionAccess($perm, $assetids);
 
 	}//end _checkPermissionAccess()
+
+
+	/**
+	* Returns original URL for a __data type url for file type assets
+	*
+	* @param string		data_url	asset's __data  url out of which we get the original URL
+	* @param string		site_url	url of site under which we have our asset
+
+	*
+	* @return array
+	* @access public
+	*/
+	public function getOriginalURL($data_url, $site_url)
+	{
+		$original_url = Array();
+
+		$image = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
+		if (is_null($image)) return $original_url;
+
+		$image_urls = $image->getOriginalURL($data_url, $site_url);
+
+		foreach ($image_urls as $url) {
+			$original_url[] = $url.'/'.$this->attr('filename');
+		}
+
+		return $original_url;
+
+	}//end getOriginalURL()
 
 
 }//end class
