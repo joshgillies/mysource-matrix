@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_move_update.php,v 1.22 2013/05/27 08:58:31 cupreti Exp $
+* $Id: system_move_update.php,v 1.22.4.1 2013/10/16 03:15:40 ewang Exp $
 *
 */
 
@@ -18,10 +18,11 @@
 * Small script to be run AFTER the system root directory is changed
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.22.4.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
+if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');
 $SYSTEM_ROOT = '';
 // from cmd line
 if ((php_sapi_name() == 'cli')) {
@@ -224,7 +225,9 @@ function update_form_submission_filepaths($old_root, $new_root){
 					}
 				}
 			}
-		}		
+		}
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset, true);
+		unset($asset);
 	}
 		
 	$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
