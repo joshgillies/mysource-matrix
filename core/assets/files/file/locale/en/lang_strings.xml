@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.6 2011/03/18 01:08:37 ewang Exp $
+* $Id: lang_strings.xml,v 1.6.18.1 2013/10/17 05:39:02 cupreti Exp $
 *
 */
 
@@ -21,6 +21,7 @@
 	<string source="core_file_keyword_size_in_bytes">File size (in bytes)</string>
 	<string source="core_file_keyword_size_readable">File size (in human-friendly format)</string>
 	<string source="core_file_keyword_file_contents">Binary contents of the file</string>
+	<string source="core_file_keyword_file_type">File type</string>
 	<string source="allowed_file_extentions_for_pre_uploaded_files">Allowed File Extensions for Pre-Uploaded files </string>
 	<string source="max_file_upload">Max File Upload</string>
 	<string source="preuploaded_max_file_upload">Pre-uploaded Max File Size</string>
