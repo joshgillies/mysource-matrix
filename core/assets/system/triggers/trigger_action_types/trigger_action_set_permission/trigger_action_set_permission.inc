@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_permission.inc,v 1.29.10.1 2013/10/17 08:12:55 cupreti Exp $
+* $Id: trigger_action_set_permission.inc,v 1.29.10.2 2013/10/17 08:18:35 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.29.10.1 $
+* @version $Revision: 1.29.10.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -110,8 +110,9 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 		$previous_access = NULL;
 		if ($granted == -1) {
 			$current_access = $GLOBALS['SQ_SYSTEM']->am->getAssetPermissionByCascade($state['assetid'], $settings['permission'], $userid);
-			$current_access = $current_access[0];
-			$previous_access = array_get_index($current_access, 'granted', NULL);
+			if (isset($current_access[0])) {
+				$previous_access = array_get_index($current_access[0], 'granted', NULL);
+			}
 		}
 
 		$vars['permission_changes'] = Array(
