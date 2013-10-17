@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.220 2013/10/14 04:46:21 cupreti Exp $
+* $Id: file.inc,v 1.221 2013/10/17 05:34:55 cupreti Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.220 $
+* @version $Revision: 1.221 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1542,6 +1542,7 @@ class File extends Asset
 		$keywords['asset_file_size_in_bytes'] = translate('core_file_keyword_size_in_bytes');
 		$keywords['asset_file_size_readable'] = translate('core_file_keyword_size_readable');
 		$keywords['asset_file_contents'] = translate('core_file_keyword_file_contents');
+		$keywords['asset_file_type'] = translate('core_file_keyword_file_type');
 
 
 		return $keywords;
