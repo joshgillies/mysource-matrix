@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job.inc,v 1.65 2013/09/05 00:51:04 ewang Exp $
+* $Id: cron_job.inc,v 1.66 2013/10/17 01:59:08 cupreti Exp $
 *
 */
 
@@ -32,7 +32,7 @@ define('SQ_CRON_JOB_RETRY',			16);// cron job requests to be retried (only valid
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.65 $
+* @version $Revision: 1.66 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -1048,34 +1048,6 @@ class Cron_Job extends Asset
 		}//end if
 
 	}//end setNextRun()
-
-
-	/**
-	* Called when a link to this job is removed. If that was it's last significant
-	* link, the job should be moved to the trash.
-	*
-	* @return boolean
-	* @access public
-	*/
-	public function removeJob()
-	{
-		$am = $GLOBALS['SQ_SYSTEM']->am;
-		// if we are type2 linked under the manager, don't worry.
-		// if we are only type3 or notice linked under the manager, trash ourselves
-		$cron_manager_links = $am->getLinks($this->id, SQ_LINK_TYPE_2, 'cron_manager', TRUE, 'minor');
-		if (empty($cron_manager_links)) {
-			// clean up any notice links in which we are the major
-			$notice_links = $am->getLinks($this->id, SQ_LINK_NOTICE, NULL, NULL, 'major');
-
-			foreach ($notice_links as $notice_link) {
-				$am->deleteAssetLink($notice_link['linkid']);
-			}
-
-			$trash = $am->getAsset($am->getSystemAssetid('trash_folder'));
-			$trash->createLink($this, SQ_LINK_TYPE_1);
-		}
-
-	}//end removeJob()
 
 
 }//end class

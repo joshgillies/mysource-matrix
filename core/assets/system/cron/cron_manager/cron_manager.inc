@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.86 2012/08/30 01:09:10 ewang Exp $
+* $Id: cron_manager.inc,v 1.87 2013/10/17 01:58:44 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.86 $
+* @version $Revision: 1.87 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -316,15 +316,22 @@ class Cron_Manager extends Asset
 	*/
 	public function removeJob(Cron_Job $job)
 	{
+		// If job is not associated (Type 3 linked) with the Cron Manager, don't bother
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($this->id, $job->id, SQ_LINK_TYPE_3);
-		if (empty($link)) return FALSE;
+		if (empty($link)) {
+			return FALSE;
+		}
 
-		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-		$job->removeJob();
-		$success = $this->deleteLink($link['linkid']);
-		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+		// If its system cron job (Type 2 linked under the manager), don't worry
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($this->id, $job->id, SQ_LINK_TYPE_2);
+		if (!empty($link)) {
+			return FALSE;
+		}
 
-		return $success;
+		// Purge the job from system
+		$GLOBALS['SQ_SYSTEM']->am->purgeAsset($job->id);
+
+		return TRUE;
 
 	}//end removeJob()
 
