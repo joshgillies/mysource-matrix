@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_metadata_value.inc,v 1.10 2012/09/13 00:06:38 cupreti Exp $
+* $Id: trigger_condition_metadata_value.inc,v 1.11 2013/10/17 05:11:21 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_condition/trigger_co
 *
 * @author  Anh Ta <ata@squiz.co.uk>
 * @author  Benjamin Pearson <bpearson@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -127,10 +127,7 @@ class Trigger_Condition_Metadata_Value extends Trigger_Condition
 		// asset finder - to pick the metadata field
 		ob_start();
 			if ($write_access) {
-				$restricted_types['metadata_field_text'] = 'I';
-				$restricted_types['metadata_field_thesaurus'] = 'I';
-				$restricted_types['metadata_field_select'] = 'I';
-				asset_finder($prefix.'[asset_id]', $selected_asset_id, $restricted_types);
+				asset_finder($prefix.'[asset_id]', $selected_asset_id, Array('metadata_field' => 'D'));
 			} else {
 				if (!empty($selected_asset_id)) {
 					echo get_asset_tag_line($selected_asset_id);
