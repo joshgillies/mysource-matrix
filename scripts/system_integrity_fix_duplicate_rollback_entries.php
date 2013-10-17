@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_fix_duplicate_rollback_entries.php,v 1.4 2013/10/10 00:28:15 cupreti Exp $
+* $Id: system_integrity_fix_duplicate_rollback_entries.php,v 1.5 2013/10/17 23:32:25 cupreti Exp $
 *
 */
 
@@ -20,7 +20,7 @@
 * The script will remove all duplicate overlapping entries except the one with oldest "eff_from" date
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -88,7 +88,7 @@ if ($fix_overlapping_entries) {
 		echo "\nIMPORTANT: You have selected the option to fix the duplicate rollback entries from the Rollback table \"sq_rb_$fix_table\"";	
 	}
 	echo "\nThis will remove all duplicate entries in the table(s) except the one with oldest \"eff_from\" date in the duplicate entries set.";
-	echo "\nBacking up db is recommeded before running this script.";
+	echo "\nBacking up db is recommended before running this script.";
     echo "\nAre you sure you want to proceed (Y/n)?\n";
 
     $yes_no = rtrim(fgets(STDIN, 4094));
