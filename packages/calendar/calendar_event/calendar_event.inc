@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.112.2.4 2013/10/14 05:03:40 cupreti Exp $
+* $Id: calendar_event.inc,v 1.112.2.5 2013/10/17 03:44:07 cupreti Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.112.2.4 $
+* @version $Revision: 1.112.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1076,7 +1076,18 @@ class Calendar_Event extends Asset
 					}//end if
 				}
 
+				if (empty($replacement)) {
+					// For an event instance (shadow asset), get the replacement from the event asset (bridge)
+					$assetid_parts = explode(':', $this->id);
+					if (!empty($assetid_parts[0]) && !empty($assetid_parts[1]) && $keyword != 'asset_assetid') {
+						$event_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid_parts[0]);
+						$replacement = $event_asset->getKeywordReplacement($keyword);
+						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($event_asset);
+					}
+				}
+				
 				if (empty($replacement)) $replacement = parent::getKeywordReplacement($keyword);
+
 				break;
 
 		}//end switch
