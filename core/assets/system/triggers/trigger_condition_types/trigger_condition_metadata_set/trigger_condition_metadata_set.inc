@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_metadata_set.inc,v 1.3 2012/08/30 01:09:15 ewang Exp $
+* $Id: trigger_condition_metadata_set.inc,v 1.3.8.1 2013/10/17 05:19:25 cupreti Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_condition/trigger_co
 *
 *
 * @author  Ashish Karelia <akarelia@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.3.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -86,12 +86,7 @@ class Trigger_Condition_Metadata_Set extends Trigger_Condition
 		// asset finder - to pick the metadata field
 		ob_start();
 			if ($write_access) {
-				$restricted_types['metadata_field_text'] = 'I';
-				$restricted_types['metadata_field_thesaurus'] = 'I';
-				$restricted_types['metadata_field_select'] = 'I';
-				$restricted_types['metadata_field_wysiwyg'] = 'I';
-				$restricted_types['metadata_field_multiple_text'] = 'I';
-				asset_finder($prefix.'[asset_id]', $selected_asset_id, $restricted_types);
+				asset_finder($prefix.'[asset_id]', $selected_asset_id, Array('metadata_field' => 'D'));
 			} else {
 				if (!empty($selected_asset_id)) {
 					echo get_asset_tag_line($selected_asset_id);
