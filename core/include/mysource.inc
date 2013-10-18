@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.419 2013/09/20 02:06:58 lwright Exp $
+* $Id: mysource.inc,v 1.420 2013/10/18 03:57:25 ewang Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.419 $
+* @version $Revision: 1.420 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -292,7 +292,7 @@ class MySource extends MySource_Object
 				// proxy configuration exists, let's see if we need to do anything
 				require_once($proxy_conf_file);
 
-				if (SQ_PROXY_URL_PORT_STRIP) {
+				if (SQ_PROXY_URL_PORT_STRIP && isset($_SERVER['HTTP_HOST'])) {
 					$url_parts = parse_url($_SERVER['HTTP_HOST']);
 
 					// remove port information from url and reconstruct it
@@ -1189,7 +1189,8 @@ class MySource extends MySource_Object
 			if (in_array($current_root_url, explode("\n", SQ_CONF_FORCE_SECURE_LOGIN_URLS))) {
 				// Redirect to HTTPS
 				$_SESSION['SQ_RETURN_TO_HTTP'] = 1;
-				do_redirect('https://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']); // exits
+				$host = array_get_index($_SERVER, 'HTTP_HOST', '');
+				do_redirect('https://'.$host.$_SERVER['REQUEST_URI']); // exits
 			}
 		}//end if http
 		$GLOBALS['SQ_LOGIN_FORM'] = Array('paint' => 'login', 'heading' => $heading, 'msg' => $msg);

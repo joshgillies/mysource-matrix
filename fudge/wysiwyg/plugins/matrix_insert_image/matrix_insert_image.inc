@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_image.inc,v 1.43 2013/07/25 23:25:17 lwright Exp $
+* $Id: matrix_insert_image.inc,v 1.44 2013/10/18 03:57:36 ewang Exp $
 *
 */
 
@@ -27,7 +27,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -138,7 +138,8 @@ class matrix_insert_image extends wysiwyg_plugin
 							longdesc = result[2];
 						} else {
 							// long desc is manually typed
-							e = 'http[s]?://<?php echo $_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF']?>';
+							<?php $host = array_get_index($_SERVER, 'HTTP_HOST', ''); ?>
+							e = 'http[s]?://<?php echo $host.$_SERVER['PHP_SELF']?>';
 							re = new RegExp(e, "gi");
 							longdesc = image_tag.longDesc.replace(re, "");
 
