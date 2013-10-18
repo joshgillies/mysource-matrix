@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.87 2013/10/17 01:58:44 cupreti Exp $
+* $Id: cron_manager.inc,v 1.88 2013/10/18 03:08:30 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.87 $
+* @version $Revision: 1.88 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -328,10 +328,30 @@ class Cron_Manager extends Asset
 			return FALSE;
 		}
 
-		// Purge the job from system
-		$GLOBALS['SQ_SYSTEM']->am->purgeAsset($job->id);
+		// Delete all the links in which job is the major party
+		// This will automatically link (type 2) the asset to the trash
+		$major_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($job->id, SQ_SC_LINK_ALL, '', TRUE, 'major');
+		foreach($major_links as $major_link) {
+			$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($major_link['linkid']);
+		}
+		// Delete all the links in which job is the minor party
+		$minor_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($job->id, SQ_SC_LINK_ALL, '', TRUE, 'minor');
+		foreach($minor_links as $minor_link) {
+			$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($minor_link['linkid']);
+		}
 
-		return TRUE;
+		// Trash the asset and purge the job from system
+		$success = FALSE;
+		$trash = $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('trash_folder'));
+		$trash_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($trash->id, $job->id, SQ_LINK_TYPE_2);
+		if (!empty($trash_link['linkid'])) {
+			$vars = Array('purge_root_linkid' => $trash_link['linkid']);
+			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$errors = $hh->freestyleHipo('hipo_job_purge_trash', $vars);
+			$success = empty($errors);
+		}
+
+		return $success;
 
 	}//end removeJob()
 
