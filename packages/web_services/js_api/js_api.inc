@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.154 2013/10/02 02:41:14 akarelia Exp $
+* $Id: js_api.inc,v 1.154.2.1 2013/10/18 04:09:11 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.154 $
+* @version $Revision: 1.154.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -330,7 +330,8 @@ class JS_Api extends Page
 
 			$url_asset_object = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL(current_protocol(), $referer_url, TRUE, TRUE);
 			if (!is_null($url_asset_object) ) {
-				$_SERVER['PHP_SELF'] = str_replace(current_protocol().'://'.$_SERVER['HTTP_HOST'], '', $_SERVER['HTTP_REFERER']);
+				$host = array_get_index($_SERVER, 'HTTP_HOST', '');
+				$_SERVER['PHP_SELF'] = str_replace(current_protocol().'://'.$host, '', $_SERVER['HTTP_REFERER']);
 			}
 
 			if (strpos($_SERVER['HTTP_REFERER'], SQ_CONF_LIMBO_SUFFIX) !== FALSE || $this->attr('force_simple_edit')) {

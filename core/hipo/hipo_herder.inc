@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.110 2013/08/01 06:21:34 ewang Exp $
+* $Id: hipo_herder.inc,v 1.110.2.1 2013/10/18 04:09:06 ewang Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.110 $
+* @version $Revision: 1.110.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -189,7 +189,8 @@ class HIPO_Herder extends MySource_Object
 			// this HIPO is finsihed
 			return $hipo->getOption('on_complete_url');
 		} else {
-			return current_protocol().'://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'].'?SQ_ACTION=hipo&hipo_source_code_name='.$hipo->source_code_name;
+			$host = array_get_index($_SERVER, 'HTTP_HOST', '');
+			return current_protocol().'://'.$host.$_SERVER['PHP_SELF'].'?SQ_ACTION=hipo&hipo_source_code_name='.$hipo->source_code_name;
 		}
 
 	}//end getProcessURL()

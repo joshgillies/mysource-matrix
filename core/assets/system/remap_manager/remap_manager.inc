@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.59 2012/12/17 20:08:34 csmith Exp $
+* $Id: remap_manager.inc,v 1.59.8.1 2013/10/18 04:09:06 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.59.8.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -410,7 +410,8 @@ class Remap_Manager extends Asset
 		$url      = strip_url(current_url(FALSE, TRUE));
 
 		// This URL is verbatim
-		$url_with_params = strip_url($_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);
+		$host = array_get_index($_SERVER, 'HTTP_HOST', '');
+		$url_with_params = strip_url($host.$_SERVER['REQUEST_URI']);
 
 		// Try verbatim URL first
 		if($this->loadRemapFromURL($protocol, $url_with_params))
