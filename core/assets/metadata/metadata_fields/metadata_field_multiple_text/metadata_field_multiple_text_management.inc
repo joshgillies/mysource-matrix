@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_multiple_text_management.inc,v 1.3 2012/08/30 01:09:09 ewang Exp $
+* $Id: metadata_field_multiple_text_management.inc,v 1.4 2013/10/18 04:30:22 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -39,6 +39,21 @@ class Metadata_Field_Multiple_Text_Management extends Asset_Management
 	{
 		Asset_Management::__construct($pm);
 
+
+		$this->vars = Array(
+						'field_name_text'	=> Array(
+												'added'				=> '0.3',
+												'type'				=> 'text',
+												'default'			=> 'name',
+												'is_contextable'	=> TRUE,
+											   ),
+						'value_name_text'	=> Array(
+												'added'				=> '0.3',
+												'type'				=> 'text',
+												'default'			=> 'content',
+												'is_contextable'	=> TRUE,
+											   ),
+					  );
 	}//end constructor
 
 

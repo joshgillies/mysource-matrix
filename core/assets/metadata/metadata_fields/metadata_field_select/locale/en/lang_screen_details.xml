@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_details.xml,v 1.10 2012/01/09 00:34:09 csmith Exp $
+* $Id: lang_screen_details.xml,v 1.11 2013/10/18 04:30:22 akarelia Exp $
 *
 */
 -->
@@ -43,6 +43,14 @@
 		</field>
 		<field attribute="language">
 			<display_name>Language</display_name>
+			<note />
+		</field>
+		<field attribute="field_name_text">
+			<display_name>Text for Name Attribute</display_name>
+			<note />
+		</field>
+		<field attribute="value_name_text">
+			<display_name>Text for Value Attribute</display_name>
 			<note />
 		</field>
 	</section>

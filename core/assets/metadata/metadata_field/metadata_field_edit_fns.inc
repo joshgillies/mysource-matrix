@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_edit_fns.inc,v 1.66 2013/10/13 23:44:59 lwright Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.67 2013/10/18 04:30:22 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.66 $
+* @version $Revision: 1.67 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -466,7 +466,10 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 
 		if ($frontend_option == 'hide') return TRUE;
 
-		echo '<meta name="'.$mm->escapeMetadata($asset->name).'"';
+		$name_text = ($asset->attr('field_name_text') == '') ? 'name' : $asset->attr('field_name_text');
+		$value_text = ($asset->attr('value_name_text') == '') ? 'content' : $asset->attr('value_name_text');
+
+		echo '<meta '.$name_text.'="'.$mm->escapeMetadata($asset->name).'"';
 		if (trim($asset->attr('language')) != '') {
 			echo ' lang="'.$mm->escapeMetadata($asset->attr('language')).'"';
 		}
@@ -474,7 +477,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 			echo ' scheme="'.$mm->escapeMetadata($asset->attr('scheme')).'"';
 		}
 
-		echo ' content="<?php echo $mm->escapeMetadata($metadata_values[\''.$mm->escapeMetadata(addslashes($asset->name), TRUE).'\']); foreach ($metadata_value_components[\''.$mm->escapeMetadata(addslashes($asset->name), TRUE).'\'] as $k => $v) {echo \'; \'.$k.\'=\'.$v; } ?>" />'."\n";
+		echo ' '.$value_text.'="<?php echo $mm->escapeMetadata($metadata_values[\''.$mm->escapeMetadata(addslashes($asset->name), TRUE).'\']); foreach ($metadata_value_components[\''.$mm->escapeMetadata(addslashes($asset->name), TRUE).'\'] as $k => $v) {echo \'; \'.$k.\'=\'.$v; } ?>" />'."\n";
 
 
 		return TRUE;

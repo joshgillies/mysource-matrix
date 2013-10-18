@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_related_asset_management.inc,v 1.2 2012/08/30 01:09:09 ewang Exp $
+* $Id: metadata_field_related_asset_management.inc,v 1.3 2013/10/18 04:30:22 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -39,6 +39,18 @@ class Metadata_Field_Related_Asset_Management extends Asset_Management
 	{
 		Asset_Management::__construct($pm);
 
+		$this->vars['field_name_text']= Array(
+											'added'			=> '0.1',
+											'type'			=> 'text',
+											'default'		=> 'name',
+											'is_contextable'=> TRUE,
+										   );
+		$this->vars['value_name_text'] = Array(
+											'added'			=> '0.1',
+											'type'			=> 'text',
+											'default'		=> 'content',
+											'is_contextable'=> TRUE,
+										   );
 	}//end constructor
 
 

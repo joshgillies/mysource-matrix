@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_management.inc,v 1.13 2012/08/30 01:09:09 ewang Exp $
+* $Id: metadata_field_date_management.inc,v 1.14 2013/10/18 04:30:22 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -40,27 +40,39 @@ class Metadata_Field_Date_Management extends Asset_Management
 		Asset_Management::__construct($pm);
 
 		$this->vars = Array(
-						'offset'		=> Array(
-											'added'		=> '0.1',
-											'type'		=> 'text',
-											'default'	=> ' ',
-										   ),
-						'format'		=> Array(
-											'added'		=> '0.1',
-											'type'		=> 'text',
-											'default'	=> 'd/m/Y H:i:s',
-										   ),
-						'setup_params'	=> Array(
-											'added'		=> '0.0.1',
-											'type'		=> 'serialise',
-											'default'	=> Array(),
-										   ),
-						'show_keywords'	=> Array(
-											'added'			=> '0.1',
-											'type'			=> 'boolean',
-											'default'		=> TRUE,
-											'parameters'	=> Array('allow_empty' => FALSE),
-										   ),
+						'offset'			=> Array(
+												'added'				=> '0.1',
+												'type'				=> 'text',
+												'default'			=> ' ',
+											   ),
+						'format'			=> Array(
+												'added'				=> '0.1',
+												'type'				=> 'text',
+												'default'			=> 'd/m/Y H:i:s',
+											   ),
+						'setup_params'		=> Array(
+												'added'				=> '0.0.1',
+												'type'				=> 'serialise',
+												'default'			=> Array(),
+											   ),
+						'show_keywords'		=> Array(
+												'added'				=> '0.1',
+												'type'				=> 'boolean',
+												'default'			=> TRUE,
+												'parameters'		=> Array('allow_empty' => FALSE),
+											   ),
+						'field_name_text'	=> Array(
+												'added'				=> '0.1',
+												'type'				=> 'text',
+												'default'			=> 'name',
+												'is_contextable'	=> TRUE,
+											   ),
+						'value_name_text'	=> Array(
+												'added'				=> '0.1',
+												'type'				=> 'text',
+												'default'			=> 'content',
+												'is_contextable'	=> TRUE,
+											   ),
 					  );
 
 	}//end constructor
