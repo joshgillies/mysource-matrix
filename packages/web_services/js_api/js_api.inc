@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.155 2013/10/18 03:58:12 ewang Exp $
+* $Id: js_api.inc,v 1.156 2013/10/18 04:37:03 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.155 $
+* @version $Revision: 1.156 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -3551,6 +3551,7 @@ class JS_Api extends Page
 			$am->acquireLock($assetid, 'attributes');
 			for ($i = 0; $i < count($attr_name); $i++ ) {
 				$attributes = $am->getAssetTypeAttributes($asset->type());
+				$attr_type = $attributes[$attr_name[$i]]['type'];
 				if ($attr_name[$i] != '' && array_key_exists($attr_name[$i], $attributes)) {
 					//set our new attribute
 					if ($this->_filterAttrValues() === TRUE) {
@@ -3564,8 +3565,11 @@ class JS_Api extends Page
 					}
 
 					if(!$attr_set) {
-						$attr_type = $attributes[$attr_name[$i]]['type'];
-						$data[] = 'Attribute "'.$attr_name[$i].'"(of type "'.$attr_type.'") could not be set to "'.$attr_val[$i].'" for Asset "'.$asset->name.'" (#'.$assetid.')';
+						if ($$attr_type == 'password') {
+							$data[] = 'Attribute "'.$attr_name[$i].'"(of type "'.$attr_type.'") could not be set for Asset "'.$asset->name.'" (#'.$assetid.')';
+						} else {
+							$data[] = 'Attribute "'.$attr_name[$i].'"(of type "'.$attr_type.'") could not be set to "'.$attr_val[$i].'" for Asset "'.$asset->name.'" (#'.$assetid.')';
+						}
 						continue;
 					}
 				} else if (!array_key_exists($attr_name[$i], $attributes)){
@@ -3573,9 +3577,18 @@ class JS_Api extends Page
 					continue;
 				}
 				if (!$asset->saveAttributes()) {
-					$data[] = 'Attribute "'.$attr_name[$i].'" could not be set to "'.$attr_val[$i].'" for Asset "'.$asset->name.'" (#'.$assetid.')';
+					// Do not show the attribute value in the response message for the "password" attr
+					if ($attr_type == 'password') {
+						$data[] = 'Attribute "'.$attr_name[$i].'" could not be set for Asset "'.$asset->name.'" (#'.$assetid.')';
+					} else {
+						$data[] = 'Attribute "'.$attr_name[$i].'" could not be set to "'.$attr_val[$i].'" for Asset "'.$asset->name.'" (#'.$assetid.')';
+					}
 				} else {
-					$data[] = 'Attribute "'.$attr_name[$i].'" has been successfully set to "'.$attr_val[$i].'" for Asset "'.$asset->name.'" (#'.$assetid.')';
+					if ($attr_type == 'password') {
+						$data[] = 'Attribute "'.$attr_name[$i].'" has been successfully set for Asset "'.$asset->name.'" (#'.$assetid.')';
+					} else {
+						$data[] = 'Attribute "'.$attr_name[$i].'" has been successfully set to "'.$attr_val[$i].'" for Asset "'.$asset->name.'" (#'.$assetid.')';
+					}
 				}
 			}//end for
 			$am->releaseLock($assetid, 'attributes');
