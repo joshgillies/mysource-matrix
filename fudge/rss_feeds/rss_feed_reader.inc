@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: rss_feed_reader.inc,v 1.32 2013/09/30 05:45:47 ewang Exp $
+* $Id: rss_feed_reader.inc,v 1.32.2.1 2013/10/21 05:18:38 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 * Converts an xml document to different arrays of relative arrays
 *
 * @author  Pratibha Gannavarapu <pgannavarapu@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.32.2.1 $
 * @package Fudge
 * @subpackage RSS_Feeds
 */
@@ -126,6 +126,14 @@ class RSS_Feed_Reader
 	* @var string
 	*/
 	public $delimiter = ',';
+	
+	
+	/**
+	* if we are working on a new tag
+	*
+	* @var bool
+	*/
+	private $_new_tag;	
 
 
 	/**
@@ -404,6 +412,8 @@ class RSS_Feed_Reader
 				$this->attributes = $attributes;
 				$this->characterHandler($xp, $this->attributes, TRUE);
 			}
+			// we started a new tag
+			$this->_new_tag = TRUE;
 		}//end if
 
 	}//end startElementHandler()
@@ -474,6 +484,7 @@ class RSS_Feed_Reader
 			// open tags is Array('CHANNEL', 'AUTHOR', 'NAME'). in this example $parent is author as name is a subtag
 			// and var is CHANNEL
 			// if teh tag is an unrecognised tag then the var is unrecognised
+			
 			$key = array_search($element, $this->open_tags);
 			if($key === FALSE)
 			    $key = -1;
@@ -501,6 +512,7 @@ class RSS_Feed_Reader
 					$parent = strtolower($element);
 				}
 			}
+			
 			// if the var is unrecognised then push the element intot he unrecognised array
 			if ($var == 'unrecognised') {
 				// get the index where the data has to be inserted in the unrecognised array
@@ -559,17 +571,20 @@ class RSS_Feed_Reader
 				// if this element is not in parent tags and if this is not empty then we can use the data
 				if (!empty($element)) {
 					$element = strtolower($element);
+					// if we are in new tag, it means it's duplicate tags, use delimeter to merge them
+					// otheriwise it could be in tag, this func just called multiple times
+					$delimeter = $this->_new_tag ? $this->delimiter : '';
 					// if the current element is already in the array then we have to append the current data to the already existing data
 					// this happens when the data has tags in it.
 					if (empty($parent)) {
 						if (isset($this->{$var}[$index][$element]['value']) && (!$attributes)) {
 							$value = $this->{$var}[$index][$element]['value'];
-							$data = $value.$this->delimiter.$data;
+							$data = $value.$delimeter.$data;
 						}
 					} else {
 						if (isset($this->{$var}[$index][$parent][$element]['value']) && (!$attributes)) {
 							$value = $this->{$var}[$index][$parent][$element]['value'];
-							$data = $value.$this->delimiter.$data;
+							$data = $value.$delimeter.$data;
 						}
 					}
 					// if it is value that we are dealing with then store it in the array with the 'value' key
@@ -597,6 +612,8 @@ class RSS_Feed_Reader
 			}//end else where var is unrecognised or not
 		}//end if data not empty
 
+		// already processed this tag
+		$this->_new_tag = FALSE;
 	}//end characterHandler()
 
 
