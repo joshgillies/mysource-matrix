@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.78.4.10 2013/10/15 00:40:33 cupreti Exp $
+* $Id: text.inc,v 1.78.4.11 2013/10/21 23:50:28 ewang Exp $
 *
 */
 
@@ -22,7 +22,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.78.4.10 $
+* @version $Revision: 1.78.4.11 $
 * @package Fudge
 * @subpackage Text
 */
@@ -189,7 +189,27 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array(), $ac
 		$kw_replacements = array_get_index($replace_keywords, 'replacements', Array());
 		$assetid = array_get_index($replace_keywords, 'assetid', 0);
 		$call_fns = array_get_index($replace_keywords, 'call_fns', Array('getKeywordReplacement'));
-
+		// find the asset to replace keywords for
+		if(empty($assetid)) {
+		    $asset = NULL;
+		    if ($GLOBALS['SQ_SYSTEM']->isGlobalDefineSet('CURRENT_ASSET')) {
+			    $asset = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CURRENT_ASSET', NULL);
+		    } else {
+			    if (SQ_IN_LIMBO) {
+				    if (isset($_REQUEST['limbo_assetid'])) {
+					    $asset = $GLOBALS['SQ_SYSTEM']->am->getAsset((int)$_REQUEST['limbo_assetid']);
+				    } else {
+					    $asset = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL();
+				    }
+			    } else {
+				    $asset = $GLOBALS['SQ_SYSTEM']->frontend_asset;
+			    }
+		    }
+		}
+		else {
+		    $asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		}
+		
 		for ($i = 1; $i < count($modifier['args']); $i++){
 			$value = $modifier['args'][$i];
 			preg_match_all('/\{([a-zA-Z_]{2,}[a-zA-Z_\-0-9\.:]+)\}/', $value, $matches, PREG_PATTERN_ORDER);
