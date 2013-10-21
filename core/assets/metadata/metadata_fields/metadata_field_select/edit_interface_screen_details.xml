@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.17 2012/01/09 00:34:09 csmith Exp $
+* $Id: edit_interface_screen_details.xml,v 1.17.14.1 2013/10/21 03:41:55 akarelia Exp $
 *
 */
 -->
@@ -36,6 +36,12 @@
 			<text width="30" height="1" />
 		</field>
 		<field attribute="language">
+			<text width="30" height="1" />
+		</field>
+		<field attribute="field_name_text">
+			<text width="30" height="1" />
+		</field>
+		<field attribute="value_name_text">
 			<text width="30" height="1" />
 		</field>
 	</section>

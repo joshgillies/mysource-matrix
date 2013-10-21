@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_management.inc,v 1.28 2013/09/24 01:13:02 ewang Exp $
+* $Id: metadata_field_management.inc,v 1.28.2.1 2013/10/21 03:41:55 akarelia Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.28.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -114,6 +114,18 @@ class Metadata_Field_Management extends Asset_Management
 																		'multiple'		=> FALSE,
 																		'allow_empty'	=> FALSE,
 																	   ),
+											   ),
+						'field_name_text'	=> Array(
+												'added'				=> '0.3',
+												'type'				=> 'text',
+												'default'			=> 'name',
+												'is_contextable'	=> TRUE,
+											   ),
+						'value_name_text'	=> Array(
+												'added'				=> '0.3',
+												'type'				=> 'text',
+												'default'			=> 'content',
+												'is_contextable'	=> TRUE,
 											   ),
 					  );
 
