@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: google_map_management.inc,v 1.8 2012/10/22 23:33:54 ewang Exp $
+* $Id: google_map_management.inc,v 1.9 2013/10/22 05:09:57 ewang Exp $
 *
 */
 
@@ -23,7 +23,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage google_maps
 */
@@ -217,9 +217,12 @@ class Google_Map_Management extends Asset_Management
                                                     'added'         => '0.1',
                                                     'type'          => 'parameter_map',
                                                     'default'       => Array(),
-                                                    'parameters'    => Array (
-                                                                        'parameters'    => Array(),
-                                                                       ),
+	'parameters'	=> Array(
+							'parameters'	=> Array(
+												'root_node'			=> 'Replacement Root node for the listing (must be a child of the static root node)',
+												'asset_selection'	=> 'Array of specific asset IDs or selection group (specified assets must be children of the static related node)',
+											   ),
+						   ),
                                                    ),
                         'dynamic_vars'			=> Array(
                                                     'added'     => '0.1',
