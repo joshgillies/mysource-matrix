@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: google_map.inc,v 1.34 2013/09/26 05:07:48 akarelia Exp $
+* $Id: google_map.inc,v 1.34.2.1 2013/10/22 05:13:08 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.34.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage google_maps
 */
@@ -433,7 +433,7 @@ class Google_Map extends Page_Asset_Listing
 			//]]>
 			</script>
 			<script type="text/javascript" src="<?php echo sq_web_path('data').'/asset_types/google_map/js/map_lib.js'?>"></script>
-
+		
 
 		<?php
 
@@ -711,21 +711,20 @@ class Google_Map extends Page_Asset_Listing
 				</li>
 			</ul>';
 		} else if ($keyword == 'toggle_asset_types') {
-			$asset_types	= $this->attr('types');
-			$result			= '';
-			foreach ($asset_types as $type	=> $inherit) {
-				$result		.= '<a href="javascript:toggleDisplay(markerTypes, \''.$type.'\')">Toggle '.ucwords(str_replace('_', ' ', $type)).'</a><br />';
-			}//end foreach
-			return $result;
+				$asset_types	= $this->attr('types');
+				$result			= '';
+				foreach ($asset_types as $type	=> $inherit) {
+					$result		.= '<a href="javascript:toggleDisplay(markerTypes, \''.$type.'\')">Toggle '.ucwords(str_replace('_', ' ', $type)).'</a><br />';
+				}//end foreach
+				return $result;
 		} else if ($keyword == 'toggle_root_nodes') {
-			$root_nodes		= $this->getRootNodes();
-			$result			= '';
-			foreach ($root_nodes	as $root_assetid) {
-				$root_asset	= $GLOBALS['SQ_SYSTEM']->am->getAsset($root_assetid);
-				$result		.= '<a href="javascript:toggleDisplay(markerRootNodes, \''.$root_assetid.'\')">Toggle '.$root_asset->attr('name').'</a><br />';
-			}//end foreach
-
-			return $result;
+				$root_nodes		= $this->getRootNodes();
+				$result			= '';
+				foreach ($root_nodes	as $root_assetid) {
+					$root_asset	= $GLOBALS['SQ_SYSTEM']->am->getAsset($root_assetid);
+					$result		.= '<a href="javascript:toggleDisplay(markerRootNodes, \''.$root_assetid.'\')">Toggle '.$root_asset->attr('name').'</a><br />';
+				}//end foreach
+				return $result;
 		} else {
 			return parent::getKeywordReplacement($keyword);
 		}//end if
@@ -846,12 +845,13 @@ class Google_Map extends Page_Asset_Listing
 	*/
 	public function classifyChildren($root_id, $assetids)
 	{
-		$root_id = MatrixDAL::quote($root_id);
+		if(empty($root_id) || empty($assetids)) return Array();
 		foreach ($assetids as $index => $id) {
 		    $assetids[$index] = MatrixDAL::quote($id);
 		}
+		
 		$assetids = implode(', ', $assetids);
-		$sql		= 'SELECT minorid FROM sq_ast_lnk WHERE majorid = '.$root_id.' AND minorid IN ('.$assetids.')';
+		$sql		= 'SELECT minorid FROM sq_ast_lnk WHERE majorid = '.MatrixDAL::quote($root_id).' AND minorid IN ('.$assetids.')';
 
 		$query		= MatrixDAL::preparePdoQuery($sql);
 		$children	= MatrixDAL::executePdoAssoc($query);
@@ -870,7 +870,7 @@ class Google_Map extends Page_Asset_Listing
 
 		return $children;
 
-	}//end find_children()
+	}//end classifyChildren()
 
 
 	/**
@@ -958,21 +958,21 @@ class Google_Map extends Page_Asset_Listing
 			$maps_xml = $details['response'];
 
 			$xml	= simplexml_load_string($maps_xml) or die("url not loading");
-
+			
 			$status = (string) $xml->status;
 
 			if ($status == "OK") {
 				$geocode_pending = false;
 				$result = $xml->result;
-
+				
 				$coordinates = $result[0]->geometry->location;
-
+				
 				$lat =  (string) $coordinates->lat;
 				$lng =  (string) $coordinates->lng;
-
+				
 			} else {
 				// GeoCoder returns this status on 2 conditions: 1. sending addresses too fast 2. exceeding 15000 addresses per 24Hr
-				// slow down, and bail if steps is too great (to prevent an infinite loop, by exceeding 15000 addresses)
+				// slow down, and bail if steps is too great (to prevent an infinite loop, by exceeding 15000 addresses) 
 				if ($steps < 100) {
 					$delay += 100000;
 					$steps++;

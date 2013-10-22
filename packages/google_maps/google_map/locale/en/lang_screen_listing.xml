@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_listing.xml,v 1.2 2009/04/20 03:42:10 bpearson Exp $
+* $Id: lang_screen_listing.xml,v 1.2.26.1 2013/10/22 05:13:08 ewang Exp $
 *
 */
 -->
@@ -148,6 +148,20 @@
 		<field attribute="reset_button_text">
 				<display_name>Reset Button Text</display_name>
 				<note />
+		</field>
+	</section>
+	<section name="Dynamic Parameters">
+		<field attribute="parameter_map">
+			<display_name />
+			<note />
+		</field>
+		<field attribute="dynamic_root_option">
+			<display_name>If dynamic root not found</display_name>
+			<note />
+		</field>
+		<field attribute="dynamic_asset_selection_option">
+			<display_name>If asset selection not specified</display_name>
+			<note />
 		</field>
 	</section>
 	<section name="Structured Root Selector Options" write_access="write:attributes">
