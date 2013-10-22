@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: trash_folder.inc,v 1.64 2013/08/25 23:20:24 asharpe Exp $
+* $Id: trash_folder.inc,v 1.65 2013/10/22 00:38:23 lwright Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -120,7 +120,7 @@ class Trash_Folder extends Folder
 		$prefix = $this->getPrefix($this);
 		if (isset($_REQUEST[$prefix.'_purge_complete']) && (int)$_REQUEST[$prefix.'_purge_complete'] === 1) {
 			$o->addOnLoad('	if (parent.frames["sq_sidenav"] && parent.frames["sq_sidenav"].reload_assets) {
-								parent.frames["sq_sidenav"].reload_assets(["'.$this->id.'"]);
+								parent.frames["sq_sidenav"].reload_assets("'.$this->id.'");
 							}');
 		}
 
