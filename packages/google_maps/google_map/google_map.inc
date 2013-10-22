@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: google_map.inc,v 1.32.4.1 2013/09/26 05:12:57 akarelia Exp $
+* $Id: google_map.inc,v 1.32.4.2 2013/10/22 05:19:04 ewang Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Huan Nguyen <hnguyen@squiz.net>
-* @version $Revision: 1.32.4.1 $
+* @version $Revision: 1.32.4.2 $
 * @package MySource_Matrix_Packages
 * @subpackage google_maps
 */
@@ -846,7 +846,13 @@ class Google_Map extends Page_Asset_Listing
 	*/
 	public function classifyChildren($root_id, $assetids)
 	{
-		$sql		= 'SELECT minorid FROM sq_ast_lnk WHERE majorid = \''.$root_id.'\' AND minorid IN (\''.implode("', '", $assetids).'\')';
+		if(empty($root_id) || empty($assetids)) return Array();
+		foreach ($assetids as $index => $id) {
+		    $assetids[$index] = MatrixDAL::quote($id);
+		}
+		
+		$assetids = implode(', ', $assetids);
+		$sql		= 'SELECT minorid FROM sq_ast_lnk WHERE majorid = '.MatrixDAL::quote($root_id).' AND minorid IN ('.$assetids.')';
 
 		$query		= MatrixDAL::preparePdoQuery($sql);
 		$children	= MatrixDAL::executePdoAssoc($query);
@@ -865,7 +871,7 @@ class Google_Map extends Page_Asset_Listing
 
 		return $children;
 
-	}//end find_children()
+	}//end classifyChildren()
 
 
 	/**
