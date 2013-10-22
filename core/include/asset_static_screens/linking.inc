@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: linking.inc,v 1.51 2013/07/25 23:23:50 lwright Exp $
+* $Id: linking.inc,v 1.51.2.1 2013/10/22 00:44:19 lwright Exp $
 *
 */
 
@@ -20,7 +20,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Linking Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.51.2.1 $
 * @package MySource_Matrix
 */
 
@@ -49,10 +49,10 @@ function paintLinking(&$owner, &$o, &$ei, $static_keywords=NULL)
 
 	require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 	$o->openSection(translate('current_linking'));
-	
+
 	// which display type?
 	$o->openField(translate('display_linking_type'));
-	
+
 	$display_types = Array(
 							'display_linked_parents'	=> translate('display_linked_parents'),
 							'display_linked_children'	=> translate('display_linked_children'),
@@ -63,20 +63,20 @@ function paintLinking(&$owner, &$o, &$ei, $static_keywords=NULL)
 	combo_box($prefix.'_display_type', $display_types, FALSE, $current_display_type, 0 , 'onChange="this.form.'.$prefix.'_display_type_changed.value=1;submit_form(this.form)"');
 
 	$o->closeField();
-	
-	
+
+
 	$o->openField('');
 	echo '<i>'.translate('link_types_note').'</i><br/><br/>';
 
 	$db = MatrixDAL::getDb();
 	$assetids = Array();
-	
+
 
 	$asset_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($owner->id, SQ_SC_LINK_ALL, '', TRUE, $display_reverse ? 'major' : 'minor');
 	foreach ($asset_links as $link) {
 		$assetids[$link[$display_reverse ? 'minorid' : 'majorid']] = Array();
 	}
-	
+
 
 	$total_assets = 0;
 	$num_per_page = 50;
@@ -100,10 +100,10 @@ function paintLinking(&$owner, &$o, &$ei, $static_keywords=NULL)
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON a.assetid = pl.minorid
 				';
 
-        $bindVars = array();
+		$bindVars = array();
 		foreach ($assetid_keys as $assetid_key_index => $assetid_key) {
-            $assetid_keys[$assetid_key_index] = ':assetid_keys_'.$assetid_key_index;
-            $bindVars['assetid_keys_'.$assetid_key_index] = (string) $assetid_key;
+			$assetid_keys[$assetid_key_index] = ':assetid_keys_'.$assetid_key_index;
+			$bindVars['assetid_keys_'.$assetid_key_index] = (string) $assetid_key;
 		}
 		$where = ' where cl.minorid IN ('.implode(', ', $assetid_keys).')
 				  AND ct.treeid LIKE pt.treeid || \'%\'
@@ -145,7 +145,7 @@ function paintLinking(&$owner, &$o, &$ei, $static_keywords=NULL)
 		foreach ($link_info[$majorid] as $link_data) {
 			// to display linked children, we don't want to show entire lineage of children, just show lineage via current asset
 			if($display_reverse && $linkid != $link_data['linkid'] && $link_data['link_type'] != SQ_LINK_NOTICE) continue;
-			
+
 			$output = _printLine($owner, $majorid, $link_data, $parent_data, $link_tree, $editing_linkids, $display_reverse);
 			if (!empty($output)) $output_lineages[] = $output;
 		}//end foreach
@@ -382,7 +382,7 @@ function processLinking(&$owner, &$o, &$ei)
 
 	$current_display_type = isset($_POST[$prefix.'_display_type']) ? $_POST[$prefix.'_display_type'] : 'display_linked_parents';
 	$display_reverse = ($current_display_type == 'display_linked_children');
-	
+
 	$done_something = FALSE;
 
 	$asset_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($owner->id, SQ_SC_LINK_ALL, '', TRUE, $display_reverse ? 'major'  : 'minor');
@@ -490,7 +490,7 @@ function processLinking(&$owner, &$o, &$ei)
 
 	// Refresh the Asset Map to show linking changes
 	if ($done_something) {
-		$o->addOnLoad('if (window.top.frames["sq_sidenav"] && window.top.frames["sq_sidenav"].reload_assets) window.top.frames["sq_sidenav"].reload_assets(["'.addslashes($owner->id).']");');
+		$o->addOnLoad('if (window.top.frames["sq_sidenav"] && window.top.frames["sq_sidenav"].reload_assets) window.top.frames["sq_sidenav"].reload_assets("'.addslashes($owner->id).'");');
 	}
 
 	$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
@@ -540,7 +540,7 @@ function processLinking(&$owner, &$o, &$ei)
 	$edit_fns_create = $fl_create->getEditFns();
 	$fl_create->setAssetInLink($owner, $display_reverse ? 'major' : 'minor');
 
-	
+
 	// we process the create new link
 	// if all the parameters are set properly we add to the cron manager the new job
 	if (!$display_reverse && $edit_fns_create->processInLineBackendCreate($fl_create, $o, $prefix.'_create')) {
@@ -570,8 +570,8 @@ function processLinking(&$owner, &$o, &$ei)
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 	}
-	
-	
+
+
 	// we process the create new link for linked children
 	if ($display_reverse && $edit_fns_create->processInLineBackendCreateReverse($fl_create, $o, $prefix.'_create_reverse')) {
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
@@ -585,7 +585,7 @@ function processLinking(&$owner, &$o, &$ei)
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 	}
-	
+
 	// we process the deletion of links for linked children
 	if ($display_reverse && $edit_fns_create->processInLineBackendDeleteReverse($fl_create, $o, $prefix.'_delete_reverse')) {
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
@@ -599,7 +599,7 @@ function processLinking(&$owner, &$o, &$ei)
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 	}
-	
+
 
 	return $done_something;
 
@@ -647,7 +647,7 @@ function _printLine(&$owner, $majorid, $link_data, $parent_data=Array(), $link_t
 				if ($tree_data['assetid'] == $majorid) continue;
 				$asset_lineage .= htmlspecialchars($tree_data['name'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).' &gt; ';
 			}
-			
+
 			if(!$display_reverse)
 				$asset_lineage_ids[] = $owner->id;
 

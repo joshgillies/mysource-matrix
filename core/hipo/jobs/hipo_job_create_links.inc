@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.71 2013/08/23 04:24:20 ewang Exp $
+* $Id: hipo_job_create_links.inc,v 1.71.2.1 2013/10/22 00:44:19 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.71 $
+* @version $Revision: 1.71.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -1646,7 +1646,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			}
 			$refreshids = array_unique($refreshids);
 
-			$o->addOnLoad('if (window.opener.parent.frames["sq_sidenav"] && window.opener.parent.frames["sq_sidenav"].reload_assets) window.opener.parent.frames["sq_sidenav"].reload_assets(["'.implode('","', $refreshids).'"]);');
+			$o->addOnLoad('if (window.opener.parent.frames["sq_sidenav"] && window.opener.parent.frames["sq_sidenav"].reload_assets) window.opener.parent.frames["sq_sidenav"].reload_assets("'.implode('|', $refreshids).'");');
 		}//end if
 
 		return TRUE;

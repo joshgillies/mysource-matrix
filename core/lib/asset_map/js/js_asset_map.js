@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.52.2.4 2013/10/14 04:39:40 lwright Exp $
+* $Id: js_asset_map.js,v 1.52.2.5 2013/10/22 00:44:19 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.52.2.4 $
+ * @version $Revision: 1.52.2.5 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -4523,10 +4523,11 @@ var JS_Asset_Map = new function() {
 			 */
 			reload_assets: function(assetids)
 			{
-				if (dfx.isArray(assetids) === false) {
-					assetids = assetids.split('|');
+				if (typeof assetids !== 'string') {
+					return false;
 				}
 
+				assetids = assetids.split('|');
 				JS_Asset_Map.addToRefreshQueue(assetids);
 
 			}
