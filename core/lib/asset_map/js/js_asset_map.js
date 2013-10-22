@@ -9,7 +9,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_asset_map.js,v 1.52.2.5 2013/10/22 00:44:19 lwright Exp $
+* $Id: js_asset_map.js,v 1.52.2.6 2013/10/22 22:17:07 lwright Exp $
 *
 */
 
@@ -27,7 +27,7 @@
  *    Java asset map.
  *
  * @author  Luke Wright <lwright@squiz.net>
- * @version $Revision: 1.52.2.5 $
+ * @version $Revision: 1.52.2.6 $
  * @package   MySource_Matrix
  * @subpackage __core__
  */
@@ -572,7 +572,9 @@ var JS_Asset_Map = new function() {
 			retval.version = /rv:([\d.]+)/.exec(browser);
 			if (!retval.version) {
 				retval.version = parseFloat(/MSIE ([\d.]+)/.exec(browser)[1]);
-			}
+			} else {
+                retval.version = retval.version[1];
+            }
 
 			if (retval.version && (retval.version >= 8)) {
 				// If IE8+ detected, make sure we aren't in compatibility view.
