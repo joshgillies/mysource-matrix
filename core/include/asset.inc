@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.787.4.7 2013/09/24 23:37:19 akarelia Exp $
+* $Id: asset.inc,v 1.787.4.8 2013/10/22 21:13:59 akarelia Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.787.4.7 $
+* @version $Revision: 1.787.4.8 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -6144,14 +6144,6 @@ class Asset extends MySource_Object
 					}
 
 					$done_urls[] = $new_url;
-
-					// get the asset lineage and use that as the index
-					$url_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL(NULL, $parent_urls[$j]['url']);
-					$new_url_assetids = Array();
-					foreach ($url_lineage as $url_lineage_item) {
-						$new_url_assetids[] = $url_lineage_item['assetid'];
-					}
-					$new_url_assetids[] = $this->id;
 
 					// holds paint layout values and design values
 					$lookup_values = Array();
