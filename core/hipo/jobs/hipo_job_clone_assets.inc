@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clone_assets.inc,v 1.40 2013/07/25 23:23:49 lwright Exp $
+* $Id: hipo_job_clone_assets.inc,v 1.41 2013/10/22 00:37:04 cupreti Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -476,13 +476,15 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 					}
 				}
 			}//end if
+
+			// The step is complete after the user does the confirmation
+			$step_data['percent_done'] = 100;
+			$step_data['complete'] = TRUE;
+
 		}//end if
 
 		if ($step_data['percent_done'] == 0) {
 			$step_data['percent_done'] = 50;
-		} else {
-			$step_data['percent_done'] = 100;
-			$step_data['complete'] = TRUE;
 		}
 
 		return TRUE;
