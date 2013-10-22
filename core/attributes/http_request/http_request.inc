@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: http_request.inc,v 1.29 2013/10/10 23:23:12 akarelia Exp $
+* $Id: http_request.inc,v 1.30 2013/10/22 05:13:55 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 * 	<http_request />
 *
 * @author  James Hurst <jhurst@squiz.co.uk>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -651,11 +651,20 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		if (array_get_index($this->_config, 'forward_user_keys', FALSE)) {
 			$user_info = Array($GLOBALS['SQ_SYSTEM']->user->id);
 			$user_info = array_merge($GLOBALS['SQ_SYSTEM']->user->getUserGroups(), $user_info);
+
+			// issue # 6566 HTTP Request  attribute, Forward  user information and LDAP Users
+			// urlencode or data before  sending it across. Do it here  and then transform it
+			// in a string or else the urlencode will convert the implode comma to entity too.
+			foreach ($user_info as $index => $info) {
+				$user_info[$index] = urlencode($info);
+			}
+
 			$user_keys = 'userkeys='.implode(',', $user_info);
 			foreach ($this->_res['request']['urls'] as $index => $url) {
 				$url .= (strpos($url, '?') === FALSE) ? '?' : '&';
 				$this->_res['request']['urls'][$index] = $url.$user_keys;
 			}
+
 			// also forward the ip the user request is coming from
 			$this->_res['request']['headers'][] = 'X-Forwarded-For: '.$_SERVER['REMOTE_ADDR'];
 		}
