@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: http_request.inc,v 1.23.4.4 2013/09/10 03:20:28 akarelia Exp $
+* $Id: http_request.inc,v 1.23.4.5 2013/10/22 05:14:57 akarelia Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 * 	<http_request />
 *
 * @author  James Hurst <jhurst@squiz.co.uk>
-* @version $Revision: 1.23.4.4 $
+* @version $Revision: 1.23.4.5 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -132,6 +132,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		if (!isset($current_value['ssl_cert'])) $current_value['ssl_cert'] = '';
 		if (!isset($current_value['ssl_key'])) $current_value['ssl_key'] = '';
 		if (!isset($current_value['ca_file'])) $current_value['ca_file'] = '';
+		if (!isset($current_value['enable_compression'])) $current_value['enable_compression'] = TRUE;
 		?>
 
 		<table border="0" class="sq-backend-table">
@@ -208,6 +209,18 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 							echo htmlspecialchars($current_value['follow_redirect'] ? 'Yes' : 'No');
 						} else {
 							check_box($prefix.'_follow_redirect', 1, $current_value['follow_redirect']);
+						}
+					?>
+				</td>
+			</tr>
+			<tr>
+				<th><?php echo translate('http_request_enable_compression'); ?></th>
+				<td>
+					<?php
+						if ($read_only) {
+							echo htmlspecialchars($current_value['enable_compression'] ? 'Yes' : 'No');
+						} else {
+							check_box($prefix.'_enable_compression', 1, $current_value['enable_compression']);
 						}
 					?>
 				</td>
@@ -511,6 +524,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		$value['timeout'] 				= (isset($_REQUEST[$prefix.'_timeout'])) ? $_REQUEST[$prefix.'_timeout'] : 0;
 		$value['follow_redirect'] 		= (isset($_REQUEST[$prefix.'_follow_redirect'])) ? $_REQUEST[$prefix.'_follow_redirect'] : FALSE;
 		$value['disable_ssl_verify']	= (isset($_REQUEST[$prefix.'_disable_ssl_verify'])) ? $_REQUEST[$prefix.'_disable_ssl_verify'] : FALSE;
+		$value['enable_compression']	= (isset($_REQUEST[$prefix.'_enable_compression'])) ? $_REQUEST[$prefix.'_enable_compression'] : FALSE;
 		$value['ssl_cert']				= (isset($_REQUEST[$prefix.'_ssl_cert'])) ? $_REQUEST[$prefix.'_ssl_cert'] : FALSE;
 		$value['ssl_key']				= (isset($_REQUEST[$prefix.'_ssl_key'])) ? $_REQUEST[$prefix.'_ssl_key'] : FALSE;
 		$value['ca_file']				= (isset($_REQUEST[$prefix.'_ca_file'])) ? $_REQUEST[$prefix.'_ca_file'] : FALSE;
@@ -637,11 +651,20 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		if (array_get_index($this->_config, 'forward_user_keys', FALSE)) {
 			$user_info = Array($GLOBALS['SQ_SYSTEM']->user->id);
 			$user_info = array_merge($GLOBALS['SQ_SYSTEM']->user->getUserGroups(), $user_info);
+
+			// issue # 6566 HTTP Request  attribute, Forward  user information and LDAP Users
+			// urlencode or data before  sending it across. Do it here  and then transform it
+			// in a string or else the urlencode will convert the implode comma to entity too.
+			foreach ($user_info as $index => $info) {
+				$user_info[$index] = urlencode($info);
+			}
+
 			$user_keys = 'userkeys='.implode(',', $user_info);
 			foreach ($this->_res['request']['urls'] as $index => $url) {
 				$url .= (strpos($url, '?') === FALSE) ? '?' : '&';
 				$this->_res['request']['urls'][$index] = $url.$user_keys;
 			}
+
 			// also forward the ip the user request is coming from
 			$this->_res['request']['headers'][] = 'X-Forwarded-For: '.$_SERVER['REMOTE_ADDR'];
 		}
@@ -923,6 +946,9 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		curl_setopt($ch, CURLOPT_TIMEOUT, $this->_config['timeout']);
 		curl_setopt($ch, CURLOPT_HEADERFUNCTION, Array($this, '_readCurlHeaders'));
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $this->_res['request']['headers']);
+		if (isset($this->_config['enable_compression']) && $this->_config['enable_compression']) {
+			curl_setopt($ch, CURLOPT_ENCODING, "");
+		}
 
 		// Enable HTTP 1.0 requests - useful for older proxies
 		if (isset($this->_config['enable_http_10']) && $this->_config['enable_http_10']) {
