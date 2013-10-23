@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.86 2012/08/30 01:09:10 ewang Exp $
+* $Id: cron_manager.inc,v 1.86.10.1 2013/10/23 04:11:13 cupreti Exp $
 *
 */
 
@@ -24,7 +24,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.86 $
+* @version $Revision: 1.86.10.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -316,13 +316,40 @@ class Cron_Manager extends Asset
 	*/
 	public function removeJob(Cron_Job $job)
 	{
+		// If job is not associated (Type 3 linked) with the Cron Manager, don't bother
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($this->id, $job->id, SQ_LINK_TYPE_3);
-		if (empty($link)) return FALSE;
+		if (empty($link)) {
+			return FALSE;
+		}
 
-		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-		$job->removeJob();
-		$success = $this->deleteLink($link['linkid']);
-		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+		// If its system cron job (Type 2 linked under the manager), don't worry
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($this->id, $job->id, SQ_LINK_TYPE_2);
+		if (!empty($link)) {
+			return FALSE;
+		}
+
+		// Delete all the links in which job is the major party
+		// This will automatically link (type 2) the asset to the trash
+		$major_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($job->id, SQ_SC_LINK_ALL, '', TRUE, 'major');
+		foreach($major_links as $major_link) {
+			$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($major_link['linkid']);
+		}
+		// Delete all the links in which job is the minor party
+		$minor_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($job->id, SQ_SC_LINK_ALL, '', TRUE, 'minor');
+		foreach($minor_links as $minor_link) {
+			$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($minor_link['linkid']);
+		}
+
+		// Trash the asset and purge the job from system
+		$success = FALSE;
+		$trash = $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('trash_folder'));
+		$trash_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($trash->id, $job->id, SQ_LINK_TYPE_2);
+		if (!empty($trash_link['linkid'])) {
+			$vars = Array('purge_root_linkid' => $trash_link['linkid']);
+			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$errors = $hh->freestyleHipo('hipo_job_purge_trash', $vars);
+			$success = empty($errors);
+		}
 
 		return $success;
 
