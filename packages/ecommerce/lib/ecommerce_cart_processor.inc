@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_cart_processor.inc,v 1.38 2013/09/18 02:56:56 cupreti Exp $
+* $Id: ecommerce_cart_processor.inc,v 1.38.2.1 2013/10/23 01:19:28 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/lib/ecommerce_common.inc';
 * @author Robert Howard <rhoward@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
 * @author Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.38.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -604,19 +604,20 @@ class Ecommerce_Cart_Processor
 	* Apply discount to the items in the cart and 
 	* also link the applied promotion to the order for tracking purpose
 	* 
-	* @param string $promo_code
-	* @param string $order
-	* @param float	$taxation_rate	Taxation rate of each item
+	* @param string 	$promo_code
+	* @param string 	$order
+	* @param float		$taxation_rate	Taxation rate of each item
+	* @param boolean	$remove_tax		Whether to remove tax from taxed products, i.e. if country is not defined as taxable
 	*
 	* @return boolean
 	* @access public
 	*/
-	function applyPromotionalCode($promo_code, $order, $taxation_rate=0.0)
+	function applyPromotionalCode($promo_code, $order, $taxation_rate=0.0, $remove_tax=FALSE)
 	{
 		$org_cart = $this->cart;
 
 		// The discount evaluted should be based on final payable price of the item
-		$tax_adjusted_cart = $this->_getTaxAdjustedCart($taxation_rate);
+		$tax_adjusted_cart = $this->_getTaxAdjustedCart($taxation_rate, $remove_tax);
 
 		// Apply promotion to the items in the cart
 		$order_promo_assetids = Array();
@@ -630,7 +631,7 @@ class Ecommerce_Cart_Processor
 			$order_promo_assetids = array_merge($order_promo_assetids, $promo_code_assetids);
 			// Link the promotion assets to the order/n 
 			
-			$offers = Ecommerce_Common::getApplicablePromotionalInfo($promo_code_assetids, $data['tax_adjusted_cost'], $data['quantity']);
+			$offers = Ecommerce_Common::getApplicablePromotionalInfo($promo_code_assetids, $data['tax_inclusive_cost'], $data['quantity']);
 			if (isset($offers['discount'])) {
 				$this->cart[$assetid]['discount'] = $offers['discount'];
 			}
@@ -702,30 +703,30 @@ class Ecommerce_Cart_Processor
 
 	
 	/**
-	* Returns the tax adjusted price of items in the cart
+	* Returns the tax adjusted price of items in the cart, i.e. the final price including the tax
 	*
-	* @param float	$taxation_rate	Taxation rate of each item
+	* @param float		$taxation_rate	Taxation rate of each item
+	* @param boolean	$remove_tax		Whether to remove tax from the taxed amount
 	*
 	* @return array
 	* @access private
 	*/
-	function _getTaxAdjustedCart($taxation_rate=0.0)
+	function _getTaxAdjustedCart($taxation_rate=0.0, $remove_tax=FALSE)
 	{
 		$cart = Array();
 		foreach($this->cart as $assetid => $details) {
 			$cart[$assetid] = $details;
-			$cart[$assetid]['tax_adjusted_cost'] = $details['price'];
+			$cart[$assetid]['tax_inclusive_cost'] = $details['price'];
 			if ($details['price'] != -1) {
 				// adjust product prices
 				$has_tax = array_get_index($details, 'has_tax', FALSE);
-				$calculate_tax = array_get_index($details, 'taxable', FALSE);
-				if ($calculate_tax) {
+				$taxable = array_get_index($details, 'taxable', FALSE);
+				$cost = $details['price'];
+				if ($taxable) {
 					$item_costs = $this->_calculateItemCosts($details['price'], $taxation_rate, $has_tax);
-					$cost = $item_costs['tax_adjusted_cost'];
-				} else {
-					$cost = $details['price'];
+					$cost = $remove_tax ? $item_costs['tax_adjusted_cost'] : $item_costs['tax_adjusted_cost'] + $item_costs['tax_cost'];
 				}
-				$cart[$assetid]['tax_adjusted_cost'] = $cost;
+				$cart[$assetid]['tax_inclusive_cost'] = $cost;
 			}
 		}//end foreach
 
@@ -1202,13 +1203,31 @@ class Ecommerce_Cart_Processor
 
 			// calculate tax and costs for this item
 			$cost = array_get_index($details, 'price', 0);
+			$tax_cost = 0;
 			if (array_get_index($details, 'taxable', FALSE)) {
 				$item_costs = $this->_calculateItemCosts($cost, $taxation_rate, array_get_index($details, 'has_tax', FALSE));
 				$cost = $item_costs['tax_adjusted_cost'];
 				$tax_cost = $item_costs['tax_cost'];
-			} else {
-				$tax_cost = 0;
 			}
+			
+			// Discounts
+			$item_discount = array_get_index($details, 'discount', 0);
+			$item_discount_str = sprintf($price_format, $item_discount);
+
+			// Adjust the discount amount if any
+			if ($item_discount > 0) {
+				$unit_discount = $item_discount/($quantity != 0 ? $quantity : 1);
+				if ($remove_tax) {
+					$cost = $cost - $unit_discount;
+				} else {
+					$cost = ($cost + $tax_cost) - $unit_discount;
+				}
+				$tax_cost = $taxation_rate * $cost;
+			}
+
+			$total_item_price_incl_discount = ($cost * $quantity) - $item_discount;
+			$total_item_price_incl_discount_str = sprintf($price_format, $total_item_price_incl_discount>0 ? $total_item_price_incl_discount : '0');
+
 
 			//information of product is different if it is a donation
 			if (array_get_index($details, 'is_donation', FALSE)) {
@@ -1224,13 +1243,7 @@ class Ecommerce_Cart_Processor
 			$total_item_price = sprintf($price_format, $cost * $quantity);
 			$total_item_price_incl_tax = sprintf($price_format, ($cost + $tax_cost) * $quantity);
 			$total_item_tax = sprintf($price_format, $tax_cost * $quantity);
-
-			// Discounts
-			$item_discount = array_get_index($details, 'discount', 0);
-			$item_discount_str = sprintf($price_format, $item_discount);
-
-			$total_item_price_incl_discount = (($cost + ($remove_tax ? 0 : $tax_cost)) * $quantity) - $item_discount;
-			$total_item_price_incl_discount_str = sprintf($price_format, $total_item_price_incl_discount>0 ? $total_item_price_incl_discount : '0');
+			$tax_cost_str = sprintf($price_format, $tax_cost);
 
 			//get metadata of the product/donation asset
 			$metadata_values = $mm->getMetadataFieldValues($assetid);
@@ -1265,7 +1278,7 @@ HEREDOC;
 				<total_item_price>$total_item_price</total_item_price>
 				<item_price_incl_tax>$item_price_incl_tax</item_price_incl_tax>
 				<total_item_price_incl_tax>$total_item_price_incl_tax</total_item_price_incl_tax>
-				<item_tax>$tax_cost</item_tax>
+				<item_tax>$tax_cost_str</item_tax>
 				<total_item_tax>$total_item_tax</total_item_tax>
 				<item_discount>$item_discount_str</item_discount>
 				<total_item_price_incl_discount>$total_item_price_incl_discount_str</total_item_price_incl_discount>$metadata_str
