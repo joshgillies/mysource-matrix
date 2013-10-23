@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ecommerce_checkout.inc,v 1.94 2013/09/10 07:10:46 ewang Exp $
+* $Id: ecommerce_checkout.inc,v 1.95 2013/10/23 01:11:15 cupreti Exp $
 *
 */
 
@@ -27,7 +27,7 @@ require_once SQ_PACKAGES_PATH.'/ecommerce/ecommerce_order/ecommerce_order.inc';
 *
 * @author  Andrei Railean	<arailean@squiz.net>
 * @author  Scott Kim		<skim@squiz.net>
-* @version $Revision: 1.94 $
+* @version $Revision: 1.95 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -364,7 +364,8 @@ class Ecommerce_Checkout extends Page
 				}
 
 				// Apply promotion to the items in the cart
-				if ($cart->applyPromotionalCode($promo_code, $order, $this->attr('taxation_rate')/100)) {
+				$remove_tax = isset($_SESSION['sq_region_specific']['remove_tax']) ? $_SESSION['sq_region_specific']['remove_tax'] : FALSE;
+				if ($cart->applyPromotionalCode($promo_code, $order, $this->attr('taxation_rate')/100, $remove_tax)) {
 					$_SESSION['sq_local_cart_contents']['promotion_code'] = $promo_code;
 				}
 
