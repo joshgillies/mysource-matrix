@@ -11,7 +11,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.18 2013/07/25 23:23:49 lwright Exp $
+* $Id: lang_strings.xml,v 1.19 2013/10/24 01:08:21 cupreti Exp $
 *
 */
 -->
@@ -45,6 +45,7 @@
 	<string source="asset_map_width">Asset Map Width</string>
 	<string source="commit_button_position">Commit Button Position</string>
 	<string source="limit_by_ip_address">Limit this rule to an IP Address or Range</string>
+	<string source="limit_by_user_types">Limit this rule to the User types** (comma seperated)</string>
 	<string source="add_session_expiry_rule">Add a new session expiry rule</string>
 	<string source="show_user_held_locks_details">Show User Held Lock Details</string>
 	<string source="hide_user_held_locks_details">Hide User Held Lock Details</string>
