@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_prefs.inc,v 1.21 2013/07/25 23:23:49 lwright Exp $
+* $Id: user_prefs.inc,v 1.21.2.1 2013/10/25 00:42:19 cupreti Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_ATTRIBUTES_PATH.'/int/int.inc';
 *    Looks after the session expiry prefences for user groups
 *
 * @author  Darren McKee <dmckee@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.21.2.1 $
 * @package MySource_Matrix
 */
 class User_Prefs extends Prefs
@@ -231,6 +231,27 @@ class User_Prefs extends Prefs
 						}//end if
 						?>
 					</li>
+					<li>
+						<table>
+						<?php
+
+						$user_types = array_get_index($extra_setting, 'user_types', '');
+						if ($have_lock && $is_admin) {
+							$js = "onChange=\"Javascript: if (this.checked == true) { document.getElementById('prefs[SQ_USER_SESSION_PREFS][".$id."][user_types]').disabled = false; } else { document.getElementById('prefs[SQ_USER_SESSION_PREFS][".$id."][user_types]').disabled = true;  }\"";
+							check_box('prefs[SQ_USER_SESSION_PREFS]['.$id.'][limit_user_types]', '0', (!empty($user_types)), '', 'id="prefs_SQ_USER_SESSION_PREFS_'.$id.'_limit_user_types" '.$js);
+							echo translate('limit_by_user_types');
+							text_box('prefs[SQ_USER_SESSION_PREFS]['.$id.'][user_types]', $user_types, 70, '', FALSE, 'id="prefs[SQ_USER_SESSION_PREFS]['.$id.'][user_types]"');
+							echo '<script type="text/javascript">if (document.getElementById("prefs[SQ_USER_SESSION_PREFS]['.$id.'][user_types]").value == \'\') { document.getElementById("prefs[SQ_USER_SESSION_PREFS]['.$id.'][user_types]").disabled = true; }</script>';
+						} else {
+							echo '<img src="'.sq_web_path('lib').'/web/images/'.((!empty($user_types)) ? 'tick' : 'cross').'.gif" />';
+							echo translate('limit_by_user_types');
+							echo ' ';
+							echo $user_types;
+						}
+
+						?>
+						</table>
+					</li>
 					<?php
 					// Don't delete the first rule, but allow every other
 					if ($id != '0' && $have_lock && $is_admin) {
@@ -250,6 +271,9 @@ class User_Prefs extends Prefs
 			<?php
 			}//end foreach
 			echo '*'.translate('session_timeout_explanation');
+			echo '<br/>';
+			$available_user_types = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('user', TRUE);
+			echo '**Available user types in this system are: '.implode(', ', $available_user_types);
 			?>
 			<br />
 			<?php
@@ -659,6 +683,7 @@ class User_Prefs extends Prefs
 						'persist'		=> 0,
 						'timeout'		=> 0,
 						'max_length'	=> 0,
+						'user_types'	=> '',
 					  );
 		$new_prefs	= Array( $make_new );
 		if (is_null($pref) || $pref == 'SQ_USER_SESSION_PREFS') {
@@ -666,6 +691,10 @@ class User_Prefs extends Prefs
 				$new_prefs[$id]['ip_from']		= (isset($submitted_pref['ip_from'])) ? $submitted_pref['ip_from'] : '';
 				$new_prefs[$id]['ip_to']		= (isset($submitted_pref['ip_to'])) ? $submitted_pref['ip_to'] : '';
 				$new_prefs[$id]['persist']		= !isset($submitted_pref['persist']);
+				$new_prefs[$id]['user_types']	= (isset($submitted_pref['user_types'])) ? $submitted_pref['user_types'] : '';
+
+				// Remove empty spaces from the comma seperated user type list
+				$new_prefs[$id]['user_types'] = strtolower(str_replace(' ', '', $new_prefs[$id]['user_types']));
 
 				if (isset($submitted_pref['timeout_enabled'])) {
 					$timeout_dur = new Asset_Attribute_Duration();

@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.419.2.1 2013/10/18 04:09:06 ewang Exp $
+* $Id: mysource.inc,v 1.419.2.2 2013/10/25 00:41:58 cupreti Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.419.2.1 $
+* @version $Revision: 1.419.2.2 $
 * @package MySource_Matrix
 */
 class MySource extends MySource_Object
@@ -2494,6 +2494,32 @@ class MySource extends MySource_Object
 						'timeout'		=> '0',
 						'max_length'	=> '0',
 						);
+
+				// Check the user type restriction
+				if (isset($sess_pref['user_types']) && !empty($sess_pref['user_types'])) {
+					$user_types = explode(',', $sess_pref['user_types']);
+					$current_user_type = '';
+					if (empty($this->user)) {
+						$current_userid = $this->currentUserId();
+						if ($current_userid) {
+							$current_user = $GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
+							if (!is_null($current_user)) {
+								$current_user_type = $current_user->type();
+							}
+							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($current_user);
+						}
+					} else {
+						$current_user_type = $this->user->type();
+					}
+
+					if (!empty($current_user_type) && in_array($current_user_type, $user_types)) {
+						$prefs['persist'] = $sess_pref['persist'];
+						$prefs['timeout'] = $sess_pref['timeout'];
+						$prefs['max_length'] = $sess_pref['max_length'];
+						break;
+					}
+				}//end if
+
 				// Check that the current IP falls between the 'to' and 'from' field (also check an IP was passed)
 				if (isset($sess_pref['ip_from']) && !empty($sess_pref['ip_from']) && preg_match($patt, $sess_pref['ip_from']) && !$remote_ip_is_ipv6) {
 					$current_ip_value = ip2long($current_ip);
