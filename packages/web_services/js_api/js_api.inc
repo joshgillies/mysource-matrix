@@ -10,7 +10,7 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_api.inc,v 1.143.2.7 2013/10/23 04:31:40 akarelia Exp $
+* $Id: js_api.inc,v 1.143.2.8 2013/10/25 03:38:18 lwright Exp $
 *
 */
 
@@ -22,7 +22,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.143.2.7 $
+* @version $Revision: 1.143.2.8 $
 * @package MySource_Matrix_Packages
 * @subpackage web_services
 */
@@ -458,6 +458,7 @@ class JS_Api extends Page
 				} catch (Exception $e) {
 					// If any exception was thrown when executing the function, catch it
 					$results[$track_func]['error'] = 'Exception occured when executing JS API function "'.$type.'()": '.$e->getMessage();
+					js_api_error_handler(E_USER_ERROR, 'EXCEPTION: '.$e->getMessage(), $e->getFile(), $e->getLine());
 				}
 
 				// if batching request and one of the function is set to blocking
@@ -2241,7 +2242,16 @@ class JS_Api extends Page
 				foreach($links as $link) {
 					if (!in_array($link['linkid'], $linkid_done)) {
 						if ($link['link_type'] & SQ_SC_LINK_SIGNIFICANT) {
-							$treeid_data = $GLOBALS['SQ_SYSTEM']->am->getLinkTreeid($link['linkid']);
+							if (strpos($link['linkid'], ':') === FALSE) {
+								$treeid_data = $GLOBALS['SQ_SYSTEM']->am->getLinkTreeid($link['linkid']);
+							} else {
+								// No tree ID for shadow links (yet).
+								$treeids = $GLOBALS['SQ_SYSTEM']->am->getAssetTreeids($major_asset->id);
+								$treeid_data = Array($link['linkid'] => Array(Array()));
+								foreach ($treeids as $treeid) {
+									$treeid_data[$link['linkid']][0][] = $treeid.str_repeat('*', SQ_CONF_ASSET_TREE_SIZE);
+								}
+							}
 						} else {
 							$treeid_data = Array($link['linkid'] => Array(Array(FALSE)));
 						}
