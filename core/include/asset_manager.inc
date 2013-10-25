@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.907.2.9 2013/10/22 01:03:51 cupreti Exp $
+* $Id: asset_manager.inc,v 1.907.2.10 2013/10/25 04:44:41 lwright Exp $
 *
 */
 
@@ -25,7 +25,7 @@ require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.907.2.9 $
+* @version $Revision: 1.907.2.10 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1308,10 +1308,14 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Determine if the passed assetid or assetids refer(s) to a valid asset in the system
 	*
-	* Note that this will always return FALSE if you pass it a shadow asset
+	* Note shadow assets will not be considered as existing unless the bridge that defines
+	* it properly defines an assetExists() function, and does more than just return FALSE.
 	*
-	* @param int|array	$assetids	the ID of the asset we are going to the check for existence
-	*								or an array of assetids we want to check
+	* If a single asset ID is passed the function will return TRUE or FALSE depending on
+	* whether that asset exists. If an array is passed it will return an array of the
+	* assetids that exist.
+	*
+	* @param string|array	$assetids	the ID(s) of the asset(s) to check.
 	*
 	* @return mixed boolean|array
 	* @access public
@@ -1647,12 +1651,17 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Returns an array of information about assets of the passed codes
 	*
-	* If one value in $field then the return value is Array(assetid => '[field]'), otherwise Array(assetid => Array())
+	* If $field is empty then all fields are returned, otherwise it can be an array
+	* of standard asset fields or a string representing one of them.
+	*
+	* If one value in $field then it will be returned as array of assetid => field value.
+	* If $field is empty or an array the field value will itself be an array keyed
+	* by field name.
 	*
 	* @param array			$assetids			an array of assets to limit
 	* @param string|array	$type_code			an asset type code, or array of typecodes, to limit results to
 	* @param boolean		$strict_type_code	ensure returned assets are of the passed type codes
-	* @param string			$field				single field from the asset table to return (along with the assetid)
+	* @param string|array   $field				single or array of fields from the asset table to return (along with the assetid)
 	*											Default is all fields
 	*
 	* @return array
@@ -1713,9 +1722,17 @@ class Asset_Manager extends MySource_Object
 			}
 
 			// field not found
-			if (!in_array($field, $this->_tmp['sq_tables']['ast']['columns'])) {
-				trigger_localised_error('SYS0185', E_USER_WARNING, $field);
-				return Array();
+			if (is_array($field) === FALSE) {
+				if (!in_array($field, $this->_tmp['sq_tables']['ast']['columns'])) {
+					trigger_localised_error('SYS0185', E_USER_WARNING, $field);
+					return Array();
+				}
+			} else {
+				$missing = array_diff($field, $this->_tmp['sq_tables']['ast']['columns']);
+				if (count($missing) > 0) {
+					trigger_localised_error('SYS0185', E_USER_WARNING, implode(', ', $field));
+					return Array();
+				}
 			}
 		}
 
@@ -1767,11 +1784,14 @@ class Asset_Manager extends MySource_Object
 			}
 			unset($tables['ast']['columns'][array_search('assetid', $tables['ast']['columns'])]);
 			$col_string = implode(', ', $tables['ast']['columns']);
-
+		} else if (is_array($field) === FALSE) {
+			$col_string = $field;
+		} else {
+			$col_string = implode(', ', $field);
 		}
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-		$sql = 'SELECT assetid, '.((empty($field)) ? $col_string : $field).'
+		$sql = 'SELECT assetid, '.$col_string.'
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast a
 				'.$where.'
 				ORDER BY a.assetid';
@@ -1781,10 +1801,9 @@ class Asset_Manager extends MySource_Object
 			foreach ($bind_vars as $bind_var => $bind_value) {
 				MatrixDAL::bindValueToPdo($query, $bind_var, $bind_value);
 			}
-			$result_x = MatrixDAL::executePdoGroupedAssoc($query);
 
-			$result = Array();
-			foreach	($result_x as $key => $row) {
+			$result = MatrixDAL::executePdoGroupedAssoc($query);
+			foreach	($result as $key => &$row) {
 				// if the field is equal to asset id we will have to behave slightly differently
 				// because when the field is asset id the result_x has the following format:
 				// 56 => array (
@@ -1792,15 +1811,19 @@ class Asset_Manager extends MySource_Object
 				//        [Empty]
 				//     )
 				// ),
-				if (!empty($field) && (strcmp($field, 'assetid') == 0)) {
-					$result[$key] = $key;
-				} else {
+				if ((empty($field) === FALSE) && (is_array($field) === FALSE)) {
 					// if we are only after a single field
-					$result[$key] = (empty($field)) ? $row[0] : $row[0][$field];
+					if ($field === 'assetid') {
+						$row = $key;
+					} else {
+						$row = $row[0][$field];
+					}
+				} else {
+					$row = $row[0];
 				}
-			}
+			}//end foreach
+			unset($row);
 
-			unset($result_x);
 		} catch (Exception $e) {
 			throw new Exception('Unable to get asset info due to database error: '.$e->getMessage());
 		}
@@ -3200,10 +3223,23 @@ class Asset_Manager extends MySource_Object
 											  );
 					}
 
+					// If the major asset itself a shadow asset, we need to use its
+					// bridge.
+					// If the major asset is real, and the minor is owned by it
+					// (eg. '123' to '123:abc') then also use the bridge.
+					// Otherwise, use the shadow asset link table.
+					$use_bridge = NULL;
 					if (!empty($major_shadow_parts)) {
-						// major is shadow asset, use bridge
-						$link = Array();
-						$asset = $this->getAsset($major_shadow_parts['bridgeid']);
+						$use_bridge = $major_shadow_parts['bridgeid'];
+					} else if (!empty($minor_shadow_parts)) {
+						if ((string) $majorid === (string) $minor_shadow_parts['bridgeid']) {
+							$use_bridge = $majorid;
+						}
+					}
+
+					if ($use_bridge !== NULL) {
+						$link  = Array();
+						$asset = $this->getAsset($use_bridge);
 						if (!is_null($asset)) {
 							// Always force an array in this case, and merge it in
 							$link = $asset->getLinkByAsset($majorid, $minorid, $link_types, $value, $side_of_link, TRUE, $dependant, $exclusive);
@@ -3212,8 +3248,7 @@ class Asset_Manager extends MySource_Object
 						$shadow_links = array_merge($shadow_links, $link);
 					} else {
 						if (!empty($minor_shadow_parts)) {
-							// minor is shadow asset, look at the shadow link table
-							// instead of the regular link table
+							// Look at the shadow link table instead.
 							// Always force an array, and merge it in
 							$link = $this->getShadowLinkByAsset($majorid, $minorid, $link_types, $value, $side_of_link, TRUE, $dependant, $exclusive);
 							$shadow_links = array_merge($shadow_links, $link);
@@ -3756,14 +3791,27 @@ class Asset_Manager extends MySource_Object
 		if (isset($id_parts[1])) {
 			// if this asset is a shadow asset the we want the get the lineages of the
 			// bridge, and also the lineages of and real assets that this asset is linked under
-			$asset_field = is_array($fields) ? 'name' : $fields;
-			$bridge_info   = $this->getAssetInfo(Array($id_parts[0]), '', TRUE, $asset_field);
-			$link_lineages = $this->getLinkLineages($id_parts[0]);
+			$bridge_info   = $this->getAssetInfo(Array($id_parts[0]), '', TRUE);
+			$bridge_field  = $this->getAssetInfo(Array($id_parts[0]), '', TRUE, $fields);
+			$link_lineages = $this->getLinkLineages($id_parts[0], 0, NULL, $fields);
+			$bridge_type   = $bridge_info[$id_parts[0]]['type_code'];
+
+			if (method_exists($bridge_type, 'getLinkLineages') === TRUE) {
+				$bridge          = $this->getAsset($id_parts[0]);
+				$shadow_lineages = $bridge->getLinkLineages($assetid, $result_limit, $fields, $only_significant);
+			} else {
+				$shadow_lineages = Array();
+			}
 
 			// add the lineage of the actual bridge to the bridge's lineages
 			for (reset($link_lineages); NULL !== ($key = key($link_lineages)); next($link_lineages)) {
-				$link_lineages[$key]['lineage'][$id_parts[0]] = $bridge_info[$id_parts[0]];
+				$link_lineages[$key]['lineage'][$id_parts[0]] = $bridge_field[$id_parts[0]];
+
+				foreach ($shadow_lineages as $shadow_lineage) {
+					$link_lineages[$key]['lineage'] += $shadow_lineage['lineage'];
+				}
 			}
+
 			$sql = 'SELECT
 						l.majorid, '.$fields_str.'
 					FROM
@@ -3777,17 +3825,25 @@ class Asset_Manager extends MySource_Object
 			try {
 				$result = NULL;
 				$query = MatrixDAL::preparePdoQuery($sql.$where);
-				$result = MatrixDAL::executePdoGrouped($query);
+				$result = MatrixDAL::executePdoGroupedAssoc($query);
 			} catch (DALException $e) {
 				throw new Exception('Could not get shadow links of minor asset ID '.$assetid.' due to database error: '.$e->getMessage());
 			}
 
 			// get the lineage of the real assets that this shadow asset is linked under
 			// and then append the lineage of that real asset to its lineages
-			foreach ($result as $assetid => $name) {
+			foreach ($result as $assetid => $value) {
+				// Handle inner grouped result, plus pull out of array if the field
+				// passed to this function was singular.
+				if (is_array($fields) === FALSE) {
+					$value = reset($value[0]);
+				} else {
+					$value = $value[0];
+				}
+
 				$lineages = $this->getLinkLineages($assetid);
 				for (reset($lineages); NULL !== ($key = key($lineages)); next($lineages)) {
-					$lineages[$key]['lineage'][$assetid] = $name;
+					$lineages[$key]['lineage'][$assetid] = $value;
 				}
 				$link_lineages = array_merge($link_lineages, $lineages);
 				if ($result_limit != 0 && count($link_lineages) >= $result_limit) {
@@ -3799,17 +3855,7 @@ class Asset_Manager extends MySource_Object
 				$link_lineages = array_slice($link_lineages, 0, $result_limit);
 			}
 
-			// Clean up link_linkages Array as shadow assets cause a complex array return (as per Bug #2977)
-			foreach ($link_lineages as $key => $value) {
-				foreach ($value['lineage'] as $lineage_key => $lineage_value) {
-					if (is_array($lineage_value)) {
-						$link_lineages[$key]['lineage'][$lineage_key] = $lineage_value[0][0];
-					}
-				}
-			}
-
 			return $link_lineages;
-
 		}//end if shadow asset
 
 		// Bug Fix #3535 - Binocular icon disappears if NOTICE links overcrowd other links
@@ -4111,7 +4157,7 @@ class Asset_Manager extends MySource_Object
 
 			$parents = $parents + $shdw_parents + $real_parents;
 
-			$this->forgetAsset($asset);
+			    $this->forgetAsset($asset);
 			return $parents;
 		}//end if shadow asset
 
