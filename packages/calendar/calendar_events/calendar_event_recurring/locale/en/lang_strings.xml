@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.16 2013/02/04 04:45:48 akarelia Exp $
+* $Id: lang_strings.xml,v 1.17 2013/10/25 06:54:43 cupreti Exp $
 *
 *
 * Calendar Package Localised Strings File
@@ -97,6 +97,7 @@
 <string source="cal_evt_recur_keyword_instance_start_time">Current Instance Start (short time)</string>
 <string source="cal_evt_recur_keyword_instance_start_time_12h">Current Instance Start (12 hour time)</string>
 <string source="cal_evt_recur_keyword_instance_start_time_24h">Current Instance Start (24 hour time)</string>
+<string source="cal_evt_recur_keyword_event_frequency_summary">Displays event's frequency summary if the event's frequency is less than the predefined event frequency threshold.</string>
 <string source="calendar_events_frequency">Events frequency threshold</string>
 
 </strings>
