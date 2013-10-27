@@ -1,5 +1,152 @@
 SQUIZ MATRIX CHANGELOG
 
+VERSION 4.18.0
+
+Featured Changes
+===================================
+
+New Script to Fix Duplicate Rollback Entries [ Feature Request #6575 ]
+-----------------------------------------------------
+
+A new script has been added to Squiz Matrix to report and fix any overlapping (and thus duplicate) entries in the rollback table, determined by an entry's eff_to date value.
+
+The system_integrity_fix_duplicate_rollback_entries.php script is found in the system's Scripts directory and takes the following parameters:
+
+   -s <system_root> : the root directory of your Squiz Matrix system. 
+   --show-records : specifies to show any overlapping rollback table entries found.
+   --fix-table=<table_name> : fixes the overlapping rollback entries in the specified table ('all' to fix overlapping entries in all tables). 
+
+Usage of this script is as follows:
+
+$ php scripts/system_integrity_fix_duplicate_rollback_entries.php -s <SYSTEM_ROOT> --show-records --fix-table=all
+
+IMPORTANT: You have selected the option to fix the duplicate rollback entries from the Rollback table "sq_rb_ast_attr_val"
+This will remove all duplicate entries in the table(s) except the one with oldest "eff_from" date in the duplicate entries set.
+Backing up db is recommended before running this script.
+Are you sure you want to proceed (Y/n)?
+
+Checking table sq_rb_ast ... [ OK ]
+Checking table sq_rb_ast_lnk ... [OK]
+Checking table sq_rb_shdw_ast_lnk ... [ OK ]
+Checking table sq_rb_ast_lnk_tree ... [ OK ]
+Checking table sq_rb_ast_attr_val ... 2 set(s) of overlapping entries found. 
+------------------------------------
+0 => array (
+   "assetid" => "260",
+   "attrid" => "3081",
+   "contextid" => "0",
+   "sq_eff_to" => "2013-06-18 10:26:28",
+   "occ" => "2" 
+),
+1 => array (
+   "assetid" => "260",
+   "attrid" => "3081",
+   "contextid" => "1",
+   "sq_eff_to" => "2013-06-18 10:26:28",
+   "occ" => "2" 
+) 
+
+------------------------------------
+[ NOT OK ]
+Fixing the rollback table sq_rb_ast_attr_val [ FIXED ] 
+
+Checking table sq_rb_ast_attr_uniq_val ... [ OK ]
+Checking table sq_rb_ast_url ... [ OK ]
+Checking table sq_rb_ast_path ... [ OK ]
+Checking table sq_rb_ast_lookup ... [ OK ]
+Checking table sq_rb_ast_lookup_value ... [ OK ]
+Checking table sq_rb_ast_lookup_remap ... [ OK ]
+Checking table sq_rb_ast_perm ... [ OK ]
+Checking table sq_rb_ast_edit_access ... [ OK ]
+Checking table sq_rb_ast_mdata ... [ OK ]
+Checking table sq_rb_ast_mdata_val ... [ OK ]
+Checking table sq_rb_ast_mdata_dflt_val ... [ OK ]
+Checking table sq_rb_ast_wflow ... [ OK ]
+Checking table sq_rb_trig ... [ OK ]
+Checking table sq_rb_ast_role ... [ OK ]
+Checking table sq_rb_ctx_def ... [ OK ]
+Checking table sq_rb_saml_lnk ... [ OK ]
+Checking table sq_rb_cal_date_val ... [ OK ]
+
+Customise Attribute Identifiers on Metadata Fields [ Feature Request #6607 ]
+-----------------------------------------------------
+
+When setting metadata within Squiz Matrix, frontend metadata of an asset will name and content attribute identifiers, to print the name of a metadata field, and its value on the asset.
+
+<!-- Metadata Schema //-->
+
+<!-- User Defined //-->
+<meta name="Description" content="Squiz Matrix new features" />
+<meta name="Subject" content="Blog" />
+<meta name="Date" content="01/01/2013 10:39:20" />
+
+With the recent advent of RDFa 1.1 and hybrid DTDs (eg. "HTML 4.01 Strict + RDFa 1.1"), and "HTML microdata" as proposed by the WHATWG version of HTML, it is now possible for META tags to have names identified by attributes other than name.
+
+This feature introduces new fields on the Details screen of Metadata Field assets, allowing you to customise these attributes, as per these new developments.
+
+The attribute values entered into these fields will determine the frontend metadata of your assets, as shown below: 
+
+<meta itemprop="type" content="voice" />
+
+By default, these attribute identifiers will be set to name and content.
+
+
+Additional Changes and Bug Fixes
+=================================== 
+
+Minor Enhancements
+
+Minor Enhancement #6616: Session Expiry Rules Based on User Type.
+Minor Enhancement #6576: Enable Compression Support in http_request.
+Minor Enhancement #6571: Show REST Assets in Performance Mode.
+Minor Enhancement #6533: Non-System Cron Jobs Purged From the System.
+
+Core
+
+Fixed Bug #6468: Image attribute descriptions unhelpful when used in drop-down selectors.
+Fixed Bug #6528: Eluding dollar sign $ after image variety link can break other links.
+Fixed Bug #6566: HTTP Request attribute, Forward user information and LDAP Users.
+Fixed Bug #6573: Matrix Search frontend PHP warning messages.
+Fixed Bug #6578: Cloning asset from the frontend might unexpectedly "filter" the asset attribute.
+Fixed Bug #6582: Arithmetic keyword modifier doesn't work correctly on text with comma.
+Fixed Bug #6587: Performance mode used by more than one person.
+Fixed Bug #6591: Event broadcasted by non-existent asset will throw fatal error.
+Fixed Bug #6593: Attempting to put images into safe edit causes fatal error.
+Fixed Bug #6598: Metadata date fields not selectable in asset map when adding to triggers.
+Fixed Bug #6599: system_move_update.php generally runs out of memory.
+Fixed Bug #6601: File asset keyword %asset_file_type% not included in "-- Insert Keyword --" drop-down.
+Fixed Bug #6603: JS API response includes User's password in plain text.
+Fixed Bug #6604: remap_manager.inc needs to handle empty HTTP_HOST.
+Fixed Bug #6605: Trigger fails to delete a "Deny" permission.
+Fixed Bug #6613: Clone HIPO job not showing the clone confirmation window.
+
+
+CMS
+
+Fixed Bug #6521: Email validation does not work with account manager additional create location.
+
+Search
+
+Fixed Bug #6586: Search not returning results for search terms with 'silent chars' in Oracle.
+
+Calendar
+
+Fixed Bug #6592: Various URL keywords not working on Calendar Search Page.
+
+Google Maps
+
+Fixed Bug #6612: Google Maps not using structured root node selectors.
+
+TRIM
+
+Fixed Bug #6590: TRIM: do not try to automatically sync records when no record is stored.
+
+Web Services
+
+Fixed Bug #6594: REST oauth 1.0 session asset couldn't get access token from Twitter.
+Fixed Bug #6615: Inconsistency between direct acquireLock call and the one made on batchRequest.
+
+
 
 VERSION 4.18.0 RC1
 
