@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.82.4.2 2013/10/17 03:53:35 cupreti Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.82.4.3 2013/10/27 23:03:13 cupreti Exp $
 *
 */
 
@@ -26,7 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.82.4.2 $
+* @version $Revision: 1.82.4.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -287,7 +287,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		$r = '<'.'?php echo array_get_index($sq_asset_url_list, $1, "./?a=$1"); ?'.'>$2';
 		$output = preg_replace($e, $r, $output);
 		// replacing shadow assetids isn't so simple because they can have any characters...and therefore need to be escaped
-		$e = '|\\./\\?a=([0-9]+:[^$]*)\\$|';
+		$e = '|\\./\\?a=([0-9]+:[0-9A-Za-z]*)\\$?|';
 		$matches = Array();
 		if (preg_match_all($e, $output, $matches, PREG_PATTERN_ORDER)) {
 
@@ -390,7 +390,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		// not only matches './?a=(normal or shadow id)'
 		// but also %globals_asset_attribute_link_url:XXX%
 		// and %globals_asset_attribute_redirect_url:XXX%
-		$shadow_reg  = '|\./\?a=(\d+:[0-9a-zA-Z]*)\$|';
+		$shadow_reg  = '|\./\?a=(\d+:[0-9a-zA-Z]*)\$?|';
 		$normal_reg  = '|\./\?a=(\d+)|';
 		$keyword_reg = '/(%globals_asset_attribute_(redirect|link)_url:)([0-9]*)%/';
 		$shadow_matches = Array();
