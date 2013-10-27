@@ -1,6 +1,62 @@
 SQUIZ MATRIX CHANGELOG
 
 
+VERSION 4.16.4
+
+Minor Enhancements and Bug Fixes
+=================================== 
+
+Minor Enhancements
+
+Minor Enhancement #6571: Show REST Assets in Performance Mode.
+
+Core
+
+Fixed Bug #6468: Image attribute descriptions unhelpful when used in drop-down selectors.
+Fixed Bug #6528: Eluding dollar sign $ after image variety link can break other links.
+Fixed Bug #6566: HTTP Request attribute, Forward user information and LDAP Users.
+Fixed Bug #6573: Matrix Search frontend PHP warning messages.
+Fixed Bug #6578: Cloning asset from the frontend might unexpectedly "filter" the asset attribute.
+Fixed Bug #6582: Arithmetic keyword modifier doesn't work correctly on text with comma.
+Fixed Bug #6587: Performance mode used by more than one person.
+Fixed Bug #6591: Event broadcasted by non-existent asset will throw fatal error.
+Fixed Bug #6593: Attempting to put images into safe edit causes fatal error.
+Fixed Bug #6598: Metadata date fields not selectable in asset map when adding to triggers.
+Fixed Bug #6599: system_move_update.php generally runs out of memory.
+Fixed Bug #6601: File asset keyword %asset_file_type% not included in "-- Insert Keyword --" drop-down.
+Fixed Bug #6603: JS API response includes User's password in plain text.
+Fixed Bug #6605: Trigger fails to delete a "Deny" permission.
+Fixed Bug #6613: Clone HIPO job not showing the clone confirmation window.
+
+
+CMS
+
+Fixed Bug #6521: Email validation does not work with account manager additional create location.
+
+Search
+
+Fixed Bug #6586: Search not returning results for search terms with 'silent chars' in Oracle.
+
+Calendar
+
+Fixed Bug #6592: Various URL keywords not working on Calendar Search Page.
+
+Google Maps
+
+Fixed Bug #6612: Google Maps not using structured root node selectors.
+
+TRIM
+
+Fixed Bug #6590: TRIM: do not try to automatically sync records when no record is stored.
+
+Web Services
+
+Fixed Bug #6594: REST oauth 1.0 session asset couldn't get access token from Twitter.
+Fixed Bug #6615: Inconsistency between direct acquireLock call and the one made on batchRequest.
+
+
+
+
 VERSION 4.16.3
 
 Featured Changes
