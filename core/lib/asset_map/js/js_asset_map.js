@@ -573,8 +573,8 @@ var JS_Asset_Map = new function() {
 			if (!retval.version) {
 				retval.version = parseFloat(/MSIE ([\d.]+)/.exec(browser)[1]);
 			} else {
-                retval.version = retval.version[1];
-            }
+				retval.version = retval.version[1];
+			}
 
 			if (retval.version && (retval.version >= 8)) {
 				// If IE8+ detected, make sure we aren't in compatibility view.
@@ -1217,6 +1217,8 @@ var JS_Asset_Map = new function() {
 						if (which === 3) {
 							var menu = self.drawUseMeMenu(assetTarget);
 							self.positionMenu(menu, dragStatus.startPoint);
+						} else if (which === 1) {
+							self.handleDoubleClick(assetTarget);
 						}
 					}
 				} else {
@@ -1467,6 +1469,7 @@ var JS_Asset_Map = new function() {
 								// We need to determine what's underneath the
 								// draggable, too, to set the Move Me mode's pointer.
 								dfx.setStyle(dragAsset, 'display', 'none');
+								var height   = assetMapContainer.ownerDocument.documentElement.clientHeight;
 								underlyingEl = assetMapContainer.ownerDocument.elementFromPoint(mousePos.x, mousePos.y);
 								if (dfx.hasClass(underlyingEl, 'tab') === true) {
 									var hoverTreeid = underlyingEl.getAttribute('data-treeid');
@@ -1631,25 +1634,7 @@ var JS_Asset_Map = new function() {
 						}//end if (move me active)
 					} else {
 						var initialAsset = dragStatus.assetDrag.initialAsset;
-						if (timeouts.dblClick) {
-							// Double click.
-							if (timeouts.dblClick.assetid === initialAsset.getAttribute('data-assetid')) {
-								if (dfx.getClass('branch-status', initialAsset).length > 0) {
-									self.expandAsset(initialAsset);
-								}
-								self.cancelDrag();
-							}
-							timeouts.dblClick.assetid = null;
-						}
-
-						if (!timeouts.dblClick) {
-							timeouts.dblClick = {
-								assetid: dragStatus.assetDrag.initialAsset.getAttribute('data-assetid'),
-								id: setTimeout(function() {
-									timeouts.dblClick = null;
-								}, 490)
-							};
-						}
+						self.handleDoubleClick(initialAsset);
 					}//end if (dragged by enough)
 
 					e.stopImmediatePropagation();
@@ -1659,6 +1644,28 @@ var JS_Asset_Map = new function() {
 			dragStatus = null;
 		});
 	};
+
+	this.handleDoubleClick = function(initialAsset) {
+		if (timeouts.dblClick) {
+			// Double click.
+			if (timeouts.dblClick.assetid === initialAsset.getAttribute('data-assetid')) {
+				if (dfx.getClass('branch-status', initialAsset).length > 0) {
+					self.expandAsset(initialAsset);
+				}
+				self.cancelDrag();
+			}
+			timeouts.dblClick.assetid = null;
+		}
+
+		if (!timeouts.dblClick) {
+			timeouts.dblClick = {
+				assetid: initialAsset.getAttribute('data-assetid'),
+				id: setTimeout(function() {
+					timeouts.dblClick = null;
+				}, 490)
+			};
+		}
+	}
 
 	this.expandAsset = function(branchTarget) {
 		var self         = this;
@@ -4276,7 +4283,7 @@ var JS_Asset_Map = new function() {
 		if (assetType) {
 			var icon = _createEl('div');
 			dfx.addClass(icon, 'menuIcon');
-			dfx.setStyle(icon, 'background-image', 'url(../__data/asset_types/' + assetType + '/icon.png)');
+			dfx.setStyle(icon, 'background-image', 'url(' + options.assetIconPath + '/' + assetType + '/icon.png)');
 			menuItem.appendChild(icon);
 		}
 
