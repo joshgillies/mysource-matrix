@@ -203,7 +203,7 @@ class Page_Upcoming_Events_List extends Page
 				$calendar_replacements = $replacements;
 				$keywords = $pb->getKeywords();
 				foreach ($keywords as $word) {
-					if (isset($calendar_replacements[$word]) && !empty($calendar_replacements[$word])) {
+					if (isset($calendar_replacements[$word])) {
 						$replacements[$word] = $calendar_replacements[$word];
 					} else {
 						$replacements[$word] = $this->getKeywordReplacement($word);
