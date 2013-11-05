@@ -1221,11 +1221,14 @@ class Ecommerce_Cart_Processor
 					$cost = $cost - $unit_discount;
 				} else {
 					$cost = ($cost + $tax_cost) - $unit_discount;
+					// Discount are always calculated after tax, so the "has tax" parameter will always be TRUE here
+					$item_costs = $this->_calculateItemCosts($cost, $taxation_rate, TRUE);
+					$cost = $item_costs['tax_adjusted_cost'];
+					$tax_cost = $item_costs['tax_cost'];
 				}
-				$tax_cost = $taxation_rate * $cost;
 			}
 
-			$total_item_price_incl_discount = ($cost * $quantity) - $item_discount;
+			$total_item_price_incl_discount = $remove_tax ? $cost : $cost + $tax_cost;
 			$total_item_price_incl_discount_str = sprintf($price_format, $total_item_price_incl_discount>0 ? $total_item_price_incl_discount : '0');
 
 
