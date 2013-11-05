@@ -3242,7 +3242,10 @@ class Asset_Manager extends MySource_Object
 						$asset = $this->getAsset($use_bridge);
 						if (!is_null($asset)) {
 							// Always force an array in this case, and merge it in
-							$link = $asset->getLinkByAsset($majorid, $minorid, $link_types, $value, $side_of_link, TRUE, $dependant, $exclusive);
+							if (method_exists($asset, 'getLinkByAsset') === TRUE) {
+								$link = $asset->getLinkByAsset($majorid, $minorid, $link_types, $value, $side_of_link, TRUE, $dependant, $exclusive);
+							}
+
 							$this->forgetAsset($asset);
 						}
 						$shadow_links = array_merge($shadow_links, $link);
@@ -4157,7 +4160,7 @@ class Asset_Manager extends MySource_Object
 
 			$parents = $parents + $shdw_parents + $real_parents;
 
-			    $this->forgetAsset($asset);
+			$this->forgetAsset($asset);
 			return $parents;
 		}//end if shadow asset
 
