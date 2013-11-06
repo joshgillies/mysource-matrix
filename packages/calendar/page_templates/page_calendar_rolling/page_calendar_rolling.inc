@@ -655,9 +655,6 @@ class Page_Calendar_Rolling extends Page
 	{
 		if (!is_int($time)) return FALSE;
 
-		// use the modifier, calculate the new date
-		$time = strtotime(date('Y-m-d', $time).' '.($modifier < 0 ? $modifier : '+'.$modifier).' '.$time_unit);
-
 		// check for day/week/month, bail out if other
 		preg_match('/(day|week|month)([s]?)/', $time_unit, $matches);
 		if (empty($matches)) return FALSE;
@@ -666,24 +663,27 @@ class Page_Calendar_Rolling extends Page
 		// calculate the start and end times for the time unit
 		switch ($unit) {
 			case 'month':
-				// construct a date that looks like:  YEAR/MONTH/01 00:00.00
-				$tmp_start = mktime(0, 0, 0, date('m', $time), 1, date('y', $time));
-				$start     = date('Y-m-d', $tmp_start);
-				$end       = date('Y-m-d', strtotime($start.' +1 month -1 day'));
+				// Construct a 1st of the month date for the current time, add/subtract
+				// months to it, then use "last day of this month" to get... well you
+				// should know.
+				$start = date('Y-m-d', strtotime(date('Y-m-01', $time).' '.($modifier < 0 ? $modifier : '+'.$modifier).' months'));
+				$end   = date('Y-m-d', strtotime($start.' last day of this month'));
 			break;
 
 			case 'week':
 				// get current day, diff to monday/sunday
-				$day_of_week = date('w', $time);
-				$start       = date('Y-m-d', strtotime(date('Y-m-d', $time).' -'.$day_of_week.' days'));
-				$end         = date('Y-m-d', strtotime($start.' +6 days'));
+				$time  = strtotime(date('Y-m-d', $time).' '.($modifier < 0 ? $modifier : '+'.$modifier).' weeks');
+				$dow   = date('w', $time);
+				$start = date('Y-m-d', strtotime(date('Y-m-d', $time).' -'.$dow.' days'));
+				$end   = date('Y-m-d', strtotime($start.' +6 days'));
 			break;
 
 			case 'day':
 			default:
 				// just snip off anything beyond the day
-				$start     = date('Y-m-d', $time);
-				$end       = $start;
+				$time  = strtotime(date('Y-m-d', $time).' '.($modifier < 0 ? $modifier : '+'.$modifier).' days');
+				$start = date('Y-m-d', $time);
+				$end   = $start;
 			break;
 		}
 
@@ -749,7 +749,7 @@ class Page_Calendar_Rolling extends Page
 			$query = MatrixDAL::preparePdoQuery($sql);
 			foreach($bind_vars as $bind_value => $bind_var) {
 				MatrixDAL::bindValueToPdo($query, $bind_var,  $bind_value);
-			}			
+			}
 			MatrixDAL::bindValueToPdO($query, 'start_date_ds',   $start_date_stamp, PDO::PARAM_INT);
 			MatrixDAL::bindValueToPdO($query, 'start_date_ds_1', $start_date_stamp, PDO::PARAM_INT);
 			MatrixDAL::bindValueToPdO($query, 'start_date_ds_2', $start_date_stamp, PDO::PARAM_INT);
@@ -770,7 +770,7 @@ class Page_Calendar_Rolling extends Page
 			$query = MatrixDAL::preparePdoQuery($sql);
 			foreach($bind_vars as $bind_value => $bind_var) {
 				MatrixDAL::bindValueToPdo($query, $bind_var,  $bind_value);
-			}			
+			}
 			$recur_result = MatrixDAL::executePdoAll($query);
 		} catch (Exception $e) {
 			throw new Exception($e->getMessage());
