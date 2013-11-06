@@ -35,18 +35,19 @@
         <MySource_SET name="forward_www_vars"    value="true" />
 
         <MySource_PRINT var="form_open" />
- 
-        <div class="sq-login-logo" align="middle"><img src="mysource_files/login_matrix_logo.png" alt="Squiz Matrix Logo" /></div>
 
-        <h1><MySource_PRINT var="password_change_heading" /></h1>
-        <p class="sq-current-user">Currently logged in as <strong><MySource_PRINT id_name="__global__" var="current_user" default="[Not Logged In]" attr="name" /></strong></p>
+        <div class="sq-login-logo"><img src="mysource_files/login_matrix_logo.png" alt="Squiz Matrix Logo" /></div>
 
         <p class="sq-login-message"><MySource_PRINT var="password_change_message" />.</p>
+
+        <p class="sq-login-message" id="sq-current-user">Currently logged in as: <strong id="sq-current-user-name"><MySource_PRINT id_name="__global__" var="current_user" default="[Not logged in]" attr="name" /></strong></p>
+
         <div class="sq-note-section"><MySource_PRINT var="password_rules_note" /></div>
 
         <div id="sq-message" class="sq-message">
           <MySource_PRINT var="system_messages" />
         </div>
+
         <script>
         <!-- //<![CDATA[
           var msgsDiv = document.getElementById('sq-message');

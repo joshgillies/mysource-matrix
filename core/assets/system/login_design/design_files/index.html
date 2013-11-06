@@ -28,7 +28,7 @@
   <body class="sq-login-design">
 
     <MySource_AREA id_name="login_form" design_area="login_form">
-
+      
       <MySource_LOGIN_SECTION>
 
         <MySource_SET name="give_username_focus" value="true" />
@@ -36,17 +36,16 @@
 
         <MySource_PRINT var="form_open" />
 
-        <div class="sq-login-logo" align="middle"><img src="mysource_files/login_matrix_logo.png" alt="Squiz Matrix Logo" /></div>
-
-        <h1><MySource_PRINT var="login_heading" /></h1>
-
-        <p id="sq-current-user" class="sq-current-user">Currently logged in as <strong id="sq-current-user-name"><MySource_PRINT id_name="__global__" var="current_user" default="[Not logged in]" attr="name" /></strong></p>
+        <div class="sq-login-logo"><img src="mysource_files/login_matrix_logo.png" alt="Squiz Matrix Logo" /></div>
 
         <p class="sq-login-message"><MySource_PRINT var="login_message" />.</p>
+
+        <p class="sq-login-message" id="sq-current-user">Currently logged in as: <strong id="sq-current-user-name"><MySource_PRINT id_name="__global__" var="current_user" default="[Not logged in]" attr="name" /></strong></p>
 
         <div id="sq-message" class="sq-message">
           <MySource_PRINT var="system_messages" />
         </div>
+
         <script>
         <!-- //<![CDATA[
           var msgsDiv = document.getElementById('sq-message');
@@ -55,7 +54,7 @@
           }
           var currentName = document.getElementById('sq-current-user-name');
           if (currentName.innerHTML == '[Not logged in]') {
-            document.getElementById('sq-current-user').innerHTML = 'Currently not logged in';
+            document.getElementById('sq-current-user').style.display = 'none';
           }
         //]]> -->
         </script>
