@@ -30,14 +30,12 @@
 			<display_name>Authentication Type</display_name>
 			<note>Authentication type to use for accessing the SOAP service</note>
 		</field>
-
-		<field attribute="username">
-			<display_name>Username</display_name>
-			<note></note>
-		</field>
-		<field attribute="password">
-			<display_name>Password</display_name>
-			<note>Username and password for the authentication</note>
+		<field>			
+			<display_name>Authentication Details</display_name>
+			<function_call>
+				<paint_function   name="paintAuthenticationDetails"   />
+				<process_function name="processAuthenticationDetails" />
+			</function_call>
 		</field>
 		<field attribute="local_cert">
 			<display_name>Local Certificate</display_name>

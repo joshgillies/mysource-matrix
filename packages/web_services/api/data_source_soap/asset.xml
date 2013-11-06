@@ -21,7 +21,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../packages/asset.xsd">
     <package>web_services</package>
     <type_code>data_source_soap</type_code>
-    <version>0.1</version>
+    <version>0.2</version>
     <name>SOAP Data Source</name>
     <description>Provides ability to create shadow assets based on the response from the SOAP Service</description>
     <instantiable>yes</instantiable>

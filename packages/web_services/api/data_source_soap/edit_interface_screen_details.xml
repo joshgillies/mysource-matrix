@@ -28,20 +28,17 @@
 		<field attribute="auth_type">
 			<selection style="list" />
 		</field>
-		<field attribute="username">
-			<text width="20" height="1" />
-		</field>
-		<field attribute="password">
-			<password width="20" height="1" confirm_field="0" />
-		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintAuthenticationDetails"   />
+				<process_function name="processAuthenticationDetails" />
+			</function_call>
+		</field>		
 		<field attribute="local_cert">
 			<assetid type_codes="file:D" />
 		</field>
 		<field attribute="passphrase">
 			<password width="20" height="1" confirm_field="0" />
-		</field>
-		<field attribute="jsessionid_url">
-			<text width="80" height="1" />
 		</field>
 		<field attribute="mute_exception">
 			<boolean true_text="yes" false_text="no" />

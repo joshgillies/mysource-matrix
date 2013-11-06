@@ -5,7 +5,6 @@
 	<string source="field_value">Field Value</string>
 	<string source="new_field_name">New Field Name</string>
 	<string source="new_field_value">New Field Value</string>
-	<string source="use_http_authentication"><![CDATA[For HTTP authentication, the username and password options can be used to supply credentials.<br/>For authentication using JSESSIONID, WS login URL needs to be supplied along with the username and password to obtain the sessionid.]]></string>
 	<string source="local_cert">Local Certificate</string>
 	<string source="use_https">For HTTPS client certificate authentication use local certificate and passphrase options.</string>
 	<string source="passphrase">Passphrase</string>

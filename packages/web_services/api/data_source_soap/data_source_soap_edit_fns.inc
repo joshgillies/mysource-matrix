@@ -317,102 +317,6 @@ class Data_Source_Soap_Edit_Fns extends Data_Source_Edit_Fns
 
 
 	/**
-	* Paint the Soap request/response message
-	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
-	*
-	* @return boolean
-	* @access public
-	*/
-	function paintWsUsernameAuth(&$asset, &$o, $prefix)
-	{
-		$wa = $asset->writeAccess('attributes');
-
-		$ws_auth = $asset->attr('ws_auth');
-		$username = array_get_index($ws_auth, 'username', '');
-		$password = array_get_index($ws_auth, 'password', '');
-		$enabled = !empty($ws_auth['enabled']);
-
-		$prefix .= '_wsua';
-		check_box($prefix.'_enabled', '1', $enabled, 'showWs'.$prefix.'Fields()', ($wa ? '' : 'disabled'));
-		echo '<span id="'.$prefix.'_ws_block" name="'.$prefix.'_ws_block" style="display:'.($enabled ? 'block' : 'none').'">';
-		echo '<table><tr>';
-		echo '<td>Username:</td><td>';
-		if ($wa) {
-			text_box($prefix.'_username', $username, 20);
-		} else {
-			echo $username ;
-		}
-		echo '</td></tr>';
-
-		echo '<tr>';
-		echo '<td>Password:</td><td>';
-		if ($wa) {
-			password_box($prefix.'_password', '', 20, 'autocomplete="off"');
-		} else {
-			echo translate('password_not_shown');
-		}
-		echo '</td></tr>';
-
-		echo '</table>';
-		echo '</span>';
-		?>
-		<script type="text/javascript">
-			function showWs<?php echo $prefix;?>Fields() {
-
-				var enabled = document.getElementById('<?php echo $prefix.'_enabled'; ?>').checked;
-				var input_span = document.getElementById('<?php echo $prefix.'_ws_block'; ?>');
-				if (enabled) {
-					input_span.style.display = 'block';
-				} else {
-					input_span.style.display = 'none';
-				}
-			}//end function
-		</script>
-		<?php
-
-		return TRUE;
-
-	} //end paintWsUsernameAuth()
-
-
-	/**
-	* Paint the Soap request/response message
-	*
-	* @param object	&$asset	the asset to which we belong
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form element
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processWsUsernameAuth(&$asset, &$o, $prefix)
-	{
-		$wa = $asset->writeAccess('attributes');
-
-		if ($wa) {
-			$ws_auth = $asset->attr('ws_auth');
-			$prefix .= '_wsua';
-			if (isset($_POST[$prefix.'_enabled'])) {
-				$ws_auth['enabled'] = 1;
-				$ws_auth['username'] = isset($_POST[$prefix.'_username']) ? $_POST[$prefix.'_username'] : '';
-				if (!empty($_POST[$prefix.'_password'])) {
-					$ws_auth['password'] =  $_POST[$prefix.'_password'];
-				}
-			}else {
-				$ws_auth['enabled'] = 0;
-			}
-			return $asset->setAttrValue('ws_auth', $ws_auth);
-		}//end if
-
-		return TRUE;
-
-	} //end processWsUsernameAuth()
-
-
-	/**
 	* Paint the XSL file input field
 	*
 	* @param object	&$asset	the asset to which we belong
@@ -491,6 +395,61 @@ class Data_Source_Soap_Edit_Fns extends Data_Source_Edit_Fns
 
 	} //end processXslFile()
 
+	
+	/**
+	* Paint the authentication details fields
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintAuthenticationDetails($asset, Backend_Outputter $o, $prefix)
+	{
+		$wa = $asset->writeAccess('attributes');
+
+		$settings = $asset->attr('auth_details');
+		$settings['auth_type'] = $asset->attr('auth_type');
+		
+		Soap_Common::paintSoapAuthenticationFields($prefix, $settings, $o, $wa, TRUE);
+
+		return TRUE;
+
+	} //end paintAuthenticationDetails()
+	
+	
+	/**
+	* Process the authentication details fields
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processAuthenticationDetails($asset, Backend_Outputter $o, $prefix)
+	{
+		$wa = $asset->writeAccess('attributes');
+		if (!$wa) {
+			return FALSE;
+		}
+		
+		$settings = $asset->attr('auth_details');
+		$settings['auth_type'] = $asset->attr('auth_type');
+		
+		$success = FALSE;
+		if (Soap_Common::processSoapAuthenticationFields($prefix, $settings, $o)) {		
+			// Var $settings is passed by refernce
+			unset($settings['auth_type']);
+			$success = $asset->setAttrValue('auth_details', $settings);
+		}		
+
+		return $success;
+
+	} //end processAuthenticationDetails()	
 
 }//end class
 

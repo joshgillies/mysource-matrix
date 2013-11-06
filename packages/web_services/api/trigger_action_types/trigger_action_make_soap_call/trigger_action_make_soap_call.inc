@@ -110,30 +110,10 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 		if ($settings['mute_exceptions']) {
 			$options['exceptions'] = 0;
 		}
-
-		$auth_type = array_get_index($settings, 'auth_type', 'HTTP_BASIC');
+		
 		// Make SOAP call
 		try {
-			$ws_options = Array();
-			if ($auth_type === 'WSS_USERNAME_TOKEN' || $auth_type === 'WSS_PASSWORD_DIGEST') {
-				$ws_options = Array(
-								'username' => $settings['login'],
-								'password' => $settings['password'],
-								'passwordDigest' => $auth_type === 'WSS_PASSWORD_DIGEST' ? TRUE : FALSE,
-							);
-			}
-			$client = SOAP_Common::getSoapClient($settings['wsdl'], $options, $ws_options);
-
-			// For authentication using JSESSIONID cookie
-			if ($auth_type == 'JSESSIONID') {
-				$username = array_get_index($settings, 'login', '');
-				$password = array_get_index($settings, 'password', '');
-				$login_url = array_get_index($settings, 'login_url', '');
-				if (!SOAP_Common::setJSessionCookie($client, $username, $password, $login_url)) {
-					throw new Exception('Error occured when setting the JSESSIONID cookie');
-				}
-			}
-
+			$client = SOAP_Common::getSoapClient($settings, $options);
 			eval('$data = $client->$function('.$eval_string.');');
 		}
 		catch (Exception $e) {
@@ -194,12 +174,8 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 	*/
 	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
-		$auth_types = Array(
-						'HTTP_BASIC' => 'HTTP Basic',
-						'JSESSIONID' => 'JSESSIONID Cookie',
-						'WSS_USERNAME_TOKEN' => 'WSS Username Token',
-						'WSS_PASSWORD_DIGEST' => 'WSS Password Digest',
-					);
+		$auth_types = Soap_Common::$auth_types;
+		
 		$selected_caching_type  = array_get_index($settings, 'cache_wsdl', WSDL_CACHE_NONE);
 		$selected_service_address  = array_get_index($settings, 'service_address', NULL);
 		$disabled = $write_access ? '' : 'disabled';
@@ -208,17 +184,6 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 		ob_start();
 		?>
 
-		<script type="text/javascript">
-            function showLoginUrlField<?php echo $prefix_str;?>() {
-                var auth_type = document.getElementById('<?php echo $prefix.'[auth_type]'; ?>').value;
-                var login_url_field = document.getElementById('<?php echo $prefix.'[login_url_tr]'; ?>');
-                if (auth_type == 'JSESSIONID') {
-                    login_url_field.style.display = '';
-                } else {
-                    login_url_field.style.display = 'none';
-                }
-            }//end function
-        </script>
 		<p class="sq-backend-section-subheading">Connection Details</p>
 
 			<table class="sq-backend-table" >
@@ -239,59 +204,14 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 					<td><p>
 					<?php
 						$selected_auth_type = array_get_index($settings, 'auth_type', 'HTTP_BASIC');
-						combo_box($prefix.'[auth_type]', $auth_types, FALSE, $selected_auth_type, 0, "onChange='showLoginUrlField".$prefix_str."()' $disabled");
+						combo_box($prefix.'[auth_type]', $auth_types, FALSE, $selected_auth_type);
 					?></p></td>
 				</tr>
-				<tr id="<?php echo $prefix; ?>[login_url_tr]" style="display: <?php echo ($selected_auth_type == 'HTTP_BASIC' ? 'none' : '') ?>;">
-					<td width="120">Auth URL</td>
-					<td>
-						<p>
-						<?php
-							if ($write_access) {
-								text_box($prefix.'[login_url]', array_get_index($settings, 'login_url', ''), 100);
-								check_box($prefix.'[test_auth]', '1', FALSE);
-								echo " Test Authentication";
-							} else {
-								echo array_get_index($settings, 'login_url', '');
-							}
-						?>
-						</p>
-						<?php
-							if ($write_access && isset($settings['crm_auth_success']) && is_bool($settings['crm_auth_success'])) {
-								if ($settings['crm_auth_success'] === TRUE) {
-									echo '<p><span style="color: green"><b>Authentication successful</b></span></p>';
-								} else {
-									echo '<p><span style="color: red"><b>Authentication Failed</b></span></p>';
-								}
-							}
-						?>
-					</td>
-				</tr>
-
-				<tr>
-					<td><?php echo translate('username'); ?></td>
-					<td><p>
-					<?php
-						$login = array_get_index($settings, 'login', '');
-						if ($write_access) {
-							text_box($prefix.'[login]', $login, 35);
-						} else {
-							echo $login;
-						}
-					?>
-					</p></td>
-				</tr>
-				<tr>
-					<td><?php echo translate('password'); ?></td>
-					<td><p>
-					<?php
-						if($write_access) password_box($prefix.'[password]', array_get_index($settings, 'password', ''), 35);
-					?>
-					</p></td>
-				</tr>
-				<tr>
-					<td colspan="2"><?php echo translate('use_http_authentication'); ?></td>
-				</tr>
+				<?php
+					// Paint function authentication fields
+					$o = new Backend_Outputter();
+					Soap_Common::paintSoapAuthenticationFields($prefix, $settings, $o, $write_access, FALSE, TRUE);					
+				?>
 				<tr>
 					<td><?php echo translate('mute_exception'); ?></td>
 					<td><p>
@@ -624,18 +544,18 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 	public static function processInterface(&$settings, $request_data)
 	{
 		$settings['wsdl']				= array_get_index($request_data, 'wsdl', '');
-		$settings['login']				= array_get_index($request_data, 'login', '');
-		$settings['password']			= array_get_index($request_data, 'password', '');
 		$settings['mute_exceptions']	= array_get_index($request_data, 'mute_exceptions', FALSE);
 		$settings['local_cert']			= array_get_index($request_data['local_cert'], 'assetid','0');
 		$settings['passphrase']			= array_get_index($request_data, 'passphrase', '');
 		$settings['run_test']			= array_get_index($request_data, 'run_test', 0);
 		$settings['action']				= array_get_index($request_data, 'action', NULL);
 		$settings['auth_type']			= array_get_index($request_data, 'auth_type', NULL);
-		$settings['login_url']			= array_get_index($request_data, 'login_url', NULL);
 		$settings['cache_wsdl']			= array_get_index($request_data, 'cache_wsdl', NULL);
-		$settings['test_crm_auth']		= array_get_index($request_data, 'test_auth', NULL);
-		$settings['service_address']		= array_get_index($request_data, 'service_address', NULL);
+		$settings['service_address']	= array_get_index($request_data, 'service_address', NULL);
+		
+		// Process function authentication fields
+		$o = new Backend_Outputter();
+		Soap_Common::processSoapAuthenticationFields($request_data, $settings, $o);
 
 		if(isset ($settings['wsdl']) && !empty($settings['wsdl'])) {
 
@@ -648,18 +568,11 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 			}
 
 			try {
-				$ws_options = Array();
-				$auth_type = $settings['auth_type'];
-				if ($auth_type === 'WSS_USERNAME_TOKEN' || $auth_type === 'WSS_PASSWORD_DIGEST') {
-					$ws_options = Array(
-									'username' => $settings['login'],
-									'password' => $settings['password'],
-									'passwordDigest' => $auth_type === 'WSS_PASSWORD_DIGEST' ? TRUE : FALSE,
-								);
+				$client = SOAP_Common::getSoapClient($settings, $options);
+				if (!is_null($client)) {
+					$functions = $client->__getFunctions();
+					$types = $client->__getTypes();
 				}
-				$client = SOAP_Common::getSoapClient($settings['wsdl'], $options, $ws_options);
-				$functions = $client->__getFunctions();
-				$types = $client->__getTypes();
 			}
 			catch (Exception $e) {
 				trigger_error($e->getMessage());
