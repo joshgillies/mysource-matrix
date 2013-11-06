@@ -739,8 +739,12 @@ class LDAP_Bridge extends Asset implements Bridge
 			// the attribute mappings to the LDAP schemas
 			$attrs = $this->attr('attributes');
 			$assetid = $this->decodeString($assetid);
-
-			$result = $ldap->search($assetid,'(objectClass=*)', NULL, FALSE, FALSE, array_merge(array_values($attrs), Array('objectclass')));
+			
+			$required_attrs = Array('objectclass');
+			if(isset($attrs['mo'])) $required_attrs[] = $attrs['mo'];
+			if(isset($attrs['uid'])) $required_attrs[] = $attrs['uid'];
+			
+			$result = $ldap->search($assetid,'(objectClass=*)', NULL, FALSE, FALSE, $required_attrs);
 			if (!$result) return Array();
 
 			$data = $ldap->getEntries($result);
@@ -767,7 +771,7 @@ class LDAP_Bridge extends Asset implements Bridge
 					$filter = $data['uid'][0];
 				}
 
-				$result = $ldap->search($base_dn, '('.$attrs['gm'].'='.$filter.')', NULL, TRUE, TRUE, array_merge(array_values($attrs), Array('objectclass')));
+				$result = $ldap->search($base_dn, '('.$attrs['gm'].'='.$filter.')', NULL, TRUE, TRUE, Array('objectclass'));
 				if ($result) {
 					$groups = $ldap->getEntries($result);
 					if (!$groups['count']) $mo_groups = Array();
@@ -798,7 +802,7 @@ class LDAP_Bridge extends Asset implements Bridge
 
 			foreach ($mo_groups as $group_name) {
 				$group_name = $this->decodeString($group_name);
-				$result = $ldap->search($group_name, '(objectClass=*)', NULL, FALSE, FALSE, array_merge(array_values($attrs), Array('objectclass')));
+				$result = $ldap->search($group_name, '(objectClass=*)', NULL, FALSE, FALSE, Array('objectclass'));
 				if (!$result) continue;
 				$group_data = $ldap->getEntries($result);
 				if ($group_data['count'] > 0) {
@@ -809,7 +813,7 @@ class LDAP_Bridge extends Asset implements Bridge
 			foreach ($ou_groups as $group_name => $group_dn) {
 				$group_name = $this->decodeString($group_name);
 				$ou_value = (isset($attrs['ou']) && $attrs['ou'] != '') ? $attrs['ou'] : 'ou';
-				$result = $ldap->search($ou_value.'='.$group_name.','.$group_dn, '(objectClass=organizationalUnit)', NULL, FALSE, FALSE, array_merge(array_values($attrs), Array('objectclass')));
+				$result = $ldap->search($ou_value.'='.$group_name.','.$group_dn, '(objectClass=organizationalUnit)', NULL, FALSE, FALSE, Array('objectclass'));
 				if (!$result) continue;
 				$group_data = $ldap->getEntries($result);
 
