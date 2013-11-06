@@ -366,7 +366,7 @@ class Backend extends MySource_Object
 					}
 
 					#sq_header {
-						height: 28px;
+						height: <?php echo $header_height ?>px;
 					}
 				</style>
 			</head>
