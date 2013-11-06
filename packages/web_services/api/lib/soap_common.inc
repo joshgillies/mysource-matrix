@@ -24,8 +24,10 @@ define('MAX_COMPLEX_TYPE_PASRSE_LOOP', 3);
 
 /**
 * SOAP_Common
-* This class will have all the common functions used for SOAP trigger and form actions
+* This class will have all the common functions used for SOAP trigger, form and form section actions,
+* and SOAP Data Souruce asset
 *
+* @author  Chiranjivi Upreti <cupreti@squiz.com.au>
 * @author  Ash Karelia <akarelia@squiz.com.au>
 * @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
@@ -45,6 +47,16 @@ class SOAP_Common
 											WSDL_CACHE_MEMORY => 'Cache to memory',
 											WSDL_CACHE_BOTH => 'Cache to both disk and memory',
 										);
+
+	// Available SOAP authentication types
+	public static $auth_types = Array(
+									'HTTP_BASIC' => 'HTTP Basic',
+									'JSESSIONID' => 'JSESSIONID Cookie',
+									'WSS_USERNAME_TOKEN' => 'WSS Username Token',
+									'WSS_PASSWORD_DIGEST' => 'WSS Password Digest',
+									'MARKETO_SIGNATURE'	=> 'Marketo Signature',
+								);
+
 
 
 	/**
@@ -330,7 +342,7 @@ class SOAP_Common
 		}
 
 		$options['cache_wsdl'] = isset($settings['cache_wsdl']) ? $settings['cache_wsdl'] : WSDL_CACHE_NONE;
-		
+
 		if(isset($settings['service_address']) && !empty($settings['service_address'])) {
 		    $options['location'] = $settings['service_address'];
 		}
@@ -449,22 +461,54 @@ class SOAP_Common
 	/**
 	* Returns the SOAP client object with the WSSE header set, if applicable
 	*
-	* @param string $wsdl		WSDL address
+	* @param array  $settings	SOAP request settings
 	* @param array 	$options	SOAP options
-	* @param array 	$ws_options	WEES parameters (username, password)
 	*
 	* @return null|object
 	* @access public
 	*/
-	public static function &getSoapClient($wsdl, $options, $ws_options=Array())
+	public static function &getSoapClient($settings, $options)
 	{
-		$null = NULL;
+		$soap_client = NULL;
+
+		$wsdl = array_get_index($settings, 'wsdl', '');
+		if (empty($wsdl)) {
+			return $soap_client;
+		}
 
 		try {
 			$soap_client = new SoapClient($wsdl, $options);
-			if (isset($ws_options['username']) && isset($ws_options['password']) && isset($ws_options['passwordDigest'])) {				
-				self::setWsseSoapHeader($soap_client, $ws_options['username'], $ws_options['password'], $ws_options['passwordDigest']);
-			}
+
+			$username = array_get_index($settings, 'login', '');
+			$password = array_get_index($settings, 'password', '');
+			$auth_type = array_get_index($settings, 'auth_type', 'HTTP_BASIC');
+
+			// Add authentication header, based on the settings
+			switch($auth_type) {
+				case 'JSESSIONID':
+					$login_url = array_get_index($settings, 'login_url', '');
+					 if (!self::setJSessionCookie($soap_client, $username, $password, $login_url)) {
+						 throw new Exception('Error occured when setting the JSESSIONID cookie');
+					 }
+				break;
+
+
+				case 'WSS_USERNAME_TOKEN':
+				case 'WSS_PASSWORD_DIGEST':
+					self::setWsseSoapHeader($soap_client, $username, $password, $auth_type == 'WSS_PASSWORD_DIGEST');
+				break;
+
+				case 'MARKETO_SIGNATURE':
+					self::setMarketoSignature($soap_client, $username, $password);
+				break;
+
+				case 'HTTP_BASIC':
+				default:
+					// No header required here
+				break;
+
+			}//end switch
+
 		} catch (Exception $e) {
 			trigger_error('Error occured when trying to access the SOAP service: '.htmlentities($e->getMessage()));
 			return $null;
@@ -473,6 +517,44 @@ class SOAP_Common
 		return $soap_client;
 
 	}//end getSoapClient()
+
+
+	/*
+	* Add the Marketo signature (HMAC-SHA11 based) header
+	*
+	* @param object	$soap_client
+	* @param string	$userid
+	* @param string	$secret_key
+	*
+	* @return boolean
+	* @access public
+	*/
+	public static function setMarketoSignature(&$soap_client, $userid, $secret_key)
+	{
+		if (is_null($soap_client)) {
+			return FALSE;
+		}
+
+		$marketo_namespace = "http://www.marketo.com/mktows/";
+		$timestamp = date(DATE_W3C);
+		$signature = hash_hmac('sha1', $timestamp.$userid, $secret_key);
+
+		$header_attrs = Array(
+							'mktowsUserId' 		=> $userid,
+							'requestSignature' 	=> $signature,
+							'requestTimestamp'	=> $timestamp,
+						);
+		try {
+			$auth_header = new SoapHeader($marketo_namespace, 'AuthenticationHeader', $header_attrs);
+			$soap_client->__setSoapHeaders($auth_header);
+		}catch (Exception $e) {
+			trigger_error('Error occured when setting the Marketo signature: '.htmlentities($e->getMessage()));
+			return FALSE;
+		}
+
+		return TRUE;
+
+	}//end setMarketoSignature()
 
 
 	/**
@@ -486,11 +568,11 @@ class SOAP_Common
 		if (empty($ws_username) || empty($ws_password)) {
 			return FALSE;
 		}
-		
+
 		if ($soap_client instanceof SoapClient) {
 			if ($ws_passwordDigest)
 			{
-			
+
 				$nonce = mt_rand();
 				$timestamp = gmdate('Y-m-d\TH:i:s\Z');
 				$packedNonce = pack('H*', $nonce);
@@ -506,7 +588,7 @@ class SOAP_Common
 								<wsse:Nonce EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary">'.base64_encode(pack('H*', $nonce)).'</wsse:Nonce>
 								<wsu:Created xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">' . $timestamp . '</wsu:Created>
 							</wsse:UsernameToken>
-						</wsse:Security>';	
+						</wsse:Security>';
 			}
 			else {
 				$ws_header = '
@@ -549,7 +631,7 @@ class SOAP_Common
 	{
 		if(empty($username) || empty($password) || empty($login_url))
 		    return TRUE;
-		
+
 		if (!($soap_client instanceof SoapClient)) {
 			trigger_error('First parameter supplied is not a SOAP client object');
 			return FALSE;
@@ -620,7 +702,7 @@ class SOAP_Common
 
 	}//end getJSessionId()
 
-	
+
 	/**
 	* Returns available service address from WSDL file. Only picks SOAP 1.1 standard one.
 	* @param $wsdl wsdl url
@@ -633,7 +715,7 @@ class SOAP_Common
 	function getAvailableServiceAddress($wsdl, $username, $password)
 	{
 		if(empty($wsdl)) return Array();
-		
+
 		$address_array = Array();
 		$options = array(
 			'FOLLOWLOCATION' => 1,
@@ -664,8 +746,8 @@ class SOAP_Common
 		return $address_array;
 
 	}//end getAvailableServiceAddress()
-	
-	
+
+
 
 	/**
 	* Converts an object or an array structure into an xml string
@@ -716,6 +798,287 @@ class SOAP_Common
 		return $xml;
 
 	}//end arrayToXml()
+
+
+	// Auth type fields paint/process functions //////////////
+
+	/**
+	* Paint the additional fields for the selected authentication type
+	*
+	* @param string $prefix
+	* @param array  $settings
+	* @param object $o
+	* @param object $write_access
+	* @param object $paint_o
+	* @param boolean $array_fields
+	*
+	* @return void
+	* @access public
+	*/
+	public static function paintSoapAuthenticationFields($prefix, $settings, Backend_Outputter $o, $write_access=FALSE, $paint_o=FALSE, $array_fields=FALSE)
+	{
+		$selected_auth_type = array_get_index($settings, 'auth_type', 'HTTP_BASIC');
+		$auth_paint_fn = 'paint'.str_replace(' ', '', ucwords(str_replace('_', ' ', strtolower($selected_auth_type)))).'Fields';
+
+		if (method_exists(get_class(), $auth_paint_fn)) {
+			self::$auth_paint_fn($prefix, $settings, $o, $write_access, $paint_o, $array_fields);
+		} else {
+			self::paintUsernamePasswordFields($prefix, $settings, $o, $write_access, $paint_o, $array_fields);
+		}
+
+	}//end paintSoapAuthenticationFields()
+
+
+	/**
+	* Paint the additional fields for the selected authentication type
+	*
+	* @param string|array 	$prefix
+	* @param array  		$settings
+	* @param object 		$o
+	*
+	* @return void
+	* @access public
+	*/
+	public static function processSoapAuthenticationFields($prefix, &$settings, Backend_Outputter $o)
+	{
+		$selected_auth_type = array_get_index($settings, 'auth_type', 'HTTP_BASIC');
+		$auth_process_fn = 'process'.str_replace(' ', '', ucwords(str_replace('_', ' ', strtolower($selected_auth_type)))).'Fields';
+
+		if (method_exists(get_class(), $auth_process_fn)) {
+			$success = self::$auth_process_fn($prefix, $settings, $o);
+		} else {
+			$success = self::processUsernamePasswordFields($prefix, $settings, $o);
+		}
+
+		return $success;
+
+	}//end processSoapAuthenticationFields()
+
+
+	/*
+	* Paint JSESSIONID auth type fields
+	*
+	* @param string $prefix
+	* @param array  $settings
+	* @param object $o
+	* @param object $write_access
+	* @param object $paint_o
+	* @param boolean $array_fields
+	*
+	* @return void
+	* @access public
+	*/
+	public static function paintJsessionidFields($prefix, $settings, Backend_Outputter $o, $write_access=FALSE, $paint_o=FALSE, $array_fields=FALSE)
+	{
+		$selected_auth_type = array_get_index($settings, 'auth_type', 'HTTP_BASIC');
+		$login_url_field_name = $array_fields ? $prefix.'[login_url]' : $prefix.'_login_url';
+		$test_auth_field_name = $array_fields ? $prefix.'[test_auth]' : $prefix.'_test_auth';
+
+		if ($paint_o) {
+			$o->openSection();
+			$o->openField('Auth URL');
+				if ($write_access) {
+					text_box($login_url_field_name, array_get_index($settings, 'login_url', ''), 100);
+					check_box($test_auth_field_name, '1', FALSE);
+					echo '&nbsp;Test Authentication';
+				} else {
+					echo array_get_index($settings, 'login_url', '');
+				}
+
+				if (isset($settings['crm_auth_success']) && is_bool($settings['crm_auth_success'])) {
+					if ($settings['crm_auth_success'] === TRUE) {
+						echo '<p><span style="color: green"><b>Authentication successful</b></span></p>';
+					} else {
+						echo '<p><span style="color: red"><b>Authentication Failed</b></span></p>';
+					}
+				}
+			$o->closeField();
+			self::paintUsernamePasswordFields($prefix, $settings, $o, $write_access, $paint_o, $array_fields, '', '', FALSE);
+
+			$o->closeSection();
+
+		} else {
+			?>
+			<tr>
+				<td width="120"><p>Auth URL</p></td>
+				<td>
+					<p>
+						<?php text_box($login_url_field_name, array_get_index($settings, 'login_url', ''), 100); ?>
+						<?php check_box($test_auth_field_name, '1', FALSE); ?> Test Authentication
+					</p>
+					<?php
+						if (isset($settings['crm_auth_success']) && is_bool($settings['crm_auth_success'])) {
+							if ($settings['crm_auth_success'] === TRUE) {
+								echo '<p><span style="color: green"><b>Authentication successful</b></span></p>';
+							} else {
+								echo '<p><span style="color: red"><b>Authentication Failed</b></span></p>';
+							}
+						}
+					?>
+				</td>
+			</tr>
+			<?php
+
+			self::paintUsernamePasswordFields($prefix, $settings, $o, $write_access, $paint_o, $array_fields);
+		}
+
+	}//end paintJsessionidFields()
+
+
+	/*
+	* Process JSESSIONID auth type fields
+	*
+	* @param string|array 	$prefix
+	* @param array  		$settings
+	* @param object 		$o
+	*
+	* @return boolean
+	* @access public
+	*/
+	public static function processJsessionidFields($prefix, &$settings, Backend_Outputter $o)
+	{
+		// If array, the POST data has been already processed in the var
+		if (is_array($prefix)) {
+			$settings['login_url'] = array_get_index($prefix, 'login_url', array_get_index($settings, 'login_url', NULL));
+			$settings['test_crm_auth'] = array_get_index($prefix, 'test_auth', NULL);
+		} else {
+			$settings['login_url'] = array_get_index($_POST, $prefix.'_login_url', array_get_index($settings, 'login_url', NULL));
+			$settings['test_crm_auth'] = array_get_index($_POST, $prefix.'_test_auth', NULL);
+		}
+
+		unset($settings['crm_auth_success']);
+		if ($settings['auth_type'] == 'JSESSIONID' && $settings['test_crm_auth']) {
+			$crm_auth_test = FALSE;
+			if (SOAP_Common::getJSessionId($settings['login'], $settings['password'], $settings['login_url'])) {
+				$crm_auth_test = TRUE;
+			}
+			$settings['crm_auth_success'] = $crm_auth_test;
+		}
+
+		return self::processUsernamePasswordFields($prefix, $settings, $o);;
+
+	}//end processJsessionidFields()
+
+
+	/*
+	* Paint Marketo authentication type fields
+	*
+	* @param string $prefix
+	* @param array  $settings
+	* @param object $o
+	* @param object $write_access
+	* @param object $paint_o
+	* @param boolean $array_fields
+	*
+	* @return void
+	* @access public
+	*/
+	public static function paintMarketoSignatureFields($prefix, $settings, Backend_Outputter $o, $write_access=FALSE, $paint_o=FALSE, $array_fields=FALSE)
+	{
+		// Basically same as generic user/pass fields, except the fields name are different
+		self::paintUsernamePasswordFields($prefix, $settings, $o, $write_access, $paint_o, $array_fields, 'Access Key', 'Secret Key');
+
+	}//end paintMarketoSignatureFields()
+
+
+	/*
+	* Paint username/password interface
+	*
+	* @param string  $prefix
+	* @param array   $settings
+	* @param object  $o
+	* @param object  $write_access
+	* @param object  $paint_o
+	* @param boolean $array_fields
+	* @param string  $username_label
+	* @param string  $password_label
+	* @param boolean $new_section
+	*
+	* @return void
+	* @access public
+	*
+	*/
+	public static function paintUsernamePasswordFields($prefix, $settings, Backend_Outputter $o, $write_access=FALSE, $paint_o=FALSE, $array_fields=FALSE, $username_label='', $password_label='', $new_section=TRUE)
+	{
+		if (empty($username_label)) {
+			$username_label = translate('username');
+		}
+		if (empty($password_label)) {
+			$password_label = translate('password');
+		}
+
+		$login_field_name = $array_fields ? $prefix.'[login]' : $prefix.'_login';
+		$password_field_name = $array_fields ? $prefix.'[password]' : $prefix.'_password';
+
+		// Authentication note locale string
+		$auth_note_locale_string = 'soap_api_authentication_'.strtolower(array_get_index($settings, 'auth_type', 'HTTP_BASIC'));
+
+		if ($paint_o) {
+			$new_section ? $o->openSection() : '';
+				$o->openField($username_label);
+				if ($write_access) {
+					text_box($login_field_name, array_get_index($settings, 'login', ''), 35);
+				} else {
+					echo array_get_index($settings, 'login', '');
+				}
+				$o->closeField();
+
+				$o->openField($password_label);
+				if ($write_access) {
+					password_box($password_field_name, array_get_index($settings, 'password', ''), 35);
+				} else {
+					echo array_get_index($settings, 'password', '');
+				}
+				$o->closeField();
+
+				$o->sectionNote(translate($auth_note_locale_string));
+			$new_section ? $o->closeSection() : '';
+
+		} else {
+			?>
+				<tr>
+					<td><?php echo $username_label; ?></td>
+					<td><p><?php text_box($login_field_name, array_get_index($settings, 'login', ''), 35); ?><br />
+					</p></td>
+				</tr>
+				<tr>
+					<td><?php echo $password_label; ?></td>
+					<td><p><?php password_box($password_field_name, array_get_index($settings, 'password', ''), 35); ?></p></td>
+				</tr>
+				<tr>
+					<td colspan="2"><p><?php echo translate($auth_note_locale_string); ?></p></td>
+				</tr>
+			<?php
+		}
+
+	}//end paintUsernamePasswordFields()
+
+
+	/*
+	* Process username/password interface
+	*
+	* @param string|array 	$prefix
+	* @param array  		$settings
+	* @param object 		$o
+	*
+	* @return void
+	* @access public
+	*
+	*/
+	public static function processUsernamePasswordFields($prefix, &$settings, Backend_Outputter $o)
+	{
+		// If array, the POST data has been already processed in the var
+		if (is_array($prefix)) {
+			$settings['login'] = array_get_index($prefix, 'login', NULL);
+			$settings['password'] = array_get_index($prefix, 'password', NULL);
+		} else {
+			$settings['login'] = array_get_index($_POST, $prefix.'_login', NULL);
+			$settings['password'] = array_get_index($_POST, $prefix.'_password', NULL);
+		}
+
+		return TRUE;
+
+	}//end processUsernamePasswordFields()
 
 
 }//end class

@@ -363,13 +363,10 @@ class Data_Source_Soap extends Data_Source
 		} else {
 			$wsdl = trim($this->attr('wsdl'));
 			if (!empty($wsdl)) {
-				$settings = Array();
-				if ($this->attr('username')) {
-					$settings['login'] = $this->attr('username');
-				}
-				if ($this->attr('password')) {
-					$settings['password'] = $this->attr('password');
-				}
+				$settings = $this->attr('auth_details');
+				$settings['wsdl'] = $wsdl;
+				$settings['auth_type'] = $this->attr('auth_type');
+				
 				if ($this->attr('local_cert')) {
 					$settings['local_cert'] = $this->attr('local_cert');
 				}
@@ -384,28 +381,7 @@ class Data_Source_Soap extends Data_Source
 				}
 				$settings['run_test'] = 1;
 				$soap_options = SOAP_Common::_getSoapOptions($settings);
-
-				$ws_options = Array();
-				$auth_type = $this->attr('auth_type');
-				if ($auth_type === 'USERNAME_TOKEN' || $auth_type === 'WSS_DIGEST') {
-					$ws_options = Array(
-									'username' => array_get_index($settings, 'login', ''),
-									'password' => array_get_index($settings, 'password', ''),
-									'passwordDigest' => $auth_type === 'WSS_DIGEST' ? TRUE : FALSE,
-								);
-				}
-
-				$client  = SOAP_Common::getSoapClient($wsdl, $soap_options, $ws_options);
-				
-				// For CRM OnDemand access using JSESSIONID cookie
-				if ($auth_type === 'JSESSIONID') {
-					$username = array_get_index($settings, 'login', '');
-					$password = array_get_index($settings, 'password', '');
-					$login_url = $this->attr('jsessionid_url');
-					if (!SOAP_Common::setJSessionCookie($client, $username, $password, $login_url)) {
-						throw new Exception('Error occured when setting the JSESSIONID cookie');
-					}
-				}
+				$client  = SOAP_Common::getSoapClient($settings, $soap_options);
 				
 				$this->_soap_client = $client;
 

@@ -39,6 +39,9 @@ class Data_Source_Soap_Management extends Asset_Management
 	function Data_Source_Soap_Management(&$pm)
 	{
 		$this->Asset_Management($pm);
+		
+		require_once SQ_PACKAGES_PATH.'/web_services/api/lib/soap_common.inc'; 
+		$auth_types = Soap_Common::$auth_types;
 
 		$this->vars	= Array (
 						'name'				=> Array (
@@ -72,12 +75,7 @@ class Data_Source_Soap_Management extends Asset_Management
 												'parameters'    => Array(
 																		'multiple'      => FALSE,
 																		'allow_empty'   => FALSE,
-																		'options'       => Array(
-																							'HTTP_BASIC'        => 'HTTP Basic',
-																							'USERNAME_TOKEN'	=> 'WSS Username Token',
-																							'WSS_DIGEST'	=>	'WSS Password Digest',
-																							'JSESSIONID'		=> 'JSESSIONID Cookie',
-																						),
+																		'options'       => $auth_types,
 																	),
 												'description' 	=> 'Authentication type to use',
 											   ),
@@ -136,21 +134,97 @@ class Data_Source_Soap_Management extends Asset_Management
 												'default'		=> ',',
 												'description'	=> 'Delimiler to seperate data from xml elements with same name',
 											   ),
-		    				'jsessionid_url'				=> Array(
+		    			'jsessionid_url'	=> Array(
 												'added'			=> '0.1',
 												'type'			=> 'text',
 												'default'		=> '',
 												'description'	=> 'JSESSION ID Authentication URL',
 											   ),
-		    		    		'service_address'				=> Array(
+    		    		'service_address'	=> Array(
 												'added'			=> '0.1',
 												'type'			=> 'text',
 												'default'		=> '',
 												'description'	=> 'Selected Service Address to send request to',
 											   ),
+						'auth_details'		=> Array(
+												'added'		=> '0.2',
+												'type'		=> 'serialise',
+												'default'	=> Array(),
+												'description' 	=> 'SOAP authentication details',
+											   ),
 					  );
 
 	}//end constructor
+	
+	/**
+	* Upgrade
+	*
+	* @param string	$current_version	the version of the asset that is currenly installed
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _upgrade($current_version)
+	{
+		// first do things as normal
+		$res = parent::_upgrade($current_version);
+
+		if (version_compare($current_version, '0.2', '<')) {
+			// Auth types connection details are stored in serialised "auth_details" attr now
+			// Also make the "USERNAME_TOKEN" and "WSS_DIGEST" auth type value consistant with the Soap_Common,
+			// which now used for painting/processing auth type fields
+			// Regarding major code refactoring changes when adding feature #6584
+			pre_echo('Upgrading SOAP Data Soruce to v0.2');
+			$assetid_list = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('data_source_soap', FALSE);
+			foreach ($assetid_list as $assetid) {
+				$soap_ds = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$username = $soap_ds->attr('username');
+				$password = $soap_ds->attr('password');
+				$login_url = $soap_ds->attr('jsessionid_url');
+				$auth_type = $soap_ds->attr('auth_type');
+				
+				$auth_settings = Array();
+				$upgrade_required = FALSE;
+				if (!empty($username) || !empty($password) || !empty($login_url)) {
+					$auth_settings['login'] = $username;
+					$auth_settings['password'] = $password;
+					$auth_settings['login_url'] = $login_url;
+					$upgrade_required = TRUE;					
+				}
+				
+				// No upgrade requires for these cases
+				if ($auth_type == 'USERNAME_TOKEN' ) {
+					$auth_type = 'WSS_USERNAME_TOKEN';
+					$upgrade_required = TRUE;
+				}
+				
+				if ($auth_type == 'WSS_DIGEST') {
+					$auth_type = 'WSS_PASSWORD_DIGEST';
+					$upgrade_required = TRUE;
+				}
+				
+				if (!$upgrade_required) {
+					continue;
+				}
+
+				$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);					
+					$soap_ds->setAttrValue('auth_type', $auth_type);
+					$soap_ds->setAttrValue('auth_details', $auth_settings);					
+					if (!$soap_ds->saveAttributes()) {
+						pre_echo('UPGRADE FAILED - Could not save attributes for asset #'.$soap_ds->id);
+						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($soap_ds, TRUE);
+						$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+						return FALSE;
+					}//end if
+				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($soap_ds, TRUE);
+			}
+			pre_echo(count($assetid_list).' Default Delivery Method updated');
+		}
+
+		return $res;
+
+	}//end _upgrade()	
 
 
 }//end class
