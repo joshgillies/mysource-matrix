@@ -1127,7 +1127,7 @@ var JS_Asset_Map = new function() {
 				case KeyCode.Escape:
 					e.preventDefault();
 					dfx.remove(dfx.getClass('dragAsset', assetMapContainer));
-					dragStatus = null;
+					self.cancelDrag();
 					self.clearSearch();
 					self.moveMe.cancel();
 				break;
@@ -1253,6 +1253,7 @@ var JS_Asset_Map = new function() {
 							// Left click. Possible drag. If clicked asset is already selected,
 							// maintain current selection, otherwise deselect all previous
 							// selection and select this one.
+							self.clearMenus();
 							if (dfx.hasClass(assetTarget, 'selected') === false) {
 								self.selectAssetNode(assetTarget);
 							}
@@ -1279,6 +1280,7 @@ var JS_Asset_Map = new function() {
 			} else {
 				if (options.simple === false) {
 					if (which === 1) {
+						self.clearMenus();
 						dragStatus.selectionDrag = {
 							selection: [],
 							originalSelection: []
@@ -1289,6 +1291,7 @@ var JS_Asset_Map = new function() {
 					} else if (which === 3) {
 						var menu = self.drawAddMenu();
 						self.positionMenu(menu, {x: e.clientX, y: e.clientY});
+						self.cancelDrag();
 						e.stopImmediatePropagation();
 					}
 				}
@@ -1304,7 +1307,7 @@ var JS_Asset_Map = new function() {
 				insideTree = dfx.getParents(target, '.tree')[0];
 			}
 
-			if (dragStatus) {
+			if (dragStatus && (dragStatus.assetDrag || dragStatus.selectionDrag)) {
 				var assetMapCoords = dfx.getElementCoords(assetMapContainer);
 				var mousePos       = dfx.getMouseEventPosition(e);
 				if (!timeouts.scrollDrag) {
@@ -1641,7 +1644,7 @@ var JS_Asset_Map = new function() {
 				}//end if
 			}//end if
 
-			dragStatus = null;
+			self.cancelDrag();
 		});
 	};
 
