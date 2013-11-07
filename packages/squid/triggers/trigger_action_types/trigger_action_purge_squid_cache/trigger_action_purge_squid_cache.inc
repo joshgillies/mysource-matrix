@@ -83,10 +83,8 @@ class Trigger_Action_Purge_Squid_Cache extends Trigger_Action
 		if (is_null($state['asset'])) return FALSE;
 
 		// For backward compatibility
-		if ($settings['cascade'] === TRUE) {
-			$settings['cascade'] = 'children';
-		} else if ($settings['cascade'] === FALSE) {
-			$settings['cascade'] = 'single';
+		if (!isset($settings['cascade'])) {
+			$settings['cascade'] = array_get_index($settings, 'cascade_clear_cache', FALSE) ? 'children' : 'single';
 		}
 
 		$todo_assetids = $settings['selected_assets'];
@@ -155,12 +153,12 @@ class Trigger_Action_Purge_Squid_Cache extends Trigger_Action
 		$settings['use_current_asset'] = isset($settings['use_current_asset']) ? $settings['use_current_asset'] : TRUE;
 		$settings['selected_assets'] = isset($settings['selected_assets']) ? $settings['selected_assets'] : Array();
 		$settings['cascade'] = isset($settings['cascade']) ? $settings['cascade'] : 'single';
+
 		// For backward compatibility
-		if ($settings['cascade'] === TRUE) {
-			$settings['cascade'] = 'children';
-		} else if ($settings['cascade'] === FALSE) {
-			$settings['cascade'] = 'single';
+		if (!isset($settings['cascade'])) {
+			$settings['cascade'] = array_get_index($settings, 'cascade_clear_cache', FALSE) ? 'children' : 'single';
 		}
+
 		$settings['asset_types'] = isset($settings['asset_types']) ? $settings['asset_types'] : Array();
 		if (empty($settings['asset_types'])) {
 			$settings['asset_types'] = Array(0 => '');
