@@ -1343,22 +1343,6 @@ class Page_Online_Quiz_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	
 	
 	/**
-	* Returns TRUE if the attribute lock is acquired
-	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	*
-	* @return boolean
-	* @access public
-	*/
-	function hasAttributeWriteAccess(&$asset, &$o)
-	{
-		return $asset->writeAccess('attributes');
-
-	}//end hasAttributeWriteAccess()
-	
-	
-	/**
 	* Show-if conditional: isListingMode
 	*
 	* @param object &$asset asset being painted
