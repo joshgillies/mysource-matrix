@@ -3560,15 +3560,7 @@ class JS_Api extends Page
 				$attr_type = $attributes[$attr_name[$i]]['type'];
 				if ($attr_name[$i] != '' && array_key_exists($attr_name[$i], $attributes)) {
 					//set our new attribute
-					if ($this->_filterAttrValues() === TRUE) {
-						// Filter goes off if they have backend permission.
-						// Using canAccessBackend() as that has the appropriate settings
-						// for accessing JS API from EES.
-						$attr_set = $asset->setAttrValue($attr_name[$i], $attr_val[$i], FALSE);
-					} else {
-						// Filter stays on.
-						$attr_set = $asset->setAttrValue($attr_name[$i], $attr_val[$i]);
-					}
+					$attr_set = $asset->setAttrValue($attr_name[$i], $attr_val[$i]);
 
 					if(!$attr_set) {
 						if ($$attr_type == 'password') {
@@ -3606,33 +3598,6 @@ class JS_Api extends Page
 		}//end else
 
 	}//end setAttributeValue()
-
-
-	/**
-	 * Determines whether any front-end filter should be overridden for setting attr values.
-	 *
-	 * We allow it for users permitted access to the backend, only where it is
-	 * apparent we are calling the JS API from Simple Edit (ie. in EES-style
-	 * environments).
-	 *
-	 * @return boolean
-	 */
-	private function _filterAttrValues()
-	{
-		$filter = FALSE;
-		if (isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER'])) {
-			$in_limbo = (strpos($_SERVER['HTTP_REFERER'],SQ_CONF_LIMBO_SUFFIX) !== FALSE) ? TRUE : FALSE;
-		}
-
-		if ($in_limbo === TRUE) {
-			$user = $GLOBALS['SQ_SYSTEM']->user;
-			if ($user->canAccessBackend() === TRUE) {
-				$filter = TRUE;
-			}
-		}
-
-		return $filter;
-	}
 
 
 	/**
