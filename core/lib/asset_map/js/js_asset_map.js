@@ -2922,14 +2922,18 @@ var JS_Asset_Map = new function() {
 			container.appendChild(assetLine);
 		}//end for
 
-		if (Number(totalAssets) === -1) {
-			if (rootAsset.asset.length === options.assetsPerPage) {
+		// Don't draw the pagination tool if this is the root folder or the teleport
+		// root. We're always showing all the assets here.
+		if (parentAsset && (String(parentAsset.getAttribute('data-assetid')) !== String(options.teleportRoot))) {
+			if (Number(totalAssets) === -1) {
+				if (rootAsset.asset.length === options.assetsPerPage) {
+					var navDownLine = this.drawPaginationTool('down', start, totalAssets);
+					container.appendChild(navDownLine);
+				}
+			} else if (totalAssets > (start + rootAsset.asset.length)) {
 				var navDownLine = this.drawPaginationTool('down', start, totalAssets);
 				container.appendChild(navDownLine);
 			}
-		} else if (totalAssets > (start + rootAsset.asset.length)) {
-			var navDownLine = this.drawPaginationTool('down', start, totalAssets);
-			container.appendChild(navDownLine);
 		}
 
 		this.updateAssetsForUseMe(container);
