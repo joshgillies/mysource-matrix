@@ -348,7 +348,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintValueInterface(Metadata_Field $asset, Backend_Outputter $o, $value_str, $write_access, $enable_default=TRUE, $print_cascade_values_option = TRUE, $type_code=NULL)
+	function paintValueInterface(Metadata_Field $asset, Backend_Outputter $o, $value_str, $write_access, $enable_default=TRUE, $print_cascade_values_option = TRUE, $type_code=NULL, $suffix_to_prefix = '')
 	{
 		return FALSE;
 
@@ -369,7 +369,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processInlineValueInterface(Metadata_Field $asset, &$new_value_str, &$field_cascade_value)
+	function processInlineValueInterface(Metadata_Field $asset, &$new_value_str, &$field_cascade_value, $type_code=NULL, $suffix_to_prefix='')
 	{
 		return FALSE;
 
