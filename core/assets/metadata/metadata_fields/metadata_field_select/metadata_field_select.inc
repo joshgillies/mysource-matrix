@@ -277,8 +277,8 @@ class Metadata_Field_Select extends Metadata_Field
 
 		foreach ($option_keys as $key) {
 			foreach($options as $index => $element) {
-				if ($index === $key) {
-					$value_str .= $element.'\\; ';
+				if ($element === $key) {
+					$value_str .= $index.'\\; ';
 				}
 			}
 		}
