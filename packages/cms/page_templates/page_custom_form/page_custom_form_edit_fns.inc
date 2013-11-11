@@ -329,20 +329,5 @@ class Page_Custom_Form_Edit_Fns extends Page_Edit_Fns
 	}//end delegateToFormEditMethod()
 
 
-	/**
-	* Returns TRUE if the attribute lock is acquired
-	*
-	* @param object	&$asset			the asset whose interface we are painting
-	* @param object	&$o				the outputter class
-	*
-	* @return boolean
-	* @access public
-	*/
-	function hasAttributeWriteAccess(&$asset, &$o) {
-		return $asset->writeAccess('attributes');
-
-	}//end hasAttributeWriteAccess()
-
-
 }//end class
 ?>

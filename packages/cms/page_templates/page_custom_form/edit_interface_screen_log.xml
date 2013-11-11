@@ -16,7 +16,7 @@
 -->
 
 <contents>
-	<section name="Export" write_access="write:attributes" show_if="hasAttributeWriteAccess" limbo_access="1">
+	<section name="Export" limbo_access="1">
 		<field keyword="download_date_range">
 			<function_call>
 				<paint_function   name="paintDownloadDateRange"   />
