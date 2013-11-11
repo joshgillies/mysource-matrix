@@ -59,9 +59,10 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	public function paintValueInterface(Metadata_Field_Text $asset, Backend_Outputter $o, $value_str, $write_access, $enable_default=TRUE, $print_cascade_values_option = TRUE)
+	public function paintValueInterface(Metadata_Field_Text $asset, Backend_Outputter $o, $value_str, $write_access, $enable_default=TRUE, $print_cascade_values_option = TRUE, $type_code=NULL, $suffix_to_prefix = '')
 	{
 		$prefix = $asset->getPrefix();
+		if (!empty($suffix_to_prefix)) $prefix .= $suffix_to_prefix;
 
 		$is_default = FALSE;
 
@@ -182,13 +183,15 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	public function processInlineValueInterface(Metadata_Field_Text $asset, &$new_value_str, &$field_cascade_value)
+	public function processInlineValueInterface(Metadata_Field_Text $asset, &$new_value_str, &$field_cascade_value, $type_code=NULL, $suffix_to_prefix='')
 	{
 		if (!$asset->attr('editable')) return FALSE; // nothing for us to do
 
 		$processed = FALSE;
 
 		$prefix = $asset->getPrefix();
+		if (!empty($suffix_to_prefix)) $prefix .= $suffix_to_prefix;
+
 		if (!empty($_POST[$prefix.'_default'])) {
 			// use default
 			$new_value_str = NULL;

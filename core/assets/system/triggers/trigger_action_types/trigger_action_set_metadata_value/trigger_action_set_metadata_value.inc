@@ -233,14 +233,14 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 		// Input field for the value
 		ob_start();
 			if ($write_access && $metadata_field) {
+				// attribute friendly prefix
+				$new_prefix = str_replace(array('[',']'), '_', $prefix);
 				echo '<br>Set the value for this field<br>';
 				// set the field name
 				$edit_fns = $metadata_field->getEditFns();
-				$edit_fns->paintValueInterface($metadata_field, $GLOBALS['SQ_SYSTEM']->backend->out, $metadata_field_value, TRUE, TRUE, FALSE);
+				$edit_fns->paintValueInterface($metadata_field, $GLOBALS['SQ_SYSTEM']->backend->out, $metadata_field_value, TRUE, TRUE, FALSE, NULL, $new_prefix);
 				hidden_field($prefix.'[form_printed]', 1);
 
-				// attribute friendly prefix
-				$new_prefix = str_replace(array('[',']'), '_', $prefix);
 				hidden_field($prefix.'[new_prefix]', $new_prefix);
 
 				$parameter_map_value = array_get_index($settings, 'value_map', serialize(Array()));
@@ -322,6 +322,7 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 		// process fieldid
 		$fieldid_data = array_get_index($request_data, 'fieldid', 0);
 		$form_printed = array_get_index($request_data, 'form_printed', 0);
+		$prefix		  = array_get_index($request_data, 'new_prefix', '');
 
 		$fieldid = $fieldid_data['assetid'];
 
@@ -353,13 +354,13 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 			$result = '';
 			if ($form_printed) {
 				$field_cascade_value=FALSE;
-				$edit_fns->processInlineValueInterface($metadata_field, $result, $field_cascade_value);
+				$edit_fns->processInlineValueInterface($metadata_field, $result, $field_cascade_value, NULL, $prefix);
 			}
 
 			$settings['field_name']	= $metadata_field->name;
 			$settings['value']		= $result;
 
-			$new_prefix = str_replace(array('[',']'), '_', array_get_index($request_data, 'new_prefix', ''));
+			$new_prefix = str_replace(array('[',']'), '_', $prefix);
 			if ($new_prefix) {
 				$atr_parameter_map = new Asset_Attribute_Parameter_Map();
 				$atr_parameter_map->process($new_prefix.'_parameter_map');
