@@ -1942,21 +1942,6 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	}//end processKeywordReplacementText()
 
 
-	/**
-	* Returns TRUE if the attribute lock is acquired
-	*
-	* @param object	&$asset			the asset whose interface we are painting
-	* @param object	&$o				the outputter class
-	*
-	* @return boolean
-	* @access public
-	*/
-	function hasAttributeWriteAccess(&$asset, &$o) {
-		return $asset->writeAccess('attributes');
-
-	}//end hasAttributeWriteAccess()
-
-
 	//--        FORM ACTIONS        --//
 
 

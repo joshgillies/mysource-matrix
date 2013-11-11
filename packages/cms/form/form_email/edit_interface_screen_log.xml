@@ -21,7 +21,7 @@
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
-	<section name="Export" write_access="write:attributes" show_if="hasAttributeWriteAccess">
+	<section name="Export">
 		<field keyword="download_date_range">
 			<function_call>
 				<paint_function   name="paintDownloadDateRange"   />
