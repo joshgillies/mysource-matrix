@@ -219,6 +219,7 @@ class Design_Area_Nest_Content extends Design_Area
 						break;
 					}
 				$body = ob_get_clean();
+				$GLOBALS[\'SQ_SYSTEM\']->replaceKeyword($body);
 
 				echo $body;
 			}
