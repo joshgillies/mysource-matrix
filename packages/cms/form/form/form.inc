@@ -5021,7 +5021,7 @@ class Form extends Asset implements Bridge
 		$button_name = ($this->attr('save_button')) ? $this->attr('save_button') : translate('save');
 		$extra = 'class="sq-form-submit"';
 		ob_start();
-			submit_button($this->getPrefix().'_save', $button_name, $extra);
+			submit_button($this->getPrefix().'_save', $button_name, '', $extra);
 		return ob_get_clean();
 
 	}//end getSaveButtonKeywordReplacement()
@@ -5089,7 +5089,7 @@ class Form extends Asset implements Bridge
 			$button_name = ($this->attr('save_and_exit_button')) ? $this->attr('save_and_exit_button') : translate('save_and_exit');
 			$extra = 'class="sq-form-submit"';
 			ob_start();
-				submit_button($this->getPrefix().'_save_and_exit', $button_name, $extra);
+				submit_button($this->getPrefix().'_save_and_exit', $button_name, '', $extra);
 			$replacement = ob_get_clean();
 		} else {
 			$replacement = NULL;
@@ -5134,7 +5134,7 @@ class Form extends Asset implements Bridge
 			$button_name = ($this->attr('previous_button')) ? $this->attr('previous_button') : translate('previous_page');
 			$extra = 'class="sq-form-submit"';
 			ob_start();
-				submit_button($this->getPrefix().'_previous_page', $button_name, $extra);
+				submit_button($this->getPrefix().'_previous_page', $button_name, '', $extra);
 			$replacement = ob_get_clean();
 		} else {
 			$replacement = '';
