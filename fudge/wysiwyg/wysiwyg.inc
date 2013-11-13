@@ -1157,6 +1157,7 @@ if (SQ_CONF_DEFAULT_CHARACTER_SET != 'utf-8') {
 					var html = new String(html_code);
 					var e  = '';
 					var re = null;
+					var limbo = '<?php echo SQ_IN_LIMBO ? 1 : 0; ?>';
 
 					// remove any references to this pop-up's url
 					var current_location = document.location.toString();
@@ -1171,10 +1172,19 @@ if (SQ_CONF_DEFAULT_CHARACTER_SET != 'utf-8') {
 					re = new RegExp(current_location, "gi");
 					html = html.replace(re, "");
 					<?php $host = array_get_index($_SERVER, 'HTTP_HOST', ''); ?>
-					// any other links	 
-					e = 'http[s]?://<?php echo $host.$_SERVER['PHP_SELF'];?>';	 
-					re = new RegExp(e, "gi");	 
+					// any other links
+					e = 'http[s]?://<?php echo $host.$_SERVER['PHP_SELF']; ?>';
+					re = new RegExp(e, "gi");
 					html = html.replace(re, "./");
+
+					if (HTMLArea.is_ie_compatibility && limbo == '1') {
+						e = '<?php echo SQ_CONF_LIMBO_SUFFIX; ?>';
+						url = '<?php echo $host.$_SERVER['PHP_SELF']; ?>';
+						re = new RegExp(e, "gi");
+						url = url.replace(re, "");
+						re = new RegExp('http[s]?://' + url, "gi");
+						html = html.replace(re, "./");
+					}
 
 					return html;
 				};
