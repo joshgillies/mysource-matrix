@@ -50,7 +50,7 @@ class User_Prefs extends Prefs
 						'SQ_USER_ASSET_MAP_MODERN'  => Array(
 														'name'			=> 'user_prefs_asset_map_modern_header',
 														'description'	=> 'Controls whether the modern (JS-based) asset map is used where supported, or the original Java version',
-														'default'		=> FALSE,
+														'default'		=> TRUE,
 														'protected'		=> FALSE,
 													   ),
 						'SQ_USER_SAFE_TYPE3_TRASH'	=> Array(

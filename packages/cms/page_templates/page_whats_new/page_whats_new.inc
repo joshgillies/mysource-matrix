@@ -236,37 +236,37 @@ class Page_Whats_New extends Listing_Engine
 		if ($this->attr('subs_only')) {
 			$links = Array();
 
-			foreach ($root_asset_ids as $root_asset_id) {
-				$links_query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset_id, $this->attr('link_types'), array_keys($wanted_types), FALSE, 'major', $link_value_wanted, NULL, NULL, $letter_sort_by, SQ_PERMISSION_READ);
-				$query = $links_query['sql_array'];
-				$bind_vars = array_merge($base_bind_vars, $links_query['bind_vars']);
-
-				// Replace references to asset table with ones to the view
-				$where = str_replace('a.'.$field, 'l.'.$field, $where);
-				$query['where'] .= $where;
-
-				// special case for A-Z listings because they require another field selected from the database
-				if ($group_by == 'letter') {
-					$query['select'] .= ', SUBSTR(l.'.$letter_sort_by.', 1, 1) AS first_letter';
-				}
-
-				$new_links = NULL;
-				try {
-					$_query = MatrixDAL::preparePdoQuery(implode(' ', $query));
-					foreach($bind_vars as $bind_var => $bind_value) {
-						MatrixDAL::bindValueToPdo($_query, $bind_var, $bind_value);
-					}
-					$new_links = MatrixDAL::executePdoAll($_query);
-				} catch (Exception $e) {
-					throw new Exception($e->getMessage());
-				}
-
-				$links = array_merge($links, $new_links);
-			}
-
 			switch ($group_by) {
 
 				case 'letter' :
+					foreach ($root_asset_ids as $root_asset_id) {
+						$links_query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset_id, $this->attr('link_types'), array_keys($wanted_types), FALSE, 'major', $link_value_wanted, NULL, NULL, $letter_sort_by, SQ_PERMISSION_READ);
+						$query = $links_query['sql_array'];
+						$bind_vars = array_merge($base_bind_vars, $links_query['bind_vars']);
+
+						// Replace references to asset table with ones to the view
+						$where = str_replace('a.'.$field, 'l.'.$field, $where);
+						$query['where'] .= $where;
+
+						// special case for A-Z listings because they require another field selected from the database
+						if ($group_by == 'letter') {
+							$query['select'] .= ', SUBSTR(l.'.$letter_sort_by.', 1, 1) AS first_letter';
+						}
+
+						$new_links = NULL;
+						try {
+							$_query = MatrixDAL::preparePdoQuery(implode(' ', $query));
+							foreach($bind_vars as $bind_var => $bind_value) {
+								MatrixDAL::bindValueToPdo($_query, $bind_var, $bind_value);
+							}
+							$new_links = MatrixDAL::executePdoAll($_query);
+						} catch (Exception $e) {
+							throw new Exception($e->getMessage());
+						}
+
+						$links = array_merge($links, $new_links);
+					}
+
 					foreach ($links as $link_info) {
 						$children[$link_info['minorid']] = Array( 0 => Array(
 																		'type_code'		=> $link_info['minor_type_code'],
@@ -278,9 +278,17 @@ class Page_Whats_New extends Listing_Engine
 
 				case 'number' :
 				case 'random' :
-					foreach ($links as $link_info) {
-						$children[$link_info['minorid']] = Array( 0 => Array('type_code' => $link_info['minor_type_code']));
+					foreach($root_asset_ids as $root_asset_id) {
+						$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($root_asset_id, $this->attr('link_types'), array_keys($wanted_types), FALSE, 'major', $link_value_wanted, NULL, NULL, NULL, SQ_PERMISSION_READ);
 					}
+					$children = Array();
+					foreach ($links as $link_info) {
+						$children[$link_info['minorid']] = Array( 
+																0 => Array(
+																		'type_code' => $link_info['minor_type_code']
+																	),
+															);
+					}//end foreach
 				break;
 			}
 

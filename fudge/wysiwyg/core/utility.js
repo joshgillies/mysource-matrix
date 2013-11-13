@@ -37,7 +37,11 @@ HTMLArea.is_safari  = (HTMLArea.agt.indexOf("safari") != -1);
 HTMLArea.is_safari4 = ((HTMLArea.agt.indexOf("version/4") != -1) && HTMLArea.is_safari);
 HTMLArea.is_linux   = (HTMLArea.agt.indexOf("inux") != -1);
 HTMLArea.is_ff		= (HTMLArea.agt.indexOf("firefox") != -1);
-
+HTMLArea.is_ie_compatibility  = (HTMLArea.is_ie7 && 
+									(HTMLArea.agt.indexOf("trident/6.0") != -1 || 
+									 HTMLArea.agt.indexOf("trident/5.0") != -1 || 
+									 HTMLArea.agt.indexOf("trident/4.0") != -1)
+								 );
 
 // variable used to pass the object to the popup editor window.
 HTMLArea._object = null;
