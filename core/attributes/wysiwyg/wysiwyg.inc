@@ -278,6 +278,8 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 			return;
 		}
 
+		$this->_saveCssAssetIds();
+
 		$wysiwyg = $this->_createEditor($prefix);
 
 		if (!(SQ_IN_BACKEND || SQ_IN_LIMBO)) echo '<script type="text/javascript" src="'.sq_web_path('lib').'/js/edit.js"></script>';
@@ -461,6 +463,38 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 		}
 
 	}//end paintBackendStatusIcons()
+
+
+	/**
+	* Save the ids of all css files attached to this url to be used by the wysiwyg editor later on
+	*
+	* @return void
+	* @access private
+	*/
+	protected function _saveCssAssetIds()
+    {
+        if (!isset($GLOBALS['sq_bodycopy_cssids']) && isset($GLOBALS['sq_preview_url']) && !empty($GLOBALS['sq_preview_url'])) {
+            $url = $GLOBALS['sq_preview_url'];
+            $url = preg_replace('|^http[s]?://|', '', $url);
+
+            $designid =  $GLOBALS['SQ_SYSTEM']->am->getValueFromURL($url, 'design::%frontend%', TRUE);
+
+            if ($designid) {
+                $design = $GLOBALS['SQ_SYSTEM']->am->getAsset($designid);
+                $stylesheets = $design->getStylesheets();
+
+                // save the ids of all the css files into a global var so the wysiwyg style
+                // drop down plugin can access this information without another querey
+                // we can also limit the stylesheets that are available to it here if we want
+                $GLOBALS['sq_bodycopy_cssids'] = array_keys($stylesheets);
+
+                $GLOBALS['SQ_SYSTEM']->am->forgetAsset($design);
+                unset($design);
+
+            }
+        }
+
+	}//end _saveCssAssetIds()
 
 
 }//end class

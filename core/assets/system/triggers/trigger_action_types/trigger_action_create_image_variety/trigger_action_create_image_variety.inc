@@ -93,9 +93,16 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 			return FALSE;
 		}
 
-		// height
-		if (!@$variety->setAttrValue('height', $settings['height'])) {
-			return FALSE;
+		if ($settings['constrain'] == 'centre_weighted_square') {
+			// dimension
+			if (!@$variety->setAttrValue('dimension', $settings['height'])) {
+				return FALSE;
+			}
+		} else {
+			// height
+			if (!@$variety->setAttrValue('height', $settings['height'])) {
+				return FALSE;
+			}
 		}
 
 		// rely on image_variety to check whether the variety already exists
@@ -167,6 +174,15 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 				$height_section_display_style = 'block';
 				$dimension_display_style = 'none';
 			break;
+
+			case 'centre_weighted_square':
+				$width_display_style = 'none';
+				$width_section_display_style = 'none';
+				$height_display_style = 'none';
+				$height_section_display_style = 'block';
+				$dimension_display_style = 'inline';
+			break;
+
 		}//end switch
 
 		// Name box
@@ -216,6 +232,12 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 						document.getElementById("<?php echo $prefix; ?>_height_section").style.display = "block";
 						document.getElementById("<?php echo $prefix; ?>_height_label").style.display = "inline";
 						document.getElementById("<?php echo $prefix; ?>_dimension_label").style.display = "none";
+					} else if (constrain == 'centre_weighted_square') {
+						document.getElementById("<?php echo $prefix; ?>_width_section").style.display = "none";
+						document.getElementById("<?php echo $prefix; ?>_width_label").style.display = "none";
+						document.getElementById("<?php echo $prefix; ?>_height_section").style.display = "block";
+						document.getElementById("<?php echo $prefix; ?>_height_label").style.display = "none";
+						document.getElementById("<?php echo $prefix; ?>_dimension_label").style.display = "inline";
 					}//end if
 					return true;
 					
@@ -226,10 +248,11 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 		<?php
 			$javascript = 'onchange="return '.$js_prefix.'_update_visible_fields();"';
 			$options = Array(
-						'width'		=> translate('width'),
-						'height'	=> translate('height'),
-						'dimension' => translate('both'),
-						'none'		=> translate('neither'),
+						'width'						=> translate('width'),
+						'height'					=> translate('height'),
+						'dimension'					=> translate('both'),
+						'none'						=> translate('neither'),
+						'centre_weighted_square'	=> translate('square_center_weighted'),
 					   );
 			echo translate('constrain_by').' ';
 			if ($write_access) {

@@ -1454,6 +1454,7 @@ Force that this asset can only be viewed through a Secure (SSL) connection</stri
 	<string source="dimension">Dimension</string>
 	<string source="both">Both</string>
 	<string source="neither">Neither</string>
+	<string source="square_center_weighted">Square (Centre Weighted)</string>
 	<string source="htmlwidth">HTML Width</string>
 	<string source="css">CSS</string>
 	<string source="not">Not</string>
