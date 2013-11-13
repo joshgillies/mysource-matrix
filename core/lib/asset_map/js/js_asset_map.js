@@ -519,7 +519,20 @@ var JS_Asset_Map = new function() {
 //--        INITIALISATION        --//
 
 
+	/**
+	 * Returns bool(true) if the browser can support the modern asset map.
+	 *
+	 * Supported: IE8+, Chrome 10+, Safari 5+ (Webkit v.533), Firefox 17+.
+	 *
+	 * @returns boolean
+	 */
 	this.isSupported = function() {
+		// If we don't have XMLHTTPRequest available, we can't run this.
+		// In IE8 this can be blocked at a Group Policy level...
+		if (!window.XMLHTTPRequest) {
+			return false;
+		}
+
 		var ver       = this.getBrowserVersion();
 		var supported = false;
 

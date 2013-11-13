@@ -65,7 +65,7 @@ function init_asset_map(codebase, archive, parameters, width, height)
 * Test Java asset map support.
 *
 * Checks the browser flavour and version and emit an alert if not supported.
-* Supported: IE6+,
+* Supported: IE6+, any Chrome, Safari 1.2.1, Gecko 1.4 (includes all Firefox >= 1.0)
 */
 function test_java_map_support() {
 	var supported = false;
