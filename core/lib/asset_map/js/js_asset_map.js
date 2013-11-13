@@ -529,7 +529,7 @@ var JS_Asset_Map = new function() {
 	this.isSupported = function() {
 		// If we don't have XMLHTTPRequest available, we can't run this.
 		// In IE8 this can be blocked at a Group Policy level...
-		if (!window.XMLHTTPRequest) {
+		if (!window.XMLHttpRequest) {
 			return false;
 		}
 
