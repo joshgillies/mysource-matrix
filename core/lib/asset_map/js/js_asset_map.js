@@ -1485,8 +1485,19 @@ var JS_Asset_Map = new function() {
 								// We need to determine what's underneath the
 								// draggable, too, to set the Move Me mode's pointer.
 								dfx.setStyle(dragAsset, 'display', 'none');
-								var height   = assetMapContainer.ownerDocument.documentElement.clientHeight;
-								underlyingEl = assetMapContainer.ownerDocument.elementFromPoint(mousePos.x, mousePos.y);
+
+								// Bug #6654: IE8 requires elements returned from elementFromPoint()
+								// to respond to mouse events. Testing suggests it is too slow to provide
+								// this to the element underneath once the draggable is hidden, so returns null
+								// the first time it's called.
+								// I'm going to allow 4 attempts just in case, but IE8 should return
+								// it the second time around at worst.
+								var count = 0;
+								while ((underlyingEl === null) && (count < 4)) {
+									count++;
+									underlyingEl = assetMapContainer.ownerDocument.elementFromPoint(mousePos.x, mousePos.y);
+								}
+
 								if (dfx.hasClass(underlyingEl, 'tab') === true) {
 									var hoverTreeid = underlyingEl.getAttribute('data-treeid');
 									self.setHoverTab(hoverTreeid, function(treeid) {
@@ -1531,7 +1542,13 @@ var JS_Asset_Map = new function() {
 
 						// We moved far enough between events that we're not on the
 						// draggable anymore.
-						var underlyingEl = assetMapContainer.ownerDocument.elementFromPoint(mousePos.x, mousePos.y);
+						var underlyingEl = null;
+						var count = 0;
+						while ((underlyingEl === null) && (count < 4)) {
+							count++;
+							underlyingEl = assetMapContainer.ownerDocument.elementFromPoint(mousePos.x, mousePos.y);
+						}
+
 						dfx.setStyle(dragAsset, 'left', dragStatus.currentPoint.x + 'px');
 						dfx.setStyle(dragAsset, 'top', dragStatus.currentPoint.y + 'px');
 
