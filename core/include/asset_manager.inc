@@ -9964,7 +9964,7 @@ class Asset_Manager extends MySource_Object
 			 * Then we need to chop the treeid's returned from that into SQ_CONF_ASSET_TREE_SIZE chunks
 			 * and use those in the where clause.
 			 */
-			$tree_sql = 'SELECT treeid FROM ' . SQ_TABLE_RUNNING_PREFIX . 'ast_lnk l INNER JOIN ' . SQ_TABLE_RUNNING_PREFIX .
+			$tree_sql = 'SELECT DISTINCT(treeid) FROM ' . SQ_TABLE_RUNNING_PREFIX . 'ast_lnk l INNER JOIN ' . SQ_TABLE_RUNNING_PREFIX .
 				'ast_lnk_tree t ON l.linkid = t.linkid WHERE l.minorid=:' . $bind_prefix . 'treeids_assetid';
 
 			$tree_bind_vars[$bind_prefix.'treeids_assetid'] = $assetid;
