@@ -3376,11 +3376,12 @@ class MySource extends MySource_Object
 				// If we are in the front-end, check whether we had been called
 				// through an API request in simple edit. If so, allow it to be
 				// unfiltered -if- a user is logged in that can access Simple Edit.
+				$referrer_limbo = FALSE;
 				if (isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER'])) {
-					$in_limbo = (strpos($_SERVER['HTTP_REFERER'],SQ_CONF_LIMBO_SUFFIX) !== FALSE) ? TRUE : FALSE;
+					$referrer_limbo = (strpos($_SERVER['HTTP_REFERER'],SQ_CONF_LIMBO_SUFFIX) !== FALSE) ? TRUE : FALSE;
 				}
 
-				if ($in_limbo === TRUE) {
+				if ($referrer_limbo === TRUE) {
 					$user = $GLOBALS['SQ_SYSTEM']->user;
 					if ($user->canAccessBackend() === TRUE) {
 						$filter_enabled = FALSE;
