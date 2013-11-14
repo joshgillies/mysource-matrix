@@ -107,7 +107,8 @@ class Metadata_Field_Multiple_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 
 				// Work out which options we have to set if we have to
 				$i = 0;
-				$default_keys = explode('; ', $asset->attr('default'));
+				$default_keys = str_replace('\'', '\\\'', $asset->attr('default'));
+				$default_keys = explode('; ', $default_keys);
 				$default_vals_expr = '[\''.implode('\', \'', $default_keys).'\']';
 				check_box($prefix.'_default', '1', $is_default, "handleDefaultClickMT(this, '$prefix', $default_vals_expr); ");
 				label(translate('use_default'), $prefix.'_default');
