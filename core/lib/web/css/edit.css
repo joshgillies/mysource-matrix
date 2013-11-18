@@ -158,6 +158,10 @@ table.sq-backend-main-headings .sq-backend-asset-info {
 
 /* NEW STYLES */
 
+#backend_section_1 .sq-backend-section-heading {
+	border-top: 				none;
+}
+
 .sq-table-input-btn {
 	margin-top: 				10px;
 }
@@ -638,10 +642,6 @@ td.sq-backend-screen-menu {
 	width:						100%;
 }
 
-.sq-backend-body-wrapper > .sq-backend-section-table-wrapper{
-	border-bottom: 				1px solid #dce3ec;
-}
-
 table.sq-backend-section-table {
 	width:						100%;
 	border-collapse:			collapse;
@@ -670,13 +670,14 @@ table.sq-backend-section-table tr:last-child td {
 	width:						100%;
 	background-color: 			#f2f7fd;
 	border-bottom: 				1px solid #dce3ec;
+	border-top: 				1px solid #dce3ec;
 	font-weight: 				bold;
 	padding: 					10px 20px 10px 20px;
 	font-size: 					14px;
 	color: 						#31435a;
 }
 
-td.sq-backend-field {
+p.sq-backend-field {
 	color: 						#565656;
 	font-weight: 				bold;
 	margin-bottom: 				10px;
@@ -1003,22 +1004,12 @@ ul.radio-list {
  #sq-commit-button-div-inside {
 	padding: 					10px;
 	margin: 					0 40px 0 0;
-	/*border: 					1px solid #ccc;
-	border-bottom: 				none;
+	background-color: 			#fff;
+	border: 					1px solid #ccc;
 	border-top-left-radius: 	4px;
 	border-top-right-radius: 	4px;
-	/*background-color: 			#e4e4e4;
-	background-image:           -moz-linear-gradient( -90deg, rgb(245,245,245) 0%, rgb(210,210,210) 100%);
-	background-image:           -webkit-linear-gradient( -90deg, rgb(245,245,245) 0%, rgb(210,210,210) 100%);
-	background-image:           -ms-linear-gradient( -90deg, rgb(245,245,245) 0%, rgb(210,210,210) 100%);
-	box-shadow: 				0 0 7px 0 #ccc;
-	*/
-}
-
-#sq-commit-button-div-inside input[type=button]{
-	box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.61);
-	padding-left: 17px;
-	padding-right: 17px;
+	border-bottom: 				none;
+	box-shadow: 				0 0 5px #ccc;
 }
 
 #sq-commit-button-spacer {
