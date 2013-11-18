@@ -126,11 +126,8 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 				// -->
 				</script>
 			</head>
-			<body bgcolor="#FFFFFF" onLoad="javascript: page_on_load();">
-				<table border="0" cellspacing="0" cellpadding="0" width="100%">
-					<tr>
-						<td><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="20" /></td>
-					</tr>
+			<body onLoad="javascript: page_on_load();">
+				<table width="100%">
 					<tr>
 						<td align="center">
 						<form name="<?php echo $this->_form_data['form_name']; ?>" method="post" action="<?php echo $this->_form_data['url']; ?>"  enctype="multipart/form-data">
@@ -179,78 +176,113 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 
 		?>
 			<a name="section_<?php echo $section['section_count']; ?>"></a>
-			<table width="100%" cellpadding="0" cellspacing="0" border="0">
-			<?php
-			if ($section['heading']) {
-				if ($depth > 0) {
-					// printing a nested section - needs to look a little different
-					?>
-					<tr>
-						<td class="sq-backend-section-subheading" colspan="3"><?php echo $section['heading'];?></td>
-					</tr>
-					<?php
-				} else {
-					// printing a top level section
-					?>
-					<tr class="sq-backend-section-heading-container">
-						<td colspan="3">
-							<table border="0" cellspacing="0" cellpadding="0">
-								<tr>
-									<td class="sq-backend-section-heading"><?php echo $section['heading'];?></td>
-									<td><img src="<?php echo $this->filesPath('images/section_icon.gif');?>" width="27" height="21" /></td>
-								</tr>
-							</table>
-						</td>
-					</tr>
-					<?php
-				}
-			}//end if
-
-			// print the section seperator
-			?>
-			<tr>
-				<td colspan="2"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="10" /></td>
-			</tr>
-			<tr>
-				<td><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="10" height="1" /></td>
-				<td width="100%">
-					<table cellspacing="0" cellpadding="0" border="0" width="100%">
-			<?php
-
-			for ($j = 0; $j < count($section['areas']); $j++) {
-				switch ($section['areas'][$j]['area_type']) {
-					case 'section' :
+			<div>
+				<table>
+				<?php
+				if ($section['heading']) {
+					if ($depth > 0) {
+						// printing a nested section - needs to look a little different
 						?>
-							<tr>
-								<td width="100%" valign="top" colspan="2">
-								<?php
-									$this->_paintSection($section['areas'][$j], $depth + 1);
-								?>
-								</td>
-							</tr>
+						<tr>
+							<td class="sq-backend-section-subheading"><?php echo $section['heading'];?></td>
+						</tr>
 						<?php
-					break;
+					} else {
+						// printing a top level section
+						?>
+						<tr class="sq-backend-section-heading-container">
+							<td>
+								<table>
+									<tr>
+										<td class="sq-backend-section-subheading"><?php echo $section['heading'];?></td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+						<?php
+					}
+				}//end if
 
-					case 'field' :
-						$field =& $section['areas'][$j];
-						switch ($field['format']) {
-							case 'new_line' :
-								$style = $id = '';
-								if ($field['hidden']) {
-									$style = 'style="display: none"';
-								}
-								if ($field['id_name']) {
-									$id = 'id="'.$field['id_name'].'"';
-								}
-								?>
-									<tr <?php echo $style; ?> <?php echo $id; ?>>
-										<td class="sq-backend-field sq-backend-field-newline" colspan="2">
-											<a name="field_<?php echo $field['field_count']; ?>"></a>
-											<?php echo $field['name'];?>
+				// print the section seperator
+				?>
+				<tr>
+					<td width="100%">
+						<table cellspacing="0" cellpadding="0" border="0" width="100%">
+				<?php
+
+				for ($j = 0; $j < count($section['areas']); $j++) {
+					switch ($section['areas'][$j]['area_type']) {
+						case 'section' :
+							?>
+								<tr>
+									<td width="100%" valign="top" colspan="2">
+									<?php
+										$this->_paintSection($section['areas'][$j], $depth + 1);
+									?>
+									</td>
+								</tr>
+							<?php
+						break;
+
+						case 'field' :
+							$field =& $section['areas'][$j];
+							switch ($field['format']) {
+								case 'new_line' :
+									$style = $id = '';
+									if ($field['hidden']) {
+										$style = 'style="display: none"';
+									}
+									if ($field['id_name']) {
+										$id = 'id="'.$field['id_name'].'"';
+									}
+									?>
+										<tr <?php echo $style; ?> <?php echo $id; ?>>
+											<td class="sq-backend-field sq-backend-field-newline" colspan="2">
+												<a name="field_<?php echo $field['field_count']; ?>"></a>
+												<span class="sq-backend-field-label"><?php echo $field['name'];?></span>
+											</td>
+										</tr>
+										<tr>
+											<td class="sq-backend-data sq-backend-data-newline" colspan="2">
+												<?php
+													echo $field['contents'];
+													if ($field['note']) $this->note($field['note']);
+												?>
+											</td>
+										</tr>
+									<?php
+								break;
+
+								case 'commit' :
+									?>
+									<tr>
+										<td class="sq-backend-data" style="text-align: right;" colspan="2">
+										<?php
+											echo $field['contents'];
+											if ($field['note']) $this->note($field['note']);
+										?>
 										</td>
 									</tr>
-									<tr>
-										<td class="sq-backend-data sq-backend-data-newline" colspan="2">
+									<?php
+								break;
+
+								case 'blank' :
+									// a blank field to be used just for formatting
+								break;
+
+								default :
+									$style = $id = '';
+									if ($field['hidden']) {
+										$style = 'style="display: none"';
+									}
+									if ($field['id_name']) {
+										$id = 'id="'.$field['id_name'].'"';
+									}
+								?>
+									<tr <?php echo $style; ?> <?php echo $id; ?>>
+										<td class="sq-backend-data">
+											<a name="field_<?php echo $field['field_count']; ?>"></a>
+											<span class="sq-backend-field-label"><?php echo $field['name'];?></span>
 											<?php
 												echo $field['contents'];
 												if ($field['note']) $this->note($field['note']);
@@ -258,64 +290,22 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 										</td>
 									</tr>
 								<?php
-							break;
+							}//end switch
+						break;
 
-							case 'commit' :
-								?>
-								<tr>
-									<td class="sq-backend-data" style="text-align: right;" colspan="2">
-									<?php
-										echo $field['contents'];
-										if ($field['note']) $this->note($field['note']);
-									?>
-									</td>
-								</tr>
-								<?php
-							break;
+						default :
+							trigger_localised_error('HIPO0059', E_USER_ERROR, $section['areas'][$j]['area_type']);
 
-							case 'blank' :
-								// a blank field to be used just for formatting
-							break;
+					}//end switch area type
 
-							default :
-								$style = $id = '';
-								if ($field['hidden']) {
-									$style = 'style="display: none"';
-								}
-								if ($field['id_name']) {
-									$id = 'id="'.$field['id_name'].'"';
-								}
-							?>
-								<tr <?php echo $style; ?> <?php echo $id; ?>>
-									<td class="sq-backend-field">
-										<a name="field_<?php echo $field['field_count']; ?>"></a>
-										<?php echo $field['name'];?>
-									</td>
-									<td class="sq-backend-data">
-									<?php
-										echo $field['contents'];
-										if ($field['note']) $this->note($field['note']);
-									?>
-									</td>
-								</tr>
-							<?php
-						}//end switch
-					break;
+				}//end for
 
-					default :
-						trigger_localised_error('HIPO0059', E_USER_ERROR, $section['areas'][$j]['area_type']);
-
-				}//end switch area type
-
-			}//end for
-
-			?>
-					</table>
-				</td>
-				<td><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="10" height="1" /></td>
-			</tr>
-			</table>
-			<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="100%"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="10" /></td></tr></table>
+				?>
+						</table>
+					</td>
+				</tr>
+				</table>
+			</div>
 			<?php
 
 		}//end else section type == raw

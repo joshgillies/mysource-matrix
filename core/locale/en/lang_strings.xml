@@ -10,7 +10,7 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.442 2013/10/10 23:24:43 akarelia Exp $
+* $Id: lang_strings.xml,v 1.441.2.2 2013/11/15 01:06:15 ewang Exp $
 *
 */
 
@@ -519,6 +519,7 @@
 	<string source="acquire_lock">Press the &lt;span class="sq-backend-button-fake"&gt;%1$s&lt;/span&gt; button to lock "%2$s" for editing.</string>
 	<string source="release_lock">Press the &lt;span class="sq-backend-button-fake"&gt;%1$s&lt;/span&gt; button to release the locks you hold on "%2$s".</string>
 	<string source="lock_type">Lock Type</string>
+	<string source="lock_details">Lock Details</string>
 	<string source="other_assets_in_chain">Other Assets in Chain</string>
 	<string source="forcibly_acquire_lock_can_cause_losses">You are about to forcibly acquire the following locks on "%1$s"&lt;br&gt;&lt;b&gt;Any changes being made to "%2$s" or any other asset in the locking chain (&lt;i&gt;see full list below&lt;/i&gt;) will be lost.&lt;/b&gt;</string>
 	<string source="currently_not_held">Currently not held</string>
@@ -805,7 +806,7 @@
 	<string source="reported">Reported</string>
 	<string source="continue">Continue</string>
 	<string source="hipo_error_report">%s HIPO Error Report</string>
-	<string source="hipo_herder_completion">( HIPO job was %s completed )</string>
+	<string source="hipo_herder_completion">(HIPO job was %s completed)</string>
 	<string source="hipo_currently_no_jobs">There are currently no HIPO Jobs on the system</string>
 	<string source="hipo_currently_no_oprhaned_jobs">There are currently no orphaned HIPO Jobs on the system</string>
 	<string source="source_job_code_name">Source Job Code Name</string>
@@ -1454,7 +1455,6 @@ Force that this asset can only be viewed through a Secure (SSL) connection</stri
 	<string source="dimension">Dimension</string>
 	<string source="both">Both</string>
 	<string source="neither">Neither</string>
-	<string source="square_center_weighted">Square (Centre Weighted)</string>
 	<string source="htmlwidth">HTML Width</string>
 	<string source="css">CSS</string>
 	<string source="not">Not</string>
@@ -1688,7 +1688,7 @@ Force that this asset can only be viewed through a Secure (SSL) connection</stri
 	<string source="no_future_permissions_set">No future permissions have been set</string>
 	<string source="cascade_permissions">Yes, cascade permission changes</string>
 	<string source="cascade_permissions_note">If you choose to cascade the changes to permissions you make on "%1$s", the changes will also be made on all assets that fall under "%1$s" in the various hierarchies in which it exists. This will affect %2$s other assets.</string>
-	<string source="manually_cascade_permissions_note">Manually cascading permissions will try to set the current permissions of "%1$s" on all assets that fall under "%1$s" in the various hierarchies in which it exists. This will affect %2$s other assets.&lt;br/&gt;&lt;i&gt;Any additional permissions set on affected assets will &lt;b&gt;not&lt;/b&gt; be removed during a manual cascade. Any permissions set on affected assets that conflict with ones set on "%1$s" will also &lt;b&gt;not&lt;/b&gt; be changed.&lt;/i&gt;&lt;br/&gt;&lt;b&gt;NB. If you select to manually cascade, any permission changes you make will also cascade even if you do not select them to. Use the option on its own for more predictable results.&lt;/b&gt;</string>
+	<string source="manually_cascade_permissions_note">Manually cascading permissions will try to set the current permissions of "%1$s" on all assets that fall under "%1$s" in the various hierarchies in which it exists. This will affect %2$s other assets.&lt;br/&gt;&lt;br/&gt;&lt;i&gt;Any additional permissions set on affected assets will &lt;b&gt;not&lt;/b&gt; be removed during a manual cascade. Any permissions set on affected assets that conflict with ones set on "%1$s" will also &lt;b&gt;not&lt;/b&gt; be changed.&lt;/i&gt;&lt;br/&gt;&lt;br/&gt;&lt;b&gt;NB. If you select to manually cascade, any permission changes you make will also cascade even if you do not select them to. Use the option on its own for more predictable results.&lt;/b&gt;</string>
 	<string source="manually_cascade_permissions_option">Manually cascade permissions</string>
 	<string source="password_rules_configuration">Password Rules Configuration</string>
 	<string source="session_rules_configuration">Session Rules Configuration</string>

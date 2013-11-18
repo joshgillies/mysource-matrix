@@ -515,9 +515,9 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 								text_box($prefix.'_designs['.$design_name.'][name]', '', 20, 30);
 							$o->closeField();
 						} else {
-							$o->openRaw();
+							//$o->openRaw();
 							hidden_field($prefix.'_designs['.$design_name.'][name]', $design_name);
-							$o->closeRaw();
+							//$o->closeRaw();
 
 							if ($design_type == 'user') {
 								$o->openField(translate('design_code'));
@@ -539,8 +539,8 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 								?>
 								<table class="sq-backend-table">
 									<tr>
-										<td class="sq-backend-table-header"><?php echo translate('url'); ?></td>
-										<td class="sq-backend-table-header"><?php echo translate('effective_design'); ?></td>
+										<th class="sq-backend-table-header"><?php echo translate('url'); ?></th>
+										<th class="sq-backend-table-header"><?php echo translate('effective_design'); ?></th>
 									</tr>
 								<?php
 								foreach ($effective_designs as $url => $effective_designid) {

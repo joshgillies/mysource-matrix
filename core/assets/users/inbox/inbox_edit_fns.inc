@@ -70,7 +70,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				@import url(<?php echo sq_web_path('lib')?>/web/css/inbox.css);
 			</style>
 
-			<table border="0" cellspacing="2" cellpadding="2" width="100%">
+			<table class="sq-new-message-table" width="100%">
 				<tr>
 					<td valign="top"><?php echo translate('to'); ?>:</td>
 					<td>
@@ -97,7 +97,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				</tr>
 				<tr>
 					<td colspan="2">
-						<textarea cols="3" rows="3" style="clear:both; width: 95%; height: 250px" id="<?php echo $prefix; ?>_Content" name="<?php echo $prefix; ?>_Content"></textarea>
+						<textarea class="sq-new-message-box" style="clear:both; width: 95%; height: 250px" id="<?php echo $prefix; ?>_Content" name="<?php echo $prefix; ?>_Content"></textarea>
 					</td>
 				</tr>
 			</table>
@@ -195,8 +195,8 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			//]]>
 			</script>
 			<script type="text/javascript" src="<?php echo sq_web_path('data'); ?>/asset_types/inbox/js/inbox.js"></script>
-			<div id="inbox_container">
-			<table border="0" cellspacing="0" cellpadding="1" width="100%" id="inbox_table">
+			<div id="inbox_container" class="sq-inbox-list-container">
+			<table id="inbox_table">
 			<tr>
 				<td class="sq-backend-table-header"><?php echo strtoupper(translate('to')); ?></td>
 				<td class="sq-backend-table-header"><?php echo strtoupper(translate('subject')); ?></td>
@@ -360,7 +360,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			<?php
 
 		if ($num_inbox == 0) {
-			echo '<div style="text-align: center">Your inbox is empty.</div></div>';
+			echo '<div class="sq-inbox-notification">Your inbox is empty.</div></div>';
 		} else {
 			$num_per_page = $GLOBALS['SQ_SYSTEM']->getUserPrefs('inbox', 'SQ_INBOX_MAIL_PER_PAGE');
 			if (empty($num_per_page)) $num_per_page = 20;
@@ -442,7 +442,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				</b></td><tr>
 				</table>
 				<!-- end print pagination bar -->
-			<table border="0" cellspacing="0" cellpadding="1" id="inbox_table">
+			<table id="inbox_table">
 			<tr>
 				<td class="sq-backend-table-header"><?php echo strtoupper(translate('from')); ?></td>
 				<td class="sq-backend-table-header"><?php echo strtoupper(translate('subject')); ?></td>
@@ -666,7 +666,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			return FALSE;
 		} else {
 ?>
-			<div id="inbox_container">
+			<div id="inbox_container" class="sq-inbox-list-container">
 
 			<table border="0" cellspacing="0" cellpadding="1" id="inbox_table">
 			<tr>

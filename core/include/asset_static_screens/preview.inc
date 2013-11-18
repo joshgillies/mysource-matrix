@@ -393,7 +393,7 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 			$o->openField('<span id="size_title"></span>');
 			?>
 				<span id="size_elements"></span>
-				<p style="text-align: right;">
+				<p>
 					<?php normal_button('preview_button', translate('preview'), 'do_preview()'); echo ' ';
 					normal_button('size_button', translate('calculate'), 'get_size()');?>
 				</p>

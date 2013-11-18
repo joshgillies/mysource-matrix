@@ -84,7 +84,11 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 	}
 
 	$err_name  = get_error_name($err_no);
-	$bg_colour = get_error_colour($err_no);
+	$err_colours = get_error_colour($err_no);
+	$bg_colour = $err_colours[0];
+	$border_colour = $err_colours[1];
+	$text_colour = $err_colours[2];
+
 
 	// send a report to the system error log
 	if (ini_get('log_errors')) {
@@ -172,37 +176,39 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 				$err_msg = nl2br(htmlspecialchars($err_msg));
 			}
 
-			$error_title = 'background-color: '.$bg_colour.'; font-size: 14px; font-weight: bold; color: #ffffff; font-family: verdana, arial, sans-serif; vertical-align: top;';
-			$error_data  = 'background-color: '.$bg_colour.'; font-size: 12px; color: #ffffff; font-family: verdana, arial, sans-serif; vertical-align: top;';
+			$error_title_main = 'font-weight: bold; font-size: 14px; vertical-align: top; padding: 12px 19px 11px; border-bottom: 1px solid '.$border_colour.'; color: '.$text_colour.';';
+			$error_title = 'font-weight: bold; font-size: 12px; vertical-align: top; padding-right: 30px; padding-bottom: 5px; color: '.$text_colour.';';
+			$error_data  = 'font-size: 12px; vertical-align: top; padding-right: 30px; padding-bottom: 5px; color: '.$text_colour.';';
 			if(empty($buffers)) echo '</script></table></table></table></table><br/>';
-			if(!(SQ_IN_BACKEND || SQ_IN_LIMBO)) echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
+			if(!(SQ_IN_BACKEND || SQ_IN_LIMBO)) echo '<!DOCTYPE html>';
 			?>
-				<table bgcolor="#c0c0c0" cellspacing="0" border="1" cellpadding="2" bordercolor="#ff0000">
+			<div style="position: relative; overflow: auto; border: 1px solid <?php echo $border_colour; ?>; border-radius: 4px; font-family: arial, sans-serif; color: <?php echo $text_colour; ?>; font-size: 12px; background: <?php echo $bg_colour; ?>; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5); margin-bottom: 10px;">
+				<table style="width: 100%; border-collapse: collapse;">
 					<tr>
-						<td style="<?php echo $error_title; ?>">
+						<td style="<?php echo $error_title_main; ?>">
 							<?php echo $err_name; ?>
 						</td>
 					</tr>
 					<tr>
-						<td style="<?php echo $error_data; ?>">
+						<td style="vertical-align: top; padding: 12px 19px 11px;">
 			<?php
 			if (SQ_CONF_DEBUG & (1 | 2)) {
 			?>
-							<table bgcolor="#dddddd" cellpadding="2" cellspacing="0" border="0">
+							<table>
 				<?php
 				if (SQ_CONF_DEBUG & 1) {
 				?>
 								<tr>
-									<td style="<?php echo $error_title; ?>" align="right">File:</td>
+									<td style="<?php echo $error_title; ?>">File:</td>
 									<td style="<?php echo $error_data; ?>"><?php echo $err_file; ?></td>
-									<td style="<?php echo $error_title; ?>" align="right">Line:</td>
+									<td style="<?php echo $error_title; ?>">Line:</td>
 									<td style="<?php echo $error_data; ?>"><?php echo $err_line; ?></td>
 								</tr>
 				<?php
 				}//end if (DEBUG & File+Line)
 				?>
 								<tr>
-									<td style="<?php echo $error_title; ?>" align="right">Message:</td>
+									<td style="<?php echo $error_title; ?>">Message:</td>
 									<td style="<?php echo $error_data; ?>" colspan="3"><?php echo $err_msg; ?></td>
 								</tr>
 				<?php
@@ -210,7 +216,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 				if ((SQ_CONF_DEBUG & 2) && $bt_str) {
 				?>
 								<tr>
-									<td style="<?php echo $error_title; ?>" align="right">Backtrace:</td>
+									<td style="<?php echo $error_title; ?>">Backtrace:</td>
 									<td style="<?php echo $error_data; ?>" colspan="3">
 										<script language="JavaScript" type="text/javascript">
 											<!--
@@ -226,13 +232,14 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 
 											// -->
 										</script>
-										<a href="javascript: print_backtrace_<?php echo $num_errors; ?>();" style="color: #ffffff;">Show</a>
+										<a href="javascript: print_backtrace_<?php echo $num_errors; ?>();" style="text-decoration: underline; color: <?php echo $text_colour; ?>">Show</a>
 									</td>
 								</tr>
 				<?php
 				}//end if (DEBUG & Backtrace)
 				?>
-							</table>
+				</table>
+			</div>
 			<?php
 			} else {
 				echo $err_msg;
@@ -241,7 +248,8 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 			?>
 						</td>
 					</tr>
-				</table><br/>
+				</table>
+			</div>
 			<?php
 
 	}//end switch ($GLOBALS['SQ_OUTPUT_TYPE'])
@@ -551,51 +559,69 @@ function get_error_name($error_code)
 
 
 /**
-* Specifies HTML colour to be used when displaying the PHP error code
+* Specifies HTML colours to be used when displaying the PHP error code
 *
 * @param int	$error_code	PHP error code
 *
-* @return string
+* @return array of strings
 * @access public
 */
 function get_error_colour($error_code)
 {
-	$colour = '';
+	$bg_colour = '';
+	$border_colour = '';
+	$text_colour = '';
 
 	if (defined('E_RECOVERABLE_ERROR') && $error_code == E_RECOVERABLE_ERROR) {
 		// PHP 5.2 "recoverable error" code (4096) - considered an normal PHP
 		// Error by Matrix to be consistent with PHP 5.1
-		$colour = '#0066CC';
+		$bg_colour = '#0066CC';
 	} else if (defined('E_STRICT') && $error_code == E_STRICT) {
 		// If we are using PHP5, E_STRICT will be defined (2048).
-		$colour = '#594165';
+		$bg_colour = '#594165';
 	} else {
 		switch ($error_code) {
 			case E_USER_ERROR :
-				$colour = '#993333';
+				$bg_colour = 		'#ffbcc1';
+				$border_colour = 	'#e0a1a6';
+				$text_colour = 		'#804951';
 			break;
 			case E_USER_WARNING :
-				$colour = '#DBA53B';
+				$bg_colour = 		'#ffeb93';
+				$border_colour = 	'#d7c789';
+				$text_colour = 		'#665a2a';
 			break;
 			case E_USER_NOTICE :
-				$colour = '#17AA92';
+				$bg_colour = 		'#b8e7e0';
+				$border_colour = 	'#8dc7be';
+				$text_colour = 		'#395c57';
 			break;
 			case E_ERROR :
-				$colour = '#0066CC';
+				$bg_colour = 		'#bdddff';
+				$border_colour = 	'#98b7d7';
+				$text_colour = 		'#3b536b';
 			break;
 			case E_WARNING :
-				$colour = '#0066CC';
+				$bg_colour = 		'#bdddff';
+				$border_colour = 	'#98b7d7';
+				$text_colour = 		'#3b536b';
 			break;
 			case E_NOTICE :
-				$colour = '#0066CC';
+				$bg_colour = 		'#bdddff';
+				$border_colour = 	'#98b7d7';
+				$text_colour = 		'#3b536b';
 			break;
 			default :
-				$colour = '#FF0000';
+				$bg_colour = 		'#cfcfcf';
+				$border_colour = 	'#ccc';
+				$text_colour = 		'#000';
 			break;
 		}//end switch
 	}
 
-	return $colour;
+	$colour_values = Array($bg_colour, $border_colour, $text_colour);
+
+	return $colour_values;
 
 }//end get_error_colour()
 
@@ -1663,6 +1689,7 @@ function get_asset_tag_line($assetid, $screen='')
 		} else if (!empty($screen_url)) {
 			echo '<a href="'.$screen_url.'">';
 		}
+		echo '<span class="sq-info-asset-name">';
 		echo $asset_info['name'];
 
 		if (!empty($js) || !empty($screen_url)) {
@@ -1670,6 +1697,7 @@ function get_asset_tag_line($assetid, $screen='')
 		}
 
 		echo ' (Id: #'.$assetid.') ';
+		echo '</span>';
 
 	$contents = ob_get_clean();
 

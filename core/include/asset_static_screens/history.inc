@@ -83,14 +83,14 @@ function paintHistory(&$owner, &$o, &$ei, $keywords=NULL)
 			?>
 			<table class="sq-backend-table">
 				<tr>
-					<td class="sq-backend-table-header"><?php echo translate('version_duration'); ?></td>
-					<td class="sq-backend-table-header"><?php echo translate('time_since_version'); ?></td>
-					<td class="sq-backend-table-header" align="center"><?php echo translate('updated_user'); ?></td>
-					<td class="sq-backend-table-header" align="center"><?php echo translate('version'); ?></td>
+					<th class="sq-backend-table-header"><?php echo translate('version_duration'); ?></th>
+					<th class="sq-backend-table-header"><?php echo translate('time_since_version'); ?></th>
+					<th class="sq-backend-table-header" align="center"><?php echo translate('updated_user'); ?></th>
+					<th class="sq-backend-table-header" align="center"><?php echo translate('version'); ?></th>
 					<?php
 					if ($write_access) {
 						?>
-						<td class="sq-backend-table-header" align="center"><?php echo translate('view'); ?></td>
+						<th class="sq-backend-table-header" align="center"><?php echo translate('view'); ?></th>
 						<?php
 					}
 					?>

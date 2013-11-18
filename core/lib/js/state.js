@@ -122,14 +122,17 @@ onload = function(e) {
 
 onchange = function(e) {
 	changesMade();
+	checkChangesMade();
 }
 
 onclick = function(e) {
 	changesMade();
+	checkChangesMade();
 }
 
 onkeypress = function(e) {
 	changesMade();
+	checkChangesMade();
 }
 
 onsubmit = function(e) {
@@ -138,4 +141,16 @@ onsubmit = function(e) {
 
 onreset = function(e) {
 	resetChanges();
+}
+
+// Adds a class to the commit button wrapper div so that we can indicate that changes are made but not saved.
+function checkChangesMade()
+{
+	if (document.forms[0]['state'].value != saveState()) {
+		document.getElementById('sq-commit-button-div').className += ' sq-changes-made';
+		//document.getElementById('sq-changes-made-message').innerHTML = '(You have unsaved changes)';
+	} else {
+		document.getElementById('sq-commit-button-div').className = document.getElementById('sq-commit-button-div').className.replace(/ sq-changes-made/, '');;
+		//document.getElementById('sq-changes-made-message').innerHTML = '';
+	}
 }

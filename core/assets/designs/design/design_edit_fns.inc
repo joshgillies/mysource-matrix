@@ -1450,8 +1450,8 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			<table class="sq-backend-table">
 			<thead>
 			<tr class="sq-backend-table-row">
-				<td class="sq-backend-table-header-header"><?php echo implode(' &nbsp; &nbsp; ', $links) ?></td>
-				<td class="sq-backend-table-header-header" style="text-align: right; font-weight: normal"><?php echo $asset_count_tag; ?></span></td>
+				<th class="sq-backend-table-header-header sq-pagination-links sq-no-side-border" style="text-align: left;"><?php echo implode(' &nbsp; &nbsp; ', $links) ?></th>
+				<th class="sq-backend-table-header-header sq-no-side-border" style="text-align: right;"><?php echo $asset_count_tag; ?></span></th>
 			</tr>
 			<tr class="sq-backend-table-row">
 				<th class="sq-backend-table-cell" colspan="2"><?php echo translate('asset'); ?></th>

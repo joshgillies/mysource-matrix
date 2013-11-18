@@ -92,8 +92,8 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 			?>
 			<table class="sq-backend-table">
 				<tr>
-					<td class="sq-backend-table-header"><?php echo translate('url'); ?></td>
-					<td class="sq-backend-table-header"><?php echo 'Effective Paint Layout'; ?></td>
+					<th class="sq-backend-table-header"><?php echo translate('url'); ?></th>
+					<th class="sq-backend-table-header"><?php echo 'Effective Paint Layout'; ?></th>
 				</tr>
 			<?php
 			foreach ($lookups as $url) {
@@ -183,8 +183,8 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 			?>
 			<table class="sq-backend-table">
 				<tr>
-					<td class="sq-backend-table-header"><?php echo 'Layout'; ?></td>
-					<td class="sq-backend-table-header"><?php echo 'Paint Layout'; ?></td>
+					<th class="sq-backend-table-header"><?php echo 'Layout'; ?></th>
+					<th class="sq-backend-table-header"><?php echo 'Paint Layout'; ?></th>
 				</tr>
 			<?php
 
@@ -289,8 +289,8 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 					?>
 					<table class="sq-backend-table">
 						<tr>
-							<td class="sq-backend-table-header"><?php echo 'Layout code'; ?></td>
-							<td class="sq-backend-table-header"><?php echo 'Paint layout'; ?></td>
+							<th class="sq-backend-table-header"><?php echo 'Layout code'; ?></th>
+							<th class="sq-backend-table-header"><?php echo 'Paint layout'; ?></th>
 						</tr>
 					<?php
 					foreach ($lookup_values[$url] as $layout_name => $data) {

@@ -96,7 +96,7 @@ function paintInlinePermissions(Asset $owner, Backend_Outputter $o, Asset_Edit_I
 							<?php echo $title.' Permission'?>
 						</td>
 						<td class="sq-backend-table-cell" align="right">
-							<span style="color: <?php echo (($granted == '0') ? 'red' : 'green'); ?>; font-weight:bold;"><?php echo (($granted == '0') ? translate('denied') : translate('granted')) ?></span>
+							<span class="sq-txt-highlight-<?php echo (($granted == '0') ? 'red' : 'green'); ?>"><?php echo (($granted == '0') ? translate('denied') : translate('granted')) ?></span>
 						</td>
 					</tr>
 				<?php
@@ -164,13 +164,13 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 			?>
 				<table class="sq-backend-table">
 					<tr>
-						<td class="sq-backend-table-header">
-							<span style="color: <?php echo (($granted == '0') ? 'red' : 'green'); ?>"><?php echo (($granted == '0') ? translate('denied') : translate('granted')) ?></span>
-						</td>
-						<td align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('cascade_question'); ?></td>
+						<th class="sq-backend-table-header">
+							<span class="sq-txt-highlight-<?php echo (($granted == '0') ? 'red' : 'green'); ?>"><?php echo (($granted == '0') ? translate('denied') : translate('granted')) ?></span>
+						</th>
+						<th align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('cascade_question'); ?></th>
 						<?php
 						if ($admin_access) {
-							?><td align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('delete_question'); ?></td><?php
+							?><th align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('delete_question'); ?></th><?php
 						}
 						?>
 					</tr>
@@ -299,10 +299,10 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 				<td class="sq-backend-table-header"><?php echo translate('action'); ?></td>
 				<td class="sq-backend-table-header"><?php echo translate('permission'); ?></td>
 				<td class="sq-backend-table-header">
-					<span style="color:green"><?php echo translate('granted'); ?></span>
+					<span class="sq-txt-highlight-green"><?php echo translate('granted'); ?></span>
 				</td>
 				<td class="sq-backend-table-header">
-					<span style="color:red"><?php echo translate('denied'); ?></span>
+					<span class="sq-txt-highlight-red"><?php echo translate('denied'); ?></span>
 				</td>
 				<td class="sq-backend-table-header"><?php echo translate('when'); ?></td>
 				<td align="center" class="sq-backend-table-header" style="text-align: center;"><?php echo translate('cascade_question'); ?></td>

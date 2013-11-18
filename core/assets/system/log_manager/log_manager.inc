@@ -742,12 +742,13 @@ class Log_Manager extends Asset
 						$message = htmlspecialchars($message);
 						$message = nl2br($message);
 						$error_type_name   = get_error_name($d_line['level']);
-						$error_type_colour = get_error_colour($d_line['level']);
+						$error_colours = get_error_colour($d_line['level']);
+						$error_type_colour = $error_colours[0];
 						$log_date = date('G:i:s - d M',$d_line['date']);
 
 						$content .= '
 						<tr>
-							<td style="background-color: '.$error_type_colour.'; color: white">
+							<td style="background-color: '.$error_type_colour.';">
 								'.$log_date.'<br />
 								'.translate('user').':&nbsp;<strong>'.$d_line['user'].'</strong>&nbsp;('.$d_line['userid'].')<br />
 								'.translate('level').':&nbsp;<strong>'.$error_type_name.'</strong><br />

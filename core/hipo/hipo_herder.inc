@@ -353,112 +353,115 @@ class HIPO_Herder extends MySource_Object
 		}
 
 		?>
-		<table border="0" cellspacing="0" cellpadding="0" width="500">
-			<tr>
-				<td class="sq-hipo-header">
-					<table class="sq-hipo-header">
-						<tr>
-							<td valign="middle" width="100%"><img src="<?php echo sq_web_path('lib').'/web/images/icons/hipo.gif'; ?>" width="71" height="26" alt="Powered by Highly Intensive Processing Object (HIPO) Technology" /></td>
-						</tr>
-						<tr>
-							<td class="sq-hipo-header">
-								<?php HIPO_Job::paintProgressBar($percent_done, $status_msg, 'sq-hipo-header-progress-bar-label', 'sq-hipo-header-progress-bar-percent', 'sq-hipo-header-progress-bar-main', 'sq-hipo-header-progress-bar-done'); ?>
-							</td>
-						</tr>
-					</table>
-				</td>
-			</tr>
-			<tr>
-				<td class="sq-hipo-main" valign="top">
-				<?php
-				$buttons_to_print = Array();
+		<div class="sq-standalone-wrapper sq-hipo-job">
+			<table class="sq-standalone-table">
+				<tr>
+					<td class="sq-standalone-header">
+						<img src="<?php echo sq_web_path('lib').'/web/images/icons/hipo.png'; ?>" alt="Powered by Highly Intensive Processing Object (HIPO) Technology - Version 5" /> <strong>HIPO</strong>
+					</td>
+				</tr>
+				<tr>
+					<td class="sq-standalone-body">
+						<div class="sq-standalone-content sq-bg-blue">
+							<?php HIPO_Job::paintProgressBar($percent_done, $status_msg, 'sq-hipo-header-progress-bar-label', 'sq-hipo-header-progress-bar-percent', 'sq-hipo-header-progress-bar-main', 'sq-hipo-header-progress-bar-done');?>
+						</div>
+						<?php
+						$buttons_to_print = Array();
 
-				// if we aren't waiting for an abort, print the progress stuff
-				if (empty($_POST['aborting_hipo'])) {
+						// if we aren't waiting for an abort, print the progress stuff
+						if (empty($_POST['aborting_hipo'])) {
 
-					// Paint the source job, this will take care of any sub jobs if needed
-					$o->closeRaw();
-					$source_job->paint($o);
-					$o->openRaw();
-
-					if (!$source_job->complete()) {
-						// basically what happens here is that if cancel has already been pressed we increment the counter
-						// this means that the cancel button only get's pressed once
-						hidden_field('cancel_hipo', (empty($_POST['cancel_hipo'])) ? 0 : ((int) $_POST['cancel_hipo'] + 1));
-						$allow_cancel = $source_job->_steps[$source_job->_hipo_vars['current_step']]['allow_cancel'];
-						if ($allow_cancel) {
-							$buttons_to_print['cancel'] = Array('value' => 'Cancel', 'action' => 'send_abort();');
-						}
-					}
-
-					// print the NEXT or FINISH button if we are not auto stepping through the HIPO
-					if (!$auto_step) {
-						// they dont want us to refresh automatically, so we need to provide a manual NEXT button
-						$button_text = ($source_job->complete()) ? 'Finish' : 'Next >>';
-						$buttons_to_print['next'] = Array('value' => $button_text, 'action' => 'next_page();');
-					}
-
-				} else {
-					// we are aborting from the server
-
-					hidden_field('aborting_hipo',     $_POST['aborting_hipo']);
-					hidden_field('aborting_hipo_url', $_POST['aborting_hipo_url']);
-
-					// if the source job is null it means that an abort finally finished
-					// (we couldn't get here otherwise) so print that and get out of here
-					if (is_null($source_job)) {
-						echo translate('hipo_abort_complete');
-						$button_text = 'OK';
-					} else {
-						echo translate('hipo_aborting');
-						$button_text = 'Next >>';
-					}
-
-					// print the NEXT or FINISH button if we are not auto stepping through the HIPO
-					if (!$auto_step) {
-						// they dont want us to refresh automatically, so we need to provide a manual NEXT button
-						$buttons_to_print['next'] = Array('value' => $button_text, 'action' => 'next_page();');
-					}
-
-				}// end if
-
-				if (count($buttons_to_print)) {
-
-					// work out if we should print the 'Next >>' button
-					$print_next = TRUE;
-					if (isset($source_job->_hipo_vars['no_next']) && $source_job->_hipo_vars['no_next']) {
-						$print_next = FALSE;
-					}
-
-					?>
-					<p>
-					<table border="0" width="100%" cellspacing="2" cellpadding="1">
-						<tr>
-							<td width="100%">&nbsp;</td>
-							<?php
-							foreach ($buttons_to_print as $btn_code => $btn_data) {
-								?><td valign="top" align="center"><?php
-								// access key 'n' for next button
-								if ($btn_code == 'next') {
-									// if we should no proceed any further, then do not print the next button
-									if ($print_next) {
-										normal_button($btn_code, $btn_data['value'], $btn_data['action'], 'class="sq-hipo-button-enabled", accesskey="n""');
-									}
-								} else {
-									normal_button($btn_code, $btn_data['value'], $btn_data['action'], 'class="sq-hipo-button-enabled"');
-								}
-								?></td><?php
-							}
+							// Paint the source job, this will take care of any sub jobs if needed
 							?>
-						</tr>
-					</table>
-					</p>
-					<?php
+
+							<div class="sq-standalone-content">
+								<?php
+								$o->closeRaw();
+								$source_job->paint($o);
+								$o->openRaw();
+								?>
+							</div>
+
+							<?php
+
+							if (!$source_job->complete()) {
+								// basically what happens here is that if cancel has already been pressed we increment the counter
+								// this means that the cancel button only get's pressed once
+								hidden_field('cancel_hipo', (empty($_POST['cancel_hipo'])) ? 0 : ((int) $_POST['cancel_hipo'] + 1));
+								$allow_cancel = $source_job->_steps[$source_job->_hipo_vars['current_step']]['allow_cancel'];
+								if ($allow_cancel) {
+									$buttons_to_print['cancel'] = Array('value' => 'Cancel', 'action' => 'send_abort();');
+								}
+							}
+
+							// print the NEXT or FINISH button if we are not auto stepping through the HIPO
+							if (!$auto_step) {
+								// they dont want us to refresh automatically, so we need to provide a manual NEXT button
+								$button_text = ($source_job->complete()) ? 'Finish' : 'Next';
+								$buttons_to_print['next'] = Array('value' => $button_text, 'action' => 'next_page();');
+							}
+
+						} else {
+							// we are aborting from the server
+
+							hidden_field('aborting_hipo',     $_POST['aborting_hipo']);
+							hidden_field('aborting_hipo_url', $_POST['aborting_hipo_url']);
+
+							// if the source job is null it means that an abort finally finished
+							// (we couldn't get here otherwise) so print that and get out of here
+							if (is_null($source_job)) {
+								echo translate('hipo_abort_complete');
+								$button_text = 'OK';
+							} else {
+								echo translate('hipo_aborting');
+								$button_text = 'Next';
+							}
+
+							// print the NEXT or FINISH button if we are not auto stepping through the HIPO
+							if (!$auto_step) {
+								// they dont want us to refresh automatically, so we need to provide a manual NEXT button
+								$buttons_to_print['next'] = Array('value' => $button_text, 'action' => 'next_page();');
+							}
+
+						}// end if
+						?>
+						</div>
+					</td>
+				</tr>
+
+				<?php
+				if (count($buttons_to_print)) {
+				?>
+				<tr>
+					<td class="sq-standalone-footer sq-hipo-buttons">
+						<?php
+
+						// work out if we should print the 'Next >>' button
+						$print_next = TRUE;
+						if (isset($source_job->_hipo_vars['no_next']) && $source_job->_hipo_vars['no_next']) {
+							$print_next = FALSE;
+						}
+						foreach ($buttons_to_print as $btn_code => $btn_data) {
+							?><span class="<?php echo $btn_code; ?>"><?php
+							// access key 'n' for next button
+							if ($btn_code == 'next') {
+								// if we should no proceed any further, then do not print the next button
+								if ($print_next) {
+									normal_button($btn_code, $btn_data['value'], $btn_data['action'], 'class="sq-btn-large sq-btn-blue sq-hipo-button-enabled '.$btn_code.'"accesskey="n"');
+								}
+							} else {
+								normal_button($btn_code, $btn_data['value'], $btn_data['action'], 'class="sq-btn-large sq-hipo-button-enabled '.$btn_code.'"');
+							}
+							?></span><?php
+						}
+						?>
+					</td>
+				</tr>
+				<?php
 				}//end if
 				?>
-				</td>
-			</tr>
-		</table>
+			</table>
+		</div>
 		<?php
 
 		$o->closeRaw();
@@ -1017,18 +1020,18 @@ class HIPO_Herder extends MySource_Object
 						<?php
 							if ($have_lock) {
 								?>
-									<td class="sq-backend-table-header" style="width: 30px;"><?php echo translate('hipo_herder_resume'); ?></td>
+									<th class="sq-backend-table-header" style="width: 30px;"><?php echo translate('hipo_herder_resume'); ?></th>
 								<?php
 							}
 						?>
-						<td class="sq-backend-table-header"><?php echo translate('hipo_herder_job_type'); ?></td>
-						<td class="sq-backend-table-header"><?php echo translate('owner'); ?></td>
-						<td class="sq-backend-table-header"><?php echo translate('hipo_last_updated'); ?></td>
-						<td class="sq-backend-table-header" style="text-align: center;"><?php echo translate('percent_complete'); ?></td>
+						<th class="sq-backend-table-header"><?php echo translate('hipo_herder_job_type'); ?></th>
+						<th class="sq-backend-table-header"><?php echo translate('owner'); ?></th>
+						<th class="sq-backend-table-header"><?php echo translate('hipo_last_updated'); ?></th>
+						<th class="sq-backend-table-header" style="text-align: center;"><?php echo translate('percent_complete'); ?></th>
 				<?php
 					if ($have_lock) {
 						?>
-							<td class="sq-backend-table-header" style="text-align: center;"><?php echo translate('delete_question'); ?></td>
+							<th class="sq-backend-table-header" style="text-align: center;"><?php echo translate('delete_question'); ?></th>
 						<?php
 					} // end if have lock
 				?>

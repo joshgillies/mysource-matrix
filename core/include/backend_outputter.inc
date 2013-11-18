@@ -26,7 +26,7 @@ define('SQ_BO_MSG_ERROR',   4);
 
 
 /**
-* Backend_Outputter
+* 
 *
 * Purpose
 *
@@ -650,10 +650,9 @@ class Backend_Outputter
 				?>
 				<tr class="sq-backend-section-heading-container">
 					<td>
-						<table border="0" cellspacing="0" cellpadding="0">
+						<table>
 							<tr>
 								<td class="sq-backend-section-heading"><?php echo $init_arr['heading'];?></td>
-								<td><img src="<?php echo $this->filesPath('images/section_icon.gif');?>" width="27" height="21" /></td>
 							</tr>
 						</table>
 					</td>
@@ -664,7 +663,7 @@ class Backend_Outputter
 
 		?>
 			<tr>
-				<td>
+				<td class="sq-backend-section-inner-table-wrapper">
 					<table class="sq-backend-section-table-inner">
 		<?php
 
@@ -785,7 +784,7 @@ class Backend_Outputter
 				<tr <?php if ($hidden) echo 'style="display: none"'; ?>>
 					<td class="sq-backend-field sq-backend-field-newline" colspan="2">
 						<a name="field_<?php echo $this->_field_count; ?>"></a>
-						<?php echo $name;?>
+						<span class="sq-backend-field-label"><?php echo $name;?></span>
 					</td>
 				</tr>
 				<tr <?php if ($hidden) echo 'style="display: none"'; ?>>
@@ -809,7 +808,7 @@ class Backend_Outputter
 				<tr <?php if ($hidden) echo 'style="display: none"'; ?>>
 					<td class="sq-backend-field">
 						<a name="field_<?php echo $this->_field_count; ?>"></a>
-						<?php echo $name;?>
+						<span class="sq-backend-field-label"><?php echo $name;?></span>
 					</td>
 					<td class="sq-backend-data">
 				<?php
@@ -966,6 +965,7 @@ class Backend_Outputter
 		<html>
 		<head>
 			<title><?php echo htmlspecialchars(str_replace('&nbsp;', ' ', $this->_page_title)); ?></title>
+			<!--link rel="stylesheet" type="text/css" href="http://bbanda.staging.squiz.net/?a=73"/-->
 			<?php
 			$this->addCssInclude($this->filesPath('css/edit.css'));
 			if (!empty($_REQUEST['print_view'])) {
@@ -1077,7 +1077,7 @@ class Backend_Outputter
 						}
 					} else {
 						if (document.getElementById('sq-commit-button-div')) {
-							document.getElementById('sq-commit-button-spacer').style.height = (document.getElementById('sq-commit-button-div').clientHeight + 2) + "px";
+							//document.getElementById('sq-commit-button-spacer').style.height = (document.getElementById('sq-commit-button-div').clientHeight + 2) + "px";
 						}
 					}
 
@@ -1169,11 +1169,11 @@ class Backend_Outputter
 			//]]> -->
 			</script>
 		</head>
-		<body onload="page_on_load();" onunload="page_on_unload();">
+		<body onload="page_on_load();" onunload="page_on_unload();" style="background: #F4F4F4" class="<?php echo $backendPage; ?>">
 		<div id="sq-search-wait-popup"><div id="sq-search-wait-popup-titlebar"><div id="sq-search-wait-popup-close">[ <a href="#" onclick="document.getElementById('sq-search-wait-popup').style.display = 'none'; return false;">x</a> ]</div><span id="sq-search-wait-popup-title">Search in Progress</span></div>
 			<div id="sq-search-wait-popup-details">Your search is being processed, please wait...</div>
 		</div>
-		<form style="display: inline" action="<?php echo $this->_action.$this->_anchor;?>" id="main_form" name="main_form" method="post" enctype="multipart/form-data" onclick="changesMade();" onkeypress="changesMade();" onsubmit="return form_on_submit();">
+		<form action="<?php echo $this->_action.$this->_anchor;?>" id="main_form" name="main_form" method="post" enctype="multipart/form-data" onclick="changesMade();" onkeypress="changesMade();" onsubmit="return form_on_submit();" class="<?php echo $backendPage; ?>">
 		<?php
 			if (!empty($_REQUEST['print_view'])) {
 				?>
@@ -1182,7 +1182,7 @@ class Backend_Outputter
 				<?php
 			}
 		?>
-		<div id="sq-content">
+		<div id="sq-content" class="<?php echo $backendPage; ?>">
 		<?php
 		hidden_field('process_form', '1');
 		hidden_field('changes', '0');
@@ -1197,94 +1197,103 @@ class Backend_Outputter
 
 		if ($this->_heading || count($this->_screens) || count($this->_static_screens)) {
 			?>
-			<table class="sq-backend-main-headings">
-				<tr>
-					<?php
-					if ($this->_heading_icon) {
-						?>
-						<td class="sq-backend-heading-icon"><?php echo $this->_heading_icon; ?></td>
-						<?php
-					}
-					?>
-					<td class="sq-backend-main-heading">
-						<?php
-							echo $this->_heading;
-							if ($this->_sub_heading) {
-								echo '<br /><span class="sq-backend-sub-heading">'.$this->_sub_heading.'</span>';
-							}
-						?>
-					</td>
-				<?php
-				if (empty($_REQUEST['print_view'])) {
-					?>
-					<td class="sq-backend-screen-menu">
-						<div id="sq_screen_menu_filler" style="display: none"></div>
-						<div id="sq_screen_menu">
+			<div class="sq-backend-main-header-wrapper">
+				<div class="sq-backend-main-header-top">
+					<table class="sq-backend-main-headings">
+						<tr>
 							<?php
-							$this->printContextSwitcher();
-							$this->printScreenMenu();
-							sq_print_icon(sq_web_path('lib').'/web/images/icons/printer.png', 16, 16, translate('print_this_page'), NULL, 'onclick="showPrintPopup()" class="clickable" style="margin-bottom: -2px; margin-right: 4px"');
-							?>
-						</div>
-					</td>
-					<?php
-				}
-				?>
-				</tr>
-			</table>
-			<?php
-
-			if (isset($_SESSION['sq_nav_history']) && empty($_REQUEST['print_view'])) {
-				?>
-				<table class="sq-backend-nav-history-container">
-					<tr>
-						<td class="sq-backend-nav-history-title">
-							<?php sq_print_icon($this->filesPath('images/icons/history.png'), 20, 20, 'Navigation History'); ?>
-							<?php echo translate('back_to'); ?>:
-						</td>
-						<td class="sq-backend-nav-history">
-							<?php
-							$nav_count = count($_SESSION['sq_nav_history']);
-							if ($nav_count < 5) {
-								$start = 0;
-							} else {
-								$start = $nav_count - 5;
-							}
-
-							for ($i = $start; $i < $nav_count; $i++) {
-								if (!isset($_SESSION['sq_nav_history'][$i])) continue;
-								$nav_details = $_SESSION['sq_nav_history'][$i];
-
-								$nav_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($nav_details['assetid'], '', TRUE);
-								if (is_null($nav_asset)) {
-									array_splice($_SESSION['sq_nav_history'], $i, 1);
-									continue;
-								}
+							if ($this->_heading_icon) {
 								?>
-								<a href="<?php echo $nav_asset->getBackendHref($nav_details['screen']); ?>&sq_nav_goback=<?php echo $i; ?>">
-									<?php
-									sq_print_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($nav_asset->type()), 16, 16, htmlspecialchars($nav_asset->short_name));
-									echo htmlspecialchars($nav_asset->short_name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
-									?>
-									<span> [<?php echo ($i + 1); ?>]</span>
-								</a>
+								<td class="sq-backend-heading-icon"><?php echo $this->_heading_icon; ?></td>
 								<?php
-								if ($i < ($nav_count -1)) {
-									?> <span class="divider">+</span> &nbsp;<?php
-								}
-
-								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($nav_asset);
-								unset($nav_asset);
 							}
+							?>
+							<td class="sq-backend-main-heading">
+								<?php
+									echo $this->_heading;
+									if ($this->_sub_heading) {
+										echo '<br /><span class="sq-backend-sub-heading">'.$this->_sub_heading.'</span>';
+									}
+								?>
+							</td>
+						<?php
+						if (empty($_REQUEST['print_view'])) {
+							?>
+							<td class="sq-backend-screen-menu">
+								<div id="sq_screen_menu_filler" style="display: none"></div>
+								<div id="sq_screen_menu">
+									<?php
+									$this->printContextSwitcher();
+									$this->printScreenMenu();
+									sq_print_icon(sq_web_path('lib').'/web/images/icons/printer.png', 16, 16, translate('print_this_page'), NULL, 'onclick="showPrintPopup()" class="clickable" style="margin-bottom: -2px; margin-right: 4px"');
+									?>
+								</div>
+							</td>
+							<?php
+						}
 						?>
-						</td>
-					</tr>
-				</table>
+						</tr>
+					</table>
+				</div>
 				<?php
-			}//end if
 
+				if (isset($_SESSION['sq_nav_history']) && empty($_REQUEST['print_view'])) {
+					?>
+					<div class="sq-backend-main-header-bottom">
+						<table class="sq-backend-nav-history-container">
+							<tr>
+								<td class="sq-backend-nav-history-title">
+									<?php sq_print_icon($this->filesPath('images/icons/history.png'), 20, 20, 'Navigation History'); ?>
+									<?php echo translate('back_to'); ?>:
+								</td>
+								<td class="sq-backend-nav-history">
+									<?php
+									$nav_count = count($_SESSION['sq_nav_history']);
+									if ($nav_count < 5) {
+										$start = 0;
+									} else {
+										$start = $nav_count - 5;
+									}
+
+									for ($i = $start; $i < $nav_count; $i++) {
+										if (!isset($_SESSION['sq_nav_history'][$i])) continue;
+										$nav_details = $_SESSION['sq_nav_history'][$i];
+
+										$nav_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($nav_details['assetid'], '', TRUE);
+										if (is_null($nav_asset)) {
+											array_splice($_SESSION['sq_nav_history'], $i, 1);
+											continue;
+										}
+										?>
+										<a href="<?php echo $nav_asset->getBackendHref($nav_details['screen']); ?>&sq_nav_goback=<?php echo $i; ?>">
+											<?php
+											sq_print_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($nav_asset->type()), 16, 16, htmlspecialchars($nav_asset->short_name));
+											echo htmlspecialchars($nav_asset->short_name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
+											?>
+											<span> [<?php echo ($i + 1); ?>]</span>
+										</a>
+										<?php
+										if ($i < ($nav_count -1)) {
+											?> <span class="divider">+</span> &nbsp;<?php
+										}
+
+										$GLOBALS['SQ_SYSTEM']->am->forgetAsset($nav_asset);
+										unset($nav_asset);
+									}
+								?>
+								</td>
+							</tr>
+						</table>
+					</div>
+				<?php
+				}//end if
+				?>
+			</div><!--.sq-backend-main-header-wrapper-->
+		<?php
 		}//end if
-
+		?>
+	<div class="sq-backend-body-wrapper <?php echo $backendPage; ?>">
+	<?php
 	}//end _paintHeader()
 
 
@@ -1302,71 +1311,124 @@ class Backend_Outputter
 		if ($section['type'] == 'raw') {
 			echo $section['contents'];
 		} else {
+			$wrapper_class = '';
+			if (isset($section['areas'][0]['format'])) {
+				$wrapper_class = $section['areas'][0]['area_type'].' '.$section['areas'][0]['format'];
+			}else{
+				if (isset($section['areas'][0]['area_type'])) {
+					$wrapper_class = $section['areas'][0]['area_type'];
+				}
+			}
 			?>
 			<a name="section_<?php echo $section['section_count']; ?>"></a>
-			<table class="sq-backend-section-table" id="backend_section_<?php echo $section['section_count']; ?>">
-			<?php
-			if ($section['heading'] != '') {
-				if ($depth > 0) {
-					// printing a nested section - needs to look a little different
-					?>
-					<tr>
-						<td class="sq-backend-section-subheading"><?php echo $section['heading'];?></td>
-					</tr>
-					<?php
-				} else {
-					// printing a top level section
-					?>
-					<tr class="sq-backend-section-heading-container">
-						<td>
-							<table border="0" cellspacing="0" cellpadding="0">
-								<tr>
-									<td class="sq-backend-section-heading"><?php echo $section['heading'];?></td>
-									<td><img src="<?php echo $this->filesPath('images/section_icon.gif');?>" width="27" height="21" alt="" /></td>
-								</tr>
-							</table>
-						</td>
-					</tr>
-					<?php
-				}
-			}//endif
-			?>
-			<tr>
-				<td>
-					<table class="sq-backend-section-table-inner" cellspacing="0" cellpadding="0" border="0">
-			<?php
-			for ($j = 0; $j < count($section['areas']); $j++) {
-				switch ($section['areas'][$j]['area_type']) {
-					case 'section' :
+			<div class="sq-backend-section-table-wrapper <?php echo $wrapper_class;?>">
+				<table class="sq-backend-section-table" id="backend_section_<?php echo $section['section_count']; ?>">
+				<?php
+				if ($section['heading'] != '') {
+					if ($depth > 0) {
+						// printing a nested section - needs to look a little different
 						?>
-							<tr>
-								<td colspan="2">
-									<?php
-									$this->_paintSection($section['areas'][$j], $depth + 1);
-									?>
-								</td>
-							</tr>
+						<tr>
+							<td class="sq-backend-section-subheading"><?php echo $section['heading'];?></td>
+						</tr>
 						<?php
-					break;
+					} else {
+						// printing a top level section
+						?>
+						<tr class="sq-backend-section-heading-container">
+							<td>
+								<table>
+									<tr>
+										<td class="sq-backend-section-heading"><?php echo $section['heading'];?></td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+						<?php
+					}
+				}//endif
+				?>
+				<tr>
+					<td class="sq-backend-section-inner-table-wrapper">
+						<table class="sq-backend-section-table-inner">
+				<?php
+				for ($j = 0; $j < count($section['areas']); $j++) {
+					switch ($section['areas'][$j]['area_type']) {
+						case 'section' :
+							?>
+								<tr>
+									<td colspan="2">
+										<?php
+										$this->_paintSection($section['areas'][$j], $depth + 1);
+										?>
+									</td>
+								</tr>
+							<?php
+						break;
 
-					case 'field' :
-						$field = $section['areas'][$j];
-						switch ($field['format']) {
-							case 'new_line' :
-								?>
+						case 'field' :
+							$field = $section['areas'][$j];
+							switch ($field['format']) {
+								case 'new_line' :
+									?>
+										<tr <?php
+											if ($field['hidden']) echo 'style="display: none"';
+											if ($field['id_name']) {
+												echo 'id="'.$field['id_name'].'"';
+											}
+										?>>
+											<td class="sq-backend-field sq-backend-field-newline" colspan="2">
+												<a name="field_<?php echo $field['field_count']; ?>"></a>
+												<span class="sq-backend-field-label"><?php echo $field['name'];?></span>
+											</td>
+										</tr>
+										<tr <?php if ($field['hidden']) echo 'style="display: none"'; ?>>
+											<td class="sq-backend-data sq-backend-data-newline" colspan="2">
+												<?php
+												echo $field['contents'];
+												if ($field['note']) $this->note($field['note']);
+												?>
+											</td>
+										</tr>
+									<?php
+								break;
+
+								case 'commit' :
+									?>
 									<tr <?php
 										if ($field['hidden']) echo 'style="display: none"';
 										if ($field['id_name']) {
 											echo 'id="'.$field['id_name'].'"';
 										}
 									?>>
-										<td class="sq-backend-field sq-backend-field-newline" colspan="2">
-											<a name="field_<?php echo $field['field_count']; ?>"></a>
-											<?php echo $field['name'];?>
+										<td class="sq-backend-data sq-backend-commit" colspan="2">
+											<?php
+											echo $field['contents'];
+											if ($field['note']) $this->note($field['note']);
+											?>
 										</td>
 									</tr>
-									<tr <?php if ($field['hidden']) echo 'style="display: none"'; ?>>
-										<td class="sq-backend-data sq-backend-data-newline" colspan="2">
+									<?php
+								break;
+
+								case 'blank' :
+									// a blank field to be used just for formatting
+								break;
+
+								default :
+								?>
+									<tr <?php
+										if ($field['hidden']) echo 'style="display: none"';
+									?> <?php
+										if ($field['id_name']) {
+											echo 'id="'.$field['id_name'].'"';
+										}
+									?>>
+										<td class="sq-backend-field">
+											<a name="field_<?php echo $field['field_count']; ?>"></a>
+											<span class="sq-backend-field-label"><?php echo $field['name'];?></span>
+										</td>
+										<td class="sq-backend-data">
 											<?php
 											echo $field['contents'];
 											if ($field['note']) $this->note($field['note']);
@@ -1374,71 +1436,27 @@ class Backend_Outputter
 										</td>
 									</tr>
 								<?php
-							break;
+							}//end switch
 
-							case 'commit' :
-								?>
-								<tr <?php
-									if ($field['hidden']) echo 'style="display: none"';
-									if ($field['id_name']) {
-										echo 'id="'.$field['id_name'].'"';
-									}
-								?>>
-									<td class="sq-backend-data sq-backend-commit" colspan="2">
-										<?php
-										echo $field['contents'];
-										if ($field['note']) $this->note($field['note']);
-										?>
-									</td>
-								</tr>
-								<?php
-							break;
+						break;
 
-							case 'blank' :
-								// a blank field to be used just for formatting
-							break;
+						default :
+							trigger_localised_error('SYS0257', E_USER_ERROR, $section['areas'][$j]['area_type']);
 
-							default :
-							?>
-								<tr <?php
-									if ($field['hidden']) echo 'style="display: none"';
-								?> <?php
-									if ($field['id_name']) {
-										echo 'id="'.$field['id_name'].'"';
-									}
-								?>>
-									<td class="sq-backend-field">
-										<a name="field_<?php echo $field['field_count']; ?>"></a>
-										<?php echo $field['name'];?>
-									</td>
-									<td class="sq-backend-data">
-										<?php
-										echo $field['contents'];
-										if ($field['note']) $this->note($field['note']);
-										?>
-									</td>
-								</tr>
-							<?php
-						}//end switch
+					}//end switch area type
 
-					break;
+				}//end for
 
-					default :
-						trigger_localised_error('SYS0257', E_USER_ERROR, $section['areas'][$j]['area_type']);
+				if (isset($section['note'])) {
+					$this->_nbSectionNote($section['note']);
+				}
 
-				}//end switch area type
-
-			}//end for
-
-			if (isset($section['note'])) {
-				$this->_nbSectionNote($section['note']);
-			}
-
-			?>
-						</table>
-					</td>
-				</tr>
-			</table>
+				?>
+							</table>
+						</td>
+					</tr>
+				</table>
+			</div>
 			<?php
 
 		}//end else
@@ -1455,10 +1473,11 @@ class Backend_Outputter
 	function _paintFooter()
 	{
 		?>
-		</div>
-		</form>
-		</body>
-		</html>
+							</div><!--.sq-backend-body-wrapper-->
+						</div><!--#sq-content-->
+					</form>
+				</body>
+			</html>
 		<?php
 
 	}//end _paintFooter()
@@ -1582,17 +1601,23 @@ class Backend_Outputter
 			// Lock commit button to bottom of frame if the preference is turned on AND we're in backend
 			if (SQ_IN_BACKEND && $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_COMMIT_BUTTON_POS')) {
 				$this->openRaw();
-				?></div><div id="sq-commit-button-spacer"></div><div id="sq-commit-button-div"><div id="sq-commit-button-div-inside"><?php
+				?></div>
+				<div id="sq-commit-button-spacer"></div>
+				<div id="sq-commit-button-div">
+					<div id="sq-commit-button-div-inside">
+						<?php
 			} else {
 				$this->openSection(' ');
 				$this->openField('', 'commit');
 			}
 		}
 		hidden_field('sq_lock_release', $release_lock);
-		normal_button('sq_commit_button', $value, 'if (submit_form) { submit_form(this.form); } else { this.form.submit(); this.disabled = \'disabled\'; } ', 'accesskey="s"');
+		normal_button('sq_commit_button', $value, 'if (submit_form) { submit_form(this.form); } else { this.form.submit(); this.disabled = \'disabled\'; } ', 'accesskey="s" class="sq-form-field sq-btn-large sq-btn-green sq-commit-button"');
 		if ($include_section) {
 			if (SQ_IN_BACKEND && $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_COMMIT_BUTTON_POS')) {
-				?></div></div>
+				?>
+					</div>
+				</div>
 				<div>
 				<?php
 				$this->closeRaw();
@@ -1628,7 +1653,7 @@ class Backend_Outputter
 			}
 			combo_box('screen_menu', $this->_screens, FALSE, $this->_action, 1, 'id="screen_menu" onchange="self.location = this.value"');
 			echo '&nbsp;';
-			normal_button('screen_menu_go', ' '.translate('go').' ', 'self.location = get_form_element_value("screen_menu");');
+			normal_button('screen_menu_go', ' '.translate('go').' ', 'self.location = get_form_element_value("screen_menu");', 'class="sq-form-field sq-btn-shadow"');
 			echo '&nbsp;';
 		}
 

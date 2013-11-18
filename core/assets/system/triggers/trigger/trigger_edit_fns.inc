@@ -396,6 +396,10 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 					continue;
 				}
 
+
+				if (!$multiple_status[$type]) {
+				}
+
 				$type_instance_count[$type]++;
 
 				$data = $condition['data'];
@@ -408,11 +412,18 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 
 				$interface = $tm->_getComponentInterface($type, $data, $data_prefix, $write_access, $asset, $i);
 				$type_name = $tm->_getComponentName($type);
+
+				if (!$multiple_status[$type]){
+					$mutliple_indicator = '';
+				}else{
+					$mutliple_indicator = '<span title="This trigger condition can be added multiple times">*</span>';
+				}
+
 				?>
 				<div class="sq-backend-triggers-component-wrapper">
 					<div class="sq-backend-triggers-component-header">
 						<div class="sq-backend-triggers-component-type-info">
-							<?php echo $type_name; ?>
+							<?php echo $type_name; ?> <?php echo $mutliple_indicator; ?>
 						</div>
 						<div class="sq-backend-triggers-component-controls">
 						<?php
@@ -467,7 +478,11 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 							$removed = TRUE;
 							continue;
 						}
-						$select_list[$type] = $name;
+						if (!$multiple_status[$type]){
+							$select_list[$type] = $name;
+						}else{
+							$select_list[$type] = $name.' *';
+						}
 					}
 
 					combo_box($prefix.'[new_condition]', $select_list, FALSE, ' ');
