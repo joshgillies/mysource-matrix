@@ -267,9 +267,6 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 						</table>
 					</td>
 				</tr>
-				<tr>
-					<td>&nbsp;</td>
-				</tr>
 				<?php
 			}//end if write access
 
@@ -285,9 +282,6 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 				$print_commit_button = TRUE;
 			}
 			?></td>
-			</tr>
-			<tr>
-				<td>&nbsp;</td>
 			</tr>
 			<?php
 

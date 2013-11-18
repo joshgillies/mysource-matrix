@@ -20,6 +20,7 @@
 function changesMade()
 {
 	document.forms[0]['changes'].value = '1';
+	checkChangesMade();
 	return true;
 }
 
@@ -122,17 +123,14 @@ onload = function(e) {
 
 onchange = function(e) {
 	changesMade();
-	checkChangesMade();
 }
 
 onclick = function(e) {
 	changesMade();
-	checkChangesMade();
 }
 
 onkeypress = function(e) {
 	changesMade();
-	checkChangesMade();
 }
 
 onsubmit = function(e) {
@@ -147,10 +145,11 @@ onreset = function(e) {
 function checkChangesMade()
 {
 	if (document.forms[0]['state'].value != saveState()) {
-		document.getElementById('sq-commit-button-div').className += ' sq-changes-made';
-		//document.getElementById('sq-changes-made-message').innerHTML = '(You have unsaved changes)';
+		if(document.body.className.indexOf('sq-changes-made') < 0){
+			document.body.className += ' sq-changes-made';
+		}
 	} else {
-		document.getElementById('sq-commit-button-div').className = document.getElementById('sq-commit-button-div').className.replace(/ sq-changes-made/, '');;
-		//document.getElementById('sq-changes-made-message').innerHTML = '';
+		document.body.className = document.body.className.replace(/ sq-changes-made/, '');
 	}
+	console.log(document.body.className);
 }

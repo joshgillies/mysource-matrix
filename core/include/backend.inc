@@ -365,6 +365,10 @@ class Backend extends MySource_Object
 						width: 100%;
 					}
 
+					iframe.sq-iframe{
+						background: #F4F4F4;
+					}
+
 					#sq_header {
 						height: 40px;
 					}

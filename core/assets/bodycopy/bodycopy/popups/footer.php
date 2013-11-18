@@ -25,7 +25,7 @@
 * @subpackage __core__
 */
 ?>
-	</td></tr>
-</table>
+
+</div>
 </body>
 </html>
