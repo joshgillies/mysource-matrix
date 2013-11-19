@@ -139,6 +139,13 @@ class LDAP_Bridge_Management extends Asset_Management
 																	'allow_empty'	=> FALSE,
 																   ),
 											   ),
+						'recursive_parents'		=> Array (
+													'added'			=> '0.5',
+													'type'			=> 'boolean',
+													'default'		=> TRUE,
+													'parameters'    => Array( 'allow_empty' => FALSE,),
+													'description'	=> 'Can now exclude the current asset from the results.',
+												   ),
 					  );
 
 	}//end constructor
