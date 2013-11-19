@@ -802,24 +802,13 @@ class LDAP_Bridge extends Asset implements Bridge
 
 			foreach ($mo_groups as $group_name) {
 				$group_name = $this->decodeString($group_name);
-				$result = $ldap->search($group_name, '(objectClass=*)', NULL, FALSE, FALSE, Array('objectclass'));
-				if (!$result) continue;
-				$group_data = $ldap->getEntries($result);
-				if ($group_data['count'] > 0) {
-					$parents[$this->id.':'.$group_data[0]['dn']] = 'ldap_user_group';
-				}
+				$parents[$this->id.':'.$group_name] = 'ldap_user_group';
 			}
 
 			foreach ($ou_groups as $group_name => $group_dn) {
 				$group_name = $this->decodeString($group_name);
 				$ou_value = (isset($attrs['ou']) && $attrs['ou'] != '') ? $attrs['ou'] : 'ou';
-				$result = $ldap->search($ou_value.'='.$group_name.','.$group_dn, '(objectClass=organizationalUnit)', NULL, FALSE, FALSE, Array('objectclass'));
-				if (!$result) continue;
-				$group_data = $ldap->getEntries($result);
-
-				if ($group_data['count'] > 0) {
-					$parents[$this->id.':'.$group_data[0]['dn']] = 'ldap_user_group';
-				}
+				$parents[$this->id.':'.$ou_value.'='.$group_name.','.$group_dn] = 'ldap_user_group';
 			}
 
 			$ldap->disconnect();
@@ -852,11 +841,14 @@ class LDAP_Bridge extends Asset implements Bridge
 					// Add the valid parents to the list of all parents now to make them
 					// available in the recursive getParents() invocation below.
 					$this->_tmp['all_parents'] += $valid_parents;
-
+					
+					// should we get all recursive parents? this might be a slow process
+					$get_all_parents = $this->attr('recursive_parents');
+					
 					// Get the grandparents of the valid parents recursively.
 					$grandparents = Array();
 					foreach ($valid_parents as $parent_id => $parent_type_code) {
-						$grandparents += $GLOBALS['SQ_SYSTEM']->am->getParents($parent_id, $type_code, $strict_type_code);
+						$grandparents += $GLOBALS['SQ_SYSTEM']->am->getParents($parent_id, $type_code, $strict_type_code, NULL, NULL, TRUE, NULL, NULL, !$get_all_parents);
 					}
 
 					// Add the grandparents to the parent list

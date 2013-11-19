@@ -78,7 +78,11 @@
 			<display_name>Auth Filter</display_name>
 			<note>This field is used only when MySource Matrix attempts to authenticate an LDAP user for logging in. If this is set, this filter will be used to search for the user being authenticated. If this field is left blank, no filter will be used for authentication. This is an advanced option; in most cases, this field should be left blank.</note>
 		</field>
-		<note>If the <![CDATA[<b>Bind DN</b>]]> field is left blank, the LDAP Bridge will assume that the directory is to be accessed anonymously, and the <![CDATA[<b>Password</b>]]> field will be ignored. Your LDAP directory must be set up to allow anonymous binding for this to work correctly.</note>
+		<field attribute="recursive_parents">
+			<display_name>Recursive Parent Groups</display_name>
+			<note>Allow the LDAP bridge to recursively return all parent groups of an LDAP user when the user logs in Matrix. These parent groups are used by Squiz Matrix's permission system. Disable this option to speed up the login process by only retrieving a user's immediate parent groups.</note>
+		</field>
+		<note>If the <![CDATA[<b>Bind DN</b>]]> field is left blank, the LDAP Bridge will assume that the directory is to be accessed anonymously, and the <![CDATA[<b>Password</b>]]> field will be ignored. Your LDAP directory must be set up to allow anonymous binding for this to work correctly.</note>	
 	</section>
 	<section name="LDAP Not Available">
 		<field>
