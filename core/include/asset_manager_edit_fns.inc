@@ -415,7 +415,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 		$o->addHiddenField('am_new_type_code');
 
 		$o->openSection(translate('asset_types'));
-		$o->openField('', 'new_line');
+		$o->openField('', 'wide_col');
 
 
 		$offspring = Array();
@@ -432,7 +432,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 		}
 
 		?>
-		<table cellpadding="0" cellspacing="0" border="0">
+		<table class="sq-asset-tree">
 			<tr>
 				<td><img src="<?php echo $o->filesPath('/images/blank.gif'); ?>" width="1" height="20" border="0" alt="branch" /></td>
 				<td>
@@ -471,7 +471,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 		$o = $this->backend->out;
 
 		?>
-		<table cellpadding="0" cellspacing="0" border="0">
+		<table>
 		<?php
 		$num_kids = count($offspring[$parent]);
 		for ($i = 0; $i < $num_kids; $i++) {

@@ -62,4 +62,4 @@
 
 <body onload="javascript: if(typeof popup_init == 'function') popup_init();" >
 
-<div class="sq-bodycopy-popup-wrapper" style="<?php echo $div_width; ?> <?php echo $div_height; ?>">
+<div class="sq-bodycopy-popup-wrapper">

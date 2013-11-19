@@ -151,5 +151,4 @@ function checkChangesMade()
 	} else {
 		document.body.className = document.body.className.replace(/ sq-changes-made/, '');
 	}
-	console.log(document.body.className);
 }

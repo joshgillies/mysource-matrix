@@ -799,13 +799,20 @@ class Backend_Outputter
 				<?php
 			break;
 
+			case 'wide_col' :
+				?>
+				<tr <?php if ($hidden) echo 'style="display: none"'; ?>>
+					<td class="sq-backend-data" colspan="2">
+				<?php
+			break;
+
 			case 'blank' :
 				// a blank field to be used just for formatting
 			break;
 
 			default :
 				?>
-				<tr <?php if ($hidden) echo 'style="display: none"'; ?>>
+				<tr class="sq-backend-row" <?php if ($hidden) echo 'style="display: none"'; ?>>
 					<td class="sq-backend-field">
 						<a name="field_<?php echo $this->_field_count; ?>"></a>
 						<span class="sq-backend-field-label"><?php echo $name;?></span>
@@ -1411,13 +1418,31 @@ class Backend_Outputter
 									<?php
 								break;
 
+								case 'wide_col' :
+									?>
+									<tr <?php
+										if ($field['hidden']) echo 'style="display: none"';
+										if ($field['id_name']) {
+											echo 'id="'.$field['id_name'].'"';
+										}
+									?>>
+										<td class="sq-backend-data sq-backend-wide-col" colspan="2">
+											<?php
+											echo $field['contents'];
+											if ($field['note']) $this->note($field['note']);
+											?>
+										</td>
+									</tr>
+									<?php
+								break;
+
 								case 'blank' :
 									// a blank field to be used just for formatting
 								break;
 
 								default :
 								?>
-									<tr <?php
+									<tr class="sq-backend-row" <?php
 										if ($field['hidden']) echo 'style="display: none"';
 									?> <?php
 										if ($field['id_name']) {

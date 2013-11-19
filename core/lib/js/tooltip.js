@@ -50,13 +50,10 @@ function ToolTip()
 */
 function tt_print()
 {
-	if (!document.getElementById("ToolBox"))
+	if (!document.getElementById("ToolBox")) 
 	{
-		output = '<iframe scrolling="no" border="0" frameborder="0" id="hider" style="position:absolute;background: #000; top:-200px;left:-110px;width:10px; height:30px; z-index: 999" src="/__lib/web/images/icons/asset_locator.png"></iframe>';
-		output += '<table cellspacing="0" cellpadding="0" border="0" id="ToolBox" style="border:' + this.border +
-				 ';color:' + this.normal_color +
-				 ';background:' + this.normal_bg +
-				 ';position:absolute;top:0px;left:0px;z-index: 1000;visibility:hidden; text-align:left; "><tr><td id="ToolBoxTitle" style="padding:0px"></td></tr><tr><td id="ToolBoxContent" style="padding:2px"></td></tr></table>';
+		output = '<iframe class="sq-tooltip-popup" scrolling="no" border="0" frameborder="0" id="hider" style="position:absolute;background: #000; top:-200px;left:-110px;width:10px; height:30px; z-index: 999" src="/__lib/web/images/icons/asset_locator.png"></iframe>';
+		output += '<div id="ToolBox" class="sq-toolbox-wrapper"><table class="sq-toolbox-table"><tr><td id="ToolBoxTitle"></td></tr><tr><td class="sq-toolbox-content" id="ToolBoxContent"></td></tr></table></div>';
 		if (document.body.insertAdjacentHTML) {
 			document.body.insertAdjacentHTML('afterBegin', output);
 		}
@@ -190,13 +187,14 @@ function tt_paint(top, left, text, title, close_button)
 
 	if ((typeof(title) != "undefined" && title != "") || (typeof(top) == "undefined"))
 	{
+		/*
 		document.getElementById("ToolBoxTitle").style.textAlign = this.title_align;
 		document.getElementById("ToolBoxTitle").style.font = this.title_font;
 		document.getElementById("ToolBoxTitle").style.background = this.title_bg;
 		document.getElementById("ToolBoxTitle").style.color = this.title_color;
 		document.getElementById("ToolBoxTitle").style.padding = "2px";
-
 		document.getElementById("ToolBoxContent").style.font = this.normal_font;
+		*/
 
 		if (typeof(title) != "undefined") document.getElementById("ToolBoxTitle").innerHTML = unescape(title);
 
@@ -206,37 +204,49 @@ function tt_paint(top, left, text, title, close_button)
 
 		if (typeof close_button != 'undefined') {
 			closeElement = document.createElement('th');
+			/*
 			closeElement.style.textAlign = 'right';
 			closeElement.style.padding = '2px';
 			closeElement.style.backgroundColor = this.title_bg;
+			*/
 			closeElement.id = 'ToolBoxClose';
 
 			if (close_button == true) {
 				close_button = 'X';
 			}
 
-			closeElement.innerHTML = '<a href="#" style="text-decoration: none; color: ' + this.title_color + '" onclick="tooltip.hide(); return false;">' + close_button + '</a>';
+			closeElement.innerHTML = '<a href="#" onclick="tooltip.hide(); return false;">' + close_button + '</a>';
 			document.getElementById("ToolBoxTitle").parentNode.appendChild(closeElement);
 			document.getElementById("ToolBoxContent").colSpan = 2;
 		}
 	}
 	else
 	{
-		document.getElementById("ToolBoxTitle").style.background = this.normal_bg;
-		document.getElementById("ToolBoxTitle").style.padding = "0px";
+		/*document.getElementById("ToolBoxTitle").style.background = this.normal_bg;
+		document.getElementById("ToolBoxTitle").style.padding = "0px";*/
 		document.getElementById("ToolBoxTitle").innerHTML = "";
 	}
 	if ((typeof(text) != "undefined" && text != "") || (typeof(top) == "undefined"))
 	{
-		if(typeof(text) != "undefined") document.getElementById("ToolBoxContent").innerHTML = unescape(text);
-		document.getElementById("ToolBoxContent").style.padding = "2px";
-		document.getElementById("ToolBoxContent").style.background = this.normal_bg;
+		if(typeof(text) != "undefined") 
+		{
+			var unescapedText = unescape(text);
+			if(unescapedText.indexOf('<table>') > -1){
+				//no wrapper element needed
+			}else{
+				unescapedText = '<div class="sq-toolbox-content-wrapper">' + unescapedText + '</div>';
+			}
+			document.getElementById("ToolBoxContent").innerHTML = unescapedText;
+			console.log(unescapedText);
+		}
+		/*document.getElementById("ToolBoxContent").style.padding = "2px";
+		document.getElementById("ToolBoxContent").style.background = this.normal_bg;*/
 	}
 	else
 	{
 		document.getElementById("ToolBoxContent").innerHTML = "";
-		document.getElementById("ToolBoxContent").style.padding = "0px";
-		document.getElementById("ToolBoxContent").style.background = this.title_bg;
+		/*document.getElementById("ToolBoxContent").style.padding = "0px";
+		document.getElementById("ToolBoxContent").style.background = this.title_bg;*/
 	}
 
 	if ((typeof(top) != "undefined") && (typeof(left) != "undefined"))
@@ -260,10 +270,12 @@ function tt_paint(top, left, text, title, close_button)
 		  hider.style.visibility = "visible";
 		}
 	}
+	/*
 	tool_box.style.font 		= this.normal_font;
 	tool_box.style.color 		= this.color;
 	tool_box.style.border 		= this.border;
 	tool_box.style.background 	= this.normal_bg;
+	*/
 	tool_box.style.visibility 	= "visible";
 
 	if (tool_box.filters && tool_box.filters[0]) tool_box.filters[0].Play();

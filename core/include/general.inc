@@ -1626,10 +1626,10 @@ function get_asset_tag_line($assetid, $screen='')
 	ob_start();
 	?>
 	<div id="asset-tag-line-<?php echo $assetid ?>-more-details" style="display:none;">
-		<table cellspacing="0">
-		<tr>
-			<td class="sq-backend-table-cell" style="background-color: #<?php echo get_status_colour($asset_info['status']) ?>"><strong>Current Status:</strong></td>
-			<td colspan="2" class="sq-backend-table-cell" style="background-color: #<?php echo get_status_colour($asset_info['status']) ?>"><i><?php echo get_status_description($asset_info['status']) ?></i></td>
+		<table>
+		<tr class="sq-asset-highlight status-<?php echo str_replace(' ', '-', strtolower(get_status_description($asset_info['status']))) ?>">
+			<td class="sq-backend-table-cell"><strong>Current Status:</strong></td>
+			<td colspan="2" class="sq-backend-table-cell"><?php echo get_status_description($asset_info['status']) ?></td>
 		</tr>
 		<tr>
 			<td class="sq-backend-table-cell"><strong><?php echo translate('asset_type') ?>:</strong></td>

@@ -613,6 +613,7 @@
 	<string source="no_asset_settings">There are no settings for "%s"</string>
 	<string source="current_version">Current Version</string>
 	<string source="update_major_version">Update Major Version ?</string>
+	<string source="increment_major_version_numner">Increment major version numnber</string>
 	<string source="created_date">Created Date</string>
 	<string source="published_date">Published Date</string>
 	<string source="force_secure">Force Secure</string>
