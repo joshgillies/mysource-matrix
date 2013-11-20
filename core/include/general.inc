@@ -1857,6 +1857,9 @@ function _asset_locator_onclick($lineage_assetids, $tooltip_hide)
 	$asset_so_expl    = explode('~', $asset_so);
 	$sort_orders      = explode('|', $asset_so_expl[1]);
 	$lineage_assetids = explode('|', $asset_so_expl[0]);
+	foreach ($lineage_assetids as &$lineage_item) {
+		$lineage_item = str_replace('\'', '\\\'', $lineage_item);
+	}
 
 	$onclick = 'if (self.name == \'sq_wysiwyg_popup_main\') {
 					am = self;
@@ -1872,7 +1875,7 @@ function _asset_locator_onclick($lineage_assetids, $tooltip_hide)
 				}
 
 				if (am.JS_Asset_Map && am.JS_Asset_Map.modernMapActive) {
-					am.JS_Asset_Map.locateAsset(['.str_replace('\'', '\\\'', implode(',', $lineage_assetids)).'], ['.implode(',', $sort_orders).']);
+					am.JS_Asset_Map.locateAsset([\''.implode('\', \'', $lineage_assetids).'\'], ['.implode(',', $sort_orders).']);
 				} else {
 					am.asset_locator_start(\''.$asset_so.'\');
 				}';

@@ -519,7 +519,20 @@ var JS_Asset_Map = new function() {
 //--        INITIALISATION        --//
 
 
+	/**
+	 * Returns bool(true) if the browser can support the modern asset map.
+	 *
+	 * Supported: IE8+, Chrome 10+, Safari 5+ (Webkit v.533), Firefox 17+.
+	 *
+	 * @returns boolean
+	 */
 	this.isSupported = function() {
+		// If we don't have XMLHTTPRequest available, we can't run this.
+		// In IE8 this can be blocked at a Group Policy level...
+		if (!window.XMLHttpRequest) {
+			return false;
+		}
+
 		var ver       = this.getBrowserVersion();
 		var supported = false;
 
@@ -1281,12 +1294,17 @@ var JS_Asset_Map = new function() {
 				if (options.simple === false) {
 					if (which === 1) {
 						self.clearMenus();
-						dragStatus.selectionDrag = {
-							selection: [],
-							originalSelection: []
-						};
-						if ((e.ctrlKey === true) || (e.metaKey === true)) {
-							dragStatus.selectionDrag.originalSelection = self.currentSelection();
+						if ((e.clientX >= tree.clientWidth) || (e.clientY >= tree.clientHeight)) {
+							// Appears to be starting outside the scrollbars.
+							e.stopImmediatePropagation();
+						} else {
+							dragStatus.selectionDrag = {
+								selection: [],
+								originalSelection: []
+							};
+							if ((e.ctrlKey === true) || (e.metaKey === true)) {
+								dragStatus.selectionDrag.originalSelection = self.currentSelection();
+							}
 						}
 					} else if (which === 3) {
 						var menu = self.drawAddMenu();
@@ -1472,8 +1490,19 @@ var JS_Asset_Map = new function() {
 								// We need to determine what's underneath the
 								// draggable, too, to set the Move Me mode's pointer.
 								dfx.setStyle(dragAsset, 'display', 'none');
-								var height   = assetMapContainer.ownerDocument.documentElement.clientHeight;
-								underlyingEl = assetMapContainer.ownerDocument.elementFromPoint(mousePos.x, mousePos.y);
+
+								// Bug #6654: IE8 requires elements returned from elementFromPoint()
+								// to respond to mouse events. Testing suggests it is too slow to provide
+								// this to the element underneath once the draggable is hidden, so returns null
+								// the first time it's called.
+								// I'm going to allow 4 attempts just in case, but IE8 should return
+								// it the second time around at worst.
+								var count = 0;
+								while ((underlyingEl === null) && (count < 4)) {
+									count++;
+									underlyingEl = assetMapContainer.ownerDocument.elementFromPoint(mousePos.x, mousePos.y);
+								}
+
 								if (dfx.hasClass(underlyingEl, 'tab') === true) {
 									var hoverTreeid = underlyingEl.getAttribute('data-treeid');
 									self.setHoverTab(hoverTreeid, function(treeid) {
@@ -1518,7 +1547,13 @@ var JS_Asset_Map = new function() {
 
 						// We moved far enough between events that we're not on the
 						// draggable anymore.
-						var underlyingEl = assetMapContainer.ownerDocument.elementFromPoint(mousePos.x, mousePos.y);
+						var underlyingEl = null;
+						var count = 0;
+						while ((underlyingEl === null) && (count < 4)) {
+							count++;
+							underlyingEl = assetMapContainer.ownerDocument.elementFromPoint(mousePos.x, mousePos.y);
+						}
+
 						dfx.setStyle(dragAsset, 'left', dragStatus.currentPoint.x + 'px');
 						dfx.setStyle(dragAsset, 'top', dragStatus.currentPoint.y + 'px');
 

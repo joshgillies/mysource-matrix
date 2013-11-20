@@ -63,6 +63,9 @@
 		</field>		
 		<field attribute="auth_filter">
 			<text width="40" height="1" />
+		</field>
+		<field attribute="recursive_parents">
+			<boolean true_text="yes" false_text="no" />
 		</field>		
 	</section>
 	<section name="LDAP Not Available" write_access="admin:attributes" show_if="ldapNotAvailable">
