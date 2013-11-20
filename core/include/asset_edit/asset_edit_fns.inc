@@ -223,27 +223,27 @@ class Asset_Edit_Fns extends MySource_Object
 
 		<table class="sq-backend-table">
 			<tr class="sq-backend-table-row">
-				<td class="sq-backend-table-header-header"><?php echo implode(' &nbsp; &nbsp; ', $links) ?></td>
-				<td class="sq-backend-table-header-header" colspan="<?php echo ($admin_access === TRUE) ? 5 : 4 ?>" style="text-align: right; font-weight: normal"><?php echo $asset_count_tag; ?></span></td>
+				<th class="sq-backend-table-header-header"><?php echo implode(' &nbsp; &nbsp; ', $links) ?></th>
+				<th class="sq-backend-table-header-header" colspan="<?php echo ($admin_access === TRUE) ? 5 : 4 ?>" style="text-align: right; font-weight: normal"><?php echo $asset_count_tag; ?></span></th>
 			</tr>
 			<tr>
-				<td class="sq-backend-table-header"><?php echo translate('url'); ?></td>
-				<td class="sq-backend-table-header"><?php echo translate('remap_url'); ?></td>
-				<td class="sq-backend-table-header"><?php echo translate('expires'); ?></td>
-				<td class="sq-backend-table-header"><?php echo translate('type'); ?></td>
+				<th class="sq-backend-table-header"><?php echo translate('url'); ?></th>
+				<th class="sq-backend-table-header"><?php echo translate('remap_url'); ?></th>
+				<th class="sq-backend-table-header"><?php echo translate('expires'); ?></th>
+				<th class="sq-backend-table-header"><?php echo translate('type'); ?></th>
 				<?php
 					if ($admin_access) {
 						?>
-						<td class="sq-backend-table-header">
+						<th class="sq-backend-table-header">
 							<?php
 							check_box($prefix.'_select_all', '1', FALSE, "check_all(document.main_form, '{$prefix}_delete_remap', this.checked);");
 							label(translate('delete_question'), $prefix.'_select_all');
 							?>
-						</td>
+						</th>
 						<?php
 					}
 				?>
-				<td class="sq-backend-table-header"><?php echo translate('never_delete'); ?></td>
+				<th class="sq-backend-table-header"><?php echo translate('never_delete'); ?></th>
 			</tr>
 			<?php
 				foreach ($remap_urls as $url_info) {
@@ -261,7 +261,7 @@ class Asset_Edit_Fns extends MySource_Object
 					<?php
 						if ($admin_access) {
 							?>
-							<td class="sq-backend-table-cell">
+							<td class="sq-backend-table-cell" align="center">
 								<?php
 								check_box($prefix.'_delete_remap['.$url_info['url'].']', 1, FALSE, '', $url_info['never_delete'] ? 'disabled' : '');
 								?>
@@ -270,7 +270,7 @@ class Asset_Edit_Fns extends MySource_Object
 						}
 					?>
 					
-					<td class="sq-backend-table-cell"><img src="<?php echo sq_web_path('lib')."/web/images/".($url_info['never_delete'] ? "tick.gif" : "cross.gif"); ?>" width="15" height="15" /></td>
+					<td class="sq-backend-table-cell" align="center"><img src="<?php echo sq_web_path('lib')."/web/images/".($url_info['never_delete'] ? "tick.gif" : "cross.gif"); ?>" width="15" height="15" /></td>
 				</tr>
 				<?php
 				}//end foreach

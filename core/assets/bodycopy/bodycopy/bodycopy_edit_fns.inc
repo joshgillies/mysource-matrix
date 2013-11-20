@@ -221,7 +221,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		</div>
 		<!-- End Popup -->
 
-		<table border="0" cellspacing="0" cellpadding="0" class="bodytext">
+		<table class="sq-edit-bodycopy-table bodytext">
 
 		<?php
 
@@ -239,7 +239,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 				<tr>
 					<td>
 						<input type="hidden" name="bodycopy_saved[<?php echo $prefix?>][<?php echo $container->id?>]" value="">
-						<table border="0" cellspacing="0" cellpadding="0">
+						<table class="sq-edit-bodycopy-insert-container-table">
 							<tr>
 								<?php
 								if ( $GLOBALS['SQ_SYSTEM']->getUserPrefs('bodycopy_container', 'SQ_DIV_DISABLE_CREATE') === 'yes'){
@@ -272,7 +272,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 
 			?>
 			<tr>
-			<td class="bodycopyContainerCell" data-bodycopyid="<?php echo htmlentities($asset->id) ?>" data-containerid="<?php echo htmlentities($container->id) ?>"<?php
+			<td class="sq-bodycopy-container-cell bodycopyContainerCell <?php echo $container ?>" data-bodycopyid="<?php echo htmlentities($asset->id) ?>" data-containerid="<?php echo htmlentities($container->id) ?>"<?php
 				if ((boolean) $container->writeAccess('content') === FALSE) {
 					echo ' data-readonly="true"';
 				}
@@ -292,7 +292,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 			?>
 			<tr>
 				<td>
-					<table border="0" cellspacing="0" cellpadding="0">
+					<table class="sq-edit-bodycopy-insert-container-table">
 						<tr>
 							<?php
 							if ( $GLOBALS['SQ_SYSTEM']->getUserPrefs('bodycopy_container', 'SQ_DIV_DISABLE_CREATE') === 'yes'){

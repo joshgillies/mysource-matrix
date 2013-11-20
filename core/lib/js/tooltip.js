@@ -237,7 +237,6 @@ function tt_paint(top, left, text, title, close_button)
 				unescapedText = '<div class="sq-toolbox-content-wrapper">' + unescapedText + '</div>';
 			}
 			document.getElementById("ToolBoxContent").innerHTML = unescapedText;
-			console.log(unescapedText);
 		}
 		/*document.getElementById("ToolBoxContent").style.padding = "2px";
 		document.getElementById("ToolBoxContent").style.background = this.normal_bg;*/

@@ -279,8 +279,16 @@ table.sq-backend-main-headings .sq-backend-asset-info {
 	width: 						130px;
 }
 
-.sq-toolbox-table {
+.sq-toolbox-wrapper {
+	position: 					absolute;
+	z-index: 					1001;
 	border: 					1px solid #ccc;
+	border-radius: 				4px;
+	overflow: 					hidden;
+	box-shadow: 				0 0 5px #ccc;
+}
+
+.sq-toolbox-table {
 	border-radius: 				4px;
 	background-color: 			#fdfdfd;
 }
@@ -301,9 +309,12 @@ table.sq-backend-main-headings .sq-backend-asset-info {
 	padding: 					0;
 }
 
-.sq-toolbox-content-wrapper {
-	padding: 					10px;
-	position: 					absolute;
+.sq-toolbox-content p {
+	margin: 					10px;
+}
+
+.sq-toolbox-content table {
+	width: 						100%;
 }
 
 .sq-toolbox-table tr .sq-toolbox-content table tr td {
@@ -378,8 +389,35 @@ table.sq-backend-main-headings .sq-backend-asset-info {
 	background-color: 			#FF9A00;
 }
 
+.sq-edit-bodycopy-table tr td table tr td {
+	padding: 					10px;
+}
+
 
 /* NEW STYLES */
+
+.sq-toolbox-asset-lineages-listing tr td {
+	background-color: 			#fdfdfd;
+}
+
+.sq-toolbox-asset-lineages-listing tr:nth-child(even) td {
+	background-color: 			#f9f9f9;
+}
+
+.sq-toolbox-asset-lineages-listing tr:first-child td {
+	border-top: 				1px solid #ccc;
+}
+
+#ToolBoxClose {
+	background-color: 			#f4f4f4;
+	border-bottom: 				1px solid #ccc;
+	border-top-left-radius: 	4px;
+	border-top-right-radius: 	4px;
+	box-shadow: 				0 1px 0 #fff inset;
+	color: 						#565656;
+	font-size: 					14px;
+	font-weight: 				bold;
+}
 
 .sq-locks-button-wrapper {
 	margin-bottom: 				20px;
@@ -716,6 +754,8 @@ input[type=text].sq-form-asset-finder {
 
 select {
 	font-size: 					12px;
+	color: 						#565656;
+	padding: 					5px;
 }
 
 .sq-info-asset-name {
@@ -746,7 +786,7 @@ select {
 .sq-backend-section-inner-table-wrapper {
 	position: 					relative;
 	width: 						100%;
-	padding: 					20px 20px 1px;
+	padding: 					20px 20px;
 }
 
 .sq-backend-section-inner-table-wrapper .sq-backend-section-inner-table-wrapper {
@@ -995,12 +1035,6 @@ table.no-borders td, table.no-borders th {
 .sq-backend-section-table-inner tr td .sq-asset-tree tr td, .sq-backend-section-table-inner tr td .sq-asset-tree tr td table tr td {
 	padding-bottom: 			0;
 	height: 					0;
-}
-
-
-/* BACKEND FIELDSET STYLES */
-
-fieldset {
 }
 
 

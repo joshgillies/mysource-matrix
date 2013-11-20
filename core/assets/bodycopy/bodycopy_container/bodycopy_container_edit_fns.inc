@@ -863,7 +863,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		</div>
 		<!-- End Popup -->
 
-		<table border="0" cellspacing="0" cellpadding="0" width="100%" class="bodytext">
+		<table class="bodytext">
 			<tr>
 				<td>
 					<input type="hidden" name="bodycopy_saved[<?php echo $prefix?>][<?php echo $asset->id?>]" value="">

@@ -1763,14 +1763,14 @@ function get_asset_tag_line_binoculars($assetid, $popupTitle=NULL)
 	ob_start();
 	?>
 	<div id="asset-tag-line-<?php echo $assetid ?>-lineages" style="display:none">
-	<p style="padding: 2px 5px 0;">This asset is linked to <?php
+	<p>This asset is linked to <?php
 	if ($count_linked_to === 1) {
 		?><strong><em><?php echo $count_linked_to ?></em></strong> parent<?php
 	} else {
 		?><strong><em><?php echo $count_linked_to ?></em></strong> parents<?php
 	}
 	?></p>
-	<table><?php
+	<table class="sq-toolbox-asset-lineages-listing"><?php
 	foreach ($lineages as $lineage_key => $lineage) {
 		if ($lineage['link_type'] & SQ_SC_LINK_BACKEND_NAV) {
 			$lineage_assetids = array_keys($lineage['lineage']);

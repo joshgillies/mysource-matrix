@@ -306,7 +306,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		$type_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo('bodycopy');
 
 		?>		
-		<table<?php echo $attribute_list?> style="width:100%;">
+		<table<?php echo $attribute_list?> class="sq-<?php echo get_class_lower($content_type) ;?>-table" style="width:100%;">
 			<tr>
 				<td align="left" background="" id="<?php echo $prefix.'_div_'.$asset->id;?>" width="4%" style="border: 1px dashed #C0C0C0;">
 				<span style="float: left;">
@@ -350,7 +350,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 				</td>
 			</tr>
 			<tr>
-				<td style="border-left: 1px dashed #C0C0C0; border-right: 1px dashed #C0C0C0; border-bottom: 1px dashed #C0C0C0;" id="<?php echo $content_prefix; ?>_cell">
+				<td style="border-left: 1px dashed #C0C0C0; border-right: 1px dashed #C0C0C0; border-bottom: 1px dashed #C0C0C0;" id="<?php echo $content_prefix; ?>_cell" class="sq-<?php echo get_class_lower($content_type) ;?>-wrapper">
 				<?php
 				if (!is_null($content_type)) {
 					$content_edit = $content_type->getEditFns();
