@@ -1176,7 +1176,7 @@ class Backend_Outputter
 			//]]> -->
 			</script>
 		</head>
-		<body onload="page_on_load();" onunload="page_on_unload();" style="background: #F4F4F4" class="<?php echo $backendPage; ?>">
+		<body onload="page_on_load();" onunload="page_on_unload();" class="<?php echo $backendPage; ?>">
 		<div id="sq-search-wait-popup"><div id="sq-search-wait-popup-titlebar"><div id="sq-search-wait-popup-close">[ <a href="#" onclick="document.getElementById('sq-search-wait-popup').style.display = 'none'; return false;">x</a> ]</div><span id="sq-search-wait-popup-title">Search in Progress</span></div>
 			<div id="sq-search-wait-popup-details">Your search is being processed, please wait...</div>
 		</div>

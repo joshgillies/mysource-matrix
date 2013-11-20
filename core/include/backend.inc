@@ -321,9 +321,15 @@ class Backend extends MySource_Object
 
 					div.iframe-container.header {
 						padding-top: 0;
-						height: 40px;
+						height: 41px;
 						z-index: 3;
+						background: #2a2a2a;
 						box-shadow: 0 0 3px 1px #000;
+						border-bottom: 1px solid #000;
+					}
+
+					div.iframe-container.header iframe{
+						background: #2a2a2a;
 					}
 
 					div.iframe-container.lower-set {
