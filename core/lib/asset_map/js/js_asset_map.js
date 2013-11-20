@@ -1294,12 +1294,17 @@ var JS_Asset_Map = new function() {
 				if (options.simple === false) {
 					if (which === 1) {
 						self.clearMenus();
-						dragStatus.selectionDrag = {
-							selection: [],
-							originalSelection: []
-						};
-						if ((e.ctrlKey === true) || (e.metaKey === true)) {
-							dragStatus.selectionDrag.originalSelection = self.currentSelection();
+						if ((e.clientX >= tree.clientWidth) || (e.clientY >= tree.clientHeight)) {
+							// Appears to be starting outside the scrollbars.
+							e.stopImmediatePropagation();
+						} else {
+							dragStatus.selectionDrag = {
+								selection: [],
+								originalSelection: []
+							};
+							if ((e.ctrlKey === true) || (e.metaKey === true)) {
+								dragStatus.selectionDrag.originalSelection = self.currentSelection();
+							}
 						}
 					} else if (which === 3) {
 						var menu = self.drawAddMenu();
