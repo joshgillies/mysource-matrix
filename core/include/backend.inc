@@ -982,7 +982,7 @@ class Backend extends MySource_Object
 		<table class="sq-backend-header">
 			<tr>
 				<td nowrap class="sq-backend-header-item" valign="middle">
-					<img class="sq-matrix-logo" src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/matrix_logo.gif" alt="Squiz Matrix" title="Squiz Matrix"/>
+					<img class="sq-matrix-logo" src="<?php echo sq_web_path('lib'); ?>/web/images/logo-toolbar.png" alt="Squiz Matrix" title="Squiz Matrix"/>
 					<p class="sq-logged-in-as-text">
 						<a href="#" onclick="Javascript: reloadHeader(); return false;"><?php echo translate('logged_in_as', htmlspecialchars($GLOBALS['SQ_SYSTEM']->user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)); ?></a>
 						<?php
@@ -1038,7 +1038,9 @@ class Backend extends MySource_Object
 								</script>
 								<?php
 								echo '<label for="user" class="sq-backend-header-item">'.translate('login_as').'</label>';
-								text_box('user', '',  22, 0, TRUE, 'class="sq-backend-header-search-box" onkeypress="if (event.keyCode == 13) submit_login_as();"');
+								echo '<span class="sq-text-field-wrapper login">';
+								text_box('user', '',  22, 0, TRUE, 'class="sq-backend-header-text-box" onkeypress="if (event.keyCode == 13) submit_login_as();"');
+								echo '</span>';
 								?>
 								<input type="button" style="height: 20px;" value="Login" onclick="submit_login_as();" />
 								<input type="button" style="height: 20px;" value="Cancel" onclick="hide_login_as_form();" />
@@ -1048,14 +1050,16 @@ class Backend extends MySource_Object
 					<?php
 					}
 					?>
-					<table cellpadding="0" border="0" cellspacing="0" id="tool_buttons" align="right">
+					<table id="tool_buttons" align="right">
 						<tr>
 							<td nowrap valign="middle">
 							<?php
 								echo '<label for="asset_search" class="sq-backend-header-item">'.translate('quick_search').'</label>';
-								text_box('asset_search', (!empty($_POST['asset_search'])) ? $_POST['asset_search'] : $asset_search_default, 30, 0, empty($_POST['asset_search']), 'class="sq-backend-header-search-box" onkeypress="if (event.keyCode == 13) form.submit();"');
+								echo '<span class="sq-text-field-wrapper">';
+								text_box('asset_search', (!empty($_POST['asset_search'])) ? $_POST['asset_search'] : $asset_search_default, 30, 0, empty($_POST['asset_search']), 'class="sq-backend-header-text-box" onkeypress="if (event.keyCode == 13) form.submit();"');
 
 								echo '<input type="image" class="sq-backend-header-search-button" alt="Go" src="'.sq_web_path('lib').'/web/images/icons/header/search.png" onClick="form.submit();">';
+								echo '</span>';
 							?>
 							</td>
 							<td nowrap>
