@@ -2676,6 +2676,7 @@ If you are ready to continue, please click <strong>Next</strong> to proceed with
 	<string source="trigger_action_future_permission_failure_conditions">NB. If a selected attribute is empty or not present, or the calculated value is in the past, no future permission will be set</string>
 
 	<string source="web_paths_auto_add_remaps">Automatically add remaps?</string>
+	<string source="web_paths_auto_add_remaps_label">Automatically add remaps</string>
 	<string source="web_paths_auto_add_remaps_note">When set, this option will add remaps for Web Paths that have been changed above.</string>
 
 	<!--

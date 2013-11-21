@@ -1316,35 +1316,22 @@ class Backend extends MySource_Object
 			{
 				var tabElement = null;
 
-				// show the correct DIV
+				//add the class name of the active tab to the wrapper element
+				document.getElementById('sq-sidenav-menu-tabs-wrapper').className = tabName;
+
+				// show the correct DIV and add selected class to tab
 				for (var i=0; i < tabNames.length; i++) {
 					if (tabNames[i] != tabName) {
 						tabElement = document.getElementById(tabNames[i]);
 						tabElement.style.visibility = 'hidden';
+						document.getElementById('sq-menu-tab-' + tabNames[i]).className = 'sq-menu-tab';
+					}else{
+						document.getElementById('sq-menu-tab-' + tabNames[i]).className = 'sq-menu-tab selected';
 					}
 				}
 
 				tabElement = document.getElementById(tabName);
 				tabElement.style.visibility = 'visible';
-
-				// switch the tabs
-				var tabStart = document.getElementById(oldTabName + '_tab_start');
-				tabStart.className = 'sidenav-tab-start';
-				var tabEnd = document.getElementById(oldTabName + '_tab_end');
-				tabEnd.className = 'sidenav-tab-end';
-				var tabIcon = document.getElementById(oldTabName + '_tab_icon');
-				tabIcon.className = 'sidenav-tab-icon';
-				var tab = document.getElementById(oldTabName + '_tab');
-				tab.className = 'sidenav-tab';
-
-				tabStart = document.getElementById(tabName + '_tab_start');
-				tabStart.className = 'sidenav-tab-start-active';
-				tabEnd = document.getElementById(tabName + '_tab_end');
-				tabEnd.className = 'sidenav-tab-end-active';
-				tabIcon = document.getElementById(tabName + '_tab_icon');
-				tabIcon.className = 'sidenav-tab-icon-active';
-				tab = document.getElementById(tabName + '_tab');
-				tab.className = 'sidenav-tab-active';
 
 				// save this tab name for next time
 				oldTabName = tabName;
@@ -1378,10 +1365,22 @@ class Backend extends MySource_Object
 			// we are on the backend
 			?>
 				<div class="sq-sidenav-wrapper">
-					<table class="sq-sidenav-tab-wrapper" cellspacing="0" cellpadding="0" border="0" width="100%">
+					<table class="sq-sidenav-tab-wrapper">
 						<tr>
-							<td height="100%" valign="top">
-								<table cellspacing="0" cellpadding="0">
+							<td class="sq-sidenav-menu-tabs">
+
+								<span class="" id="sq-sidenav-menu-tabs-wrapper">
+									<a class="sq-menu-tab selected" id="sq-menu-tab-asset_map" href="#" onClick="Javascript: switchSideNav('asset_map'); return false;">
+										<img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/tree.png"/>
+										<?php echo translate('asset_map'); ?>
+									</a>
+									<a class="sq-menu-tab" id="sq-menu-tab-my_space" href="#" onClick="Javascript: switchSideNav('my_space'); return false;">
+										<img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/myspace.png"/>
+										<?php echo translate('my_space'); ?>
+									</a>
+								</span>
+
+								<!--table cellspacing="0" cellpadding="0">
 									<tr>
 										<td><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="24" height="1" /></td>
 
@@ -1395,7 +1394,7 @@ class Backend extends MySource_Object
 										<td class="sidenav-tab" id="my_space_tab"><a href="#" onClick="Javascript: switchSideNav('my_space'); return false;"><?php echo translate('my_space'); ?></a></td>
 										<td class="sidenav-tab-end" id="my_space_tab_end"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="3" height="20" /></td>
 									</tr>
-								</table>
+								</table-->
 							</td>
 						</tr><!--
 						<tr>

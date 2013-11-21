@@ -1,10 +1,3 @@
-/* Temp style to hide the popup iframe */
-
-.sq-tooltip-popup {
-	display: none;
-	border-collapse: collapse;
-	visibility: none;
-}
 
 
 /* Clear fix */
@@ -31,7 +24,7 @@ html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockq
 	padding: 					0;
 	border: 					0;
 	font-size: 					12px;
-	color:						#555;
+	color:						#565656;
 	font-family:				Arial, Verdana, Helvetica, sans-serif;
 }
 
@@ -400,8 +393,192 @@ table.sq-backend-main-headings .sq-backend-asset-info {
 	padding: 					10px;
 }
 
+/* New Asset Tree styles */
+
+.tbButton {
+	margin-left: 				10px;
+}
+
+.sq-menu-tab {
+	padding: 					10px;
+	border: 					1px solid #ccc;
+	border-top-left-radius: 	4px;
+	border-top-right-radius: 	4px;
+	border-bottom: 				none;
+	color: 						#565656;
+	text-shadow: 				0 1px 0 #fff;
+	background-color: 			#e3e3e3;
+	margin-right: 				2px;
+	font-size: 					12px;
+	font-weight: 				normal;
+	box-shadow: 				0 -10px 20px -15px rgba(0,0,0,0.7) inset;
+}
+
+.sq-menu-tab.selected {
+	background-color: 			#f4f4f4;
+	box-shadow: 				0 1px 0 #fff inset;
+	box-shadow: 				none;
+}
+
+.sq-menu-tab img {
+	vertical-align: 			middle;
+	margin-right: 				5px;
+}
+
+#asset_map #asset_map_container .toolbar {
+	padding: 					10px;
+	border-top-right-radius: 	4px;
+	border: 					1px solid #ccc;
+}
 
 /* NEW STYLES */
+
+#asset_map #asset_map_container .tree {
+	border-right: 				1px solid #ccc;
+}
+
+.sq-bodycopy-raw-html-table-wrapper {
+	width: 						100%;
+}
+
+.sq-edit-bodycopy-table.bodytext .sq-content_type_raw_html-table .sq-content_type_raw_html-wrapper textarea {
+	width: 						100%;
+}
+
+.sq-backend-section-table-inner tr td .sq-bodycopyt-raw-html-table {
+	border: 					1px dashed #ccc;
+	width: 						100%;
+}
+
+.sq-backend-section-table-inner tr td .sq-bodycopyt-raw-html-table tr td {
+	padding: 					10px;
+	border-right: 				1px dashed #ccc;
+	border-bottom: 				1px dashed #ccc;
+}
+
+.sq-backend-section-table-inner tr td .sq-bodycopyt-raw-html-table tr:last-child td {
+	border-bottom: 				none;
+}
+
+.sq-backend-section-table-inner tr td .sq-bodycopyt-raw-html-table tr td:last-child {
+	border-right: 				none;
+}
+
+.sq-edit-bodycopy-table.bodytext .sq-content_type_raw_html-table {
+	border: 					1px dashed #ccc;
+	width: 						100%;
+}
+
+.sq-edit-bodycopy-table.bodytext .sq-content_type_raw_html-table tr:first-child td {
+	border-bottom: 				1px dashed #ccc;
+}
+
+.sq-edit-bodycopy-table.bodytext .sq-content_type_wysiwyg-table {
+	border: 					1px dashed #ccc;
+	width: 						100%;
+}
+
+.sq-edit-bodycopy-table.bodytext .sq-content_type_wysiwyg-table tr td {
+	border-bottom: 				1px dashed #ccc;
+	border-right: 				1px dashed #ccc;
+}
+
+.sq-edit-bodycopy-table.bodytext .sq-content_type_wysiwyg-table tr:last-child td {
+	border-bottom: 				none;
+}
+
+.sq-edit-bodycopy-table.bodytext .sq-content_type_wysiwyg-table tr td:last-child {
+	border-right: 				none;
+}
+
+.sq-edit-bodycopy-table.bodytext .sq-bodycopy-container-edit-table-wrapper .sq-bodycopy-container-edit-table-table {
+	border-left: 				1px dashed #ccc;
+	border-right: 				1px dashed #ccc;
+}
+
+.sq-edit-bodycopy-table.bodytext .sq-bodycopy-container-edit-table-wrapper .sq-bodycopy-container-edit-table-table tr td:first-child {
+	width: 20px;
+}
+
+.sq-edit-bodycopy-table.bodytext .sq-bodycopy-container-edit-table-wrapper .sq-bodycopy-container-edit-table-table tr td {
+	border-right: 				1px dashed #ccc;
+	border-bottom: 				1px dashed #ccc;
+}
+
+.sq-edit-bodycopy-table.bodytext .sq-bodycopy-container-edit-table-wrapper .sq-bodycopy-container-edit-table-table tr:last-child td {
+	border-bottom: 				none;
+}
+
+.sq-edit-bodycopy-table.bodytext .sq-bodycopy-container-edit-table-wrapper .sq-bodycopy-container-edit-table-table tr td:last-child {
+	border-right: 				none;
+}
+
+.sq-edit-bodycopy-table.bodytext .sq-bodycopy-container-edit-table-wrapper tr:first-child td .sq-bodycopy-container-edit-table-table {
+	border-top: 				1px dashed #ccc;
+}
+
+.sq-edit-bodycopy-table.bodytext .sq-bodycopy-container-edit-table-wrapper tr:last-child td .sq-bodycopy-container-edit-table-table {
+	border-bottom: 				1px dashed #ccc;
+}
+
+.sq-edit-bodycopy-table.bodytext .sq-content_type_nest_content-table {
+	border: 					1px dashed #ccc;
+}
+
+.sq-edit-bodycopy-table.bodytext tr td .sq-content_type_nest_content-table tr:first-child td {
+	border-bottom: 				1px dashed #ccc;
+}
+
+.sq-edit-bodycopy-table.bodytext .sq-content_type_nest_content-table .content_type_nest_content tr:first-child td {
+	border-bottom: 				1px dashed #ccc;
+}
+
+.sq-edit-bodycopy-table.bodytext tr td.sq-bodycopy-container-cell table.sq-content_type_nest_content-table tr td.sq-content_type_nest_content-wrapper table.sq-backend-table tr td.sq-backend-table-cell table {
+	width: 						100%;
+	border: 					1px solid #ccc;
+}
+
+.sq-toolbox-content-wrapper {
+	padding: 					10px;
+}
+
+.sq-edit-bodycopy-insert-container-table {
+	width: 						100%;
+}
+
+.sq-edit-bodycopy-insert-container-table tr td:first-child {
+	width: 						25px;
+}
+
+.sq-edit-bodycopy-insert-container-table tr td.sq-backend-data {
+	padding-left: 				0;
+}
+
+.bodycopyContainerCell > table {
+	margin-bottom: 				25px;
+}
+
+.sq-edit-bodycopy-table.bodytext .sq-bodycopy-container-cell .sq-content_type_wysiwyg-table tr td {
+	padding: 					10px;
+}
+
+.sq-edit-bodycopy-table.bodytext tr .sq-bodycopy-container-cell .sq-bodycopy-container-edit-table-wrapper tr td {
+	padding: 					0;
+}
+
+.sq-edit-bodycopy-table.bodytext tr .sq-bodycopy-container-cell .sq-bodycopy-container-edit-table-wrapper tr td .sq-bodycopy-container-edit-table-table tr td {	
+	margin-bottom: 				10px;
+	vertical-align: 			top;
+	padding: 					10px;
+}
+
+.sq-edit-bodycopy-table.bodytext tr .sq-bodycopy-container-cell .sq-bodycopy-container-edit-table-wrapper tr td .sq-bodycopy-container-edit-table-table tr td .sq-icon {
+	margin-bottom: 				10px;
+}
+
+.sq-edit-bodycopy-table.bodytext tr td.sq-bodycopy-container-cell .sq-bodycopy-container-edit-table-wrapper, .sq-edit-bodycopy-table.bodytext tr td.sq-bodycopy-container-cell .sq-bodycopy-container-edit-table-wrapper .sq-bodycopy-container-edit-table-table {
+	width: 						100%;
+}
 
 .sq-toolbox-asset-lineages-listing tr td {
 	background-color: 			#fdfdfd;
@@ -825,6 +1002,8 @@ select {
 
 .sq-sidenav-tab-wrapper{
 	margin-top: 				10px;
+	width: 						100%;
+	padding-left: 				35px;
 }
 
 
@@ -844,10 +1023,10 @@ td.sq-backend-commit {
 }
 
 .sq-backend-smallprint, .sq-backend-smallprint b {
-	color: 						#707070;
+	color: 						#888;
 	margin-top: 				5px;
 	line-height: 				18px;
-	font-size:					11px;
+	font-size:					12px;
 }
 
 .sq-backend-section-note {
@@ -878,7 +1057,7 @@ td.sq-backend-commit {
 .sq-backend-header {
 	width: 						100%;
 	height: 					100%;
-	background: 				#2a2a2a url(../images/bar-noise-bg.png);
+	background: 				#494949 url(../images/bar-noise-bg.png);
 	box-shadow: 				0 -10px 25px -10px rgba(0,0,0,0.7) inset;
 }
 
@@ -1316,7 +1495,7 @@ ul.radio-list {
 
 #sq-commit-button-div-inside {
 	padding: 					8px 10px 7px;
-	margin: 					0 48px 0 0;
+	margin: 					0 55px 0 0;
 	background-color: 			#fff;
 	border: 					1px solid #ccc;
 	border-top-left-radius: 	4px;

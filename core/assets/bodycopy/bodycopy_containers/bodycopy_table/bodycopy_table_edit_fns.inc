@@ -278,7 +278,9 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			$attribute_list .= ' '.'id="'.$val.'"';
 		}
 
-		echo "\n<table{$attribute_list}>\n";
+		echo '<table class="sq-bodycopy-raw-html-table-wrapper" ';
+		echo "{$attribute_list}";
+		echo '>';
 
 		for ($i = 0; $i < count($table_rows); $i++) {
 			$attribute_list = '';
@@ -371,7 +373,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		$type_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo('bodycopy');
 
 		?>
-		<table<?php echo $attribute_list?> background="<?php echo $bgimage?>" border="0" cellpadding="0" cellspacing="0" style="width:100%;">
+		<table<?php echo $attribute_list?> class="sq-bodycopy-container-edit-table-wrapper" background="<?php echo $bgimage?>">
 
 		<?php
 
@@ -393,7 +395,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 				for ($x = 0; $x < $num_cols; $x++) {
 					$cell = $table_rows[$i]['cells'][$x];
 					?>
-					<td valign="top" colspan="<?php echo $cell->colspan(); ?>" style="border: 1px dashed #C0C0C0;">
+					<td valign="top" colspan="<?php echo $cell->colspan(); ?>">
 						<?php
 						// when painting a cell, it needs to know if there's more than 1 row or column too for drawing
 						// the delete row/col buttons
@@ -461,15 +463,15 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		}
 		
 		?>
-		<table cellspacing="0" cellpadding="0" width="100%" height="100%">
-		<tbody valign="top">
-		<tr style="background-color: White; height: 20px;">
+		<table class="sq-bodycopy-container-edit-table-table">
+		<tbody>
+		<tr>
 		<?php
 		// only print out the table prop edit icons if this is the first cell in the
 		// row and first row..
 		if ($x == 0) {
 		?>
-			<td id="<?php echo $prefix.'_table_'.$asset->id;?>" style="width: 20px;border-bottom: 1px dashed #C0C0C0;border-right: 1px dashed #C0C0C0;">
+			<td id="<?php echo $prefix.'_table_'.$asset->id;?>" >
 		<?php
 			if (($x+$i) == 0) {
 				$popup_attribute_list = '';
@@ -505,7 +507,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		}//end if
 		?>
 
-		<td style="border-bottom: 1px dashed #C0C0C0;" id="<?php echo $prefix.'_cell_'.$asset->id.'_'.$i.'_'.$x; ?>">
+		<td id="<?php echo $prefix.'_cell_'.$asset->id.'_'.$i.'_'.$x; ?>">
 		<!-- These next 3 icons float across to the right side -->
 		<span style="float: right;">
 		<?php
@@ -538,11 +540,11 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		?>
 		</td>
 		</tr>
-		<tr valign="top" height="100%" style="height: 100%;" <?php echo $attribute_list?>>
+		<tr <?php echo $attribute_list?>>
 		<?php
 		if ($x == 0) {
 			?>
-			<td style="width: 20px;border-right: 1px dashed #C0C0C0;" id="<?php echo $prefix.'_row_'.$asset->id.'_'.$i?>"  nowrap="nowrap">
+			<td id="<?php echo $prefix.'_row_'.$asset->id.'_'.$i?>"  nowrap="nowrap">
 			<?php
 			if ($i == 0 && $multiRow) {
 				Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_edit_table_row_order('$prefix', $asset->id);", translate('reorder_rows_question', $asset->attr('name')), '', 'reorder', '['.translate('reorder_rows').']');

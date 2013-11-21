@@ -142,14 +142,14 @@ class Asset_Edit_Fns extends MySource_Object
 
 		foreach ($paths as $path) {
 			if ($wa) {
-				text_box($prefix.'_paths[]', $path, 25);
+				text_box($prefix.'_paths[]', $path, 50, '', FALSE, 'style="margin-bottom:10px;"');
 			} else {
 				echo $path;
 			}
 			echo '<br/>';
 		}
 
-		if ($wa) text_box($prefix.'_paths[]', '', 25);
+		if ($wa) text_box($prefix.'_paths[]', '', 50);
 
 		return $wa;
 
@@ -381,18 +381,19 @@ class Asset_Edit_Fns extends MySource_Object
 			echo translate('no_associated_urls');
 		} else {
 			usort($urls, create_function('$a, $b', 'return strcmp($a[\'url\'], $b[\'url\']);'));
+			echo '<ul>';
 			foreach ($urls as $data) {
 				if ($data['http']) {
-					echo 'http://'.$data['url'], '<br/>';
+					echo '<li>http://'.$data['url'], '</li>';
 				}
 				if ($data['https']) {
-					echo 'https://'.$data['url'], '<br/>';
+					echo '<li>https://'.$data['url'], '</li>';
 				}
 			}
+			echo '</ul>';
 		}
 
 		if ($asset->force_secure === '1') {
-			echo '<br>';
 			$o->note(translate('force_secure_set_on_asset'));
 		}
 
@@ -412,7 +413,7 @@ class Asset_Edit_Fns extends MySource_Object
 	function paintAddRemapURLs(&$asset, &$o, $prefix)
 	{
 		if (!$asset->adminAccess('lookups')) return FALSE;
-
+		
 		$urls = $asset->getURLs();
 		if (empty($urls)) {
 			$o->openField(translate('url_remappings'));
@@ -440,7 +441,7 @@ class Asset_Edit_Fns extends MySource_Object
 
 		$o->openField(translate('new_url'));
 			combo_box($prefix.'_add_remap_new_url', $contents);
-		$o->note(translate('url_remap_explanation'));
+			$o->note(translate('url_remap_explanation'));
 		$o->closeField();
 
 		$o->openField(translate('expires'));
@@ -710,37 +711,37 @@ class Asset_Edit_Fns extends MySource_Object
 
 
 	/**
-		* Paints the Automatic Remapping checkbox
-		*
-		* @param Remap_Manager          $asset  the asset to which we belong
-		* @param Backend_Outputter      $o      the outputter class
-		* @param string                 $prefix prefix for the form element
-		*
-		* @return boolean
-		* @access public
-		*/
-		function paintAutomaticRemapSetting(&$asset, &$o, $prefix)
-		{
-				$write_access = $asset->writeAccess('lookups');
+	* Paints the Automatic Remapping checkbox
+	*
+	* @param Remap_Manager          $asset  the asset to which we belong
+	* @param Backend_Outputter      $o      the outputter class
+	* @param string                 $prefix prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintAutomaticRemapSetting(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('lookups');
 
 		if ($write_access) {
 			$o->closeField();
 
 			$o->openField(translate('web_paths_auto_add_remaps'));
 				$rm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
-						$remap_upon_webpath_change = $rm->attr('remap_upon_webpath_change');
+				$remap_upon_webpath_change = $rm->attr('remap_upon_webpath_change');
 
-						// paint checkbox
+				// paint checkbox
 				check_box($prefix.'_remap_upon_webpath_change', TRUE, $remap_upon_webpath_change);
+				label(translate('web_paths_auto_add_remaps_label'), $prefix.'_remap_upon_webpath_change');
 
 				$o->note(translate('web_paths_auto_add_remaps_note'));
 			$o->closeField();
-				}
+		}
+		
+		return $write_access;
 
-
-				return $write_access;
-
-		}//end paintAutomaticRemapSetting()
+	}//end paintAutomaticRemapSetting()
 
 		
 	/**
