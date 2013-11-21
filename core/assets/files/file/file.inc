@@ -619,20 +619,26 @@ class File extends Asset
 	/**
 	* Look's after the placing and removing of out files in the public directory
 	*
+	* @param string 	$filename		The filename to check the state of
+	* @param boolean 	$update_lookups	Whether to update the lookups
+	*
 	* @return boolean
 	* @access private
 	*/
-	protected function _checkFileState()
+	protected function _checkFileState($filename='', $update_lookups=TRUE)
 	{
 
 		if ($this->status & SQ_SC_STATUS_SAFE_EDITING) return TRUE; //don't touch public file in safe edit
 
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
-		$existing = $this->getExistingFile();
-		if (empty($existing)) return TRUE;
+		if (empty($filename)) {
+			$existing = $this->getExistingFile();
+			if (empty($existing)) return TRUE;
+			$filename = $existing['filename'];
+		}
 
-		$unrestricted = $this->data_path_public.'/'.$existing['filename'];
+		$unrestricted = $this->data_path_public.'/'.$filename;
 		$changed = FALSE;
 
 		// if we should be storing our file in the public
@@ -648,10 +654,10 @@ class File extends Asset
 			// if there is no current file or if the current file is out of date, check out a fresh copy
 			if ($fv->upToDate($unrestricted) & (FUDGE_FV_NOT_CHECKED_OUT | FUDGE_FV_OLD_VERSION)) {
 				if (file_exists($unrestricted)) {
-					unlink($this->data_path_public.'/'.$existing['filename']);
+					unlink($this->data_path_public.'/'.$filename);
 				}
 
-				if ($fv->checkOut($this->data_path_suffix.'/'.$existing['filename'], $this->data_path_public)) {
+				if ($fv->checkOut($this->data_path_suffix.'/'.$filename, $this->data_path_public)) {
 					$changed = TRUE;
 				} else {
 					trigger_localised_error('CORE0032', E_USER_WARNING);
@@ -674,7 +680,7 @@ class File extends Asset
 			}
 		}//end if effectiveUnrestricted
 
-		if ($changed) {
+		if ($changed && $update_lookups) {
 			return $this->updateLookups();
 		} else {
 			return TRUE;
