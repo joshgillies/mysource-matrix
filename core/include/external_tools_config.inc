@@ -78,6 +78,7 @@ class External_Tools_Config extends Config
 						'SQ_TOOL_SIMPLESAMLPHP_PATH'			=> Array('editable' => 1, 'default' => ''),
 						'SQ_TOOL_RECAPTCHA_PUBLIC_KEY'			=> Array('editable' => 1, 'default' => ''),
 						'SQ_TOOL_RECAPTCHA_PRIVATE_KEY'			=> Array('editable' => 1, 'default' => ''),
+						'SQ_TOOL_CLOSURE_COMPILER_PATH'			=> Array('editable' => 1, 'default' => ''),
 				);
 
 
@@ -612,6 +613,15 @@ class External_Tools_Config extends Config
 				}//end if
 				?><br /><?php
 				echo translate('recaptcha_private_key_note');
+			$o->closeField();
+		$o->closeSection();
+
+		$o->openSection(translate('closure_compiler'));
+			$o->openField(translate('closure_compiler_path'));
+			echo SQ_TOOL_CLOSURE_COMPILER_PATH;
+			if (!is_file(SQ_TOOL_CLOSURE_COMPILER_PATH)) {
+				?><br /><span class="sq-backend-warning"><?php echo translate('path_to_not_valid', 'Closure compiler'); ?></span><?php
+			}
 			$o->closeField();
 		$o->closeSection();
 
