@@ -9028,14 +9028,15 @@ class Asset_Manager extends MySource_Object
 				if (empty($pathToFix) === FALSE) {
 					$where .= ' AND p.path LIKE :pathToFix';
 
-					// if it's a file name, digits is added to file name part before extension
 					$extension = strrchr($pathToFix,'.');
-					if($extension === FALSE) {
-						$bindVars['pathToFix'] = $pathToFix.'%';
-					}
-					else {
+					if($extension !== FALSE || $major instanceof File) {
 						$pathToFix = substr($pathToFix, 0, strrpos($pathToFix, $extension));
 						$bindVars['pathToFix'] = $pathToFix.'%'.$extension;
+					} else if ($extension === FALSE) {
+						$bindVars['pathToFix'] = $pathToFix.'%';
+						// make sure we don't pick up anything with an extension
+						$where .= ' and p.path NOT LIKE :pathToIgnore';
+						$bindVars['pathToIgnore'] = '%.%';
 					}
 				}
 
@@ -9109,7 +9110,9 @@ class Asset_Manager extends MySource_Object
 			 */
 			$paths[$fixid] = increment_filename($last_path);
 		}
+
 		return $paths;
+
 	}//end webPathsInUse()
 
 
