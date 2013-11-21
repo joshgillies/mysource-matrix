@@ -2990,6 +2990,11 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="recaptcha_configuration">Google reCAPTCHA</string>
 	<string source="recaptcha_public_key_note">Global public key supplied by reCAPTCHA</string>
 	<string source="recaptcha_private_key_note">Global private key supplied by reCAPTCHA</string>
+
+	<!-- Closure compiler -->
+	<string source="closure_compiler">Closure Compiler</string>
+	<string source="closure_compiler_path">Path</string>
+
 	
 	<!-- SOAP -->
 	<string source="service_address">Service Address</string>
