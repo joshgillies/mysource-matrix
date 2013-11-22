@@ -50,10 +50,11 @@
 	</section>
 	<section name="Linked Files">
 		<field>
-			<display_name>Current Files</display_name>
-			<note/>
+			<display_name>Linked Files</display_name>
+			<note>Select the file assets to add to this File Folder</note>
 			<function_call>
 				<paint_function   name="paintLinkedFiles" />
+				<process_function   name="processLinkedFiles" />
 			</function_call>
 		</field>
 	</section>

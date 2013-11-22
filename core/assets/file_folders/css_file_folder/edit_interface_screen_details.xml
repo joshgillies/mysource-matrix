@@ -37,6 +37,7 @@
 		<field>
 			<function_call>
 				<paint_function   name="paintLinkedFiles" />
+				<process_function   name="processLinkedFiles" />
 			</function_call>
 		</field>
 	</section>
