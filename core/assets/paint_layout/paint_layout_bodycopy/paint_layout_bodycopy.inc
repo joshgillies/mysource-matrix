@@ -15,7 +15,7 @@
 */
 
 require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy.inc';
-require_once 'include/conditions_list.inc';
+require_once SQ_INCLUDE_PATH.'/conditions_list.inc';
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 /**
@@ -283,12 +283,6 @@ class Paint_Layout_Bodycopy extends Bodycopy
 				$keywords_in_condition = extract_keywords($content);
 				$paint_layout_keywords = array_merge($paint_layout_keywords, $this->_getAssetKeywordReplacements($asset, $keywords_in_condition));
 				replace_keywords($content, $paint_layout_keywords);
-			ob_end_clean();
-		} else {
-			$this->setKeywordReplacements($this->_getAssetKeywordReplacements($asset, $this->getKeywords()));
-			ob_start();
-				$this->printBody();
-				$content = ob_get_contents();
 			ob_end_clean();
 		}
 		// end performance mode timer

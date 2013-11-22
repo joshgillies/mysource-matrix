@@ -78,6 +78,8 @@ class Bodycopy_Management extends Asset_Management
 				'images/icons/htmltidy_pass.png',
 				'images/icons/htmltidy_fail.png',
 				'images/icons/htmltidy_wait.png',
+				'images/icons/conditions.png',
+				'images/icons/conditions_set.png',
 				'images/up_arrow.gif',
 				'images/down_arrow.gif',
 				'js/bodycopy_edit_tables.js',

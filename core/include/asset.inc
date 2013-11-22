@@ -6720,6 +6720,247 @@ class Asset extends MySource_Object
 
 	}//end getDependantParentURL()
 
+	
+	/**
+	*
+	* Get available conditions of the asset its parent site
+	*
+	* @param bool	$current_asset_only	just get current asset's conditions
+	* 
+	* @return array
+	* @access public
+	*/
+	function getAvailableConditions($current_asset_only=FALSE)
+	{
+	    if(!isset($this->vars['available_conditions'])) return Array();
+	    
+	    if(isset($this->_tmp['available_conditions'])) return $this->_tmp['available_conditions'];
+		
+	    $conditions = $this->attr('available_conditions');
+
+	    $conditions_to_return = Array();
+	    if(!empty($conditions)) {
+		foreach (array_keys($conditions) as $condition_name) {
+		    $condition_new_name = $condition_name.'_'.$this->id;
+		    $conditions_to_return[$condition_new_name] = $conditions[$condition_name];
+		}
+	    }
+
+	    if(!$current_asset_only) {
+		$sites = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'site', true);
+		foreach ($sites as $assetid => $type_code) {
+		    $site = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		    $conditions = $site->attr('available_conditions');
+		    if(!empty($conditions)) {
+			foreach (array_keys($conditions) as $condition_name) {
+			    $condition_new_name = $condition_name.'_'.$site->id;
+			    $conditions_to_return[$condition_new_name] = $conditions[$condition_name];
+			}
+		    }    
+		}
+	    }
+	    
+	    $this->_tmp['available_conditions'] = $conditions_to_return;
+	    return $conditions_to_return;
+	}//end getAvailableConditions
+	
+	
+	/**
+	*
+	* Get all the conditions set for the asset
+	*
+	*
+	* @return array
+	* @access public
+	*/
+	function getConditions()
+	{
+	     if(!isset($this->vars['conditions'])) return Array();
+	    $conditions = $this->attr('conditions');
+	    return $conditions;
+	}//end getConditions
+	
+	
+	/**
+	* Evaluate set conditions for this asset.  Save tlhe results in $GLOBALS['SQ_CONDITION']
+	* 
+	* e.g
+	*  
+	* set conditions:
+	*    "conditional_div" => array (
+	*	1290 => array (
+	*	    "logical_op_groups" => "all_match",
+	*	    "conditions" => array (
+	*		0 => array (
+	*		    "logical_op" => "all_match",
+	*		    "conditions" => array (
+	*			0 => "In_user_group_1193" 
+	*		    ) 
+	*		) 
+	*	    ) 
+	*	),
+	*   ),
+	*
+	*    "conditional_keywords" => array (
+	*	0 => "browser_is_firefox_1194",
+	*    )
+	*
+	*
+	*    results
+	*    “conditional”_div => array (
+	*	1290 => 1,  ( 1  means true, means display this div )
+	*    ),
+	*    "conditional_keywords" => array (
+	*	"browser_is_firefox_1194" => 1,
+	*   ) 
+	* 
+	*
+	* @return null
+	* @access public
+	*/
+	public function evaluateConditions()
+	{
+	    // get preset conditions
+	    $conditions = $this->getConditions();
+
+	    if(!empty($conditions)) {
+		// re-use results to avoid redundant eval
+		$eval_results = Array();
+		
+		// if there is conditions forecd to be true
+		$by_pass_conditions = Array();
+		if(isset($_GET['SQ_CONDITION']) && !empty($_GET['SQ_CONDITION']) && is_array($_GET['SQ_CONDITION']) && $this->writeAccess()) {
+		    $by_pass_conditions = $_GET['SQ_CONDITION'];
+		}
+		
+		// send no-cache header
+		$send_no_cache_header = FALSE;
+
+		// eval conditional div first
+		if(isset($conditions['conditional_div'])) {
+		    foreach ($conditions['conditional_div'] as $divid => $data) {
+			    $op_group = $data['logical_op_groups'];
+			    $div_ret = FALSE;
+			    $div_sum_ret = TRUE;
+			    // evaluate condition groups
+			    foreach ($data['conditions'] as  $group) {
+				if(isset($group['conditions'])) {
+				    $op = $group['logical_op'];
+				    $group_ret = FALSE;
+				    $sum_ret = TRUE;
+				    // evaluate conditions in groups
+				    foreach ($group['conditions'] as $condition) {
+					$condition_name_parts = explode('_', $condition);
+					$assetid = array_pop($condition_name_parts);
+					if($GLOBALS['SQ_SYSTEM']->am->assetExists($assetid)) {
+					    // the condtion name should have an owner id appended
+					    $asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+					    $conditions_info = $asset->getAvailableConditions(TRUE);
+
+					    if(isset($conditions_info[$condition])) {
+						// evaluate it
+						$ret = in_array($condition, $by_pass_conditions) ? TRUE : Condition::evaluateRestriction($this, $conditions_info[$condition]['restriction'], $conditions_info[$condition]['type_code']);
+
+						// cache eval results for condition keywords later
+						$eval_results[$condition] = $ret;
+
+						// send no-cache header is required
+						if($conditions_info[$condition]['force_no_cache']) {
+						    $send_no_cache_header = TRUE;
+						}
+
+						// adds up the results to evaluate the group result
+						$sum_ret = $sum_ret && $ret;
+						if($op === 'one_match' && $ret) {
+						    // if one match, any true will be true for all
+						    $group_ret = TRUE;
+						    break;
+						}
+						else if ($op === 'all_match' && !$ret) {
+						    // if all match, any false will be false for all
+						    $group_ret = FALSE;
+						    break;
+						}
+					    }
+					}
+				    }
+
+				    // if all match and all conditions are true, then the group is true, otherwise just use default value
+				    if($op === 'all_match' && $sum_ret) $group_ret = TRUE;
+
+				    // sum up results of groups
+				    $div_sum_ret = $div_sum_ret && $group_ret;
+				    if($op_group === 'one_match' && $group_ret) {
+					// if one match is required, any group is true would be true for all
+					$div_ret = TRUE;
+					break;
+				    }
+				    else if ($op_group === 'all_match' && !$group_ret) {
+					// if all match is required, any group is false would be false for all
+					$div_ret = FALSE;
+					break;
+				    }
+				}
+			    }
+			    // if all match and all of groups is true, then final result is true, otherwise, default to false
+			    if($op_group === 'all_match' && $div_sum_ret) $div_ret = TRUE;
+			    
+			    // save eval results in global var so bodycopy can use this results
+			    $GLOBALS['SQ_CONDITION']['conditional_div'][$divid] = $div_ret;
+		       }
+		}
+
+		// eval conditional keywords in the content
+		if(isset($conditions['conditional_keywords'])) {
+		    foreach ($conditions['conditional_keywords'] as $condition) {
+			// if the condition is already evaled previously, save the effort
+			if(isset($eval_results[$condition])) {
+			    $GLOBALS['SQ_CONDITION']['conditional_keywords'][$condition] = $eval_results[$condition];
+			}
+			else {
+			     // eval the condition
+			    $condition_name_parts = explode('_', $condition);
+			    $assetid = array_pop($condition_name_parts);
+			    if($GLOBALS['SQ_SYSTEM']->am->assetExists($assetid)) {
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$conditions_info = $asset->getAvailableConditions(TRUE);
+				if(isset($conditions_info[$condition])) {
+				    // evaluate it
+				    $ret = in_array($condition, $by_pass_conditions) ? TRUE : Condition::evaluateRestriction($this, $conditions_info[$condition]['restriction'], $conditions_info[$condition]['type_code']);
+				    $GLOBALS['SQ_CONDITION']['conditional_keywords'][$condition] = $ret;
+				    
+				    // if it forces no cache header to be sent, then send no-cache header
+				    if($conditions_info[$condition]['force_no_cache']) {
+					$send_no_cache_header = TRUE;
+				    }
+				}
+			    }			    
+			}    
+		    }
+		}
+		// send no cache header if required
+		if($send_no_cache_header) {
+		    header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
+		    header('Pragma: no-cache');
+		    header('Expires: '.gmdate('D, d M Y H:i:s', time()-3600).' GMT');
+		}
+	    }
+
+	}//end evaluateConditions
+	
+	
+	
+	/* Evaluate a singe condition
+	* 
+	* @return bool
+	* @access public
+	*/
+	public function evaluateCondition($conditions_info)
+	{
+	    $GLOBALS['SQ_SYSTEM']->am->includeAsset('condition');
+	    
+	}
+	
 }//end class
 
 ?>
