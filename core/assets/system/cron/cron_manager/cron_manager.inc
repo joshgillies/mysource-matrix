@@ -317,8 +317,8 @@ class Cron_Manager extends Asset
 	public function removeJob(Cron_Job $job)
 	{
 		// If job is not associated (Type 3 linked) with the Cron Manager, don't bother
-		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($this->id, $job->id, SQ_LINK_TYPE_3);
-		if (empty($link)) {
+		$crn_mgr_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($this->id, $job->id, SQ_LINK_TYPE_3);
+		if (empty($crn_mgr_link)) {
 			return FALSE;
 		}
 
@@ -328,28 +328,43 @@ class Cron_Manager extends Asset
 			return FALSE;
 		}
 
-		// Delete all the links in which job is the major party
-		// This will automatically link (type 2) the asset to the trash
-		$major_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($job->id, SQ_SC_LINK_ALL, '', TRUE, 'major');
-		foreach($major_links as $major_link) {
-			$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($major_link['linkid']);
-		}
-		// Delete all the links in which job is the minor party
-		$minor_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($job->id, SQ_SC_LINK_ALL, '', TRUE, 'minor');
-		foreach($minor_links as $minor_link) {
-			$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($minor_link['linkid']);
-		}
+		// Wrap the whole thing in the transaction
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		// Trash the asset and purge the job from system
-		$success = FALSE;
-		$trash = $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('trash_folder'));
-		$trash_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($trash->id, $job->id, SQ_LINK_TYPE_2);
-		if (!empty($trash_link['linkid'])) {
-			$vars = Array('purge_root_linkid' => $trash_link['linkid']);
-			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
-			$errors = $hh->freestyleHipo('hipo_job_purge_trash', $vars);
-			$success = empty($errors);
-		}
+		// Ignore the permissions checks/locks
+		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+
+			// Delete all the links in which job is the major party
+			$major_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($job->id, SQ_SC_LINK_ALL, '', TRUE, 'major');
+			foreach($major_links as $major_link) {
+				$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($major_link['linkid']);
+			}
+
+			// Link the job to the Trash
+			$trash = $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('trash_folder'));
+			$trash_linkid = $trash->createLink($job, SQ_LINK_TYPE_1);
+
+			$success = !empty($trash_linkid);
+			if ($success) {
+				// Delete the link (type 3) from the Cron Manager
+				$success = $this->deleteLink($crn_mgr_link['linkid']);
+
+				// Finally purge the job from the system
+				if ($success) {
+					$vars = Array('purge_root_linkid' => $trash_linkid);
+					$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+					$errors = $hh->freestyleHipo('hipo_job_purge_trash', $vars);
+					$success = empty($errors);
+				}
+			}//end if trashed
+
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($trash);
+
+		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+		
+		$GLOBALS['SQ_SYSTEM']->doTransaction($success ? 'COMMIT' : 'ROLLBACK');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return $success;
 
