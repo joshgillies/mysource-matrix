@@ -3008,14 +3008,17 @@ var JS_Asset_Map = new function() {
 		var hasRootFolder = false;
 
 		for (var i = 0; i < processQueue.length; i++) {
-			assetRequests.push({
-				_attributes: {
-					assetid: processQueue[i],
-					linkid: null,
-					start: 0,
-					limit: 1
-				}
-			});
+			var assetNodes = dfx.find(assetMapContainer, 'div.asset[data-assetid="' + processQueue[i]  + '"]');
+			for (var j = 0; j < assetNodes.length; j++) {
+				assetRequests.push({
+					_attributes: {
+						assetid: processQueue[i],
+						linkid: assetNodes[j].getAttribute('data-linkid'),
+						start: 0,
+						limit: 1
+					}
+				});
+			}
 		}//end for
 
 		var processAssets = function(response) {
@@ -3023,13 +3026,15 @@ var JS_Asset_Map = new function() {
 				var thisAsset  = response.asset[i];
 				thisAsset._attributes.name      = decodeURIComponent(thisAsset._attributes.name.replace(/\+/g, '%20'));
 				thisAsset._attributes.assetid   = decodeURIComponent(thisAsset._attributes.assetid.replace(/\+/g, '%20'));
+				thisAsset._attributes.linkid    = decodeURIComponent(thisAsset._attributes.linkid.replace(/\+/g, '%20'));
 				thisAsset._attributes.type_code = decodeURIComponent(thisAsset._attributes.type_code.replace(/\+/g, '%20'));
 
-				var assetid    = thisAsset._attributes.assetid;
+				var assetid = thisAsset._attributes.assetid;
+				var linkid  = thisAsset._attributes.linkid;
 				if (String(assetid) === '1') {
 					hasRootFolder = true;
 				} else {
-					var assetNodes = dfx.find(assetMapContainer, 'div.asset[data-assetid="' + assetid  + '"]');
+					var assetNodes = dfx.find(assetMapContainer, 'div.asset[data-linkid="' + linkid  + '"]');
 					for (var j = 0; j < assetNodes.length; j++) {
 						var assetNode     = assetNodes[j];
 						var newNode       = _formatAsset(thisAsset._attributes);
