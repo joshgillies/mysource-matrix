@@ -497,6 +497,17 @@ class Asset_Map
 						// Make room for tabs in the JS asset map.
 						$js_width -= 18;
 					}
+
+					$rootlinParts = explode('~', $rootlineage, 2);
+					$rootlineage  = explode('|', $rootlinParts[0]);
+					if (count($rootlineage) >= 2) {
+						$minorid    = array_pop($rootlineage);
+						$majorid    = array_pop($rootlineage);
+						$rootLinkid = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($majorid, $minorid, SQ_SC_LINK_SIGNIFICANT);
+						$rootLinkid = $rootLinkid['linkid'];
+					} else {
+						$rootLinkid = '';
+					}
 				?>
 					<script type="text/javascript">
 						dfxLoadedCallback = function() {
@@ -515,7 +526,8 @@ class Asset_Map
 									displayFormat: '<?php echo addslashes(SQ_CONF_ASSET_MAP_ASSET_DISPLAY_NAME); ?>',
 									assetsPerPage: <?php echo SQ_CONF_ASSET_MAP_ASSET_LIMIT; ?>,
 									initialSelection: '<?php echo $initial_selection_lineage ?>',
-									teleportRoot: <?php echo ($common_parentid ? $common_parentid : '1') ?>
+									teleportRoot: <?php echo ($common_parentid ? $common_parentid : '1') ?>,
+									teleportLink: '<?php echo $rootLinkid ?>',
 								});
 							}
 						}
