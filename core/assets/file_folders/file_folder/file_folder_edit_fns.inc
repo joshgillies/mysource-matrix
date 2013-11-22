@@ -54,6 +54,9 @@ class File_Folder_Edit_Fns extends File_Edit_Fns
 	public function paintFileLastUpdateDate(Asset $asset, Backend_Outputter $o, $prefix)
 	{
 		echo date('Y-m-d H:i:s', $asset->updated);
+		if ($asset->regenerationRequired()) {
+			echo '&nbsp;'.'<span style="color: red">Out of date!</span>';
+		}
 
 	}//end paintFileLastUpdateDate()
 
@@ -72,55 +75,95 @@ class File_Folder_Edit_Fns extends File_Edit_Fns
 	{
 		// Curretly linked files
 		$file_assetids = $asset->getLinkedFiles();
+		$file_asset_type = $asset->getFileAssetType();
 
-		// File assetids linked at the last minification
-		$linked_files = $asset->getLinkedFilesAtLastMinification();
-
-		// Regeneration will be required based on if the new files have been linked or un-linked
-		$regeneration_required = array_diff($file_assetids, $linked_files) || array_diff($linked_files, $file_assetids);
-
-		$file_assetids[] = $asset->id;
-		if (!empty($file_assetids)) {
-			$files_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($file_assetids);
-		}
-
-		// Minified file last update (file regeneration) date
-		$last_updated = isset($files_info[$asset->id]['updated']) ? $files_info[$asset->id]['updated'] : '';
-
-		?>
-			<table class="sq-backend-table" style="width: 360px;">
-				<tr>
-					<td class="sq-backend-table-header" style="width: 250px;"><?php echo 'Filename'; ?></td>
-					<td class="sq-backend-table-header" style="width: 110px;"><?php echo 'Last Updated'; ?></td>
-				</tr>
-		<?php
-			foreach($files_info as $file_id => $file_info) {
-				// We are not printing ourself
-				if ($file_id == $asset->id) {
-					continue;
-				}
-				$updated_flag = '';
-				if ($last_updated && $file_info['updated'] > $last_updated) {
-					$updated_flag = '*';
-					$regeneration_required = TRUE;
-				}
-				echo '<tr>';
-				echo '<td>'.$file_info['name'].'&nbsp; (#'.$file_id.')'.$updated_flag.'</td>';
-				echo '<td>'.$file_info['updated'].'</td>';
-				echo '</tr>';
+		if ($asset->writeAccess('links')) {
+			multiple_asset_finder($prefix.'_linked_files', $file_assetids, Array($file_asset_type => 'D'));
+		} else {
+			$infos = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($file_assetids);
+			?><ul style="margin: 1px 15px;"><?php
+			foreach ($infos as $assetid => $info) {
+				echo '<li>'.get_asset_tag_line($assetid).'</li>';
 			}
-
-		?>
-			</table>
-		<?php
-		if ($regeneration_required) {
-			echo "<br />File(s) marked with '*' has been updated since the last file regeneration. ";
-			echo '<span style="color: red">File regeneration required!</span>';
+			?></ul><?php
 		}
 
 		return TRUE;
 
 	}//end paintLinkedFiles()
+
+
+	/**
+	* Process the interface for the File Folder current files
+	*
+	* @param Asset				$asset	the asset whose interface we are painting
+	* @param Backend_Outputter	$o		the Backend Outputter object
+	* @param string				$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function processLinkedFiles(Asset $asset, Backend_Outputter $o, $prefix)
+	{
+		if (!isset($_POST[$prefix.'_linked_files']) || (isset($asset->_tmp['reverting_to_system_version']) && $asset->_tmp['reverting_to_system_version'])) {
+			return FALSE;
+		}
+		$file_asset_type = $asset->getFileAssetType();
+
+		$new_linked_files = $_POST[$prefix.'_linked_files'];
+		foreach ($new_linked_files as $new_linked_file) {
+			$new_linked_file_ids[] = $new_linked_file['assetid'];
+		}
+
+		// Get existing linked files
+		$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, $file_asset_type, TRUE, 'major', 'linked_folder');
+
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$ok = TRUE;
+
+		// Delete the file assets that have been removed
+		foreach ($file_links as $file_link) {
+			if (!in_array($file_link['minorid'], $new_linked_file_ids)) {
+				if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($file_link['linkid'])) {
+					$ok = FALSE;
+				}
+			}
+		}
+
+		// Create the new links
+		foreach ($new_linked_files as $index => $node) {
+			// Check if the node already exists. If so, ignore it
+			foreach ($file_links as $file_link) {
+				if ($file_link['minorid'] == $node['assetid']) {
+					continue 2;
+				}
+			}
+			// Otherwise, create the appropriate notice link
+			if ($node['assetid'] != 0) {
+				$new_file = $GLOBALS['SQ_SYSTEM']->am->getAsset($node['assetid']);
+				// Check the asset type
+				if ($new_file instanceof $file_asset_type) {
+					if (!$asset->createLink($new_file, SQ_LINK_NOTICE, 'linked_folder')) {
+						$ok = FALSE;
+						trigger_error('Unable to link the File #'.$new_file->id.' to the File Folder');
+						break;
+					}
+				}
+			}//end if
+		}//end foreach
+
+		if ($ok) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		}
+
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+		return $ok;
+
+	}//end processLinkedFiles()
 
 
 	/**
