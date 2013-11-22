@@ -3523,11 +3523,21 @@ var JS_Asset_Map = new function() {
 				var assetNameRect  = dfx.getBoundingRectangle(assetNameSpan);
 
 				if (mousePos.y > assetRect.y2) {
-					this.selection = {
-						parentid: options.teleportRoot,
-						linkid: (options.teleportLink ? options.teleportLink : 1),
-						before: -1
-					};
+					// Find a teleported root asset.
+					var teleportedRoot = dfx.getClass('asset.teleported', tree);
+					if (teleportedRoot.length > 0) {
+						this.selection = {
+							parentid: teleportedRoot[0].getAttribute('data-assetid'),
+							linkid: teleportedRoot[0].getAttribute('data-linkid'),
+							before: -1
+						};
+					} else {
+						this.selection = {
+							parentid: 1,
+							linkid: 1,
+							before: -1
+						};
+					}
 
 					dfx.addClass(_lineEl, 'active');
 					dfx.setCoords(_lineEl, (assetNameRect.x1 - assetMapCoords.x), (assetRect.y2 - assetMapCoords.y));
