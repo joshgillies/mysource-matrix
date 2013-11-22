@@ -17,4 +17,5 @@
 
 <screens>
 	<screen code_name="paths" display_name="URLs" icon="web" lock_type="lookups" />
+	<screen code_name="conditions"    display_name="Conditions"         icon="web"    lock_type="attributes" force_unlock="0" />
 </screens>

@@ -338,39 +338,24 @@ class Bodycopy extends Asset
 	*/
 	public function printBody()
 	{
-		// Bodycopy no longer handles the use of system version file, such uses is now being handled by containers.
-		// But For the sake of the upgrading, check for existing file in the bodycopy data dir.
-
-		if (is_file($this->data_path.'/.content_file.php') && $this->useSystemVersion()) {
-			// create an array of urls that the content file is
-			// going to try and use to work out file urls, link hrefs etc
-			$sq_asset_url_list = Array();
-
-			$notice_links = unserialize(file_to_string($this->data_path.'/.notice_links'));
-
-			$sq_asset_url_list = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_unique($notice_links));
-			for (reset($sq_asset_url_list); NULL !== ($minorid = key($sq_asset_url_list)); next($sq_asset_url_list)) {
-				if ($sq_asset_url_list[$minorid] == '') {
-					$sq_asset_url_list[$minorid] = './?a='.$minorid;
-				}
+		// get all the containers linked to this bodycopy
+		$containers =& $this->getContainers();
+		
+		// if conditional display of div is enabled
+		if(isset($GLOBALS['SQ_CONDITION']['conditional_div'])) {
+		    foreach (array_keys($containers) as $i) {
+			$container =& $containers[$i];
+			if(isset($GLOBALS['SQ_CONDITION']['conditional_div'][$container->id]) && !$GLOBALS['SQ_CONDITION']['conditional_div'][$container->id]) {
+			    // do not display div that is evaled false
+			    unset($containers[$i]);
 			}
-			ob_start();
-				include($this->data_path.'/.content_file.php');
-				$content = ob_get_contents();
-			ob_end_clean();
-			replace_keywords($content, $this->keyword_replacements);
+		    }
+		}
 
-			echo $content;
-
-		} else {
-			// get all the containers linked to this bodycopy
-			$containers =& $this->getContainers();
-
-			// paint each container
-			foreach (array_keys($containers) as $i) {
-				$container =& $containers[$i];
-				$container->printBody($this->keyword_replacements);
-			}
+		// paint each container
+		foreach (array_keys($containers) as $i) {
+			$container =& $containers[$i];
+			$container->printBody($this->keyword_replacements);
 		}
 
 		return TRUE;

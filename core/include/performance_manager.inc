@@ -260,12 +260,7 @@ class Performance_Manager extends MySource_Object
 
 		
 		// make up original page url
-		$param_string = '';
-		foreach($_GET as $name => $value) {
-			if(!empty($param_string))
-			    $param_string .= '&';
-			$param_string .= urlencode($name).'='.urlencode($value);
-		}
+		$param_string = $_SERVER['QUERY_STRING'];
 		if(!empty($param_string)) {
 		    $param_string = '?'.$param_string;
 		}

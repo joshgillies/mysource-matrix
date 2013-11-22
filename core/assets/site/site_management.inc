@@ -48,6 +48,10 @@ class Site_Management extends Asset_Management
 																   ),
 												'description'	=> 'Global cache 404 page',
 										 ),
+						'available_conditions'		=>  Array(					'added'		=> '0.1',
+												'type'		=> 'serialise',
+												'default'	=> Array(),
+										),
 				);
 
 	}//end constructor

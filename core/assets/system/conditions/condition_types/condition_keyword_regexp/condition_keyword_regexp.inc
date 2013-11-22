@@ -89,7 +89,7 @@ class Condition_Keyword_Regexp extends Condition
 			}
 			replace_keywords($keyword_match, $replacements);
 		}
-		
+	
 		$matches = preg_match('/'.str_replace('/', '\\'.'/', $keyword_match).'/i', $keyword_replacement);
 		return ($matches > 0);
 

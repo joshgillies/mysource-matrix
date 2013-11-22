@@ -57,3 +57,16 @@ function bodycopy_save_div_properties(attributes) {
 	bodycopy_chgColor(id);
 	serialise_div(bodycopy_current_edit["bodycopy_name"], bodycopy_current_edit["data"], bodycopy_current_edit["data"]["divid"]);
 }// end bodycopy_save_div_properties()
+
+function bodycopy_edit_div_conditions(bodycopy_name, divid, parentid) {
+	bodycopy_current_edit["bodycopy_name"]   = bodycopy_name;
+	bodycopy_current_edit["data"]            = new Object();
+	bodycopy_current_edit["data"]["divid"] = divid;
+	bodycopy_current_edit["data"]["parentid"] = parentid;
+	bodycopy_current_edit['available_conditions'] = bodycopy_available_conditions[divid];
+	var data = get_bodycopy_current_div_data(bodycopy_name, divid);
+	if (data != null) {
+		bodycopy_current_edit["data"]["attributes"] = var_unserialise(data["attributes"]);
+	}
+	bodycopy_show_popup("edit_div_conditions.php", 420, 480);
+}// end bodycopy_edit_div_conditions()
