@@ -572,10 +572,12 @@
 
 #asset_map_container .childIndent {
 	padding-left: 17px;
+	background: url(stalk.gif) left 50% repeat-y;
 }
 
-#asset_map_container .childIndent {
-	background: url(stalk.gif) left 50% repeat-y;
+#asset_map_container .childIndent.teleported {
+	padding-left: 0;
+	background: none;
 }
 
 #asset_map_container .childIndent.collapsed {

@@ -632,6 +632,7 @@ var JS_Asset_Map = new function() {
 		options              = startOptions;
 		assetMapContainer    = options.targetElement || dfx.getId('asset_map_container');
 		options.teleportRoot = options.teleportRoot  || '1';
+		options.teleportLink = options.teleportLink  || '';
 		options.simple       = false;
 
 		if (options.initialSelection !== '') {
@@ -713,7 +714,7 @@ var JS_Asset_Map = new function() {
 				}
 			}
 
-			self.teleport(options.teleportRoot, null, 0, function() {
+			self.teleport(options.teleportRoot, options.teleportLink, 0, function() {
 				// If an initial selection is passed, try to locate the current
 				// asset from the URL.
 				if (options.initialSelection) {
@@ -723,7 +724,7 @@ var JS_Asset_Map = new function() {
 					);
 				}
 			});
-			self.teleport(options.teleportRoot, null, 1);
+			self.teleport(options.teleportRoot, options.teleportLink, 1);
 
 			self.drawTreeList();
 			self.selectTree(0);
@@ -752,6 +753,7 @@ var JS_Asset_Map = new function() {
 		options              = startOptions;
 		assetMapContainer    = options.targetElement || dfx.getId('asset_map_container');
 		options.teleportRoot = options.teleportRoot  || '1';
+		options.teleportLink = options.teleportLink  || '';
 		options.simple       = true;
 		dfx.addClass(assetMapContainer, 'simple');
 
@@ -2185,6 +2187,9 @@ var JS_Asset_Map = new function() {
 					var assetCount = rootAsset.asset.length;
 					var assetLine  = null;
 
+					rootAsset._attributes.asset_path = rootAsset._attributes.assetid;
+					rootAsset._attributes.link_path  = rootAsset._attributes.linkid;
+
 					if (String(assetid) !== '1') {
 						rootAsset._attributes.name      = decodeURIComponent(
 							rootAsset._attributes.name.replace(/\+/g, '%20')
@@ -2200,11 +2205,18 @@ var JS_Asset_Map = new function() {
 
 						dfx.addClass(assetLine, 'teleported');
 						tree.appendChild(assetLine);
-					}//end if
 
-					rootAsset._attributes.asset_path = rootAsset._attributes.assetid;
-					rootAsset._attributes.link_path  = rootAsset._attributes.linkid;
-					self.drawTree(assetLine, rootAsset, tree, 0, rootAsset._attributes.num_kids);
+						var container = _createChildContainer(assetid);
+						container.setAttribute('data-parentid', assetid);
+						container.setAttribute('data-offset', 0);
+						dfx.addClass(container, 'teleported');
+						tree.appendChild(container);
+
+						tree.setAttribute('data-parentid', assetid);
+						self.drawTree(assetLine, rootAsset, container, 0, rootAsset._attributes.num_kids);
+					} else {
+						self.drawTree(assetLine, rootAsset, tree, 0, rootAsset._attributes.num_kids);
+					}//end if
 
 					if (dfx.isFn(callback) === true) {
 						callback();
@@ -3512,8 +3524,8 @@ var JS_Asset_Map = new function() {
 
 				if (mousePos.y > assetRect.y2) {
 					this.selection = {
-						parentid: 1,
-						linkid: 1,
+						parentid: options.teleportRoot,
+						linkid: (options.teleportLink ? options.teleportLink : 1),
 						before: -1
 					};
 
