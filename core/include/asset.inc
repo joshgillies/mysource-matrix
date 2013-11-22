@@ -1319,6 +1319,7 @@ class Asset extends MySource_Object
 								'root',
 								'redirect_asset',
 								'thumbnail',
+								'linked_folder',
 							 );
 		foreach ($notice_links as $link) {
 			if (in_array($link['value'], $links_to_preserve)) {
@@ -1362,6 +1363,7 @@ class Asset extends MySource_Object
 									'root',
 									'redirect_asset',
 									'thumbnail',
+									'linked_folder',
 								 );
 			foreach ($notice_links as $index => $info) {
 				if (in_array($info['value'], $links_to_preserve)) {
