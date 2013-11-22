@@ -240,7 +240,12 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 
 		// print DIV or SPAN tag if we are not printing raw HTML
 		if ($div_attributes['layout_type'] != 'none') {
-			echo "\n<".strtolower($div_attributes['layout_type']).$attribute_list." class=\"sq-bodycopy-locked-wrapper ".$div_attributes['content_type']."\">\n";
+			//check if content type exists and then make a class out of it, if not, just add default
+			$content_type_class = 'default';
+			if(isset($div_attributes['content_type'])){
+				$content_type_class = $div_attributes['content_type'];
+			}
+			echo "\n<".strtolower($div_attributes['layout_type']).$attribute_list." class=\"sq-bodycopy-locked-wrapper ".$content_type_class."\">\n";
 		}
 
 

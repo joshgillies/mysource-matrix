@@ -139,22 +139,6 @@ class User_Prefs extends Prefs
 			}
 			$session_settings = $this->pref_vars['SQ_USER_SESSION_PREFS']['default'];
 			?>
-			<style type="text/css">
-				ul#user-prefs {
-					list-style-type: none;
-					padding-left: 8px;
-					margin: 2px 0px;
-				}
-				ul#user-prefs li {
-					white-space: nowrap;
-					margin-left: 8px;
-					height: 22px;
-				}
-				div.sq-backend-table-cell {
-					width: auto;
-					margin: 3px;
-				}
-			</style>
 			<?php
 			foreach ($session_settings as $id => $extra_setting) {
 			?>

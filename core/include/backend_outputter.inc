@@ -801,7 +801,7 @@ class Backend_Outputter
 
 			case 'wide_col' :
 				?>
-				<tr <?php if ($hidden) echo 'style="display: none"'; ?>>
+				<tr class="sq-backend-row" <?php if ($hidden) echo 'style="display: none"'; ?>>
 					<td class="sq-backend-data" colspan="2">
 				<?php
 			break;
@@ -1420,7 +1420,7 @@ class Backend_Outputter
 
 								case 'wide_col' :
 									?>
-									<tr <?php
+									<tr class="sq-backend-row" <?php
 										if ($field['hidden']) echo 'style="display: none"';
 										if ($field['id_name']) {
 											echo 'id="'.$field['id_name'].'"';
@@ -1598,7 +1598,7 @@ class Backend_Outputter
 				</td>
 			</tr>
 			<tr>
-				<td colspan="2">
+				<td class="sq-backend-section-note-cell" colspan="2">
 					<div class="sq-backend-section-note"><strong><?php echo translate('note'); ?>: </strong><?php echo $str ?></div>
 		<?php
 

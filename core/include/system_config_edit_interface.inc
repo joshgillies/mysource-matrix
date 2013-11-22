@@ -211,11 +211,11 @@ class System_Config_Edit_Interface extends MySource_Object
 		$o->openSection(translate('locking_/_editing'));
 		$o->openRaw();
 		?>
-		<table border="0" cellspacing="3" cellpadding="1">
+		<table>
 			<tr>
-				<td>
+				<!--td>
 					<?php sq_print_icon(sq_web_path('lib').'/web/images/icons/'.((empty($lock)) ? 'un' : '').'locked.png', 16, 16); ?>
-				</td>
+				</td-->
 				<td>
 					<p class="sq-lock-message">
 					<?php
@@ -240,13 +240,15 @@ class System_Config_Edit_Interface extends MySource_Object
 						echo translate('acquire_lock', translate('acquire_lock_button'), translate('user_preferences'));
 					}
 					echo '</p>';
+					echo '<div class="sq-locks-button-wrapper">';
 					if (!empty($lock)) {
 						if ($have_lock) {
-							submit_button('sq_lock_release_manual', translate('release_lock_button'), 'set_hidden_field("process_form", "0");', 'accesskey="r"');
+							submit_button('sq_lock_release_manual', translate('release_lock_button'), 'set_hidden_field("process_form", "0");', 'accesskey="r" class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button release"');
 						}
 					} else {
-						submit_button('sq_lock_acquire', translate('acquire_lock_button'), 'set_hidden_field("process_form", "0");', 'accesskey="a"');
+						submit_button('sq_lock_acquire', translate('acquire_lock_button'), 'set_hidden_field("process_form", "0");', 'accesskey="a" class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button acquire"');
 					}
+					echo '</div>';
 					?>
 				</td>
 			</tr>
@@ -429,14 +431,14 @@ class System_Config_Edit_Interface extends MySource_Object
 		require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 
 		$o->openSection(translate('active_locks'));
-			$o->openField('');
+			$o->openField('', 'wide_col');
 				?>
 				<table class="sq-backend-table">
 					<tr>
-						<td class="sq-backend-table-header"><?php echo translate('user'); ?></td>
-						<td class="sq-backend-table-header"><?php echo translate('lock_type'); ?></td>
-						<td class="sq-backend-table-header"><?php echo translate('maps_held_at'); ?></td>
-						<td class="sq-backend-table-header"><?php echo translate('expires'); ?></td>
+						<th class="sq-backend-table-header"><?php echo translate('user'); ?></th>
+						<th class="sq-backend-table-header"><?php echo translate('lock_type'); ?></th>
+						<th class="sq-backend-table-header"><?php echo translate('maps_held_at'); ?></th>
+						<th class="sq-backend-table-header"><?php echo translate('expires'); ?></th>
 					</tr>
 				<?php
 				foreach ($active_locks as $userid => $locks) {
@@ -448,7 +450,7 @@ class System_Config_Edit_Interface extends MySource_Object
 								<?php
 								if (!$printed_header) {
 									?>
-									<td class="sq-backend-table-cell" rowspan="<?php echo $locks['num_locks']; ?>">
+									<td class="sq-backend-table-cell" style="vertical-align: top;" rowspan="<?php echo $locks['num_locks']; ?>">
 										<?php
 										if (isset($asset_info[$userid])) {
 											$name = $asset_info[$userid]['name'];

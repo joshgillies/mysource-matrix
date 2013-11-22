@@ -936,9 +936,9 @@ class HIPO_Herder extends MySource_Object
 		?>
 		<table>
 			<tr>
-				<td valign="top">
+				<!--td valign="top">
 					<?php sq_print_icon(sq_web_path('lib').'/web/images/icons/'.((empty($lock)) ? 'un' : '').'locked.png', 16, 16); ?>
-				</td>
+				</td-->
 				<td>
 					<p class="sq-lock-message">
 					<?php
@@ -981,7 +981,7 @@ class HIPO_Herder extends MySource_Object
 		$o->closeSection();
 
 		$o->openSection(translate('current_hipo_jobs'));
-			$o->openField('', 'new_line');
+			$o->openField('', 'wide_col');
 
 			$source_jobs = Array();
 
@@ -1057,7 +1057,15 @@ class HIPO_Herder extends MySource_Object
 									// and the resume button will be hidden
 									if (($source_job->userid === $current_user_id) || $GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
 									?>
-										<p style="text-align:center"><a href="./?SQ_ACTION=hipo&hipo_source_code_name=<?php echo $source_code_name; ?>&return_to_herder=1" style="text-decoration: none;"><img style="border: none;" src="<?php echo sq_web_path('lib'); ?>/web/images/hipo_resume.png" title="<?php echo translate('hipo_herder_continue'); ?>" alt="Resume <?php echo $source_code_name; ?>" /></a>&nbsp;<a href="#" onclick="var result = window.open('./?SQ_ACTION=hipo&hipo_source_code_name=<?php echo $source_code_name; ?>', 'hipo_job<?php echo $source_code_name; ?>', 'width=650,height=400,scrollbars=1,toolbar=0,menubar=0,location=0,resizable=1');return false;" style="text-decoration: none;" ><img style="border: none;" src="<?php echo sq_web_path('lib'); ?>/web/images/hipo_resume_popup.png" title="<?php echo translate('hipo_herder_continue'); ?>" alt="Resume <?php echo $source_code_name; ?>" /></a></p>
+										<p style="text-align:center">
+											<a href="./?SQ_ACTION=hipo&hipo_source_code_name=<?php echo $source_code_name; ?>&return_to_herder=1" style="text-decoration: none;">
+												<img style="border: none;" src="<?php echo sq_web_path('lib'); ?>/web/images/hipo_resume.png" title="<?php echo translate('hipo_herder_continue'); ?>" alt="Resume <?php echo $source_code_name; ?>" />
+											</a>
+											&nbsp;
+											<a href="#" onclick="var result = window.open('./?SQ_ACTION=hipo&hipo_source_code_name=<?php echo $source_code_name; ?>', 'hipo_job<?php echo $source_code_name; ?>', 'width=650,height=400,scrollbars=1,toolbar=0,menubar=0,location=0,resizable=1');return false;" style="text-decoration: none;" >
+												<img style="border: none;" src="<?php echo sq_web_path('lib'); ?>/web/images/hipo_resume_popup.png" title="<?php echo translate('hipo_herder_continue_new_window'); ?>" alt="Resume <?php echo $source_code_name; ?>" />
+											</a>
+										</p>
 										 <?php
 									}
 								?>
@@ -1134,7 +1142,7 @@ class HIPO_Herder extends MySource_Object
 
 		// get jobs that have a non-existant source job
 		$o->openSection(translate('orphaned_hipo_jobs'));
-			$o->openField('', 'new_line');
+			$o->openField('', 'wide_col');
 
 				$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db3');
 				$db = MatrixDAL::getDb();

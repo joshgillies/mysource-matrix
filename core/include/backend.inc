@@ -501,7 +501,7 @@ class Backend extends MySource_Object
 										}//end if in limbo
 									?>
 									+ '&sq_popups_blocked=' + popups_blocked;
-				//document.location = url;
+				document.location = url;
 			}
 		</script>
 		<?php
@@ -1221,28 +1221,6 @@ class Backend extends MySource_Object
 				height: 100%;
 			}
 
-			.sidenav-tab-start {
-				background:	url("<?php echo sq_web_path('lib'); ?>/web/images/sidenav_tab_start.png") no-repeat;
-			}
-			.sidenav-tab-start-active {
-				background:	url("<?php echo sq_web_path('lib'); ?>/web/images/sidenav_active_tab_start.png") no-repeat;
-			}
-			.sidenav-tab, .sidenav-tab-icon {
-				background:	url("<?php echo sq_web_path('lib'); ?>/web/images/sidenav_tab_bg.png");
-			}
-			.sidenav-tab-active, .sidenav-tab-icon-active {
-				background:	url("<?php echo sq_web_path('lib'); ?>/web/images/sidenav_active_tab_bg.png");
-			}
-			.sidenav-tab-end {
-				background:	url("<?php echo sq_web_path('lib'); ?>/web/images/sidenav_tab_end.png") no-repeat;
-			}
-			.sidenav-tab-end-active {
-				background:	url("<?php echo sq_web_path('lib'); ?>/web/images/sidenav_active_tab_end.png") no-repeat;
-			}
-			.sq-backend-header-item {
-				font-size: 1em;
-			}
-
 			.sq-backend-header-item.matrix-icon {
 				padding: 0 0 5px 21px;
 			}
@@ -1289,23 +1267,6 @@ class Backend extends MySource_Object
 				position: absolute;
 				bottom:   5px;
 				left:     5px;
-			}
-			.myspace-section {
-				background-color:	#FFFFFF;
-				border:				1px solid #A2A2A2;
-				margin:				2px;
-				width:				273px;
-			}
-			.myspace-section td, .myspace-section a {
-				font-family:		Arial;
-				font-size:			9px;
-				color:				#666666;
-				text-decoration:	none;
-			}
-			.myspace-section-header, .myspace-section-header a {
-				font-size:			12px;
-				font-weight:		bold;
-				text-decoration:	none;
 			}
 		</style>
 		<script type="text/javascript">
@@ -1452,8 +1413,8 @@ class Backend extends MySource_Object
 							?>
 							<table class="myspace-section">
 								<tr>
-									<td valign="top"><a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/inbox_icon.png" align="left" border="0" /></a></td>
-									<td width="100%">
+									<td><a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/inbox_icon.png" /></a></td>
+									<td>
 										<p><a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main"><span class="myspace-section-header"><?php echo translate('my_inbox'); ?></span><br /><span id="sq_messages_text"><?php echo translate('inbox_new_messages', $unread_messages, $messages); ?></span></a></p>
 										<p><a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main"><span class="myspace-section-header"><?php echo translate('inbox_actions'); ?></span><br />
 										<a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main">+ <?php echo translate('inbox_view'); ?></a><br />
