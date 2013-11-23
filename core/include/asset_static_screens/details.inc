@@ -644,7 +644,7 @@ function _paintDetailsRegisterKeyword(Asset_Edit_Interface $ei, $keywords, $type
 function _paintDetailsCurrentStatus(Asset $owner, Backend_Outputter $o, $prefix)
 {
 	echo get_asset_status_icon($owner->status);
-	echo ' <i>'.$owner->getStatusDescription().'</i>';
+	echo ' <span class="sq-status-description">'.$owner->getStatusDescription().'</span>';
 
 	return FALSE;
 

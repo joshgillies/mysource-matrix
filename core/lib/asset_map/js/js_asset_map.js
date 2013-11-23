@@ -876,7 +876,7 @@ var JS_Asset_Map = new function() {
 		});
 
 		dfx.addEvent(assetMapContainer, 'contextmenu', function(e) {
-			e.preventDefault();
+			//e.preventDefault();
 		});
 
 		dfx.addEvent(assetMapContainer.ownerDocument.getElementsByTagName('body'), 'keypress', function(e) {
@@ -2634,8 +2634,7 @@ var JS_Asset_Map = new function() {
 
 		if (drawAddButton !== false) {
 			var addButton = _createEl('div');
-			dfx.addClass(addButton, 'addButton');
-			dfx.addClass(addButton, 'sq-btn-link');
+			dfx.addClass(addButton, 'addButton sq-btn-link sq-btn-small sq-btn-no-shadow');
 			addButton.innerHTML = '<img src="/__lib/web/images/icons/asset_map/add_off.png" alt="Add icon" title="Add new asset"/> Add';
 			container.appendChild(addButton);
 			dfx.addEvent(addButton, 'click', function(e) {
@@ -2814,6 +2813,7 @@ var JS_Asset_Map = new function() {
 
 		var divider = _createEl('div');
 		divider.id  = 'asset_map_status_list_divider';
+		divider.title = 'Toggle ' + js_translate('asset_map_status_colour_key');
 		dfx.addClass(divider, 'statusDivider');
 		container.appendChild(divider);
 

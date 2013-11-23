@@ -1679,7 +1679,7 @@ class Backend_Outputter
 			}
 			combo_box('screen_menu', $this->_screens, FALSE, $this->_action, 1, 'id="screen_menu" onchange="self.location = this.value"');
 			echo '&nbsp;';
-			normal_button('screen_menu_go', ' '.translate('go').' ', 'self.location = get_form_element_value("screen_menu");', 'class="sq-form-field sq-btn-shadow"');
+			normal_button('screen_menu_go', ' '.translate('go').' ', 'self.location = get_form_element_value("screen_menu");', 'class="sq-form-field sq-btn-small sq-btn-no-shadow"');
 			echo '&nbsp;';
 		}
 

@@ -520,8 +520,8 @@
 	<string source="scheduled_future_permission_change">Scheduled Future Permission Changes</string>
 	<string source="locking_editing">Locking / Editing</string>
 	<string source="forcibly_acquire_lock">You can forcibly acquire this lock, which will remove the lock from "%1$s" and give the lock to yourself.&lt;br /&gt;Any changes currently being made by "%1$s" will be lost if this lock is forcibly acquired.</string>
-	<string source="acquire_lock">Press the &lt;span class="sq-backend-button-fake"&gt;%1$s&lt;/span&gt; button to lock "%2$s" for editing.</string>
-	<string source="release_lock">Press the &lt;span class="sq-backend-button-fake"&gt;%1$s&lt;/span&gt; button to release the locks you hold on "%2$s".</string>
+	<string source="acquire_lock">Press the &lt;span class="sq-backend-button-fake"&gt;%1$s&lt;/span&gt; button to lock "&lt;strong&gt;%2$s&lt;/strong&gt;" for editing.</string>
+	<string source="release_lock">Press the &lt;span class="sq-backend-button-fake"&gt;%1$s&lt;/span&gt; button to release the locks you hold on "&lt;strong&gt;%2$s&lt;/strong&gt;".</string>
 	<string source="lock_type">Lock Type</string>
 	<string source="lock_details">Lock Details</string>
 	<string source="other_assets_in_chain">Other Assets in Chain</string>

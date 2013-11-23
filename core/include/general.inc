@@ -1627,9 +1627,9 @@ function get_asset_tag_line($assetid, $screen='')
 	?>
 	<div id="asset-tag-line-<?php echo $assetid ?>-more-details" style="display:none;">
 		<table>
-		<tr class="sq-asset-highlight status-<?php echo str_replace(' ', '-', strtolower(get_status_description($asset_info['status']))) ?>">
+		<tr class="sq-asset-highlight">
 			<td class="sq-backend-table-cell"><strong>Current Status:</strong></td>
-			<td colspan="2" class="sq-backend-table-cell"><?php echo get_status_description($asset_info['status']) ?></td>
+			<td colspan="2" class="sq-backend-table-cell"><span class="sq-status-square status-<?php echo str_replace(' ', '-', strtolower(get_status_description($asset_info['status']))) ?>"></span><?php echo get_status_description($asset_info['status']) ?></td>
 		</tr>
 		<tr>
 			<td class="sq-backend-table-cell"><strong><?php echo translate('asset_type') ?>:</strong></td>
@@ -1919,7 +1919,8 @@ function get_asset_status_icon($status)
 	$status_name = get_status_description($status);
 	$status_colour = get_status_colour($status);
 
-	return '<img src="'.sq_web_path('lib').'/web/images/blank.gif" width="10" height="10" alt="'.$status_name.'" title="'.$status_name.'" align="absmiddle" style="margin: 2px; border: 1px solid #ccc; background-color: #'.$status_colour.'" /> ';
+	//return '<img src="'.sq_web_path('lib').'/web/images/blank.gif" width="10" height="10" alt="'.$status_name.'" title="'.$status_name.'" align="absmiddle" style="margin: 2px; border: 1px solid #ccc; background-color: #'.$status_colour.'" /> ';
+	return '<span title="'.get_status_description($status).'" class="sq-status-square status-'.str_replace(' ', '-', strtolower(get_status_description($status))).'"></span>';
 
 }//end get_asset_status_icon()
 

@@ -52,7 +52,7 @@ function tt_print()
 {
 	if (!document.getElementById("ToolBox")) 
 	{
-		output = '<iframe class="sq-tooltip-popup" scrolling="no" border="0" frameborder="0" id="hider" style="position:absolute;background: #000; top:-200px;left:-110px;width:10px; height:30px; z-index: 999" src="/__lib/web/images/icons/asset_locator.png"></iframe>';
+		output = '<iframe class="sq-tooltip-popup" scrolling="no" border="0" frameborder="0" id="hider" style="position:absolute; top:-200px;left:-110px;width:10px; height:30px; z-index: 999" src="/__lib/web/images/icons/asset_locator.png"></iframe>';
 		output += '<div id="ToolBox" class="sq-toolbox-wrapper"><table class="sq-toolbox-table"><tr><td id="ToolBoxTitle"></td></tr><tr><td class="sq-toolbox-content" id="ToolBoxContent"></td></tr></table></div>';
 		if (document.body.insertAdjacentHTML) {
 			document.body.insertAdjacentHTML('afterBegin', output);

@@ -1263,11 +1263,6 @@ class Backend extends MySource_Object
 				left: 				0px; 
 				visibility: 		hidden;
 			}
-			#system_version {
-				position: absolute;
-				bottom:   5px;
-				left:     5px;
-			}
 		</style>
 		<script type="text/javascript">
 			var oldTabName = 'asset_map';
