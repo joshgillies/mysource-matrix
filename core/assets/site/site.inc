@@ -40,6 +40,7 @@ class Site extends Folder
 	*/
 	function __construct($assetid=0)
 	{
+		$this->_ser_attrs = TRUE;
 		parent::__construct($assetid);
 
 	}//end constructor

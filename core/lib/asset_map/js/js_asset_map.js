@@ -632,6 +632,7 @@ var JS_Asset_Map = new function() {
 		options              = startOptions;
 		assetMapContainer    = options.targetElement || dfx.getId('asset_map_container');
 		options.teleportRoot = options.teleportRoot  || '1';
+		options.teleportLink = options.teleportLink  || '';
 		options.simple       = false;
 
 		if (options.initialSelection !== '') {
@@ -713,7 +714,7 @@ var JS_Asset_Map = new function() {
 				}
 			}
 
-			self.teleport(options.teleportRoot, null, 0, function() {
+			self.teleport(options.teleportRoot, options.teleportLink, 0, function() {
 				// If an initial selection is passed, try to locate the current
 				// asset from the URL.
 				if (options.initialSelection) {
@@ -723,7 +724,7 @@ var JS_Asset_Map = new function() {
 					);
 				}
 			});
-			self.teleport(options.teleportRoot, null, 1);
+			self.teleport(options.teleportRoot, options.teleportLink, 1);
 
 			self.drawTreeList();
 			self.selectTree(0);
@@ -752,6 +753,7 @@ var JS_Asset_Map = new function() {
 		options              = startOptions;
 		assetMapContainer    = options.targetElement || dfx.getId('asset_map_container');
 		options.teleportRoot = options.teleportRoot  || '1';
+		options.teleportLink = options.teleportLink  || '';
 		options.simple       = true;
 		dfx.addClass(assetMapContainer, 'simple');
 
@@ -2185,6 +2187,9 @@ var JS_Asset_Map = new function() {
 					var assetCount = rootAsset.asset.length;
 					var assetLine  = null;
 
+					rootAsset._attributes.asset_path = rootAsset._attributes.assetid;
+					rootAsset._attributes.link_path  = rootAsset._attributes.linkid;
+
 					if (String(assetid) !== '1') {
 						rootAsset._attributes.name      = decodeURIComponent(
 							rootAsset._attributes.name.replace(/\+/g, '%20')
@@ -2200,11 +2205,18 @@ var JS_Asset_Map = new function() {
 
 						dfx.addClass(assetLine, 'teleported');
 						tree.appendChild(assetLine);
-					}//end if
 
-					rootAsset._attributes.asset_path = rootAsset._attributes.assetid;
-					rootAsset._attributes.link_path  = rootAsset._attributes.linkid;
-					self.drawTree(assetLine, rootAsset, tree, 0, rootAsset._attributes.num_kids);
+						var container = _createChildContainer(assetid);
+						container.setAttribute('data-parentid', assetid);
+						container.setAttribute('data-offset', 0);
+						dfx.addClass(container, 'teleported');
+						tree.appendChild(container);
+
+						tree.setAttribute('data-parentid', assetid);
+						self.drawTree(assetLine, rootAsset, container, 0, rootAsset._attributes.num_kids);
+					} else {
+						self.drawTree(assetLine, rootAsset, tree, 0, rootAsset._attributes.num_kids);
+					}//end if
 
 					if (dfx.isFn(callback) === true) {
 						callback();
@@ -2998,14 +3010,17 @@ var JS_Asset_Map = new function() {
 		var hasRootFolder = false;
 
 		for (var i = 0; i < processQueue.length; i++) {
-			assetRequests.push({
-				_attributes: {
-					assetid: processQueue[i],
-					linkid: null,
-					start: 0,
-					limit: 1
-				}
-			});
+			var assetNodes = dfx.find(assetMapContainer, 'div.asset[data-assetid="' + processQueue[i]  + '"]');
+			for (var j = 0; j < assetNodes.length; j++) {
+				assetRequests.push({
+					_attributes: {
+						assetid: processQueue[i],
+						linkid: assetNodes[j].getAttribute('data-linkid'),
+						start: 0,
+						limit: 1
+					}
+				});
+			}
 		}//end for
 
 		var processAssets = function(response) {
@@ -3013,13 +3028,15 @@ var JS_Asset_Map = new function() {
 				var thisAsset  = response.asset[i];
 				thisAsset._attributes.name      = decodeURIComponent(thisAsset._attributes.name.replace(/\+/g, '%20'));
 				thisAsset._attributes.assetid   = decodeURIComponent(thisAsset._attributes.assetid.replace(/\+/g, '%20'));
+				thisAsset._attributes.linkid    = decodeURIComponent(thisAsset._attributes.linkid.replace(/\+/g, '%20'));
 				thisAsset._attributes.type_code = decodeURIComponent(thisAsset._attributes.type_code.replace(/\+/g, '%20'));
 
-				var assetid    = thisAsset._attributes.assetid;
+				var assetid = thisAsset._attributes.assetid;
+				var linkid  = thisAsset._attributes.linkid;
 				if (String(assetid) === '1') {
 					hasRootFolder = true;
 				} else {
-					var assetNodes = dfx.find(assetMapContainer, 'div.asset[data-assetid="' + assetid  + '"]');
+					var assetNodes = dfx.find(assetMapContainer, 'div.asset[data-linkid="' + linkid  + '"]');
 					for (var j = 0; j < assetNodes.length; j++) {
 						var assetNode     = assetNodes[j];
 						var newNode       = _formatAsset(thisAsset._attributes);
@@ -3513,11 +3530,21 @@ var JS_Asset_Map = new function() {
 				var assetNameRect  = dfx.getBoundingRectangle(assetNameSpan);
 
 				if (mousePos.y > assetRect.y2) {
-					this.selection = {
-						parentid: 1,
-						linkid: 1,
-						before: -1
-					};
+					// Find a teleported root asset.
+					var teleportedRoot = dfx.getClass('asset.teleported', tree);
+					if (teleportedRoot.length > 0) {
+						this.selection = {
+							parentid: teleportedRoot[0].getAttribute('data-assetid'),
+							linkid: teleportedRoot[0].getAttribute('data-linkid'),
+							before: -1
+						};
+					} else {
+						this.selection = {
+							parentid: 1,
+							linkid: 1,
+							before: -1
+						};
+					}
 
 					dfx.addClass(_lineEl, 'active');
 					dfx.setCoords(_lineEl, (assetNameRect.x1 - assetMapCoords.x), (assetRect.y2 - assetMapCoords.y));

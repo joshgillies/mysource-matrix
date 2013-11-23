@@ -99,6 +99,12 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 		}
 	}
 
+	// get available conditions and conditions that is set on this asset
+	$target_asset = empty($dependant_parent_id) ? $owner : $GLOBALS['SQ_SYSTEM']->am->getAsset($dependant_parent_id);
+	$set_conditions = $target_asset->getConditions();
+	$available_conditions = array_keys($target_asset->getAvailableConditions());
+
+	
 	if (empty($url_data)) {
 		// there is no URL with lookup values for this asset
 		// so just do a straight call for lookups
@@ -247,6 +253,14 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 						query_args.push('SQ_CONTEXT_NAME='+pc.value);
 					}
 
+					// add conditions vars
+					var elements = document.getElementsByClassName('sq-preview-conditions');
+					for(var i = 0, length = elements.length; i < length; i++) {
+					    if(elements[i].checked) {
+						query_args.push('SQ_CONDITION[]='+elements[i].value);
+					    }
+					}
+
 					if (query_args.length != 0) {
 						var query_str = '';
 						for (var i=0; i < query_args.length; i++) {
@@ -367,6 +381,19 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 				}
 			$o->closeField();
 
+			if(!empty($set_conditions) && !empty($available_conditions)) {
+			    $o->openField(translate('conditions'));
+				    foreach ($available_conditions as $condition_full_name) {
+					$condition_name_parts = explode('_', $condition_full_name);
+					$assetid = array_pop($condition_name_parts);
+					$condition_name = implode(' ', $condition_name_parts);
+					check_box('conditions_'.$condition_full_name, $condition_full_name, FALSE, 'update_preview_url()', 'class="sq-preview-conditions"');
+					label($condition_name.' (#'.$assetid.')', 'conditions_'.$condition_full_name);
+					echo '<br />';
+				    }
+			    $o->closeField();
+			}
+			
 
 			$o->openField(translate('use_cache'));
 				check_box('use_cache', '1', FALSE, 'if (this.checked) { document.getElementById(\'show_diff\').checked = false; } update_preview_url()');

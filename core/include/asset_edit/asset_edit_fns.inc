@@ -15,6 +15,7 @@
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+require_once SQ_INCLUDE_PATH.'/conditions_list.inc';
 
 /**
 * Asset_Edit_Fns
@@ -781,5 +782,63 @@ class Asset_Edit_Fns extends MySource_Object
 
 	}//end paintCreateLink()
 
+	
+	
+	/**
+	* Paints adding a new user condition
+	*
+	* @param Paint_Layout_Bodycopy	$asset	the asset to which we belong
+	* @param Backend_Outputter		$o		the backend outputter object
+	* @param string					$prefix	prefix for the form element
+	*
+	* @return void
+	* @access public
+	*/
+	public function paintConditions(&$asset, &$o, $prefix)
+	{
+		$keywords = Array();
+		
+		// 1. asset content
+		$keywords[] = 'asset_contents';
+
+		// 2. asset keywords (includes attributes)
+		$asset_keywords = $asset->getAvailableKeywords();
+		$keywords = array_merge($keywords, array_keys($asset_keywords));
+
+
+		// lineage
+		$keywords[] = 'asset_lineage';
+		$keywords[] = 'asset_lineage_linked';
+
+		// 3. asset metadata
+		$keywords[] = 'asset_metadata_';
+			
+		$write_access = $asset->writeAccess('attributes');
+		$condition_list = new Conditions_List($asset, 'available_conditions');
+		return $condition_list->paintConditionsList($asset, $o, $prefix, $write_access, $keywords);
+
+	}//end paintConditions()
+
+
+	/**
+	* Processses adding a new user condition
+	*
+	* @param Paint_Layout_Bodycopy	$asset	the asset to which we belong
+	* @param Backend_Outputter		$o		the backend outputter object
+	* @param string					$prefix	prefix for the form element
+	*
+	* @return void
+	* @access public
+	*/
+	public function processConditions(&$asset, &$o, $prefix)
+	{
+		$allowed_keywords = Array();
+		$write_access = $asset->writeAccess('attributes');
+		$condition_list = new Conditions_List($asset, 'available_conditions');
+		return $condition_list->processConditionsList($asset, $o, $prefix, $write_access, $allowed_keywords);
+
+	}//end processConditions()
+
+	
 }//end class
 ?>

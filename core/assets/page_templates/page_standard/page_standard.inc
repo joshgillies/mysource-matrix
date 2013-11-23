@@ -41,6 +41,7 @@ class Page_Standard extends Page
 	*/
 	function __construct($assetid=0)
 	{
+	    	$this->_ser_attrs = TRUE;
 		parent::__construct($assetid);
 
 	}//end constructor
@@ -201,8 +202,6 @@ class Page_Standard extends Page
 	*/
 	public function printBody()
 	{
-		// start performance mode timer
-		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this);
 		
 		$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
 		if ($contextid === 0) {
@@ -211,6 +210,21 @@ class Page_Standard extends Page
 			$cache_key = 'default.'.$contextid;
 		}
 
+		// evaluate conditions to show conditional divs and replace conditional keywords
+		$conditions = $this->getConditions();
+		if(!empty($conditions)) {
+		    $GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'evaluate conditions');
+		    $this->evaluateConditions();
+		    // the cache key must include the condition eval results, so when condition changed, cache object will change
+		    if(isset($GLOBALS['SQ_CONDITION']))
+			$cache_key .= serialize($GLOBALS['SQ_CONDITION']);
+		    $GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'evaluate conditions');
+		}
+
+		
+		// start performance timer
+		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'print content');
+		
 		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		$cached_contents = $cm->loadFromCache($this->id, $this->type(), $cache_key);
 
@@ -226,9 +240,12 @@ class Page_Standard extends Page
 				foreach ($keywords as $word) {
 					$replacements[$word] = $this->getKeywordReplacement($word);
 				}
+				if (isset($GLOBALS['SQ_CONDITION']['conditional_keywords'])) 
+				    $replacements = array_merge ($replacements, $GLOBALS['SQ_CONDITION']['conditional_keywords']);
 				$bodycopy->setKeywordReplacements($replacements);
 
 				$bodycopy->printBody();
+
 				$cm->saveToCache($this->id, $this->type(), $cache_key, ob_get_contents());
 			ob_end_flush();
 		} else {
@@ -236,7 +253,7 @@ class Page_Standard extends Page
 		}
 		
 		// end performance mode timer
-		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this);
+		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'print content');
 		
 	}//end printBody()
 
@@ -436,7 +453,109 @@ class Page_Standard extends Page
 
 	}//end processCustomKeywords()
 
+	
+		
+	
+	/**
+	*
+	* Call this function when the asset has been changed in some way (or its containers), so we should update the condition evaluation array of it
+	*
+	* @param boolean	$update_parents	should we go through an update all our dependant parents as well ?
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _updated($update_parents=TRUE)
+	{
+		if (!parent::_updated($update_parents)) return FALSE;
+		
+		$available_conditions = array_keys($this->getAvailableConditions());			
+		$conditions = Array();
+		$conditional_div = Array();
+		$conditional_keywords = Array();
+		
+		$bodycopy = $this->getBodycopy();
+		$containers =& $bodycopy->getContainers();
+		foreach ($containers as $container) {
+		    $attrs = $container->attr('attributes');
+		    if(!isset($attrs['conditions']) || empty($attrs['conditions'])) continue;
+		    $condition_data = $attrs['conditions'];
+			
+		    // get conditions settings for each container and add it to the page's attribute
+		    if(isset($condition_data['condition_rules_status']) && isset($condition_data['conditions']) && !empty($condition_data['conditions']) && $condition_data['condition_rules_status'] === 'enable') {
+			if(isset($condition_data['conditions'][0]['conditions']) && !empty($condition_data['conditions'][0]['conditions'])) {
+			    $conditional_div[$container->id]['logical_op_groups'] = $condition_data['logical_op_groups'];
+			    $conditional_div[$container->id]['conditions'] = $condition_data['conditions'];
+			}
+		    }
+		    // get condition keywords condtions
+		   if(!empty($available_conditions)) {
+			ob_start();
+				$edit = $container->getEditFns();
+				$edit->paint($container, FALSE, TRUE);
+				$content = ob_get_contents();
+			ob_end_clean();
+			$required_keywords = retrieve_keywords_replacements($content);
+			foreach($required_keywords as $keyword) {
+			    if (preg_match('/^(begin|end|else)_(.*)$/', $keyword, $condition_parts)) {
+				if(count($condition_parts) ===3 && in_array($condition_parts[2], $available_conditions)) {
+				    $conditional_keywords[] = $condition_parts[2];
+				}
+			    }
+			    if(in_array($keyword, $available_conditions)) {
+				$conditional_keywords[] = $keyword;
+			    }
+			}
+		   }
+		    
+		}
+		if(!empty($conditional_div)) {
+		    $conditions['conditional_div'] = $conditional_div;
+		}
+		if(!empty($conditional_keywords)) {
+		    $conditions['conditional_keywords'] = array_unique($conditional_keywords);
+		}
 
+		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+		$this->setAttrValue('conditions', $conditions);
+		$this->saveAttributes(TRUE);
+		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+		return TRUE;
+	}//end _updated()
+	
+
+	
+	
+	/**
+	* Add condition keywords when asked
+	*
+	* @param object	&$broadcaster	the asset that triggered the event
+	* @param array	$vars			the vars that get submitted by the broadcaster
+	*								we add keywords to the $vars['keywords'] array
+	*
+	* @return boolean
+	* @access private
+	*/
+	function onRequestKeywords(&$broadcaster, $vars=Array())
+	{
+		$vars['keywords'] = isset($vars['keywords']) ? $vars['keywords'] : Array();
+
+		$keywords = Array();
+		$available_conditions = array_keys($this->getAvailableConditions());
+		if(!empty($available_conditions)) {
+		    foreach ($available_conditions as $condition_name) {
+				$keywords[$condition_name] = ucwords(str_replace('_', ' ', $condition_name));
+				$keywords['begin_'.$condition_name] = 'Begin '.ucwords(str_replace('_', ' ', $condition_name));
+				$keywords['else_'.$condition_name] = 'Else '.ucwords(str_replace('_', ' ', $condition_name));
+				$keywords['end_'.$condition_name] = 'End '.ucwords(str_replace('_', ' ', $condition_name));
+				$keywords['begin_'.$condition_name.'%<br />%else_'.$condition_name.'%<br />%end_'.$condition_name] = 'Full Structure For '.ucwords(str_replace('_', ' ', $condition_name));
+		    }
+		}
+		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
+
+	}//end onRequestKeywords()
+	
+	
 }//end class
 
 ?>

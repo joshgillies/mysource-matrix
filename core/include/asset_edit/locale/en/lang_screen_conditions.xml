@@ -10,13 +10,15 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.6 2006/12/06 02:53:09 emcdonald Exp $
 *
 */
 -->
 
-<screens>
-	<screen code_name="contents" display_name="Edit Contents"     icon="create" lock_type="content" />
-	<screen code_name="paths"    display_name="Web Paths"         icon="web"    lock_type="lookups" />
-	<screen code_name="conditions"    display_name="Conditions"         icon="web"    lock_type="content" force_unlock="0" />
-</screens>
+<contents>
+	<section name="Conditions" read_access="write:" write_access="write:attributes">
+		<function_call>
+			<paint_function name="paintConditions" />
+			<process_function name="processConditions" />
+		</function_call>
+	</section>
+</contents>

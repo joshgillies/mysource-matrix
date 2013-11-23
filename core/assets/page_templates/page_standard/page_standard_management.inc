@@ -38,8 +38,42 @@ class Page_Standard_Management extends Asset_Management
 	{
 		Asset_Management::__construct($pm);
 
+		$this->vars['available_conditions'] =    Array(					'added'		=> '0.1',
+										'type'		=> 'serialise',
+										'default'	=> Array(),
+					);
+		$this->vars['conditions'] =    Array(						'added'		=> '0.1',
+										'type'		=> 'serialise',
+										'default'	=> Array(),
+					);
 	}//end constructor
 
+	
+	/**
+	* Return an array with information about the events that this page is listening for
+	*
+	* @return boolean
+	* @access public
+	*/
+	function getEventList()
+	{
+		return Array(
+				Array(
+					'event_name'					=> 'requestKeywords',
+					'broadcast_type_code'			=> 'content_type',
+					'broadcast_strict_type_code'	=> FALSE,
+					'options'						=> Array(
+														'side_of_link'	=> 'major',
+														'indirect'		=> TRUE,
+														'is_exclusive'	=> NULL,
+														'is_dependant'	=> 1,
+														'value'			=> '',
+														'link_type'		=> SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
+													   ),
+				),
+			   );
+
+	}//end getEventList()
 
 }//end class
 

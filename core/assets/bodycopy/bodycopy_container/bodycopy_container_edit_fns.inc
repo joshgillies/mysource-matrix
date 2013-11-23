@@ -274,12 +274,38 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		// This will ensure the './?a=xxx' urls in the keywords are not replaced here in the bodycopy level 
 		// but rather at global level, hence not breaking the keywords having matrix assetid URLs (bug #5906)
 		$matrix_url_keywords = Array();
+		$condition_keywords_used = FALSE;
 		foreach($keywords as $keyword) {
 			if (strpos($keyword, './?a=') !== FALSE) {
 				$hash = md5($keyword);
 				$matrix_url_keywords[$hash] = $keyword;
 				$output = preg_replace('|%((<([^>]+?)>)+)?'.escape_regex_chars($keyword).'((<([^>]+?)>)+)?%|', '%${1}'.$hash.'$4%', $output);
-			}//end if
+			}//end 
+			
+			// replace condition keywords with PHP code
+			
+			if (preg_match('/^(begin|end|else)_(.*)$/', $keyword, $condition_parts) && count($condition_parts) ==3) {
+				$test_keyword = $condition_parts[2];
+				switch ($condition_parts[1]) {
+					case 'begin' :
+						$value = 'if (!empty($keyword_replacements[\''.$test_keyword.'\']) && trim($keyword_replacements[\''.$test_keyword.'\']) != \'\') {';
+					break;
+					case 'else' :
+						$value = '} else {';
+					break;
+					case 'end' :
+						$value = '} // end '.$test_keyword;
+					break;
+				}
+
+				if (!empty($value)) {
+					$php_begin = '<'.'?'.'php ';
+					$php_end = ' ?'.'>';
+					$value = $php_begin.$value.$php_end;
+					$output = preg_replace('|%'.escape_regex_chars($keyword).'%|', $value, $output);
+					$condition_keywords_used = TRUE;
+				}
+			}
 		}//end foreach
 
 		// replacing normal assetids is simple because they can only be numerical chars :)
@@ -341,8 +367,21 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 
 		$contextid = (int)$GLOBALS['SQ_SYSTEM']->getContextId();
 		$file_name = 'content_file'.(($contextid === 0) ? '' : ('.'.$contextid)).'.php';
-
-		return string_to_file($output, $asset->data_path.'/'.$file_name);
+		
+		$result = string_to_file($output, $asset->data_path.'/'.$file_name);
+		
+		// check php syntax error if there is conditional keywords and php code in it
+		if($condition_keywords_used && !isset($asset->_tmp['syntax_checked'])) {
+		    // don't waste time double checking it
+		    $asset->_tmp['syntax_checked'] = TRUE;
+		    $syntax_check = shell_exec('php -l '.escapeshellarg($asset->data_path.'/'.$file_name));
+		    if(strpos($syntax_check, 'Errors parsing') === 0) {
+			trigger_error('A syntax error has been detected in content of asset #'.$asset->id.'. This could be because of misused of keywords.', E_USER_WARNING);
+			return FALSE;
+		    }
+		}
+		
+		return $result;
 
 	}//end generateContentFile()
 

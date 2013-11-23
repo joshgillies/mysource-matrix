@@ -363,7 +363,7 @@ class Conditions_List
 				$o->openSection(ucwords(str_replace('_', ' ', $parameters['type_code'])));
 
 				// paint keyword name
-				$o->openField(translate('keyword_name'));
+				$o->openField(translate('name'));
 				if ($write_access) {
 					text_box($condition_prefix.'_keyword_name', $condition_name, 30);
 				} else {
@@ -377,7 +377,7 @@ class Conditions_List
 				$condition_edit_fns = $this->_getConditionAsset($condition_type, TRUE);
 
 				// paint TRUE/FALSE bit
-				$o->openField('Keyword is true if: ');
+				$o->openField('Condition is true if: ');
 				$match_options = call_user_func(Array($condition_type, 'getMatchKeywords'), $condition_type);
 				if ($write_access) {
 					combo_box($condition_prefix.'_match', $match_options, FALSE, $parameters['restriction']['match']);
@@ -400,6 +400,17 @@ class Conditions_List
 					$o->closeField();
 				}
 
+				// force no cache header to be sent
+				$o->openField('Force No Cache');
+				$force_no_cache = isset($parameters['force_no_cache']) ? $parameters['force_no_cache'] : TRUE;
+				$force_no_cache_text = $force_no_cache ? 'Yes' : 'No';
+				if ($write_access) {
+					combo_box($condition_prefix.'_force_no_cache', Array('1' => 'Yes', '0' => 'No'), FALSE, $force_no_cache);
+				} else {
+					echo $force_no_cache_text;
+				}
+				$o->closeField();
+				
 				if ($write_access) {
 					$o->openField(translate('delete'));
 					check_box($condition_prefix.'_delete', $value='1', $checked=FALSE);
@@ -478,6 +489,7 @@ class Conditions_List
 					$conditions_parameters_new[$new_name]['restriction']['condition_data'] = $condition_edit_fns->processEditInterface($o, $condition_prefix, $allowed_keywords);
 					$conditions_parameters_new[$new_name]['type_code'] = $condition_type;
 					$conditions_parameters_new[$new_name]['restriction']['match'] = array_get_index($_POST, $condition_prefix.'_match', TRUE);
+					$conditions_parameters_new[$new_name]['force_no_cache'] = array_get_index($_POST, $condition_prefix.'_force_no_cache', TRUE);
 				}
 			}
 
@@ -514,7 +526,8 @@ class Conditions_List
 	function _generateUniqueName($desired_name, &$reserved_names)
 	{
 		$desired_name = trim($desired_name);
-		$desired_name = preg_replace('/ /' , '_',$desired_name);
+		// have to make sure it's a valid keyword
+		$desired_name = preg_replace('/[^a-zA-Z0-9_\-\.: ]/' , '_',$desired_name);
 		if (empty($desired_name)) {
 			$desired_name = 'condition_1';
 		}
