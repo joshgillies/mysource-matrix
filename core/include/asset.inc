@@ -6826,6 +6826,9 @@ class Asset extends MySource_Object
 	    $conditions = $this->getConditions();
 
 	    if(!empty($conditions)) {
+		
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('condition');
+		
 		// re-use results to avoid redundant eval
 		$eval_results = Array();
 		
@@ -6951,17 +6954,6 @@ class Asset extends MySource_Object
 	}//end evaluateConditions
 	
 	
-	
-	/* Evaluate a singe condition
-	* 
-	* @return bool
-	* @access public
-	*/
-	public function evaluateCondition($conditions_info)
-	{
-	    $GLOBALS['SQ_SYSTEM']->am->includeAsset('condition');
-	    
-	}
 	
 }//end class
 
