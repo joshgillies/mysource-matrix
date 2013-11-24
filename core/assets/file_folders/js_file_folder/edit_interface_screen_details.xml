@@ -36,7 +36,8 @@
 	<section name="Linked Files" write_access="write:links" limbo_access="1">
 		<field>
 			<function_call>
-				<paint_function   name="paintLinkedFiles" />				
+				<paint_function   name="paintLinkedFiles" />
+				<process_function   name="processLinkedFiles" />
 			</function_call>
 		</field>
 	</section>
