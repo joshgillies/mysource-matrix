@@ -45,6 +45,9 @@
 		<field attribute="timeout">
 			<int width="10" />
 		</field>
+		<field attribute="custom_reference">
+			<text width="30" />
+		</field>
 	</section>
 	<section name="CV2/AVS Options" write_access="write:attributes">
 		<field attribute="cv2_enabled">
