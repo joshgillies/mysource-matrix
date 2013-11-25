@@ -475,6 +475,8 @@ class Page_Standard extends Page
 		$conditional_keywords = Array();
 		
 		$bodycopy = $this->getBodycopy();
+		if(empty($bodycopy)) return TRUE;
+		
 		$containers =& $bodycopy->getContainers();
 		foreach ($containers as $container) {
 		    $attrs = $container->attr('attributes');
