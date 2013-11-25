@@ -54,6 +54,10 @@
 			<display_name>Timeout</display_name>
 			<note>How long to wait for response from Payflow, in seconds, when processing a transaction</note>
 		</field>
+		<field attribute="custom_reference">
+			<display_name>Custom Reference</display_name>
+			<note>Optional merchant reference text sent to the gateway. Order asset keywords can be used</note>
+		</field>
 	</section>
 	<section name="CV2/AVS Options" write_access="write:attributes">
 		<field attribute="cv2_enabled">
