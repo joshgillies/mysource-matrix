@@ -213,13 +213,15 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 				function update_preview_url()
 				{
 					var url = document.getElementById('preview_url').value;
-					var url_key = document.getElementById('preview_url').options[document.getElementById('preview_url').selectedIndex].text;
-					
-					if(/open\sin\snew\swindow/.test(url_key) ) {
-					    open_new_window = true;
-					}
-					else {
-					    open_new_window = false;
+					if(document.getElementById('preview_url').type === 'select-one') {
+					    var url_key = document.getElementById('preview_url').options[document.getElementById('preview_url').selectedIndex].text;
+
+					    if(/open\sin\snew\swindow/.test(url_key) ) {
+						open_new_window = true;
+					    }
+					    else {
+						open_new_window = false;
+					    }
 					}
 					var query_args = [];
 
@@ -369,7 +371,7 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 
 
 			$o->openField(translate('use_cache'));
-				check_box('use_cache', '1', FALSE, 'if (this.checked) { document.getElementById(\'show_diff\').checked = false; } update_preview_url()');
+				check_box('use_cache', '1', FALSE, 'if (this.checked && document.getElementById(\'show_diff\') !== null) { document.getElementById(\'show_diff\').checked = false; } update_preview_url()');
 				label(translate('show_cached_asset'), 'use_cache');
 			$o->closeField();
 
