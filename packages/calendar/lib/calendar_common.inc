@@ -668,7 +668,7 @@ class Calendar_Common
 	function compareStartDates($a, $b)
 	{
 		if ($a['start_date_ts'] == $b['start_date_ts']) {
-			return $a['name'].$a['assetid'] > $b['name'].$b['assetid'];
+			return $a['name'].$a['assetid'] < $b['name'].$b['assetid'] ? -1 : 1;
 		}
 
 		return ($a['start_date_ts'] < $b['start_date_ts']) ? -1 : 1;
