@@ -189,7 +189,7 @@ class Cache_Storage_Redis extends Cache_Storage
 				log_write('Redis Error: Failed writing to Redis, is this a slave?', 'error', E_USER_NOTICE);
 				return FALSE;	
 			}
-			$this->_redis->sadd(SQ_CACHE_REDIS_URL_INDEX_PREFIX.$index_url, $mcache_key)
+			$ret = $this->_redis->sadd(SQ_CACHE_REDIS_URL_INDEX_PREFIX.$index_url, $mcache_key)
 					->setex($mcache_key, $expiry_length, $data)
 					->exec();
 		} catch(RedisException $e) {
