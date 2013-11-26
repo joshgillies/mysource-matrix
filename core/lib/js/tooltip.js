@@ -53,7 +53,7 @@ function tt_print()
 	if (!document.getElementById("ToolBox")) 
 	{
 		output = '<iframe class="sq-tooltip-popup" scrolling="no" border="0" frameborder="0" id="hider" style="position:absolute; top:-200px;left:-110px;width:10px; height:30px; z-index: 999" src="/__lib/web/images/icons/asset_locator.png"></iframe>';
-		output += '<div id="ToolBox" class="sq-toolbox-wrapper"><table class="sq-toolbox-table"><tr><td id="ToolBoxTitle"></td></tr><tr><td class="sq-toolbox-content" id="ToolBoxContent"></td></tr></table></div>';
+		output += '<div id="ToolBox" class="sq-toolbox-wrapper"><table class="sq-toolbox-table"><tr><td id="ToolBoxTitle" class="sq-toolbox-title"></td></tr><tr><td class="sq-toolbox-content" id="ToolBoxContent"></td></tr></table></div>';
 		if (document.body.insertAdjacentHTML) {
 			document.body.insertAdjacentHTML('afterBegin', output);
 		}
@@ -210,10 +210,11 @@ function tt_paint(top, left, text, title, close_button)
 			closeElement.style.backgroundColor = this.title_bg;
 			*/
 			closeElement.id = 'ToolBoxClose';
+			closeElement.className = 'sq-toolbox-close';
 
-			if (close_button == true) {
-				close_button = 'X';
-			}
+			//if (close_button == true) {
+				close_button = '<img src="/__lib/web/images/icons/cancel.png" alt="Cancel" title="Cancel" class="sq-icon">';
+			//}
 
 			closeElement.innerHTML = '<a href="#" onclick="tooltip.hide(); return false;">' + close_button + '</a>';
 			document.getElementById("ToolBoxTitle").parentNode.appendChild(closeElement);
@@ -231,7 +232,7 @@ function tt_paint(top, left, text, title, close_button)
 		if(typeof(text) != "undefined") 
 		{
 			var unescapedText = unescape(text);
-			if(unescapedText.indexOf('<table>') > -1){
+			if(unescapedText.indexOf('<table') > -1 || unescapedText.indexOf('<p') > -1){
 				//no wrapper element needed
 			}else{
 				unescapedText = '<div class="sq-toolbox-content-wrapper">' + unescapedText + '</div>';

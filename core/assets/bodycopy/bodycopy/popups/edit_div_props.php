@@ -115,7 +115,12 @@ include(dirname(__FILE__).'/header.php');
 
 </script>
 
-<h1 class="title"><?php echo translate('div_properties'); ?></h1>
+<h1 class="title">
+	<a href="#" onclick="javascript: popup_close(); return false;">
+		<img src="<?php echo sq_web_path('lib')?>/web/images/icons/cancel.png" alt="Cancel" title="<?php echo translate('cancel');?>" class="sq-icon">
+	</a>
+	<?php echo translate('div_properties'); ?>
+</h1>
 <script type="text/javascript">
 if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementById('sq_edit_div_props_delete').innerHTML = '&nbsp;'; }
 </script>
@@ -209,7 +214,10 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 				?>
 				<tr>
 					<td class="label"><?php echo translate('disable_keywords'); ?>:</td>
-					<td><input type="checkbox" name="disable_keywords" value="1"></td>
+					<td>
+						<input type="checkbox" id="disable_keywords" name="disable_keywords" value="1">
+						<label for="disable_keywords">Yes</label>
+					</td>
 				</tr>
 			</table>
 			</fieldset>
@@ -248,10 +256,10 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 	</tr>
 	<tr class="sq-popup-footer">
 		<td align="left">
-			<input type="button" name="cancel" onClick="javascript: popup_close();" value="<?php echo translate('cancel'); ?>"/>
+			<input type="button" class="" name="cancel" onClick="javascript: popup_close();" value="<?php echo translate('cancel'); ?>"/>
 		</td>
 		<td align="right">
-			<input type="button" class="sq-btn-blue" name="ok" onClick="javascript: popup_save(this.form)" value="<?php echo translate('ok'); ?>"/>
+			<input type="button" class="sq-btn-large sq-btn-blue" name="ok" onClick="javascript: popup_save(this.form)" value="<?php echo translate('ok'); ?>"/>
 		</td>
 	</tr>
 </table>

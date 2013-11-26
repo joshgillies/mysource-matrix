@@ -296,7 +296,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 				if ($name == 'css_class_list') continue;
 				if ($name == 'conditions') continue;
 				if ($name == 'dir') $dir_attribute = $div_attributes[$name];
-				$popup_attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $val).'"';
+				$popup_attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $val).'"<br/>';
 				$attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $val).'"';
 			}
 		}
@@ -314,7 +314,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		$type_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo('bodycopy');
 
 		?>		
-		<table<?php echo $attribute_list?> class="sq-<?php echo get_class_lower($content_type) ;?>-table">
+		<table<?php echo $attribute_list?> class="sq-edit-bodycopy-section sq-<?php echo get_class_lower($content_type) ;?>-table">
 			<tr>
 				<td align="left" background="" id="<?php echo $prefix.'_div_'.$asset->id;?>">
 				<span style="float: left;">
@@ -328,10 +328,12 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 				}
 				$status_name = get_status_description($asset->status);
 				$status_img = get_asset_status_icon($asset->status);
-				$desc = translate('content_type_tooltip_status').': '.$status_img.'<b>'.get_status_description($asset->status).'</b><br />';
-				$desc .= translate('content_type_tooltip_public').': <b>'.($public_read ? translate('yes') : translate('no')).'</b><br />';
-				$desc .= (($popup_attribute_list) ?  translate('current_properties').':<br> '.$popup_attribute_list : '');
-				Bodycopy_Edit_Fns::printBodycopyIcon('bodycopy_edit_div_properties(\''.$prefix.'\', '.$asset->id.', '.(($asset->status & SQ_SC_STATUS_SAFE_EDITING) ? 'false' : 'true').');', 'Edit '.$asset->attr('name').'\'s Properties', $desc, 'table_properties', '[Edit Properties]');
+				$desc = '<table class="sq-toolbox-properties-table">';
+				$desc .= '<tr><td>'.translate('content_type_tooltip_status').'</td><td>'.$status_img.''.get_status_description($asset->status).'</td><tr>';
+				$desc .= '<tr><td>'.translate('content_type_tooltip_public').'</td><td>'.($public_read ? translate('yes') : translate('no')).'</td><tr>';
+				$desc .= '<tr><td>'.(($popup_attribute_list) ?  translate('current_properties').'</td><td> '.$popup_attribute_list :''.'</td><tr>');
+				$desc .= '</table>';
+				Bodycopy_Edit_Fns::printBodycopyIcon('bodycopy_edit_div_properties(\''.$prefix.'\', '.$asset->id.', '.(($asset->status & SQ_SC_STATUS_SAFE_EDITING) ? 'false' : 'true').');', 'Edit '.$asset->attr('name').'\'s Properties', $desc, 'table_properties', '[Edit Properties]', 'class="sq-icon"');
 				
 				// print condition icon
 				$all_conditions = Array();
@@ -363,7 +365,8 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 					$content_edit = $content_type->getEditFns();
 					$content_edit->paintBackendIcons($content_type, $content_prefix);
 				}
-				?></span><span style="float: right;"><?php	
+				?></span>
+				<span style="float: right;"><?php	
 				
 				// print the condition set icon
 				if($is_conditional_display) {
@@ -398,7 +401,13 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 					if (method_exists($content_edit,'setDirAttr')) {
 						$content_edit->setDirAttr($dir_attribute);
 					}
-					$content_edit->paintBackend($content_type, $content_prefix);
+					?>
+					<div class="sq-edit-content-type-wrapper">
+						<?php
+						$content_edit->paintBackend($content_type, $content_prefix);
+						?>
+					</div>
+					<?php
 				}
 				?>
 				</td>

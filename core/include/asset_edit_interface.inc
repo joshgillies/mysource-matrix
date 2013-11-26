@@ -733,7 +733,7 @@ class Asset_Edit_Interface extends MySource_Object
 		if ($closest_parentid != $owner->id) {
 			$closest_parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($closest_parentid);
 			if (!is_null($closest_parent)) {
-				$sub_heading = translate('currently_editing', $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($closest_parent->type(), 'name'), htmlspecialchars($closest_parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'<br />';
+				$sub_heading = translate('currently_editing', '<strong>'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($closest_parent->type(), 'name').'</strong>', '<strong>'.htmlspecialchars($closest_parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</strong>';
 			}
 		}
 		$o->setSubHeading($sub_heading);

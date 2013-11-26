@@ -278,7 +278,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			$attribute_list .= ' '.'id="'.$val.'"';
 		}
 
-		echo '<table class="sq-bodycopy-raw-html-table-wrapper" ';
+		echo '<table class="sq-bodycopy-locked-wrapper sq-bodycopy-raw-html-table-wrapper" ';
 		echo "{$attribute_list}";
 		echo '>';
 
@@ -373,7 +373,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		$type_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo('bodycopy');
 
 		?>
-		<table<?php echo $attribute_list?> class="sq-bodycopy-container-edit-table-wrapper" background="<?php echo $bgimage?>">
+		<table<?php echo $attribute_list?> class="sq-edit-bodycopy-section sq-bodycopy-container-edit-table-wrapper" background="<?php echo $bgimage?>">
 
 		<?php
 
@@ -395,7 +395,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 				for ($x = 0; $x < $num_cols; $x++) {
 					$cell = $table_rows[$i]['cells'][$x];
 					?>
-					<td valign="top" colspan="<?php echo $cell->colspan(); ?>">
+					<td style="vertical-align: top" colspan="<?php echo $cell->colspan(); ?>">
 						<?php
 						// when painting a cell, it needs to know if there's more than 1 row or column too for drawing
 						// the delete row/col buttons
@@ -451,7 +451,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 
 		foreach ($table_rows[$i]['attributes'] as $name => $val) {
 			if ($val == '') continue;
-			$attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $val).'"';
+			$attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $val).'"<br/>';
 			if ($name == 'dir' && !empty($val)) {
 				$dir_attribute = $val;
 			}
@@ -493,10 +493,12 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 				}
 				$status_name = get_status_description($asset->status);
 				$status_img = get_asset_status_icon($asset->status);
-				$desc = translate('content_type_tooltip_status').': '.$status_img.'<b>'.get_status_description($asset->status).'</b><br />';
-				$desc .= translate('content_type_tooltip_public').': <b>'.($public_read ? translate('yes') : translate('no')).'</b><br />';
-				$desc .= (($popup_attribute_list) ? translate('current_properties').':<br>'.$popup_attribute_list : '');
-				Bodycopy_Edit_Fns::printBodycopyIcon('bodycopy_edit_table_properties(\''.$prefix.'\', '.$asset->id.', '.(($asset->status & SQ_SC_STATUS_SAFE_EDITING) ? 'false' : 'true').');', translate('edit_properties', $asset->attr('name')), $desc, 'table_properties');
+				$desc = '<table class="sq-toolbox-properties-table">';
+				$desc .= '<tr><td>'.translate('content_type_tooltip_status').'</td><td>'.$status_img.''.get_status_description($asset->status).'</td><tr>';
+				$desc .= '<tr><td>'.translate('content_type_tooltip_public').'</td><td>'.($public_read ? translate('yes') : translate('no')).'</td><tr>';
+				$desc .= '<tr><td>'.(($popup_attribute_list) ? translate('current_properties').'</td><td>'.$popup_attribute_list : '').'</td><tr>';
+				$desc .= '</table>';
+				Bodycopy_Edit_Fns::printBodycopyIcon('bodycopy_edit_table_properties(\''.$prefix.'\', '.$asset->id.', '.(($asset->status & SQ_SC_STATUS_SAFE_EDITING) ? 'false' : 'true').');', translate('edit_properties', $asset->attr('name')), $desc, 'table_properties', '', 'class="sq-icon"');
 
 			} else {
 				echo '&nbsp;';
@@ -507,7 +509,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		}//end if
 		?>
 
-		<td id="<?php echo $prefix.'_cell_'.$asset->id.'_'.$i.'_'.$x; ?>">
+		<td style="min-width: 70px;" id="<?php echo $prefix.'_cell_'.$asset->id.'_'.$i.'_'.$x; ?>">
 		<!-- These next 3 icons float across to the right side -->
 		<span style="float: right;">
 		<?php
@@ -547,19 +549,19 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			<td id="<?php echo $prefix.'_row_'.$asset->id.'_'.$i?>"  nowrap="nowrap">
 			<?php
 			if ($i == 0 && $multiRow) {
-				Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_edit_table_row_order('$prefix', $asset->id);", translate('reorder_rows_question', $asset->attr('name')), '', 'reorder', '['.translate('reorder_rows').']');
+				Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_edit_table_row_order('$prefix', $asset->id);", translate('reorder_rows_question', $asset->attr('name')), '', 'reorder', '['.translate('reorder_rows').']', ' class="sq-icon-vertical"');
+				echo '<br/>';
 			}
-			echo '<br/>';
-			Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_insert_table_row('$prefix', $asset->id,$i, true);", translate('insert_new_row_above'), '', 'add', '[^ '.translate('add_row').']');
+			Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_insert_table_row('$prefix', $asset->id,$i, true);", translate('insert_new_row_above'), '', 'add', '[^ '.translate('add_row').']', ' class="sq-icon-vertical"');
 
 			echo '<br/>';
-			Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_edit_table_row_properties('$prefix', $asset->id,$i);", translate('edit_row_question', ($i + 1)), (($attribute_list) ? translate('current_properties').':<br>'.$attribute_list : ''), 'row_properties', '['.translate('edit_row').']');
+			Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_edit_table_row_properties('$prefix', $asset->id,$i);", translate('edit_row_question', ($i + 1)), (($attribute_list) ? translate('current_properties').':<br>'.$attribute_list : ''), 'row_properties', '['.translate('edit_row').']', ' class="sq-icon-vertical"');
 			if ($multiRow) {
 				echo '<br/>';
-				Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_delete_table_row('$prefix', $asset->id, $i);", translate('delete_row_question', ($i + 1)), '', 'delete', '['.translate('delete_row').']');
+				Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_delete_table_row('$prefix', $asset->id, $i);", translate('delete_row_question', ($i + 1)), '', 'delete', '['.translate('delete_row').']', ' class="sq-icon-vertical"');
 			}
 			echo '<br/>';
-			Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_insert_table_row('$prefix', $asset->id, $i, false);", translate('insert_new_row_below'), '', 'add', '[v '.translate('add_row').']');
+			Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_insert_table_row('$prefix', $asset->id, $i, false);", translate('insert_new_row_below'), '', 'add', '[v '.translate('add_row').']', ' class="sq-icon-vertical"');
 			?>
 		</td>
 		<?php

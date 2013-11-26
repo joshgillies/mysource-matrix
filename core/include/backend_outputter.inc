@@ -963,16 +963,12 @@ class Backend_Outputter
 			}
 		}
 
-		$backendPage = array_get_index($_GET, 'SQ_BACKEND_PAGE');
+		$backendPage = array_get_index($_GET, 'SQ_BACKEND_PAGE'); ?>
 
-		// If we are the sidenav page, push pages into standards mode where possible
-		if ($backendPage === 'sidenav') {
-			?><!DOCTYPE html>
-		<?php } ?>
-		<html>
+		<!DOCTYPE html>
+		<html class="<?php echo $backendPage; ?>">
 		<head>
 			<title><?php echo htmlspecialchars(str_replace('&nbsp;', ' ', $this->_page_title)); ?></title>
-			<!--link rel="stylesheet" type="text/css" href="http://bbanda.staging.squiz.net/?a=73"/-->
 			<?php
 			$this->addCssInclude($this->filesPath('css/edit.css'));
 			if (!empty($_REQUEST['print_view'])) {
@@ -982,21 +978,6 @@ class Backend_Outputter
 
 			foreach ($this->_css_includes as $file) {
 				$this->_paintCssInclude($file);
-			}
-
-			// Add IE6-specific styles if main frame AND "lock commit button to frame" preference turned on
-			if (($backendPage == 'main') && SQ_IN_BACKEND && $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_COMMIT_BUTTON_POS')) {
-
-				// Bug #3096 - Printing incorrectly in IE
-				// Associated with the CSS involved with hanging the Commit Button to the bottom of the page
-				// If print_view is not enabled show the commit button code
-				if (!isset($_REQUEST['print_view'])) {
-				?>
-				<!--[if gte IE 6]>
-					<link href="<?php echo $this->filesPath('css/edit_ie6.css') ?>" type="text/css" rel="stylesheet" />
-				<![endif]-->
-				<?php
-				}//end if
 			}
 
 			// first add the js translation files
@@ -1176,7 +1157,7 @@ class Backend_Outputter
 			//]]> -->
 			</script>
 		</head>
-		<body onload="page_on_load();" onunload="page_on_unload();" class="<?php echo $backendPage; ?>">
+		<body onload="page_on_load();" onunload="page_on_unload();" class="sq <?php echo $backendPage; ?>">
 		<div id="sq-search-wait-popup"><div id="sq-search-wait-popup-titlebar"><div id="sq-search-wait-popup-close">[ <a href="#" onclick="document.getElementById('sq-search-wait-popup').style.display = 'none'; return false;">x</a> ]</div><span id="sq-search-wait-popup-title">Search in Progress</span></div>
 			<div id="sq-search-wait-popup-details">Your search is being processed, please wait...</div>
 		</div>
@@ -1211,28 +1192,36 @@ class Backend_Outputter
 							<?php
 							if ($this->_heading_icon) {
 								?>
-								<td class="sq-backend-heading-icon"><?php echo $this->_heading_icon; ?></td>
+								<td class="sq-backend-heading-icon">
+									<span>
+										<?php echo $this->_heading_icon; ?>
+									</span>
+								</td>
 								<?php
 							}
 							?>
 							<td class="sq-backend-main-heading">
+								<span>
 								<?php
 									echo $this->_heading;
 									if ($this->_sub_heading) {
 										echo '<br /><span class="sq-backend-sub-heading">'.$this->_sub_heading.'</span>';
 									}
 								?>
+								</span>
 							</td>
 						<?php
 						if (empty($_REQUEST['print_view'])) {
 							?>
 							<td class="sq-backend-screen-menu">
 								<div id="sq_screen_menu_filler" style="display: none"></div>
-								<div id="sq_screen_menu">
+								<div id="sq_screen_menu" class="sq-screen-menu">
 									<?php
 									$this->printContextSwitcher();
 									$this->printScreenMenu();
-									sq_print_icon(sq_web_path('lib').'/web/images/icons/printer.png', 16, 16, translate('print_this_page'), NULL, 'onclick="showPrintPopup()" class="clickable" style="margin-bottom: -2px; margin-right: 4px"');
+									echo '<span>';
+									sq_print_icon(sq_web_path('lib').'/web/images/icons/printer.png', 16, 16, translate('print_this_page'), NULL, 'onclick="showPrintPopup()" class="clickable"');
+									echo '</span>';
 									?>
 								</div>
 							</td>
@@ -1251,7 +1240,7 @@ class Backend_Outputter
 							<tr>
 								<td class="sq-backend-nav-history-title">
 									<?php sq_print_icon($this->filesPath('images/icons/history.png'), 20, 20, 'Navigation History'); ?>
-									<?php echo translate('back_to'); ?>:
+									<span><?php echo translate('back_to'); ?>:</span>
 								</td>
 								<td class="sq-backend-nav-history">
 									<?php
@@ -1275,13 +1264,15 @@ class Backend_Outputter
 										<a href="<?php echo $nav_asset->getBackendHref($nav_details['screen']); ?>&sq_nav_goback=<?php echo $i; ?>">
 											<?php
 											sq_print_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($nav_asset->type()), 16, 16, htmlspecialchars($nav_asset->short_name));
-											echo htmlspecialchars($nav_asset->short_name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
 											?>
-											<span> [<?php echo ($i + 1); ?>]</span>
+											<span>
+												<?php echo htmlspecialchars($nav_asset->short_name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET); ?> 
+												[<?php echo ($i + 1); ?>]
+											</span>
 										</a>
 										<?php
 										if ($i < ($nav_count -1)) {
-											?> <span class="divider">+</span> &nbsp;<?php
+											?> <span class="divider">+</span> <?php
 										}
 
 										$GLOBALS['SQ_SYSTEM']->am->forgetAsset($nav_asset);

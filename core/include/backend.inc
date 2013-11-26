@@ -276,7 +276,7 @@ class Backend extends MySource_Object
 
 		$body_class = '';
 
-		$header_height = $limbo_hide_frames ? 0 : 40;
+		$header_height = $limbo_hide_frames ? 0 : 45;
 		$am_width = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_WIDTH');
 		$sidenav_width = $am_width+5;
 		$resizer_width = $limbo_hide_frames ? 0 : 25;
@@ -335,6 +335,7 @@ class Backend extends MySource_Object
 					div.iframe-container.lower-set {
 						padding-top: 0;
 						z-index: 0;
+						overflow: hidden;
 					}
 
 					div.iframe-container.sidenav {
@@ -387,16 +388,22 @@ class Backend extends MySource_Object
 				// i.e. one less column in the second frameset
 				// see _printMain() for more info
 				?>
-				<body class="<?php echo $body_class ?>"><div class="iframe-container header">
-					<iframe src="<?php echo $frame_urls['header']; ?>" name="sq_header" id="sq_header" scrolling="no" marginwidth="0" marginheight="0" border="0" frameborder="0" class="sq-iframe"></iframe>
-				</div><div class="iframe-container lower-set">
-					<div class="iframe-container sidenav">
-						<iframe src="<?php echo $frame_urls['sidenav']; ?>" name="sq_sidenav" scrolling="no" marginwidth="0" marginheight="0" border="0" frameborder="0" class="sq-iframe"></iframe>
-					</div><div class="iframe-container resizer">
-						<iframe src="<?php echo $frame_urls['resizer']; ?>" name="sq_resizer" scrolling="no" marginwidth="0" marginheight="0" border="0" frameborder="0" class="sq-iframe"></iframe>
-					</div><div class="iframe-container main">
-						<iframe src="<?php echo $frame_urls['main']; ?>" name="sq_main" scrolling="yes" marginwidth="0" marginheight="0" border="0" frameborder="0" class="sq-iframe"></iframe>
-					</div></div></body>
+				<body style="background-color: #F4F4F4" class="sq <?php echo $body_class ?>">
+					<div class="iframe-container header">
+						<iframe src="<?php echo $frame_urls['header']; ?>" name="sq_header" id="sq_header" scrolling="no" marginwidth="0" marginheight="0" border="0" frameborder="0" class="sq-iframe"></iframe>
+					</div>
+					<div class="iframe-container lower-set">
+						<div class="iframe-container sidenav">
+							<iframe src="<?php echo $frame_urls['sidenav']; ?>" name="sq_sidenav" scrolling="no" marginwidth="0" marginheight="0" border="0" frameborder="0" class="sq-iframe"></iframe>
+						</div>
+						<div class="iframe-container resizer">
+							<iframe src="<?php echo $frame_urls['resizer']; ?>" name="sq_resizer" scrolling="no" marginwidth="0" marginheight="0" border="0" frameborder="0" class="sq-iframe"></iframe>
+						</div>
+						<div class="iframe-container main">
+							<iframe src="<?php echo $frame_urls['main']; ?>" name="sq_main" scrolling="yes" marginwidth="0" marginheight="0" border="0" frameborder="0" class="sq-iframe"></iframe>
+						</div>
+					</div>
+				</body>
 				<?php
 			}
 			?>

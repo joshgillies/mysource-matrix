@@ -216,7 +216,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 
 
 		<!-- Begin Popup -->
-		<div id="bodycopyPopupDiv" style="z-index:1001">
+		<div id="bodycopyPopupDiv" class="sq-bodycopy-popup-div" style="z-index:1001">
 			<iframe name="bodycopyFrame" id="bodycopyFrame" scrolling="no" width="<?php echo $init_layer_width?>" height="<?php echo $init_layer_height?>" frameborder="no"></iframe>
 		</div>
 		<!-- End Popup -->
@@ -239,7 +239,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 				<tr>
 					<td>
 						<input type="hidden" name="bodycopy_saved[<?php echo $prefix?>][<?php echo $container->id?>]" value="">
-						<table class="sq-edit-bodycopy-insert-container-table">
+						<table class="sq-edit-bodycopy-section sq-edit-bodycopy-insert-container-table">
 							<tr>
 								<?php
 								if ( $GLOBALS['SQ_SYSTEM']->getUserPrefs('bodycopy_container', 'SQ_DIV_DISABLE_CREATE') === 'yes'){
