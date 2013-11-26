@@ -170,7 +170,7 @@ class TRIM_Saved_Search extends Data_Source
 			}//end if
 
 			// if no results are returned, it  indictates a serious trim problem. don't go ahead and delete all local files.
-			if(empty($new_result_uris)) {
+			if(!isset($new_object_list) || (isset($new_object_list) && empty($new_object_list))) {
 			    return FALSE;
 			}
 			
