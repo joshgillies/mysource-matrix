@@ -1319,6 +1319,7 @@ class Asset extends MySource_Object
 								'root',
 								'redirect_asset',
 								'thumbnail',
+								'linked_folder',
 							 );
 		foreach ($notice_links as $link) {
 			if (in_array($link['value'], $links_to_preserve)) {
@@ -1362,6 +1363,7 @@ class Asset extends MySource_Object
 									'root',
 									'redirect_asset',
 									'thumbnail',
+									'linked_folder',
 								 );
 			foreach ($notice_links as $index => $info) {
 				if (in_array($info['value'], $links_to_preserve)) {
@@ -4146,7 +4148,28 @@ class Asset extends MySource_Object
 				$schema_workflows = $this->_tmp['wfm_schema_workflows'];
 			}
 
-			if (0 === strpos($keyword, 'asset_workflow_current_')){
+			if (preg_match('/asset_workflow_current_[user]*log_/', $keyword)){
+				$workflow_keyword = preg_replace('/asset_workflow_current_[user]*log_/', '', $keyword);
+				$replacement = '';
+				$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
+
+				if (0 === strpos($keyword, 'asset_workflow_current_userlog_')) {
+					$logs = $ms->getLogs('asset.workflow.userlog', Array('assetid' => $this->id));
+				} else {
+					$logs = $ms->getLogs('asset.workflow.log.*', Array('assetid' => $this->id));
+				}
+				usort($logs, Array('Messaging_Service', 'sortMessages'));
+				$message = array_shift($logs);
+
+				if (!empty($message) && isset($message[$workflow_keyword])) {
+					$replacement = $message[$workflow_keyword];
+				}
+				// if the replacement is an empty string, we are purposly
+				// not returning a NULL value here, let the keyword modifier
+				// run as the replacement would be empty if the workflow is
+				// applied but nothing is done on the asset to trigger it
+
+			} else if (0 === strpos($keyword, 'asset_workflow_current_')){
 				$workflow_keyword = substr($keyword, strlen('asset_workflow_current_'));
 				$workflow_keyword_parts = explode(':', $workflow_keyword);
 
@@ -6803,6 +6826,9 @@ class Asset extends MySource_Object
 	    $conditions = $this->getConditions();
 
 	    if(!empty($conditions)) {
+		
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('condition');
+		
 		// re-use results to avoid redundant eval
 		$eval_results = Array();
 		
@@ -6928,17 +6954,6 @@ class Asset extends MySource_Object
 	}//end evaluateConditions
 	
 	
-	
-	/* Evaluate a singe condition
-	* 
-	* @return bool
-	* @access public
-	*/
-	public function evaluateCondition($conditions_info)
-	{
-	    $GLOBALS['SQ_SYSTEM']->am->includeAsset('condition');
-	    
-	}
 	
 }//end class
 

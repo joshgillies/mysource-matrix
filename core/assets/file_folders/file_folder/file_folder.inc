@@ -141,7 +141,7 @@ class File_Folder extends File
 		$file_assetids = Array();
 
 		$file_type = $this->getFileAssetType();
-		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_1, $file_type);
+		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, $file_type, TRUE, 'major', 'linked_folder');
 		foreach($links as $link) {
 			if (!empty($link['minorid'])) {
 				$file_assetids[] = $link['minorid'];
@@ -163,7 +163,7 @@ class File_Folder extends File
 	{
 		return $this->attr('linked_files');
 
-	}//end getLinkedFiles()
+	}//end getLinkedFilesAtLastMinification()
 
 
 	/**
@@ -260,6 +260,50 @@ class File_Folder extends File
 
 
 	/**
+	* Returns TRUE if the merged file needs to be regenerated
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function regenerationRequired()
+	{
+		// Curretly linked files
+		$file_assetids = $this->getLinkedFiles();
+
+		// File assetids linked at the last minification
+		$linked_files = $this->getLinkedFilesAtLastMinification();
+
+		// Regeneration will be required based on if the new files have been added or removed
+		$regeneration_required = array_diff($file_assetids, $linked_files) || array_diff($linked_files, $file_assetids);
+
+		if (!$regeneration_required) {
+			$file_assetids[] = $this->id;
+			if (!empty($file_assetids)) {
+				$files_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($file_assetids);
+			}
+
+			// Minified file last update (file regeneration) date
+			$last_updated = isset($files_info[$this->id]['updated']) ? $files_info[$this->id]['updated'] : '';
+
+			foreach($files_info as $file_id => $file_info) {
+				// We are not printing ourself
+				if ($file_id == $this->id) {
+					continue;
+				}
+
+				if ($last_updated && $file_info['updated'] > $last_updated) {
+					$regeneration_required = TRUE;
+					break;
+				}
+			}//end foreach
+		}
+
+		return $regeneration_required;
+
+	}//end regenerationRequired()
+
+
+	/**
 	* Get the extension of the folder's file type
 	*
 	* @return string
@@ -304,7 +348,9 @@ class File_Folder extends File
 									$asset_type	=> Array('card'	=> 'M', 'exclusive'	=> FALSE),
 								   ),
 				SQ_LINK_TYPE_3	=> Array(),
-				SQ_LINK_NOTICE	=> Array(),
+				SQ_LINK_NOTICE	=> Array(
+									$asset_type	=> Array('card'	=> 'M', 'exclusive'	=> FALSE),
+								   ),
 			   );
 
 	}//end _getAllowedLinks()

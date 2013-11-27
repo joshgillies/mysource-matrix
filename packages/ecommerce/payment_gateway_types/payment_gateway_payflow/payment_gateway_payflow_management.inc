@@ -193,7 +193,12 @@ class Payment_Gateway_Payflow_Management extends Asset_Management
 													'description'	=> 'Cancel button text',
 													'is_contextable'	=> TRUE,
 												   ),
-
+						'custom_reference'		=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'text',
+													'default'		=> '',
+													'description'	=> 'Custom reference text sent to Payflow',
+												   ),
 					  );
 
 	}//end constructor
