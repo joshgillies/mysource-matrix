@@ -121,6 +121,7 @@ class File_Folder_Edit_Fns extends File_Edit_Fns
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$ok = TRUE;
+		$links_updated = FALSE;
 
 		// Delete the file assets that have been removed
 		foreach ($file_links as $file_link) {
@@ -128,6 +129,7 @@ class File_Folder_Edit_Fns extends File_Edit_Fns
 				if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($file_link['linkid'])) {
 					$ok = FALSE;
 				}
+				$links_updated = TRUE;
 			}
 		}
 
@@ -149,11 +151,18 @@ class File_Folder_Edit_Fns extends File_Edit_Fns
 						trigger_error('Unable to link the File #'.$new_file->id.' to the File Folder');
 						break;
 					}
+					$links_updated = TRUE;
 				}
 			}//end if
 		}//end foreach
 
 		if ($ok) {
+			// If the files have been added/removed, re-combine the linked files
+			if ($links_updated && $asset->mergeFiles()) {
+				$file_assetids = $asset->getLinkedFiles();
+				$asset->setAttrValue('linked_files', $file_assetids);
+			}
+
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		} else {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
