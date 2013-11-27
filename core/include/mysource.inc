@@ -1056,6 +1056,11 @@ class MySource extends MySource_Object
 			$keywords = retrieve_keywords_replacements($content, '', TRUE);
 			foreach ($keywords as $word) {
 				if (!isset($additional_replacements[$word])) {
+					if(!isset($this->frontend_asset)) {
+					    $additional_replacements[$word] = '';
+					    continue;
+					}
+					    
 					$replacement = $this->frontend_asset->getKeywordReplacement($word);
 					// still cannot replace it, blank it out
 					if ($replacement == "%$word%") {
