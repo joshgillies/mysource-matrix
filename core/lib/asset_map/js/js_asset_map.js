@@ -1197,6 +1197,14 @@ var JS_Asset_Map = new function() {
 				}
 			};
 
+			if (!dragStatus.scrollX) {
+				dragStatus.scrollX = 0;
+			}
+
+			if (!dragStatus.scrollY) {
+				dragStatus.scrollY = 0;
+			}
+
 			var target       = e.target;
 			var assetTarget  = null;
 			var branchTarget = null;
@@ -1339,34 +1347,58 @@ var JS_Asset_Map = new function() {
 					timeouts.scrollDrag = {
 						timeout: setInterval(function() {
 							if (timeouts.scrollDrag.mousePos) {
-								var mousePos     = timeouts.scrollDrag.mousePos;
+								var mousePos     = {
+									x: timeouts.scrollDrag.mousePos.x,
+									y: timeouts.scrollDrag.mousePos.y
+								};
+								console.info('MOUSE POS 2: [' + mousePos.x + ',' + mousePos.y + ']');
 								var tree         = self.getCurrentTreeElement();
 								var treeCoords   = dfx.getBoundingRectangle(tree, true);
 								var moveFactor   = (Math.log(20) / Math.log(15));
+								var scrollAmount = 0;
 
 								// Adjust the lower-right tree coords to adjust for
 								// the scrollbar.
 								treeCoords.x2 = treeCoords.x1 + tree.clientWidth;
 								treeCoords.y2 = treeCoords.y1 + tree.clientHeight;
-
+var coords1 = self.getSelectionRectCoords(dragStatus.startPoint, mousePos);
+								
+								var oldScrollTop  = tree.scrollTop;
+								var oldScrollLeft = tree.scrollLeft;
 								if (((mousePos.y - treeCoords.y1) >= 0) && ((mousePos.y - treeCoords.y1) < 15)) {
-									tree.scrollTop -= Math.pow(15 - (mousePos.y - treeCoords.y1), moveFactor);
+									// Scrolling up.
+									scrollAmount        = Math.round(Math.pow(15 - (mousePos.y - treeCoords.y1), moveFactor));
+									tree.scrollTop     -= scrollAmount;
 								} else if (((treeCoords.y2 - mousePos.y) > 0) && ((treeCoords.y2 - mousePos.y) <= 15)) {
-									tree.scrollTop += Math.pow(15 - (treeCoords.y2 - mousePos.y), moveFactor);
+									// Scrolling down.
+									scrollAmount        = Math.round(Math.pow(15 - (treeCoords.y2 - mousePos.y), moveFactor));
+									tree.scrollTop     += scrollAmount;
 								}
 
 								if (((mousePos.x - treeCoords.x1) >= 0) && ((mousePos.x - treeCoords.x1) < 15)) {
-									tree.scrollLeft -= Math.pow(15 - (mousePos.x - treeCoords.x1), moveFactor);
+									// Scrolling to the left.
+									scrollAmount        = Math.round(Math.pow(15 - (mousePos.x - treeCoords.x1), moveFactor));
+									tree.scrollLeft    -= scrollAmount;
 								} else if (((treeCoords.x2 - mousePos.x) > 0) && ((treeCoords.x2 - mousePos.x) <= 15)) {
-									tree.scrollLeft += Math.pow(15 - (treeCoords.x2 - mousePos.x), moveFactor);
+									// Scrolling to the right.
+									scrollAmount        = Math.round(Math.pow(15 - (treeCoords.x2 - mousePos.x), moveFactor));
+									tree.scrollLeft    += scrollAmount;                            
+								}
+
+								if (scrollAmount > 0) {
+									dragStatus.scrollY += (tree.scrollTop - oldScrollTop);
+									dragStatus.scrollX += (tree.scrollLeft - oldScrollLeft);
+									self.setSelectionRect(selectionRect, dragStatus.startPoint, mousePos);
+									var coords = self.getSelectionRectCoords(dragStatus.startPoint, mousePos);
+									console.info('Scroll Mouse Pos [' + mousePos.x + ',' + mousePos.y + ']');
 								}
 							}
 						}, 50)
 					};
 				}
-
+				
 				timeouts.scrollDrag.mousePos = mousePos;
-
+					
 				if (dragStatus.selectionDrag) {
 					if (insideTree) {
 						if (!timeouts.selectionDrag) {
@@ -1411,23 +1443,20 @@ var JS_Asset_Map = new function() {
 							assetMapContainer.appendChild(selectionRect);
 						}
 
-						dfx.setCoords(
-							selectionRect,
-							Math.min(e.clientX, dragStatus.startPoint.x) - assetMapCoords.x,
-							Math.min(e.clientY, dragStatus.startPoint.y) - assetMapCoords.y
-						);
-						dfx.setStyle(selectionRect, 'height', (Math.abs(e.clientY - dragStatus.startPoint.y) + 1) + 'px');
-						dfx.setStyle(selectionRect, 'width', (Math.abs(e.clientX - dragStatus.startPoint.x) + 1) + 'px');
-
-						dfx.addEvent(selectionRect, 'mousemove', function(e) {
-							dfx.setCoords(
-								selectionRect,
-								Math.min(e.clientX, dragStatus.startPoint.x) - assetMapCoords.x,
-								Math.min(e.clientY, dragStatus.startPoint.y) - assetMapCoords.y
-							);
-							dfx.setStyle(selectionRect, 'height', (Math.abs(e.clientY - dragStatus.startPoint.y) + 1) + 'px');
-							dfx.setStyle(selectionRect, 'width', (Math.abs(e.clientX - dragStatus.startPoint.x) + 1) + 'px');
+						self.setSelectionRect(selectionRect, dragStatus.startPoint, {
+							x: e.clientX,
+							y: e.clientY
 						});
+						console.info('No Scroll [' + e.clientX + ',' + e.clientY + ']');
+						
+						// If we double-back on ourselves make sure it also resizes there.
+						dfx.addEvent(selectionRect, 'mousemove', function(e) {
+							self.setSelectionRect(selectionRect, dragStatus.startPoint, {
+								x: e.clientX,
+								y: e.clientY
+							});
+							console.info('Double Back [' + e.clientX + ',' + e.clientY + ']');
+						 });
 					}//end if
 				} else if (dragStatus.assetDrag) {
 					dragStatus.currentPoint = {
@@ -1479,6 +1508,7 @@ var JS_Asset_Map = new function() {
 								var mousePos     = dfx.getMouseEventPosition(e);
 								if (timeouts.scrollDrag) {
 									timeouts.scrollDrag.mousePos = mousePos;
+								
 								}
 
 								var treeCoords   = dfx.getBoundingRectangle(self.getCurrentTreeElement(), true);
@@ -1784,6 +1814,103 @@ var JS_Asset_Map = new function() {
 		}//end if (container exists)
 
 	};
+	
+	/**
+	 * Given start and end point coordinates, return height and width from the
+	 * start point.
+	 *
+	 * Height and width is intended to be negative if the end point is further
+	 * to the left/top than the start point. They can then be added to the
+	 * scroll offsets to determine the width of the selection.
+	 *
+	 * It will also organise what is actually the x1 and y1 points, depending on
+	 * what is actually the top-left corner.
+	 *
+	 * @returns object
+	 */
+	this.getSelectionRectCoords = function(startPoint, endPoint) {
+		var startPoint = {
+			x: startPoint.x,
+			y: startPoint.y
+		};
+		
+		var endPoint = {
+			x: endPoint.x,
+			y: endPoint.y
+		};
+		
+		// Adjust for the current scroll offsets.
+		if (dragStatus.scrollX) {
+			startPoint.x += dragStatus.scrollX;
+			endPoint.x   += dragStatus.scrollX;
+		}
+		
+		if (dragStatus.scrollY) {
+			startPoint.y += dragStatus.scrollY;
+			endPoint.y   += dragStatus.scrollY;
+		}
+		
+		var dimensions = {
+			x1: Math.min(startPoint.x, endPoint.x),
+			y1: Math.min(startPoint.y, endPoint.y),
+			width: endPoint.x - startPoint.x,
+			height: endPoint.y - startPoint.y
+		};
+		
+		return dimensions;
+	}
+
+	this.setSelectionRect = function(rect, startPoint, endPoint) {
+		var startPoint = {
+			x: startPoint.x,
+			y: startPoint.y
+		}
+		
+		var endPoint = {
+			x: endPoint.x,
+			y: endPoint.y
+		}
+		var assetMapCoords = dfx.getElementCoords(assetMapContainer);
+		var treeCoords     = dfx.getElementCoords(self.getCurrentTreeElement());
+		var treeDims       = dfx.getElementDimensions(self.getCurrentTreeElement(), true);
+		
+		if (dragStatus.scrollX) {
+			startPoint.x -= (2 * dragStatus.scrollX);
+			endPoint.x   -= dragStatus.scrollX;
+		}
+		
+		if (dragStatus.scrollY) {
+			startPoint.y -= (2 * dragStatus.scrollY);
+			endPoint.y   -= dragStatus.scrollY;
+		}// Adjust for the current scroll offsets.
+		
+		// Get the initial rectangle.
+		var rectCoords = this.getSelectionRectCoords(startPoint, endPoint);
+		
+		dfx.setCoords(rect, (rectCoords.x1 - assetMapCoords.x), (rectCoords.y1 - assetMapCoords.y));
+		dfx.setStyle(rect, 'width', Math.abs(rectCoords.width) + 'px');
+		dfx.setStyle(rect, 'height', Math.abs(rectCoords.height) + 'px');
+		
+		var clipRect = {top: 'auto', right: 'auto', bottom: 'auto', left: 'auto'};
+		
+		if (rectCoords.y1 < treeCoords.y) {
+			clipRect.top = (treeCoords.y - rectCoords.y1) + 'px';
+		}
+		
+		if (rectCoords.x1 < treeCoords.x) {
+			clipRect.left = (treeCoords.x - rectCoords.x1) + 'px';
+		}
+		
+		if (rectCoords.y2 >= assetMapCoords.y + treeDims.height) {
+			clipRect.bottom = (assetMapCoords.y + treeDims.height - rectCoords.y1) + 'px';
+		}
+		
+		if (rectCoords.x2 >= assetMapCoords.x + treeDims.width) {
+			clipRect.right = (assetMapCoords.x + treeDims.width - rectCoords.x1) + 'px';
+		}
+		dfx.setStyle(rect, 'clip', 'rect(' + clipRect.top + ', ' + clipRect.right + ', ' + clipRect.bottom + ', ' + clipRect.left + ')');
+		
+	}
 
 	this.setHoverTab = function(treeid, callback) {
 		// Check whether we already have a timeout for this tree.
