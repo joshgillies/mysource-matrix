@@ -657,6 +657,7 @@ class Calendar_Common
 
 	/**
 	* Return true if event $a starts before $b
+	* If the events start time is same, compare by the events name
 	*
 	* @param array	$a	Details of first comparee event
 	* @param array	$b	Details of second comparee event
@@ -666,6 +667,12 @@ class Calendar_Common
 	*/
 	function compareStartDates($a, $b)
 	{
+		if ($a['start_date_ts'] == $b['start_date_ts']) {
+			if (isset($a['name']) && isset($b['name']) && isset($a['assetid']) && isset($b['assetid'])) {
+				return $a['name'].$a['assetid'] < $b['name'].$b['assetid'] ? -1 : 1;
+			}
+		}
+
 		return ($a['start_date_ts'] < $b['start_date_ts']) ? -1 : 1;
 
 	}//end compareStartDates()
