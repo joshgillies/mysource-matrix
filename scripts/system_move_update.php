@@ -43,39 +43,33 @@ if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')
 	exit();
 }
 
-// simple fn to print a prompt and return what the user enters
-function get_line($prompt='')
-{
-	echo $prompt;
-	// now get their entry and remove the trailing new line
-	return rtrim(fgets(STDIN, 4094));
-
-}//end get_line()
-
-
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
-
-if ((php_sapi_name() == 'cli')) {
-	if (isset($_SERVER['argv'][2])) {
-		$old_system_root = rtrim(trim($_SERVER['argv'][2]), '/');
-		if (strtolower(get_line('Confirm "'.$old_system_root.'" (Y/N) : ')) != 'y') {
-			unset($old_system_root);
-		}
-	}
-}
-
-if (!isset($old_system_root)) {
-	do {
-		$old_system_root = get_line('Enter the old System Root : ');
-	} while (strtolower(get_line('Confirm "'.$old_system_root.'" (Y/N) : ')) != 'y');
-}
 
 //$new_system_root = SQ_SYSTEM_ROOT;
 // use user entered path (symbolic link friendly)
-$new_system_root = $SYSTEM_ROOT;
+$new_system_root = rtrim(preg_replace('|/+$|', '', $SYSTEM_ROOT), '/');
 
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-function recurse_find_ffv_files($dir, $old_rep_root, $new_rep_root)
+
+$new_rep_path = $new_system_root.'/data/file_repository';
+
+pre_echo("NEW : $new_rep_path");
+
+recurse_find_ffv_files(SQ_DATA_PATH.'/private', $new_rep_path);
+recurse_find_ffv_files(SQ_DATA_PATH.'/public', $new_rep_path);
+
+$new_data_private_path = $new_system_root.'/data/';
+
+recurse_data_dir_for_safe_edit_files(SQ_DATA_PATH.'/private', $new_data_private_path);
+recurse_data_dir_for_safe_edit_files(SQ_DATA_PATH.'/public', $new_data_private_path);
+
+//Bug #4560 Fix to take care of form_submission file paths stored in its attributes.
+echo "Updating Form Submission file paths\n";
+
+update_form_submission_filepaths($new_system_root);
+
+
+function recurse_find_ffv_files($dir, $new_rep_root)
 {
 	$d = dir($dir);
 	while (false !== ($entry = $d->read())) {
@@ -95,8 +89,8 @@ function recurse_find_ffv_files($dir, $old_rep_root, $new_rep_root)
 					if (is_file($ffv_dir.'/'.$ffv_entry)) {
 						$ffv_file = $ffv_dir.'/'.$ffv_entry;
 						$str = file_to_string($ffv_file);
-						if ($str) {
-							$str = str_replace('dir="'.$old_rep_root.'"', 'dir="'.$new_rep_root.'"', $str);
+						if ($str && strpos($str, $new_rep_root) === FALSE) {
+							$str = preg_replace('/dir=.*\n/',"dir=\"$new_rep_root\"\n", $str);
 							echo "File : $ffv_file\n";
 							#pre_echo("FILE : $ffv_file\n CONTENTS : \n$str");
 							string_to_file($str, $ffv_file);
@@ -107,7 +101,7 @@ function recurse_find_ffv_files($dir, $old_rep_root, $new_rep_root)
 
 			// just a normal dir, recurse
 			} else {
-				recurse_find_ffv_files($dir.'/'.$entry, $old_rep_root, $new_rep_root);
+				recurse_find_ffv_files($dir.'/'.$entry, $new_rep_root);
 
 			}//end if
 		}//end if
@@ -117,109 +111,88 @@ function recurse_find_ffv_files($dir, $old_rep_root, $new_rep_root)
 }//end recurse_find_ffv_files()
 
 
-$old_rep_path = preg_replace('|/+$|', '', $old_system_root).'/data/file_repository';
-$new_rep_path = preg_replace('|/+$|', '', $new_system_root).'/data/file_repository';
 
-pre_echo("OLD : $old_rep_path\nNEW : $new_rep_path");
 
-recurse_find_ffv_files(SQ_DATA_PATH.'/private', $old_rep_path, $new_rep_path);
-recurse_find_ffv_files(SQ_DATA_PATH.'/public', $old_rep_path, $new_rep_path);
-
-$old_data_private_path = preg_replace('|/+$|', '', $old_system_root).'/data/';
-$new_data_private_path = preg_replace('|/+$|', '', $new_system_root).'/data/';
-
-recurse_data_dir_for_safe_edit_files(SQ_DATA_PATH.'/private', $old_data_private_path, $new_data_private_path);
-recurse_data_dir_for_safe_edit_files(SQ_DATA_PATH.'/public', $old_data_private_path, $new_data_private_path);
-
-//Bug #4560 Fix to take care of form_submission file paths stored in its attributes.
-echo "Updating Form Submission file paths\n";
-$new_root = preg_replace('|/+$|', '', $new_system_root);
-$old_root = preg_replace('|/+$|', '', $old_system_root);
-pre_echo("OLD : $old_root\nNEW : $new_root");
-update_form_submission_filepaths($old_root, $new_root);
-
-function recurse_data_dir_for_safe_edit_files($dir, $old_rep_root, $new_rep_root)
+function recurse_data_dir_for_safe_edit_files($dir, $new_rep_root)
 {
     $d = dir($dir);
 	$index_to_look = Array ('data_path', 'data_path_public');
-    while (false !== ($entry = $d->read())) {
-        if ($entry == '.' || $entry == '..') continue;
-        // if this is a directory
-        if (is_dir($dir.'/'.$entry)) {
-            // we have found a .sq_system dir
-            if ($entry == '.sq_system') {
-                $sq_system_dir = $dir.'/'.$entry;
-                $sq_system_d = dir($sq_system_dir);
-                while (false !== ($sq_system_entry = $sq_system_d->read())) {
-                    if ($sq_system_entry == '.' || $sq_system_entry == '..' || $sq_system_entry != ".object_data") continue;
-                    // if this is a directory
-                    if (is_file($sq_system_dir.'/'.$sq_system_entry)) {
-                        $sq_system_file = $sq_system_dir.'/'.$sq_system_entry;
-                        $str = file_to_string($sq_system_file);
-                        if ($str) {
-							echo "File : $sq_system_file\n";
+	while (false !== ($entry = $d->read())) {
+		if ($entry == '.' || $entry == '..') continue;
+		// if this is a directory
+		if (is_dir($dir.'/'.$entry)) {
+			// we have found a .sq_system dir
+			if ($entry == '.sq_system') {
+				$sq_system_dir = $dir.'/'.$entry;
+				$sq_system_d = dir($sq_system_dir);
+				while (false !== ($sq_system_entry = $sq_system_d->read())) {
+					if ($sq_system_entry == '.' || $sq_system_entry == '..' || $sq_system_entry != ".object_data") continue;
+					// if this is a directory
+					if (is_file($sq_system_dir.'/'.$sq_system_entry)) {
+						$sq_system_file = $sq_system_dir.'/'.$sq_system_entry;
+						$str = file_to_string($sq_system_file);
+						if ($str) {
 							preg_match ("/\"[A-Za-z_0-9]+\"/" ,$str , $asset_type);
 							$GLOBALS['SQ_SYSTEM']->am->includeAsset(str_replace('"', '', $asset_type[0]));
 							$content_array = unserialize($str);
+							$file_changed = FALSE;
 							foreach ($index_to_look as $value) {
-								$content_array->$value = str_replace($old_rep_root, $new_rep_root, $content_array->$value);
+								$content_array_new_value = preg_replace('@^.*/data/((?:public|private)/.*)$@', "$new_rep_root\$1", $content_array->$value);
+								if($content_array_new_value !== $content_array->$value) {
+									$content_array->$value = $content_array_new_value;
+									$file_changed = TRUE;
+								}
 							}
-							$str = serialize($content_array);
-							string_to_file($str, $sq_system_file);
-                        }
-                    }
-                }//end while
-                $sq_system_d->close();
-            // just a normal dir, recurse
-            } else {
-                recurse_data_dir_for_safe_edit_files($dir.'/'.$entry, $old_rep_root, $new_rep_root);
+							if ($file_changed) {
+								echo "File : $sq_system_file\n";
+								$str = serialize($content_array);
+								string_to_file($str, $sq_system_file);
 
-            }//end if
-        }//end if
-    }//end while
-    $d->close();
+							}
+						}
+					}
+				}//end while
+				$sq_system_d->close();
+			// just a normal dir, recurse
+			} else {
+				recurse_data_dir_for_safe_edit_files($dir.'/'.$entry, $new_rep_root);
+
+			}//end if
+		}//end if
+	}//end while
+	$d->close();
 
 }// end recurse_data_dir_for_safe_edit_files()
 
-function update_form_submission_filepaths($old_root, $new_root){
+function update_form_submission_filepaths($new_root){
 	
 	$root_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 	$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user);
 	$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 	
 	$children = $GLOBALS['SQ_SYSTEM']->am->getChildren(1, 'form_submission');
+	$fields_to_check = array('temp_filesystem_path','filesystem_path');
 	foreach (array_keys($children) as $child_id) {
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($child_id);
 		$data = $asset->attr('attributes');
 		if (isset($data['answers'])) {
 			foreach (array_keys($data['answers']) as $question_id) {
 				$extra_data = $asset->getExtraData($question_id);
-				if (!empty($extra_data['temp_filesystem_path'])) {
-					$path = $extra_data['temp_filesystem_path'];
-					$new_path = preg_replace("%$old_root%", $new_root, $path, 1);
-					if ($new_path != NULL){
-						if (strcmp($new_path, $path) != 0) {
-							$extra_data['temp_filesystem_path'] = $new_path;
-							if ($asset->setExtraData($question_id, $extra_data)){
-								$asset->saveAttributes();
-								echo "Updated Form Submission ID: $asset->id\n";
-							}
+				$record_changed = FALSE;
+				foreach ($fields_to_check as $field) {
+					if (!empty($extra_data[$field])) {
+						$path = $extra_data[$field];
+						$new_path = preg_replace('@^.*/data/((?:public|private)/.*)$@', "$new_root/data/\$1", $path);
+						if ($path !== $new_path) {
+							$extra_data[$field] = $new_path;
+							$record_changed = TRUE;
 						}
-					} else {
-						echo "Failed to update Form Submission ID: $asset->id\n";
 					}
-				} 
-				if (!empty($extra_data['filesystem_path'])) {
-					$path = $extra_data['filesystem_path'];
-					$new_path = preg_replace("%$old_root%", $new_root, $path, 1);
-					if ($new_path != NULL){
-						if (strcmp($new_path, $path) != 0) {
-							$extra_data['filesystem_path'] = $new_path;
-							if ($asset->setExtraData($question_id, $extra_data)){
-								$asset->saveAttributes();
-								echo "Updated Form Submission ID: $asset->id\n";
-							}
-						}
+				 }
+				if ($record_changed) {
+					if ($asset->setExtraData($question_id, $extra_data)){
+						$asset->saveAttributes();
+						echo "Updated Form Submission ID: $asset->id\n";
 					} else {
 						echo "Failed to update Form Submission ID: $asset->id\n";
 					}
