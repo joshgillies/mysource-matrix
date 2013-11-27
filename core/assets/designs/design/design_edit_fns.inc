@@ -295,8 +295,8 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			$str = preg_replace_callback($cmmt_search, "wrap_comment", $str);
 
 			// Line Numbering and cleanup
-			$pre_style	= 'style="size:10px;font-family:helvetica,verdana,sans-serif;"';
-			$line_style	= 'style="color:black;list-style-type:decimal;border-left: thin solid #000000;"';
+			$pre_style	= 'style=""';
+			$line_style	= 'style=""';
 			$lines = explode("\n", $str);
 			$number_of_lines = count($lines);
 			$padding = strlen($number_of_lines);
@@ -305,7 +305,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				$lines[$line_number] = '<li '.$line_style.' value="'.($line_number+1).'">&nbsp;&nbsp;'.$line.'</li>';
 			}
 			$formatted = implode('', $lines);
-			echo '<pre ', $pre_style, '><ol>', $formatted, '</ol></pre>';
+			echo '<pre ', $pre_style, ' class="sq-parse-file-preview"><ol>', $formatted, '</ol></pre>';
 		}
 		return FALSE;
 

@@ -1158,8 +1158,16 @@ class Backend_Outputter
 			</script>
 		</head>
 		<body onload="page_on_load();" onunload="page_on_unload();" class="sq <?php echo $backendPage; ?>">
-		<div id="sq-search-wait-popup"><div id="sq-search-wait-popup-titlebar"><div id="sq-search-wait-popup-close">[ <a href="#" onclick="document.getElementById('sq-search-wait-popup').style.display = 'none'; return false;">x</a> ]</div><span id="sq-search-wait-popup-title">Search in Progress</span></div>
-			<div id="sq-search-wait-popup-details">Your search is being processed, please wait...</div>
+		<div id="sq-search-wait-popup" class="sq-new-message-popup-wrapper">
+			<div id="sq-search-wait-popup-titlebar" class="sq-search-wait-popup-titlebar">
+				<div id="sq-search-wait-popup-close" class="sq-search-wait-popup-close">
+					<a href="#" onclick="document.getElementById('sq-search-wait-popup').style.display = 'none'; return false;"  title="Close">
+						<img src="<?php echo sq_web_path('lib');?>/web/images/icons/cancel.png" />
+					</a>
+				</div>
+				<span id="sq-search-wait-popup-title" class="sq-search-wait-popup-titlebar">Search in Progress</span>
+			</div>
+			<div id="sq-search-wait-popup-details" class="sq-search-wait-popup-details">Your search is being processed, please wait...</div>
 		</div>
 		<form action="<?php echo $this->_action.$this->_anchor;?>" id="main_form" name="main_form" method="post" enctype="multipart/form-data" onclick="changesMade();" onkeypress="changesMade();" onsubmit="return form_on_submit();" class="<?php echo $backendPage; ?>">
 		<?php

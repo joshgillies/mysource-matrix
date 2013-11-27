@@ -78,6 +78,10 @@ blockquote:before, blockquote:after, q:before, q:after {
 	content: 					none;
 }
 
+pre, pre *{
+	font-family: 				'Courier';
+}
+
 * .status-archived{
 	background-color: 			#C2B0A0;
 	border: 					1px solid #887B6F;
@@ -141,13 +145,17 @@ blockquote:before, blockquote:after, q:before, q:after {
 }
 
 .hide, .hidden {
-   display: 					none !important;
+   display: 					none;
 }
 
 .clickable {
 	cursor:						pointer;
-	text-decoration:			underline;
 	font-weight: 				normal;
+}
+
+.sq-txt-highlight-red, 
+.sq-backend-warning { 
+	color: 						#e21420;
 }
 
 .sq-iframe{
@@ -176,6 +184,20 @@ blockquote:before, blockquote:after, q:before, q:after {
 	display:					none;
 }
 
+.sq-no-bottom-border{
+	border-bottom: 				none !important;
+}
+
+.delete-button {
+	background-image:			url(../images/icons/delete.png);
+	background-position: 		50% 50%;
+	background-repeat:			no-repeat;
+	width:						15px;
+	height:						15px;
+	border:						0px;
+	cursor:						pointer;
+}
+
 img.sq-icon  {
 	margin: 					0 5px 0 0;
 	vertical-align: 			middle;
@@ -201,11 +223,13 @@ textarea  {
 	border-radius: 				4px;
 	box-shadow: 				0 2px 4px #eee inset;
 	background-color: 			#fff;
+	margin: 					0 3px 0 0;
 }
 
-textarea{
+textarea {
 	padding: 					4px 6px;
 	font-size: 					12px;
+	line-height: 				16px;
 }
 
 input[type="text"], 
@@ -216,7 +240,6 @@ input[type="password"] {
 	height: 					25px;
 	padding: 					0 6px;
 	color: 						#565656;
-	margin: 					0 3px 0 0;
 }
 
 input[type="text"].sq-form-asset-finder,
@@ -330,7 +353,7 @@ input.sq-btn-blue:hover,
 
 input[type="checkbox"],
 input[type="radio"] {
-	margin: 					0 5px 0 0;
+	margin: 					0 3px 0 0;
 	vertical-align: 			middle;
 }
 
@@ -363,11 +386,28 @@ TOP HEADER FRAME STYLES
 
 .sq-backend-body-wrapper.header{
 	height: 					41px;
+	background: 				#494949 url(../images/bar-noise-bg.png);
+	box-shadow: 				0 -10px 25px -10px rgba(0,0,0,0.7) inset;
+}
+
+.sq-backend-header {
+	width: 						100%;
+	height: 					100%;
+}
+
+.sq-backend-header img {
+	vertical-align: 			middle;
+}
+
+.sq-backend-header label{
+	color: 						#dfdfdf;
+	padding-right: 				10px;
+	text-shadow:				-1px -1px 0 #000;
 }
 
 .sq-matrix-logo {
 	vertical-align: 			middle;
-	margin-right: 				35px;
+	margin: 					-1px 50px 0 10px;
 }
 
 .sq-logged-in-as-text {
@@ -385,6 +425,42 @@ TOP HEADER FRAME STYLES
 	text-shadow:				1px 1px 0 #000;
 }
 
+.sq-text-field-wrapper {
+	display: 					inline-block;
+	height:						28px;
+	background-color: 			#575757;
+	border: 					1px solid #303030;
+	border-radius:				3px;
+	box-shadow: 				0 1px 0 #404040;
+	width: 						auto;
+	border-radius: 				3px;
+	margin-right:				9px;
+	box-shadow: 				1px 1px 0 rgba(255,255,255,0.1), 
+	inset 1px 1px 1px #464545;
+}
+
+input[type=text].sq-backend-header-text-box {
+	vertical-align:				middle;
+	height:						28px;
+	background: 				none;
+	border: 					none;
+	box-shadow: 				none;
+	color: 						#dfdfdf;
+	padding: 					0 0 0 8px;
+	font-size: 					100%;
+	line-height: 				10px;
+	width: 						220px;
+	outline: 					none;
+}
+
+.login input[type=text].sq-backend-header-text-box {
+	padding-right: 					8px;
+}
+
+.sq-backend-header-search-button {
+	vertical-align:				middle;
+}
+
 
 /*
 ####################################################################################################################
@@ -396,12 +472,12 @@ body.main {
 	padding: 					35px 35px 0 5px;
 }
 
-/* Frame header and navigation history */
+/* SCREEN HEADER AND NAVIGATION HISTORY */
 
 .sq-backend-main-header-wrapper {
 	border: 					1px solid #ccc;
 	border-radius: 				4px;
-	margin-bottom: 				25px;
+	margin-bottom: 				30px;
 	background-color: 			#fff;
 	display: 					table;
 	width:						100%;
@@ -421,7 +497,7 @@ body.main {
 	vertical-align:				top;
 }
 
-/* Top header */
+/* TOP HEADER */
 
 .sq-backend-main-header-top {
 	border-top: 				1px solid #fff;
@@ -446,6 +522,11 @@ body.main {
 
 .sq-backend-main-headings .sq-backend-asset-info {
 	white-space:				nowrap;
+}
+
+.sq-backend-main-headings .sq-info-asset-version, 
+.sq-backend-main-headings .sq-info-asset-screen-name {
+	margin-left: 				10px;
 }
 
 .sq-backend-main-heading > span{
@@ -476,7 +557,7 @@ body.main {
 	margin:						-2px 0 0 0;
 }
 
-/* Bottom header (history navigation) */
+/* BOTTOM HEADER (history navigation) */
 
 .sq-backend-nav-history-container {
 	width: 						100%;
@@ -529,6 +610,7 @@ MAIN EDITING FRAME TABLE AND SECTION STRUCTURE
 .sq-backend-body-wrapper.main {
 	display: 					table;
 	width:						100%;
+	margin-bottom:				32px;
 }
 
 .sq-backend-section-table-wrapper {
@@ -541,6 +623,11 @@ MAIN EDITING FRAME TABLE AND SECTION STRUCTURE
 	border-top: 				1px solid #ccc;
 	border-top-left-radius: 	4px;
 	border-top-right-radius: 	4px;
+}
+
+.sq-backend-body-wrapper .sq-backend-section-table-wrapper:last-child > table > tbody > tr:last-child .sq-backend-section-inner-table-wrapper{
+	border-bottom-left-radius: 	4px;
+	border-bottom-right-radius: 4px;
 }
 
 .sq-backend-body-wrapper .sq-backend-section-table-wrapper:last-child{
@@ -579,6 +666,15 @@ MAIN EDITING FRAME TABLE AND SECTION STRUCTURE
 	padding: 					20px 20px 1px;
 }
 
+.sq-backend-section-inner-table-wrapper .sq-backend-section-table-wrapper,
+.sq-backend-section-inner-table-wrapper .sq-backend-section-table-wrapper:last-child{
+	border: 					none;
+}
+
+.sq-backend-section-inner-table-wrapper .sq-backend-section-inner-table-wrapper{
+	padding: 					0;
+}
+
 .sq-backend-section-table {
 	width:						100%;
 }
@@ -591,8 +687,17 @@ MAIN EDITING FRAME TABLE AND SECTION STRUCTURE
 	width: 						100%;
 }
 
-.sq-backend-row > td {
+.sq-backend-section-subheading {
+	font-size: 					14px;
+	color: 						rgb( 244, 244, 244 );
+	font-weight: 				bold;
+	text-align: 				left;
+	color: 						#0090bf;
 	padding-bottom: 			20px;
+}
+
+.sq-backend-row > td {
+	padding-bottom: 			15px;
 }
 
 .sq-backend-field {
@@ -604,16 +709,35 @@ MAIN EDITING FRAME TABLE AND SECTION STRUCTURE
 	font-weight:				bold;
 }
 
+p.sq-backend-field {
+	width: 						auto;
+}
+
 .sq-backend-field-label {
 	color: 						#31435a;
 	font-weight:				bold;
-	margin: 					-2px 0 10px;
+	margin: 					0 0 10px;
 	display: 					block;
 }
 
-.sq-lock-message .clickable {
-	text-decoration:			underline;
-	font-weight: 				normal;
+
+/*
+####################################################################################################################
+ACQUIRE LOCKS AREA
+####################################################################################################################
+*/
+
+.sq-locks-button-wrapper {
+	padding: 					5px 0 19px;
+}
+
+.sq-backend-lock-table {
+	width:						100%;
+	border:						1px solid #003C79;
+}
+
+.sq-backend-button-fake{
+	font-style: 				italic;
 }
 
 
@@ -662,6 +786,7 @@ BACKEND TABLE STYLES
 	box-shadow: 				0 1px 0 #fff inset;
 	border-bottom: 				1px solid #ccc;
 	text-align:					left;
+	vertical-align: 			top;
 }
 
 .sq-backend-table td {
@@ -672,6 +797,71 @@ BACKEND TABLE STYLES
 	border-bottom: 				none;
 }
 
+.sq-backend-data-newline {
+	padding-bottom: 			20px;
+}
+
+.sq-backend-field-newline {
+	width:						100%;
+}
+
+.sq-backend-smallprint, 
+.sq-backend-smallprint b,
+.sq-backend-note {
+	color: 						#777;
+	line-height: 				15px;
+	font-size:					11px;
+}
+
+.sq-backend-note {
+	margin-top:					5px;
+}
+
+.sq-backend-smallprint {
+	margin-top: 				5px;
+}
+
+.sq-backend-section-note-cell {
+  	padding-bottom: 			20px;
+}
+
+.sq-backend-section-note {
+	background: 				#f0f0f0;
+	padding: 					10px;
+	border-radius: 				4px;
+	font-size: 					11px;
+	margin-top: 				10px;
+	line-height: 				15px;
+}
+
+.sq-backend-section-note *{
+	font-size: 					11px;
+}
+
+.sq-backend-fineprint {
+	color:						green;
+}
+
+.sq-backend-smallprint ul {
+	margin-top:					0px;
+}
+
+.sq-backend-notice {
+	letter-spacing:				1px;
+}
+
+.sq-backend-data > pre {
+	border: 					1px solid #CCC;
+	border-radius: 				4px;
+	background: 				#fafafa;
+	overflow: 					hidden;
+	padding: 					5px;
+}
+
+.sq-backend-commit {
+	text-align:					right;
+	padding:					2px;
+}
 
 /*
 ####################################################################################################################
@@ -686,7 +876,7 @@ TOOLBOX POPUP STYLES
 	border: 					1px solid #666;
 	border-radius: 				4px;
 	overflow: 					hidden;
-	box-shadow: 				1px 1px 4px rgba(65, 65, 65, 0.66);
+	box-shadow: 				1px 2px 6px rgba(0, 0, 0, .25);
 	visibility: 				hidden;
 }
 
@@ -788,7 +978,7 @@ BODYCOPY IFRAME POPUP STYLES
 */
 
 .sq-bodycopy-popup-wrapper {
-	box-shadow: 				1px 1px 4px rgba(65, 65, 65, 0.66);
+	box-shadow: 				1px 2px 6px rgba(0, 0, 0, .25);
 	border: 					1px solid #666;
 	border-radius: 				4px;
 	background-color: 			#666;
@@ -890,13 +1080,15 @@ BODYCOPY IFRAME POPUP STYLES
 	border-top: 				1px solid #ccc;
 	background-color: 			#f4f4f4;
 	box-shadow: 				0 1px 0 #fff inset;
-	padding: 					10px;
+	padding: 					6px;
 }
 
 .sq-bodycopy-popup-wrapper tr.sq-popup-footer input {
-	padding: 					5px 0px;
+	padding: 					4px 0px;
 	border-radius: 				4px;
-	width: 						100px;
+	width: 						90px;
+	margin:						0;
+	height: 					auto;
 }
 
 
@@ -906,9 +1098,11 @@ EDIT BODYCOPY STYLES
 ####################################################################################################################
 */
 
-/* General styles */
+/* SECTION AND TABLE STRUCTURE */
 
-.sq-edit-bodycopy-table {
+.sq-edit-bodycopy-table,
+.sq-edit-bodycopy-table table,
+.sq-bodycopy-raw-html-table-wrapper{
 	width: 						100%;
 }
 
@@ -916,18 +1110,27 @@ EDIT BODYCOPY STYLES
 	margin-left: 				5px;
 }
 
-.sq-bodycopy-locked-wrapper{
-	width: 						100%;
-}
-
 .sq-edit-bodycopy-section, 
 .sq-edit-bodycopy-section-locked, 
-.sq-bodycopy-locked-wrapper.content_type_nest_content, 
+.sq-bodycopy-locked-wrapper.content_type_nest_content,
+.sq-bodycopy-locked-wrapper.content_type_raw_html, 
 .sq-edit-bodycopy-insert-container-table{
-	margin: 					10px 0 0;
+	margin: 					20px 0 0;
 	border: 					1px dashed #CCC;
 	border-radius: 				4px;
 	display: 					block;
+}
+
+.sq-bodycopy-locked-wrapper.content_type_raw_html{
+	border: 					none;
+}
+
+.sq-edit-bodycopy-section-locked{
+	margin: 					0 0 0;
+}
+
+.sq-bodycopy-locked-wrapper tr:first-child .sq-edit-bodycopy-section-locked{
+	margin: 					20px 0 0;
 }
 
 .sq-edit-bodycopy-section-locked, 
@@ -946,20 +1149,30 @@ EDIT BODYCOPY STYLES
 	padding-top: 				10px;
 }
 
-.sq-edit-bodycopy-insert-container-table {
-	width: 						100%;
-	border: 					none;
+.sq-edit-bodycopy-section > tbody > tr > td {
+	width: 						2000px; /* This is to fix some weird width bug that I haven't figured out yet. */
 }
 
-.sq-content_type_nest_content-table{
-	width: 						100%;
+.sq-edit-bodycopy-insert-container-table {
+	border: 					none;
+	margin:						30px 0 10px;
+}
+
+.sq-edit-bodycopy-insert-container-table td{
+	vertical-align: 			middle;
+	padding-left: 				10px;
+}
+
+.sq-edit-bodycopy-insert-container-table td:first-child {
+	width: 						25px;
 }
 
 .sq-edit-content-type-wrapper .sq-backend-table {
 	margin-bottom: 				0;
 }
 
-/* Raw HTML editor */
+/* EDITING MODE STYLES */
+
 .sq-content_type_raw_html-wrapper .sq-edit-content-type-wrapper > select{
 	margin: 					0 0 10px;
 }
@@ -968,51 +1181,48 @@ EDIT BODYCOPY STYLES
 	position: 					relative;
 }
 
-.sq-edit-bodycopy-table .sq-content_type_raw_html-table, 
-.sq-edit-bodycopy-table .sq-content_type_snippet-table {
+.sq-content_type_raw_html-table, 
+.sq-content_type_snippet-table {
 	border: 					1px dashed #ccc;
-	width: 						100%;
 }
 
-.sq-edit-bodycopy-table .sq-content_type_raw_html-table td{
+.sq-content_type_raw_html-table td{
 	padding: 10px;
 }
 
-.sq-edit-bodycopy-table .sq-content_type_raw_html-table tr:first-child td, 
+.sq-content_type_raw_html-table tr:first-child td, 
 .sq-edit-bodycopy-table .sq-edit-bodycopy-table tr:first-child td {
 	border-bottom: 				1px dashed #ccc;
 }
 
-.sq-edit-bodycopy-table .sq-content_type_wysiwyg-table {
+.sq-content_type_wysiwyg-table {
 	border: 					1px dashed #ccc;
-	width: 						100%;
 }
 
-.sq-edit-bodycopy-table .sq-content_type_wysiwyg-table tr td {
+.sq-content_type_wysiwyg-table td {
 	border-bottom: 				1px dashed #ccc;
-	border-right: 				1px dashed #ccc;
 }
 
-.sq-edit-bodycopy-table .sq-content_type_wysiwyg-table tr:last-child td, 
-.sq-edit-bodycopy-table .sq-edit-bodycopy-table tr:last-child td {
+.sq-content_type_wysiwyg-table tr:last-child td, 
+.sq-edit-bodycopy-table tr:last-child td {
 	border-bottom: 				none;
 }
 
-.sq-edit-bodycopy-table .sq-content_type_wysiwyg-table tr td:last-child {
+.sq-content_type_wysiwyg-table td:last-child {
 	border-right: 				none;
 }
 
-.sq-edit-bodycopy-table .sq-bodycopy-container-edit-table-wrapper .sq-bodycopy-container-edit-table-table tr td:first-child {
+.sq-bodycopy-container-edit-table-table td:first-child {
 	width: 20px;
 }
 
-.sq-bodycopy-container-edit-table-table tr td, 
+.sq-bodycopy-container-edit-table-table td, 
 .sq-content_type_nest_content-table > tbody > tr:first-child > td{
 	border-right: 				1px dashed #ccc;
 	border-bottom: 				1px dashed #ccc;
 }
 
-.sq-bodycopy-container-edit-table-wrapper tr > td:last-child .sq-bodycopy-container-edit-table-table tr td, 
+.sq-bodycopy-container-edit-table-wrapper td:last-child .sq-bodycopy-container-edit-table-table td, 
 .sq-content_type_nest_content-table > tbody > tr:first-child > td{
 	border-right: 				none;
 }
@@ -1029,470 +1239,190 @@ EDIT BODYCOPY STYLES
 	border-top: 				none;
 }
 
-.sq-edit-bodycopy-table tr td.sq-bodycopy-container-cell table.sq-content_type_nest_content-table tr td.sq-content_type_nest_content-wrapper table.sq-backend-table tr td.sq-backend-table-cell table {
-	width: 						100%;
-	border: 					1px solid #ccc;
-}
-
-.sq-edit-bodycopy-insert-container-table td, 
 .sq-content_type_wysiwyg-table td, 
 .sq-content_type_nest_content-table td{
 	padding: 					10px;
 }
 
-.sq-edit-bodycopy-insert-container-table tr td:first-child {
-	width: 						25px;
-}
-
-.sq-edit-bodycopy-insert-container-table tr td.sq-backend-data {
-	padding-left: 				0;
-}
-
-.sq-edit-bodycopy-table tr .sq-bodycopy-container-cell .sq-bodycopy-container-edit-table-wrapper tr td {
+.sq-bodycopy-container-edit-table-wrapper td {
 	padding: 					0;
 }
 
-.sq-edit-bodycopy-table tr .sq-bodycopy-container-cell .sq-bodycopy-container-edit-table-wrapper tr td .sq-bodycopy-container-edit-table-table tr td {	
+.sq-bodycopy-container-edit-table-table td {	
 	margin-bottom: 				10px;
 	vertical-align: 			top;
 	padding: 					10px;
 }
 
-.sq-edit-bodycopy-table tr td.sq-bodycopy-container-cell .sq-bodycopy-container-edit-table-wrapper, 
-.sq-edit-bodycopy-table tr td.sq-bodycopy-container-cell .sq-bodycopy-container-edit-table-wrapper .sq-bodycopy-container-edit-table-table {
+
+/*
+####################################################################################################################
+EDIT PARSE FILE STYLES
+####################################################################################################################
+*/
+
+pre.sq-parse-file-preview {
+	padding: 					0;
+	background: 				#eaeaea;
+}
+
+.sq-parse-file-preview ol {
+	color: 						#565656;
+	margin: 					0 0 0 45px;
+	padding: 					5px;
+	border-left: 				1px solid #CCC;
+	background: 				#fafafa;
+}
+
+.sq-parse-file-preview li {
+	padding: 					0;
+	margin:						0;
+	text-indent:				-10px;
+}
+
+
+/*
+####################################################################################################################
+TRIGGER EDITING STYLES
+####################################################################################################################
+*/
+
+.sq-triggers-events-wrapper{
+	padding-left:				2px;
+}
+
+.sq-triggers-events-wrapper table{
 	width: 						100%;
 }
 
-.sq-backend-data pre ol {
-	margin-left: 				20px;
-	color: 						#565656;
-}
-
-.sq-backend-data pre ol li {
-	padding: 					5px 0;
-	border-left: 				1px solid #ccc;
-
-}
-
-.sq-backend-section-heading {
-	height: 					16px;
-	line-height: 				16px;
-}
-
-.sq-table-input-btn {
-	margin-top: 				10px;
-}
-
-.sq-backend-data.sq-backend-data-newline {
-	vertical-align: 			middle;
-}
-
-.sq-new-message-table tr td, 
-.sq-new-message-table tr:last-child td {
-	vertical-align: 			middle;
-	padding-bottom: 			10px;
+.sq-triggers-events-wrapper td{
+	line-height: 				20px;
+	padding-right:				30px;
+	width:						25%;
 }
 
 .sq-backend-triggers-component-wrapper {
-	border-radius: 				4px;
-	border: 					1px solid #ccc !important;
+	margin-bottom: 				20px;
+	overflow: 					hidden;
 }
 
 .sq-backend-triggers-component-header {
-	background-color: 			#eee !important;
-	height: 					40px;
-	line-height: 				40px;
-	color: 						#545454;
-	font-size: 					12px;
-	border-top: 				1px solid #fff;
-	border-top-left-radius: 	4px;
-	border-top-right-radius: 	4px;
-	padding-left: 				20px !important;
-	height: 					40px !important;
-	line-height: 				40px !important;
+	background-color:			#666;
+	color: 						#fff;
+	padding: 					8px;
+	font-weight: 				bold;
+	text-align: 				right;
+	border-radius: 				4px 4px 0 0;
+	border: 					1px solid #666;
+	border-bottom: 				none;
+}
+
+.sq-backend-triggers-component-type-info{
+	float: 						left;
+}
+
+.sq-backend-triggers-component-controls a{
+	float: 						right;
+	margin-left: 				5px;
+}
+
+.sq-backend-triggers-component-controls label{
+	font-weight: 				normal;
 }
 
 .sq-backend-triggers-component-global-options {
-	background-color: 			#fff !important; 
-	border-top: 				1px solid #ccc !important;
-	border-bottom: 				1px solid #ccc !important;
-	padding-left: 				20px !important;
-	height: 					40px !important;
-	line-height: 				40px !important;
-	text-align: 				left !important;
+	background-color: 			#F0F0F0; 
+	border: 					1px solid #ccc;
+	border-top: 				none;
+	padding: 					9px;
+	background: 				#f7f7f7;
+}
+
+.sq-backend-triggers-component-global-options label{
+	margin-right:				20px;
 }
 
 .sq-backend-triggers-component-body {
-	height: 					40px !important;
-	line-height: 				40px !important;
-	padding-left: 				20px !important;
+	padding: 					8px;
+	border-radius: 				0 0 4px 4px;
+	border: 					1px solid #ccc;
+	border-top: 				none;
 }
 
-td.sq-backend-data + .inbox-continer {
+.sq-backend-triggers-component-body .sq-backend-table {
+	margin-bottom: 				0;
+}
+
+.sq-backend-triggers-component-body .sq-backend-table th {
+	line-height: 				16px;
+}
+
+.sq-backend-triggers-component-body .sq-backend-table tr:last-child th {
+	border-bottom: 				none;
+}
+
+
+/*
+####################################################################################################################
+DROP DOWN POPUP STYLES
+####################################################################################################################
+*/
+
+/* GLOBAL POPUP STYLES */
+
+.sq-new-message-popup-wrapper{
+	border: 					1px solid #CCC;
+	border-radius:				0 0 4px 4px;
+	overflow: 					hidden;
+	background:					#fff;
+	box-shadow: 				1px 2px 6px rgba(0, 0, 0, .25);
+	margin-top: 				-1px;
+	padding:					6px 8px;
+	min-width:					300px;
+}
+
+.sq-new-message-popup-wrapper table{
 	width: 						100%;
 }
 
-.bodytext tr td {
-	vertical-align: 			middle;
-}
-
-td.bodycopyContainerCell {
-	padding: 					0px;
-}
-
-.sq-pagination-links, 
-.sq-pagination-links.sq-no-bottom-border {
+.sq-popup-pagination {
 	text-align: 				center;
-	background-color: 			#eee;
-	font-weight: 				normal;
 }
 
-.sq-backend-data p {
-	text-align: 				left;
-}
-
-.sq_preview_new_window {
-	font-weight: 				normal;
-	text-decoration: 			none;
-}
-
-.sq_preview_new_window:hover {
-	text-decoration: 			underline !important;
-}
-
-.sq-backend-section-table-inner tr select {
-	margin-right: 				5px;
-}
-
-tr < .sq-backend-section-subheading {
-	height: 					10px;
-}
-
-.sq-txt-highlight-red, 
-.sq-backend-warning { 
-	color: 						#e21420;
-}
-
-.sq-info-asset-version, 
-.sq-info-asset-screen-name {
-	margin-left: 				10px;
-}
-
-.sq-commit-button-div-inside .sq-changes-made-message {
-	margin-right: 				10px;
-	color: 						#999;
-}
-
-
-
-
-
-
-
-/*
-####################################################################################################################
-GENERAL STYLES
-####################################################################################################################
-*/
-
-td.sq-backend-data-newline {
-	padding-bottom: 			20px;
-}
-
-td.sq-backend-field-newline {
-	width:						100%;
-}
-
-td.sq-backend-commit {
-	text-align:					right;
-	padding:					2px;
-}
-
-.sq-backend-smallprint, 
-.sq-backend-smallprint b {
-	color: 						#777;
-	margin-top: 				5px;
-	line-height: 				18px;
-	font-size:					11px;
-}
-
-.sq-backend-section-note-cell {
-  	padding-bottom: 20px;
-}
-
-.sq-backend-section-note-cell .sq-backend-section-note { 
-  margin-top: 0;
-}
-
-.sq-backend-section-note {
-	background: 				#f4f4f4;
-	padding: 					20px;
-	border-radius: 				4px;
-	line-height: 				20px;
-	font-size: 					12px;
-	margin-top: 				20px;
-}
-
-.sq-backend-fineprint {
-	color:						green;
-}
-
-.sq-backend-smallprint ul {
-	margin-top:					0px;
-}
-
-.sq-backend-notice {
-	letter-spacing:				1px;
-}
-
-
-
-/*
-####################################################################################################################
-TOPNAV STYLES - also used in sidenav
-####################################################################################################################
-*/
-
-.sq-backend-header {
-	width: 						100%;
-	height: 					100%;
-	background: 				#494949 url(../images/bar-noise-bg.png);
-	box-shadow: 				0 -10px 25px -10px rgba(0,0,0,0.7) inset;
-}
-
-.sq-matrix-logo {
-	margin: 					-1px 50px 0 10px;
-}
-
-.sq-backend-header tr img {
-	vertical-align: 			middle;
-}
-
-td.sq-backend-header-item {
-	background: 				none;
-	border: 					none;
-}
-
-input.sq-backend-header-item {
+.sq-backend-popup-cell, 
+.sq-backend-popup-heading, 
+.sq-backend-popup-body {
+	vertical-align:				top;
 	text-decoration:			none;
-	padding-left:				3px;
-	padding-right:				3px;
-	color: 						#f4f4f4;
 }
 
-label.sq-backend-header-item {
-	color: 						#dfdfdf;
-	padding-right: 				10px;
-	text-shadow:				-1px -1px 0 #000;
-}
-
-input.sq-backend-header-search-box {
-}
-
-.sq-text-field-wrapper {
-	display: 					inline-block;
-	height:						28px;
-	background-color: 			#575757;
-	border: 					1px solid #303030;
-	border-radius:				3px;
-	box-shadow: 				0 1px 0 #404040;
-	width: 						auto;
-	border-radius: 				3px;
-	margin-right:				9px;
-	box-shadow: 				1px 1px 0 rgba(255,255,255,0.1), 
-	inset 1px 1px 1px #464545;
-}
-
-input[type=text].sq-backend-header-text-box {
-	vertical-align:				middle;
-	height:						28px;
-	background: 				none;
-	border: 					none;
-	box-shadow: 				none;
-	color: 						#dfdfdf;
-	padding: 					0 0 0 8px;
-	font-size: 					100%;
-	line-height: 				10px;
-	width: 						220px;
-	outline: 					none;
-}
-
-.login input[type=text].sq-backend-header-text-box {
-	padding: 					0 8px 0 8px;
-}
-
-input.sq-backend-header-search-button {
-	vertical-align:				middle;
-}
-
-
-/*
-####################################################################################################################
-BACKEND OUTPUTTER - SECTIONS AND FIELDS
-####################################################################################################################
-*/
-
-
-
-p.sq-backend-field {
-	color: 						#565656;
+.sq-backend-popup-heading {
 	font-weight: 				bold;
-	margin-bottom: 				10px;
-	padding-right: 				10px;
-	width: 						15%;
-	vertical-align: 			top;
 }
 
+/* SEARCH WAIT POPUP */
 
-/*
-####################################################################################################################
-LIMBO OUTPUTTER - SECTIONS AND FIELDS
-####################################################################################################################
-*/
-
-.sq-limbo-section-heading {
-	border-bottom:				1px solid black;
+#sq-search-wait-popup {
+	position: 					absolute;
+	right: 						17px;
+	top: 						0;
+	display: 					none;
+	z-index: 					2000;
 }
 
-.sq-limbo-section-subheading {
+.sq-search-wait-popup-titlebar {
+	font-weight: 				bold;
 }
 
-.sq-limbo-field {
-	vertical-align:				top;
-	white-space:				nowrap;
-	padding:					0px 10px 0px 0px;
+.sq-search-wait-popup-close {
+	float: 						right;
 }
 
-
-
-
-
-
-
-/*
-####################################################################################################################
-LOCKING STYLES
-####################################################################################################################
-*/
-
-.sq-locks-button-wrapper {
-	padding: 					5px 0 19px;
-}
-
-.sq-backend-lock-table {
-	width:						100%;
-	border:						1px solid #003C79;
-}
-
-td.sq-backend-lock-table-header, 
-td.sq-backend-lock-table-cell, 
-td.sq-backend-lock-table-cell-alt {
-	vertical-align:				top;
-}
-
-td.sq-backend-lock-table-header {
-	border-bottom:				1px solid #003C79;
-}
-
-.sq-backend-button-fake{
+.sq-search-wait-popup-details {
 	font-style: 				italic;
 }
 
 
-/*
-####################################################################################################################
-ASSET FINDER
-####################################################################################################################
-*/
-
-.sq-asset-finder-id-label {
-	margin-right: 				10px;
-	padding-left: 				5px;
-	position: 					relative;
-}
-
-* html .sq-asset-finder-id-label {
-	top: 						0;
-}
-
-
-/*
-####################################################################################################################
-NEW MESSAGES POPUP STYLES
-####################################################################################################################
-*/
-
-.sq-backend-new-message-table {
-	border:						2px solid #594165;
-	width:						100%;
-}
-
-.sq-backend-new-message-cell, 
-.sq-backend-new-message-heading, 
-.sq-backend-new-message-body {
-	vertical-align:				top;
-	padding:					4px;
-	text-decoration:			none;
-}
-
-
-/* SEARCH RESULTS POPUP STYLES */
-
-.sq-backend-search-results-table {
-	border:						2px solid #594165;
-	width:						100%;
-	z-index: 					1;
-}
-
-.sq-backend-search-results-cell, 
-.sq-backend-search-results-heading, 
-.sq-backend-search-results-body {
-	vertical-align:				top;
-	padding:					4px;
-	text-decoration:			none;
-}
-
-
-/* POPUP BLOCKING MESSGAE */
-
-.sq-backend-popups-blocked-table {
-	border:						2px solid #790E09;
-	width:						100%;
-}
-
-.sq-backend-popups-blocked-cell, 
-.sq-backend-popups-blocked-heading, 
-.sq-backend-popups-blocked-body {
-	vertical-align:				top;
-	padding:					4px;
-	text-decoration:			none;
-}
-
-
-/* SEARCH FAILED POPUP STYLES */
-
-.sq-backend-search-failed-table {
-	border:						2px solid #594165;
-	width:						300px;
-}
-
-.sq-backend-search-failed-cell, 
-.sq-backend-search-failed-heading, 
-.sq-backend-search-failed-body {
-	vertical-align:				top;
-	padding:					4px;
-	text-decoration:			none;
-}
-
-.delete-button {
-	background-image:			url(../images/icons/delete.png);
-	background-position: 		50% 50%;
-	background-repeat:			no-repeat;
-	width:						15px;
-	height:						15px;
-	border:						0px;
-	cursor:						pointer;
-}
 
 button.delete-button { 
 	background-color: #fff;
@@ -1562,36 +1492,6 @@ a.sq-search-results-expand-link {
 	text-indent:				0px;
 }
 
-#sq-search-wait-popup {
-	position: 					absolute;
-	right: 						10px;
-	top: 						0;
-	width: 						300px;
-	border: 					2px solid #000;
-	font: 						normal 0.87em Arial, 
-	Verdana, 
-	sans-serif;
-	display: 					none;
-	z-index: 					2000;
-}
-
-#sq-search-wait-popup-titlebar {
-	padding: 					5px;
-}
-
-#sq-search-wait-popup-close {
-	float: 						right;
-}
-
-#sq-search-wait-popup-close a {
-	color: 						black;
-	text-decoration: 			none;
-}
-
-#sq-search-wait-popup-details {
-	padding: 					5px;
-}
-
 
 /*
 ####################################################################################################################
@@ -1638,10 +1538,10 @@ ul.radio-list {
 }
 
 .enable-field-list li input {
-	position: 					absolute;
 }
 
 .enable-field-list li div {
+	display: inline;
 }
 
 .enable-field-list li div input {
@@ -1674,10 +1574,6 @@ ul.radio-list {
 	border: 					1px solid #252525;
 }
 
-#sq-commit-button-spacer {
-	height: 					32px;
-}
-
 #sq_context_switcher_current {
 }
 
@@ -1697,7 +1593,20 @@ ul.radio-list {
 
 /*
 ####################################################################################################################
-SIDENAV RESIZER
+USER INBOX AND MESSAGING STYLES
+####################################################################################################################
+*/
+
+.sq-new-message-table td, 
+.sq-new-message-table tr:last-child td {
+	vertical-align: 			middle;
+	padding-bottom: 			10px;
+}
+
+
+/*
+####################################################################################################################
+SIDENAV RESIZER FRAME STYLES
 ####################################################################################################################
 */
 
@@ -1766,22 +1675,13 @@ LEFT SIDEBAR FRAME STYLES
 }
 
 
-/* Miscellaneous specific overwriting styles */
+/*
+####################################################################################################################
+MISCELLANEOUS STYLES
+####################################################################################################################
+*/
 
-.sq-no-bottom-border{
-	border-bottom: none !important;
-}
-
-.sq-backend-section-subheading {
-	font-size: 					14px;
-	color: 						rgb( 244, 
-		244, 
-	244 );
-	font-weight: 				bold;
-	text-align: 				left;
-	color: 						#0090bf;
-	padding-bottom: 			20px;
-}
+/* ASSET TREE SCREEN */
 
 .sq-backend-section-table-inner tr td .sq-asset-tree tr td, 
 .sq-backend-section-table-inner tr td .sq-asset-tree tr td table tr td {
@@ -1789,5 +1689,37 @@ LEFT SIDEBAR FRAME STYLES
 	height: 					0;
 }
 
+/* ASSET FINDER ELEMENTS */
+
+.sq-asset-finder-id-label{
+	margin:						0 6px;
+}
+
+/* PAGINATION ON TABLES */
+
+.sq-pagination-links, 
+.sq-pagination-links.sq-no-bottom-border {
+	text-align: 				center;
+	background-color: 			#eee;
+	font-weight: 				normal;
+}
 
 
+/*
+####################################################################################################################
+LIMBO OUTPUTTER - SECTIONS AND FIELDS
+####################################################################################################################
+*/
+
+.sq-limbo-section-heading {
+	border-bottom:				1px solid black;
+}
+
+.sq-limbo-section-subheading {
+}
+
+.sq-limbo-field {
+	vertical-align:				top;
+	white-space:				nowrap;
+	padding:					0px 10px 0px 0px;
+}

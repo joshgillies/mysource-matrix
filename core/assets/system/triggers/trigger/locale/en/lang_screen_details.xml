@@ -46,7 +46,7 @@
 			<paint_function   name="paintConditions" />
 			<process_function name="processConditions" />
 		</function_call>
-		<note>Here you specify the conditions that must be satisfied before the actions are allowed to perform. Note that order is important. New conditions are added to the bottom of the list with default settings. If you add a condition, but do not change it's settings it will automatically fail. Some condition types can only be used once in a trigger. Triggers marked with a * can be added multiple times.</note>
+		<note>Here you specify the conditions that must be satisfied before the actions are allowed to perform. Note that order is important. New conditions are added to the bottom of the list with default settings. If you add a condition, but do not change it's settings it will automatically fail. Some condition types can only be used once in a trigger.</note>
 	</section>
 	<section name="Actions">
 		<function_call>

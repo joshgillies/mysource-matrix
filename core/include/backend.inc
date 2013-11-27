@@ -600,7 +600,7 @@ class Backend extends MySource_Object
 					$html = $this->_getDHTMLMessage(translate('search_failed'), translate($msg, htmlspecialchars($_POST['asset_search'])), 'search-failed', 'info');
 					$dhtml_messages['search_failed'] = Array('html' => str_replace("\n", '', $html), 'width' => '400', 'timeout' => 6.0);
 				} else {
-					$detail_lines[] = '<strong>'.'Matched on Keyword ('.count($results).' asset'.(count($results) == 1 ? '' : 's').'):'.'</strong>';
+					$detail_lines[] = '<span>'.'Matched on Keyword ('.count($results).' asset'.(count($results) == 1 ? '' : 's').'):'.'</span>';
 					$i = 0;
 
 					foreach ($results as $result_assetid => $result_detail) {
@@ -710,10 +710,10 @@ class Backend extends MySource_Object
 					$results_per_page = min(count($result_list), $GLOBALS['SQ_SYSTEM']->getUserPrefs('search_manager', 'SQ_SEARCH_BACKEND_PAGE_SIZE'));
 
 					if (count($result_list) > $results_per_page) {
-						$keyword_match_line[] = '<div align="center">
+						$keyword_match_line[] = '<div class="sq-popup-pagination">
 						<a href="" onclick="jumpToSearchResults(current = 0); return false;" title="Go back to first page">&lt;&lt;</a> &nbsp;
 						<a href="" onclick="jumpToSearchResults(current = Math.max(current - '.$results_per_page.', 0)); return false;" title="Go back one page">&lt;</a> &nbsp;
-						<strong>( <span id="sq-search-results-page-start">1</span> - <span id="sq-search-results-page-end">'.min(count($result_list), $results_per_page).'</span> )</strong> &nbsp;
+						<span>( <span id="sq-search-results-page-start">1</span> - <span id="sq-search-results-page-end">'.min(count($result_list), $results_per_page).'</span> )</span> &nbsp;
 						<a href="" onclick="jumpToSearchResults(current = Math.min(current + '.$results_per_page.', Math.floor((parent.frames['."'sq_main'".'].keyword_search_results.length - 1) / '.$results_per_page.') * '.$results_per_page.')); return false;" title="Go forward one page">&gt;</a> &nbsp;
 						<a href="" onclick="jumpToSearchResults(current = Math.floor((parent.frames['."'sq_main'".'].keyword_search_results.length - 1) / '.$results_per_page.') * '.$results_per_page.'); return false;" title="Go forward to last page">&gt;&gt;</a></a></div>';
 					}
@@ -907,7 +907,7 @@ class Backend extends MySource_Object
 					msgDiv.innerHTML = popupContents[messageIndex]['html'];
 					currentTimeout = popupContents[messageIndex]['timeout'];
 					msgDiv.style.width = popupContents[messageIndex]['width'] + "px";
-					msgDiv.style.right = "10px";
+					msgDiv.style.right = "17px";
 
 					setTimeout("showMsgDiv()", 500);
 					messageIndex++;
@@ -939,6 +939,7 @@ class Backend extends MySource_Object
 					if (msgDiv == null) {
 						msgDiv = parent.frames["sq_main"].document.createElement("div");
 						msgDiv.id = "new_message_popup";
+						msgDiv.className = "sq-new-message-popup-wrapper";
 						msgDiv.style.position = "absolute";
 						msgDiv.style.display = "block";
 						msgDiv.style.top = "-1000px";
@@ -1371,8 +1372,8 @@ class Backend extends MySource_Object
 						</tr>-->
 					</table>
 
-					<div id="system_version">
-						<a href="<?php echo SQ_SYSTEM_URL;?>" class="sq-backend-header-item" target="_blank" style="text-decoration:none;" <?php
+					<div id="system_version" class="sq-system-version-note">
+						<a href="http://manuals.matrix.squizsuite.net/patches" class="sq-backend-header-item" target="_blank" <?php
 							if (defined('SQ_LICENCE_INSTALL_KEY')) {
 								echo ' title="Install Key: '.SQ_LICENCE_INSTALL_KEY.'"';
 							}
@@ -1643,15 +1644,19 @@ class Backend extends MySource_Object
 		if (!is_array($detail)) $detail = Array($detail);
 
 		$html = '
-			<table class="sq-backend-'.$style.'-table">
+			<table class="sq-backend-popup-table" id="popup-'.$style.'">
 			<tr>
 			';
 		if (!empty($icon)) {
-			$html .= '		<td rowspan="'.(1 + count($detail)).'" width="'.$icon_width.'" valign="middle" class="sq-backend-'.$style.'-heading">'.sq_get_icon(sq_web_path('lib').'/web/images/icons/'.$icon.'.png', $icon_width, $icon_height, '', '', 'align="absmiddle"').'</td>';
+			$html .= '<td rowspan="'.(1 + count($detail)).'" width="'.$icon_width.'" valign="middle" class="sq-backend-popup-heading">'.sq_get_icon(sq_web_path('lib').'/web/images/icons/'.$icon.'.png', $icon_width, $icon_height, '', '', 'align="absmiddle"').'</td>';
 		}
 		$html .= '
-					<td class="sq-backend-'.$style.'-heading" nowrap="nowrap">'.$title.'</td>
-					<td class="sq-backend-'.$style.'-heading" align="right">[<a class="sq-backend-'.$style.'-heading" href="#" onClick="Javascript: parent.frames[\'sq_header\'].cancelMsgDiv(); return false;">x</a>]</td>
+					<td class="sq-backend-popup-heading" nowrap="nowrap">'.$title.'</td>
+					<td class="sq-backend-popup-heading" align="right">
+						<a class="sq-backend-popup-heading" href="#" onClick="Javascript: parent.frames[\'sq_header\'].cancelMsgDiv(); return false;"  title="Close">
+							<img src="'.sq_web_path('lib').'/web/images/icons/cancel.png" />
+						</a>
+					</td>
 				</tr>
 			';
 

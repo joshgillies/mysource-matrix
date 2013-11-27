@@ -1248,6 +1248,7 @@
 	<string source="no_event_selected">No Events Were Selected</string>
 	<string source="select_to_add">Select to Add</string>
 	<string source="some_conditions_can_only_be_added_once">Some conditions can only be added once.</string>
+	<string source="conditions_marked_with_can_only_be_added_once">Conditions marked with a * can only be added once.</string>
 	<string source="no_conditions_specified">No Conditions Specified</string>
 	<string source="ignore_permissions">Ignore Permissions</string>
 	<string source="inverse_condition">Inverse this condition (&lt;strong&gt;Note:&lt;/strong&gt; this can decrease system performance as probably more assets will be affected)</string>

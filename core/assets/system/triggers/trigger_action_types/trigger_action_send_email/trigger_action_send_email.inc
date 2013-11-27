@@ -265,7 +265,7 @@ class Trigger_Action_Send_Email extends Trigger_Action
 					if ($write_access) {
 						check_box($prefix.'[to_owner]', 1, $to_owner);
 						label(translate('trigger_send_to_active_user'), $prefix.'[to_owner]');
-						echo '<div class="sq-backend-note" style="margin-left: 10ex">'.translate('trigger_send_to_active_user_note').'</div>';
+						echo '<div class="sq-backend-note">'.translate('trigger_send_to_active_user_note').'</div>';
 					} else {
 						?>
 						<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($to_owner ? 'tick' : 'cross'); ?>.gif" width="15" height="15" />
