@@ -3242,7 +3242,10 @@ class Asset_Manager extends MySource_Object
 						$asset = $this->getAsset($use_bridge);
 						if (!is_null($asset)) {
 							// Always force an array in this case, and merge it in
-							$link = $asset->getLinkByAsset($majorid, $minorid, $link_types, $value, $side_of_link, TRUE, $dependant, $exclusive);
+							if (method_exists($asset, 'getLinkByAsset') === TRUE) {
+								$link = $asset->getLinkByAsset($majorid, $minorid, $link_types, $value, $side_of_link, TRUE, $dependant, $exclusive);
+							}
+
 							$this->forgetAsset($asset);
 						}
 						$shadow_links = array_merge($shadow_links, $link);
@@ -4157,7 +4160,7 @@ class Asset_Manager extends MySource_Object
 
 			$parents = $parents + $shdw_parents + $real_parents;
 
-			    $this->forgetAsset($asset);
+			$this->forgetAsset($asset);
 			return $parents;
 		}//end if shadow asset
 
@@ -9008,14 +9011,15 @@ class Asset_Manager extends MySource_Object
 				if (empty($pathToFix) === FALSE) {
 					$where .= ' AND p.path LIKE :pathToFix';
 
-					// if it's a file name, digits is added to file name part before extension
 					$extension = strrchr($pathToFix,'.');
-					if($extension === FALSE) {
-					    $bindVars['pathToFix'] = $pathToFix.'%';
-					}
-					else {
-					    $pathToFix = substr($pathToFix, 0, strrpos($pathToFix, $extension));
-					    $bindVars['pathToFix'] = $pathToFix.'%'.$extension;
+					if($extension !== FALSE || $major instanceof File) {
+						$pathToFix = substr($pathToFix, 0, strrpos($pathToFix, $extension));
+						$bindVars['pathToFix'] = $pathToFix.'%'.$extension;
+					} else if ($extension === FALSE) {
+						$bindVars['pathToFix'] = $pathToFix.'%';
+						// make sure we don't pick up anything with an extension
+						$where .= ' and p.path NOT LIKE :pathToIgnore';
+						$bindVars['pathToIgnore'] = '%.%';
 					}
 				}
 
@@ -9089,7 +9093,9 @@ class Asset_Manager extends MySource_Object
 			 */
 			$paths[$fixid] = increment_filename($last_path);
 		}
+
 		return $paths;
+
 	}//end webPathsInUse()
 
 

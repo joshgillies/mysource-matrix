@@ -169,6 +169,11 @@ class TRIM_Saved_Search extends Data_Source
 				$new_object_list	= $this->getTRIMRecords($connection);
 			}//end if
 
+			// if no results are returned, it  indictates a serious trim problem. don't go ahead and delete all local files.
+			if(!isset($new_object_list) || (isset($new_object_list) && empty($new_object_list))) {
+			    return FALSE;
+			}
+			
 			$updated = FALSE;
 
 			$result_uris		= $this->resultUris($result);

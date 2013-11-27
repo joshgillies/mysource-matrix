@@ -1549,6 +1549,8 @@ class JS_Api extends Page
 	*
 	* @return array
 	* @access private
+	*
+	* @see createAssociation
 	*/
 	private function _createLink($args=Array(), $asset=NULL, $read_access=FALSE, $write_access=FALSE)
 	{
@@ -1568,7 +1570,7 @@ class JS_Api extends Page
 			$is_dependant	= isset($args['is_dependant']) ? $args['is_dependant'] : 0;
 			$is_exclusive	= isset($args['is_exclusive']) ? $args['is_exclusive'] : 0;
 
-			$data = $this->createLink($parent->id, $asset->id, $link_type, $link_value, $sort_order, $is_dependant, $is_exclusive);
+			$data = $this->createAssociation($parent->id, $asset->id, $link_type, $link_value, $sort_order, $is_dependant, $is_exclusive);
 		} else {
 			$data['error'] = 'You do not have permission to access this asset';
 		}//end else
@@ -2975,7 +2977,7 @@ class JS_Api extends Page
 	* @return array
 	* @access public
 	*/
-	function createLink($parent, $child, $link_type, $link_value, $sort_order, $is_dependant, $is_exclusive)
+	function createAssociation($parent, $child, $link_type, $link_value, $sort_order, $is_dependant, $is_exclusive)
 	{
 		if (!empty($parent) && !empty($child)) {
 			// Set some shortcuts
@@ -2998,7 +3000,7 @@ class JS_Api extends Page
 			$this->returnError('Missing information to create link. Make sure parent id and child are provided');
 		}//end else
 
-	}//end CreateAssetLink()
+	}//end createAssociation:()
 
 
 	/**
