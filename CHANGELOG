@@ -1,5 +1,49 @@
 SQUIZ MATRIX CHANGELOG
 
+VERSION 4.16.5
+
+Bug Fixes
+=================================== 
+
+Core
+
+Fixed Bug #6497: Web paths behave strangely when mixing extensions.
+Fixed Bug #6504: Signature of JS_Api::createLink() is not compatible with Asset::createLink.
+Fixed Bug #6606: Global keywords in _edit mode. 
+Fixed Bug #6609: what's new page sorting. 
+Fixed Bug #6618: Redis Cache handler bug. 
+Fixed Bug #6627: Multiple set metadata value trigger actions with same field ID cannot set different values. 
+Fixed Bug #6633: Image Variety Trigger missing square option. 
+Fixed Bug #6642: getKeyFromValue of metadata Field select does not return the correct value. 
+Fixed Bug #6649: Matrix insert link plugin adding the current url to the link in compatible mode on IE. 
+Fixed Bug #6655: Use Default checkbox for Metadata Multiple Text fields errors if apostrophe in default value. 
+Fixed Bug #6678: preview screen some JS errors. 
+Fixed Bug #6689: keyword used in login design would cause fatal error. 
+
+CMS
+
+Fixed Bug #6626: Locking issues on forms with workflows applied.
+Fixed Bug #6650: Previous button HTML is malformed on multi-page form.  
+
+Calendar
+
+Fixed Bug #6568: Rolling calendar doesn't handle February at the end of longer months.
+Fixed Bug #6632: Upcoming Events not rendering the %event_list% keyword if there are no events. 
+Fixed Bug #6686: Events ordering not consistent across different days in the Calendar Page.  
+
+Squid
+
+Fixed Bug #6623: Upgrading to 4.16.3 or beyond causes errors when existing Squid purge trigger action runs. 
+
+TRIM
+
+Fixed Bug #6685: trim error could cause previously downloaded file to be deleted.  
+
+SAML
+
+Fixed Bug #6693: SAML Account Manager Parse Metadata XML produces broken PHP.
+
+
 
 VERSION 4.16.4
 
