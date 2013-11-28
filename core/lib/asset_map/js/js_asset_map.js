@@ -858,8 +858,17 @@ var JS_Asset_Map = new function() {
 
 		dfx.addEvent(dfx.getId('asset_map_button_restore'), 'click', function() {
 			// Teleport back to root.
+			// If a custom root is set and we're already on that root, we go
+			// back to the Root Folder (#1). Clicking again will restore the
+			// custom root.
 			if (options.simple === false) {
-				self.teleport(options.teleportRoot, null);
+			    var tree        = self.getCurrentTreeElement();
+			    var currentRoot = tree.getAttribute('data-parentid');
+			    if (String(options.teleportRoot) === String(currentRoot)) {
+			        self.teleport(1, 1);
+			    } else {
+			        self.teleport(options.teleportRoot, options.teleportLink);
+				}
 			}
 		});
 
