@@ -476,6 +476,12 @@ class SOAP_Common
 			return $soap_client;
 		}
 
+		// Don't pass these parameters if login is not required
+		if (empty($options['login']) && empty($options['password'])) {
+			unset($options['login']);
+			unset($options['password']);
+		}
+
 		try {
 			$soap_client = new SoapClient($wsdl, $options);
 
