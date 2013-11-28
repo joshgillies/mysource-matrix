@@ -14,7 +14,7 @@
 *
 */
 
-define('SQ_SYSTEM_VERSION',        '4.18.0');
+define('SQ_SYSTEM_VERSION',        '4.18.1');
 define('SQ_SYSTEM_SHORT_NAME',     'MySource');
 define('SQ_SYSTEM_LONG_NAME',      'Squiz Matrix v'.SQ_SYSTEM_VERSION);
 define('SQ_SYSTEM_URL',            'http://matrix.squizsuite.net/');
