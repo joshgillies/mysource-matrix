@@ -195,28 +195,8 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		echo hidden_field($prefix.'_insert_container_type', $default);
 		?>
 
-		<style type="text/css">
-			#bodycopyPopupDiv {
-				color: #ffffff;
-				position: absolute;
-				left: 100;
-				top: 120;
-				width: <?php echo $init_layer_width?>;
-				height: <?php echo $init_layer_height?>;
-				clip: rect(0,600,600,0);
-				visibility: hidden;
-			}
-			#bodycopyToolTipDiv {
-				position: absolute;
-				width:  1px;
-				height: 1px;
-				visibility: hidden;
-			}
-		</style>
-
-
 		<!-- Begin Popup -->
-		<div id="bodycopyPopupDiv" class="sq-bodycopy-popup-div" style="z-index:1001">
+		<div id="bodycopyPopupDiv" class="sq-bodycopy-popup-div" style="z-index:1001; width: <?php echo $init_layer_width?>; height: <?php echo $init_layer_height?>;">
 			<iframe name="bodycopyFrame" id="bodycopyFrame" scrolling="no" width="<?php echo $init_layer_width?>" height="<?php echo $init_layer_height?>" frameborder="no"></iframe>
 		</div>
 		<!-- End Popup -->

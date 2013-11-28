@@ -1674,7 +1674,7 @@ function get_asset_tag_line($assetid, $screen='')
 		</div>
 
 		<?php
-		echo sq_print_icon(sq_web_path('lib').'/web/images/icons/info.png', 16, 16, '', '', ' align="absmiddle" onmouseover="tooltip.show(this, document.getElementById(\'asset-tag-line-'.str_replace('\\', '\\\\', $assetid).'-more-details\').innerHTML, \'More Info\');" onmouseout="tooltip.hide();"');
+		echo sq_print_icon(sq_web_path('lib').'/web/images/icons/info.png', '', '', '', '', ' align="absmiddle" onmouseover="tooltip.show(this, document.getElementById(\'asset-tag-line-'.str_replace('\\', '\\\\', $assetid).'-more-details\').innerHTML, \'More Info\');" onmouseout="tooltip.hide();"');
 		echo get_asset_tag_line_binoculars($assetid);
 
 		// Screen parameter now supports javascript code to be added to the

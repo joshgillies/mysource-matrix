@@ -925,7 +925,7 @@ class HIPO_Herder extends MySource_Object
 		}//end if not empty herder posted
 
 		require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-		$o->setHeading('HIPO Herder', sq_get_icon($o->filesPath('/images/icons/header/hipo_herder.png'), 20, 20, 'HIPO Icon'));
+		$o->setHeading('HIPO Herder', sq_get_icon($o->filesPath('/images/icons/header/hipo_herder.png'), '', '', 'HIPO Herder'));
 		$o->setPageTitle('HIPO Herder');
 		$o->addHiddenField('herder_posted', '1');
 

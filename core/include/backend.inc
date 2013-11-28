@@ -848,7 +848,7 @@ class Backend extends MySource_Object
 				function moveIt() {
 					to_move = Math.max(Math.min(Math.abs(divTop) * 0.08, 10), 2);
 					divTop += to_move;
-					msgDiv.style.top = (divTop + parent.frames["sq_main"].document.body.scrollTop) + "px";
+					msgDiv.style.top = (divTop + -1) + "px";  //setting it to 0 and position fixed will make it scroll with the user's browser scroll
 					if (divTop >= -0.1 && myTimer != null) {
 						clearInterval(myTimer);
 
@@ -940,7 +940,7 @@ class Backend extends MySource_Object
 						msgDiv = parent.frames["sq_main"].document.createElement("div");
 						msgDiv.id = "new_message_popup";
 						msgDiv.className = "sq-new-message-popup-wrapper";
-						msgDiv.style.position = "absolute";
+						msgDiv.style.position = "fixed";
 						msgDiv.style.display = "block";
 						msgDiv.style.top = "-1000px";
 						msgDiv.style.right = "-1000px";
@@ -1064,9 +1064,9 @@ class Backend extends MySource_Object
 					<?php
 					}
 					?>
-					<table id="tool_buttons" align="right">
+					<table id="tool_buttons" class="sq-backend-header-tool-buttons" align="right">
 						<tr>
-							<td nowrap valign="middle">
+							<td class="sq-backend-header-search-wrapper" nowrap valign="middle">
 							<?php
 								echo '<label for="asset_search" class="sq-backend-header-item">'.translate('quick_search').'</label>';
 								echo '<span class="sq-text-field-wrapper">';
@@ -1076,7 +1076,7 @@ class Backend extends MySource_Object
 								echo '</span>';
 							?>
 							</td>
-							<td nowrap>
+							<td class="sq-backend-header-tools-wrapper" nowrap>
 				<?php
 					$options = Array();
 					if (!SQ_IN_LIMBO) {
@@ -1187,7 +1187,7 @@ class Backend extends MySource_Object
 							 <?php echo (isset($option['onclick'])) ? 'onClick="'.htmlspecialchars($option['onclick']).'"' : ''; ?>
 							 <?php echo (isset($option['extras'])) ? $option['extras'] : ''; ?>
 
-						  ><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $this->out->filesPath('/images/icons/header/'.$option['icon']); ?>", "20", "20", "<?php echo htmlspecialchars($option['title']);?>");</script></a>
+						  ><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $this->out->filesPath('/images/icons/header/'.$option['icon']); ?>", "", "", "<?php echo htmlspecialchars($option['title']);?>");</script></a>
 						&nbsp;&nbsp;<?php
 					}
 				?>

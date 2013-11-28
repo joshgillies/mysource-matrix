@@ -873,31 +873,12 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		
 		?>
 
-		<style type="text/css">
-			#bodycopyPopupDiv {
-				color: #ffffff;
-				position:absolute;
-				left:100;
-				top:120;
-				width:<?php echo $init_layer_width?>;
-				height:<?php echo $init_layer_height?>;
-				clip:rect(0,600,600,0);
-				visibility: hidden;
-			}
-			#bodycopyToolTipDiv {
-				position:absolute;
-				width:  1px;
-				height: 1px;
-				visibility: hidden;
-			}
-		</style>
-
 		<!-- Begin Tooltip -->
-		<div id="bodycopyToolTipDiv" style="z-index:1000"></div>
+		<div id="bodycopyToolTipDiv" class="sq-bodycopy-tooltip-div" style="z-index:1000"></div>
 		<!-- End Tooltip -->
 
 		<!-- Begin Popup -->
-		<div id="bodycopyPopupDiv" class="sq-bodycopy-popup-div" style="z-index:1001">
+		<div id="bodycopyPopupDiv" class="sq-bodycopy-popup-div" style="z-index:1001; width:<?php echo $init_layer_width?>; height:<?php echo $init_layer_height?>;">
 			<iframe name="bodycopyFrame" id="bodycopyFrame" scrolling="no" width="<?php echo $init_layer_width?>" height="<?php echo $init_layer_height?>" marginwidth=0 marginheight=0 frameborder="no"></iframe>
 		</div>
 		<!-- End Popup -->

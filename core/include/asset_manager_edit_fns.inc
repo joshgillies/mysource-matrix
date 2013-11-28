@@ -408,7 +408,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 	{
 		$o = $this->backend->out;
 
-		$o->setHeading('Asset Types', sq_get_icon($o->filesPath('/images/icons/header/asset_tree.png'), 20, 20, 'Asset Tree'));
+		$o->setHeading('Asset Types', sq_get_icon($o->filesPath('/images/icons/header/asset_tree.png'), '', '', 'Asset Types'));
 		$o->setPageTitle('Asset Types');
 
 		$o->addHiddenField('am_action');

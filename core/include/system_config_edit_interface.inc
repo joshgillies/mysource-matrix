@@ -60,7 +60,7 @@ class System_Config_Edit_Interface extends MySource_Object
 
 		$o = $backend->out;
 
-		$o->setHeading(translate('system_configuration'), sq_get_icon($o->filesPath('/images/icons/header/system_config.png'), 20, 20, 'System Configuration'));
+		$o->setHeading(translate('system_configuration'), sq_get_icon($o->filesPath('/images/icons/header/system_config.png'), '', '', 'System Configuration'));
 		$o->setPageTitle(translate('system_configuration'));
 		$o->addHiddenField('config_posted', '1');
 

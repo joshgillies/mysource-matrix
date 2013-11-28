@@ -59,7 +59,12 @@ include(dirname(__FILE__).'/header.php');
 					'none'	=> translate('raw_html'),
 				  );
 ?>
-<h1 class="title"><?php echo translate('insert_div'); ?></h1>
+<h1 class="title">
+	<a href="#" onclick="javascript: popup_close(); return false;">
+		<img src="<?php echo sq_web_path('lib')?>/web/images/icons/cancel.png" alt="Cancel" title="<?php echo translate('cancel');?>" class="sq-icon">
+	</a>
+	<?php echo translate('insert_div'); ?>
+</h1>
 <form name="main_form">
 <input type="hidden" name="bodycopy_name" value="">
 <input type="hidden" name="divid" value="">
@@ -90,7 +95,7 @@ include(dirname(__FILE__).'/header.php');
 				</tr>
 			</table>
 		</fieldset>
-		<fieldset>
+		<fieldset class="last">
 			<legend><?php echo translate('content_type'); ?></legend>
 			<table>
 				<tr>
@@ -116,10 +121,10 @@ include(dirname(__FILE__).'/header.php');
 	</tr>
 	<tr class="sq-popup-footer">
 		<td align="left">
-			<input type="button" name="cancel" onClick="javascript: popup_close();" value="<?php echo translate('cancel'); ?>"/>
+			<input type="button" class="" name="cancel" onClick="javascript: popup_close();" value="<?php echo translate('cancel'); ?>"/>
 		</td>
 		<td align="right">
-			<input type="button" class="sq-btn-blue" name="ok" onClick="javascript: popup_save(this.form)" value="<?php echo translate('ok'); ?>"/>
+			<input type="button" class="sq-btn-blue" name="ok" onClick="javascript: popup_save(this.form)" value="<?php echo translate('insert'); ?>"/>
 		</td>
 	</tr>
 </table>

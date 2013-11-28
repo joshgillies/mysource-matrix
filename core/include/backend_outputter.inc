@@ -1247,7 +1247,7 @@ class Backend_Outputter
 						<table class="sq-backend-nav-history-container">
 							<tr>
 								<td class="sq-backend-nav-history-title">
-									<?php sq_print_icon($this->filesPath('images/icons/history.png'), 20, 20, 'Navigation History'); ?>
+									<?php sq_print_icon($this->filesPath('images/icons/history.png'), '', '', 'Navigation History'); ?>
 									<span><?php echo translate('back_to'); ?>:</span>
 								</td>
 								<td class="sq-backend-nav-history">

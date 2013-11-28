@@ -156,7 +156,7 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 		if ($admin_access) {
 			$o->openField(translate('current'));
 		} else {
-			$o->openRaw();
+			$o->openField('&nbsp;','wide_col');
 		}
 
 		if (!empty($direct)) {
@@ -167,10 +167,10 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 						<th class="sq-backend-table-header">
 							<span class="sq-txt-highlight-<?php echo (($granted == '0') ? 'red' : 'green'); ?>"><?php echo (($granted == '0') ? translate('denied') : translate('granted')) ?></span>
 						</th>
-						<th align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('cascade_question'); ?></th>
+						<th align="center" width="100" class="sq-backend-table-header" style="text-align:center;"><?php echo translate('cascade_question'); ?></th>
 						<?php
 						if ($admin_access) {
-							?><th align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('delete_question'); ?></th><?php
+							?><th align="center" width="100" class="sq-backend-table-header" style="text-align:center;"><?php echo translate('delete_question'); ?></th><?php
 						}
 						?>
 					</tr>
@@ -205,7 +205,6 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 				}// end foreach data
 				?>
 				</table>
-				<br>
 			<?php
 			}//end foreach inherited
 
@@ -216,7 +215,7 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 		if ($admin_access) {
 			$o->closeField();
 		} else {
-			$o->closeRaw();
+			$o->closeField();
 		}
 
 		if ($admin_access) {
@@ -229,10 +228,12 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 					?>
 					<tr>
 						<td colspan="2">
+							<span class="sq-inline-fields-wrapper">
 							<?php
 							combo_box($prefix.'_permissions['.$perm.'][public_access][granted]', Array('' => '', '1' => translate('grant'), '0' => translate('deny')), FALSE, '');
 							echo ' '.translate('public_permission');
 							?>
+							</span>
 						</td>
 					</tr>
 					<?php
@@ -240,20 +241,21 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 				?>
 					<tr>
 						<td valign="top">
+							<span class="sq-inline-fields-wrapper">
 							<?php
 							combo_box($prefix.'_permissions['.$perm.'][new][granted]', Array('' => '', '1' => translate('grant'), '0' => translate('deny')), FALSE, '');
 							echo ' '.translate('specific_permission');
 							?>
-							&nbsp;
+							</span>&nbsp;
 						</td>
 						<td><?php multiple_asset_finder($prefix.'_permissions['.$perm.'][new][userid]', Array(), Array('user' => 'D', 'user_group' => 'D')); ?></td>
 					</tr>
 				</table>
 				<?php
 			$o->closeField();
-			$o->openField(translate('cascade_question'), 'new_line');
+			$o->openField(translate('cascade_question'), '');
 				check_box($prefix.'_permissions['.$perm.'][new][cascades]', 1, TRUE);
-				?> Automatically cascade this permission to new children<?php
+				label('Automatically cascade this permission to new children',$prefix.'_permissions['.$perm.'][new][cascades]');
 				//$o->note('If unchecked, the new permission(s) above will be applied or denied only to dependants of this asset, regardless of the Cascade Changes settings below. It will also not apply the workflow to any asset that becomes a new child of this asset (through creating a new asset, or moving an existing one, or creating a new link from one). This setting can be toggled after being applied.');
 			$o->closeField();
 		}//end if
@@ -265,22 +267,18 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 		$kiddies = $GLOBALS['SQ_SYSTEM']->am->getChildren($owner->id);
 		if (count($kiddies)) {
 			$o->openSection(translate('cascade_permission_changes'));
-				$o->openField(translate('note'));
-					$o->note(translate('cascade_permissions_note', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), count($kiddies)));
-				$o->closeField();
-				$o->openField('&nbsp;');
+				$o->openField(translate('cascade_permission_changes'));
 					check_box($prefix.'_permissions[cascade_changes]', '1', TRUE);
 					label(translate('cascade_permissions'), $prefix.'_permissions[cascade_changes]');
+					$o->note(translate('cascade_permissions_note', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), count($kiddies)));
 				$o->closeField();
 			$o->closeSection();
 
 			$o->openSection(translate('manually_cascade_permissions'));
-				$o->openField(translate('note'));
-					$o->note(translate('manually_cascade_permissions_note', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), count($kiddies)));
-				$o->closeField();
-				$o->openField('&nbsp;');
+				$o->openField(translate('manually_cascade_permissions'));
 					check_box($prefix.'_permissions[manual_cascade]');
 					label(translate('manually_cascade_permissions_option'), $prefix.'_permissions[manual_cascade]');
+					$o->note(translate('manually_cascade_permissions_note', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), count($kiddies)));
 				$o->closeField();
 			$o->closeSection();
 		}
@@ -388,13 +386,13 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 		
 		$o->closeField();
 	} else if (!$admin_access){
-		$o->openRaw();
+		$o->openField('&nbsp;','wide_col');
 		echo translate('no_future_permissions_set');
-		$o->closeRaw();
+		$o->closeField();
 	}//end if
 
 	if ($admin_access) {
-		$o->openField(translate('add_new_future_permission'), 'new_line');
+		$o->openField(translate('add_new_future_permission'), '');
 			$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 			$cron_epoc = (int)$cron_mgr->attr('epoch');
 			$cron_refresh = (int)$cron_mgr->attr('refresh_time');
@@ -404,7 +402,7 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 				$fp = new Cron_Job_Future_Permission();
 				$edit_fns = $fp->getEditFns();
 				$edit_fns->paintInLineBackend($fp, $o, $prefix.'_new_fp');
-				echo '<br /><br />';
+				echo '<br />';
 
 				$o->note(translate('cron_manager_next_run', $cron_mgr->readableRefreshTime(), readable_datetime($cron_mgr->timeOfNextRun())));
 

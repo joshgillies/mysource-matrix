@@ -1696,7 +1696,7 @@ Force that this asset can only be viewed through a Secure (SSL) connection</stri
 	<string source="cascade_permissions">Yes, cascade permission changes</string>
 	<string source="cascade_permissions_note">If you choose to cascade the changes to permissions you make on "%1$s", the changes will also be made on all assets that fall under "%1$s" in the various hierarchies in which it exists. This will affect %2$s other assets.</string>
 	<string source="manually_cascade_permissions_note">Manually cascading permissions will try to set the current permissions of "%1$s" on all assets that fall under "%1$s" in the various hierarchies in which it exists. This will affect %2$s other assets.&lt;br/&gt;&lt;br/&gt;&lt;i&gt;Any additional permissions set on affected assets will &lt;b&gt;not&lt;/b&gt; be removed during a manual cascade. Any permissions set on affected assets that conflict with ones set on "%1$s" will also &lt;b&gt;not&lt;/b&gt; be changed.&lt;/i&gt;&lt;br/&gt;&lt;br/&gt;&lt;b&gt;NB. If you select to manually cascade, any permission changes you make will also cascade even if you do not select them to. Use the option on its own for more predictable results.&lt;/b&gt;</string>
-	<string source="manually_cascade_permissions_option">Manually cascade permissions</string>
+	<string source="manually_cascade_permissions_option">Yes, manually cascade permissions</string>
 	<string source="password_rules_configuration">Password Rules Configuration</string>
 	<string source="session_rules_configuration">Session Rules Configuration</string>
 

@@ -225,7 +225,7 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 	</tr>
 	<tr>
 		<td colspan="2">
-			<fieldset>
+			<fieldset class="last">
 			<legend><?php echo translate('delete_this_div'); ?></legend>
 			<?php
 			// if asset is in safe edit we dont want user to delete it
@@ -259,7 +259,7 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 			<input type="button" class="" name="cancel" onClick="javascript: popup_close();" value="<?php echo translate('cancel'); ?>"/>
 		</td>
 		<td align="right">
-			<input type="button" class="sq-btn-large sq-btn-blue" name="ok" onClick="javascript: popup_save(this.form)" value="<?php echo translate('ok'); ?>"/>
+			<input type="button" class="sq-btn-blue" name="ok" onClick="javascript: popup_save(this.form)" value="<?php echo translate('save'); ?>"/>
 		</td>
 	</tr>
 </table>

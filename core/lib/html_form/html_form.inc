@@ -517,7 +517,7 @@ function colour_box($name, $default='000000', $allow_blanks=FALSE, $button_text=
 
 	normal_button('', " $button_text ",
 					  "load_colour_picker(this.form.elements['".addslashes($name)."'],'".sq_web_path('lib')."/html_form')",
-					  'style="font-family: courier;"');
+					  'class="sq-colour-picker-btn"');
 
 	if ($show_change_colour) {
 		?>
