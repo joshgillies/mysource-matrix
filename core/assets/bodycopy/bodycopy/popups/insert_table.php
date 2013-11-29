@@ -72,9 +72,9 @@ include(dirname(__FILE__).'/header.php');
 		<td colspan="2">
 			<table>
 				<tr>
-					<td valign="top" width="50%">
+					<td>
+						<h2><?php echo translate('layout'); ?></h2>
 						<fieldset>
-						<legend><?php echo translate('layout'); ?></legend>
 						<table>
 							<tr>
 								<td class="label"><?php echo translate('columns'); ?>:</td>
@@ -97,8 +97,8 @@ include(dirname(__FILE__).'/header.php');
 	</tr>
 	<tr>
 		<td colspan="2">
+			<h2><?php echo translate('table_styles-colours'); ?></h2>
 			<fieldset class="last">
-			<legend><b><?php echo translate('table_styles-colours'); ?></b></legend>
 				<table>
 					<tr>
 						<td class="label"><?php echo translate('background_colour'); ?>:</td>

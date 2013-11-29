@@ -92,8 +92,8 @@ include(dirname(__FILE__).'/header.php');
 <table>
 	<tr>
 		<td colspan="2">
+			<h2><?php echo translate('layout'); ?></h2>
 			<fieldset>
-				<legend><b><?php echo translate('layout'); ?></b></legend>
 				<table>
 					<tr>
 						<td class="label"><?php echo translate('width'); ?>:</td>
@@ -113,39 +113,39 @@ include(dirname(__FILE__).'/header.php');
 	</tr>
 	<tr>
 		<td colspan="2">
+			<h2><?php echo translate('alignment'); ?></h2>
 			<fieldset>
-			<legend><b><?php echo translate('alignment'); ?></b></legend>
-			<table>
-				<tr>
-					<td class="label"><?php echo translate('horizontal'); ?>:</td>
-					<td>
-					<select name="align">
-						<option value="">
-						<option value="left"  ><?php echo translate('left'); ?>
-						<option value="center"><?php echo translate('centre'); ?>
-						<option value="right" ><?php echo translate('right');?>
-					</select>
-					</td>
-				</tr>
-				<tr>
-					<td class="label"><?php echo translate('vertical'); ?>:</td>
-					<td>
-					<select name="valign">
-						<option value="">
-						<option value="middle"  ><?php echo translate('middle'); ?>
-						<option value="top"     ><?php echo translate('top'); ?>
-						<option value="bottom"  ><?php echo translate('bottom'); ?>
-					</select>
-					</td>
-				</tr>
-			</table>
+				<table>
+					<tr>
+						<td class="label"><?php echo translate('horizontal'); ?>:</td>
+						<td>
+						<select name="align">
+							<option value="">
+							<option value="left"  ><?php echo translate('left'); ?>
+							<option value="center"><?php echo translate('centre'); ?>
+							<option value="right" ><?php echo translate('right');?>
+						</select>
+						</td>
+					</tr>
+					<tr>
+						<td class="label"><?php echo translate('vertical'); ?>:</td>
+						<td>
+						<select name="valign">
+							<option value="">
+							<option value="middle"  ><?php echo translate('middle'); ?>
+							<option value="top"     ><?php echo translate('top'); ?>
+							<option value="bottom"  ><?php echo translate('bottom'); ?>
+						</select>
+						</td>
+					</tr>
+				</table>
 			</fieldset>
 		</td>
 	</tr>
 	<tr>
 		<td colspan="2">
+			<h2><?php echo translate('text_direction'); ?></h2>
 			<fieldset>
-			<legend><b><?php echo translate('text_direction'); ?></b></legend>
 				<table style="width:100%">
 					<tr>
 						<td class="label"><?php echo translate('bodycopy_direction'); ?></td>
@@ -163,8 +163,8 @@ include(dirname(__FILE__).'/header.php');
 	</tr>
 	<tr>
 		<td colspan="2">
+			<h2><?php echo translate('cell_styles-colours'); ?></h2>
 			<fieldset>
-			<legend><b><?php echo translate('cell_styles-colours'); ?></b></legend>
 			<table style="width:100%">
 				<tr>
 					<td class="label"><?php echo translate('background_colour'); ?>:</td>
@@ -185,8 +185,8 @@ include(dirname(__FILE__).'/header.php');
 	</tr>
 	<tr>
 		<td colspan="2">
+			<h2><?php echo translate('cell_type'); ?></h2>
 			<fieldset class="last">
-			<legend><b><?php echo translate('cell_type'); ?></b></legend>
 			<table style="width:100%">
 				<tr>
 					<td class="label"><?php echo translate('cell_type'); ?>:</td>

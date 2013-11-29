@@ -576,7 +576,8 @@
 	<string source="general_reports_not_installed">There are no General Reports installed</string>
 
 	<string source="asset_tree">Asset Tree</string>
-	<string source="login_as">Login As...</string>
+	<string source="login_as">Login As</string>
+	<string source="login_as_default">Enter username</string>
 	<string source="logout">Logout</string>
 	<string source="logout_and_resume">Logout and resume as %1$s</string>
 

@@ -71,8 +71,8 @@ include(dirname(__FILE__).'/header.php');
 <table>
 	<tr>
 		<td colspan="2">
+		<h2><?php echo translate('identification'); ?></h2>
 		<fieldset>
-			<legend><?php echo translate('identification'); ?></legend>
 			<table>
 				<tr>
 					<td class="label"><?php echo translate('name'); ?>:</td>
@@ -80,8 +80,8 @@ include(dirname(__FILE__).'/header.php');
 				</tr>
 			</table>
 		</fieldset>
+		<h2><?php echo translate('style_information'); ?></h2>
 		<fieldset>
-			<legend><?php echo translate('style_information'); ?></legend>
 			<table>
 				<tr>
 					<td class="bodycopy-popup-heading"><?php echo translate('presentation'); ?>:</td>
@@ -95,8 +95,8 @@ include(dirname(__FILE__).'/header.php');
 				</tr>
 			</table>
 		</fieldset>
+		<h2><?php echo translate('content_type'); ?></h2>
 		<fieldset class="last">
-			<legend><?php echo translate('content_type'); ?></legend>
 			<table>
 				<tr>
 					<td class="bodycopy-popup-heading"><?php echo translate('content_type'); ?>:</td>

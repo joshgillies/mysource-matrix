@@ -63,37 +63,37 @@ include(dirname(__FILE__).'/header.php');
 <table class="bodycopy-popup-table">
 	<tr>
 		<td colspan="2">
+			<h2><?php echo translate('properties'); ?></h2>
 			<fieldset>
-			<legend><?php echo translate('properties'); ?></legend>
-			<table border="0" cellpadding="0" cellspacing="4">
-				<tr>
-					<td class="label"><?php echo translate('height'); ?>:</td>
-					<td><input type="text" name="height" value="" size="5"></td>
-				</tr>
-				<tr>
-					<td class="label"><?php echo translate('background_colour'); ?>:</td>
-					<td><?php colour_box('bgcolor', '', TRUE, 'Colour picker',TRUE, FALSE, FALSE);?></td>
-				</tr>
-			</table>
+				<table border="0" cellpadding="0" cellspacing="4">
+					<tr>
+						<td class="label"><?php echo translate('height'); ?>:</td>
+						<td><input type="text" name="height" value="" size="5"></td>
+					</tr>
+					<tr>
+						<td class="label"><?php echo translate('background_colour'); ?>:</td>
+						<td><?php colour_box('bgcolor', '', TRUE, 'Colour picker',TRUE, FALSE, FALSE);?></td>
+					</tr>
+				</table>
 			</fieldset>
 		</td>
 	</tr>
 	<tr>
 		<td colspan="2">
+			<h2><?php echo translate('text_direction'); ?></h2>
 			<fieldset class="last">
-			<legend><?php echo translate('text_direction'); ?></legend>
-			<table border="0" cellpadding="0" cellspacing="4">
-				<tr>
-					<td class="label"><?php echo translate('bodycopy_direction'); ?></td>
-					<td>
-						<select name="dir">
-							<option value=""><?php echo translate('content_type_no_change'); ?></option>
-							<option value="ltr"><?php echo translate('bodycopy_left_to_right'); ?></option>
-							<option value="rtl"><?php echo translate('bodycopy_right_to_left'); ?></option>
-						</select>
-					</td> 
-				</tr>
-			</table>
+				<table border="0" cellpadding="0" cellspacing="4">
+					<tr>
+						<td class="label"><?php echo translate('bodycopy_direction'); ?></td>
+						<td>
+							<select name="dir">
+								<option value=""><?php echo translate('content_type_no_change'); ?></option>
+								<option value="ltr"><?php echo translate('bodycopy_left_to_right'); ?></option>
+								<option value="rtl"><?php echo translate('bodycopy_right_to_left'); ?></option>
+							</select>
+						</td> 
+					</tr>
+				</table>
 			</fieldset>
 		</td>
 	</tr>

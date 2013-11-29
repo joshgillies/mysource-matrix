@@ -306,6 +306,7 @@ class Backend extends MySource_Object
 					body {
 						margin: 0;
 						overflow: hidden;
+						background: #2a2a2a;
 					}
 
 					div.iframe-container {
@@ -990,14 +991,11 @@ class Backend extends MySource_Object
 		}
 
 		?>
-		<style type="text/css">
-			body { background: #2a2a2a; }
-		</style>
 		<table class="sq-backend-header">
 			<tr>
 				<td nowrap class="sq-backend-header-item" valign="middle">
 					<img class="sq-matrix-logo" src="<?php echo sq_web_path('lib'); ?>/web/images/logo-toolbar.png" alt="Squiz Matrix" title="Squiz Matrix"/>
-					<p class="sq-logged-in-as-text">
+					<span class="sq-logged-in-as-text">
 						<a href="#" onclick="Javascript: reloadHeader(); return false;"><?php echo translate('logged_in_as', htmlspecialchars($GLOBALS['SQ_SYSTEM']->user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)); ?></a>
 						<?php
 						// check warranty (if a warranty key exists)
@@ -1020,13 +1018,13 @@ class Backend extends MySource_Object
 						echo $message;
 						*/
 						?>
-					</p>
+					</span>
 				</td>
 				<td nowrap class="sq-backend-header-item" valign="middle" align="right">
 					<?php
 					if (!isset($_SESSION['login_as_invoker_username']) && ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin())) {
 					?>
-					<table cellpadding="0" border="0" cellspacing="0" id="login_as_form" style="display: none; height: 23px;" align="right">
+					<table id="login_as_form" class="sq-backend-header-login-as-form" style="display: none;" align="right">
 						<tr>
 							<td nowrap valign="middle">
 								<script>
@@ -1053,11 +1051,11 @@ class Backend extends MySource_Object
 								<?php
 								echo '<label for="user" class="sq-backend-header-item">'.translate('login_as').'</label>';
 								echo '<span class="sq-text-field-wrapper login">';
-								text_box('user', '',  22, 0, TRUE, 'class="sq-backend-header-text-box" onkeypress="if (event.keyCode == 13) submit_login_as();"');
+								text_box('user', translate('login_as_default'),  22, 0, TRUE, 'class="sq-backend-header-text-box" onkeypress="if (event.keyCode == 13) submit_login_as();"');
 								echo '</span>';
 								?>
-								<input type="button" style="height: 20px;" value="Login" onclick="submit_login_as();" />
-								<input type="button" style="height: 20px;" value="Cancel" onclick="hide_login_as_form();" />
+								<input type="button" class="sq-btn-blue" value="Login" onclick="submit_login_as();" />
+								<input type="button" value="Cancel" onclick="hide_login_as_form();" />
 							</td>
 						</tr>
 					</table>
@@ -1072,7 +1070,7 @@ class Backend extends MySource_Object
 								echo '<span class="sq-text-field-wrapper">';
 								text_box('asset_search', (!empty($_POST['asset_search'])) ? $_POST['asset_search'] : $asset_search_default, 30, 0, empty($_POST['asset_search']), 'class="sq-backend-header-text-box" onkeypress="if (event.keyCode == 13) form.submit();"');
 
-								echo '<input type="image" class="sq-backend-header-search-button" alt="Go" src="'.sq_web_path('lib').'/web/images/icons/header/search.png" onClick="form.submit();">';
+								echo '<input type="image" class="sq-backend-header-search-button" alt="Go" title="Submit" src="'.sq_web_path('lib').'/web/images/icons/header/search.png" onClick="form.submit();">';
 								echo '</span>';
 							?>
 							</td>
@@ -1085,7 +1083,7 @@ class Backend extends MySource_Object
 											'url'		=> $this->getBackendUrl('main').'&backend_section=config',
 											'target'	=> 'sq_main',
 											'title'		=> translate('system_configuration'),
-											'icon'		=> 'system_config.png',
+											'icon'		=> 'system_config_white.png',
 										 );
 						}
 
@@ -1093,14 +1091,14 @@ class Backend extends MySource_Object
 										'url'		=> $this->getBackendUrl('main').'&backend_section=tools',
 										'target'	=> 'sq_main',
 										'title'		=> translate('tools'),
-										'icon'		=> 'whereami.png',
+										'icon'		=> 'whereami_white.png',
 									 );
 
 						$options[] = Array(
 										'url'		=> $this->getBackendUrl('main').'&backend_section=hipo_herder',
 										'target'	=> 'sq_main',
 										'title'		=> translate('hipo_herder'),
-										'icon'		=> 'hipo_herder.png',
+										'icon'		=> 'hipo_herder_white.png',
 									 );
 
 						if ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
@@ -1108,7 +1106,7 @@ class Backend extends MySource_Object
 												'url'		=> $this->getBackendUrl('main').'&backend_section=sys_maintenance',
 												'target'	=> 'sq_main',
 												'title'		=> translate('system_maintenance'),
-												'icon'		=> 'system_maintenance.png',
+												'icon'		=> 'system_maintenance_white.png',
 											 );
 						}
 
@@ -1116,20 +1114,20 @@ class Backend extends MySource_Object
 										'url'		=> $this->getBackendUrl('main').'&backend_section=am',
 										'target'	=> 'sq_main',
 										'title'		=> translate('asset_tree'),
-										'icon'		=> 'asset_tree.png',
+										'icon'		=> 'asset_tree_white.png',
 									 );
 
 						if (!isset($_SESSION['login_as_invoker_username']) && ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin())) {
 							$options[] = Array(
 											'target'	=> '_top',
 											'title'		=> translate('login_as'),
-											'icon'		=> 'login_as.png',
+											'icon'		=> 'login_as_white.png',
 											'onclick'	=> 'document.getElementById("tool_buttons").style.display = "none"; document.getElementById("login_as_form").style.display = "block"; document.getElementById("user").focus();',
 										 );
 						}
 
 						$logout_button_tooltip = translate('logout');
-						$logout_icon = 'logout.png';
+						$logout_icon = 'logout_white.png';
 
 						// Change the "Logout" button to a "Logout and resume as ..." button when we are temporarily logged in as another user
 						if (isset($_SESSION['login_as_invoker_username'])) {
@@ -1223,55 +1221,7 @@ class Backend extends MySource_Object
 			echo '<script type="text/javascript" src="'.$link.'"></script>'."\n";
 		}
 		?>
-		<style type="text/css">
-			body {
-				background:	#f4f4f4;
-				height: 100%;
-			}
 
-			.sq-backend-header-item.matrix-icon {
-				padding: 0 0 5px 21px;
-			}
-
-			.sidenav-tab-icon, .sidenav-tab-icon-active {
-				padding-left:		5px;
-			}
-
-			.sidenav-tab a, .sidenav-tab-active a {
-				font-family:		Arial;
-				font-size:			10px;
-				color:				#000000;
-				padding-left:		2px;
-				padding-right:		8px;
-				text-decoration:	none;
-			}
-
-			#asset_map {
-				margin:				0px;
-				border:				none;
-				padding:			0px;
-				width:				100%;
-				position:           absolute;
-				top:                30px;
-				left:               6px;
-				visibility:         visible;
-			}
-			#asset_map.in_limbo {
-				top:                27px;
-			}
-
-			#my_space {
-				width:				100%;
-				background-color:	#F5F5F5;
-				padding:			0px;
-				margin:				0px;
-				border:				1px solid #F5F5F5;
-				position: 			absolute; 
-				top: 				30px; 
-				left: 				0px; 
-				visibility: 		hidden;
-			}
-		</style>
 		<script type="text/javascript">
 			var oldTabName = 'asset_map';
 			var tabNames = Array('asset_map', 'my_space');
@@ -1389,6 +1339,7 @@ class Backend extends MySource_Object
 						?>
 					</div>
 					<div id="my_space">
+						<div class="myspace-section-wrapper">
 						<?php
 						$user = $GLOBALS['SQ_SYSTEM']->user;
 						$inbox_link = $GLOBALS['SQ_SYSTEM']->am->getLink($user->id, SQ_LINK_TYPE_2, 'inbox', TRUE, NULL, 'major', '1');
@@ -1414,31 +1365,51 @@ class Backend extends MySource_Object
 
 							$messages = $read_messages + $unread_messages;
 							?>
-							<table class="myspace-section">
-								<tr>
-									<td><a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/inbox_icon.png" /></a></td>
-									<td>
-										<p><a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main"><span class="myspace-section-header"><?php echo translate('my_inbox'); ?></span><br /><span id="sq_messages_text"><?php echo translate('inbox_new_messages', $unread_messages, $messages); ?></span></a></p>
-										<p><a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main"><span class="myspace-section-header"><?php echo translate('inbox_actions'); ?></span><br />
-										<a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main">+ <?php echo translate('inbox_view'); ?></a><br />
-										<a href="<?php echo $_SERVER['PHP_SELF'].$new_message_url; ?>" target="sq_main">+ <?php echo translate('inbox_send'); ?></a><br />
-										<a href="<?php echo $_SERVER['PHP_SELF'].$sent_url; ?>" target="sq_main">+ <?php echo translate('inbox_view_sent'); ?></a><br />
-										<a href="<?php echo $_SERVER['PHP_SELF'].$trash_url; ?>" target="sq_main">+ <?php echo translate('inbox_view_trash'); ?></a></p>
-									</td>
-								</tr>
-							</table>
+								<table class="myspace-section">
+									<tr>
+										<td>
+											<a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/inbox_icon.png" /></a>
+										</td>
+										<td>
+											<p>
+
+												<span class="myspace-section-header">
+													<a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main"><?php echo translate('my_inbox'); ?></a>
+												</span>
+												<a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main"><?php echo translate('inbox_new_messages', $unread_messages, $messages); ?></a>
+											</p>
+											<p>
+												<span class="myspace-section-header">
+													<a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main">
+														<?php echo translate('inbox_actions'); ?>
+													</a>
+												</span>
+												<a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main">+ <?php echo translate('inbox_view'); ?></a>
+												<br />
+												<a href="<?php echo $_SERVER['PHP_SELF'].$new_message_url; ?>" target="sq_main">+ <?php echo translate('inbox_send'); ?></a><br />
+												<a href="<?php echo $_SERVER['PHP_SELF'].$sent_url; ?>" target="sq_main">+ <?php echo translate('inbox_view_sent'); ?></a><br />
+												<a href="<?php echo $_SERVER['PHP_SELF'].$trash_url; ?>" target="sq_main">+ <?php echo translate('inbox_view_trash'); ?></a></p>
+										</td>
+									</tr>
+								</table>
 							<?php
 						}//end if user has an inbox
 
 						?>
-						<table class="myspace-section">
-							<tr>
-								<td valign="top"><a href="<?php echo $_SERVER['PHP_SELF'].$details_url; ?>" target="sq_main"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/mydetails_icon.png" align="left" border="0" /></a></td>
-								<td width="100%">
-									<span class="myspace-section-header"><a href="<?php echo $_SERVER['PHP_SELF'].$details_url; ?>" target="sq_main"><?php echo translate('my_details'); ?></span><br /><?php echo translate('details_edit'); ?></a>
-								</td>
-							</tr>
-						</table>
+							<table class="myspace-section">
+								<tr>
+									<td valign="top">
+										<a href="<?php echo $_SERVER['PHP_SELF'].$details_url; ?>" target="sq_main"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/mydetails_icon.png" /></a>
+									</td>
+									<td width="100%">
+										<span class="myspace-section-header">
+											<a href="<?php echo $_SERVER['PHP_SELF'].$details_url; ?>" target="sq_main"><?php echo translate('my_details'); ?></a>
+										</span>
+										<a href="<?php echo $_SERVER['PHP_SELF'].$details_url; ?>" target="sq_main"><?php echo translate('details_edit'); ?></a>
+									</td>
+								</tr>
+							</table>
+						</div>
 					</div>
 				</div>
 			<?php

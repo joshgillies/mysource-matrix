@@ -94,8 +94,8 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 <table>
 	<tr>
 		<td colspan="2">
+			<h2><?php echo translate('identification'); ?></h2>
 			<fieldset>
-				<legend><b><?php echo translate('identification'); ?></b></legend>
 				<table>
 					<tr>
 						<td class="label"><?php echo translate('name'); ?>:</td>
@@ -111,8 +111,8 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 	</tr>
 	<tr>
 		<td colspan="2">
+			<h2><?php echo translate('layout'); ?></h2>
 			<fieldset>
-				<legend><b><?php echo translate('layout'); ?></b></legend>
 				<table>
 					<tr>
 						<td class="label"><?php echo translate('width'); ?>:</td>
@@ -135,8 +135,8 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 					</tr>
 				</table>
 			</fieldset>
+			<h2><?php echo translate('spacing_and_padding'); ?></h2>
 			<fieldset>
-				<legend><b><?php echo translate('spacing_and_padding'); ?></b></legend>
 				<table>
 					<tr>
 						<td class="label"><?php echo translate('spacing'); ?>:</td>
@@ -182,8 +182,8 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 	</tr>
 	<tr>
 		<td colspan="2">
+			<h2><?php echo translate('text_direction'); ?></h2>
 			<fieldset>
-				<legend><b><?php echo translate('text_direction'); ?></b></legend>
 				<table style="width:100%">
 					<tr>
 						<td class="bodycopy-popup-heading"><?php echo translate('bodycopy_direction'); ?></td>
@@ -201,8 +201,8 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 	</tr>
 	<tr>
 		<td colspan="2">
+			<h2><?php echo translate('table_styles-colours'); ?></h2>
 			<fieldset>
-			<legend><b><?php echo translate('table_styles-colours'); ?></b></legend>
 				<table>
 					<tr>
 						<td class="label"><?php echo translate('background_colour'); ?>:</td>
@@ -237,8 +237,8 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 	</tr>
 	<tr>
 		<td colspan="2">
+			<h2><?php echo translate('keywords'); ?></h2>
 			<fieldset>
-			<legend><b><?php echo translate('keywords'); ?></b></legend>
 				<table>
 					<tr>
 						<td class="label"><?php echo translate('disable_keywords'); ?>:</td>
@@ -253,8 +253,8 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 	</tr>
 	<tr>
 		<td colspan="2">
+			<h2><?php echo translate('delete_this_table'); ?></h2>
 			<fieldset class="last">
-			<legend><b><?php echo translate('delete_this_table'); ?></b></legend>
 			<table>
 				<tr>
 					<td class="label"><?php echo translate('click_to_delete'); ?>:</td>

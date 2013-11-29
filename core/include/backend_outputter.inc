@@ -1213,7 +1213,7 @@ class Backend_Outputter
 								<?php
 									echo $this->_heading;
 									if ($this->_sub_heading) {
-										echo '<br /><span class="sq-backend-sub-heading">'.$this->_sub_heading.'</span>';
+										echo '<span class="sq-backend-sub-heading">'.$this->_sub_heading.'</span>';
 									}
 								?>
 								</span>

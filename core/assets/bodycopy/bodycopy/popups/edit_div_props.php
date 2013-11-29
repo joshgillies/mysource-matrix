@@ -130,8 +130,8 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 <table>
 	<tr>
 		<td colspan="2">
+		<h2><?php echo translate('identification'); ?></h2>
 		<fieldset>
-			<legend><?php echo translate('identification'); ?></legend>
 			<table>
 				<tr>
 					<td class="label"><?php echo translate('name'); ?>:</td>
@@ -143,8 +143,8 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 				</tr>
 			</table>
 		</fieldset>
+		<h2><?php echo translate('style_information'); ?></h2>
 		<fieldset>
-			<legend><?php echo translate('style_information'); ?></legend>
 			<table>
 				<tr>
 					<td class="bodycopy-popup-heading"><?php echo translate('presentation'); ?>:</td>
@@ -171,8 +171,8 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 	</tr>
 	<tr>
 		<td colspan="2">
+		<h2><?php echo translate('text_direction'); ?></h2>
 		<fieldset>
-			<legend><?php echo translate('text_direction'); ?></legend>
 			<table>
 				<tr>
 					<td class="bodycopy-popup-heading"><?php echo translate('bodycopy_direction'); ?></td>
@@ -190,43 +190,43 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 	</tr>
 	<tr>
 		<td colspan="2">
+			<h2><?php echo translate('content_type'); ?></h2>
 			<fieldset>
-			<legend><?php echo translate('content_type'); ?></legend>
-			<table>
-				<tr>
-				<?php
-				if ($this->status & SQ_SC_STATUS_SAFE_EDITING) {
-					echo translate('changing_div_not_allowed_in_safe_edit');
-				}
-				else {
-				?>
-					<td class="label"><?php echo translate('content_type'); ?>:</td>
-					<td>
-					<select name="content_type">
-						<option value="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>
-						<option value="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>
-						<option value="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>
-					</select>
-					</td>
-				</tr>
-				<?php
-				}
-				?>
-				<tr>
-					<td class="label"><?php echo translate('disable_keywords'); ?>:</td>
-					<td>
-						<input type="checkbox" id="disable_keywords" name="disable_keywords" value="1">
-						<label for="disable_keywords">Yes</label>
-					</td>
-				</tr>
-			</table>
+				<table>
+					<tr>
+					<?php
+					if ($this->status & SQ_SC_STATUS_SAFE_EDITING) {
+						echo translate('changing_div_not_allowed_in_safe_edit');
+					}
+					else {
+					?>
+						<td class="label"><?php echo translate('content_type'); ?>:</td>
+						<td>
+						<select name="content_type">
+							<option value="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>
+							<option value="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>
+							<option value="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>
+						</select>
+						</td>
+					</tr>
+					<?php
+					}
+					?>
+					<tr>
+						<td class="label"><?php echo translate('disable_keywords'); ?>:</td>
+						<td>
+							<input type="checkbox" id="disable_keywords" name="disable_keywords" value="1">
+							<label for="disable_keywords">Yes</label>
+						</td>
+					</tr>
+				</table>
 			</fieldset>
 		</td>
 	</tr>
 	<tr>
 		<td colspan="2">
+			<h2><?php echo translate('delete_this_div'); ?></h2>
 			<fieldset class="last">
-			<legend><?php echo translate('delete_this_div'); ?></legend>
 			<?php
 			// if asset is in safe edit we dont want user to delete it
 			if ($this->status & SQ_SC_STATUS_SAFE_EDITING) {
@@ -242,7 +242,7 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 
 			<table>
 				<tr>
-					<td class="label"><?php echo translate('click_icon_to_delete'); ?>:</td>
+					<td class="label"><?php echo translate('click_to_delete'); ?>:</td>
 					<td>
 						<?php	sq_print_icon(sq_web_path('data').'/asset_types/bodycopy/images/icons/delete.png', 16, 16, 'Delete this Div', 'Delete this Div', 'onclick="owner.bodycopy_delete_div(document.main_form.bodycopy_name.value, document.main_form.divid.value);" style="cursor: pointer;"'); ?>
 					</td>

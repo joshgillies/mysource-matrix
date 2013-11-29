@@ -357,7 +357,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 				    $conditions_js = json_encode_array($all_conditions);
 				    // store those available conditions for the popup page to use
 				    ?><script language="JavaScript" type="text/javascript">bodycopy_available_conditions['<?php echo $asset->id; ?>'] = <?php echo $conditions_js; ?>; </script><?php
-				    Bodycopy_Edit_Fns::printBodycopyIcon('bodycopy_edit_div_conditions(\''.$prefix.'\', '.$asset->id.', '.$parentid.');', 'Edit conditions', $desc, 'conditions', '[Edit Conditions]');
+				    Bodycopy_Edit_Fns::printBodycopyIcon('bodycopy_edit_div_conditions(\''.$prefix.'\', '.$asset->id.', '.$parentid.');', 'Edit Conditions', $desc, 'conditions', '[Edit Conditions]');
 				}
 				
 				

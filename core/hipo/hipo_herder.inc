@@ -447,10 +447,10 @@ class HIPO_Herder extends MySource_Object
 							if ($btn_code == 'next') {
 								// if we should no proceed any further, then do not print the next button
 								if ($print_next) {
-									normal_button($btn_code, $btn_data['value'], $btn_data['action'], 'class="sq-btn-large sq-btn-blue sq-hipo-button-enabled '.$btn_code.'"accesskey="n"');
+									normal_button($btn_code, $btn_data['value'], $btn_data['action'], 'class="sq-btn-blue sq-hipo-button-enabled '.$btn_code.'"accesskey="n"');
 								}
 							} else {
-								normal_button($btn_code, $btn_data['value'], $btn_data['action'], 'class="sq-btn-large sq-hipo-button-enabled '.$btn_code.'"');
+								normal_button($btn_code, $btn_data['value'], $btn_data['action'], 'class="sq-hipo-button-enabled '.$btn_code.'"');
 							}
 							?></span><?php
 						}

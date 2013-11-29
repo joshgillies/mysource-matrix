@@ -126,7 +126,7 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 				// -->
 				</script>
 			</head>
-			<body onLoad="javascript: page_on_load();">
+			<body onLoad="javascript: page_on_load();" class="sq sq-hipo-body">
 				<table width="100%">
 					<tr>
 						<td align="center">
@@ -282,8 +282,11 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 									<tr <?php echo $style; ?> <?php echo $id; ?>>
 										<td class="sq-backend-data">
 											<a name="field_<?php echo $field['field_count']; ?>"></a>
-											<span class="sq-backend-field-label"><?php echo $field['name'];?></span>
-											<?php
+											<?php if($field['name'] != '&nbsp;'){ 
+												?>
+												<span class="sq-backend-field-label"><?php echo $field['name']; ?> </span>
+												<?php 
+											}
 												echo $field['contents'];
 												if ($field['note']) $this->note($field['note']);
 											?>
