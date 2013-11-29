@@ -610,11 +610,12 @@ class Data_Source_Soap extends Data_Source
 			$required_tags = $this->_getRequiredTags();
 			if(!empty($required_tags)) {
 				foreach($required_tags as $index => $required_tag) {
-					$pattern = '|(<'.$required_tag.')([\s]+[^>]*)/>|i';
+					$required_tag_quoted = preg_quote($required_tag);
+					$pattern = '|(<'.$required_tag_quoted.')([\s]*[^>]*)/>|i';
 					$replace = "<".$required_tag."$2>\n</".$required_tag.">";
 					$content = preg_replace($pattern, $replace, $content);
 
-					$pattern = '|(<'.$required_tag.')([\s]+[^>]*)></'.$required_tag.'>|i';
+					$pattern = '|(<'.$required_tag_quoted.')([\s]*[^>]*)></'.$required_tag_quoted.'>|i';
 					$replace = "<".$required_tag."$2>\n</".$required_tag.">";
 
 					$content = preg_replace($pattern, $replace, $content);
