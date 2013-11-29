@@ -305,7 +305,7 @@ class Payment_Gateway_Esec extends Payment_Gateway
 
 		// check for errors
 		if (array_get_index($this->_tmp, 'is_error', FALSE)) {
-			$form_contents .= '<h2 style="color: red; ">Error '.$this->_tmp['error_message'].'</h2>';
+			$form_contents .= '<h2 style="color: red; ">Error '.htmlspecialchars($this->_tmp['error_message'], ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET).'</h2>';
 		}
 
 		$message = $this->attr('message');
@@ -584,7 +584,7 @@ class Payment_Gateway_Esec extends Payment_Gateway
 	function getProcessingErrorKeywordReplacement()
 	{
 		if (array_get_index($this->_tmp, 'is_error', FALSE)) {
-			return '<span class="payment-gateway-transaction-error">'.$this->_tmp['error_message'].'</span>';
+			return '<span class="payment-gateway-transaction-error">'.htmlspecialchars($this->_tmp['error_message'], ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET).'</span>';
 		}
 
 		return '';
