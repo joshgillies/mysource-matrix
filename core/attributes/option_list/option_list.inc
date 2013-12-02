@@ -119,7 +119,7 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 
 		if (!$read_only) {
 			?>
-			<div id="option-list-<?php echo $prefix; ?>">
+			<div class="sq-option-list" id="option-list-<?php echo $prefix; ?>">
 				<?php
 				$order = 0;
 
@@ -238,7 +238,7 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 	function _printMoveDownButton($order, $prefix)
 	{
 		?>
-			<a href="#" style="cursor:pointer;" onclick="listMoveDown(this, document.getElementById('option-list-<?php echo $prefix; ?>'));return false;" tabindex="99999" name="movedown" id="<?php echo $prefix; ?>_options[<?php echo $order; ?>]"><script type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/down_arrow.png' ?>", "16", "16", "Move Down");</script></a>
+			<a href="#" style="cursor:pointer;" onclick="listMoveDown(this, document.getElementById('option-list-<?php echo $prefix; ?>'));return false;" tabindex="99999" name="movedown" id="<?php echo $prefix; ?>_options[<?php echo $order; ?>]"><script type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/down_arrow.png' ?>", "15", "15", "Move Down");</script></a>
 		<?php
 
 	}//end _printMoveDownButton()
@@ -256,7 +256,7 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 	function _printMoveUpButton($order, $prefix)
 	{
 		?>
-			<a href="#" style="cursor:pointer;" onclick="listMoveUp(this, document.getElementById('option-list-<?php echo $prefix; ?>'));return false;" tabindex="99999" name="moveup" id="<?php echo $prefix; ?>_options[<?php echo $order; ?>]"><script type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/up_arrow.png' ?>", "16", "16", "Move Up");</script></a>
+			<a href="#" style="cursor:pointer;" onclick="listMoveUp(this, document.getElementById('option-list-<?php echo $prefix; ?>'));return false;" tabindex="99999" name="moveup" id="<?php echo $prefix; ?>_options[<?php echo $order; ?>]"><script type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/up_arrow.png' ?>", "15", "15", "Move Up");</script></a>
 		<?php
 
 	}//end _printMoveUpButton()

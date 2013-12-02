@@ -27,74 +27,8 @@
 ?>
 <html>
 <head>
-	<style type="text/css">
-		html, body {
-			background: #FCFCFC;
-			color: #000000;
-			font: 11px Tahoma,Verdana,sans-serif;
-			margin: 0px;
-			padding: 0px;
-			padding: 0px;
-		}
+	<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('lib')?>/web/css/edit.css" />
 
-		table {
-			font: 11px Tahoma,Verdana,sans-serif;
-		}
-
-		/* main popup title */
-		.title {
-			background: #402F48;
-			color: #FFFFFF;
-			font-weight: bold;
-			font-size: 120%;
-			padding: 3px 10px;
-			margin-bottom: 10px;
-			border-bottom: 1px solid black;
-			letter-spacing: 4px;
-		}
-
-		/* fieldset styles */
-		fieldset {
-			width: 90%;
-			padding: 0px 5px 5px 5px;
-			border-color: #725B7D;
-		}
-
-		.fl { width: 9em; float: left; padding: 2px 5px; text-align: right; }
-		.fr { width: 7em; float: left; padding: 2px 5px; text-align: right; }
-
-		/* form and form fields */
-		form { padding: 0px; margin: 0px; }
-
-		select, input, button, textarea {
-			font: 11px Tahoma,Verdana,sans-serif;
-		}
-
-		button {
-			width: 70px;
-		}
-
-		/* colour picker button styles */
-		.buttonColor, .buttonColor-hilite {
-			cursor: default;
-			border: 1px solid;
-			border-color: #9E86AA #725B7D #725B7D #9E86AA;
-		}
-
-		.buttonColor-hilite {
-			border-color: #402F48;
-		}
-
-		.buttonColor-chooser, .buttonColor-nocolor, .buttonColor-nocolor-hilite {
-			height: 0.6em;
-			border: 1px solid;
-			padding: 0px 1em;
-			border-color: ButtonShadow ButtonHighlight ButtonHighlight ButtonShadow;
-		}
-
-		.buttonColor-nocolor, .buttonColor-nocolor-hilite { padding: 0px; }
-		.buttonColor-nocolor-hilite { background: #402F48; color: #FFFFFF; }
-	</style>
 	<?php
 
 	if ($_GET['browser'] != 'ns') {
@@ -118,16 +52,14 @@
 
 <?php
 	if ($_GET['page_width']) {
-		$table_width  = 'width="'.  preg_replace('/[^0-9]+/', '', $_GET['page_width']).'"';
+		$div_width  = 'width: '.  preg_replace('/[^0-9]+/', '', $_GET['page_width']).'px; ';
 	}
 
 	if ($_GET['page_height']) {
-		$table_height = 'height="'.preg_replace('/[^0-9]+/', '', $_GET['page_height']).'"';
+		$div_height = 'height: '.preg_replace('/[^0-9]+/', '', $_GET['page_height']).'px; ';
 	}
 ?>
 
-<body topmargin="0" leftmargin="0" marginheight="0" marginwidth="0" onload="javascript: if(typeof popup_init == 'function') popup_init();" >
+<body onload="javascript: if(typeof popup_init == 'function') popup_init();" >
 
-<table <?php echo $table_width; ?> <?php echo $table_height; ?> cellspacing="1" cellpadding="0" border="0" bgcolor="#402F48">
-	<tr>
-		<td valign="top" align="center" bgcolor="#FCFCFC">
+<div class="sq-bodycopy-popup-wrapper">

@@ -66,7 +66,7 @@ class Design_Area_Nest_Content_Edit_Fns extends Design_Area_Edit_Fns
 		}
 		if ($asset->writeAccess('links')) {
 			?>
-			<table class="sq-backend-table">
+			<table class="sq-backend-table sq-nest-content-table">
 				<tr>
 					<td class="sq-backend-table-cell-alt"><b><?php echo translate('nest_content_menu_nesting') ?></b></td>
 				</tr>

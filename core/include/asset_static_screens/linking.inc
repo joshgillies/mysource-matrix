@@ -159,27 +159,9 @@ function paintLinking(&$owner, &$o, &$ei, $static_keywords=NULL)
 	} else {
 		$num_pages = ceil($total_assets / $num_per_page);
 		?>
-		<style type="text/css">
-				td.sq-linking-header {
-					padding-top: 0px;
-				}
-				.sq-linking-header table.sq-backend-table {
-					border-top: 0px;
-					margin: 0 8px 8px 8px;
-				}
-				.sq-linking-header table.sq-backend-table th {
-					font-weight: normal;
-					text-decoration: italic;
-				}
-				table.sq-backend-table tr td.sq-linking-header-header {
-					background-color: #666;
-					color: #fff;
-					font-size: 11px;
-				}
-			</style>
 		<table class="sq-backend-table">
 		<tr>
-			<td class="sq-linking-header-header" colspan="7"><b><?php
+			<th class="sq-pagination-links" colspan="7"><?php
 				hidden_field($prefix.'_link_offset', $link_offset);
 				if ($link_offset > 0) {
 					?><a title="<?php echo translate('pagination_go_to_first') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '0'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
@@ -238,8 +220,8 @@ function paintLinking(&$owner, &$o, &$ei, $static_keywords=NULL)
 				} else {
 					?></span><?php
 				}
-				?></b>
-			</td>
+				?>
+			</th>
 			</tr>
 			<tr>
 				<th style="text-align: center; white-space: nowrap;" width="5%"><?php echo translate('find'); ?></th>

@@ -19,7 +19,7 @@ function bodycopy_insert_div(bodycopy_name, divid, before) {
 	bodycopy_current_edit["data"]["containerid"]    = divid;
 	bodycopy_current_edit["data"]["container_type"] = 'div';
 	bodycopy_current_edit["data"]["before"]         = before;
-	bodycopy_show_popup("insert_div.php", 300, 280);
+	bodycopy_show_popup("insert_div.php", 325, 320);
 }// end bodycopy_insert_div()
 
 function bodycopy_save_insert_div(attributes) {
@@ -47,7 +47,7 @@ function bodycopy_edit_div_properties(bodycopy_name, divid, can_delete) {
 	if (data != null) {
 		bodycopy_current_edit["data"]["attributes"] = var_unserialise(data["attributes"]);
 	}
-	bodycopy_show_popup("edit_div_props.php", 320, 470);
+	bodycopy_show_popup("edit_div_props.php", 325, 557);
 }// end bodycopy_edit_div_properties()
 
 function bodycopy_save_div_properties(attributes) {
@@ -68,5 +68,5 @@ function bodycopy_edit_div_conditions(bodycopy_name, divid, parentid) {
 	if (data != null) {
 		bodycopy_current_edit["data"]["attributes"] = var_unserialise(data["attributes"]);
 	}
-	bodycopy_show_popup("edit_div_conditions.php", 420, 480);
+	bodycopy_show_popup("edit_div_conditions.php", 325, 480);
 }// end bodycopy_edit_div_conditions()

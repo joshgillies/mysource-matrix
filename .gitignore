@@ -1,0 +1,10 @@
+cache/
+core/lib/DAL/QueryStore/
+core/lib/DAL/Oven/
+data/public/asset_types/
+data/public/system/core/
+data/private/
+data/file_repository/
+data/temp/
+.cvsignore
+.stop_pruning

@@ -21,43 +21,16 @@
 	assert_valid_assetid($_GET['assetid']);
 	$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($_GET['assetid']);
 	if (is_null($asset) || !$asset->writeAccess()) exit();
+
+	require_once dirname(__FILE__).'/../../../../core/include/backend_outputter.inc';
+	$o = new Backend_Outputter();
+
+	$o->openSection(translate('keyword_extraction_for', translate('asset_format', $asset->attr('name'), $asset->id)));
+	$o->openField('', 'wide_col');
 ?>
 
-<html>
-	<head>
-		<title>'<?php echo $asset->attr('name') ?>' Keyword Extraction</title>
-		<style>
-			body {
-				background-color:	#FFFFFF;
-			}
-
-			body, p, td, ul, li, input, select, textarea{
-				color:				#000000;
-				font-family:		Arial, Verdana Helvetica, sans-serif;
-				font-size:			11px;
-			}
-
-			fieldset {
-				padding:			0px 10px 5px 5px;
-				border:				1px solid #E0E0E0;
-			}
-
-			legend {
-				color:				#2086EA;
-			}
-		</style>
-	</head>
-
-	<body>
-	<?php
-		require_once dirname(__FILE__).'/../../../../core/include/backend_outputter.inc';
-		$o = new Backend_Outputter();
-
-		$o->openSection(translate('keyword_extraction_for', translate('asset_format', $asset->attr('name'), $asset->id)));
-		$o->openField('');
-	?>
-				<p><?php echo translate('kewords_for_asset', translate('asset_format', $asset->attr('name'), $asset->id)); ?></p>
-				<p><?php echo translate('use_keywords_in_metadata_fields'); ?></p>
+		<p><?php echo translate('kewords_for_asset', translate('asset_format', $asset->attr('name'), $asset->id)); ?></p>
+		<p><?php echo translate('use_keywords_in_metadata_fields'); ?></p>
 
 		<p>
 		<fieldset>
@@ -76,7 +49,7 @@ print implode(', ', $keywords);
 		</p>
 <?php
 $o->openField('', 'commit');
-normal_button('cancel', translate('close_window'), 'window.close()');
+normal_button('cancel', translate('close_window'), 'window.close()', 'style="margin-bottom: 20px;"');
 $o->closeSection();
 $o->paint();
 ?>

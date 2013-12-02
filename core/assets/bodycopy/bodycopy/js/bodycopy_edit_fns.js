@@ -165,17 +165,17 @@
 		}
 	}
 
-	function bodycopy_insert_container(bodycopy_name, containerid, before) {
+	/*function bodycopy_insert_container(bodycopy_name, containerid, before) {
 		var form = document.main_form;
 		var container_type = form_element_value(form._prefix._insert_container_type);
 		eval('bodycopy_insert_' + container_type + '("' + bodycopy_name + '", ' + containerid + ', ' + before + ');');
-	}
+	}*/
 
 	function bodycopy_insert_container(bodycopy_name, containerid, before) {
-				var form = document.main_form;
-				var container_type;
-				eval('container_type=form_element_value(form.' + _prefix + '_insert_container_type);');
-				eval('bodycopy_insert_' + container_type + '("' + bodycopy_name + '", ' + containerid + ', ' + before + ');');
-			}
+		var form = document.main_form;
+		var container_type;
+		eval('container_type=form_element_value(form.' + _prefix + '_insert_container_type);');
+		eval('bodycopy_insert_' + container_type + '("' + bodycopy_name + '", ' + containerid + ', ' + before + ');');
+	}
 
 	bodycopy_current_data[_prefix] = new Object();

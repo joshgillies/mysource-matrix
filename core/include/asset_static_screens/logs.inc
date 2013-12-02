@@ -146,7 +146,10 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 			echo "<font color=\"red\"><b>ERROR : 'From' date provided is later than 'To' date. </b></font><br>";
 			$invalid_dates = FALSE;
 		}
-		normal_button($prefix.'_go', translate('view'), 'this.form.submit()');
+		$o->closeField();
+		
+		$o->openField('&nbsp;');
+			normal_button($prefix.'_go', translate('view'), 'this.form.submit()');
 		$o->closeField();
 	}
 
@@ -221,9 +224,9 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 			?>
 			<table class="sq-backend-table">
 				<tr>
-					<td class="sq-backend-table-header" nowrap width="120"><?php echo translate('log_time'); ?></td>
-					<td class="sq-backend-table-header" nowrap width="120"><?php echo translate('logged_by'); ?></td>
-					<td class="sq-backend-table-header" width="100%"><?php echo translate('message'); ?></td>
+					<th class="sq-backend-table-header" nowrap width="120"><?php echo translate('log_time'); ?></th>
+					<th class="sq-backend-table-header" nowrap width="120"><?php echo translate('logged_by'); ?></th>
+					<th class="sq-backend-table-header" width="100%"><?php echo translate('message'); ?></th>
 				</tr>
 				<?php
 				$num_printed  = 0;
@@ -248,7 +251,7 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 				}
 				?>
 				<tr>
-					<td colspan="3" align="center" class="sq-backend-table-header">
+					<th colspan="3" class="sq-backend-table-header sq-pagination-links sq-no-bottom-border">
 					<?php
 
 					if ($start_printing_at > 0) {
@@ -292,7 +295,7 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 						echo '</span>';
 					}
 					?>
-					</td>
+					</th>
 				</tr>
 			</table>
 			<?php

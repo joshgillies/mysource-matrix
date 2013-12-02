@@ -59,25 +59,30 @@ include(dirname(__FILE__).'/header.php');
 					'none'	=> translate('raw_html'),
 				  );
 ?>
-<div class="title" style="text-align: right;"><?php echo translate('insert_div'); ?></div>
+<h1 class="title">
+	<a href="#" onclick="javascript: popup_close(); return false;">
+		<img src="<?php echo sq_web_path('lib')?>/web/images/icons/cancel.png" alt="Cancel" title="<?php echo translate('cancel');?>" class="sq-icon">
+	</a>
+	<?php echo translate('insert_div'); ?>
+</h1>
 <form name="main_form">
 <input type="hidden" name="bodycopy_name" value="">
 <input type="hidden" name="divid" value="">
-<table width="100%" border="0">
+<table>
 	<tr>
-		<td>
+		<td colspan="2">
+		<h2><?php echo translate('identification'); ?></h2>
 		<fieldset>
-			<legend><b><?php echo translate('identification'); ?></b></legend>
-			<table style="width:100%">
+			<table>
 				<tr>
 					<td class="label"><?php echo translate('name'); ?>:</td>
 					<td><input type="text" name="identifier" value="" size="15"></td>
 				</tr>
 			</table>
 		</fieldset>
+		<h2><?php echo translate('style_information'); ?></h2>
 		<fieldset>
-			<legend><b><?php echo translate('style_information'); ?></b></legend>
-			<table style="width:100%">
+			<table>
 				<tr>
 					<td class="bodycopy-popup-heading"><?php echo translate('presentation'); ?>:</td>
 					<td>
@@ -90,9 +95,9 @@ include(dirname(__FILE__).'/header.php');
 				</tr>
 			</table>
 		</fieldset>
-		<fieldset>
-			<legend><b><?php echo translate('content_type'); ?></b></legend>
-			<table style="width:100%">
+		<h2><?php echo translate('content_type'); ?></h2>
+		<fieldset class="last">
+			<table>
 				<tr>
 					<td class="bodycopy-popup-heading"><?php echo translate('content_type'); ?>:</td>
 					<td>
@@ -114,13 +119,12 @@ include(dirname(__FILE__).'/header.php');
 			</table>
 		</fieldset>
 	</tr>
-	<tr>
-		<td>
-		<div style="text-align: right;">
-		<button type="button" name="ok" onClick="javascript: popup_save(this.form)"><?php echo translate('ok'); ?></button>
-		&nbsp;
-		<button type="button" name="cancel" onClick="javascript: popup_close();"><?php echo translate('cancel'); ?></button>
-		</div>
+	<tr class="sq-popup-footer">
+		<td align="left">
+			<input type="button" class="" name="cancel" onClick="javascript: popup_close();" value="<?php echo translate('cancel'); ?>"/>
+		</td>
+		<td align="right">
+			<input type="button" class="sq-btn-blue" name="ok" onClick="javascript: popup_save(this.form)" value="<?php echo translate('insert'); ?>"/>
 		</td>
 	</tr>
 </table>

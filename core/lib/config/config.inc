@@ -343,9 +343,9 @@ class Config extends MySource_Object
 			?>
 			<table border="0" cellspacing="3" cellpadding="1">
 				<tr>
-					<td>
+					<!--td>
 						<?php sq_print_icon(sq_web_path('lib').'/web/images/icons/'.((empty($lock)) ? 'un' : '').'locked.png', 16, 16); ?>
-					</td>
+					</td-->
 					<td>
 						<p class="sq-lock-message">
 						<?php
@@ -370,13 +370,15 @@ class Config extends MySource_Object
 							echo translate('acquire_lock', translate('acquire_lock_button'), translate($config_screen));
 						}
 						echo '</p>';
+						echo '<div class="sq-locks-button-wrapper">';
 						if (!empty($lock)) {
 							if ($have_lock) {
-								submit_button('sq_lock_release_manual', translate('release_lock_button'), 'set_hidden_field("process_form", "0");', 'accesskey="r"');
+								submit_button('sq_lock_release_manual', translate('release_lock_button'), 'set_hidden_field("process_form", "0");', 'accesskey="r" class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button release"');
 							}
 						} else {
-							submit_button('sq_lock_acquire', translate('acquire_lock_button'), 'set_hidden_field("process_form", "0");', 'accesskey="a"');
+							submit_button('sq_lock_acquire', translate('acquire_lock_button'), 'set_hidden_field("process_form", "0");', 'accesskey="a" class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button acquire"');
 						}
+						echo '</div>';
 						?>
 					</td>
 				</tr>

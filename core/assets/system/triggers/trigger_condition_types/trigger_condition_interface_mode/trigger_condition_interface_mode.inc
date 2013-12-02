@@ -120,23 +120,21 @@ class Trigger_Condition_Interface_Mode extends Trigger_Condition
 						'cron',
 					   );
 			?>
-				<table>
-					<tbody>
-						<tr>
-						<?php
-							foreach ($options as $idx => $option) {
-								echo '<td>'.check_box($prefix.'['.$idx.']', $option, in_array($option, $selected)).'</td>';
-								echo '<td>'.label(translate('condition_interface_mode_'.$option), $prefix.'['.$idx.']').'</td>';
-							}
-						?>
-						</tr>
-					</tbody>
-				</table>
+				<ul class="sq-checkbox-list" style="margin-bottom: 0;">
+					<?php
+						foreach ($options as $idx => $option) {
+							echo '<li>';
+								echo ''.check_box($prefix.'['.$idx.']', $option, in_array($option, $selected)).'';
+								echo ''.label(translate('condition_interface_mode_'.$option), $prefix.'['.$idx.']').'';
+							echo '</li>';
+						}
+					?>
+				</ul>
 			<?php
 		} else {
-			echo '<ul>';
+			echo '<ul style="margin-bottom: 0;">';
 			foreach ($selected as $mode) {
-				echo '<li>'.translate('condition_interface_mode_'.$mode).'</li>';
+				echo '<li><strong>'.translate('condition_interface_mode_'.$mode).'</strong></li>';
 			}
 			echo '</ul>';
 		}

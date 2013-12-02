@@ -1,77 +1,82 @@
-<!doctype html public "-//W3C//DTD XHTML 1.0 Strict//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!DOCTYPE html>
 <!--
-/**
-* +--------------------------------------------------------------------+
-* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
-* | ACN 084 670 600                                                    |
-* +--------------------------------------------------------------------+
-* | IMPORTANT: Your use of this Software is subject to the terms of    |
-* | the Licence provided in the file licence.txt. If you cannot find   |
-* | this file please contact Squiz (www.squiz.net) so we may provide   |
-* | you a copy.                                                        |
-* +--------------------------------------------------------------------+
-*
-* $Id: index.html,v 1.13 2011/04/01 05:27:28 ewang Exp $
-*
-*/
--->
+  /**
+  * +--------------------------------------------------------------------+
+  * | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+  * | ACN 084 670 600                                                    |
+  * +--------------------------------------------------------------------+
+  * | IMPORTANT: Your use of this Software is subject to the terms of    |
+  * | the Licence provided in the file licence.txt. If you cannot find   |
+  * | this file please contact Squiz (www.squiz.net) so we may provide   |
+  * | you a copy.                                                        |
+  * +--------------------------------------------------------------------+
+  **/
+  -->
 <html>
-<head>
-	<title>Login</title>
-	<link rel="stylesheet" type="text/css" href="mysource_files/login_styles.css">
-	<style type="text/css">
-		h3 {
-			background-image: url(mysource_files/swish.gif);
-		}
-		.sq-credentials-section {
-			background-image: url(mysource_files/login_image.gif);
-		}
-	</style>
-</head>
 
-<body>
-	<MySource_AREA id_name="login_form" design_area="login_form">
-		<div id="sq-message" class="sq-message"><MySource_PRINT var="system_messages" /></div>
-		<script type="text/javascript"><!--
-		//<![CDATA[
-			var msgsDiv = document.getElementById('sq-message');
-			if (msgsDiv.innerHTML.replace( /\s/g, '') == '') {
-				msgsDiv.style.display = 'none';
-			}
-		//]]> -->
-		</script>
+  <head>
+    <meta charset="utf-8">
+    <title>Login - Squiz Matrix</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link href="/__lib/web/images/icons/favicon.ico" rel="shortcut icon" />
+    <link rel="stylesheet" type="text/css" href="mysource_files/login_styles.css">
+  </head>
 
-		<MySource_LOGIN_SECTION>
-			<MySource_SET name="give_username_focus" value="true" />
-			<MySource_SET name="forward_www_vars"    value="true" />
-			<MySource_PRINT var="form_open" />
-				<h3><MySource_PRINT var="login_heading" /></h3>
-				<p class="sq-current-user">Currently Logged in as
-				<MySource_PRINT id_name="__global__" var="current_user" default="[Not Logged In]" attr="name" /></p>
-				<p class="sq-login-message"><MySource_PRINT var="login_message" /></p>
-				<div class="sq-credentials-section">
-					<table border="0">
-						<tr>
-							<th>Username:</th>
-							<td><MySource_PRINT var="username_box" size="10" class="sq-data" /></td>
-						</tr>
-						<tr>
-							<th>Password:</th>
-							<td><MySource_PRINT var="password_box" size="10" class="sq-data"  autocomplete="off"/></td>
-						</tr>
-					</table>
-				</div>
-				<div class="sq-commit-section">
-					<MySource_PRINT var="submit_button" value="Login -&gt;" class="sq-data" />
-				</div>
+  <body class="sq-login-design" style="background-image: url(mysource_files/login_bg.png);">
 
-			<MySource_PRINT var="form_close" />
-		</MySource_LOGIN_SECTION>
-	</MySource_AREA>
-</body>
+    <MySource_AREA id_name="login_form" design_area="login_form">
+      
+      <MySource_LOGIN_SECTION>
+
+        <MySource_SET name="give_username_focus" value="true" />
+        <MySource_SET name="forward_www_vars"    value="true" />
+
+        <MySource_PRINT var="form_open" />
+
+        <div class="sq-login-logo"><img src="mysource_files/login_matrix_logo.png" alt="Squiz Matrix Logo" /></div>
+
+        <p class="sq-login-message"><MySource_PRINT var="login_message" />.</p>
+
+        <p class="sq-login-message" id="sq-current-user">Currently logged in as: <strong id="sq-current-user-name"><MySource_PRINT id_name="__global__" var="current_user" default="[Not logged in]" attr="name" /></strong></p>
+
+        <div id="sq-message" class="sq-message">
+          <MySource_PRINT var="system_messages" />
+        </div>
+
+        <script>
+        <!-- //<![CDATA[
+          var msgsDiv = document.getElementById('sq-message');
+          if (msgsDiv.innerHTML.replace( /\s/g, '') == '') {
+            msgsDiv.style.display = 'none';
+          }
+          var currentName = document.getElementById('sq-current-user-name');
+          if (currentName.innerHTML == '[Not logged in]') {
+            document.getElementById('sq-current-user').style.display = 'none';
+          }
+        //]]> -->
+        </script>
+
+        <div class="sq-credentials-section">
+          <div class="sq-field-wrapper">
+            <label for="SQ_LOGIN_USERNAME">Username</label> 
+            <MySource_PRINT var="username_box" size="10" class="sq-data" required="required"/>
+          </div>
+          <div class="sq-field-wrapper">
+            <label for="SQ_LOGIN_PASSWORD">Password</label> 
+            <MySource_PRINT var="password_box" size="10" class="sq-data" required="required" autocomplete="off"/>
+          </div>
+        </div>
+
+        <div class="sq-commit-section">
+          <MySource_PRINT var="submit_button" value="Login" class="sq-data" />
+        </div>
+
+        <MySource_PRINT var="form_close" />
+
+      </MySource_LOGIN_SECTION>
+
+    </MySource_AREA>
+
+  </body>
+
 </html>
-
-
-
-

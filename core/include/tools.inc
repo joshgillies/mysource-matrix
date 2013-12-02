@@ -43,7 +43,7 @@ class Tools extends MySource_Object
 	function paintBackend(&$backend)
 	{
 		$o =& $backend->out;
-		$o->setHeading(translate('system_tools'), sq_get_icon($o->filesPath('/images/icons/header/whereami.png'), 20, 20, 'Tools'));
+		$o->setHeading(translate('system_tools'), sq_get_icon($o->filesPath('/images/icons/header/whereami.png'), '', '', 'System Tools'));
         $o->setPageTitle(translate('system_tools'));
 
 		if (isset($_REQUEST['committed_tool_type_code'])) {

@@ -81,7 +81,7 @@ class File_Folder_Edit_Fns extends File_Edit_Fns
 			multiple_asset_finder($prefix.'_linked_files', $file_assetids, Array($file_asset_type => 'D'));
 		} else {
 			$infos = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($file_assetids);
-			?><ul style="margin: 1px 15px;"><?php
+			?><ul><?php
 			foreach ($infos as $assetid => $info) {
 				echo '<li>'.get_asset_tag_line($assetid).'</li>';
 			}

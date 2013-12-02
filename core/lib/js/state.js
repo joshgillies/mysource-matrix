@@ -20,6 +20,7 @@
 function changesMade()
 {
 	document.forms[0]['changes'].value = '1';
+	checkChangesMade();
 	return true;
 }
 
@@ -138,4 +139,16 @@ onsubmit = function(e) {
 
 onreset = function(e) {
 	resetChanges();
+}
+
+// Adds a class to the commit button wrapper div so that we can indicate that changes are made but not saved.
+function checkChangesMade()
+{
+	if (document.forms[0]['state'].value != saveState()) {
+		if(document.body.className.indexOf('sq-changes-made') < 0){
+			document.body.className += ' sq-changes-made';
+		}
+	} else {
+		document.body.className = document.body.className.replace(/ sq-changes-made/, '');
+	}
 }

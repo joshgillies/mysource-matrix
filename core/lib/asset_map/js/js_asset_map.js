@@ -886,7 +886,7 @@ var JS_Asset_Map = new function() {
 		});
 
 		dfx.addEvent(assetMapContainer, 'contextmenu', function(e) {
-			e.preventDefault();
+			e.preventDefault(); //comment this line out if you need to debug using browser inspector tools
 		});
 
 		dfx.addEvent(assetMapContainer.ownerDocument.getElementsByTagName('body'), 'keypress', function(e) {
@@ -2652,7 +2652,8 @@ var JS_Asset_Map = new function() {
 
 		if (drawAddButton !== false) {
 			var addButton = _createEl('div');
-			dfx.addClass(addButton, 'addButton');
+			dfx.addClass(addButton, 'addButton sq-btn-link sq-btn-small sq-btn-no-shadow');
+			addButton.innerHTML = '<img src="'+ options.libPath +'/web/images/icons/asset_map/add_off.png" alt="Add icon" title="Add new asset"/> Add';
 			container.appendChild(addButton);
 			dfx.addEvent(addButton, 'click', function(e) {
 				var target   = dfx.getMouseEventTarget(e);
@@ -2830,6 +2831,7 @@ var JS_Asset_Map = new function() {
 
 		var divider = _createEl('div');
 		divider.id  = 'asset_map_status_list_divider';
+		divider.title = 'Toggle ' + js_translate('asset_map_status_colour_key');
 		dfx.addClass(divider, 'statusDivider');
 		container.appendChild(divider);
 
@@ -2898,7 +2900,7 @@ var JS_Asset_Map = new function() {
 		dfx.addClass(treeList, 'tree-list');
 
 		var tree1 = _createEl('span');
-		dfx.addClass(tree1, 'tab');
+		dfx.addClass(tree1, 'tab sq-menu-tab vertical');
 		tree1.setAttribute('data-treeid', 0);
 		tree1.innerHTML = js_translate('asset_map_tree1_name');
 		treeList.appendChild(tree1);
@@ -2909,7 +2911,7 @@ var JS_Asset_Map = new function() {
 		});
 
 		var tree2 = _createEl('span');
-		dfx.addClass(tree2, 'tab');
+		dfx.addClass(tree2, 'tab sq-menu-tab vertical');
 		tree2.setAttribute('data-treeid', 1);
 		tree2.innerHTML = js_translate('asset_map_tree2_name');
 		treeList.appendChild(tree2);
