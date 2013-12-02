@@ -112,7 +112,7 @@ class System_Config extends Config
 						'SQ_CONF_FORCE_LOWERCASE_USERNAME'		=> Array('editable' => 0, 'default' => FALSE),
 						'SQ_LICENCE_INSTALL_KEY'				=> Array('editable' => 1, 'default' => ''),
 						'SQ_LICENCE_WARRANTY_KEY'				=> Array('editable' => 1, 'default' => ''),
-						'SQ_CONF_COOKIE_OPTION_HTTP_ONLY'		=> Array('editable' => 1, 'default' => FALSE),
+						'SQ_CONF_COOKIE_OPTION_HTTP_ONLY'		=> Array('editable' => 1, 'default' => TRUE),
 						'SQ_CONF_COOKIE_OPTION_SECURE'			=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_CONF_ROOT_USER_DISABLED'			=> Array('editable' => 0, 'default' => '0'),
 						'SQ_CONF_DISABLE_ATTRIBUTION'			=> Array('editable' => 1, 'default' => '0'),
