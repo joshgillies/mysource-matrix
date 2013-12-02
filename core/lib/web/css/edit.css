@@ -2054,7 +2054,6 @@ LEFT SIDEBAR FRAME STYLES
 /* ASSET MAP (Ecluding the asset map container) */
 
 #asset_map {
-	margin-top: 				5px;
 	border:						none;
 	padding:					0px;
 	width:						100%;
@@ -2077,12 +2076,11 @@ LEFT SIDEBAR FRAME STYLES
 #asset_map .addButton.sq-btn-link img {
 	vertical-align: 			middle;
 	position: 					relative;
-	right: 						0;
-	float: 						right;
+	float: 						left;
+	left: 						0px;
 	top: 						9px;
-	text-align: 				right;
 	cursor:						pointer;
-	margin-left: 				7px;
+	margin-right: 				4px;
 }
 
 #asset_map .tbButtons,
