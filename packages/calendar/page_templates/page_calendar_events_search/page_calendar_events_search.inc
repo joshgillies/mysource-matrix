@@ -970,7 +970,11 @@ class Page_Calendar_Events_Search extends Search_Page
 			
 			case 'this_month':
 				$from = date("Y-m-d", strtotime(date('m').'/01/'.date('Y')));
-				$to = date("Y-m-d", strtotime((date('m')+1).'/01/'.date('Y'))-86400); // 86400 = 24*60*60
+				if (date('m') == 12) {
+					$to = date("Y-m-d", strtotime('01/01/'.(date('Y')+1))-86400); // 86400 = 24*60*60
+				} else {
+					$to = date("Y-m-d", strtotime((date('m')+1).'/01/'.date('Y'))-86400); // 86400 = 24*60*60
+				}
 			break;
 			
 			case 'next_month':
@@ -982,7 +986,11 @@ class Page_Calendar_Events_Search extends Search_Page
 					$year = date('Y');
 				}
 				$from = date("Y-m-d", strtotime($month.'/01/'.$year));
-				$to = date("Y-m-d", strtotime(($month+1).'/01/'.$year)-86400);
+				if ($month == 12) {
+					$to = date("Y-m-d", strtotime('01/01/'.($year+1))-86400);
+				} else {
+					$to = date("Y-m-d", strtotime(($month+1).'/01/'.$year)-86400);
+				}
 			break;
 			
 			case 'previous_month':
@@ -990,11 +998,15 @@ class Page_Calendar_Events_Search extends Search_Page
 					$month = 12;
 					$year = date('Y')-1;
 				} else {
-					$month = date('m');
+					$month = date('m')-1;
 					$year = date('Y');
 				}
 				$from = date("Y-m-d", strtotime($month.'/01/'.$year));
-				$to = date("Y-m-d", strtotime(($month == 12 ? 1 : $month+1).'/01/'.$year)-86400);
+				if ($month == 12) {
+					$to = date("Y-m-d", strtotime('01/01/'.($year+1))-86400);
+				} else {
+					$to = date("Y-m-d", strtotime(($month+1).'/01/'.$year)-86400);
+				}
 			break;
 			
 			case 'this_year':
