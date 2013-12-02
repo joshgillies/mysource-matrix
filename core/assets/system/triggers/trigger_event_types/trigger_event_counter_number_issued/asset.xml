@@ -1,0 +1,38 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ABN 77 084 670 600                                                 |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.com.au) so we may provide|
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+*/
+-->
+
+<asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<package>__core__</package>
+	<type_code>trigger_event_counter_number_issued</type_code>
+	<version>0.1</version>
+	<name>Counter Number Issued</name>
+	<description>A counter number is issued in the session</description>
+	<instantiable>no</instantiable>
+	<allowed_access>system</allowed_access>
+	<parent_type>trigger_event</parent_type>
+	<requirements>
+		<requirement type="asset">
+			<code>trigger_manager</code>
+			<version>0.1</version>
+		</requirement>
+		<requirement type="asset">
+			<code>trigger_event</code>
+			<version>0.1</version>
+		</requirement>
+	</requirements>
+	<flash_menu_path/>
+</asset_info>
