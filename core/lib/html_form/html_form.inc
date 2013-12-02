@@ -803,10 +803,13 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 	    if ($map_frame === 'sq_sidenav') {
 	        $map_frame    = trim('parent.frames.'.$map_frame, '.');
 	        $finder_frame = 'parent.frames.sq_main';
-	    } if ($map_frame === 'sq_wysiwyg_popup_sidenav') {
+	    } else if ($map_frame === 'sq_wysiwyg_popup_sidenav') {
 	        $map_frame    = trim('frames.'.$map_frame, '.');
 	        $finder_frame = 'self';
-	    }
+	    } else {
+            $map_frame    = 'self';
+            $finder_frame = 'self';
+        }
 	} else {
 		$map_frame    = 'self';
 		$finder_frame = 'self';
