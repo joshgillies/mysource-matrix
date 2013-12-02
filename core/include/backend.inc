@@ -1277,6 +1277,12 @@ class Backend extends MySource_Object
 		foreach ($include_list as $link) {
 			echo '<script type="text/javascript" src="'.$link.'"></script>'."\n";
 		}
+		
+		
+        require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
+        $asset_map = new Asset_Map();
+        $asset_map->embedAssetMapRequiredJS();
+        $am_width = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_WIDTH');
 		?>
 		<style type="text/css">
 			body {
@@ -1432,9 +1438,6 @@ class Backend extends MySource_Object
 				</table>
 				<div id="asset_map" class="in_limbo">
 					<?php
-					require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
-					$asset_map = new Asset_Map();
-					$am_width = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_WIDTH');
 					$asset_map->embedAssetMap('simple', $am_width);
 					?>
 				</div>
@@ -1486,9 +1489,6 @@ class Backend extends MySource_Object
 
 				<div id="asset_map">
 					<?php
-					require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
-					$asset_map = new Asset_Map();
-					$am_width = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_WIDTH');
 					$asset_map->embedAssetMap('complex', $am_width);
 					?>
 				</div>

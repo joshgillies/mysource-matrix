@@ -351,6 +351,16 @@ class Asset_Map
 	}//end _getInitialLineageSelection()
 
 
+	function embedAssetMapRequiredJS()
+	{
+	    ?>
+	    <script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/detect.js' ?>"></script>
+		<script type="text/javascript" src="<?php echo sq_web_path('fudge').'/var_serialise/var_serialise.js' ?>"></script>
+		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/asset_map/asset_map.js';?>"></script>
+		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/asset_map/js/js_asset_map.js';?>"></script>
+		<?php
+	}
+	
 	/**
 	* To create the tags that embed the asset map into the matrix system
 	*
@@ -407,13 +417,6 @@ class Asset_Map
 		// we want to use current_url()
 		require_once SQ_INCLUDE_PATH.'/general.inc';
 
-		?>
-		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/detect.js' ?>"></script>
-		<script type="text/javascript" src="<?php echo sq_web_path('fudge').'/var_serialise/var_serialise.js' ?>"></script>
-		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/asset_map/asset_map.js';?>"></script>
-		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/asset_map/js/js_asset_map.js';?>"></script>
-
-		<?php
 			if (isset($GLOBALS['SQ_SYSTEM']->user)) {
 				$user = $GLOBALS['SQ_SYSTEM']->user;
 			} else {
@@ -632,7 +635,7 @@ class Asset_Map
 	*/
 	public function process(&$backend)
 	{
-		ini_set("display_errors", 0);
+	    ini_set("display_errors", 0);
 		$json = array_get_index($_GET, 'json', '');
 
 		// block public users from probing
@@ -640,7 +643,7 @@ class Asset_Map
 		if (is_null($user) || $user instanceof Public_User || (method_exists($user, 'canAccessBackend') && !($user instanceof Simple_Edit_User || $user->canAccessBackend() || (method_exists($user, 'isShadowSimpleEditUser') && $user->isShadowSimpleEditUser())))) {
 			exit();
 		}
-
+		
 		// set the output type to XML, so any errors raised by the objects will be sent along in XML
 		if ($json === '1') {
 			$GLOBALS['SQ_OUTPUT_TYPE'] = 'json';
@@ -651,7 +654,7 @@ class Asset_Map
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 		$xml = file_get_contents("php://input");
-
+		
 		if ($json === '1') {
 			$xml = json_decode_array($xml, TRUE);
 			$xml = $this->_toXML($xml, 'xml');
@@ -663,7 +666,7 @@ class Asset_Map
 		$root = simplexml_load_string($xml);
 		if (function_exists('libxml_disable_entity_loader'))
 			libxml_disable_entity_loader(FALSE);
-
+		
 		ob_start();
 		switch ($root['action']) {
 			case 'get translations' :
@@ -725,7 +728,7 @@ class Asset_Map
 			echo "</translations>\n";
 			$out = ob_get_contents();
 		ob_end_clean();
-
+		
 		$this->_send($out);
 
 	}//end _getTranslations()

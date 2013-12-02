@@ -796,17 +796,25 @@ function get_type_codes_string($type_codes)
 */
 function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sidenav', $new_window=FALSE, $done_fn='null', $buttons=Array('clear', 'reset'))
 {
-	$finder_frame = ($new_window || empty($map_frame)) ? 'self' : 'parent.frames["sq_main"]';
 	$escaped_name = str_replace('\\', '\\\\', $name);
 	$assetid	  = trim($assetid);
 
 	if (!empty($map_frame)) {
-		$map_frame = trim('parent.frames.'.$map_frame, '.');
+	    if ($map_frame === 'sq_sidenav') {
+	        $map_frame    = trim('parent.frames.'.$map_frame, '.');
+	        $finder_frame = 'parent.frames.sq_main';
+	    } if ($map_frame === 'sq_wysiwyg_popup_sidenav') {
+	        $map_frame    = trim('frames.'.$map_frame, '.');
+	        $finder_frame = 'self';
+	    }
 	} else {
-		$map_frame = 'self';
+		$map_frame    = 'self';
+		$finder_frame = 'self';
 	}
+	
 	if ($new_window) {
-		$map_frame = 'window.opener.'.$map_frame;
+		$map_frame    = 'window.opener.'.$map_frame;
+		$finder_frame = 'self';
 	}
 
 	$label = '';
@@ -838,27 +846,13 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 		?><span class="sq-asset-finder-id-label">Id : #</span><?php
 		text_box($safe_name.'_assetid', empty($assetid) ? '' : $assetid, 2, '', FALSE, 'style="border:1px solid #EFEFEF;width:7ex;" onchange="this.value=this.value.replace(/^\s*((?:[\S\s]*\S)?)\s*$/, \'$1\');'.str_replace('"', '\'', $finder_frame).'.set_hidden_field(\''.$name.'\' + \'[assetid]\', this.value);"');
 		?> <?php
-		normal_button($safe_name.'_change_btn', translate('change'), $map_frame.'.asset_finder_change_btn_press(\''.$escaped_name.'\', \''.$safe_name.'\', \''.addslashes($type_codes).'\', '.$done_fn.');');
+		normal_button($safe_name.'_change_btn', translate('change'), $map_frame.'.set_finder('.$finder_frame.'); '.$map_frame.'.asset_finder_change_btn_press(\''.$escaped_name.'\', \''.$safe_name.'\', \''.addslashes($type_codes).'\', '.$done_fn.');');
 		if (in_array('clear', $buttons)) {
 			normal_button($safe_name.'_clear_btn', translate('clear'), $map_frame.'.asset_finder_clear_btn_press(\''.$escaped_name.'\', \''.$safe_name.'\');');
 		}
 		if (in_array('reset', $buttons)) {
 			normal_button($safe_name.'_reset_btn', translate('reset'), $map_frame.'.asset_finder_reset_btn_press(\''.$escaped_name.'\', \''.$safe_name.'\', \''.$assetid.'\', \''.addslashes($label).'\');');
 		}
-		?><script type="text/javascript">
-				if (!window.frames['sq_wysiwyg_popup_sidenav'] && (!window.top.frames['sq_resizer'] || <?php echo $map_frame; ?>.SQ_DOCUMENT_LOADED)) {
-				    <?php echo $map_frame; ?>.set_finder(<?php echo $finder_frame; ?>);
-				} else {
-					// this gets overridden when multiple asset finders exist anyway,
-					// so no harm at the moment in only saving the latest set_finder call
-					if (typeof currentOnload == 'undefined') {
-						currentOnload = <?php echo $map_frame; ?>.onload;
-					} else {
-					    currentOnload = function() {};
-					}
-					<?php echo $map_frame; ?>.onload = function() { <?php echo $map_frame; ?>.set_finder(<?php echo $finder_frame; ?>); currentOnload(); }
-				}
-			</script><?php
 	}
 
 }//end asset_finder()
