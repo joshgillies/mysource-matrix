@@ -26,51 +26,48 @@
 * Current position in the search results
 * @var int
 */
-current = 0;
 
-
-/**
-* Results per page (by default - will be changed when a search is run)
-* @var int
-*/
-results_per_page = 5;
-
-
-/**
-* Placeholder for search results, so we can tab through them
-* @var array
-*/
-keyword_search_results = [];
-
-
-/**
-* Jump to a specific page in backend search results
-*
-* @param int	start	the position to start from (zero-based)
-*
-* @return void
-*/
-function jumpToSearchResults(start)
-{
-	document.getElementById("sq-search-results-page-start").innerHTML = start + 1;
-	document.getElementById("sq-search-results-page-end").innerHTML = Math.min(start + results_per_page, keyword_search_results.length);
-	for (i = 1; i <= results_per_page; i++) {
-		result_num = start + i - 1;
-		if (result_num >= keyword_search_results.length) {
-			document.getElementById("sq-search-results-entry-" + i).style.display = 'none';
-			document.getElementById("sq-search-results-expand-" + i).style.display = 'none';
-		} else {
-			document.getElementById("sq-search-results-entry-" + i).innerHTML = keyword_search_results[result_num];
-			document.getElementById("sq-search-results-expand-link-" + i).innerHTML = '+';
-			document.getElementById("sq-search-results-entry-" + i).style.display = 'block';
-			document.getElementById("sq-search-results-expand-" + i).style.display = 'block';
-
-			// For some reason the class name needs to be reinforced, otherwise
-			// the text indent override provided by this class does not work
-			// properly
-			document.getElementById("sq-search-results-detail-" + i).className = 'sq-search-results-detail';
-			document.getElementById("sq-search-results-detail-" + i).style.display = 'none';
-
+var MatrixBackendSearch = {
+	currentPage: 0,
+	totalResults: 0,
+	resultsPerPage: 5,
+	
+	next: function() {
+		var lastPage = Math.ceil(this.totalResults / this.resultsPerPage) - 1;
+		if (this.currentPage < lastPage) {
+			this.jump(this.currentPage + 1);
 		}
+	},
+	
+	back: function() {
+		if (this.currentPage > 0) {
+			this.jump(this.currentPage - 1);
+		}
+	},
+	
+	first: function() {
+		this.jump(0);
+	},
+	
+	last: function() {
+		this.jump(Math.ceil(this.totalResults / this.resultsPerPage) - 1);
+	},
+	
+	jump: function(page) {
+		var oldEls = document.querySelectorAll(".sq-search-results-page-" + this.currentPage);
+		for (var i = 0; i < oldEls.length; i++) {
+			oldEls[i].style.display = 'none';
+		}
+		
+		this.currentPage = page;
+		
+		var newEls = document.querySelectorAll(".sq-search-results-page-" + this.currentPage);
+		for (var i = 0; i < newEls.length; i++) {
+			newEls[i].style.display = 'block';
+		}
+		
+		document.getElementById("sq-search-results-page-start").innerHTML = ((page * this.resultsPerPage) + 1);
+		document.getElementById("sq-search-results-page-end").innerHTML = Math.min(((page+1) * this.resultsPerPage), this.totalResults);
+	
 	}
-}//end jumpToSearchResults()
+};
