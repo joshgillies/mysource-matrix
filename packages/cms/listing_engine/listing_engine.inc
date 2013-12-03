@@ -1174,6 +1174,12 @@ class Listing_Engine extends Page
 
 			foreach ($asset_list as $assetid => $type) {
 				$meta_field_val = $mm->getMetadataValueByAssetid($assetid,$fieldid,TRUE,$presentation_value);
+				$meta_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($fieldid);
+				$field_type = $meta_field->type();
+				// get value of selection if raw display is required
+				if (($field_type === 'metadata_field_hierarchy' || $field_type === 'metadata_field_select') && !$presentation_value)  {
+				    $meta_field_val= preg_replace('/\\\;/', ';',  $meta_field->getValueFromKey($meta_field_val));
+				}
 				$field_value = $field_default_val;
 				if (isset($meta_field_val)) {
 					$field_value = $meta_field_val;
@@ -3480,29 +3486,25 @@ class Listing_Engine extends Page
 						$value = Array();
 						foreach($metadata_field_ids as $metadata_field_id) {
 							$metadata_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_field_id);
+							$field_type = $metadata_field->type();
 							if(empty($metadata_field)) continue;
 							$new_value = $mm->getMetadataValueByAssetid($current_parent, $metadata_field_id, TRUE, $presentation_value);
 
 							// port the feature added #4039, although not perfectly sensible but still have to keep it
-							// if using raw value and the frontend format of the multi-select metadata field is 'key', grab the value of the option as grouping source
-							// if using presentation value, frontend format is 'key', it should use the key
-							// if using raw value and the frontend format is 'value', it should use the key
-							// if using presentation value, frontend format is 'value', it should use the value
-							if (method_exists($metadata_field, 'getKeyFromValue') && !$presentation_value && $metadata_field->attr('visible_part') === 'key')  {
-
-							    $new_value= $metadata_field->getKeyFromValue($new_value);
+							// if using raw value, always use the value of select field, because the value is always dispalyed in backend interface
+							// if using presentation value, that's whatever is displayed in frontend (key or value depends on schema setting)
+							if (($field_type === 'metadata_field_hierarchy' || $field_type === 'metadata_field_select') && !$presentation_value)  {
+							    $new_value= preg_replace('/\\\;/', ';',  $metadata_field->getValueFromKey($new_value));
 							}
 								
-			
 							// if it's multi-options field, we need to extract individual option
 							$individual_entry_grouping = array_get_index($group_level,'group_by_individual',  TRUE);
 							if($individual_entry_grouping) {
-							    $field_type = $metadata_field->type();
 							    switch($field_type) {
 								case 'metadata_field_multiple_text':
 								case 'metadata_field_hierarchy':
 								case 'metadata_field_select':
-								    $new_value = explode($presentation_value ? '; ' : '\; ', $new_value);
+								    $new_value = explode('; ', $new_value);
 								    break;
 								case 'metadata_field_thesaurus':
 								    $new_value = explode(',', $new_value);
@@ -3888,6 +3890,7 @@ class Listing_Engine extends Page
 					$sorting_metadata_field_id = $group_type['sorting_metadata_field'];
 					if (!empty($sorting_metadata_field_id)) {
 						$sorting_metadata_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($sorting_metadata_field_id);
+						$field_type = $sorting_metadata_field->type();
 					}
 					if (!is_null($sorting_metadata_field)) {
 						// get the metadata manager if we haven't already
@@ -3905,6 +3908,10 @@ class Listing_Engine extends Page
 
 						foreach ($results as $key => $arrayInfo) {
 							$group_order[$key] = $mm->getMetadataValueByAssetid($key, $sorting_metadata_field_id, TRUE, $presentation_value);
+							// use value of selection if raw display is required
+							if (($field_type === 'metadata_field_hierarchy' || $field_type === 'metadata_field_select') && !$presentation_value)  {
+							    $group_order[$key] = preg_replace('/\\\;/', ';',  $sorting_metadata_field->getValueFromKey($group_order[$key]));
+							}
 						}//end foreach
 					}//end if
 				} else {
