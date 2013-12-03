@@ -885,7 +885,7 @@ var JS_Asset_Map = new function() {
 		});
 
 		dfx.addEvent(assetMapContainer, 'contextmenu', function(e) {
-			//e.preventDefault();
+			e.preventDefault(); //comment this line out if you need to debug using browser inspector tools
 		});
 
 		dfx.addEvent(assetMapContainer.ownerDocument.getElementsByTagName('body'), 'keypress', function(e) {
