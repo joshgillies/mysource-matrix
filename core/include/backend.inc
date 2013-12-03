@@ -717,14 +717,33 @@ class Backend extends MySource_Object
 								
 								// Add matches, and ellipsise out bits that are
 								// more than 15 characters either side.
-								$value = preg_replace('/('.addslashes(implode('|', $search_words)).')/i', '<SQ_MATCH>$1</SQ_MATCH>', $value);
-								$value = preg_replace('/(<\/SQ_MATCH>.{15})(.{3,})(.{15}<SQ_MATCH>)/', '$1...$2', $value);
-								$value = preg_replace('/(<\/SQ_MATCH>.{15})(.{3,})$/', '$1...', $value);
-								$value = preg_replace('/^(.{3,})(.{15}<SQ_MATCH>)/', '...$2', $value);
+								preg_match_all('/('.addslashes(implode('|', $search_words)).')/i', $value, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
+								$last_match = 0;
+								$offset     = 0;
+								foreach ($matches as $match) {
+									$match_pos  = $match[1][1];
+									
+									if ($last_match === 0) {
+										if ($match_pos >= 18) {
+											$value   = substr_replace($value, '...', 0, $match_pos - 15);
+											$offset += ($match_pos - 15);
+										}
+									} else {
+										if ($match_pos >= 33) {
+											$value   = substr_replace($value, '...', ($last_match - $offset), ($match_pos - $last_match - 30));
+											$offset += ($match_pos - $last_match - 30);
+										}
+									}
+									
+									$last_match = $match_pos + strlen($match[1][0]);
+								}
 								
-								// Limit the length of the value to 120 displayed characters
-								// (not including the match indicators)
-								$value = ellipsisize($value, (120 + (substr_count($value, '<SQ_MATCH>') * strlen('<SQ_MATCH></SQ_MATCH>'))));
+								if ((strlen($value) - ($last_match - $offset)) >= 18) {
+									$value = substr_replace($value, '...', $last_match - $offset + 15);
+								}
+								
+								$value = ellipsisize($value, 120);
+								$value = preg_replace('/('.addslashes(implode('|', $search_words)).')/i', '<SQ_MATCH>$1</SQ_MATCH>', $value);
 								
 								$match_details[] = array(
 									'name'  => $name_detail,
@@ -740,20 +759,19 @@ class Backend extends MySource_Object
 						}
 						
 						$line  = '<div class="sq-search-results-page-'.$page.'"'.$extra.'>';
-						$line .= '  <div id="sq-search-results-expand-'.$i.'" ';
-						$line .= '  class="sq-search-results-expand-div"';
-						$line .= '  <a href="#" id="sq-search-results-expand-link-'.$i.'" class="sq-search-results-expand-link"';
-						$line .= '  onclick="if (this.innerHTML == \'+\') {document.getElementById(\'sq-search-results-detail-'.$i.'\').style.display = \'block\'; this.innerHTML = \'-\';} else {document.getElementById(\'sq-search-results-detail-'.$i.'\').style.display = \'none\'; this.innerHTML = \'+\';} return false;">+</a>';
+						$line .= '  <div class="sq-search-results-expand-div">';
+						$line .= '  <a href="#" class="sq-search-results-expand-link"';
+						$line .= '  onclick="if (this.innerHTML == \'+\') {this.parentNode.nextSibling.lastChild.style.display = \'block\'; this.innerHTML = \'-\';} else {this.parentNode.nextSibling.lastChild.style.display = \'none\'; this.innerHTML = \'+\';} return false;">+</a>';
 						$line .= '  </div>';
-						$line .= '<div id="sq-search-results-entry-'.$i.'" class="sq-search-results-entry">';
+						$line .= '<div class="sq-search-results-entry">';
 						$line .= get_asset_tag_line($result_assetid, 'details').'<br/>';
-						$line .= '<div id="sq-search-results-detail-'.$i.'" class="sq-search-results-detail">';
+						$line .= '<div class="sq-search-results-detail">';
 						
 						foreach ($match_details as $match) {
-							$value = htmlspecialchars($value);
-							$name_detail = htmlspecialchars($name_detail);
+							$value = htmlspecialchars($match['value']);
+							$name_detail = htmlspecialchars($match['name']);
 
-							$value = preg_replace('/&lt;SQ_MATCH&gt;(.*)&lt;\/SQ_MATCH&gt;/', '<span class="sq-backend-search-results-highlight">$1</span>', $value);
+							$value = preg_replace('/&lt;SQ_MATCH&gt;(.*)&lt;\/SQ_MATCH&gt;/U', '<span class="sq-backend-search-results-highlight">$1</span>', $value);
 							$line .= $name_detail.'<br/><em>'.str_replace("\r", '', str_replace("\n", '<br/>', $value)).'</em><br/>';
 						}
 						
@@ -766,7 +784,7 @@ class Backend extends MySource_Object
 					$detail_lines[] = $keyword_lines;
 					
 					$html = $this->_getDHTMLMessage(translate('search_results'), $detail_lines, 'search-results');
-					$html = str_replace("\n", '', preg_replace('|<script.*</script>|U', '', $html));
+					$html = preg_replace('/>\s+</', '> <', str_replace("\n", '', preg_replace('|<script.*</script>|U', '', $html)));
 					$dhtml_messages['search_results'] = Array(
 														 'html'    => $html,
 														 'width'   => 300, 
