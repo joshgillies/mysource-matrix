@@ -355,9 +355,6 @@ class Payment_Gateway_Payflow extends Payment_Gateway
 		$processor->setMerchantRef($ref_no);
 		$_SESSION['SQ_ECOM_REF_NO'] = $ref_no;
 
-		// Set an optional custom merchant reference text
-		$processor->setOptionalMerchantRef($this->attr('custom_reference'));
-
 		// Set the Payflow account paramaters
 		$acc_user = $this->attr('user');
 		if (!empty($acc_user)) {
@@ -1117,7 +1114,7 @@ HEREDOC;
 		$err_message = '';
 		$errors = array_get_index($this->_tmp, 'error_message', Array());
 		foreach ($errors as $error) {
-			$err_message .= "<li>$error </li>";
+			$err_message .= "<li>".htmlspecialchars($error, ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET)." </li>";
 		}
 
 		return '<ul>'.$err_message.'</ul>';

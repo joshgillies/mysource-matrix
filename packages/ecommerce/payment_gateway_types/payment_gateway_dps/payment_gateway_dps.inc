@@ -1068,7 +1068,7 @@ HEREDOC;
 		$err_message = '';
 		$errors = array_get_index($this->_tmp, 'error_message', Array());
 		foreach ($errors as $error) {
-			$err_message .= "<li>$error </li>";
+			$err_message .= "<li>".htmlspecialchars($error, ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET)." </li>";
 		}
 		
 		return '<ul>'.$err_message.'</ul>';

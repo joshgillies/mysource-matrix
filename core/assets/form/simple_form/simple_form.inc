@@ -692,8 +692,8 @@ class Simple_Form extends Asset implements Bridge
 				$this->_answers[$assetid] = Array(
 												'name'			=> $data['name'],
 												'type_code'		=> $data['type_code'],
-												'value'			=> $q->getValue(),
-												'summary'		=> $q->getSummary(),
+												'value'			=> htmlspecialchars($q->getValue(), ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET),
+												'summary'		=> htmlspecialchars($q->getSummary(), ENT_NOQUOTES, SQ_CONF_DEFAULT_CHARACTER_SET),
 												'extra_data'	=> $q->getExtraData(),
 												'is_error'		=> !$valid,
 											);

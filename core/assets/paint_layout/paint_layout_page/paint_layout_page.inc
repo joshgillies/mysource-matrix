@@ -437,7 +437,33 @@ class Paint_Layout_Page extends Page_Standard
 
 	}//end createTypeFormatBodycopy()
 
+	
+	/**
+	*
+	* Get available conditions of the asset its parent site
+	* This asset doesn't support conditions, return empty array
+	* 
+	* @return array
+	* @access public
+	*/
+	function getAvailableConditions()
+	{
+	    return Array();
+	}//end getAvailableConditions
 
+	/**
+	*
+	* Get all the conditions set for the asset
+	* This asset doesn't support conditions, return empty array
+	*
+	* @return array
+	* @access public
+	*/
+	function getConditions()
+	{
+	    return Array();
+	}//end getConditions
+	
 }//end class
 
 ?>

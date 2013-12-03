@@ -776,8 +776,6 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 		$i=1;
 		foreach ($raw_components as $component) {
 			$error = FALSE;
-			if (isset($component['delete'])) continue;
-
 			$settings = Array();
 
 			$type = array_get_index($component, 'type');
@@ -785,8 +783,15 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 				continue; // invalid type is silently ignored
 			}
 
-
 			$data = array_get_index($component, 'data', Array());
+			if (isset($component['delete'])) {
+				// If anything needs to be done when deleting this trigger action
+				if (method_exists($type, 'destroyTriggerAction')) {
+					eval($type.'::destroyTriggerAction($settings, $data);');
+				}
+				continue;
+			}
+
 			if (!array_get_index($component, 'new', FALSE)) {
 				eval('$error = '.$type.'::processInterface($settings, $data);');
 			}

@@ -50,7 +50,7 @@ class User_Prefs extends Prefs
 						'SQ_USER_ASSET_MAP_MODERN'  => Array(
 														'name'			=> 'user_prefs_asset_map_modern_header',
 														'description'	=> 'Controls whether the modern (JS-based) asset map is used where supported, or the original Java version',
-														'default'		=> TRUE,
+														'default'		=> FALSE,
 														'protected'		=> FALSE,
 													   ),
 						'SQ_USER_SAFE_TYPE3_TRASH'	=> Array(
@@ -92,7 +92,7 @@ class User_Prefs extends Prefs
 						'SQ_USER_FILTER_FRONT_END_INPUT'	=> Array(
 														'name'			=> 'filter_front_end_user_input',
 														'description'	=> 'Filter (strip keywords, strip script tags and escape html) of any input by the user from the front end.',
-														'default'		=> FALSE,
+														'default'		=> TRUE,
 														'protected'		=> FALSE,
 													   ),
 					 );
