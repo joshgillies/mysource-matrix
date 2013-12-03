@@ -262,6 +262,33 @@ class Payflow_Processor
 
 
 	/**
+	* Set an extra optional merchant reference value
+	*
+	* @param string $val
+	*
+	* @return string
+	* @access public
+	*/
+	public function setOptionalMerchantRef($val)
+	{
+		if (empty($val)) {
+			return $val;
+		}
+
+		$order_assetid = isset($_SESSION['sq_local_cart_contents']['pending_order_id']) ? $_SESSION['sq_local_cart_contents']['pending_order_id'] : '';
+		// Replace the order asset keywords in the reference text if any
+		if (extract_keywords($val) && $order_assetid && $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($order_assetid)) {
+			$order = $GLOBALS['SQ_SYSTEM']->am->getAsset($order_assetid);
+			$val = $order->replaceKeywordsInString($val);
+			replace_global_keywords($val);
+		}
+
+		$this->_parm_list .= '&COMMENT2['.strlen($val).']='.$val;
+
+	}//end setOptionalMerchantRef()
+
+
+	/**
 	* Set the account user
 	*
 	* @param string $val

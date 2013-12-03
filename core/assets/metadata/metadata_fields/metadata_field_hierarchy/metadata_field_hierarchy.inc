@@ -250,8 +250,8 @@ class Metadata_Field_Hierarchy extends Metadata_Field
 		foreach ($option_keys as $key) {
 			$key = str_replace('\\', '', $key);
 			foreach($options as $index => $element) {
-				if ($index === $key) {
-					$value_str .= $element.'\\; ';
+				if ($element === $key) {
+					$value_str .= $index.'\\; ';
 				}
 			}
 		}
