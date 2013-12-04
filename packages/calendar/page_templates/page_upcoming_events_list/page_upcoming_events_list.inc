@@ -444,6 +444,7 @@ class Page_Upcoming_Events_List extends Page
 
 		$recurring_event_descendants = array_merge($am->getTypeDescendants('calendar_event_recurring', TRUE), Array('calendar_event_modification'));
 
+		$first_current_date = TRUE;
 		foreach($events as $id => $event) {
 			$events[$id]['current_date'] = $_REQUEST['SQ_CALENDAR_DATE'];
 		}
@@ -473,7 +474,7 @@ class Page_Upcoming_Events_List extends Page
 				$current_date = $events[$shadow_id]['current_date'];
 
 				// If event recurs at current_date move to next day for correct evaluation of next recurrance date
-				if ($asset->hasOccurrenceOnDate($current_date)) {
+				if ($asset->hasOccurrenceOnDate($current_date) && !$first_current_date) {
 					$current_date = add_days_to_iso($current_date, 1);
 				}
 				$next_occurance = $asset->getFirstOccurrenceAfter($current_date);
@@ -493,6 +494,7 @@ class Page_Upcoming_Events_List extends Page
 					$event_occurance = strtotime($next_occurance);
 				}
 
+				$first_current_date = FALSE;
 			} else if ($asset && $asset->type() == 'calendar_event_modification') {
 
 				$pattern = '/( [0-9\-]{2}:[0-9\-]{2}:[0-9\-]{2})/';
