@@ -3575,9 +3575,12 @@ class Listing_Engine extends Page
 					if($group_name_match_search_query) {
 					    $is_filter = TRUE;
 					    foreach ($group_name_filters as $filter) {
-						if(empty($filter)) continue;
-						if(strpos($sub_value, $filter) !== FALSE)
-							$is_filter = FALSE;
+						    if(empty($filter)) continue;
+						    if(!is_array($filter)) $filter = Array($filter);
+						    foreach($filter as $part) {
+							if(is_scalar($part) && strpos($sub_value, $part) !== FALSE)
+								$is_filter = FALSE;
+						    }
 					    }
 					    if($is_filter) continue;
 					}
