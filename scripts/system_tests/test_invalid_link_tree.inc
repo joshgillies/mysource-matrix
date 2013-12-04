@@ -66,20 +66,16 @@ class Test_Invalid_Link_Tree
 	public static function test(&$messages, &$errors)
 	{
 		$status = TRUE;
-		$sql = 'SELECT linkid FROM sq_ast_lnk_tree WHERE linkid NOT IN (SELECT linkid FROM sq_ast_lnk WHERE link_type <= 4)';
+		$sql = 'SELECT DISTINCT lt.linkid FROM sq_ast_lnk_tree lt LEFT JOIN (SELECT linkid FROM sq_ast_lnk WHERE link_type <= 4) l ON (lt.linkid=l.linkid) WHERE l.linkid IS NULL';
 		$results = MatrixDAL::executeSqlAssoc($sql);
 		if (!empty($results)) {
 			$status = FALSE;
 
-			foreach ($results as $index => $result) {
-				$results[$index] = $result['linkid'];
+			foreach ($results as $result) {
+				$errors[] = 'Link #'.$result['linkid'].' on the link tree does not exist on the system';
 			}
-			$results = array_unique($results);
 
 			$messages[] = 'There are '.count($results).' invalid link(s) in the link tree on the system';
-			foreach ($results as $entry) {
-				$errors[] = 'Link #'.$entry.' on the link tree does not exist on the system';
-			}//end foreach
 		}//end if
 
 		return $status;
