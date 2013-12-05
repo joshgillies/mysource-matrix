@@ -75,7 +75,9 @@ $db =& $GLOBALS['SQ_SYSTEM']->db;
 $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 
 // go entire asset DB, lock it, validate it, unlock it
-$sql = 'SELECT assetid, type_code	FROM sq_ast';
+$sql = 'SELECT assetid, type_code FROM sq_ast WHERE NOT EXISTS (
+			SELECT * FROM sq_ast_lnk WHERE link_type IN ('.SQ_LINK_TYPE_1.','.SQ_LINK_TYPE_2.','.SQ_LINK_TYPE_3.') AND minorid = assetid
+		)';
 $query = MatrixDAL::preparePdoQuery($sql);
 $assets = MatrixDAL::executePdoAssoc($query);
 	
