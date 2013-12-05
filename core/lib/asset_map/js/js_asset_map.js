@@ -1158,7 +1158,7 @@ var JS_Asset_Map = new function() {
 			}//end switch
 		});
 
-		dfx.addEvent(assetMapContainer, 'mouseenter', function(e) {
+		dfx.addEvent(assetMapContainer, 'click', function(e) {
 			self.getDefaultView(assetMapContainer).focus();
 		});
 

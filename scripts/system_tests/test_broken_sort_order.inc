@@ -68,7 +68,7 @@ class Test_Broken_Sort_Order
 		$status = TRUE;
 
 		// Find the maximum sort order and count the links
-		$sql = 'SELECT majorid, MAX(sort_order) AS max, count(*) AS count FROM sq_ast_lnk WHERE majorid IN (SELECT DISTINCT majorid FROM sq_ast_lnk) GROUP BY majorid';
+		$sql = 'SELECT majorid, MAX(sort_order) AS max, count(*) AS count FROM sq_ast_lnk GROUP BY majorid';
 		$results = MatrixDAL::executeSqlAssoc($sql);
 		if (!empty($results)) {
 			$count = 0;

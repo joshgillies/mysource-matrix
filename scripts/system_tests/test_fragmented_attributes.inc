@@ -67,34 +67,27 @@ class Test_Fragmented_Attributes
 	{
 		$status = TRUE;
 		// Missing assets
-		$asset_sql = 'SELECT assetid FROM sq_ast_attr_val WHERE assetid NOT IN (SELECT DISTINCT assetid FROM sq_ast) OR attrid NOT IN (SELECT DISTINCT attrid FROM sq_ast_attr)';
+		$asset_sql  = 'SELECT v.assetid FROM sq_ast_attr_val v LEFT JOIN sq_ast a ON (v.assetid=a.assetid) WHERE a.assetid IS NULL';
+		$asset_sql .= ' UNION ';
+		// Assets with missing attributes.
+		$asset_sql .= 'SELECT v.assetid FROM sq_ast_attr_val v LEFT JOIN sq_ast_attr a ON (v.attrid=a.attrid) WHERE a.attrid IS NULL';
 		$asset_results = MatrixDAL::executeSqlAssoc($asset_sql);
-
-		foreach ($asset_results as $index => $result) {
-			$asset_results[$index] = $result['assetid'];
-		}
-		$asset_results = array_unique($asset_results);
 
 		if (!empty($asset_results)) {
 			$status = FALSE;
 			foreach ($asset_results as $result) {
-				$errors[] = 'Asset #'.$result.' on the attributes table does not exist';
+				$errors[] = 'Asset #'.$result['assetid'].' on the attributes table does not exist';
 			}//end foreach
 		}//end if
 
 		// Missing attributes
-		$attr_sql = 'SELECT attrid FROM sq_ast_attr_val WHERE attrid NOT IN (SELECT DISTINCT attrid FROM sq_ast_attr)';
+		$attr_sql = 'SELECT v.attrid FROM sq_ast_attr_val v LEFT JOIN sq_ast_attr a ON (v.attrid=a.attrid) WHERE a.attrid IS NULL';
 		$attr_results = MatrixDAL::executeSqlAssoc($attr_sql);
-
-		foreach ($attr_results as $index => $result) {
-			$attr_results[$index] = $result['attrid'];
-		}
-		$attr_results = array_unique($asset_results);
 
 		if (!empty($attr_results)) {
 			$status = FALSE;
 			foreach ($attr_results as $result) {
-				$errors[] = 'Attribute #'.$result.' on the attributes table does not exist';
+				$errors[] = 'Attribute #'.$result['attrid'].' on the attributes table does not exist';
 			}//end foreach
 		}//end if
 

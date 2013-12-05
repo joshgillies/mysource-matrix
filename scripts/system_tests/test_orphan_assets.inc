@@ -66,7 +66,7 @@ class Test_Orphan_Assets
 	public static function test(&$messages, &$errors)
 	{
 		$status = TRUE;
-		$sql = 'SELECT assetid FROM sq_ast WHERE assetid NOT IN (SELECT minorid AS assetid FROM sq_ast_lnk WHERE link_type < 8)';
+		$sql = 'SELECT assetid FROM sq_ast a LEFT JOIN (SELECT minorid FROM sq_ast_lnk WHERE link_type < 8) l ON (a.assetid=l.minorid) WHERE l.minorid IS NULL';
 		$results = MatrixDAL::executeSqlAssoc($sql);
 		if (!empty($results)) {
 
