@@ -722,11 +722,11 @@ class Log_Manager extends Asset
 
 			$date_string = date('G:i:s - d M');
 			$content = '
-				<table class="sq-backend-table">
-					<tr>
+				<table class="sq-backend-table sq-log-monitor-table">
+					<!--tr>
 						<th style="width: 150px">'.translate('metadata').'</th>
 						<th>'.translate('message').'</th>
-					</tr>';
+					</tr-->';
 
 			if (empty($lines)) {
 				$content .= translate('empty');
@@ -747,7 +747,7 @@ class Log_Manager extends Asset
 						$log_date = date('G:i:s - d M',$d_line['date']);
 
 						$content .= '
-						<tr>
+						<tr class="sq-error-type-'.$error_type_name.'">
 							<td style="background-color: '.$error_type_colour.';">
 								'.$log_date.'<br />
 								'.translate('user').':&nbsp;<strong>'.$d_line['user'].'</strong>&nbsp;('.$d_line['userid'].')<br />
@@ -759,8 +759,8 @@ class Log_Manager extends Asset
 						$line = htmlspecialchars($line);
 						$line = nl2br($line);
 						$content .= '
-						<tr class="alt">
-							<td style="color: red; background-color: #eef; text-align: right;">
+						<tr class="alt sq-error-type-raw">
+							<td>
 								<strong>'.translate('raw_entry').':</strong>
 							</td>
 							<td><span style="font-family: \'Courier New\', Courier, monospace;">'.$line.'<span></td>
@@ -770,7 +770,7 @@ class Log_Manager extends Asset
 				}//end foreach
 			}//end else
 
-			$content .= '</table>';
+			$content .= '</table><p align="center" style="font-size: 11px; margin-bottom: 7px;">End of log</p>';
 
 		} else {
 			trigger_localised_error('CORE0125', E_USER_WARNING);

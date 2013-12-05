@@ -355,13 +355,13 @@ class HIPO_Herder extends MySource_Object
 		?>
 		<div class="sq-standalone-wrapper sq-hipo-job">
 			<table class="sq-standalone-table">
-				<tr>
-					<td class="sq-standalone-header">
+				<tr class="sq-standalone-header">
+					<td colspan="2">
 						<img src="<?php echo sq_web_path('lib').'/web/images/icons/hipo.png'; ?>" alt="Powered by Highly Intensive Processing Object (HIPO) Technology - Version 5" /> <strong>HIPO</strong>
 					</td>
 				</tr>
-				<tr>
-					<td class="sq-standalone-body">
+				<tr class="sq-standalone-body">
+					<td colspan="2">
 						<div class="sq-standalone-content sq-bg-blue">
 							<?php HIPO_Job::paintProgressBar($percent_done, $status_msg, 'sq-hipo-header-progress-bar-label', 'sq-hipo-header-progress-bar-percent', 'sq-hipo-header-progress-bar-main', 'sq-hipo-header-progress-bar-done');?>
 						</div>
@@ -432,8 +432,7 @@ class HIPO_Herder extends MySource_Object
 				<?php
 				if (count($buttons_to_print)) {
 				?>
-				<tr>
-					<td class="sq-standalone-footer sq-hipo-buttons">
+				<tr class="sq-standalone-footer">
 						<?php
 
 						// work out if we should print the 'Next >>' button
@@ -447,10 +446,14 @@ class HIPO_Herder extends MySource_Object
 							if ($btn_code == 'next') {
 								// if we should no proceed any further, then do not print the next button
 								if ($print_next) {
+									echo ('<td style="text-align: right">');
 									normal_button($btn_code, $btn_data['value'], $btn_data['action'], 'class="sq-btn-blue sq-hipo-button-enabled '.$btn_code.'"accesskey="n"');
+									echo ('</td>');
 								}
 							} else {
+								echo ('<td style="text-align: left">');
 								normal_button($btn_code, $btn_data['value'], $btn_data['action'], 'class="sq-hipo-button-enabled '.$btn_code.'"');
+								echo ('</td>');
 							}
 							?></span><?php
 						}

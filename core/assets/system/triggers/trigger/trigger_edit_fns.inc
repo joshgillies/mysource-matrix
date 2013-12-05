@@ -368,9 +368,9 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 				$type_name = $tm->_getComponentName($type);
 
 				if (!$multiple_status[$type]){
-					$mutliple_indicator = '';
+					$mutliple_indicator = '<span title="'.translate('condition_can_only_be_added_once').'">*</span>';
 				}else{
-					$mutliple_indicator = '<span title="This trigger condition can be added multiple times">*</span>';
+					$mutliple_indicator = '';
 				}
 
 				?>

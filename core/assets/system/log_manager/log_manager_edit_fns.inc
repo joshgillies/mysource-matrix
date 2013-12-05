@@ -114,7 +114,7 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 				}
 
 				document.getElementById('sq-log-monitor-initial-message').style.display = 'none';
-				document.getElementById('sq-log-monitor-containter').style.display = 'block';
+				document.getElementById('sq-log-monitor-container').style.display = 'block';
 				setIdValue('sq-log-name', logname);
 				document.getElementById('sq-log-num-lines').defaultValue = num_lines;
 
@@ -339,24 +339,26 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 		$o->closeSection();
 
 		$o->openSection(translate('log_monitor'));
-			$o->openRaw('');
+			$o->openField('', 'wide_col');
 				?>
 				<div id="sq-log-monitor-initial-message">
 					<?php echo translate('moniter_logs_instructions'); ?>
 				</div>
-				<div id="sq-log-monitor-containter" style="display: none;">
+				<div id="sq-log-monitor-container" class="sq-log-monitor-container" style="display: none;">
 					<table class="sq-backend-table">
 						<tr>
+							<th><?php echo translate('log'); ?></th>
+							<th><?php echo translate('loaded'); ?></th>
+							<th><?php echo translate('rows_displayed'); ?></th>
+							<th><?php echo translate('max_rows'); ?></th>
+							<th><?php echo translate('auto-refresh'); ?></th>
+							<th><?php echo translate('refresh_interval'); ?></th>
+						</tr>
+						<tr>
+							<td><strong id="sq-log-name"></strong></td>
+							<td><strong id="sq-log-last-refresh"></strong></td>
+							<td><strong id="sq-log-total-rows"></strong></td>
 							<td>
-								<?php echo translate('log'); ?>: <strong id="sq-log-name"></strong>
-								&nbsp;&nbsp;&nbsp;
-								<?php echo translate('loaded'); ?>: <strong id="sq-log-last-refresh"></strong>
-								&nbsp;&nbsp;&nbsp;
-								<?php echo translate('rows_displayed'); ?>: <strong id="sq-log-total-rows"></strong>
-
-							</td>
-							<td style="text-align: right">
-								<?php echo translate('max_rows'); ?>:
 								<select id="sq-log-num-lines" onchange="setNumLines(this.value)">
 									<option value="10">10</option>
 									<option value="50" selected="selected">50</option>
@@ -365,26 +367,38 @@ class Log_Manager_Edit_Fns extends Asset_Edit_Fns
 									<option value="1000">1000</option>
 
 								</select>
-								<?php echo translate('auto-refresh'); ?>: <strong id="sq-log-refresh-status">&nbsp;</strong>
+								</td>
+							<td>
+								<strong id="sq-log-refresh-status">&nbsp;</strong>
 								<input type="button" onclick="toggleLogRefreshStatus();" id="sq-log-refresh-enabler" value="" />
-								&nbsp;&nbsp;&nbsp;
-								<?php echo translate('refresh_interval'); ?>:
+							</td>
+							<td>
 								<select name="sq-log-refresh-interval" id="sq-log-refresh-interval" onchange="setRefreshInterval(this.value)">
 									<option value="15">15 <?php echo translate('sec'); ?></option>
 									<option value="30" selected="selected">30 <?php echo translate('sec'); ?></option>
 									<option value="60">1 <?php echo translate('min'); ?></option>
 									<option value="300">5 <?php echo translate('min'); ?></option>
 								</select>
-								&nbsp;&nbsp;&nbsp;
 								<input type="button" onclick="forceRefresh();" id="sq-log-refresh-force" value="<?php echo translate('refresh_now'); ?>" />
 							</td>
 						</tr>
 					</table>
-					<br />
-					<iframe id="sq-log-monitor" src="" style="width: 100%; height: 400px; border: 1px solid #C3C3C3;"></iframe>
+
+					<table class="sq-backend-table sq-log-monitor-table-outer">
+						<tr>
+							<th><?php echo translate('metadata'); ?></th>
+							<th><?php echo translate('message'); ?></th>
+						</tr>
+						<tr>
+							<td colspan="2" style="padding: 0 !important">
+								<iframe id="sq-log-monitor" src="" style="height: 600px; width: 100%;"></iframe>
+							</td>
+						</tr>
+					</table>
+					
 				</div>
 				<?php
-			$o->closeRaw();
+			$o->closeField();
 		$o->closeSection();
 
 		return FALSE;

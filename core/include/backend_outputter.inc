@@ -966,7 +966,11 @@ class Backend_Outputter
 		$backendPage = array_get_index($_GET, 'SQ_BACKEND_PAGE'); ?>
 
 		<!DOCTYPE html>
-		<html class="<?php echo $backendPage; ?>">
+		<!--[if lt IE 8 ]> 	<html class="ie <?php echo $backendPage; ?>">  						<![endif]-->
+		<!--[if IE 8 ]> 	<html class="ie ie8 <?php echo $backendPage; ?>">  					<![endif]-->
+		<!--[if IE 9 ]> 	<html class="ie ie9 gtie8 <?php echo $backendPage; ?>">  			<![endif]-->
+		<!--[if IE 10 ]> 	<html class="ie ie-10 gtie8 gtie9 <?php echo $backendPage; ?>"> 	<![endif]-->
+		<!--[if !IE]><!--> 	<html class="<?php echo $backendPage; ?>">      					<!--<![endif]-->
 		<head>
 			<title><?php echo htmlspecialchars(str_replace('&nbsp;', ' ', $this->_page_title)); ?></title>
 			<?php
@@ -1277,7 +1281,7 @@ class Backend_Outputter
 												<?php echo htmlspecialchars($nav_asset->short_name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET); ?> 
 												[<?php echo ($i + 1); ?>]
 											</span>
-										</a>
+										</a>&nbsp;
 										<?php
 										if ($i < ($nav_count -1)) {
 											?> <span class="divider">+</span> <?php

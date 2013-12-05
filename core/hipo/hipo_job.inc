@@ -1540,14 +1540,14 @@ class HIPO_Job extends MySource_Object
 		?>
 		<div class="sq-standalone-wrapper sq-error-report">
 			<table class="sq-standalone-table">
-				<tr>
-					<td class="sq-standalone-header">
+				<tr class="sq-standalone-header">
+					<td colspan="2">
 						<?php echo translate('hipo_error_report', $this->getHipoName());?> 
 						<span><?php echo translate('hipo_herder_completion', (!$this->complete()) ? translate('not') : ''); ?></span>
 					</td>
 				</tr>
-				<tr>
-					<td class="sq-standalone-body">
+				<tr class="sq-standalone-body">
+					<td colspan="2">
 						<table class="sq-error-report-list">
 							<tr>
 								<th class="sq-error-report-type">Type</th>
@@ -1573,11 +1573,12 @@ class HIPO_Job extends MySource_Object
 						</table>
 					</td>
 				</tr>
-				<tr>
-					<td class="sq-standalone-footer">
-						<span class="continue">
-							<a class="sq-btn-link sq-btn-link-large sq-btn-link-blue" href="<?php echo $this->_options['on_complete_url']; ?>"><?php echo translate('continue'); ?></a>
-						</span>
+				<tr class="sq-standalone-footer">
+					<td text-align="left">
+						&nbsp;
+					</td>
+					<td text-align="right">
+						<a class="sq-btn-link sq-btn-link-large sq-btn-link-blue" href="<?php echo $this->_options['on_complete_url']; ?>"><?php echo translate('continue'); ?></a>
 					</td>
 				</tr>
 			</table>

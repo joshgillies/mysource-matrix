@@ -85,6 +85,13 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 			}
 		}
 		?>
+		<!DOCTYPE html>
+		<!--[if lt IE 8 ]> 	<html class="ie hipo">  					<![endif]-->
+		<!--[if IE 8 ]> 	<html class="ie ie8 hipo">  				<![endif]-->
+		<!--[if IE 9 ]> 	<html class="ie ie9 gtie8 hipo">  			<![endif]-->
+		<!--[if IE 10 ]> 	<html class="ie ie-10 gtie8 gtie9 hipo"> 	<![endif]-->
+		<!--[if !IE]><!--> 	<html class="hipo">      					<!--<![endif]-->
+		<head>
 		<html>
 			<head>
 				<title><?php echo translate('hipo_processing'); ?></title>

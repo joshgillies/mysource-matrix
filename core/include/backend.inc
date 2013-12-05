@@ -1262,7 +1262,9 @@ class Backend extends MySource_Object
 							 <?php echo (isset($option['onclick'])) ? 'onClick="'.htmlspecialchars($option['onclick']).'"' : ''; ?>
 							 <?php echo (isset($option['extras'])) ? $option['extras'] : ''; ?>
 
-						  ><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $this->out->filesPath('/images/icons/header/'.$option['icon']); ?>", "", "", "<?php echo htmlspecialchars($option['title']);?>");</script></a>
+						  >
+						  	<img src="<?php echo $this->out->filesPath('/images/icons/header/'.$option['icon']); ?>"/>
+						  </a>
 						&nbsp;&nbsp;<?php
 					}
 				?>
