@@ -527,7 +527,7 @@ class Asset_Map
 									assetsPerPage: <?php echo SQ_CONF_ASSET_MAP_ASSET_LIMIT; ?>,
 									initialSelection: '<?php echo $initial_selection_lineage ?>',
 									teleportRoot: <?php echo ($common_parentid ? $common_parentid : '1') ?>,
-									teleportLink: '<?php echo $rootLinkid ?>',
+									teleportLink: '<?php echo $rootLinkid ?>'
 								});
 							}
 						}
