@@ -91,12 +91,19 @@ class Cache_Manager_Management extends Asset_Management
 													'type'		=> 'serialise',
 													'default'	=> Array(),
 												   ),
-						'browser_cache_expiry'          => Array(
-												'added'			=> '0.1',
-												'type'			=> 'int',
-												'default'		=> '',
-												'allow_negative'	=> FALSE,
-												'allow_empty'		=> TRUE,
+						'browser_cache_expiry'	=> Array(
+													'added'			=> '0.1',
+													'type'			=> 'int',
+													'default'		=> '',
+													'allow_negative'	=> FALSE,
+													'allow_empty'		=> TRUE,
+										   ),
+						'accelerator_cache_expiry'	=> Array(
+													'added'			=> '0.4',
+													'type'			=> 'int',
+													'default'		=> '',
+													'allow_negative'	=> FALSE,
+													'allow_empty'		=> TRUE,
 										   ),
 						'cache_storage_type'    => Array(
 													'added'     => '0.3',

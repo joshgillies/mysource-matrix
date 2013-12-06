@@ -75,8 +75,7 @@ class Backend extends MySource_Object
 	*/
 	function paint()
 	{
-
-		header('Content-Type: text/html; charset='.SQ_CONF_DEFAULT_CHARACTER_SET);
+	    header('Content-Type: text/html; charset='.SQ_CONF_DEFAULT_CHARACTER_SET);
 		if (SQ_IN_LIMBO) {
 
 			if (!isset($_REQUEST['limbo_assetid'])) {
@@ -123,7 +122,7 @@ class Backend extends MySource_Object
 		}
 
 		if (isset($_REQUEST['a'])) {
-			$frontend_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($_REQUEST['a']);
+		    			$frontend_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($_REQUEST['a']);
 			if (is_null($frontend_asset)) {
 				trigger_localised_error('SYS0195', E_USER_WARNING, $_REQUEST['a']);
 				return;
@@ -131,7 +130,7 @@ class Backend extends MySource_Object
 			$frontend_asset->printFrontend();
 			exit();
 		}
-
+		
 		// if we are in limbo, we are going to mix the frontend with the backend
 		// so we need to do things a little differently
 		if (empty($_REQUEST['SQ_BACKEND_PAGE']) && isset($_REQUEST['ignore_frames']) && $_REQUEST['ignore_frames'] == '1') {
@@ -179,11 +178,10 @@ class Backend extends MySource_Object
 				// make sure to set persistant SQ_BACKEND_PAGE
 				$this->out->addFormActionGetVar('SQ_BACKEND_PAGE', $_REQUEST['SQ_BACKEND_PAGE'], TRUE);
 			}
-
-
+					
 			switch ($_REQUEST['SQ_BACKEND_PAGE']) {
 				case 'header':
-					$this->_printHeader();
+				    $this->_printHeader();
 				break;
 
 				case 'sidenav':
@@ -598,6 +596,13 @@ class Backend extends MySource_Object
 			// Now do the results.
 			if ($search_format === 'json') {
 				header('Content-type: application/json');
+				
+				// Reduce the asset/ID matches to their asset ID.
+				if ($results['url']) {
+				    $results['url'] = $results['url']->id;
+				} else if ($results['assetid']) {
+				    $results['assetid'] = $results['assetid']->id;
+				}
 				echo json_encode_array($results);
 				exit();
 			} else {

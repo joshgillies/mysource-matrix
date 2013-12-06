@@ -1353,13 +1353,16 @@ class File extends Asset
 			if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && SQ_CONF_SEND_CACHEABLE_HEADER && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User) && empty($_POST) && $cm->cacheableHeadersEnabledForCurrentProtocol() && $this->status >= SQ_STATUS_LIVE && $this->readAccess()) {
 
 				$browser_cache_expiry = $cm->getBrowserCacheExpiry($this->type(), $this->id);
+				$acc_cache_expiry = $cm->getAcceleratorCacheExpiry($this->type(), $this->id);
+				$acc_cache_string = empty($acc_cache_expiry) ? '' : "s-maxage=$acc_cache_expiry, ";
+
 				if (empty($browser_cache_expiry)) {
 					$browser_cache_expiry = $cm->getExpiry($this->type(), $this->id);
 				}
 
 				$last_updated = $this->getEffectiveLastUpdatedTime(Array());
 				header('Expires: '.gmdate('D, d M Y H:i:s', time() + $browser_cache_expiry).' GMT');
-				header('Cache-Control: max-age='.$browser_cache_expiry.', '.$cm->cacheControlLevel());
+				header('Cache-Control: max-age='.$browser_cache_expiry.', '.$acc_cache_string.$cm->cacheControlLevel());
 				header('Pragma: cache');
 				header('Last-Modified: '.gmdate('D, d M Y H:i:s',$existing['modified']).' GMT');
 			} else if (!$using_ie6_8 || !$ssl_connection) {
