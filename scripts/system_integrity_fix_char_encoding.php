@@ -624,6 +624,20 @@ function regenerate_filesystem_content($assets_data, $contextids)
 							// If we're not a design for some reason, continue
 							if (!($asset instanceof Design)) continue;
 							$design_edit_fns = $asset->getEditFns();
+
+							// Take care of parse file contents
+							$parse_file = $asset->data_path.'/parse.txt';
+							if (is_file($parse_file)) {
+								$parse_file_content = file_get_contents($parse_file);
+								$converted_content = @iconv(SYS_OLD_ENCODING, SYS_NEW_ENCODING.'//IGNORE', $parse_file_content);
+								if (isValidValue($converted_content)) {
+									if (!file_put_contents($parse_file, $converted_content)) {
+										echo "\nCould not update the parse file content for the asset #".$asset->id."\n";
+									}
+								} else {
+									echo "\nCould not convert the parse file content for the asset #".$asset->id."\n";
+								}
+							}
 							// Parse and process the design, if successful generate the design file
 							if (@$design_edit_fns->parseAndProcessFile($asset)) @$asset->generateDesignFile(false);
 							// Update respective design customisations
@@ -631,7 +645,7 @@ function regenerate_filesystem_content($assets_data, $contextids)
 							foreach($customisation_links as $link) {
 								$customisation = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 								if (is_null($customisation)) continue;
-								@$customisation->updateFromParent($design);
+								@$customisation->updateFromParent($asset);
 								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($customisation);
 							}
 						}
