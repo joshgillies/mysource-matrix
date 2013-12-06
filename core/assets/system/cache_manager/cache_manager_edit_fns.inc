@@ -254,6 +254,30 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 				}
 			$o->closeField();
 
+			// Accelerator cache expiry field
+			$o->openField(translate('cache_manager_accelerator_cache_expiry'), '', translate('cache_manager_accelerator_valid_cache_length'));
+				$using_default_accelerator = !isset($current_values[$selected]['accelerator_cache_expiry']);
+				if ($using_default_accelerator) {
+					$accelerator_cache_expiry = $asset->attr('accelerator_cache_expiry');
+					if (empty($browser_cache_expiry)) {
+						echo translate('cache_manager_using_blank_default_value_equal_to', 'the system Default Expiry', $asset->attr('expiry').' seconds').'<br>';
+					} else {
+						echo translate('using_default_value_of', $accelerator_cache_expiry.' seconds').'<br/>';
+					}
+				} else {
+					if ($wa) {
+						text_box($prefix.'_accelerator_cache_expiry', $current_values[$selected]['accelerator_cache_expiry'], 5);
+					} else {
+						echo $current_values[$selected]['accelerator_cache_expiry'];
+					}
+				}
+
+				if ($wa) {
+					check_box($prefix.'_default_accelerator_cache_expiry', '1', $using_default_accelerator);
+					echo ' '.translate('use_default');
+				}
+			$o->closeField();
+
 				$o->openField(translate('http_header_cacheable_field'));
 				$using_default = !isset($current_values[$selected]['send_cacheable_header']);
 				if ($using_default) {
@@ -295,7 +319,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		if ($asset->writeAccess('attributes') && !isset($_POST[$value_get_var]) && isset($_GET[$value_get_var])) {
 			$type = $_REQUEST[$value_get_var];
-			$defaults = Array('enabled', 'expiry', 'browser_cache_expiry', 'send_cacheable_header');
+			$defaults = Array('enabled', 'expiry', 'browser_cache_expiry', 'accelerator_cache_expiry', 'send_cacheable_header');
 			$save = FALSE;
 
 			foreach ($defaults as $default) {

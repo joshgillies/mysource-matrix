@@ -40,6 +40,10 @@
 			<display_name>Browser Cache Expiry</display_name>
 			<note>Expire the requested content in the browser the specified number of seconds after which it is accessed. When this value is not supplied, the content will expire after the "Default Expiry" period.</note>
 		</field>
+		<field attribute="accelerator_cache_expiry">
+			<display_name>Accelerator Cache Expiry</display_name>
+			<note>Expire the requested content in the accelerator proxy the specified number of seconds after which it is accessed. When this value is not supplied, the 's-maxage' cache header attribute will not be sent.</note>
+		</field>
 	</section>
 	<section name="Cache Levels">
 		<field attribute="public_caching">

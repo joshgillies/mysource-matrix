@@ -34,6 +34,9 @@
 		<field attribute="browser_cache_expiry">
 			<int width="5" />
 		</field>
+		<field attribute="accelerator_cache_expiry">
+			<int width="5" />
+		</field>
 	</section>
 	<section name="Cache Levels" write_access="write:attributes">
 		<field attribute="public_caching">
