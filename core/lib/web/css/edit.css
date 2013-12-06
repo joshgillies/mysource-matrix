@@ -402,7 +402,7 @@ input[type="radio"] {
 
 select {
 	font-size: 					12px;
-	color: 						#565656;
+	color: 						#333;
 	padding: 					1px;
 	border: 					1px solid #B9B9B9;
 	border-radius:				2px;
@@ -456,11 +456,11 @@ TOP HEADER FRAME STYLES
 	padding-right: 				10px;
 	text-shadow:				-1px -1px 0 #000;
 	position: 					relative;
-	top:						1px;
+	top:						0px;
 }
 
 .sq-backend-header input[type="button"] {
-	box-shadow: 				0 1px 0 rgba(255,255,255,0.07) inset,1px 0 0 rgba(255,255,255,0.05) inset, 1px 1px 0 rgba(255,255,255,0.1);
+	box-shadow: 				0 1px 0 rgba(255,255,255,0.07) inset,1px 0 0 rgba(255,255,255,0.05) inset, 1px 1px 0 rgba(255,255,255,0.1), 0 -2.4em 3.3em -2.4em rgba(0, 0, 0, 0.6) inset;
 	background: 				rgba(0, 0, 0, 0.10);
 	text-shadow: 				none;
 	color: 						#dfdfdf;
@@ -479,24 +479,24 @@ TOP HEADER FRAME STYLES
 }
 
 .sq-backend-header input[type="button"].sq-btn-blue {
-	background:					linear-gradient( to bottom, rgb(45,119,194) 0%, rgb(18,80,135) 100%)
+	background:					#2D77C2;
 }
 
 .sq-backend-header input[type="button"].sq-btn-blue:hover {
-	background:					linear-gradient( to bottom, rgb(49,127,206) 0%, rgb(20,89,150) 100%)
+	background:					#2F80D3;
 }
 
 .sq-matrix-logo {
 	margin: 					0px 50px 0 0;
 	position: 					relative;
-	top: 						-1px;
+	top: 						0px;
 	left: 						10px;
 }
 
 .sq-logged-in-as-text {
 	display: 					inline-block;
 	position: 					relative;
-	top:						0px;
+	top:						1px;
 }
 
 .sq-logged-in-as-text a, 
@@ -522,8 +522,8 @@ TOP HEADER FRAME STYLES
 	width: 						auto;
 	border-radius: 				3px;
 	margin-right:				6px;
-	box-shadow: 				1px 1px 0 rgba(255,255,255,0.1), 
-	inset 1px 1px 1px #464545;
+	box-shadow: 				1px 1px 0 rgba(255,255,255,0.1), inset 1px 1px 1px #464545;
+	position: 					relative;
 }
 
 input[type=text].sq-backend-header-text-box {
@@ -537,6 +537,8 @@ input[type=text].sq-backend-header-text-box {
 	font-size: 					100%;
 	width: 						220px;
 	outline: 					none;
+	position: 					relative;
+	top:						0px;
 }
 
 .login input[type=text].sq-backend-header-text-box {
@@ -545,12 +547,18 @@ input[type=text].sq-backend-header-text-box {
 
 .sq-backend-header-search-button {
 	vertical-align:				middle;
+	position: 					relative;
+	top:						-1px;
+}
+
+.sq-backend-header-tools-wrapper a{
+	display: 					inline-block;
 }
 
 .sq-backend-header-tools-wrapper img{
-	height:						18px;
+	height:						20px;
 	width:						auto;
-	margin: 					0 0 0 5px;
+	margin: 					1px 0 0 5px;
 	opacity: 					0.6;
 }
 
@@ -561,6 +569,10 @@ input[type=text].sq-backend-header-text-box {
 .sq-backend-header-login-as-form{
 	vertical-align:				middle;
 	margin-right:				2px;
+}
+
+.sq-backend-header-login-as-form .sq-text-field-wrapper {
+	top:						1px;
 }
 
 /*
@@ -1010,6 +1022,7 @@ table.sq-backend-table {
 	background: 				#fafafa;
 	overflow: 					hidden;
 	padding: 					5px;
+	color: 						#333;
 }
 
 .sq-backend-commit {
@@ -1311,6 +1324,10 @@ BODYCOPY IFRAME POPUP STYLES
 	box-shadow: 				0 1px 0 #fff inset;
 	padding: 					6px;
 	height:						20px;
+}
+
+.sq-bodycopy-popup-wrapper tr.sq-popup-footer td:last-child{
+	text-align:  				right;
 }
 
 .sq-bodycopy-popup-wrapper tr.sq-popup-footer input {

@@ -196,7 +196,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		?>
 
 		<!-- Begin Popup -->
-		<div id="bodycopyPopupDiv" class="sq-bodycopy-popup-div" style="z-index:1001; width: <?php echo $init_layer_width?>; height: <?php echo $init_layer_height?>;">
+		<div id="bodycopyPopupDiv" class="sq-bodycopy-popup-div" style="position: absolute; z-index:1001; visibility: hidden; width: <?php echo $init_layer_width?>; height: <?php echo $init_layer_height?>;">
 			<iframe name="bodycopyFrame" id="bodycopyFrame" scrolling="no" width="<?php echo $init_layer_width?>" height="<?php echo $init_layer_height?>" frameborder="no"></iframe>
 		</div>
 		<!-- End Popup -->

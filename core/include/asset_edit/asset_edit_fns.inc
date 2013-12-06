@@ -147,7 +147,7 @@ class Asset_Edit_Fns extends MySource_Object
 			} else {
 				echo $path;
 			}
-			echo '<br/>';
+			echo '<br>';
 		}
 
 		if ($wa) text_box($prefix.'_paths[]', '', 50);
@@ -385,10 +385,10 @@ class Asset_Edit_Fns extends MySource_Object
 			echo '<ul>';
 			foreach ($urls as $data) {
 				if ($data['http']) {
-					echo '<li>http://'.$data['url'], '</li>';
+					echo '<li>http://'.$data['url'], '</li><br/>';
 				}
 				if ($data['https']) {
-					echo '<li>https://'.$data['url'], '</li>';
+					echo '<li>https://'.$data['url'], '</li><br/>';
 				}
 			}
 			echo '</ul>';
