@@ -682,11 +682,14 @@ class MySource extends MySource_Object
 							header('Pragma: cache');
 
 							$browser_cache_expiry = $cm->attr('browser_cache_expiry');
+							$acc_cache_expiry = $cm->attr('accelerator_cache_expiry');
+							$acc_cache_string = empty($acc_cache_expiry) ? '' : "s-maxage=$acc_cache_expiry, ";
+
 							if (empty($browser_cache_expiry)) {
 								$browser_cache_expiry = $cm->attr('expiry');
 							}
 
-							header('Cache-Control: max-age='.$browser_cache_expiry.', '.$cm->cacheControlLevel());
+							header('Cache-Control: max-age='.$browser_cache_expiry.', '.$acc_cache_string.$cm->cacheControlLevel());
 							header('Expires: '.gmdate('D, d M Y H:i:s', time() + $browser_cache_expiry).' GMT');
 						}
 
@@ -952,11 +955,15 @@ class MySource extends MySource_Object
 
 		$cache_expiry = $cm->getExpiry($asset->type(), $asset->id);
 		$browser_cache_expiry = $cm->getBrowserCacheExpiry($asset->type(), $asset->id);
+		$acc_cache_expiry = $cm->getAcceleratorCacheExpiry($asset->type(), $asset->id);
+		$acc_cache_string = empty($acc_cache_expiry) ? '' : "s-maxage=$acc_cache_expiry, ";
+
 		if (empty($browser_cache_expiry)) {
 			$browser_cache_expiry = $cache_expiry;
 		}
+
 		if (!$recache) {
-			header('Cache-Control: max-age='.$browser_cache_expiry.', '.$cm->cacheControlLevel());
+			header('Cache-Control: max-age='.$browser_cache_expiry.', '.$acc_cache_string.$cm->cacheControlLevel());
 		}
 
 		// not cached or has expired
@@ -1014,6 +1021,7 @@ class MySource extends MySource_Object
 			// If the Browser Cache Expiry is set, caclculate the expiry time from now.
 			// Otherwise, use the expiry time as supplied by the Matrix cache.
 			$browser_cache_expiry = $cm->getBrowserCacheExpiry($asset->type(), $asset->id);
+
 			if (empty($browser_cache_expiry)) {
 				header('Expires: '.gmdate('D, d M Y H:i:s', $info['expires']).' GMT');
 			} else {
@@ -4241,11 +4249,14 @@ class MySource extends MySource_Object
 			header('Pragma: cache');
 
 			$browser_cache_expiry = $cm->getBrowserCacheExpiry($asset->type(), $asset->id);
+			$acc_cache_expiry = $cm->getAcceleratorCacheExpiry($asset->type(), $asset->id);
+			$acc_cache_string = empty($acc_cache_expiry) ? '' : "s-maxage=$acc_cache_expiry, ";
+
 			if (empty($browser_cache_expiry)) {
 				$browser_cache_expiry = $cm->getExpiry($asset->type(), $asset->id);
 			}
 
-			header('Cache-Control: max-age='.$browser_cache_expiry.', '.$cm->cacheControlLevel());
+			header('Cache-Control: max-age='.$browser_cache_expiry.', '.$acc_cache_string.$cm->cacheControlLevel());
 			header('Expires: '.gmdate('D, d M Y H:i:s', time() + $browser_cache_expiry).' GMT');
 		}
 

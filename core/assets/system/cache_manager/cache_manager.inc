@@ -647,6 +647,30 @@ class Cache_Manager extends Asset
 
 
 	/**
+	* Returns the accelerator cache expiry time for the specified type code or assetid
+	*
+	* If the expiry value for provided type code or assetid has not been customised,
+	* then the system wide accelerator cache expiry is returned
+	*
+	* @param string $type_code 	the type code of the requested accelerator cache expiry value
+	* @param string $assetid	the assetid of the requested accelerator cache expiry value
+	*
+	* @return int
+	* @access public
+	*/
+	function getAcceleratorCacheExpiry($type_code='', $assetid='')
+	{
+		$specific = $this->_specificCacheManagementSettings($type_code, $assetid, 'accelerator_cache_expiry');
+		if ($specific !== FALSE) {
+			return $specific;
+		}
+
+		return $this->attr('accelerator_cache_expiry');
+
+	}//end getAcceleratorCacheExpiry()
+
+
+	/**
 	* Returns specified setting for the provided type code or assetid
 	*
 	* Type code specific settings take priority over root node configured settings
