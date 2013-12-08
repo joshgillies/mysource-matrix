@@ -559,7 +559,7 @@ if (isset($_GET['assetid']) && $_GET['assetid']) {
 		<?php define('SQ_PAINTED_SIMPLE_ASSET_MAP', TRUE); ?>
 	</head>
 
-	<body onload="Javascript: Init();" onUnload="Javascript: asset_finder_onunload();">
+	<body onload="Init();" onUnload="asset_finder_onunload();">
 		<form action="" method="get" name="main_form" id="main-form">
 			<table>
 				<tr>

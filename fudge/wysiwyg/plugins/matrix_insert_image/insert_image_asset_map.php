@@ -32,7 +32,7 @@ if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAcce
 ?><!DOCTYPE html>
 <html>
 	<head>
-		<title>Embed Movie</title>
+		<title>Insert Image</title>
 		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 		<?php
 		// add required js translation files, as we are using asset finder

@@ -481,24 +481,20 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 	</head>
 
 	<body onload="Init();" onUnload="asset_finder_onunload();">
-
 		<form action="" method="get" name="main_form" id="main-form">
-			<?php
+	    	<?php
 			// insert nonce secuirty token.
 			if( $GLOBALS['SQ_SYSTEM']->user && !($GLOBALS['SQ_SYSTEM']->user instanceof Public_User))
 			hidden_field('token', get_unique_token());
 			?>
 			<table width="100%">
 				<tr>
-					<td valign="top">
-						<div id="asset_map">
-						<?php
-							include_once(SQ_LIB_PATH.'/asset_map/asset_map.inc');
-							$asset_map = new Asset_Map();
-							$asset_map->embedAssetMap('simple', 200, 350);
-						?>
-						</div>
-					</td>
+				    <td valign="top">
+				        <div id="asset_map">
+				            <iframe src="insert_image_asset_map.php" name="sq_wysiwyg_popup_sidenav" frameborder="0" width="200" height="350" scrolling="no">
+				            </iframe>
+				        </div>
+				    </td>
 					<td valign="top">
 						<table cellspacing="0" cellpadding="0">
 							<tr>
