@@ -343,21 +343,19 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 				font-weight:		normal;
 			}
 		</style>
+		<?php define('SQ_PAINTED_SIMPLE_ASSET_MAP', TRUE); ?>
 	</head>
 
 	<body onload="Javascript: Init();" onUnload="Javascript: asset_finder_onunload();">
 		<form action="" method="get" name="main_form" id="main-form">
 			<table width="100%">
 				<tr>
-					<td valign="top">
-						<div id="asset_map">
-						<?php
-							include_once(SQ_LIB_PATH.'/asset_map/asset_map.inc');
-							$asset_map = new Asset_Map();
-							$asset_map->embedAssetMap('simple', 200, 350);
-						?>
-						</div>
-					</td>
+				    <td valign="top">
+				        <div id="asset_map">
+				            <iframe src="embed_movie_asset_map.php" name="sq_wysiwyg_popup_sidenav" frameborder="0" width="200" height="350" scrolling="no">
+				            </iframe>
+				        </div>
+				    </td>
 					<td valign="top">
 						<table width="100%" cellspacing="0" cellpadding="0">
 							<tr>
@@ -399,7 +397,7 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 														</tr>
 														<tr>
 															<td class="label"><?php echo translate('select_asset'); ?>:</td>
-															<td colspan="3"><?php asset_finder('assetid', '', Array('file' => 'D'), '', false, 'setUrl'); ?></td>
+															<td colspan="3"><?php asset_finder('assetid', '', Array('file' => 'D'), 'sq_wysiwyg_popup_main.frames.sq_wysiwyg_popup_sidenav', false, 'setUrl'); ?></td>
 														</tr>
 													</table>
 												</td>
