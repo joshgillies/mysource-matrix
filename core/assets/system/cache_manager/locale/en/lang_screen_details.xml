@@ -36,13 +36,13 @@
 			<display_name>Default Expiry</display_name>
 			<note>The length of time a cache entry is valid in seconds. Memcache storage type accepts maximum 2592000 (30 days).</note>
 		</field>
-		<field attribute="browser_cache_expiry">
-			<display_name>Browser Cache Expiry</display_name>
-			<note>Expire the requested content in the browser the specified number of seconds after which it is accessed. When this value is not supplied, the content will expire after the "Default Expiry" period.</note>
-		</field>
 		<field attribute="accelerator_cache_expiry">
 			<display_name>Accelerator Cache Expiry</display_name>
 			<note>Expire the requested content in the accelerator proxy the specified number of seconds after which it is accessed. When this value is not supplied, the 's-maxage' cache header attribute will not be sent.</note>
+		</field>
+		<field attribute="browser_cache_expiry">
+			<display_name>Browser Cache Expiry</display_name>
+			<note>Expire the requested content in the browser the specified number of seconds after which it is accessed. When this value is not supplied, the content will expire after the "Default Expiry" period.</note>
 		</field>
 	</section>
 	<section name="Cache Levels">
