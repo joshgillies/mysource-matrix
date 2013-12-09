@@ -507,7 +507,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 											<tr>
 												<td class="label" nowrap="nowrap"><?php echo translate('image_url'); ?>:</td>
 												<td>
-													<?php asset_finder('f_imageid', (assert_valid_assetid($_GET['f_imageid'], 'sq_wysiwyg_popup_main.frames.sq_wysiwyg_popup_sidenav', TRUE, FALSE) ? $_GET['f_imageid'] : 0), Array('image' => 'D', 'image_variety' => 'D'), '', false, 'setImageInfo'); ?>
+													<?php asset_finder('f_imageid', (assert_valid_assetid($_GET['f_imageid'], '', TRUE, FALSE) ? $_GET['f_imageid'] : 0), Array('image' => 'D', 'image_variety' => 'D'), 'sq_wysiwyg_popup_main.frames.sq_wysiwyg_popup_sidenav', false, 'setImageInfo'); ?>
 												</td>
 											</tr>
 											<tr>
