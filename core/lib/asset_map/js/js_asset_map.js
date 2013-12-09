@@ -747,6 +747,7 @@ var JS_Asset_Map = new function() {
 		}
 
 		var self = this;
+		this.modernMapActive = true;
 
 		this.extendLegacy();
 
