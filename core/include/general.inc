@@ -1862,11 +1862,11 @@ function _asset_locator_onclick($lineage_assetids, $tooltip_hide)
 	}
 
 	$onclick = 'if (self.name == \'sq_wysiwyg_popup_main\') {
-					am = self;
+					am = self.frames.sq_wysiwyg_popup_sidenav;
 				} else if (self.name == \'hipo_job\') {
 					am = opener;
 				} else if ((typeof sq_wysiwyg_dialog != \'undefined\') && (sq_wysiwyg_dialog != null) && (!sq_wysiwyg_dialog.closed)) {
-					am = sq_wysiwyg_dialog.frames[\'sq_wysiwyg_popup_main\'];
+					am = self.top.frames.sq_wysiwyg_popup_main.frames.sq_wysiwyg_popup_sidenav;
 					am.focus();
 				} else if ((typeof opener != \'undefined\') && (opener != null) && (!opener.closed)) {
 					am = opener.parent.top.frames[\'sq_sidenav\'];

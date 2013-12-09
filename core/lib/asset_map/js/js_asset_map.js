@@ -747,6 +747,7 @@ var JS_Asset_Map = new function() {
 		}
 
 		var self = this;
+		this.modernMapActive = true;
 
 		this.extendLegacy();
 
@@ -2375,9 +2376,15 @@ var JS_Asset_Map = new function() {
 		}
 
 		var treeDivs = dfx.getClass('tree');
-		assetMapContainer.style.height = (document.documentElement.clientHeight - 70) + 'px';
+		
+		if (dfx.hasClass(assetMapContainer, 'simple') === true) {
+		    assetMapContainer.style.height = (document.documentElement.clientHeight) + 'px';
+		} else {
+		    assetMapContainer.style.height = (document.documentElement.clientHeight - 70) + 'px';
+		}
+		
 		for (var i = 0; i < treeDivs.length; i++) {
-			treeDivs[i].style.height = (assetMapContainer.clientHeight - toolbarDiv.clientHeight - messageDiv.clientHeight - statusHeight) + 'px';
+			treeDivs[i].style.height = Math.max(50, (assetMapContainer.clientHeight - toolbarDiv.clientHeight - messageDiv.clientHeight - statusHeight)) + 'px';
 		}
 	};
 
@@ -2614,6 +2621,8 @@ var JS_Asset_Map = new function() {
 
 		if ((!defaultView.frameElement) || (defaultView.frameElement.name === 'sq_sidenav')) {
 			var topDoc = defaultView.top.document.documentElement;
+		} else if (defaultView.frameElement.name === 'sq_wysiwyg_popup_sidenav') { 
+		    var topDoc = defaultView.parent.document.documentElement;
 		} else {
 			var topDoc = target.ownerDocument.documentElement;
 		}
@@ -3703,6 +3712,10 @@ var JS_Asset_Map = new function() {
 		if (win.frameElement) {
 			retval = win.top.frames.sq_main;
 			if (!retval) {
+			    retval = win.top.frames.sq_wysiwyg_popup_main;
+			}
+			
+			if (!retval) {
 				// Main frame isn't there.
 				retval = win;
 			}
@@ -3749,7 +3762,7 @@ var JS_Asset_Map = new function() {
 			};
 
 			// toggle frame
-			var thisFrame    = this.getDefaultView(assetMapContainer.ownerDocument).top.frames['sq_sidenav'];
+			var thisFrame    = this.getDefaultView(assetMapContainer.ownerDocument);
 			var resizerFrame = this.getDefaultView(assetMapContainer.ownerDocument).top.frames['sq_resizer'];
 			if (thisFrame.frameElement.parentNode.style.display === 'none') {
 				resizerFrame.toggleFrame();
