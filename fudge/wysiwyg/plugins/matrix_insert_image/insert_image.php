@@ -479,6 +479,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 				font-weight:		normal;
 			}
 		</style>
+		<?php define('SQ_PAINTED_SIMPLE_ASSET_MAP', TRUE); ?>
 	</head>
 
 	<body onload="Init();" onUnload="asset_finder_onunload();">
