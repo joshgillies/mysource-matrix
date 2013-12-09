@@ -505,7 +505,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 											<tr>
 												<td class="label" nowrap="nowrap"><?php echo translate('image_url'); ?>:</td>
 												<td>
-													<?php asset_finder('f_imageid', (assert_valid_assetid($_GET['f_imageid'], '', TRUE, FALSE) ? $_GET['f_imageid'] : 0), Array('image' => 'D', 'image_variety' => 'D'), '', false, 'setImageInfo'); ?>
+													<?php asset_finder('f_imageid', (assert_valid_assetid($_GET['f_imageid'], 'sq_wysiwyg_popup_main.frames.sq_wysiwyg_popup_sidenav', TRUE, FALSE) ? $_GET['f_imageid'] : 0), Array('image' => 'D', 'image_variety' => 'D'), '', false, 'setImageInfo'); ?>
 												</td>
 											</tr>
 											<tr>
@@ -539,7 +539,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 											</tr>
 											<tr>
 												<td><div id="show_create_image_label2" style="display: none; visibility: hidden;">Create under:</div></td>
-												<td><div id="show_create_image2" style="display: none; visibility: hidden;"><?php asset_finder('f_create_root_node', '0', Array(), ''); ?></div></td>
+												<td><div id="show_create_image2" style="display: none; visibility: hidden;"><?php asset_finder('f_create_root_node', '0', Array(), 'sq_wysiwyg_popup_main.frames.sq_wysiwyg_popup_sidenav'); ?></div></td>
 											</tr>
 											<tr>
 												<td align="center" colspan="2"><div id="show_create_image_submit" style="display: none; visibility: hidden;"><input type="submit" name="create_image_submit" value="Create &amp; Use Image" onclick="submitCreateImage();" /><input type="button" name="cancel_create_image" value="Cancel" onclick="toggleCreateImage();" /></div></td>
@@ -571,7 +571,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 														<?php echo translate('protocol'); ?>&nbsp;<?php combo_box('f_longdesc_protocol', $url_protocol_options, '', 'style="font-family: courier new; font-size: 11px;"'); ?>
 														<?php echo translate('link'); ?>&nbsp;<?php text_box('f_longdesc_link', '', 40, 0)?>
 														<br /><br />or choose a Standard Page asset<br />
-														<?php asset_finder('f_longdesc', $_GET['f_longdesc'], Array('page_standard' => 'D'), ''); ?>
+														<?php asset_finder('f_longdesc', $_GET['f_longdesc'], Array('page_standard' => 'D'), 'sq_wysiwyg_popup_main.frames.sq_wysiwyg_popup_sidenav'); ?>
 														<br /><br />If you enter URL manually, current asset in the asset finder must be cleared .<br />
 													<?php
 													} else {
@@ -582,14 +582,14 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 															<?php echo translate('protocol'); ?>&nbsp;<?php combo_box('f_longdesc_protocol', $url_protocol_options, FALSE, '', 'style="font-family: courier new; font-size: 11px;"'); ?>
 															<?php echo translate('link'); ?>&nbsp;<?php text_box('f_longdesc_link', $_GET['f_longdesc'], 40, 0)?>
 															<br /><br />or choose a Standard Page asset<br />
-															<?php asset_finder('f_longdesc', '0', Array('page_standard' => 'D'), ''); ?>
+															<?php asset_finder('f_longdesc', '0', Array('page_standard' => 'D'), 'sq_wysiwyg_popup_main.frames.sq_wysiwyg_popup_sidenav'); ?>
 														<?php
 														} else {?>
 															Enter URL manually<br />
 															<?php echo translate('protocol'); ?>&nbsp;<?php combo_box('f_longdesc_protocol', $url_protocol_options, FALSE, $matches[1][0], 'style="font-family: courier new; font-size: 11px;"'); ?>
 															<?php echo translate('link'); ?>&nbsp;<?php text_box('f_longdesc_link', $matches[2][0], 40, 0)?>
 															<br /><br />or choose a Standard Page asset<br />
-															<?php asset_finder('f_longdesc', '0', Array('page_standard' => 'D'), ''); ?>
+															<?php asset_finder('f_longdesc', '0', Array('page_standard' => 'D'), 'sq_wysiwyg_popup_main.frames.sq_wysiwyg_popup_sidenav'); ?>
 														<?php
 														}
 
@@ -599,7 +599,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 													<?php echo translate('protocol'); ?>&nbsp;<?php combo_box('f_longdesc_protocol', $url_protocol_options, '', 'style="font-family: courier new; font-size: 11px;"'); ?>
 													<?php echo translate('link'); ?>&nbsp;<?php text_box('f_longdesc_link', '', 40, 0)?>
 													<br /><br />or choose a Standard Page asset<br />
-													<?php asset_finder('f_longdesc', '0', Array('page_standard' => 'D'), ''); ?>
+													<?php asset_finder('f_longdesc', '0', Array('page_standard' => 'D'), 'sq_wysiwyg_popup_main.frames.sq_wysiwyg_popup_sidenav'); ?>
 												<?php
 												}?>
 											<br /><br />If you enter URL manually, current asset in the asset finder must be cleared .<br />

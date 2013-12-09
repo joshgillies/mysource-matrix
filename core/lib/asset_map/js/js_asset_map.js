@@ -2383,7 +2383,7 @@ var JS_Asset_Map = new function() {
 		}
 		
 		for (var i = 0; i < treeDivs.length; i++) {
-			treeDivs[i].style.height = (assetMapContainer.clientHeight - toolbarDiv.clientHeight - messageDiv.clientHeight - statusHeight) + 'px';
+			treeDivs[i].style.height = Math.max(50, (assetMapContainer.clientHeight - toolbarDiv.clientHeight - messageDiv.clientHeight - statusHeight)) + 'px';
 		}
 	};
 
