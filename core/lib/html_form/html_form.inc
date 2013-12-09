@@ -801,7 +801,7 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 	$assetid	  = trim($assetid);
 
 	if (!empty($map_frame)) {
-		$map_frame = trim('parent.frames["'.$map_frame.'"]', '.');
+		$map_frame = trim('parent.frames.'.$map_frame, '.');
 	} else {
 		$map_frame = 'self';
 	}
@@ -846,13 +846,15 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 			normal_button($safe_name.'_reset_btn', translate('reset'), $map_frame.'.asset_finder_reset_btn_press(\''.$escaped_name.'\', \''.$safe_name.'\', \''.$assetid.'\', \''.addslashes($label).'\');');
 		}
 		?><script type="text/javascript">
-				if (!window.top.frames['sq_resizer'] || <?php echo $map_frame; ?>.SQ_DOCUMENT_LOADED) {
-					<?php echo $map_frame; ?>.set_finder(<?php echo $finder_frame; ?>);
+				if (!window.frames['sq_wysiwyg_popup_sidenav'] && (!window.top.frames['sq_resizer'] || <?php echo $map_frame; ?>.SQ_DOCUMENT_LOADED)) {
+				    <?php echo $map_frame; ?>.set_finder(<?php echo $finder_frame; ?>);
 				} else {
 					// this gets overridden when multiple asset finders exist anyway,
 					// so no harm at the moment in only saving the latest set_finder call
 					if (typeof currentOnload == 'undefined') {
 						currentOnload = <?php echo $map_frame; ?>.onload;
+					} else {
+					    currentOnload = function() {};
 					}
 					<?php echo $map_frame; ?>.onload = function() { <?php echo $map_frame; ?>.set_finder(<?php echo $finder_frame; ?>); currentOnload(); }
 				}

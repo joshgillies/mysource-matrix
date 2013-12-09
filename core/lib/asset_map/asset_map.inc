@@ -508,6 +508,13 @@ class Asset_Map
 					} else {
 						$rootLinkid = '';
 					}
+					
+					// Set the root edit URL, which needs to point to the correct
+					// (admin or simple edit) suffix.
+					$rootEditUrl = sq_web_path('root_url').'/'.SQ_CONF_BACKEND_SUFFIX;
+					if (SQ_IN_LIMBO) {
+					    $rootEditUrl = sq_web_path('root_url').'/'.SQ_CONF_LIMBO_SUFFIX;
+					}
 				?>
 					<script type="text/javascript">
 						dfxLoadedCallback = function() {
@@ -521,7 +528,7 @@ class Asset_Map
 								asset_map_container.style.height = <?php echo $height ?> + 'px';
 								document.getElementById('asset_map').appendChild(asset_map_container);
 								JS_Asset_Map.<?php echo $startCmd ?>({
-									rootEditUrl: '<?php echo sq_web_path('root_url').'/'.SQ_CONF_BACKEND_SUFFIX ?>',
+									rootEditUrl: '<?php echo $rootEditUrl ?>',
 									assetIconPath: '<?php echo sq_web_path('data') ?>/asset_types',
 									displayFormat: '<?php echo addslashes(SQ_CONF_ASSET_MAP_ASSET_DISPLAY_NAME); ?>',
 									assetsPerPage: <?php echo SQ_CONF_ASSET_MAP_ASSET_LIMIT; ?>,
