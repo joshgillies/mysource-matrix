@@ -482,7 +482,7 @@ class Page_Upcoming_Events_List extends Page
 				// If event recurs at current_date move to next day for correct evaluation of next recurrance date
 				// also check to see if the start time of the instance for today is after now. Only then the event
 				// can be termed to be in future else we will have to skip that instance of the current day event
-				if ($asset->hasOccurrenceOnDate($current_date) && (!$first_current_date || $event_occurance < $gm_now)) {
+				if ($asset->hasOccurrenceOnDate($current_date) && (!$first_current_event_flag || $event_occurance < $gm_now)) {
 					$current_date = add_days_to_iso($current_date, 1);
 				}
 
@@ -502,7 +502,7 @@ class Page_Upcoming_Events_List extends Page
 				} else {
 					$event_occurance = strtotime($next_occurance);
 				}
-				$first_current_date = FALSE;
+				$first_current_event_flag = FALSE;
 			} else if ($asset && $asset->type() == 'calendar_event_modification') {
 
 				$pattern = '/( [0-9\-]{2}:[0-9\-]{2}:[0-9\-]{2})/';
