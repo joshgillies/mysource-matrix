@@ -33,7 +33,7 @@ if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAcce
 if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 ?><!DOCTYPE html>
 
-<html style="width: 740px; height: 500px;">
+<html style="width: 740px;">
 	<head>
 		<title>Embed Movie</title>
 

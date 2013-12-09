@@ -39,7 +39,7 @@ $url_protocol_options = Array(
 if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 ?><!DOCTYPE html>
 
-<html style="width: 800px; height: 600px;">
+<html style="width: 800px;">
 	<head>
 		<title>Insert Image</title>
 		<meta http-equiv="content-type" content="text/html; charset=<?php echo SQ_CONF_DEFAULT_CHARACTER_SET;?>" />

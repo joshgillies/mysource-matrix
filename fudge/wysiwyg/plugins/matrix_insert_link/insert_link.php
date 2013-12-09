@@ -110,7 +110,7 @@ if (isset($_GET['assetid']) && $_GET['assetid']) {
 	}
 }
 ?><!DOCTYPE html>
-<html style="width: 750px; height: 488px; ">
+<html style="width: 750px;">
 	<head>
 		<title>Insert Link</title>
 		<meta http-equiv="content-type" content="text/html; charset=<?php echo SQ_CONF_DEFAULT_CHARACTER_SET;?>" />
