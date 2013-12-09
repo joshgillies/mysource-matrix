@@ -321,6 +321,7 @@ input[type="reset"],
 
 .sq-btn-link {
 	line-height: 				27px;
+	text-decoration: 			none;
 }
 
 input[type="button"]:hover, 
@@ -330,6 +331,7 @@ input[type="reset"]:hover,
 	background: 				#fcfcfc;
 	color: 						#414040;
 	cursor: 					pointer;
+	text-decoration: 			none;
 }
 
 input.sq-btn-large, 
@@ -739,7 +741,7 @@ MAIN EDITING FRAME TABLE AND SECTION STRUCTURE
 .sq-backend-body-wrapper.main {
 	display: 					table;
 	width:						100%;
-	margin-bottom:				32px;
+	margin-bottom:				30px;
 }
 
 .sq-backend-section-table-wrapper {
@@ -1357,26 +1359,21 @@ EDIT BODYCOPY STYLES
 	margin-left: 				5px;
 }
 
-.sq-edit-bodycopy-section, 
-.sq-edit-bodycopy-section-locked, 
-.sq-bodycopy-locked-wrapper.content_type_nest_content,
-.sq-bodycopy-locked-wrapper.content_type_raw_html, 
-.sq-edit-bodycopy-insert-container-table{
+.sq-edit-bodycopy-section,
+.sq-locked-content-block-wrapper {
 	margin: 					20px 0 0;
 	border: 					1px dashed #CCC;
 	border-radius: 				4px;
 	display: 					block;
 }
 
-.sq-bodycopy-locked-wrapper.content_type_raw_html{
-	border: 					none;
+.sq-locked-content-block-wrapper {
+	padding: 					10px;
+	margin: 					10px 0 0;
 }
 
-.sq-bodycopy-locked-wrapper.content_type_nest_content,
-.sq-bodycopy-locked-wrapper.content_type_raw_html,
-.sq-bodycopy-locked-wrapper tr:first-child .sq-edit-bodycopy-section-locked,
-div > .sq-edit-bodycopy-section-locked {
-	margin: 					10px 0 0;
+.sq-bodycopy-locked-wrapper.content_type_raw_html{
+	border: 					none;
 }
 
 .sq-edit-bodycopy-section-locked, 
@@ -1386,8 +1383,6 @@ div > .sq-edit-bodycopy-section-locked {
 
 .sq-edit-bodycopy-section-locked, 
 .sq-bodycopy-locked-wrapper.content_type_nest_content{
-	margin-bottom: 				0;
-	padding: 					10px;
 	display: 					block;
 }
 
@@ -1398,6 +1393,8 @@ div > .sq-edit-bodycopy-section-locked {
 .sq-edit-bodycopy-section-locked .sq-preview-view, 
 .sq-edit-bodycopy-section-locked .sq-source-view{
 	padding-top: 				10px;
+	padding-bottom: 			0;
+	line-height: 				14px;
 }
 
 .sq-edit-bodycopy-section > tbody > tr > td {
@@ -1409,9 +1406,12 @@ div > .sq-edit-bodycopy-section-locked {
 	margin:						30px 0 10px;
 }
 
-.sq-edit-bodycopy-insert-container-table td{
+.sq-edit-bodycopy-insert-container-table td,
+.sq-edit-bodycopy-insert-container-table > tbody > tr:first-child > td{
+	border-bottom: 				1px dashed #ccc;
 	vertical-align: 			middle;
-	padding-left: 				10px;
+	padding: 				    0 0 0 10px;
+	border:						none !important;
 }
 
 .sq-edit-bodycopy-insert-container-table td:first-child {
@@ -1421,6 +1421,7 @@ div > .sq-edit-bodycopy-section-locked {
 .sq-edit-content-type-wrapper .sq-backend-table {
 	margin-bottom: 				0;
 }
+
 
 /* EDITING MODE STYLES */
 
@@ -1489,9 +1490,12 @@ div > .sq-edit-bodycopy-section-locked {
 	border-top: 				none;
 }
 
-.sq-content_type_wysiwyg-table td, 
-.sq-content_type_nest_content-table td{
+.sq-edit-bodycopy-section td{
 	padding: 					10px;
+}
+
+.sq-edit-bodycopy-section > tbody > tr:first-child > td{
+	border-bottom: 				1px dashed #ccc;
 }
 
 .sq-content_type_nest_content-table .sq-backend-table-cell-alt {
@@ -1524,6 +1528,25 @@ div > .sq-edit-bodycopy-section-locked {
 	vertical-align: 			top;
 	padding: 					10px;
 }
+
+/* OTHER LESS USED CONTENT TYPES */
+
+.sq-edit-bodycopy-section.sq-content_type_image-table .sq-edit-content-type-wrapper > table {
+	margin-bottom: 				10px;
+	border: 					1px solid #ccc;
+}
+
+.sq-edit-bodycopy-section.sq-content_type_image-table .sq-edit-content-type-wrapper > table td {
+	padding: 					6px;
+	border: 					1px solid #ccc;
+	width:						auto !important
+	vertical-align				middle;
+}
+
+.sq-edit-bodycopy-section.sq-content_type_code-table textarea {
+	margin-bottom: 				10px;
+}
+
 
 /* WYSIWYG OVERWRITING STYLES */
 
@@ -1714,10 +1737,16 @@ STANDALONE CONTENT CONTAINERS
 	padding: 					10px;
 }
 
-.sq-standalone-footer input[type=button]{
+.sq-standalone-footer input[type=button] {
 	min-width: 					100px;
 	height: 					30px;
 }
+
+.sq-standalone-footer .sq-btn-link {
+	min-width: 					84px;
+	padding: 					6px 10px;
+}
+
 
 
 /*
@@ -1773,6 +1802,10 @@ ERROR REPORT TABLE
 ####################################################################################################################
 */
 
+.sq-standalone-wrapper.sq-error-report{ 
+	margin:						35px 35px 30px 5px;
+}
+
 .sq-error-report .sq-standalone-body{
 	padding: 					0;
 }
@@ -1818,6 +1851,7 @@ td.sq-error-report-type.warning{
 
 td.sq-error-report-type.warning span{
 	background-image: 			url(../images/warning.png);
+	vertical-align: 			middle;
 }
 
 td.sq-error-report-type.error{

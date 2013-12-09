@@ -1405,7 +1405,7 @@ class Backend_Outputter
 
 								case 'commit' :
 									?>
-									<tr <?php
+									<tr class="sq-backend-row" <?php
 										if ($field['hidden']) echo 'style="display: none"';
 										if ($field['id_name']) {
 											echo 'id="'.$field['id_name'].'"';
@@ -1636,7 +1636,7 @@ class Backend_Outputter
 					<div id="sq-commit-button-div-inside">
 						<?php
 			} else {
-				$this->openSection(' ');
+				$this->openSection('&nbsp;');
 				$this->openField('', 'commit');
 			}
 		}

@@ -1547,7 +1547,7 @@ class HIPO_Job extends MySource_Object
 					</td>
 				</tr>
 				<tr class="sq-standalone-body">
-					<td colspan="2">
+					<td colspan="2" style="padding: 0;">
 						<table class="sq-error-report-list">
 							<tr>
 								<th class="sq-error-report-type">Type</th>
@@ -1574,11 +1574,11 @@ class HIPO_Job extends MySource_Object
 					</td>
 				</tr>
 				<tr class="sq-standalone-footer">
-					<td text-align="left">
+					<td style="text-align:left;">
 						&nbsp;
 					</td>
-					<td text-align="right">
-						<a class="sq-btn-link sq-btn-link-large sq-btn-link-blue" href="<?php echo $this->_options['on_complete_url']; ?>"><?php echo translate('continue'); ?></a>
+					<td style="text-align:right;">
+						<a class="sq-btn-link sq-btn-large sq-btn-blue" href="<?php echo $this->_options['on_complete_url']; ?>"><?php echo translate('continue'); ?></a>
 					</td>
 				</tr>
 			</table>
