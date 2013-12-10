@@ -106,11 +106,13 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 	$from_field = new DateTime_Field($prefix.'_date_from', $date, $date_parameters);
 	$to_field   = new DateTime_Field($prefix.'_date_to', $date, $date_parameters);
 
-	$from_date = $to_date = '';
+	//get default date of today and then set it as the default date for from and to dates
+	$default_date = date('Y').'-'.date('m').'-'.date('d').' 00:00:00';
+	$from_date = $to_date = $default_date;
 
 	// get the values from the date fields but if they are left to default date then
 	// dont add the to and from dates to the query user prolly wants ALL the logs
-	if ($from_field->processField() && $from_field->value != '1990-01-01 00:00:00') {
+	if ($from_field->processField() && $from_field->value != $default_date) {
 		$from_date = $from_field->value;
 	}
 	// this will look stupid but this is needed
@@ -118,7 +120,7 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 	// fields will have the same date on them
 	$from_field->setValue($from_date);
 
-	if ($to_field->processField() && $to_field->value != '1990-01-01 00:00:00') {
+	if ($to_field->processField() && $to_field->value != $default_date) {
 		$to_date = $to_field->value;
 	}
 	$to_field->setValue($to_date);
