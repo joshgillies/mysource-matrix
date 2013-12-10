@@ -45,7 +45,10 @@ if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAcce
 				$include_list[] = sq_web_path('data').'/system/core/js_strings.'.$locale.'.js';
 			}
 		}
-
+		
+        include_once(SQ_LIB_PATH.'/asset_map/asset_map.inc');
+        $asset_map = new Asset_Map();
+		
 		foreach ($include_list as $link) {
 			?><script type="text/javascript" src="<?php echo $link; ?>"></script>
 		<?php
@@ -53,11 +56,11 @@ if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAcce
 		?>
 		<script type="text/javascript" src="../../core/popup.js"></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/asset_map/javaExternalCall.js' ?>"></script>
-		<script type="text/javascript" src="<?php echo sq_web_path('fudge').'/var_serialise/var_serialise.js' ?>"></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/html_form/html_form.js' ?>"></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/general.js' ?>"></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/tooltip.js' ?>"></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/web/dfx/dfx.js' ?>"></script>
+		<?php echo $asset_map->embedAssetMapRequiredJS(); ?>
 		<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('lib').'/asset_map/js/js_asset_map.css' ?>" />
 
 		<style type="text/css">
@@ -74,8 +77,6 @@ if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAcce
 	<body>
 	    <div id="asset_map">
 		<?php
-            include_once(SQ_LIB_PATH.'/asset_map/asset_map.inc');
-            $asset_map = new Asset_Map();
             $asset_map->embedAssetMap('simple', 200, 400);
         ?>
         </div>

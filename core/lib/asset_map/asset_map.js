@@ -453,16 +453,17 @@ window.onunload = asset_finder_onunload;
 */
 function resizeAssetMap() {
 	var frameHeight = document.body.clientHeight;
-	var assetMap = document.getElementById('sq_asset_map');
+	var assetMap = document.getElementById('asset_map');
 	
 	var newHeight = frameHeight;
-	if (dfx.hasClass(assetMap, 'simple') === false) {
-	    newHeight = frameHeight - 70;
-	}
 
 	// no point throwing a js error if the assetMap isn't defined (maybe java isn't installed)
 	if (assetMap) {
-		// negative size = badness
+		if (dfx.hasClass(assetMap, 'simple') === false) {
+		    newHeight = frameHeight - 70;
+	    }
+	
+	    // negative size = badness
 		if (newHeight > 0) {
 			assetMap.style.height = newHeight;
 		}
