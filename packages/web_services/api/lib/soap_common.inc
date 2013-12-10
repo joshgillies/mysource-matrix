@@ -773,31 +773,31 @@ class SOAP_Common
 	*   </Profile>
 	*   "
 	*
-	* @parm Array $str
+	* @param Array $str
+	* @param String $parent_element
 	*
 	* @return string
 	* @access public
 	*/
-	function arrayToXml($str)
+	function arrayToXml($str, $parent_element='')
 	{
 		if (is_object($str)) {
 			$str = get_object_vars($str);
 		}
 		if (!is_array($str)) {
-			return '<![CDATA['.$str.']]>';
+ 			return "\n".'<'.$parent_element.'>'.'<![CDATA['.$str.']]>'.'</'.$parent_element.'>';
 		}
 
 		$xml = '';
 		foreach($str as $key => $value) {
+			// apply xml element naming rules
+			$key = preg_replace('/\s+/', '', $key);
+			if ((empty($key) && $key != 0) || preg_match('/^xml$/i', $key)) continue;
 
-			if (is_int($key)) {
-				$xml .= self::arrayToXml($value);
+			if (!empty($parent_element) && (is_array($value) || is_object($value))) {
+				$xml .= "\n".'<'.$parent_element.'>'.self::arrayToXml($value, $key).'</'.$parent_element.'>';
 			} else {
-				// apply xml element naming rules
-				$key = preg_replace('/\s+/', '', $key);
-				if (empty($key) || preg_match('/^xml$/i', $key)) continue;
-
-				$xml .= "\n".'<'.$key.'>'.self::arrayToXml($value).'</'.preg_replace('|\s.*$|', '', $key).'>';
+				$xml .= self::arrayToXml($value, $key);
 			}
 		}//end foreach
 
