@@ -2653,7 +2653,7 @@ var JS_Asset_Map = new function() {
 		if (drawAddButton !== false) {
 			var addButton = _createEl('div');
 			dfx.addClass(addButton, 'addButton sq-btn-link sq-btn-small sq-btn-no-shadow');
-			addButton.innerHTML = '<img src="/__lib/web/images/icons/asset_map/add_off.png" alt="Add icon" title="Add new asset"/> Add';
+			addButton.innerHTML = '<img src="'+ options.libPath +'/web/images/icons/asset_map/add_off.png" alt="Add icon" title="Add new asset"/> Add';
 			container.appendChild(addButton);
 			dfx.addEvent(addButton, 'click', function(e) {
 				var target   = dfx.getMouseEventTarget(e);

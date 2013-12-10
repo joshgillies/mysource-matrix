@@ -530,6 +530,7 @@ class Asset_Map
 								JS_Asset_Map.<?php echo $startCmd ?>({
 									rootEditUrl: '<?php echo $rootEditUrl ?>',
 									assetIconPath: '<?php echo sq_web_path('data') ?>/asset_types',
+									libPath: '<?php echo sq_web_path('lib') ?>',
 									displayFormat: '<?php echo addslashes(SQ_CONF_ASSET_MAP_ASSET_DISPLAY_NAME); ?>',
 									assetsPerPage: <?php echo SQ_CONF_ASSET_MAP_ASSET_LIMIT; ?>,
 									initialSelection: '<?php echo $initial_selection_lineage ?>',
