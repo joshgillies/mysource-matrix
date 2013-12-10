@@ -252,7 +252,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 
 			?>
 			<tr>
-			<td class="sq-bodycopy-container-cell bodycopyContainerCell <?php echo $container ?>" data-bodycopyid="<?php echo htmlentities($asset->id) ?>" data-containerid="<?php echo htmlentities($container->id) ?>"<?php
+			<td class="sq-bodycopy-container-cell bodycopyContainerCell" data-bodycopyid="<?php echo htmlentities($asset->id) ?>" data-containerid="<?php echo htmlentities($container->id) ?>"<?php
 				if ((boolean) $container->writeAccess('content') === FALSE) {
 					echo ' data-readonly="true"';
 				}
