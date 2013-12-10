@@ -288,7 +288,7 @@ include(dirname(__FILE__).'/header.php');
 			<input type="button" class="" name="cancel" onClick="javascript: popup_close(); return false;" value="<?php echo translate('cancel'); ?>"/>
 		</td>
 		<td align="right">
-			<input type="button" class="sq-btn-blue" name="ok" onClick="javascript: popup_save(this.form) return false;" value="<?php echo translate('save'); ?>"/>
+			<input type="button" class="sq-btn-blue" name="ok" onClick="javascript: popup_save(this.form); return false;" value="<?php echo translate('save'); ?>"/>
 		</td>
 	</tr>
 </table>
