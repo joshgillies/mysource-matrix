@@ -103,10 +103,16 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 						}
 
 						check_box($prefix.'_version_update_version');
+						label(translate('increment_major_version_numner'), $prefix.'_version_update_version');
 						if (!is_null($keywords) && isset($keywords['fields'][strtolower((string) $field['code'])])) {
 							$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][strtolower((string) $field['code'])]] = ob_get_contents();
 							ob_end_flush();
 						}
+
+						if (!is_null($field->note) && (strlen((string)$field->note) > 0)) {
+							$o->note((string) $field->note);
+						}
+
 						$o->closeField();
 					} else {
 						$print_note = FALSE;
@@ -198,6 +204,10 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 						echo '&nbsp;<b>'.strtolower(translate('by')).'</b>&nbsp;';
 						asset_finder($prefix.'_date_'.$date_type.'_userid', $userid, Array('user' => 'D'));
 
+						if (!is_null($field->note) && (strlen((string)$field->note) > 0)) {
+							$o->note((string) $field->note);
+						}
+
 					} else {
 						$print_note = FALSE;
 						if ($date_field->isEmpty() && $date_type == 'published') {
@@ -251,6 +261,11 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 						$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][strtolower((string) $field['code'])]] = ob_get_contents();
 						ob_end_flush();
 					}
+
+					if (!is_null($field->note) && (strlen((string)$field->note) > 0)) {
+						$o->note((string) $field->note);
+					}
+
 					$o->closeField();
 				break;
 
@@ -313,6 +328,10 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 						echo translate('no_language_set', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 					}
 
+					if (!is_null($field->note) && (strlen((string)$field->note) > 0)) {
+						$o->note((string) $field->note);
+					}
+
 					$o->closeField();
 
 					$o->closeSection();
@@ -352,6 +371,11 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 							echo '<i>'.translate('no_charactet_set_set', $owner->charset, htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</i>';
 						}
 					}
+
+					if (!is_null($field->note) && (strlen((string)$field->note) > 0)) {
+						$o->note((string) $field->note);
+					}
+
 					$o->closeField();
 					$o->closeSection();
 					if (!is_null($keywords) && isset($keywords['fields'][strtolower((string) $field['code'])])) {
@@ -437,6 +461,11 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 						$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][strtolower((string) $field['code'])]] = ob_get_contents();
 						ob_end_flush();
 					}
+
+					if (!is_null($field->note) && (strlen((string)$field->note) > 0)) {
+						$o->note((string) $field->note);
+					}
+
 					$o->closeField();
 				break;
 
@@ -515,9 +544,9 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 								text_box($prefix.'_designs['.$design_name.'][name]', '', 20, 30);
 							$o->closeField();
 						} else {
-							$o->openRaw();
+							//$o->openRaw();
 							hidden_field($prefix.'_designs['.$design_name.'][name]', $design_name);
-							$o->closeRaw();
+							//$o->closeRaw();
 
 							if ($design_type == 'user') {
 								$o->openField(translate('design_code'));
@@ -539,8 +568,8 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 								?>
 								<table class="sq-backend-table">
 									<tr>
-										<td class="sq-backend-table-header"><?php echo translate('url'); ?></td>
-										<td class="sq-backend-table-header"><?php echo translate('effective_design'); ?></td>
+										<th class="sq-backend-table-header"><?php echo translate('url'); ?></th>
+										<th class="sq-backend-table-header"><?php echo translate('effective_design'); ?></th>
 									</tr>
 								<?php
 								foreach ($effective_designs as $url => $effective_designid) {
@@ -628,11 +657,11 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 				ob_start();
 			}
 			// before printing the note, we make sure that the note element exists and is not empty
-			if ($print_note && (!is_null($field->note)) && (strlen((string)$field->note) > 0)) {
+			/*if ($print_note && (!is_null($field->note)) && (strlen((string)$field->note) > 0)) {
 				$o->openField('&nbsp;');
 				$o->note((string) $field->note);
 				$o->closeField();
-			}
+			}*/
 			if (!is_null($keywords) && isset($keywords['fields'][strtolower((string) $field['code'])])) {
 						$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][strtolower((string) $field['code'])]] .= ob_get_contents();
 						ob_end_flush();

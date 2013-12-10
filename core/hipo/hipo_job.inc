@@ -1538,47 +1538,50 @@ class HIPO_Job extends MySource_Object
 		require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 
 		?>
-		<div align="center">
-		<table border="0" cellspacing="1" cellpadding="1" bgcolor="#000000" width="95%">
-			<tr>
-				<td bgcolor="#412F49" align="center" width="100%">
-					<span style="color: #FFFFFF;"><b><?php echo translate('hipo_error_report', $this->getHipoName());?></b><br />
-						<span style="font-size: 80%;">
-						<?php echo translate('hipo_herder_completion', (!$this->complete()) ? translate('not') : ''); ?>
-						</span>
-					</span>
-				</td>
-			</tr>
-			<tr>
-				<td bgcolor="#9E86AA" width="100%">
-					<table border="0" width="100%" cellspacing="2" cellpadding="1">
-					<?php
-						foreach ($this->_hipo_vars['errors'] as $error) {
-							$err_type = strtoupper(($error['warning']) ? translate('warning').': ' : translate('error').': ');
-							?>
+		<div class="sq-standalone-wrapper sq-error-report">
+			<table class="sq-standalone-table">
+				<tr class="sq-standalone-header">
+					<td colspan="2">
+						<?php echo translate('hipo_error_report', $this->getHipoName());?> 
+						<span><?php echo translate('hipo_herder_completion', (!$this->complete()) ? translate('not') : ''); ?></span>
+					</td>
+				</tr>
+				<tr class="sq-standalone-body">
+					<td colspan="2" style="padding: 0;">
+						<table class="sq-error-report-list">
 							<tr>
-								<td align="left" valign="top">
-									<b>
-									<?php echo $err_type; ?>
-									</b>
-									<?php echo $error['message']; ?>
-									<br/>
-									<span class="sq-hipo-small"><?php echo translate('reported'); ?> <?php echo readable_datetime($error['time']);?></span>
-									<hr/>
-								</td>
+								<th class="sq-error-report-type">Type</th>
+								<th class="sq-error-report-description">Description</th>
+								<th class="sq-error-report-reported"><?php echo translate('reported'); ?></th>
 							</tr>
-							<?php
-						}
-					?>
-					</table>
-				</td>
-			</tr>
-			<tr>
-				<td bgcolor="#412F49" align="right">
-					<b><a style="color: #FFFFFF; text-decoration: none;" href="<?php echo $this->_options['on_complete_url']; ?>"><?php echo translate('continue'); ?> >>&nbsp;</a>
-				</td>
-			</tr>
-		</table>
+						<?php
+							foreach ($this->_hipo_vars['errors'] as $error) {
+								$err_type = ($error['warning']) ? translate('warning') : translate('error');
+								$err_type_lowercase = strtolower($err_type);
+								?>
+								<tr>
+									<td class="sq-error-report-type <?php echo $err_type_lowercase; ?>"><span title="<?php echo $err_type; ?>">
+										<span><?php echo $err_type; ?></span>
+										<!--img src="<?php echo sq_web_path('lib').'/web/images/'.$err_type_lowercase.'.png'; ?>" alt="<?php echo $err_type; ?>" title="<?php echo $err_type; ?>"/-->
+									</td>
+									<td class="sq-error-report-description"><?php echo $error['message']; ?></td>
+									<td class="sq-error-report-reported"><?php echo readable_datetime($error['time']);?></td>
+								</tr>
+								<?php
+							}
+						?>
+						</table>
+					</td>
+				</tr>
+				<tr class="sq-standalone-footer">
+					<td style="text-align:left;">
+						&nbsp;
+					</td>
+					<td style="text-align:right;">
+						<a class="sq-btn-link sq-btn-large sq-btn-blue" href="<?php echo $this->_options['on_complete_url']; ?>"><?php echo translate('continue'); ?></a>
+					</td>
+				</tr>
+			</table>
 		</div>
 		<?php
 
@@ -1623,29 +1626,24 @@ class HIPO_Job extends MySource_Object
 	public static function paintProgressBar($percent_done, $message='', $label_class='sq-hipo-progress-bar-label', $percent_class='sq-hipo-progress-bar-percent', $bar_main_class='sq-hipo-progress-bar-main', $bar_done_class='sq-hipo-progress-bar-done')
 	{
 		?>
-		<table width="100%" border="0" cellspacing="0" cellpadding="0">
-			<tr>
-				<td class="<?php echo $label_class; ?>"><b><?php echo nl2br($message); ?></b></td>
-				<td class="<?php echo $percent_class; ?>"><b><?php echo round($percent_done); ?>%</b></td>
-			</tr>
-			<tr>
-				<td colspan="2"><img src="<?php echo sq_web_path('lib').'/web/images/blank.gif'; ?>" width="1" height="10" alt="blank" /></td>
-			<tr>
-				<td colspan="2" width="100%">
-					<table width="100%" cellspacing="0" cellpadding="0" border="0">
-						<tr>
-							<td class="<?php echo $bar_main_class; ?>" width="100%">
-							<table width="<?php echo ($percent_done) ? round($percent_done) : '1'; ?>%" cellspacing="0" cellpadding="0" border="0">
-								<tr>
-									<td class="<?php echo $bar_done_class; ?>"><img src="<?php echo sq_web_path('lib').'/web/images/blank.gif'; ?>" width="1" height="8" alt="blank" /></td>
-								</tr>
-							</table>
-							</td>
-						</tr>
-					</table>
-				</td>
-			</tr>
-		</table>
+		<div>
+			<table class="sq-hipo-progress-bar-table <?php echo $bar_main_class; ?>">
+				<tr>
+					<td class="<?php echo $label_class; ?>"><b><?php echo nl2br($message); ?></b></td>
+					<td class="<?php echo $percent_class; ?>"><b><?php echo round($percent_done); ?>%</b></td>
+				</tr>
+				<tr>
+					<td colspan="2">
+						<div class="sq-hipo-progress-bar-wrapper">
+							<div class="sq-hipo-progress-bar-outer">
+								<div class="sq-hipo-progress-bar-inner <?php echo $bar_done_class; ?>" style="width: <?php echo ($percent_done) ? round($percent_done) : '1'; ?>%">
+								</div>
+							</div>
+						</div>
+					</td>
+				</tr>
+			</table>
+		</div>
 		<?php
 
 	}//end paintProgressBar()

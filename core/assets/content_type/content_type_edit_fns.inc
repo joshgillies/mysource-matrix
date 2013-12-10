@@ -108,20 +108,22 @@ class Content_Type_Edit_Fns extends Asset_Edit_Fns
 		$prefix = $asset->getPrefix();
 		$content_prefix = $prefix.'_'.get_class_lower($asset);
 		$path = sq_web_path('data').'/asset_types/bodycopy/images/icons/source_mode.png';
-		echo '<table border="0" cellspacing="0" cellpadding="0" class="bodytext">';
-		echo '<tr><td align="left" background="" id="'.$prefix.'_div_'.$asset->id.'" width="4%" style="border: 1px dashed #C0C0C0;">';
+		echo '<div class="sq-edit-bodycopy-section-locked">';
+		echo '<table class="sq-bodycopy-raw-html-table bodytext">';
+		echo '<tr><td align="left" id="'.$prefix.'_div_'.$asset->id.'" >';
 		echo '<img align="absmiddle" src="'.$path.'" alt="View Source" title="View Source" width="16" height="16" style="cursor:pointer;" onclick="sq_toggle_double_div(\''.$content_prefix.'_html\', \''.$content_prefix.'_source\', \''.$content_prefix.'_control\', \'View Source\', \'View Preview\');if (this.alt == \'View Source\') { this.alt=\'View Preview\'; this.title=\'View Preview\'; } else { this.alt=\'View Source\'; this.title=\'View Source\' };" />';
 		echo '<span id="'.$content_prefix.'_control" style="display:none;">View Source</span>';
 		echo '</td></tr>';
-		echo '<tr><td style="border-left: 1px dashed #C0C0C0; border-right: 1px dashed #C0C0C0; border-bottom: 1px dashed #C0C0C0;" id="'.$content_prefix.'_cell">';
-		echo '<div id="'.$content_prefix.'_html" style="display: block;">';
+		echo '<tr><td id="'.$content_prefix.'_cell">';
+		echo '<div id="'.$content_prefix.'_html" class="sq-preview-view" style="display: block;">';
 		echo $html;
 		echo '</div>';
-		echo '<div id="'.$content_prefix.'_source" style="display: none;">';
+		echo '<div id="'.$content_prefix.'_source" class="sq-source-view" style="display: none;">';
 		echo $source;
 		echo '</div>';
 		echo '</td></tr>';
 		echo '</table>';
+		echo '</div>';
 
 	}//end _paintInterface()
 

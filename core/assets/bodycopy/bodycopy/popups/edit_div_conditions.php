@@ -84,12 +84,12 @@ include(dirname(__FILE__).'/header.php');
 	    var rowIndex = tr.rowIndex;
 	    var td = tr.insertCell(0);
 	    var fieldset = document.createElement('fieldset');
-	    var legend = document.createElement('legend');
+	    var h2 = document.createElement('h2');
 	    var b = document.createElement('b');
 	    var name = document.createTextNode('Condition Group');
 	    b.appendChild(name);
-	    legend.appendChild(b);
-	    fieldset.appendChild(legend);
+	    h2.appendChild(b);
+	    td.appendChild(h2);
 	    td.appendChild(fieldset);
 	    
 	    // add table for conditions
@@ -105,6 +105,7 @@ include(dirname(__FILE__).'/header.php');
 	    div.style = 'text-align: center;';
 	    var add_link = document.createElement('a');
 	    add_link.href = '#';
+	    add_link.innerHTML = '<img src="<?php echo sq_web_path('lib')?>/web/images/icons/add.png" alt="Add" title="Add condition group " class="sq-icon sq-link-icon small">';
 	    add_link.appendChild(document.createTextNode('Add condition'));
 	    add_link.onclick = function () {
 		add_condition(tbdy, null);
@@ -117,7 +118,7 @@ include(dirname(__FILE__).'/header.php');
 	    var td_label = document.createElement('td');
 	    var td_input = document.createElement('td');
 	    td_label.class = 'label';
-	    td_label.appendChild(document.createTextNode('Logical grouping'));
+	    td_label.appendChild(document.createTextNode('Logical grouping:'));
 	    tr.appendChild(td_label);
 	    tr.appendChild(td_input);
 	    
@@ -169,15 +170,16 @@ include(dirname(__FILE__).'/header.php');
 	    // print delete group icon
 	    var deleteIcon=document.createElement('img');
 	    deleteIcon.src = "<?php echo(sq_web_path('data').'/asset_types/bodycopy/images/icons/delete.png'); ?>";
-	    deleteIcon.width = 16;
-	    deleteIcon.height = 16;
 	    deleteIcon.alt = 'Delete this group';
 	    deleteIcon.title = 'Delete this group';
-	    deleteIcon.style = 'cursor: pointer;';
+	    deleteIcon.className = 'sq-popup-btn';
 	    deleteIcon.onclick = function () {
-		this.parentNode.parentNode.parentNode.parentNode.parentNode.removeChild(this.parentNode.parentNode.parentNode.parentNode);
+		this.parentNode.parentNode.parentNode.parentNode.removeChild(this.parentNode.parentNode.parentNode);
+		return false;
 	    };
-	    legend.appendChild(deleteIcon);
+	    h2.insertBefore(deleteIcon, b);
+
+	    return false;
 	}
 	
 	
@@ -185,8 +187,9 @@ include(dirname(__FILE__).'/header.php');
 	    var tr =document.createElement('tr');
 	    var td_label = document.createElement('td');
 	    var td_input = document.createElement('td');
-	    td_label.class = 'label';
-	    td_label.appendChild(document.createTextNode('Condition'));
+	    td_label.className = 'label';
+	    td_input.className = 'condition';
+	    td_label.appendChild(document.createTextNode('Condition:'));
 	    tr.appendChild(td_label);
 	    tr.appendChild(td_input);
 	    parent.appendChild(tr);
@@ -213,35 +216,40 @@ include(dirname(__FILE__).'/header.php');
 	    // print delete condition icon
 	    var deleteIcon=document.createElement('img');
 	    deleteIcon.src = "<?php echo(sq_web_path('data').'/asset_types/bodycopy/images/icons/delete.png'); ?>";
-	    deleteIcon.width = 16;
-	    deleteIcon.height = 16;
+	    deleteIcon.className = 'sq-popup-btn small';
 	    deleteIcon.alt = 'Delete this condition';
 	    deleteIcon.title = 'Delete this condition';
 	    deleteIcon.style = 'cursor: pointer;';
 	    deleteIcon.onclick = function () {
 		this.parentNode.parentNode.parentNode.removeChild(this.parentNode.parentNode);
+		return false;
 	    };
 	    td_input.appendChild(deleteIcon);
+
+	    return false;
 	}
 
 </script>
 
-<div class="title">
+<h1 class="title">
+	<a href="#" onclick="javascript: popup_close(); return false;">
+		<img src="<?php echo sq_web_path('lib')?>/web/images/icons/cancel.png" alt="Cancel" title="<?php echo translate('cancel');?>" class="sq-icon">
+	</a>
 	DIV Condition Rules
-</div>
+</h1>
 <form id="main_form" name="main_form"  style="height:410px;overflow: auto;">
 <input type="hidden" name="bodycopy_name" value="">
 <input type="hidden" name="divid" value="">
 <table width="100%" border="0" >
 	<tr>
-		<td>
+		<td colspan="2">
+		<h2>Condition settings</h2>
 		<fieldset>
-			<legend><b>Condition settings</b></legend>
 			<table style="width:100%">
 				<tr>
 					<td class="label">Condition rules:</td>
 					<td>
-					    	<select name="condition_rules_status">
+					    <select name="condition_rules_status">
 							<option value="enable" selected ><?php echo translate('enable'); ?></option>
 							<option value="disable"><?php echo translate('disable'); ?></option>
 						</select>
@@ -250,7 +258,7 @@ include(dirname(__FILE__).'/header.php');
 				<tr>
 					<td class="label">Logical grouping:</td>
 					<td>
-					    	<select name="logical_op_groups" id="logical_op_groups">
+					    <select name="logical_op_groups" id="logical_op_groups">
 							<option value="all_match"selected >All groups must match</option>
 							<option value="one_match">At least 1 group must match</option>
 						</select>
@@ -261,25 +269,26 @@ include(dirname(__FILE__).'/header.php');
 		</td>
 	</tr>
 	<tr>
-		<td>
-		    <table style="width:100%" id="condition_groups_table">				
+		<td colspan="2">
+		    <table style="width:100%" id="condition_groups_table" class="sq-conditions-group-table">				
 		    </table>
 		</td>
 	</tr>
 	<tr>
-		<td>
-		<div style="text-align: center;">
-		    <a href="#" onClick="add_group(null);">Add condition group</a>
-		</div>
+		<td colspan="2">
+			<h2 style="text-align: center; border-bottom: none;">
+			    <a href="#" onClick="add_group(null); return false;" class="sq-full-width-btn sq-add-condition-group-link">
+			    	<img src="<?php echo sq_web_path('lib')?>/web/images/icons/add.png" alt="Add" title="Add condition group " class="sq-icon sq-link-icon">Add condition group
+			    </a>
+			</h2>
 		</td>
 	</tr>
-	<tr>
-		<td>
-		<div style="text-align: center;">
-		<button type="button" name="ok" onClick="javascript: popup_save(this.form)"><?php echo translate('ok'); ?></button>
-		&nbsp;
-		<button type="button" name="cancel" onClick="javascript: popup_close();"><?php echo translate('cancel'); ?></button>
-		</div>
+	<tr class="sq-popup-footer">
+		<td align="left">
+			<input type="button" class="" name="cancel" onClick="javascript: popup_close(); return false;" value="<?php echo translate('cancel'); ?>"/>
+		</td>
+		<td align="right">
+			<input type="button" class="sq-btn-blue" name="ok" onClick="javascript: popup_save(this.form) return false;" value="<?php echo translate('save'); ?>"/>
 		</td>
 	</tr>
 </table>

@@ -77,9 +77,13 @@ include(dirname(__FILE__).'/header.php');
 
 </script>
 
-<div class="title">
+
+<h1 class="title">
+	<a href="#" onclick="javascript: popup_close(); return false;">
+		<img src="<?php echo sq_web_path('lib')?>/web/images/icons/cancel.png" alt="Cancel" title="<?php echo translate('cancel');?>" class="sq-icon">
+	</a>
 	Table Properties
-</div>
+</h1>
 <script language="JavaScript">
 if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementById('sq_edit_div_props_delete').innerHTML = '&nbsp;'; }
 </script>
@@ -87,108 +91,99 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 <form name="main_form">
 <input type="hidden" name="bodycopy_name" value="">
 <input type="hidden" name="tableid" value="">
-<table width="100%" border="0">
+<table>
 	<tr>
-		<td>
-		<fieldset>
-			<legend><b><?php echo translate('identification'); ?></b></legend>
-			<table style="width:100%">
-				<tr>
-					<td class="label"><?php echo translate('name'); ?>:</td>
-					<td><input type="text" name="identifier" value="" size="20"></td>
-				</tr>
-				<tr>
-					<td class="label"><?php echo translate('description'); ?>:</td>
-					<td><textarea name="desc" rows="3" size="20" value=""></textarea></td>
-				</tr>
-			</table>
-		</fieldset>
-		</td>
-	</tr>
-	<tr>
-		<td>
-			<table width="90%" cellspacing="0" cellpadding="0">
-				<tr>
-					<td valign="top" width="45%">
-						<fieldset>
-						<legend><b><?php echo translate('layout'); ?></b></legend>
-						<table style="width:100%">
-							<tr>
-								<td class="label"><?php echo translate('width'); ?>:</td>
-								<td><input type="text" name="width" value="" size="5"></td>
-							</tr>
-							<tr>
-								<td class="label"><?php echo translate('height'); ?>:</td>
-								<td><input type="text" name="height" value="" size="5"></td>
-							</tr>
-							<tr>
-								<td class="label"><?php echo translate('alignment'); ?>:</td>
-								<td>
-								<select name="align">
-									<option value="">
-									<option value="left"  ><?php echo translate('left'); ?>
-									<option value="center"><?php echo translate('centre'); ?>
-									<option value="right" ><?php echo translate('right'); ?>
-								</select>
-								</td>
-							</tr>
-						</table>
-						</fieldset>
-					</td>
-					<td>&nbsp;</td>
-					<td valign="top" width="45%">
-						<fieldset>
-						<legend><b><?php echo translate('spacing_and_padding'); ?></b></legend>
-						<table style="width:100%">
-							<tr>
-								<td class="label"><?php echo translate('spacing'); ?>:</td>
-								<td>
-								<select name="cellspacing">
-									<option value="" >
-									<option value="0">0
-									<option value="1">1
-									<option value="2">2
-									<option value="3">3
-									<option value="4">4
-									<option value="5">5
-									<option value="6">6
-									<option value="7">7
-									<option value="8">8
-									<option value="9">9
-									<option value="10">10
-								</select>
-								</td>
-							</tr>
-							<tr>
-								<td class="label"><?php echo translate('padding'); ?>:</td>
-								<td>
-								<select name="cellpadding">
-									<option value="" >
-									<option value="0">0
-									<option value="1">1
-									<option value="2">2
-									<option value="3">3
-									<option value="4">4
-									<option value="5">5
-									<option value="6">6
-									<option value="7">7
-									<option value="8">8
-									<option value="9">9
-									<option value="10">10
-								</select>
-								</td>
-							</tr>
-						</table>
-						</fieldset>
-					</td>
-				</tr>
-			</table>
-		</td>
-	</tr>
-	<tr>
-		<td width="100%">
+		<td colspan="2">
+			<h2><?php echo translate('identification'); ?></h2>
 			<fieldset>
-				<legend><b><?php echo translate('text_direction'); ?></b></legend>
+				<table>
+					<tr>
+						<td class="label"><?php echo translate('name'); ?>:</td>
+						<td><input type="text" name="identifier" value="" size="20"></td>
+					</tr>
+					<tr>
+						<td class="label"><?php echo translate('description'); ?>:</td>
+						<td><textarea name="desc" rows="3" size="20" value=""></textarea></td>
+					</tr>
+				</table>
+			</fieldset>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="2">
+			<h2><?php echo translate('layout'); ?></h2>
+			<fieldset>
+				<table>
+					<tr>
+						<td class="label"><?php echo translate('width'); ?>:</td>
+						<td><input type="text" name="width" value="" size="5"></td>
+					</tr>
+					<tr>
+						<td class="label"><?php echo translate('height'); ?>:</td>
+						<td><input type="text" name="height" value="" size="5"></td>
+					</tr>
+					<tr>
+						<td class="label"><?php echo translate('alignment'); ?>:</td>
+						<td>
+						<select name="align">
+							<option value="">
+							<option value="left"  ><?php echo translate('left'); ?>
+							<option value="center"><?php echo translate('centre'); ?>
+							<option value="right" ><?php echo translate('right'); ?>
+						</select>
+						</td>
+					</tr>
+				</table>
+			</fieldset>
+			<h2><?php echo translate('spacing_and_padding'); ?></h2>
+			<fieldset>
+				<table>
+					<tr>
+						<td class="label"><?php echo translate('spacing'); ?>:</td>
+						<td>
+						<select name="cellspacing">
+							<option value="" >
+							<option value="0">0
+							<option value="1">1
+							<option value="2">2
+							<option value="3">3
+							<option value="4">4
+							<option value="5">5
+							<option value="6">6
+							<option value="7">7
+							<option value="8">8
+							<option value="9">9
+							<option value="10">10
+						</select>
+						</td>
+					</tr>
+					<tr>
+						<td class="label"><?php echo translate('padding'); ?>:</td>
+						<td>
+						<select name="cellpadding">
+							<option value="" >
+							<option value="0">0
+							<option value="1">1
+							<option value="2">2
+							<option value="3">3
+							<option value="4">4
+							<option value="5">5
+							<option value="6">6
+							<option value="7">7
+							<option value="8">8
+							<option value="9">9
+							<option value="10">10
+						</select>
+						</td>
+					</tr>
+				</table>
+			</fieldset>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="2">
+			<h2><?php echo translate('text_direction'); ?></h2>
+			<fieldset>
 				<table style="width:100%">
 					<tr>
 						<td class="bodycopy-popup-heading"><?php echo translate('bodycopy_direction'); ?></td>
@@ -205,13 +200,13 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 		</td>
 	</tr>
 	<tr>
-		<td width="100%">
+		<td colspan="2">
+			<h2><?php echo translate('table_styles-colours'); ?></h2>
 			<fieldset>
-			<legend><b><?php echo translate('table_styles-colours'); ?></b></legend>
 				<table>
 					<tr>
 						<td class="label"><?php echo translate('background_colour'); ?>:</td>
-						<td><?php colour_box('bgcolor', '', TRUE, '*',TRUE, FALSE, FALSE);?></td>
+						<td><?php colour_box('bgcolor', '', TRUE, 'Colour picker',TRUE, FALSE, FALSE);?></td>
 					</tr>
 					<!-- <tr>
 						<td class="label">Background Image:</td>
@@ -241,22 +236,25 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 		</td>
 	</tr>
 	<tr>
-		<td width="100%">
+		<td colspan="2">
+			<h2><?php echo translate('keywords'); ?></h2>
 			<fieldset>
-			<legend><b><?php echo translate('keywords'); ?></b></legend>
 				<table>
 					<tr>
 						<td class="label"><?php echo translate('disable_keywords'); ?>:</td>
-						<td><input type="checkbox" name="disable_keywords" value="1"></td>
+						<td>
+							<input type="checkbox" id="disable_keywords" name="disable_keywords" value="1">
+							<label for="disable_keywords">Yes</label>
+						</td>
 					</tr>
 				</table>
 			</fieldset>
 		</td>
 	</tr>
 	<tr>
-		<td>
-			<fieldset>
-			<legend><b><?php echo translate('delete_this_table'); ?></b></legend>
+		<td colspan="2">
+			<h2><?php echo translate('delete_this_table'); ?></h2>
+			<fieldset class="last">
 			<table>
 				<tr>
 					<td class="label"><?php echo translate('click_to_delete'); ?>:</td>
@@ -269,12 +267,12 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 		</td>
 	</tr>
 	<tr>
-		<td>
-		<div style="text-align: center;">
-		<button type="button" name="ok" onClick="javascript: popup_save(this.form)"><?php echo translate('ok'); ?></button>
-		&nbsp;
-		<button type="button" name="cancel" onClick="javascript: popup_close();"><?php echo translate('cancel'); ?></button>
-		</div>
+	<tr class="sq-popup-footer">
+		<td align="left">
+			<input type="button" class="" name="cancel" onClick="javascript: popup_close();" value="<?php echo translate('cancel'); ?>"/>
+		</td>
+		<td align="right">
+			<input type="button" class="sq-btn-blue" name="ok" onClick="javascript: popup_save(this.form)" value="<?php echo translate('save'); ?>"/>
 		</td>
 	</tr>
 </table>

@@ -18,10 +18,10 @@
 <contents>
 	<section name="User Details" read_access="write:" write_access="write:attributes" limbo_access="1">
 		<field attribute="username">
-			<text width="8" height="1" />
+			<text width="20" height="1" />
 		</field>
 		<field attribute="password">
-			<password width="8" />
+			<password width="20" />
 		</field>
 		<field keyword="password_note">
 			<function_call>
@@ -35,7 +35,7 @@
 			<text width="40" height="1" />
 		</field>
 		<field attribute="email">
-			<email width="25" />
+			<email width="40" />
 		</field>
 	</section>
 	<section name="Locks" read_access="admin:" write_access="admin:" limbo_access="0">

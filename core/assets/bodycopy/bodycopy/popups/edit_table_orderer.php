@@ -83,45 +83,45 @@ include(dirname(__FILE__).'/header.php');
 	}
 
 </script>
-<table width="100%" border="0">
+<h1 class="title">
+	<a href="#" onclick="javascript: popup_close(); return false;">
+		<img src="<?php echo sq_web_path('lib')?>/web/images/icons/cancel.png" alt="Cancel" title="<?php echo translate('cancel');?>" class="sq-icon">
+	</a>
+	<?php echo translate('reorderer'); ?>
+</h1>
 <form name="main_form">
+<table>
 	<tr>
-		<td nowrap class="bodycopy-popup-heading"><?php echo translate('reorderer'); ?></td>
-	</tr>
-	<tr>
-		<td><hr></td>
-	</tr>
-	<tr>
-		<td align="center">
-			<table border="0" cellspacing="3" cellpadding="0">
-				<tr>
-					<td>
-						<select name="type_order" size="10">
-							<!-- good old Netscape :) -->
-							<option value="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>
-						</select>
-					</td>
-					<td>
-						<a href="#" onClick="javascript: popup_move_type(true); return false;" onMouseOver="window.status='Move the Selection Up'; return true;" onMouseOut="javascript: window.status=''; return true;"><img src="<?php echo sq_web_path('data')?>/asset_types/bodycopy/images/up_arrow.gif" width="15" height="15" border="0"></a><br>
-						<br>
-						<br>
-						<a href="#" onClick="javascript: popup_move_type(false); return false;" onMouseOver="window.status='Move the Selection Down'; return true;" onMouseOut="javascript: window.status=''; return true;"><img src="<?php echo sq_web_path('data')?>/asset_types/bodycopy/images/down_arrow.gif" width="15" height="15" border="0"></a>
-					</td>
-				</tr>
-			</table>
+		<td colspan="2">
+			<h2>Reorder rows</h2>
+			<fieldset class="last">
+				<table>
+					<tr>
+						<td>
+							<select name="type_order" size="10" style="width:200px">
+								<!-- good old Netscape :) -->
+								<option value="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>
+							</select>
+						</td>
+						<td>
+							<a href="#" onClick="javascript: popup_move_type(true); return false;" onMouseOver="window.status='Move the Selection Up'; return true;" onMouseOut="javascript: window.status=''; return true;"><img src="<?php echo sq_web_path('data')?>/asset_types/bodycopy/images/up_arrow.png" width="15" height="15" ></a><br>
+							<br>
+							<br>
+							<a href="#" onClick="javascript: popup_move_type(false); return false;" onMouseOver="window.status='Move the Selection Down'; return true;" onMouseOut="javascript: window.status=''; return true;"><img src="<?php echo sq_web_path('data')?>/asset_types/bodycopy/images/down_arrow.png" width="15" height="15" ></a>
+						</td>
+					</tr>
+				</table>
+			</fieldset>
 		</td>
 	</tr>
-	<tr>
-		<td>
-			<hr>
+	<tr class="sq-popup-footer">
+		<td align="left">
+			<input type="button" class="" name="cancel" onClick="javascript: popup_close();" value="<?php echo translate('cancel'); ?>"/>
+		</td>
+		<td align="right">
+			<input type="button" class="sq-btn-blue" name="ok" onClick="javascript: popup_save(this.form)" value="<?php echo translate('save'); ?>"/>
 		</td>
 	</tr>
-	<tr>
-		<td align="center">
-			<input type="button" value="Save" onclick="javascript: popup_save(this.form)">
-			<input type="button" value="Cancel" onclick="javascript: popup_close();">
-		</td>
-	</tr>
-</form>
 </table>
+</form>
 <?php include(dirname(__FILE__).'/footer.php'); ?>

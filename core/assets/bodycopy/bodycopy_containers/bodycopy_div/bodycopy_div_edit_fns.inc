@@ -204,6 +204,8 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	*/
 	public function paint(Bodycopy_Div $asset, $editing=FALSE, $generating=FALSE)
 	{
+		echo '<div class="sq-locked-content-block-wrapper">';
+
 		$div_attributes = $asset->attr('attributes');
 		if (!isset($div_attributes['layout_type'])) {
 			$div_attributes['layout_type'] = 'div';
@@ -241,8 +243,14 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 
 		// print DIV or SPAN tag if we are not printing raw HTML
 		if ($div_attributes['layout_type'] != 'none') {
-			echo "\n<".strtolower($div_attributes['layout_type']).$attribute_list.">\n";
+			//check if content type exists and then make a class out of it, if not, just add default
+			$content_type_class = 'default';
+			if(isset($div_attributes['content_type'])){
+				$content_type_class = $div_attributes['content_type'];
+			}
+			echo "\n<".strtolower($div_attributes['layout_type']).$attribute_list." class=\"sq-bodycopy-locked-wrapper ".$content_type_class."\">\n";
 		}
+
 
 		$content_type = $asset->getContentType();
 
@@ -255,6 +263,8 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		if ($div_attributes['layout_type'] != 'none') {
 			echo "\n</".strtolower($div_attributes['layout_type']).">\n";
 		}
+
+		echo '</div>';
 
 		return TRUE;
 
@@ -290,7 +300,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 				if ($name == 'css_class_list') continue;
 				if ($name == 'conditions') continue;
 				if ($name == 'dir') $dir_attribute = $div_attributes[$name];
-				$popup_attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $val).'"';
+				$popup_attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $val).'"<br/>';
 				$attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $val).'"';
 			}
 		}
@@ -308,9 +318,9 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		$type_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo('bodycopy');
 
 		?>		
-		<table<?php echo $attribute_list?> style="width:100%;">
+		<table<?php echo $attribute_list?> class="sq-edit-bodycopy-section sq-<?php echo get_class_lower($content_type) ;?>-table">
 			<tr>
-				<td align="left" background="" id="<?php echo $prefix.'_div_'.$asset->id;?>" width="4%" style="border: 1px dashed #C0C0C0;">
+				<td align="left" background="" id="<?php echo $prefix.'_div_'.$asset->id;?>">
 				<span style="float: left;">
 				<?php
 
@@ -322,10 +332,12 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 				}
 				$status_name = get_status_description($asset->status);
 				$status_img = get_asset_status_icon($asset->status);
-				$desc = translate('content_type_tooltip_status').': '.$status_img.'<b>'.get_status_description($asset->status).'</b><br />';
-				$desc .= translate('content_type_tooltip_public').': <b>'.($public_read ? translate('yes') : translate('no')).'</b><br />';
-				$desc .= (($popup_attribute_list) ?  translate('current_properties').':<br> '.$popup_attribute_list : '');
-				Bodycopy_Edit_Fns::printBodycopyIcon('bodycopy_edit_div_properties(\''.$prefix.'\', '.$asset->id.', '.(($asset->status & SQ_SC_STATUS_SAFE_EDITING) ? 'false' : 'true').');', 'Edit '.$asset->attr('name').'\'s Properties', $desc, 'table_properties', '[Edit Properties]');
+				$desc = '<table class="sq-toolbox-properties-table">';
+				$desc .= '<tr><td>'.translate('content_type_tooltip_status').'</td><td>'.$status_img.''.get_status_description($asset->status).'</td><tr>';
+				$desc .= '<tr><td>'.translate('content_type_tooltip_public').'</td><td>'.($public_read ? translate('yes') : translate('no')).'</td><tr>';
+				$desc .= '<tr><td>'.(($popup_attribute_list) ?  translate('current_properties').'</td><td> '.$popup_attribute_list :''.'</td><tr>');
+				$desc .= '</table>';
+				Bodycopy_Edit_Fns::printBodycopyIcon('bodycopy_edit_div_properties(\''.$prefix.'\', '.$asset->id.', '.(($asset->status & SQ_SC_STATUS_SAFE_EDITING) ? 'false' : 'true').');', 'Edit '.$asset->attr('name').'\'s Properties', $desc, 'table_properties', '[Edit Properties]', 'class="sq-icon"');
 				
 				// print condition icon
 				$all_conditions = Array();
@@ -349,7 +361,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 				    $conditions_js = json_encode_array($all_conditions);
 				    // store those available conditions for the popup page to use
 				    ?><script language="JavaScript" type="text/javascript">bodycopy_available_conditions['<?php echo $asset->id; ?>'] = <?php echo $conditions_js; ?>; </script><?php
-				    Bodycopy_Edit_Fns::printBodycopyIcon('bodycopy_edit_div_conditions(\''.$prefix.'\', '.$asset->id.', '.$parentid.');', 'Edit conditions', $desc, 'conditions', '[Edit Conditions]');
+				    Bodycopy_Edit_Fns::printBodycopyIcon('bodycopy_edit_div_conditions(\''.$prefix.'\', '.$asset->id.', '.$parentid.');', 'Edit Conditions', $desc, 'conditions', '[Edit Conditions]');
 				}
 				
 				
@@ -357,7 +369,8 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 					$content_edit = $content_type->getEditFns();
 					$content_edit->paintBackendIcons($content_type, $content_prefix);
 				}
-				?></span><span style="float: right;"><?php	
+				?></span>
+				<span style="float: right;"><?php	
 				
 				// print the condition set icon
 				if($is_conditional_display) {
@@ -385,14 +398,20 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 				</td>
 			</tr>
 			<tr>
-				<td style="border-left: 1px dashed #C0C0C0; border-right: 1px dashed #C0C0C0; border-bottom: 1px dashed #C0C0C0;" id="<?php echo $content_prefix; ?>_cell">
+				<td id="<?php echo $content_prefix; ?>_cell" class="sq-<?php echo get_class_lower($content_type) ;?>-wrapper">
 				<?php
 				if (!is_null($content_type)) {
 					$content_edit = $content_type->getEditFns();
 					if (method_exists($content_edit,'setDirAttr')) {
 						$content_edit->setDirAttr($dir_attribute);
 					}
-					$content_edit->paintBackend($content_type, $content_prefix);
+					?>
+					<div class="sq-edit-content-type-wrapper">
+						<?php
+						$content_edit->paintBackend($content_type, $content_prefix);
+						?>
+					</div>
+					<?php
 				}
 				?>
 				</td>

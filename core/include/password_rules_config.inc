@@ -180,16 +180,16 @@ class Password_Rules_Config extends Config
 				?>
 				<table class="sq-backend-table">
 				<tr>
-					<td style="width: 50px;" class="sq-backend-table-header"><?php echo translate('active_question'); ?>?</td>
-					<td style="width: 200px;" class="sq-backend-table-header"><?php echo translate('character_type'); ?></td>
-					<td class="sq-backend-table-header"><?php echo translate('min_number'); ?></td>
-					<td style="width: 150px;" class="sq-backend-table-header"><?php echo translate('disallow_char_type_question'); ?></td>
+					<th style="width: 50px; text-align: center;" class="sq-backend-table-header"><?php echo translate('active_question'); ?></th>
+					<th style="width: 200px;" class="sq-backend-table-header"><?php echo translate('character_type'); ?></th>
+					<th class="sq-backend-table-header"><?php echo translate('min_number'); ?></th>
+					<th style="width: 150px;" class="sq-backend-table-header"><?php echo translate('disallow_char_type_question'); ?></th>
 				</tr>
 				<?php
 				foreach (get_constant_values('SQ_PASSWD_RULE_NUM') as $password_rule => $value) {
 					?>
 					<tr>
-						<td class="sq-backend-table-cell">
+						<td align="middle" class="sq-backend-table-cell">
 						<?php
 							if ($write_access) {
 								check_box($class.'_active'.'['.$password_rule.']', '1', ($value != SQ_PASSWD_RULE_DISABLED ? TRUE : FALSE));
@@ -278,10 +278,11 @@ class Password_Rules_Config extends Config
 				}
 			$o->closeField();
 
-			$o->openField(translate('exact_match'));
+			$o->openField(translate('exact_match'), '', translate('exact_match_note'));
 
 				if ($write_access) {
 					check_box($class.'[SQ_PASSWD_RULE_BLACK_LIST_EXACT]', '1', SQ_PASSWD_RULE_BLACK_LIST_EXACT);
+					label(translate('exact_match_blacklist_words'), $class.'[SQ_PASSWD_RULE_BLACK_LIST_EXACT]');
 				} else {
 					?><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo SQ_PASSWD_RULE_BLACK_LIST_EXACT ? 'tick' : 'cross'; ?>.gif" width="15" height="15" /><?php
 				}

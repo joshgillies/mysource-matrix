@@ -143,14 +143,14 @@ class Asset_Edit_Fns extends MySource_Object
 
 		foreach ($paths as $path) {
 			if ($wa) {
-				text_box($prefix.'_paths[]', $path, 25);
+				text_box($prefix.'_paths[]', $path, 50, '', FALSE, 'style="margin-bottom:10px;"');
 			} else {
 				echo $path;
 			}
-			echo '<br/>';
+			echo '<br>';
 		}
 
-		if ($wa) text_box($prefix.'_paths[]', '', 25);
+		if ($wa) text_box($prefix.'_paths[]', '', 50);
 
 		return $wa;
 
@@ -224,27 +224,27 @@ class Asset_Edit_Fns extends MySource_Object
 
 		<table class="sq-backend-table">
 			<tr class="sq-backend-table-row">
-				<td class="sq-backend-table-header-header"><?php echo implode(' &nbsp; &nbsp; ', $links) ?></td>
-				<td class="sq-backend-table-header-header" colspan="<?php echo ($admin_access === TRUE) ? 5 : 4 ?>" style="text-align: right; font-weight: normal"><?php echo $asset_count_tag; ?></span></td>
+				<th class="sq-backend-table-header-header"><?php echo implode(' &nbsp; &nbsp; ', $links) ?></th>
+				<th class="sq-backend-table-header-header" colspan="<?php echo ($admin_access === TRUE) ? 5 : 4 ?>" style="text-align: right; font-weight: normal"><?php echo $asset_count_tag; ?></span></th>
 			</tr>
 			<tr>
-				<td class="sq-backend-table-header"><?php echo translate('url'); ?></td>
-				<td class="sq-backend-table-header"><?php echo translate('remap_url'); ?></td>
-				<td class="sq-backend-table-header"><?php echo translate('expires'); ?></td>
-				<td class="sq-backend-table-header"><?php echo translate('type'); ?></td>
+				<th class="sq-backend-table-header"><?php echo translate('url'); ?></th>
+				<th class="sq-backend-table-header"><?php echo translate('remap_url'); ?></th>
+				<th class="sq-backend-table-header"><?php echo translate('expires'); ?></th>
+				<th class="sq-backend-table-header"><?php echo translate('type'); ?></th>
 				<?php
 					if ($admin_access) {
 						?>
-						<td class="sq-backend-table-header">
+						<th class="sq-backend-table-header">
 							<?php
 							check_box($prefix.'_select_all', '1', FALSE, "check_all(document.main_form, '{$prefix}_delete_remap', this.checked);");
 							label(translate('delete_question'), $prefix.'_select_all');
 							?>
-						</td>
+						</th>
 						<?php
 					}
 				?>
-				<td class="sq-backend-table-header"><?php echo translate('never_delete'); ?></td>
+				<th class="sq-backend-table-header"><?php echo translate('never_delete'); ?></th>
 			</tr>
 			<?php
 				foreach ($remap_urls as $url_info) {
@@ -262,7 +262,7 @@ class Asset_Edit_Fns extends MySource_Object
 					<?php
 						if ($admin_access) {
 							?>
-							<td class="sq-backend-table-cell">
+							<td class="sq-backend-table-cell" align="center">
 								<?php
 								check_box($prefix.'_delete_remap['.$url_info['url'].']', 1, FALSE, '', $url_info['never_delete'] ? 'disabled' : '');
 								?>
@@ -271,7 +271,7 @@ class Asset_Edit_Fns extends MySource_Object
 						}
 					?>
 					
-					<td class="sq-backend-table-cell"><img src="<?php echo sq_web_path('lib')."/web/images/".($url_info['never_delete'] ? "tick.gif" : "cross.gif"); ?>" width="15" height="15" /></td>
+					<td class="sq-backend-table-cell" align="center"><img src="<?php echo sq_web_path('lib')."/web/images/".($url_info['never_delete'] ? "tick.gif" : "cross.gif"); ?>" width="15" height="15" /></td>
 				</tr>
 				<?php
 				}//end foreach
@@ -382,18 +382,19 @@ class Asset_Edit_Fns extends MySource_Object
 			echo translate('no_associated_urls');
 		} else {
 			usort($urls, create_function('$a, $b', 'return strcmp($a[\'url\'], $b[\'url\']);'));
+			echo '<ul>';
 			foreach ($urls as $data) {
 				if ($data['http']) {
-					echo 'http://'.$data['url'], '<br/>';
+					echo '<li>http://'.$data['url'], '</li><br/>';
 				}
 				if ($data['https']) {
-					echo 'https://'.$data['url'], '<br/>';
+					echo '<li>https://'.$data['url'], '</li><br/>';
 				}
 			}
+			echo '</ul>';
 		}
 
 		if ($asset->force_secure === '1') {
-			echo '<br>';
 			$o->note(translate('force_secure_set_on_asset'));
 		}
 
@@ -413,7 +414,7 @@ class Asset_Edit_Fns extends MySource_Object
 	function paintAddRemapURLs(&$asset, &$o, $prefix)
 	{
 		if (!$asset->adminAccess('lookups')) return FALSE;
-
+		
 		$urls = $asset->getURLs();
 		if (empty($urls)) {
 			$o->openField(translate('url_remappings'));
@@ -441,7 +442,7 @@ class Asset_Edit_Fns extends MySource_Object
 
 		$o->openField(translate('new_url'));
 			combo_box($prefix.'_add_remap_new_url', $contents);
-		$o->note(translate('url_remap_explanation'));
+			$o->note(translate('url_remap_explanation'));
 		$o->closeField();
 
 		$o->openField(translate('expires'));
@@ -711,37 +712,37 @@ class Asset_Edit_Fns extends MySource_Object
 
 
 	/**
-		* Paints the Automatic Remapping checkbox
-		*
-		* @param Remap_Manager          $asset  the asset to which we belong
-		* @param Backend_Outputter      $o      the outputter class
-		* @param string                 $prefix prefix for the form element
-		*
-		* @return boolean
-		* @access public
-		*/
-		function paintAutomaticRemapSetting(&$asset, &$o, $prefix)
-		{
-				$write_access = $asset->writeAccess('lookups');
+	* Paints the Automatic Remapping checkbox
+	*
+	* @param Remap_Manager          $asset  the asset to which we belong
+	* @param Backend_Outputter      $o      the outputter class
+	* @param string                 $prefix prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintAutomaticRemapSetting(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('lookups');
 
 		if ($write_access) {
 			$o->closeField();
 
 			$o->openField(translate('web_paths_auto_add_remaps'));
 				$rm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
-						$remap_upon_webpath_change = $rm->attr('remap_upon_webpath_change');
+				$remap_upon_webpath_change = $rm->attr('remap_upon_webpath_change');
 
-						// paint checkbox
+				// paint checkbox
 				check_box($prefix.'_remap_upon_webpath_change', TRUE, $remap_upon_webpath_change);
+				label(translate('web_paths_auto_add_remaps_label'), $prefix.'_remap_upon_webpath_change');
 
 				$o->note(translate('web_paths_auto_add_remaps_note'));
 			$o->closeField();
-				}
+		}
+		
+		return $write_access;
 
-
-				return $write_access;
-
-		}//end paintAutomaticRemapSetting()
+	}//end paintAutomaticRemapSetting()
 
 		
 	/**

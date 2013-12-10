@@ -1,78 +1,84 @@
-<!doctype html public "-//W3C//DTD XHTML 1.0 Strict//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!DOCTYPE html>
 <!--
-/**
-* +--------------------------------------------------------------------+
-* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
-* | ACN 084 670 600                                                    |
-* +--------------------------------------------------------------------+
-* | IMPORTANT: Your use of this Software is subject to the terms of    |
-* | the Licence provided in the file licence.txt. If you cannot find   |
-* | this file please contact Squiz (www.squiz.net) so we may provide   |
-* | you a copy.                                                        |
-* +--------------------------------------------------------------------+
-*
-* $Id: index.html,v 1.7 2011/04/01 05:28:09 ewang Exp $
-*
-*/
--->
+  /**
+  * +--------------------------------------------------------------------+
+  * | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+  * | ACN 084 670 600                                                    |
+  * +--------------------------------------------------------------------+
+  * | IMPORTANT: Your use of this Software is subject to the terms of    |
+  * | the Licence provided in the file licence.txt. If you cannot find   |
+  * | this file please contact Squiz (www.squiz.net) so we may provide   |
+  * | you a copy.                                                        |
+  * +--------------------------------------------------------------------+
+  **/
+  -->
 <html>
-<head>
-    <title>Change Password</title>
-    <link rel="stylesheet" type="text/css" href="mysource_files/password_change_styles.css">
-    <style type="text/css">
-        h3 {
-            background-image: url(mysource_files/swish.gif);
-        }
-        .sq-credentials-section {
-            background-image: url(mysource_files/login_image.gif);
-        }
-    </style>
-</head>
 
-<body>
+  <head>
+    <meta charset="utf-8">
+    <title>Change Password - Squiz Matrix</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link href="/__lib/web/images/icons/favicon.ico" rel="shortcut icon" />
+    <link rel="stylesheet" type="text/css" href="mysource_files/password_change_styles.css">
+  </head>
+
+  <body class="sq-password-change-design" style="background-image: url(mysource_files/login_bg.png);">
+
     <MySource_AREA id_name="password_change_form" design_area="password_change_form">
-        <div id="sq-message" class="sq-message"><MySource_PRINT var="system_messages" /></div>
-        <script type="text/javascript"><!--
-        //<![CDATA[
-            var msgsDiv = document.getElementById('sq-message');
-            if (msgsDiv.innerHTML.replace( /\s/g, '') == '') {
-                msgsDiv.style.display = 'none';
-            }
+
+      <MySource_PASSWORD_CHANGE_SECTION>
+
+        <MySource_SET name="give_password_old_focus" value="true" />
+        <MySource_SET name="forward_www_vars"    value="true" />
+
+        <MySource_PRINT var="form_open" />
+
+        <div class="sq-login-logo"><img src="mysource_files/login_matrix_logo.png" alt="Squiz Matrix Logo" /></div>
+
+        <p class="sq-login-message"><MySource_PRINT var="password_change_message" />.</p>
+
+        <p class="sq-login-message" id="sq-current-user">Currently logged in as: <strong id="sq-current-user-name"><MySource_PRINT id_name="__global__" var="current_user" default="[Not logged in]" attr="name" /></strong></p>
+
+        <div class="sq-note-section"><MySource_PRINT var="password_rules_note" /></div>
+
+        <div id="sq-message" class="sq-message">
+          <MySource_PRINT var="system_messages" />
+        </div>
+
+        <script>
+        <!-- //<![CDATA[
+          var msgsDiv = document.getElementById('sq-message');
+          if (msgsDiv.innerHTML.replace( /\s/g, '') == '') {
+            msgsDiv.style.display = 'none';
+          }
         //]]> -->
         </script>
 
-        <MySource_PASSWORD_CHANGE_SECTION>
-            <MySource_SET name="give_password_old_focus" value="true" />
-            <MySource_SET name="forward_www_vars"    value="true" />
-            <MySource_PRINT var="form_open" />
-                <h3><MySource_PRINT var="password_change_heading" /></h3>
-                <p class="sq-current-user">Currently Logged in as
-                <MySource_PRINT id_name="__global__" var="current_user" default="[Not Logged In]" attr="name" /></p>
-                <p class="sq-login-message"><MySource_PRINT var="password_change_message" /></p>
-                <div class="sq-credentials-section">
-                    <table border="0">
-                        <tr>
-                            <th>Old Password:</th>
-                            <td><MySource_PRINT var="password_old_box" size="10" class="sq-data" /></td>
-                        </tr>
-                        <tr>
-                            <th>New Password:</th>
-                            <td><MySource_PRINT var="password_new_box" size="10" class="sq-data" /></td>
-                        </tr>
-                        <tr>
-                            <th>Confirm New Password:</th>
-                            <td><MySource_PRINT var="password_confirm_box" size="10" class="sq-data" /></td>
-                        </tr>
-                    </table>
-                </div>
-                <div class="sq-note-section"><MySource_PRINT var="password_rules_note" /></div>
-                <div class="sq-commit-section">
-                    <MySource_PRINT var="submit_button" value="Update Password -&gt;" class="sq-data" />
-                </div>
-                
-            <MySource_PRINT var="form_close" />
-        </MySource_PASSWORD_CHANGE_SECTION>
+        <div class="sq-credentials-section">
+          <div class="sq-field-wrapper">
+            <label for="SQ_PASSWORD_CHANGE_OLD">Old password</label> 
+            <MySource_PRINT var="password_old_box" size="10" class="sq-data" required="required" autocomplete="off"/>
+          </div>
+          <div class="sq-field-wrapper">
+            <label for="SQ_PASSWORD_CHANGE_NEW">New password</label> 
+            <MySource_PRINT var="password_new_box" size="10" class="sq-data" required="required" autocomplete="off"/>
+          </div>
+          <div class="sq-field-wrapper">
+            <label for="SQ_PASSWORD_CHANGE_CONFIRM">Confirm new password</label> 
+            <MySource_PRINT var="password_confirm_box" size="10" class="sq-data" required="required" autocomplete="off"/>
+          </div>
+        </div>
+
+        <div class="sq-commit-section">
+          <MySource_PRINT var="submit_button" value="Update password" class="sq-data" />
+        </div>
+
+        <MySource_PRINT var="form_close" />
+
+      </MySource_LOGIN_SECTION>
+
     </MySource_AREA>
-</body>
+
+  </body>
+
 </html>

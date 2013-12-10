@@ -644,7 +644,7 @@ function _paintDetailsRegisterKeyword(Asset_Edit_Interface $ei, $keywords, $type
 function _paintDetailsCurrentStatus(Asset $owner, Backend_Outputter $o, $prefix)
 {
 	echo get_asset_status_icon($owner->status);
-	echo ' <i>'.$owner->getStatusDescription().'</i>';
+	echo ' <span class="sq-status-description">'.$owner->getStatusDescription().'</span>';
 
 	return FALSE;
 
@@ -716,10 +716,10 @@ function _paintDetailsFutureStatusCurrent(Asset $owner, Backend_Outputter $o, $p
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<td class="sq-backend-table-header"><?php echo translate('status'); ?></td>
-				<td class="sq-backend-table-header"><?php echo translate('when'); ?></td>
-				<td align="center" class="sq-backend-table-header" style="text-align: center;"><?php echo translate('cascade_question'); ?></td>
-				<td align="center" class="sq-backend-table-header" style="text-align: center;"><?php echo translate('delete_question'); ?></td>
+				<th class="sq-backend-table-header"><?php echo translate('status'); ?></th>
+				<th class="sq-backend-table-header"><?php echo translate('when'); ?></th>
+				<th align="center" class="sq-backend-table-header" style="text-align: center;"><?php echo translate('cascade_question'); ?></th>
+				<th align="center" class="sq-backend-table-header" style="text-align: center;"><?php echo translate('delete_question'); ?></th>
 			</tr>
 			<?php
 			for ($k = 0; $k < count($fs_links); $k++) {
