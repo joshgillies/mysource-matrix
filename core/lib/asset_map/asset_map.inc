@@ -515,7 +515,7 @@ class Asset_Map
 					// Set the root edit URL, which needs to point to the correct
 					// (admin or simple edit) suffix.
 					$rootEditUrl = sq_web_path('root_url').'/'.SQ_CONF_BACKEND_SUFFIX;
-					if (SQ_IN_LIMBO) {
+					if (strtolower($type) === 'simple') {
 					    $rootEditUrl = sq_web_path('root_url').'/'.SQ_CONF_LIMBO_SUFFIX;
 					}
 				?>
