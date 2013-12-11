@@ -149,22 +149,22 @@ class Backend extends MySource_Object
 			}
 		}
 
-		if (SQ_DESIGN_NO_FRAME && SQ_IN_LIMBO) {
-			$_REQUEST['SQ_BACKEND_PAGE'] = 'main';
-		}//end if
-
-		if (empty($_REQUEST['SQ_BACKEND_PAGE']) || $_REQUEST['SQ_BACKEND_PAGE'] == 'frames') {
-			$this->_printFrames();
-
-		} else if ($_REQUEST['SQ_BACKEND_PAGE'] == 'asset_map_request') {
+		if ($_REQUEST['SQ_BACKEND_PAGE'] == 'asset_map_request') {
 			require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
 			$asset_map = new Asset_Map();
 			$asset_map->process($this);
 
 		} else {
+		    if (SQ_DESIGN_NO_FRAME && SQ_IN_LIMBO) {
+                $_REQUEST['SQ_BACKEND_PAGE'] = 'main';
+            }//end if
+		
 			// Require backend outputter for the Force-Acquire page, so it at
 			// least has a design to use
-			if (SQ_IN_LIMBO && (($_REQUEST['SQ_BACKEND_PAGE'] == 'main') && (array_get_index($_REQUEST, 'am_section', '') != 'forceably_acquire_lock'))) {
+			if (empty($_REQUEST['SQ_BACKEND_PAGE']) || $_REQUEST['SQ_BACKEND_PAGE'] == 'frames') {
+			    $this->_printFrames();
+
+			} if (SQ_IN_LIMBO && (($_REQUEST['SQ_BACKEND_PAGE'] == 'main') && (array_get_index($_REQUEST, 'am_section', '') != 'forceably_acquire_lock'))) {
 				// use limbo outputter for main frame
 				require_once SQ_INCLUDE_PATH.'/limbo_outputter.inc';
 				$this->out = new Limbo_Outputter();
