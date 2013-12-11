@@ -1102,10 +1102,13 @@ echo '/*
 		$str = str_replace('?'.'><'.'?php', '', ob_get_contents());
 		unset($GLOBALS['DESIGN_BEING_GENERATED']);
 
+		// Get rid of emtpy lines in the beginning
+		$str = preg_replace('|^(\r?\n)+|', '', $str);
+
 		ob_end_clean();
 		if (empty($str)) return FALSE;
 
-		if (!$this->_writeDesignFile($pre_str."\n".$str)) {
+		if (!$this->_writeDesignFile($pre_str.$str)) {
 			return FALSE;
 		}
 
