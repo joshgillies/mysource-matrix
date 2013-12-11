@@ -149,17 +149,19 @@ class Backend extends MySource_Object
 			}
 		}
 
+		if (array_get_index($_REQUEST, 'SQ_BACKEND_PAGE') == 'asset_map_request') {
+			require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
+			$asset_map = new Asset_Map();
+			$asset_map->process($this);
+			return;
+		}
+		
 		if (SQ_DESIGN_NO_FRAME && SQ_IN_LIMBO) {
 			$_REQUEST['SQ_BACKEND_PAGE'] = 'main';
 		}//end if
 
 		if (empty($_REQUEST['SQ_BACKEND_PAGE']) || $_REQUEST['SQ_BACKEND_PAGE'] == 'frames') {
 			$this->_printFrames();
-
-		} else if ($_REQUEST['SQ_BACKEND_PAGE'] == 'asset_map_request') {
-			require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
-			$asset_map = new Asset_Map();
-			$asset_map->process($this);
 
 		} else {
 			// Require backend outputter for the Force-Acquire page, so it at
@@ -854,31 +856,6 @@ class Backend extends MySource_Object
 				$html = $this->_getDHTMLMessage(translate('hipo_jobs_stalled'), translate('hipo_jobs_count', $GLOBALS['SQ_SYSTEM']->user->name, $stalledjobs), 'new-message', 'stop', 32, 32);
 				$dhtml_messages['hipo_jobs_stalled'] = Array('html' => str_replace("\n", '', $html), 'width' => '400', 'timeout' => 6.0);
 			}
-			  //////////////////////////////
-			 //  INTERNAL MESSAGE POPUP  //
-			//////////////////////////////
-
-			$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
-
-			$msgs_from = (isset($_SESSION['backend_header_last_refresh'])) ? $_SESSION['backend_header_last_refresh'] : NULL;
-			$from = time() - 28800;
-			$loading_start = time();
-			$read_messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->user->id, NULL, Array(SQ_MSG_READ), Array(), $from, NULL, NULL, Array(), 0, TRUE);
-			$messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->user->id, NULL, Array(SQ_MSG_UNREAD), Array(), NULL, NULL, NULL, Array(), 0, TRUE);
-			$loading_time = time() - $loading_start;
-
-			// remind user to clean up internal messages if it's taking too slow to load
-			if($loading_time >= 30) {
-				$html = $this->_getDHTMLMessage('Too slow to load messages','The Internal Messages is taking too long to load. Try running the <a href="http://manuals.matrix.squizsuite.net/server-administrator/chapters/remove-internal-messages-script" target="_blank">Remove Internal Message Script</a> to clean up internal messages within your system.', 'new-message', 'stop', 48, 48);
-				$dhtml_messages['warning_messsage'] = Array('html' =>str_replace("\n", '', $html), 'width' => '400', 'timeout' => 12.0);
-			}
-
-
-			if (!empty($messages)) {
-				$html = $this->_getDHTMLMessage(translate('new_messages'), translate('new_messages_count', htmlspecialchars($GLOBALS['SQ_SYSTEM']->user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), $messages), 'new-message', 'mail', 31, 37);
-				$dhtml_messages['new_messages'] = Array('html' => str_replace("\n", '', $html), 'width' => '220', 'timeout' => 6.0);
-			}
-
 
 
 		}//end if not in LIMBO
@@ -886,17 +863,6 @@ class Backend extends MySource_Object
 		if (!empty($dhtml_messages)) {
 			?>
 			<script language="Javascript" type="text/javascript">
-
-				<?php
-				if (!SQ_IN_LIMBO) {
-				?>
-				// update inbox message
-				if (parent.frames["sq_sidenav"] != null && parent.frames["sq_sidenav"].document.getElementById('sq_messages_text') != null) {
-					parent.frames["sq_sidenav"].document.getElementById('sq_messages_text').innerHTML="<?php echo translate('inbox_new_messages', $messages, ($read_messages+$messages)); ?>";
-				}
-				<?php
-				}
-				?>
 
 				var msgDiv = null;
 				var screenMenu = null;
@@ -1304,6 +1270,11 @@ class Backend extends MySource_Object
 		foreach ($include_list as $link) {
 			echo '<script type="text/javascript" src="'.$link.'"></script>'."\n";
 		}
+		
+		require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
+        $asset_map = new Asset_Map();
+        $am_width  = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_WIDTH');
+        $asset_map->embedAssetMapRequiredJS();
 		?>
 
 		<script type="text/javascript">
@@ -1352,9 +1323,6 @@ class Backend extends MySource_Object
 				</table>
 				<div id="asset_map" class="in_limbo">
 					<?php
-					require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
-					$asset_map = new Asset_Map();
-					$am_width = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_WIDTH');
 					$asset_map->embedAssetMap('simple', $am_width);
 					?>
 				</div>
@@ -1416,9 +1384,6 @@ class Backend extends MySource_Object
 
 					<div id="asset_map">
 						<?php
-						require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
-						$asset_map = new Asset_Map();
-						$am_width = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_WIDTH');
 						$asset_map->embedAssetMap('complex', $am_width);
 						?>
 					</div>
@@ -1442,12 +1407,6 @@ class Backend extends MySource_Object
 
 						// get all unread messages and read messages that are less than 8 hours old
 						if (!empty($inbox_url)) {
-							$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
-							$from = time() - 28800; // 8 hours ago
-							$read_messages   = $ms->getMessages($GLOBALS['SQ_SYSTEM']->currentUserId(), NULL, Array(SQ_MSG_READ), Array(), $from, NULL, 'short_name', Array(), 0, TRUE);
-							$unread_messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->currentUserId(), NULL, Array(SQ_MSG_UNREAD), Array(), NULL, NULL, 'short_name', Array(), 0, TRUE);
-
-							$messages = $read_messages + $unread_messages;
 							?>
 								<table class="myspace-section">
 									<tr>
@@ -1460,7 +1419,6 @@ class Backend extends MySource_Object
 												<span class="myspace-section-header">
 													<a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main"><?php echo translate('my_inbox'); ?></a>
 												</span>
-												<a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main"><?php echo translate('inbox_new_messages', $unread_messages, $messages); ?></a>
 											</p>
 											<p>
 												<span class="myspace-section-header">

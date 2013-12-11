@@ -304,7 +304,7 @@ input[type="reset"],
 .sq-btn-link {
 	cursor: 					pointer;
 	padding: 					0 7px;
-	margin: 					0 2px;
+	margin: 					0 3px 0 0;
 	border: 					1px solid #B7B7B7;
 	font-size: 					12px; 
 	font-weight: 				normal;

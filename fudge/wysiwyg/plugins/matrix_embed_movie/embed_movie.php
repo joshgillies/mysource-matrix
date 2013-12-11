@@ -398,7 +398,7 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 														</tr>
 														<tr>
 															<td class="label"><?php echo translate('select_asset'); ?>:</td>
-															<td colspan="3"><?php asset_finder('assetid', '', Array('file' => 'D'), 'sq_wysiwyg_popup_main.frames.sq_wysiwyg_popup_sidenav', false, 'setUrl'); ?></td>
+															<td colspan="3"><?php asset_finder('assetid', '', Array('file' => 'D'), 'sq_wysiwyg_popup_sidenav', false, 'setUrl'); ?></td>
 														</tr>
 													</table>
 												</td>

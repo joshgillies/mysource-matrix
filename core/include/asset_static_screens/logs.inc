@@ -84,7 +84,7 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 		}
 		$type_options[$type] = ucwords(str_replace(Array('.', '_'), ' ', $type));
 	}
-	$date = date('Y-m-d H:s:i', time());
+	
 	$date = '';
 	$date_parameters = Array(
 					'min'			=> '1990-01-01 00:00:00',
@@ -105,12 +105,16 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 	// get 2 date fields for to and from fields
 	$from_field = new DateTime_Field($prefix.'_date_from', $date, $date_parameters);
 	$to_field   = new DateTime_Field($prefix.'_date_to', $date, $date_parameters);
+	
+	//set default from and to dates (from date to be 1 year in the past)
+	$default_from_date = (date('Y')-1).date('-m-d H:i:s'); 
+	$default_to_date = date('Y-m-d H:i:s');
+	
+	$from_date = $default_from_date;
+	$to_date = $default_to_date;
 
-	$from_date = $to_date = '';
-
-	// get the values from the date fields but if they are left to default date then
-	// dont add the to and from dates to the query user prolly wants ALL the logs
-	if ($from_field->processField() && $from_field->value != '1990-01-01 00:00:00') {
+	// get the values for the from date if the form has been posted
+	if ($from_field->processField()) {
 		$from_date = $from_field->value;
 	}
 	// this will look stupid but this is needed
@@ -118,7 +122,8 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 	// fields will have the same date on them
 	$from_field->setValue($from_date);
 
-	if ($to_field->processField() && $to_field->value != '1990-01-01 00:00:00') {
+	// do the same for the to date
+	if ($to_field->processField()) {
 		$to_date = $to_field->value;
 	}
 	$to_field->setValue($to_date);
@@ -131,7 +136,6 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 		combo_box($_combo_box_name, $type_options, TRUE, $selected_types, 10);
 		echo '&nbsp;';
 
-
 		$o->closeField();
 
 		$o->openField(translate('from'));
@@ -143,7 +147,7 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 		echo "<br>";
 		// okie dont let the user confuse you with wrong dates
 		if (isset($from_date) && isset($to_date) && $from_date > $to_date) {
-			echo "<font color=\"red\"><b>ERROR : 'From' date provided is later than 'To' date. </b></font><br>";
+			echo "<font color=\"red\"><strong>ERROR : 'From' date provided is later than 'To' date. </strong></font><br>";
 			$invalid_dates = FALSE;
 		}
 		$o->closeField();
@@ -211,15 +215,15 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 	// if non of the logs are selected or if the dates
 	// were nto right dont display any logs for now
 	if (empty($all_logs) || !$invalid_dates) {
-		$o->openRaw();
+		$o->openField('');
 			if (!( empty($type_options) && empty($selected_base_url) )) {
-				echo '<b>'.translate('no_logged_messages', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</b>';
+				echo '<strong>'.translate('no_logged_messages', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</strong>';
 			} else {
-				echo '<b>'.translate('no_logged_messages_found', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</b>';
+				echo '<strong>'.translate('no_logged_messages_found', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</strong>';
 			}
-		$o->closeRaw();
+		$o->closeField();
 	} else {
-		$o->openRaw();
+		$o->openField('', 'wide_col');
 		$lm = $GLOBALS['SQ_SYSTEM']->lm;
 			?>
 			<table class="sq-backend-table">
@@ -299,7 +303,7 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 				</tr>
 			</table>
 			<?php
-		$o->closeRaw();
+		$o->closeField();
 	}//end else
 
 
