@@ -710,13 +710,13 @@ if (isset($_GET['assetid']) && $_GET['assetid']) {
 															<td class="label"><?php echo translate('select_asset'); ?>:</td>
 															<td colspan="3">
 																<span id="asset_finder_all" style="display:block">
-																	<?php asset_finder('assetid', $_GET['assetid'], Array(), 'sq_wysiwyg_popup_main.frames.sq_wysiwyg_popup_sidenav', FALSE, 'setUrl'); ?>
+																	<?php asset_finder('assetid', $_GET['assetid'], Array(), 'sq_wysiwyg_popup_sidenav', FALSE, 'setUrl'); ?>
 																</span>
 																<span id="asset_finder_link_asset" style="display:none">
-																	<?php asset_finder('link_assetid', $_GET['assetid'], Array('link' => 'I'), 'sq_wysiwyg_popup_main.frames.sq_wysiwyg_popup_sidenav', FALSE, 'setUrl'); ?>
+																	<?php asset_finder('link_assetid', $_GET['assetid'], Array('link' => 'I'), 'sq_wysiwyg_popup_sidenav', FALSE, 'setUrl'); ?>
 																</span>
 																<span id="asset_finder_redirect_asset" style="display:none">
-																	<?php asset_finder('page_redirect_assetid', $_GET['assetid'], Array('page_redirect' => 'I'), 'sq_wysiwyg_popup_main.frames.sq_wysiwyg_popup_sidenav', FALSE, 'setUrl'); ?>
+																	<?php asset_finder('page_redirect_assetid', $_GET['assetid'], Array('page_redirect' => 'I'), 'sq_wysiwyg_popup_sidenav', FALSE, 'setUrl'); ?>
 																	<script type="text/javascript">
 																		// Add event listener for Asset Selector's clear button
 																		var all_clr_btn = document.getElementById('sq_asset_finder_assetid_clear_btn');
