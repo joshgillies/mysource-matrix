@@ -73,7 +73,7 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 				var chk_fields = ["f_show_controls", "f_auto_start", "f_embed_loop"];
 				var param = new Object();
 
-				for (var i in fields) {
+				for (var i = 0; i < fields.length; i++) {
 					var id = fields[i];
 					var el = document.getElementById(id);
 					param[id] = el.value;
@@ -89,7 +89,7 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 					param['use_external'] = false;
 					param["f_fileid"] = document.getElementById('assetid[assetid]').value;
 				}
-				for (var i in chk_fields) {
+				for (var i = 0; i < chk_fields.length; i++) {
 					var id = chk_fields[i];
 					var el = document.getElementById(id);
 					if (el.checked) {
