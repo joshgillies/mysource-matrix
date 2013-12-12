@@ -819,7 +819,9 @@ class Image_Variety extends Asset
 
 			// send cacheable headers if file asset meets the credentials
 			if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && SQ_CONF_SEND_CACHEABLE_HEADER && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User) && empty($_POST) && $cm->cacheableHeadersEnabledForCurrentProtocol() && $this->status >= SQ_STATUS_LIVE && $this->readAccess()) {
-					header('Cache-Control: '.$cm->cacheControlLevel());
+					$level = $cm->cacheControlLevel();
+					$no_cookie = $level === 'public' ? ', no-cache="set-cookie"' : '';
+					header('Cache-Control: '.$level.$no_cookie);
 					header('Pragma: cache');
 					header('Expires: '.gmdate('D, d M Y H:i:s', (time()+86400)).' GMT');
 					header('Last-Modified: '.gmdate('D, d M Y H:i:s', filemtime($file)).' GMT');

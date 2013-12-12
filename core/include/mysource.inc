@@ -688,8 +688,9 @@ class MySource extends MySource_Object
 							if (empty($browser_cache_expiry)) {
 								$browser_cache_expiry = $cm->attr('expiry');
 							}
-
-							header('Cache-Control: max-age='.$browser_cache_expiry.', '.$acc_cache_string.$cm->cacheControlLevel());
+							$level = $cm->cacheControlLevel();
+							$no_cookie = $level === 'public' ? ', no-cache="set-cookie"' : '';
+							header('Cache-Control: max-age='.$browser_cache_expiry.', '.$acc_cache_string.$level.$no_cookie);
 							header('Expires: '.gmdate('D, d M Y H:i:s', time() + $browser_cache_expiry).' GMT');
 						}
 
@@ -963,7 +964,9 @@ class MySource extends MySource_Object
 		}
 
 		if (!$recache) {
-			header('Cache-Control: max-age='.$browser_cache_expiry.', '.$acc_cache_string.$cm->cacheControlLevel());
+			$level = $cm->cacheControlLevel();
+			$no_cookie = $level === 'public' ? ', no-cache="set-cookie"' : '';
+			header('Cache-Control: max-age='.$browser_cache_expiry.', '.$acc_cache_string.$level.$no_cookie);
 		}
 
 		// not cached or has expired
@@ -4266,8 +4269,9 @@ class MySource extends MySource_Object
 			if (empty($browser_cache_expiry)) {
 				$browser_cache_expiry = $cm->getExpiry($asset->type(), $asset->id);
 			}
-
-			header('Cache-Control: max-age='.$browser_cache_expiry.', '.$acc_cache_string.$cm->cacheControlLevel());
+			$level = $cm->cacheControlLevel();
+			$no_cookie = $level === 'public' ? ', no-cache="set-cookie"' : '';
+			header('Cache-Control: max-age='.$browser_cache_expiry.', '.$acc_cache_string.$level.$no_cookie);
 			header('Expires: '.gmdate('D, d M Y H:i:s', time() + $browser_cache_expiry).' GMT');
 		}
 
