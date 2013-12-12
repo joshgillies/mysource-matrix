@@ -184,7 +184,7 @@ function processHistory(&$owner, &$o, &$ei)
 
 	if (isset($_POST[$prefix.'_rollback_mode']) && isset($_POST[$prefix.'_rollback_version'])) {
 		$version = $_POST[$prefix.'_rollback_version'];
-		$url = $_SERVER['PHP_SELF'].'?SQ_ACTION=rollback_view_start&assetid='.$owner->id.'&version='.$version;
+		$url = $_SERVER['PHP_SELF'].'?SQ_ACTION=rollback_view_start&assetid='.$owner->id.'&version='.$version.'&am_section=edit_asset&asset_ei_screen=details';
 		$o->setRedirect($url, 'top');
 	}
 
