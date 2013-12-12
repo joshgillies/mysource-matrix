@@ -1036,8 +1036,36 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 	 */
 	protected function _curlExec()
 	{
-		// Loop over *all* URLs to make sure keys are synced. We only do stuff for the entries in _urls_to_request
-		for ($key = 0; $key < count($this->_res['request']['urls']); $key++) {
+		// Create a curl multi handle
+		$mh = curl_multi_init();
+
+		// Add each curl handle to the multi handle
+		$request_count = count($this->_res['request']['urls']);
+		for ($key = 0; $key < $request_count; $key++) {
+			if (!isset($this->_urls_to_request[$key]['url'])) continue;
+			curl_multi_add_handle($mh, $this->_urls_to_request[$key]['handle']);
+		}
+
+		// Run the curl requests in parallel
+		$running = NULL;
+		do {
+				// curl_multi_exec returns immediately,
+				// if it returns CURLM_CALL_MULTI_PERFORM
+				// there is still work to be done so call it again
+		    do {
+			$status = curl_multi_exec($mh, $running);
+		    } while ($status === CURLM_CALL_MULTI_PERFORM);
+
+		    // If we're still running then call curl_multi_select
+		    // This blocks until curl has something for us, prevents a busy-loop
+		    if ($running){
+			$select = curl_multi_select($mh);
+		    }
+		} while ($running);
+
+		// Requests are all finished, loop over the urls and grab the responses etc.
+ 		// Loop over *all* URLs to make sure keys are synced. We only do stuff for the entries in _urls_to_request
+		for ($key = 0; $key < $request_count; $key++) {
 
 			// There might be nothing to do for this URL index (perhaps indexes 0 and 1 are cached but 2 isn't)
 			if (!isset($this->_urls_to_request[$key]['url'])) continue;
@@ -1045,7 +1073,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 			$response =& $this->_res['responses'][$key];
 
 			// Populate this response.
-			$response['body'] = curl_exec($this->_urls_to_request[$key]['handle']);
+			$response['body'] = curl_multi_getcontent($this->_urls_to_request[$key]['handle']);
 			$response['headers'] = $this->_headers;
 			$response['info'] = curl_getinfo($this->_urls_to_request[$key]['handle']);
 			$response['source'] = 'remote';
@@ -1056,6 +1084,7 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 			}
 
 			// Clean up.
+			curl_multi_remove_handle($mh, $this->_urls_to_request[$key]['handle']);
 			curl_close($this->_urls_to_request[$key]['handle']);
 			$this->_headers = Array();
 
@@ -1083,7 +1112,8 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 				}
 			}
 		}
-
+		curl_multi_close($mh);
+		
 		// Reset now that we've finished, since this can be run twice by paint layouts and the like.
 		$this->_urls_to_request = Array();
 

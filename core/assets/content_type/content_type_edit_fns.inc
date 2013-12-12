@@ -65,7 +65,7 @@ class Content_Type_Edit_Fns extends Asset_Edit_Fns
 	function paint(Content_Type $asset, $editing=FALSE, $generating=FALSE)
 	{
 		$html = $asset->attr('html');
-
+		
 		// remove any sq_wysiwyg_* tags used as placeholders for plugins
 		// such as Embed Movie/Youtube
 		if (!SQ_IN_BACKEND && !SQ_IN_LIMBO) {
@@ -108,7 +108,6 @@ class Content_Type_Edit_Fns extends Asset_Edit_Fns
 		$prefix = $asset->getPrefix();
 		$content_prefix = $prefix.'_'.get_class_lower($asset);
 		$path = sq_web_path('data').'/asset_types/bodycopy/images/icons/source_mode.png';
-		echo '<div class="sq-edit-bodycopy-section-locked">';
 		echo '<table class="sq-bodycopy-raw-html-table bodytext">';
 		echo '<tr><td align="left" id="'.$prefix.'_div_'.$asset->id.'" >';
 		echo '<img align="absmiddle" src="'.$path.'" alt="View Source" title="View Source" width="16" height="16" style="cursor:pointer;" onclick="sq_toggle_double_div(\''.$content_prefix.'_html\', \''.$content_prefix.'_source\', \''.$content_prefix.'_control\', \'View Source\', \'View Preview\');if (this.alt == \'View Source\') { this.alt=\'View Preview\'; this.title=\'View Preview\'; } else { this.alt=\'View Source\'; this.title=\'View Source\' };" />';
@@ -123,7 +122,6 @@ class Content_Type_Edit_Fns extends Asset_Edit_Fns
 		echo '</div>';
 		echo '</td></tr>';
 		echo '</table>';
-		echo '</div>';
 
 	}//end _paintInterface()
 

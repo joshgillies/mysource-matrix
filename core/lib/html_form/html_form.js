@@ -653,8 +653,6 @@ function addNewAssetFinder(moreButton, nameBase, safeNameBase, typeCodesString, 
 	tmp_id_label.className = 'sq-asset-finder-id-label';
 	parentElt.insertBefore(tmp_id_label, moreButton);
 	var tmp_assetid = createTextBox(safeName+'_assetid', '', 2, 0, '', '');
-	tmp_assetid.style.border = '1px solid #EFEFEF';
-    tmp_assetid.style.width = '7ex';
 	tmp_assetid.onchange = new Function('', mapFrame+'.asset_finder_assetid_changed(\''+name+"', '"+safeName+"', '"+typeCodesString+"', "+doneFn+",this.value);");
 	parentElt.insertBefore(tmp_assetid, moreButton);
 
@@ -711,6 +709,7 @@ function prependClearButton(elt, inherit)
 {
 	newButton = document.createElement('input');
 	newButton.type = 'button';
+	newButton.style.marginBottom = '3px';
 	newButton.value = js_translate('clear');
 	if (inherit) {
 		newButton.onclick = new Function("resetLastSelect(this); clearLastCheckbox(this);");
@@ -744,10 +743,12 @@ function prependInheritSelector(elt)
 	newHiddenField.value = '0';
 	newCheckbox = checkbox.cloneNode(true);
 	newCheckbox.checked = 0;
-	newText = document.createTextNode('inherit ');
+	//newText = document.createTextNode('inherit');
+	newLabel = document.createElement('label');
+	newLabel.innerHTML = 'inherit &nbsp;';
 	elt.parentNode.insertBefore(newHiddenField, elt);
 	elt.parentNode.insertBefore(newCheckbox, elt);
-	elt.parentNode.insertBefore(newText, elt);
+	elt.parentNode.insertBefore(newLabel, elt);
 }
 
 function resetLastSelect(elt)

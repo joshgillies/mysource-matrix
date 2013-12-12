@@ -176,7 +176,7 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 	{
 		$auth_types = Soap_Common::$auth_types;
 		
-		$selected_caching_type  = array_get_index($settings, 'cache_wsdl', WSDL_CACHE_NONE);
+		$selected_caching_type  = array_get_index($settings, 'cache_wsdl', WSDL_CACHE_BOTH);
 		$selected_service_address  = array_get_index($settings, 'service_address', NULL);
 		$disabled = $write_access ? '' : 'disabled';
 		$prefix_str = md5($prefix);

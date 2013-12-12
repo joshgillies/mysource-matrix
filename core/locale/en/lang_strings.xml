@@ -661,11 +661,11 @@
 
 	<string source="manually_cascade_schema">Manually cascade schemas</string>
 	<string source="cascade_schema_changes">Cascade schema changes</string>
-	<string source="cascade_schema_changes_to_new_children">Cascade this new schema to newly-created children </string>
+	<string source="cascade_schema_changes_to_new_children">Cascade this new schema to newly-created children</string>
 	<string source="no_children_to_cascade_workflow">There are no children to cascade workflow schemas to</string>
 	<string source="cannot_cascade_while_workflow_running">You cannot cascade workflow schemas while workflow is running</string>
 	<string source="no_access_to_cascade_workflow">You do not have access to cascade workflow schemas for this asset</string>
-	<string source="action_affects_assets_below_this">These actions will affect %1$s other assets below "%2$s"</string>
+	<string source="action_affects_assets_below_this">These actions will affect &lt;strong&gt;%1$s&lt;/strong&gt; other assets below "&lt;strong&gt;%2$s&lt;/strong&gt;"</string>
 	<string source="cannot_access_asset">You do not have permission to access the asset</string> <!-- USE FOR LOGIN SCREENS? -->
 	<string source="cannot_access_inline_asset_screen">You do not have permission to access the &lt;i&gt;%1$s&lt;/i&gt; screen of &lt;i&gt;%2$s&lt;/i&gt;</string>
 	<string source="section_not_found">Function not found for painting section "%s"</string>
@@ -712,7 +712,8 @@
 	<string source="metadata_setup_table_explanation">Note that this setup table only affects how the field looks to the metadata editor, NOT how it is displayed in META tags on the frontend.</string>
 	<string source="keyword_replacement">Keyword Replacement</string>
 	<string source="metadata_regenerate_files">Regenerate metadata files</string>
-	<string source="metadata_regenerate_for_currently_applied">Check the box below to regenerate the metadata for all assets that have currently applied this schema</string>
+	<string source="metadata_regenerate">Regenerate metadata</string>
+	<string source="metadata_regenerate_for_currently_applied">Check the box below to regenerate the metadata for all assets that have currently applied this schema.</string>
 	<string source="metadata_cannot_regenerate">Permission Denied to regenerate the metadata</string>
 	<string source="delete_section-field_question">Delete this section and all its fields?</string>
 	<string source="cannot_change_property">Permission Denied to change this property</string>
@@ -720,6 +721,7 @@
 	<string source="metadata_use_default_namespace_explanation">If your schema has one of the standard names - &lt;b&gt;AGLS&lt;/b&gt;, &lt;b&gt;DC&lt;/b&gt;, &lt;b&gt;EDNA&lt;/b&gt; - you can use a default namespace definition instead of entering the custom namespace and custom namespace URI into the fields below.</string>
 	<string source="cannot_change_namespace">You don't have permission to change namespace</string>
 	<string source="cannot_change_namespace_uri">You don't have permission to change namespace URI</string>
+	<string source="section_name">Section Name</string>
 	<string source="field_name">Field Name</string>
 	<string source="edit_fields">Edit Field</string>
 	<string source="metadata_edit_fields">Edit Metadata Field</string>

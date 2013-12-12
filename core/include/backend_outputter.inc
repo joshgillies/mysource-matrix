@@ -1453,7 +1453,12 @@ class Backend_Outputter
 											echo 'id="'.$field['id_name'].'"';
 										}
 									?>>
-										<td class="sq-backend-field">
+										<td <?php
+											echo 'class="sq-backend-field ';
+											//if label is empty or nbsp;, print class so that we can style differently
+											if (strlen($field['name']) == 0 || $field['name'] == '&nbsp;') echo 'empty-label ';
+											echo '">';
+										?>
 											<a name="field_<?php echo $field['field_count']; ?>"></a>
 											<span class="sq-backend-field-label"><?php echo $field['name'];?></span>
 										</td>

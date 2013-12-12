@@ -300,7 +300,7 @@ class Data_Source_Soap extends Data_Source
 			$response = (array) $response;
 
 			// If response has any xml data, convert it to array first
-			array_walk_recursive($response, 'self::_xml_to_array');
+			array_walk_recursive($response, Array($this, '_xml_to_array'));
 			$response_xml = '<'.$result_attr.'>'.SOAP_Common::arrayToXml($response)."\n".'</'.$result_attr.'>';
 		}
 		$data['response']['response_xml'] = $response_xml;

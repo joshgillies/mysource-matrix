@@ -42,10 +42,10 @@ class SOAP_Common
 	private static $recent_parsed_type = Array();
 
 	public static $wsdl_caching_opts = Array(
-											WSDL_CACHE_NONE => 'Never cache',
+											WSDL_CACHE_BOTH => 'Cache to both disk and memory',
 											WSDL_CACHE_DISK => 'Cache to disk',
 											WSDL_CACHE_MEMORY => 'Cache to memory',
-											WSDL_CACHE_BOTH => 'Cache to both disk and memory',
+											WSDL_CACHE_NONE => 'Never cache',
 										);
 
 	// Available SOAP authentication types
@@ -341,7 +341,7 @@ class SOAP_Common
 			$options['exceptions'] = 0;
 		}
 
-		$options['cache_wsdl'] = isset($settings['cache_wsdl']) ? $settings['cache_wsdl'] : WSDL_CACHE_NONE;
+		$options['cache_wsdl'] = isset($settings['cache_wsdl']) ? $settings['cache_wsdl'] : WSDL_CACHE_BOTH;
 
 		if(isset($settings['service_address']) && !empty($settings['service_address'])) {
 		    $options['location'] = $settings['service_address'];

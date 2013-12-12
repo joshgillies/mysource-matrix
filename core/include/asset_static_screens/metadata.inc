@@ -94,7 +94,8 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL, Array $layout_options
 
 				case 'metadata_current' :
 
-					$o->openField('');
+					$o->openField('', 'wide_col');
+						echo '<div class="sq-source-view">';
 						if (!is_null($keywords) && isset($keywords['fields']['metadata_current'])) {
 							ob_start();
 						}
@@ -134,6 +135,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL, Array $layout_options
 							$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['metadata_current']] = ob_get_contents();
 							ob_end_flush();
 						}
+						echo '</div>';
 					$o->closeField();
 
 				break;
@@ -142,20 +144,20 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL, Array $layout_options
 
 				case 'metadata_instructions' :
 
-					$o->openField('&nbsp;');
+					$o->openField('&nbsp;', 'wide_col');
 						if (!is_null($keywords) && isset($keywords['fields']['metadata_instructions'])) {
 							ob_start();
 						}
 
 						// construct example keywords link
 						$replacements_link = '<a href="'.sq_web_path('lib').'/web/popups/keywords.php?assetid='.$owner->id.'&amp;all=0" onclick="var win = window.open(this.href, \'keywords\', \'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=320\'); return false;">'.translate('click_here').'</a>';
-						echo '<p>'.translate('metadata_keyword_replacements_usage', $replacements_link).'</p>';
+						echo '<p>'.translate('metadata_keyword_replacements_usage', $replacements_link).'.</p>';
 
 						$sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager', TRUE);
 						if (!empty($sm) && $sm->attr('indexing')) {
 						?>
 							<?php
-							$replacements_link = '<a href="'.sq_web_path('lib').'/web/popups/keyword_extraction.php?assetid='.$owner->id.'" onclick="var win = window.open(this.href, \'keywords\', \'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=320\'); return false;">'.translate('keyword_extraction').'</a>';
+							$replacements_link = '<a href="'.sq_web_path('lib').'/web/popups/keyword_extraction.php?assetid='.$owner->id.'" onclick="var win = window.open(this.href, \'keywords\', \'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=320\'); return false;">'.translate('keyword_extraction').'</a>.';
 							echo '<p>'.translate('metadata_indexed_keywords', $replacements_link).'</p>';
 
 						}
