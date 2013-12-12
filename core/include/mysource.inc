@@ -1775,13 +1775,21 @@ class MySource extends MySource_Object
 					$_SESSION['sq_rollback_view'] = Array('rollback_time' => $then);
 				}
 
-				unset($_GET['assetid']);
 				unset($_GET['version']);
 			break;
 
 			case 'rollback_view_stop' :
 				if (isset($_SESSION['sq_rollback_view'])) {
 					unset($_SESSION['sq_rollback_view']);
+				}
+				if (!empty($_REQUEST['assetid'])) {
+					// Check if the backend asset in the rollback mode still exists in the present
+					$sql = 'SELECT assetid FROM sq_ast WHERE assetid = :assetid';
+					$query = MatrixDAL::preparePdoQuery($sql);
+					MatrixDAL::bindValueToPdo($query, 'assetid', $_REQUEST['assetid']);
+					if (!MatrixDAL::executePdoOne($query)) {
+						unset($_REQUEST['assetid']);
+					}
 				}
 			break;
 
@@ -3864,6 +3872,9 @@ class MySource extends MySource_Object
 		$time_string = readable_datetime($then).' ('.easy_time_total(time() - $then, TRUE).' ago)';
 		$warning_message = translate('rollback_mode_warning_message', $time_string);
 		$exit_url = $_SERVER['PHP_SELF'].'?SQ_ACTION=rollback_view_stop';
+		if (!empty($_GET['assetid'])) {
+			$exit_url .= '&assetid='.$_GET['assetid'].'&am_section=edit_asset&asset_ei_screen='.array_get_index($_GET, 'asset_ei_screen', 'details');
+		}
 
 		?>
 		<div align="center">
