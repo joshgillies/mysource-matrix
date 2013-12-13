@@ -10,14 +10,15 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2012/05/14 08:12:20 cupreti Exp $
 *
-*
-* Localised Strings File
 */
+
+	xml error file
+	errors are added in the format:
+	PKGN0000 where PKGN is a 3-4 letter abbreviation of the package and 0000
+	is a number representing the number of this error(start at 1 and increment)
 -->
 
-<strings>
-	<string source="trigger_join_user_for_session"><![CDATA[<p>Join current user to a specified user group for current session.</p>Select user group %1$s<br/>or use keyword replacement as group id %2$s<p>%3$s</p>]]></string>
-	<string source="trigger_join_user_for_session_leave_other_groups">Remove user from previously joined session groups.</string>
-</strings>
+<errors>
+	<!-- <error code="PKGN0001">Example Error #%s</error> -->
+</errors>
