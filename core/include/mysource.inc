@@ -2194,33 +2194,6 @@ class MySource extends MySource_Object
 		$event_data = Array('password' => array_get_index($_POST, 'SQ_LOGIN_PASSWORD'));
 		$this->broadcastTriggerEvent('trigger_event_user_login', $user, $event_data);
 
-		// check warranty (if a warranty key exists)
-		$decoded_wkey = base64_decode(SQ_LICENCE_WARRANTY_KEY);
-		if (SQ_IN_BACKEND && defined('SQ_LICENCE_WARRANTY_KEY') && ($decoded_wkey !== '') && (substr_replace($decoded_wkey, '', 6, 8) !== 'abcdef00000000')) {
-			$wkey_snippet = substr($decoded_wkey, 0, 6);
-			$ikey_snippet = substr(SQ_LICENCE_INSTALL_KEY, 0, 6);
-
-			$expiry_date = substr($decoded_wkey, 14);
-			$current_date = date('Ymd');
-
-			$warranty_expired = ($current_date > $expiry_date) || ($wkey_snippet !== $ikey_snippet);
-		} else {
-			// no warranty, so don't show the warranty expiry message
-			$warranty_expired = FALSE;
-		}
-
-		if ($this->userSystemAdmin($user) && $warranty_expired) {
-			$return_url = current_protocol().'://'.current_url(FALSE);
-
-			// We need to handle the 'return to HTTP' stuff here in any case
-			if (!$_SESSION['user_is_public'] && array_get_index($_SESSION, 'SQ_RETURN_TO_HTTP')) {
-				unset($_SESSION['SQ_RETURN_TO_HTTP']);
-				$return_url = 'http://'.current_url(FALSE);
-			}
-			$return_url = replace_query_string_vars(Array('SQ_ACTION' => NULL), $return_url);
-			require_once dirname(__FILE__).'/key_reminder.inc';
-			exit();
-		}
 
 		if (!$_SESSION['user_is_public'] && array_get_index($_SESSION, 'SQ_RETURN_TO_HTTP')) {
 			unset($_SESSION['SQ_RETURN_TO_HTTP']);
