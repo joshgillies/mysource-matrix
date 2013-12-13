@@ -523,8 +523,9 @@ class Remap_Manager extends Asset
 				if (empty($browser_cache_expiry)) {
 					$browser_cache_expiry = $cm->attr('expiry');
 				}
-
-				header('Cache-Control: max-age='.$browser_cache_expiry.', '.$cm->cacheControlLevel());
+				$level = $cm->cacheControlLevel();
+				$no_cookie = $level === 'public' ? ', no-cache="set-cookie"' : '';
+				header('Cache-Control: max-age='.$browser_cache_expiry.', '.$level.$no_cookie);
 				header('Expires: '.gmdate('D, d M Y H:i:s', time() + $browser_cache_expiry).' GMT');			
 			}
 			header('Location: '.$remap_url);

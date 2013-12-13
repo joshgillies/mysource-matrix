@@ -58,7 +58,7 @@ class Form_Action_SOAP_Call extends Form_Action
 		$auth_types = Soap_Common::$auth_types;
 
 		$selected_auth_type = array_get_index($settings, 'auth_type', 'HTTP_BASIC');
-		$selected_caching_type  = array_get_index($settings, 'cache_wsdl', WSDL_CACHE_NONE);
+		$selected_caching_type  = array_get_index($settings, 'cache_wsdl', WSDL_CACHE_BOTH);
 		$selected_service_address  = array_get_index($settings, 'service_address', NULL);
 
 		$auth_paint_fn = 'paint'.str_replace(' ', '', ucwords(str_replace('_', ' ', strtolower($selected_auth_type)))).'Fields';
