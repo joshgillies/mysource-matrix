@@ -10,7 +10,6 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.1 2012/05/14 08:12:20 cupreti Exp $
 *
 *
 * Localised Strings File
@@ -18,6 +17,5 @@
 -->
 
 <strings>
-	<string source="trigger_join_user_for_session"><![CDATA[<p>Join current user to a specified user group for current session.</p>Select user group %1$s<br/>or use keyword replacement as group id %2$s<p>%3$s</p>]]></string>
-	<string source="trigger_join_user_for_session_leave_other_groups">Remove user from previously joined session groups.</string>
+	<string source="trigger_leave_user_for_session"><![CDATA[<p>Temporarily remove current user from specified user groups for current session.</p>Select user groups %1$s]]></string>
 </strings>
