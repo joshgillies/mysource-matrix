@@ -1278,7 +1278,8 @@ class Asset_Map
 		try {
 			$bind_vars = Array();
 			// Search both tables (sq_ast_lnk - 1 and sq_shdw_ast_lnk - 2) and union the results
-			$sql1 = 'SELECT majorid, COUNT(*) as link_count FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk';
+			// Ensure all children in the real link table actually exist.
+			$sql1 = 'SELECT majorid, COUNT(*) as link_count FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast ON sq_ast_lnk.minorid = sq_ast.assetid';
 			$sql2 = 'SELECT majorid, COUNT(*) as link_count FROM '.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk';
 
 			$sub_sql1 = 'SELECT minorid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk';
@@ -1293,17 +1294,23 @@ class Asset_Map
 			$sub_where2 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where2, NULL, 'WHERE', FALSE);
 			$sub_sql = $sub_sql1.' '.$sub_where1.' GROUP BY minorid UNION ALL '.$sub_sql2.' '.$sub_where2.' GROUP BY minorid';
 
-			$where_clause = 'majorid IN ('.$sub_sql.') AND link_type <= :max_link_type';
+			// Here we ensure that for each child of a shadow link, that it exists if it
+			// is a real asset, or its bridge exists if it's a shadow asset.
+			$where1 = 'majorid IN ('.$sub_sql.') AND link_type <= :max_link_type';
+			$where2 = $where1.' AND substr(minorid, 1, (case when position(\':\' in minorid) = 0 then length(minorid) else position(\':\' in minorid) - 1 end)) IN (SELECT assetid FROM  '.SQ_TABLE_RUNNING_PREFIX.'ast)';
 			$bind_vars['max_link_type'] = SQ_LINK_TYPE_2;
 
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where_clause, NULL, 'WHERE', FALSE);
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where_clause, NULL, 'WHERE', FALSE);
-			$where .= ' GROUP BY majorid ';
+			$where1 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where1, NULL, 'WHERE', FALSE);
+			$where1 .= ' GROUP BY majorid ';
 
-			$query2 = MatrixDAL::preparePdoQuery($sql1.' '.$where.' UNION ALL '.$sql2.' '.$where);
+			$where2 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where2, NULL, 'WHERE', FALSE);
+			$where2 .= ' GROUP BY majorid ';
+
+			$query2 = MatrixDAL::preparePdoQuery($sql1.' '.$where1.' UNION ALL '.$sql2.' '.$where2);
 			foreach ($bind_vars as $key => $value) {
 				MatrixDAL::bindValueToPdo($query2, $key, $value);
 			}
+			
 			$db_result = MatrixDAL::executePdoAssoc($query2);
 			if (!empty($db_result))
 			{
