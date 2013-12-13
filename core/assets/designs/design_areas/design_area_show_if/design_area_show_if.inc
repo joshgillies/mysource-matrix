@@ -143,8 +143,7 @@ class Design_Area_Show_If extends Design_Area
 		}
 
 		echo '}
-		?','>
-		';
+		?'.'>';
 		return TRUE;
 
 	}//end _printPaintingCode()
