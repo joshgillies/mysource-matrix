@@ -1038,9 +1038,11 @@ class Asset_Map
 					$bind_vars = Array();
 					$sql = 'SELECT COUNT(*)
 							FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_major';
-					$where = 'majorid = :assetid AND link_type <= :max_link_type';
+					$where  = 'majorid = :assetid AND link_type <= :max_link_type';
+					$where .= ' AND substr(minorid, 1, (case when position(\':\' in minorid) = 0 then length(minorid) else position(\':\' in minorid) - 1 end)) IN (SELECT assetid FROM  '.SQ_TABLE_RUNNING_PREFIX.'ast)';
 					$bind_vars['assetid']       = $assetid;
 					$bind_vars['max_link_type'] = SQ_LINK_TYPE_2;
+					$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ast', 'WHERE', FALSE);
 					$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ast_', 'WHERE', FALSE);
 					$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lnk_', 'WHERE', FALSE);
 
