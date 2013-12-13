@@ -81,9 +81,23 @@ class Trigger_Action_Join_User_Group_For_Session extends Trigger_Action
 				echo htmlspecialchars($keyword_target_groupid);
 			}
 		$keyword_target_groupid_input = ob_get_clean();
+		
+		
+		//  remove all other joined session groups
+		ob_start();
+			$leave_other_groups = isset($settings['leave_other_groups']) ? $settings['leave_other_groups'] : '';
+			if ($write_access) {
+				echo '<br />';
+				check_box($prefix.'[leave_other_groups]', 1, $leave_other_groups);
+				label(translate('trigger_join_user_for_session_leave_other_groups'), $prefix.'[leave_other_groups]');
+			} else {
+				echo '<img src="'.sq_web_path('lib').'/web/images/'.($leave_other_groups ? 'tick' : 'cross').'.gif" alt="'.($leave_other_groups ? translate('yes') : translate('no')).'" /> ';
+				echo translate('trigger_join_user_for_session_leave_other_groups');
+			}
+		$leave_other_groups_input = ob_get_clean();
 
 		// display both the asset chooser and the text box
-		$output = translate('trigger_join_user_for_session', $user_group_input, $keyword_target_groupid_input);
+		$output = translate('trigger_join_user_for_session', $user_group_input, $keyword_target_groupid_input, $leave_other_groups_input);
 
 		return $output;
 
@@ -105,6 +119,7 @@ class Trigger_Action_Join_User_Group_For_Session extends Trigger_Action
 	{
 		$settings['user_group_to_join']	    = isset($request_data['user_group_to_join']['assetid']) ? $request_data['user_group_to_join']['assetid'] : NULL;
 		$settings['keyword_target_groupid'] = isset($request_data['keyword_target_groupid']) ? $request_data['keyword_target_groupid'] : '';
+		$settings['leave_other_groups']	    = isset($request_data['leave_other_groups']) ? $request_data['leave_other_groups'] : NULL;
 
 		return FALSE;
 
@@ -123,6 +138,12 @@ class Trigger_Action_Join_User_Group_For_Session extends Trigger_Action
 	*/
 	public static function execute($settings, &$state)
 	{
+		// if required, remove user from previously joined session groups
+		$leave_other_group = isset($settings['leave_other_groups']) ? $settings['leave_other_groups'] : false;
+		if($leave_other_group && !empty($_SESSION['sq_session_user_groups'][$GLOBALS['SQ_SYSTEM']->user->id])) {
+		    $_SESSION['sq_effective_user_groups'][$GLOBALS['SQ_SYSTEM']->user->id] = array_diff($_SESSION['sq_effective_user_groups'][$GLOBALS['SQ_SYSTEM']->user->id], $_SESSION['sq_session_user_groups'][$GLOBALS['SQ_SYSTEM']->user->id]);
+		}
+
 		// the group id set in asset finder has the precedence
 		$value = @$settings['user_group_to_join'];
 		
@@ -164,6 +185,7 @@ class Trigger_Action_Join_User_Group_For_Session extends Trigger_Action
 		// add the current user to the specified user group that lasts only while the current session last
 		if (!in_array($value, $_SESSION['sq_effective_user_groups'][$GLOBALS['SQ_SYSTEM']->user->id])) {
 			$_SESSION['sq_effective_user_groups'][$GLOBALS['SQ_SYSTEM']->user->id][] = $value;
+			$_SESSION['sq_session_user_groups'][$GLOBALS['SQ_SYSTEM']->user->id][] = $value;
 		}
 
 		return Array(
