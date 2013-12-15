@@ -22,7 +22,6 @@
 * Mysource: xtras/sites/extensions/ecommerce_store/xtras/payment_gateway/esec
 */
 
-@require_once 'HTTP/Request.php';
 require_once dirname(__FILE__).'/esec_processor.inc';
 
 /**
