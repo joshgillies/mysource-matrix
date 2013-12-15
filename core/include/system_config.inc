@@ -111,7 +111,6 @@ class System_Config extends Config
 						'SQ_CONF_TIMEZONE'						=> Array('editable' => 1, 'default' => 'Australia/Sydney'),
 						'SQ_CONF_FORCE_LOWERCASE_USERNAME'		=> Array('editable' => 0, 'default' => FALSE),
 						'SQ_LICENCE_INSTALL_KEY'				=> Array('editable' => 1, 'default' => ''),
-						'SQ_LICENCE_WARRANTY_KEY'				=> Array('editable' => 1, 'default' => ''),
 						'SQ_CONF_COOKIE_OPTION_HTTP_ONLY'		=> Array('editable' => 1, 'default' => TRUE),
 						'SQ_CONF_COOKIE_OPTION_SECURE'			=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_CONF_ROOT_USER_DISABLED'			=> Array('editable' => 0, 'default' => '0'),
@@ -207,9 +206,6 @@ class System_Config extends Config
 					if (isset($vars[$var_name])) {
 						$vars[$var_name] = max(60, (int) $vars[$var_name]);
 					}
-				}
-				if (isset($vars['SQ_LICENCE_WARRANTY_KEY'])) {
-					$vars['SQ_LICENCE_WARRANTY_KEY'] = trim($vars['SQ_LICENCE_WARRANTY_KEY']);
 				}
 			}//end if validating values
 
@@ -1089,21 +1085,12 @@ class System_Config extends Config
 
 		$o->closeSection();
 
-		$o->openSection(translate('install_and_warranty_key'));
+		$o->openSection(translate('install_key'));
 
 			$o->openField(translate('install_key'));
 				echo SQ_LICENCE_INSTALL_KEY;
 				$o->note(translate('system_config_install_key_note'));
 			$o->closeField();
-
-			$o->openField(translate('warranty_key'));
-				if ($write_access) {
-					text_box($class.'[SQ_LICENCE_WARRANTY_KEY]', !defined('SQ_LICENCE_WARRANTY_KEY') ? '' : SQ_LICENCE_WARRANTY_KEY, 30);
-				} else {
-					echo SQ_LICENCE_WARRANTY_KEY;
-				}
-			$o->closeField();
-
 		$o->closeSection();
 
 		if ($write_access) $o->commitButton('', TRUE);

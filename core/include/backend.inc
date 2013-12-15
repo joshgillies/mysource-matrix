@@ -1045,27 +1045,6 @@ class Backend extends MySource_Object
 					<img class="sq-matrix-logo" src="<?php echo sq_web_path('lib'); ?>/web/images/logo-toolbar.png" alt="Squiz Matrix" title="Squiz Matrix"/>
 					<span class="sq-logged-in-as-text">
 						<a href="#" onclick="Javascript: reloadHeader(); return false;"><?php echo translate('logged_in_as', htmlspecialchars($GLOBALS['SQ_SYSTEM']->user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)); ?></a>
-						<?php
-						// check warranty (if a warranty key exists)
-						/*
-						if (defined('SQ_LICENCE_WARRANTY_KEY')) {
-							$wkey_snippet = substr(base64_decode(SQ_LICENCE_WARRANTY_KEY), 0, 6);
-							$ikey_snippet = substr(SQ_LICENCE_INSTALL_KEY, 0, 6);
-
-							$expiry_date = substr(base64_decode(SQ_LICENCE_WARRANTY_KEY), 14);
-							$current_date = date('Ymd');
-							if ((SQ_LICENCE_WARRANTY_KEY === '') || ($current_date > $expiry_date) || ($wkey_snippet !== $ikey_snippet)) {
-								$message = translate('licence_type_no_warranty');
-							} else {
-								$message = translate('licence_type_warranty_valid');
-							}
-						} else {
-							// no warranty
-							$message = translate('licence_type_no_warranty');
-						}
-						echo $message;
-						*/
-						?>
 					</span>
 				</td>
 				<td nowrap class="sq-backend-header-item" valign="middle" align="right">

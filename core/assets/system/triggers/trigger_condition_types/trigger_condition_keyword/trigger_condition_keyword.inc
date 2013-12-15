@@ -195,6 +195,21 @@ class Trigger_Condition_Keyword extends Trigger_Condition_Asset_Type
 	}//end processInterface()
 
 
+	/**
+	* Determines whether a condition is allowed to be used multiple times in a trigger
+	* Default to false, children can override if necessary
+	*
+	* @return boolean
+	* @access public
+	*/
+	public static function allowMultiple()
+	{
+		// default to to disallow
+		return TRUE;
+
+	}//end allowMultiple()
+
+
 }//end class
 
 ?>

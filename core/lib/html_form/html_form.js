@@ -30,7 +30,7 @@ function submit_form(f)
 
 	SQ_FORM_ERROR_CONTAINED = false;
 	inputs = f.getElementsByTagName('input');
-	for (i=0; i<inputs.length; i++) {
+	for (var i=0; i<inputs.length; i++) {
 		if (inputs[i].name == 'submit') {
 			SQ_FORM_ERROR_CONTAINED = true;
 		}
@@ -109,7 +109,7 @@ function validate_numeric_text_field(name, allow_negative)
 	// if the string is not a number, or if negatives aren't allowed and the first character is a '-'.
 	if (parseInt(name.value) != name.value || (name.value.length > 0 && allow_negative == false && name.value.charAt(0) == "-" ) ) {
 		var outstr = "";
-		for (ii = 0; ii < name.value.length ; ii++) {
+		for (var ii = 0; ii < name.value.length ; ii++) {
 			// if a number, or if negatives are allowed, a '-' at the beginning of the string
 			if ((parseInt(name.value.charAt(ii)) == name.value.charAt(ii)) ||
 			(allow_negative == true && ii == 0 && name.value.charAt(ii) == "-") ){
@@ -682,12 +682,12 @@ function disable_buttons()
 {
 	inputs = document.getElementsByTagName('input');
 	buttons = Array();
-	for (i=0; i<inputs.length; i++) {
+	for (var i=0; i<inputs.length; i++) {
 		if ((inputs[i].type == 'submit') || (inputs[i].type == 'button')) {
 			buttons[buttons.length] = inputs[i];
 		}
 	}
-	for (i=0; i<buttons.length; i++) {
+	for (var i=0; i<buttons.length; i++) {
 		newElt = document.createElement('INPUT');
 		newElt.type = buttons[i].type;
 		newElt.value = buttons[i].value;

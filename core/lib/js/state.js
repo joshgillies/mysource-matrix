@@ -42,7 +42,7 @@ function saveState()
 	var currentForm = document.forms[0];
 	var currentState = '';
 	
-	for (i=0; i < currentForm.elements.length; i++) {
+	for (var i=0; i < currentForm.elements.length; i++) {
 		var el = currentForm.elements[i];
 		if (el.type == 'hidden' || el.type == 'password') {
 			// Don't save hidden fields and password fields
@@ -70,7 +70,7 @@ function saveState()
 			currentState += recordField(i, el.selectedIndex);
 		} else if (el.type == 'select-multiple') {
 			var ssm = '';
-			for (j=0; j < el.options.length; j++) {
+			for (var j=0; j < el.options.length; j++) {
 				if (el.options[j].selected) {
 					ssm += el.options[j].value;
 					ssm += '-';
