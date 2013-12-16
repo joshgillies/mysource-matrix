@@ -389,7 +389,7 @@ class Image_Variety extends Asset
 
 		}//end if
 
-		if (!$this->updateLookups($image->usePublicPath())) {
+		if (!$this->updateLookups()) {
 			return FALSE;
 		}
 
@@ -421,7 +421,7 @@ class Image_Variety extends Asset
 		$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 		$up_to_date = $fv->upToDate($d_file);
 
-		$updated = $this->updateLookups(FALSE);
+		$updated = $this->updateLookups();
 		if (!$updated) return FALSE;
 
 		// file not in repository, hmm, something must have gone wrong, let's see if there is a file there and remove it.
@@ -566,8 +566,14 @@ class Image_Variety extends Asset
 		$image = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
 		if (!empty($image)) {
 			$public = $image->usePublicPath();
+			$safe_edit = $this->status & SQ_SC_STATUS_SAFE_EDITING && $image->attr('allow_unrestricted') && $image->effectiveUnrestricted();
 		}
-		if (!$public) return parent::updateLookups();
+
+		if (!$public && !$safe_edit) return parent::updateLookups();
+		
+		// if safe edit status, we still want to insert standard matrix urls
+		if($safe_edit) parent::updateLookups();
+
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db = MatrixDAL::getDb();
@@ -576,17 +582,30 @@ class Image_Variety extends Asset
 		unset($this->_tmp['lookups']);
 		unset($this->_tmp['url']);
 		unset($this->_tmp['href']);
-
-		// Remove all the old URLs
-		try {
-			$bind_vars = Array('assetid' => $this->id);
-			MatrixDAL::executeQuery('core', 'deleteLookup', $bind_vars);
-		} catch (DALException $e) {
-			throw new Exception('Unable to delete lookups of asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
+		
+		if($safe_edit) {
+		    // If it's safe edit status, we just want to remove those __data urls because we will insert proper ones later
+		    try {
+			    $query = MatrixDAL::preparePdoQuery('DELETE FROM sq_ast_lookup WHERE assetid = :assetid AND URL LIKE \'%__data%\';');
+			    MatrixDAL::bindValueToPdo($query, 'assetid',$this->id);
+			    MatrixDAL::execPdoQuery($query);
+		    } catch (Exception $e) {
+			    throw new Exception('Unable to delete lookups of safe edit status asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
+		    }
+		}
+		else {
+		    // Remove all the old URLs
+		    try {
+			    $bind_vars = Array('assetid' => $this->id);
+			    MatrixDAL::executeQuery('core', 'deleteLookup', $bind_vars);
+		    } catch (DALException $e) {
+			    throw new Exception('Unable to delete lookups of asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
+		    }
 		}
 
 		$filename = $this->attr('filename');
-
+		
+		
 		// if there is no filename there is nothing more for us to do
 		if (!$filename) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
