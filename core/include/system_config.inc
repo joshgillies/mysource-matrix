@@ -116,6 +116,7 @@ class System_Config extends Config
 						'SQ_CONF_ROOT_USER_DISABLED'			=> Array('editable' => 0, 'default' => '0'),
 						'SQ_CONF_DISABLE_ATTRIBUTION'			=> Array('editable' => 1, 'default' => '0'),
 						'SQ_CONF_ENFORCE_FRAME_SAMEORIGIN'		=> Array('editable' => 1, 'default' => '1'),
+						'SQ_CONF_VISITED_PAGES_MAX_ENTRIES'		=> Array('editable' => 1, 'default' => '10'),
 					   );
 
 	/**
@@ -1085,6 +1086,17 @@ class System_Config extends Config
 
 		$o->closeSection();
 
+		$o->openSection(translate('miscellaneous_config'));
+			$o->openField(translate('visited_pages_config_max_entries'));
+			if ($write_access && $is_root) {
+				text_box($class.'[SQ_CONF_VISITED_PAGES_MAX_ENTRIES]', !defined('SQ_CONF_VISITED_PAGES_MAX_ENTRIES') ? '10' : SQ_CONF_VISITED_PAGES_MAX_ENTRIES, 30);
+			} else {
+				echo !defined('SQ_CONF_VISITED_PAGES_MAX_ENTRIES') ? '10' : SQ_CONF_VISITED_PAGES_MAX_ENTRIES;
+			}
+				$o->note(translate('visited_pages_config_note'));
+			$o->closeField();
+		$o->closeSection();
+
 		$o->openSection(translate('install_key'));
 
 			$o->openField(translate('install_key'));
@@ -1113,6 +1125,13 @@ class System_Config extends Config
 		if (!$write_access) return parent::processBackend($o);
 
 		$class = get_class_lower($this);
+
+		// Value restriction for Visited Pages Maximum Entries setting
+		if ($_POST[$class]['SQ_CONF_VISITED_PAGES_MAX_ENTRIES'] < 0) {
+			$_POST[$class]['SQ_CONF_VISITED_PAGES_MAX_ENTRIES'] = 0;
+		} else if ($_POST[$class]['SQ_CONF_VISITED_PAGES_MAX_ENTRIES'] > 1000) {
+			$_POST[$class]['SQ_CONF_VISITED_PAGES_MAX_ENTRIES'] = 1000;
+		}
 
 		require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 		$option_list = new Asset_Attribute_Option_List(0, NULL, SQ_OPTION_LIST_DELIMITER_UNIX);

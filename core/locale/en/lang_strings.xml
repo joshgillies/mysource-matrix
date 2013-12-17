@@ -1112,6 +1112,12 @@
 	<string source="condition_user_ipv6_import_from_file_explain">The file uploaded should be a CSV file without a header row. Each line should contain exactly 3 fields: the first being the network IP address, the second being the subnet mask in the CIDR notation, and the third being a one (1) for a Grant rule or zero (0) for a Deny rule. The default Grant/Deny setting is not affected by any upload and should be set separately.</string>
 	<string source="condition_user_ipv6_note">NOTE: The network address entered will be automatically lowercased and converted to the "compressed" format. For example, all of these IPv6 addresses "00ff:0:0:0:0:0:0:0", "FF:0::0", "00ff::0000" will be converted to "ff::".</string>
 
+	<!-- Visited Pages Condition -->
+	<string source="condition_visited_pages_true">The previously visited url(s) matches the following pattern(s) or assetid(s)</string>
+	<string source="condition_visited_pages_false">The previously visited url(s) does not matches the following pattern(s) or assetid(s)</string>
+	<string source="condition_visited_no_assetids_selected">No assetids selected</string>
+	<string source="condition_visited_no_patterns_set">No URL patterns selected</string>
+
 	<string source="server_variable">Server Variable</string>
 	<string source="pattern">Pattern</string>
 	<string source="user_agent_pattern">User Agent Pattern</string>
@@ -2913,6 +2919,13 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 
 	<string source="core_schema_usage_no_assets"><![CDATA[<p>This schema is not applied to any assets.</p>]]></string>
 	<string source="core_design_usage_no_assets"><![CDATA[<p>This design is not applied to any assets.</p>]]></string>
+
+	<!-- Miscellaneous settings -->
+	<string source="miscellaneous_config">Miscellaneous Settings</string>
+	<string source="visited_pages_config_max_entries">Visited Pages Maximum Entires</string>
+	<string source="visited_pages_config_note">Maximum number of visited URLs entires to store in the session. Visited URLs and assetids can be accessed via global session var "visited_urls" and "visited_assets" respectively.</string>
+
+
 
 	<!-- Install and warranty key -->
 	<string source="install_and_warranty_key">Install and Warranty Key</string>
