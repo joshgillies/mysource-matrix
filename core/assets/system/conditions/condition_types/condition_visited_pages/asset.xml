@@ -19,7 +19,7 @@
 	<package>__core__</package>
 	<type_code>condition_visited_pages</type_code>
 	<version>0.1</version>
-	<name>Visited Pages</name>
+	<name>Visited Pages Condition</name>
 	<description>This condition compares urls/assetids with the pages visited in the session</description>
 	<instantiable>no</instantiable>
 	<allowed_access>system</allowed_access>
