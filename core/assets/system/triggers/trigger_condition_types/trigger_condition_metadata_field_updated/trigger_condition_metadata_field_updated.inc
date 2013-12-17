@@ -83,9 +83,9 @@ class Trigger_Condition_Metadata_Field_Updated extends Trigger_Condition
 		// Paint the interface
 		ob_start();
 			if ($write_access) {
-				echo translate('metadata_field'); 
+				echo translate('metadata_field').': '; 
 				echo asset_finder($prefix.'[metadata_field]', $field, Array('metadata_field'=>'D'));
-				echo '<br />';
+				echo '<br /><br />';
 				echo translate('trigger_condition_metadata_field_updated_note');
 			} else {
 				if (empty($field)) {

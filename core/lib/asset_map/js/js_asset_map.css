@@ -600,6 +600,8 @@
 	display: inline-block;
 	height: 12px;
 	padding: 2px 0;
+	font-size: 11px;
+	color: #444;
 }
 
 #asset_map_container .tree {
@@ -611,6 +613,7 @@
 	border-right: 				1px solid #ccc;
 	border-left: 				1px solid #ccc;
 	padding-top:				1px;
+	color: 						#000;
 }
 
 #asset_map_container .tree *{

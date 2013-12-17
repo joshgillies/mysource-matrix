@@ -151,7 +151,7 @@ class Trigger_Condition_Metadata_Value extends Trigger_Condition
 		// value field
 		ob_start();
 			if ($write_access) {
-				text_box($prefix.'[value]', array_get_index($settings, 'value'));
+				text_box($prefix.'[value]', array_get_index($settings, 'value'), 50, '', false, 'style="margin-top: 5px;"');
 			} else {
 				echo $settings['value'];
 			}

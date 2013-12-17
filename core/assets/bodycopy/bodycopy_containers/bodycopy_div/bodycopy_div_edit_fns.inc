@@ -204,7 +204,6 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	*/
 	public function paint(Bodycopy_Div $asset, $editing=FALSE, $generating=FALSE)
 	{
-		echo '<div class="sq-locked-content-block-wrapper">';
 
 		$div_attributes = $asset->attr('attributes');
 		if (!isset($div_attributes['layout_type'])) {
@@ -246,9 +245,9 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			//check if content type exists and then make a class out of it, if not, just add default
 			$content_type_class = 'default';
 			if(isset($div_attributes['content_type'])){
-				$content_type_class = $div_attributes['content_type'];
+				$content_type_class = $div_attributes['content_type']; 
 			}
-			echo "\n<".strtolower($div_attributes['layout_type']).$attribute_list." class=\"sq-bodycopy-locked-wrapper ".$content_type_class."\">\n";
+			echo "\n<".strtolower($div_attributes['layout_type']).$attribute_list.">\n";
 		}
 
 
@@ -263,8 +262,6 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		if ($div_attributes['layout_type'] != 'none') {
 			echo "\n</".strtolower($div_attributes['layout_type']).">\n";
 		}
-
-		echo '</div>';
 
 		return TRUE;
 

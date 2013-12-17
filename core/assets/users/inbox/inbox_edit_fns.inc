@@ -196,20 +196,20 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			</script>
 			<script type="text/javascript" src="<?php echo sq_web_path('data'); ?>/asset_types/inbox/js/inbox.js"></script>
 			<div id="inbox_container" class="sq-inbox-list-container">
-			<table id="inbox_table">
+			<table id="inbox_table" class="sq-backend-table">
 			<tr>
-				<td class="sq-backend-table-header"><?php echo strtoupper(translate('to')); ?></td>
-				<td class="sq-backend-table-header"><?php echo strtoupper(translate('subject')); ?></td>
-				<td class="sq-backend-table-header"><?php echo strtoupper(translate('sent')); ?></td>
+				<th class="sq-backend-table-header"><?php echo translate('to'); ?></th>
+				<th class="sq-backend-table-header"><?php echo translate('subject'); ?></th>
+				<th class="sq-backend-table-header"><?php echo translate('sent'); ?></th>
 				<?php
 
 		if ($write_access) {
 ?>
-					<td class="sq-backend-table-header">
+					<th class="sq-backend-table-header">
 						<?php check_box($prefix.'_delete_all', '1', FALSE, 'changeAllDelStatuses(this.checked)'); ?>
 						<img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" alt="" id="trashIcon" class="trash" onclick="changeAllStatuses()" />
-						<?php echo strtoupper(translate('delete')); ?>
-					</td>
+						<?php echo translate('delete'); ?>
+					</th>
 					<?php
 
 		}
@@ -375,16 +375,16 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			}
 ?>
 			<!-- start print pagination bar top -->
-			<table class="sq-backend-table">
-				<tr><td class="sq-backend-table-header-header"><b>
+			<table id="inbox_table" class="sq-backend-table">
+				<tr><th colspan="5" class="sq-backend-table-header-header sq-pagination-links" style="text-align: center;">
 					<?php
 					hidden_field($prefix.'_link_offset', $link_offset);
 					if ($link_offset > 0) {
 					?>
-						<a title="<?php echo translate('pagination_go_to_first') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '0'); set_hidden_field('process_form', '0'); submit_form(); return false;">
+						<a title="<?php echo translate('pagination_go_to_first') ?>" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '0'); set_hidden_field('process_form', '0'); submit_form(); return false;">
 					<?php
 					} else {
-						?><span title="<?php echo translate('pagination_cannot_go_further_back') ?>" style="color: #333"><?php
+						?><span title="<?php echo translate('pagination_cannot_go_further_back') ?>" ><?php
 					}
 					?>
 					&lt;&lt;
@@ -396,9 +396,9 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 					}
 					?> &nbsp; &nbsp; <?php
 					if ($link_offset > 0) {
-						?><a title="<?php echo translate('pagination_go_to_previous') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo $link_offset - $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+						?><a title="<?php echo translate('pagination_go_to_previous') ?>" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo $link_offset - $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
 					} else {
-						?><span title="<?php echo translate('pagination_cannot_go_further_back') ?>" style="color: #333"><?php
+						?><span title="<?php echo translate('pagination_cannot_go_further_back') ?>" ><?php
 					}
 					?>
 					&lt;
@@ -412,9 +412,9 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 					&nbsp; &nbsp; <?php echo translate('page_number', round(($link_offset + $num_per_page) / $num_per_page), ceil($total_assets / $num_per_page)); ?> &nbsp; &nbsp;
 					<?php
 					if (($link_offset + $num_per_page) < $total_assets) {
-						?><a title="<?php echo translate('pagination_go_to_next') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo $link_offset + $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+						?><a title="<?php echo translate('pagination_go_to_next') ?>" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo $link_offset + $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
 					} else {
-						?><span title="<?php echo translate('pagination_cannot_go_further_forward') ?>" style="color: #333"><?php
+						?><span title="<?php echo translate('pagination_cannot_go_further_forward') ?>" ><?php
 					}
 					?>
 					&gt;
@@ -426,9 +426,9 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 					}
 					?> &nbsp; &nbsp; <?php
 					if (($link_offset + $num_per_page) < $total_assets) {
-						?><a title="<?php echo translate('pagination_go_to_last') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo ($num_pages - 1) * $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+						?><a title="<?php echo translate('pagination_go_to_last') ?>" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo ($num_pages - 1) * $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
 					} else {
-						?><span title="<?php echo translate('pagination_cannot_go_further_forward') ?>" style="color: #333"><?php
+						?><span title="<?php echo translate('pagination_cannot_go_further_forward') ?>" ><?php
 					}
 					?>
 					&gt;&gt;
@@ -439,15 +439,13 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 						?></span><?php
 					}
 					?>
-				</b></td><tr>
-				</table>
+				</th><tr>
 				<!-- end print pagination bar -->
-			<table id="inbox_table">
 			<tr>
-				<td class="sq-backend-table-header"><?php echo strtoupper(translate('from')); ?></td>
-				<td class="sq-backend-table-header"><?php echo strtoupper(translate('subject')); ?></td>
-				<td class="sq-backend-table-header"><?php echo strtoupper(translate('sent')); ?></td>
-				<td class="sq-backend-table-header">
+				<th class="sq-backend-table-header"><?php echo translate('from'); ?></th>
+				<th class="sq-backend-table-header"><?php echo translate('subject'); ?></th>
+				<th class="sq-backend-table-header"><?php echo translate('sent'); ?></th>
+				<th class="sq-backend-table-header">
 					<?php
 
 			if ($write_access) {
@@ -457,17 +455,17 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 
 			}
 ?>
-					&nbsp;<?php echo strtoupper(translate('read')); ?>
-				</td>
+					&nbsp;<?php echo translate('read'); ?>
+				</th>
 				<?php
 
 			if ($write_access) {
 ?>
-					<td class="sq-backend-table-header">
+					<th class="sq-backend-table-header">
 						<?php check_box($prefix.'_delete_all', '1', FALSE, 'changeAllDelStatuses(this.checked)'); ?>
 						<img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" alt="" id="trashIcon" class="trash" />
-						<?php echo strtoupper(translate('delete')); ?>
-					</td>
+						<?php echo translate('delete'); ?>
+					</th>
 					<?php
 
 			}
@@ -668,23 +666,23 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 ?>
 			<div id="inbox_container" class="sq-inbox-list-container">
 
-			<table border="0" cellspacing="0" cellpadding="1" id="inbox_table">
+			<table id="inbox_table" class="sq-backend-table">
 			<tr>
-				<td class="sq-backend-table-header"><?php echo strtoupper(translate('from')); ?></td>
-				<td class="sq-backend-table-header"><?php echo strtoupper(translate('subject')); ?></td>
-				<td class="sq-backend-table-header"><?php echo strtoupper(translate('sent')); ?></td>
+				<th class="sq-backend-table-header"><?php echo translate('from'); ?></th>
+				<th class="sq-backend-table-header"><?php echo translate('subject'); ?></th>
+				<th class="sq-backend-table-header"><?php echo translate('sent'); ?></th>
 				<?php
 
 			if ($write_access) {
 ?>
-					<td class="sq-backend-table-header">
+					<th class="sq-backend-table-header">
 						<?php check_box($prefix.'_select_all_recover', '1', FALSE, 'check_all(document.main_form, "'.$prefix.'_recover", this.checked);'); ?>
-						<?php echo strtoupper(translate('recover')); ?>
-					</td>
-					<td class="sq-backend-table-header">
+						<?php echo translate('recover'); ?>
+					</th>
+					<th class="sq-backend-table-header">
 						<?php check_box($prefix.'_select_all_purge', '1', FALSE, 'check_all(document.main_form, "'.$prefix.'_purge", this.checked);'); ?>
-						<?php echo strtoupper(translate('purge')); ?>
-					</td>
+						<?php echo translate('purge'); ?>
+					</th>
 					<?php
 
 			}

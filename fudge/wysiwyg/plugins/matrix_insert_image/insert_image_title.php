@@ -14,31 +14,14 @@
 *
 */
 
+require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 ?>
 
 <html>
 	<head>
-		<title>Insert Link</title>
+		<title>Insert Image</title>
 		<style type="text/css">
-			html, body {
-				background: #402F48;
-				color: #FFFFFF;
-				font: 11px Tahoma,Verdana,sans-serif;
-				margin: 0px;
-				padding: 0px;
-			}
-
-			/* main popup title */
-			.title {
-				background: #402F48;
-				color: #FFFFFF;
-				font-weight: bold;
-				font-size: 120%;
-				padding: 6px 10px;
-				margin-bottom: 10px;
-				border-bottom: 1px solid black;
-				letter-spacing: 4px;
-			}
+			@import url("<?php echo sq_web_path('root_url')?>/__fudge/wysiwyg/core/popup.css");
 		</style>
 	</head>
 

@@ -134,7 +134,7 @@ class Trigger_Condition_Keyword extends Trigger_Condition_Asset_Type
 		// keyword input box
 		ob_start();
 			if ($write_access) {
-				text_box($prefix.'[keyword]', $keyword, '30px');
+				text_box($prefix.'[keyword]', $keyword, '40', '', false, 'style="margin: 0 0 5px 0;"');
 			} else {
 				echo '<b>'.$keyword.'</b>';
 			}

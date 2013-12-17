@@ -106,9 +106,9 @@ class Trigger_Condition_Status_Change_To extends Trigger_Condition
 			if ($write_access) {
 				combo_box($prefix.'[statii]', $status_list, TRUE, $selected_status, NULL, $form_element_extras);
 			} else {
-				echo '<table>';
+				echo '<table style="margin: 5px 0 0 10px;">';
 				foreach($selected_status as $print_status) {
-					echo '<tr><td>'.get_asset_status_icon($print_status).'<strong>'. get_status_description($print_status).'</strong></td></tr>';
+					echo '<tr><td style="padding: 0 0 2px 0;">'.get_asset_status_icon($print_status).'<strong>'. get_status_description($print_status).'</strong></td></tr>';
 				}
 				echo '</table>';
 			}

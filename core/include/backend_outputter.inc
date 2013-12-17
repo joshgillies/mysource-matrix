@@ -1446,14 +1446,19 @@ class Backend_Outputter
 								default :
 								?>
 									<tr class="sq-backend-row" <?php
-										// added a check to see if the contents and notes are empty, no point in showing the row
-										if ($field['hidden'] || (strlen($field['contents']) == 0 && strlen($field['note']) == 0)) echo 'style="display: none"'; 
+										// in addition to checking if the row is hidden, also check to see if the contents and notes are empty, if both empty then no point in showing the row
+										if ($field['hidden'] || (strlen($field['contents']) && strlen($field['note']))) echo 'style="display: none"'; 
 									?> <?php
 										if ($field['id_name']) {
 											echo 'id="'.$field['id_name'].'"';
 										}
 									?>>
-										<td class="sq-backend-field">
+										<td <?php
+											echo 'class="sq-backend-field ';
+											//if label is empty or nbsp;, print class so that we can style differently
+											if (strlen($field['name']) == 0 || $field['name'] == '&nbsp;') echo 'empty-label ';
+											echo '">';
+										?>
 											<a name="field_<?php echo $field['field_count']; ?>"></a>
 											<span class="sq-backend-field-label"><?php echo $field['name'];?></span>
 										</td>

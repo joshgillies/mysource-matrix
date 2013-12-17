@@ -140,14 +140,14 @@ class Trigger_Action_Clear_Cache extends Trigger_Action
 		// paint the edit interface
 		ob_start();
 		?>
-		<table border="0">
+		<table class="sq-backend-table">
 			<tr>
-				<td valign="top"><b><?php echo translate('trigger_clear_cache_current_asset'); ?></b></td>
-				<td valign="top" style="padding-bottom: 10px;"><?php
+				<th style="width: 135px;"><?php echo translate('trigger_clear_cache_current_asset'); ?></th>
+				<td><?php
 					// current asset
 					if ($write_access) {
 						echo check_box($prefix.'[use_current_asset]', 1, $settings['use_current_asset']);
-						echo translate('trigger_clear_cache_include_current_asset');
+						label(translate('trigger_clear_cache_include_current_asset'), $prefix.'[use_current_asset]');
 					} else {
 						echo '&nbsp; &nbsp;';
 						echo ($settings['use_current_asset']) ? translate('yes') : translate('no');
@@ -159,17 +159,17 @@ class Trigger_Action_Clear_Cache extends Trigger_Action
 					// selected assets/choose assets
 					if ($write_access) {
 						?>
-						<td valign="top"><b><?php echo translate('trigger_clear_cache_choose_asset'); ?></b></td>
-						<td valign="top" style="padding-bottom: 10px;"><?php
+						<th><?php echo translate('trigger_clear_cache_choose_asset'); ?></th>
+						<td><?php
 							echo multiple_asset_finder($new_prefix.'_select_assets', $settings['selected_assets']);
 					} else {
 						?>
-						<td valign="top"><b><?php echo translate('trigger_clear_cache_choose_asset_selected'); ?></b></td>
-						<td valign="top" style="padding-bottom: 10px;"><?php
+						<th><?php echo translate('trigger_clear_cache_choose_asset_selected'); ?></th>
+						<td><?php
 							if (empty($settings['selected_assets'])) {
 								echo '&nbsp; &nbsp;'.translate('no_asset_selected');
 							} else {
-								?><ul><?php
+								?><ul class="sq-root-node-selections-wrapper"><?php
 								foreach ($settings['selected_assets'] as $selected_asset) {
 									?><li><?php
 									echo get_asset_tag_line($selected_asset);
@@ -182,8 +182,8 @@ class Trigger_Action_Clear_Cache extends Trigger_Action
 				</td>
 			</tr>
 			<tr>
-				<td valign="top"><b><?php echo translate('level'); ?></b></td>
-				<td valign="top" style="padding-bottom: 10px;"><?php
+				<th><?php echo translate('level'); ?></th>
+				<td><?php
 					// level
 					if ($write_access) {
 						echo combo_box($new_prefix.'_level', $level_options, FALSE, $settings['level'], 0);
@@ -197,15 +197,15 @@ class Trigger_Action_Clear_Cache extends Trigger_Action
 					// selected asset types/asset types
 					if ($write_access) {
 						?>
-						<td valign="top"><b><?php echo translate('asset_types'); ?></b></td>
-						<td valign="top" style="padding-bottom: 10px;"><?php echo combo_box($new_prefix.'_asset_types', $asset_types_options, TRUE, $settings['asset_types'], 8); ?></td>
+						<th><?php echo translate('asset_types'); ?></th>
+						<td><?php echo combo_box($new_prefix.'_asset_types', $asset_types_options, TRUE, $settings['asset_types'], 8); ?></td>
 						<?php
 					} else {
 						?>
-						<td valign="top"><b><?php echo translate('trigger_clear_cache_asset_types_selected'); ?></b></td>
-						<td valign="top" style="padding-bottom: 10px;"><?php
+						<th><?php echo translate('trigger_clear_cache_asset_types_selected'); ?></th>
+						<td><?php
 							if (!empty($settings['asset_types'][0])) {
-								?><ul><?php
+								?><ul class="sq-root-node-selections-wrapper"><?php
 								foreach ($settings['asset_types'] as $type_code) {
 									?><li><?php
 									echo get_asset_type_icon($type_code);

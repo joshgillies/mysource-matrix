@@ -238,14 +238,16 @@ class Trigger_Action_Add_Url extends Trigger_Action
 
 		echo translate('add_url').' ';
 		if ($write_access) {
-			text_box($prefix.'[url]', $url, 20);
+			text_box($prefix.'[url]', $url, 40);
 			echo '&nbsp;';
 			check_box($prefix.'[http]', '1', $http);
-			echo '&nbsp;HTTP&nbsp;';
+			label('HTTP', $prefix.'[http]');
+			echo '&nbsp;&nbsp;';
 			check_box($prefix.'[https]', '1', $https);
-			echo '&nbsp;HTTPS&nbsp;';
+			label('HTTPS', $prefix.'[https]');
+			echo '&nbsp;&nbsp;';
 		} else {
-			echo '<b>'.$url.'</b>';
+			echo '"<strong>'.$url.'</strong>" ';
 		}
 
 		$all_contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();

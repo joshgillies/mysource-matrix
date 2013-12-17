@@ -20,9 +20,9 @@
 <strings>
 	<string source="trigger_clear_session_var_interface"><![CDATA[
 		<div>
-			<div>%3$s Clear all session variables</div>
-			<div><i>Note: If enabled this option will override the option settings below</i></div>
-			<div>OR</div>
+			<div><label>%3$s Clear all session variables</label></div>
+			<div><strong>Note:</strong> If enabled, this option will override the option settings below.</div>
+			<div style="margin: 10px 0 5px;">&nbsp; OR</div>
 			<div>Clear session variable(s) with %2$s %1$s </div>
 		</div>
 	]]></string>	

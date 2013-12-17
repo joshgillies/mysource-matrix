@@ -28,7 +28,7 @@
 	<string source="squid_tool_pref_note">Enter the Host Names separated by newlines, to be used in the command "squidclient -h hostname -m PURGE $url".</string>
 	<string source="squid_tool_asset_note">Squid cache will be cleared for all URLs applied to this asset.</string>
 	<string source="squid_tool_hostname">Host Names</string>
-	<string source="squid_tool_hostname_note">You may modify the settings in the External Tools Configuration.</string>
+	<string source="squid_tool_hostname_note">&lt;strong&gt;Note:&lt;/strong&gt; You may modify the Squid Cache settings in the External Tools Configuration.</string>
 	<string source="squid_tool_path_field">Path</string>
 	<string source="squid_tool_port_field">Port Number</string>
 	<string source="squid_tool_option_field">Options</string>

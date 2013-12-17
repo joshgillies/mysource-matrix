@@ -245,45 +245,9 @@ if ($search_for != '') {
 
 <html>
 	<head>
-		<title>Insert Link - Search</title>
+		<title>Insert Image - Search</title>
 		<style type="text/css">
-			html, body {
-				background: #402F48;
-				color: #FFFFFF;
-				font: 11px Tahoma,Verdana,sans-serif;
-				margin: 0px;
-				padding: 0px;
-			}
-
-			form#main-form {
-				padding: 5px;
-				clear: right;
-			}
-
-			#quick-search-for {
-				font: 11px Arial,Verdana,sans-serif;
-				border: 1px solid black;
-				padding: 1px 3px;
-			}
-
-			#quick-search-for-label {
-				font: 11px Arial,Verdana,sans-serif;
-				color: #999;
-			}
-
-			/* main popup title */
-			.title {
-				font-weight: bold;
-				font-size: 120%;
-				padding: 6px 10px;
-				margin-bottom: 10px;
-				border-bottom: 1px solid black;
-				text-align: right;
-			}
-
-
-			/* form and form fields */
-			form { padding: 0px; margin: 0px; }
+			@import url("<?php echo sq_web_path('root_url')?>/__fudge/wysiwyg/core/popup.css");
 		</style>
 		<script type="text/javascript"><!--
 			/**

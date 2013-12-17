@@ -661,11 +661,11 @@
 
 	<string source="manually_cascade_schema">Manually cascade schemas</string>
 	<string source="cascade_schema_changes">Cascade schema changes</string>
-	<string source="cascade_schema_changes_to_new_children">Cascade this new schema to newly-created children </string>
+	<string source="cascade_schema_changes_to_new_children">Cascade this new schema to newly-created children</string>
 	<string source="no_children_to_cascade_workflow">There are no children to cascade workflow schemas to</string>
 	<string source="cannot_cascade_while_workflow_running">You cannot cascade workflow schemas while workflow is running</string>
 	<string source="no_access_to_cascade_workflow">You do not have access to cascade workflow schemas for this asset</string>
-	<string source="action_affects_assets_below_this">These actions will affect %1$s other assets below "%2$s"</string>
+	<string source="action_affects_assets_below_this">These actions will affect &lt;strong&gt;%1$s&lt;/strong&gt; other assets below "&lt;strong&gt;%2$s&lt;/strong&gt;"</string>
 	<string source="cannot_access_asset">You do not have permission to access the asset</string> <!-- USE FOR LOGIN SCREENS? -->
 	<string source="cannot_access_inline_asset_screen">You do not have permission to access the &lt;i&gt;%1$s&lt;/i&gt; screen of &lt;i&gt;%2$s&lt;/i&gt;</string>
 	<string source="section_not_found">Function not found for painting section "%s"</string>
@@ -712,7 +712,8 @@
 	<string source="metadata_setup_table_explanation">Note that this setup table only affects how the field looks to the metadata editor, NOT how it is displayed in META tags on the frontend.</string>
 	<string source="keyword_replacement">Keyword Replacement</string>
 	<string source="metadata_regenerate_files">Regenerate metadata files</string>
-	<string source="metadata_regenerate_for_currently_applied">Check the box below to regenerate the metadata for all assets that have currently applied this schema</string>
+	<string source="metadata_regenerate">Regenerate metadata</string>
+	<string source="metadata_regenerate_for_currently_applied">Check the box below to regenerate the metadata for all assets that have currently applied this schema.</string>
 	<string source="metadata_cannot_regenerate">Permission Denied to regenerate the metadata</string>
 	<string source="delete_section-field_question">Delete this section and all its fields?</string>
 	<string source="cannot_change_property">Permission Denied to change this property</string>
@@ -720,6 +721,7 @@
 	<string source="metadata_use_default_namespace_explanation">If your schema has one of the standard names - &lt;b&gt;AGLS&lt;/b&gt;, &lt;b&gt;DC&lt;/b&gt;, &lt;b&gt;EDNA&lt;/b&gt; - you can use a default namespace definition instead of entering the custom namespace and custom namespace URI into the fields below.</string>
 	<string source="cannot_change_namespace">You don't have permission to change namespace</string>
 	<string source="cannot_change_namespace_uri">You don't have permission to change namespace URI</string>
+	<string source="section_name">Section Name</string>
 	<string source="field_name">Field Name</string>
 	<string source="edit_fields">Edit Field</string>
 	<string source="metadata_edit_fields">Edit Metadata Field</string>
@@ -1316,9 +1318,9 @@
 	<string source="asset_type_not_selected">asset type not selected</string>
 	<string source="attribute_not_selected">attribute not selected</string>
 	<string source="trigger_attribute_value">If the value of the %1$s attribute %2$s %3$s %4$s</string>
-	<string source="trigger_attribute_changed">If the value of the %1$s attribute %2$s changes&lt;br /&gt;&lt;br /&gt;&lt;strong&gt;Note:&lt;/strong&gt; This condition will cause the trigger to fail if the firing event is not "Attributes Changed"</string>
+	<string source="trigger_attribute_changed">If the value of the %1$s attribute %2$s changes&lt;br /&gt;&lt;br /&gt;&lt;strong&gt;Note:&lt;/strong&gt; This condition will cause the trigger to fail if the firing event is not "Attributes Changed".</string>
 	<string source="trigger_metadata_value">If the metadata value of the %1$s field in the asset has a %2$s with %3$s</string>
-	<string source="trigger_metadata_set">If the metadata value of the %1$s field is Set&lt;br /&gt;Will return FALSE if the field is empty or the value is set to Default value of the Metadata Field</string>
+	<string source="trigger_metadata_set">If the metadata value of the %1$s field is set.&lt;br /&gt;&lt;br /&gt;&lt;strong&gt;Note:&lt;/strong&gt; Will return FALSE if the field is empty or the value is set to Default value of the Metadata Field.</string>
 	<string source="or_inherited_types">or inherited types</string>
 	<string source="trigger_set_attribute_value_serialise_note">You have selected a serialised attribute.  The value you set it to must be a valid PHP expression, for example "Array(1, 2, 4)"</string>
 
@@ -1347,9 +1349,9 @@ Force that this asset can only be viewed through a Secure (SSL) connection</stri
 	<string source="trigger_asset_public_user">Current user %s a public user</string>
 	<string source="trigger_asset_ldap_user">Current user %s a LDAP user</string>
 
-	<string source="trigger_request_method">HTTP Request Method:%s</string>
+	<string source="trigger_request_method">HTTP Request Method: %s</string>
 
-	<string source="trigger_link_exists_basic"><![CDATA[has a %1$s asset <ul style="list-style-type: none; padding: 0;"><li>%2$sof type %3$s</li><li>%4$s with ID %5$s</li><li>%6$s Use only advanced link parameters (below). This option ONLY works for the triggering link.</li></ul>%7$s]]></string>
+	<string source="trigger_link_exists_basic"><![CDATA[Has a %1$s asset <ul style="list-style-type: none; padding: 0;"><li>%2$sof type %3$s</li><li>%4$s with ID %5$s</li><li>%6$s Use only advanced link parameters (below). This option ONLY works for the triggering link.</li></ul>%7$s]]></string>
 	<string source="match_current_link_only">Match only the triggering link (for events that relate to links like 'Link Created' and 'Link Deleted')</string>
 	<string source="trigger_link_exists_advanced"><![CDATA[<ul style="list-style-type: none; padding: 0;"><li>Link Type:%1$s</li><li>Is Dependant? %2$s</li><li>Is Exclusive? %3$s</li><li>Value: %4$s</li></ul>]]></string>
 
@@ -2654,7 +2656,7 @@ If you are ready to continue, please click <strong>Next</strong> to proceed with
 
 	<!-- Add Web Path Trigger Actions -->
 	<string source="trigger_add_web_path_remove_all">Delete all other webpaths</string>
-	<string source="trigger_add_web_path_note">Note that you can use keywords (eg. %%asset_assetid%%) and global keywords (eg. %%globals_user_assetid%%) in the web path.</string>
+	<string source="trigger_add_web_path_note">&lt;strong&gt;Note:&lt;/strong&gt; You can use keywords (eg. %%asset_assetid%%) and global keywords (eg. %%globals_user_assetid%%) in the web path.</string>
 	<string source="trigger_add_web_path_make_lowercase">Make the new webpath in lowercase</string>
 	<string source="trigger_add_web_path_update_children">Update lookups for children</string>
 
@@ -2967,7 +2969,7 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="squid_tool_pref_note">Enter the Host Names separated by newlines, to be used in the command "squidclient -h hostname -m PURGE $url".</string>
 	<string source="squid_tool_asset_note">Squid cache will be cleared for all URLs applied to this asset.</string>
 	<string source="squid_tool_hostname">Host Names</string>
-	<string source="squid_tool_hostname_note">You may modify the settings in the External Tools Configuration.</string>
+	<string source="squid_tool_hostname_note">&lt;strong&gt;Note:&lt;/strong&gt; You may modify the Squid Cache settings in the External Tools Configuration.</string>
 	<string source="squid_tool_path_field">Path</string>
 	<string source="squid_tool_port_field">Port Number</string>
 	<string source="squid_tool_option_field">Options</string>

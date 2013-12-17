@@ -136,7 +136,6 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 		combo_box($_combo_box_name, $type_options, TRUE, $selected_types, 10);
 		echo '&nbsp;';
 
-
 		$o->closeField();
 
 		$o->openField(translate('from'));
@@ -148,7 +147,7 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 		echo "<br>";
 		// okie dont let the user confuse you with wrong dates
 		if (isset($from_date) && isset($to_date) && $from_date > $to_date) {
-			echo "<font color=\"red\"><b>ERROR : 'From' date provided is later than 'To' date. </b></font><br>";
+			echo "<font color=\"red\"><strong>ERROR : 'From' date provided is later than 'To' date. </strong></font><br>";
 			$invalid_dates = FALSE;
 		}
 		$o->closeField();
@@ -216,15 +215,15 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 	// if non of the logs are selected or if the dates
 	// were nto right dont display any logs for now
 	if (empty($all_logs) || !$invalid_dates) {
-		$o->openRaw();
+		$o->openField('');
 			if (!( empty($type_options) && empty($selected_base_url) )) {
-				echo '<b>'.translate('no_logged_messages', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</b>';
+				echo '<strong>'.translate('no_logged_messages', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</strong>';
 			} else {
-				echo '<b>'.translate('no_logged_messages_found', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</b>';
+				echo '<strong>'.translate('no_logged_messages_found', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</strong>';
 			}
-		$o->closeRaw();
+		$o->closeField();
 	} else {
-		$o->openRaw();
+		$o->openField('', 'wide_col');
 		$lm = $GLOBALS['SQ_SYSTEM']->lm;
 			?>
 			<table class="sq-backend-table">
@@ -304,7 +303,7 @@ function paintLogs(&$owner, &$o, &$ei, $keywords=NULL)
 				</tr>
 			</table>
 			<?php
-		$o->closeRaw();
+		$o->closeField();
 	}//end else
 
 

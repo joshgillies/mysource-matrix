@@ -334,12 +334,13 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 										   );
 		}
 		if ($write_access) {
-
-			$field->printField();
-			echo '<br /> <b>-'.strtoupper(translate('or_in')).'- </b>';
+			echo '<span class="sq-inline-fields-wrapper bottom-margin">';
+				$field->printField();
+			echo '</span>';
+			echo '<br /> <span class="sq-inline-fields-wrapper bottom-margin"><b style="display: inline-block; width: 47px">-'.strtoupper(translate('or_in')).'- </b>';
 			preg_match('/([0-9]+)\s([i|h|d|w|m|y])/', $value, $matches);
 			text_box($prefix.'_duration', '0', 2, '', TRUE);
-			echo " ";
+			echo ' ';
 			$periods = Array(
 						'-'	=> '--Select One --',
 						'minutes'	=> translate('minutes'),
@@ -351,15 +352,16 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 					   );
 
 			combo_box($prefix.'_period', $periods, FALSE, '-', NULL);
-			echo "<b> from now</b>";
+			echo '<b> from now</b></span>';
 
 			if ($asset->attr('show_keywords')) {
-				echo '<br /> <b>-'.strtoupper(translate('or')).'-</b> ';
+				echo '<br /> <span class="sq-inline-fields-wrapper bottom-margin"><b style="display: inline-block; width: 44px">-'.strtoupper(translate('or')).'-</b> ';
 				combo_box($prefix.'_repkeys', $select_options, FALSE, trim($value, '%'), 0, '');
+				echo '</span>';
 			}
 
 			if ($enable_default) {
-				echo '<br /> <b>-'.strtoupper(translate('or')).'-</b> ';
+				echo '<br /> <span class="sq-inline-fields-wrapper bottom-margin"><b style="display: inline-block; width: 44px">-'.strtoupper(translate('or')).'-</b> ';
 				if ((substr($default_val, 0, 1) == '%') || empty($value)) {
 					$default_date_exp = 'null';
 					$default_kw_exp = "'".trim($default_val, '%')."'";
@@ -385,6 +387,7 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 				// ]]> -->
 				</script>
 				<?php
+				echo '</span>';
 			}
 
 			if ($print_cascade_values_option) {

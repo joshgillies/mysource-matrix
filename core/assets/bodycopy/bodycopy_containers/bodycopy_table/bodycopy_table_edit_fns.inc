@@ -254,7 +254,6 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	*/
 	public function paint(Bodycopy_Table $asset, $editing=FALSE, $generating=FALSE)
 	{
-		echo '<div class="sq-locked-content-block-wrapper table">';
 
 		$table_rows = $asset->attr('rows');
 		$table_attributes = $asset->attr('attributes');
@@ -280,7 +279,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			$attribute_list .= ' '.'id="'.$val.'"';
 		}
 
-		echo '<table class="sq-bodycopy-locked-wrapper sq-bodycopy-raw-html-table-wrapper" ';
+		echo '<table ';
 		echo "{$attribute_list}";
 		echo '>';
 
@@ -300,8 +299,6 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		}
 
 		echo "</table>\n";
-
-		echo '</div>';
 
 		return TRUE;
 

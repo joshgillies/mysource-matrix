@@ -1,0 +1,51 @@
+/* POP UP STYLES FOR WYSWIYG PLUGINS */
+
+/* Header styles */
+
+html, body {
+	background: #494949;
+	color: #fff;
+	font-family: Arial, Verdana, sans-serif;
+	margin: 0px;
+	padding: 0px;
+}
+
+.title {
+	background: #494949;
+	font-size: 14px;
+	color: #FFF;
+	font-weight: bold;
+	padding: 0 5px;
+	margin-bottom: 10px;
+	border-bottom: 1px solid #000;
+	height: 28px;
+	line-height: 28px;
+}
+
+/* Quick search in header frame */
+
+.title > form{
+	text-align: right;
+}
+
+#quick-search-for {
+	font: 12px Arial,Verdana,sans-serif;
+	border: 1px solid black;
+	padding: 1px 3px;
+}
+
+#quick-search-for-label {
+	font: 12px Arial,Verdana,sans-serif;
+	color: #fff;
+}
+
+
+form#main-form {
+	background: #494949;
+	font-size: 12px;
+	color: #FFF;
+	padding: 0 5px;
+	border-bottom: 1px solid #000;
+	height: 28px;
+	line-height: 28px;
+}

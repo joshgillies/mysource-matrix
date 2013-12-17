@@ -84,7 +84,12 @@ class Trigger_Condition_Metadata_Time extends Trigger_Condition
 			if ($write_access) {
 				asset_finder($prefix.'[trigger_metadata_date_fieldid]', $fieldid, Array('metadata_field_date' => 'D'));
 			} else {
-				echo '<b>#'.$fieldid.'</b>';
+				if (!empty($fieldid)) {
+					echo get_asset_tag_line($fieldid);
+				} else {
+					echo '<em>None selected</em>';
+				}
+				//echo '<b>#'.$fieldid.'</b>';
 			}
 		$ret = ob_get_clean();
 

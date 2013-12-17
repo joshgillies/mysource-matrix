@@ -173,14 +173,17 @@ class Trigger_Condition_Rest_Response extends Trigger_Condition
 		ob_start();
 			if ($write_access) {
 				combo_box($prefix.'[match_condition_type]', $match_condition_type, FALSE, $settings['match_condition_type']);
+				echo ' ';
 				combo_box($prefix.'[match_target]', $match_target, FALSE, $settings['match_target']);
+				echo ' ';
 				combo_box($prefix.'[match_type]', $match_type, FALSE, $settings['match_type']);
-				text_box($prefix.'[match_value]', array_get_index($settings, 'match_value'), 80);
+				echo ' ';
+				text_box($prefix.'[match_value]', array_get_index($settings, 'match_value'), 80, '', false, 'style="margin-top: 5px;"');
 			} else {
-				echo $match_condition_type[$settings['match_condition_type']].' ';
-				echo $match_target[$settings['match_target']].' ';
-				echo $match_type[$settings['match_type']].' ';
-				echo $settings['match_value'];
+				echo '<strong>'.$match_condition_type[$settings['match_condition_type']].'</strong> ';
+				echo '<strong>'.$match_target[$settings['match_target']].'</strong> ';
+				echo '<strong>'.$match_type[$settings['match_type']].'</strong> ';
+				echo '<strong>'.$settings['match_value'].'</strong> ';
 			}//end if
 
 			$conditions = ob_get_contents();
