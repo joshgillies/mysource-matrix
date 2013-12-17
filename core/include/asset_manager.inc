@@ -6323,8 +6323,8 @@ class Asset_Manager extends MySource_Object
 
 			$set_array = Array();
 
-			foreach ($set_clauses as $key => $value) {
-				$set_array[] = $key.'='.$value;
+			foreach ($set_clauses as $key => $date_value) {
+				$set_array[] = $key.'='.$date_value;
 			}
 
 			$set_string = implode(',', $set_array);
@@ -6404,8 +6404,8 @@ class Asset_Manager extends MySource_Object
 
 			$set_array = Array();
 
-			foreach ($set_clauses as $key => $value) {
-				$set_array[] = $key.'='.$value;
+			foreach ($set_clauses as $key => $date_value) {
+				$set_array[] = $key.'='.$date_value;
 			}
 
 			$set_string = implode(',', $set_array);
@@ -6503,6 +6503,25 @@ class Asset_Manager extends MySource_Object
 		$ms->closeLog();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+		// tell others the link has updated
+		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em->broadcastEvent($major, 'UpdateLink', Array(
+			'linkid' => $linkid,
+			'type_changed' => $link_type_changed,
+			'old_type' => $link['link_type'],
+			'new_type' => $link_type,
+			'value_changed' => $value_changed,
+			'old_value' => $link['value'],
+			'new_value' => $value,
+			'sort_order_changed' => $sort_order_changed,
+			'old_sort_order' => $link['sort_order'],
+			'new_sort_order' => $sort_order,
+			'locked_changed' => $link_locked_changed,
+			'old_locked' => $link['locked'],
+			'new_locked' => $locked,
+		));
+
 		return TRUE;
 
 	}//end updateLink()
