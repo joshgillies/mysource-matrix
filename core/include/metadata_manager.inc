@@ -1298,7 +1298,8 @@ class Metadata_Manager extends MySource_Object
 				echo '$metadata_replacements = Array();'."\n";
 				foreach ($keywords as $keyword) {
 					if (!preg_match('/^metadata_field_/', $keyword)) {
-						echo '$metadata_replacements["'.addslashes($keyword).'"] = $metadata_asset->getKeywordReplacement("'.addslashes($keyword).'");'."\n";
+						// escape single quotes only. back slash is already escaped and doubel quote must be kept to be consistent with code below
+						echo '$metadata_replacements[\''.addcslashes($keyword, '\'').'\'] = $metadata_asset->getKeywordReplacement(\''.addcslashes($keyword, '\'').'\');'."\n";
 					}
 				}
 				echo '/* 2 */', "\n";
@@ -1382,18 +1383,18 @@ class Metadata_Manager extends MySource_Object
 
 				}//end foreach ($metadata_values)
 			} while ($fields_modified);
-			
+	
 			// print the values, to be referenced by the meta tags later
 			echo '$metadata_values = Array('."\n";
 			foreach ($tag_values as $n => $v) {
 				$n = addslashes($this->escapeMetadata($n, TRUE));
 				Metadata_Field::decodeValueString($v, $v2, $vc);
 				// escape single quotes and backslashes
-				$v2 = str_replace("'", "\'", str_replace("\\", "\\\\", $v2));
+				$v2 = addcslashes($v2, "'\\");
 
 				// unescape metadata_replacements
 				// leave metadata_values for later - unescape them at runtime
-				$v2 = preg_replace('/%([^%\' ]+)%/', '\'.(isset($metadata_replacements[\'\1\']) ? $metadata_replacements[\'\1\'] : \'%\1%\' ).\'', $v2);
+				$v2 = preg_replace('/%([^%]+)%/', '\'.(isset($metadata_replacements[\'\1\']) ? $metadata_replacements[\'\1\'] : \'%\1%\' ).\'', $v2);
 				echo "'$n' => '$v2',\n";
 			}
 			echo ");\n\n";
