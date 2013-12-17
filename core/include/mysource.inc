@@ -4548,7 +4548,7 @@ class MySource extends MySource_Object
 	/**
 	* Print the asset frontend
 	*
-	* @param object $asset	Asset of when we are printing the frontend
+	* @param object $asset	Asset of which we are printing the frontend
 	*
 	* @return void
 	* @access private
