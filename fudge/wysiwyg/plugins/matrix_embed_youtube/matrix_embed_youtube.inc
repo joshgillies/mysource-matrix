@@ -240,7 +240,7 @@ class matrix_embed_youtube extends wysiwyg_plugin
 			}
 
 			// Try and interpet the video id and create a valid url
-			$movie_url_prefix = 'http://www.youtube.com/v/';
+			$movie_url_prefix = '%globals_protocol%://www.youtube.com/v/';
 			$movie_url = '';
 			$add_suffix_vars = TRUE;
 			$current_video_id = '';
@@ -355,7 +355,6 @@ class matrix_embed_youtube extends wysiwyg_plugin
 			ob_start();
 			?>
 			<sq_wysiwyg_embed_youtube <?php echo $match; ?>>
-			<script src="http://swfobject.googlecode.com/svn/tags/rc3/swfobject/src/swfobject.js" type="text/javascript"></script>
 			<?php
 			//	$movie_vars['embed_loop']    = '0';
 			?><object

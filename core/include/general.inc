@@ -2071,6 +2071,9 @@ function replace_global_keywords(&$text)
 							}
 						}
 					}
+					if (0 === strpos($keyword, 'globals_protocol')) {
+						$replacements[$full_keyword] = current_protocol();
+					}
 					if (0 === strpos($keyword, 'globals_date')) {
 						require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 						$date_keyword = '';
