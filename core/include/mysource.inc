@@ -839,7 +839,7 @@ class MySource extends MySource_Object
 					if (SQ_CONF_SEND_CACHEABLE_HEADER && $asset->canSendCacheableHeader() && $cm->cacheableHeadersEnabledForCurrentProtocol() && $cm->sendCacheableHeaders($asset->type(), $asset->id)) {
 						$this->_sendHTTPHeaders($asset);
 					} else {
-						$asset->printFrontend();
+						$this->_printAssetFrontend($asset);
 					}
 				}//end if
 				// caching is enabled and asset is readable by public user, send HTTP headers
@@ -856,7 +856,7 @@ class MySource extends MySource_Object
 					$this->_sendHTTPHeaders($asset);
 
 				} else {
-					$asset->printFrontend();
+					$this->_printAssetFrontend($asset);
 				}
 				$content = ob_get_contents();
 			// now clear off our buffer but only if had anything in it
@@ -973,7 +973,7 @@ class MySource extends MySource_Object
 		if ($cache_info === FALSE) {
 			ob_start();
 				$loaded_assetids = $GLOBALS['SQ_SYSTEM']->am->_asset_cache->getAssetKeys();
-				$asset->printFrontend();
+				$this->_printAssetFrontend($asset);
 				$all_assetids = $GLOBALS['SQ_SYSTEM']->am->_asset_cache->getAssetKeys();
 				$content = ob_get_contents();
 			ob_end_clean();
@@ -1039,7 +1039,7 @@ class MySource extends MySource_Object
 				exit(1);
 			} else {
 				// not sending 304 header, print the content
-				$asset->printFrontend();
+				$this->_printAssetFrontend($asset);
 			}
 		}
 
@@ -4543,6 +4543,56 @@ class MySource extends MySource_Object
 		}
 
 	}//end _processUserIP()
+
+
+	/**
+	* Print the asset frontend
+	*
+	* @param object $asset	Asset of which we are printing the frontend
+	*
+	* @return void
+	* @access private
+	*/
+	private function _printAssetFrontend($asset)
+	{
+		// Register the url and assetid as "visited"
+		if (SQ_CONF_VISITED_PAGES_MAX_ENTRIES > 0) {
+			if (!isset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['visited_urls'])) {
+				$_SESSION[SQ_SESSION_SANDBOX_INDEX]['visited_urls'] = Array();
+			}
+			if (!isset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['visited_assets'])) {
+				$_SESSION[SQ_SESSION_SANDBOX_INDEX]['visited_assets'] = Array();
+			}
+
+			$current_url = rtrim(current_url(), '/');
+			$assetid = $asset->id;
+			// We add a prefix to the array keys because numerical array keys (in case of assteids)
+			// gets reset and lost when doing array_shift()
+			$prefix = 'v_';
+
+			// Get rid of existing duplicate entry
+			if (isset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['visited_urls'][$prefix.$current_url])) {
+				unset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['visited_urls'][$prefix.$current_url]);
+			}
+			if (isset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['visited_assets'][$prefix.$assetid])) {
+				unset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['visited_assets'][$prefix.$assetid]);
+			}
+			$_SESSION[SQ_SESSION_SANDBOX_INDEX]['visited_urls'][$prefix.$current_url] = $current_url;
+			$_SESSION[SQ_SESSION_SANDBOX_INDEX]['visited_assets'][$prefix.$assetid] = $assetid;
+
+			// Stay within the defined "max entires" size
+			if (count($_SESSION[SQ_SESSION_SANDBOX_INDEX]['visited_urls']) > SQ_CONF_VISITED_PAGES_MAX_ENTRIES) {
+				array_shift($_SESSION[SQ_SESSION_SANDBOX_INDEX]['visited_urls']);
+			}
+			if (count($_SESSION[SQ_SESSION_SANDBOX_INDEX]['visited_assets']) > SQ_CONF_VISITED_PAGES_MAX_ENTRIES) {
+				array_shift($_SESSION[SQ_SESSION_SANDBOX_INDEX]['visited_assets']);
+			}
+		}
+
+		// Print the asset frontend
+		$asset->printFrontend();
+
+	}//end _printAssetFrontend()
 
 
 }//end class
