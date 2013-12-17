@@ -16,5 +16,5 @@
 -->
 
 <strings>
-	<string source="trigger_condition_keyword">If the replacement value of keyword %% %1$s %% is a %2$s with %3$s</string>
+	<string source="trigger_condition_keyword">If the replacement value of keyword %%%1$s%% is a %2$s with %3$s</string>
 </strings>

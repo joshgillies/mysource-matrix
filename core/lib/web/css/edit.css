@@ -143,9 +143,9 @@ pre, pre *{
 	border: 					1px solid #9A94A1;
 }
 
-.status-approved, 
-.status-after-approved:after,  
-.status-before-approved:before {
+.status-approved-to-go-live, 
+.status-after-approved-to-go-live:after,  
+.status-before-approved-to-go-live:before {
 	background-color: 			#F4D425;
 	border: 					1px solid #AD9200;
 }
@@ -157,30 +157,30 @@ pre, pre *{
 	border: 					1px solid #9BA65C;
 }
 
-.status-live-approval, 
-.status-after-live-approval:after,  
-.status-before-live-approval:before {
+.status-up-for-review, 
+.status-after-up-for-review:after,  
+.status-before-up-for-review:before {
 	background-color: 			#50D000;
 	border: 					1px solid #368D00;
 }
 
-.status-editing, 
-.status-after-editing:after,  
-.status-before-editing:before {
+.status-safe-editing, 
+.status-after-safe-editing:after,  
+.status-before-safe-editing:before {
 	background-color: 			#F25C86;
 	border: 					1px solid #AD455C;
 }
 
-.status-editing-approval, 
-.status-after-editing-approval:after,  
-.status-before-editing-approval:before {
+.status-safe-editing-pending-approval, 
+.status-after-safe-editing-pending-approval:after,  
+.status-before-safe-editing-pending-approval:before {
 	background-color: 			#CC7CC7;
 	border: 					1px solid #8F5A8C;
 }
 
-.status-editing-approved, 
-.status-after-editing-approved:after,  
-.status-before-editing-approved:before {
+.status-safe-edit-approved-to-go-live, 
+.status-after-safe-edit-approved-to-go-live:after,  
+.status-before-safe-edit-approved-to-go-live:before {
 	background-color: 			#FF9A00;
 	border: 					1px solid #B66B00;
 }
@@ -267,6 +267,12 @@ p.sq-backend-warning {
 	border:						1px solid #ccc;
 	border-radius: 				4px;
 	margin-bottom: 				10px;
+}
+
+.sq-break-margin {
+	display: 					block;
+	height:						5px;
+	clear: 						both;
 }
 
 /*
@@ -443,6 +449,12 @@ label {
 
 .sq-option-list img {
 	vertical-align: inherit;
+}
+
+/* Radio button list */
+
+.sq-radio-list {
+	list-style: none;
 }
 
 /* Multiple form fields/text/labels in a line */
@@ -1034,7 +1046,8 @@ table.sq-backend-table {
   	padding-bottom: 			20px;
 }
 
-.sq-backend-section-note {
+.sq-backend-section-note,
+.sq-backend-field-note {
 	background: 				#f0f0f0;
 	padding: 					10px;
 	border-radius: 				4px;
@@ -1043,7 +1056,8 @@ table.sq-backend-table {
 	line-height: 				15px;
 }
 
-.sq-backend-section-note *{
+.sq-backend-section-note *,
+.sq-backend-field-note *{
 	font-size: 					11px;
 }
 
@@ -1478,6 +1492,10 @@ EDIT BODYCOPY STYLES
 .sq-edit-bodycopy-insert-container-table {
 	border: 					none;
 	margin:						30px 0 10px;
+}
+
+.sq-edit-bodycopy-table tr:first-child .sq-edit-bodycopy-insert-container-table {
+	margin-top:					10px;
 }
 
 .sq-edit-bodycopy-insert-container-table td,
@@ -2324,8 +2342,15 @@ MISCELLANEOUS STYLES
 	margin:						0 6px;
 }
 
-.sq-multipl-asset-finder-wrapper input[type="button"] {
+.sq-multiple-asset-finder-wrapper input[type="button"] {
 	margin-bottom: 				3px;
+}
+
+/* ROOT NODE SELECTION LIST */
+
+.sq-root-node-selections-wrapper {
+	margin: 					5px 0 0 10px;
+	list-style: 				none;
 }
 
 /* PAGINATION ON TABLES */
@@ -2336,6 +2361,15 @@ MISCELLANEOUS STYLES
 	background-color: 			#eee;
 	font-weight: 				normal;
 }
+
+.sq-pagination-links > span {
+	color: 						#84848F;
+}
+
+.sq-pagination-links > a {
+	
+}
+
 
 /* EMAIL OPTIONS CONFIGURATION SCREEN */
 
@@ -2417,6 +2451,72 @@ table.sq-log-monitor-table td{
 .sq-log-monitor-table .sq-error-type-raw td:first-child {
 	background: 				#F2F7FD;
 	text-align: 				right;
+}
+
+/* USER INBOX AND MESSAGING SCREENS */
+
+#sq_message_body, #inbox_container {
+	height:						250px;
+	border:						1px solid #ccc;
+	border-radius: 				4px;
+	white-space:				pre;
+	overflow:					auto;
+	margin:						0 0 20px 0;
+	/*font-family:	"Lucida Grande", "Lucida Console", "Courier New", monospace;*/
+}
+
+#sq_message_body {
+	padding:					10px;
+	margin:						0 0 0 0;
+}
+
+#inbox_container {
+	white-space:				normal;
+}
+
+#inbox_container > table {
+	border: 					none;
+	margin-bottom: 				0px;
+}
+
+#selected_row td {
+	background:					#E2E2E2;
+}
+
+.read {
+	background:		url(../images/icons/internal_message/message_read.png);
+	height:			16px;
+	width:			16px;
+}
+.unread {
+	background:		url(../images/icons/internal_message/message_unread.png);
+	height:			16px;
+	width:			16px;
+}
+.trash {
+	background:		url(../images/icons/internal_message/trash.png);
+	height:			16px;
+	width:			16px;
+}
+.prior1, .prior2, .prior3, .prior4, .prior5 {
+	height:			16px;
+	width:			16px;
+	float:			left;
+}
+.prior1 {
+	background:		url(../images/icons/internal_message/priority_1.png);
+}
+.prior2 {
+	background:		url(../images/icons/internal_message/priority_2.png);
+}
+.prior3 {
+	background:		url(../images/icons/internal_message/priority_3.png);
+}
+.prior4 {
+	background:		url(../images/icons/internal_message/priority_4.png);
+}
+.prior5 {
+	background:		url(../images/icons/internal_message/priority_5.png);
 }
 
 

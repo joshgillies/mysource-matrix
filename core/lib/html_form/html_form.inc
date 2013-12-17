@@ -882,7 +882,7 @@ function multiple_asset_finder($name, $assetids=Array(), $type_codes=Array(), $m
 {
 	?><script type="text/javascript" src="<?php echo sq_web_path('lib')?>/html_form/html_form.js"></script><?php
 
-	echo '<div class="sq-multipl-asset-finder-wrapper">';
+	echo '<div class="sq-multiple-asset-finder-wrapper">';
 	foreach (array_values($assetids) as $index => $assetid) {
 		asset_finder($name.'['.$index.']', $assetid, $type_codes, $map_frame, $new_window, $done_fn);
 		echo '<br />';

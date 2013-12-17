@@ -105,16 +105,20 @@ class Trigger_Condition_URL_Matches extends Trigger_Condition
 		ob_start();
 			if ($write_access) {
 				text_box($prefix.'[pattern]', $pattern, '100', '', FALSE, $form_element_extras);
-				echo '<br>';
-
-				radio_button($prefix.'[match]', '1', $match, NULL,  $form_element_extras);
-				echo ' Must be in URL<br>';
-				radio_button($prefix.'[match]', '0', !$match, NULL, $form_element_extras);
-				echo ' Must not be in URL<br>';
-				echo 'Note: this condition only checks the query string ($_SERVER["REQUEST_URI"]) part of the URL';
+				echo '<ul class="sq-radio-list">';
+					echo '<li>';
+						radio_button($prefix.'[match]', '1', $match, NULL,  $form_element_extras);
+						label('Must be in URL', $prefix.'[match]_1');
+					echo '</li>';
+					echo '<li>';
+						radio_button($prefix.'[match]', '0', !$match, NULL, $form_element_extras);
+						label('Must not be in URL', $prefix.'[match]_0');
+					echo '</li>';
+				echo '</ul>';
+				echo '<strong>Note:</strong> this condition only checks the query string ($_SERVER["REQUEST_URI"]) part of the URL.';
 			} else {
 				$match_str = ($match) ? 'must be in URL' : 'must not be in URL';
-				echo "\"$pattern\" $match_str .";
+				echo "<strong>\"$pattern\"</strong> <strong>$match_str</strong>.";
 			}
 			$basic_part_1 = ob_get_contents();
 		ob_end_clean();

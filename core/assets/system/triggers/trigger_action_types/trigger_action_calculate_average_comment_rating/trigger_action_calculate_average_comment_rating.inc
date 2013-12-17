@@ -204,6 +204,7 @@ class Trigger_Action_Calculate_Average_Comment_Rating extends Trigger_Action
 				}
 			}
 			echo '<br />';
+			echo '<br />';
 
 			// The total comments field store
 			echo translate('trigger_total_comment_rating_metadata_field');

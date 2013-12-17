@@ -172,7 +172,7 @@ class Trigger_Condition_Attribute_Value extends Trigger_Condition_Asset_Type
 		ob_start();
 			$value = array_get_index($settings, 'text_value', '');
 			if ($write_access) {
-				echo '<br />';
+				echo '<br /><br />';
 				text_area($prefix.'[value]', $value, 80, 5);
 			} else {
 				echo '<b>'.$value.'</b>';
