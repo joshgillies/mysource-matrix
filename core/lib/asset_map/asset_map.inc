@@ -424,7 +424,20 @@ class Asset_Map
 			}//end if
 
 			// Check for at least simple edit access
-			if (is_null($user) || $user instanceof Public_User || (method_exists($user, 'canAccessBackend') && !($user instanceof Simple_Edit_User || $user->canAccessBackend() || (method_exists($user, 'isShadowSimpleEditUser') && $user->isShadowSimpleEditUser())))) {
+			$canAccessEdit  = FALSE;
+			$canAccessAdmin = FALSE;
+			if ((is_null($user) === FALSE) && ($user instanceof Public_User === FALSE)) {
+			    if ($user instanceof Simple_Edit_User) {
+			        $canAccessEdit = TRUE;
+			    } else if ((method_exists($user, 'isShadowSimpleEditUser') === TRUE) && ($user->isShadowSimpleEditUser() === TRUE)) {
+			        $canAccessEdit = TRUE;
+			    } else if ((method_exists($user, 'canAccessBackend') === TRUE) && ($user->canAccessBackend() === TRUE)) {
+			        $canAccessAdmin = TRUE;
+			        $canAccessEdit  = TRUE;
+			    }
+			}
+			
+			if ($canAccessEdit === FALSE) {
 			?>
 				<b>You need Simple Edit access or higher to view the Asset Map</b>
 			<?php
@@ -515,7 +528,7 @@ class Asset_Map
 					// Set the root edit URL, which needs to point to the correct
 					// (admin or simple edit) suffix.
 					$rootEditUrl = sq_web_path('root_url').'/'.SQ_CONF_BACKEND_SUFFIX;
-					if (strtolower($type) === 'simple') {
+					if ($canAccessAdmin === FALSE) {
 					    $rootEditUrl = sq_web_path('root_url').'/'.SQ_CONF_LIMBO_SUFFIX;
 					}
 				?>
