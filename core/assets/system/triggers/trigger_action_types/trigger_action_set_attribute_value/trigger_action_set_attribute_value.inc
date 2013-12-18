@@ -89,6 +89,7 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 			if (is_null($attr)) return FALSE;
 
 			switch (get_class($attr)) {
+				case 'Asset_Attribute_HTTP_Request' :
 				case 'Asset_Attribute_Serialise' :
 				case 'Asset_Attribute_Parameter_Map' :
 				case 'Asset_Attribute_Email_Format' :
