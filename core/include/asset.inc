@@ -1233,7 +1233,7 @@ class Asset extends MySource_Object
 
 			// update all the vars
 			foreach ($old_version->vars as $var_name => $var_data) {
-				if (!$contexted_asset->setAttrValue($var_name, $var_data['value'], TRUE)) {
+				if (!$contexted_asset->setAttrValue($var_name, $var_data['value'])) {
 					trigger_localised_error('SYS0165', E_USER_WARNING, $this->name, $var_name);
 					$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = FALSE;
 					return FALSE;
