@@ -2021,6 +2021,8 @@ function get_asset_lineage_sort_order($asset_lineage=Array())
 function get_available_global_keywords()
 {
 	$ret = Array(
+					'globals_get'		=> 'Global Keywords - Get parameters in JSON format',
+					'globals_post'		=> 'Global Keywords - Post parameters in JSON format',
 					'globals_user_'		=> 'Global Keywords - Current User',
 					'globals_get_'		=> 'Global Keywords - Get Parameters',
 					'globals_post_'		=> 'Global Keywords - Post Parameters',
@@ -2068,7 +2070,11 @@ function replace_global_keywords(&$text)
 				if (0 === strpos($keyword, 'globals_')) {
 					// Default replacement for global keywords is blank string
 					$replacements[$full_keyword] = '';
-					if (0 === strpos($keyword, 'globals_user_')) {
+					if ($keyword == 'globals_post') {
+						$replacements[$full_keyword] = clean_keyword_value($_POST);
+					} else if ($keyword == 'globals_get') {
+						$replacements[$full_keyword] = clean_keyword_value($_GET);
+					} else if (0 === strpos($keyword, 'globals_user_')) {
 						$user_keyword = 'asset_'.substr($keyword, 13);
 						$user_replacement = $GLOBALS['SQ_SYSTEM']->user->getKeywordReplacement($user_keyword);
 						if ((string)$user_replacement != "%$user_keyword%") {
@@ -2356,7 +2362,6 @@ function replace_global_keywords(&$text)
 					}//end if
 
 					apply_keyword_modifiers($replacements[$full_keyword], $modifiers, Array(), $keyword);
-
 				}//end if is global keyword
 
 
@@ -2442,16 +2447,36 @@ function extract_context_modifier(&$modifiers, $return_part='id')
 */
 function clean_keyword_value($keyword_value, $allow_quotes=FALSE)
 {
-	if (!is_scalar($keyword_value)) {
+	if (is_array($keyword_value)) {
 		// Only scalars are accepted
-		$keyword_value = '';
-	} else {
+		array_walk_recursive($keyword_value, 'escapeHtmlSpecialChars', $allow_quotes); 
+	} else if (is_scalar($keyword_value)) {
 		$keyword_value = htmlspecialchars($keyword_value, $allow_quotes ? ENT_NOQUOTES : ENT_QUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
+	} else {
+		$keyword_value = '';
 	}
 
 	return $keyword_value;
 
 }//end clean_keyword_value()
+
+
+/**
+* Escapes the HTML special chars
+* Callback function for array_walk_recursive() in clean_keyword_value()
+*
+* @param string  $value
+* @param boolean $key
+* @param boolean $allow_quotes
+*
+* @return string
+* @access public
+*/
+function escapeHtmlSpecialChars(&$value, $key, $allow_quotes)
+{
+	$value = htmlspecialchars($value, $allow_quotes ? ENT_NOQUOTES : ENT_QUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
+
+}//end _escapeHtmlSpecialChars()
 
 
 /**

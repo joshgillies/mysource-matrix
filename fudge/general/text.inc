@@ -80,7 +80,7 @@ function _replace_keywords_recursive(&$text, &$replacements)
 		return $text;
 	}
 	foreach ($replacements as $keyword => $replacement) {
-		if ($keyword == '') continue;
+		if ($keyword == '' || is_array($replacement)) continue;
 		$text = str_replace("%$keyword%", $replacement, $text);
 	}
 	return $text;
@@ -144,6 +144,11 @@ function apply_keyword_modifiers(&$text, $modifiers, $replace_keywords=Array(), 
 		$text = apply_keyword_modifier($text, $m, $replace_keywords, $actual_keyword);
 	}
 
+	// If there are no modifiers to apply, for array data we will still need to apply "default" modifier
+	if (is_array($text) && empty($modifiers)) {
+		$text = apply_keyword_modifier($text, Array('modifier' => '','args' => Array()), $replace_keywords, $actual_keyword);
+	}
+
 }//end apply_keyword_modifiers()
 
 
@@ -171,9 +176,31 @@ function apply_keyword_modifiers(&$text, $modifiers, $replace_keywords=Array(), 
  */
 function apply_keyword_modifier($text, $modifier, $replace_keywords=Array(), $actual_keyword='')
 {
-	if (!empty($actual_keyword) && (trim($text, '%') == trim($actual_keyword, '%'))) {
+	if (is_scalar($text) && !empty($actual_keyword) && (trim($text, '%') == trim($actual_keyword, '%'))) {
 		return $text;
 	}
+
+	// These modifiers are applicable to arrays only
+	if (is_array($text)) {
+		switch ($modifier['modifier']) {
+
+		case "as_xml":
+			$root_element = empty($actual_keyword) ? 'as_xml' : $actual_keyword;
+			return trim(array_to_xml(Array($root_element => $text)));
+
+		case "as_csv":
+			return array_to_csv($text);
+
+		case "as_url_string":
+			return http_build_query($text);
+
+		// Array value without any modifiers will be returned as a JSON string by default
+		case "as_json":
+		default:
+			return json_format($text);
+		}
+
+	}//end if is_array()
 
 	switch ($modifier['modifier']) {
 
@@ -694,44 +721,8 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array(), $ac
 		return $new_text;
 
 	case "json_encode":
-		if (!function_exists('json_encode'))  {
-			require_once 'Services/JSON.php';
-			$json = new Services_JSON();
-			$output = $json->encodeUnsafe($text);
-			if (Services_JSON::isError($output)) {
-				trigger_error($output, E_USER_NOTICE);
-			}
-		} else {
-			$output = json_encode($text);
-			if (function_exists('json_last_error') && (json_last_error() != JSON_ERROR_NONE)) {
-				switch (json_last_error()) {
-					case JSON_ERROR_DEPTH:
-						$error = 'Maximum stack depth exceeded';
-						break;
-					case JSON_ERROR_STATE_MISMATCH:
-						$error = 'Underflow or the modes mismatch';
-						break;
-					case JSON_ERROR_CTRL_CHAR:
-						$error = 'Unexpected control character found';
-						break;
-					case JSON_ERROR_SYNTAX:
-						$error = 'Syntax error, malformed JSON';
-						break;
-					case JSON_ERROR_UTF8:
-						$error = 'Malformed UTF-8 characters, possibly incorrectly encoded';
-						break;
-					default:
-						$error = 'Unknown error';
-						break;
-				}
-				trigger_error($error, E_USER_NOTICE);
-			}
-		}
+		return json_format($text);
 
-		// our encodeing has added extra double quotes at the start
-		// and end of our string. Remove them before returning text
-		return substr($output, 1, count($output) - 2);
-		
 	case "css_safe":
 		$prefix = array_get_index($modifier['args'], 0, NULL);
 		$separator = array_get_index($modifier['args'], 1, NULL);
@@ -762,6 +753,7 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array(), $ac
 		);
 
 		return preg_replace( $find , $replace , $text );
+	
 	default:
 		return $text;
 
@@ -1074,6 +1066,174 @@ function escape_double_quotes(&$subject)
 	$subject = str_replace('"', '\"', $subject);
 
 }//end escape_double_quotes()
+
+
+/**
+* Returns the json encoded string
+*
+* @param string|array	$data
+*
+* @return string
+* @access public
+*/
+function json_format($data)
+{
+	if (!function_exists('json_encode'))  {
+		require_once 'Services/JSON.php';
+		$json = new Services_JSON();
+		$output = $json->encodeUnsafe($data);
+		if (Services_JSON::isError($output)) {
+			trigger_error($output, E_USER_NOTICE);
+		}
+	} else {
+		$output = json_encode($data);
+		if (function_exists('json_last_error') && (json_last_error() != JSON_ERROR_NONE)) {
+			switch (json_last_error()) {
+				case JSON_ERROR_DEPTH:
+					$error = 'Maximum stack depth exceeded';
+					break;
+				case JSON_ERROR_STATE_MISMATCH:
+					$error = 'Underflow or the modes mismatch';
+					break;
+				case JSON_ERROR_CTRL_CHAR:
+					$error = 'Unexpected control character found';
+					break;
+				case JSON_ERROR_SYNTAX:
+					$error = 'Syntax error, malformed JSON';
+					break;
+				case JSON_ERROR_UTF8:
+					$error = 'Malformed UTF-8 characters, possibly incorrectly encoded';
+					break;
+				default:
+					$error = 'Unknown error';
+					break;
+			}
+			trigger_error($error, E_USER_NOTICE);
+		}
+	}
+
+	// our encodeing has added extra double quotes at the start
+	// and end of our string. Remove them before returning text
+	return preg_replace('|^"?(.*?)"?$|ms', '$1', $output);
+
+}//end json_format()
+
+
+/**
+* Converts an array structure of any depth into an xml string
+*
+* @parm array|string $str
+*
+* @return string
+* @access public
+*/
+function array_to_xml($str)
+{
+	if (!is_array($str)) {
+		return '<![CDATA['.$str.']]>';
+	}
+
+	$xml = '';
+	foreach($str as $key => $value) {
+		if (is_int($key)) {
+			$xml .= array_to_xml($value);
+		} else {
+		// apply xml element naming rules
+			$key = preg_replace('/\s+/', '', $key);
+			if (empty($key)) continue;
+			$xml .= "\n\t".'<'.$key.'>'.array_to_xml($value).'</'.preg_replace('|\s.*$|', '', $key).'>';
+        }
+	}//end foreach
+
+	return $xml;
+
+}//end array_to_xml()
+
+
+/**
+* Converts the array data to a CSV string
+*
+* Array data above the 2 level deep or more will be return simply as string "*array*"
+* Example 1:
+* 	Array(
+*		'name' => Array('max', 'min'),
+*		'address' => Array('au', Array('city' => 'syd', country => 'au'),)
+*	)
+* will be returned as:
+* 	name,address
+* 	max,au
+* 	min,*array*
+*
+* Example 2:
+*	Array(
+*		'name' => 'max',
+*		'address' => Array('city' => 'syd', country => 'au')
+*	)
+* will be returned as
+*	name,address
+*	max,*array*
+*
+* @param array $array
+* @access public
+*/
+function array_to_csv($array)
+{
+	if (!is_array($array)) {
+		return '';
+	}
+	$data = Array();
+
+	// First line is the CSV header
+	$data[0] = '"'.implode('","', array_keys($array)).'",';
+	$values = array_values($array);
+
+	// Maximum number of items in a single data row
+	$max_column_count = 0;
+
+	// If atleast one value is scalar, then whole array values will be handled as scalar
+	$scalar_values = FALSE;
+	foreach($values as $index => $value) {
+		if (is_scalar($value)) {
+			$scalar_values = TRUE;
+		}
+		if (count($value) > $max_column_count) {
+			$max_column_count = count($value);
+		}
+	}
+	if (!$max_column_count) {
+		return '';
+	}
+
+	foreach($values as $index => $value) {
+		$count = 1;
+		if (!$scalar_values) {
+			for($i = 0; $i < $max_column_count; $i++) {
+				if (!isset($data[$count])) {
+					$data[$count] = '';
+				}
+				if (isset($value[$i])) {
+					$data[$count] .= '"'.(is_scalar($value[$i]) ? str_replace('"', '""', $value[$i]) : '*array*').'",';
+				} else {
+					$data[$count] .= ',';
+				}
+				$count++;
+			}//end for
+		} else {
+			if (!isset($data[$count])) {
+				$data[$count] = '';
+			}
+			$data[$count] .= '"'.(is_scalar($value) ? str_replace('"', '""', $value) : '*array*').'",';
+		}
+	}//end foreach
+
+	// Strip out a single appending ','
+	foreach($data as $key => $val) {
+		$data[$key] = substr($val, 0, -1);
+	}
+
+	return implode("\r\n", $data);
+
+}//end array_to_csv()
 
 
 /**
