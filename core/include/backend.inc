@@ -121,6 +121,13 @@ class Backend extends MySource_Object
 			}
 		}
 
+		if (array_get_index($_REQUEST, 'SQ_BACKEND_PAGE') == 'asset_map_request') {
+			require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
+			$asset_map = new Asset_Map();
+			$asset_map->process($this);
+			return;
+		}
+
 		if (isset($_REQUEST['a'])) {
 		    			$frontend_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($_REQUEST['a']);
 			if (is_null($frontend_asset)) {
@@ -147,13 +154,6 @@ class Backend extends MySource_Object
 				$_REQUEST['SQ_BACKEND_PAGE'] = 'main';
 				// note: SQ_BACKEND_PAGE can be frames, if the user enter the query string manually
 			}
-		}
-
-		if (array_get_index($_REQUEST, 'SQ_BACKEND_PAGE') == 'asset_map_request') {
-			require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
-			$asset_map = new Asset_Map();
-			$asset_map->process($this);
-			return;
 		}
 		
 		if (SQ_DESIGN_NO_FRAME && SQ_IN_LIMBO) {
