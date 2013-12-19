@@ -1164,7 +1164,9 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 					case 'must-revalidate':
 					case 'no-store':
 					case 'private':
-						$response['expiry'] = 0;
+						// if just no-cache="set-cookie", no need to no cache for all
+						if(!isset($cache_ext[1]))
+						    $response['expiry'] = 0;
 						break;
 					case 's-maxage':
 						// s-maxage overrides max-age
