@@ -226,7 +226,12 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 			// Default is not checked, so process our hierarchy attribute
 			$hierarchy = $asset->getHierarchyAttribute();
 
-			$value = (isset($_REQUEST[$prefix])) ? $_REQUEST[$prefix] : '';
+			if (isset($_REQUEST[$prefix])) {
+				$value = $_REQUEST[$prefix];
+			} else {
+				return $processed;
+			}
+
 			if (is_array($value)) $value = implode('; ', $value);
 			$value = Metadata_Field::encodeValueString(trim($value), Array());
 			$hoptions = $hierarchy->_params['options'];

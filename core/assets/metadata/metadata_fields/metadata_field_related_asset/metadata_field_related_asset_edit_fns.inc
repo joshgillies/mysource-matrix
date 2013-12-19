@@ -153,7 +153,12 @@ class Metadata_Field_Related_Asset_Edit_Fns extends Metadata_Field_Edit_Fns
 			$new_value_str = NULL;
 			$processed = TRUE;
 		} else {
-			$value = trim(array_get_index($_POST, 'sq_asset_finder_'.$prefix.'_value_assetid', ''));
+			if (isset($_POST['sq_asset_finder_'.$prefix.'_value_assetid'])) {
+				$value = $_POST['sq_asset_finder_'.$prefix.'_value_assetid'];
+			} else {
+				return $processed;
+			}
+
 			if ($value && !$GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($value))) {
 				trigger_localised_error('SYS0087', E_USER_WARNING, $value);
 				return FALSE;
