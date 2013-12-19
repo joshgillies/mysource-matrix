@@ -365,9 +365,7 @@ class Image_Variety extends Asset
 
 				// file not in repository
 				if ($up_to_date & FUDGE_FV_NOT_CHECKED_OUT) {
-					if (!$fv->add($this->data_path_suffix, $d_new_file, '')) {
-						return FALSE;
-					}
+					$fv->add($this->data_path_suffix, $d_new_file, '');
 
 					if (!$fv->checkOut($this->data_path_suffix.'/'.$d_new_filename, $this->data_path)) {
 						trigger_localised_error('COR0103', E_USER_WARNING);
@@ -454,6 +452,8 @@ class Image_Variety extends Asset
 	*/
 	function checkFileState($public)
 	{
+		if ($this->status & SQ_SC_STATUS_SAFE_EDITING) return TRUE; //don't touch public file in safe edit
+		
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 		$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
@@ -604,10 +604,19 @@ class Image_Variety extends Asset
 		}
 
 		$filename = $this->attr('filename');
+		// we have to make sure in safe edit mode, we use public version of $filename
+		if($safe_edit) {
+		    $public_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('public_user');
+		    $GLOBALS['SQ_SYSTEM']->setCurrentUser($public_user);
+		    $variety = $image->getAsset($this->id);
+		    $filename = $variety->attr('filename');
+		    $GLOBALS['SQ_SYSTEM']->restoreCurrentUser();	    
+		}
+
 		
-		
+		// if the public version of the file doesn't even exist in __data, it means this variety is just created, don't bother insert __data urls for it	
 		// if there is no filename there is nothing more for us to do
-		if (!$filename) {
+		if (!$filename || ($safe_edit && !is_file($this->data_path_public.'/'.$filename))) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return TRUE;
@@ -691,10 +700,13 @@ class Image_Variety extends Asset
 		//Bug #5072: Trashed file assets still accessible via public data URL
 		//We only reached here because we are supposed to have a public web path but
 		//if we e.g. have moved to the trash or under a site with no URL, we should remove the public file.
-		if (empty($save_urls)){
-			$this->_removePublicFile();
-		} else {
-			$this->_updatePublicFile();
+		// also, don't update public files in safe edit
+		if(!$safe_edit) {
+		    if (empty($save_urls)){
+			    $this->_removePublicFile();
+		    } else {
+			    $this->_updatePublicFile();
+		    }
 		}
 
 		return TRUE;
