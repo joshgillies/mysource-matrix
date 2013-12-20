@@ -184,12 +184,22 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array(), $ac
 	if (is_array($text)) {
 		switch ($modifier['modifier']) {
 
+		case "count":
+			return count($text);
+
+		case "index":
+			$index = array_get_index($modifier['args'], 0, 0);
+			return array_get_index($text, $index, '');
+
 		case "as_xml":
 			$root_element = empty($actual_keyword) ? 'as_xml' : $actual_keyword;
 			return trim(array_to_xml(Array($root_element => $text)));
 
 		case "as_csv":
 			return array_to_csv($text);
+
+		case "as_csv_noheader":
+			return array_to_csv($text, FALSE);
 
 		case "as_url_string":
 			return http_build_query($text);
@@ -1174,9 +1184,12 @@ function array_to_xml($str)
 *	max,*array*
 *
 * @param array $array
+* @param boolean $include_header
+*
+* @return string
 * @access public
 */
-function array_to_csv($array)
+function array_to_csv($array, $include_header=TRUE)
 {
 	if (!is_array($array)) {
 		return '';
@@ -1184,7 +1197,10 @@ function array_to_csv($array)
 	$data = Array();
 
 	// First line is the CSV header
-	$data[0] = '"'.implode('","', array_keys($array)).'",';
+	$data = Array();
+	if ($include_header) {
+		$data[] = '"'.implode('","', array_keys($array)).'",';
+	}
 	$values = array_values($array);
 
 	// Maximum number of items in a single data row

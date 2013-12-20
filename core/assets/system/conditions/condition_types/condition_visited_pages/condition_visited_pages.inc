@@ -56,8 +56,8 @@ class Condition_Visited_Pages extends Condition
 	public static function evaluate(Asset $asset, Array $condition_data)
 	{
 		// Get the previously visited urls from the asset
-		$visted_urls = isset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['visited_urls']) ? $_SESSION[SQ_SESSION_SANDBOX_INDEX]['visited_urls'] : Array();
-		$visted_assetids = isset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['visited_assets']) ? $_SESSION[SQ_SESSION_SANDBOX_INDEX]['visited_assets'] : Array();
+		$visted_urls = isset($_SESSION['visited_urls']) ? $_SESSION['visited_urls'] : Array();
+		$visted_assetids = isset($_SESSION['visited_assets']) ? $_SESSION['visited_assets'] : Array();
 
 		// Compare assetids first
 		$assetids = isset($condition_data['assetids']) ? $condition_data['assetids'] : Array();

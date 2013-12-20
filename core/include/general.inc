@@ -2360,6 +2360,14 @@ function replace_global_keywords(&$text)
 						}
 						$replacements[$full_keyword] = $context_name;
 					}//end if
+					
+					if (0 === strpos($keyword, 'globals_visited_urls')) {
+						$replacements[$full_keyword] = isset($_SESSION['visited_urls']) ? array_reverse(array_values($_SESSION['visited_urls'])) : '';
+					}//end if
+					
+					if (0 === strpos($keyword, 'globals_visited_assets')) {
+						$replacements[$full_keyword] = isset($_SESSION['visited_assets']) ? array_reverse(array_values($_SESSION['visited_assets'])) : '';
+					}//end if
 
 					apply_keyword_modifiers($replacements[$full_keyword], $modifiers, Array(), $keyword);
 				}//end if is global keyword
