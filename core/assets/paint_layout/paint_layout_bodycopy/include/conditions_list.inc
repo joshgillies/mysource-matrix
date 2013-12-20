@@ -418,6 +418,7 @@ class Conditions_List
 				$options = Array('' => '- '.translate('select_condition_type').' -');
 
 				$conditions_type_code = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('condition', FALSE);
+				sort($conditions_type_code);
 				foreach ($conditions_type_code as $type_code) {
 					$options[$type_code] = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'name');
 				}
