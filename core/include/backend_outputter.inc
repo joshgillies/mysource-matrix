@@ -1022,7 +1022,7 @@ class Backend_Outputter
 					// clear out any menus from the (JS) asset map.
 					if ($backendPage !== 'sidenav') {
 					?>
-						window.onclick = function(event) {
+						document.onclick = function(event) {
 							event = event || window.event;
 							var sidenavFrame = top.frames.sq_sidenav;
 							if (sidenavFrame.JS_Asset_Map) {
