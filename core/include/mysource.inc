@@ -4558,6 +4558,12 @@ class MySource extends MySource_Object
 	*/
 	private function _printAssetFrontend($asset)
 	{
+		// Register the very first 'entry page' assetid
+		if (!isset($_SESSION['entry_asset']) && !isset($_REQUEST['just_logged_out'])) {
+			$_SESSION['entry_asset'] = $asset->id;
+			$_SESSION['entry_url'] = rtrim(current_url(), '/');
+		}
+
 		// Print the asset frontend
 		$asset->printFrontend();
 
