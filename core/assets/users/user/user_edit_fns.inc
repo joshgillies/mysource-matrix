@@ -118,7 +118,7 @@ class User_Edit_Fns extends Asset_Edit_Fns
 
 		if ($admin_access) {
 			$conditions = Array('' => '-- Select Type --') + $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('condition'), 'name');
-			sort($conditions);
+			asort($conditions);
 		}
 
 		// get a list of user restrictions
