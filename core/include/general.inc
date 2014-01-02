@@ -1790,7 +1790,7 @@ function get_asset_tag_line_binoculars($assetid, $popupTitle=NULL)
 			}
 
 			$lineage_names[$assetid] = $asset_info['name'];
-			$lineages_onclick = _asset_locator_onclick($lineage_assetids, TRUE);
+			$lineages_onclick = asset_locator_onclick($lineage_assetids, TRUE);
 			?><tr>
 			<td class="sq-backend-table-cell" ><a href="#" onclick="<?php echo $lineages_onclick; ?>"><?php echo implode(' &gt; ', $lineage_names) ?></a></td>
 			</tr><?php
@@ -1820,7 +1820,7 @@ function get_asset_tag_line_binoculars($assetid, $popupTitle=NULL)
 		}
 		$lineage_names[$assetid] = $asset_info['name'];
 
-		$lineages_onclick = _asset_locator_onclick($lineage_assetids, FALSE);
+		$lineages_onclick = asset_locator_onclick($lineage_assetids, FALSE);
 		$lineages_name = translate('show_in_asset_map');
 	}
 
@@ -1842,7 +1842,7 @@ function get_asset_tag_line_binoculars($assetid, $popupTitle=NULL)
 * @return string
 * @access public
 */
-function _asset_locator_onclick($lineage_assetids, $tooltip_hide)
+function asset_locator_onclick($lineage_assetids, $tooltip_hide)
 {
 	// Logic:
 	// 1. Invoking from a WYSIWYG popup itself (WYSIWYG search results)
@@ -1884,7 +1884,7 @@ function _asset_locator_onclick($lineage_assetids, $tooltip_hide)
 	$onclick .= 'return false;';
 	return $onclick;
 
-}//end _asset_locator_onclick()
+}//end asset_locator_onclick()
 
 
 /**
@@ -1924,35 +1924,6 @@ function get_asset_status_icon($status)
 
 }//end get_asset_status_icon()
 
-
-/**
-* Returns a javascript function call that could be used in onClick events.
-* This function will select and display assets that are in the passed asset lineage
-* in the asset map
-*
-* If $map_frame is an empty string, then the asset_finder will look for the asset
-* map in the frame where it was loaded
-*
-* @param array		$asset_lineage	Asset IDs in an asset lineage. Indexed from root to leaf
-* @param string		$map_frame		a reference to the map_frame so we can get the asset map
-* @param boolean	$new_window		is the asset finder in a different window than the asset map
-*
-* @return string
-* @access public
-*/
-function asset_locator_js($asset_lineage=Array(),$map_frame='sq_sidenav', $new_window=FALSE)
-{
-	$finder_frame = ($new_window || empty($map_frame)) ? 'parent.top' : 'parent.frames["sq_main"]';
-	if (!empty($map_frame)) {
-		$map_frame = trim('parent.top.frames[\''.$map_frame.'\']', '.');
-	} else {
-		$map_frame = 'top';
-	}
-
-	$js_code = $map_frame.'.asset_locator_start(\''.get_asset_lineage_sort_order($asset_lineage).'\');';
-	return $js_code;
-
-}//end asset_locator_js()
 
 
 /**
