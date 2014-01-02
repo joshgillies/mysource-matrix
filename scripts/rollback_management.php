@@ -241,72 +241,85 @@ $GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 $db = MatrixDAL::getDb();
 
-if ($PURGE_FV_DATE) {
-	$affected_rows = purge_file_versioning($PURGE_FV_DATE);
-	if (!$QUIET) {
-		echo $affected_rows.' FILE VERSIONING FILES AND ENTRIES DELETED'."\n";
-	}
-} else {
+try {
+	
+	if ($PURGE_FV_DATE) {
+		$affected_rows = purge_file_versioning($PURGE_FV_DATE);
+		if (!$QUIET) {
+			echo $affected_rows.' FILE VERSIONING FILES AND ENTRIES DELETED'."\n";
+		}
+	} else {
 
-	if ($RESET_ROLLBACK) {
-		// truncate toll back tables here then enable rollback
-		foreach ($tables as $table) {
-			truncate_rollback_entries($table);
-			if (!$QUIET) {
-				echo 'Rollback table sq_rb_'.$table." truncated.\n";
+		if ($RESET_ROLLBACK) {
+			// truncate toll back tables here then enable rollback
+			foreach ($tables as $table) {
+				truncate_rollback_entries($table);
+				if (!$QUIET) {
+					echo 'Rollback table sq_rb_'.$table." truncated.\n";
+				}
 			}
+			$ENABLE_ROLLBACK = TRUE;
+			echo "\nEnabling rollback...\n\n";
 		}
-		$ENABLE_ROLLBACK = TRUE;
-		echo "\nEnabling rollback...\n\n";
-	}
-
-	if ($ENABLE_ROLLBACK) {
-		$rollback_check = rollback_found($tables);
-		if ($rollback_check) {
-			echo "Rollback has been enabled before, it doesn't need to be enabled again.\n";
-			exit;
-		}
-	}
-
-	foreach ($tables as $table) {
 
 		if ($ENABLE_ROLLBACK) {
-			$affected_rows = open_rollback_entries($table, $SQ_TABLE_COLUMNS, $ROLLBACK_DATE);
-			if (!$QUIET) {
-				echo $affected_rows.' ENTRIES OPENED IN sq_rb_'.$table."\n";
-			}
-
-			continue;
-		}
-		if ($DISABLE_ROLLBACK) {
-			$affected_rows = close_rollback_entries($table, $ROLLBACK_DATE);
-			if (!$QUIET) {
-				echo $affected_rows.' ENTRIES CLOSED IN sq_rb_'.$table."\n";
-			}
-
-			continue;
-		}
-		if ($ROLLBACK_DATE) {
-			$affected_rows = delete_rollback_entries($table, $ROLLBACK_DATE);
-			if (!$QUIET) {
-				echo $affected_rows.' ENTRIES DELETED IN sq_rb_'.$table."\n";
-			}
-
-			$affected_rows = align_rollback_entries($table, $ROLLBACK_DATE);
-			if (!$QUIET) {
-				echo $affected_rows.' ENTRIES ALIGNED IN sq_rb_'.$table."\n";
-			}
-
-			continue;
-		}//end if
-		if ($DELETE_REDUNDANT_ENTRIES) {
-			$affected_rows = delete_redundant_rollback_entries($table);
-			if (!$QUIET) {
-				echo $affected_rows.' ENTRIES REMOVED IN sq_rb_'.$table."\n";
+			$rollback_check = rollback_found($tables);
+			if ($rollback_check) {
+				echo "Rollback has been enabled before, it doesn't need to be enabled again.\n";
+				exit;
 			}
 		}
-	}//end foreach
-}//end else
+
+		foreach ($tables as $table) {
+
+			if ($ENABLE_ROLLBACK) {
+				$affected_rows = open_rollback_entries($table, $SQ_TABLE_COLUMNS, $ROLLBACK_DATE);
+				if (!$QUIET) {
+					echo $affected_rows.' ENTRIES OPENED IN sq_rb_'.$table."\n";
+				}
+
+				continue;
+			}
+			if ($DISABLE_ROLLBACK) {
+				$affected_rows = close_rollback_entries($table, $ROLLBACK_DATE);
+				if (!$QUIET) {
+					echo $affected_rows.' ENTRIES CLOSED IN sq_rb_'.$table."\n";
+				}
+
+				continue;
+			}
+			if ($ROLLBACK_DATE) {
+				$affected_rows = delete_rollback_entries($table, $ROLLBACK_DATE);
+				if (!$QUIET) {
+					echo $affected_rows.' ENTRIES DELETED IN sq_rb_'.$table."\n";
+				}
+
+				$affected_rows = align_rollback_entries($table, $ROLLBACK_DATE);
+				if (!$QUIET) {
+					echo $affected_rows.' ENTRIES ALIGNED IN sq_rb_'.$table."\n";
+				}
+
+				continue;
+			}//end if
+			if ($DELETE_REDUNDANT_ENTRIES) {
+				$affected_rows = delete_redundant_rollback_entries($table);
+				if (!$QUIET) {
+					echo $affected_rows.' ENTRIES REMOVED IN sq_rb_'.$table."\n";
+				}
+			}
+		}//end foreach
+	}//end else
+
+} catch (Exception $e) {
+
+	echo "\nUnexpected error occured while processing the rollback tables:\n".$e->getMessage().
+		"\nPlease run the script system_integrity_fix_duplicate_rollback_entries.php to check for the duplicate overlapping rollback entries which might be causing this error.\n";
+
+	$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+	$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+	exit(1);
+}
+
 
 $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
