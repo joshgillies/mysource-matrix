@@ -384,6 +384,15 @@ class Ecommerce_Checkout extends Page
 						break;
 					}
 				}
+				
+				// if no delivery method is specified, we just use default one
+				if(empty($delivery_method_id)) {
+				    // get delivery method links
+				    $delivery_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, '', FALSE, 'major', 'delivery_method');
+				    if(isset($delivery_links[0]['minorid'])) {
+					$delivery_method_id = $delivery_links[0]['minorid'];
+				    }
+				}
 
 				if (!empty($delivery_method_id) && !empty($_SESSION['sq_local_cart_contents']['cart_contents'])) {
 
@@ -444,7 +453,7 @@ class Ecommerce_Checkout extends Page
 								}
 							}
 						}//end if
-						
+					
 						// record the item weight source
 						$selector_type = $this->attr('item_weight_selector');
 						switch ($selector_type) {
@@ -561,12 +570,12 @@ class Ecommerce_Checkout extends Page
 				// components should be processed here
 				// delivery processing
 				$delivery_method = $this->_getActiveDeliveryMethod();
+
 				if (empty($delivery_method)) {
 					$this->_tmp['delivery_method_errors'][] = 'Delivery method not found during the confirmation';
 					$this->print_context = 'failure';
 					break;
 				}
-
 				// create an order if there are none pending, or the pending order does not exist
 				if ((!isset($_SESSION['sq_local_cart_contents']['pending_order_id']) || !$GLOBALS['SQ_SYSTEM']->am->assetExists($_SESSION['sq_local_cart_contents']['pending_order_id']))) {
 					// also check if we are editing an existing order
