@@ -2197,7 +2197,6 @@ class MySource extends MySource_Object
 		$event_data = Array('password' => array_get_index($_POST, 'SQ_LOGIN_PASSWORD'));
 		$this->broadcastTriggerEvent('trigger_event_user_login', $user, $event_data);
 
-
 		if (!$_SESSION['user_is_public'] && array_get_index($_SESSION, 'SQ_RETURN_TO_HTTP')) {
 			unset($_SESSION['SQ_RETURN_TO_HTTP']);
 
@@ -4562,6 +4561,11 @@ class MySource extends MySource_Object
 		if (!isset($_SESSION['entry_asset']) && !isset($_REQUEST['just_logged_out'])) {
 			$_SESSION['entry_asset'] = $asset->id;
 			$_SESSION['entry_url'] = rtrim(current_url(), '/');
+		}
+
+		// Register the session's referrer
+		if (!isset($_SESSION['referrer_url']) && !isset($_REQUEST['just_logged_out'])) {
+			$_SESSION['referrer_url'] = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
 		}
 
 		// Print the asset frontend
