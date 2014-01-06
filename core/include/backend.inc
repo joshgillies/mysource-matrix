@@ -581,7 +581,9 @@ class Backend extends MySource_Object
 				$assetid_valid = assert_valid_assetid($search_string, '', TRUE, FALSE);
 				
 				if ($assetid_valid === TRUE) {
-					$results['assetid'] = $GLOBALS['SQ_SYSTEM']->am->getAsset($search_string, '', TRUE);
+					$found_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($search_string, '', TRUE);
+					if(!is_null($found_asset))
+					    $results['assetid'] = $found_asset;
 				}
 			}//end if
 
