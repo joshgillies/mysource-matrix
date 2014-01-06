@@ -2339,6 +2339,14 @@ function replace_global_keywords(&$text)
 					if (0 === strpos($keyword, 'globals_visited_assets')) {
 						$replacements[$full_keyword] = isset($_SESSION['visited_assets']) ? array_reverse(array_values($_SESSION['visited_assets'])) : '';
 					}//end if
+					
+					if (0 === strpos($keyword, 'globals_entry_asset')) {
+						$replacements[$full_keyword] = isset($_SESSION['entry_asset']) ? $_SESSION['entry_asset'] : '';
+					}//end if
+
+					if (0 === strpos($keyword, 'globals_referrer_url')) {
+						$replacements[$full_keyword] = isset($_SESSION['referrer_url']) ? $_SESSION['referrer_url'] : '';
+					}//end if
 
 					apply_keyword_modifiers($replacements[$full_keyword], $modifiers, Array(), $keyword);
 				}//end if is global keyword
