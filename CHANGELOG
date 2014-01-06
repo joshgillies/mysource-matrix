@@ -1,5 +1,57 @@
 SQUIZ MATRIX CHANGELOG
 
+VERSION 4.16.6
+
+Minor Enhancements and Bug Fixes
+=================================== 
+
+Minor Enhancements
+
+Minor Enhancement #6734: Select Drop-Down Field Options Listed Alphabetically.
+
+Core
+
+Fixed Bug #6662: system_integrity_fix_char_encoding.php doesn't fix design parse file.
+Fixed Bug #6683: mysource_files links don't work when @ is in the path.
+Fixed Bug #6715: Embed Movie plugin returns JavaScript error when clicking OK.
+Fixed Bug #6717: Empty line(s) in beginning the design file in the output.
+Fixed Bug #6719: Naming bodycopy div to "I" will break the asset's interface in the backend in IE.
+Fixed Bug #6724: Image variety URL breaks when in safe edit.
+Fixed Bug #6725: SEI save metadata bug.
+Fixed Bug #6727: Indent plugin for WYSYWIG doesn't work for IE.
+Fixed Bug #6731: Reverting asset from Safe Edit status to Live causes HTML special chars in all asset's attributes to be escaped unexpectedly.
+
+CMS
+
+Fixed Bug #6701: listing page sort by metadata, group by metadata selection field using key or value of selection.
+Fixed Bug #6702: Site Map show Icons prints unneeded JavaScript for each icon. 
+
+LDAP
+
+Fixed Bug #6695: User Common Name attribute can hide groups. 
+
+Calendar
+
+Fixed Bug #6699: Calendar Search Page not loading This Month's events for Dec.
+Fixed Bug #6704: Upcoming calendar event doesn't pick up events for "today". 
+
+Import Tools
+
+Fixed Bug #6703: JS REST asset doesn't import from XML correctly. 
+
+E-Commerce
+
+Fixed Bug #6957: Checkout Page will not submit delivery method, without delivery keyword selector. 
+
+Data
+
+Fixed Bug #6694: Record Filter does not filter the value if the field of Record Set is Empty. 
+
+SAML
+
+Fixed Bug #6733: SAML account manager db error with replication servers.
+
+
 VERSION 4.16.5
 
 Bug Fixes
