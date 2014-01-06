@@ -1,5 +1,225 @@
 SQUIZ MATRIX CHANGELOG
 
+VERSION 4.18.2
+
+Featured Changes
+===================================
+
+New Global Keyword to Display the Current URL Protocol [ Feature Request #6664 ]
+-----------------------------------------------------
+
+A new global keyword has been added that will display the protocol of the current URL, either http or https.
+
+%global_protocol%
+
+This global keyword has been added in conjunction with a bug fix, where the WYSIWYG editor's Embed YouTube Video plugin was unable to output the video URL using the https protocol. This resulted in HTTPS sites not displaying this content. This has now been fixed along with the inclusion of this global keyword to display the correct protocol based on the current URL. 
+
+New Trigger Action to Issue Preset Counter Numbers [ Feature Request #6698 ]
+-----------------------------------------------------
+
+A new Issue Counter Values trigger action has been added that will issue unique counter integers to a session variable name, when a trigger is fired. This session variable value can then be used in conjunction with a new Counter Number Issued trigger event to apply the issued integer within Squiz Matrix, for example, as a metadata field or asset attribute value.
+
+The integers issued by this new trigger action can be configured to either increase or decrease by a value of 1, each time the action is fired.
+
+The implementation possibilities for this new trigger action/event combo are varied. One such usage could be assigning member IDs to newly created user accounts via the Issue Counter Values trigger action; Once the counter value is issued, a second trigger (fired by the Counter Number Issued event) could apply the issued integer as a metadata value on the new user account asset. 
+
+Cache Manager: New Accelerator Cache Expiry Options [ Feature Request #6710 ]
+-----------------------------------------------------
+
+Squiz Matrix's Cache Manager allows you to configure the caching settings within your system.
+
+These caching settings include the Browser Cache Expiry field, which defines the length of time (in seconds) that a requested page will be cached within a browser. Once this time has lapsed, the page will expire.
+
+Previously, this cache expiry setting was honoured by both browsers and accelerators (such as Squid). This meant, however, that if the Browser Cache Expiry field was set to, for example, 24 hours, both the browser and Squiz would cache the page for 24 hours each. This meant that a user could potentially see 48 hour old content.
+
+This feature introduces a new Accelerator Cache Expiry field to set the individual expiry time for content in accelerator proxies.
+
+The Accelerator Cache Expiry field can be found on the Details screen of the Cache Manager.
+
+The value entered into this field will define the length of time that content is cached within a proxy accelerator. If this field is left empty, the s-maxage cache header attribute will not be sent and the accelerator's default expiry settings will be used.  
+
+New Trigger Action to Remove a User From a User Group for Current Session [ Feature Request #6722 ]
+-----------------------------------------------------
+
+A new trigger action has been added to allow a user to be temporarily removed from a specified user group for the current login session. The Leave User Group for Session action allows you to select one or more user groups to temporarily remove the current user from, when the trigger is fired and its conditions are met.
+
+This new action works in the opposite manner to the existing Join User Group for Session trigger action, which will dynamically link the current user to a User Group for the remainder of the login session. A new 'Remove user from previously joined session groups' field has also been added to this action to remove a user from any previously joined session groups, before joining new groups through this trigger action.
+
+
+Additional Changes and Bug Fixes
+=================================== 
+
+Minor Enhancements
+
+Minor Enhancement #6524: Enhancements to the system_integrity_orphaned_assets.php Script.
+Minor Enhancement #6581: Use curl_multi in HTTP Requests.
+Minor Enhancement #6585: Rollback Management Script: Recommend Fix Duplicate Rollback Entries if an Error Occurs.
+Minor Enhancement #6636: Performance Enhancement: LDAP User Log In.
+Minor Enhancement #6639: Improved Execution Time of the Update Lookups HIPO Job.
+Minor Enhancement #6640: Allow Keyword Value Trigger Condition to be Used Multiple Times.
+Minor Enhancement #6660: Leaving Rollback Will Now Return Users Back to the Asset Where Rollback was Initiated.
+Minor Enhancement #6665: LDAP Bridge: Option to Recursively Return all Parent Groups of an LDAP User or not.
+Minor Enhancement #6708: asset_summary Keywords in Export to XML.
+Minor Enhancement #6714: SOAP Data Source: Automatic Handling of the XML SOAP Response.
+Minor Enhancement #6728: Asset Manager: Event Broadcast When Sort Order Changed.
+Minor Enhancement #6734: Select Drop-Down Field Options Listed Alphabetically.
+
+Core
+
+Fixed Bug #6662: system_integrity_fix_char_encoding.php doesn't fix design parse file.
+Fixed Bug #6683: mysource_files links don't work when @ is in the path.
+Fixed Bug #6715: Embed Movie plugin returns JavaScript error when clicking OK.
+Fixed Bug #6716: Remove unread messages popup in backend to improve performance.
+Fixed Bug #6717: Empty line(s) in beginning the design file in the output.
+Fixed Bug #6719: Naming bodycopy div to "I" will break the asset's interface in the backend in IE.
+Fixed Bug #6724: Image variety URL breaks when in safe edit.
+Fixed Bug #6725: SEI save metadata bug.
+Fixed Bug #6727: Indent plugin for WYSYWIG doesn't work for IE.
+Fixed Bug #6731: Reverting asset from Safe Edit status to Live causes HTML special chars in all asset's attributes to be escaped unexpectedly.
+Fixed Bug #6737: Binoculars in user linking screen.
+
+CMS
+
+Fixed Bug #6701: listing page sort by metadata, group by metadata selection field using key or value of selection.
+Fixed Bug #6702: Site Map show Icons prints unneeded JavaScript for each icon.
+Fixed Bug #6706: search page when results is grouped, and group name matching search query is forced. 
+
+LDAP
+
+Fixed Bug #6695: User Common Name attribute can hide groups. 
+
+Calendar
+
+Fixed Bug #6699: Calendar Search Page not loading This Month's events for Dec.
+Fixed Bug #6704: Upcoming calendar event doesn't pick up events for "today". 
+
+Import Tools
+
+Fixed Bug #6703: JS REST asset doesn't import from XML correctly. 
+
+E-Commerce
+
+Fixed Bug #6957: Checkout Page will not submit delivery method, without delivery keyword selector. 
+
+Data
+
+Fixed Bug #6694: Record Filter does not filter the value if the field of Record Set is Empty. 
+
+SAML
+
+Fixed Bug #6733: SAML account manager db error with replication servers. 
+
+Modern Asset Map
+
+Fixed Bug #6644: Modern asset map displaying unnecessary viewing X of XX asset.
+Fixed Bug #6657: Asset tree steals focus on mouse over.
+Fixed Bug #6676: If the asset map scrolls during a rectangular selection, assets at the other end of the selection get de-selected.
+Fixed Bug #6696: Modern Asset Map intercepts keystrokes on WYSIWYG popups.
+Fixed Bug #6697: JS Asset map right click list.
+Fixed Bug #6709: Modern asset map not loading in IE8-10 due to Quirks mode.
+Fixed Bug #6711: Modern Asset Map not loading for Simple Edit user in EES.
+
+
+VERSION 4.18.1
+
+Featured Changes
+===================================
+
+SOAP: Marketo Signature Authentication [ Feature Request #6584 ]
+-----------------------------------------------------
+
+SOAP assets within Squiz Matrix allow you to connect to a remote SOAP server via a variety of authentication methods, including basic HTTP authentication, WS-security username tokens and JSESSIONID cookies.
+
+This feature introduces a new authentication type on SOAP assets in order to integrate with your Marketo service, allowing for the creation, retrieval and removal of entities and data stored within their system. 
+
+The Marketo Signature authentication option can be configured in the Authentication Type field of your SOAP Connection Details section. This authentication type is available on the SOAP Data Source asset, as well as the Make SOAP Call form submission action, form step action and trigger action.
+
+Selecting the Marketo Signature authentication option will display the Authentication Details fields allowing you to supply the access and secret keys for your Marketo connection.
+
+This feature has been added to support Marketo integration within Squiz Matrix, providing all existing functionality and features. 
+
+New JS and CSS File Folder Assets [ Feature Request #6668 ]
+-----------------------------------------------------
+
+This feature introduces two new assets to provide a platform for serving multiple JS and CSS files as a single, packaged file.
+
+The JS File Folder and CSS File Folder assets allow you to create a single folder, specifying the individual file assets to attach beneath it. These linked files are then merged based the settings of the asset.
+
+Files can be linked to both the JS and CSS File Folder assets on their Details screen. Files selected in this section will be NOTICE linked to the asset.
+
+The Minification settings of the File Folder assets allow you to select how the linked files will be merged and whether the code will be minified. Both assets provide Squiz Matrix's Basic Minification method, as well as an option to Merge Without Minification.
+
+In addition to these settings, the JS File Folder can utilise the Closure Compiler tool to merge and minify linked files, and create an associated JavaScript Source Map file (Source Map files can be viewed on the asset's Source Map Files screen).
+
+A Regenerate File field allows you to regenerate the merged file, for example, if the content of a linked file has been modified.
+
+The JS File Folder and CSS File Folder assets have been created to developed to provide best practice performance solutions for your systems, serving minified and well-optimised code.
+
+
+Additional Changes and Bug Fixes
+=================================== 
+
+Minor Enhancements
+
+Minor Enhancement #6647: Asset Manager: Performance Enhancement on generateGetParentsQuery().
+Minor Enhancement #6648: Apply Style Plugin CSS File Classes on Non-Bodycopy WYSIWYG Editors. 
+Minor Enhancement #6674: Additional Workflow Keyword Replacements. 
+Minor Enhancement #6680: PayPal Payflow Pro Gateway: New Option to Send Custom Merchant Reference.  
+Minor Enhancement #6690: Enhancements to the system_move_update.php Script.   
+
+Core
+
+Fixed Bug #6497: Webpaths behave strangely when mixing extensions.
+Fixed Bug #6504: Signature of JS_Api::createLink() is not compatible with Asset::createLink.
+Fixed Bug #6606: Global keywords in _edit mode. 
+Fixed Bug #6609: what's new page sorting. 
+Fixed Bug #6618: Redis Cache handler bug. 
+Fixed Bug #6621: hide_frames=1 no longer respected. 
+Fixed Bug #6627: Multiple set metadata value trigger actions with same field ID cannot set different values. 
+Fixed Bug #6633: Image Variety Trigger missing square option. 
+Fixed Bug #6638: Form Section does not allow a question to be created. 
+Fixed Bug #6642: getKeyFromValue of metadata Field select does not return the correct value. 
+Fixed Bug #6649: Matrix insert link plugin adding the current url to the link in compatible mode on IE. 
+Fixed Bug #6655: Use Default checkbox for Metadata Multiple Text fields errors if apostrophe in default value. 
+Fixed Bug #6673: Permission issues when removing cron job since bug #6533 changes. 
+Fixed Bug #6678: preview screen some JS errors. 
+Fixed Bug #6689: keyword used in login design woudl cause fatal error. 
+
+CMS
+
+Fixed Bug #6626: Locking issues on forms with workflows applied.
+Fixed Bug #6650: Previous button HTML is malformed on multi-page form. 
+
+Calendar
+
+Fixed Bug #6568: Rolling calendar doesnt handle February at the end of longer months.
+Fixed Bug #6632: Upcoming Events not rendering the %event_list% keyword if there are no events. 
+Fixed Bug #6686: Events ordering not consistant across diffenent days in the Calendar Page. 
+
+Squid
+
+Fixed Bug #6623: Upgrading to 4.16.3 or beyond causes errors when existing Squid purge trigger action runs. 
+
+TRIM
+
+Fixed Bug #6685: trim error could cause previously downloaded file to be deleted. 
+
+SAML
+
+Fixed Bug #6693: SAML Account Manager Parse Metadata XML produces broken PHP.
+
+Modern Asset Map
+
+Fixed Bug #6631: Scroll at edge of map.
+Fixed Bug #6634: After dragging/moving an asset, clicking on another asset doesn't clear the popup menu. 
+Fixed Bug #6644: Modern asset map displaying unecessary viewing X of XX asset. 
+Fixed Bug #6656: locateAsset calls to Modern Asset Map are broken for shadow assets. 
+Fixed Bug #6661: Restore Root in Modern Asset Map doesn't allow return to Root (#1) Folder when a custom root is set. 
+Fixed Bug #6666: On Windows machines, scrollbar control can be interfered by the rectangular selection. 
+Fixed Bug #6671: Asset link icon updated to the incorrect type in the JS asset map.
+
+
+
 
 VERSION 4.18.0
 
