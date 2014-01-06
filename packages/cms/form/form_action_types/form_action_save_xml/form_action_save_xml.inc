@@ -365,9 +365,9 @@ class Form_Action_Save_Xml extends Form_Action
 				}//end if
 
 				// Compile the XML
-				$response = $sxml->addChild('response', utf8_encode($value));
+				$response = $sxml->addChild('response', utf8_encode(str_replace("\f", '', $value)));
 				if (!empty($question_name)) {
-					$response->addAttribute('name', utf8_encode($question_name));
+					$response->addAttribute('name', utf8_encode(str_replace("\f", '', $question_name)));
 				}//end if
 				if (!empty($type)) {
 					$response->addAttribute('type', $type);
