@@ -1790,7 +1790,7 @@ function get_asset_tag_line_binoculars($assetid, $popupTitle=NULL)
 			}
 
 			$lineage_names[$assetid] = $asset_info['name'];
-			$lineages_onclick = _asset_locator_onclick($lineage_assetids, TRUE);
+			$lineages_onclick = asset_locator_onclick($lineage_assetids, TRUE);
 			?><tr>
 			<td class="sq-backend-table-cell" ><a href="#" onclick="<?php echo $lineages_onclick; ?>"><?php echo implode(' &gt; ', $lineage_names) ?></a></td>
 			</tr><?php
@@ -1820,7 +1820,7 @@ function get_asset_tag_line_binoculars($assetid, $popupTitle=NULL)
 		}
 		$lineage_names[$assetid] = $asset_info['name'];
 
-		$lineages_onclick = _asset_locator_onclick($lineage_assetids, FALSE);
+		$lineages_onclick = asset_locator_onclick($lineage_assetids, FALSE);
 		$lineages_name = translate('show_in_asset_map');
 	}
 
@@ -1842,7 +1842,7 @@ function get_asset_tag_line_binoculars($assetid, $popupTitle=NULL)
 * @return string
 * @access public
 */
-function _asset_locator_onclick($lineage_assetids, $tooltip_hide)
+function asset_locator_onclick($lineage_assetids, $tooltip_hide)
 {
 	// Logic:
 	// 1. Invoking from a WYSIWYG popup itself (WYSIWYG search results)
@@ -1884,7 +1884,7 @@ function _asset_locator_onclick($lineage_assetids, $tooltip_hide)
 	$onclick .= 'return false;';
 	return $onclick;
 
-}//end _asset_locator_onclick()
+}//end asset_locator_onclick()
 
 
 /**
@@ -1924,35 +1924,6 @@ function get_asset_status_icon($status)
 
 }//end get_asset_status_icon()
 
-
-/**
-* Returns a javascript function call that could be used in onClick events.
-* This function will select and display assets that are in the passed asset lineage
-* in the asset map
-*
-* If $map_frame is an empty string, then the asset_finder will look for the asset
-* map in the frame where it was loaded
-*
-* @param array		$asset_lineage	Asset IDs in an asset lineage. Indexed from root to leaf
-* @param string		$map_frame		a reference to the map_frame so we can get the asset map
-* @param boolean	$new_window		is the asset finder in a different window than the asset map
-*
-* @return string
-* @access public
-*/
-function asset_locator_js($asset_lineage=Array(),$map_frame='sq_sidenav', $new_window=FALSE)
-{
-	$finder_frame = ($new_window || empty($map_frame)) ? 'parent.top' : 'parent.frames["sq_main"]';
-	if (!empty($map_frame)) {
-		$map_frame = trim('parent.top.frames[\''.$map_frame.'\']', '.');
-	} else {
-		$map_frame = 'top';
-	}
-
-	$js_code = $map_frame.'.asset_locator_start(\''.get_asset_lineage_sort_order($asset_lineage).'\');';
-	return $js_code;
-
-}//end asset_locator_js()
 
 
 /**
@@ -2021,6 +1992,8 @@ function get_asset_lineage_sort_order($asset_lineage=Array())
 function get_available_global_keywords()
 {
 	$ret = Array(
+					'globals_get'		=> 'Global Keywords - Get parameters in JSON format',
+					'globals_post'		=> 'Global Keywords - Post parameters in JSON format',
 					'globals_user_'		=> 'Global Keywords - Current User',
 					'globals_get_'		=> 'Global Keywords - Get Parameters',
 					'globals_post_'		=> 'Global Keywords - Post Parameters',
@@ -2068,7 +2041,11 @@ function replace_global_keywords(&$text)
 				if (0 === strpos($keyword, 'globals_')) {
 					// Default replacement for global keywords is blank string
 					$replacements[$full_keyword] = '';
-					if (0 === strpos($keyword, 'globals_user_')) {
+					if ($keyword == 'globals_post') {
+						$replacements[$full_keyword] = clean_keyword_value($_POST);
+					} else if ($keyword == 'globals_get') {
+						$replacements[$full_keyword] = clean_keyword_value($_GET);
+					} else if (0 === strpos($keyword, 'globals_user_')) {
 						$user_keyword = 'asset_'.substr($keyword, 13);
 						$user_replacement = $GLOBALS['SQ_SYSTEM']->user->getKeywordReplacement($user_keyword);
 						if ((string)$user_replacement != "%$user_keyword%") {
@@ -2354,9 +2331,24 @@ function replace_global_keywords(&$text)
 						}
 						$replacements[$full_keyword] = $context_name;
 					}//end if
+					
+					if (0 === strpos($keyword, 'globals_visited_urls')) {
+						$replacements[$full_keyword] = isset($_SESSION['visited_urls']) ? array_reverse(array_values($_SESSION['visited_urls'])) : '';
+					}//end if
+					
+					if (0 === strpos($keyword, 'globals_visited_assets')) {
+						$replacements[$full_keyword] = isset($_SESSION['visited_assets']) ? array_reverse(array_values($_SESSION['visited_assets'])) : '';
+					}//end if
+					
+					if (0 === strpos($keyword, 'globals_entry_asset')) {
+						$replacements[$full_keyword] = isset($_SESSION['entry_asset']) ? $_SESSION['entry_asset'] : '';
+					}//end if
+
+					if (0 === strpos($keyword, 'globals_referrer_url')) {
+						$replacements[$full_keyword] = isset($_SESSION['referrer_url']) ? $_SESSION['referrer_url'] : '';
+					}//end if
 
 					apply_keyword_modifiers($replacements[$full_keyword], $modifiers, Array(), $keyword);
-
 				}//end if is global keyword
 
 
@@ -2442,16 +2434,36 @@ function extract_context_modifier(&$modifiers, $return_part='id')
 */
 function clean_keyword_value($keyword_value, $allow_quotes=FALSE)
 {
-	if (!is_scalar($keyword_value)) {
+	if (is_array($keyword_value)) {
 		// Only scalars are accepted
-		$keyword_value = '';
-	} else {
+		array_walk_recursive($keyword_value, 'escapeHtmlSpecialChars', $allow_quotes); 
+	} else if (is_scalar($keyword_value)) {
 		$keyword_value = htmlspecialchars($keyword_value, $allow_quotes ? ENT_NOQUOTES : ENT_QUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
+	} else {
+		$keyword_value = '';
 	}
 
 	return $keyword_value;
 
 }//end clean_keyword_value()
+
+
+/**
+* Escapes the HTML special chars
+* Callback function for array_walk_recursive() in clean_keyword_value()
+*
+* @param string  $value
+* @param boolean $key
+* @param boolean $allow_quotes
+*
+* @return string
+* @access public
+*/
+function escapeHtmlSpecialChars(&$value, $key, $allow_quotes)
+{
+	$value = htmlspecialchars($value, $allow_quotes ? ENT_NOQUOTES : ENT_QUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
+
+}//end _escapeHtmlSpecialChars()
 
 
 /**

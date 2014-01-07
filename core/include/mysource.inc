@@ -878,6 +878,9 @@ class MySource extends MySource_Object
 
 			echo $content;
 
+			// Register the asset as "visited" in the frontend
+			$this->_registerAssetAsVisited($asset);
+
 		}//end else backend/limbo
 
 		if (SQ_CONF_DEBUG & 4) {
@@ -2193,7 +2196,6 @@ class MySource extends MySource_Object
 		// Do pass any event data since we can get it from $_SESSION
 		$event_data = Array('password' => array_get_index($_POST, 'SQ_LOGIN_PASSWORD'));
 		$this->broadcastTriggerEvent('trigger_event_user_login', $user, $event_data);
-
 
 		if (!$_SESSION['user_is_public'] && array_get_index($_SESSION, 'SQ_RETURN_TO_HTTP')) {
 			unset($_SESSION['SQ_RETURN_TO_HTTP']);
@@ -4549,19 +4551,46 @@ class MySource extends MySource_Object
 	* Print the asset frontend
 	*
 	* @param object $asset	Asset of which we are printing the frontend
-	*
+	*	
 	* @return void
 	* @access private
 	*/
 	private function _printAssetFrontend($asset)
 	{
+		// Register the very first 'entry page' assetid
+		if (!isset($_SESSION['entry_asset']) && !isset($_REQUEST['just_logged_out'])) {
+			$_SESSION['entry_asset'] = $asset->id;
+			$_SESSION['entry_url'] = rtrim(current_url(), '/');
+		}
+
+		// Register the session's referrer
+		if (!isset($_SESSION['referrer_url']) && !isset($_REQUEST['just_logged_out'])) {
+			$_SESSION['referrer_url'] = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
+		}
+
+		// Print the asset frontend
+		$asset->printFrontend();
+
+	}//end _printAssetFrontend()
+
+
+	/**
+	* Add the asset and current url to the 'visited' stack in the session
+	*
+	* @param object $asset	Asset being registered as 'visited'
+	*	
+	* @return void
+	* @access private
+	*/
+	private function _registerAssetAsVisited($asset)
+	{
 		// Register the url and assetid as "visited"
 		if (SQ_CONF_VISITED_PAGES_MAX_ENTRIES > 0) {
-			if (!isset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['visited_urls'])) {
-				$_SESSION[SQ_SESSION_SANDBOX_INDEX]['visited_urls'] = Array();
+			if (!isset($_SESSION['visited_urls'])) {
+				$_SESSION['visited_urls'] = Array();
 			}
-			if (!isset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['visited_assets'])) {
-				$_SESSION[SQ_SESSION_SANDBOX_INDEX]['visited_assets'] = Array();
+			if (!isset($_SESSION['visited_assets'])) {
+				$_SESSION['visited_assets'] = Array();
 			}
 
 			$current_url = rtrim(current_url(), '/');
@@ -4571,28 +4600,25 @@ class MySource extends MySource_Object
 			$prefix = 'v_';
 
 			// Get rid of existing duplicate entry
-			if (isset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['visited_urls'][$prefix.$current_url])) {
-				unset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['visited_urls'][$prefix.$current_url]);
+			if (isset($_SESSION['visited_urls'][$prefix.$current_url])) {
+				unset($_SESSION['visited_urls'][$prefix.$current_url]);
 			}
-			if (isset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['visited_assets'][$prefix.$assetid])) {
-				unset($_SESSION[SQ_SESSION_SANDBOX_INDEX]['visited_assets'][$prefix.$assetid]);
+			if (isset($_SESSION['visited_assets'][$prefix.$assetid])) {
+				unset($_SESSION['visited_assets'][$prefix.$assetid]);
 			}
-			$_SESSION[SQ_SESSION_SANDBOX_INDEX]['visited_urls'][$prefix.$current_url] = $current_url;
-			$_SESSION[SQ_SESSION_SANDBOX_INDEX]['visited_assets'][$prefix.$assetid] = $assetid;
+			$_SESSION['visited_urls'][$prefix.$current_url] = $current_url;
+			$_SESSION['visited_assets'][$prefix.$assetid] = $assetid;
 
 			// Stay within the defined "max entires" size
-			if (count($_SESSION[SQ_SESSION_SANDBOX_INDEX]['visited_urls']) > SQ_CONF_VISITED_PAGES_MAX_ENTRIES) {
-				array_shift($_SESSION[SQ_SESSION_SANDBOX_INDEX]['visited_urls']);
+			if (count($_SESSION['visited_urls']) > SQ_CONF_VISITED_PAGES_MAX_ENTRIES) {
+				array_shift($_SESSION['visited_urls']);
 			}
-			if (count($_SESSION[SQ_SESSION_SANDBOX_INDEX]['visited_assets']) > SQ_CONF_VISITED_PAGES_MAX_ENTRIES) {
-				array_shift($_SESSION[SQ_SESSION_SANDBOX_INDEX]['visited_assets']);
+			if (count($_SESSION['visited_assets']) > SQ_CONF_VISITED_PAGES_MAX_ENTRIES) {
+				array_shift($_SESSION['visited_assets']);
 			}
 		}
 
-		// Print the asset frontend
-		$asset->printFrontend();
-
-	}//end _printAssetFrontend()
+	}//end _registerAssetAsVisited()
 
 
 }//end class

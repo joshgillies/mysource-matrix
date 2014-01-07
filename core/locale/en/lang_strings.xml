@@ -1120,6 +1120,17 @@
 	<string source="condition_visited_no_assetids_selected">No assetids selected</string>
 	<string source="condition_visited_no_patterns_set">No URL patterns selected</string>
 
+	<!-- Entry Page Condition -->
+	<string source="condition_entry_page_true">The entry page url matches the following pattern(s) or assetid(s)</string>
+	<string source="condition_entry_page_false">The entry page url does not matches the following pattern(s) or assetid(s)</string>
+	<string source="condition_entry_page_no_assetids_selected">No assetids selected</string>
+	<string source="condition_entry_page_no_patterns_set">No URL patterns selected</string>
+
+	<!-- Referrer URL Condition -->
+	<string source="condition_referrer_url_true">The referrer url matches the following pattern(s)</string>
+	<string source="condition_referrer_url_false">The referrer page url does not matches the following pattern(s)</string>
+	<string source="condition_referrer_url_no_patterns_set">No URL patterns selected</string>
+
 	<string source="server_variable">Server Variable</string>
 	<string source="pattern">Pattern</string>
 	<string source="user_agent_pattern">User Agent Pattern</string>

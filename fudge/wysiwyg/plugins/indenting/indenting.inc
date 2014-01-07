@@ -69,7 +69,7 @@ class indenting extends wysiwyg_plugin
 					var blockElts = "|applet|div|embed|fieldset|form|h1|h2|h3|h4|h5|h6|iframe|ilayer|img|object|p|pre|quote|table|textarea|ul|ol|";
 					var sel = this._getSelection();
 					var range = this._createRange(sel);
-					range.expand();
+					range.expand('character');
 					range.select();
 					if (direction == 'right') {
 
@@ -79,7 +79,7 @@ class indenting extends wysiwyg_plugin
 						// Second, remove the blockquote element if necessary
 						var sel = this._getSelection();
 						var range = this._createRange(sel);
-						range.expand();
+						range.expand('character');
 						var parent = range.parentElement();
 						if (parent.tagName.toLowerCase() == 'p') {
 							parent = parent.parentNode;
@@ -120,7 +120,7 @@ class indenting extends wysiwyg_plugin
 							if (subElt.tagName) {
 								var nodeRange = tRange.duplicate();
 								nodeRange.moveToElementText(subElt);
-								nodeRange.expand();
+								nodeRange.expand('character');
 								if (tRange.inRange(nodeRange)) {
 									if (blockElts.indexOf('|'+subElt.tagName.toLowerCase()+'|') != -1) {
 										success = this._setLeftMargin(direction, subElt) || success;

@@ -13,21 +13,21 @@
 */
 
 require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
-require_once dirname(__FILE__).'/condition_visited_pages_edit_fns.inc';
+require_once dirname(__FILE__).'/condition_entry_page_edit_fns.inc';
 
 
 /**
-* Condition_Visited_Pages
+* Condition_Entry_Page
 *
 * Purpose
-*	This condition compares the URLs/assetids against the pages visited in the session
+*	This condition compares the URLs/assetids against the very first page visited in the session
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
 * @version $Revision: $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-class Condition_Visited_Pages extends Condition
+class Condition_Entry_Page extends Condition
 {
 
 
@@ -55,26 +55,24 @@ class Condition_Visited_Pages extends Condition
 	*/
 	public static function evaluate(Asset $asset, Array $condition_data)
 	{
-		// Get the previously visited urls from the asset
-		$visted_urls = isset($_SESSION['visited_urls']) ? $_SESSION['visited_urls'] : Array();
-		$visted_assetids = isset($_SESSION['visited_assets']) ? $_SESSION['visited_assets'] : Array();
+		// Get the "entry url" from the asset
+		$entry_url = isset($_SESSION['entry_url']) ? $_SESSION['entry_url'] : '';
+		$entry_assetid = isset($_SESSION['entry_asset']) ? $_SESSION['entry_asset'] : '';
 
-		// Compare assetids first
+		// Compare assetid first
 		$assetids = isset($condition_data['assetids']) ? $condition_data['assetids'] : Array();
-		$matched = array_intersect($visted_assetids, $assetids) ? TRUE : FALSE;
+		$matched = $entry_assetid && in_array($entry_assetid, $assetids);
 
-		// If assetids didn't matched, try comparing URLs
-		if (!$matched) {
+		// If assetid didn't matched, try comparing URL
+		if (!$matched && !empty($entry_url)) {
 			$urls = isset($condition_data['url_patterns']) ? $condition_data['url_patterns'] : Array();
 			if (!empty($urls)) {
-				foreach($visted_urls as $visited_url) {
-					foreach($urls as $url_regex) {
-						$url_regex = str_replace('/', '\/', $url_regex);
-						if (@preg_match('/'.$url_regex.'/i', $visited_url)) {
-							$matched = TRUE;
-							break;
-						}
-					}//end foreach
+				foreach($urls as $url_regex) {
+					$url_regex = str_replace('/', '\/', $url_regex);
+					if (@preg_match('/'.$url_regex.'/i', $entry_url)) {
+						$matched = TRUE;
+						break;
+					}
 				}//end foreach
 			}//end if
 		}//end if
