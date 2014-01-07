@@ -127,11 +127,12 @@ class Page_Asset_Builder extends Page
 			return FALSE;
 		}
 
+		$sq_in_import = defined('SQ_IN_IMPORT') ? SQ_IN_IMPORT : 0;
 		// Create / remove layouts
 		// Bug Fix : #3360 Cloning asset builder with customised create layout fail
 		// We now check is Asset Exists, because while cloning it is trying to link the layout
 		// to the page_asset_builder Asset when it doesnt exist on the system
-		if ($this->id && !$GLOBALS['SQ_SYSTEM']->am->assetInTrash($this->id, TRUE)) {
+		if ($this->id && !$GLOBALS['SQ_SYSTEM']->am->assetInTrash($this->id, TRUE) && !$sq_in_import) {
 			$custom_types = $this->attr('create_form_customisations');
 			$current_layout_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'layout', TRUE);
 			$current_layouts = Array();
