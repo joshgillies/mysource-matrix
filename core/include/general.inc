@@ -1674,7 +1674,7 @@ function get_asset_tag_line($assetid, $screen='')
 		</div>
 
 		<?php
-		echo sq_print_icon(sq_web_path('lib').'/web/images/icons/info.png', '', '', '', '', ' align="absmiddle" onmouseover="tooltip.show(this, document.getElementById(\'asset-tag-line-'.str_replace('\\', '\\\\', $assetid).'-more-details\').innerHTML, \'More Info\');" onmouseout="tooltip.hide();"');
+		echo sq_print_icon(sq_web_path('lib').'/web/images/icons/info.png', '', '', '', '', ' align="absmiddle" onmouseover="tooltip.show(this, document.getElementById(\'asset-tag-line-'.str_replace('\\', '\\\\', $assetid).'-more-details\').innerHTML, \'More Info\');" onmouseout="tooltip.hide();" class="sq-tag-line"');
 		echo get_asset_tag_line_binoculars($assetid);
 
 		// Screen parameter now supports javascript code to be added to the
@@ -1689,7 +1689,7 @@ function get_asset_tag_line($assetid, $screen='')
 		} else if (!empty($screen_url)) {
 			echo '<a href="'.$screen_url.'">';
 		}
-		echo '<span class="sq-info-asset-name">';
+		echo '<span class="sq-info-asset-name sq-tag-line">';
 		echo $asset_info['name'];
 
 		if (!empty($js) || !empty($screen_url)) {
@@ -1825,7 +1825,7 @@ function get_asset_tag_line_binoculars($assetid, $popupTitle=NULL)
 	}
 
 	if (count($lineages) > 0) {
-		echo sq_print_icon(sq_web_path('lib').'/web/images/icons/asset_locator.png', 16, 16, $lineages_name, $lineages_name, ' class="clickable" align="absmiddle"	onclick="'.$lineages_onclick.'"');
+		echo sq_print_icon(sq_web_path('lib').'/web/images/icons/asset_locator.png', 16, 16, $lineages_name, $lineages_name, ' class="clickable sq-tag-line" align="absmiddle"	onclick="'.$lineages_onclick.'"');
 	}
 
 	$contents = ob_get_clean();

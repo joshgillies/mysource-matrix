@@ -65,10 +65,9 @@ class Trigger_Action_Join_User_Group_For_Session extends Trigger_Action
 		if ($write_access) {
 			asset_finder($prefix.'[user_group_to_join]', $user_group_to_join, $type_codes);
 		} else if (!empty($user_group_to_join)) {
-			$user_group_asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($user_group_to_join);
-			if (!empty($user_group_asset_info[$user_group_to_join])) {
-				echo '<b>'.$user_group_asset_info[$user_group_to_join]['name'].' (#'.$user_group_to_join.')</b>';
-			}
+			echo get_asset_tag_line($user_group_to_join);
+		} else {
+			echo '<strong>['.translate('no_user_group_selected').']</strong>';
 		}
 		$user_group_input = ob_get_clean();
 
@@ -78,7 +77,7 @@ class Trigger_Action_Join_User_Group_For_Session extends Trigger_Action
 			if ($write_access) {
 				text_box($prefix.'[keyword_target_groupid]', $keyword_target_groupid, 30);
 			} else {
-				echo htmlspecialchars($keyword_target_groupid);
+				echo '<strong>'.htmlspecialchars($keyword_target_groupid).'</strong>';;
 			}
 		$keyword_target_groupid_input = ob_get_clean();
 		
@@ -87,7 +86,7 @@ class Trigger_Action_Join_User_Group_For_Session extends Trigger_Action
 		ob_start();
 			$leave_other_groups = isset($settings['leave_other_groups']) ? $settings['leave_other_groups'] : '';
 			if ($write_access) {
-				echo '<br />';
+				echo '';
 				check_box($prefix.'[leave_other_groups]', 1, $leave_other_groups);
 				label(translate('trigger_join_user_for_session_leave_other_groups'), $prefix.'[leave_other_groups]');
 			} else {

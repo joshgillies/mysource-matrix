@@ -186,10 +186,10 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 
 		<p class="sq-backend-section-subheading">Connection Details</p>
 
-			<table class="sq-backend-table" >
+			<table class="sq-backend-table with-bottom-margin">
 				<tr>
-					<td width="120"><p>WSDL</p></td>
-					<td><p>
+					<th style="width: 130px;">WSDL</th>
+					<td>
 					<?php
 						$wsdl = array_get_index($settings, 'wsdl', '');
 						if ($write_access) {
@@ -197,15 +197,15 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 						} else {
 							echo $wsdl;
 						}
-					?></p></td>
+					?></td>
 				</tr>
 				<tr>
-					<td width="120">Auth Type</td>
-					<td><p>
+					<th>Auth Type</th>
+					<td>
 					<?php
 						$selected_auth_type = array_get_index($settings, 'auth_type', 'HTTP_BASIC');
 						combo_box($prefix.'[auth_type]', $auth_types, FALSE, $selected_auth_type);
-					?></p></td>
+					?></td>
 				</tr>
 				<?php
 					// Paint function authentication fields
@@ -213,8 +213,8 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 					Soap_Common::paintSoapAuthenticationFields($prefix, $settings, $o, $write_access, FALSE, TRUE);					
 				?>
 				<tr>
-					<td><?php echo translate('mute_exception'); ?></td>
-					<td><p>
+					<th><?php echo translate('mute_exception'); ?></th>
+					<td>
 					<?php
 						$mute_exp = array_get_index($settings, 'mute_exceptions', 0);
 						if ($write_access) {
@@ -224,22 +224,19 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 							echo '<img class="sq-icon" width="16" height="16" src="'.sq_web_path('lib').'/web/images/'.$mute_exp_status.'.gif" alt="" style="border: 0;" />';
 						}
 					?>
-					</p></td>
+					</td>
 				</tr>
 				<tr>
-					<td><?php echo translate('service_address'); ?></td>
-					<td><p><?php combo_box($prefix.'[service_address]', array_get_index($settings, 'available_service_address', ''), FALSE, $selected_service_address); ?></p></td>
+					<th><?php echo translate('service_address'); ?></th>
+					<td><?php combo_box($prefix.'[service_address]', array_get_index($settings, 'available_service_address', ''), FALSE, $selected_service_address); ?></td>
 				</tr>
 				<tr>
-					<td width="120"><p>Cache WSDL</p></td>
-					<td><p><?php combo_box($prefix.'[cache_wsdl]', SOAP_Common::$wsdl_caching_opts, FALSE, $selected_caching_type); ?></p></td>
+					<th>Cache WSDL</th>
+					<td><?php combo_box($prefix.'[cache_wsdl]', SOAP_Common::$wsdl_caching_opts, FALSE, $selected_caching_type); ?></td>
 				</tr>
-			</table>
-
-			<table class="sq-backend-table" >
 				<tr>
-					<td><p><?php echo translate('local_cert'); ?></p></td>
-					<td><p>
+					<th><?php echo translate('local_cert'); ?></th>
+					<td>
 					<?php
 						$local_cert = array_get_index($settings, 'local_cert', 0);
 						if ($write_access) {
@@ -248,15 +245,15 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 							if ($local_cert) echo  get_asset_tag_line($local_cert);
 						}
 					?>
-					</p></td>
+					</td>
 				</tr>
 				<tr>
-					<td><p><?php echo translate('passphrase'); ?></p></td>
-					<td><p>
+					<th><?php echo translate('passphrase'); ?></th>
+					<td>
 					<?php
 						if ($write_access) password_box($prefix.'[passphrase]', array_get_index($settings, 'passphrase', ''), 35);
 					?>
-					</p></td>
+					</td>
 				</tr>
 				<tr>
 					<td colspan="2"><?php echo translate('use_https'); ?></td>
@@ -264,29 +261,29 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 			</table>
 
 		<p class="sq-backend-section-subheading">Test Response</p>
-		<div id="<?php echo $prefix ?>_test_request_response" style="padding: 0.5em 0px 2em 30px;">
+		<div id="<?php echo $prefix ?>_test_request_response">
 			<table class="sq-backend-table" >
 				<tr>
-					<td width="120"><?php echo translate('run_test'); ?></td>
-					<td><p>
+					<th style="width: 130px;"><?php echo translate('run_test'); ?></th>
+					<td>
 					<?php
 						$run_test = array_get_index($settings, 'run_test', 0);
 						if ($write_access) {
 							check_box($prefix.'[run_test]', 1, $run_test);
 						} else {
 							$run_test_status = ($run_test == '1') ? 'tick' : 'cross';
-							echo '<img class="sq-icon" width="16" height="16" src="'.sq_web_path('lib').'/web/images/'.$run_test_status.'.gif" alt="" style="border: 0;" />';
+							echo '<img class="sq-icon" width="16" height="16" src="'.sq_web_path('lib').'/web/images/'.$run_test_status.'.gif" alt="" />';
 						}
 					?>
-					</p></td>
+					</td>
 				</tr>
 				<tr>
-					<td colspan="2"><?php echo translate('run_test_note'); ?></td>
+					<td colspan="2"><?php echo translate('run_test_note'); ?>.</td>
 				</tr>
 			</table>
 		</div>
 
-		<div width="120">
+		<div>
 			<?php
 				if ($write_access && $run_test && !empty($settings['test_results'])) {
 					foreach($settings['test_results'] as $soap_func => $info) {
@@ -308,9 +305,9 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 		<?php if (isset($settings['actions']) && !empty($settings['actions'])) { ?>
 			<p class="sq-backend-section-subheading"><?php echo translate('request_message'); ?></p>
 
-				<table class="sq-backend-table" >
+				<table class="sq-backend-table with-bottom-margin" >
 					<tr>
-						<td><strong><?php echo translate('action');?></strong><br /><br /></td>
+						<th><?php echo translate('action');?></strong></th>
 						<td>
 							<?php
 								$action_selected = array_get_index($settings, 'action', '');
@@ -327,7 +324,7 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 						</td>
 					</tr>
 					<tr>
-						<td><span style="padding-top:10px;"><strong><?php echo translate('params');?></strong></span></td>
+						<th><?php echo translate('params');?></th>
 						<td>
 							<?php
 								$i = 0;
@@ -353,7 +350,7 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 
 			<p class="sq-backend-section-subheading"><?php echo translate('response_message'); ?></p>
 
-				<table class="sq-backend-table" >
+				<table class="sq-backend-table with-bottom-margin" >
 					<tr>
 						<td>
 							<?php
@@ -376,7 +373,7 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 
 				<p class="sq-backend-section-subheading"><?php echo translate('response_keywords'); ?></p>
 
-				<table class="sq-backend-table" >
+				<table class="sq-backend-table with-bottom-margin" >
 					<tr>
 						<td>
 							<?php
@@ -394,8 +391,8 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 
 			<p class="sq-backend-section-subheading"><?php echo translate('check_response')?></p>
 
-			<table class="sq-backend-table" >
-				<tr width="120">
+			<table class="sq-backend-table with-bottom-margin" >
+				<tr>
 					<td>
 						<?php
 						$selected_fields = isset($settings[$settings['action'].'_response_error_fields']) ? $settings[$settings['action'].'_response_error_fields'] : Array();
@@ -482,10 +479,11 @@ class Trigger_Action_Make_SOAP_Call extends Trigger_Action
 						</td>
 					</tr>
 			</table>
+
 			<p class="sq-backend-section-subheading"><?php echo translate('response_to_download_as_file'); ?></p>
-			<table class="sq-backend-table">
+			<table class="sq-backend-table with-bottom-margin">
 				<tr>
-					<td class="sq-backend-table-header"><?php echo translate('field_keyword_tags'); ?></td>
+					<td><?php echo translate('field_keyword_tags'); ?></td>
 				</tr>
 				<?php
 					$response_to_file = array_get_index($settings, $settings['action'].'_file_response_to_save', Array());

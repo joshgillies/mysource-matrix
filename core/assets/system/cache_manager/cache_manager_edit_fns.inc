@@ -403,232 +403,246 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 			$root_nodes = Array(0);
 		}
 
-		$key = 0;
-		foreach ($root_nodes as $assetid => $data) {
-		?>
-			<table>
+		$o->openField('','wide_col');
+
+			$key = 0;
+			?>
+			<table class="sq-backend-table">
 				<tbody>
 					<tr>
-						<td colspan="2">
-							<?php
-								if ($wa) {
-									// holds the previous value
-									hidden_field($prefix.'_root_node_previous_values['.$key.']', $assetid);
-									asset_finder($prefix.'_root_node_X_'.$key.'_X_', $assetid);
-								} else {
-									echo get_asset_tag_line($assetid);
-								}
-							?>
-						</td>
-						<td>
-							<?php
-								if (isset($data['customised'])) {
-									$customised = $data['customised'];
-								} else {
-									$customised = FALSE;
-								}
-								if ($wa && !empty($assetid)) {
-									$radio_name = $prefix.'_customise_root_node';
-									$radio_id = $prefix.'_'.$assetid.'_customise_root_node';
-									check_box($radio_name, $assetid, FALSE, 'this.form.submit();', 'id="'.$radio_id.'"');
-									if ($customised) {
-										label(translate('view_customisations'), $radio_id);
+						<th>Root node</th>
+						<th><?php echo translate('include_all_assets'); ?></th>
+						<th><?php echo translate('customise'); ?></th>
+					</tr>
+					<?php
+					foreach ($root_nodes as $assetid => $data) {
+					?>
+						<tr>
+							<td>
+								<?php
+									if ($wa) {
+										// holds the previous value
+										hidden_field($prefix.'_root_node_previous_values['.$key.']', $assetid);
+										asset_finder($prefix.'_root_node_X_'.$key.'_X_', $assetid);
 									} else {
-										label(translate('customise'), $radio_id);
+										echo get_asset_tag_line($assetid);
 									}
-								} else {
-									if ($customised) {
+								?>
+							</td>
+							<td>
+								<?php
+									if ($wa) {
+										$options = Array(
+														0	=> translate('no'),
+														1	=> translate('yes'),
+												   );
+										$combo_name = $prefix.'_all_underneath_X_'.$key.'_X_';
+										combo_box($combo_name, $options, FALSE, $data['all_underneath']);
+									} else {
+										if ($data['all_underneath']) {
+											echo '<b>'.translate('assets_underneath_root_node_affected').'</b>';
+										} else {
+											echo '<b>'.translate('assets_underneath_root_node_not_affected').'</b>';
+										}
+									}
+								?>
+							</td>
+							<td>
+								<?php
+									if (isset($data['customised'])) {
+										$customised = $data['customised'];
+									} else {
+										$customised = FALSE;
+									}
+									if ($wa && !empty($assetid)) {
 										$radio_name = $prefix.'_customise_root_node';
 										$radio_id = $prefix.'_'.$assetid.'_customise_root_node';
 										check_box($radio_name, $assetid, FALSE, 'this.form.submit();', 'id="'.$radio_id.'"');
-										label('<i>'.translate('view_customisations').'</i>', $radio_id);
+										if ($customised) {
+											label(translate('view_customisations'), $radio_id);
+										} else {
+											label(translate('customise'), $radio_id);
+										}
 									} else {
-										if (!empty($assetid)) {
-											echo '<i>'.translate('not_yet_customised').'</i>';
+										if ($customised) {
+											$radio_name = $prefix.'_customise_root_node';
+											$radio_id = $prefix.'_'.$assetid.'_customise_root_node';
+											check_box($radio_name, $assetid, FALSE, 'this.form.submit();', 'id="'.$radio_id.'"');
+											label('<i>'.translate('view_customisations').'</i>', $radio_id);
+										} else {
+											if (!empty($assetid)) {
+												echo '<i>'.translate('not_yet_customised').'</i>';
+											}
 										}
 									}
-								}
-							?>
-						</td>
-					</tr>
-					<tr>
-						<td width="360px">
-							<?php
-								if ($wa) {
-									$options = Array(
-													0	=> translate('no'),
-													1	=> translate('yes'),
-											   );
-									$combo_name = $prefix.'_all_underneath_X_'.$key.'_X_';
-									combo_box($combo_name, $options, FALSE, $data['all_underneath']);
-									label(' '.translate('include_all_assets'), $combo_name);
-								} else {
-									if ($data['all_underneath']) {
-										echo '<b>'.translate('assets_underneath_root_node_affected').'</b>';
-									} else {
-										echo '<b>'.translate('assets_underneath_root_node_not_affected').'</b>';
-									}
-								}
-							?>
-						</td>
-						<td colspan="2">
-							<?php
-								if ($wa && $key+1 === count($root_nodes)) {
-									$more_button_name = $prefix.'_root_node_more_button_X_'.$key.'_X_';
-									normal_button($more_button_name, translate('more').'...', 'var table = prependLastTable(this); resetLastTableFields(table, false)');
-								}
-							?>
-						</td>
-					</tr>
+								?>
+							</td>
+						</tr>
+						<?php
+						if ($wa && $key+1 === count($root_nodes)) {
+						?>
+							<tr>
+								<td colspan="3">
+									<?php
+										$more_button_name = $prefix.'_root_node_more_button_X_'.$key.'_X_';
+										normal_button($more_button_name, translate('more').'...', 'var table = prependLastRow(this); resetLastRowFields(table, false)');
+									?>
+								</td>
+							</tr>
+						<?php
+						}
+						$key++;
+						//if ($key !== count($root_nodes)) echo '<br />';
+					}//end foreach
+					?>
 				</tbody>
 			</table>
-		<?php
-			$key++;
-			if ($key !== count($root_nodes)) echo '<br />';
-		}//end foreach
 
-		if (isset($_REQUEST[$prefix.'_customise_root_node']) && in_array($_REQUEST[$prefix.'_customise_root_node'], array_keys($root_nodes))) {
-			if ($wa) {
-				echo '<br/><br/><b>'.translate('currently_customising', get_asset_tag_line($_REQUEST[$prefix.'_customise_root_node'])).'</b>';
+			<?php
+			if (isset($_REQUEST[$prefix.'_customise_root_node']) && in_array($_REQUEST[$prefix.'_customise_root_node'], array_keys($root_nodes))) {
+				if ($wa) {
+					echo '<br/><br/><b>'.translate('currently_customising', get_asset_tag_line($_REQUEST[$prefix.'_customise_root_node'])).'</b>';
+				} else {
+					echo '<br/><br/><b>'.translate('currently_viewing', get_asset_tag_line($_REQUEST[$prefix.'_customise_root_node'])).'</b>';
+				}
 			} else {
-				echo '<br/><br/><b>'.translate('currently_viewing', get_asset_tag_line($_REQUEST[$prefix.'_customise_root_node'])).'</b>';
+				unset($_REQUEST[$prefix.'_customise_root_node']);
 			}
-		} else {
-			unset($_REQUEST[$prefix.'_customise_root_node']);
-		}
 
-		?>
-			<script type="text/javascript">
+			?>
+				<script type="text/javascript">
 
-				function prependLastTable(moreButton)
-				{
-					var lastTable = moreButton.parentNode;
-					while (lastTable.tagName != 'TABLE') {
-						lastTable = lastTable.parentNode;
-					}
-
-					// to be used when adding the button back
-					var lastSibling = lastTable.previousSibling;
-					var lastTableButtonCell = moreButton.parentNode;
-
-					// look for sq-backend-data to prepend this table
-					var validLocation = moreButton.parentNode;
-					while (validLocation.className != 'sq-backend-data') {
-						validLocation = validLocation.parentNode;
-					}
-
-					var clone = lastTable.cloneNode(true);
-
-					// inserting clone after original
-					validLocation.insertBefore(clone, lastTable.nextSibling);
-
-					// append the 'More' button to the cloned table
-					lastTableButtonCell.appendChild(moreButton);
-
-					// remove the 'More' button from the original after cloning
-					moreButton.parentNode.removeChild(moreButton);
-
-					// remove the customise button elements from the clone
-					var cloneCustomiseCell = clone.rows[0].cells[1];
-					removeElementChildNodes(cloneCustomiseCell);
-
-					// add text in place of the customise button elements in the clone
-					var cloneCustomiseText = document.createElement('i');
-					cloneCustomiseCell.appendChild(cloneCustomiseText);
-
-					// use innerHTML for IE6
-					cloneCustomiseText.innerHTML = js_translate('customise_after_commit');
-
-					// remove the asset finder from the clone
-					var cloneAssetFinderCell = clone.rows[0].cells[0];
-					removeElementChildNodes(cloneAssetFinderCell);
-
-					// traverse DOM and increment each field name
-					incrementTableFieldNames(clone);
-
-					// add an asset finder for the cloned table
-					cloneInnerHTML(lastTable.rows[0].cells[0], cloneAssetFinderCell);
-
-					lastTable.appendChild(document.createElement('br'));
-
-					return clone;
-				}
-
-				// adds a new asset finder as a child of the specified element
-				function cloneInnerHTML(cellToCopy, cellToPopulate)
-				{
-					var htmlToClone = cellToCopy.innerHTML;
-					// discover what the new key should be
-					var currentKey = htmlToClone.match(/_X_(\d+)_X_/);
-					var newKey = parseInt(currentKey[1]) + 1;
-					cellToPopulate.innerHTML = htmlToClone.replace(/_X_(\d+)_X_/g, '_X_' + newKey + '_X_');
-				}
-
-				// removes all childNodes from the specified element
-				function removeElementChildNodes(element)
-				{
-					if (element.hasChildNodes()) {
-						while (element.childNodes.length > 0 ) {
-							element.removeChild(element.firstChild);
+					function prependLastRow(moreButton)
+					{
+						var lastRow = moreButton.parentNode;
+						while (lastRow.tagName != 'TR') {
+							lastRow = lastRow.parentNode;
 						}
+
+						// to be used when adding the button back
+						var lastSibling = lastRow.previousSibling;
+						var lastRowButtonCell = moreButton.parentNode;
+
+						// look for sq-backend-data to prepend this row
+						var validLocation = moreButton.parentNode;
+						while (validLocation.tagName != 'TBODY') {
+							validLocation = validLocation.parentNode;
+						}
+
+						var clone = lastRow.cloneNode(true);
+
+						console.log(clone);
+
+						// inserting clone after original
+						validLocation.insertBefore(clone, lastRow.previousSibling);
+
+						// append the 'More' button to the cloned row
+						lastRowButtonCell.appendChild(moreButton);
+
+						// remove the 'More' button from the original after cloning
+						moreButton.parentNode.removeChild(moreButton);
+
+						// remove the customise button elements from the clone
+						var cloneCustomiseCell = clone.cells[2];
+						removeElementChildNodes(cloneCustomiseCell);
+
+						// add text in place of the customise button elements in the clone
+						var cloneCustomiseText = document.createElement('i');
+						cloneCustomiseCell.appendChild(cloneCustomiseText);
+
+						// use innerHTML for IE6
+						cloneCustomiseText.innerHTML = js_translate('customise_after_commit');
+
+						// remove the asset finder from the clone
+						var cloneAssetFinderCell = clone.cells[0];
+						removeElementChildNodes(cloneAssetFinderCell);
+
+						// traverse DOM and increment each field name
+						incrementTableFieldNames(clone);
+
+						// add an asset finder for the cloned row
+						cloneInnerHTML(lastRow.cells[0], cloneAssetFinderCell);
+
+						return clone;
 					}
-				}
 
-				function incrementTableFieldNames(element)
-				{
-					var i=0;
-					var elementChildren = element.childNodes[i];
-					var tagName = element.tagName;
-
-					if ((tagName == 'INPUT') || (tagName == 'SELECT')) {
-						// increment field name
-						// have to use the _X_ delimiters because asset_finder cleans form names
-						var currentKey = element.name.match(/_X_(\d+)_X_/);
+					// adds a new asset finder as a child of the specified element
+					function cloneInnerHTML(cellToCopy, cellToPopulate)
+					{
+						var htmlToClone = cellToCopy.innerHTML;
+						// discover what the new key should be
+						var currentKey = htmlToClone.match(/_X_(\d+)_X_/);
 						var newKey = parseInt(currentKey[1]) + 1;
-						element.name = element.name.replace(/_X_(\d+)_X_/, '_X_' + newKey + '_X_');
-						element.id = element.id.replace(/_X_(\d+)_X_/, '_X_' + newKey + '_X_');
+						cellToPopulate.innerHTML = htmlToClone.replace(/_X_(\d+)_X_/g, '_X_' + newKey + '_X_');
 					}
 
-					while (elementChildren) {
-						incrementTableFieldNames(elementChildren);
-						i++;
-						elementChildren = element.childNodes[i];
-					}
-				}
-
-				function resetLastTableFields(element, findTable)
-				{
-					// clear all elements inside the table
-					if (findTable) {
-						var element = element.parentNode;
-						while (element.tagName != 'TABLE') {
-							element = element.parentNode;
+					// removes all childNodes from the specified element
+					function removeElementChildNodes(element)
+					{
+						if (element.hasChildNodes()) {
+							while (element.childNodes.length > 0 ) {
+								element.removeChild(element.firstChild);
+							}
 						}
 					}
 
-					var i=0;
-					var elementChildren = element.childNodes[i];
-					var tagName = element.tagName;
+					function incrementTableFieldNames(element)
+					{
+						var i=0;
+						var elementChildren = element.childNodes[i];
+						var tagName = element.tagName;
 
-					if (tagName == 'INPUT') {
-						// don't clear buttons
-						if (element.type != 'button') {
-							element.value = '';
+						if ((tagName == 'INPUT') || (tagName == 'SELECT')) {
+							// increment field name
+							// have to use the _X_ delimiters because asset_finder cleans form names
+							var currentKey = element.name.match(/_X_(\d+)_X_/);
+							var newKey = parseInt(currentKey[1]) + 1;
+							element.name = element.name.replace(/_X_(\d+)_X_/, '_X_' + newKey + '_X_');
+							element.id = element.id.replace(/_X_(\d+)_X_/, '_X_' + newKey + '_X_');
 						}
-						return;
-					} else if (tagName == 'SELECT') {
-						element.selectedIndex = 0;
-						return;
+
+						while (elementChildren) {
+							incrementTableFieldNames(elementChildren);
+							i++;
+							elementChildren = element.childNodes[i];
+						}
 					}
 
-					while (elementChildren) {
-						resetLastTableFields(elementChildren, false);
-						i++;
-						elementChildren = element.childNodes[i];
+					function resetLastRowFields(element, findTable)
+					{
+						// clear all elements inside the table
+						if (findTable) {
+							var element = element.parentNode;
+							while (element.tagName != 'ROW') {
+								element = element.parentNode;
+							}
+						}
+
+						var i=0;
+						var elementChildren = element.childNodes[i];
+						var tagName = element.tagName;
+
+						if (tagName == 'INPUT') {
+							// don't clear buttons
+							if (element.type != 'button') {
+								element.value = '';
+							}
+							return;
+						} else if (tagName == 'SELECT') {
+							element.selectedIndex = 0;
+							return;
+						}
+
+						while (elementChildren) {
+							resetLastRowFields(elementChildren, false);
+							i++;
+							elementChildren = element.childNodes[i];
+						}
 					}
-				}
-			</script>
-		<?php
+				</script>
+			<?php
+
+		$o->closeField();
 
 		return TRUE;
 

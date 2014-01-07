@@ -468,6 +468,17 @@ label {
 	margin-bottom: 				5px;
 }
 
+/* Inputs that are on multiple lines separated by br tags only */
+.sq-break-line-inputs input,
+.sq-break-line-inputs select {
+	margin-bottom:				3px;
+}
+
+.sq-break-line-inputs .sq-tag-line.sq-info-asset-name {
+	display: 					inline-block;
+	margin-bottom:				4px;
+}
+
 
 /*
 ####################################################################################################################
@@ -971,6 +982,11 @@ table.sq-backend-table {
 	vertical-align: 			top;
 }
 
+.sq-backend-table tr:last-child > th,
+.sq-backend-table tr:last-child > .sq-backend-table-header {
+	border-bottom: 				none;
+}
+
 .sq-backend-table td {
 	border-bottom: 				1px solid #ccc;
 }
@@ -1018,6 +1034,29 @@ table.sq-backend-table {
 	padding: 					0 3px;
 }
 
+/* PARAMTER MAP TABLE */
+
+.sq-backend-table .sq-parameter-map-inner th,
+.sq-backend-table .sq-parameter-map-inner td,
+.sq-backend-table .sq-parameter-map-inner td * {
+	vertical-align: 			middle;
+}
+
+/* PAGINATION IN TABLES */
+
+.sq-pagination-links, 
+.sq-pagination-links.sq-no-bottom-border {
+	text-align: 				center;
+	background-color: 			#eee;
+	font-weight: 				normal;
+}
+
+.sq-pagination-links > span {
+	color: 						#84848F;
+}
+
+/* OTHER MISCELLANEOUS STYLES FOR BACKEND DATA */
+
 .sq-backend-data-newline {
 	padding-bottom: 			20px;
 }
@@ -1028,7 +1067,8 @@ table.sq-backend-table {
 
 .sq-backend-smallprint, 
 .sq-backend-smallprint *,
-.sq-backend-note {
+.sq-backend-note,
+.sq-backend-notice {
 	color: 						#777;
 	line-height: 				15px;
 	font-size:					11px;
@@ -1067,10 +1107,6 @@ table.sq-backend-table {
 
 .sq-backend-smallprint ul {
 	margin-top:					0px;
-}
-
-.sq-backend-notice {
-	letter-spacing:				1px;
 }
 
 .sq-backend-data > pre {
@@ -1424,7 +1460,7 @@ EDIT BODYCOPY STYLES
 
 .sq-locked-content-block-wrapper {
 	padding: 					10px;
-	margin: 					10px 0 30px;
+	margin: 					30px 0 10px;
 	position: 					relative;
 }
 
@@ -1744,15 +1780,22 @@ TRIGGER EDITING STYLES
 .sq-backend-triggers-component-body .sq-backend-table {
 	margin-bottom: 				0;
 }
+.sq-backend-triggers-component-body .sq-backend-table.with-bottom-margin {
+	margin-bottom: 				10px;
+}
 
 .sq-backend-triggers-component-body .sq-backend-table th {
 	line-height: 				16px;
 }
 
-.sq-backend-triggers-component-body .sq-backend-table tr:last-child th {
+.sq-backend-triggers-component-body .sq-backend-table tr:last-child > th {
 	border-bottom: 				none;
 }
 
+.sq-backend-triggers-component-body .sq-backend-section-subheading {
+	margin: 					1px 0 10px 0;
+	padding: 					0;
+}
 
 /*
 ####################################################################################################################
@@ -2078,7 +2121,7 @@ ul.info_asset_finder li {
 }
 
 ul.info_asset_finder img.sq-icon{
-	margin: 					-2px 5px 0 0;
+	margin-top: 				-2px;
 }
 
 * html ul.info_asset_finder {
@@ -2353,23 +2396,15 @@ MISCELLANEOUS STYLES
 	list-style: 				none;
 }
 
-/* PAGINATION ON TABLES */
+/* ASSET TAG LINE (INFO, BINOCULARS AND NAME) */
 
-.sq-pagination-links, 
-.sq-pagination-links.sq-no-bottom-border {
-	text-align: 				center;
-	background-color: 			#eee;
-	font-weight: 				normal;
+img.sq-tag-line.sq-icon {
+	margin-right: 				0;
 }
 
-.sq-pagination-links > span {
-	color: 						#84848F;
+.sq-tag-line.sq-info-asset-name {
+	font-weight: 				bold;
 }
-
-.sq-pagination-links > a {
-	
-}
-
 
 /* EMAIL OPTIONS CONFIGURATION SCREEN */
 

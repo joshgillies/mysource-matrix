@@ -1210,6 +1210,7 @@
 	<string source="cannot_delete_inbox-user_link">You can't delete the link between a user and their inbox</string>
 	<string source="cannot_delete_workspace-user_link">You can't delete the link between a user and their workspace</string>
 	<string source="no_user_groups_selected">No User Group has been selected for this condition</string>
+	<string source="no_user_group_selected">No User Group selected</string>
 	<string source="user_group_unrestricted_access_granted">Unrestricted access has been granted. No security restrictions apply on this user group.</string>
 	<string source="user_group_unrestricted_access_denied">Unrestricted access has not been granted. Security restrictions do apply on this user group.</string>
 	<string source="restrict_screen_access">Restrict access for screen</string>
@@ -1282,9 +1283,9 @@
 	<string source="trigger_input_data_error">There was an error with input data</string>
 	<string source="trigger_type_code_not_supplied">Asset type code has not been supplied</string>
 
-	<string source="trigger_new_asset_basic">Create a new asset of type %1$s &lt;br /&gt; %2$s&lt;br /&gt;using a %3$s link &lt;br /&gt; and populate it with the file located on the server at %4$s</string>
+	<string source="trigger_new_asset_basic">Create a new asset of type %1$s %2$s using a %3$s link and populate it with the file located on the server at %4$s.</string>
 	<string source="no_parent_selected">no parent selected</string>
-	<string source="trigger_new_asset_advanced">Use the link value %1$s and link the asset %2$s and %3$s to the parent</string>
+	<string source="trigger_new_asset_advanced">Use the link value %1$s and link the asset %2$s and %3$s to the parent.</string>
 	<string source="no_value_entered">no value entered</string>
 	<string source="set_attributes">Set Attribute Values</string>
 	<string source="trigger_variety_name_cannot_be_empty">Variety name cannot be empty</string>
@@ -1294,21 +1295,21 @@
 	<string source="trigger_set_value_in_this_context">Set value in this context:</string>
 
 	<string source="trigger_replace_file">Replace the file asset's contents with the file stored on the server at %s</string>
-	<string source="trigger_create_clone_basic">Create a clone of the asset: %1$s, and link it as child of the asset: %2$s using a %3$s link.</string>
-	<string source="trigger_create_clone_advanced">Use this value as the link value: %1$s and link the child %2$s to the parent&lt;br /&gt;&lt;br /&gt;%4$s&lt;br /&gt;%5$s&lt;br /&gt;%6$s</string>
+	<string source="trigger_create_clone_basic">Create a clone of asset %1$s and link it as child of asset %2$s using a %3$s link.</string>
+	<string source="trigger_create_clone_advanced">Use the link value %1$s and link the asset %2$s to the parent.&lt;br /&gt;&lt;br /&gt;%4$s&lt;br /&gt;%5$s&lt;br /&gt;%6$s</string>
 	<string source="do_not_create_clone_if_same_name_exists">Do not create if a clone with the same name and asset type already exists</string>
 	<string source="clone_broadcasting_asset">Clone broadcasting asset</string>
 	<string source="link_to_broadcasting_asset">Link to broadcasting asset</string>
 
-	<string source="trigger_create_image_variety_basic">Create an Image Variety with the name: %1$s</string>
+	<string source="trigger_create_image_variety_basic">Create an Image Variety with the name: &lt;strong&gt;%1$s&lt;/strong&gt;</string>
 	<string source="trigger_set_thumbnail">To set a thumbnail, set the value stored in the index: %1$s&lt;br /&gt;This image will be set as a thumbnail to the current asset.</string>
 
-	<string source="trigger_create_link_basic">Link as the %1$s of the asset: %2$s using a %3$s link.</string>
-	<string source="trigger_create_link_advanced">Use this value as the link value: %1$s and link the child %2$s and %3$s to the parent</string>
+	<string source="trigger_create_link_basic">Link as the %1$s of asset %2$s using a %3$s link.</string>
+	<string source="trigger_create_link_advanced">Use the link value %1$s and link the asset %2$s and %3$s to the child/parent asset.</string>
 	<string source="trigger_create_link_remove_others">Unlink this asset from all its existing parents</string>
 	<string source="dependently">Dependently</string>
 	<string source="non_dependently">Non-dependently</string>
-	<string source="trigger_create_under_broadcaster">under the broadcasting asset</string>
+	<string source="trigger_create_under_broadcaster">the broadcasting asset</string>
 
 	<string source="exclusively">Exclusively</string>
 	<string source="non_exclusively">Non-exclusively</string>
@@ -1332,7 +1333,7 @@
 Force that this asset can only be viewed through a Secure (SSL) connection</string>
 	<string source="trigger_set_index_page_select">Select the index page</string>
 	<string source="trigger_set_status">Set the Asset's status to: %1$s&lt;br /&gt;%2$s Set status of dependent parents instead (eg. set the status of a bodycopy DIV's Standard Page parents, instead of itself; if no dependent parents are found, then this option will be ignored and the status set normally).</string>
-	<string source="trigger_increment_version">Increment this component of the Asset's version number: %s</string>
+	<string source="trigger_increment_version">Increment this component of the Asset's %s version number. </string>
 
 	<string source="trigger_set_paint_layout">Select the paint layout</string>
 	<string source="trigger_set_paint_layout_select">Set the asset's paint layout to: </string>
@@ -1404,8 +1405,8 @@ Force that this asset can only be viewed through a Secure (SSL) connection</stri
 
 	<string source="trigger_action_add_remap_message">The new remap URL consisting of site URL and assetid will be added to remap.</string>
 	<string source="trigger_create_design_customisation_usage">This trigger will create a design customisation of the design asset in which the trigger condition is matched.</string>
-	<string source="trigger_create_design_customisation_specify_name">Specify a name for the customisation</string>
-	<string source="trigger_create_design_customisation_select_keyword">Available keywords for naming</string>
+	<string source="trigger_create_design_customisation_specify_name">Specify a name for the customisation: </string>
+	<string source="trigger_create_design_customisation_select_keyword">Available keywords for naming: </string>
 
 	<string source="trigger_avg_comment_rating_metadata_field">Metadata text field to store ratings average: </string>
 	<string source="trigger_total_comment_rating_metadata_field">Metadata text field to store total comments: </string>
@@ -2667,7 +2668,7 @@ If you are ready to continue, please click <strong>Next</strong> to proceed with
 	<string source="trigger_add_web_path_dont_add_remap">Don't add remap</string>
 
 	<!-- Future Status Trigger Actions -->
-	<string source="trigger_delete_future_status">Delete all future status cron jobs that would change the asset's status to:</string>
+	<string source="trigger_delete_future_status">Delete all future status cron jobs that would change the asset's status to </string>
 	<string source="trigger_action_future_status_cascade_all">and cascade the status change to all children of the asset</string>
 	<string source="trigger_action_future_status_failure_conditions">NB. If a selected attribute is empty or not present, or the calculated value is in the past, no future status will be set</string>
 	<string source="trigger_action_future_status_date_format">NB. Metadata Date Field must provide ISO8601 format as Y-m-d H:i:s</string>
@@ -2690,6 +2691,9 @@ If you are ready to continue, please click <strong>Next</strong> to proceed with
 	<string source="trigger_action_future_permission_attr_interval">the date and time stored in the attribute</string>
 	<string source="trigger_action_future_permission_cascade_all">and cascade the permission change to all children of the asset</string>
 	<string source="trigger_action_future_permission_failure_conditions">NB. If a selected attribute is empty or not present, or the calculated value is in the past, no future permission will be set</string>
+
+	<!-- Miscellaneous Trigger Action Strings -->
+	<string source="trigger_action_no_configuration">This trigger action does not require any configuration.</string>
 
 	<string source="web_paths_auto_add_remaps">Automatically add remaps?</string>
 	<string source="web_paths_auto_add_remaps_label">Automatically add remaps</string>

@@ -336,7 +336,7 @@ class Backend extends MySource_Object
 					div.iframe-container.lower-set {
 						padding-top: 0;
 						z-index: 0;
-						overflow: hidden;
+						/*overflow: hidden; Not sure why I put this in, but this causes a 4px movement upwards in webkit browsers on load, might be IE related */
 					}
 
 					div.iframe-container.sidenav {

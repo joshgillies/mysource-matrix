@@ -211,10 +211,9 @@ class Trigger_Action_Create_Link extends Trigger_Action
 				asset_finder($prefix.'[assetid]', $selected_assetid);
 			} else {
 				if ($selected_assetid) {
-					$selected_assetname = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($selected_assetid), Array(), TRUE, 'name');
-					text_box($prefix.'[assetid]', $selected_assetname[$selected_assetid].' (#'.$selected_assetid.')', '', '', FALSE, $form_element_extras);
+					echo get_asset_tag_line($selected_assetid);
 				} else {
-					text_box($prefix.'[assetid]', '', '', '', FALSE, $form_element_extras);
+					echo '<b>['.translate('no_parent_selected').']</b>';
 				}
 			}
 
@@ -277,7 +276,7 @@ class Trigger_Action_Create_Link extends Trigger_Action
 		ob_end_clean();
 
 		$contents = translate('trigger_create_link_basic', $basic_part_1, $basic_part_2, $basic_part_3).
-					'<br />'.$basic_part_4.'<br />'.
+					'<br /><br />'.$basic_part_4.'<br />'.
 					'<b>'.translate('triggers_advanced_user_options').'</b><br />'.
 					translate('trigger_create_link_advanced', $advanced_part_1, $advanced_part_2, $advanced_part_3).
 					'<br />'.$advanced_part_4;

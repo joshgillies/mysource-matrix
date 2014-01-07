@@ -129,7 +129,11 @@ class Trigger_Action_Delete_Future_Status extends Trigger_Action
 
 		ob_start();
 			echo translate('trigger_delete_future_status');
-			combo_box($prefix.'[status]', $status_list, FALSE, $selected_status, NULL, $form_element_extras);
+			if ($write_access) {
+				combo_box($prefix.'[status]', $status_list, FALSE, $selected_status, NULL, $form_element_extras);
+			} else {
+				echo get_asset_status_icon($selected_status).'<strong>'. get_status_description($selected_status).'</strong>';
+			}
 			$html = ob_get_contents();
 		ob_end_clean();
 

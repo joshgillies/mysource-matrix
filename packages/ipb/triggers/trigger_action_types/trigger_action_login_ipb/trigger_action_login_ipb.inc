@@ -130,10 +130,10 @@ class Trigger_Action_Login_Ipb extends Trigger_Action
 		$ipbsdk_path = array_get_index($settings, 'ipbsdk_path', '');
 		ob_start();
 		?>
-		<table border="0">
+		<table class="sq-backend-table">
 			<tr>
-				<td valign="top"><b><?php echo translate('ipb_path_to_ipbsdk'); ?></b></td>
-				<td valign="top" style="padding-bottom: 10px;"><?php
+				<th><?php echo translate('ipb_path_to_ipbsdk'); ?></th>
+				<td><?php
 					// level
 					if ($write_access) {
 						echo text_box($prefix.'[ipbsdk_path]', $ipbsdk_path, '50');
@@ -142,7 +142,7 @@ class Trigger_Action_Login_Ipb extends Trigger_Action
 					}
 				?>
 				<br /><b>Note:</b>&nbsp;Please make sure the IPB SDK version is compatible with the installed IPB.
-				<br />For more information, please visit <a href="http://ipbsdk.sourceforge.net/">the IPBSDK website</a>
+				<br />For more information, please visit <a href="http://ipbsdk.sourceforge.net/" target="_blank">the IPBSDK website</a>.
 				</td>
 			</tr>
 		</table>
