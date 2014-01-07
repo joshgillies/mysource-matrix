@@ -205,8 +205,9 @@ class HIPO_Job_Import_Assets_From_Xml extends HIPO_Job
 	*/
 	function processImportAsset(&$step_data, $prefix, $freestyle=FALSE)
 	{
-		$import_actions = $this->_running_vars['import_actions'];
+		define ('SQ_IN_IMPORT', 1);
 		
+		$import_actions = $this->_running_vars['import_actions'];
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_SECURITY_PERMISSIONS);
