@@ -467,7 +467,7 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 				echo "   <action_type>set_attribute_value</action_type>\n";
 				echo "   <asset>[[output://create_".$this->_running_vars['asset_id_map'][$asset_id].".assetid]]</asset>\n";
 				echo "   <attribute>".$attr_name."</attribute>\n";
-				$value = $this->_parseValue($value, $attr_name, 'set_'.$this->_running_vars['asset_id_map'][$asset_id].'_'.$attr_name);
+				$value = $this->_parseValue($value, $attr_name, 'set_'.$this->_running_vars['asset_id_map'][$asset_id].'_'.$attr_name, $asset->type());
 
 				echo "   <value><![CDATA[".$this->_escapeCDATA($value)."]]></value>\n";
 				echo "</action>\n\n";
@@ -914,7 +914,7 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 	* @return void
 	* @access private
 	*/
-	function _parseValue($value, $attribute_name, $actionid) {
+	function _parseValue($value, $attribute_name, $actionid, $asset_type) {
 		$assetid_mapped = Array();
 
 		$shadow_reg = '|.\/?a=(\d+:\w*)|';
@@ -950,12 +950,28 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 			(?P<prefix>%(
 				globals_asset_[a-z]+:
 				|asset_summary_
+				|begin_[a-z_]+_
+				|else_[a-z_]+_
+				|end_[a-z_]+_
 			))
 			(?P<id>\d+(\:\w+)?)
 			(?P<suffix>%)
 			!msixS';
 		preg_match_all($re, $value, $matches, PREG_SET_ORDER);
 
+		// conditions data also needs to be converted
+		if(($attribute_name === 'conditions' && $asset_type === 'page_standard')
+		|| ($attribute_name === 'attributes' && $asset_type === 'bodycopy_div')) {
+		    $re = '!
+			    (?P<prefix>(div)?_)
+			    (?P<id>\d+)
+			    (?P<suffix>\')
+			    !msixS';
+		    preg_match_all($re, $value, $condition_matches, PREG_SET_ORDER);
+		    $matches += $condition_matches;
+		}
+		
+		
 		$searches = array();
 		$replaces = array();
 		foreach ($matches as $match) {
@@ -966,7 +982,8 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 				$globals_processed = TRUE;
 			}
 		}
-
+		
+		
 		if ($globals_processed) {
 			$value = str_replace($searches, $replaces, $value);
 		}

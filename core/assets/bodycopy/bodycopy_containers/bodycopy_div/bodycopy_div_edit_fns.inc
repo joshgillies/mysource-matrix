@@ -349,7 +349,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 				    }
 				    // test if there is set conditions
 				    $conditions = $dependant_parent_asset->getConditions();
-				    if(isset($conditions['conditional_div'][$asset->id]['conditions'][0]['conditions'][0]))
+				    if(isset($conditions['conditional_div']['div_'.$asset->id]['conditions'][0]['conditions'][0]))
 					$is_conditional_display = TRUE;
 				}
 				if(!empty($all_conditions)) {
