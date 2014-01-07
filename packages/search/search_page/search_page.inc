@@ -305,7 +305,7 @@ class Search_Page extends Listing_Engine
 	{
 		// start performance mode timer
 		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'prepareSearchQuery');
-		
+
 		if (isset($_REQUEST[$this->getPrefix().'_submit_button']) && empty($_REQUEST['mode'])) {
 			$_REQUEST['mode'] = 'results';
 		}
@@ -377,10 +377,10 @@ class Search_Page extends Listing_Engine
 
 		// stop performance mode timer
 		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'prepareSearchQuery');
-		
+
 		// start performance mode timer
 		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'printBody');
-		
+
 		switch ($mode) {
 			case 'results':
 			case 'sis'    :
@@ -1038,7 +1038,7 @@ class Search_Page extends Listing_Engine
 	* @access public
 	*/
 	function getFieldReplacement($field_name, $sub_field='')
-	{	
+	{
 		$query_var = $field_name.'_query';
 		$fields = $this->attr('fields');
 		if (!isset($fields[$field_name])) return;
@@ -1717,7 +1717,7 @@ class Search_Page extends Listing_Engine
 
 
 	/**
-	* Keyword-replaces for the results mode
+	* Keyword-replaces for the results mode (wrapper function)
 	*
 	* @param array	&$results	the results returned
 	* @param string	$bc_name	the name of the bodycopy to be printed (results | no_results)
@@ -1727,7 +1727,6 @@ class Search_Page extends Listing_Engine
 	*/
 	function getResultsBodyReplacements(&$results, $bc_name='results')
 	{
-		$mode = array_get_index($_REQUEST, 'mode', 'results');
 		$bodycopy =& $this->getBodycopy($bc_name);
 		if (is_null($bodycopy)) {
 			return Array();
@@ -1735,8 +1734,8 @@ class Search_Page extends Listing_Engine
 
 		$keywords = $bodycopy->getKeywords();
 
-		// if we have %page_list_X% keywords in the array before the %result_list% 
-		// rip it off and put it at the end of the array or else it will not be 
+		// if we have %page_list_X% keywords in the array before the %result_list%
+		// rip it off and put it at the end of the array or else it will not be
 		// replace at all #4527 Matrix search page results has no output for page_list_X keywords
 		$page_list_keywords = Array();
 		foreach ($keywords as $index => $keyword) {
@@ -1747,7 +1746,67 @@ class Search_Page extends Listing_Engine
 		}
 
 		$keywords = array_merge($keywords, $page_list_keywords);
+
+		// if we are to use the listing engine stuff then we need to change
+		// to a getAssetList() style format
+		if (!empty($results)) {
+			$sort_info  = $this->getSortInfo();
+			$asset_info = $this->sortAssetList($results, $sort_info);
+		}
+
+		$this->filterAssetList($asset_info);
+		if (!is_array($asset_info)) $asset_info = Array();
+
+		// Important!!! Missing these values in the overridden Listing Engine type of asset
+		// will generate numerous notice errors when they try to group the result by asset type
+		$this->_tmp['assets_info'] = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($asset_info));
+		$this->_tmp['asset_urls'] = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_keys($asset_info));
+		$this->_tmp['temp_results'] = $results;
+
+		return $this->getLocalKeywordsReplacements($keywords, $asset_info);
+
+	}//end getResultsBodyReplacements()
+
+
+	/**
+	* Keyword-replaces. Code extract from above to make into a
+	* function so that we can use it directly with the apply_keyword_modifier()
+	*
+	* @param mixed	$keywords	the keywords we are looking te replacement for
+	* @param array	$asset_info the asset_info of the results that we are going to process
+	*
+	* @return void
+	* @access private
+	*/
+	function getLocalKeywordsReplacements($keywords, $asset_info=Array())
+	{
 		$replaces = Array();
+
+		if (!$keywords) return $replaces;
+
+		$mode = array_get_index($_REQUEST, 'mode', 'results');
+		$keyword_as_string = FALSE;
+		if (!is_array($keywords)) {
+			$keywords = Array($keywords);
+			$keyword_as_string = TRUE;
+		}
+
+		// get any extra keyword replacements from asset_listing
+		if (empty($asset_info) && isset($this->_tmp['temp_results'])) {
+			$sort_info  = $this->getSortInfo();
+			$asset_info = $this->sortAssetList($this->_tmp['temp_results'], $sort_info);
+		}
+		$parent_replaces = $this->getContentsKeywordReplacements($keywords);
+
+		// filter out inrelevent groups if group name must match query string feature is enabled.
+		$group_name_filters = $this->_getSearchedQueries();
+
+		if ($this->attr('group_by') == 'grouped') {
+			$this->groupAssetsRecursively($this->attr('asset_grouping'), $asset_info, $asset_info, $group_name_filters);
+			$this->sortGroups($this->attr('asset_grouping'), $asset_info, $asset_info);
+		}
+
+		$total_assets_count = $this->_arrayCountRecursive($asset_info);
 
 		$listing_result_page = (int) array_get_index($_REQUEST, 'result_'.$this->id.'_result_page', 0);
 		$search_result_page = (int) array_get_index($_REQUEST, 'current_result_page', 1);
@@ -1759,7 +1818,7 @@ class Search_Page extends Listing_Engine
 		$results_per_page    = array_get_index($_REQUEST, 'results_per_page', $this->_getNumPerPage());
 		$this->_tmp['start_element'] = ($current_result_page - 1) * $results_per_page;
 		$queries = '';
-		
+
 		foreach ($_GET as $query_name => $query_value) {
 			// skip some get vars that will be added later by the keyword replacements
 			if (!in_array($query_name, Array('mode', 'current_result_page', 'results_per_page', 'result_'.$this->id.'_result_page'))) {
@@ -1773,48 +1832,16 @@ class Search_Page extends Listing_Engine
 			}
 		}
 
-		// if we are to use the listing engine stuff then we need to change
-		// to a getAssetList() style format
 
-		if (!empty($results)) {
-			$sort_info  = $this->getSortInfo();
-			$asset_info = $this->sortAssetList($results, $sort_info);
-		}
-
-		$this->filterAssetList($asset_info);
-
-		if (!is_array($asset_info)) $asset_info = Array();
-
-		// Important!!! Missing these values in the overridden Listing Engine type of asset
-		// will generate numerous notice errors when they try to group the result by asset type
-		$this->_tmp['assets_info'] = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($asset_info));
-		$this->_tmp['asset_urls'] = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_keys($asset_info));
-
-		// get any extra keyword replacements from asset_listing
-		$parent_replaces = $this->getContentsKeywordReplacements($keywords);
-		
-		// filter out inrelevent groups if group name must match query string feature is enabled.
-		$group_name_filters = $this->_getSearchedQueries();
-		
-		if ($this->attr('group_by') == 'grouped') {
-			$this->groupAssetsRecursively($this->attr('asset_grouping'), $asset_info, $asset_info, $group_name_filters);
-			$this->sortGroups($this->attr('asset_grouping'), $asset_info, $asset_info);
-		}
-		
-		$total_assets_count = $this->_arrayCountRecursive($asset_info);
-		
 		$asset_info = $this->getChunk($asset_info, $parent_replaces, $keywords, $current_result_page, $results_per_page);
 		// For the 'select all' code
 		$this->_analyseCheckAllRelations($asset_info);
-					
+
 		if ($results_per_page != 0) {
 			$total_pages = isset($parent_replaces['total_pages']) ? $parent_replaces['total_pages'] : ceil(count($asset_info) / $results_per_page);
 		} else {
 			$total_pages = 1;
 		}
-		
-
-					
 
 		foreach ($keywords as $keyword) {
 			$full_keyword = $keyword;
@@ -2134,16 +2161,22 @@ class Search_Page extends Listing_Engine
 			}//end switch
 
 			if ($apply_modifiers && $replacement != "%$full_keyword%"){
-				apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id));
+				// we passing in the 'call_fns' argument below to make sure we use this current function if in case
+				// there are any  nested keywords that needs to be replaced by the apply_keyword_modifiers function
+				apply_keyword_modifiers($replacement, $modifiers, Array('assetid' => $this->id, 'call_fns' => Array('getLocalKeywordsReplacements')));
 			}
 
 			$replaces[$full_keyword] = $replacement;
 
 		}//end foreach
 
+		if ($keyword_as_string) {
+			$replaces = $replaces[$keywords[0]];
+		}
+
 		return $replaces;
 
-	}//end getResultsBodyReplacements()
+	}//end getLocalKeywordsReplacements()
 
 
 	/**
@@ -2368,7 +2401,7 @@ class Search_Page extends Listing_Engine
 
 		$fields = $this->attr('fields');
 		$queries = $this->_getSearchedQueries();
-		
+
 		// Add date range restriction as a search field and query.
 		$this->_addDateRangeRestriction($fields, $queries);
 
@@ -2437,7 +2470,7 @@ class Search_Page extends Listing_Engine
 			$search_info['fields'][$field_name] = $fields[$field_name];
 			$search_info['fields'][$field_name]['words'] = $value;
 			$search_info['fields'][$field_name]['exclude_field'] = array_get_index($fields[$field_name], 'exclude_field', FALSE);
-			
+
 			// If there is aleast one "regular" search field, we have the query fields
 			if (!$search_info['fields'][$field_name]['exclude_field']) {
 				$query_fields_exist = TRUE;
@@ -2449,7 +2482,7 @@ class Search_Page extends Listing_Engine
 			}
 
 		}//end foreach fields
-		
+
 		// spell-check suggestions
 		if (!empty($search_info['fields'])) {
 			foreach ($search_info['fields'] as $field_name => $field_content) {
@@ -2545,7 +2578,7 @@ class Search_Page extends Listing_Engine
 						}//end if
 					}//end if
 				}//end foreach()
-				
+
 				// Seperate "exclude" fields from regular "search" fields
 				if ($field['exclude_field']) {
 					$search_info['exclude'][$fieldname] = $search_info['fields'][$fieldname];
@@ -2562,7 +2595,7 @@ class Search_Page extends Listing_Engine
 			if(!$this->attr('allow_empty_search') && count($search_info['fields']) == 1 && isset($search_info['fields']['matrix_search_page_date_range'])){
 				return Array();
 			}
-			
+
 			$auto_ss_field = $this->attr('auto_synonym_search_field');
 			$search_results = $sm->processSearch($search_info);
 
@@ -3455,7 +3488,7 @@ class Search_Page extends Listing_Engine
 
 
 	/**
-	* This function will generate an array of the search var to process 
+	* This function will generate an array of the search var to process
 	* depending on the GET/POST variable defined and the search terms passed
 	*
 	*
