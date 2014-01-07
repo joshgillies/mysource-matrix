@@ -19,7 +19,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/jobs/hipo_job_regenerate_design.inc';
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 require_once SQ_LIB_PATH.'/import_export/import.inc';
 
-
+define ('SQ_IN_IMPORT', 1);
 /**
 * HIPO for importing a large HTML file into Matrix assets
 *
@@ -205,7 +205,6 @@ class HIPO_Job_Import_Assets_From_Xml extends HIPO_Job
 	*/
 	function processImportAsset(&$step_data, $prefix, $freestyle=FALSE)
 	{
-		define ('SQ_IN_IMPORT', 1);
 		
 		$import_actions = $this->_running_vars['import_actions'];
 
