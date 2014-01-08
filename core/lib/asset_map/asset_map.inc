@@ -1052,10 +1052,13 @@ class Asset_Map
 					$sql = 'SELECT COUNT(*)
 							FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_major';
 					$where  = 'majorid = :assetid AND link_type <= :max_link_type';
-					$where .= ' AND substr(minorid, 1, (case when position(\':\' in minorid) = 0 then length(minorid) else position(\':\' in minorid) - 1 end)) IN (SELECT assetid FROM  '.SQ_TABLE_RUNNING_PREFIX.'ast)';
+					if (MatrixDAL::getDbType() === 'oci') {
+						$where .= ' AND substr(minorid, 1, (case when instr(\':\', minorid) = 0 then length(minorid) else instr(\':\', minorid) - 1 end)) IN (SELECT assetid FROM  '.SQ_TABLE_RUNNING_PREFIX.'ast)';
+					} else {
+						$where .= ' AND substr(minorid, 1, (case when position(\':\' in minorid) = 0 then length(minorid) else position(\':\' in minorid) - 1 end)) IN (SELECT assetid FROM  '.SQ_TABLE_RUNNING_PREFIX.'ast)';
+					}
 					$bind_vars['assetid']       = $assetid;
 					$bind_vars['max_link_type'] = SQ_LINK_TYPE_2;
-					$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ast', 'WHERE', FALSE);
 					$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ast_', 'WHERE', FALSE);
 					$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lnk_', 'WHERE', FALSE);
 
@@ -1294,31 +1297,33 @@ class Asset_Map
 			$bind_vars = Array();
 			// Search both tables (sq_ast_lnk - 1 and sq_shdw_ast_lnk - 2) and union the results
 			// Ensure all children in the real link table actually exist.
-			$sql1 = 'SELECT majorid, COUNT(*) as link_count FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast ON sq_ast_lnk.minorid = sq_ast.assetid';
-			$sql2 = 'SELECT majorid, COUNT(*) as link_count FROM '.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk';
+			$sql1 = 'SELECT majorid, COUNT(*) as link_count FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON l.minorid = a.assetid';
+			$sql2 = 'SELECT majorid, COUNT(*) as link_count FROM '.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk l';
 
-			$sub_sql1 = 'SELECT minorid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk';
-			$sub_sql2 = 'SELECT minorid FROM '.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk';
+			$sub_sql1 = 'SELECT minorid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk sl';
+			$sub_sql2 = 'SELECT minorid FROM '.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk sl';
 			$sub_where1 = 'majorid = :assetid';
 			$sub_where2 = 'majorid = :assetid2';
 			$bind_vars['assetid'] = $assetid;
 			$bind_vars['assetid2'] = $assetid;
-			$sub_where1 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where1, NULL, 'WHERE', FALSE);
-			$sub_where1 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where1, NULL, 'WHERE', FALSE);
-			$sub_where2 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where2, NULL, 'WHERE', FALSE);
-			$sub_where2 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where2, NULL, 'WHERE', FALSE);
+			$sub_where1 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where1, 'sl');
+			$sub_where2 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where2, 'sl');
 			$sub_sql = $sub_sql1.' '.$sub_where1.' GROUP BY minorid UNION ALL '.$sub_sql2.' '.$sub_where2.' GROUP BY minorid';
 
 			// Here we ensure that for each child of a shadow link, that it exists if it
 			// is a real asset, or its bridge exists if it's a shadow asset.
 			$where1 = 'majorid IN ('.$sub_sql.') AND link_type <= :max_link_type';
-			$where2 = $where1.' AND substr(minorid, 1, (case when position(\':\' in minorid) = 0 then length(minorid) else position(\':\' in minorid) - 1 end)) IN (SELECT assetid FROM  '.SQ_TABLE_RUNNING_PREFIX.'ast)';
+			if (MatrixDAL::getDbType() === 'oci') {
+				$where2 = $where1.' AND substr(minorid, 1, (case when instr(\':\', minorid) = 0 then length(minorid) else instr(\':\', minorid) - 1 end)) IN (SELECT assetid FROM  '.SQ_TABLE_RUNNING_PREFIX.'ast)';
+			} else {
+				$where2 = $where1.' AND substr(minorid, 1, (case when position(\':\' in minorid) = 0 then length(minorid) else position(\':\' in minorid) - 1 end)) IN (SELECT assetid FROM  '.SQ_TABLE_RUNNING_PREFIX.'ast)';
+			}
 			$bind_vars['max_link_type'] = SQ_LINK_TYPE_2;
 
-			$where1 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where1, NULL, 'WHERE', FALSE);
+			$where1 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where1, 'l');
 			$where1 .= ' GROUP BY majorid ';
 
-			$where2 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where2, NULL, 'WHERE', FALSE);
+			$where2 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where2, 'l');
 			$where2 .= ' GROUP BY majorid ';
 
 			$query2 = MatrixDAL::preparePdoQuery($sql1.' '.$where1.' UNION ALL '.$sql2.' '.$where2);
