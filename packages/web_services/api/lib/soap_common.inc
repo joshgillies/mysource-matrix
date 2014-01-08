@@ -728,6 +728,7 @@ class SOAP_Common
 			'RETURNTRANSFER' => 1,
 			'HTTPAUTH'          => CURLAUTH_BASIC,
 			'TIMEOUT'        => 3,
+			'SSL_VERIFYPEER' => 0,
 		   );
 		if(!empty($username)) {
 		    $options['USERPWD'] = $username.":".$password;
