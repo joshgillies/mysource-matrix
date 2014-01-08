@@ -345,7 +345,7 @@ class Bodycopy extends Asset
 		if(isset($GLOBALS['SQ_CONDITION']['conditional_div'])) {
 		    foreach (array_keys($containers) as $i) {
 			$container =& $containers[$i];
-			if(isset($GLOBALS['SQ_CONDITION']['conditional_div'][$container->id]) && !$GLOBALS['SQ_CONDITION']['conditional_div'][$container->id]) {
+			if(isset($GLOBALS['SQ_CONDITION']['conditional_div']['div_'.$container->id]) && !$GLOBALS['SQ_CONDITION']['conditional_div']['div_'.$container->id]) {
 			    // do not display div that is evaled false
 			    unset($containers[$i]);
 			}

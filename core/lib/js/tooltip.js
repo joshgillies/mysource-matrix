@@ -52,8 +52,7 @@ function tt_print()
 {
 	if (!document.getElementById("ToolBox")) 
 	{
-		output = '<iframe class="sq-tooltip-popup" scrolling="no" border="0" frameborder="0" id="hider" style="position:absolute; top:-200px;left:-110px;width:10px; height:30px; z-index: 999" src="/__lib/web/images/icons/asset_locator.png"></iframe>';
-		output += '<div id="ToolBox" class="sq-toolbox-wrapper" style="position: absolute; z-index: 1001;"><table class="sq-toolbox-table"><tr><td id="ToolBoxTitle" class="sq-toolbox-title"></td></tr><tr><td class="sq-toolbox-content" id="ToolBoxContent"></td></tr></table></div>';
+		output = '<div id="ToolBox" class="sq-toolbox-wrapper" style="position: absolute; z-index: 1001;"><table class="sq-toolbox-table"><tr><td id="ToolBoxTitle" class="sq-toolbox-title"></td></tr><tr><td class="sq-toolbox-content" id="ToolBoxContent"></td></tr></table></div>';
 		if (document.body.insertAdjacentHTML) {
 			document.body.insertAdjacentHTML('afterBegin', output);
 		}
@@ -160,7 +159,6 @@ function tt_hide()
 
 	if (tool_box.filters && tool_box.filters[0]) tool_box.filters[0].Apply();
 	tool_box.style.visibility 	= "hidden";
-	document.getElementById("hider").style.visibility = "hidden";
 	if (tool_box.filters && tool_box.filters[0]) tool_box.filters[0].Play();
 
 	this.showing = false;
@@ -198,28 +196,6 @@ function tt_paint(top, left, text, title, close_button)
 
 		if (typeof(title) != "undefined") document.getElementById("ToolBoxTitle").innerHTML = unescape(title);
 
-		if (closeElement = document.getElementById("ToolBoxClose")) {
-			closeElement.parentNode.removeChild(closeElement);
-		}
-
-		if (typeof close_button != 'undefined') {
-			closeElement = document.createElement('th');
-			/*
-			closeElement.style.textAlign = 'right';
-			closeElement.style.padding = '2px';
-			closeElement.style.backgroundColor = this.title_bg;
-			*/
-			closeElement.id = 'ToolBoxClose';
-			closeElement.className = 'sq-toolbox-close';
-
-			//if (close_button == true) {
-				close_button = '<img src="/__lib/web/images/icons/cancel.png" alt="Cancel" title="Cancel" class="sq-icon">';
-			//}
-
-			closeElement.innerHTML = '<a href="#" onclick="tooltip.hide(); return false;">' + close_button + '</a>';
-			document.getElementById("ToolBoxTitle").parentNode.appendChild(closeElement);
-			document.getElementById("ToolBoxContent").colSpan = 2;
-		}
 	}
 	else
 	{
@@ -260,15 +236,6 @@ function tt_paint(top, left, text, title, close_button)
 		tool_box.style.top 	= top + "px";
 		tool_box.style.left	= left + "px";
 
-		if (window.event)
-		{
-		  var hider = document.getElementById("hider");
-		  hider.style.top = top;
-		  hider.style.left = left;
-		  hider.style.width = tool_box.offsetWidth;
-		  hider.style.height = tool_box.offsetHeight;
-		  hider.style.visibility = "visible";
-		}
 	}
 	/*
 	tool_box.style.font 		= this.normal_font;

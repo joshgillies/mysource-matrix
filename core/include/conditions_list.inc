@@ -528,7 +528,7 @@ class Conditions_List
 	{
 		$desired_name = trim($desired_name);
 		// have to make sure it's a valid keyword
-		$desired_name = preg_replace('/[^a-zA-Z0-9_\-\.: ]/' , '_',$desired_name);
+		$desired_name = preg_replace('/[^a-zA-Z0-9_]/' , '_',$desired_name);
 		if (empty($desired_name)) {
 			$desired_name = 'condition_1';
 		}
