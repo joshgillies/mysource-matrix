@@ -41,6 +41,7 @@ class Page_REST_Resource_JS extends Page_REST_Resource
 	*/
 	function __construct($assetid=0)
 	{
+		$this->_ser_attrs = TRUE;
 		parent::__construct($assetid);
 
 	}//end constructor
