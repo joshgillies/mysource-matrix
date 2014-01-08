@@ -246,9 +246,8 @@ if ($search_for != '') {
 <html>
 	<head>
 		<title>Insert Image - Search</title>
-		<style type="text/css">
-			@import url("<?php echo sq_web_path('root_url')?>/__fudge/wysiwyg/core/popup.css");
-		</style>
+		<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('lib').'/web/css/edit.css' ?>" />
+		<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('root_url')?>/__fudge/wysiwyg/core/popup.css" />
 		<script type="text/javascript"><!--
 			/**
 			* Run when quick-search-for box is tabbed/clicked to

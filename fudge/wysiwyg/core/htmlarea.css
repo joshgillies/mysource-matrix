@@ -56,6 +56,7 @@
 
 .htmlarea-button img{
 	margin: 			0;
+	cursor: 			pointer;
 }
 
 .htmlarea-buttonHover,
