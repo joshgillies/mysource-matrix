@@ -1104,6 +1104,22 @@
 	<string source="condition_user_ipv6_import_from_file_explain">The file uploaded should be a CSV file without a header row. Each line should contain exactly 3 fields: the first being the network IP address, the second being the subnet mask in the CIDR notation, and the third being a one (1) for a Grant rule or zero (0) for a Deny rule. The default Grant/Deny setting is not affected by any upload and should be set separately.</string>
 	<string source="condition_user_ipv6_note">NOTE: The network address entered will be automatically lowercased and converted to the "compressed" format. For example, all of these IPv6 addresses "00ff:0:0:0:0:0:0:0", "FF:0::0", "00ff::0000" will be converted to "ff::".</string>
 
+	<!-- Visited Pages Condition -->
+	<string source="condition_visited_pages_true">The previously visited url(s) matches the following pattern(s) or assetid(s)</string>
+	<string source="condition_visited_pages_false">The previously visited url(s) does not matches the following pattern(s) or assetid(s)</string>
+	<string source="condition_visited_no_assetids_selected">No assetids selected</string>
+	<string source="condition_visited_no_patterns_set">No URL patterns selected</string>
+
+	<!-- Entry Page Condition -->
+	<string source="condition_entry_page_true">The entry page url matches the following pattern(s) or assetid(s)</string>
+	<string source="condition_entry_page_false">The entry page url does not matches the following pattern(s) or assetid(s)</string>
+	<string source="condition_entry_page_no_assetids_selected">No assetids selected</string>
+	<string source="condition_entry_page_no_patterns_set">No URL patterns selected</string>
+
+	<!-- Referrer URL Condition -->
+	<string source="condition_referrer_url_true">The referrer url matches the following pattern(s)</string>
+	<string source="condition_referrer_url_false">The referrer page url does not matches the following pattern(s)</string>
+	<string source="condition_referrer_url_no_patterns_set">No URL patterns selected</string>
 	<string source="server_variable">Server Variable</string>
 	<string source="pattern">Pattern</string>
 	<string source="user_agent_pattern">User Agent Pattern</string>
