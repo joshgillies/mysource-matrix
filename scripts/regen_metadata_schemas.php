@@ -148,15 +148,12 @@ $current_asset_list    = Array();
                     foreach ($current_asset_list as $assetid) {
                         $asset    = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
                         $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-                       $contextids = array_keys($GLOBALS['SQ_SYSTEM']->getAllContexts());
-                        foreach ($contextids as $contextid) {
-                            if (!$mm->regenerateMetadata($assetid, NULL)) {
-                                trigger_error('Asset failed to regenrate metedata #'.$assetid.'', E_USER_WARNING);
-                                continue;
-                            }//end if
-                            else {
-                                printUpdateStatus('Regenerated Metadata for assetid '.$assetid);
-                            }
+                        if (!$mm->regenerateMetadata($assetid, 'all')) {
+                        	trigger_error('Asset failed to regenrate metedata #'.$assetid.'', E_USER_WARNING);
+                            continue;
+                        }//end if
+                        else {
+                        	printUpdateStatus('Regenerated Metadata for assetid '.$assetid);
                         }
                     
                         $GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
