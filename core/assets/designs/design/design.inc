@@ -1188,7 +1188,6 @@ echo '/*
 	*/
 	protected function _writeDesignFile($str)
 	{
-		$str = preg_replace('|\?>([\s]+)?<\?php|', '', $str);
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		create_directory($this->data_path);
 		$file = $this->data_path.'/design_file.php';
