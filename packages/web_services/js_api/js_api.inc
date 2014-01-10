@@ -2929,6 +2929,7 @@ class JS_Api extends Page
 		$data = Array(
 					'name'						=>	$asset->name,
 					'short_name'				=>	$asset->short_name,
+					'asset_id'					=>	$asset->id,
 					'id'						=>	$asset->id,
 					'type_code'					=>	$asset->type(),
 					'type'						=>	str_replace('_', ' ', get_class($asset)),
