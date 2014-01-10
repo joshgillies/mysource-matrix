@@ -297,14 +297,15 @@ class Asset_Attribute extends MySource_Object
 	/**
 	* Sets the value of this attribute after validating
 	*
-	* @param mixed	&$value	value to be validated
+	* @param mixed	 &$value	value to be validated
+	* @param boolean $validate	Whether to validate the value
 	*
 	* @return boolean
 	* @access public
 	*/
-	function setValue(&$value)
+	function setValue(&$value, $validate=TRUE)
 	{
-		if (!$this->validateValue($value)) {
+		if ($validate && !$this->validateValue($value)) {
 			trigger_localised_error('SYS0073', E_USER_WARNING, $value, $this->type());
 			return FALSE;
 		}
