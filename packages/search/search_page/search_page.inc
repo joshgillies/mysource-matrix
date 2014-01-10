@@ -1141,7 +1141,7 @@ class Search_Page extends Listing_Engine
 							}
 
 							// set the current value of the search field
-							@$attribute->setValue($query);
+							$attribute->setValue($query);
 
 							// give the attribute our custom search styles if we have them
 							$search_styles = $this->attr('search_styles');
