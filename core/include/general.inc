@@ -1861,24 +1861,23 @@ function asset_locator_onclick($lineage_assetids, $tooltip_hide)
 		$lineage_item = str_replace('\'', '\\\'', $lineage_item);
 	}
 
-	$onclick = 'if (self.name == \'sq_wysiwyg_popup_main\') {
-					am = self.frames.sq_wysiwyg_popup_sidenav;
-				} else if (self.name == \'hipo_job\') {
-					am = opener;
-				} else if ((typeof sq_wysiwyg_dialog != \'undefined\') && (sq_wysiwyg_dialog != null) && (!sq_wysiwyg_dialog.closed)) {
-					am = self.top.frames.sq_wysiwyg_popup_main.frames.sq_wysiwyg_popup_sidenav;
-					am.focus();
-				} else if ((typeof opener != \'undefined\') && (opener != null) && (!opener.closed)) {
-					am = opener.parent.top.frames[\'sq_sidenav\'];
-				} else {
-					am = parent.top.frames[\'sq_sidenav\'];
-				}
-
-				if (am.JS_Asset_Map && am.JS_Asset_Map.modernMapActive) {
-					am.JS_Asset_Map.locateAsset([\''.implode('\', \'', $lineage_assetids).'\'], ['.implode(',', $sort_orders).']);
-				} else {
-					am.asset_locator_start(\''.$asset_so.'\');
-				}';
+	$onclick = 'if (self.name == \'sq_wysiwyg_popup_main\') {'
+				. '	am = self.frames.sq_wysiwyg_popup_sidenav;'
+				. '} else if (self.name == \'hipo_job\') {'
+				. '	am = opener;'
+				. '} else if ((typeof sq_wysiwyg_dialog != \'undefined\') && (sq_wysiwyg_dialog != null) && (!sq_wysiwyg_dialog.closed)) {'
+				. '                am = self.top.frames.sq_wysiwyg_popup_main.frames.sq_wysiwyg_popup_sidenav;'
+				. '                am.focus();'
+				. '} else if ((typeof opener != \'undefined\') && (opener != null) && (!opener.closed)) {'
+				. '	am = opener.parent.top.frames[\'sq_sidenav\'];'
+				. '} else {'
+				. '	am = parent.top.frames[\'sq_sidenav\'];'
+				. '}'
+				. 'if (am.JS_Asset_Map && am.JS_Asset_Map.modernMapActive) {'
+				. '	am.JS_Asset_Map.locateAsset([\''.implode('\', \'', $lineage_assetids).'\'], ['.implode(',', $sort_orders).']);'
+				. '} else {'
+				. '	am.asset_locator_start(\''.$asset_so.'\');'
+				. '}';
 
 	if ($tooltip_hide) $onclick .= 'tooltip.hide();';
 	$onclick .= 'return false;';
