@@ -3461,12 +3461,6 @@ class JS_Api extends Page
 
 		}//end foreach
 
-		// see if there are any children or not
-		// if not then stop matrix from throwing a JSON.parse: unexpected end of data error
-		if (empty($children_arr)) {
-			$children_arr['error'] = 'No child found for asset #'.$id.' for the given filters';
-		}
-
 		return $children_arr;
 
 	}//end getChildren
