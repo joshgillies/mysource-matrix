@@ -269,6 +269,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 
 		// Find stored keyword replacements
 		$paint_layout_keywords = Array();
+		$required_keywords = Array();
 		if (file_exists($this->data_path.'/conditional_keywords_to_eval')) {
 			$required_keywords = array_keys(unserialize(file_to_string($this->data_path.'/conditional_keywords_to_eval')));
 			$paint_layout_keywords = $this->_getAssetKeywordReplacements($asset, $required_keywords);
@@ -280,7 +281,8 @@ class Paint_Layout_Bodycopy extends Bodycopy
 			ob_start();
 				include($content_path);
 				$content = ob_get_contents();
-				$keywords_in_condition = extract_keywords($content);
+				// Do not re-evalute the keywords that are already evaluated
+				$keywords_in_condition = array_diff(extract_keywords($content), $required_keywords);
 				$paint_layout_keywords = array_merge($paint_layout_keywords, $this->_getAssetKeywordReplacements($asset, $keywords_in_condition));
 				replace_keywords($content, $paint_layout_keywords);
 			ob_end_clean();
