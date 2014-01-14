@@ -444,9 +444,19 @@ class Context_Config extends Config
 
 								row_tds = row.getElementsByTagName('td');
 								switch_row_tds = switch_row.getElementsByTagName('td');
+								var is_ie8 = navigator.userAgent.toLowerCase().indexOf("msie 8") != -1;
+
 								for (var i = 0; i < row_tds.length; i++) {
+									var swap_tds = false;
+									if (is_ie8) {
+										// IE 8 is special, innerhtml show the attribute value without the quote
+										if (row_tds[i].innerHTML.indexOf('class=reorder-') === -1) swap_tds = true;
+									} else {
+										if (row_tds[i].innerHTML.indexOf('class="reorder-') === -1) swap_tds = true;
+									}
+
 									// Only reorder when it's not the "reorder" column 
-									if (row_tds[i].innerHTML.indexOf('class="reorder-') === -1) {
+									if (swap_tds) {
 										var temp = switch_row_tds[i].innerHTML;
 										switch_row_tds[i].innerHTML = row_tds[i].innerHTML;
 										row_tds[i].innerHTML = temp;
@@ -468,9 +478,19 @@ class Context_Config extends Config
 
 								row_tds = row.getElementsByTagName('td');
 								switch_row_tds = switch_row.getElementsByTagName('td');
+								var is_ie8 = navigator.userAgent.toLowerCase().indexOf("msie 8") != -1;
+
 								for (var i = 0; i < row_tds.length; i++) {
+									var swap_tds = false;
+									if (is_ie8) {
+										// IE 8 is special, innerhtml show the attribute value without the quote
+										if (row_tds[i].innerHTML.indexOf('class=reorder-') === -1) swap_tds = true;
+									} else {
+										if (row_tds[i].innerHTML.indexOf('class="reorder-') === -1) swap_tds = true;
+									}
+
 									// Only reorder when it's not the "reorder" column 
-									if (row_tds[i].innerHTML.indexOf('class="reorder-') === -1) {
+									if (swap_tds) {
 										var temp = switch_row_tds[i].innerHTML;
 										switch_row_tds[i].innerHTML = row_tds[i].innerHTML;
 										row_tds[i].innerHTML = temp;
