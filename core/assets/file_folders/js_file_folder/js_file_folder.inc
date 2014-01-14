@@ -493,7 +493,7 @@ class Js_File_Folder extends File_Folder
 		$sm_path = $this->data_path.'/'.$sm_filename;
 
 		// Dynamic source map file
-		$dsm_filename = '/d.'.$sm_filename;
+		$dsm_filename = 'd.'.$sm_filename;
 		$dsm_path = $this->data_path.'/'.$dsm_filename;
 
 		if ($force_update || !is_file($dsm_path) || filemtime($dsm_path) < filemtime($sm_path)) {
