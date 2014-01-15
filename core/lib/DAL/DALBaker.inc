@@ -132,7 +132,7 @@ class DALBaker
         }
 
         $doc = new DomDocument();
-        $doc->load($schemaXML);
+        $doc->loadXML(file_get_contents($schemaXML));
 
         return $doc;
 
@@ -297,7 +297,7 @@ class DALBaker
         }
 
         $doc = new DomDocument();
-        $doc->load($fileName);
+        $doc->loadXML(file_get_contents($fileName));
         $queryNode = $doc->getElementsByTagName('queries')->item(0);
 
         $currentDbType = DAL::getDbType();
@@ -844,7 +844,7 @@ class DALBaker
         }
 
         $doc = new DomDocument();
-        $doc->load($fileName);
+        $doc->loadXML(file_get_contents($fileName));
         return $doc;
 
     }//end getQueryXML()
@@ -1314,7 +1314,7 @@ class DALBaker
             $actionsPath .= '/actions.xml';
 
             $eventDoc = new DomDocument();
-            $eventDoc->load($actionsPath);
+            $eventDoc->loadXML(file_get_contents($actionsPath));
 
             $parentNode = NULL;
 
@@ -2587,7 +2587,7 @@ class DALBaker
         }
 
         $doc = new DOMDocument();
-        $doc->load($fileName);
+        $doc->loadXML(file_get_contents($fileName));
 
         return $doc;
 
@@ -2628,7 +2628,7 @@ class DALBaker
         }
 
         $doc = new DOMDocument();
-        $doc->load($fileName);
+        $doc->loadXML(file_get_contents($fileName));
 
         return $doc;
 
@@ -2653,7 +2653,7 @@ class DALBaker
         }
 
         $doc = new DOMDocument();
-        $doc->load($fileName);
+        $doc->loadXML(file_get_contents($fileName));
 
         return $doc;
 

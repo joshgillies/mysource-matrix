@@ -1356,7 +1356,7 @@ class Report_Links_Edit_Fns extends Report_Edit_Fns
 			}
 
 			try {
-				$root = new SimpleXMLElement($report_path, LIBXML_NOCDATA, TRUE);
+				$root = simplexml_load_string(file_get_contents($report_path), 'SimpleXMLElement', LIBXML_NOCDATA);
 			} catch (Exception $e) {
 				 throw new Exception('Unable to parse report file "'.$report_path.'": '.$e->getMessage());
 				return;

@@ -527,7 +527,7 @@ pre_echo('This script is now finished.');
 function parse_tables_xml($xml_file, $dest_db)
 {
 	try {
-		$root = new SimpleXMLElement($xml_file, LIBXML_NOCDATA, TRUE);
+		$root = simplexml_load_string(file_get_contents($xml_file), 'SimpleXMLElement', LIBXML_NOCDATA);
 	} catch (Exception $e) {
 		throw new Exception('Could not parse tables XML file: '.$e->getMessage());
 	}

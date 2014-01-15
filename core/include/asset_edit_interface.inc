@@ -103,7 +103,7 @@ class Asset_Edit_Interface extends MySource_Object
 		if (!($file = $this->findFile('screens'))) return;
 
 		try {
-			$root = new SimpleXMLElement($file, LIBXML_NOCDATA, TRUE);
+			$root = simplexml_load_string(file_get_contents($file), 'SimpleXMLElement', LIBXML_NOCDATA);
 		} catch (Exception $e) {
 			throw new Exception('Unable to parse screen list file "'.$file.'": '.$e->getMessage());
 		}
@@ -1391,13 +1391,13 @@ class Asset_Edit_Interface extends MySource_Object
 							continue;
 						}
 						try {
-							$root = new SimpleXMLElement($file, LIBXML_NOCDATA, TRUE);
+							$root = simplexml_load_string(file_get_contents($file), 'SimpleXMLElement', LIBXML_NOCDATA);
 						} catch (Exception $e) {
 							throw new Exception('Unable to parse localised screen "'.$screen.'" for asset type "'.$owner->type().'": '.$e->getMessage());
 						}
 		
 					} else {
-						$root = new SimpleXMLElement($file, LIBXML_NOCDATA, TRUE);
+						$root = simplexml_load_string(file_get_contents($file), 'SimpleXMLElement', LIBXML_NOCDATA);
 					}
 		
 					if ($root) {
@@ -1940,7 +1940,7 @@ class Asset_Edit_Interface extends MySource_Object
 						$root = NULL;
 					} else {
 						try {
-							$root = new SimpleXMLElement($file, LIBXML_NOCDATA, TRUE);
+							$root = simplexml_load_string(file_get_contents($file), 'SimpleXMLElement', LIBXML_NOCDATA);
 						} catch (Exception $e) {
 							throw new Exception('Unsable to find static screen "'.$active_screen.'" for asset type "'.$owner->type().'": '.$e->getMessage());
 						}
@@ -2388,7 +2388,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 		if (($file = $this->findFile($screen_name))) {
 			try {
-				$root = new SimpleXMLElement($file, LIBXML_NOCDATA, TRUE);
+				$root = simplexml_load_string(file_get_contents($file), 'SimpleXMLElement', LIBXML_NOCDATA);
 			} catch (Exception $e) {
 				throw new Exception('Unable to parse screen file "'.$file.'": '.$e->getMessage());
 			}
@@ -2431,7 +2431,7 @@ class Asset_Edit_Interface extends MySource_Object
 		}
 
 		try {
-			$root = simplexml_load_file($create_file);
+			$root = simplexml_load_string(file_get_contents($create_file));
 		} catch (Exception $e) {
 			throw new Exception('Unable to parse Create screen file "'.$create_file.'": '.$e->getMessage());
 		}
@@ -2535,7 +2535,7 @@ class Asset_Edit_Interface extends MySource_Object
 		$root = NULL;
 		if (($file = $this->findSpecificFile($specific_file))) {
 			try {
-				$root = new SimpleXMLElement($file, LIBXML_NOCDATA, TRUE);
+				$root = simplexml_load_string(file_get_contents($file), 'SimpleXMLElement', LIBXML_NOCDATA);
 				return $root;
 			} catch (Exception $e) {
 				throw new Exception('Unable to parse specific screen file "'.$file.'": '.$e->getMessage());

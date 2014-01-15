@@ -199,7 +199,7 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 		// @see: unit_tests/by_file/core/assets/reports/asset_counter/test_asset_counter_report.test
 		// use simple xml to parse the report file
 		try {
-			$root = new SimpleXMLElement($report_path, LIBXML_NOCDATA, TRUE);
+			$root = simplexml_load_string(file_get_contents($report_path), 'SimpleXMLElement', LIBXML_NOCDATA);
 		} catch (Exception $e) {
 			throw new Exception('Unable to parse report file "'.$report_path.'": '.$e->getMessage());
 			// trigger_localised_error('CORE0092', E_USER_WARNING, $report_path, $root->getMessage(), $root->getUserInfo());
