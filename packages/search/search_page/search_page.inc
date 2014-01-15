@@ -2780,7 +2780,7 @@ class Search_Page extends Listing_Engine
 								if ($attribute->type() == 'boolean' || $attribute->type() == 'selection') {
 									$attribute->_params['allow_empty'] = TRUE;
 								}
-								$attribute->process($query_var);
+								$attribute->process($query_var, FALSE);
 								$queries[$field_name] = trim($attribute->value);
 								if ($attribute->type() == 'selection' && !empty($attribute->_params['multiple'])) {
 									$queries[$field_name] = array_keys($attribute->getValueArray());
