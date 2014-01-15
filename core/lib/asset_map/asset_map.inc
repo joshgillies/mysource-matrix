@@ -1052,7 +1052,7 @@ class Asset_Map
 							FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_major';
 					$where  = 'majorid = :assetid AND link_type <= :max_link_type';
 					if (MatrixDAL::getDbType() === 'oci') {
-						$where .= ' AND substr(minorid, 1, (case when instr(\':\', minorid) = 0 then length(minorid) else instr(\':\', minorid) - 1 end)) IN (SELECT assetid FROM  '.SQ_TABLE_RUNNING_PREFIX.'ast)';
+						$where .= ' AND substr(minorid, 1, (case when instr(minorid, \':\') = 0 then length(minorid) else instr(minorid, \':\') - 1 end)) IN (SELECT assetid FROM  '.SQ_TABLE_RUNNING_PREFIX.'ast)';
 					} else {
 						$where .= ' AND substr(minorid, 1, (case when position(\':\' in minorid) = 0 then length(minorid) else position(\':\' in minorid) - 1 end)) IN (SELECT assetid FROM  '.SQ_TABLE_RUNNING_PREFIX.'ast)';
 					}
@@ -1313,7 +1313,7 @@ class Asset_Map
 			// is a real asset, or its bridge exists if it's a shadow asset.
 			$where1 = 'majorid IN ('.$sub_sql.') AND link_type <= :max_link_type';
 			if (MatrixDAL::getDbType() === 'oci') {
-				$where2 = $where1.' AND substr(minorid, 1, (case when instr(\':\', minorid) = 0 then length(minorid) else instr(\':\', minorid) - 1 end)) IN (SELECT assetid FROM  '.SQ_TABLE_RUNNING_PREFIX.'ast)';
+				$where2 = $where1.' AND substr(minorid, 1, (case when instr(minorid, \':\') = 0 then length(minorid) else instr(minorid, \':\') - 1 end)) IN (SELECT assetid FROM  '.SQ_TABLE_RUNNING_PREFIX.'ast)';
 			} else {
 				$where2 = $where1.' AND substr(minorid, 1, (case when position(\':\' in minorid) = 0 then length(minorid) else position(\':\' in minorid) - 1 end)) IN (SELECT assetid FROM  '.SQ_TABLE_RUNNING_PREFIX.'ast)';
 			}
