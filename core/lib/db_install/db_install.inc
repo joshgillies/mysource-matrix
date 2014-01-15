@@ -42,7 +42,7 @@ function parse_tables_xml($xml_file)
 	$db = MatrixDAL::getDb();
 
 	try {
-		$root = new SimpleXMLElement($xml_file, LIBXML_NOCDATA, TRUE);
+		$root = simplexml_load_string(file_get_contents($xml_file), 'SimpleXMLElement', LIBXML_NOCDATA);
 	} catch (Exception $e) {
 		throw new Exception('Could not parse tables XML file: '.$e->getMessage());
 	}
@@ -816,7 +816,7 @@ function install_stored_relations($relations, $package=NULL, $verbose=TRUE)
 
 		try {
 			// Load stored relations file as SimpleXML
-			$root = new SimpleXMLElement($fns_file, LIBXML_NOCDATA, TRUE);
+			$root = simplexml_load_string(file_get_contents($fns_file), 'SimpleXMLElement', LIBXML_NOCDATA);
 		} catch (Exception $e) {
 			throw new Exception('Could not parse stored relations file: '.$e->getMessage());
 		}
