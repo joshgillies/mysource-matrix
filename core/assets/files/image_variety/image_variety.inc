@@ -586,7 +586,7 @@ class Image_Variety extends Asset
 		if($safe_edit) {
 		    // If it's safe edit status, we just want to remove those __data urls because we will insert proper ones later
 		    try {
-			    $query = MatrixDAL::preparePdoQuery('DELETE FROM sq_ast_lookup WHERE assetid = :assetid AND URL LIKE \'%__data%\';');
+			    $query = MatrixDAL::preparePdoQuery('DELETE FROM sq_ast_lookup WHERE assetid = :assetid AND URL LIKE \'%__data%\'');
 			    MatrixDAL::bindValueToPdo($query, 'assetid',$this->id);
 			    MatrixDAL::execPdoQuery($query);
 		    } catch (Exception $e) {
