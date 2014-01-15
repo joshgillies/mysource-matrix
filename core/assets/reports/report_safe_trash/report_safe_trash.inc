@@ -64,7 +64,7 @@ class Report_Safe_Trash extends Report implements Bridge
 			if (!is_file($report_path)) return Array();
 
 			try {
-				$root = new SimpleXMLElement($report_path, LIBXML_NOCDATA, TRUE);
+				$root = simplexml_load_string(file_get_contents($report_path), 'SimpleXMLElement', LIBXML_NOCDATA);
 			} catch (Exception $e) {
 				return Array();
 			}
@@ -144,7 +144,7 @@ class Report_Safe_Trash extends Report implements Bridge
 			if (!is_file($report_path)) return Array();
 
 			try {
-				$root = new SimpleXMLElement($report_path, LIBXML_NOCDATA, TRUE);
+				$root = simplexml_load_string(file_get_contents($report_path), 'SimpleXMLElement', LIBXML_NOCDATA);
 			} catch (Exception $e) {
 				return Array();
 			}

@@ -236,7 +236,7 @@ function rollback_table_info()
 		if (!file_exists($table_file)) continue;
 
 		try {
-			$root = new SimpleXMLElement($table_file, LIBXML_NOCDATA, TRUE);
+			$root = simplexml_load_string(file_get_contents($table_file), 'SimpleXMLElement', LIBXML_NOCDATA);
 		} catch (Exception $e) {
 			throw new Exception('Unable to parse table file : '.$table_file.' due to the following error: '.$e->getMessage());
 		}//end try catch

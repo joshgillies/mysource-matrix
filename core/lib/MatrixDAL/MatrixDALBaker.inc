@@ -454,7 +454,7 @@ class MatrixDALBaker extends DALBaker
     {
         $filePath = realpath(SQ_SYSTEM_ROOT).'/core/lib/DAL/Oven/'.$systemName.'/'.$queryName.'.xml';
         $doc = new DOMDocument();
-        $doc->load($filePath);
+        $doc->loadXML(file_get_contents($filePath));
         $xpath = new DOMXPath($doc);
         $nodes = $xpath->query('//query/primary/select/from/table');
         foreach ($nodes as $node) {
@@ -527,7 +527,7 @@ class MatrixDALBaker extends DALBaker
 
             if (file_exists($filename) === TRUE) {
                 $doc = new DOMDocument('1.0', 'iso-8859-1');
-                $doc->load($filename);
+                $doc->loadXML(file_get_contents($filename));
 
                 $xpath = new DOMXPath($doc);
                 $count = $xpath->evaluate('count(/schema/tables/table[@name="'.$table.'" and @require_rollback="1"])');
@@ -614,7 +614,7 @@ class MatrixDALBaker extends DALBaker
 
             if (file_exists($filename) === TRUE) {
                 $doc = new DOMDocument('1.0', 'iso-8859-1');
-                $doc->load($filename);
+                $doc->loadXML(file_get_contents($filename));
 
                 // We are going to take advantage of the fact that a [C]LOB
                 // field in Oracle is always going to be specified as a "type
@@ -666,7 +666,7 @@ class MatrixDALBaker extends DALBaker
         }
 
         $doc = new DomDocument();
-        $doc->load($fileName);
+        $doc->loadXML(file_get_contents($fileName));
         $queryNode = $doc->getElementsByTagName('queries')->item(0);
 
         $currentDbType = DAL::getDbType();

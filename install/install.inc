@@ -1021,7 +1021,7 @@ function build_localised_screen($asset_type, $screen, $locale)
 
 	// get the XML for the edit interface file
 	try {
-		$to_cache = new SimpleXMLElement($ei_file, LIBXML_NOCDATA, TRUE);
+		$to_cache = simplexml_load_string(file_get_contents($ei_file), 'SimpleXMLElement', LIBXML_NOCDATA);
 	} catch (Exception $e) {
 		throw new Exception('Could not open edit interface file "'.$ei_file.'": '.$e->getMessage());
 	}
@@ -1035,7 +1035,7 @@ function build_localised_screen($asset_type, $screen, $locale)
 	foreach ($lang_files as $lang_file) {
 
 		try {
-			$lang_root = new SimpleXMLElement($lang_file, LIBXML_NOCDATA, TRUE);
+			$lang_root = simplexml_load_string(file_get_contents($lang_file), 'SimpleXMLElement', LIBXML_NOCDATA);
 		} catch (Exception $e) {
 			throw new Exception('Could not open edit interface localisation file "'.$lang_file.'": '.$e->getMessage());
 		}
@@ -1217,7 +1217,7 @@ function build_localised_static_screen($asset_type, $screen, $locale)
 	$ei_file = find_edit_interface_file($asset_type, $screen);
 	// get the XML for the edit interface file
 	try {
-		$to_cache = new SimpleXMLElement($ei_file, LIBXML_NOCDATA, TRUE);
+		$to_cache = simplexml_load_string(file_get_contents($ei_file), 'SimpleXMLElement', LIBXML_NOCDATA);
 	} catch (Exception $e) {
 		throw new Exception('Could not open edit interface file "'.$ei_file.'": '.$e->getMessage());
 	}
@@ -1232,7 +1232,7 @@ function build_localised_static_screen($asset_type, $screen, $locale)
 
 		// get the XML for the edit interface file
 		try {
-			$lang_root = new SimpleXMLElement($lang_file, LIBXML_NOCDATA, TRUE);
+			$lang_root = simplexml_load_string(file_get_contents($lang_file), 'SimpleXMLElement', LIBXML_NOCDATA);
 		} catch (Exception $e) {
 			throw new Exception('Could not open edit interface localisation file "'.$lang_file.'": '.$e->getMessage());
 		}
@@ -1694,7 +1694,7 @@ function extract_child_nodes_from_xml($file, $root_element, $child_element, $key
 
 	try {
 		$doc = new DOMDocument();
-		$doc->load($file);
+		$doc->loadXML(file_get_contents($file));
 		$xpath = new DOMXPath($doc);
 	} catch (Exception $e) {
 		throw new Exception('Could not open XML file "'.$file.'": '.$e->getMessage());
