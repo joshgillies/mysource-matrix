@@ -64,11 +64,14 @@ class HIPO_Job_Trigger_Batch_Events extends HIPO_Job
 		// threshhold HIPO config entry
 		$o->openField(translate('trigger_execution_threshold'));
 
+		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
-			text_box($class.'[SQ_HIPO_TRIGGER_BATCH_EVENTS_THRESHOLD]', SQ_HIPO_TRIGGER_BATCH_EVENTS_THRESHOLD, 0);
+			text_box($class.'[SQ_HIPO_TRIGGER_BATCH_EVENTS_THRESHOLD]', SQ_HIPO_TRIGGER_BATCH_EVENTS_THRESHOLD, 1);
 		} else {
 			echo SQ_HIPO_TRIGGER_BATCH_EVENTS_THRESHOLD;
 		}
+		echo ' '.translate('assets');
+		echo '</span>';
 
 		$o->closeField();
 

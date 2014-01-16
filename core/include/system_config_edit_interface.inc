@@ -438,6 +438,7 @@ class System_Config_Edit_Interface extends MySource_Object
 						<th class="sq-backend-table-header"><?php echo translate('user'); ?></th>
 						<th class="sq-backend-table-header"><?php echo translate('lock_type'); ?></th>
 						<th class="sq-backend-table-header"><?php echo translate('maps_held_at'); ?></th>
+						<th class="sq-backend-table-header"><?php echo translate('asset_type'); ?></th>
 						<th class="sq-backend-table-header"><?php echo translate('expires'); ?></th>
 					</tr>
 				<?php
@@ -450,7 +451,7 @@ class System_Config_Edit_Interface extends MySource_Object
 								<?php
 								if (!$printed_header) {
 									?>
-									<td class="sq-backend-table-cell" style="vertical-align: top;" rowspan="<?php echo $locks['num_locks']; ?>">
+									<th class="sq-backend-table-header" rowspan="<?php echo $locks['num_locks']; ?>">
 										<?php
 										if (isset($asset_info[$userid])) {
 											$name = $asset_info[$userid]['name'];
@@ -464,7 +465,7 @@ class System_Config_Edit_Interface extends MySource_Object
 										?>
 										<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($type); ?>", "16", "16", "");</script>
 										&nbsp;<acronym title="<?php echo ucwords(str_replace('_', ' ', $type)); ?> - <?php echo $userid; ?>"><?php echo $name; ?></acronym>
-									</td>
+									</th>
 									<?php
 									$printed_header = true;
 								}
@@ -476,17 +477,22 @@ class System_Config_Edit_Interface extends MySource_Object
 								<td class="sq-backend-table-cell">
 									<?php
 									if (isset($asset_info[$assetid])) {
-										$name = $asset_info[$assetid]['name'];
 										$type = $asset_info[$assetid]['type_code'];
+										$name = $asset_info[$assetid]['name'];
 									} else {
 										$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 										$name = $asset->name;
 										$type = $asset->type();
 										$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 									}
+									echo get_asset_tag_line($assetid);
 									?>
-									<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($type); ?>", "16", "16", "");</script>
-									&nbsp;<acronym title="<?php echo ucwords(str_replace('_', ' ', $type)); ?> - <?php echo $assetid; ?>"><?php echo $name; ?></acronym>
+								</td>
+								<td class="sq-backend-table-cell">
+									<acronym title="<?php echo $type; ?> - <?php echo $assetid; ?>">
+										<?php sq_print_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($type), 16, 16, '', NULL); ?> 
+										<?php echo ucwords(str_replace('_', ' ', $type)); ?>
+									</acronym>
 								</td>
 								<td class="sq-backend-table-cell">
 									<?php

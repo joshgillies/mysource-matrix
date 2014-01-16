@@ -71,12 +71,14 @@ class HIPO_Job_Edit_Roles extends HIPO_Job
 	{
 		$o->openField(translate('edit_role_threshold'));
 
+		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
-			text_box($class.'[SQ_HIPO_EDIT_ROLE_THRESHOLD]', SQ_HIPO_EDIT_ROLE_THRESHOLD, 5);
+			text_box($class.'[SQ_HIPO_EDIT_ROLE_THRESHOLD]', SQ_HIPO_EDIT_ROLE_THRESHOLD, 1);
 		} else {
 			echo SQ_HIPO_EDIT_ROLE_THRESHOLD;
 		}
 		echo ' '.translate('assets');
+		echo '</span>';
 
 		$o->closeField();
 

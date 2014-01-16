@@ -262,15 +262,19 @@ function _number_format_thousand_separators(str, sep) {
 // prints an icon using transparency in IE
 // ensures that PNGs have transparent background in IE and Mozilla
 function sq_print_icon(path, width, height, alt) {
-	var is_ie10 = (navigator.userAgent.toLowerCase().indexOf("msie 10") != -1);
+	// Matrix 5 update: This shouldn't be an issue anymore as the new icons have been exported to support IE8, will print icons the same way regardless of browser.
+	//var is_ie10 = (navigator.userAgent.toLowerCase().indexOf("msie 10") != -1);
 
 	// issue seems to have been fixed in IE 10
-	if ((typeof window.ActiveXObject != "undefined") && !is_ie10) {
+	// Matrix 5 update: This shouldn't be an issue anymore as the new icons have been exported to support IE8.
+	/*if ((typeof window.ActiveXObject != "undefined") && !is_ie10) {
 		// IE < 10, cant handle transparent PNGs
 		document.write ('<span style="height:'+height+'px;width:'+width+'px; filter:progid:DXImageTransform.Microsoft.AlphaImageLoader (src=\''+path+'\', sizingMethod=\'scale\')" title="' + alt + '"></span>');
 	} else {
 		document.write('<img src="'+path+'" width="'+width+'" height="'+height+'" border="0" alt="'+alt+'" />');
 	}
+	*/
+	document.write('<img src="'+path+'" width="'+width+'" height="'+height+'" border="0" alt="'+alt+'" />');
 
 }//end sq_print_icon()
 

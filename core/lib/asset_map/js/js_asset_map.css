@@ -173,6 +173,10 @@
 	width: 257px;
 	height: 732px;
 	background-color: #f4f4f4;
+	top: 0;
+}
+
+.sq-sidenav-wrapper #asset_map_container {
 	top: 5px;
 }
 
@@ -330,16 +334,24 @@
 	-webkit-transform: rotate(270deg);
 	-ms-transform: rotate(270deg);
 	transform: rotate(270deg);
+	-webkit-transform-origin: top left;
+	-ms-transform-origin: top left;
+	transform-origin: top left;
 	position: absolute;
 	white-space: nowrap;
-	top: -3px;
-	left: -13px;
+	top: 19px;
+	left: -18px;
 	width: 18px;
 	font-size: 0;
 }
 
+.ie8 #asset_map_container .tree-list {
+	top: -6px;
+	left: -13px;
+}
+
 .gtie8 #asset_map_container .tree-list {
-	left: -12px;
+	left: -17px;
 }
 
 #asset_map_container .tree-list .sq-menu-tab.vertical {
@@ -419,6 +431,7 @@
 	top: 0;
 	left: 0;
 	z-index: 10;
+	box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.28);
 }
 
 .assetMapMenu * {
@@ -434,6 +447,23 @@
 	padding: 1px 22px 1px 2px;
 	white-space: nowrap;
 	position: relative;
+}
+
+/*The easier solution to apply these styles is to tweak the JS to apply additional classes, this will do for now*/
+.assetMapMenu.multiMove > .menuItem,
+.assetMapMenu.multiMove > .menuItem *,
+.assetMapMenu.screens > .menuItem,
+.assetMapMenu.screens > .menuItem *,
+.assetMapMenu.addMenu > .menuItem:last-child,
+.assetMapMenu.addMenu > .menuItem:last-child *,
+.assetMapMenu.subtype .menuItem,
+.assetMapMenu.subtype .menuItem * {
+	cursor: pointer;
+}
+
+.assetMapMenu.screens > .menuItem:last-child,
+.assetMapMenu.screens > .menuItem:last-child * {
+	cursor: default;
 }
 
 .assetMapMenu .menuItem:hover {
@@ -475,7 +505,7 @@
 	height: 16px;
 	position: absolute;
 	right: 0;
-	top: 3px;
+	top: 5px;
 	background: url(../../web/images/icons/asset_map/right_arrow.png) 50% 50% no-repeat;
 }
 
@@ -488,16 +518,12 @@
 	position: absolute;
 	left: 5%;
 	width: 90%;
-	border-radius: 5px;
+	border-radius: 3px;
 	top: 40%;
 	z-index: 100;
 	background-color: #622;
-
-	-moz-box-shadow: 3px 3px 4px #999;
-	-webkit-box-shadow: 3px 3px 4px #999;
-	box-shadow: 3px 3px 4px #000;
-	-ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=135, Color='#999999')";
-
+	box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.67);
+	-ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=2, Direction=135, Color='#999999')";
 }
 
 #asset_map_container .errorTitle {
@@ -508,6 +534,7 @@
 	border-radius: 5px 5px 0 0;
 	border-bottom: 1px solid #000;
 	background-color: #933;
+	font-size: 11px;
 }
 
 #asset_map_container .errorBody,
@@ -515,7 +542,15 @@
 	padding: 5px;
 	text-align: center;
 	color: #F5F5F5;
+	font-size: 11px;
+}
 
+#asset_map_container .errorBottom button{
+	padding: 0 20px;
+	height: 23px;
+	line-height: 23px;
+	cursor: pointer;
+	margin: 0;
 }
 
 #asset_map_container .confirmPopup {
@@ -575,7 +610,7 @@
 	background-color: #f4f4f4;
 	box-sizing: border-box;
 	-moz-box-sizing: border-box;
-	padding: 9px 10px;
+	padding: 6px 7px;
 	border-right: 1px solid #ccc;
 	border-bottom: 1px solid #ccc;
 	border-left: 1px solid #ccc;
@@ -699,12 +734,10 @@
 
 #asset_map_container .statusList {
 	background-color: #f4f4f4;
-	padding: 5px;
 	border: 1px solid #ccc;
 }
 
 #asset_map_container .statusList.expanded {
-	padding: 1px 0;
 	margin-bottom: 0;
 	background-color: #fff;
 }
@@ -730,10 +763,12 @@
 #asset_map_container .statusDivider {
 	background-color: #f4f4f4;
 	border-bottom: none;
-	padding: 5px 0;
+	padding: 6px 0;
 	position: relative;
 	cursor: pointer;
-
+}
+#asset_map_container .statusList.expanded .statusDivider {
+	border-bottom: 1px solid #e2e2e2;
 }
 
 #asset_map_container .statusDivider .text {
@@ -780,7 +815,7 @@
 
 #asset_map_container .statusDivider .icon {
 	position: absolute;
-	top: 7px;
+	top: 8px;
 	left: 5px;
 	width: 12px;
 	height: 12px;

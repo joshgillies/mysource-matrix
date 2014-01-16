@@ -62,12 +62,14 @@ class HIPO_Job_Acquire_Locks extends HIPO_Job
 		// metadata regeneration threshhold HIPO config entry
 		$o->openField(translate('acquire_lock_threshold'));
 
+		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
-			text_box($class.'[SQ_HIPO_ACQUIRE_LOCK_THRESHOLD]', SQ_HIPO_ACQUIRE_LOCK_THRESHOLD, 5);
+			text_box($class.'[SQ_HIPO_ACQUIRE_LOCK_THRESHOLD]', SQ_HIPO_ACQUIRE_LOCK_THRESHOLD, 1);
 		} else {
 			echo SQ_HIPO_ACQUIRE_LOCK_THRESHOLD;
 		}
 		echo ' '.translate('assets');
+		echo '</span>';
 
 		$o->closeField();
 

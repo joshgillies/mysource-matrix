@@ -799,7 +799,7 @@
 	<string source="include_file_attachments">Include file attachments</string>
 	<string source="attachments">Attachments</string>
 
-	<string source="percent">Percent</string>
+	<string source="percent">percent</string>
 	<string source="pixels">Pixels</string>
 	<string source="parameter">Parameter</string>
 	<string source="source">Source</string>
@@ -824,9 +824,9 @@
 	<string source="percent_complete">Percent Complete</string>
 	<string source="hipo_server_configuration">HIPO Server Configuration</string>
 	<string source="hipo_freestyle_threashold">Freestyle threshold</string>
-	<string source="hipo_threshold_note"> Percent of the sum of the queued jobs' thresholds</string>
+	<string source="hipo_threshold_note"> Percent of the sum of the queued jobs' thresholds.</string>
 	<string source="hipo_status_check_threshold">Squiz Server Status Check Threshold</string>
-	<string source="hipo_status_check_threshold_note"> Seconds to wait before querying the server as to the job's status</string>
+	<string source="hipo_status_check_threshold_note"> Seconds to wait before querying the server as to the job's status.</string>
 	<string source="hipo_processing">HIPO Processing</string>
 	<string source="hipo_acquire_lock">Acquiring Lock on "%s"</string>
 	<string source="hipo_skipping_asset">Skipping asset #%s</string>
@@ -875,9 +875,9 @@
 	<string source="hipo_permission_workflow_metadata_display">The permissions, workflow schemas, and metadata schemas of "%s" are shown below.</string>
 	<string source="hipo_permission_workflow_metadata_cascade_select">To cascade the permissions, workflow schemas, and/or metadata schemas of "%s" to the newly linked asset(s) and their children, check the appropriate boxes below and press the &lt;b&gt;Next&lt;/b&gt; button.</string>
 	<string source="hipo_permission_workflow_metadata_cascade_none">If you do not wish to cascade any permissions or schemas, press the &lt;b&gt;Next&lt;/b&gt; button without checking any boxes.</string>
-	<string source="hipo_value_divided_by_schema">Value will be divided by number of affected schemas</string>
-	<string source="hipo_value_divided_by_tag">Value will be divided by number of affected tags</string>
-	<string source="hipo_value_divided_by_permission">Value will be divided by number of affected permissions</string>
+	<string source="hipo_value_divided_by_schema">Value will be divided by number of affected schemas.</string>
+	<string source="hipo_value_divided_by_tag">Value will be divided by number of affected tags.</string>
+	<string source="hipo_value_divided_by_permission">Value will be divided by number of affected permissions.</string>
 	<string source="hipo_cannot_modify_schema">Could not %1$s schema "%2$s" on "%3$s" because this asset already has this schema %4$s. The current schema setting for "%3$s" has been retained</string>
 	<string source="hipo_cannot_modify_permission">Could not %1$s %2$s access for "%3$s" on "%4$s" because this asset already has %5$s %2$s access to "%3$s". The current permission for "%4$s" has been retained.</string>
 	<string source="hipo_editing_metadata_schema">Editing Metadata Schemas for "%s"</string>
@@ -2964,9 +2964,9 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="mollom_public_key_note">Public key supplied by Mollom</string>
 	<string source="mollom_private_key_note">Private key supplied by Mollom</string>
 	<string source="mollom_test_mode">Test Mode</string>
-	<string source="mollom_test_mode_note">Test mode allows user tag posts as either "ham", "spam", or "unsure" by using the respective keywords in the form field without affecting the poster's "reputation". The content type of the field used for testing must be "Post Body".</string>
+	<string source="mollom_test_mode_note">Test mode allows a user's posted content to be tagged as either "ham", "spam", or "unsure" by using the respective keywords in the form field without affecting the poster's "reputation". The content type of the field used for testing must be "Post Body".</string>
 	<string source="mollom_accept_bypassed_submission_question">Accept Bypassed Submission?</string>
-	<string source="mollom_accept_bypassed_submission_note">If set to yes, the submission will be accepted if Mollom fails to respond expectedly</string>
+	<string source="mollom_accept_bypassed_submission_note">If set to yes, the submission will be accepted if Mollom fails to respond as expected.</string>
 
 	<!-- Trigger - Remove future lineage cron -->
 	<string source="trigger_remove_future_lineage_cron">Delete all the asset's future lineage cron jobs of type </string>

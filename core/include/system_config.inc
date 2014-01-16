@@ -1318,7 +1318,7 @@ class System_Config extends Config
 
 			try {
 				// Load stored relations file as SimpleXML
-				$root = new SimpleXMLElement($fns_file, LIBXML_NOCDATA, TRUE);
+				$root = simplexml_load_string(file_get_contents($fns_file), 'SimpleXMLElement', LIBXML_NOCDATA);
 			} catch (Exception $e) {
 				throw new Exception('Could not parse stored relations file: '.$e->getMessage());
 			}

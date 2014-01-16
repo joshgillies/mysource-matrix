@@ -374,7 +374,7 @@ class HIPO_Herder extends MySource_Object
 							// Paint the source job, this will take care of any sub jobs if needed
 							?>
 
-							<div class="sq-standalone-content">
+							<div class="sq-standalone-content first-white">
 								<?php
 								$o->closeRaw();
 								$source_job->paint($o);

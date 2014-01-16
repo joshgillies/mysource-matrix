@@ -288,8 +288,8 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 		<script type="text/javascript">
 			var bodycopy_initialised = true;
 		</script>
-		<div style="border: 1px dashed #C0C0C0;" id="<?php echo $prefix.'_switch_option_div'; ?>">
-			<table width="100%">
+		<div id="<?php echo $prefix.'_switch_option_div'; ?>" class="sq-wysiwyg-standalone-header">
+			<table>
 				<tr>
 					<td align="left">
 						<div style="width: 16px; height: 16px; background: url(<?php echo sq_web_path('lib')?>/web/images/icons/edit_mode.png);background: expression('none');filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='<?php echo sq_web_path('lib')?>/web/images/icons/edit_mode.png', sizingMethod='scale'); font-size:10px; cursor:pointer;"
@@ -302,9 +302,9 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 				</tr>
 			</table>
 		</div>
-		<div style="border-left: 1px dashed #C0C0C0; border-right: 1px dashed #C0C0C0; border-bottom: 1px dashed #C0C0C0;">
+		<div class="sq-wysiwyg-standalone-body">
 			<div style="display:none;" id="<?php echo $prefix?>_wysiwyg_div"><?php echo $wysiwyg->paint()?></div>
-			<div id="<?php echo $prefix?>_contents_div" onclick="editDiv=document.getElementById('<?php echo $prefix ?>_wysiwyg_div'); if (editDiv.style.display == 'none') {switchEditingMode('<?php echo $prefix ?>_contents_div','<?php echo $prefix ?>_wysiwyg_div', editor_<?php echo $prefix ?>);}"><?php echo $this->value?></div>
+			<div id="<?php echo $prefix?>_contents_div" class="sq-wysiwyg-preview-wrapper" onclick="editDiv=document.getElementById('<?php echo $prefix ?>_wysiwyg_div'); if (editDiv.style.display == 'none') {switchEditingMode('<?php echo $prefix ?>_contents_div','<?php echo $prefix ?>_wysiwyg_div', editor_<?php echo $prefix ?>);}"><?php echo $this->value?></div>
 		</div>
 		<?php
 

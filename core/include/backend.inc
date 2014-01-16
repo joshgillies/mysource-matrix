@@ -287,16 +287,21 @@ class Backend extends MySource_Object
 		}
 		?>
 		<!DOCTYPE html>
-		<html>
+		<!--[if lt IE 8 ]> 	<html class="ie">   				<![endif]-->
+		<!--[if IE 8 ]>     <html class="ie ie8"> 		        <![endif]-->
+		<!--[if IE 9 ]>     <html class="ie ie9 gtie8"> 		<![endif]-->
+		<!--[if IE 10 ]>    <html class="ie ie-10 gtie8 gtie9"> <![endif]-->
+		<!--[if !IE]><!--> 	<html class="">                     <!--<![endif]-->
 			<head>
 				<title><?php echo $page_title; ?></title>
-				<meta http-equiv="Content-Type" content="text/html; charset=<?php echo SQ_CONF_DEFAULT_CHARACTER_SET; ?>">
+				<meta charset="<?php echo SQ_CONF_DEFAULT_CHARACTER_SET; ?>"/>
+				<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
 				<link rel="stylesheet" type="text/css" href=<?php echo '"'.sq_web_path('lib').'/asset_map/js/js_asset_map.css"'; ?>/>
 				<link rel="shortcut icon" href=<?php echo '"'.sq_web_path('lib').'/web/images/icons/favicon.ico"'; ?>/>
 				<?php
 				if ($limbo_hipo) {
 					?>
-					<script language="Javascript" type="text/javascript">
+					<script>
 						document.location = "<?php echo $main_url; ?>";
 					</script>
 					<?php
@@ -1044,7 +1049,7 @@ class Backend extends MySource_Object
 		<table class="sq-backend-header">
 			<tr>
 				<td nowrap class="sq-backend-header-item" valign="middle">
-					<img class="sq-matrix-logo" src="<?php echo sq_web_path('lib'); ?>/web/images/logo-toolbar.png" alt="Squiz Matrix" title="Squiz Matrix"/>
+					<img class="sq-matrix-logo" src="<?php echo sq_web_path('lib'); ?>/web/images/logo-toolbar-matrix.png" alt="Squiz Matrix" title="Squiz Matrix"/>
 					<span class="sq-logged-in-as-text">
 						<a href="#" onclick="Javascript: reloadHeader(); return false;"><?php echo translate('logged_in_as', htmlspecialchars($GLOBALS['SQ_SYSTEM']->user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)); ?></a>
 					</span>

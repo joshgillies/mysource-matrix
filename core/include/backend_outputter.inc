@@ -955,13 +955,15 @@ class Backend_Outputter
 	*/
 	function _paintHeader()
 	{
-		if (!headers_sent()) {
+		//if (!headers_sent()) {
 			if ($this->_charset) {
-				header('Content-type: text/html; charset='.$this->_charset);
+				//header('Content-type: text/html; charset='.$this->_charset);
+				$backendCharset = $this->_charset;
 			} else {
-				header('Content-type: text/html; charset='.SQ_CONF_DEFAULT_CHARACTER_SET);
+				//header('Content-type: text/html; charset='.SQ_CONF_DEFAULT_CHARACTER_SET);
+				$backendCharset = SQ_CONF_DEFAULT_CHARACTER_SET;
 			}
-		}
+		//}
 
 		$backendPage = array_get_index($_GET, 'SQ_BACKEND_PAGE'); ?>
 
@@ -969,9 +971,11 @@ class Backend_Outputter
 		<!--[if lt IE 8 ]> 	<html class="ie <?php echo $backendPage; ?>">  						<![endif]-->
 		<!--[if IE 8 ]> 	<html class="ie ie8 <?php echo $backendPage; ?>">  					<![endif]-->
 		<!--[if IE 9 ]> 	<html class="ie ie9 gtie8 <?php echo $backendPage; ?>">  			<![endif]-->
-		<!--[if IE 10 ]> 	<html class="ie ie-10 gtie8 gtie9 <?php echo $backendPage; ?>"> 	<![endif]-->
+		<!--[if IE 10 ]> 	<html class="ie ie10 gtie8 gtie9 <?php echo $backendPage; ?>"> 		<![endif]-->
 		<!--[if !IE]><!--> 	<html class="<?php echo $backendPage; ?>">      					<!--<![endif]-->
 		<head>
+			<meta charset="<?php echo $backendCharset; ?>"/>
+			<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
 			<title><?php echo htmlspecialchars(str_replace('&nbsp;', ' ', $this->_page_title)); ?></title>
 			<?php
 			$this->addCssInclude($this->filesPath('css/edit.css'));
@@ -1178,6 +1182,7 @@ class Backend_Outputter
 			if (!empty($_REQUEST['print_view'])) {
 				?>
 				<div id="matrix-print-logo">
+					<img src="<?php echo sq_web_path('lib');?>/web/images/logo-toolbar-matrix_print.png"/>
 				</div>
 				<?php
 			}
@@ -1447,7 +1452,7 @@ class Backend_Outputter
 								?>
 									<tr class="sq-backend-row" <?php
 										// in addition to checking if the row is hidden, also check to see if the contents and notes are empty, if both empty then no point in showing the row
-										if ($field['hidden'] || (strlen($field['contents']) && strlen($field['note']))) echo 'style="display: none"'; 
+										if ($field['hidden'] || (strlen($field['contents']) < 1 && strlen($field['note']) < 1)) echo 'style="display: none"'; 
 									?> <?php
 										if ($field['id_name']) {
 											echo 'id="'.$field['id_name'].'"';

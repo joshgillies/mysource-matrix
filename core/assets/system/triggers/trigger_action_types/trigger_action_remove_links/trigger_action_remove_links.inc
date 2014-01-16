@@ -286,19 +286,19 @@ class Trigger_Action_Remove_Links extends Trigger_Action
         }
 
 		ob_start();
-				?><table><tr><?php
+				?><table class="sq-backend-table with-bottom-margin"><tr><?php
 
 					if ($write_access) {
 						?>
-						<td valign="top"><b><?php echo translate('trigger_remove_link_matching_asset_types'); ?></b></td>
-						<td valign="top" style="padding-bottom: 10px;"><?php echo combo_box($prefix.'[asset_types]', $asset_types_options, TRUE, $settings['asset_types'], 8); ?></td>
+						<th style="width:110px;"><?php echo translate('trigger_remove_link_matching_asset_types'); ?></th>
+						<td style="padding-bottom: 10px;"><?php echo combo_box($prefix.'[asset_types]', $asset_types_options, TRUE, $settings['asset_types'], 8); ?></td>
 						<?php
 					} else {
 						?>
-						<td valign="top"><b><?php echo translate('trigger_remove_link_matching_asset_types'); ?></b></td>
-						<td valign="top" style="padding-bottom: 10px;"><?php
+						<th style="width:110px;"><?php echo translate('trigger_remove_link_matching_asset_types'); ?></th>
+						<td><?php
 							if (!empty($settings['asset_types'][0])) {
-								?><ul><?php
+								?><ul class="sq-root-node-selections-wrapper"><?php
 								foreach ($settings['asset_types'] as $type_code) {
 									?><li><?php
 									echo get_asset_type_icon($type_code);
@@ -367,15 +367,15 @@ class Trigger_Action_Remove_Links extends Trigger_Action
 			check_box($prefix.'[any_link_value]', '1', $any_link_value, '', $form_element_extras.' '.$any_link_value_onclick.' id="any_link_value"');
 			echo translate('trigger_remove_link_any_link_value');
 
-			echo '<p>'.translate('trigger_remove_link_direct_links_only');
+			echo '<br/>';
 			check_box($prefix.'[direct_links_only]', '1', $direct_links_only, '', $form_element_extras);
-			echo '</p>';
+			label(translate('trigger_remove_link_direct_links_only'), $prefix.'[direct_links_only]');
 
 			$advanced_part_1 = ob_get_contents();
 		ob_end_clean();
 
-		$contents = translate('trigger_remove_link_basic', $basic_part_2).'<br />'.
-					translate('trigger_remove_link_advanced', $basic_part_3, $advanced_part_1).'<br /><br />'.
+		$contents = '<div class="sq-break-line-inputs">'.translate('trigger_remove_link_basic', $basic_part_2).'<br />'.
+					translate('trigger_remove_link_advanced', $basic_part_3, $advanced_part_1).'</div><br />'.
 					$asset_types_combo_box.
 					$basic_part_4;
 

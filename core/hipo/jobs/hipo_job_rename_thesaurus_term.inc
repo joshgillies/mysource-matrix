@@ -63,12 +63,14 @@ class HIPO_Job_Rename_Thesaurus_Term extends HIPO_Job
 		// metadata regeneration threshhold HIPO config entry
 		$o->openField(translate('hipo_rename_thesaurus_term'));
 
+		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
-			text_box($class.'[SQ_HIPO_RENAME_THESAURUS_TERM_THRESHOLD]', SQ_HIPO_RENAME_THESAURUS_TERM_THRESHOLD, 5);
+			text_box($class.'[SQ_HIPO_RENAME_THESAURUS_TERM_THRESHOLD]', SQ_HIPO_RENAME_THESAURUS_TERM_THRESHOLD, 1);
 		} else {
 			echo SQ_HIPO_RENAME_THESAURUS_TERM_THRESHOLD;
 		}
 		echo ' '.translate('terms');
+		echo '</span>';
 
 		$o->closeField();
 

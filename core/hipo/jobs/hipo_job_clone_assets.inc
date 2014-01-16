@@ -56,12 +56,14 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 		// metadata regeneration threshhold HIPO config entry
 		$o->openField(translate('clone_asset_threshold'));
 
+		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
-				text_box($class.'[SQ_DUPE_ASSET_THRESHOLD]',SQ_DUPE_ASSET_THRESHOLD, 5);
+				text_box($class.'[SQ_DUPE_ASSET_THRESHOLD]',SQ_DUPE_ASSET_THRESHOLD, 1);
 		} else {
 				echo SQ_DUPE_ASSET_THRESHOLD;
 		}
 		echo ' '.translate('assets');
+		echo '</span>';
 
 		$o->closeField();
 

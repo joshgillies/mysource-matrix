@@ -1126,7 +1126,7 @@ class Asset_Management extends MySource_Object
 		if (!isset($GLOBALS['SQ_ASSET_MANAGEMENT_ASSET_INFO'][$file])) {
 
 			try {
-				$info = new SimpleXMLElement($file, NULL, TRUE);
+				$info = simplexml_load_string(file_get_contents($file));
 			} catch (Exception $e) {
 				throw new Exception('Could not parse asset definition file "'.$file.'": '.$e->getMessage());
 			}

@@ -103,7 +103,7 @@ class Asset_Edit_Interface extends MySource_Object
 		if (!($file = $this->findFile('screens'))) return;
 
 		try {
-			$root = new SimpleXMLElement($file, LIBXML_NOCDATA, TRUE);
+			$root = simplexml_load_string(file_get_contents($file), 'SimpleXMLElement', LIBXML_NOCDATA);
 		} catch (Exception $e) {
 			throw new Exception('Unable to parse screen list file "'.$file.'": '.$e->getMessage());
 		}
@@ -456,7 +456,7 @@ class Asset_Edit_Interface extends MySource_Object
 							?>
 							<tr>
 								<td class="sq-backend-table-cell" align="center">
-									<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/<?php echo ((empty($lock)) ? 'un' : ''); ?>locked.png", "16", "16", "");</script>
+									<img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/<?php echo ((empty($lock)) ? 'un' : ''); ?>locked.png" />
 									</td>
 								<td class="sq-backend-table-cell">
 									<?php echo ucwords(str_replace('_', ' ', $lock_type)); ?>
@@ -720,7 +720,11 @@ class Asset_Edit_Interface extends MySource_Object
 			} else {
 				$page_heading .= htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).' (Id: #'.$owner->id.') ';
 			}
-			$page_heading .= '<span class="sq-info-asset-version">v. '.$owner->version.'</span>';
+			if ($owner->version) {
+				$page_heading .= '<span class="sq-info-asset-version">v. '.$owner->version.'</span>';
+			} else {
+				// Don't add version span if there is no version number available
+			}
 		} else {
 			$page_heading = 'Create new '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->_type_code, 'name');
 		}
@@ -1385,13 +1389,13 @@ class Asset_Edit_Interface extends MySource_Object
 							continue;
 						}
 						try {
-							$root = new SimpleXMLElement($file, LIBXML_NOCDATA, TRUE);
+							$root = simplexml_load_string(file_get_contents($file), 'SimpleXMLElement', LIBXML_NOCDATA);
 						} catch (Exception $e) {
 							throw new Exception('Unable to parse localised screen "'.$screen.'" for asset type "'.$owner->type().'": '.$e->getMessage());
 						}
 		
 					} else {
-						$root = new SimpleXMLElement($file, LIBXML_NOCDATA, TRUE);
+						$root = simplexml_load_string(file_get_contents($file), 'SimpleXMLElement', LIBXML_NOCDATA);
 					}
 		
 					if ($root) {
@@ -1934,7 +1938,7 @@ class Asset_Edit_Interface extends MySource_Object
 						$root = NULL;
 					} else {
 						try {
-							$root = new SimpleXMLElement($file, LIBXML_NOCDATA, TRUE);
+							$root = simplexml_load_string(file_get_contents($file), 'SimpleXMLElement', LIBXML_NOCDATA);
 						} catch (Exception $e) {
 							throw new Exception('Unsable to find static screen "'.$active_screen.'" for asset type "'.$owner->type().'": '.$e->getMessage());
 						}
@@ -2382,7 +2386,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 		if (($file = $this->findFile($screen_name))) {
 			try {
-				$root = new SimpleXMLElement($file, LIBXML_NOCDATA, TRUE);
+				$root = simplexml_load_string(file_get_contents($file), 'SimpleXMLElement', LIBXML_NOCDATA);
 			} catch (Exception $e) {
 				throw new Exception('Unable to parse screen file "'.$file.'": '.$e->getMessage());
 			}
@@ -2425,7 +2429,7 @@ class Asset_Edit_Interface extends MySource_Object
 		}
 
 		try {
-			$root = simplexml_load_file($create_file);
+			$root = simplexml_load_string(file_get_contents($create_file));
 		} catch (Exception $e) {
 			throw new Exception('Unable to parse Create screen file "'.$create_file.'": '.$e->getMessage());
 		}
@@ -2529,7 +2533,7 @@ class Asset_Edit_Interface extends MySource_Object
 		$root = NULL;
 		if (($file = $this->findSpecificFile($specific_file))) {
 			try {
-				$root = new SimpleXMLElement($file, LIBXML_NOCDATA, TRUE);
+				$root = simplexml_load_string(file_get_contents($file), 'SimpleXMLElement', LIBXML_NOCDATA);
 				return $root;
 			} catch (Exception $e) {
 				throw new Exception('Unable to parse specific screen file "'.$file.'": '.$e->getMessage());

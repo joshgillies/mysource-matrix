@@ -246,7 +246,7 @@ function check_requirement_file($file='', $package_name='core')
 	}
 
 	try {
-		$requirement_list = new SimpleXMLElement($file, LIBXML_NOCDATA, TRUE);
+		$requirement_list = simplexml_load_string(file_get_contents($file), 'SimpleXMLElement', LIBXML_NOCDATA);
 	} catch (Exception $e) {
 		trigger_error('Could not parse requirements XML file (' . $file . '): '.$e->getMessage(), E_USER_WARNING);
 		return;

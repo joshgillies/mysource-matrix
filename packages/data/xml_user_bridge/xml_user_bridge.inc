@@ -111,7 +111,7 @@ class XML_User_Bridge extends Asset implements Bridge
 		}
 		if (!file_exists($filename)) return;
 
-		$root = @simplexml_load_file($filename);
+		$root = @simplexml_load_string(file_get_contents($filename));
 		if (empty($root)) {
 			return;
 		}

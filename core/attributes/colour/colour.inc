@@ -67,7 +67,7 @@ class Asset_Attribute_Colour extends Asset_Attribute
 	{
 		if ($read_only) {
 			?>
-			<span style="background-color: <?php echo $this->value; ?>;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;
+			<span class="sq-colour-picker-preview" style="background-color: <?php echo $this->value; ?>;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;
 			<?php
 			echo strtoupper($this->value);
 			return;

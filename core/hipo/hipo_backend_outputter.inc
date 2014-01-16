@@ -94,6 +94,8 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 		<head>
 		<html>
 			<head>
+				<meta charset="utf-8"/>
+				<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
 				<title><?php echo translate('hipo_processing'); ?></title>
 				<?php
 
@@ -134,9 +136,9 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 				</script>
 			</head>
 			<body onLoad="javascript: page_on_load();" class="sq sq-hipo-body">
-				<table width="100%">
+				<table class="sq-hipo-table">
 					<tr>
-						<td align="center">
+						<td>
 						<form name="<?php echo $this->_form_data['form_name']; ?>" method="post" action="<?php echo $this->_form_data['url']; ?>"  enctype="multipart/form-data">
 					<?php
 					foreach ($this->_hidden_fields as $name => $value) {
