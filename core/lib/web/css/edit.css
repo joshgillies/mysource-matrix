@@ -378,6 +378,7 @@ input[type="reset"]:hover,
 	color: 						#414040;
 	cursor: 					pointer;
 	text-decoration: 			none;
+	border: 					1px solid #9F9F9F;
 }
 
 input.sq-btn-no-shadow, 
@@ -1765,6 +1766,10 @@ pre.sq-parse-file-preview {
 	background: 				#eaeaea;
 }
 
+.ie8 pre.sq-parse-file-preview *{
+	font-family: 				Arial, Verdana, Helvetica, sans-serif;
+}
+
 .sq-parse-file-preview ol {
 	color: 						#333;
 	margin: 					0 0 0 45px;
@@ -1779,9 +1784,9 @@ pre.sq-parse-file-preview {
 	text-indent:				-10px;
 }
 
-/*.ie8 .sq-parse-file-preview li {
-	height:						9px;
-}*/
+.ie8 .sq-parse-file-preview li {
+	text-indent:				-5px;
+}
 
 .sq-parse-file-textarea {
 	font-family: 				'Courier New', Courier, monospace;
