@@ -20,7 +20,7 @@ require_once dirname(__FILE__).'/condition_referrer_url_edit_fns.inc';
 * Condition_Referrer_Url
 *
 * Purpose
-*	This condition compares the given URLs with the current session's referre's URL
+*	This condition compares the given URLs with the page's referrer URL
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
 * @version $Revision: $
@@ -55,8 +55,7 @@ class Condition_Referrer_Url extends Condition
 	*/
 	public static function evaluate(Asset $asset, Array $condition_data)
 	{
-		// Get the "referrer url" from the session
-		$referrer_url = isset($_SESSION['referrer_url']) ? $_SESSION['referrer_url'] : '';
+		$referrer_url = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
 
 		$matched = FALSE;
 		if (!empty($referrer_url)) {

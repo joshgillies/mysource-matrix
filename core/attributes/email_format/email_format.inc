@@ -583,6 +583,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		
 		$reply_to = trim($reply_to);
 		if (!empty($reply_to)) $hdrs['Reply-To'] = $reply_to;
+		$hdrs['Content-Type'] = 'text/html';
 
 		foreach ($to as $to_email) {
 
