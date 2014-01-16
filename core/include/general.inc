@@ -2314,8 +2314,8 @@ function replace_global_keywords(&$text)
 						$replacements[$full_keyword] = isset($_SESSION['entry_asset']) ? $_SESSION['entry_asset'] : '';
 					}//end if
 
-					if (0 === strpos($keyword, 'globals_referrer_url')) {
-						$replacements[$full_keyword] = isset($_SESSION['referrer_url']) ? $_SESSION['referrer_url'] : '';
+					if (0 === strpos($keyword, 'globals_page_referrer')) {
+						$replacements[$full_keyword] = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
 					}//end if
 
 					apply_keyword_modifiers($replacements[$full_keyword], $modifiers, Array(), $keyword);

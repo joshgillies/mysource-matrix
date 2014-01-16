@@ -4587,11 +4587,6 @@ class MySource extends MySource_Object
 			$_SESSION['entry_url'] = rtrim(current_url(), '/');
 		}
 
-		// Register the session's referrer
-		if (!isset($_SESSION['referrer_url']) && !isset($_REQUEST['just_logged_out'])) {
-			$_SESSION['referrer_url'] = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
-		}
-
 		// Print the asset frontend
 		$asset->printFrontend();
 
