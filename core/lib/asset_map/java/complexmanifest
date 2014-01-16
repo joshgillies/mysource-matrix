@@ -4,3 +4,4 @@ Main-Class: net.squiz.matrix.complexassetmap.ComplexAssetMap
 Trusted-Library: true
 Permissions: all-permissions
 Codebase: *
+Caller-Allowable-Codebase: *
