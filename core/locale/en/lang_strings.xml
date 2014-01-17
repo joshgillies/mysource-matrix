@@ -1127,9 +1127,14 @@
 	<string source="condition_entry_page_no_patterns_set">No URL patterns selected</string>
 
 	<!-- Referrer URL Condition -->
-	<string source="condition_referrer_url_true">The referrer url matches the following pattern(s)</string>
-	<string source="condition_referrer_url_false">The referrer page url does not matches the following pattern(s)</string>
+	<string source="condition_referrer_url_true">The page referrer url matches the following pattern(s)</string>
+	<string source="condition_referrer_url_false">The page referrer url does not matches the following pattern(s)</string>
 	<string source="condition_referrer_url_no_patterns_set">No URL patterns selected</string>
+
+	<!-- Site Referrer Condition -->
+	<string source="condition_site_referrer_true">The site referrer url matches the following pattern(s)</string>
+	<string source="condition_site_referrer_false">The site referrer url does not matches the following pattern(s)</string>
+	<string source="condition_site_referrer_no_patterns_set">No URL patterns selected</string>
 
 	<string source="server_variable">Server Variable</string>
 	<string source="pattern">Pattern</string>
