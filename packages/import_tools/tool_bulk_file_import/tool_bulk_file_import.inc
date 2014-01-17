@@ -72,19 +72,19 @@ class Tool_Bulk_File_Import extends Tool
 		$o->openSection(translate('file_import_tools_global_options'));
 			$o->openField(translate('file_import_tools_allow_unrestricted'));
 				combo_box($type_code.'_allow_unrestricted', Array(1 => 'Yes', 0 => 'No'));
-				echo '<br />'.translate('file_import_tools_allow_unrestricted_note');
+				$o->note(translate('file_import_tools_allow_unrestricted_note'));
 			$o->closeField();
 
 			$o->openField('Link Type');
 				combo_box($type_code.'_link_type', Array(SQ_LINK_TYPE_1 => 'TYPE_1', SQ_LINK_TYPE_2 => 'TYPE_2'));
-				echo '<br />'.translate('file_import_tools_file_link_type_msg');
+				$o->note(translate('file_import_tools_file_link_type_msg'));
 			$o->closeField();
 		$o->closeSection();
 
 		$o->openSection(translate('file_import_tools_file_dir_selection'));
 			if (empty($import_dir)) {
 				$o->openField(translate('file_import_tools_warning'));
-					echo translate('file_import_tools_not_ready_msg');
+					$o->note(translate('file_import_tools_not_ready_msg'));
 				$o->closeSection();
 			} else {
 
@@ -98,7 +98,7 @@ class Tool_Bulk_File_Import extends Tool
 							$dirs_array = list_dirs($import_dir, TRUE);
 							asort($dirs_array);
 							?>
-							<table class="sq-backend-table" style="width: 600px;">
+							<table class="sq-backend-table">
 								<tr>
 									<th class="sq-backend-table-header" style="width: 130px;"><?php echo 'Directory'; ?></th>
 									<th class="sq-backend-table-header" style="width: 80px; text-align: center;"><?php echo 'Select for Import'; ?></th>
@@ -110,12 +110,12 @@ class Tool_Bulk_File_Import extends Tool
 										$num_of_files = count($files);
 										?>
 										<tr>
-											<td class="sq-backend-table-cell" style="border-bottom: 0px;"><?php echo $num_of_files; ?> file<?php echo ($num_of_files > 1) ? 's' : ''; ?>.</td>
-											<td class="sq-backend-table-cell" style="border-bottom: 0px; text-align: center;"><?php check_box('chunk_file_import', '1', FALSE); ?></td>
-											<td class="sq-backend-table-cell" style="border-bottom: 0px; text-align: center;"><?php asset_finder('chunk_file_import_root_assetid', ''); ?></td>
+											<td class="sq-backend-table-cell"><?php echo $num_of_files; ?> file<?php echo ($num_of_files > 1) ? 's' : ''; ?>.</td>
+											<td class="sq-backend-table-cell" style="text-align: center;"><?php check_box('chunk_file_import', '1', FALSE); ?></td>
+											<td class="sq-backend-table-cell"><?php asset_finder('chunk_file_import_root_assetid', ''); ?></td>
 										</tr>
 										<tr>
-											<td class="sq-backend-table-cell" style="border-top: 0px;"colspan="3"><?php echo translate('file_import_tools_file_chunk', '<b>'.$import_dir.'</b>') ?></td>
+											<td class="sq-backend-table-cell" colspan="3"><?php echo translate('file_import_tools_file_chunk', '<b>'.$import_dir.'</b>') ?></td>
 										</tr>
 										<?php
 									}
@@ -135,13 +135,13 @@ class Tool_Bulk_File_Import extends Tool
 										<tr>
 										<td class="sq-backend-table-cell"><?php echo $stripped_dname; ?>&nbsp;(<?php echo $num_of_files; ?> file<?php echo ($num_of_files > 1) ? 's' : ''; ?>)</td>
 											<td class="sq-backend-table-cell" style="text-align: center;"><?php check_box('file_import_dirname_'.str_replace(' ', '_', $stripped_dname), $dir_name, FALSE); ?></td>
-											<td class="sq-backend-table-cell" style="text-align: center;"><?php asset_finder(str_replace(' ', '_', $stripped_dname).'_root_assetid', ''); ?></td>
+											<td class="sq-backend-table-cell"><?php asset_finder(str_replace(' ', '_', $stripped_dname).'_root_assetid', ''); ?></td>
 										</tr>
 										<?php
 									}
 								?>
 								<tr>
-									<td class="sq-backend-table-cell" style="border-top: 0px;"colspan="3">
+									<td class="sq-backend-table-cell" colspan="3">
 										<?php
 											echo "Sort the files alphanumerically on import?   ";
 											check_box('sort_file_import', '1', FALSE);
@@ -165,7 +165,7 @@ class Tool_Bulk_File_Import extends Tool
 							// Max File Size for local file upload
 							$max_size = Tool_Bulk_File_Import::_getMaxFileSize();
 							?>
-							<table class="sq-backend-table" style="width: 600px;">
+							<table class="sq-backend-table">
 								<tr>
 									<th class="sq-backend-table-header" colspan="2"><?php
 										echo translate('file_import_tools_local_file_import_root');
@@ -543,10 +543,6 @@ class Tool_Bulk_File_Import extends Tool
 
 			}//end else
 
-		$o->closeSection();
-
-		// Divider
-		$o->openSection(' ');
 		$o->closeSection();
 
 	}//end paintTool()

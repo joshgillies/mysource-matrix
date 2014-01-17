@@ -229,52 +229,58 @@
 				floater.style.display = "none";
 			}
 		</script>
-		<style type="text/css">
+		<style>
+		/*Special Chars*/
 
-			body {
-				background-color: #FCFCFC;
-			}
+#specialChars table {
+  cursor: pointer; 
+  font-weight: 200; 
+  border: 1px solid gray;
+}
 
-			td.character {
-				width: 25px;
-				height: 25px;
-				text-align: center;
-				background-color: #DEDEDE;
-				font-weight: bold;
-				border: 1px solid #725B7D;
-			}
+#specialChars td.character {
+	width: 25px;
+	height: 25px;
+	text-align: center;
+	background-color: #f5f5f5;
+	font-weight: bold;
+	border: 1px solid gray;
+}
 
-			td.highlighted {
-				width: 25px;
-				height: 25px;
-				text-align: center;
-				font-weight: bold;
-				border: 1px dashed grey;
-				background-color: #725B7D;
-			}
+#specialChars td.highlighted {
+	width: 25px;
+	height: 25px;
+	text-align: center;
+	font-weight: bold;
+	border: 1px dashed gray;
+	background-color: #725B7D;
+}
 
-			div.floating {
-				width: 100px;
-				height: 60px;
-				position: absolute;
-				/*overflow: none;*/
-				z-index: 1000;
-				font-size: 100%;
-				background-color: #FFFFFF;
-				filter:alpha(opacity=90);
-				-moz-opacity:0.9;
-				opacity: 0.9;
-			}
+#specialChars div.floating {
+	width: 100px;
+	height: 60px;
+	position: absolute;
+	/*overflow: none;*/
+	z-index: 1000;
+	font-size: 100%;
+	background-color: #FFFFFF;
+	filter:alpha(opacity=90);
+	-moz-opacity:0.9;
+	opacity: 0.9;
+}
 
-			.displaychar {
-				font-size: 230%;
-				font-weight: 400;
-			}
-		</style>
+#specialChars .displaychar {
+	font-size: 230%;
+	font-weight: 400;
+}
+</style>
+
+
+
 	</head>
 	<body onload="Init()">
-	<div style="margin-left: 15px; margin-top: 10px;">
-		<table cellspacing=0 cellpadding=0 style="cursor: pointer; font-weight: 200; border: 1px solid black;" >
+	<div id="specialChars" style="margin-left: 15px; margin-top: 10px;">
+		<table cellspacing=0 cellpadding=0>
 			<tr>
 			<?php
 			foreach ($entities as $id => $entity) {

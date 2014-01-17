@@ -15,10 +15,13 @@
 */
 -->
 
-<html style="width: 370px; height: 480px;">
+<!DOCTYPE html>
+<html style="height: 480px;">
 
 	<head>
 		<title>Insert Table</title>
+		<link rel="stylesheet" type="text/css" href="/__lib/web/css/edit.css" />
+		<link rel="stylesheet" type="text/css" href="../../core/popup.css" />
 		<script type="text/javascript" src="../../core/popup.js"></script>
 
 		<script type="text/javascript">
@@ -69,81 +72,17 @@
 
 		</script>
 
-		<style type="text/css">
-			html, body {
-				background: #FCFCFC;
-				color: #000000;
-				font: 11px Tahoma,Verdana,sans-serif;
-				margin: 0px;
-				padding: 0px;
-				padding: 5px;
-			}
 
-			table {
-				font: 11px Tahoma,Verdana,sans-serif;
-			}
-
-			/* main popup title */
-			.title {
-				background: #402F48;
-				color: #FFFFFF;
-				font-weight: bold;
-				font-size: 120%;
-				padding: 3px 10px;
-				margin-bottom: 10px;
-				border-bottom: 1px solid black;
-				letter-spacing: 4px;
-			}
-
-			/* fieldset styles */
-			fieldset {
-				padding: 0px 10px 5px 5px;
-				border-color: #725B7D;
-			}
-
-			.fl { width: 9em; float: left; padding: 2px 5px; text-align: right; }
-			.fr { width: 7em; float: left; padding: 2px 5px; text-align: right; }
-
-			/* form and form fields */
-			form { padding: 0px; margin: 0px; }
-
-			select, input, button {
-				font: 11px Tahoma,Verdana,sans-serif;
-			}
-
-			button {
-				width: 70px;
-			}
-
-			/* colour picker button styles */
-			.buttonColor, .buttonColor-hilite {
-				cursor: default;
-				border: 1px solid;
-				border-color: #9E86AA #725B7D #725B7D #9E86AA;
-			}
-
-			.buttonColor-hilite {
-				border-color: #402F48;
-			}
-
-			.buttonColor-chooser, .buttonColor-nocolor, .buttonColor-nocolor-hilite {
-				height: 0.6em;
-				border: 1px solid;
-				padding: 0px 1em;
-				border-color: ButtonShadow ButtonHighlight ButtonHighlight ButtonShadow;
-			}
-
-			.buttonColor-nocolor, .buttonColor-nocolor-hilite { padding: 0px; }
-			.buttonColor-nocolor-hilite { background: #402F48; color: #FFFFFF; }
-		</style>
 	</head>
 
 	<body onload="Init()">
 
-		<div class="title">Insert Table</div>
+		<div class="sq-popup-heading-frame title">
+			<h1>Insert Table</h1>
+		</div>
 
-		<form action="" method="get">
-			<table border="0" width="100%">
+		<form action="" method="get" id="main-form">
+			<table border="0" class="sq-fieldsets-table">
 				<tr>
 					<td>
 						<table width="100%" cellspacing="0" cellpadding="0">
@@ -167,14 +106,14 @@
 								<td valign="top" width="50%">
 									<fieldset>
 									<legend><b>Table Headers</b></legend>
-									<table style="width:100%">
+									<table  class="sq-popup-checkbox-list" class="width-100">
 										<tr>
-											<td class="label">First Row:</td>
-											<td width="50%"><input type="checkbox" id="f_headerRow" value="1"></td>
+											<td class="label paddingr-1">First Row:</td>
+											<td class="width-50"><input type="checkbox" id="f_headerRow" value="1"></td>
 										</tr>
 										<tr>
-											<td class="label">First Column:</td>
-											<td width="50%"><input type="checkbox" id="f_headerCol" value="1"></td>
+											<td class="label paddingr-1">First Column:</td>
+											<td class="width-50"><input type="checkbox" id="f_headerCol" value="1"></td>
 										</tr>
 									</table>
 									</fieldset>
@@ -238,11 +177,12 @@
 
 			</table>
 
-			<div style="text-align: right;">
-			<hr />
-			<button type="button" name="ok" onclick="return onOK();">OK</button>
-			&nbsp;
+			<div class="sq-popup-button-wrapper">	
+
 			<button type="button" name="cancel" onclick="return onCancel();">Cancel</button>
+			&nbsp;
+			<button type="button" name="ok" onclick="return onOK();" class="sq-btn-green">OK</button>
+			
 			</div>
 
 		</form>

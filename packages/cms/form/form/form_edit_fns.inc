@@ -273,11 +273,11 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 									<td align="center" width="100" class="sq-backend-table-cell">
 										<?php
 										if ($i != 0) {
-											?><a href="#" onclick="sortOrderMoveUp(<?php echo $sort_id ?>); return false;"><script type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/up_arrow.png' ?>", "16", "16", "Move Up");</script></a><?php
+											?><a href="#" onclick="sortOrderMoveUp(<?php echo $sort_id ?>); return false;"><?php sq_print_icon(sq_web_path('lib').'/web/images/icons/up_arrow.png', 16, 16, 'Move up', 'Move up'); ?></a><?php
 										}
 
 										if ($i != count($sort_order) -1) {
-											?><a href="#" onclick="sortOrderMoveDown(<?php echo $sort_id ?>); return false;"><script type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/down_arrow.png' ?>", "16", "16", "Move Down");</script></a><?php
+											?><a href="#" onclick="sortOrderMoveDown(<?php echo $sort_id ?>); return false;"><?php sq_print_icon(sq_web_path('lib').'/web/images/icons/down_arrow.png', 16, 16, 'Move down', 'Move down'); ?></a><?php
 										}
 										?>
 								</td>

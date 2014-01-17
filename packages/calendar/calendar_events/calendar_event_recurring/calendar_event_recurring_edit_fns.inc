@@ -67,8 +67,8 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 			?>
 			<script type="text/javascript" src="<?php echo sq_web_path('data').'/asset_types/calendar_event_recurring/js/frequency_chooser.js'?>"></script>
 
-			<table border="0" cellpadding="0" cellspacing="0" width="100%" style="white-space: nowrap">
-				<tr style="height: 11ex">
+			<table class="sq-calendar-date-table recurring" width="100%" style="white-space: nowrap">
+				<tr>
 
 					<!-- Overall Frequency Types -->
 					<td style="width: 12ex; vertical-align: top">

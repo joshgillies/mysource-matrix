@@ -29,32 +29,28 @@ if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAcce
 }
 
 ?>
-<html style="width: 740px; height: 500px;">
+<html style="height: 500px;">
 	<head>
 		<title>Global Snippet Keyword Information</title>
-		<style>
-			h1 {font:bold 14pt "Lucida Grande", Tahoma; background: #402F48; color: #FFFFFF; height:30px; text-align:center}
-			div.tip {font:bold 10pt "Lucida Grande", Tahoma; background: #FFFFCC; color:#003366; border:solid 1px #003366; padding-left:5px;  padding-right:5px;  padding-top:5px;  padding-bottom:5px; text-align:justify; margin-top:.5cm; margin-bottom:.5cm}
-			td {font:10pt "Lucida Grande", Tahoma; color:#000000; background:#FFFFFF;}
-			th {font:bold 10pt "Lucida Grande", Tahoma; color:#000000; background:#C0C0C0;}
-			table.visible {border:solid 1px #000000;border-collapse:collapse; width:100%}
-			table.visible td {border:solid 1px #000000;border-collapse:collapse; height: 40px; text-align:justify}
-			table.visible th {border:solid 1px #000000;border-collapse:collapse; height: 30px; text-align:center}
-			table.visible td.icon {text-align:center}
-		</style>
+		<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('lib').'/web/css/edit.css' ?>" />
+		<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('root_url')?>/__fudge/wysiwyg/core/popup.css" />
+
 	</head>
 
 	<body>
-		<h1>Global Snippet Keyword Information</h1>
-		<div style="padding: 0 10px;">
+		<div class="sq-popup-heading-frame title">
+		  <h1>Global Snippet Keyword Information</h1>
+		</div>
+
+		<div style="padding: 0 10px;" id="main-form">
 			<div class="tip">
-				TIP: The format of a snippet keyword is %globals_snippet_&lt;id&gt;_&lt;name&gt%. <br />
-				Note: The "name" part is optional.
+				<p class="sq-backend-smallprint"><strong>Tip</strong>: The format of a snippet keyword is %globals_snippet_&lt;id&gt;_&lt;name&gt%. </p>
+				<p class="sq-backend-smallprint"><strong>Note</strong>: The "name" part is optional.</p>
 			</div>
 			<?php
 			$snippets = $GLOBALS['SQ_SYSTEM']->am->getSnippetKeywords(TRUE);
 			?>
-			<table class="visible" cellpadding="5" cellspacing="0">
+			<table class="sq-backend-table" cellpadding="5" cellspacing="0">
 				<thead>
 					<tr>
 						<th>Snippet Name and Keyword</th>

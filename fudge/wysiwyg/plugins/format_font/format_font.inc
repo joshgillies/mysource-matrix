@@ -69,13 +69,13 @@ class format_font extends wysiwyg_plugin
 		};
 
 		this.config.fontsize = {
-			"1 (8 pt)":  "1",
-			"2 (10 pt)": "2",
-			"3 (12 pt)": "3",
-			"4 (14 pt)": "4",
-			"5 (18 pt)": "5",
-			"6 (24 pt)": "6",
-			"7 (36 pt)": "7"
+			"1 (10 px)": "1",
+			"2 (13 px)": "2",
+			"3 (16 px)": "3",
+			"4 (18 px)": "4",
+			"5 (24 px)": "5",
+			"6 (32 px)": "6",
+			"7 (48 px)": "7"
 		};
 
 		this.config.formatblock = {

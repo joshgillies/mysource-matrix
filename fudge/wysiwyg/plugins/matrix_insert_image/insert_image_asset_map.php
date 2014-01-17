@@ -66,9 +66,6 @@ if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAcce
 
 		<style type="text/css">
 			html, body {
-				background: #FCFCFC;
-				color: #000000;
-				font: 11px Tahoma,Verdana,sans-serif;
 				margin: 0px;
 				padding: 0px;
 			}

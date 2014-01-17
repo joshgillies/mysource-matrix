@@ -8,14 +8,13 @@ html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockq
 	margin: 					0;
 	padding: 					0;
 	border: 					0;
-	font-size: 					12px;
-	font-family:				Arial, Verdana, Helvetica, sans-serif;
 }
 
 body {
 	line-height: 				16px;
 	color:						#454545;
 	font-family:				Arial, Verdana, Helvetica, sans-serif;
+	font-size: 					12px;
 }
 
 body.sq {
@@ -293,6 +292,13 @@ button.delete-button {
 	display: 					block;
 	height:						5px;
 	clear: 						both;
+}
+
+.sq-remove-brs br{
+	display: 					none !important;
+  	position: 					absolute; 
+  	overflow: 					hidden; 
+  	clip: 						rect(0 0 0 0); 
 }
 
 /*
@@ -2656,7 +2662,7 @@ table.sq-log-monitor-table td{
 /* WYSIWYG EDITING & PREVIEW STYLES */
 
 .htmlarea-toolbar {
-	margin-bottom: 				10px;
+	/*margin-bottom: 				10px;*/
 }
 
 .htmlarea-toolbar, 

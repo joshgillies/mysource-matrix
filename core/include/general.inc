@@ -179,7 +179,6 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 			$error_title_main = 'font-weight: bold; font-size: 14px; vertical-align: top; padding: 12px 19px 11px; border-bottom: 1px solid '.$border_colour.'; color: '.$text_colour.';';
 			$error_title = 'font-weight: bold; font-size: 12px; vertical-align: top; padding-right: 30px; padding-bottom: 5px; color: '.$text_colour.';';
 			$error_data  = 'font-size: 12px; vertical-align: top; padding-right: 30px; padding-bottom: 5px; color: '.$text_colour.';';
-			//if(empty($buffers)) echo '</script></table></table></table></table><br/>';
 			//if(!(SQ_IN_BACKEND || SQ_IN_LIMBO)) echo '<!DOCTYPE html>';
 			?>
 			<!DOCTYPE html>
@@ -2343,8 +2342,8 @@ function replace_global_keywords(&$text)
 						$replacements[$full_keyword] = isset($_SESSION['entry_asset']) ? $_SESSION['entry_asset'] : '';
 					}//end if
 
-					if (0 === strpos($keyword, 'globals_referrer_url')) {
-						$replacements[$full_keyword] = isset($_SESSION['referrer_url']) ? $_SESSION['referrer_url'] : '';
+					if (0 === strpos($keyword, 'globals_page_referrer')) {
+						$replacements[$full_keyword] = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
 					}//end if
 
 					apply_keyword_modifiers($replacements[$full_keyword], $modifiers, Array(), $keyword);

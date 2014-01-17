@@ -19,30 +19,11 @@
 <html>
 	<head>
 		<title>Insert YouTube</title>
-		<style type="text/css">
-			html, body {
-				background: #402F48;
-				color: #FFFFFF;
-				font: 11px Tahoma,Verdana,sans-serif;
-				margin: 0px;
-				padding: 0px;
-			}
-
-			/* main popup title */
-			.title {
-				background: #402F48;
-				color: #FFFFFF;
-				font-weight: bold;
-				font-size: 120%;
-				padding: 6px 10px;
-				margin-bottom: 10px;
-				border-bottom: 1px solid black;
-				letter-spacing: 4px;
-			}
-		</style>
 	</head>
 
 	<body>
-		<div class="title">Embed YouTube</div>
+		<div class="sq-popup-heading-frame">
+			<h1>Embed YouTube</h1>
+		</div>
 	</body>
 </html>

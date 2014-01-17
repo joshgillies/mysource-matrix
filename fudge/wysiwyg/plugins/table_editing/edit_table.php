@@ -36,96 +36,13 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<title>Tables</title>
+	<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('lib').'/web/css/edit.css' ?>" />
+	<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('root_url')?>/__fudge/wysiwyg/core/popup.css" />
 	<style type="text/css">
-		html, body {
-			height: 700px;
-			width: 850px;
-			overflow: hidden;
-			font: 11px Tahoma,Verdana,sans-serif;
-		}
 
-		body {
-			overflow: hidden;
-		}
 
-		.colors td {
-			border: solid 1px #000
-		}
 
-		label,input,select,textarea {
-			display: block;
-			width: 150px;
-			float: left;
-			margin-bottom: 10px;
-		}
 
-		label {
-			text-align: right;
-			font: 10pt "Lucida Grande", Tahoma, Arial, Helvetica;
-			width: 75px;
-			padding-right: 20px;
-			font: 11px Tahoma,Verdana,sans-serif;
-		}
-
-		legend {
-			font: 11px Tahoma,Verdana,sans-serif;
-			font-weight: bold;
-		}
-
-		br {
-			clear: left;
-		}
-
-		button {
-			width: 70px;
-			font: 11px Tahoma,Verdana,sans-serif;
-		}
-
-		form { padding: 0px; margin: 0px; }
-
-		.title {
-			position: absolute;
-			width: 800px;
-			top: 2px;
-			left: 1px;
-			height: 16px;
-			margin: 10px;
-			background: #402F48;
-			color: #FFFFFF;
-			font-weight: bold;
-			font-size: 120%;
-			padding: 3px 10px;
-			border-bottom: 1px solid black;
-			letter-spacing: 2px;
-		}
-
-		#panels {
-			position: absolute;
-			width: 300px;
-			top: 26px;
-			left: 510px;
-			height: 650px;
-			margin: 10px;
-			border: solid 0px #CCC;
-			padding: 1px;
-			overflow: auto;
-			background: #FFF;
-		}
-
-		#table_container {
-			position: absolute;
-			top: 50px;
-			left: 10px;
-			width: 500px;
-			height: 500px;
-			overflow: auto;
-			background: url(images/grid.gif)
-		}
-
-		fieldset {
-			padding: 0px 10px 5px 5px;
-			border: solid 1px #725B7D;
-		}
 	</style>
 	<script type="text/javascript" src="../../core/popup.js"></script>
 	<script type="text/javascript" src="../../core/dialog.js"></script>
@@ -277,7 +194,10 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 </head>
 <body onload="Init();">
 
-	<span class="title">Table Properties</span>
+	<div class="sq-popup-heading-frame">
+		<h1>Table Properties</h1>
+	</div>
+<div id="main-form">	
 
 	<div id="table_container" onmousemove="onMove(event)" onmouseout="if(init_finished) table.mouse.Out();"></div>
 
@@ -289,9 +209,11 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 		<img alt="" src="images/mousecol.gif" id="mcol" style="position:absolute;display:none" />
 	</div>
 
-	<div id="panels">
+
+
+	<div id="panels" class="sq-fieldsets-table sq-popup-clean-fieldset">
 		<fieldset id="global_panel">
-			<legend><?php echo translate('selectors'); ?></legend>
+			<legend><b><?php echo translate('selectors'); ?></b></legend>
 			<div>
 				<img id ="button_table" style="border: 2px solid #FF8040;" alt="" src="images/mtable.gif" onclick="switchPanels('table');" />
 				<img id ="button_cell" style="border: 0px solid #FF8040;" alt="" src="images/mc.gif" onclick="switchPanels('cell');" />
@@ -302,14 +224,14 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 
 		<!-- Properties for the table selector -->
 		<fieldset id="table_panel">
-			<legend><?php echo translate('table'); ?></legend>
+			<legend><b><?php echo translate('table'); ?></b></legend>
 			<label for="tid"><?php echo translate('id'); ?></label>
-			<input id="tid" name="tid" onkeyup="table.setID(this.value)" /><br />
+			<input type="text" id="tid" name="tid" onkeyup="table.setID(this.value)" /><br />
 			<label for="caption"><?php echo translate('caption'); ?>:</label>
-			<input id="caption" name="caption" onkeyup="table.setCaption(this.value)"/><br />
+			<input type="text" id="caption" name="caption" onkeyup="table.setCaption(this.value)"/><br />
 			<hr />
 			<label for="class">Class Name:</label>
-			<input id="class" name="class" onkeyup="table.setClass(this.value)" /><br />
+			<input type="text" id="class" name="class" onkeyup="table.setClass(this.value)" /><br />
 
 			<!-- table html/css width -->
 			<label for="width"><?php echo translate('width'); ?>:</label>
@@ -317,7 +239,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 				<option value="html">HTML</option>
 				<option value="css" selected="1">CSS</option>
 			</select>
-			<input id="width" name="width" onkeyup="table.setWidth(parseInt(document.getElementById('width').value) + document.getElementById('widthtype').value)" style="width:50px" />
+			<input type="text" id="width" name="width" onkeyup="table.setWidth(parseInt(document.getElementById('width').value) + document.getElementById('widthtype').value)" style="width:50px" />
 			<select id="widthtype" name="widthtype" style="width:45px" onchange="table.setWidth(parseInt(document.getElementById('width').value) + document.getElementById('widthtype').value)">
 				<option value="px">px</option>
 				<option value="%" selected="selected">%</option>
@@ -325,7 +247,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 				<option value="em">em</option>
 				<option value="ex">ex</option>
 			</select>
-			<input id="htmlwidth" name="htmlwidth" onkeyup="table.setHTMLWidth(parseInt(document.getElementById('htmlwidth').value) + document.getElementById('htmlwidthtype').value)" style="width:50px" />
+			<input type="text" id="htmlwidth" name="htmlwidth" onkeyup="table.setHTMLWidth(parseInt(document.getElementById('htmlwidth').value) + document.getElementById('htmlwidthtype').value)" style="width:50px" />
 			<select id="htmlwidthtype" name="htmlwidthtype" style="width:45px" onchange="table.setHTMLWidth(parseInt(document.getElementById('htmlwidth').value) + document.getElementById('htmlwidthtype').value)">
 				<option value="">px</option>
 				<option value="%" selected="selected">%</option>
@@ -337,7 +259,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 				<option value="html">HTML</option>
 				<option value="css" selected="1">CSS</option>
 			</select>
-			<input id="table_border" name="table_border" style="width: 40px" onkeyup="table.setElementBorder((parseInt(document.getElementById('table_border').value)), document.getElementById('table_bordertype').value);" value="0" />
+			<input type="text"  id="table_border" name="table_border" style="width: 40px" onkeyup="table.setElementBorder((parseInt(document.getElementById('table_border').value)), document.getElementById('table_bordertype').value);" value="0" />
 			<select id="table_bordertype" name="table_bordertype" style="width:70px" onchange="table.setElementBorder((parseInt(document.getElementById('table_border').value)), document.getElementById('table_bordertype').value);" >
 				<option value="solid" selected="selected">solid</option>
 				<option value="dotted">dotted</option>
@@ -350,12 +272,12 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 				<option value="none">none</option>
 				<option value="hidden">hidden</option>
 			</select>
-			<input id="html_table_border" name="html_table_border" style="width: 50px" onkeyup="table.setTableHtmlBorder(parseInt(document.getElementById('html_table_border').value));" value="0" /><br />
+			<input type="text" id="html_table_border" name="html_table_border" style="width: 50px" onkeyup="table.setTableHtmlBorder(parseInt(document.getElementById('html_table_border').value));" value="0" /><br />
 
 			<label for="cellspacing"><?php echo translate('cell_spacing'); ?>:</label>
-			<input id="cellspacing" name="cellspacing" onkeyup="table.setCellSpacing(parseInt(this.value))" value=""/><br />
+			<input type="text" id="cellspacing" name="cellspacing" onkeyup="table.setCellSpacing(parseInt(this.value))" value=""/><br />
 			<label for="cellpadding"><?php echo translate('cell_padding'); ?>:</label>
-			<input id="cellpadding" name="cellpadding" onkeyup="table.setCellPadding(parseInt(this.value))" value=""/><br />
+			<input type="text" id="cellpadding" name="cellpadding" onkeyup="table.setCellPadding(parseInt(this.value))" value=""/><br />
 			<hr />
 			<label for="summary"><?php echo translate('summary'); ?>:</label>
 			<textarea id="summary" cols="10" rows="3" onkeyup="table.setSummary(this.value)"></textarea>
@@ -383,7 +305,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 
 		<!-- Properties for the row selector -->
 		<fieldset id="row_panel" style="display:none">
-			<legend><?php echo translate('row_properties') ?></legend>
+			<legend><b><?php echo translate('row_properties') ?></b></legend>
 			<label for="row_class">Class Name:</label>
 			<input id="row_class" name="row_class" onkeyup="table.setRowClass(document.getElementById('row_class').value)" disabled="disabled"/><br />
 			<label for="row_width"><?php echo 'Height' ?></label>
@@ -428,7 +350,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 
 		<!-- Properties for the column selector -->
 		<fieldset id="col_panel" style="display:none;">
-			<legend>Column Properties</legend>
+			<legend><b>Column Properties</b></legend>
 			<label for="col_class">Class Name:</label>
 			<input id="col_class" name="col_class" onkeyup="table.setColClass(document.getElementById('col_class').value)" disabled="disabled"/><br />
 			<label for="col_width"><?php echo translate('width'); ?></label>
@@ -473,7 +395,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 
 		<!-- Properties for the cell selector -->
 		<fieldset id="cell_panel" style="display:none">
-			<legend><?php echo translate('cell_properties'); ?></legend>
+			<legend><b><?php echo translate('cell_properties'); ?></b></legend>
 			<label for="cell_class">Class Name:</label>
 			<input id="cell_class" name="cell_class" onkeyup="table.setCellClass(document.getElementById('cell_class').value)" disabled="disabled"/><br />
 			<label for="cell_width"><?php echo translate('width'); ?></label>
@@ -541,7 +463,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 		</fieldset>
 
 		<fieldset id="color_panel">
-			<legend><?php echo translate('colour'); ?></legend>
+			<legend><b><?php echo translate('colour'); ?></b></legend>
 			<div style="width:40px;height:40px;position:relative;" id="bgborder" onclick="table.toggleBgBorder();">
 				<div id="border" style="width:30px;height:30px;position:absolute;left:10px;top:10px;border:inset 1px;background:url(images/empty.gif)">
 					<div style="width:19px;height:19px;position:absolute;left:5px;top:5px;border:outset 1px;background:#FFF;font-size:5px"></div>
@@ -576,6 +498,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 			<button type="button" onclick="onCancel()"><?php echo translate('cancel'); ?></button>
 		</div>
 	</div>
+</div>
 
 
 	<img alt="" src="images/semigray.gif" style="display:none;" id="semigray" />

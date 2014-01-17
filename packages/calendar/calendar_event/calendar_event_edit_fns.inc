@@ -78,9 +78,9 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 		<script type="text/javascript" src="<?php echo sq_web_path('data').'/asset_types/calendar_event/js/date_chooser.js'?>"></script>
 
 		<!-- start -->
-		<table border="0" cellpadding="0" cellspacing="0" style="margin-bottom: 1ex">
+		<table class="sq-calendar-date-table start">
 			<tr>
-				<td class="sq-backend-data" style="vertical-align: bottom; white-space: nowrap">&nbsp;<?php echo translate('cal_event_occurs_on') ?>&nbsp;
+				<td class="sq-backend-data" style="white-space: nowrap">&nbsp;<?php echo translate('cal_event_occurs_on') ?>&nbsp;
 					<?php $this->printDateChooser($prefix.'_start', (isset($_REQUEST['SQ_CALENDAR_DATE']) && !$asset->id) ? strtotime($_REQUEST['SQ_CALENDAR_DATE']) : ($asset->getStartDate() ? iso8601_ts($asset->attr('start_date')) : 0), $attributes+Array('onkeypress'=>'processKeyEvent(this)', 'onfocus'=>'currentField=this', 'onblur'=>'currentField=null; oldField=this; setTimeout(\'processStartDateBlur(oldField, \\\''.$prefix.'\\\')\', 10);')); ?>
 				</td>
 				<td class="sq-backend-data" style="white-space: nowrap">
@@ -90,7 +90,7 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 		</table>
 
 		<!-- end -->
-		<table border="0" cellpadding="0" cellspacing="0">
+		<table class="sq-calendar-date-table end">
 			<tr>
 				<td class="sq-backend-data" style="white-space: nowrap">
 					<?php $checked = $asset->getEndDate() || isset($_REQUEST['SQ_CALENDAR_DURATION']); ?>

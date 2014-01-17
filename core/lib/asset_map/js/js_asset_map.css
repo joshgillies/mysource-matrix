@@ -342,7 +342,7 @@
 	top: 19px;
 	left: -18px;
 	width: 18px;
-	font-size: 0;
+	font-size: 12px;
 }
 
 .ie8 #asset_map_container .tree-list {
@@ -387,17 +387,13 @@
 	border-bottom: 1px solid #f4f4f4;
 }
 
-#asset_map_container.oldIE .tree-list {
-	font-size: 0.909em;
-}
-
 /* oldIE is for IE8 only */
 
 #asset_map_container.oldIE .tree-list .sq-menu-tab.vertical {
 	-ms-filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=3)";
 	position: absolute;
 	box-sizing: border-box;
-	left: -8px;
+	left: -7px;
 	cursor: pointer;
 }
 

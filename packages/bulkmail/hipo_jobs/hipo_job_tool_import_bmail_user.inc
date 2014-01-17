@@ -61,12 +61,14 @@ class HIPO_Job_Tool_Import_Bmail_User extends HIPO_Job
 	{
 		$o->openField(translate('bm_tool_import_bmail_user_hipo_job_import_threshold'));
 
+		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
-			text_box($class.'[SQ_HIPO_BULKMAIL_USER_IMPORT_THRESHOLD]', SQ_HIPO_BULKMAIL_USER_IMPORT_THRESHOLD, 5);
+			text_box($class.'[SQ_HIPO_BULKMAIL_USER_IMPORT_THRESHOLD]', SQ_HIPO_BULKMAIL_USER_IMPORT_THRESHOLD, 1);
 		} else {
 			echo SQ_HIPO_BULKMAIL_USER_IMPORT_THRESHOLD;
 		}
 		echo ' '.translate('assets');
+		echo '</span>';
 
 		$o->closeField();
 

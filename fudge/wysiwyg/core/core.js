@@ -136,8 +136,9 @@ HTMLArea.prototype.generate = function () {
 		   
 		}
 
-		html += "<style> body { " + editor.config.bodyStyle + " }\n";
+		html += "<style> body { " + editor.config.bodyStyle + "; margin: 0px; padding: 10px 0 0; font-size: 13px;}\n";
 		html += ".wysiwyg-noborders { border: 1px dashed #3366CC; }\n";
+		html += "table { border-collapse: collapse; font-size: 1em; }\n";
 		html += "</style>\n";
 		html += "</head>\n";
 		if (editor._dir_attr != undefined && editor._dir_attr != '') { html += "<body dir=\"" + editor._dir_attr + "\">\n"; }
@@ -184,13 +185,19 @@ HTMLArea.prototype.generate = function () {
 		}
 
 		// Now some help for IE7+ to allow DIVs to expand past the set height a la IE6
-		if (HTMLArea.is_ie7 || HTMLArea.is_ie8) {
+		// This is actually not needed as it will make the editing area infinite in height and less consistent between browsers
+		/*if (HTMLArea.is_ie7 || HTMLArea.is_ie8) {
 			editor._doc.style.minHeight = editor.config.height;
 			editor._doc.style.height = 'auto';
-		}
+		}*/
 
 		editor._doc.innerHTML = editor._textArea.value;
-		if (HTMLArea.is_ie) { editor._doc.contentEditable = true; }
+		if (HTMLArea.is_ie) { 
+			editor._doc.contentEditable = true; 
+			editor._doc.style.height = editor.config.height; 	//Added for cross browser consistency and because we removed the IE7/8 specific auto height
+			editor._doc.style.overflow = 'auto';				//Added for cross browser consistency and because we removed the IE7/8 specific auto height
+			editor._doc.className = 'sq-wysiwyg-preview-wrapper'; 
+		}
 		// intercept some events; for updating the toolbar & keyboard handlers
 		HTMLArea._addEvents
 			(editor._doc, ["keydown", "keypress", "mousedown", "mouseup", "drag"],

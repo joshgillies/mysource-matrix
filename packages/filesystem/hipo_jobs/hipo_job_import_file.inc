@@ -59,12 +59,14 @@ class HIPO_Job_Import_File extends HIPO_Job
 	{
 		$o->openField(translate('file_hipo_import_file_threshold'));
 
+		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
-			text_box($class.'[SQ_HIPO_IMPORT_FILE_THRESHOLD]', SQ_HIPO_IMPORT_FILE_THRESHOLD, 5);
+			text_box($class.'[SQ_HIPO_IMPORT_FILE_THRESHOLD]', SQ_HIPO_IMPORT_FILE_THRESHOLD, 1);
 		} else {
 			echo SQ_HIPO_IMPORT_FILE_THRESHOLD;
 		}
 		echo ' '.translate('assets');
+		echo '</span>';
 
 		$o->closeField();
 

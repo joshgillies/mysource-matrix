@@ -1561,7 +1561,7 @@ if (SQ_CONF_DEFAULT_CHARACTER_SET != 'utf-8') {
 					// in the size or not.
 					this.sizeIncludesToolbar = true;
 
-					this.bodyStyle = "background-color: #ffffff; font-family: verdana,sans-serif";
+					this.bodyStyle = "background-color: #ffffff; font-family: arial,verdana,sans-serif";
 					this.styleSheets = <?php echo json_encode_array($this->stylesheets); ?>;
 					
 					this.editorURL = "";

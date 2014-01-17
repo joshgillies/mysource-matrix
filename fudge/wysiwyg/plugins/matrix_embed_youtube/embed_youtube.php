@@ -36,6 +36,8 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 <html style="width: 740px; height: 500px;">
 	<head>
 		<title>Embed YouTube</title>
+		<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('lib').'/web/css/edit.css' ?>" />
+	    <link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('root_url')?>/__fudge/wysiwyg/core/popup.css" />
 
 		<?php
 		//add required js translation files, as we are using asset finder

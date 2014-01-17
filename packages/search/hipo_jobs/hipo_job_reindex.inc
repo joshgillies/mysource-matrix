@@ -60,12 +60,14 @@ class HIPO_Job_ReIndex extends HIPO_Job
 	{
 		$o->openField(translate('sch_hipo_reindex_threshold'));
 
+		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
-			text_box($class.'[SQ_HIPO_REINDEX_THRESHOLD]', SQ_HIPO_REINDEX_THRESHOLD, 5);
+			text_box($class.'[SQ_HIPO_REINDEX_THRESHOLD]', SQ_HIPO_REINDEX_THRESHOLD, 1);
 		} else {
 			echo SQ_HIPO_REINDEX_THRESHOLD;
 		}
 		echo ' '.translate('assets');
+		echo '</span>';
 
 		$o->closeField();
 
