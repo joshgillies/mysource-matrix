@@ -205,9 +205,10 @@ include(dirname(__FILE__).'/header.php');
 		if(content !== null && content === conditions[i]) {
 		    option.setAttribute('selected', 'selected');
 		}
-		var condition_title_array = conditions[i].split('_');
+		var condition_title_array = conditions[i].split(':');
 		var parentid = condition_title_array.pop(); 
-		var condition_title_string = condition_title_array.join(' ');
+		var condition_title_part = condition_title_array.pop();
+		var condition_title_string = condition_title_part.split('_').join(' ');
 		option.innerHTML = condition_title_string + ' (#' + parentid +  ')';
 		select.appendChild(option);
 	    }

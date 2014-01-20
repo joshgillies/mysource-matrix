@@ -386,9 +386,9 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 			if(!empty($set_conditions) && !empty($available_conditions)) {
 			    $o->openField(translate('conditions'));
 				    foreach ($available_conditions as $condition_full_name) {
-					$condition_name_parts = explode('_', $condition_full_name);
+					$condition_name_parts = explode(':', $condition_full_name);
 					$assetid = array_pop($condition_name_parts);
-					$condition_name = implode(' ', $condition_name_parts);
+					$condition_name = implode(' ', explode('_', array_pop($condition_name_parts)));
 					check_box('conditions_'.$condition_full_name, $condition_full_name, FALSE, 'update_preview_url()', 'class="sq-preview-conditions"');
 					label($condition_name.' (#'.$assetid.')', 'conditions_'.$condition_full_name);
 					echo '<br />';

@@ -6743,7 +6743,7 @@ class Asset extends MySource_Object
 	    $conditions_to_return = Array();
 	    if(!empty($conditions)) {
 		foreach (array_keys($conditions) as $condition_name) {
-		    $condition_new_name = $condition_name.'_'.$this->id;
+		    $condition_new_name = $condition_name.':'.$this->id;
 		    $conditions_to_return[$condition_new_name] = $conditions[$condition_name];
 		}
 	    }
@@ -6755,7 +6755,7 @@ class Asset extends MySource_Object
 		    $conditions = $site->attr('available_conditions');
 		    if(!empty($conditions)) {
 			foreach (array_keys($conditions) as $condition_name) {
-			    $condition_new_name = $condition_name.'_'.$site->id;
+			    $condition_new_name = $condition_name.':'.$site->id;
 			    $conditions_to_return[$condition_new_name] = $conditions[$condition_name];
 			}
 		    }    
@@ -6855,7 +6855,7 @@ class Asset extends MySource_Object
 				    $sum_ret = TRUE;
 				    // evaluate conditions in groups
 				    foreach ($group['conditions'] as $condition) {
-					$condition_name_parts = explode('_', $condition);
+					$condition_name_parts = explode(':', $condition);
 					$assetid = array_pop($condition_name_parts);
 					if($GLOBALS['SQ_SYSTEM']->am->assetExists($assetid)) {
 					    // the condtion name should have an owner id appended
@@ -6924,7 +6924,7 @@ class Asset extends MySource_Object
 			}
 			else {
 			     // eval the condition
-			    $condition_name_parts = explode('_', $condition);
+			    $condition_name_parts = explode(':', $condition);
 			    $assetid = array_pop($condition_name_parts);
 			    if($GLOBALS['SQ_SYSTEM']->am->assetExists($assetid)) {
 				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
