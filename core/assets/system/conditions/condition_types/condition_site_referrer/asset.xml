@@ -17,10 +17,10 @@
 
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>__core__</package>
-	<type_code>condition_referrer_url</type_code>
+	<type_code>condition_site_referrer</type_code>
 	<version>0.1</version>
-	<name>Page Referrer Condition</name>
-	<description>This condition compares the given URLs with the current page's referrer URL</description>
+	<name>Site Referrer Condition</name>
+	<description>This condition compares the given URLs with the site referrer URL</description>
 	<instantiable>no</instantiable>
 	<allowed_access>system</allowed_access>
 	<parent_type>condition</parent_type>

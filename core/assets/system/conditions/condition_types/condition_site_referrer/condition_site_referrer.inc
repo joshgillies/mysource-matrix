@@ -13,21 +13,21 @@
 */
 
 require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
-require_once dirname(__FILE__).'/condition_referrer_url_edit_fns.inc';
+require_once dirname(__FILE__).'/condition_site_referrer_edit_fns.inc';
 
 
 /**
-* Condition_Referrer_Url
+* Condition_Site_Referrer
 *
 * Purpose
-*	This condition compares the given URLs with the page's referrer URL
+*	This condition compares the given URLs with the referrer site URL
 *
 * @author  Chiranjivi Upreti <cupreti@squiz.com.au>
 * @version $Revision: $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-class Condition_Referrer_Url extends Condition
+class Condition_Site_Referrer extends Condition
 {
 
 
@@ -55,7 +55,7 @@ class Condition_Referrer_Url extends Condition
 	*/
 	public static function evaluate(Asset $asset, Array $condition_data)
 	{
-		$referrer_url = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
+		$referrer_url = isset($_SESSION['site_referrer']) ? $_SESSION['site_referrer'] : '';
 
 		$matched = FALSE;
 		if (!empty($referrer_url)) {
