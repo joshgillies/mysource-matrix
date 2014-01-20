@@ -949,7 +949,6 @@ class HIPO_Herder extends MySource_Object
 						// this asset is currently locked
 						// so display message to the user
 						$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
-
 						$now = time();
 
 						require_once SQ_FUDGE_PATH.'/general/datetime.inc';
@@ -959,6 +958,9 @@ class HIPO_Herder extends MySource_Object
 						if ($have_lock) {
 							echo translate('release_lock', translate('release_lock_button'), translate('hipo_herder'));
 							echo '<br />';
+						}
+						if ($user->id != $GLOBALS['SQ_SYSTEM']->currentUserId()) {
+							echo translate('lock_held_by_user', htmlspecialchars($user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'. ';
 						}
 						echo $expires_in;
 

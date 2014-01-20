@@ -364,6 +364,9 @@ class Config extends MySource_Object
 								echo translate('release_lock', translate('release_lock_button'), translate($config_screen));
 								echo '<br />';
 							}
+							if ($user->id != $GLOBALS['SQ_SYSTEM']->currentUserId()) {
+								echo translate('lock_held_by_user', htmlspecialchars($user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'. ';
+							}
 							echo $expires_in;
 
 						} else {

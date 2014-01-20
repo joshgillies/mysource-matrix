@@ -532,6 +532,7 @@
 	<string source="enter_eight_character_security_string">To acquire the lock, enter the 8 character string you see below into the box supplied, then press the Commit button</string>
 	<string source="lock_held_indefinitely">The lock is being held indefinitely and will not expire. The lock must be released manually or be forcibly acquired by a System Administrator.</string>
 	<string source="lock_held_by">Held by user "%1$s" at "%2$s"</string>
+	<string source="lock_held_by_user">Held by user "%s"</string>
 	<string source="acquire_lock_button">Acquire Lock(s)</string>
 	<string source="release_lock_button">Release Lock(s)</string>
 	<string source="created_by">Created by %1$s on %2$s</string>
