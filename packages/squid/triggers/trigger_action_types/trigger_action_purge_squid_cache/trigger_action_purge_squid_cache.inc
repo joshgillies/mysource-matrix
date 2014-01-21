@@ -87,7 +87,7 @@ class Trigger_Action_Purge_Squid_Cache extends Trigger_Action
 			$settings['cascade'] = array_get_index($settings, 'cascade_clear_cache', FALSE) ? 'children' : 'single';
 		}
 
-		$todo_assetids = $settings['selected_assets'];
+		$todo_assetids = isset($settings['selected_assets']) ? $settings['selected_assets'] : Array();
 		if (!isset($settings['use_current_asset']) || $settings['use_current_asset']) {
 			$todo_assetids[] = $state['asset']->id;
 		}
