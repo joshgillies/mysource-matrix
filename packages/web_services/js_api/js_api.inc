@@ -260,6 +260,7 @@ class JS_Api extends Page
 			}
 		}
 
+		$this->tmp['batched_request'] = FALSE;
 		if ($function_type == 'batchRequest') {
 			// check to see if batching is allowed else complain
 			if (!$this->_attribute_mapping[$function_type]) {
@@ -281,6 +282,7 @@ class JS_Api extends Page
 				$function_calls[$index] = $info['function'];
 			}
 			$batching_request = TRUE;
+			$this->tmp['batched_request'] = TRUE;
 		} else {
 			$function_calls = Array($function_type);
 			$batching_request = FALSE;
@@ -4215,6 +4217,10 @@ class JS_Api extends Page
 
 		// Send error as JSON so they are not confused why the function quit
 		$data['error'] = $error;
+
+		// if we are batching  request then  don't send the error to console yet, wait
+		// wait for all the remaining request to execute and provide feedback together
+		if (isset($this->tmp['batched_request']) && $this->tmp['batched_request']) return $data;
 
 		// Send our data as JSON
 		if (isset($data)) {
