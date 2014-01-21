@@ -2096,7 +2096,7 @@ function replace_global_keywords(&$text)
 						$replacements[$full_keyword] = $type_icon_replace;
 					}//end if
 
-					if (0 === strpos($keyword, 'globals_site_')) {
+					if (0 === strpos($keyword, 'globals_site_') && $keyword !== 'globals_site_referrer') {
 						$site_keyword = 'asset_'.substr($keyword, 13);
 						preg_match('|(.*):([0-9]+)$|',$site_keyword,$matches);
 						// We must find the site before we can replace these keywords
@@ -2316,6 +2316,10 @@ function replace_global_keywords(&$text)
 
 					if (0 === strpos($keyword, 'globals_page_referrer')) {
 						$replacements[$full_keyword] = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
+					}//end if
+
+					if (0 === strpos($keyword, 'globals_site_referrer')) {
+						$replacements[$full_keyword] = isset($_SESSION['site_referrer']) ? $_SESSION['site_referrer'] : '';
 					}//end if
 
 					apply_keyword_modifiers($replacements[$full_keyword], $modifiers, Array(), $keyword);
