@@ -70,9 +70,22 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 	$bt = debug_backtrace();
 
 	if (count($bt) > 1) {
-		$real_bt_index = get_true_error_location($bt, 1);
-		$err_file = (($err_no === E_STRICT) || ($real_bt_index == 0 && !isset($bt[$real_bt_index]['file']))) ?	hide_system_root($bt['0']['args']['2']) : hide_system_root($bt[$real_bt_index]['file']);
-		$err_line = (($err_no === E_STRICT) || ($real_bt_index == 0 && !isset($bt[$real_bt_index]['file']))) ?	hide_system_root($bt['0']['args']['3']) : hide_system_root($bt[$real_bt_index]['line']);
+		$real_bt_index = get_true_error_location($bt, 1);		
+		if(isset($bt[$real_bt_index]['file'])) {
+		    $err_file = $bt[$real_bt_index]['file'];
+		}
+		else if (isset($bt['0']['args']['2'])) {
+		    $err_file = $bt['0']['args']['2'];
+		}
+		if(isset($bt[$real_bt_index]['line'])) {
+		    $err_line = $bt[$real_bt_index]['line'];
+		}
+		else if (isset($bt['0']['args']['3'])) {
+		    $err_line = $bt['0']['args']['3'];
+		}
+
+		$err_file = hide_system_root($err_file);
+		$err_line = hide_system_root($err_line);
 		$err_msg  = hide_system_root($err_msg);
 	}
 
@@ -2350,7 +2363,7 @@ function replace_global_keywords(&$text)
 					if (0 === strpos($keyword, 'globals_site_referrer')) {
 						$replacements[$full_keyword] = isset($_SESSION['site_referrer']) ? $_SESSION['site_referrer'] : '';
 					}//end if
-
+					
 					apply_keyword_modifiers($replacements[$full_keyword], $modifiers, Array(), $keyword);
 				}//end if is global keyword
 
