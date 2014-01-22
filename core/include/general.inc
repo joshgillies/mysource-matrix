@@ -2364,6 +2364,91 @@ function replace_global_keywords(&$text)
 						$replacements[$full_keyword] = isset($_SESSION['site_referrer']) ? $_SESSION['site_referrer'] : '';
 					}//end if
 					
+					//marketo keywords
+					if (0 === strpos($keyword, 'globals_marketo_lead')) {
+						// no cache?
+						if(0 === strpos($keyword, 'globals_marketo_lead_nocache')) {
+						    $nocache = TRUE;
+						    $sub_keyword = substr($keyword, 28);
+						}
+						else {
+						    $nocache = FALSE;
+						    $sub_keyword = substr($keyword, 20);
+						}
+						
+						preg_match('|(.*):([0-9]+)$|',$sub_keyword,$matches);
+						if(isset($matches[2]) && !empty($matches[2])) {
+						    $marketo_bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($matches[2]);
+						    $user_identifier = Array();
+						    if(isset($_COOKIE[MARKETO_COOKIE_NAME])) {
+							$user_identifier['cookie'] = $_COOKIE[MARKETO_COOKIE_NAME];
+						    }
+						    if(isset($_SESSION['SQ_VERIFY_EMAIL_VERIFIED'])) {
+							$user_identifier['email'] = $_SESSION['SQ_VERIFY_EMAIL_VERIFIED'];
+						    }
+						    else {
+							$email_keyword = $marketo_bridge->attr('get_lead_email_source');
+							$email = replace_global_keywords(trim($email_keyword));
+							if(!empty($email) && valid_email($email)) {
+							    $user_identifier['email'] = $email;
+							}
+						    }
+			    
+						    if(!empty($user_identifier)) {
+							    $data = $marketo_bridge->getLead($user_identifier, $nocache);
+							    if(preg_match('|^_id|',$sub_keyword)){
+								$replacements[$full_keyword] = isset($data->result->leadRecordList->leadRecord->Id) ? $data->result->leadRecordList->leadRecord->Id : '';
+							    }
+							   else  if(preg_match('|^_email|',$sub_keyword)){
+								$replacements[$full_keyword] = isset($data->result->leadRecordList->leadRecord->Email) ? $data->result->leadRecordList->leadRecord->Email : '';
+							    }
+							   else  if(preg_match('|^_attribute_|',$sub_keyword)){
+								preg_match('|^_attribute_(.*):([0-9]+)$|',$sub_keyword,$matches);
+								if(isset($matches[1]) && isset($data->result->leadRecordList->leadRecord->leadAttributeList->attribute)) {
+								    $attributes = $data->result->leadRecordList->leadRecord->leadAttributeList->attribute;
+								    foreach ($attributes as $attribute) {
+									if($attribute->attrName === $matches[1]) {
+									    $replacements[$full_keyword] = $attribute->attrValue;
+									}
+								    }
+								}
+							    }
+							    else  if(preg_match('|^:([0-9]+)$|',$sub_keyword)){
+								$replacements[$full_keyword] = json_encode_array($data);
+							    }	
+						    }   
+						}
+					}
+					
+					// marketo munchkin keywords
+					if (0 === strpos($keyword, 'globals_marketo_munchkin_hash')) {
+					    $sub_keyword = substr($keyword, 20);
+					    preg_match('|(.*):([0-9]+)$|',$sub_keyword,$matches);
+					    if(isset($matches[2]) && !empty($matches[2])) {
+						$marketo_bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($matches[2]);
+						$replacements[$full_keyword] = $marketo_bridge->generateMunchkinHash();
+					    
+					    }
+					}
+					
+					if (0 === strpos($keyword, 'globals_marketo_munchkin_id')) {
+					    $sub_keyword = substr($keyword, 20);
+					    preg_match('|(.*):([0-9]+)$|',$sub_keyword,$matches);
+					    if(isset($matches[2]) && !empty($matches[2])) {
+						$marketo_bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($matches[2]);
+						$replacements[$full_keyword] = $marketo_bridge->attr('munchkin_account_id');
+					    }
+					}
+					
+					// verified email stored in session
+					if (0 === strpos($keyword, 'globals_verified_email')) {
+					    if(isset($_SESSION['SQ_VERIFY_EMAIL_VERIFIED'])) {
+						$replacements[$full_keyword] = $_SESSION['SQ_VERIFY_EMAIL_VERIFIED'];
+					    
+					    }
+					}
+					    
+
 					apply_keyword_modifiers($replacements[$full_keyword], $modifiers, Array(), $keyword);
 				}//end if is global keyword
 
