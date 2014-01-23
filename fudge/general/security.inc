@@ -28,16 +28,16 @@
 * Hash a password.
 *
 * @param string		$password	The password to hash.
-* @param string		$algo		The password algorithm.
+* @param string		$prefix		The password algorithm prefix.
 * @param mixed		$options	The hashing options.
 *
 * @return string
 * @access public
 */
-function security_password_hash($password, $algo=NULL, array $options=NULL)
+function security_password_hash($password, $prefix=NULL, array $options=NULL)
 {
-	if ($algo === NULL) {
-		$algo = security_get_default_algorithm();
+	if ($prefix === NULL) {
+		$prefix = security_get_default_algorithm();
 	}
 
 	if ($options === NULL || is_array($options) === FALSE) {
@@ -46,13 +46,12 @@ function security_password_hash($password, $algo=NULL, array $options=NULL)
 
 	$salt	= array_get_index($options, 'salt', security_generate_salt());
 	$rounds = array_get_index($options, 'rounds', 5000);
-	switch ($algo) {
+	switch ($prefix) {
 		case '2y':
 			if (security_is_algorithm_available('2y') === TRUE) {
 				if (version_compare(PHP_VERSION, '5.5.0') < 0) {
 					// Only include this file if under PHP 5.5.
 					include_once SQ_FUDGE_PATH.'/general/password.inc';
-					$algo = PASSWORD_BCRYPT;
 				}//end if
 
 				// Remap rounds to cost.
@@ -74,7 +73,7 @@ function security_password_hash($password, $algo=NULL, array $options=NULL)
 					}
 				}
 
-				$hash = password_hash($password, $algo, $options);
+				$hash = password_hash($password, PASSWORD_BCRYPT, $options);
 				if ($hash !== FALSE) {
 					break;
 				}
@@ -136,7 +135,7 @@ function security_password_hash($password, $algo=NULL, array $options=NULL)
 * Verify a password.
 *
 * @param string		$password	The password to verify.
-* @param string		$algo		The password algorithm.
+* @param string		$prefix		The password algorithm prefix.
 * @param string		$hash		The current hash.
 *
 * @return boolean
@@ -176,19 +175,20 @@ function security_password_verify($password, $hash)
 * Returns TRUE, if a password needs a rehash.
 *
 * @param string		$hash		The password hash to check.
+* @param string     $prefix     The password algorithm prefix.
 * @param array		$options	The hashing options.
 *
 * @return boolean
 * @access public
 */
-function security_password_needs_rehash($hash, $algo=NULL, array $options=array())
+function security_password_needs_rehash($hash, $prefix=NULL, array $options=array())
 {
-	if ($algo === NULL) {
-		$algo = security_get_default_algorithm();
+	if ($prefix === NULL) {
+		$prefix = security_get_default_algorithm();
 	}
 
 	$rehash = FALSE;
-	switch ($algo) {
+	switch ($prefix) {
 		case '2y':
 			// Normal method.
 			if (strpos($hash, '$2y$') !== 0) {
@@ -199,7 +199,6 @@ function security_password_needs_rehash($hash, $algo=NULL, array $options=array(
 				if (version_compare(PHP_VERSION, '5.5.0') < 0) {
 					// Only include this file if under PHP 5.5.
 					include_once SQ_FUDGE_PATH.'/general/password.inc';
-					$algo = PASSWORD_BCRYPT;
 				}//end if
 
 				// Remap rounds to cost.
@@ -221,14 +220,14 @@ function security_password_needs_rehash($hash, $algo=NULL, array $options=array(
 					}
 				}
 
-				$rehash = password_needs_rehash($hash, $algo, $options);
+				$rehash = password_needs_rehash($hash, PASSWORD_BCRYPT, $options);
 			}//end if
 		break;
 
 		case '6':
 		case '6o':
 		case '1':
-			if (strpos($hash, '$'.$algo.'$') !== 0) {
+			if (strpos($hash, '$'.$prefix.'$') !== 0) {
 				$rehash = TRUE;
 				break;
 			} else {
@@ -254,16 +253,16 @@ function security_password_needs_rehash($hash, $algo=NULL, array $options=array(
 
 
 /**
- * returns TRUE, if the algo is available.
+ * Returns TRUE, if the algorithm is available.
  *
- * @param string $algo The algorithm to check.
+ * @param string $prefix The algorithm prefix to check.
  *
  * @returns boolean
  */
-function security_is_algorithm_available($algo)
+function security_is_algorithm_available($prefix)
 {
 	$available = FALSE;
-	switch ($algo) {
+	switch ($prefix) {
 		case '2y':
 			if (function_exists('crypt') === TRUE) {
 				$bcrypt = '$2y$04$usesomesillystringfore7hnbRJHxXVLeakoG8K30oukPsA.ztMG';
@@ -317,27 +316,27 @@ function security_get_default_algorithm()
 	$bcrypt = '$2y$04$usesomesillystringfore7hnbRJHxXVLeakoG8K30oukPsA.ztMG';
 	$sha512 = '$6$rounds=5000$usesomesillystri$nnCrG0XcyKwkRXepV1dRXhqEhP0r2sdjV8bt5gCcljMzCikm9bUX/7p3XFtKdxi5sTwUISBZHwcTXhwXYM/rl1';
 	$test	= crypt("password", $bcrypt);
-	$algo	= NULL;
+	$prefix	= NULL;
 	if ($test === $bcrypt) {
-		$algo = '2y';
+		$prefix = '2y';
 	} else if ($test === $sha512) {
-		$algo = '6';
+		$prefix = '6';
 	} else {
 		if (function_exists('hash') === TRUE) {
 			$sha512 = 'b109f3bbbc244eb82441917ed06d618b9008dd09b3befd1b5e07394c706a8bb980b1d7785e5976ec049b46df5f1326af5a2ea6d103fd07c95385ffab0cacbc86';
 			$test	= hash('sha512', 'password');
 			if ($test === $sha512) {
-				$algo = '6o';
+				$prefix = '6o';
 			}
 		}
 
-		if ($algo === NULL) {
+		if ($prefix === NULL) {
 			// Ran out of options.
-			$algo = '1';
+			$prefix = '1';
 		}
 	}//end if
 
-	return $algo;
+	return $prefix;
 
 }//end security_get_default_algorithm()
 
@@ -444,10 +443,10 @@ function security_get_password_info($hash)
 		}//end if
 
 		$info		  = password_get_info($hash);
-		$info['algo'] = '2y';
+		$info['prefix'] = '2y';
 	} else if (strpos($hash, '$6$') === 0) {
 		// SHA512, but crypt method.
-		$info['algo']	  = '6';
+		$info['prefix']	  = '6';
 		$info['algoName'] = 'SHA512';
 		$info['options']  = array();
 
@@ -467,7 +466,7 @@ function security_get_password_info($hash)
 		}
 	} else if (strpos($hash, '$6o$') === 0) {
 		// SHA512, but hash method.
-		$info['algo']	  = '6o';
+		$info['prefix']	  = '6o';
 		$info['algoName'] = 'SHA512';
 		$info['options']  = array();
 
@@ -487,7 +486,7 @@ function security_get_password_info($hash)
 		}
 	} else if (strpos($hash, '$1$') === 0) {
 		// Worst case: MD5.
-		$info['algo']	  = '1';
+		$info['prefix']	  = '1';
 		$info['algoName'] = 'MD5';
 		$info['options']  = array();
 
