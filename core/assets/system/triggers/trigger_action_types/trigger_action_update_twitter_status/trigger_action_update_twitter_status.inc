@@ -299,7 +299,7 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 						echo translate('trigger_action_update_twitter_status_client_credentials_deauthorise');
 					} else if (empty($settings['request_token']) === FALSE) {
 						if ($write_access === TRUE) {
-							$url = 'http://api.twitter.com/oauth/authenticate?oauth_token='.$settings['request_token'].'&force_login=true';
+							$url = 'https://api.twitter.com/oauth/authenticate?oauth_token='.$settings['request_token'].'&force_login=true';
 							echo translate('trigger_action_update_twitter_status_client_credentials_status_no', $url);
 						} else {
 							echo translate('trigger_action_update_twitter_status_client_credentials_status_no_unlocked');
@@ -438,7 +438,7 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 		$oauth_attr_values = Array(
 								'consumer_key'		=> $settings['consumer_key'],
 								'consumer_secret'	=> $settings['consumer_secret'],
-								'request_token_url'	=> 'http://api.twitter.com/oauth/request_token',
+								'request_token_url'	=> 'https://api.twitter.com/oauth/request_token',
 								'callback_url'		=> $callback_url,
 								'method'			=> 'GET',
 								'signature_method'	=> 'HMAC-SHA1',
@@ -489,7 +489,7 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 		$oauth_attr_values = Array(
 								'consumer_key'		=> $settings['consumer_key'],
 								'consumer_secret'	=> $settings['consumer_secret'],
-								'access_token_url'	=> 'http://api.twitter.com/oauth/access_token',
+								'access_token_url'	=> 'https://api.twitter.com/oauth/access_token',
 								'method'			=> 'GET',
 								'signature_method'	=> 'HMAC-SHA1',
 								'request_headers'	=> Array(),
@@ -546,7 +546,7 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 		$oauth_attr->setValue($oauth_attr_values);
 
 		// Grab a new request token
-		$url = 'http://api.twitter.com/1.1/account/verify_credentials.json';
+		$url = 'https://api.twitter.com/1.1/account/verify_credentials.json';
 		$header = $oauth_attr->getUserDataAuthHeader($url, $settings['access_token'], $settings['access_token_secret']);
 
 		$details = fetch_url($url, array('RETURNTRANSFER' => 1), array($header));
@@ -589,7 +589,7 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 		// since OAuth attr only supports adding new fields through query params
 		// so get it to sign using that
 		$settings['tweet_contents'] = str_replace('+', ' ', str_replace('%7E', '~', rawurlencode($settings['tweet_contents'])));
-		$url = 'http://api.twitter.com/1.1/statuses/update.json';
+		$url = 'https://api.twitter.com/1.1/statuses/update.json';
 		$url_for_signing = $url.'?status='.$settings['tweet_contents'];
 
 		// It also doesn't seem to like POST. So we will get the header as
