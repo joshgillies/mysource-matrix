@@ -10,8 +10,6 @@
 * | you a copy.														   |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.85 2013/08/14 05:22:08 akarelia Exp $
-*
 */
 
 
@@ -22,7 +20,6 @@
 *	  Security functions that are useful, but don't fall into any other category
 *
 * @author  Benjamin Pearson <bpearson@squiz.com.au>
-* @version $Revision: 1.85 $
 * @package Fudge
 * @subpackage Security
 */
