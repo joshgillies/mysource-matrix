@@ -48,19 +48,83 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Paint the interface for the parse file uploading
 	*
-	* @param Design				$asset	the asset to which we belong
-	* @param Backend_Outputter	$o		the backend outputter object
-	* @param string				$prefix	prefix for the form element
+	* @param Design				$asset		the asset to which we belong
+	* @param Backend_Outputter	$o			the backend outputter object
+	* @param string				$prefix		prefix for the form element
+	* @param string     		$onclick_js	Javascript code for the Commit button's click event
 	*
 	* @return boolean
 	* @access public
 	*/
-	public function paintParseFile(Design $asset, Backend_Outputter $o, $prefix)
+	public function paintParseFile(Design $asset, Backend_Outputter $o, $prefix, &$onclick_js='')
 	{
 		if ($asset->writeAccess('parsing')) {
-			file_upload($prefix.'_parse_file');
+			file_upload($prefix.'_parse_file', 'id="'.$prefix.'_parse_file'.'" onChange="read_uploaded_file()"');
+			hidden_field($prefix.'_parse_file_status', 'valid', 'id="'.$prefix.'_parse_file_status"');
+			?>
+			<script type="text/javascript">
+
+				/*
+				* onChange event function for Upload file button
+				* Check the upload file status and update the hidden field "parse_file_status" value
+				*/
+				function read_uploaded_file()
+				{
+					var parse_file_field = document.getElementById("<?php echo $prefix; ?>_parse_file");
+					var parse_file = parse_file_field.files ? parse_file_field.files[0] : parse_file_field.value;
+					if (parse_file) {
+						if (window.FileReader) {
+							document.getElementById("<?php echo $prefix; ?>_parse_file_status").value = 'loading';
+							var reader = new FileReader();
+							reader.readAsText(parse_file, "UTF-8");
+							reader.onload = function(e) {
+								var parse_file_status = document.getElementById("<?php echo $prefix; ?>_parse_file_status");
+								if (e.target.result.toLowerCase().indexOf("<mysource_area ") == '-1') {
+									parse_file_status.value = 'invalid';
+								} else {
+									parse_file_status.value = 'valid';
+								}
+							}
+
+							reader.onerror = function (e) {
+								var parse_file_status = document.getElementById("<?php echo $prefix; ?>_parse_file_status");
+								parse_file_status.value = 'unknown';
+							}
+						} else {
+							// Without FileReader object support
+							var parse_file_status = document.getElementById("<?php echo $prefix; ?>_parse_file_status");
+							parse_file_status.value = 'unknown';
+						}
+					}//end if
+
+				}//end read_uploaded_file()
+
+				/*
+				* onClick event function for Commit button
+				* Check the hidden field "parse_file_status" value updated by read_uploaded_file() to validate the parse file
+				*/
+				function validate_parse_file()
+				{
+					var file_status = document.getElementById("<?php echo $prefix; ?>_parse_file_status").value;
+					if (file_status == 'loading') {
+						alert("<?php echo translate('core_design_parse_file_loading'); ?>");
+						return false;
+					} else if (file_status == 'unknown') {
+						return confirm("<?php echo translate('core_design_cannot_read_parse_file'); ?>");
+					} else if (file_status == 'invalid') {
+						return confirm("<?php echo translate('core_design_invalid_parse_file_confirmation'); ?>");
+					}
+					return true;
+
+				}//end validate_parse_file()
+
+			</script>
+			<?php
+			// The "onclick" event js code for the backend commit button
+			$onclick_js .= 'if (validate_parse_file()) { if (submit_form) { submit_form(this.form); } else { this.form.submit(); this.disabled = \'disabled\'; }}';
 			return TRUE;
 		}
+
 		return FALSE;
 
 	}//end paintParseFile()
@@ -197,14 +261,15 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Paint the interface for editing the parse file
 	*
-	* @param Design				$asset	the asset to which we belong
-	* @param Backend_Outputter	$o		the backend outputter object
-	* @param string				$prefix	prefix for the form element
+	* @param Design				$asset		the asset to which we belong
+	* @param Backend_Outputter	$o			the backend outputter object
+	* @param string				$prefix		prefix for the form element
+	* @param string     		$onclick_js	Javascript code for the Commit button's click event
 	*
 	* @return boolean
 	* @access public
 	*/
-	public function paintEditParseFile(Design $asset, Backend_Outputter $o, $prefix)
+	public function paintEditParseFile(Design $asset, Backend_Outputter $o, $prefix, &$onclick_js='')
 	{
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
@@ -227,7 +292,21 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 		if ($asset->writeAccess('parsing')) {
 			text_area($prefix.'_new_parse_file', str_replace("\t", '    ', $str), 0, 0, 0, 'style="font-family: \'Courier New\', Courier, monospace; white-space: pre-wrap; width: 99%; height: 480px"');
+			?>
+			<script type="text/javascript">
+				function validate_parse_file()
+				{	var parse_file_field = document.getElementById("<?php echo $prefix; ?>_new_parse_file");
+					if (parse_file_field.value.toLowerCase().indexOf("<mysource_area ") == '-1') {
+						return confirm("<?php echo translate('core_design_invalid_parse_file_confirmation'); ?>");
+					}
+					return true;
+				}
+			</script>
+			<?php
+			// The "onclick" event js code for the backend commit button
+			$onclick_js .= 'if (validate_parse_file()) { if (submit_form) { submit_form(this.form); } else { this.form.submit(); this.disabled = \'disabled\'; }}';
 			return TRUE;
+
 		} else {
 			// FR #2381 - Colour coding the parse file
 			$str = htmlspecialchars($str);

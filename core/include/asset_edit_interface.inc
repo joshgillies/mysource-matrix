@@ -781,17 +781,19 @@ class Asset_Edit_Interface extends MySource_Object
 			}//end for
 		}//end if
 
+		// Javascript code defined in edit function's paint function for Commit button's onclick event
+		$onclick_js = '';
 
 		  //////////////////////
 		 //  EDIT INTERFACE  //
 		//////////////////////
 		if ($file) {
-			$print_commit_button |= $this->printEditInterface('screen_'.$active_screen, $owner, $o, $creating, $create_sections);
+			$print_commit_button |= $this->printEditInterface('screen_'.$active_screen, $owner, $o, $creating, $create_sections, $onclick_js);
 		}
 
 		// we have printed an editable interface on a static screen - show the commit button
 		if ($print_commit_button && empty($_REQUEST['print_view'])) {
-			$o->commitButton('', $force_unlock_on_commit);
+			$o->commitButton('', $force_unlock_on_commit, TRUE, $onclick_js);
 		}
 
 	}//end paint()
@@ -948,11 +950,12 @@ class Asset_Edit_Interface extends MySource_Object
 	* @param object		&$o					The outputter object to use to paint
 	* @param boolean	$creating			Whether we are creating the asset rather than editing
 	* @param array		$create_sections	The sections to print when creating
+	* @param string		$onclick_js			Javascript code for the commit button's click event
 	*
 	* @return boolean
 	* @access public
 	*/
-	function printEditInterface($screen, &$owner, &$o, $creating=FALSE, $create_sections=Array())
+	function printEditInterface($screen, &$owner, &$o, $creating=FALSE, $create_sections=Array(), &$onclick_js='')
 	{
 		// grab the closest language file generated for this screen, then
 		// unserialise it to get our XML_Tree root
@@ -1104,7 +1107,7 @@ class Asset_Edit_Interface extends MySource_Object
 									$o->note(translate('specific_painting_function_not_found', $paint_node->attributes()->name));
 								} else {
 									$method_name = (string) $paint_node->attributes()->name;
-									if ($this->_edit_fns->{$method_name}($owner, $o, $prefix)) {
+									if ($this->_edit_fns->{$method_name}($owner, $o, $prefix, $onclick_js)) {
 										$print_commit_button = TRUE;
 									}
 								}
