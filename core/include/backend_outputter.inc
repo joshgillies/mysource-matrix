@@ -1447,7 +1447,7 @@ class Backend_Outputter
 								?>
 									<tr class="sq-backend-row" <?php
 										// in addition to checking if the row is hidden, also check to see if the contents and notes are empty, if both empty then no point in showing the row
-										if ($field['hidden'] || (strlen($field['contents']) && strlen($field['note']))) echo 'style="display: none"'; 
+										if ($field['hidden'] || (strlen($field['contents']) == 0 && strlen($field['note']) == 0)) echo 'style="display: none"';
 									?> <?php
 										if ($field['id_name']) {
 											echo 'id="'.$field['id_name'].'"';
