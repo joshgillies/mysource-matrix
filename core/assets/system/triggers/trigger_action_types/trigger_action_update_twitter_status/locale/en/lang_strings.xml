@@ -4,7 +4,7 @@
 	<string source="trigger_action_update_twitter_status_register_system_note"><![CDATA[<p>Before you can use this trigger action, you need to register your system as a Twitter client. This trigger action uses OAuth to authenticate with Twitter, and
 		therefore requires you to obtain API access first. You only need to do this once for all Update Twitter Status trigger actions within the system.</p>
 
-		<p>To register your system, go to Twitter's <a href="http://twitter.com/oauth_clients">OAuth Clients</a> page, and click on &quot;Create a new application&quot;.
+		<p>To register your system, go to Twitter's <a href="http://twitter.com/oauth_clients"  tagret="_blank" >OAuth Clients</a> page, and click on &quot;Create a new application&quot;.
 		Enter any system root URL as the Callback URL (it will be ignored - Matrix will provide it with a correct callback URL).</p>
 
 		<p>When you complete the registration, it will provide you with a <strong>consumer key</strong> and a
@@ -24,7 +24,7 @@
 	<string source="trigger_action_update_twitter_status_client_credentials_status"><![CDATA[Authentication status:]]></string>
 	<string source="trigger_action_update_twitter_status_client_credentials_status_no_consumer"><![CDATA[<strong style="color: #f00">Error: no client credentials provided.</strong><br/>Please enter the Consumer Key and Consumer Secret provided by Twitter to attempt authentication.]]></string>
 	<string source="trigger_action_update_twitter_status_client_credentials_status_no_unlocked"><![CDATA[<strong>Not started</strong><br/>lock this trigger to begin the authentication process.]]></string>
-	<string source="trigger_action_update_twitter_status_client_credentials_status_no"><![CDATA[<strong>Not started</strong><br/><strong><a href="%s">Sign in with Twitter</a></strong> to connect to an account]]></string>
+	<string source="trigger_action_update_twitter_status_client_credentials_status_no"><![CDATA[<strong>Not started</strong><br/><strong><a href="%s" tagret="_blank" >Sign in with Twitter</a></strong> to connect to an account]]></string>
 	<string source="trigger_action_update_twitter_status_client_credentials_status_yes"><![CDATA[<strong style="color: #060">Connected</strong> to <strong>%s</strong>]]></string>
 	<string source="trigger_action_update_twitter_status_client_credentials_status_request_error"><![CDATA[Authentication status:]]></string>
 	<string source="trigger_action_update_twitter_status_client_credentials_deauthorise"><![CDATA[Use another account]]></string>
