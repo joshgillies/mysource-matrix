@@ -1624,7 +1624,7 @@ class Backend_Outputter
 	* @return void
 	* @access public
 	*/
-	function commitButton($value='', $release_lock=TRUE, $include_section=TRUE)
+	function commitButton($value='', $release_lock=TRUE, $include_section=TRUE, $on_click='')
 	{
 		// value is empty, use default caption
 		if (empty($value)) {
@@ -1645,8 +1645,11 @@ class Backend_Outputter
 				$this->openField('', 'commit');
 			}
 		}
+		if (empty($on_click)) {
+			$on_click = 'if (submit_form) { submit_form(this.form); } else { this.form.submit(); this.disabled = \'disabled\';} ';
+		}
 		hidden_field('sq_lock_release', $release_lock);
-		normal_button('sq_commit_button', $value, 'if (submit_form) { submit_form(this.form); } else { this.form.submit(); this.disabled = \'disabled\'; } ', 'accesskey="s" class="sq-form-field sq-btn-large sq-btn-green sq-commit-button"');
+		normal_button('sq_commit_button', $value, $on_click, 'accesskey="s" class="sq-form-field sq-btn-large sq-btn-green sq-commit-button"');
 		if ($include_section) {
 			if (SQ_IN_BACKEND && $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_COMMIT_BUTTON_POS')) {
 				?>
