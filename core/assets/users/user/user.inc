@@ -187,7 +187,8 @@ class User extends Asset
 	*/
 	function setAttrValue($name, $value)
 	{
-	   
+	    include_once SQ_FUDGE_PATH.'/general/security.inc';
+
 		// if this is the password, encrypt it
 		if ($name == 'password') {
 			$this->_tmp['password_set'] = TRUE; // so we know at create time whether to throw an extra error
@@ -195,7 +196,8 @@ class User extends Asset
 				if (!$this->validatePassword($value)) return FALSE;
 			}
 			// Make sure password doesn't get re-hashed while reverting to system version
-			$value = $GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] ? $value : crypt($value); // let salt be generated
+			//$value = $GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] ? $value : crypt($value); // let salt be generated
+            $value = $GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] ? $value : security_password_hash($value, PASSWORD_BCRYPT, array('cost' => 10)); // let salt be generated
 		} else if ($name == 'username') {
 			$this->_tmp['username_set'] = TRUE; // so we know at create time whether to throw an extra error
 			if (!$this->_catchBlankSetUserName(trim($value))) {
@@ -342,11 +344,13 @@ class User extends Asset
 	*/
 	function comparePassword($entered_password)
 	{
+        include_once SQ_FUDGE_PATH.'/general/security.inc';
 		$password = $this->attr('password');
 
 		if (!trim($password)) return FALSE;
 
-		return (crypt($entered_password,$password) == $password);
+		//return (crypt($entered_password,$password) == $password);
+        return security_password_verify($entered_password,$password);
 
 	}//end comparePassword()
 
