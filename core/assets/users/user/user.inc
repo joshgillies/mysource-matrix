@@ -197,7 +197,7 @@ class User extends Asset
 			}
 			// Make sure password doesn't get re-hashed while reverting to system version
 			//$value = $GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] ? $value : crypt($value); // let salt be generated
-            $value = $GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] ? $value : security_password_hash($value, PASSWORD_BCRYPT, array('cost' => 10)); // let salt be generated
+            $value = $GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] ? $value : security_password_hash($value); // let salt be generated
 		} else if ($name == 'username') {
 			$this->_tmp['username_set'] = TRUE; // so we know at create time whether to throw an extra error
 			if (!$this->_catchBlankSetUserName(trim($value))) {

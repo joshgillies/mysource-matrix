@@ -124,7 +124,7 @@ class Authentication_Default extends Authentication
 
             // Check for password upgrade.
             include_once SQ_FUDGE_PATH.'/general/security.inc';
-            if (security_password_needs_rehash($user->attr('password'), PASSWORD_BCRYPT, array('cost' => 10)) === TRUE) {
+            if (security_password_needs_rehash($user->attr('password')) === TRUE) {
                 // Password needs updating, so force the level to change the users password.
                 $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_OPEN);
                 $user->setAttrValue('password', $password);
