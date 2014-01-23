@@ -37,7 +37,7 @@ require_once $SYSTEM_ROOT.'/core/include/init.inc';
 require_once SQ_FUDGE_PATH.'/general/security.inc';
 
 $algos   = array('1','2y','6','6o');
-$sql     = "SELECT v.custom_val FROM sq_ast_attr_val v INNER JOIN sq_ast_attr n ON n.attrid=v.attrid WHERE n.name='password' AND n.owning_type_code='user'";
+$sql     = "SELECT v.custom_val FROM sq_ast_attr_val v INNER JOIN sq_ast_attr n ON n.attrid=v.attrid WHERE n.name='password' AND n.owning_type_code='user' AND v.contextid = 0";
 $output  = MatrixDAL::executeSqlAssoc($sql);
 $results = array(
             '1'  => 0,
