@@ -52,53 +52,57 @@ include(dirname(__FILE__).'/header.php');
 	}
 </script>
 
-<div class="title"><?php echo translate('table_row_properties'); ?></div>
 
+<h1 class="title">
+	<a href="#" onclick="javascript: popup_close(); return false;">
+		<img src="<?php echo sq_web_path('lib')?>/web/images/icons/cancel.png" alt="Cancel" title="<?php echo translate('cancel');?>" class="sq-icon">
+	</a>
+	<?php echo translate('table_row_properties'); ?>
+</h1>
 <form name="main_form">
-<table width="100%" border="0" class="bodycopy-popup-table">
+<table class="bodycopy-popup-table">
 	<tr>
-		<td>
+		<td colspan="2">
+			<h2><?php echo translate('properties'); ?></h2>
 			<fieldset>
-			<legend><?php echo translate('properties'); ?></legend>
-			<table border="0" cellpadding="0" cellspacing="4">
-				<tr>
-					<td class="label"><?php echo translate('height'); ?>:</td>
-					<td><input type="text" name="height" value="" size="5"></td>
-				</tr>
-				<tr>
-					<td class="label"><?php echo translate('background_colour'); ?>:</td>
-					<td><?php colour_box('bgcolor', '', TRUE, '*',TRUE, FALSE, FALSE);?></td>
-				</tr>
-			</table>
+				<table border="0" cellpadding="0" cellspacing="4">
+					<tr>
+						<td class="label"><?php echo translate('height'); ?>:</td>
+						<td><input type="text" name="height" value="" size="5"></td>
+					</tr>
+					<tr>
+						<td class="label"><?php echo translate('background_colour'); ?>:</td>
+						<td><?php colour_box('bgcolor', '', TRUE, 'Colour picker',TRUE, FALSE, FALSE);?></td>
+					</tr>
+				</table>
 			</fieldset>
 		</td>
 	</tr>
 	<tr>
-		<td>
-			<fieldset>
-			<legend><?php echo translate('text_direction'); ?></legend>
-			<table border="0" cellpadding="0" cellspacing="4">
-				<tr>
-					<td class="label"><?php echo translate('bodycopy_direction'); ?></td>
-					<td>
-						<select name="dir">
-							<option value=""><?php echo translate('content_type_no_change'); ?></option>
-							<option value="ltr"><?php echo translate('bodycopy_left_to_right'); ?></option>
-							<option value="rtl"><?php echo translate('bodycopy_right_to_left'); ?></option>
-						</select>
-					</td> 
-				</tr>
-			</table>
+		<td colspan="2">
+			<h2><?php echo translate('text_direction'); ?></h2>
+			<fieldset class="last">
+				<table border="0" cellpadding="0" cellspacing="4">
+					<tr>
+						<td class="label"><?php echo translate('bodycopy_direction'); ?></td>
+						<td>
+							<select name="dir">
+								<option value=""><?php echo translate('content_type_no_change'); ?></option>
+								<option value="ltr"><?php echo translate('bodycopy_left_to_right'); ?></option>
+								<option value="rtl"><?php echo translate('bodycopy_right_to_left'); ?></option>
+							</select>
+						</td> 
+					</tr>
+				</table>
 			</fieldset>
 		</td>
 	</tr>
-	<tr>
-		<td>
-			<div style="text-align: right;">
-			<button type="button" name="ok" onClick="javascript: save_props(this.form)"><?php echo translate('ok'); ?></button>
-			&nbsp;
-			<button type="button" name="cancel" onClick="javascript: popup_close();"><?php echo translate('cancel'); ?></button>
-			</div>
+	<tr class="sq-popup-footer">
+		<td align="left">
+			<input type="button" class="" name="cancel" onClick="javascript: popup_close();" value="<?php echo translate('cancel'); ?>"/>
+		</td>
+		<td align="right">
+			<input type="button" class="sq-btn-blue" name="ok" onClick="javascript: popup_save(this.form)" value="<?php echo translate('save'); ?>"/>
 		</td>
 	</tr>
 </table>

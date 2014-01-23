@@ -369,13 +369,22 @@ class SAML_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 			}
 
 			/* Transpose from $entities[entityid][type] to $output[type][entityid]. */
-			$output = SimpleSAML_Utilities::transposeArray($entities);
+			$entity_id = array_get_index(array_keys($entities), 0);
+			if(empty($entity_id)) return FALSE;
+			$output =array_get_index(array_get_index(SimpleSAML_Utilities::transposeArray($entities), 'saml20-idp-remote'), $entity_id);
+			if(empty($output)) return FALSE;
 			}
 			catch (Exception $e) {
 			    trigger_error($e->getMessage());
 			    return TRUE;
 			}
-			pre_echo($output['saml20-idp-remote']);
+			
+			// export the config array in the simplesamlphp format
+			echo "<pre>";
+			echo ('$metadata[\''.$entity_id.'\'] = ');
+			var_export($output);
+			echo (';');
+			echo "</pre>";
 			return TRUE;
 		    }
 		    else {

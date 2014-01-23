@@ -49,8 +49,6 @@ dir_map="cache \
 		data/private/events \
 		data/private/logs \
 		data/private/maps \
-		data/private/maps/downloaded_patches \
-		data/private/maps/installed_patches \
 		data/private/packages \
 		data/private/system \
 		data/public/asset_types \

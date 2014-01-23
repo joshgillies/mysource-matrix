@@ -20,6 +20,7 @@
 function changesMade()
 {
 	document.forms[0]['changes'].value = '1';
+	checkChangesMade();
 	return true;
 }
 
@@ -41,7 +42,7 @@ function saveState()
 	var currentForm = document.forms[0];
 	var currentState = '';
 	
-	for (i=0; i < currentForm.elements.length; i++) {
+	for (var i=0; i < currentForm.elements.length; i++) {
 		var el = currentForm.elements[i];
 		if (el.type == 'hidden' || el.type == 'password') {
 			// Don't save hidden fields and password fields
@@ -69,7 +70,7 @@ function saveState()
 			currentState += recordField(i, el.selectedIndex);
 		} else if (el.type == 'select-multiple') {
 			var ssm = '';
-			for (j=0; j < el.options.length; j++) {
+			for (var j=0; j < el.options.length; j++) {
 				if (el.options[j].selected) {
 					ssm += el.options[j].value;
 					ssm += '-';
@@ -138,4 +139,16 @@ onsubmit = function(e) {
 
 onreset = function(e) {
 	resetChanges();
+}
+
+// Adds a class to the commit button wrapper div so that we can indicate that changes are made but not saved.
+function checkChangesMade()
+{
+	if (document.forms[0]['state'].value != saveState()) {
+		if(document.body.className.indexOf('sq-changes-made') < 0){
+			document.body.className += ' sq-changes-made';
+		}
+	} else {
+		document.body.className = document.body.className.replace(/ sq-changes-made/, '');
+	}
 }

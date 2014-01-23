@@ -66,6 +66,7 @@ class Cron_Job_Future_Permission_Edit_Fns extends Cron_Job_Edit_Fns
 		}
 
 		$write_access = $asset->writeAccess('attributes');
+		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
 			combo_box($prefix.'_add_future_permissions', Array('1' => translate('add'), '0' => translate('remove')), FALSE, '1');
 			echo '&nbsp;'.translate('the_following').'&nbsp;';
@@ -74,43 +75,46 @@ class Cron_Job_Future_Permission_Edit_Fns extends Cron_Job_Edit_Fns
 			echo $asset->attr('add')? translate('add') : translate('remove');
 			echo $descs[$asset->attr('permission')];
 		}
-		
-		echo '&nbsp;'.translate('permission').'<br /><br /><br />';
+		echo '&nbsp;'.translate('permission').'</span><br /><br />';
 		
 		if ($write_access) {
 				?>
 				<table cellspacing="0">
 					<tr>
 						<td colspan="2">
+							<span class="sq-inline-fields-wrapper">
 							<?php
 							combo_box($prefix.'_future_permissions_access[public][granted]', Array('' => '', '1' => translate('grant'), '0' => translate('deny')), FALSE, '');
 							echo ' '.translate('public_permission');
 							?>
+							</span>&nbsp;
 						</td>
 					</tr>
 					<tr>
 						<td valign="top">
+							<span class="sq-inline-fields-wrapper">
 							<?php
 							combo_box($prefix.'_future_permissions_access[user][granted]', Array('' => '', '1' => translate('grant'), '0' => translate('deny')), FALSE, '');
 							echo ' '.translate('specific_permission');
 							?>
-							&nbsp;
+							</span>&nbsp;
 						</td>
 						<td><?php multiple_asset_finder($prefix.'_future_permissions_access[user][userid]', Array(), Array('user' => 'D', 'user_group' => 'D')); ?></td>
 					</tr>
 				</table>
 				<?php
 	
-			echo '<br /><br />'.translate('at').'&nbsp;';
+			echo '<br /><span class="sq-inline-fields-wrapper">'.translate('at').'&nbsp;';
 			$this->_paintWhenBox($asset, $o, $prefix, $when, $form_extra_elements);
+			echo '</span>';
 	
 			echo '<br /><br />';
 			check_box($prefix.'_cascade_to_new', '1', $cascade_to_new);
-			echo translate('cascade_permission_to_new_children');
+			label(translate('cascade_permission_to_new_children'), $prefix.'_cascade_to_new');
 			
 			echo '<br />';
 			check_box($prefix.'_cascade_permission_changes', '1', !$dependants_only);
-			echo translate('update_permission_to_current_children');
+			label(translate('update_permission_to_current_children'), $prefix.'_cascade_permission_changes', '1');
 		}//end if
 
 		return TRUE;

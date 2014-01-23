@@ -351,6 +351,16 @@ class Asset_Map
 	}//end _getInitialLineageSelection()
 
 
+	function embedAssetMapRequiredJS()
+	{
+	    ?>
+	    <script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/detect.js' ?>"></script>
+		<script type="text/javascript" src="<?php echo sq_web_path('fudge').'/var_serialise/var_serialise.js' ?>"></script>
+		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/asset_map/asset_map.js';?>"></script>
+		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/asset_map/js/js_asset_map.js';?>"></script>
+		<?php
+	}
+	
 	/**
 	* To create the tags that embed the asset map into the matrix system
 	*
@@ -407,13 +417,6 @@ class Asset_Map
 		// we want to use current_url()
 		require_once SQ_INCLUDE_PATH.'/general.inc';
 
-		?>
-		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/detect.js' ?>"></script>
-		<script type="text/javascript" src="<?php echo sq_web_path('fudge').'/var_serialise/var_serialise.js' ?>"></script>
-		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/asset_map/asset_map.js';?>"></script>
-		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/asset_map/js/js_asset_map.js';?>"></script>
-
-		<?php
 			if (isset($GLOBALS['SQ_SYSTEM']->user)) {
 				$user = $GLOBALS['SQ_SYSTEM']->user;
 			} else {
@@ -421,7 +424,20 @@ class Asset_Map
 			}//end if
 
 			// Check for at least simple edit access
-			if (is_null($user) || $user instanceof Public_User || (method_exists($user, 'canAccessBackend') && !($user instanceof Simple_Edit_User || $user->canAccessBackend() || (method_exists($user, 'isShadowSimpleEditUser') && $user->isShadowSimpleEditUser())))) {
+			$canAccessEdit  = FALSE;
+			$canAccessAdmin = FALSE;
+			if ((is_null($user) === FALSE) && ($user instanceof Public_User === FALSE)) {
+			    if ($user instanceof Simple_Edit_User) {
+			        $canAccessEdit = TRUE;
+			    } else if ((method_exists($user, 'isShadowSimpleEditUser') === TRUE) && ($user->isShadowSimpleEditUser() === TRUE)) {
+			        $canAccessEdit = TRUE;
+			    } else if ((method_exists($user, 'canAccessBackend') === TRUE) && ($user->canAccessBackend() === TRUE)) {
+			        $canAccessAdmin = TRUE;
+			        $canAccessEdit  = TRUE;
+			    }
+			}
+			
+			if ($canAccessEdit === FALSE) {
 			?>
 				<b>You need Simple Edit access or higher to view the Asset Map</b>
 			<?php
@@ -508,6 +524,13 @@ class Asset_Map
 					} else {
 						$rootLinkid = '';
 					}
+					
+					// Set the root edit URL, which needs to point to the correct
+					// (admin or simple edit) suffix.
+					$rootEditUrl = sq_web_path('root_url').'/'.SQ_CONF_BACKEND_SUFFIX;
+					if ($canAccessAdmin === FALSE) {
+					    $rootEditUrl = sq_web_path('root_url').'/'.SQ_CONF_LIMBO_SUFFIX;
+					}
 				?>
 					<script type="text/javascript">
 						dfxLoadedCallback = function() {
@@ -521,13 +544,14 @@ class Asset_Map
 								asset_map_container.style.height = <?php echo $height ?> + 'px';
 								document.getElementById('asset_map').appendChild(asset_map_container);
 								JS_Asset_Map.<?php echo $startCmd ?>({
-									rootEditUrl: '<?php echo sq_web_path('root_url').'/'.SQ_CONF_BACKEND_SUFFIX ?>',
+									rootEditUrl: '<?php echo $rootEditUrl ?>',
 									assetIconPath: '<?php echo sq_web_path('data') ?>/asset_types',
+									libPath: '<?php echo sq_web_path('lib') ?>',
 									displayFormat: '<?php echo addslashes(SQ_CONF_ASSET_MAP_ASSET_DISPLAY_NAME); ?>',
 									assetsPerPage: <?php echo SQ_CONF_ASSET_MAP_ASSET_LIMIT; ?>,
 									initialSelection: '<?php echo $initial_selection_lineage ?>',
 									teleportRoot: <?php echo ($common_parentid ? $common_parentid : '1') ?>,
-									teleportLink: '<?php echo $rootLinkid ?>',
+									teleportLink: '<?php echo $rootLinkid ?>'
 								});
 							}
 						}
@@ -625,7 +649,7 @@ class Asset_Map
 	*/
 	public function process(&$backend)
 	{
-		ini_set("display_errors", 0);
+	    ini_set("display_errors", 0);
 		$json = array_get_index($_GET, 'json', '');
 
 		// block public users from probing
@@ -633,7 +657,7 @@ class Asset_Map
 		if (is_null($user) || $user instanceof Public_User || (method_exists($user, 'canAccessBackend') && !($user instanceof Simple_Edit_User || $user->canAccessBackend() || (method_exists($user, 'isShadowSimpleEditUser') && $user->isShadowSimpleEditUser())))) {
 			exit();
 		}
-
+		
 		// set the output type to XML, so any errors raised by the objects will be sent along in XML
 		if ($json === '1') {
 			$GLOBALS['SQ_OUTPUT_TYPE'] = 'json';
@@ -644,7 +668,7 @@ class Asset_Map
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 		$xml = file_get_contents("php://input");
-
+		
 		if ($json === '1') {
 			$xml = json_decode_array($xml, TRUE);
 			$xml = $this->_toXML($xml, 'xml');
@@ -656,7 +680,7 @@ class Asset_Map
 		$root = simplexml_load_string($xml);
 		if (function_exists('libxml_disable_entity_loader'))
 			libxml_disable_entity_loader(FALSE);
-
+		
 		ob_start();
 		switch ($root['action']) {
 			case 'get translations' :
@@ -718,7 +742,7 @@ class Asset_Map
 			echo "</translations>\n";
 			$out = ob_get_contents();
 		ob_end_clean();
-
+		
 		$this->_send($out);
 
 	}//end _getTranslations()
@@ -1027,7 +1051,12 @@ class Asset_Map
 					$bind_vars = Array();
 					$sql = 'SELECT COUNT(*)
 							FROM '.SQ_TABLE_RUNNING_PREFIX.'vw_ast_lnk_major';
-					$where = 'majorid = :assetid AND link_type <= :max_link_type';
+					$where  = 'majorid = :assetid AND link_type <= :max_link_type';
+					if (MatrixDAL::getDbType() === 'oci') {
+						$where .= ' AND substr(minorid, 1, (case when instr(minorid, \':\') = 0 then length(minorid) else instr(minorid, \':\') - 1 end)) IN (SELECT assetid FROM  '.SQ_TABLE_RUNNING_PREFIX.'ast)';
+					} else {
+						$where .= ' AND substr(minorid, 1, (case when position(\':\' in minorid) = 0 then length(minorid) else position(\':\' in minorid) - 1 end)) IN (SELECT assetid FROM  '.SQ_TABLE_RUNNING_PREFIX.'ast)';
+					}
 					$bind_vars['assetid']       = $assetid;
 					$bind_vars['max_link_type'] = SQ_LINK_TYPE_2;
 					$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ast_', 'WHERE', FALSE);
@@ -1267,32 +1296,41 @@ class Asset_Map
 		try {
 			$bind_vars = Array();
 			// Search both tables (sq_ast_lnk - 1 and sq_shdw_ast_lnk - 2) and union the results
-			$sql1 = 'SELECT majorid, COUNT(*) as link_count FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk';
-			$sql2 = 'SELECT majorid, COUNT(*) as link_count FROM '.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk';
+			// Ensure all children in the real link table actually exist.
+			$sql1 = 'SELECT majorid, COUNT(*) as link_count FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON l.minorid = a.assetid';
+			$sql2 = 'SELECT majorid, COUNT(*) as link_count FROM '.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk l';
 
-			$sub_sql1 = 'SELECT minorid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk';
-			$sub_sql2 = 'SELECT minorid FROM '.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk';
+			$sub_sql1 = 'SELECT minorid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk sl';
+			$sub_sql2 = 'SELECT minorid FROM '.SQ_TABLE_RUNNING_PREFIX.'shdw_ast_lnk sl';
 			$sub_where1 = 'majorid = :assetid';
 			$sub_where2 = 'majorid = :assetid2';
 			$bind_vars['assetid'] = $assetid;
 			$bind_vars['assetid2'] = $assetid;
-			$sub_where1 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where1, NULL, 'WHERE', FALSE);
-			$sub_where1 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where1, NULL, 'WHERE', FALSE);
-			$sub_where2 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where2, NULL, 'WHERE', FALSE);
-			$sub_where2 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where2, NULL, 'WHERE', FALSE);
+			$sub_where1 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where1, 'sl');
+			$sub_where2 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where2, 'sl');
 			$sub_sql = $sub_sql1.' '.$sub_where1.' GROUP BY minorid UNION ALL '.$sub_sql2.' '.$sub_where2.' GROUP BY minorid';
 
-			$where_clause = 'majorid IN ('.$sub_sql.') AND link_type <= :max_link_type';
+			// Here we ensure that for each child of a shadow link, that it exists if it
+			// is a real asset, or its bridge exists if it's a shadow asset.
+			$where1 = 'majorid IN ('.$sub_sql.') AND link_type <= :max_link_type';
+			if (MatrixDAL::getDbType() === 'oci') {
+				$where2 = $where1.' AND substr(minorid, 1, (case when instr(minorid, \':\') = 0 then length(minorid) else instr(minorid, \':\') - 1 end)) IN (SELECT assetid FROM  '.SQ_TABLE_RUNNING_PREFIX.'ast)';
+			} else {
+				$where2 = $where1.' AND substr(minorid, 1, (case when position(\':\' in minorid) = 0 then length(minorid) else position(\':\' in minorid) - 1 end)) IN (SELECT assetid FROM  '.SQ_TABLE_RUNNING_PREFIX.'ast)';
+			}
 			$bind_vars['max_link_type'] = SQ_LINK_TYPE_2;
 
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where_clause, NULL, 'WHERE', FALSE);
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where_clause, NULL, 'WHERE', FALSE);
-			$where .= ' GROUP BY majorid ';
+			$where1 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where1, 'l');
+			$where1 .= ' GROUP BY majorid ';
 
-			$query2 = MatrixDAL::preparePdoQuery($sql1.' '.$where.' UNION ALL '.$sql2.' '.$where);
+			$where2 = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where2, 'l');
+			$where2 .= ' GROUP BY majorid ';
+
+			$query2 = MatrixDAL::preparePdoQuery($sql1.' '.$where1.' UNION ALL '.$sql2.' '.$where2);
 			foreach ($bind_vars as $key => $value) {
 				MatrixDAL::bindValueToPdo($query2, $key, $value);
 			}
+			
 			$db_result = MatrixDAL::executePdoAssoc($query2);
 			if (!empty($db_result))
 			{

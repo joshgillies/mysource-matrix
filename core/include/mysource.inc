@@ -682,11 +682,15 @@ class MySource extends MySource_Object
 							header('Pragma: cache');
 
 							$browser_cache_expiry = $cm->attr('browser_cache_expiry');
+							$acc_cache_expiry = $cm->attr('accelerator_cache_expiry');
+							$acc_cache_string = empty($acc_cache_expiry) ? '' : "s-maxage=$acc_cache_expiry, ";
+
 							if (empty($browser_cache_expiry)) {
 								$browser_cache_expiry = $cm->attr('expiry');
 							}
-
-							header('Cache-Control: max-age='.$browser_cache_expiry.', '.$cm->cacheControlLevel());
+							$level = $cm->cacheControlLevel();
+							$no_cookie = $level === 'public' ? ', no-cache="set-cookie"' : '';
+							header('Cache-Control: max-age='.$browser_cache_expiry.', '.$acc_cache_string.$level.$no_cookie);
 							header('Expires: '.gmdate('D, d M Y H:i:s', time() + $browser_cache_expiry).' GMT');
 						}
 
@@ -835,7 +839,7 @@ class MySource extends MySource_Object
 					if (SQ_CONF_SEND_CACHEABLE_HEADER && $asset->canSendCacheableHeader() && $cm->cacheableHeadersEnabledForCurrentProtocol() && $cm->sendCacheableHeaders($asset->type(), $asset->id)) {
 						$this->_sendHTTPHeaders($asset);
 					} else {
-						$asset->printFrontend();
+						$this->_printAssetFrontend($asset);
 					}
 				}//end if
 				// caching is enabled and asset is readable by public user, send HTTP headers
@@ -852,7 +856,7 @@ class MySource extends MySource_Object
 					$this->_sendHTTPHeaders($asset);
 
 				} else {
-					$asset->printFrontend();
+					$this->_printAssetFrontend($asset);
 				}
 				$content = ob_get_contents();
 			// now clear off our buffer but only if had anything in it
@@ -873,6 +877,9 @@ class MySource extends MySource_Object
 			$this->_translatePerformanceModeURL($content);
 
 			echo $content;
+
+			// Register the asset as "visited" in the frontend
+			$this->_registerAssetAsVisited($asset);
 
 		}//end else backend/limbo
 
@@ -952,18 +959,24 @@ class MySource extends MySource_Object
 
 		$cache_expiry = $cm->getExpiry($asset->type(), $asset->id);
 		$browser_cache_expiry = $cm->getBrowserCacheExpiry($asset->type(), $asset->id);
+		$acc_cache_expiry = $cm->getAcceleratorCacheExpiry($asset->type(), $asset->id);
+		$acc_cache_string = empty($acc_cache_expiry) ? '' : "s-maxage=$acc_cache_expiry, ";
+
 		if (empty($browser_cache_expiry)) {
 			$browser_cache_expiry = $cache_expiry;
 		}
+
 		if (!$recache) {
-			header('Cache-Control: max-age='.$browser_cache_expiry.', '.$cm->cacheControlLevel());
+			$level = $cm->cacheControlLevel();
+			$no_cookie = $level === 'public' ? ', no-cache="set-cookie"' : '';
+			header('Cache-Control: max-age='.$browser_cache_expiry.', '.$acc_cache_string.$level.$no_cookie);
 		}
 
 		// not cached or has expired
 		if ($cache_info === FALSE) {
 			ob_start();
 				$loaded_assetids = $GLOBALS['SQ_SYSTEM']->am->_asset_cache->getAssetKeys();
-				$asset->printFrontend();
+				$this->_printAssetFrontend($asset);
 				$all_assetids = $GLOBALS['SQ_SYSTEM']->am->_asset_cache->getAssetKeys();
 				$content = ob_get_contents();
 			ob_end_clean();
@@ -1014,6 +1027,7 @@ class MySource extends MySource_Object
 			// If the Browser Cache Expiry is set, caclculate the expiry time from now.
 			// Otherwise, use the expiry time as supplied by the Matrix cache.
 			$browser_cache_expiry = $cm->getBrowserCacheExpiry($asset->type(), $asset->id);
+
 			if (empty($browser_cache_expiry)) {
 				header('Expires: '.gmdate('D, d M Y H:i:s', $info['expires']).' GMT');
 			} else {
@@ -1028,7 +1042,7 @@ class MySource extends MySource_Object
 				exit(1);
 			} else {
 				// not sending 304 header, print the content
-				$asset->printFrontend();
+				$this->_printAssetFrontend($asset);
 			}
 		}
 
@@ -1056,6 +1070,11 @@ class MySource extends MySource_Object
 			$keywords = retrieve_keywords_replacements($content, '', TRUE);
 			foreach ($keywords as $word) {
 				if (!isset($additional_replacements[$word])) {
+					if(!isset($this->frontend_asset)) {
+					    $additional_replacements[$word] = '';
+					    continue;
+					}
+					    
 					$replacement = $this->frontend_asset->getKeywordReplacement($word);
 					// still cannot replace it, blank it out
 					if ($replacement == "%$word%") {
@@ -1762,13 +1781,21 @@ class MySource extends MySource_Object
 					$_SESSION['sq_rollback_view'] = Array('rollback_time' => $then);
 				}
 
-				unset($_GET['assetid']);
 				unset($_GET['version']);
 			break;
 
 			case 'rollback_view_stop' :
 				if (isset($_SESSION['sq_rollback_view'])) {
 					unset($_SESSION['sq_rollback_view']);
+				}
+				if (!empty($_REQUEST['assetid'])) {
+					// Check if the backend asset in the rollback mode still exists in the present
+					$sql = 'SELECT assetid FROM sq_ast WHERE assetid = :assetid';
+					$query = MatrixDAL::preparePdoQuery($sql);
+					MatrixDAL::bindValueToPdo($query, 'assetid', $_REQUEST['assetid']);
+					if (!MatrixDAL::executePdoOne($query)) {
+						unset($_REQUEST['assetid']);
+					}
 				}
 			break;
 
@@ -1856,6 +1883,14 @@ class MySource extends MySource_Object
 				echo (get_unique_token());
 				exit(1);
 			break;
+		    	
+			case 'verify_email' :
+				if(isset($_GET['email_verification_token']) && isset($_SESSION['SQ_VERIFY_EMAIL_TOKEN'])) {
+				    if($_GET['email_verification_token'] === $_SESSION['SQ_VERIFY_EMAIL_TOKEN']) {
+					$_SESSION['SQ_VERIFY_EMAIL_VERIFIED'] = $_SESSION['SQ_VERIFY_EMAIL_RAW'];
+				    }
+				}
+			break;				
 		}//end switch
 
 		// just so it isn't being used anywhere else
@@ -2169,34 +2204,6 @@ class MySource extends MySource_Object
 		// Do pass any event data since we can get it from $_SESSION
 		$event_data = Array('password' => array_get_index($_POST, 'SQ_LOGIN_PASSWORD'));
 		$this->broadcastTriggerEvent('trigger_event_user_login', $user, $event_data);
-
-		// check warranty (if a warranty key exists)
-		$decoded_wkey = base64_decode(SQ_LICENCE_WARRANTY_KEY);
-		if (SQ_IN_BACKEND && defined('SQ_LICENCE_WARRANTY_KEY') && ($decoded_wkey !== '') && (substr_replace($decoded_wkey, '', 6, 8) !== 'abcdef00000000')) {
-			$wkey_snippet = substr($decoded_wkey, 0, 6);
-			$ikey_snippet = substr(SQ_LICENCE_INSTALL_KEY, 0, 6);
-
-			$expiry_date = substr($decoded_wkey, 14);
-			$current_date = date('Ymd');
-
-			$warranty_expired = ($current_date > $expiry_date) || ($wkey_snippet !== $ikey_snippet);
-		} else {
-			// no warranty, so don't show the warranty expiry message
-			$warranty_expired = FALSE;
-		}
-
-		if ($this->userSystemAdmin($user) && $warranty_expired) {
-			$return_url = current_protocol().'://'.current_url(FALSE);
-
-			// We need to handle the 'return to HTTP' stuff here in any case
-			if (!$_SESSION['user_is_public'] && array_get_index($_SESSION, 'SQ_RETURN_TO_HTTP')) {
-				unset($_SESSION['SQ_RETURN_TO_HTTP']);
-				$return_url = 'http://'.current_url(FALSE);
-			}
-			$return_url = replace_query_string_vars(Array('SQ_ACTION' => NULL), $return_url);
-			require_once dirname(__FILE__).'/key_reminder.inc';
-			exit();
-		}
 
 		if (!$_SESSION['user_is_public'] && array_get_index($_SESSION, 'SQ_RETURN_TO_HTTP')) {
 			unset($_SESSION['SQ_RETURN_TO_HTTP']);
@@ -3851,6 +3858,9 @@ class MySource extends MySource_Object
 		$time_string = readable_datetime($then).' ('.easy_time_total(time() - $then, TRUE).' ago)';
 		$warning_message = translate('rollback_mode_warning_message', $time_string);
 		$exit_url = $_SERVER['PHP_SELF'].'?SQ_ACTION=rollback_view_stop';
+		if (!empty($_GET['assetid'])) {
+			$exit_url .= '&assetid='.$_GET['assetid'].'&am_section=edit_asset&asset_ei_screen='.array_get_index($_GET, 'asset_ei_screen', 'details');
+		}
 
 		?>
 		<div align="center">
@@ -4236,11 +4246,15 @@ class MySource extends MySource_Object
 			header('Pragma: cache');
 
 			$browser_cache_expiry = $cm->getBrowserCacheExpiry($asset->type(), $asset->id);
+			$acc_cache_expiry = $cm->getAcceleratorCacheExpiry($asset->type(), $asset->id);
+			$acc_cache_string = empty($acc_cache_expiry) ? '' : "s-maxage=$acc_cache_expiry, ";
+
 			if (empty($browser_cache_expiry)) {
 				$browser_cache_expiry = $cm->getExpiry($asset->type(), $asset->id);
 			}
-
-			header('Cache-Control: max-age='.$browser_cache_expiry.', '.$cm->cacheControlLevel());
+			$level = $cm->cacheControlLevel();
+			$no_cookie = $level === 'public' ? ', no-cache="set-cookie"' : '';
+			header('Cache-Control: max-age='.$browser_cache_expiry.', '.$acc_cache_string.$level.$no_cookie);
 			header('Expires: '.gmdate('D, d M Y H:i:s', time() + $browser_cache_expiry).' GMT');
 		}
 
@@ -4539,6 +4553,80 @@ class MySource extends MySource_Object
 		}
 
 	}//end _processUserIP()
+
+
+	/**
+	* Print the asset frontend
+	*
+	* @param object $asset	Asset of which we are printing the frontend
+	*	
+	* @return void
+	* @access private
+	*/
+	private function _printAssetFrontend($asset)
+	{
+		// Register the very first 'entry page' assetid
+		if (!isset($_SESSION['entry_asset']) && !isset($_REQUEST['just_logged_out'])) {
+			$_SESSION['entry_asset'] = $asset->id;
+			$_SESSION['entry_url'] = rtrim(current_url(), '/');
+		}
+
+		// Register the session's referrer (site referrer)
+		if (!isset($_SESSION['site_referrer']) && !isset($_REQUEST['just_logged_out'])) {
+			$_SESSION['site_referrer'] = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
+		}
+
+		// Print the asset frontend
+		$asset->printFrontend();
+
+	}//end _printAssetFrontend()
+
+
+	/**
+	* Add the asset and current url to the 'visited' stack in the session
+	*
+	* @param object $asset	Asset being registered as 'visited'
+	*	
+	* @return void
+	* @access private
+	*/
+	private function _registerAssetAsVisited($asset)
+	{
+		// Register the url and assetid as "visited"
+		if (SQ_CONF_VISITED_PAGES_MAX_ENTRIES > 0) {
+			if (!isset($_SESSION['visited_urls'])) {
+				$_SESSION['visited_urls'] = Array();
+			}
+			if (!isset($_SESSION['visited_assets'])) {
+				$_SESSION['visited_assets'] = Array();
+			}
+
+			$current_url = rtrim(current_url(), '/');
+			$assetid = $asset->id;
+			// We add a prefix to the array keys because numerical array keys (in case of assteids)
+			// gets reset and lost when doing array_shift()
+			$prefix = 'v_';
+
+			// Get rid of existing duplicate entry
+			if (isset($_SESSION['visited_urls'][$prefix.$current_url])) {
+				unset($_SESSION['visited_urls'][$prefix.$current_url]);
+			}
+			if (isset($_SESSION['visited_assets'][$prefix.$assetid])) {
+				unset($_SESSION['visited_assets'][$prefix.$assetid]);
+			}
+			$_SESSION['visited_urls'][$prefix.$current_url] = $current_url;
+			$_SESSION['visited_assets'][$prefix.$assetid] = $assetid;
+
+			// Stay within the defined "max entires" size
+			if (count($_SESSION['visited_urls']) > SQ_CONF_VISITED_PAGES_MAX_ENTRIES) {
+				array_shift($_SESSION['visited_urls']);
+			}
+			if (count($_SESSION['visited_assets']) > SQ_CONF_VISITED_PAGES_MAX_ENTRIES) {
+				array_shift($_SESSION['visited_assets']);
+			}
+		}
+
+	}//end _registerAssetAsVisited()
 
 
 }//end class

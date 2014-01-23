@@ -295,8 +295,8 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			$str = preg_replace_callback($cmmt_search, "wrap_comment", $str);
 
 			// Line Numbering and cleanup
-			$pre_style	= 'style="size:10px;font-family:helvetica,verdana,sans-serif;"';
-			$line_style	= 'style="color:black;list-style-type:decimal;border-left: thin solid #000000;"';
+			$pre_style	= 'style=""';
+			$line_style	= 'style=""';
 			$lines = explode("\n", $str);
 			$number_of_lines = count($lines);
 			$padding = strlen($number_of_lines);
@@ -305,7 +305,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				$lines[$line_number] = '<li '.$line_style.' value="'.($line_number+1).'">&nbsp;&nbsp;'.$line.'</li>';
 			}
 			$formatted = implode('', $lines);
-			echo '<pre ', $pre_style, '><ol>', $formatted, '</ol></pre>';
+			echo '<pre ', $pre_style, ' class="sq-parse-file-preview"><ol>', $formatted, '</ol></pre>';
 		}
 		return FALSE;
 
@@ -1450,8 +1450,8 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			<table class="sq-backend-table">
 			<thead>
 			<tr class="sq-backend-table-row">
-				<td class="sq-backend-table-header-header"><?php echo implode(' &nbsp; &nbsp; ', $links) ?></td>
-				<td class="sq-backend-table-header-header" style="text-align: right; font-weight: normal"><?php echo $asset_count_tag; ?></span></td>
+				<th class="sq-backend-table-header-header sq-pagination-links sq-no-side-border" style="text-align: left;"><?php echo implode(' &nbsp; &nbsp; ', $links) ?></th>
+				<th class="sq-backend-table-header-header sq-no-side-border" style="text-align: right;"><?php echo $asset_count_tag; ?></span></th>
 			</tr>
 			<tr class="sq-backend-table-row">
 				<th class="sq-backend-table-cell" colspan="2"><?php echo translate('asset'); ?></th>

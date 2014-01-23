@@ -149,7 +149,7 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 			// create an asset_finder, and pre-select the asset that is saved in settings (if any)
 			if ($write_access) {
 				?><script type="text/javascript" src="<?php echo sq_web_path('lib')?>/html_form/html_form.js"></script><?php
-				echo '<div>';
+				echo '<div class="sq-multiple-asset-finder-wrapper" style="margin-top: 5px;">';
 				$name = $prefix.'[assetids]';
 				foreach (array_values($selected_assetids) as $index => $selected_assetid){
 					asset_finder($name.'['.$index.']', $selected_assetid, Array(), 'sq_sidenav', FALSE, 'null', Array('clear'));
@@ -189,6 +189,7 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 				echo '</div>';
 			} else {
 				if ($selected_assetids) {
+					echo '<div class="sq-root-node-selections-wrapper">';
 					foreach ($selected_assetids as $selected_assetid){
 						echo get_asset_tag_line($selected_assetid);
 						if (!empty($immed_child[$selected_assetid])) {
@@ -196,6 +197,7 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 						}
 						echo '<br />';
 					}
+					echo '</div>';
 				} else {
 					echo '<b>['.translate('no_asset_selected').']</b>';
 				}

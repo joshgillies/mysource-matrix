@@ -164,7 +164,7 @@ class SAML_Account_Manager_Management extends Asset_Management
 		$this->vars['auto_create']				= Array(
 										'added'		=> '0.1',
 										'type'		=> 'boolean',
-										'default'		=> FALSE,
+										'default'		=> TRUE,
 										'parameters'    => Array(
 												'allow_empty'   => FALSE,
 										    ),

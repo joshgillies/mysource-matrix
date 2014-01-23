@@ -57,8 +57,9 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	public function paintNewSection(Metadata_Schema $asset, Backend_Outputter $o, $prefix)
 	{
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-		echo '<b>Section Name</b> ';
-		text_box($prefix.'_new_section', '', 20);
+		$o->openField(translate('section_name'));
+			text_box($prefix.'_new_section', '', 30);
+		$o->closeField();
 		return TRUE;
 
 	}//end paintNewSection()
@@ -107,9 +108,11 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	{
 		// need to have write access to make any changes
 		if ($asset->writeAccess('')) {
-			$o->note(translate('metadata_regenerate_for_currently_applied'));
-			check_box($prefix.'_regenerate');
-			label(translate('metadata_regenerate_files'));
+			$o->openField(translate('metadata_regenerate'));
+				check_box($prefix.'_regenerate');
+				label(translate('metadata_regenerate_files'), $prefix.'_regenerate');
+				$o->note(translate('metadata_regenerate_for_currently_applied'));
+			$o->closeField();
 		} else {
 			$o->note(translate('metadata_cannot_regenerate'));
 		}
@@ -169,7 +172,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 				if ($write_access) {
 					$o->openField(translate('delete_question'));
 						check_box($prefix.'_delete_sections['.$link_data['linkid'].']');
-						label(translate('delete_section-field_question'));
+						label(translate('delete_section-field_question'), $prefix.'_delete_sections['.$link_data['linkid'].']');
 					$o->closeField();
 				}
 				$edit_fns = $section->getEditFns();

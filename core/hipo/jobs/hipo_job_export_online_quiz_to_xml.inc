@@ -332,7 +332,7 @@ class HIPO_Job_Export_Online_Quiz_To_XML extends HIPO_Job
 		//LIBXML_NOBLANKS & LIBXML_NOEMPTYTAG balance each other out. Some flags had to be set to get the formatting to work.
 		$doc = new DOMDocument();
 		$doc->formatOutput = TRUE;
-		$doc->load($this->_running_vars['export_dir'].'/export.xml', LIBXML_NOBLANKS);
+		$doc->loadXML(file_get_contents($this->_running_vars['export_dir'].'/export.xml'), LIBXML_NOBLANKS);
 		$doc->save($this->_running_vars['export_dir'].'/export.xml', LIBXML_NOEMPTYTAG);
 			
 		$step_data['percent_done'] = 100;

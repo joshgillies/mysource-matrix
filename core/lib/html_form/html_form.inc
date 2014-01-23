@@ -517,7 +517,7 @@ function colour_box($name, $default='000000', $allow_blanks=FALSE, $button_text=
 
 	normal_button('', " $button_text ",
 					  "load_colour_picker(this.form.elements['".addslashes($name)."'],'".sq_web_path('lib')."/html_form')",
-					  'style="font-family: courier;"');
+					  'class="sq-colour-picker-btn"');
 
 	if ($show_change_colour) {
 		?>
@@ -796,17 +796,28 @@ function get_type_codes_string($type_codes)
 */
 function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sidenav', $new_window=FALSE, $done_fn='null', $buttons=Array('clear', 'reset'))
 {
-	$finder_frame = ($new_window || empty($map_frame)) ? 'self' : 'parent.frames["sq_main"]';
 	$escaped_name = str_replace('\\', '\\\\', $name);
 	$assetid	  = trim($assetid);
 
 	if (!empty($map_frame)) {
-		$map_frame = trim('parent.frames["'.$map_frame.'"]', '.');
+	    if ($map_frame === 'sq_sidenav') {
+	        $map_frame    = trim('parent.frames.'.$map_frame, '.');
+	        $finder_frame = 'parent.frames.sq_main';
+	    } else if ($map_frame === 'sq_wysiwyg_popup_sidenav') {
+	        $map_frame    = trim('frames.'.$map_frame, '.');
+	        $finder_frame = 'self';
+	    } else {
+            $map_frame    = 'self';
+            $finder_frame = 'self';
+        }
 	} else {
-		$map_frame = 'self';
+		$map_frame    = 'self';
+		$finder_frame = 'self';
 	}
+	
 	if ($new_window) {
-		$map_frame = 'window.opener.'.$map_frame;
+		$map_frame    = 'window.opener.'.$map_frame;
+		$finder_frame = 'self';
 	}
 
 	$label = '';
@@ -836,27 +847,15 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 	// only print the buttons if in the backend (where there's an asset map frame available)
 	if (SQ_IN_BACKEND || SQ_IN_LIMBO || defined('SQ_PAINTED_SIMPLE_ASSET_MAP')) {
 		?><span class="sq-asset-finder-id-label">Id : #</span><?php
-		text_box($safe_name.'_assetid', empty($assetid) ? '' : $assetid, 2, '', FALSE, 'style="border:1px solid #EFEFEF;width:7ex;" onchange="this.value=this.value.replace(/^\s*((?:[\S\s]*\S)?)\s*$/, \'$1\');'.str_replace('"', '\'', $finder_frame).'.set_hidden_field(\''.$name.'\' + \'[assetid]\', this.value);"');
+		text_box($safe_name.'_assetid', empty($assetid) ? '' : $assetid, 2, '', FALSE, 'onchange="this.value=this.value.replace(/^\s*((?:[\S\s]*\S)?)\s*$/, \'$1\');'.str_replace('"', '\'', $finder_frame).'.set_hidden_field(\''.$name.'\' + \'[assetid]\', this.value);"');
 		?> <?php
-		normal_button($safe_name.'_change_btn', translate('change'), $map_frame.'.asset_finder_change_btn_press(\''.$escaped_name.'\', \''.$safe_name.'\', \''.addslashes($type_codes).'\', '.$done_fn.');');
+		normal_button($safe_name.'_change_btn', translate('change'), $map_frame.'.set_finder('.$finder_frame.'); '.$map_frame.'.asset_finder_change_btn_press(\''.$escaped_name.'\', \''.$safe_name.'\', \''.addslashes($type_codes).'\', '.$done_fn.');');
 		if (in_array('clear', $buttons)) {
 			normal_button($safe_name.'_clear_btn', translate('clear'), $map_frame.'.asset_finder_clear_btn_press(\''.$escaped_name.'\', \''.$safe_name.'\');');
 		}
 		if (in_array('reset', $buttons)) {
 			normal_button($safe_name.'_reset_btn', translate('reset'), $map_frame.'.asset_finder_reset_btn_press(\''.$escaped_name.'\', \''.$safe_name.'\', \''.$assetid.'\', \''.addslashes($label).'\');');
 		}
-		?><script type="text/javascript">
-				if (!window.top.frames['sq_resizer'] || <?php echo $map_frame; ?>.SQ_DOCUMENT_LOADED) {
-					<?php echo $map_frame; ?>.set_finder(<?php echo $finder_frame; ?>);
-				} else {
-					// this gets overridden when multiple asset finders exist anyway,
-					// so no harm at the moment in only saving the latest set_finder call
-					if (typeof currentOnload == 'undefined') {
-						currentOnload = <?php echo $map_frame; ?>.onload;
-					}
-					<?php echo $map_frame; ?>.onload = function() { <?php echo $map_frame; ?>.set_finder(<?php echo $finder_frame; ?>); currentOnload(); }
-				}
-			</script><?php
 	}
 
 }//end asset_finder()
@@ -883,7 +882,7 @@ function multiple_asset_finder($name, $assetids=Array(), $type_codes=Array(), $m
 {
 	?><script type="text/javascript" src="<?php echo sq_web_path('lib')?>/html_form/html_form.js"></script><?php
 
-	echo '<div>';
+	echo '<div class="sq-multiple-asset-finder-wrapper">';
 	foreach (array_values($assetids) as $index => $assetid) {
 		asset_finder($name.'['.$index.']', $assetid, $type_codes, $map_frame, $new_window, $done_fn);
 		echo '<br />';
@@ -1295,16 +1294,16 @@ function asset_type_chooser($name, $multiple=FALSE, $defaults=Array(), $instanti
 					combo_box($name.'[type_code][]', $types, FALSE, $type_code);
 					hidden_field($name.'[inherit][]', $defaults['inherit'][$i]);
 					check_box('', 1, $defaults['inherit'][$i], 'toggleLastHiddenField(this)');
-					label(strtolower(translate('inherit')), '');
-					normal_button('', translate('clear'), 'resetLastSelect(this)');
+					label(strtolower(translate('inherit').' &nbsp;'), $name.'[inherit]');
+					normal_button('', translate('clear'), 'resetLastSelect(this)', 'style="margin-bottom:3px;"');
 					echo '<br />';
 				}
 			}
 			combo_box($name.'[type_code][]', $types, FALSE, '');
 			hidden_field($name.'[inherit][]', 0);
 			check_box('', 1, FALSE, 'toggleLastHiddenField(this)');
-			label(strtolower(translate('inherit')), '');
-			normal_button('', translate('clear'), 'resetLastSelect(this); clearLastCheckbox(this);');
+			label(strtolower(translate('inherit').' &nbsp;'), $name.'[inherit]');
+			normal_button('', translate('clear'), 'resetLastSelect(this); clearLastCheckbox(this);', 'style="margin-bottom:3px;"');
 			normal_button('', translate('more').'...', 'prependTypeSelector(this); prependInheritSelector(this); prependClearButton(this, true)');
 		} else {
 			foreach ($defaults as $default) {
@@ -1315,7 +1314,7 @@ function asset_type_chooser($name, $multiple=FALSE, $defaults=Array(), $instanti
 				}
 			}
 			combo_box($name.'[]', $types, FALSE, '');
-			normal_button('', translate('clear'), 'resetLastSelect(this)');
+			normal_button('', translate('clear'), 'resetLastSelect(this)', 'style="margin-bottom:3px;"');
 			normal_button('', translate('more').'...', 'prependTypeSelector(this); prependClearButton(this, false)');
 		}
 		echo '<br />';
@@ -1324,7 +1323,7 @@ function asset_type_chooser($name, $multiple=FALSE, $defaults=Array(), $instanti
 			combo_box($name.'[type_code]', $types, FALSE, array_get_index($defaults, 'type_code', ''));
 			hidden_field($name.'[inherit]', array_get_index($defaults, 'inherit', '0'));
 			check_box('', 1, array_get_index($defaults, 'inherit', '0'), 'toggleLastHiddenField(this)');
-			label(strtolower(translate('inherit')), '');
+			label(strtolower(translate('inherit').' &nbsp;'), $name.'[inherit]');
 		} else {
 			combo_box($name, $types, FALSE, $defaults);
 		}

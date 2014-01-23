@@ -130,14 +130,14 @@ class Proxy_Authentication_Config extends Config
 			$o->closeField();
 			$o->openField(translate('username'));
 			if ($write_access) {
-				text_box($class.'[SQ_PA_USERNAME]', SQ_PA_USERNAME, 15);
+				text_box($class.'[SQ_PA_USERNAME]', SQ_PA_USERNAME, 25);
 			} else {
 				echo SQ_PA_USERNAME;
 			}
 			$o->closeField();
 			$o->openField(translate('password'));
 			if ($write_access) {
-				password_box($class.'[SQ_PA_PASSWORD]', base64_decode(SQ_PA_PASSWORD), 15);
+				password_box($class.'[SQ_PA_PASSWORD]', base64_decode(SQ_PA_PASSWORD), 25);
 			} else {
 				if (strlen(SQ_PA_PASSWORD)) {
 					echo translate('password_not_shown');
@@ -337,6 +337,7 @@ class Proxy_Authentication_Config extends Config
 				$o->openField(translate('active_question'));
 					if ($write_access) {
 						echo check_box($class.'_alternative[active]['.$proxy_key.']', 1, array_get_index($proxy_details, 'active', TRUE));
+						echo label(translate('proxy_active'), $class.'_alternative[active]['.$proxy_key.']');
 					} else {
 						echo array_get_index($proxy_details, 'active', TRUE);
 					}
@@ -344,6 +345,7 @@ class Proxy_Authentication_Config extends Config
 				if ($write_access) {
 					$o->openField(translate('delete_question'));
 						echo check_box($class.'_alternative[delete]['.$proxy_key.']', 1, FALSE);
+						echo label(translate('proxy_delete'), $class.'_alternative[delete]['.$proxy_key.']');
 					$o->closeField();
 				}
 			$o->closeSection();
@@ -353,6 +355,7 @@ class Proxy_Authentication_Config extends Config
 			$o->openSection('Add New Proxy');
 				$o->openField('Add new proxy');
 					echo check_box($class.'_alternative[add]', 1, FALSE);
+					echo label('Add new alternative proxy', $class.'_alternative[add]');
 				$o->closeField();
 			$o->closeSection();
 		}

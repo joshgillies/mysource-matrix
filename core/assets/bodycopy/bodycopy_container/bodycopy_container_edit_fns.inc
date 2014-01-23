@@ -133,6 +133,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	public function paintContainer(Bodycopy_Container $asset, Backend_Outputter $o, $prefix)
 	{
 		if (!$asset->writeAccess('content')) {
+
 			if ($asset->readAccess()) {
 				$conflict_tags = Array(
 									'<form',
@@ -162,12 +163,17 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 					$container_content = '<div style="padding: 1ex; margin-bottom: 1ex; border: solid 1px grey;"><strong>Container ID '.$asset->id.'</strong><div class="sq-backend-warning">'.translate('bodycopy_html_conflict_warning').'</div><hr /><pre>'.htmlentities($container_content, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'</pre></div>';
 				}
 
-				echo $container_content.'<br />';
-
+				//print a div wrapper around the content so we can style the container propery
+				echo '<div class="sq-locked-content-block-wrapper status-after-'.str_replace(' ', '-', strtolower(get_status_description($asset->status))).'" data-id"'.$asset->id.'" data-status-code="'.$asset->status.'" data-status="'.get_status_description($asset->status).'" data-title="'.$asset->name.'" title="'.$asset->name.' #'.$asset->id.' ('.get_status_description($asset->status).')">';
+					echo $container_content; 
+				echo '</div>';
 
 			} else {
-				echo '<span class="sq-backend-warning">You do not have access to view the contents of this container</span>';
+				echo '<div class="sq-locked-content-block-wrapper no-access">';
+					echo '<span class="sq-backend-warning">You do not have access to view the contents of this container</span>';
+				echo '</div>';
 			}
+
 			return FALSE;
 		}//end if
 
@@ -873,36 +879,17 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		
 		?>
 
-		<style type="text/css">
-			#bodycopyPopupDiv {
-				color: #ffffff;
-				position:absolute;
-				left:100;
-				top:120;
-				width:<?php echo $init_layer_width?>;
-				height:<?php echo $init_layer_height?>;
-				clip:rect(0,600,600,0);
-				visibility: hidden;
-			}
-			#bodycopyToolTipDiv {
-				position:absolute;
-				width:  1px;
-				height: 1px;
-				visibility: hidden;
-			}
-		</style>
-
 		<!-- Begin Tooltip -->
-		<div id="bodycopyToolTipDiv" style="z-index:1000"></div>
+		<div id="bodycopyToolTipDiv" class="sq-bodycopy-tooltip-div" style="z-index:1000"></div>
 		<!-- End Tooltip -->
 
 		<!-- Begin Popup -->
-		<div id="bodycopyPopupDiv" style="z-index:1001">
+		<div id="bodycopyPopupDiv" class="sq-bodycopy-popup-div" style="position: absolute; z-index:1001; visibility: hidden; width:<?php echo $init_layer_width?>; height:<?php echo $init_layer_height?>;">
 			<iframe name="bodycopyFrame" id="bodycopyFrame" scrolling="no" width="<?php echo $init_layer_width?>" height="<?php echo $init_layer_height?>" marginwidth=0 marginheight=0 frameborder="no"></iframe>
 		</div>
 		<!-- End Popup -->
 
-		<table border="0" cellspacing="0" cellpadding="0" width="100%" class="bodytext">
+		<table class="bodytext">
 			<tr>
 				<td>
 					<input type="hidden" name="bodycopy_saved[<?php echo $prefix?>][<?php echo $asset->id?>]" value="">

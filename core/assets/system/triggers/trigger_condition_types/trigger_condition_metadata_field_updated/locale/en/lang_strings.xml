@@ -16,5 +16,5 @@
 -->
 
 <strings>
-	<string source="trigger_condition_metadata_field_updated_note">When this metadata field is updated, the condition will be met and the trigger will fire.</string>
+	<string source="trigger_condition_metadata_field_updated_note">&lt;strong&gt;Note:&lt;/strong&gt; When this metadata field is updated, the condition will be met and the trigger will fire.</string>
 </strings>

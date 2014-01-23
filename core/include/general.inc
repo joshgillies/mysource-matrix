@@ -70,9 +70,22 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 	$bt = debug_backtrace();
 
 	if (count($bt) > 1) {
-		$real_bt_index = get_true_error_location($bt, 1);
-		$err_file = (($err_no === E_STRICT) || ($real_bt_index == 0 && !isset($bt[$real_bt_index]['file']))) ?	hide_system_root($bt['0']['args']['2']) : hide_system_root($bt[$real_bt_index]['file']);
-		$err_line = (($err_no === E_STRICT) || ($real_bt_index == 0 && !isset($bt[$real_bt_index]['file']))) ?	hide_system_root($bt['0']['args']['3']) : hide_system_root($bt[$real_bt_index]['line']);
+		$real_bt_index = get_true_error_location($bt, 1);		
+		if(isset($bt[$real_bt_index]['file'])) {
+		    $err_file = $bt[$real_bt_index]['file'];
+		}
+		else if (isset($bt['0']['args']['2'])) {
+		    $err_file = $bt['0']['args']['2'];
+		}
+		if(isset($bt[$real_bt_index]['line'])) {
+		    $err_line = $bt[$real_bt_index]['line'];
+		}
+		else if (isset($bt['0']['args']['3'])) {
+		    $err_line = $bt['0']['args']['3'];
+		}
+
+		$err_file = hide_system_root($err_file);
+		$err_line = hide_system_root($err_line);
 		$err_msg  = hide_system_root($err_msg);
 	}
 
@@ -84,7 +97,11 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 	}
 
 	$err_name  = get_error_name($err_no);
-	$bg_colour = get_error_colour($err_no);
+	$err_colours = get_error_colour($err_no);
+	$bg_colour = $err_colours[0];
+	$border_colour = $err_colours[1];
+	$text_colour = $err_colours[2];
+
 
 	// send a report to the system error log
 	if (ini_get('log_errors')) {
@@ -172,37 +189,39 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 				$err_msg = nl2br(htmlspecialchars($err_msg));
 			}
 
-			$error_title = 'background-color: '.$bg_colour.'; font-size: 14px; font-weight: bold; color: #ffffff; font-family: verdana, arial, sans-serif; vertical-align: top;';
-			$error_data  = 'background-color: '.$bg_colour.'; font-size: 12px; color: #ffffff; font-family: verdana, arial, sans-serif; vertical-align: top;';
+			$error_title_main = 'font-weight: bold; font-size: 14px; vertical-align: top; padding: 12px 19px 11px; border-bottom: 1px solid '.$border_colour.'; color: '.$text_colour.';';
+			$error_title = 'font-weight: bold; font-size: 12px; vertical-align: top; padding-right: 30px; padding-bottom: 5px; color: '.$text_colour.';';
+			$error_data  = 'font-size: 12px; vertical-align: top; padding-right: 30px; padding-bottom: 5px; color: '.$text_colour.';';
 			if(empty($buffers)) echo '</script></table></table></table></table><br/>';
-			if(!(SQ_IN_BACKEND || SQ_IN_LIMBO)) echo '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
+			if(!(SQ_IN_BACKEND || SQ_IN_LIMBO)) echo '<!DOCTYPE html>';
 			?>
-				<table bgcolor="#c0c0c0" cellspacing="0" border="1" cellpadding="2" bordercolor="#ff0000">
+			<div style="position: relative; overflow: auto; border: 1px solid <?php echo $border_colour; ?>; border-radius: 4px; font-family: arial, sans-serif; color: <?php echo $text_colour; ?>; font-size: 12px; background: <?php echo $bg_colour; ?>; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5); margin-bottom: 10px;">
+				<table style="width: 100%; border-collapse: collapse;">
 					<tr>
-						<td style="<?php echo $error_title; ?>">
+						<td style="<?php echo $error_title_main; ?>">
 							<?php echo $err_name; ?>
 						</td>
 					</tr>
 					<tr>
-						<td style="<?php echo $error_data; ?>">
+						<td style="vertical-align: top; padding: 12px 19px 11px;">
 			<?php
 			if (SQ_CONF_DEBUG & (1 | 2)) {
 			?>
-							<table bgcolor="#dddddd" cellpadding="2" cellspacing="0" border="0">
+							<table>
 				<?php
 				if (SQ_CONF_DEBUG & 1) {
 				?>
 								<tr>
-									<td style="<?php echo $error_title; ?>" align="right">File:</td>
+									<td style="<?php echo $error_title; ?>">File:</td>
 									<td style="<?php echo $error_data; ?>"><?php echo $err_file; ?></td>
-									<td style="<?php echo $error_title; ?>" align="right">Line:</td>
+									<td style="<?php echo $error_title; ?>">Line:</td>
 									<td style="<?php echo $error_data; ?>"><?php echo $err_line; ?></td>
 								</tr>
 				<?php
 				}//end if (DEBUG & File+Line)
 				?>
 								<tr>
-									<td style="<?php echo $error_title; ?>" align="right">Message:</td>
+									<td style="<?php echo $error_title; ?>">Message:</td>
 									<td style="<?php echo $error_data; ?>" colspan="3"><?php echo $err_msg; ?></td>
 								</tr>
 				<?php
@@ -210,7 +229,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 				if ((SQ_CONF_DEBUG & 2) && $bt_str) {
 				?>
 								<tr>
-									<td style="<?php echo $error_title; ?>" align="right">Backtrace:</td>
+									<td style="<?php echo $error_title; ?>">Backtrace:</td>
 									<td style="<?php echo $error_data; ?>" colspan="3">
 										<script language="JavaScript" type="text/javascript">
 											<!--
@@ -226,13 +245,14 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 
 											// -->
 										</script>
-										<a href="javascript: print_backtrace_<?php echo $num_errors; ?>();" style="color: #ffffff;">Show</a>
+										<a href="javascript: print_backtrace_<?php echo $num_errors; ?>();" style="text-decoration: underline; color: <?php echo $text_colour; ?>">Show</a>
 									</td>
 								</tr>
 				<?php
 				}//end if (DEBUG & Backtrace)
 				?>
-							</table>
+				</table>
+			</div>
 			<?php
 			} else {
 				echo $err_msg;
@@ -241,7 +261,8 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 			?>
 						</td>
 					</tr>
-				</table><br/>
+				</table>
+			</div>
 			<?php
 
 	}//end switch ($GLOBALS['SQ_OUTPUT_TYPE'])
@@ -551,51 +572,69 @@ function get_error_name($error_code)
 
 
 /**
-* Specifies HTML colour to be used when displaying the PHP error code
+* Specifies HTML colours to be used when displaying the PHP error code
 *
 * @param int	$error_code	PHP error code
 *
-* @return string
+* @return array of strings
 * @access public
 */
 function get_error_colour($error_code)
 {
-	$colour = '';
+	$bg_colour = '';
+	$border_colour = '';
+	$text_colour = '';
 
 	if (defined('E_RECOVERABLE_ERROR') && $error_code == E_RECOVERABLE_ERROR) {
 		// PHP 5.2 "recoverable error" code (4096) - considered an normal PHP
 		// Error by Matrix to be consistent with PHP 5.1
-		$colour = '#0066CC';
+		$bg_colour = '#0066CC';
 	} else if (defined('E_STRICT') && $error_code == E_STRICT) {
 		// If we are using PHP5, E_STRICT will be defined (2048).
-		$colour = '#594165';
+		$bg_colour = '#594165';
 	} else {
 		switch ($error_code) {
 			case E_USER_ERROR :
-				$colour = '#993333';
+				$bg_colour = 		'#ffbcc1';
+				$border_colour = 	'#e0a1a6';
+				$text_colour = 		'#804951';
 			break;
 			case E_USER_WARNING :
-				$colour = '#DBA53B';
+				$bg_colour = 		'#ffeb93';
+				$border_colour = 	'#d7c789';
+				$text_colour = 		'#665a2a';
 			break;
 			case E_USER_NOTICE :
-				$colour = '#17AA92';
+				$bg_colour = 		'#b8e7e0';
+				$border_colour = 	'#8dc7be';
+				$text_colour = 		'#395c57';
 			break;
 			case E_ERROR :
-				$colour = '#0066CC';
+				$bg_colour = 		'#bdddff';
+				$border_colour = 	'#98b7d7';
+				$text_colour = 		'#3b536b';
 			break;
 			case E_WARNING :
-				$colour = '#0066CC';
+				$bg_colour = 		'#bdddff';
+				$border_colour = 	'#98b7d7';
+				$text_colour = 		'#3b536b';
 			break;
 			case E_NOTICE :
-				$colour = '#0066CC';
+				$bg_colour = 		'#bdddff';
+				$border_colour = 	'#98b7d7';
+				$text_colour = 		'#3b536b';
 			break;
 			default :
-				$colour = '#FF0000';
+				$bg_colour = 		'#cfcfcf';
+				$border_colour = 	'#ccc';
+				$text_colour = 		'#000';
 			break;
 		}//end switch
 	}
 
-	return $colour;
+	$colour_values = Array($bg_colour, $border_colour, $text_colour);
+
+	return $colour_values;
 
 }//end get_error_colour()
 
@@ -1600,10 +1639,10 @@ function get_asset_tag_line($assetid, $screen='')
 	ob_start();
 	?>
 	<div id="asset-tag-line-<?php echo $assetid ?>-more-details" style="display:none;">
-		<table cellspacing="0">
-		<tr>
-			<td class="sq-backend-table-cell" style="background-color: #<?php echo get_status_colour($asset_info['status']) ?>"><strong>Current Status:</strong></td>
-			<td colspan="2" class="sq-backend-table-cell" style="background-color: #<?php echo get_status_colour($asset_info['status']) ?>"><i><?php echo get_status_description($asset_info['status']) ?></i></td>
+		<table>
+		<tr class="sq-asset-highlight">
+			<td class="sq-backend-table-cell"><strong>Current Status:</strong></td>
+			<td colspan="2" class="sq-backend-table-cell"><span class="sq-status-square status-<?php echo str_replace(' ', '-', strtolower(get_status_description($asset_info['status']))) ?>"></span><?php echo get_status_description($asset_info['status']) ?></td>
 		</tr>
 		<tr>
 			<td class="sq-backend-table-cell"><strong><?php echo translate('asset_type') ?>:</strong></td>
@@ -1648,7 +1687,7 @@ function get_asset_tag_line($assetid, $screen='')
 		</div>
 
 		<?php
-		echo sq_print_icon(sq_web_path('lib').'/web/images/icons/info.png', 16, 16, '', '', ' align="absmiddle" onmouseover="tooltip.show(this, document.getElementById(\'asset-tag-line-'.str_replace('\\', '\\\\', $assetid).'-more-details\').innerHTML, \'More Info\');" onmouseout="tooltip.hide();"');
+		echo sq_print_icon(sq_web_path('lib').'/web/images/icons/info.png', '', '', '', '', ' align="absmiddle" onmouseover="tooltip.show(this, document.getElementById(\'asset-tag-line-'.str_replace('\\', '\\\\', $assetid).'-more-details\').innerHTML, \'More Info\');" onmouseout="tooltip.hide();"');
 		echo get_asset_tag_line_binoculars($assetid);
 
 		// Screen parameter now supports javascript code to be added to the
@@ -1663,6 +1702,7 @@ function get_asset_tag_line($assetid, $screen='')
 		} else if (!empty($screen_url)) {
 			echo '<a href="'.$screen_url.'">';
 		}
+		echo '<span class="sq-info-asset-name">';
 		echo $asset_info['name'];
 
 		if (!empty($js) || !empty($screen_url)) {
@@ -1670,6 +1710,7 @@ function get_asset_tag_line($assetid, $screen='')
 		}
 
 		echo ' (Id: #'.$assetid.') ';
+		echo '</span>';
 
 	$contents = ob_get_clean();
 
@@ -1735,14 +1776,14 @@ function get_asset_tag_line_binoculars($assetid, $popupTitle=NULL)
 	ob_start();
 	?>
 	<div id="asset-tag-line-<?php echo $assetid ?>-lineages" style="display:none">
-	<p style="padding: 2px 5px 0;">This asset is linked to <?php
+	<p>This asset is linked to <?php
 	if ($count_linked_to === 1) {
 		?><strong><em><?php echo $count_linked_to ?></em></strong> parent<?php
 	} else {
 		?><strong><em><?php echo $count_linked_to ?></em></strong> parents<?php
 	}
 	?></p>
-	<table><?php
+	<table class="sq-toolbox-asset-lineages-listing"><?php
 	foreach ($lineages as $lineage_key => $lineage) {
 		if ($lineage['link_type'] & SQ_SC_LINK_BACKEND_NAV) {
 			$lineage_assetids = array_keys($lineage['lineage']);
@@ -1762,7 +1803,7 @@ function get_asset_tag_line_binoculars($assetid, $popupTitle=NULL)
 			}
 
 			$lineage_names[$assetid] = $asset_info['name'];
-			$lineages_onclick = _asset_locator_onclick($lineage_assetids, TRUE);
+			$lineages_onclick = asset_locator_onclick($lineage_assetids, TRUE);
 			?><tr>
 			<td class="sq-backend-table-cell" ><a href="#" onclick="<?php echo $lineages_onclick; ?>"><?php echo implode(' &gt; ', $lineage_names) ?></a></td>
 			</tr><?php
@@ -1792,7 +1833,7 @@ function get_asset_tag_line_binoculars($assetid, $popupTitle=NULL)
 		}
 		$lineage_names[$assetid] = $asset_info['name'];
 
-		$lineages_onclick = _asset_locator_onclick($lineage_assetids, FALSE);
+		$lineages_onclick = asset_locator_onclick($lineage_assetids, FALSE);
 		$lineages_name = translate('show_in_asset_map');
 	}
 
@@ -1814,7 +1855,7 @@ function get_asset_tag_line_binoculars($assetid, $popupTitle=NULL)
 * @return string
 * @access public
 */
-function _asset_locator_onclick($lineage_assetids, $tooltip_hide)
+function asset_locator_onclick($lineage_assetids, $tooltip_hide)
 {
 	// Logic:
 	// 1. Invoking from a WYSIWYG popup itself (WYSIWYG search results)
@@ -1833,30 +1874,29 @@ function _asset_locator_onclick($lineage_assetids, $tooltip_hide)
 		$lineage_item = str_replace('\'', '\\\'', $lineage_item);
 	}
 
-	$onclick = 'if (self.name == \'sq_wysiwyg_popup_main\') {
-					am = self;
-				} else if (self.name == \'hipo_job\') {
-					am = opener;
-				} else if ((typeof sq_wysiwyg_dialog != \'undefined\') && (sq_wysiwyg_dialog != null) && (!sq_wysiwyg_dialog.closed)) {
-					am = sq_wysiwyg_dialog.frames[\'sq_wysiwyg_popup_main\'];
-					am.focus();
-				} else if ((typeof opener != \'undefined\') && (opener != null) && (!opener.closed)) {
-					am = opener.parent.top.frames[\'sq_sidenav\'];
-				} else {
-					am = parent.top.frames[\'sq_sidenav\'];
-				}
-
-				if (am.JS_Asset_Map && am.JS_Asset_Map.modernMapActive) {
-					am.JS_Asset_Map.locateAsset([\''.implode('\', \'', $lineage_assetids).'\'], ['.implode(',', $sort_orders).']);
-				} else {
-					am.asset_locator_start(\''.$asset_so.'\');
-				}';
+	$onclick = 'if (self.name == \'sq_wysiwyg_popup_main\') {'
+				. '	am = self.frames.sq_wysiwyg_popup_sidenav;'
+				. '} else if (self.name == \'hipo_job\') {'
+				. '	am = opener;'
+				. '} else if ((typeof sq_wysiwyg_dialog != \'undefined\') && (sq_wysiwyg_dialog != null) && (!sq_wysiwyg_dialog.closed)) {'
+				. '                am = self.top.frames.sq_wysiwyg_popup_main.frames.sq_wysiwyg_popup_sidenav;'
+				. '                am.focus();'
+				. '} else if ((typeof opener != \'undefined\') && (opener != null) && (!opener.closed)) {'
+				. '	am = opener.parent.top.frames[\'sq_sidenav\'];'
+				. '} else {'
+				. '	am = parent.top.frames[\'sq_sidenav\'];'
+				. '}'
+				. 'if (am.JS_Asset_Map && am.JS_Asset_Map.modernMapActive) {'
+				. '	am.JS_Asset_Map.locateAsset([\''.implode('\', \'', $lineage_assetids).'\'], ['.implode(',', $sort_orders).']);'
+				. '} else {'
+				. '	am.asset_locator_start(\''.$asset_so.'\');'
+				. '}';
 
 	if ($tooltip_hide) $onclick .= 'tooltip.hide();';
 	$onclick .= 'return false;';
 	return $onclick;
 
-}//end _asset_locator_onclick()
+}//end asset_locator_onclick()
 
 
 /**
@@ -1891,39 +1931,11 @@ function get_asset_status_icon($status)
 	$status_name = get_status_description($status);
 	$status_colour = get_status_colour($status);
 
-	return '<img src="'.sq_web_path('lib').'/web/images/blank.gif" width="10" height="10" alt="'.$status_name.'" title="'.$status_name.'" align="absmiddle" style="margin: 2px; border: 1px solid #ccc; background-color: #'.$status_colour.'" /> ';
+	//return '<img src="'.sq_web_path('lib').'/web/images/blank.gif" width="10" height="10" alt="'.$status_name.'" title="'.$status_name.'" align="absmiddle" style="margin: 2px; border: 1px solid #ccc; background-color: #'.$status_colour.'" /> ';
+	return '<span title="'.get_status_description($status).'" class="sq-status-square status-'.str_replace(' ', '-', strtolower(get_status_description($status))).'"></span>';
 
 }//end get_asset_status_icon()
 
-
-/**
-* Returns a javascript function call that could be used in onClick events.
-* This function will select and display assets that are in the passed asset lineage
-* in the asset map
-*
-* If $map_frame is an empty string, then the asset_finder will look for the asset
-* map in the frame where it was loaded
-*
-* @param array		$asset_lineage	Asset IDs in an asset lineage. Indexed from root to leaf
-* @param string		$map_frame		a reference to the map_frame so we can get the asset map
-* @param boolean	$new_window		is the asset finder in a different window than the asset map
-*
-* @return string
-* @access public
-*/
-function asset_locator_js($asset_lineage=Array(),$map_frame='sq_sidenav', $new_window=FALSE)
-{
-	$finder_frame = ($new_window || empty($map_frame)) ? 'parent.top' : 'parent.frames["sq_main"]';
-	if (!empty($map_frame)) {
-		$map_frame = trim('parent.top.frames[\''.$map_frame.'\']', '.');
-	} else {
-		$map_frame = 'top';
-	}
-
-	$js_code = $map_frame.'.asset_locator_start(\''.get_asset_lineage_sort_order($asset_lineage).'\');';
-	return $js_code;
-
-}//end asset_locator_js()
 
 
 /**
@@ -1992,6 +2004,8 @@ function get_asset_lineage_sort_order($asset_lineage=Array())
 function get_available_global_keywords()
 {
 	$ret = Array(
+					'globals_get'		=> 'Global Keywords - Get parameters in JSON format',
+					'globals_post'		=> 'Global Keywords - Post parameters in JSON format',
 					'globals_user_'		=> 'Global Keywords - Current User',
 					'globals_get_'		=> 'Global Keywords - Get Parameters',
 					'globals_post_'		=> 'Global Keywords - Post Parameters',
@@ -2039,7 +2053,11 @@ function replace_global_keywords(&$text)
 				if (0 === strpos($keyword, 'globals_')) {
 					// Default replacement for global keywords is blank string
 					$replacements[$full_keyword] = '';
-					if (0 === strpos($keyword, 'globals_user_')) {
+					if ($keyword == 'globals_post') {
+						$replacements[$full_keyword] = clean_keyword_value($_POST);
+					} else if ($keyword == 'globals_get') {
+						$replacements[$full_keyword] = clean_keyword_value($_GET);
+					} else if (0 === strpos($keyword, 'globals_user_')) {
 						$user_keyword = 'asset_'.substr($keyword, 13);
 						$user_replacement = $GLOBALS['SQ_SYSTEM']->user->getKeywordReplacement($user_keyword);
 						if ((string)$user_replacement != "%$user_keyword%") {
@@ -2070,6 +2088,9 @@ function replace_global_keywords(&$text)
 								$replacements[$full_keyword] = '';
 							}
 						}
+					}
+					if (0 === strpos($keyword, 'globals_protocol')) {
+						$replacements[$full_keyword] = current_protocol();
 					}
 					if (0 === strpos($keyword, 'globals_date')) {
 						require_once SQ_FUDGE_PATH.'/general/datetime.inc';
@@ -2117,7 +2138,7 @@ function replace_global_keywords(&$text)
 						$replacements[$full_keyword] = $type_icon_replace;
 					}//end if
 
-					if (0 === strpos($keyword, 'globals_site_')) {
+					if (0 === strpos($keyword, 'globals_site_') && $keyword !== 'globals_site_referrer') {
 						$site_keyword = 'asset_'.substr($keyword, 13);
 						preg_match('|(.*):([0-9]+)$|',$site_keyword,$matches);
 						// We must find the site before we can replace these keywords
@@ -2322,9 +2343,113 @@ function replace_global_keywords(&$text)
 						}
 						$replacements[$full_keyword] = $context_name;
 					}//end if
+					
+					if (0 === strpos($keyword, 'globals_visited_urls')) {
+						$replacements[$full_keyword] = isset($_SESSION['visited_urls']) ? array_reverse(array_values($_SESSION['visited_urls'])) : '';
+					}//end if
+					
+					if (0 === strpos($keyword, 'globals_visited_assets')) {
+						$replacements[$full_keyword] = isset($_SESSION['visited_assets']) ? array_reverse(array_values($_SESSION['visited_assets'])) : '';
+					}//end if
+					
+					if (0 === strpos($keyword, 'globals_entry_asset')) {
+						$replacements[$full_keyword] = isset($_SESSION['entry_asset']) ? $_SESSION['entry_asset'] : '';
+					}//end if
+
+					if (0 === strpos($keyword, 'globals_page_referrer')) {
+						$replacements[$full_keyword] = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
+					}//end if
+
+					if (0 === strpos($keyword, 'globals_site_referrer')) {
+						$replacements[$full_keyword] = isset($_SESSION['site_referrer']) ? $_SESSION['site_referrer'] : '';
+					}//end if
+					
+					//marketo keywords
+					if (0 === strpos($keyword, 'globals_marketo_lead')) {
+						// no cache?
+						if(0 === strpos($keyword, 'globals_marketo_lead_nocache')) {
+						    $nocache = TRUE;
+						    $sub_keyword = substr($keyword, 28);
+						}
+						else {
+						    $nocache = FALSE;
+						    $sub_keyword = substr($keyword, 20);
+						}
+						
+						preg_match('|(.*):([0-9]+)$|',$sub_keyword,$matches);
+						if(isset($matches[2]) && !empty($matches[2])) {
+						    $marketo_bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($matches[2]);
+						    $user_identifier = Array();
+						    if(isset($_COOKIE[MARKETO_COOKIE_NAME])) {
+							$user_identifier['cookie'] = $_COOKIE[MARKETO_COOKIE_NAME];
+						    }
+						    if(isset($_SESSION['SQ_VERIFY_EMAIL_VERIFIED'])) {
+							$user_identifier['email'] = $_SESSION['SQ_VERIFY_EMAIL_VERIFIED'];
+						    }
+						    else {
+							$email_keyword = $marketo_bridge->attr('get_lead_email_source');
+							$email = replace_global_keywords(trim($email_keyword));
+							if(!empty($email) && valid_email($email)) {
+							    $user_identifier['email'] = $email;
+							}
+						    }
+			    
+						    if(!empty($user_identifier)) {
+							    $data = $marketo_bridge->getLead($user_identifier, $nocache);
+							    if(preg_match('|^_id|',$sub_keyword)){
+								$replacements[$full_keyword] = isset($data->result->leadRecordList->leadRecord->Id) ? $data->result->leadRecordList->leadRecord->Id : '';
+							    }
+							   else  if(preg_match('|^_email|',$sub_keyword)){
+								$replacements[$full_keyword] = isset($data->result->leadRecordList->leadRecord->Email) ? $data->result->leadRecordList->leadRecord->Email : '';
+							    }
+							   else  if(preg_match('|^_attribute_|',$sub_keyword)){
+								preg_match('|^_attribute_(.*):([0-9]+)$|',$sub_keyword,$matches);
+								if(isset($matches[1]) && isset($data->result->leadRecordList->leadRecord->leadAttributeList->attribute)) {
+								    $attributes = $data->result->leadRecordList->leadRecord->leadAttributeList->attribute;
+								    foreach ($attributes as $attribute) {
+									if($attribute->attrName === $matches[1]) {
+									    $replacements[$full_keyword] = $attribute->attrValue;
+									}
+								    }
+								}
+							    }
+							    else  if(preg_match('|^:([0-9]+)$|',$sub_keyword)){
+								$replacements[$full_keyword] = json_encode_array($data);
+							    }	
+						    }   
+						}
+					}
+					
+					// marketo munchkin keywords
+					if (0 === strpos($keyword, 'globals_marketo_munchkin_hash')) {
+					    $sub_keyword = substr($keyword, 20);
+					    preg_match('|(.*):([0-9]+)$|',$sub_keyword,$matches);
+					    if(isset($matches[2]) && !empty($matches[2])) {
+						$marketo_bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($matches[2]);
+						$replacements[$full_keyword] = $marketo_bridge->generateMunchkinHash();
+					    
+					    }
+					}
+					
+					if (0 === strpos($keyword, 'globals_marketo_munchkin_id')) {
+					    $sub_keyword = substr($keyword, 20);
+					    preg_match('|(.*):([0-9]+)$|',$sub_keyword,$matches);
+					    if(isset($matches[2]) && !empty($matches[2])) {
+						$marketo_bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($matches[2]);
+						$replacements[$full_keyword] = $marketo_bridge->attr('munchkin_account_id');
+					    }
+					}
+					
+					// verified email stored in session
+					if (0 === strpos($keyword, 'globals_verified_email')) {
+					    if(isset($_SESSION['SQ_VERIFY_EMAIL_VERIFIED'])) {
+						$replacements[$full_keyword] = $_SESSION['SQ_VERIFY_EMAIL_VERIFIED'];
+					    
+					    }
+					}
+					    
 
 					apply_keyword_modifiers($replacements[$full_keyword], $modifiers, Array(), $keyword);
-
 				}//end if is global keyword
 
 
@@ -2410,16 +2535,36 @@ function extract_context_modifier(&$modifiers, $return_part='id')
 */
 function clean_keyword_value($keyword_value, $allow_quotes=FALSE)
 {
-	if (!is_scalar($keyword_value)) {
+	if (is_array($keyword_value)) {
 		// Only scalars are accepted
-		$keyword_value = '';
-	} else {
+		array_walk_recursive($keyword_value, 'escapeHtmlSpecialChars', $allow_quotes); 
+	} else if (is_scalar($keyword_value)) {
 		$keyword_value = htmlspecialchars($keyword_value, $allow_quotes ? ENT_NOQUOTES : ENT_QUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
+	} else {
+		$keyword_value = '';
 	}
 
 	return $keyword_value;
 
 }//end clean_keyword_value()
+
+
+/**
+* Escapes the HTML special chars
+* Callback function for array_walk_recursive() in clean_keyword_value()
+*
+* @param string  $value
+* @param boolean $key
+* @param boolean $allow_quotes
+*
+* @return string
+* @access public
+*/
+function escapeHtmlSpecialChars(&$value, $key, $allow_quotes)
+{
+	$value = htmlspecialchars($value, $allow_quotes ? ENT_NOQUOTES : ENT_QUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
+
+}//end _escapeHtmlSpecialChars()
 
 
 /**

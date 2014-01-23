@@ -246,7 +246,8 @@ class Page_Site_Map extends Page
 ?>
 			<li><?php
 				if ($this->attr('icons')) {
-					?><script type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($item['type_code']); ?>", "16", "16", "");</script>&nbsp;&nbsp;<?php
+					sq_print_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($item['type_code']), '16', '16');
+					echo '&nbsp;&nbsp;';
 				}
 
 				$format = $this->_getDisplayFormat($item);
@@ -341,13 +342,11 @@ class Page_Site_Map extends Page
 					<td >
 						<?php
 						if ($this->attr('icons')) {
-?>
-							<script type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($data['type_code']); ?>", "16", "16", "");</script>&nbsp;&nbsp;
-						<?php }
-
+						    sq_print_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($data['type_code']), '16', '16');
+						    echo '&nbsp;&nbsp;';
+						}
 						$format = $this->_getDisplayFormat($data);
-?>
-						<a href="<?php echo $url?>" title="<?php echo $data['name']; ?>"><?php echo $format; ?></a>
+						?><a href="<?php echo $url?>" title="<?php echo $data['name']; ?>"><?php echo $format; ?></a>
 					</td>
 				</tr>
 				<?php

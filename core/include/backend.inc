@@ -75,8 +75,7 @@ class Backend extends MySource_Object
 	*/
 	function paint()
 	{
-
-		header('Content-Type: text/html; charset='.SQ_CONF_DEFAULT_CHARACTER_SET);
+	    header('Content-Type: text/html; charset='.SQ_CONF_DEFAULT_CHARACTER_SET);
 		if (SQ_IN_LIMBO) {
 
 			if (!isset($_REQUEST['limbo_assetid'])) {
@@ -122,8 +121,15 @@ class Backend extends MySource_Object
 			}
 		}
 
+		if (array_get_index($_REQUEST, 'SQ_BACKEND_PAGE') == 'asset_map_request') {
+			require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
+			$asset_map = new Asset_Map();
+			$asset_map->process($this);
+			return;
+		}
+
 		if (isset($_REQUEST['a'])) {
-			$frontend_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($_REQUEST['a']);
+		    			$frontend_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($_REQUEST['a']);
 			if (is_null($frontend_asset)) {
 				trigger_localised_error('SYS0195', E_USER_WARNING, $_REQUEST['a']);
 				return;
@@ -131,7 +137,7 @@ class Backend extends MySource_Object
 			$frontend_asset->printFrontend();
 			exit();
 		}
-
+		
 		// if we are in limbo, we are going to mix the frontend with the backend
 		// so we need to do things a little differently
 		if (empty($_REQUEST['SQ_BACKEND_PAGE']) && isset($_REQUEST['ignore_frames']) && $_REQUEST['ignore_frames'] == '1') {
@@ -149,18 +155,13 @@ class Backend extends MySource_Object
 				// note: SQ_BACKEND_PAGE can be frames, if the user enter the query string manually
 			}
 		}
-
+		
 		if (SQ_DESIGN_NO_FRAME && SQ_IN_LIMBO) {
 			$_REQUEST['SQ_BACKEND_PAGE'] = 'main';
 		}//end if
 
 		if (empty($_REQUEST['SQ_BACKEND_PAGE']) || $_REQUEST['SQ_BACKEND_PAGE'] == 'frames') {
 			$this->_printFrames();
-
-		} else if ($_REQUEST['SQ_BACKEND_PAGE'] == 'asset_map_request') {
-			require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
-			$asset_map = new Asset_Map();
-			$asset_map->process($this);
 
 		} else {
 			// Require backend outputter for the Force-Acquire page, so it at
@@ -179,11 +180,10 @@ class Backend extends MySource_Object
 				// make sure to set persistant SQ_BACKEND_PAGE
 				$this->out->addFormActionGetVar('SQ_BACKEND_PAGE', $_REQUEST['SQ_BACKEND_PAGE'], TRUE);
 			}
-
-
+					
 			switch ($_REQUEST['SQ_BACKEND_PAGE']) {
 				case 'header':
-					$this->_printHeader();
+				    $this->_printHeader();
 				break;
 
 				case 'sidenav':
@@ -276,10 +276,10 @@ class Backend extends MySource_Object
 
 		$body_class = '';
 
-		$header_height = $limbo_hide_frames ? 0 : 28;
+		$header_height = $limbo_hide_frames ? 0 : 45;
 		$am_width = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_WIDTH');
 		$sidenav_width = $am_width+5;
-		$resizer_width = $limbo_hide_frames ? 0 : 10;
+		$resizer_width = $limbo_hide_frames ? 0 : 25;
 
 		if (SQ_IN_LIMBO) {
 			// Hide Sidenav by default in Simple Edit.
@@ -306,6 +306,7 @@ class Backend extends MySource_Object
 					body {
 						margin: 0;
 						overflow: hidden;
+						background: #2a2a2a;
 					}
 
 					div.iframe-container {
@@ -321,13 +322,21 @@ class Backend extends MySource_Object
 
 					div.iframe-container.header {
 						padding-top: 0;
-						height: 28px;
+						height: 41px;
 						z-index: 3;
+						background: #2a2a2a;
+						box-shadow: 0 0 3px 1px #000;
+						border-bottom: 1px solid #000;
+					}
+
+					div.iframe-container.header iframe{
+						background: #2a2a2a;
 					}
 
 					div.iframe-container.lower-set {
 						padding-top: 0;
 						z-index: 0;
+						overflow: hidden;
 					}
 
 					div.iframe-container.sidenav {
@@ -365,8 +374,12 @@ class Backend extends MySource_Object
 						width: 100%;
 					}
 
+					iframe.sq-iframe{
+						background: #F4F4F4;
+					}
+
 					#sq_header {
-						height: <?php echo $header_height ?>px;
+						height: 40px;
 					}
 				</style>
 			</head>
@@ -376,16 +389,22 @@ class Backend extends MySource_Object
 				// i.e. one less column in the second frameset
 				// see _printMain() for more info
 				?>
-				<body class="<?php echo $body_class ?>"><div class="iframe-container header">
-					<iframe src="<?php echo $frame_urls['header']; ?>" name="sq_header" id="sq_header" scrolling="no" marginwidth="0" marginheight="0" border="0" frameborder="0"></iframe>
-				</div><div class="iframe-container lower-set">
-					<div class="iframe-container sidenav">
-						<iframe src="<?php echo $frame_urls['sidenav']; ?>" name="sq_sidenav" scrolling="no" marginwidth="0" marginheight="0" border="0" frameborder="0"></iframe>
-					</div><div class="iframe-container resizer">
-						<iframe src="<?php echo $frame_urls['resizer']; ?>" name="sq_resizer" scrolling="no" marginwidth="0" marginheight="0" border="0" frameborder="0"></iframe>
-					</div><div class="iframe-container main">
-						<iframe src="<?php echo $frame_urls['main']; ?>" name="sq_main" scrolling="yes" marginwidth="0" marginheight="0" border="0" frameborder="0"></iframe>
-					</div></div></body>
+				<body style="background-color: #F4F4F4" class="sq <?php echo $body_class ?>">
+					<div class="iframe-container header">
+						<iframe src="<?php echo $frame_urls['header']; ?>" name="sq_header" id="sq_header" scrolling="no" marginwidth="0" marginheight="0" border="0" frameborder="0" class="sq-iframe"></iframe>
+					</div>
+					<div class="iframe-container lower-set">
+						<div class="iframe-container sidenav">
+							<iframe src="<?php echo $frame_urls['sidenav']; ?>" name="sq_sidenav" scrolling="no" marginwidth="0" marginheight="0" border="0" frameborder="0" class="sq-iframe"></iframe>
+						</div>
+						<div class="iframe-container resizer">
+							<iframe src="<?php echo $frame_urls['resizer']; ?>" name="sq_resizer" scrolling="no" marginwidth="0" marginheight="0" border="0" frameborder="0" class="sq-iframe"></iframe>
+						</div>
+						<div class="iframe-container main">
+							<iframe src="<?php echo $frame_urls['main']; ?>" name="sq_main" scrolling="yes" marginwidth="0" marginheight="0" border="0" frameborder="0" class="sq-iframe"></iframe>
+						</div>
+					</div>
+				</body>
 				<?php
 			}
 			?>
@@ -543,63 +562,152 @@ class Backend extends MySource_Object
 		if (!empty($_POST['asset_search']) && $_POST['asset_search'] != $asset_search_default) {
 			include_once SQ_LIB_PATH.'/backend_search/backend_search.inc';
 
-			$_POST['asset_search'] = trim($_POST['asset_search']);
-
-			$assetid_match = FALSE;
-			$url_match = FALSE;
-
-			// check for a url first
-			$searched_asset = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL(NULL, strip_url($_POST['asset_search'], TRUE), TRUE, TRUE);
-			if (is_null($searched_asset) && assert_valid_assetid($_POST['asset_search'], '', TRUE, FALSE)) {
-				// check for assetid second
-				$searched_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($_POST['asset_search'], '', TRUE);
-				if (!is_null($searched_asset)) $assetid_match = TRUE;
-			} else {
-				$url_match = TRUE;
+			$search_format = array_get_index($_POST, 'asset_search_format', NULL);
+			if ($search_format !== 'json') {
+				$search_format = NULL;
 			}
+			
+			$search_string = trim($_POST['asset_search']);
+			$search_words  = preg_split('/[\r\n\t \|\&\~\/]+/', $search_string);
+			$results       = Array();
+			$error_msg     = NULL;
 
-			$result_list = Array();
-			if (!is_null($searched_asset)) {
-				$this->out->addOnLoad('
-					if (parent.frames["sq_main"]) {
-						parent.frames["sq_main"].location = "'.$_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid='.urlencode($searched_asset->id).'";
-					}
-				');
-			} else {
-				$search_terms = $_POST['asset_search'];
-				try {
-					$results = Backend_Search::processSearch($search_terms);
-				} catch (Exception $e) {
-					$error_msg = $e->getMessage();
-					log_error('Search for "'.$_POST['asset_search'].'" failed due to error: '.$error_msg, E_USER_WARNING);
-					$results = Array();
+			// check for a URL first.
+			$results['url'] = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL(NULL, strip_url($search_string, TRUE), TRUE, TRUE);
+			if ($results['url'] === NULL) {
+				unset($results['url']);
+				// If a URL doesn't check out, try an asset ID search, if the
+				// asset ID would be valid.
+				$assetid_valid = assert_valid_assetid($search_string, '', TRUE, FALSE);
+				
+				if ($assetid_valid === TRUE) {
+					$found_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($search_string, '', TRUE);
+					if(!is_null($found_asset))
+					    $results['assetid'] = $found_asset;
 				}
+			}//end if
 
-				$js_code = '';
-
-				if (empty($results)) {
-					$msg = (!empty($error_msg)) ? 'failed_searching_for_error' : 'failed_searching_for';
-					$html = $this->_getDHTMLMessage(translate('search_failed'), translate($msg, htmlspecialchars($_POST['asset_search'])), 'search-failed', 'info');
-					$dhtml_messages['search_failed'] = Array('html' => str_replace("\n", '', $html), 'width' => '400', 'timeout' => 6.0);
+			try {
+				$results['keyword'] = Backend_Search::processSearch($search_string);
+				if (count($results['keyword']) === 0) {
+					unset($results['keyword']);
+				}
+			} catch (Exception $e) {
+				$error_msg = $e->getMessage();
+				log_error('Search for "'.$search_string.'" failed due to error: '.$error_msg, E_USER_WARNING);
+			}//end try
+			
+			// Now do the results.
+			if ($search_format === 'json') {
+				header('Content-type: application/json');
+				
+				// Reduce the asset/ID matches to their asset ID.
+				if ($results['url']) {
+				    $results['url'] = $results['url']->id;
+				} else if ($results['assetid']) {
+				    $results['assetid'] = $results['assetid']->id;
+				}
+				echo json_encode_array($results);
+				exit();
+			} else {
+				if (empty($results) === TRUE) {
+					if ($error_msg !== NULL) {
+						$msg = translate('failed_searching_for_error', htmlspecialchars($search_string));
+					} else {
+						$msg = translate('failed_searching_for', htmlspecialchars($search_string));
+					}
+					
+					$html = $this->_getDHTMLMessage(translate('search_failed'), $msg, 'search-failed', 'info');
+					$html = str_replace("\n", '', $html);
+					$dhtml_messages['search_failed'] = Array(
+														'html'    => $html,
+														'width'   => 400,
+														'timeout' => 6.0,
+													   );
+					
+				} else if (array_key_exists('keyword', $results) === FALSE) {
+					// If there are no keyword results, then we may be able to
+					// redirect if the URL or asset ID matches.
+					$redirect_assetid = NULL;
+					if (array_key_exists('url', $results) === TRUE) {
+						$redirect_assetid = $results['url']->id;
+					} else if (array_key_exists('assetid', $results) === TRUE) {
+						$redirect_assetid = $results['assetid']->id;
+					}
+					
+					if ($redirect_assetid !== NULL) {
+						$this->out->addOnLoad('
+							if (parent.frames["sq_main"]) {
+								parent.frames["sq_main"].location = "'.$_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid='.urlencode($redirect_assetid).'";
+							}
+						');
+					}
+					
 				} else {
-					$detail_lines[] = '<strong>'.'Matched on Keyword ('.count($results).' asset'.(count($results) == 1 ? '' : 's').'):'.'</strong>';
+					// There are keyword results.
+					$detail_lines = Array();
+					$result_count = count($results['keyword']);
+					$js_code      = '';
+					
+					$redirect_assetid = NULL;
+					if (array_key_exists('url', $results) === TRUE) {
+						$detail_lines[] = '<strong>'.'Matched an asset by URL:'.'</strong>';
+						$detail_lines[] = get_asset_tag_line($results['url']->id, 'details');
+					} else if (array_key_exists('assetid', $results) === TRUE) {
+						$redirect_assetid = $results['assetid']->id;
+						$detail_lines[] = '<strong>'.'Matched an asset by ID:'.'</strong>';
+						$detail_lines[] = get_asset_tag_line($results['assetid']->id, 'details');
+					}
+					
+					if ($redirect_assetid !== NULL) {
+						$this->out->addOnLoad('
+							if (parent.frames["sq_main"]) {
+								parent.frames["sq_main"].location = "'.$_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid='.urlencode($searched_asset->id).'";
+							}
+						');
+					}
+					
+					// TODO: if localised, this needs to be replaced with a proper
+					// plural handler
+					if ($result_count > 1) {
+						$format = '%d assets';
+					} else {
+						$format = '%d asset';
+					}
+					
+					$detail_lines[] = '<strong>'.'Matched on Keyword ('.sprintf($format, $result_count).'):'.'</strong>';
+					
 					$i = 0;
+					$results_per_page = $GLOBALS['SQ_SYSTEM']->getUserPrefs('search_manager', 'SQ_SEARCH_BACKEND_PAGE_SIZE');
+					$total_pages      = ceil($result_count / $results_per_page);
+					$keyword_lines    = '';
+					
+					if ($total_pages > 1) {
+						$detail_lines[] = '<div align="center">
+						<a href="" onclick="MatrixBackendSearch.first(); return false;" title="Go back to first page">&lt;&lt;</a> &nbsp;
+						<a href="" onclick="MatrixBackendSearch.back(); return false;" title="Go back one page">&lt;</a> &nbsp;
+						<strong>( <span id="sq-search-results-page-start">1</span> - <span id="sq-search-results-page-end">'.min($result_count, $results_per_page).'</span> )</strong> &nbsp;
+						<a href="" onclick="MatrixBackendSearch.next(); return false;" title="Go forward one page">&gt;</a> &nbsp;
+						<a href="" onclick="MatrixBackendSearch.last(); return false;" title="Go forward to last page">&gt;&gt;</a></a></div>';
+					}//end if
+					$js_code .= 'with (parent.frames.sq_main.MatrixBackendSearch) { currentPage = 0; totalResults = '.$result_count.'; resultsPerPage = '.$results_per_page.';}';
 
-					foreach ($results as $result_assetid => $result_detail) {
-						$this_detail = Array();
-
+					foreach ($results['keyword'] as $result_assetid => $result_detail) {
+						$i++;
+						$page = ceil($i / $results_per_page) - 1;
+						$match_details = Array();
+						
 						foreach ($result_detail as $result_component_name => $result_component) {
 							foreach ($result_component as $name => $value) {
-
 								$name_detail = '';
 								switch ($result_component_name) {
 									case 'contents':
 										$name_detail = 'Asset Contents';
 									break;
-
+	
 									case 'metadata':
-										$name_detail = ($result_component_name == 'schema' ? 'Default ' : '').'Metadata: ';
-
+										$name_detail = 'Metadata: ';
+	
 										// Find a friendly name for the metadata field, if there
 										// is none then use the standard name of the field itself
 										$attr_values = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('friendly_name', 'metadata_field', Array($name));
@@ -608,12 +716,13 @@ class Backend extends MySource_Object
 										} else {
 											$name_detail .= $attr_values[$name];
 										}
-
+	
 										$value = $value[0]['value'];
 									break;
+									
 									case 'schema':
-										$name_detail = ($result_component_name == 'schema' ? 'Default ' : '').'Metadata: ';
-
+										$name_detail = 'Default Metadata: ';
+	
 										// Find a friendly name for the metadata field, if there
 										// is none then use the standard name of the field itself
 										$attr_values = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('friendly_name', 'metadata_field', Array($name));
@@ -622,109 +731,95 @@ class Backend extends MySource_Object
 										} else {
 											$name_detail .= $attr_values[$name];
 										}
-
+	
 										$value = $value['value'];
 									break;
-
+	
 									case 'attributes':
 										$name_detail = 'Attribute: '.ucwords(str_replace('_', ' ', $name));
 									break;
-								}
-
-								$words = preg_split('/[\r\n\t \|\&\~\/]+/', $search_terms);
+								}//end switch
+								
+								// Work out where our matches are 
 								$value = strip_tags($value);
-
-								preg_match_all('/('.addslashes(implode('|', $words)).')/i', $value, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
-
-								if (count($matches) > 0) {
-
-									// We go backwards, because that way we don't invalidate
-									// our offsets. This section ellipsisises the bits between
-									// matches so that there's 15 characters either side of
-									// matches.
-
-									// Last match position
-									if ($matches[count($matches) - 1][0][1] < strlen($value) - 15) {
-										$value = substr_replace($value, '...', $matches[count($matches) - 1][0][1] + 15);
-									}
-
-									for ($i = count($matches) - 1; $i > 0; $i--) {
-										$previous_match = $matches[$i - 1][0];
-										$this_match = $matches[$i][0];
-
-										$prev_pos = $previous_match[1] + strlen($previous_match[0]);
-										$next_pos = $this_match[1];
-
-										if (($next_pos - $prev_pos) > 30) {
-											$value = substr_replace($value, '...', $prev_pos + 15, ($next_pos - $prev_pos) - 30);
+								
+								// Add matches, and ellipsise out bits that are
+								// more than 15 characters either side.
+								preg_match_all('/('.addslashes(implode('|', $search_words)).')/i', $value, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
+								$last_match = 0;
+								$offset     = 0;
+								foreach ($matches as $match) {
+									$match_pos  = $match[1][1];
+									
+									if ($last_match === 0) {
+										if ($match_pos >= 18) {
+											$value   = substr_replace($value, '...', 0, $match_pos - 15);
+											$offset += ($match_pos - 15);
+										}
+									} else {
+										if ($match_pos >= 33) {
+											$value   = substr_replace($value, '...', ($last_match - $offset), ($match_pos - $last_match - 30));
+											$offset += ($match_pos - $last_match - 30);
 										}
 									}
-
-									// First match position
-									if ($matches[0][0][1] > 15) {
-										$value = substr_replace($value, '...', 0, $matches[0][0][1] - 15);
-									}
-
-									// Cut it down to a certain number of characters anyway
-									$value = ellipsisize($value, 120);
-
-									$value = htmlspecialchars($value);
-									$name_detail = htmlspecialchars($name_detail);
-
-									$value = preg_replace('/('.addslashes(implode('|', $words)).')/i', '<span class="sq-backend-search-results-highlight">$1</span>', $value);
-
-									// remove
-									$this_detail[] = $name_detail.'<br/><em>'.str_replace("\r", '', str_replace("\n", '<br/>', $value)).'</em>';
-								}//end if
+									
+									$last_match = $match_pos + strlen($match[1][0]);
+								}
+								
+								if ((strlen($value) - ($last_match - $offset)) >= 18) {
+									$value = substr_replace($value, '...', $last_match - $offset + 15);
+								}
+								
+								$value = ellipsisize($value, 120);
+								$value = preg_replace('/('.addslashes(implode('|', $search_words)).')/i', '<SQ_MATCH>$1</SQ_MATCH>', $value);
+								
+								$match_details[] = array(
+									'name'  => $name_detail,
+									'value' => $value,
+								);
 							}//end foreach
-						}//end foreach
-
-						$result_list[] = Array(
-											'tag_line'	=> get_asset_tag_line($result_assetid, 'details'),
-											'detail'	=> implode($this_detail, '<br/>'),
-										 );
-					}//end foreach
-				}//end else
-
-				$keyword_match_line = Array();
-
-				if (!empty($result_list)) {
-					$results_per_page = min(count($result_list), $GLOBALS['SQ_SYSTEM']->getUserPrefs('search_manager', 'SQ_SEARCH_BACKEND_PAGE_SIZE'));
-
-					if (count($result_list) > $results_per_page) {
-						$keyword_match_line[] = '<div align="center">
-						<a href="" onclick="jumpToSearchResults(current = 0); return false;" title="Go back to first page">&lt;&lt;</a> &nbsp;
-						<a href="" onclick="jumpToSearchResults(current = Math.max(current - '.$results_per_page.', 0)); return false;" title="Go back one page">&lt;</a> &nbsp;
-						<strong>( <span id="sq-search-results-page-start">1</span> - <span id="sq-search-results-page-end">'.min(count($result_list), $results_per_page).'</span> )</strong> &nbsp;
-						<a href="" onclick="jumpToSearchResults(current = Math.min(current + '.$results_per_page.', Math.floor((parent.frames['."'sq_main'".'].keyword_search_results.length - 1) / '.$results_per_page.') * '.$results_per_page.')); return false;" title="Go forward one page">&gt;</a> &nbsp;
-						<a href="" onclick="jumpToSearchResults(current = Math.floor((parent.frames['."'sq_main'".'].keyword_search_results.length - 1) / '.$results_per_page.') * '.$results_per_page.'); return false;" title="Go forward to last page">&gt;&gt;</a></a></div>';
-					}
-
-					$i = 0;
-					$js_code .= 'with (parent.frames["sq_main"]) { current = 0; results_per_page = '.$results_per_page.'; keyword_search_results = [];';
-
-					foreach ($result_list as $result) {
-						$i++;
-						if ($i <= $results_per_page) {
-							$this_line  = '<div><div id="sq-search-results-expand-'.$i.'" class="sq-search-results-expand-div"><a href="#" id="sq-search-results-expand-link-'.$i.'" class="sq-search-results-expand-link" onclick="if (this.innerHTML == \'+\') {document.getElementById(\'sq-search-results-detail-'.$i.'\').style.display = \'block\'; this.innerHTML = \'-\';} else {document.getElementById(\'sq-search-results-detail-'.$i.'\').style.display = \'none\'; this.innerHTML = \'+\';} return false;">+</a></div>';
-							$this_line .= '<div id="sq-search-results-entry-'.$i.'" class="sq-search-results-entry">';
-							$this_line .= $result['tag_line'].'<br/><div id="sq-search-results-detail-'.$i.'" class="sq-search-results-detail">'.$result['detail'].'</div></div></div>';
-							$keyword_match_line[] = $this_line;
+						}//end foreach (result detail)
+						
+						// Build the result line, hiding all but the first page.
+						$extra = '';
+						if ($page > 0) {
+							$extra = ' style="display: none"';
 						}
+						
+						$line  = '<div class="sq-search-results-page-'.$page.'"'.$extra.'>';
+						$line .= '  <div class="sq-search-results-expand-div">';
+						$line .= '  <a href="#" class="sq-search-results-expand-link"';
+						$line .= '  onclick="if (this.innerHTML == \'+\') {this.parentNode.nextSibling.lastChild.style.display = \'block\'; this.innerHTML = \'-\';} else {this.parentNode.nextSibling.lastChild.style.display = \'none\'; this.innerHTML = \'+\';} return false;">+</a>';
+						$line .= '  </div>';
+						$line .= '<div class="sq-search-results-entry">';
+						$line .= get_asset_tag_line($result_assetid, 'details').'<br/>';
+						$line .= '<div class="sq-search-results-detail">';
+						
+						foreach ($match_details as $match) {
+							$value = htmlspecialchars($match['value']);
+							$name_detail = htmlspecialchars($match['name']);
 
-						$js_code .= "\n".'keyword_search_results['.($i-1).'] = "'.addslashes(trim($result['tag_line'].'<br/><div id=\'sq-search-results-detail-'.((($i-1) % $results_per_page) + 1).'\' style=\'display:none\'>'.$result['detail'])).'</div>";';
-
-					}
-
-					$js_code .= '}';
-
-					$detail_lines[] = implode('', $keyword_match_line);
-
+							$value = preg_replace('/&lt;SQ_MATCH&gt;(.*)&lt;\/SQ_MATCH&gt;/U', '<span class="sq-backend-search-results-highlight">$1</span>', $value);
+							$line .= $name_detail.'<br/><em>'.str_replace("\r", '', str_replace("\n", '<br/>', $value)).'</em><br/>';
+						}
+						
+						$line .= '</div></div>';
+						$line .= '</div>';
+						
+						$keyword_lines .= $line;
+							
+					}//end foreach (search result)
+					$detail_lines[] = $keyword_lines;
+					
 					$html = $this->_getDHTMLMessage(translate('search_results'), $detail_lines, 'search-results');
-					$dhtml_messages['search_results'] = Array('html' => str_replace("\n", '', preg_replace('|<script.*</script>|U', '', $html)), 'width' => '300', 'timeout' => 0);
+					$html = preg_replace('/>\s+</', '> <', str_replace("\n", '', preg_replace('|<script.*</script>|U', '', $html)));
+					$dhtml_messages['search_results'] = Array(
+														 'html'    => $html,
+														 'width'   => 300, 
+														 'timeout' => 0.0,
+														);
 				}//end if
-
-			}//end else
+			}//end if - search format
 		}//end if
 
 
@@ -763,31 +858,6 @@ class Backend extends MySource_Object
 				$html = $this->_getDHTMLMessage(translate('hipo_jobs_stalled'), translate('hipo_jobs_count', $GLOBALS['SQ_SYSTEM']->user->name, $stalledjobs), 'new-message', 'stop', 32, 32);
 				$dhtml_messages['hipo_jobs_stalled'] = Array('html' => str_replace("\n", '', $html), 'width' => '400', 'timeout' => 6.0);
 			}
-			  //////////////////////////////
-			 //  INTERNAL MESSAGE POPUP  //
-			//////////////////////////////
-
-			$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
-
-			$msgs_from = (isset($_SESSION['backend_header_last_refresh'])) ? $_SESSION['backend_header_last_refresh'] : NULL;
-			$from = time() - 28800;
-			$loading_start = time();
-			$read_messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->user->id, NULL, Array(SQ_MSG_READ), Array(), $from, NULL, NULL, Array(), 0, TRUE);
-			$messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->user->id, NULL, Array(SQ_MSG_UNREAD), Array(), NULL, NULL, NULL, Array(), 0, TRUE);
-			$loading_time = time() - $loading_start;
-
-			// remind user to clean up internal messages if it's taking too slow to load
-			if($loading_time >= 30) {
-				$html = $this->_getDHTMLMessage('Too slow to load messages','The Internal Messages is taking too long to load. Try running the <a href="http://manuals.matrix.squizsuite.net/server-administrator/chapters/remove-internal-messages-script" target="_blank">Remove Internal Message Script</a> to clean up internal messages within your system.', 'new-message', 'stop', 48, 48);
-				$dhtml_messages['warning_messsage'] = Array('html' =>str_replace("\n", '', $html), 'width' => '400', 'timeout' => 12.0);
-			}
-
-
-			if (!empty($messages)) {
-				$html = $this->_getDHTMLMessage(translate('new_messages'), translate('new_messages_count', htmlspecialchars($GLOBALS['SQ_SYSTEM']->user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), $messages), 'new-message', 'mail', 31, 37);
-				$dhtml_messages['new_messages'] = Array('html' => str_replace("\n", '', $html), 'width' => '220', 'timeout' => 6.0);
-			}
-
 
 
 		}//end if not in LIMBO
@@ -795,17 +865,6 @@ class Backend extends MySource_Object
 		if (!empty($dhtml_messages)) {
 			?>
 			<script language="Javascript" type="text/javascript">
-
-				<?php
-				if (!SQ_IN_LIMBO) {
-				?>
-				// update inbox message
-				if (parent.frames["sq_sidenav"] != null && parent.frames["sq_sidenav"].document.getElementById('sq_messages_text') != null) {
-					parent.frames["sq_sidenav"].document.getElementById('sq_messages_text').innerHTML="<?php echo translate('inbox_new_messages', $messages, ($read_messages+$messages)); ?>";
-				}
-				<?php
-				}
-				?>
 
 				var msgDiv = null;
 				var screenMenu = null;
@@ -830,7 +889,7 @@ class Backend extends MySource_Object
 				function moveIt() {
 					to_move = Math.max(Math.min(Math.abs(divTop) * 0.08, 10), 2);
 					divTop += to_move;
-					msgDiv.style.top = (divTop + parent.frames["sq_main"].document.body.scrollTop) + "px";
+					msgDiv.style.top = (divTop + -1) + "px";  //setting it to 0 and position fixed will make it scroll with the user's browser scroll
 					if (divTop >= -0.1 && myTimer != null) {
 						clearInterval(myTimer);
 
@@ -846,9 +905,10 @@ class Backend extends MySource_Object
 							screenMenuFiller.style.width = screenMenu.offsetWidth;
 							screenMenuFiller.style.height = screenMenu.offsetHeight;
 							screenMenuFiller.style.display = "block";
-							screenMenu.style.display = "none";
+							//screenMenu.style.display = "none";
 						}
-						screenMenu.style.MozOpacity = "0";
+						//screenMenu.style.opacity = 0;
+						//screenMenu.style.MozOpacity = "0";
 					}
 
 					msgDiv.style.visibility = "hidden";
@@ -859,7 +919,9 @@ class Backend extends MySource_Object
 					msgDiv.style.top = divTop + "px";
 					msgDiv.style.visibility = "visible";
 
-					myTimer = setInterval("moveIt()", delay);
+					myTimer = setInterval(function() {
+						moveIt();
+					}, delay);
 				}
 
 				function cancelMsgDiv() {
@@ -867,12 +929,13 @@ class Backend extends MySource_Object
 					msgDiv.style.display = "none";
 					if (screenMenu) {
 						if (window.navigator.userAgent.indexOf('MSIE') > 0) {
-							screenMenu.style.display = "block";
+							//screenMenu.style.display = "block";
 							screenMenuFiller.width = "0px";
 							screenMenuFiller.height = "0px";
 							screenMenuFiller.style.display = "none";
 						}
-						screenMenu.style.MozOpacity = "1";
+						//screenMenu.style.opacity = 1.0;
+						//screenMenu.style.MozOpacity = "1";
 					}
 					showNextMessage();
 				}
@@ -889,9 +952,15 @@ class Backend extends MySource_Object
 					msgDiv.innerHTML = popupContents[messageIndex]['html'];
 					currentTimeout = popupContents[messageIndex]['timeout'];
 					msgDiv.style.width = popupContents[messageIndex]['width'] + "px";
-					msgDiv.style.right = "10px";
+					msgDiv.style.right = "17px";
 
-					setTimeout("showMsgDiv()", 500);
+					msgDiv.style.visibility = "hidden";
+					msgDiv.style.display = "block";
+					
+					setTimeout(function() {
+						showMsgDiv();
+					}, 500);
+					
 					messageIndex++;
 
 					// Remove any "search in progress" message
@@ -921,7 +990,8 @@ class Backend extends MySource_Object
 					if (msgDiv == null) {
 						msgDiv = parent.frames["sq_main"].document.createElement("div");
 						msgDiv.id = "new_message_popup";
-						msgDiv.style.position = "absolute";
+						msgDiv.className = "sq-new-message-popup-wrapper";
+						msgDiv.style.position = "fixed";
 						msgDiv.style.display = "block";
 						msgDiv.style.top = "-1000px";
 						msgDiv.style.right = "-1000px";
@@ -971,39 +1041,19 @@ class Backend extends MySource_Object
 		}
 
 		?>
-		<style type="text/css">
-			body { background: #342939; }
-		</style>
-		<table cellpadding="1" border="0" cellspacing="1" width="100%">
+		<table class="sq-backend-header">
 			<tr>
 				<td nowrap class="sq-backend-header-item" valign="middle">
-					<img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="5" height="1" />
-					<a href="#" onclick="Javascript: reloadHeader(); return false;"><?php echo translate('logged_in_as', htmlspecialchars($GLOBALS['SQ_SYSTEM']->user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)); ?></a> -
-					<?php
-					// check warranty (if a warranty key exists)
-					if (defined('SQ_LICENCE_WARRANTY_KEY')) {
-						$wkey_snippet = substr(base64_decode(SQ_LICENCE_WARRANTY_KEY), 0, 6);
-						$ikey_snippet = substr(SQ_LICENCE_INSTALL_KEY, 0, 6);
-
-						$expiry_date = substr(base64_decode(SQ_LICENCE_WARRANTY_KEY), 14);
-						$current_date = date('Ymd');
-						if ((SQ_LICENCE_WARRANTY_KEY === '') || ($current_date > $expiry_date) || ($wkey_snippet !== $ikey_snippet)) {
-							$message = translate('licence_type_no_warranty');
-						} else {
-							$message = translate('licence_type_warranty_valid');
-						}
-					} else {
-						// no warranty
-						$message = translate('licence_type_no_warranty');
-					}
-					echo $message;
-					?>
+					<img class="sq-matrix-logo" src="<?php echo sq_web_path('lib'); ?>/web/images/logo-toolbar.png" alt="Squiz Matrix" title="Squiz Matrix"/>
+					<span class="sq-logged-in-as-text">
+						<a href="#" onclick="Javascript: reloadHeader(); return false;"><?php echo translate('logged_in_as', htmlspecialchars($GLOBALS['SQ_SYSTEM']->user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)); ?></a>
+					</span>
 				</td>
 				<td nowrap class="sq-backend-header-item" valign="middle" align="right">
 					<?php
 					if (!isset($_SESSION['login_as_invoker_username']) && ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin())) {
 					?>
-					<table cellpadding="0" border="0" cellspacing="0" id="login_as_form" style="display: none; height: 23px;" align="right">
+					<table id="login_as_form" class="sq-backend-header-login-as-form" style="display: none;" align="right">
 						<tr>
 							<td nowrap valign="middle">
 								<script>
@@ -1028,28 +1078,32 @@ class Backend extends MySource_Object
 									}
 								</script>
 								<?php
-								echo '<span class="sq-backend-header-item">'.translate('login_as').'</span>';
-								text_box('user', '',  22, 0, TRUE, 'class="sq-backend-header-search-box" onkeypress="if (event.keyCode == 13) submit_login_as();"');
+								echo '<label for="user" class="sq-backend-header-item">'.translate('login_as').'</label>';
+								echo '<span class="sq-text-field-wrapper login">';
+								text_box('user', translate('login_as_default'),  22, 0, TRUE, 'class="sq-backend-header-text-box" onkeypress="if (event.keyCode == 13) submit_login_as();"');
+								echo '</span>';
 								?>
-								<input type="button" style="height: 20px;" value="Login" onclick="submit_login_as();" />
-								<input type="button" style="height: 20px;" value="Cancel" onclick="hide_login_as_form();" />
+								<input type="button" class="sq-btn-blue" value="Login" onclick="submit_login_as();" />
+								<input type="button" value="Cancel" onclick="hide_login_as_form();" />
 							</td>
 						</tr>
 					</table>
 					<?php
 					}
 					?>
-					<table cellpadding="0" border="0" cellspacing="0" id="tool_buttons" align="right">
+					<table id="tool_buttons" class="sq-backend-header-tool-buttons" align="right">
 						<tr>
-							<td nowrap valign="middle">
+							<td class="sq-backend-header-search-wrapper" nowrap valign="middle">
 							<?php
-								echo '<span class="sq-backend-header-item">'.translate('quick_search').'</span>';
-								text_box('asset_search', (!empty($_POST['asset_search'])) ? $_POST['asset_search'] : $asset_search_default, 30, 0, empty($_POST['asset_search']), 'class="sq-backend-header-search-box" onkeypress="if (event.keyCode == 13) form.submit();"');
+								echo '<label for="asset_search" class="sq-backend-header-item">'.translate('quick_search').'</label>';
+								echo '<span class="sq-text-field-wrapper">';
+								text_box('asset_search', (!empty($_POST['asset_search'])) ? $_POST['asset_search'] : $asset_search_default, 30, 0, empty($_POST['asset_search']), 'class="sq-backend-header-text-box" onkeypress="if (event.keyCode == 13) form.submit();"');
 
-								echo '<input type="image" class="sq-backend-header-search-button" alt="Go" src="'.sq_web_path('lib').'/web/images/icons/header/search.png" onClick="form.submit();">';
+								echo '<input type="image" class="sq-backend-header-search-button" alt="Go" title="Submit" src="'.sq_web_path('lib').'/web/images/icons/header/search.png" onClick="form.submit();">';
+								echo '</span>';
 							?>
 							</td>
-							<td nowrap>
+							<td class="sq-backend-header-tools-wrapper" nowrap>
 				<?php
 					$options = Array();
 					if (!SQ_IN_LIMBO) {
@@ -1058,7 +1112,7 @@ class Backend extends MySource_Object
 											'url'		=> $this->getBackendUrl('main').'&backend_section=config',
 											'target'	=> 'sq_main',
 											'title'		=> translate('system_configuration'),
-											'icon'		=> 'system_config.png',
+											'icon'		=> 'system_config_white.png',
 										 );
 						}
 
@@ -1066,14 +1120,14 @@ class Backend extends MySource_Object
 										'url'		=> $this->getBackendUrl('main').'&backend_section=tools',
 										'target'	=> 'sq_main',
 										'title'		=> translate('tools'),
-										'icon'		=> 'whereami.png',
+										'icon'		=> 'whereami_white.png',
 									 );
 
 						$options[] = Array(
 										'url'		=> $this->getBackendUrl('main').'&backend_section=hipo_herder',
 										'target'	=> 'sq_main',
 										'title'		=> translate('hipo_herder'),
-										'icon'		=> 'hipo_herder.png',
+										'icon'		=> 'hipo_herder_white.png',
 									 );
 
 						if ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
@@ -1081,7 +1135,7 @@ class Backend extends MySource_Object
 												'url'		=> $this->getBackendUrl('main').'&backend_section=sys_maintenance',
 												'target'	=> 'sq_main',
 												'title'		=> translate('system_maintenance'),
-												'icon'		=> 'system_maintenance.png',
+												'icon'		=> 'system_maintenance_white.png',
 											 );
 						}
 
@@ -1089,20 +1143,20 @@ class Backend extends MySource_Object
 										'url'		=> $this->getBackendUrl('main').'&backend_section=am',
 										'target'	=> 'sq_main',
 										'title'		=> translate('asset_tree'),
-										'icon'		=> 'asset_tree.png',
+										'icon'		=> 'asset_tree_white.png',
 									 );
 
 						if (!isset($_SESSION['login_as_invoker_username']) && ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin())) {
 							$options[] = Array(
 											'target'	=> '_top',
 											'title'		=> translate('login_as'),
-											'icon'		=> 'login_as.png',
+											'icon'		=> 'login_as_white.png',
 											'onclick'	=> 'document.getElementById("tool_buttons").style.display = "none"; document.getElementById("login_as_form").style.display = "block"; document.getElementById("user").focus();',
 										 );
 						}
 
 						$logout_button_tooltip = translate('logout');
-						$logout_icon = 'logout.png';
+						$logout_icon = 'logout_white.png';
 
 						// Change the "Logout" button to a "Logout and resume as ..." button when we are temporarily logged in as another user
 						if (isset($_SESSION['login_as_invoker_username'])) {
@@ -1160,7 +1214,9 @@ class Backend extends MySource_Object
 							 <?php echo (isset($option['onclick'])) ? 'onClick="'.htmlspecialchars($option['onclick']).'"' : ''; ?>
 							 <?php echo (isset($option['extras'])) ? $option['extras'] : ''; ?>
 
-						  ><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $this->out->filesPath('/images/icons/header/'.$option['icon']); ?>", "20", "20", "<?php echo htmlspecialchars($option['title']);?>");</script></a>
+						  >
+						  	<img src="<?php echo $this->out->filesPath('/images/icons/header/'.$option['icon']); ?>"/>
+						  </a>
 						&nbsp;&nbsp;<?php
 					}
 				?>
@@ -1195,99 +1251,13 @@ class Backend extends MySource_Object
 		foreach ($include_list as $link) {
 			echo '<script type="text/javascript" src="'.$link.'"></script>'."\n";
 		}
+		
+		require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
+        $asset_map = new Asset_Map();
+        $am_width  = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_WIDTH');
+        $asset_map->embedAssetMapRequiredJS();
 		?>
-		<style type="text/css">
-			body {
-				background:	#342939;
-				height: 100%;
-			}
 
-			.sidenav-tab-start {
-				background:	url("<?php echo sq_web_path('lib'); ?>/web/images/sidenav_tab_start.png") no-repeat;
-			}
-			.sidenav-tab-start-active {
-				background:	url("<?php echo sq_web_path('lib'); ?>/web/images/sidenav_active_tab_start.png") no-repeat;
-			}
-			.sidenav-tab, .sidenav-tab-icon {
-				background:	url("<?php echo sq_web_path('lib'); ?>/web/images/sidenav_tab_bg.png");
-			}
-			.sidenav-tab-active, .sidenav-tab-icon-active {
-				background:	url("<?php echo sq_web_path('lib'); ?>/web/images/sidenav_active_tab_bg.png");
-			}
-			.sidenav-tab-end {
-				background:	url("<?php echo sq_web_path('lib'); ?>/web/images/sidenav_tab_end.png") no-repeat;
-			}
-			.sidenav-tab-end-active {
-				background:	url("<?php echo sq_web_path('lib'); ?>/web/images/sidenav_active_tab_end.png") no-repeat;
-			}
-			.sq-backend-header-item {
-				font-size: 1em;
-			}
-
-			.sq-backend-header-item.matrix-icon {
-				padding: 0 0 5px 21px;
-			}
-
-			.sidenav-tab-icon, .sidenav-tab-icon-active {
-				padding-left:		5px;
-			}
-
-			.sidenav-tab a, .sidenav-tab-active a {
-				font-family:		Arial;
-				font-size:			10px;
-				color:				#000000;
-				padding-left:		2px;
-				padding-right:		8px;
-				text-decoration:	none;
-			}
-
-			#asset_map {
-				margin:				0px;
-				border:				1px solid #342939;
-				border-top:         0px;
-				border-left:        0px;
-				padding:			0px;
-				width:				100%;
-				position:           absolute;
-				top:                47px;
-				left:               6px;
-				visibility:         visible;
-			}
-			#asset_map.in_limbo {
-				top:                27px;
-			}
-
-			#my_space {
-				width:				100%;
-				background-color:	#F5F5F5;
-				padding:			0px;
-				margin:				0px;
-				border:				1px solid #F5F5F5;
-				position: absolute; top: 50px; left: 0px; visibility: hidden;
-			}
-			#system_version {
-				position: absolute;
-				bottom:   5px;
-				left:     5px;
-			}
-			.myspace-section {
-				background-color:	#FFFFFF;
-				border:				1px solid #A2A2A2;
-				margin:				2px;
-				width:				273px;
-			}
-			.myspace-section td, .myspace-section a {
-				font-family:		Arial;
-				font-size:			9px;
-				color:				#666666;
-				text-decoration:	none;
-			}
-			.myspace-section-header, .myspace-section-header a {
-				font-size:			12px;
-				font-weight:		bold;
-				text-decoration:	none;
-			}
-		</style>
 		<script type="text/javascript">
 			var oldTabName = 'asset_map';
 			var tabNames = Array('asset_map', 'my_space');
@@ -1296,35 +1266,22 @@ class Backend extends MySource_Object
 			{
 				var tabElement = null;
 
-				// show the correct DIV
+				//add the class name of the active tab to the wrapper element
+				document.getElementById('sq-sidenav-menu-tabs-wrapper').className = tabName;
+
+				// show the correct DIV and add selected class to tab
 				for (var i=0; i < tabNames.length; i++) {
 					if (tabNames[i] != tabName) {
 						tabElement = document.getElementById(tabNames[i]);
 						tabElement.style.visibility = 'hidden';
+						document.getElementById('sq-menu-tab-' + tabNames[i]).className = 'sq-menu-tab';
+					}else{
+						document.getElementById('sq-menu-tab-' + tabNames[i]).className = 'sq-menu-tab selected';
 					}
 				}
 
 				tabElement = document.getElementById(tabName);
 				tabElement.style.visibility = 'visible';
-
-				// switch the tabs
-				var tabStart = document.getElementById(oldTabName + '_tab_start');
-				tabStart.className = 'sidenav-tab-start';
-				var tabEnd = document.getElementById(oldTabName + '_tab_end');
-				tabEnd.className = 'sidenav-tab-end';
-				var tabIcon = document.getElementById(oldTabName + '_tab_icon');
-				tabIcon.className = 'sidenav-tab-icon';
-				var tab = document.getElementById(oldTabName + '_tab');
-				tab.className = 'sidenav-tab';
-
-				tabStart = document.getElementById(tabName + '_tab_start');
-				tabStart.className = 'sidenav-tab-start-active';
-				tabEnd = document.getElementById(tabName + '_tab_end');
-				tabEnd.className = 'sidenav-tab-end-active';
-				tabIcon = document.getElementById(tabName + '_tab_icon');
-				tabIcon.className = 'sidenav-tab-icon-active';
-				tab = document.getElementById(tabName + '_tab');
-				tab.className = 'sidenav-tab-active';
 
 				// save this tab name for next time
 				oldTabName = tabName;
@@ -1337,9 +1294,6 @@ class Backend extends MySource_Object
 			?>
 				<table cellspacing="0" cellpadding="0" border="0" width="100%" height="100%" style="position: absolute;">
 					<tr>
-						<td class="sq-backend-header-item matrix-icon"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/matrix_logo.gif" alt="Squiz Matrix" /></td>
-					</tr>
-					<tr>
 						<td height="100%" valign="top">&nbsp;</td>
 					</tr>
 					<tr>
@@ -1350,9 +1304,6 @@ class Backend extends MySource_Object
 				</table>
 				<div id="asset_map" class="in_limbo">
 					<?php
-					require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
-					$asset_map = new Asset_Map();
-					$am_width = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_WIDTH');
 					$asset_map->embedAssetMap('simple', $am_width);
 					?>
 				</div>
@@ -1360,107 +1311,129 @@ class Backend extends MySource_Object
 		} else {
 			// we are on the backend
 			?>
-				<table cellspacing="0" cellpadding="0" border="0" width="100%">
-					<tr>
-						<td class="sq-backend-header-item matrix-icon"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/matrix_logo.gif" alt="Squiz Matrix" /></td>
-					</tr>
-					<tr>
-						<td height="100%" valign="top">
-							<table cellspacing="0" cellpadding="0">
+				<div class="sq-sidenav-wrapper">
+					<table class="sq-sidenav-tab-wrapper">
+						<tr>
+							<td class="sq-sidenav-menu-tabs">
+
+								<span class="" id="sq-sidenav-menu-tabs-wrapper">
+									<a class="sq-menu-tab selected" id="sq-menu-tab-asset_map" href="#" onClick="Javascript: switchSideNav('asset_map'); return false;">
+										<img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/tree.png"/>
+										<?php echo translate('asset_map'); ?>
+									</a>
+									<a class="sq-menu-tab" id="sq-menu-tab-my_space" href="#" onClick="Javascript: switchSideNav('my_space'); return false;">
+										<img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/myspace.png"/>
+										<?php echo translate('my_space'); ?>
+									</a>
+								</span>
+
+								<!--table cellspacing="0" cellpadding="0">
+									<tr>
+										<td><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="24" height="1" /></td>
+
+										<td class="sidenav-tab-start-active" id="asset_map_tab_start"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="2" height="20" /></td>
+										<td class="sidenav-tab-icon-active" id="asset_map_tab_icon"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/tree.png", "14", "14", "");</script></td>
+										<td class="sidenav-tab-active" id="asset_map_tab"><a href="#" onClick="Javascript: switchSideNav('asset_map'); return false;"><?php echo translate('asset_map'); ?></a></td>
+										<td class="sidenav-tab-end-active" id="asset_map_tab_end"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="3" height="20" /></td>
+
+										<td class="sidenav-tab-start" id="my_space_tab_start"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="2" height="20" /></td>
+										<td class="sidenav-tab-icon" id="my_space_tab_icon"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/myspace.png", "14", "14", "");</script></td>
+										<td class="sidenav-tab" id="my_space_tab"><a href="#" onClick="Javascript: switchSideNav('my_space'); return false;"><?php echo translate('my_space'); ?></a></td>
+										<td class="sidenav-tab-end" id="my_space_tab_end"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="3" height="20" /></td>
+									</tr>
+								</table-->
+							</td>
+						</tr><!--
+						<tr>
+							<td class="sq-backend-header-item" style="padding-bottom: 5px;">
+								<a href="<?php echo SQ_SYSTEM_URL;?>" class="sq-backend-header-item" target="_blank" style="text-decoration:none;" <?php
+									if (defined('SQ_LICENCE_INSTALL_KEY')) {
+										echo ' title="Install Key: '.SQ_LICENCE_INSTALL_KEY.'"';
+									}
+								?>><?php echo SQ_SYSTEM_LONG_NAME;?></a>
+							</td>
+						</tr>-->
+					</table>
+
+					<div id="system_version" class="sq-system-version-note">
+						<a href="http://manuals.matrix.squizsuite.net/patches" class="sq-backend-header-item" target="_blank" <?php
+							if (defined('SQ_LICENCE_INSTALL_KEY')) {
+								echo ' title="Install Key: '.SQ_LICENCE_INSTALL_KEY.'"';
+							}
+						?>><?php echo SQ_SYSTEM_LONG_NAME;?></a>
+					</div>
+
+					<div id="asset_map">
+						<?php
+						$asset_map->embedAssetMap('complex', $am_width);
+						?>
+					</div>
+					<div id="my_space">
+						<div class="myspace-section-wrapper">
+						<?php
+						$user = $GLOBALS['SQ_SYSTEM']->user;
+						$inbox_link = $GLOBALS['SQ_SYSTEM']->am->getLink($user->id, SQ_LINK_TYPE_2, 'inbox', TRUE, NULL, 'major', '1');
+
+						if (empty($inbox_link)) {
+							$inbox_url = '';
+						} else {
+							$inbox_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($inbox_link['minorid'], $inbox_link['minor_type_code']);
+							$inbox_url       = $inbox_asset->getBackendHref('details');
+							$new_message_url = $inbox_asset->getBackendHref('new_message');
+							$sent_url        = $inbox_asset->getBackendHref('sent');
+							$trash_url        = $inbox_asset->getBackendHref('trash');
+						}
+
+						$details_url = $user->getBackendHref('details');
+
+						// get all unread messages and read messages that are less than 8 hours old
+						if (!empty($inbox_url)) {
+							?>
+								<table class="myspace-section">
+									<tr>
+										<td>
+											<a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/inbox_icon.png" /></a>
+										</td>
+										<td>
+											<p>
+
+												<span class="myspace-section-header">
+													<a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main"><?php echo translate('my_inbox'); ?></a>
+												</span>
+											</p>
+											<p>
+												<span class="myspace-section-header">
+													<a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main">
+														<?php echo translate('inbox_actions'); ?>
+													</a>
+												</span>
+												<a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main">+ <?php echo translate('inbox_view'); ?></a>
+												<br />
+												<a href="<?php echo $_SERVER['PHP_SELF'].$new_message_url; ?>" target="sq_main">+ <?php echo translate('inbox_send'); ?></a><br />
+												<a href="<?php echo $_SERVER['PHP_SELF'].$sent_url; ?>" target="sq_main">+ <?php echo translate('inbox_view_sent'); ?></a><br />
+												<a href="<?php echo $_SERVER['PHP_SELF'].$trash_url; ?>" target="sq_main">+ <?php echo translate('inbox_view_trash'); ?></a></p>
+										</td>
+									</tr>
+								</table>
+							<?php
+						}//end if user has an inbox
+
+						?>
+							<table class="myspace-section">
 								<tr>
-									<td><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="24" height="1" /></td>
-
-									<td class="sidenav-tab-start-active" id="asset_map_tab_start"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="2" height="20" /></td>
-									<td class="sidenav-tab-icon-active" id="asset_map_tab_icon"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/tree.png", "14", "14", "");</script></td>
-									<td class="sidenav-tab-active" id="asset_map_tab"><a href="#" onClick="Javascript: switchSideNav('asset_map'); return false;"><?php echo translate('asset_map'); ?></a></td>
-									<td class="sidenav-tab-end-active" id="asset_map_tab_end"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="3" height="20" /></td>
-
-									<td class="sidenav-tab-start" id="my_space_tab_start"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="2" height="20" /></td>
-									<td class="sidenav-tab-icon" id="my_space_tab_icon"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/myspace.png", "14", "14", "");</script></td>
-									<td class="sidenav-tab" id="my_space_tab"><a href="#" onClick="Javascript: switchSideNav('my_space'); return false;"><?php echo translate('my_space'); ?></a></td>
-									<td class="sidenav-tab-end" id="my_space_tab_end"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="3" height="20" /></td>
+									<td valign="top">
+										<a href="<?php echo $_SERVER['PHP_SELF'].$details_url; ?>" target="sq_main"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/mydetails_icon.png" /></a>
+									</td>
+									<td width="100%">
+										<span class="myspace-section-header">
+											<a href="<?php echo $_SERVER['PHP_SELF'].$details_url; ?>" target="sq_main"><?php echo translate('my_details'); ?></a>
+										</span>
+										<a href="<?php echo $_SERVER['PHP_SELF'].$details_url; ?>" target="sq_main"><?php echo translate('details_edit'); ?></a>
+									</td>
 								</tr>
 							</table>
-						</td>
-					</tr><!--
-					<tr>
-						<td class="sq-backend-header-item" style="padding-bottom: 5px;">
-							<a href="<?php echo SQ_SYSTEM_URL;?>" class="sq-backend-header-item" target="_blank" style="text-decoration:none;" <?php
-								if (defined('SQ_LICENCE_INSTALL_KEY')) {
-									echo ' title="Install Key: '.SQ_LICENCE_INSTALL_KEY.'"';
-								}
-							?>><?php echo SQ_SYSTEM_LONG_NAME;?></a>
-						</td>
-					</tr>-->
-				</table>
-
-				<div id="system_version">
-					<a href="<?php echo SQ_SYSTEM_URL;?>" class="sq-backend-header-item" target="_blank" style="text-decoration:none;" <?php
-						if (defined('SQ_LICENCE_INSTALL_KEY')) {
-							echo ' title="Install Key: '.SQ_LICENCE_INSTALL_KEY.'"';
-						}
-					?>><?php echo SQ_SYSTEM_LONG_NAME;?></a>
-				</div>
-
-				<div id="asset_map">
-					<?php
-					require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
-					$asset_map = new Asset_Map();
-					$am_width = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_WIDTH');
-					$asset_map->embedAssetMap('complex', $am_width);
-					?>
-				</div>
-				<div id="my_space">
-					<?php
-					$user = $GLOBALS['SQ_SYSTEM']->user;
-					$inbox_link = $GLOBALS['SQ_SYSTEM']->am->getLink($user->id, SQ_LINK_TYPE_2, 'inbox', TRUE, NULL, 'major', '1');
-
-					if (empty($inbox_link)) {
-						$inbox_url = '';
-					} else {
-						$inbox_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($inbox_link['minorid'], $inbox_link['minor_type_code']);
-						$inbox_url       = $inbox_asset->getBackendHref('details');
-						$new_message_url = $inbox_asset->getBackendHref('new_message');
-						$sent_url        = $inbox_asset->getBackendHref('sent');
-						$trash_url        = $inbox_asset->getBackendHref('trash');
-					}
-
-					$details_url = $user->getBackendHref('details');
-
-					// get all unread messages and read messages that are less than 8 hours old
-					if (!empty($inbox_url)) {
-						$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
-						$from = time() - 28800; // 8 hours ago
-						$read_messages   = $ms->getMessages($GLOBALS['SQ_SYSTEM']->currentUserId(), NULL, Array(SQ_MSG_READ), Array(), $from, NULL, 'short_name', Array(), 0, TRUE);
-						$unread_messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->currentUserId(), NULL, Array(SQ_MSG_UNREAD), Array(), NULL, NULL, 'short_name', Array(), 0, TRUE);
-
-						$messages = $read_messages + $unread_messages;
-						?>
-						<table class="myspace-section">
-							<tr>
-								<td valign="top"><a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/inbox_icon.png" align="left" border="0" /></a></td>
-								<td width="100%">
-									<p><a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main"><span class="myspace-section-header"><?php echo translate('my_inbox'); ?></span><br /><span id="sq_messages_text"><?php echo translate('inbox_new_messages', $unread_messages, $messages); ?></span></a></p>
-									<p><a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main"><span class="myspace-section-header"><?php echo translate('inbox_actions'); ?></span><br />
-									<a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main">+ <?php echo translate('inbox_view'); ?></a><br />
-									<a href="<?php echo $_SERVER['PHP_SELF'].$new_message_url; ?>" target="sq_main">+ <?php echo translate('inbox_send'); ?></a><br />
-									<a href="<?php echo $_SERVER['PHP_SELF'].$sent_url; ?>" target="sq_main">+ <?php echo translate('inbox_view_sent'); ?></a><br />
-									<a href="<?php echo $_SERVER['PHP_SELF'].$trash_url; ?>" target="sq_main">+ <?php echo translate('inbox_view_trash'); ?></a></p>
-								</td>
-							</tr>
-						</table>
-						<?php
-					}//end if user has an inbox
-
-					?>
-					<table class="myspace-section">
-						<tr>
-							<td valign="top"><a href="<?php echo $_SERVER['PHP_SELF'].$details_url; ?>" target="sq_main"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/mydetails_icon.png" align="left" border="0" /></a></td>
-							<td width="100%">
-								<span class="myspace-section-header"><a href="<?php echo $_SERVER['PHP_SELF'].$details_url; ?>" target="sq_main"><?php echo translate('my_details'); ?></span><br /><?php echo translate('details_edit'); ?></a>
-							</td>
-						</tr>
-					</table>
+						</div>
+					</div>
 				</div>
 			<?php
 		}//end else if not in limbo
@@ -1483,36 +1456,42 @@ class Backend extends MySource_Object
 		?>
 		<style>
 			body {
-				background: #342939;
+				background: #f4f4f4;
 				height: 100%;
 			}
 		</style>
 
-		<script language="Javascript" type="text/javascript">
+		<script>
 			var clickSize = 50;
 			hidden = <?php var_export(SQ_IN_LIMBO); ?>;
 
 			function toggleFrame() {
 				if (hidden == false) {
+					document.body.className += ' sidenav-minimised';
 					top.document.body.className += ' sidenav-minimised';
 					hidden = true;
 				} else {
+					document.body.className = document.body.className.replace(/ sidenav-minimised/, '');
 					top.document.body.className = top.document.body.className.replace(/ sidenav-minimised/, '');
 					hidden = false;
 				}
 			}
 		</script>
 
-		<table border="0" cellspacing="0" cellpadding="0" width="100%" height="100%" background="<?php echo $this->out->filesPath('/images/flash_resizer/background.gif'); ?>">
-			<tr>
-				<td valign="top"><img src="<?php echo $this->out->filesPath('/images/flash_resizer/top.gif'); ?>" width="9" height="25" border="0" alt="" /></td>
-			</tr>
-			<tr height="100%">
-				<td valign="middle"><a class="sq-backend-header-item" style="padding: 0px;" href="#" onClick="Javascript: toggleFrame()"><img src="<?php echo $this->out->filesPath('/images/flash_resizer/bar.gif'); ?>" width="9" height="72" border="0" alt="<<" /></a></td>
-			</tr>
-		</table>
+		<div class="sq-backend-resize-wrapper">
+			<table class="sq-backend-resize-table">
+				<tr>
+					<td>
+						<a class="sq-resizer-button" href="#" onclick="Javascript: toggleFrame(); return false;">
+							<img class="sq-resizer-button-hide" src="<?php echo $this->out->filesPath('/images/flash_resizer/bar-hide.png'); ?>" title="Hide side nav" />
+							<img class="sq-resizer-button-show" src="<?php echo $this->out->filesPath('/images/flash_resizer/bar-show.png'); ?>" title="Show side nav" />
+						</a>
+					</td>
+				</tr>
+			</table>
+		</div>
 
-		<script language="Javascript" type="text/javascript">
+		<script>
 			document.main_form.style.width = "100%";
 			document.main_form.style.height = "100%";
 		</script>
@@ -1659,15 +1638,19 @@ class Backend extends MySource_Object
 		if (!is_array($detail)) $detail = Array($detail);
 
 		$html = '
-			<table class="sq-backend-'.$style.'-table">
+			<table class="sq-backend-popup-table" id="popup-'.$style.'">
 			<tr>
 			';
 		if (!empty($icon)) {
-			$html .= '		<td rowspan="'.(1 + count($detail)).'" width="'.$icon_width.'" valign="middle" class="sq-backend-'.$style.'-heading">'.sq_get_icon(sq_web_path('lib').'/web/images/icons/'.$icon.'.png', $icon_width, $icon_height, '', '', 'align="absmiddle"').'</td>';
+			$html .= '<td rowspan="'.(1 + count($detail)).'" width="'.$icon_width.'" valign="middle" class="sq-backend-popup-heading">'.sq_get_icon(sq_web_path('lib').'/web/images/icons/'.$icon.'.png', $icon_width, $icon_height, '', '', 'align="absmiddle"').'</td>';
 		}
 		$html .= '
-					<td class="sq-backend-'.$style.'-heading" nowrap="nowrap">'.$title.'</td>
-					<td class="sq-backend-'.$style.'-heading" align="right">[<a class="sq-backend-'.$style.'-heading" href="#" onClick="Javascript: parent.frames[\'sq_header\'].cancelMsgDiv(); return false;">x</a>]</td>
+					<td class="sq-backend-popup-heading" nowrap="nowrap">'.$title.'</td>
+					<td class="sq-backend-popup-heading" align="right">
+						<a class="sq-backend-popup-heading" href="#" onClick="Javascript: parent.frames[\'sq_header\'].cancelMsgDiv(); return false;"  title="Close">
+							<img src="'.sq_web_path('lib').'/web/images/icons/cancel.png" />
+						</a>
+					</td>
 				</tr>
 			';
 

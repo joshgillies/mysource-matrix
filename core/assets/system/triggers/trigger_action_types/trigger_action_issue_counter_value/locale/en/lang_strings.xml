@@ -1,0 +1,27 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ABN 77 084 670 600                                                 |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.com.au) so we may provide|
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+*/
+-->
+
+<strings>
+	<string source="trigger_issue_counter_value"><![CDATA[
+		<div>
+			<b>Issue the counter number to the session variable name:</b> %1$s<br/>
+			<b>Current counters:</b>
+				<div>%3$s</div>
+		</div>
+		<b>Counter ID:</b><br/>%2$s
+		NOTE: The counter is selected based on the counter id value return by the parameter map. If the parameter map is not set then the "default" counter will be used. This trigger action will fire "Counter Number Issued" trigger event after the counter number is issued.
+		
+	]]></string>
+</strings>

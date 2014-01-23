@@ -31,6 +31,9 @@
 		<field attribute="expiry">
 			<int width="5" />
 		</field>
+		<field attribute="accelerator_cache_expiry">
+			<int width="5" />
+		</field>
 		<field attribute="browser_cache_expiry">
 			<int width="5" />
 		</field>

@@ -30,7 +30,7 @@ function submit_form(f)
 
 	SQ_FORM_ERROR_CONTAINED = false;
 	inputs = f.getElementsByTagName('input');
-	for (i=0; i<inputs.length; i++) {
+	for (var i=0; i<inputs.length; i++) {
 		if (inputs[i].name == 'submit') {
 			SQ_FORM_ERROR_CONTAINED = true;
 		}
@@ -109,7 +109,7 @@ function validate_numeric_text_field(name, allow_negative)
 	// if the string is not a number, or if negatives aren't allowed and the first character is a '-'.
 	if (parseInt(name.value) != name.value || (name.value.length > 0 && allow_negative == false && name.value.charAt(0) == "-" ) ) {
 		var outstr = "";
-		for (ii = 0; ii < name.value.length ; ii++) {
+		for (var ii = 0; ii < name.value.length ; ii++) {
 			// if a number, or if negatives are allowed, a '-' at the beginning of the string
 			if ((parseInt(name.value.charAt(ii)) == name.value.charAt(ii)) ||
 			(allow_negative == true && ii == 0 && name.value.charAt(ii) == "-") ){
@@ -653,8 +653,6 @@ function addNewAssetFinder(moreButton, nameBase, safeNameBase, typeCodesString, 
 	tmp_id_label.className = 'sq-asset-finder-id-label';
 	parentElt.insertBefore(tmp_id_label, moreButton);
 	var tmp_assetid = createTextBox(safeName+'_assetid', '', 2, 0, '', '');
-	tmp_assetid.style.border = '1px solid #EFEFEF';
-    tmp_assetid.style.width = '7ex';
 	tmp_assetid.onchange = new Function('', mapFrame+'.asset_finder_assetid_changed(\''+name+"', '"+safeName+"', '"+typeCodesString+"', "+doneFn+",this.value);");
 	parentElt.insertBefore(tmp_assetid, moreButton);
 
@@ -684,15 +682,18 @@ function disable_buttons()
 {
 	inputs = document.getElementsByTagName('input');
 	buttons = Array();
-	for (i=0; i<inputs.length; i++) {
+	for (var i=0; i<inputs.length; i++) {
 		if ((inputs[i].type == 'submit') || (inputs[i].type == 'button')) {
 			buttons[buttons.length] = inputs[i];
 		}
 	}
-	for (i=0; i<buttons.length; i++) {
+	for (var i=0; i<buttons.length; i++) {
 		newElt = document.createElement('INPUT');
 		newElt.type = buttons[i].type;
 		newElt.value = buttons[i].value;
+		if(buttons[i].className){
+			newElt.className = buttons[i].className + ' disabled';
+		}
 		newElt.disabled = 'disabled';
 		buttons[i].style.display = 'none';
 		buttons[i].parentNode.insertBefore(newElt, buttons[i]);
@@ -708,6 +709,7 @@ function prependClearButton(elt, inherit)
 {
 	newButton = document.createElement('input');
 	newButton.type = 'button';
+	newButton.style.marginBottom = '3px';
 	newButton.value = js_translate('clear');
 	if (inherit) {
 		newButton.onclick = new Function("resetLastSelect(this); clearLastCheckbox(this);");
@@ -741,10 +743,12 @@ function prependInheritSelector(elt)
 	newHiddenField.value = '0';
 	newCheckbox = checkbox.cloneNode(true);
 	newCheckbox.checked = 0;
-	newText = document.createTextNode('inherit ');
+	//newText = document.createTextNode('inherit');
+	newLabel = document.createElement('label');
+	newLabel.innerHTML = 'inherit &nbsp;';
 	elt.parentNode.insertBefore(newHiddenField, elt);
 	elt.parentNode.insertBefore(newCheckbox, elt);
-	elt.parentNode.insertBefore(newText, elt);
+	elt.parentNode.insertBefore(newLabel, elt);
 }
 
 function resetLastSelect(elt)

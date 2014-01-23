@@ -651,6 +651,9 @@ class SAML_Account_Manager extends Page_Asset_Builder
 		if (empty($matrixUserid) || empty($samlUserid) )
 		    return NULL;
 		
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 		// already linked?
 		 $existingMatrixUserid = $this->_searchLinkedMatrixUser($samlUserid);
 		 if($existingMatrixUserid) {
@@ -661,6 +664,8 @@ class SAML_Account_Manager extends Page_Asset_Builder
 			 			'updated'	=>  ts_iso8601(time()),
 					    );
 		    $result = MatrixDAL::executeQuery('saml_package', 'updateUserid', $bind_vars);
+		    $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		    $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		     return $result;
 		 }
 		
@@ -675,6 +680,8 @@ class SAML_Account_Manager extends Page_Asset_Builder
 						'updated'	=>  ts_iso8601(time()),
 					    );
 		$result = MatrixDAL::executeQuery('saml_package', 'addLink', $bind_vars);
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		 return $result;
 	}//end _linkMatrixUserWithSAML()
 	
@@ -693,6 +700,9 @@ class SAML_Account_Manager extends Page_Asset_Builder
 		if (empty($matrixUserid) || empty($samlUserid) )
 		    return NULL;
 		
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 		// delete entry
 		$bind_vars = Array(
 						'assetid'	=>  $matrixUserid,		    
@@ -700,6 +710,8 @@ class SAML_Account_Manager extends Page_Asset_Builder
 						'entityid'	=> $this->_getEntityid(),
 					    );
 		$result = MatrixDAL::executeQuery('saml_package', 'deleteLink', $bind_vars);
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 		 return $result;
 	}//end _linkMatrixUserWithSAML()
 		

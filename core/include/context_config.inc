@@ -200,10 +200,10 @@ class Context_Config extends Config
 
 				?>
 	<tr class="sq-table-row">
-		<td class="sq-backend-table-header-header" colspan="6">
+		<th class="sq-backend-table-header-header" colspan="6">
 			<?php
 				echo translate($this->prefix.'default_name'); ?>
-		</td>
+		</th>
 	</tr>
 	<tr>
 		<th><?php echo translate('edit_question'); ?></th>
@@ -321,13 +321,13 @@ class Context_Config extends Config
 				if ($alt_context_num > 1) {				
 					?><a href="#" onclick="return false;" class="reorder-up"><?php echo trim(sq_get_icon(sq_web_path('lib').'/web/images/icons/up_arrow.png', 15, 15, translate($this->prefix.'reorder_up_alt_text', $context_name), NULL, ' border="0"')); ?></a><?php				
 				} else {
-					?><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="15" height="15" border="0" /><?php				
+					//no need to print anything			
 				}
 				?> <?php
 				if (($contextid !== 0) && ($alt_context_num < count($contexts) - 1)) {
 					?><a href="#" onclick="return false;" class="reorder-down"><?php echo trim(sq_get_icon(sq_web_path('lib').'/web/images/icons/down_arrow.png', 15, 15, translate($this->prefix.'reorder_down_alt_text', $context_name), NULL, ' border="0"')); ?></a><?php
 				} else {
-					?><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="15" height="15" border="0" /><?php				
+					//no need to print anything					
 				}
 			}
 		?>
@@ -347,10 +347,10 @@ class Context_Config extends Config
 				// row below)
 				?>
 	<tr class="sq-table-row">
-		<td class="sq-backend-table-header-header" colspan="6">
+		<th class="sq-backend-table-header-header" colspan="6">
 			<?php
 				echo translate($this->prefix.'alternate_contexts'); ?>
-		</td>
+		</th>
 	</tr><?php
 				if (count($contexts) > 1) { 
 					// print second header row for alternate contexts 
@@ -381,10 +381,10 @@ class Context_Config extends Config
 			// Add a new alternate context
 			?>
 		<tr class="sq-table-row">
-			<td class="sq-backend-table-header-header" colspan="6">
+			<th class="sq-backend-table-header-header" colspan="6">
 				<?php
 					echo translate($this->prefix.'new_alternate_context'); ?>
-			</td>
+			</th>
 		</tr>
 		<tr>
 			<td></td>
@@ -444,9 +444,19 @@ class Context_Config extends Config
 
 								row_tds = row.getElementsByTagName('td');
 								switch_row_tds = switch_row.getElementsByTagName('td');
+								var is_ie8 = navigator.userAgent.toLowerCase().indexOf("msie 8") != -1;
+
 								for (var i = 0; i < row_tds.length; i++) {
+									var swap_tds = false;
+									if (is_ie8) {
+										// IE 8 is special, innerhtml show the attribute value without the quote
+										if (row_tds[i].innerHTML.indexOf('class=reorder-') === -1) swap_tds = true;
+									} else {
+										if (row_tds[i].innerHTML.indexOf('class="reorder-') === -1) swap_tds = true;
+									}
+
 									// Only reorder when it's not the "reorder" column 
-									if (row_tds[i].innerHTML.indexOf('class="reorder-') === -1) {
+									if (swap_tds) {
 										var temp = switch_row_tds[i].innerHTML;
 										switch_row_tds[i].innerHTML = row_tds[i].innerHTML;
 										row_tds[i].innerHTML = temp;
@@ -468,9 +478,19 @@ class Context_Config extends Config
 
 								row_tds = row.getElementsByTagName('td');
 								switch_row_tds = switch_row.getElementsByTagName('td');
+								var is_ie8 = navigator.userAgent.toLowerCase().indexOf("msie 8") != -1;
+
 								for (var i = 0; i < row_tds.length; i++) {
+									var swap_tds = false;
+									if (is_ie8) {
+										// IE 8 is special, innerhtml show the attribute value without the quote
+										if (row_tds[i].innerHTML.indexOf('class=reorder-') === -1) swap_tds = true;
+									} else {
+										if (row_tds[i].innerHTML.indexOf('class="reorder-') === -1) swap_tds = true;
+									}
+
 									// Only reorder when it's not the "reorder" column 
-									if (row_tds[i].innerHTML.indexOf('class="reorder-') === -1) {
+									if (swap_tds) {
 										var temp = switch_row_tds[i].innerHTML;
 										switch_row_tds[i].innerHTML = row_tds[i].innerHTML;
 										row_tds[i].innerHTML = temp;

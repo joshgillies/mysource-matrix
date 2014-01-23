@@ -219,13 +219,15 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 				function update_preview_url()
 				{
 					var url = document.getElementById('preview_url').value;
-					var url_key = document.getElementById('preview_url').options[document.getElementById('preview_url').selectedIndex].text;
-					
-					if(/open\sin\snew\swindow/.test(url_key) ) {
-					    open_new_window = true;
-					}
-					else {
-					    open_new_window = false;
+					if(document.getElementById('preview_url').type === 'select-one') {
+					    var url_key = document.getElementById('preview_url').options[document.getElementById('preview_url').selectedIndex].text;
+
+					    if(/open\sin\snew\swindow/.test(url_key) ) {
+						open_new_window = true;
+					    }
+					    else {
+						open_new_window = false;
+					    }
 					}
 					var query_args = [];
 
@@ -384,9 +386,9 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 			if(!empty($set_conditions) && !empty($available_conditions)) {
 			    $o->openField(translate('conditions'));
 				    foreach ($available_conditions as $condition_full_name) {
-					$condition_name_parts = explode('_', $condition_full_name);
+					$condition_name_parts = explode(':', $condition_full_name);
 					$assetid = array_pop($condition_name_parts);
-					$condition_name = implode(' ', $condition_name_parts);
+					$condition_name = implode(' ', explode('_', array_pop($condition_name_parts)));
 					check_box('conditions_'.$condition_full_name, $condition_full_name, FALSE, 'update_preview_url()', 'class="sq-preview-conditions"');
 					label($condition_name.' (#'.$assetid.')', 'conditions_'.$condition_full_name);
 					echo '<br />';
@@ -396,7 +398,7 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 			
 
 			$o->openField(translate('use_cache'));
-				check_box('use_cache', '1', FALSE, 'if (this.checked) { document.getElementById(\'show_diff\').checked = false; } update_preview_url()');
+				check_box('use_cache', '1', FALSE, 'if (this.checked && document.getElementById(\'show_diff\') !== null) { document.getElementById(\'show_diff\').checked = false; } update_preview_url()');
 				label(translate('show_cached_asset'), 'use_cache');
 			$o->closeField();
 
@@ -420,7 +422,7 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 			$o->openField('<span id="size_title"></span>');
 			?>
 				<span id="size_elements"></span>
-				<p style="text-align: right;">
+				<p>
 					<?php normal_button('preview_button', translate('preview'), 'do_preview()'); echo ' ';
 					normal_button('size_button', translate('calculate'), 'get_size()');?>
 				</p>

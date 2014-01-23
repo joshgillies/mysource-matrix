@@ -345,7 +345,7 @@ class Bodycopy extends Asset
 		if(isset($GLOBALS['SQ_CONDITION']['conditional_div'])) {
 		    foreach (array_keys($containers) as $i) {
 			$container =& $containers[$i];
-			if(isset($GLOBALS['SQ_CONDITION']['conditional_div'][$container->id]) && !$GLOBALS['SQ_CONDITION']['conditional_div'][$container->id]) {
+			if(isset($GLOBALS['SQ_CONDITION']['conditional_div']['div_'.$container->id]) && !$GLOBALS['SQ_CONDITION']['conditional_div']['div_'.$container->id]) {
 			    // do not display div that is evaled false
 			    unset($containers[$i]);
 			}
@@ -401,7 +401,7 @@ class Bodycopy extends Asset
 	*/
 	public function &getContainers()
 	{
-		if (SQ_IN_BACKEND || SQ_IN_LIMBO || !isset($this->_tmp['containers'])) {
+		if (SQ_IN_BACKEND || SQ_IN_LIMBO || SQ_PHP_CLI || !isset($this->_tmp['containers'])) {
 			$this->_tmp['containers'] = Array();
 			$container_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy_container', FALSE);
 			foreach ($container_links as $container_data) {

@@ -747,6 +747,7 @@ var JS_Asset_Map = new function() {
 		}
 
 		var self = this;
+		this.modernMapActive = true;
 
 		this.extendLegacy();
 
@@ -858,8 +859,17 @@ var JS_Asset_Map = new function() {
 
 		dfx.addEvent(dfx.getId('asset_map_button_restore'), 'click', function() {
 			// Teleport back to root.
+			// If a custom root is set and we're already on that root, we go
+			// back to the Root Folder (#1). Clicking again will restore the
+			// custom root.
 			if (options.simple === false) {
-				self.teleport(options.teleportRoot, null);
+			    var tree        = self.getCurrentTreeElement();
+			    var currentRoot = tree.getAttribute('data-parentid');
+			    if (String(options.teleportRoot) === String(currentRoot)) {
+			        self.teleport(1, 1);
+			    } else {
+			        self.teleport(options.teleportRoot, options.teleportLink);
+				}
 			}
 		});
 
@@ -876,7 +886,7 @@ var JS_Asset_Map = new function() {
 		});
 
 		dfx.addEvent(assetMapContainer, 'contextmenu', function(e) {
-			e.preventDefault();
+			e.preventDefault(); //comment this line out if you need to debug using browser inspector tools
 		});
 
 		dfx.addEvent(assetMapContainer.ownerDocument.getElementsByTagName('body'), 'keypress', function(e) {
@@ -1149,7 +1159,7 @@ var JS_Asset_Map = new function() {
 			}//end switch
 		});
 
-		dfx.addEvent(assetMapContainer, 'mouseenter', function(e) {
+		dfx.addEvent(assetMapContainer, 'click', function(e) {
 			self.getDefaultView(assetMapContainer).focus();
 		});
 
@@ -1196,6 +1206,14 @@ var JS_Asset_Map = new function() {
 					y: e.clientY
 				}
 			};
+
+			if (!dragStatus.scrollX) {
+				dragStatus.scrollX = 0;
+			}
+
+			if (!dragStatus.scrollY) {
+				dragStatus.scrollY = 0;
+			}
 
 			var target       = e.target;
 			var assetTarget  = null;
@@ -1339,34 +1357,58 @@ var JS_Asset_Map = new function() {
 					timeouts.scrollDrag = {
 						timeout: setInterval(function() {
 							if (timeouts.scrollDrag.mousePos) {
-								var mousePos     = timeouts.scrollDrag.mousePos;
+								var mousePos     = {
+									x: timeouts.scrollDrag.mousePos.x,
+									y: timeouts.scrollDrag.mousePos.y
+								};
+								console.info('MOUSE POS 2: [' + mousePos.x + ',' + mousePos.y + ']');
 								var tree         = self.getCurrentTreeElement();
 								var treeCoords   = dfx.getBoundingRectangle(tree, true);
 								var moveFactor   = (Math.log(20) / Math.log(15));
+								var scrollAmount = 0;
 
 								// Adjust the lower-right tree coords to adjust for
 								// the scrollbar.
 								treeCoords.x2 = treeCoords.x1 + tree.clientWidth;
 								treeCoords.y2 = treeCoords.y1 + tree.clientHeight;
-
+var coords1 = self.getSelectionRectCoords(dragStatus.startPoint, mousePos);
+								
+								var oldScrollTop  = tree.scrollTop;
+								var oldScrollLeft = tree.scrollLeft;
 								if (((mousePos.y - treeCoords.y1) >= 0) && ((mousePos.y - treeCoords.y1) < 15)) {
-									tree.scrollTop -= Math.pow(15 - (mousePos.y - treeCoords.y1), moveFactor);
+									// Scrolling up.
+									scrollAmount        = Math.round(Math.pow(15 - (mousePos.y - treeCoords.y1), moveFactor));
+									tree.scrollTop     -= scrollAmount;
 								} else if (((treeCoords.y2 - mousePos.y) > 0) && ((treeCoords.y2 - mousePos.y) <= 15)) {
-									tree.scrollTop += Math.pow(15 - (treeCoords.y2 - mousePos.y), moveFactor);
+									// Scrolling down.
+									scrollAmount        = Math.round(Math.pow(15 - (treeCoords.y2 - mousePos.y), moveFactor));
+									tree.scrollTop     += scrollAmount;
 								}
 
 								if (((mousePos.x - treeCoords.x1) >= 0) && ((mousePos.x - treeCoords.x1) < 15)) {
-									tree.scrollLeft -= Math.pow(15 - (mousePos.x - treeCoords.x1), moveFactor);
+									// Scrolling to the left.
+									scrollAmount        = Math.round(Math.pow(15 - (mousePos.x - treeCoords.x1), moveFactor));
+									tree.scrollLeft    -= scrollAmount;
 								} else if (((treeCoords.x2 - mousePos.x) > 0) && ((treeCoords.x2 - mousePos.x) <= 15)) {
-									tree.scrollLeft += Math.pow(15 - (treeCoords.x2 - mousePos.x), moveFactor);
+									// Scrolling to the right.
+									scrollAmount        = Math.round(Math.pow(15 - (treeCoords.x2 - mousePos.x), moveFactor));
+									tree.scrollLeft    += scrollAmount;                            
+								}
+
+								if (scrollAmount > 0) {
+									dragStatus.scrollY += (tree.scrollTop - oldScrollTop);
+									dragStatus.scrollX += (tree.scrollLeft - oldScrollLeft);
+									self.setSelectionRect(selectionRect, dragStatus.startPoint, mousePos);
+									var coords = self.getSelectionRectCoords(dragStatus.startPoint, mousePos);
+									console.info('Scroll Mouse Pos [' + mousePos.x + ',' + mousePos.y + ']');
 								}
 							}
 						}, 50)
 					};
 				}
-
+				
 				timeouts.scrollDrag.mousePos = mousePos;
-
+					
 				if (dragStatus.selectionDrag) {
 					if (insideTree) {
 						if (!timeouts.selectionDrag) {
@@ -1411,23 +1453,20 @@ var JS_Asset_Map = new function() {
 							assetMapContainer.appendChild(selectionRect);
 						}
 
-						dfx.setCoords(
-							selectionRect,
-							Math.min(e.clientX, dragStatus.startPoint.x) - assetMapCoords.x,
-							Math.min(e.clientY, dragStatus.startPoint.y) - assetMapCoords.y
-						);
-						dfx.setStyle(selectionRect, 'height', (Math.abs(e.clientY - dragStatus.startPoint.y) + 1) + 'px');
-						dfx.setStyle(selectionRect, 'width', (Math.abs(e.clientX - dragStatus.startPoint.x) + 1) + 'px');
-
-						dfx.addEvent(selectionRect, 'mousemove', function(e) {
-							dfx.setCoords(
-								selectionRect,
-								Math.min(e.clientX, dragStatus.startPoint.x) - assetMapCoords.x,
-								Math.min(e.clientY, dragStatus.startPoint.y) - assetMapCoords.y
-							);
-							dfx.setStyle(selectionRect, 'height', (Math.abs(e.clientY - dragStatus.startPoint.y) + 1) + 'px');
-							dfx.setStyle(selectionRect, 'width', (Math.abs(e.clientX - dragStatus.startPoint.x) + 1) + 'px');
+						self.setSelectionRect(selectionRect, dragStatus.startPoint, {
+							x: e.clientX,
+							y: e.clientY
 						});
+						console.info('No Scroll [' + e.clientX + ',' + e.clientY + ']');
+						
+						// If we double-back on ourselves make sure it also resizes there.
+						dfx.addEvent(selectionRect, 'mousemove', function(e) {
+							self.setSelectionRect(selectionRect, dragStatus.startPoint, {
+								x: e.clientX,
+								y: e.clientY
+							});
+							console.info('Double Back [' + e.clientX + ',' + e.clientY + ']');
+						 });
 					}//end if
 				} else if (dragStatus.assetDrag) {
 					dragStatus.currentPoint = {
@@ -1479,6 +1518,7 @@ var JS_Asset_Map = new function() {
 								var mousePos     = dfx.getMouseEventPosition(e);
 								if (timeouts.scrollDrag) {
 									timeouts.scrollDrag.mousePos = mousePos;
+								
 								}
 
 								var treeCoords   = dfx.getBoundingRectangle(self.getCurrentTreeElement(), true);
@@ -1784,6 +1824,103 @@ var JS_Asset_Map = new function() {
 		}//end if (container exists)
 
 	};
+	
+	/**
+	 * Given start and end point coordinates, return height and width from the
+	 * start point.
+	 *
+	 * Height and width is intended to be negative if the end point is further
+	 * to the left/top than the start point. They can then be added to the
+	 * scroll offsets to determine the width of the selection.
+	 *
+	 * It will also organise what is actually the x1 and y1 points, depending on
+	 * what is actually the top-left corner.
+	 *
+	 * @returns object
+	 */
+	this.getSelectionRectCoords = function(startPoint, endPoint) {
+		var startPoint = {
+			x: startPoint.x,
+			y: startPoint.y
+		};
+		
+		var endPoint = {
+			x: endPoint.x,
+			y: endPoint.y
+		};
+		
+		// Adjust for the current scroll offsets.
+		if (dragStatus.scrollX) {
+			startPoint.x += dragStatus.scrollX;
+			endPoint.x   += dragStatus.scrollX;
+		}
+		
+		if (dragStatus.scrollY) {
+			startPoint.y += dragStatus.scrollY;
+			endPoint.y   += dragStatus.scrollY;
+		}
+		
+		var dimensions = {
+			x1: Math.min(startPoint.x, endPoint.x),
+			y1: Math.min(startPoint.y, endPoint.y),
+			width: endPoint.x - startPoint.x,
+			height: endPoint.y - startPoint.y
+		};
+		
+		return dimensions;
+	}
+
+	this.setSelectionRect = function(rect, startPoint, endPoint) {
+		var startPoint = {
+			x: startPoint.x,
+			y: startPoint.y
+		}
+		
+		var endPoint = {
+			x: endPoint.x,
+			y: endPoint.y
+		}
+		var assetMapCoords = dfx.getElementCoords(assetMapContainer);
+		var treeCoords     = dfx.getElementCoords(self.getCurrentTreeElement());
+		var treeDims       = dfx.getElementDimensions(self.getCurrentTreeElement(), true);
+		
+		if (dragStatus.scrollX) {
+			startPoint.x -= (2 * dragStatus.scrollX);
+			endPoint.x   -= dragStatus.scrollX;
+		}
+		
+		if (dragStatus.scrollY) {
+			startPoint.y -= (2 * dragStatus.scrollY);
+			endPoint.y   -= dragStatus.scrollY;
+		}// Adjust for the current scroll offsets.
+		
+		// Get the initial rectangle.
+		var rectCoords = this.getSelectionRectCoords(startPoint, endPoint);
+		
+		dfx.setCoords(rect, (rectCoords.x1 - assetMapCoords.x), (rectCoords.y1 - assetMapCoords.y));
+		dfx.setStyle(rect, 'width', Math.abs(rectCoords.width) + 'px');
+		dfx.setStyle(rect, 'height', Math.abs(rectCoords.height) + 'px');
+		
+		var clipRect = {top: 'auto', right: 'auto', bottom: 'auto', left: 'auto'};
+		
+		if (rectCoords.y1 < treeCoords.y) {
+			clipRect.top = (treeCoords.y - rectCoords.y1) + 'px';
+		}
+		
+		if (rectCoords.x1 < treeCoords.x) {
+			clipRect.left = (treeCoords.x - rectCoords.x1) + 'px';
+		}
+		
+		if (rectCoords.y2 >= assetMapCoords.y + treeDims.height) {
+			clipRect.bottom = (assetMapCoords.y + treeDims.height - rectCoords.y1) + 'px';
+		}
+		
+		if (rectCoords.x2 >= assetMapCoords.x + treeDims.width) {
+			clipRect.right = (assetMapCoords.x + treeDims.width - rectCoords.x1) + 'px';
+		}
+		dfx.setStyle(rect, 'clip', 'rect(' + clipRect.top + ', ' + clipRect.right + ', ' + clipRect.bottom + ', ' + clipRect.left + ')');
+		
+	}
 
 	this.setHoverTab = function(treeid, callback) {
 		// Check whether we already have a timeout for this tree.
@@ -2366,9 +2503,15 @@ var JS_Asset_Map = new function() {
 		}
 
 		var treeDivs = dfx.getClass('tree');
-		assetMapContainer.style.height = (document.documentElement.clientHeight - 70) + 'px';
+		
+		if (dfx.hasClass(assetMapContainer, 'simple') === true) {
+		    assetMapContainer.style.height = (document.documentElement.clientHeight) + 'px';
+		} else {
+		    assetMapContainer.style.height = (document.documentElement.clientHeight - 70) + 'px';
+		}
+		
 		for (var i = 0; i < treeDivs.length; i++) {
-			treeDivs[i].style.height = (assetMapContainer.clientHeight - toolbarDiv.clientHeight - messageDiv.clientHeight - statusHeight) + 'px';
+			treeDivs[i].style.height = Math.max(50, (assetMapContainer.clientHeight - toolbarDiv.clientHeight - messageDiv.clientHeight - statusHeight)) + 'px';
 		}
 	};
 
@@ -2605,6 +2748,8 @@ var JS_Asset_Map = new function() {
 
 		if ((!defaultView.frameElement) || (defaultView.frameElement.name === 'sq_sidenav')) {
 			var topDoc = defaultView.top.document.documentElement;
+		} else if (defaultView.frameElement.name === 'sq_wysiwyg_popup_sidenav') { 
+		    var topDoc = defaultView.parent.document.documentElement;
 		} else {
 			var topDoc = target.ownerDocument.documentElement;
 		}
@@ -2634,7 +2779,8 @@ var JS_Asset_Map = new function() {
 
 		if (drawAddButton !== false) {
 			var addButton = _createEl('div');
-			dfx.addClass(addButton, 'addButton');
+			dfx.addClass(addButton, 'addButton sq-btn-link sq-btn-small sq-btn-no-shadow');
+			addButton.innerHTML = '<img src="'+ options.libPath +'/web/images/icons/asset_map/add_off.png" alt="Add icon" title="Add new asset"/> Add';
 			container.appendChild(addButton);
 			dfx.addEvent(addButton, 'click', function(e) {
 				var target   = dfx.getMouseEventTarget(e);
@@ -2812,6 +2958,7 @@ var JS_Asset_Map = new function() {
 
 		var divider = _createEl('div');
 		divider.id  = 'asset_map_status_list_divider';
+		divider.title = 'Toggle ' + js_translate('asset_map_status_colour_key');
 		dfx.addClass(divider, 'statusDivider');
 		container.appendChild(divider);
 
@@ -2880,7 +3027,7 @@ var JS_Asset_Map = new function() {
 		dfx.addClass(treeList, 'tree-list');
 
 		var tree1 = _createEl('span');
-		dfx.addClass(tree1, 'tab');
+		dfx.addClass(tree1, 'tab sq-menu-tab vertical');
 		tree1.setAttribute('data-treeid', 0);
 		tree1.innerHTML = js_translate('asset_map_tree1_name');
 		treeList.appendChild(tree1);
@@ -2891,7 +3038,7 @@ var JS_Asset_Map = new function() {
 		});
 
 		var tree2 = _createEl('span');
-		dfx.addClass(tree2, 'tab');
+		dfx.addClass(tree2, 'tab sq-menu-tab vertical');
 		tree2.setAttribute('data-treeid', 1);
 		tree2.innerHTML = js_translate('asset_map_tree2_name');
 		treeList.appendChild(tree2);
@@ -3692,6 +3839,10 @@ var JS_Asset_Map = new function() {
 		if (win.frameElement) {
 			retval = win.top.frames.sq_main;
 			if (!retval) {
+			    retval = win.top.frames.sq_wysiwyg_popup_main;
+			}
+			
+			if (!retval) {
 				// Main frame isn't there.
 				retval = win;
 			}
@@ -3738,7 +3889,7 @@ var JS_Asset_Map = new function() {
 			};
 
 			// toggle frame
-			var thisFrame    = this.getDefaultView(assetMapContainer.ownerDocument).top.frames['sq_sidenav'];
+			var thisFrame    = this.getDefaultView(assetMapContainer.ownerDocument);
 			var resizerFrame = this.getDefaultView(assetMapContainer.ownerDocument).top.frames['sq_resizer'];
 			if (thisFrame.frameElement.parentNode.style.display === 'none') {
 				resizerFrame.toggleFrame();

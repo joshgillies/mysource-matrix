@@ -485,7 +485,7 @@ class LDAP_Bridge extends Asset implements Bridge
 						$members = $asset->vars[$attr['gm']];
 						$entries = Array();
 						foreach ($members as $member) {
-							// If members are stored as "memeber" then it represnts member's dn
+							// If members are stored as "member" then it represents member's dn
 							if ($attr['gm'] == 'member') {
 								$dn = $member;
 							} else {
@@ -593,15 +593,11 @@ class LDAP_Bridge extends Asset implements Bridge
 						$class = strtolower($class);
 						foreach ($this->_group_types as $key => $value) {
 							if ($class == $key) {
-								if (!isset($attrs[$value])) {
-									$attrs[$value] = $value;
-								}
-
-								if (!isset($data[$attrs[$value]][0])) {
+								if (!isset($data[$value][0])) {
 									continue(3);
 								}
 
-								$name = $data[$attrs[$value]][0];
+								$name = $data[$value][0];
 								$type = 'ldap_user_group';
 							}
 						}

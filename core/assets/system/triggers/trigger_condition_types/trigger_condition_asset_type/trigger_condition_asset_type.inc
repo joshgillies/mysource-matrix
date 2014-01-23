@@ -121,14 +121,19 @@ class Trigger_Condition_Asset_Type extends Trigger_Condition
 			if ($write_access) {
 				asset_type_chooser($prefix, TRUE, Array('type_code' => $selected_types, 'inherit' => $descendant_flags), NULL, FALSE, TRUE);
 			} else {
+				echo '<ul style="margin-bottom: 0; margin-left: 10px; list-style: none;">';
 				foreach ($selected_types as $key => $type) {
-					echo '<b>';
-					echo $type;
-					if ($descendant_flags[$key]) {
-						echo '&nbsp;('.translate('or_decendant_types').')';
+					if ($type != '') {
+						echo '<li>';
+							echo get_asset_type_icon($type);
+							echo '<strong>'.$type.'</strong>';
+							if ($descendant_flags[$key]) {
+								echo '&nbsp;('.translate('or_decendant_types').')';
+							}
+						echo '</li>';
 					}
-					echo '</b><br />';
 				}
+				echo '</ul>';
 			}
 
 			$interface = ob_get_contents();

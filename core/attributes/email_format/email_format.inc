@@ -613,6 +613,24 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 					@$mime->addAttachment($file_path, $mime_type); // throws PHP5 strict warning
 				}
 			}
+			
+			// if it's email verification keyword replace it with a token
+			$keywords = retrieve_keywords_replacements($text_body);
+			$keywords += retrieve_keywords_replacements($html_body);
+			if(!empty($keywords)) {
+			    foreach ($keywords as $keyword) {
+				if($keyword === 'email_verification_token') {
+				    // generate a random token
+				    $token = md5(uniqid(rand(), TRUE));
+				    $_SESSION['SQ_VERIFY_EMAIL_RAW'] = $to_email;
+				    $_SESSION['SQ_VERIFY_EMAIL_TOKEN'] = $token;
+				    $_SESSION['SQ_VERIFY_EMAIL_VERIFIED'] = '';
+				    $replacements = Array($keyword => $token);
+				   $text_body = replace_keywords($text_body, $replacements);
+				   $html_body = replace_keywords($html_body, $replacements);
+				}
+			    }
+			}
 
 			$mime->setTXTBody($text_body);
 			$mime->setHTMLBody($html_body);

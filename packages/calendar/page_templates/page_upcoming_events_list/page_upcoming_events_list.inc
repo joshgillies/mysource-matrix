@@ -443,6 +443,7 @@ class Page_Upcoming_Events_List extends Page
 		}
 
 		$recurring_event_descendants = array_merge($am->getTypeDescendants('calendar_event_recurring', TRUE), Array('calendar_event_modification'));
+		$first_current_event_flag = TRUE;
 
 		foreach($events as $id => $event) {
 			$events[$id]['current_date'] = $_REQUEST['SQ_CALENDAR_DATE'];
@@ -472,10 +473,19 @@ class Page_Upcoming_Events_List extends Page
 
 				$current_date = $events[$shadow_id]['current_date'];
 
+				// this bit is tricky. Because our $event_occurance timestamp is stored with respect
+				// to GMT we need to convert our current local datetime to GMT timestamp to  compare
+				// the  correct       occurance time   or else  we won't get  the  correct  results.
+				list($gmyear, $gmmonth, $gmday, $gmhour, $gmmin, $gmsec) = sscanf(date('Y-n-j H:i:s'), '%04d-%02d-%02d %02d:%02d:%02d');
+				$gm_now = gmmktime($gmhour, $gmmin, $gmsec, $gmmonth, $gmday, $gmyear);
+
 				// If event recurs at current_date move to next day for correct evaluation of next recurrance date
-				if ($asset->hasOccurrenceOnDate($current_date)) {
+				// also check to see if the start time of the instance for today is after now. Only then the event
+				// can be termed to be in future else we will have to skip that instance of the current day event
+				if ($asset->hasOccurrenceOnDate($current_date) && (!$first_current_event_flag || $event_occurance < $gm_now)) {
 					$current_date = add_days_to_iso($current_date, 1);
 				}
+
 				$next_occurance = $asset->getFirstOccurrenceAfter($current_date);
 				if ($next_occurance === FALSE) continue; //we exceeded the stop date
 				
@@ -492,7 +502,7 @@ class Page_Upcoming_Events_List extends Page
 				} else {
 					$event_occurance = strtotime($next_occurance);
 				}
-
+				$first_current_event_flag = FALSE;
 			} else if ($asset && $asset->type() == 'calendar_event_modification') {
 
 				$pattern = '/( [0-9\-]{2}:[0-9\-]{2}:[0-9\-]{2})/';

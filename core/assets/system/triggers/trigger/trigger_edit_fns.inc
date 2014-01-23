@@ -62,55 +62,9 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 
-		// the styles below can be moved to edit.css in the future
 		$o->openRaw();
-		?><style type="text/css">
-			.sq-backend-triggers-component-header {
-				background-color: #666;
-				color: #fff;
-				padding: 2px;
-			}
-
-			.sq-backend-triggers-component-global-options {
-				background-color: #eee;
-				padding: 2px;
-				border-bottom: 1px dotted black;
-				border-top: 1px dotted black;
-			}
-
-			.sq-backend-triggers-component-type-info{
-				float: left;
-				font-weight: bold;
-				padding: 1px;
-			}
-
-			.sq-backend-triggers-component-controls {
-				text-align: right;
-			}
-
-			.sq-backend-triggers-component-block-wrapper {
-				padding: 1px;
-			}
-
-			.sq-backend-triggers-component-body {
-				padding: 3px;
-				margin: 1px;
-				background-color: #fff;
-			}
-
-			.sq-backend-triggers-new-component-selector {
-				font-weight: bold;
-				padding: 3px;
-				margin: 0 0 10px 0;
-			}
-
-			.sq-backend-triggers-component-wrapper {
-				background-color: #eee;
-				border: 1px solid black;
-				margin: 10px 0;
-			}
-
-		</style><script type="text/javascript">//<![CDATA[
+		?>
+		<script type="text/javascript">//<![CDATA[
 			/**
 			* Moves a div up (if possible) relative to the div with the same class name
 			*/
@@ -259,8 +213,8 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 		$current_event_no = 0;
 		$max_this_col = 0;
 
-		echo '<div style="margin-bottom: 2ex;">';
-		echo '<table><tr>';
+		echo '<div class="sq-triggers-events-wrapper">';
+		echo '<table class="sq-triggers-events-table"><tr>';
 		foreach ($event_type_list as $e_type => $e_name) {
 			$open = FALSE;
 			if ($current_event_no == $max_this_col) {
@@ -285,7 +239,7 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 				if ($current_column && $current_event_no) {
 					echo '</td>';
 				}
-				echo '<td valign="top" style="padding-right: 3ex;">';
+				echo '<td>';
 			}
 
 			$current_event_no++;
@@ -396,6 +350,10 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 					continue;
 				}
 
+
+				if (!$multiple_status[$type]) {
+				}
+
 				$type_instance_count[$type]++;
 
 				$data = $condition['data'];
@@ -408,21 +366,28 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 
 				$interface = $tm->_getComponentInterface($type, $data, $data_prefix, $write_access, $asset, $i);
 				$type_name = $tm->_getComponentName($type);
+
+				if (!$multiple_status[$type]){
+					$mutliple_indicator = '<span title="'.translate('condition_can_only_be_added_once').'">*</span>';
+				}else{
+					$mutliple_indicator = '';
+				}
+
 				?>
 				<div class="sq-backend-triggers-component-wrapper">
 					<div class="sq-backend-triggers-component-header">
 						<div class="sq-backend-triggers-component-type-info">
-							<?php echo $type_name; ?>
+							<?php echo $type_name; ?> <?php echo $mutliple_indicator; ?>
 						</div>
 						<div class="sq-backend-triggers-component-controls">
 						<?php
 						if ($write_access) {
 						?>
-							<input type="checkbox" name="<?php echo $delete_prefix; ?>" >
+							<input type="checkbox" id="<?php echo $delete_prefix; ?>" name="<?php echo $delete_prefix; ?>" >
 							<?php echo label(translate('delete'), $delete_prefix); ?>
 								&nbsp;&nbsp;&nbsp;&nbsp;
-							<a href="#" onclick="moveUp(this.parentNode.parentNode.parentNode); conditionOrdererObject.moveUp(<?php echo $i; ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/up_arrow.png' ?>", "16", "16", "Move Up");</script></a>
-							<a href="#" onclick="moveDown(this.parentNode.parentNode.parentNode); conditionOrdererObject.moveDown(<?php echo $i; ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/down_arrow.png' ?>", "16", "16", "Move Down");</script></a>
+							<a href="#" title="Move up" onclick="moveUp(this.parentNode.parentNode.parentNode); conditionOrdererObject.moveUp(<?php echo $i; ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/up_arrow.png' ?>", "16", "16", "Move Up");</script></a>
+							<a href="#" title="Move down" onclick="moveDown(this.parentNode.parentNode.parentNode); conditionOrdererObject.moveDown(<?php echo $i; ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/down_arrow.png' ?>", "16", "16", "Move Down");</script></a>
 						<?php
 						} else {
 							echo '&nbsp;';
@@ -467,13 +432,15 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 							$removed = TRUE;
 							continue;
 						}
-						$select_list[$type] = $name;
+						if (!$multiple_status[$type]){
+							$select_list[$type] = $name.' *';
+						}else{
+							$select_list[$type] = $name;
+						}
 					}
 
 					combo_box($prefix.'[new_condition]', $select_list, FALSE, ' ');
-					if ($removed) {
-						echo ' <span class="sq-backend-warning">'.translate('some_conditions_can_only_be_added_once').'</span>';
-					}
+					echo '<div class="sq-backend-note">'.translate('conditions_marked_with_can_only_be_added_once').'</div>';
 					?>
 			</div>
 			<?php
@@ -643,10 +610,11 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 							<?php
 							if ($write_access) {
 								?>
-								<input type="checkbox" name="<?php echo $delete_prefix; ?>"><?php echo label(translate('delete')); ?>
+								<input type="checkbox" id="<?php echo $delete_prefix; ?>" name="<?php echo $delete_prefix; ?>">
+								<?php echo label(translate('delete'), $delete_prefix); ?>
 								&nbsp;&nbsp;&nbsp;&nbsp;
-								<a href="#" onclick="moveUp(this.parentNode.parentNode.parentNode); actionOrdererObject.moveUp(<?php echo $i; ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/up_arrow.png' ?>", "16", "16", "Move Up");</script></a>
-								<a href="#" onclick="moveDown(this.parentNode.parentNode.parentNode); actionOrdererObject.moveDown(<?php echo $i; ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/down_arrow.png' ?>", "16", "16", "Move Down");</script></a>
+								<a href="#" title="Move up" onclick="moveUp(this.parentNode.parentNode.parentNode); actionOrdererObject.moveUp(<?php echo $i; ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/up_arrow.png' ?>", "16", "16", "Move Up");</script></a>
+								<a href="#" title="Move down" onclick="moveDown(this.parentNode.parentNode.parentNode); actionOrdererObject.moveDown(<?php echo $i; ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/down_arrow.png' ?>", "16", "16", "Move Down");</script></a>
 								<?php
 							} else {
 								echo '&nbsp;';
@@ -776,8 +744,6 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 		$i=1;
 		foreach ($raw_components as $component) {
 			$error = FALSE;
-			if (isset($component['delete'])) continue;
-
 			$settings = Array();
 
 			$type = array_get_index($component, 'type');
@@ -785,8 +751,15 @@ class Trigger_Edit_Fns extends Asset_Edit_Fns
 				continue; // invalid type is silently ignored
 			}
 
-
 			$data = array_get_index($component, 'data', Array());
+			if (isset($component['delete'])) {
+				// If anything needs to be done when deleting this trigger action
+				if (method_exists($type, 'destroyTriggerAction')) {
+					eval($type.'::destroyTriggerAction($settings, $data);');
+				}
+				continue;
+			}
+
 			if (!array_get_index($component, 'new', FALSE)) {
 				eval('$error = '.$type.'::processInterface($settings, $data);');
 			}

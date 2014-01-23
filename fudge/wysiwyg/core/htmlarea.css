@@ -14,55 +14,69 @@
 */
 
 .htmlarea {
-	background: #ffffff;
+	background: 		#ffffff;
 }
 
 .htmlarea-toolbar {
-	background:		#5A5A5A;
-	padding:		0px;
-	border:			1px solid;
-	border-color:	#D5D5D5 #A0A0A0 #A0A0A0 #D5D5D5;
-	text-align:		left;
+	background: 		#EEE;
+	padding: 			0px;
+	text-align: 		left;
+}
+
+.htmlarea-toolbar table {
+	border: 			1px solid #CCC;
+}
+
+.htmlarea-toolbar td {
+	padding: 			4px;
 }
 
 .htmlarea-toolbar.img {
-	border:			none;
+	border:				none;
 }
-
-
 
 /* Toolbar Buttons */
 
+.htmlarea-toolbar td > div > div {
+  	margin: 			0 1px 3px 0;
+}
+
 .htmlarea-button {
-	float:			left;
-	background:		#5A5A5A;
-	color:			#5A5A5A;
-	border:			1px solid;
-	padding:		1px;
-	margin:			0px;
-	width:			17px;
-	height:			19px;
-	border-color:	#5A5A5A #5A5A5A #5A5A5A #5A5A5A;
-	font-size:		15px;
+	float:				left;
+	background: 		#5A5A5A;
+	color: 				#5A5A5A;
+	border: 			1px solid #EEE;
+	width: 				17px;
+	line-height: 		21px;
+	height:				21px;
+	font-size: 			15px;
+	border-radius: 		3px;
+	padding: 			0 1px 0 0;
 }
 
-.htmlarea-buttonHover {
-	border:			1px solid;
-	border-color:	#D5D5D5 #A0A0A0 #A0A0A0 #D5D5D5;
+.htmlarea-button img{
+	margin: 			0;
 }
 
-.htmlarea-buttonActive, .htmlarea-buttonPressed {
-	border:			1px solid;
-	border-color:	#A0A0A0 #D5D5D5 #D5D5D5 #A0A0A0;
+.htmlarea-buttonHover,
+.htmlarea-button:hover {
+	border-color:		#D5D5D5 #A0A0A0 #A0A0A0 #D5D5D5;
+}
+
+.htmlarea-buttonActive,
+.htmlarea-button:active, 
+.htmlarea-buttonPressed {
+	border:				1px solid;
+	border-color:		#A0A0A0 #D5D5D5 #D5D5D5 #A0A0A0;
 }
 
 .htmlarea-buttonPressed {
-	background:		#D5D5D5;
+	background:			#D5D5D5;
 }
 
 .htmlarea-buttonDisabled {
-}
 
+}
 
 /* Toolbar Menus */
 
@@ -90,21 +104,21 @@
 	padding:			1px 1px;
 }
 
-
 /* Toolbar Select Boxes */
 
 .htmlarea-select {
-	font-size:			9px;
-	font-family:		Verdana, sans-serif;
-	background-color:	#5A5A5A;
-	color:				#FFFFFF;
+	font-family:		Arial, Verdana, sans-serif;
+	background:			#fff;
+	border: 			1px solid #8A8A8A;
+	font-size: 			11px;
+	line-height: 		23px;
+	height:				23px;
 }
 .htmlarea-select-container {
-	float:			left;
-	font-size:		9px;
-	width:			auto;
+	float:				left;
+	font-size:			9px;
+	width:				auto;
 }
-
 
 /* Status Bar */
 
@@ -137,51 +151,51 @@
 	font-weight:		normal;
 }
 
-
-
 /* Text Indicator */
 
 .htmlarea-indicator {
-	float:			left;
-	padding:		0px 3px;
-	overflow:		hidden;
-	width:			20px;
-	height:			21px;
-	text-align:		center;
-	cursor:			default;
-	border:			1px solid #A0A0A0;
-	font-size:		18px;
+	float:				left;
+	padding:			0px 3px;
+	overflow:			hidden;
+	width:				20px;
+	height:				21px;
+	line-height:		21px;
+	text-align:			center;
+	cursor:				default;
+	border:				1px solid #A0A0A0;
+	font-size:			18px;
 }
-
-
 
 /* Other Toolbar Elements */
 
-.htmlarea-separator div {
-	margin:			3.5px 0px 3.5px 0px;
-	border-left:	1px solid #A0A0A0;
-	border-right:	1px solid #D5D5D5;
-	width:			0px;
-	height:			16px;
-	padding:		0px;
-	font-size:		10px;
-}
 
 .htmlarea-separator {
-	float:			left;
-	margin:			0px 3px 0px 3px;
-	width:			2px;
-	height:			23px;
-	padding:		0px;
-	font-size:		10px;
+	float: 				left;
+	margin: 			0px 5px 0px 4px !important;
+	width: 				2px;
+	height: 			26px;
+	padding: 			0px;
+	font-size: 			10px;
+	position: 			relative;
+}
+
+.htmlarea-separator div {
+	border-left: 		1px solid #B6B6B6;
+	border-right: 		1px solid #FFF;
+	width: 				0px;
+	height: 			17px;
+	padding: 			0px;
+	font-size: 			10px;
+	position: 			relative;
+	top: 				3px;
 }
 
 .htmlarea-space {
-	float:			left;
-	width:			5px;
-	font-size:		15px;
-}
+	float:				left;
+	width:				5px;
+	font-size:			15px;
+}	
 
 .wysiwyg-noborders {
-	border: 1px dashed #6699CC;
+	border: 			1px dashed #6699CC;
 }

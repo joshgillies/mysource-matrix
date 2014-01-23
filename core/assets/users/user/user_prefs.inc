@@ -50,7 +50,7 @@ class User_Prefs extends Prefs
 						'SQ_USER_ASSET_MAP_MODERN'  => Array(
 														'name'			=> 'user_prefs_asset_map_modern_header',
 														'description'	=> 'Controls whether the modern (JS-based) asset map is used where supported, or the original Java version',
-														'default'		=> TRUE,
+														'default'		=> FALSE,
 														'protected'		=> FALSE,
 													   ),
 						'SQ_USER_SAFE_TYPE3_TRASH'	=> Array(
@@ -92,7 +92,7 @@ class User_Prefs extends Prefs
 						'SQ_USER_FILTER_FRONT_END_INPUT'	=> Array(
 														'name'			=> 'filter_front_end_user_input',
 														'description'	=> 'Filter (strip keywords, strip script tags and escape html) of any input by the user from the front end.',
-														'default'		=> FALSE,
+														'default'		=> TRUE,
 														'protected'		=> FALSE,
 													   ),
 					 );
@@ -139,22 +139,6 @@ class User_Prefs extends Prefs
 			}
 			$session_settings = $this->pref_vars['SQ_USER_SESSION_PREFS']['default'];
 			?>
-			<style type="text/css">
-				ul#user-prefs {
-					list-style-type: none;
-					padding-left: 8px;
-					margin: 2px 0px;
-				}
-				ul#user-prefs li {
-					white-space: nowrap;
-					margin-left: 8px;
-					height: 22px;
-				}
-				div.sq-backend-table-cell {
-					width: auto;
-					margin: 3px;
-				}
-			</style>
 			<?php
 			foreach ($session_settings as $id => $extra_setting) {
 			?>

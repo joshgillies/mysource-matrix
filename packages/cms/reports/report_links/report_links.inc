@@ -79,10 +79,8 @@ class Report_Links extends Report
 			$report_path = $this->data_path.'/report.xml';
 			if (!is_file($report_path)) return Array();
 
-			try {
-				$root = @new SimpleXMLElement($report_path, LIBXML_NOCDATA, TRUE);
-			} catch (Exception $e) {
-			 	trigger_error('Unable to parse report file "'.$report_path.'": '.$e->getMessage());
+			$root = simplexml_load_string(file_get_contents($report_path), 'SimpleXMLElement', LIBXML_NOCDATA);
+			if (!$root) {
 				return Array();
 			}
 
@@ -199,10 +197,8 @@ class Report_Links extends Report
 			return Array();
 		}
 
-		try {
-			$root = @new SimpleXMLElement($report_path, LIBXML_NOCDATA, TRUE);
-		} catch (Exception $e) {
-			 trigger_error('Unable to parse report file "'.$report_path.'": '.$e->getMessage());
+		$root = simplexml_load_string(file_get_contents($report_path), 'SimpleXMLElement', LIBXML_NOCDATA);
+		if (!$root) {
 			return Array();
 		}
 

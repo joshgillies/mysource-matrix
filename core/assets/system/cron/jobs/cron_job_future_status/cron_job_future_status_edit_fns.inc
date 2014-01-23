@@ -60,6 +60,7 @@ class Cron_Job_Future_Status_Edit_Fns extends Cron_Job_Edit_Fns
 	*/
 	public function paintInLineBackend(Cron_Job_Future_Status $asset, Backend_Outputter $o, $prefix, $when='', $cascade=FALSE, $form_extra_elements='', Array $exclude_status=Array())
 	{
+		echo '<span class="sq-inline-fields-wrapper">';
 		echo translate('set_status_to');
 
 		$descs = $asset->_getAllStatiiDescs();
@@ -79,6 +80,7 @@ class Cron_Job_Future_Status_Edit_Fns extends Cron_Job_Edit_Fns
 		echo '&nbsp;';
 		check_box($prefix.'_change_status_all_children', '1', $cascade);
 		echo translate('cascade_status_change');
+		echo '</span>';
 
 		return TRUE;
 

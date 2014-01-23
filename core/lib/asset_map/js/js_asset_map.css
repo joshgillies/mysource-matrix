@@ -166,16 +166,19 @@
 	position: relative;
 	margin-left: 18px;
 	padding-left: 8px;
-	background-color: #f5f5f5;
+	padding-right: 1px;
 	box-sizing: border-box;
 	-moz-box-sizing: border-box;
 	font: 11px 'Arial', sans-serif;
+	width: 257px;
+	height: 732px;
+	background-color: #f4f4f4;
+	top: 5px;
 }
 
 #asset_map_container.simple {
-	margin-left: 0;
-	padding-left: 0;
-	border: 1px solid #E2E2E2;
+	margin: 0;
+	padding: 0;
 }
 
 #asset_map_container .paginationTool {
@@ -277,88 +280,125 @@
 	user-select: text;
 }
 
+
+/* HORIZONTAL MENU TABS */
+#sq-sidenav-menu-tabs-wrapper{
+	position: relative;
+	display: block;
+	margin-top: -1px;
+}
+
+.sq-sidenav-menu-tabs .sq-menu-tab {
+	padding: 					5px 7px;
+	border: 					1px solid #ccc;
+	border-radius: 	4px 4px 0 0;
+	border-bottom: 				none;
+	color: 						#565656;
+	text-shadow: 				0 1px 0 #fff;
+	background-color: 			#e3e3e3;
+	margin-right: 				2px;
+	font-size: 					12px;
+	font-weight: 				normal;
+	cursor: 					pointer;
+}
+
+.sq-sidenav-menu-tabs .sq-menu-tab:hover{
+	text-decoration: none;
+	background-color: 			#eaeaea;
+}
+
+.sq-sidenav-menu-tabs .sq-menu-tab.selected {
+	background-color: 			#f4f4f4;
+	box-shadow: 				0 1px 0 #fff inset;
+	z-index: 					1010;
+	border-bottom: 				1px solid #f4f4f4;
+	position: 					relative;
+}
+
+.sq-sidenav-menu-tabs .sq-menu-tab img {
+	vertical-align: 			middle;
+	margin-right: 				5px;
+}
+
 /**
  * NOTE: The RTL direction is intentional - it is there to ensure the tabs can be
  *       ordered top-to-bottom (ie. tree 1 top) when rotated without affecting their
  *       semantic order when rotated. It is reversed back to LTR in the tabs.
  */
-#asset_map_container.modern .tree-list {
+#asset_map_container .tree-list {
 	direction: rtl;
-	transform: rotate(270deg);
-	-ms-transform: rotate(270deg);
 	-webkit-transform: rotate(270deg);
-	/*-ms-filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=3)";*/
+	-ms-transform: rotate(270deg);
+	transform: rotate(270deg);
 	position: absolute;
 	white-space: nowrap;
-	top: 2px;
-	left: -17px;
+	top: -3px;
+	left: -13px;
 	width: 18px;
-	font-size: 0.909em;
+	font-size: 0;
 }
 
-#asset_map_container.modern .tree-list .tab {
+.gtie8 #asset_map_container .tree-list {
+	left: -12px;
+}
+
+#asset_map_container .tree-list .sq-menu-tab.vertical {
+	position: relative;
 	direction: ltr;
 	display: inline-block;
 	white-space: nowrap;
-	margin: 0 -2px;
-	padding: 2px 7px 1px 22px;
-	height: 18px;
-	background: url(../../web/images/icons/asset_map/tree.png) 4px 1px no-repeat #d2d2d2;
+	padding: 5px 7px 6px 20px;
+	background: url(../../web/images/icons/asset_map/tree.png) 4px 1px no-repeat #e3e3e3;
 	box-sizing: border-box;
 	-moz-box-sizing: border-box;
-	border-radius: 3px 3px 0 0;
-	border: 1px outset #eee;
-	border-bottom: none;
+	border-radius: 4px 4px 0 0;
+	border: 1px solid #ccc;
+	background-position: 5px 50%;
+	cursor: pointer;
+	text-shadow: -1px 0 0 #fff;
+	margin-left: 2px;
+	top: -1px;
+	cursor: pointer;
 }
 
-#asset_map_container.modern .tree-list .tab.selected {
-	background-color: #f5f5f5;
-	padding-bottom: 3px;
-	position: relative;
-	top: -2px;
-	height: 20px;
-	z-index: 2;
+#asset_map_container .tree-list .sq-menu-tab.vertical:hover {
+	background-color: #eaeaea;
+}
+
+#asset_map_container .tree-list .sq-menu-tab img {
+	vertical-align: middle;
+}
+
+#asset_map_container .tree-list .sq-menu-tab.vertical.selected {
+	background-color: #f4f4f4;
+	box-shadow: -1px 0 0 #fff inset;
+	border-bottom: 1px solid #f4f4f4;
 }
 
 #asset_map_container.oldIE .tree-list {
-	position: absolute;
-	white-space: nowrap;
-	top: 2px;
-	left: -17px;
 	font-size: 0.909em;
 }
 
-#asset_map_container.oldIE .tree-list .tab {
+/* oldIE is for IE8 only */
+
+#asset_map_container.oldIE .tree-list .sq-menu-tab.vertical {
 	-ms-filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=3)";
 	position: absolute;
-	display: inline-block;
-	white-space: nowrap;
-	padding: 2px 7px 1px 22px;
-	height: 18px;
-	background: url(../../web/images/icons/asset_map/tree.png) 4px 1px no-repeat #d2d2d2;
 	box-sizing: border-box;
-	-moz-box-sizing: border-box;
-	border-radius: 3px 3px 0 0;
-	border: 1px outset #eee;
-	border-bottom: none;
-	left: 0px;
-	width: 75px;
+	left: -8px;
+	cursor: pointer;
 }
 
-#asset_map_container.oldIE .tree-list .tab.selected {
-	background-color: #f5f5f5;
-	padding-bottom: 3px;
-	height: 20px;
-	left: -2px;
+#asset_map_container.oldIE .tree-list .sq-menu-tab.vertical.selected {
 	z-index: 2;
 }
 
-#asset_map_container.oldIE .tree-list .tab[data-treeid="0"] {
-	top: 0px;
+#asset_map_container.oldIE .tree-list .sq-menu-tab.vertical[data-treeid="0"] {
+	top: 6px;
 }
 
-#asset_map_container.oldIE .tree-list .tab[data-treeid="1"] {
-	top: 73px;
+#asset_map_container.oldIE .tree-list .tab.sq-menu-tab.vertical[data-treeid="1"] {
+	top: 88px;
 }
 
 #asset_map_container .overlay {
@@ -514,20 +554,33 @@
 
 #asset_map_container .toolbar {
 	background-color: #f5f5f5;
+	border: 1px solid #ccc;
+	box-shadow: 0 1px 0 #fff inset;
 	border-bottom: 1px solid #e2e2e2;
-	padding: 5px;
+	border-top-right-radius: 4px;
+	padding: 4px 5px;
+}
+
+#asset_map_container.simple .toolbar {
+	border-top-left-radius: 4px;
+}
+
+#asset_map_container .toolbar:after {
+	content: "";
+	display: block;
+	clear: both;
 }
 
 #asset_map_container .messageLine {
-	background-color: #f5f5f5;
-	border-top: 1px solid #e2e2e2;
-	padding: 5px;
-	position: absolute;
-	bottom: 0;
-	width: 100%;
-	margin-left: -8px;
+	background-color: #f4f4f4;
 	box-sizing: border-box;
 	-moz-box-sizing: border-box;
+	padding: 9px 10px;
+	border-right: 1px solid #ccc;
+	border-bottom: 1px solid #ccc;
+	border-left: 1px solid #ccc;
+	border-bottom-left-radius: 4px;
+	border-bottom-right-radius: 4px;
 }
 
 #asset_map_container.simple .messageLine {
@@ -547,19 +600,24 @@
 	display: inline-block;
 	height: 12px;
 	padding: 2px 0;
+	font-size: 11px;
+	color: #444;
 }
 
 #asset_map_container .tree {
-	border-left: 1px solid #e2e2e2;
 	overflow: scroll;
 	box-sizing: border-box;
 	-moz-box-sizing: border-box;
 	background-color: white;
 	display: none;
+	border-right: 				1px solid #ccc;
+	border-left: 				1px solid #ccc;
+	padding-top:				1px;
+	color: 						#000;
 }
 
-#asset_map_container.simple .tree {
-	border-left: none;
+#asset_map_container .tree *{
+	font-size: 11px;
 }
 
 #asset_map_container.useMeMode .tree {
@@ -622,6 +680,7 @@
 #asset_map_container .asset.selected .assetName,
 #asset_map_container.moveMeMode .asset.moveTarget .assetName {
 	padding: 0px 2px;
+	border-radius: 3px;
 }
 
 #asset_map_container .selectLine {
@@ -639,18 +698,15 @@
 }
 
 #asset_map_container .statusList {
-	position: absolute;
-	bottom: 27px;
-	width: 100%;
-	padding: 0;
-	margin-bottom: -1px;
-	margin-left: -8px;
-	background-color: #fff;
+	background-color: #f4f4f4;
+	padding: 5px;
+	border: 1px solid #ccc;
 }
 
 #asset_map_container .statusList.expanded {
 	padding: 1px 0;
 	margin-bottom: 0;
+	background-color: #fff;
 }
 
 #asset_map_container .statusList .fakeAsset {
@@ -660,7 +716,7 @@
 #asset_map_container .statusList.expanded .fakeAsset {
 	display: block;
 	cursor: default;
-	margin: 2px;
+	margin: 5px;
 }
 
 #asset_map_container .statusListIcon {
@@ -668,14 +724,16 @@
 	width: 14px;
 	height: 14px;
 	margin-right: 2px;
-}*
+	border-radius: 3px;
+}
 
 #asset_map_container .statusDivider {
-	background-color: #f5f5f5;
-	border-bottom: 1px solid #e2e2e2;
-	padding: 3px 3px 0;
+	background-color: #f4f4f4;
+	border-bottom: none;
+	padding: 5px 0;
 	position: relative;
 	cursor: pointer;
+
 }
 
 #asset_map_container .statusDivider .text {
@@ -722,8 +780,10 @@
 
 #asset_map_container .statusDivider .icon {
 	position: absolute;
-	top: 5px;
-	left: 4px;
+	top: 7px;
+	left: 5px;
+	width: 12px;
+	height: 12px;
 }
 
 #asset_map_container .asset .branch-status {
@@ -795,37 +855,17 @@
 }
 
 #asset_map_container .statusDivider .icon {
-	background: url(../../web/images/tree/branch_closed.gif) 50% -5px no-repeat;
+	background: url(../../web/images/tree/arrow-up.png) center 0 no-repeat;
 	cursor: pointer;
 }
 
 #asset_map_container .statusList.expanded .statusDivider .icon {
-	background: url(../../web/images/tree/branch_open.gif) 50% -5px no-repeat;
+	background: url(../../web/images/tree/arrow-down.png) center 0 no-repeat;
 }
 
 #asset_map_container .statusDivider .text:hover {
 	text-decoration: underline;
 	cursor: pointer;
-}
-
-#asset_map_container .toolbar:after {
-	content: "";
-	display: block;
-	clear: both;
-}
-
-#asset_map_container .addButton {
-	border-radius: 9px;
-	border: 0px;
-	height: 18px;
-	width: 53px;
-	padding: 0px;
-	margin-right: 5px;
-	background-color: #ddd;
-	display: inline-block;
-	cursor: pointer;
-	float: left;
-	background: url(../../web/images/icons/asset_map/add_off.png) 50% 50% no-repeat;
 }
 
 #asset_map_container .tbButtons {
@@ -869,3 +909,6 @@
 #asset_map_container .tbButton.statuses {
 	background: url(../../web/images/icons/asset_map/status_off.png) 50% 50% no-repeat;
 }
+
+
+

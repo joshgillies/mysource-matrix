@@ -250,7 +250,9 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 					throw new Exception('Unable to get minorids for treeid: '.$treeid[0]['treeid'].' due to database error: '.$e->getMessage());
 				}
 
-				$todo_normal = array_merge($todo_normal, $new_assets);
+				foreach ($new_assets as $new_asset) {
+				    $todo_normal []= $new_asset;
+				}
 			}//end else
 
 		}//end foreach

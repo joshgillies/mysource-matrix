@@ -185,115 +185,121 @@ class Data_Source_Edit_Fns extends Asset_Edit_Fns
 	{
 		$filters = $asset->attr('record_filters');
 		$wa = $asset->writeAccess('attributes');
-		?>
-		<table class ="sq-backend-table" border="1" style="margin-bottom: 7px">
-			<tr>
-				<th width="15%"><?php echo translate('data_source_filter_name'); ?></th>
-				<th width="40%"><?php echo translate('data_source_value_to_match'); ?></th>
-				<th><?php echo translate('data_source_match_type'); ?></th>
-				<th><?php echo translate('data_source_match_case'); ?></th>
-				<th><?php echo translate('data_source_allow_empty'); ?></th>
-				<?php
-				if ($wa) {
-					?>
-					<th><?php echo translate('delete'); ?></th>
+		$o->openField('','wide_col');
+			?>
+			<table class ="sq-backend-table" border="1" style="margin-bottom: 7px">
+				<tr>
+					<th><?php echo translate('data_source_filter_name'); ?></th>
+					<th><?php echo translate('data_source_value_to_match'); ?></th>
+					<th><?php echo translate('data_source_match_type'); ?></th>
+					<th><?php echo translate('data_source_match_case'); ?></th>
+					<th><?php echo translate('data_source_allow_empty'); ?></th>
 					<?php
+					if ($wa) {
+						?>
+						<th style="text-align:center;"><?php echo translate('delete'); ?>?</th>
+						<?php
+					}
+					?>
+				</tr>
+				<?php
+				
+				$match_options = Array(
+									'exact' => 'String match - Exact',
+									'contains' => 'String match - Contains',
+									'regex' => 'Regex match',
+									);
+				$case_options = Array(
+									'ignore_case' => 'No',
+									'match_case' => 'Yes',
+								);
+				$allow_empty_options = Array(
+									0 => 'No',
+									1 => 'Yes',
+								);
+				
+				
+				foreach ($filters as $index => $field_data) {
+					$field_name = $field_data['name'];
+					$field_value = $field_data['value'];
+					$match_type = $field_data['match_type'];
+					$match_case = $field_data['match_case'];
+					$allow_empty = array_get_index($field_data, 'allow_empty', 0);
+
+					?>
+					<tr>				
+						<td>
+							<?php
+								if ($wa) {
+									text_box($prefix.'_filter['.$index.'][name]', $field_name, 20);
+								} else {
+									echo $field_name;
+								}
+							?>
+						</td>
+						<td>
+							<?php
+								if ($wa) {
+									text_box($prefix.'_filter['.$index.'][value]', $field_value, 60);
+								} else {
+									echo $field_value;
+								}
+							?>
+						</td>
+						<td>
+							<?php
+								if ($wa) {
+									combo_box($prefix.'_filter['.$index.'][match_type]', $match_options, FALSE, $match_type);
+								} else {
+									echo $match_options[$match_type];
+								}
+							?>
+						</td>
+						<td>
+							<?php
+								if ($wa) {
+									combo_box($prefix.'_filter['.$index.'][match_case]', $case_options, FALSE, $match_case);
+								} else {
+									echo $case_options[$match_case];
+								}
+							?>
+						</td>
+						<td>
+							<?php
+								if ($wa) {
+									combo_box($prefix.'_filter['.$index.'][allow_empty]', $allow_empty_options, FALSE, $allow_empty);
+								} else {
+									echo $allow_empty_options[$allow_empty];
+								}
+							?>
+						</td>
+						<?php
+							if ($wa) {						
+								echo '<td style="text-align:center;">';
+								check_box($prefix.'_filter['.$index.'][delete]');
+								echo '</td>';
+							}
+						?>
+
+
+					</tr>
+				<?php
 				}
 				?>
-			</tr>
+			</table>
+			<div class="sq-backend-field-note">
+				<strong><?php echo translate('note'); ?>:</strong> <?php echo translate('data_source_dynamic_keywords_node'); ?>
+			</div>
 			<?php
-			
-			$match_options = Array(
-								'exact' => 'String match - Exact',
-								'contains' => 'String match - Contains',
-								'regex' => 'Regex match',
-								);
-			$case_options = Array(
-								'ignore_case' => 'No',
-								'match_case' => 'Yes',
-							);
-			$allow_empty_options = Array(
-								0 => 'No',
-								1 => 'Yes',
-							);
-			
-			
-			foreach ($filters as $index => $field_data) {
-				$field_name = $field_data['name'];
-				$field_value = $field_data['value'];
-				$match_type = $field_data['match_type'];
-				$match_case = $field_data['match_case'];
-				$allow_empty = array_get_index($field_data, 'allow_empty', 0);
-
-				?>
-				<tr>				
-					<td>
-						<?php
-							if ($wa) {
-								text_box($prefix.'_filter['.$index.'][name]', $field_name, 30);
-							} else {
-								echo $field_name;
-							}
-						?>
-					</td>
-					<td>
-						<?php
-							if ($wa) {
-								text_box($prefix.'_filter['.$index.'][value]', $field_value, 80);
-							} else {
-								echo $field_value;
-							}
-						?>
-					</td>
-					<td>
-						<?php
-							if ($wa) {
-								combo_box($prefix.'_filter['.$index.'][match_type]', $match_options, FALSE, $match_type);
-							} else {
-								echo $match_options[$match_type];
-							}
-						?>
-					</td>
-					<td>
-						<?php
-							if ($wa) {
-								combo_box($prefix.'_filter['.$index.'][match_case]', $case_options, FALSE, $match_case);
-							} else {
-								echo $case_options[$match_case];
-							}
-						?>
-					</td>
-					<td>
-						<?php
-							if ($wa) {
-								combo_box($prefix.'_filter['.$index.'][allow_empty]', $allow_empty_options, FALSE, $allow_empty);
-							} else {
-								echo $allow_empty_options[$allow_empty];
-							}
-						?>
-					</td>
-					<?php
-						if ($wa) {						
-							echo '<td>';
-							check_box($prefix.'_filter['.$index.'][delete]');
-							echo '</td>';
-						}
-					?>
-
-
-				</tr>
-			<?php
-			}
-			?>
-		</table>
-		<?php
+		$o->closeField();
 		if ($wa) {
-			label(translate('data_source_new_filter'), $prefix.'_new_filter_name');
-			echo '&nbsp;';
-			text_box($prefix.'_new_filter_name', '', 25);
+			$o->openField(translate('data_source_new_filter'));
+				label(translate('data_source_filter_name'), $prefix.'_new_filter_name');
+				echo '&nbsp;';
+				text_box($prefix.'_new_filter_name', '', 25);
+			$o->closeField();
 		}
 		
-		$o->sectionNote(translate('data_source_dynamic_keywords_node'));
 
 		return $wa;
 

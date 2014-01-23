@@ -73,17 +73,18 @@ class Asset_Attribute_Email extends Asset_Attribute_Text
 	/**
 	* Prints the interface for filling in a value
 	*
-	* @param string	prefix	prefix for the form element
+	* @param string	 $prefix	prefix for the form element
+	* @param boolean $validate  Whether to validate the value
 	*
 	* @return boolean
 	* @access public
 	*/
-	function process($prefix)
+	function process($prefix, $validate=TRUE)
 	{
 		if (!isset($_REQUEST[$prefix])) return false;
 		$value = (string) $_REQUEST[$prefix];
 
-		if ($this->value !== $value && $this->setValue($value)) {
+		if ($this->value !== $value && $this->setValue($value, $validate)) {
 			$this->processed = true;
 		} else {
 			$this->processed = false;

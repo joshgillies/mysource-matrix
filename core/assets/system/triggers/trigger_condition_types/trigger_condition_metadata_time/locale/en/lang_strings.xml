@@ -17,5 +17,5 @@
 -->
 
 <strings>
-	<string source="trigger_metadata_date_fieldid"><![CDATA[Metadata Date Field with expired value:]]></string>
+	<string source="trigger_metadata_date_fieldid"><![CDATA[Metadata Date Field with expired value: ]]></string>
 </strings>

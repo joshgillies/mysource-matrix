@@ -111,12 +111,12 @@ class System_Config extends Config
 						'SQ_CONF_TIMEZONE'						=> Array('editable' => 1, 'default' => 'Australia/Sydney'),
 						'SQ_CONF_FORCE_LOWERCASE_USERNAME'		=> Array('editable' => 0, 'default' => FALSE),
 						'SQ_LICENCE_INSTALL_KEY'				=> Array('editable' => 1, 'default' => ''),
-						'SQ_LICENCE_WARRANTY_KEY'				=> Array('editable' => 1, 'default' => ''),
-						'SQ_CONF_COOKIE_OPTION_HTTP_ONLY'		=> Array('editable' => 1, 'default' => FALSE),
+						'SQ_CONF_COOKIE_OPTION_HTTP_ONLY'		=> Array('editable' => 1, 'default' => TRUE),
 						'SQ_CONF_COOKIE_OPTION_SECURE'			=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_CONF_ROOT_USER_DISABLED'			=> Array('editable' => 0, 'default' => '0'),
 						'SQ_CONF_DISABLE_ATTRIBUTION'			=> Array('editable' => 1, 'default' => '0'),
 						'SQ_CONF_ENFORCE_FRAME_SAMEORIGIN'		=> Array('editable' => 1, 'default' => '1'),
+						'SQ_CONF_VISITED_PAGES_MAX_ENTRIES'		=> Array('editable' => 1, 'default' => '10'),
 					   );
 
 	/**
@@ -207,9 +207,6 @@ class System_Config extends Config
 					if (isset($vars[$var_name])) {
 						$vars[$var_name] = max(60, (int) $vars[$var_name]);
 					}
-				}
-				if (isset($vars['SQ_LICENCE_WARRANTY_KEY'])) {
-					$vars['SQ_LICENCE_WARRANTY_KEY'] = trim($vars['SQ_LICENCE_WARRANTY_KEY']);
 				}
 			}//end if validating values
 
@@ -1089,21 +1086,23 @@ class System_Config extends Config
 
 		$o->closeSection();
 
-		$o->openSection(translate('install_and_warranty_key'));
+		$o->openSection(translate('miscellaneous_config'));
+			$o->openField(translate('visited_pages_config_max_entries'));
+			if ($write_access && $is_root) {
+				text_box($class.'[SQ_CONF_VISITED_PAGES_MAX_ENTRIES]', !defined('SQ_CONF_VISITED_PAGES_MAX_ENTRIES') ? '10' : SQ_CONF_VISITED_PAGES_MAX_ENTRIES, 30);
+			} else {
+				echo !defined('SQ_CONF_VISITED_PAGES_MAX_ENTRIES') ? '10' : SQ_CONF_VISITED_PAGES_MAX_ENTRIES;
+			}
+				$o->note(translate('visited_pages_config_note'));
+			$o->closeField();
+		$o->closeSection();
+
+		$o->openSection(translate('install_key'));
 
 			$o->openField(translate('install_key'));
 				echo SQ_LICENCE_INSTALL_KEY;
 				$o->note(translate('system_config_install_key_note'));
 			$o->closeField();
-
-			$o->openField(translate('warranty_key'));
-				if ($write_access) {
-					text_box($class.'[SQ_LICENCE_WARRANTY_KEY]', !defined('SQ_LICENCE_WARRANTY_KEY') ? '' : SQ_LICENCE_WARRANTY_KEY, 30);
-				} else {
-					echo SQ_LICENCE_WARRANTY_KEY;
-				}
-			$o->closeField();
-
 		$o->closeSection();
 
 		if ($write_access) $o->commitButton('', TRUE);
@@ -1126,6 +1125,13 @@ class System_Config extends Config
 		if (!$write_access) return parent::processBackend($o);
 
 		$class = get_class_lower($this);
+
+		// Value restriction for Visited Pages Maximum Entries setting
+		if ($_POST[$class]['SQ_CONF_VISITED_PAGES_MAX_ENTRIES'] < 0) {
+			$_POST[$class]['SQ_CONF_VISITED_PAGES_MAX_ENTRIES'] = 0;
+		} else if ($_POST[$class]['SQ_CONF_VISITED_PAGES_MAX_ENTRIES'] > 1000) {
+			$_POST[$class]['SQ_CONF_VISITED_PAGES_MAX_ENTRIES'] = 1000;
+		}
 
 		require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
 		$option_list = new Asset_Attribute_Option_List(0, NULL, SQ_OPTION_LIST_DELIMITER_UNIX);
@@ -1312,7 +1318,7 @@ class System_Config extends Config
 
 			try {
 				// Load stored relations file as SimpleXML
-				$root = new SimpleXMLElement($fns_file, LIBXML_NOCDATA, TRUE);
+				$root = simplexml_load_string(file_get_contents($fns_file), 'SimpleXMLElement', LIBXML_NOCDATA);
 			} catch (Exception $e) {
 				throw new Exception('Could not parse stored relations file: '.$e->getMessage());
 			}

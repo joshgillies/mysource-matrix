@@ -58,7 +58,7 @@ class System_Maintenance extends MySource_Object
 			exit;
 		}
 
-		$o->setHeading(translate('system_maintenance'), sq_get_icon($o->filesPath('/images/icons/header/system_maintenance.png'), 20, 20, translate('system_maintenance')));
+		$o->setHeading(translate('system_maintenance'), sq_get_icon($o->filesPath('/images/icons/header/system_maintenance.png'), '', '', translate('system_maintenance')));
 		$o->setPageTitle(translate('system_maintenance'));
 
                 $o->openSection(translate('reports_and_maintenance_tasks'));

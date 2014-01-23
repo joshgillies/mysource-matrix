@@ -70,7 +70,7 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 			$o->openField(translate('section_description'));
 				$description = $asset->attr('description');
 				if ($write_access) {
-					text_area($prefix.'_description', $description, 30, 5);
+					text_area($prefix.'_description', $description, 60, 5);
 				} else {
 					echo $description;
 				}
@@ -84,11 +84,11 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 					<table class="sq-backend-table">
 						<tr>
 							<td class="sq-backend-table-header"><?php echo translate('asset_type'); ?></td>
-							<td align="center" class="sq-backend-table-header" width="70"><?php echo translate('inherit').' ?'; ?></td>
+							<td style="text-align: center;" class="sq-backend-table-header" width="70"><?php echo translate('inherit').'?'; ?></td>
 							<?php
 							if ($write_access) {
 							?>
-							<td align="center" class="sq-backend-table-header" width="70"><?php echo translate('remove').' ?'; ?></td>
+							<td style="text-align: center;" class="sq-backend-table-header" width="70"><?php echo translate('remove').'?'; ?></td>
 							<?php
 							}
 							?>
@@ -126,7 +126,7 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 
 					<?php
 				} else {
-					echo translate('no_restriction');
+					echo '<em>'.translate('no_restriction').'</em>';
 				}
 			$o->closeField();
 
@@ -142,10 +142,10 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 				<table class="sq-backend-table">
 					<tr>
 						<td class="sq-backend-table-header"><b><?php echo translate('field_name'); ?></b></td>
-						<td align="center" width="150" class="sq-backend-table-header"><b><?php echo translate('edit_fields'); ?></b></td>
+						<td width="150" class="sq-backend-table-header"><b><?php echo translate('edit_fields'); ?></b></td>
 						<?php
 						if ($write_access) {
-							?><td align="center" width="70" class="sq-backend-table-header"><b><?php echo translate('delete_question'); ?></b></td><?php
+							?><td style="text-align: center;" width="70" class="sq-backend-table-header"><b><?php echo translate('delete_question'); ?></b></td><?php
 						}
 						?>
 					</tr>
@@ -157,7 +157,7 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 					?>
 					<tr>
 						<td align="left" class="sq-backend-table-cell"><?php echo get_asset_tag_line($field->id);?></td>
-						<td align="center" class="sq-backend-table-cell">[ <a href="<?php echo $asset_href[$field->id];?>"><?php echo translate('metadata_edit_fields'); ?></a> ]</td>
+						<td class="sq-backend-table-cell">[ <a href="<?php echo $asset_href[$field->id];?>"><?php echo translate('metadata_edit_fields'); ?></a> ]</td>
 					<?php
 					if ($write_access) {
 						?><td align="center" class="sq-backend-table-cell"><?php
@@ -174,7 +174,7 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 			$o->openField(translate('new_field_name'));
 
 				require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-				text_box($prefix.'_new_field', '', 20);
+				text_box($prefix.'_new_field', '', 30);
 
 			$o->closeField();
 

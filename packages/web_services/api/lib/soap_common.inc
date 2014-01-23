@@ -42,10 +42,10 @@ class SOAP_Common
 	private static $recent_parsed_type = Array();
 
 	public static $wsdl_caching_opts = Array(
-											WSDL_CACHE_NONE => 'Never cache',
+											WSDL_CACHE_BOTH => 'Cache to both disk and memory',
 											WSDL_CACHE_DISK => 'Cache to disk',
 											WSDL_CACHE_MEMORY => 'Cache to memory',
-											WSDL_CACHE_BOTH => 'Cache to both disk and memory',
+											WSDL_CACHE_NONE => 'Never cache',
 										);
 
 	// Available SOAP authentication types
@@ -341,7 +341,7 @@ class SOAP_Common
 			$options['exceptions'] = 0;
 		}
 
-		$options['cache_wsdl'] = isset($settings['cache_wsdl']) ? $settings['cache_wsdl'] : WSDL_CACHE_NONE;
+		$options['cache_wsdl'] = isset($settings['cache_wsdl']) ? $settings['cache_wsdl'] : WSDL_CACHE_BOTH;
 
 		if(isset($settings['service_address']) && !empty($settings['service_address'])) {
 		    $options['location'] = $settings['service_address'];
@@ -474,6 +474,12 @@ class SOAP_Common
 		$wsdl = array_get_index($settings, 'wsdl', '');
 		if (empty($wsdl)) {
 			return $soap_client;
+		}
+
+		// Don't pass these parameters if login is not required
+		if (empty($options['login']) && empty($options['password'])) {
+			unset($options['login']);
+			unset($options['password']);
 		}
 
 		try {
@@ -722,6 +728,7 @@ class SOAP_Common
 			'RETURNTRANSFER' => 1,
 			'HTTPAUTH'          => CURLAUTH_BASIC,
 			'TIMEOUT'        => 3,
+			'SSL_VERIFYPEER' => 0,
 		   );
 		if(!empty($username)) {
 		    $options['USERPWD'] = $username.":".$password;
@@ -767,31 +774,31 @@ class SOAP_Common
 	*   </Profile>
 	*   "
 	*
-	* @parm Array $str
+	* @param Array $str
+	* @param String $parent_element
 	*
 	* @return string
 	* @access public
 	*/
-	function arrayToXml($str)
+	function arrayToXml($str, $parent_element='')
 	{
 		if (is_object($str)) {
 			$str = get_object_vars($str);
 		}
 		if (!is_array($str)) {
-			return '<![CDATA['.$str.']]>';
+ 			return "\n".'<'.$parent_element.'>'.'<![CDATA['.$str.']]>'.'</'.$parent_element.'>';
 		}
 
 		$xml = '';
 		foreach($str as $key => $value) {
+			// apply xml element naming rules
+			$key = preg_replace('/\s+/', '', $key);
+			if ((empty($key) && $key != 0) || preg_match('/^xml$/i', $key)) continue;
 
-			if (is_int($key)) {
-				$xml .= self::arrayToXml($value);
+			if (!empty($parent_element) && (is_array($value) || is_object($value))) {
+				$xml .= "\n".'<'.$parent_element.'>'.self::arrayToXml($value, $key).'</'.$parent_element.'>';
 			} else {
-				// apply xml element naming rules
-				$key = preg_replace('/\s+/', '', $key);
-				if (empty($key) || preg_match('/^xml$/i', $key)) continue;
-
-				$xml .= "\n".'<'.$key.'>'.self::arrayToXml($value).'</'.preg_replace('|\s.*$|', '', $key).'>';
+				$xml .= self::arrayToXml($value, $key);
 			}
 		}//end foreach
 

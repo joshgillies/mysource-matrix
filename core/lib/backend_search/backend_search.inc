@@ -58,22 +58,35 @@ class Backend_Search
 	* an array of (asset type => inherit flag)
 	*     eg. Array('file' => TRUE, 'folder' => FALSE)
 	*
-	* @param string	$search_terms			The search term(s) to search upon
-	* @param array	$restrict_statuses		If not empty, restrict statuses to these
-	*										ones, otherwise search all statuses
-	* @param array	$restrict_asset_types	If not empty, restrict types searched for
-	*										to these ones, otherwise search all
-	*										asset types
+	* The result limit defaults to the search manager preference if unspecified
+	* or NULL. If zero, all (remaining) results will be returned.
+	*
+	* @param string		$search_terms			The search term(s) to search upon
+	* @param array		$restrict_statuses		If not empty, restrict statuses to these
+	*											ones, otherwise search all statuses
+	* @param array		$restrict_asset_types	If not empty, restrict types searched for
+	*											to these ones, otherwise search all
+	*											asset types
+	* @param integer	$result_limit			The number of results to show per page.
+	* @param integer	$offset                 Start from this offset.
 	*
 	* @static
 	* @return array
 	* @access public
 	*/
-	public static function processSearch($search_terms, $restrict_statuses=Array(), $restrict_asset_types=Array())
+	public static function processSearch($search_terms, $restrict_statuses=Array(), $restrict_asset_types=Array(), $result_limit=NULL, $offset=0)
 	{
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-
 		if (Backend_Search::isAvailable()) {
+		
+			// If the result limit is not specified or less than 0, default to the
+			// search manager preference, otherwise truncate to integer.
+			if (($result_limit === NULL) || ($result_limit < 0)) {
+				$result_limit = $GLOBALS['SQ_SYSTEM']->getUserPrefs('search_manager', 'SQ_SEARCH_BACKEND_RESULT_LIMIT');
+			} else {
+				$result_limit = (int) $result_limit;
+			}
+
 			$sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 
 			// Are we restricting statuses? If not, use all of them
@@ -103,10 +116,9 @@ class Backend_Search
 			$results = $sm->processSearch($search_info, TRUE);
 
 			if (!empty($results)) {
-				$result_limit = $GLOBALS['SQ_SYSTEM']->getUserPrefs('search_manager', 'SQ_SEARCH_BACKEND_RESULT_LIMIT');
 				$results = $sm->getCondensedResults($results);
 				if ($result_limit > 0) {
-					$results = array_slice($results, 0, $result_limit, TRUE);
+					$results = array_slice($results, $offset, $result_limit, TRUE);
 				}
 				$results = $sm->getFormattedResults($results, $search_terms, FALSE);
 

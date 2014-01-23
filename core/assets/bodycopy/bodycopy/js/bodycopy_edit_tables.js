@@ -19,7 +19,7 @@ function bodycopy_insert_table(bodycopy_name, tableid, before) {
 	bodycopy_current_edit["data"]["containerid"]    = tableid;
 	bodycopy_current_edit["data"]["container_type"] = 'table';
 	bodycopy_current_edit["data"]["before"]         = before;
-	bodycopy_show_popup("insert_table.php", 300, 240);
+	bodycopy_show_popup("insert_table.php", 325, 315);
 }// end bodycopy_insert_table()
 
 function bodycopy_save_insert_table(cols, rows, attributes) {
@@ -47,7 +47,7 @@ function bodycopy_edit_table_properties(bodycopy_name, tableid, can_delete) {
 	if (data != null) {
 		bodycopy_current_edit["data"]["attributes"] = var_unserialise(data["attributes"]);
 	}
-	bodycopy_show_popup("edit_table_props.php", 380, 540);
+	bodycopy_show_popup("edit_table_props.php", 325, 740);
 }// end bodycopy_edit_table_properties()
 
 function bodycopy_save_table_properties(attributes) {
@@ -99,7 +99,7 @@ function bodycopy_edit_table_row_properties(bodycopy_name, tableid, rowid) {
 	bodycopy_current_edit["data"]["rowid"]   = rowid;
 	var data = get_bodycopy_current_table_data(bodycopy_name, tableid, rowid);
 	bodycopy_current_edit["data"]["attributes"] = var_unserialise(data["attributes"]);
-	bodycopy_show_popup("edit_table_row_props.php", 270, 220);
+	bodycopy_show_popup("edit_table_row_props.php", 325, 283);
 }// end bodycopy_edit_table_row_properties()
 
 function bodycopy_save_table_row_properties(attributes) {
@@ -121,7 +121,7 @@ function bodycopy_edit_table_row_order(bodycopy_name, tableid) {
 	}
 	bodycopy_current_edit["data"]["order_type"] = "row";
 	bodycopy_current_edit["data"]["row_order"]  = row_order;
-	bodycopy_show_popup("edit_table_orderer.php", 300, 300);
+	bodycopy_show_popup("edit_table_orderer.php", 325, 300);
 }// end bodycopy_edit_table_row_order()
 
 function bodycopy_save_table_row_order(row_order) {
@@ -141,7 +141,7 @@ function bodycopy_edit_table_col_order(bodycopy_name, tableid) {
 	}
 	bodycopy_current_edit["data"]["order_type"] = "col";
 	bodycopy_current_edit["data"]["col_order"] = col_order;
-	bodycopy_show_popup("edit_table_orderer.php", 300, 300);
+	bodycopy_show_popup("edit_table_orderer.php", 325, 300);
 }// end bodycopy_edit_table_col_order()
 
 function bodycopy_save_table_col_order(col_order) {
@@ -159,7 +159,7 @@ function bodycopy_edit_table_cell_properties(bodycopy_name, tableid, rowid, cell
 	bodycopy_current_edit["data"]["available_types"] = get_bodycopy_available_content_types();
 	var data = get_bodycopy_current_table_data(bodycopy_name, tableid, rowid, cellid);
 	bodycopy_current_edit["data"]["attributes"] = var_unserialise(data["attributes"]);
-	bodycopy_show_popup("edit_table_cell_props.php", 310, 380);
+	bodycopy_show_popup("edit_table_cell_props.php", 325, 555);
 }// end bodycopy_edit_table_cell_properties()
 
 function bodycopy_save_table_cell_properties(attributes) {

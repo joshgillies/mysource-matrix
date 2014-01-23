@@ -81,71 +81,71 @@ include(dirname(__FILE__).'/header.php');
 	}
 </script>
 
-<div class="title">Table Cell Properties</div>
 
+<h1 class="title">
+	<a href="#" onclick="javascript: popup_close(); return false;">
+		<img src="<?php echo sq_web_path('lib')?>/web/images/icons/cancel.png" alt="Cancel" title="<?php echo translate('cancel');?>" class="sq-icon">
+	</a>
+	Table Cell Properties
+</h1>
 <form name="main_form">
-<table width="100%" border="0">
+<table>
 	<tr>
-		<td>
-			<table width="100%" cellspacing="0" cellpadding="0">
-				<tr>
-					<td valign="top" width="50%">
-						<fieldset>
-						<legend><b><?php echo translate('layout'); ?></b></legend>
-						<table style="width:100%">
-							<tr>
-								<td class="label"><?php echo translate('width'); ?>:</td>
-								<td><input type="text" name="width" value="" size="5"></td>
-							</tr>
-							<tr>
-								<td class="label"><?php echo translate('height'); ?>:</td>
-								<td><input type="text" name="height" value="" size="5"></td>
-							</tr>
-							<tr>
-								<td class="label"><?php echo translate('colspan'); ?>:</td>
-								<td><input type="text" name="colspan" value="" size="5"></td>
-							</tr>							
-						</table>
-						</fieldset>
-					</td>
-					<td>&nbsp;</td>
-					<td valign="top" width="50%">
-						<fieldset>
-						<legend><b><?php echo translate('alignment'); ?></b></legend>
-						<table style="width:100%">
-							<tr>
-								<td class="label"><?php echo translate('horizontal'); ?>:</td>
-								<td>
-								<select name="align">
-									<option value="">
-									<option value="left"  ><?php echo translate('left'); ?>
-									<option value="center"><?php echo translate('centre'); ?>
-									<option value="right" ><?php echo translate('right');?>
-								</select>
-								</td>
-							</tr>
-							<tr>
-								<td class="label"><?php echo translate('vertical'); ?>:</td>
-								<td>
-								<select name="valign">
-									<option value="">
-									<option value="middle"  ><?php echo translate('middle'); ?>
-									<option value="top"     ><?php echo translate('top'); ?>
-									<option value="bottom"  ><?php echo translate('bottom'); ?>
-								</select>
-								</td>
-							</tr>
-						</table>
-						</fieldset>
-					</td>
-				</tr>
-			</table>
+		<td colspan="2">
+			<h2><?php echo translate('layout'); ?></h2>
+			<fieldset>
+				<table>
+					<tr>
+						<td class="label"><?php echo translate('width'); ?>:</td>
+						<td><input type="text" name="width" value="" size="5"></td>
+					</tr>
+					<tr>
+						<td class="label"><?php echo translate('height'); ?>:</td>
+						<td><input type="text" name="height" value="" size="5"></td>
+					</tr>
+					<tr>
+						<td class="label"><?php echo translate('colspan'); ?>:</td>
+						<td><input type="text" name="colspan" value="" size="5"></td>
+					</tr>							
+				</table>
+			</fieldset>
 		</td>
 	</tr>
 	<tr>
-		<td>
+		<td colspan="2">
+			<h2><?php echo translate('alignment'); ?></h2>
 			<fieldset>
-			<legend><b><?php echo translate('text_direction'); ?></b></legend>
+				<table>
+					<tr>
+						<td class="label"><?php echo translate('horizontal'); ?>:</td>
+						<td>
+						<select name="align">
+							<option value="">
+							<option value="left"  ><?php echo translate('left'); ?>
+							<option value="center"><?php echo translate('centre'); ?>
+							<option value="right" ><?php echo translate('right');?>
+						</select>
+						</td>
+					</tr>
+					<tr>
+						<td class="label"><?php echo translate('vertical'); ?>:</td>
+						<td>
+						<select name="valign">
+							<option value="">
+							<option value="middle"  ><?php echo translate('middle'); ?>
+							<option value="top"     ><?php echo translate('top'); ?>
+							<option value="bottom"  ><?php echo translate('bottom'); ?>
+						</select>
+						</td>
+					</tr>
+				</table>
+			</fieldset>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="2">
+			<h2><?php echo translate('text_direction'); ?></h2>
+			<fieldset>
 				<table style="width:100%">
 					<tr>
 						<td class="label"><?php echo translate('bodycopy_direction'); ?></td>
@@ -162,13 +162,13 @@ include(dirname(__FILE__).'/header.php');
 		</td>
 	</tr>
 	<tr>
-		<td>
+		<td colspan="2">
+			<h2><?php echo translate('cell_styles-colours'); ?></h2>
 			<fieldset>
-			<legend><b><?php echo translate('cell_styles-colours'); ?></b></legend>
 			<table style="width:100%">
 				<tr>
 					<td class="label"><?php echo translate('background_colour'); ?>:</td>
-					<td><?php colour_box('bgcolor', '', TRUE, '*',TRUE, FALSE, FALSE);?></td>
+					<td><?php colour_box('bgcolor', '', TRUE, 'Colour picker',TRUE, FALSE, FALSE);?></td>
 				</tr>
 				<tr>
 					<td class="label"><?php echo translate('no_text_wrap'); ?>:</td>
@@ -184,9 +184,9 @@ include(dirname(__FILE__).'/header.php');
 		</td>
 	</tr>
 	<tr>
-		<td>
-			<fieldset>
-			<legend><b><?php echo translate('cell_type'); ?></b></legend>
+		<td colspan="2">
+			<h2><?php echo translate('cell_type'); ?></h2>
+			<fieldset class="last">
 			<table style="width:100%">
 				<tr>
 					<td class="label"><?php echo translate('cell_type'); ?>:</td>
@@ -202,13 +202,12 @@ include(dirname(__FILE__).'/header.php');
 			</fieldset>
 		</td>
 	</tr>
-	<tr>
-		<td>
-			<div style="text-align: right;">
-			<button type="button" name="ok" onClick="javascript: save_props(this.form)"><?php echo translate('ok'); ?></button>
-			&nbsp;
-			<button type="button" name="cancel" onClick="javascript: popup_close();"><?php echo translate('cancel'); ?></button>
-			</div>
+	<tr class="sq-popup-footer">
+		<td align="left">
+			<input type="button" class="" name="cancel" onClick="javascript: popup_close();" value="<?php echo translate('cancel'); ?>"/>
+		</td>
+		<td align="right">
+			<input type="button" class="sq-btn-blue" name="ok" onClick="javascript: popup_save(this.form)" value="<?php echo translate('save'); ?>"/>
 		</td>
 	</tr>
 </table>

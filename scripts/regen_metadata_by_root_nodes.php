@@ -169,7 +169,7 @@ log_to_file("Regenerating for: " . var_export(count($children),TRUE) . " assets 
                             continue;
                         }//end if
                         
-                        if (!$mm->regenerateMetadata($child_assetid, NULL, $update_assets)) {
+                        if (!$mm->regenerateMetadata($child_assetid, 'all', $update_assets)) {
                             log_to_file('Failed regenerating metadata for assetid ' .$child_assetid .'.', LOG_FILE);
                             continue;
                         }//end if

@@ -31,9 +31,9 @@ if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAcce
 }
 
 if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
-?>
+?><!DOCTYPE html>
 
-<html style="width: 740px; height: 500px;">
+<html style="width: 740px;">
 	<head>
 		<title>Embed Movie</title>
 
@@ -69,6 +69,7 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/general.js' ?>"></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/tooltip.js' ?>"></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/web/dfx/dfx.js' ?>"></script>
+		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/asset_map/asset_map.js' ?>"></script>
 		<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('lib').'/asset_map/js/js_asset_map.css' ?>" />
 
 		<script type="text/javascript">
@@ -83,7 +84,7 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 				var chk_fields = ["f_show_controls", "f_auto_start", "f_embed_loop"];
 				var param = new Object();
 
-				for (var i in fields) {
+				for (var i = 0; i < fields.length; i++) {
 					var id = fields[i];
 					var el = document.getElementById(id);
 					param[id] = el.value;
@@ -99,7 +100,7 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 					param['use_external'] = false;
 					param["f_fileid"] = document.getElementById('assetid[assetid]').value;
 				}
-				for (var i in chk_fields) {
+				for (var i = 0; i < chk_fields.length; i++) {
 					var id = chk_fields[i];
 					var el = document.getElementById(id);
 					if (el.checked) {
@@ -343,21 +344,19 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 				font-weight:		normal;
 			}
 		</style>
+		<?php define('SQ_PAINTED_SIMPLE_ASSET_MAP', TRUE); ?>
 	</head>
 
-	<body onload="Javascript: Init();" onUnload="Javascript: asset_finder_onunload();">
+	<body onload="Init();" onUnload="asset_finder_onunload();">
 		<form action="" method="get" name="main_form" id="main-form">
 			<table width="100%">
 				<tr>
-					<td valign="top">
-						<div id="asset_map">
-						<?php
-							include_once(SQ_LIB_PATH.'/asset_map/asset_map.inc');
-							$asset_map = new Asset_Map();
-							$asset_map->embedAssetMap('simple', 200, 350);
-						?>
-						</div>
-					</td>
+				    <td valign="top">
+				        <div id="asset_map">
+				            <iframe src="embed_movie_asset_map.php" name="sq_wysiwyg_popup_sidenav" frameborder="0" width="200" height="350" scrolling="no">
+				            </iframe>
+				        </div>
+				    </td>
 					<td valign="top">
 						<table width="100%" cellspacing="0" cellpadding="0">
 							<tr>
@@ -399,7 +398,7 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 														</tr>
 														<tr>
 															<td class="label"><?php echo translate('select_asset'); ?>:</td>
-															<td colspan="3"><?php asset_finder('assetid', '', Array('file' => 'D'), '', false, 'setUrl'); ?></td>
+															<td colspan="3"><?php asset_finder('assetid', '', Array('file' => 'D'), 'sq_wysiwyg_popup_sidenav', false, 'setUrl'); ?></td>
 														</tr>
 													</table>
 												</td>

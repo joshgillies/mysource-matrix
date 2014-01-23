@@ -365,9 +365,7 @@ class Image_Variety extends Asset
 
 				// file not in repository
 				if ($up_to_date & FUDGE_FV_NOT_CHECKED_OUT) {
-					if (!$fv->add($this->data_path_suffix, $d_new_file, '')) {
-						return FALSE;
-					}
+					$fv->add($this->data_path_suffix, $d_new_file, '');
 
 					if (!$fv->checkOut($this->data_path_suffix.'/'.$d_new_filename, $this->data_path)) {
 						trigger_localised_error('COR0103', E_USER_WARNING);
@@ -389,7 +387,7 @@ class Image_Variety extends Asset
 
 		}//end if
 
-		if (!$this->updateLookups($image->usePublicPath())) {
+		if (!$this->updateLookups()) {
 			return FALSE;
 		}
 
@@ -421,7 +419,7 @@ class Image_Variety extends Asset
 		$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
 		$up_to_date = $fv->upToDate($d_file);
 
-		$updated = $this->updateLookups(FALSE);
+		$updated = $this->updateLookups();
 		if (!$updated) return FALSE;
 
 		// file not in repository, hmm, something must have gone wrong, let's see if there is a file there and remove it.
@@ -454,6 +452,8 @@ class Image_Variety extends Asset
 	*/
 	function checkFileState($public)
 	{
+		if ($this->status & SQ_SC_STATUS_SAFE_EDITING) return TRUE; //don't touch public file in safe edit
+		
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 		$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
@@ -566,8 +566,14 @@ class Image_Variety extends Asset
 		$image = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
 		if (!empty($image)) {
 			$public = $image->usePublicPath();
+			$safe_edit = $this->status & SQ_SC_STATUS_SAFE_EDITING && $image->attr('allow_unrestricted') && $image->effectiveUnrestricted();
 		}
-		if (!$public) return parent::updateLookups();
+
+		if (!$public && !$safe_edit) return parent::updateLookups();
+		
+		// if safe edit status, we still want to insert standard matrix urls
+		if($safe_edit) parent::updateLookups();
+
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db = MatrixDAL::getDb();
@@ -576,19 +582,41 @@ class Image_Variety extends Asset
 		unset($this->_tmp['lookups']);
 		unset($this->_tmp['url']);
 		unset($this->_tmp['href']);
-
-		// Remove all the old URLs
-		try {
-			$bind_vars = Array('assetid' => $this->id);
-			MatrixDAL::executeQuery('core', 'deleteLookup', $bind_vars);
-		} catch (DALException $e) {
-			throw new Exception('Unable to delete lookups of asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
+		
+		if($safe_edit) {
+		    // If it's safe edit status, we just want to remove those __data urls because we will insert proper ones later
+		    try {
+			    $query = MatrixDAL::preparePdoQuery('DELETE FROM sq_ast_lookup WHERE assetid = :assetid AND URL LIKE \'%__data%\'');
+			    MatrixDAL::bindValueToPdo($query, 'assetid',$this->id);
+			    MatrixDAL::execPdoQuery($query);
+		    } catch (Exception $e) {
+			    throw new Exception('Unable to delete lookups of safe edit status asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
+		    }
+		}
+		else {
+		    // Remove all the old URLs
+		    try {
+			    $bind_vars = Array('assetid' => $this->id);
+			    MatrixDAL::executeQuery('core', 'deleteLookup', $bind_vars);
+		    } catch (DALException $e) {
+			    throw new Exception('Unable to delete lookups of asset "'.$this->name.'" (#'.$this->id.') due to database error: '.$e->getMessage());
+		    }
 		}
 
 		$filename = $this->attr('filename');
+		// we have to make sure in safe edit mode, we use public version of $filename
+		if($safe_edit) {
+		    $public_user =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('public_user');
+		    $GLOBALS['SQ_SYSTEM']->setCurrentUser($public_user);
+		    $variety = $image->getAsset($this->id);
+		    $filename = $variety->attr('filename');
+		    $GLOBALS['SQ_SYSTEM']->restoreCurrentUser();	    
+		}
 
+		
+		// if the public version of the file doesn't even exist in __data, it means this variety is just created, don't bother insert __data urls for it	
 		// if there is no filename there is nothing more for us to do
-		if (!$filename) {
+		if (!$filename || ($safe_edit && !is_file($this->data_path_public.'/'.$filename))) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return TRUE;
@@ -672,10 +700,13 @@ class Image_Variety extends Asset
 		//Bug #5072: Trashed file assets still accessible via public data URL
 		//We only reached here because we are supposed to have a public web path but
 		//if we e.g. have moved to the trash or under a site with no URL, we should remove the public file.
-		if (empty($save_urls)){
-			$this->_removePublicFile();
-		} else {
-			$this->_updatePublicFile();
+		// also, don't update public files in safe edit
+		if(!$safe_edit) {
+		    if (empty($save_urls)){
+			    $this->_removePublicFile();
+		    } else {
+			    $this->_updatePublicFile();
+		    }
 		}
 
 		return TRUE;
@@ -819,7 +850,9 @@ class Image_Variety extends Asset
 
 			// send cacheable headers if file asset meets the credentials
 			if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && SQ_CONF_SEND_CACHEABLE_HEADER && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User) && empty($_POST) && $cm->cacheableHeadersEnabledForCurrentProtocol() && $this->status >= SQ_STATUS_LIVE && $this->readAccess()) {
-					header('Cache-Control: '.$cm->cacheControlLevel());
+					$level = $cm->cacheControlLevel();
+					$no_cookie = $level === 'public' ? ', no-cache="set-cookie"' : '';
+					header('Cache-Control: '.$level.$no_cookie);
 					header('Pragma: cache');
 					header('Expires: '.gmdate('D, d M Y H:i:s', (time()+86400)).' GMT');
 					header('Last-Modified: '.gmdate('D, d M Y H:i:s', filemtime($file)).' GMT');

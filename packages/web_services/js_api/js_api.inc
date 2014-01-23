@@ -260,6 +260,7 @@ class JS_Api extends Page
 			}
 		}
 
+		$this->tmp['batched_request'] = FALSE;
 		if ($function_type == 'batchRequest') {
 			// check to see if batching is allowed else complain
 			if (!$this->_attribute_mapping[$function_type]) {
@@ -281,6 +282,7 @@ class JS_Api extends Page
 				$function_calls[$index] = $info['function'];
 			}
 			$batching_request = TRUE;
+			$this->tmp['batched_request'] = TRUE;
 		} else {
 			$function_calls = Array($function_type);
 			$batching_request = FALSE;
@@ -1310,10 +1312,10 @@ class JS_Api extends Page
 			if(isset($args['type_codes']) && !empty($args['type_codes'])) {
 				$type_codes = is_array($args['type_codes']) ? $args['type_codes'] : explode('\\,', $args['type_codes']);
 			}
-			if(isset($args['link_types']) && !empty($args['type_codes'])) {
+			if(isset($args['link_types']) && !empty($args['link_types'])) {
 				$link_types = is_array($args['link_types']) ? $args['link_types'] : explode('\\,', $args['link_types']);
 			}
-			if(isset($args['link_values']) && !empty($args['type_codes'])) {
+			if(isset($args['link_values']) && !empty($args['link_values'])) {
 				$link_values = is_array($args['link_values']) ? $args['link_values'] : explode('\\,', $args['link_values']);
 			}
 			$get_attributes	= isset($args['get_attributes']) ? $args['get_attributes'] : FALSE;
@@ -2930,6 +2932,7 @@ class JS_Api extends Page
 		$data = Array(
 					'name'						=>	$asset->name,
 					'short_name'				=>	$asset->short_name,
+					'asset_id'					=>	$asset->id,
 					'id'						=>	$asset->id,
 					'type_code'					=>	$asset->type(),
 					'type'						=>	str_replace('_', ' ', get_class($asset)),
@@ -3318,12 +3321,11 @@ class JS_Api extends Page
 		// Shortcuts
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$parent_arr = Array();
-
 		$parents = $am->getParents($id, '', TRUE, NULL, NULL, TRUE, NULL, $level);
+
 		foreach ($parents as $parent => $parent_type_code) {
 			// not in the type_code we want, remove it
 			if(!empty($type_codes) && !in_array($parent_type_code, $type_codes)) {
-				unset($childrens[$children]);
 				continue;
 			}
 			$parent_asset = $am->getAsset($parent);
@@ -3346,7 +3348,6 @@ class JS_Api extends Page
 
 				// abra-ka-dabra all except for the link_values we are interested in
 				if (!empty($link_values) && !in_array($show_link['value'], $link_values)) {
-					unset($childrens[$children]);
 					continue;
 				}
 
@@ -3360,7 +3361,6 @@ class JS_Api extends Page
 						}
 					}
 					if(!$found) {
-						unset($childrens[$children]);
 						continue;
 					}
 				}
@@ -3373,9 +3373,16 @@ class JS_Api extends Page
 				$show['link_value']		= $show_link['value'];
 				$show['locked']			= $show_link['locked'];
 			}
+
 			$parent_arr[] = array_merge($this->getGeneralInfo($parent_asset, $also_attributes), $show);
 
 		}//end foreach
+
+		// see if there are any parents or not
+		// if not then stop matrix from throwing a JSON.parse: unexpected end of data error
+		if (empty($parent_arr)) {
+			$parent_arr['error'] = 'No parents found for asset #'.$id.' for the given filters';
+		}
 
 		return $parent_arr;
 
@@ -3928,7 +3935,7 @@ class JS_Api extends Page
 
 
 	/**
-	* updates the lookup of the assetid passed and all its childrens, (runs freestyle HIPO)
+	* updates the lookup of the assetid passed and all its children, (runs freestyle HIPO)
 	*
 	* @return assetid
 	* @access public
@@ -4210,6 +4217,10 @@ class JS_Api extends Page
 
 		// Send error as JSON so they are not confused why the function quit
 		$data['error'] = $error;
+
+		// if we are batching  request then  don't send the error to console yet, wait
+		// wait for all the remaining request to execute and provide feedback together
+		if (isset($this->tmp['batched_request']) && $this->tmp['batched_request']) return $data;
 
 		// Send our data as JSON
 		if (isset($data)) {

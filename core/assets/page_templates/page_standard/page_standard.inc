@@ -475,19 +475,23 @@ class Page_Standard extends Page
 		$conditional_keywords = Array();
 		
 		$bodycopy = $this->getBodycopy();
+		if(empty($bodycopy)) return TRUE;
+		
 		$containers =& $bodycopy->getContainers();
 		foreach ($containers as $container) {
 		    $attrs = $container->attr('attributes');
-		    if(!isset($attrs['conditions']) || empty($attrs['conditions'])) continue;
-		    $condition_data = $attrs['conditions'];
-			
-		    // get conditions settings for each container and add it to the page's attribute
-		    if(isset($condition_data['condition_rules_status']) && isset($condition_data['conditions']) && !empty($condition_data['conditions']) && $condition_data['condition_rules_status'] === 'enable') {
-			if(isset($condition_data['conditions'][0]['conditions']) && !empty($condition_data['conditions'][0]['conditions'])) {
-			    $conditional_div[$container->id]['logical_op_groups'] = $condition_data['logical_op_groups'];
-			    $conditional_div[$container->id]['conditions'] = $condition_data['conditions'];
+		    // get div conditions
+		    if(isset($attrs['conditions']) && !empty($attrs['conditions'])) {
+			$condition_data = $attrs['conditions'];	
+			// get conditions settings for each container and add it to the page's attribute
+			if(isset($condition_data['condition_rules_status']) && isset($condition_data['conditions']) && !empty($condition_data['conditions']) && $condition_data['condition_rules_status'] === 'enable') {
+			    if(isset($condition_data['conditions'][0]['conditions']) && !empty($condition_data['conditions'][0]['conditions'])) {
+				$conditional_div['div_'.$container->id]['logical_op_groups'] = $condition_data['logical_op_groups'];
+				$conditional_div['div_'.$container->id]['conditions'] = $condition_data['conditions'];
+			    }
 			}
 		    }
+		    
 		    // get condition keywords condtions
 		   if(!empty($available_conditions)) {
 			ob_start();
@@ -506,9 +510,9 @@ class Page_Standard extends Page
 				$conditional_keywords[] = $keyword;
 			    }
 			}
-		   }
-		    
+		   }    
 		}
+		
 		if(!empty($conditional_div)) {
 		    $conditions['conditional_div'] = $conditional_div;
 		}
@@ -555,6 +559,9 @@ class Page_Standard extends Page
 
 	}//end onRequestKeywords()
 	
+	
+	
+
 	
 }//end class
 

@@ -109,9 +109,8 @@ if (isset($_GET['assetid']) && $_GET['assetid']) {
 		}
 	}
 }
-?>
-
-<html style="width: 750px; height: 488px; ">
+?><!DOCTYPE html>
+<html style="width: 750px;">
 	<head>
 		<title>Insert Link</title>
 		<meta http-equiv="content-type" content="text/html; charset=<?php echo SQ_CONF_DEFAULT_CHARACTER_SET;?>" />
@@ -139,6 +138,7 @@ if (isset($_GET['assetid']) && $_GET['assetid']) {
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/general.js' ?>"></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/tooltip.js' ?>"></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/web/dfx/dfx.js' ?>"></script>
+		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/asset_map/asset_map.js' ?>"></script>
 		<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('lib').'/asset_map/js/js_asset_map.css' ?>" />
 
 		<script type="text/javascript">
@@ -556,21 +556,19 @@ if (isset($_GET['assetid']) && $_GET['assetid']) {
 				font-weight:		normal;
 			}
 		</style>
+		<?php define('SQ_PAINTED_SIMPLE_ASSET_MAP', TRUE); ?>
 	</head>
 
-	<body onload="Javascript: Init();" onUnload="Javascript: asset_finder_onunload();">
+	<body onload="Init();" onUnload="asset_finder_onunload();">
 		<form action="" method="get" name="main_form" id="main-form">
 			<table>
 				<tr>
-					<td valign="top">
-						<div id="asset_map">
-						<?php
-							include_once(SQ_LIB_PATH.'/asset_map/asset_map.inc');
-							$asset_map = new Asset_Map();
-							$asset_map->embedAssetMap('simple', 200, 400);
-						?>
-						</div>
-					</td>
+				    <td valign="top">
+				        <div id="asset_map">
+				            <iframe src="insert_link_asset_map.php" name="sq_wysiwyg_popup_sidenav" frameborder="0" width="200" height="400" scrolling="no">
+				            </iframe>
+				        </div>
+				    </td>
 					<td valign="top">
 							<table width="100%">
 								<tr>
@@ -712,13 +710,13 @@ if (isset($_GET['assetid']) && $_GET['assetid']) {
 															<td class="label"><?php echo translate('select_asset'); ?>:</td>
 															<td colspan="3">
 																<span id="asset_finder_all" style="display:block">
-																	<?php asset_finder('assetid', $_GET['assetid'], Array(), '', FALSE, 'setUrl'); ?>
+																	<?php asset_finder('assetid', $_GET['assetid'], Array(), 'sq_wysiwyg_popup_sidenav', FALSE, 'setUrl'); ?>
 																</span>
 																<span id="asset_finder_link_asset" style="display:none">
-																	<?php asset_finder('link_assetid', $_GET['assetid'], Array('link' => 'I'), '', FALSE, 'setUrl'); ?>
+																	<?php asset_finder('link_assetid', $_GET['assetid'], Array('link' => 'I'), 'sq_wysiwyg_popup_sidenav', FALSE, 'setUrl'); ?>
 																</span>
 																<span id="asset_finder_redirect_asset" style="display:none">
-																	<?php asset_finder('page_redirect_assetid', $_GET['assetid'], Array('page_redirect' => 'I'), '', FALSE, 'setUrl'); ?>
+																	<?php asset_finder('page_redirect_assetid', $_GET['assetid'], Array('page_redirect' => 'I'), 'sq_wysiwyg_popup_sidenav', FALSE, 'setUrl'); ?>
 																	<script type="text/javascript">
 																		// Add event listener for Asset Selector's clear button
 																		var all_clr_btn = document.getElementById('sq_asset_finder_assetid_clear_btn');

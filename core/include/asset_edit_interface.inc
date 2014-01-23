@@ -103,7 +103,7 @@ class Asset_Edit_Interface extends MySource_Object
 		if (!($file = $this->findFile('screens'))) return;
 
 		try {
-			$root = new SimpleXMLElement($file, LIBXML_NOCDATA, TRUE);
+			$root = simplexml_load_string(file_get_contents($file), 'SimpleXMLElement', LIBXML_NOCDATA);
 		} catch (Exception $e) {
 			throw new Exception('Unable to parse screen list file "'.$file.'": '.$e->getMessage());
 		}
@@ -440,80 +440,74 @@ class Asset_Edit_Interface extends MySource_Object
 						<div id="sq_lock_info" style="display: none;">
 						<table class="sq-backend-table">
 							<tr>
-								<td class="sq-backend-table-header" style="width: 20px;">
-									<img src="<?php echo $o->filesPath('/images/blank.gif');?>" width="20" height="1" border="0" alt="" />
-								</td>
-								<td class="sq-backend-table-header" align="left" nowrap>
-									&nbsp;<?php echo translate('lock_type'); ?>
-								</td>
-								<td class="sq-backend-table-header" width="100%">
-									&nbsp;
-								</td>
+								<th class="sq-backend-table-header" style="width: 20px;">
+									
+								</th>
+								<th class="sq-backend-table-header" align="left" nowrap>
+									<?php echo translate('lock_type'); ?>
+								</th>
+								<th class="sq-backend-table-header">
+									<?php echo translate('lock_details'); ?>
+								</th>
 							</tr>
+						<?php
+						$class = 'sq-backend-table-cell-alt';
+						foreach ($locks as $lock_type => $lock) {
+							?>
 							<tr>
-								<td width="100%" colspan="3">
-									<table width="100%" cellspacing="0" cellpadding="0">
+								<td class="sq-backend-table-cell" align="center">
+									<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/<?php echo ((empty($lock)) ? 'un' : ''); ?>locked.png", "16", "16", "");</script>
+									</td>
+								<td class="sq-backend-table-cell">
+									<?php echo ucwords(str_replace('_', ' ', $lock_type)); ?>
+								</td>
+								<td class="sq-backend-table-cell">
 									<?php
-									$class = 'sq-backend-table-cell-alt';
-									foreach ($locks as $lock_type => $lock) {
-										?>
-										<tr>
-											<td class="sq-backend-table-cell" style="width: 20px;" align="center">
-												<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/<?php echo ((empty($lock)) ? 'un' : ''); ?>locked.png", "16", "16", "");</script>
-												</td>
-											<td class="sq-backend-table-cell">
-												<?php echo ucwords(str_replace('_', ' ', $lock_type)); ?>
-											</td>
-											<td class="sq-backend-table-cell">
-												<?php
-												if (empty($lock)) {
+									if (empty($lock)) {
 
-													if ($full_write_access && $acquire_lock_access) {
-														echo translate('currently_not_held').'.';
-													} else {
-														echo translate('no_access_to_edit', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
-													}
+										if ($full_write_access && $acquire_lock_access) {
+											echo translate('currently_not_held').'.';
+										} else {
+											echo translate('no_access_to_edit', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+										}
 
-												} else {
-													// this asset is currently locked so display message to the user
-													$user    = $GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
-													$editing = $GLOBALS['SQ_SYSTEM']->am->getAsset($lock['source_assetid']);
+									} else {
+										// this asset is currently locked so display message to the user
+										$user    = $GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
+										$editing = $GLOBALS['SQ_SYSTEM']->am->getAsset($lock['source_assetid']);
 
-													if (SQ_ROLLBACK_VIEW) {
-														$now = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
-													} else {
-														$now = time();
-													}
+										if (SQ_ROLLBACK_VIEW) {
+											$now = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
+										} else {
+											$now = time();
+										}
 
-													if (is_null($lock['expires'])) {
-														$expires_in = translate('lock_held_indefinitely');
-													} else {
-														require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-														$expires_in = easy_time_total(($lock['expires'] - $now), TRUE);
-														if (!$expires_in) {
-															$expires_in = '1 '.translate('second');
-														}
-														$expires_in = translate('due_to_expire', $expires_in);
-													}
+										if (is_null($lock['expires'])) {
+											$expires_in = translate('lock_held_indefinitely');
+										} else {
+											require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+											$expires_in = easy_time_total(($lock['expires'] - $now), TRUE);
+											if (!$expires_in) {
+												$expires_in = '1 '.translate('second');
+											}
+											$expires_in = translate('due_to_expire', $expires_in);
+										}
 
-													echo translate('lock_held_by', htmlspecialchars($user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), htmlspecialchars($editing->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'. ';
-													echo $expires_in;
-												}//end if
-												?>
-											</td>
-										</tr>
-										<?php
-									}//end foreach lock types
+										echo translate('lock_held_by', htmlspecialchars($user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), htmlspecialchars($editing->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'. ';
+										echo $expires_in;
+									}//end if
 									?>
-									</table>
 								</td>
 							</tr>
+							<?php
+						}//end foreach lock types
+						?>
 						</table>
 						</div>
 
 						<?php
 						if (!$have_all_locks || $have_any_locks) {
-							?><div style="margin-top: 4px; margin-bottom: 0px"><?php
+							?><div class="sq-locks-button-wrapper"><?php
 						}
 
 						if (!$have_all_locks) {
@@ -525,19 +519,19 @@ class Asset_Edit_Interface extends MySource_Object
 									$popup_url = '?SQ_BACKEND_PAGE=main&backend_section=am&ignore_frames=1&am_section=forceably_acquire_lock&assetid='.$owner->id.'&sq_lock_type='.$screen_lock_type;
 
 									hidden_field('sq_lock_acquire_by_force', '0');
-									normal_button('sq_forceably_acquire_lock', translate('acquire_lock_button'), "window.open('$popup_url', 'sq_forceably_acquire_lock_popup', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=500,height=300');");
+									normal_button('sq_forceably_acquire_lock', translate('acquire_lock_button'), "window.open('$popup_url', 'sq_forceably_acquire_lock_popup', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=500,height=300');", 'class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button acquire force"');
 									echo '&nbsp;';
 								}
 							} else if ($full_write_access && $acquire_lock_access) {
 								hidden_field('sq_lock_acquire_by_force', '0');
-								normal_button('', translate('acquire_lock_button'), "document.getElementById('sq_lock_acquire').value = 1; submit_form(this.form)", 'accesskey="a"');
+								normal_button('', translate('acquire_lock_button'), "document.getElementById('sq_lock_acquire').value = 1; submit_form(this.form)", 'accesskey="a" class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button acquire"');
 								echo '&nbsp;';
 							}//end if
 						}
 
 						if ($have_any_locks) {
 							hidden_field('sq_lock_release_manual', 0);
-							normal_button('', translate('release_lock_button'), "document.getElementById('sq_lock_release_manual').value = 1; submit_form(this.form)", 'accesskey="r"');
+							normal_button('', translate('release_lock_button'), "document.getElementById('sq_lock_release_manual').value = 1; submit_form(this.form)", 'accesskey="r" class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button release"');
 							echo '&nbsp;';
 						}
 
@@ -715,7 +709,7 @@ class Asset_Edit_Interface extends MySource_Object
 		/////////////////////
 		// set correct page headings based on what we are doing
 		if (!$creating) {
-			$page_heading = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->_type_code, 'name').'&nbsp;&nbsp;|&nbsp;&nbsp;';
+			$page_heading = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->_type_code, 'name').' ';
 			if (empty($_REQUEST['print_view'])) {
 				$infos = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($owner->id);
 				$page_heading .= '<ul class="info_asset_finder">';
@@ -726,11 +720,11 @@ class Asset_Edit_Interface extends MySource_Object
 			} else {
 				$page_heading .= htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).' (Id: #'.$owner->id.') ';
 			}
-			$page_heading .= 'v. '.$owner->version;
+			$page_heading .= '<span class="sq-info-asset-version">v. '.$owner->version.'</span>';
 		} else {
 			$page_heading = 'Create new '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->_type_code, 'name');
 		}
-		$page_heading .= '&nbsp;&nbsp;|&nbsp;&nbsp;'.$active_screen_name;
+		$page_heading .= ' <span class="sq-info-asset-screen-name">'.$active_screen_name.'</span>';
 
 		$o->setHeading($page_heading, sq_get_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($this->_type_code), 16, 16, ''));
 
@@ -739,7 +733,7 @@ class Asset_Edit_Interface extends MySource_Object
 		if ($closest_parentid != $owner->id) {
 			$closest_parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($closest_parentid);
 			if (!is_null($closest_parent)) {
-				$sub_heading = translate('currently_editing', $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($closest_parent->type(), 'name'), htmlspecialchars($closest_parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'<br />';
+				$sub_heading = translate('currently_editing', '<strong>'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($closest_parent->type(), 'name').'</strong>', '<strong>'.htmlspecialchars($closest_parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</strong>';
 			}
 		}
 		$o->setSubHeading($sub_heading);
@@ -1391,13 +1385,13 @@ class Asset_Edit_Interface extends MySource_Object
 							continue;
 						}
 						try {
-							$root = new SimpleXMLElement($file, LIBXML_NOCDATA, TRUE);
+							$root = simplexml_load_string(file_get_contents($file), 'SimpleXMLElement', LIBXML_NOCDATA);
 						} catch (Exception $e) {
 							throw new Exception('Unable to parse localised screen "'.$screen.'" for asset type "'.$owner->type().'": '.$e->getMessage());
 						}
 		
 					} else {
-						$root = new SimpleXMLElement($file, LIBXML_NOCDATA, TRUE);
+						$root = simplexml_load_string(file_get_contents($file), 'SimpleXMLElement', LIBXML_NOCDATA);
 					}
 		
 					if ($root) {
@@ -1940,7 +1934,7 @@ class Asset_Edit_Interface extends MySource_Object
 						$root = NULL;
 					} else {
 						try {
-							$root = new SimpleXMLElement($file, LIBXML_NOCDATA, TRUE);
+							$root = simplexml_load_string(file_get_contents($file), 'SimpleXMLElement', LIBXML_NOCDATA);
 						} catch (Exception $e) {
 							throw new Exception('Unsable to find static screen "'.$active_screen.'" for asset type "'.$owner->type().'": '.$e->getMessage());
 						}
@@ -2388,7 +2382,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 		if (($file = $this->findFile($screen_name))) {
 			try {
-				$root = new SimpleXMLElement($file, LIBXML_NOCDATA, TRUE);
+				$root = simplexml_load_string(file_get_contents($file), 'SimpleXMLElement', LIBXML_NOCDATA);
 			} catch (Exception $e) {
 				throw new Exception('Unable to parse screen file "'.$file.'": '.$e->getMessage());
 			}
@@ -2431,7 +2425,7 @@ class Asset_Edit_Interface extends MySource_Object
 		}
 
 		try {
-			$root = simplexml_load_file($create_file);
+			$root = simplexml_load_string(file_get_contents($create_file));
 		} catch (Exception $e) {
 			throw new Exception('Unable to parse Create screen file "'.$create_file.'": '.$e->getMessage());
 		}
@@ -2535,7 +2529,7 @@ class Asset_Edit_Interface extends MySource_Object
 		$root = NULL;
 		if (($file = $this->findSpecificFile($specific_file))) {
 			try {
-				$root = new SimpleXMLElement($file, LIBXML_NOCDATA, TRUE);
+				$root = simplexml_load_string(file_get_contents($file), 'SimpleXMLElement', LIBXML_NOCDATA);
 				return $root;
 			} catch (Exception $e) {
 				throw new Exception('Unable to parse specific screen file "'.$file.'": '.$e->getMessage());

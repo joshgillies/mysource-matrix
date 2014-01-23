@@ -467,7 +467,7 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 				echo "   <action_type>set_attribute_value</action_type>\n";
 				echo "   <asset>[[output://create_".$this->_running_vars['asset_id_map'][$asset_id].".assetid]]</asset>\n";
 				echo "   <attribute>".$attr_name."</attribute>\n";
-				$value = $this->_parseValue($value, $attr_name, 'set_'.$this->_running_vars['asset_id_map'][$asset_id].'_'.$attr_name);
+				$value = $this->_parseValue($value, $attr_name, 'set_'.$this->_running_vars['asset_id_map'][$asset_id].'_'.$attr_name, $asset->type());
 
 				echo "   <value><![CDATA[".$this->_escapeCDATA($value)."]]></value>\n";
 				echo "</action>\n\n";
@@ -914,7 +914,7 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 	* @return void
 	* @access private
 	*/
-	function _parseValue($value, $attribute_name, $actionid) {
+	function _parseValue($value, $attribute_name, $actionid, $asset_type) {
 		$assetid_mapped = Array();
 
 		$shadow_reg = '|.\/?a=(\d+:\w*)|';
@@ -944,31 +944,48 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 
 		$globals_processed = FALSE;
 		// we have got the /?a=XX type assetids to be replaced
-		// lets not leave away the %globals_xxxxxx_xxx:assetid%
-		$kywrd_reg_global_shdw = '|%globals_asset_[a-z]+:(\d+:\w*)%|';
-		$kywrd_reg_global_real = '|%globals_asset_[a-z]+:(\d+)%|';
-		preg_match_all($kywrd_reg_global_shdw, $value, $globals_match);
-		preg_match_all($kywrd_reg_global_real, $value, $globals_match_2);
+		// lets not leave any of the %globals_xxxxxx_xxx:assetid%
+		// or %asset_summary_xxx%
+		$re = '!
+			(?P<prefix>%(
+				globals_asset_[a-z]+:
+				|asset_summary_
+				|begin_[a-z_]+:
+				|else_[a-z_]+:
+				|end_[a-z_]+:
+			))
+			(?P<id>\d+(\:\w+)?)
+			(?P<suffix>%)
+			!msixS';
+		preg_match_all($re, $value, $matches, PREG_SET_ORDER);
 
-		if(isset($globals_match[1]))$globals_match = $globals_match[1];
-		if(isset($globals_match_2[1]))$globals_match_2 = $globals_match_2[1];
-
-		$replace_globals_assetids = Array();
-		foreach ($globals_match as $data) {
-				$replace_globals_assetids[] = $data;
+		// conditions data also needs to be converted
+		if(($attribute_name === 'conditions' && $asset_type === 'page_standard')
+		|| ($attribute_name === 'attributes' && $asset_type === 'bodycopy_div')) {
+		    $re = '!
+			    (?P<prefix>(div)?_)
+			    (?P<id>\d+)
+			    (?P<suffix>\')
+			    !msixS';
+		    preg_match_all($re, $value, $condition_matches, PREG_SET_ORDER);
+		    $matches += $condition_matches;
 		}
-		foreach ($globals_match_2 as $data) {
-				$replace_globals_assetids[] = $data;
-		}
-
-		foreach ($replace_globals_assetids as $replace_globals_assetid) {
-			if (isset($this->_running_vars['asset_id_map'][$replace_globals_assetid])) {
-				$value = preg_replace('|%globals_asset_([a-z]+):'.$replace_globals_assetid.'%|',
-									  '%globals_asset_$1:[[output://create_'.$this->_running_vars['asset_id_map'][$replace_globals_assetid].'.assetid]]',
-									   $value);
-				$assetid_mapped[] = $replace_globals_assetid;
+		
+		
+		$searches = array();
+		$replaces = array();
+		foreach ($matches as $match) {
+			$id = $match['id'];
+			if (isset($this->_running_vars['asset_id_map'][$id])) {
+				$searches []= $match[0];
+				$replaces []= $match['prefix'].'[[output://create_'.$this->_running_vars['asset_id_map'][$id].'.assetid]]'.$match['suffix'];
 				$globals_processed = TRUE;
 			}
+		}
+		
+		
+		if ($globals_processed) {
+			$value = str_replace($searches, $replaces, $value);
 		}
 
 		// lastly if we are adding the 'additional_get' attribute

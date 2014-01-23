@@ -139,15 +139,15 @@ function paintMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Edit_Int
 		?>
 			<table class="sq-backend-table">
 				<tr>
-					<td class="sq-backend-table-header">
+					<th class="sq-backend-table-header">
 						<span style="color: <?php echo (($granted == '0') ? 'red' : 'green'); ?>"><?php echo (($granted == '0') ? translate('denied') : translate('applied')) ?></span>
-					</td>
-					<td align="center" width="100" class="sq-backend-table-header">
+					</th>
+					<th  style="text-align: center;" width="100" class="sq-backend-table-header">
 						<?php echo translate('cascade_question'); ?>
-					</td>
+					</th>
 					<?php
 					if ($admin_access) {
-						?><td align="center" width="100" class="sq-backend-table-header"><?php echo translate('delete_question'); ?></td><?php
+						?><th style="text-align: center;" width="100" class="sq-backend-table-header"><?php echo translate('delete_question'); ?></th><?php
 					}
 					?>
 				</tr>
@@ -196,14 +196,16 @@ function paintMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Edit_Int
 	}//end if
 
 	if ($admin_access) {
-		$o->openField(translate('new_question'), 'new_line');
-			combo_box($prefix.'_metadata[new][granted]', Array('' => '', '1' => translate('apply'), '0' => translate('deny')), FALSE, '');
-			echo ' '.translate('metadata_schema').' ';
-			asset_finder($prefix.'_metadata[new][schemaid]', 0, Array('metadata_schema' => 'D'), 'sq_sidenav', FALSE, 'null', Array('clear'));
+		$o->openField(translate('new_question'), '');
+			echo '<span class="sq-inline-fields-wrapper bottom-margin">';
+				combo_box($prefix.'_metadata[new][granted]', Array('' => '', '1' => translate('apply'), '0' => translate('deny')), FALSE, '');
+				echo ' '.translate('metadata_schema').' &nbsp; ';
+				asset_finder($prefix.'_metadata[new][schemaid]', 0, Array('metadata_schema' => 'D'), 'sq_sidenav', FALSE, 'null', Array('clear'));
+			echo '</span>';
 		$o->closeField();
-		$o->openField(translate('cascade_question'), 'new_line');
+		$o->openField(translate('cascade_question'), '');
 			check_box($prefix.'_metadata[new][cascades]', 1, TRUE);
-			?> Cascade this new schema to newly-created children<?php
+			label(translate('cascade_schema_changes_to_new_children'), $prefix.'_metadata[new][cascades]');
 		$o->closeField();
 	}
 
@@ -213,10 +215,8 @@ function paintMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Edit_Int
 		$kiddies = $GLOBALS['SQ_SYSTEM']->am->getChildren($owner->id);
 		if (count($kiddies)) {
 			$o->openSection(translate('cascade_options'));
-				$o->openField('Note');
-					echo translate('action_affects_assets_below_this', count($kiddies), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
-				$o->closeField();
-				$o->openField('&nbsp;');
+				$o->openField(translate('cascade_options'));
+					echo '<p><strong>'.translate('note').':</strong> '.translate('action_affects_assets_below_this', count($kiddies), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'.</p>';
 					check_box($prefix.'_metadata[cascade_changes]', '1', TRUE);
 					label(translate('cascade_schema_changes'), $prefix.'_metadata[cascade_changes]');
 					echo '<br/>';
