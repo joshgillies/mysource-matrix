@@ -458,6 +458,8 @@ class Paint_Layout_Bodycopy extends Bodycopy
 		// asset lineage
 		$keywords_evaluated = FALSE;
 		foreach ($required_keywords as $req_keyword) {
+			// in this foreach block we are gonna deal with asset_lineage* keywords only
+			if (strpos($req_keyword, 'asset_lineage') === FALSE) continue;
 			$full_keyword = $req_keyword;
 			$req_keyword = parse_keyword($req_keyword, $modifiers);
 
@@ -486,7 +488,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 				$keywords_evaluated = TRUE;
 			}
 
-			if (!empty($modifiers)) {
+			if (!empty($modifiers) && $ret[$req_keyword] !== '%'.$req_keyword.'%') {
 				$ret[$full_keyword] = $ret[$req_keyword];
 				apply_keyword_modifiers($ret[$full_keyword], $modifiers, Array('assetid' => $asset->id));
 			}
