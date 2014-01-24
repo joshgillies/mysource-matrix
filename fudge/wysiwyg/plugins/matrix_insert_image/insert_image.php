@@ -280,13 +280,13 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 											<tr>
 												<td class="label" nowrap="nowrap"><?php echo translate('alternate_text'); ?>:</td>
 												<td>
-													<input type="text" name="alt" id="f_alt" title="For browsers that don't support images" value="<?php echo htmlspecialchars($_REQUEST['f_alt']) ?>" />
+													<input type="text" size="70" name="alt" id="f_alt" title="For browsers that don't support images" value="<?php echo htmlspecialchars($_REQUEST['f_alt']) ?>" />
 												</td>
 											</tr>
 											<tr>
 												<td class="label" nowrap="nowrap"><?php echo translate('title_text'); ?>:</td>
 												<td>
-													<input type="text" name="title" id="f_title" title="Your Image Title" value="<?php echo htmlspecialchars($_REQUEST['f_title']) ?>" />
+													<input type="text" size="70" name="title" id="f_title" title="Your Image Title" value="<?php echo htmlspecialchars($_REQUEST['f_title']) ?>" />
 												</td>
 											</tr>
 											<tr>

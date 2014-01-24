@@ -965,14 +965,31 @@ class Backend_Outputter
 			}
 		//}
 
-		$backendPage = array_get_index($_GET, 'SQ_BACKEND_PAGE'); ?>
-
+		$backendPage = array_get_index($_GET, 'SQ_BACKEND_PAGE');
+		?>
 		<!DOCTYPE html>
-		<!--[if lt IE 8 ]> 	<html class="ie <?php echo $backendPage; ?>">  						<![endif]-->
-		<!--[if IE 8 ]> 	<html class="ie ie8 <?php echo $backendPage; ?>">  					<![endif]-->
-		<!--[if IE 9 ]> 	<html class="ie ie9 gtie8 <?php echo $backendPage; ?>">  			<![endif]-->
-		<!--[if IE 10 ]> 	<html class="ie ie10 gtie8 gtie9 <?php echo $backendPage; ?>"> 		<![endif]-->
-		<!--[if !IE]><!--> 	<html class="<?php echo $backendPage; ?>">      					<!--<![endif]-->
+		<?php
+		if (preg_match('/(?i)msie [1-8]/',$_SERVER['HTTP_USER_AGENT'])) {
+        	// If we are in IE8 or less, don't use the conditional <html> tag as it can cause compatibility mode in those browsers
+    		// if IE<=8
+    		?>
+    		<html class="ie8 <?php echo $backendPage; ?>">
+    		<?php
+		} else if (strpos($_SERVER['HTTP_USER_AGENT'], 'Trident/7.0; rv:11.0') !== false) {
+        	// If we are in IE11, we must print the IE11 class manually as IE11 doesn't send the right browser header anymore for us to do simple HTML checking on
+    		// if IE 11
+    		?>
+			<html class="ie ie11 gtie8 gtie9 gtie10 <?php echo $backendPage; ?>">
+    		<?php
+		} else {
+    		// if IE>8 & !IE11
+    		?>
+			<!--[if IE 9 ]>     <html class="ie ie9 gtie8 <?php echo $backendPage; ?>"> <![endif]-->
+			<!--[if IE 10 ]>    <html class="ie ie10 gtie8 gtie9 <?php echo $backendPage; ?>"> <![endif]-->
+			<!--[if !IE]> --> 	<html class="<?php echo $backendPage; ?>"> <!-- <![endif]-->
+    		<?php
+		}
+		?>
 		<head>
 			<meta charset="<?php echo $backendCharset; ?>"/>
 			<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
@@ -1007,6 +1024,7 @@ class Backend_Outputter
 			foreach ($this->_js_includes as $file) {
 				$this->_paintJsInclude($file);
 			}
+
 			?>
 			<script type="text/javascript"><!--
 			//<![CDATA[

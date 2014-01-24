@@ -1085,7 +1085,7 @@ table.sq-backend-table {
 
 .sq-backend-table table tr,
 .sq-backend-table table tr:nth-child(even) {
-	background-color: 			#fff;
+	background:					none;
 }
 
 .sq-backend-table table th {
@@ -1969,7 +1969,8 @@ STANDALONE CONTENT CONTAINERS
 	padding: 					10px;
 }
 
-.sq-standalone-footer input[type=button] {
+.sq-standalone-footer input[type=button], 
+.sq-standalone-footer input[type=submit] {
 	min-width: 					100px;
 	height: 					30px;
 }
@@ -1989,53 +1990,67 @@ HIPO JOB
 
 /* HIPO SECTION STYLES */
 
-.sq-hipo-table{
-	margin: 0 auto;
+.sq-hipo-body {
+	padding: 					0 20px;
 }
-.sq-hipo-job{
-	width: 500px;
+.sq-hipo-body table {
+	width:						100%;
+}
+.sq-hipo-table {
+	margin: 					0 auto;
+}
+.sq-hipo-job {
+	width: 						500px;
 }
 
 /* DEFAULT PROGRESS BAR STYLES */
 
 .sq-hipo-progress-bar-wrapper{
-	padding: 10px 0 12px;
-	font-weight:		bold;
+	padding: 					10px 0 12px;
+	font-weight:				bold;
 }
 .sq-hipo-progress-bar-outer {
-	background:	#e8eef5;
-	border: 1px solid #dce2ec;
-	border-radius: 3px;
-	height: 15px;
-	box-shadow: inset 1px 1px 1px rgba(0, 0, 0, 0.11);
-	overflow: hidden;
+	background:					#e8eef5;
+	border: 					1px solid #dce2ec;
+	border-radius: 				3px;
+	height: 					15px;
+	box-shadow:					inset 1px 1px 1px rgba(0, 0, 0, 0.11);
+	overflow: 					hidden;
 }
 .sq-hipo-progress-bar-inner {
-	border-radius: 3px 0 0 3px;
-	background-color:	#51a3f6;
-	height: 15px;
+	border-radius: 				3px 0 0 3px;
+	background-color:			#51a3f6;
+	height: 					15px;
 }
 .sq-hipo-header-progress-bar-main .sq-hipo-progress-bar-outer{
-	background:	#e8eef5;
-	height: 31px;
-	border-radius: 4px;
+	background:					#e8eef5;
+	height: 					31px;
+	border-radius: 				4px;
 }
 .sq-hipo-header-progress-bar-main .sq-hipo-progress-bar-inner{
-	background-color: #3a80c6;
-	height: 31px;
+	background-color: 			#3a80c6;
+	height: 					31px;
 }
 
 .sq-hipo-header-progress-bar-percent,
 .sq-hipo-progress-bar-percent{
-	text-align:		right;
+	text-align:					right;
+}
+
+/* HIPO REMINDER (Stalled HIPO jobs) */
+
+.sq-hipo-reminder {
+	max-width:					1200px;
 }
 
 
 /*
 ####################################################################################################################
-ERROR REPORT TABLE
+ERROR REPORTS AND WARNING MESSAGES
 ####################################################################################################################
 */
+
+/* ERROR REPORT TABLE */
 
 .sq-standalone-wrapper.sq-error-report{ 
 	margin:						35px 35px 30px 5px;
@@ -2107,6 +2122,16 @@ td.sq-error-report-reported{
 	color: 						#999999;
 }
 
+/* WARNING AND ERROR MESSAGES */
+
+
+.sq-warning-message {
+	background: 				#fff1bb url(../images/warning.png) 9px 9px no-repeat;
+	padding: 					11px 11px 1px 39px;
+	margin: 					0 0 10px 0;
+	border-radius: 				4px;
+	border: 					1px solid #e0d3a2;
+}
 
 /*
 ####################################################################################################################

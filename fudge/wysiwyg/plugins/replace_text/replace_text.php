@@ -34,7 +34,7 @@ if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAcce
 if (!isset($_GET['name']))		  $_GET['name'] = '';
 
 ?>
-
+<!doctype html>
 <html style="height: 450px;">
 
 	<head>

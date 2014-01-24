@@ -406,7 +406,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 					$assets = $this->_running_vars['assets'];
 					for (reset($assets); NULL !== ($assetid = key($assets)); next($assets)) {
 						$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
-						?><li>"<?php echo htmlentities($asset_info[$assetid]['short_name'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET); ?>"</li><?php
+						?><li><strong>"<?php echo htmlentities($asset_info[$assetid]['short_name'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET); ?>"</strong></li><?php
 					}
 					?>
 				</ul>
@@ -438,8 +438,8 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 						$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
 					?>
 					<tr>
-						<td><li>Change from</li></td>
-						<td>"<?php echo htmlentities($asset_info[$assetid]['short_name'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET); ?>"</td>
+						<td><li style="margin: 0;">Change from</li></td>
+						<td><strong>"<?php echo htmlentities($asset_info[$assetid]['short_name'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET); ?>"</strong></td>
 						<td> to </td>
 						<td><?php text_box($prefix.'_new_names['.$assetid.']', $asset_info[$assetid]['short_name'], '25'); ?></td>
 					</tr>

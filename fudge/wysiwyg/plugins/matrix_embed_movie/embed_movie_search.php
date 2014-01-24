@@ -25,6 +25,7 @@
 require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once SQ_LIB_PATH.'/backend_search/backend_search.inc';
+require_once SQ_FUDGE_PATH.'/general/general.inc';
 
 if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAccessBackend() || $GLOBALS['SQ_SYSTEM']->user->type() == 'simple_edit_user' || (method_exists($GLOBALS['SQ_SYSTEM']->user, 'isShadowSimpleEditUser') && $GLOBALS['SQ_SYSTEM']->user->isShadowSimpleEditUser()))) {
 	exit;
@@ -238,45 +239,9 @@ if ($search_for != '') {
 <html>
 	<head>
 		<title>Insert Link - Search</title>
-		<style type="text/css">
-			html, body {
-				background: #402F48;
-				color: #FFFFFF;
-				font: 11px Tahoma,Verdana,sans-serif;
-				margin: 0px;
-				padding: 0px;
-			}
-
-			form#main-form {
-				padding: 5px;
-				clear: right;
-			}
-
-			#quick-search-for {
-				font: 11px Arial,Verdana,sans-serif;
-				border: 1px solid black;
-				padding: 1px 3px;
-			}
-
-			#quick-search-for-label {
-				font: 11px Arial,Verdana,sans-serif;
-				color: #999;
-			}
-
-			/* main popup title */
-			.title {
-				font-weight: bold;
-				font-size: 120%;
-				padding: 6px 10px;
-				margin-bottom: 10px;
-				border-bottom: 1px solid black;
-				text-align: right;
-			}
-
-
-			/* form and form fields */
-			form { padding: 0px; margin: 0px; }
-		</style>
+		<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('lib').'/web/css/edit.css' ?>" />
+		<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('root_url')?>/__fudge/wysiwyg/core/popup.css" />
+		
 		<script type="text/javascript"><!--
 			/**
 			* Run when quick-search-for box is tabbed/clicked to
@@ -397,7 +362,7 @@ if ($search_for != '') {
 		// --></script>
 	</head>
 
-	<body<?php if ($search_for != '') {
+	<body class="sq-popup-heading-frame search"<?php if ($search_for != '') {
 	?>
 	 onload="show_search_results();"
 	<?php
@@ -406,10 +371,14 @@ if ($search_for != '') {
 		<?php
 
 		?>
-		<div class="title"><form action="" method="get" id="quick-search" onsubmit="return quick_search_onsubmit(this);">
-			<label id="quick-search-for-label" for="quick-search-for">Quick Search for Files</label>
-			<input type="text" size="30" value="<?php echo htmlspecialchars(empty($search_for) ? $quick_search_for_text : $search_for); ?>" name="quick-search-for" id="quick-search-for" onfocus="return quick_search_for_onfocus(this);" onblur="return quick_search_for_onblur(this);" onkeypress="if (event.keyCode == 13) return quick_search_onsubmit(this.form);">
-		</form>
+		<div>
+			<form action="" method="get" id="quick-search" onsubmit="return quick_search_onsubmit(this);">
+				<label id="quick-search-for-label" for="quick-search-for">Quick Search for Files</label>
+				<span class="sq-text-field-wrapper">
+					<input class="sq-backend-header-text-box" type="text" size="30" value="<?php echo htmlspecialchars(empty($search_for) ? $quick_search_for_text : $search_for); ?>" name="quick-search-for" id="quick-search-for" onfocus="return quick_search_for_onfocus(this);" onblur="return quick_search_for_onblur(this);" onkeypress="if (event.keyCode == 13) return quick_search_onsubmit(this.form);">
+			  		<input type="image" class="sq-backend-header-search-button" alt="Go" title="Submit" src="/__lib/web/images/icons/header/search.png" onclick="form.submit();">
+				</span>
+			</form>
 		</div>
 	</body>
 </html>

@@ -730,7 +730,7 @@ class Asset_Edit_Interface extends MySource_Object
 		}
 		$page_heading .= ' <span class="sq-info-asset-screen-name">'.$active_screen_name.'</span>';
 
-		$o->setHeading($page_heading, sq_get_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($this->_type_code), 16, 16, ''));
+		$o->setHeading($page_heading, sq_get_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($this->_type_code), '', '', ''));
 
 		$o->setPageTitle(htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 		$sub_heading = '';

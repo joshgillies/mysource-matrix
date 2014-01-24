@@ -37,7 +37,8 @@ $_GET['title'] = preg_replace('/[\'"\(\);\[\]{}<>=]+/', '', $_GET['title']);
 $_GET['dfn'] = preg_replace('/[\'"\(\);\[\]{}<>=]+/', '', $_GET['dfn']);
 ?>
 
-<html style="width: 400px; height: 250px;">
+<!DOCTYPE html>
+<html style="height: 250px;">
 	<head>
 		<title>Insert Definition</title>
 		<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('lib').'/web/css/edit.css' ?>" />

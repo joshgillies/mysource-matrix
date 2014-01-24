@@ -22,7 +22,7 @@
 <title>Embed Movie</title>
 </head>
 <frameset rows="30,*" frameborder="0" border="0">
-	<frameset cols="*, 350"  frameborder="0" border="0">
+	<frameset cols="*, 500"  frameborder="0" border="0">
 		<frame src="embed_movie_title.php" name="sq_wysiwyg_popup_title" scrolling="no" marginwidth="0" marginheight="0" noresize="noresize" />
 		<frame src="embed_movie_search.php" name="sq_wysiwyg_popup_search" scrolling="no" marginwidth="0" marginheight="0" noresize="noresize" />
 	</frameset>

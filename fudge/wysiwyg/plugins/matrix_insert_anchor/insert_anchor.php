@@ -34,8 +34,8 @@ if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAcce
 if (!isset($_GET['name']))		$_GET['name']	= "";
 
 ?>
-
-<html style="width: 400px; height: 280px;">
+<!DOCTYPE html>
+<html style="height: 280px;">
 	<head>
 		<title>Insert Anchor</title>
 		<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('lib').'/web/css/edit.css' ?>" />
@@ -138,7 +138,7 @@ if (!isset($_GET['name']))		$_GET['name']	= "";
 				</tr>
 			</table>
 
-			<div style="margin-top: 5px; margin-right: 5px; text-align: right;">
+			<div class="sq-popup-button-wrapper">
 			<button type="button" name="cancel" onclick="return onCancel();">Cancel</button>
 			&nbsp;
 			<button type="button" name="ok" onclick="return onOK();" class="sq-btn-green">OK</button>

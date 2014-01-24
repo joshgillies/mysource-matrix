@@ -291,7 +291,7 @@ class Backend extends MySource_Object
 		<!--[if IE 8 ]>     <html class="ie ie8"> 		        <![endif]-->
 		<!--[if IE 9 ]>     <html class="ie ie9 gtie8"> 		<![endif]-->
 		<!--[if IE 10 ]>    <html class="ie ie-10 gtie8 gtie9"> <![endif]-->
-		<!--[if !IE]><!--> 	<html class="">                     <!--<![endif]-->
+		<!--[if !IE]> --> 	<html class="">                     <!--<![endif]-->
 			<head>
 				<title><?php echo $page_title; ?></title>
 				<meta charset="<?php echo SQ_CONF_DEFAULT_CHARACTER_SET; ?>"/>
@@ -860,10 +860,9 @@ class Backend extends MySource_Object
 			}
 
 			if ($stalledjobs != 0) {
-				$html = $this->_getDHTMLMessage(translate('hipo_jobs_stalled'), translate('hipo_jobs_count', $GLOBALS['SQ_SYSTEM']->user->name, $stalledjobs), 'new-message', 'stop', 32, 32);
+				$html = $this->_getDHTMLMessage(translate('hipo_jobs_stalled'), translate('hipo_jobs_count', $GLOBALS['SQ_SYSTEM']->user->name, $stalledjobs).'</br><a href="'.$this->getBackendUrl('main').'&backend_section=hipo_herder" target="sq_main">'.translate('hipo_herder').'</a>', 'new-message', 'stop', 32, 32);
 				$dhtml_messages['hipo_jobs_stalled'] = Array('html' => str_replace("\n", '', $html), 'width' => '400', 'timeout' => 6.0);
 			}
-
 
 		}//end if not in LIMBO
 

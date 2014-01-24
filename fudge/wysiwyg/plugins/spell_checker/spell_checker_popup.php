@@ -52,11 +52,13 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 	http://www.squiz.net/
 	mmcintyre@squiz.net
 -->
-
-<html style="width: 600px; height: 400px">
+<!DOCTYPE html>
+<html style="height: 400px">
 	<head>
 		<title>Spell Checker</title>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('lib').'/web/css/edit.css' ?>" />
+		<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('root_url')?>/__fudge/wysiwyg/core/popup.css" />
 		<script type="text/javascript" src="../../core/popup.js"></script>
 		<?php
 			//add required js translation files
@@ -116,115 +118,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 
 		<script type="text/javascript" src="<?php echo $_SERVER['PHP_SELF'].'/../../'.$plugin->get_popup_href('spell_checker.js', 'spell_checker')?>"></script>
 
-		<style type="text/css">
-			html, body {
-				font-family: Verdana, Arial, Helvetica, san-serif;
-				font-size: xx-small;
-				font-weight: normal;
-				text-decoration: none;
-				background-color: #402F48;
-				color: #FFFFFF;
-				margin: 1px 1px;
-			}
-
-			a:link, a:visited {
-				color: #FFFFFF; text-decoration: none;
-			}
-
-			a:hover {
-				color: #B7A9BD; text-decoration: underline;
-			}
-
-			table {
-				background-color: #402F48; color: ButtonText;
-				font-family: tahoma,verdana,sans-serif; font-size: 11px;
-			}
-
-			iframe {
-				background-color:#402F48;
-				color: #FFFFFF;
-				font-family: tahoma,verdana,sans-serif; font-size: 11px;
-			}
-
-			.controls .sectitle {
-				color: #FFFFFF;
-				font-weight: bold; padding: 2px 4px;
-				margin:0px auto;
-				text-align:left;
-
-			}
-
-			.controls .secbody {
-				margin-bottom: 0px;
-			}
-
-			button, select {
-				font-family: tahoma,verdana,sans-serif; font-size: 11px;
-			}
-
-			button {
-				width: 6em; padding: 0px;
-			}
-
-			input, select {
-				font-family: fixed,"andale mono",monospace;
-			}
-
-
-			#v_currentWord {
-				color: #A7A1AA; font-weight: bold; font-size: 120%;
-			}
-
-			#statusbar {
-				padding: 0px 0px 0px 5px;
-			}
-
-			#status {
-				font-weight: bold;
-			}
-
-			.button2{
-				font-size: 7pt;
-				font-family: Verdana,Arial,Helvetica;
-				color: #FFFFFF;
-				width: 70px;
-				background: #725B7D;
-				border-style: solid;
-				border-width: 1;
-				border-color: #402F48;
-				font-weight: bold;
-				margin: 2px 2px;
-			}
-			.button{
-				margin: 2px 2px;
-				font-size: 7pt;
-				font-family: Verdana,Arial,Helvetica;
-				color: #FFFFFF;
-				width: 70px;
-				background: #725B7D;
-				border-style: solid;
-				border-width: 1;
-				border-color: #7D7582;
-				font-weight: bold;
-			}
-
-			.status_div {
-				background-color: #7D7582;
-				padding: 2px 2px;
-			}
-
-			.major_table {
-				height: 100%;
-				width: 100%;
-				border: solid 2px;
-				border-color: #7D7582;
-				padding: 0px 0px 0px 0px;
-			}
-
-			.status {
-				color: #FFFFFF;
-			}
-		</style>
+	
 	</head>
 
 	<body onLoad="Init(); initDocument(); if (opener) opener.blockEvents('spellChecker')" onUnload="if (opener) opener.unblockEvents(); parent_object._tmp['disable_toolbar'] = false; parent_object.updateToolbar();">
@@ -234,59 +128,77 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 			<input type="hidden" name="init" id="f_init" value="1"/>
 			<input type="hidden" name="token" id="f_token" value="<?php echo (get_unique_token()); ?>"/>
 		</form>
-		<table class="major_table" cellspacing="0" cellpadding="0">
-			<tr>
-				<td class="status_div" colspan="2">
-					<table width="100%" cellpadding="0" cellspacing="0">
-						<tr>
-							<td class="status_div">
-								<span id="status" class="status">&nbsp;<?php echo translate('please_wait'); ?>...</span>
-							</td>
-							<td class="status_div">
-								<!-- hiding the dictionary chooser for now -->
-								<span style="float: right; display: none">
-									<span class="status"><?php echo translate('dictionary'); ?></span>
-									<select id="v_dictionaries" style="width: 10em"></select>
-									<button class="button2" id="b_recheck"><?php echo translate('re-check'); ?></button>
-								</span>
-							</td>
-						</tr>
-					</table>
-				</td>
-			</tr>
-			<tr>
-				<td valign="top" class="controls" nowrap>
-					<div class="sectitle"><?php echo translate('original_word'); ?></div>
-					<div class="secbody" id="v_currentWord" style="text-align: center"><?php echo translate('please_wait'); ?>...</div>
-					<div class="sectitle"><?php echo translate('replace_with'); ?></div>
-					<div class="secbody">
-						<input type="text" id="v_replacement" style="width: 94%; margin-left: 3%; align: center" /><br />
-						<div style="text-align: center; margin-top: 2px;" nowrap>
-							<button class="button" id="b_replace"><?php echo translate('replace'); ?></button>
-							<button class="button" id="b_replall"><?php echo translate('replace_all'); ?></button><br />
-							<button class="button" id="b_ignore"><?php echo translate('ignore'); ?></button>
-							<button class="button" id="b_ignall"><?php echo translate('ignore_all'); ?></button>
-						</div>
-					</div>
-					<div class="sectitle"><?php echo translate('suggestions'); ?></div>
-					<div class="secbody">
-						<select size="11" style="width: 94%; margin-left: 3%;" id="v_suggestions"></select>
-					</div>
-					<div valign="top" class="secbody" align="center" nowrap>
-						&nbsp;<button class="button" id="b_ok" onclick="return onOK();"><?php echo translate('ok'); ?></button>
-						<button class="button" id="b_cancel" onclick="return onCancel();"><?php echo translate('cancel'); ?></button>
-					</div>
-				</td>
-				<td width="100%">
-					<table width="100%" height="100%">
-						<tr>
-							<td>
-								<iframe src="about:blank" width="100%" height="100%" id="i_framecontent" name="framecontent" class="f_content"></iframe>
-							</td>
-						</tr>
-					</table>
-				</td>
-			</tr>
-		</table>
+		<div id="spellchecker">
+			<table cellspacing="0" cellpadding="0" width="100%">
+				<tr>
+					<td colspan="2">
+						<table width="100%" cellpadding="0" cellspacing="0">
+							<tr>
+								<td class="sq-popup-heading-frame title">						
+										<h1 id="status"><?php echo translate('please_wait'); ?>...</h1>							
+								</td>
+								<td>
+									<!--hiding the dictionary chooser for now -->
+									<span style="float: right; display: none">
+										<span class="status"><?php echo translate('dictionary'); ?></span>
+										<select id="v_dictionaries" style="width: 10em"></select>
+										<button class="button2" id="b_recheck"><?php echo translate('re-check'); ?></button>
+									</span>
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>			
+				<tr>
+					<td valign="top" class="sq-popup-asset-map">
+						<fieldset>
+							<legend><b><?php echo translate('original_word'); ?></b></legend>
+							<div id="v_currentWord" style="text-align: center"><?php echo translate('please_wait'); ?>...</div>
+						</fieldset>
+						<fieldset>
+							<legend><b><?php echo translate('replace_with'); ?></b></legend>
+							<div>
+								<input type="text" id="v_replacement" style="width: 192px;" /><br />
+								<div nowrap>
+									<button class="button" id="b_replace"><?php echo translate('replace'); ?></button>
+									<button class="button" id="b_replall"><?php echo translate('replace_all'); ?></button><br />
+									<button class="button" id="b_ignore"><?php echo translate('ignore'); ?></button>
+									<button class="button" id="b_ignall"><?php echo translate('ignore_all'); ?></button>
+								</div>
+							</div>
+						</fieldset>
+
+						<fieldset>
+							<legend><b><?php echo translate('suggestions'); ?></b></legend>
+							<div >
+								<select size="11" style="width: 200px;" id="v_suggestions"></select>
+							</div>
+						</fieldset>
+				
+					</td>
+					<td>
+						<table height="100%" width="96%">
+							<tr>
+								<td>
+									<fieldset>
+										<legend><b>Content</b></legend>
+										<iframe src="about:blank" width="100%" height="300" id="i_framecontent" name="framecontent" class="f_content"></iframe>
+									</fieldset>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<div class="sq-popup-button-wrapper">												
+										<button type="button" id="b_cancel" btnonclick="return onCancel();"><?php echo translate('cancel'); ?></button>
+										&nbsp;
+										<button type="button" class="sq-btn-green" id="b_ok" onclick="return onOK();"><?php echo translate('ok'); ?></button>							
+								    </div>
+								</td>
+							</tr>
+						</table>						
+					</td>
+				</tr>
+			</table>
+		</div>
 	</body>
 </html>

@@ -29,6 +29,7 @@ if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAcce
 }
 
 ?>
+<!doctype html>
 <html style="height: 500px;">
 	<head>
 		<title>Global Snippet Keyword Information</title>

@@ -33,7 +33,7 @@ if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAcce
 $_GET['name'] = array_get_index($_GET, 'name', '');
 
 ?>
-
+<!doctype html>
 <html style="height: 280px;">
 
 	<head>

@@ -33,8 +33,8 @@ if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAcce
 if (!isset($_GET['title']))		  $_GET['title'] = "";
 
 ?>
-
-<html style="width: 400px; height: 200px;">
+<!DOCTYPE html>
+<html style="height: 200px;">
 	<head>
 		<title>Insert Abbreviation</title>
 		<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('lib').'/web/css/edit.css' ?>" />

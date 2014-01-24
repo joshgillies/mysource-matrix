@@ -13,16 +13,18 @@
 * $Id: embed_youtube_title.php,v 1.2 2012/08/30 00:56:52 ewang Exp $
 *
 */
-
+require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 ?>
 
 <html>
 	<head>
 		<title>Insert YouTube</title>
+		<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('lib').'/web/css/edit.css' ?>" />
+		<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('root_url')?>/__fudge/wysiwyg/core/popup.css" />
 	</head>
 
 	<body>
-		<div class="sq-popup-heading-frame">
+		<div class="sq-popup-heading-frame title">
 			<h1>Embed YouTube</h1>
 		</div>
 	</body>

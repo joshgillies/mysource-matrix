@@ -25,6 +25,7 @@
 
 require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 
 if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAccessBackend() || $GLOBALS['SQ_SYSTEM']->user->type() == 'simple_edit_user' || (method_exists($GLOBALS['SQ_SYSTEM']->user, 'isShadowSimpleEditUser') && $GLOBALS['SQ_SYSTEM']->user->isShadowSimpleEditUser()))) {
 	exit;
@@ -32,8 +33,8 @@ if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAcce
 
 if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 ?>
-
-<html style="width: 740px; height: 500px;">
+<!DOCTYPE html>
+<html style="height: 600px;">
 	<head>
 		<title>Embed YouTube</title>
 		<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('lib').'/web/css/edit.css' ?>" />
@@ -103,113 +104,12 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 			};
 		</script>
 
-		<style type="text/css">
-			html, body {
-				background: #FCFCFC;
-				color: #000000;
-				font: 11px Tahoma,Verdana,sans-serif;
-				margin: 0px;
-				padding: 0px;
-			}
 
-			table {
-				font: 11px Tahoma,Verdana,sans-serif;
-			}
-
-			form#main-form {
-				padding: 5px;
-				clear: right;
-			}
-
-			/* main popup title */
-			.title {
-				background: #402F48;
-				color: #FFFFFF;
-				font-weight: bold;
-				font-size: 120%;
-				padding: 6px 10px;
-				margin-bottom: 10px;
-				border-bottom: 1px solid black;
-				letter-spacing: 4px;
-			}
-
-			/* fieldset styles */
-			fieldset {
-				padding: 0px 10px 5px 5px;
-				border-color: #725B7D;
-			}
-
-			.fl { width: 9em; float: left; padding: 2px 5px; text-align: right; }
-			.fr { width: 7em; float: left; padding: 2px 5px; text-align: right; }
-
-			/* form and form fields */
-			form { padding: 0px; margin: 0px; }
-
-			select, input, button {
-				font: 11px Tahoma,Verdana,sans-serif;
-			}
-
-			button {
-				width: 70px;
-			}
-
-			/* colour picker button styles */
-			.buttonColor, .buttonColor-hilite {
-				cursor: default;
-				border: 1px solid;
-				border-color: #9E86AA #725B7D #725B7D #9E86AA;
-			}
-
-			.buttonColor-hilite {
-				border-color: #402F48;
-			}
-
-			.buttonColor-chooser, .buttonColor-nocolor, .buttonColor-nocolor-hilite {
-				height: 0.6em;
-				border: 1px solid;
-				padding: 0px 1em;
-				border-color: ButtonShadow ButtonHighlight ButtonHighlight ButtonShadow;
-			}
-
-			.buttonColor-nocolor, .buttonColor-nocolor-hilite { padding: 0px; }
-			.buttonColor-nocolor-hilite { background: #402F48; color: #FFFFFF; }
-
-			/* Popup styles (for backend search feature) */
-
-			#new-message-popup, #search-wait-popup {
-				position: absolute;
-				right: 10px;
-				top: 0;
-				width: 300px;
-				background-color: white;
-				border: 2px solid black;
-				font: normal 10px Arial,Verdana,sans-serif;
-				display: none;
-			}
-
-			#new-message-popup-titlebar, #search-wait-popup-titlebar {
-				font-weight: bold;
-				padding: 5px;
-			}
-
-			#new-message-popup-close, #search-wait-popup-close {
-				float: right;
-			}
-
-			#new-message-popup-close a, #search-wait-popup-close a {
-				color: black;
-				text-decoration: none;
-			}
-
-			#new-message-popup-details, #search-wait-popup-details {
-				padding: 5px;
-			}
-		</style>
 	</head>
 
 	<body onload="Javascript: Init();">
 		<form action="" method="get" name="main_form" id="main-form">
-			<table width="100%">
+			<table class="sq-fieldsets-table">
 				<tr>
 					<td valign="top">
 						<table width="100%" cellspacing="0" cellpadding="0">
@@ -220,13 +120,14 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 										<table width="100%" cellspacing="0" cellpadding="0">
 											<tr>
 												<td valign="top" width="100%">
-													<table style="width:100%">
+													<table>
 														<tr>
 															<td class="label">Video ID:</td>
 															<td><?php text_box('video_id', (!empty($_REQUEST['f_vid']))?$_REQUEST['f_vid']:'', 20, 0)?></td>
-															<td> or </td>
-															<td class="label"><?php echo translate('url'); ?>:</td>
-															<td><?php text_box('video_url', (!empty($_REQUEST['f_video_url']))?$_REQUEST['f_video_url']:'', 80, 0)?></td>
+														</tr>
+														<tr>								
+															<td class="label">Or <?php echo translate('url'); ?>:</td>
+															<td><?php text_box('video_url', (!empty($_REQUEST['f_video_url']))?$_REQUEST['f_video_url']:'', 75, 0)?></td>
 														</tr>
 													</table>
 												</td>
@@ -239,7 +140,7 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 							<tr>
 								<td valign="top" width="50%" rowspan="2">
 									<fieldset>
-										<legend><?php echo translate('controls'); ?></legend>
+										<legend><b><?php echo translate('controls'); ?></b></legend>
 										<table style="width:100%">
 											<tr>
 												<!-- autoplay -->
@@ -288,7 +189,7 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 								</td>
 								<td valign="top" width="50%">
 									<fieldset>
-										<legend><?php echo translate('size'); ?></legend>
+										<legend><b><?php echo translate('size'); ?></b></legend>
 										<table style="width:100%">
 											<tr>
 												<td class="label" width="50%"><?php echo translate('width'); ?>:</td>
@@ -309,7 +210,7 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 							<tr>
 								<td valign="top" width="50%">
 									<fieldset>
-										<legend><?php echo translate('style'); ?></legend>
+										<legend><b><?php echo translate('style'); ?></b></legend>
 										<table style="width:100%">
 											<tr>
 												<td class="label" width="50%"><?php echo translate('border'); ?>:</td>
@@ -333,16 +234,21 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 									</fieldset>
 								</td>
 							</tr>
+							<tr>
+								<td>
+										<button type="button" name="cancel" onclick="return onCancel();"><?php echo translate('cancel'); ?></button>	
+								</td>
+								<td>										
+									<div class="sq-popup-button-wrapper">																		    								
+										<button type="button" name="ok" onclick="return onOK();" class="sq-btn-green"><?php echo translate('ok'); ?></button>	
+									</div>								
+								</td>
+							</tr>
 						</table>
 					</td>
 				</tr>
-			</table>
 
-			<div style="margin-top: 5px; text-align: right;">
-			<hr />
-			<button type="button" name="ok" onclick="return onOK();"><?php echo translate('ok'); ?></button>
-			<button type="button" name="cancel" onclick="return onCancel();"><?php echo translate('cancel'); ?></button>
-			</div>
+			</table>
 		</form>
 
 	</body>

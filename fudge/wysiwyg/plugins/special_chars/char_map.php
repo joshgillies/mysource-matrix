@@ -242,7 +242,7 @@
 	width: 25px;
 	height: 25px;
 	text-align: center;
-	background-color: #f5f5f5;
+	background-color: #FFFFFF;
 	font-weight: bold;
 	border: 1px solid gray;
 }
@@ -252,27 +252,32 @@
 	height: 25px;
 	text-align: center;
 	font-weight: bold;
-	border: 1px dashed gray;
-	background-color: #725B7D;
+	color: #dfdfdf;
+	background-color: #575757;
 }
 
-#specialChars div.floating {
-	width: 100px;
-	height: 60px;
-	position: absolute;
-	/*overflow: none;*/
-	z-index: 1000;
-	font-size: 100%;
-	background-color: #FFFFFF;
-	filter:alpha(opacity=90);
-	-moz-opacity:0.9;
-	opacity: 0.9;
-}
 
 #specialChars .displaychar {
 	font-size: 230%;
 	font-weight: 400;
 }
+
+div.floating {
+			width: 100px;
+			height: 60px;
+			position: absolute;
+			/*overflow: none;*/
+			z-index: 1000;
+			font-size: 100%;
+			background-color: #FFFFFF;
+			filter:alpha(opacity=90);
+			-moz-opacity:0.9;
+			opacity: 0.9;
+			border: 1px solid #CCC;
+  			border-radius: 6px;
+			background: #fff;
+			box-shadow: 1px 2px 6px rgba(0, 0, 0, .25);
+		}
 </style>
 
 
@@ -301,7 +306,7 @@
 			</tr>
 		</table>
 	</div>
-	<div id="floater" class="floating" style="border: 2px solid rgb(64, 47, 160); display:none;" >
+	<div id="floater" class="floating" style="display:none;" >
 		&nbsp;
 	</div>
 </body>

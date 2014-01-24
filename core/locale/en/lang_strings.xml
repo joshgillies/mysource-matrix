@@ -106,7 +106,7 @@
 	<string source="clone_asset_threshold">Clone Asset Threshold</string>
 	<string source="commit_button_text">Commit Button Text</string>
 	<string source="condition_details">Condition Details</string>
-	<string source="condition_type">Condition Type:</string>
+	<string source="condition_type">Condition Type</string>
 	<string source="condition">Condition</string>
 	<string source="conditions">Conditions</string>
 	<string source="confirm">Confirm</string>
@@ -257,6 +257,9 @@
 	<string source="new_question">New?</string>
 	<string source="new_condition_question">New Condition?</string>
 	<string source="new_conditions">New Conditions</string>
+	<string source="create_new_condition">Create New Condition</string>
+	<string source="delete_this_condition">Delete this condition</string>
+	<string source="no_existing_conditions">There are no existing conditions.</string>
 	<string source="new_field_name">New Field Name</string>
 	<string source="new_field_type">New Field Type</string>
 	<string source="new_link_confirmation">New Link Confirmation</string>

@@ -3,28 +3,6 @@
 
 /* Header styles */
 
-html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
-  font-size: 11px;
-}
-
-#asset_map {
-	position: relative;
-	top: 0;	
-	margin-right: 15px;
-}
-
-h1 {
-	margin-left: 10px;
-	font-size: 12px;
-	line-height: 12px;
-	text-shadow: -1px -1px 0 #000;
-}
-
-legend b {
-	font-size: 12px;
-}
-
-
 .sq-popup-heading-frame {
 	background: #494949;
 	font-size: 14px;
@@ -37,31 +15,27 @@ legend b {
 	overflow: hidden;
 }
 
-.sq-fieldsets-table .sq-popup-button-wrapper {
-	padding-right: 7px;
-}
-
-
-input[type="text"] {
-	height: 21px;
-	margin: 0 3px 0px 0;
-	padding: 0 3px;
-	line-height:21px;
-}
-
-
-fieldset {
-  border: 1px solid #ccc;
-  padding: 5px 0 5px 8px;
-  border-radius: 3px;
-  margin: -8px 10px 10px 0px;
-  background: #f5f5f5;
-}
-
-
-
 /*Search Header Styles*/
 
+#quick-search-for-label {
+	font: 12px Arial,Verdana,sans-serif;
+	color: #fff;
+	line-height: 12px;
+	position: relative;
+	top: 0px;
+	float: left;
+    top: 9px;
+    margin-right: 7px;
+    font-size: 11px;
+    text-shadow: -1px -1px 0 #000;
+}
+
+#quick-search {
+	margin-right: 10px;
+	float: right;
+	height: 28px;
+
+}
 
 div.search-result-detail {
 	padding: 0;
@@ -89,10 +63,15 @@ div.search-result-detail {
   box-shadow: none;
   margin-left:3px;
   font-size: 11px;
+  padding: 0 7px;
 }
 
 .sq-btn-green {
 	margin: 0;
+}
+
+.sq-fieldsets-table .sq-btn-green {
+	margin-right:3px;
 }
 
 
@@ -100,35 +79,7 @@ div.search-result-detail {
   top: -2px;
 }
 
-/* Quick search in header frame */
-
-.title > form{
-	text-align: right;
-}
-
-#quick-search-for-label {
-	font: 12px Arial,Verdana,sans-serif;
-	color: #fff;
-	line-height: 12px;
-	position: relative;
-	top: 0px;
-	float: left;
-    top: 9px;
-    margin-right: 7px;
-    font-size: 11px;
-    text-shadow: -1px -1px 0 #000;
-}
-
-#quick-search {
-	margin-right: 10px;
-	float: right;
-	height: 28px;
-
-}
-
-
-
-/* Popup styles (for search feature)  */
+/* Search popup styles  */
 
 #new-message-popup, #search-wait-popup {
 	position: absolute;
@@ -257,9 +208,56 @@ a.search-result-expand-link {
 }
 
 
-
-
 /* Main body CSS */
+
+* {
+  font-size: 11px;
+}
+
+h1 {
+	margin-left: 10px;
+	font-size: 12px;
+	line-height: 13px;
+	text-shadow: -1px -1px 0 #000;
+}
+
+legend b {
+	font-size: 12px;
+}
+
+
+input[type="text"] {
+	height: 21px;
+	margin: 0 3px 0px 0;
+	padding: 0 3px;
+	line-height:21px;
+}
+
+
+fieldset {
+  border: 1px solid #ccc;
+  padding: 5px 0 5px 8px;
+  border-radius: 3px;
+  margin: -8px 10px 10px 0px;
+  background: #f5f5f5;
+}
+
+input[type="button"],
+input[type="submit"] {
+    line-height: 22px;
+    height: 23px;
+}
+
+button {
+	width: 70px;
+	line-height: 12px;
+}
+
+#asset_map {
+	position: relative;
+	top: 0;	
+	margin-right: 15px;
+}
 
 body #main-form {
 	font-size: 11px;
@@ -291,12 +289,16 @@ body #main-form {
 	padding: 2px 0;
 }
 
+#main-form #asset_map_container {
+  top: 0px;
+}
 
-#main-form .sq-popup-asset-map {
+
+.sq-popup-asset-map {
 	width: 227px;
 }
 
-#main-form .sq-fieldsets-table {
+.sq-fieldsets-table {
 	margin-left: 12px;
 }
 
@@ -304,80 +306,54 @@ body #main-form {
 	padding-right: 12px;
 }
 
-
-
-#main-form input[type="button"],
-#main-form input[type="submit"] {
-    line-height: 22px;
-    height: 23px;
+.sq-fieldsets-table .sq-popup-button-wrapper {
+	padding-right: 7px;
 }
-
-
-#main-form .sq-popup-checkbox-list {
+.sq-popup-checkbox-list {
 	line-height: 20px;
 }
-
-
-#main-form #asset_map_container {
-  top: 0px;
-}
-
-
 
 .sq-popup-button-wrapper {
 	padding-left: 12px;
 }
 
-.sq-popup-button-wrapper .sq-btn-green {
+.sq-btn-green {
 	float: right;
 }
 
-#main-form button {
-	width: 70px;
-}
-
-#main-form .sq-popup-multi-button-wrapper {
+.sq-popup-multi-button-wrapper {
   text-align: center;
+  margin-left:12px;
 }
 
-#main-form .sq-popup-multi-button-wrapper button{
-	width: 110px;
-	margin-bottom: 1em;
-}
-
-
-
-/* Unique popup values */
-
-#f_alt, #f_title {
-  width: 90%;
-}
-
-#main-form #f_longdesc_protocol,
-#main-form #sq_asset_finder_f_longdesc_change_btn {
+.sq-popup-multi-button-wrapper button{
+	width: 115px;
 	margin-bottom: 10px;
 }
 
+
+/* Insert Image styles */
+
 #main-form .prev {
-	min-height: 278px;
+	min-height: 262px;
 }
-
-
 
 #main-form #show_upload_error {
 	color: #cc0000; 
 }
 
 
-/*Table Properties*/
+/*Table Properties styles*/
 
 .sq-popup-clean-fieldset input,
 .sq-popup-clean-fieldset textarea,
 .sq-popup-clean-fieldset select  {
 	margin-bottom:5px;
-	width: 160px;
 }
 
+.sq-popup-select-fixed-width {
+	width: 160px;
+}
 
 .sq-popup-clean-fieldset textarea{
 	display:block;
@@ -386,6 +362,10 @@ body #main-form {
 
 .sq-popup-clean-fieldset select {
 	height: 23px;
+}
+
+.sq-popup-clean-fieldset .sq-popup-button-wrapper {
+	padding-left:0px;
 }
 
 
@@ -415,6 +395,7 @@ body #main-form {
 .sq-popup-clean-fieldset fieldset {
 	margin-top: 4px;
 	padding-right: 5px;
+	margin-right: 7px;
 }
 
 #panels #global_panel {
@@ -459,8 +440,6 @@ body #main-form {
 	height: 25px;
 	text-align: center;
 	font-weight: bold;
-	border: 1px dashed gray;
-	background-color: #725B7D;
 }
 
 #specialChars div.floating {
@@ -481,3 +460,25 @@ body #main-form {
 	font-weight: 400;
 }
 
+
+/* Spellcheck */
+
+#spellchecker .sq-popup-button-wrapper {
+   margin: 4px -3px 0 -8px;
+}
+
+
+#spellchecker fieldset {
+	margin: 0 0 0 8px;
+	padding-right: 5px;
+}
+
+#spellchecker .sq-popup-asset-map {
+	position: relative;
+}
+
+
+#spellchecker button {
+	width: 90px;
+	margin: 4px;
+}

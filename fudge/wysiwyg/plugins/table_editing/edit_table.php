@@ -282,7 +282,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 			<label for="summary"><?php echo translate('summary'); ?>:</label>
 			<textarea id="summary" cols="10" rows="3" onkeyup="table.setSummary(this.value)"></textarea>
 			<label for="frame"><?php echo translate('frame'); ?>:</label>
-			<select id="frame" name="frame" onchange="table.setFrame(this.value)">
+			<select class="sq-popup-select-fixed-width" id="frame" name="frame" onchange="table.setFrame(this.value)">
 				<option value=""><?php echo strtolower(translate('empty')); ?></option>
 				<option value="void"><?php echo translate('no_sides'); ?></option>
 				<option value="above"><?php echo translate('the_top_side_only'); ?></option>
@@ -294,7 +294,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 				<option value="box"><?php echo translate('all_four_sides'); ?></option>
 			</select><br />
 			<label for="rules"><?php echo translate('rules'); ?>:</label>
-			<select id="rules" name="rules" onchange="table.setRules(this.value)">
+			<select class="sq-popup-select-fixed-width" id="rules" name="rules" onchange="table.setRules(this.value)">
 				<option value=""><?php echo strtolower(translate('empty')); ?></option>
 				<option value="none"><?php echo translate('no_rules'); ?></option>
 				<option value="rows"><?php echo translate('rules_will_appear_between_rows_only'); ?></option>
@@ -307,9 +307,9 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 		<fieldset id="row_panel" style="display:none">
 			<legend><b><?php echo translate('row_properties') ?></b></legend>
 			<label for="row_class">Class Name:</label>
-			<input id="row_class" name="row_class" onkeyup="table.setRowClass(document.getElementById('row_class').value)" disabled="disabled"/><br />
+			<input type="text" id="row_class" name="row_class" onkeyup="table.setRowClass(document.getElementById('row_class').value)" disabled="disabled"/><br />
 			<label for="row_width"><?php echo 'Height' ?></label>
-			<input id="row_width" name="row_width" onkeyup="table.setRowHeight(parseInt(document.getElementById('row_width').value) + document.getElementById('row_widthtype').value)" style="width:100px" value="100" disabled="disabled"/>
+			<input type="text" id="row_width" name="row_width" onkeyup="table.setRowHeight(parseInt(document.getElementById('row_width').value) + document.getElementById('row_widthtype').value)" style="width:100px" value="100" disabled="disabled"/>
 			<select id="row_widthtype" name="row_widthtype" style="width:50px" onchange="table.setRowHeight(parseInt(document.getElementById('row_width').value) + document.getElementById('row_widthtype').value)" disabled="disabled">
 			<option value="px">px</option>
 				<option value="%" selected="selected">%</option>
@@ -318,7 +318,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 				<option value="ex">ex</option>
 			</select><br />
 			<label for="row_border"><?php echo translate('border'); ?></label>
-			<input id="row_border" name="row_border" style="width:50px" onkeyup="table.setElementBorder((parseInt(document.getElementById('row_border').value)), document.getElementById('row_bordertype').value);" value="0" disabled="disabled" />
+			<input type="text" id="row_border" name="row_border" style="width:50px" onkeyup="table.setElementBorder((parseInt(document.getElementById('row_border').value)), document.getElementById('row_bordertype').value);" value="0" disabled="disabled" />
 			<select id="row_bordertype" name="row_bordertype" style="width:80px" onchange="table.setElementBorder((parseInt(document.getElementById('row_border').value)), document.getElementById('row_bordertype').value);" disabled="disabled">
 				<option value="solid" selected="selected">solid</option>
 				<option value="dotted">dotted</option>
@@ -352,9 +352,9 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 		<fieldset id="col_panel" style="display:none;">
 			<legend><b>Column Properties</b></legend>
 			<label for="col_class">Class Name:</label>
-			<input id="col_class" name="col_class" onkeyup="table.setColClass(document.getElementById('col_class').value)" disabled="disabled"/><br />
+			<input type="text" id="col_class" name="col_class" onkeyup="table.setColClass(document.getElementById('col_class').value)" disabled="disabled"/><br />
 			<label for="col_width"><?php echo translate('width'); ?></label>
-			<input id="col_width" name="col_width" onkeyup="table.setColumnWidth(parseInt(document.getElementById('col_width').value) + document.getElementById('col_widthtype').value)" style="width:100px" value="100" disabled="disabled" />
+			<input type="text" id="col_width" name="col_width" onkeyup="table.setColumnWidth(parseInt(document.getElementById('col_width').value) + document.getElementById('col_widthtype').value)" style="width:100px" value="100" disabled="disabled" />
 			<select id="col_widthtype" name="col_widthtype" style="width:50px" onchange="table.setColumnWidth(parseInt(document.getElementById('col_width').value) + document.getElementById('col_widthtype').value)" disabled="disabled">
 			<option value="px">px</option>
 				<option value="%" selected="selected">%</option>
@@ -363,7 +363,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 				<option value="ex">ex</option>
 			</select>
 			<label for="col_border"><?php echo 'Border'; ?></label>
-			<input id="col_border" name="col_border" style="width: 50px" onkeyup="table.setElementBorder((parseInt(document.getElementById('col_border').value)), document.getElementById('col_bordertype').value);" value="0" disabled="disabled" />
+			<input type="text" id="col_border" name="col_border" style="width: 50px" onkeyup="table.setElementBorder((parseInt(document.getElementById('col_border').value)), document.getElementById('col_bordertype').value);" value="0" disabled="disabled" />
 			<select id="col_bordertype" name="col_bordertype" style="width:80px" onchange="table.setElementBorder((parseInt(document.getElementById('col_border').value)), document.getElementById('col_bordertype').value);" disabled="disabled">
 				<option value="solid" selected="selected">solid</option>
 				<option value="dotted">dotted</option>
@@ -397,10 +397,10 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 		<fieldset id="cell_panel" style="display:none">
 			<legend><b><?php echo translate('cell_properties'); ?></b></legend>
 			<label for="cell_class">Class Name:</label>
-			<input id="cell_class" name="cell_class" onkeyup="table.setCellClass(document.getElementById('cell_class').value)" disabled="disabled"/><br />
+			<input type="text" id="cell_class" name="cell_class" onkeyup="table.setCellClass(document.getElementById('cell_class').value)" disabled="disabled"/><br />
 			<label for="cell_width"><?php echo translate('width'); ?></label>
-			<input id="cell_width" name="cell_width" onkeyup="table.setCellWidth(parseInt(document.getElementById('cell_width').value) + document.getElementById('cell_widthtype').value)" style="width:100px" value="100" disabled="disabled" />
-			<select id="cell_widthtype" name="cell_widthtype" style="width:50px" onchange="table.setCellWidth(parseInt(document.getElementById('cell_width').value) + document.getElementById('cell_widthtype').value)" disabled="disabled">
+			<input type="text" id="cell_width" name="cell_width" onkeyup="table.setCellWidth(parseInt(document.getElementById('cell_width').value) + document.getElementById('cell_widthtype').value)" style="width:100px" value="100" disabled="disabled" />
+			<select id="cell_widthtype" name="cell_widthtype" onchange="table.setCellWidth(parseInt(document.getElementById('cell_width').value) + document.getElementById('cell_widthtype').value)" disabled="disabled">
 			<option value="px">px</option>
 				<option value="%" selected="selected">%</option>
 				<option value="pt">pt</option>
@@ -408,8 +408,8 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 				<option value="ex">ex</option>
 			</select>
 			<label for="cell_height"><?php echo translate('height'); ?></label>
-			<input id="cell_height" name="cell_height" onkeyup="table.setCellHeight(parseInt(document.getElementById('cell_height').value) + document.getElementById('cell_heighttype').value)" style="width:100px" value="100" disabled="disabled" />
-			<select id="cell_heighttype" name="cell_heighttype" style="width:50px" onchange="table.setCellHeight(parseInt(document.getElementById('cell_height').value) + document.getElementById('cell_heighttype').value)" disabled="disabled">
+			<input type="text" id="cell_height" name="cell_height" onkeyup="table.setCellHeight(parseInt(document.getElementById('cell_height').value) + document.getElementById('cell_heighttype').value)" style="width:100px" value="100" disabled="disabled" />
+			<select id="cell_heighttype" name="cell_heighttype" onchange="table.setCellHeight(parseInt(document.getElementById('cell_height').value) + document.getElementById('cell_heighttype').value)" disabled="disabled">
 			<option value="px">px</option>
 				<option value="%" selected="selected">%</option>
 				<option value="pt">pt</option>
@@ -417,8 +417,8 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 				<option value="ex">ex</option>
 			</select>
 			<label for="cell_border"><?php echo translate('border'); ?></label>
-			<input id="cell_border" name="cell_border" style="width:50px" onkeyup="table.setElementBorder((parseInt(document.getElementById('cell_border').value)), document.getElementById('cell_bordertype').value);" value="0" disabled="disabled" />
-			<select id="cell_bordertype" name="cell_bordertype" style="width:80px" onchange="table.setElementBorder((parseInt(document.getElementById('cell_border').value)), document.getElementById('cell_bordertype').value);" disabled="disabled">
+			<input type="text" id="cell_border" name="cell_border" style="width:50px" onkeyup="table.setElementBorder((parseInt(document.getElementById('cell_border').value)), document.getElementById('cell_bordertype').value);" value="0" disabled="disabled" />
+			<select id="cell_bordertype" name="cell_bordertype" onchange="table.setElementBorder((parseInt(document.getElementById('cell_border').value)), document.getElementById('cell_bordertype').value);" disabled="disabled">
 				<option value="solid" selected="selected">solid</option>
 				<option value="dotted">dotted</option>
 				<option value="dashed">dashed</option>
@@ -449,9 +449,9 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 			<img id="cell_abottom" title="Align Bottom" alt="Align Bottom" src="images/ab.gif" onclick="if (table.lastSelect == 'cell') table.setVAlign('bottom');" /><br />
 			<hr />
 			<label for="abbr"><?php echo translate('abbr'); ?></label>
-			<input id="abbr" name="abbr" onkeyup="table.setAbbr(this.value)" disabled="disabled" /><br />
+			<input type="text" id="abbr" name="abbr" onkeyup="table.setAbbr(this.value)" disabled="disabled" /><br />
 			<label for="axis"><?php echo translate('axis'); ?></label>
-			<input id="axis" name="axis"  onkeyup="table.setAxis(this.value)" disabled="disabled" /><br />
+			<input type="text" id="axis" name="axis"  onkeyup="table.setAxis(this.value)" disabled="disabled" /><br />
 			<label for="scope"><?php echo translate('scope'); ?></label>
 			<select id="scope" name="scope" onchange="table.setScope(this.value)" disabled="disabled">
 				<option value=""><?php echo strtolower(translate('empty')); ?></option>
@@ -493,9 +493,9 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 			</div>
 		</fieldset>
 
-		<div align="right">
-			<button accesskey="s" type="button" onclick="onOK()"><?php echo translate('ok'); ?></button>
+		<div class="sq-popup-button-wrapper">			
 			<button type="button" onclick="onCancel()"><?php echo translate('cancel'); ?></button>
+			<button accesskey="s" type="button" onclick="onOK()" class="sq-btn-green"><?php echo translate('ok'); ?></button>
 		</div>
 	</div>
 </div>
