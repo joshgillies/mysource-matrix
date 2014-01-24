@@ -2446,6 +2446,13 @@ class Listing_Engine extends Page
 		$keywords = Array();
 		$shadow_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		foreach ($bc_keywords as $key => $keyword) {
+			// if the keyword is globals_* then don't worry about processing
+			// it,it will be taken care of at a higher level towards the end
+			if (strpos($keyword, 'globals') !== FALSE) {
+				$keywords[$keyword] = '%'.$keyword.'%';
+				continue;
+			}
+
 			$keywords[$keyword] = $shadow_asset->getKeywordReplacement($keyword);
 		}
 

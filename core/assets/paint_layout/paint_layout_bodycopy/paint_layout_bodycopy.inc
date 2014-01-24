@@ -450,26 +450,41 @@ class Paint_Layout_Bodycopy extends Bodycopy
 		}//end foreach
 
 		// asset lineage
-		if (in_array('asset_lineage', $required_keywords) || in_array('asset_lineage_linked', $required_keywords)) {
-			
-			preg_match('|^([^:]*)://(.*)|', $asset->getURL(), $matches);
-			$url = !empty($matches[1]) ? $matches[1] : NULL;
-			$protocol = !empty($matches[2]) ? $matches[2] : NULL;
-			$asset_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL($url, $protocol);
-			
-			$ret['asset_lineage'] = '';
-			$ret['asset_lineage_linked'] = '';
-			$lineage_separator = ' > ';
-			$lineage_separator = $this->attr('lineage_separator');
+		$keywords_evaluated = FALSE;
+		foreach ($required_keywords as $req_keyword) {
+			$full_keyword = $req_keyword;
+			$req_keyword = parse_keyword($req_keyword, $modifiers);
 
-			foreach ($asset_lineage as $asset_lineage_item) {
-				if (!empty($ret['asset_lineage'])) {
-					$ret['asset_lineage'] .= $lineage_separator;
-					$ret['asset_lineage_linked'] .= $lineage_separator;
+			// see if we need to process asset_lineage* keyword
+			// also process only once in this foreach loop
+			if (strpos($req_keyword, 'asset_lineage') !== FALSE && !$keywords_evaluated) {
+			
+				preg_match('|^([^:]*)://(.*)|', $asset->getURL(), $matches);
+				$url = !empty($matches[1]) ? $matches[1] : NULL;
+				$protocol = !empty($matches[2]) ? $matches[2] : NULL;
+				$asset_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL($url, $protocol);
+			
+				$ret['asset_lineage'] = '';
+				$ret['asset_lineage_linked'] = '';
+				$lineage_separator = ' > ';
+				$lineage_separator = $this->attr('lineage_separator');
+
+				foreach ($asset_lineage as $asset_lineage_item) {
+					if (!empty($ret['asset_lineage'])) {
+						$ret['asset_lineage'] .= $lineage_separator;
+						$ret['asset_lineage_linked'] .= $lineage_separator;
+					}
+					$ret['asset_lineage'] .= $asset_lineage_item['short_name'];
+					$ret['asset_lineage_linked'].='<a href="'.$asset_lineage_item['protocol'].'://'.$asset_lineage_item['url'].'">'.$asset_lineage_item['short_name'].'</a>';
 				}
-				$ret['asset_lineage'] .= $asset_lineage_item['short_name'];
-				$ret['asset_lineage_linked'].='<a href="'.$asset_lineage_item['protocol'].'://'.$asset_lineage_item['url'].'">'.$asset_lineage_item['short_name'].'</a>';
+				$keywords_evaluated = TRUE;
 			}
+
+			if (!empty($modifiers)) {
+				$ret[$full_keyword] = $ret[$req_keyword];
+				apply_keyword_modifiers($ret[$full_keyword], $modifiers, Array('assetid' => $asset->id));
+			}
+			$modifiers = Array();
 		}
 
 		// 3. Conditions

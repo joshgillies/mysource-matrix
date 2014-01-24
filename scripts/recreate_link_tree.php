@@ -47,6 +47,8 @@ if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')
 	exit();
 }
 
+$no_ddl = isset($_SERVER['argv'][2]) && ($_SERVER['argv'][2] == '--no-ddl');
+
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
 require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
@@ -65,14 +67,38 @@ if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 $db = MatrixDAL::getDb();
 $pgdb = (MatrixDAL::getDbType() == 'pgsql');
 
+// From test_message.php: fairly broad brush used here, we know that slon uses '<schema_name>_(logtrigger|denyaccess)_[0-9]', so we'll use that to sniff for slon and it's schema name. denyaccess indicates slave.
+if ($pgdb && !$no_ddl) {
+	$slon_schema_query = 'SELECT REGEXP_REPLACE(trigger_name, \'(_logtrigger_|_denyaccess_)[0-9]+\', \'\') FROM information_schema.triggers WHERE (trigger_name LIKE \'%_logtrigger_%\' OR trigger_name LIKE \'%_denyaccess_%\') limit 1';
+	$result = MatrixDAL::executeSqlOne($slon_schema_query);
+	if (!empty($result)) {
+		echo_headline('*** WARNING ***');
+		echo_headline('The database appears to be using Slony replication.');
+		echo_headline('Consider using --no-ddl to use only DML commands or replication might be broken.');
+		echo_headline('***************');
+	}
+}
+
+
 $script_start = time();
 
 echo_headline('TRUNCATING TREE');
 
-if ($pgdb) {
+if($no_ddl) {
+    if($pgdb) { 
+	$sql = "BEGIN;\nDELETE FROM sq_ast_lnk_tree;";
+    }
+    else {
+	$sql = "DELETE FROM sq_ast_lnk_tree;";
+    }
+}
+else {
+    if($pgdb) {
 	$sql = 'TRUNCATE sq_ast_lnk_tree;';
-} else {
+    }
+    else {
 	$sql = 'TRUNCATE TABLE sq_ast_lnk_tree;';
+    }
 }
 
 echo $sql,"\n";
@@ -125,8 +151,9 @@ fwrite(STDERR, "\n");
 
 echo_headline('CREATING INSERTS');
 
-// if the DB is postgres use the COPY syntax for quicker insert
-if ($pgdb) {
+// if the DB is postgres use the COPY syntax for quicker insert, 
+// however it's a DDL command, and so if we're using slony we can't use it.
+if ($pgdb && !$no_ddl) {
 	$sql = "COPY sq_ast_lnk_tree (treeid, linkid, num_kids) FROM stdin;\n"
 			.'-'."\t".'1'."\t".(string)count($index[1]);
 
@@ -141,7 +168,7 @@ $echo_i = 0;
 recurse_tree_create(1, '');
 fwrite(STDERR, "\n");
 
-if ($pgdb) {
+if ($pgdb && !$no_ddl) {
 	echo "\\.\n";
 } else {
 	echo "COMMIT;\n";
@@ -202,13 +229,13 @@ function echo_headline($s)
 */
 function recurse_tree_create($majorid, $path)
 {
-	global $db, $index, $echo_i, $pgdb;
+	global $db, $index, $echo_i, $pgdb, $no_ddl;
 
 	foreach ($index[$majorid] as $i => $data) {
 		$treeid   = $path.asset_link_treeid_convert($i, true);
 		$num_kids = (empty($index[$data['minorid']])) ? 0 : count($index[$data['minorid']]);
 
-		if ($pgdb) {
+		if ($pgdb && !$no_ddl) {
 			$sql = $treeid."\t".(string)$data['linkid']."\t".(string)$num_kids;
 		} else {
 			$sql = 'INSERT INTO sq_ast_lnk_tree (treeid, linkid, num_kids) VALUES ('.MatrixDAL::quote($treeid).','.MatrixDAL::quote((int) $data['linkid']).','.MatrixDAL::quote($num_kids).');';

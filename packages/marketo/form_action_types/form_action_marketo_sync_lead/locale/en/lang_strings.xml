@@ -1,0 +1,27 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+*
+*
+*/
+-->
+
+<strings>
+	<string source="marketo_connection_details">Connection Details</string>
+	<string source="marketo_bridge_asset">Marketo Bridge Asset</string>
+	<string source="marketo_attribute_sync_settings">Attribute Sync Settings</string>
+	
+	<string source="marketo_attribute_name">Attribute Name</string>
+	<string source="marketo_attribute_value">Attribute Value</string>
+	
+	<string source="marketo_sync_form_action_note"><![CDATA[<strong>Note: </strong>Marketo Cookie is required to be set for this action to work.<br/>Global keywords and form response keywords are supported in the attribute value. <br/>If Email attribute is specified, it will be passed to Marketo directly. Verified Email address will be automatically synced to Marketo.]]></string>
+</strings>

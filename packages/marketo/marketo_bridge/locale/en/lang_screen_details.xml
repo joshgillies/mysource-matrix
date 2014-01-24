@@ -1,0 +1,97 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+*
+*/
+-->
+
+<contents>
+	<section name="Details">
+		<field attribute="name">
+			<display_name>Page Name</display_name>
+			<note />
+		</field>
+		<field attribute="short_name">
+			<display_name>Page Short Name</display_name>
+			<note />
+		</field>
+	</section>
+	<section name="Marketo Settings" write_access="write:attributes">
+		<field attribute="soap_endpoint">
+			<display_name>SOAP Endpoint</display_name>
+			<note />
+		</field>
+		<field attribute="soap_user_id">
+			<display_name>User ID</display_name>
+			<note />
+		</field>
+		<field attribute="soap_encryption_key">
+			<display_name>Encryption Key</display_name>
+			<note />
+		</field>
+		<field attribute="debug">
+			<display_name>Debug</display_name>
+			<note />
+		</field>
+	</section>
+	<section name="Get Lead API Settings" write_access="write:attributes">
+	    <field attribute="get_lead">
+		<display_name>Enabled</display_name>
+		<note />
+	    </field>
+	    <field attribute="get_lead_allowed_attributes">
+		<display_name>Allowed Attributes</display_name>
+		<note>Comma separated list of attributes to be allowed in the Get Lead API. Leave blank to allow all attributes to be returned.</note>
+	    </field>
+	    <field attribute="get_lead_caching">
+		<display_name>Lead Caching</display_name>
+		<note>By default lead data is cached for entire session or until a Sync Lead action is triggered. If shorter exiry is desired, specify number of seconds to expire here. Negative number means default caching behavior is used.</note>
+	    </field>
+	    <field attribute="get_lead_email_source">
+		<display_name>Trusted Email Source</display_name>
+		<note>Optional. Specify a global keyword to be evaluated to source a trusted email as lead key to get lead from Marketo. It's only required if Marketo Cookie and verified email is not available.  e.g %globals_user_attribute_email%</note>
+	    </field>
+	</section>
+	<section name="Sync Lead API Settings" write_access="write:attributes">
+	    <field attribute="sync_lead">
+		<display_name>Enabled</display_name>
+		<note />
+	    </field>
+	    <field attribute="sync_lead_allowed_attributes">
+		<display_name>Allowed Attributes</display_name>
+		<note>Comma separated list of attributes to be allowed in the Sync Lead API. Leave blank to allow all attributes to be synced.</note>
+	    </field>
+	    <field attribute="email_trust_policy">
+		<display_name>Email Attribute Trust Policy</display_name>
+		<note>Marketo automatically merges leads by Email attribute in sync data. It could be a secrity risk if we use unverified Email provided by public user.</note>
+	    </field>
+	    <field attribute="sync_lead_email_source">
+		<display_name>Trusted Email Source</display_name>
+		<note>Optional. Specify a global keyword to be evaluated as a trusted Email attribute to be synced to Marketo.  e.g %globals_user_attribute_email%</note>
+	    </field>
+	</section>
+	<section name="Munchkin API Settings" write_access="write:attributes">
+	    <field attribute="munchkin_account_id">
+		<display_name>Munchkin Account ID</display_name>
+		<note>Use keyword %globals_marketo_munchkin_id:xx% to print this id.</note>
+	    </field>	
+	    <field attribute="munchkin_email_source">
+		<display_name>Trusted Email Source</display_name>
+		<note>Specify a global keyword to be evaluated to source a trusted Email in addition to verified Email.  e.g %globals_user_attribute_email%.</note>
+	    </field>
+	    <field attribute="munchkin_private_key">
+		<display_name>Munchkin Private Key</display_name>
+		<note />
+	    </field>
+	    <note>Munchkin API requires both Email and Private Key to be set above so that Matrix can generate a hash value to be used in Munchkin API call. Use keyword %globals_marketo_munchkin_hash:xx%</note>
+	</section>
+</contents>

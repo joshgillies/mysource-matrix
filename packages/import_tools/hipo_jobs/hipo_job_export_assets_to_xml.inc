@@ -950,9 +950,9 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 			(?P<prefix>%(
 				globals_asset_[a-z]+:
 				|asset_summary_
-				|begin_[a-z_]+_
-				|else_[a-z_]+_
-				|end_[a-z_]+_
+				|begin_[a-z_]+:
+				|else_[a-z_]+:
+				|end_[a-z_]+:
 			))
 			(?P<id>\d+(\:\w+)?)
 			(?P<suffix>%)

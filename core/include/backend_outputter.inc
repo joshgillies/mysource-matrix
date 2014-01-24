@@ -1470,7 +1470,7 @@ class Backend_Outputter
 								?>
 									<tr class="sq-backend-row" <?php
 										// in addition to checking if the row is hidden, also check to see if the contents and notes are empty, if both empty then no point in showing the row
-										if ($field['hidden'] || (strlen($field['contents']) < 1 && strlen($field['note']) < 1)) echo 'style="display: none"'; 
+										if ($field['hidden'] || (strlen($field['contents']) == 0 && strlen($field['note']) == 0)) echo 'style="display: none"';
 									?> <?php
 										if ($field['id_name']) {
 											echo 'id="'.$field['id_name'].'"';
@@ -1647,7 +1647,7 @@ class Backend_Outputter
 	* @return void
 	* @access public
 	*/
-	function commitButton($value='', $release_lock=TRUE, $include_section=TRUE)
+	function commitButton($value='', $release_lock=TRUE, $include_section=TRUE, $on_click='')
 	{
 		// value is empty, use default caption
 		if (empty($value)) {
@@ -1668,8 +1668,11 @@ class Backend_Outputter
 				$this->openField('', 'commit');
 			}
 		}
+		if (empty($on_click)) {
+			$on_click = 'if (submit_form) { submit_form(this.form); } else { this.form.submit(); this.disabled = \'disabled\';} ';
+		}
 		hidden_field('sq_lock_release', $release_lock);
-		normal_button('sq_commit_button', $value, 'if (submit_form) { submit_form(this.form); } else { this.form.submit(); this.disabled = \'disabled\'; } ', 'accesskey="s" class="sq-form-field sq-btn-large sq-btn-green sq-commit-button"');
+		normal_button('sq_commit_button', $value, $on_click, 'accesskey="s" class="sq-form-field sq-btn-large sq-btn-green sq-commit-button"');
 		if ($include_section) {
 			if (SQ_IN_BACKEND && $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_COMMIT_BUTTON_POS')) {
 				?>

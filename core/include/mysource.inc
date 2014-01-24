@@ -1883,6 +1883,14 @@ class MySource extends MySource_Object
 				echo (get_unique_token());
 				exit(1);
 			break;
+		    	
+			case 'verify_email' :
+				if(isset($_GET['email_verification_token']) && isset($_SESSION['SQ_VERIFY_EMAIL_TOKEN'])) {
+				    if($_GET['email_verification_token'] === $_SESSION['SQ_VERIFY_EMAIL_TOKEN']) {
+					$_SESSION['SQ_VERIFY_EMAIL_VERIFIED'] = $_SESSION['SQ_VERIFY_EMAIL_RAW'];
+				    }
+				}
+			break;				
 		}//end switch
 
 		// just so it isn't being used anywhere else
@@ -4561,6 +4569,11 @@ class MySource extends MySource_Object
 		if (!isset($_SESSION['entry_asset']) && !isset($_REQUEST['just_logged_out'])) {
 			$_SESSION['entry_asset'] = $asset->id;
 			$_SESSION['entry_url'] = rtrim(current_url(), '/');
+		}
+
+		// Register the session's referrer (site referrer)
+		if (!isset($_SESSION['site_referrer']) && !isset($_REQUEST['just_logged_out'])) {
+			$_SESSION['site_referrer'] = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
 		}
 
 		// Print the asset frontend
