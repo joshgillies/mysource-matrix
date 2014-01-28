@@ -17,6 +17,5 @@
 
 <screens>
 	<screen code_name="paths"     display_name="Web Paths"  icon="web"    lock_type="lookups"/>
-	<screen code_name="contents"  display_name="Edit Image" icon="create" lock_type="attributes" />
 	<screen code_name="varieties" display_name="Varieties"  icon="create" lock_type="attributes" force_unlock="0" />
 </screens>

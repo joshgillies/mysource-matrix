@@ -27,13 +27,6 @@
 				<process_function	name="processFileUploadPreUpload" />
 			</function_call>
 		</field>
-		<field>
-			<display_name></display_name>
-			<function_call>
-				<paint_function   name="paintCreateEditor"   />
-				<process_function name="processCreateEditor" />
-			</function_call>
-		</field>
 		<field attribute="alt">
 			<text width="40" height="1" />
 		</field>

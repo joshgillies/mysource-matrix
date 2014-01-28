@@ -505,67 +505,55 @@ class Asset_Map
 					$height = "(document.documentElement.clientHeight - ".(SQ_IN_LIMBO ? 51 : 70).")";
 				}
 
-				$useModern = (boolean) $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_MODERN');
+				$js_width = $width;
+				if ($type !== 'simple') {
+					// Make room for tabs in the JS asset map.
+					$js_width -= 18;
+				}
 
-				if ($useModern === TRUE) {
-					$js_width = $width;
-					if ($type !== 'simple') {
-						// Make room for tabs in the JS asset map.
-						$js_width -= 18;
-					}
-
-					$rootlinParts = explode('~', $rootlineage, 2);
-					$rootlineage  = explode('|', $rootlinParts[0]);
-					if (count($rootlineage) >= 2) {
-						$minorid    = array_pop($rootlineage);
-						$majorid    = array_pop($rootlineage);
-						$rootLinkid = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($majorid, $minorid, SQ_SC_LINK_SIGNIFICANT);
-						$rootLinkid = $rootLinkid['linkid'];
-					} else {
-						$rootLinkid = '';
-					}
-					
-					// Set the root edit URL, which needs to point to the correct
-					// (admin or simple edit) suffix.
-					$rootEditUrl = sq_web_path('root_url').'/'.SQ_CONF_BACKEND_SUFFIX;
-					if ($canAccessAdmin === FALSE) {
-					    $rootEditUrl = sq_web_path('root_url').'/'.SQ_CONF_LIMBO_SUFFIX;
-					}
-				?>
-					<script type="text/javascript">
-						dfxLoadedCallback = function() {
-							var supported = JS_Asset_Map.isSupported();
-							if (supported === false) {
-								init_asset_map("<?php echo $codebase ?>", "<?php echo $archive ?>", <?php echo json_encode_array($parameters) ?>, <?php echo $width ?>, <?php echo $height ?>);
-							} else {
-								var asset_map_container = document.createElement('div');
-								asset_map_container.id  = 'asset_map_container';
-								asset_map_container.style.width  = <?php echo $js_width ?> + 'px';
-								asset_map_container.style.height = <?php echo $height ?> + 'px';
-								document.getElementById('asset_map').appendChild(asset_map_container);
-								JS_Asset_Map.<?php echo $startCmd ?>({
-									rootEditUrl: '<?php echo $rootEditUrl ?>',
-									assetIconPath: '<?php echo sq_web_path('data') ?>/asset_types',
-									libPath: '<?php echo sq_web_path('lib') ?>',
-									displayFormat: '<?php echo addslashes(SQ_CONF_ASSET_MAP_ASSET_DISPLAY_NAME); ?>',
-									assetsPerPage: <?php echo SQ_CONF_ASSET_MAP_ASSET_LIMIT; ?>,
-									initialSelection: '<?php echo $initial_selection_lineage ?>',
-									teleportRoot: <?php echo ($common_parentid ? $common_parentid : '1') ?>,
-									teleportLink: '<?php echo $rootLinkid ?>'
-								});
-							}
-						}
-					</script>
-				<?php
+				$rootlinParts = explode('~', $rootlineage, 2);
+				$rootlineage  = explode('|', $rootlinParts[0]);
+				if (count($rootlineage) >= 2) {
+					$minorid    = array_pop($rootlineage);
+					$majorid    = array_pop($rootlineage);
+					$rootLinkid = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($majorid, $minorid, SQ_SC_LINK_SIGNIFICANT);
+					$rootLinkid = $rootLinkid['linkid'];
 				} else {
+					$rootLinkid = '';
+				}
+
+				// Set the root edit URL, which needs to point to the correct
+				// (admin or simple edit) suffix.
+				$rootEditUrl = sq_web_path('root_url').'/'.SQ_CONF_BACKEND_SUFFIX;
+				if ($canAccessAdmin === FALSE) {
+				    $rootEditUrl = sq_web_path('root_url').'/'.SQ_CONF_LIMBO_SUFFIX;
+				}
 				?>
-				<script type="text/javascript"><!--
-				//<![CDATA[
-					init_asset_map("<?php echo $codebase ?>", "<?php echo $archive ?>", <?php echo json_encode_array($parameters) ?>, <?php echo $width ?>, <?php echo $height ?>);
-				//]]> -->
+				<script type="text/javascript">
+					dfxLoadedCallback = function() {
+						var supported = JS_Asset_Map.isSupported();
+						if (supported === false) {
+							init_asset_map("<?php echo $codebase ?>", "<?php echo $archive ?>", <?php echo json_encode_array($parameters) ?>, <?php echo $width ?>, <?php echo $height ?>);
+						} else {
+							var asset_map_container = document.createElement('div');
+							asset_map_container.id  = 'asset_map_container';
+							asset_map_container.style.width  = <?php echo $js_width ?> + 'px';
+							asset_map_container.style.height = <?php echo $height ?> + 'px';
+							document.getElementById('asset_map').appendChild(asset_map_container);
+							JS_Asset_Map.<?php echo $startCmd ?>({
+								rootEditUrl: '<?php echo $rootEditUrl ?>',
+								assetIconPath: '<?php echo sq_web_path('data') ?>/asset_types',
+								libPath: '<?php echo sq_web_path('lib') ?>',
+								displayFormat: '<?php echo addslashes(SQ_CONF_ASSET_MAP_ASSET_DISPLAY_NAME); ?>',
+								assetsPerPage: <?php echo SQ_CONF_ASSET_MAP_ASSET_LIMIT; ?>,
+								initialSelection: '<?php echo $initial_selection_lineage ?>',
+								teleportRoot: <?php echo ($common_parentid ? $common_parentid : '1') ?>,
+								teleportLink: '<?php echo $rootLinkid ?>'
+							});
+						}
+					}
 				</script>
 				<?php
-				}
 			}//end if
 
 	}//end embedAssetMap()
