@@ -40,7 +40,7 @@
 
 	<string source="core_design_customisation_no_design_areas_customised">No design areas are customised yet.</string>
 	<string source="core_design_customisation_all_design_areas_customised">All design areas have been customised.</string>
-	<string source="core_design_invalid_parse_file_confirmation">The parse file does not contains any Design Area tags. Continue processing the parse file?</string>
+	<string source="core_design_invalid_parse_file_confirmation">The parse file does not contain any Design Area tags. Continue processing the parse file?</string>
 	<string source="core_design_cannot_read_parse_file">Cannot read the parse file to verify its content. Continue processing the parse file anyway?</string>
 	<string source="core_design_parse_file_loading">The parse file is being read to verify the content. Please press 'Ok' and then commit again.</string>
 
