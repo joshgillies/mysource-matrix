@@ -400,8 +400,11 @@ class Page_User_Group_Manager extends Page
 				return $null;
 			}
 			$bodycopy = $am->getAsset($link['minorid'], $link['minor_type_code']);
+			if (!$bodycopy) {
+				return $null;
+			}
 
-			return $bodycopy ? $bodycopy : $null;
+			return $bodycopy;
 		}
 
 		return $null;
