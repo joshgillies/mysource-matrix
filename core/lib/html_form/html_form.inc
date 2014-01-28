@@ -155,7 +155,7 @@ function hidden_field($name, $value='', $extras='')
 * @return void
 * @access public
 */
-function text_box($name, $value='', $size='', $max='', $hide_value=FALSE, $extras='')
+function text_box($name, $value='', $size='', $max='', $hide_value=FALSE, $extras='', $text_field_type='text')
 {
 	$size = (int) $size;
 	$max  = (int) $max;
@@ -180,7 +180,7 @@ function text_box($name, $value='', $size='', $max='', $hide_value=FALSE, $extra
 		}
 	}
 
-	echo	'<input type="text" ',
+	echo	'<input type="'.$text_field_type.'" ',
 			'name="', htmlspecialchars($name), '" ',
 			'value="', htmlspecialchars($value), '" ',
 			(($size)   ? 'size="'.$size.'" '     : ''),
