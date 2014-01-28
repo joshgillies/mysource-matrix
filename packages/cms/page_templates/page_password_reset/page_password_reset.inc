@@ -461,10 +461,13 @@ class Page_Password_Reset extends Page
 	*/
 	function _buildContents($action, $new_replacements=Array(), $extra='')
 	{
-		$replacements = Array();
+		$bodycopy = $this->_getBodycopy($action);
+		if (is_null($bodycopy)) {
+			return '';
+		}
 
+		$replacements = Array();
 		ob_start();
-			$bodycopy = $this->_getBodycopy($action);
 			$keywords = $bodycopy->getKeywords();
 
 			foreach ($keywords as $whole_keyword) {
@@ -824,10 +827,10 @@ class Page_Password_Reset extends Page
 		$null = NULL;
 
 		$bodycopy_data = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, $link_value, 'major', '1');
-		if (empty($bodycopy_data)) $null;
+		if (!$bodycopy_data) return $null;
 
 		$bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_data['minorid'], $bodycopy_data['minor_type_code']);
-		if (is_null($bodycopy)) $null;
+		if (!$bodycopy) return $null;
 
 		return $bodycopy;
 
