@@ -1099,6 +1099,8 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 								retVal = html.toString();
 							} else if (HTMLArea.is_ie) {
 								retVal = this._docContent.innerText;
+								this._docContent.className = '';
+								this._docContent.spellcheck = true
 							}
 						break;
 						case "wysiwyg":

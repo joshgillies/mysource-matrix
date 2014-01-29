@@ -103,7 +103,8 @@ class Content_Type_Edit_Fns extends Asset_Edit_Fns
 	function _paintInterface($html, $asset)
 	{
 		$source = htmlspecialchars($html);
-		$source = preg_replace('/&lt;(div|br|p|table|tr|td|th|style|script|blockquote)/i', '<br />&lt;$1', $source);
+		$source = preg_replace('/&lt;\/(div|br|p|table|thead|tbody|tfoot|tr|td|th|style|script|blockquote|h1|h2|h3|h4|h5|h6|hr|ul|li)&gt;/i', '&lt;/$1&gt;<br/>', $source);
+		$source = preg_replace('/&gt;&lt;(div|br|p|table|thead|tbody|tfoot|tr|td|th|style|script|blockquote|h1|h2|h3|h4|h5|h6|hr|ul|li)/i', '&gt;<br/>&lt;$1', $source);
 		$source = ltrim($source, '<br />');
 		$prefix = $asset->getPrefix();
 		$content_prefix = $prefix.'_'.get_class_lower($asset);

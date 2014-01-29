@@ -291,7 +291,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$str = file_to_string($parse_file);
 
 		if ($asset->writeAccess('parsing')) {
-			text_area($prefix.'_new_parse_file', str_replace("\t", '    ', $str), 0, 0, 0, 'style="" class="sq-parse-file-textarea"');
+			text_area($prefix.'_new_parse_file', str_replace("\t", '    ', $str), 5000, 20, 0, 'style="" class="sq-parse-file-textarea"');
 			?>
 			<script type="text/javascript">
 				function validate_parse_file()

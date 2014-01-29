@@ -753,7 +753,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 				return bodycopy_popup_visible;
 			}
 
-			function bodycopy_show_popup(file, width, height) {
+			function bodycopy_show_popup(file, width, height, bodycopy_id, bodycopy_type) {
 				if (!bodycopy_initialised) {
 					if (confirm(js_translate('page_not_loaded_yet'))) {
 						document.edit.action.value='';
@@ -803,8 +803,22 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 				}
 
 				// how far down the page we want to display this popup
-				var scroll_top  = ((is_ie4up) ? document.body.scrollTop  : self.pageYOffset);
-				bodycopy_popup.move(null, scroll_top + top_offset);
+				// If we can get the bodycopy divs id, we can figure out exactly where to position the popup so it is 
+				// relative to the button the user clicks on instead of where they are scrolled to for better user experience
+				if (bodycopy_type != undefined && bodycopy_id != undefined) {
+					var bodycopy_parent_td = document.getElementById('bodycopy_' + bodycopy_type + '_' + bodycopy_id + '_' + bodycopy_type + '_' + bodycopy_id);
+					var xPosition = 0;
+		    		var yPosition = 0;
+				    while(bodycopy_parent_td.className != 'sq-backend-section-table-inner') {
+				        xPosition += (bodycopy_parent_td.offsetLeft);
+				        yPosition += (bodycopy_parent_td.offsetTop);
+				        bodycopy_parent_td = bodycopy_parent_td.offsetParent;
+				    }
+		  			bodycopy_popup.move(20, yPosition + 27);
+				} else {
+					var scroll_top  = ((is_ie4up) ? document.body.scrollTop  : self.pageYOffset);
+			  		bodycopy_popup.move(null, scroll_top - 100 + top_offset);
+				}
 				bodycopy_popup.show();
 			}//end bodycopy_show_popup()
 

@@ -138,6 +138,8 @@ HTMLArea.prototype.generate = function () {
 
 		html += "<style> body { " + editor.config.bodyStyle + "; margin: 0px; padding: 10px 0 0; font-size: 13px;}\n";
 		html += ".wysiwyg-noborders { border: 1px dashed #3366CC; }\n";
+		html += ".wysiwyg-source-view, .wysiwyg-source-view * { font-family: Courier New, Courier, monospace !important; color: #111111 !important;}\n";
+		html += ".wysiwyg-source-view * { margin: 0 !important; padding: 0 !important;}\n";
 		html += "table { border-collapse: collapse; font-size: 1em; }\n";
 		html += "</style>\n";
 		html += "</head>\n";
@@ -219,6 +221,14 @@ HTMLArea.prototype.generate = function () {
 };
 
 
+// Formats HTML and puts block level elements on new lines for source view
+HTMLArea.prototype.formatHTML = function(html) {
+	html = html.replace(/&lt;\/(div|br|p|table|thead|tbody|tfoot|tr|td|th|style|script|blockquote|h1|h2|h3|h4|h5|h6|hr|ul|li)&gt;/g, '&lt;/$1&gt;<br/>');
+	html = html.replace(/&gt;&lt;(div|br|p|table|thead|tbody|tfoot|tr|td|th|style|script|blockquote|h1|h2|h3|h4|h5|h6|hr|ul|li)/g, '&gt;<br/>&lt;$1');
+	return html;
+}
+
+
 // Switches editor mode; parameter can be "textmode" or "wysiwyg"
 HTMLArea.prototype.setMode = function(mode, noFocus) {
 	if (this._editMode == mode) return false;
@@ -229,11 +239,19 @@ HTMLArea.prototype.setMode = function(mode, noFocus) {
 				var html = document.createTextNode(html);
 				this._iframe.contentWindow.document.body.innerHTML = "";
 				this._iframe.contentWindow.document.body.appendChild(html);
+				this._iframe.contentWindow.document.body.innerHTML = this.formatHTML(this._iframe.contentWindow.document.body.innerHTML);
+				this._iframe.contentWindow.document.body.className = 'wysiwyg-source-view';
+				//we dont want browser spell check in source mode as it makes it too hard to read the source
+				this._iframe.contentWindow.document.body.spellcheck = false;
+				this._iframe.contentWindow.document.body.focus();  //we need to do focus and blur for spell check to work in gecko browsers
+				this._iframe.contentWindow.document.body.blur();
 			} else if (HTMLArea.is_ie) {
 				this._docContent.innerText = html;
 				//Bug #5545: Using ctrl-z while viewing html source in WYSIWYG removes all tags in IE
 				//DOM Maniupulation will break the undo/redo stack
 				this._docContent.removeChild(this._docContent.appendChild(this._doc.createTextNode("")));
+				this._docContent.className = 'wysiwyg-source-view';
+				this._docContent.spellcheck = false;
 			}
 			if (this.config.statusBar) {
 				this._statusBar.innerHTML = HTMLArea.I18N.msg["TEXT_MODE"];
@@ -243,11 +261,18 @@ HTMLArea.prototype.setMode = function(mode, noFocus) {
 			var html = this.cleanHTML(this.getHTML());
 			if (HTMLArea.is_gecko) {
 				this._iframe.contentWindow.document.body.innerHTML = html;
+				this._iframe.contentWindow.document.body.className = '';
+				//add the spell check that was removed in source mode
+				this._iframe.contentWindow.document.body.spellcheck = true;
+				this._iframe.contentWindow.document.body.focus();   //we need to do focus and blur for spell check to work in gecko browsers
+				this._iframe.contentWindow.document.body.blur();
 			} else if (HTMLArea.is_ie) {
 				this._docContent.innerHTML = html;
 				//Bug #5545: Using ctrl-z while viewing html source in WYSIWYG removes all tags in IE
 				//DOM Maniupulation will break the undo/redo stack
 				this._docContent.removeChild(this._docContent.appendChild(this._doc.createTextNode("")));
+				this._docContent.className = '';
+				this._docContent.spellcheck = true;
 			}
 			if (this.config.statusBar) {
 				this._statusBar.innerHTML = '';

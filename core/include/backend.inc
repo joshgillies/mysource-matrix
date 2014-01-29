@@ -276,7 +276,7 @@ class Backend extends MySource_Object
 
 		$body_class = '';
 
-		$header_height = $limbo_hide_frames ? 0 : 45;
+		$header_height = $limbo_hide_frames ? 0 : 42;
 		$am_width = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_WIDTH');
 		$sidenav_width = $am_width+5;
 		$resizer_width = $limbo_hide_frames ? 0 : 25;
@@ -331,6 +331,7 @@ class Backend extends MySource_Object
 						z-index: 3;
 						background: #2a2a2a;
 						box-shadow: 0 0 3px 1px #000;
+						border-top: 1px solid #000;
 						border-bottom: 1px solid #000;
 					}
 
