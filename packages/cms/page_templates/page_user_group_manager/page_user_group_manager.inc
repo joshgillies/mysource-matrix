@@ -392,14 +392,22 @@ class Page_User_Group_Manager extends Page
 	*/
 	function &getBodycopy($name)
 	{
+		$null = NULL;
 		if (array_key_exists($name, $this->bodycopies)) {
 			$am = $GLOBALS['SQ_SYSTEM']->am;
 			$link = $am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', TRUE, $name, 'major', '1');
+			if (!$link) {
+				return $null;
+			}
 			$bodycopy = $am->getAsset($link['minorid'], $link['minor_type_code']);
+			if (!$bodycopy) {
+				return $null;
+			}
+
 			return $bodycopy;
-		} else {
-			return NULL;
 		}
+
+		return $null;
 
 	}//end getBodycopy()
 
@@ -453,6 +461,9 @@ class Page_User_Group_Manager extends Page
 			$bodycopy = $this->getBodycopy('not_logged_in');
 		} else {
 			$bodycopy = $this->getBodycopy('logged_in');
+		}
+		if (!$bodycopy) {
+			return '';
 		}
 
 		$keywords = $bodycopy->getKeywords();

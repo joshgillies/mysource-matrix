@@ -342,7 +342,7 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 					unset($asset);
 				} else {
 					// we do not acquire lock
-					trigger_localised_error('SYS0100', E_USER_WARNING, $asset->name);
+					trigger_localised_error('SYS0100', E_USER_WARNING, 'workflow', $asset->name, ' skipping asset.');
 				}
 
 			} else {

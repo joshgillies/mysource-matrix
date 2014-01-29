@@ -286,7 +286,7 @@ class HIPO_Job_Edit_Metadata_Field_Values extends HIPO_Job
 					unset($asset);
 				} else {
 					// we do not acquire lock
-					trigger_localised_error('SYS0100', E_USER_WARNING, $asset->name);
+					trigger_localised_error('SYS0100', E_USER_WARNING, 'metadata', $asset->name, ' skipping asset.');
 				}
 			} else {
 				$step_data['message'] = translate('hipo_skipping_asset', $assetid);

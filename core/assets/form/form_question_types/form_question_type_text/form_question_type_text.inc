@@ -69,11 +69,12 @@ class Form_Question_Type_Text extends Form_Question
 	*/
 	function getHtmlField()
 	{
-		$height = ($this->attr('height')) ? $this->attr('height') : 1;
-		$width  = $this->attr('width');
-		$max    = $this->attr('max');
-		$extras = $this->attr('extra');
-		$name   = 'q'.$this->id;
+		$height		= ($this->attr('height')) ? $this->attr('height') : 1;
+		$width		= $this->attr('width');
+		$max		= $this->attr('max');
+		$extras		= $this->attr('extra');
+		$input_type	= $this->attr('text_type');
+		$name   	= 'q'.$this->id;
 
 		// prepare a valid value for the field id
 		$extras = $extras.' id="'.str_replace(':', '_', $name).'"';
@@ -86,9 +87,9 @@ class Form_Question_Type_Text extends Form_Question
 
 		ob_start();
 		if ($height == 1) {
-			text_box($name, $value, $width, $max, FALSE, $extras);
+			text_box($name, $value, $width, $max, FALSE, $extras, $input_type);
 		} else {
-			text_area($name, $value, $width, $height, $max, $extras);
+			text_area($name, $value, $width, $height, $max, $extras, $input_type);
 		}
 		$html = ob_get_contents();
 		ob_end_clean();

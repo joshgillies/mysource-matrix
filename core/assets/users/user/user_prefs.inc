@@ -47,12 +47,6 @@ class User_Prefs extends Prefs
 														'default'		=> '',
 														'protected'		=> FALSE,
 													   ),
-						'SQ_USER_ASSET_MAP_MODERN'  => Array(
-														'name'			=> 'user_prefs_asset_map_modern_header',
-														'description'	=> 'Controls whether the modern (JS-based) asset map is used where supported, or the original Java version',
-														'default'		=> FALSE,
-														'protected'		=> FALSE,
-													   ),
 						'SQ_USER_SAFE_TYPE3_TRASH'	=> Array(
 														'name'			=> 'safe_trash',
 														'description'	=> 'This preference allows you to prohibit the deletion of an asset until all notice links are removed',
@@ -296,35 +290,6 @@ class User_Prefs extends Prefs
 			if (is_null($pref)) $o->closeField();
 		}//end if
 
-		if (is_null($pref) || $pref == 'SQ_USER_ASSET_MAP_MODERN') {
-			if (is_null($pref)) {
-				$o->openField(translate($this->pref_vars['SQ_USER_ASSET_MAP_MODERN']['name']));
-			}
-			?>
-			<div class="sq-backend-table sq-backend-table-cell">
-			<?php
-				$description = translate('user_prefs_asset_map_modern_description_1').' '.
-								   translate('user_prefs_asset_map_modern_description_2').' '.
-								   translate('user_prefs_asset_map_modern_description_3');
-				$options     = Array(
-								FALSE	=> 'No',
-								TRUE	=> 'Yes',
-							   );
-				$value = $this->pref_vars['SQ_USER_ASSET_MAP_MODERN']['default'];
-				if ($have_lock && $is_admin) {
-					combo_box('prefs[SQ_USER_ASSET_MAP_MODERN]', $options, FALSE, $value, 0, 'id="prefs_SQ_USER_ASSET_MAP_MODERN"');
-					?><br/><?php
-					label($description, 'prefs_SQ_USER_ASSET_MAP_MODERN');
-				} else {
-					echo $options[$value].'<br/>';
-					echo $description;
-				}
-			?>
-			<br />
-			</div>
-			<?php
-			if (is_null($pref)) $o->closeField();
-		}//end if
 
 		if (is_null($pref) || $pref == 'SQ_USER_ASSET_MAP_LINEAGE') {
 			if (is_null($pref)) {

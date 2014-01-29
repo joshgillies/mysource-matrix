@@ -38,6 +38,10 @@
 			<display_name>Default Value</display_name>
 			<note></note>
 		</field>
+		<field attribute="text_type">
+			<display_name>Type attribute text</display_name>
+			<note>Text to use for "type" attribute when browser supports HTML5. Value will default to type="&lt;b&gt;text&lt;/b&gt;" for non-comptiable browser.</note>
+		</field>
 		<field attribute="width">
 			<display_name>Width</display_name>
 			<note>Width of the field (in characters)</note>
