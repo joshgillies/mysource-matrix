@@ -846,13 +846,10 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 	text_box($safe_name.'_label', $label, 20, 0, FALSE, 'readonly="readonly" class="sq-form-asset-finder" onfocus="this.tmp = this.value;" onblur="this.value = this.tmp;"');
 	// only print the buttons if in the backend (where there's an asset map frame available)
 	if (SQ_IN_BACKEND || SQ_IN_LIMBO || defined('SQ_PAINTED_SIMPLE_ASSET_MAP')) {
-		?>
-		<span class="sq-asset-finder-id-label">Id : #</span>
-		<?php
+		?><span class="sq-asset-finder-id-label">Id : #</span><?php
 		text_box($safe_name.'_assetid', empty($assetid) ? '' : $assetid, 2, '', FALSE, 'onchange="this.value=this.value.replace(/^\s*((?:[\S\s]*\S)?)\s*$/, \'$1\');'.str_replace('"', '\'', $finder_frame).'.set_hidden_field(\''.$name.'\' + \'[assetid]\', this.value);"');
-		?> 
-		<?php
-		normal_button($safe_name.'_change_btn', translate('change'), $map_frame.'.set_finder('.$finder_frame.'); '.$map_frame.'.asset_finder_change_btn_press(\''.$escaped_name.'\', \''.$safe_name.'\', \''.addslashes($type_codes).'\', '.$done_fn.');');
+		?> <?php
+		normal_button($safe_name.'_change_btn', translate('change'), $map_frame.'.asset_finder_change_btn_press(\''.$escaped_name.'\', \''.$safe_name.'\', \''.addslashes($type_codes).'\', '.$done_fn.');');
 		if (in_array('clear', $buttons)) {
 			normal_button($safe_name.'_clear_btn', translate('clear'), $map_frame.'.asset_finder_clear_btn_press(\''.$escaped_name.'\', \''.$safe_name.'\');');
 		}
@@ -877,17 +874,36 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 * @param boolean	$new_window	is the asset finder in a different window than the asset map
 * @param string		$done_fn	a javascript function to call when the asset finder is finished
 * @param array		$buttons	an array of which additional buttons to print (clear and/or reset)
+* @param boolean	$allow_sorting	whether to allow user to sort the asset list (ordering info is posted to "_order" array var)
 *
 * @return void
 * @access public
 */
-function multiple_asset_finder($name, $assetids=Array(), $type_codes=Array(), $map_frame='sq_sidenav', $new_window=FALSE, $done_fn='null', $buttons=Array('clear'))
+function multiple_asset_finder($name, $assetids=Array(), $type_codes=Array(), $map_frame='sq_sidenav', $new_window=FALSE, $done_fn='null', $buttons=Array('clear'), $allow_sorting=FALSE)
 {
 	?><script type="text/javascript" src="<?php echo sq_web_path('lib')?>/html_form/html_form.js"></script><?php
 
 	echo '<div class="sq-multiple-asset-finder-wrapper">';
 	foreach (array_values($assetids) as $index => $assetid) {
+		if ($allow_sorting) {
+			echo '<span id="'.$name.$index.'">';
+			hidden_field($name.'_order['.$index.']', $assetid, 'id="'.$name.'_order['.$index.']"');
+		}
 		asset_finder($name.'['.$index.']', $assetid, $type_codes, $map_frame, $new_window, $done_fn);
+		if ($allow_sorting) {
+			echo '</span>';
+			echo '&nbsp;';
+			if ($index > 0) {
+				echo '<a href="#" onclick="sortMoveUp('.$index.', \''.$name.'\', \''.$name.'_order\'); return false;">'.
+					'<img width="16" height="16" border="0" alt="Move Up" src="'.sq_web_path('lib').'/web/images/icons/up_arrow.png'.'" />'.
+					'</a>';
+			}
+			if ($index < count($assetids)-1) {
+				echo '<a href="#" onclick="sortMoveDown('.$index.', \''.$name.'\', \''.$name.'_order\'); return false;">'.
+					'<img width="16" height="16" border="0" alt="Move Down" src="'.sq_web_path('lib').'/web/images/icons/down_arrow.png'.'" />'.
+					'</a>';
+			}
+		}
 		echo '<br />';
 	}
 

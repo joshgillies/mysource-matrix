@@ -113,6 +113,7 @@ class Js_File_Folder extends File_Folder
 	{
 		$compiler_type = $this->attr('compiler_type');
 
+		$success = TRUE;
 		if ($compiler_type == 'closure' || $compiler_type == 'closure_with_sm') {
 
 			$linked_file_assetids = $this->getLinkedFiles();
