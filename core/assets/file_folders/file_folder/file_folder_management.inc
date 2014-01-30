@@ -59,6 +59,12 @@ class File_Folder_Management extends Asset_Management
 											'description'	=> 'Stores the assetids of linked files',
 										);
 
+		$this->vars['files_order']	= Array(
+											'added'			=> '0.0.1',
+											'type'			=> 'serialise',
+											'default'		=> Array(),
+											'description'	=> 'Stores the order in which the linked files are combined',
+										);
 
 	}//end constructor
 

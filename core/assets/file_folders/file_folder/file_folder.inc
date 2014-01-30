@@ -148,6 +148,17 @@ class File_Folder extends File
 			}
 		}
 
+		// Order files based sorting settings
+		$files_order = $this->attr('files_order');
+		if (!empty($files_order)) {
+			foreach($files_order as $index => $assetid) {
+				if (!$assetid || !in_array($assetid, $file_assetids)) {
+					unset($files_order[$index]);
+				}
+			}
+			$file_assetids = array_merge($files_order, array_diff($file_assetids, $files_order));
+		}
+
 		return $file_assetids;
 
 	}//end getLinkedFiles()
@@ -208,7 +219,7 @@ class File_Folder extends File
 		$output = '';
 		foreach ($source_files as $source_file) {
 			$file_content = file_get_contents($source_file) ;
-			$output .= $minify ? JSMin::minify($file_content) : $file_content;
+			$output .= $minify ? JSMin::minify($file_content) : $file_content."\n";
 		}
 
 		// Write into the merged file

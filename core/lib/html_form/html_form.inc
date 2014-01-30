@@ -871,17 +871,36 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 * @param boolean	$new_window	is the asset finder in a different window than the asset map
 * @param string		$done_fn	a javascript function to call when the asset finder is finished
 * @param array		$buttons	an array of which additional buttons to print (clear and/or reset)
+* @param boolean	$allow_sorting	whether to allow user to sort the asset list (ordering info is posted to "_order" array var)
 *
 * @return void
 * @access public
 */
-function multiple_asset_finder($name, $assetids=Array(), $type_codes=Array(), $map_frame='sq_sidenav', $new_window=FALSE, $done_fn='null', $buttons=Array('clear'))
+function multiple_asset_finder($name, $assetids=Array(), $type_codes=Array(), $map_frame='sq_sidenav', $new_window=FALSE, $done_fn='null', $buttons=Array('clear'), $allow_sorting=FALSE)
 {
 	?><script type="text/javascript" src="<?php echo sq_web_path('lib')?>/html_form/html_form.js"></script><?php
 
 	echo '<div>';
 	foreach (array_values($assetids) as $index => $assetid) {
+		if ($allow_sorting) {
+			echo '<span id="'.$name.$index.'">';
+			hidden_field($name.'_order['.$index.']', $assetid, 'id="'.$name.'_order['.$index.']"');
+		}
 		asset_finder($name.'['.$index.']', $assetid, $type_codes, $map_frame, $new_window, $done_fn);
+		if ($allow_sorting) {
+			echo '</span>';
+			echo '&nbsp;';
+			if ($index > 0) {
+				echo '<a href="#" onclick="sortMoveUp('.$index.', \''.$name.'\', \''.$name.'_order\'); return false;">'.
+					'<img width="16" height="16" border="0" alt="Move Up" src="'.sq_web_path('lib').'/web/images/icons/up_arrow.png'.'" />'.
+					'</a>';
+			}
+			if ($index < count($assetids)-1) {
+				echo '<a href="#" onclick="sortMoveDown('.$index.', \''.$name.'\', \''.$name.'_order\'); return false;">'.
+					'<img width="16" height="16" border="0" alt="Move Down" src="'.sq_web_path('lib').'/web/images/icons/down_arrow.png'.'" />'.
+					'</a>';
+			}
+		}
 		echo '<br />';
 	}
 
