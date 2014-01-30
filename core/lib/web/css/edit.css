@@ -886,6 +886,8 @@ MAIN EDITING FRAME TABLE AND SECTION STRUCTURE
 	border-top: 				1px solid #ccc;
 	border-top-left-radius: 	4px;
 	border-top-right-radius: 	4px;
+	border-bottom: 				1px solid #ccc;
+	margin-bottom: 				-1px;
 }
 
 .sq-backend-body-wrapper .sq-backend-section-table-wrapper:last-child > table > tbody > tr:last-child .sq-backend-section-inner-table-wrapper{

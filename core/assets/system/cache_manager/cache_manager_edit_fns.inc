@@ -157,7 +157,11 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 			$this->_paintSpecificCacheManagement($asset, $o, $prefix, 'type_codes', $selected, FALSE);
 
 		} else {
-			echo translate('customise_asset_selection');
+			if ($write_access) {
+				echo '<em>'.translate('customise_asset_selection_below').'</em>';
+			} else {
+				echo '<em>'.translate('view_asset_selection_below').'</em>';
+			}
 			return FALSE;
 
 		}//end if !empty()
