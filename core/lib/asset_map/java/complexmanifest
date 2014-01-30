@@ -1,7 +1,0 @@
-Manifest-Version: 1.0
-Created-By: 1.4.0 (Sun Microsystems Inc.)
-Main-Class: net.squiz.matrix.complexassetmap.ComplexAssetMap
-Trusted-Library: true
-Permissions: all-permissions
-Codebase: *
-Caller-Allowable-Codebase: *
