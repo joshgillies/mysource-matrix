@@ -129,7 +129,13 @@ function shiftArrayElements(array, index)
  */
 dfx.foreach = function(value, cb)
 {
-    if (value instanceof Array) {
+    if (value instanceof Array
+        || (
+            value !== null
+            && typeof value === 'object'
+            && typeof value.jquery === 'string'
+        )
+    ) {
         var len = value.length;
         for (var i = 0; i < len; i++) {
             var res = cb.call(this, i);
