@@ -530,6 +530,10 @@ select[disabled="disabled"] {
 	margin-bottom: 				5px;
 }
 
+.sq-inline-fields-wrapper.baseline{
+	vertical-align: 			baseline;
+}
+
 /* Inputs that are on multiple lines separated by br tags only */
 .sq-break-line-inputs input,
 .sq-break-line-inputs select {

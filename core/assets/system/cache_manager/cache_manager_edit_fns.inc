@@ -97,7 +97,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 			<option value="">-- <?php echo translate('select_asset_type'); ?> --</option>
 			<?php
 			foreach ($options as $type_code => $name) {
-				$style = (isset($type_codes[$type_code])) ? ' style="background-color: #C8BDCB";' : '';
+				$style = (isset($type_codes[$type_code])) ? ' style="background-color: #ddd";' : '';
 				?>
 				<option<?php echo $style; ?> value="<?php echo $type_code; ?>"<?php echo ($selected == $type_code) ? ' selected' : ''; ?>>
 					<?php echo $name; ?>
@@ -107,11 +107,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 		?></select><?php
 		$o->addFormActionGetVar($prefix.'_type', $selected, TRUE);
 		submit_button($prefix.'_go', translate('go'));
-		echo '<br />'.translate('type_code_precedence_over_root_node');
-
-		if (isset($_REQUEST[$prefix.'_select_type']) && !empty($_REQUEST[$prefix.'_select_type'])) {
-			echo '<br/><br/><b>'.translate('currently_customising', $options[$_REQUEST[$prefix.'_select_type']]).'</b>';
-		}
+		$o->note(translate('type_code_precedence_over_root_node').' '.translate('type_code_current_customised_highlighted'));
 
 		return FALSE;
 
@@ -186,7 +182,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function _paintSpecificCacheManagement(&$asset, &$o, $prefix, $attr_name, $selected, $check_exists=FALSE)
 	{
-
+		$root_nodes = $asset->attr('root_nodes');
 		$wa = $asset->writeAccess('attributes');
 		$current_values = $asset->attr($attr_name);
 		// check if the value to be configured actually exists if specified
@@ -197,6 +193,35 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 		}
 		if ($paint) {
 			// field opened by asset_edit_interface
+			if (isset($_REQUEST[$prefix.'_customise_root_node']) && in_array($_REQUEST[$prefix.'_customise_root_node'], array_keys($root_nodes))) {
+				if ($wa) {
+					echo translate('currently_customising', get_asset_tag_line($_REQUEST[$prefix.'_customise_root_node']));
+				} else {
+					echo translate('currently_viewing', get_asset_tag_line($_REQUEST[$prefix.'_customise_root_node']));
+				}
+			} else {
+				unset($_REQUEST[$prefix.'_customise_root_node']);
+			}
+
+			$o->closeField();
+
+
+
+			if (isset($_REQUEST[$prefix.'_select_type']) && !empty($_REQUEST[$prefix.'_select_type'])) {
+				$o->openField(translate('asset_field_type_code'));
+					if ($wa) {
+						echo translate('currently_customising_type_code');
+					} else {
+						echo translate('currently_viewing_type_code');
+					}
+					echo '<strong>';
+					echo get_asset_type_icon($_REQUEST['cache_manager_20_select_type']);
+					echo $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($_REQUEST['cache_manager_20_select_type'], 'name');
+					echo '<Ystrong>';
+				$o->closeField();
+			}
+
+			$o->openField(translate('cache_manager_cache_status'));
 			$using_default = !isset($current_values[$selected]['enabled']);
 			if ($using_default) {
 				echo translate('using_default_value_of',(($asset->attr('enabled')) ? translate('on') : translate('off'))).'<br/>';
@@ -204,13 +229,16 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 				$caching = ($current_values[$selected]['enabled']) ? 1 : 0;
 				if ($wa) {
 					combo_box($prefix.'_enabled', Array('1' => translate('on'), '0' => translate('off')), FALSE, $caching);
+					echo ' ';
 				} else {
 					echo ($current_values[$selected]['enabled']) ? translate('on') : translate('off');
 				}
 			}
 			if ($wa) {
+				echo '<span class="sq-inline-fields-wrapper baseline">';
 				check_box($prefix.'_default_enabled', '1', $using_default);
-				echo ' '.translate('use_default');
+				label(translate('use_default'), $prefix.'_default_enabled');
+				echo '</span>';
 			}
 			$o->closeField();
 
@@ -221,13 +249,16 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 				} else {
 					if ($wa) {
 						text_box($prefix.'_expiry', $current_values[$selected]['expiry'], 5);
+						echo ' ';
 					} else {
 						echo $current_values[$selected]['expiry'];
 					}
 				}
 				if ($wa) {
+					echo '<span class="sq-inline-fields-wrapper baseline">';
 					check_box($prefix.'_default_expiry', '1', $using_default);
-					echo ' '.translate('use_default');
+					label(translate('use_default'), $prefix.'_default_expiry');
+					echo '</span>';
 				}
 			$o->closeField();
 
@@ -244,14 +275,17 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 				} else {
 					if ($wa) {
 						text_box($prefix.'_accelerator_cache_expiry', $current_values[$selected]['accelerator_cache_expiry'], 5);
+						echo ' ';
 					} else {
 						echo $current_values[$selected]['accelerator_cache_expiry'];
 					}
 				}
 
 				if ($wa) {
+					echo '<span class="sq-inline-fields-wrapper baseline">';
 					check_box($prefix.'_default_accelerator_cache_expiry', '1', $using_default_accelerator);
-					echo ' '.translate('use_default');
+					label(translate('use_default'), $prefix.'_default_accelerator_cache_expiry');
+					echo '</span>';
 				}
 			$o->closeField();
 
@@ -267,14 +301,17 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 				} else {
 					if ($wa) {
 						text_box($prefix.'_browser_cache_expiry', $current_values[$selected]['browser_cache_expiry'], 5);
+						echo ' ';
 					} else {
 						echo $current_values[$selected]['browser_cache_expiry'];
 					}
 				}
 
 				if ($wa) {
+					echo '<span class="sq-inline-fields-wrapper baseline">';
 					check_box($prefix.'_default_browser_cache_expiry', '1', $using_default);
-					echo ' '.translate('use_default');
+					label(translate('use_default'), $prefix.'_default_browser_cache_expiry');
+					echo '</span>';
 				}
 			$o->closeField();
 
@@ -285,13 +322,20 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 				} else {
 					if ($wa) {
 						combo_box($prefix.'_send_cacheable_header', Array('1' => translate('on'), '0' => translate('off')), FALSE, $current_values[$selected]['send_cacheable_header']);
+						echo ' ';
 					} else {
-						echo $current_values[$selected]['send_cacheable_header'];
+						if ($current_values[$selected]['send_cacheable_header'] == '0' ){
+							echo translate('off');
+						} else {
+							echo translate('on');
+						}
 					}
 				}
 				if ($wa) {
+					echo '<span class="sq-inline-fields-wrapper baseline">';
 					check_box($prefix.'_default_send_cacheable_header', '1', $using_default);
-					echo ' '.translate('use_default');
+					label(translate('use_default'), $prefix.'_default_send_cacheable_header');
+					echo '</span>';
 				}
 
 				// field closed by asset_edit_interface
@@ -407,11 +451,11 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 
 			$key = 0;
 			?>
-			<table class="sq-backend-table">
+			<table class="sq-backend-table" id="select-root-node-table">
 				<tbody>
 					<tr>
 						<th>Root node</th>
-						<th><?php echo translate('include_all_assets'); ?></th>
+						<th title="<?php echo translate('include_all_assets'); ?>?"><?php echo translate('cascade'); ?>?</th>
 						<th><?php echo translate('customise'); ?></th>
 					</tr>
 					<?php
@@ -440,9 +484,11 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 										combo_box($combo_name, $options, FALSE, $data['all_underneath']);
 									} else {
 										if ($data['all_underneath']) {
-											echo '<b>'.translate('assets_underneath_root_node_affected').'</b>';
+											echo '<img src="'.sq_web_path('lib').'/web/images/tick.gif" /> ';
+											echo '<strong>'.translate('yes').'</strong> ('.translate('assets_underneath_root_node_affected').')';
 										} else {
-											echo '<b>'.translate('assets_underneath_root_node_not_affected').'</b>';
+											echo '<img src="'.sq_web_path('lib').'/web/images/cross.gif" /> ';
+											echo '<strong>'.translate('no').'</strong> ('.translate('assets_underneath_root_node_not_affected').')';
 										}
 									}
 								?>
@@ -457,9 +503,10 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 									if ($wa && !empty($assetid)) {
 										$radio_name = $prefix.'_customise_root_node';
 										$radio_id = $prefix.'_'.$assetid.'_customise_root_node';
-										check_box($radio_name, $assetid, FALSE, 'this.form.submit();', 'id="'.$radio_id.'"');
+										//this.form.submit();
+										check_box($radio_name, $assetid, FALSE, '', 'id="'.$radio_id.'" onchange="customiseCheck(this, \'select-root-node-table\', false); return false;"');
 										if ($customised) {
-											label(translate('view_customisations'), $radio_id);
+											label(translate('edit_customisations'), $radio_id);
 										} else {
 											label(translate('customise'), $radio_id);
 										}
@@ -467,11 +514,11 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 										if ($customised) {
 											$radio_name = $prefix.'_customise_root_node';
 											$radio_id = $prefix.'_'.$assetid.'_customise_root_node';
-											check_box($radio_name, $assetid, FALSE, 'this.form.submit();', 'id="'.$radio_id.'"');
-											label('<i>'.translate('view_customisations').'</i>', $radio_id);
+											check_box($radio_name, $assetid, FALSE, '', 'id="'.$radio_id.'"');
+											label(translate('view_customisations'), $radio_id);
 										} else {
 											if (!empty($assetid)) {
-												echo '<i>'.translate('not_yet_customised').'</i>';
+												echo translate('not_yet_customised');
 											}
 										}
 									}
@@ -485,7 +532,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 								<td colspan="3">
 									<?php
 										$more_button_name = $prefix.'_root_node_more_button_X_'.$key.'_X_';
-										normal_button($more_button_name, translate('more').'...', 'var table = prependLastRow(this); resetLastRowFields(table, false)');
+										normal_button($more_button_name, translate('add_root_node'), 'var table = prependLastRow(this); resetLastRowFields(table, false)');
 									?>
 								</td>
 							</tr>
@@ -498,19 +545,22 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 				</tbody>
 			</table>
 
-			<?php
-			if (isset($_REQUEST[$prefix.'_customise_root_node']) && in_array($_REQUEST[$prefix.'_customise_root_node'], array_keys($root_nodes))) {
-				if ($wa) {
-					echo '<br/><br/><b>'.translate('currently_customising', get_asset_tag_line($_REQUEST[$prefix.'_customise_root_node'])).'</b>';
-				} else {
-					echo '<br/><br/><b>'.translate('currently_viewing', get_asset_tag_line($_REQUEST[$prefix.'_customise_root_node'])).'</b>';
-				}
-			} else {
-				unset($_REQUEST[$prefix.'_customise_root_node']);
-			}
-
-			?>
 				<script type="text/javascript">
+
+					function customiseCheck(theCheckbox, targetID, checktoggle)
+					{
+						if (theCheckbox.checked) {
+						  	var checkboxes = new Array(); 
+						  	checkboxes = document.getElementById(targetID).getElementsByTagName('input');
+						  	for (var i=0; i<checkboxes.length; i++) {
+						    	if (checkboxes[i].type == 'checkbox') {
+						      		checkboxes[i].checked = checktoggle;
+						    	}
+						  	}
+							theCheckbox.checked = true;
+						}
+						return false;
+					}
 
 					function prependLastRow(moreButton)
 					{
@@ -529,25 +579,23 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 							validLocation = validLocation.parentNode;
 						}
 
-						var clone = lastRow.cloneNode(true);
-
-						console.log(clone);
+						var clone = lastRow.previousSibling.previousSibling.cloneNode(true);
 
 						// inserting clone after original
 						validLocation.insertBefore(clone, lastRow.previousSibling);
 
 						// append the 'More' button to the cloned row
-						lastRowButtonCell.appendChild(moreButton);
+						//lastRowButtonCell.appendChild(moreButton);
 
 						// remove the 'More' button from the original after cloning
-						moreButton.parentNode.removeChild(moreButton);
+						//moreButton.parentNode.removeChild(moreButton);
 
 						// remove the customise button elements from the clone
 						var cloneCustomiseCell = clone.cells[2];
 						removeElementChildNodes(cloneCustomiseCell);
 
 						// add text in place of the customise button elements in the clone
-						var cloneCustomiseText = document.createElement('i');
+						var cloneCustomiseText = document.createElement('em');
 						cloneCustomiseCell.appendChild(cloneCustomiseText);
 
 						// use innerHTML for IE6
@@ -561,7 +609,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 						incrementTableFieldNames(clone);
 
 						// add an asset finder for the cloned row
-						cloneInnerHTML(lastRow.cells[0], cloneAssetFinderCell);
+						cloneInnerHTML(lastRow.previousSibling.previousSibling.previousSibling.cells[0], cloneAssetFinderCell);
 
 						return clone;
 					}
@@ -771,9 +819,9 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 			$this->_paintSpecificCacheManagement($asset, $o, $prefix, 'root_nodes', $_REQUEST[$prefix.'_customise_root_node'], TRUE);
 		} else {
 			if ($wa) {
-				echo translate('customise_root_node_selection');
+				echo '<em>'.translate('customise_root_node_selection_below').'</em>';
 			} else {
-				echo translate('view_root_node_selection');
+				echo '<em>'.translate('view_root_node_selection_below').'</em>';
 			}
 		}
 

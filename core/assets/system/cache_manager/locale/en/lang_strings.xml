@@ -17,10 +17,11 @@
 -->
 
 <strings>
+<string source="cache_manager_cache_status">Caching Status</string>
 <string source="cache_manager_browser_cache_expiry">Browser Cache Expiry</string>
 <string source="cache_manager_accelerator_cache_expiry">Accelerator Cache Expiry</string>
 <string source="cache_manager_browser_valid_cache_length">Expire the requested content in the browser the specified number of seconds after which it is accessed. When this value is not supplied, the content will expire after the "Default Expiry" period.</string>
 <string source="cache_manager_accelerator_valid_cache_length">Expire the requested content in the accelerator proxy the specified number of seconds after which it is accessed. When this value is not supplied, the 's-maxage' cache header attribute will not be sent.</string>
 <string source="cache_manager_using_blank_default_value_equal_to">Using blank default value - equal to %1$s (currently %2$s)</string>
-<string source="cache_manager_send_cacheable_headers_settings_node">This option can only be enabled/disabled in System Configuration.</string>
+<string source="cache_manager_send_cacheable_headers_settings_node">This option can only be enabled/disabled in the System Configuration screen.</string>
 </strings>
