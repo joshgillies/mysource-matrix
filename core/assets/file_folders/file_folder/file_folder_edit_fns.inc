@@ -78,11 +78,10 @@ class File_Folder_Edit_Fns extends File_Edit_Fns
 		$file_asset_type = $asset->getFileAssetType();
 
 		if ($asset->writeAccess('links')) {
-			multiple_asset_finder($prefix.'_linked_files', $file_assetids, Array($file_asset_type => 'D'));
+			multiple_asset_finder($prefix.'_linked_files', $file_assetids, Array($file_asset_type => 'D'), 'sq_sidenav', FALSE, 'null', Array('clear'), TRUE);
 		} else {
-			$infos = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($file_assetids);
-			?><ul style="margin: 1px 15px;"><?php
-			foreach ($infos as $assetid => $info) {
+			?><ul><?php
+			foreach ($file_assetids as $assetid) {
 				echo '<li>'.get_asset_tag_line($assetid).'</li>';
 			}
 			?></ul><?php
@@ -157,6 +156,12 @@ class File_Folder_Edit_Fns extends File_Edit_Fns
 		}//end foreach
 
 		if ($ok) {
+			if (isset($_POST[$prefix.'_linked_files_order'])) {
+				$files_order = $_POST[$prefix.'_linked_files_order'];
+				ksort($files_order);
+				$asset->setAttrValue('files_order', $files_order);
+			}
+
 			// If the files have been added/removed, re-combine the linked files
 			if ($links_updated && $asset->mergeFiles()) {
 				$file_assetids = $asset->getLinkedFiles();
