@@ -221,7 +221,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 					echo '<strong>';
 					echo get_asset_type_icon($_REQUEST['cache_manager_20_select_type']);
 					echo $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($_REQUEST['cache_manager_20_select_type'], 'name');
-					echo '<Ystrong>';
+					echo '</strong>';
 				$o->closeField();
 			}
 
