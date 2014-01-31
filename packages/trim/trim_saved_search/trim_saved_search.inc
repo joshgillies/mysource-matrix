@@ -167,10 +167,14 @@ class TRIM_Saved_Search extends Data_Source
 			$connection	= $this->getConnection();
 			if (!empty($connection['wsdl'])) {
 				$new_object_list	= $this->getTRIMRecords($connection);
-			}//end if
+			} else {
+				// If we dont have TRIM connection, we are done here
+				return FALSE;
+			}
 
-			// if no results are returned, it  indictates a serious trim problem. don't go ahead and delete all local files.
-			if(!isset($new_object_list) || (isset($new_object_list) && empty($new_object_list))) {
+			// If no results are returned, it might indictate a serious trim problem. So don't go ahead and delete all local files
+			// Unless we are supposed to (bug #6802)
+			if(!$this->attr('accept_empty_response') && empty($new_object_list)) {
 			    return FALSE;
 			}
 			

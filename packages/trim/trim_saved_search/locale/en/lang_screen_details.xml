@@ -82,6 +82,10 @@
    			<process_function name="processDownloadedFileName"	/>
    		</function_call>
    	</field>
+    	<field attribute="accept_empty_response">
+			<display_name>Update on Empty Response</display_name>
+			<note>Whether to update and clear the local TRIM records if there is empty or no response from the TRIM</note>
+        </field>
     	<field>
     		<function_call>
     			<paint_function   name="paintSynchCheck"	/>

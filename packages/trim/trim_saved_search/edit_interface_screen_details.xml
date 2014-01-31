@@ -62,6 +62,9 @@
     		<process_function name="processDownloadedFileName"	/>
     	</function_call>
     </field>
+    	<field attribute="accept_empty_response">
+    		<boolean true_text="yes" false_text="no" />
+    	</field>
     	<field>
     		<function_call>
     			<paint_function   name="paintSynchCheck"	/>
