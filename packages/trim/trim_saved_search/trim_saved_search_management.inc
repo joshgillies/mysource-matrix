@@ -203,6 +203,15 @@ class TRIM_Saved_Search_Management extends Asset_Management
 		                                            'default'   	=> '',
 													'description'	=> 'Result field name for the download files',
 		                                           ),
+							'accept_empty_response'		=> Array(
+													'added'			=> '0.3',
+													'type'			=> 'boolean',
+													'default'		=> FALSE,
+													'description'	=> 'Whether to clear the local TRIM data on the empty TRIM response',
+													'parameters'    => Array(
+																		'allow_empty'   => FALSE,
+												   					   ),
+												   	),
 					  );
 
 	}//end constructor
