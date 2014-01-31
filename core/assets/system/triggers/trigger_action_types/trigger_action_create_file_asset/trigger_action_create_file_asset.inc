@@ -200,16 +200,21 @@ class Trigger_Action_Create_File_Asset extends Trigger_Action
 
 			ob_start();
 				if ($write_access) {
-					radio_button($prefix.'[parent_type]', 'explicit', !$parent_broadcasted, '', 'id="parent_type_explicit"');
-					label(translate('under'), 'parent_type_explicit');
-					echo ' ';
-					asset_finder($prefix.'[parentid]', $parentid, Array('asset' => 'D'));
-					echo '<br />';
-					radio_button($prefix.'[parent_type]', 'broadcaster', $parent_broadcasted, '', 'id="parent_type_broadcaster"');
-					label(translate('trigger_create_under_broadcaster'), 'parent_type_broadcaster');
+					echo '<ul class="sq-radio-list">';
+						echo '<li>';
+							radio_button($prefix.'[parent_type]', 'explicit', !$parent_broadcasted, '', 'id="parent_type_explicit"');
+							label(strtolower(translate('asset')), 'parent_type_explicit');
+							echo ' ';
+							asset_finder($prefix.'[parentid]', $parentid, Array('asset' => 'D'));
+						echo '</li>';
+						echo '<li>';
+							radio_button($prefix.'[parent_type]', 'broadcaster', $parent_broadcasted, '', 'id="parent_type_broadcaster"');
+							label(translate('trigger_create_under_broadcaster'), 'parent_type_broadcaster');
+						echo '</li>';
+					echo '</ul>';
 				} else {
 					if ($parent_broadcasted) {
-						echo translate('trigger_create_under_broadcaster');
+						echo '<b>'.translate('trigger_create_under_broadcaster').'</b>';
 					} else {
 						echo translate('under').' ';
 						if (!empty($parentid)) {
@@ -293,9 +298,11 @@ class Trigger_Action_Create_File_Asset extends Trigger_Action
 					foreach ($selected as $index => $attr) {
 						if ($write_access) {
 							combo_box($prefix.'[attributes]['.$index.'][attribute]', $attributes, FALSE, $attr['attribute']);
-							text_box($prefix.'[attributes]['.$index.'][value]', $attr['value']);
+							echo '&nbsp;';
+							text_box($prefix.'[attributes]['.$index.'][value]', $attr['value'], 50, '', FALSE, 'style="margin-bottom: 3px;"');
+							echo '&nbsp;';
 							check_box($prefix.'[attributes]['.$index.'][delete]','delete', FALSE);
-							echo translate('delete_question');
+							label(translate('delete_question'), $prefix.'[attributes]['.$index.'][delete]');
 							echo '<br />';
 						} else {
 							echo ucwords($attr['attribute']).':  '.$attr['value'].'<br />';
@@ -308,7 +315,8 @@ class Trigger_Action_Create_File_Asset extends Trigger_Action
 				}
 				if ($write_access) {
 					combo_box($prefix.'[attributes]['.$count.'][attribute]', $attributes, FALSE, '');
-					text_box($prefix.'[attributes]['.$count.'][value]', '');
+					echo '&nbsp;';
+					text_box($prefix.'[attributes]['.$count.'][value]', '', 50);
 					echo '<br />';
 				}
 			}
@@ -317,14 +325,12 @@ class Trigger_Action_Create_File_Asset extends Trigger_Action
 
 			// now patch together the output
 			$contents =	translate('trigger_new_asset_basic', $basic_part_1, $basic_part_2, $basic_part_3).
-						'<br />and populate it with the file located on the server at '.$basic_part_4.
+						' and populate it with the file located on the server at <strong>'.$basic_part_4.'</strong>.'.
 						'<br /><br />'.
 						'<b>'.translate('triggers_advanced_user_options').'</b><br />'.
-						translate('trigger_new_asset_advanced', $advanced_part_1, $advanced_part_2, $advanced_part_3).'<br />'.
-						translate('set_attributes').':<br />'.$attributes;
-			if ($write_access) {
-				$contents .= '<p class="sq-backend-warning"><b>'.translate('trigger_create_file_required_attrs_warning').'</b></p>';
-			}
+						translate('trigger_new_asset_advanced', $advanced_part_1, $advanced_part_2, $advanced_part_3).
+						'<br /><br /><b>'.translate('set_attributes').'</b><br />'.$attributes.'<br /><br />'.
+						'<span>'.translate('trigger_create_file_required_attrs_warning').'</span>';
 
 		return $contents;
 

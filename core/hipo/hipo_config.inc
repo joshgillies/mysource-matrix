@@ -198,33 +198,41 @@ class HIPO_Config extends Config
 
 			// writing out standard fields, which are not specific to any single job
 			$o->openField(translate('run_on_squiz_server'));
-			if ($write_access) {
-				combo_box($class.'[SQ_HIPO_USE_SERVER]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_HIPO_USE_SERVER);
-			} else {
-				echo (SQ_HIPO_USE_SERVER) ? translate('yes') : translate('no');
-			}
+			echo '<span class="sq-inline-fields-wrapper">';
+				if ($write_access) {
+					combo_box($class.'[SQ_HIPO_USE_SERVER]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_HIPO_USE_SERVER);
+				} else {
+					echo (SQ_HIPO_USE_SERVER) ? translate('yes') : translate('no');
+				}
+			echo '</span>';
 			$o->closeField();
 
 			// server check threshold config entry
 			$o->openField(translate('hipo_status_check_threshold'));
-			if ($write_access) {
-				text_box($class.'[SQ_HIPO_SERVER_STATUS_CHECK_THRESHOLD]', SQ_HIPO_SERVER_STATUS_CHECK_THRESHOLD, 5);
-				echo '&nbsp;';
-			} else {
-				echo SQ_HIPO_SERVER_STATUS_CHECK_THRESHOLD;
-			}
-			echo translate('hipo_status_check_threshold_note');
+			echo '<span class="sq-inline-fields-wrapper">';
+				if ($write_access) {
+					text_box($class.'[SQ_HIPO_SERVER_STATUS_CHECK_THRESHOLD]', SQ_HIPO_SERVER_STATUS_CHECK_THRESHOLD, 1);
+					echo '&nbsp;';
+				} else {
+					echo SQ_HIPO_SERVER_STATUS_CHECK_THRESHOLD;
+				}
+				echo translate('seconds');
+				$o->note(translate('hipo_status_check_threshold_note'));
+			echo '</span>';
 			$o->closeField();
 
 			// total threshold HIPO config entry
 			$o->openField(translate('hipo_freestyle_threashold'));
-			if ($write_access) {
-				text_box($class.'[SQ_HIPO_TOTAL_THRESHOLD]', SQ_HIPO_TOTAL_THRESHOLD, 5);
-				echo '&nbsp;';
-			} else {
-				echo SQ_HIPO_TOTAL_THRESHOLD;
-			}
-			echo translate('hipo_threshold_note');
+			echo '<span class="sq-inline-fields-wrapper">';
+				if ($write_access) {
+					text_box($class.'[SQ_HIPO_TOTAL_THRESHOLD]', SQ_HIPO_TOTAL_THRESHOLD, 1);
+					echo '&nbsp;';
+				} else {
+					echo SQ_HIPO_TOTAL_THRESHOLD;
+				}
+				echo translate('percent');
+				$o->note(translate('hipo_threshold_note'));
+			echo '</span>';
 			$o->closeField();
 
 			// looping through job class files and painting their backends

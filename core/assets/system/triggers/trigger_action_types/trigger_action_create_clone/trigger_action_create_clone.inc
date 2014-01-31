@@ -222,9 +222,9 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 			} else {
 				if ($clone_assetid) {
 					$clone_assetname = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($clone_assetid), Array(), TRUE, 'name');
-					text_box($prefix.'[clone_assetid]', $clone_assetname[$clone_assetid].' (#'.$clone_assetid.')', '', '', FALSE, $form_element_extras);
+					echo get_asset_tag_line($clone_assetid);
 				} else {
-					text_box($prefix.'[clone_assetid]', '', '', '', FALSE, $form_element_extras);
+					echo '<b>['.translate('no_asset_selected').']</b>';
 				}
 			}
 
@@ -237,9 +237,10 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 			} else {
 				if ($selected_assetid) {
 					$selected_assetname = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($selected_assetid), Array(), TRUE, 'name');
-					text_box($prefix.'[assetid]', $selected_assetname[$selected_assetid].' (#'.$selected_assetid.')', '', '', FALSE, $form_element_extras);
+					echo get_asset_tag_line($selected_assetid);
 				} else {
 					text_box($prefix.'[assetid]', '', '', '', FALSE, $form_element_extras);
+					echo '<b>['.translate('no_parent_selected').']</b>';
 				}
 			}
 

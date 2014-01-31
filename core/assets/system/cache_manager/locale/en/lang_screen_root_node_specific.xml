@@ -27,7 +27,7 @@
 	</section>
 	<section name="Root Node Cache Management">
 		<field>
-			<display_name>Caching Status</display_name>
+			<display_name>Root Node</display_name>
 			<note />
 			<function_call>
 				<paint_function name="paintCustomiseRootNodeCaching" />

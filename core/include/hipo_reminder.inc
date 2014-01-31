@@ -27,118 +27,83 @@
 * @package MySource_Matrix
 */
 ?>
-<html>
+<!DOCTYPE html>
+<!--[if lt IE 8 ]> 	<html class="ie hipo">  					<![endif]-->
+<!--[if IE 8 ]> 	<html class="ie ie8 hipo">  				<![endif]-->
+<!--[if IE 9 ]> 	<html class="ie ie9 gtie8 hipo">  			<![endif]-->
+<!--[if IE 10 ]> 	<html class="ie ie-10 gtie8 gtie9 hipo"> 	<![endif]-->
+<!--[if !IE]><!--> 	<html class="hipo">      					<!--<![endif]-->
 	<head>
+		<meta charset="utf-8"/>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
 		<title><?php echo SQ_SYSTEM_LONG_NAME ?> - Stalled hipo process </title>
-		<link rel="stylesheet" href="<?php echo sq_web_path('lib').'/web/css/hipo_reminder.css' ?>" type="text/css" />
-
-		<!--[if IE]>
-			<style type="text/css">
-				.hipo-reminder-body {
-					width:				100%;
-					border-bottom:		5px solid #f1f1f1;
-					padding:			0 10px 10px;
-				}
-				.hipo-reminder-warning {
-					margin-top:			16px;
-				}
-
-			</style>
-		<![endif]-->
-
+		<link rel="stylesheet" href="<?php echo sq_web_path('lib').'/web/css/edit.css' ?>" type="text/css" />
 	</head>
-	<body>
-		<div class="hipo-reminder">
-			<h1><?php echo sq_get_icon(sq_web_path('lib').'/web/images/icons/header/system_config.png', 20, 20, 'Key icon', '', 'align="absmiddle"') ?>  Stalled HIPO Process </h1>
-			<div class="hipo-reminder-body">
+	<body class="sq sq-hipo-body">
+		<div class="sq-standalone-wrapper sq-hipo-reminder">
 
-				<p class="hipo-reminder-warning">YOU HAVE STALLED HIPO JOBS</p>
-
-				<table class="sq-backend-section-table">
-					<tbody>
-						<tr class="sq-backend-section-heading-container">
-							<td>
-								<table border="0" cellpadding="0" cellspacing="0">
-									<tbody>
-										<tr>
-											<td class="sq-backend-section-heading">Current HIPO Jobs</td>
-											<td><?php echo sq_get_icon(sq_web_path('lib').'/web/images/section_icon.gif', 27, 21, 'Section icon', '', 'align="absmiddle"') ?></td>
-										</tr>
-									</tbody>
-								</table>
-							</td>
-						</tr>
-						<tr>
-							<td>
-								<table class="sq-backend-section-table-inner" border="0" cellpadding="0" cellspacing="0">
-									<tbody>
-										<tr>
-											<td class="sq-backend-field sq-backend-field-newline" colspan="2">
-												&nbsp;
-											</td>
-										</tr>
-										<tr>
-											<td class="sq-backend-data sq-backend-data-newline" colspan="2">
-												<table class="sq-backend-table">
-													<tbody>
-														<tr>
-															<td class="sq-backend-table-header">Job Type</td>
-															<td class="sq-backend-table-header">Last Updated</td>
-															<td class="sq-backend-table-header" style="text-align: center;">Percent Complete</td>
-															<td class="sq-backend-table-header">Code Name</td>
-														</tr>
-														<tr>
-														<?php
-															require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-															$now = time();
-															foreach ($stalled_hipo_array as $job_index => $job_info) {
-																?>
-																	<td class="sq-backend-table-cell" style="text-align: left;"><?php echo $job_info['job_type']; ?></td>
-																	<td class="sq-backend-table-cell" style="text-align: left;"><?php echo easy_time_total(strtotime($job_info['last_updated']) - $now, TRUE); ?></td>
-																	<td class="sq-backend-table-cell" style="text-align: center;"><?php echo $job_info['percent_done'].'%'; ?></td>
-																	<td class="sq-backend-table-cell" style="text-align: left;"><?php echo $job_info['code_name']; ?></td>
-																</tr><tr><?php
-															}
-															?>
-														</tr>
-													</tbody>
-												</table>
-											</td>
-										</tr>
-									</tbody>
-								</table>
-							</td>
-						</tr>
-					</tbody>
-				</table>
-
-				<h2>Continue to HIPO Jobs Screen</h3>
-
-				<p>Click the <strong>HIPO Herder</strong> button below to proceed to your HIPO Herder or click Logout to exit the system.</p>
-
-
-				<table width="100%" border="0">
-					<tbody><tr>
-						<td>
-							<form method="post" action="?backend_section=hipo_herder">
-								<input type="submit" value="HIPO Herder">
-							</form>
-						</td>
-						<td align = "right">
-							<form method="post" action="?SQ_ACTION=real_logout">
-								<input type="submit" value="Logout">
-							</form>
+			<table class="sq-standalone-table">
+				<tbody>
+					<tr class="sq-standalone-header">
+						<td colspan="2">
+							<img src="<?php echo sq_web_path('lib').'/web/images/icons/hipo.png'; ?>" alt="Powered by Highly Intensive Processing Object (HIPO) Technology - Version 5" /> <strong>Stalled HIPO Processes</strong>
 						</td>
 					</tr>
-					</tbody>
-				</table>
-
-			</div>
-
-			<div class="hipo-reminder-footer">
-				<a href="http://matrix.squiz.net/" target="_blank"><?php echo SQ_SYSTEM_LONG_NAME ?></a>
-			</div>
-		</div>
-
+					<tr class="sq-standalone-body">
+						<td colspan="2">
+							<div class="sq-standalone-content">
+								<div>
+									<div class="sq-warning-message">
+										<p><strong>Warning:</strong> You have stalled HIPO jobs.</p>
+									</div>
+									<table>
+										<tr>
+											<td class="sq-backend-section-subheading">Current HIPO Jobs</td>
+										</tr>
+									</table>	
+									<table class="sq-backend-table">
+										<tbody>
+											<tr>
+												<th class="sq-backend-table-header">Job Type</th>
+												<th class="sq-backend-table-header">Last Updated</th>
+												<th class="sq-backend-table-header" style="text-align: center;">Percent Complete</th>
+												<th class="sq-backend-table-header">Code Name</th>
+											</tr>
+											<?php
+												require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+												$now = time();
+												foreach ($stalled_hipo_array as $job_index => $job_info) {
+													?>
+													<tr>
+														<td class="sq-backend-table-cell"><?php echo str_replace('_', ' ', $job_info['job_type']); ?></td>
+														<td class="sq-backend-table-cell"><?php echo easy_time_total(strtotime($job_info['last_updated']) - $now, TRUE); ?></td>
+														<td class="sq-backend-table-cell" style="text-align: center;"><?php echo $job_info['percent_done'].'%'; ?></td>
+														<td class="sq-backend-table-cell"><?php echo $job_info['code_name']; ?></td>
+													</tr>
+													<?php
+												}
+											?>
+										</tbody>
+									</table>
+									<p>Click the <strong>HIPO Herder</strong> button below to proceed to your HIPO Herder or click <strong>Logout</strong> button to exit the system.</p>
+								</div>
+							</div>
+						</td>
+					</tr>
+					<tr class="sq-standalone-footer">
+						<td style="text-align: left">
+							<form method="post" action="?backend_section=hipo_herder">
+								<input type="submit" value="HIPO Herder" class="sq-hipo-button-enabled">
+							</form>
+						</td>
+						<td style="text-align: right">
+							<form method="post" action="?SQ_ACTION=real_logout">
+								<input type="submit" value="Logout" class="sq-btn-blue sq-hipo-button-enabled next">
+							</form>
+						</td>					
+					</tr>
+				</tbody>
+			</table>
+		</div><!--.sq-standalone-wrapper-->
 	</body>
 </html>

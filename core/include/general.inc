@@ -192,9 +192,9 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 			$error_title_main = 'font-weight: bold; font-size: 14px; vertical-align: top; padding: 12px 19px 11px; border-bottom: 1px solid '.$border_colour.'; color: '.$text_colour.';';
 			$error_title = 'font-weight: bold; font-size: 12px; vertical-align: top; padding-right: 30px; padding-bottom: 5px; color: '.$text_colour.';';
 			$error_data  = 'font-size: 12px; vertical-align: top; padding-right: 30px; padding-bottom: 5px; color: '.$text_colour.';';
-			if(empty($buffers)) echo '</script></table></table></table></table><br/>';
-			if(!(SQ_IN_BACKEND || SQ_IN_LIMBO)) echo '<!DOCTYPE html>';
+			//if(!(SQ_IN_BACKEND || SQ_IN_LIMBO)) echo '<!DOCTYPE html>';
 			?>
+			<!DOCTYPE html>
 			<div style="position: relative; overflow: auto; border: 1px solid <?php echo $border_colour; ?>; border-radius: 4px; font-family: arial, sans-serif; color: <?php echo $text_colour; ?>; font-size: 12px; background: <?php echo $bg_colour; ?>; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5); margin-bottom: 10px;">
 				<table style="width: 100%; border-collapse: collapse;">
 					<tr>
@@ -1569,8 +1569,7 @@ function sq_get_icon($path, $width, $height, $alt='', $title=NULL, $extras='')
 		 title="'.$title.'"
 		 height="'.$height.'"
 		 width="'.$width.'"
-		 '.$extras.' />
-	';
+		 '.$extras.' />';
 
 }//end sq_get_icon()
 
@@ -1687,7 +1686,7 @@ function get_asset_tag_line($assetid, $screen='')
 		</div>
 
 		<?php
-		echo sq_print_icon(sq_web_path('lib').'/web/images/icons/info.png', '', '', '', '', ' align="absmiddle" onmouseover="tooltip.show(this, document.getElementById(\'asset-tag-line-'.str_replace('\\', '\\\\', $assetid).'-more-details\').innerHTML, \'More Info\');" onmouseout="tooltip.hide();"');
+		echo sq_print_icon(sq_web_path('lib').'/web/images/icons/info.png', '', '', '', '', ' align="absmiddle" onmouseover="tooltip.show(this, document.getElementById(\'asset-tag-line-'.str_replace('\\', '\\\\', $assetid).'-more-details\').innerHTML, \'More Info\');" onmouseout="tooltip.hide();" class="sq-tag-line"');
 		echo get_asset_tag_line_binoculars($assetid);
 
 		// Screen parameter now supports javascript code to be added to the
@@ -1702,7 +1701,7 @@ function get_asset_tag_line($assetid, $screen='')
 		} else if (!empty($screen_url)) {
 			echo '<a href="'.$screen_url.'">';
 		}
-		echo '<span class="sq-info-asset-name">';
+		echo '<span class="sq-info-asset-name sq-tag-line">';
 		echo $asset_info['name'];
 
 		if (!empty($js) || !empty($screen_url)) {
@@ -1838,7 +1837,7 @@ function get_asset_tag_line_binoculars($assetid, $popupTitle=NULL)
 	}
 
 	if (count($lineages) > 0) {
-		echo sq_print_icon(sq_web_path('lib').'/web/images/icons/asset_locator.png', 16, 16, $lineages_name, $lineages_name, ' class="clickable" align="absmiddle"	onclick="'.$lineages_onclick.'"');
+		echo sq_print_icon(sq_web_path('lib').'/web/images/icons/asset_locator.png', 16, 16, $lineages_name, $lineages_name, ' class="clickable sq-tag-line" align="absmiddle"	onclick="'.$lineages_onclick.'"');
 	}
 
 	$contents = ob_get_clean();

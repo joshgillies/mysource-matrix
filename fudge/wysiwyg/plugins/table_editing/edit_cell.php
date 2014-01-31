@@ -97,71 +97,7 @@ $_GET['f_borderColor'] = preg_replace('/[^a-zA-Z_0-9 ]+/', '', $_GET['f_borderCo
 		</script>
 
 		<style type="text/css">
-			html, body {
-				background: #FCFCFC;
-				color: #000000;
-				font: 11px Tahoma,Verdana,sans-serif;
-				margin: 0px;
-				padding: 0px;
-				padding: 5px;
-			}
 
-			table {
-				font: 11px Tahoma,Verdana,sans-serif;
-			}
-
-			/* main popup title */
-			.title {
-				background: #402F48;
-				color: #FFFFFF;
-				font-weight: bold;
-				font-size: 120%;
-				padding: 3px 10px;
-				margin-bottom: 10px;
-				border-bottom: 1px solid black;
-				letter-spacing: 4px;
-			}
-
-			/* fieldset styles */
-			fieldset {
-				padding: 0px 10px 5px 5px;
-				border-color: #725B7D;
-			}
-
-			.fl { width: 9em; float: left; padding: 2px 5px; text-align: right; }
-			.fr { width: 7em; float: left; padding: 2px 5px; text-align: right; }
-
-			/* form and form fields */
-			form { padding: 0px; margin: 0px; }
-
-			select, input, button {
-				font: 11px Tahoma,Verdana,sans-serif;
-			}
-
-			button {
-				width: 70px;
-			}
-
-			/* colour picker button styles */
-			.buttonColor, .buttonColor-hilite {
-				cursor: default;
-				border: 1px solid;
-				border-color: #9E86AA #725B7D #725B7D #9E86AA;
-			}
-
-			.buttonColor-hilite {
-				border-color: #402F48;
-			}
-
-			.buttonColor-chooser, .buttonColor-nocolor, .buttonColor-nocolor-hilite {
-				height: 0.6em;
-				border: 1px solid;
-				padding: 0px 1em;
-				border-color: ButtonShadow ButtonHighlight ButtonHighlight ButtonShadow;
-			}
-
-			.buttonColor-nocolor, .buttonColor-nocolor-hilite { padding: 0px; }
-			.buttonColor-nocolor-hilite { background: #402F48; color: #FFFFFF; }
 		</style>
 
 	</head>

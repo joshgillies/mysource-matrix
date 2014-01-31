@@ -160,7 +160,7 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 
 		?>
 
-		<table border="0" cellpadding="0" cellspacing="0" class="sq-backend-table">
+		<table class="sq-backend-table sq-parameter-map">
 			<tr>
 				<th><?php echo translate('parameter'); ?></th>
 				<th><?php echo translate('source'); ?></th>
@@ -174,7 +174,7 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 					<tr>
 						<td><?php echo $this->_params['parameters'][$parameter]; ?></td>
 						<td>
-							<table border="0" cellpadding="5" cellspacing="0" class="sq-backend-table">
+							<table class="sq-backend-table sq-parameter-map-inner">
 							<?php
 							foreach ($sources as $index => $details) {
 								$source_type = $details['source'];
@@ -183,7 +183,7 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 								$one_source_prefix = $prefix.'['.$parameter.']['.$index.']';
 								?>
 								<tr>
-									<td style="width:30ex"><strong><?php echo $source_types[$source_type]; ?></strong></td>
+									<th style="width:30ex;"><strong><?php echo $source_types[$source_type]; ?></strong></th>
 									<td><?php $this->_printSourceInterface($one_source_prefix, $details, $read_only); ?></td>
 									<td style="text-align:right">
 										<?php
@@ -286,7 +286,7 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 						echo htmlspecialchars($value);
 					}//end if
 				} else {
-					text_box($prefix.'[value]', $value);
+					text_box($prefix.'[value]', $value, 50);
 				}//end if
 			break;
 
@@ -299,7 +299,7 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 						echo $value;
 					}
 				} else {
-					text_box($prefix.'[index]', $value);
+					text_box($prefix.'[index]', $value, 50);
 				}
 
 

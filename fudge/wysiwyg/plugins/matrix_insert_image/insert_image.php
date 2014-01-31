@@ -39,7 +39,7 @@ $url_protocol_options = Array(
 if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 ?><!DOCTYPE html>
 
-<html style="width: 800px;">
+<html>
 	<head>
 		<title>Insert Image</title>
 		<meta http-equiv="content-type" content="text/html; charset=<?php echo SQ_CONF_DEFAULT_CHARACTER_SET;?>" />
@@ -70,7 +70,9 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/tooltip.js' ?>"></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/web/dfx/dfx.js' ?>"></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/asset_map/asset_map.js' ?>"></script>
+		<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('lib').'/web/css/edit.css' ?>" />
 		<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('lib').'/asset_map/js/js_asset_map.css' ?>" />
+		<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('root_url')?>/__fudge/wysiwyg/core/popup.css" />
 
 		<script type="text/javascript">
 
@@ -244,241 +246,6 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 
 		</script>
 
-		<style type="text/css">
-			html, body {
-				background: #FCFCFC;
-				color: #000000;
-				font: 11px Tahoma,Verdana,sans-serif;
-				margin: 0px;
-				padding: 0px;
-			}
-
-			table {
-				font: 11px Tahoma,Verdana,sans-serif;
-			}
-
-			form#main-form {
-				padding: 5px;
-				clear: right;
-			}
-
-			#quick-search {
-				font: 11px Tahoma,Verdana,sans-serif;
-				letter-spacing: 0;
-				float: right;
-				padding-right: 12px;
-			}
-
-			#quick-search #quick-search-for {
-				font: 11px Arial,Verdana,sans-serif;
-				border: 1px solid black;
-				padding: 1px 3px;
-			}
-
-			#quick-search #quick-search-for-label {
-				font: 11px Arial,Verdana,sans-serif;
-				color: #999;
-			}
-
-
-			/* main popup title */
-			.title {
-				background: #402F48;
-				color: #FFFFFF;
-				font-weight: bold;
-				font-size: 120%;
-				padding: 6px 10px;
-				margin-bottom: 10px;
-				border-bottom: 1px solid black;
-				letter-spacing: 4px;
-			}
-
-			/* fieldset styles */
-			fieldset {
-				padding: 0px 10px 5px 5px;
-				border-color: #725B7D;
-			}
-
-			.prev {
-				padding: 0px 10px 5px 5px;
-				border-color: #725B7D;
-				margin-right: 3px;
-				height: 200px;
-			}
-
-			.fl { width: 9em; float: left; padding: 2px 5px; text-align: right; }
-			.fr { width: 7em; float: left; padding: 2px 5px; text-align: right; }
-
-			/* form and form fields */
-			form { padding: 0px; margin: 0px; }
-
-			select, input, button {
-				font: 11px Tahoma,Verdana,sans-serif;
-			}
-
-			button {
-				width: 70px;
-			}
-
-			/* colour picker button styles */
-			.buttonColor, .buttonColor-hilite {
-				cursor: default;
-				border: 1px solid;
-				border-color: #9E86AA #725B7D #725B7D #9E86AA;
-			}
-
-			.buttonColor-hilite {
-				border-color: #402F48;
-			}
-
-			.buttonColor-chooser, .buttonColor-nocolor, .buttonColor-nocolor-hilite {
-				height: 0.6em;
-				border: 1px solid;
-				padding: 0px 1em;
-				border-color: ButtonShadow ButtonHighlight ButtonHighlight ButtonShadow;
-			}
-
-			.preview {
-				height: 120px;
-				width: 160px;
-			}
-
-			.buttonColor-nocolor, .buttonColor-nocolor-hilite { padding: 0px; }
-			.buttonColor-nocolor-hilite { background: #402F48; color: #FFFFFF; }
-
-			/* Popup styles (for backend search feature) */
-
-			#new-message-popup, #search-wait-popup {
-				position: absolute;
-				right: 10px;
-				top: 0;
-				width: 300px;
-				background-color: white;
-				border: 2px solid black;
-				font: normal 10px Arial,Verdana,sans-serif;
-				display: none;
-			}
-
-			#new-message-popup-titlebar, #search-wait-popup-titlebar {
-				font-weight: bold;
-				padding: 5px;
-			}
-
-			#new-message-popup-close, #search-wait-popup-close {
-				float: right;
-			}
-
-			#new-message-popup-close a, #search-wait-popup-close a {
-				color: black;
-				text-decoration: none;
-			}
-
-			#new-message-popup-details, #search-wait-popup-details {
-				padding: 5px;
-			}
-
-			div.search-result {
-				padding: 0;
-				margin: 5px;
-			}
-
-			div.search-result-blurb {
-				padding: 0;
-				margin: 5px;
-				font-weight: bold;
-			}
-
-			div.search-result-pager {
-				padding: 0;
-				margin: 5px;
-				text-align: center;
-			}
-
-			div.search-result-detail {
-				padding: 0;
-				padding-left: 15px;
-				margin: 5px;
-				display: none;
-			}
-
-			a.search-result-expand-link {
-				text-decoration:	none;
-				top:				0px;
-				left:				0px;
-				height:				10px;
-				font-size:			14px;
-				margin-top:			0px;
-				font-weight: 		bold;
-				text-decoration:	none;
-				color:				#33B9E6;
-			}
-
-			.search-result-expand-div {
-				float:				left;
-				width:				22px;
-				font-weight: 		bold;
-				background-color:	white;
-				white-space:		nowrap;
-			}
-
-			.search-result-entry {
-				margin-top:		5px;
-				text-indent:	-38px;
-				padding-left:	50px;
-			}
-
-			.sq-backend-search-failed-table {
-				border:				2px solid #594165;
-				border-collapse:	collapse;
-				background-color:	#ECECEC;
-			}
-
-			.sq-backend-search-failed-heading, .sq-backend-search-failed-body {
-				color:				#342939;
-				background-color:	#ececec;
-				font-family:		Arial, Verdana, Helvetica, sans-serif;
-				font-size:			10px;
-				vertical-align:		top;
-				padding:			5px;
-				text-decoration:	none;
-				font-weight:		bold;
-			}
-
-			.sq-backend-search-failed-body {
-				color:				#342939;
-				font-weight:		normal;
-			}
-
-			.sq-backend-search-results-table {
-				border:				2px solid #594165;
-				border-collapse:	collapse;
-				background-color:	#ECECEC;
-			}
-
-			.sq-backend-search-results-heading, .sq-backend-search-results-body {
-				color:				#342939;
-				background-color:	#FFFFFF;
-				font-family:		Arial, Verdana, Helvetica, sans-serif;
-				font-size:			10px;
-				vertical-align:		top;
-				padding:			5px;
-				text-decoration:	none;
-				font-weight:		bold;
-			}
-
-			.sq-backend-search-results-heading {
-				background-color:	#F0F0E6;
-			}
-
-			.sq-backend-search-results-highlight {
-				background-color:	yellow;
-			}
-
-			.sq-backend-search-results-body {
-				color:				#342939;
-				font-weight:		normal;
-			}
-		</style>
 		<?php define('SQ_PAINTED_SIMPLE_ASSET_MAP', TRUE); ?>
 	</head>
 
@@ -489,11 +256,11 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 			if( $GLOBALS['SQ_SYSTEM']->user && !($GLOBALS['SQ_SYSTEM']->user instanceof Public_User))
 			hidden_field('token', get_unique_token());
 			?>
-			<table width="100%">
+			<table class="sq-fieldsets-table">
 				<tr>
-				    <td valign="top">
+				    <td valign="top" class="sq-popup-asset-map">
 				        <div id="asset_map">
-				            <iframe src="insert_image_asset_map.php" name="sq_wysiwyg_popup_sidenav" frameborder="0" width="200" height="350" scrolling="no">
+				            <iframe src="insert_image_asset_map.php" name="sq_wysiwyg_popup_sidenav" frameborder="0" width="200" height="600px" scrolling="no">
 				            </iframe>
 				        </div>
 				    </td>
@@ -503,7 +270,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 								<td valign="top" width="100%" colspan=2>
 								<fieldset>
 									<legend><b><?php echo translate('general'); ?></b></legend>
-										<table style="width:100%">
+										<table>
 											<tr>
 												<td class="label" nowrap="nowrap"><?php echo translate('image_url'); ?>:</td>
 												<td>
@@ -513,43 +280,46 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 											<tr>
 												<td class="label" nowrap="nowrap"><?php echo translate('alternate_text'); ?>:</td>
 												<td>
-													<input type="text" name="alt" id="f_alt" style="width:100%" title="For browsers that don't support images" value="<?php echo htmlspecialchars($_REQUEST['f_alt']) ?>" />
+													<input type="text" size="70" name="alt" id="f_alt" title="For browsers that don't support images" value="<?php echo htmlspecialchars($_REQUEST['f_alt']) ?>" />
 												</td>
 											</tr>
 											<tr>
 												<td class="label" nowrap="nowrap"><?php echo translate('title_text'); ?>:</td>
 												<td>
-													<input type="text" name="title" id="f_title" style="width:100%" title="Your Image Title" value="<?php echo htmlspecialchars($_REQUEST['f_title']) ?>" />
+													<input type="text" size="70" name="title" id="f_title" title="Your Image Title" value="<?php echo htmlspecialchars($_REQUEST['f_title']) ?>" />
 												</td>
 											</tr>
 											<tr>
-												<td colspan="2">
-												<div align="center" id="show_create_button" style="display: block; visibility: visible;">
+												<td></td>
+												<td>
+												<div id="show_create_button" >
 													<input type="button" name="show" value="Create Image" onclick="toggleCreateImage();" />
 												</div>
-												</td>
+												</td>												
 											</tr>
 											<tr>
-												<td colspan="2">
-													<div id="show_upload_error" style="background:#cc0000;color:#ffffff;display:none; visibility:hidden;padding:0.1cm;">
+												<td colspan="2" class="sq-popup-no-padding sq-popup-hidden-cell">
+													<div id="show_upload_error" class="hidden">
 													</div>
 												</td>
 											</tr>
 											<tr>
-												<td><div id="show_create_image_label1" style="display: none; visibility: hidden;">Create an image:</div></td>
-												<td><div id="show_create_image1" style="display: none; visibility: hidden;"><input name="create_image_upload" id="create_image_upload" type="file" /></div></td>
+												<td class="sq-popup-no-padding sq-popup-hidden-cell"><div id="show_create_image_label1" class="hidden">Create an image:</div></td>
+												<td class="sq-popup-no-padding sq-popup-hidden-cell"><div id="show_create_image1" class="hidden"><input name="create_image_upload" id="create_image_upload" type="file" /></div></td>
 											</tr>
 											<tr>
-												<td><div id="show_create_image_label2" style="display: none; visibility: hidden;">Create under:</div></td>
-												<td><div id="show_create_image2" style="display: none; visibility: hidden;"><?php asset_finder('f_create_root_node', '0', Array(), 'sq_wysiwyg_popup_sidenav'); ?></div></td>
+												<td class="sq-popup-no-padding sq-popup-hidden-cell"><div id="show_create_image_label2" class="hidden">Create under:</div></td>
+												<td class="sq-popup-no-padding sq-popup-hidden-cell"><div id="show_create_image2" class="hidden"><?php asset_finder('f_create_root_node', '0', Array(), 'sq_wysiwyg_popup_sidenav'); ?></div></td>
 											</tr>
 											<tr>
-												<td align="center" colspan="2"><div id="show_create_image_submit" style="display: none; visibility: hidden;"><input type="submit" name="create_image_submit" value="Create &amp; Use Image" onclick="submitCreateImage();" /><input type="button" name="cancel_create_image" value="Cancel" onclick="toggleCreateImage();" /></div></td>
+												<td class="sq-popup-no-padding sq-popup-hidden-cell"></td>
+												<td class="sq-popup-no-padding sq-popup-hidden-cell"><div id="show_create_image_submit" class="hidden"><input type="submit" name="create_image_submit" value="Create &amp; Use Image" onclick="submitCreateImage();" /><input type="button" name="cancel_create_image" value="Cancel" onclick="toggleCreateImage();" /></div></td>
+											    </td>
 											</tr>
 											</div>
 											<tr>
 												<td colspan="2">
-													<div id="create_image_frame_div" style="display:none;visibility:hidden;">
+													<div id="create_image_frame_div" class="hidden">
 														<iframe id="create_image_frame" name="create_image_frame" src=""></iframe>
 													</div>
 												</td>
@@ -562,7 +332,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 								<td valign="top" width="100%" colspan=2>
 								<fieldset>
 									<legend><b><?php echo translate('optional_attributes'); ?></b></legend>
-									<table style="width:100%">
+									<table >
 										<tr>
 											<td valign="top" class="label" nowrap="nowrap"><?php echo translate('longdesc_text'); ?>:</td>
 											<td>
@@ -572,9 +342,9 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 														Enter URL manually<br />
 														<?php echo translate('protocol'); ?>&nbsp;<?php combo_box('f_longdesc_protocol', $url_protocol_options, '', 'style="font-family: courier new; font-size: 11px;"'); ?>
 														<?php echo translate('link'); ?>&nbsp;<?php text_box('f_longdesc_link', '', 40, 0)?>
-														<br /><br />or choose a Standard Page asset<br />
+														<br />or choose a Standard Page asset<br />
 														<?php asset_finder('f_longdesc', $_GET['f_longdesc'], Array('page_standard' => 'D'), 'sq_wysiwyg_popup_sidenav'); ?>
-														<br /><br />If you enter URL manually, current asset in the asset finder must be cleared .<br />
+														<br />If you enter URL manually, current asset in the asset finder must be cleared .<br />
 													<?php
 													} else {
 														$matches = Array();
@@ -583,14 +353,14 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 															Enter URL manually<br />
 															<?php echo translate('protocol'); ?>&nbsp;<?php combo_box('f_longdesc_protocol', $url_protocol_options, FALSE, '', 'style="font-family: courier new; font-size: 11px;"'); ?>
 															<?php echo translate('link'); ?>&nbsp;<?php text_box('f_longdesc_link', $_GET['f_longdesc'], 40, 0)?>
-															<br /><br />or choose a Standard Page asset<br />
+															<br />or choose a Standard Page asset<br />
 															<?php asset_finder('f_longdesc', '0', Array('page_standard' => 'D'), 'sq_wysiwyg_popup_sidenav'); ?>
 														<?php
 														} else {?>
 															Enter URL manually<br />
 															<?php echo translate('protocol'); ?>&nbsp;<?php combo_box('f_longdesc_protocol', $url_protocol_options, FALSE, $matches[1][0], 'style="font-family: courier new; font-size: 11px;"'); ?>
 															<?php echo translate('link'); ?>&nbsp;<?php text_box('f_longdesc_link', $matches[2][0], 40, 0)?>
-															<br /><br />or choose a Standard Page asset<br />
+															<br />or choose a Standard Page asset<br />
 															<?php asset_finder('f_longdesc', '0', Array('page_standard' => 'D'), 'sq_wysiwyg_popup_sidenav'); ?>
 														<?php
 														}
@@ -600,18 +370,18 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 													Enter URL manually<br />
 													<?php echo translate('protocol'); ?>&nbsp;<?php combo_box('f_longdesc_protocol', $url_protocol_options, '', 'style="font-family: courier new; font-size: 11px;"'); ?>
 													<?php echo translate('link'); ?>&nbsp;<?php text_box('f_longdesc_link', '', 40, 0)?>
-													<br /><br />or choose a Standard Page asset<br />
+													<br />or choose a Standard Page asset<br />
 													<?php asset_finder('f_longdesc', '0', Array('page_standard' => 'D'), 'sq_wysiwyg_popup_sidenav'); ?>
 												<?php
 												}?>
-											<br /><br />If you enter URL manually, current asset in the asset finder must be cleared .<br />
+											<br />If you enter URL manually, current asset in the asset finder must be cleared.<br />
 											</td>
 										</tr>
 									</table>
 								</fieldset>
 							</tr>
 							<tr>
-								<td valign="center" align="center" rowspan=2 width="50%">
+								<td width="50%" rowspan="2">
 									<fieldset class="prev">
 									<legend><b><?php echo translate('preview'); ?></b></legend>
 										<table class="preview" >
@@ -689,10 +459,11 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 								</td>
 							</tr>
 							<tr>
+					
 								<td valign="top" width="50%">
 									<fieldset>
 									<legend><b><?php echo translate('size'); ?></b></legend>
-									<table style="width:100%">
+									<table>
 										<tr>
 											<?php
 											$disable_resize = $GLOBALS['SQ_SYSTEM']->getUserPrefs('content_type_wysiwyg', 'SQ_WYSIWYG_DISABLE_IMAGE_RESIZE');
@@ -741,11 +512,12 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 								</td>
 							</tr>
 							<tr>
-								<td colspan=2>
-									<div style="margin-top: 5px; text-align: right;">
-										<hr />
-										<button type="button" name="ok" onclick="return onOK();"><?php echo translate('ok'); ?></button>
-										<button type="button" name="cancel" onclick="return onCancel();"><?php echo translate('cancel'); ?></button>
+								<td>
+									<button type="button" name="cancel" onclick="return onCancel();"><?php echo translate('cancel'); ?></button>
+								</td>
+								<td>
+									<div class="sq-popup-button-wrapper">										
+										<button type="button" name="ok" onclick="return onOK();" class="sq-btn-green"><?php echo translate('ok'); ?></button>
 									</div>
 								</td>
 							</tr>
@@ -755,13 +527,18 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 			</table>
 		</form>
 
+
 		<!-- Search results -->
-		<div id="new-message-popup"><div id="new-message-popup-titlebar"><div id="new-message-popup-close">[ <a href="#" onclick="document.getElementById('new-message-popup').style.display = 'none'; return false;">x</a> ]</div><span id="new-message-popup-title">Searched for ''</span></div>
+		<div id="new-message-popup" class="sq-new-message-popup-wrapper">
+			<div id="new-message-popup-titlebar">
+				<div id="new-message-popup-close"><a href="#" onclick="document.getElementById('new-message-popup').style.display = 'none'; return false;"><img src="/__lib/web/images/icons/cancel.png"></a></div>
+				<span id="new-message-popup-title">Searched for ''</span>
+			</div>
 			<div id="new-message-popup-details"></div>
 		</div>
-		<div id="search-wait-popup"><div id="search-wait-popup-titlebar"><div id="search-wait-popup-close">[ <a href="#" onclick="document.getElementById('search-wait-popup').style.display = 'none'; return false;">x</a> ]</div><span id="search-wait-popup-title">Search in Progress</span></div>
+		<div id="search-wait-popup"><div id="search-wait-popup-titlebar"><div id="search-wait-popup-close"><a href="#" onclick="document.getElementById('search-wait-popup').style.display = 'none'; return false;"><img src="/__lib/web/images/icons/cancel.png"></a></div><span id="search-wait-popup-title">Search in Progress</span></div>
 			<div id="search-wait-popup-details">Your search is being processed, please wait...</div>
-		</div>
+		</div> 
 
 		<script type="text/javascript"><!--
 			var current = 1;

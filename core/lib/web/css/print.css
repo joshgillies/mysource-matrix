@@ -16,20 +16,9 @@
 /* HEADING STYLES */
 
 /* Matrix Logo for Print preview */
-div#matrix-print-logo {
-    background-color: #312839;
-    background-image: url('../images/icons/asset_map/matrix_logo.gif');
-    background-position: 10px 5px;
-    background-repeat: no-repeat;
-    height: 30px;
+
+#matrix-print-logo {
+	text-align: center;
+    padding-bottom: 10px;
 }
 
-table.sq-backend-main-headings {
-	margin-bottom: 0px;
-}
-
-body form {
-	background: white;
-	height: 100%;
-	margin: 0px;
-}

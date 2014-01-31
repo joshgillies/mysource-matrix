@@ -692,7 +692,7 @@ function disable_buttons()
 		newElt.type = buttons[i].type;
 		newElt.value = buttons[i].value;
 		if(buttons[i].className){
-			newElt.className = buttons[i].className + ' disabled';
+			newElt.className = buttons[i].className + ' disabled1';
 		}
 		newElt.disabled = 'disabled';
 		buttons[i].style.display = 'none';

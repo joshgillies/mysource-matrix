@@ -403,7 +403,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 							$current = current($assets);
 							foreach ($current as $link) {
 								$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['parentid']);
-								echo '<li>"'.translate('hipo_from_under', htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), htmlentities($parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</li>';
+								echo '<li>'.translate('hipo_from_under', htmlentities($asset->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), htmlentities($parent->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</li>';
 								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent);
 							}
 							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);

@@ -43,7 +43,6 @@
 
 .htmlarea-button {
 	float:				left;
-	background: 		#5A5A5A;
 	color: 				#5A5A5A;
 	border: 			1px solid #EEE;
 	width: 				17px;
@@ -56,6 +55,7 @@
 
 .htmlarea-button img{
 	margin: 			0;
+	cursor: 			pointer;
 }
 
 .htmlarea-buttonHover,
@@ -71,7 +71,7 @@
 }
 
 .htmlarea-buttonPressed {
-	background:			#D5D5D5;
+	background-color:	#fff !important;
 }
 
 .htmlarea-buttonDisabled {
@@ -114,6 +114,12 @@
 	line-height: 		23px;
 	height:				23px;
 }
+
+.ie8 .htmlarea-select {
+	line-height: 		22px;
+	height:				22px;
+}
+
 .htmlarea-select-container {
 	float:				left;
 	font-size:			9px;
@@ -177,6 +183,10 @@
 	padding: 			0px;
 	font-size: 			10px;
 	position: 			relative;
+}
+
+.ie8 .htmlarea-separator {
+	height: 			22px;
 }
 
 .htmlarea-separator div {

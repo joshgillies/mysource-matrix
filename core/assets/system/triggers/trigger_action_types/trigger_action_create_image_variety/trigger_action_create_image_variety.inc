@@ -144,7 +144,7 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 
 		switch ($settings['constrain']) {
 			case 'width':
-				$width_display_style = 'inline';
+				$width_display_style = 'inline-block';
 				$width_section_display_style = 'block';
 				$height_display_style = 'none';
 				$height_section_display_style = 'none';
@@ -154,7 +154,7 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 			case 'height':
 				$width_display_style = 'none';
 				$width_section_display_style = 'none';
-				$height_display_style = 'inline';
+				$height_display_style = 'inline-block';
 				$height_section_display_style = 'block';
 				$dimension_display_style = 'none';
 			break;
@@ -164,13 +164,13 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 				$width_section_display_style = 'none';
 				$height_display_style = 'none';
 				$height_section_display_style = 'block';
-				$dimension_display_style = 'inline';
+				$dimension_display_style = 'inline-block';
 			break;
 
 			case 'none':
-				$width_display_style = 'inline';
+				$width_display_style = 'inline-block';
 				$width_section_display_style = 'block';
-				$height_display_style = 'inline';
+				$height_display_style = 'inline-block';
 				$height_section_display_style = 'block';
 				$dimension_display_style = 'none';
 			break;
@@ -180,7 +180,7 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 				$width_section_display_style = 'none';
 				$height_display_style = 'none';
 				$height_section_display_style = 'block';
-				$dimension_display_style = 'inline';
+				$dimension_display_style = 'inline-block';
 			break;
 
 		}//end switch
@@ -197,6 +197,7 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 
 		// Painting the interface
 		ob_start();
+			echo '<div class="sq-break-line-inputs">';
 			echo translate('trigger_create_image_variety_basic', $basic_part_1);
 			echo '<br />';
 
@@ -210,7 +211,7 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 					var constrain    = get_form_element_value("<?php echo $prefix; ?>[constrain]");
 					if (constrain == 'width') {
 						document.getElementById("<?php echo $prefix; ?>_width_section").style.display = "block";
-						document.getElementById("<?php echo $prefix; ?>_width_label").style.display = "inline";
+						document.getElementById("<?php echo $prefix; ?>_width_label").style.display = "inline-block";
 						document.getElementById("<?php echo $prefix; ?>_height_section").style.display = "none";
 						document.getElementById("<?php echo $prefix; ?>_height_label").style.display = "none";
 						document.getElementById("<?php echo $prefix; ?>_dimension_label").style.display = "none";
@@ -218,26 +219,26 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 						document.getElementById("<?php echo $prefix; ?>_width_section").style.display = "none";
 						document.getElementById("<?php echo $prefix; ?>_width_label").style.display = "none";
 						document.getElementById("<?php echo $prefix; ?>_height_section").style.display = "block";
-						document.getElementById("<?php echo $prefix; ?>_height_label").style.display = "inline";
+						document.getElementById("<?php echo $prefix; ?>_height_label").style.display = "inline-block";
 						document.getElementById("<?php echo $prefix; ?>_dimension_label").style.display = "none";
 					} else if (constrain == 'dimension') {
 						document.getElementById("<?php echo $prefix; ?>_width_section").style.display = "none";
 						document.getElementById("<?php echo $prefix; ?>_width_label").style.display = "none";
 						document.getElementById("<?php echo $prefix; ?>_height_section").style.display = "block";
 						document.getElementById("<?php echo $prefix; ?>_height_label").style.display = "none";
-						document.getElementById("<?php echo $prefix; ?>_dimension_label").style.display = "inline";
+						document.getElementById("<?php echo $prefix; ?>_dimension_label").style.display = "inline-block";
 					} else if (constrain == 'none') {
 						document.getElementById("<?php echo $prefix; ?>_width_section").style.display = "block";
-						document.getElementById("<?php echo $prefix; ?>_width_label").style.display = "inline";
+						document.getElementById("<?php echo $prefix; ?>_width_label").style.display = "inline-block";
 						document.getElementById("<?php echo $prefix; ?>_height_section").style.display = "block";
-						document.getElementById("<?php echo $prefix; ?>_height_label").style.display = "inline";
+						document.getElementById("<?php echo $prefix; ?>_height_label").style.display = "inline-block";
 						document.getElementById("<?php echo $prefix; ?>_dimension_label").style.display = "none";
 					} else if (constrain == 'centre_weighted_square') {
 						document.getElementById("<?php echo $prefix; ?>_width_section").style.display = "none";
 						document.getElementById("<?php echo $prefix; ?>_width_label").style.display = "none";
 						document.getElementById("<?php echo $prefix; ?>_height_section").style.display = "block";
 						document.getElementById("<?php echo $prefix; ?>_height_label").style.display = "none";
-						document.getElementById("<?php echo $prefix; ?>_dimension_label").style.display = "inline";
+						document.getElementById("<?php echo $prefix; ?>_dimension_label").style.display = "inline-block";
 					}//end if
 					return true;
 					
@@ -254,37 +255,41 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 						'none'						=> translate('neither'),
 						'centre_weighted_square'	=> translate('square_center_weighted'),
 					   );
-			echo translate('constrain_by').' ';
+			
+			echo translate('constrain_by').': ';
 			if ($write_access) {
 				combo_box($prefix.'[constrain]', $options, FALSE, $settings['constrain'], 0, $javascript);
 			} else {
-				echo $options[$settings['constrain']];
+				echo '<strong>'.$options[$settings['constrain']].'</strong>';
 			}//end if
 			echo '<br />';
 
 			echo '<div id="'.$prefix.'_width_section" style="display:'.$width_section_display_style.'">';
-			echo '<span id="'.$prefix.'_width_label" style="display:'.$width_display_style.'">';
-			echo translate('width');
-			echo '&nbsp;  </span>';
+			echo '<span id="'.$prefix.'_width_label" style="display:'.$width_display_style.'; width: 75px;">';
+			echo translate('width').':';
+			echo '&nbsp;</span>';
 			if ($write_access) {
-				int_text_box($prefix.'[width]', $settings['width'], FALSE);
+				int_text_box($prefix.'[width]', $settings['width'], FALSE, 6);
+				echo 'px';
 			} else {
-				echo $settings['width'];
+				echo '<strong>'.$settings['width'].' px</strong>';
 			}//end if
 			echo '</div>';
 
 			echo '<div id="'.$prefix.'_height_section" style="display:'.$height_section_display_style.'">';
-			echo '<span id="'.$prefix.'_height_label" style="display:'.$height_display_style.'">';
-			echo translate('height');
-			echo ' </span>';
-			echo '<span id="'.$prefix.'_dimension_label" style="display:'.$dimension_display_style.'">';
-			echo translate('dimension');
-			echo ' </span>';
+			echo '<span id="'.$prefix.'_height_label" style="display:'.$height_display_style.'; width: 75px;">';
+			echo translate('height').':';
+			echo '&nbsp;</span>';
+			echo '<span id="'.$prefix.'_dimension_label" style="display:'.$dimension_display_style.'; width: 75px;">';
+			echo translate('dimension').':';
+			echo '&nbsp;</span>';
 			if ($write_access) {
-				int_text_box($prefix.'[height]', $settings['height'], FALSE);
+				int_text_box($prefix.'[height]', $settings['height'], FALSE, 6);
+				echo 'px';
 			} else {
-				echo $settings['height'];
+				echo '<strong>'.$settings['height'].' px</strong>';
 			}//end if
+			echo '</div>';
 			echo '</div>';
 
 			$html = ob_get_contents();

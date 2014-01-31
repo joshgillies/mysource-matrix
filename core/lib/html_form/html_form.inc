@@ -483,7 +483,7 @@ function label($text, $for='', $extras='')
 * @return void
 * @access public
 */
-function colour_box($name, $default='000000', $allow_blanks=FALSE, $button_text='*', $show_text_box=TRUE, $show_current_colour=TRUE, $show_change_colour=TRUE)
+function colour_box($name, $default='000000', $allow_blanks=FALSE, $button_text='Colour picker', $show_text_box=TRUE, $show_current_colour=TRUE, $show_change_colour=TRUE)
 {
 
 	$default = strtolower($default);
@@ -500,7 +500,7 @@ function colour_box($name, $default='000000', $allow_blanks=FALSE, $button_text=
 
 	if ($show_current_colour) {
 		?>
-		<span id="colour_span_<?php echo $name; ?>" style="background-color: <?php echo $default; ?>;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;
+		<span id="colour_span_<?php echo $name; ?>" class="sq-colour-picker-preview" style="background-color: #<?php echo $default; ?>;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;
 		<?php
 	}
 

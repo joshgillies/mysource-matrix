@@ -1099,6 +1099,8 @@ HTMLArea.prototype.insertDeepLeft = function(target, toInsert) {
 								retVal = html.toString();
 							} else if (HTMLArea.is_ie) {
 								retVal = this._docContent.innerText;
+								this._docContent.className = '';
+								this._docContent.spellcheck = true
 							}
 						break;
 						case "wysiwyg":
@@ -1561,7 +1563,7 @@ if (SQ_CONF_DEFAULT_CHARACTER_SET != 'utf-8') {
 					// in the size or not.
 					this.sizeIncludesToolbar = true;
 
-					this.bodyStyle = "background-color: #ffffff; font-family: verdana,sans-serif";
+					this.bodyStyle = "background-color: #ffffff; font-family: arial,verdana,sans-serif";
 					this.styleSheets = <?php echo json_encode_array($this->stylesheets); ?>;
 					
 					this.editorURL = "";

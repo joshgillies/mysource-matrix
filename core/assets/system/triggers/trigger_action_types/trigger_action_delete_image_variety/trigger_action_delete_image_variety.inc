@@ -151,10 +151,10 @@ class Trigger_Action_Delete_Image_Variety extends Trigger_Action
 
 		ob_start();
 		?>
-			<table border="0">
+			<table class="sq-backend-table with-bottom-margin">
 				<tr>
-					<td valign="top"><?php echo translate('trigger_action_delete_image_variety_image_under') ?></td>
-					<td valign="top">
+					<th><?php echo translate('trigger_action_delete_image_variety_image_under') ?></th>
+					<td>
 					<?php
 						if ($write_access) {
 							asset_finder($prefix.'[image_assetid]', $selected_image, Array('image' => 'I'));
@@ -169,12 +169,11 @@ class Trigger_Action_Delete_Image_Variety extends Trigger_Action
 					</td>
 				</tr>
 				<tr>
-					<td valign="top"><?php echo"<b><i>OR</i></b>"; ?></td>
-					<td></td>
+					<td colspan="2"><?php echo"<b><i>OR</i></b>"; ?></td>
 				</tr>
 				<tr>
-					<td valign="top"><?php echo translate('trigger_action_delete_image_variety_use_self')  ?></td>
-					<td valign="top">
+					<th><?php echo translate('trigger_action_delete_image_variety_use_self')  ?></th>
+					<td>
 					<?php
 						if ($write_access) {
 							check_box($prefix.'[use_current]', '1', $use_current, '', ($write_access ? '' : 'disabled="disabled"'));
@@ -185,12 +184,8 @@ class Trigger_Action_Delete_Image_Variety extends Trigger_Action
 					?>
 				</tr>
 				<tr>
-					<td align="Left" valign="top" colspan="2"><br /><b><?php echo translate('trigger_action_delete_image_variety_details'); ?></b><br /></td>
-				</tr>
-
-				<tr>
-					<td valign="top"><?php echo translate('trigger_action_delete_image_variety_var_name'); ?></td>
-					<td valign="top">
+					<th><?php echo translate('trigger_action_delete_image_variety_var_name'); ?></th>
+					<td>
 					<?php
 						if ($write_access) {
 							text_box($prefix.'[variety_name]', $variety_name, 25);
@@ -201,8 +196,8 @@ class Trigger_Action_Delete_Image_Variety extends Trigger_Action
 					</td>
 				</tr>
 				<tr>
-					<td valign="top"><?php echo translate('trigger_action_delete_image_variety_del_all'); ?></td>
-					<td valign="top">
+					<th><?php echo translate('trigger_action_delete_image_variety_del_all'); ?></th>
+					<td>
 					<?php
 						if ($write_access) {
 							check_box($prefix.'[delete_all]', '1', $delete_all, '', ($write_access ? '' : 'disabled="disabled"'));

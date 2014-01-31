@@ -106,7 +106,7 @@
 	<string source="clone_asset_threshold">Clone Asset Threshold</string>
 	<string source="commit_button_text">Commit Button Text</string>
 	<string source="condition_details">Condition Details</string>
-	<string source="condition_type">Condition Type:</string>
+	<string source="condition_type">Condition Type</string>
 	<string source="condition">Condition</string>
 	<string source="conditions">Conditions</string>
 	<string source="confirm">Confirm</string>
@@ -257,6 +257,9 @@
 	<string source="new_question">New?</string>
 	<string source="new_condition_question">New Condition?</string>
 	<string source="new_conditions">New Conditions</string>
+	<string source="create_new_condition">Create New Condition</string>
+	<string source="delete_this_condition">Delete this condition</string>
+	<string source="no_existing_conditions">There are no existing conditions.</string>
 	<string source="new_field_name">New Field Name</string>
 	<string source="new_field_type">New Field Type</string>
 	<string source="new_link_confirmation">New Link Confirmation</string>
@@ -318,6 +321,7 @@
 	<string source="rollback_settings">Rollback Settings</string>
 	<string source="must_enable_rollback">Rollback must be enabled and disabled using the Rollback Management Tool, or the "rollback_management.php" script in the MySource "scripts" directory</string>
 	<string source="root_node">Root Node</string>
+	<string source="add_root_node">Add Root Node</string>
 	<string source="run_on_squiz_server">Run on Squiz Server</string>
 	<string source="save">Save</string>
 	<string source="save_and_exit">Save and Exit</string>
@@ -746,13 +750,19 @@
 
 
 	<string source="select_asset_type">Select Asset Type</string>
-	<string source="currently_customising">Currently customising: %s</string>
-	<string source="currently_viewing">Currently viewing: %s</string>
+	<string source="currently_customising">Currently customising %s</string>
+	<string source="currently_customising_type_code">Currently customising type code</string>
+	<string source="currently_viewing_type_code">Currently viewing type code</string>
+	<string source="currently_viewing">Currently viewing %s</string>
 	<string source="using_default_value_of">Using default value of %s</string>
 	<string source="valid_cache_length">The length of time a cache entry is valid in seconds. Memcache storage type accepts maximum 2592000 (30 days)</string>
-	<string source="customise_asset_selection">Please select an Asset Type above to customise</string>
-	<string source="customise_root_node_selection">Please select a Root Node above to customise</string>
-	<string source="view_root_node_selection">Please select a customised Root Node above to view its settings</string>
+	<string source="customise_asset_selection">Please select an Asset Type above to customise.</string>
+	<string source="customise_asset_selection_below">Please select an Asset Type below to customise.</string>
+	<string source="view_asset_selection_below">Please select an Asset Type below to view its settings.</string>
+	<string source="customise_root_node_selection">Please select a Root Node above to customise.</string>
+	<string source="customise_root_node_selection_below">Please select a Root Node below to customise.</string>
+	<string source="view_root_node_selection">Please select a customised Root Node above to view its settings.</string>
+	<string source="view_root_node_selection_below">Please select a customised Root Node below to view its settings.</string>
 	<string source="cannot_clear_cache">You do not have access to clear the cache</string>
 	<string source="cannot_clear_cache_by_assetid">Your chosen cache storage type does not support clearing by asset ID or asset type</string>
 	<string source="clear_cache_threshold">Clear Cache Threshold</string>
@@ -766,14 +776,16 @@
 	<string source="all_asset_types">All Asset Types</string>
 	<string source="no_charactet_set_set">Unknown character set %1$s is currently set for "%2$s"</string>
 	<string source="new_type">New Type</string>
-	<string source="view_customisations">View Customisations</string>
+	<string source="view_customisations">View customisations</string>
+	<string source="edit_customisations">Edit customisations</string>
 	<string source="customise">Customise</string>
 	<string source="customised">Customised</string>
 	<string source="not_yet_customised">Not yet customised</string>
 	<string source="include_all_assets">Include all assets underneath this root node</string>
 	<string source="assets_underneath_root_node_not_affected">Assets underneath this root node are &lt;u&gt;NOT&lt;/u&gt; affected</string>
 	<string source="assets_underneath_root_node_affected">Assets underneath this root node &lt;u&gt;ARE&lt;/u&gt; affected</string>
-	<string source="type_code_precedence_over_root_node">Type Code specific customisations will take precendence over Root Node specific customisations</string>
+	<string source="type_code_precedence_over_root_node">Type Code specific customisations will take precendence over Root Node specific customisations.</string>
+	<string source="type_code_current_customised_highlighted">Currently customised type codes are highlighted in grey in the above select list.</string>
 	<string source="customise_after_commit" js="1">Customise after commit</string>
 
 
@@ -800,7 +812,7 @@
 	<string source="include_file_attachments">Include file attachments</string>
 	<string source="attachments">Attachments</string>
 
-	<string source="percent">Percent</string>
+	<string source="percent">percent</string>
 	<string source="pixels">Pixels</string>
 	<string source="parameter">Parameter</string>
 	<string source="source">Source</string>
@@ -825,9 +837,9 @@
 	<string source="percent_complete">Percent Complete</string>
 	<string source="hipo_server_configuration">HIPO Server Configuration</string>
 	<string source="hipo_freestyle_threashold">Freestyle threshold</string>
-	<string source="hipo_threshold_note"> Percent of the sum of the queued jobs' thresholds</string>
+	<string source="hipo_threshold_note"> Percent of the sum of the queued jobs' thresholds.</string>
 	<string source="hipo_status_check_threshold">Squiz Server Status Check Threshold</string>
-	<string source="hipo_status_check_threshold_note"> Seconds to wait before querying the server as to the job's status</string>
+	<string source="hipo_status_check_threshold_note"> Seconds to wait before querying the server as to the job's status.</string>
 	<string source="hipo_processing">HIPO Processing</string>
 	<string source="hipo_acquire_lock">Acquiring Lock on "%s"</string>
 	<string source="hipo_skipping_asset">Skipping asset #%s</string>
@@ -876,9 +888,9 @@
 	<string source="hipo_permission_workflow_metadata_display">The permissions, workflow schemas, and metadata schemas of "%s" are shown below.</string>
 	<string source="hipo_permission_workflow_metadata_cascade_select">To cascade the permissions, workflow schemas, and/or metadata schemas of "%s" to the newly linked asset(s) and their children, check the appropriate boxes below and press the &lt;b&gt;Next&lt;/b&gt; button.</string>
 	<string source="hipo_permission_workflow_metadata_cascade_none">If you do not wish to cascade any permissions or schemas, press the &lt;b&gt;Next&lt;/b&gt; button without checking any boxes.</string>
-	<string source="hipo_value_divided_by_schema">Value will be divided by number of affected schemas</string>
-	<string source="hipo_value_divided_by_tag">Value will be divided by number of affected tags</string>
-	<string source="hipo_value_divided_by_permission">Value will be divided by number of affected permissions</string>
+	<string source="hipo_value_divided_by_schema">Value will be divided by number of affected schemas.</string>
+	<string source="hipo_value_divided_by_tag">Value will be divided by number of affected tags.</string>
+	<string source="hipo_value_divided_by_permission">Value will be divided by number of affected permissions.</string>
 	<string source="hipo_cannot_modify_schema">Could not %1$s schema "%2$s" on "%3$s" because this asset already has this schema %4$s. The current schema setting for "%3$s" has been retained</string>
 	<string source="hipo_cannot_modify_permission">Could not %1$s %2$s access for "%3$s" on "%4$s" because this asset already has %5$s %2$s access to "%3$s". The current permission for "%4$s" has been retained.</string>
 	<string source="hipo_editing_metadata_schema">Editing Metadata Schemas for "%s"</string>
@@ -1227,6 +1239,7 @@
 	<string source="cannot_delete_inbox-user_link">You can't delete the link between a user and their inbox</string>
 	<string source="cannot_delete_workspace-user_link">You can't delete the link between a user and their workspace</string>
 	<string source="no_user_groups_selected">No User Group has been selected for this condition</string>
+	<string source="no_user_group_selected">No User Group selected</string>
 	<string source="user_group_unrestricted_access_granted">Unrestricted access has been granted. No security restrictions apply on this user group.</string>
 	<string source="user_group_unrestricted_access_denied">Unrestricted access has not been granted. Security restrictions do apply on this user group.</string>
 	<string source="restrict_screen_access">Restrict access for screen</string>
@@ -1299,9 +1312,9 @@
 	<string source="trigger_input_data_error">There was an error with input data</string>
 	<string source="trigger_type_code_not_supplied">Asset type code has not been supplied</string>
 
-	<string source="trigger_new_asset_basic">Create a new asset of type %1$s &lt;br /&gt; %2$s&lt;br /&gt;using a %3$s link &lt;br /&gt; and populate it with the file located on the server at %4$s</string>
+	<string source="trigger_new_asset_basic">Create a new asset of type %1$s %2$s using a %3$s link and populate it with the file located on the server at %4$s.</string>
 	<string source="no_parent_selected">no parent selected</string>
-	<string source="trigger_new_asset_advanced">Use the link value %1$s and link the asset %2$s and %3$s to the parent</string>
+	<string source="trigger_new_asset_advanced">Use the link value %1$s and link the asset %2$s and %3$s to the parent.</string>
 	<string source="no_value_entered">no value entered</string>
 	<string source="set_attributes">Set Attribute Values</string>
 	<string source="trigger_variety_name_cannot_be_empty">Variety name cannot be empty</string>
@@ -1311,21 +1324,21 @@
 	<string source="trigger_set_value_in_this_context">Set value in this context:</string>
 
 	<string source="trigger_replace_file">Replace the file asset's contents with the file stored on the server at %s</string>
-	<string source="trigger_create_clone_basic">Create a clone of the asset: %1$s, and link it as child of the asset: %2$s using a %3$s link.</string>
-	<string source="trigger_create_clone_advanced">Use this value as the link value: %1$s and link the child %2$s to the parent&lt;br /&gt;&lt;br /&gt;%4$s&lt;br /&gt;%5$s&lt;br /&gt;%6$s</string>
+	<string source="trigger_create_clone_basic">Create a clone of asset %1$s and link it as child of asset %2$s using a %3$s link.</string>
+	<string source="trigger_create_clone_advanced">Use the link value %1$s and link the asset %2$s to the parent.&lt;br /&gt;&lt;br /&gt;%4$s&lt;br /&gt;%5$s&lt;br /&gt;%6$s</string>
 	<string source="do_not_create_clone_if_same_name_exists">Do not create if a clone with the same name and asset type already exists</string>
 	<string source="clone_broadcasting_asset">Clone broadcasting asset</string>
 	<string source="link_to_broadcasting_asset">Link to broadcasting asset</string>
 
-	<string source="trigger_create_image_variety_basic">Create an Image Variety with the name: %1$s</string>
+	<string source="trigger_create_image_variety_basic">Create an Image Variety with the name: &lt;strong&gt;%1$s&lt;/strong&gt;</string>
 	<string source="trigger_set_thumbnail">To set a thumbnail, set the value stored in the index: %1$s&lt;br /&gt;This image will be set as a thumbnail to the current asset.</string>
 
-	<string source="trigger_create_link_basic">Link as the %1$s of the asset: %2$s using a %3$s link.</string>
-	<string source="trigger_create_link_advanced">Use this value as the link value: %1$s and link the child %2$s and %3$s to the parent</string>
+	<string source="trigger_create_link_basic">Link as the %1$s of asset %2$s using a %3$s link.</string>
+	<string source="trigger_create_link_advanced">Use the link value %1$s and link the asset %2$s and %3$s to the child/parent asset.</string>
 	<string source="trigger_create_link_remove_others">Unlink this asset from all its existing parents</string>
 	<string source="dependently">Dependently</string>
 	<string source="non_dependently">Non-dependently</string>
-	<string source="trigger_create_under_broadcaster">under the broadcasting asset</string>
+	<string source="trigger_create_under_broadcaster">the broadcasting asset</string>
 
 	<string source="exclusively">Exclusively</string>
 	<string source="non_exclusively">Non-exclusively</string>
@@ -1349,7 +1362,7 @@
 Force that this asset can only be viewed through a Secure (SSL) connection</string>
 	<string source="trigger_set_index_page_select">Select the index page</string>
 	<string source="trigger_set_status">Set the Asset's status to: %1$s&lt;br /&gt;%2$s Set status of dependent parents instead (eg. set the status of a bodycopy DIV's Standard Page parents, instead of itself; if no dependent parents are found, then this option will be ignored and the status set normally).</string>
-	<string source="trigger_increment_version">Increment this component of the Asset's version number: %s</string>
+	<string source="trigger_increment_version">Increment this component of the Asset's %s version number. </string>
 
 	<string source="trigger_set_paint_layout">Select the paint layout</string>
 	<string source="trigger_set_paint_layout_select">Set the asset's paint layout to: </string>
@@ -1421,8 +1434,8 @@ Force that this asset can only be viewed through a Secure (SSL) connection</stri
 
 	<string source="trigger_action_add_remap_message">The new remap URL consisting of site URL and assetid will be added to remap.</string>
 	<string source="trigger_create_design_customisation_usage">This trigger will create a design customisation of the design asset in which the trigger condition is matched.</string>
-	<string source="trigger_create_design_customisation_specify_name">Specify a name for the customisation</string>
-	<string source="trigger_create_design_customisation_select_keyword">Available keywords for naming</string>
+	<string source="trigger_create_design_customisation_specify_name">Specify a name for the customisation: </string>
+	<string source="trigger_create_design_customisation_select_keyword">Available keywords for naming: </string>
 
 	<string source="trigger_avg_comment_rating_metadata_field">Metadata text field to store ratings average: </string>
 	<string source="trigger_total_comment_rating_metadata_field">Metadata text field to store total comments: </string>
@@ -2684,7 +2697,7 @@ If you are ready to continue, please click <strong>Next</strong> to proceed with
 	<string source="trigger_add_web_path_dont_add_remap">Don't add remap</string>
 
 	<!-- Future Status Trigger Actions -->
-	<string source="trigger_delete_future_status">Delete all future status cron jobs that would change the asset's status to:</string>
+	<string source="trigger_delete_future_status">Delete all future status cron jobs that would change the asset's status to </string>
 	<string source="trigger_action_future_status_cascade_all">and cascade the status change to all children of the asset</string>
 	<string source="trigger_action_future_status_failure_conditions">NB. If a selected attribute is empty or not present, or the calculated value is in the past, no future status will be set</string>
 	<string source="trigger_action_future_status_date_format">NB. Metadata Date Field must provide ISO8601 format as Y-m-d H:i:s</string>
@@ -2707,6 +2720,9 @@ If you are ready to continue, please click <strong>Next</strong> to proceed with
 	<string source="trigger_action_future_permission_attr_interval">the date and time stored in the attribute</string>
 	<string source="trigger_action_future_permission_cascade_all">and cascade the permission change to all children of the asset</string>
 	<string source="trigger_action_future_permission_failure_conditions">NB. If a selected attribute is empty or not present, or the calculated value is in the past, no future permission will be set</string>
+
+	<!-- Miscellaneous Trigger Action Strings -->
+	<string source="trigger_action_no_configuration">This trigger action does not require any configuration.</string>
 
 	<string source="web_paths_auto_add_remaps">Automatically add remaps?</string>
 	<string source="web_paths_auto_add_remaps_label">Automatically add remaps</string>
@@ -2966,9 +2982,9 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="mollom_public_key_note">Public key supplied by Mollom</string>
 	<string source="mollom_private_key_note">Private key supplied by Mollom</string>
 	<string source="mollom_test_mode">Test Mode</string>
-	<string source="mollom_test_mode_note">Test mode allows user tag posts as either "ham", "spam", or "unsure" by using the respective keywords in the form field without affecting the poster's "reputation". The content type of the field used for testing must be "Post Body".</string>
+	<string source="mollom_test_mode_note">Test mode allows a user's posted content to be tagged as either "ham", "spam", or "unsure" by using the respective keywords in the form field without affecting the poster's "reputation". The content type of the field used for testing must be "Post Body".</string>
 	<string source="mollom_accept_bypassed_submission_question">Accept Bypassed Submission?</string>
-	<string source="mollom_accept_bypassed_submission_note">If set to yes, the submission will be accepted if Mollom fails to respond expectedly</string>
+	<string source="mollom_accept_bypassed_submission_note">If set to yes, the submission will be accepted if Mollom fails to respond as expected.</string>
 
 	<!-- Trigger - Remove future lineage cron -->
 	<string source="trigger_remove_future_lineage_cron">Delete all the asset's future lineage cron jobs of type </string>

@@ -15,19 +15,19 @@
 */
 -->
 <contents>
-	<section name="Select Root Node" read_access="write:" write_access="write:attributes">
-		<field>
-			<function_call>
-				<paint_function name="paintChooseRootNode" />
-				<process_function name="processChooseRootNode" />
-			</function_call>
-		</field>
-	</section>
 	<section name="Root Node Cache Management" read_access="write:" write_access="write:attributes">
 		<field>
 			<function_call>
 				<paint_function name="paintCustomiseRootNodeCaching" />
 				<process_function name="processCustomiseRootNodeCaching" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Select Root Node" read_access="write:" write_access="write:attributes">
+		<field>
+			<function_call>
+				<paint_function name="paintChooseRootNode" />
+				<process_function name="processChooseRootNode" />
 			</function_call>
 		</field>
 	</section>

@@ -206,7 +206,7 @@ class Trigger_Action_Create_Design_Customisation extends Trigger_Action
 		$tmp_design = new Design();
 		$keywords = $tmp_design->getAvailableKeywords();
 		ob_start();
-			text_box($prefix.'[customisation_name]', '%asset_name% - Customisation', strlen('%asset_name% - Customisation'));
+			text_box($prefix.'[customisation_name]', '%asset_name% - Customisation', 50);
 			$text_box = ob_get_contents();
 		ob_end_clean();
 

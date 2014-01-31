@@ -907,12 +907,11 @@ class SOAP_Common
 		} else {
 			?>
 			<tr>
-				<td width="120"><p>Auth URL</p></td>
+				<th>Auth URL</th>
 				<td>
-					<p>
-						<?php text_box($login_url_field_name, array_get_index($settings, 'login_url', ''), 100); ?>
-						<?php check_box($test_auth_field_name, '1', FALSE); ?> Test Authentication
-					</p>
+					<?php text_box($login_url_field_name, array_get_index($settings, 'login_url', ''), 100); ?>
+					<?php check_box($test_auth_field_name, '1', FALSE); ?> Test Authentication
+					
 					<?php
 						if (isset($settings['crm_auth_success']) && is_bool($settings['crm_auth_success'])) {
 							if ($settings['crm_auth_success'] === TRUE) {
@@ -1044,16 +1043,15 @@ class SOAP_Common
 		} else {
 			?>
 				<tr>
-					<td><?php echo $username_label; ?></td>
-					<td><p><?php text_box($login_field_name, array_get_index($settings, 'login', ''), 35); ?><br />
-					</p></td>
+					<th><?php echo $username_label; ?></th>
+					<td><?php text_box($login_field_name, array_get_index($settings, 'login', ''), 35); ?></td>
 				</tr>
 				<tr>
-					<td><?php echo $password_label; ?></td>
-					<td><p><?php password_box($password_field_name, array_get_index($settings, 'password', ''), 35); ?></p></td>
+					<th><?php echo $password_label; ?></th>
+					<td><?php password_box($password_field_name, array_get_index($settings, 'password', ''), 35); ?></td>
 				</tr>
 				<tr>
-					<td colspan="2"><p><?php echo translate($auth_note_locale_string); ?></p></td>
+					<td colspan="2"><?php echo translate($auth_note_locale_string); ?>.</td>
 				</tr>
 			<?php
 		}

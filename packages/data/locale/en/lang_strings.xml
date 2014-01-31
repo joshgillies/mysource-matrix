@@ -32,6 +32,6 @@
 <string source="db_connector">DB Connector</string>
 
 <string source="data_password_not_displayed">(Password not displayed)</string>
-<string source="trigger_execute_database_query_note"><![CDATA[Note that you can use keywords of the current asset (eg. %%asset_assetid%%) and global keywords (eg. %%globals_user_assetid%%) in the SQL Query]]></string>
+<string source="trigger_execute_database_query_note"><![CDATA[<strong>Note:</strong> You can use keywords of the current asset (eg. %%asset_assetid%%) and global keywords (eg. %%globals_user_assetid%%) in the SQL Query.]]></string>
 
 </strings>

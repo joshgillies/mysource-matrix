@@ -60,11 +60,14 @@ class HIPO_Job_Funnelback_Reindex extends HIPO_Job
 	{
 		$o->openField(translate('fnb_hipo_reindex'));
 
+		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
 			text_box($class.'[SQ_HIPO_REINDEX_FUNNELBACK]', SQ_HIPO_REINDEX_FUNNELBACK, 1);
 		} else {
 			echo SQ_HIPO_REINDEX_FUNNELBACK;
 		}
+		echo ' '.translate('assets');
+		echo '</span>';
 
 		$o->closeField();
 

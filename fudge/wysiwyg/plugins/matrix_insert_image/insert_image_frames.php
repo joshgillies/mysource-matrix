@@ -22,10 +22,10 @@
 <title>Insert Image</title>
 </head>
 <frameset rows="30,*" frameborder="0" border="0">
-	<frameset cols="*, 400"  frameborder="0" border="0">
+	<frameset cols="*, 500"  frameborder="0" border="0">
 		<frame src="insert_image_title.php" name="sq_wysiwyg_popup_title" scrolling="no" marginwidth="0" marginheight="0" noresize="noresize" />
 		<frame src="insert_image_search.php" name="sq_wysiwyg_popup_search" scrolling="no" marginwidth="0" marginheight="0" noresize="noresize" />
 	</frameset>
-	<frame src="insert_image.php?<?php echo htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES); ?>" name="sq_wysiwyg_popup_main" scrolling="no" marginwidth="0" marginheight="0" noresize="noresize" />
+	<frame src="insert_image.php?<?php echo htmlspecialchars($_SERVER['QUERY_STRING'], ENT_QUOTES); ?>" name="sq_wysiwyg_popup_main"  marginwidth="0" marginheight="0"  />
 </frameset>
 </html>

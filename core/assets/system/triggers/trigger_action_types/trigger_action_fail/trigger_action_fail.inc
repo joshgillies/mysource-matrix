@@ -103,9 +103,9 @@ class Trigger_Action_Fail extends Trigger_Action
 			// now patch together the output
 			$contents =	translate('trigger_fail_level_label').$part_1.
 						'<br /><br />'.
-						translate('trigger_fail_message_label').$part_2.
+						'<span style="vertical-align:top;">'.translate('trigger_fail_message_label').'</span>'.$part_2.
 						'<br /><br />'.
-						'<span class="sq-backend-warning"><b>'.translate('trigger_always_fails_warning').'</b></span>';
+						'<span><b>'.translate('trigger_always_fails_warning').'</b></span>';
 
 		return $contents;
 

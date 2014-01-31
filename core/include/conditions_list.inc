@@ -356,11 +356,15 @@ class Conditions_List
 		if ($this->isValid()) {
 			// 1. show all existing conditions
 			$conditions_parameters = $this->_getAllConditions();
-
+			if (!count($conditions_parameters)) {
+				$o->openField('','wide_col');
+					echo translate('no_existing_conditions');
+				$o->closeField();
+			}
 			foreach ($conditions_parameters as $condition_name => $parameters) {
 				$condition_prefix = $prefix.$condition_name;
 
-				$o->openSection(ucwords(str_replace('_', ' ', $parameters['type_code'])));
+				$o->openSection(ucwords(str_replace('_', ' ', str_replace('condition_', '', $parameters['type_code']))).' Condition');
 
 				// paint keyword name
 				$o->openField(translate('name'));
@@ -377,7 +381,7 @@ class Conditions_List
 				$condition_edit_fns = $this->_getConditionAsset($condition_type, TRUE);
 
 				// paint TRUE/FALSE bit
-				$o->openField('Condition is true if: ');
+				$o->openField('Condition Is True If');
 				$match_options = call_user_func(Array($condition_type, 'getMatchKeywords'), $condition_type);
 				if ($write_access) {
 					combo_box($condition_prefix.'_match', $match_options, FALSE, $parameters['restriction']['match']);
@@ -414,6 +418,7 @@ class Conditions_List
 				if ($write_access) {
 					$o->openField(translate('delete'));
 					check_box($condition_prefix.'_delete', $value='1', $checked=FALSE);
+					label(translate('delete_this_condition'), $condition_prefix.'_delete');
 					$o->closeField();
 				}
 
@@ -425,20 +430,21 @@ class Conditions_List
 
 			// 2. show "add condition" box
 			if ($write_access) {
-				// get the list of all condition types
-				$options = Array('' => '- '.translate('select_condition_type').' -');
+				$o->closeSection();
+					// get the list of all condition types
+					$options = Array('' => '- '.translate('select_condition_type').' -');
 
-				$conditions_type_code = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('condition', FALSE);
-				sort($conditions_type_code);
-				foreach ($conditions_type_code as $type_code) {
-					$options[$type_code] = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'name');
-				}
+					$conditions_type_code = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('condition', FALSE);
+					sort($conditions_type_code);
+					foreach ($conditions_type_code as $type_code) {
+						$options[$type_code] = str_replace(' Condition', '', $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'name'));
+					}
 
-				$o->openSection(translate('new_conditions'));
+					$o->openSection(translate('create_new_condition'));
 
-				$o->openField(translate('condition_type').':');
-				combo_box($prefix.'_new_condition_type', $options, FALSE, '');
-				$o->closeField();
+					$o->openField(translate('condition_type'));
+					combo_box($prefix.'_new_condition_type', $options, FALSE, '');
+					$o->closeField();
 
 				$o->closeSection();
 

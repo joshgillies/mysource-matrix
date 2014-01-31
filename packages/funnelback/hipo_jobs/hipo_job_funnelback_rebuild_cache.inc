@@ -60,11 +60,14 @@ class HIPO_Job_Funnelback_Rebuild_Cache extends HIPO_Job
 	{
 		$o->openField(translate('fnb_hipo_rebuild_cache'));
 
+		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
-			text_box($class.'[SQ_HIPO_REBUILD_FUNNELBACK_CACHE]', SQ_HIPO_REBUILD_FUNNELBACK_CACHE, 5);
+			text_box($class.'[SQ_HIPO_REBUILD_FUNNELBACK_CACHE]', SQ_HIPO_REBUILD_FUNNELBACK_CACHE, 1);
 		} else {
 			echo SQ_HIPO_REBUILD_FUNNELBACK_CACHE;
 		}
+		echo ' '.translate('assets');
+		echo '</span>';
 
 		$o->closeField();
 

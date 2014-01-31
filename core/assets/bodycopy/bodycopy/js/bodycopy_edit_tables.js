@@ -47,7 +47,7 @@ function bodycopy_edit_table_properties(bodycopy_name, tableid, can_delete) {
 	if (data != null) {
 		bodycopy_current_edit["data"]["attributes"] = var_unserialise(data["attributes"]);
 	}
-	bodycopy_show_popup("edit_table_props.php", 325, 740);
+	bodycopy_show_popup("edit_table_props.php", 325, 740, tableid, 'table');
 }// end bodycopy_edit_table_properties()
 
 function bodycopy_save_table_properties(attributes) {
