@@ -122,7 +122,9 @@ class Simple_Form_Edit_Fns extends Asset_Edit_Fns
 					?><td style="width:30px; text-align:center">
 						<?php
 						if ($asset_data['sort_order'] != 0) {
-							?><a href="#" onclick="moveQuestion(document.main_form, '<?php echo $prefix ?>', <?php echo $asset_data['sort_order'] ?>, <?php echo $asset_data['sort_order'] - 1 ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/up_arrow.png' ?>", "16", "16", "Move Up");</script></a><?php
+							?><a href="#" onclick="moveQuestion(document.main_form, '<?php echo $prefix ?>', <?php echo $asset_data['sort_order'] ?>, <?php echo $asset_data['sort_order'] - 1 ?>); return false;">
+								<?php sq_print_icon(sq_web_path('lib').'/web/images/icons/up_arrow.png', 16, 16, "Move Up"); ?>
+							</a><?php
 						}
 						?>
 					</td>
@@ -135,7 +137,9 @@ class Simple_Form_Edit_Fns extends Asset_Edit_Fns
 					<td style="width:30px; text-align:center">
 						<?php
 						if ($asset_data['sort_order'] != count($asset->attr('questions')) -1) {
-							?><a href="#" onclick="moveQuestion(document.main_form, '<?php echo $prefix ?>', <?php echo $asset_data['sort_order'] ?>, <?php echo $asset_data['sort_order'] + 1 ?>); return false;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib').'/web/images/icons/down_arrow.png' ?>", "16", "16", "Move Down");</script></a><?php
+							?><a href="#" onclick="moveQuestion(document.main_form, '<?php echo $prefix ?>', <?php echo $asset_data['sort_order'] ?>, <?php echo $asset_data['sort_order'] + 1 ?>); return false;">
+								<?php sq_print_icon(sq_web_path('lib').'/web/images/icons/down_arrow.png', 16, 16, "Move Down"); ?>
+							</a><?php
 						}
 						?>
 					</td>

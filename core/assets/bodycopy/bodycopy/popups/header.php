@@ -25,8 +25,16 @@
 * @subpackage __core__
 */
 ?>
-<html>
+<!DOCTYPE html>
+<!--[if lt IE 8 ]> 	<html class="ie">   				<![endif]-->
+<!--[if IE 8 ]>     <html class="ie ie8"> 		        <![endif]-->
+<!--[if IE 9 ]>     <html class="ie ie9 gtie8"> 		<![endif]-->
+<!--[if IE 10 ]>    <html class="ie ie-10 gtie8 gtie9"> <![endif]-->
+<!--[if !IE]><!--> 	<html class="">                     <!--<![endif]-->
 <head>
+	<meta charset="utf-8"/>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+	<title>Squiz Matrix - Edit Bodycopy</title>
 	<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('lib')?>/web/css/edit.css" />
 
 	<?php
@@ -36,7 +44,7 @@
 	}
 	?>
 
-	<script language="JavaScript" type="text/javascript">
+	<script>
 		if (is_ie4up || is_dom) {
 			var owner = parent;
 		} else {

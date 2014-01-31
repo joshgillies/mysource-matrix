@@ -1915,7 +1915,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	function paintKeywordReplacementText(&$asset, &$o, $prefix)
 	{
 		?>
-		<p>In addition to the simple formatting options shown underneath each email, you can use the same keyword replacements as is available for the Thank You bodycopy. Click here for a <a href="#" onClick="javascript: var win = window.open('<?php echo sq_web_path('data')?>/asset_types/form/popups/thank_you_keywords.php?assetid=<?php echo $asset->id ?>', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=520')">list of keywords available for use in emails</a>.<br/></p>
+		<p>In addition to the simple formatting options shown underneath each email, you can use the same keyword replacements that are available for the Thank You bodycopy. Click here for a <a href="#" onClick="javascript: var win = window.open('<?php echo sq_web_path('data')?>/asset_types/form/popups/thank_you_keywords.php?assetid=<?php echo $asset->id ?>', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=520')">list of keywords available for use in emails</a>.<br/></p>
 
 		<?php
 		return TRUE;

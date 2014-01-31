@@ -369,7 +369,7 @@ dfx.getWindowDimensions = function(win)
             }
         }
 
-        if (win.document.body.scrollWidth > windowWidth) {
+        if (win.document.body && win.document.body.scrollWidth > windowWidth) {
             // Scrollbar is shown.
             if (typeof scrollWidth === 'number') {
                 windowHeight -= scrollWidth;
@@ -639,7 +639,7 @@ dfx.getParents = function(elements, filter, stopEl, blockElementsOnly)
     var ln  = res.length;
     var ar  = [];
     for (var i = 0; i < ln; i++) {
-        if (res[i] === stopEl) {
+        if (stopEl && (res[i] === stopEl || dfx.isChildOf(res[i], stopEl) === false)) {
             break;
         }
 
@@ -1006,6 +1006,25 @@ dfx.getIframeDocument = function(iframe)
 
 };//end dfx.getIframeDocument()
 
+
+/**
+ * Returns the loaded DOM Documents (main window, iframes, etc).
+ *
+ * @return {array}
+ */
+dfx.getDocuments = function()
+{
+    var docs = [document];
+    var c    = frames.length;
+    for (var i = 0; i < c; i++) {
+        docs.push(dfx.getIframeDocument(frames[i]));
+    }
+
+    return docs;
+
+};
+
+
 /**
  * Retrurns TRUE if the specified element is a block element.
  *
@@ -1359,36 +1378,59 @@ dfx.getCommonAncestor = function(a, b)
 
 };
 
-
-dfx.getNextNode = function(node)
+dfx.getNextSibling = function(element, className, tagName)
 {
-    if (node.nextSibling) {
-        return node.nextSibling;
-    } else if (node.parentNode) {
-        return dfx.getFirstChild(node.parentNode);
+    if (className) {
+        className = '.' + className.split(' ').join('.');
     }
 
-    return null;
+    if (tagName) {
+        if (className) {
+            className = tagName + className;
+        } else {
+            className = tagName;
+        }
+    }
+
+    if (className) {
+        var ret = dfxjQuery(element).next(className);
+    } else {
+        var ret = dfxjQuery(element).next();
+    }
+
+    return ret;
 
 };
 
-dfx.getPrevNode = function(node)
+dfx.getPreviousSibling = function(element, className, tagName)
 {
-    if (node.previousSibling) {
-        return node.previousSibling;
-    } else if (node.parentNode) {
-        return dfx.getLastChild(node.parentNode);
+    if (className) {
+        className = '.' + className.split(' ').join('.');
     }
 
-    return null;
+    if (tagName) {
+        if (className) {
+            className = tagName + className;
+        } else {
+            className = tagName;
+        }
+    }
+
+    if (className) {
+        var ret = dfxjQuery(element).prev(className);
+    } else {
+        var ret = dfxjQuery(element).prev();
+    }
+
+    return ret;
 
 };
 
-dfx.getFirstChild = function(node)
+dfx.getFirstChildTextNode = function(node)
 {
     if (node.firstChild) {
         if (node.firstChild.nodeType === dfx.ELEMENT_NODE) {
-            return dfx.getFirstChild(node.firstChild);
+            return dfx.getFirstChildTextNode(node.firstChild);
         } else {
             return node.firstChild;
         }
@@ -1398,11 +1440,11 @@ dfx.getFirstChild = function(node)
 
 };
 
-dfx.getLastChild = function(node)
+dfx.getLastChildTextNode = function(node)
 {
     if (node.lastChild) {
         if (node.lastChild.nodeType === dfx.ELEMENT_NODE) {
-            return dfx.getLastChild(node.lastChild);
+            return dfx.getLastChildTextNode(node.lastChild);
         } else {
             return node.lastChild;
         }

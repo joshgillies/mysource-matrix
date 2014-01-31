@@ -2,9 +2,9 @@
 	<string source="trigger_action_delete_image_variety_image_under">Image to look under </string>
 	<string source="trigger_action_delete_image_variety_no_image">No Image Selected</string>
 	<string source="trigger_action_delete_image_variety_use_self">Use Image Asset firing the Trigger</string>
-	<string source="trigger_action_delete_image_variety_note_use_self"><br /><b>NOTE:</b> If this is checked, it will overwrite the Image asset selected by asset picker.</string>
+	<string source="trigger_action_delete_image_variety_note_use_self">&lt;br/&gt;&lt;strong&gt;Note:&lt;/strong&gt; If this is checked, it will overwrite the Image asset selected by asset picker.</string>
 	<string source="trigger_action_delete_image_variety_details">Image Variety Details</string>
 	<string source="trigger_action_delete_image_variety_var_name">Variety name to delete </string>
 	<string source="trigger_action_delete_image_variety_del_all">Delete all varities </string>
-	<string source="trigger_action_delete_image_variety_del_all_note"><br /><b>NOTE:</b> If this is checked, it will overwrite Image variety name to delete as well as any value passed via parameter map</string>
+	<string source="trigger_action_delete_image_variety_del_all_note">&lt;br/&gt;&lt;strong&gt;Note:&lt;/strong&gt; If this is checked, it will overwrite Image variety name to delete as well as any value passed via parameter map.</string>
 </strings>

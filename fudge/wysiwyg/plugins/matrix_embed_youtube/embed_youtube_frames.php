@@ -20,6 +20,7 @@
 <html>
 <head>
 <title>Embed YouTube</title>
+
 </head>
 <frameset rows="30,*" frameborder="0" border="0">
 	<frame src="embed_youtube_title.php" name="sq_wysiwyg_popup_title" scrolling="no" marginwidth="0" marginheight="0" noresize="noresize" />

@@ -23,13 +23,13 @@ dfx.startMousePositionTrack = function(callback)
             pageY = e.pageY;
         };
     */
-    dfxjQuery(document.body).bind('mousemove', callback);
+    dfxjQuery(document.body).on('mousemove', null, null, callback);
 
 };
 
 dfx.stopMousePositionTrack = function(callback)
 {
-    dfxjQuery(document.body).unbind('mousemove', callback);
+    dfxjQuery(document.body).off('mousemove', null, callback);
 
 };
 
@@ -44,7 +44,7 @@ dfx.addEvent = function(elements, type, callback, data)
         } else if (type === 'mousewheel') {
             dfxjQuery(elements).mousewheel(callback);
         } else {
-            dfxjQuery(elements).bind(type, data, callback);
+            dfxjQuery(elements).on(type, null, data, callback);
         }
     }
 
@@ -54,14 +54,14 @@ dfx.addEvent = function(elements, type, callback, data)
 dfx.safedblclick = function(elements, clickCallback, dblClickCallback, data)
 {
     var t = null;
-    dfxjQuery(elements).bind('click', data, function(e) {
+    dfxjQuery(elements).on('click', null, data, function(e) {
         clearTimeout(t);
         t = setTimeout(function() {
             clickCallback.call(this, e, data);
         }, 250);
     });
 
-    dfxjQuery(elements).bind('dblclick', data, function(e) {
+    dfxjQuery(elements).on('dblclick', null, data, function(e) {
         clearTimeout(t);
         dblClickCallback.call(this, e, data);
     });
@@ -85,7 +85,7 @@ dfx.trigger = function(elements, type, data)
 dfx.removeEvent = function(elements, type, func)
 {
     if (elements) {
-        dfxjQuery(elements).unbind(type, func);
+        dfxjQuery(elements).off(type, null, null, func);
     }
 
 };

@@ -51,8 +51,6 @@ class Asset_Map
 	*/
 	public function paint(&$backend)
 	{
-		$backend->out->addJsInclude(sq_web_path('lib').'/asset_map/asset_map.js');
-
 		?>
 		<script type="text/javascript"><!--
 		//<![CDATA[
@@ -356,7 +354,6 @@ class Asset_Map
 	    ?>
 	    <script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/detect.js' ?>"></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('fudge').'/var_serialise/var_serialise.js' ?>"></script>
-		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/asset_map/asset_map.js';?>"></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/asset_map/js/js_asset_map.js';?>"></script>
 		<?php
 	}
@@ -385,27 +382,16 @@ class Asset_Map
 	 */
 	public function embedAssetMap($type='simple', $width=200, $height=0)
 	{
-		$classname = '';
-		$jarname = '';
 
-		// notice that the package name (the directory) should be the same as the jar name, so no need for
-		// another variable
-
-		// create some vars to what jar file to include, and also the class name in the jar
-		// that has the main function
 		switch (strtolower($type)) {
 			case 'simple':
 				$startCmd = 'startSimple';
-				$classname = 'SimpleAssetMap';
-				$jarname = 'assetmap';
 				if (!defined('SQ_PAINTED_SIMPLE_ASSET_MAP')) {
 					define('SQ_PAINTED_SIMPLE_ASSET_MAP', TRUE);
 				}
 			break;
 			case 'complex':
 				$startCmd = 'start';
-				$classname = 'AssetMap';
-				$jarname = 'complexassetmap';
 			break;
 		}
 
@@ -479,27 +465,6 @@ class Asset_Map
 					$initial_selection_lineage = $this->_getInitialLineageSelection($type);
 				}
 
-				$parameters = Array(
-								'parameter.backendsuffix'			=> SQ_CONF_BACKEND_SUFFIX,
-								// only need to pass session id to assetmap if HTTPOnly cookie is used, otherwise java can share cookie automatically
-								'parameter.postsession'				=> SQ_CONF_COOKIE_OPTION_HTTP_ONLY,
-								'parameter.sessionid'				=> $_COOKIE['SQ_SYSTEM_SESSION'],
-								'parameter.sessionkey'				=> $GLOBALS['SQ_SYSTEM']->getUniqueSessionKey(),
-								'parameter.url.iconurl'				=> '__lib/web/images/icons',
-								'parameter.url.typecodeurl'			=> '__data/asset_types',
-								'parameter.url.notaccessibleicon'	=> 'asset_map/not_accessible.png',
-								'parameter.url.type2icon'			=> 'asset_map/not_visible.png',
-								'parameter.url.assetmapiconurl'		=> '__lib/web/images/icons/asset_map',
-								'parameter.url.baseurl'				=> $root_url,
-								'parameter.asset.limit'				=> SQ_CONF_ASSET_MAP_ASSET_LIMIT,
-								'parameter.java.supportedversion'	=> '1.4.2,1.5.0,1.6.0',
-								'parameter.java.sunurl'				=> 'http://java.sun.com/webapps/getjava/BrowserRedirect?locale=en&host=www.java.com:80',
-								'parameter.rootlineage'				=> $rootlineage,
-								'parameter.initialselection'		=> $initial_selection_lineage,
-							  );
-
-				$codebase = 'net/squiz/matrix/'.(($type == 'simple') ? $jarname : 'assetmap').'/'.$classname.'.class';
-				$archive  = sq_web_path('lib').'/asset_map/java/'.$jarname.'.jar?t='.time();
 
 				if ($height <= 0) {
 					$height = "(document.documentElement.clientHeight - ".(SQ_IN_LIMBO ? 51 : 70).")";
@@ -533,7 +498,7 @@ class Asset_Map
 					dfxLoadedCallback = function() {
 						var supported = JS_Asset_Map.isSupported();
 						if (supported === false) {
-							init_asset_map("<?php echo $codebase ?>", "<?php echo $archive ?>", <?php echo json_encode_array($parameters) ?>, <?php echo $width ?>, <?php echo $height ?>);
+							alert('Your browser is not supported. Asset map requires IE8+ / Chrome / Firefox / Safari to run.');
 						} else {
 							var asset_map_container = document.createElement('div');
 							asset_map_container.id  = 'asset_map_container';

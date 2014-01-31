@@ -58,17 +58,19 @@ ul ul, ol ol, ul ol, ol ul {
     height: 38px;
     min-width: 980px;
     overflow: hidden;
-    background: #434343 url(../images/performance/bar-background.png) 0 100% repeat-x;
+    background: #494949 url(../images/bar-noise-bg.png);
+    //background: #434343 url(../images/performance/bar-background.png) 0 100% repeat-x;
 }
 #perfToolBarPadder {
     padding: 0 20px 0 165px;
 }
 #productLogo {
     position: absolute;
-    left: 15px;
-    top: 50%;
+    left: 6px;
+    top: 64%;
     margin-top: -19px;
 }
+
 #perfSummary {
     color: #CCC;
     line-height: 38px;
@@ -76,38 +78,41 @@ ul ul, ol ol, ul ol, ol ul {
     overflow: hidden;
 }
 #perfSummary .perfTotal {
-    color: #999;
+    height: 24px;
+    color: #C0C0C0;
     float: left;
     margin-top: 7px;
     padding: 0 12px;
     font-weight: bold;
     font-size: 11px;
-    line-height: 22px;
-    background-color: rgba(255,255,255,0.15);
-    border-radius: 12px;
-    -moz-border-radius: 12px;
+    line-height: 24px;
+    background-color: #575757;
+    border-radius: 3px;
+    -moz-border-radius: 3px;
     box-shadow: 0 0 0px 1px rgba(0,0,0,0.7) inset;
     -moz-box-shadow: 0 0 0px 1px rgba(0,0,0,0.7) inset;
     -webkit-box-shadow: 0 0 0px 1px rgba(0,0,0,0.7) inset;
 }
 #perfSummary .perfSwitch {
-    color: #999;
+    height: 24px;
+    color: #C0C0C0;
     float: left;
     margin-top: 7px;
+    margin-left: 7px;
     padding: 0 12px;
     font-weight: bold;
     font-size: 11px;
-    line-height: 22px;
-    background-color: rgba(255,255,255,0.15);
-    border-radius: 12px;
-    -moz-border-radius: 12px;
+    line-height: 24px;
+    background-color: #575757;
+    border-radius: 3px;
+    -moz-border-radius: 3px;
     box-shadow: 0 0 0px 1px rgba(0,0,0,0.7) inset;
     -moz-box-shadow: 0 0 0px 1px rgba(0,0,0,0.7) inset;
     -webkit-box-shadow: 0 0 0px 1px rgba(0,0,0,0.7) inset;
 }
 #perfSummary .perfSwitch a {
       text-decoration: none;
-      color: #999;
+      color: #C0C0C0;
 }
 #perfSummary .perfSwitch a:hover {
     color:white;
@@ -122,11 +127,11 @@ ul ul, ol ol, ul ol, ol ul {
     float: right;
     width: 504px;
     padding: 0px 7px 1px 12px;
-    border-radius: 12px;
+    border-radius: 3px;
     padding-bottom: 1px;
     overflow: hidden;
     margin-top: 7px;
-    background-color: rgba(255,255,255,0.15);
+    background-color: #575757;
     box-shadow: 0 0 0px 1px rgba(0,0,0,0.7) inset;
     -moz-box-shadow: 0 0 0px 1px rgba(0,0,0,0.7) inset;
     -webkit-box-shadow: 0 0 0px 1px rgba(0,0,0,0.7) inset;
@@ -135,7 +140,7 @@ ul ul, ol ol, ul ol, ol ul {
     display: block;
     float: left;
     padding-right: 7px;
-    color: #AAA;
+    color: #C0C0C0;
     line-height: 22px;
     font-size: 11px;
     font-weight: bold;
@@ -150,8 +155,8 @@ ul ul, ol ol, ul ol, ol ul {
     overflow: hidden;
     height: 14px;
     margin-top: 4px;
-    border-radius: 6px;
-    -moz-border-radius: 6px;
+    border-radius: 3px;
+    -moz-border-radius: 3px;
     border-top: 1px solid black;
     box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
     -moz-box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
@@ -169,16 +174,16 @@ ul ul, ol ol, ul ol, ol ul {
     background-image: url(../images/performance/timeChunk-pattern.png);
 }
 #perfSummary .highRoller-bar .highRoller.GUI-colourList-position-1 {
-    border-top-left-radius: 6px;
-    border-bottom-left-radius: 6px;
-    -moz-border-radius-topleft: 6px;
-    -moz-border-radius-bottomleft: 6px;
+    border-top-left-radius: 3px;
+    border-bottom-left-radius: 3px;
+    -moz-border-radius-topleft: 3px;
+    -moz-border-radius-bottomleft:3px;
 }
 #perfSummary .highRoller-bar .highRoller.GUI-colourList-position-other {
-    border-top-right-radius: 6px;
-    border-bottom-right-radius: 6px;
-    -moz-border-radius-topright: 6px;
-    -moz-border-radius-bottomright: 6px;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+    -moz-border-radius-topright: 3px;
+    -moz-border-radius-bottomright: 3px;
 }
 #perfSummary .highRoller-details {
     display: none;
@@ -241,11 +246,25 @@ ul ul, ol ol, ul ol, ol ul {
     width: 100%;
     font-size: 11px;
     border-bottom: 1px solid #BBB;
-    border-collapse: collapse;
+    border-collapse: separate;
     box-shadow: 0 0 5px #AAA;
     -moz-box-shadow: 0 0 5px #AAA;
     -webkit-box-shadow: 0 0 5px #AAA;
+    border-spacing: 0;
+    border-radius: 0 0 4px 4px;
+    overflow: hidden;
+    border-top: none;
 }
+
+#perfTable tr {
+    background-color:           #fdfdfd;
+}
+
+#perfTable tr:nth-child(even) {
+    background-color:           #f9f9f9;
+}
+
+
 #perfTable th {
     text-align: left;
     background-color: #E5E5E5;
@@ -259,10 +278,25 @@ ul ul, ol ol, ul ol, ol ul {
 #perfTable td {
     text-align: left;
     vertical-align: top;
-    padding: 5px 5px;
+    padding: 8px;
     border-top: 1px solid #DDD;
+    border-right: 1px dotted #ccc;
     -moz-transition: all 0.2s ease;
 }
+
+#perfTable td:last-child {
+    border-right: none;
+}
+
+#perfTable > tr:last-child > th,
+#perfTable > tr:last-child > #perfTable-header {
+    border-bottom:              none;
+}
+
+#perfTable tr:last-child > td {
+    border-bottom:              none;
+}
+
 #perfTable .assetID {
     color: #555;
     width: 10px;
@@ -271,7 +305,7 @@ ul ul, ol ol, ul ol, ol ul {
 #perfTable .assetType {
     width: 10px;
     background-color: #EEE;
-    background-position: 50% 3px;
+    background-position: 50% 7px;
     background-repeat: no-repeat;
 }
 #perfTable .assetType img {
@@ -325,7 +359,6 @@ ul ul, ol ol, ul ol, ol ul {
 }
 #perfTable .asset-perfAction {
     width: 85px;
-    border-color: #CCC;
     background-color: #EFEFEF;
     color: #666;
     white-space: nowrap;
@@ -336,7 +369,7 @@ ul ul, ol ol, ul ol, ol ul {
 #perfTable .asset-perfCell {
     background-color: #FAFAFA;
     border-color: #EEE;
-    padding: 2px;
+    padding: 5px;
 }
 #perfTable tr:hover {
     box-shadow: 0 0 3px rgba(0,0,0,0.3);
@@ -344,12 +377,8 @@ ul ul, ol ol, ul ol, ol ul {
 #perfTable tr:hover td {
     background-color: #FFF;
 }
-#perfTable .assetID,
-#perfTable .assetType,
-#perfTable .assetName,
-#perfTable .assetExpand,
-#perfTable .firstAction {
-    border-top: 1px solid #CCC;
+#perfTable .assetID {
+     border-top: 1px solid #CCC;
 }
 #perfTable .asset-perfCell.firstCell {
     border-top: 1px solid #EEE;
@@ -358,12 +387,12 @@ ul ul, ol ol, ul ol, ol ul {
     overflow: hidden;
     height: 18px;
     float: left;
-    border-radius: 8px;
+    border-radius: 3px;
     border-width: 1px;
     border-style: solid !important;
     background: #FFF !important;
-    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.3), 0 0 4px 3px rgba(0, 0, 0, 0.1) inset;
-    -webkit-box-shadow: 0 2px 2px rgba(0, 0, 0, 0.3), 0 0 4px 3px rgba(0, 0, 0, 0.1) inset;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.3), 0 0 2px 1px rgba(0, 0, 0, 0.1) inset;
+    -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.3), 0 0 2px 1px rgba(0, 0, 0, 0.1) inset;
     margin-right:-2px;
     padding: 0px 0px;
 }

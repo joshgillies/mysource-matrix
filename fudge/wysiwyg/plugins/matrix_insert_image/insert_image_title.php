@@ -20,12 +20,11 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 <html>
 	<head>
 		<title>Insert Image</title>
-		<style type="text/css">
-			@import url("<?php echo sq_web_path('root_url')?>/__fudge/wysiwyg/core/popup.css");
-		</style>
+		<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('lib').'/web/css/edit.css' ?>" />
+		<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('root_url')?>/__fudge/wysiwyg/core/popup.css" />
 	</head>
 
-	<body>
-		<div class="title">Insert Image</div>
+	<body class="sq-popup-heading-frame title">
+		<h1>Insert Image</h1>
 	</body>
 </html>

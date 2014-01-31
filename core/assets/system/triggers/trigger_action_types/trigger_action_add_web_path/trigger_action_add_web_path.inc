@@ -170,13 +170,13 @@ class Trigger_Action_Add_Web_Path extends Trigger_Action
 		$web_path = array_get_index($settings, 'path', '');
 		echo translate('add_web_path').' ';
 		if ($write_access) {
-			text_box($prefix.'[path]', $web_path, 40);
+			text_box($prefix.'[path]', $web_path, 40, '', false, 'style="margin-bottom: 5px;"');
 		} else {
 			echo '"<strong>'.$web_path.'</strong>"';
 		}
 		echo '<br />';
-		echo '<br />';
 		echo translate('trigger_add_web_path_note');
+		echo '<br />';
 		echo '<br />';
 		echo '<ul class="sq-checkbox-list" style="margin-bottom: 0;">';
 			echo '<li>';

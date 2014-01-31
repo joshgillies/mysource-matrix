@@ -33,11 +33,13 @@ if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAcce
 $_GET['name'] = array_get_index($_GET, 'name', '');
 
 ?>
-
-<html style="width: 370px; height: 280px;">
+<!doctype html>
+<html style="height: 280px;">
 
 	<head>
 		<title>Search and Replace</title>
+		<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('lib').'/web/css/edit.css' ?>" />
+		<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('root_url')?>/__fudge/wysiwyg/core/popup.css" />
 		<script type="text/javascript" src="../../core/popup.js"></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('fudge').'/var_serialise/var_serialise.js' ?>"></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/html_form/html_form.js' ?>"></script>
@@ -131,73 +133,30 @@ $_GET['name'] = array_get_index($_GET, 'name', '');
 
 		</script>
 
-		<style type="text/css">
-			html, body {
-				background: #FCFCFC;
-				color: #000000;
-				font: 11px Tahoma,Verdana,sans-serif;
-				margin: 0px;
-				padding: 0px;
-				padding: 5px;
-			}
-
-			table {
-				font: 11px Tahoma,Verdana,sans-serif;
-			}
-
-			/* main popup title */
-			.title {
-				background: #402F48;
-				color: #FFFFFF;
-				font-weight: bold;
-				font-size: 120%;
-				padding: 3px 10px;
-				margin-bottom: 10px;
-				border-bottom: 1px solid black;
-				letter-spacing: 4px;
-			}
-
-			/* fieldset styles */
-			fieldset {
-				padding: 0px 10px 5px 5px;
-				border-color: #725B7D;
-			}
-
-			.fl { width: 9em; float: left; padding: 2px 5px; text-align: right; }
-			.fr { width: 7em; float: left; padding: 2px 5px; text-align: right; }
-
-			/* form and form fields */
-			form { padding: 0px; margin: 0px; }
-
-			select, input, button {
-				font: 11px Tahoma,Verdana,sans-serif;
-			}
-
-			button {
-				width: 110px;
-			}
-		</style>
+	
 	</head>
 
 	<body onload="Init()">
 
-		<div class="title">Search And Replace</div>
+		<div class="sq-popup-heading-frame">
+			<h1>Search And Replace</h1>
+		</div>
 
-		<form action="" method="get" name="Form1">
-			<table border="0" width="100%">
+		<form action="" method="get" name="Form1" id="main-form">
+			<table border="0" class="sq-fieldsets-table">
 				
 				<tr>
 					<td>
 						<fieldset>
 							<legend><b>Search and replace string</b></legend>
-							<table style="width:100%">
+							<table>
 								<tr>
-									<td>Search string</td>
-									<td><input type="text" name="search_str" id="search_str" size="45" onkeyup="enableButtons()">
+									<td class="label">Search string</td>
+									<td><input type="text" name="search_str" id="search_str" size="30" onkeyup="enableButtons()" >
 								</tr>
 								<tr>
-									<td>Replace string</td>
-									<td><input type="text" name="replace_str" id="replace_str" size="45">
+									<td class="label">Replace string</td>
+									<td><input type="text" name="replace_str" id="replace_str" size="30" >
 								</tr>
 							</table>
 						</fieldset>
@@ -208,9 +167,9 @@ $_GET['name'] = array_get_index($_GET, 'name', '');
 					<td>
 						<fieldset>
 							<legend><b>Replace options</b></legend>
-							<table style="width:100%">
+							<table>
 								<tr>
-									<td>
+									<td class="sq-popup-checkbox-list">
 										<input type="checkbox" name="rep_type0" id="rep_type0" />
 										<label for="rep_type0"> Match case</label><br/>
 										
@@ -234,7 +193,7 @@ $_GET['name'] = array_get_index($_GET, 'name', '');
 				</tr>
 			</table>
 
-			<div style="text-align: center;">
+			<div class="sq-popup-multi-button-wrapper">
 
 			<button type="button" disabled id="search_next" name="search_next" onclick="if (!onOK('search_next')) return;">Search Next</button>&nbsp;&nbsp;
 			<button type="button" disabled id="search_previous" name="search_previous" onclick="if (!onOK('search_previous')) return;">Search Previous</button>&nbsp;&nbsp;

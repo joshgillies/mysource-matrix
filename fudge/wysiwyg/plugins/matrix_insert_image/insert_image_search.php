@@ -246,9 +246,8 @@ if ($search_for != '') {
 <html>
 	<head>
 		<title>Insert Image - Search</title>
-		<style type="text/css">
-			@import url("<?php echo sq_web_path('root_url')?>/__fudge/wysiwyg/core/popup.css");
-		</style>
+		<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('lib').'/web/css/edit.css' ?>" />
+		<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('root_url')?>/__fudge/wysiwyg/core/popup.css" />
 		<script type="text/javascript"><!--
 			/**
 			* Run when quick-search-for box is tabbed/clicked to
@@ -369,7 +368,7 @@ if ($search_for != '') {
 		// --></script>
 	</head>
 
-	<body<?php if ($search_for != '') {
+	<body class="sq-popup-heading-frame search"<?php if ($search_for != '') {
 	?>
 	 onload="show_search_results();"
 	<?php
@@ -378,9 +377,12 @@ if ($search_for != '') {
 		<?php
 
 		?>
-		<div class="title"><form action="" method="get" id="quick-search" onsubmit="return quick_search_onsubmit(this);">
+		<div><form action="" method="get" id="quick-search" onsubmit="return quick_search_onsubmit(this);">
 			<label id="quick-search-for-label" for="quick-search-for">Quick Search for Images</label>
-			<input type="text" size="30" value="<?php echo htmlspecialchars(empty($search_for) ? $quick_search_for_text : $search_for); ?>" name="quick-search-for" id="quick-search-for" onfocus="return quick_search_for_onfocus(this);" onblur="return quick_search_for_onblur(this);" onkeypress="if (event.keyCode == 13) return quick_search_onsubmit(this.form);">
+			<span class="sq-text-field-wrapper">	
+			  <input class="sq-backend-header-text-box" type="text" size="30" value="<?php echo htmlspecialchars(empty($search_for) ? $quick_search_for_text : $search_for); ?>" name="quick-search-for" id="quick-search-for" onfocus="return quick_search_for_onfocus(this);" onblur="return quick_search_for_onblur(this);" onkeypress="if (event.keyCode == 13) return quick_search_onsubmit(this.form);">
+			<input type="image" class="sq-backend-header-search-button" alt="Go" title="Submit" src="/__lib/web/images/icons/header/search.png" onclick="form.submit();">
+			</span>
 		</form>
 		</div>
 	</body>

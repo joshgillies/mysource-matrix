@@ -146,10 +146,9 @@ class Trigger_Action_Delete_Bmail_User extends Trigger_Action
 				asset_finder($prefix.'[assetid]', $selected_assetid);
 			} else {
 				if ($selected_assetid) {
-					$selected_assetname = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($selected_assetid), Array(), TRUE, 'name');
-					text_box($prefix.'[assetid]', $selected_assetname[$selected_assetid].' (#'.$selected_assetid.')', '', '', FALSE, $form_element_extras);
+					echo get_asset_tag_line($selected_assetid);
 				} else {
-					text_box($prefix.'[assetid]', '', '', '', FALSE, $form_element_extras);
+					echo '<b>['.translate('core_no_selected_root_node').']</b>';
 				}
 			}
 			$basic_part_1 = ob_get_contents();
@@ -165,10 +164,9 @@ class Trigger_Action_Delete_Bmail_User extends Trigger_Action
 				asset_finder($prefix.'[link_assetid]', $selected_link_assetid);
 			} else {
 				if ($selected_link_assetid) {
-					$selected_assetname = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($selected_link_assetid), Array(), TRUE, 'name');
-					text_box($prefix.'[link_assetid]', $selected_assetname[$selected_link_assetid].' (#'.$selected_link_assetid.')', '', '', FALSE, $form_element_extras);
+					echo get_asset_tag_line($selected_assetid);
 				} else {
-					text_box($prefix.'[link_assetid]', '', '', '', FALSE, $form_element_extras);
+					echo '<b>['.translate('no_asset_selected').']</b>';
 				}
 			}
 			$basic_part_3 = ob_get_contents();
@@ -196,8 +194,8 @@ class Trigger_Action_Delete_Bmail_User extends Trigger_Action
 			$basic_part_5 = ob_get_contents();
 		ob_end_clean();
 
-		$contents = translate('trigger_delete_bmail_user_asset', $basic_part_1).'<br />'.translate('trigger_delete_bmail_user_email', $basic_part_2).
-					'<br />'.translate('trigger_delete_bmail_user_link', $basic_part_3, $basic_part_4).'<br />'.$basic_part_5;
+		$contents = '<div class="sq-break-line-inputs">'.translate('trigger_delete_bmail_user_asset', $basic_part_1).'<br />'.translate('trigger_delete_bmail_user_email', $basic_part_2).
+					'<br />'.translate('trigger_delete_bmail_user_link', $basic_part_3, $basic_part_4).'</div><br />'.$basic_part_5;
 
 		return $contents;
 

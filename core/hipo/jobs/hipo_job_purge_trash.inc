@@ -62,12 +62,14 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 		// metadata regeneration threshhold HIPO config entry
 		$o->openField(translate('purge_trash_threshold'));
 
+		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
-			text_box($class.'[SQ_HIPO_PURGE_TRASH_THRESHOLD]', SQ_HIPO_PURGE_TRASH_THRESHOLD, 5);
+			text_box($class.'[SQ_HIPO_PURGE_TRASH_THRESHOLD]', SQ_HIPO_PURGE_TRASH_THRESHOLD, 1);
 		} else {
 			echo SQ_HIPO_PURGE_TRASH_THRESHOLD;
 		}
 		echo ' '.translate('assets');
+		echo '</span>';
 
 		$o->closeField();
 

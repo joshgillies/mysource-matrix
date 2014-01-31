@@ -454,7 +454,7 @@ class External_Tools_Config extends Config
 				echo SQ_TOOL_JS_PATH;
 
 				?><br /><?php
-				echo translate('javascript_command_note');
+				echo $o->note(translate('javascript_command_note'));
 				if (!is_file(SQ_TOOL_JS_PATH)) {
 					?><br /><span class="sq-backend-warning"><?php echo translate('path_to_not_valid', 'JavaScript'); ?></span><?php
 				} else if (!is_executable(SQ_TOOL_JS_PATH)) {
@@ -470,16 +470,16 @@ class External_Tools_Config extends Config
 				} else {
 					echo (SQ_TOOL_MOLLOM_TEST_MODE) ? translate('yes') : translate('no');
 				}
-				?><br /><?php
-				echo translate('mollom_test_mode_note');
+				?><?php
+				echo $o->note(translate('mollom_test_mode_note'));
 			$o->openField(translate('mollom_public_key'));
 				if ($write_access) {
 					text_box($class.'[SQ_TOOL_MOLLOM_PUBLIC_KEY]', SQ_TOOL_MOLLOM_PUBLIC_KEY, 35);
 				} else {
 					echo SQ_TOOL_MOLLOM_PUBLIC_KEY;
 				}//end if
-				?><br /><?php
-				echo translate('mollom_public_key_note');
+				?><?php
+				echo $o->note(translate('mollom_public_key_note'));
 		
 			$o->openField(translate('mollom_private_key'));
 				if ($write_access) {
@@ -487,8 +487,8 @@ class External_Tools_Config extends Config
 				} else {
 					echo SQ_TOOL_MOLLOM_PRIVATE_KEY;
 				}//end if
-				?><br /><?php
-				echo translate('mollom_private_key_note');
+				?><?php
+				echo $o->note(translate('mollom_private_key_note'));
 			
 			$o->openField(translate('mollom_valid_keys'));
 				// Check that keys are valid
@@ -517,8 +517,8 @@ class External_Tools_Config extends Config
 				} else {
 					echo (SQ_TOOL_MOLLOM_ACCEPT_BYPASSED_SUBMISSION) ? translate('yes') : translate('no');
 				}
-				?><br /><?php
-				echo translate('mollom_accept_bypassed_submission_note');
+				?><?php
+				echo $o->note(translate('mollom_accept_bypassed_submission_note'));
 		$o->closeSection();
 		
 		// Squid caching
@@ -601,8 +601,8 @@ class External_Tools_Config extends Config
 				} else {
 					echo SQ_TOOL_RECAPTCHA_PUBLIC_KEY;
 				}//end if
-				?><br /><?php
-				echo translate('recaptcha_public_key_note');
+				?><?php
+				echo $o->note(translate('recaptcha_public_key_note'));
 			$o->closeField();
 
 			$o->openField(translate('recaptcha_private_key'));
@@ -611,8 +611,8 @@ class External_Tools_Config extends Config
 				} else {
 					echo SQ_TOOL_RECAPTCHA_PRIVATE_KEY;
 				}//end if
-				?><br /><?php
-				echo translate('recaptcha_private_key_note');
+				?><?php
+				echo $o->note(translate('recaptcha_private_key_note'));
 			$o->closeField();
 		$o->closeSection();
 

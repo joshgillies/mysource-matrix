@@ -66,13 +66,14 @@ class HIPO_Job_Clear_Cache extends HIPO_Job
 		// clear cache threshhold HIPO config entry
 		$o->openField(translate('clear_cache_threshold'));
 
+		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
-			text_box($class.'[SQ_HIPO_CLEAR_CACHE_THRESHOLD]', SQ_HIPO_CLEAR_CACHE_THRESHOLD, 5);
-			echo ' '.translate('assets');
+			text_box($class.'[SQ_HIPO_CLEAR_CACHE_THRESHOLD]', SQ_HIPO_CLEAR_CACHE_THRESHOLD, 1);
 		} else {
 			echo SQ_HIPO_CLEAR_CACHE_THRESHOLD;
-			echo ' '.translate('assets');
 		}
+		echo ' '.translate('assets');
+		echo '</span>';
 
 		$o->closeField();
 

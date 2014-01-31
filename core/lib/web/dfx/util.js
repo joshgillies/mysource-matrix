@@ -983,13 +983,28 @@ dfx.getElemPositionStyles = function(elem, orientation)
 
 };
 
-dfx.htmlspecialchars = function(str)
+dfx.htmlspecialchars = function(str, noQuotes)
 {
-    str = str.replace(/&/g, '&amp;');
-    str = str.replace(/"/g, '&quot;');
-    str = str.replace(/'/g, '&#039;');
+    str = str.replace(/&/g, '&amp;'); // First &amp.
+    if (noQuotes !== true) {
+        str = str.replace(/"/g, '&quot;');
+        str = str.replace(/'/g, '&#039;');
+    }
+
     str = str.replace(/</g, '&lt;');
     str = str.replace(/>/g, '&gt;');
+    return str;
+
+};
+
+dfx.htmlspecialcharsDecode = function(str)
+{
+    str = str.replace(/&gt;/g, '>');
+    str = str.replace(/&lt;/g, '<');
+    str = str.replace(/&#039;/g, '\'');
+    str = str.replace(/&quot;/g, '"');
+    str = str.replace(/&amp;/g, '&'); // Last &amp;
+
     return str;
 
 };
@@ -1659,6 +1674,66 @@ dfx.validateEmail = function(email)
     }
 
     return emailValid;
+
+};
+
+
+/**
+ * Get selected html.
+ *
+ * @param DomNode parent The element to restrict selection under.
+ *
+ * @return string
+ */
+dfx.getSelectedHtml = function(parent)
+{
+    var html = '';
+    if (document.selection && document.selection.createRange) {
+        var range = document.selection.createRange();
+        if (range.parentElement) {
+            if (range.parentElement() === parent
+                || dfx.isChildOf(range.parentElement(), parent, document.body) === true
+            ) {
+                html = range.htmlText;
+            }
+        }
+    } else if (window.getSelection) {
+        var selection = window.getSelection();
+        if (selection.rangeCount > 0) {
+            var range = selection.getRangeAt(0);
+            if (range.commonAncestorContainer === parent
+                || dfx.isChildOf(range.commonAncestorContainer, parent, document.body) === true
+            ) {
+                var clonedSelection = range.cloneContents();
+                var div             = document.createElement('div');
+                div.appendChild(clonedSelection);
+                html = dfx.getHtml(div);
+            }
+        }
+    }
+
+    return html;
+};
+
+
+/**
+ * Very basic implementation of sprintf.
+ *
+ * Currently only supports replacement of %s in the specified string.
+ * Usage: dfx.sprintf('Very %s implementation of %s.', 'basic', 'sprintf');
+ */
+dfx.sprintf = function(str)
+{
+    var c = arguments.length;
+    if (c <= 1) {
+        return str;
+    }
+
+    for (var i = 1; i < c; i++) {
+        str = str.replace(/%s/, arguments[i]);
+    }
+
+    return str;
 
 };
 

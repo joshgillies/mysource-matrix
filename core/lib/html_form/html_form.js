@@ -692,7 +692,7 @@ function disable_buttons()
 		newElt.type = buttons[i].type;
 		newElt.value = buttons[i].value;
 		if(buttons[i].className){
-			newElt.className = buttons[i].className + ' disabled';
+			newElt.className = buttons[i].className + ' disabled1';
 		}
 		newElt.disabled = 'disabled';
 		buttons[i].style.display = 'none';
@@ -819,3 +819,85 @@ function insert_text(text, to_id)
 
 }//end insertText()
 
+
+//--         FUNCTIONS FOR MULTI-ASSETS FINDER       --//
+
+
+/**
+* Move the clicked 'Asset Finder' block one position down
+*
+* @param int	currentOrder	Current position of the Asset Finder
+* @param string	el_prefix		Asset Finder block's prefix
+* @param string	order_el		Id of the hidden input field element holding the Asset Finder position data
+*
+*/
+function sortMoveDown(currentOrder, el_prefix, order_el)
+{
+	// Move a question up a row
+	var currentElement = document.getElementById(el_prefix + currentOrder);
+	var nextElement = document.getElementById(el_prefix + (currentOrder + 1));
+	var form = document.getElementById('main_form');
+
+	// If there is no next element, then this is the last one
+	if (!nextElement || !form) {
+		return;
+	}
+	if (!currentElement.innerHTML) {
+		return;
+	}
+
+	// Switch the element block
+	var temp = currentElement.innerHTML;
+	currentElement.innerHTML = nextElement.innerHTML;
+	nextElement.innerHTML = temp;
+
+	// Switch the asset finder ordering
+	var current_order_el = eval('form.elements[\''+order_el+'['+currentOrder+']\']');
+	var next_order_el = eval('form.elements[\''+order_el+'['+(currentOrder+1)+']\']');
+
+	var temp = next_order_el.value;
+	next_order_el.value = current_order_el.value;
+	current_order_el.value = temp;
+
+}//end sortMoveDown()
+
+
+/**
+* Move the clicked 'Asset Finder' block one position up
+*
+* @param int	currentOrder	Current position of the Asset Finder
+* @param string	el_prefix		Asset Finder block's prefix
+* @param string	order_el		Id of the hidden input field element holding the Asset Finder position data
+*
+*/
+function sortMoveUp(currentOrder, el_prefix, order_el)
+{
+	// Already at the top
+	if (currentOrder == 0) return;
+
+	// Move a question up a row
+	var currentElement = document.getElementById(el_prefix + currentOrder);
+	var prevElement = document.getElementById(el_prefix + (currentOrder - 1));
+	var form = document.getElementById('main_form');
+
+	if (!form) {
+		return;
+	}
+	if (!currentElement.innerHTML) {
+		return;
+	}
+
+	// Switch the element block
+	var temp = currentElement.innerHTML;
+	currentElement.innerHTML = prevElement.innerHTML;
+	prevElement.innerHTML = temp;
+
+	// Switch the asset finder ordering
+	var current_order_el = eval('form.elements[\''+order_el+'['+currentOrder+']\']');
+	var prev_order_el = eval('form.elements[\''+order_el+'['+(currentOrder-1)+']\']');
+
+	var temp = prev_order_el.value;
+	prev_order_el.value = current_order_el.value;
+	current_order_el.value = temp;
+
+}//end sortMoveUp()

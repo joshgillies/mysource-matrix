@@ -54,14 +54,15 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 		// metadata regeneration threshhold HIPO config entry
 		$o->openField(translate('workflow_schemas_threshold'));
 
+		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
-			text_box($class.'[SQ_HIPO_WORKFLOW_SCHEMAS_THRESHOLD]', SQ_HIPO_WORKFLOW_SCHEMAS_THRESHOLD, 5);
-			echo ' '.translate('assets');
-			$o->note(translate('hipo_value_divided_by_schema'));
+			text_box($class.'[SQ_HIPO_WORKFLOW_SCHEMAS_THRESHOLD]', SQ_HIPO_WORKFLOW_SCHEMAS_THRESHOLD, 1);
 		} else {
 			echo SQ_HIPO_WORKFLOW_SCHEMAS_THRESHOLD;
-			echo ' '.translate('assets');
 		}
+		echo ' '.translate('assets');
+		$o->note(translate('hipo_value_divided_by_schema'));
+		echo '</span>';
 
 		$o->closeField();
 

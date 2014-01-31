@@ -22,7 +22,7 @@
     <title>Insert Link</title>
 </head>
 <frameset rows="30,*" frameborder="0" border="0">
-	<frameset cols="*, 300"  frameborder="0" border="0">
+	<frameset cols="*, 500"  frameborder="0" border="0">
 		<frame src="insert_link_title.php" name="sq_wysiwyg_popup_title" scrolling="no" marginwidth="0" marginheight="0" noresize="noresize" />
 		<frame src="insert_link_search.php" name="sq_wysiwyg_popup_search" scrolling="no" marginwidth="0" marginheight="0" noresize="noresize" />
 	</frameset>

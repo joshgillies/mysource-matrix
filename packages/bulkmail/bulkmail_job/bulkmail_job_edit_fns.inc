@@ -68,14 +68,23 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 	{
 		// set a hidden field with initial value of '0'
 		// set value to '1' when the validate button is clicked
-		 $o->openRaw();
-			?><p style="margin-top: 5px; margin-bottom: 5px"><?php
-				echo translate('bm_job_validation_validate_job');
-				?><br /><?php
+		$o->openField(translate('bm_job_validation_button'));
+			?> <?php
 				echo normal_button($prefix.'_validation_button', translate('bm_job_validation_button'), 'onClick= validate(); this.form.submit();');
 				echo hidden_field($prefix.'_validation_hidden', '0');
-			?></p><?php
-		$o->closeRaw();
+				echo $o->note(translate('bm_job_validation_validate_job'));
+			// javascript to update the value of hidden validation form element
+			?>
+			<script>
+				function validate() {
+					var prefix = '<?php echo $prefix; ?>';
+					var id = prefix + '_validation_hidden';
+					var element = document.getElementById(id);
+					element.value = '1';
+				}
+			</script>
+			<?php
+		$o->closeField();
 
 		// report errors if the the hidden field is set to '1'
 		if (isset($_REQUEST[$prefix.'_validation_hidden']) && $_REQUEST[$prefix.'_validation_hidden'] == 1) {
@@ -105,18 +114,6 @@ class Bulkmail_Job_Edit_Fns extends Bulkmail_Post_Office_Edit_Fns
 				}
 			$o->closeField();
 		}
-
-		// javascript to update the value of hidden validation form element
-		?>
-		<script language="JavaScript" type="text/javascript">
-			function validate() {
-				var prefix = '<?php echo $prefix; ?>';
-				var id = prefix + '_validation_hidden';
-				var element = document.getElementById(id);
-				element.value = '1';
-			}
-		</script>
-		<?php
 
 	}//end paintValidation()
 

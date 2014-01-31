@@ -54,14 +54,15 @@ class HIPO_Job_Edit_Tags extends HIPO_Job
 		// metadata regeneration threshhold HIPO config entry
 		$o->openField(translate('edit_tag_threshold'));
 
+		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
-			text_box($class.'[SQ_HIPO_TAG_THRESHOLD]', SQ_HIPO_TAG_THRESHOLD, 5);
-			echo ' '.translate('assets');
-			$o->note(translate('hipo_value_divided_by_tag'));
+			text_box($class.'[SQ_HIPO_TAG_THRESHOLD]', SQ_HIPO_TAG_THRESHOLD, 1);
 		} else {
 			echo SQ_HIPO_TAG_THRESHOLD;
-			echo ' '.translate('assets');
 		}
+		echo ' '.translate('assets');
+		$o->note(translate('hipo_value_divided_by_tag'));
+		echo '</span>';
 
 		$o->closeField();
 

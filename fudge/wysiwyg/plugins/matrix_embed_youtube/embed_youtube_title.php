@@ -13,36 +13,19 @@
 * $Id: embed_youtube_title.php,v 1.2 2012/08/30 00:56:52 ewang Exp $
 *
 */
-
+require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 ?>
 
 <html>
 	<head>
 		<title>Insert YouTube</title>
-		<style type="text/css">
-			html, body {
-				background: #402F48;
-				color: #FFFFFF;
-				font: 11px Tahoma,Verdana,sans-serif;
-				margin: 0px;
-				padding: 0px;
-			}
-
-			/* main popup title */
-			.title {
-				background: #402F48;
-				color: #FFFFFF;
-				font-weight: bold;
-				font-size: 120%;
-				padding: 6px 10px;
-				margin-bottom: 10px;
-				border-bottom: 1px solid black;
-				letter-spacing: 4px;
-			}
-		</style>
+		<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('lib').'/web/css/edit.css' ?>" />
+		<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('root_url')?>/__fudge/wysiwyg/core/popup.css" />
 	</head>
 
 	<body>
-		<div class="title">Embed YouTube</div>
+		<div class="sq-popup-heading-frame title">
+			<h1>Embed YouTube</h1>
+		</div>
 	</body>
 </html>

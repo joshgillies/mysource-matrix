@@ -196,17 +196,18 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 			ob_start();
 				if ($write_access) {
 					asset_finder($prefix.'[parentid]', $parentid, Array('asset' => 'D'));
-					echo '<br /><b>'.translate('trigger_create_under_broadcaster').'</b>';
+					echo '<br />';
 					check_box($prefix.'[parentid]', 'current_asset', $parent_broadcasted);
+					label(translate('trigger_create_under_broadcaster'), $prefix.'[parentid]');
 				} else {
 					$parent = NULL;
 					if ($parentid > 0) {
 						$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($parentid);
 					}
 					if (is_null($parent)) {
-						echo '<b>['.translate('no_parent_selected').']</b>';
+						echo '<b>['.translate('no_asset_selected').']</b>';
 					} else {
-						echo '<b>'.translate('asset_format', $parent->name, $parent->id).'</b>';
+						echo get_asset_tag_line($parent->id);
 					}
 				}
 
@@ -275,19 +276,21 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 					foreach ($selected as $index => $attr) {
 						if ($write_access) {
 							combo_box($prefix.'[attributes]['.$index.'][attribute]', $attributes, FALSE, $attr['attribute']);
-							text_box($prefix.'[attributes]['.$index.'][value]', $attr['value']);
+							echo '&nbsp;';
+							text_box($prefix.'[attributes]['.$index.'][value]', $attr['value'], 50, '', FALSE, 'style="margin-bottom: 3px;"');
+							echo '&nbsp;';
 							check_box($prefix.'[attributes]['.$index.'][delete]','delete', FALSE);
-							echo translate('delete_question');
+							label(translate('delete_question'), $prefix.'[attributes]['.$index.'][delete]');
 							echo '<br />';
 						} else {
-							echo ucwords($attr['attribute']).':  '.$attr['value'].'<br />';
+							echo '<strong>'.ucwords($attr['attribute']).':</strong>  '.$attr['value'].'<br />';
 						}
 					}
 				}
 				if ($write_access) {
-					echo '<br />';
 					combo_box($prefix.'[attributes]['.$count.'][attribute]', $attributes, FALSE, '');
-					text_box($prefix.'[attributes]['.$count.'][value]', '');
+					echo '&nbsp;';
+					text_box($prefix.'[attributes]['.$count.'][value]', '', 50);
 				}
 			}
 			$attributes = ob_get_contents();
@@ -307,7 +310,7 @@ class Trigger_Action_Create_Asset extends Trigger_Action
 						'<b>'.translate('triggers_advanced_user_options').'</b><br />'.
 						translate('trigger_new_asset_advanced', $advanced_part_1, $advanced_part_2, $advanced_part_3).
 						'<br /><br /><b>'.translate('set_attributes').'</b><br />'.$attributes.'<br /><br />'.
-						'<span class="sq-backend-warning"><b>'.translate('trigger_create_asset_required_attrs_warning').'</b></span>';
+						'<span>'.translate('trigger_create_asset_required_attrs_warning').'</span>';
 
 		return $contents;
 

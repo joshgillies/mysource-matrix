@@ -189,20 +189,22 @@ class Trigger_Action_Remove_Metadata_Schema extends Trigger_Action
 	
 		ob_start();
 			if ($write_access) {
-				echo translate('trigger_schema_remove_schema_message');
+				echo '<div class="sq-break-line-inputs">';
+				echo translate('trigger_schema_remove_schema_message').' ';
 				asset_finder($prefix.'[schemaid]', $current_schemaid, Array('metadata_schema' => 'I'));
 				echo '<br />';
 				check_box($prefix.'[removeall]', '1', $remove_all, 'if (this.checked == true) { if (!confirm("'.translate('trigger_schema_remove_all_schema_confirm_message').'")) { this.checked = false; } }');
-				label(translate('trigger_schema_remove_all_schema_message'));
+				label(translate('trigger_schema_remove_all_schema_message'), $prefix.'[removeall]');
 				echo '<br />';
 				check_box($prefix.'[cascade]', '1', $cascade);
 				label(translate('cascade_schema_changes'), $prefix.'[cascade]');
+				echo '</div>';
 
 			} else {
 				if (!empty($current_schemaid)) {
 					$schema_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($current_schemaid));
 					echo translate('trigger_schema_remove_schema_message').' ';
-					echo '<b>'.$schema_info[$current_schemaid]['name'].' (#'.$current_schemaid.')</b>';
+					echo get_asset_tag_line($current_schemaid);
 				} else {
 					echo translate('trigger_schema_remove_schema_message').' ';
 					echo '<b>'.translate('trigger_schema_no_schema_message').'</b>';

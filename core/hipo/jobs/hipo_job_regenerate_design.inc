@@ -59,12 +59,14 @@ class HIPO_Job_Regenerate_Design extends HIPO_Job
 		// design regeneration threshhold HIPO config entry
 		$o->openField('Hipo Job Regenerate Design');
 
+		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
 			text_box($class.'[SQ_HIPO_REGENERATE_DESIGN_THRESHOLD]', SQ_HIPO_REGENERATE_DESIGN_THRESHOLD, 1);
 		} else {
 			echo SQ_HIPO_REGENERATE_DESIGN_THRESHOLD;
 		}
 		echo ' '.translate('assets');
+		echo '</span>';
 
 		$o->closeField();
 

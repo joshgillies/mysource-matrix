@@ -282,7 +282,6 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 						ob_start();
 					}
 					$o->openSection($display_name);
-
 					require SQ_FUDGE_PATH.'/standards_lists/languages.inc';
 
 					if ($owner->writeAccess('settings')) {
@@ -300,7 +299,7 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 					if (!empty($current_langs)) {
 						sort($current_langs);
 						?>
-						<table class="sq-backend-table" style="width: 0%;">
+						<table class="sq-backend-table">
 							<?php if ($owner->writeAccess('settings')) {
 							?>
 							<tr>
@@ -442,7 +441,7 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 								}
 								combo_box($prefix.'_morph_new_type', $morph_types, FALSE, '');
 								?>
-								<table border="0">
+								<table>
 									<tr>
 										<td class="sq-backend-data"><?php echo translate('morph_confirmation'); ?></td>
 									</tr>
@@ -544,9 +543,9 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 								text_box($prefix.'_designs['.$design_name.'][name]', '', 20, 30);
 							$o->closeField();
 						} else {
-							//$o->openRaw();
-							hidden_field($prefix.'_designs['.$design_name.'][name]', $design_name);
-							//$o->closeRaw();
+							$o->openRaw();
+								hidden_field($prefix.'_designs['.$design_name.'][name]', $design_name);
+							$o->closeRaw();
 
 							if ($design_type == 'user') {
 								$o->openField(translate('design_code'));

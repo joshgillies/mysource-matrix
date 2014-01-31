@@ -276,7 +276,7 @@ class Backend extends MySource_Object
 
 		$body_class = '';
 
-		$header_height = $limbo_hide_frames ? 0 : 45;
+		$header_height = $limbo_hide_frames ? 0 : 42;
 		$am_width = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_WIDTH');
 		$sidenav_width = $am_width+5;
 		$resizer_width = $limbo_hide_frames ? 0 : 25;
@@ -287,16 +287,21 @@ class Backend extends MySource_Object
 		}
 		?>
 		<!DOCTYPE html>
-		<html>
+		<!--[if lt IE 8 ]> 	<html class="ie">   				<![endif]-->
+		<!--[if IE 8 ]>     <html class="ie ie8"> 		        <![endif]-->
+		<!--[if IE 9 ]>     <html class="ie ie9 gtie8"> 		<![endif]-->
+		<!--[if IE 10 ]>    <html class="ie ie-10 gtie8 gtie9"> <![endif]-->
+		<!--[if !IE]> --> 	<html class="">                     <!--<![endif]-->
 			<head>
 				<title><?php echo $page_title; ?></title>
-				<meta http-equiv="Content-Type" content="text/html; charset=<?php echo SQ_CONF_DEFAULT_CHARACTER_SET; ?>">
+				<meta charset="<?php echo SQ_CONF_DEFAULT_CHARACTER_SET; ?>"/>
+				<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
 				<link rel="stylesheet" type="text/css" href=<?php echo '"'.sq_web_path('lib').'/asset_map/js/js_asset_map.css"'; ?>/>
 				<link rel="shortcut icon" href=<?php echo '"'.sq_web_path('lib').'/web/images/icons/favicon.ico"'; ?>/>
 				<?php
 				if ($limbo_hipo) {
 					?>
-					<script language="Javascript" type="text/javascript">
+					<script>
 						document.location = "<?php echo $main_url; ?>";
 					</script>
 					<?php
@@ -326,6 +331,7 @@ class Backend extends MySource_Object
 						z-index: 3;
 						background: #2a2a2a;
 						box-shadow: 0 0 3px 1px #000;
+						border-top: 1px solid #000;
 						border-bottom: 1px solid #000;
 					}
 
@@ -336,7 +342,7 @@ class Backend extends MySource_Object
 					div.iframe-container.lower-set {
 						padding-top: 0;
 						z-index: 0;
-						overflow: hidden;
+						/*overflow: hidden; Not sure why I put this in, but this causes a 4px movement upwards in webkit browsers on load, might be IE related */
 					}
 
 					div.iframe-container.sidenav {
@@ -855,10 +861,9 @@ class Backend extends MySource_Object
 			}
 
 			if ($stalledjobs != 0) {
-				$html = $this->_getDHTMLMessage(translate('hipo_jobs_stalled'), translate('hipo_jobs_count', $GLOBALS['SQ_SYSTEM']->user->name, $stalledjobs), 'new-message', 'stop', 32, 32);
+				$html = $this->_getDHTMLMessage(translate('hipo_jobs_stalled'), translate('hipo_jobs_count', $GLOBALS['SQ_SYSTEM']->user->name, $stalledjobs).'</br><a href="'.$this->getBackendUrl('main').'&backend_section=hipo_herder" target="sq_main">'.translate('hipo_herder').'</a>', 'new-message', 'stop', 32, 32);
 				$dhtml_messages['hipo_jobs_stalled'] = Array('html' => str_replace("\n", '', $html), 'width' => '400', 'timeout' => 6.0);
 			}
-
 
 		}//end if not in LIMBO
 
@@ -1044,7 +1049,7 @@ class Backend extends MySource_Object
 		<table class="sq-backend-header">
 			<tr>
 				<td nowrap class="sq-backend-header-item" valign="middle">
-					<img class="sq-matrix-logo" src="<?php echo sq_web_path('lib'); ?>/web/images/logo-toolbar.png" alt="Squiz Matrix" title="Squiz Matrix"/>
+					<img class="sq-matrix-logo" src="<?php echo sq_web_path('lib'); ?>/web/images/logo-toolbar-matrix.png" alt="Squiz Matrix" title="Squiz Matrix"/>
 					<span class="sq-logged-in-as-text">
 						<a href="#" onclick="Javascript: reloadHeader(); return false;"><?php echo translate('logged_in_as', htmlspecialchars($GLOBALS['SQ_SYSTEM']->user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)); ?></a>
 					</span>

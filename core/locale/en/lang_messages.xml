@@ -386,14 +386,14 @@ You can also <![CDATA[<SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_
 		<body>User "%workflow_user%" has rejected the changes made to %type_code% "%asset_name%". The status of "%asset_name%" has reverted to %status%.
 
 A full report for the Workflow of "%asset_name%" can be found on the <![CDATA[<SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>]]>.
-{You can also <![CDATA[<SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>]]>}</body><!-- user-name, asset-type, asset-name, asset-name*, workflow-screen-url, (preview-screen-url) -->
+You can also <![CDATA[<SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>]]></body><!-- user-name, asset-type, asset-name, asset-name*, workflow-screen-url, (preview-screen-url) -->
 	</message>
 	<message type="asset.workflow.announce.reject">
 		<subject>Asset Changes Rejected</subject>
 		<body>User "%workflow_user%" has rejected the changes made to %type_code% "%asset_name%". The workflow process has been cancelled.
 
 A full report for the Workflow of "%asset_name%" can be found on the <![CDATA[<SQ_MSG_LINK href="%workflow_url%">Workflow Screen</SQ_MSG_LINK>]]>.
-{You can also <![CDATA[<SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>]]>}</body><!-- user-name, asset-type, asset-name, asset-name*, workflow-screen-url, (preview-screen-url) -->
+You can also <![CDATA[<SQ_MSG_LINK href="%preview_url%">preview this asset.</SQ_MSG_LINK>]]></body><!-- user-name, asset-type, asset-name, asset-name*, workflow-screen-url, (preview-screen-url) -->
 	</message>
 	<message type="asset.workflow.complete">
 		<subject>Workflow Completed</subject>

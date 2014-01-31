@@ -135,7 +135,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		}
 		?>
 		<script type="text/javascript" src="<?php echo sq_web_path('lib'); ?>/js/email_format.js"></script>
-		<table border="0" class="email-format">
+		<table border="0" class="sq-backend-table sq-email-format-wrapper">
 		<?php
 		if ($this->_edit_params['show_to']) {
 			?>
@@ -230,7 +230,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 			<tr>
 				<th><?php echo translate('body'); ?></th>
 				<td>
-					<table border="0" class="email-format-body">
+					<table class="sq-email-format-body">
 						<tr>
 							<td>
 								<?php
@@ -241,7 +241,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 								}
 								?>
 							</td>
-							<td id="<?php echo $prefix; ?>_format_mode" class="email-format-version">
+							<td id="<?php echo $prefix; ?>_format_mode" class="sq-email-format-version">
 								<?php echo translate('text_email_version'); ?>
 							</td>
 						</tr>
@@ -250,7 +250,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 								<?php
 								if ($read_only) {
 									?>
-									<div style="display: none" id="<?php echo $prefix?>_html_format">
+									<div style="display: none" id="<?php echo $prefix?>_html_format" class="sq-wysiwyg-preview-wrapper">
 										<?php echo $current_value['html_format']; ?>
 									</div>
 									<div id="<?php echo $prefix?>_text_format">

@@ -70,14 +70,15 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 		// metadata regeneration threshhold HIPO config entry
 		$o->openField(translate('permissions_threshold'));
 
+		echo '<span class="sq-inline-fields-wrapper">';
 		if ($write_access) {
-			text_box($class.'[SQ_HIPO_PERMISSIONS_THRESHOLD]', SQ_HIPO_PERMISSIONS_THRESHOLD, 5);
-			echo ' '.translate('assets');
-			$o->note(translate('hipo_value_divided_by_permission'));
+			text_box($class.'[SQ_HIPO_PERMISSIONS_THRESHOLD]', SQ_HIPO_PERMISSIONS_THRESHOLD, 1);
 		} else {
 			echo SQ_HIPO_PERMISSIONS_THRESHOLD;
-			echo ' '.translate('assets');
 		}
+		echo ' '.translate('assets');
+		$o->note(translate('hipo_value_divided_by_permission'));
+		echo '</span>';
 
 		$o->closeField();
 

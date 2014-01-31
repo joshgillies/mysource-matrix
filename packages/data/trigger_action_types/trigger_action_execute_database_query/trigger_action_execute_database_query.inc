@@ -237,7 +237,7 @@ class Trigger_Action_Execute_Database_Query extends Trigger_Action
 		if (!array_key_exists($method, $options) || empty($method)) {
 			$method = 'details';
 		}//end if
-		$enable  = ' style="display:block;visibility:visible;"';
+		$enable  = ' style="display:table-row;visibility:visible;"';
 		$disable = ' style="display:none;visibility:hidden;"';
 		ob_start();
 			?>
@@ -256,28 +256,28 @@ class Trigger_Action_Execute_Database_Query extends Trigger_Action
 					dbcomdsn.style.visibility = "hidden";
 					dbconnec.style.display = "none";
 					dbconnec.style.visibility = "hidden";
-					username.style.display = "block";
+					username.style.display = "table-row";
 					username.style.visibility = "visible";
-					password.style.display = "block";
+					password.style.display = "table-row";
 					password.style.visibility = "visible";
 
 					if (connectionType == "dsn") {
-						dbcomdsn.style.display = "block";
+						dbcomdsn.style.display = "table-row";
 						dbcomdsn.style.visibility = "visible";
 					} else if (connectionType == "connector") {
-						dbconnec.style.display = "block";
+						dbconnec.style.display = "table-row";
 						dbconnec.style.visibility = "visible";
 						username.style.display = "none";
 						username.style.visibility = "hidden";
 						password.style.display = "none";
 						password.style.visibility = "hidden";
 					} else {
-						dbdetail.style.display = "block";
+						dbdetail.style.display = "table-row";
 						dbdetail.style.visibility = "visible";
 					}
 				}
 			</script>
-			<table class="sq-backend-table" style="width:auto">
+			<table class="sq-backend-table">
 				<tr>
 					<th><?php echo translate('connection_type'); ?></th>
 					<td><?php
@@ -292,7 +292,7 @@ class Trigger_Action_Execute_Database_Query extends Trigger_Action
 				<tr>
 					<th><?php echo translate('connection_setup'); ?></th>
 					<td>
-						<table class="sq-backend-table" style="width:auto">
+						<table class="sq-backend-table">
 							<?php $style = ($method != 'connector') ? $enable : $disable; ?>
 							<tr id="trigger_action_user_username" <?php echo $style; ?>>
 								<th style="width:100px;"><?php echo translate('user_name');?></th>
@@ -320,7 +320,7 @@ class Trigger_Action_Execute_Database_Query extends Trigger_Action
 							<tr id="trigger_action_database_details" <?php echo $style; ?>>
 								<th style="width:100px;"><?php echo translate('database_details'); ?></th>
 								<td>
-									<table class="sq-backend-table" style="width:auto">
+									<table class="sq-backend-table">
 										<tr>
 											<th><?php echo translate('database_type');?></th>
 											<td>

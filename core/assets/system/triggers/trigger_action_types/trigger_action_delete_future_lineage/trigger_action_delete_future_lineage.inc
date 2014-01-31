@@ -211,7 +211,7 @@ class Trigger_Action_Delete_Future_Lineage extends Trigger_Action
 		// Print the interface
 		hidden_field($prefix.'[prefix]', $munge_prefix);
 		?>
-		<table border="0" cellpadding="4" cellspacing="0">
+		<table class="sq-backend-table">
 			<?php
 
 			// Link Type Interface
@@ -227,7 +227,7 @@ class Trigger_Action_Delete_Future_Lineage extends Trigger_Action
 				}
 			$link_type_interface = ob_get_clean();
 			?>
-			<tr><td><strong><?php echo translate('link_type'); ?></strong></td><td><?php echo $link_type_interface; ?></td></tr>
+			<tr><th><?php echo translate('link_type'); ?></th><td><?php echo $link_type_interface; ?></td></tr>
 			<?php
 
 			// Asset Interface
@@ -254,7 +254,7 @@ class Trigger_Action_Delete_Future_Lineage extends Trigger_Action
 				echo ' of the Current Asset';
 			$asset_interface = ob_get_clean();
 			?>
-			<tr><td><strong><?php echo translate('asset'); ?></strong></td><td><?php echo $asset_interface; ?></td></tr>
+			<tr><th><?php echo translate('asset'); ?></th><td><span class="sq-inline-fields-wrapper"><?php echo $asset_interface; ?></span></td></tr>
 			<?php
 
 			// Future Interface
@@ -269,7 +269,7 @@ class Trigger_Action_Delete_Future_Lineage extends Trigger_Action
 				ob_start();
 					$temporary_edit_fns->_paintWhenBox($temporary_cron_job, $o, $munge_prefix, $settings['when']);
 
-					echo '<br />or by the date/time value from the ';
+					echo '<br /><br />or by the date/time value from the ';
 					$selected_type = array_get_index($settings, 'asset_type', '');
 					if ($write_access) {
 						asset_type_chooser($prefix.'[asset_type]', FALSE, Array($selected_type), TRUE);
@@ -305,7 +305,7 @@ class Trigger_Action_Delete_Future_Lineage extends Trigger_Action
 					}
 				$future_interface = ob_get_clean();
 			?>
-			<tr><td><strong><?php echo translate('at'); ?></strong></td><td><?php echo $future_interface; ?></td></tr>
+			<tr><th><?php echo translate('at'); ?></th><td><span class="sq-inline-fields-wrapper"><?php echo $future_interface; ?></span></td></tr>
 			<?php
 			}//end if
 			?>

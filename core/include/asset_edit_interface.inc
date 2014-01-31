@@ -456,7 +456,7 @@ class Asset_Edit_Interface extends MySource_Object
 							?>
 							<tr>
 								<td class="sq-backend-table-cell" align="center">
-									<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/<?php echo ((empty($lock)) ? 'un' : ''); ?>locked.png", "16", "16", "");</script>
+									<img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/<?php echo ((empty($lock)) ? 'un' : ''); ?>locked.png" />
 									</td>
 								<td class="sq-backend-table-cell">
 									<?php echo ucwords(str_replace('_', ' ', $lock_type)); ?>
@@ -720,13 +720,17 @@ class Asset_Edit_Interface extends MySource_Object
 			} else {
 				$page_heading .= htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).' (Id: #'.$owner->id.') ';
 			}
-			$page_heading .= '<span class="sq-info-asset-version">v. '.$owner->version.'</span>';
+			if ($owner->version) {
+				$page_heading .= '<span class="sq-info-asset-version">v. '.$owner->version.'</span>';
+			} else {
+				// Don't add version span if there is no version number available
+			}
 		} else {
 			$page_heading = 'Create new '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->_type_code, 'name');
 		}
 		$page_heading .= ' <span class="sq-info-asset-screen-name">'.$active_screen_name.'</span>';
 
-		$o->setHeading($page_heading, sq_get_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($this->_type_code), 16, 16, ''));
+		$o->setHeading($page_heading, sq_get_icon($GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($this->_type_code), '', '', ''));
 
 		$o->setPageTitle(htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
 		$sub_heading = '';

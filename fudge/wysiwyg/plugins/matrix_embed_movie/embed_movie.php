@@ -25,6 +25,7 @@
 
 require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 
 if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAccessBackend() || $GLOBALS['SQ_SYSTEM']->user->type() == 'simple_edit_user' || (method_exists($GLOBALS['SQ_SYSTEM']->user, 'isShadowSimpleEditUser') && $GLOBALS['SQ_SYSTEM']->user->isShadowSimpleEditUser()))) {
 	exit;
@@ -33,7 +34,7 @@ if (empty($GLOBALS['SQ_SYSTEM']->user) || !($GLOBALS['SQ_SYSTEM']->user->canAcce
 if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 ?><!DOCTYPE html>
 
-<html style="width: 740px;">
+<html>
 	<head>
 		<title>Embed Movie</title>
 
@@ -70,7 +71,9 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/tooltip.js' ?>"></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/web/dfx/dfx.js' ?>"></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/asset_map/asset_map.js' ?>"></script>
+		<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('lib').'/web/css/edit.css' ?>" />
 		<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('lib').'/asset_map/js/js_asset_map.css' ?>" />
+		<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('root_url')?>/__fudge/wysiwyg/core/popup.css" />
 
 		<script type="text/javascript">
 
@@ -121,239 +124,17 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 			};
 		</script>
 
-		<style type="text/css">
-			html, body {
-				background: #FCFCFC;
-				color: #000000;
-				font: 11px Tahoma,Verdana,sans-serif;
-				margin: 0px;
-				padding: 0px;
-			}
 
-			table {
-				font: 11px Tahoma,Verdana,sans-serif;
-			}
-
-			form#main-form {
-				padding: 5px;
-				clear: right;
-			}
-
-			#quick-search {
-				font: 11px Tahoma,Verdana,sans-serif;
-				letter-spacing: 0;
-				float: right;
-				padding-right: 12px;
-			}
-
-			#quick-search #quick-search-for {
-				font: 11px Arial,Verdana,sans-serif;
-				border: 1px solid black;
-				padding: 1px 3px;
-			}
-
-			#quick-search #quick-search-for-label {
-				font: 11px Arial,Verdana,sans-serif;
-				color: #999;
-			}
-
-
-			/* main popup title */
-			.title {
-				background: #402F48;
-				color: #FFFFFF;
-				font-weight: bold;
-				font-size: 120%;
-				padding: 6px 10px;
-				margin-bottom: 10px;
-				border-bottom: 1px solid black;
-				letter-spacing: 4px;
-			}
-
-			/* fieldset styles */
-			fieldset {
-				padding: 0px 10px 5px 5px;
-				border-color: #725B7D;
-			}
-
-			.fl { width: 9em; float: left; padding: 2px 5px; text-align: right; }
-			.fr { width: 7em; float: left; padding: 2px 5px; text-align: right; }
-
-			/* form and form fields */
-			form { padding: 0px; margin: 0px; }
-
-			select, input, button {
-				font: 11px Tahoma,Verdana,sans-serif;
-			}
-
-			button {
-				width: 70px;
-			}
-
-			/* colour picker button styles */
-			.buttonColor, .buttonColor-hilite {
-				cursor: default;
-				border: 1px solid;
-				border-color: #9E86AA #725B7D #725B7D #9E86AA;
-			}
-
-			.buttonColor-hilite {
-				border-color: #402F48;
-			}
-
-			.buttonColor-chooser, .buttonColor-nocolor, .buttonColor-nocolor-hilite {
-				height: 0.6em;
-				border: 1px solid;
-				padding: 0px 1em;
-				border-color: ButtonShadow ButtonHighlight ButtonHighlight ButtonShadow;
-			}
-
-			.buttonColor-nocolor, .buttonColor-nocolor-hilite { padding: 0px; }
-			.buttonColor-nocolor-hilite { background: #402F48; color: #FFFFFF; }
-
-			/* Popup styles (for backend search feature) */
-
-			#new-message-popup, #search-wait-popup {
-				position: absolute;
-				right: 10px;
-				top: 0;
-				width: 300px;
-				background-color: white;
-				border: 2px solid black;
-				font: normal 10px Arial,Verdana,sans-serif;
-				display: none;
-			}
-
-			#new-message-popup-titlebar, #search-wait-popup-titlebar {
-				font-weight: bold;
-				padding: 5px;
-			}
-
-			#new-message-popup-close, #search-wait-popup-close {
-				float: right;
-			}
-
-			#new-message-popup-close a, #search-wait-popup-close a {
-				color: black;
-				text-decoration: none;
-			}
-
-			#new-message-popup-details, #search-wait-popup-details {
-				padding: 5px;
-			}
-
-			div.search-result {
-				padding: 0;
-				margin: 5px;
-			}
-
-			div.search-result-blurb {
-				padding: 0;
-				margin: 5px;
-				font-weight: bold;
-			}
-
-			div.search-result-pager {
-				padding: 0;
-				margin: 5px;
-				text-align: center;
-			}
-
-			div.search-result-detail {
-				padding: 0;
-				padding-left: 15px;
-				margin: 5px;
-				display: none;
-			}
-
-			a.search-result-expand-link {
-				text-decoration:	none;
-				top:				0px;
-				left:				0px;
-				height:				10px;
-				font-size:			14px;
-				margin-top:			0px;
-				font-weight: 		bold;
-				text-decoration:	none;
-				color:				#33B9E6;
-			}
-
-			.search-result-expand-div {
-				float:				left;
-				width:				22px;
-				font-weight: 		bold;
-				background-color:	white;
-				white-space:		nowrap;
-			}
-
-			.search-result-entry {
-				margin-top:		5px;
-				text-indent:	-38px;
-				padding-left:	50px;
-			}
-
-			.sq-backend-search-failed-table {
-				border:				2px solid #594165;
-				border-collapse:	collapse;
-				background-color:	#ECECEC;
-			}
-
-			.sq-backend-search-failed-heading, .sq-backend-search-failed-body {
-				color:				#342939;
-				background-color:	#ececec;
-				font-family:		Arial, Verdana, Helvetica, sans-serif;
-				font-size:			10px;
-				vertical-align:		top;
-				padding:			5px;
-				text-decoration:	none;
-				font-weight:		bold;
-			}
-
-			.sq-backend-search-failed-body {
-				color:				#342939;
-				font-weight:		normal;
-			}
-
-			.sq-backend-search-results-table {
-				border:				2px solid #594165;
-				border-collapse:	collapse;
-				background-color:	#ECECEC;
-			}
-
-			.sq-backend-search-results-heading, .sq-backend-search-results-body {
-				color:				#342939;
-				background-color:	#FFFFFF;
-				font-family:		Arial, Verdana, Helvetica, sans-serif;
-				font-size:			10px;
-				vertical-align:		top;
-				padding:			5px;
-				text-decoration:	none;
-				font-weight:		bold;
-			}
-
-			.sq-backend-search-results-heading {
-				background-color:	#F0F0E6;
-			}
-
-			.sq-backend-search-results-highlight {
-				background-color:	yellow;
-			}
-
-			.sq-backend-search-results-body {
-				color:				#342939;
-				font-weight:		normal;
-			}
-		</style>
 		<?php define('SQ_PAINTED_SIMPLE_ASSET_MAP', TRUE); ?>
 	</head>
 
 	<body onload="Init();" onUnload="asset_finder_onunload();">
 		<form action="" method="get" name="main_form" id="main-form">
-			<table width="100%">
+			<table class="sq-fieldsets-table">
 				<tr>
-				    <td valign="top">
+				    <td valign="top" class="sq-popup-asset-map">
 				        <div id="asset_map">
-				            <iframe src="embed_movie_asset_map.php" name="sq_wysiwyg_popup_sidenav" frameborder="0" width="200" height="350" scrolling="no">
+				            <iframe src="embed_movie_asset_map.php" name="sq_wysiwyg_popup_sidenav" frameborder="0" width="200" height="450" scrolling="no">
 				            </iframe>
 				        </div>
 				    </td>
@@ -392,7 +173,7 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 													<table style="width:100%">
 														<tr>
 															<td class="label"><?php echo translate('protocol'); ?>:</td>
-															<td><?php  combo_box('url_protocol',$url_protocol_options , false,$_REQUEST['f_fileprotocol'],0, 'style="font-family: courier new; font-size: 11px;"'); ?></td>
+															<td><?php  combo_box('url_protocol',$url_protocol_options , false,$_REQUEST['f_fileprotocol'],0, ''); ?></td>
 															<td class="label"><?php echo translate('link'); ?>:</td>
 															<td><?php text_box('url_link', $_REQUEST['f_fileurl'], 40, 0)?></td>
 														</tr>
@@ -411,7 +192,7 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 							<tr>
 								<td valign="top" width="50%">
 									<fieldset>
-										<legend><?php echo translate('controls'); ?></legend>
+										<legend><b><?php echo translate('controls'); ?></b></legend>
 										<table style="width:100%">
 											<tr>
 												<td class="label" colspan="2"><b><?php echo translate('wmv-asf-asx_only'); ?></b></td>
@@ -442,7 +223,7 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 								</td>
 								<td valign="top" width="50%">
 									<fieldset>
-										<legend><?php echo translate('size'); ?></legend>
+										<legend><b><?php echo translate('size'); ?></b></legend>
 										<table style="width:100%">
 											<tr>
 												<td class="label" width="50%"><?php echo translate('width'); ?>:</td>
@@ -455,9 +236,19 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 												<td>
 												<input type="text" name="height" id="f_height" size="5" title="Height" value="<?php echo empty($_REQUEST['f_height']) ? '100' : htmlspecialchars($_REQUEST['f_height']) ?>" />
 												</td>
-											</tr>
+											</tr>									
 										</table>
 									</fieldset>
+								</td>
+							</tr>
+							<tr>
+								<td>
+										<button type="button" name="cancel" onclick="return onCancel();"><?php echo translate('cancel'); ?></button>	
+								</td>
+								<td>										
+									<div class="sq-popup-button-wrapper">																		    								
+										<button type="button" name="ok" onclick="return onOK();" class="sq-btn-green"><?php echo translate('ok'); ?></button>	
+									</div>								
 								</td>
 							</tr>
 						</table>
@@ -465,20 +256,21 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 				</tr>
 			</table>
 
-			<div style="margin-top: 5px; text-align: right;">
-			<hr />
-			<button type="button" name="ok" onclick="return onOK();"><?php echo translate('ok'); ?></button>
-			<button type="button" name="cancel" onclick="return onCancel();"><?php echo translate('cancel'); ?></button>
-			</div>
+
 		</form>
 
 		<!-- Search results -->
-		<div id="new-message-popup"><div id="new-message-popup-titlebar"><div id="new-message-popup-close">[ <a href="#" onclick="document.getElementById('new-message-popup').style.display = 'none'; return false;">x</a> ]</div><span id="new-message-popup-title">Searched for ''</span></div>
+		<div id="new-message-popup" class="sq-new-message-popup-wrapper">
+			<div id="new-message-popup-titlebar">
+				<div id="new-message-popup-close"><a href="#" onclick="document.getElementById('new-message-popup').style.display = 'none'; return false;"><img src="/__lib/web/images/icons/cancel.png"></a></div>
+				<span id="new-message-popup-title">Searched for ''</span>
+			</div>
 			<div id="new-message-popup-details"></div>
 		</div>
-		<div id="search-wait-popup"><div id="search-wait-popup-titlebar"><div id="search-wait-popup-close">[ <a href="#" onclick="document.getElementById('search-wait-popup').style.display = 'none'; return false;">x</a> ]</div><span id="search-wait-popup-title">Search in Progress</span></div>
+		<div id="search-wait-popup"><div id="search-wait-popup-titlebar"><div id="search-wait-popup-close"><a href="#" onclick="document.getElementById('search-wait-popup').style.display = 'none'; return false;"><img src="/__lib/web/images/icons/cancel.png"></a></div><span id="search-wait-popup-title">Search in Progress</span></div>
 			<div id="search-wait-popup-details">Your search is being processed, please wait...</div>
-		</div>
+		</div> 
+
 
 		<script type="text/javascript"><!--
 			var current = 1;
