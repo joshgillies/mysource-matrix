@@ -623,7 +623,7 @@
 	<string source="no_asset_settings">There are no settings for "%s"</string>
 	<string source="current_version">Current Version</string>
 	<string source="update_major_version">Update Major Version?</string>
-	<string source="increment_major_version_numner">Increment major version numnber</string>
+	<string source="increment_major_version_numner">Increment major version number</string>
 	<string source="created_date">Created Date</string>
 	<string source="published_date">Published Date</string>
 	<string source="force_secure">Force Secure</string>
@@ -1359,7 +1359,7 @@
 	<string source="trigger_set_design_set_user_design_name">Set User Defined design name</string>
 	<string source="trigger_set_index_page_basic">Set the index page to: %s</string>
 	<string source="trigger_set_force_secure_basic">&lt;b&gt;Force Secure  &lt;/b&gt; %s &lt;br /&gt;
-Force that this asset can only be viewed through a Secure (SSL) connection</string>
+Force that this asset can only be viewed through a Secure (SSL) connection.</string>
 	<string source="trigger_set_index_page_select">Select the index page</string>
 	<string source="trigger_set_status">Set the Asset's status to: %1$s&lt;br /&gt;%2$s Set status of dependent parents instead (eg. set the status of a bodycopy DIV's Standard Page parents, instead of itself; if no dependent parents are found, then this option will be ignored and the status set normally).</string>
 	<string source="trigger_increment_version">Increment this component of the Asset's %s version number. </string>

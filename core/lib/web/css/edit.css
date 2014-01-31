@@ -100,6 +100,11 @@ img.sq-icon.small {
 	height:						13px;
 }
 
+img.sq-icon-info {
+	width: 						15px;
+	height:						15px;
+}
+
 div > img {
 	margin-right: 				3px;
 }
