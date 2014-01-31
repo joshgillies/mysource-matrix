@@ -619,8 +619,12 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 			foreach ($_GET as $index => $param) {
 				// bug fix #6261 Funnelback Rest Search Page passing parameters dot converted to underscore
 				// check to see if the query name has it period character converted to underscore
-				if (array_key_exists(str_replace('_', '.', $index), $query_str_vars) && !array_key_exists($index, $query_str_vars)) {
-					$index = str_replace('_', '.', $index);
+				foreach ($query_str_vars as $query_var => $value) {
+					if (array_key_exists($index, $query_str_vars)) continue;
+					if (str_replace('.', '_', $query_var) === $index) {
+						$index = $query_var;
+						break;
+					}
 				}
 
 				// try to get the value from QUERY_STRING first or fallback on the _GET
