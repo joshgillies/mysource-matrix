@@ -1410,10 +1410,44 @@ class Calendar_Event extends Asset
 	*/
 	function deleteAssetLink($linkid, $moving=FALSE)
 	{
-
 		return FALSE;
 
 	}//end deleteAssetLink()
+
+
+	/**
+	* Get details of a link with the specified characteristics
+	*
+	* @param int            $assetid            id of the the $side_of_link asset
+	* @param int            $link_type          integer that should be a single integer of the SQ_LINK_* constants
+	* @param string|array   $type_code          the type of asset that is linked
+	*                                           (eg 'Page', 'File', etc)
+	*                                           if an array returns link if matches any
+	*                                           of the array values
+	* @param boolean        $strict_type_code   whether we are finding an asset that
+	*                                           is just a $type_code or potentially an inherited type
+	*                                           or $type_code and any of it's sub-classes
+	* @param string         $value              the value that is associated with this link
+	* @param string         $side_of_link       Which side of the link this (the current) asset
+	*                                           is on ('major' or 'minor')
+	* @param boolean        $exclusive          The exclusive status for the link must be
+	*                                           this (if not null)
+	*
+	* @return array
+	* @access public
+	*/
+    function getLink($assetid, $link_type=NULL, $type_code='', $strict_type_code=TRUE, $value=NULL, $side_of_link='major', $exclusive=NULL)
+    {
+	    $id_parts = explode(':', $assetid);
+	    if (isset($id_parts[0])) {
+			$assetid = $id_parts[0];
+		}
+
+	    return $GLOBALS['SQ_SYSTEM']->am->getLink($assetid, $link_type, $type_code, $strict_type_code, $value, $side_of_link, $exclusive);
+
+	}//end getLink()
+
+
 }//end class
 
 ?>
