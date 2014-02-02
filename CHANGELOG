@@ -1,5 +1,137 @@
 SQUIZ MATRIX CHANGELOG
 
+VERSION 4.18.3
+
+Featured Changes
+===================================
+
+New Global Keyword to Print Post Data in JSON, XML and CSV [ Feature Request #6517 ]
+-----------------------------------------------------
+
+A new Global Keyword Replacement has been added to handle array data, i.e. the replacement containing the array data (e.g. _GET, _POST, Matrix sandbox session var) can be accessed using the global keywords with keyword modifiers. Two new keywords globals_get and globals_post are added to return _GET and _POST array data respectively.
+
+In addition, four new keyword modifiers have been added to handle array data: as_xml, as_csv, as_url_string and as_json. If no keyword modifiers are used on returning array data, Matrix will apply the as_json modifier, by default; the resulting keyword replacement value is always text.
+
+Please note that these array specific keyword modifiers will not work on string data replacements. However, as the result of the array data replacement is a string value, regular string keyword modifiers can be applied to the resulting keyword replacement.
+
+%globals_get^as_xml^escapehtml%
+
+%globals_get^as_xml^xpathe:count(/name)%
+
+%globals_get^as_csv^uppercase%
+
+%globals_session_asset_assets^as_json% 
+
+New Keyword Condition Rule for Checking Visited Pages [ Feature Request #6692 ]
+-----------------------------------------------------
+
+The content creation tools within Squiz Matrix allow you to configure condition-based rules, defined by keyword replacements, to specify the sections of content to display. These rules can range from an asset's status being a particular status type, to whether a user is logged-in or not.
+
+This feature adds a new condition type, allowing the system to check against the previously visited pages of a user, in order to determined whether or not the condition is met. The Visited Pages Condition can be set on the Conditional Keywords screen of a Paint Layout's Type Formats Bodycopy. 
+
+The Visited Pages Condition can be check against whether the previously visited URL(s) either match or do not match a set of specified patterns or asset IDs. Regular expressions can be used when configuring the URLs in these fields.
+
+Along with this new condition type, this feature also includes two new global keyword replacements:
+%globals_visited_assets% and %global_visited_urls%. These global keywords will return an array of either the user's previously visited assets or URLs. Keyword modifiers can be used to parse this array.
+
+New Input Type Field for Text Type Form Questions [ Feature Request #6799 ]
+-----------------------------------------------------
+
+The Custom Form's Text question type allows users to enter a text response to the question via an input field. This field can be configured as a single line field, or a multiple line box.
+
+Previously, the Text question type would print an input type of "text" within the source of a form.
+
+This feature introduces a new option for Text question types, allowing you to apply HTML5 input elements within your forms.
+
+The Input Type field can be configured in the Question Options section on the Details screen of a Text question type. 
+
+Users can select an input type in this field, to use on the form question. The options available include:
+
+Color
+Date
+Datetime
+Datetime-local
+Email
+Hidden
+Month
+Number
+Range
+Search
+Text
+Tel
+Time
+Url
+Week 
+
+By default, the Text input type will be used for Text questions. Selecting an alternative input type in this field will print this within the source of the page.
+
+<input-type="email">
+
+This feature also extends to Text questions on other form types within Squiz Matrix, such as the E-Commerce Form Page and Default Delivery Method assets. 
+
+View the Squizmap idea for this feature at https://squizmap.squiz.net/matrix/2545.
+
+
+Additional Changes and Bug Fixes
+=================================== 
+
+Minor Enhancements
+
+Minor Enhancement #6677: New Keyword Condition Rule for Checking Page Referrer.
+Minor Enhancement #6691: New Keyword Condition Rule for Checking Users Entry Page. 
+Minor Enhancement #6749: Additional asset_id Attribute for Form Submissions. 
+Minor Enhancement #6773: New Keyword Condition Rule for Checking Site Referrer. 
+Minor Enhancement #6774: More Detailed Lock Information on HIPO Herder Screen. 
+Minor Enhancement #6779: Enhancements to the Recreate Link Tree System Script. 
+Minor Enhancement #6791: Designs: Notification If Parse File Does Not Contain Design Area Tags. 
+Minor Enhancement #6796: JS File Folder Enhancements. 
+Minor Enhancement #6802: Refresh Local TRIM Records Cache. 
+
+Core
+
+Fixed Bug #6477: Spaces between MySource areas stripped.
+Fixed Bug #6736: ^replace_keywords does not replace with eq operator. 
+Fixed Bug #6742: Accessing metadata screen in the rollback mode throws fatal db error. 
+Fixed Bug #6743: Asset Map fails in 4.18.2 on Oracle. 
+Fixed Bug #6744: Regen Metadata scripts are not context aware. 
+Fixed Bug #6745: Linking screen in EES/Edit+ on 4.18.2. 
+Fixed Bug #6752: Can't reorder context IE8. 
+Fixed Bug #6757: Paint layout's conditional keywords not getting evaluated correctly. 
+Fixed Bug #6762: Cannot set image variety to Safe Edit status in Oracle system. 
+Fixed Bug #6763: Referrer condition if true not working. 
+Fixed Bug #6764: PHP 5.4 "failed to load external entity" error. 
+Fixed Bug #6769: Java asset map insert link / binocular not working for java 1.7.0-51 update. 
+Fixed Bug #6776: Backtrace file path - Undefined index: general.inc line 74 line 75. 
+Fixed Bug #6778: Global date keywords do not work in type format of shadow assets. 
+Fixed Bug #6782: %asset_lineage_linked% doesn't play nice with modifiers. 
+Fixed Bug #6792: Twitter API now requires HTTPS. 
+Fixed Bug #6798: REST asset not encoding "Append query string" value. 
+
+CMS
+
+Fixed Bug #6740: Form feed char "\f" (#xC) not filtered by "Save as XML" form action.
+Fixed Bug #6797: Unable to create User Group Manager Page asset with metadata schema applied with default metadata field value (keywords) referencing the asset. 
+
+Search
+
+Fixed Bug #6732: Search Page searching email attribute of Simple Edit user.
+
+Import Tools
+
+Fixed Bug #6700: Asset builder doesn't export create form customisations.
+
+Squid
+
+Fixed Bug #6775: Upgrading causes errors when existing Squid purge trigger action runs.
+
+Web Services
+
+Fixed Bug #6688: JS api breaks when it parses the result json.
+Fixed Bug #6747: JS Rest resource asset error "Invalid argument supplied for foreach()". 
+Fixed Bug #6750: JS API getParents doesn't return the 1st parent, throws Unexpected end of input error.
+
+
+
 VERSION 4.18.2
 
 Featured Changes
