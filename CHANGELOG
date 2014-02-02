@@ -1,5 +1,54 @@
 SQUIZ MATRIX CHANGELOG
 
+VERSION 4.16.7
+
+Minor Enhancements and Bug Fixes
+=================================== 
+
+Minor Enhancements
+
+Minor Enhancement #6749: Additional asset_id Attribute for Form Submissions.
+
+Core
+
+Fixed Bug #6477: Spaces between MySource areas stripped.
+Fixed Bug #6736: ^replace_keywords does not replace with eq operator. 
+Fixed Bug #6742: Accessing metadata screen in the rollback mode throws fatal db error. 
+Fixed Bug #6744: Regen Metadata scripts are not context aware. 
+Fixed Bug #6752: Can't reorder context IE8. 
+Fixed Bug #6757: Paint layout's conditional keywords not getting evaluated correctly. 
+Fixed Bug #6762: Cannot set image variety to Safe Edit status in Oracle system. 
+Fixed Bug #6764: PHP 5.4 "failed to load external entity" error. 
+Fixed Bug #6769: Java asset map insert link / binocular not working for java 1.7.0-51 update. 
+Fixed Bug #6778: Global date keywords do not work in type format of shadow assets. 
+Fixed Bug #6782: %asset_lineage_linked% doesn't play nice with modifiers. 
+Fixed Bug #6792: Twitter API now requires HTTPS. 
+Fixed Bug #6798: REST asset not encoding "Append query string" value. 
+
+
+CMS
+
+Fixed Bug #6740: Form feed char "\f" (#xC) not filtered by "Save as XML" form action.
+Fixed Bug #6797: Unable to create User Group Manager Page asset with metadata schema applied with default metadata field value (keywords) referencing the asset.  
+
+Search
+
+Fixed Bug #6732: Search Page searching email attribute of Simple Edit user. 
+
+Import Tools
+
+Fixed Bug #6700: Asset builder doesn't export create form customisations. 
+
+Squid
+
+Fixed Bug #6775: Upgrading causes errors when existing Squid purge trigger action runs. 
+
+Web Services
+
+Fixed Bug #6688: JS api breaks when it parses the result json.
+Fixed Bug #6750: JS API getParents doesn't return the 1st parent, throws Unexpected end of input error.  
+
+
 VERSION 4.16.6
 
 Minor Enhancements and Bug Fixes
