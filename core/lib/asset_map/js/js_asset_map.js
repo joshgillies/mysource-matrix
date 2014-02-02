@@ -1361,7 +1361,6 @@ var JS_Asset_Map = new function() {
 									x: timeouts.scrollDrag.mousePos.x,
 									y: timeouts.scrollDrag.mousePos.y
 								};
-								console.info('MOUSE POS 2: [' + mousePos.x + ',' + mousePos.y + ']');
 								var tree         = self.getCurrentTreeElement();
 								var treeCoords   = dfx.getBoundingRectangle(tree, true);
 								var moveFactor   = (Math.log(20) / Math.log(15));
@@ -1371,7 +1370,6 @@ var JS_Asset_Map = new function() {
 								// the scrollbar.
 								treeCoords.x2 = treeCoords.x1 + tree.clientWidth;
 								treeCoords.y2 = treeCoords.y1 + tree.clientHeight;
-var coords1 = self.getSelectionRectCoords(dragStatus.startPoint, mousePos);
 								
 								var oldScrollTop  = tree.scrollTop;
 								var oldScrollLeft = tree.scrollLeft;
@@ -1400,7 +1398,6 @@ var coords1 = self.getSelectionRectCoords(dragStatus.startPoint, mousePos);
 									dragStatus.scrollX += (tree.scrollLeft - oldScrollLeft);
 									self.setSelectionRect(selectionRect, dragStatus.startPoint, mousePos);
 									var coords = self.getSelectionRectCoords(dragStatus.startPoint, mousePos);
-									console.info('Scroll Mouse Pos [' + mousePos.x + ',' + mousePos.y + ']');
 								}
 							}
 						}, 50)
@@ -1457,7 +1454,6 @@ var coords1 = self.getSelectionRectCoords(dragStatus.startPoint, mousePos);
 							x: e.clientX,
 							y: e.clientY
 						});
-						console.info('No Scroll [' + e.clientX + ',' + e.clientY + ']');
 						
 						// If we double-back on ourselves make sure it also resizes there.
 						dfx.addEvent(selectionRect, 'mousemove', function(e) {
@@ -1465,7 +1461,6 @@ var coords1 = self.getSelectionRectCoords(dragStatus.startPoint, mousePos);
 								x: e.clientX,
 								y: e.clientY
 							});
-							console.info('Double Back [' + e.clientX + ',' + e.clientY + ']');
 						 });
 					}//end if
 				} else if (dragStatus.assetDrag) {
