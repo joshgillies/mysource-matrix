@@ -863,12 +863,12 @@ var JS_Asset_Map = new function() {
 			// back to the Root Folder (#1). Clicking again will restore the
 			// custom root.
 			if (options.simple === false) {
-			    var tree        = self.getCurrentTreeElement();
-			    var currentRoot = tree.getAttribute('data-parentid');
-			    if (String(options.teleportRoot) === String(currentRoot)) {
-			        self.teleport(1, 1);
-			    } else {
-			        self.teleport(options.teleportRoot, options.teleportLink);
+				var tree        = self.getCurrentTreeElement();
+				var currentRoot = tree.getAttribute('data-parentid');
+				if (String(options.teleportRoot) === String(currentRoot)) {
+					self.teleport(1, 1);
+				} else {
+					self.teleport(options.teleportRoot, options.teleportLink);
 				}
 			}
 		});
@@ -878,8 +878,8 @@ var JS_Asset_Map = new function() {
 		});
 
 		dfx.addEvent(dfx.getId('asset_map_button_collapse'), 'click', function() {
-		    var tree = self.getCurrentTreeElement();
-		    
+			var tree = self.getCurrentTreeElement();
+			
 			var childIndents  = dfx.getClass('childIndent', tree);
 			var branchButtons = dfx.getClass('branch-status', tree);
 
@@ -1412,6 +1412,7 @@ var JS_Asset_Map = new function() {
 					if (insideTree) {
 						if (!timeouts.selectionDrag) {
 							timeouts.selectionDrag = setInterval(function() {
+								var tree     = self.getCurrentTreeElement();
 								var rectDims = dfx.getBoundingRectangle(selectionRect);
 								var assets   = dfx.getClass('asset', tree);
 								for (var i = 0; i < assets.length; i++) {
@@ -2502,9 +2503,9 @@ var JS_Asset_Map = new function() {
 		var treeDivs = dfx.getClass('tree');
 		
 		if (dfx.hasClass(assetMapContainer, 'simple') === true) {
-		    assetMapContainer.style.height = (document.documentElement.clientHeight) + 'px';
+			assetMapContainer.style.height = (document.documentElement.clientHeight) + 'px';
 		} else {
-		    assetMapContainer.style.height = (document.documentElement.clientHeight - 70) + 'px';
+			assetMapContainer.style.height = (document.documentElement.clientHeight - 70) + 'px';
 		}
 		
 		for (var i = 0; i < treeDivs.length; i++) {
@@ -2746,7 +2747,7 @@ var JS_Asset_Map = new function() {
 		if ((!defaultView.frameElement) || (defaultView.frameElement.name === 'sq_sidenav')) {
 			var topDoc = defaultView.top.document.documentElement;
 		} else if (defaultView.frameElement.name === 'sq_wysiwyg_popup_sidenav') { 
-		    var topDoc = defaultView.parent.document.documentElement;
+			var topDoc = defaultView.parent.document.documentElement;
 		} else {
 			var topDoc = target.ownerDocument.documentElement;
 		}
@@ -3834,7 +3835,7 @@ var JS_Asset_Map = new function() {
 		if (win.frameElement) {
 			retval = win.top.frames.sq_main;
 			if (!retval) {
-			    retval = win.top.frames.sq_wysiwyg_popup_main;
+				retval = win.top.frames.sq_wysiwyg_popup_main;
 			}
 			
 			if (!retval) {
