@@ -969,13 +969,13 @@ class Backend_Outputter
 		?>
 		<!DOCTYPE html>
 		<?php
-		if (preg_match('/(?i)msie [1-8]/',$_SERVER['HTTP_USER_AGENT'])) {
+		if (isset($_SERVER['HTTP_USER_AGENT']) && preg_match('/(?i)msie [1-8]/',$_SERVER['HTTP_USER_AGENT'])) {
         	// If we are in IE8 or less, don't use the conditional <html> tag as it can cause compatibility mode in those browsers
     		// if IE<=8
     		?>
     		<html class="ie8 <?php echo $backendPage; ?>">
     		<?php
-		} else if (strpos($_SERVER['HTTP_USER_AGENT'], 'Trident/7.0; rv:11.0') !== false) {
+		} else if (isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'Trident/7.0; rv:11.0') !== FALSE) {
         	// If we are in IE11, we must print the IE11 class manually as IE11 doesn't send the right browser header anymore for us to do simple HTML checking on
     		// if IE 11
     		?>
