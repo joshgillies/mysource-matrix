@@ -878,8 +878,10 @@ var JS_Asset_Map = new function() {
 		});
 
 		dfx.addEvent(dfx.getId('asset_map_button_collapse'), 'click', function() {
-			var childIndents  = dfx.getClass('childIndent', assetMapContainer);
-			var branchButtons = dfx.getClass('branch-status', assetMapContainer);
+		    var tree = self.getCurrentTreeElement();
+		    
+			var childIndents  = dfx.getClass('childIndent', tree);
+			var branchButtons = dfx.getClass('branch-status', tree);
 
 			dfx.addClass(childIndents, 'collapsed');
 			dfx.removeClass(branchButtons, 'expanded');
