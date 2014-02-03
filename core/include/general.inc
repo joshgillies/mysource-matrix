@@ -1563,13 +1563,8 @@ function sq_get_icon($path, $width, $height, $alt='', $title=NULL, $extras='')
 	} else {
 		$extras .= ' class="sq-icon"';
 	}
-	return '
-	<img src="'.$path.'"
-		 alt="'.$alt.'"
-		 title="'.$title.'"
-		 height="'.$height.'"
-		 width="'.$width.'"
-		 '.$extras.' />';
+
+	return '<img src="'.$path.'" alt="'.$alt.'" title="'.$title.'" height="'.$height.'" width="'.$width.'" '.$extras.' />';
 
 }//end sq_get_icon()
 
