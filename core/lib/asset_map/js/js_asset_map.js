@@ -757,6 +757,20 @@ var JS_Asset_Map = new function() {
 		options.teleportLink = options.teleportLink  || '';
 		options.simple       = true;
 		dfx.addClass(assetMapContainer, 'simple');
+		
+		if (options.initialSelection !== '') {
+			var selParts = options.initialSelection.split('~');
+			options.initialSelection = null;
+
+			if ((selParts[0].length > 0) && (selParts[1].length > 0)) {
+				options.initialSelection = {
+					assetids: selParts[0].split('|'),
+					sortOrders: selParts[1].split('|')
+				};
+			}
+		} else {
+			options.initialSelection = null;
+		}
 
 		// If IE 8, set an "old IE" class so we can do some tweaks (eg. different
 		// ways of handling tab rotation) in non-recent browsers
@@ -819,7 +833,18 @@ var JS_Asset_Map = new function() {
 				}
 			}
 
-			self.teleport(options.teleportRoot, null, 0);
+			self.teleport(options.teleportRoot, options.teleportLink, 0, function() {
+				// If an initial selection is passed, try to locate the current
+				// asset from the URL.
+				console.info(options.initialSelection);
+				if (options.initialSelection) {
+					self.locateAsset(
+						options.initialSelection.assetids,
+						options.initialSelection.sortOrders
+					);
+				}
+			});
+			
 			self.selectTree(0);
 			self.initEvents();
 
@@ -3428,6 +3453,7 @@ var JS_Asset_Map = new function() {
 	 * Locate asset.
 	 */
 	this.locateAsset = function(assetids, sortOrders) {
+	    console.info('Locating: ' + assetids.join(',') + ' - ' + sortOrders.join(','));
 		var self         = this;
 		var savedAssets  = assetids.concat([]);
 		var tree         = this.getCurrentTreeElement();
@@ -3951,6 +3977,7 @@ var JS_Asset_Map = new function() {
 	this.drawUseMeMenu = function(assetNode) {
 		var self    = this;
 		var assetid = assetNode.getAttribute('data-assetid');
+		var linkid  = assetNode.getAttribute('data-linkid');
 		this.clearMenus();
 
 		var container = _createEl('div');
@@ -3983,7 +4010,10 @@ var JS_Asset_Map = new function() {
 			var changeButton = dfx.getId(useMeStatus.idPrefix + '_change_btn', sourceFrame);
 			changeButton.value = js_translate('change');
 
-			if (dfx.isFn(useMeStatus.doneCallback)) {
+			document.cookie = 'lastSelectedLinkId=' + escape(linkid);
+			document.cookie = 'lastSelectedAssetId=' + escape(assetid);
+					
+			if (dfx.isFn(useMeStatus.doneCallback)) { 
 				useMeStatus.doneCallback(assetid);
 			}
 
