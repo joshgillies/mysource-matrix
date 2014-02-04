@@ -581,6 +581,7 @@ class Form_Management extends Asset_Management
 																'parameters'	=> Array(
 																					'multiple'		=> FALSE,
 																					'allow_empty'   => FALSE,
+																					'sort_options'	=> TRUE,
 																					'options'       => Array(
 																										'red'	=> 'Red',
 																										'white' => 'White',
