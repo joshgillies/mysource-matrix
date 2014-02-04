@@ -394,21 +394,22 @@ function check_box($name, $value='1', $checked=FALSE, $on_click='', $extras='')
 /**
 * Given a name, an array of keys and values, and a default value, prints a dropdown box
 *
-* @param string		$name		the form name to use for the dropdown box
-* @param array		$contents	an array of whose keys are values to be returned when that
-*								option is selected and whose values are the display text for the option
-* @param boolean	$multiple	whether you can multiple selections can be made or not
-* @param mixed		$defaults	if there is only one default can be a string, or if there are
-*								multiple can be an array
-* @param int		$height		the height (in lines) of the combo box
-* @param string		$extras		any input field attributes that should be placed in the <input ... > tag
-* @param int		$maxlength	the maximum number of characters displayed for any option,
-*								anything over gets truncated with '...' appended
+* @param string		$name			the form name to use for the dropdown box
+* @param array		$contents		an array of whose keys are values to be returned when that
+*									option is selected and whose values are the display text for the option
+* @param boolean	$multiple		whether you can multiple selections can be made or not
+* @param mixed		$defaults		if there is only one default can be a string, or if there are
+*									multiple can be an array
+* @param int		$height			the height (in lines) of the combo box
+* @param string		$extras			any input field attributes that should be placed in the <input ... > tag
+* @param int		$maxlength		the maximum number of characters displayed for any option,
+*									anything over gets truncated with '...' appended
+* @param boolean	$sort_option	indicates if the options for the html field should be alphabetically sorted
 *
 * @return void
 * @access public
 */
-function combo_box($name, $contents, $multiple=FALSE, $defaults='', $height=0, $extras='', $maxlength=0)
+function combo_box($name, $contents, $multiple=FALSE, $defaults='', $height=0, $extras='', $maxlength=0, $sort_options=FALSE)
 {
 	$height    = (int) $height;
 	$maxlength = (int) $maxlength;
@@ -425,6 +426,8 @@ function combo_box($name, $contents, $multiple=FALSE, $defaults='', $height=0, $
 
 	if (!is_array($contents)) $contents = Array($contents);
 	if (!is_array($defaults)) $defaults = Array($defaults);
+
+	if ($sort_options) asort($contents);
 
 	echo	'<select name="', htmlspecialchars($name), '" ',
 			(($height > 1)? 'size="'.$height.'" ' : ''),

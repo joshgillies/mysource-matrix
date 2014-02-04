@@ -466,7 +466,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			$questions[$question] = $q;
 		}
 
-		combo_box('question_type', $questions, FALSE, '');
+		combo_box('question_type', $questions, FALSE, '', 0, '', 0, TRUE);
 		echo '&nbsp;';
 
 		// create a dropdown box with some numbers for the number of questions to add
