@@ -56,7 +56,7 @@ $EXECUTE = FALSE;
 foreach ($_SERVER['argv'] as $placement => $argument) {
 	if (!empty($placement)) {
 		$argument = ltrim($argument, '-');
-		if (strpos($argument, '=') != FALSE) {
+		if (strpos($argument, '=') !== FALSE) {
 			list($command, $parameter) = explode('=', $argument);
 		} else {
 			$command = $argument;

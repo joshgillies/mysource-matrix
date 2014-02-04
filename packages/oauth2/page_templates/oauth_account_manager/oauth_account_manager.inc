@@ -562,15 +562,15 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 	{
 	    // if it's just the element in first level
 	    if(isset($data[$location]) && is_scalar($data[$location])) return $data[$location];
-	    if(strpos($location, '.') !== NULL) {
-		$location_parts = explode('.', $location);
-		foreach ($location_parts as $part) {
-		    if(!isset($data[$part])) return NULL;
-		    $data = $data[$part];
-		    if(is_scalar($data)) {
-			return $data;
-		    }
-		}
+	    if(strpos($location, '.') !== FALSE) {
+			$location_parts = explode('.', $location);
+			foreach ($location_parts as $part) {
+			    if(!isset($data[$part])) return NULL;
+		    	$data = $data[$part];
+			    if(is_scalar($data)) {
+					return $data;
+		    	}
+			}
 	    }
 		
 	    return NULL;

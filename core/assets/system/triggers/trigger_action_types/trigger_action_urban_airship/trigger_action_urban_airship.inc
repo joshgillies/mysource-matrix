@@ -131,7 +131,7 @@ class Trigger_Action_Urban_Airship extends Trigger_Action
 				$airship->broadcast($message);
 			} else {
 				// Check to see if we have multiple device tokens
-				if (strpos($static_app_token, ',')) {
+				if (strpos($static_app_token, ',') !== FALSE) {
 					$static_app_token = explode(',', $static_app_token);
 				}
 				//error_log(print_r($message, TRUE), 0);

@@ -210,7 +210,7 @@ class Soap_Server extends Page
 		$function_names = Array();
 		while ($children->item($i)) {
 			// libxml element numeric node type
-			if (($children->item($i)->nodeType === 1) && (strpos($children->item($i)->tagName, 'Body'))) {
+			if (($children->item($i)->nodeType === 1) && (strpos($children->item($i)->tagName, 'Body') !== FALSE)) {
 				foreach ($children->item($i)->childNodes as $child) {
 					if ($child->nodeType === 1) {
 						$function_names[] = preg_replace('/(.*:)/', '', $child->tagName);

@@ -1385,7 +1385,7 @@ class HTTP_Response
 		);
 
 		// Only a name=value pair
-		if (!strpos($headervalue, ';')) {
+		if (strpos($headervalue, ';') === FALSE) {
 			$pos = strpos($headervalue, '=');
 			$cookie['name']  = trim(substr($headervalue, 0, $pos));
 			$cookie['value'] = trim(substr($headervalue, $pos + 1));
