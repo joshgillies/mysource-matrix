@@ -506,7 +506,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 
 			$child_links = $am->getLinks($root_id, SQ_SC_LINK_BACKEND_NAV);
 			foreach (array_reverse($child_links) as $link) {
-				if (($link['linkid'] != '0') && FALSE == strpos($link['linkid'], ':')) {
+				if (($link['linkid'] != '0') && FALSE === strpos($link['linkid'], ':')) {
 					array_unshift($assets_to_list, $link['minorid']);
 				}
 			}
@@ -634,7 +634,7 @@ class Structured_Asset_Info_Edit_Fns extends Report_Edit_Fns
 				$child_links = $am->getLinks($current_assetid, SQ_SC_LINK_BACKEND_NAV);
 				// get more assets to list and stack em
 				foreach (array_reverse($child_links) as $link) {
-					if (($link['linkid'] != '0') && FALSE == strpos($link['linkid'], ':')) {
+					if (($link['linkid'] != '0') && FALSE === strpos($link['linkid'], ':')) {
 						array_unshift($assets_to_list, $link['minorid']);
 					}
 				}

@@ -331,7 +331,7 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 		}
 
 		foreach ($dependants as $link_info) {
-			if (!strpos($link_info['minorid'], ':')) {
+			if (strpos($link_info['minorid'], ':') === FALSE) {
 				$parent = '[[output://create_'.$action_code.'.assetid]]';
 
 				// If the asset already exists, let's link to it; otherwise, create it.
@@ -347,7 +347,7 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 		// Now let's do the non-dependant children, shall we?
 		$children = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, '', FALSE, 'major', NULL, 0);
 		foreach ($children as $link_info) {
-			if (!strpos($link_info['minorid'], ':')) {
+			if (strpos($link_info['minorid'], ':') === FALSE) {
 				$parent = '[[output://create_'.$action_code.'.assetid]]';
 
 				if (array_key_exists($link_info['minorid'], $this->_running_vars['asset_id_map'])) {
@@ -491,7 +491,7 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 		}
 
 		foreach ($dependants as $link_info) {
-			if (!strpos($link_info['minorid'], ':')) {
+			if (strpos($link_info['minorid'], ':') === FALSE) {
 				if (!array_key_exists($link_info['minorid'], $assets_done)) {
 					$this->printAttributeXML($link_info['minorid']);
 				}
@@ -501,7 +501,7 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 		// Now let's do the non-dependant children, shall we?
 		$children = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, '', FALSE, 'major', NULL, 0);
 		foreach ($children as $link_info) {
-			if (!strpos($link_info['minorid'], ':')) {
+			if (strpos($link_info['minorid'], ':') === FALSE) {
 				if (!array_key_exists($link_info['minorid'], $assets_done)) {
 					$this->printAttributeXML($link_info['minorid']);
 				}
@@ -529,7 +529,7 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset_id);
 
 		foreach ($notice_links as $notice_link) {
-			if (strpos($notice_link['minorid'], ':')) continue;
+			if (strpos($notice_link['minorid'], ':') !== FALSE) continue;
 			// if we created the asset, get it from array, otherwise, if it's a system asset, we have to use system asset name.
 			if (isset($this->_running_vars['asset_id_map'][$asset_id])){
 				$remap_id =	"[[output://create_".$this->_running_vars['asset_id_map'][$asset_id].".assetid]]" ;
@@ -563,7 +563,7 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 		}
 
 		foreach ($dependants as $link_info) {
-			if (!strpos($link_info['minorid'], ':')) {
+			if (strpos($link_info['minorid'], ':') === FALSE) {
 				if (!array_key_exists($link_info['minorid'], $assets_done)) {
 					$this->printNoticeLinksXML($link_info['minorid']);
 				}
@@ -573,7 +573,7 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 		// Now let's do the non-dependant children, shall we?
 		$children = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset_id, SQ_SC_LINK_SIGNIFICANT, '', FALSE, 'major', NULL, 0);
 		foreach ($children as $link_info) {
-			if (!strpos($link_info['minorid'], ':')) {
+			if (strpos($link_info['minorid'], ':') === FALSE) {
 				if (!array_key_exists($link_info['minorid'], $assets_done)) {
 					$this->printNoticeLinksXML($link_info['minorid']);
 				}
@@ -732,7 +732,7 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 		}
 
 		foreach ($dependants as $link_info) {
-			if (!strpos($link_info['minorid'], ':')) {
+			if (strpos($link_info['minorid'], ':') === FALSE) {
 				if (!array_key_exists($link_info['minorid'], $assets_done)) {
 					$this->printPermissionXML($link_info['minorid']);
 				}
@@ -742,7 +742,7 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 		// Now let's do the non-dependant children, shall we?
 		$children = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset_id, SQ_SC_LINK_SIGNIFICANT, '', FALSE, 'major', NULL, 0);
 		foreach ($children as $link_info) {
-			if (!strpos($link_info['minorid'], ':')) {
+			if (strpos($link_info['minorid'], ':') === FALSE) {
 				if (!array_key_exists($link_info['minorid'], $assets_done)) {
 					$this->printPermissionXML($link_info['minorid']);
 				}
@@ -835,7 +835,7 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 		}
 
 		foreach ($dependants as $link_info) {
-			if (!strpos($link_info['minorid'], ':')) {
+			if (strpos($link_info['minorid'], ':') === FALSE) {
 				if (!array_key_exists($link_info['minorid'], $assets_done)) {
 					$this->printMetadataXML($link_info['minorid']);
 				}
@@ -845,7 +845,7 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 		// Now let's do the non-dependant children, shall we?
 		$children = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, '', FALSE, 'major', NULL, 0);
 		foreach ($children as $link_info) {
-			if (!strpos($link_info['minorid'], ':')) {
+			if (strpos($link_info['minorid'], ':') === FALSE) {
 				if (!array_key_exists($link_info['minorid'], $assets_done)) {
 					$this->printMetadataXML($link_info['minorid']);
 				}

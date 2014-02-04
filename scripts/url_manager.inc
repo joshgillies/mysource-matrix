@@ -176,7 +176,7 @@ Make sure you have all you information you need before Proceeding\n");
 			
 			// Remove shadow assets, they are not required  for this purpose
 			foreach ($children as $id => $content) {
-				if(strpos($id,':')){
+				if(strpos($id,':') !== FALSE){
 					unset($children[$id]);	
 				}
 			}
@@ -449,7 +449,7 @@ Make sure you have all you information you need before Proceeding\n");
 		
 		// Remove shadow assets, they are not required  for this purpose
 		foreach ($children as $id => $content) {
-			if(strpos($id,':')){
+			if(strpos($id,':') !== FALSE){
 				unset($children[$id]);	
 			}
 		}
