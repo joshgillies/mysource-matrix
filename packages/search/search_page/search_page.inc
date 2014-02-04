@@ -1523,7 +1523,7 @@ class Search_Page extends Listing_Engine
 				$replacement  = '<input type="submit" name="'.$field_name.'" onclick="listing_form = document.getElementById(\''.$this->getPrefix().'\');
 					listing_form.current_result_page.value=\'1\';
 					listing_form.mode.value = \'sis\';
-					return TRUE;
+					return true;
 				" value="'.$this->attr('sis_button_text').'" />';
 			break;
 
