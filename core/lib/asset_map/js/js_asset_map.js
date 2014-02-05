@@ -3454,6 +3454,7 @@ var JS_Asset_Map = new function() {
 	this.locateAsset = function(assetids, sortOrders) {
 		var self         = this;
 		var savedAssets  = assetids.concat([]);
+		var savedSorts   = sortOrders.concat([]);
 		var tree         = this.getCurrentTreeElement();
 		var container    = tree;
 
@@ -3464,7 +3465,17 @@ var JS_Asset_Map = new function() {
 			var assetLines = dfx.find(container, 'div[data-assetid="' + assetid + '"]');
 
 			if (assetLines.length === 0) {
-				this.raiseError(js_translate('asset_map_error_locate_asset', savedAssets.pop()));
+				// If we are teleported and couldn't find the asset, then
+				// exit out to the root folder and start this process again.
+				// It could be there.
+				var currentRoot = String(tree.getAttribute('data-parentid'));
+				if (currentRoot !== '1') {
+					self.teleport(1, 1, undefined, function() {
+						self.locateAsset(savedAssets, savedSorts);
+					});
+				} else {
+					this.raiseError(js_translate('asset_map_error_locate_asset', savedAssets.pop()));
+				}
 				return;
 			} else {
 				var assetLine = assetLines[0];
