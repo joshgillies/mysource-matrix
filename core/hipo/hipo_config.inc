@@ -275,7 +275,7 @@ class HIPO_Config extends Config
 						continue;
 					}
 					// skip hidden files
-					if (strpos($file, '.') == 0) continue;
+					if (strpos($file, '.') === 0) continue;
 
 					if (!is_dir($hipo_job_path.'/'.$file)) {
 						if (get_file_type($file) != 'inc') continue;

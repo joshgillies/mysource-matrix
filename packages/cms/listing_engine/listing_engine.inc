@@ -2618,7 +2618,7 @@ class Listing_Engine extends Page
 		}
 
 		// if the asset is a shadow asset  then get the keywords separately
-		if ($is_shadow) {
+		if ($is_shadow !== FALSE) {
 			$keywords = $this->_getShadowAssetKeywordReplacements($assetid, $bc_keywords);
 
 			// Body with paint layout applied, if any (inherited from the
