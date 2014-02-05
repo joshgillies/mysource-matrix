@@ -836,7 +836,6 @@ var JS_Asset_Map = new function() {
 			self.teleport(options.teleportRoot, options.teleportLink, 0, function() {
 				// If an initial selection is passed, try to locate the current
 				// asset from the URL.
-				console.info(options.initialSelection);
 				if (options.initialSelection) {
 					self.locateAsset(
 						options.initialSelection.assetids,
@@ -3453,7 +3452,6 @@ var JS_Asset_Map = new function() {
 	 * Locate asset.
 	 */
 	this.locateAsset = function(assetids, sortOrders) {
-	    console.info('Locating: ' + assetids.join(',') + ' - ' + sortOrders.join(','));
 		var self         = this;
 		var savedAssets  = assetids.concat([]);
 		var tree         = this.getCurrentTreeElement();
@@ -4698,16 +4696,38 @@ var JS_Asset_Map = new function() {
 					}
 				}//end if
 
+				var closeOnExit = function() {
+					if (document.body.getAttribute('data-use-me-close-on-exit') === '1') {
+						document.body.removeAttribute('data-use-me-close-on-exit');
+						var resizer_frame = window.top.frames['sq_resizer'];
+						if (resizer_frame && !resizer_frame.hidden) {
+							resizer_frame.toggleFrame();
+						}
+					}
+				};
+				
 				var mainWin      = JS_Asset_Map.getUseMeFrame();
 				var changeButton = dfx.getId(safeName + '_change_btn', mainWin.document);
 				if (JS_Asset_Map.isInUseMeMode(name) === true) {
 					alert(js_translate('asset_finder_in_use'));
 				} else if (JS_Asset_Map.isInUseMeMode() === true) {
 					changeButton.setAttribute('value', js_translate('change'));
+					closeOnExit();
 					JS_Asset_Map.cancelUseMeMode();
 				} else {
+					var resizer_frame = window.top.frames['sq_resizer'];
+					if (resizer_frame && resizer_frame.hidden) {
+						document.body.setAttribute('data-use-me-close-on-exit', '1');
+						resizer_frame.toggleFrame();
+					}
+		
 					changeButton.setAttribute('value', js_translate('cancel'));
-					JS_Asset_Map.setUseMeMode(name, safeName, typeCodes, doneCallback);
+					JS_Asset_Map.setUseMeMode(name, safeName, typeCodes, function() {
+							closeOnExit();
+							if (dfx.isFn(doneCallback) === true) {
+								doneCallback();
+							}
+					});
 				}
 
 			},
