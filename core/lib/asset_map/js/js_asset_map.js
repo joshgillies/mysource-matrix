@@ -1737,17 +1737,28 @@ var JS_Asset_Map = new function() {
 					} else {
 						var initialAsset = dragStatus.assetDrag.initialAsset;
 						self.handleDoubleClick(initialAsset);
+						
+						// IE8 has incorrect handling of the second click (no mousedown)
+						// so we will instead look for the double-click event as the
+						// sign of a second click, rather than a second firing of the
+						// mouseup event.
+						if (dfx.hasClass(assetMapContainer, 'oldIE') === true) {
+							dfx.addEvent(initialAsset, 'dblclick.oldIE', function(e) {
+								dfx.removeEvent(initialAsset, 'dblclick.oldIE');
+								self.handleDoubleClick(initialAsset);
+							});
+						}
 					}//end if (dragged by enough)
-
-					e.stopImmediatePropagation();
 				}//end if
 			}//end if
 
+			e.stopImmediatePropagation();
 			self.cancelDrag();
 		});
 	};
 
 	this.handleDoubleClick = function(initialAsset) {
+		dfx.removeEvent(initialAsset, 'dblclick.oldIE');
 		if (timeouts.dblClick) {
 			// Double click.
 			if (timeouts.dblClick.assetid === initialAsset.getAttribute('data-assetid')) {
