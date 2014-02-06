@@ -1074,7 +1074,7 @@ class MySource extends MySource_Object
 					    $additional_replacements[$word] = '';
 					    continue;
 					}
-					    
+
 					$replacement = $this->frontend_asset->getKeywordReplacement($word);
 					// still cannot replace it, blank it out
 					if ($replacement == "%$word%") {
@@ -1883,14 +1883,14 @@ class MySource extends MySource_Object
 				echo (get_unique_token());
 				exit(1);
 			break;
-		    	
+
 			case 'verify_email' :
 				if(isset($_GET['email_verification_token']) && isset($_SESSION['SQ_VERIFY_EMAIL_TOKEN'])) {
 				    if($_GET['email_verification_token'] === $_SESSION['SQ_VERIFY_EMAIL_TOKEN']) {
 					$_SESSION['SQ_VERIFY_EMAIL_VERIFIED'] = $_SESSION['SQ_VERIFY_EMAIL_RAW'];
 				    }
 				}
-			break;				
+			break;
 		}//end switch
 
 		// just so it isn't being used anywhere else
@@ -2435,10 +2435,9 @@ class MySource extends MySource_Object
 			$header .= 'expires='.substr(date('r', time()+$time_to_live-((int)substr(date('O'), 0, 3)*60*60)), 0, -6).' GMT; ';
 		}
 		if (defined('SQ_CONF_SYSTEM_PARENT_DOMAINS') && SQ_CONF_SYSTEM_PARENT_DOMAINS !== '') {
-				$domain = strip_url(sq_web_path('root_url'), TRUE);
+			$domain = strip_url(sq_web_path('root_url'), TRUE);
 			$pos =  strpos($domain, '/');
-			if($pos !== FALSE)
-				$domain = substr($domain, 0, $pos);
+			if($pos !== FALSE) $domain = substr($domain, 0, $pos);
 			// Remove the port number from the host part, if any.
 			$domain = preg_replace('|:\d+$|', '', $domain);
 			$new_domain = '';
@@ -2455,8 +2454,7 @@ class MySource extends MySource_Object
 					}
 				}
 			}
-			if(!empty($new_domain))
-				$header .= "domain=$new_domain; ";
+			if(!empty($new_domain)) $header .= "domain=$new_domain; ";
 		}
 		if (!empty($session_params['path'])) {
 			$header .= "path=$session_params[path]; ";
@@ -4559,7 +4557,7 @@ class MySource extends MySource_Object
 	* Print the asset frontend
 	*
 	* @param object $asset	Asset of which we are printing the frontend
-	*	
+	*
 	* @return void
 	* @access private
 	*/
@@ -4586,7 +4584,7 @@ class MySource extends MySource_Object
 	* Add the asset and current url to the 'visited' stack in the session
 	*
 	* @param object $asset	Asset being registered as 'visited'
-	*	
+	*
 	* @return void
 	* @access private
 	*/

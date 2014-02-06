@@ -92,7 +92,7 @@ if (getCLIArg('invalid_old_url')) {
     $affected_result = Array();
     foreach ($result as $index => $url_info) {
         // ?a=xx style url
-        if(strpos($url_info['url'], '//?a=')) {
+        if(strpos($url_info['url'], '//?a=') !== FALSE) {
             preg_match('/\?a=([0-9:]+)/', $url_info['url'], $matches);
             if (isset($matches[1])) {
                 $url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($matches[1]);

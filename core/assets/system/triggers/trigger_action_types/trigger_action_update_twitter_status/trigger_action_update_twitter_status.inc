@@ -245,123 +245,130 @@ class Trigger_Action_Update_Twitter_Status extends Trigger_Action
 		hidden_field($prefix.'[access_token_secret]', $settings['access_token_secret']);
 		hidden_field($prefix.'[access_token_acct_for]', $settings['access_token_acct_for']);
 		?>
-		<div style="padding: 10px">
-		<p class="sq-backend-section-subheading"><?php echo translate('trigger_action_update_twitter_status_register_system_header') ?></p>
+		<div>
+			<p class="sq-backend-section-subheading"><?php echo translate('trigger_action_update_twitter_status_register_system_header') ?></p>
 
-		<?php echo translate('trigger_action_update_twitter_status_register_system_note') ?>
+			<?php echo translate('trigger_action_update_twitter_status_register_system_note') ?>
 		</div>
 
-		<div style="padding: 10px">
-		<p class="sq-backend-section-subheading"><?php echo translate('trigger_action_update_twitter_status_client_credentials_header') ?></p>
+		<div>
+			<p class="sq-backend-section-subheading"><?php echo translate('trigger_action_update_twitter_status_client_credentials_header') ?></p>
 
-		<table class="sq-backend-table">
-		<thead>
-			<colgroup>
-				<col width="20%" />
-				<col width="80%" />
-			</colgroup>
-		</thead>
-		<tbody>
-			<tr>
-				<th><?php echo translate('trigger_action_update_twitter_status_client_credentials_key') ?></th>
-				<td><?php
-				if (($write_access === TRUE) && ($consumer_details_locked === FALSE)) {
-					text_box($prefix.'[consumer_key]', $settings['consumer_key'], 30, 0);
-				} else {
-					echo $settings['consumer_key'];
-					hidden_field($prefix.'[consumer_key]', $settings['consumer_key']);
-				}
-				?></td>
-			</tr>
-			<tr>
-				<th><?php echo translate('trigger_action_update_twitter_status_client_credentials_secret') ?></th>
-				<td><?php
-				if (($write_access === TRUE) && ($consumer_details_locked === FALSE)) {
-					text_box($prefix.'[consumer_secret]', $settings['consumer_secret'], 30, 0);
-				} else {
-					echo $settings['consumer_secret'];
-					hidden_field($prefix.'[consumer_secret]', $settings['consumer_secret']);
-				}
-				?></td>
-			</tr>
-			<tr>
-				<th><?php echo translate('trigger_action_update_twitter_status_client_credentials_status') ?></th>
-				<td><?php
-				if ((empty($settings['consumer_key']) === TRUE) || (empty($settings['consumer_secret']) === TRUE)) {
-					echo translate('trigger_action_update_twitter_status_client_credentials_status_no_consumer');
-				} else {
-					// We have a consumer key
-					if (empty($settings['access_token']) === FALSE) {
-						echo translate('trigger_action_update_twitter_status_client_credentials_status_yes', $settings['access_token_acct_for']);
-						echo '<br/>';
-						check_box($prefix.'[deauthorise]');
-						?> <label for="<?php echo $prefix ?>[deauthorise]"><?php
-						echo translate('trigger_action_update_twitter_status_client_credentials_deauthorise');
-					} else if (empty($settings['request_token']) === FALSE) {
-						if ($write_access === TRUE) {
-							$url = 'https://api.twitter.com/oauth/authenticate?oauth_token='.$settings['request_token'].'&force_login=true';
-							echo translate('trigger_action_update_twitter_status_client_credentials_status_no', $url);
-						} else {
-							echo translate('trigger_action_update_twitter_status_client_credentials_status_no_unlocked');
-						}
-					} else {
-						?><strong style="color: #f00">Error: failed to gain request token</strong><?php
-						foreach ($settings['request_token_errors'] as $error) {
-							?><br/><?php echo $error ?><?php
-						}
-						?></em><?php
-					}
-				}
-				?></td>
-			</tr>
-			</tbody>
-		</table>
-		</div>
-		<div style="padding: 10px">
-		<?php echo translate('trigger_action_update_twitter_status_client_credentials_note') ?>
-		</div>
-
-		<div style="padding: 10px">
-		<p class="sq-backend-section-subheading"><?php echo translate('trigger_action_update_twitter_status_tweet_format_header') ?></p>
-
-		<table class="sq-backend-table">
+			<table class="sq-backend-table with-bottom-margin">
 			<thead>
-			<colgroup>
-				<col width="20%" />
-				<col width="80%" />
-			</colgroup>
+				<colgroup>
+					<col width="20%" />
+					<col width="80%" />
+				</colgroup>
 			</thead>
 			<tbody>
-			<tr>
-				<th><?php echo translate('trigger_action_update_twitter_status_tweet_format_format') ?></th>
-				<td><?php
-				if ($write_access === TRUE) {
-					text_box($prefix.'[tweet_contents]', $settings['tweet_contents'], 70, 0, FALSE, 'onkeyup="document.getElementById(\''.$prefix.'_tweet_length\').innerHTML = (140 - this.value.length).toString(); return true;"');
-				} else {
-					echo $settings['tweet_contents'];
-					hidden_field($prefix.'[tweet_contents]', $settings['tweet_contents']);
-				}?> <?php echo translate('trigger_action_update_twitter_status_tweet_format_char_count', $prefix, 140 - strlen($settings['tweet_contents'])); ?></td>
-			</tr>
-			<tr>
-				<th><?php echo translate('trigger_action_update_twitter_status_tweet_format_iftoolong') ?></th>
-				<td><?php
-				$options = Array(
-							'abbrev'	=> translate('trigger_action_update_twitter_status_tweet_format_iftoolong_option_abbrev'),
-							'fail'		=> translate('trigger_action_update_twitter_status_tweet_format_iftoolong_option_fail'),
-						   );
-				if ($write_access === TRUE) {
-					combo_box($prefix.'[if_tweet_too_long]', $options, FALSE, $settings['if_tweet_too_long']);
-				} else {
-					echo $options[$settings['if_tweet_too_long']];
-					hidden_field($prefix.'[if_tweet_too_long]', $settings['if_tweet_too_long']);
-				}?></td>
-			</tr>
-			</tbody>
-		</table>
+				<tr>
+					<th><?php echo translate('trigger_action_update_twitter_status_client_credentials_key') ?></th>
+					<td><?php
+					if (($write_access === TRUE) && ($consumer_details_locked === FALSE)) {
+						text_box($prefix.'[consumer_key]', $settings['consumer_key'], 50, 0);
+					} else {
+						echo $settings['consumer_key'];
+						hidden_field($prefix.'[consumer_key]', $settings['consumer_key']);
+					}
+					?></td>
+				</tr>
+				<tr>
+					<th><?php echo translate('trigger_action_update_twitter_status_client_credentials_secret') ?></th>
+					<td><?php
+					if (($write_access === TRUE) && ($consumer_details_locked === FALSE)) {
+						text_box($prefix.'[consumer_secret]', $settings['consumer_secret'], 50, 0);
+					} else {
+						echo $settings['consumer_secret'];
+						hidden_field($prefix.'[consumer_secret]', $settings['consumer_secret']);
+					}
+					?></td>
+				</tr>
+				<tr>
+					<th><?php echo translate('trigger_action_update_twitter_status_client_credentials_status') ?></th>
+					<td><?php
+					if ((empty($settings['consumer_key']) === TRUE) || (empty($settings['consumer_secret']) === TRUE)) {
+						echo translate('trigger_action_update_twitter_status_client_credentials_status_no_consumer');
+					} else {
+						// We have a consumer key
+						if (empty($settings['access_token']) === FALSE) {
+							echo translate('trigger_action_update_twitter_status_client_credentials_status_yes', $settings['access_token_acct_for']);
+							echo '<br/>';
+							check_box($prefix.'[deauthorise]');
+							?> <label for="<?php echo $prefix ?>[deauthorise]"><?php
+							echo translate('trigger_action_update_twitter_status_client_credentials_deauthorise');
+						} else if (empty($settings['request_token']) === FALSE) {
+							if ($write_access === TRUE) {
+								$url = 'https://api.twitter.com/oauth/authenticate?oauth_token='.$settings['request_token'].'&force_login=true';
+								echo translate('trigger_action_update_twitter_status_client_credentials_status_no', $url);
+							} else {
+								echo translate('trigger_action_update_twitter_status_client_credentials_status_no_unlocked');
+							}
+						} else {
+							?><strong style="color: #f00">Error: failed to gain request token</strong><?php
+							foreach ($settings['request_token_errors'] as $error) {
+								?><br/><?php echo $error ?><?php
+							}
+							?></em><?php
+						}
+					}
+					?></td>
+				</tr>
+				</tbody>
+			</table>
 		</div>
-		<div style="padding: 10px">
-		<?php echo translate('trigger_action_update_twitter_status_tweet_format_note') ?>
+
+		<div>
+			<?php echo translate('trigger_action_update_twitter_status_client_credentials_note') ?>
 		</div>
+
+		<div>
+			<p class="sq-backend-section-subheading"><?php echo translate('trigger_action_update_twitter_status_tweet_format_header') ?></p>
+
+			<table class="sq-backend-table with-bottom-margin">
+				<thead>
+				<colgroup>
+					<col width="20%" />
+					<col width="80%" />
+				</colgroup>
+				</thead>
+				<tbody>
+				<tr>
+					<th><?php echo translate('trigger_action_update_twitter_status_tweet_format_format') ?></th>
+					<td><?php
+					echo '<span>';
+					if ($write_access === TRUE) {
+						text_box($prefix.'[tweet_contents]', $settings['tweet_contents'], 70, 0, FALSE, 'onkeyup="document.getElementById(\''.$prefix.'_tweet_length\').innerHTML = (140 - this.value.length).toString(); return true;"');
+					} else {
+						echo $settings['tweet_contents'];
+						hidden_field($prefix.'[tweet_contents]', $settings['tweet_contents']);
+					}?> <?php echo translate('trigger_action_update_twitter_status_tweet_format_char_count', $prefix, 140 - strlen($settings['tweet_contents']));
+					echo '</span>';
+					?>
+					</td>
+				</tr>
+				<tr>
+					<th><?php echo translate('trigger_action_update_twitter_status_tweet_format_iftoolong') ?></th>
+					<td><?php
+					$options = Array(
+								'abbrev'	=> translate('trigger_action_update_twitter_status_tweet_format_iftoolong_option_abbrev'),
+								'fail'		=> translate('trigger_action_update_twitter_status_tweet_format_iftoolong_option_fail'),
+							   );
+					if ($write_access === TRUE) {
+						combo_box($prefix.'[if_tweet_too_long]', $options, FALSE, $settings['if_tweet_too_long']);
+					} else {
+						echo $options[$settings['if_tweet_too_long']];
+						hidden_field($prefix.'[if_tweet_too_long]', $settings['if_tweet_too_long']);
+					}?></td>
+				</tr>
+				</tbody>
+			</table>
+		</div>
+
+		<div>
+			<?php echo translate('trigger_action_update_twitter_status_tweet_format_note') ?>
+		</div>
+
 		<?php
 
 		$contents = ob_get_clean();

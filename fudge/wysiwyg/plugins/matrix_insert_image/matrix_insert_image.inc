@@ -159,7 +159,7 @@ class matrix_insert_image extends wysiwyg_plugin
 				editor_<?php echo $this->wysiwyg->name?>._object = this;
 				strPage = "<?php echo $this->get_popup_href('insert_image_frames.php')?>?f_imageid=" + encodeURIComponent(imageid) + "&f_align=" + encodeURIComponent(align) + "&f_width=" + encodeURIComponent(width) + "&f_height=" + encodeURIComponent(height) + "&f_alt=" + encodeURIComponent(alt) + "&f_title=" + encodeURIComponent(title) + "&f_longdesc=" + encodeURIComponent(longdesc) + "&f_horiz=" + encodeURIComponent(hspace) + "&f_vert=" + encodeURIComponent(vspace) + "&f_border=" + encodeURIComponent(border) + "&f_image_class=" + encodeURIComponent(image_class) + "&f_image_id=" + encodeURIComponent(image_id) + "&editor_name=" + encodeURIComponent("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + encodeURIComponent(in_popup);
 
-				var popup_height = 630;
+				var popup_height = 650;
 
 				// A bit more breathing room for Safari
 				if (HTMLArea.is_safari) popup_height += 35;				

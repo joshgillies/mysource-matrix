@@ -159,19 +159,19 @@ class Trigger_Action_Remove_Web_Path extends Trigger_Action
 		ob_start();
 
 		$web_path = array_get_index($settings, 'path', '');
-		echo translate('remove_web_path').' ';
+		echo translate('remove_web_path').': ';
 		if ($write_access) {
 			text_box($prefix.'[path]', $web_path, 40);
 		} else {
-			echo '<b>'.$web_path.'</b>';
+			echo '<b>"'.$web_path.'"</b>';
 		}
 		echo '<br />';
-		echo '<div class="sq-backend-section-note">'.translate('trigger_remove_web_path_note').'</div>';
+		echo '<div class="sq-backend-section-note bottom-margin">'.translate('trigger_remove_web_path_note').'</div>';
 		check_box($prefix.'[remove_all]', '1', array_get_index($settings, 'remove_all', '0'), '', ($write_access ? '' : 'disabled="disabled"'));
-		echo '<label for='.$prefix.'[remove_all]'.'>'.translate('trigger_remove_web_path_remove_all').'.</label>';
+		echo '<label for='.$prefix.'[remove_all]'.'>'.translate('trigger_remove_web_path_remove_all').'</label>';
 		echo '<br />';
 		check_box($prefix.'[update_children]', '1', array_get_index($settings, 'update_children', '0'), '', ($write_access ? '' : 'disabled="disabled"'));
-		echo '<label for='.$prefix.'[update_children]'.'>'.translate('trigger_remove_web_path_update_children').'.</label>';
+		echo '<label for='.$prefix.'[update_children]'.'>'.translate('trigger_remove_web_path_update_children').'</label>';
 		return ob_get_clean();
 
 	}//end getInterface()

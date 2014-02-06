@@ -296,7 +296,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 					// because if it is, this remap will never be used
 					$url_asset = null;
 					// ?a=xx sytle url
-					if(strpos($url_info['url'], '//?a=')) {
+					if(strpos($url_info['url'], '//?a=') !== FALSE) {
 					    preg_match('/\?a=([0-9:]+)/', $url_info['url'], $matches);
 					    if(isset($matches[1])) {
 						$url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($matches[1]);

@@ -138,7 +138,7 @@ class matrix_embed_youtube extends wysiwyg_plugin
 				editor_<?php echo $this->wysiwyg->name?>._object = this;
 				strPage = "<?php echo $this->get_popup_href('embed_youtube_frames.php')?>?f_vid=" + escape(vid) + "&f_video_url=" + escape(video_url) + "&f_width=" + escape(width) + "&f_height=" + escape(height) + "&f_auto_start=" + escape(auto_start) + "&f_loop=" + escape(loop) + "&f_full_screen=" + escape(full_screen) + "&f_show_border=" + escape(show_border) + "&f_colour1=" + escape(colour1) + "&f_colour2=" + escape(colour2) + "&f_rel=" + escape(rel) + "&f_egm=" + escape(egm) + "&f_enable_js=" + escape(enable_js) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + escape(in_popup);
 
-				var popup_height = 300;
+				var popup_height = 365;
 
 				// A bit more breathing room for Safari
 				if (HTMLArea.is_safari) popup_height += 15;

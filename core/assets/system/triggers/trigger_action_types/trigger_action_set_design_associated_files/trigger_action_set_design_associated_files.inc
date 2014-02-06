@@ -166,23 +166,12 @@ class Trigger_Action_Set_Design_Associated_Files extends Trigger_Action
 	{
 		$file_path = array_get_index($settings, 'file_path', '');
 		ob_start();
-		?>
-		<table border="0">
-			<tr>
-				<td valign="top"><b><?php echo 'Path to the parse file'; ?></b></td>
-				<td valign="top" style="padding-bottom: 10px;"><?php
-					// level
-					if ($write_access) {
-						echo text_box($prefix.'[file_path]', $file_path, '50');
-					} else {
-						echo $file_path.'&nbsp;';
-					}
-				?>
-				</td>
-			</tr>
-		</table>
-		<?php
-
+		echo 'Path to the parse file: ';
+		if ($write_access) {
+			echo text_box($prefix.'[file_path]', $file_path, '50');
+		} else {
+			echo '<strong>"'.$file_path.'"</strong>';
+		}
 		return ob_get_clean();
 
 	}//end getInterface()

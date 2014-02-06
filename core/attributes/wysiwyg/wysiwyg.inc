@@ -282,14 +282,25 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 
 		$wysiwyg = $this->_createEditor($prefix);
 
-		if (!(SQ_IN_BACKEND || SQ_IN_LIMBO)) echo '<script type="text/javascript" src="'.sq_web_path('lib').'/js/edit.js"></script>';
-
+		//The following will only print in Safe Edit or EES
+		//Hot fixes for old EES
+		if (!(SQ_IN_BACKEND || SQ_IN_LIMBO)) {
+			echo '<script type="text/javascript" src="'.sq_web_path('lib').'/js/edit.js"></script>';
+			echo '<style>'
+				.'.sq-wysiwyg-standalone-header table{width: 100%; margin: 0;}'
+				.'.metadata .htmlarea-toolbar{margin: 0 !important;}'
+				.'.metadata .rowWithWYSIWYG table{margin: 5px 0 0;}'
+				.'.metadata div.htmlarea-separator div{border-left: 1px solid #B6B6B6 !important; border-right: 1px solid #FFF !important; margin: 0 !important;}'
+				.'.htmlarea-toolbar td > div > div {margin: 0 1px 3px 0 !important;}'
+				.'.metadata div.htmlarea-separator {margin: 0 3px !important;}'
+			.'</style>';
+		}
 		?>
 		<script type="text/javascript">
 			var bodycopy_initialised = true;
 		</script>
 		<div id="<?php echo $prefix.'_switch_option_div'; ?>" class="sq-wysiwyg-standalone-header">
-			<table>
+			<table style="width: 100%; margin: 0;">
 				<tr>
 					<td align="left">
 						<div style="width: 16px; height: 16px; background: url(<?php echo sq_web_path('lib')?>/web/images/icons/edit_mode.png);background: expression('none');filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='<?php echo sq_web_path('lib')?>/web/images/icons/edit_mode.png', sizingMethod='scale'); font-size:10px; cursor:pointer;"

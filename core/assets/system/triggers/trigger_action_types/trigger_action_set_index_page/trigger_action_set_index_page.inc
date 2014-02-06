@@ -139,12 +139,9 @@ class Trigger_Action_Set_Index_Page extends Trigger_Action
 		ob_start();
 			if ($write_access) {
 				asset_finder($prefix.'[index_page]', $selected_assetid);
-				echo translate('trigger_set_index_page_select');
-
 			} else {
 				if ($selected_assetid) {
-					$selected_assetname = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($selected_assetid), Array(), TRUE, 'name');
-					text_box($prefix.'[index_page]', $selected_assetname[$selected_assetid].' (#'.$selected_assetid.')', '', '', FALSE, $form_element_extras);
+					echo get_asset_tag_line($selected_assetid);
 				} else {
 					text_box($prefix.'[index_page]', '', '', '', FALSE, $form_element_extras);
 				}

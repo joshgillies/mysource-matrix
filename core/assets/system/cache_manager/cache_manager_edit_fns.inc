@@ -720,7 +720,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 			$deleteme = Array();
 			foreach ($_POST as $key => $value) {
 				// look for form names which have _X_ delimiters
-				if (strpos($key, '_X_')) {
+				if (strpos($key, '_X_') !== FALSE) {
 					// retrieve the current index value
 					if (preg_match("/^$root_node_key".'_X_(\d+)_X_/', $key, $matches)) {
 						$current_row = $matches[1];
@@ -748,7 +748,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 						} else {
 							$submitted_root_nodes[$root_node]['previous'] = $previous_value;
 						}
-					} else if (isset($submitted_root_nodes[$root_node]) && strpos($key, 'all_underneath')) {
+					} else if (isset($submitted_root_nodes[$root_node]) && (strpos($key, 'all_underneath') !== FALSE)) {
 						$all_underneath = $_POST[$key];
 						$submitted_root_nodes[$root_node]['all_underneath'] = $all_underneath;
 					}

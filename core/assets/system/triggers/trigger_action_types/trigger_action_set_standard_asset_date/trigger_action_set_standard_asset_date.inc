@@ -239,7 +239,7 @@ class Trigger_Action_Set_Standard_Asset_Date extends Trigger_Action
 		if ($write_access) {
 			combo_box($prefix.'_date_field', $date_field_types, FALSE, $settings['date_field']);
 		} else {
-			echo translate($settings['date_field']);
+			echo '<strong>'.translate($settings['date_field']).'</strong>';
 		}
 		echo '</p>';
 
@@ -260,12 +260,12 @@ class Trigger_Action_Set_Standard_Asset_Date extends Trigger_Action
 		$formats['by_attr_value'] = ob_get_clean();
 
 		ob_start();
-			label(translate('as_determined_from_metadata_field').'&nbsp;&nbsp;&nbsp;', $prefix.'_as_determined_from_meta');
+			label(translate('as_determined_from_metadata_field').'&nbsp;', $prefix.'_as_determined_from_meta');
 			$metadata_field_id = $settings['when_meta_field_id'];
 			if ($write_access) {
 				asset_finder($prefix.'_when_meta_field_id', $metadata_field_id, Array('metadata_field_date' => 'D'));
 				?>
-				<p><em class="sq-backend-smallprint">(<?php echo translate('trigger_action_future_status_date_format'); ?>)</em></p>
+				<p><?php echo translate('trigger_action_future_status_date_format'); ?></p>
 				<?php
 			} else {
 				if ($metadata_field_id) {
@@ -279,7 +279,7 @@ class Trigger_Action_Set_Standard_Asset_Date extends Trigger_Action
 						echo '<span class="sq-backend-warning">Unknown asset (Id: #'.$metadata_field_id.')</span>';
 					}
 				} else {
-					echo '<b>No metadata field specified</b>';
+					echo '<em>No metadata field specified</em>';
 				}
 			}
 		$formats['by_meta_value'] = ob_get_clean();
@@ -307,17 +307,22 @@ class Trigger_Action_Set_Standard_Asset_Date extends Trigger_Action
 			echo preg_replace('/<label([^>]*)>/', '', $formats[$settings['when_type']]);
 		}
 
-		echo '<p>';
+		echo '<br/><br/><p>';
 		label(translate('offset_for_above_fields').': ', $prefix.'_offset');
-		$duration->paint($prefix.'_offset_value', !$write_access);
-		echo ' ';
 		if ($write_access) {
+			$duration->paint($prefix.'_offset_value', !$write_access);
+			echo ' ';
 			combo_box($prefix.'_offset_operator', Array('-' => translate('before'), '+' => translate('after')), FALSE, ($settings['offset'] < 0) ? '-' : '+');
+			echo ' '.translate('specified_value');
 		} else {
+			echo '<strong>';
+			$duration->paint($prefix.'_offset_value', !$write_access);
+			echo ' ';
 			echo translate(($settings['offset'] < 0) ? 'before' : 'after');
+			echo ' '.translate('specified_value');
+			echo '</strong>';
 		}
-		echo ' '.translate('specified_value').'<br />';
-		echo translate('offset_ignored_for_exact_time').'<br/><br /></p>';
+		echo '<br />'.translate('offset_ignored_for_exact_time').'</p>';
 
 		return ob_get_clean();
 

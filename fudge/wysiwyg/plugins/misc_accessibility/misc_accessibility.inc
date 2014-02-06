@@ -224,7 +224,7 @@ class misc_accessibility extends wysiwyg_plugin
 				editor_<?php echo $this->wysiwyg->name?>._object = this;
 				var strPage = "<?php echo $this->get_popup_href('insert_dfn.php')?>?&title=" + escape(currArgs["title"]) + "&dfn=" + escape(inside_html) +"&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + escape(in_popup);
 
-				this._popupDialog("matrixInsertDfn", strPage, 420, 270, true, function(param) {
+				this._popupDialog("matrixInsertDfn", strPage, 420, 170, true, function(param) {
 					if (!param) {
 						// user must have pressed Cancel
 						return false;

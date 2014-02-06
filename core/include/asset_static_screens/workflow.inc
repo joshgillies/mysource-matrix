@@ -709,77 +709,78 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 					ksort($direct);
 
 					$o->openSection('Existing Schemas');
-					$o->openRaw();
-						if (!is_null($keywords) && isset($keywords['fields']['workflow_schemas'])) {
-							ob_start();
-						}
+						$o->openRaw();
+							if (!is_null($keywords) && isset($keywords['fields']['workflow_schemas'])) {
+								ob_start();
+							}
 
-						if (empty($direct)) {
-							echo translate('no_workflow_schemas');
-						} else {
-							foreach ($direct as $granted => $schema_list) {
-							?>
-								<table class="sq-backend-table">
-									<tr>
-										<td class="sq-backend-table-header">
-											<span style="color: <?php echo (($granted == '0') ? 'red' : 'green'); ?>"><?php echo (($granted == '0') ? translate('denied') : translate('applied')) ?></span>
-										</td>
-										<td align="center" width="100" class="sq-backend-table-header">
-											<?php echo translate('cascade_question'); ?>
-										</td>
-										<?php
-										if ($admin_access && $wfm->isWorkflowComplete($owner->id)) {
-											?><td align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('delete_question'); ?></td><?php
-										}
-										?>
-									</tr>
-								<?php
-								foreach ($schema_list as $schemaid => $schema_detail) {
-									if ($schemaid) {
-										$schema_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($schemaid), 'workflow_schema', FALSE);
-										if (empty($schema_info)) continue;
-									}
+							if (empty($direct)) {
+								echo '<p><em>'.translate('no_metadata_schemas').'</em></p>';
+							} else {
+								foreach ($direct as $granted => $schema_list) {
 								?>
-									<tr>
-										<td class="sq-backend-table-cell">
-										<?php
-										echo get_asset_tag_line($schemaid);
-										?>
-										</td>
-										<td align="center" width="100" class="sq-backend-table-cell">
-										<?php if ($admin_access && $wfm->isWorkflowComplete($owner->id)) {
-											check_box($prefix.'_workflow[cascades]['.$schemaid.']', 1, $schema_detail['cascades']);
-										} else {
-											?><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($schema_detail['cascades'] ? 'tick' : 'cross'); ?>.gif" width="15" height="15" /><?php
+									<table class="sq-backend-table">
+										<tr>
+											<th class="sq-backend-table-header">
+												<span style="color: <?php echo (($granted == '0') ? 'red' : 'green'); ?>"><?php echo (($granted == '0') ? translate('denied') : translate('applied')) ?> <?php echo translate('schemas');?></span>
+											</th>
+											<th style="text-align: center;" width="100" class="sq-backend-table-header">
+												<?php echo translate('cascade_question'); ?>
+											</th>
+											<?php
+											if ($admin_access && $wfm->isWorkflowComplete($owner->id)) {
+												?><th style="text-align: center;" width="100" class="sq-backend-table-header"><?php echo translate('delete_question'); ?></th><?php
+											}
+											?>
+										</tr>
+									<?php
+									foreach ($schema_list as $schemaid => $schema_detail) {
+										if ($schemaid) {
+											$schema_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($schemaid), 'workflow_schema', FALSE);
+											if (empty($schema_info)) continue;
 										}
-										?>
-										</td>
-										<?php
-										if ($admin_access && $wfm->isWorkflowComplete($owner->id)) {
-											?><td align="center" width="100" class="sq-backend-table-cell"><?php
-											check_box($prefix.'_workflow[delete]['.$schemaid.']');
-											?></td><?php
-										}
-										?>
-									</tr>
+									?>
+										<tr>
+											<td class="sq-backend-table-cell">
+											<?php
+											echo get_asset_tag_line($schemaid);
+											?>
+											</td>
+											<td align="center" width="100" class="sq-backend-table-cell">
+											<?php if ($admin_access && $wfm->isWorkflowComplete($owner->id)) {
+												check_box($prefix.'_workflow[cascades]['.$schemaid.']', 1, $schema_detail['cascades']);
+											} else {
+												?><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($schema_detail['cascades'] ? 'tick' : 'cross'); ?>.gif" width="15" height="15" /><?php
+											}
+											?>
+											</td>
+											<?php
+											if ($admin_access && $wfm->isWorkflowComplete($owner->id)) {
+												?><td align="center" width="100" class="sq-backend-table-cell"><?php
+												check_box($prefix.'_workflow[delete]['.$schemaid.']');
+												?></td><?php
+											}
+											?>
+										</tr>
+									<?php
+									}// end foreach data
+								?>
+									</table>
 								<?php
-								}// end foreach data
-							?>
-								</table>
-								<br>
-							<?php
-							}//end foreach inherited
+								}//end foreach inherited
 
-						}//end else
+							}//end else
 
-						// if there is a keyword replacement for this, add it to the replacements
-						if (!is_null($keywords) && isset($keywords['fields']['workflow_schemas'])) {
-							$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['workflow_schemas']] = ob_get_contents();
-							ob_end_flush();
+							// if there is a keyword replacement for this, add it to the replacements
+							if (!is_null($keywords) && isset($keywords['fields']['workflow_schemas'])) {
+								$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['workflow_schemas']] = ob_get_contents();
+								ob_end_flush();
+							}
+
+						$o->closeRaw();
+						if (!empty($direct)) {
+							$o->sectionNote('The "Cascade?" option determines whether new children of this asset will automatically have the schema cascaded to them. If this setting is changed, existing non-dependant children will NOT be affected. If you want to apply a schema to existing children where they have not been before, please do a Manual Cascade after toggling this setting on.');
 						}
-
-					$o->closeRaw();
-					$o->sectionNote('The "Cascade ?" option determines whether new children of this asset will automatically have the schema cascaded to them. If this setting is changed, existing non-dependant children will NOT be affected. If you want to apply a schema to existing children where they have not been before, please do a Manual Cascade after toggling this setting on.');
 					$o->closeSection();
 
 				break;
@@ -795,10 +796,12 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 								ob_start();
 							}
 
-							$o->openField('Select Schema', 'new_line');
-								combo_box($prefix.'_workflow[new][granted]', Array('' => '', '1' => translate('apply'), '0' => translate('deny')), FALSE, '');
-								echo ' '.translate('workflow_schema').' ';
-								asset_finder($prefix.'_workflow[new][schemaid]', 0, Array('workflow_schema' => 'D'), 'sq_sidenav', FALSE, 'null', Array('clear'));
+							$o->openField('Select Schema', '');
+								echo '<span class="sq-inline-fields-wrapper bottom-margin">';
+									combo_box($prefix.'_workflow[new][granted]', Array('' => '', '1' => translate('apply'), '0' => translate('deny')), FALSE, '');
+									echo ' '.translate('workflow_schema').' ';
+									asset_finder($prefix.'_workflow[new][schemaid]', 0, Array('workflow_schema' => 'D'), 'sq_sidenav', FALSE, 'null', Array('clear'));
+								echo '</span>';
 							$o->closeField();
 
 							if (is_null($keywords) || isset($keywords['fields']['workflow_add_schemas'])) {
@@ -811,13 +814,11 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 								ob_end_flush();
 							}
 
-						$o->closeField();
-
-						$o->openField(translate('cascade_question'), 'new_line');
-							check_box($prefix.'_workflow[new][cascades]', 1, TRUE);
-							?> Automatically cascade this schema to new children<?php
-							$o->note('If unchecked, the schema will be applied or denied only to dependants of this asset, regardless of the Cascade Changes settings below. It will also not apply the workflow to any asset that becomes a new child of this asset (through creating a new asset, or moving an existing one, or creating a new link from one). This setting can be toggled after being applied.');
-						$o->closeField();
+							$o->openField(translate('cascade_question'), '');
+								check_box($prefix.'_workflow[new][cascades]', 1, TRUE);
+								label(translate('cascade_schema_changes_to_new_children'), $prefix.'_workflow[new][cascades]');
+								$o->note('If unchecked, the schema will be applied or denied only to dependants of this asset, regardless of the Cascade Changes settings below. It will also not apply the workflow schema to any asset that becomes a new child of this asset (through creating a new asset, or moving an existing one, or creating a new link from one). This setting can be toggled after being applied.');
+							$o->closeField();
 
 						$o->closeSection();
 					}
@@ -828,7 +829,7 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 
 				case 'workflow_cascade_options' :
 
-					$o->openField('');
+					$o->openField(translate('cascade_options'));
 						if (!is_null($keywords) && isset($keywords['fields']['workflow_cascade_options'])) {
 							ob_start();
 						}
@@ -836,7 +837,8 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 						if ($admin_access && empty($running_schemas)) {
 							$kiddies = $GLOBALS['SQ_SYSTEM']->am->getChildren($owner->id);
 							if (count($kiddies)) {
-								echo translate('action_affects_assets_below_this', count($kiddies), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'<br /><br />';
+
+								echo '<p><strong>'.translate('note').':</strong> '.translate('action_affects_assets_below_this', count($kiddies), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'.</p>';
 
 								check_box($prefix.'_workflow[cascade_changes]', '1', TRUE);
 								echo ' ';

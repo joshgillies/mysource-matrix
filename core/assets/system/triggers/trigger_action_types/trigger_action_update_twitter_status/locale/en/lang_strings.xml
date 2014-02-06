@@ -4,7 +4,7 @@
 	<string source="trigger_action_update_twitter_status_register_system_note"><![CDATA[<p>Before you can use this trigger action, you need to register your system as a Twitter client. This trigger action uses OAuth to authenticate with Twitter, and
 		therefore requires you to obtain API access first. You only need to do this once for all Update Twitter Status trigger actions within the system.</p>
 
-		<p>To register your system, go to Twitter's <a href="http://twitter.com/oauth_clients"  tagret="_blank" >OAuth Clients</a> page, and click on &quot;Create a new application&quot;.
+		<p>To register your system, go to <a href="https://dev.twitter.com/apps" target="_blank" >Twitter's apps page</a>, and click on &quot;Create a new application&quot;.
 		Enter any system root URL as the Callback URL (it will be ignored - Matrix will provide it with a correct callback URL).</p>
 
 		<p>When you complete the registration, it will provide you with a <strong>consumer key</strong> and a
@@ -18,7 +18,7 @@
 	<string source="trigger_action_update_twitter_status_client_credentials_header"><![CDATA[Client Credentials]]></string>
 	<string source="trigger_action_update_twitter_status_client_credentials_note"><![CDATA[<p>Once you have entered the <strong>consumer key</strong> and <strong>consumer secret</strong> string into the boxes above and commit, a &quot;Sign in with Twitter&quot; link will appear. Click this and follow the prompts to complete the authentication process. Remember to sign in with the Twitter account you want to tweet to.</p>
 
-		<p><strong class="sq-backend-warning">You will temporarily leave the Matrix backend during this process</strong> - permission is granted through the Twitter site. Your Matrix session will remain active (subject to session length rules), and you will be redirected back to this trigger once authentication is complete.</p>]]></string>
+		<p><strong>You will temporarily leave the Matrix backend during this process</strong> - permission is granted through the Twitter site. Your Matrix session will remain active (subject to session length rules), and you will be redirected back to this trigger once authentication is complete.</p>]]></string>
 	<string source="trigger_action_update_twitter_status_client_credentials_key"><![CDATA[Consumer key:]]></string>
 	<string source="trigger_action_update_twitter_status_client_credentials_secret"><![CDATA[Consumer secret string:]]></string>
 	<string source="trigger_action_update_twitter_status_client_credentials_status"><![CDATA[Authentication status:]]></string>

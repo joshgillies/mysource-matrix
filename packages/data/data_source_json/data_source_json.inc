@@ -586,7 +586,7 @@ class Data_Source_Json extends Data_Source
 
 					if ($value !== FALSE) {
 						// Replace foo[1] with foo_1 as square brackets won't work in keywords
-						if (strpos($attr, '[')) {
+						if (strpos($attr, '[') !== FALSE) {
 							$attr = preg_replace("/\[(\d)\]/", "_$1", $attr);
 						}
 						$asset[$attr] = $value;

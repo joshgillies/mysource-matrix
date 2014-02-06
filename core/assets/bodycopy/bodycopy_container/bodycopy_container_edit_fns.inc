@@ -802,10 +802,11 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 					bodycopy_nested_doc.height = '100%';
 				}
 
-				// how far down the page we want to display this popup
+				// How far down the page we want to display this popup?
 				// If we can get the bodycopy divs id, we can figure out exactly where to position the popup so it is 
 				// relative to the button the user clicks on instead of where they are scrolled to for better user experience
-				if (bodycopy_type != undefined && bodycopy_id != undefined) {
+				// Also, only do this if we are in _admin mode, if not, result to old method
+				if ((bodycopy_has_class(document.getElementById('sq-content'), 'main')) && (bodycopy_type != undefined && bodycopy_id != undefined)) {
 					var bodycopy_parent_td = document.getElementById('bodycopy_' + bodycopy_type + '_' + bodycopy_id + '_' + bodycopy_type + '_' + bodycopy_id);
 					var xPosition = 0;
 		    		var yPosition = 0;
@@ -867,6 +868,14 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 				var form = document.main_form;
 				var container_type = form_element_value(form.<?php echo $prefix; ?>_insert_container_type);
 				eval('bodycopy_insert_' + container_type + '("' + bodycopy_name + '", ' + containerid + ', ' + before + ');');
+			}
+	
+			function bodycopy_has_class(element, className) {
+				if(element != null && element != undefined) {
+		    		return element.className && new RegExp("(^|\\s)" + className + "(\\s|$)").test(element.className);
+		    	} else {
+		    		return false;
+		    	}
 			}
 
 			bodycopy_current_data["<?php echo $prefix?>"] = new Object();

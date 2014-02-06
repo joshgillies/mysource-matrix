@@ -351,9 +351,7 @@ if (isset($_GET['assetid']) && $_GET['assetid']) {
 					<td valign="top">
 							<table width="100%">
 								<tr>
-									<td>
-										<table width="100%" cellspacing="0" cellpadding="0">
-											<tr>
+
 												<td valign="top" width="100%">
 													<fieldset>
 													<legend><b><?php echo translate('general'); ?></b></legend>
@@ -523,14 +521,8 @@ if (isset($_GET['assetid']) && $_GET['assetid']) {
 													</table>
 													</fieldset>
 												</td>
-											</tr>
-										</table>
-									</td>
 								</tr>
 								<tr>
-									<td>
-										<table width="100%" cellspacing="0" cellpadding="0">
-											<tr>
 												<td valign="top">
 													<fieldset>
 														<legend><b><?php echo translate('options'); ?></b></legend>
@@ -557,14 +549,8 @@ if (isset($_GET['assetid']) && $_GET['assetid']) {
 														</table>
 													</fieldset>
 												</td>
-											</tr>
-										</table>
-									</td>
 								</tr>
 								<tr>
-									<td>
-										<table width="100%" cellspacing="0" cellpadding="0">
-											<tr>
 												<td valign="top" width="100%">
 													<fieldset>
 														<legend><b><?php echo translate('new_window_options'); ?></b></legend>
@@ -606,9 +592,6 @@ if (isset($_GET['assetid']) && $_GET['assetid']) {
 														</table>
 													</fieldset>
 												</td>
-											</tr>
-										</table>
-									</td>
 								</tr>
 							</table>
 

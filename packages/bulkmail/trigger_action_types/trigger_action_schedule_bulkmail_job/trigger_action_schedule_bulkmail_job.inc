@@ -199,13 +199,13 @@ class Trigger_Action_Schedule_Bulkmail_Job extends Trigger_Action
 
 		ob_start();
 
-		?><table>
+		?><table class="sq-backend-table">
 			<tr>
-				<td>
+				<th>
 				<?php
 					echo translate('asset_to_send');
 				?>
-				</td>
+				</th>
 				<td>
 				<?php
 					if ($write_access) {
@@ -217,19 +217,18 @@ class Trigger_Action_Schedule_Bulkmail_Job extends Trigger_Action
 							echo get_asset_tag_line($asset_to_send);
 							echo "<br />";
 						}
+						echo '<img src="'.sq_web_path('lib').'/web/images/'.($current_asset ? 'tick' : 'cross').'.gif" alt="'.($current_asset ? translate('yes') : translate('no')).'" /> ';
 						echo translate('use_current_asset');
-						echo '&nbsp;&nbsp;<img src="'.sq_web_path('lib').'/web/images/'.($current_asset ? 'tick' : 'cross').'.gif" alt="'.($current_asset ? translate('yes') : translate('no')).'" /> ';
-
 					}
 				?>
 				</td>
 			</tr>
 			<tr>
-				<td>
+				<th>
 				<?php
 					echo translate('bulkmail_job');
 				?>
-				</td>
+				</th>
 				<td>
 				<?php
 					if ($write_access) {
@@ -245,11 +244,11 @@ class Trigger_Action_Schedule_Bulkmail_Job extends Trigger_Action
 				</td>
 			</tr>
 			<tr>
-				<td valign="top">
+				<th>
 				<?php
 					echo translate('recipients');
 				?>
-				</td>
+				</th>
 				<td>
 				<?php
 					if ($write_access) {
@@ -268,17 +267,17 @@ class Trigger_Action_Schedule_Bulkmail_Job extends Trigger_Action
 				</td>
 			</tr>
 			<tr>
-				<td>
+				<th>
 				<?php
 					echo translate('enable_subscription_filter');
 				?>
-				</td>
+				</th>
 				<td>
 				<?php
 					if ($write_access) {
 						check_box($prefix.'[subscriptions_status]', '1', $sub_status);
 					} else {
-						echo '&nbsp;&nbsp;<img src="'.sq_web_path('lib').'/web/images/'.($sub_status ? 'tick' : 'cross').'.gif" alt="'.($sub_status ? translate('yes') : translate('no')).'" /> ';
+						echo '<img src="'.sq_web_path('lib').'/web/images/'.($sub_status ? 'tick' : 'cross').'.gif" alt="'.($sub_status ? translate('yes') : translate('no')).'" /> ';
 					}
 				?>
 				</td>
@@ -287,16 +286,16 @@ class Trigger_Action_Schedule_Bulkmail_Job extends Trigger_Action
 				if ($sub_status) {
 			?>
 			<tr>
-				<td valign="top">
+				<th>
 				<?php
 					echo translate('filters');
 				?>
-				</td>
+				</th>
 				<td>
 				<?php
-				echo '<table class ="sq-backend-table" border="1" style="margin-bottom: 7px">';
-				echo '<tr><td rowspan =2 width="12%">Name</td><td colspan="3">Rules</td></tr>';
-				echo '<tr><td width="15%">Type</td><td>Details</td><td>Delete?</td></tr>';
+				echo '<table class="sq-backend-table" style="margin-bottom: 7px">';
+				echo '<tr><th rowspan=2 width="12%">Name</th><th colspan="3">Rules</th></tr>';
+				echo '<tr><th>Type</th><th>Details</th><th>Delete?</th></tr>';
 
 				foreach ($subscriptions as $name => $subscription) {
 					hidden_field($prefix.'[subscriptions]['.$name.']', '');

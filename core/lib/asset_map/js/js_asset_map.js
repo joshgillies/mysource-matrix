@@ -757,6 +757,20 @@ var JS_Asset_Map = new function() {
 		options.teleportLink = options.teleportLink  || '';
 		options.simple       = true;
 		dfx.addClass(assetMapContainer, 'simple');
+		
+		if (options.initialSelection !== '') {
+			var selParts = options.initialSelection.split('~');
+			options.initialSelection = null;
+
+			if ((selParts[0].length > 0) && (selParts[1].length > 0)) {
+				options.initialSelection = {
+					assetids: selParts[0].split('|'),
+					sortOrders: selParts[1].split('|')
+				};
+			}
+		} else {
+			options.initialSelection = null;
+		}
 
 		// If IE 8, set an "old IE" class so we can do some tweaks (eg. different
 		// ways of handling tab rotation) in non-recent browsers
@@ -819,7 +833,17 @@ var JS_Asset_Map = new function() {
 				}
 			}
 
-			self.teleport(options.teleportRoot, null, 0);
+			self.teleport(options.teleportRoot, options.teleportLink, 0, function() {
+				// If an initial selection is passed, try to locate the current
+				// asset from the URL.
+				if (options.initialSelection) {
+					self.locateAsset(
+						options.initialSelection.assetids,
+						options.initialSelection.sortOrders
+					);
+				}
+			});
+			
 			self.selectTree(0);
 			self.initEvents();
 
@@ -863,12 +887,12 @@ var JS_Asset_Map = new function() {
 			// back to the Root Folder (#1). Clicking again will restore the
 			// custom root.
 			if (options.simple === false) {
-			    var tree        = self.getCurrentTreeElement();
-			    var currentRoot = tree.getAttribute('data-parentid');
-			    if (String(options.teleportRoot) === String(currentRoot)) {
-			        self.teleport(1, 1);
-			    } else {
-			        self.teleport(options.teleportRoot, options.teleportLink);
+				var tree        = self.getCurrentTreeElement();
+				var currentRoot = tree.getAttribute('data-parentid');
+				if (String(options.teleportRoot) === String(currentRoot)) {
+					self.teleport(1, 1);
+				} else {
+					self.teleport(options.teleportRoot, options.teleportLink);
 				}
 			}
 		});
@@ -878,8 +902,10 @@ var JS_Asset_Map = new function() {
 		});
 
 		dfx.addEvent(dfx.getId('asset_map_button_collapse'), 'click', function() {
-			var childIndents  = dfx.getClass('childIndent', assetMapContainer);
-			var branchButtons = dfx.getClass('branch-status', assetMapContainer);
+			var tree = self.getCurrentTreeElement();
+			
+			var childIndents  = dfx.getClass('childIndent', tree);
+			var branchButtons = dfx.getClass('branch-status', tree);
 
 			dfx.addClass(childIndents, 'collapsed');
 			dfx.removeClass(branchButtons, 'expanded');
@@ -1361,7 +1387,6 @@ var JS_Asset_Map = new function() {
 									x: timeouts.scrollDrag.mousePos.x,
 									y: timeouts.scrollDrag.mousePos.y
 								};
-								console.info('MOUSE POS 2: [' + mousePos.x + ',' + mousePos.y + ']');
 								var tree         = self.getCurrentTreeElement();
 								var treeCoords   = dfx.getBoundingRectangle(tree, true);
 								var moveFactor   = (Math.log(20) / Math.log(15));
@@ -1371,7 +1396,6 @@ var JS_Asset_Map = new function() {
 								// the scrollbar.
 								treeCoords.x2 = treeCoords.x1 + tree.clientWidth;
 								treeCoords.y2 = treeCoords.y1 + tree.clientHeight;
-var coords1 = self.getSelectionRectCoords(dragStatus.startPoint, mousePos);
 								
 								var oldScrollTop  = tree.scrollTop;
 								var oldScrollLeft = tree.scrollLeft;
@@ -1400,7 +1424,6 @@ var coords1 = self.getSelectionRectCoords(dragStatus.startPoint, mousePos);
 									dragStatus.scrollX += (tree.scrollLeft - oldScrollLeft);
 									self.setSelectionRect(selectionRect, dragStatus.startPoint, mousePos);
 									var coords = self.getSelectionRectCoords(dragStatus.startPoint, mousePos);
-									console.info('Scroll Mouse Pos [' + mousePos.x + ',' + mousePos.y + ']');
 								}
 							}
 						}, 50)
@@ -1413,6 +1436,7 @@ var coords1 = self.getSelectionRectCoords(dragStatus.startPoint, mousePos);
 					if (insideTree) {
 						if (!timeouts.selectionDrag) {
 							timeouts.selectionDrag = setInterval(function() {
+								var tree     = self.getCurrentTreeElement();
 								var rectDims = dfx.getBoundingRectangle(selectionRect);
 								var assets   = dfx.getClass('asset', tree);
 								for (var i = 0; i < assets.length; i++) {
@@ -1457,7 +1481,6 @@ var coords1 = self.getSelectionRectCoords(dragStatus.startPoint, mousePos);
 							x: e.clientX,
 							y: e.clientY
 						});
-						console.info('No Scroll [' + e.clientX + ',' + e.clientY + ']');
 						
 						// If we double-back on ourselves make sure it also resizes there.
 						dfx.addEvent(selectionRect, 'mousemove', function(e) {
@@ -1465,7 +1488,6 @@ var coords1 = self.getSelectionRectCoords(dragStatus.startPoint, mousePos);
 								x: e.clientX,
 								y: e.clientY
 							});
-							console.info('Double Back [' + e.clientX + ',' + e.clientY + ']');
 						 });
 					}//end if
 				} else if (dragStatus.assetDrag) {
@@ -2505,9 +2527,9 @@ var coords1 = self.getSelectionRectCoords(dragStatus.startPoint, mousePos);
 		var treeDivs = dfx.getClass('tree');
 		
 		if (dfx.hasClass(assetMapContainer, 'simple') === true) {
-		    assetMapContainer.style.height = (document.documentElement.clientHeight) + 'px';
+			assetMapContainer.style.height = (document.documentElement.clientHeight) + 'px';
 		} else {
-		    assetMapContainer.style.height = (document.documentElement.clientHeight - 70) + 'px';
+			assetMapContainer.style.height = (document.documentElement.clientHeight - 70) + 'px';
 		}
 		
 		for (var i = 0; i < treeDivs.length; i++) {
@@ -2749,7 +2771,7 @@ var coords1 = self.getSelectionRectCoords(dragStatus.startPoint, mousePos);
 		if ((!defaultView.frameElement) || (defaultView.frameElement.name === 'sq_sidenav')) {
 			var topDoc = defaultView.top.document.documentElement;
 		} else if (defaultView.frameElement.name === 'sq_wysiwyg_popup_sidenav') { 
-		    var topDoc = defaultView.parent.document.documentElement;
+			var topDoc = defaultView.parent.document.documentElement;
 		} else {
 			var topDoc = target.ownerDocument.documentElement;
 		}
@@ -2970,6 +2992,10 @@ var coords1 = self.getSelectionRectCoords(dragStatus.startPoint, mousePos);
 		dfx.addClass(dividerText, 'text');
 		dividerText.innerHTML = js_translate('asset_map_status_colour_key');
 		divider.appendChild(dividerText);
+		
+		var containerInner = _createEl('div');
+		dfx.addClass(containerInner, 'statusListInner');
+		container.appendChild(containerInner);
 
 		for (var x in Status) {
 			var displayName = js_translate('status_' + x.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase());
@@ -2992,7 +3018,7 @@ var coords1 = self.getSelectionRectCoords(dragStatus.startPoint, mousePos);
 			dfx.addClass(nameSpan, 'assetName');
 			assetLine.appendChild(iconSpan);
 			assetLine.appendChild(nameSpan);
-			container.appendChild(assetLine);
+			containerInner.appendChild(assetLine);
 		}//end for
 	};
 
@@ -3434,6 +3460,7 @@ var coords1 = self.getSelectionRectCoords(dragStatus.startPoint, mousePos);
 	this.locateAsset = function(assetids, sortOrders) {
 		var self         = this;
 		var savedAssets  = assetids.concat([]);
+		var savedSorts   = sortOrders.concat([]);
 		var tree         = this.getCurrentTreeElement();
 		var container    = tree;
 
@@ -3444,7 +3471,17 @@ var coords1 = self.getSelectionRectCoords(dragStatus.startPoint, mousePos);
 			var assetLines = dfx.find(container, 'div[data-assetid="' + assetid + '"]');
 
 			if (assetLines.length === 0) {
-				this.raiseError(js_translate('asset_map_error_locate_asset', savedAssets.pop()));
+				// If we are teleported and couldn't find the asset, then
+				// exit out to the root folder and start this process again.
+				// It could be there.
+				var currentRoot = String(tree.getAttribute('data-parentid'));
+				if (currentRoot !== '1') {
+					self.teleport(1, 1, undefined, function() {
+						self.locateAsset(savedAssets, savedSorts);
+					});
+				} else {
+					this.raiseError(js_translate('asset_map_error_locate_asset', savedAssets.pop()));
+				}
 				return;
 			} else {
 				var assetLine = assetLines[0];
@@ -3839,7 +3876,7 @@ var coords1 = self.getSelectionRectCoords(dragStatus.startPoint, mousePos);
 		if (win.frameElement) {
 			retval = win.top.frames.sq_main;
 			if (!retval) {
-			    retval = win.top.frames.sq_wysiwyg_popup_main;
+				retval = win.top.frames.sq_wysiwyg_popup_main;
 			}
 			
 			if (!retval) {
@@ -3955,6 +3992,7 @@ var coords1 = self.getSelectionRectCoords(dragStatus.startPoint, mousePos);
 	this.drawUseMeMenu = function(assetNode) {
 		var self    = this;
 		var assetid = assetNode.getAttribute('data-assetid');
+		var linkid  = assetNode.getAttribute('data-linkid');
 		this.clearMenus();
 
 		var container = _createEl('div');
@@ -3987,7 +4025,10 @@ var coords1 = self.getSelectionRectCoords(dragStatus.startPoint, mousePos);
 			var changeButton = dfx.getId(useMeStatus.idPrefix + '_change_btn', sourceFrame);
 			changeButton.value = js_translate('change');
 
-			if (dfx.isFn(useMeStatus.doneCallback)) {
+			document.cookie = 'lastSelectedLinkId=' + escape(linkid);
+			document.cookie = 'lastSelectedAssetId=' + escape(assetid);
+					
+			if (dfx.isFn(useMeStatus.doneCallback)) { 
 				useMeStatus.doneCallback(assetid);
 			}
 
@@ -4672,16 +4713,38 @@ var coords1 = self.getSelectionRectCoords(dragStatus.startPoint, mousePos);
 					}
 				}//end if
 
+				var closeOnExit = function() {
+					if (document.body.getAttribute('data-use-me-close-on-exit') === '1') {
+						document.body.removeAttribute('data-use-me-close-on-exit');
+						var resizer_frame = window.top.frames['sq_resizer'];
+						if (resizer_frame && !resizer_frame.hidden) {
+							resizer_frame.toggleFrame();
+						}
+					}
+				};
+				
 				var mainWin      = JS_Asset_Map.getUseMeFrame();
 				var changeButton = dfx.getId(safeName + '_change_btn', mainWin.document);
 				if (JS_Asset_Map.isInUseMeMode(name) === true) {
 					alert(js_translate('asset_finder_in_use'));
 				} else if (JS_Asset_Map.isInUseMeMode() === true) {
 					changeButton.setAttribute('value', js_translate('change'));
+					closeOnExit();
 					JS_Asset_Map.cancelUseMeMode();
 				} else {
+					var resizer_frame = window.top.frames['sq_resizer'];
+					if (resizer_frame && resizer_frame.hidden) {
+						document.body.setAttribute('data-use-me-close-on-exit', '1');
+						resizer_frame.toggleFrame();
+					}
+		
 					changeButton.setAttribute('value', js_translate('cancel'));
-					JS_Asset_Map.setUseMeMode(name, safeName, typeCodes, doneCallback);
+					JS_Asset_Map.setUseMeMode(name, safeName, typeCodes, function() {
+							closeOnExit();
+							if (dfx.isFn(doneCallback) === true) {
+								doneCallback();
+							}
+					});
 				}
 
 			},

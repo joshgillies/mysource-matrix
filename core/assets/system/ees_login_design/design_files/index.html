@@ -28,7 +28,6 @@
       
       <MySource_LOGIN_SECTION>
 
-        <MySource_SET name="give_username_focus" value="true" />
         <MySource_SET name="forward_www_vars"    value="true" />
 
         <MySource_PRINT var="form_open" />
@@ -59,7 +58,7 @@
         <div class="sq-credentials-section">
           <div class="sq-field-wrapper">
             <label for="SQ_LOGIN_USERNAME">Username</label> 
-            <MySource_PRINT var="username_box" size="10" class="sq-data" required="required"/>
+            <MySource_PRINT var="username_box" size="10" class="sq-data" required="required" autofocus="autofocus"/>
           </div>
           <div class="sq-field-wrapper">
             <label for="SQ_LOGIN_PASSWORD">Password</label> 

@@ -257,7 +257,7 @@ class Search_And_Replace extends WYSIWYG_Plugin
 				var search_text_not_found = false;
 
 
-				this._popupDialog("SearchAndReplace", "<?php echo $this->get_popup_href('search_and_replace.php')?>", 380, 300, false, function(types){
+				this._popupDialog("SearchAndReplace", "<?php echo $this->get_popup_href('search_and_replace.php')?>", 430, 360, false, function(types){
 					
 					if (types == null) return false;
 					

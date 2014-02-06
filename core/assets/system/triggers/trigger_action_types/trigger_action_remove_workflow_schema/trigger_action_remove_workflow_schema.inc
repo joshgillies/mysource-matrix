@@ -135,21 +135,23 @@ class Trigger_Action_Remove_Workflow_Schema extends Trigger_Action
 		
 		ob_start();
 			if ($write_access) {
-				echo translate('select_workflow_schema_to_remove').' ';
+				echo '<div class="sq-break-line-inputs">';
+				echo translate('workflow_schema_to_remove').': ';
 				asset_finder($prefix.'[schemaid]', $current_schemaid, Array('workflow_schema' => 'I'));
 
 				echo '<br />';
 				check_box($prefix.'[cascade_to_children]', '1', $cascade_to_children);
 				label(translate('cascade_schema_removal_to_children'), $prefix.'[cascade_to_children]');
+				echo '</div>';
 
 			} else {
 				if (!empty($current_schemaid)) {
 					$schema_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($current_schemaid));
-					echo translate('select_workflow_schema_to_remove').' ';
-					echo '<b>'.$schema_info[$current_schemaid]['name'].' (#'.$current_schemaid.')</b>';
+					echo translate('workflow_schema_to_remove').': ';
+					echo get_asset_tag_line($current_schemaid);
 				} else {
-					echo translate('select_workflow_schema_to_remove').' ';
-					echo '<b>'.translate('trigger_schema_no_schema_specified').'</b>';
+					echo translate('workflow_schema_to_remove').': ';
+					echo '<em>'.translate('trigger_schema_no_schema_specified').'</em>';
 				}
 
 				echo '<br />';

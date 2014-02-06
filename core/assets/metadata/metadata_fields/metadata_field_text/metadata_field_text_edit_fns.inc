@@ -117,7 +117,12 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 			// the following text can be used to display the character limit
 			// we suppose that char limit is only a positive attribute
 			if ($asset->attr('char_limit')) {
-				?> <br/>Character Limit: <?php echo $asset->attr('char_limit'); ?> <span style="color:red" id="<?php echo $prefix.'_value'; ?>_note"></span> <?php
+				?> 
+					<span class="sq-char-limit sq-metadata-char-limit">
+						<span class="sq-char-limit-text">Character Limit: <strong><?php echo $asset->attr('char_limit'); ?></strong> </span> 
+						<span class="sq-char-limit-error" id="<?php echo $prefix.'_value'; ?>_note"></span>
+					</span> 
+				<?php
 			}
 		} else {
 			// ensure JS is not executed in read only mode

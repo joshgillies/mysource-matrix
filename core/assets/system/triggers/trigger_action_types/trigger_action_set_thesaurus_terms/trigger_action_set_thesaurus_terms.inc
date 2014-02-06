@@ -124,15 +124,18 @@ class Trigger_Action_Set_Thesaurus_Terms extends Trigger_Action
 		// paint the edit interface
 		ob_start();
 		?>
-		<table border="0">
+		<table class="sq-backend-table">
 			<tr>
-				<td valign="top"><b><?php echo 'Path to XML File'; ?></b></td>
-				<td valign="top" style="padding-bottom: 10px;"><?php
+				<th><?php echo 'Path to XML File'; ?></th>
+				<td><?php
 					// level
 					if ($write_access) {
+						echo '<div class="sq-break-line-inputs">';
 						echo text_box($prefix.'[file_path]', $file_path, '50');
 						echo '&nbsp;&nbsp;';
-						echo check_box($prefix.'[append]', '1', $append).'Append?';
+						echo check_box($prefix.'[append]', '1', $append);
+						echo label('Append?', $prefix.'[append]');
+						echo '</div>';
 					} else {
 						echo $file_path.'&nbsp;';
 						echo htmlspecialchars('(Append option is'.($append ? ' ' : ' not ').'selected)');

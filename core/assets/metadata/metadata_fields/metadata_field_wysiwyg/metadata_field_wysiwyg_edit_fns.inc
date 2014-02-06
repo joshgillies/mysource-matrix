@@ -78,13 +78,13 @@ class Metadata_Field_WYSIWYG_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		Metadata_Field::decodeValueString($value_str, $value, $value_components);
 		$wysiwyg->value = $value;
-		$styles_common = '"float: left;';
+		$styles_common = '"';
 		$wysiwyg_container_styles = $is_default ? $styles_common.'display:none"' : $styles_common.'display:block"';
-		echo '<div id="'.$prefix.'_wysiwyg_container'.'" style='.$wysiwyg_container_styles.'>';
+		echo '<div id="'.$prefix.'_wysiwyg_container'.'" style='.$wysiwyg_container_styles.' class="sq-metadata-wysiwyg-edit-wrapper">';
 		$wysiwyg->paint($prefix, !$write_access);
 		echo '</div>';
 		$default_html_container_styles = $is_default ? $styles_common.'display:block"' : $styles_common.'display:none"';
-		echo '<div id="'.$prefix.'_default_html_container'.'" style='.$default_html_container_styles.'>';
+		echo '<div id="'.$prefix.'_default_html_container'.'" style='.$default_html_container_styles.' class="sq-metadata-wysiwyg-preview">';
 		echo $asset->attr('default_html');
 		if (!$write_access) {
 			echo ' <em style="color: #666">('.strtolower(translate('default')).')</em>';

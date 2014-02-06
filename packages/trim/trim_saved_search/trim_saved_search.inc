@@ -274,7 +274,7 @@ class TRIM_Saved_Search extends Data_Source
 			// Data source expect the key values to be correctly sorted.
 			$result	= array_values($ordered_result);
 			if ($updated) {
-				if(!empty($result)) {
+				if (!empty($result) || $this->attr('accept_empty_response')) {
 				    $this->cacheResult($result, $hash);
 				    return TRUE;
 				}

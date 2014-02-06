@@ -22,5 +22,5 @@
 	<string source="as_determined_from_asset_attribute">as determined from Asset Attribute</string>
 	<string source="as_determined_from_metadata_field">as determined from Metadata Field</string>
 	<string source="specified_value">the specified value</string>
-	<string source="offset_field_note">(NB: Offset settings will not apply when exact time is selected to set the future status via option "at exactly")</string>
+	<string source="offset_field_note">&lt;strong&gt;Note:&lt;/strong&gt; Offset settings will not apply when exact time is selected to set the future status via option "at exactly".</string>
 </strings>

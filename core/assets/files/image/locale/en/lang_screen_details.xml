@@ -17,14 +17,6 @@
 
 <contents>
 	<section name="Details">
-		<field>
-			<display_name></display_name>
-			<note></note>
-			<function_call>
-				<paint_function		name="paintCreateEditor" />
-				<process_function	name="processCreateEditor" />
-			</function_call>
-		</field>
 		<field attribute="alt">
 			<display_name>Alt</display_name>
 			<note>%description%</note>

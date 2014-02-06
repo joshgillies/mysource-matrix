@@ -56,6 +56,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 <html style="height: 400px">
 	<head>
 		<title>Spell Checker</title>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('lib').'/web/css/edit.css' ?>" />
 		<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('root_url')?>/__fudge/wysiwyg/core/popup.css" />
@@ -189,7 +190,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 							<tr>
 								<td>
 									<div class="sq-popup-button-wrapper">												
-										<button type="button" id="b_cancel" btnonclick="return onCancel();"><?php echo translate('cancel'); ?></button>
+										<button type="button" id="b_cancel" onclick="return onCancel();"><?php echo translate('cancel'); ?></button>
 										&nbsp;
 										<button type="button" class="sq-btn-green" id="b_ok" onclick="return onOK();"><?php echo translate('ok'); ?></button>							
 								    </div>

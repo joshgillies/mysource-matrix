@@ -64,15 +64,15 @@ function paintInlinePermissions(Asset $owner, Backend_Outputter $o, Asset_Edit_I
 		?>
 			<table class="sq-backend-table">
 				<tr>
-					<td class="sq-backend-table-header">
+					<th>
 					  <?php echo translate('user'); ?>
-					</td>
-					<td class="sq-backend-table-header">
+					</th>
+					<th>
 					  <?php echo translate('permissions'); ?>
-					</td>
-					<td class="sq-backend-table-header" align="right">
+					</th>
+					<th align="right">
 					  <?php echo translate('access'); ?>
-					</td>
+					</th>
 				</tr>
 		<?php
 
@@ -153,111 +153,107 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 		}
 		ksort($direct);
 
-		if ($admin_access) {
-			$o->openField(translate('current'));
-		} else {
-			$o->openField('&nbsp;','wide_col');
-		}
+		$o->openSection(translate('existing_permissions', translate($title)));
+			$o->openRaw();
 
-		if (!empty($direct)) {
-			foreach ($direct as $granted => $perm_details) {
-			?>
-				<table class="sq-backend-table">
-					<tr>
-						<th class="sq-backend-table-header">
-							<span class="sq-txt-highlight-<?php echo (($granted == '0') ? 'red' : 'green'); ?>"><?php echo (($granted == '0') ? translate('denied') : translate('granted')) ?></span>
-						</th>
-						<th align="center" width="100" class="sq-backend-table-header" style="text-align:center;"><?php echo translate('cascade_question'); ?></th>
-						<?php
-						if ($admin_access) {
-							?><th align="center" width="100" class="sq-backend-table-header" style="text-align:center;"><?php echo translate('delete_question'); ?></th><?php
-						}
-						?>
-					</tr>
-				<?php
-
-				foreach ($perm_details as $userid => $perm_detail) {
+				if (!empty($direct)) {
+					foreach ($direct as $granted => $perm_details) {
 					?>
-					<tr>
-						<td class="sq-backend-table-cell">
+						<table class="sq-backend-table">
+							<tr>
+								<th>
+									<span style="color: <?php echo (($granted == '0') ? 'red' : 'green'); ?>"><?php echo (($granted == '0') ? translate('denied') : translate('granted')).' '.translate($title).' '.translate('permissions'); ?></span>
+								</th>
+								<th width="100" style="text-align:center;"><?php echo translate('cascade_question'); ?></th>
+								<?php
+								if ($admin_access) {
+									?><th width="100" style="text-align:center;"><?php echo translate('delete_question'); ?></th><?php
+								}
+								?>
+							</tr>
+						<?php
+
+						foreach ($perm_details as $userid => $perm_detail) {
+							?>
+							<tr>
+								<td class="sq-backend-table-cell">
+									<?php
+									echo get_asset_tag_line($userid);
+									?>
+								</td>
+								<td align="center" width="100" class="sq-backend-table-cell">
+								<?php
+								if ($admin_access) {
+									check_box($prefix.'_permissions['.$perm.'][cascades]['.rawurlencode($userid).']', 1, $perm_detail['cascades']);
+								} else {
+									?><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($perm_detail['cascades'] ? 'tick' : 'cross'); ?>.gif" width="15" height="15" /><?php
+								}
+									?>
+								</td>
+								<?php
+								if ($admin_access) {
+									?><td align="center" width="100" class="sq-backend-table-cell"><?php
+									check_box($prefix.'_permissions['.$perm.'][delete]['.rawurlencode($userid).']');
+									?></td><?php
+								}
+								?>
+							</tr>
 							<?php
-							echo get_asset_tag_line($userid);
-							?>
-						</td>
-						<td align="center" width="100" class="sq-backend-table-cell">
-						<?php
-						if ($admin_access) {
-							check_box($prefix.'_permissions['.$perm.'][cascades]['.rawurlencode($userid).']', 1, $perm_detail['cascades']);
-						} else {
-							?><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($perm_detail['cascades'] ? 'tick' : 'cross'); ?>.gif" width="15" height="15" /><?php
-						}
-							?>
-						</td>
-						<?php
-						if ($admin_access) {
-							?><td align="center" width="100" class="sq-backend-table-cell"><?php
-							check_box($prefix.'_permissions['.$perm.'][delete]['.rawurlencode($userid).']');
-							?></td><?php
-						}
+						}// end foreach data
 						?>
-					</tr>
+						</table>
 					<?php
-				}// end foreach data
-				?>
-				</table>
-			<?php
-			}//end foreach inherited
+					}//end foreach inherited
 
-		} else {
-			echo translate('no_access_permissions_set', strtolower($title));
-		}//end if
+				} else {
+					echo '<p><em>'.translate('no_access_permissions_set', strtolower($title)).'</em></p>';
+				}//end if
+			$o->closeRaw();
+		$o->closeSection();
 
 		if ($admin_access) {
-			$o->closeField();
-		} else {
-			$o->closeField();
-		}
 
-		if ($admin_access) {
-			$o->openField(translate('new'));
-				?>
-				<table cellspacing="0">
-				<?php
-				// if Public Access isn't set
-				if (!in_array($public_userid, array_get_index($direct, 0, Array())) && !in_array($public_userid, array_get_index($direct, 1, Array()))) {
+			$o->openSection(translate('add_new_permissions', translate($title)));
+				$o->openField(translate('new'));
 					?>
-					<tr>
-						<td colspan="2">
-							<span class="sq-inline-fields-wrapper">
-							<?php
-							combo_box($prefix.'_permissions['.$perm.'][public_access][granted]', Array('' => '', '1' => translate('grant'), '0' => translate('deny')), FALSE, '');
-							echo ' '.translate('public_permission');
-							?>
-							</span>
-						</td>
-					</tr>
+					<table class="sq-simple-table">
 					<?php
-				}
-				?>
-					<tr>
-						<td valign="top">
-							<span class="sq-inline-fields-wrapper">
-							<?php
-							combo_box($prefix.'_permissions['.$perm.'][new][granted]', Array('' => '', '1' => translate('grant'), '0' => translate('deny')), FALSE, '');
-							echo ' '.translate('specific_permission');
-							?>
-							</span>&nbsp;
-						</td>
-						<td><?php multiple_asset_finder($prefix.'_permissions['.$perm.'][new][userid]', Array(), Array('user' => 'D', 'user_group' => 'D')); ?></td>
-					</tr>
-				</table>
-				<?php
-			$o->closeField();
-			$o->openField(translate('cascade_question'), '');
-				check_box($prefix.'_permissions['.$perm.'][new][cascades]', 1, TRUE);
-				label('Automatically cascade this permission to new children',$prefix.'_permissions['.$perm.'][new][cascades]');
-				//$o->note('If unchecked, the new permission(s) above will be applied or denied only to dependants of this asset, regardless of the Cascade Changes settings below. It will also not apply the workflow to any asset that becomes a new child of this asset (through creating a new asset, or moving an existing one, or creating a new link from one). This setting can be toggled after being applied.');
-			$o->closeField();
+					// if Public Access isn't set
+					if (!in_array($public_userid, array_get_index($direct, 0, Array())) && !in_array($public_userid, array_get_index($direct, 1, Array()))) {
+						?>
+						<tr>
+							<td colspan="2">
+								<span class="sq-inline-fields-wrapper" style="margin-top: 3px;">
+								<?php
+								combo_box($prefix.'_permissions['.$perm.'][public_access][granted]', Array('' => '', '1' => translate('grant'), '0' => translate('deny')), FALSE, '');
+								echo ' '.translate('public_type_permission', translate($title));
+								?>
+								</span>
+							</td>
+						</tr>
+						<?php
+					}
+					?>
+						<tr>
+							<td valign="top">
+								<span class="sq-inline-fields-wrapper" style="margin-top: 3px;">
+								<?php
+								combo_box($prefix.'_permissions['.$perm.'][new][granted]', Array('' => '', '1' => translate('grant'), '0' => translate('deny')), FALSE, '');
+								echo ' '.translate('specific_type_permission', translate($title)).' '.translate('to');
+								?>
+								</span>&nbsp;
+							</td>
+							<td><?php multiple_asset_finder($prefix.'_permissions['.$perm.'][new][userid]', Array(), Array('user' => 'D', 'user_group' => 'D')); ?></td>
+						</tr>
+					</table>
+					<?php
+				$o->closeField();
+				$o->openField(translate('cascade_question'), '');
+					check_box($prefix.'_permissions['.$perm.'][new][cascades]', 1, TRUE);
+					label('Automatically cascade this permission to new children',$prefix.'_permissions['.$perm.'][new][cascades]');
+					//$o->note('If unchecked, the new permission(s) above will be applied or denied only to dependants of this asset, regardless of the Cascade Changes settings below. It will also not apply the workflow to any asset that becomes a new child of this asset (through creating a new asset, or moving an existing one, or creating a new link from one). This setting can be toggled after being applied.');
+				$o->closeField();
+			$o->closeSection();
 		}//end if
 
 		$o->closeSection();
@@ -289,128 +285,132 @@ function paintPermissions(&$owner, &$o, &$ei, $keywords=NULL)
 	
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_permission');
 	$fp_jobs = Cron_Job_Future_Permission::getActiveJobs($owner);
-	if (!empty($fp_jobs)) {
-		$o->openField(translate('scheduled_future_permission_change'), 'new_line');
-		?>
-		<table class="sq-backend-table">
-			<tr>
-				<td class="sq-backend-table-header"><?php echo translate('action'); ?></td>
-				<td class="sq-backend-table-header"><?php echo translate('permission'); ?></td>
-				<td class="sq-backend-table-header">
-					<span class="sq-txt-highlight-green"><?php echo translate('granted'); ?></span>
-				</td>
-				<td class="sq-backend-table-header">
-					<span class="sq-txt-highlight-red"><?php echo translate('denied'); ?></span>
-				</td>
-				<td class="sq-backend-table-header"><?php echo translate('when'); ?></td>
-				<td align="center" class="sq-backend-table-header" style="text-align: center;"><?php echo translate('cascade_question'); ?></td>
-				<td align="center" class="sq-backend-table-header" style="text-align: center;"><?php echo translate('update_all_question'); ?></td>
-				<?php
-				if ($admin_access) {
-				?>
-				<td align="center" class="sq-backend-table-header" style="text-align: center;"><?php echo translate('delete_question'); ?></td>
-				<?php
-				}
-				?>
-			</tr>
-			<?php
-			//sort the job by date
-			$sorted_fp_jobs = _sortCronJobsByDate($fp_jobs);
-			//print the active jobs
-			foreach ($sorted_fp_jobs as $fp_job) {
-				?>
+	$o->openSection(translate('scheduled_future_permission_change'));
+		if (!empty($fp_jobs)) {
+			$o->openRaw();
+			?>
+			<table class="sq-backend-table">
 				<tr>
-					<td class="sq-backend-table-cell">
-						<?php echo $fp_job->actionName(); ?>
-					</td>
-					<td class="sq-backend-table-cell">
-						<?php echo $fp_job->permissionName(); ?>
-					</td>
-					<td class="sq-backend-table-cell">
-						<?php
-							 $granted_userids = $fp_job->getGrantedUsers(TRUE);
-							 foreach ($granted_userids as $userid) {
-							 	echo get_asset_tag_line($userid);
-							 	echo '<br />';
-							 }
-						?>
-					</td>
-					<td class="sq-backend-table-cell">
-						<?php
-							 $denied_userids = $fp_job->getGrantedUsers(FALSE);
-							 foreach ($denied_userids as $userid) {
-							 	echo get_asset_tag_line($userid);
-							 	echo '<br />';
-							 }
-						?>
-					</td>
-					<td class="sq-backend-table-cell">
-						<?php echo $fp_job->readableWhen(); ?>
-					</td>
-					<td align="center" class="sq-backend-table-cell">
+					<th><?php echo translate('action'); ?></th>
+					<th><?php echo translate('permission'); ?></th>
+					<th>
+						<span style="color:green"><?php echo translate('grant'); ?></span>
+					</th>
+					<th>
+						<span style="color:red"><?php echo translate('deny'); ?></span>
+					</th>
+					<th><?php echo translate('when'); ?></th>
+					<th style="text-align: center;"><?php echo translate('cascade_question'); ?></th>
+					<th style="text-align: center;"><?php echo translate('update_all_question'); ?></th>
 					<?php
-						if ($fp_job->attr('cascade_to_new')) {
-							echo translate('yes');
-						} else {
-							echo translate('no');
-						}
+					if ($admin_access) {
 					?>
-					</td>
-					<td align="center" class="sq-backend-table-cell">
+					<th style="text-align: center;"><?php echo translate('delete_question'); ?></th>
 					<?php
-						if ($fp_job->attr('dependants_only')) {
-							echo translate('no');
-						} else {
-							echo translate('yes');
-						}
-						
-						if ($admin_access) {
+					}
 					?>
-					</td>
-					<td align="center" class="sq-backend-table-cell">
-					<?php
-						if ($fp_job->canDelete()) {
-							check_box($prefix.'_remove_fp[]', $fp_job->id);
-						} else {
-							echo '&nbsp;';
-						}
-						}
-					?>
-					</td>
 				</tr>
 				<?php
-			}//end for
-			?>
-		</table>
-		<?php
-		
-		$o->closeField();
-	} else if (!$admin_access){
-		$o->openField('&nbsp;','wide_col');
-		echo translate('no_future_permissions_set');
-		$o->closeField();
-	}//end if
+				//sort the job by date
+				$sorted_fp_jobs = _sortCronJobsByDate($fp_jobs);
+				//print the active jobs
+				foreach ($sorted_fp_jobs as $fp_job) {
+					?>
+					<tr>
+						<td class="sq-backend-table-cell">
+							<?php echo $fp_job->actionName(); ?>
+						</td>
+						<td class="sq-backend-table-cell">
+							<?php echo $fp_job->permissionName(); ?>
+						</td>
+						<td class="sq-backend-table-cell">
+							<?php
+								 $granted_userids = $fp_job->getGrantedUsers(TRUE);
+								 foreach ($granted_userids as $userid) {
+								 	echo get_asset_tag_line($userid);
+								 	echo '<br />';
+								 }
+							?>
+						</td>
+						<td class="sq-backend-table-cell">
+							<?php
+								 $denied_userids = $fp_job->getGrantedUsers(FALSE);
+								 foreach ($denied_userids as $userid) {
+								 	echo get_asset_tag_line($userid);
+								 	echo '<br />';
+								 }
+							?>
+						</td>
+						<td class="sq-backend-table-cell">
+							<?php echo $fp_job->readableWhen(); ?>
+						</td>
+						<td align="center" class="sq-backend-table-cell">
+						<?php
+							if ($fp_job->attr('cascade_to_new')) {
+								echo translate('yes');
+							} else {
+								echo translate('no');
+							}
+						?>
+						</td>
+						<td align="center" class="sq-backend-table-cell">
+						<?php
+							if ($fp_job->attr('dependants_only')) {
+								echo translate('no');
+							} else {
+								echo translate('yes');
+							}
+							
+							if ($admin_access) {
+						?>
+						</td>
+						<td align="center" class="sq-backend-table-cell">
+						<?php
+							if ($fp_job->canDelete()) {
+								check_box($prefix.'_remove_fp[]', $fp_job->id);
+							} else {
+								echo '&nbsp;';
+							}
+							}
+						?>
+						</td>
+					</tr>
+					<?php
+				}//end for
+				?>
+			</table>
+			<?php
+			
+			$o->closeRaw();
+		} else if (!$admin_access){
+			$o->openField('&nbsp;','wide_col');
+			echo '<p><em>'.translate('no_future_permissions_set').'</em></p>';
+			$o->closeField();
+		}//end if
+	$o->closeSection();
 
 	if ($admin_access) {
-		$o->openField(translate('add_new_future_permission'), '');
-			$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
-			$cron_epoc = (int)$cron_mgr->attr('epoch');
-			$cron_refresh = (int)$cron_mgr->attr('refresh_time');
-			if ($cron_epoc > 0 && $cron_refresh > 0) {
-				require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-				$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_permission');
-				$fp = new Cron_Job_Future_Permission();
-				$edit_fns = $fp->getEditFns();
-				$edit_fns->paintInLineBackend($fp, $o, $prefix.'_new_fp');
-				echo '<br />';
+		$o->openSection(translate('add_new_future_permission'));
+			$o->openField(translate('new'));
+				$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+				$cron_epoc = (int)$cron_mgr->attr('epoch');
+				$cron_refresh = (int)$cron_mgr->attr('refresh_time');
+				if ($cron_epoc > 0 && $cron_refresh > 0) {
+					require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_permission');
+					$fp = new Cron_Job_Future_Permission();
+					$edit_fns = $fp->getEditFns();
+					$edit_fns->paintInLineBackend($fp, $o, $prefix.'_new_fp');
+					echo '<br />';
 
-				$o->note(translate('cron_manager_next_run', $cron_mgr->readableRefreshTime(), readable_datetime($cron_mgr->timeOfNextRun())));
+					$o->note(translate('cron_manager_next_run', $cron_mgr->readableRefreshTime(), readable_datetime($cron_mgr->timeOfNextRun())));
 
-				$print_commit_button = TRUE;
-			} else {
-				echo translate('cron_manager_not_configured');
-			}
-		$o->closeField();
+					$print_commit_button = TRUE;
+				} else {
+					echo translate('cron_manager_not_configured');
+				}
+			$o->closeField();
+		$o->closeSection();
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cron_mgr);
 	}//end if
 	

@@ -677,6 +677,9 @@ class Log_Manager extends Asset
 
 		$content = '';
 
+		// whitelist filtering for file name injection
+		$logname = preg_replace('/[^a-zA-Z0-9_-]+/','', $logname);
+
 		if (empty($action)) {
 			echo translate('no_action_supplied');
 			return TRUE;

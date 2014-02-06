@@ -325,8 +325,8 @@ class Trigger_Action_Send_Email extends Trigger_Action
 					<?php
 						//checkbox for Asset To Send
 						check_box($prefix.'[override_asset_to_send]', '1', array_get_index($settings, 'override_asset_to_send', '0'), '', ($write_access ? '' : 'disabled="disabled"'));
-						label('Override the Asset To Send with the asset that causes this trigger to fire. You do not need to check this option if you only want to override the asset with the parameter map below. The value in the parameter map will override this option.', $prefix.'[override_asset_to_send]');
-						
+						label('Override the Asset To Send with the asset that causes this trigger to fire.', $prefix.'[override_asset_to_send]');
+						echo '<br/><strong>Note:</strong> You do not need to check this option if you only want to override the asset with the parameter map below. The value in the parameter map will override this option.';
 						//parameter map for Asset To Send
 						echo $ast2send_atr_param_map->paint($new_prefix.'_ast2send_param', !$write_access); 
 					?>

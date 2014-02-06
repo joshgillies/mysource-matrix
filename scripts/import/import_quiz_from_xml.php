@@ -176,7 +176,7 @@ foreach ($xml_import_vals as $xml_elem) {
 
 			default :
 				# checks to see if node is <Option_x>
-				if (strpos(strtolower($xml_elem['tag']), 'option_')>=0) {
+				if (strpos(strtolower($xml_elem['tag']), 'option_') !== FALSE) {
 					# parse last char
 					# sets current option placeholder
 					# and construct option array

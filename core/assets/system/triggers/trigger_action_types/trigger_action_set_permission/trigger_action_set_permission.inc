@@ -165,6 +165,8 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 
 		ob_start();
 
+		echo '<div class="sq-break-line-inputs">';
+
 		// attribute friendly prefix
 		$new_prefix = str_replace(array('[',']'), '_', $prefix);
 		hidden_field($prefix.'[new_prefix]', $new_prefix);
@@ -221,11 +223,13 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 				$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
 			}
 			if (is_null($user)) {
-				echo '<b>['.translate('trigger_no_user_selected').']</b>';
+				echo '<em>['.translate('trigger_no_user_selected').']</em>';
 			} else {
-				echo '<b>'.$user->name.'</b>';
+				echo get_asset_tag_line($user->id);
 			}
 		}
+
+		echo '</div>';
 
 		$parameter_map_value = array_get_index($settings, 'user_map', serialize(Array()));
 
@@ -234,37 +238,48 @@ class Trigger_Action_Set_Permission extends Trigger_Action
 		$atr_parameter_map->setParameter('user', 'Userid or Groupid');
 		echo $atr_parameter_map->paint($new_prefix.'_parameter_map', !$write_access);
 
+
 		// Only cascade to our dependants (and not all our children)?
 		if ($write_access) {
 			echo '<br />';
 			check_box($prefix.'[dependants_only]', 1, $dependants_only);
-			echo translate('trigger_set_permission_dependants_only');
+			label(translate('trigger_set_permission_dependants_only'), $prefix.'[dependants_only]');
 		} else {
+			echo '<br />';
 			echo '<img src="'.sq_web_path('lib').'/web/images/'.($dependants_only ? 'tick' : 'cross').'.gif" alt="'.($dependants_only ? translate('yes') : translate('no')).'" /> ';
 			echo translate('trigger_set_permission_dependants_only');
 		}
+		echo '<br />';
+		echo translate('trigger_set_permission_dependants_only_note');
 
 		// Look for dependant parents (and change them instead)?
 		if ($write_access) {
 			echo '<br />';
+			echo '<br />';
 			check_box($prefix.'[dependant_parents]', 1, $dependant_parents);
-			echo translate('trigger_set_permission_dependant_parents');
+			label(translate('trigger_set_permission_dependant_parents'), $prefix.'[dependant_parents]');
 		} else {
+			echo '<br />';
 			echo '<br />';
 			echo '<img src="'.sq_web_path('lib').'/web/images/'.($dependant_parents ? 'tick' : 'cross').'.gif" alt="'.($dependant_parents ? translate('yes') : translate('no')).'" /> ';
 			echo translate('trigger_set_permission_dependant_parents');
 		}
+		echo '<br />';
+		echo translate('trigger_set_permission_dependants_only_note');
 
 		// Cascade to new children
 		if ($write_access) {
 			echo '<br />';
+			echo '<br />';
 			check_box($prefix.'[cascade_to_new]', 1, $cascade_to_new);
-			echo translate('cascade_permission_to_new_children');
+			label(translate('cascade_permission_to_new_children'), $prefix.'[cascade_to_new]');
 		} else {
+			echo '<br />';
 			echo '<br />';
 			echo '<img src="'.sq_web_path('lib').'/web/images/'.($cascade_to_new ? 'tick' : 'cross').'.gif" alt="'.($cascade_to_new ? translate('yes') : translate('no')).'" /> ';
 			echo translate('cascade_permission_to_new_children');
 		}
+		
 
 		return ob_get_clean();
 

@@ -20,9 +20,9 @@
 	<string source="link_characteristics">Link Characteristics</string>
 	<string source="link_characteristics_note">
 	You may specify the exact link that you want updated otherwise you need to specify the link characteristics as linked to the Broadcasting Asset. &lt;br /&gt; 
-	This trigger action will be executed if exactly one link is found, otherwise will fail. Leave 'Link Value' blank to match any link value.</string>
+	This trigger action will be executed if exactly one link is found, otherwise it will fail. Leave &lt;em&gt;'Link Value'&lt;/em &gt; blank to match any link value.</string>
 	<string source="new_link_characteristics">New Link Characteristics</string>
-	<string source="new_link_characteristics_note">Note that you cannot change a link from being a significant link to a non-significant link or vice versa.</string>
+	<string source="new_link_characteristics_note">&lt;strong&gt;Note:&lt;/strong&gt; You cannot change a link from being a significant link to a non-significant link or vice versa.</string>
 	<string source="link_type">Link Type</string>
 	<string source="link_value">Link Value</string>
 	<string source="side_of_link">Side of Link</string>

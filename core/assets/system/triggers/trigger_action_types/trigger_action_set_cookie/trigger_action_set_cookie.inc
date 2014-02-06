@@ -189,7 +189,7 @@ class Trigger_Action_Set_Cookie extends Trigger_Action
 		ob_start();
 		$name = array_get_index($settings, 'name');
 		if ($write_access) {
-			text_box($prefix.'[name]', $name);
+			text_box($prefix.'[name]', $name, 40);
 		} else {
 			echo '<b>'.$name.'</b>';
 		}
@@ -199,7 +199,7 @@ class Trigger_Action_Set_Cookie extends Trigger_Action
 		ob_start();
 		$value = array_get_index($settings, 'value');
 		if ($write_access) {
-			text_box($prefix.'[value]', $value);
+			text_box($prefix.'[value]', $value, 40);
 		} else {
 			echo '<b>'.$value.'</b>';
 		}
@@ -210,8 +210,9 @@ class Trigger_Action_Set_Cookie extends Trigger_Action
 		$expire_time = array_get_index($settings, 'expire_time', 0);
 		if ($write_access) {
 			text_box($prefix.'[expire_time]', $expire_time, 10);
+			echo ' '.translate('seconds');
 		} else {
-			echo '<b>'.$expire_time.'</b>';
+			echo '<b>'.$expire_time.' '.translate('seconds').'</b>';
 		}
 		$expire_time_input = ob_get_clean();
 
@@ -269,12 +270,15 @@ class Trigger_Action_Set_Cookie extends Trigger_Action
 		echo '</div>';
 		$parameter_map_input = ob_get_clean();
 
-		$output = translate('trigger_action_set_cookie_set_name_value', $name_input, $value_input);
-		$output .= '<br />'.translate('trigger_action_set_cookie_set_expire_time', $expire_time_input).'<br /><i>'. translate('trigger_action_set_cookie_expire_time_note').'</i>';
-		$output .= '<br />'.translate('trigger_action_set_cookie_set_path', $path_input).'<br /><i>'.translate('trigger_action_set_cookie_path_note').'</i>';
-		$output .= '<br />'.translate('trigger_action_set_cookie_set_domain', $domain_input).'<br /><i>'.translate('trigger_action_set_cookie_domain_note').'</i>';
-		$output .= '<br />'.translate('trigger_action_set_cookie_set_secure', $secure_input, translate('yes'));
-		$output .= '<br />'.translate('trigger_action_set_cookie_set_http_only', $http_only_input, translate('yes')).'<br /><br />';
+		$output = '<table class="sq-backend-table with-bottom-margin">';
+		$output .= '<tr><th>'.translate('trigger_action_set_cookie_name').'</th><td>'.$name_input.'</td></tr>';
+		$output .= '<tr><th>'.translate('trigger_action_set_cookie_value').'</th><td>'.$value_input.'</td></tr>';
+		$output .= '<tr><th>'.translate('trigger_action_set_cookie_set_expire_time_label').'</th><td><span class="sq-inline-fields-wrapper">'.$expire_time_input.'</span><br/>'.translate('trigger_action_set_cookie_expire_time_note').'</td></tr>';
+		$output .= '<tr><th>'.translate('trigger_action_set_cookie_set_path_label').'</th><td>'.$path_input.'<br/>'.translate('trigger_action_set_cookie_path_note').'</td></tr>';
+		$output .= '<tr><th>'.translate('trigger_action_set_cookie_set_domain_label').'</th><td>'.$domain_input.'<br/>'.translate('trigger_action_set_cookie_domain_note').'</td></tr>';
+		$output .= '<tr><th>'.translate('trigger_action_set_cookie_set_secure_label').'</th><td>'.$secure_input.'<br/>'.translate('trigger_action_set_cookie_secure_note').'</td></tr>';
+		$output .= '<tr><th>'.translate('trigger_action_set_cookie_set_http_only_label').'</th><td>'.$http_only_input.'<br/>'.translate('trigger_action_set_cookie_http_only_note').'</td></tr>';
+		$output .= '</table>';
 
 		$output .= $parameter_map_input;
 

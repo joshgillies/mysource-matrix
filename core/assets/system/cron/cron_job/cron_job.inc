@@ -211,7 +211,7 @@ class Cron_Job extends Asset
 				if (is_null($cron_mgr)) return FALSE;
 
 				// is there a duration set? if so, recalculate the when time
-				if (strpos($when_str, '!')) {
+				if (strpos($when_str, '!') !== FALSE) {
 					// user chose a duration instead of a fixed date, so lets work out what that is
 					$now = time();
 					$duration = substr($value, strpos($value, '!') + 2);

@@ -207,7 +207,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		$desc = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_codes, 'description');
-		combo_box('rule', array_merge(Array(' ' => '------ '.translate('please_select').' ------'), $desc), FALSE, '');
+		combo_box('rule', array_merge(Array(' ' => '------ '.translate('please_select').' ------'), $desc), FALSE, '', 0, '', 0, TRUE);
 
 		return TRUE;
 

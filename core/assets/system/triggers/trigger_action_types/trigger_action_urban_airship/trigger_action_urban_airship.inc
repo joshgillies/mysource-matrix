@@ -131,7 +131,7 @@ class Trigger_Action_Urban_Airship extends Trigger_Action
 				$airship->broadcast($message);
 			} else {
 				// Check to see if we have multiple device tokens
-				if (strpos($static_app_token, ',')) {
+				if (strpos($static_app_token, ',') !== FALSE) {
 					$static_app_token = explode(',', $static_app_token);
 				}
 				//error_log(print_r($message, TRUE), 0);
@@ -165,10 +165,10 @@ class Trigger_Action_Urban_Airship extends Trigger_Action
                 
 		<p class="sq-backend-section-subheading"><?php echo translate('trigger_action_urban_airship_section_api').' '; ?></p>
 
-			<table class="sq-backend-table" >
+			<table class="sq-backend-table with-bottom-margin" >
 				<tr>
-					<td width="100"><p><?php echo translate('trigger_action_urban_airship_app_key').' '; ?></p></td>
-					<td><p>
+					<th width="100"><?php echo translate('trigger_action_urban_airship_app_key').' '; ?></th>
+					<td>
 					<?php 
 						$app_key = array_get_index($settings, 'airship_app_key', '');
 						if ($write_access) {
@@ -176,11 +176,11 @@ class Trigger_Action_Urban_Airship extends Trigger_Action
 						} else {
 							echo str_repeat('&#9679;', strlen($app_key));
 						}
-					?></p></td>
+					?></td>
 				</tr>
 				<tr>
-					<td width="100"><p><?php echo translate('trigger_action_urban_airship_app_master_secret').' '; ?></p></td>
-					<td><p>
+					<th><?php echo translate('trigger_action_urban_airship_app_master_secret').' '; ?></td>
+					<td>
 					<?php 
 						$app_master_secret = array_get_index($settings, 'airship_app_master_secret', '');
 						if ($write_access) {
@@ -188,34 +188,32 @@ class Trigger_Action_Urban_Airship extends Trigger_Action
 						} else {
 							echo str_repeat('&#9679;', strlen($app_master_secret));
 						}
-					?></p></td>
+					?></td>
 				</tr>
 				<tr>
-					<td width="100"><p><?php echo translate('trigger_action_urban_airship_device_token').' '; ?></p></td>
+					<th><?php echo translate('trigger_action_urban_airship_device_token').' '; ?></td>
 					<td>
 					<?php 
 						$device_token = array_get_index($settings, 'airship_device_token', '');
 						if ($write_access) {
-							echo '<p>';
 							$option_list = new Asset_Attribute_Option_List(0, $device_token, ',');
 							$option_list->setEditParam('width', 85);
 							$option_list->paint('airship_device_token');
-							echo '</p>';
-							echo '<p>'.translate('trigger_action_urban_airship_device_token_instructions').'</p>';
+							echo translate('trigger_action_urban_airship_device_token_instructions');
 						} else {
-							echo '<p>'.str_replace(',', '<br />', $device_token).'</p>';
+							echo str_replace(',', '<br />', $device_token);
 						}
 					?></td>
 				<tr>
-					<td width="100"><p><?php echo translate('trigger_action_urban_airship_broadcast').' '; ?></p></td>
+					<th><?php echo translate('trigger_action_urban_airship_broadcast').' '; ?></td>
 					<td>
 					<?php 
 						$airship_broadcast = array_get_index($settings, 'airship_broadcast', 0);
 						if ($write_access) {
-							echo '<p>';
+							echo '<div class="sq-break-line-inputs">';
 							check_box($prefix.'[airship_broadcast]', 1, $airship_broadcast);
-							echo '</p>';
-							echo '<p class="sq-backend-warning">'.translate('trigger_action_urban_airship_broadcast_instructions').'</p>';
+							echo '</div>';
+							echo translate('trigger_action_urban_airship_broadcast_instructions');
 						} else {
 							$tick_type = ($airship_broadcast == '1') ? 'tick' : 'cross';
 							echo '<img class="sq-icon" width="16" height="16" src="'.sq_web_path('lib').'/web/images/'.$tick_type.'.gif" alt="" style="border: 0;" />';
@@ -223,54 +221,54 @@ class Trigger_Action_Urban_Airship extends Trigger_Action
 					?></td>
 				</tr>
                 
-			</table><br />
+			</table>
             
 			<p class="sq-backend-section-subheading"><?php echo translate('trigger_action_urban_airship_section_details').' '; ?></p>
-			<table class="sq-backend-table" >
+			<table class="sq-backend-table with-bottom-margin" >
 				<tr>
-					<td width="100"><p><?php echo translate('trigger_action_urban_airship_badge').' '; ?></p></td>
-					<td><p>
+					<th width="100"><?php echo translate('trigger_action_urban_airship_badge').' '; ?></td>
+					<td>
 					<?php 
 						$airship_badge = array_get_index($settings, 'airship_badge', '');
 						if ($write_access) {
-							echo '<p>';
+							echo '<div class="sq-break-line-inputs">';
 							text_box($prefix.'[airship_badge]', $airship_badge,  5);
-							echo '</p>';
-							echo '<p>'.translate('trigger_action_urban_airship_badge_instructions').'</p>';
+							echo '</div>';
+							echo translate('trigger_action_urban_airship_badge_instructions');
 						} else {
-							echo '<p>'.$airship_badge.'</p>';
+							echo $airship_badge;
 						}
-					?></p></td>
+					?></td>
 				</tr>
 				<tr>
-					<td width="100"><p><?php echo translate('trigger_action_urban_airship_sound').' '; ?></p></td>
-					<td><p>
+					<th><?php echo translate('trigger_action_urban_airship_sound').' '; ?></td>
+					<td>
 					<?php 
 						$airship_sound = array_get_index($settings, 'airship_sound', '');
 						if ($write_access) {
-							echo '<p>';
+							echo '<div class="sq-break-line-inputs">';
 							text_box($prefix.'[airship_sound]', $airship_sound, 25);
-							echo '</p>';
-							echo '<p>'.translate('trigger_action_urban_airship_sound_instructions').'</p>';
+							echo '</div>';
+							echo translate('trigger_action_urban_airship_sound_instructions');
 						} else {
-							echo '<p>'.$airship_sound.'</p>';
+							echo $airship_sound;
 						}
-					?></p></td>
+					?></td>
 				</tr>
 				<tr>
-					<td width="100"><p><?php echo translate('trigger_action_urban_airship_message').' '; ?></p></td>
-					<td><p>
+					<th><?php echo translate('trigger_action_urban_airship_message').' '; ?></td>
+					<td>
 					<?php 
 						$airship_message = array_get_index($settings, 'airship_message', '');
 						if ($write_access) {
-							echo '<p>';
+							echo '<div class="sq-break-line-inputs">';
 							text_box($prefix.'[airship_message]', $airship_message, 95);
-							echo '</p>';
-							echo '<p>'.translate('trigger_action_urban_airship_message_instructions').'</p>';
+							echo '</div>';
+							echo translate('trigger_action_urban_airship_message_instructions');
 						} else {
-							echo '<p>'.$airship_message.'</p>';
+							echo $airship_message;
 						}
-					?></p></td>
+					?></td>
 				</tr>
 			</table>
             
@@ -279,7 +277,8 @@ class Trigger_Action_Urban_Airship extends Trigger_Action
 		// Print the parameter map
 		if ($write_access) {
 			
-			echo '<br /><div>';
+			echo '<div>';
+			echo '<p class="sq-backend-section-subheading">'.translate('dynamic_inputs').'</p>';
 			$new_prefix = str_replace(array('[',']'), '_', $prefix);
 			hidden_field($prefix.'[new_prefix]', $new_prefix);
 			

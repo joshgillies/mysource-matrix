@@ -198,6 +198,7 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 		// Use the cron job edit functions to paint the 'when' box.
 		$o = new Backend_Outputter();
 		ob_start();
+			echo '<div class="sq-break-line-inputs"><span class="sq-inline-fields-wrapper">';
 			$temporary_edit_fns->_paintWhenBox($temporary_cron_job, $o, $munge_prefix, $settings['when']);
 
 			echo '<br />or by the date/time value from the ';
@@ -235,6 +236,8 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 				}
 			}
 
+			echo '</span></div>';
+
 		$output['at'] = ob_get_clean();
 
 		// Remember our munge-iness.
@@ -244,9 +247,9 @@ class Trigger_Action_Set_Future_Lineage extends Trigger_Action
 
 		// Stick it all together in a table (yes, I know) so it looks pretty.
 		ob_start();
-			?><table border="0" cellpadding="4" cellspacing="0"><?php
+			?><table class="sq-backend-table"><?php
 				foreach ($output as $title => $text) {
-					?><tr><td><strong><?php echo translate($title); ?></strong></td><td><?php echo $text; ?></td></tr><?php
+					?><tr><th><?php echo translate($title); ?></th><td><?php echo $text; ?></td></tr><?php
 				}
 			?></table><?php
 		return ob_get_clean();

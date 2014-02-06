@@ -17,8 +17,9 @@
 -->
 
 <strings>
-	<string source="trigger_schema_remove_schema_message">Remove the following schema:</string>
-	<string source="trigger_schema_remove_all_schema_message">Remove the all metadata schemas (optional)</string>
+	<string source="trigger_schema_remove_schema_message">Remove metadata schema</string>
+	<string source="trigger_schema_remove_all_schema_message">Remove all metadata schemas</string>
+	<string source="trigger_schema_removal_to_children">Cascade the removal of metadata schema to all children</string>
 	<string source="trigger_schema_remove_all_schema_confirm_message">Are you sure you want to remove all metadata schemas?</string>
-	<string source="trigger_schema_no_schema_message">No schema specified</string>
+	<string source="trigger_schema_no_schema_message">No metadata schema specified</string>
 </strings>

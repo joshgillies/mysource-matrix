@@ -533,7 +533,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 			// Warn that shadow assets will not be trashed
 			$shadow_assets = Array();
 			foreach ($assets as $one_id => $one_info) {
-				if (strpos($one_id,':')) $shadow_assets[] = $one_id;
+				if (strpos($one_id,':') !== FALSE) $shadow_assets[] = $one_id;
 			}
 			if (!empty($shadow_assets)) {
 				$shadow_info_array = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($shadow_assets);

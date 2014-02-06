@@ -163,7 +163,7 @@ class Trigger_Action_Set_Session_Var extends Trigger_Action
 		ob_start();
 		$name = array_get_index($settings, 'name');
 		if ($write_access) {
-			text_box($prefix.'[name]', $name);
+			text_box($prefix.'[name]', $name, 30);
 		} else {
 			echo '<b>'.$name.'</b>';
 		}
@@ -172,9 +172,10 @@ class Trigger_Action_Set_Session_Var extends Trigger_Action
 		ob_start();
 		$value = array_get_index($settings, 'value');
 		if ($write_access) {
-			text_box($prefix.'[value]', $value);
+			text_box($prefix.'[value]', $value, 40);
 		} else {
 			echo '<b>'.$value.'</b>';
+			echo '<br/><br/>';
 		}
 		$value_input = ob_get_clean();
 

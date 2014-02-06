@@ -302,7 +302,7 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
             if ($write_access) {
                 asset_finder($prefix.'_when_meta_field_id', $metadata_field_id, Array('metadata_field_date' => 'D'));
                 ?>
-                <p><em class="sq-backend-smallprint">(<?php echo translate('trigger_action_future_status_date_format'); ?>)</em></p>
+                <br/><?php echo translate('trigger_action_future_status_date_format'); ?>
                 <?php
             } else {
 				if ($metadata_field_id) {
@@ -346,45 +346,52 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 
 		echo '<p>';
 		label(translate('offset_for_above_fields').': ', $prefix.'_offset');
-		$duration->paint($prefix.'_offset_value', !$write_access);
-		echo ' ';
 		if ($write_access) {
+			$duration->paint($prefix.'_offset_value', !$write_access);
+			echo ' ';
 			combo_box($prefix.'_offset_operator', Array('-' => translate('before'), '+' => translate('after')), FALSE, ($mins < 0) ? '-' : '+');
+			echo ' '.translate('specified_value');
 		} else {
+			echo '<strong>';
+			$duration->paint($prefix.'_offset_value', !$write_access);
+			echo ' ';
 			echo translate(($mins < 0) ? 'before' : 'after');
+			echo ' '.translate('specified_value');
+			echo '</strong>';
 		}
-		echo ' '.translate('specified_value').'<br /><i>'.translate('offset_field_note').'</i><br /><br /></p>';
+		echo '<br />'.translate('offset_field_note').'</p>';
 
 		if ($write_access) {
 			check_box($prefix.'_cascade_all', '1', $settings['cascade']);
 			label(translate('trigger_action_future_status_cascade_all'), $prefix.'_cascade_all');
 			?>
-			<p><em class="sq-backend-smallprint">(<?php echo translate('trigger_action_future_status_failure_conditions'); ?>)</em></p>
+			<p><?php echo translate('trigger_action_future_status_failure_conditions'); ?></p>
 			<?php
 		} else {
 			if ($settings['cascade']) {
-				echo ' '.translate('trigger_action_future_status_cascade_all');
+				echo ' <strong>'.translate('trigger_action_future_status_cascade_all').'</strong>';
 			}
 		}
 
 		echo '<p>';
-		echo translate('trigger_action_future_status_customise_msg');
+		echo translate('trigger_action_future_status_customise_msg').': ';
 		$custom_message = array_get_index($settings, 'custom_error_msg', '');
 		if ($write_access) {
 			text_box($prefix.'_custom_error_msg', $custom_message, '40');
 		} else {
-			echo ' : '.$custom_message;
+			echo '<strong>'.$custom_message.'</strong>';
 		}
 		echo translate('trigger_action_future_status_customise_msg_note');
-		'<br />()<b>NOTE :</b> If customised, this error message will be displayed if the caluclated time is in past.</p>';
+		'<br /><strong>Note:</strong> If customised, this error message will be displayed if the caluclated time is in the past.</p>';
 
 		echo '<p>';
-		echo translate('trigger_action_future_status_treat_as_fatal');
 		$treat_fatal = array_get_index($settings, 'treat_as_fatal', 0);
 		if ($write_access) {
 			check_box($prefix.'_treat_as_fatal', '1', $treat_fatal); 
+			label(translate('trigger_action_future_status_treat_as_fatal'), $prefix.'_treat_as_fatal');
 		} else {
 			echo '<img src="'.sq_web_path('lib').'/web/images/'.($treat_fatal ? 'tick' : 'cross').'.gif" alt="'.($treat_fatal ? translate('yes') : translate('no')).'" /> ';
+			echo translate('trigger_action_future_status_treat_as_fatal');
 		}
 		echo translate('trigger_action_future_status_treat_as_fatal_note');
 

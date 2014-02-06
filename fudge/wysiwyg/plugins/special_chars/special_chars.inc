@@ -75,7 +75,7 @@ class special_chars extends wysiwyg_plugin
 				if (this._inPopup == true) { in_popup = '1'; }
 
 				var Width = 300;
-				var Height = 380;
+				var Height = 390;
 				editor_<?php echo $this->wysiwyg->name?>._object = this;
 				var strPage = "<?php echo $this->get_popup_href('char_map.php')?>?width=" + Width + '&height=' + Height;
 				this._popupDialog("insertSpecialChar", strPage, Width, Height, true, function(param) {

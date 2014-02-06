@@ -190,7 +190,7 @@ class Trigger_Action_Remove_Metadata_Schema extends Trigger_Action
 		ob_start();
 			if ($write_access) {
 				echo '<div class="sq-break-line-inputs">';
-				echo translate('trigger_schema_remove_schema_message').' ';
+				echo translate('trigger_schema_remove_schema_message').': ';
 				asset_finder($prefix.'[schemaid]', $current_schemaid, Array('metadata_schema' => 'I'));
 				echo '<br />';
 				check_box($prefix.'[removeall]', '1', $remove_all, 'if (this.checked == true) { if (!confirm("'.translate('trigger_schema_remove_all_schema_confirm_message').'")) { this.checked = false; } }');
@@ -203,18 +203,18 @@ class Trigger_Action_Remove_Metadata_Schema extends Trigger_Action
 			} else {
 				if (!empty($current_schemaid)) {
 					$schema_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($current_schemaid));
-					echo translate('trigger_schema_remove_schema_message').' ';
+					echo translate('trigger_schema_remove_schema_message').': ';
 					echo get_asset_tag_line($current_schemaid);
 				} else {
-					echo translate('trigger_schema_remove_schema_message').' ';
-					echo '<b>'.translate('trigger_schema_no_schema_message').'</b>';
+					echo translate('trigger_schema_remove_schema_message').': ';
+					echo '<em>'.translate('trigger_schema_no_schema_message').'</em>';
 				}
 				echo '<br />';
 				echo '<img src="'.sq_web_path('lib').'/web/images/'.($remove_all ? 'tick' : 'cross').'.gif" alt="'.($remove_all ? translate('yes') : translate('no')).'" /> ';
 				echo translate('trigger_schema_remove_all_schema_message');
 				echo '<br />';
 				echo '<img src="'.sq_web_path('lib').'/web/images/'.($cascade ? 'tick' : 'cross').'.gif" alt="'.($cascade ? translate('yes') : translate('no')).'" /> ';
-				echo translate('cascade_schema_changes');
+				echo translate('trigger_schema_removal_to_children');
 			}
 
 			$output = ob_get_contents();

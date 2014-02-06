@@ -71,6 +71,9 @@ class Asset_Attribute_Selection extends Asset_Attribute
 		if (!isset($this->_params['allow_other'])) {
 			$this->_params['allow_other'] = FALSE;
 		}
+		if (!isset($this->_params['sort_options'])) {
+			$this->_params['sort_options'] = FALSE;
+		}
 
 		// set default edit parameters
 		$this->_edit_params['style']      = 'list';
@@ -286,6 +289,8 @@ function _str2ar($string)
 function paint($prefix, $read_only=FALSE)
 {
 	$options = $this->_params['options'];
+	$sort_options = $this->_params['sort_options'];
+
 	if ($this->_params['allow_empty'] && !$this->_params['multiple']) {
 		if (empty($this->_edit_params['empty_text'])) {
 			$this->_edit_params['empty_text'] = '-- Leave Empty --';
@@ -347,7 +352,8 @@ function paint($prefix, $read_only=FALSE)
 													.substr($this->edit_params['extras'], $onchange_pos+11);
 				}
 			}
-			combo_box($prefix, $options, !empty($this->_params['multiple']), $this->hasUnlistedValue() ? '__other__' : $value, $this->_edit_params['height'], $this->_edit_params['extras']);
+
+			combo_box($prefix, $options, !empty($this->_params['multiple']), $this->hasUnlistedValue() ? '__other__' : $value, $this->_edit_params['height'], $this->_edit_params['extras'], 0, $sort_options);
 			if (array_get_index($this->_params, 'allow_other')) {
 				echo '&nbsp;';
 				text_box($prefix.'_other', $this->hasUnlistedValue() ? $this->value : '', '', '', FALSE, $this->hasUnlistedValue() ? '' : 'style="visibility: hidden"');

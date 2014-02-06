@@ -168,7 +168,7 @@ class matrix_insert_anchor extends wysiwyg_plugin
 				editor_<?php echo $this->wysiwyg->name?>._object = this;
 				var strPage = "<?php echo $this->get_popup_href('insert_anchor.php')?>?&name=" + escape(currArgs["name"]) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + escape(in_popup);
 
-				this._popupDialog("matrixInsertAnchor", strPage, 480, 300, true, function(param) {
+				this._popupDialog("matrixInsertAnchor", strPage, 480, 180, true, function(param) {
 
 					if (!param) {
 						// user must have pressed Cancel

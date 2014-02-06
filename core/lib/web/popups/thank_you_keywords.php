@@ -25,100 +25,70 @@
 		return FALSE	;
 	}
 
+	require_once dirname(__FILE__).'/../../../../core/include/backend_outputter.inc';
+	// $backend = new Backend();
+	$o = new Backend_Outputter();
+
+	$o->openSection('\''.$asset->attr('name').'\' Thank You / Emails Keyword Replacements');
+	$o->openField('', 'wide_col');
+
 	if ($asset->readAccess()) {
-?>
-
-<html>
-	<head>
-		<title>'<?php echo $asset->attr('name') ?>' Thank You / Emails Keyword Replacements</title>
-		<style>
-			body {
-				background-color:	#FFFFFF;
-			}
-
-			body, p, td, ul, li, input, select, textarea{
-				color:				#000000;
-				font-family:		Arial, Verdana Helvetica, sans-serif;
-				font-size:			11px;
-			}
-
-			fieldset {
-				padding:			0px 10px 5px 5px;
-				border:				1px solid #E0E0E0;
-			}
-
-			legend {
-				color:				#2086EA;
-			}
-		</style>
-	</head>
-
-	<body>
-	<?php
-		require_once dirname(__FILE__).'/../../../../core/include/backend_outputter.inc';
-		// $backend = new Backend();
-		$o = new Backend_Outputter();
-
-		$o->openSection('Keyword List for \''.$asset->attr('name').'\' (#'.$asset->id.')');
-		$o->openField('&nbsp;');
 
 		$questions = $asset->getQuestions();
 		$sections  = $asset->getSections();
-	?>
-				<p>These keywords are available for use in Complex Formatting for insertion into the 'Thank You' bodycopy, if it is enabled, as well as in emails sent from this form. The <b>'Response'</b> keywords (%response_*%) are replaced with the actual response for that question. The <b>'Section Title'</b> keywords (%section_title_*%) will be replaced with the name of the section.</p>
+		?>
+		<p>These keywords are available for use in Complex Formatting for insertion into the 'Thank You' bodycopy, if it is enabled, as well as in emails sent from this form. The <b>'Response'</b> keywords (%response_*%) are replaced with the actual response for that question. The <b>'Section Title'</b> keywords (%section_title_*%) will be replaced with the name of the section.</p>
 
-		<p>
-		<fieldset>
-			<legend><b>Unattached Questions</b></legend>
-			<table border="0" width="100%">
-				<?php
-					foreach ($questions as $q_id => $question) {
-						?>							<tr><td valign="top" width="200"><b>%response_<?php echo $asset->id.'_q'.$q_id; ?>%</b></td><td valign="top"><?php echo get_asset_tag_line($asset->id.':q'.$q_id); ?></td></tr><?php
-					}
-					?>
-			</table>
-		</fieldset>
-		</p>
-
-				<?php
-				foreach ($sections as $section) {
-				?>
-				<p>
-					<fieldset>
-					<legend><b><?php echo get_asset_tag_line($section->id); ?></b></legend>
-						<table border="0" width="100%">
-							<tr><td valign="top" width="200"><b>%section_title_<?php echo $section->id ?>%</b></td><td valign="top">Section Title</td></tr>
-				<?php
-					$replacements['section_title_'.$section->id] = $section->attr('name');
-					$questions = $section->getQuestions();
-					foreach ($questions as $q_id => $question) {
-						?>
-						<tr><td valign="top" width="200"><b>%response_<?php echo $section->id.'_q'.$q_id; ?>%</b></td><td valign="top"><?php echo get_asset_tag_line($section->id.':q'.$q_id); ?></td></tr>
+		<table class="sq-backend-table compact">
+			<tr><th colspan="2">Unattached Questions</th></tr>
+			<?php
+				foreach ($questions as $q_id => $question) { 
+				?>							
+					<tr>
+						<td>%response_<?php echo $asset->id.'_q'.$q_id; ?>%</td>
+						<td><?php echo get_asset_tag_line($asset->id.':q'.$q_id); ?></td>
+					</tr>
 					<?php
-					}
-					?>
-						</table>
-					</fieldset>
-				</p>
-				<?php
 				}
-				?>
+			?>
+		</table>
 
+		<?php
+			foreach ($sections as $section) {
+			?>
+				<table class="sq-backend-table compact">
+					<tr><th colspan="2">Section Questions: <?php echo $section->name ?></th></tr>
+					<tr><td>%section_title_<?php echo $section->id ?>%</td><td><?php echo get_asset_tag_line($section->id); ?></td></tr>
 
-			</table>
-		</fieldset>
-		</p>
+					<?php
+						$replacements['section_title_'.$section->id] = $section->attr('name');
+						$questions = $section->getQuestions();
+						foreach ($questions as $q_id => $question) { 
+							?>
+								<tr>
+									<td>%response_<?php echo $section->id.'_q'.$q_id; ?>%</td>
+									<td><?php echo get_asset_tag_line($section->id.':q'.$q_id); ?></td>
+								</tr>
+							<?php
+						}
+					?>
+				</table>
+			<?php
+		}
 
-<?php
-$o->openField('', 'commit');
-normal_button('cancel', 'Close Window', 'window.close()');
-$o->closeSection();
-$o->paint();
-?>
+	} else {
+		echo "<p><strong>You do not have required access to view this page.</strong></p>";
+	}
+	?>
+
+	<?php
+	$o->closeField();
+
+	$o->openField('', 'commit');
+	normal_button('cancel', translate('close_window'), 'window.close()', '');
+	$o->closeSection();
+	$o->paint();
+	?>
+
 	</body>
 </html>
-<?php
-	} else {
-		echo "<b>You do not have required access to view this page</b>";
-	}
-?>
