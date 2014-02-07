@@ -1,0 +1,73 @@
+/* make sure Matrix styles won't pass on to viper */
+.Viper-textbox-input {
+     box-shadow: none!important;
+}
+.Viper-textbox-textArea {
+    box-shadow: none!important;
+}
+
+/* view source code mode requires specific font to work, so have to stop Matrix styles passing on it */
+.ace_editor {
+    text-align: left!important;
+    font-family: 'Monaco','Menlo','Ubuntu Mono','Consolas','source-code-pro',monospace!important;
+}
+
+
+
+/* viper tool bar needs to be in diff style*/
+
+/* when it's appened to a section */
+.fixedElement .ViperTP-bar {
+    position: relative!important;
+    box-shadow: none;
+}
+
+/* when it's fixed at top */
+.fixedScroll .ViperTP-bar {
+    border-radius: 0;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.7), 0 -49px 31px -43px rgba(0, 0, 0, 0.3) inset;
+    position: fixed !important;
+    z-index: 99;
+    margin-left: auto;
+    margin-right: auto;
+    position: fixed!important;
+}
+
+/* when it's fixed at top in backend interface */
+.backendViperToolbar .ViperTP-bar {
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+    width: 97.5%;
+}
+
+
+
+/* this is for the div saying "there is no content, click to start editting" */
+.matrix-viper-no-content {
+    color: #AAAAAA;
+    font-size: 1.1em;
+    font-style: italic;
+    min-height: 40px;
+    text-align: center;
+    min-width: 500px;
+}
+
+/* this is the actual div viper is enabled on*/
+.with-viper {
+   min-width: 500px;
+   min-height: 40px;
+}
+
+/* the tables inserted here needs to be visible, so set a default style */
+.with-viper th {
+    background-color: #4379B1;
+    border-color: #6B9BCE !important;
+    color: #FFFFFF;
+    font-weight: bold;
+    text-align: center;
+}
+.with-viper td, .with-viper th {
+    border: 1px solid #A2C1E1 !important;
+    color: #365676;
+    padding: 0.6em !important;
+}
