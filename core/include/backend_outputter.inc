@@ -1951,7 +1951,7 @@ class Backend_Outputter
 	function isViperAvailable()
 	{
 		if(SQ_IN_BACKEND || SQ_IN_LIMBO) {
-		    $viper_installed = is_file(SQ_DATA_PATH.'/public/Viper/build/viper.js');
+		    $viper_installed = is_file(SQ_DATA_PATH.'/public/ees/Plus/Libs/Viper/viper.js');
 		    $viper_enabled = $GLOBALS['SQ_SYSTEM']->getUserPrefs('content_type_wysiwyg', 'SQ_ENABLE_VIPER_EDITOR');
 		    return $viper_enabled && $viper_installed;
 		}
