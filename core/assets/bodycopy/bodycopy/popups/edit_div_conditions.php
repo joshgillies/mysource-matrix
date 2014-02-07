@@ -41,7 +41,7 @@ include(dirname(__FILE__).'/header.php');
 		f.logical_op_groups.value  	   = (data['logical_op_groups']       == null) ? "all_match" : data['logical_op_groups'];
 		
 		if(data['conditions'] !== null) {
-		    for(var i in data['conditions']) {
+		    for(var i = 0; i < data['conditions'].length;  i++) {
 			var group = data['conditions'][i];
 			add_group(group);
 		    }
@@ -199,7 +199,7 @@ include(dirname(__FILE__).'/header.php');
 	    var select = document.createElement("select");
 	    select.setAttribute("class", "selected_condition");
 	    
-	    for (var i in conditions) {
+	    for (var i = 0; i < conditions.length; i++) {
 		var option = document.createElement("option");
 		option.setAttribute('value', conditions[i]);
 		if(content !== null && content === conditions[i]) {

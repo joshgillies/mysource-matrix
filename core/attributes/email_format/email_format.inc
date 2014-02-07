@@ -258,13 +258,27 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 									</div>
 									<?php
 								} else {
-									$wysiwyg = $this->_createEditor($prefix);
-									$wysiwyg->set_contents($current_value['html_format']);
 									?>
-									<div style="display: none" id="<?php echo $prefix?>_html_body_div">
-										<?php echo $wysiwyg->paint()?>
+									<div style="display: none" id="<?php echo $prefix?>_html_body_div" class="sq-email-format-html-body-div">
+									<?php
+									$o = $GLOBALS['SQ_SYSTEM']->backend->out;
+									if(!is_null($o) && $o->isViperAvailable()) {
+									    $o->enableViperEditor();	    
+									    // Use a hidden input to pass the Viper edited content to Matrix backend form
+									    $o->addOnSubmit('document.getElementById("'.$prefix.'_contents_div_viper_input").value = document.getElementById("'.$prefix.'_contents_div_viper").innerHTML;');
+									    ?>
+									  <div id="<?php echo $prefix?>_contents_div_viper" class="with-viper"><?php echo $current_value['html_format'];?></div>
+									  <input  id="<?php echo $prefix?>_contents_div_viper_input" style="display:none;" name="<?php echo $prefix?>_contents_div_viper_input" value=""/>
+									  <?php
+									}
+									else {
+									    $wysiwyg = $this->_createEditor($prefix);
+									    $wysiwyg->set_contents($current_value['html_format']);
+									    echo $wysiwyg->paint();
+									}
+									?>
 									</div>
-									<div id="<?php echo $prefix?>_text_body_div">
+									<div id="<?php echo $prefix?>_text_body_div" class="sq-email-format-text-body-div">
 										<?php text_area($prefix.'_text_body', $current_value['text_format'], 105, 15); ?>
 									</div>
 									<?php
@@ -322,8 +336,13 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 
 		$value = Array();
 
-		$wysiwyg = $this->_createEditor($prefix);
-		$value['html_format'] = trim($wysiwyg->process());
+		if(isset($_REQUEST[$prefix.'_contents_div_viper_input'])) {
+		    $value['html_format'] = trim($_REQUEST[$prefix.'_contents_div_viper_input']);
+		}
+		else {
+		    $wysiwyg = $this->_createEditor($prefix);
+		    $value['html_format'] = trim($wysiwyg->process());
+		}
 		$value['text_format'] = (isset($_REQUEST[$prefix.'_text_body'])) ? $_REQUEST[$prefix.'_text_body'] : '';
 
 		$ol = new Asset_Attribute_Option_List();

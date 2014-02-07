@@ -104,6 +104,9 @@ img.sq-icon-info {
 	width: 						15px;
 	height:						15px;
 }
+img.sq-tag-line.sq-icon.sq-icon-info {
+	margin-right:				3px;
+}
 
 div > img {
 	margin-right: 				3px;
@@ -256,6 +259,14 @@ p.sq-backend-warning {
 .sq-source-view{
 	font-family: 				'Courier New', Courier, monospace !important;
 	padding-bottom:				10px;
+}
+
+.sq-source-mode-forced {
+	margin-bottom: 				6px;
+}
+
+.sq-source-mode-forced img {
+	cursor: 					not-allowed;
 }
 
 .sq-no-bottom-border{
@@ -1639,7 +1650,7 @@ EDIT BODYCOPY STYLES
 .sq-locked-content-block-wrapper .sq-source-view{
 	padding-top: 				10px;
 	padding-bottom: 			0;
-	line-height: 				14px;
+	/*line-height: 				14px;*/
 }
 
 .sq-bodycopy-locked-wrapper.content_type_raw_html{
@@ -2651,6 +2662,13 @@ img.sq-tag-line.sq-icon {
 	background: 				#fff;
 }
 
+.sq-email-format-html-body-div {
+	width:						100%;
+	background: 				none repeat scroll 0 0 #FFFFFF;
+	border: 					1px solid #C2C2C2;
+	padding: 					10px 10px 0px 10px;
+}
+
 /* LOG MANAGER */
 
 .sq-log-monitor-container table td {
@@ -2822,12 +2840,13 @@ table.sq-log-monitor-table td{
 
 .sq-wysiwyg-standalone-header, 
 .sq-wysiwyg-standalone-body {
-	padding: 					10px;
+	padding: 					10px 10px 0px 10px;
 	border: 					1px dashed #ccc;
 	border-radius: 				0 0 4px 4px;
 }
 
 .sq-wysiwyg-standalone-header{
+	padding: 					10px;
 	border-bottom: 				none;
 	border-radius: 				4px 4px 0 0;
 }

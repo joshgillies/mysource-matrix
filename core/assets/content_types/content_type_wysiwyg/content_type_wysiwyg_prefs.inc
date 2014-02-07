@@ -102,6 +102,12 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 																'default'		=> 0,
 																'protected'		=> FALSE,
 															   ),
+	    					'SQ_ENABLE_VIPER_EDITOR'						=> Array (
+																'name'			=> 'enable_viper_editor',
+																'description'	=> 'Enable Viper WYSIWYG editor',
+																'default'		=> 1,
+																'protected'		=> FALSE,
+															   ),
 					 );
 
 
@@ -131,6 +137,28 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
 		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 
+		// enable viper editor?
+		if (is_null($pref) || $pref == 'SQ_ENABLE_VIPER_EDITOR') {		
+						
+			if (is_null($pref)) {
+				$o->openField(translate($this->pref_vars['SQ_ENABLE_VIPER_EDITOR']['name']));
+			}
+						
+			$pref_var =& $this->pref_vars['SQ_ENABLE_VIPER_EDITOR']['default'];
+
+			if ($have_lock && $is_admin) {
+				$options = Array(1 => 'Yes', 0 => 'No');
+				combo_box('prefs[SQ_ENABLE_VIPER_EDITOR]', $options, FALSE, $pref_var);
+				echo $o->note(translate('enable_viper_editor_note'));
+			} else {
+				echo ($pref_var) ? translate('yes') : translate('no');
+			}
+						
+			if (is_null($pref)) $o->closeField();
+			
+		}//end if show SQ_ENABLE_VIPER_EDITOR
+		
+		
 		if (is_null($pref) || $pref == 'SQ_WYSIWYG_STYLE') {
 			if (is_null($pref)) {
 				$o->openField(translate($this->pref_vars['SQ_WYSIWYG_STYLE']['name']));
@@ -460,6 +488,12 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 		if (!$is_admin) return FALSE;
 
+		// enable viper
+		if (is_null($pref) || $pref == 'SQ_ENABLE_VIPER_EDITOR') {
+			if (isset($_POST['prefs']['SQ_ENABLE_VIPER_EDITOR'])) {
+				$this->pref_vars['SQ_ENABLE_VIPER_EDITOR']['default'] = $_POST['prefs']['SQ_ENABLE_VIPER_EDITOR']['default'];
+			}
+		}		
 
 		// WYSIWYG STYLE
 		if (is_null($pref) || $pref == 'SQ_WYSIWYG_STYLE') {
@@ -556,6 +590,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 				$this->pref_vars['SQ_LIVE_LINK_ONLY']['default'] = $_POST['prefs']['SQ_LIVE_LINK_ONLY']['default'];
 			}
 		}
+		
 
 		return TRUE;
 

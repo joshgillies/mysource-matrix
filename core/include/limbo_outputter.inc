@@ -163,6 +163,8 @@ class Limbo_Outputter extends Backend_Outputter
 			$this->addCssInclude($this->filesPath('css/limbo.css'));
 		}
 
+		$this->loadViperEditor();
+			
 		foreach ($this->_css_includes as $file) {
 			$this->_paintCssInclude($file);
 		}
@@ -201,7 +203,7 @@ class Limbo_Outputter extends Backend_Outputter
 		foreach ($this->_js_includes as $file) {
 			$this->_paintJsInclude($file);
 		}
-
+		
 		// Event handlers
 		$this->_paintEventHandlers();
 

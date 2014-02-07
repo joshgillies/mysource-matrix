@@ -303,9 +303,14 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 			<table style="width: 100%; margin: 0;">
 				<tr>
 					<td align="left">
+						<?php
+						$o = $GLOBALS['SQ_SYSTEM']->backend->out;
+						if(is_null($o) || !$o->isViperAvailable()) {
+						?>
 						<div style="width: 16px; height: 16px; background: url(<?php echo sq_web_path('lib')?>/web/images/icons/edit_mode.png);background: expression('none');filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='<?php echo sq_web_path('lib')?>/web/images/icons/edit_mode.png', sizingMethod='scale'); font-size:10px; cursor:pointer;"
 				onclick="switchEditingMode('<?php echo $prefix; ?>_contents_div','<?php echo $prefix; ?>_wysiwyg_div', editor_<?php echo $prefix; ?>);">
 						</div>
+						<?php } ?>
 					</td>
 					<td align="right">
 						<?php echo $this->paintBackendStatusIcons($wysiwyg); ?>
@@ -314,8 +319,26 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 			</table>
 		</div>
 		<div class="sq-wysiwyg-standalone-body">
-			<div style="display:none;" id="<?php echo $prefix?>_wysiwyg_div"><?php echo $wysiwyg->paint()?></div>
-			<div id="<?php echo $prefix?>_contents_div" class="sq-wysiwyg-preview-wrapper" onclick="editDiv=document.getElementById('<?php echo $prefix ?>_wysiwyg_div'); if (editDiv.style.display == 'none') {switchEditingMode('<?php echo $prefix ?>_contents_div','<?php echo $prefix ?>_wysiwyg_div', editor_<?php echo $prefix ?>);}"><?php echo $this->value?></div>
+		<?php
+		$o = $GLOBALS['SQ_SYSTEM']->backend->out;
+		if(!is_null($o) && $o->isViperAvailable()) {
+		    $o->enableViperEditor();	    
+		    // Use a hidden input to pass the Viper edited content to Matrix backend form
+		    $o->addOnSubmit('document.getElementById("'.$prefix.'_contents_div_viper_input").value = document.getElementById("'.$prefix.'_contents_div_viper").innerHTML;');
+		    ?>
+		  <div id="<?php echo $prefix?>_contents_div_viper" class="with-viper"><?php echo $this->value;?></div>
+		  <input  id="<?php echo $prefix?>_contents_div_viper_input" style="display:none;" name="<?php echo $prefix?>_contents_div_viper_input" value=""/>
+		  <?php
+		}
+		else {
+		?>
+		    
+			    <div style="display:none;" id="<?php echo $prefix?>_wysiwyg_div"><?php echo $wysiwyg->paint()?></div>
+			    <div id="<?php echo $prefix?>_contents_div" class="sq-wysiwyg-preview-wrapper" onclick="editDiv=document.getElementById('<?php echo $prefix ?>_wysiwyg_div'); if (editDiv !== null && editDiv.style.display == 'none') {switchEditingMode('<?php echo $prefix ?>_contents_div','<?php echo $prefix ?>_wysiwyg_div', editor_<?php echo $prefix ?>);}"><?php echo $this->value?></div>
+		    
+		<?php
+		}
+		?>
 		</div>
 		<?php
 
@@ -333,10 +356,14 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 	*/
 	function process($prefix, $owner_id=NULL, $cmp_value=TRUE)
 	{
-		$wysiwyg = $this->_createEditor($prefix);
-
-		$html = $wysiwyg->process();
-
+	    	if(isset($_REQUEST[$prefix.'_contents_div_viper_input'])) {
+		    $html = $_REQUEST[$prefix.'_contents_div_viper_input'];
+		}
+		else {
+		    $wysiwyg = $this->_createEditor($prefix);
+		    $html = $wysiwyg->process();
+		}
+		
 		$this->processed = FALSE;
 		if ($html !== FALSE && (!$cmp_value || $html !== $this->value) && $this->setValue($html, $owner_id)) {
 			$this->processed = TRUE;
@@ -442,35 +469,41 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 		require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 		require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 
-		// prints the status of the last run of htmltidy tool as a tag icon
-		if (!SQ_TOOL_HTML_TIDY_ENABLED || !file_exists(SQ_TOOL_HTML_TIDY_PATH)) {
-			// tool is not enabled
-			Bodycopy_Edit_Fns::printBodycopyIcon('', 'HTMLTidy Status', translate('wysiwyg_htmltidy_status_disabled'), 'htmltidy_disabled', '[HTMLTidy Status]');
-		} else {
+		$o = $GLOBALS['SQ_SYSTEM']->backend->out;
+		if(!is_null($o) && $o->isViperAvailable()) {
+		    Bodycopy_Edit_Fns::printBodycopyIcon('', 'Viper Content Area', translate('viper_editor_enabled_icon_note'), 'viper_logo', '[Viper Content Area]');
+		}
+		else {
+		    // prints the status of the last run of htmltidy tool as a tag icon
+		    if (!SQ_TOOL_HTML_TIDY_ENABLED || !file_exists(SQ_TOOL_HTML_TIDY_PATH)) {
+			    // tool is not enabled
+			    Bodycopy_Edit_Fns::printBodycopyIcon('', 'HTMLTidy Status', translate('wysiwyg_htmltidy_status_disabled'), 'htmltidy_disabled', '[HTMLTidy Status]');
+		    } else {
 
-			$status = $this->_edit_params['tidy_status'];
-			$status_msg = translate('wysiwyg_htmltidy_status_wait');
-			$image_filename = 'htmltidy_'.$status;
-			switch ($status) {
-				case 'pass':
-					$status_msg = translate('wysiwyg_htmltidy_status_pass');
-				break;
-				case 'fail':
-					$status_msg = translate('wysiwyg_htmltidy_status_fail');
-				break;
-				case 'wait':
-					$status_msg = translate('wysiwyg_htmltidy_status_wait');
-				break;
-			}//end switch
+			    $status = $this->_edit_params['tidy_status'];
+			    $status_msg = translate('wysiwyg_htmltidy_status_wait');
+			    $image_filename = 'htmltidy_'.$status;
+			    switch ($status) {
+				    case 'pass':
+					    $status_msg = translate('wysiwyg_htmltidy_status_pass');
+				    break;
+				    case 'fail':
+					    $status_msg = translate('wysiwyg_htmltidy_status_fail');
+				    break;
+				    case 'wait':
+					    $status_msg = translate('wysiwyg_htmltidy_status_wait');
+				    break;
+			    }//end switch
 
-			Bodycopy_Edit_Fns::printBodycopyIcon('', 'HTMLTidy Status', $status_msg, $image_filename, '[HTMLTidy Status]');
+			    Bodycopy_Edit_Fns::printBodycopyIcon('', 'HTMLTidy Status', $status_msg, $image_filename, '[HTMLTidy Status]');
 
-			$res = (str_replace('
-', '<br />', htmlentities($this->_edit_params['tidy_errors'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
+			    $res = (str_replace('
+    ', '<br />', htmlentities($this->_edit_params['tidy_errors'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
 
-			$htmltidy_accessibility_filename = 'accessibility_'.(empty($res) ? 'pass' : 'fail');
-            Bodycopy_Edit_Fns::printBodycopyIcon('', 'HTMLTidy Accessibility', !empty($res) ? $res : translate('wysiwyg_htmltidy_accessibility_no_warning'), $htmltidy_accessibility_filename, '[HTMLTidy Status]');
+			    $htmltidy_accessibility_filename = 'accessibility_'.(empty($res) ? 'pass' : 'fail');
+		Bodycopy_Edit_Fns::printBodycopyIcon('', 'HTMLTidy Accessibility', !empty($res) ? $res : translate('wysiwyg_htmltidy_accessibility_no_warning'), $htmltidy_accessibility_filename, '[HTMLTidy Status]');
 
+		    }
 		}
 
 	}//end paintBackendStatusIcons()

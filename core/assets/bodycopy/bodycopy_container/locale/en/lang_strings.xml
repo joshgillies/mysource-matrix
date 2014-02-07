@@ -17,5 +17,5 @@
 -->
 
 <strings>
-<string source="bodycopy_html_conflict_warning">HTML contents of this container interfere with the edit interface. HTML parsing has been temporarily disabled. Below is the raw HTML content.</string>
+<string source="bodycopy_html_conflict_warning">HTML contents of this container interfere with the edit interface. HTML parsing has been disabled for this container. Below is the raw HTML content.</string>
 </strings>

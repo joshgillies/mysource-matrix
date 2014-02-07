@@ -147,6 +147,8 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 									'<label',
 									'<fieldset',
 									'<legend',
+									'<style',
+									'<script',
 								 );
 				$conflict_tag_search_string = '~('.implode(')|(', $conflict_tags).')~i';
 
@@ -160,7 +162,12 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 					ob_start();
 						$this->paint($asset, FALSE);
 					$container_content = ob_get_clean();
-					$container_content = '<div style="padding: 1ex; margin-bottom: 1ex; border: solid 1px grey;"><strong>Container ID '.$asset->id.'</strong><div class="sq-backend-warning">'.translate('bodycopy_html_conflict_warning').'</div><hr /><pre>'.htmlentities($container_content, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'</pre></div>';
+					$container_content = ''
+						.'<div class="sq-source-mode-forced" title="'.translate('bodycopy_html_conflict_warning').'">'
+							.'<img align="absmiddle" src="'.sq_web_path('data').'/asset_types/bodycopy/images/icons/source_mode_grey.png" title="'.translate('bodycopy_html_conflict_warning').'" width="16" height="16" />'
+						.'</div>'
+						.'<pre>'.htmlentities($container_content, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'</pre>'
+						.'';
 				}
 
 				//print a div wrapper around the content so we can style the container properly

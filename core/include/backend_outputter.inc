@@ -141,6 +141,16 @@ class Backend_Outputter
 	* @var integer
 	*/
 	var $_nb_section_count = 0;
+	
+	/*
+	 * Load viper editor
+	 */
+	var $_load_viper = FALSE;
+	
+	/*
+	 * viper toolbar section
+	 */
+	var $_viper_toolbar_section = NULL;
 
 
 	/**
@@ -657,9 +667,11 @@ class Backend_Outputter
 						</table>
 					</td>
 				</tr>
+				<tr><td><div class="viper-toolbar-container"></div></td></tr>
 				<?php
 			}//endif
 		}//endif
+		
 
 		?>
 			<tr>
@@ -1000,6 +1012,8 @@ class Backend_Outputter
 				$this->addCssInclude($this->filesPath('css/print.css'));
 				$this->addOnLoad('pagePrint()');
 			}
+			
+			$this->loadViperEditor();
 
 			foreach ($this->_css_includes as $file) {
 				$this->_paintCssInclude($file);
@@ -1019,12 +1033,13 @@ class Backend_Outputter
 			$this->addJsInclude(sq_web_path('lib').'/js/state.js');
 			$this->addJsInclude(sq_web_path('lib').'/js/tooltip.js');
 			$this->addOnLoad('fixIcons(\''.sq_web_path('lib').'/web/images/blank.gif\');');
+			
 
 			// and paint them all out
 			foreach ($this->_js_includes as $file) {
 				$this->_paintJsInclude($file);
 			}
-
+			
 			?>
 			<script type="text/javascript"><!--
 			//<![CDATA[
@@ -1178,7 +1193,11 @@ class Backend_Outputter
 				preload_image('<?php echo $file;?>');
 				<?php
 			}//end foreach
+						
+			    
 			?>
+			    
+			
 
 			//]]> -->
 			</script>
@@ -1379,8 +1398,15 @@ class Backend_Outputter
 						</tr>
 						<?php
 					}
+
 				}//endif
+				if($this->_viper_toolbar_section === $section['section_count']) {
+				    ?>
+					    <tr><td><div class="viper-toolbar-container"></div></td></tr>
+				    <?php
+				}
 				?>
+				
 				<tr>
 					<td class="sq-backend-section-inner-table-wrapper">
 						<table class="sq-backend-section-table-inner">
@@ -1915,6 +1941,65 @@ class Backend_Outputter
 	}//end getCurrentSectionNumber()
 
 
+	
+	/**
+	* Is Viper available for us?
+	*
+	* @return bool
+	* @access public
+	*/
+	function isViperAvailable()
+	{
+		if(SQ_IN_BACKEND || SQ_IN_LIMBO) {
+		    $viper_installed = is_file(SQ_DATA_PATH.'/public/Viper/build/viper.js');
+		    $viper_enabled = $GLOBALS['SQ_SYSTEM']->getUserPrefs('content_type_wysiwyg', 'SQ_ENABLE_VIPER_EDITOR');
+		    return $viper_enabled && $viper_installed;
+		}
+		return FALSE;
+	}//end isViperAvailable()
+	
+	
+	/**
+	* Enable Viper editor on this div
+	*
+	* @return null
+	* @access public
+	*/
+	function enableViperEditor()
+	{
+		// mark the section where we will insert toolbar
+		// it should be a main section, not a nested section
+		if(isset($this->_section_stack[0]) && is_null($this->_viper_toolbar_section)) {
+		    $this->_viper_toolbar_section = $this->_section_stack[0]['section_count'];
+		}
+		$this->_load_viper = TRUE;
+	}//end enableViperEditor()
+	
+	
+	/**
+	* Load the Viper editor js and css files
+	*
+	* @return null
+	* @access public
+	*/
+	function loadViperEditor()
+	{
+	    	if($this->_load_viper) {
+		    $buffer_content = ob_get_contents ();
+		    // if viper is not previously loaded, load them all
+		    // If in EES, viper.js would have been already loaded at this point. Loading below scripts would conflict with EES scripts.
+		    if(strpos($buffer_content, 'viper.js' ) === FALSE) {
+			$this->addJsInclude(sq_web_path('lib').'/web/dfx/dfx.js');
+			$this->addJsInclude(sq_web_path('data').'/ees/Libs/jquery/libs-all.js');
+			$this->addJsInclude(sq_web_path('data').'/ees/Plus/Libs/Viper/viper.js');
+			$this->addCssInclude(sq_web_path('data').'/ees/Plus/Libs/Viper/viper.css');
+			$this->addCssInclude(sq_web_path('lib').'/web/matrix_viper/matrix_viper.css');
+			$this->addJsInclude(sq_web_path('lib').'/web/matrix_viper/matrix_viper.js');
+		    }
+		}
+	}//end loadViperEditor()
+	
+	
 }//end class
 
 ?>
