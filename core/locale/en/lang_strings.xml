@@ -422,7 +422,7 @@
 	<string source="wysiwyg_spell_checker_pref_field">Spell Checker Language</string>
 	<string source="wysiwyg_spell_checker_pref_note">Language code consists of the two letter ISO 639 language code and an optional two letter ISO 3166 country code after a dash or underscore</string>
 	<string source="wysiwyg_spell_checker_pref_error">Pspell couldn't open the dictionary, no word lists can be found for the language "%s"</string>
-	<string source="wysiwyg_apply_design_style">Apply css styles</string>
+	<string source="wysiwyg_apply_design_style">Apply CSS Styles</string>
 	<string source="wysiwyg_apply_design_style_note">If yes, it will apply CSS styles to WYSIWYG. The styles is defined in CSS files under the design used for current asset. Matrix Apply Design plugin must be enabled.</string>
 	<string source="warning_-_moving_to_trash">Warning - Moving To Trash</string>
 	<string source="word_list">Word List</string>
@@ -3059,4 +3059,9 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	
 	<string source="password_history_enforcement">Password History Enforcement</string>
 	<string source="password_history_enforcement_note">Number of unique new passwords that have to be associated with and used by a user before an old password can be reused again. Enter 0 to disable this feature and stop Matrix from recording history passwords.</string>
+	
+	<!-- viper -->
+	<string source="enable_viper_editor">Enable Viper Editor</string>
+	<string source="enable_viper_editor_note">If this option is enabled, the new Viper editor will be used for the WYSIWYG content type and attributes. As a result, the following WSIWYG preferences will not be applied: WYSIWYG Style, Apply CSS Styles, WYSIWYG Plugins, WYSIWYG Disable Image Resize, Thesaurus and Protocol Templates.</string>
+	<string source="viper_editor_enabled_icon_note">Click inside the content area to start editing using the Viper Content Editor.</string>
 </strings>

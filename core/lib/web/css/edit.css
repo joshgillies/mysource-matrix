@@ -2585,6 +2585,15 @@ img.sq-tag-line.sq-icon {
 	vertical-align:				middle;
 }
 
+.sq-email-format-html-body-div {
+	width:					100%;
+	background: none repeat scroll 0 0 #FFFFFF;
+	border: 1px solid #C2C2C2;
+	padding: 10px 10px 0px 10px;
+	
+}
+
+
 /* LOG MANAGER */
 
 .sq-log-monitor-container table td {
@@ -2741,12 +2750,13 @@ table.sq-log-monitor-table td{
 
 .sq-wysiwyg-standalone-header, 
 .sq-wysiwyg-standalone-body {
-	padding: 					10px;
+	padding: 					10px 10px 0px 10px;
 	border: 					1px dashed #ccc;
 	border-radius: 				0 0 4px 4px;
 }
 
 .sq-wysiwyg-standalone-header{
+	padding: 					10px;
 	border-bottom: 				none;
 	border-radius: 				4px 4px 0 0;
 }

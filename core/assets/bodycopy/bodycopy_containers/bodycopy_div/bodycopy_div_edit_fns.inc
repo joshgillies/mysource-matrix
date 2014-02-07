@@ -364,7 +364,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 				
 				if (!is_null($content_type)) {
 					$content_edit = $content_type->getEditFns();
-					$content_edit->paintBackendIcons($content_type, $content_prefix);
+					$content_edit->paintBackendIcons($content_type, $content_prefix, $o);
 				}
 				?></span>
 				<span style="float: right;"><?php	
@@ -388,7 +388,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 				
 				if (!is_null($content_type)) {
 					$content_edit = $content_type->getEditFns();
-					$content_edit->paintBackendStatusIcons($content_type, $content_prefix);
+					$content_edit->paintBackendStatusIcons($content_type, $content_prefix, $o);
 				}
 				?>
 				</span>
@@ -405,7 +405,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 					?>
 					<div class="sq-edit-content-type-wrapper">
 						<?php
-						$content_edit->paintBackend($content_type, $content_prefix);
+						$content_edit->paintBackend($content_type, $content_prefix, $o);
 						?>
 					</div>
 					<?php

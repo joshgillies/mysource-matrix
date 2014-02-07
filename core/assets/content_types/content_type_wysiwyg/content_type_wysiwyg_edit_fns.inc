@@ -253,18 +253,32 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	*
 	* @param Content_Type_WYSIWYG	$asset	the WYSIWYG Content Type object
 	* @param string					$prefix	prefix for form elements
+	* @param Backend_Outputter	$o		the Backend Outputter instance
 	*
 	* @return boolean
 	* @access public
 	*/
-	public function paintBackend(Content_Type_WYSIWYG $asset, $prefix)
+	public function paintBackend(Content_Type_WYSIWYG $asset, $prefix, $o)
 	{
 		if ($asset->writeAccess('attributes')) {
-			$wysiwyg = $this->_createEditor($asset, $prefix);
-			?>
-			<div style="display:none;" id="<?php echo $prefix?>_wysiwyg_div"><?php echo $wysiwyg->paint(); ?></div>
-			<div id="<?php echo $prefix?>_contents_div" class="sq-wysiwyg-preview-wrapper" onclick="editDiv=document.getElementById('<?php echo $prefix ?>_wysiwyg_div'); if (editDiv.style.display == 'none') {switchEditingMode('<?php echo $prefix ?>_contents_div','<?php echo $prefix ?>_wysiwyg_div', editor_<?php echo $prefix ?>);}"><?php echo $wysiwyg->contents ?></div>
-			<?php
+			if($o->isViperAvailable()) {
+
+			    $o->enableViperEditor();
+
+			    // Use a hidden input to pass the Viper edited content to Matrix backend form
+			    $o->addOnSubmit('document.getElementById("'.$prefix.'_contents_div_viper_input").value = document.getElementById("'.$prefix.'_contents_div_viper").innerHTML;');
+			    ?>
+			    <div id="<?php echo $prefix?>_contents_div_viper" class="with-viper"><?php echo $asset->attr('html');?></div>
+			    <input  id="<?php echo $prefix?>_contents_div_viper_input" style="display:none;" name="<?php echo $prefix?>_contents_div_viper_input" value=""/>
+			   <?php
+			}
+			else {
+			    $wysiwyg = $this->_createEditor($asset, $prefix);
+			    ?>
+			  <div style="display:none;" id="<?php echo $prefix?>_wysiwyg_div"><?php echo $wysiwyg->paint(); ?></div>
+			  <div id="<?php echo $prefix?>_contents_div" onclick="editDiv=document.getElementById('<?php echo $prefix ?>_wysiwyg_div'); if (editDiv !== null && editDiv.style.display == 'none') {switchEditingMode('<?php echo $prefix ?>_contents_div','<?php echo $prefix ?>_wysiwyg_div', editor_<?php echo $prefix ?>);}"><?php echo $wysiwyg->contents ?></div>
+			  <?php
+			}
 		}
 		return TRUE;
 
@@ -276,13 +290,15 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	*
 	* @param Content_Type_WYSIWYG	$asset	the WYSIWYG Content Type object
 	* @param string					$prefix	prefix for form elements
+	* @param Backend_Outputter	$o		the Backend Outputter instance
 	*
 	* @return void
 	* @access public
 	*/
-	public function paintBackendIcons(Content_Type_WYSIWYG $asset, $prefix)
+	public function paintBackendIcons(Content_Type_WYSIWYG $asset, $prefix, $o)
 	{
-		Bodycopy_Edit_Fns::printBodycopyIcon("switchEditingMode('".$prefix."_contents_div','".$prefix."_wysiwyg_div', editor_".$prefix.');', 'Edit Contents', 'Switch between preview and edit mode', 'edit_mode', '[Edit Contents]');
+		if(!$o->isViperAvailable())
+		    Bodycopy_Edit_Fns::printBodycopyIcon("switchEditingMode('".$prefix."_contents_div','".$prefix."_wysiwyg_div', editor_".$prefix.');', 'Edit Contents', 'Switch between preview and edit mode', 'edit_mode', '[Edit Contents]');
 
 	}//end paintBackendIcons()
 
@@ -292,43 +308,49 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	*
 	* @param Content_Type_WYSIWYG	$asset	the WYSIWYG Content Type object
 	* @param string					$prefix	prefix for form elements
+	* @param Backend_Outputter	$o		the Backend Outputter instance
 	*
 	* @return void
 	* @access public
 	*/
-	public function paintBackendStatusIcons(Content_Type_WYSIWYG $asset, $prefix)
+	public function paintBackendStatusIcons(Content_Type_WYSIWYG $asset, $prefix, $o)
 	{
-		require_once SQ_DATA_PATH.'/private/conf/tools.inc';
+		if($o->isViperAvailable()) {
+		     Bodycopy_Edit_Fns::printBodycopyIcon('', 'Viper Content Area', translate('viper_editor_enabled_icon_note'), 'viper_logo', '[Viper Content Area]');
+		}
+		else {
+		    require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 
-		// prints the status of the last run of htmltidy tool as a tag icon
-		if (!SQ_TOOL_HTML_TIDY_ENABLED || !file_exists(SQ_TOOL_HTML_TIDY_PATH)) {
-			// tool is not enabled
-			Bodycopy_Edit_Fns::printBodycopyIcon('', 'HTMLTidy Status', translate('wysiwyg_htmltidy_status_disabled'), 'htmltidy_disabled', '[HTMLTidy Status]');
-		} else {
+		    // prints the status of the last run of htmltidy tool as a tag icon
+		    if (!SQ_TOOL_HTML_TIDY_ENABLED || !file_exists(SQ_TOOL_HTML_TIDY_PATH)) {
+			    // tool is not enabled
+			    Bodycopy_Edit_Fns::printBodycopyIcon('', 'HTMLTidy Status', translate('wysiwyg_htmltidy_status_disabled'), 'htmltidy_disabled', '[HTMLTidy Status]');
+		    } else {
 
-			$status = $asset->attr('htmltidy_status');
-			$status_msg = translate('wysiwyg_htmltidy_status_wait');
-			$image_filename = 'htmltidy_'.$status;
-			switch ($status) {
-				case 'pass':
-					$status_msg = translate('wysiwyg_htmltidy_status_pass');
-				break;
-				case 'fail':
-					$status_msg = translate('wysiwyg_htmltidy_status_fail');
-				break;
-				case 'wait':
-					$status_msg = translate('wysiwyg_htmltidy_status_wait');
-				break;
-			}//end switch
-			Bodycopy_Edit_Fns::printBodycopyIcon('', 'HTMLTidy Status', $status_msg, $image_filename, '[HTMLTidy Status]');
+			    $status = $asset->attr('htmltidy_status');
+			    $status_msg = translate('wysiwyg_htmltidy_status_wait');
+			    $image_filename = 'htmltidy_'.$status;
+			    switch ($status) {
+				    case 'pass':
+					    $status_msg = translate('wysiwyg_htmltidy_status_pass');
+				    break;
+				    case 'fail':
+					    $status_msg = translate('wysiwyg_htmltidy_status_fail');
+				    break;
+				    case 'wait':
+					    $status_msg = translate('wysiwyg_htmltidy_status_wait');
+				    break;
+			    }//end switch
+			    Bodycopy_Edit_Fns::printBodycopyIcon('', 'HTMLTidy Status', $status_msg, $image_filename, '[HTMLTidy Status]');
 
-			// Do not remove the line below, they are 'new line' seperated for a reason, that is how htmltidy_errors need to be seperated so it does not break the javascript underneath in printBodycopyIcon() call.
-			$res = (str_replace('
-', '<br />', htmlentities($asset->attr('htmltidy_errors'), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
+			    // Do not remove the line below, they are 'new line' seperated for a reason, that is how htmltidy_errors need to be seperated so it does not break the javascript underneath in printBodycopyIcon() call.
+			    $res = (str_replace('
+    ', '<br />', htmlentities($asset->attr('htmltidy_errors'), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
 
-			$htmltidy_accessibility_filename = 'accessibility_'.(empty($res) ? 'pass' : 'fail');
-            Bodycopy_Edit_Fns::printBodycopyIcon('', 'HTMLTidy Accessibility', !empty($res) ? $res : translate('wysiwyg_htmltidy_accessibility_no_warning'), $htmltidy_accessibility_filename, '[HTMLTidy Status]');
+			    $htmltidy_accessibility_filename = 'accessibility_'.(empty($res) ? 'pass' : 'fail');
+		Bodycopy_Edit_Fns::printBodycopyIcon('', 'HTMLTidy Accessibility', !empty($res) ? $res : translate('wysiwyg_htmltidy_accessibility_no_warning'), $htmltidy_accessibility_filename, '[HTMLTidy Status]');
 
+		    }
 		}
 
 	}//end paintBackendStatusIcons()
@@ -380,6 +402,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	* @param array					$link	information used to create the initial link
 	* @param Content_Type_WYSIWYG	$asset	the WYSIWYG Content Type object
 	* @param string					$prefix	prefix for form elements
+	* @param Backend_Outputter	$o		the Backend Outputter instance
 	*
 	* @return boolean
 	* @access public
@@ -387,12 +410,17 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	public function processBackend(Array $link, Content_Type_WYSIWYG $asset, $prefix)
 	{
 		if (!$asset->writeAccess('attributes')) return FALSE;
-
-		$wysiwyg = $this->_createEditor($asset, $prefix);
-		$html = $wysiwyg->process();
+		
+		if(isset($_REQUEST[$prefix.'_contents_div_viper_input'])) {
+		    $html = $_REQUEST[$prefix.'_contents_div_viper_input'];
+		}
+		else {
+		    $wysiwyg = $this->_createEditor($asset, $prefix);
+		    $html = $wysiwyg->process();
+		}
 		if ($html === FALSE) return FALSE;
 
-		if (!isset($_POST['ees_content_no_filter'])) {
+		if (!isset($_POST['ees_content_no_filter']) && isset($wysiwyg)) {
 			// grab and store the last run status of htmltidy plugin
 			// to be used when we print the corresponding status icon
 			$html_tidy =& $wysiwyg->get_plugin('html_tidy');
