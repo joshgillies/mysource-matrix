@@ -950,7 +950,7 @@
 	<string source="file_size_above_limit">The current setting of %1$s is greater than than the PHP limit of %2$s. The PHP limit will be applied to all file uploads.</string>
 	<string source="file_size_above_limit_with_warning">&lt;font color="red"&gt;&lt;b&gt;NOTE: &lt;/b&gt;Make sure the PHP defined 'max_post_size' (currently set to %s) is greater than PHP's 'upload_max_filesize' config otherwise PHP will blank out POST array if the data is over limit and no error is reported in Matrix.&lt;/font&gt;</string>
 	<string source="body_type">Body Type</string>
-	<string source="mozilla_always_uses_iframe">In Mozilla, an iFrame will always be used. This setting only affects Internet Explorer.</string>
+	<string source="mozilla_always_uses_iframe">In WebKit based browsers, an iFrame will always be used. This setting only affects Internet Explorer.</string>
 	<string source="all_plugins_selected">All plugins are selected</string>
 	<string source="no_plugins_selected">No plugins are selected</string>
 	<string source="thesaurus_used_by_matrix_expand_keywords_plugin">The thesaurus asset used by the Matrix Expand Keywords plugin</string>
@@ -3083,9 +3083,9 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	
 	<string source="password_history_enforcement">Password History Enforcement</string>
 	<string source="password_history_enforcement_note">Number of unique new passwords that have to be associated with and used by a user before an old password can be reused again. Enter 0 to disable this feature and stop Matrix from recording history passwords.</string>
-	
+
 	<!-- viper -->
-	<string source="enable_viper_editor">Enable Viper Editor</string>
+ 	<string source="enable_viper_editor">Enable Viper Editor</string>
 	<string source="enable_viper_editor_note">If this option is enabled, the new Viper editor will be used for the WYSIWYG content type and attributes. As a result, the following WSIWYG preferences will not be applied: WYSIWYG Style, Apply CSS Styles, WYSIWYG Plugins, WYSIWYG Disable Image Resize, Thesaurus and Protocol Templates.</string>
 	<string source="viper_editor_enabled_icon_note">Click inside the content area to start editing using the Viper Content Editor.</string>
 </strings>
