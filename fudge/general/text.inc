@@ -613,6 +613,96 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array(), $ac
 		}
 		return $text;
 
+	case "preg_replace":
+		$assetid = array_get_index($modifier['args'], 0, '');
+		if ($assetid != '' && assert_valid_assetid($assetid, '', TRUE, FALSE)) {
+			if ($GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetid, 'regular_expression')) {
+				$regex_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$regex_data = $regex_asset->attr('regex_data');
+
+				$replace_from = Array();
+				$replace_to = Array();
+				foreach($regex_data as $data) {
+					replace_global_keywords($data['regex']);
+					if (preg_match($data['regex'], '') === FALSE) {
+						continue;
+					}
+					replace_global_keywords($data['replacement']);
+
+					// Get rid of the 'e' modifier if any
+					$regex_delimiter = substr($data['regex'], 0, 1);
+					$ending_delimiter_index = strrpos($data['regex'], $regex_delimiter);
+					if ($ending_delimiter_index > 0) {
+						$regex_modifier_str = substr($data['regex'], $ending_delimiter_index);
+						$regex_modifier_str_fixed = str_replace('e', '', $regex_modifier_str);
+						if ($regex_modifier_str != $regex_modifier_str_fixed) {
+							 $data['regex'] = substr($data['regex'], 0, $ending_delimiter_index).$regex_modifier_str_fixed;
+						}
+					}
+
+					$replace_from[] = $data['regex'];
+					$replace_to[] = $data['replacement'];
+				}
+				
+				$limit = $regex_asset->attr('limit');
+				if (empty($limit)) {
+					$limit = -1;
+				}
+
+				if (!empty($replace_from)) {
+					 return preg_replace($replace_from, $replace_to, $text, $limit);
+				}
+			}
+		}
+
+		return $text;
+
+	case "preg_match":
+		$assetid = array_get_index($modifier['args'], 0, '');
+		$success = array_get_index($modifier['args'], 1, NULL);
+		$failure = array_get_index($modifier['args'], 2, NULL);
+		if ($assetid != '' && assert_valid_assetid($assetid, '', TRUE, FALSE)) {
+			if ($GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetid, 'regular_expression')) {
+				$regex_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$regex_data = $regex_asset->attr('regex_data');
+
+				// The very first regex in the regex/replacement pair is used for this modifier
+				if (!empty($regex_data[0]) && !empty($regex_data[0]['regex'])) {
+					$matches = Array();
+					replace_global_keywords($regex_data[0]['regex']);
+					if (@preg_match_all($regex_data[0]['regex'], $text, $matches)) {
+						if (isset($matches[0]) && count($matches[0]) > 0) {
+							return $success ? $success : count($matches[0]);
+						}
+					}
+				}
+			}
+		}
+
+		return $failure ? $failure : 0;
+
+	case "preg_match_result":
+		$assetid = array_get_index($modifier['args'], 0, '');
+		if ($assetid != '' && assert_valid_assetid($assetid, '', TRUE, FALSE)) {
+			if ($GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetid, 'regular_expression')) {
+				$regex_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$regex_data = $regex_asset->attr('regex_data');
+
+				// The very first regex in the regex/replacement pair is used for this modifier
+				if (!empty($regex_data[0]) && !empty($regex_data[0]['regex'])) {
+					$matches = Array();
+					replace_global_keywords($regex_data[0]['regex']);
+					if (@preg_match_all($regex_data[0]['regex'], $text, $matches)) {
+						if (isset($matches[0])) {
+							return $matches;
+						}
+					}
+				}
+			}
+		}
+
+		return Array();
+
 	case "contains":
 		$toMatch = array_get_index($modifier['args'], 0, NULL);
 		$success = array_get_index($modifier['args'], 1, NULL);
