@@ -96,20 +96,23 @@ function _var_serialise(value, indent)
 		// recursive vars
 		case "array"   :
 			str += '<val_type>' + type + '</val_type>\n';
+			
 			for(var k in value) {
-				var sub_str = _var_serialise(value[k], indent + ' ');
-				if (sub_str == false) return false;
+				if(value.hasOwnProperty(k)) {
+				    var sub_str = _var_serialise(value[k], indent + ' ');
+				    if (sub_str == false) return false;
 
-				if (VAR_SERIALISE_STRING_ESCAPE_CHAR_REG_EXP.test(k)) {
-					alert(js_translate('data_contains_escape_character', VAR_SERIALISE_STRING_ESCAPE_CHAR.charCodeAt(0)));
-					k = k.replace(VAR_SERIALISE_STRING_ESCAPE_CHAR_REG_EXP, '');
+				    if (VAR_SERIALISE_STRING_ESCAPE_CHAR_REG_EXP.test(k)) {
+					    alert(js_translate('data_contains_escape_character', VAR_SERIALISE_STRING_ESCAPE_CHAR.charCodeAt(0)));
+					    k = k.replace(VAR_SERIALISE_STRING_ESCAPE_CHAR_REG_EXP, '');
+				    }
+
+				    for(var i = 0; i < VAR_SERIALISE_STRING_ESCAPE_FROM_LIST.length; i++) {
+					    k = k.replace(VAR_SERIALISE_STRING_ESCAPE_FROM_LIST_REG_EXP[i], VAR_SERIALISE_STRING_ESCAPE_TO_LIST[i]);
+				    }
+
+				    str += indent + ' <name_type>' + gettype(k).toLowerCase() + '</name_type><name>' + k + '</name>' + sub_str;
 				}
-
-				for(var i = 0; i < VAR_SERIALISE_STRING_ESCAPE_FROM_LIST.length; i++) {
-					k = k.replace(VAR_SERIALISE_STRING_ESCAPE_FROM_LIST_REG_EXP[i], VAR_SERIALISE_STRING_ESCAPE_TO_LIST[i]);
-				}
-
-				str += indent + ' <name_type>' + gettype(k).toLowerCase() + '</name_type><name>' + k + '</name>' + sub_str;
 
 			}//end for
 
