@@ -1,0 +1,33 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ABN 77 084 670 600                                                 |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.com.au) so we may provide|
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+*/
+-->
+
+<contents>
+	<section name="Details" write_access="write:attributes" limbo_access="1">
+		<field attribute="name">
+			<text width="30" height="1" />
+		</field>
+	</section>
+	<section name="Regex Expression" write_access="write:attributes">
+		<field keyword="regex_input">
+			<function_call>
+				<paint_function   name="paintRegexDataForm" />
+				<process_function name="processRegexDataForm" />
+			</function_call>
+		</field>
+		<field attribute="limit">
+			<int width="3"/>
+		</field>
+	</section>
+</contents>
