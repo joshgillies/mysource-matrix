@@ -131,65 +131,67 @@ class Content_Type_Structure_Tree_Edit_Fns extends Content_Type_Edit_Fns
 						src += '<table style="width: 600px;" cellspacing="1" cellpadding="1">';
 
 						for (var i in this.rows) {
-							var indent = this.rows[i].indent * 20;
-							src += '<tr>';
-							src += '<td style="border-right: 1px dotted #999999; border-bottom: 1px dotted #999999; width: 50px;">';
-							src += '<TABLE cellSpacing=0 cellPadding=0 border=0>';
-							src += '<TBODY>';
-							src += '<TR>';
-							src += '<TD rowSpan=2><IMG alt=lef src="'+data_path+'arrow_left_blue.png" border=0 onclick="<?php echo $prefix; ?>_structure.moveLeft(' + i + ');"  title="Decrease Row Indent" /></TD>';
-							src += '<TD ><IMG alt=up src="'+data_path+'arrow_up_blue.png" border=0 onclick="<?php echo $prefix; ?>_structure.moveUp(' + i + ');" title="Move Row Up Tree" /></TD>';
-							src += '<TD rowSpan=2><IMG alt=right src="'+data_path+'arrow_right_blue.png" border=0 onclick="<?php echo $prefix; ?>_structure.moveRight(' + i + ');" title="Increase Row Indent" /></TD></TR>';
-							src += '<TR>';
-							src += '<TD><IMG style="margin-top: 2px;" alt=down src="'+data_path+'arrow_down_blue.png" border=0 onclick="<?php echo $prefix; ?>_structure.moveDown(' + i + ');" title="Move Row Down Tree" ></TD></TR></TBODY></TABLE>';
-							src += '</td><td style="border-bottom: 1px dotted #999999;">';
-							var inline_style = 'style="';
-							if (this.rows[i].italic == '1') inline_style += 'font-style: italic;';
-							if (this.rows[i].bold == '1') inline_style += 'font-weight: bold;';
-							if (this.rows[i].underline == '1') inline_style += 'text-decoration: underline;';
-							inline_style += '"';
-							src += '<span style="margin-left: ' + indent + 'px; ">';
-							src += '<input class="structure" type="text" value="' + htmlspecialchars(this.rows[i].content) + '" ';
-							src += inline_style;
-							src += ' onBlur="<?php echo $prefix; ?>_structure.updateText(' + i + ', this);" />';
-							src += '</span></td><td style="margin-right: 0px; width: 55px; border-left: 1px dotted #999999;border-bottom: 1px dotted #999999;">';
-							var style_base = ' style="border: 1px solid ';
+							if(this.rows.hasOwnProperty(i)) {
+							    var indent = this.rows[i].indent * 20;
+							    src += '<tr>';
+							    src += '<td style="border-right: 1px dotted #999999; border-bottom: 1px dotted #999999; width: 50px;">';
+							    src += '<TABLE cellSpacing=0 cellPadding=0 border=0>';
+							    src += '<TBODY>';
+							    src += '<TR>';
+							    src += '<TD rowSpan=2><IMG alt=lef src="'+data_path+'arrow_left_blue.png" border=0 onclick="<?php echo $prefix; ?>_structure.moveLeft(' + i + ');"  title="Decrease Row Indent" /></TD>';
+							    src += '<TD ><IMG alt=up src="'+data_path+'arrow_up_blue.png" border=0 onclick="<?php echo $prefix; ?>_structure.moveUp(' + i + ');" title="Move Row Up Tree" /></TD>';
+							    src += '<TD rowSpan=2><IMG alt=right src="'+data_path+'arrow_right_blue.png" border=0 onclick="<?php echo $prefix; ?>_structure.moveRight(' + i + ');" title="Increase Row Indent" /></TD></TR>';
+							    src += '<TR>';
+							    src += '<TD><IMG style="margin-top: 2px;" alt=down src="'+data_path+'arrow_down_blue.png" border=0 onclick="<?php echo $prefix; ?>_structure.moveDown(' + i + ');" title="Move Row Down Tree" ></TD></TR></TBODY></TABLE>';
+							    src += '</td><td style="border-bottom: 1px dotted #999999;">';
+							    var inline_style = 'style="';
+							    if (this.rows[i].italic == '1') inline_style += 'font-style: italic;';
+							    if (this.rows[i].bold == '1') inline_style += 'font-weight: bold;';
+							    if (this.rows[i].underline == '1') inline_style += 'text-decoration: underline;';
+							    inline_style += '"';
+							    src += '<span style="margin-left: ' + indent + 'px; ">';
+							    src += '<input class="structure" type="text" value="' + htmlspecialchars(this.rows[i].content) + '" ';
+							    src += inline_style;
+							    src += ' onBlur="<?php echo $prefix; ?>_structure.updateText(' + i + ', this);" />';
+							    src += '</span></td><td style="margin-right: 0px; width: 55px; border-left: 1px dotted #999999;border-bottom: 1px dotted #999999;">';
+							    var style_base = ' style="border: 1px solid ';
 
-							<?php
-							if ($format_options['bold']) {
-								?>
-								var style_colour = 'white';
-								src += '<img src="'+data_path+'text_bold.png" onclick="<?php echo $prefix; ?>_structure.makeBold(' + i + ');" title="Bold Text" ';
-								if (this.rows[i].bold == '1') style_colour = 'red';
-								src += style_base + style_colour + ';" />';
-								<?php
+							    <?php
+							    if ($format_options['bold']) {
+								    ?>
+								    var style_colour = 'white';
+								    src += '<img src="'+data_path+'text_bold.png" onclick="<?php echo $prefix; ?>_structure.makeBold(' + i + ');" title="Bold Text" ';
+								    if (this.rows[i].bold == '1') style_colour = 'red';
+								    src += style_base + style_colour + ';" />';
+								    <?php
+							    }
+							    if ($format_options['underline']) {
+								    ?>
+								    style_colour = 'white';
+								    src += '<img src="'+data_path+'text_underlined.png" onclick="<?php echo $prefix; ?>_structure.underline(' + i + ');"  title="Underline Row Text" ';
+								    if (this.rows[i].underline == '1') style_colour = 'red';
+								    src += style_base + style_colour + ';" />';
+								    <?php
+							    }
+							    if ($format_options['italic']) {
+								    ?>
+								    style_colour = 'white';
+								    src += '<img src="'+data_path+'text_italics.png" onclick="<?php echo $prefix; ?>_structure.italicize(' + i + ');" title="Italicise Row Text" ';
+								    if (this.rows[i].italic == '1') style_colour = 'red';
+								    src += style_base + style_colour + ';" />';
+								    <?php
+							    }
+							    ?>
+							    src += '</td>';
+							    <?php
+							    if ($format_options['delete']) {
+								    ?>
+								    src += '<td style="border-left: 1px dotted #999999;border-bottom: 1px dotted #999999; margin-right: 0px; width: 18px;"><img src="<?php echo sq_web_path('data'); ?>/asset_types/bodycopy/images/icons/delete.png" onclick="<?php echo $prefix; ?>_structure.remove(' + i + ');" title="Delete This Row"/></td>';
+								    src += '</tr>';
+								    <?php
+							    }
+							    ?>
 							}
-							if ($format_options['underline']) {
-								?>
-								style_colour = 'white';
-								src += '<img src="'+data_path+'text_underlined.png" onclick="<?php echo $prefix; ?>_structure.underline(' + i + ');"  title="Underline Row Text" ';
-								if (this.rows[i].underline == '1') style_colour = 'red';
-								src += style_base + style_colour + ';" />';
-								<?php
-							}
-							if ($format_options['italic']) {
-								?>
-								style_colour = 'white';
-								src += '<img src="'+data_path+'text_italics.png" onclick="<?php echo $prefix; ?>_structure.italicize(' + i + ');" title="Italicise Row Text" ';
-								if (this.rows[i].italic == '1') style_colour = 'red';
-								src += style_base + style_colour + ';" />';
-								<?php
-							}
-							?>
-							src += '</td>';
-							<?php
-							if ($format_options['delete']) {
-								?>
-								src += '<td style="border-left: 1px dotted #999999;border-bottom: 1px dotted #999999; margin-right: 0px; width: 18px;"><img src="<?php echo sq_web_path('data'); ?>/asset_types/bodycopy/images/icons/delete.png" onclick="<?php echo $prefix; ?>_structure.remove(' + i + ');" title="Delete This Row"/></td>';
-								src += '</tr>';
-								<?php
-							}
-							?>
 						}
 						<?php
 							if ($format_options['insert']) {

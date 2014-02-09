@@ -382,15 +382,7 @@ class Asset_Edit_Fns extends MySource_Object
 			echo translate('no_associated_urls');
 		} else {
 			usort($urls, create_function('$a, $b', 'return strcmp($a[\'url\'], $b[\'url\']);'));
-			foreach ($urls as $data) {
-				if ($data['http']) {
-					echo $data['url'].'<br/>';
-				}
-				if ($data['https']) {
-					echo $data['url'].'<br/>';
-				}
-			}
-			/*echo '<ul class="sq-remove-brs" style="margin-top: 0;">';
+			echo '<ul class="sq-remove-brs" style="margin-top: 0;">';
 			foreach ($urls as $data) {
 				if ($data['http']) {
 					echo '<li><a href="http://'.$data['url'], '" target="_blank">http://'.$data['url'], '</a></li><br/>';
@@ -399,7 +391,7 @@ class Asset_Edit_Fns extends MySource_Object
 					echo '<li><a href="https://'.$data['url'], '" target="_blank">https://'.$data['url'], '</a></li><br/>';
 				}
 			}
-			echo '</ul>';*/
+			echo '</ul>';
 		}
 
 		if ($asset->force_secure === '1') {
