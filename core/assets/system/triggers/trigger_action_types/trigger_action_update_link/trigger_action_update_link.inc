@@ -131,7 +131,7 @@ class Trigger_Action_Update_Link extends Trigger_Action
 		
 		ob_start();
 			?>
-			<div style="padding: 10px">
+			<div>
 				<p class="sq-backend-section-subheading"><?php echo translate('link_characteristics'); ?></p>
 				<p><?php echo translate('link_characteristics_note');?></p>
 				<?php 
@@ -142,19 +142,17 @@ class Trigger_Action_Update_Link extends Trigger_Action
 					if (!empty($linkid)){
 						echo $linkid;
 					} else {
-						echo '<i>Not specified</i>';	
+						echo '<em>Not specified</em>';	
 					}
 				}
-				echo '&nbsp;&nbsp;<span style="color:red; font-weight:bold;"> OR </span><br /><br />';
+				echo '<br /><br /><em>OR</span></em><br /><br />';
 				?>
 			
-				<table class="sq-backend-table">
-					<col width="10%" />
-					<col width="40%"/>
-					<col width="10%" />
-					<col width="40%"/>
+				<table class="sq-backend-table with-bottom-margin">
+					<col width="20%" />
+					<col width="80%"/>
 					<tr>
-						<th><?php echo translate('link_type'); ?>:</th>
+						<th style="vertical-align:middle;"><?php echo translate('link_type'); ?>:</th>
 						<td><?php 
 						if ($write_access) {
 							combo_box($prefix.'[link_type]',  $link_type_names, FALSE, $link_type); 
@@ -162,7 +160,9 @@ class Trigger_Action_Update_Link extends Trigger_Action
 							echo $link_type_names[$link_type];	
 						}
 						?></td>
-						<th><?php echo translate('side_of_link'); ?>:</th>
+					</tr>
+					<tr>
+						<th style="vertical-align:middle;"><?php echo translate('side_of_link'); ?>:</th>
 						<td><?php
 						$side_of_link_options = Array('major' => 'Parent', 'minor' => 'Child');
 						if ($write_access) {
@@ -173,7 +173,7 @@ class Trigger_Action_Update_Link extends Trigger_Action
 						?></td>
 					</tr>
 					<tr>
-						<th><?php echo translate('link_value'); ?>:</th>
+						<th style="vertical-align:middle;"><?php echo translate('link_value'); ?>:</th>
 						<td><?php 
 						if ($write_access) {
 							text_box($prefix.'[value]', $value);
@@ -181,7 +181,9 @@ class Trigger_Action_Update_Link extends Trigger_Action
 							echo $value;	
 						}
 						?></td>
-						<th><?php echo translate('asset_type'); ?>:</th>
+					</tr>
+					<tr>
+						<th style="vertical-align:middle;"><?php echo translate('asset_type'); ?>:</th>
 						<td><?php
 						if ($write_access) {
 							asset_type_chooser($prefix.'[type_code]', FALSE, $type_code, TRUE);
@@ -192,14 +194,14 @@ class Trigger_Action_Update_Link extends Trigger_Action
 					</tr>
 				</table>
 			</div>
-			<div style="padding: 10px">
+			<div>
 				<p class="sq-backend-section-subheading"><?php echo translate('new_link_characteristics'); ?></p>
 				<p><?php echo translate('new_link_characteristics_note');?></p>
-				<table class="sq-backend-table" style="width:50%;">
+				<table class="sq-backend-table">
 					<col width="20%" />
 					<col width="80%"/>
 					<tr>
-						<th><?php echo translate('link_type'); ?>:</th>
+						<th style="vertical-align:middle;"><?php echo translate('link_type'); ?>:</th>
 						<td><?php 
 						if ($write_access) {
 							combo_box($prefix.'[new_link_type]',  $link_type_names, FALSE, $new_link_type); 
@@ -209,7 +211,7 @@ class Trigger_Action_Update_Link extends Trigger_Action
 						?></td>
 					</tr>
 					<tr>
-						<th><?php echo translate('link_value'); ?>:</th>
+						<th style="vertical-align:middle;"><?php echo translate('link_value'); ?>:</th>
 						<td><?php 
 						if ($write_access) {
 							text_box($prefix.'[new_value]', $new_value); 

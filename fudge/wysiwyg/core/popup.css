@@ -1,5 +1,133 @@
 /* POP UP STYLES FOR WYSWIYG PLUGINS */
 
+/* Main body CSS */
+
+* {
+  font-size: 11px;
+}
+
+h1 {
+	margin-left: 10px;
+	font-size: 12px;
+	line-height: 13px;
+	text-shadow: -1px -1px 0 #000;
+}
+
+legend b {
+	font-size: 12px;
+}
+
+
+input[type="text"] {
+	height: 21px;
+	margin: 0 3px 0px 0;
+	padding: 0 3px;
+	line-height:21px;
+}
+
+
+fieldset {
+  border: 1px solid #ccc;
+  padding: 5px 0 5px 8px;
+  border-radius: 3px;
+  margin: -8px 10px 10px 10px;
+  background: #f5f5f5;
+}
+
+input[type="button"],
+input[type="submit"] {
+    line-height: 22px;
+    height: 23px;
+}
+
+button {
+	width: 70px;
+	line-height: 12px;
+}
+
+#asset_map {
+	position: relative;
+	top: 0;	
+    margin-top: 2px;
+    margin-left: 4px;
+}
+
+body #main-form {
+	font-size: 11px;
+	padding-top: 7px;
+    }
+
+#main-form table {
+	width: 100%;
+}
+
+#main-form td {
+	padding: 2px 0;
+}
+
+#main-form .sq-backend-table th, 
+#main-form .sq-backend-table td {
+	 padding: 8px;
+}
+
+#main-form .sq-popup-no-padding {
+	padding: 0;
+}
+
+#main-form .sq-popup-hidden-cell div{
+	padding: 2px 0;
+}
+
+#main-form #asset_map_container {
+  top: 0px;
+}
+
+
+.sq-popup-asset-map {
+	width: 215px;
+}
+
+.sq-fieldsets-table {
+	padding: 0 6px;
+}
+
+.sq-fieldsets-table.sq-popup-main-with-search {
+	margin-top: 7px;
+}
+
+.sq-fieldsets-table .label {
+	padding-right: 12px;
+}
+
+.sq-fieldsets-table .sq-popup-button-wrapper {
+	padding-right: 7px;
+}
+.sq-popup-checkbox-list {
+	line-height: 20px;
+}
+
+.sq-popup-button-wrapper {
+	padding: 0 10px;
+}
+
+.sq-btn-green {
+	float: right;
+}
+
+.sq-popup-btn-cancel {
+	margin-left:10px;
+}
+
+.sq-popup-multi-button-wrapper {
+  text-align: center;
+  margin-left:12px;
+}
+
+.sq-popup-multi-button-wrapper button{
+	width: 115px;
+	margin-bottom: 10px;
+}
+
 
 /* Header styles */
 
@@ -8,7 +136,7 @@
 	font-size: 14px;
 	color: #FFF;
 	font-weight: bold;
-	margin-bottom: 10px;
+	margin-bottom: 5px;
 	border-bottom: 1px solid #000;
 	height: 30px;
 	line-height: 23px;
@@ -49,14 +177,14 @@ div.search-result-detail {
 }
 
 .search .sq-text-field-wrapper {
-  height: 23px;	
-  margin-top: 2px;
-  line-height: 23px;
+  height: 22px;	
+  margin-top: 4px;
+  line-height: 22px;
   overflow:hidden;
 }
 .search input.sq-backend-header-text-box {
   color: #FFFFFF;
-  top: -1px;
+  top: -2px;
   background-color: #575757;
   height: 18px; 
   border: none;
@@ -92,7 +220,7 @@ div.search-result-detail {
 	overflow: hidden;
 	background: #fff;
 	box-shadow: 1px 2px 6px rgba(0, 0, 0, .25);
-	margin-top: -1px;
+	margin-top: -3px;
 	padding: 6px 8px;
 	min-width: 300px;
 }
@@ -208,134 +336,10 @@ a.search-result-expand-link {
 }
 
 
-/* Main body CSS */
-
-* {
-  font-size: 11px;
-}
-
-h1 {
-	margin-left: 10px;
-	font-size: 12px;
-	line-height: 13px;
-	text-shadow: -1px -1px 0 #000;
-}
-
-legend b {
-	font-size: 12px;
-}
-
-
-input[type="text"] {
-	height: 21px;
-	margin: 0 3px 0px 0;
-	padding: 0 3px;
-	line-height:21px;
-}
-
-
-fieldset {
-  border: 1px solid #ccc;
-  padding: 5px 0 5px 8px;
-  border-radius: 3px;
-  margin: -8px 10px 10px 0px;
-  background: #f5f5f5;
-}
-
-input[type="button"],
-input[type="submit"] {
-    line-height: 22px;
-    height: 23px;
-}
-
-button {
-	width: 70px;
-	line-height: 12px;
-}
-
-#asset_map {
-	position: relative;
-	top: 0;	
-	margin-right: 15px;
-}
-
-body #main-form {
-	font-size: 11px;
-	margin-right: 18px;
-}
-
-#main-form {
-	margin-top: 10px;
-}
-
-#main-form table {
-	width: 100%;
-}
-
-#main-form td {
-	padding: 2px 0;
-}
-
-#main-form .sq-backend-table th, 
-#main-form .sq-backend-table td {
-	 padding: 8px;
-}
-
-#main-form .sq-popup-no-padding {
-	padding: 0;
-}
-
-#main-form .sq-popup-hidden-cell div{
-	padding: 2px 0;
-}
-
-#main-form #asset_map_container {
-  top: 0px;
-}
-
-
-.sq-popup-asset-map {
-	width: 227px;
-}
-
-.sq-fieldsets-table {
-	margin-left: 12px;
-}
-
-.sq-fieldsets-table .label {
-	padding-right: 12px;
-}
-
-.sq-fieldsets-table .sq-popup-button-wrapper {
-	padding-right: 7px;
-}
-.sq-popup-checkbox-list {
-	line-height: 20px;
-}
-
-.sq-popup-button-wrapper {
-	padding-left: 12px;
-}
-
-.sq-btn-green {
-	float: right;
-}
-
-.sq-popup-multi-button-wrapper {
-  text-align: center;
-  margin-left:12px;
-}
-
-.sq-popup-multi-button-wrapper button{
-	width: 115px;
-	margin-bottom: 10px;
-}
-
-
 /* Insert Image styles */
 
 #main-form .prev {
-	min-height: 262px;
+	min-height: 271px;
 }
 
 #main-form #show_upload_error {
@@ -364,9 +368,6 @@ body #main-form {
 	height: 23px;
 }
 
-.sq-popup-clean-fieldset .sq-popup-button-wrapper {
-	padding-left:0px;
-}
 
 
 #panels {
@@ -374,8 +375,8 @@ body #main-form {
 	width: 310px;
 	top: 26px;
 	left: 510px;
-	height: 700px;
-	margin: 10px;
+	height: auto;
+	margin: 10px 0;
 	border: solid 0px #CCC;
 	padding: 1px;
 	overflow: auto;
@@ -422,6 +423,7 @@ body #main-form {
 
 #panels button {
 	width: 100px;
+	margin:0;
 }
 
 /*Special Chars*/
@@ -464,7 +466,7 @@ body #main-form {
 /* Spellcheck */
 
 #spellchecker .sq-popup-button-wrapper {
-   margin: 4px -3px 0 -8px;
+   margin: 4px -13px 0 -6px;
 }
 
 

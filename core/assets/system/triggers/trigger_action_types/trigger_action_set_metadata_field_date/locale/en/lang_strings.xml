@@ -17,7 +17,8 @@
 -->
 
 <strings>
-	<string source="trigger_metadata_date_select_field">Choose Metadata Field:</string>
-	<string source="trigger_metadata_date_show_field">Metadata Field #</string>
+	<string source="trigger_metadata_date_select_field">Choose metadata field</string>
+	<string source="trigger_metadata_date_show_field">Metadata field</string>
+	<string source="trigger_metadata_date_no_field_message">No metadata field selected</string>
 	<string source="trigger_metadata_date_offset">Offset: %1$s month(s) %2$s days(s) %3$s hour(s) %4$s min(s)</string>
 </strings>

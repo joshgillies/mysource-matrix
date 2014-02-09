@@ -123,7 +123,7 @@ class Table_Editing extends WYSIWYG_Plugin
 				var sel = this._getSelection();
 				var range = this._createRange(sel);
 				this._popupDialog
-				("insertTable", "<?php echo $this->get_popup_href('insert_table.html')?>", 400, 500, true, function(param) {
+				("insertTable", "<?php echo $this->get_popup_href('insert_table.html')?>", 400, 460, true, function(param) {
 					if (!param) { // user must have pressed Cancel
 						return false;
 					}
@@ -235,7 +235,7 @@ class Table_Editing extends WYSIWYG_Plugin
 				table_structure = tablekeeper;
 				strPage = "<?php echo $this->get_popup_href('edit_table.php')?>";
 				var width = 835;
-				var height = 730;
+				var height = 750;
 
 				this._popupDialog("editTableProperties", strPage, width, height, true, function(params) {
 					if (!params) {

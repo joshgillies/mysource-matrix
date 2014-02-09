@@ -227,7 +227,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 					if ($write_access) {
 						text_box($prefix.'_urls['.$i.'][url]',  $url_info['url'], 40, '', FALSE, 'onFocus="expandList(this);"');
 					} else {
-						echo '<strong>'.$url_info['url'].'</strong>';
+						echo '<strong><a href="'.(empty($url_info[$this->protos[0]]) ? 'https://' : 'http://').$url_info['url'].'" target="_blank">'.$url_info['url'].'</a></strong>';
 					}
 				?>
 				</td>

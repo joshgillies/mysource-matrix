@@ -293,6 +293,8 @@
 	<string source="path_to_markdownify">Path to Markdownify</string>
 	<string source="permissions_threshold">Permissions Threshold</string>
 	<string source="permissions">Permissions</string>
+	<string source="existing_permissions">Existing %s Permissions</string>
+	<string source="add_new_permissions">Add New %s Permissions</string>
 	<string source="please_note">Please Note</string>
 	<string source="please_wait">Please Wait</string>
 	<string source="port">Port</string>
@@ -387,6 +389,7 @@
 	<string source="trigger_list">Trigger List</string>
 	<string source="up">Up</string>
 	<string source="url">URL</string>
+	<string source="preview_url">Preview URL</string>
 	<string source="url_remappings">URL Remappings</string>
 	<string source="remap_entries">Remap entries</string>
 	<string source="remap_entries_filtered">Remap entries (filtered)</string>
@@ -455,7 +458,7 @@
 	<string source="cron_manager_refresh_cache_running">Running</string>
 	<string source="cron_manager_refresh_cache_not_running">Not Running</string>
 	<string source="cron_manager_refresh_no_job">No Jobs available</string>
-	<string source="cron_manager_next_run">The Cron Manager runs every &lt;b&gt;%1$s&lt;/b&gt;. It will next run on the &lt;b&gt;%2$s&lt;/b&gt;</string>
+	<string source="cron_manager_next_run">The Cron Manager runs every &lt;b&gt;%1$s&lt;/b&gt;. It will next run on the &lt;b&gt;%2$s&lt;/b&gt;.</string>
 	<string source="asset_currently_in_workflow">&lt;i&gt;This asset is currently in workflow. Approval or rejection of the changes must be done on the &lt;a href="%s"&gt;asset workflow screen&lt;/a&gt;&lt;/i&gt;</string>
 	<string source="workflow_not_running">Workflow is not currently running for this asset</string>
 	<string source="workflow_not_running_bundle">This bundle must be in &quot;Approving&quot; status to be able to approve or reject workflow at a bundle level</string>
@@ -623,7 +626,7 @@
 	<string source="no_asset_settings">There are no settings for "%s"</string>
 	<string source="current_version">Current Version</string>
 	<string source="update_major_version">Update Major Version?</string>
-	<string source="increment_major_version_numner">Increment major version numnber</string>
+	<string source="increment_major_version_numner">Increment major version number</string>
 	<string source="created_date">Created Date</string>
 	<string source="published_date">Published Date</string>
 	<string source="force_secure">Force Secure</string>
@@ -642,6 +645,7 @@
 
 	<string source="workflow_schema">Workflow Schema</string>
 	<string source="workflow_schemas">Workflow Schemas</string>
+	<string source="schemas">Schemas</string>
 
 	<string source="change_to_approve_or_reject">Change the status to approve or reject the changes made to this asset</string>
 	<string source="cannot_approve_or_reject">&lt;i&gt;You cannot approve or reject changes at this time&lt;/i&gt;</string>
@@ -661,7 +665,8 @@
 	<string source="running_workflow">Running Workflow</string>
 	<string source="group_logic">Group Logic</string>
 
-	<string source="no_workflow_schemas">There are no workflow schemas applied to this asset</string>
+	<string source="no_workflow_schemas">There are no workflow schemas applied to this asset.</string>
+	<string source="no_metadata_schemas">There are no metadata schemas applied to this asset.</string>
 
 
 	<string source="manually_cascade_schema">Manually cascade schemas</string>
@@ -704,6 +709,7 @@
 	<string source="force_secure_set_on_asset">Force Secure (see Settings screen) is set on this asset, so if you think that there should other URLs registered you may need to check that the site(s) that this asset is has allowed the https protocol</string>
 	<string source="not_included_in_searching">Not included in searching.</string>
 	<string source="no_associated_urls">There are no URLs associated with this Asset</string>
+	<string source="available_urls">Available URLs</string>
 	<string source="no_associated_remaps">There are no remaps associated with this Asset</string>
 	<string source="metadata_keyword_replacements_usage">You can use keyword replacements in place of values for metadata fields on this page. For a complete list of available keyword replacements %s</string>
 	<string source="metadata_indexed_keywords">Since search indexing is enabled, you can generate a list of keywords from the index using %s</string>
@@ -944,7 +950,7 @@
 	<string source="file_size_above_limit">The current setting of %1$s is greater than than the PHP limit of %2$s. The PHP limit will be applied to all file uploads.</string>
 	<string source="file_size_above_limit_with_warning">&lt;font color="red"&gt;&lt;b&gt;NOTE: &lt;/b&gt;Make sure the PHP defined 'max_post_size' (currently set to %s) is greater than PHP's 'upload_max_filesize' config otherwise PHP will blank out POST array if the data is over limit and no error is reported in Matrix.&lt;/font&gt;</string>
 	<string source="body_type">Body Type</string>
-	<string source="mozilla_always_uses_iframe">In Mozilla, an iFrame will always be used. This setting only affects Internet Explorer.</string>
+	<string source="mozilla_always_uses_iframe">In WebKit based browsers, an iFrame will always be used. This setting only affects Internet Explorer.</string>
 	<string source="all_plugins_selected">All plugins are selected</string>
 	<string source="no_plugins_selected">No plugins are selected</string>
 	<string source="thesaurus_used_by_matrix_expand_keywords_plugin">The thesaurus asset used by the Matrix Expand Keywords plugin</string>
@@ -1226,7 +1232,7 @@
 	<string source="both_protocols_specified">Both of the protocols specified</string>
 	<string source="add_web_path">Add the web path</string>
 	<string source="web_path_ampersand_replacement">and</string>
-	<string source="remove_web_path">Remove the web path</string>
+	<string source="remove_web_path">Remove web path</string>
 	<string source="web_path_not_specified">Web Path not specified</string>
 	<string source="triggers_advanced_user_options">Optional items for Advanced users</string>
 	<string source="use_link_value">Use the link value</string>
@@ -1234,7 +1240,7 @@
 	<string source="trigger_action_create_file_asset_file_path_not_set">File Path is not set</string>
 	<string source="link_type_missing">Link type is missing</string>
 	<string source="asset_type_not_specified">Asset type not specified</string>
-	<string source="trigger_replace_file_type_warning">Note:  This trigger action will fail if the broadcasting asset is not a file asset or descendant thereof</string>
+	<string source="trigger_replace_file_type_warning">&lt;strong&gt;Note:&lt;/strong&gt; This trigger action will fail if the broadcasting asset is not a file asset or descendant thereof.</string>
 
 	<string source="cannot_delete_inbox-user_link">You can't delete the link between a user and their inbox</string>
 	<string source="cannot_delete_workspace-user_link">You can't delete the link between a user and their workspace</string>
@@ -1331,7 +1337,7 @@
 	<string source="link_to_broadcasting_asset">Link to broadcasting asset</string>
 
 	<string source="trigger_create_image_variety_basic">Create an Image Variety with the name: &lt;strong&gt;%1$s&lt;/strong&gt;</string>
-	<string source="trigger_set_thumbnail">To set a thumbnail, set the value stored in the index: %1$s&lt;br /&gt;This image will be set as a thumbnail to the current asset.</string>
+	<string source="trigger_set_thumbnail">&lt;p&gt;To set a thumbnail, set the value stored in the index:&lt;/p&gt; %1$s &lt;/p&gt;&lt;strong&gt;Note:&lt;/strong&gt; This image will be set as a thumbnail to the current asset.</string>
 
 	<string source="trigger_create_link_basic">Link as the %1$s of asset %2$s using a %3$s link.</string>
 	<string source="trigger_create_link_advanced">Use the link value %1$s and link the asset %2$s and %3$s to the child/parent asset.</string>
@@ -1343,7 +1349,7 @@
 	<string source="exclusively">Exclusively</string>
 	<string source="non_exclusively">Non-exclusively</string>
 
-	<string source="trigger_set_attribute_value_basic">Set the value of the %1$s attribute %2$s to the value %3$s</string>
+	<string source="trigger_set_attribute_value_basic">Set the value of the %1$s attribute %2$s to: %3$s</string>
 	<string source="asset_type_no_attributes_found">no attributes found for asset type</string>
 	<string source="asset_type_not_selected">asset type not selected</string>
 	<string source="attribute_not_selected">attribute not selected</string>
@@ -1355,13 +1361,16 @@
 	<string source="trigger_set_attribute_value_serialise_note">You have selected a serialised attribute.  The value you set it to must be a valid PHP expression, for example "Array(1, 2, 4)"</string>
 
 	<string source="trigger_set_design_basic">Set the asset's design to: %s</string>
-	<string source="trigger_set_design_select_design_type">Type of design (Override existing or create new if not existed) </string>
-	<string source="trigger_set_design_set_user_design_name">Set User Defined design name</string>
+	<string source="trigger_set_design_select_design_type">Type of design (will override existing or create new if nonexistent) </string>
+	<string source="trigger_set_design_set_user_design_name">Set user defined design name to</string>
+	<string source="trigger_set_design_no_design_message">Eitehr no design has been specified, or design ID value is sourced from a dynamic parameter.</string>
 	<string source="trigger_set_index_page_basic">Set the index page to: %s</string>
-	<string source="trigger_set_force_secure_basic">&lt;b&gt;Force Secure  &lt;/b&gt; %s &lt;br /&gt;
-Force that this asset can only be viewed through a Secure (SSL) connection</string>
+	<string source="trigger_set_force_secure_basic">Set Force Secure setting to: %s &lt;br /&gt;
+&lt;strong&gt;Note:&lt;/strong&gt; Force that this asset can only be viewed through a Secure (SSL) or insecure connection or allow both.</string>
 	<string source="trigger_set_index_page_select">Select the index page</string>
-	<string source="trigger_set_status">Set the Asset's status to: %1$s&lt;br /&gt;%2$s Set status of dependent parents instead (eg. set the status of a bodycopy DIV's Standard Page parents, instead of itself; if no dependent parents are found, then this option will be ignored and the status set normally).</string>
+	<string source="trigger_set_status">Set the Asset's status to %1$s</string>
+	<string source="trigger_set_status_dependant_parents">Set status of dependent parents instead</string>
+	<string source="trigger_set_status_dependant_parents_note">&lt;strong&gt;Note:&lt;/strong&gt; eg. set the status of a bodycopy DIV's Standard Page parents, instead of itself; if no dependent parents are found, then this option will be ignored and the status set normally.</string>
 	<string source="trigger_increment_version">Increment this component of the Asset's %s version number. </string>
 
 	<string source="trigger_set_paint_layout">Select the paint layout</string>
@@ -1370,8 +1379,10 @@ Force that this asset can only be viewed through a Secure (SSL) connection</stri
 	<string source="trigger_set_override_paint_layout_select">Set the asset's override paint layout to: </string>
 	<string source="trigger_set_paint_layout_parameter_map">Parameter Map options %s</string>
 
-	<string source="trigger_set_permission_dependants_only">Update the Asset's dependant children only : If this option is set, only the permission of the dependant childrens are updated.</string>
-	<string source="trigger_set_permission_dependant_parents">Set permission of dependent parents instead (eg. set the permission of a bodycopy DIV's Standard Page parents, instead of itself; if no dependent parents are found, then this option will be ignored and the permission set normally).</string>
+	<string source="trigger_set_permission_dependants_only">Update the Asset's dependant children only</string>
+	<string source="trigger_set_permission_dependants_only_note">&lt;strong&gt;Note:&lt;/strong&gt; If this option is set, only the permission of the dependant children will be updated.</string>
+	<string source="trigger_set_permission_dependant_parents">Set permission of dependent parents instead</string>
+	<string source="trigger_set_permission_dependant_parents_note">&lt;strong&gt;Note:&lt;/strong&gt; eg. set the permission of a bodycopy DIV's Standard Page parents, instead of itself; if no dependent parents are found, then this option will be ignored and the permission set normally.</string>
 
 	<string source="trigger_asset_id">Asset ID is %s</string>
 	<string source="trigger_asset_type">Asset is of type %s</string>
@@ -1428,7 +1439,7 @@ Force that this asset can only be viewed through a Secure (SSL) connection</stri
 	<string source="trigger_set_tag_no_tag_selected">No Tag Selected</string>
 	<string source="trigger_set_tag_select_tag">Select a tag to apply:</string>
 	<string source="trigger_set_tag_set_weighting">Set the weighting:</string>
-	<string source="trigger_set_tag_label_remove_tag">Remove instead of setting this tag</string>
+	<string source="trigger_set_tag_label_remove_tag">Remove this tag instead of setting it</string>
 
 	<string source="security_key_incorrect_message">The security key entered was incorrect. The lock on "%s" has not been forcibly acquired. You may try again using the new security key displayed below.</string>
 
@@ -1440,18 +1451,27 @@ Force that this asset can only be viewed through a Secure (SSL) connection</stri
 	<string source="trigger_avg_comment_rating_metadata_field">Metadata text field to store ratings average: </string>
 	<string source="trigger_total_comment_rating_metadata_field">Metadata text field to store total comments: </string>
 
-	<string source="trigger_action_redirect_redirect_url">Redirect URL</string>
+	<string source="trigger_action_redirect_redirect_url">Redirect to URL</string>
 	<string source="trigger_action_redirect_url_instructions">You may use asset based keywords to construct the redirect URL.</string>
 
 	<string source="trigger_action_set_cookie_set_name_value">Set cookie name %1$s to value %2$s</string>
+	<string source="trigger_action_set_cookie_name">Cookie name</string>
+	<string source="trigger_action_set_cookie_value">Cookie value</string>
 	<string source="trigger_action_set_cookie_set_expire_time">Expire time %1$s (in seconds)</string>
-	<string source="trigger_action_set_cookie_expire_time_note">Note: How long will the cookie expire since this trigger is fired (The default value 0 means the cookie expires when the client browser is closed)</string>
+	<string source="trigger_action_set_cookie_set_expire_time_label">Expire time</string>
+	<string source="trigger_action_set_cookie_expire_time_note">&lt;strong&gt;Note:&lt;/strong&gt; How long before the cookie will expire since this trigger is fired (the default value of 0 means the cookie expires when the client browser is closed).</string>
 	<string source="trigger_action_set_cookie_set_path">Path %1$s</string>
-	<string source="trigger_action_set_cookie_path_note">Note: An empty string will set the cookie path to the path that Matrix uses for session cookie</string>
+	<string source="trigger_action_set_cookie_set_path_label">Path</string>
+	<string source="trigger_action_set_cookie_path_note">&lt;strong&gt;Note:&lt;/strong&gt; An empty string will set the cookie path to the path that Matrix uses for the session cookie.</string>
 	<string source="trigger_action_set_cookie_set_domain">Domain %1$s</string>
-	<string source="trigger_action_set_cookie_domain_note">Note: An empty string will set the cookie domain to the domain that Matrix uses for session cookie</string>
+	<string source="trigger_action_set_cookie_set_domain_label">Domain</string>
+	<string source="trigger_action_set_cookie_domain_note">&lt;strong&gt;Note:&lt;/strong&gt; An empty string will set the cookie domain to the domain that Matrix uses for the session cookie.</string>
 	<string source="trigger_action_set_cookie_set_secure">Secure? %1$s (If %2$s is set, the cookie will only be sent to the client when there is a secure connection HTTPS)</string>
+	<string source="trigger_action_set_cookie_set_secure_label">Secure?</string>
+	<string source="trigger_action_set_cookie_secure_note">&lt;strong&gt;Note:&lt;/strong&gt; If set to Yes, the cookie will only be sent to the client when there is a secure HTTPS connection.</string>
 	<string source="trigger_action_set_cookie_set_http_only">HTTP only? %1$s (If %2$s is set, the cookie will only be accessible through HTTP protocol, but not scripting language like Javascript)</string>
+	<string source="trigger_action_set_cookie_set_http_only_label">HTTP only?</string>
+	<string source="trigger_action_set_cookie_http_only_note">&lt;strong&gt;Note:&lt;/strong&gt; If set to Yes, the cookie will only be accessible through a HTTP protocol, but not scripting language like Javascript.</string>
 
 	<string source="trigger_action_set_site_special_page_basic">Set the broadcasting asset as the %1$s page of the site: %2$s</string>
 	<string source="trigger_action_set_site_special_page_override_special_page">Override the existing special page</string>
@@ -1715,8 +1735,10 @@ Force that this asset can only be viewed through a Secure (SSL) connection</stri
 	<string source="sq_pager_prompt_js" js="1">Enter a page number between %1$s and %2$s:</string>
 	<string source="item_range"><![CDATA[Displaying <strong>%1$s</strong> - <strong>%2$s</strong> of <strong>%3$s</strong> total %4$s]]></string>
 
-	<string source="currently_previewing">Currently previewing "%1$s" [%2$s]</string>
+	<string source="currently_previewing">Currently previewing &lt;strong&gt;"%1$s"&lt;/strong&gt; (%2$s)</string>
 	<string source="show_in_new_window">show in new window</string>
+	<string source="open_in_new_window">Open in new window</string>
+	<string source="open_preview_in_new_window">Open preview in new window</string>
 
 	<string source="currently_editing">Currently editing "%1$s" "%2$s"</string>
 
@@ -1731,31 +1753,33 @@ Force that this asset can only be viewed through a Secure (SSL) connection</stri
 	<string source="change_password">Change Password</string>
 	<string source="unknown_or_deleted_user">Unknown or deleted user</string>
 	<string source="deleted_user_or_usergroup">Deleted user or user group</string>
-	<string source="no_access_permissions_set">No %s access permissions have been set</string>
-	<string source="no_future_permissions_set">No future permissions have been set</string>
+	<string source="no_access_permissions_set">No %s access permissions have been set.</string>
+	<string source="no_future_permissions_set">No future permissions have been set.</string>
 	<string source="cascade_permissions">Yes, cascade permission changes</string>
-	<string source="cascade_permissions_note">If you choose to cascade the changes to permissions you make on "%1$s", the changes will also be made on all assets that fall under "%1$s" in the various hierarchies in which it exists. This will affect %2$s other assets.</string>
-	<string source="manually_cascade_permissions_note">Manually cascading permissions will try to set the current permissions of "%1$s" on all assets that fall under "%1$s" in the various hierarchies in which it exists. This will affect %2$s other assets.&lt;br/&gt;&lt;br/&gt;&lt;i&gt;Any additional permissions set on affected assets will &lt;b&gt;not&lt;/b&gt; be removed during a manual cascade. Any permissions set on affected assets that conflict with ones set on "%1$s" will also &lt;b&gt;not&lt;/b&gt; be changed.&lt;/i&gt;&lt;br/&gt;&lt;br/&gt;&lt;b&gt;NB. If you select to manually cascade, any permission changes you make will also cascade even if you do not select them to. Use the option on its own for more predictable results.&lt;/b&gt;</string>
+	<string source="cascade_permissions_note">If you choose to cascade the changes to permissions you make on &lt;strong&gt;"%1$s"&lt;/strong&gt;, the changes will also be made on all assets that fall under  &lt;strong&gt;"%1$s" &lt;/strong&gt; in the various hierarchies in which it exists. This will affect  &lt;strong&gt;%2$s&lt;/strong&gt; other assets.</string>
+	<string source="manually_cascade_permissions_note">Manually cascading permissions will try to set the current permissions of &lt;strong&gt;"%1$s"&lt;/strong&gt; on all assets that fall under &lt;strong&gt;"%1$s"&lt;/strong&gt; in the various hierarchies in which it exists. This will affect %2$s other assets.&lt;br/&gt;&lt;br/&gt;&lt;i&gt;Any additional permissions set on affected assets will &lt;b&gt;not&lt;/b&gt; be removed during a manual cascade. Any permissions set on affected assets that conflict with ones set on "%1$s" will also &lt;b&gt;not&lt;/b&gt; be changed.&lt;/i&gt;&lt;br/&gt;&lt;br/&gt;&lt;b&gt;NB. If you select to manually cascade, any permission changes you make will also cascade even if you do not select them to. Use the option on its own for more predictable results.&lt;/b&gt;</string>
 	<string source="manually_cascade_permissions_option">Yes, manually cascade permissions</string>
 	<string source="password_rules_configuration">Password Rules Configuration</string>
 	<string source="session_rules_configuration">Session Rules Configuration</string>
 
 	<string source="future_permission">Future Permission</string>
-	<string source="permission_section">%1$s Permission</string>
+	<string source="permission_section">%1$s Permissions</string>
 	<string source="specific_permission">Specific Permission</string>
+	<string source="specific_type_permission">Specific &lt;strong&gt;%1$s&lt;/strong&gt; Permission</string>
 	<string source="public_permission">Public Permission</string>
+	<string source="public_type_permission">Public &lt;strong&gt;%1$s&lt;/strong&gt; Permission</string>
 	<string source="the_following">the following</string>
 
 	<string source="cascade_roles">Cascade Changes to Role Assignments?</string>
 	<string source="cascade_roles_option">Yes, cascade role assignment changes</string>
-	<string source="cascade_roles_note">If you choose to cascade the role assignment changes you make for "%1$s", the changes will also be made on all assets that fall under "%1$s" in the various hierarchies in which it exists. This will affect %2$s other assets.</string>
+	<string source="cascade_roles_note">If you choose to cascade the role assignment changes you make for &lt;strong&gt;"%1$s"&lt;/strong&gt;, the changes will also be made on all assets that fall under &lt;strong&gt;"%1$s"&lt;/strong&gt; in the various hierarchies in which it exists. This will affect &lt;strong&gt;%2$s&lt;/strong&gt; other assets.</string>
 	<string source="manually_cascade_roles">Manually Cascade Changes to Role Assignments?</string>
 	<string source="manually_cascade_roles_option">Yes, manually cascade role assignment changes</string>
 	<string source="manually_cascade_roles_note">Manually cascading role assignments will try to set the current roles of "%1$s" on all assets that fall under "%1$s" in the various hierarchies in which it exists. This will affect %2$s other assets.&lt;br/&gt;&lt;i&gt;Any additional roles set on affected assets will &lt;b&gt;not&lt;/b&gt; be removed during a manual cascade. Any roles set on affected assets that conflict with ones set on "%1$s" will also &lt;b&gt;not&lt;/b&gt; be changed.&lt;/i&gt;&lt;br/&gt;&lt;b&gt;NB. If you select to manually cascade, any role changes you make will also cascade even if you do not select them to. Use the option on its own for more predictable results.&lt;/b&gt;</string>
 	<string source="no_roles_set">No roles have been assigned</string>
 	<string source="roles_system_disabled">The Roles System is disabled</string>
-	<string source="select_a_role">Select a role:</string>
-	<string source="select_users_for_role">Select the users who will perform the role on this asset:</string>
+	<string source="select_a_role">Select a role</string>
+	<string source="select_users_for_role">Select the users who will perform the role on this asset</string>
 	<string source="send_an_asset">Send An Asset</string>
 	<string source="roles">Roles</string>
 	<string source="role">Role</string>
@@ -2543,6 +2567,7 @@ If you are ready to continue, please click <strong>Next</strong> to proceed with
 	<string source="current_site">Current Site</string>
 	<string source="set_value">Set Value</string>
 	<string source="super_global">Any Super Global</string>
+	<string source="dynamic_inputs">Dynamic Inputs</string>
 
 	<!-- Linking errors -->
 	<string source="cannot_create_notice_link_permission_denied">Cannot create notice link from "%1$s" (# %2$s) to "%3$s" (# %4$s) - No write access to "%1$s")</string>
@@ -2699,17 +2724,17 @@ If you are ready to continue, please click <strong>Next</strong> to proceed with
 	<!-- Future Status Trigger Actions -->
 	<string source="trigger_delete_future_status">Delete all future status cron jobs that would change the asset's status to </string>
 	<string source="trigger_action_future_status_cascade_all">and cascade the status change to all children of the asset</string>
-	<string source="trigger_action_future_status_failure_conditions">NB. If a selected attribute is empty or not present, or the calculated value is in the past, no future status will be set</string>
-	<string source="trigger_action_future_status_date_format">NB. Metadata Date Field must provide ISO8601 format as Y-m-d H:i:s</string>
+	<string source="trigger_action_future_status_failure_conditions">&lt;strong&gt;Note:&lt;/strong&gt; If a selected attribute is empty or not present, or the calculated value is in the past, no future status will be set.</string>
+	<string source="trigger_action_future_status_date_format">&lt;strong&gt;Note:&lt;/strong&gt; Metadata Date Field must provide ISO8601 format as "Y-m-d H:i:s".</string>
 	<string source="trigger_action_future_status_make_status_change_to">Add a cron job to change the asset's status to</string>
 	<string source="trigger_action_future_status_explicit_exact">at exactly</string>
 	<string source="trigger_action_future_status_explicit_interval">after the trigger was fired</string>
 	<string source="trigger_action_future_status_attr_exact">at exactly the date and time stored in the attribute</string>
 	<string source="trigger_action_future_status_attr_interval">the date and time stored in the attribute</string>
 	<string source="trigger_action_future_status_customise_msg">Error message</string>
-	<string source="trigger_action_future_status_customise_msg_note">&lt;br&gt;&lt;b&gt;NOTE :&lt;/b&gt; If customised, this error message will be displayed if the caluclated time value is in past.&lt;/p&gt;</string>
-	<string source="trigger_action_future_status_treat_as_fatal">Treat as fatal error :</string>
-	<string source="trigger_action_future_status_treat_as_fatal_note">Tick the box if the error is to be treated as Fatal, i.e. Stops the script execution. &lt;br /&gt;&lt;b&gt;NOTE :&lt;/b&gt;By Default the error will be treated as &lt;i&gt;E_USER_WARNING&lt;/i&gt; which means the eror will be lodged but the scrit execution will continue</string>
+	<string source="trigger_action_future_status_customise_msg_note">&lt;br&gt;&lt;strong&gt;Note:&lt;/strong&gt; If customised, this error message will be displayed if the caluclated time value is in past.&lt;/p&gt;</string>
+	<string source="trigger_action_future_status_treat_as_fatal">Treat as fatal error</string>
+	<string source="trigger_action_future_status_treat_as_fatal_note">&lt;br /&gt;&lt;strong&gt;Note:&lt;/strong&gt; Tick the box if the error is to be treated as fatal, i.e. stops the script execution. By default the error will be treated as &lt;i&gt;E_USER_WARNING&lt;/i&gt; which means the error will be lodged but the script execution will continue.</string>
 
 	<!-- Future Permission Trigger Actions -->
 	<string source="trigger_delete_future_permission">Delete all future permission cron jobs that would change the asset's</string>
@@ -2723,7 +2748,6 @@ If you are ready to continue, please click <strong>Next</strong> to proceed with
 
 	<!-- Miscellaneous Trigger Action Strings -->
 	<string source="trigger_action_no_configuration">This trigger action does not require any configuration.</string>
-
 	<string source="web_paths_auto_add_remaps">Automatically add remaps?</string>
 	<string source="web_paths_auto_add_remaps_label">Automatically add remaps</string>
 	<string source="web_paths_auto_add_remaps_note">When set, this option will add remaps for Web Paths that have been changed above.</string>
@@ -3059,9 +3083,9 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	
 	<string source="password_history_enforcement">Password History Enforcement</string>
 	<string source="password_history_enforcement_note">Number of unique new passwords that have to be associated with and used by a user before an old password can be reused again. Enter 0 to disable this feature and stop Matrix from recording history passwords.</string>
-	
+
 	<!-- viper -->
-	<string source="enable_viper_editor">Enable Viper Editor</string>
+ 	<string source="enable_viper_editor">Enable Viper Editor</string>
 	<string source="enable_viper_editor_note">If this option is enabled, the new Viper editor will be used for the WYSIWYG content type and attributes. As a result, the following WSIWYG preferences will not be applied: WYSIWYG Style, Apply CSS Styles, WYSIWYG Plugins, WYSIWYG Disable Image Resize, Thesaurus and Protocol Templates.</string>
 	<string source="viper_editor_enabled_icon_note">Click inside the content area to start editing using the Viper Content Editor.</string>
 </strings>

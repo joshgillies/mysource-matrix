@@ -243,7 +243,7 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 							</tr>
 							<tr>
 								<td>
-										<button type="button" name="cancel" onclick="return onCancel();"><?php echo translate('cancel'); ?></button>	
+										<button type="button" name="cancel" onclick="return onCancel();" class="sq-popup-btn-cancel"><?php echo translate('cancel'); ?></button>	
 								</td>
 								<td>										
 									<div class="sq-popup-button-wrapper">																		    								

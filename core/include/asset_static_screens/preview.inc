@@ -347,11 +347,19 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 		if (!((!$o->_buffering) && SQ_IN_LIMBO)) $o->closeRaw();
 
 		$o->openSection(translate('preview_options'));
-			$o->openField(translate('url'));
+			$o->openField(translate('available_urls'));
+				echo '<ul style="margin-top: 0;">';
+				foreach ($preview_urls as $primary_url) {
+					echo '<li><a href="'.$preview_urls[$primary_url].'" target="_blank">'.$preview_urls[$primary_url].'</a></li>';
+				}
+				echo '</ul>';
+			$o->closeField();
+
+			$o->openField(translate('preview_url'));
 				if (count($preview_urls) > 1) {
 					combo_box('preview_url', $preview_urls, FALSE, $primary_url, 1, 'onchange="update_preview_url()"');
 				} else {
-					echo $primary_url;
+					echo '<a href="'.$primary_url.'" target="_blank">'.$primary_url.'</a>';
 					hidden_field('preview_url', $primary_url);
 				}
 			$o->closeField();
@@ -436,11 +444,11 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 					$primary_url .= '/'.SQ_CONF_NOCACHE_SUFFIX;
 				}
 				ob_start();
-					?><a href="<?php echo $primary_url; ?>" id="sq_preview_new_window" target="_blank"><?php echo translate('show_in_new_window'); ?></a><?php
+					?><a href="<?php echo $primary_url; ?>" id="sq_preview_new_window" target="_blank"><?php echo translate('open_preview_in_new_window'); ?></a><?php
 					$replacements_link = ob_get_contents();
 				ob_end_clean();
 				?>
-				<p class="sq-backend-field">
+				<p>
 					<?php echo translate('currently_previewing', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), $replacements_link); ?>
 				</p>
 				<iframe name="sq_preview_frame" id="sq_preview_frame" src="<?php echo $primary_url; ?>" style="width: 100%; height: 400px; border: 1px solid #C3C3C3;"></iframe>

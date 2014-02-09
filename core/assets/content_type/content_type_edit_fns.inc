@@ -103,24 +103,28 @@ class Content_Type_Edit_Fns extends Asset_Edit_Fns
 	function _paintInterface($html, $asset)
 	{
 		$source = htmlspecialchars($html);
-		$source = preg_replace('/&lt;\/(div|br|p|table|thead|tbody|tfoot|tr|td|th|style|script|blockquote|h1|h2|h3|h4|h5|h6|hr|ul|li)&gt;/i', '&lt;/$1&gt;<br/>', $source);
-		$source = preg_replace('/&gt;&lt;(div|br|p|table|thead|tbody|tfoot|tr|td|th|style|script|blockquote|h1|h2|h3|h4|h5|h6|hr|ul|li)/i', '&gt;<br/>&lt;$1', $source);
+		//If we are dealing with a WYSIWYG and other content types, we need to pretty up the HTML source view a bit, for RAW HTML areas we just print it exactly as the user entered it. 
+		if (get_class_lower($asset) != 'content_type_raw_html') {
+		  $source = preg_replace('/&lt;\/(div|br|p|table|thead|tbody|tfoot|tr|td|th|style|script|blockquote|h1|h2|h3|h4|h5|h6|hr|ul|li)&gt;/i', '&lt;/$1&gt;<br/>', $source);
+		  $source = preg_replace('/&gt;&lt;(div|br|p|table|thead|tbody|tfoot|tr|td|th|style|script|blockquote|h1|h2|h3|h4|h5|h6|hr|ul|li)/i', '&gt;<br/>&lt;$1', $source);
+		}
 		$source = ltrim($source, '<br />');
 		$prefix = $asset->getPrefix();
 		$content_prefix = $prefix.'_'.get_class_lower($asset);
 		$path = sq_web_path('data').'/asset_types/bodycopy/images/icons/source_mode.png';
+		$path_grey = sq_web_path('data').'/asset_types/bodycopy/images/icons/source_mode_grey.png';
 		echo '<table class="sq-bodycopy-raw-html-table bodytext" style="width: 100%;">';
 		echo '<tr><td align="left" id="'.$prefix.'_div_'.$asset->id.'" >';
-		echo '<img align="absmiddle" src="'.$path.'" alt="View Source" title="View Source" width="16" height="16" style="cursor:pointer;" onclick="sq_toggle_double_div(\''.$content_prefix.'_html\', \''.$content_prefix.'_source\', \''.$content_prefix.'_control\', \'View Source\', \'View Preview\');if (this.alt == \'View Source\') { this.alt=\'View Preview\'; this.title=\'View Preview\'; } else { this.alt=\'View Source\'; this.title=\'View Source\' };" />';
+		echo '<img align="absmiddle" src="'.$path.'" alt="View Source" title="View Source" width="16" height="16" style="cursor:pointer;" onclick="sq_toggle_double_div(\''.$content_prefix.'_html\', \''.$content_prefix.'_source\', \''.$content_prefix.'_control\', \'View Source\', \'View Preview\');if (this.alt == \'View Source\') { this.alt=\'View Preview\'; this.title=\'View Preview\'; this.src=\''.$path_grey.'\'; } else { this.alt=\'View Source\'; this.title=\'View Source\'; this.src=\''.$path.'\'; };" />';
 		echo '<span id="'.$content_prefix.'_control" style="display:none;">View Source</span>';
 		echo '</td></tr>';
 		echo '<tr><td id="'.$content_prefix.'_cell">';
 		echo '<div id="'.$content_prefix.'_html" class="sq-preview-view sq-wysiwyg-preview-wrapper" style="display: block;">';
 		echo $html;
 		echo '</div>';
-		echo '<div id="'.$content_prefix.'_source" class="sq-source-view" style="display: none;">';
-		echo $source;
-		echo '</div>';
+		echo '<div id="'.$content_prefix.'_source" class="sq-source-view" style="display: none;"><pre>';
+		echo ltrim($source);
+		echo '</pre></div>';
 		echo '</td></tr>';
 		echo '</table>';
 

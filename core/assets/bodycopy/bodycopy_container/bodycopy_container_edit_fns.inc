@@ -147,6 +147,8 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 									'<label',
 									'<fieldset',
 									'<legend',
+									'<style',
+									'<script',
 								 );
 				$conflict_tag_search_string = '~('.implode(')|(', $conflict_tags).')~i';
 
@@ -160,7 +162,12 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 					ob_start();
 						$this->paint($asset, FALSE);
 					$container_content = ob_get_clean();
-					$container_content = '<div style="padding: 1ex; margin-bottom: 1ex; border: solid 1px grey;"><strong>Container ID '.$asset->id.'</strong><div class="sq-backend-warning">'.translate('bodycopy_html_conflict_warning').'</div><hr /><pre>'.htmlentities($container_content, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'</pre></div>';
+					$container_content = ''
+						.'<div class="sq-source-mode-forced" title="'.translate('bodycopy_html_conflict_warning').'">'
+							.'<img align="absmiddle" src="'.sq_web_path('data').'/asset_types/bodycopy/images/icons/source_mode_grey.png" title="'.translate('bodycopy_html_conflict_warning').'" width="16" height="16" />'
+						.'</div>'
+						.'<pre>'.htmlentities($container_content, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'</pre>'
+						.'';
 				}
 
 				//print a div wrapper around the content so we can style the container properly
@@ -802,10 +809,11 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 					bodycopy_nested_doc.height = '100%';
 				}
 
-				// how far down the page we want to display this popup
+				// How far down the page we want to display this popup?
 				// If we can get the bodycopy divs id, we can figure out exactly where to position the popup so it is 
 				// relative to the button the user clicks on instead of where they are scrolled to for better user experience
-				if (bodycopy_type != undefined && bodycopy_id != undefined) {
+				// Also, only do this if we are in _admin mode, if not, result to old method
+				if ((bodycopy_has_class(document.getElementById('sq-content'), 'main')) && (bodycopy_type != undefined && bodycopy_id != undefined)) {
 					var bodycopy_parent_td = document.getElementById('bodycopy_' + bodycopy_type + '_' + bodycopy_id + '_' + bodycopy_type + '_' + bodycopy_id);
 					var xPosition = 0;
 		    		var yPosition = 0;
@@ -867,6 +875,14 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 				var form = document.main_form;
 				var container_type = form_element_value(form.<?php echo $prefix; ?>_insert_container_type);
 				eval('bodycopy_insert_' + container_type + '("' + bodycopy_name + '", ' + containerid + ', ' + before + ');');
+			}
+	
+			function bodycopy_has_class(element, className) {
+				if(element != null && element != undefined) {
+		    		return element.className && new RegExp("(^|\\s)" + className + "(\\s|$)").test(element.className);
+		    	} else {
+		    		return false;
+		    	}
 			}
 
 			bodycopy_current_data["<?php echo $prefix?>"] = new Object();

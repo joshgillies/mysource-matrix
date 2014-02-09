@@ -134,6 +134,7 @@ class Trigger_Action_Set_Metadata_Schema extends Trigger_Action
 				   );
 
 		ob_start();
+			echo '<div class="sq-break-line-inputs">';
 			if ($write_access) {
 				ob_start();
 					combo_box($prefix.'[granted]', $options, FALSE, $granted);
@@ -151,10 +152,10 @@ class Trigger_Action_Set_Metadata_Schema extends Trigger_Action
 				if (!empty($current_schemaid)) {
 					$schema_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($current_schemaid));
 					echo translate('trigger_schema_apply-deny_the_following_schema', $options[$granted]).' ';
-					echo '<b>'.$schema_info[$current_schemaid]['name'].' (#'.$current_schemaid.')</b>';
+					echo get_asset_tag_line($current_schemaid);
 				} else {
 					echo translate('trigger_schema_apply-deny_the_following_schema', $options[$granted]).' ';
-					echo '<b>'.translate('trigger_schema_no_schema_specified').'</b>';
+					echo '<em>'.translate('trigger_schema_no_schema_specified').'</em>';
 				}
 				echo '<br />';
 				echo '<img src="'.sq_web_path('lib').'/web/images/'.($cascade ? 'tick' : 'cross').'.gif" alt="'.($cascade ? translate('yes') : translate('no')).'" /> ';
@@ -163,6 +164,7 @@ class Trigger_Action_Set_Metadata_Schema extends Trigger_Action
 				echo '<img src="'.sq_web_path('lib').'/web/images/'.($cascade_to_new ? 'tick' : 'cross').'.gif" alt="'.($cascade_to_new ? translate('yes') : translate('no')).'" /> ';
 				echo translate('cascade_schema_changes_to_new_children');
 			}
+			echo '</div>';
 
 			$output = ob_get_contents();
 		ob_end_clean();

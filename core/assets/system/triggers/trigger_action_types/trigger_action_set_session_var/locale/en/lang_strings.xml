@@ -18,5 +18,5 @@
 -->
 
 <strings>
-	<string source="trigger_set_session_var_interface"><![CDATA[<div>Set session variable name: %1$s to value:%2$s</div>%3$s]]></string>
+	<string source="trigger_set_session_var_interface"><![CDATA[<div class="sq-break-line-inputs">Set session variable name %1$s to value %2$s</div> %3$s]]></string>
 </strings>

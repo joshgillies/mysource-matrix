@@ -194,10 +194,9 @@ class Trigger_Action_Set_Role extends Trigger_Action
 				asset_finder($prefix.'[role]', $selected_roleid, Array('role' => 'I'));
 			} else {
 				if ($selected_roleid) {
-					$selected_role_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($selected_roleid, Array(), TRUE, 'name');
-					echo '<b>'.$selected_role_info[$selected_roleid].' (#'.$selected_roleid.')</b>';
+					echo get_asset_tag_line($selected_roleid);
 				} else {
-					echo '<b>['.translate('trigger_set_role_no_role_selected').']</b>';
+					echo '<em>['.translate('trigger_set_role_no_role_selected').']</em>';
 				}
 			}
 			$role_select_role_part = ob_get_contents();
@@ -206,10 +205,10 @@ class Trigger_Action_Set_Role extends Trigger_Action
 		ob_start();
 			if ($write_access) {
 				multiple_asset_finder($prefix.'[user_assetid]', $selected_userids, Array('user' => 'D', 'user_group' => 'D'));
-				echo '<i>AND / OR</i><br>';
+				echo '<em>AND / OR</em><br/>';
 				echo check_box($prefix.'[use_current_user]', 1, $current_user);
 				label(translate('trigger_set_role_user_firing_trigger'), $prefix.'[use_current_user]');
-				echo '<br><br>';
+				echo '<br/><br/>';
 			} else {
 				if ($selected_userids || $current_user) {
 					if($selected_userids) {
@@ -220,10 +219,10 @@ class Trigger_Action_Set_Role extends Trigger_Action
 						}
 						echo '</ul>';
 					}
-					echo '<br />';
+					echo '<br/>';
 					echo '<img src="'.sq_web_path('lib').'/web/images/'.($current_user ? 'tick' : 'cross').'.gif" alt="'.($current_user ? translate('yes') : translate('no')).'" /> ';
 					echo translate('trigger_set_role_user_firing_trigger');
-					echo '<br><br>';
+					echo '<br/>';
 
 				} else {
 					echo '<b>['.translate('trigger_set_role_no_users_selected').']</b>';
@@ -262,12 +261,12 @@ class Trigger_Action_Set_Role extends Trigger_Action
 			$role_delete_all_part = ob_get_contents();
 		ob_end_clean();
 
-		$contents = ''.translate('select_a_role').'<br />'.
-					$role_select_role_part.'<br />'.
-					'<br />'.translate('select_users_for_role').'<br />'.
-					$role_select_user_part.'<br />'.
-					$role_cascade_part.'<br />'.
-					$role_delete_all_part;
+		$contents = '<div class="sq-break-line-inputs">'.translate('select_a_role').': '.
+					$role_select_role_part.'</div>'.
+					'<div class="sq-break-line-inputs">'.translate('select_users_for_role').': '.
+					$role_select_user_part.'</div>'.
+					'<div class="sq-break-line-inputs">'.$role_cascade_part.'<br />'.
+					$role_delete_all_part.'</div>';
 
 		return $contents;
 

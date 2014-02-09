@@ -348,6 +348,7 @@ class Backend extends MySource_Object
 					div.iframe-container.sidenav {
 						width: <?php echo $sidenav_width ?>px;
 						z-index: 1;
+						transition: width 0.2s ease-out;
 					}
 
 					body.sidenav-minimised div.iframe-container.sidenav {
@@ -368,6 +369,7 @@ class Backend extends MySource_Object
 						padding-left: <?php echo ($sidenav_width + $resizer_width) ?>px;
 						padding-top: <?php echo $header_height ?>px;
 						z-index: 0;
+						transition: width 0.2s ease-out;
 					}
 
 					body.sidenav-minimised div.iframe-container.main {
@@ -861,7 +863,7 @@ class Backend extends MySource_Object
 			}
 
 			if ($stalledjobs != 0) {
-				$html = $this->_getDHTMLMessage(translate('hipo_jobs_stalled'), translate('hipo_jobs_count', $GLOBALS['SQ_SYSTEM']->user->name, $stalledjobs).'</br><a href="'.$this->getBackendUrl('main').'&backend_section=hipo_herder" target="sq_main">'.translate('hipo_herder').'</a>', 'new-message', 'stop', 32, 32);
+				$html = $this->_getDHTMLMessage(translate('hipo_jobs_stalled'), translate('hipo_jobs_count', $GLOBALS['SQ_SYSTEM']->user->name, $stalledjobs).'</br><a href="'.$this->getBackendUrl('main').'&backend_section=hipo_herder" target="sq_main">'.translate('hipo_herder').'</a>', 'new-message', 'hipo', 32, 32);
 				$dhtml_messages['hipo_jobs_stalled'] = Array('html' => str_replace("\n", '', $html), 'width' => '400', 'timeout' => 6.0);
 			}
 
@@ -1643,7 +1645,7 @@ class Backend extends MySource_Object
 		if (!is_array($detail)) $detail = Array($detail);
 
 		$html = '
-			<table class="sq-backend-popup-table" id="popup-'.$style.'">
+			<table class="sq-backend-popup-table '.$icon.'" id="popup-'.$style.'">
 			<tr>
 			';
 		if (!empty($icon)) {

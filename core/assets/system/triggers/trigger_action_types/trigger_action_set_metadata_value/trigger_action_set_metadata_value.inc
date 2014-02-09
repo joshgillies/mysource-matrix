@@ -214,18 +214,21 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 		}
 		// asset finder for Metadata Field
 		ob_start();
+			echo '<div class="sq-break-line-inputs">';
 			if ($write_access) {
-				echo 'Choose Metadata Field&nbsp;&nbsp;&nbsp;';
+				echo 'Choose metadata field: ';
 				asset_finder($prefix.'[fieldid]', $metadata_fieldid, Array('metadata_field' => 'D'));
 			} else {
+				echo 'Metadata field: ';
 				if ($metadata_fieldid  && $metadata_field) {
 					echo get_asset_tag_line($metadata_fieldid);
 				} else if ($metadata_fieldid  && !$metadata_field) {
 					echo '<span class="sq-backend-warning">Unknown asset (Id: #'.$metadata_fieldid.')</span>';
 				} else {
-					echo '<b>No metadata field specified</b>';
+					echo '<em>No metadata field specified</em>';
 				}
 			}
+			echo '</div>';
 			$output_part1 = ob_get_contents();
 		ob_end_clean();
 		$output .= $output_part1;
@@ -233,9 +236,10 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 		// Input field for the value
 		ob_start();
 			if ($write_access && $metadata_field) {
+				echo '<div class="sq-break-line-inputs">';
 				// attribute friendly prefix
 				$new_prefix = str_replace(array('[',']'), '_', $prefix);
-				echo '<br>Set the value for this field<br>';
+				echo 'Set the value for this field: ';
 				// set the field name
 				$edit_fns = $metadata_field->getEditFns();
 				$edit_fns->paintValueInterface($metadata_field, $GLOBALS['SQ_SYSTEM']->backend->out, $metadata_field_value, TRUE, TRUE, FALSE, NULL, $new_prefix);
@@ -248,7 +252,8 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 
 				$atr_parameter_map->setParameter('metadata_value', 'Metadata Field Value');
 				echo $atr_parameter_map->paint($new_prefix.'_parameter_map');
-
+				echo '</div>';
+				echo '<br/>';
 			}
 			$output_part2 = ob_get_contents();
 		ob_end_clean();
@@ -256,13 +261,16 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 
 		// Replace keywords checkbox
 		ob_start();
+			echo '<div class="sq-break-line-inputs">';
 			check_box($prefix.'[replace_keywords_in_set_value]', '1', array_get_index($settings, 'replace_keywords_in_set_value', 0), NULL, ($write_access? '' : 'disabled="disabled"'));
 			label('Replace keywords in the set value', $prefix.'[replace_keywords_in_set_value]');
-		$output_part3 = '<br />'.ob_get_clean();
+			echo '</div>';
+		$output_part3 = ob_get_clean();
 
 		$output .= $output_part3;
 
 		ob_start();
+			echo '<div class="sq-break-line-inputs">';
 			$current_context = array_get_index($settings, 'contextid', NULL);
 
 			$contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
@@ -290,16 +298,21 @@ class Trigger_Action_Set_Metadata_Value extends Trigger_Action
 					combo_box($prefix.'[context_to_select]', $context_list, FALSE, $default);
 				} else {
 					if ($current_context === NULL) {
+						echo '<strong>';
 						echo translate('trigger_use_currently_active_context');
+						echo '</strong>';
 					} else if (array_key_exists($current_context, $contexts) === TRUE) {
+						echo '<strong>';
 						echo $contexts[$current_context]['name'];
+						echo '</strong>';
 					} else {
 						echo '<span class="sq-backend-warning">'.translate('trigger_context_deleted_fail_until_changed').'</span>';
 					}
 				}
 			}
+			echo '</div>';
 		$output_context_select = ob_get_clean();
-		$output .= '<br />'.$output_context_select;
+		$output .= $output_context_select;
 
 		return $output;
 

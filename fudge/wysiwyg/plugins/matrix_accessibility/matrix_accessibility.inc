@@ -162,7 +162,7 @@ class matrix_accessibility extends wysiwyg_plugin
 				// A bit more breathing room for Safari
 				if (HTMLArea.is_safari) popup_width += 15;
 
-				this._popupDialog("matrixInsertAbbr", strPage, popup_width, 210, true, function(param) {
+				this._popupDialog("matrixInsertAbbr", strPage, popup_width, 170, true, function(param) {
 					if (!param) {
 						// user must have pressed Cancel
 						return false;
@@ -289,7 +289,7 @@ class matrix_accessibility extends wysiwyg_plugin
 				// A bit more breathing room for Safari
 				if (HTMLArea.is_safari) popup_width += 15;
 
-				this._popupDialog("matrixInsertAcronym", strPage, popup_width, 210, true, function(param) {
+				this._popupDialog("matrixInsertAcronym", strPage, popup_width, 170, true, function(param) {
 					if (!param) {
 						// user must have pressed Cancel
 						return false;

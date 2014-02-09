@@ -100,6 +100,14 @@ img.sq-icon.small {
 	height:						13px;
 }
 
+img.sq-icon-info {
+	width: 						15px;
+	height:						15px;
+}
+img.sq-tag-line.sq-icon.sq-icon-info {
+	margin-right:				3px;
+}
+
 div > img {
 	margin-right: 				3px;
 }
@@ -253,6 +261,14 @@ p.sq-backend-warning {
 	padding-bottom:				10px;
 }
 
+.sq-source-mode-forced {
+	margin-bottom: 				6px;
+}
+
+.sq-source-mode-forced img {
+	cursor: 					not-allowed;
+}
+
 .sq-no-bottom-border{
 	border-bottom: 				none !important;
 }
@@ -327,6 +343,16 @@ textarea {
 	font-family:				Arial, Verdana, Helvetica, sans-serif;
 }
 
+textarea:disabled,
+textarea[disabled],
+textarea.disabled{
+	box-shadow: 				0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 -2.4em 3.3em -2.4em rgba(0, 0, 0, 0.09) inset;
+	border: 					1px solid #C4C4C4;
+	color: 						#555;
+	background: 				#F5F5F5;
+	cursor: 					default;
+}
+
 input[type="text"], 
 input[type="password"] {
 	background-color: 			rgb( 255, 255, 255 );
@@ -364,6 +390,7 @@ input[type="reset"],
 	text-shadow: 				0 1px 0 #fff;
 	box-shadow: 				0 1px 2px rgba(0, 0, 0, 0.19), 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 -2.4em 3.3em -2.4em rgba(0, 0, 0, 0.2) inset;
 	display: 					inline-block;
+	transition: 				all 0.2s ease-out;
 }
 
 .sq-btn-link {
@@ -381,6 +408,7 @@ input[type="reset"]:hover,
 	cursor: 					pointer;
 	text-decoration: 			none;
 	border: 					1px solid #9F9F9F;
+	box-shadow: 				0 1px 2px rgba(0, 0, 0, 0.4), 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 -2.4em 3.3em -2.4em rgba(0, 0, 0, 0.2) inset;
 }
 
 input.sq-btn-no-shadow, 
@@ -388,13 +416,17 @@ input.sq-btn-no-shadow,
 	box-shadow: 				0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 -2.4em 3.3em -2.4em rgba(0, 0, 0, 0.3) inset;
 }
 
+button[disabled], 
+button[disabled]:hover, 
 button.disabled,
 button.disabled:hover,
+input[disabled], 
+input[disabled]:hover, 
 input.disabled, 
 input.disabled:hover {
 	box-shadow: 				0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 -2.4em 3.3em -2.4em rgba(0, 0, 0, 0.09) inset;
 	border: 					1px solid #C4C4C4;
-	color: 						#9C9C9C;
+	color: 						#555;
 	background: 				#F5F5F5;
 	cursor: 					default;
 }
@@ -427,10 +459,10 @@ input.sq-btn-green,
 
 input.sq-btn-green:hover, 
 .sq-btn-green:hover {
-	background: 				#489D48;
+	background: 				#36AF36;
  	color: 						#edfbed;
 	border-color: 				#072514;
-	box-shadow: 				0 1px 3px rgba(0, 0, 0, 0.44), 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 -2.4em 3.3em -2.4em rgba(0, 0, 0, 0.6) inset;
+	box-shadow: 				0 1px 3px rgba(0, 0, 0, 0.80), 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 -2.4em 3.3em -2.4em rgba(0, 0, 0, 0.6) inset;
 }
 
 input.sq-btn-blue, 
@@ -444,17 +476,13 @@ input.sq-btn-blue,
 
 input.sq-btn-blue:hover, 
 .sq-btn-blue:hover {
-	background: 				#2F80D3;
+	background: 				#298AEE;
   	color: 						#f1f8fe;
 	border-color: 				#0A233A;
-	box-shadow: 				0 1px 3px rgba(0, 0, 0, 0.44), 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 -2.4em 3.3em -2.4em rgba(0, 0, 0, 0.6) inset;
+	box-shadow: 				0 1px 3px rgba(0, 0, 0, 0.80), 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 -2.4em 3.3em -2.4em rgba(0, 0, 0, 0.6) inset;
 }
 
 input.sq-colour-picker-btn{
-	/*padding: 					0px 4px;
-	height: 					auto;
-	font-size:					11px;
-	margin-left: 				0px;*/
 	line-height: 				24px;
 }
 
@@ -495,10 +523,16 @@ label {
 }
 
 /* Default disabled styles */
-select[disabled="disabled"] {
-	color: 						#B8B8B8;
+select[disabled="disabled"],
+select[disabled] {
+	color: 						#555;
 	border: 					1px solid #ccc;
 	background: 				#F1F1F1;
+}
+select[disabled] option[selected],
+select:disabled option:checked, 
+option:disabled:checked {
+	color: 						#555;
 }
 
 /* Dynamic option lists */
@@ -538,6 +572,10 @@ select[disabled="disabled"] {
 .sq-break-line-inputs input,
 .sq-break-line-inputs select {
 	margin-bottom:				5px;
+}
+
+.sq-break-line-inputs img {
+	margin-bottom:				3px;
 }
 
 .sq-break-line-inputs .sq-tag-line.sq-info-asset-name {
@@ -961,7 +999,7 @@ MAIN EDITING FRAME TABLE AND SECTION STRUCTURE
 	font-weight: 				bold;
 	text-align: 				left;
 	color: 						#0090bf;
-	padding-bottom: 			20px;
+	padding-bottom: 			10px;
 }
 
 .section .section .field .sq-backend-section-subheading {
@@ -1038,12 +1076,12 @@ table.sq-backend-table {
 }
 
 .sq-backend-table tr {
-	background-color: 			#fdfdfd;
+	background-color: 			#fafafa;
 }
 
-.sq-backend-table tr:nth-child(even) {
+/*.sq-backend-table tr:nth-child(even) {
 	background-color: 			#f9f9f9;
-}
+}*/
 
 .sq-backend-table th, 
 .sq-backend-table td {
@@ -1140,6 +1178,11 @@ table.sq-backend-table {
 	color: 						#84848F;
 }
 
+/* SIMPLE TABLE WITH NO STYLES */
+.sq-simple-table td{
+	padding: 					0 3px 3px 0;
+}
+
 /* OTHER MISCELLANEOUS STYLES FOR BACKEND DATA */
 
 .sq-backend-data-newline {
@@ -1179,6 +1222,11 @@ table.sq-backend-table {
 	font-size: 					11px;
 	margin-top: 				10px;
 	line-height: 				15px;
+}
+
+.sq-backend-section-note.bottom-margin,
+.sq-backend-field-note.bottom-margin {
+	margin-bottom: 				10px;
 }
 
 .sq-backend-section-note *,
@@ -1544,7 +1592,7 @@ EDIT BODYCOPY STYLES
 
 .sq-edit-bodycopy-section,
 .sq-locked-content-block-wrapper {
-	margin: 					20px 0 0;
+	margin: 					10px 0 0;
 	border: 					1px dashed #CCC;
 	border-radius: 				4px;
 	display: 					block;
@@ -1602,7 +1650,7 @@ EDIT BODYCOPY STYLES
 .sq-locked-content-block-wrapper .sq-source-view{
 	padding-top: 				10px;
 	padding-bottom: 			0;
-	line-height: 				14px;
+	/*line-height: 				14px;*/
 }
 
 .sq-bodycopy-locked-wrapper.content_type_raw_html{
@@ -1619,7 +1667,7 @@ EDIT BODYCOPY STYLES
 
 .sq-edit-bodycopy-insert-container-table {
 	border: 					none;
-	margin:						30px 0 10px;
+	margin:						20px 0 10px;
 }
 
 .sq-edit-bodycopy-table tr:first-child .sq-edit-bodycopy-insert-container-table {
@@ -2141,6 +2189,27 @@ td.sq-error-report-reported{
 	border: 					1px solid #e0d3a2;
 }
 
+
+/*
+####################################################################################################################
+METADATA EDITING AND PREVIEW STYLES
+####################################################################################################################
+*/
+
+/* METADATA WYSIWYG FIELD */
+.sq-metadata-wysiwyg-preview {
+	display: 					block;
+	border: 					1px dashed #CCC;
+	border-radius: 				4px;
+	padding: 					10px;
+	margin-bottom: 				10px;
+}
+
+.sq-metadata-wysiwyg-edit-wrapper {
+	margin-bottom: 				10px;
+}
+
+
 /*
 ####################################################################################################################
 DROP DOWN POPUP STYLES (Slide down from under the top header on the right side)
@@ -2162,6 +2231,10 @@ DROP DOWN POPUP STYLES (Slide down from under the top header on the right side)
 
 .sq-new-message-popup-wrapper table{
 	width: 						100%;
+}
+
+.sq-new-message-popup-wrapper table.hipo .sq-icon{
+	margin-top:					-4px;
 }
 
 .sq-popup-pagination {
@@ -2585,14 +2658,16 @@ img.sq-tag-line.sq-icon {
 	vertical-align:				middle;
 }
 
-.sq-email-format-html-body-div {
-	width:					100%;
-	background: none repeat scroll 0 0 #FFFFFF;
-	border: 1px solid #C2C2C2;
-	padding: 10px 10px 0px 10px;
-	
+.sq-email-format-wysiwyg-wrapper {
+	background: 				#fff;
 }
 
+.sq-email-format-html-body-div {
+	width:						100%;
+	background: 				none repeat scroll 0 0 #FFFFFF;
+	border: 					1px solid #C2C2C2;
+	padding: 					10px 10px 0px 10px;
+}
 
 /* LOG MANAGER */
 
@@ -2712,11 +2787,27 @@ table.sq-log-monitor-table td{
 	background: 				#EEE;
 }
 
+
+/* These styles should be replicated into the /fudge/wysiwyg/core/core.js file so that the preview and editing view of the WYSIWYG content is consitent */
+.sq-wysiwyg-preview-wrapper {
+	color: 						#000;
+	font-family: 				arial,verdana,sans-serif; 
+	font-size: 					13px;
+	line-height: 				1.2em;
+}
+
+.sq-wysiwyg-preview-wrapper h1 {font-size: 2em;		margin:0.83em 0;}
+.sq-wysiwyg-preview-wrapper h2 {font-size: 1.5em;	margin:0.83em 0;}
+.sq-wysiwyg-preview-wrapper h3 {font-size: 1.17em;	margin:0.83em 0;}
+.sq-wysiwyg-preview-wrapper h4 {font-size: 1em;		margin:0.83em 0;}
+.sq-wysiwyg-preview-wrapper h5 {font-size: 0.83em;	margin:0.83em 0;}
+.sq-wysiwyg-preview-wrapper h6 {font-size: 0.67em;	margin:0.83em 0;}
+
 .sq-wysiwyg-preview-wrapper table, 
 .sq-wysiwyg-preview-wrapper ul, 
 .sq-wysiwyg-preview-wrapper ol, 
 .sq-wysiwyg-preview-wrapper p {
-	margin: 					1em 0 1em;
+	margin: 					0.83em 0;
 }
 
 .sq-wysiwyg-preview-wrapper ul, 
@@ -2729,7 +2820,6 @@ table.sq-log-monitor-table td{
 .sq-wysiwyg-preview-wrapper table td {
 	border:						1px solid #555;
 	padding: 					2px;
-	font-size:					1em;
 	background: 				none;
 }
 

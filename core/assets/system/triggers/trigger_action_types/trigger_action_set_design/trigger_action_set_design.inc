@@ -200,14 +200,15 @@ class Trigger_Action_Set_Design extends Trigger_Action
 				echo translate('trigger_set_design_select_design_type');
 				combo_box($prefix.'[design_type]', $design_types, FALSE, $design_type, 0, $extra);
 				echo '<br /><br />';
-				echo translate('trigger_set_design_set_user_design_name');
+				echo translate('trigger_set_design_set_user_design_name').': ';
 				text_box($prefix.'[design_name]', $design_name, '', '', FALSE, $disabled);
+				echo '<br /><br />';
 			} else {
 				if ($selected_assetid) {
 					$selected_assetname = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($selected_assetid), Array(), TRUE, 'name');
-					text_box($prefix.'[assetid]', $selected_assetname[$selected_assetid].' (#'.$selected_assetid.')', '', '', FALSE, $form_element_extras);
+					echo get_asset_tag_line($selected_assetid);
 				} else {
-					text_box($prefix.'[assetid]', '', '', '', FALSE, $form_element_extras);
+					echo '<em>'.translate('trigger_set_design_no_design_message').'</em>';
 				}
 			}
 			// prints the parameter map to accept dynamic values

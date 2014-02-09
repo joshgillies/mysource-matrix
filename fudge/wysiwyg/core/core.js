@@ -125,7 +125,8 @@ HTMLArea.prototype.generate = function () {
 		}
 		editor._doc = doc;
 		doc.open();
-		var html = "<html>\n";
+		var html = "<!DOCTYPE html>\n";
+		html += "<html>\n";
 		html += "<head>\n";
 		
 		if (editor.config.styleSheets) { 
@@ -136,11 +137,41 @@ HTMLArea.prototype.generate = function () {
 		   
 		}
 
-		html += "<style> body { " + editor.config.bodyStyle + "; margin: 0px; padding: 10px 0 0; font-size: 13px;}\n";
+		html += "<style> body { " + editor.config.bodyStyle + "; color: #000; font-family: arial,verdana,sans-serif; margin: 0px; padding: 10px 0 0; font-size: 13px; line-height: 1.2em;}\n";
+		html += "body.editingFrame { padding: 10px 0 0 !important;}\n";
 		html += ".wysiwyg-noborders { border: 1px dashed #3366CC; }\n";
 		html += ".wysiwyg-source-view, .wysiwyg-source-view * { font-family: Courier New, Courier, monospace !important; color: #111111 !important;}\n";
 		html += ".wysiwyg-source-view * { margin: 0 !important; padding: 0 !important;}\n";
-		html += "table { border-collapse: collapse; font-size: 1em; }\n";
+		html += "h1 {font-size: 2em;	margin:0.83em 0;}\n";
+		html += "h2 {font-size: 1.5em;	margin:0.83em 0;}\n";
+		html += "h3 {font-size: 1.17em;	margin:0.83em 0;}\n";
+		html += "h4 {font-size: 1em;	margin:0.83em 0;}\n";
+		html += "h5 {font-size: 0.83em;	margin:0.83em 0;}\n";
+		html += "h6 {font-size: 0.67em;	margin:0.83em 0;}\n";
+		html += "table, ul, ol, p {\n";
+		html += "	margin: 					0.83em 0 0.83em;\n";
+		html += "}\n";
+		html += "ul, ol {\n";
+		html += "	padding-left:				40px;\n";
+		html += "}\n";
+		html += "table {\n";
+		html += "	border-collapse: collapse; \n";
+		html += "	font-size: 1em; }\n";
+		html += "table, table th, table td {\n";
+		html += "	border:						1px solid #555;\n";
+		html += "	padding: 					2px;\n";
+		html += "	background: 				none;\n";
+		html += "}\n";
+		html += "a {\n";
+		html += "  	color: 						blue;\n";
+		html += " 	text-decoration: 			underline;\n";
+		html += "}\n";
+		html += "a:visited {\n";
+		html += "   color: 					purple;\n";
+		html += "}\n";
+		html += "a:active {\n";
+		html += "   color:					red;\n";
+		html += "}\n";
 		html += "</style>\n";
 		html += "</head>\n";
 		if (editor._dir_attr != undefined && editor._dir_attr != '') { html += "<body dir=\"" + editor._dir_attr + "\">\n"; }

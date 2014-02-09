@@ -346,7 +346,7 @@ class matrix_insert_link extends wysiwyg_plugin
 				editor_<?php echo $this->wysiwyg->name?>._object = this;
 				var strPage = "<?php echo $this->get_popup_href('insert_link_frames.php')?>?assetid=" + encodeURIComponent(currArgs["assetid"]) + "&url=" + encodeURIComponent(currArgs["url"]) + "&status_text=" + encodeURIComponent(currArgs["status_text"]) + "&link_title=" + encodeURIComponent(currArgs["link_title"])+ "&target=" + encodeURIComponent(currArgs["target"]) + "&new_window=" + encodeURIComponent(currArgs["new_window"]) + "&new_window_options=" + encodeURIComponent(var_serialise(currArgs["new_window_options"])) + "&editor_name=" + encodeURIComponent("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + encodeURIComponent(in_popup) + "&class_name=" + encodeURIComponent(currArgs["class_name"]) + "&id_name=" + encodeURIComponent(currArgs["id_name"]);
 
-				var popup_height = 465;
+				var popup_height = 495;
 
 				// A bit more breathing room for Safari
 				if (HTMLArea.is_safari) popup_height += 5;

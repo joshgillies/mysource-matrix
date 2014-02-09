@@ -393,15 +393,13 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 		} else {
 			echo translate(($mins < 0) ? 'before' : 'after');
 		}
-		echo ' '.translate('specified_value').'<br /><br /></p>';
+		echo ' '.translate('specified_value').'</p>';
 
 		// Update to dependants only
 		if ($write_access) {
-			echo '<br />';
 			check_box($prefix.'_dependants_only', '1', $settings['dependants_only']);
-			echo translate('trigger_set_permission_dependants_only');
+			label(translate('trigger_set_permission_dependants_only'), $prefix.'_dependants_only');
 		} else {
-			echo '<br />';
 			echo '<img src="'.sq_web_path('lib').'/web/images/'.($settings['dependants_only'] ? 'tick' : 'cross').'.gif" alt="'.($settings['dependants_only'] ? translate('yes') : translate('no')).'" /> ';
 			echo translate('trigger_set_permission_dependants_only');
 		}
@@ -410,12 +408,14 @@ class Trigger_Action_Set_Future_Permission extends Trigger_Action
 		if ($write_access) {
 			echo '<br />';
 			check_box($prefix.'_cascade_to_new', '1', $settings['cascade_to_new']);
-			echo translate('cascade_permission_to_new_children');
+			label(translate('cascade_permission_to_new_children'), $prefix.'_cascade_to_new');
 		} else {
 			echo '<br />';
 			echo '<img src="'.sq_web_path('lib').'/web/images/'.($settings['cascade_to_new'] ? 'tick' : 'cross').'.gif" alt="'.($settings['cascade_to_new'] ? translate('yes') : translate('no')).'" /> ';
 			echo translate('cascade_permission_to_new_children');
 		}
+
+		echo '<br /><br />';
 
 		// print the parameter map
 		$parameter_map_value = array_get_index($settings, 'user_map', serialize(Array()));

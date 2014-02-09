@@ -79,10 +79,10 @@ class Cron_Job_Future_Permission_Edit_Fns extends Cron_Job_Edit_Fns
 		
 		if ($write_access) {
 				?>
-				<table cellspacing="0">
+				<table class="sq-simple-table">
 					<tr>
 						<td colspan="2">
-							<span class="sq-inline-fields-wrapper">
+							<span class="sq-inline-fields-wrapper" style="margin-top: 3px;">
 							<?php
 							combo_box($prefix.'_future_permissions_access[public][granted]', Array('' => '', '1' => translate('grant'), '0' => translate('deny')), FALSE, '');
 							echo ' '.translate('public_permission');
@@ -92,7 +92,7 @@ class Cron_Job_Future_Permission_Edit_Fns extends Cron_Job_Edit_Fns
 					</tr>
 					<tr>
 						<td valign="top">
-							<span class="sq-inline-fields-wrapper">
+							<span class="sq-inline-fields-wrapper" style="margin-top: 3px;">
 							<?php
 							combo_box($prefix.'_future_permissions_access[user][granted]', Array('' => '', '1' => translate('grant'), '0' => translate('deny')), FALSE, '');
 							echo ' '.translate('specific_permission');

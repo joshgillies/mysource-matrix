@@ -182,7 +182,7 @@ class Trigger_Action_Set_Site_Special_Page extends Trigger_Action
 						echo '<span class="sq-backend-warning">Unknown asset (Id: #'.$site_assetid.')</span>';
 					}
 				} else {
-				    echo '<b>No Asset ID specified</b>';
+				    echo '<em>No Asset ID specified</em>';
 				}
 			}
 		$site_asset_selection = ob_get_clean();
@@ -199,11 +199,13 @@ class Trigger_Action_Set_Site_Special_Page extends Trigger_Action
 			label(translate('trigger_action_set_site_special_page_use_direct_parent_sites'), $prefix.'[use_direct_parent_sites]');
 		$use_direct_parent_sites_checkbox = ob_get_clean();
 		
-		$contents = translate('trigger_action_set_site_special_page_basic', $special_page_selection, $site_asset_selection)
-					.'<br /><br />'
+		$contents = '<div class="sq-break-line-inputs">'
+					.translate('trigger_action_set_site_special_page_basic', $special_page_selection, $site_asset_selection)
+					.'<br />'
 					.$override_special_page_checkbox
 					.'<br />'
-					.$use_direct_parent_sites_checkbox;
+					.$use_direct_parent_sites_checkbox
+					.'</div>';
 		
 		return $contents;
 		

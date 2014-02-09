@@ -270,10 +270,10 @@ class Trigger_Action_Set_Tag extends Trigger_Action
 					if ($tagid) {
 						$tag = $GLOBALS['SQ_SYSTEM']->am->getAsset($tagid);
 						if (!is_null($tag)) {
-							echo '<b>'.$tag->name.' (#'.$tag->id.')</b>';
+							echo get_asset_tag_line($tag->id);
 						}
 					} else {
-						echo '<b>['.translate('trigger_set_tag_no_tag_selected').']</b>';
+						echo '<em>'.translate('trigger_set_tag_no_tag_selected').'</em>';
 					}
 				}
 				$tag_part = ob_get_contents();
@@ -292,6 +292,7 @@ class Trigger_Action_Set_Tag extends Trigger_Action
 			ob_start();
 				$action_checked = ($action == 'add' ? FALSE : TRUE);
 				if ($write_access) {
+					echo '<em>'.strtoupper(translate('or')).'</em></br>';
 					check_box($prefix.'[action]', '1', $action_checked, 'toggleWeighting(!this.checked)');
 				} else {
 					?><img src="<?php echo sq_web_path('lib').'/web/images/'.($action_checked ? 'tick' : 'cross').'.gif'; ?>" alt="<?php echo ($action_checked ? translate('yes') : translate('no')); ?>"><?php
@@ -324,9 +325,14 @@ class Trigger_Action_Set_Tag extends Trigger_Action
 			if ($write_access || $action == 'add') {
 				echo '<br />'.translate('trigger_set_tag_set_weighting').' '.$weighting_part;
 			}
-			echo '<br />'.$delete_part;
-			echo '<br /><br />'.$cascade_part;
-			echo '<br />'.$manual_cascade_part;
+			echo '<br />';
+			echo $delete_part;
+			echo '<br /><br />';
+			echo '<div class="sq-break-line-inputs">';
+			echo  $cascade_part;
+			echo '<br />';
+			echo  $manual_cascade_part;
+			echo  '</div>';
 
 			// prints the parameter map to accept dynamic values
 			if ($write_access) {

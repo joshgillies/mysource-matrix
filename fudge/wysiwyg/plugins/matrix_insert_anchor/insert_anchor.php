@@ -35,7 +35,7 @@ if (!isset($_GET['name']))		$_GET['name']	= "";
 
 ?>
 <!DOCTYPE html>
-<html style="height: 280px;">
+<html style="height: 200px;">
 	<head>
 		<title>Insert Anchor</title>
 		<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('lib').'/web/css/edit.css' ?>" />
@@ -123,9 +123,6 @@ if (!isset($_GET['name']))		$_GET['name']	= "";
 								<td class="label">Anchor Name:</td>
 								<td colspan="3"><?php text_box('name', $_GET['name'], 40, 0);?>
 								</td>
-							</tr>
-							<tr>
-								<td colspan="4"><br /></td>
 							</tr>
 							<tr>
 								<td class="label">Remove:</td>

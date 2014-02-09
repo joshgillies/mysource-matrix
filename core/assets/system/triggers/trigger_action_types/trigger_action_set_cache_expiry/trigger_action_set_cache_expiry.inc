@@ -302,28 +302,28 @@ class Trigger_Action_Set_Cache_Expiry extends Trigger_Action_Clear_Cache
 			ob_start();
 				$disabled = (!$use_alternative) ? 'disabled="disabled"' : '';
 				?>
-				<table border="0">
+				<table class="sq-backend-table">
 				<tr>
-					<td valign="top"><b>DSN</b></td>
-					<td valign="top" style="padding-bottom: 10px;">
+					<th>DSN</th>
+					<td>
 						<?php text_box($prefix.'[alt_dsn]', $alt_dsn, 60, '', FALSE, $disabled); ?>
 					</td>
 				</tr>
 				<tr>
-					<td valign="top"><b>user</b></td>
-					<td valign="top" style="padding-bottom: 10px;">
+					<th>user</th>
+					<td>
 						<?php text_box($prefix.'[alt_dsn_user]', $alt_dsn_user, 30, '', FALSE, $disabled); ?>
 					</td>
 				</tr>
 				<tr>
-					<td valign="top"><b>password</b></td>
-					<td valign="top" style="padding-bottom: 10px;">
+					<th>password</th>
+					<td>
 						<?php text_box($prefix.'[alt_dsn_pwd]', $alt_dsn_pwd, 30, '', FALSE, $disabled); ?>
 					</td>
 				</tr>
 				<tr>
-					<td valign="top"><b>type</b></td>
-					<td valign="top" style="padding-bottom: 10px;">
+					<th>type</th>
+					<td>
 						<?php text_box($prefix.'[alt_dsn_type]', $alt_dsn_type, 30, '', FALSE, $disabled); ?>
 					</td>
 				</tr>

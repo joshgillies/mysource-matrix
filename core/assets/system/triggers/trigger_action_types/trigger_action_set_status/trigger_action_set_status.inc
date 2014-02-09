@@ -167,14 +167,16 @@ class Trigger_Action_Set_Status extends Trigger_Action
 			$dependant_parents = array_get_index($settings, 'dependant_parents', FALSE);
 			if ($write_access) {
 				check_box($prefix.'[dependant_parents]', 1, $dependant_parents);
+				label(translate('trigger_set_status_dependant_parents'), $prefix.'[dependant_parents]');
 			} else {
 				echo '<img src="'.sq_web_path('lib').'/web/images/'.($dependant_parents ? 'tick' : 'cross').'.gif" alt="'.($dependant_parents ? translate('yes') : translate('no')).'" /> ';
+				echo translate('trigger_set_status_dependant_parents');
 			}
 			$basic_part_2 = ob_get_contents();
 		ob_end_clean();
 
 
-		return translate('trigger_set_status', $basic_part_1, $basic_part_2);
+		return '<div class="sq-break-line-inputs">'.translate('trigger_set_status', $basic_part_1).'</div>'.$basic_part_2.'<br/>'.translate('trigger_set_status_dependant_parents_note');
 
 	}//end getInterface()
 

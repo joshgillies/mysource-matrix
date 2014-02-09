@@ -417,6 +417,49 @@ class Asset_Edit_Interface extends MySource_Object
 				if ((strtolower($screen_lock_type) != 'none') && empty($_REQUEST['print_view'])) {
 					// lets tell the user if the asset is locked for editing
 					// or if they can lock it to edit it
+			$o->openRaw();
+			?>
+
+				<!--div id="sq-aquire-locks-wrapper" style="display: none;">
+					<?php
+						if (!$have_all_locks || $have_any_locks) {
+							?><div class="sq-locks-button-wrapper"><?php
+						}
+
+						if (!$have_all_locks) {
+							hidden_field('sq_lock_acquire', '0');
+							if ($need_force_locks) {
+								if ($can_force_locks) {
+									// they aren't going to do this without a fight though
+									// they'll have to go through our popup window first
+									$popup_url = '?SQ_BACKEND_PAGE=main&backend_section=am&ignore_frames=1&am_section=forceably_acquire_lock&assetid='.$owner->id.'&sq_lock_type='.$screen_lock_type;
+
+									hidden_field('sq_lock_acquire_by_force', '0');
+									normal_button('sq_forceably_acquire_lock', translate('acquire_lock_button'), "window.open('$popup_url', 'sq_forceably_acquire_lock_popup', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=500,height=300');", 'class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button acquire force"');
+									echo '&nbsp;';
+								}
+							} else if ($full_write_access && $acquire_lock_access) {
+								hidden_field('sq_lock_acquire_by_force', '0');
+								normal_button('', translate('acquire_lock_button'), "document.getElementById('sq_lock_acquire').value = 1; submit_form(this.form)", 'accesskey="a" class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button acquire"');
+								echo '&nbsp;';
+							}//end if
+						}
+
+						if ($have_any_locks) {
+							hidden_field('sq_lock_release_manual', 0);
+							normal_button('', translate('release_lock_button'), "document.getElementById('sq_lock_release_manual').value = 1; submit_form(this.form)", 'accesskey="r" class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button release"');
+							echo '&nbsp;';
+						}
+
+						if (!$have_all_locks || $have_any_locks) {
+							?></div>
+					<?php
+					}
+					?>
+				</div-->
+
+			<?php
+			$o->closeRaw();
 					$o->openSection(translate('locking_editing'));
 					$o->openRaw();
 						?>

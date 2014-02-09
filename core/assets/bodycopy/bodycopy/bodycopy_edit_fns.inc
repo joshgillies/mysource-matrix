@@ -201,6 +201,89 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		</div>
 		<!-- End Popup -->
 
+		<?php
+			//The following CSS should only get printed if we are not in _admin mode. They are only here to support old versions of EES.
+		if (!(SQ_IN_BACKEND || SQ_IN_LIMBO)) {
+		?>
+			<style>
+			.sq-edit-bodycopy-table table{
+				width: 100%;
+			}
+			.sq-edit-bodycopy-table .sq-edit-bodycopy-section{
+				margin-bottom: 20px;
+			}
+			.sq-edit-bodycopy-insert-container-table td{
+				font-size: 12px;
+			}
+			.sq-edit-bodycopy-insert-container-table tr td:first-child{
+				width: 20px;
+				padding-left: 5px;
+			}
+			.bodyCopyIcons img {
+				margin-right: 5px;
+			}
+			.sq-content_type_wysiwyg-wrapper.wysiwygArea{
+				padding-bottom: 0 !important;
+			}
+			#ees_editContents .htmlarea-toolbar,
+			.htmlarea-toolbar{
+				margin: 0 !important;
+			}
+			.htmlarea-toolbar table{
+				margin: 0;
+			}
+			.htmlarea-toolbar td{
+				border: 1px solid #ccc !important;
+			}
+			#ToolBox{
+				border: 1px solid #777;
+				color: #000;
+				background-color: #FFF;
+				position: absolute;
+				z-index: 1000;
+				text-align: left;
+				font-style: normal;
+				font-variant: normal;
+				font-weight: normal;
+				font-size: 100%;
+				line-height: normal;
+				font-family: Tahoma, Arial;
+				visibility: hidden;
+			}
+			#ToolBoxTitle{
+				padding: 2px;
+				text-align: left;
+				font-weight: bold;
+				font-style: normal;
+				font-variant: normal;
+				font-size: 110%;
+				line-height: normal;
+				font-family: helvetica, arial, sans-serif;
+				background-image: url(/__data/ees/Images/popupTitle-bg.gif);
+				background-attachment: scroll;
+				background-color: #113262;
+				color: #FFF;
+				background-position: 0px 0px;
+				background-repeat: repeat no-repeat;
+			}
+			#ToolBoxContent{
+				padding: 2px;
+				font-style: normal;
+				font-variant: normal;
+				font-weight: normal;
+				font-size: 100%;
+				line-height: normal;
+				font-family: Tahoma, Arial;
+				background-color: #FFF;
+			}
+			.sq-toolbox-properties-table td{
+				padding: 2px;
+			}
+			</style>
+		<?php
+		}
+		?>
+
 		<table class="sq-edit-bodycopy-table bodytext">
 
 		<?php

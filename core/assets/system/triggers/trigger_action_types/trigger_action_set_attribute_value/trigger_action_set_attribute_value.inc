@@ -238,12 +238,12 @@ class Trigger_Action_Set_Attribute_Value extends Trigger_Action
 		ob_start();
 			$value = array_get_index($settings, 'value', '');
 			if ($write_access) {
-				text_area($prefix.'[value]', $value, 80, 5);
+				text_area($prefix.'[value]', $value, 80, 5, '', 'style="margin-top: 10px;"');
 			} else {
 				echo '<b>'.$value.'</b>';
 			}
 
-			echo '<div>';
+			echo '<div style="padding-top: 10px;">';
 			$new_prefix = str_replace(array('[',']'), '_', $prefix);
 			hidden_field($prefix.'[new_prefix]', $new_prefix);
 

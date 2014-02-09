@@ -58,7 +58,7 @@ class Replace_Text extends WYSIWYG_Plugin
 	{
 		?>
 		case "replacetext":
-				this._popupDialog("ReplaceText", "<?php echo $this->get_popup_href('replace_text.php')?>", 440, 520, true, function(types){
+				this._popupDialog("ReplaceText", "<?php echo $this->get_popup_href('replace_text.php')?>", 440, 470, true, function(types){
 					if (types == null) return false;
 					var reg = null;
 					var rep = null;

@@ -246,7 +246,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 							</td>
 						</tr>
 						<tr>
-							<td colspan="2">
+							<td colspan="2" class="sq-email-format-wysiwyg-wrapper">
 								<?php
 								if ($read_only) {
 									?>

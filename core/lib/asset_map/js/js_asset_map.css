@@ -631,6 +631,7 @@
 	border-left: 				1px solid #ccc;
 	padding-top:				1px;
 	color: 						#000;
+	transition: 				height 0.2s ease-out;
 }
 
 #asset_map_container .tree *{
@@ -724,14 +725,22 @@
 	background-color: #fff;
 }
 
-#asset_map_container .statusList .fakeAsset {
-	display: none;
+#asset_map_container .statusListInner {
+	height: 0px;
+	overflow: hidden;
+	transition: all 0.2s ease-out;
 }
 
-#asset_map_container .statusList.expanded .fakeAsset {
+#asset_map_container .statusList.expanded .statusListInner {
+	height: auto;
+	overflow: visible;
+	padding: 2px 5px;
+}
+
+#asset_map_container .fakeAsset {
 	display: block;
 	cursor: default;
-	margin: 5px;
+	padding: 2px 0;
 }
 
 #asset_map_container .statusListIcon {
@@ -751,6 +760,7 @@
 }
 #asset_map_container .statusList.expanded .statusDivider {
 	border-bottom: 1px solid #e2e2e2;
+	padding-bottom: 5px;
 }
 
 #asset_map_container .statusDivider .text {
@@ -880,7 +890,7 @@
 	background: url(../../web/images/tree/arrow-down.png) center 0 no-repeat;
 }
 
-#asset_map_container .statusDivider .text:hover {
+#asset_map_container .statusDivider:hover .text {
 	text-decoration: underline;
 	cursor: pointer;
 }

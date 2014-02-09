@@ -133,80 +133,91 @@ function paintMetadataSchemas(Asset $owner, Backend_Outputter $o, Asset_Edit_Int
 	ksort($direct);
 
 
-	if (!empty($direct)) {
+	
+	$o->openSection('Existing Schemas');
 		$o->openRaw();
-		foreach ($direct as $granted => $schema_list) {
-		?>
-			<table class="sq-backend-table">
-				<tr>
-					<th class="sq-backend-table-header">
-						<span style="color: <?php echo (($granted == '0') ? 'red' : 'green'); ?>"><?php echo (($granted == '0') ? translate('denied') : translate('applied')) ?></span>
-					</th>
-					<th  style="text-align: center;" width="100" class="sq-backend-table-header">
-						<?php echo translate('cascade_question'); ?>
-					</th>
+			if (empty($direct)) {
+				echo '<p><em>'.translate('no_metadata_schemas').'</em></p>';
+			} else {
+				foreach ($direct as $granted => $schema_list) {
+				?>
+					<table class="sq-backend-table">
+						<tr>
+							<th class="sq-backend-table-header">
+								<span style="color: <?php echo (($granted == '0') ? 'red' : 'green'); ?>"><?php echo (($granted == '0') ? translate('denied') : translate('applied')) ?> <?php echo translate('schemas');?></span>
+							</th>
+							<th style="text-align: center;" width="100" class="sq-backend-table-header">
+								<?php echo translate('cascade_question'); ?>
+							</th>
+							<?php
+							if ($admin_access) {
+								?><th style="text-align: center;" width="100" class="sq-backend-table-header"><?php echo translate('delete_question'); ?></th><?php
+							}
+							?>
+						</tr>
 					<?php
-					if ($admin_access) {
-						?><th style="text-align: center;" width="100" class="sq-backend-table-header"><?php echo translate('delete_question'); ?></th><?php
-					}
+					foreach ($schema_list as $schemaid => $schema_detail) {
+						if ($schemaid) {
+							$schema_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($schemaid), 'metadata_schema', FALSE);
+							if (empty($schema_info)) continue;
+						}
 					?>
-				</tr>
-			<?php
-			foreach ($schema_list as $schemaid => $schema_detail) {
-				if ($schemaid) {
-					$schema_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($schemaid), 'metadata_schema', FALSE);
-					if (empty($schema_info)) continue;
-				}
-			?>
-				<tr>
-					<td class="sq-backend-table-cell">
+						<tr>
+							<td class="sq-backend-table-cell">
+							<?php
+							echo get_asset_tag_line($schemaid);
+							?>
+							</td>
+							<td align="center" width="100" class="sq-backend-table-cell">
+							<?php
+							if ($admin_access) {
+								check_box($prefix.'_metadata[cascades]['.$schemaid.']', 1, $schema_detail['cascades']);
+							} else {
+							?>
+								<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($schema_detail['cascades'] ? 'tick' : 'cross'); ?>.gif" width="15" height="15" />
+							<?php
+							}
+							?>
+							</td>
+							<?php
+							if ($admin_access) {
+								?><td align="center" width="100" class="sq-backend-table-cell"><?php
+								check_box($prefix.'_metadata[delete]['.$schemaid.']');
+								?></td><?php
+							}
+							?>
+						</tr>
 					<?php
-					echo get_asset_tag_line($schemaid);
-					?>
-					</td>
-					<td align="center" width="100" class="sq-backend-table-cell">
-					<?php
-					if ($admin_access) {
-						check_box($prefix.'_metadata[cascades]['.$schemaid.']', 1, $schema_detail['cascades']);
-					} else {
-					?>
-						<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($schema_detail['cascades'] ? 'tick' : 'cross'); ?>.gif" width="15" height="15" />
-					<?php
-					}
-					?>
-					</td>
-					<?php
-					if ($admin_access) {
-						?><td align="center" width="100" class="sq-backend-table-cell"><?php
-						check_box($prefix.'_metadata[delete]['.$schemaid.']');
-						?></td><?php
-					}
-					?>
-				</tr>
-			<?php
-			}// end foreach data
-		?>
-			</table>
-			<br>
-		<?php
-		}//end foreach inherited
-
+					}// end foreach data
+				?>
+					</table>
+				<?php
+				}//end foreach inherited
+			}//end if
 		$o->closeRaw();
+		if (!empty($direct)) {
+			$o->sectionNote('The "Cascade?" option determines whether new children of this asset will automatically have the schema cascaded to them. If this setting is changed, existing non-dependant children will NOT be affected. If you want to apply a schema to existing children where they have not been before, please do a Manual Cascade after toggling this setting on.');
+		}
+	$o->closeSection();
 
-	}//end if
+
 
 	if ($admin_access) {
-		$o->openField(translate('new_question'), '');
-			echo '<span class="sq-inline-fields-wrapper bottom-margin">';
-				combo_box($prefix.'_metadata[new][granted]', Array('' => '', '1' => translate('apply'), '0' => translate('deny')), FALSE, '');
-				echo ' '.translate('metadata_schema').' &nbsp; ';
-				asset_finder($prefix.'_metadata[new][schemaid]', 0, Array('metadata_schema' => 'D'), 'sq_sidenav', FALSE, 'null', Array('clear'));
-			echo '</span>';
-		$o->closeField();
-		$o->openField(translate('cascade_question'), '');
-			check_box($prefix.'_metadata[new][cascades]', 1, TRUE);
-			label(translate('cascade_schema_changes_to_new_children'), $prefix.'_metadata[new][cascades]');
-		$o->closeField();
+
+		$o->openSection('Add New Schema');
+			$o->openField('Select Schema', '');
+				echo '<span class="sq-inline-fields-wrapper bottom-margin">';
+					combo_box($prefix.'_metadata[new][granted]', Array('' => '', '1' => translate('apply'), '0' => translate('deny')), FALSE, '');
+					echo ' '.translate('metadata_schema').' &nbsp; ';
+					asset_finder($prefix.'_metadata[new][schemaid]', 0, Array('metadata_schema' => 'D'), 'sq_sidenav', FALSE, 'null', Array('clear'));
+				echo '</span>';
+			$o->closeField();
+			$o->openField(translate('cascade_question'), '');
+				check_box($prefix.'_metadata[new][cascades]', 1, TRUE);
+				label(translate('cascade_schema_changes_to_new_children'), $prefix.'_metadata[new][cascades]');
+				$o->note('If unchecked, the schema will be applied or denied only to dependants of this asset, regardless of the Cascade Changes settings below. It will also not apply the metadata schema to any asset that becomes a new child of this asset (through creating a new asset, or moving an existing one, or creating a new link from one). This setting can be toggled after being applied.');
+			$o->closeField();
+		$o->closeSection();
 	}
 
 	$o->closeSection();

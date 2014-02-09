@@ -1226,6 +1226,9 @@ class HIPO_Herder extends MySource_Object
 						</tr>
 						<?php
 					}
+					?>
+					</table>
+					<?php
 				}//end else
 
 			$o->closeField();

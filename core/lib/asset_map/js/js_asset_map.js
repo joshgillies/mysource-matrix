@@ -3003,6 +3003,10 @@ var JS_Asset_Map = new function() {
 		dfx.addClass(dividerText, 'text');
 		dividerText.innerHTML = js_translate('asset_map_status_colour_key');
 		divider.appendChild(dividerText);
+		
+		var containerInner = _createEl('div');
+		dfx.addClass(containerInner, 'statusListInner');
+		container.appendChild(containerInner);
 
 		for (var x in Status) {
 			var displayName = js_translate('status_' + x.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase());
@@ -3025,7 +3029,7 @@ var JS_Asset_Map = new function() {
 			dfx.addClass(nameSpan, 'assetName');
 			assetLine.appendChild(iconSpan);
 			assetLine.appendChild(nameSpan);
-			container.appendChild(assetLine);
+			containerInner.appendChild(assetLine);
 		}//end for
 	};
 

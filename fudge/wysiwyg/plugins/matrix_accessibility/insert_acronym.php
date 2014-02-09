@@ -34,7 +34,7 @@ if (!isset($_GET['title']))		  $_GET['title'] = "";
 
 ?>
 <!DOCTYPE html>
-<html style="height: 200px;">
+<html>
 	<head>
 		<title>Insert Acronym</title>
 		<link rel="stylesheet" type="text/css" href="<?php echo sq_web_path('lib').'/web/css/edit.css' ?>" />

@@ -133,14 +133,15 @@ class Trigger_Action_Set_Paint_Layout extends Trigger_Action
 			$override_layout_buttons = empty($selected_override_layout_assetid) ? Array('clear') : Array('clear', 'reset');
 
 			?>
-				<table>
-				<tr>
-					<td><?php echo translate('trigger_set_paint_layout_select'); ?> </td>
-					<td><?php echo $write_access ? translate('trigger_set_paint_layout', asset_finder($prefix.'[layout_assetid]', $selected_layout_assetid, Array('paint_layout_page' => 'D'), 'sq_sidenav', FALSE, 'null', $layout_buttons)) : $layout_wa; ?> </td>
-				</tr><tr>
-					<td><?php echo translate('trigger_set_override_paint_layout_select'); ?></td>
-					<td><?php echo $write_access ? translate('trigger_set_override_paint_layout', asset_finder($prefix.'[override_layout_assetid]', $selected_override_layout_assetid, Array('paint_layout_page' => 'D'), 'sq_sidenav', FALSE, 'null', $override_layout_buttons)) : $override_layout_wa; ?> </td>
-				</tr></tr>
+				<table class="sq-backend-table with-bottom-margin">
+					<tr>
+						<th><?php echo translate('trigger_set_paint_layout_select'); ?> </th>
+						<td><?php echo $write_access ? asset_finder($prefix.'[layout_assetid]', $selected_layout_assetid, Array('paint_layout_page' => 'D'), 'sq_sidenav', FALSE, 'null', $layout_buttons) : $layout_wa; ?> </td>
+					</tr>
+					<tr>
+						<th><?php echo translate('trigger_set_override_paint_layout_select'); ?></th>
+						<td><?php echo $write_access ? asset_finder($prefix.'[override_layout_assetid]', $selected_override_layout_assetid, Array('paint_layout_page' => 'D'), 'sq_sidenav', FALSE, 'null', $override_layout_buttons) : $override_layout_wa; ?> </td>
+					</tr>
 				</table>
 			<?php
 
@@ -155,7 +156,7 @@ class Trigger_Action_Set_Paint_Layout extends Trigger_Action
 			echo $attr_parameter_map->paint($new_prefix.'_parameter_map', !$write_access);
 		$parameter_map_contents = ob_get_clean();
 
-		return $basic_contents.'<b>'.translate('trigger_set_paint_layout_parameter_map', $parameter_map_contents).'</b>';
+		return $basic_contents.$parameter_map_contents;
 
 	}//end getInterface()
 

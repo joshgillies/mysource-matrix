@@ -166,15 +166,21 @@ class Trigger_Action_Set_Metadata_Field_Date extends Trigger_Action
 
 		// asset finder for Metadata Field
 		ob_start();
+			echo '<div class="sq-break-line-inputs">';
 			if ($write_access) {
-				echo translate('trigger_metadata_date_select_field');
+				echo translate('trigger_metadata_date_select_field').': ';
 				asset_finder($prefix.'[fieldid]', $metadata_fieldid, Array('metadata_field' => 'D'));
 			} else {
-				echo translate('trigger_metadata_date_show_field');
-				echo $metadata_fieldid;
+				echo translate('trigger_metadata_date_show_field').': ';
+				if (!empty($metadata_fieldid)) {
+					echo get_asset_tag_line($metadata_fieldid);
+				} else {
+					echo '<em>'.translate('trigger_metadata_date_no_field_message').'</em>';
+				}
 			}
-			echo '<br/>';
+			echo '</div>';
 
+			echo '<div class="sq-break-line-inputs">';
 			$disabled = ($write_access ? '' : 'disabled=disabled');
 			ob_start();
 			text_box($prefix.'[offset_months]', array_get_index($settings, 'offset_months', 0), 5, 2, FALSE, $disabled);
@@ -186,9 +192,11 @@ class Trigger_Action_Set_Metadata_Field_Date extends Trigger_Action
 			text_box($prefix.'[offset_mins]', array_get_index($settings, 'offset_mins', 0), 5, 2, FALSE, $disabled);
 			list($text_box_months, $text_box_days, $text_box_mins, $text_box_hours) = explode('|', ob_get_clean());
 			echo translate('trigger_metadata_date_offset', $text_box_months, $text_box_days, $text_box_mins, $text_box_hours);
+			echo '</div>';
 		$output = ob_get_clean();
 
 		ob_start();
+			echo '<div class="sq-break-line-inputs">';
 			$current_context = array_get_index($settings, 'context_to_select', NULL);
 
 			$contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
@@ -216,16 +224,21 @@ class Trigger_Action_Set_Metadata_Field_Date extends Trigger_Action
 					combo_box($prefix.'[context_to_select]', $context_list, FALSE, $default);
 				} else {
 					if ($current_context === NULL) {
+						echo '<strong>';
 						echo translate('trigger_use_currently_active_context');
+						echo '</strong>';
 					} else if (array_key_exists($current_context, $contexts) === TRUE) {
+						echo '<strong>';
 						echo $contexts[$current_context]['name'];
+						echo '</strong>';
 					} else {
 						echo '<span class="sq-backend-warning">'.translate('trigger_context_deleted_fail_until_changed').'</span>';
 					}
 				}
 			}
+			echo '</div>';
 		$output_context_select = ob_get_clean();
-		$output .= '<br />'.$output_context_select;
+		$output .= $output_context_select;
 
 		return $output;
 
