@@ -117,7 +117,8 @@ function Layer_Handler(div_id, top, right, bottom, left) {
 	// Make the layer visible
 	function show() {
 		
-		if (is_ie4up) {
+		//Commented this out as it seems outdated, plus it stuffs up in IE when you do move first and then show as the first move gets overwritten by the move in this if statement.
+		/*if (is_ie4up) {
 			var top_offset = 20;
 			// if the commit button is anchored to bottom of frame a custom css is used for IE (edit_ie6.css)
 			// so we need to pick the y-offset for the sq-content div that is scrollable 
@@ -138,7 +139,7 @@ function Layer_Handler(div_id, top, right, bottom, left) {
 				scroll_top = document.documentElement.scrollTop;
 				this.move(null,top_offset + scroll_top);
 			}
-		}
+		}*/
 
 		this.style.visibility = (is_nav4)? "show" : "visible";
 	}
