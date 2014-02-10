@@ -818,7 +818,7 @@ class Ecommerce_Checkout extends Page
 
 		$_SESSION['sq_local_cart_contents']['delivery_state'] = $delivery_method->getState();
 
-		$this->_saveOrderSummary($order_asset, $delivery_method, $payment_gateway_xml);
+		$this->_saveOrderSummary($order_asset, $delivery_method, $payment_gateway_xml, $payment_response);
 
 		// delivery failed
 		if (!$delivery_processing_status) {
@@ -2375,11 +2375,12 @@ class Ecommerce_Checkout extends Page
 	* @param object &$order_asset	The ECommerce_Order asset
 	* @param object &$delivery_method	The Delivery Method asset used
 	* @param string $payment_gateway_xml	An XML-formatted response from the Payment Gateway
+	* @param array  $payment_response	Payment gateway response data
 	*
 	* @returns void
 	* @access private
 	*/
-	private function _saveOrderSummary(ECommerce_Order &$order_asset, ECommerce_Delivery_Method &$delivery_method, $payment_gateway_xml='')
+	private function _saveOrderSummary(ECommerce_Order &$order_asset, ECommerce_Delivery_Method &$delivery_method, $payment_gateway_xml='', $payment_response=Array())
 	{
 		// set the order summary
 		$order_summary = 'Order ID: '.$order_asset->id;
@@ -2393,11 +2394,21 @@ class Ecommerce_Checkout extends Page
 		
 		//get the default character set of Matrix System
 		$default_char_set = SQ_CONF_DEFAULT_CHARACTER_SET;
+
+		// Payment response info
+		$payment_response_xml = '';
+		if ($payment_response) {
+			$payment_response_xml .= '  	<gateway_reference>'.array_get_index($payment_response, 'TRANSACTION', '').'</gateway_reference>'."\n";
+			$payment_response_xml .= '  	<merchant_reference>'.array_get_index($_SESSION, 'SQ_ECOM_REF_NO', '').'</merchant_reference>'."\n";
+			$payment_response_xml .= '  	<payment_date>'.array_get_index($payment_response, 'TIME', date('r')).'</payment_date>'."\n";
+			$payment_response_xml .= '  	<gateway_assetid>'.array_get_index($_SESSION, 'SQ_ECOM_PAYMENT_GATEWAY_ASSETID', '').'</gateway_assetid>'."\n";
+		}
 		
 		//create order xml
 		$order_xml = '<'.'?xml version="1.0" encoding="'.$default_char_set.'"?'.">\n".
 					 "<order>\n".
 					 '	<id>'.$order_asset->id."</id>\n".
+					 $payment_response_xml.
 					 $cart_xml."\n".
 					 $delivery_method_xml.$payment_gateway_xml."\n".
 					 "</order>";
@@ -2431,6 +2442,8 @@ class Ecommerce_Checkout extends Page
 	{
 		// Execute the checkout's completion actions configured for this checkout page
 		$success = $this->_performCheckoutCompletionActions($order_asset);
+
+		unset($_SESSION['SQ_ECOM_PAYMENT_GATEWAY_ASSETID']);
 
 		return $success;
 		

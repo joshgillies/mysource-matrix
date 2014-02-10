@@ -862,6 +862,7 @@ HEREDOC;
 		$_SESSION['SQ_ECOM_SUCCESS_URL'] = $checkout_url.'?'.$checkout->getPrefix().'_action=payment_gateway_successful';
 		$_SESSION['SQ_ECOM_CANCEL_URL'] = $checkout_url.'?'.$checkout->getPrefix().'_action=return_to_checkout';
 		$_SESSION['SQ_ECOM_REF_NO'] = md5(session_id().time());
+		$_SESSION['SQ_ECOM_PAYMENT_GATEWAY_ASSETID'] = $gateway_assetid;
 		
 		//Add the pass through variables to SESSION variables
 		$pass_through_vars = $this->_getPassThroughVars();
