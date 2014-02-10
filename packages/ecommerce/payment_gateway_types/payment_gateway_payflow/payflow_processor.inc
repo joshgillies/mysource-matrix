@@ -219,6 +219,7 @@ class Payflow_Processor
 
 		$this->_response['MERCHANT_REFERENCE'] = $this->_reference_no;
 		$this->_response['PAYFLOW_REFERENCE'] = $payflow_ref;
+		$this->_response['TRANSACTION'] = $payflow_ref;
 		$this->_response['STATUS'] = $status;
 		$this->_response['MESSAGE'] = $message;
 		$this->_response['TIME'] = date('r');
