@@ -1725,7 +1725,6 @@ EDIT BODYCOPY STYLES
 
 .sq-content_type_wysiwyg-table tr:last-child td {
 	border-bottom: 				none;
-	padding-bottom: 			0px;
 }
 
 .sq-content_type_wysiwyg-table td:last-child {
@@ -2645,7 +2644,8 @@ img.sq-tag-line.sq-icon {
 }
 
 .sq-email-format-body > tbody > tr > td {
-	padding: 					6px
+	padding: 					6px;
+	border-right: 				none;
 }
 
 .sq-email-format-body > tbody > tr:last-child > td {
@@ -2664,9 +2664,7 @@ img.sq-tag-line.sq-icon {
 
 .sq-email-format-html-body-div {
 	width:						100%;
-	background: 				none repeat scroll 0 0 #FFFFFF;
-	border: 					1px solid #C2C2C2;
-	padding: 					10px 10px 0px 10px;
+	background: 				none;
 }
 
 /* LOG MANAGER */

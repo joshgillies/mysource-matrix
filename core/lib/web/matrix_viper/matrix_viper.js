@@ -28,7 +28,7 @@ var Matrix_Viper = new function() {
     {
 	var settings = {
 	    // Viper content container
-	    toolbarContainer: jQuery('body').find('.viper-toolbar-container'),
+	    toolbarContainer: jQuery('body').find('.viper-toolbar-container-wrapper'),
 
 	    // Default accessibility standard
 	    standard: 'WCAG2AA',
@@ -78,13 +78,13 @@ var Matrix_Viper = new function() {
 		if (settings.scrollable && settings.toolbarContainer.length >= 1) {    
 		    // Make sure we unbind event before re-binding it
 		    jQuery(window).unbind('scroll').bind('scroll',function(){
-			var offset_t = settings.toolbarContainer.offset().top - jQuery(window).scrollTop();
+			var offset_t = settings.toolbarContainer.parent().offset().top - jQuery(window).scrollTop();
 			var changedClass = false;
 			if (offset_t <= settings.scrollOffsetThreshold) {
 			    if ($body.hasClass('fixedScroll') === false) {
-				$body.addClass('fixedScroll');
-				$body.addClass('backendViperToolbar');
-				changedClass = true;
+					$body.addClass('fixedScroll');
+					$body.addClass('backendViperToolbar');
+					changedClass = true;
 			    }
 			} else if ($body.hasClass('fixedScroll') === true) {
 			    $body.removeClass('fixedScroll');
@@ -106,7 +106,7 @@ var Matrix_Viper = new function() {
 		// Get the toolbar plugin and apply it to the container
 		if(settings.toolbarContainer.length >=1) {
 		    var toolbar = pm.getPlugin('ViperToolbarPlugin');
-		    toolbar.setParentElement(settings.toolbarContainer.get(0));
+		    toolbar.setParentElement(settings.toolbarContainer.children().get(0));
 		    
 		    // if a parent element is set, it's fixed to element position
 		    $body.addClass('fixedElement');

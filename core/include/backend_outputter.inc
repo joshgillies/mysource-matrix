@@ -667,7 +667,7 @@ class Backend_Outputter
 						</table>
 					</td>
 				</tr>
-				<tr><td><div class="viper-toolbar-container"></div></td></tr>
+				<tr><td><div class="viper-toolbar-container-wrapper"><div class="viper-toolbar-container"></div></div></td></tr>
 				<?php
 			}//endif
 		}//endif
@@ -1402,7 +1402,7 @@ class Backend_Outputter
 				}//endif
 				if($this->_viper_toolbar_section === $section['section_count']) {
 				    ?>
-					    <tr><td><div class="viper-toolbar-container"></div></td></tr>
+					    <tr><td><div class="viper-toolbar-container-wrapper"><div class="viper-toolbar-container"></div></div></td></tr>
 				    <?php
 				}
 				?>
