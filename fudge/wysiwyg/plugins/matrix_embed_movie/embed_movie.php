@@ -262,12 +262,12 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 		<!-- Search results -->
 		<div id="new-message-popup" class="sq-new-message-popup-wrapper">
 			<div id="new-message-popup-titlebar">
-				<div id="new-message-popup-close"><a href="#" onclick="document.getElementById('new-message-popup').style.display = 'none'; return false;"><img src="/__lib/web/images/icons/cancel.png"></a></div>
+				<div id="new-message-popup-close"><a href="#" onclick="document.getElementById('new-message-popup').style.display = 'none'; return false;"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/cancel.png"></a></div>
 				<span id="new-message-popup-title">Searched for ''</span>
 			</div>
 			<div id="new-message-popup-details"></div>
 		</div>
-		<div id="search-wait-popup"><div id="search-wait-popup-titlebar"><div id="search-wait-popup-close"><a href="#" onclick="document.getElementById('search-wait-popup').style.display = 'none'; return false;"><img src="/__lib/web/images/icons/cancel.png"></a></div><span id="search-wait-popup-title">Search in Progress</span></div>
+		<div id="search-wait-popup"><div id="search-wait-popup-titlebar"><div id="search-wait-popup-close"><a href="#" onclick="document.getElementById('search-wait-popup').style.display = 'none'; return false;"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/cancel.png"></a></div><span id="search-wait-popup-title">Search in Progress</span></div>
 			<div id="search-wait-popup-details">Your search is being processed, please wait...</div>
 		</div> 
 

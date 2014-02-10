@@ -529,6 +529,7 @@ class Utransact_Processor
                 $this->_response['GST']  = $transaction_info['GST'];
                 $this->_response['INVOICE_NUMBER']  = $transaction_info['InvoiceNumber'];
                 $this->_response['UTRANSACT_REFERENCE']  = $transaction_info['uTransactRef'];                
+                $this->_response['TRANSACTION']  = $transaction_info['uTransactRef'];                
                 $this->_response['MERCHANT_ID']  = $transaction_info['MerchantId'];
 				$this->_response['DATE']  = $transaction_info['Date'];
 				$this->_response['PAYMENT_GATEWAY_XML'] = $transaction_details_response->GetDetailsResult->any;
