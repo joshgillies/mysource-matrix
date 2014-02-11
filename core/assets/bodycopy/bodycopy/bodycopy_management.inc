@@ -72,6 +72,7 @@ class Bodycopy_Management extends Asset_Management
 				'images/icons/cell_properties.png',
 				'images/icons/edit_mode.png',
 				'images/icons/source_mode.png',
+				'images/icons/source_mode_grey.png',
 				'images/icons/accessibility_pass.png',
 				'images/icons/accessibility_fail.png',
 				'images/icons/htmltidy_disabled.png',
