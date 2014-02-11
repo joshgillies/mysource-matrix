@@ -412,6 +412,7 @@
 	<string source="comparison">Comparison</string>
 	<string source="workflow_summary">Workflow Summary</string>
 	<string source="warning">Warning</string>
+	<string source="wysiwyg_content_container">WYSIWYG Content Container</string>
 	<string source="wysiwyg_editor_tools">WYSIWYG Editor Tools</string>
 	<string source="wysiwyg_plugins">WYSIWYG Plugins</string>
 	<string source="wysiwyg_style">WYSIWYG Style</string>
@@ -991,6 +992,7 @@
 	<string source="inline">Inline</string>
 	<string source="block-level">Block-level</string>
 	<string source="raw_html">Raw HTML</string>
+	<string source="raw_html_content_container">Raw HTML Content Container</string>
 	<string source="class">Class</string>
 	<string source="identification">Identification</string>
 	<string source="properties">Properties</string>

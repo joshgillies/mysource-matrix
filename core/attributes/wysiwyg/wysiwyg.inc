@@ -299,26 +299,29 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 		<script type="text/javascript">
 			var bodycopy_initialised = true;
 		</script>
-		<div id="<?php echo $prefix.'_switch_option_div'; ?>" class="sq-wysiwyg-standalone-header">
+		<div id="<?php echo $prefix.'_switch_option_div'; ?>" class="sq-wysiwyg-standalone-header sq-grey-header-wrapper">
 			<table style="width: 100%; margin: 0;">
-				<tr>
+				<tr class="sq-grey-header-row">
 					<td align="left">
 						<?php
 						$o = $GLOBALS['SQ_SYSTEM']->backend->out;
 						if(is_null($o) || !$o->isViperAvailable()) {
 						?>
-						<div style="width: 16px; height: 16px; background: url(<?php echo sq_web_path('lib')?>/web/images/icons/edit_mode.png);background: expression('none');filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='<?php echo sq_web_path('lib')?>/web/images/icons/edit_mode.png', sizingMethod='scale'); font-size:10px; cursor:pointer;"
-				onclick="switchEditingMode('<?php echo $prefix; ?>_contents_div','<?php echo $prefix; ?>_wysiwyg_div', editor_<?php echo $prefix; ?>);">
-						</div>
-						<?php } ?>
+							<div style="width: 16px; height: 16px; background: url(<?php echo sq_web_path('lib')?>/web/images/icons/edit_mode.png);background: expression('none');filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='<?php echo sq_web_path('lib')?>/web/images/icons/edit_mode.png', sizingMethod='scale'); font-size:10px; cursor:pointer;"
+					onclick="switchEditingMode('<?php echo $prefix; ?>_contents_div','<?php echo $prefix; ?>_wysiwyg_div', editor_<?php echo $prefix; ?>);">
+							</div>
+						<?php 
+						}
+						echo '&nbsp;&nbsp;<strong>'.translate('wysiwyg_content_container').'</strong>';
+						?>
 					</td>
-					<td align="right">
+					<td align="right" class="sq-left-img-margin">
 						<?php echo $this->paintBackendStatusIcons($wysiwyg); ?>
 					</td>
 				</tr>
 			</table>
 		</div>
-		<div class="sq-wysiwyg-standalone-body">
+		<div class="sq-wysiwyg-standalone-body with-bottom-margin">
 		<?php
 		$o = $GLOBALS['SQ_SYSTEM']->backend->out;
 		if(!is_null($o) && $o->isViperAvailable()) {

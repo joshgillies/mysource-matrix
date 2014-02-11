@@ -142,11 +142,13 @@ function Layer_Handler(div_id, top, right, bottom, left) {
 		}*/
 
 		this.style.visibility = (is_nav4)? "show" : "visible";
+		this.style.zIndex = 1001;
 	}
 	 ////////////////////////////////
 	// Make the layer invisible
 	function hide() {
 		this.style.visibility = (is_nav4)? "hide" : "hidden";
+		this.style.zIndex = -1;
 	}
 
 	 ////////////////////////////////////////
