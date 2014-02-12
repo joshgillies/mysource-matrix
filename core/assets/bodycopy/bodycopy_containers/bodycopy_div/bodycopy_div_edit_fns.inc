@@ -405,7 +405,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 				</td>
 			</tr>
 			<tr>
-				<td id="<?php echo $content_prefix; ?>_cell" class="sq-<?php echo $content_type_name ;?>-wrapper">
+				<td id="<?php echo $content_prefix; ?>_cell" class="sq-content-type-wrapper">
 				<?php
 				if (!is_null($content_type)) {
 					$content_edit = $content_type->getEditFns();
