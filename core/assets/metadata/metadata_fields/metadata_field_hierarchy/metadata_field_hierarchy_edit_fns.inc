@@ -93,6 +93,43 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 		$hierarchy = $asset->getHierarchyAttribute();
 		$hierarchy_options = $hierarchy->_params['options'];
 		if ($write_access) {
+
+			echo '<span class="sq-metadata-settings-wrapper">';
+				if ($enable_default) {
+					echo '<span class="sq-metadata-default-wrapper">';
+					// Work out which options we have to set if we have to
+					$i = 0;
+					$default_keys = explode('; ', $asset->attr('default'));
+					$default_selected = Array();
+
+					$default_key_values = Array();
+					$default_values = Array();
+					$non_default_keys = Array();
+					foreach ($hierarchy_options as $key => $hierarchy_option) {
+						if (in_array($key, $default_keys)) {
+							$default_key_values[] = "'".addslashes($key)."'";
+							$default_values[] = "'".addslashes($hierarchy_option)."'";
+						} else {
+							$non_default_keys[] = "'".addslashes($key)."'";
+						}
+					}
+					$default_keys_expr = '['.implode(', ', $default_key_values).']';
+					$default_values_expr = '['.implode(', ', $default_values).']';
+					$non_default_keys_expr = '['.implode(', ', $non_default_keys).']';
+					check_box($prefix.'_default', '1', $is_default, "handleDefaultClickHierarchy(this, '$prefix', $default_keys_expr, $default_values_expr, $non_default_keys_expr, $display_type); ");
+					label(translate('use_default'), $prefix.'_default');
+					$o->addJsInclude(sq_web_path('data').'/asset_types/metadata_field_hierarchy/js/metadata_field_hierarchy.js');
+					echo '</span>';
+				}
+
+				if ($print_cascade_values_option) {
+					echo '<span class="sq-metadata-cascade-wrapper">';
+						check_box($prefix.'_cascade_value', '1', FALSE);
+						label(translate('cascade_value'), $prefix.'_cascade_value');
+					echo '</span>';
+				}
+			echo '</span>';
+
 			if (!$display_type) {
 				// flat view
 				$hierarchy->value = $value;
@@ -139,6 +176,14 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 				$this->paintDrillDownView($hierarchy_options, $value, $level_titles, $show_default_box, explode('; ', $asset->attr('default')), $prefix);
 			}
 		} else {
+			echo '<span class="sq-metadata-settings-wrapper">';
+				if ($is_default) {
+					echo ' <em>('.translate('using_default_value').')</em>';
+				} else{
+
+				}	
+			echo '</span>';
+			
 			if (!((is_array($value) && empty($value)) || (is_string($value) && $value == ''))) {
 				if (!is_array($value)) $value = Array($value);
 				$value_output = '';
@@ -149,48 +194,6 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 				}
 				echo trim($value_output, '; ');
 			}
-		}
-
-		if ($enable_default) {
-
-			echo '</span>';
-
-			if ($write_access) {
-				echo ' &nbsp; &nbsp; &nbsp; ';
-
-				// Work out which options we have to set if we have to
-				$i = 0;
-				$default_keys = explode('; ', $asset->attr('default'));
-				$default_selected = Array();
-
-				$default_key_values = Array();
-				$default_values = Array();
-				$non_default_keys = Array();
-				foreach ($hierarchy_options as $key => $hierarchy_option) {
-					if (in_array($key, $default_keys)) {
-						$default_key_values[] = "'".addslashes($key)."'";
-						$default_values[] = "'".addslashes($hierarchy_option)."'";
-					} else {
-						$non_default_keys[] = "'".addslashes($key)."'";
-					}
-				}
-				$default_keys_expr = '['.implode(', ', $default_key_values).']';
-				$default_values_expr = '['.implode(', ', $default_values).']';
-				$non_default_keys_expr = '['.implode(', ', $non_default_keys).']';
-				check_box($prefix.'_default', '1', $is_default, "handleDefaultClickHierarchy(this, '$prefix', $default_keys_expr, $default_values_expr, $non_default_keys_expr, $display_type); ");
-				label(translate('use_default'), $prefix.'_default');
-				$o->addJsInclude(sq_web_path('data').'/asset_types/metadata_field_hierarchy/js/metadata_field_hierarchy.js');
-			} else {
-				if ($is_default) {
-					echo ' <em style="color: #666">('.strtolower(translate('default')).')</em>';
-				}
-			}
-		}
-
-		if ($write_access && $print_cascade_values_option) {
-			echo '&nbsp;&nbsp;&nbsp;&nbsp;';
-			check_box($prefix.'_cascade_value', '1', FALSE);
-			label(translate('cascade_value'), $prefix.'_cascade_value');
 		}
 
 		return $write_access;

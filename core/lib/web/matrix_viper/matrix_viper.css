@@ -26,12 +26,13 @@
 .ViperTP-bar {
     min-width: 910px;
     padding: 5px 0 5px;
+    box-shadow: 0 -49px 31px -43px rgba(0, 0, 0, 0.3) inset;
+    border-top: 1px solid #737373;
 }
 
 /* when it's appeneded to a section */
 
 .fixedElement .ViperTP-bar {
-    box-shadow: none;
     position: relative!important;
 }
 
@@ -74,7 +75,7 @@
     font-size: 1.1em;
     font-style: italic;
     min-height: 30px;
-    padding-top: 10px;
+    padding-top: 5px;
     text-align: center;
     min-width: 500px;
 }
@@ -83,6 +84,7 @@
 .with-viper {
    min-width: 500px;
    min-height: 30px;
+   color: #222;
 }
 
 /* the tables inserted here needs to be visible, so set a default style */
@@ -98,6 +100,7 @@
     color: #FFFFFF;
     font-weight: bold;
     text-align: center;
+    text-shadow: none !important;
 }
 
 /* remove tablet view styles as we don't support it in admin mode anyways */

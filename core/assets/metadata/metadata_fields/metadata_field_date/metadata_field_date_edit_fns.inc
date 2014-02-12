@@ -334,78 +334,102 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 										   );
 		}
 		if ($write_access) {
-			echo '<span class="sq-inline-fields-wrapper bottom-margin">';
-				$field->printField();
-			echo '</span>';
-			echo '<br /> <span class="sq-inline-fields-wrapper bottom-margin"><b style="display: inline-block; width: 47px">-'.strtoupper(translate('or_in')).'- </b>';
-			preg_match('/([0-9]+)\s([i|h|d|w|m|y])/', $value, $matches);
-			text_box($prefix.'_duration', '0', 2, '', TRUE);
-			echo ' ';
-			$periods = Array(
-						'-'	=> '--Select One --',
-						'minutes'	=> translate('minutes'),
-						'hours'		=> translate('hours'),
-						'days'		=> translate('days'),
-						'weeks'		=> translate('weeks'),
-						'months'	=> translate('months'),
-						'years'		=> translate('years'),
-					   );
+			?>
+			<script type="text/javascript" src="<?php echo sq_web_path('data'); ?>/asset_types/metadata_field_date/js/metadata_field_date.js"></script>
+			<?php
+			echo '<span class="sq-metadata-settings-wrapper">';
+				if ($enable_default) {
+					echo '<span class="sq-metadata-default-wrapper">';
+						if ((substr($default_val, 0, 1) == '%') || empty($value)) {
+							$default_date_exp = 'null';
+							$default_kw_exp = "'".trim($default_val, '%')."'";
+						} else {
+							list($dy, $dm, $dd, $dh, $di, $ds) = sscanf($default_val, '%d-%d-%d %d:%d:%d');
+							// bug fix 4653 Default metadata checkbox generates JS error when defaults are empty
+							// make sure the the values are not NULL , if so we will have to take care of the default checkbox
+							if($dy == NULL && $dm == NULL && $dd == NULL && $dh == NULL && $di == NULL && $ds == NULL) {
+								$default_date_exp = 'null';
+							} else { 
+								$default_date_exp = "{y:$dy, m:$dm, d:$dd, h:$dh, i:$di, s:$ds}";
+							}
+							$default_kw_exp = 'null';
+						}
 
-			combo_box($prefix.'_period', $periods, FALSE, '-', NULL);
-			echo '<b> from now</b></span>';
-
-			if ($asset->attr('show_keywords')) {
-				echo '<br /> <span class="sq-inline-fields-wrapper bottom-margin"><b style="display: inline-block; width: 44px">-'.strtoupper(translate('or')).'-</b> ';
-				combo_box($prefix.'_repkeys', $select_options, FALSE, trim($value, '%'), 0, '');
-				echo '</span>';
-			}
-
-			if ($enable_default) {
-				echo '<br /> <span class="sq-inline-fields-wrapper bottom-margin"><b style="display: inline-block; width: 44px">-'.strtoupper(translate('or')).'-</b> ';
-				if ((substr($default_val, 0, 1) == '%') || empty($value)) {
-					$default_date_exp = 'null';
-					$default_kw_exp = "'".trim($default_val, '%')."'";
-				} else {
-					list($dy, $dm, $dd, $dh, $di, $ds) = sscanf($default_val, '%d-%d-%d %d:%d:%d');
-					// bug fix 4653 Default metadata checkbox generates JS error when defaults are empty
-					// make sure the the values are not NULL , if so we will have to take care of the default checkbox
-					if($dy == NULL && $dm == NULL && $dd == NULL && $dh == NULL && $di == NULL && $ds == NULL) {
-						$default_date_exp = 'null';
-					} else { 
-						$default_date_exp = "{y:$dy, m:$dm, d:$dd, h:$dh, i:$di, s:$ds}";
-					}
-					$default_kw_exp = 'null';
+						check_box($prefix.'_default', '1', $is_default, 'handleMetadataDatetimeDefaultClick(this, \''.$prefix.'\', '.$default_date_exp.', '.$default_kw_exp.')');
+						label(translate('use_default'), $prefix.'_default');
+						?>
+						<?php
+					echo '</span>';
 				}
 
-				check_box($prefix.'_default', '1', $is_default, 'handleMetadataDatetimeDefaultClick(this, \''.$prefix.'\', '.$default_date_exp.', '.$default_kw_exp.')');
-				label(translate('use_default'), $prefix.'_default');
+				if ($write_access && $print_cascade_values_option) {
+					echo '<span class="sq-metadata-cascade-wrapper">';
+						check_box($prefix.'_cascade_value', '1', FALSE);
+						label(translate('cascade_value'), $prefix.'_cascade_value');
+					echo '</span>';
+				}
+			echo '</span>';
+
+			echo '<div class="sq-metadata-date-wrapper">';
+				echo '<span class="sq-inline-fields-wrapper bottom-margin">';
+					$field->printField();
+				echo '</span>';
+				echo '<br /> <span class="sq-inline-fields-wrapper bottom-margin"><b style="display: inline-block; width: 47px">-'.strtoupper(translate('or_in')).'- </b>';
+				preg_match('/([0-9]+)\s([i|h|d|w|m|y])/', $value, $matches);
+				text_box($prefix.'_duration', '0', 2, '', TRUE);
+				echo ' ';
+				$periods = Array(
+							'-'	=> '--Select One --',
+							'minutes'	=> translate('minutes'),
+							'hours'		=> translate('hours'),
+							'days'		=> translate('days'),
+							'weeks'		=> translate('weeks'),
+							'months'	=> translate('months'),
+							'years'		=> translate('years'),
+						   );
+
+				combo_box($prefix.'_period', $periods, FALSE, '-', NULL);
+				echo '<b> from now</b></span>';
+
+				if ($asset->attr('show_keywords')) {
+					echo '<br /> <span class="sq-inline-fields-wrapper bottom-margin"><b style="display: inline-block; width: 44px">-'.strtoupper(translate('or')).'-</b> ';
+					combo_box($prefix.'_repkeys', $select_options, FALSE, trim($value, '%'), 0, '');
+					echo '</span>';
+				}
+			echo '</div>';
+
+			if ($enable_default) {
 				?>
-				<script type="text/javascript" src="<?php echo sq_web_path('data'); ?>/asset_types/metadata_field_date/js/metadata_field_date.js"></script>
 				<script type="text/javascript"><!--
 				//<![CDATA[
 				handleMetadataDatetimeDefaultClick(document.getElementById('<?php echo $prefix; ?>_default'), '<?php echo $prefix; ?>', <?php echo $default_date_exp; ?>, <?php echo $default_kw_exp; ?>);
 				// ]]> -->
 				</script>
 				<?php
-				echo '</span>';
-			}
-
-			if ($print_cascade_values_option) {
-				echo '<br />';
-				check_box($prefix.'_cascade_value', '1', FALSE);
-				label(translate('cascade_value'), $prefix.'_cascade_value');
 			}
 
 		} else if ($uses_keyword && isset($select_options[trim($value, '%')])) {
+			if ($is_default && $enable_default) {
+				echo '<span class="sq-metadata-settings-wrapper">';
+					if ($is_default) {
+						echo ' <em>('.translate('using_default_value').')</em>';
+					} else{
+
+					}	
+				echo '</span>';
+			}
 			echo '<i>'.translate('keyword_replacement').': </i>', $select_options[trim($value, '%')];
-			if ($is_default && $enable_default) {
-				echo ' <em style="color: #666">('.strtolower(translate('default')).')</em>';
-			}
 		} else {
-			echo $field->format();
 			if ($is_default && $enable_default) {
-				echo ' <em style="color: #666">('.strtolower(translate('default')).')</em>';
+				echo '<span class="sq-metadata-settings-wrapper">';
+					if ($is_default) {
+						echo ' <em>('.translate('using_default_value').')</em>';
+					} else{
+
+					}	
+				echo '</span>';
 			}
+			echo $field->format();
 		}//end if
 
 		return $write_access;

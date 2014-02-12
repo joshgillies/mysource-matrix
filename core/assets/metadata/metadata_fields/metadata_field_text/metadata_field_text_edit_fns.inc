@@ -78,6 +78,37 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		if ($write_access) {
 			$extras = ($is_default && $enable_default) ? 'disabled="disabled"' : '';
+
+			echo '<span class="sq-metadata-settings-wrapper">';
+				if ($enable_default) {
+					echo '<span class="sq-metadata-default-wrapper">';
+					$default_string = str_replace("'", "\'", $asset->attr('default'));
+					// get rid of javascript error 'unterminated string literal'. (bug 2386)
+					$default_string = str_replace(Array("\r\n", "\r", "\n"), '\n', $default_string);
+
+					$checkbox_extra = 'with(this.form.elements[\''.$prefix.'_value\']) { disabled = this.checked; if (this.checked) { value = \''.$default_string.'\'; } else {if(value==\'\') {value=\' \'; value = \'\';}}};';
+
+					if (!empty($value_components)) {
+						foreach ($value_components as $vc_name => $vc_value) {
+							$default_value_comp = $asset->attr('value_components');
+							$default_vc_value = $default_value_comp[$vc_name];
+							$checkbox_extra .= 'with(this.form.elements[\''.$prefix.'_vc_value['.$vc_name.']\']) { disabled = this.checked; if (this.checked) { value = \''.$default_vc_value.'\'; } else {if(value==\'\') {value=\' \'; value = \'\';}}};';
+						}
+					}
+
+					check_box($prefix.'_default', '1', $is_default, $checkbox_extra);
+					label(translate('use_default'), $prefix.'_default');
+					echo '</span>';
+				}
+
+				if ($print_cascade_values_option) {
+					echo '<span class="sq-metadata-cascade-wrapper">';
+						check_box($prefix.'_cascade_value', '1', FALSE);
+						label(translate('cascade_value'), $prefix.'_cascade_value');
+					echo '</span>';
+				}
+			echo '</span>';
+
 			if ($asset->attr('multi_line')) {
 				// if there is no character limit display the original text_area
 				if (!$asset->attr('char_limit')) {
@@ -87,31 +118,6 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 				}
 			} else {
 				text_box($prefix.'_value', $value, $asset->attr('box_width'), $asset->attr('char_limit'), FALSE, $extras);
-			}
-			if ($enable_default) {
-				echo ' &nbsp; &nbsp; &nbsp; ';
-				$default_string = str_replace("'", "\'", $asset->attr('default'));
-				// get rid of javascript error 'unterminated string literal'. (bug 2386)
-				$default_string = str_replace(Array("\r\n", "\r", "\n"), '\n', $default_string);
-
-				$checkbox_extra = 'with(this.form.elements[\''.$prefix.'_value\']) { disabled = this.checked; if (this.checked) { value = \''.$default_string.'\'; } else {if(value==\'\') {value=\' \'; value = \'\';}}};';
-
-				if (!empty($value_components)) {
-					foreach ($value_components as $vc_name => $vc_value) {
-						$default_value_comp = $asset->attr('value_components');
-						$default_vc_value = $default_value_comp[$vc_name];
-						$checkbox_extra .= 'with(this.form.elements[\''.$prefix.'_vc_value['.$vc_name.']\']) { disabled = this.checked; if (this.checked) { value = \''.$default_vc_value.'\'; } else {if(value==\'\') {value=\' \'; value = \'\';}}};';
-					}
-				}
-
-				check_box($prefix.'_default', '1', $is_default, $checkbox_extra);
-				label(translate('use_default'), $prefix.'_default');
-			}
-
-			if ($print_cascade_values_option) {
-				echo '&nbsp;&nbsp;&nbsp;&nbsp;';
-				check_box($prefix.'_cascade_value', '1', FALSE);
-				label(translate('cascade_value'), $prefix.'_cascade_value');
 			}
 
 			// the following text can be used to display the character limit
@@ -124,12 +130,17 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 					</span> 
 				<?php
 			}
+
 		} else {
+			echo '<span class="sq-metadata-settings-wrapper">';
+				if ($is_default) {
+					echo ' <em>('.translate('using_default_value').')</em>';
+				} else{
+
+				}	
+			echo '</span>';
 			// ensure JS is not executed in read only mode
 			echo htmlspecialchars($value);
-			if ($is_default) {
-				echo ' <em style="color: #666">('.strtolower(translate('default')).')</em>';
-			}
 		}
 
 		// now print value components

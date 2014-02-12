@@ -34,12 +34,13 @@ function emailFormatSwitchReadingMode(editor_name, html_label, text_label) {
 }//end emailFormatSwitchReadingMode()
 
 var initialisedEmailEditors = new Array();
-function emailFormatSwitchEditingMode(editor_name, html_label, text_label) {
+function emailFormatSwitchEditingMode(editor_name, html_label, text_label, html_type, text_type) {
 	
 	var textDiv = document.getElementById(editor_name + "_text_body_div");
 	var htmlDiv = document.getElementById(editor_name + "_html_body_div");
 	var viperDiv = document.getElementById(editor_name + "_contents_div_viper");
 	var formatSpan = document.getElementById(editor_name + "_format_mode");
+	var typeStrong = document.getElementById(editor_name + "_content_type");
 
 	if (htmlDiv.style.display == "none") {
 		if(typeof Matrix_Viper === 'undefined')  {
@@ -74,6 +75,7 @@ function emailFormatSwitchEditingMode(editor_name, html_label, text_label) {
 		    textDiv.style.display = "none";
 		    htmlDiv.style.display = "";
 		    formatSpan.innerHTML = html_label; //'HTML Email Version';
+		    typeStrong.innerHTML = html_type; //'WYSIWYG Content Container';
 
 
 	} else {
@@ -81,6 +83,7 @@ function emailFormatSwitchEditingMode(editor_name, html_label, text_label) {
 		textDiv.style.display = "";
 		htmlDiv.style.display = "none";
 		formatSpan.innerHTML = text_label; //'Text Email Version';
+		typeStrong.innerHTML = text_type; //'Raw HTML Content Container';
 	}
 
 }//end emailFormatSwitchEditingMode()

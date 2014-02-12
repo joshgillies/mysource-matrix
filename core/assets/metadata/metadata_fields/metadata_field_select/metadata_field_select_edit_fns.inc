@@ -87,6 +87,40 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 		}
 		// If we're OK to edit, get our selection attribute, and paint it
 		if ($write_access) {
+			
+			echo '<span class="sq-metadata-settings-wrapper">';
+				if ($enable_default) {
+					echo '<span class="sq-metadata-default-wrapper">';
+						// Work out which options we have to set if we have to
+						$i = 0;
+						$default_keys = explode('; ', $asset->attr('default'));
+						$default_selected = Array();
+
+						$default_vals = Array();
+						$non_default_vals = Array();
+						foreach ($select_options as $key => $select_option) {
+							if (in_array($key, $default_keys)) {
+								$default_vals[] = "'".addslashes(str_replace(' ', '_', $key))."'";
+							} else {
+								$non_default_vals[] = "'".addslashes(str_replace(' ', '_', $key))."'";
+							}
+						}
+						$default_vals_expr = '['.implode(', ', $default_vals).']';
+						$non_default_vals_expr = '['.implode(', ', $non_default_vals).']';
+						check_box($prefix.'_default', '1', $is_default, "handleDefaultClick(this, '$prefix', $default_vals_expr, $non_default_vals_expr); ");
+						label(translate('use_default'), $prefix.'_default');
+						$o->addJsInclude(sq_web_path('data').'/asset_types/metadata_field_select/js/metadata_field_select.js');
+					echo '</span>';
+				}
+
+				if ($write_access && $print_cascade_values_option) {
+					echo '<span class="sq-metadata-cascade-wrapper">';
+						check_box($prefix.'_cascade_value', '1', FALSE);
+						label(translate('cascade_value'), $prefix.'_cascade_value');
+					echo '</span>';
+				}
+			echo '</span>';
+
 			$selection = $asset->getSelectionAttribute();
 			$selection->value = $value;
 			if ($enable_default) {
@@ -114,38 +148,15 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		if ($enable_default) {
 			if ($write_access) {
-				echo ' &nbsp; &nbsp; &nbsp; ';
-
-				// Work out which options we have to set if we have to
-				$i = 0;
-				$default_keys = explode('; ', $asset->attr('default'));
-				$default_selected = Array();
-
-				$default_vals = Array();
-				$non_default_vals = Array();
-				foreach ($select_options as $key => $select_option) {
-					if (in_array($key, $default_keys)) {
-						$default_vals[] = "'".addslashes(str_replace(' ', '_', $key))."'";
-					} else {
-						$non_default_vals[] = "'".addslashes(str_replace(' ', '_', $key))."'";
-					}
-				}
-				$default_vals_expr = '['.implode(', ', $default_vals).']';
-				$non_default_vals_expr = '['.implode(', ', $non_default_vals).']';
-				check_box($prefix.'_default', '1', $is_default, "handleDefaultClick(this, '$prefix', $default_vals_expr, $non_default_vals_expr); ");
-				label(translate('use_default'), $prefix.'_default');
-				$o->addJsInclude(sq_web_path('data').'/asset_types/metadata_field_select/js/metadata_field_select.js');
 			} else {
-				if ($is_default) {
-					echo ' <em style="color: #666">('.strtolower(translate('default')).')</em>';
-				}
-			}
-		}
+				echo '<span class="sq-metadata-settings-wrapper">';
+					if ($is_default) {
+						echo ' <em>('.translate('using_default_value').')</em>';
+					} else{
 
-		if ($write_access && $print_cascade_values_option) {
-			echo '&nbsp;&nbsp;&nbsp;&nbsp;';
-			check_box($prefix.'_cascade_value', '1', FALSE);
-			label(translate('cascade_value'), $prefix.'_cascade_value');
+					}	
+				echo '</span>';
+			}
 		}
 
 		return $write_access;
