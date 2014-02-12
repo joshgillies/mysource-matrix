@@ -2684,6 +2684,10 @@ class Js_Api_Enhanced_Function_List
 				};
 			}// end if
 
+			if (options.asset_id !== null && typeof(options.asset_id) !== "undefined") {
+				options.assetid = options.asset_id;
+			}
+
 			// Extract some configuration and use it to build
 			// parameters for the post call
 			var fnConfig = this[fnName].call(this);
@@ -2739,6 +2743,10 @@ class Js_Api_Enhanced_Function_List
 					required: ['assetid', 'schemaid', 'set']
 				};
 			}// end if
+
+			if (options.asset_id !== null && typeof(options.asset_id) !== "undefined") {
+				options.assetid = options.asset_id;
+			}
 
 			// Extract some configuration and use it to build
 			// parameters for the post call
