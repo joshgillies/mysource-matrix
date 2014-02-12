@@ -76,24 +76,8 @@ class Metadata_Field_WYSIWYG_Edit_Fns extends Metadata_Field_Edit_Fns
 			$is_default = TRUE;
 		}
 
-		Metadata_Field::decodeValueString($value_str, $value, $value_components);
-		$wysiwyg->value = $value;
-		$styles_common = '"';
-		$wysiwyg_container_styles = $is_default ? $styles_common.'display:none"' : $styles_common.'display:block"';
-		echo '<div id="'.$prefix.'_wysiwyg_container'.'" style='.$wysiwyg_container_styles.' class="sq-metadata-wysiwyg-edit-wrapper">';
-		$wysiwyg->paint($prefix, !$write_access);
-		echo '</div>';
-		$default_html_container_styles = $is_default ? $styles_common.'display:block"' : $styles_common.'display:none"';
-		echo '<div id="'.$prefix.'_default_html_container'.'" style='.$default_html_container_styles.' class="sq-metadata-wysiwyg-preview">';
-		echo $asset->attr('default_html');
-		if (!$write_access) {
-			echo ' <em style="color: #666">('.strtolower(translate('default')).')</em>';
-		}
-		echo '</div>';
-
 		if ($write_access) {
-			echo '<div style="float:left">';
-			echo '&nbsp;&nbsp;&nbsp;&nbsp;';
+			echo '<div class="sq-metadata-settings-wrapper inline">';
 			check_box($prefix.'_default', '1', $is_default, 'handleMetadataWYSIWYGDefaultClickFor'.$prefix.'()');
 			label(translate('use_default'), $prefix.'_default');
 
@@ -103,7 +87,28 @@ class Metadata_Field_WYSIWYG_Edit_Fns extends Metadata_Field_Edit_Fns
 				label(translate('cascade_value'), $prefix.'_cascade_value');
 			}
 			echo '</div>';
+		} else {
+			if ($is_default) {
+				echo '<div class="sq-metadata-settings-wrapper inline">';
+					echo ' <em>('.translate('using_default_value').')</em>';
+				echo '</div>';
+			} else{
+
+			}	
 		}
+
+		Metadata_Field::decodeValueString($value_str, $value, $value_components);
+		$wysiwyg->value = $value;
+		$styles_common = '"';
+		$wysiwyg_container_styles = $is_default ? $styles_common.'display:none"' : $styles_common.'display:block"';
+		$wysiwyg_preview_class = $write_access ? '' : 'sq-metadata-wysiwyg-preview';
+		echo '<div id="'.$prefix.'_wysiwyg_container'.'" style='.$wysiwyg_container_styles.' class="sq-metadata-wysiwyg-edit-wrapper '.$wysiwyg_preview_class.'">';
+			$wysiwyg->paint($prefix, !$write_access);
+		echo '</div>';
+		$default_html_container_styles = $is_default ? $styles_common.'display:block"' : $styles_common.'display:none"';
+		echo '<div id="'.$prefix.'_default_html_container'.'" style='.$default_html_container_styles.' class="sq-metadata-wysiwyg-preview">';
+			echo $asset->attr('default_html');
+		echo '</div>';
 		?>
 			<script type="text/javascript"><!--
 			//<![CDATA[

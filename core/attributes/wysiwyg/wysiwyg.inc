@@ -309,10 +309,10 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 						?>
 							<div style="width: 16px; height: 16px; background: url(<?php echo sq_web_path('lib')?>/web/images/icons/edit_mode.png);background: expression('none');filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='<?php echo sq_web_path('lib')?>/web/images/icons/edit_mode.png', sizingMethod='scale'); font-size:10px; cursor:pointer;"
 					onclick="switchEditingMode('<?php echo $prefix; ?>_contents_div','<?php echo $prefix; ?>_wysiwyg_div', editor_<?php echo $prefix; ?>);">
-							</div>
+							</div>&nbsp;&nbsp;
 						<?php 
 						}
-						echo '&nbsp;&nbsp;<strong>'.translate('wysiwyg_content_container').'</strong>';
+						echo '<strong>'.translate('wysiwyg_content_container').'</strong>';
 						?>
 					</td>
 					<td align="right" class="sq-left-img-margin">

@@ -95,7 +95,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL, Array $layout_options
 				case 'metadata_current' :
 
 					$o->openField('', 'wide_col');
-						echo '<div class="sq-source-view">';
+						echo '<div class="sq-source-view sq-dashed-border-container">';
 						if (!is_null($keywords) && isset($keywords['fields']['metadata_current'])) {
 							ob_start();
 						}
@@ -189,7 +189,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL, Array $layout_options
 								ob_start();
 							}
 
-							echo translate('must_apply_one_or_more_schemas');
+							echo '<em>'.translate('must_apply_one_or_more_schemas').'</em>';
 
 							// if there is a keyword replacement for this, add it to the replacements
 							if (!is_null($keywords) && isset($keywords['fields']['metadata_values'])) {

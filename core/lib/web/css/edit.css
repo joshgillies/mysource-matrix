@@ -1056,7 +1056,7 @@ p.sq-backend-field {
 /* CUSTOM SECTION AND BACKEND SECTION */
 
 .sq-backend-section-div {
-	padding: 					11px 15px;
+	padding: 					11px 15px 9px;
 	background: 				#FFF;
 }
 
@@ -1094,6 +1094,7 @@ ACQUIRE LOCKS AREA
 #sq-aquire-locks-wrapper .sq-lock-message {
 	float:						left;
 	padding-top: 				10px;
+	margin: 					0;
 }
 
 #sq_lock_info {
@@ -1812,6 +1813,7 @@ EDIT BODYCOPY STYLES
 
 .sq-edit-bodycopy-section > tbody > tr:first-child > td{
 	border-bottom: 				1px dashed #ccc;
+	border-radius: 				4px 4px 0 0;
 }
 
 .sq-content_type_nest_content-table .sq-backend-table-cell-alt {
@@ -2249,7 +2251,36 @@ METADATA EDITING AND PREVIEW STYLES
 ####################################################################################################################
 */
 
+/* METADATA GLOBAL EDIITNG STYLES */
+
+.sq-metadata-settings-wrapper {
+	float: 						left;
+	width: 						150px;
+	min-height:					10px;
+	display: 					block;
+}
+
+.sq-metadata-settings-wrapper.inline {
+	float: 						none;
+	width: 						100%;
+	display: 					block;
+	margin-bottom: 				5px;
+}
+
+.sq-metadata-default-wrapper, 
+.sq-metadata-cascade-wrapper {
+	display: 					block;
+}
+
+.sq-metadata-description,
+.sq-metadata-date-wrapper,
+.sq-metadata-multitext-wrapper,
+.sq-metadata-multitext-wrapper {
+	padding-left:				150px;
+}
+
 /* METADATA WYSIWYG FIELD */
+
 .sq-metadata-wysiwyg-preview {
 	display: 					block;
 	border: 					1px dashed #CCC;
@@ -2929,7 +2960,13 @@ div.sq-grey-header-row,
 	border-radius: 				3px;
 }
 
+.sq-grey-header-row .sq-status-square{
+	vertical-align: 			middle;
+}
 
+.sq-grey-header-row .sq-left-img-margin{
+	margin-top:					-1px;
+}
 
 
 /* CALENDAR EVENTS EDITING */
@@ -2942,6 +2979,16 @@ div.sq-grey-header-row,
 	vertical-align: 			middle;
 	padding:					0 0 6px;
 }
+
+
+/* VARIOUS CONTAINER STYLES */
+
+.sq-dashed-border-container{
+	padding:					10px;
+	border:						1px dashed #ccc;
+	border-radius: 				4px;
+}
+
 
 /*
 ####################################################################################################################

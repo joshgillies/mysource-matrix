@@ -321,12 +321,13 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		// use description as the note for this field
-		$o->openField($field_name, '', $asset->attr('description'));
+		$o->openField($field_name, '');
 		$writable = $write_access && $asset->attr('editable');
 		$res = $this->paintValueInterface($asset, $o, $value_str, $writable, TRUE, $print_cascade_values_option, $type_code);
 		if (!$write_access && $asset->attr('required') && !$complete) {
 			echo '<b class="sq-backend-warning">['.strtoupper(translate('empty')).']</b>';
 		}
+		echo '<div class="sq-backend-smallprint sq-metadata-description">'.$asset->attr('description').'</div>';
 		$o->closeField();
 		return $res;
 

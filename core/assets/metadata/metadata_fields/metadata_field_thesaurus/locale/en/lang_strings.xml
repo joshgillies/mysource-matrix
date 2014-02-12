@@ -22,7 +22,7 @@
 	<string source="thesaurus_entity_description">Description: %s</string>
 	<string source="thesaurus_linked_thesaurus_inactive">Linked thesaurus is <![CDATA[<strong>INACTIVE</strong>]]>. This value cannot be set.</string>
 	<string source="thesaurus_term_duplicate_removed">Duplicate terms were removed</string>
-	<string source="thesaurus_meta_thesaurus_note">Note: You can only select terms from %s</string>
+	<string source="thesaurus_meta_thesaurus_note">&lt;strong&gt;Note:&lt;/strong&gt; You can only select terms from %s</string>
 	<string source="thesaurus_meta_wrong_thesaurus">Cannot use term "%1$s" - it belongs to the wrong thesaurus (%2$s #%3$s)</string>
 	<string source="thesaurus_term">Term</string>
 	<string source="thesaurus_lineages">Lineages</string>
