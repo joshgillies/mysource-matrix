@@ -497,8 +497,7 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 
 			    Bodycopy_Edit_Fns::printBodycopyIcon('', 'HTMLTidy Status', $status_msg, $image_filename, '[HTMLTidy Status]');
 
-			    $res = (str_replace('
-    ', '<br />', htmlentities($this->_edit_params['tidy_errors'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
+			    $res = (str_replace("\n", '<br />', htmlentities($this->_edit_params['tidy_errors'], ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
 
 			    $htmltidy_accessibility_filename = 'accessibility_'.(empty($res) ? 'pass' : 'fail');
 		Bodycopy_Edit_Fns::printBodycopyIcon('', 'HTMLTidy Accessibility', !empty($res) ? $res : translate('wysiwyg_htmltidy_accessibility_no_warning'), $htmltidy_accessibility_filename, '[HTMLTidy Status]');
