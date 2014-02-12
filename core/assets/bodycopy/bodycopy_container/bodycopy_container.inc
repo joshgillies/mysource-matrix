@@ -374,7 +374,7 @@ class Bodycopy_Container extends Asset
 		
 		// Escape the quotes in the keyword
 		foreach($keyword_replacements as $keyword => $val) {
-			$safe_keyword = str_replace('$', '\\$', str_replace('\n', '\\n', htmlentities($keyword, ENT_QUOTES)));
+			$safe_keyword = str_replace('$', '\\$', htmlentities($keyword, ENT_QUOTES));
 			if ($safe_keyword != $keyword) {
 				$keyword_replacements[$safe_keyword] = $val;
 				unset($keyword_replacements[$keyword]);

@@ -354,8 +354,8 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 			foreach ($keywords as $keyword) {
 				// Escape the regex characters in the keyword
 				$regex_safe_keyword = escape_regex_chars($keyword);
-				// Escape the quotes, newlines and '$' in the keyword
-				$keyword = str_replace('$', '\\\$', str_replace('\n', '\\\\\n', htmlentities($keyword, ENT_QUOTES)));
+				// Escape the quotes, backslashes and '$' in the keyword
+				$keyword = str_replace('$', '\\\$', str_replace('\\', '\\\\\\\\', htmlentities($keyword, ENT_QUOTES)));
 
 				$output = preg_replace('|%((<([^>]+?)>)+)?'.$regex_safe_keyword.'((<([^>]+?)>)+)?%|', '\\1<'.'?php echo (isset($keyword_replacements[\''.$keyword.'\'])) ? $keyword_replacements[\''.$keyword.'\'] : ""; ?'.'>\\4', $output);
 			}
