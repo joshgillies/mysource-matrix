@@ -322,6 +322,10 @@ button.delete-button {
   	clip: 						rect(0 0 0 0); 
 }
 
+.sq-keep-inline {
+	white-space: 				nowrap;
+}
+
 /*
 ####################################################################################################################
 GLOBAL FORM ELEMENTS

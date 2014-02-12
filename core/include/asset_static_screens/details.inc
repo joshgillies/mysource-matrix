@@ -229,14 +229,14 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 					if (_paintDetailsRegisterKeyword($ei, $keywords, 'fields', 'status_future_status', $current_fs_contents.$new_fs_contents) === FALSE) {
 						// Only show current contents if there are set FS jobs
 						if (empty($current_fs_contents) === FALSE) {
-							$o->openField(translate('scheduled_future_status_change'), 'new_line');
+							$o->openField(translate('scheduled_future_status_change'));
 								echo $current_fs_contents;
 							$o->closeField();
 						}
 
 						// Only show Add FS section if write access allowed
 						if ($owner->writeAccess()) {
-							$o->openField(translate('add_new_future_status'), 'new_line');
+							$o->openField(translate('add_new_future_status'));
 								echo $new_fs_contents;
 							$o->closeField();
 						}//end if
