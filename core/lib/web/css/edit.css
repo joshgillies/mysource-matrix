@@ -2275,8 +2275,19 @@ METADATA EDITING AND PREVIEW STYLES
 .sq-metadata-description,
 .sq-metadata-date-wrapper,
 .sq-metadata-multitext-wrapper,
-.sq-metadata-multitext-wrapper {
+.sq-metadata-multitext-wrapper,
+.sq-metadata-char-limit {
 	padding-left:				150px;
+}
+
+.sq-metadata-char-limit {
+	display: 					block;
+	font-size: 					11px;
+	font-style: 				italic;
+}
+
+.sq-char-limit-error {
+	color:						red;
 }
 
 /* METADATA WYSIWYG FIELD */

@@ -343,9 +343,8 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 			    }//end switch
 			    Bodycopy_Edit_Fns::printBodycopyIcon('', 'HTMLTidy Status', $status_msg, $image_filename, '[HTMLTidy Status]');
 
-			    // Do not remove the line below, they are 'new line' seperated for a reason, that is how htmltidy_errors need to be seperated so it does not break the javascript underneath in printBodycopyIcon() call.
-			    $res = (str_replace('
-    ', '<br />', htmlentities($asset->attr('htmltidy_errors'), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
+			    // Htmltidy errors seperated by newline will break the javascript underneath in printBodycopyIcon() call.
+			    $res = (str_replace("\n", '<br />', htmlentities($asset->attr('htmltidy_errors'), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)));
 
 			    $htmltidy_accessibility_filename = 'accessibility_'.(empty($res) ? 'pass' : 'fail');
 		Bodycopy_Edit_Fns::printBodycopyIcon('', 'HTMLTidy Accessibility', !empty($res) ? $res : translate('wysiwyg_htmltidy_accessibility_no_warning'), $htmltidy_accessibility_filename, '[HTMLTidy Status]');

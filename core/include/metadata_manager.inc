@@ -187,7 +187,7 @@ class Metadata_Manager extends MySource_Object
 		}
 		else {
 		    $sql = '  SELECT DISTINCT schemaid, granted, cascades
-				  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_mdata ';
+				  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_mdata m';
 		    $where = 'assetid = :assetid';
 		    $order_by = '';
 		}
@@ -198,7 +198,7 @@ class Metadata_Manager extends MySource_Object
 		if (!is_null($cascades)) {
 			$where .= ' AND cascades = :cascades';
 		}
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'm');
 
 		try {
 			$query = MatrixDAL::preparePdoQuery($sql.$where.$order_by);
