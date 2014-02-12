@@ -3911,9 +3911,10 @@ var JS_Asset_Map = new function() {
 	 *
 	 * @param {Node}  element
 	 * @param {Array} [typeFilter] The type filter.
+	 * @param {Boolean} [returnAttributes] The type filter.
 	 *
 	 */
-	this.setUseMeMode = function(name, safeName, typeFilter, doneCallback) {
+	this.setUseMeMode = function(name, safeName, typeFilter, returnAttributes, doneCallback) {
 		var self = this;
 
 		if (this.isInUseMeMode() === true) {
@@ -3933,6 +3934,7 @@ var JS_Asset_Map = new function() {
 				namePrefix: name,
 				idPrefix: safeName,
 				typeFilter: typeFilter,
+				returnAttributes: returnAttributes,
 				doneCallback: doneCallback
 			};
 
@@ -4026,24 +4028,67 @@ var JS_Asset_Map = new function() {
 			var assetTypeHidden = dfx.getId(useMeStatus.namePrefix + '[type_code]', sourceFrame);
 			var assetUrlHidden  = dfx.getId(useMeStatus.namePrefix + '[url]', sourceFrame);
 
-			assetNameLabel.value  = dfx.getNodeTextContent(dfx.getClass('assetName', assetNode)[0]);
-			assetidBox.value      = assetNode.getAttribute('data-assetid');
-			assetidHidden.value   = assetNode.getAttribute('data-assetid');
-			assetLinkHidden.value = assetNode.getAttribute('data-linkid');
-			assetTypeHidden.value = assetNode.getAttribute('data-typecode');
-			assetUrlHidden.value  = '';
+			if(assetNameLabel !== null) {
+			    assetNameLabel.value  = dfx.getNodeTextContent(dfx.getClass('assetName', assetNode)[0]);
+			}
+			if(assetidBox !== null) {
+			    assetidBox.value      = assetNode.getAttribute('data-assetid');
+			}
+			if(assetidHidden !== null) {
+			    assetidHidden.value   = assetNode.getAttribute('data-assetid');
+			}
+			if(assetLinkHidden !== null) {
+			    assetLinkHidden.value = assetNode.getAttribute('data-linkid');
+			}
+			if(assetTypeHidden !== null) {
+			    assetTypeHidden.value = assetNode.getAttribute('data-typecode');
+			}
+			if(assetUrlHidden !== null) {
+			    assetUrlHidden.value  = '';
+			}
+
 
 			var changeButton = dfx.getId(useMeStatus.idPrefix + '_change_btn', sourceFrame);
-			changeButton.value = js_translate('change');
+			if(changeButton !== null) {
+			    changeButton.value = js_translate('change');
+			}
 
 			document.cookie = 'lastSelectedLinkId=' + escape(linkid);
 			document.cookie = 'lastSelectedAssetId=' + escape(assetid);
-					
-			if (dfx.isFn(useMeStatus.doneCallback)) { 
-				useMeStatus.doneCallback(assetid);
+			
+		    
+			
+			// provide a few extra attributes of image to the caller, such as alt attribute of image
+			// callback the caller
+			if(typeof useMeStatus.returnAttributes !== 'undefined' && useMeStatus.returnAttributes) {
+			    var attributesCallback = useMeStatus.doneCallback;
+			    self.doRequest({
+				    _attributes: {
+					    action: 'get attributes'
+				    },
+				    asset: [
+					    {
+						    _attributes: {
+							    assetid: assetid
+						    }
+					    }
+				    ]
+			    }, function(response) {
+				var data = {'assetid' : assetid, 'attributes' : response['asset'][0]['_attributes']};
+				if (dfx.isFn(attributesCallback)) {
+					attributesCallback(data);
+				}
+			    });
 			}
-
+			else {
+				var data = {'assetid' : assetid};
+			    	if (dfx.isFn(useMeStatus.doneCallback)) {
+					useMeStatus.doneCallback(data);
+				}
+			}
+			
 			self.cancelUseMeMode();
+			
 		});
 		container.appendChild(menuItem);
 
@@ -4750,7 +4795,7 @@ var JS_Asset_Map = new function() {
 					}
 		
 					changeButton.setAttribute('value', js_translate('cancel'));
-					JS_Asset_Map.setUseMeMode(name, safeName, typeCodes, function() {
+					JS_Asset_Map.setUseMeMode(name, safeName, typeCodes, false, function() {
 							closeOnExit();
 							if (dfx.isFn(doneCallback) === true) {
 								doneCallback();

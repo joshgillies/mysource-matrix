@@ -657,6 +657,9 @@ class Asset_Map
 			case 'new link' :
 				$this->_newLinks($root);
 			break;
+		    	case 'get attributes' :
+				$this->_getAttributes($root);
+			break;
 			default :
 				$this->_error('AMAP0003', (string)$root->attributes()->action);
 				return;
@@ -2580,6 +2583,62 @@ class Asset_Map
 	}//end _translateToXML()
 
 
+	
+	/**
+	* Processes the get attributes request and outputs the xml to stardard out
+	* Only some attributes are allowed. Don't want to reveal all to user.
+	*
+	* @param object	&$input	the request info from the Flash
+	*
+	* @return void
+	* @access private
+	*/
+	function _getAttributes(&$input)
+	{
+
+		$output = simplexml_load_string('<xml></xml>');
+		$root = $output->addChild('assets');
+		$allowedAttributes = Array('name', 'short_name',  'title', 'alt', 'caption');
+
+		// go through the kids and add them to the $root
+		foreach ($input->children() as  $v) {
+			// get all the attribute values
+			$tmp_info = Array();
+			foreach ($v->attributes() as $a => $b) {
+				$tmp_info[$a] = urldecode((string)$b);
+			}
+
+			if (empty($tmp_info['assetid'])) continue;
+
+			// get the information about the asset
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($tmp_info['assetid']);
+			if(is_null($asset)) continue;
+			if(!$asset->readAccess()) continue;
+			
+			$attributes = Array();
+			foreach ($asset->vars as $name => $value) {
+			    // only get intended attributes
+			    if(!in_array($name, $allowedAttributes)) continue;
+			    // only get scalar attributes
+			    $real_value = array_get_index($value, 'value', '');
+			    if(!is_scalar($real_value)) continue;
+			    
+			    $attributes[urlencode($name)] = urlencode($real_value);
+			}
+			
+			// create a new node and fill out the attributes
+			$tmp_node = $root->addChild('asset');
+			foreach ($attributes as $info_k => $info_v) {
+				if (strlen($info_v) == 0)  $tmp_node->addAttribute($info_k, ' ');
+				else $tmp_node->addAttribute($info_k, $info_v);
+			}	
+		}
+
+		$this->_send($root);
+
+	}//end _getAttributes()
+	
+	
 }//end class
 
 ?>
