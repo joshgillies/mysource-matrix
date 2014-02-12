@@ -417,173 +417,149 @@ class Asset_Edit_Interface extends MySource_Object
 				if ((strtolower($screen_lock_type) != 'none') && empty($_REQUEST['print_view'])) {
 					// lets tell the user if the asset is locked for editing
 					// or if they can lock it to edit it
-			$o->openRaw();
-			?>
-
-				<!--div id="sq-aquire-locks-wrapper" style="display: none;">
-					<?php
-						if (!$have_all_locks || $have_any_locks) {
-							?><div class="sq-locks-button-wrapper"><?php
-						}
-
-						if (!$have_all_locks) {
-							hidden_field('sq_lock_acquire', '0');
-							if ($need_force_locks) {
-								if ($can_force_locks) {
-									// they aren't going to do this without a fight though
-									// they'll have to go through our popup window first
-									$popup_url = '?SQ_BACKEND_PAGE=main&backend_section=am&ignore_frames=1&am_section=forceably_acquire_lock&assetid='.$owner->id.'&sq_lock_type='.$screen_lock_type;
-
-									hidden_field('sq_lock_acquire_by_force', '0');
-									normal_button('sq_forceably_acquire_lock', translate('acquire_lock_button'), "window.open('$popup_url', 'sq_forceably_acquire_lock_popup', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=500,height=300');", 'class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button acquire force"');
-									echo '&nbsp;';
-								}
-							} else if ($full_write_access && $acquire_lock_access) {
-								hidden_field('sq_lock_acquire_by_force', '0');
-								normal_button('', translate('acquire_lock_button'), "document.getElementById('sq_lock_acquire').value = 1; submit_form(this.form)", 'accesskey="a" class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button acquire"');
-								echo '&nbsp;';
-							}//end if
-						}
-
-						if ($have_any_locks) {
-							hidden_field('sq_lock_release_manual', 0);
-							normal_button('', translate('release_lock_button'), "document.getElementById('sq_lock_release_manual').value = 1; submit_form(this.form)", 'accesskey="r" class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button release"');
-							echo '&nbsp;';
-						}
-
-						if (!$have_all_locks || $have_any_locks) {
-							?></div>
-					<?php
-					}
+					$o->openRaw();
 					?>
-				</div-->
+						<div class="sq-backend-section-div-wrapper section custom first">
+							<div class="sq-backend-section-div">
+								<div id="sq-aquire-locks-wrapper" class="clearfix">
+									<?php
+										if (!$have_all_locks || $have_any_locks) {
+											?><div class="sq-locks-button-wrapper"><?php
+										}
 
-			<?php
-			$o->closeRaw();
-					$o->openSection(translate('locking_editing'));
+										if (!$have_all_locks) {
+											hidden_field('sq_lock_acquire', '0');
+											if ($need_force_locks) {
+												if ($can_force_locks) {
+													// they aren't going to do this without a fight though
+													// they'll have to go through our popup window first
+													$popup_url = '?SQ_BACKEND_PAGE=main&backend_section=am&ignore_frames=1&am_section=forceably_acquire_lock&assetid='.$owner->id.'&sq_lock_type='.$screen_lock_type;
+
+													hidden_field('sq_lock_acquire_by_force', '0');
+													normal_button('sq_forceably_acquire_lock', translate('acquire_lock_button'), "window.open('$popup_url', 'sq_forceably_acquire_lock_popup', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=500,height=300');", 'class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button acquire force"');
+													echo '&nbsp;';
+												}
+											} else if ($full_write_access && $acquire_lock_access) {
+												hidden_field('sq_lock_acquire_by_force', '0');
+												normal_button('', translate('acquire_lock_button'), "document.getElementById('sq_lock_acquire').value = 1; submit_form(this.form)", 'accesskey="a" class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button acquire"');
+												echo '&nbsp;';
+											}//end if
+										}
+
+										if ($have_any_locks) {
+											hidden_field('sq_lock_release_manual', 0);
+											normal_button('', translate('release_lock_button'), "document.getElementById('sq_lock_release_manual').value = 1; submit_form(this.form)", 'accesskey="r" class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button release"');
+											echo '&nbsp;';
+										}
+
+										if (!$have_all_locks || $have_any_locks) {
+											?></div>
+									<?php
+									}
+									?>
+
+									<p class="sq-lock-message"><?php
+										if (!$have_all_locks) {
+											if ($need_force_locks) {
+												if ($can_force_locks) {
+													echo '<div class="sq-backend-locked-by-someone-else">'.translate('forcibly_acquire_lock', htmlspecialchars($user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</div>';
+												}
+											} else if ($full_write_access && $acquire_lock_access) {
+												echo translate('acquire_lock', translate('acquire_lock_button'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+											}
+										}
+										if ($have_any_locks) {
+											echo translate('release_lock', translate('release_lock_button'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+										}
+										?>
+										<b class="clickable" onclick="sq_toggle_lock_info();" id="sq_lock_info_toggle"><?php echo translate('show_lock_details'); ?></b><br />
+									</p><!--#sq-lock-message-->
+
+									<div id="sq_lock_info" style="display: none;">
+										<table class="sq-backend-table">
+											<tr>
+												<th class="sq-backend-table-header" style="width: 20px;">
+													
+												</th>
+												<th class="sq-backend-table-header" align="left" nowrap>
+													<?php echo translate('lock_type'); ?>
+												</th>
+												<th class="sq-backend-table-header">
+													<?php echo translate('lock_details'); ?>
+												</th>
+											</tr>
+										<?php
+										$class = 'sq-backend-table-cell-alt';
+										foreach ($locks as $lock_type => $lock) {
+											?>
+											<tr>
+												<td class="sq-backend-table-cell" align="center">
+													<img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/<?php echo ((empty($lock)) ? 'un' : ''); ?>locked.png" />
+													</td>
+												<td class="sq-backend-table-cell">
+													<?php echo ucwords(str_replace('_', ' ', $lock_type)); ?>
+												</td>
+												<td class="sq-backend-table-cell">
+													<?php
+													if (empty($lock)) {
+
+														if ($full_write_access && $acquire_lock_access) {
+															echo translate('currently_not_held').'.';
+														} else {
+															echo translate('no_access_to_edit', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+														}
+
+													} else {
+														// this asset is currently locked so display message to the user
+														$user    = $GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
+														$editing = $GLOBALS['SQ_SYSTEM']->am->getAsset($lock['source_assetid']);
+
+														if (SQ_ROLLBACK_VIEW) {
+															$now = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
+														} else {
+															$now = time();
+														}
+
+														if (is_null($lock['expires'])) {
+															$expires_in = translate('lock_held_indefinitely');
+														} else {
+															require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+															$expires_in = easy_time_total(($lock['expires'] - $now), TRUE);
+															if (!$expires_in) {
+																$expires_in = '1 '.translate('second');
+															}
+															$expires_in = translate('due_to_expire', $expires_in);
+														}
+
+														echo translate('lock_held_by', htmlspecialchars($user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), htmlspecialchars($editing->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'. ';
+														echo $expires_in;
+													}//end if
+													?>
+												</td>
+											</tr>
+											<?php
+										}//end foreach lock types
+										?>
+										</table>
+									</div><!--#sq_lock_info-->
+
+								</div><!--#sq-aquire-locks-wrapper-->
+							</div><!--.sq-backend-section-div-->
+						</div><!--.sq-backend-section-div-wrapper-->
+					<?php
+					$o->closeRaw();
+
+					//$o->openSection(translate('locking_editing'));
 					$o->openRaw();
 						?>
-						<p class="sq-lock-message"><?php
-							if (!$have_all_locks) {
-								if ($need_force_locks) {
-									if ($can_force_locks) {
-										echo '<div class="sq-backend-locked-by-someone-else">'.translate('forcibly_acquire_lock', htmlspecialchars($user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</div>';
-									}
-								} else if ($full_write_access && $acquire_lock_access) {
-									echo translate('acquire_lock', translate('acquire_lock_button'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
-								}
-							}
-							if ($have_any_locks) {
-								echo translate('release_lock', translate('release_lock_button'), htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
-							}
-							?>
-							<b class="clickable" onclick="sq_toggle_lock_info();" id="sq_lock_info_toggle"><?php echo translate('show_lock_details'); ?></b><br />
-						</p>
+						<!--
 
-						<div id="sq_lock_info" style="display: none;">
-						<table class="sq-backend-table">
-							<tr>
-								<th class="sq-backend-table-header" style="width: 20px;">
-									
-								</th>
-								<th class="sq-backend-table-header" align="left" nowrap>
-									<?php echo translate('lock_type'); ?>
-								</th>
-								<th class="sq-backend-table-header">
-									<?php echo translate('lock_details'); ?>
-								</th>
-							</tr>
+						
+						-->
+						
 						<?php
-						$class = 'sq-backend-table-cell-alt';
-						foreach ($locks as $lock_type => $lock) {
-							?>
-							<tr>
-								<td class="sq-backend-table-cell" align="center">
-									<img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/<?php echo ((empty($lock)) ? 'un' : ''); ?>locked.png" />
-									</td>
-								<td class="sq-backend-table-cell">
-									<?php echo ucwords(str_replace('_', ' ', $lock_type)); ?>
-								</td>
-								<td class="sq-backend-table-cell">
-									<?php
-									if (empty($lock)) {
-
-										if ($full_write_access && $acquire_lock_access) {
-											echo translate('currently_not_held').'.';
-										} else {
-											echo translate('no_access_to_edit', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
-										}
-
-									} else {
-										// this asset is currently locked so display message to the user
-										$user    = $GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
-										$editing = $GLOBALS['SQ_SYSTEM']->am->getAsset($lock['source_assetid']);
-
-										if (SQ_ROLLBACK_VIEW) {
-											$now = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
-										} else {
-											$now = time();
-										}
-
-										if (is_null($lock['expires'])) {
-											$expires_in = translate('lock_held_indefinitely');
-										} else {
-											require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-											$expires_in = easy_time_total(($lock['expires'] - $now), TRUE);
-											if (!$expires_in) {
-												$expires_in = '1 '.translate('second');
-											}
-											$expires_in = translate('due_to_expire', $expires_in);
-										}
-
-										echo translate('lock_held_by', htmlspecialchars($user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), htmlspecialchars($editing->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'. ';
-										echo $expires_in;
-									}//end if
-									?>
-								</td>
-							</tr>
-							<?php
-						}//end foreach lock types
-						?>
-						</table>
-						</div>
-
-						<?php
-						if (!$have_all_locks || $have_any_locks) {
-							?><div class="sq-locks-button-wrapper"><?php
-						}
-
-						if (!$have_all_locks) {
-							hidden_field('sq_lock_acquire', '0');
-							if ($need_force_locks) {
-								if ($can_force_locks) {
-									// they aren't going to do this without a fight though
-									// they'll have to go through our popup window first
-									$popup_url = '?SQ_BACKEND_PAGE=main&backend_section=am&ignore_frames=1&am_section=forceably_acquire_lock&assetid='.$owner->id.'&sq_lock_type='.$screen_lock_type;
-
-									hidden_field('sq_lock_acquire_by_force', '0');
-									normal_button('sq_forceably_acquire_lock', translate('acquire_lock_button'), "window.open('$popup_url', 'sq_forceably_acquire_lock_popup', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=500,height=300');", 'class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button acquire force"');
-									echo '&nbsp;';
-								}
-							} else if ($full_write_access && $acquire_lock_access) {
-								hidden_field('sq_lock_acquire_by_force', '0');
-								normal_button('', translate('acquire_lock_button'), "document.getElementById('sq_lock_acquire').value = 1; submit_form(this.form)", 'accesskey="a" class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button acquire"');
-								echo '&nbsp;';
-							}//end if
-						}
-
-						if ($have_any_locks) {
-							hidden_field('sq_lock_release_manual', 0);
-							normal_button('', translate('release_lock_button'), "document.getElementById('sq_lock_release_manual').value = 1; submit_form(this.form)", 'accesskey="r" class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button release"');
-							echo '&nbsp;';
-						}
-
-						if (!$have_all_locks || $have_any_locks) {
-							?></div><?php
-						}
-
 					$o->closeRaw();
-					$o->closeSection();
+					//$o->closeSection();
 
 				}//end if locktype not none
 

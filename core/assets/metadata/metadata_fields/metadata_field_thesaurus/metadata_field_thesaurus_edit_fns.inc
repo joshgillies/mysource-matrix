@@ -113,7 +113,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 		$thesaurus = $asset->getThesaurusRef();
 
 		if ($thesaurus == FALSE) {
-			echo translate('source_thesaurus_not_set');
+			echo '<em>'.translate('source_thesaurus_not_set').'</em>';
 			return;
 		}//end if
 
@@ -166,60 +166,71 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		if ($write_access) {
 
-			if ($enable_default) {
+			echo '<span class="sq-metadata-settings-wrapper">';
+				if ($enable_default) {
+					echo '<span class="sq-metadata-default-wrapper">';
+						?>
+						<script type="text/javascript">
+							//<![CDATA[
+							function toggleManualInterface(div_1, div_2)
+							{
+								if (document.getElementById(div_1).style.display == 'block') {
+									document.getElementById(div_1).style.display = 'none';
+									document.getElementById(div_2).style.display = 'block';
+								} else {
+									document.getElementById(div_2).style.display = 'none';
+									document.getElementById(div_1).style.display = 'block';
+								}
+							}
+							//]]>
+						</script>
+						<?php
 
-				?>
-				<script type="text/javascript">
-					//<![CDATA[
-					function toggleManualInterface(div_1, div_2)
-					{
-						if (document.getElementById(div_1).style.display == 'block') {
-							document.getElementById(div_1).style.display = 'none';
-							document.getElementById(div_2).style.display = 'block';
-						} else {
-							document.getElementById(div_2).style.display = 'none';
-							document.getElementById(div_1).style.display = 'block';
-						}
-					}
-					//]]>
-				</script>
-				<?php
-
-				// use-default-or-not chooser
-				check_box($prefix.'_default', '1', $is_default, 'toggleManualInterface(\''.$prefix.'_interface\',\''.$prefix.'_defaults\')');
-				label(translate('thesaurus_use_default_value'), $prefix.'_default');
-				if ($is_default) {
-					echo ' '.translate('thesaurus_default_values_note');
+						// use-default-or-not chooser
+						check_box($prefix.'_default', '1', $is_default, 'toggleManualInterface(\''.$prefix.'_interface\',\''.$prefix.'_defaults\')');
+						label(translate('use_default'), $prefix.'_default');
+					echo '</span>';
 				}
-				echo '<br />';
 
-				// non-default-value chooser
-				echo '<div id="'.$prefix.'_interface" style="padding: 5px 0px; display:'.($is_default ? 'none' : 'block').'">';
-				multiple_asset_finder($prefix.'_thes_term', $term_assetids, Array('thesaurus_term'=>'D'));
-				hidden_field($prefix.'_terms_submitted', 1);
-				echo '<div style="margin-top: 3px">';
-				echo translate('thesaurus_meta_thesaurus_note', get_asset_tag_line($thesaurus->id, 'details'));
-				echo '</div>';
-				echo '</div>';
+				if ($print_cascade_values_option) {
+					echo '<span class="sq-metadata-cascade-wrapper">';
+						check_box($prefix.'_cascade_value', '1', FALSE);
+						label(translate('cascade_value'), $prefix.'_cascade_value');
+					echo '</span>';
+				}
+			echo '</span>';
 
-				// default value display
-				echo '<div id="'.$prefix.'_defaults" style="display:'.($is_default ? 'block' : 'none').'">';
-				echo $default;
-				echo '</div>';
+			echo '<div class="sq-metadata-multitext-wrapper">';
+				if ($enable_default) {
+					// non-default-value chooser
+					echo '<div id="'.$prefix.'_interface" style="display:'.($is_default ? 'none' : 'block').'">';
+						multiple_asset_finder($prefix.'_thes_term', $term_assetids, Array('thesaurus_term'=>'D'));
+						hidden_field($prefix.'_terms_submitted', 1);
+						echo '<div style="margin-top: 3px">';
+							echo translate('thesaurus_meta_thesaurus_note', get_asset_tag_line($thesaurus->id, 'details'));
+						echo '</div>';
+					echo '</div>';
 
-			} else {
-				multiple_asset_finder($prefix.'_thes_term', $term_assetids, Array('thesaurus_term'=>'D'));
-				hidden_field($prefix.'_terms_submitted', 1);
-			}
-
-			if ($print_cascade_values_option) {
-				check_box($prefix.'_cascade_value', '1', FALSE);
-				label(translate('cascade_value'), $prefix.'_cascade_value');
-			}
+					// default value display
+					echo '<div id="'.$prefix.'_defaults" style="display:'.($is_default ? 'block' : 'none').'">';
+						echo $default;
+					echo '</div>';
+				} else {
+					multiple_asset_finder($prefix.'_thes_term', $term_assetids, Array('thesaurus_term'=>'D'));
+					hidden_field($prefix.'_terms_submitted', 1);
+				}
+			echo '</div>';
 
 		} else {
+			echo '<span class="sq-metadata-settings-wrapper">';
+				if ($is_default) {
+					echo ' <em>('.translate('using_default_value').')</em>';
+				} else{
+
+				}	
+			echo '</span>';
 			if (empty($values)) {
-				echo translate('thesaurus_no_values');
+				echo '<em>'.translate('thesaurus_no_values').'.</em>';
 			} else {
 				echo translate($is_default ? 'thesaurus_using_default_values' : 'thesaurus_using_non_default_values');
 				?>

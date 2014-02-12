@@ -230,23 +230,26 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 			<tr>
 				<th><?php echo translate('body'); ?></th>
 				<td>
-					<table class="sq-email-format-body">
+					<table class="sq-email-format-body sq-grey-header-wrapper">
 						<tr>
-							<td>
-								<?php
-								if ($read_only) {
-									sq_print_icon(sq_web_path('lib').'/web/images/icons/edit_mode.png', 16, 16, 'Toggle Email Format', 'Toggle Email Format','class="clickable" onclick="emailFormatSwitchReadingMode(\''.$prefix."', '".addslashes(translate('html_email_version'))."', '".addslashes(translate('text_email_version')).'\')"');
-								} else {
-									sq_print_icon(sq_web_path('lib').'/web/images/icons/edit_mode.png', 16, 16, 'Toggle Email Format', 'Toggle Email Format','class="clickable" onclick="emailFormatSwitchEditingMode(\''.$prefix."', '".addslashes(translate('html_email_version'))."', '".addslashes(translate('text_email_version')).'\')"');
-								}
-								?>
-							</td>
-							<td id="<?php echo $prefix; ?>_format_mode" class="sq-email-format-version">
-								<?php echo translate('text_email_version'); ?>
+							<td class="sq-grey-header-wrapper sq-with-bottom-border">
+								<div class="sq-grey-header-row clearfix">
+									<span style="float:right;" id="<?php echo $prefix; ?>_format_mode" class="sq-email-format-version">
+										<?php echo translate('text_email_version'); ?>
+									</span>
+									<?php
+									if ($read_only) {
+										sq_print_icon(sq_web_path('lib').'/web/images/icons/edit_mode.png', 16, 16, 'Toggle Email Format', 'Toggle Email Format','class="clickable" onclick="emailFormatSwitchReadingMode(\''.$prefix."', '".addslashes(translate('html_email_version'))."', '".addslashes(translate('text_email_version')).'\', \''.translate('wysiwyg_content_container').'\', \''.translate('raw_html_content_container').'\')"');
+									} else {
+										sq_print_icon(sq_web_path('lib').'/web/images/icons/edit_mode.png', 16, 16, 'Toggle Email Format', 'Toggle Email Format','class="clickable" onclick="emailFormatSwitchEditingMode(\''.$prefix."', '".addslashes(translate('html_email_version'))."', '".addslashes(translate('text_email_version')).'\', \''.translate('wysiwyg_content_container').'\', \''.translate('raw_html_content_container').'\')"');
+									}
+									?>
+									<strong id="<?php echo $prefix?>_content_type"><?php echo translate('raw_html_content_container') ?></strong>
+								</div>
 							</td>
 						</tr>
 						<tr>
-							<td colspan="2" class="sq-email-format-wysiwyg-wrapper">
+							<td class="sq-email-format-wysiwyg-wrapper">
 								<?php
 								if ($read_only) {
 									?>

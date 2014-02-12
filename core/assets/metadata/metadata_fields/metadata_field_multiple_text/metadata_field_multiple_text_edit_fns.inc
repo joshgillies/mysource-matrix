@@ -92,44 +92,53 @@ class Metadata_Field_Multiple_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		// If we're OK to edit, get our attribute, and paint it
 		if ($write_access) {
-			if ($enable_default) {
-				echo '<span id="'.$prefix.'_field">';
-			}
-			$attribute->paint($prefix, FALSE);
-			if ($enable_default) echo '</span>';
-		} else {
-			$attribute->paint($prefix, TRUE);
-		}
 
-		if ($enable_default) {
-			if ($write_access) {
-				echo ' &nbsp; &nbsp; &nbsp; ';
+			echo '<span class="sq-metadata-settings-wrapper">';
+				if ($enable_default) {
+					echo '<span class="sq-metadata-default-wrapper">';
+						// Work out which options we have to set if we have to
+						$i = 0;
+						$default_keys = str_replace('\'', '\\\'', $asset->attr('default'));
+						$default_keys = explode('; ', $default_keys);
+						$default_vals_expr = '[\''.implode('\', \'', $default_keys).'\']';
+						check_box($prefix.'_default', '1', $is_default, "handleDefaultClickMT(this, '$prefix', $default_vals_expr); ");
+						label(translate('use_default'), $prefix.'_default');
+					echo '</span>';
+				}
 
-				// Work out which options we have to set if we have to
-				$i = 0;
-				$default_keys = str_replace('\'', '\\\'', $asset->attr('default'));
-				$default_keys = explode('; ', $default_keys);
-				$default_vals_expr = '[\''.implode('\', \'', $default_keys).'\']';
-				check_box($prefix.'_default', '1', $is_default, "handleDefaultClickMT(this, '$prefix', $default_vals_expr); ");
-				label(translate('use_default'), $prefix.'_default');
-				if ($is_default) {
+				if ($print_cascade_values_option) {
+					echo '<span class="sq-metadata-cascade-wrapper">';
+						check_box($prefix.'_cascade_value', '1', FALSE);
+						label(translate('cascade_value'), $prefix.'_cascade_value');
+					echo '</span>';
+				}
+			echo '</span>';
+
+			echo '<div class="sq-metadata-multitext-wrapper">';
+				if ($enable_default) { echo '<span id="'.$prefix.'_field">';}
+						$attribute->paint($prefix, FALSE);
+					echo '</span>';
+				if ($enable_default) {
+					echo '</span>';
 					?>
 					<script type="text/javascript"><!--
 						setInputsEnabled(document.getElementById('<?php echo $prefix ?>_field'), false);
 					// --></script>
 					<?php
 				}
-			} else {
-				if ($is_default) {
-					echo ' <em style="color: #666">('.strtolower(translate('default')).')</em>';
-				}
-			}
-		}
+			echo '</div>';
 
-		if ($write_access && $print_cascade_values_option) {
-			echo '&nbsp;&nbsp;&nbsp;&nbsp;';
-			check_box($prefix.'_cascade_value', '1', FALSE);
-			label(translate('cascade_value'), $prefix.'_cascade_value');
+		} else {
+			echo '<span class="sq-metadata-settings-wrapper">';
+				if ($is_default) {
+					echo ' <em>('.translate('using_default_value').')</em>';
+				} else{
+
+				}	
+			echo '</span>';
+			echo '<div class="sq-metadata-multitext-wrapper">';
+				$attribute->paint($prefix, TRUE);
+			echo '</div>';
 		}
 
 		return $write_access;

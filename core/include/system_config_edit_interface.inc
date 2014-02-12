@@ -208,57 +208,51 @@ class System_Config_Edit_Interface extends MySource_Object
 
 		$is_admin = ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 
-		$o->openSection(translate('locking_/_editing'));
 		$o->openRaw();
 		?>
-		<table>
-			<tr>
-				<!--td>
-					<?php sq_print_icon(sq_web_path('lib').'/web/images/icons/'.((empty($lock)) ? 'un' : '').'locked.png', 16, 16); ?>
-				</td-->
-				<td>
-					<p class="sq-lock-message">
-					<?php
-					if (!empty($lock)) {
-						// this asset is currently locked
-						// so display message to the user
-						$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
+			<div class="sq-backend-section-div-wrapper section custom first">
+				<div class="sq-backend-section-div">
+					<div id="sq-aquire-locks-wrapper" class="clearfix">
+						<?php
+						echo '<div class="sq-locks-button-wrapper">';
+							if (!empty($lock)) {
+								if ($have_lock) {
+									submit_button('sq_lock_release_manual', translate('release_lock_button'), 'set_hidden_field("process_form", "0");', 'accesskey="r" class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button release"');
+								}
+							} else {
+								submit_button('sq_lock_acquire', translate('acquire_lock_button'), 'set_hidden_field("process_form", "0");', 'accesskey="a" class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button acquire"');
+							}
+						echo '</div>';
+						echo '<p class="sq-lock-message">';
+							if (!empty($lock)) {
+								// this asset is currently locked
+								// so display message to the user
+								$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
 
-						$now = time();
+								$now = time();
 
-						require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-						$expires_in = easy_time_total(($lock['expires'] - $now), true);
-						if (!$expires_in) $expires_in = '1 second';
-						$expires_in = translate('due_to_expire', $expires_in);
-						if ($have_lock) {
-							echo translate('release_lock', translate('release_lock_button'), translate('user_preferences'));
-							echo '<br />';
-						}
-						if ($user->id != $GLOBALS['SQ_SYSTEM']->currentUserId()) {
-							echo translate('lock_held_by_user', htmlspecialchars($user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'. ';
-						}
-						echo $expires_in;
+								require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+								$expires_in = easy_time_total(($lock['expires'] - $now), true);
+								if (!$expires_in) $expires_in = '1 second';
+								$expires_in = translate('due_to_expire', $expires_in);
+								if ($have_lock) {
+									echo translate('release_lock', translate('release_lock_button'), translate('user_preferences'));
+								}
+								if ($user->id != $GLOBALS['SQ_SYSTEM']->currentUserId()) {
+									echo translate('lock_held_by_user', htmlspecialchars($user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'. ';
+								}
+								echo ' '.$expires_in.'.';
 
-					} else {
-						echo translate('acquire_lock', translate('acquire_lock_button'), translate('user_preferences'));
-					}
-					echo '</p>';
-					echo '<div class="sq-locks-button-wrapper">';
-					if (!empty($lock)) {
-						if ($have_lock) {
-							submit_button('sq_lock_release_manual', translate('release_lock_button'), 'set_hidden_field("process_form", "0");', 'accesskey="r" class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button release"');
-						}
-					} else {
-						submit_button('sq_lock_acquire', translate('acquire_lock_button'), 'set_hidden_field("process_form", "0");', 'accesskey="a" class="sq-form-field sq-btn-large sq-btn-blue sq-lock-button acquire"');
-					}
-					echo '</div>';
-					?>
-				</td>
-			</tr>
-		</table>
+							} else {
+								echo translate('acquire_lock', translate('acquire_lock_button'), translate('user_preferences'));
+							}
+						echo '</p>';
+						?>
+					</div><!--#sq-aquire-locks-wrapper-->
+				</div><!--.sq-backend-section-div-->
+			</div><!--.sq-backend-section-div-wrapper-->
 		<?php
 		$o->closeRaw();
-		$o->closeSection();
 
 		include SQ_DATA_PATH.'/private/conf/preferences.inc';
 
@@ -402,7 +396,8 @@ class System_Config_Edit_Interface extends MySource_Object
 
 		if (empty($db_locks)) {
 			$o->openSection(translate('active_locks'));
-				$o->openField(translate('no_active_locks'));
+				$o->openField('','wide_col');
+					echo '<em>'.translate('no_active_locks').'.</em>';
 				$o->closeField();
 			$o->openSection();
 			return true;

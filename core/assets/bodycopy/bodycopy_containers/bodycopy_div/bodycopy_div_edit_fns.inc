@@ -306,9 +306,14 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		if (!empty($link)) {
 			$content_type = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			$content_prefix = $prefix.'_'.get_class_lower($content_type).'_'.$link['linkid'];
+			$content_type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo(get_class_lower($content_type), 'name');
+			//Create a friendly name for the content type name
+			$content_type_name = preg_replace('/Type/', 'Container', $content_type_name);
+			$content_type_name = preg_replace('/Nest Content/', 'Nested', $content_type_name);
 		} else {
 			$content_type = NULL;
 			$content_prefix = '';
+			$content_type_name = '';
 		}
 
 		// require library functions needed for drawing the bodycopy divs
@@ -317,85 +322,90 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		?>		
 		<table<?php echo $attribute_list?> class="sq-edit-bodycopy-section sq-<?php echo get_class_lower($content_type) ;?>-table">
 			<tr>
-				<td align="left" background="" id="<?php echo $prefix.'_div_'.$asset->id;?>">
-				<span style="float: left;">
-				<?php
+				<td align="left" background="" id="<?php echo $prefix.'_div_'.$asset->id;?>" class="sq-grey-header-wrapper">
+					<div class="sq-grey-header-row clearfix">
 
-				$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
+						<span style="float: left;" class="sq-first-image-no-left-margin">
+							<?php
+							$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
 
-				$public_read = FALSE;
-				if ($asset->status == SQ_STATUS_LIVE && $asset->readAccess(Array($public_userid))) {
-					$public_read = TRUE;
-				}
-				$status_name = get_status_description($asset->status);
-				$status_img = get_asset_status_icon($asset->status);
-				$desc = '<table class="sq-toolbox-properties-table">';
-				$desc .= '<tr><td>'.translate('content_type_tooltip_status').'</td><td>'.$status_img.''.get_status_description($asset->status).'</td><tr>';
-				$desc .= '<tr><td>'.translate('content_type_tooltip_public').'</td><td>'.($public_read ? translate('yes') : translate('no')).'</td><tr>';
-				$desc .= '<tr><td>'.(($popup_attribute_list) ?  translate('current_properties').'</td><td> '.$popup_attribute_list :''.'</td><tr>');
-				$desc .= '</table>';
-				Bodycopy_Edit_Fns::printBodycopyIcon('bodycopy_edit_div_properties(\''.$prefix.'\', '.$asset->id.', '.(($asset->status & SQ_SC_STATUS_SAFE_EDITING) ? 'false' : 'true').');', 'Edit '.$asset->attr('name').'\'s Properties', $desc, 'table_properties', '[Edit Properties]', 'class="sq-icon"');
-				
-				// print condition icon
-				$all_conditions = Array();
-				$is_conditional_display = FALSE;
-				$dependant_parent_assetids = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($asset->id, '', FALSE, FALSE);
-				foreach($dependant_parent_assetids as $parentid) {
-				    $dependant_parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($parentid);
-				    // get all available conditions
-				    $available_conditions = array_keys($dependant_parent_asset->getAvailableConditions());
-				    if(!empty($available_conditions)) {
-					$all_conditions = array_merge($all_conditions, $available_conditions);
-				    }
-				    // test if there is set conditions
-				    $conditions = $dependant_parent_asset->getConditions();
-				    if(isset($conditions['conditional_div']['div_'.$asset->id]['conditions'][0]['conditions'][0]))
-					$is_conditional_display = TRUE;
-				}
-				if(!empty($all_conditions)) {
-				    $count = count($all_conditions);
-				    $desc = 'There are '.$count.' available conditions to set';
-				    $conditions_js = json_encode_array($all_conditions);
-				    // store those available conditions for the popup page to use
-				    ?><script language="JavaScript" type="text/javascript">bodycopy_available_conditions['<?php echo $asset->id; ?>'] = <?php echo $conditions_js; ?>; </script><?php
-				    Bodycopy_Edit_Fns::printBodycopyIcon('bodycopy_edit_div_conditions(\''.$prefix.'\', '.$asset->id.', '.$parentid.');', 'Edit Conditions', $desc, 'conditions', '[Edit Conditions]');
-				}
-				
-				
-				if (!is_null($content_type)) {
-					$content_edit = $content_type->getEditFns();
-					$content_edit->paintBackendIcons($content_type, $content_prefix, $o);
-				}
-				?></span>
-				<span style="float: right;"><?php	
-				
-				// print the condition set icon
-				if($is_conditional_display) {
-				    Bodycopy_Edit_Fns::printBodycopyIcon('', 'Conditional Display', 'This DIV is conditionally displayed', 'conditions_set', '[Conditional Display]');
-				}
-				
-				$lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($asset->id, 5);								
-				foreach ($lineages as $lineage_key => $lineage) {
-					if (!($lineage['link_type'] & SQ_SC_LINK_BACKEND_NAV)) {						
-						unset($lineages[$lineage_key]);
-					}
-				}// end foreach
-				?>				
-				<?php
-				if (count($lineages) > 1) {
-					echo get_asset_tag_line_binoculars($asset->id, 'Multi-Linked DIV');
-				}
-				
-				if (!is_null($content_type)) {
-					$content_edit = $content_type->getEditFns();
-					$content_edit->paintBackendStatusIcons($content_type, $content_prefix, $o);
-				}
-				?>
-				</span>
+							$public_read = FALSE;
+							if ($asset->status == SQ_STATUS_LIVE && $asset->readAccess(Array($public_userid))) {
+								$public_read = TRUE;
+							}
+							$status_name = get_status_description($asset->status);
+							$status_img = get_asset_status_icon($asset->status);
+							$desc = '<table class="sq-toolbox-properties-table">';
+							$desc .= '<tr><td>'.translate('content_type_tooltip_status').'</td><td>'.$status_img.''.get_status_description($asset->status).'</td><tr>';
+							$desc .= '<tr><td>'.translate('content_type_tooltip_public').'</td><td>'.($public_read ? translate('yes') : translate('no')).'</td><tr>';
+							$desc .= '<tr><td>'.(($popup_attribute_list) ?  translate('current_properties').'</td><td> '.$popup_attribute_list :''.'</td><tr>');
+							$desc .= '</table>';
+							Bodycopy_Edit_Fns::printBodycopyIcon('bodycopy_edit_div_properties(\''.$prefix.'\', '.$asset->id.', '.(($asset->status & SQ_SC_STATUS_SAFE_EDITING) ? 'false' : 'true').');', 'Edit '.$asset->attr('name').'\'s Properties', $desc, 'table_properties', '[Edit Properties]', 'class="sq-icon"');
+							
+							// print condition icon
+							$all_conditions = Array();
+							$is_conditional_display = FALSE;
+							$dependant_parent_assetids = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($asset->id, '', FALSE, FALSE);
+							foreach($dependant_parent_assetids as $parentid) {
+							    $dependant_parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($parentid);
+							    // get all available conditions
+							    $available_conditions = array_keys($dependant_parent_asset->getAvailableConditions());
+							    if(!empty($available_conditions)) {
+								$all_conditions = array_merge($all_conditions, $available_conditions);
+							    }
+							    // test if there is set conditions
+							    $conditions = $dependant_parent_asset->getConditions();
+							    if(isset($conditions['conditional_div']['div_'.$asset->id]['conditions'][0]['conditions'][0]))
+								$is_conditional_display = TRUE;
+							}
+							if(!empty($all_conditions)) {
+							    $count = count($all_conditions);
+							    $desc = 'There are '.$count.' available conditions to set';
+							    $conditions_js = json_encode_array($all_conditions);
+							    // store those available conditions for the popup page to use
+							    ?><script language="JavaScript" type="text/javascript">bodycopy_available_conditions['<?php echo $asset->id; ?>'] = <?php echo $conditions_js; ?>; </script><?php
+							    Bodycopy_Edit_Fns::printBodycopyIcon('bodycopy_edit_div_conditions(\''.$prefix.'\', '.$asset->id.', '.$parentid.');', 'Edit Conditions', $desc, 'conditions', '[Edit Conditions]');
+							}
+							
+							
+							if (!is_null($content_type)) {
+								$content_edit = $content_type->getEditFns();
+								$content_edit->paintBackendIcons($content_type, $content_prefix, $o);
+							}
+							?>
+						</span>
+						<span style="float: right;" class="sq-left-img-margin">
+							<?php	
+							// print the condition set icon
+							if($is_conditional_display) {
+							    Bodycopy_Edit_Fns::printBodycopyIcon('', 'Conditionally Displayed', 'This DIV is conditionally displayed', 'conditions_set', '[Conditional Display]');
+							}
+							
+							$lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($asset->id, 5);								
+							foreach ($lineages as $lineage_key => $lineage) {
+								if (!($lineage['link_type'] & SQ_SC_LINK_BACKEND_NAV)) {						
+									unset($lineages[$lineage_key]);
+								}
+							}// end foreach
+							?>				
+							<?php
+							if (count($lineages) > 1) {
+								echo get_asset_tag_line_binoculars($asset->id, 'Multi-Linked DIV');
+							}
+							
+							if (!is_null($content_type)) {
+								$content_edit = $content_type->getEditFns();
+								$content_edit->paintBackendStatusIcons($content_type, $content_prefix, $o);
+							}
+							?>
+							<span class="sq-status-square status-<?php echo str_replace(' ', '-', strtolower(get_status_description($asset->status))) ;?>" title="<?php echo $status_name ;?>"></span>
+						</span>
+						<strong title="<?php echo $content_type_name ;?> - Asset Id: <?php echo $asset->id ;?> - <?php echo $status_name ;?>" class="sq-content-type-name"><?php echo $content_type_name ;?> (Id: #<?php echo $asset->id ;?>)</strong>
+					</div>
 				</td>
 			</tr>
 			<tr>
-				<td id="<?php echo $content_prefix; ?>_cell" class="sq-<?php echo get_class_lower($content_type) ;?>-wrapper">
+				<td id="<?php echo $content_prefix; ?>_cell" class="sq-<?php echo $content_type ;?>-wrapper">
 				<?php
 				if (!is_null($content_type)) {
 					$content_edit = $content_type->getEditFns();

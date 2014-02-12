@@ -70,33 +70,38 @@ class Metadata_Field_Related_Asset_Edit_Fns extends Metadata_Field_Edit_Fns
 		$value_str = trim($value_str);
 
 		if ($write_access) {
+
+			echo '<span class="sq-metadata-settings-wrapper">';
+				if ($enable_default) {
+					echo '<span class="sq-metadata-default-wrapper">';
+						$default_string = str_replace("'", "\'", $asset->attr('default'));
+						// get rid of javascript error 'unterminated string literal'. (bug 2386)
+						$default_string = str_replace(Array("\r\n", "\r", "\n"), '\n', $default_string);
+
+						$checkbox_extra = 'with(this.form.elements[\''.$prefix.'_value\']) { disabled = this.checked; if (this.checked) { value = \''.$default_string.'\'; } else {if(value==\'\') {value=\' \'; value = \'\';}}};';
+
+						check_box($prefix.'_default', '1', $is_default, 'handleMetadataRelatedAssetDefaultClickFor'.$prefix.'()');
+						label(translate('use_default'), $prefix.'_default');
+					echo '</span>';
+				}
+
+				if ($print_cascade_values_option) {
+					echo '<span class="sq-metadata-cascade-wrapper">';
+						check_box($prefix.'_cascade_value', '1', FALSE);
+						label(translate('cascade_value'), $prefix.'_cascade_value');
+					echo '</span>';
+				}
+			echo '</span>';
+
 			$ra_styles = ($is_default && $enable_default) ? 'display:none' : 'display:block';
     	    echo '<div id="'.$prefix.'_ra_container'.'" style="float:left; '.$ra_styles.'">';
 			asset_finder($prefix.'_value', $value_str);
 			echo '</div>';
 
 			$default_ra_styles = !($is_default && $enable_default) ? 'display:none' : 'display:block';
-    	    echo '<div id="'.$prefix.'_default_ra_container'.'" style="float:left; '.$default_ra_styles.'">';
-			echo !$default_value ? 'No default asset!' : get_asset_tag_line($default_value);
+    	    echo '<div id="'.$prefix.'_default_ra_container'.'" style="'.$default_ra_styles.'">';
+			echo !$default_value ? '<em>No default asset set</em>' : get_asset_tag_line($default_value);
 			echo '</div>';
-
-			if ($enable_default) {
-				echo ' &nbsp; &nbsp; &nbsp; ';
-				$default_string = str_replace("'", "\'", $asset->attr('default'));
-				// get rid of javascript error 'unterminated string literal'. (bug 2386)
-				$default_string = str_replace(Array("\r\n", "\r", "\n"), '\n', $default_string);
-
-				$checkbox_extra = 'with(this.form.elements[\''.$prefix.'_value\']) { disabled = this.checked; if (this.checked) { value = \''.$default_string.'\'; } else {if(value==\'\') {value=\' \'; value = \'\';}}};';
-
-				check_box($prefix.'_default', '1', $is_default, 'handleMetadataRelatedAssetDefaultClickFor'.$prefix.'()');
-				label(translate('use_default'), $prefix.'_default');
-			}
-
-			if ($print_cascade_values_option) {
-				echo '&nbsp;&nbsp;&nbsp;&nbsp;';
-				check_box($prefix.'_cascade_value', '1', FALSE);
-				label(translate('cascade_value'), $prefix.'_cascade_value');
-			}
 
 			?>
 				<script type="text/javascript"><!--
@@ -118,10 +123,14 @@ class Metadata_Field_Related_Asset_Edit_Fns extends Metadata_Field_Edit_Fns
 		<?php
 
 		} else {
+			echo '<span class="sq-metadata-settings-wrapper">';
+				if ($is_default) {
+					echo ' <em>('.translate('using_default_value').')</em>';
+				} else{
+
+				}	
+			echo '</span>';
             echo !$value_str ? translate('no_asset_selected') : get_asset_tag_line($value_str);
-			if ($is_default) {
-				echo ' <em style="color: #666">('.strtolower(translate('default')).')</em>';
-			}
 		}
 
 		return $write_access;
