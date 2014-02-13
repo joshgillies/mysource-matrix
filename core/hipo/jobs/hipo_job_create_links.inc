@@ -304,7 +304,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 						$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 						$trash_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($trash_folder->id, $asset->id, SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2);
-						$num_other_links = $GLOBALS['SQ_SYSTEM']->am->countLinks($asset->id, 'minor', SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2, '', TRUE, $current['linkid']);
+						$num_other_links = $GLOBALS['SQ_SYSTEM']->am->countLinks($asset->id, 'minor', SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2, '', TRUE, $current);
 
 						if (!empty($trash_link)) $num_other_links--;
 						if (!$num_other_links) {

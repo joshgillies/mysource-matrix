@@ -396,7 +396,11 @@ function get_import_action_input_value($action, $attribute, $outputs=Array(), $i
 		$value = $action[$attribute][0];
 	}
 
-	if (isset($input_values[(string)$value]) === true) return $input_values[$value];
+	if (!is_array($value)) {
+		if (isset($input_values[(string)$value]) === true) {
+			return $input_values[$value];
+		}
+	}
 
 	// loop until there are no more changes
 	do {
