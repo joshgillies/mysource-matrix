@@ -349,8 +349,8 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 		$o->openSection(translate('preview_options'));
 			$o->openField(translate('available_urls'));
 				echo '<ul style="margin-top: 0;">';
-				foreach ($preview_urls as $primary_url) {
-					echo '<li><a href="'.$preview_urls[$primary_url].'" target="_blank">'.$preview_urls[$primary_url].'</a></li>';
+				foreach ($preview_urls as $index => $primary_url) {
+					echo '<li><a href="'.$preview_urls[$index].'" target="_blank">'.$preview_urls[$index].'</a></li>';
 				}
 				echo '</ul>';
 			$o->closeField();
