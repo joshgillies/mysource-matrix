@@ -900,7 +900,7 @@ class Image_Variety extends Asset
 		if (!$filename) return;
 		$size = getimagesize($this->data_path.'/'.$filename);
 
-		$tag = '<img src="'.$this->getURL().'" '.$size[3].' alt="'.$alt.'" title="'.$title.'" />';
+		$tag = '<img src="'.$this->getURL().'" '.$size[3].' alt="'.htmlentities($alt).'" title="'.htmlentities($title).'" />';
 		if ($return) return $tag;
 		echo $tag;
 
