@@ -1087,15 +1087,16 @@ ACQUIRE LOCKS AREA
 
 .sq-locks-button-wrapper .sq-btn-blue{
 	width:						120px;
+	height:						35px;
 }
 
-.sq-locks-button-wrapper input.sq-btn-blue, 
-.sq-locks-button-wrapper .sq-btn-blue {
-	background: 				#2D77C2 url(../images/button-loader-blue.gif) center -100px no-repeat; 
+.sq-locks-button-wrapper input.sq-btn-blue{
+	background-image: 			url(../images/button-loader-blue.gif);
+	background-repeat: 			no-repeat;
+	background-position: 		center -100px; 
 }
 
-.sq-locks-button-wrapper input.sq-btn-blue.loading, 
-.sq-locks-button-wrapper .sq-btn-blue.loading {
+.sq-locks-button-wrapper input.sq-btn-blue.loading{
 	background: 				#2D77C2 url(../images/button-loader-blue.gif) center center no-repeat; 
 }
 
@@ -2506,18 +2507,16 @@ ul.radio-list {
 	padding: 					8px 13px;
 }
 
-#sq-commit-button-div-inside input.sq-btn-green, 
-#sq-commit-button-div-inside .sq-btn-green {
-	background: 				#419041 url(../images/button-loader-green.gif) center -100px no-repeat; 
+#sq-commit-button-div-inside input.sq-btn-green{
+	background-image: 			url(../images/button-loader-green.gif);
+	background-repeat: 			no-repeat;
+	background-position: 		center -100px; 
 }
 
-#sq-commit-button-div-inside input.sq-btn-green.loading, 
-#sq-commit-button-div-inside .sq-btn-green.loading {
-	background: 				#419041 url(../images/button-loader-green.gif) center center no-repeat; 
-}
-
-#sq-commit-button-div-inside input[type=button].loading{
+#sq-commit-button-div-inside input.sq-btn-green.loading{
 	min-width:					72px;
+	height:						35px;
+	background: 				#419041 url(../images/button-loader-green.gif) center center no-repeat; 
 }
 
 #sq_context_switcher_current {
