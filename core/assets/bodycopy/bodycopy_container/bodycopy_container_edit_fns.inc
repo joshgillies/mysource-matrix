@@ -640,33 +640,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	{
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
-		// if there's a preview url set for this asset, get the design info for
-		// it.
-		if (isset($GLOBALS['sq_preview_url']) && !empty($GLOBALS['sq_preview_url'])) {
-			// save css ids into global var
-			$css_urls = $this->_saveCssIds($o);
-			if (!is_null($css_urls)) {
-					?>
-					<style type="text/css">
-						/* import styles from the design for this asset */
-						<?php
-						foreach ($css_urls as $cssid => $css_url) {
-							?>@import url("<?php echo $css_url; ?>");<?php
-						}
-						?>
-					</style>
-					<?php
-			} else {
-				?>
-				<p class="sq-backend-notice"><b>NOTE:</b> This asset does not have a design applied to it for the URL currently being edited [<b><?php echo $GLOBALS['sq_preview_url']; ?></b>]. No style information is available to use for content editing.</p>
-				<?php
-			}
-		} else {
-			?>
-			<p class="sq-backend-notice"><b>NOTE:</b> This asset does not have a preview URL or design applied to it in this context. No style information is available to use for content editing.</p>
-			<?php
-		}
-
+		
 		// if there's no write access to the content
 		if (!$asset->writeAccess('content')) {
 			if ($asset->useSystemVersion()) {
@@ -814,23 +788,8 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 				}
 
 				// How far down the page we want to display this popup?
-				// If we can get the bodycopy divs id, we can figure out exactly where to position the popup so it is 
-				// relative to the button the user clicks on instead of where they are scrolled to for better user experience
-				// Also, only do this if we are in _admin mode and in IE11 or above, if not, result to old method
-				if ((bodycopy_has_class(document.getElementById('sq-content'), 'main')) && (bodycopy_type != undefined && bodycopy_id != undefined)) {
-					var bodycopy_parent_td = document.getElementById('bodycopy_' + asset_id + '_' + bodycopy_type + '_' + bodycopy_id);
-					var xPosition = 0;
-		    		var yPosition = 0;
-				    while(bodycopy_parent_td.className != 'sq-backend-section-table-inner') {
-				        xPosition += (bodycopy_parent_td.offsetLeft);
-				        yPosition += (bodycopy_parent_td.offsetTop);
-				        bodycopy_parent_td = bodycopy_parent_td.offsetParent;
-				    }
-		  			bodycopy_popup.move(20, yPosition + 27);
-				} else {
-					var scroll_top  = ((is_ie4up) ? (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop  : self.pageYOffset);
-					bodycopy_popup.move(null, scroll_top - 100 + top_offset);
-				}
+				var scroll_top  = ((is_ie4up) ? (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop  : self.pageYOffset);
+				bodycopy_popup.move(null, scroll_top  + top_offset);
 				bodycopy_popup.show();
 			}//end bodycopy_show_popup()
 

@@ -461,8 +461,15 @@ input.sq-btn-small,
 	line-height: 				23px;
 }
 
+input.sq-btn-large.loading, 
+.sq-btn-large.loading {
+	font-size:					0;
+	box-shadow: 				0 1px 0 rgba(255, 255, 255, 0.2) inset !important;
+	cursor: 					wait;
+}
+
 input.sq-btn-green, 
-.sq-btn-green {
+.sq-btn-green { 
 	border-color: 				#072514;
 	background: 				#419041;
 	color: 						#dcf6dc;
@@ -933,6 +940,7 @@ MAIN EDITING FRAME TABLE AND SECTION STRUCTURE
 	margin-bottom: 				-1px;
 }
 
+.sq-backend-body-wrapper > input:first-child + script + a + .sq-backend-section-table-wrapper,
 .sq-backend-body-wrapper > input:first-child + a + .sq-backend-section-table-wrapper, 
 .sq-backend-body-wrapper > a:first-child + .sq-backend-section-table-wrapper, 
 .sq-backend-section-div-wrapper.first{
@@ -974,7 +982,8 @@ MAIN EDITING FRAME TABLE AND SECTION STRUCTURE
 	margin: 					0px;
 }
 
-.sq-backend-body-wrapper > input:first-child + a + .sq-backend-section-table-wrapper .sq-backend-section-heading,
+.sq-backend-body-wrapper > input:first-child + script + a + .sq-backend-section-table-wrapper .sq-backend-section-heading, 
+.sq-backend-body-wrapper > input:first-child + a + .sq-backend-section-table-wrapper .sq-backend-section-heading, 
 .sq-backend-body-wrapper > a:first-child + .sq-backend-section-table-wrapper .sq-backend-section-heading{
 	border-top: 				none;
 	border-top-left-radius: 	4px;
@@ -1074,6 +1083,20 @@ ACQUIRE LOCKS AREA
 
 .sq-locks-button-wrapper {
 	padding: 					5px 0 19px;
+}
+
+.sq-locks-button-wrapper .sq-btn-blue{
+	width:						120px;
+}
+
+.sq-locks-button-wrapper input.sq-btn-blue, 
+.sq-locks-button-wrapper .sq-btn-blue {
+	background: 				#2D77C2 url(../images/button-loader-blue.gif) center -100px no-repeat; 
+}
+
+.sq-locks-button-wrapper input.sq-btn-blue.loading, 
+.sq-locks-button-wrapper .sq-btn-blue.loading {
+	background: 				#2D77C2 url(../images/button-loader-blue.gif) center center no-repeat; 
 }
 
 .sq-backend-lock-table {
@@ -2481,6 +2504,20 @@ ul.radio-list {
 
 #sq-commit-button-div-inside input[type=button]{
 	padding: 					8px 13px;
+}
+
+#sq-commit-button-div-inside input.sq-btn-green, 
+#sq-commit-button-div-inside .sq-btn-green {
+	background: 				#419041 url(../images/button-loader-green.gif) center -100px no-repeat; 
+}
+
+#sq-commit-button-div-inside input.sq-btn-green.loading, 
+#sq-commit-button-div-inside .sq-btn-green.loading {
+	background: 				#419041 url(../images/button-loader-green.gif) center center no-repeat; 
+}
+
+#sq-commit-button-div-inside input[type=button].loading{
+	min-width:					72px;
 }
 
 #sq_context_switcher_current {

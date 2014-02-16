@@ -137,7 +137,7 @@ function createFolder($folder_destination_id, $new_folder_name)
 
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
 
-	$folder_destination =& $GLOBALS['SQ_SYSTEM']->am->getAsset($folder_destination_id);
+	$folder_destination = $GLOBALS['SQ_SYSTEM']->am->getAsset($folder_destination_id);
 	if (empty($folder_destination)) {
 		trigger_error("could not get the asset $folder_destination_id\n", E_USER_ERROR);
 	}
@@ -229,9 +229,9 @@ foreach ($import_dirs as $import_dir) {
 	$import_path = $import_home_dir.'/'.$import_dir;
 
 	if (empty($matrix_root_assetid)) {
-		$parent_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset(trim($import_dir));
+		$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset(trim($import_dir));
 	} else {
-		$parent_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset(getMatrixFolderId(trim($import_dir), $matrix_ids));
+		$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset(getMatrixFolderId(trim($import_dir), $matrix_ids));
 		// overwrite the import path because we are using fullpath
 		$import_path = $import_dir;
 	}
