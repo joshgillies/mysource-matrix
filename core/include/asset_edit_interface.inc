@@ -2620,11 +2620,7 @@ class Asset_Edit_Interface extends MySource_Object
 			$screens_all[$screen['name']] = $key;
 		}
 
-		$o->openRaw();
-		?>
-			<div><h1 style="font-size:1.7em;">General Screens</h1></div>
-		<?php
-		$o->closeRaw();
+		$o->openSection('General Screens');
 
 		// loop through all the screen and all the xml files
 		foreach ($screens_all as $current_screen_name => $current_screen) {
@@ -2722,46 +2718,13 @@ class Asset_Edit_Interface extends MySource_Object
 				}
 			}//end if
 
-			$o->openRaw();
-			?>
-				<style type="text/css">
-				.screen_kw, .section_kw, .field_kw {
-					font-weight:normal;
-				}
-
-				.field_kw {
-					display:block;
-				}
-
-				.section_title, .field_title {
-				}
-
-				.section_title {
-				}
-				.field_title {
-					margin:0;
-					padding:0;
-				}
-				#limbo_keywords .sq-backend-field {
-					padding-bottom:0;
-				}
-				</style>
-				<div id="limbo_keywords">
-			<?php
-
-			$o->closeRaw();
 			$counter = 0;
 			reset($screens_specific);
 
 			if (!strcmp($current_screen, current($screens_specific))) {
-
-				$o->openRaw();
-				?>
-				<div><h1 style="font-size:1.7em;">Asset Specific Screens</h1></div>
-				<?php
-				$o->closeRaw();
-
-			}
+				$o->closeSection();
+				$o->openSection('Asset Specific Screens');
+			} 
 
 			// the dependant and format screens have some problems with the links displayed
 			// therefore we dont display dependants and format screens keywords
@@ -2786,46 +2749,79 @@ class Asset_Edit_Interface extends MySource_Object
 				}
 			}
 
-			foreach ($section_array as $tmp_section => $tmp_fields) {
-				// if the section name is empty
-				if (strlen($tmp_section) > 0) {
-					$o->openSection('<span class="section_title">Section <strong>"'.$tmp_section.'"</strong></span> <span class="section_kw">(%'.$current_screen.'-S_'.strtolower(str_replace(' ', '_', $tmp_section)).'%)</span>');
-				} else {
-					$o->openSection('&nbsp;');
-				}
+			$o->openField('', 'wide_col');
+			if (count($section_array) > 0 ){
+			?>
+				<table class="sq-backend-table compact">
+					<tr>
+						<th style="width: 40%">Name</th>
+						<th style="width: 60%">Keyword</th>
+					</tr>
+					<?php
+					foreach ($section_array as $tmp_section => $tmp_fields) {
+					?>
+						<tr>
+							<?php
+							// if the section name is empty
+							if (strlen($tmp_section) > 0) {
+								echo '<th>'.$tmp_section.' Section</th>';
+								echo '<th>%'.$current_screen.'-S_'.strtolower(str_replace(' ', '_', $tmp_section)).'%</th>';
+							} else {
+								echo '<th colspan="2">&nbsp;</th>';
+							}
+							?>
+						</tr>
+						<?php
+						// display the fields of that section
+						foreach ($tmp_fields as $tmp_field) {
+						?>
+							<tr>
+								<td><?php echo ucwords(str_replace('_', ' ', $tmp_field)) ?></td>
+								<td>%<?php echo $current_screen.'-F_'.$tmp_field ?>%</td>
+							</tr>
+						<?php
+						}//end foreach
+					}//end foreach			
+				?>
+				</table>
+			<?php
+			} else {
+				echo '<em>No available section or field keywords.</em>';
+			}
+			$o->closeField();
 
-				// display the fields of that section
-				foreach ($tmp_fields as $tmp_field) {
-					$o->openField('<span class="field_title">Field <strong>"'.$tmp_field.'"</strong></span>');
-					echo '<span class="field_kw">%'.$current_screen.'-F_'.$tmp_field.'%</span>';
-					$o->closeField();
-				}
-
+			if (!strcmp(strtolower($current_screen_name), 'metadata')) {
+				$o->openSection('Specific Metadata Keywords');
+				$o->openField('', 'wide_col');
+				?>
+					<table class="sq-backend-table compact">
+						<tr>
+							<th style="width: 40%">Name</th>
+							<th style="width: 60%">Keyword</th>
+						</tr>
+						<tr>
+							<td>Print a specific metadata section name</td>
+							<td>%metadata-F_section_{metadata section id}_name%</td>
+						</tr>
+						<tr>
+							<td>Print a specific metadata section description</td>
+							<td>%metadata-F_section_{metadata section id}_description%</td>
+						</tr>
+						<tr>
+							<td>Print a specific metadata section interface</td>
+							<td>%metadata-F_section_{metadata section id}_values%</td>
+						</tr>
+						<tr>
+							<td>Print a specific metadata schema field</td>
+							<td>%metadata-F_{metadata schema field id}%<br/>For example: <strong>%metadata-F_99999%</strong></td>
+						</tr>
+					</table>
+				<?php
+				$o->closeField();
 				$o->closeSection();
 			}
 
-			if (!strcmp(strtolower($current_screen_name), 'metadata')) {
-				$o->openField('<span class="field_title"><strong>Print a specific metadata section name</strong></span> ');
-				echo '<span class="field_kw">%metadata-F_section_{metadata section id}_name%</span>';
-				$o->closeField();
-				$o->openField('<span class="field_title"><strong>Print a specific metadata section description</strong></span> ');
-				echo '<span class="field_kw">%metadata-F_section_{metadata section id}_description%</span>';
-				$o->closeField();
-				$o->openField('<span class="field_title"><strong>Print a specific metadata section interface</strong></span> ');
-				echo '<span class="field_kw">%metadata-F_section_{metadata section id}_values%</span>';
-				$o->closeField();
-				$o->openField('<span class="field_title"><strong>Print a specific metadata schema field</strong></span> ');
-				echo '<span class="field_kw">%metadata-F_{metadata schema field id}%</span>';
-				$o->closeField();
-				$o->openRaw();
-				echo '<span class="field_title">For example: %metadata-F_99999%</span>';
-				$o->closeRaw();
-			}
-
 			$o->closeSection();
-			$o->openRaw();
-			echo '</div>';
-			$o->closeRaw();
 		}//end foreach
 
 	}//end getSimpleEditKeywords()

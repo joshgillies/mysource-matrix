@@ -78,8 +78,10 @@ class Cron_Job_Future_Status_Edit_Fns extends Cron_Job_Edit_Fns
 		$this->_paintWhenBox($asset, $o, $prefix, $when, $form_extra_elements);
 
 		echo '&nbsp;';
-		check_box($prefix.'_change_status_all_children', '1', $cascade);
-		echo translate('cascade_status_change');
+			echo '<span class="sq-keep-inline">';
+				check_box($prefix.'_change_status_all_children', '1', $cascade);
+				label(translate('cascade_status_change'), $prefix.'_change_status_all_children');
+			echo '</span>';
 		echo '</span>';
 
 		return TRUE;

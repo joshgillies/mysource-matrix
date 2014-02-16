@@ -25,7 +25,7 @@
 	<section name="Special Page Links">
 		<field>
 			<display_name>Index</display_name>
-			<note>The Asset that gets printed by default when no additional path is provided</note>
+			<note>The Asset that gets printed by default when no additional path is provided.</note>
 			<function_call>
 				<paint_function   name="paintIndexPage"   />
 				<process_function name="processIndexPage" />
@@ -33,7 +33,7 @@
 		</field>
 		<field>
 			<display_name>Not Found Page</display_name>
-			<note>The Asset that gets printed when the URI that the user has entered does not exist</note>
+			<note>The Asset that gets printed when the URI that the user has entered does not exist.</note>
 			<function_call>
 				<paint_function   name="paintNotFoundPage"   />
 				<process_function name="processNotFoundPage" />
@@ -51,7 +51,7 @@
 	<section name="Not Found Page Options">
 		<field>
 			<display_name>Override Design</display_name>
-			<note>This will override the design based on the current URI that the user has entered</note>
+			<note>This will override the design based on the current URI that the user has entered.</note>
 			<function_call>
 				<paint_function   name="paintNotFoundPageDesign"   />
 				<process_function name="processNotFoundPageDesign" />
@@ -59,7 +59,7 @@
 		</field>		
 		<field>
 			<display_name>Override Paint Layout</display_name>
-			<note>This will override the paint layout based on the current URI that the user has entered</note>
+			<note>This will override the paint layout based on the current URI that the user has entered.</note>
 			<function_call>
 				<paint_function   name="paintNotFoundPagePaintLayout"   />
 				<process_function name="processNotFoundPagePaintLayout" />
