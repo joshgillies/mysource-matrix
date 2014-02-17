@@ -552,7 +552,7 @@ class Page_Standard extends Page
 				$keywords['begin_'.$condition_name] = 'Begin '.ucwords(str_replace('_', ' ', $condition_name));
 				$keywords['else_'.$condition_name] = 'Else '.ucwords(str_replace('_', ' ', $condition_name));
 				$keywords['end_'.$condition_name] = 'End '.ucwords(str_replace('_', ' ', $condition_name));
-				$keywords['begin_'.$condition_name.'%<br />%else_'.$condition_name.'%<br />%end_'.$condition_name] = 'Full Structure For '.ucwords(str_replace('_', ' ', $condition_name));
+				$keywords['begin_'.$condition_name.'% %else_'.$condition_name.'% %end_'.$condition_name] = 'Full Structure For '.ucwords(str_replace('_', ' ', $condition_name));
 		    }
 		}
 		$vars['keywords'] = array_merge($vars['keywords'], $keywords);

@@ -1129,6 +1129,7 @@ class Asset_Edit_Interface extends MySource_Object
 								if (empty($paint_node->attributes()->name) || !method_exists($this->_edit_fns, $paint_node->attributes()->name)) {
 									$o->note(translate('specific_painting_function_not_found', $paint_node->attributes()->name));
 								} else {
+									
 									$method_name = (string) $paint_node->attributes()->name;
 									if ($this->_edit_fns->{$method_name}($owner, $o, $prefix, $onclick_js)) {
 										$print_commit_button = TRUE;

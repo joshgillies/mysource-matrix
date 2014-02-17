@@ -584,7 +584,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 				$keywords['begin_'.$condition_name] = translate('core_paint_layout_bodycopy_begin').' '.ucwords(str_replace('_', ' ', $condition_name));
 				$keywords['else_'.$condition_name] = translate('core_paint_layout_bodycopy_else').' '.ucwords(str_replace('_', ' ', $condition_name));
 				$keywords['end_'.$condition_name] = translate('core_paint_layout_bodycopy_end').' '.ucwords(str_replace('_', ' ', $condition_name));
-				$keywords['begin_'.$condition_name.'%<br />%else_'.$condition_name.'%<br />%end_'.$condition_name] = translate('core_paint_layout_bodycopy_full').' '.ucwords(str_replace('_', ' ', $condition_name));
+				$keywords['begin_'.$condition_name.'% %else_'.$condition_name.'% %end_'.$condition_name] = translate('core_paint_layout_bodycopy_full').' '.ucwords(str_replace('_', ' ', $condition_name));
 			}
 
 			ksort($keywords);
