@@ -165,7 +165,7 @@ class format_font extends wysiwyg_plugin
 			this._execCommand(txt, false, value);
 		break;
 		case "formatblock":
-			if (HTMLArea.is_ie) { // sad but true
+			if (HTMLArea.is_ie || HTMLArea.is_post_ie11) { // sad but true
 				value = "<" + value + ">";
 			}
 			this._execCommand(txt, false, value);

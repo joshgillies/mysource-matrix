@@ -42,6 +42,8 @@ HTMLArea.is_ie_compatibility  = (HTMLArea.is_ie7 &&
 									 HTMLArea.agt.indexOf("trident/5.0") != -1 || 
 									 HTMLArea.agt.indexOf("trident/4.0") != -1)
 								 );
+// If browser is >= IE11
+HTMLArea.is_post_ie11 = Boolean(navigator.userAgent.match(/Trident\/\d{1,}[\.\d]*;/)) && navigator.appName=="Netscape";
 
 // variable used to pass the object to the popup editor window.
 HTMLArea._object = null;
