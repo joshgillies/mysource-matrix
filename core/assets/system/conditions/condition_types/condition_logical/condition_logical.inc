@@ -88,19 +88,19 @@ class Condition_Logical extends Condition
 	public static function evaluate(Asset $asset, $condition_data)
 	{
 		$ret = FALSE;
-
 		if (!empty($condition_data['operator']) && !empty($condition_data['logical_keywords'])) {
 			// replace global and non-global keywords
 			foreach ($condition_data['logical_keywords'] as $keyword => $value) {
 				// Replace only if the conditional keyword is not already replaced
-				if (is_null($value) || $value == '%'.$keyword.'%') {
-					if (preg_match('/^globals_/', $keyword)) {
+				if (empty($value) || $value === '%'.$keyword.'%') {
+					if (strpos($keyword, 'globals_') === 0) {
 						$value = '%'.$keyword.'%';
 						replace_global_keywords($value);
 					} else {
 						$value = $asset->getKeywordReplacement($keyword);
 					}
-					$condition_data['logical_keywords'][$keyword] = $value;
+					// Blank out the non-replaced keyword, otherwise it will be interpreted as TRUE
+					$condition_data['logical_keywords'][$keyword] = $value == '%'.$keyword.'%' ? '' : $value;
 				}
 			}
 
