@@ -998,7 +998,7 @@ class File extends Asset
 	* @return boolean
 	* @access public
 	*/
-	public function saveAttributes($dont_run_updated=FALSE)
+	public function saveAttributes($dont_run_updated=FALSE, $log_message=TRUE)
 	{
 		if (!$this->id) return TRUE;
 
@@ -1017,14 +1017,14 @@ class File extends Asset
 				$new_filename = $this->attr('name');
 
 				// try and set the new filename - return FALSE if it fails
-				if (!parent::saveAttributes($dont_run_updated)) {
+				if (!parent::saveAttributes($dont_run_updated, $log_message)) {
 					return FALSE;
 				}
 
 				if (is_file($this->data_path.'/'.$old_filename)) {
 					if (!$this->_renameFile($this->data_path, $old_filename, $new_filename)) {
 						parent::setAttrValue('name', $old_filename);
-						parent::saveAttributes($dont_run_updated);
+						parent::saveAttributes($dont_run_updated, $log_message);
 						return FALSE;
 					}
 				}
@@ -1111,7 +1111,7 @@ class File extends Asset
 	* @return boolean
 	* @access public
 	*/
-	public function setAttrValue($name, $value)
+	public function setAttrValue($name, $value, $filter=NULL)
 	{
 		$uploading_file = (!empty($this->_tmp['uploading_file'])) ? TRUE : FALSE;
 		$created_file = isset($this->_tmp['file_create_data']['created_file']) ? $this->_tmp['file_create_data']['created_file'] : FALSE;
@@ -1146,7 +1146,7 @@ class File extends Asset
 			}
 		}
 
-		return parent::setAttrValue($name, $value);
+		return parent::setAttrValue($name, $value, $filter);
 
 	}//end setAttrValue()
 
@@ -1416,14 +1416,14 @@ class File extends Asset
 	* @return string
 	* @access public
 	*/
-	public function getURL($base_url=NULL, $ignore_rollback=FALSE)
+	public function getURL($base_url=NULL, $ignore_rollback=FALSE, $base_contextid=NULL)
 	{
 		if (SQ_ROLLBACK_VIEW) {
 			if (is_null($base_url)) $base_url = current_url();
 			$base_url = strip_url($base_url, FALSE);
 			return $base_url.'/?a='.$this->id;
 		} else {
-			return parent::getURL($base_url, $ignore_rollback);
+			return parent::getURL($base_url, $ignore_rollback, $base_contextid);
 		}
 
 	}//end getURL()
@@ -1613,13 +1613,13 @@ class File extends Asset
 	* @return boolean
 	* @access public
 	*/
-	public function delete($release_lock=TRUE)
+	public function delete($release_lock=TRUE, $check_locked=TRUE)
 	{
 		$this->_tmp['deleting_file'] = TRUE;
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		if (!parent::delete($release_lock)) {
+		if (!parent::delete($release_lock, $check_locked)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
