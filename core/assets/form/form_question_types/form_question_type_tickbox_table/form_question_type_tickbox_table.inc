@@ -161,7 +161,7 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 					if ($type == 'passive') {
 						$to_output .= ' '.translate('core_form_tickbox_table_incorrectly_displayed');
 					}
-					$to_output .= '</div>';
+					$to_output .= '</div></th>';
 				} else {
 					$extras = $this->attr('extra');
 
@@ -170,7 +170,7 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 					}
 
 					$header = array_shift($question_contents);
-					$to_output .= array_shift($header).'</td>';
+					$to_output .= array_shift($header).'</th>';
 					foreach ($header as $key=>$title) {
 						$to_output .= '<th class="sq-backend-table-header" scope="col">'.$title.'</th>';
 					}
@@ -182,7 +182,7 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 						if ($j % 2 == 0) $to_output .= ' class="even"';
 						$to_output .= '>';
 
-						$to_output .= '<th class="sq-backend-table-header" scope="row">'.array_shift($question).'</td>';
+						$to_output .= '<th class="sq-backend-table-header" scope="row">'.array_shift($question).'</th>';
 						foreach ($question as $option_id=>$option) {
 							$to_output .= '<td class="sq-backend-table-cell">';
 							if (empty($option)) {
