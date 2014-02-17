@@ -355,6 +355,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 				$prefs = new $pref_name($pref_file_path);
 
 				foreach ($pref_vars as $var_name => $var_data) {
+					if(!isset($var_data['name'])) continue;
 					$o->openField(translate($var_data['name']));
 						if (isset($custom_preferences[$type_code][$var_name])) {
 							echo '<p>'.translate('preference_currently_customised');
