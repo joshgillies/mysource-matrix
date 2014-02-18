@@ -104,6 +104,10 @@ class Paint_Layout_Bodycopy extends Bodycopy
 		$required_substitution_keywords = Array();
 		$required_substitution_asset_keywords = Array();
 
+		// Get conditional keywords names setup for this bodycopy
+		$condition_list = new Conditions_List($this, 'conditional_keywords');
+		$condition_names = $condition_list->getConditionsNames();
+
 		$containers = $this->getContainers();
 		foreach (array_keys($containers) as $i) {
 			ob_start();
@@ -148,6 +152,11 @@ class Paint_Layout_Bodycopy extends Bodycopy
 						$keyword_replacements[$keyword] = $value;
 					} else {
 						$required_substitution_asset_keywords[$keyword] = 1;
+
+						// Get required keywords for the stand-alone conditional keyword
+						if (!isset($required_substitution_keywords[$keyword]) && in_array($keyword, $condition_names)) {
+							 $this->_addRequiredKeywordsFromEvaluatedKeyword($keyword, $required_substitution_keywords);
+						}
 					}
 				}
 			}//end foreach
@@ -185,7 +194,7 @@ class Paint_Layout_Bodycopy extends Bodycopy
 		if (!is_dir($this->data_path)) {
 			create_directory($this->data_path);
 		}
-		
+
 		$contextid = (int)$GLOBALS['SQ_SYSTEM']->getContextId();
 		$file_name = 'content_file'.(($contextid === 0) ? '' : ('.'.$contextid)).'.php';
 		$keyword_name = 'keywords'.(($contextid === 0) ? '' : ('.'.$contextid));
