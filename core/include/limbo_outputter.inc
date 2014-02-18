@@ -378,7 +378,7 @@ class Limbo_Outputter extends Backend_Outputter
 			case 'commit' :
 				?>
 				<tr>
-					<td class="sq-backend-data sq-backend-commit" colspan="2">
+					<td class="sq-backend-data sq-backend-commit">
 				<?php
 			break;
 
@@ -422,7 +422,7 @@ class Limbo_Outputter extends Backend_Outputter
 					// printing a nested section - needs to look a little different
 					?>
 					<tr>
-						<td class="sq-limbo-section-subheading" colspan="2"><?php echo $section['heading'];?></td>
+						<td class="sq-limbo-section-subheading"><?php echo $section['heading'];?></td>
 					</tr>
 					<?php
 				} else {
@@ -430,7 +430,7 @@ class Limbo_Outputter extends Backend_Outputter
 					// printing a top level section
 					?>
 					<tr>
-						<td class="sq-limbo-section-heading" colspan="2"><?php echo $section['heading'];?></td>
+						<td class="sq-limbo-section-heading"><?php echo $section['heading'];?></td>
 					</tr>
 					<?php
 				}
