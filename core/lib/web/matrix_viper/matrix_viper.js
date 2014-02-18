@@ -53,6 +53,7 @@ var Matrix_Viper = new function() {
 		    'MatrixCopyPastePlugin',
 		    'MatrixImagePlugin',
 		    'MatrixLinkPlugin',
+		    "MatrixKeywordsPlugin",
 		    'ViperAccessibilityPlugin',
 		    'ViperSourceViewPlugin',
 		    'ViperSearchReplacePlugin',
@@ -63,7 +64,7 @@ var Matrix_Viper = new function() {
 	    viperName: 'admin-viper',
 
 	    // The order of buttons for the wysiwyg
-	    buttons: [['bold', 'italic', 'subscript', 'superscript', 'strikethrough', 'class'], 'removeFormat', ['justify', 'formats', 'headings'], ['undo', 'redo'], ['unorderedList', 'orderedList', 'indentList', 'outdentList'], 'insertTable', 'image', 'hr', ['insertLink', 'removeLink', 'anchor'], 'insertCharacter', 'searchReplace', 'langTools', 'accessibility', 'sourceEditor'],
+	    buttons: [['bold', 'italic', 'subscript', 'superscript', 'strikethrough', 'class'], 'removeFormat', ['justify', 'formats', 'headings'], ['undo', 'redo'], ['unorderedList', 'orderedList', 'indentList', 'outdentList'], 'insertTable', 'image', 'hr', ['insertLink', 'removeLink', 'anchor'], 'insertCharacter', 'searchReplace', 'langTools', 'accessibility', 'sourceEditor', ['insertKeywords', 'insertSnippets']],
 
 	    inlineButtons: [['bold', 'italic', 'class'], ['justify', 'formats', 'headings'], ['unorderedList', 'orderedList', 'indentList', 'outdentList'], ['insertLink', 'removeLink', 'anchor'], ['image', 'imageMove']]
 	};

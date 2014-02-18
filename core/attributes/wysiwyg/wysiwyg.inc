@@ -91,7 +91,7 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 	* @return object WYSIWYG
 	* @access private
 	*/
-	function &_createEditor($prefix)
+	function &_createEditor($prefix, $snippets=Array())
 	{
 		// allowed plugins (shortened to $ap for easier use below)
 		$ap = explode('|', $GLOBALS['SQ_SYSTEM']->getUserPrefs('content_type_wysiwyg', 'SQ_WYSIWYG_PLUGINS'));
@@ -106,11 +106,6 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 		$wysiwyg->set_width($this->_edit_params['width']);
 		$wysiwyg->set_height($this->_edit_params['height']);
 
-		// get the keyword replacements
-		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
-		$keywords = Array();
-		$keyword_vars = Array('keywords' => &$keywords);
-		$em->broadcastEvent($asset, 'requestKeywords', $keyword_vars);
 
 		$wysiwyg->open_group();
 			if ($iap || in_array('format_text', $ap)) {
@@ -142,16 +137,10 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 		if ($iap || in_array('justify_text', $ap)) {
 			$wysiwyg->add_plugin('justify_text');
 		}
-		if (($iap || in_array('keyword_replace', $ap)) && !empty($keywords)) {
-			$wysiwyg->add_plugin('keyword_replace');
-			$keyword_replace =& $wysiwyg->get_plugin('keyword_replace');
-			$keyword_replace->keyword_tag = '%';
-			$keyword_replace->keywords = $keywords;
-		}
+
 
 		// Snippet global keyword dropdown
 		// However if in frontend do not include this plugin, as it will output global keywords
-		$snippets = $GLOBALS['SQ_SYSTEM']->am->getSnippetKeywords();
 		if ((SQ_IN_BACKEND || SQ_IN_LIMBO) && ($iap || in_array('snippet_keyword_replace', $ap)) && !empty($snippets)) {
 			$wysiwyg->add_plugin('snippet_keyword_replace');
 			$snippet_keyword_replace =& $wysiwyg->get_plugin('snippet_keyword_replace');
@@ -280,7 +269,11 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 
 		$this->_saveCssAssetIds();
 
-		$wysiwyg = $this->_createEditor($prefix);
+		// get snippet replacements
+		$snippets = $GLOBALS['SQ_SYSTEM']->am->getSnippetKeywords();
+		$snippets_encoded = htmlentities(json_encode_array($snippets));
+		
+		$wysiwyg = $this->_createEditor($prefix, $snippets);
 
 		//The following will only print in Safe Edit or EES
 		//Hot fixes for old EES
@@ -324,12 +317,14 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 		<div class="sq-wysiwyg-standalone-body with-bottom-margin">
 		<?php
 		$o = $GLOBALS['SQ_SYSTEM']->backend->out;
+		    
 		if(!is_null($o) && $o->isViperAvailable()) {
+			    
 		    $o->enableViperEditor();	    
 		    // Use a hidden input to pass the Viper edited content to Matrix backend form
 		    $o->addOnSubmit('document.getElementById("'.$prefix.'_contents_div_viper_input").value = document.getElementById("'.$prefix.'_contents_div_viper").innerHTML;');
 		    ?>
-		  <div id="<?php echo $prefix?>_contents_div_viper" class="with-viper"><?php echo $this->value;?></div>
+		  <div id="<?php echo $prefix?>_contents_div_viper" class="with-viper"  data-snippets="<?php echo $snippets_encoded; ?>"><?php echo $this->value;?></div>
 		  <input  id="<?php echo $prefix?>_contents_div_viper_input" style="display:none;" name="<?php echo $prefix?>_contents_div_viper_input" value=""/>
 		  <?php
 		}
@@ -337,7 +332,7 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 		?>
 		    
 			    <div style="display:none;" id="<?php echo $prefix?>_wysiwyg_div"><?php echo $wysiwyg->paint()?></div>
-			    <div id="<?php echo $prefix?>_contents_div" class="sq-wysiwyg-preview-wrapper" onclick="editDiv=document.getElementById('<?php echo $prefix ?>_wysiwyg_div'); if (editDiv !== null && editDiv.style.display == 'none') {switchEditingMode('<?php echo $prefix ?>_contents_div','<?php echo $prefix ?>_wysiwyg_div', editor_<?php echo $prefix ?>);}"><?php echo $this->value?></div>
+			    <div id="<?php echo $prefix?>_contents_div" class="sq-wysiwyg-preview-wrapper"  data-snippets="<?php echo $snippets_encoded; ?>" onclick="editDiv=document.getElementById('<?php echo $prefix ?>_wysiwyg_div'); if (editDiv !== null && editDiv.style.display == 'none') {switchEditingMode('<?php echo $prefix ?>_contents_div','<?php echo $prefix ?>_wysiwyg_div', editor_<?php echo $prefix ?>);}"><?php echo $this->value?></div>
 		    
 		<?php
 		}
