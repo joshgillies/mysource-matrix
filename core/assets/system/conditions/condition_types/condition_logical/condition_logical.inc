@@ -88,19 +88,22 @@ class Condition_Logical extends Condition
 	public static function evaluate(Asset $asset, $condition_data)
 	{
 		$ret = FALSE;
-
 		if (!empty($condition_data['operator']) && !empty($condition_data['logical_keywords'])) {
 			// replace global and non-global keywords
 			foreach ($condition_data['logical_keywords'] as $keyword => $value) {
-				if (preg_match('/^globals_/', $keyword)) {
-					$value = '%'.$keyword.'%';
-					replace_global_keywords($value);  
-				} else {
-					$value = $asset->getKeywordReplacement($keyword);
+				// Replace only if the conditional keyword is not already replaced
+				if (empty($value) || $value === '%'.$keyword.'%') {
+					if (strpos($keyword, 'globals_') === 0) {
+						$value = '%'.$keyword.'%';
+						replace_global_keywords($value);
+					} else {
+						$value = $asset->getKeywordReplacement($keyword);
+					}
+					// Blank out the non-replaced keyword, otherwise it will be interpreted as TRUE
+					$condition_data['logical_keywords'][$keyword] = $value == '%'.$keyword.'%' ? '' : $value;
 				}
-				$condition_data['logical_keywords'][$keyword] = $value;
-			}		
-			
+			}
+
 			switch ($condition_data['operator']) {
 				case 'ALL':
 					$ret = TRUE;
@@ -147,7 +150,7 @@ class Condition_Logical extends Condition
 	{
 		$condition_logical_keywords = self::getLogicalKeywords($condition_data);
 		foreach (array_keys($condition_logical_keywords) as $condition_logical_keyword_name) {
-			$condition_logical_keywords[$condition_logical_keyword_name] = isset($logical_keywords[$condition_logical_keyword_name]) ? $logical_keywords[$condition_logical_keyword_name] : '';
+			$condition_logical_keywords[$condition_logical_keyword_name] = isset($logical_keywords[$condition_logical_keyword_name]) ? $logical_keywords[$condition_logical_keyword_name] : NULL;
 		}
 
 		self::setLogicalKeywords($condition_data, $condition_logical_keywords);
