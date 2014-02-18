@@ -343,7 +343,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		if (!empty($all_conditions)) {
 			$condition_count = count($all_conditions);
 			$desc = 'There are '.$condition_count.' available conditions to set';
-			$conditions_js = json_encode_array($all_conditions);
+			$conditions_js = json_encode_array(array_unique($all_conditions));
 		}
 		?>		
 		<table<?php echo $attribute_list?> class="sq-edit-bodycopy-section sq-<?php echo get_class_lower($content_type) ;?>-table">
