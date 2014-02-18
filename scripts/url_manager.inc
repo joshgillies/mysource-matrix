@@ -219,22 +219,16 @@ Make sure you have all you information you need before Proceeding\n");
                                         FROM sq_ast_lookup_value v
                                         INNER JOIN sq_ast_lookup l
                                         ON (l.url = v.url OR l.url || \'/\' = v.url)
-                                        INNER JOIN sq_ast_lnk k
-                                        ON (v.value=k.minorid)
                                         WHERE 
-                                        k.majorid=l.assetid
-                                        AND
                                         (
                                             (
-                                                k.value = \'paint_layout::system::frontend\'
-                                                or k.value = \'override::paint_layout::system::frontend\'
+                                               v.name LIKE \'paint_layout%\'
+		        OR v.name LIKE \'override::paint_layout%\'
                                             )
                                             OR 
                                             (
-                                              (
-                                                  v.name like \'design%\' AND (k.value=v.name OR k.value = \'override::\' || v.name)
-                                              )
-                                              or v.name like \'override::design%\'
+                                              v.name like \'design%\'
+                                              OR v.name like \'override::design%\'
                                             )
                                         )
                                         AND rtrim(v.url, \'/\') = l.url
