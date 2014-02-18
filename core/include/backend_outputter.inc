@@ -708,7 +708,9 @@ class Backend_Outputter
 	*/
 	function _nbCloseSection()
 	{
-		if ($this->_nb_section_count > 0) echo '</td></tr>';
+		// The counter "_nb_section_count" needs be > 1 to print the closing tags because 
+		// the opening <tr><td> tags are printed only if _nb_section_count > 0, and then the counter is incremented
+		if ($this->_nb_section_count > 1) echo '</td></tr>';
 
 		?>
 					</table>
