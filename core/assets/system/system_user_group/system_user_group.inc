@@ -124,7 +124,7 @@ class System_User_Group extends User_Group
 	* @return boolean
 	* @access public
 	*/
-	function setAttrValue($name, $value)
+	function setAttrValue($name, $value, $filter=NULL)
 	{
 
 		if ($name == 'name') {
@@ -132,7 +132,7 @@ class System_User_Group extends User_Group
 			return FALSE;
 		}
 
-		return parent::setAttrValue($name, $value);
+		return parent::setAttrValue($name, $value, $filter);
 
 	}//end setAttrValue()
 

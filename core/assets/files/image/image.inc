@@ -80,7 +80,7 @@ class Image extends File implements Bridge
 	* @access public
 	* @see asset::cloneComponents()
 	*/
-	function cloneComponents(&$clone, $components, $override=FALSE)
+	function cloneComponents(Asset &$clone, Array $components, $override=FALSE)
 	{
 		// need to go through the varieties that have already been added, and
 		// re-upload/create them underneath this asset - to get the file
@@ -295,7 +295,7 @@ class Image extends File implements Bridge
 	* @return boolean
 	* @access public
 	*/
-	function paintBackend(&$o)
+	function paintBackend(Backend_Outputter &$o)
 	{
 		if (!isset($_REQUEST['asset_ei_screen'])) {
 			return parent::paintBackend($o);
@@ -528,7 +528,7 @@ class Image extends File implements Bridge
 	* @return boolean
 	* @access private
 	*/
-	protected function _checkFileState()
+	protected function _checkFileState($filename='', $update_lookups=TRUE)
 	{
 		if ($this->status & SQ_SC_STATUS_SAFE_EDITING) return TRUE; //don't touch public file in safe edit
 
@@ -544,7 +544,7 @@ class Image extends File implements Bridge
 			}
 		}
 
-		return parent::_checkFileState();
+		return parent::_checkFileState($filename, $update_lookups);
 
 	}//end _checkFileState()
 

@@ -91,7 +91,7 @@ class Remap_Manager extends Asset
 	* @access private
 	* @see Asset::_getName()
 	*/
-	protected function _getName($short_name=FALSE)
+	protected function _getName($short_name=FALSE, $contextid=NULL)
 	{
 		return $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name');
 

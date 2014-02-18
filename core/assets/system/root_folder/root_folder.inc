@@ -57,7 +57,7 @@ class Root_Folder extends Folder
 	* @access public
 	* @see Asset::create()
 	*/
-	function create(&$link)
+	function create(Array &$link)
 	{
 		require_once SQ_CORE_PACKAGE_PATH.'/system/system_asset_fns.inc';
 		$this->_tmp[__CLASS__.'_in_create'] = TRUE;
@@ -186,7 +186,7 @@ class Root_Folder extends Folder
 	* @access private
 	* @see Asset::_getName()
 	*/
-	function _getName($short_name=FALSE)
+	function _getName($short_name=FALSE, $contextid=NULL)
 	{
 		return ($short_name) ? '/' : translate('root_folder');
 
@@ -228,7 +228,7 @@ class Root_Folder extends Folder
 	* @return boolean
 	* @access public
 	*/
-	function readAccess($assetids=Array())
+	function readAccess(Array $assetids=Array())
 	{
 		return TRUE;
 
@@ -247,7 +247,7 @@ class Root_Folder extends Folder
 	* @return boolean
 	* @access public
 	*/
-	function _checkPermissionAccess($perm, $assetids=Array())
+	function _checkPermissionAccess($perm, $assetids=Array(), $only_workflow=TRUE)
 	{
 		if (empty($assetids)) {
 			if ($GLOBALS['SQ_SYSTEM']->userRoot()) return TRUE;
@@ -256,7 +256,7 @@ class Root_Folder extends Folder
 			}
 			return FALSE;
 		} else {
-			return parent::_checkPermissionAccess($perm, $assetids);
+			return parent::_checkPermissionAccess($perm, $assetids, $only_workflow);
 		}
 
 	}//end _checkPermissionAccess()
@@ -271,14 +271,14 @@ class Root_Folder extends Folder
 	* @return boolean
 	* @access public
 	*/
-	function setAttrValue($name, $value)
+	function setAttrValue($name, $value, $filter=NULL)
 	{
 		if ($name == 'name' && empty($this->_tmp[__CLASS__.'_in_create'])) {
 			trigger_localised_error('CORE0112', E_USER_WARNING);
 			return FALSE;
 		}
 
-		return parent::setAttrValue($name, $value);
+		return parent::setAttrValue($name, $value, $filter);
 
 	}//end setAttrValue()
 

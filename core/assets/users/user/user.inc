@@ -185,7 +185,7 @@ class User extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function setAttrValue($name, $value)
+	function setAttrValue($name, $value, $filter=NULL)
 	{
 	    include_once SQ_FUDGE_PATH.'/general/security.inc';
 
@@ -209,7 +209,7 @@ class User extends Asset
 				$value = strtolower($value);
 		}
 
-		if (!parent::setAttrValue($name, $value)) return FALSE;
+		if (!parent::setAttrValue($name, $value, $filter)) return FALSE;
 
 		if ($name === 'password' && defined('SQ_PASSWD_RULE_PASSWORD_HISTORY') && SQ_PASSWD_RULE_PASSWORD_HISTORY > 0) {
 		    $history_passwords = $this->attr('history_passwords');
@@ -217,7 +217,7 @@ class User extends Asset
 			array_pop($history_passwords);
 		    }
 		    array_unshift($history_passwords, $value);
-		    parent::setAttrValue('history_passwords', $history_passwords);
+		    parent::setAttrValue('history_passwords', $history_passwords, $filter);
 		}
 		// tell the workspace (or anyone else listening) that the username has been updated
 		if ($name == 'username') {
@@ -234,11 +234,12 @@ class User extends Asset
 	*
 	* @param int		$new_status		the new status to set for this asset
 	* @param boolean	$update_parents	Specify if we want to update the parent as well
+	* @param boolean	$run_updated	specify it we want to run _upated
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processStatusChange($new_status, $update_parents=TRUE)
+	function processStatusChange($new_status, $update_parents=TRUE, $run_updated=TRUE)
 	{
 		// Get the assetid of the root user sucka!
 		$root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('root_user');
@@ -329,7 +330,7 @@ class User extends Asset
 			}//end switch
 		}//end if
 
-		return parent::processStatusChange($new_status, $update_parents);
+		return parent::processStatusChange($new_status, $update_parents, $run_updated);
 
 	}//end processStatusChange()
 
@@ -660,7 +661,7 @@ class User extends Asset
 	* @access private
 	* @see Asset::_getName()
 	*/
-	public function _getName($short_name=FALSE)
+	public function _getName($short_name=FALSE, $contextid=NULL)
 	{
 		return ($this->attr('first_name') || $this->attr('last_name')) ? $this->attr('first_name').' '.$this->attr('last_name') : $this->attr('username');
 

@@ -120,7 +120,7 @@ class Site extends Folder
 	* @return boolean
 	* @access public
 	*/
-	public function delete($release_lock=TRUE)
+	public function delete($release_lock=TRUE, $check_locked=TRUE)
 	{
 		$this->_tmp['deleting_site'] = TRUE;
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
@@ -132,7 +132,7 @@ class Site extends Folder
 			return FALSE;
 		}
 
-		if (!parent::delete($release_lock)) {
+		if (!parent::delete($release_lock, $check_locked)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 			return FALSE;
@@ -433,7 +433,7 @@ class Site extends Folder
 	* @access private
 	* @see Asset::updateLookups(), Asset::saveWebPaths()
 	*/
-	public function updateLookups()
+	public function updateLookups($auto_add_remaps=TRUE)
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 		$db = MatrixDAL::getDb();

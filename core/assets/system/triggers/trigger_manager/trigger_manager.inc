@@ -173,7 +173,7 @@ class Trigger_Manager extends Asset implements Bridge
 	* @access private
 	* @see Asset::_getName()
 	*/
-	function _getName($short_name=FALSE)
+	function _getName($short_name=FALSE, $contextid=NULL)
 	{
 		return $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name');
 

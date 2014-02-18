@@ -152,14 +152,14 @@ class Root_User extends System_User
 	* @return boolean
 	* @access public
 	*/
-	function setAttrValue($name, $value)
+	function setAttrValue($name, $value, $filter=NULL)
 	{
 		if ($name == 'username') {
 			trigger_localised_error('CORE0113', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 			return FALSE;
 		}
 
-		return parent::setAttrValue($name, $value);
+		return parent::setAttrValue($name, $value, $filter);
 
 	}//end setAttrValue()
 

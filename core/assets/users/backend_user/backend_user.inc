@@ -72,11 +72,11 @@ class Backend_User extends User
 	* @return boolean
 	* @access public
 	*/
-	public function delete($release_lock=TRUE)
+	public function delete($release_lock=TRUE, $check_locked=TRUE)
 	{	
 		$success = FALSE;
 
-		if (parent::delete($release_lock)) {			
+		if (parent::delete($release_lock, $check_locked)) {
 
 			$sql = 'SELECT lockid FROM '.SQ_TABLE_RUNNING_PREFIX.'lock WHERE userid = \''.$this->id.'\'';
 

@@ -375,7 +375,7 @@ class Asset_Edit_Fns extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function paintURLs(&$asset, &$o, $prefix)
+	function paintURLs(Asset &$asset, Backend_Outputter &$o, $prefix)
 	{
 		$urls = $asset->getLookups();
 		if (empty($urls)) {

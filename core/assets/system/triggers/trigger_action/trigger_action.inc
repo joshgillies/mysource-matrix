@@ -44,7 +44,7 @@ class Trigger_Action extends Asset
 	* @return mixed array|boolean
 	* @access public
 	*/
-	public static function execute($settings, $state)
+	public static function execute($settings, &$state)
 	{
 		return FALSE;
 
