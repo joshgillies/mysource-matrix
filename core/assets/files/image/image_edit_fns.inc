@@ -133,7 +133,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processFileUpload(File $asset, $o, $prefix, $info=Array(),$redirect_in_limbo=TRUE, $asset_cloned=FALSE)
+	function processFileUpload(File $asset, $o, $prefix, Array $info=Array(), $redirect_in_limbo=TRUE, $asset_cloned=FALSE)
 	{
 		if (!parent::processFileUpload($asset, $o, $prefix, $info,$redirect_in_limbo, $asset_cloned)) {
 			return FALSE;
