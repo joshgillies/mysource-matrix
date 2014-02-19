@@ -80,7 +80,7 @@ class Image extends File implements Bridge
 	* @access public
 	* @see asset::cloneComponents()
 	*/
-	function cloneComponents(Asset &$clone, Array $components, $override=FALSE)
+	function cloneComponents(Asset $clone, Array $components, $override=FALSE)
 	{
 		// need to go through the varieties that have already been added, and
 		// re-upload/create them underneath this asset - to get the file
@@ -295,7 +295,7 @@ class Image extends File implements Bridge
 	* @return boolean
 	* @access public
 	*/
-	function paintBackend(Backend_Outputter &$o)
+	function paintBackend(Backend_Outputter $o)
 	{
 		if (!isset($_REQUEST['asset_ei_screen'])) {
 			return parent::paintBackend($o);

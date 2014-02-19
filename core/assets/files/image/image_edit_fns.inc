@@ -45,7 +45,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintFileUpload(File &$asset, Backend_Outputter &$o, $prefix)
+	function paintFileUpload(File $asset, Backend_Outputter $o, $prefix)
 	{
 		parent::paintFileUpload($asset, $o, $prefix);
 
@@ -133,7 +133,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processFileUpload(File &$asset, &$o, $prefix, $info=Array(),$redirect_in_limbo=TRUE, $asset_cloned=FALSE)
+	function processFileUpload(File $asset, $o, $prefix, $info=Array(),$redirect_in_limbo=TRUE, $asset_cloned=FALSE)
 	{
 		if (!parent::processFileUpload($asset, $o, $prefix, $info,$redirect_in_limbo, $asset_cloned)) {
 			return FALSE;
@@ -351,7 +351,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 	* @return void
 	* @access public
 	*/
-	function printExistingFileInfo(File &$asset)
+	function printExistingFileInfo(File $asset)
 	{
 		parent::printExistingFileInfo($asset);
 		$existing = $asset->getExistingFile();
@@ -396,7 +396,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 	* @return array
 	* @access protected
 	*/
-	function getPreUploadOptions(File &$asset)
+	function getPreUploadOptions(File $asset)
 	{
 		require_once(SQ_FUDGE_PATH.'/general/file_system.inc');
 		$options = Array();

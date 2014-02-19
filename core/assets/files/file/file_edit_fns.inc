@@ -256,7 +256,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	public function processFileUpload(File $asset, &$o, $prefix, Array $info=Array(), $redirect_in_limbo=TRUE, $asset_cloned=FALSE)
+	public function processFileUpload(File $asset, $o, $prefix, Array $info=Array(), $redirect_in_limbo=TRUE, $asset_cloned=FALSE)
 	{
 		if (!$asset->writeAccess('attributes')) return FALSE;
 		if (empty($info) && isset($_POST[$prefix.'_server_file']) && !empty($_POST[$prefix.'_server_file'])) {

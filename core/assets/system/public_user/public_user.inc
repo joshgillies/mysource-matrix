@@ -170,14 +170,14 @@ class Public_User extends User
 	* @return boolean
 	* @access public
 	*/
-	public function setAttrValue($name, $value)
+	public function setAttrValue($name, $value, $filter=NULL)
 	{
 		if ($name == 'username') {
 			trigger_localised_error('CORE0113', E_USER_WARNING, $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'));
 			return FALSE;
 		}
 
-		return parent::setAttrValue($name, $value);
+		return parent::setAttrValue($name, $value, $filter);
 
 	}//end setAttrValue()
 
