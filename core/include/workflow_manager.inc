@@ -611,7 +611,7 @@ class Workflow_Manager extends MySource_Object
 					}
 				}
 			}
-			
+
 			// only notify conditions in current stream
 			$stream_exists = $GLOBALS['SQ_SYSTEM']->am->assetExists($schema_info['last_stream']);
 			if($stream_exists) {
@@ -620,7 +620,7 @@ class Workflow_Manager extends MySource_Object
 			else {
 			    $conditions = $GLOBALS['SQ_SYSTEM']->am->getChildren($schemaid, 'workflow_step_condition');
 			}
-			
+
 			foreach ($conditions as $cond_id => $type_code) {
 				$condition = $GLOBALS['SQ_SYSTEM']->am->getAsset($cond_id, 'workflow_step_condition');
 				if (is_null($condition)) continue;
@@ -1183,7 +1183,6 @@ class Workflow_Manager extends MySource_Object
 				$ms->enqueueMessage($msg);
 			}
 
-			
 			// send message to original editor so he knows his work has been approved
 			foreach ($schema_publishers_before as $schemaid => $publishers_step) {
 			    // only if message is required
@@ -1191,38 +1190,45 @@ class Workflow_Manager extends MySource_Object
 			    if(!$schema->attr('notify_starter_after_approval')) continue;
 			    // only if approver is in approver group of current schema step
 			    if (in_array($publisher, $publishers_step)) {
-				$workflow =& $schema_workflows[$schemaid];
-				$current_step = $this->getCurrentStep($workflow, $steps_before[$schemaid]);
-				// find out original editor
-				$data = $this->getAssetSchemaInfo($assetid, $schemaid, NULL, TRUE, TRUE);
-				
-				if(isset($data['last_started_by']) && !empty($data['last_started_by'])) {
-				    $msg = clone $base_msg;
-				    $msg->to = Array($data['last_started_by']);
-				    $schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid, 'workflow_schema');
-				    if ($schema->attr('schema_reply_to_email_address') != '') {
-					    $msg->parameters['reply_to'] = $schema->attr('schema_reply_to_email_address');
-				    } else {
-					    $msg->parameters['reply_to'] = $GLOBALS['SQ_SYSTEM']->currentUserId();
-				    }
-				    if ($schema->attr('schema_from_email_address') != '') {
-					    $msg->from = $schema->attr('schema_from_email_address');
-				    }
+					$workflow =& $schema_workflows[$schemaid];
+					$current_step = $this->getCurrentStep($workflow, $steps_before[$schemaid]);
+					// find out original editor
+					$data = $this->getAssetSchemaInfo($assetid, $schemaid, NULL, TRUE, TRUE);
 
-				    $subject = trim(array_get_index($current_step, 'subject_approve', 'Asset Changes Approved'));
-				    if(!empty($subject)) $msg->subject = $subject;
-				    $body = trim(array_get_index($current_step, 'message_approve', ''));
-				    if(!empty($body)) $msg->body = $body;
-				    $this->addMessageReplacements($asset, $msg->subject, $msg->body, $msg->replacements);
-				    $ms->enqueueMessage($msg);
-				    // only send 1 email is enough
-				    break;
-				}
+					if(isset($data['last_started_by']) && !empty($data['last_started_by'])) {
+						$started_by_user = $GLOBALS['SQ_SYSTEM']->am->getAsset($data['last_started_by'], '', TRUE);
+						if ($started_by_user){
+							// see bug #6839 Simple Edit User doesnt get workflow approved emails
+							// and see simple_edit_user::canAccessBackend()
+							if ($started_by_user instanceof Simple_Edit_User) $started_by_user->_tmp['starter_of_workflow'] = TRUE;
+						}
+						$msg = clone $base_msg;
+						$msg->to = Array($data['last_started_by']);
+						$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid, 'workflow_schema');
+						if ($schema->attr('schema_reply_to_email_address') != '') {
+							$msg->parameters['reply_to'] = $schema->attr('schema_reply_to_email_address');
+						} else {
+							$msg->parameters['reply_to'] = $GLOBALS['SQ_SYSTEM']->currentUserId();
+						}
+						if ($schema->attr('schema_from_email_address') != '') {
+							$msg->from = $schema->attr('schema_from_email_address');
+						}
+
+						$subject = trim(array_get_index($current_step, 'subject_approve', 'Asset Changes Approved'));
+						if(!empty($subject)) $msg->subject = $subject;
+
+						$body = trim(array_get_index($current_step, 'message_approve', ''));
+						if(!empty($body)) $msg->body = $body;
+
+						$this->addMessageReplacements($asset, $msg->subject, $msg->body, $msg->replacements);
+						$ms->enqueueMessage($msg);
+
+						// only send 1 email is enough
+						break;
+					}
 			    }
 			}
 
-			
-			
 			// fire the 'Workflow Approval' event
 			$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_workflow_approval', $asset);
 		}

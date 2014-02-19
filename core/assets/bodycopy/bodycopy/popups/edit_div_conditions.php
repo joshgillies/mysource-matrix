@@ -63,7 +63,10 @@ include(dirname(__FILE__).'/header.php');
 		    for(var j=0; j< all_conditions.length; j++) {
 			condition['conditions'].push(all_conditions[j].value);
 		    }
-		    conditions.push(condition);
+		    // only save condition group if it has condition set in it
+		    if(j > 0) {
+			conditions.push(condition);
+		    }
 		}
 		condition_data['conditions'] = conditions;
 		data['conditions'] = condition_data;
