@@ -365,7 +365,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 				?>>
 					<div class="sq-grey-header-row clearfix">
 
-						<span style="float: left;" class="sq-first-image-no-left-margin">
+						<span class="sq-icon-wrapper left">
 							<?php
 							$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
 
@@ -396,7 +396,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 							}
 							?>
 						</span>
-						<span style="float: right;" class="sq-left-img-margin">
+						<span class="sq-icon-wrapper right">
 							<?php	
 							// print the condition set icon
 							if($is_conditional_display) {

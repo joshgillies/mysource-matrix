@@ -469,7 +469,7 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 
 		$o = $GLOBALS['SQ_SYSTEM']->backend->out;
 		if(!is_null($o) && $o->isViperAvailable()) {
-		    Bodycopy_Edit_Fns::printBodycopyIcon('', 'Viper Content Area', translate('viper_editor_enabled_icon_note'), 'viper_logo', '[Viper Content Area]');
+		    //Bodycopy_Edit_Fns::printBodycopyIcon('', 'Viper Content Area', translate('viper_editor_enabled_icon_note'), 'viper_logo', '[Viper Content Area]');
 		}
 		else {
 		    // prints the status of the last run of htmltidy tool as a tag icon
