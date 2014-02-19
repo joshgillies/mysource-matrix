@@ -70,7 +70,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 	$bt = debug_backtrace();
 
 	if (count($bt) > 1) {
-		$real_bt_index = get_true_error_location($bt, 1);		
+		$real_bt_index = get_true_error_location($bt, 0);		
 		if(isset($bt[$real_bt_index]['file'])) {
 		    $err_file = $bt[$real_bt_index]['file'];
 		}
