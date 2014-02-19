@@ -324,6 +324,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		// and whether we have conditional display active.
 		$all_conditions            = Array();
 		$is_conditional_display    = FALSE;
+		$is_conditions_set = isset($div_attributes['conditions']['conditions']) && !empty($div_attributes['conditions']['conditions']);
 		$dependant_parent_assetids = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($asset->id, '', FALSE, FALSE);
 		foreach ($dependant_parent_assetids as $parentid) {
 			$dependant_parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($parentid);
@@ -341,14 +342,23 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 
 		// Build condition JS if there are conditions to use.
 		if (!empty($all_conditions)) {
-			$condition_count = count($all_conditions);
-			$desc = 'There are '.$condition_count.' available conditions to set';
 			$conditions_js = json_encode_array(array_unique($all_conditions));
 		}
+		
+		$condition_class = '';
+		if($is_conditional_display) {
+		    $condition_class .= ' div-conditions-set';
+		}
+		else {
+		    if($is_conditions_set) {
+			$condition_class .= ' div-conditions-set-disabled';
+		    }
+		}
+		
 		?>		
 		<table<?php echo $attribute_list?> class="sq-edit-bodycopy-section sq-<?php echo get_class_lower($content_type) ;?>-table">
 			<tr>
-				<td align="left" background="" id="<?php echo $prefix.'_div_'.$asset->id;?>" class="sq-grey-header-wrapper"<?php
+				<td align="left" background="" id="<?php echo $prefix.'_div_'.$asset->id;?>" class="sq-grey-header-wrapper<?php echo $condition_class;?>"<?php
 				   if (!empty($all_conditions)) {
 					   ?> data-available-conditions="<?php echo htmlspecialchars($conditions_js); ?>"<?php
 				   }
@@ -374,6 +384,8 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 							
 							// print condition editing icon if there are conditions to use
 							if(!empty($all_conditions)) {
+							    	$condition_count = count($all_conditions);
+								$desc = 'There are '.$condition_count.' available conditions to set';
 								?><script language="JavaScript" type="text/javascript">bodycopy_available_conditions['<?php echo $asset->id; ?>'] = <?php echo $conditions_js; ?>; </script><?php
 								Bodycopy_Edit_Fns::printBodycopyIcon('bodycopy_edit_div_conditions(\''.$prefix.'\', '.$asset->id.', '.$parentid.');', 'Edit Conditions', $desc, 'conditions', '[Edit Conditions]');
 							}
