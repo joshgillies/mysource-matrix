@@ -543,7 +543,10 @@ class Page_Standard extends Page
 	function onRequestKeywords(&$broadcaster, $vars=Array())
 	{
 		$vars['keywords'] = isset($vars['keywords']) ? $vars['keywords'] : Array();
-
+		
+		// add common asset keywords to standard page
+		parent::onRequestKeywords($broadcaster, $vars);  
+		
 		$keywords = Array();
 		$available_conditions = array_keys($this->getAvailableConditions());
 		if(!empty($available_conditions)) {

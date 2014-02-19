@@ -2012,6 +2012,14 @@ function get_available_global_keywords()
 					'globals_asset_'	=> 'Global Keywords - Front End Asset',
 					'globals_snippet_'	=> 'Global Keywords - Snippet',
 					'globals_icon_'		=> 'Global Keywords - Type Icon',
+					'globals_random'	=> 'Global Keywords - Random Number',
+					'globals_context'	=> 'Global Keywords - Current Context ID',
+					'globals_visited_urls'	=> 'Global Keywords - Visited URLs',
+					'globals_visited_assets'	=> 'Global Keywords - Visited Asset IDs',
+					'globals_entry_asset'	=> 'Global Keywords - Entry Asset ID',
+					'globals_page_referrer'	=> 'Global Keywords - Page Referrer',
+					'globals_site_referrer'	=> 'Global Keywords - Site Referrer',
+					'globals_marketo_lead'	=> 'Global Keywords - Marketo Lead Data',
 				);
 
 	return $ret;

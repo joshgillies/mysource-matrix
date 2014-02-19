@@ -1106,7 +1106,7 @@ class Asset_Edit_Interface extends MySource_Object
 								if (is_null($attr)) continue;
 								// TODO: TOF fix the line below
 								if (!$attr->setEditParams($attr_tag)) continue;
-								$attr->paint($prefix.'_'.$attr->id, !($field_access & SQ_EI_WRITE));
+								$attr->paint($prefix.'_'.$attr->id, !($field_access & SQ_EI_WRITE), $owner);
 								if ($field_access & SQ_EI_WRITE) {
 									$print_commit_button = TRUE;
 								}
