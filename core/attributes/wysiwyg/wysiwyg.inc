@@ -91,7 +91,7 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 	* @return object WYSIWYG
 	* @access private
 	*/
-	function &_createEditor($prefix, $snippets=Array())
+	function &_createEditor($prefix, $keywords=Array(), $snippets=Array())
 	{
 		// allowed plugins (shortened to $ap for easier use below)
 		$ap = explode('|', $GLOBALS['SQ_SYSTEM']->getUserPrefs('content_type_wysiwyg', 'SQ_WYSIWYG_PLUGINS'));
@@ -136,6 +136,12 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 
 		if ($iap || in_array('justify_text', $ap)) {
 			$wysiwyg->add_plugin('justify_text');
+		}
+		if (($iap || in_array('keyword_replace', $ap)) && !empty($keywords)) {
+			$wysiwyg->add_plugin('keyword_replace');
+			$keyword_replace =& $wysiwyg->get_plugin('keyword_replace');
+			$keyword_replace->keyword_tag = '%';
+			$keyword_replace->keywords = $keywords;
 		}
 
 
@@ -260,7 +266,7 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 	*
 	* @access public
 	*/
-	function paint($prefix, $read_only=false)
+	function paint($prefix, $read_only=false, &$owner=null)
 	{
 		if ($read_only) {
 			echo $this->value;
@@ -269,11 +275,16 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 
 		$this->_saveCssAssetIds();
 
+		// get keywords replacement
+		if($owner == null) $owner = new Asset();
+		$keywords = $owner->getAvailableKeywords();
+		$keywords_encoded = htmlentities(json_encode_array($keywords)); 
+		
 		// get snippet replacements
 		$snippets = $GLOBALS['SQ_SYSTEM']->am->getSnippetKeywords();
 		$snippets_encoded = htmlentities(json_encode_array($snippets));
 		
-		$wysiwyg = $this->_createEditor($prefix, $snippets);
+		$wysiwyg = $this->_createEditor($prefix, $keywords, $snippets);
 
 		//The following will only print in Safe Edit or EES
 		//Hot fixes for old EES
@@ -324,7 +335,7 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 		    // Use a hidden input to pass the Viper edited content to Matrix backend form
 		    $o->addOnSubmit('document.getElementById("'.$prefix.'_contents_div_viper_input").value = document.getElementById("'.$prefix.'_contents_div_viper").innerHTML;');
 		    ?>
-		  <div id="<?php echo $prefix?>_contents_div_viper" class="with-viper"  data-snippets="<?php echo $snippets_encoded; ?>"><?php echo $this->value;?></div>
+		  <div id="<?php echo $prefix?>_contents_div_viper" class="with-viper"   data-keywords="<?php echo $keywords_encoded; ?>" data-snippets="<?php echo $snippets_encoded; ?>"><?php echo $this->value;?></div>
 		  <input  id="<?php echo $prefix?>_contents_div_viper_input" style="display:none;" name="<?php echo $prefix?>_contents_div_viper_input" value=""/>
 		  <?php
 		}
@@ -332,7 +343,7 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 		?>
 		    
 			    <div style="display:none;" id="<?php echo $prefix?>_wysiwyg_div"><?php echo $wysiwyg->paint()?></div>
-			    <div id="<?php echo $prefix?>_contents_div" class="sq-wysiwyg-preview-wrapper"  data-snippets="<?php echo $snippets_encoded; ?>" onclick="editDiv=document.getElementById('<?php echo $prefix ?>_wysiwyg_div'); if (editDiv !== null && editDiv.style.display == 'none') {switchEditingMode('<?php echo $prefix ?>_contents_div','<?php echo $prefix ?>_wysiwyg_div', editor_<?php echo $prefix ?>);}"><?php echo $this->value?></div>
+			    <div id="<?php echo $prefix?>_contents_div" class="sq-wysiwyg-preview-wrapper"   data-keywords="<?php echo $keywords_encoded; ?>" data-snippets="<?php echo $snippets_encoded; ?>" onclick="editDiv=document.getElementById('<?php echo $prefix ?>_wysiwyg_div'); if (editDiv !== null && editDiv.style.display == 'none') {switchEditingMode('<?php echo $prefix ?>_contents_div','<?php echo $prefix ?>_wysiwyg_div', editor_<?php echo $prefix ?>);}"><?php echo $this->value?></div>
 		    
 		<?php
 		}

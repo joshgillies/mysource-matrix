@@ -59,7 +59,8 @@ class Content_Type_Structure_Tree_Edit_Fns extends Content_Type_Edit_Fns
 			hidden_field($prefix.'_structure_value', 'bla');
 			// loop through the rows to be printed, escape the 'content' for each
 			$pre_serialised = $asset->attr('structure');
-			foreach ($asset->attr('structure') as $index => $row) {
+			if(is_null($pre_serialised)) $pre_serialised = Array();
+			foreach ($pre_serialised as $index => $row) {
 				$pre_serialised[$index]['content'] = str_replace("'", "\'", $row['content']);
 			}
 			$serialised = var_serialise($pre_serialised);
