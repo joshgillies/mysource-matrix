@@ -26,7 +26,7 @@
 	<string source="active_external_tools">Active External Tools</string>
 	<string source="markdown_tools">Markdown Tools</string>
 	<string source="0_for_unlimited_idle_time">In seconds - minimum 60 or zero (0) for unlimited idle time</string>
-	<string source="0_is_unlimited_attempts">Zero (0) is unlimited attempts</string>
+	<string source="0_is_unlimited_attempts">Zero (0) is unlimited attempts.</string>
 	<string source="actions">Actions</string>
 	<string source="active_locks">Active Locks</string>
 	<string source="system_config_active_locks_no_support">Retrieving Active Locks information is not suppported by "%s" locking method.</string>
@@ -38,7 +38,7 @@
 	<string source="allow_user_ip_to_fluctuate">Allow the IP of a user to fluctuate?</string>
 	<string source="asset(s)">asset(s)</string>
 	<string source="process_php_credentials">Process PHP Credentials</string>
-	<string source="process_php_credentials_note">If this is enabled and a username and password are supplied in PHP_AUTH_USR and PHP_AUTH_PW, the system will try to authenticate a user with those credentials</string>
+	<string source="process_php_credentials_note">If this is enabled and a username and password are supplied in PHP_AUTH_USR and PHP_AUTH_PW, the system will try to authenticate a user with those credentials.</string>
 
 	<string source="enable_external_auth_systems">Enable External Authentication Systems</string>
 	<string source="enable_external_auth_systems_note">Set this to 'No' to only allow users with accounts in the default matrix user system, rather than LDAP, IPB etc.</string>
@@ -379,7 +379,7 @@
 	<string source="lock_length_time">The length of time after which a lock is considered to have expired. In seconds - Min: 60</string>
 	<string source="no_active_locks">There are no active locks in the system</string>
 	<string source="thesaurus">Thesaurus</string>
-	<string source="rename_commit_button">This setting renames the button used to commit edited information into the Squiz Matrix system - default is 'Commit'</string>
+	<string source="rename_commit_button">This setting renames the button used to commit edited information into the Squiz Matrix system - default is 'Commit'.</string>
 	<string source="confirm_save_changes">Confirm Save Changes</string>
 	<string source="confirm_save_changes_msg">This setting, if set, warns a user when changes are made but not committed.</string>
 	<string source="time_running">Time Running</string>
@@ -427,7 +427,7 @@
 	<string source="wysiwyg_spell_checker_pref_note">Language code consists of the two letter ISO 639 language code and an optional two letter ISO 3166 country code after a dash or underscore</string>
 	<string source="wysiwyg_spell_checker_pref_error">Pspell couldn't open the dictionary, no word lists can be found for the language "%s"</string>
 	<string source="wysiwyg_apply_design_style">Apply CSS Styles</string>
-	<string source="wysiwyg_apply_design_style_note">If yes, it will apply CSS styles to WYSIWYG. The styles is defined in CSS files under the design used for current asset. Matrix Apply Design plugin must be enabled.</string>
+	<string source="wysiwyg_apply_design_style_note">If yes, it will apply CSS styles to the WYSIWYG. The styles are defined in CSS files under the design used for current asset. Matrix Apply Design plugin must be enabled.</string>
 	<string source="warning_-_moving_to_trash">Warning - Moving To Trash</string>
 	<string source="word_list">Word List</string>
 	<string source="word_list_note">New line separated list of words that are not allowed to be used as password.</string>
@@ -435,7 +435,7 @@
 	<string source="workflow_schemas_threshold">Workflow Schemas Threshold</string>
 	<string source="workflow_started">Workflow Started</string>
 	<string source="workflow_status">Workflow Status</string>
-	<string source="header_frame_mail_lock">How long (in seconds) between refreshes of the top (header) frame - this frame keeps the lock on long edits and checks for new mail - Min: 60</string>
+	<string source="header_frame_mail_lock">How long (in seconds) between refreshes of the top (header) frame - this frame keeps the lock on long edits and checks for new mail - Min: 60.</string>
 	<string source="metadata_in_approval_requires_fields_completion">"%1$s" is currently in an approval process but some required metadata fields are not yet compelete. These fields must be completed before "%1$s" can become 'Approved' to go live.</string>
 	<string source="metadata_fields_only_completed_by_administrator">These metadata fields can be completed by any editor or administrator of "%1$s" by going to the %2$s</string>
 	<string source="metadata_screen">Metadata screen</string>
@@ -955,7 +955,7 @@
 	<string source="mozilla_always_uses_iframe">In WebKit based browsers, an iFrame will always be used. This setting only affects Internet Explorer.</string>
 	<string source="all_plugins_selected">All plugins are selected</string>
 	<string source="no_plugins_selected">No plugins are selected</string>
-	<string source="thesaurus_used_by_matrix_expand_keywords_plugin">The thesaurus asset used by the Matrix Expand Keywords plugin</string>
+	<string source="thesaurus_used_by_matrix_expand_keywords_plugin">The thesaurus asset used by the Matrix Expand Keywords plugin.</string>
 
 	<string source="automated_patching_system">Automated Patching System</string>
 	<string source="patching">Patching</string>
@@ -2348,7 +2348,7 @@ If you are ready to continue, please click <strong>Next</strong> to proceed with
 	<string source="asset_not_found_no_id">Asset not found</string>
 
 	<string source="default_content_type">Default Content Type</string>
-	<string source="default_content_type_note">When new bodycopy containers are created they will use this content type</string>
+	<string source="default_content_type_note">When new bodycopy containers are created they will use this content type.</string>
 
 	<string source="default_presentation_type">Default Presentation Type</string>
 	<string source="default_presentation_type_note">When new bodycopy Divs are created they will use this presentation type by default. This can be changed for a particular Div container at any time.</string>
@@ -2465,7 +2465,7 @@ If you are ready to continue, please click <strong>Next</strong> to proceed with
 	<!-- Search Engine Optimization strings -->
 	<string source="search_engine_optimizations">Search Engine Optimizations</string>
 	<string source="remove_self_links">Remove self links</string>
-	<string source="remove_self_links_note">Select 'Yes' if you want all links directing to currently viewed asset removed from content</string>
+	<string source="remove_self_links_note">Select 'Yes' if you want all links directing to currently viewed asset removed from content.</string>
 
 	<!-- Current Statuses - named with the bit field name -->
 	<string source="status_archived" js="1">Archived</string>

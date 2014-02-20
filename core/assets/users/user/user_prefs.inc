@@ -55,14 +55,14 @@ class User_Prefs extends Prefs
 													   ),
 						'SQ_USER_ASSET_MAP_WIDTH'	=> Array(
 														'name'			=> 'asset_map_width',
-														'description'	=> 'Allows changing of asset map frame width',
-														'default'		=> 275,
+														'description'	=> 'The asset map frame width in pixels.',
+														'default'		=> 300,
 														'protected'		=> FALSE,
 													   ),
 						'SQ_USER_COMMIT_BUTTON_POS'	=> Array(
 														'name'			=> 'commit_button_position',
 														'description'	=> '',
-														'default'		=> FALSE,
+														'default'		=> TRUE,
 														'protected'		=> FALSE,
 													   ),
 						'SQ_USER_LIMBO_HIDE_FRAMES'	=> Array(
@@ -92,7 +92,7 @@ class User_Prefs extends Prefs
 					 );
 
 	var $int_am_frame_width;
-	var $int_am_frame_width_default = 275;
+	var $int_am_frame_width_default = 300;
 
 
 	/**
@@ -137,7 +137,7 @@ class User_Prefs extends Prefs
 			foreach ($session_settings as $id => $extra_setting) {
 			?>
 			<div class="sq-backend-table sq-backend-table-cell">
-				<?php echo ($id == '0') ? translate('default').' '.translate('rule') : translate('rule_number', $id); ?><br />
+				<strong><?php echo ($id == '0') ? translate('default').' '.translate('rule') : translate('rule_number', $id); ?>:</strong><br />
 				<?php echo translate('end_user_session'); ?>...
 				<ul id="user-prefs">
 					<li>
@@ -217,7 +217,7 @@ class User_Prefs extends Prefs
 						if ($have_lock && $is_admin) {
 							$js = "onChange=\"Javascript: if (this.checked == true) { document.getElementById('prefs[SQ_USER_SESSION_PREFS][".$id."][user_types]').disabled = false; } else { document.getElementById('prefs[SQ_USER_SESSION_PREFS][".$id."][user_types]').disabled = true;  }\"";
 							check_box('prefs[SQ_USER_SESSION_PREFS]['.$id.'][limit_user_types]', '0', (!empty($user_types)), '', 'id="prefs_SQ_USER_SESSION_PREFS_'.$id.'_limit_user_types" '.$js);
-							echo translate('limit_by_user_types');
+							label(translate('limit_by_user_types'), 'prefs_SQ_USER_SESSION_PREFS_'.$id.'_limit_user_types');
 							text_box('prefs[SQ_USER_SESSION_PREFS]['.$id.'][user_types]', $user_types, 70, '', FALSE, 'id="prefs[SQ_USER_SESSION_PREFS]['.$id.'][user_types]"');
 							echo '<script type="text/javascript">if (document.getElementById("prefs[SQ_USER_SESSION_PREFS]['.$id.'][user_types]").value == \'\') { document.getElementById("prefs[SQ_USER_SESSION_PREFS]['.$id.'][user_types]").disabled = true; }</script>';
 						} else {
@@ -238,7 +238,7 @@ class User_Prefs extends Prefs
 					<?php
 						$js = "onChange=\"Javascript: if (this.checked == true) { if(!confirm(js_translate('confirm_delete_rule'))) { this.checked=false; } } \"";
 						check_box('prefs_delete_rule_number_'.$id, '1', FALSE, 'prefs_sq_user_prefs_delete_'.$id, $js);
-						label(translate('delete_rule'), 'prefs_sq_user_prefs_delete_'.$id);
+						label(translate('delete_rule'), 'prefs_delete_rule_number_'.$id);
 					?>
 					</li>
 					<?php
@@ -248,17 +248,16 @@ class User_Prefs extends Prefs
 			</div>
 			<?php
 			}//end foreach
-			echo '*'.translate('session_timeout_explanation');
-			echo '<br/>';
+			$o->note('* '.translate('session_timeout_explanation'));
 			$available_user_types = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('user', TRUE);
-			echo '**Available user types in this system are: '.implode(', ', $available_user_types);
+			$o->note('** Available user types in this system are: '.implode(', ', $available_user_types));
 			?>
 			<br />
 			<?php
 
 			if ($have_lock && $is_admin) {
 				check_box('prefs_make_new_rule', '1', FALSE, 'prefs_sq_user_prefs_new');
-				label(translate('add_session_expiry_rule'), 'prefs_sq_user_prefs_new');
+				label(translate('add_session_expiry_rule'), 'prefs_make_new_rule');
 			}//end if
 
 			if ($have_lock && $is_admin) {
@@ -315,9 +314,8 @@ class User_Prefs extends Prefs
 				}
 			}
 			?>
-			<br /><br />
 			<?php
-			echo translate('user_prefs_asset_map_root_asset_explanation');
+			$o->note(translate('user_prefs_asset_map_root_asset_explanation'));
 			?>
 			</div>
 			<?php
@@ -333,13 +331,13 @@ class User_Prefs extends Prefs
 				$safe_trash = $this->pref_vars['SQ_USER_SAFE_TYPE3_TRASH']['default'];
 				if ($have_lock && $is_admin) {
 					check_box('prefs[SQ_USER_SAFE_TYPE3_TRASH]', 1, ($safe_trash), '', 'id="prefs_SQ_USER_SAFE_TYPE3_TRASH"');
-					label('Check this box if you want to prohibit the deletion of an asset until all notice links are removed', 'prefs_SQ_USER_SAFE_TYPE3_TRASH');
+					label(translate('yes'), 'prefs_SQ_USER_SAFE_TYPE3_TRASH');
+					$o->note('Check this box if you want to prohibit the deletion of an asset until all notice links are removed.');
 				} else {
 					echo '<img src="'.sq_web_path('lib').'/web/images/'.($safe_trash ? 'tick' : 'cross').'.gif" />';
-					echo('Check this box if you want the system to prohibit the deletion of an asset until all notice links are removed');
+					echo('If this setting is enabled, the system will prohibit the deletion of an asset until all notice links are removed.');
 				}
 			?>
-			<br />
 			</div>
 			<?php
 
@@ -368,9 +366,8 @@ class User_Prefs extends Prefs
 				}
 			}
 			?>
-			<br /><br />
 			<?php
-			echo $this->pref_vars['SQ_USER_ASSET_MAP_WIDTH']['description'];
+			$o->note($this->pref_vars['SQ_USER_ASSET_MAP_WIDTH']['description']);
 			?>
 			</div>
 			<?php
@@ -391,14 +388,12 @@ class User_Prefs extends Prefs
 				$position = $this->pref_vars['SQ_USER_COMMIT_BUTTON_POS']['default'];
 				if ($have_lock && $is_admin) {
 					combo_box('prefs[SQ_USER_COMMIT_BUTTON_POS]', $options, FALSE, $position, 0, 'id="prefs_SQ_USER_COMMIT_BUTTON_POS"');
-					?><br/><?php
-					label('If set to "Anchored to bottom of frame", the Commit button will appear at the bottom of the frame and not scroll with the rest of the page. Note that this setting does not affect Simple Edit mode', 'prefs_SQ_USER_COMMIT_BUTTON_POS');
+					$o->note('If set to "Anchored to bottom of frame", the Commit button will appear at the bottom of the frame and not scroll with the rest of the page. Note that this setting does not affect Simple Edit mode.');
 				} else {
-					echo $options[$position].'<br/>';
-					echo('If set to "Anchored to bottom of frame", the Commit button will appear at the bottom of the frame and not scroll with the rest of the page. Note that this setting does not affect Simple Edit mode');
+					echo $options[$position];
+					$o->note('If set to "Anchored to bottom of frame", the Commit button will appear at the bottom of the frame and not scroll with the rest of the page. Note that this setting does not affect Simple Edit mode');
 				}
 			?>
-			<br />
 			</div>
 			<?php
 
@@ -417,14 +412,12 @@ class User_Prefs extends Prefs
 				$hide_frames = $this->pref_vars['SQ_USER_LIMBO_HIDE_FRAMES']['default'];
 				if ($have_lock && $is_admin) {
 					combo_box('prefs[SQ_USER_LIMBO_HIDE_FRAMES]', $options, FALSE, $hide_frames, 0, 'id="prefs_SQ_USER_LIMBO_HIDE_FRAMES"');
-					?><br/><?php
-					label('If set to "Do not hide frames", MySource Matrix will paint the default Simple Edit Interface which includes the header bar and Asset Map resizing frame.', 'prefs_SQ_USER_LIMBO_HIDE_FRAMES');
+					$o->note('If set to "Do not hide frames", Matrix will paint the default Simple Edit Interface which includes the header bar and Asset Map resizing frame.');
 				} else {
-					echo $options[$hide_frames].'<br/>';
-					echo('If set to "Do not hide frames", MySource Matrix will paint the default Simple Edit Interface which includes the header bar and Asset Map resizing frame');
+					echo $options[$hide_frames];
+					$o->note('If set to "Do not hide frames", Matrix will paint the default Simple Edit Interface which includes the header bar and Asset Map resizing frame.');
 				}
 			?>
-			<br />
 			</div>
 			<?php
 			if (is_null($pref)) $o->closeField();
@@ -436,7 +429,7 @@ class User_Prefs extends Prefs
 			}
 			$attribute_settings = $this->pref_vars['SQ_USER_ATTRIBUTE_IMAGE']['default'];
 			?>
-			<table class="sq-backend-table" style="width: 350px;">
+			<table class="sq-backend-table">
 				<tr>
 					<td class="sq-backend-table-header" nowrap="nowrap"><?php echo translate('attribute_image_face'); ?></td>
 					<td class="sq-backend-table-cell" style="width: 100%;">
@@ -570,9 +563,8 @@ class User_Prefs extends Prefs
 				}
 			}
 			?>
-			<br /><br />
 			<?php
-			echo $this->pref_vars['SQ_USER_SET_CONTEXT_ON_LOGIN']['description'];
+			$o->note($this->pref_vars['SQ_USER_SET_CONTEXT_ON_LOGIN']['description']);
 			?>
 			</div>
 			<?php
@@ -592,14 +584,11 @@ class User_Prefs extends Prefs
 				$filter_input = $this->pref_vars['SQ_USER_FILTER_FRONT_END_INPUT']['default'];
 				if ($have_lock && $is_admin) {
 					combo_box('prefs[SQ_USER_FILTER_FRONT_END_INPUT]', $options, FALSE, $filter_input, 0, 'id="prefs_SQ_USER_FILTER_FRONT_END_INPUT"');
-					?><br/><?php
-					label("If set to 'Filter Input', Matrix will ".$this->pref_vars['SQ_USER_FILTER_FRONT_END_INPUT']['description'], 'prefs_SQ_USER_FILTER_FRONT_END_INPUT');
 				} else {
-					echo $options[$filter_input].'<br/>';
-					echo("If set to 'Filter Input', Matrix will ".$this->pref_vars['SQ_USER_FILTER_FRONT_END_INPUT']['description']);
+					echo $options[$filter_input];
 				}
+				$o->note('If set to "Filter Input", Matrix will '.$this->pref_vars['SQ_USER_FILTER_FRONT_END_INPUT']['description']);
 			?>
-			<br />
 			</div>
 			<?php
 			if (is_null($pref)) $o->closeField();

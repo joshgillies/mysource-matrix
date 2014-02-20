@@ -29,10 +29,10 @@
 	<string source="sch_add_new_type">Add New Type</string>
 
 	<string source="sch_pref_backend_page_size">Backend Search Page Size</string>
-	<string source="sch_pref_backend_page_size_note">Sets how many assets will be shown per page when a keyword search is peformed through the Quick Search box</string>
+	<string source="sch_pref_backend_page_size_note">Sets how many assets will be shown per page when a keyword search is peformed through the Quick Search box.</string>
 
 	<string source="sch_pref_backend_result_limit">Backend Search Result Limit</string>
-	<string source="sch_pref_backend_result_limit_note">The maximum number of results displayed in backend search (0 = no limit)</string>
+	<string source="sch_pref_backend_result_limit_note">The maximum number of results displayed in backend search (0 = no limit).</string>
 
 	<string source="sch_search_terms">Search Terms</string>
 	<string source="sch_search_string">Search String</string>
