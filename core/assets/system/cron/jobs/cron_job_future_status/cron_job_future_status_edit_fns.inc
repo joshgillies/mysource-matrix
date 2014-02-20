@@ -69,7 +69,7 @@ class Cron_Job_Future_Status_Edit_Fns extends Cron_Job_Edit_Fns
 		}
 
 		if ($asset->writeAccess('attributes')) {
-			combo_box($prefix.'_status', $descs, FALSE, $asset->attr('status'), NULL, $form_extra_elements);
+			combo_box($prefix.'_status', $descs, FALSE, $asset->attr('status'), NULL, $form_extra_elements.' onchange="checkStatus(\''.$prefix.'_status\', \''.$prefix.'_change_status_all_children\', \'warning_message_for_live_plus_cascade_fs\')"');
 		} else {
 			echo $descs[$asset->attr('status')];
 		}
@@ -79,10 +79,12 @@ class Cron_Job_Future_Status_Edit_Fns extends Cron_Job_Edit_Fns
 
 		echo '&nbsp;';
 			echo '<span class="sq-keep-inline">';
-				check_box($prefix.'_change_status_all_children', '1', $cascade);
+				check_box($prefix.'_change_status_all_children', '1', $cascade, 'checkStatus(\''.$prefix.'_status\', \''.$prefix.'_change_status_all_children\', \'warning_message_for_live_plus_cascade_fs\')');
 				label(translate('cascade_status_change'), $prefix.'_change_status_all_children');
 			echo '</span>';
 		echo '</span>';
+		
+		echo '<div id="warning_message_for_live_plus_cascade_fs" style="display:none" class="sq-warning-message top-margin">'.translate('asset_status_live_warning').'</div>';
 
 		return TRUE;
 

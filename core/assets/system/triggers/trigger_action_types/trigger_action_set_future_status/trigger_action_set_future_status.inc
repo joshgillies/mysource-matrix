@@ -276,6 +276,7 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 		$descs = Cron_Job_Future_Status::_getAllStatiiDescs();
 		if ($write_access) {
 			combo_box($prefix.'_status', $descs, FALSE, $settings['status'], NULL);
+			echo '<div>'.translate('asset_status_live_warning').'</div>'."\n\n";
 		} else {
 			echo '<b>'.$descs[$settings['status']].'</b> ';
 		}
