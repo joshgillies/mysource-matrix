@@ -1726,7 +1726,7 @@ class Asset_Edit_Interface extends MySource_Object
 								// start buffering for this field
 								if ($get_field) ob_start();
 
-								$attr->paint($prefix.'_'.$attr->id, !(($field_access & SQ_EI_WRITE) && $limbo_access));
+								$attr->paint($prefix.'_'.$attr->id, !(($field_access & SQ_EI_WRITE) && $limbo_access), $owner);
 								if (($field_access & SQ_EI_WRITE) && $limbo_access) {
 									$print_commit_button = TRUE;
 								}
