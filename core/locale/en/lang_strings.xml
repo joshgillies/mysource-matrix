@@ -72,6 +72,7 @@
 	<string source="asset_map_settings">Asset Map Settings</string>
 	<string source="asset_metadata">Asset Metadata</string>
 	<string source="asset_status">Asset Status</string>
+	<string source="asset_status_live_warning">&lt;b&gt;&lt;font color="red"&gt;Note:&lt;/font&gt;&lt;/b&gt; Cascading Live status to child assets may result in unintended canceling of Safe Editing of those children which can result in loss of content.</string>
 	<string source="asset_current_status_change_from_parent">Current status for this asset can only be set from parent asset's &lt;a href="%s"&gt;details screen&lt;/a&gt;&lt;/i&gt;</string>
 	<string source="asset_future_status_change_from_parent">Future status for this asset can only be set from parent asset's &lt;a href="%s"&gt;details screen&lt;/a&gt;&lt;/i&gt;</string>
 	<string source="cannot_make_live_metadata_incomplete">This asset cannot be made live because some mandatory %s fields are empty</string>

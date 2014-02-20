@@ -340,7 +340,7 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 		$statii = array_reverse($statii, TRUE);
 		$statii[0] = '';
 		$statii = array_reverse($statii, TRUE);
-		combo_box($prefix.'_change_status', $statii, FALSE, $default_status);
+		combo_box($prefix.'_change_status', $statii, FALSE, $default_status, 0, 'onchange="checkStatus(\''.$prefix.'_change_status\', \''.$prefix.'_change_status_all_children\', \'warning_message_for_live_plus_cascade\')"');
 
 		// Test whether we have a status that may need the stream
 		$has_pending_status = FALSE;
@@ -490,9 +490,28 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 			<?php
 		}
 		echo '&nbsp;';
-		check_box($prefix.'_change_status_all_children');
+		check_box($prefix.'_change_status_all_children', 1, FALSE, 'checkStatus(\''.$prefix.'_change_status\', \''.$prefix.'_change_status_all_children\', \'warning_message_for_live_plus_cascade\')');
 		label(translate('cascade_status_change'), $prefix.'_change_status_all_children');
 
+		?>
+		<script type="text/javascript">
+		//<![CDATA[
+			function checkStatus(status_cb, status_cascade, note_div)
+			{
+				var status_cb_ele = document.getElementById(status_cb);
+				var status_cascade_ele = document.getElementById(status_cascade);
+
+				var note_text = document.getElementById(note_div);
+				if (status_cb_ele.value == <?php echo SQ_STATUS_LIVE ?> && status_cascade_ele.checked) {
+					note_text.style.display="block";
+				} else {
+					note_text.style.display="none";
+				}
+			}
+		// ]]>
+		</script>
+
+		<?php
 	}
 
 }//end _paintStatusChange()
@@ -684,6 +703,7 @@ function _paintDetailsChangeStatus(Asset $owner, Backend_Outputter $o, $prefix)
 			if ($note) {
 				$o->note($note);
 			}
+			echo '<div id="warning_message_for_live_plus_cascade" style="display:none">'.translate('asset_status_live_warning').'</div>';
 		}
 
 	}
