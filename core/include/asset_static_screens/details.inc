@@ -703,7 +703,7 @@ function _paintDetailsChangeStatus(Asset $owner, Backend_Outputter $o, $prefix)
 			if ($note) {
 				$o->note($note);
 			}
-			echo '<div id="warning_message_for_live_plus_cascade" style="display:none">'.translate('asset_status_live_warning').'</div>';
+			echo '<div id="warning_message_for_live_plus_cascade" style="display:none" class="sq-warning-message top-margin">'.translate('asset_status_live_warning').'</div>';
 		}
 
 	}
