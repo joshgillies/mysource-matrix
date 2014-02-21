@@ -6833,9 +6833,17 @@ class Asset extends MySource_Object
 		$eval_results = Array();
 		
 		// if there is conditions forecd to be true
-		$by_pass_conditions = Array();
+		$force_true_condition = Array();
+		$force_false_condition = Array();
 		if(isset($_GET['SQ_CONDITION']) && !empty($_GET['SQ_CONDITION']) && is_array($_GET['SQ_CONDITION']) && $this->writeAccess()) {
-		    $by_pass_conditions = $_GET['SQ_CONDITION'];
+		    foreach ($_GET['SQ_CONDITION'] as $condition_name => $value) {
+			if($value == 1) {
+			    $force_true_condition[] = $condition_name;
+			}
+			else if ($value == 0) {
+			    $force_false_condition[] = $condition_name;
+			}
+		    }
 		}
 		
 		// send no-cache header
@@ -6864,7 +6872,15 @@ class Asset extends MySource_Object
 
 					    if(isset($conditions_info[$condition])) {
 						// evaluate it
-						$ret = in_array($condition, $by_pass_conditions) ? TRUE : Condition::evaluateRestriction($this, $conditions_info[$condition]['restriction'], $conditions_info[$condition]['type_code']);
+						if(in_array($condition, $force_true_condition)) {
+						    $ret = TRUE;
+						}
+						else if (in_array($condition, $force_false_condition)) {
+						    $ret = FALSE;
+						}
+						else {
+						    $ret = Condition::evaluateRestriction($this, $conditions_info[$condition]['restriction'], $conditions_info[$condition]['type_code']);
+						}
 
 						// cache eval results for condition keywords later
 						$eval_results[$condition] = $ret;
@@ -6931,7 +6947,15 @@ class Asset extends MySource_Object
 				$conditions_info = $asset->getAvailableConditions(TRUE);
 				if(isset($conditions_info[$condition])) {
 				    // evaluate it
-				    $ret = in_array($condition, $by_pass_conditions) ? TRUE : Condition::evaluateRestriction($this, $conditions_info[$condition]['restriction'], $conditions_info[$condition]['type_code']);
+				    if(in_array($condition, $force_true_condition)) {
+					$ret = TRUE;
+				    }
+				    else if (in_array($condition, $force_false_condition)) {
+					$ret = FALSE;
+				    }
+				    else {
+					$ret = Condition::evaluateRestriction($this, $conditions_info[$condition]['restriction'], $conditions_info[$condition]['type_code']);
+				    }
 				    $GLOBALS['SQ_CONDITION']['conditional_keywords'][$condition] = $ret;
 				    
 				    // if it forces no cache header to be sent, then send no-cache header

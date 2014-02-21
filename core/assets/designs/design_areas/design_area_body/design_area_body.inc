@@ -74,9 +74,6 @@ class Design_Area_Body extends Design_Area
 
 			// Show the diff between system version and edited version
 
-			// Keep track of used assets for later...
-			$num_previous_gets = count($GLOBALS['SQ_SYSTEM']->am->_get_asset_history);
-
 			// Get the live contents of the asset being displayed
 			ob_start();
 				$ASSET->printBodyWithPaintLayout();
@@ -88,16 +85,13 @@ class Design_Area_Body extends Design_Area
 
 				// Reload all assets that were used during the previous printbody,
 				// so they know they have to use the system version
-				$used_asset_ids = array_unique(array_slice($GLOBALS['SQ_SYSTEM']->am->_get_asset_history, $num_previous_gets));
+				$used_asset_ids = array_unique($GLOBALS['SQ_SYSTEM']->am->_get_asset_history);
 				foreach ($used_asset_ids as $used_asset_id) {
 					$used_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($used_asset_id);
 					if($used_asset)
 					    $used_asset->reload();
 				}
 				$ASSET->reload();
-
-				// Keep track for next time...
-				$num_previous_gets = count($GLOBALS['SQ_SYSTEM']->am->_get_asset_history);
 
 				// Get the safe edit contents of the asset being displayed
 				ob_start();
@@ -110,7 +104,7 @@ class Design_Area_Body extends Design_Area
 
 			// Reload all assets that were used during the printbody,
 			// so they no longer think they have to use the system version
-			$used_asset_ids = array_unique(array_slice($GLOBALS['SQ_SYSTEM']->am->_get_asset_history, $num_previous_gets));
+			$used_asset_ids = array_unique($GLOBALS['SQ_SYSTEM']->am->_get_asset_history);
 			foreach ($used_asset_ids as $used_asset_id) {
 				$used_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($used_asset_id);
 				if($used_asset)

@@ -520,6 +520,21 @@ class Page_Standard extends Page
 		    $conditions['conditional_keywords'] = array_unique($conditional_keywords);
 		}
 
+		// now count  the used conditions and record them
+		$used_conditions = Array();
+		foreach ($conditional_div as $div) {
+		    if(isset($div['conditions'])) {
+			foreach ($div['conditions'] as $data) {
+			    if(isset ($data['conditions'])) {
+				$used_conditions = array_merge($used_conditions, $data['conditions']);
+			    }
+			}
+		    }
+		}
+		$used_conditions = array_merge($used_conditions, $conditional_keywords);
+		$used_conditions = array_unique($used_conditions);
+		$conditions['used_conditions'] = $used_conditions;
+		
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 		$this->setAttrValue('conditions', $conditions);
 		$this->saveAttributes(TRUE);

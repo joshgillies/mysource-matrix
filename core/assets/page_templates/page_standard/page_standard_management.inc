@@ -45,6 +45,7 @@ class Page_Standard_Management extends Asset_Management
 		$this->vars['conditions'] =    Array(						'added'		=> '0.1',
 										'type'		=> 'serialise',
 										'default'	=> Array(),
+										'is_contextable'    => TRUE,    
 					);
 	}//end constructor
 
