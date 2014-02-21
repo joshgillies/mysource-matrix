@@ -287,6 +287,10 @@ class Page_Asset_Builder extends Page
 				$this->_current_state = 'not_logged_in';
 				$this->_replacements['login_invite'] = $this->getKeywordReplacement('login_invite');
 				$this->_replacements['login_form'] = $this->getKeywordReplacement('login_form');
+				$this->_replacements['login_form_username'] = $this->getKeywordReplacement('login_form_username');
+				$this->_replacements['login_form_password'] = $this->getKeywordReplacement('login_form_password');
+				$this->_replacements['login_form_submit_button'] = $this->getKeywordReplacement('login_form_submit_button');
+				$this->_replacements['login_form_hidden_fields'] = $this->getKeywordReplacement('login_form_hidden_fields');
 			} else {
 				$this->_current_state = 'logged_in';
 			}
@@ -1840,6 +1844,9 @@ class Page_Asset_Builder extends Page
 		$keywords['create_invite']	= translate('cms_asset_builder_keyword_create_invite');
 		$keywords['create_form'] 	= translate('cms_asset_builder_keyword_create_form');
 		$keywords['create_error'] 	= translate('cms_asset_builder_keyword_create_error');
+		$keywords['login_form_username'] 	= translate('cms_asset_builder_keyword_login_form_username');
+		$keywords['login_form_password'] 	= translate('cms_asset_builder_keyword_login_form_password');
+		$keywords['login_form_submit_button'] 	= translate('cms_asset_builder_keyword_login_form_submit_button');
 
 		if ($this->attr('require_captcha')) {
 			$keywords['form_captcha'] = translate('cms_asset_builder_keyword_form_captcha');
@@ -2001,23 +2008,19 @@ class Page_Asset_Builder extends Page
 	{
 		ob_start();
 			?>
-			<input type="hidden" name="SQ_LOGIN_KEY"      value="<?php echo $GLOBALS['SQ_SYSTEM']->generateLoginKey(); ?>" />
-			<input type="hidden" name="SQ_LOGIN_REFERER"  value="" />
-
 			<table border="0">
 				<tr>
 					<td valign="top"><?php echo translate('username'); ?></td>
-					<td valign="top"><?php echo text_box('SQ_LOGIN_USERNAME', (isset($_POST['SQ_LOGIN_USERNAME'])) ? $_POST['SQ_LOGIN_USERNAME'] : 'Enter your username here', 25, 0, (isset($_POST['SQ_LOGIN_USERNAME'])) ? FALSE : TRUE, 'title="Username"'); ?></td>
+					<td valign="top"><?php echo $this->getLoginFormUsernameKeywordReplacement() ?></td>
 				</tr>
 				<tr>
 					<td valign="top"><?php echo translate('password'); ?></td>
-					<td valign="top"><?php echo password_box('SQ_LOGIN_PASSWORD', '', 25, 0, 'title="Password"'); ?></td>
+					<td valign="top"><?php echo $this->getLoginFormPasswordKeywordReplacement(); ?></td>
 				</tr>
 				<tr>
 					<td valign="top">&nbsp;</td>
 					<td valign="top">
-						<input type="hidden" name="SQ_ACTION" value="" id="SQ_ACTION" />
-						<?php echo submit_button('SQ_LOGIN_SUBMIT', 'Login', 'document.getElementById(\'SQ_ACTION\').value = \'login\'; document.getElementById(\'AB_'.$this->id.'_ASSET_BUILDER_ACTION\').value = \'login\';'); ?>
+						<?php echo $this->getLoginFormSubmitButtonKeywordReplacement(); ?>
 					</td>
 				</tr>
 			</table>
@@ -2025,9 +2028,86 @@ class Page_Asset_Builder extends Page
 			<?php
 			$login_form = ob_get_contents();
 		ob_end_clean();
+
 		return $login_form;
 
 	}//end getLoginFormKeywordReplacement()
+
+
+	/**
+	* Get login form's "username" field keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getLoginFormUsernameKeywordReplacement()
+	{
+		ob_start();
+			echo text_box('SQ_LOGIN_USERNAME', (isset($_POST['SQ_LOGIN_USERNAME'])) ? $_POST['SQ_LOGIN_USERNAME'] : 'Enter your username here', 25, 0, (isset($_POST['SQ_LOGIN_USERNAME'])) ? FALSE : TRUE, 'title="Username"');
+			$output = ob_get_contents();
+		ob_end_clean();
+
+		return $output;
+
+	}//end getLoginFormUsernameKeywordReplacement()
+
+
+	/**
+	* Get login form's "password" field keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getLoginFormPasswordKeywordReplacement()
+	{
+		ob_start();
+			echo password_box('SQ_LOGIN_PASSWORD', '', 25, 0, 'title="Password"');
+			$output = ob_get_contents();
+		ob_end_clean();
+
+		return $output;
+
+	}//end getLoginFormPasswordKeywordPassword()
+
+
+	/**
+	* Get login form's submit button keyword replacement
+	*
+	* @return string
+	* @access public
+	*/
+	function getLoginFormSubmitButtonKeywordReplacement()
+	{
+		ob_start();
+			echo $this->getLoginFormHiddenFieldsKeywordReplacement();
+			echo submit_button('SQ_LOGIN_SUBMIT', 'Login', 'document.getElementById(\'SQ_ACTION\').value = \'login\'; document.getElementById(\'AB_'.$this->id.'_ASSET_BUILDER_ACTION\').value = \'login\';');
+			$output = ob_get_contents();
+		ob_end_clean();
+
+		return $output;
+
+	}//end getLoginFormSubmitButtonKeywordPassword()
+
+
+	/**
+	* Get login form's "hidden fields"
+	* This is required when creating login form using a custom submit button
+	*
+	* @return string
+	* @access public
+	*/
+	function getLoginFormHiddenFieldsKeywordReplacement()
+	{
+		ob_start();
+			echo '<input type="hidden" name="SQ_LOGIN_KEY" value="'.$GLOBALS['SQ_SYSTEM']->generateLoginKey().'" />';
+			echo '<input type="hidden" name="SQ_LOGIN_REFERER"  value="" />';
+			echo '<input type="hidden" name="SQ_ACTION" value="" id="SQ_ACTION" />';
+			$output = ob_get_contents();
+		ob_end_clean();
+
+		return $output;
+
+	}//end getLoginFormHiddenFieldsKeywordReplacement()
 
 
 	/**
