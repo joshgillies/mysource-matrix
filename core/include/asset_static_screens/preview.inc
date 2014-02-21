@@ -102,7 +102,7 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 	// get available conditions and conditions that is set on this asset
 	$target_asset = empty($dependant_parent_id) ? $owner : $GLOBALS['SQ_SYSTEM']->am->getAsset($dependant_parent_id);
 	$set_conditions = $target_asset->getConditions();
-	$available_conditions = array_keys($target_asset->getAvailableConditions());
+	$used_conditions = isset($set_conditions['used_conditions']) && !empty($set_conditions['used_conditions']) ? $set_conditions['used_conditions'] : Array();
 
 	
 	if (empty($url_data)) {
@@ -256,10 +256,17 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 					}
 
 					// add conditions vars
-					var elements = document.getElementsByClassName('sq-preview-conditions');
+					var elements = document.getElementsByClassName('sq-preview-condition-radio-button');
 					for(var i = 0, length = elements.length; i < length; i++) {
 					    if(elements[i].checked) {
-						query_args.push('SQ_CONDITION[]='+elements[i].value);
+						var id_parts = elements[i].id.split('_');
+						var option = id_parts.pop();
+						// get rid of conditions_ prefix
+						id_parts.splice(0, 1);
+						var condition_name = id_parts.join('_');
+						// 3 means it's automatic, no need to force it
+						if(option === '3') continue;
+						query_args.push('SQ_CONDITION['+ condition_name +']='+option);
 					    }
 					}
 
@@ -304,27 +311,23 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 					}
 					document.getElementById("size_button").value = "Calculating ....";
 					document.getElementById("size_button").disabled = true;
-					if (preview_url.match(/SQ_DESIGN_NAME=/)) {
-						var design_name = preview_url.split("?SQ_DESIGN_NAME=");
-						if(design_name[0].match(/_nocache/)){
-							url_calculate = design_name[0].split("_nocache");
-						}
-						url_calculate=url_calculate+"/_admin/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid=<?php echo $owner->id ?>&asset_ei_screen=preview";
+					url_calculate = preview_url.replace('/_nocache', '/_admin');
+					if(url_calculate.indexOf('_admin') == -1) {
+					    url_calculate += "/_admin";
+					}
+					if(url_calculate.indexOf('?') == -1) {
+					    url_calculate += "?";
+					}
+					else {
+					    url_calculate += "&";
+					}
+
+					url_calculate += "SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid=<?php echo $owner->id ?>&asset_ei_screen=preview";
 					url_calculate = url_calculate+"&calc=calculate";
 					url_calculate = url_calculate+"&sid="+Math.random();
-					} else {
-						if(preview_url.match(/_nocache/)){
-							url_calculate = preview_url.split("_nocache");
-						}
-						url_calculate=preview_url+"/_admin/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid=<?php echo $owner->id ?>&asset_ei_screen=preview";
-						url_calculate = url_calculate+"&calc=calculate";
-						url_calculate = url_calculate+"&sid="+Math.random();
-					}
+					console.log(url_calculate);
 
-
-					if (preview_url.match(/SQ_DESIGN_NAME=/)) {
-						url_calculate = url_calculate+"&SQ_DESIGN_NAME="+design_name[1];
-					}
+			
 					xmlHttp.onreadystatechange = stateChanged;
 					xmlHttp.open("GET",url_calculate,true);
 					xmlHttp.send(null);
@@ -347,17 +350,17 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 		if (!((!$o->_buffering) && SQ_IN_LIMBO)) $o->closeRaw();
 
 		$o->openSection(translate('preview_options'));
-			$o->openField(translate('available_urls'));
-				echo '<ul style="margin-top: 0;">';
-				foreach ($preview_urls as $index => $primary_url) {
-					echo '<li><a href="'.$preview_urls[$index].'" target="_blank">'.$preview_urls[$index].'</a></li>';
-				}
-				echo '</ul>';
-			$o->closeField();
-
 			$o->openField(translate('preview_url'));
 				if (count($preview_urls) > 1) {
 					combo_box('preview_url', $preview_urls, FALSE, $primary_url, 1, 'onchange="update_preview_url()"');
+					echo '<div class="sq-preview-available-urls-show"><a href="#" onclick="document.getElementById(\'sq-preview-available-urls\').style.display=\'block\'; this.style.display=\'none\'" >View a list of available URLs ('.count($preview_urls).' available)</a></div>';
+					echo '<div id="sq-preview-available-urls" class="sq-preview-available-urls" >';
+					echo '<ul style="margin-top: 0;">';
+					foreach ($preview_urls as $index => $primary_url) {
+						echo '<li><a href="'.$index.'" target="_blank">'.$index.'</a></li>';
+					}
+					echo '</ul>';
+					echo '</div>';
 				} else {
 					echo '<a href="'.$primary_url.'" target="_blank">'.$primary_url.'</a>';
 					hidden_field('preview_url', $primary_url);
@@ -391,16 +394,41 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 				}
 			$o->closeField();
 
-			if(!empty($set_conditions) && !empty($available_conditions)) {
+			if(!empty($used_conditions)) {
 			    $o->openField(translate('conditions'));
-				    foreach ($available_conditions as $condition_full_name) {
+				    echo '<div class="sq-preview-conditions-show"><a href="#" onclick="document.getElementById(\'sq-preview-conditions\').style.display=\'block\'; this.style.display=\'none\'" >View conditions preview options</a></div>';
+				    echo '<div id="sq-preview-conditions" class="sq-preview-conditions" >';
+				    echo '<table class="sq-backend-table">';
+				    echo '<tr><th>Condition Name</th><th>Evaluaton</th></tr>';
+				    foreach ($used_conditions as $condition_full_name) {
+					echo '<tr>';
 					$condition_name_parts = explode(':', $condition_full_name);
 					$assetid = array_pop($condition_name_parts);
 					$condition_name = implode(' ', explode('_', array_pop($condition_name_parts)));
-					check_box('conditions_'.$condition_full_name, $condition_full_name, FALSE, 'update_preview_url()', 'class="sq-preview-conditions"');
-					label($condition_name.' (#'.$assetid.')', 'conditions_'.$condition_full_name);
-					echo '<br />';
+					echo '<td>';
+					echo '<span class="sq-condition-name">'.$condition_name.' (#'.$assetid.')</span>';
+					echo '</td>';
+					
+					echo '<td width="270px;">';
+					echo '<div class="sq-preview-condition-radio-group">';
+					echo '<label id="'.'conditions_'.$condition_full_name.'_3" >';
+					radio_button('conditions_'.$condition_full_name.'', '3', TRUE, 'update_preview_url()', 'class="sq-preview-condition-radio-button"');
+					echo(translate('automatic'));
+					echo '</label>';
+					echo '<label id="'.'conditions_'.$condition_full_name.'_1">';
+					radio_button('conditions_'.$condition_full_name.'', '1', FALSE, 'update_preview_url()', 'class="sq-preview-condition-radio-button"');
+					echo(translate('true'));
+					echo '</label>';
+					echo '<label id="'.'conditions_'.$condition_full_name.'_0">';
+					radio_button('conditions_'.$condition_full_name.'', '0', FALSE, 'update_preview_url()', 'class="sq-preview-condition-radio-button"');
+					echo(translate('false'));
+					echo '</label>';
+					echo '</div>';
+					echo '</td>';
+					echo '</tr>';
 				    }
+				    echo '</table>';
+				    echo '</div>';
 			    $o->closeField();
 			}
 			

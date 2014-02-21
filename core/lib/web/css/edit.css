@@ -3070,3 +3070,23 @@ LIMBO OUTPUTTER - SECTIONS AND FIELDS (not sure if we need any of this anymore)
 	white-space:				nowrap;
 	padding:					0px 10px 0px 0px;
 }
+
+
+/*
+####################################################################################################################
+Preview Screen styles
+####################################################################################################################
+*/
+
+.sq-preview-available-urls-show {
+    padding-top: 10px;
+}
+.sq-preview-available-urls {
+    display:none;
+}
+.sq-preview-conditions {
+    display:none;
+}
+.sq-preview-condition-radio-group label{
+    padding-right: 30px;
+}
