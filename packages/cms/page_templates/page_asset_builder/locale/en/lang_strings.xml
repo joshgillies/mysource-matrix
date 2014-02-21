@@ -51,6 +51,9 @@
 <string source="cms_asset_builder_field_keyword">%s Field</string>
 <string source="cms_asset_builder_keyword_login_invite">Login Invite</string>
 <string source="cms_asset_builder_keyword_login_form">Login Form</string>
+<string source="cms_asset_builder_keyword_login_form_username">Login Form Username Field</string>
+<string source="cms_asset_builder_keyword_login_form_password">Login Form Password Field</string>
+<string source="cms_asset_builder_keyword_login_form_submit_button">Login Form Submit Button</string>
 <string source="cms_asset_builder_keyword_login_error">Login Error Message</string>
 <string source="cms_asset_builder_keyword_create_invite">Create Asset Invite</string>
 <string source="cms_asset_builder_keyword_create_form">Create Asset Form</string>
