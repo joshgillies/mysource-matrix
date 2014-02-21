@@ -55,11 +55,12 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 	* @param boolean				$write_access	whether to allow editing of this field
 	*												(typically depends on write access to owner and editability of field)
 	* @param boolean				$enable_default	Whether to show the 'use default' checkbox
+	* @param string					$field_prefix	The field's input element's id value
 	*
 	* @return boolean
 	* @access public
 	*/
-	public function paintValueInterface(Metadata_Field_Text $asset, Backend_Outputter $o, $value_str, $write_access, $enable_default=TRUE, $print_cascade_values_option = TRUE, $type_code=NULL, $suffix_to_prefix = '')
+	public function paintValueInterface(Metadata_Field_Text $asset, Backend_Outputter $o, $value_str, $write_access, $enable_default=TRUE, $print_cascade_values_option = TRUE, $type_code=NULL, $suffix_to_prefix = '', &$field_prefix='')
 	{
 		$prefix = $asset->getPrefix();
 		if (!empty($suffix_to_prefix)) $prefix .= $suffix_to_prefix;
@@ -109,15 +110,16 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 				}
 			echo '</span>';
 
+			$field_prefix = $prefix.'_value';
 			if ($asset->attr('multi_line')) {
 				// if there is no character limit display the original text_area
 				if (!$asset->attr('char_limit')) {
-					text_area($prefix.'_value', $value, $asset->attr('box_width'), $asset->attr('box_height'), 0, $extras);
+					text_area($field_prefix, $value, $asset->attr('box_width'), $asset->attr('box_height'), 0, $extras);
 				} else {
-					text_area($prefix.'_value', $value, $asset->attr('box_width'), $asset->attr('box_height'), 0, 'id="'.htmlspecialchars($prefix.'_value').'" onchange="var note=document.getElementById(\''.$prefix.'_value_note\'); note.innerHTML = \'\'; var tmp = document.getElementById(\''.htmlspecialchars($prefix.'_value').'\'); tmp.value = tmp.value.substr(0,'.$asset->attr('char_limit').');"  onkeydown="setTimeout(function() { var note=document.getElementById(\''.$prefix.'_value_note\');  var tmp = document.getElementById(\''.htmlspecialchars($prefix.'_value').'\'); if (tmp.value.length > '.$asset->attr('char_limit').') {note.innerHTML = \'&nbsp;\'+js_translate(\'max_characters_exceeded_by\', (tmp.value.length-'.$asset->attr('char_limit').'));} else {note.innerHTML = \'\'}   }, 50);" '.$extras);
+					text_area($field_prefix, $value, $asset->attr('box_width'), $asset->attr('box_height'), 0, 'id="'.htmlspecialchars($prefix.'_value').'" onchange="var note=document.getElementById(\''.$prefix.'_value_note\'); note.innerHTML = \'\'; var tmp = document.getElementById(\''.htmlspecialchars($prefix.'_value').'\'); tmp.value = tmp.value.substr(0,'.$asset->attr('char_limit').');"  onkeydown="setTimeout(function() { var note=document.getElementById(\''.$prefix.'_value_note\');  var tmp = document.getElementById(\''.htmlspecialchars($prefix.'_value').'\'); if (tmp.value.length > '.$asset->attr('char_limit').') {note.innerHTML = \'&nbsp;\'+js_translate(\'max_characters_exceeded_by\', (tmp.value.length-'.$asset->attr('char_limit').'));} else {note.innerHTML = \'\'}   }, 50);" '.$extras);
 				}
 			} else {
-				text_box($prefix.'_value', $value, $asset->attr('box_width'), $asset->attr('char_limit'), FALSE, $extras);
+				text_box($field_prefix, $value, $asset->attr('box_width'), $asset->attr('char_limit'), FALSE, $extras);
 			}
 
 			// the following text can be used to display the character limit

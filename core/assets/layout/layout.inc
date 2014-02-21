@@ -180,6 +180,18 @@ class Layout extends Bodycopy
 				}
 
 				if ($tag) {
+					if (strpos($tag, 'id_f_') === 0) {
+						// Its layout field's id keyword replacement
+						if (!isset($return_array['screens'][$screen]['field_ids'])) {
+							$return_array['screens'][$screen]['field_ids'] = Array();
+						}
+						$tag = substr($tag, 5);
+						if (!in_array($tag, $return_array['screens'][$screen]['field_ids'])) {
+							$return_array['screens'][$screen]['field_ids'][$tag] = $keyword;
+						}
+						continue;
+					}
+
 					// get the first letter of the type
 					$type = $tag{0};
 					// check to see if we have a field or a section
