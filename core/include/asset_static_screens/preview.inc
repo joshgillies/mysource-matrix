@@ -343,6 +343,18 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 						document.getElementById("size_button").disabled = false;
 					}
 				}
+				
+				function toggleConditionViewOptions(link)
+				{
+					if(link.innerHTML.match(/View /g)) {
+					    document.getElementById('sq-preview-conditions').style.display='block';
+					    link.innerHTML = 'Hide conditions preview options';
+					}
+					else {
+					    document.getElementById('sq-preview-conditions').style.display='none';
+					    link.innerHTML = 'View conditions preview options';
+					}	
+				}
 
 			</script>
 		<?php
@@ -396,7 +408,7 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 
 			if(!empty($used_conditions)) {
 			    $o->openField(translate('conditions'));
-				    echo '<div class="sq-preview-conditions-show"><a href="#" onclick="document.getElementById(\'sq-preview-conditions\').style.display=\'block\'; this.style.display=\'none\'" >View conditions preview options</a></div>';
+				    echo '<div class="sq-preview-conditions-show"><a href="#" onclick="toggleConditionViewOptions(this)" >View conditions preview options</a></div>';
 				    echo '<div id="sq-preview-conditions" class="sq-preview-conditions" >';
 				    echo '<table class="sq-backend-table">';
 				    echo '<tr><th>Condition Name</th><th>Evaluaton</th></tr>';

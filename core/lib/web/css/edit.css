@@ -3100,6 +3100,9 @@ Preview Screen styles
 .sq-preview-conditions {
     display:none;
 }
+.sq-preview-conditions-show {
+    padding-bottom: 10px;
+}
 .sq-preview-condition-radio-group label{
     padding-right: 30px;
 }

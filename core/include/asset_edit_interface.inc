@@ -1743,6 +1743,12 @@ class Asset_Edit_Interface extends MySource_Object
 									ob_end_flush();
 								}
 								$o->closeField();
+							
+								// Field id layout keyword replacement
+								if (isset($layout_keywords['screens'][$screen]['field_ids'][(string)$field->attributes()->attribute])) {
+									$field_id_keyword = $layout_keywords['screens'][$screen]['field_ids'][(string)$field->attributes()->attribute];
+									$this->_tmp['layout_keyword_replacements'][$field_id_keyword] = $prefix.'_'.$attr->id;
+								}
 
 							} else if ($attr_tag->getName() == 'function_call') {
 

@@ -320,10 +320,18 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL, Array $layout_options
 					$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($field_assetid);
 					$edit_fns = $field->getEditFns();
 
+					$field_prefix = '';
 					ob_start();
-					$edit_fns->paintValueInterface($field, $o, $value, $write_access, FALSE, $print_cascade_values_option, $owner->type());
+					$edit_fns->paintValueInterface($field, $o, $value, $write_access, FALSE, $print_cascade_values_option, $owner->type(), '', $field_prefix);
 					$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][$field_assetid]] = ob_get_contents();
 					ob_end_flush();
+				}
+
+				if (empty($field_prefix)) {
+					$field_prefix = $field->getPrefix();
+				}
+				if (isset($keywords['field_ids'][$field_assetid])) {
+					$ei->_tmp['layout_keyword_replacements'][$keywords['field_ids'][$field_assetid]] = $field_prefix;
 				}
 			}
 			// if this is section keyword replacement
