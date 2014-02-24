@@ -6865,7 +6865,13 @@ class Asset extends MySource_Object
 				    foreach ($group['conditions'] as $condition) {
 					$condition_name_parts = explode(':', $condition);
 					$assetid = array_pop($condition_name_parts);
-					if($GLOBALS['SQ_SYSTEM']->am->assetExists($assetid)) {
+					try {
+					    $result = $GLOBALS['SQ_SYSTEM']->am->assetExists($assetid);
+					} catch (Exception $exception) {
+					    log_dump($exception->getMessage());
+					    continue;
+					}
+					if($result) {
 					    // the condtion name should have an owner id appended
 					    $asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 					    $conditions_info = $asset->getAvailableConditions(TRUE);
@@ -6942,7 +6948,13 @@ class Asset extends MySource_Object
 			     // eval the condition
 			    $condition_name_parts = explode(':', $condition);
 			    $assetid = array_pop($condition_name_parts);
-			    if($GLOBALS['SQ_SYSTEM']->am->assetExists($assetid)) {
+			    try {
+				$result = $GLOBALS['SQ_SYSTEM']->am->assetExists($assetid);
+			    } catch (Exception $exception) {
+				log_dump($exception->getMessage());
+				continue;
+			    }
+			    if($result) {
 				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				$conditions_info = $asset->getAvailableConditions(TRUE);
 				if(isset($conditions_info[$condition])) {
