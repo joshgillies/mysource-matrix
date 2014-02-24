@@ -623,7 +623,9 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array(), $ac
 				$replace_from = Array();
 				$replace_to = Array();
 				foreach($regex_data as $data) {
-					replace_global_keywords($data['regex']);
+					if ($data['replace_keywords']) {
+						replace_global_keywords($data['regex']);
+					}
 					if (preg_match($data['regex'], '') === FALSE) {
 						continue;
 					}
@@ -669,7 +671,9 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array(), $ac
 				// The very first regex in the regex/replacement pair is used for this modifier
 				if (!empty($regex_data[0]) && !empty($regex_data[0]['regex'])) {
 					$matches = Array();
-					replace_global_keywords($regex_data[0]['regex']);
+					if ($regex_data[0]['replace_keywords']) {
+						replace_global_keywords($regex_data[0]['regex']);
+					}
 					if (@preg_match_all($regex_data[0]['regex'], $text, $matches)) {
 						if (isset($matches[0]) && count($matches[0]) > 0) {
 							return $success ? $success : count($matches[0]);
@@ -691,7 +695,9 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array(), $ac
 				// The very first regex in the regex/replacement pair is used for this modifier
 				if (!empty($regex_data[0]) && !empty($regex_data[0]['regex'])) {
 					$matches = Array();
-					replace_global_keywords($regex_data[0]['regex']);
+					if ($regex_data[0]['replace_keywords']) {
+						replace_global_keywords($regex_data[0]['regex']);
+					}
 					if (@preg_match_all($regex_data[0]['regex'], $text, $matches)) {
 						if (isset($matches[0])) {
 							return $matches;
