@@ -57,18 +57,22 @@ class Regular_Expression_Edit_Fns extends Asset_Edit_Fns
 		$regex_data = $asset->attr('regex_data');
 		$prefix = $asset->getPrefix();
 		echo '<table class ="sq-backend-table">';
-		echo '<tr><th>Regex</th><th>Replacement</th>'.($wa ? '<th>Delete</th>' : '').'</tr>';
+		echo '<tr><th>Regex</th><th>Replacement</th><th>Replace Keywords</th>'.($wa ? '<th>Delete</th>' : '').'</tr>';
 		// Existing regex pairs
 		$count = 0;
 		foreach($regex_data as $data) {
 			echo '<tr>';
-			
+
 			echo '<td>';
 			text_box($prefix.'_regex['.$count.'][regex]', $data['regex'], 40, '', FALSE, $wa ? '' : 'disabled');
 			echo '</td>';
-			
+
 			echo '<td>';
 			text_box($prefix.'_regex['.$count.'][replacement]', $data['replacement'], 30, '', FALSE, $wa ? '' : 'disabled');
+			echo '</td>';
+
+			echo '<td>';
+			check_box($prefix.'_regex['.$count.'][replace_keywords]', '1',  $data['replace_keywords'] == '1', '', $wa ? '' : 'disabled');
 			echo '</td>';
 
 			if ($wa) {
@@ -94,7 +98,7 @@ class Regular_Expression_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		echo '</table>';
-		
+
 		return TRUE;
 
 	}//end paintReplaceFrom()
@@ -117,7 +121,7 @@ class Regular_Expression_Edit_Fns extends Asset_Edit_Fns
 		if (!$asset->writeAccess('attributes')) {
 			return FALSE;
 		}
-		
+
 		$prefix = $asset->getPrefix();
 		if(!empty($_POST[$prefix.'_regex'])) {
 			foreach($_POST[$prefix.'_regex'] as $data) {
@@ -127,28 +131,31 @@ class Regular_Expression_Edit_Fns extends Asset_Edit_Fns
 
 				$regex = trim(array_get_index($data, 'regex', ''));
 				$replacement = trim(array_get_index($data, 'replacement', ''));
+				$replace_keywords = array_get_index($data, 'replace_keywords', '');
 				if (empty($regex)) continue;
 
-				// Strip out Matrix keyword for the testing
-				$test_regex = str_replace('\/', '/', preg_replace('/%[^\s]+%/', '', str_replace('/', '\/', $regex)));
-				if (preg_match($test_regex, '') === FALSE) {
-					// Warn user if invalid regex string
-					trigger_error('Regular expression "'.$regex.'" is not valid. It will be ignored when applying the keyword modifier', E_USER_WARNING);
-				}
-				// Warn if 'e' regex modifier is used
-				$regex_delimiter = substr($test_regex, 0, 1);
-				$ending_delimiter_index = strrpos($test_regex, $regex_delimiter);
-				if ($ending_delimiter_index > 0) {
-					// Get the modifier part in the regex
-					$regex_modifier_str = substr($test_regex, $ending_delimiter_index);
-					if (strpos($regex_modifier_str, 'e') !== FALSE) {
-						trigger_error('"e" (PREG_REPLACE_EVAL) modifier is not allowed. This modifier will be ignored when applying the keyword modifier', E_USER_WARNING);
+				// Cannot possibly test the regex with keywords
+				if (!$replace_keywords || !preg_match('/%.*%/', $regex)) {
+					if (preg_match($regex, '') === FALSE) {
+						// Warn user if invalid regex string
+						trigger_error('Regular expression "'.$regex.'" is not valid. It will be ignored when applying the keyword modifier', E_USER_WARNING);
+					}
+					// Warn if 'e' regex modifier is used
+					$regex_delimiter = substr($regex, 0, 1);
+					$ending_delimiter_index = strrpos($regex, $regex_delimiter);
+					if ($ending_delimiter_index > 0) {
+						// Get the modifier part in the regex
+						$regex_modifier_str = substr($regex, $ending_delimiter_index);
+						if (strpos($regex_modifier_str, 'e') !== FALSE) {
+							trigger_error('"e" (PREG_REPLACE_EVAL) modifier is not allowed. This modifier will be ignored when applying the keyword modifier', E_USER_WARNING);
+						}
 					}
 				}
 
 				$regex_data[] = Array(
 									'regex'			=> $regex,
 									'replacement'	=> $replacement,
+									'replace_keywords' => $replace_keywords,
 								);
 			}//end foreach
 
