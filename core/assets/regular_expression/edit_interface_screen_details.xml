@@ -19,7 +19,7 @@
 			<text width="30" height="1" />
 		</field>
 	</section>
-	<section name="Regex Expression" write_access="write:attributes">
+	<section name="Regular Expression" write_access="write:attributes">
 		<field keyword="regex_input">
 			<function_call>
 				<paint_function   name="paintRegexDataForm" />
