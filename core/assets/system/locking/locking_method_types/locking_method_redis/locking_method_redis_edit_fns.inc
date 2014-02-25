@@ -10,12 +10,39 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
+* $Id: locking_method_redis_edit_fns.inc,v 1.2 2012/08/30 01:09:11 ewang Exp $
 *
 */
 
-define('SQ_SYSTEM_VERSION',        '5.0.0.0_dev');
-define('SQ_SYSTEM_SHORT_NAME',     'Matrix');
-define('SQ_SYSTEM_LONG_NAME',      'Squiz Matrix v'.SQ_SYSTEM_VERSION);
-define('SQ_SYSTEM_URL',            'http://www.squiz.net/au/suite/matrix');
-define('SQ_REQUIRED_PHP_VERSION',  '5.1.6');
+require_once SQ_CORE_PACKAGE_PATH.'/system/locking/locking_method/locking_method_edit_fns.inc';
+
+
+/**
+* Locking_Method_Redis_Edit_Fns
+*
+* Purpose
+*
+*
+* @author		Chris Smith <csmith@squiz.net>
+* @version		$Revision: 1.2 $
+* @package		MySource_Matrix_Packages
+* @subpackage	__core__
+*/
+class Locking_Method_Redis_Edit_Fns extends Locking_Method_Edit_Fns
+{
+
+
+	/**
+	* Constructor
+	*
+	*/
+	public function __construct()
+	{
+		parent::__construct();
+
+	}//end __construct()
+
+
+}//end class
+
 ?>

@@ -1,10 +1,7 @@
 <?php
 /**
-* Adds entries into rollback tables where there are no entries. This will occur
-* when rollback has been enabled sometime after the system was installed.
+* Enables, disables, forgets, prints the status of the dejavu memory management.
 *
-* @author  Marc McIntyre <mmcintyre@squiz.net>
-* @author  Greg Sherwood <gsherwood@squiz.net>
 * @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
@@ -16,7 +13,7 @@ if ((php_sapi_name() != 'cli')) {
 require_once 'Console/Getopt.php';
 
 $shortopt = 's:';
-$longopt = Array('enable', 'disable', 'forget', 'status', 'disable_force', 'recaching_delay=');
+$longopt = Array('enable', 'disable', 'forget', 'status', 'disable_force', 'recaching_delay=', 'cache_storage=');
 
 $args = Console_Getopt::readPHPArgv();
 array_shift($args);
@@ -30,6 +27,7 @@ if (empty($options[0])) usage();
 $SYSTEM_ROOT = '';
 $ACTION = '';
 $RECACHING_DELAY = '0';
+$CACHE_STORAGE = '';
 
 foreach ($options[0] as $option) {
 	switch ($option[0]) {
@@ -46,6 +44,13 @@ foreach ($options[0] as $option) {
 					usage();
 				}
 				$RECACHING_DELAY = $option[1];
+				continue;
+			}
+
+			// Validation is done in Deja-Vu to make sure it's a valid type.
+			if ($ACTION == '--cache_storage') {
+				$CACHE_STORAGE = $option[1];
+				continue;
 			}
 		break;
 	}
@@ -79,24 +84,15 @@ switch ($ACTION) {
 		} else {
 			echo "Deja Vu is currently enabled.\n";
 			echo "Recaching delay time: ".$deja_vu->getRecachingDelay()."s.\n";
+			echo "Cache storage: ".$deja_vu->getCacheStorage().".\n";
 		}
 		break;
 	case '--enable':
 		if ($deja_vu->enabled() == TRUE) {
 			echo "Deja Vu is already enabled.\n";
-		} else {
-			// Make sure memcache is setup properly before enable deja vu. 
-			assert_true(extension_loaded('memcache'), 'Cannot use Deja Vu; it requires the memcache PECL extension installed within , which is not installed');
-			assert_true(is_file(SQ_DATA_PATH.'/private/conf/memcache.inc'), 'Cannot use Deja Vu; the Memcache configuration file is not set');
+        } else {
+            $ok = $deja_vu->checkRequirements();
 
-			$memcache_conf = require(SQ_DATA_PATH.'/private/conf/memcache.inc');
-			$hosts =& $memcache_conf['hosts'];
-			$services =& $memcache_conf['services'];
-
-			assert_true(count($hosts) > 0, 'Cannot use Deja Vu; no hosts are defined in the Memcache configuration file');
-			assert_true(array_key_exists('deja_vu', $services) === TRUE, 'Cannot use Deja Vu; no Memcache hosts are assigned');
-			assert_true(count($services['deja_vu']) > 0, 'Cannot use Deja Vu; no Memcache hosts are assigned');
-			
 			echo "Enabling Deja Vu...\n";
 			if ($deja_vu->enable()) {
 				$d_vu = new Deja_Vu();
@@ -145,6 +141,14 @@ switch ($ACTION) {
 			echo "[FAILED]\n";
 		}
 		break;
+	case '--cache_storage':
+		echo "Setting cache storage type ...\n";
+		if ($deja_vu->setCacheStorage($CACHE_STORAGE)) {
+			echo "[DONE]\n";
+		} else {
+			echo "[FAILED]\n";
+		}
+		break;
 	default:
 		usage();
 		break;
@@ -159,13 +163,14 @@ switch ($ACTION) {
 */
 function usage()
 {
-	echo "\nUSAGE: dejavu_management.php -s <system_root> [--enable] [--disable] [--forget] [--recache_delay <time_in_seconds>]\n".
-		"--enable  			Enables Deja Vu in MySource Matrix\n".
-		"--disable 			Disables Deja Vu in MySource Matrix\n".
-		"--disable_force			Forcibly disables Deja Vu by editing control file\n".
-		"--forget			Forgets all Deja Vu data in MySource Matrix\n".
-		"--status			Checks the current Deja Vu status\n".
-		"--recaching_delay			Set the time period to delay the asset recaching after the asset has been updated\n".
+	echo "\nUSAGE: dejavu_management.php -s <system_root> [--enable] [--disable] [--forget] [--recache_delay <time_in_seconds>] [--cache_storage=memcache|redis]\n".
+		"--enable              Enables Deja Vu in MySource Matrix\n".
+		"--disable             Disables Deja Vu in MySource Matrix\n".
+		"--disable_force       Forcibly disables Deja Vu by editing control file\n".
+		"--forget              Forgets all Deja Vu data in MySource Matrix\n".
+		"--status              Checks the current Deja Vu status\n".
+		"--recaching_delay     Set the time period to delay the asset recaching after the asset has been updated\n".
+		"--cache_storage       Set the cache storage to either memcache or redis\n";
 		"\nNOTE: only one of [--enable --disable --forget] option is allowed to be specified\n";
 	exit();
 

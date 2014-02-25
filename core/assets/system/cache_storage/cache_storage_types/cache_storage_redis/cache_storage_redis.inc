@@ -23,6 +23,7 @@
  */
 
 require_once SQ_CORE_PACKAGE_PATH.'/system/cache_storage/cache_storage/cache_storage.inc';
+require_once SQ_LIB_PATH.'/MatrixRedis/MatrixRedis.inc';
 
 define('SQ_CACHE_REDIS_PREFIX', 'sq_cache|');
 define('SQ_CACHE_REDIS_ASSET_INDEX_PREFIX', 'sq_cache_asset_index|');
@@ -49,7 +50,7 @@ class Cache_Storage_Redis extends Cache_Storage
 	*
 	* @var object Redis
 	*/
-	private $_redis;
+	private $_redis = NULL;
 
 
 	/**
@@ -65,50 +66,21 @@ class Cache_Storage_Redis extends Cache_Storage
 	}//end constructor
 
 
-	public function initRedis()
+	private function _initRedis()
 	{
-		assert_true(extension_loaded('redis'), 'Cannot use Redis Cache Storage; it requires the redis PECL extension installed within PHP, which is not installed');
-		assert_true(is_file(SQ_DATA_PATH.'/private/conf/redis.inc'), 'Cannot use Redis Cache Storage; the Redis configuration file is not set');
-
-		$redis_conf = require(SQ_DATA_PATH.'/private/conf/redis.inc');
-		$services =& $redis_conf['services']['cache_manager'];
-		$hosts =& $redis_conf['hosts'];
-
-		assert_true(count($hosts) > 0, 'Cannot use Redis Cache Storage; no hosts are defined in the Redis configuration file');
-
-		// If PHP has the redis module installed, instantiate it and try to load some config.
-		$this->_redis = new Redis();
-
-		// Attempt to connect to defined redis hosts in order, break on success
-		foreach ($services as $host_key => $weight) {
-			$host = $hosts[$host_key];
-			if ($host['socket'] !== FALSE) {
-				if ($this->_redis->pconnect($host['socket'])) {
-					break;
-				}
-			} else {
-				if ($this->_redis->pconnect($host['host'], $host['port'], 2)) {
-					break;
-				}
-			}
+		if ($this->_redis !== NULL) {
+			return TRUE;
 		}
 
-		try {
-			// Ping the server to make sure the connection is working
-			$this->_redis->ping();
-		} catch(RedisException $e) {
-			// Bad connection, set the redis object to false
-			// Cache functions below will return without trying to send redis commands on a dead connection
-
-			// TODO: Change this to a proper Matrix error/warning
-			log_write('Redis Connect Error: '.$e->getMessage(), 'error', E_USER_NOTICE);
-
-			$this->_redis = FALSE;
+		$connection = MatrixRedis::getConnection('cache_manager');
+		if ($connection === FALSE) {
 			return FALSE;
 		}
+
+		$this->_redis = $connection;
 		return TRUE;
 
-	}//end initRedis()
+	}//end _initRedis()
 
 
 	/**
@@ -162,10 +134,8 @@ class Cache_Storage_Redis extends Cache_Storage
 	 */
 	function store($cache_key, $perm_key, $url, $assetid, $data, $expiry)
 	{
-		if (!$this->_redis) {
-			if (!$this->initRedis()) {
-				return FALSE;
-			}
+		if (!$this->_initRedis()) {
+			return FALSE;
 		}
 
 		// 0 is handled as infinite rather than 0 seconds in redis. If we have 0,
@@ -219,10 +189,8 @@ class Cache_Storage_Redis extends Cache_Storage
 	 */
 	function read($cache_key, $perm_key, $url, $assetid)
 	{
-		if (!$this->_redis) {
-			if (!$this->initRedis()) {
-				return FALSE;
-			}
+		if (!$this->_initRedis()) {
+			return FALSE;
 		}
 
 		$index_url = trim(preg_replace('/\?.*/', '', $url), '//');
@@ -259,10 +227,8 @@ class Cache_Storage_Redis extends Cache_Storage
 	 */
 	function clearAll()
 	{
-		if (!$this->_redis) {
-			if (!$this->initRedis()) {
-				return FALSE;
-			}
+		if (!$this->_initRedis()) {
+			return FALSE;
 		}
 
 		return $this->_redis->flushDB();
@@ -308,10 +274,8 @@ class Cache_Storage_Redis extends Cache_Storage
 	*/
 	function clear($assetids)
 	{
-		if (!$this->_redis) {
-			if (!$this->initRedis()) {
-				return FALSE;
-			}
+		if (!$this->_initRedis()) {
+			return FALSE;
 		}
 
 		foreach ($assetids as $assetid) {
@@ -333,10 +297,8 @@ class Cache_Storage_Redis extends Cache_Storage
 	*/
 	function clearCachedAssetsByUrl($url)
 	{
-		if (!$this->_redis) {
-			if (!$this->initRedis()) {
-				return FALSE;
-			}
+		if (!$this->_initRedis()) {
+			return FALSE;
 		}
 
 		$this->_redis->del(SQ_CACHE_REDIS_URL_INDEX_PREFIX.$url);

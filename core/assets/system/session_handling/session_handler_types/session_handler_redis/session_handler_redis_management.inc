@@ -10,12 +10,40 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
+* $Id: session_handler_redis_management.inc,v 1.2 2012/08/30 01:09:11 ewang Exp $
 *
 */
 
-define('SQ_SYSTEM_VERSION',        '5.0.0.0_dev');
-define('SQ_SYSTEM_SHORT_NAME',     'Matrix');
-define('SQ_SYSTEM_LONG_NAME',      'Squiz Matrix v'.SQ_SYSTEM_VERSION);
-define('SQ_SYSTEM_URL',            'http://www.squiz.net/au/suite/matrix');
-define('SQ_REQUIRED_PHP_VERSION',  '5.1.6');
+
+require_once SQ_INCLUDE_PATH.'/asset_management.inc';
+
+
+/**
+* Session_Handler_Redis_Management
+*
+* Purpose
+*    Asset Management file for the Redis Session Handler asset.
+*
+* @author     Chris Smith <csmith@squiz.net>
+* @version    $Revision: 1.2 $
+* @package    MySource_Matrix
+* @subpackage __core__
+*/
+class Session_Handler_Redis_Management extends Asset_Management
+{
+
+	/**
+	* Constructor
+	*
+	*/
+	function __construct(Package_Manager $pm)
+	{
+		parent::__construct($pm);
+
+	}//end constructor
+
+
+}//end class
+
+
 ?>

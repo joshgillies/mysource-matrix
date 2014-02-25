@@ -411,7 +411,7 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 				    echo '<div class="sq-preview-conditions-show"><a href="#" onclick="toggleConditionViewOptions(this)" >View conditions preview options</a></div>';
 				    echo '<div id="sq-preview-conditions" class="sq-preview-conditions" >';
 				    echo '<table class="sq-backend-table">';
-				    echo '<tr><th>Condition Name</th><th>Evaluaton</th></tr>';
+				    echo '<tr><th>Condition Name</th><th>Evaluation</th></tr>';
 				    foreach ($used_conditions as $condition_full_name) {
 					echo '<tr>';
 					$condition_name_parts = explode(':', $condition_full_name);
