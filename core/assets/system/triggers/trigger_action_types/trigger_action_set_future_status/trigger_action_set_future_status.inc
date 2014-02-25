@@ -137,8 +137,10 @@ class Trigger_Action_Set_Future_Status extends Trigger_Action
 				$date_mfield = $GLOBALS['SQ_SYSTEM']->am->getAsset($settings['when_meta_field_id'], 'metadata_field_date');
 				if (!is_null($date_mfield)) {
 					$date_mfield_offset =  str_replace(' ', '', $date_mfield->attr('offset'));
-					$adjusted_val = strtotime($val.' '.$date_mfield_offset);
-					$val = $adjusted_val ? ts_iso8601($adjusted_val) : $val;
+					if (!empty($date_mfield_offset)) {
+						$adjusted_val = strtotime($val.' '.$date_mfield_offset);
+						$val = $adjusted_val ? ts_iso8601($adjusted_val) : $val;
+					}
 				}
 			}//end if
 
