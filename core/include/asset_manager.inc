@@ -1393,13 +1393,18 @@ class Asset_Manager extends MySource_Object
 		// array of asset ids
 		$existing_asset_ids = Array();
 		if (!$is_empty) {
-			$in = 'assetid IN (';
-
-			for ($i=0; $i<count($assetids); $i++) {
-				$in .= MatrixDAL::quote( (string) $assetids[$i] ).(($i == count($assetids) - 1) ? ')' : ',');
+			for($i=0; $i<count($assetids); $i++) {
+				$assetids[$i] = MatrixDAL::quote($assetids[$i]);
 			}
 
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($in);
+			// Break up the assets into chunks of 1000 so that oracle does not complain
+			$in_clauses = Array();
+			foreach(array_chunk($assetids, 999) as $chunk) {
+				$in_clauses[] = ' assetid IN ('.implode(', ', $chunk).')';
+			}
+			$where = '('.implode(' OR ', $in_clauses).')';
+
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 			try {
 				$db_assetids = MatrixDAL::executeSqlAll($sql.$where);
 			} catch (Exception $e) {
