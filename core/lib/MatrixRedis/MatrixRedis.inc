@@ -49,6 +49,8 @@ class MatrixRedis
         assert_true(is_file(SQ_DATA_PATH.'/private/conf/redis.inc'), 'Cannot use Redis for '.$type.'; the Redis configuration file is not set');
 
         $redis_conf = require(SQ_DATA_PATH.'/private/conf/redis.inc');
+        assert_true(array_key_exists($type, $redis_conf['services']), 'Cannot use Redis for '.$type.'; the service is not set up.');
+
         $services = $redis_conf['services'][$type];
         $hosts = $redis_conf['hosts'];
 
@@ -141,6 +143,8 @@ class MatrixRedis
         assert_true(is_file(SQ_DATA_PATH.'/private/conf/redis.inc'), 'Cannot use Redis for '.$type.'; the Redis configuration file is not set');
 
         $redis_conf = require(SQ_DATA_PATH.'/private/conf/redis.inc');
+
+        assert_true(array_key_exists($type, $redis_conf['services']), 'Cannot use Redis for '.$type.'; the service is not set up.');
         $services = $redis_conf['services'][$type];
         $hosts = $redis_conf['hosts'];
 
@@ -150,7 +154,7 @@ class MatrixRedis
         // URL format expected by the session handler, which requires options to
         // be specified by GET variables.
         $host_str = Array();
-        foreach ($services[$type] as $host_key => $weight) {
+        foreach ($services as $host_key => $weight) {
             $hostExists = array_key_exists($host_key, $hosts);
             if ($hostExists === FALSE) {
                 log_error(get_class().': Cannot use Redis '.$type.'; host key "'.$host_key.'" assigned for use in '.$type.' but not defined as a host');
@@ -160,17 +164,32 @@ class MatrixRedis
             $hostInfo = $hosts[$host_key];
 
             if ($hostInfo['socket']) {
-                $hostInfo_str = 'unix:///'.$hostInfo['host'];
+                $hostInfo_str = 'unix:///'.$hostInfo['socket'];
             } else {
                 $hostInfo_str = 'tcp://'.$hostInfo['host'].':'.$hostInfo['port'];
             }
 
             $query_str = Array();
 
-            $timeout    = array_get_index($hostInfo, 'timeout', 2);
-            $prefix     = array_get_index($hostInfo, 'prefix', '');
-            $persistent = array_get_index($hostInfo, 'persistent', 0);
-            $database   = array_get_index($hostInfo, 'database', '');
+            $conn_timeout = array_get_index($hostInfo, 'connection_timeout', 2);
+            // in case there was a 'timeout' setting from the old config.
+            $old_timeout  = array_get_index($hostInfo, 'timeout', 0);
+
+            // Passing it as a query string, it uses 'timeout'.
+            $timeout = max($old_timeout, $conn_timeout);
+
+            $pid      = array_get_index($hostInfo, 'persistent_id', '');
+            $retry    = array_get_index($hostInfo, 'retry_interval', 2);
+            $prefix   = array_get_index($hostInfo, 'prefix', '');
+            $database = array_get_index($hostInfo, 'database', '');
+
+            // For sessions, this needs to be a 1 or 0.
+            $persistent = array_get_index($hostInfo, 'persistent', FALSE);
+            if ($persistent === TRUE) {
+                $persistent = 1;
+            } else {
+                $persistent = 0;
+            }
 
             $query_str[] = 'weight='.intval($weight);
             foreach (array('timeout', 'prefix', 'persistent', 'database') as $opt) {
