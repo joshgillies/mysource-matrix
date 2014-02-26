@@ -193,9 +193,9 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 			?>
 
 			<!-- start print pagination bar top -->
-			<?php $o->openField('', 'new_line')?>
+			<?php $o->openField('', 'wide_col')?>
 			<table class="sq-backend-table">
-				<tr><td class="sq-backend-table-header-header"><b>
+				<tr><th>
 					<?php
 					hidden_field($prefix.'_link_offset', $link_offset);
 					if ($link_offset > 0) {
@@ -258,7 +258,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 						?></span><?php
 					}
 					?>
-				</b></td><tr>
+				</th><tr>
 				</table>
 				<?php $o->closeField(); ?>
 				<!-- end print pagination bar -->
@@ -267,100 +267,85 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 			for (reset($whens); NULL !== ($type = key($whens)); next($whens)) {
 				if (empty($whens[$type])) continue;
 				asort($whens[$type], SORT_STRING);
-				$o->openField(Cron_Job::whenTypeName($type), 'new_line');
-				?>
-				<table class="sq-backend-table">
-					<tr>
-						<td class="sq-backend-table-header">
-							When
-						</td>
-						<td class="sq-backend-table-header">
-							<?php echo translate('details'); ?>
-						</td>
-					<?php
-						if ($asset->writeAccess('links')) {
-						?>
-						<td class="sq-backend-table-header" style="text-align: center;">
-							<?php echo translate('delete_question'); ?>
-						</td>
-						<?php
-						}//end if
+				$o->openSection(Cron_Job::whenTypeName($type), 'new_line');
+					$o->openField('','wide_col');
 					?>
-					</tr>
-				<?php
-				foreach ($whens[$type] as $i => $when) {
-					if (!(($counter < $link_offset) || (($link_offset+$num_per_page-1) < $counter))) {
-				?>
-					<tr>
-						<td class="sq-backend-table-cell">
-							<?php echo $jobs[$i]->readableWhen(FALSE); ?>
-						</td>
-						<td class="sq-backend-table-cell">
-							<table border="0" cellspacing="0" cellpadding="0">
-								<tr>
-									<td class="sq-backend-table-cell" style="font-weight: bold; text-align: right; border-bottom: none">
-										<?php echo translate('name'); ?> :&nbsp;
-									</td>
-									<td class="sq-backend-table-cell" style="border-bottom: none">
-										<?php echo get_asset_tag_line($jobs[$i]->id); ?>
-									</td>
-								</tr>
-								<tr>
-									<td class="sq-backend-table-cell" style="font-weight: bold; text-align: right; border-bottom: none">
-										<?php echo translate('run_as'); ?> :&nbsp;
-									</td>
-									<td class="sq-backend-table-cell" style="border-bottom: none">
-										<?php
-											$user = $jobs[$i]->getRunningUser();
-											if ($user) {
-												echo get_asset_tag_line($user->id);
-											} else {
-												?><em><?php echo translate('system'); ?></em><?php
-											}
+						<table class="sq-backend-table">
+							<tr>
+								<th style="width:25%;">
+									When
+								</th>
+								<th style="width:40%;">
+									<?php echo translate('name'); ?>
+								</th>
+								<th style="width:25%;">
+									<?php echo translate('run_as'); ?>
+								</th>
+							<?php
+								if ($asset->writeAccess('links')) {
+								?>
+								<th style="text-align: center;" style="width:10%;">
+									<?php echo translate('delete_question'); ?>
+								</th>
+								<?php
+								}//end if
+							?>
+							</tr>
+						<?php
+						foreach ($whens[$type] as $i => $when) {
+							if (!(($counter < $link_offset) || (($link_offset+$num_per_page-1) < $counter))) {
+						?>
+							<tr>
+								<td class="sq-backend-table-cell">
+									<?php echo $jobs[$i]->readableWhen(FALSE); ?>
+								</td>
+								<td class="sq-backend-table-cell">
+									<?php echo get_asset_tag_line($jobs[$i]->id); ?>
+									<?php
+									if (($asset->attr('current_job') == $jobs[$i]->id) && ((int) $asset->attr('run_check') >= (int) $asset->attr('warn_after_num_run_checks'))) {
 										?>
-									</td>
-								</tr>
-								<?php
-								if (($asset->attr('current_job') == $jobs[$i]->id) && ((int) $asset->attr('run_check') >= (int) $asset->attr('warn_after_num_run_checks'))) {
+										<br/><span class="sq-backend-warning">This job appears to have deadlocked the Cron Manager</span>
+										<?php
+									}
+									?>
+								</td>
+								<td class="sq-backend-table-cell">
+									<?php
+										$user = $jobs[$i]->getRunningUser();
+										if ($user) {
+											echo get_asset_tag_line($user->id);
+										} else {
+											?><em><?php echo translate('system'); ?></em><?php
+										}
+									?>
+								</td>
+							<?php
+								if ($asset->writeAccess('links')) {
 								?>
-								<tr>
-								<td colspan="2" class="sq-backend-table-cell" style="border-bottom: none"><span class="sq-backend-warning">This job appears to have deadlocked the Cron Manager</span></td>
-								</tr>
+								<td class="sq-backend-table-cell" style="text-align: center;">
 								<?php
-								}
+									if ($jobs[$i]->canDelete()) {
+										check_box($prefix.'_remove_jobs[]', $jobs[$i]->id);
+									} else {
+										echo '&nbsp;';
+									}//end if
 								?>
-							</table>
-						</td>
-					<?php
-						if ($asset->writeAccess('links')) {
-						?>
-						<td class="sq-backend-table-cell" style="text-align: center;">
+								</td>
+								<?php
+								}//end if
+							?>
+							</tr>
 						<?php
-							if ($jobs[$i]->canDelete()) {
-								check_box($prefix.'_remove_jobs[]', $jobs[$i]->id);
-							} else {
-								echo '&nbsp;';
 							}//end if
+							$counter++;
+						}//end foreach
 						?>
-						</td>
-						<?php
-						}//end if
-					?>
-					</tr>
-				<?php
-					}//end if
-					$counter++;
-				}//end foreach
-				?>
-				</table>
-				<?php
-				$o->closeField();
+						</table>
+					<?php
+					$o->closeField();
+				$o->closeSection();
 
 			}//end for
-
-			?>
-			</table>
-			<?php
 
 		}//end else
 		return TRUE;

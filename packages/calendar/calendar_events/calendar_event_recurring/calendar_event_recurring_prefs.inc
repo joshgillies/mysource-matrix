@@ -32,7 +32,7 @@ class Calendar_Event_Recurring_Prefs extends Prefs
 	var $pref_vars = Array (
 						'SQ_CALENDAR_EVENTS_FREQUENCY'	=> Array(
 														'name'			=> 'calendar_events_frequency',
-														'description'	=> 'Recurrence event frequency threshold in days. If set to a non-zero positive value, the recurring event will be displayed only once in listing pages when its frequency is less than the specified threshold value',
+														'description'	=> 'Recurrence event frequency threshold in days. If set to a non-zero positive value, the recurring event will be displayed only once in listing pages when its frequency is less than the specified threshold value.',
 														'default'		=> 0,
 														'protected'		=> FALSE,
 														),

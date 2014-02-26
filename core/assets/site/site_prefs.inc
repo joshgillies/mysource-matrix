@@ -34,7 +34,7 @@ class Site_Prefs extends Prefs
 	var $pref_vars = Array (
 						'SQ_CHILD_CREATE_LINK_TYPE_2_RESTRICT'	=> Array(
 																'name'			=> 'child_creation_type_2_restriction',
-																'description'	=> 'Link type options prior to asset creation will be restricted to a TYPE 2 link for any asset to be located anywhere under the specified Site Asset IDs. Link type can still be changed after creation e.g. via Linking Screen',
+																'description'	=> 'Link type options prior to asset creation will be restricted to a TYPE 2 link for any asset to be located anywhere under the specified Site Asset IDs. Link type can still be changed after creation e.g. via Linking Screen.',
 																'default'		=> Array(),
 																'protected'		=> FALSE,
 																),
