@@ -3842,6 +3842,17 @@ class JS_Api extends Page
 					$asset->setAttrValue($name, $value);
 				}//end if
 			}//end foreach
+			
+			// for batch request we still have to look for the 'attributes' url param, because it won't be auto set in array
+			if(isset($attribute_values['attributes'])) {
+			    $all_attributes = explode('&', $attribute_values['attributes']);
+			    foreach ($all_attributes as $attribute_data) {
+				$attribute_data_parts = explode('=', $attribute_data);
+				if(isset($attribute_data_parts[0]) && !empty($attribute_data_parts[0]) && isset($attribute_data_parts[1])) {
+				    $asset->setAttrValue(trim($attribute_data_parts[0]), $attribute_data_parts[1]);
+				}
+			    }
+			}
 		}//end if
 
 		$link_id = $asset->create($link_info);
