@@ -21,8 +21,8 @@
 <string source="cms_ct_snippet_no_access">You do not have access to any of the available snippets</string>
 <string source="cms_ct_snippet_select_one">Please select a snippet from the dropdown box</string>
 <string source="cms_ct_snippet_warning">Warning: Unable to preview selected snippet: <![CDATA[%s<br />]]>Make sure you have effective read access to the selected snippet<![CDATA[<br />]]>Make sure the snippet is correctly listed under the snippet root</string>
-<string source="cms_ct_snippet_pref_note">All content types found under this asset will be available in the snippet content type dropdown</string>
+<string source="cms_ct_snippet_pref_note">All content types found under this asset will be available in the snippet content type dropdown.</string>
 <string source="snippet_root_node">Snippet Root Node</string>
-<string source="cms_ct_snippet_pref_keywords_note">Turn off WYSIWYG snippet keywords permission check to improve performance</string>
+<string source="cms_ct_snippet_pref_keywords_note">Turn off WYSIWYG snippet keywords permission check to improve performance.</string>
 <string source="snippet_keywords_permission_check">Snippet Keywords Permission Check</string>
 </strings>

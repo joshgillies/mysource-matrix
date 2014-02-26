@@ -58,7 +58,7 @@ class Comment_Prefs extends Prefs
 	var $pref_vars = Array(
 						'SQ_COMMENT_INPUT_SIZE'	=> Array(
 													'name'			=> 'comment_pref_input_size',
-													'description'	=> 'This preference allows you to change the size of the Comment Input Box',
+													'description'	=> 'This preference allows you to change the size of the Comment Input Box.',
 													'default'		=> Array(
 																		'width'		=> '300px',
 																		'height'	=> '100px',
@@ -67,37 +67,37 @@ class Comment_Prefs extends Prefs
 												   ),
 						'SQ_COMMENT_MAX_LENGTH'	=> Array(
 													'name'			=> 'comment_pref_max_length',
-													'description'	=> 'This preferences allows you to set the maximum number of characters that can be entered in the Comment Input Box',
+													'description'	=> 'This preferences allows you to set the maximum number of characters that can be entered in the Comment Input Box.',
 													'default'		=> 0,
 													'protected'		=> FALSE,
 												   ),
 						'SQ_COMMENT_HTML_CONF'	=> Array(
 													'name'			=> 'comment_pref_html_conf_label',
-													'description'	=> 'Determines whether HTML is allowed, escaped or removed',
+													'description'	=> 'Determines whether HTML is allowed, escaped or removed.',
 													'default'		=> SQ_COMMENT_HTML_ESCAPE,
 													'protected'		=> FALSE,
 												   ),
 						'SQ_COMMENT_MAX_RATING'	=> Array(
 													'name'			=> 'maximum_rating',
-													'description'	=> 'This preference sets the upper bound for ratings',
+													'description'	=> 'This preference sets the upper bound for ratings.',
 													'default'		=> 5,
 													'protected'		=> FALSE,
 												   ),
 						'SQ_COMMENT_IMG_RATED'	=> Array(
 													'name'			=> 'rated_image',
-													'description'	=> 'Rated Image to be used instead of the default',
+													'description'	=> 'Rated image to be used instead of the default.',
 													'default'		=> NULL,
 													'protected'		=> FALSE,
 												   ),
 						'SQ_COMMENT_IMG_BLANK'	=> Array(
 													'name'			=> 'blank_image',
-													'description'	=> 'Blank Image to be used instead of the default',
+													'description'	=> 'Blank image to be used instead of the default.',
 													'default'		=> NULL,
 													'protected'		=> FALSE,
 												   ),
 						'SQ_COMMENT_DISABLE_KEYWORD_REPLACEMENTS'	=> Array(
 													'name'			=> 'comment_disable_keyword_replacements',
-													'description'	=> 'Whether to replace the keywords in the comment',
+													'description'	=> 'Whether to replace the keywords in the comment.',
 													'default'		=> 1,
 													'protected'		=> FALSE,
 												   ),												   
@@ -635,7 +635,7 @@ class Comment_Prefs extends Prefs
 
 		if (!$read_only) {
 			$o->note($this->pref_vars[$pref_name]['description']);
-			$o->note('Empty means default');
+			$o->note('Empty means default.');
 		}
 
 		$o->closeField();
@@ -711,7 +711,7 @@ class Comment_Prefs extends Prefs
 
 		if (!$read_only) {
 			$o->note($this->pref_vars[$pref_name]['description']);
-			$o->note('Empty means default');
+			$o->note('Empty means default.');
 		}
 
 		$o->closeField();

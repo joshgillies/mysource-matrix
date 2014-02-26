@@ -2420,8 +2420,7 @@ class Search_Manager extends Asset
 					} else {
 						$data_source_results = NULL;
 						foreach ($field_details['words'] as $search_term) {
-	//THE SILENT CHARACTERS WERE REMOVED BEFORE IN _prepareSearchField() FUNCTION
-	//						$info = remove_silent_chars($search_term, strpos(DAL::getDbType(), 'oci') !== FALSE ? TRUE : FALSE);
+							//The silent characters were removed before in _prepareSearchField() function.
 							$term_results = $this->_processWordSearch($search_term, $data_source, $base_query, $word_logic);
 
 							if (!is_null($term_results)) {
@@ -2441,9 +2440,27 @@ class Search_Manager extends Asset
 					$field_results = $this->_combineResults($field_results, $data_source_results, $data_source_logic);
 				}
 
-				$cross_source_results = $all_source_assetids;
-				foreach ($all_source_results as $term => $results) {
-					$cross_source_results = array_intersect_assoc($cross_source_results, $results);
+				if (!$include_context) {
+					$cross_source_results = $all_source_assetids;
+					foreach ($all_source_results as $term => $results) {
+						$cross_source_results = array_intersect_assoc($cross_source_results, $results);
+					}
+				} else {
+					$cross_source_results = array();
+					foreach ($all_source_results as $term => $results) {
+						foreach ($results as $pos => $resultInfo) {
+							if (isset($all_source_assetids[$pos])) {
+								$diff = array_diff($all_source_assetids[$pos], $resultInfo);
+								if (!empty($diff)) {
+									if (!isset($cross_source_results[$pos])) {
+										$cross_source_results[$pos] = array();
+									}
+
+									$cross_source_results[$pos] = array_merge($cross_source_results[$pos], $resultInfo);
+								}
+							}
+						}
+					}
 				}
 
 				if (is_null($field_results)) {
@@ -2451,6 +2468,7 @@ class Search_Manager extends Asset
 				} else {
 					$field_results = $field_results + $cross_source_results;
 				}
+
 				// if this search field has its own logic, use it first
 				if(isset($field_details['specific_field_logic'])) {
 					$final_search_type_results = $this->_combineResults($final_search_type_results, $field_results, $field_details['specific_field_logic']);

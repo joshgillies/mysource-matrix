@@ -52,7 +52,7 @@ class System_Config extends Config
 						'SQ_CONF_ASSET_CACHE_SIZE_CLI'			=> Array('editable' => 0, 'default' =>  -1),
 						'SQ_CONF_ROLLBACK_ENABLED'				=> Array('editable' => 1, 'default' => '0'),
 						'SQ_CONF_DEBUG'							=> Array('editable' => 1, 'default' => 0),
-						'SQ_CONF_SYSTEM_NAME'					=> Array('editable' => 1, 'default' => 'The System'),
+						'SQ_CONF_SYSTEM_NAME'					=> Array('editable' => 1, 'default' => 'The Squiz Matrix System'),
 						'SQ_CONF_SYSTEM_OWNER'					=> Array('editable' => 1, 'default' => ''),
 						'SQ_CONF_SYSTEM_ROOT_URLS'				=> Array('editable' => 1, 'default' => ''),
 						'SQ_CONF_SYSTEM_PARENT_DOMAINS'			=> Array('editable' => 1, 'default' => ''),
@@ -67,7 +67,7 @@ class System_Config extends Config
 						'SQ_CONF_REFRESH_INTERVAL'				=> Array('editable' => 1, 'default' => 120),
 						'SQ_CONF_LOCK_LENGTH'					=> Array('editable' => 1, 'default' => 600),
 						'SQ_CONF_ASSET_MAP_ASSET_LIMIT'			=> Array('editable' => 1, 'default' => 50),
-						'SQ_CONF_ASSET_MAP_ASSET_DISPLAY_NAME'	=> Array('editable' => 1, 'default' => '%asset_short_name%'),
+						'SQ_CONF_ASSET_MAP_ASSET_DISPLAY_NAME'	=> Array('editable' => 1, 'default' => '%asset_short_name%  [%asset_assetid%]'),
 						'SQ_CONF_SEND_CACHEABLE_HEADER'			=> Array('editable' => 1, 'default' => '0'),
 						'SQ_CONF_SEND_LAST_MODIFIED_HEADER'		=> Array('editable' => 1, 'default' => '0'),
 						'SQ_CONF_SEND_NOT_MODIFIED_HEADER'		=> Array('editable' => 1, 'default' => '0'),
@@ -837,7 +837,8 @@ class System_Config extends Config
 				hidden_field($class.'[SQ_CONF_DEBUG]', SQ_CONF_DEBUG);
 				foreach ($this->debug_options as $bit => $desc) {
 					check_box($class.'_SQ_CONF_DEBUG_'.$bit, $bit, (bool)(SQ_CONF_DEBUG & $bit), 'set_conf_debug(this.checked, '.$bit.');');
-					echo $desc, "<br />\n";
+					label($desc, $class.'_SQ_CONF_DEBUG_'.$bit);
+					echo '<br />';
 				}
 			} else {
 				foreach ($this->debug_options as $bit => $desc) {
@@ -912,7 +913,7 @@ class System_Config extends Config
 				combo_box($class.'[SQ_CONF_CONFIRM_SAVE_CHANGES]', $options, FALSE, !defined('SQ_CONF_CONFIRM_SAVE_CHANGES') ? '1' : SQ_CONF_CONFIRM_SAVE_CHANGES);
 			} else {
 				if (defined('SQ_CONF_CONFIRM_SAVE_CHANGES')) {
-					?> &nbsp;
+					?>
 					<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo (SQ_CONF_CONFIRM_SAVE_CHANGES) ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
 					<?php
 				} else {

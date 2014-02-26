@@ -1047,13 +1047,15 @@ class Backend extends MySource_Object
 			$now = time();
 		}
 
+		$user = $GLOBALS['SQ_SYSTEM']->user;
+		$details_url = $user->getBackendHref('details');
 		?>
 		<table class="sq-backend-header">
 			<tr>
 				<td nowrap class="sq-backend-header-item" valign="middle">
 					<img class="sq-matrix-logo" src="<?php echo sq_web_path('lib'); ?>/web/images/logo-toolbar-matrix.png" alt="Squiz Matrix" title="Squiz Matrix"/>
 					<span class="sq-logged-in-as-text">
-						<a href="#" onclick="Javascript: reloadHeader(); return false;"><?php echo translate('logged_in_as', htmlspecialchars($GLOBALS['SQ_SYSTEM']->user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)); ?></a>
+						<a href="<?php echo $_SERVER['PHP_SELF'].$details_url; ?>" target="sq_main" onclick="Javascript: reloadHeader();"><?php echo translate('logged_in_as', htmlspecialchars($GLOBALS['SQ_SYSTEM']->user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)); ?></a>
 					</span>
 				</td>
 				<td nowrap class="sq-backend-header-item" valign="middle" align="right">
@@ -1333,33 +1335,8 @@ class Backend extends MySource_Object
 										<?php echo translate('my_space'); ?>
 									</a>
 								</span>
-
-								<!--table cellspacing="0" cellpadding="0">
-									<tr>
-										<td><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="24" height="1" /></td>
-
-										<td class="sidenav-tab-start-active" id="asset_map_tab_start"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="2" height="20" /></td>
-										<td class="sidenav-tab-icon-active" id="asset_map_tab_icon"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/tree.png", "14", "14", "");</script></td>
-										<td class="sidenav-tab-active" id="asset_map_tab"><a href="#" onClick="Javascript: switchSideNav('asset_map'); return false;"><?php echo translate('asset_map'); ?></a></td>
-										<td class="sidenav-tab-end-active" id="asset_map_tab_end"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="3" height="20" /></td>
-
-										<td class="sidenav-tab-start" id="my_space_tab_start"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="2" height="20" /></td>
-										<td class="sidenav-tab-icon" id="my_space_tab_icon"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/myspace.png", "14", "14", "");</script></td>
-										<td class="sidenav-tab" id="my_space_tab"><a href="#" onClick="Javascript: switchSideNav('my_space'); return false;"><?php echo translate('my_space'); ?></a></td>
-										<td class="sidenav-tab-end" id="my_space_tab_end"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="3" height="20" /></td>
-									</tr>
-								</table-->
 							</td>
-						</tr><!--
-						<tr>
-							<td class="sq-backend-header-item" style="padding-bottom: 5px;">
-								<a href="<?php echo SQ_SYSTEM_URL;?>" class="sq-backend-header-item" target="_blank" style="text-decoration:none;" <?php
-									if (defined('SQ_LICENCE_INSTALL_KEY')) {
-										echo ' title="Install Key: '.SQ_LICENCE_INSTALL_KEY.'"';
-									}
-								?>><?php echo SQ_SYSTEM_LONG_NAME;?></a>
-							</td>
-						</tr>-->
+						</tr>
 					</table>
 
 					<div id="system_version" class="sq-system-version-note">

@@ -203,7 +203,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 		$o->note(translate('remap_manager_remap_url_filter_note'));
 		$o->closeField();
 
-		$o->openField('&nbsp;');
+		$o->openField('&nbsp;', 'wide_col');
 
 		if (empty($remap_urls)) {
 			echo translate($no_entries_tag);
@@ -247,20 +247,21 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		<table class="sq-backend-table">
 			<tr class="sq-backend-table-row">
-				<td class="sq-backend-table-header-header"><?php echo implode(' &nbsp; &nbsp; ', $links) ?></td>
-				<td class="sq-backend-table-header-header" colspan="<?php echo ($write_access === TRUE) ? 5 : 4 ?>" style="text-align: right; font-weight: normal"><?php echo $asset_count_tag; ?></span></td>
+				<th><?php echo implode(' &nbsp; &nbsp; ', $links) ?></th>
+				<th colspan="<?php echo ($write_access === TRUE) ? 5 : 4 ?>" style="text-align: right; font-weight: normal"><?php echo $asset_count_tag; ?></span></th>
 			</tr>
 			<tr>
-				<td class="sq-backend-table-header"><?php echo translate('url'); ?></td>
-				<td class="sq-backend-table-header"><?php echo translate('remap_url'); ?></td>
-				<td class="sq-backend-table-header"><?php echo translate('expires'); ?></td>
-				<td class="sq-backend-table-header"><?php echo translate('type'); ?></td>
+				<th><?php echo translate('original_url').' ('.translate('from').')'; ?></th>
+				<th><?php echo translate('remap_url').' ('.translate('to').')'; ?></th>
+				<th><?php echo translate('expires'); ?></th>
+				<th><?php echo translate('type'); ?></th>
 				<?php
 					if ($write_access) {
 						?>
-						<td class="sq-backend-table-header">
+						<td class="sq-backend-table-header" style="text-align: center;">
 							<?php
 							label(translate('delete_question'), $prefix.'_select_all');
+							echo '<br/>';
 							check_box($prefix.'_select_all', '1', FALSE, "check_all(document.main_form, '{$prefix}_delete_remap', this.checked);");
 							?>
 						</td>
@@ -268,10 +269,10 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 						<?php
 					}
 				?>
-				<td class="sq-backend-table-header">
-					<?php echo translate('never_delete');
-					
-					if ($write_access) {						
+				<td class="sq-backend-table-header" style="text-align: center;">
+					<?php echo label(translate('never_delete').'?', $prefix.'never_delete_select_all');
+					if ($write_access) {
+						echo '<br/>';				
 						check_box($prefix.'never_delete_select_all', '1', FALSE, "check_all(document.main_form, '{$prefix}_never_delete_remap', this.checked);");						
 					}
 				?>					
@@ -364,12 +365,12 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 						if ($write_access) {
 						$never_delete_remap = (isset($_POST[$prefix.'_never_delete_remap']) && array_key_exists($url_info['url'],$_POST[$prefix.'_never_delete_remap'])) || $url_info['never_delete'];
 							?>
-							<td class="sq-backend-table-cell">
+							<td class="sq-backend-table-cell" style="text-align: center;">
 								<?php
 								check_box($prefix.'_delete_remap['.$url_info['url'].']', 1, FALSE, '', $never_delete_remap ? 'disabled' : '');
 								?>
 							</td>
-							<td class="sq-backend-table-cell">
+							<td class="sq-backend-table-cell" style="text-align: center;">
 								<?php
 								check_box($prefix.'_never_delete_remap['.$url_info['url'].']', 1, $never_delete_remap);
 								?>
@@ -378,13 +379,13 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 						} else {
 							if ((isset($_POST[$prefix.'_never_delete_remap']) && array_key_exists($url_info['url'],$_POST[$prefix.'_never_delete_remap'])) || $url_info['never_delete']) {
 								?>
-									<td class="sq-backend-table-cell">
+									<td class="sq-backend-table-cell" style="text-align: center;">
 										<img src="<?php echo sq_web_path('lib'); ?>/web/images/tick.gif" width="12" height="12" />
 									</td>
 								<?php
 							} else {
 								?>
-									<td class="sq-backend-table-cell">
+									<td class="sq-backend-table-cell" style="text-align: center;">
 										<img src="<?php echo sq_web_path('lib'); ?>/web/images/cross.gif" width="12" height="12" />
 									</td>
 								<?php
