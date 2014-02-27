@@ -3045,6 +3045,11 @@ div.sq-grey-header-row,
 	margin-left: 				0;
 }
 
+/* When changes are made to a container but haven't been saved yet */
+.sq-container-changed {
+	background: 				#96D1FF !important;
+}
+
 
 /* CALENDAR EVENTS EDITING */
 
