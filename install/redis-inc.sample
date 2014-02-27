@@ -3,9 +3,15 @@
 $redis = Array(
        'hosts' =>Array (
                'redis1' => Array(
-                       'socket' => false,
+                       'socket' => false, // could be a '/path/to/file.sock'
                        'host'   => '',
-                       'port'  => 6379
+                       'port'  => 6379,
+                       'prefix' => '', // auto-prefix all keys with this value.
+                       'connection_timeout' => 2,
+                       'persistent_id' => '',
+                       'retry_interval' => 5, // only applies to regular connections, not valid for persistent ones.
+                       'persistent' => false, // persistent connections?
+                       'read_timeout' => 0,
                ),
                'redis2' => Array(
                        'socket' => false,

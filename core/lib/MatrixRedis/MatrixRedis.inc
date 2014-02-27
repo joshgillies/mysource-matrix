@@ -66,15 +66,30 @@ class MatrixRedis
 
             $host = $hosts[$host_key];
 
-            $timeout = array_get_index($host, 'timeout', 2);
-            $pid     = array_get_index($host, 'persistent_id', '');
-            $retry   = array_get_index($host, 'retry_interval', 2);
-            $prefix  = array_get_index($host, 'prefix', '');
+            $conn_timeout = array_get_index($host, 'connection_timeout', 2);
+            // in case there was a 'timeout' setting from the old config.
+            $old_timeout  = array_get_index($host, 'timeout', 0);
+            $conn_timeout = max($old_timeout, $conn_timeout);
+
+            $pid          = array_get_index($host, 'persistent_id', '');
+            $retry        = array_get_index($host, 'retry_interval', 2);
+            $prefix       = array_get_index($host, 'prefix', '');
+            $persistent   = array_get_index($host, 'persistent', FALSE);
+            $read_timeout = array_get_index($host, 'read_timeout', 0);
+
+            $connFunction = 'connect';
+            if ($persistent === TRUE) {
+                $connFunction = 'pconnect';
+            }
 
             if ($host['socket']) {
-                $connected = self::$_connections[$type]->pconnect($host['host']);
+                $connected = self::$_connections[$type]->$connFunction($host['socket'], NULL, $conn_timeout, $pid);
             } else {
-                $connected = self::$_connections[$type]->pconnect($host['host'], $host['port'], $timeout, $pid, $retry);
+                if ($persistent === FALSE) {
+                    $connected = self::$_connections[$type]->$connFunction($host['host'], $host['port'], $conn_timeout, $pid, $retry);
+                } else {
+                    $connected = self::$_connections[$type]->$connFunction($host['host'], $host['port'], $conn_timeout, $pid);
+                }
             }
 
             if ($connected === FALSE) {
@@ -84,6 +99,10 @@ class MatrixRedis
 
             if (!empty($prefix)) {
                 self::$_connections[$type]->setOption(Redis::OPT_PREFIX, $prefix);
+            }
+
+            if ($read_timeout > 0) {
+                self::$_connections[$type]->setOption(Redis::OPT_READ_TIMEOUT, $read_timeout);
             }
 
             break;
