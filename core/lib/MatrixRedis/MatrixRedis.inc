@@ -84,8 +84,12 @@ class MatrixRedis
                 $connFunction = 'pconnect';
             }
 
-            if ($host['socket']) {
-                $connected = self::$_connections[$type]->$connFunction($host['socket'], NULL, $conn_timeout, $pid);
+            if (isset($host['socket']) && $host['socket'] !== FALSE) {
+                $host['host'] = $host['socket'];
+            }
+
+            if (substr($host['host'], 0, 1) === '/') {
+                $connected = self::$_connections[$type]->$connFunction($host['host'], NULL, $conn_timeout, $pid);
             } else {
                 if ($persistent === FALSE) {
                     $connected = self::$_connections[$type]->$connFunction($host['host'], $host['port'], $conn_timeout, $pid, $retry);
@@ -163,8 +167,12 @@ class MatrixRedis
 
             $hostInfo = $hosts[$host_key];
 
-            if ($hostInfo['socket']) {
-                $hostInfo_str = 'unix:///'.$hostInfo['socket'];
+            if (isset($hostInfo['socket']) && $hostInfo['socket'] !== FALSE) {
+                $hostInfo['host'] = $hostInfo['socket'];
+            }
+
+            if (substr($hostInfo['host'], 0, 1) === '/') {
+                $hostInfo_str = 'unix://'.$hostInfo['host'];
             } else {
                 $hostInfo_str = 'tcp://'.$hostInfo['host'].':'.$hostInfo['port'];
             }
