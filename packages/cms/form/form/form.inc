@@ -3421,7 +3421,6 @@ class Form extends Asset implements Bridge
 					// Fill new submission asset with current answers
 					$submission_asset = $this->createSubmission(TRUE);
 					$this->submission_asset = $submission_asset;
-					$this->updateSubmission($submission_asset, TRUE);
 				} else {
 					// It'll exist in Incomplete. Move to completed (as long
 					// as the Incomplete folder actually exists...)
