@@ -1496,7 +1496,7 @@ BODYCOPY IFRAME POPUP STYLES
 }
 
 .sq-bodycopy-popup-wrapper form {
-	background-color: 			#fff;
+	background-color: 			#F4F4F4;
 	position: 					relative;
 	display: 					block;
 }
@@ -1509,6 +1509,7 @@ BODYCOPY IFRAME POPUP STYLES
 	color: 						#30425b;
 	font-weight: 				bold;
 	vertical-align:				top;
+	background:					#fff;
 }
 
 .sq-bodycopy-popup-wrapper td td {
@@ -1534,6 +1535,7 @@ BODYCOPY IFRAME POPUP STYLES
 	margin: 					0;
 	padding: 					6px 6px 0;
 	display:					block;
+	background:					#fff;
 }
 
 .sq-bodycopy-popup-wrapper h2 {
