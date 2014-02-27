@@ -86,6 +86,7 @@
 	<string source="at" js="1">At</string>
 	<string source="at_least">At least</string>
 	<string source="attribute_search_fields">Attribute Search Fields</string>
+	<string source="apply_changes">Apply Changes</string>
 	<string source="calculate">Calculate Size</string>
 	<string source="cascade_options">Cascade Options</string>
 	<string source="cascade_permission_changes">Cascade Permission Changes?</string>
@@ -331,6 +332,7 @@
 	<string source="search_and_replace_confirmation">Search and Replace Confirmation</string>
 	<string source="security_key_incorrect">Security Key Incorrect</string>
 	<string source="severity">Severity</string>
+	<string source="set_properties">Set Properties</string>
 	<string source="show_diff">Show Diff</string>
 	<string source="show_in_asset_map">Show in Asset Map</string>
 	<string source="show_lineages">Show Lineages</string>
@@ -1016,10 +1018,12 @@
 	<string source="horizontal">Horizontal</string>
 	<string source="vertical">Vertical</string>
 	<string source="delete_this_div">Delete This Div</string>
+	<string source="delete_this_dcontainer">Delete This Container</string>
 	<string source="delete_this_div_not_allowed">Deleting Not Allowed In User Preference</string>
-	<string source="delete_this_div_not_allowed_safe_edit">You cannot delete Div or Table whilst in Safe Edit mode</string>
-	<string source="changing_div_not_allowed_in_safe_edit">Not allowed to change DIV whilst in Safe Edit mode</string>
+	<string source="delete_this_div_not_allowed_safe_edit">You cannot delete a container whilst in Safe Edit mode</string>
+	<string source="changing_div_not_allowed_in_safe_edit">You are not able to change a container whilst in Safe Edit mode</string>
 	<string source="div_properties">DIV Properties</string>
+	<string source="container_properties">Container Properties</string>
 	<string source="top">Top</string>
 	<string source="middle">Middle</string>
 	<string source="bottom">Bottom</string>
