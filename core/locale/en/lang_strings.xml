@@ -796,6 +796,7 @@
 	<string source="type_code_precedence_over_root_node">Type Code specific customisations will take precendence over Root Node specific customisations.</string>
 	<string source="type_code_current_customised_highlighted">Currently customised type codes are highlighted in grey in the above select list.</string>
 	<string source="customise_after_commit" js="1">Customise after commit</string>
+	<string source="check_uncheck_all">Check/Uncheck all</string>
 
 
 

@@ -273,7 +273,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 						<table class="sq-backend-table">
 							<tr>
 								<th style="width:25%;">
-									When
+									<?php echo translate('when'); ?>
 								</th>
 								<th style="width:40%;">
 									<?php echo translate('name'); ?>

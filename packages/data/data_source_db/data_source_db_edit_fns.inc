@@ -160,7 +160,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<td><?php echo translate('database_type');?></td>
+				<th><?php echo translate('database_type');?></th>
 				<td>
 					<?php
 					$options = Array('postgres' => 'PostgreSQL', 'oracle' => 'Oracle', 'mysql' => 'MySQL');
@@ -177,7 +177,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 				</td>
 			</tr>
 			<tr>
-				<td><?php echo translate('database_name');?></td>
+				<th><?php echo translate('database_name');?></th>
 				<td>
 					<?php
 					if ($wa) {
@@ -189,7 +189,7 @@ class Data_Source_DB_Edit_Fns extends Data_Source_Edit_Fns
 				</td>
 			</tr>
 			<tr>
-				<td><?php echo translate('host_name');?></td>
+				<th><?php echo translate('host_name');?></th>
 				<td>
 					<?php
 					if ($wa) {

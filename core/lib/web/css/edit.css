@@ -1172,7 +1172,9 @@ table.sq-backend-table {
 	text-shadow: 				0 1px 0 #fff;
 }
 
-.sq-backend-table > tr:last-child > th,
+.sq-backend-table > tbody > tr:last-child > th, 
+.sq-backend-table > tr:last-child > th, 
+.sq-backend-table > tbody > tr:last-child > .sq-backend-table-header, 
 .sq-backend-table > tr:last-child > .sq-backend-table-header {
 	border-bottom: 				none;
 }
