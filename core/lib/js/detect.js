@@ -84,6 +84,7 @@
     var is_nav6 = (is_nav && (is_major == 5));
     var is_nav6up = (is_nav && (is_major >= 5));
     var is_gecko = (agt.indexOf('gecko') != -1);
+    var is_chrome = (agt.indexOf('chrome') > -1);
 
 
     var is_ie     = ((agt.indexOf("msie") != -1) && (agt.indexOf("opera") == -1));
