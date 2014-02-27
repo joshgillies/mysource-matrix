@@ -300,11 +300,11 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 		<table border="0">
 			<tr>
 				<td>
-					<?php echo translate('enter_eight_character_security_string'); ?>
+					<?php echo translate('enter_character_security_string'); ?>
 				</td>
 			</tr>
 			<tr>
-				<td valign="top"><?php security_key(8, 20, 2.5); ?></td>
+				<td valign="top"><?php security_key(4, 4, 2); ?></td>
 			</tr>
 		</table>
 		<table class="sq-backend-table" style="width: auto;">

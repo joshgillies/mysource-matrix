@@ -484,7 +484,7 @@
 	<string source="cron_deadlock_warning_section_1">This is only a potential warning brought about because the cron manager has attempted to run %s times, but has not been able to. Two potential reasons for this are :</string>
 	<string source="cron_deadlock_warning_check_error_log">Check the cron error log (in "%s") for any information</string>
 	<string source="cron_deadlock_warning_offending_job">The cron manager believes this job is still running: %s</string>
-	<string source="cron_deadlock_warning_section_2">To remove the lock flag for the cron manager enter the 25 character string you see below into the box supplied, then press the Commit button</string>
+	<string source="cron_deadlock_warning_section_2">To confirm the removal of the lock flag for the cron manager, enter the character string you see below into the box supplied, then press the Commit button</string>
 	<string source="cron_deadlock_warning_section_3">ONLY REMOVE THE LOCK IF YOU KNOW FOR CERTAIN THAT THE CRON MANAGER IS NOT RUNNING</string>
 	<string source="cron_deadlock_must_acquire_lock">You must acquire the lock in order resolve this issue</string>
 	<string source="cron_deadlock_warning_contact_root">You must contact the root user to resolve this issue</string>
@@ -540,7 +540,8 @@
 	<string source="currently_not_held">Currently not held</string>
 	<string source="no_access_to_edit">You do not have access to edit "%s"</string>
 	<string source="due_to_expire">The lock is due to expire in %s</string>
-	<string source="enter_eight_character_security_string">To acquire the lock, enter the 8 character string you see below into the box supplied, then press the Commit button</string>
+	<string source="enter_eight_character_security_string">To acquire the lock, enter the 8 character string you see below into the box supplied, then press the Commit button.</string>
+	<string source="enter_character_security_string">To confirm the acquiring of the lock, enter the character string you see below into the box supplied, then press the Commit button.</string>
 	<string source="lock_held_indefinitely">The lock is being held indefinitely and will not expire. The lock must be released manually or be forcibly acquired by a System Administrator.</string>
 	<string source="lock_held_by">Held by user "%1$s" at "%2$s"</string>
 	<string source="lock_held_by_user">Held by user "%s"</string>
@@ -641,7 +642,7 @@
 	<string source="no_character_set">&lt;i&gt;No character set is currently set for "%s"&lt;/i&gt;</string>
 	<string source="only_morph_under_construction">&lt;i&gt;An asset can only be morphed while Under Construction&lt;/i&gt;</string>
 	<string source="no_types_to_morph">&lt;i&gt;No types are available to morph this asset into&lt;/i&gt;</string>
-	<string source="morph_confirmation">To change the type of this asset, enter the 15 character string you see below into the box supplied, then press the Commit button</string>
+	<string source="morph_confirmation">To confirm the change of type for this asset, enter the character string you see below into the box supplied, then press the Commit button.</string>
 	<string source="morph_no_access">&lt;i&gt;You do not have access to morph this asset&lt;/i&gt;</string>
 	<string source="create_new_user_defined_design">Create New User Defined Design</string>
 	<string source="effective_design">Effective Design</string>

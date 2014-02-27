@@ -17,8 +17,11 @@
 
 <contents>
 	<section name="Details" write_access="write:attributes" limbo_access="1">
-		<field attribute="title">
-			<text width="25" height="1" />
+		<field keyword="file_upload">
+			<function_call>
+				<paint_function		name="paintFileUpload" />
+				<process_function	name="processFileUploadPreUpload" />
+			</function_call>
 		</field>
 		<field keyword="filename">
 			<function_call>
@@ -26,11 +29,8 @@
 				<process_function name="processFilename" />
 			</function_call>
 		</field>
-		<field keyword="file_upload">
-			<function_call>
-				<paint_function		name="paintFileUpload" />
-				<process_function	name="processFileUploadPreUpload" />
-			</function_call>
+		<field attribute="title">
+			<text width="25" height="1" />
 		</field>
 		<field attribute="allow_unrestricted">
 			<boolean true_text="yes" false_text="no" />
