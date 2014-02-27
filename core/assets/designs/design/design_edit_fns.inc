@@ -121,7 +121,12 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			</script>
 			<?php
 			// The "onclick" event js code for the backend commit button
-			$onclick_js .= 'if (validate_parse_file()) { if (submit_form) { submit_form(this.form); } else { this.form.submit(); this.disabled = \'disabled\'; }}';
+			if (strtolower(get_class($asset)) == 'design') {
+				// We need to validate the content for "Design" asset only
+				$onclick_js .= 'if (validate_parse_file()) { if (submit_form) { submit_form(this.form); } else { this.form.submit(); this.disabled = \'disabled\'; }}';
+			} else {
+				$onclick_js .= 'if (submit_form) { submit_form(this.form); } else { this.form.submit(); this.disabled = \'disabled\'; }';
+			}
 			return TRUE;
 		}
 
@@ -303,8 +308,13 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				}
 			</script>
 			<?php
-			// The "onclick" event js code for the backend commit button
-			$onclick_js .= 'if (validate_parse_file()) { if (submit_form) { submit_form(this.form); } else { this.form.submit(); this.disabled = \'disabled\'; }}';
+			// We need to validate the content for "Design" asset only
+			if (strtolower(get_class($asset)) == 'design') {
+				// The "onclick" event js code for the backend commit button
+				$onclick_js .= 'if (validate_parse_file()) { if (submit_form) { submit_form(this.form); } else { this.form.submit(); this.disabled = \'disabled\'; }}';
+			} else {
+				$onclick_js .= 'if (submit_form) { submit_form(this.form); } else { this.form.submit(); this.disabled = \'disabled\'; }';
+			}
 			return TRUE;
 
 		} else {
