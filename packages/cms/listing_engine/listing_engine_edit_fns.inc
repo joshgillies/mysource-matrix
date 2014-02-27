@@ -3886,7 +3886,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 					<b><?php echo translate('depth') ?></b>
 				</td>
 
-				<td class="sq-backend-table-header">
+				<td>
 				<?php
 					if ($write_access) {
 						int_text_box($prefix.'_structured_max_depth', $options['max_depth'], FALSE, 4, 0);

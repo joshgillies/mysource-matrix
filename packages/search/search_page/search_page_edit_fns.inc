@@ -167,26 +167,26 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 					   );
 
 		?>
-		<table class ="sq-backend-table" border="1" style="margin-bottom: 7px">
+		<table class ="sq-backend-table" style="border-bottom: none;">
 			<tr>
 				<th rowspan="2"><?php echo translate('name'); ?></th>
 				<th colspan="<?php echo $write_access ? 3 : 2; ?>"><?php echo translate('sch_page_data_sources'); ?></th>
-				<th rowspan="2"><?php echo translate('sch_page_word_logic'); ?></th>
+				<th rowspan="2" style="text-align:center;"><?php echo translate('sch_page_word_logic'); ?></th>
 				<?php
 				if ($write_access) {
 					?>
-					<th rowspan="2"><?php echo translate('delete'); ?></th>
+					<th rowspan="2" style="text-align:center;"><?php echo translate('delete'); ?>?</th>
 					<?php
 				}
 				?>
 			</tr>
 			<tr>
 				<th><?php echo translate('type');?></th>
-				<th <?php if (!$write_access) echo 'colspan=2';?>><?php echo translate('details');?> </th>
+				<th class="force-right-border" <?php if (!$write_access) echo 'colspan="1"';?>><?php echo translate('details');?> </th>
 				<?php
 				if ($write_access) {
 					?>
-					<th><?php echo translate('delete'); ?></th>
+					<th class="force-right-border" style="text-align:center;"><?php echo translate('delete'); ?>?</th>
 					<?php
 				}
 				?>
@@ -203,15 +203,15 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				if ($write_access) $field_datasources[] = 'new';
 				foreach ($field_datasources as $index => $field_datasource) {
 					?>
-					<tr>
+					<tr class="force-bottom-border">
 						<?php
 						if ($index == 0) {
 							?>
-							<td rowspan="<?php echo count($field_datasources);?>"> <?php echo $field_data['name'] ?></td>
+							<td rowspan="<?php echo count($field_datasources);?>"><strong><?php echo $field_data['name'] ?></strong></td>
 							<?php
 						}
 						?>
-						<td class="sq-backend-data" style="padding: 4px;">
+						<td class="sq-backend-data <?php if ($field_datasource == 'new') echo 'no-right-border';?>">
 							<?php
 							if ($field_datasource == 'new') {
 								if ($write_access) {
@@ -223,7 +223,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 							}
 							?>
 						</td>
-						<td>
+						<td class="<?php echo $field_datasource == 'new' ? 'no-right-border' : 'force-right-border';?>">
 							<?php
 							if ($field_datasource != 'new') {
 								switch ($type) {
@@ -397,7 +397,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 						if ($write_access) {
 							// Delete Data Source Cell
 							?>
-							<td class="sq-backend-data">
+							<td class="sq-backend-data force-right-border" style="text-align:center;">
 								<?php
 								if ($field_datasource != 'new') {
 									check_box($prefix.'_fields['.$field_name.'][data_sources]['.$index.'][delete]');
@@ -409,7 +409,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 						if ($index == 0) {
 							// Word Logic Cell
 							?>
-							<td rowspan="<?php echo count($field_datasources);?>">
+							<td rowspan="<?php echo count($field_datasources);?>" style="text-align:center;">
 								<?php
 								$word_logic_options = Array('AND' => translate('sch_page_all_words'), 'OR' => translate('sch_page_any_word'));
 								if ($write_access) {
@@ -425,7 +425,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 						if (($index == 0) && $write_access) {
 							// Delete field overall cell
 							?>
-							<td rowspan="<?php echo count($field_datasources);?>">
+							<td rowspan="<?php echo count($field_datasources);?>" style="text-align:center;">
 								<?php
 								check_box($prefix.'_fields['.$field_name.'][delete]');
 								?>
@@ -442,9 +442,9 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		</table>
 		<?php
 		if ($write_access) {
-			label(translate('sch_page_new_search_field'), $prefix.'_new_field_name');
+			label(translate('sch_page_new_search_field').':', $prefix.'_new_field_name');
 			echo '&nbsp;';
-			text_box($prefix.'_new_field_name', '', 15);
+			text_box($prefix.'_new_field_name', '', 20);
 		}
 		return TRUE;
 
@@ -542,26 +542,26 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 					   );
 
 		?>
-		<table class ="sq-backend-table" border="1" style="margin-bottom: 7px">
+		<table class ="sq-backend-table" style="border-bottom: none;">
 			<tr>
 				<th rowspan="2"><?php echo translate('name'); ?></th>
 				<th colspan="<?php echo $write_access ? 3 : 2; ?>"><?php echo translate('sch_page_data_sources'); ?></th>
-				<th rowspan="2"><?php echo translate('sch_page_word_logic'); ?></th>
+				<th style="text-align: center;" rowspan="2"><?php echo translate('sch_page_word_logic'); ?></th>
 				<?php
 				if ($write_access) {
 					?>
-					<th rowspan="2"><?php echo translate('delete'); ?></th>
+					<th style="text-align: center;" rowspan="2"><?php echo translate('delete'); ?>?</th>
 					<?php
 				}
 				?>
 			</tr>
-			<tr>
+			<tr class="force-bottom-border">
 				<th><?php echo translate('type');?></th>
-				<th <?php if (!$write_access) echo 'colspan=2';?>><?php echo translate('details');?> </th>
+				<th class="force-right-border" <?php if (!$write_access) echo 'colspan="1"';?>><?php echo translate('details');?></th>
 				<?php
 				if ($write_access) {
 					?>
-					<th><?php echo translate('delete'); ?></th>
+					<th class="force-right-border" style="text-align: center;"><?php echo translate('delete'); ?>?</th>
 					<?php
 				}
 				?>
@@ -576,15 +576,15 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 				if ($write_access) $field_datasources[] = 'new';
 				foreach ($field_datasources as $index => $field_datasource) {
 					?>
-					<tr>
+					<tr class="force-bottom-border">
 						<?php
 						if ($index == 0) {
 							?>
-							<td rowspan="<?php echo count($field_datasources);?>"> <?php echo $field_data['name'] ?></td>
+							<td rowspan="<?php echo count($field_datasources);?>"><strong><?php echo $field_data['name'] ?></strong></td>
 							<?php
 						}
 						?>
-						<td class="sq-backend-data" style="padding: 4px;">
+						<td class="sq-backend-data <?php if ($field_datasource == 'new') echo 'no-right-border';?>">
 							<?php
 							if ($field_datasource == 'new') {
 								if ($write_access) {
@@ -596,7 +596,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 							}
 							?>
 						</td>
-						<td>
+						<td class="<?php echo $field_datasource == 'new' ? 'no-right-border' : 'force-right-border';?>">
 							<?php
 							if ($field_datasource != 'new') {
 								switch ($type) {
@@ -763,7 +763,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 						if ($write_access) {
 							// Delete Data Source Cell
 							?>
-							<td class="sq-backend-data">
+							<td class="sq-backend-data force-right-border" style="text-align: center;">
 								<?php
 								if ($field_datasource != 'new') {
 									check_box($prefix.'_exclude_fields['.$field_name.'][data_sources]['.$index.'][delete]');
@@ -775,7 +775,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 						if ($index == 0) {
 							// Word Logic Cell
 							?>
-							<td rowspan="<?php echo count($field_datasources);?>">
+							<td style="text-align: center;" rowspan="<?php echo count($field_datasources);?>">
 								<?php
 								$word_logic_options = Array('AND' => translate('sch_page_all_words'), 'OR' => translate('sch_page_any_word'));
 								if ($write_access) {
@@ -791,7 +791,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 						if (($index == 0) && $write_access) {
 							// Delete field overall cell
 							?>
-							<td rowspan="<?php echo count($field_datasources);?>">
+							<td rowspan="<?php echo count($field_datasources);?>" style="text-align: center;">
 								<?php
 								check_box($prefix.'_exclude_fields['.$field_name.'][delete]');
 								?>
@@ -808,9 +808,9 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		</table>		
 		<?php
 		if ($write_access) {
-			label(translate('sch_page_new_exclude_field'), $prefix.'_new_exclude_field_name');
+			label(translate('sch_page_new_exclude_field').':', $prefix.'_new_exclude_field_name');
 			echo '&nbsp;';
-			text_box($prefix.'_new_exclude_field_name', '', 15);
+			text_box($prefix.'_new_exclude_field_name', '', 20);
 		}
 		
 		return TRUE;
@@ -1536,34 +1536,25 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		$search_customised    = !empty($search_bodycopy_link) && $search_bodycopy_link['link_type'] != SQ_LINK_TYPE_3;
 		$sis_customised       = !empty($sis_bodycopy_link) && $sis_bodycopy_link['link_type'] != SQ_LINK_TYPE_3;
 
-		?>
-			<table>
-				<tr>
-					<td><?php echo translate('sch_page_customise_search_form') ?></td>
-					<td>
-						<?php
-							if (!$write_access) {
-								echo ($search_customised) ? translate('yes') : translate('no');
-							} else {
-								check_box($prefix.'_search_form', 1, $search_customised);
-							}
-						?>
-					</td>
-				</tr>
-				<tr>
-					<td><?php echo translate('sch_page_customise_sis_form') ?></td>
-					<td>
-						<?php
-							if (!$write_access) {
-								echo ($sis_customised) ? translate('yes') : translate('no');
-							} else {
-								check_box($prefix.'_sis_form', 1, $sis_customised);
-							}
-						?>
-					</td>
-				</tr>
-			</table>
-		<?php
+		if (!$write_access) {
+			?>
+			<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo empty($search_customised) ? 'cross' : 'tick'; ?>.gif" width="15" height="15" />
+			<?php
+		} else {
+			check_box($prefix.'_search_form', 1, $search_customised);
+		}
+		label(translate('sch_page_customise_search_form'), $prefix.'_search_form');
+
+		echo '<br/>';
+
+		if (!$write_access) {
+			?>
+			<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo empty($sis_customised) ? 'cross' : 'tick'; ?>.gif" width="15" height="15" />
+			<?php
+		} else {
+			check_box($prefix.'_sis_form', 1, $sis_customised);
+		}
+		label(translate('sch_page_customise_sis_form'), $prefix.'_sis_form');
 
 		return $write_access;
 

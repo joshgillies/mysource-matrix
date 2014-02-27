@@ -64,7 +64,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	public function paintURLs(Asset &$asset, Backend_Outputter &$o, $prefix)
 	{
 		?>
-		<table border="0" cellspacing="0" cellpadding="3" id="urls_<?php echo $prefix; ?>-table" class="sq-backend-table" style="width: auto">
+		<table id="urls_<?php echo $prefix; ?>-table" class="sq-backend-table" style="width: auto">
 			<thead>
 				<tr>
 					<th>URL</th>
