@@ -53,7 +53,8 @@ GLOBAL STYLES & CLASSES
 */
 
 a,
-.clickable {
+.clickable, 
+.sq-backend-smallprint a {
 	color:						#2aa1fc;
 	text-decoration:			none;
 }
@@ -315,6 +316,10 @@ button.delete-button {
 
 .sq-keep-inline {
 	white-space: 				nowrap;
+}
+
+.sq-inline-spacer {
+	display: 					inline-block;
 }
 
 /*
@@ -743,10 +748,17 @@ input[type=text].sq-backend-header-text-box {
 .sq-backend-header-login-as-form{
 	vertical-align:				middle;
 	margin-right:				2px;
+	position: 					relative;
+	top: 						-1px;
 }
 
 .sq-backend-header-login-as-form .sq-text-field-wrapper {
 	top:						1px;
+}
+
+.sq-backend-header-login-as-form label.sq-backend-header-item {
+	top:						0;
+
 }
 
 /*
@@ -2277,7 +2289,7 @@ td.sq-error-report-reported{
 	border-radius: 				4px;
 	border: 					1px solid #e0d3a2;
 	font-size: 					11px;
-	min-height: 				24px;
+	min-height: 				17px;
 	display: 					block;
 }
 

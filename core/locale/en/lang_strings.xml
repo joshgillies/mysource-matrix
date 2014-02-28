@@ -765,9 +765,9 @@
 	<string source="currently_customising_type_code">Currently customising type code</string>
 	<string source="currently_viewing_type_code">Currently viewing type code</string>
 	<string source="currently_viewing">Currently viewing %s</string>
-	<string source="using_default_value_of">Using default value of %s</string>
+	<string source="using_default_value_of">Using default value of &lt;strong&gt;%s&lt;/strong&gt;</string>
 	<string source="using_default_value">Using default value</string>
-	<string source="valid_cache_length">The length of time a cache entry is valid in seconds. Memcache storage type accepts maximum 2592000 (30 days)</string>
+	<string source="valid_cache_length">The length of time a cache entry is valid in seconds. Memcache storage type accepts maximum 2592000 (30 days).</string>
 	<string source="customise_asset_selection">Please select an Asset Type above to customise.</string>
 	<string source="customise_asset_selection_below">Please select an Asset Type below to customise.</string>
 	<string source="view_asset_selection_below">Please select an Asset Type below to view its settings.</string>

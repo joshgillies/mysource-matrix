@@ -209,8 +209,6 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 
 			$o->closeField();
 
-
-
 			if (isset($_REQUEST[$prefix.'_select_type']) && !empty($_REQUEST[$prefix.'_select_type'])) {
 				$o->openField(translate('asset_field_type_code'));
 					if ($wa) {
@@ -225,104 +223,57 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 				$o->closeField();
 			}
 
-			$o->openField(translate('cache_manager_cache_status'));
+			// Caching Status field
+			$o->openField(translate('cache_manager_cache_status'), '', translate('cache_manager_cache_status_note'));
 			$using_default = !isset($current_values[$selected]['enabled']);
 			if ($using_default) {
-				echo translate('using_default_value_of',(($asset->attr('enabled')) ? translate('on') : translate('off'))).'<br/>';
+				echo ($asset->attr('enabled')) ? translate('on') : translate('off');
+				echo ' <em>('.translate('using_default_value').')</em>';
 			} else {
 				$caching = ($current_values[$selected]['enabled']) ? 1 : 0;
-				if ($wa) {
-					combo_box($prefix.'_enabled', Array('1' => translate('on'), '0' => translate('off')), FALSE, $caching);
-					echo ' ';
+				if ($wa) {;
+					echo combo_box($prefix.'_enabled', Array('1' => translate('on'), '0' => translate('off')), FALSE, $caching);
 				} else {
 					echo ($current_values[$selected]['enabled']) ? translate('on') : translate('off');
 				}
 			}
 			if ($wa) {
-				echo '<span class="sq-inline-fields-wrapper baseline">';
+				echo '<br/><span class="sq-inline-fields-wrapper baseline" style="padding-top: 3px;">';
 				check_box($prefix.'_default_enabled', '1', $using_default);
 				label(translate('use_default'), $prefix.'_default_enabled');
 				echo '</span>';
 			}
 			$o->closeField();
 
+			// Default Expiry field
 			$o->openField(translate('default_expiry'), '', translate('valid_cache_length'));
 				$using_default = !isset($current_values[$selected]['expiry']);
 				if ($using_default) {
-					echo translate('using_default_value_of', $asset->attr('expiry').' seconds').'<br/>';
+					echo $asset->attr('expiry').' seconds';
+					echo ' <em>('.translate('using_default_value').')</em>';
 				} else {
 					if ($wa) {
+						echo '<span class="sq-inline-fields-wrapper">';
 						text_box($prefix.'_expiry', $current_values[$selected]['expiry'], 5);
-						echo ' ';
+						echo ' seconds </span>';
 					} else {
-						echo $current_values[$selected]['expiry'];
+						echo $current_values[$selected]['expiry'].' seconds';
 					}
 				}
 				if ($wa) {
-					echo '<span class="sq-inline-fields-wrapper baseline">';
+					echo '<br/><span class="sq-inline-fields-wrapper baseline" style="padding-top: 3px;">';
 					check_box($prefix.'_default_expiry', '1', $using_default);
 					label(translate('use_default'), $prefix.'_default_expiry');
 					echo '</span>';
 				}
 			$o->closeField();
 
-			// Accelerator cache expiry field
-			$o->openField(translate('cache_manager_accelerator_cache_expiry'), '', translate('cache_manager_accelerator_valid_cache_length'));
-				$using_default_accelerator = !isset($current_values[$selected]['accelerator_cache_expiry']);
-				if ($using_default_accelerator) {
-					$accelerator_cache_expiry = $asset->attr('accelerator_cache_expiry');
-					if (empty($browser_cache_expiry)) {
-						echo translate('cache_manager_using_blank_default_value_equal_to', 'the system Default Expiry', $asset->attr('expiry').' seconds').'<br>';
-					} else {
-						echo translate('using_default_value_of', $accelerator_cache_expiry.' seconds').'<br/>';
-					}
-				} else {
-					if ($wa) {
-						text_box($prefix.'_accelerator_cache_expiry', $current_values[$selected]['accelerator_cache_expiry'], 5);
-						echo ' ';
-					} else {
-						echo $current_values[$selected]['accelerator_cache_expiry'];
-					}
-				}
-
-				if ($wa) {
-					echo '<span class="sq-inline-fields-wrapper baseline">';
-					check_box($prefix.'_default_accelerator_cache_expiry', '1', $using_default_accelerator);
-					label(translate('use_default'), $prefix.'_default_accelerator_cache_expiry');
-					echo '</span>';
-				}
-			$o->closeField();
-
-			$o->openField(translate('cache_manager_browser_cache_expiry'), '', translate('cache_manager_browser_valid_cache_length'));
-				$using_default = !isset($current_values[$selected]['browser_cache_expiry']);
-				if ($using_default) {
-					$browser_cache_expiry = $asset->attr('browser_cache_expiry');
-					if (empty($browser_cache_expiry)) {
-						echo translate('cache_manager_using_blank_default_value_equal_to', 'the system Default Expiry', $asset->attr('expiry').' seconds').'<br>';
-					} else {
-						echo translate('using_default_value_of', $browser_cache_expiry.' seconds').'<br/>';
-					}
-				} else {
-					if ($wa) {
-						text_box($prefix.'_browser_cache_expiry', $current_values[$selected]['browser_cache_expiry'], 5);
-						echo ' ';
-					} else {
-						echo $current_values[$selected]['browser_cache_expiry'];
-					}
-				}
-
-				if ($wa) {
-					echo '<span class="sq-inline-fields-wrapper baseline">';
-					check_box($prefix.'_default_browser_cache_expiry', '1', $using_default);
-					label(translate('use_default'), $prefix.'_default_browser_cache_expiry');
-					echo '</span>';
-				}
-			$o->closeField();
-
-			$o->openField(translate('http_header_cacheable_field'));
+			// Send Cacheable Header field
+			$o->openField(translate('http_header_cacheable_field'), '', translate('cache_manager_http_header_cacheable_note'));
 				$using_default = !isset($current_values[$selected]['send_cacheable_header']);
 				if ($using_default) {
-					echo translate('using_default_value_of', SQ_CONF_SEND_CACHEABLE_HEADER ? translate('yes') : translate('no')).'<br/>';
+					echo SQ_CONF_SEND_CACHEABLE_HEADER ? translate('yes') : translate('no');
+					echo ' <em>('.translate('using_default_value').')</em>';
 				} else {
 					if ($wa) {
 						combo_box($prefix.'_send_cacheable_header', Array('1' => translate('on'), '0' => translate('off')), FALSE, $current_values[$selected]['send_cacheable_header']);
@@ -336,9 +287,67 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 					}
 				}
 				if ($wa) {
-					echo '<span class="sq-inline-fields-wrapper baseline">';
+					echo '<br/><span class="sq-inline-fields-wrapper baseline" style="padding-top: 3px;">';
 					check_box($prefix.'_default_send_cacheable_header', '1', $using_default);
 					label(translate('use_default'), $prefix.'_default_send_cacheable_header');
+					echo '</span>';
+				}
+			$o->closeField();
+
+			// Accelerator cache expiry field
+			$o->openField(translate('cache_manager_accelerator_cache_expiry'), '', translate('cache_manager_accelerator_valid_cache_length'));
+				$using_default_accelerator = !isset($current_values[$selected]['accelerator_cache_expiry']);
+				if ($using_default_accelerator) {
+					$accelerator_cache_expiry = $asset->attr('accelerator_cache_expiry');
+					if (empty($browser_cache_expiry)) {
+						echo $asset->attr('expiry').' seconds';
+						echo ' <em>('.translate('cache_manager_using_blank_default_value', 'the system Default Expiry').')</em>';
+					} else {
+						echo $accelerator_cache_expiry.' seconds';
+						echo ' <em>('.translate('using_default_value').')</em>';
+					}
+				} else {
+					if ($wa) {
+						echo '<span class="sq-inline-fields-wrapper">';
+						text_box($prefix.'_accelerator_cache_expiry', $current_values[$selected]['accelerator_cache_expiry'], 5);
+						echo ' seconds </span>';
+					} else {
+						echo $current_values[$selected]['accelerator_cache_expiry'].' seconds';
+					}
+				}
+				if ($wa) {
+					echo '<br/><span class="sq-inline-fields-wrapper baseline" style="padding-top: 3px;">';
+					check_box($prefix.'_default_accelerator_cache_expiry', '1', $using_default_accelerator);
+					label(translate('use_default'), $prefix.'_default_accelerator_cache_expiry');
+					echo '</span>';
+				}
+			$o->closeField();
+
+			// Browser cache expiry field
+			$o->openField(translate('cache_manager_browser_cache_expiry'), '', translate('cache_manager_browser_valid_cache_length'));
+				$using_default = !isset($current_values[$selected]['browser_cache_expiry']);
+				if ($using_default) {
+					$browser_cache_expiry = $asset->attr('browser_cache_expiry');
+					if (empty($browser_cache_expiry)) {
+						echo $asset->attr('expiry').' seconds';
+						echo ' <em>('.translate('cache_manager_using_blank_default_value', 'the system Default Expiry').')</em>';
+					} else {
+						echo $browser_cache_expiry.' seconds';
+						echo ' <em>('.translate('using_default_value').')</em>';
+					}
+				} else {
+					if ($wa) {
+						echo '<span class="sq-inline-fields-wrapper">';
+						text_box($prefix.'_browser_cache_expiry', $current_values[$selected]['browser_cache_expiry'], 5);
+						echo ' seconds </span>';
+					} else {
+						echo $current_values[$selected]['browser_cache_expiry'].' seconds';
+					}
+				}
+				if ($wa) {
+					echo '<br/><span class="sq-inline-fields-wrapper baseline" style="padding-top: 3px;">';
+					check_box($prefix.'_default_browser_cache_expiry', '1', $using_default);
+					label(translate('use_default'), $prefix.'_default_browser_cache_expiry');
 					echo '</span>';
 				}
 
@@ -522,7 +531,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 											label(translate('view_customisations'), $radio_id);
 										} else {
 											if (!empty($assetid)) {
-												echo translate('not_yet_customised');
+												echo '<em>'.translate('not_yet_customised').'</em>';
 											}
 										}
 									}
@@ -1048,7 +1057,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 				// Caching is off. Show the warning only
 				if (!$caching_on) {
 					?>
-					<span class="sq-backend-warning"><b>NOTE:</b> The caching is turned off at the moment. Although you can add a job here, it will not have any effect</span><br /><br />
+					<span class="sq-backend-warning"><b>NOTE:</b> The caching is turned off at the moment. Although you can add a job here, it will not have any effect.</span><br /><br />
 					<?php
 				}
 
@@ -1272,7 +1281,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 			<thead>
 				<tr>
 					<th><?php echo translate('url'); ?></th>
-					<th><?php echo translate('use_cache'); ?></th>
+					<th style="text-align: center;"><?php echo translate('use_cache'); ?>?</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -1280,8 +1289,8 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 			foreach ($root_urls as $i => $url) {
 				?>
 				<tr>
-					<td><?php echo $url; ?></td>
-					<td>
+					<td><a href="http://<?php echo $url; ?>" target="_blank"><?php echo $url; ?></a></td>
+					<td style="text-align: center;">
 						<?php
 						if ($wa) {
 							check_box($prefix.'_url_'.$i, 1, !in_array($url, $non_cachable_urls));
@@ -1416,8 +1425,8 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 			<thead>
 				<tr>
 					<th><?php echo translate('url'); ?></th>
-					<th><?php echo "Send Headers"; ?></th>
-					<th><?php echo "Public User Only"; ?></th>
+					<th style="text-align: center;"><?php echo "Send Headers"; ?>?</th>
+					<th style="text-align: center;"><?php echo "Public User Only"; ?>?</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -1425,8 +1434,8 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 			foreach ($root_urls as $i => $url) {
 				?>
 				<tr>
-					<td><?php echo $url; ?></td>
-					<td>
+					<td><a href="http://<?php echo $url; ?>" target="_blank"><?php echo $url; ?></a></td>
+					<td style="text-align: center;">
 						<?php
 						if ($wa) {
 							check_box($prefix.'_url_'.$i, 1, !in_array($url, $cacheable_header_urls));
@@ -1436,7 +1445,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 						}
 						?>
 					</td>
-					<td>
+					<td style="text-align: center;">
 						<?php
 						if ($wa) {
 							check_box($prefix.'_user_url_'.$i, 1, !in_array($url, $cacheable_user_header_urls));
@@ -1512,7 +1521,7 @@ class Cache_Manager_Edit_Fns extends Asset_Edit_Fns
 	{
         $o->openField(translate('http_header_cacheable_field'));
             echo (SQ_CONF_SEND_CACHEABLE_HEADER) ? translate('yes') : translate('no');
-        $o->note(translate('cache_manager_send_cacheable_headers_settings_node'));
+        	$o->note(translate('cache_manager_send_cacheable_headers_settings_node', 'href="'.$GLOBALS['SQ_SYSTEM']->backend->getBackendUrl('main').'&backend_section=config'.'" target="sq_main"'));
         $o->closeField();
 	}
 

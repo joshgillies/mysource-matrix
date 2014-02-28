@@ -41,7 +41,7 @@
 				<paint_function name="paintCacheableHeadersRootURLs" />
 				<process_function name="processCacheableHeadersRootURLs" />
             </function_call>
-            <display_name />
+			<display_name>Root URLs to Send Cacheable Headers</display_name>
 			<note>Choose the system root URLs for which cacheable header should be sent.</note>			
 		</field>
 	</section>	

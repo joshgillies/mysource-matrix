@@ -18,7 +18,7 @@
 	<section name="Cache Options">
 		<field attribute="enabled">
 			<display_name>Caching Status</display_name>
-			<note />
+			<note>Setting this value to 'On', will enable caching for the system and bring the Default Expiry setting into effect.</note>
 		</field>
 		<field>
 			<function_call>
@@ -65,7 +65,7 @@
 				<paint_function name="paintCachableRootURLs" />
 				<process_function name="processCachableRootURLs" />
 			</function_call>
-			<display_name />
+			<display_name>Cachable Root URLs</display_name>
 			<note>Choose the system root URLs for which caching should be enabled.  If a root URL has caching disabled then content will be served via that URL. However this will not affect sending cache header for browsers.</note>
 		</field>
 	</section>
