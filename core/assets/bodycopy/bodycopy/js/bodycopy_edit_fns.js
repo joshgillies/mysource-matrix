@@ -123,7 +123,12 @@
 		// relative to the button the user clicks on instead of where they are scrolled to for better user experience
 		// Also, only do this if we are in _admin mode and in IE11 or above, if not, result to old method
 		if ((bodycopy_has_class(document.getElementById('sq-content'), 'main')) && (bodycopy_type != undefined && bodycopy_id != undefined)) {
-			var bodycopy_parent_td = document.getElementById('bodycopy_' + asset_id + '_' + bodycopy_type + '_' + bodycopy_id);
+			var id_selector = asset_id + '_' + bodycopy_type + '_' + bodycopy_id;
+			var bodycopy_parent_td = document.getElementById('bodycopy_' + id_selector);
+			//check if we are dealing with a simple edit layout, the above will return null, change the id to a layout type id instead
+			if (bodycopy_parent_td == null || bodycopy_parent_td == undefined) {
+				bodycopy_parent_td = document.getElementById('layout_' +  id_selector);
+			}
 			var xPosition = 0;
     		var yPosition = 0;
 		    while(bodycopy_parent_td.className != 'sq-backend-section-table-inner') {

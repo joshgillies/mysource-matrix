@@ -457,7 +457,7 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 		if ($wa) {
 			hidden_field($prefix.'_customise_logged_in_submitted', 1);
 			echo check_box($prefix.'_customise_logged_in', 1, !empty($customised_types));
-			label(translate('cms_account_manager_customise_logged_in'), $prefix.'_customise_form');
+			label(translate('cms_account_manager_customise_logged_in'), $prefix.'_customise_logged_in');
 		} else {
 			$fn = !empty($customised_types) ? 'tick' : 'cross';
 			echo '<img src="'.sq_web_path('lib').'/web/images/'.$fn.'.gif" />';
