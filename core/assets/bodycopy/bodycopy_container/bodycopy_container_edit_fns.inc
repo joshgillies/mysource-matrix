@@ -828,8 +828,8 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 			function bodycopy_chgColor(id, colour) {
 				if (is_dom) {
 					var chgcell
-					if (!colour) { colour = '559AE7'; }
-					chgcell = "document.getElementById('"+ id + "').style.backgroundColor = '#"+ colour +"'";
+					//if (!colour) { colour = '559AE7'; }
+					chgcell = "document.getElementById('"+ id + "').className = document.getElementById('"+ id + "').className + ' sq-container-changed' ";
 					eval(chgcell);
 				}
 			}

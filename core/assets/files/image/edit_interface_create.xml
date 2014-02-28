@@ -17,15 +17,15 @@
 
 <contents screen="details">
 	<section name="Details">
-		<field attribute="title">
-			<text width="25" height="1" />
-		</field>
 		<field>
 			<display_name>Upload File</display_name>
 			<function_call>
 				<paint_function		name="paintFileUpload" />
 				<process_function	name="processFileUploadPreUpload" />
 			</function_call>
+		</field>
+		<field attribute="title">
+			<text width="25" height="1" />
 		</field>
 		<field attribute="alt">
 			<text width="40" height="1" />

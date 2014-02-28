@@ -29,7 +29,7 @@
 				<process_function name="processRSS" />
 			</function_call>
 			<display_name>Link For The Feed</display_name>
-			<note>The feed cache will be refreshed every time you modify the link for feed</note>
+			<note>The feed cache will be refreshed every time you modify the link for feed.</note>
 		</field>
 		<field attribute="data_delimiter">
 			<display_name>Data Delimiter</display_name>

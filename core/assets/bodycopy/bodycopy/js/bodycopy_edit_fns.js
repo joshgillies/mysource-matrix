@@ -134,7 +134,13 @@
   			bodycopy_popup.move(20, yPosition + 27);
 		} else {
 			var scroll_top  = ((is_ie4up) ? (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop  : self.pageYOffset);
-			bodycopy_popup.move(null, scroll_top - 100 + top_offset);
+			var top_position = 0;
+			if (is_chrome) {
+				top_position = scroll_top - 100 + top_offset;
+			} else {
+				top_position = scroll_top + 50 + top_offset;
+			}
+			bodycopy_popup.move(null, top_position);
 		}
 		bodycopy_popup.show();
 	}//end bodycopy_show_popup()
@@ -174,8 +180,8 @@
 	function bodycopy_chgColor(id, colour) {
 		if (is_dom) {
 			var chgcell
-			if (!colour) { colour = '559AE7'; }
-			chgcell = "document.getElementById('"+ id + "').style.backgroundColor = '#"+ colour +"'";
+			//if (!colour) { colour = '559AE7'; }
+			chgcell = "document.getElementById('"+ id + "').className = document.getElementById('"+ id + "').className + ' sq-container-changed' ";
 			eval(chgcell);
 		}
 	}

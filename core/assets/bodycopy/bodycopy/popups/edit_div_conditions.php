@@ -239,7 +239,7 @@ include(dirname(__FILE__).'/header.php');
 	<a href="#" onclick="javascript: popup_close(); return false;">
 		<img src="<?php echo sq_web_path('lib')?>/web/images/icons/cancel.png" alt="Cancel" title="<?php echo translate('cancel');?>" class="sq-icon">
 	</a>
-	DIV Condition Rules
+	Container Condition Rules
 </h1>
 <form id="main_form" name="main_form"  style="height:410px;overflow: auto;">
 <input type="hidden" name="bodycopy_name" value="">
@@ -247,7 +247,7 @@ include(dirname(__FILE__).'/header.php');
 <table width="100%" border="0" >
 	<tr>
 		<td colspan="2">
-		<h2>Condition settings</h2>
+		<h2>Condition Settings</h2>
 		<fieldset>
 			<table style="width:100%">
 				<tr>
@@ -292,7 +292,7 @@ include(dirname(__FILE__).'/header.php');
 			<input type="button" class="" name="cancel" onClick="javascript: popup_close(); return false;" value="<?php echo translate('cancel'); ?>"/>
 		</td>
 		<td align="right">
-			<input type="button" class="sq-btn-blue" name="ok" onClick="javascript: popup_save(this.form); return false;" value="<?php echo translate('save'); ?>"/>
+			<input type="button" class="sq-btn-blue" name="ok" onClick="javascript: popup_save(this.form); return false;" value="<?php echo translate('apply_changes'); ?>"/>
 		</td>
 	</tr>
 </table>

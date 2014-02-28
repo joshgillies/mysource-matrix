@@ -39,23 +39,23 @@
 		</field>
 		<field attribute="aliases">
 			<display_name>Aliases</display_name>
-			<note>Alternate rules for following server aliases</note>
+			<note>Alternate rules for following server aliases.</note>
 		</field>
 		<field attribute="host">
 			<display_name>Host</display_name>
-			<note>The hostname used to connect to the LDAP directory</note>
+			<note>The hostname used to connect to the LDAP directory.</note>
 		</field>
 		<field attribute="port">
 			<display_name>Port</display_name>
-			<note>The port used to connect to the LDAP directory</note>
+			<note>The port used to connect to the LDAP directory.</note>
 		</field>
 		<field attribute="root_dn">
 			<display_name>Base DN</display_name>
-			<note>The Base DN of the LDAP directory</note>
+			<note>The Base DN of the LDAP directory.</note>
 		</field>
 		<field attribute="bind_dn">
 			<display_name>Bind DN</display_name>
-			<note>The DN of the user to bind as</note>
+			<note>The DN of the user to bind as.</note>
 		</field>
 		<field attribute="password">
 			<display_name>Password</display_name>

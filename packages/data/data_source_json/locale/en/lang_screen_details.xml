@@ -67,7 +67,7 @@
 	</section>
 	<section name="Dynamic Parameters">
 		<field attribute="parameter_map">
-			<display_name />
+			<display_name>Dynamic Parameters</display_name>
 			<note />
 		</field>
 	</section>

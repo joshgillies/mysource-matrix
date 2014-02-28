@@ -1156,8 +1156,15 @@ table.sq-backend-table {
 }
 
 .sq-backend-table th:last-child, 
-.sq-backend-table td:last-child {
+.sq-backend-table td:last-child, 
+.sq-backend-table th.no-right-border, 
+.sq-backend-table td.no-right-border {
 	border-right: 				none;
+}
+
+.sq-backend-table th.force-right-border, 
+.sq-backend-table td.force-right-border {
+	border-right: 				1px dotted #ccc;
 }
 
 .sq-backend-table th,
@@ -1172,7 +1179,9 @@ table.sq-backend-table {
 	text-shadow: 				0 1px 0 #fff;
 }
 
-.sq-backend-table > tr:last-child > th,
+.sq-backend-table > tbody > tr:last-child > th, 
+.sq-backend-table > tr:last-child > th, 
+.sq-backend-table > tbody > tr:last-child > .sq-backend-table-header, 
 .sq-backend-table > tr:last-child > .sq-backend-table-header {
 	border-bottom: 				none;
 }
@@ -1183,6 +1192,12 @@ table.sq-backend-table {
 
 .sq-backend-table tr:last-child > td {
 	border-bottom: 				none;
+}
+
+.sq-backend-table tr.force-bottom-border > td, 
+.sq-backend-table tr.force-bottom-border > th, 
+.sq-backend-table tbody tr.force-bottom-border > th  {
+	border-bottom: 				1px solid #ccc;
 }
 
 .sq-backend-table tfoot tr:first-child td{
@@ -1494,7 +1509,7 @@ BODYCOPY IFRAME POPUP STYLES
 }
 
 .sq-bodycopy-popup-wrapper form {
-	background-color: 			#fff;
+	background-color: 			#F4F4F4;
 	position: 					relative;
 	display: 					block;
 }
@@ -1507,6 +1522,7 @@ BODYCOPY IFRAME POPUP STYLES
 	color: 						#30425b;
 	font-weight: 				bold;
 	vertical-align:				top;
+	background:					#fff;
 }
 
 .sq-bodycopy-popup-wrapper td td {
@@ -1532,6 +1548,7 @@ BODYCOPY IFRAME POPUP STYLES
 	margin: 					0;
 	padding: 					6px 6px 0;
 	display:					block;
+	background:					#fff;
 }
 
 .sq-bodycopy-popup-wrapper h2 {
@@ -1633,7 +1650,7 @@ BODYCOPY IFRAME POPUP STYLES
 .sq-bodycopy-popup-wrapper tr.sq-popup-footer input {
 	padding: 					4px 0px;
 	border-radius: 				4px;
-	width: 						90px;
+	width: 						100px;
 	margin:						0;
 	height: 					auto;
 }
@@ -3041,6 +3058,11 @@ div.sq-grey-header-row,
 
 .sq-grey-header-row .sq-icon-wrapper.left img.sq-icon:first-child {
 	margin-left: 				0;
+}
+
+/* When changes are made to a container but haven't been saved yet */
+.sq-container-changed {
+	background: 				#96D1FF !important;
 }
 
 
