@@ -610,6 +610,9 @@ TOP HEADER FRAME STYLES
 	height: 					41px;
 	background: 				#494949 url(../images/bar-noise-bg.png);
 	box-shadow: 				0 -10px 25px -10px rgba(0,0,0,0.7) inset;
+	border-top: 				1px solid #000;
+	box-sizing: 				border-box;
+	-moz-box-sizing: 			border-box;
 }
 
 .sq-backend-header {
@@ -630,7 +633,7 @@ TOP HEADER FRAME STYLES
 	padding-right: 				10px;
 	text-shadow:				-1px -1px 0 #000;
 	position: 					relative;
-	top:						-1px;
+	top:						0;
 }
 
 .sq-backend-header button, 
@@ -667,7 +670,7 @@ TOP HEADER FRAME STYLES
 .sq-matrix-logo {
 	margin: 					0px 50px 0 0;
 	position: 					relative;
-	top: 						-1px;
+	top: 						0px;
 	left: 						9px;
 }
 
@@ -702,7 +705,7 @@ TOP HEADER FRAME STYLES
 	margin-right:				6px;
 	box-shadow: 				1px 1px 0 rgba(255,255,255,0.1), inset 1px 1px 1px #464545;
 	position: 					relative;
-	top:						-1px;
+	top:						0px;
 }
 
 input[type=text].sq-backend-header-text-box {
@@ -749,7 +752,7 @@ input[type=text].sq-backend-header-text-box {
 	vertical-align:				middle;
 	margin-right:				2px;
 	position: 					relative;
-	top: 						-1px;
+	top: 						0;
 }
 
 .sq-backend-header-login-as-form .sq-text-field-wrapper {

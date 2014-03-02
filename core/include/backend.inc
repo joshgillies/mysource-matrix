@@ -287,135 +287,151 @@ class Backend extends MySource_Object
 		}
 		?>
 		<!DOCTYPE html>
-		<!--[if lt IE 8 ]> 	<html class="ie">   				<![endif]-->
-		<!--[if IE 8 ]>     <html class="ie ie8"> 		        <![endif]-->
-		<!--[if IE 9 ]>     <html class="ie ie9 gtie8"> 		<![endif]-->
-		<!--[if IE 10 ]>    <html class="ie ie-10 gtie8 gtie9"> <![endif]-->
-		<!--[if !IE]> --> 	<html class="">                     <!--<![endif]-->
-			<head>
-				<title><?php echo $page_title; ?></title>
-				<meta charset="<?php echo SQ_CONF_DEFAULT_CHARACTER_SET; ?>"/>
-				<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
-				<link rel="stylesheet" type="text/css" href=<?php echo '"'.sq_web_path('lib').'/asset_map/js/js_asset_map.css"'; ?>/>
-				<link rel="shortcut icon" href=<?php echo '"'.sq_web_path('lib').'/web/images/icons/favicon.ico"'; ?>/>
-				<?php
-				if ($limbo_hipo) {
-					?>
-					<script>
-						document.location = "<?php echo $main_url; ?>";
-					</script>
-					<?php
-				}
-				?>
-				<style type="text/css">
-					body {
-						margin: 0;
-						overflow: hidden;
-						background: #2a2a2a;
-					}
-
-					div.iframe-container {
-						position: absolute;
-						top: 0;
-						left: 0;
-						width: 100%;
-						height: 100%;
-						padding-top: <?php echo $header_height ?>px;
-						box-sizing: border-box;
-						-moz-box-sizing: border-box;
-					}
-
-					div.iframe-container.header {
-						padding-top: 0;
-						height: 41px;
-						z-index: 3;
-						background: #2a2a2a;
-						box-shadow: 0 0 3px 1px #000;
-						border-top: 1px solid #000;
-						border-bottom: 1px solid #000;
-					}
-
-					div.iframe-container.header iframe{
-						background: #2a2a2a;
-					}
-
-					div.iframe-container.lower-set {
-						padding-top: 0;
-						z-index: 0;
-						/*overflow: hidden; Not sure why I put this in, but this causes a 4px movement upwards in webkit browsers on load, might be IE related */
-					}
-
-					div.iframe-container.sidenav {
-						width: <?php echo $sidenav_width ?>px;
-						z-index: 1;
-						transition: width 0.2s ease-out;
-					}
-
-					body.sidenav-minimised div.iframe-container.sidenav {
-						width: 0;
-					}
-
-					div.iframe-container.resizer {
-						left: <?php echo $sidenav_width ?>px;
-						width: <?php echo $resizer_width ?>px;
-						z-index: 2;
-					}
-
-					body.sidenav-minimised div.iframe-container.resizer {
-						left: 0;
-					}
-
-					div.iframe-container.main {
-						padding-left: <?php echo ($sidenav_width + $resizer_width) ?>px;
-						padding-top: <?php echo $header_height ?>px;
-						z-index: 0;
-						transition: width 0.2s ease-out;
-					}
-
-					body.sidenav-minimised div.iframe-container.main {
-						padding-left: <?php echo ($resizer_width) ?>px;
-					}
-
-					iframe {
-						border: 0;
-						height: 100%;
-						width: 100%;
-					}
-
-					iframe.sq-iframe{
-						background: #F4F4F4;
-					}
-
-					#sq_header {
-						height: 40px;
-					}
-				</style>
-			</head>
+		<?php
+		if (isset($_SERVER['HTTP_USER_AGENT']) && preg_match('/(?i)msie [1-8]/',$_SERVER['HTTP_USER_AGENT'])) {
+        	// If we are in IE8 or less, don't use the conditional <html> tag as it can cause compatibility mode in those browsers
+    		// if IE<=8
+    		?>
+    		<html class="ie8 sq-frame-parent">
+    		<?php
+		} else if (isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'Trident/7.0; rv:11.0') !== FALSE) {
+        	// If we are in IE11, we must print the IE11 class manually as IE11 doesn't send the right browser header anymore for us to do simple HTML checking on
+    		// if IE 11
+    		?>
+			<html class="ie ie11 gtie8 gtie9 gtie10 sq-frame-parent">
+    		<?php
+		} else {
+    		// if IE>8 & !IE11
+    		?>
+			<!--[if IE 9 ]>     <html class="ie ie9 gtie8 <?php echo $backendPage; ?>"> <![endif]-->
+			<!--[if IE 10 ]>    <html class="ie ie10 gtie8 gtie9 <?php echo $backendPage; ?>"> <![endif]-->
+			<!--[if !IE]> --> 	<html class="sq-frame-parent"> <!-- <![endif]-->
+    		<?php
+		}
+		?>
+		<head>
+			<title><?php echo $page_title; ?></title>
+			<meta charset="<?php echo SQ_CONF_DEFAULT_CHARACTER_SET; ?>"/>
+			<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+			<link rel="stylesheet" type="text/css" href=<?php echo '"'.sq_web_path('lib').'/asset_map/js/js_asset_map.css"'; ?>/>
+			<link rel="shortcut icon" href=<?php echo '"'.sq_web_path('lib').'/web/images/icons/favicon.ico"'; ?>/>
 			<?php
-			if (!$limbo_hipo) {
-				// if hide_frames is set, hide the header and remove the resizer
-				// i.e. one less column in the second frameset
-				// see _printMain() for more info
+			if ($limbo_hipo) {
 				?>
-				<body style="background-color: #F4F4F4" class="sq <?php echo $body_class ?>">
-					<div class="iframe-container header">
-						<iframe src="<?php echo $frame_urls['header']; ?>" name="sq_header" id="sq_header" scrolling="no" marginwidth="0" marginheight="0" border="0" frameborder="0" class="sq-iframe"></iframe>
-					</div>
-					<div class="iframe-container lower-set">
-						<div class="iframe-container sidenav">
-							<iframe src="<?php echo $frame_urls['sidenav']; ?>" name="sq_sidenav" scrolling="no" marginwidth="0" marginheight="0" border="0" frameborder="0" class="sq-iframe"></iframe>
-						</div>
-						<div class="iframe-container resizer">
-							<iframe src="<?php echo $frame_urls['resizer']; ?>" name="sq_resizer" scrolling="no" marginwidth="0" marginheight="0" border="0" frameborder="0" class="sq-iframe"></iframe>
-						</div>
-						<div class="iframe-container main">
-							<iframe src="<?php echo $frame_urls['main']; ?>" name="sq_main" scrolling="yes" marginwidth="0" marginheight="0" border="0" frameborder="0" class="sq-iframe"></iframe>
-						</div>
-					</div>
-				</body>
+				<script>
+					document.location = "<?php echo $main_url; ?>";
+				</script>
 				<?php
 			}
 			?>
+			<style type="text/css">
+				body {
+					margin: 0;
+					overflow: hidden;
+					background: #2a2a2a;
+				}
+
+				div.iframe-container {
+					position: absolute;
+					top: 0;
+					left: 0;
+					width: 100%;
+					height: 100%;
+					padding-top: <?php echo $header_height ?>px;
+					box-sizing: border-box;
+					-moz-box-sizing: border-box;
+				}
+
+				div.iframe-container.header {
+					padding-top: 0;
+					height: 42px;
+					z-index: 3;
+					background: #2a2a2a;
+					box-shadow: 0 0 3px 1px #000;
+					border-bottom: 1px solid #000;
+				}
+
+				div.iframe-container.header iframe{
+					background: #2a2a2a;
+				}
+
+				div.iframe-container.lower-set {
+					padding-top: 0;
+					z-index: 0;
+					/*overflow: hidden; Not sure why I put this in, but this causes a 4px movement upwards in webkit browsers on load, might be IE related */
+				}
+
+				div.iframe-container.sidenav {
+					width: <?php echo $sidenav_width ?>px;
+					z-index: 1;
+					transition: width 0.2s ease-out;
+				}
+
+				body.sidenav-minimised div.iframe-container.sidenav {
+					width: 0;
+				}
+
+				div.iframe-container.resizer {
+					left: <?php echo $sidenav_width ?>px;
+					width: <?php echo $resizer_width ?>px;
+					z-index: 2;
+				}
+
+				body.sidenav-minimised div.iframe-container.resizer {
+					left: 0;
+				}
+
+				div.iframe-container.main {
+					padding-left: <?php echo ($sidenav_width + $resizer_width) ?>px;
+					padding-top: <?php echo $header_height ?>px;
+					z-index: 0;
+					transition: width 0.2s ease-out;
+				}
+
+				body.sidenav-minimised div.iframe-container.main {
+					padding-left: <?php echo ($resizer_width) ?>px;
+				}
+
+				iframe {
+					border: 0;
+					height: 100%;
+					width: 100%;
+				}
+
+				iframe.sq-iframe{
+					background: #F4F4F4;
+				}
+
+				#sq_header {
+					height: 40px;
+				}
+			</style>
+		</head>
+		<?php
+		if (!$limbo_hipo) {
+			// if hide_frames is set, hide the header and remove the resizer
+			// i.e. one less column in the second frameset
+			// see _printMain() for more info
+			?>
+			<body style="background-color: #F4F4F4" class="sq <?php echo $body_class ?>">
+				<div class="iframe-container header">
+					<iframe src="<?php echo $frame_urls['header']; ?>" name="sq_header" id="sq_header" scrolling="no" marginwidth="0" marginheight="0" border="0" frameborder="0" class="sq-iframe"></iframe>
+				</div>
+				<div class="iframe-container lower-set">
+					<div class="iframe-container sidenav">
+						<iframe src="<?php echo $frame_urls['sidenav']; ?>" name="sq_sidenav" scrolling="no" marginwidth="0" marginheight="0" border="0" frameborder="0" class="sq-iframe"></iframe>
+					</div>
+					<div class="iframe-container resizer">
+						<iframe src="<?php echo $frame_urls['resizer']; ?>" name="sq_resizer" scrolling="no" marginwidth="0" marginheight="0" border="0" frameborder="0" class="sq-iframe"></iframe>
+					</div>
+					<div class="iframe-container main">
+						<iframe src="<?php echo $frame_urls['main']; ?>" name="sq_main" scrolling="yes" marginwidth="0" marginheight="0" border="0" frameborder="0" class="sq-iframe"></iframe>
+					</div>
+				</div>
+			</body>
+			<?php
+		}
+		?>
 		</html>
 		<?php
 
