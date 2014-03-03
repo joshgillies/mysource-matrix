@@ -1,5 +1,88 @@
 SQUIZ MATRIX CHANGELOG
 
+
+VERSION 4.18.4
+
+Featured Changes
+===================================
+
+New Regular Expression Asset and Keyword Modifiers [ Feature Request #6812 ]
+-----------------------------------------------------
+
+This feature introduces the brand new Regular Expression asset to Squiz Matrix. The Regular Expression asset can be used to define a regular expression and replacement string pair, and can be used in conjunction with new regex keyword modifiers. 
+
+The Details screen of the Regular Expression asset allows you to set the regular expression. If you want to create a replacement, this screen allow allows you to set a replacement string pair and a replacement limit. 
+
+The Regular Expression asset can be used in conjunction with the following new keyword modifiers:
+
+* preg_replace: replaces the regular expression value with the replacement set on the Regular Expression asset. This is the same functionality as the preg_replace() PHP function.
+
+%asset_contents^preg_replace:[REGEX_ASSETID]%
+
+* preg_match: returns a success/failure value if the regular expression matches the returned keyword value. This is the same functionality as the preg_match_all() PHP function.
+
+%asset_contents^preg_match:[REGEX_ASSETID]%
+
+In the above example, this keyword will return 0 if no match is found in the contents of the asset. If a match is found, this keyword will return the number of matches, e.g. 2 for two matches.
+
+%asset_contents^preg_match:[REGEX_ASSETID]:Yes:No%
+
+In this example, the keyword will return No if no match is found, and Yes if any number of matches are found.
+
+* preg_match_result: returns regular expression matches on the returned keyword value as an array. This is the same functionality as the preg_match_all() PHP function, and should be used in conjunction with the array keyword modifiers. 
+
+%asset_contents^preg_match_result:[REGEX_ASSETID]^as_json%
+
+The above example will return the matches array in the json format. 
+
+
+Additional Changes and Bug Fixes
+=================================== 
+
+Minor Enhancements
+
+Minor Enhancement #6796: JS File Folder and CSS File Folder Enhancements.
+Minor Enhancement #6800: New sort_options Parameter for Select Drop-Down Lists in Admin Interface.
+Minor Enhancement #6802: TRIM Saved Search: New Update on Empty Response Field.
+Minor Enhancement #6816: E-Commerce Order XML: Gateway and Merchant Reference Strings. 
+Minor Enhancement #6823: JS API: editMetadataSchema() and getMetadataSchema() Enhancements. 
+Minor Enhancement #6845: New Login Form Keywords on the Asset Builder and Account Manager Assets.
+Minor Enhancement #6846: New Input Field ID Keywords on the Simple Edit Layout. 
+Minor Enhancement #6857: Performance Enhancement to the Custom Form Page Asset. 
+
+Core
+
+Fixed Bug #6781: Some conflicting preferences revert to default.
+Fixed Bug #6788: Simple edit can't open the modern asset map. 
+Fixed Bug #6801: %asset_thumbnail% breaking events search page. 
+Fixed Bug #6803: Search in search button keyword javascript output error. 
+Fixed Bug #6807: Cannot modify header information - headers already sent by. 
+Fixed Bug #6822: Accessing metadata schema screen in the rollback mode throws fatal db error. 
+Fixed Bug #6824: Image variety keyword replacement does not escape double-quotes in alt or title text. 
+Fixed Bug #6826: Paint Layout: Condition Logical always evaluates to true. 
+Fixed Bug #6832: Wyswiyg plugins Format Heading and Apply Styles not working in IE11. 
+Fixed Bug #6833: Tickbox Table form question outputs invalid HTML. 
+Fixed Bug #6834: add_remove_url.php script doesn't copy user defined layout. 
+Fixed Bug #6836: Safe edit interface generating some invalid HTML markups. 
+Fixed Bug #6839: Simple Edit User doesnt get workflow approved emails.
+Fixed Bug #6843: Show diff feature for preview can miss the changes made. 
+Fixed Bug #6850: Trigger action Set Future Status does not takes metadata date field's offset into account. 
+Fixed Bug #6852: Asset_Manager::assetExists() throws fatal db error in Oracle if supplied assetids are more than 1000. 
+
+Web Services
+
+Fixed Bug #6848: JS API batchRequest cleans params of the createAsset function which breaks creating with attributes. 
+
+Modern Asset Map
+
+Fixed Bug #6754: IE8 not responding to double-clicks in JS Asset Map.
+Fixed Bug #6760: Insert image popup doesn't retain asset map location. 
+Fixed Bug #6761: 'Binoculars' doesn't break out of teleported root. 
+Fixed Bug #6780: Collapse all button applies to both asset trees. 
+Fixed Bug #6785: Tree Two does not allow drag to select assets.
+
+
+
 VERSION 4.18.3
 
 Featured Changes
