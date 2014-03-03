@@ -169,11 +169,16 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 						.'<pre>'.htmlentities($container_content, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'</pre>'
 						.'';
 				}
-				$content_type = $asset->getContentType()->type();
-				$content_type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($content_type, 'name');
+				
+				$content_type = $asset->getContentType();
+				$content_type_name = '';
+				if(!empty($content_type) && is_object($content_type)) {
+				    $content_type = $content_type->type();
+				    $content_type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($content_type, 'name');
+				}
 				//Create a friendly name for the content type name
-				$content_type_name = preg_replace('/Type/', '', $content_type_name);
-				$content_type_name = preg_replace('/Nest Content/', 'Nested', $content_type_name);
+				$content_type_name = str_replace('Type', '', $content_type_name);
+				$content_type_name = str_replace('Nest Content', 'Nested', $content_type_name);
 				//print a div wrapper around the content so we can style the container properly
 				echo '<div class="sq-locked-content-block-wrapper status-after-'.str_replace(' ', '-', strtolower(get_status_description($asset->status))).'" data-id"'.$asset->id.'" data-status-code="'.$asset->status.'" data-status="'.get_status_description($asset->status).'" data-title="'.$asset->name.' - '.$content_type_name.'" title="'.$asset->name.' #'.$asset->id.' ('.get_status_description($asset->status).') - '.$content_type_name.'">';
 					echo $container_content; 
