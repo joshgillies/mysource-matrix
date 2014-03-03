@@ -1024,7 +1024,7 @@
 	<string source="delete_this_div_not_allowed_safe_edit">You cannot delete a container whilst in Safe Edit mode</string>
 	<string source="changing_div_not_allowed_in_safe_edit">You are not able to change a container whilst in Safe Edit mode</string>
 	<string source="div_properties">DIV Properties</string>
-	<string source="container_properties">Container Properties</string>
+	<string source="container_properties">Edit Container Properties</string>
 	<string source="top">Top</string>
 	<string source="middle">Middle</string>
 	<string source="bottom">Bottom</string>
