@@ -1,5 +1,34 @@
 SQUIZ MATRIX CHANGELOG
 
+
+VERSION 4.16.8
+
+Bug Fixes
+=================================== 
+
+Core
+
+Fixed Bug #6781: Some conflicting preferences revert to default.
+Fixed Bug #6801: %asset_thumbnail% breaking events search page. 
+Fixed Bug #6803: Search in search button keyword javascript output error. 
+Fixed Bug #6822: Accessing metadata schema screen in the rollback mode throws fatal db error. 
+Fixed Bug #6824: Image variety keyword replacement does not escape double-quotes in alt or title text. 
+Fixed Bug #6826: Paint Layout: Condition Logical always evaluates to true. 
+Fixed Bug #6832: Wyswiyg plugins Format Heading and Apply Styles not working in IE11. 
+Fixed Bug #6833: Tickbox Table form question outputs invalid HTML. 
+Fixed Bug #6834: add_remove_url.php script doesn't copy user defined layout. 
+Fixed Bug #6836: Safe edit interface generating some invalid HTML markups. 
+Fixed Bug #6839: Simple Edit User doesnt get workflow approved emails.
+Fixed Bug #6843: Show diff feature for preview can miss the changes made. 
+Fixed Bug #6850: Trigger action Set Future Status does not takes metadata date field's offset into account. 
+Fixed Bug #6852: Asset_Manager::assetExists() throws fatal db error in Oracle if supplied assetids are more than 1000. 
+
+Web Services
+
+Fixed Bug #6848: JS API batchRequest cleans params of the createAsset function which breaks creating with attributes.  
+
+
+
 VERSION 4.16.7
 
 Minor Enhancements and Bug Fixes
