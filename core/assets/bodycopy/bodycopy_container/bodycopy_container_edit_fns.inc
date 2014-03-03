@@ -841,7 +841,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 
 			function bodycopy_insert_container(bodycopy_name, containerid, before) {
 				var form = document.main_form;
-				var container_type = form_element_value(form.<?php echo $prefix; ?>_insert_container_type);
+				var container_type = 'div';
 				eval('bodycopy_insert_' + container_type + '("' + bodycopy_name + '", ' + containerid + ', ' + before + ');');
 			}
 	
@@ -866,14 +866,6 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 			$edit_fns->paintGenericBackend($asset, $o, $prefix);
 		}
 
-		$container_type_options = Array();
-		$default = '';
-		foreach ($container_types as $type => $type_data) {
-			$code = strtolower(substr($type,9));
-			$container_type_options[$code] = ucfirst(substr($type,9));
-			if (empty($default)) $default = $code;
-		}
-		echo hidden_field($prefix.'_insert_container_type', $default);
 		
 		?>
 
