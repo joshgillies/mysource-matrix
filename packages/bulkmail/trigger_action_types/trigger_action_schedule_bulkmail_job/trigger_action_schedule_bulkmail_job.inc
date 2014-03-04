@@ -139,11 +139,30 @@ class Trigger_Action_Schedule_Bulkmail_Job extends Trigger_Action
 							$GLOBALS['SQ_SYSTEM']->replaceKeyword($rule_text);
 							$GLOBALS['SQ_SYSTEM']->frontend_asset = $old_frontend_asset;
 
-							if ($info[$category_type[0]]['rule_cond'] == 'contains') {
-								$match = (stripos($user_metadata, $rule_text) !== FALSE);
+							if ($GLOBALS['SQ_SYSTEM']->am->getAssetInfo($info[$category_type[0]]['assetid'], 'metadata_field_select')) {
+								// If the we are comparing metadata select field values, compare individual values
+								$subscribed_items = explode('\; ', $user_metadata);
+								$rule_items = explode('; ', $rule_text);
+								$match = FALSE;
+								foreach($subscribed_items as $subscribed_item) {
+									foreach($rule_items as $rule_item) {
+										if ($info[$category_type[0]]['rule_cond'] == 'contains') {
+											$match = (stripos($subscribed_item, $rule_item) !== FALSE);
+										} else {
+											$match = (strtolower($subscribed_item) == strtolower($rule_item));
+										}
+										if ($match) {
+											break 2;
+										}
+									}//end foreach
+								}//end foreach
 							} else {
-								// needs a exact match
-								$match = (strtolower($user_metadata) == strtolower($rule_text));
+								if ($info[$category_type[0]]['rule_cond'] == 'contains') {
+									$match = (stripos($user_metadata, $rule_text) !== FALSE);
+								} else {
+									// needs a exact match
+									$match = (strtolower($user_metadata) == strtolower($rule_text));
+								}
 							}
 							if ($match) {
 								$recipient[] = $user_info['assetid'];
