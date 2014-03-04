@@ -137,7 +137,7 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 		if ($iap || in_array('justify_text', $ap)) {
 			$wysiwyg->add_plugin('justify_text');
 		}
-		if (($iap || in_array('keyword_replace', $ap)) && !empty($keywords)) {
+		if ((SQ_IN_BACKEND || SQ_IN_LIMBO) && ($iap || in_array('keyword_replace', $ap)) && !empty($keywords)) {
 			$wysiwyg->add_plugin('keyword_replace');
 			$keyword_replace =& $wysiwyg->get_plugin('keyword_replace');
 			$keyword_replace->keyword_tag = '%';
@@ -279,7 +279,7 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 		if($owner == null) $owner = new Asset();
 		$keywords = $owner->getAvailableKeywords();
 		$keywords_encoded = htmlentities(json_encode_array($keywords)); 
-		
+	
 		// get snippet replacements
 		$snippets = $GLOBALS['SQ_SYSTEM']->am->getSnippetKeywords();
 		$snippets_encoded = htmlentities(json_encode_array($snippets));
