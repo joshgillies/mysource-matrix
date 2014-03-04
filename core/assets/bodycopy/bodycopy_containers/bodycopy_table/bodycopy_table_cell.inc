@@ -228,7 +228,7 @@ class BodyCopy_Table_Cell extends MySource_Object
 		} else {
 			$content_edit = $content_type->getEditFns();
 			if (!empty($prefix)) {
-				$content_edit->paintBackend($content_type, $content_prefix);
+				$content_edit->paintBackend($content_type, $content_prefix, $GLOBALS['SQ_SYSTEM']->backend->out);
 			} else {
 				ob_start();
 					$content_edit->paint($content_type, $editing, $generating);
@@ -298,7 +298,7 @@ class BodyCopy_Table_Cell extends MySource_Object
 			if (method_exists($content_edit,'setDirAttr') && !empty($dir_attribute)) {
 				$content_edit->setDirAttr($dir_attribute);
 			}
-			$content_edit->paintBackendIcons($content_type, $content_prefix);
+			$content_edit->paintBackendIcons($content_type, $content_prefix, $GLOBALS['SQ_SYSTEM']->backend->out);
 		}
 
 		return TRUE;
@@ -330,7 +330,7 @@ class BodyCopy_Table_Cell extends MySource_Object
 		if (!is_null($content_type)) {
 			$content_edit = $content_type->getEditFns();
 			$content_prefix = $prefix.'_content_type_'.$this->attributes['content_type'].'_'.$this->attributes['linkid'];
-			$content_edit->paintBackendStatusIcons($content_type, $content_prefix);
+			$content_edit->paintBackendStatusIcons($content_type, $content_prefix, $GLOBALS['SQ_SYSTEM']->backend->out);
 		}
 
 		return TRUE;

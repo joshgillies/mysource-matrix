@@ -253,7 +253,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	public function paintBackend(Content_Type_WYSIWYG $asset, $prefix, $o)
+	public function paintBackend(Content_Type_WYSIWYG $asset, $prefix, $o=NULL)
 	{
 		if ($asset->writeAccess('attributes')) {
 		    	// get the keyword replacements
@@ -267,7 +267,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 			$snippets = $GLOBALS['SQ_SYSTEM']->am->getSnippetKeywords();
 			$snippets_encoded = htmlentities(json_encode_array($snippets));
 			    
-			if($o->isViperAvailable()) {
+			if(!is_null($o) && $o->isViperAvailable()) {
 			    
 			    $o->enableViperEditor();
 
@@ -301,9 +301,9 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	* @return void
 	* @access public
 	*/
-	public function paintBackendIcons(Content_Type_WYSIWYG $asset, $prefix, $o)
+	public function paintBackendIcons(Content_Type_WYSIWYG $asset, $prefix, $o=NULL)
 	{
-		if(!$o->isViperAvailable())
+		if(!is_null($o) && !$o->isViperAvailable())
 		    Bodycopy_Edit_Fns::printBodycopyIcon("switchEditingMode('".$prefix."_contents_div','".$prefix."_wysiwyg_div', editor_".$prefix.');', 'Edit Contents', 'Switch between preview and edit mode', 'edit_mode', '[Edit Contents]');
 
 	}//end paintBackendIcons()
@@ -319,10 +319,10 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	* @return void
 	* @access public
 	*/
-	public function paintBackendStatusIcons(Content_Type_WYSIWYG $asset, $prefix, $o)
+	public function paintBackendStatusIcons(Content_Type_WYSIWYG $asset, $prefix, $o=NULL)
 	{
-		if($o->isViperAvailable()) {
-		     //Bodycopy_Edit_Fns::printBodycopyIcon('', 'Viper Content Area', translate('viper_editor_enabled_icon_note'), 'viper_logo', '[Viper Content Area]');
+		if(!is_null($o) && $o->isViperAvailable()) {
+		     Bodycopy_Edit_Fns::printBodycopyIcon('', 'Viper Content Area', translate('viper_editor_enabled_icon_note'), 'viper_logo', '[Viper Content Area]');
 		}
 		else {
 		    require_once SQ_DATA_PATH.'/private/conf/tools.inc';

@@ -1013,7 +1013,7 @@
 	<string source="border">Border</string>
 	<string source="keywords">Keywords</string>
 	<string source="disable_keywords">Disable Keywords</string>
-	<string source="delete_this_table">Delete This Table</string>
+	<string source="delete_this_table">Delete This Container</string>
 	<string source="click_to_delete">Click Icon to Delete</string>
 	<string source="reorderer">Reorderer</string>
 	<string source="horizontal">Horizontal</string>
@@ -1024,7 +1024,7 @@
 	<string source="delete_this_div_not_allowed_safe_edit">You cannot delete a container whilst in Safe Edit mode</string>
 	<string source="changing_div_not_allowed_in_safe_edit">You are not able to change a container whilst in Safe Edit mode</string>
 	<string source="div_properties">DIV Properties</string>
-	<string source="container_properties">Container Properties</string>
+	<string source="container_properties">Edit Container Properties</string>
 	<string source="top">Top</string>
 	<string source="middle">Middle</string>
 	<string source="bottom">Bottom</string>
@@ -1032,7 +1032,7 @@
 	<string source="no_text_wrap">No Text Wrap</string>
 	<string source="cell_type">Cell Type</string>
 	<string source="colspan">Colspan</string>
-	<string source="insert_div">Insert DIV</string>
+	<string source="insert_div">Insert New Container</string>
 	<string source="create_new">Create New</string>
 	<string source="html_border">HTML Border</string>
 	<string source="row_properties">Row Properties</string>
@@ -1915,8 +1915,8 @@
 	<string source="starts_with">Starts With</string>
 	<string source="not_logged_in">Not Logged In</string>
 
-	<string source="insert_container">Insert Container</string>
-	<string source="select_container_type">Select the type of container you want to create before clicking here</string>
+	<string source="insert_container">Insert New Container</string>
+	<string source="select_container_type">Click to open the 'Insert New Container' tool.</string>
 	<string source="insert">Insert</string>
 
 	<string source="insert_new_column_on_right">Insert New Column on Right</string>
