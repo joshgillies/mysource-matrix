@@ -83,14 +83,6 @@
 			<display_name>Send Validation Button Text</display_name>
 			<note>Text that will be displayed on the re-send validation email form button</note>
 		</field>
-		<field>
-			<display_name>Post-Login Redirect</display_name>
-			<note>If you specify an asset here, users will be redirected to that asset after logging in via this page.  Otherwise they will be show the contents of the "logged in" bodycopy.  If they are already logged in when they navigate to this page they will always be shown the contents of the "logged in" bodycopy, regardless of this setting.</note>
-			<function_call>
-				<paint_function   name="paintPostValidationRedirect"   />
-				<process_function name="processPostValidationRedirect" />
-			</function_call>
-		</field>
 		<field attribute="resend_validation_period">
 			<display_name>Pending Account Re-send Period</display_name>
 			<note>Period of time a user asset remains in the Pending Accounts folder before the validation email is re-sent. Set to zero (0) to disable</note>
@@ -98,6 +90,16 @@
 		<field attribute="remove_account_period">
 			<display_name>Pending Account Deletion Period</display_name>
 			<note>Period of time a user asset remains in the Pending Accounts folder before the user is deleted. Set to zero (0) to disable</note>
+		</field>
+	</section>
+	<section name="Post-Login Redirect" write_access="write:attributes">
+		<field>
+			<display_name>Post-Login Redirect</display_name>
+			<note>If you specify an asset here, users will be redirected to that asset after logging in via this page.  Otherwise they will be show the contents of the "logged in" bodycopy.  If they are already logged in when they navigate to this page they will always be shown the contents of the "logged in" bodycopy, regardless of this setting.</note>
+			<function_call>
+				<paint_function   name="paintPostValidationRedirect"   />
+				<process_function name="processPostValidationRedirect" />
+			</function_call>
 		</field>
 	</section>
 	<section name="Advanced Settings" write_access="write:attributes">

@@ -75,23 +75,23 @@ class Cron_Job_Refresh_Cache_Edit_Fns extends Cron_Job_Edit_Fns
 				<!-- Cron Job Schedule -->
 				<th class="sq-backend-table-header">Schedule</th>
 				<td class="sq-backend-table-cell">
-				<?php
-					// paint the start time using a one off job's edit fns
-					$cron_job = new Cron_Job();
-					$edit_fns = $cron_job->getEditFns();
-					echo translate('cron_job_refresh_cache_at');
-					$edit_fns->_paintWhenBox($cron_job, $o, $prefix);
+					<span class="sq-inline-fields-wrapper">
+					<?php
+						// paint the start time using a one off job's edit fns
+						$cron_job = new Cron_Job();
+						$edit_fns = $cron_job->getEditFns();
+						echo translate('cron_job_refresh_cache_at');
+						$edit_fns->_paintWhenBox($cron_job, $o, $prefix);
 
-					// paint the repeat frequency using repeating time interval job's edit fns
-					echo '<br />'.translate('cron_job_regenerate_report_repeat');
-					$this->_paintWhenBox($asset, $o, $prefix);
-				?>
+						// paint the repeat frequency using repeating time interval job's edit fns
+						echo '<br />'.translate('cron_job_regenerate_report_repeat');
+						$this->_paintWhenBox($asset, $o, $prefix);
+					?>
+					</span>
 				</td>
 			</tr>
 			</table>
 			<?php
-
-			echo '<br />';
 
 		}//end if
 

@@ -53,7 +53,8 @@ GLOBAL STYLES & CLASSES
 */
 
 a,
-.clickable {
+.clickable, 
+.sq-backend-smallprint a {
 	color:						#2aa1fc;
 	text-decoration:			none;
 }
@@ -315,6 +316,10 @@ button.delete-button {
 
 .sq-keep-inline {
 	white-space: 				nowrap;
+}
+
+.sq-inline-spacer {
+	display: 					inline-block;
 }
 
 /*
@@ -605,6 +610,9 @@ TOP HEADER FRAME STYLES
 	height: 					41px;
 	background: 				#494949 url(../images/bar-noise-bg.png);
 	box-shadow: 				0 -10px 25px -10px rgba(0,0,0,0.7) inset;
+	border-top: 				1px solid #000;
+	box-sizing: 				border-box;
+	-moz-box-sizing: 			border-box;
 }
 
 .sq-backend-header {
@@ -625,7 +633,7 @@ TOP HEADER FRAME STYLES
 	padding-right: 				10px;
 	text-shadow:				-1px -1px 0 #000;
 	position: 					relative;
-	top:						-1px;
+	top:						0;
 }
 
 .sq-backend-header button, 
@@ -662,7 +670,7 @@ TOP HEADER FRAME STYLES
 .sq-matrix-logo {
 	margin: 					0px 50px 0 0;
 	position: 					relative;
-	top: 						-1px;
+	top: 						0px;
 	left: 						9px;
 }
 
@@ -697,7 +705,7 @@ TOP HEADER FRAME STYLES
 	margin-right:				6px;
 	box-shadow: 				1px 1px 0 rgba(255,255,255,0.1), inset 1px 1px 1px #464545;
 	position: 					relative;
-	top:						-1px;
+	top:						0px;
 }
 
 input[type=text].sq-backend-header-text-box {
@@ -743,10 +751,17 @@ input[type=text].sq-backend-header-text-box {
 .sq-backend-header-login-as-form{
 	vertical-align:				middle;
 	margin-right:				2px;
+	position: 					relative;
+	top: 						0;
 }
 
 .sq-backend-header-login-as-form .sq-text-field-wrapper {
 	top:						1px;
+}
+
+.sq-backend-header-login-as-form label.sq-backend-header-item {
+	top:						0;
+
 }
 
 /*
@@ -2277,7 +2292,7 @@ td.sq-error-report-reported{
 	border-radius: 				4px;
 	border: 					1px solid #e0d3a2;
 	font-size: 					11px;
-	min-height: 				24px;
+	min-height: 				17px;
 	display: 					block;
 }
 
