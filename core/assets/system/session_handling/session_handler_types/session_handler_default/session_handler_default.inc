@@ -48,7 +48,7 @@ class Session_Handler_Default extends Session_Handler
 
 	/**
 	* Initialise the functionality of this session handler
-	* 
+	*
 	* This may involve the changing of PHP's internal session save
 	* handler and path, if we are using a built-in handler (like
 	* 'files'), or custom functions if we are creating our own
@@ -64,7 +64,7 @@ class Session_Handler_Default extends Session_Handler
 		$pos = strpos($domain, '/');
 		$path = '/';
 		if ($pos !== FALSE) {
-			$path = substr($domain, $pos);	
+			$path = substr($domain, $pos);
 		}
 
 
@@ -84,6 +84,14 @@ class Session_Handler_Default extends Session_Handler
 		}
 		session_name('SQ_SYSTEM_SESSION');
 
+        // Hardening.
+		if (version_compare(PHP_VERSION, '5.3.0') >= 0) {
+            ini_set('session.hash_bits_per_character', 5);
+            ini_set('session.hash_function', 'sha512');
+        } else {
+            ini_set('session.hash_function', '1');
+        }
+
 		// If this config setting is ON, then we use the save path
 		// defined in php.ini. If OFF (default), we use the cache
 		// directory inside the Matrix install directory.
@@ -99,7 +107,7 @@ class Session_Handler_Default extends Session_Handler
 
 	}//end init()
 
-	
+
 	/**
 	* Unserialises a session
 	*
