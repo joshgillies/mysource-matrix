@@ -303,8 +303,8 @@ class Backend extends MySource_Object
 		} else {
     		// if IE>8 & !IE11
     		?>
-			<!--[if IE 9 ]>     <html class="ie ie9 gtie8 <?php echo $backendPage; ?>"> <![endif]-->
-			<!--[if IE 10 ]>    <html class="ie ie10 gtie8 gtie9 <?php echo $backendPage; ?>"> <![endif]-->
+			<!--[if IE 9 ]>     <html class="ie ie9 gtie8 sq-frame-parent"> <![endif]-->
+			<!--[if IE 10 ]>    <html class="ie ie10 gtie8 gtie9 sq-frame-parent"> <![endif]-->
 			<!--[if !IE]> --> 	<html class="sq-frame-parent"> <!-- <![endif]-->
     		<?php
 		}
