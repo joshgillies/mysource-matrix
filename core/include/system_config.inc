@@ -1140,10 +1140,12 @@ class System_Config extends Config
 		$class = get_class_lower($this);
 
 		// Value restriction for Visited Pages Maximum Entries setting
-		if ($_POST[$class]['SQ_CONF_VISITED_PAGES_MAX_ENTRIES'] < 0) {
-			$_POST[$class]['SQ_CONF_VISITED_PAGES_MAX_ENTRIES'] = 0;
-		} else if ($_POST[$class]['SQ_CONF_VISITED_PAGES_MAX_ENTRIES'] > 1000) {
-			$_POST[$class]['SQ_CONF_VISITED_PAGES_MAX_ENTRIES'] = 1000;
+		if(isset($_POST[$class]['SQ_CONF_VISITED_PAGES_MAX_ENTRIES'])) {
+		    if ($_POST[$class]['SQ_CONF_VISITED_PAGES_MAX_ENTRIES'] < 0) {
+			    $_POST[$class]['SQ_CONF_VISITED_PAGES_MAX_ENTRIES'] = 0;
+		    } else if ($_POST[$class]['SQ_CONF_VISITED_PAGES_MAX_ENTRIES'] > 1000) {
+			    $_POST[$class]['SQ_CONF_VISITED_PAGES_MAX_ENTRIES'] = 1000;
+		    }
 		}
 
 		require_once SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc';
