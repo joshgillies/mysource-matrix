@@ -48,7 +48,7 @@ class Session_Handler extends Asset
 
 	/**
 	* Initialise the functionality of this session handler
-	* 
+	*
 	* This may involve the changing of PHP's internal session save
 	* handler and path, if we are using a built-in handler (like
 	* 'files'), or custom functions if we are creating our own
@@ -62,7 +62,7 @@ class Session_Handler extends Asset
 
 	}//end init()
 
-	
+
 	/**
 	* Synchronises two sessions together
 	*
@@ -78,7 +78,7 @@ class Session_Handler extends Asset
 	public static function sessionSync($primary_session_id)
 	{
 
-	}//end sessionSync()	
+	}//end sessionSync()
 
 
 }//end class

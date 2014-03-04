@@ -86,6 +86,14 @@ class Session_Handler_Redis extends Session_Handler
         }
         session_module_name('redis');
 
+        // Hardening.
+		if (version_compare(PHP_VERSION, '5.3.0') >= 0) {
+            ini_set('session.hash_bits_per_character', 5);
+            ini_set('session.hash_function', 'sha512');
+        } else {
+            ini_set('session.hash_function', '1');
+        }
+
         session_save_path($host_str);
 
     }//end init()

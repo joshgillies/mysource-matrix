@@ -334,7 +334,8 @@ class MySource extends MySource_Object
 			if (isset($_SESSION['activated']) === TRUE && $_SESSION['activated'] === 1) {
 				// This session is already activated.
 				// If we found the session is already activated.
-				session_regenerate_id(FALSE);
+                include_once SQ_FUDGE_PATH.'/general/security.inc';
+				security_regenerate_session_id(FALSE);
 				$new_session_id = session_id();
 				if (isset($_COOKIE['SQ_SYSTEM_SESSION'])) {
 					$new_session_id = $_COOKIE['SQ_SYSTEM_SESSION'];
@@ -2161,7 +2162,8 @@ class MySource extends MySource_Object
 		$old_session_id = session_id();
 
 		// regenerate the session id to protect against session fixation attacks
-		session_regenerate_id();
+        include_once SQ_FUDGE_PATH.'/general/security.inc';
+        security_regenerate_session_id();
 		// when logging in we wipe the previous session file
 		$sess_filename = session_save_path().'/sess_'.$old_session_id;
 		@unlink($sess_filename);
@@ -2469,7 +2471,8 @@ class MySource extends MySource_Object
 			$header .= "secure; ";
 		}
 
-		header($header);
+        // Do not replace in case, regenerating the session cookie is sending headers.
+		header($header, FALSE);
 
 	}//end _updateSessionCookie()
 

@@ -70,7 +70,7 @@ class Trigger_Action_Set_Cookie extends Trigger_Action
 	{
 		// check required settings
 		$name = array_get_index($settings, 'name', '');
-		if ($name == '') return FALSE;
+		if ($name == '' || $name === 'SQ_SYSTEM_SESSION') return FALSE;
 
 		//replace keywords for $value
 		if (empty($state['asset'])) {

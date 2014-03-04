@@ -504,4 +504,92 @@ function security_get_password_info($hash)
 
 }//end security_get_password_info()
 
+
+/**
+ * Regenerate the session id safely.
+ *
+ * There is a bug in PHP <5.5.3, where session_regenerate_id()
+ * cannot prevent a session fixation attack when multiple cookies
+ * are sent to the user's browser. This can lead to DOS attacks
+ * in IE and Chrome. To fix, expire ALL the cookies for all paths
+ * and subdomains. In PHP 5.5.3+, turn on strict sessions.
+ *
+ * @param boolean $delete_old If TRUE, delete the old session file.
+ *
+ * @return boolean
+ */
+function security_regenerate_session_id($delete_old=FALSE)
+{
+    $params  = session_get_cookie_params();
+    $host    = array_get_index($_SERVER, 'HTTP_HOST', NULL);
+    $pathPts = array();
+    $hostPts = array();
+    if ($params['path'] !== '/') {
+        $pathPts = explode('/', $params['path']);
+    }
+
+    if ($host !== NULL) {
+        $hostPts = explode('.', $host);
+    }
+
+    if (empty($pathPts) === FALSE) {
+        $pathLn = count($pathPts);
+        while ($pathLn >= 1) {
+            $path = implode('/', $pathPts);
+            security_send_reset_cookies($path, $host);
+
+            array_pop($pathPts);
+            $pathLn = count($pathPts);
+        }
+    } else {
+        // Single path, just do the combination of hosts.
+        security_send_reset_cookies($params['path'], $host);
+    }
+
+    $status = session_regenerate_id($delete_old);
+
+    return $status;
+
+}//end security_regenerate_session_id()
+
+
+/**
+ * Wrapper function to cycle thru the variation of hosts.
+ *
+ * @param string $path The current path.
+ * @param string $host The full host name.
+ *
+ * @return void
+ */
+function security_send_reset_cookies($path, $host)
+{
+    $hostPts = array();
+    $expiry  = substr(date('r', (time() - 42200)), 0, -6).' GMT';
+    if ($host !== NULL || ip2long($host) === FALSE) {
+        // We are looking at a qualified domain, so break it down to cycle
+        // through each iteration of subdomains.
+        $hostPts = explode('.', $host);
+    }
+
+    if (empty($path) === TRUE) {
+        $path = '/';
+    }
+
+    header('Set-Cookie: SQ_SYSTEM_SESSION='.session_id().'; Expires='.$expiry.'; path='.$path, FALSE);
+    if (empty($hostPts) === FALSE) {
+        // Unfortunately, since IE and Chrome are lame browsers,
+        // a DOS attack cookie could happen on qualified TLD domains.
+        // eg. com.au, co.jp, co.uk etc.
+        $hostLn = count($hostPts);
+        while ($hostLn >= 2) {
+            $hostname = implode('.', $hostPts);
+            header('Set-Cookie: SQ_SYSTEM_SESSION='.session_id().'; expires='.$expiry.'; domain='.$hostname.'; path='.$path, FALSE);
+
+            array_shift($hostPts);
+            $hostLn = count($hostPts);
+        }
+    }
+
+}//end security_send_reset_cookies()
+
 ?>
