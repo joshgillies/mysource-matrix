@@ -56,7 +56,7 @@ class Data_Source_RSS_Edit_Fns extends Data_Source_Edit_Fns
 		$url = $asset->attr('url');
 		$wa = $asset->writeAccess('attributes');
 		if ($wa) {
-			text_box('rss_link', $url, 30);
+			text_box('rss_link', $url, 100);
 			return TRUE;
 		} else {
 			echo $url;

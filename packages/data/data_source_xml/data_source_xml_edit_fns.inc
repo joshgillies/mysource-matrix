@@ -58,7 +58,7 @@ class Data_Source_Xml_Edit_Fns extends Data_Source_Edit_Fns
 		$url = html_entity_decode($asset->attr('url'));
 		$wa = $asset->writeAccess('attributes');
 		if ($wa) {
-			text_box($prefix.'feed_url', $url, 30);
+			text_box($prefix.'feed_url', $url, 100);
 			return TRUE;
 		} else {
 			echo $url;
@@ -108,7 +108,7 @@ class Data_Source_Xml_Edit_Fns extends Data_Source_Edit_Fns
 		$tags = unserialize(html_entity_decode($asset->attr('tags')));
 		$wa = $asset->writeAccess('attributes');
 		if ($wa) {
-			text_area($prefix.'tag_names', !empty($tags) ? implode(',', $tags) : '', 40);
+			text_area($prefix.'tag_names', !empty($tags) ? implode(',', $tags) : '', 60);
 			return TRUE;
 		} else {
 			echo !empty($tags) ? implode(',', $tags) : '';
@@ -253,7 +253,7 @@ class Data_Source_Xml_Edit_Fns extends Data_Source_Edit_Fns
 		$tags = unserialize(html_entity_decode($asset->attr('cdata_tags')));
 		$wa = $asset->writeAccess('attributes');
 		if ($wa) {
-			text_area($prefix.'cdata_tag_names', !empty($tags) ? implode(',', $tags) : '', 40);
+			text_area($prefix.'cdata_tag_names', !empty($tags) ? implode(',', $tags) : '', 60);
 			return TRUE;
 		} else {
 			echo !empty($tags) ? implode(',', $tags) : '';

@@ -53,7 +53,8 @@ GLOBAL STYLES & CLASSES
 */
 
 a,
-.clickable {
+.clickable, 
+.sq-backend-smallprint a {
 	color:						#2aa1fc;
 	text-decoration:			none;
 }
@@ -315,6 +316,10 @@ button.delete-button {
 
 .sq-keep-inline {
 	white-space: 				nowrap;
+}
+
+.sq-inline-spacer {
+	display: 					inline-block;
 }
 
 /*
@@ -605,6 +610,9 @@ TOP HEADER FRAME STYLES
 	height: 					41px;
 	background: 				#494949 url(../images/bar-noise-bg.png);
 	box-shadow: 				0 -10px 25px -10px rgba(0,0,0,0.7) inset;
+	border-top: 				1px solid #000;
+	box-sizing: 				border-box;
+	-moz-box-sizing: 			border-box;
 }
 
 .sq-backend-header {
@@ -625,7 +633,7 @@ TOP HEADER FRAME STYLES
 	padding-right: 				10px;
 	text-shadow:				-1px -1px 0 #000;
 	position: 					relative;
-	top:						-1px;
+	top:						0;
 }
 
 .sq-backend-header button, 
@@ -662,7 +670,7 @@ TOP HEADER FRAME STYLES
 .sq-matrix-logo {
 	margin: 					0px 50px 0 0;
 	position: 					relative;
-	top: 						-1px;
+	top: 						0px;
 	left: 						9px;
 }
 
@@ -697,7 +705,7 @@ TOP HEADER FRAME STYLES
 	margin-right:				6px;
 	box-shadow: 				1px 1px 0 rgba(255,255,255,0.1), inset 1px 1px 1px #464545;
 	position: 					relative;
-	top:						-1px;
+	top:						0px;
 }
 
 input[type=text].sq-backend-header-text-box {
@@ -743,10 +751,17 @@ input[type=text].sq-backend-header-text-box {
 .sq-backend-header-login-as-form{
 	vertical-align:				middle;
 	margin-right:				2px;
+	position: 					relative;
+	top: 						0;
 }
 
 .sq-backend-header-login-as-form .sq-text-field-wrapper {
 	top:						1px;
+}
+
+.sq-backend-header-login-as-form label.sq-backend-header-item {
+	top:						0;
+
 }
 
 /*
@@ -1156,8 +1171,15 @@ table.sq-backend-table {
 }
 
 .sq-backend-table th:last-child, 
-.sq-backend-table td:last-child {
+.sq-backend-table td:last-child, 
+.sq-backend-table th.no-right-border, 
+.sq-backend-table td.no-right-border {
 	border-right: 				none;
+}
+
+.sq-backend-table th.force-right-border, 
+.sq-backend-table td.force-right-border {
+	border-right: 				1px dotted #ccc;
 }
 
 .sq-backend-table th,
@@ -1172,7 +1194,9 @@ table.sq-backend-table {
 	text-shadow: 				0 1px 0 #fff;
 }
 
-.sq-backend-table > tr:last-child > th,
+.sq-backend-table > tbody > tr:last-child > th, 
+.sq-backend-table > tr:last-child > th, 
+.sq-backend-table > tbody > tr:last-child > .sq-backend-table-header, 
 .sq-backend-table > tr:last-child > .sq-backend-table-header {
 	border-bottom: 				none;
 }
@@ -1183,6 +1207,12 @@ table.sq-backend-table {
 
 .sq-backend-table tr:last-child > td {
 	border-bottom: 				none;
+}
+
+.sq-backend-table tr.force-bottom-border > td, 
+.sq-backend-table tr.force-bottom-border > th, 
+.sq-backend-table tbody tr.force-bottom-border > th  {
+	border-bottom: 				1px solid #ccc;
 }
 
 .sq-backend-table tfoot tr:first-child td{
@@ -1494,7 +1524,7 @@ BODYCOPY IFRAME POPUP STYLES
 }
 
 .sq-bodycopy-popup-wrapper form {
-	background-color: 			#fff;
+	background-color: 			#F4F4F4;
 	position: 					relative;
 	display: 					block;
 }
@@ -1507,6 +1537,7 @@ BODYCOPY IFRAME POPUP STYLES
 	color: 						#30425b;
 	font-weight: 				bold;
 	vertical-align:				top;
+	background:					#fff;
 }
 
 .sq-bodycopy-popup-wrapper td td {
@@ -1532,6 +1563,7 @@ BODYCOPY IFRAME POPUP STYLES
 	margin: 					0;
 	padding: 					6px 6px 0;
 	display:					block;
+	background:					#fff;
 }
 
 .sq-bodycopy-popup-wrapper h2 {
@@ -1633,7 +1665,7 @@ BODYCOPY IFRAME POPUP STYLES
 .sq-bodycopy-popup-wrapper tr.sq-popup-footer input {
 	padding: 					4px 0px;
 	border-radius: 				4px;
-	width: 						90px;
+	width: 						100px;
 	margin:						0;
 	height: 					auto;
 }
@@ -2260,7 +2292,7 @@ td.sq-error-report-reported{
 	border-radius: 				4px;
 	border: 					1px solid #e0d3a2;
 	font-size: 					11px;
-	min-height: 				24px;
+	min-height: 				17px;
 	display: 					block;
 }
 
@@ -3041,6 +3073,11 @@ div.sq-grey-header-row,
 
 .sq-grey-header-row .sq-icon-wrapper.left img.sq-icon:first-child {
 	margin-left: 				0;
+}
+
+/* When changes are made to a container but haven't been saved yet */
+.sq-container-changed {
+	background: 				#96D1FF !important;
 }
 
 

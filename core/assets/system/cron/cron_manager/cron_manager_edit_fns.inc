@@ -273,7 +273,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 						<table class="sq-backend-table">
 							<tr>
 								<th style="width:25%;">
-									When
+									<?php echo translate('when'); ?>
 								</th>
 								<th style="width:40%;">
 									<?php echo translate('name'); ?>
@@ -563,7 +563,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 						</tr>
 						<tr>
 							<td valign="top" class="sq-backend-data">
-								<?php security_key(25, 30, 2, TRUE); ?>
+								<?php security_key(4, 4, 2); ?>
 							</td>
 						</tr>
 					</table>
@@ -577,7 +577,8 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		// else everything is OK
 		} else {
-			$o->openField(translate('cron_manager_appears_to_be_fine'), 'new_line');
+			$o->openField(translate(''), 'wide_col');
+			echo '<em>'.translate('cron_manager_appears_to_be_fine').'</em>';
 
 		}//end if run_check
 

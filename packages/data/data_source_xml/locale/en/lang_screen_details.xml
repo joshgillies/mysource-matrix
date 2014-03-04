@@ -19,7 +19,7 @@
 	<section name="Details">
 		<field attribute="name">
 			<display_name>Name</display_name>
-			<note>The name of this XML feed</note>
+			<note>The name of this XML feed.</note>
 		</field>
 	</section>
 	<section name="XML Feed Details">
@@ -29,7 +29,7 @@
 				<process_function name="processFeed" />
 			</function_call>
 			<display_name>Link For The XML Feed</display_name>
-			<note>The URL which returns the XML feed</note>
+			<note>The URL which returns the XML feed.</note>
 		</field>
 		<field attribute="root_tag">
 			<display_name>Root Tag</display_name>
@@ -41,7 +41,7 @@
 				<process_function name="processTags" />
 			</function_call>
 			<display_name>Tag Names</display_name>
-			<note>You may enter a comma-separated list of tag names that you would like captured</note>
+			<note>You may enter a comma-separated list of tag names that you would like captured.</note>
 		</field>		
 		<field>
 			<function_call>
@@ -49,7 +49,7 @@
 				<process_function name="processCDATATags" />
 			</function_call>
 			<display_name>CDATA Tag Names</display_name>
-			<note>You may enter a comma-separated list of tag names that you would like to enclose in [CDATA]</note>
+			<note>You may enter a comma-separated list of tag names that you would like to enclose in [CDATA].</note>
 		</field>
 		<field attribute="data_delimiter">
 			<display_name>Data Delimiter</display_name>
@@ -64,7 +64,7 @@
 				<process_function name="processTagAttributes" />
 			</function_call>
 			<display_name>Select Tag Attributes</display_name>
-			<note>You may enter another comma-separated list of attribute names, belonging to any of the tags specified above that you would like captured</note>
+			<note>You may enter another comma-separated list of attribute names, belonging to any of the tags specified above that you would like captured.</note>
 		</field>
 	</section>
 	<section name ="Shadow Asset Name">
@@ -87,7 +87,7 @@
 			<display_name>Available Keywords For the Data Source RecordSet Asset</display_name>
 			<note>The above are the available keywords for the XML feed record set asset. You can choose to have one or more keywords
 			or a combination of strings and keywords as the name of the record set assets. Please remember that the keywords
-			have to be preceded and succeeded with a '%' sign or else the keyword will be considered a normal string.  </note>
+			have to be preceded and succeeded with a '%' sign or else the keyword will be considered a normal string.</note>
 		</field>
 	</section>
 	

@@ -308,7 +308,7 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 				<tr class="sq-grey-header-row">
 					<td align="left">
 						<?php
-						$o = $GLOBALS['SQ_SYSTEM']->backend->out;
+						$o = empty($GLOBALS['SQ_SYSTEM']->backend) ? NULL : $GLOBALS['SQ_SYSTEM']->backend->out;
 						if(is_null($o) || !$o->isViperAvailable()) {
 						?>
 							<div style="width: 16px; height: 16px; background: url(<?php echo sq_web_path('lib')?>/web/images/icons/edit_mode.png);background: expression('none');filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='<?php echo sq_web_path('lib')?>/web/images/icons/edit_mode.png', sizingMethod='scale'); font-size:10px; cursor:pointer;"
@@ -327,7 +327,7 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 		</div>
 		<div class="sq-wysiwyg-standalone-body with-bottom-margin">
 		<?php
-		$o = $GLOBALS['SQ_SYSTEM']->backend->out;
+		$o = empty($GLOBALS['SQ_SYSTEM']->backend) ? NULL : $GLOBALS['SQ_SYSTEM']->backend->out;
 		    
 		if(!is_null($o) && $o->isViperAvailable()) {
 			    
@@ -478,7 +478,7 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 		require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 		require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy_edit_fns.inc';
 
-		$o = $GLOBALS['SQ_SYSTEM']->backend->out;
+		$o = empty($GLOBALS['SQ_SYSTEM']->backend) ? NULL : $GLOBALS['SQ_SYSTEM']->backend->out;
 		if(!is_null($o) && $o->isViperAvailable()) {
 		    //Bodycopy_Edit_Fns::printBodycopyIcon('', 'Viper Content Area', translate('viper_editor_enabled_icon_note'), 'viper_logo', '[Viper Content Area]');
 		}

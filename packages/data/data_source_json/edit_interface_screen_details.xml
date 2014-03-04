@@ -57,7 +57,7 @@
 		</field>
 	</section>
 	<section name="Dynamic Parameters" write_access="write:attributes" limbo_access="1">
-		<field attribute="parameter_map" format="new_line">
+		<field attribute="parameter_map">
 			<parameter_map />
 		</field>
 	</section>

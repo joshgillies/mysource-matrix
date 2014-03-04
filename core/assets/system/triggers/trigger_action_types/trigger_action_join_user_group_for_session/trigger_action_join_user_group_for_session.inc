@@ -75,7 +75,7 @@ class Trigger_Action_Join_User_Group_For_Session extends Trigger_Action
 		ob_start();
 			$keyword_target_groupid = isset($settings['keyword_target_groupid']) ? $settings['keyword_target_groupid'] : '';
 			if ($write_access) {
-				text_box($prefix.'[keyword_target_groupid]', $keyword_target_groupid, 30);
+				text_box($prefix.'[keyword_target_groupid]', $keyword_target_groupid, 80);
 			} else {
 				echo '<strong>'.htmlspecialchars($keyword_target_groupid).'</strong>';;
 			}

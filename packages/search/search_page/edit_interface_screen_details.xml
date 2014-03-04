@@ -17,10 +17,10 @@
 <contents>
 	<section name="Details">
 		<field write_access="write:attributes" attribute="name">
-			<text width="15" />
+			<text width="35" />
 		</field>
 		<field write_access="write:attributes" attribute="short_name">
-			<text width="15" />
+			<text width="25" />
 		</field>
 	</section>
 	<section name="Search Parameters">
@@ -55,7 +55,7 @@
 			<selection style="list" />
 		</field>
 		<field attribute="num_per_page" write_access="write:attributes">
-			<text width="30" />
+			<text width="5" />
 		</field>
 		<field write_access="write:links">
 			<function_call>
@@ -64,7 +64,7 @@
 			</function_call>
 		</field>
 		<field attribute="lineage_seperator" write_access="write:attributes">
-			<text />
+			<text width="30" />
 		</field>
 		<field attribute="search_as_public_user" write_access="write:attributes">
 			<boolean true_text="yes" false_text="no" />
@@ -82,13 +82,13 @@
 			<boolean true_text="yes" false_text="no" />
 		</field>
 		<field attribute="submit_button_text" write_access="write:attributes">
-			<text />
+			<text width="30" />
 		</field>
 		<field attribute="reset_button_text" write_access="write:attributes">
-			<text />
+			<text width="30" />
 		</field>
 		<field attribute="sis_button_text" write_access="write:attributes">
-			<text />
+			<text width="30" />
 		</field>
 		<field attribute="prev_page_text" write_access="write:attributes">
 			<text width="30" />
@@ -97,10 +97,10 @@
 			<text width="30" />
 		</field>
 		<field attribute="page_link_format" write_access="write:attributes">
-			<text width="50" />
+			<text width="60" />
 		</field>
 		<field attribute="current_page_format" write_access="write:attributes">
-			<text width="50" />
+			<text width="60" />
 		</field>
 		<field attribute="hide_no_href_links" write_access="write:attributes">
 			<boolean true_text="yes" false_text="no" />
@@ -140,7 +140,7 @@
 		</field>
 	</section>
 	<section name="Dynamic Parameters" write_access="write:attributes">
-		<field attribute="parameter_map" format="new_line">
+		<field attribute="parameter_map">
 			<parameter_map />
 		</field>
 	</section>

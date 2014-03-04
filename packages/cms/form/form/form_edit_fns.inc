@@ -216,24 +216,28 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 		</script>
 				<table class="sq-backend-table">
 					<tr>
-						<td class="sq-backend-table-header">
+						<th>
 							<?php echo translate('question'); ?>
-						</td>
-						<td class="sq-backend-table-header">
+						</th>
+						<th>
 							<?php echo translate('type'); ?>
-						</td>
+						</th>
 						<?php
 						if ($admin_access) {
 							?>
-							<td align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;"><?php
+							<th style="text-align:center;">
+								<?php
+								label(translate('delete_question'));
+								echo '<br/>';
 								if (!empty($questions)) {
-									$delete_all = check_box($prefix.'_order[delete]', '1', FALSE, 'changeAllDelStatuses(this.checked)');
+									$delete_all = check_box($prefix.'_order[delete]', '1', FALSE, 'changeAllDelStatuses(this.checked)', 'title="'.translate('check_uncheck_all').'"');
 								} else {
 									$delete_all = '';
 								}
-								echo translate('delete_question').$delete_all; ?>
-							</td>
-							<td align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;"><?php echo translate('move'); ?></td>
+								echo $delete_all; 
+								?>
+							</th>
+							<th style="text-align:center;"><?php echo translate('move'); ?></th>
 							<?php
 						}
 						?>

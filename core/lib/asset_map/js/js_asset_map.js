@@ -114,6 +114,14 @@ var JS_Asset_Map = new function() {
 	var currentUser = '';
 
 
+
+	/**
+	 * If we are calling asset map from a pop up new window, set the source window here
+	 * @var {Object}
+	 */
+	var currentNewWindow = null;
+	
+	
 	/**
 	 * The trash folder assetid.
 	 *
@@ -3882,7 +3890,12 @@ var JS_Asset_Map = new function() {
 	this.getUseMeFrame = function() {
 		var win    = this.getDefaultView(assetMapContainer);
 		var retval = win;
-
+		
+		// if use me frame is opened from a new window 
+		if(typeof(this.currentNewWindow) !== 'undefined' &&  this.currentNewWindow !== null && !this.currentNewWindow.closed) {
+		    return this.currentNewWindow;
+		}
+		
 		// We're inside a frame, so check for the main frame.
 		if (win.frameElement) {
 			retval = win.top.frames.sq_main;

@@ -184,15 +184,6 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 			$edit_fns->paintGenericBackend($asset, $o, $prefix);
 		}
 
-		$container_type_options = Array();
-		$default = '';
-		foreach ($container_types as $type) {
-			$code = strtolower(substr($type,9));
-			$container_type_options[$code] = ucwords(str_replace('_', ' ', substr($type,9)));
-			if (empty($default)) $default = $code;
-		}
-		asort($container_type_options);
-		echo hidden_field($prefix.'_insert_container_type', $default);
 		?>
 
 		<!-- Begin Popup -->
@@ -314,13 +305,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 									?>
 									<td>
 										<?php
-											Bodycopy_Edit_Fns::printBodycopyIcon("document.main_form.{$prefix}_insert_container_type.value = document.main_form.{$prefix}_insert_container_type_before_{$i}.value; bodycopy_insert_container('$prefix', $i, true)", translate('insert_container'), translate('select_container_type'), 'create_container', '['.translate('insert').']');
-										?>
-									</td>
-									<td class="sq-backend-data" valign="top">
-										<?php
-										echo '&nbsp;&nbsp;'.translate('create_new').' ';
-										echo combo_box($prefix.'_insert_container_type_before_'.$i, $container_type_options, FALSE, '');
+											Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_insert_container('$prefix', $i, true)", translate('insert_container'), translate('select_container_type'), 'create_container', '['.translate('insert').']');
 										?>
 									</td>
 								<?php
@@ -367,13 +352,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 								?>
 								<td>
 									<?php
-									Bodycopy_Edit_Fns::printBodycopyIcon("document.main_form.{$prefix}_insert_container_type.value = document.main_form.{$prefix}_insert_container_type_after_{$i}.value; bodycopy_insert_container('$prefix', $i, false)", translate('insert_container'), translate('select_container_type'), 'create_container', '['.translate('insert').']');
-									?>
-								</td>
-								<td class="sq-backend-data" valign="top">
-									<?php
-									echo '&nbsp;&nbsp;'.translate('create_new').' ';
-									echo combo_box($prefix.'_insert_container_type_after_'.$i, $container_type_options, FALSE, '');
+									Bodycopy_Edit_Fns::printBodycopyIcon("bodycopy_insert_container('$prefix', $i, false)", translate('insert_container'), translate('select_container_type'), 'create_container', '['.translate('insert').']');
 									?>
 								</td>
 							<?php

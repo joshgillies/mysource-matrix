@@ -852,12 +852,17 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 		?><span class="sq-asset-finder-id-label">Id : #</span><?php
 		text_box($safe_name.'_assetid', empty($assetid) ? '' : $assetid, 2, '', FALSE, 'onchange="this.value=this.value.replace(/^\s*((?:[\S\s]*\S)?)\s*$/, \'$1\');'.str_replace('"', '\'', $finder_frame).'.set_hidden_field(\''.$name.'\' + \'[assetid]\', this.value);"');
 		?> <?php
-		normal_button($safe_name.'_change_btn', translate('change'), $map_frame.'.asset_finder_change_btn_press(\''.$escaped_name.'\', \''.$safe_name.'\', \''.addslashes($type_codes).'\', '.$done_fn.');');
+		$new_window_source = '';
+		if($new_window) {
+		    // if open in new window, have to tell JS asset map which window
+		    $new_window_source = $map_frame.'.JS_Asset_Map.currentNewWindow=window;';
+		}
+		normal_button($safe_name.'_change_btn', translate('change'), $new_window_source.$map_frame.'.asset_finder_change_btn_press(\''.$escaped_name.'\', \''.$safe_name.'\', \''.addslashes($type_codes).'\', '.$done_fn.', window);');
 		if (in_array('clear', $buttons)) {
-			normal_button($safe_name.'_clear_btn', translate('clear'), $map_frame.'.asset_finder_clear_btn_press(\''.$escaped_name.'\', \''.$safe_name.'\');');
+			normal_button($safe_name.'_clear_btn', translate('clear'), $new_window_source.$map_frame.'.asset_finder_clear_btn_press(\''.$escaped_name.'\', \''.$safe_name.'\');');
 		}
 		if (in_array('reset', $buttons)) {
-			normal_button($safe_name.'_reset_btn', translate('reset'), $map_frame.'.asset_finder_reset_btn_press(\''.$escaped_name.'\', \''.$safe_name.'\', \''.$assetid.'\', \''.addslashes($label).'\');');
+			normal_button($safe_name.'_reset_btn', translate('reset'), $new_window_source.$map_frame.'.asset_finder_reset_btn_press(\''.$escaped_name.'\', \''.$safe_name.'\', \''.$assetid.'\', \''.addslashes($label).'\');');
 		}
 	}
 

@@ -19,7 +19,7 @@
 	<section name="Questions (not attached to a section)">
 		<field>
 			<display_name>Current Questions</display_name>
-			<note>If you reorder or delete questions, you must commit the changes before they will take effect</note>
+			<note>If you reorder or delete questions, you must commit the changes before they will take effect.</note>
 			<function_call>
 				<paint_function   name="paintQuestionLinks"   />
 				<process_function name="processQuestionLinks" />
@@ -27,7 +27,7 @@
 		</field>
 		<field>
 			<display_name>Add Questions</display_name>
-			<note>Select the question type and the number of questions to add</note>
+			<note>Select the question type and the number of questions to add.</note>
 			<function_call>
 				<paint_function   name="paintAddQuestions"   />
 				<process_function name="processAddQuestions" />
@@ -37,7 +37,7 @@
 	<section name="Sections">
 		<field>
 			<display_name>Add Sections</display_name>
-			<note>Enter names for new sections you want to add</note>
+			<note>Enter names for new sections you want to add.</note>
 			<function_call>
 				<paint_function   name="paintAddSections"   />
 				<process_function name="processAddSections" />
@@ -45,7 +45,7 @@
 		</field>
 		<field>
 			<display_name>Current Sections</display_name>
-			<note>Click on a section's name to display that section</note>
+			<note>Click on a section's name to display that section.</note>
 			<function_call>
 				<paint_function   name="paintSectionLinks"   />
 				<process_function name="processSectionLinks" />
@@ -63,11 +63,11 @@
 		</field>
 		<field attribute="required_field_mark">
 			<display_name>Required field mark</display_name>
-			<note>HTML included in label to indicate the question is required</note>
+			<note>HTML included in label to indicate the question is required.</note>
 		</field>
 		<field attribute="required_field_note">
 			<display_name>Required field note</display_name>
-			<note>The meaning of required field mark is defined at the start of form</note>
+			<note>The meaning of required field mark is defined at the start of form.</note>
 		</field>
 		<field attribute="use_confirmation_page">
 			<display_name>Use Confirmation Page?</display_name>
@@ -79,7 +79,7 @@
 		</field>
 		<field>
 			<display_name>Use Bodycopy?</display_name>
-			<note>When bodycopy is not used, a default style will be used</note>
+			<note>When bodycopy is not used, a default style will be used.</note>
 			<function_call>
 				<paint_function   name="paintUseBodycopy"   />
 				<process_function name="processUseBodycopy" />
@@ -101,11 +101,11 @@
 	<section name="Validation">
 		<field attribute="use_client_side">
 			<display_name>Client-Side Validation</display_name>
-			<note>Server-side validation is always used to trap invalid input, after the form is submitted. Turn on client-side validation to provide an extra layer of validation that is executed at the browser level, before the form is submitted. Note that most but not all browsers support client-side validation</note>
+			<note>Server-side validation is always used to trap invalid input, after the form is submitted. Turn on client-side validation to provide an extra layer of validation that is executed at the browser level, before the form is submitted. Note that most but not all browsers support client-side validation.</note>
 		</field>
 		<field attribute="submission_errors_msg">
 			<display_name>Error Message Format</display_name>
-			<note>The %form_errors_message% keyword will be replaced with this text if there are submission errors</note>
+			<note>The %form_errors_message% keyword will be replaced with this text if there are submission errors.</note>
 		</field>
 	</section>
 	<section name="Submissions Limit">
@@ -119,7 +119,7 @@
 		</field>
 		<field attribute="submission_limit_reached_text">
 			<display_name>Error Text</display_name>
-			<note>This text will be used by Matrix to show error when the submission limit has been reached while the form was still being filled in by user</note>
+			<note>This text will be used by Matrix to show error when the submission limit has been reached while the form was still being filled in by user.</note>
 		</field>
 	</section>
 	<section name="CAPTCHA">
@@ -133,7 +133,7 @@
 		</field>
 		<field attribute="captcha_length">
 			<display_name>CAPTCHA Key Length</display_name>
-			<note>Number of characters in the CAPTCHA key</note>
+			<note>Number of characters in the CAPTCHA key.</note>
 		</field>
 		<field attribute="captcha_zoom">
 			<display_name>CAPTCHA Character Zoom</display_name>
@@ -236,15 +236,15 @@
 	<section name="Simple Formatting">
 		<field attribute="form_width">
 			<display_name>Form Width</display_name>
-			<note>The whole form will be this width when printed on the frontend. This can be a number of pixels or a percentage</note>
+			<note>The whole form will be this width when printed on the frontend. This can be a number of pixels or a percentage.</note>
 		</field>
 		<field attribute="question_col_width">
 			<display_name>Question Width</display_name>
-			<note>The width of the column for question names. This can be a number of pixels or a percentage of the form width</note>
+			<note>The width of the column for question names. This can be a number of pixels or a percentage of the form width.</note>
 		</field>
 		<field attribute="answer_col_width">
 			<display_name>Answer Width</display_name>
-			<note>The width of the column for the question answer fields. This can be a number of pixels or a percentage of the form width</note>
+			<note>The width of the column for the question answer fields. This can be a number of pixels or a percentage of the form width.</note>
 		</field>
 		<field attribute="submit_button_extras">
 			<display_name>Submit Button Extras</display_name>
@@ -314,7 +314,7 @@
 		</field>
 		<field attribute="public_auth_email_q">
 			<display_name>Public User Email Question</display_name>
-			<note>The address entered in response to this question will regarded as the Public User's authorised email. If not set, no email notification/reminder will be sent to the Public User</note>
+			<note>The address entered in response to this question will regarded as the Public User's authorised email. If not set, no email notification/reminder will be sent to the Public User.</note>
 		</field>
 		<field attribute="public_email_notification_format">
 			<display_name>Submission Retrieval Email Format</display_name>
@@ -372,7 +372,7 @@
 		</field>
 		<field>
 			<display_name>Questions To Check</display_name>
-			<note>Select the question to check for spam</note>
+			<note>Select the question to check for spam.</note>
 			<function_call>
 				<paint_function   name="paintMollomQuestionToCheck" />
 				<process_function name="processMollomQuestionToCheck" />
@@ -380,23 +380,23 @@
 		</field>		
 		<field attribute="mollom_unsure_submission_text">
 			<display_name>Unsure Error Message</display_name>
-			<note>Error message to display when Mollom is unsure whether a submission is spam and asks user to verify the submission's legitimacy by entering the CAPTCHA value</note>
+			<note>Error message to display when Mollom is unsure whether a submission is spam and asks user to verify the submission's legitimacy by entering the CAPTCHA value.</note>
 		</field>
 		<field attribute="mollom_spam_submission_text">
 			<display_name>Spam Error Message</display_name>
-			<note>Error message to dispay when Mollom identifies a submission as spam</note>
+			<note>Error message to dispay when Mollom identifies a submission as spam.</note>
 		</field>
 		<field attribute="mollom_captcha_incorrect_text">
 			<display_name>CAPTCHA Incorrect Text</display_name>
-			<note>Error message to dispay when user enters incorrect CAPTCHA value</note>
+			<note>Error message to dispay when user enters incorrect CAPTCHA value.</note>
 		</field>		
 		<field attribute="mollom_captcha_regen_link_text">
 			<display_name>CAPTCHA Regen Link Text</display_name>
-			<note>This text will appear when the %form_mollom_captcha_regen_link% keyword is used</note>
+			<note>This text will appear when the %form_mollom_captcha_regen_link% keyword is used.</note>
 		</field>
 		<field attribute="mollom_captcha_label_text">
 			<display_name>CAPTCHA Label Text</display_name>
-			<note>This text will appear as a label for CAPTCHA input box</note>
+			<note>This text will appear as a label for CAPTCHA input box.</note>
 		</field>
 	</section>
 	<section name="Security Enhancement">
@@ -413,43 +413,43 @@
 	<section name="Google reCAPTCHA" write_access="write:attributes">
 		<field attribute="use_recaptcha">
 			<display_name>Use reCAPTCHA</display_name>
-			<note>If this option is set to 'yes', %form_recaptcha% keyword must be included in form content. API keys needs to be set in External Tools Configuration</note>
+			<note>If this option is set to 'yes', %form_recaptcha% keyword must be included in form content. API keys needs to be set in External Tools Configuration.</note>
 		</field>
 		<field attribute="recaptcha_theme">
 			<display_name>Theme</display_name>
-			<note>Standard theme to use for printing the reCAPTCHA box</note>
+			<note>Standard theme to use for printing the reCAPTCHA box.</note>
 		</field>
 		<field attribute="recaptcha_error_message">
 			<display_name>Error Message</display_name>
-			<note>Error message to dispay if reCAPTCHA validation fails</note>
+			<note>Error message to dispay if reCAPTCHA validation fails.</note>
 		</field>
 	</section>
 	<section name="Spam Prevention: Honeypot Question" write_access="write:attributes">
 		<field attribute="honeypot_name">
 			<display_name>Field Name</display_name>
-			<note>Honeypot input field name. %form_honeypot_field% keyword needs to be included in form content to include the Honeypot question in the output</note>
+			<note>Honeypot input field name. %form_honeypot_field% keyword needs to be included in form content to include the Honeypot question in the output.</note>
 		</field>
 		<field attribute="honeypot_id">
 			<display_name>Field Id</display_name>
-			<note>Honeypot input field id</note>
+			<note>Honeypot input field id.</note>
 		</field>
 		<field attribute="honeypot_class">
 			<display_name>Field Class</display_name>
-			<note>Honeypot input field CSS class name</note>
+			<note>Honeypot input field CSS class name.</note>
 		</field>
 		<field attribute="honeypot_error_message">
 			<display_name>Error Message</display_name>
-			<note>Error message to display if the Honeypot validation fails</note>
+			<note>Error message to display if the Honeypot validation fails.</note>
 		</field>
 	</section>
 	<section name="Spam Prevention: Submission Time Threshold" write_access="write:attributes">
 		<field attribute="time_requirement">
 			<display_name>Time Period</display_name>
-			<note>Estimated minimum time (in seconds) required by a user to complete the form. If the form gets submitted before the submission time threshold, the submission will not be accepted. If empty or set to '0', the submission time check will be ignored</note>
+			<note>Estimated minimum time (in seconds) required by a user to complete the form. If the form gets submitted before the submission time threshold, the submission will not be accepted. If empty or set to '0', the submission time check will be ignored.</note>
 		</field>
 		<field attribute="time_requirement_error_message">
 			<display_name>Error Message</display_name>
-			<note>Error message to display if the time requirement check fails</note>
+			<note>Error message to display if the time requirement check fails.</note>
 		</field>
 	</section>
 </contents>

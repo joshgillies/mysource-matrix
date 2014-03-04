@@ -441,12 +441,13 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 								}
 								combo_box($prefix.'_morph_new_type', $morph_types, FALSE, '');
 								?>
+								<br/><br/>
 								<table>
 									<tr>
-										<td class="sq-backend-data"><?php echo translate('morph_confirmation'); ?></td>
+										<td class="sq-backend-data"><p><?php echo translate('morph_confirmation'); ?></p></td>
 									</tr>
 									<tr>
-										<td valign="top"><?php security_key(15, 20, 2); ?></td>
+										<td valign="top"><?php security_key(4, 4, 2); ?></td>
 									</tr>
 								</table>
 								<?php

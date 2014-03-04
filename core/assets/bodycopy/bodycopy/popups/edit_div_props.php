@@ -119,7 +119,7 @@ include(dirname(__FILE__).'/header.php');
 	<a href="#" onclick="javascript: popup_close(); return false;">
 		<img src="<?php echo sq_web_path('lib')?>/web/images/icons/cancel.png" alt="Cancel" title="<?php echo translate('cancel');?>" class="sq-icon">
 	</a>
-	<?php echo translate('div_properties'); ?>
+	<?php echo translate('container_properties'); ?>
 </h1>
 <script type="text/javascript">
 if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementById('sq_edit_div_props_delete').innerHTML = '&nbsp;'; }
@@ -225,7 +225,7 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 	</tr>
 	<tr>
 		<td colspan="2">
-			<h2><?php echo translate('delete_this_div'); ?></h2>
+			<h2><?php echo translate('delete_this_dcontainer'); ?></h2>
 			<fieldset class="last">
 			<?php
 			// if asset is in safe edit we dont want user to delete it
@@ -244,7 +244,7 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 				<tr>
 					<td class="label"><?php echo translate('click_to_delete'); ?>:</td>
 					<td>
-						<?php	sq_print_icon(sq_web_path('data').'/asset_types/bodycopy/images/icons/delete.png', 16, 16, 'Delete this Div', 'Delete this Div', 'onclick="owner.bodycopy_delete_div(document.main_form.bodycopy_name.value, document.main_form.divid.value);" style="cursor: pointer;"'); ?>
+						<?php	sq_print_icon(sq_web_path('data').'/asset_types/bodycopy/images/icons/delete.png', 16, 16, 'Delete This Container', 'Delete This Container', 'onclick="owner.bodycopy_delete_div(document.main_form.bodycopy_name.value, document.main_form.divid.value);" style="cursor: pointer;"'); ?>
 					</td>
 				</tr>
 				</table>
@@ -259,7 +259,7 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 			<input type="button" class="" name="cancel" onClick="javascript: popup_close();" value="<?php echo translate('cancel'); ?>"/>
 		</td>
 		<td align="right">
-			<input type="button" class="sq-btn-blue" name="ok" onClick="javascript: popup_save(this.form)" value="<?php echo translate('save'); ?>"/>
+			<input type="button" class="sq-btn-blue" name="ok" onClick="javascript: popup_save(this.form)" value="<?php echo translate('set_properties'); ?>"/>
 		</td>
 	</tr>
 </table>

@@ -123,7 +123,12 @@
 		// relative to the button the user clicks on instead of where they are scrolled to for better user experience
 		// Also, only do this if we are in _admin mode and in IE11 or above, if not, result to old method
 		if ((bodycopy_has_class(document.getElementById('sq-content'), 'main')) && (bodycopy_type != undefined && bodycopy_id != undefined)) {
-			var bodycopy_parent_td = document.getElementById('bodycopy_' + asset_id + '_' + bodycopy_type + '_' + bodycopy_id);
+			var id_selector = asset_id + '_' + bodycopy_type + '_' + bodycopy_id;
+			var bodycopy_parent_td = document.getElementById('bodycopy_' + id_selector);
+			//check if we are dealing with a simple edit layout, the above will return null, change the id to a layout type id instead
+			if (bodycopy_parent_td == null || bodycopy_parent_td == undefined) {
+				bodycopy_parent_td = document.getElementById('layout_' +  id_selector);
+			}
 			var xPosition = 0;
     		var yPosition = 0;
 		    while(bodycopy_parent_td.className != 'sq-backend-section-table-inner') {
@@ -134,7 +139,13 @@
   			bodycopy_popup.move(20, yPosition + 27);
 		} else {
 			var scroll_top  = ((is_ie4up) ? (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop  : self.pageYOffset);
-			bodycopy_popup.move(null, scroll_top - 100 + top_offset);
+			var top_position = 0;
+			if (is_chrome) {
+				top_position = scroll_top - 100 + top_offset;
+			} else {
+				top_position = scroll_top + 50 + top_offset;
+			}
+			bodycopy_popup.move(null, top_position);
 		}
 		bodycopy_popup.show();
 	}//end bodycopy_show_popup()
@@ -174,22 +185,16 @@
 	function bodycopy_chgColor(id, colour) {
 		if (is_dom) {
 			var chgcell
-			if (!colour) { colour = '559AE7'; }
-			chgcell = "document.getElementById('"+ id + "').style.backgroundColor = '#"+ colour +"'";
+			//if (!colour) { colour = '559AE7'; }
+			chgcell = "document.getElementById('"+ id + "').className = document.getElementById('"+ id + "').className + ' sq-container-changed' ";
 			eval(chgcell);
 		}
 	}
 
-	/*function bodycopy_insert_container(bodycopy_name, containerid, before) {
-		var form = document.main_form;
-		var container_type = form_element_value(form._prefix._insert_container_type);
-		eval('bodycopy_insert_' + container_type + '("' + bodycopy_name + '", ' + containerid + ', ' + before + ');');
-	}*/
 
 	function bodycopy_insert_container(bodycopy_name, containerid, before) {
 		var form = document.main_form;
-		var container_type;
-		eval('container_type=form_element_value(form.' + _prefix + '_insert_container_type);');
+		var container_type = 'div';
 		eval('bodycopy_insert_' + container_type + '("' + bodycopy_name + '", ' + containerid + ', ' + before + ');');
 	}
 

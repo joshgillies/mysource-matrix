@@ -322,7 +322,7 @@ class MySource extends MySource_Object
 				$session_set = TRUE;
 			}
 
-			if (SQ_CONF_SESSION_HANDLER === 'memcache') {
+			if (in_array(SQ_CONF_SESSION_HANDLER, array('memcache', 'redis'))) {
 				$old_level = error_reporting(E_ERROR);
 				session_start();
 				error_reporting($old_level);
@@ -342,7 +342,8 @@ class MySource extends MySource_Object
 				session_destroy();
 				$this->_clearSession();
 				session_id($new_session_id);
-				if (SQ_CONF_SESSION_HANDLER === 'memcache') {
+
+				if (in_array(SQ_CONF_SESSION_HANDLER, array('memcache', 'redis'))) {
 					$old_level = error_reporting(E_ERROR);
 					session_start();
 					error_reporting($old_level);

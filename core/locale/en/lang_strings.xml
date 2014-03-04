@@ -86,6 +86,7 @@
 	<string source="at" js="1">At</string>
 	<string source="at_least">At least</string>
 	<string source="attribute_search_fields">Attribute Search Fields</string>
+	<string source="apply_changes">Apply Changes</string>
 	<string source="calculate">Calculate Size</string>
 	<string source="cascade_options">Cascade Options</string>
 	<string source="cascade_permission_changes">Cascade Permission Changes?</string>
@@ -331,6 +332,7 @@
 	<string source="search_and_replace_confirmation">Search and Replace Confirmation</string>
 	<string source="security_key_incorrect">Security Key Incorrect</string>
 	<string source="severity">Severity</string>
+	<string source="set_properties">Set Properties</string>
 	<string source="show_diff">Show Diff</string>
 	<string source="show_in_asset_map">Show in Asset Map</string>
 	<string source="show_lineages">Show Lineages</string>
@@ -482,7 +484,7 @@
 	<string source="cron_deadlock_warning_section_1">This is only a potential warning brought about because the cron manager has attempted to run %s times, but has not been able to. Two potential reasons for this are :</string>
 	<string source="cron_deadlock_warning_check_error_log">Check the cron error log (in "%s") for any information</string>
 	<string source="cron_deadlock_warning_offending_job">The cron manager believes this job is still running: %s</string>
-	<string source="cron_deadlock_warning_section_2">To remove the lock flag for the cron manager enter the 25 character string you see below into the box supplied, then press the Commit button</string>
+	<string source="cron_deadlock_warning_section_2">To confirm the removal of the lock flag for the cron manager, enter the character string you see below into the box supplied, then press the Commit button</string>
 	<string source="cron_deadlock_warning_section_3">ONLY REMOVE THE LOCK IF YOU KNOW FOR CERTAIN THAT THE CRON MANAGER IS NOT RUNNING</string>
 	<string source="cron_deadlock_must_acquire_lock">You must acquire the lock in order resolve this issue</string>
 	<string source="cron_deadlock_warning_contact_root">You must contact the root user to resolve this issue</string>
@@ -538,7 +540,8 @@
 	<string source="currently_not_held">Currently not held</string>
 	<string source="no_access_to_edit">You do not have access to edit "%s"</string>
 	<string source="due_to_expire">The lock is due to expire in %s</string>
-	<string source="enter_eight_character_security_string">To acquire the lock, enter the 8 character string you see below into the box supplied, then press the Commit button</string>
+	<string source="enter_eight_character_security_string">To acquire the lock, enter the 8 character string you see below into the box supplied, then press the Commit button.</string>
+	<string source="enter_character_security_string">To confirm the acquiring of the lock, enter the character string you see below into the box supplied, then press the Commit button.</string>
 	<string source="lock_held_indefinitely">The lock is being held indefinitely and will not expire. The lock must be released manually or be forcibly acquired by a System Administrator.</string>
 	<string source="lock_held_by">Held by user "%1$s" at "%2$s"</string>
 	<string source="lock_held_by_user">Held by user "%s"</string>
@@ -639,7 +642,7 @@
 	<string source="no_character_set">&lt;i&gt;No character set is currently set for "%s"&lt;/i&gt;</string>
 	<string source="only_morph_under_construction">&lt;i&gt;An asset can only be morphed while Under Construction&lt;/i&gt;</string>
 	<string source="no_types_to_morph">&lt;i&gt;No types are available to morph this asset into&lt;/i&gt;</string>
-	<string source="morph_confirmation">To change the type of this asset, enter the 15 character string you see below into the box supplied, then press the Commit button</string>
+	<string source="morph_confirmation">To confirm the change of type for this asset, enter the character string you see below into the box supplied, then press the Commit button.</string>
 	<string source="morph_no_access">&lt;i&gt;You do not have access to morph this asset&lt;/i&gt;</string>
 	<string source="create_new_user_defined_design">Create New User Defined Design</string>
 	<string source="effective_design">Effective Design</string>
@@ -762,9 +765,9 @@
 	<string source="currently_customising_type_code">Currently customising type code</string>
 	<string source="currently_viewing_type_code">Currently viewing type code</string>
 	<string source="currently_viewing">Currently viewing %s</string>
-	<string source="using_default_value_of">Using default value of %s</string>
+	<string source="using_default_value_of">Using default value of &lt;strong&gt;%s&lt;/strong&gt;</string>
 	<string source="using_default_value">Using default value</string>
-	<string source="valid_cache_length">The length of time a cache entry is valid in seconds. Memcache storage type accepts maximum 2592000 (30 days)</string>
+	<string source="valid_cache_length">The length of time a cache entry is valid in seconds. Memcache storage type accepts maximum 2592000 (30 days).</string>
 	<string source="customise_asset_selection">Please select an Asset Type above to customise.</string>
 	<string source="customise_asset_selection_below">Please select an Asset Type below to customise.</string>
 	<string source="view_asset_selection_below">Please select an Asset Type below to view its settings.</string>
@@ -796,6 +799,7 @@
 	<string source="type_code_precedence_over_root_node">Type Code specific customisations will take precendence over Root Node specific customisations.</string>
 	<string source="type_code_current_customised_highlighted">Currently customised type codes are highlighted in grey in the above select list.</string>
 	<string source="customise_after_commit" js="1">Customise after commit</string>
+	<string source="check_uncheck_all">Check/Uncheck all</string>
 
 
 
@@ -1009,16 +1013,18 @@
 	<string source="border">Border</string>
 	<string source="keywords">Keywords</string>
 	<string source="disable_keywords">Disable Keywords</string>
-	<string source="delete_this_table">Delete This Table</string>
+	<string source="delete_this_table">Delete This Container</string>
 	<string source="click_to_delete">Click Icon to Delete</string>
 	<string source="reorderer">Reorderer</string>
 	<string source="horizontal">Horizontal</string>
 	<string source="vertical">Vertical</string>
 	<string source="delete_this_div">Delete This Div</string>
+	<string source="delete_this_dcontainer">Delete This Container</string>
 	<string source="delete_this_div_not_allowed">Deleting Not Allowed In User Preference</string>
-	<string source="delete_this_div_not_allowed_safe_edit">You cannot delete Div or Table whilst in Safe Edit mode</string>
-	<string source="changing_div_not_allowed_in_safe_edit">Not allowed to change DIV whilst in Safe Edit mode</string>
+	<string source="delete_this_div_not_allowed_safe_edit">You cannot delete a container whilst in Safe Edit mode</string>
+	<string source="changing_div_not_allowed_in_safe_edit">You are not able to change a container whilst in Safe Edit mode</string>
 	<string source="div_properties">DIV Properties</string>
+	<string source="container_properties">Edit Container Properties</string>
 	<string source="top">Top</string>
 	<string source="middle">Middle</string>
 	<string source="bottom">Bottom</string>
@@ -1026,7 +1032,7 @@
 	<string source="no_text_wrap">No Text Wrap</string>
 	<string source="cell_type">Cell Type</string>
 	<string source="colspan">Colspan</string>
-	<string source="insert_div">Insert DIV</string>
+	<string source="insert_div">Insert New Container</string>
 	<string source="create_new">Create New</string>
 	<string source="html_border">HTML Border</string>
 	<string source="row_properties">Row Properties</string>
@@ -1909,8 +1915,8 @@
 	<string source="starts_with">Starts With</string>
 	<string source="not_logged_in">Not Logged In</string>
 
-	<string source="insert_container">Insert Container</string>
-	<string source="select_container_type">Select the type of container you want to create before clicking here</string>
+	<string source="insert_container">Insert New Container</string>
+	<string source="select_container_type">Click to open the 'Insert New Container' tool.</string>
 	<string source="insert">Insert</string>
 
 	<string source="insert_new_column_on_right">Insert New Column on Right</string>
