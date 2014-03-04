@@ -239,7 +239,7 @@ include(dirname(__FILE__).'/header.php');
 	<a href="#" onclick="javascript: popup_close(); return false;">
 		<img src="<?php echo sq_web_path('lib')?>/web/images/icons/cancel.png" alt="Cancel" title="<?php echo translate('cancel');?>" class="sq-icon">
 	</a>
-	Container Condition Rules
+	Edit Container Conditions
 </h1>
 <form id="main_form" name="main_form"  style="height:410px;overflow: auto;">
 <input type="hidden" name="bodycopy_name" value="">
