@@ -149,6 +149,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 									'<legend',
 									'<style',
 									'<script',
+									'<iframe',
 								 );
 				$conflict_tag_search_string = '~('.implode(')|(', $conflict_tags).')~i';
 
