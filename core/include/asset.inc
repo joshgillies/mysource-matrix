@@ -4960,7 +4960,7 @@ class Asset extends MySource_Object
 					if (($this->force_secure === '-') && ($protocol == 'https')) {
 						continue;
 					}
-					if ($valid) {
+					if ($valid && !is_int($protocol)) {
 						$this->_tmp['valid_protocols'][] = $protocol;
 					}
 				}
