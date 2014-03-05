@@ -1348,7 +1348,7 @@ class Backend extends MySource_Object
 									</a>
 									<a class="sq-menu-tab" id="sq-menu-tab-my_space" href="#" onClick="Javascript: switchSideNav('my_space'); return false;">
 										<img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/myspace.png"/>
-										<?php echo translate('my_space'); ?>
+										<?php echo translate('my_account'); ?>
 									</a>
 								</span>
 							</td>

@@ -595,6 +595,7 @@
 	<string source="logout_and_resume">Logout and resume as %1$s</string>
 
 	<string source="my_space">My Space</string>
+	<string source="my_account">My Account</string>
 	<string source="asset_map">Asset Map</string>
 
 	<string source="my_inbox">My Inbox</string>
