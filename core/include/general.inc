@@ -1640,7 +1640,10 @@ function get_asset_tag_line($assetid, $screen='')
 		</tr>
 		<tr>
 			<td class="sq-backend-table-cell"><strong><?php echo translate('asset_type') ?>:</strong></td>
-			<td colspan="2" class="sq-backend-table-cell"><?php echo get_asset_type_icon($asset_info['type_code']).' '.$type_name ?></td>
+			<td colspan="2" class="sq-backend-table-cell"><?php
+			    echo ' <span class="sq-info-type-icon">'.get_asset_type_icon($asset_info['type_code']).'</span>';
+			    echo ' <span class="sq-info-type-name" data-type-code="'.$asset_info['type_code'].'">'.$type_name.'</span>';
+			?></td>
 		</tr>
 		<?php
 		$headers = Array(
@@ -1703,7 +1706,7 @@ function get_asset_tag_line($assetid, $screen='')
 			echo '</a>';
 		}
 
-		echo ' (Id: #'.$assetid.') ';
+		echo ' (Id: #<span class="sq-info-assetid">'.$assetid.'</span>) ';
 		echo '</span>';
 
 	$contents = ob_get_clean();
