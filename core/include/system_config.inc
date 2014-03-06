@@ -1183,6 +1183,7 @@ class System_Config extends Config
 	* @param boolean	$enable_roles_system	whether to enable or disable the Roles system completely
 	* @param boolean	$enable_global_roles	whether to enable or disable Global Roles
 	*
+	* @throws Exception when there is a database error.
 	* @return boolean
 	* @access public
 	*/
@@ -1278,12 +1279,18 @@ class System_Config extends Config
 			throw $e;
 		}
 
+		// Allow the secondary user to operate (select, update etc.) with the Roles views
+		try {
+			grant_secondary_user_perms(FALSE);
+		} catch(Exception $e) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+			throw $e;
+		}
+
 		// All is good, commit the transaction
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-
-		// Allow the secondary user to operate (select, update etc.) with the Roles views
-		grant_secondary_user_perms(FALSE);
 
 		return $roles_changed;
 
