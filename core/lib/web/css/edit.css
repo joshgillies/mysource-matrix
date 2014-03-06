@@ -397,7 +397,7 @@ input[type="reset"],
 	line-height: 				26px;
 	color: 						#454545;
 	text-shadow: 				0 1px 0 #fff;
-	box-shadow: 				0 1px 2px rgba(0, 0, 0, 0.19), 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 -2.4em 3.3em -2.4em rgba(0, 0, 0, 0.2) inset;
+	box-shadow: 				0 1px 1px rgba(0, 0, 0, 0.10), 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 -2.4em 3.3em -2.4em rgba(0, 0, 0, 0.2) inset;
 	display: 					inline-block;
 	transition: 				all 0.2s ease-out;
 }
@@ -2427,6 +2427,17 @@ DROP DOWN POPUP STYLES (Slide down from under the top header on the right side)
 
 .sq-new-message-popup-wrapper table.hipo .sq-icon{
 	margin-top:					-4px;
+	margin: 					0 2px;
+}
+
+.sq-backend-search-results-body .sq-search-navigation{
+	text-align: 				center;
+	padding:					4px 0 0;
+}
+
+.sq-backend-search-results-body .sq-btn-link{
+	line-height: 				17px;
+	margin: 					0 2px;
 }
 
 .sq-popup-pagination {

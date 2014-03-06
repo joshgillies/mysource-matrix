@@ -707,12 +707,12 @@ class Backend extends MySource_Object
 					$keyword_lines    = '';
 					
 					if ($total_pages > 1) {
-						$detail_lines[] = '<div align="center">
-						<a href="" onclick="MatrixBackendSearch.first(); return false;" title="Go back to first page">&lt;&lt;</a> &nbsp;
-						<a href="" onclick="MatrixBackendSearch.back(); return false;" title="Go back one page">&lt;</a> &nbsp;
-						<strong>( <span id="sq-search-results-page-start">1</span> - <span id="sq-search-results-page-end">'.min($result_count, $results_per_page).'</span> )</strong> &nbsp;
-						<a href="" onclick="MatrixBackendSearch.next(); return false;" title="Go forward one page">&gt;</a> &nbsp;
-						<a href="" onclick="MatrixBackendSearch.last(); return false;" title="Go forward to last page">&gt;&gt;</a></a></div>';
+						$detail_lines[] = '<div class="sq-search-navigation">
+						<a class="sq-btn-link sq-btn-small sq-btn-no-shadow" href="" onclick="MatrixBackendSearch.first(); return false;" title="Go back to first page">&lt;&lt;</a>
+						<a class="sq-btn-link sq-btn-small sq-btn-no-shadow" href="" onclick="MatrixBackendSearch.back(); return false;" title="Go back one page">&lt;</a>
+						<strong>( <span id="sq-search-results-page-start">1</span> - <span id="sq-search-results-page-end">'.min($result_count, $results_per_page).'</span> )</strong>
+						<a class="sq-btn-link sq-btn-small sq-btn-no-shadow sq-btn-small sq-btn-no-shadow" href="" onclick="MatrixBackendSearch.next(); return false;" title="Go forward one page">&gt;</a>
+						<a class="sq-btn-link sq-btn-small sq-btn-no-shadow" href="" onclick="MatrixBackendSearch.last(); return false;" title="Go forward to last page">&gt;&gt;</a></a></div>';
 					}//end if
 					$js_code .= 'with (parent.frames.sq_main.MatrixBackendSearch) { currentPage = 0; totalResults = '.$result_count.'; resultsPerPage = '.$results_per_page.';}';
 
@@ -893,7 +893,7 @@ class Backend extends MySource_Object
 				var screenMenu = null;
 				var screenMenuFiller = null;
 
-				var delay = 30;     // milliseconds between movements
+				var delay = 10;     // milliseconds between movements
 				var myTimer = null;
 				var counter = null; // number of times to move the div
 				var messageIndex = 0;
@@ -982,7 +982,7 @@ class Backend extends MySource_Object
 					
 					setTimeout(function() {
 						showMsgDiv();
-					}, 500);
+					}, 100);
 					
 					messageIndex++;
 
