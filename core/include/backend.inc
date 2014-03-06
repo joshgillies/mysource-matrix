@@ -156,7 +156,7 @@ class Backend extends MySource_Object
 			}
 		}
 		
-		if (SQ_DESIGN_NO_FRAME && SQ_IN_LIMBO) {
+		if (SQ_DESIGN_NO_FRAME && SQ_IN_LIMBO && !isset($_REQUEST['SQ_BACKEND_PAGE'])) {
 			$_REQUEST['SQ_BACKEND_PAGE'] = 'main';
 		}//end if
 
