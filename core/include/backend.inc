@@ -1242,7 +1242,7 @@ class Backend extends MySource_Object
 						  >
 						  	<img src="<?php echo $this->out->filesPath('/images/icons/header/'.$option['icon']); ?>"/>
 						  </a>
-						&nbsp;&nbsp;<?php
+						<?php
 					}
 				?>
 							</td>
