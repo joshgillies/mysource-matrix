@@ -354,7 +354,7 @@ class matrix_embed_youtube extends wysiwyg_plugin
 
 			ob_start();
 			?>
-			<sq_wysiwyg_embed_youtube <?php echo $match; ?>>
+			<sq_wysiwyg_embed_youtube <?php echo rtrim($match, '/'); ?>>
 			<script src="http://swfobject.googlecode.com/svn/tags/rc3/swfobject/src/swfobject.js" type="text/javascript"></script>
 			<?php
 			//	$movie_vars['embed_loop']    = '0';
