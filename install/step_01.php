@@ -84,12 +84,12 @@ if (!file_exists(SQ_DATA_PATH.'/private/conf/redis.inc')) {
 	copy(dirname(__FILE__).'/redis-inc.sample', SQ_DATA_PATH.'/private/conf/redis.inc');
 }
 
-// reminder for chmod
-echo 'Remember to give your system\'s Apache user write access to'."\n";
-echo 'the cache and data directories of your Matrix install...'."\n";
-
 echo "\n";
 echo "Step 1 completed successfully.\n";
 echo "\n";
+
+// reminder for chmod
+echo "Remember to give your system's Apache user write access to\n";
+echo "the cache and data directories of your Matrix install.\n";
 
 ?>
