@@ -42,14 +42,14 @@ if ((php_sapi_name() == 'cli')) {
 if (empty($SYSTEM_ROOT)) {
 	$err_msg .= "Usage: php install/step_01.php <PATH_TO_MATRIX>\n";
 	echo $err_msg;
-	exit();
+	exit(1);
 }
 
 if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
 	$err_msg = "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
 	$err_msg .= "Usage: php install/step_01.php <PATH_TO_MATRIX>\n";
 	echo $err_msg;
-	exit();
+	exit(1);
 }
 
 define('SQ_SYSTEM_ROOT',  $SYSTEM_ROOT);
@@ -87,5 +87,9 @@ if (!file_exists(SQ_DATA_PATH.'/private/conf/redis.inc')) {
 // reminder for chmod
 echo 'Remember to give your system\'s Apache user write access to'."\n";
 echo 'the cache and data directories of your Matrix install...'."\n";
+
+echo "\n";
+echo "Step 1 completed successfully.\n";
+echo "\n";
 
 ?>
