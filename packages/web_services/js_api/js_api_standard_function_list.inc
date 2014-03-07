@@ -2377,7 +2377,7 @@ function updateQuestionOrder(assetid, sort_order, dataCallback)
 		}//end if(update_question_order)
 
 		
-		if ($js_api_asset->attr('get_statistics')) {
+		if ($js_api_asset->attr('get_ga_statistics')) {
 			?>
 
 		/**
@@ -2415,13 +2415,13 @@ function updateQuestionOrder(assetid, sort_order, dataCallback)
 		* @param {Array.(String|Array.String)} request.filter  Filters.
 		* @param {Function} dataCallback                Custom callback function.
 		*/
-		getStatistics: function(assetid, request, dataCallback)
+		getGoogleAnalyticsStatistics: function(assetid, request, dataCallback)
 		{
 			// Create blank function
             var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
         
             var url = '<?php echo $api_url; ?>' + '?key=' + api_key
-                        + '&type=getStatistics&id=' + assetid;
+                        + '&type=getGoogleAnalyticsStatistics&id=' + assetid;
         
             for (field_name in request) {
                 if (Object.prototype.toString.call(request[field_name]) === '[object Array]') {
@@ -2434,7 +2434,7 @@ function updateQuestionOrder(assetid, sort_order, dataCallback)
             // Make our request
             makeRequest(url, true, dataCallback);
 
-		},// end getStatistics
+		},// end getGoogleAnalyticsStatistics
 
 
 			<?php
