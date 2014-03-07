@@ -836,8 +836,6 @@ function generate_import_tools_manager_config()
 */
 function minify_css_files()
 {
-	pre_echo('Minify JS Files');
-
 	require_once SQ_SYSTEM_ROOT.'/scripts/ees_minify/jsmin.php';
 
 	$file = SQ_SYSTEM_ROOT.'/core/lib/js/matrix.min.js';
@@ -858,8 +856,7 @@ function minify_css_files()
 	// Output a minified version
 	$string = '';
 	foreach ($source_files as $source) {
-	echo 'processing '.$source."\n";
-	$string .= JSMin::minify(file_get_contents($source));
+		$string .= JSMin::minify(file_get_contents($source));
 	}
 	$result = file_put_contents($file, $string);
 
@@ -868,7 +865,7 @@ function minify_css_files()
 	return FALSE;
 	}
 
-	echo $file." is completed.\n";
+	echo "JS Files have been minified successfully.\n";
 
 	return TRUE;
 }
@@ -1388,7 +1385,10 @@ function find_string_language_files($asset_dirs, $locale, $file='strings')
 *
 * @param string	$locale	the locale to be compiled
 *
-* @return void
+* @return array Returns an array of any errors that occurred.
+*               If there are no errors, it will be an empty array.
+*               The errors must be printed using trigger_error as they contain full paths.
+*
 * @access public
 */
 function build_locale_string_file($locale)
@@ -1402,6 +1402,7 @@ function build_locale_string_file($locale)
 						'assets'	=> Array(),
 					  );
 
+	$errors  = array();
 	$strings = Array();
 
 	// run through the core
@@ -1443,8 +1444,14 @@ function build_locale_string_file($locale)
 	}
 
 	if (!empty($strings)) {
-		create_directory(SQ_DATA_PATH.'/private/system/core');
-		string_to_file(serialize($strings), SQ_DATA_PATH.'/private/system/core/strings.'.$locale);
+		if (create_directory(SQ_DATA_PATH.'/private/system/core', FALSE)) {
+			$result = string_to_file(serialize($strings), SQ_DATA_PATH.'/private/system/core/strings.'.$locale);
+			if (!$result) {
+				$errors[] = 'Unable to save file '.SQ_DATA_PATH.'/private/system/core/strings.'.$locale;
+			}
+		} else {
+			$errors[] = 'Unable to create directory '.SQ_DATA_PATH.'/private/system/core';
+		}
 	}
 
 	foreach ($files_to_parse['packages'] as $package_name => $files) {
@@ -1462,8 +1469,14 @@ function build_locale_string_file($locale)
 			$package_dir = Array(SQ_PACKAGES_PATH.'/'.$package_name);
 		}
 		if (!empty($strings)) {
-			create_directory(SQ_DATA_PATH.'/private/packages/'.$package_name);
-			string_to_file(serialize($strings), SQ_DATA_PATH.'/private/packages/'.$package_name.'/strings.'.$locale);
+			if (create_directory(SQ_DATA_PATH.'/private/packages/'.$package_name, FALSE)) {
+				$result = string_to_file(serialize($strings), SQ_DATA_PATH.'/private/packages/'.$package_name.'/strings.'.$locale);
+				if (!$result) {
+					$errors[] = 'Unable to save file '.SQ_DATA_PATH.'/private/packages/'.$package_name.'/strings.'.$locale;
+				}
+			} else {
+				$errors[] = 'Unable to create directory '.SQ_DATA_PATH.'/private/packages/'.$package_name;
+			}
 		}
 	}
 
@@ -1478,50 +1491,68 @@ function build_locale_string_file($locale)
 
 		$asset_dir = $asset_types[$type_code]['dir'];
 		if (!empty($strings)) {
-			create_directory(SQ_DATA_PATH.'/private/asset_types/'.$type_code);
-			string_to_file(serialize($strings), SQ_DATA_PATH.'/private/asset_types/'.$type_code.'/strings.'.$locale);
+			if (create_directory(SQ_DATA_PATH.'/private/asset_types/'.$type_code, FALSE)) {
+				$result = string_to_file(serialize($strings), SQ_DATA_PATH.'/private/asset_types/'.$type_code.'/strings.'.$locale);
+				if (!$result) {
+					$errors[] = 'Unable to save file '.SQ_DATA_PATH.'/private/asset_types/'.$type_code.'/strings.'.$locale;
+				}
+			} else {
+				$errors[] = 'Unable to create directory '.SQ_DATA_PATH.'/private/asset_types/'.$type_code;
+			}
 		}
 	}
 
 	// only one JavaScript and one Java file will be kept, in Core
 	if (!empty($js_strings)) {
-		create_directory(SQ_DATA_PATH.'/public/system/core');
+		if (!create_directory(SQ_DATA_PATH.'/public/system/core', FALSE)) {
+			$errors[] = 'Unable to create directory '.SQ_DATA_PATH.'/public/system/core';
+		} else {
+			$js_file = 'SQ_CURRENT_LOCALE = "'.$locale.'";'."\n".
+						'translated_strings["'.$locale.'"] = new Array();'."\n";
 
-		$js_file = 'SQ_CURRENT_LOCALE = "'.$locale.'";'."\n".
-					'translated_strings["'.$locale.'"] = new Array();'."\n";
+			foreach ($js_strings as $string_code => $string) {
+				$string = str_replace("\n", '\\n', $string);
+				$string = str_replace('"', '\\"', $string);
+				$js_file .= 'translated_strings["'.$locale.'"]["'.$string_code.'"] = "'.$string.'";'."\n";
+			}
 
-		foreach ($js_strings as $string_code => $string) {
-			$string = str_replace("\n", '\\n', $string);
-			$string = str_replace('"', '\\"', $string);
-			$js_file .= 'translated_strings["'.$locale.'"]["'.$string_code.'"] = "'.$string.'";'."\n";
+			$result = string_to_file($js_file, SQ_DATA_PATH.'/public/system/core/js_strings.'.$locale.'.js');
+			if (!$result) {
+				$errors[] = 'Unable to save file '.SQ_DATA_PATH.'/public/system/core/js_strings.'.$locale.'.js';
+			}
 		}
-
-		string_to_file($js_file, SQ_DATA_PATH.'/public/system/core/js_strings.'.$locale.'.js');
 	}
 
 	// Similar for Java file, BUT to take advantage of i18n stuff in Java, we
 	// need to change the replacements to Java 'MessageFormat' format
 	// eg. '%1$s' => '{0}', '%2$s' => '{1}', etc.
 	if (!empty($java_strings)) {
-		create_directory(SQ_DATA_PATH.'/private/system/core');
+		if (!create_directory(SQ_DATA_PATH.'/private/system/core')) {
+			$errors[] = 'Unable to create directory '.SQ_DATA_PATH.'/private/system/core';
+		} else {
+			$java_file = '';
+			foreach ($java_strings as $string_code => $string) {
+				// replace single parameters with {0}
+				$string = preg_replace('|%s|', '{0}', $string);
 
-		$java_file = '';
-		foreach ($java_strings as $string_code => $string) {
-			// replace single parameters with {0}
-			$string = preg_replace('|%s|', '{0}', $string);
+				// iterate through the string until there's no more replacements
+				while (preg_match('|%(\d*)\\$s|', $string, $match, PREG_OFFSET_CAPTURE)) {
+					// build the Java-style argument and shove it into the string
+					$new_arg = '{'.((int)$match[1][0]-1).'}';
+					$string = substr_replace($string, $new_arg, $match[0][1], strlen($match[1][0]) + 3);
+				}
 
-			// iterate through the string until there's no more replacements
-			while (preg_match('|%(\d*)\\$s|', $string, $match, PREG_OFFSET_CAPTURE)) {
-				// build the Java-style argument and shove it into the string
-				$new_arg = '{'.((int)$match[1][0]-1).'}';
-				$string = substr_replace($string, $new_arg, $match[0][1], strlen($match[1][0]) + 3);
+				$java_file .= $string_code.' = '.$string."\n";
 			}
 
-			$java_file .= $string_code.' = '.$string."\n";
+			$result = string_to_file($java_file, SQ_DATA_PATH.'/private/system/core/java_strings_'.$locale.'.properties');
+			if (!$result) {
+				$errors[] = 'Unable to save file '.SQ_DATA_PATH.'/private/system/core/java_strings_'.$locale.'.properties';
+			}
 		}
-
-		string_to_file($java_file, SQ_DATA_PATH.'/private/system/core/java_strings_'.$locale.'.properties');
 	}
+
+	return $errors;
 
 }//end build_locale_string_file()
 
@@ -1534,11 +1565,15 @@ function build_locale_string_file($locale)
 *
 * @param string	$locale	the locale to be compiled
 *
-* @return void
+* @return array Returns an array of any errors that occurred.
+*               If there are no errors, it will be an empty array.
+*               The errors must be printed using trigger_error as they contain full paths.
 * @access public
 */
 function build_locale_error_file($locale)
 {
+	$errors = array();
+
 	$packages = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
 
 	$files_to_parse = Array(
@@ -1572,8 +1607,14 @@ function build_locale_error_file($locale)
 	}
 
 	if (!empty($strings)) {
-		create_directory(SQ_DATA_PATH.'/private/system/core');
-		string_to_file(serialize($strings), SQ_DATA_PATH.'/private/system/core/errors.'.$locale);
+		if (create_directory(SQ_DATA_PATH.'/private/system/core', FALSE)) {
+			$result = string_to_file(serialize($strings), SQ_DATA_PATH.'/private/system/core/errors.'.$locale);
+			if (!$result) {
+				$errors[] = 'Unable to save file '.SQ_DATA_PATH.'/private/system/core/errors.'.$locale;
+			}
+		} else {
+			$errors[] = 'Unable to create directory '.SQ_DATA_PATH.'/private/system/core';
+		}
 	}
 
 	foreach ($files_to_parse['packages'] as $package_name => $files) {
@@ -1588,10 +1629,18 @@ function build_locale_error_file($locale)
 			$package_dir = Array(SQ_PACKAGES_PATH.'/'.$package_name);
 		}
 		if (!empty($strings)) {
-			create_directory(SQ_DATA_PATH.'/private/packages/'.$package_name);
-			string_to_file(serialize($strings), SQ_DATA_PATH.'/private/packages/'.$package_name.'/errors.'.$locale);
+			if (create_directory(SQ_DATA_PATH.'/private/packages/'.$package_name, FALSE)) {
+				$result = string_to_file(serialize($strings), SQ_DATA_PATH.'/private/packages/'.$package_name.'/errors.'.$locale);
+				if (!$result) {
+					$errors[] = 'Unable to save file '.SQ_DATA_PATH.'/private/packages/'.$package_name.'/errors.'.$locale;
+				}
+			} else {
+				$errors[] = 'Unable to create directory '.SQ_DATA_PATH.'/private/packages/'.$package_name;
+			}
 		}
 	}
+
+	return $errors;
 
 }//end build_locale_error_file()
 
@@ -1601,11 +1650,14 @@ function build_locale_error_file($locale)
 *
 * @param string	$locale	the locale to be compiled
 *
-* @return void
+* @return array Returns an array of any errors that occurred.
+*               If there are no errors, it will be an empty array.
+*               The errors must be printed using trigger_error as they contain full paths.
 * @access public
 */
 function build_locale_internal_messages_file($locale)
 {
+	$errors = array();
 	$packages = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
 
 	$files_to_parse = Array(
@@ -1642,8 +1694,14 @@ function build_locale_internal_messages_file($locale)
 		$strings = array_merge(array_get_index($strings, 'core', Array()), $msgs);
 
 		if (!empty($strings)) {
-			create_directory(SQ_DATA_PATH.'/private/system/core');
-			string_to_file(serialize($strings), SQ_DATA_PATH.'/private/system/core/internal_messages.'.$locale);
+			if (create_directory(SQ_DATA_PATH.'/private/system/core', FALSE)) {
+				$result = string_to_file(serialize($strings), SQ_DATA_PATH.'/private/system/core/internal_messages.'.$locale);
+				if (!$result) {
+					$errors[] = 'Unable to save file '.SQ_DATA_PATH.'/private/system/core/internal_messages.'.$locale;
+				}
+			} else {
+				$errors[] = 'Unable to create directory '.SQ_DATA_PATH.'/private/system/core';
+			}
 		}
 	}
 
@@ -1661,8 +1719,14 @@ function build_locale_internal_messages_file($locale)
 			$package_dir = Array(SQ_PACKAGES_PATH.'/'.$package_name);
 		}
 		if (!empty($strings)) {
-			create_directory(SQ_DATA_PATH.'/private/packages/'.$package_name);
-			string_to_file(serialize($strings), SQ_DATA_PATH.'/private/packages/'.$package_name.'/internal_messages.'.$locale);
+			if (create_directory(SQ_DATA_PATH.'/private/packages/'.$package_name, FALSE)) {
+				$result = string_to_file(serialize($strings), SQ_DATA_PATH.'/private/packages/'.$package_name.'/internal_messages.'.$locale);
+				if (!$result) {
+					$errors[] = 'Unable to save file '.SQ_DATA_PATH.'/private/packages/'.$package_name.'/internal_messages.'.$locale;
+				}
+			} else {
+				$errors[] = 'Unable to create directory '.SQ_DATA_PATH.'/private/packages/'.$package_name;
+			}
 		}
 	}
 
@@ -1672,7 +1736,12 @@ function build_locale_internal_messages_file($locale)
 	$message_type_string .= 'return $message_types;'."\n";
 	// So we don't break syntax highlighting - break up the end of php tag.
 	$message_type_string .= "?".">";
-	string_to_file($message_type_string, SQ_DATA_PATH.'/private/system/core/internal_message_types.inc');
+	$result = string_to_file($message_type_string, SQ_DATA_PATH.'/private/system/core/internal_message_types.inc');
+	if (!$result) {
+		$errors[] = 'Unable to save file '.SQ_DATA_PATH.'/private/system/core/internal_message_types.inc';
+	}
+
+	return $errors;
 
 }//end build_locale_internal_messages_file()
 

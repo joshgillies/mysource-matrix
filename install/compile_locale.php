@@ -83,20 +83,21 @@ if (empty($locale_list)) {
 define('SQ_SYSTEM_ROOT',  $SYSTEM_ROOT);
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
 
-// Clean up any remembered data.
-require_once $SYSTEM_ROOT.'/core/include/deja_vu.inc';
-$deja_vu = new Deja_Vu();
-if ($deja_vu->enabled()) $deja_vu->forgetAll();
-
-// get the list of functions used during install
-
-require_once $SYSTEM_ROOT.'/install/install.inc';
-require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-
 // firstly let's check that we are OK for the version
 if (version_compare(PHP_VERSION, SQ_REQUIRED_PHP_VERSION, '<')) {
 	trigger_error('<i>'.SQ_SYSTEM_LONG_NAME.'</i> requires PHP Version '.SQ_REQUIRED_PHP_VERSION.'.<br/> You may need to upgrade.<br/> Your current version is '.PHP_VERSION, E_USER_ERROR);
 }
+
+// Clean up any remembered data.
+require_once $SYSTEM_ROOT.'/core/include/deja_vu.inc';
+$deja_vu = new Deja_Vu();
+if ($deja_vu->enabled()) {
+	$deja_vu->forgetAll();
+}
+
+// get the list of functions used during install
+require_once $SYSTEM_ROOT.'/install/install.inc';
+require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 // let everyone know we are installing
 $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
@@ -111,11 +112,16 @@ $string_locales = Array();
 $error_locales  = Array();
 $message_locales = Array();
 
+$exitRC = 0;
+$errors = array();
 // flag that controls when 'compiling edit interfaces' message is printed
 $first_ei = TRUE;
 
 $asset_screen_dir = SQ_DATA_PATH.'/private/asset_types/asset/localised_screens';
-create_directory($asset_screen_dir);
+if (!create_directory($asset_screen_dir, FALSE)) {
+	$errors[] = 'Unable to create directory '.$asset_screen_dir.'.';
+	$exitRC = 1;
+}
 
 // do it for each asset type ...
 $asset_types = $GLOBALS['SQ_SYSTEM']->am->getAssetTypes();
@@ -293,9 +299,12 @@ foreach ($asset_types as $asset_type) {
 		foreach ($screens as $locale => $locale_screens) {
 
 			foreach ($locale_screens as $screen_type) {
-
 				if (!file_exists($local_screen_dir)) {
-					create_directory($local_screen_dir);
+					if (!create_directory($local_screen_dir, FALSE)) {
+						$errors[] = 'Unable to create directory '.$local_screen_dir.' for \''.$screen_type['screen'].'\' screen.';
+						$exitRC = 1;
+						continue;
+					}
 				}
 
 				$screen_xml = NULL;
@@ -305,13 +314,21 @@ foreach ($asset_types as $asset_type) {
 					$screen_xml = build_localised_screen($type_code, $screen_type['screen'], $locale);
 				}
 
-				string_to_file($screen_xml->asXML(), $local_screen_dir.'/'.$screen_type['screen'].'.'.$locale);
+				$result = string_to_file($screen_xml->asXML(), $local_screen_dir.'/'.$screen_type['screen'].'.'.$locale);
+				if (!$result) {
+					$exitRC = 1;
+					$errors[] = 'Unable to save file '.$local_screen_dir.'/'.$screen_type['screen'].'.'.$locale;
+				}
 			}
 		}
 	}
 }//end foreach asset_type
 
-echo "Done.\n";
+if (empty($errors)) {
+	echo "Done.\n";
+} else {
+	echo "Done, but with errors.\n";
+}
 
 // compile the strings for each locale where a lang_strings.xml exists
 foreach ($string_locales as $locale) {
@@ -322,8 +339,14 @@ foreach ($string_locales as $locale) {
 	}
 
 	echo 'Compiling strings for locale '.$locale.'.. ';
-	build_locale_string_file($locale);
-	echo "Done.\n";
+	$build_errors = build_locale_string_file($locale);
+	if (!empty($build_errors)) {
+		echo "Done, but with errors.\n";
+		$exitRC = 1;
+		$errors = array_merge($errors, $build_errors);
+	} else {
+		echo "Done.\n";
+	}
 }
 
 // then, compile errors for each locale (using lang_errors.xml)
@@ -335,8 +358,14 @@ foreach ($error_locales as $locale) {
 	}
 
 	echo 'Compiling localised errors for locale '.$locale.'.. ';
-	build_locale_error_file($locale);
-	echo "Done.\n";
+	$build_errors = build_locale_error_file($locale);
+	if (!empty($build_errors)) {
+		echo "Done, but with errors.\n";
+		$exitRC = 1;
+		$errors = array_merge($errors, $build_errors);
+	} else {
+		echo "Done.\n";
+	}
 }
 
 // finally, compile internal messages for each locale (using lang_messages.xml)
@@ -348,15 +377,29 @@ if (!empty($locale_list) && (!in_array($locale, array_keys($locale_list))
 	}
 
 	echo 'Compiling localised internal messages for locale '.$locale.'.. ';
-	build_locale_internal_messages_file($locale);
-	echo "Done.\n";
+	$build_errors = build_locale_internal_messages_file($locale);
+	if (!empty($build_errors)) {
+		echo "Done, but with errors.\n";
+		$exitRC = 1;
+		$errors = array_merge($errors, $build_errors);
+	} else {
+		echo "Done.\n";
+	}
 }
 
 $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
-echo "\n";
-echo "compile_locale.php completed successfully.\n";
-echo "\n";
+if ($exitRC == 0) {
+	echo "\n";
+	echo "compile_locale.php completed successfully.\n";
+	echo "\n";
+} else {
+	echo "\n";
+	echo "compile_locale.php had errors.\n";
+	echo "\n";
+	trigger_error(implode("\n", $errors), E_USER_ERROR);
+	exit($exitRC);
+}
 
 /**
 * Gets a list of supplied package options from the command line arguments given
