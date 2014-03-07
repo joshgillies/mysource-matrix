@@ -230,7 +230,7 @@ class Package_Manager extends MySource_Object
 		$install_order = $this->_getInstallOrder($update_assets, $deferred);
 		if (!empty($install_order)) {
 
-			pre_echo('Installing '.get_class($this).':');
+			echo 'Installing '.get_class($this).' .. ';
 
 			$package_name = $this->getPackageName();
 
@@ -284,13 +284,18 @@ class Package_Manager extends MySource_Object
 				// resolution.
 				if (in_array($type_code, $deferred)) continue;
 
-				echo "$k => $type_code \n";
-
 				// now we simply call the management class for this object
 				$class = $type_code.'_management';
 				$file = SQ_SYSTEM_ROOT.'/'.$this->assets[$type_code]['dir'].'/'.$class.'.inc';
+				if (!is_file($file)) {
+					trigger_localised_error('CORE0276', E_USER_WARNING, $file);
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+					return false;
+				}
+
 				// include rather that require so that if it doesn't exist we can kill the transaction
-				require_once $file;
+				include_once $file;
 				// make sure the class exists
 				if (!class_exists($class)) {
 					trigger_localised_error('SYS0083', E_USER_WARNING, $type_code, $file);
@@ -302,6 +307,7 @@ class Package_Manager extends MySource_Object
 				// now just create an instance of it, and run update()
 				$management = new $class($this);
 				if (!$management->update()) {
+					echo 'Unable to install '.$type_code."\n";
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 					return false;
@@ -346,6 +352,8 @@ class Package_Manager extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+
+		echo "Done.\n";
 
 		return count($deferred) ? $deferred : true;
 
