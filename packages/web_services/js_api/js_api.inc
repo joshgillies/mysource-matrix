@@ -236,7 +236,7 @@ class JS_Api extends Page
 		    if ($sent_as_json === TRUE) {
 		        // Block any potential payload DDOS that doesn't send the right key in GET.
 		        $key = array_get_index($_GET, 'key', '');
-		        if (($key !== '') && ($key === $this->attr('api_key'))) {
+		        if (($this->readAccess()) && ($key !== '') && ($key === $this->attr('api_key'))) {
                     $raw_request_data = file_get_contents('php://input');
                     $request_data = json_decode($raw_request_data, TRUE);
                     if ($request_data === NULL) {
