@@ -219,52 +219,68 @@ class JS_Api extends Page
 	*/
 	function printFrontend()
 	{
-		// Make sure the user can log in first
-		if (!$this->readAccess()) {
-			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
-			return;
-		}
-		
 		// Overriding the matrix error handler so HTML doesn't get printed to the screen
 		require_once dirname(__FILE__).'/js_api_error_handler.inc';
 		$old_error_handler = set_error_handler('js_api_error_handler');
 
-		$sent_as_json = FALSE;
+		// Grab our data.
+		$content_type = array_get_index($_SERVER, 'CONTENT_TYPE', array_get_index($_SERVER, 'HTTP_CONTENT_TYPE', ''));
+        $sent_as_json = FALSE;
+		if (strpos($content_type, 'application/json') === 0) {
+           $sent_as_json = TRUE;
+        }
 		
 		if ((boolean) $this->attr('use_enhanced_js') === FALSE) {
 		    $request_data = $_REQUEST;
 		} else {
-		    $content_type = array_get_index($_SERVER, 'CONTENT_TYPE', array_get_index($_SERVER, 'HTTP_CONTENT_TYPE', ''));
-		    if (strpos($content_type, 'application/json') === 0) {
-		        $sent_as_json     = TRUE;
-		        $raw_request_data = file_get_contents('php://input');
-		        $request_data = json_decode($raw_request_data, TRUE);
-		        if ($request_data === NULL) {
-		            $this->returnError('Malformed input.', 'badRequest');
-		            restore_error_handler();
-		            return;
+		    if ($sent_as_json === TRUE) {
+		        // Block any potential payload DDOS that doesn't send the right key in GET.
+		        $key = array_get_index($_GET, 'key', '');
+		        if (($key !== '') && ($key === $this->attr('api_key'))) {
+                    $raw_request_data = file_get_contents('php://input');
+                    $request_data = json_decode($raw_request_data, TRUE);
+                    if ($request_data === NULL) {
+                        $this->returnError('Malformed input.', 'badRequest');
+                        restore_error_handler();
+                        return;
+                    }
+		        } else {
+                    $request_data = Array();
 		        }
 		    } else {
 		        $request_data = $_REQUEST;
 		    }
 		}
-
+        
 		// Should we print our JS file, or send back some JSON?
-		if (!isset($request_data['key']) && !isset($request_data['id']) && !isset($request_data['type'])) {
-			header('Content-Type: text/javascript');
-			header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
-			if ($this->attr('use_enhanced_js')) {
-				require_once 'js_api_enhanced_function_list.inc';
-				echo Js_Api_Enhanced_Function_List::paintJSFunctions($this);
-			} else {
-				require_once 'js_api_standard_function_list.inc';
-				echo Js_Api_Standard_Function_List::paintJSFunctions($this);
-			}
+		if (!isset($_GET['key']) && !isset($request_data['id']) && !isset($request_data['type'])) {
+		    if (!$this->readAccess()) {
+		        // Paint the login page if we can't login.
+		        restore_error_handler();
+		        $GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
+		    } else {
+                header('Content-Type: text/javascript');
+                header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
+                if ($this->attr('use_enhanced_js')) {
+                    require_once 'js_api_enhanced_function_list.inc';
+                    echo Js_Api_Enhanced_Function_List::paintJSFunctions($this);
+                } else {
+                    require_once 'js_api_standard_function_list.inc';
+                    echo Js_Api_Standard_Function_List::paintJSFunctions($this);
+                }
+            }
 			return;
 		}
+		
+		// If we are returning data, still check for read access.
+		if (!$this->readAccess()) {
+            $this->returnError('You do not have permissions to access this asset', 'authError');
+            restore_error_handler();
+            return;
+        }
 
 		// Get our JSON data that was sent, then encode it into an array
-		$api_key = array_get_index($request_data, 'key', '');
+		$api_key = array_get_index($_GET, 'key', '');
 		$id = array_get_index($request_data, 'id', '');
 		// if id is still empty try getting 'assetid'
 		if (empty($id)) $id = array_get_index($request_data, 'assetid', '');

@@ -176,9 +176,7 @@ class Js_Api_Enhanced_Function_List
 			function data(params)
 			{
 				// Automatically append 'key' to every request
-				var dataArr = {
-				    key: self.key
-				};
+				var dataArr = {};
 
 				for (var i = 0, l = params.length; i < l; i+=1) {
 					dataArr[params[i][0]] = params[i][1];
@@ -189,8 +187,7 @@ class Js_Api_Enhanced_Function_List
 
 			// Set some defaults for the HTTP Request
 			options = self._options(['params'],{
-						url:                '<?php echo $api_url; ?>',
-						query:              null,
+						url:                '<?php echo $api_url; ?>?key=' + encodeURI(self.key),
 						method:             'POST',
 						contentType:        'application/json',
 						params:             [],
