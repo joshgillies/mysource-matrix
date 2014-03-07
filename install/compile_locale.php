@@ -28,17 +28,12 @@
 ini_set('memory_limit', -1);
 error_reporting(E_ALL);
 $SYSTEM_ROOT = '';
-$exs = Array();
-
-
-// from cmd line
-$cli = TRUE;
 
 if ((php_sapi_name() == 'cli')) {
 	if (isset($_SERVER['argv'][1])) {
 		$SYSTEM_ROOT = $_SERVER['argv'][1];
 	}
-	$err_msg = "ERROR: You need to supply the path to the System Root as the first argument\n";
+	$err_msg = "ERROR: You need to supply the path to the System Root as the first argument.\n";
 
 } else {
 	$err_msg = '
@@ -46,42 +41,40 @@ if ((php_sapi_name() == 'cli')) {
 		You can only run the '.$_SERVER['argv'][0].' script from the command line
 	</div>
 	';
+	echo $err_msg;
+	exit(1);
 }
 
 if (empty($SYSTEM_ROOT)) {
-	$err_msg .= "Usage: php install/step_03.php <PATH_TO_MATRIX>\n";
+	$err_msg .= "Usage: php install/compile_locale.php <PATH_TO_MATRIX>\n";
 	echo $err_msg;
-	exit();
+	exit(1);
 }
 
 if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
 	$err_msg = "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
-	$err_msg .= "Usage: php install/step_03.php <PATH_TO_MATRIX>\n";
+	$err_msg .= "Usage: php install/compile_locale.php <PATH_TO_MATRIX>\n";
 	echo $err_msg;
-	exit();
+	exit(1);
 }
 
-// only use console stuff if we're running from the command line
-if ($cli) {
-	require_once 'Console/Getopt.php';
+require_once 'Console/Getopt.php';
 
-	$shortopt = '';
-	$longopt = Array('locale=');
+$shortopt = '';
+$longopt = Array('locale=');
 
-	$con = new Console_Getopt;
-	$args = $con->readPHPArgv();
-	array_shift($args);			// remove the system root
-	$options = $con->getopt($args, $shortopt, $longopt);
+$con = new Console_Getopt;
+$args = $con->readPHPArgv();
+array_shift($args);			// remove the system root
+$options = $con->getopt($args, $shortopt, $longopt);
 
-	if (is_array($options[0])) {
-		$locale_list = get_console_list($options[0]);
-	}
-
+if (is_array($options[0])) {
+	$locale_list = get_console_list($options[0]);
 }
 
 if (empty($locale_list)) {
-	echo "\nWARNING: You did not specify a --locale parameter. This is okay but be aware that all locales will be compiled, which may take a while if you have multiple locales on your system\n\n";
-	sleep(2);
+	echo "\nWARNING: You did not specify a --locale parameter.\n";
+	echo "This is okay but be aware that all locales will be compiled, which may take a while if you have multiple locales on your system.\n\n";
 }
 
 // dont set SQ_INSTALL flag before this include because we want
@@ -159,8 +152,8 @@ foreach ($locale_names as $locale) {
 
 		if (!empty($variant)) {
 			if (!in_array($country.'_'.$lang.'@'.$variant, $locale_names)) {
-			$locale_list[$country.'_'.$lang.'@'.$variant] = $locale_list[$locale];
-		}
+				$locale_list[$country.'_'.$lang.'@'.$variant] = $locale_list[$locale];
+			}
 		}
 	}
 }
@@ -292,9 +285,8 @@ foreach ($asset_types as $asset_type) {
 	if (!empty($all_screens) && !empty($screens)) {
 		if ($first_ei) {
 			$first_ei = FALSE;
-			echo 'Compiling localised edit interfaces...'."\n";
+			echo 'Compiling localised edit interfaces.. ';
 		}
-		echo $asset_type['type_code'].' ('.$asset_type['name'].')';
 	}
 
 	if (!empty($screens)) {
@@ -314,16 +306,12 @@ foreach ($asset_types as $asset_type) {
 				}
 
 				string_to_file($screen_xml->asXML(), $local_screen_dir.'/'.$screen_type['screen'].'.'.$locale);
-				echo '.';
 			}
 		}
 	}
-
-	if (!empty($all_screens) && !empty($screens)) {
-		echo "\n";
-	}
-
 }//end foreach asset_type
+
+echo "Done.\n";
 
 // compile the strings for each locale where a lang_strings.xml exists
 foreach ($string_locales as $locale) {
@@ -333,8 +321,9 @@ foreach ($string_locales as $locale) {
 		continue;
 	}
 
-	echo 'Compiling strings for locale '.$locale."\n";
+	echo 'Compiling strings for locale '.$locale.'.. ';
 	build_locale_string_file($locale);
+	echo "Done.\n";
 }
 
 // then, compile errors for each locale (using lang_errors.xml)
@@ -345,8 +334,9 @@ foreach ($error_locales as $locale) {
 		continue;
 	}
 
-	echo 'Compiling localised errors for locale '.$locale."\n";
+	echo 'Compiling localised errors for locale '.$locale.'.. ';
 	build_locale_error_file($locale);
+	echo "Done.\n";
 }
 
 // finally, compile internal messages for each locale (using lang_messages.xml)
@@ -357,16 +347,16 @@ if (!empty($locale_list) && (!in_array($locale, array_keys($locale_list))
 		continue;
 	}
 
-	echo 'Compiling localised internal messages for locale '.$locale."\n";
+	echo 'Compiling localised internal messages for locale '.$locale.'.. ';
 	build_locale_internal_messages_file($locale);
+	echo "Done.\n";
 }
 
 $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
-foreach ($exs as $str) {
-	print "$str\n";
-}
-
+echo "\n";
+echo "compile_locale.php completed successfully.\n";
+echo "\n";
 
 /**
 * Gets a list of supplied package options from the command line arguments given
