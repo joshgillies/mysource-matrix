@@ -109,6 +109,11 @@ if (!defined('SQ_SYSTEM_ROOT')) {
 
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
 
+// firstly let's check that we are OK for the version
+if (version_compare(PHP_VERSION, SQ_REQUIRED_PHP_VERSION, '<')) {
+	trigger_error('<i>'.SQ_SYSTEM_LONG_NAME.'</i> requires PHP Version '.SQ_REQUIRED_PHP_VERSION.'.<br/> You may need to upgrade.<br/> Your current version is '.PHP_VERSION, E_USER_ERROR);
+}
+
 // check to see if the default/ tech email in main.inc are provided and are correct
 // for more info see bug report 5804 Default and Tech Emails shouldnt break install
 require_once SQ_FUDGE_PATH.'/general/www.inc';
@@ -127,18 +132,15 @@ if (!empty($SQ_CONF_TECH_EMAIL) && !valid_email($SQ_CONF_TECH_EMAIL)) {
 // Clean up any remembered data.
 require_once $SYSTEM_ROOT.'/core/include/deja_vu.inc';
 $deja_vu = new Deja_Vu();
-if ($deja_vu->enabled()) $deja_vu->forgetAll();
+if ($deja_vu->enabled()) {
+    $deja_vu->forgetAll();
+}
 
 // get the list of functions used during install
 require_once $SYSTEM_ROOT.'/install/install.inc';
 
 $GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-// firstly let's check that we are OK for the version
-if (version_compare(PHP_VERSION, SQ_REQUIRED_PHP_VERSION, '<')) {
-	trigger_error('<i>'.SQ_SYSTEM_LONG_NAME.'</i> requires PHP Version '.SQ_REQUIRED_PHP_VERSION.'.<br/> You may need to upgrade.<br/> Your current version is '.PHP_VERSION, E_USER_ERROR);
-}
 
 // let everyone know we are installing
 $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
