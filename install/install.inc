@@ -317,6 +317,8 @@ function uninstall_packages()
 */
 function install_core($package_list=Array())
 {
+	echo 'Installing core .. ';
+
 	// If there's some packages defined in the array, make sure the Core
 	// is one of them, otherwise break out.
 
@@ -363,6 +365,8 @@ function install_core($package_list=Array())
 	// the install process without permission denied errors
 	$root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 	$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user);
+
+	echo "Done.\n";
 
 	return TRUE;
 
