@@ -71,7 +71,8 @@ class Package_Manager_Core extends Package_Manager
 		// If there were failures in core packages, return FALSE as dependency
 		// resolution won't work (if a core package relies on another package,
 		// what is the world coming to?)
-		if ($this->checkPackageDetails($update_assets) !== TRUE) {
+		$deferred_types = $this->checkPackageDetails($update_assets);
+		if (!empty($deferred_types)) {
 			return FALSE;
 		}
 
