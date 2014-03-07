@@ -407,7 +407,9 @@ function get_package_list()
 *								the $packages array.
 *								Array('package_name' => Array('assetname'),)
 *
-* @return boolean
+* @return true|array Returns true if all packages were installed successfully.
+*                    If some have been deferred, this returns an array of
+*                    the deferred packages so they can be retried.
 * @access public
 */
 function install_packages($package_assets=Array())
@@ -424,10 +426,12 @@ function install_packages($package_assets=Array())
 	foreach ($packages as $package) {
 		$assets = Array();
 		if ($limit_packages) {
+			// Found an existing package that doesn't need re-installing?
+			// That's good, it means it's installed completely.
 			if (!isset($package_assets[$package])) {
-				echo "\nSkipping package $package \n";
 				continue;
 			}
+
 			$assets = $package_assets[$package];
 			// If it wasn't an array at the core index, just quit.
 			if (!is_array($assets)) $assets = Array();
@@ -458,6 +462,8 @@ function install_packages($package_assets=Array())
 */
 function install_package($package, $package_assets=Array())
 {
+	echo 'Installing '.$package.' .. ';
+
 	require_once SQ_PACKAGES_PATH.'/'.$package.'/package_manager_'.$package.'.inc';
 	require_once SQ_LIB_PATH.'/db_install/db_install.inc';
 	$class = 'package_manager_'.$package;
@@ -496,6 +502,8 @@ function install_package($package, $package_assets=Array())
 
 	if ($result == -1) exit(1);
 	unset($pm);
+
+	echo "Done.\n";
 
 	return TRUE;
 
@@ -709,7 +717,7 @@ function cache_asset_types()
 		trigger_error('Could not cache the asset types', E_USER_ERROR);
 	}
 
-	pre_echo('ASSET TYPES CACHED');
+	echo "Asset types have been cached.\n";
 
 }//end cache_asset_types()
 

@@ -93,7 +93,6 @@ class Package_Manager_Sharepoint extends Package_Manager
 		if (!$cron_manager->addJob($cron_job, $root_user, SQ_LINK_TYPE_2)) {
 			trigger_error('Update Trim Record Cron Job NOT CREATED', E_USER_ERROR);
 		}//end if
-		pre_echo('Update Trim Record Cron Job Id: '.$cron_job->id);
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('cron_job_update_sharepoint_record', $cron_job->id);
 
@@ -124,7 +123,6 @@ class Package_Manager_Sharepoint extends Package_Manager
 		if (!$cron_manager->addJob($cron_job, $root_user, SQ_LINK_TYPE_2)) {
 			trigger_error('Sync CMIS Bridges Cron Job NOT CREATED', E_USER_ERROR);
 		}
-		pre_echo('Sync CMIS Bridges Cron Job Id: '.$cron_job->id);
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('cron_job_sync_cmis_bridges', $cron_job->id);
 

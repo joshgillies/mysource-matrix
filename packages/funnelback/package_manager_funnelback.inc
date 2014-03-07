@@ -87,7 +87,6 @@ class Package_Manager_Funnelback extends Package_Manager
 		if (!$funnelback_manager->create($funnelback_manager_link)) {
 			trigger_localised_error('FNB0010', E_USER_ERROR);
 		}
-		pre_echo('Funnelback Manager Asset Id : '.$funnelback_manager->id);
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('funnelback_manager', $funnelback_manager->id);
 
@@ -118,7 +117,6 @@ class Package_Manager_Funnelback extends Package_Manager
 		if (!$cron_manager->addJob($cron_job, $root_user, SQ_LINK_TYPE_2)) {
 			trigger_error('Funnelback Log Rotation Cron Job NOT CREATED', E_USER_ERROR);
 		}
-		pre_echo('Funnelback Log Rotation Cron Job Id: '.$cron_job->id);
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('cron_job_funnelback_log_rotation', $cron_job->id);
 

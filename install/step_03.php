@@ -180,6 +180,8 @@ if (is_array($deferred)) {
 	}
 }
 
+echo "\n";
+
 install_authentication_types();
 generate_global_preferences();
 install_event_listeners();
@@ -193,6 +195,9 @@ $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
+echo "\n";
+echo "Step 3 completed successfully.\n";
+echo "\n";
 
 /**
 * Gets a list of supplied package options from the command line arguments given

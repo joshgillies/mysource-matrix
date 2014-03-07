@@ -75,7 +75,7 @@ class Package_Manager_Bulkmail extends Package_Manager
 		if (!$bulkmail_manager->create($bulkmail_manager_link)) {
 			trigger_localised_error('SCH0007', E_USER_ERROR);
 		}
-		pre_echo('Bulkmail Manager Asset Id : '.$bulkmail_manager->id);
+
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('bulkmail_manager', $bulkmail_manager->id);
 
 		return $bulkmail_manager;
@@ -105,7 +105,6 @@ class Package_Manager_Bulkmail extends Package_Manager
 		if (!$cron_manager->addJob($cron_job, $root_user, SQ_LINK_TYPE_2)) {
 			trigger_localised_error('CORE0001', E_USER_ERROR, 'Queue Scheduled Bulkmail Cron Job');
 		}
-		pre_echo('Queue Scheduled Bulkmail Job Cron Job Id: '.$cron_job->id);
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('cron_job_queue_scheduled_job', $cron_job->id);
 

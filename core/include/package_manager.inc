@@ -230,8 +230,6 @@ class Package_Manager extends MySource_Object
 		$install_order = $this->_getInstallOrder($update_assets, $deferred);
 		if (!empty($install_order)) {
 
-			echo 'Installing '.get_class($this).' .. ';
-
 			$package_name = $this->getPackageName();
 
 			$db = MatrixDAL::getDb();
@@ -352,8 +350,6 @@ class Package_Manager extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-
-		echo "Done.\n";
 
 		return count($deferred) ? $deferred : true;
 
