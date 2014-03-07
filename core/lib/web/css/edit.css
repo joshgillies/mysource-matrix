@@ -2669,6 +2669,13 @@ LEFT SIDEBAR FRAME STYLES
 ####################################################################################################################
 */
 
+.sq-sidenav-tab-wrapper{
+	position: 					relative;
+	margin-top: 				17px;
+	margin-left: 				32px;
+	width: 						auto;
+}
+
 /* ASSET MAP (Ecluding the asset map container) */
 
 #asset_map {
@@ -2757,9 +2764,9 @@ LEFT SIDEBAR FRAME STYLES
 	font-size:					12px;
 }
 
-/* SYSTEM VERSION */
+/* SYSTEM NOTES IN BOTTOM OF LEFT FRAME */
 
-#system_version {
+.sq-system-note {
 	position: 					absolute;
 	left: 						32px;
 	bottom:						10px;
@@ -2767,24 +2774,26 @@ LEFT SIDEBAR FRAME STYLES
 	color: 						#aaa;
 	text-shadow: 				1px 1px 0px #FFFFFF;
 	font-size: 					11px;
+	z-index:					2;
 }
 
-#system_version a {
+.sq-system-note.help-link{
+	right:						0;
+	text-align: 				right;
+	z-index:					1;
+}
+
+.sq-system-note a {
 	color: 						#aaa;
 	font-size:					11px;
 }
 
-#system_version a:hover {
+.sq-system-note a:hover {
 	color: 						#666;
 	text-decoration: 			none;
 }
 
-.sq-sidenav-tab-wrapper{
-	position: 					relative;
-	margin-top: 				17px;
-	margin-left: 				32px;
-	width: 						auto;
-}
+
 
 
 /*

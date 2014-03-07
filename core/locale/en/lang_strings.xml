@@ -1619,6 +1619,7 @@
 	<string source="terms">terms</string>
 	<string source="valid">Valid</string>
 	<string source="invalid">Invalid</string>
+	<string source="help">Help</string>
 
 	<!-- priority level strings -->
 
@@ -3100,4 +3101,10 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
  	<string source="enable_viper_editor">Enable Viper Editor</string>
 	<string source="enable_viper_editor_note">If this option is enabled, the new Viper editor will be used for the WYSIWYG content type and attributes. As a result, the following WSIWYG preferences will not be applied: WYSIWYG Style, Apply CSS Styles, WYSIWYG Plugins, WYSIWYG Disable Image Resize, Thesaurus and Protocol Templates.</string>
 	<string source="viper_editor_enabled_icon_note">Click inside the content area to start editing using the Viper Content Editor.</string>
+
+	<!-- External URLs -->
+ 	<string source="url_matrix_manuals_homepage">http://manuals.matrix.squizsuite.net/</string>
+ 	<string source="url_matrix_manuals_homepage_title">Click to visit the Squiz Matrix User Manual Website</string>
+ 	<string source="url_matrix_version_history">http://manuals.matrix.squizsuite.net/patches</string>
+ 	<string source="url_matrix_version_history_title">Click to view the Release Information page on the Squiz Matrix User Manual Website</string>
 </strings>

@@ -1355,12 +1355,18 @@ class Backend extends MySource_Object
 						</tr>
 					</table>
 
-					<div id="system_version" class="sq-system-version-note">
-						<a href="http://manuals.matrix.squizsuite.net/patches" class="sq-backend-header-item" target="_blank" <?php
+					<div id="system_version" class="sq-system-note">
+						<a href="<?php echo translate('url_matrix_version_history');?>" class="sq-backend-header-item" target="_blank" title="<?php
 							if (defined('SQ_LICENCE_INSTALL_KEY')) {
-								echo ' title="Install Key: '.SQ_LICENCE_INSTALL_KEY.'"';
+								echo 'Install Key: '.SQ_LICENCE_INSTALL_KEY.' - ';
 							}
-						?>><?php echo SQ_SYSTEM_LONG_NAME;?></a>
+						?><?php echo translate('url_matrix_version_history_title');?> "><?php echo SQ_SYSTEM_LONG_NAME;?></a>
+					</div>
+
+					<div id="help_link" class="sq-system-note help-link">
+						<a href="<?php echo translate('url_matrix_manuals_homepage');?>" class="sq-backend-header-item" target="_blank" title="<?php echo translate('url_matrix_manuals_homepage_title');?>">
+							<?php echo translate('help');?>
+						</a>
 					</div>
 
 					<div id="asset_map">
