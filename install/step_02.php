@@ -42,14 +42,14 @@ if (empty($SYSTEM_ROOT)) {
 	$err_msg = "ERROR: You need to supply the path to the System Root as the first argument.\n";
 	$err_msg .= "Usage: php install/step_02.php <PATH_TO_MATRIX>\n";
 	echo $err_msg;
-	exit();
+	exit(1);
 }
 
 if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
 	$err_msg = "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
 	$err_msg .= "Usage: php install/step_02.php <PATH_TO_MATRIX>\n";
 	echo $err_msg;
-	exit();
+	exit(1);
 }
 
 define('SQ_SYSTEM_ROOT',  $SYSTEM_ROOT);
@@ -115,6 +115,7 @@ if (file_exists(SQ_DATA_PATH.'/private/db/table_columns.inc')) {
 if (!db_install(SQ_CORE_PACKAGE_PATH.'/tables.xml', FALSE)) {
 	$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 	trigger_error('Unable to install tables for the core system.', E_USER_ERROR);
+	exit(1);
 }
 
 // install any tables needed by the packages
@@ -126,6 +127,7 @@ foreach ($packages as $package) {
 		if (!db_install($xml_file, FALSE)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			trigger_error('Unable to install tables for package '.$package.'.', E_USER_ERROR);
+			exit(1);
 		}
 		try {
 			install_stored_relations('functions', $package, FALSE);

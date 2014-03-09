@@ -2047,9 +2047,14 @@ function install_dal_core_queries()
 	$old_path = ini_get('include_path');
 	ini_set('include_path', SQ_LIB_PATH);
 	require_once SQ_LIB_PATH.'/MatrixDAL/MatrixDALBaker.inc';
-	MatrixDALBaker::addCoreQueries();
-	MatrixDALBaker::bakeQueriesFile('core');
+	$result = MatrixDALBaker::addCoreQueries();
+	if ($result) {
+		$result = MatrixDALBaker::bakeQueriesFile('core');
+	}
+
 	ini_set('include_path', $old_path);
+
+	return $result;
 
 }//end install_dal_core_queries()
 
@@ -2066,11 +2071,15 @@ function install_dal_package_queries($name)
 	$old_path = ini_get('include_path');
 	ini_set('include_path', SQ_LIB_PATH);
 	require_once SQ_LIB_PATH.'/MatrixDAL/MatrixDALBaker.inc';
+	$result = FALSE;
 	$queries_found = MatrixDALBaker::addPackageQueries($name);
 	if ($queries_found) {
-		MatrixDALBaker::bakeQueriesFile($name.'_package');
+		$result = MatrixDALBaker::bakeQueriesFile($name.'_package');
 	}
+
 	ini_set('include_path', $old_path);
+
+	return $result;
 
 }//end install_dal_core_queries()
 
