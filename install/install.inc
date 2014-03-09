@@ -2071,7 +2071,9 @@ function install_dal_package_queries($name)
 	$old_path = ini_get('include_path');
 	ini_set('include_path', SQ_LIB_PATH);
 	require_once SQ_LIB_PATH.'/MatrixDAL/MatrixDALBaker.inc';
-	$result = FALSE;
+
+	// Set this to true in case a package doesn't have any queries.
+	$result = TRUE;
 	$queries_found = MatrixDALBaker::addPackageQueries($name);
 	if ($queries_found) {
 		$result = MatrixDALBaker::bakeQueriesFile($name.'_package');
