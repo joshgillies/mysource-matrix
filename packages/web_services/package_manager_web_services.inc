@@ -90,7 +90,6 @@ class Package_Manager_Web_Services extends Package_Manager
 		if (!$web_services_folder->create($folder_link)) {
 			trigger_localised_error('CORE0001', E_USER_ERROR, 'Web Services Folder');
 		}
-		pre_echo('Web Services Folder Id : '.$web_services_folder->id);
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('web_folder_web_services', $web_services_folder->id);
 
@@ -146,7 +145,6 @@ class Package_Manager_Web_Services extends Package_Manager
         if (!$rest_manager->create($rest_manager_link)) {
             trigger_localised_error('CORE0001', E_USER_ERROR, 'REST Manager');
         }
-        pre_echo('REST Manager Asset Id : '.$rest_manager->id);
 
         $GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('rest_manager', $rest_manager->id);
         return $rest_manager;
@@ -176,7 +174,6 @@ class Package_Manager_Web_Services extends Package_Manager
 		if (!$cron_manager->addJob($cron_job, $root_user, SQ_LINK_TYPE_2)) {
 			trigger_error('Remove SOAP Response Files Cron Job NOT CREATED', E_USER_ERROR);
 		}
-		pre_echo('Remove SOAP Response Files Cron Job Id: '.$cron_job->id);
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('cron_job_remove_soap_response_files', $cron_job->id);
 

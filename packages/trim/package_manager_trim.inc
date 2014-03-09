@@ -85,7 +85,6 @@ class Package_Manager_TRIM extends Package_Manager
 		if (!$cron_manager->addJob($cron_job, $root_user, SQ_LINK_TYPE_2)) {
 			trigger_error('Update Trim Record Cron Job NOT CREATED', E_USER_ERROR);
 		}//end if
-		pre_echo('Update Trim Record Cron Job Id: '.$cron_job->id);
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('cron_job_update_trim_record', $cron_job->id);
 

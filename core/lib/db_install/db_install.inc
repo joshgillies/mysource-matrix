@@ -663,6 +663,7 @@ function db_install($xml_file, $verbose=TRUE)
 *
 * @param boolean	$verbose	TRUE if we should show messages
 *
+* @throws Exception If there is a database error.
 * @return void
 * @access public
 */
@@ -685,7 +686,7 @@ function grant_secondary_user_perms($verbose=TRUE)
 			MatrixDAL::bindValueToPdo($query, 'user', $primary_dsn['user']);
 			MatrixDAL::bindValueToPdo($query, 'access_type', 'ALL');
 			MatrixDAL::execPdoQuery($query);
-		} catch (DALException $e) {
+		} catch (Exception $e) {
 			throw $e;
 		}
 
@@ -696,7 +697,7 @@ function grant_secondary_user_perms($verbose=TRUE)
 				MatrixDAL::bindValueToPdo($query, 'user', $secondary_dsn['user']);
 				MatrixDAL::bindValueToPdo($query, 'access_type', 'ALL');
 				MatrixDAL::execPdoQuery($query);
-			} catch (DALException $e) {
+			} catch (Exception $e) {
 				throw $e;
 			}
 		}
@@ -708,7 +709,7 @@ function grant_secondary_user_perms($verbose=TRUE)
 				MatrixDAL::bindValueToPdo($query, 'user', $tertiary_dsn['user']);
                 MatrixDAL::bindValueToPdo($query, 'access_type', 'ALL');
 				MatrixDAL::execPdoQuery($query);
-			} catch (DALException $e) {
+			} catch (Exception $e) {
 				throw $e;
 			}
 		}
@@ -734,7 +735,7 @@ function grant_secondary_user_perms($verbose=TRUE)
 				MatrixDAL::bindValueToPdo($query, 'user', $cache_dsn['user']);
 				MatrixDAL::bindValueToPdo($query, 'access_type', 'ALL');
 				MatrixDAL::execPdoQuery($query);
-			} catch (DALException $e) {
+			} catch (Exception $e) {
 				throw $e;
 			}
 
@@ -765,7 +766,7 @@ function grant_secondary_user_perms($verbose=TRUE)
 				MatrixDAL::bindValueToPdo($query, 'user', $search_dsn['user']);
 				MatrixDAL::bindValueToPdo($query, 'access_type', 'SELECT');
 				MatrixDAL::execPdoQuery($query);
-			} catch (DALException $e) {
+			} catch (Exception $e) {
 				throw $e;
 			}
 

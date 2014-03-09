@@ -433,11 +433,12 @@ class Proxy_Authentication_Config extends Config
 	* @param array		$vars				the array with any new values (that are allowed to be edited)
 	*										Array('[config_var_name]' => [scalar value])
 	* @param boolean	$backup_existing	whether we should backup the existing config file first
+	* @param boolean	$send_message		whether to send a message using the messaging system
 	*
 	* @return boolean
 	* @access public
 	*/
-	function save($vars, $backup_existing=FALSE)
+	function save($vars, $backup_existing=FALSE, $send_message=TRUE)
 	{
 	    	// attempt to load the config file to make sure we get any current settings
 		if (file_exists($this->config_file)) {
@@ -456,7 +457,7 @@ class Proxy_Authentication_Config extends Config
 			$vars['SQ_PA_PASSWORD'] = base64_encode($vars['SQ_PA_PASSWORD']);
 		}
 
-		return parent::save($vars, $backup_existing);
+		return parent::save($vars, $backup_existing, $send_message);
 
 	}//end save()
 

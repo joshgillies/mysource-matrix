@@ -92,7 +92,6 @@ class Package_Manager_CMS extends Package_Manager
 		if (!$cron_manager->addJob($cron_job, $root_user, SQ_LINK_TYPE_2)) {
 			trigger_error('Manage Pending Accounts Cron Job NOT CREATED', E_USER_ERROR);
 		}
-		pre_echo('Manage Pending Accounts Cron Job Id: '.$cron_job->id);
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('cron_job_manage_pending_accounts', $cron_job->id);
 
@@ -123,7 +122,6 @@ class Package_Manager_CMS extends Package_Manager
 		if (!$cron_manager->addJob($cron_job, $root_user, SQ_LINK_TYPE_2)) {
 			trigger_error('Manage Incomplete Submissions Cron Job NOT CREATED', E_USER_ERROR);
 		}
-		pre_echo('Manage Incomplete Submissions Cron Job Id: '.$cron_job->id);
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('cron_job_manage_incomplete_submissions', $cron_job->id);
 

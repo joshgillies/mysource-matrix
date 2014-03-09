@@ -58,49 +58,42 @@ else {
 }
 $SYSTEM_ROOT = '';
 
-$cli = TRUE;
-
 // from cmd line
 if ((php_sapi_name() == 'cli')) {
 	if (isset($_SERVER['argv'][1])) {
 		$SYSTEM_ROOT = $_SERVER['argv'][1];
 	}
-
-	$err_msg = "ERROR: You need to supply the path to the System Root as the first argument.\n";
-
 } else {
-	$cli = FALSE;
 	trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 }
 
 if (empty($SYSTEM_ROOT)) {
+	$err_msg = "ERROR: You need to supply the path to the System Root as the first argument.\n";
 	$err_msg .= "Usage: php install/step_03.php <PATH_TO_MATRIX>\n";
 	echo $err_msg;
-	exit();
+	exit(1);
 }
 
 if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
 	$err_msg = "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
 	$err_msg .= "Usage: php install/step_03.php <PATH_TO_MATRIX>\n";
 	echo $err_msg;
-	exit();
+	exit(1);
 }
 
 // only use console stuff if we're running from the command line
-if ($cli) {
-	require_once 'Console/Getopt.php';
+require_once 'Console/Getopt.php';
 
-	$shortopt = '';
-	$longopt = Array('package=');
+$shortopt = '';
+$longopt = Array('package=');
 
-	$con = new Console_Getopt;
-	$args = $con->readPHPArgv();
-	array_shift($args);
-	$options = $con->getopt($args, $shortopt, $longopt);
+$con = new Console_Getopt;
+$args = $con->readPHPArgv();
+array_shift($args);
+$options = $con->getopt($args, $shortopt, $longopt);
 
-	if (is_array($options[0])) {
-		$package_list = get_console_list($options[0]);
-	}
+if (is_array($options[0])) {
+	$package_list = get_console_list($options[0]);
 }
 
 if (!defined('SQ_SYSTEM_ROOT')) {
@@ -108,6 +101,11 @@ if (!defined('SQ_SYSTEM_ROOT')) {
 }
 
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
+
+// firstly let's check that we are OK for the version
+if (version_compare(PHP_VERSION, SQ_REQUIRED_PHP_VERSION, '<')) {
+	trigger_error('<i>'.SQ_SYSTEM_LONG_NAME.'</i> requires PHP Version '.SQ_REQUIRED_PHP_VERSION.'.<br/> You may need to upgrade.<br/> Your current version is '.PHP_VERSION, E_USER_ERROR);
+}
 
 // check to see if the default/ tech email in main.inc are provided and are correct
 // for more info see bug report 5804 Default and Tech Emails shouldnt break install
@@ -127,7 +125,9 @@ if (!empty($SQ_CONF_TECH_EMAIL) && !valid_email($SQ_CONF_TECH_EMAIL)) {
 // Clean up any remembered data.
 require_once $SYSTEM_ROOT.'/core/include/deja_vu.inc';
 $deja_vu = new Deja_Vu();
-if ($deja_vu->enabled()) $deja_vu->forgetAll();
+if ($deja_vu->enabled()) {
+    $deja_vu->forgetAll();
+}
 
 // get the list of functions used during install
 require_once $SYSTEM_ROOT.'/install/install.inc';
@@ -135,19 +135,23 @@ require_once $SYSTEM_ROOT.'/install/install.inc';
 $GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-// firstly let's check that we are OK for the version
-if (version_compare(PHP_VERSION, SQ_REQUIRED_PHP_VERSION, '<')) {
-	trigger_error('<i>'.SQ_SYSTEM_LONG_NAME.'</i> requires PHP Version '.SQ_REQUIRED_PHP_VERSION.'.<br/> You may need to upgrade.<br/> Your current version is '.PHP_VERSION, E_USER_ERROR);
-}
-
 // let everyone know we are installing
 $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 
 // Install all DAL core and package queries upfront
-install_dal_core_queries();
+$result = install_dal_core_queries();
+if (!$result) {
+	trigger_error('Unable to install core dal queries.', E_USER_ERROR);
+	exit(1);
+}
+
 $packages = get_package_list();
 foreach ($packages as $package) {
-	install_dal_package_queries($package);
+	$result = install_dal_package_queries($package);
+	if (!$result) {
+		trigger_error('Unable to install queries for package '.$package, E_USER_ERROR);
+		exit(1);
+	}
 }
 
 // call all the steps
@@ -180,6 +184,8 @@ if (is_array($deferred)) {
 	}
 }
 
+echo "\n";
+
 install_authentication_types();
 generate_global_preferences();
 install_event_listeners();
@@ -193,6 +199,9 @@ $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 $GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
+echo "\n";
+echo "Step 3 completed successfully.\n";
+echo "\n";
 
 /**
 * Gets a list of supplied package options from the command line arguments given

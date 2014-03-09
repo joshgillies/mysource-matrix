@@ -88,7 +88,7 @@ class Content_Type_Nest_Content_Management extends Asset_Management
 
 				// reasonably critical upgrade - report any assets that didn't make it
 				if (is_null($content_type_nested_content_asset)) {
-					pre_echo('Could get asset #'.$assetid);
+					pre_echo('Could not get asset #'.$assetid);
 					continue;
 				}
 

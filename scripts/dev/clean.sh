@@ -20,7 +20,6 @@
 
 SYSTEM_ROOT=`pwd`;
 
-
 rm -rf "${SYSTEM_ROOT}/cache" \
 		"${SYSTEM_ROOT}/data/file_repository" \
 		"${SYSTEM_ROOT}/data/public/assets" \
@@ -32,8 +31,6 @@ rm -rf "${SYSTEM_ROOT}/cache" \
 		"${SYSTEM_ROOT}/data/private/asset_map" \
 		"${SYSTEM_ROOT}/data/private/maps" \
 		"${SYSTEM_ROOT}/data/private/conf/system_assets.inc"
-
-cvs up -dP cache data/public data/private
 
 # Build the directory structure
 dir_map="cache \
@@ -48,19 +45,19 @@ dir_map="cache \
 		data/private/db \
 		data/private/events \
 		data/private/logs \
-		data/private/maps \
 		data/private/packages \
 		data/private/system \
 		data/public/asset_types \
 		data/public/assets \
 		data/public/system \
-		data/public/temp";
-for dir in $dir_map;
-do
-if !([ -e $dir ]);
-then
-	mkdir $dir;
-fi
+		data/public/temp"
+
+for dir in $dir_map; do
+	if [ -d .git ]; then
+		git checkout $dir
+	else
+		mkdir $dir;
+	fi
 done
 
 # OK, what we are doing here is using PHP to do the parsing of the DSN for us (much less error prone :)
@@ -101,7 +98,12 @@ case "${DB_TYPE}" in
 		if [ "${DB_DSN_PORT}" != "" ]; then
 			args="${args} -p ${DB_DSN_PORT}";
 		fi
-		psql ${args} -d "${DB_DSN_DBNAME}" -c "\d" -t -q -A -X | awk -F\| '{ print "DROP " $3 " " $2 " CASCADE;" }' | psql ${args} -d "${DB_DSN_DBNAME}" -X -q
+		output=`psql ${args} -d "${DB_DSN_DBNAME}" -c "\d" -t -q -A -X | awk -F\| '{ print "DROP " $3 " " $2 " CASCADE;" }' | psql ${args} -d "${DB_DSN_DBNAME}" -X -q 2>&1`
+		if [ $? -gt 0 ]; then
+			echo "Unable to drop some items."
+			echo $output
+			exit 1
+		fi
 	;;
 
 	"oci")
@@ -125,22 +127,44 @@ case "${DB_TYPE}" in
 		exit 1;
 esac
 
+echo ""
+echo "Running step_02.php"
 # now just run step 2 again
 php -d output_buffering=0 "${SYSTEM_ROOT}/install/step_02.php" "${SYSTEM_ROOT}"
 if [ "$?" != "0" ]; then
 	exit 1
 fi
 
+echo ""
+echo "Running compile_locale.php"
 php -d output_buffering=0 "${SYSTEM_ROOT}/install/compile_locale.php" "${SYSTEM_ROOT}" "--locale=en"
+if [ "$?" != "0" ]; then
+	exit 1
+fi
+
+echo ""
+echo "Running step_03.php"
 php -d output_buffering=0 "${SYSTEM_ROOT}/install/step_03.php" "${SYSTEM_ROOT}"
 # if step-3 failed then stop it here
 if [ "$?" != "0" ]; then
 	exit 1
 fi
-# again to ensure that all type descendants are able to be found
-php -d output_buffering=0 "${SYSTEM_ROOT}/install/step_03.php" "${SYSTEM_ROOT}"
 
+# again to ensure that all type descendants are able to be found
+echo ""
+echo "Running step_03.php again"
+php -d output_buffering=0 "${SYSTEM_ROOT}/install/step_03.php" "${SYSTEM_ROOT}"
+# if step-3 failed then stop it here
+if [ "$?" != "0" ]; then
+	exit 1
+fi
+
+echo ""
+echo "Running compile_locale.php"
 php -d output_buffering=0 "${SYSTEM_ROOT}/install/compile_locale.php" "${SYSTEM_ROOT}" "--locale=en"
+if [ "$?" != "0" ]; then
+	exit 1
+fi
 
 chmod 775 cache
 find data -type d -exec chmod 2775 {} \; 2> /dev/null

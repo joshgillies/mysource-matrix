@@ -164,7 +164,7 @@ class MatrixDALBaker extends DALBaker
      * @param string $systemName Name of the system to bake the code for.
      *
      * @since  4.0.0
-     * @return void
+     * @return boolean
      * @throws DALBakerException If the system name supplied is empty.
      */
     public static function bakeQueriesFile($systemName)
@@ -198,7 +198,11 @@ class MatrixDALBaker extends DALBaker
 
         $contents .= "\n\n}\n?>";
 
-        file_put_contents($fileName, $contents);
+		$result = file_put_contents($fileName, $contents);
+		if ($result !== FALSE) {
+			return TRUE;
+		}
+		return FALSE;
 
     }//end bakeQueriesFile()
 
