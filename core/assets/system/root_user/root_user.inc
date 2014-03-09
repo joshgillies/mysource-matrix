@@ -138,7 +138,7 @@ class Root_User extends System_User
 	*/
 	function canLogin()
 	{
-		return SQ_CONF_ROOT_USER_DISABLED ? FALSE : TRUE;
+		return SQ_PHP_CLI || (SQ_CONF_ROOT_USER_DISABLED ? FALSE : TRUE);
 
 	}//end canLogin()
 
@@ -172,7 +172,7 @@ class Root_User extends System_User
 	*/
 	function canAccessBackend()
 	{
-		return SQ_CONF_ROOT_USER_DISABLED ? FALSE : TRUE;
+		return SQ_PHP_CLI || (SQ_CONF_ROOT_USER_DISABLED ? FALSE : TRUE);
 
 	}//end canAccessBackend()
 
