@@ -185,7 +185,7 @@ class Package_Manager extends MySource_Object
 			}
 		}//end for
 
-		return $deferred_assets;
+		return count($deferred_assets) ? $deferred_assets : true;
 
 	}//end checkPackageDetails()
 
@@ -204,16 +204,20 @@ class Package_Manager extends MySource_Object
 	{
 		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
 
-		$deferred = $this->checkPackageDetails($update_assets, array());
+		// If there were some type codes that failed the requirements, save
+		// them in the deferred array so that they don't get installed later
+		// on in the process
+		$last_deferred = false;
+		$deferred = true;
+
 		// We need to run this function over until no more deferred assets are
 		// detected - because of the order of checking the package details, we
 		// may not pick everything up first go
-		$attempt = 0;
-		while (!empty($deferred)) {
-			$deferred = $this->checkPackageDetails($update_assets, $deferred);
-			$attempt++;
-			if ($attempt > 20) {
-				throw new Exception('Unable to resolve dependencies. Unable to install these asset types: '.implode(', ', $deferred)."\n");
+		while ($last_deferred !== $deferred) {
+			$last_deferred = $deferred;
+			$deferred = $this->checkPackageDetails($update_assets, is_array($deferred) ? $deferred : Array());
+			if (is_bool($deferred) && !$deferred) {
+				return $deferred;
 			}
 		}
 
