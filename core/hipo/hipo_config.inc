@@ -115,26 +115,27 @@ class HIPO_Config extends Config
 	* @param array		$vars				the array with any new values (that are allowed to be edited)
 	*										Array('[config_var_name]' => [scalar value])
 	* @param boolean	$backup_existing	whether we should backup the existing config file first
+	* @param boolean	$send_message		whether to send a message using the messaging system
 	*
 	* @return boolean
 	* @access public
 	*/
-	function save($vars, $backup_existing=FALSE)
+	function save($vars, $backup_existing=FALSE, $send_message=TRUE)
 	{
 		// if the config file exists, just do a normal save
 		if (file_exists($this->config_file)) {
-			return parent::save($vars, $backup_existing);
+			return parent::save($vars, $backup_existing, $send_message);
 
 		// else this is the first time that we have saved a config, things need to be done a little differently
 		} else {
 
 			// first we save as normal, but we won't have the jobs config vars in there
 			// (no need to backup either because the file doesn't exist)
-			if (!parent::save($vars, FALSE)) return FALSE;
+			if (!parent::save($vars, FALSE, $send_message)) return FALSE;
 			// then we load all jobs configs (which can happen now that there is a
 			// config file that they can require) and save again to put them in the file
 			$this->_loadJobConfigVars();
-			return parent::save($vars, FALSE);
+			return parent::save($vars, FALSE, $send_message);
 
 		}//end if
 

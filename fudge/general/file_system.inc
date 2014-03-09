@@ -298,12 +298,13 @@ function list_dirs($dir, $fullpath=FALSE, $ignore_list=Array(), $recursive=FALSE
 * TODO: This function should not allow integers. It is the responsibility of the calling function
 * to typecast the argument to a String before calling this function.
 *
-* @param string	$path	the path to create
+* @param string		$path			The path to create
+* @param boolean	$show_warning	If true, trigger a user warning for logs.
 *
 * @return boolean
 * @access public
 */
-function create_directory($path)
+function create_directory($path, $show_warning=TRUE)
 {
 	if ((!is_string($path) &&(!is_int($path))) || empty($path)) {
 		return FALSE;
@@ -311,8 +312,11 @@ function create_directory($path)
 	if (is_dir($path)) return TRUE;
 
 	$old_umask = umask(0);
-	if (!mkdir($path, 0775, TRUE)) {
-		trigger_error('Unable to create directory: '.$path, E_USER_WARNING);
+	if (!@mkdir($path, 0775, TRUE)) {
+		if ($show_warning) {
+			trigger_error('Unable to create directory: '.$path, E_USER_WARNING);
+		}
+
 		clearstatcache();
 		return FALSE;
 	}

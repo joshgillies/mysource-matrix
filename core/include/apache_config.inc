@@ -144,9 +144,6 @@ class Apache_Config extends Config
 
 			}// endif
 
-			if (SQ_PHP_CLI) {
-				echo "----------------------------------\n".($str)."----------------------------------\n";
-			}
 			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 			// make sure the directory exists
 			if (!create_directory(dirname($this->config_file))) {

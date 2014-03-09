@@ -74,7 +74,6 @@ class Package_Manager_Import_Tools extends Package_Manager
 		if (!$import_tools_manager->create($import_tools_manager_link)) {
 			trigger_localised_error('IMP0001', E_USER_ERROR);
 		}
-		pre_echo('Import Tools Manager Asset Id : '.$import_tools_manager->id);
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('import_tools_manager', $import_tools_manager->id);
 
