@@ -84,7 +84,9 @@ class Cron_Job_Regenerate_Report extends Cron_Job
 	protected function _exec(&$msg)
 	{
 		$this->setAttrValue('running', TRUE);
-		$this->saveAttributes();
+		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+			$this->saveAttributes();
+		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 
 		$assetid = $this->attr('asset');
@@ -120,7 +122,9 @@ class Cron_Job_Regenerate_Report extends Cron_Job
 		if ($res & SQ_CRON_JOB_COMPLETED) {
 			if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'all')) {
 				$this->setAttrValue('running', FALSE);
-				$this->saveAttributes();
+				$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+					$this->saveAttributes();
+				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 				$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'all');
 			}
 		}
