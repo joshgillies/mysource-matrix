@@ -31,13 +31,14 @@ function ToolTip()
 	this.title_color	= "#FFFFFF";
 	this.showing		= false;
 
-	this.print	= tt_print;
-	this.show	= tt_show;
-	this.hide	= tt_hide;
-	this.paint	= tt_paint;
+	this.print		= tt_print;
+	this.show		= tt_show;
+	this.hide		= tt_hide;
+	this.paint		= tt_paint;
+	this.getLeft	= tt_getLeft;
 
-	this.set	= tt_set;
-	this.get	= tt_get;
+	this.set		= tt_set;
+	this.get		= tt_get;
 
 }//end ToolTip()
 
@@ -124,9 +125,10 @@ function findPosY(obj)
 /**
 * Attach tooltip to corresponding object and make it visible.
 *
-* @param	obj	HTML object which will be base for tooltip
-* @param	text	content of the tooltip (could be HTML)
-* @param	title	title of the tooltip [optional]
+* @param	obj				HTML object which will be base for tooltip
+* @param	text			content of the tooltip (could be HTML)
+* @param	title			title of the tooltip
+* @param	close_button	doesnt look like this is used in the pain function anymore, but we have to leave it in here now to not stuff up any functions that might be sending it already
 *
 * @return
 * @access
@@ -139,7 +141,8 @@ function tt_show(obj, text, title, close_button)
 
 	var top = findPosY(obj);
 	top += obj.offsetHeight;
-	var left = findPosX(obj);
+	//var left = findPosX(obj);
+	var left = this.getLeft(obj);
 	this.paint(top, left, text, title, close_button);
 
 	this.showing = true;
@@ -282,6 +285,26 @@ function tt_set(attr, value)
 	if (document.getElementById("ToolBox").style.visibility == "visible") this.paint();
 
 }//end tt_set()
+
+
+/**
+* Find element's position relative to the document.
+*
+* @param	elem	the element to get the offset from
+*
+* @return int
+* @access
+*/
+function tt_getLeft(elem)
+{
+    var offsetLeft = 0;
+    do {
+      if ( !isNaN( elem.offsetLeft ) ) {
+          offsetLeft += elem.offsetLeft;
+      }
+   	} while( elem = elem.offsetParent );
+    return offsetLeft;
+}
 
 
 //default tooltip object for all pages

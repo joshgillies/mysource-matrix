@@ -1771,46 +1771,44 @@ function get_asset_tag_line_binoculars($assetid, $popupTitle=NULL)
 
 	// start an inner buffer for the lineages popup
 	ob_start();
-	?>
-	<div id="asset-tag-line-<?php echo $assetid ?>-lineages" style="display:none">
-	<p>This asset is linked to <?php
-	if ($count_linked_to === 1) {
-		?><strong><em><?php echo $count_linked_to ?></em></strong> parent<?php
-	} else {
-		?><strong><em><?php echo $count_linked_to ?></em></strong> parents<?php
-	}
-	?></p>
-	<table class="sq-toolbox-asset-lineages-listing"><?php
-	foreach ($lineages as $lineage_key => $lineage) {
-		if ($lineage['link_type'] & SQ_SC_LINK_BACKEND_NAV) {
-			$lineage_assetids = array_keys($lineage['lineage']);
-			$lineage_assetids[] = str_replace('\\', '\\\\', $assetid);
-
-			$lineage_names = $lineage['lineage'];
-
-			// If we have too many in the lineage, we need to add '...' between first
-			// 2 and last 2 - including the asset itself
-			if (count($lineage['lineage']) > 3) {
-				$lineage_names = $lineage['lineage'];
-				array_splice($lineage_names, 2, -1, Array('...'));
-			}
-
-			foreach ($lineage_names as $id => $name){
-				$lineage_names[$id] = htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
-			}
-
-			$lineage_names[$assetid] = $asset_info['name'];
-			$lineages_onclick = asset_locator_onclick($lineage_assetids, TRUE);
-			?><tr>
-			<td class="sq-backend-table-cell" ><a href="#" onclick="<?php echo $lineages_onclick; ?>"><?php echo implode(' &gt; ', $lineage_names) ?></a></td>
-			</tr><?php
+	?><div id="asset-tag-line-<?php echo $assetid ?>-lineages" style="display:none;">
+		<p>This asset is linked to <?php
+		if ($count_linked_to === 1) {
+			?><strong><em><?php echo $count_linked_to ?></em></strong> parent<?php
 		} else {
-			unset($lineages[$lineage_key]);
+			?><strong><em><?php echo $count_linked_to ?></em></strong> parents<?php
 		}
-	}
-	?></table>
-	</div>
-	<?php
+		?></p>
+		<table class="sq-toolbox-asset-lineages-listing"><?php
+		foreach ($lineages as $lineage_key => $lineage) {
+			if ($lineage['link_type'] & SQ_SC_LINK_BACKEND_NAV) {
+				$lineage_assetids = array_keys($lineage['lineage']);
+				$lineage_assetids[] = str_replace('\\', '\\\\', $assetid);
+
+				$lineage_names = $lineage['lineage'];
+
+				// If we have too many in the lineage, we need to add '...' between first
+				// 2 and last 2 - including the asset itself
+				if (count($lineage['lineage']) > 3) {
+					$lineage_names = $lineage['lineage'];
+					array_splice($lineage_names, 2, -1, Array('...'));
+				}
+
+				foreach ($lineage_names as $id => $name){
+					$lineage_names[$id] = htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
+				}
+
+				$lineage_names[$assetid] = $asset_info['name'];
+				$lineages_onclick = asset_locator_onclick($lineage_assetids, TRUE);
+				?><tr>
+				<td class="sq-backend-table-cell" ><a href="#" onclick="<?php echo $lineages_onclick; ?>"><?php echo implode(' &gt; ', $lineage_names) ?></a></td>
+				</tr><?php
+			} else {
+				unset($lineages[$lineage_key]);
+			}
+		}
+		?></table>
+	</div><?php
 	$lineages_div = ob_get_clean();
 
 	// If there is more than one lineage, then provide the popup, otherwise
