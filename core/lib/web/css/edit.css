@@ -2587,16 +2587,23 @@ ul.radio-list {
 	padding: 					8px 13px;
 }
 
+.sq-backend-commit input.sq-btn-green,
 #sq-commit-button-div-inside input.sq-btn-green{
 	background-image: 			url(../images/button-loader-green.gif);
 	background-repeat: 			no-repeat;
 	background-position: 		center -100px; 
 }
 
+.sq-backend-commit input.sq-btn-green.loading,
 #sq-commit-button-div-inside input.sq-btn-green.loading{
 	min-width:					72px;
 	height:						34px;
 	background: 				#419041 url(../images/button-loader-green.gif) center center no-repeat; 
+}
+
+/* For when commit button is not anchored to the bottom of the frame, but just on the bottom of the page */
+.sq-backend-commit input.sq-btn-green.loading{
+	min-width:					66px;
 }
 
 #sq_context_switcher_current {
