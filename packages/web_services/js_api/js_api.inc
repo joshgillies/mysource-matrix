@@ -423,6 +423,8 @@ class JS_Api extends Page
 			// first thing check if the function that is being tried to executed is enabled
 			if ($this->attr($this->_attribute_mapping[$type])) {
 				$asset = NULL;
+				$error = NULL;
+				
 				if ($this->_permission_mapping[$type] != Array('no_check')) {
 					// Check to see if we supplied with valid assetid
 					if ((preg_match('/^[0-9]*:/i', $id) != FALSE) && !$GLOBALS['SQ_SYSTEM']->am->assetExists($id)) {
@@ -432,37 +434,41 @@ class JS_Api extends Page
 					}
 					$asset = $this->setAsset($id);
 
-					// Check to see if passed ID is under our root node, or, if we are using a root node
 					if (!$this->checkRoot($asset)) {
-						$this->returnError('You do not have permissions to access this asset');
-						restore_error_handler();
-						return;
-					}
-
-					if ($this->_permission_mapping[$type] == Array('read_access')) {
-						$ra = $asset->readAccess();
-						$wa = FALSE;
+					    // If we are not the root node(s) or underneath them,
+					    // return an error for that result.
+						$error = 'You do not have permissions to access this asset';
+						js_api_error_handler(E_USER_WARNING, $error);
 					} else {
-						// check if there is any runing workflow schema on it
-						$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
-						$running_wfs = $wfm->getSchemas($asset->id, TRUE, TRUE);
-						if(!empty($running_wfs)) {
-							$wa = $asset->writeAccess();
-						} else {
-							$wa = $asset->writeAccess('', Array(), FALSE);
-						}
-						$ra = FALSE;
-					}
-				}
-
-				$func_name = '_'.$type;
-				try {
-					$results[$track_func] = $this->$func_name($args, $asset, $ra, $wa);
-				} catch (Exception $e) {
-					// If any exception was thrown when executing the function, catch it
-					$results[$track_func]['error'] = 'Exception occured when executing JS API function "'.$type.'()": '.$e->getMessage();
-					js_api_error_handler(E_USER_ERROR, 'EXCEPTION: '.$e->getMessage(), $e->getFile(), $e->getLine());
-				}
+                        if ($this->_permission_mapping[$type] == Array('read_access')) {
+                            $ra = $asset->readAccess();
+                            $wa = FALSE;
+                        } else {
+                            // check if there is any runing workflow schema on it
+                            $wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+                            $running_wfs = $wfm->getSchemas($asset->id, TRUE, TRUE);
+                            if(!empty($running_wfs)) {
+                                $wa = $asset->writeAccess();
+                            } else {
+                                $wa = $asset->writeAccess('', Array(), FALSE);
+                            }
+                            $ra = FALSE;
+                        }
+                    }//end if
+				}//end if
+				
+				if ($error !== NULL) {
+				    $results[$track_func]['error'] = $error;
+				} else {
+                    $func_name = '_'.$type;
+                    try {
+                        $results[$track_func] = $this->$func_name($args, $asset, $ra, $wa);
+                    } catch (Exception $e) {
+                        // If any exception was thrown when executing the function, catch it
+                        $results[$track_func]['error'] = 'Exception occured when executing JS API function "'.$type.'()": '.$e->getMessage();
+                        js_api_error_handler(E_USER_ERROR, 'EXCEPTION: '.$e->getMessage(), $e->getFile(), $e->getLine());
+                    }
+                }//end if
 
 				// if batching request and one of the function is set to blocking
 				// and of the function execution returned error bail out
