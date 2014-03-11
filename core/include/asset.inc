@@ -1068,6 +1068,8 @@ class Asset extends MySource_Object
 		$real_status = $this->status;
 
 		foreach (get_object_vars(unserialize(file_to_string($use_filename))) as $key => $value) {
+			// do not override data path, it will be calculated dynamically
+			if($key === 'data_path' || $key === 'data_path_public') continue;
 			$this->$key = $value;
 		}
 		$this->status = $real_status;
@@ -1118,10 +1120,20 @@ class Asset extends MySource_Object
 			$this->_loadVars();
 
 			$filename = '.object_data'.(($contextid === 0) ? '' : '.'.$contextid);
-			if (!string_to_file(serialize($this), $this->data_path.'/.sq_system/'.$filename)) {
+			// don't cache data path, it will be loaded dynamically when loading asset.
+			$data_path = $this->data_path;
+			$data_path_public = $this->data_path_public;
+			$this->data_path = '';
+			$this->data_path_public = '';
+			if (!string_to_file(serialize($this), $data_path.'/.sq_system/'.$filename)) {
+				$this->data_path = $data_path;
+				$this->data_path_public = $data_path_public;
 				trigger_localised_error('CORE0051', E_USER_WARNING, $this->name);
 				return FALSE;
 			}
+			
+			$this->data_path = $data_path;
+			$this->data_path_public = $data_path_public;
 
 			$GLOBALS['SQ_SYSTEM']->restoreContext();
 		}//end foreach
@@ -1285,8 +1297,13 @@ class Asset extends MySource_Object
 
 		// ITS ALIVE... ITS ALIVE...
 		foreach (get_object_vars($old_version) as $key => $value) {
+			// no need to override current data path
+			if($key === 'data_path' || $key === 'data_path_public') continue;
 			$this->$key = $value;
 		}
+		
+		// refresh data path to use live path
+		
 
 		// also keep the data in asset to notify other parts of matrix
 		// that we are reverting back to system version

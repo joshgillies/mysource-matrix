@@ -101,7 +101,7 @@ class File_Bridge_Edit_Fns extends Asset_Edit_Fns
                                                 require_once (SQ_DATA_PATH.'/private/conf/file_bridge.inc');
                                                 $o->openField('Path');
                                                 echo FILE_BRIDGE_PATH;
-                                                $o->note("Configure path in ".SQ_DATA_PATH.'/private/conf/file_bridge.inc');
+                                                $o->note("Configure path in ".SQ_DATA_PATH.'/private/conf/file_bridge.inc. Path is relative to Matrix installation location unless prefixed with \'/\'.');
                                                 $o->closeField();
 
 	}//end paintFilename()

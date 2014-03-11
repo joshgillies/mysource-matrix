@@ -25,7 +25,7 @@
 	<section name="Configuration" write_access="write:attributes">
 		<field attribute="upload_directory">
 			<display_name>Upload Directory</display_name>
-			<note>Word Documents uploaded will be stored here for processing. This value should be set in your Windows-side conversion process also.</note>
+			<note>Word Documents uploaded will be stored here for processing. This value should be set in your Windows-side conversion process also. Path is relative to Matrix installation location unless prefixed with '/'.</note>
 		</field>
 	</section>
 	<section name="Upload" write_access="write:attributes">

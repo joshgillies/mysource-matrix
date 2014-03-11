@@ -89,6 +89,7 @@ class Import_Tool_Converter_Edit_Fns extends Asset_Edit_Fns
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		// Handle some file uploads
 		$import_dir = $asset->attr('upload_directory');
+		if(!empty($import_dir) && strpos($import_dir, '/') !== 0)     $import_dir = SQ_SYSTEM_ROOT.'/'.$import_dir;
 		$compatible_types = $asset->attr('valid_file_types');
 
 		// Check if we have an existing asset selected and copy it over

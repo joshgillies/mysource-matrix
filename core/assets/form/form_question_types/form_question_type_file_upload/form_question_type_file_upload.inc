@@ -243,6 +243,10 @@ class Form_Question_Type_File_Upload extends Form_Question
 
 				switch($key) {
 					case 'temp_filesystem_path' :
+						// if using relative path
+						if(!empty($value) && strpos($value, '/') !== 0) {
+						    $value = SQ_SYSTEM_ROOT . '/'. $value;
+						}
 						$filepath = $value;
 						if (is_file($filepath)) {
 							$type = array_get_index($standards_lists_mime_types, get_file_type($filepath), '');
@@ -254,6 +258,9 @@ class Form_Question_Type_File_Upload extends Form_Question
 					break;
 
 					case 'filesystem_path' :
+						if(!empty($value) && strpos($value, '/') !== 0) {
+						    $value = SQ_SYSTEM_ROOT . '/'. $value;
+						}
 						$filepath = $value;
 						if (is_file($filepath)) {
 							$type = array_get_index($standards_lists_mime_types, get_file_type($filepath), '');
@@ -361,6 +368,9 @@ class Form_Question_Type_File_Upload extends Form_Question
 				// files left. We want to be as clean as possible in the data/
 				// path
 				$temp_path = $this->extra_data['temp_filesystem_path'];
+				if(!empty($temp_path) && strpos($temp_path, '/') !== 0) {
+				    $temp_path = SQ_SYSTEM_ROOT . '/' . $temp_path;
+				}
 				delete_directory(dirname($temp_path));
 
 				$this->setValue('');
@@ -624,6 +634,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 	{
 		$filepath = array_get_index($this->extra_data, 'temp_filesystem_path', NULL);
 		if (!empty($filepath)) {
+			if(strpos($filepath, '/') !== 0) $filepath = SQ_SYSTEM_ROOT.'/'.$filepath;
 			delete_directory(dirname($filepath));
 		}
 
@@ -645,6 +656,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 
 		if ($file_info['error'] === UPLOAD_ERR_OK) {
 			$submission_path = $this->getTempFileUploadPath($parent);
+			$submission_path = SQ_SYSTEM_ROOT.'/'.$submission_path;
 			create_directory($submission_path);
 
 			// Remove existing uploads, to ensure that there is only one file
@@ -677,6 +689,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 			$submission_path = $this->data_path.'/attachments/'.session_id().'_'.$parent->id;
 		}
 
+		$submission_path = str_replace(SQ_SYSTEM_ROOT.'/', '', $submission_path);   
 		$submission_path .= '/'.str_replace(':', '_', $this->id);
 
 		return $submission_path;

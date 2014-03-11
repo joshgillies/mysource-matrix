@@ -21,7 +21,7 @@
 <!--string source="import_tools_manager_"></string-->
 <string source="import_tools_manager_allowed_import_type">Allowed Import Type</string>
 <string source="import_tools_manager_server_import_dir">Server Import Directory</string>
-<string source="import_tools_manager_server_import_dir_msg">Directory on the Server to import uploaded files from.  Use config file data/private/conf/import_tools_manager.inc.</string>
+<string source="import_tools_manager_server_import_dir_msg">Directory on the Server to import uploaded files from.  Use config file data/private/conf/import_tools_manager.inc. Path is relative to Matrix installation location unless prefixed with '/'.</string>
 <string source="import_tools_manager_local_file_max_size">Local Max File Size</string>
 <string source="import_tools_manager_local_file_max_size_msg">Maximum File Size of local file upload (In bytes, 0 = no limit)</string>
 
@@ -89,7 +89,7 @@
 
 <!-- CMS Tool Export Files -->
 <string source="import_tools_manager_server_export_dir">Server Export Directory</string>
-<string source="import_tools_manager_server_export_dir_msg">Directory on the Server to export files to.</string>
+<string source="import_tools_manager_server_export_dir_msg">Directory on the Server to export files to. Path is relative to Matrix installation location unless prefixed with '/'.</string>
 <string source="import_tools_manager_server_export_name">Server Export Name</string>
 <string source="import_tools_manager_server_export_name_msg">The basename of the exported files</string>
 

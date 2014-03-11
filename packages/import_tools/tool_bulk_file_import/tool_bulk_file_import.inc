@@ -66,6 +66,7 @@ class Tool_Bulk_File_Import extends Tool
 		$itm = $am->getSystemAsset('import_tools_manager');
 		$import_option = $itm->attr('allowed_import_type');
 		$import_dir = BULK_FILE_IMPORT_DIR;
+		if(!empty($import_dir) && strpos($import_dir, '/') !==0) $import_dir = SQ_SYSTEM_ROOT.'/'.$import_dir;
 		$process_local = ($import_option != 'Server Only');
 		$process_server = ($import_option != 'Local Only');
 
@@ -563,6 +564,8 @@ class Tool_Bulk_File_Import extends Tool
 		$vars = Array();
 		$itm = $am->getSystemAsset('import_tools_manager');
 		$import_dir = BULK_FILE_IMPORT_DIR;
+		//relative path
+		if(!empty($import_dir) && strpos($import_dir, '/') !==0) $import_dir = SQ_SYSTEM_ROOT.'/'.$import_dir;
 		$import_option = $itm->attr('allowed_import_type');
 		$process_local = ($import_option != 'Server Only');
 		$process_server = ($import_option != 'Local Only');

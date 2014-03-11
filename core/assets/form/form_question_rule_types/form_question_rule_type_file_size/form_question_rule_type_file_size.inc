@@ -89,6 +89,7 @@ class Form_Question_Rule_Type_File_Size extends Form_Question_Rule
 		else {
 			$extra_data = $q_asset->getExtraData();
 			$temp_file = array_get_index($extra_data, 'temp_filesystem_path','');
+			if(!empty($temp_file) && strpos($temp_file, '/') !== 0) $temp_file = SQ_SYSTEM_ROOT.'/'.$temp_file;
 			$filesize = (int) filesize ($temp_file);
 		}
 		

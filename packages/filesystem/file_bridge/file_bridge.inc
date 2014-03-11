@@ -168,6 +168,8 @@ class File_Bridge extends Asset implements Bridge
 		require_once (SQ_DATA_PATH.'/private/conf/file_bridge.inc');
 		$location = FILE_BRIDGE_PATH;
 		$location = rtrim($location, '/');
+		if(!empty($location) && strpos($location, '/') !== 0) $location = SQ_SYSTEM_ROOT.'/'.$location;
+		
 		if ($this->_isValidFile($location.'/'.$shadowid)) {
 			if (is_dir($location.'/'.$shadowid)) {
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset('physical_folder');
@@ -231,6 +233,8 @@ class File_Bridge extends Asset implements Bridge
 					require_once (SQ_DATA_PATH.'/private/conf/file_bridge.inc');
 					$location = FILE_BRIDGE_PATH;
 					$location = rtrim($location, '/');
+					if(!empty($location) && strpos($location, '/') !== 0) $location = SQ_SYSTEM_ROOT.'/'.$location;
+					
 					$files = $this->_listFiles($location);
 					$i = 0;
 					foreach ($files as $file) {
@@ -259,6 +263,7 @@ class File_Bridge extends Asset implements Bridge
 				require_once (SQ_DATA_PATH.'/private/conf/file_bridge.inc');
 				$location = FILE_BRIDGE_PATH;
 				$location = rtrim($location, '/');
+				if(!empty($location) && strpos($location, '/') !== 0) $location = SQ_SYSTEM_ROOT.'/'.$location;
 
 				// The file is invalid why proceed?
 				if (!$this->_isValidFile($location.'/'.$shadowid)) {

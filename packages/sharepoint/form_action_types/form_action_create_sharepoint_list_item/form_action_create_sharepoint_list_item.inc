@@ -500,8 +500,9 @@ class Form_Action_Create_Sharepoint_List_Item extends Form_Action
 				if (!empty($file_info) && isset($file_info['path'])) {
 					$uploaded_file_path	= $file_info['path'];
 				}//end if
-			} else if (isset($extra_data['filesystem_path'])) {
+			} else if (isset($extra_data['filesystem_path']) && !empty($extra_data['filesystem_path'])) {
 				$uploaded_file_path	= $extra_data['filesystem_path'];
+				if(strpos($uploaded_file_path, '/') !== 0) $uploaded_file_path = SQ_SYSTEM_ROOT.'/'.$uploaded_file_path;
 			}//end else
 
 			// I dont know why we dont have to do base64_encode, if we do, the content in Sharepoint will be messed up.
