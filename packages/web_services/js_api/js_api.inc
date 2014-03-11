@@ -396,7 +396,13 @@ class JS_Api extends Page
 						if (preg_match('/[\$%]results_[^\$%]*[\$%]/', $args[$idx], $matches)) {
 							if(!isset($matches[0])) continue;
 							$keyword = $matches[0];
-							$instructions = explode('_', trim($keyword, '$%'));
+							$instructions = preg_split('/(?<!\\\\)\\_/', trim($keyword, '$%'));
+							
+							foreach ($instructions as &$instruction) {
+							    // Replace escaped underscores, and backslashes
+							    $instruction = str_replace('\\_', '_', $instruction);
+							    $instruction = str_replace('\\\\', '\\', $instruction);
+							}
 							// if we know where to take the new id from, do it or else
 							// just  continue with the previous one we have been using
 							$string_to_eval = '';
@@ -2314,7 +2320,7 @@ class JS_Api extends Page
 	*/
 	private function _getLineageFromUrl($args=Array(), $asset=NULL, $read_access=FALSE, $write_access=FALSE)
 	{
-		// we have the url in the args, lets get it and get the asset are dealing with
+	    // we have the url in the args, lets get it and get the asset are dealing with
 		$url = trim(array_get_index($args, 'asset_url', ''));
 		if (empty($url)) return Array('error' => 'No URL supplied');
 
