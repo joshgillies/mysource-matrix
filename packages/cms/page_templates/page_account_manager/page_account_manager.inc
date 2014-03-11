@@ -293,7 +293,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 			ob_start();
 
 				if (!empty($lock_errors)) {
-					$this->_replacements['edit_details_lock_error'] = $this->getKeywordReplacement('edit_details_lock_error');
+					$this->_replacements['edit_details_lock_error'] = $this->attr('edit_details_lock_error');
 					$current_user->printBody();
 				} else {
 
@@ -616,9 +616,20 @@ class Page_Account_Manager extends Page_Asset_Builder
 			$current_user = $GLOBALS['SQ_SYSTEM']->user;
 
 			if (!is_null($current_user) && !($current_user instanceof Public_User)) {
-				if ($current_user->processBackend($o, $link)) {
-					$this->_replacements['edit_details_success'] = $this->getKeywordReplacement('edit_details_success');
-				}
+				set_error_handler(Array(&$this, '_errorHandler'));
+
+					if ($current_user->processBackend($o, $link)) {
+						$this->_replacements['edit_details_success'] = $this->attr('edit_details_success');
+					}
+				restore_error_handler();
+				
+				$errors = '';
+				if (!empty($this->_errors)) {
+					foreach($this->_errors as $text) {
+						$errors .= '<li>'.$text.'</li>';
+					}//end foreach
+				}//end if
+				$this->_replacements['form_errors'] = $errors;
 			}
 
 			return TRUE;
@@ -1273,32 +1284,6 @@ class Page_Account_Manager extends Page_Asset_Builder
 
 
 	/**
-	* Get edit_details_lock_error keyword replacement
-	*
-	* @return string
-	* @access public
-	*/
-	function getEditDetailsLockErrorKeywordReplacement()
-	{
-		return $this->attr('edit_details_lock_error');
-
-	}//end getEditDetailsLockErrorKeywordReplacement()
-
-
-	/**
-	* Get edit_details_success keyword replacement
-	*
-	* @return string
-	* @access public
-	*/
-	function getEditDetailsSuccessKeywordReplacement()
-	{
-		return $this->attr('edit_details_success');
-
-	}//end getEditDetailsSuccessKeywordReplacement()
-
-
-	/**
 	* Get edit_details_success keyword replacement
 	*
 	* @return string
@@ -1365,6 +1350,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 		$content = '';
 
 		if (!is_null($asset) && !($asset instanceof Public_User) && $this->attr('customise_logged_in')) {
+
 			// try and acquire a lock on the current user so they can edit their details
 			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$vars = Array(
@@ -1373,13 +1359,13 @@ class Page_Account_Manager extends Page_Asset_Builder
 						'forceably_acquire'	=> FALSE,
 					);
 			$lock_errors = $hh->freestyleHipo('hipo_job_acquire_locks', $vars);
-
 			$type_code_to_create  = array_keys($this->attr('create_type'));
 			$layout = $this->_getLoggedInFormLayout($type_code_to_create[0]);
 			$ei = $asset->getEI();
 	        require_once SQ_INCLUDE_PATH.'/limbo_outputter.inc';
 	        $o = new Limbo_Outputter();
 
+			$errors = '';
 			if (array_get_index($_POST, 'form_submitted', FALSE)) {
 				$screens = Array();
 				$keywords = $layout->getLayoutKeywords();
@@ -1391,16 +1377,22 @@ class Page_Account_Manager extends Page_Asset_Builder
 				if (isset($keywords['entire_screens']) && !empty($keywords['entire_screens'])) {
 					$screens = array_unique(array_merge(array_keys($keywords['entire_screens']), $screens));
 				}
+				set_error_handler(Array(&$this, '_errorHandler'));
+					foreach ($screens as $screen) {
+						$ei->processInline($asset,$o, FALSE, $screen);
+					}
+				restore_error_handler();
 
-				foreach ($screens as $screen) {
-					$ei->processInline($asset,$o, FALSE, $screen);
-				}
+				if (!empty($this->_errors)) {
+					foreach($this->_errors as $text) {
+						$errors .= '<li>'.$text.'</li>';
+					}//end foreach
+				}//end if
 			}
-
 			ob_start();
 
 				if (!empty($lock_errors)) {
-					$this->_replacements['edit_details_lock_error'] = $this->getKeywordReplacement('edit_details_lock_error');
+					$this->_replacements['edit_details_lock_error'] = $this->attr('edit_details_lock_error');
 					$asset->printBody();
 				} else {
 
@@ -1413,10 +1405,11 @@ class Page_Account_Manager extends Page_Asset_Builder
 					$o->paint();
 					$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 				}
-
 				$content = ob_get_contents();
-
-				ob_end_clean();
+			ob_end_clean();
+			
+			$this->_replacements['form_errors'] = $errors;
+			replace_keywords($content, $this->_replacements);
 
 			echo $content;
 		} else {
