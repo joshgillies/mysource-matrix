@@ -2320,8 +2320,7 @@ class JS_Api extends Page
 	*/
 	private function _getLineageFromUrl($args=Array(), $asset=NULL, $read_access=FALSE, $write_access=FALSE)
 	{
-	    error_log(var_export($args, TRUE));
-		// we have the url in the args, lets get it and get the asset are dealing with
+	    // we have the url in the args, lets get it and get the asset are dealing with
 		$url = trim(array_get_index($args, 'asset_url', ''));
 		if (empty($url)) return Array('error' => 'No URL supplied');
 
