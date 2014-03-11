@@ -47,7 +47,7 @@ function sendAccessibleCaptchaEmail($to_email_address, $key)
 
 	// Quote the System Name as it could contain apos'rophes
 	$from_address = '"'.$from_address.'"';
-	
+
 	$current_url = current_url();
 	$body = 'This email has been generated '.$from_system_name."as part of a form submission which includes an Accessible CAPTCHA field.\n\n".
 			"Please visit the following page to validate your submission before submitting the form\n\n".
@@ -144,10 +144,11 @@ if (isset($_GET['email'])) {
 		    require_once SQ_FUDGE_PATH.'/general/www.inc';
 		    if(!valid_email($user_email)) exit;
 		}
-		
+
 		// Return a key to be used in an email message to clear this CAPTCHA hurdle
 		// The trinity of email address, timestamp, user ID and a locally-generated integer should be unique enough to generate a robust key
-		$local_megadice = rand(1, 1000000);
+        require_once SQ_FUDGE_PATH.'/general/security.inc';
+		$local_megadice = security_rand(1, 1000000);
 
 		$submission_time = time();
 		$key = md5($user_email.$submission_time.$local_megadice);

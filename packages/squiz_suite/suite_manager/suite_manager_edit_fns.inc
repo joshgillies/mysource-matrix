@@ -17,7 +17,7 @@
 require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 
 /**
-* Suite_Manager_Edit_Fns 
+* Suite_Manager_Edit_Fns
 *
 * Purpose
 *
@@ -95,12 +95,12 @@ class Suite_Manager_Edit_Fns extends Page_Edit_Fns
                 if (!empty($current_product)) {
                     $click = 'if (this.checked === true) { if (!confirm(\''.translate('js_confirm_msg').'\')) { this.checked= false }};';
                 }
-				echo check_box($prefix.'_register', '1', FALSE, $click);	
+				echo check_box($prefix.'_register', '1', FALSE, $click);
 				echo label(translate('suite_register'), $prefix.'_register');
 			$o->closeField();
 			if (!empty($current_product)) {
 				$o->openField(translate('suite_tools_deregister'));
-					echo check_box($prefix.'_deregister', '1', FALSE, 'if (this.checked == true) { if (!confirm(\''.translate('js_confirm_msg').'\')) { this.checked = false } };');	
+					echo check_box($prefix.'_deregister', '1', FALSE, 'if (this.checked == true) { if (!confirm(\''.translate('js_confirm_msg').'\')) { this.checked = false } };');
 					echo label(translate('suite_deregister'), $prefix.'_deregister');
 				$o->closeField();
 			}
@@ -112,7 +112,7 @@ class Suite_Manager_Edit_Fns extends Page_Edit_Fns
 
 
 	/**
-	* Processes the interface for the display of the System ID 
+	* Processes the interface for the display of the System ID
 	*
 	* @param object	&$asset	the suite manager asset
 	* @param object	&$o		the backend outputter
@@ -214,12 +214,13 @@ class Suite_Manager_Edit_Fns extends Page_Edit_Fns
 	 */
 	private function _getSystemid()
 	{
+        include_once SQ_FUDGE_PATH.'/general/security.inc';
 		$systemid = 'matrix-';
 		$chars    = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 		$charsLen = strlen($chars);
 		$randLen  = 10;
 		for ($i = 0; $i < $randLen; $i++) {
-			$idx       = rand(0, ($charsLen - 1));
+			$idx       = security_rand(0, ($charsLen - 1));
 			$systemid .= $chars[$idx];
 		}
 
@@ -229,7 +230,7 @@ class Suite_Manager_Edit_Fns extends Page_Edit_Fns
 
 
 	/**
-	* Paints the interface for displaying the products known to this system 
+	* Paints the interface for displaying the products known to this system
 	*
 	* @param object	&$asset	the suite manager asset
 	* @param object	&$o		the backend outputter
@@ -287,7 +288,7 @@ class Suite_Manager_Edit_Fns extends Page_Edit_Fns
                 echo '</td>';
             }//end if
             echo '</tr>';
-            
+
             // Further for Matrix products, add a username/password field.
             if ($wa && $product['type'] == 'Squiz Matrix') {
                 echo '<tr>';

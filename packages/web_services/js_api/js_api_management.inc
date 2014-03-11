@@ -38,8 +38,8 @@ class JS_Api_Management extends Asset_Management
     function __construct(Package_Manager $pm)
     {
         Asset_Management::__construct($pm);
-		
-	
+
+
 		$this->vars	= Array (
 						'types'						=> Array(
 														'added'			=> '0.1',
@@ -78,7 +78,7 @@ class JS_Api_Management extends Asset_Management
 						'api_key'					=> Array(
 														'added'			=> '0.1',
 														'type'			=> 'text',
-														'default'		=> '', 
+														'default'		=> '',
 														'description'	=> 'The API Key',
 														'update_fn'		=> '',
 														'is_admin'		=> FALSE,
@@ -379,7 +379,7 @@ class JS_Api_Management extends Asset_Management
 																			'allow_empty'=> FALSE,
 																		   ),
 														),
-		    
+
 						'batch_requests'	=> Array(
 														'added'			=> '0.6',
 														'type'			=> 'boolean',
@@ -465,7 +465,7 @@ class JS_Api_Management extends Asset_Management
 
 		if (version_compare($current_version, '0.2', '<')) {
 			// version 0.1 -> 0.2
-			// Root nodes changed from assetid to links 
+			// Root nodes changed from assetid to links
 			pre_echo('STARTING '.$asset_name.' UPGRADE - FROM VERSION 0.1');
 			$apis = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('js_api', FALSE, TRUE);
 			$count = 0;
@@ -505,9 +505,9 @@ class JS_Api_Management extends Asset_Management
 			pre_echo($asset_name.' UPGRADE COMPLETE - FROM VERSION 0.1');
 
 		}//end if - upgrade to version 0.2
-		
+
 		if (version_compare($current_version, '0.3', '<')) {
-			
+
 			// Generate API key for those had empty default key
 			pre_echo('STARTING '.$asset_name.' UPGRADE - TO VERSION 0.3 - FIXING Default API Key');
 			$apis = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('js_api', FALSE, TRUE);
@@ -518,10 +518,11 @@ class JS_Api_Management extends Asset_Management
 				$key = $asset->attr('api_key');
 				if(empty($key)) {
 					// regenerate api key
-					$new_key = rand(1000000000, 9999999999);
+                    include_once SQ_FUDGE_PATH.'/general/security.inc';
+					$new_key = security_rand(1000000000, 9999999999);
 					$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 					$asset->setAttrValue('api_key', $new_key);
-					$asset->saveAttributes();				
+					$asset->saveAttributes();
 					$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 					pre_echo('JS API Asset #'.$asset->id.' has a new API key '.$new_key);
 					$count ++;
@@ -537,7 +538,7 @@ class JS_Api_Management extends Asset_Management
 		}//end if - upgrade to version 0.3
 
 		if (version_compare($current_version, '0.4', '<')) {
-			
+
 			pre_echo('STARTING UPGRADE - FROM VERSION '.$current_version.' TO 0.4');
 				$root_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
 				$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_folder->id, $this->getAssetType(), FALSE);
@@ -571,7 +572,7 @@ class JS_Api_Management extends Asset_Management
 		}//end if - upgrade to version 0.4
 
 		if (version_compare($current_version, '0.5', '<')) {
-			
+
 			pre_echo('STARTING UPGRADE - FROM VERSION '.$current_version.' TO 0.5');
 				$root_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
 				$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_folder->id, $this->getAssetType(), FALSE);
@@ -608,7 +609,7 @@ class JS_Api_Management extends Asset_Management
 		}//end if - upgrade to version 0.5
 
 		if (version_compare($current_version, '0.6', '<')) {
-			
+
 			pre_echo('STARTING UPGRADE - FROM VERSION '.$current_version.' TO 0.6');
 				$root_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
 				$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_folder->id, $this->getAssetType(), FALSE);

@@ -592,7 +592,8 @@ class Page_Password_Reset extends Page
 				$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid']);
 			}
 
-			$hash_value = MD5(implode('::', Array($this->id, $asset->id, $asset->name, (time() * rand()))));
+            include_once SQ_FUDGE_PATH.'/general/security.inc';
+			$hash_value = md5(implode('::', Array($this->id, $asset->id, $asset->name, (time() * security_rand()))));
 
 			$return_value = FALSE;
 			if ($parent->createLink($asset, SQ_LINK_TYPE_1, $hash_value)) {
