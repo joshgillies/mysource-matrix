@@ -70,7 +70,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 	$bt = debug_backtrace();
 
 	if (count($bt) > 1) {
-		$real_bt_index = get_true_error_location($bt, 0);		
+		$real_bt_index = get_true_error_location($bt, 0);
 		if(isset($bt[$real_bt_index]['file'])) {
 		    $err_file = $bt[$real_bt_index]['file'];
 		}
@@ -2346,15 +2346,15 @@ function replace_global_keywords(&$text)
 						}
 						$replacements[$full_keyword] = $context_name;
 					}//end if
-					
+
 					if (0 === strpos($keyword, 'globals_visited_urls')) {
 						$replacements[$full_keyword] = isset($_SESSION['visited_urls']) ? array_reverse(array_values($_SESSION['visited_urls'])) : '';
 					}//end if
-					
+
 					if (0 === strpos($keyword, 'globals_visited_assets')) {
 						$replacements[$full_keyword] = isset($_SESSION['visited_assets']) ? array_reverse(array_values($_SESSION['visited_assets'])) : '';
 					}//end if
-					
+
 					if (0 === strpos($keyword, 'globals_entry_asset')) {
 						$replacements[$full_keyword] = isset($_SESSION['entry_asset']) ? $_SESSION['entry_asset'] : '';
 					}//end if
@@ -2366,7 +2366,7 @@ function replace_global_keywords(&$text)
 					if (0 === strpos($keyword, 'globals_site_referrer')) {
 						$replacements[$full_keyword] = isset($_SESSION['site_referrer']) ? $_SESSION['site_referrer'] : '';
 					}//end if
-					
+
 					//marketo keywords
 					if (0 === strpos($keyword, 'globals_marketo_lead')) {
 						// no cache?
@@ -2378,7 +2378,7 @@ function replace_global_keywords(&$text)
 						    $nocache = FALSE;
 						    $sub_keyword = substr($keyword, 20);
 						}
-						
+
 						preg_match('|(.*):([0-9]+)$|',$sub_keyword,$matches);
 						if(isset($matches[2]) && !empty($matches[2])) {
 						    $marketo_bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($matches[2]);
@@ -2396,7 +2396,7 @@ function replace_global_keywords(&$text)
 							    $user_identifier['email'] = $email;
 							}
 						    }
-			    
+
 						    if(!empty($user_identifier)) {
 							    $data = $marketo_bridge->getLead($user_identifier, $nocache);
 							    if(preg_match('|^_id|',$sub_keyword)){
@@ -2418,11 +2418,11 @@ function replace_global_keywords(&$text)
 							    }
 							    else  if(preg_match('|^:([0-9]+)$|',$sub_keyword)){
 								$replacements[$full_keyword] = json_encode_array($data);
-							    }	
-						    }   
+							    }
+						    }
 						}
 					}
-					
+
 					// marketo munchkin keywords
 					if (0 === strpos($keyword, 'globals_marketo_munchkin_hash')) {
 					    $sub_keyword = substr($keyword, 20);
@@ -2430,10 +2430,10 @@ function replace_global_keywords(&$text)
 					    if(isset($matches[2]) && !empty($matches[2])) {
 						$marketo_bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($matches[2]);
 						$replacements[$full_keyword] = $marketo_bridge->generateMunchkinHash();
-					    
+
 					    }
 					}
-					
+
 					if (0 === strpos($keyword, 'globals_marketo_munchkin_id')) {
 					    $sub_keyword = substr($keyword, 20);
 					    preg_match('|(.*):([0-9]+)$|',$sub_keyword,$matches);
@@ -2442,15 +2442,15 @@ function replace_global_keywords(&$text)
 						$replacements[$full_keyword] = $marketo_bridge->attr('munchkin_account_id');
 					    }
 					}
-					
+
 					// verified email stored in session
 					if (0 === strpos($keyword, 'globals_verified_email')) {
 					    if(isset($_SESSION['SQ_VERIFY_EMAIL_VERIFIED'])) {
 						$replacements[$full_keyword] = $_SESSION['SQ_VERIFY_EMAIL_VERIFIED'];
-					    
+
 					    }
 					}
-					    
+
 
 					apply_keyword_modifiers($replacements[$full_keyword], $modifiers, Array(), $keyword);
 				}//end if is global keyword
@@ -2540,7 +2540,7 @@ function clean_keyword_value($keyword_value, $allow_quotes=FALSE)
 {
 	if (is_array($keyword_value)) {
 		// Only scalars are accepted
-		array_walk_recursive($keyword_value, 'escapeHtmlSpecialChars', $allow_quotes); 
+		array_walk_recursive($keyword_value, 'escapeHtmlSpecialChars', $allow_quotes);
 	} else if (is_scalar($keyword_value)) {
 		$keyword_value = htmlspecialchars($keyword_value, $allow_quotes ? ENT_NOQUOTES : ENT_QUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
 	} else {

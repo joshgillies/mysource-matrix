@@ -592,4 +592,27 @@ function security_send_reset_cookies($path, $host)
 
 }//end security_send_reset_cookies()
 
+
+/**
+ * Secure replacement for rand() and mt_rand().
+ *
+ * @param integer $min The minimum value.
+ * @param integer $max The maximum value.
+ *
+ * @return integer
+ */
+function security_rand($min=0, $max=2147483647)
+{
+    if ($min < 0) $min = 0;
+    $value = -1;
+    do {
+        $entropy = TRUE;
+        $rand    = openssl_random_pseudo_bytes(4, $entropy);
+        $value   = floor($max * (hexdec(bin2hex($rand)) / 0xffffffff));
+    } while($value < $min || $value > $max);
+
+        return $value;
+
+}//end security_rand()
+
 ?>
