@@ -79,6 +79,7 @@ class Search_Page extends Listing_Engine
 											'category_list_linked',
 											'structured_root_node',
 											'initial_result_count',
+											'page_list_X'
 										   ),
 						'no_results'	=> Array(
 											'initial_layout',
