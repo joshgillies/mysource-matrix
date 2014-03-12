@@ -2336,12 +2336,12 @@ function replace_global_keywords(&$text)
 					if ($keyword == 'globals_context') {
 						$context_name = '';
 						// get current context ID
-						$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
-						if (!is_null($contextid)) {
+						$global_contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+						if (!is_null($global_contextid)) {
 							// get all available contexts and find the name of current context from ID
 							$all_contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
-							if (isset($all_contexts[$contextid]['name'])) {
-								$context_name = $all_contexts[$contextid]['name'];
+							if (isset($all_contexts[$global_contextid]['name'])) {
+								$context_name = $all_contexts[$global_contextid]['name'];
 							}
 						}
 						$replacements[$full_keyword] = $context_name;
