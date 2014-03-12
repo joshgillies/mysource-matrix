@@ -96,7 +96,7 @@ class Asset_Edit_Fns extends MySource_Object
 													'lock_type'		=> 'none',
 												   ),
 							'lookupValues'		=> Array(
-													'name'			=> 'Lookup Settings',
+													'name'			=> 'Paint Layouts',
 													'force_unlock'	=> FALSE,
 													'lock_type'		=> 'lookupValues',
 												   ),

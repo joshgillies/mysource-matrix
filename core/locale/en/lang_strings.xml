@@ -1721,16 +1721,22 @@
 	<string source="link_type">Link Type</string>
 	<string source="link_id">Link Id</string>
 
+	<string source="paint_layout">Paint Layout</string>
 	<string source="create_user_defined_layout">Create New User Defined Layout</string>
-	<string source="defined_layout_display">%1$s defined - %2$s layout</string>
+	<string source="create_user_defined_paint_layout">Create New User Defined Paint Layout</string>
+	<string source="defined_layout_display">%1$s Defined - %2$s Paint Layout</string>
 	<string source="layout_display">%s Layout</string>
-	<string source="defined_override_layout_display">%1$s defined - %2$s override layout</string>
+	<string source="defined_override_layout_display">%1$s Defined - %2$s Override Paint Layout</string>
 	<string source="inherited">Inherited</string>
 	<string source="override">Override</string>
 	<string source="override_layout">Override Layout</string>
+	<string source="override_paint_layout">Override Paint Layout</string>
 	<string source="asset_definitions">Asset Definitions</string>
+	<string source="asset_defined_paint_layouts">Asset Defined Paint Layouts</string>
 	<string source="url_specific_definitions">URL Specific Definitions</string>
-	<string source="user_defined_layouts">User Defined Layouts</string>
+	<string source="url_specific_paint_layouts">URL Specific Paint Layouts</string>
+	<string source="user_defined_layouts">User Defined Layouts</string>g>
+	<string source="user_defined_paint_layouts">User Defined Paint Layouts</string>
 	<string source="not_customised">Not customised</string>
 
 
