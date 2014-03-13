@@ -1585,7 +1585,7 @@ BODYCOPY IFRAME POPUP STYLES
 	padding-bottom: 			6px;
 }
 
-.sq-bodycopy-popup-wrapper td td:last-child{
+.sq-bodycopy-popup-wrapper td td:first-child + td{
 	width:						58%;
 	padding-right: 				0;
 }
