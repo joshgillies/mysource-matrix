@@ -586,7 +586,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 							);
 
 					$file_info = Array(
-									'tmp_name'			=> $temp_path,
+									'tmp_name'			=>  strpos($temp_path, '/') === 0  || empty($temp_path) ?  $temp_path : SQ_SYSTEM_ROOT.'/'.$temp_path,
 									'name'				=> $name,
 									'non_uploaded_file'	=> TRUE,
 								 );
