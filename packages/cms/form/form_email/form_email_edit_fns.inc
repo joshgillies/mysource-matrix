@@ -935,6 +935,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 				<tr>
 					<td class="sq-backend-table-header"><?php echo translate('name'); ?></td>
 					<td class="sq-backend-table-header"><?php echo translate('when'); ?></td>					
+					<td class="sq-backend-table-header"><?php echo translate('run_as'); ?></td>
 					<td align="center" class="sq-backend-table-header" style="text-align: center;"><?php echo translate('delete'); ?> ?</td>
 					<td align="center" class="sq-backend-table-header" style="text-align: center;"></td>
 				</tr>
@@ -948,6 +949,12 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 						</td>
 						<td class="sq-backend-table-cell">
 							<?php echo $job->readableWhen(); ?>
+						</td>
+						<td class="sq-backend-table-cell">
+						<?php
+							$user = $job->getRunningUser();
+							echo $user ? get_asset_tag_line($user->id) : '<em>'.translate('system').'</em>';
+						?>
 						</td>
 						<td align="center" class="sq-backend-table-cell">
 						<?php
@@ -1043,6 +1050,13 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 					$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 					if ($cron_mgr->addJob($new_job, $GLOBALS['SQ_SYSTEM']->user)) {
+						// Set the admin permission to the creater, as they should be able to edit it
+						$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
+						if ($current_userid && $current_userid !=  $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('root_user')) {
+							$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+								$GLOBALS['SQ_SYSTEM']->am->setPermission($new_job->id , $current_userid, SQ_PERMISSION_ADMIN, 1, FALSE);
+							$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+						}
 						$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');						
 					} else {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
