@@ -3243,14 +3243,16 @@ class Asset extends MySource_Object
 
 			// log a message for the asset - this wont get logged until we close the queue
 			if($log_message) {
+				$password_attr = $attribute->type() == 'password';
 				$msg_reps = Array(
 								'asset_name'	=> $this->name,
 								'attr_name'		=> $attribute->name,
 							);
 				$msg_type = 'asset.attributes.fulllog';
 				if (is_scalar($var_data['old_value']) && is_scalar($attr_value)) {
-					$msg_reps['old_value'] = $var_data['old_value'];
-					$msg_reps['new_value'] = $attr_value;
+					// Completely obscure the password attribute value in the logs
+					$msg_reps['old_value'] = $password_attr ? '*****' : $var_data['old_value'];
+					$msg_reps['new_value'] = $password_attr ? '*****' : $attr_value;
 					$msg_type .= '.scalar';
 				}
 				$message = $ms->newMessage(Array(), $msg_type, $msg_reps);
@@ -3261,8 +3263,8 @@ class Asset extends MySource_Object
 				require_once SQ_FUDGE_PATH.'/general/general.inc';
 				$msg_type = 'asset.attributes';
 				if (is_scalar($var_data['old_value']) && is_scalar($attr_value)) {
-					$msg_reps['old_value'] = ellipsisize($var_data['old_value'],30);
-					$msg_reps['new_value'] = ellipsisize($attr_value,30);
+					$msg_reps['old_value'] = $password_attr ? '*****' : ellipsisize($var_data['old_value'],30);
+					$msg_reps['new_value'] = $password_attr ? '*****' : ellipsisize($attr_value,30);
 					$msg_type .= '.scalar';
 				}
 
