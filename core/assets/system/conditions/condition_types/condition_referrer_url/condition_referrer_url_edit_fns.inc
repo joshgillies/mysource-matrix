@@ -66,16 +66,16 @@ class Condition_Referrer_Url_Edit_Fns extends Condition_Edit_Fns
 		}
 
 		?>
-		<table class="sq-backend_table">
+		<table class="sq-backend-table">
 			<tr>
-			<td>URL(s)</td>
-			<td>
+				<th class="sq-conditions-options-th"><?php echo translate('patterns'); ?></th>
+				<td>
 				<?php
 				if (!$write_access && empty($condition_data['url_patterns'])) {
-					?><em><?php echo translate("condition_referrer_url_no_patterns_set"); ?></em><?php
+					?><em><?php echo translate("condition_no_patterns_entered"); ?></em><?php
 				} else {
 					?>
-					<table class="sq-backend-table">
+					<table class="sq-backend-table" style="margin-bottom: 0;">
 						<tr>
 						<?php
 						if ($write_access) {
@@ -85,7 +85,7 @@ class Condition_Referrer_Url_Edit_Fns extends Condition_Edit_Fns
 						<th><?php echo translate('pattern'); ?></th>
 						<?php if ($write_access) {
 						?>
-							<th><?php echo translate('delete_question'); ?></th>
+							<th style="text-align: center;"><?php echo translate('delete_question'); ?></th>
 						<?php
 						}
 						?>
@@ -116,7 +116,7 @@ class Condition_Referrer_Url_Edit_Fns extends Condition_Edit_Fns
 								</td>
 								<?php
 									if ($write_access && ($index !== 'new')) {
-										echo '<td>';
+										echo '<td style="text-align: center;">';
 										check_box($prefix.'['.$index.'][delete]', FALSE);
 										echo '</td>';
 									} else if ($write_access) {

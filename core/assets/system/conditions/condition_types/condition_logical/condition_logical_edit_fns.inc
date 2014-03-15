@@ -70,7 +70,7 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 		$allowed_keywords = array_merge($allowed_keywords, array_keys(get_available_global_keywords()));
 
 		?>
-		<table class="no-borders">
+		<table class="sq-backend-table">
 			<?php
 			$selected_keywords = array();
 			if (isset($condition_data['logical_keywords'])) {
@@ -85,23 +85,43 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 				$keyword_options[$keyword] = $keyword;
 			}
 
-			$i = 0;						
-			
+			$i = 0;		
+			?>
+
+			<tr>
+				<th><?php echo translate('logical_grouping'); ?></th>
+				<td>
+					<?php
+					$operator = '';
+					if(isset($condition_data['operator'])) {
+					   $operator = $condition_data['operator'];
+					}
+					if ($write_access) {		    
+						combo_box($prefix.'[operator]', Array('ALL' => translate('condition_match_on_following_keywords',strtoupper(translate('all'))), 'ANY' => translate('condition_match_on_following_keywords',strtoupper(translate('any')))), FALSE, $operator);
+					} else {
+						echo translate('condition_match_on_following_keywords', $operator);
+					}
+					?>
+				</td>
+			</tr>		
+
+			<?php
 			if (!empty($allowed_keywords)) {
 				foreach ($selected_keywords as $keyword) {
 					$special_option = Array();
 					if ($i == (count($selected_keywords) - 1)) {
-						$special_option = Array('none' => '-- '.strtolower(translate('none')).' --');
+						$special_option = Array('none' => '-- '.strtolower(translate('select_keyword_to_add_it')).' --');
 					} else if ($i > 0) {
-						$special_option = Array('none' => '-- '.strtolower(translate('remove')).' --');
+						$special_option = Array('none' => '-- '.strtolower(translate('remove_this_keyword')).' --');
 					}
 
 					$keyword_info = self::_getKeywordInfo($keyword, $allowed_keywords);
 					?>
 					<tr>
-						<td><strong><?php echo translate('logical_keyword').' '.$i; ?></strong>&nbsp;</td>
+						<th class="sq-conditions-options-th"><?php echo translate('keyword').' '.($i+1); ?></th>
 						<td>
 							<?php
+							echo '<span class="sq-inline-fields-wrapper">%';
 							if ($write_access) {
 								combo_box($prefix.'[keyword'.$i.']', array_merge($special_option, $keyword_options), FALSE, $keyword_info['constant_part']);
 								// This is a special case for generic/variable keywords (like asset_metadata_)
@@ -113,6 +133,7 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 							} else {
 								echo ($keyword_info['constant_part']).array_get_index($keyword_info, 'variable_part', '');
 							}
+							echo '%</span>';
 							?>
 						</td>
 					</tr>
@@ -123,25 +144,9 @@ class Condition_Logical_Edit_Fns extends Condition_Edit_Fns
 				echo(translate('core_keyword_list_empty'));
 			}
 			?>
-			<tr>
-				<td><strong><?php echo translate('operator'); ?></strong></td>
-				<td>
-					<?php
-					$operator = '';
-					if(isset($condition_data['operator'])) {
-					   $operator = $condition_data['operator'];
-					}
-					if ($write_access) {		    
-						combo_box($prefix.'[operator]', Array('ALL' => 'AND', 'ANY' => 'OR'), FALSE, $operator);
-					} else {
-						echo $operator;
-					}
-					?>
-				</td>
-			</tr>
 		</table>
-		Keywords are considered TRUE if their value is non-empty and nonzero.  Keywords are considered FALSE if their value is empty or zero.
 		<?php
+		$o->note(translate('condition_logical_keyword_note'));
 
 	}//end paintEditInterface()
 

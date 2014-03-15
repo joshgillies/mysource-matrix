@@ -322,6 +322,11 @@ button.delete-button {
 	display: 					inline-block;
 }
 
+.sq-no-vertical-margin {
+	margin-top:					0px !important;
+	margin-bottom: 				0px !important;
+}
+
 /*
 ####################################################################################################################
 GLOBAL FORM ELEMENTS
@@ -549,6 +554,10 @@ select[disabled] option[selected],
 select:disabled option:checked, 
 option:disabled:checked {
 	color: 						#555;
+}
+
+.sq-multi-status-select-wrapper select{
+	height: 					150px;
 }
 
 /* Dynamic option lists */
@@ -1381,6 +1390,10 @@ table.sq-backend-table {
 	overflow: 					hidden;
 	padding: 					5px;
 	color: 						#333;
+}
+
+.sq-conditions-options-th {
+	width:						100px;
 }
 
 .sq-backend-commit {
@@ -2836,6 +2849,11 @@ MISCELLANEOUS STYLES
 	list-style: 				none;
 }
 
+.sq-asset-id-list {
+	margin: 					0;
+	list-style: 				none;
+}
+
 /* ASSET TAG LINE (INFO, BINOCULARS AND NAME) */
 
 img.sq-tag-line.sq-icon {
@@ -3168,27 +3186,7 @@ div.sq-grey-header-row,
 
 /*
 ####################################################################################################################
-LIMBO OUTPUTTER - SECTIONS AND FIELDS (not sure if we need any of this anymore)
-####################################################################################################################
-*/
-
-.sq-limbo-section-heading {
-	border-bottom:				1px solid black;
-}
-
-.sq-limbo-section-subheading {
-}
-
-.sq-limbo-field {
-	vertical-align:				top;
-	white-space:				nowrap;
-	padding:					0px 10px 0px 0px;
-}
-
-
-/*
-####################################################################################################################
-Preview Screen styles
+PREVIEW SCREEN STYLES
 ####################################################################################################################
 */
 
@@ -3206,4 +3204,24 @@ Preview Screen styles
 }
 .sq-preview-condition-radio-group label{
     padding-right: 30px;
+}
+
+
+/*
+####################################################################################################################
+LIMBO OUTPUTTER (SIMPLE EDIT MODE)
+####################################################################################################################
+*/
+
+.sq-limbo-section-heading {
+	border-bottom:				1px solid black;
+}
+
+.sq-limbo-section-subheading {
+}
+
+.sq-limbo-field {
+	vertical-align:				top;
+	white-space:				nowrap;
+	padding:					0px 10px 0px 0px;
 }

@@ -79,7 +79,7 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 			?><em><?php echo translate('condition_user_ip_no_conditions_set'); ?></em><?php
 		} else {
 			?>
-			<table style="width: auto" class="sq-backend-table">
+			<table class="sq-backend-table">
 				<tr>
 				<?php if ($write_access) {
 				?>
@@ -177,7 +177,8 @@ class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 		echo '<p>';
 		echo '<b>'.translate('condition_user_ip_import_from_file').':</b>&nbsp;';
 		file_upload($prefix.'_import');
-		echo '<br/>'.translate('condition_user_ip_import_from_file_explain').'</p>';
+		echo '</p>';
+		$o->note(translate('condition_user_ip_import_from_file_explain'));
 
 	}//end paintEditInterface()
 

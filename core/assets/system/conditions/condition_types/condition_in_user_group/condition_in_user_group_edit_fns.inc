@@ -58,20 +58,20 @@ class Condition_In_User_Group_Edit_Fns extends Condition_Edit_Fns
 	public static function paintEditInterface(Array $condition_data, Backend_Outputter $o, $prefix, $write_access)
 	{
 		?>
-		<table class="no-borders">
+		<table class="sq-backend-table">
 			<tr>
-				<td valign="top"><strong><?php echo translate('user_groups'); ?></strong>&nbsp;</td>
-				<td valign="top">
+				<th class="sq-conditions-options-th"><?php echo translate('user_groups'); ?></th>
+				<td>
 					<?php
 						if ($write_access) {
 							multiple_asset_finder($prefix.'[groupids]', array_get_index($condition_data, 'groupids', Array()), Array('user_group' => 'D'));
 						} else {
 							if (empty($condition_data['groupids'])) {
-								echo translate('no_user_groups_selected');
+								echo '<em>'.translate('condition_no_user_groups_selected').'</em>';
 							} else {
 								$names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($condition_data['groupids'], 'user_group', FALSE, 'name');
 								?>
-								<ul>
+								<ul class="sq-asset-id-list">
 								<?php
 								foreach ($condition_data['groupids'] as $id) {
 									?>

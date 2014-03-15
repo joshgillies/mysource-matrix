@@ -72,6 +72,7 @@
 	<string source="asset_map_settings">Asset Map Settings</string>
 	<string source="asset_metadata">Asset Metadata</string>
 	<string source="asset_status">Asset Status</string>
+	<string source="asset_statuses">Asset Statuses</string>
 	<string source="asset_status_live_warning">&lt;strong&gt;Warning:&lt;/strong&gt; Cascading Live status to child assets may result in unintended canceling of Safe Editing of those children which can result in loss of content.</string>
 	<string source="asset_current_status_change_from_parent">Current status for this asset can only be set from parent asset's &lt;a href="%s"&gt;details screen&lt;/a&gt;&lt;/i&gt;</string>
 	<string source="asset_future_status_change_from_parent">Future status for this asset can only be set from parent asset's &lt;a href="%s"&gt;details screen&lt;/a&gt;&lt;/i&gt;</string>
@@ -83,6 +84,7 @@
 	<string source="asset_types">Asset Types</string>
 	<string source="asset_type">Asset Type</string>
 	<string source="inherit_types">Inherit Types</string>
+	<string source="user_types">User Types</string>
 	<string source="at" js="1">At</string>
 	<string source="at_least">At least</string>
 	<string source="attribute_search_fields">Attribute Search Fields</string>
@@ -237,6 +239,7 @@
 	<string source="logged_messages">Logged Messages</string>
 	<string source="logical_keyword">Logical Keyword</string>
 	<string source="logical_keywords">Logical Keywords</string>
+	<string source="logical_grouping">Logical Grouping</string>
 	<string source="login/session_settings">Login/Session Settings</string>
 	<string source="lookups_updating_threshold">Lookups Updating Threshold</string>
 	<string source="manage_passwd_rules">Manage Password Rules</string>
@@ -262,6 +265,9 @@
 	<string source="create_new_condition">Create New Condition</string>
 	<string source="delete_this_condition">Delete this condition</string>
 	<string source="no_existing_conditions">There are no existing conditions.</string>
+	<string source="condition_is_true_if">Condition Is True If</string>
+	<string source="force_no_cache">Force No Cache</string>
+	<string source="force_no_cache_note">Setting this value to "Yes", will force any page that uses this condition to always get serverd with "no-cache" Cache-Control header.</string>
 	<string source="new_field_name">New Field Name</string>
 	<string source="new_field_type">New Field Type</string>
 	<string source="new_link_confirmation">New Link Confirmation</string>
@@ -320,7 +326,9 @@
 	<string source="regex_match">RegEx Match</string>
 	<string source="regular_expression">Regular Expression</string>
 	<string source="remove_question">Remove?</string>
+	<string source="remove_this_keyword">remove this keyword</string>
 	<string source="reorder_question">Reorder?</string>
+	<string source="replace_keywords_in_pattern">Replace keywords in pattern</string>
 	<string source="rollback_enabled">Rollback Enabled</string>
 	<string source="rollback_settings">Rollback Settings</string>
 	<string source="must_enable_rollback">Rollback must be enabled and disabled using the Rollback Management Tool, or the "rollback_management.php" script in the MySource "scripts" directory</string>
@@ -333,6 +341,7 @@
 	<string source="security_key_incorrect">Security Key Incorrect</string>
 	<string source="severity">Severity</string>
 	<string source="set_properties">Set Properties</string>
+	<string source="select_keyword_to_add_it">select a keyword to add it</string>
 	<string source="show_diff">Show Diff</string>
 	<string source="show_in_asset_map">Show in Asset Map</string>
 	<string source="show_lineages">Show Lineages</string>
@@ -392,6 +401,8 @@
 	<string source="trigger_list">Trigger List</string>
 	<string source="up">Up</string>
 	<string source="url">URL</string>
+	<string source="url_patterns">URL Patterns</string>
+	<string source="patterns">Patterns</string>
 	<string source="preview_url">Preview URL</string>
 	<string source="url_remappings">URL Remappings</string>
 	<string source="remap_entries">Remap entries</string>
@@ -1088,44 +1099,59 @@
 	<string source="cannot_load_cache_of_non_asset">Cannot load cache of non asset object</string>
 	<string source="cannot_save_cache_of_non_asset">Cannot save cache of non asset object</string>
 
-
+	<string source="condition_configuration_instructions">Setting the &lt;strong&gt;Force No Cache&lt;/strong&gt; value to "Yes" on a Condition, will force any page that uses that Condition to always get served with a "no-cache" Cache-Control header.</string>
 	<!--
 		Note: The code makes assumptions about the following set of string codes, so they
 		must not be tweaked.  They need to stay as [condition_type_code]_true
 		and [condition_type_code]_false
 	-->
 	<string source="condition_logged_in_true">The user is logged in</string>
-	<string source="condition_logged_in_false">The user is not logged in</string>
-	<string source="condition_admin_access_true">The user has admin access</string>
-	<string source="condition_admin_access_false">The user does not have admin access</string>
+	<string source="condition_logged_in_false">The user is NOT logged in</string>
+	<string source="condition_admin_access_true">The user has admin access to the frontend asset</string>
+	<string source="condition_admin_access_false">The user does NOT have admin to the frontend asset</string>
 	<string source="condition_form_posted_true">The form has been posted</string>
-	<string source="condition_form_posted_false">The form has not been posted</string>
-	<string source="condition_write_access_true">The user has write access</string>
-	<string source="condition_write_access_false">The user does not have write access</string>
+	<string source="condition_form_posted_false">The form has NOT been posted</string>
+	<string source="condition_write_access_true">The user has write access to the frontend asset</string>
+	<string source="condition_write_access_false">The user does NOT have write access to the frontend asset</string>
 	<string source="condition_simple_edit_mode_true">The user is using the simple edit interface</string>
-	<string source="condition_simple_edit_mode_false">The user is not using the simple edit interface</string>
+	<string source="condition_simple_edit_mode_false">The user is NOT using the simple edit interface</string>
 	<string source="condition_user_agent_true">The user agent string matches the following pattern</string>
-	<string source="condition_user_agent_false">The user agent string does not match the following pattern</string>
-	<string source="condition_in_user_group_true">The user is in one of the following user groups</string>
-	<string source="condition_in_user_group_false">The user is not in any of the following user groups</string>
+	<string source="condition_user_agent_false">The user agent string does NOT match the following pattern</string>
+	<string source="condition_in_user_group_true">The user is in any of the following user groups</string>
+	<string source="condition_in_user_group_false">The user is NOT in any of the following user groups</string>
 	<string source="condition_user_ip_true">The user's IP address matches the following pattern</string>
-	<string source="condition_user_ip_false">The user's IP address does not match the following pattern</string>
-	<string source="condition_user_ipv6_true">The user's IP address matches the following pattern</string>
-	<string source="condition_user_ipv6_false">The user's IP address does not match the following pattern</string>
+	<string source="condition_user_ip_false">The user's IP address does NOT match the following pattern</string>
+	<string source="condition_user_ipv6_true">The user's Ipv6 address matches the following pattern</string>
+	<string source="condition_user_ipv6_false">The user's Ipv6 address does NOT match the following pattern</string>
 	<string source="condition_user_frequency_true">The following amount of time or activity has passed</string>
-	<string source="condition_user_frequency_false">The following amount of time or activity has passed</string>
+	<string source="condition_user_frequency_false">The following amount of time or activity has NOT passed</string>
 	<string source="condition_server_variable_true">The following server variable matches the specified pattern</string>
-	<string source="condition_server_variable_false">The following server variable does not match the specified pattern</string>
+	<string source="condition_server_variable_false">The following server variable does NOT match the specified pattern</string>
 	<string source="condition_keyword_regexp_true">The following keyword matches the specified pattern</string>
-	<string source="condition_keyword_regexp_false">The following keyword does not match the specified pattern</string>
-	<string source="condition_logical_true">The following combination of keywords evaluates to True</string>
-	<string source="condition_logical_false">The following combination of keywords evaluates to False</string>
-	<string source="condition_asset_status_true">The current asset is in the following status</string>
-	<string source="condition_asset_status_false">The current asset is not in the following status</string>
-	<string source="condition_asset_type_true">The current asset has the following types</string>
-	<string source="condition_asset_type_false">The current asset does not have the following types</string>
-	<string source="condition_has_children_true">The current asset has children with following types</string>
-	<string source="condition_has_children_false">The current asset does not have children with following types</string>
+	<string source="condition_keyword_regexp_false">The following keyword does NOT match the specified pattern</string>
+	<string source="condition_logical_true">The following combination of keywords evaluates to TRUE</string>
+	<string source="condition_logical_false">The following combination of keywords evaluates to FALSE</string>
+	<string source="condition_asset_status_true">The current asset is in any of the following statuses</string>
+	<string source="condition_asset_status_false">The current asset is NOT in any of the following statuses</string>
+	<string source="condition_asset_type_true">The current asset is of any of the following types</string>
+	<string source="condition_asset_type_false">The current asset is NOT of any of the following types</string>
+	<string source="condition_has_children_true">The current asset has children of any of the following types</string>
+	<string source="condition_has_children_false">The current asset does NOT have children of any of the following types</string>
+
+	<!-- General condition strings and notes -->
+	<string source="condition_match_on_following_keywords">Match on %s of the following keywords</string>
+
+	<string source="condition_no_assetids_selected">No asset ids selected.</string>
+	<string source="condition_no_patterns_entered">No patterns entered.</string>
+	<string source="condition_no_pattern_entered">No pattern entered.</string>
+	<string source="condition_no_asset_types_selected">No asset types selected.</string>
+	<string source="condition_no_user_types_selected">No user types selected.</string>
+	<string source="condition_no_link_types_selected">No link types selected.</string>
+	<string source="condition_no_statuses_selected">No statuses selected.</string>
+	<string source="condition_no_user_groups_selected">No user groups selected.</string>
+	<string source="condition_no_variable_entered">No variable entered.</string>
+	<string source="condition_no_value_entered">No value entered.</string>
+	<string source="condition_logical_keyword_note">Keywords are considered TRUE if their value is NOT empty or NOT zero. Keywords are considered FALSE if their value is empty or zero.</string>
 
 	<!-- User IP Condition -->
 	<string source="network_ip_address">Network IP Address</string>
@@ -1142,29 +1168,31 @@
 	<string source="condition_user_ipv6_default_grant">If IP address is outside one of these ranges</string>
 	<string source="condition_user_ipv6_import_from_file">Import rules from CSV file</string>
 	<string source="condition_user_ipv6_import_from_file_explain">The file uploaded should be a CSV file without a header row. Each line should contain exactly 3 fields: the first being the network IP address, the second being the subnet mask in the CIDR notation, and the third being a one (1) for a Grant rule or zero (0) for a Deny rule. The default Grant/Deny setting is not affected by any upload and should be set separately.</string>
-	<string source="condition_user_ipv6_note">NOTE: The network address entered will be automatically lowercased and converted to the "compressed" format. For example, all of these IPv6 addresses "00ff:0:0:0:0:0:0:0", "FF:0::0", "00ff::0000" will be converted to "ff::".</string>
+	<string source="condition_user_ipv6_note">The network address entered will be automatically lowercased and converted to the "compressed" format. For example, all of these IPv6 addresses "00ff:0:0:0:0:0:0:0", "FF:0::0", "00ff::0000" will be converted to "ff::".</string>
 
 	<!-- Visited Pages Condition -->
-	<string source="condition_visited_pages_true">The previously visited url(s) matches the following pattern(s) or assetid(s)</string>
-	<string source="condition_visited_pages_false">The previously visited url(s) does not matches the following pattern(s) or assetid(s)</string>
-	<string source="condition_visited_no_assetids_selected">No assetids selected</string>
-	<string source="condition_visited_no_patterns_set">No URL patterns selected</string>
+	<string source="condition_visited_pages_true">Any of the previously visited pages match any of the following URL patterns or asset ids</string>
+	<string source="condition_visited_pages_false">Any of the previously visited pages do NOT match any of the following URL patterns or asset ids</string>
+	<string source="condition_visited_no_assetids_selected">No asset ids selected</string>
+	<string source="condition_visited_no_patterns_set">No URL patterns entered</string>
 
 	<!-- Entry Page Condition -->
-	<string source="condition_entry_page_true">The entry page url matches the following pattern(s) or assetid(s)</string>
-	<string source="condition_entry_page_false">The entry page url does not matches the following pattern(s) or assetid(s)</string>
-	<string source="condition_entry_page_no_assetids_selected">No assetids selected</string>
-	<string source="condition_entry_page_no_patterns_set">No URL patterns selected</string>
+	<string source="condition_entry_page_true">The entry page matches any of the following URL patterns or asset ids</string>
+	<string source="condition_entry_page_false">The entry page does NOT match any of the following URL patterns or asset ids</string>
+	<string source="condition_entry_page_no_assetids_selected">No asset ids selected</string>
+	<string source="condition_entry_page_no_patterns_set">No patterns entered</string>
+	<string source="condition_entry_page_note">Entry page refers to the first asset the frontend user sees as part of their session.</string>
 
 	<!-- Referrer URL Condition -->
-	<string source="condition_referrer_url_true">The page referrer url matches the following pattern(s)</string>
-	<string source="condition_referrer_url_false">The page referrer url does not matches the following pattern(s)</string>
-	<string source="condition_referrer_url_no_patterns_set">No URL patterns selected</string>
+	<string source="condition_referrer_url_true">The page referrer URL matches any of the following patterns</string>
+	<string source="condition_referrer_url_false">The page referrer URL does NOT match any of the following patterns</string>
+	<string source="condition_referrer_url_no_patterns_set">No patterns entered</string>
 
 	<!-- Site Referrer Condition -->
-	<string source="condition_site_referrer_true">The site referrer url matches the following pattern(s)</string>
-	<string source="condition_site_referrer_false">The site referrer url does not matches the following pattern(s)</string>
-	<string source="condition_site_referrer_no_patterns_set">No URL patterns selected</string>
+	<string source="condition_site_referrer_true">The site referrer URL matches any of the following patterns</string>
+	<string source="condition_site_referrer_false">The site referrer URL does NOT match any of the following patterns</string>
+	<string source="condition_site_referrer_no_patterns_set">No patterns entered</string>
+	<string source="condition_site_referrer_note">This condition will only evaluate on the last &lt;strong&gt;%s&lt;/strong&gt; visisted pages. This limit can be changed on the System Configuration screen.</string>
 
 	<string source="server_variable">Server Variable</string>
 	<string source="pattern">Pattern</string>
@@ -1208,8 +1236,8 @@
 	<string source="attribute_datetime_today_period_edit_format">%1$s %2$s %3$s at %4$s</string>
 
 	<string source="condition_user_type_list">User Types</string>
-	<string source="condition_user_type_true">The current user has been matched</string>
-	<string source="condition_user_type_false">The current user has not been matched</string>
+	<string source="condition_user_type_true">The user is of any of the following user types</string>
+	<string source="condition_user_type_false">The user is NOT of any of the following user types</string>
 
 
 	<string source="no_logs_found">No Logs Found</string>
@@ -1256,7 +1284,7 @@
 
 	<string source="cannot_delete_inbox-user_link">You can't delete the link between a user and their inbox</string>
 	<string source="cannot_delete_workspace-user_link">You can't delete the link between a user and their workspace</string>
-	<string source="no_user_groups_selected">No User Group has been selected for this condition</string>
+	<string source="no_user_groups_selected">No User Group has been selected</string>
 	<string source="no_user_group_selected">No User Group selected</string>
 	<string source="user_group_unrestricted_access_granted">Unrestricted access has been granted. No security restrictions apply on this user group.</string>
 	<string source="user_group_unrestricted_access_denied">Unrestricted access has not been granted. Security restrictions do apply on this user group.</string>
@@ -1869,6 +1897,7 @@
 	<string source="download_file">Download File</string>
 	<string source="submission_time">Submission Time</string>
 	<string source="asset_id">Asset ID</string>
+	<string source="asset_ids">Asset IDs</string>
 	<string source="expand_question">Expand?</string>
 	<string source="submit">Submit</string>
 	<string source="clear_form">Clear Form</string>
@@ -2034,7 +2063,6 @@
 	<string source="field_id">Field ID</string>
 	<string source="monitor">Monitor</string>
 	<string source="dimension_note">The maximum size of the largest dimension</string>
-
 	<string source="choose_type">Choose Type</string>
 
 	<!-- Content Type Tooltip -->
@@ -3000,8 +3028,8 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 
 	<!-- Miscellaneous settings -->
 	<string source="miscellaneous_config">Miscellaneous Settings</string>
-	<string source="visited_pages_config_max_entries">Visited Pages Maximum Entires</string>
-	<string source="visited_pages_config_note">Maximum number of visited URLs entires to store in the session. Visited URLs and assetids can be accessed via global session var "visited_urls" and "visited_assets" respectively.</string>
+	<string source="visited_pages_config_max_entries">Visited Pages Maximum Entries</string>
+	<string source="visited_pages_config_note">Maximum number of visited URLs entires to store in the session. Visited URLs and asset ids can be accessed via global session var "visited_urls" and "visited_assets" respectively.</string>
 
 
 
