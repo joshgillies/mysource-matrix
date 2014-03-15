@@ -3492,15 +3492,20 @@ class Form extends Asset implements Bridge
 			$create_location = $file_upload->attr('create_location');
 			if (empty($create_location)) {
 				$extra_data = $file_upload->getExtraData();
-				if (!empty($extra_data['temp_filesystem_path'])) {
+				$temp_file_path = $extra_data['temp_filesystem_path'];
+				if (!empty($temp_file_path)) {
+					if(strpos($temp_file_path, '/') !== 0) $temp_file_path = SQ_SYSTEM_ROOT.'/'.$temp_file_path;
 					$filename   = $file_upload->getValue();
 					$perm_path  = $submission_asset->data_path.'/attachments/'.str_replace(':', '_', $file_upload->id);
 
 					// Move it using Fudge file_system function
 					create_directory($perm_path);
-					$moved = move_file($extra_data['temp_filesystem_path'], $perm_path.'/'.$filename);
-					if ($moved) delete_directory(dirname($extra_data['temp_filesystem_path']));
+					$moved = move_file($temp_file_path, $perm_path.'/'.$filename);
+					if ($moved) delete_directory(dirname($temp_file_path));
 
+					// use relative path
+					$perm_path = str_replace(SQ_SYSTEM_ROOT.'/', '', $perm_path);
+					
 					$extra_data = Array(
 									'filesystem_path'	=> $perm_path.'/'.$filename,
 								  );

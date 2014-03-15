@@ -1068,6 +1068,8 @@ class Asset extends MySource_Object
 		$real_status = $this->status;
 
 		foreach (get_object_vars(unserialize(file_to_string($use_filename))) as $key => $value) {
+			// do not override data path, it will be calculated dynamically
+			if($key === 'data_path' || $key === 'data_path_public') continue;
 			$this->$key = $value;
 		}
 		$this->status = $real_status;
@@ -1118,10 +1120,20 @@ class Asset extends MySource_Object
 			$this->_loadVars();
 
 			$filename = '.object_data'.(($contextid === 0) ? '' : '.'.$contextid);
-			if (!string_to_file(serialize($this), $this->data_path.'/.sq_system/'.$filename)) {
+			// don't cache data path, it will be loaded dynamically when loading asset.
+			$data_path = $this->data_path;
+			$data_path_public = $this->data_path_public;
+			$this->data_path = '';
+			$this->data_path_public = '';
+			if (!string_to_file(serialize($this), $data_path.'/.sq_system/'.$filename)) {
+				$this->data_path = $data_path;
+				$this->data_path_public = $data_path_public;
 				trigger_localised_error('CORE0051', E_USER_WARNING, $this->name);
 				return FALSE;
 			}
+			
+			$this->data_path = $data_path;
+			$this->data_path_public = $data_path_public;
 
 			$GLOBALS['SQ_SYSTEM']->restoreContext();
 		}//end foreach
@@ -1285,8 +1297,13 @@ class Asset extends MySource_Object
 
 		// ITS ALIVE... ITS ALIVE...
 		foreach (get_object_vars($old_version) as $key => $value) {
+			// no need to override current data path
+			if($key === 'data_path' || $key === 'data_path_public') continue;
 			$this->$key = $value;
 		}
+		
+		// refresh data path to use live path
+		
 
 		// also keep the data in asset to notify other parts of matrix
 		// that we are reverting back to system version
@@ -3226,14 +3243,16 @@ class Asset extends MySource_Object
 
 			// log a message for the asset - this wont get logged until we close the queue
 			if($log_message) {
+				$password_attr = $attribute->type() == 'password';
 				$msg_reps = Array(
 								'asset_name'	=> $this->name,
 								'attr_name'		=> $attribute->name,
 							);
 				$msg_type = 'asset.attributes.fulllog';
 				if (is_scalar($var_data['old_value']) && is_scalar($attr_value)) {
-					$msg_reps['old_value'] = $var_data['old_value'];
-					$msg_reps['new_value'] = $attr_value;
+					// Completely obscure the password attribute value in the logs
+					$msg_reps['old_value'] = $password_attr ? '*****' : $var_data['old_value'];
+					$msg_reps['new_value'] = $password_attr ? '*****' : $attr_value;
 					$msg_type .= '.scalar';
 				}
 				$message = $ms->newMessage(Array(), $msg_type, $msg_reps);
@@ -3244,8 +3263,8 @@ class Asset extends MySource_Object
 				require_once SQ_FUDGE_PATH.'/general/general.inc';
 				$msg_type = 'asset.attributes';
 				if (is_scalar($var_data['old_value']) && is_scalar($attr_value)) {
-					$msg_reps['old_value'] = ellipsisize($var_data['old_value'],30);
-					$msg_reps['new_value'] = ellipsisize($attr_value,30);
+					$msg_reps['old_value'] = $password_attr ? '*****' : ellipsisize($var_data['old_value'],30);
+					$msg_reps['new_value'] = $password_attr ? '*****' : ellipsisize($attr_value,30);
 					$msg_type .= '.scalar';
 				}
 

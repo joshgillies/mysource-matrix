@@ -104,8 +104,10 @@ class SOAP_Form_Based_Common
 			// is the file an asset or just raw file in data dir?
 
 			$replacement = '';
-			if(isset($question_asset->extra_data['filesystem_path'])) {
-				$replacement = file_get_contents($question_asset->extra_data['filesystem_path']);
+			if(isset($question_asset->extra_data['filesystem_path']) && !empty($question_asset->extra_data['filesystem_path'])) {
+				$file_path  = $question_asset->extra_data['filesystem_path'];
+				if(strpos($file_path, '/') !== 0) $file_path = SQ_SYSTEM_ROOT.'/'.$file_path;
+				$replacement = file_get_contents($file_path);
 			}
 			else {
 				$uploaded_assetid = array_get_index($question_asset->extra_data, 'existing_file_assetid', array_get_index($question_asset->extra_data, 'new_file_assetid', NULL));

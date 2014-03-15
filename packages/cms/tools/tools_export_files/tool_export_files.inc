@@ -68,6 +68,9 @@ class Tool_Export_Files extends Tool
 
 		$save_name = $itm->attr('cms_file_export_name');
 		$save_location = $itm->attr('cms_file_export_dir');
+		if(!empty($save_location) && strpos($save_location, '/') !== 0) {
+		    $save_location = SQ_SYSTEM_ROOT.'/'.$save_location;
+		}
 
 		$o->openSection($tool_info['name']);
 

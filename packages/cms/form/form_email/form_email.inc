@@ -460,8 +460,10 @@ class Form_Email extends Form
 						$file_assets[] = $file_asset_id;
 					} else {
 						// We have a permanent storage
-						if (isset($q_asset->extra_data['filesystem_path']) && is_file($q_asset->extra_data['filesystem_path'])) {
-							$filenames[] = $q_asset->extra_data['filesystem_path'];
+						if (isset($q_asset->extra_data['filesystem_path']) && !empty($q_asset->extra_data['filesystem_path'])) {
+							$file_path = $q_asset->extra_data['filesystem_path'];
+							if(strpos($file_path, '/') !== 0) $file_path = SQ_SYSTEM_ROOT.'/'.$file_path;
+							$filenames[] = $file_path;
 						}
 					}
 				}

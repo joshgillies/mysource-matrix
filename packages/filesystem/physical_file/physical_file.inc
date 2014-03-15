@@ -136,9 +136,8 @@ class Physical_File extends Asset
 				$browser_cache_expiry = $cm->getExpiry($this->type(), $this->id);
 			}
 
-			$last_updated = $this->getEffectiveLastUpdatedTime(Array());
 			header('Expires: '.gmdate('D, d M Y H:i:s', time() + $browser_cache_expiry).' GMT');
-			header('Cache-Control: max-age='.$browser_cache_expiry.', public');
+			header('Cache-Control: max-age='.$browser_cache_expiry.', public, no-cache="set-cookie"');
 			header('Pragma: cache');
 			header('Last-Modified: '.gmdate('D, d M Y H:i:s',$QWERTY).' GMT');
 		} else if (!$using_ie6 || !$ssl_connection) {
@@ -195,6 +194,7 @@ class Physical_File extends Asset
 			require_once (SQ_DATA_PATH.'/private/conf/file_bridge.inc');
 			$location = FILE_BRIDGE_PATH;
 			$location = rtrim($location, '/');
+			if(!empty($location) && strpos($location, '/') !== 0) $location = SQ_SYSTEM_ROOT.'/'.$location;			
 			$full_path = $location.'/'.$this->_shadowid;
 
 			$full_path = realpath($full_path);
@@ -227,6 +227,7 @@ class Physical_File extends Asset
 		require_once (SQ_DATA_PATH.'/private/conf/file_bridge.inc');
 		$location = FILE_BRIDGE_PATH;
 		$location = rtrim($location, '/');
+		if(!empty($location) && strpos($location, '/') !== 0) $location = SQ_SYSTEM_ROOT.'/'.$location;
 		$full_path = $location.'/'.$this->_shadowid;
 
 		$full_path = realpath($full_path);

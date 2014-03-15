@@ -3141,4 +3141,8 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
  	<string source="url_matrix_manuals_homepage_title">Click to visit the Squiz Matrix User Manual Website</string>
  	<string source="url_matrix_version_history">http://manuals.matrix.squizsuite.net/patches</string>
  	<string source="url_matrix_version_history_title">Click to view the Release Information page on the Squiz Matrix User Manual Website</string>
+	
+		
+	<!--  general -->
+	<string source="use_relative_path">Path is relative to Matrix installation location unless prefixed with '/'.</string>
 </strings>

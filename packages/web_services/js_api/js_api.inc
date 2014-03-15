@@ -169,8 +169,9 @@ class JS_Api extends Page
 		if (!parent::_createAdditional($link)) return FALSE;
 
 		// Create a random key
+        include_once SQ_FUDGE_PATH.'/general/security.inc';
 		$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes');
-		$key = rand(1000000000, 9999999999);
+		$key = security_rand(1000000000, 9999999999);
 		$this->setAttrValue('api_key', $key);
 		$this->saveAttributes();
 		$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');

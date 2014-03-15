@@ -266,7 +266,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 									<?php
 									$o = $GLOBALS['SQ_SYSTEM']->backend->out;
 									if(!is_null($o) && $o->isViperAvailable()) {
-									    $o->enableViperEditor();	    
+									    $o->enableViperEditor();
 									    // Use a hidden input to pass the Viper edited content to Matrix backend form
 									    $o->addOnSubmit('document.getElementById("'.$prefix.'_contents_div_viper_input").value = document.getElementById("'.$prefix.'_contents_div_viper").innerHTML;');
 									    ?>
@@ -408,7 +408,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		}
 
 		if (!is_array($value)) return FALSE;
-		
+
 		if (!isset($value['to'])) {
 			$value['to'] = Array();
 		}
@@ -602,7 +602,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 					'From'		=> $from,
 					'Subject'	=> $subject,
 				);
-		
+
 		$reply_to = trim($reply_to);
 		if (!empty($reply_to)) $hdrs['Reply-To'] = $reply_to;
 
@@ -635,7 +635,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 					@$mime->addAttachment($file_path, $mime_type); // throws PHP5 strict warning
 				}
 			}
-			
+
 			// if it's email verification keyword replace it with a token
 			$keywords = retrieve_keywords_replacements($text_body);
 			$keywords += retrieve_keywords_replacements($html_body);
@@ -643,7 +643,8 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 			    foreach ($keywords as $keyword) {
 				if($keyword === 'email_verification_token') {
 				    // generate a random token
-				    $token = md5(uniqid(rand(), TRUE));
+                    include_once SQ_FUDGE_PATH.'/general/security.inc';
+				    $token = md5(uniqid(security_rand(), TRUE));
 				    $_SESSION['SQ_VERIFY_EMAIL_RAW'] = $to_email;
 				    $_SESSION['SQ_VERIFY_EMAIL_TOKEN'] = $token;
 				    $_SESSION['SQ_VERIFY_EMAIL_VERIFIED'] = '';

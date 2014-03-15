@@ -578,8 +578,8 @@ class SOAP_Common
 		if ($soap_client instanceof SoapClient) {
 			if ($ws_passwordDigest)
 			{
-
-				$nonce = mt_rand();
+                include_once SQ_FUDGE_PATH.'/general/security.inc';
+				$nonce = security_rand();
 				$timestamp = gmdate('Y-m-d\TH:i:s\Z');
 				$packedNonce = pack('H*', $nonce);
 				$packedTimestamp = pack('a*', $timestamp);
@@ -911,7 +911,7 @@ class SOAP_Common
 				<td>
 					<?php text_box($login_url_field_name, array_get_index($settings, 'login_url', ''), 100); ?>
 					<?php check_box($test_auth_field_name, '1', FALSE); ?> Test Authentication
-					
+
 					<?php
 						if (isset($settings['crm_auth_success']) && is_bool($settings['crm_auth_success'])) {
 							if ($settings['crm_auth_success'] === TRUE) {

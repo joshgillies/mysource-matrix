@@ -67,12 +67,17 @@ class Form_Action_Save_Xml extends Form_Action
 					<?php
 					$location = array_get_index($xml_settings, 'location', '');
 					text_box($prefix.'_location', $location, 50);
+					// using relative path
+					if(strpos($location, '/') !== 0 && !empty($location)) {
+					    $location = SQ_SYSTEM_ROOT.'/'.$location;
+					}
 					if (empty($location) || !is_dir($location) || !is_writable($location)) {
 						?><br />
 						<span class="sq-backend-warning"><?php echo translate('location_warning'); ?></span>
 						<?php
 					}//end if
 					?>
+						<div class="sq-backend-smallprint"><?php echo translate('use_relative_path');?></div>
 				</td>
 			</tr>
 			<tr>
@@ -165,7 +170,12 @@ class Form_Action_Save_Xml extends Form_Action
 					<td class="sq-backend-table-cell" style="vertical-align: top"><p><strong>Location:</strong></p></td>
 					<td class="sq-backend-table-cell" style="vertical-align: top"><p><?php
 					if (!empty($xml_settings['location'])) {
-						echo ellipsisize($xml_settings['location'], 512);
+						$location = $xml_settings['location'];
+						// using relative path
+						if(!empty($location) && strpos($location, '/') !== 0 ) {
+						    $location = SQ_SYSTEM_ROOT.'/'.$location;
+						}
+						echo ellipsisize($location, 512);
 					} else {
 						?><span class="sq-backend-warning">No Location specified.</span><?php
 					} ?></p></td>
@@ -191,6 +201,9 @@ class Form_Action_Save_Xml extends Form_Action
 
 		// Some base variables
 		$location = $xml_settings['location'];
+		if(!empty($location) && strpos($location, '/') !== 0 ) {
+		    $location = SQ_SYSTEM_ROOT.'/'.$location;
+		}
 		$detail = ($xml_settings['detail'] == 'complex') ? TRUE : FALSE;
 		$use_keys = ($xml_settings['key'] == 'key') ? TRUE : FALSE;
 		$sort_ans = ($xml_settings['sort'] == '1') ? TRUE : FALSE;
@@ -365,9 +378,9 @@ class Form_Action_Save_Xml extends Form_Action
 				}//end if
 
 				// Compile the XML
-				$response = $sxml->addChild('response', utf8_encode(str_replace("\f", '', $value)));
+				$response = $sxml->addChild('response', utf8_encode($value));
 				if (!empty($question_name)) {
-					$response->addAttribute('name', utf8_encode(str_replace("\f", '', $question_name)));
+					$response->addAttribute('name', utf8_encode($question_name));
 				}//end if
 				if (!empty($type)) {
 					$response->addAttribute('type', $type);
@@ -414,7 +427,12 @@ class Form_Action_Save_Xml extends Form_Action
 			return FALSE;
 		}//end if
 
-		if (!is_dir($xml_settings['location']) || !is_writable($xml_settings['location'])) {
+		$location = $xml_settings['location'];
+		if(strpos($location, '/') !== 0) {
+		    $location = SQ_SYSTEM_ROOT.'/'.$location;
+		}
+					
+		if (!is_dir($location) || !is_writable($location)) {
 			return FALSE;
 		}//end if
 

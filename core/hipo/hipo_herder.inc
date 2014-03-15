@@ -120,7 +120,7 @@ class HIPO_Herder extends MySource_Object
 			if (empty($vars['job_dir'])) {
 				$job_dir = SQ_SYSTEM_ROOT.'/core/hipo/jobs';
 			} else {
-				$job_dir = $vars['job_dir'];
+				$job_dir = strpos($vars['job_dir'], '/') === 0 ? $vars['job_dir'] : SQ_SYSTEM_ROOT.'/'.$vars['job_dir'];
 			}
 
 			$this->_includeHipoJobLocales($job_dir);
@@ -657,7 +657,7 @@ class HIPO_Herder extends MySource_Object
 
 		// prepare() check the integrity of the the running vars
 		if (!$init_hipo->prepare()) return FALSE;
-		$init_hipo->_hipo_vars['job_dir'] = $job_dir;
+		$init_hipo->_hipo_vars['job_dir'] = str_replace(SQ_SYSTEM_ROOT.'/', '', $job_dir);
 		$job_threshold = $init_hipo->getThresholdPercentageRequired();
 
 		// if the job has not explictly asked to be run in hipo mode

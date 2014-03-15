@@ -190,6 +190,7 @@ class Import_Tools_Manager_Edit_Fns extends Asset_Edit_Fns
 			} else {
 				if (!empty($html_upload)) {
 					$import_dir = STRUCTURED_FILE_IMPORT_DIR;
+					if(!empty($import_dir) && strpos($import_dir, '/') !== 0)     $import_dir = SQ_SYSTEM_ROOT.'/'.$import_dir;
 					$compatible_types = $asset->attr('valid_file_types');
 					$overwrite = isset($_POST['structured_file_import_html_upload_overwrite']);
 					commit_file_upload('structured_file_import_html_upload', $import_dir, $overwrite, $max_size, TRUE, $compatible_types);
@@ -214,7 +215,7 @@ class Import_Tools_Manager_Edit_Fns extends Asset_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 		$allowed_import_type = $asset->attr('allowed_import_type');
-
+		$file_path = BULK_FILE_IMPORT_DIR;
 
 		if ($write_access) {
 			$o->openField(translate('import_tools_manager_allowed_import_type'));
@@ -222,7 +223,7 @@ class Import_Tools_Manager_Edit_Fns extends Asset_Edit_Fns
 			$o->closeField();
 
 			$o->openField(translate('import_tools_manager_server_import_dir'));
-				echo BULK_FILE_IMPORT_DIR;
+				echo $file_path;
 				$o->note(translate('import_tools_manager_server_import_dir_msg'));
 			$o->closeField();
 
@@ -232,7 +233,7 @@ class Import_Tools_Manager_Edit_Fns extends Asset_Edit_Fns
 			$o->closeField();
 
 			$o->openField(translate('import_tools_manager_server_import_dir'));
-				echo BULK_FILE_IMPORT_DIR;
+				echo $file_path;
 				$o->note(translate('import_tools_manager_server_import_dir_msg'));
 			$o->closeField();
 		}

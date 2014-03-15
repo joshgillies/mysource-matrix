@@ -105,7 +105,7 @@ include(dirname(__FILE__).'/header.php');
 	    	    
 	    // add "add condition" link
 	    var div =  document.createElement('div');
-	    div.style = 'text-align: center;';
+	    div.style.textAlign = 'center';
 	    var add_link = document.createElement('a');
 	    add_link.href = '#';
 	    add_link.innerHTML = '<img src="<?php echo sq_web_path('lib')?>/web/images/icons/add.png" alt="Add" title="Add condition group " class="sq-icon sq-link-icon small">';
@@ -120,7 +120,7 @@ include(dirname(__FILE__).'/header.php');
 	    var tr =document.createElement('tr');
 	    var td_label = document.createElement('td');
 	    var td_input = document.createElement('td');
-	    td_label.class = 'label';
+	    td_label.className = 'label';
 	    td_label.appendChild(document.createTextNode('Logical grouping:'));
 	    tr.appendChild(td_label);
 	    tr.appendChild(td_input);
@@ -223,7 +223,7 @@ include(dirname(__FILE__).'/header.php');
 	    deleteIcon.className = 'sq-popup-btn small';
 	    deleteIcon.alt = 'Delete this condition';
 	    deleteIcon.title = 'Delete this condition';
-	    deleteIcon.style = 'cursor: pointer;';
+	    deleteIcon.style.cursor = 'pointer';
 	    deleteIcon.onclick = function () {
 		this.parentNode.parentNode.parentNode.removeChild(this.parentNode.parentNode);
 		return false;

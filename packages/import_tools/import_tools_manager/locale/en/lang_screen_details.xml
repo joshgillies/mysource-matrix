@@ -20,7 +20,7 @@
 	<section name="Structured File Import Tool Settings" write_access="write:attributes">
 		<field>
 			<display_name>Import Directory</display_name>
-			<note>Directory on the Unix system to import processed HTML files from. Use config file data/private/conf/import_tools_manager.inc.</note>
+			<note>Directory on the Unix system to import processed HTML files from. Use config file data/private/conf/import_tools_manager.inc. Path is relative to Matrix installation location unless prefixed with '/'.</note>
 			<function_call>
 				<paint_function   name="paintStructuredFileImportDirectory"   />
 			</function_call>
