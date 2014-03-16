@@ -40,22 +40,6 @@
 * @subpackage install
 */
 ini_set('memory_limit', -1);
-if (!defined('PHP_VERSION_ID')) {
-	$version = explode('.', PHP_VERSION);
-	define('PHP_VERSION_ID', ($version[0] * 10000 + $version[1] * 100 + $version[2]));
-}
-
-
-// set the level of PHP reported errors and some other
-// PHP thingies we want done OUR way
-if (PHP_VERSION_ID < 50300) {
-	// pear http/client module contains deprecated syntax which will cause trouble
-	// E_DEPRECATED is introduced in PHP 5.3 and included in E_ALL, so has to remove E_DEPRECATED for php 5.3 and above
-	error_reporting(E_ALL);
-}
-else {
-	error_reporting(E_ALL ^ E_DEPRECATED);
-}
 $SYSTEM_ROOT = '';
 
 // from cmd line
@@ -81,6 +65,17 @@ if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')
 	exit(1);
 }
 
+if (!defined('SQ_SYSTEM_ROOT')) {
+	define('SQ_SYSTEM_ROOT',  $SYSTEM_ROOT);
+}
+
+require_once $SYSTEM_ROOT.'/core/include/init.inc';
+
+// firstly let's check that we are OK for the version
+if (version_compare(PHP_VERSION, SQ_REQUIRED_PHP_VERSION, '<')) {
+	trigger_error('<i>'.SQ_SYSTEM_LONG_NAME.'</i> requires PHP Version '.SQ_REQUIRED_PHP_VERSION.'.<br/> You may need to upgrade.<br/> Your current version is '.PHP_VERSION, E_USER_ERROR);
+}
+
 // only use console stuff if we're running from the command line
 require_once 'Console/Getopt.php';
 
@@ -94,17 +89,6 @@ $options = $con->getopt($args, $shortopt, $longopt);
 
 if (is_array($options[0])) {
 	$package_list = get_console_list($options[0]);
-}
-
-if (!defined('SQ_SYSTEM_ROOT')) {
-	define('SQ_SYSTEM_ROOT',  $SYSTEM_ROOT);
-}
-
-require_once $SYSTEM_ROOT.'/core/include/init.inc';
-
-// firstly let's check that we are OK for the version
-if (version_compare(PHP_VERSION, SQ_REQUIRED_PHP_VERSION, '<')) {
-	trigger_error('<i>'.SQ_SYSTEM_LONG_NAME.'</i> requires PHP Version '.SQ_REQUIRED_PHP_VERSION.'.<br/> You may need to upgrade.<br/> Your current version is '.PHP_VERSION, E_USER_ERROR);
 }
 
 // check to see if the default/ tech email in main.inc are provided and are correct

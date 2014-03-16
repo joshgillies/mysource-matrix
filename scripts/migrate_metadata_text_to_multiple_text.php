@@ -20,9 +20,18 @@
 * @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
-error_reporting(E_ALL);
 if ((php_sapi_name() != 'cli')) {
 	trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
+}
+
+if (defined('E_STRICT')) {
+	error_reporting(E_ALL ^ E_DEPRECATED ^ E_STRICT);
+} else {
+	if (defined('E_DEPRECATED')) {
+		error_reporting(E_ALL ^ E_DEPRECATED);
+	} else {
+		error_reporting(E_ALL);
+	}
 }
 
 require_once 'Console/Getopt.php';
@@ -30,9 +39,10 @@ require_once 'Console/Getopt.php';
 $shortopt = 's:';
 $longopt = Array('from=', 'to=', 'delimiter=');
 
-$args = Console_Getopt::readPHPArgv();
+$con = new Console_Getopt();
+$args = $con->readPHPArgv();
 array_shift($args);
-$options = Console_Getopt::getopt($args, $shortopt, $longopt);
+$options = $con->getopt($args, $shortopt, $longopt);
 if (empty($options[0])) usage();
 
 $REPORT_ONLY = FALSE;
