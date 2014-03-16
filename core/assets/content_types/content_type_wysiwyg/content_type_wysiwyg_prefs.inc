@@ -103,8 +103,8 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 																'protected'		=> FALSE,
 															   ),
 	    					'SQ_ENABLE_VIPER_EDITOR'						=> Array (
-																'name'			=> 'enable_viper_editor',
-																'description'	=> 'Enable Viper WYSIWYG editor',
+																'name'			=> 'enable_edit+_editor',
+																'description'	=> 'Enable Edit+ WYSIWYG editor',
 																'default'		=> 1,
 																'protected'		=> FALSE,
 															   ),
@@ -149,7 +149,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 			if ($have_lock && $is_admin) {
 				$options = Array(1 => 'Yes', 0 => 'No');
 				combo_box('prefs[SQ_ENABLE_VIPER_EDITOR]', $options, FALSE, $pref_var);
-				echo $o->note(translate('enable_viper_editor_note'));
+				echo $o->note(translate('enable_edit+_editor_note'));
 			} else {
 				echo ($pref_var) ? translate('yes') : translate('no');
 			}

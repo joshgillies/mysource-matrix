@@ -58,22 +58,27 @@ class Condition_User_Agent_Edit_Fns extends Condition_Edit_Fns
 	public static function paintEditInterface(Array $condition_data, Backend_Outputter $o, $prefix, $write_access)
 	{
 		?>
-		<table style="width: auto" border="0" class="no-borders">
+		<table class="sq-backend-table">
 			<tr>
-				<td><?php echo translate('user_agent_pattern'); ?>: </td>
+				<th class="sq-conditions-options-th"><?php echo translate('pattern'); ?></th>
 				<td>
 					<?php
 					if ($write_access) {
-						text_box($prefix.'[compare]', array_get_index($condition_data, 'user_agent', ''), 30);
+						text_box($prefix.'[compare]', array_get_index($condition_data, 'user_agent', ''), 80);
 					} else {
-						echo array_get_index($condition_data, 'user_agent', '');
+						$current_pattern = array_get_index($condition_data, 'user_agent', '');
+						if (strlen($current_pattern)){
+							echo $current_pattern;
+						} else {
+							echo '<em>'.translate('condition_no_pattern_entered').'</em>';
+						}
 					}
 					?>
 				</td>
 			</tr>
 		</table>
-		<?php echo translate('condition_user_agent_is_regular_expression_enabled'); ?>
 		<?php
+		$o->note(translate('condition_user_agent_is_regular_expression_enabled'));
 
 	}//end paintEditInterface()
 

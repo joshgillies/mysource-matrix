@@ -82,26 +82,31 @@ class Condition_Asset_Status_Edit_Fns extends Condition_Edit_Fns
 			}//end if
 
 		}
-
-
-
 		?>
-		<table style="width: auto" class="no-borders">
+
+		<table class="sq-backend-table">
 			<tr>
+				<th class="sq-conditions-options-th"><?php echo translate('asset_statuses') ?></th>
 				<td>
+					<div class="sq-multi-status-select-wrapper">
 					<?php
 					if ($write_access) {
 						combo_box($prefix.'[status]', $statii, TRUE, $selected_statii);
-					} else {
+					} elseif (!empty($selected_statii)) {
+						echo '<ul class="sq-no-vertical-margin">';
 						foreach ($selected_statii as $status) {
-								echo get_status_description($status).'<br />';
+								echo '<li>'.get_status_description($status).'</li>';
 						}//end foreach
+						echo '</ul>';
+					} else {
+						echo '<em>'.translate('condition_no_statuses_selected').'</em>';
 					}
 					?>
+					</div>
 				</td>
 			</tr>
-
 		</table>
+		
 		<?php
 
 	}//end paintEditInterface()

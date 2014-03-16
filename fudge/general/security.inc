@@ -606,12 +606,23 @@ function security_rand($min=0, $max=2147483647)
     if ($min < 0) $min = 0;
     $value = -1;
     do {
-        $entropy = TRUE;
-        $rand    = openssl_random_pseudo_bytes(4, $entropy);
+        if (function_exists('openssl_random_pseudo_bytes') === TRUE) {
+            $entropy = TRUE;
+            $rand    = openssl_random_pseudo_bytes(4, $entropy);
+        } else {
+            $file = fopen('/dev/random', 'rb');
+            if (function_exists('stream_set_read_buffer') === TRUE) {
+                stream_set_read_buffer($file, 0);
+            }
+
+            $rand = fread($file, 4);
+            fclose($file);
+        }
+
         $value   = floor($max * (hexdec(bin2hex($rand)) / 0xffffffff));
     } while($value < $min || $value > $max);
 
-        return $value;
+    return $value;
 
 }//end security_rand()
 
