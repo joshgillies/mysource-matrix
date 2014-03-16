@@ -322,7 +322,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	public function paintBackendStatusIcons(Content_Type_WYSIWYG $asset, $prefix, $o=NULL)
 	{
 		if(!is_null($o) && $o->isViperAvailable()) {
-		     Bodycopy_Edit_Fns::printBodycopyIcon('', 'Viper Content Area', translate('viper_editor_enabled_icon_note'), 'viper_logo', '[Viper Content Area]');
+		     //Bodycopy_Edit_Fns::printBodycopyIcon('', 'Edit+ Content Area', translate('edit+_editor_enabled_icon_note'), 'viper_logo', '[Edit+ Content Area]');
 		}
 		else {
 		    require_once SQ_DATA_PATH.'/private/conf/tools.inc';

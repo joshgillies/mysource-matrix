@@ -343,6 +343,7 @@ class Backend extends MySource_Object
 				}
 
 				div.iframe-container.header {
+					min-width: 1000px;
 					padding-top: 0;
 					height: 42px;
 					z-index: 3;

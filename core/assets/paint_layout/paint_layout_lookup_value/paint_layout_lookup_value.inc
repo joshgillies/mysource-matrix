@@ -40,7 +40,7 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 	*/
 	public static function lookupValueName()
 	{
-		return 'Paint Layout';
+		return 'Effective Paint Layouts';
 
 	}//end lookupValueName()
 
@@ -92,8 +92,8 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 			?>
 			<table class="sq-backend-table">
 				<tr>
-					<th class="sq-backend-table-header"><?php echo translate('url'); ?></th>
-					<th class="sq-backend-table-header"><?php echo 'Effective Paint Layout'; ?></th>
+					<th class="sq-backend-table-header" style="width:50%;"><?php echo translate('url'); ?></th>
+					<th class="sq-backend-table-header" style="width:50%;"><?php echo 'Effective Paint Layout'; ?></th>
 				</tr>
 			<?php
 			foreach ($lookups as $url) {
@@ -144,7 +144,7 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 		}//end if
 
 		$asset_layout = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, 'paint_layout_page', FALSE, 'paint_layout::system::frontend');
-		$o->openField(translate('layout'));
+		$o->openField(translate('paint_layout'));
 		if ($wa) {
 			asset_finder($prefix.'[asset][paint_layout][value]', empty($asset_layout['minorid']) ? '' : $asset_layout['minorid'], Array('paint_layout_page' => 'D'), 'sq_sidenav', FALSE, 'null', empty($asset_layout) ? Array('clear') : Array('clear', 'reset'));
 		} else {
@@ -153,7 +153,7 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 		$o->closeField();
 
 		$asset_override = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, 'paint_layout_page', FALSE, 'override::paint_layout::system::frontend');
-		$o->openField(translate('override_layout'));
+		$o->openField(translate('override_paint_layout'));
 		if ($wa) {
 			asset_finder($prefix.'[asset][override::paint_layout][value]', empty($asset_override) ? '' : $asset_override['minorid'], Array('paint_layout_page' => 'D'), 'sq_sidenav', FALSE, 'null', empty($asset_override) ? Array('clear') : Array('clear', 'reset'));
 		} else {
@@ -175,7 +175,7 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 		// which lookups have user defined layouts
 		$lookups_user = Array();
 
-		$o->openSection(translate('url_specific_definitions'));
+		$o->openSection(translate('url_specific_paint_layouts'));
 		foreach ($lookups as $url) {
 
 			$o->openSection($url);
@@ -183,8 +183,8 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 			?>
 			<table class="sq-backend-table">
 				<tr>
-					<th class="sq-backend-table-header"><?php echo 'Layout'; ?></th>
-					<th class="sq-backend-table-header"><?php echo 'Paint Layout'; ?></th>
+					<th class="sq-backend-table-header" style="width:50%;"><?php echo 'Layout Type'; ?></th>
+					<th class="sq-backend-table-header" style="width:50%;"><?php echo 'Paint Layout'; ?></th>
 				</tr>
 			<?php
 
@@ -240,7 +240,7 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 
 				?>
 					<tr>
-						<td class="sq-backend-table-cell"><?php echo '<i>'.$display_name.'</i>'; echo $wa ? self::_getSuffix($data['inhd'], TRUE) : ''; ?></td>
+						<td class="sq-backend-table-cell"><?php echo $display_name; echo $wa ? self::_getSuffix($data['inhd'], TRUE) : ''; ?></td>
 						<?php if ($wa) { ?>
 							<td class="sq-backend-table-cell"><?php asset_finder($prefix.'['.$url.']['.$layout_name.'][value]', $layout_value, Array('paint_layout_page' => 'D'), 'sq_sidenav', FALSE, 'null', $normal_buttons);?></td>
 						<?php } else { ?>
@@ -248,7 +248,7 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 						<?php } ?>
 					</tr>
 					<tr>
-						<td class="sq-backend-table-cell"><?php echo '<i>'.$display_override_name.'</i>'; ?></td>
+						<td class="sq-backend-table-cell"><?php echo $display_override_name; ?></td>
 						<?php if ($wa) { ?>
 							<td class="sq-backend-table-cell"><?php asset_finder($prefix.'['.$url.'/]['.$layout_name.'][value]', $url_override_layout, Array('paint_layout_page' => 'D'), 'sq_sidenav', FALSE, 'null', $override_buttons);?></td>
 						<?php } else { ?>
@@ -278,7 +278,7 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 		// close the URL specific definitions
 		$o->closeSection();
 
-		$o->openSection(translate('user_defined_layouts'));
+		$o->openSection(translate('user_defined_paint_layouts'));
 
 		foreach ($lookups as $url) {
 
@@ -289,8 +289,8 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 					?>
 					<table class="sq-backend-table">
 						<tr>
-							<th class="sq-backend-table-header"><?php echo 'Layout code'; ?></th>
-							<th class="sq-backend-table-header"><?php echo 'Paint layout'; ?></th>
+							<th class="sq-backend-table-header" style="width:50%;"><?php echo 'Layout Code'; ?></th>
+							<th class="sq-backend-table-header" style="width:50%;"><?php echo 'Paint Layout'; ?></th>
 						</tr>
 					<?php
 					foreach ($lookup_values[$url] as $layout_name => $data) {
@@ -323,10 +323,10 @@ class Paint_Layout_Lookup_Value extends Lookup_Value
 			$o->closeField();
 
 			if ($wa) {
-				$o->openSection(translate('create_user_defined_layout'));
+				$o->openSection(translate('create_user_defined_paint_layout'));
 				$o->openField(translate('layout_code'));
 					text_box($prefix.'['.$url.']['.$name_prefix.'::user::][name]', '', 20, 30);
-				$o->openField(translate('new_question'));
+				$o->openField(translate('paint_layout'));
 					asset_finder($prefix.'['.$url.']['.$name_prefix.'::user::][value]', 0, Array('paint_layout_page' => 'D'), 'sq_sidenav', FALSE, 'null', Array('clear'));
 				$o->closeField();
 				$o->closeSection();
