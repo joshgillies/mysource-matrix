@@ -414,13 +414,16 @@ function random_password($length, $include_uppercase=FALSE, $include_numbers=FAL
 
 	$current_index = 0;
 	while ($length > 0) {
-		$appended_characters = $letters[security_rand(0,strlen($letters)-1)];
+		$letter_pos = (int)security_rand(0,strlen($letters)-1);
+		$appended_characters = $letters[$letter_pos];
 
 		// Assign either an uppercase letter or a number if we are destined to do so
 		if (($include_uppercase) && (isset($uppercase_indexes[$current_index]))) {
-			$appended_characters = $upper_letters[security_rand(0,strlen($upper_letters)-1)];
+			$letter_pos = (int)security_rand(0,strlen($upper_letters)-1);
+			$appended_characters = $upper_letters[$letter_pos];
 		} else if (($include_numbers) && (isset($number_indexes[$current_index]))) {
-			$appended_characters = $numbers[security_rand(0,strlen($numbers)-1)];
+			$number_pos = (int)security_rand(0,strlen($numbers)-1);
+			$appended_characters = $numbers[$number_pos];
 		}
 		$current_index++;
 
