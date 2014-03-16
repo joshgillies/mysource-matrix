@@ -68,30 +68,41 @@ class Condition_Has_Children_Edit_Fns extends Condition_Edit_Fns
 		foreach ($type_list as $index => $asset_type) {
 		    $type_list[$index] = trim($asset_type);
 		}
+		?>
+		<table class="sq-backend-table">
+		<?php
 		if ($write_access) {
-			?><table style="width: auto" border="0" class="no-borders">
-				<tr><td><strong><?php echo translate('asset_type'); ?></strong></td></tr>
-				<tr>
-					<td><?php
-						asset_type_chooser($prefix.'[type_list]', TRUE, $type_list, NULL, FALSE, FALSE, Array('asset'));
-					?></td>
-				</tr>
-			</table><?php
-		} elseif (!empty($type_list)) {
-			$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_list, 'name');
-			?><table class="sq-backend-table">
-				<tr>
-					<th><?php echo translate('asset_type') ?></th>
-				</tr><?php
-				foreach ($type_list as $type) {
-					?><tr>
-						<td><?php
+			?>
+			<tr>
+				<th style="width: 100px;"><?php echo translate('asset_type'); ?></th>
+				<td><?php
+					asset_type_chooser($prefix.'[type_list]', TRUE, $type_list, NULL, FALSE, FALSE, Array('asset'));
+				?></td>
+			</tr>
+			<?php
+		} else {
+			?>
+			<tr>
+				<th style="width: 100px;"><?php echo translate('asset_type'); ?></th>
+				<td>
+				<?php
+				if (empty($type_list)) {
+					echo '<em>'.translate('condition_no_asset_types_selected').'</em>';
+				} else {
+					$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_list, 'name');
+					echo '<ul class="sq-asset-id-list">';
+					foreach ($type_list as $type) {
+						echo '<li>';
 							echo get_asset_type_icon($type);
-							echo $type_names[$type];
-						?></td>
-					</tr><?php
+							echo '<strong>'.$type_names[$type].'</strong>';
+						echo '</li>';
+					}
+					echo '</ul>';
 				}
-			?></table><?php
+				?>
+				</td>
+			</tr>
+			<?php
 		}
 
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
@@ -111,28 +122,35 @@ class Condition_Has_Children_Edit_Fns extends Condition_Edit_Fns
 
 		
 		if ($write_access) {
-			?><table style="width: auto" border="0" class="no-borders">
-				<tr><td><strong><?php echo translate('link_type'); ?></strong></td></tr>
-				<tr>
-					<td><?php
-						combo_box($prefix.'[link_types]', $link_types_names, TRUE, $link_type_list);
-					?></td>
-				</tr>
-			</table><?php
+			?>
+			<tr>
+				<th><?php echo translate('link_type'); ?></th>
+				<td><?php
+					combo_box($prefix.'[link_types]', $link_types_names, TRUE, $link_type_list);
+				?></td>
+			</tr>
+			<?php
 		} else {
-			?><table class="sq-backend-table">
-				<tr>
-					<th><?php echo translate('link_type') ?></th>
-				</tr><?php
-				foreach ($link_type_list as $link_type) {
-					?><tr>
-						<td><?php
-							echo $link_types_names[$link_type];
-						?></td>
-					</tr><?php
+			?>
+			<tr>
+				<th><?php echo translate('link_type') ?></th>
+				<td>
+				<?php
+				if (empty($link_type_list)) {
+					echo '<em>'.translate('condition_no_link_types_selected').'</em>';
+				} else {
+					echo '<ul class="sq-no-vertical-margin">';
+					foreach ($link_type_list as $link_type) {
+						echo '<li>'.$link_types_names[$link_type].'</li>';
+					}
+					echo '</ul>';
 				}
-			?></table><?php
+				?>
+				</td>
+			</tr>
+			<?php
 		}
+		?></table><?php
 		
 		
 	}//end paintEditInterface()

@@ -322,6 +322,11 @@ button.delete-button {
 	display: 					inline-block;
 }
 
+.sq-no-vertical-margin {
+	margin-top:					0px !important;
+	margin-bottom: 				0px !important;
+}
+
 /*
 ####################################################################################################################
 GLOBAL FORM ELEMENTS
@@ -551,6 +556,10 @@ option:disabled:checked {
 	color: 						#555;
 }
 
+.sq-multi-status-select-wrapper select{
+	height: 					150px;
+}
+
 /* Dynamic option lists */
 
 .sq-option-list input[type=text], 
@@ -672,7 +681,7 @@ TOP HEADER FRAME STYLES
 }
 
 .sq-matrix-logo {
-	margin: 					0px 50px 0 0;
+	margin: 					0px 35px 0 0;
 	position: 					relative;
 	top: 						0px;
 	left: 						9px;
@@ -1383,6 +1392,10 @@ table.sq-backend-table {
 	color: 						#333;
 }
 
+.sq-conditions-options-th {
+	width:						100px;
+}
+
 .sq-backend-commit {
 	text-align:					right;
 	padding:					2px;
@@ -1412,6 +1425,7 @@ TOOLBOX POPUP STYLES
 	color: 						#fff;
 	font-size: 					11px;
 	font-weight: 				bold;
+	text-shadow: 				1px 1px 0 #000;
 }
 
 .sq-toolbox-close {
@@ -1548,6 +1562,7 @@ BODYCOPY IFRAME POPUP STYLES
 	font-size: 					12px;
 	font-weight: 				bold;
 	margin:						0;
+	text-shadow: 				1px 1px 0 #000;
 }
 
 .sq-bodycopy-popup-wrapper h1 a{
@@ -2587,16 +2602,23 @@ ul.radio-list {
 	padding: 					8px 13px;
 }
 
+.sq-backend-commit input.sq-btn-green,
 #sq-commit-button-div-inside input.sq-btn-green{
 	background-image: 			url(../images/button-loader-green.gif);
 	background-repeat: 			no-repeat;
 	background-position: 		center -100px; 
 }
 
+.sq-backend-commit input.sq-btn-green.loading,
 #sq-commit-button-div-inside input.sq-btn-green.loading{
 	min-width:					72px;
 	height:						34px;
 	background: 				#419041 url(../images/button-loader-green.gif) center center no-repeat; 
+}
+
+/* For when commit button is not anchored to the bottom of the frame, but just on the bottom of the page */
+.sq-backend-commit input.sq-btn-green.loading{
+	min-width:					66px;
 }
 
 #sq_context_switcher_current {
@@ -2824,6 +2846,11 @@ MISCELLANEOUS STYLES
 
 .sq-root-node-selections-wrapper {
 	margin: 					5px 0 0 10px;
+	list-style: 				none;
+}
+
+.sq-asset-id-list {
+	margin: 					0;
 	list-style: 				none;
 }
 
@@ -3159,27 +3186,7 @@ div.sq-grey-header-row,
 
 /*
 ####################################################################################################################
-LIMBO OUTPUTTER - SECTIONS AND FIELDS (not sure if we need any of this anymore)
-####################################################################################################################
-*/
-
-.sq-limbo-section-heading {
-	border-bottom:				1px solid black;
-}
-
-.sq-limbo-section-subheading {
-}
-
-.sq-limbo-field {
-	vertical-align:				top;
-	white-space:				nowrap;
-	padding:					0px 10px 0px 0px;
-}
-
-
-/*
-####################################################################################################################
-Preview Screen styles
+PREVIEW SCREEN STYLES
 ####################################################################################################################
 */
 
@@ -3197,4 +3204,24 @@ Preview Screen styles
 }
 .sq-preview-condition-radio-group label{
     padding-right: 30px;
+}
+
+
+/*
+####################################################################################################################
+LIMBO OUTPUTTER (SIMPLE EDIT MODE)
+####################################################################################################################
+*/
+
+.sq-limbo-section-heading {
+	border-bottom:				1px solid black;
+}
+
+.sq-limbo-section-subheading {
+}
+
+.sq-limbo-field {
+	vertical-align:				top;
+	white-space:				nowrap;
+	padding:					0px 10px 0px 0px;
 }

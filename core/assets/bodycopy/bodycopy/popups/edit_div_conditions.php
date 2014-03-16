@@ -239,7 +239,7 @@ include(dirname(__FILE__).'/header.php');
 	<a href="#" onclick="javascript: popup_close(); return false;">
 		<img src="<?php echo sq_web_path('lib')?>/web/images/icons/cancel.png" alt="Cancel" title="<?php echo translate('cancel');?>" class="sq-icon">
 	</a>
-	Edit Container Conditions
+	Edit Container Display Conditions
 </h1>
 <form id="main_form" name="main_form"  style="height:410px;overflow: auto;">
 <input type="hidden" name="bodycopy_name" value="">
@@ -251,11 +251,11 @@ include(dirname(__FILE__).'/header.php');
 		<fieldset>
 			<table style="width:100%">
 				<tr>
-					<td class="label">Condition rules:</td>
+					<td class="label">Display conditions:</td>
 					<td>
 					    <select name="condition_rules_status">
-							<option value="enable" selected ><?php echo translate('enable'); ?></option>
-							<option value="disable"><?php echo translate('disable'); ?></option>
+							<option value="enable" selected ><?php echo translate('enabled'); ?></option>
+							<option value="disable"><?php echo translate('disabled'); ?></option>
 						</select>
 					</td>
 				</tr>

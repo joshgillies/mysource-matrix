@@ -63,9 +63,9 @@ class Condition_Keyword_Regexp_Edit_Fns extends Condition_Edit_Fns
 			$condition_data =  Array('keyword' => '', 'operator' => 'ALL');
 		}
 		?>
-		<table style="width: auto" class="no-borders">
+		<table class="sq-backend-table">
 			<tr>
-				<td><strong><?php echo translate('keyword'); ?></strong> </td>
+				<th class="sq-conditions-options-th"><?php echo translate('keyword'); ?></th>
 				<td>
 					<?php
 					$selected_keyword = '';
@@ -90,15 +90,17 @@ class Condition_Keyword_Regexp_Edit_Fns extends Condition_Edit_Fns
 
 						$keyword_info = self::_getKeywordInfo($selected_keyword, $allowed_keywords);
 						if ($write_access) {
+							echo '<span class="sq-inline-fields-wrapper">%';
 							combo_box($prefix.'[keyword]', array_merge($keyword_options), FALSE, $keyword_info['constant_part']);
 							// This is a special case for generic/variable keywords (like asset_metadata_)
 							// which name must be completed.
 							// For those keywords, we show an additional box to type the rest of the name
 							if ($keyword_info['is_variable']) {
-								text_box($prefix.'[keyword_extension]', $keyword_info['variable_part'], 30);
+								text_box($prefix.'[keyword_extension]', $keyword_info['variable_part'], 50);
 							}
+							echo '%</span>';
 						} else {
-							echo ($keyword_info['constant_part']).array_get_index($keyword_info, 'variable_part', '');
+							echo '%'.($keyword_info['constant_part']).array_get_index($keyword_info, 'variable_part', '').'%';
 						}
 					} else {
 						echo(translate('core_keyword_list_empty'));
@@ -107,27 +109,29 @@ class Condition_Keyword_Regexp_Edit_Fns extends Condition_Edit_Fns
 				</td>
 			</tr>
 			<tr>
-				<td><strong><?php echo translate('pattern'); ?></strong> </td>
+				<th><?php echo translate('pattern'); ?></th>
 				<td>
 					<?php
 					if ($write_access) {
-						text_box($prefix.'[keyword_match]', array_get_index($condition_data, 'keyword_match'), 30);
+						text_box($prefix.'[keyword_match]', array_get_index($condition_data, 'keyword_match'), 80, '', '', 'style="margin-bottom: 5px;"');
+						echo '</br>';
+						check_box($prefix.'[replace_keyword_in_match]', '1', array_get_index($condition_data, 'replace_keyword_in_match', '0'), '', ($write_access ? '' : 'disabled="disabled"'));
+						label(translate('replace_keywords_in_pattern'), $prefix.'[replace_keyword_in_match]');
 					} else {
-						echo array_get_index($condition_data, 'keyword_match', '');
+						$current_pattern = array_get_index($condition_data, 'keyword_match', '');
+						if (strlen($current_pattern)){
+							echo $current_pattern;
+						} else {
+							echo '<em>'.translate('condition_no_pattern_entered').'</em>';
+						}
+						echo '</br>';
+						check_box($prefix.'[replace_keyword_in_match]', '1', array_get_index($condition_data, 'replace_keyword_in_match', '0'), '', ($write_access ? '' : 'disabled="disabled"'));
+						label(translate('replace_keywords_in_pattern'), $prefix.'[replace_keyword_in_match]');
 					}
 					?>
 				</td>
 			</tr>
-			<tr>
-				<td colspan="2">
-					<?php
-						check_box($prefix.'[replace_keyword_in_match]', '1', array_get_index($condition_data, 'replace_keyword_in_match', '0'), '', ($write_access ? '' : 'disabled="disabled"'));
-						label('Replace keywords in pattern', $prefix.'[replace_keyword_in_match]');
-					?>
-				</td>
-			</tr>
 		</table>
-		<?php // echo translate('condition_server_variable_is_regular_expression_enabled'); ?>
 		<?php
 
 	}//end paintEditInterface()

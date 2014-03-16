@@ -67,34 +67,38 @@ class Condition_User_Frequency_Edit_Fns extends Condition_Edit_Fns
 					'minutes'	=> 'Minutes',
 				   );
 		?>
-		<table>
-		<tr>
-			<td><strong>Value</strong></td>
-			<td>
-				<?php
-				if ($write_access) {
-					text_box($prefix.'[value]', $value, 10);
-				} else {
-					echo $value;
-				}
-				?>
-			</td>
-		</tr>
-		<tr>
-			<td><strong>Units</strong></td>
-			<td>
-				<?php
-				if ($write_access) {
-					combo_box($prefix.'[units]', $options, 0, $units);
-				} else {
-					echo $options[$units];
-				}
-				?>
-			</td>
-		</tr>
+		<table class="sq-backend-table">
+			<tr>
+				<th class="sq-conditions-options-th">Value</th>
+				<td>
+					<?php
+					if ($write_access) {
+						text_box($prefix.'[value]', $value, 10);
+					} else {
+						if (strlen($value)){
+							echo $value;
+						} else {
+							echo '<em>'.translate('condition_no_value_entered').'</em>';
+						}
+					}
+					?>
+				</td>
+			</tr>
+			<tr>
+				<th><strong>Units</th>
+				<td>
+					<?php
+					if ($write_access) {
+						combo_box($prefix.'[units]', $options, 0, $units);
+					} else {
+						echo $options[$units];
+					}
+					?>
+				</td>
+			</tr>
 		</table>
 		<?php
-		echo translate('condition_user_frequency_note');
+		$o->note(translate('condition_user_frequency_note'));
 
 	}//end paintEditInterface()
 

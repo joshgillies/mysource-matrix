@@ -136,7 +136,7 @@
 		        yPosition += (bodycopy_parent_td.offsetTop);
 		        bodycopy_parent_td = bodycopy_parent_td.offsetParent;
 		    }
-  			bodycopy_popup.move(20, yPosition + 27);
+  			bodycopy_popup.move(20, yPosition -50);
 		} else {
 			var scroll_top  = ((is_ie4up) ? (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop  : self.pageYOffset);
 			var top_position = 0;
