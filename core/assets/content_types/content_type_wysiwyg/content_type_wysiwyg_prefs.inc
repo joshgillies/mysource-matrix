@@ -491,7 +491,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 		// enable viper
 		if (is_null($pref) || $pref == 'SQ_ENABLE_VIPER_EDITOR') {
 			if (isset($_POST['prefs']['SQ_ENABLE_VIPER_EDITOR'])) {
-				$this->pref_vars['SQ_ENABLE_VIPER_EDITOR']['default'] = $_POST['prefs']['SQ_ENABLE_VIPER_EDITOR']['default'];
+				$this->pref_vars['SQ_ENABLE_VIPER_EDITOR']['default'] = $_POST['prefs']['SQ_ENABLE_VIPER_EDITOR'];
 			}
 		}		
 
@@ -505,7 +505,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 		// WYSIWYG APPLY DESIGN STYLE
 		if (is_null($pref) || $pref == 'SQ_WYSIWYG_APPLY_DESIGN_STYLE') {
 			if (isset($_POST['prefs']['SQ_WYSIWYG_APPLY_DESIGN_STYLE'])) {
-				$this->pref_vars['SQ_WYSIWYG_APPLY_DESIGN_STYLE']['default'] = $_POST['prefs']['SQ_WYSIWYG_APPLY_DESIGN_STYLE']['default'];
+				$this->pref_vars['SQ_WYSIWYG_APPLY_DESIGN_STYLE']['default'] = $_POST['prefs']['SQ_WYSIWYG_APPLY_DESIGN_STYLE'];
 			}
 		}
 		
@@ -587,7 +587,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 		// LIVE LINK ONLY
 		if (is_null($pref) || $pref == 'SQ_LIVE_LINK_ONLY') {
 			if (isset($_POST['prefs']['SQ_LIVE_LINK_ONLY'])) {
-				$this->pref_vars['SQ_LIVE_LINK_ONLY']['default'] = $_POST['prefs']['SQ_LIVE_LINK_ONLY']['default'];
+				$this->pref_vars['SQ_LIVE_LINK_ONLY']['default'] = $_POST['prefs']['SQ_LIVE_LINK_ONLY'];
 			}
 		}
 		
