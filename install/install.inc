@@ -317,8 +317,6 @@ function uninstall_packages()
 */
 function install_core($package_list=Array())
 {
-	echo 'Installing core .. ';
-
 	// If there's some packages defined in the array, make sure the Core
 	// is one of them, otherwise break out.
 
@@ -332,7 +330,10 @@ function install_core($package_list=Array())
 			// If it wasn't an array at the core index, just make it empty
 			if (!is_array($assets)) $assets = Array();
 		}
-	}
+    }
+
+	echo 'Installing core .. ';
+
 	require_once SQ_CORE_PACKAGE_PATH.'/package_manager_core.inc';
 	$pm = new Package_Manager_Core();
 	$result = $pm->updatePackageDetails($assets);

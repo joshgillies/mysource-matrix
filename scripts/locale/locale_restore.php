@@ -47,10 +47,6 @@ error_reporting(E_ALL);
 $SYSTEM_ROOT = '';
 $exs = Array();
 
-
-// from cmd line
-$cli = true;
-
 if ((php_sapi_name() == 'cli')) {
 	if (isset($_SERVER['argv'][1])) {
 		$SYSTEM_ROOT = $_SERVER['argv'][1];
@@ -58,11 +54,7 @@ if ((php_sapi_name() == 'cli')) {
 	$err_msg = "You need to supply the path to the System Root as the first argument\n";
 
 } else {
-	$err_msg = '
-	<div style="background-color: red; color: white; font-weight: bold;">
-		You can only run the '.$_SERVER['argv'][0].' script from the command line
-	</div>
-	';
+	trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 }
 
 if (empty($SYSTEM_ROOT)) {
@@ -75,28 +67,23 @@ if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')
 	exit();
 }
 
-
-
-// only use console stuff if we're running from the command line
-if ($cli) {
-	require_once 'Console/Getopt.php';
-
-	$shortopt = 'd:rf';
-	$longopt = Array();
-
-	$con  = new Console_Getopt;
-	$args = $con->readPHPArgv();
-	array_shift($args);			// remove the system root
-	$options = $con->getopt($args, $shortopt, $longopt);
-
-	if (is_array($options[0])) {
-		$opt_list = get_console_list($options[0]);
-		$locale_list = $opt_list['locale'];
-	}
-
-}
-
+// Include init first so it can set the right error_reporting levels.
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
+
+require_once 'Console/Getopt.php';
+
+$shortopt = 'd:rf';
+$longopt = Array();
+
+$con  = new Console_Getopt;
+$args = $con->readPHPArgv();
+array_shift($args);			// remove the system root
+$options = $con->getopt($args, $shortopt, $longopt);
+
+if (is_array($options[0])) {
+    $opt_list = get_console_list($options[0]);
+    $locale_list = $opt_list['locale'];
+}
 
 $root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 

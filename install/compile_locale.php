@@ -26,7 +26,6 @@
 * @subpackage install
 */
 ini_set('memory_limit', -1);
-error_reporting(E_ALL);
 $SYSTEM_ROOT = '';
 
 if ((php_sapi_name() == 'cli')) {
@@ -58,6 +57,18 @@ if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')
 	exit(1);
 }
 
+// dont set SQ_INSTALL flag before this include because we want
+// a complete load now that the database has been created
+
+define('SQ_SYSTEM_ROOT',  $SYSTEM_ROOT);
+// Include init first so it can set the right error_reporting levels.
+require_once $SYSTEM_ROOT.'/core/include/init.inc';
+
+// firstly let's check that we are OK for the version
+if (version_compare(PHP_VERSION, SQ_REQUIRED_PHP_VERSION, '<')) {
+	trigger_error('<i>'.SQ_SYSTEM_LONG_NAME.'</i> requires PHP Version '.SQ_REQUIRED_PHP_VERSION.'.<br/> You may need to upgrade.<br/> Your current version is '.PHP_VERSION, E_USER_ERROR);
+}
+
 require_once 'Console/Getopt.php';
 
 $shortopt = '';
@@ -75,17 +86,6 @@ if (is_array($options[0])) {
 if (empty($locale_list)) {
 	echo "\nWARNING: You did not specify a --locale parameter.\n";
 	echo "This is okay but be aware that all locales will be compiled, which may take a while if you have multiple locales on your system.\n\n";
-}
-
-// dont set SQ_INSTALL flag before this include because we want
-// a complete load now that the database has been created
-
-define('SQ_SYSTEM_ROOT',  $SYSTEM_ROOT);
-require_once $SYSTEM_ROOT.'/core/include/init.inc';
-
-// firstly let's check that we are OK for the version
-if (version_compare(PHP_VERSION, SQ_REQUIRED_PHP_VERSION, '<')) {
-	trigger_error('<i>'.SQ_SYSTEM_LONG_NAME.'</i> requires PHP Version '.SQ_REQUIRED_PHP_VERSION.'.<br/> You may need to upgrade.<br/> Your current version is '.PHP_VERSION, E_USER_ERROR);
 }
 
 // Clean up any remembered data.

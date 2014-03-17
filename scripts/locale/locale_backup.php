@@ -54,10 +54,6 @@ error_reporting(E_ALL);
 $SYSTEM_ROOT = '';
 $exs = Array();
 
-
-// from cmd line
-$cli = true;
-
 if ((php_sapi_name() == 'cli')) {
 	if (isset($_SERVER['argv'][1])) {
 		$SYSTEM_ROOT = $_SERVER['argv'][1];
@@ -65,48 +61,41 @@ if ((php_sapi_name() == 'cli')) {
 	$err_msg = "You need to supply the path to the System Root as the first argument\n";
 
 } else {
-	$err_msg = '
-	<div style="background-color: red; color: white; font-weight: bold;">
-		You can only run the '.$_SERVER['argv'][0].' script from the command line
-	</div>
-	';
+	trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 }
 
 if (empty($SYSTEM_ROOT)) {
 	echo $err_msg;
-	exit();
+	exit(1);
 }
 
 if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
 	echo "ERROR: Path provided doesn't point to a Matrix installation's System Root. Please provide correct path and try again.\n";
-	exit();
+	exit(1);
 }
 
-// only use console stuff if we're running from the command line
-if ($cli) {
-	require_once 'Console/Getopt.php';
+// Include init first so it can set the right error_reporting levels.
+require_once $SYSTEM_ROOT.'/core/include/init.inc';
 
-	$shortopt = '';
-	$longopt = Array('locale=', 'output=');
+require_once 'Console/Getopt.php';
 
-	$con  = new Console_Getopt;
-	$args = $con->readPHPArgv();
-	array_shift($args);			// remove the system root
-	$options = $con->getopt($args, $shortopt, $longopt);
+$shortopt = '';
+$longopt = Array('locale=', 'output=');
 
-	if (is_array($options[0])) {
-		$opt_list = get_console_list($options[0]);
-		$locale_list = $opt_list['locale'];
-	}
+$con  = new Console_Getopt;
+$args = $con->readPHPArgv();
+array_shift($args);			// remove the system root
+$options = $con->getopt($args, $shortopt, $longopt);
 
+if (is_array($options[0])) {
+    $opt_list = get_console_list($options[0]);
+    $locale_list = $opt_list['locale'];
 }
 
 // if locale list empty, do everything
 if (empty($locale_list)) {
 	echo "\nWARNING: You did not specify a --locale parameter. This is okay but be aware that all locales will be compiled, which may take a while if you have multiple locales on your system\n\n";
 }
-
-require_once $SYSTEM_ROOT.'/core/include/init.inc';
 
 $root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 
