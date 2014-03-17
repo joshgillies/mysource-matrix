@@ -210,6 +210,9 @@ foreach ($check_types as $check_type) {
 			echo str_repeat('-', 20) . "\n";
 			foreach ($details as $item) {
 				echo "\t" . $item['name'];
+				if (isset($item['description'])) {
+					echo $item['description'];
+				}
 				if (isset($item['version_found'])) {
 					echo " (Found version " . $item['version_found'] . " but require at least " . $item['version_required'] . ")";
 				}
@@ -790,7 +793,8 @@ function check_requirement($requirement_check, $package_name='core')
 		$version_check = version_compare($version_found, $version_required, '>=');
 		if ($version_check !== true) {
 			$missing_modules[$check_type]['out_of_date'][] = array(
-				'name' => $check_name . $description . $extra_info,
+				'name' => $check_name,
+				'description' => $description . $extra_info,
 				'version_found' => $version_found,
 				'version_required' => $version_required,
 				'required_by' => $package_name
@@ -830,12 +834,14 @@ function check_requirement($requirement_check, $package_name='core')
 	if (!$check_ok) {
 		if ($requirement_check->suggested) {
 			$missing_modules[$check_type]['suggested'][] = array(
-				'name' => $check_name . $description . $extra_info,
+				'name' => $check_name,
+				'description' => $description . $extra_info,
 				'required_by' => $package_name
 			);
 		} else {
 			$missing_modules[$check_type]['required'][] = array(
-				'name' => $check_name . $description . $extra_info,
+				'name' => $check_name,
+				'description' => $description . $extra_info,
 				'required_by' => $package_name
 			);
 		}
