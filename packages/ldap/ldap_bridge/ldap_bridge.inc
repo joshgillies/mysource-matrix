@@ -211,10 +211,12 @@ class LDAP_Bridge extends Asset implements Bridge
 	{
 		$asset = NULL;
 		$id_parts = explode(':', $assetid);
-
+		if(isset($this->_tmp['getAsset'][$assetid])) return $this->_tmp['getAsset'][$assetid];
+				    
 		if (isset($id_parts[1])) {
 			$shadowid = $id_parts[1];
 		} else {
+			$this->_tmp['getAsset'][$assetid] = $asset;
 			return $asset;
 		}
 
@@ -225,6 +227,7 @@ class LDAP_Bridge extends Asset implements Bridge
 			$inbox_asset->id = $this->id.':'.$shadowid.':inbox';
 			$inbox_asset->name = 'Inbox';
 			$inbox_asset->status = $this->status;
+			$this->_tmp['getAsset'][$assetid] = $inbox_asset;
 			return $inbox_asset;
 		}
 
@@ -268,6 +271,7 @@ class LDAP_Bridge extends Asset implements Bridge
 				// an LDAP user group
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset('ldap_user_group');
 				$asset = new Ldap_User_Group($this->id, $data);
+				$this->_tmp['getAsset'][$assetid] = $asset;
 				return $asset;
 
 			} else if (isset($this->_user_types[$class])) {
@@ -279,6 +283,7 @@ class LDAP_Bridge extends Asset implements Bridge
 				// depending on the bridge setting
 				$user_type = $this->attr('user_type');
 				$asset = new $user_type($this->id, $data);
+				$this->_tmp['getAsset'][$assetid] = $asset;
 				return $asset;
 			}
 		}
@@ -377,10 +382,6 @@ class LDAP_Bridge extends Asset implements Bridge
 	*/
 	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $sort_by=NULL, $dependant=NULL, $exclusive=NULL)
 	{
-		$ldap = @$this->connectToLdap();
-		if (is_null($ldap) || is_null($ldap->ptr)) {
-			return Array();
-		}
 
 		// if the wanted link type is not the type of links
 		// that this bridge allows, lets return now
@@ -408,6 +409,11 @@ class LDAP_Bridge extends Asset implements Bridge
 		$attrs = $this->attr('attributes');
 
 		if (!isset($this->_tmp['getLinks'][$assetid][$side_of_link][$type_code_key])) {
+		    
+			$ldap = @$this->connectToLdap();
+			if (is_null($ldap) || is_null($ldap->ptr)) {
+				return Array();
+			}
 
 			if ($side_of_link == 'minor') {
 
@@ -902,6 +908,8 @@ class LDAP_Bridge extends Asset implements Bridge
 		$id_parts = explode(':', $assetid);
 		if (isset($id_parts[1])) $assetid = $id_parts[1];
 
+		if(isset($this->_tmp['getChildren'][$assetid])) return $this->_tmp['getChildren'][$assetid];
+		    
 		if ($assetid != $this->id) {
 			// if we are using Active Directory, the tree structure does not quite work the same
 			// as openLDAP, so we can only do one level for now
@@ -1085,6 +1093,8 @@ class LDAP_Bridge extends Asset implements Bridge
 
 		$ldap->disconnect();
 
+		$this->_tmp['getChildren'][$assetid] = $children;
+		
 		return $children;
 
 	}//end getChildren()
