@@ -3127,6 +3127,12 @@ div.sq-grey-header-row,
 	border-radius: 				3px;
 }
 
+.div-conditions-set div.sq-grey-header-row{
+	background: 				#999999;
+	color: 						#FFF;
+	text-shadow: 				0 1px 0 #000;
+}
+
 .sq-grey-header-row .sq-content-type-name {
 	line-height: 				17px;
 }

@@ -5,6 +5,11 @@
 .Viper-textbox-textArea {
     box-shadow: none!important;
 }
+.Viper-textbox.Viper-disabled .Viper-textbox-input[type=text], 
+.Viper-textbox.Viper-disabled .Viper-textbox-textArea {
+    background: none;
+    border: none;
+}
 
 /* view source code mode requires specific font to work, so have to stop Matrix styles passing on it */
 .ace_editor {
