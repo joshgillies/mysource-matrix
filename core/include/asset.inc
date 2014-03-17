@@ -4638,7 +4638,14 @@ class Asset extends MySource_Object
 
 		// if there is workflow defined for this asset, the current user
 		// must be the only concerned user to be able to live edit
-		$wf_complete = $wfm->testPublish($this->id, $GLOBALS['SQ_SYSTEM']->currentUserId());
+		// cache it per request, it's very expensive to test publishing workflow
+		if(isset($this->_tmp['test_publish'][$GLOBALS['SQ_SYSTEM']->currentUserId()])) {
+		    $wf_complete = $this->_tmp['test_publish'][$GLOBALS['SQ_SYSTEM']->currentUserId()];
+		}
+		else {
+		    $wf_complete = $wfm->testPublish($this->id, $GLOBALS['SQ_SYSTEM']->currentUserId());
+		    $this->_tmp['test_publish'][$GLOBALS['SQ_SYSTEM']->currentUserId()] = $wf_complete;
+		}
 		if ($wf_complete) return TRUE;
 
 		return FALSE;
