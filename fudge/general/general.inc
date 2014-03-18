@@ -1179,4 +1179,43 @@ function json_encode_array($data)
     return $output;
 }//end json_encode_array()
 
+
+/**
+* array diff assoc on 2 arrays with nested elements
+*
+* @param string $array1	PHP Array
+* @param string $array2	PHP Array
+* @return FALSE | array return the difference between array 1 and array 2
+*/
+function array_diff_assoc_recursive($array1, $array2)
+{
+    foreach($array1 as $key => $value)
+    {
+        if(is_array($value))
+        {
+              if(!isset($array2[$key]))
+              {
+                  $difference[$key] = $value;
+              }
+              elseif(!is_array($array2[$key]))
+              {
+                  $difference[$key] = $value;
+              }
+              else
+              {
+                  $new_diff = array_diff_assoc_recursive($value, $array2[$key]);
+                  if($new_diff != FALSE)
+                  {
+                        $difference[$key] = $new_diff;
+                  }
+              }
+          }
+          elseif(!array_key_exists($key, $array2) || $array2[$key] != $value)
+          {
+              $difference[$key] = $value;
+          }
+    }
+    return !isset($difference) ? FALSE : $difference;
+} //end array_diff_assoc_recursive
+
 ?>

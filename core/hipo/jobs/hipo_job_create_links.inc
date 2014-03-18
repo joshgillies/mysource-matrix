@@ -1379,7 +1379,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 		foreach ($perms as $title => $perm) {
 			$permissions = $GLOBALS['SQ_SYSTEM']->am->getAssetPermissionByCascade($assetid, $perm, NULL, NULL);
 			$ppermissions = $GLOBALS['SQ_SYSTEM']->am->getAssetPermissionByCascade($parentid, $perm, NULL, TRUE);
-			$diff = array_diff_assoc($ppermissions, $permissions);
+			$diff = array_diff_assoc_recursive($ppermissions, $permissions);
 			if (!empty($diff)) return FALSE;
 		}
 
@@ -1387,7 +1387,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 		$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		$schemas = $wfm->getSchemas($assetid, NULL, NULL);
 		$pschemas = $wfm->getSchemas($parentid, NULL, TRUE);
-		$diff = array_diff_assoc($pschemas, $schemas);
+		$diff = array_diff_assoc_recursive($pschemas, $schemas);
 		if (!empty($diff)) return FALSE;
 
 		// Metadata Schemas
@@ -1395,7 +1395,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		$schemas = $mm->getSchemas($assetid, NULL, NULL);
 		$pschemas = $mm->getSchemas($parentid, NULL, TRUE);
-		$diff = array_diff_assoc($pschemas, $schemas);
+		$diff = array_diff_assoc_recursive($pschemas, $schemas);
 		if (!empty($diff)) return FALSE;
 
 		// Tag links
@@ -1423,7 +1423,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 		// Roles
 		$roles = $GLOBALS['SQ_SYSTEM']->am->getRole($assetid);
 		$proles = $GLOBALS['SQ_SYSTEM']->am->getRole($parentid);
-		$diff = array_diff_assoc($proles, $roles);
+		$diff = array_diff_assoc_recursive($proles, $roles);
 		if (!empty($diff)) return FALSE;
 
 		return TRUE;
