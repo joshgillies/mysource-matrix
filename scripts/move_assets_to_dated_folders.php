@@ -376,7 +376,7 @@ function setAssetStatus($asset_id, $status)
 
 /************************** MAIN PROGRAM ****************************/
 
-if (defined('E_STRICT')) {
+if (defined('E_STRICT') && (E_ALL & E_STRICT)) {
 	error_reporting(E_ALL ^ E_DEPRECATED ^ E_STRICT);
 } else {
 	if (defined('E_DEPRECATED')) {

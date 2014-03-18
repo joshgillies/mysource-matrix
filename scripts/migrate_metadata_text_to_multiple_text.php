@@ -24,7 +24,7 @@ if ((php_sapi_name() != 'cli')) {
 	trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 }
 
-if (defined('E_STRICT')) {
+if (defined('E_STRICT') && (E_ALL & E_STRICT)) {
 	error_reporting(E_ALL ^ E_DEPRECATED ^ E_STRICT);
 } else {
 	if (defined('E_DEPRECATED')) {
