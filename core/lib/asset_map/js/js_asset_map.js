@@ -3922,10 +3922,11 @@ var JS_Asset_Map = new function() {
 	 * The type filter is either omitted (in which case all assets are selectable),
 	 * or a list of asset types.
 	 *
-	 * @param {Node}  element
-	 * @param {Array} [typeFilter] The type filter.
-	 * @param {Boolean} [returnAttributes] The type filter.
-	 *
+	 * @param {String}   name               Name prefix for name attributes.
+	 * @param {String}   safeName           Safe name prefix for ID attributes.
+	 * @param {Array}    [typeFilter]       The type filter.
+	 * @param {Boolean}  [returnAttributes] Return attributes when asset selected.
+	 * @param {Function} [doneCallback]     Call this function on asset selection.
 	 */
 	this.setUseMeMode = function(name, safeName, typeFilter, returnAttributes, doneCallback) {
 		var self = this;
@@ -3933,6 +3934,9 @@ var JS_Asset_Map = new function() {
 		if (this.isInUseMeMode() === true) {
 			alert(js_translate('asset_finder_in_use'));
 		} else {
+		    // Make sure typeFilter gets our own array functions.
+		    var typeFilter = [].concat(typeFilter);
+		    
 			var sourceFrame = self.getUseMeFrame();
 			var oldOnUnload = sourceFrame.onunload;
 			dfx.addEvent(sourceFrame, 'unload', function() {
