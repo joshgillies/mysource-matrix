@@ -3183,12 +3183,12 @@ var JS_Asset_Map = new function() {
 	};
 
 	this.addToRefreshQueue = function(assetids) {
-		refreshQueue = refreshQueue.concat(assetids);
+	    refreshQueue = refreshQueue.concat(assetids);
 	};
 
 
 	this.processRefreshQueue = function() {
-		var self = this;
+	    var self = this;
 
 		// Take a local copy of the refresh queue, and clear it.
 		var processQueue = refreshQueue.concat([]);
@@ -3200,17 +3200,30 @@ var JS_Asset_Map = new function() {
 		var hasRootFolder = false;
 
 		for (var i = 0; i < processQueue.length; i++) {
-			var assetNodes = dfx.find(assetMapContainer, 'div.asset[data-assetid="' + processQueue[i]  + '"]');
-			for (var j = 0; j < assetNodes.length; j++) {
-				assetRequests.push({
-					_attributes: {
-						assetid: processQueue[i],
-						linkid: assetNodes[j].getAttribute('data-linkid'),
-						start: 0,
-						limit: 1
-					}
-				});
-			}
+		    if (processQueue[i] === '1') {
+		        // If we have the root folder (#1), we need to add that separately
+		        // as it does not have an asset node.
+		        assetRequests.push({
+                    _attributes: {
+                        assetid: "1",
+                        linkid: "1",
+                        start: 0,
+                        limit: 1
+                    }
+                });
+		    } else {
+                var assetNodes = dfx.find(assetMapContainer, 'div.asset[data-assetid="' + processQueue[i]  + '"]');
+                for (var j = 0; j < assetNodes.length; j++) {
+                    assetRequests.push({
+                        _attributes: {
+                            assetid: processQueue[i],
+                            linkid: assetNodes[j].getAttribute('data-linkid'),
+                            start: 0,
+                            limit: 1
+                        }
+                    });
+                }
+            }//end if
 		}//end for
 
 		var processAssets = function(response) {
