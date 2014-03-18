@@ -3214,43 +3214,46 @@ var JS_Asset_Map = new function() {
 		}//end for
 
 		var processAssets = function(response) {
-			for (var i = 0; i < response.asset.length; i++) {
-				var thisAsset  = response.asset[i];
-				thisAsset._attributes.name      = decodeURIComponent(thisAsset._attributes.name.replace(/\+/g, '%20'));
-				thisAsset._attributes.assetid   = decodeURIComponent(thisAsset._attributes.assetid.replace(/\+/g, '%20'));
-				thisAsset._attributes.linkid    = decodeURIComponent(thisAsset._attributes.linkid.replace(/\+/g, '%20'));
-				thisAsset._attributes.type_code = decodeURIComponent(thisAsset._attributes.type_code.replace(/\+/g, '%20'));
-
-				var assetid = thisAsset._attributes.assetid;
-				var linkid  = thisAsset._attributes.linkid;
-				if (String(assetid) === '1') {
-					hasRootFolder = true;
-				} else {
-					var assetNodes = dfx.find(assetMapContainer, 'div.asset[data-linkid="' + linkid  + '"]');
-					for (var j = 0; j < assetNodes.length; j++) {
-						var assetNode     = assetNodes[j];
-						var newNode       = _formatAsset(thisAsset._attributes);
-						newNode.className = assetNode.className;
-
-						newNode.setAttribute('data-linkid', assetNode.getAttribute('data-linkid'));
-						newNode.setAttribute('data-asset-path', assetNode.getAttribute('data-asset-path'));
-						newNode.setAttribute('data-link-path', assetNode.getAttribute('data-link-path'));
-
-						assetNode.parentNode.replaceChild(newNode, assetNode);
-					}//end for
-
-					var expansions = dfx.find(assetMapContainer, '.childIndent[data-parentid="' + assetid + '"]');
-					if (expansions.length > 0) {
-						treeRefresh.push(assetid);
-						for (var j = 0; j < expansions.length; j++) {
-							var parentid = expansions[j].getAttribute('data-parentid');
-							if (treeRefresh.inArray(parentid) === false) {
-								treeRefresh.push(parentid);
-							}
-						}//end for
-					}//end if
-				}//end if
-			}//end for
+		    var hasRootFolder = false;
+		    if (response.asset) {
+                for (var i = 0; i < response.asset.length; i++) {
+                    var thisAsset  = response.asset[i];
+                    thisAsset._attributes.name      = decodeURIComponent(thisAsset._attributes.name.replace(/\+/g, '%20'));
+                    thisAsset._attributes.assetid   = decodeURIComponent(thisAsset._attributes.assetid.replace(/\+/g, '%20'));
+                    thisAsset._attributes.linkid    = decodeURIComponent(thisAsset._attributes.linkid.replace(/\+/g, '%20'));
+                    thisAsset._attributes.type_code = decodeURIComponent(thisAsset._attributes.type_code.replace(/\+/g, '%20'));
+    
+                    var assetid = thisAsset._attributes.assetid;
+                    var linkid  = thisAsset._attributes.linkid;
+                    if (String(assetid) === '1') {
+                        hasRootFolder = true;
+                    } else {
+                        var assetNodes = dfx.find(assetMapContainer, 'div.asset[data-linkid="' + linkid  + '"]');
+                        for (var j = 0; j < assetNodes.length; j++) {
+                            var assetNode     = assetNodes[j];
+                            var newNode       = _formatAsset(thisAsset._attributes);
+                            newNode.className = assetNode.className;
+    
+                            newNode.setAttribute('data-linkid', assetNode.getAttribute('data-linkid'));
+                            newNode.setAttribute('data-asset-path', assetNode.getAttribute('data-asset-path'));
+                            newNode.setAttribute('data-link-path', assetNode.getAttribute('data-link-path'));
+    
+                            assetNode.parentNode.replaceChild(newNode, assetNode);
+                        }//end for
+    
+                        var expansions = dfx.find(assetMapContainer, '.childIndent[data-parentid="' + assetid + '"]');
+                        if (expansions.length > 0) {
+                            treeRefresh.push(assetid);
+                            for (var j = 0; j < expansions.length; j++) {
+                                var parentid = expansions[j].getAttribute('data-parentid');
+                                if (treeRefresh.inArray(parentid) === false) {
+                                    treeRefresh.push(parentid);
+                                }
+                            }//end for
+                        }//end if
+                    }//end if
+                }//end for
+			}//end if
 
 			if (hasRootFolder) {
 				// If we have the root folder, just refresh the whole tree that
@@ -3553,29 +3556,32 @@ var JS_Asset_Map = new function() {
 			}
 
 			var processAssets = function(response) {
-				for (var i = 0; i < response.asset.length; i++) {
-					var sortOrder = savedSortOrders.shift();
-
-					var thisAsset = response.asset[i];
-					var container = _createChildContainer(thisAsset._attributes.assetid);
-					container.setAttribute('data-offset', sortOrder);
-					container.setAttribute('data-total', thisAsset._attributes.num_kids);
-
-					dfx.addClass(assetLine, 'expanded');
-					assetLine.parentNode.insertBefore(container, assetLine.nextSibling);
-					self.drawTree(assetLine, thisAsset, container, sortOrder, thisAsset._attributes.num_kids);
-
-					var nextAssetid = allAssetids[i];
-					assetLine       = dfx.find(container, 'div[data-assetid="' + nextAssetid + '"]')[0];
-
-					if (i < (response.asset.length - 1)) {
-						dfx.addClass(assetLine, 'located');
-					} else {
-						self.addToSelection(assetLine);
-						lastSelection = assetLine;
-						assetLine.scrollIntoView(true);
-						self.getDefaultView(assetLine).top.scrollTo(0, 0);
-					}
+			    // If no assets returned as a response, don't process.
+			    if (response.asset) {
+                    for (var i = 0; i < response.asset.length; i++) {
+                        var sortOrder = savedSortOrders.shift();
+    
+                        var thisAsset = response.asset[i];
+                        var container = _createChildContainer(thisAsset._attributes.assetid);
+                        container.setAttribute('data-offset', sortOrder);
+                        container.setAttribute('data-total', thisAsset._attributes.num_kids);
+    
+                        dfx.addClass(assetLine, 'expanded');
+                        assetLine.parentNode.insertBefore(container, assetLine.nextSibling);
+                        self.drawTree(assetLine, thisAsset, container, sortOrder, thisAsset._attributes.num_kids);
+    
+                        var nextAssetid = allAssetids[i];
+                        assetLine       = dfx.find(container, 'div[data-assetid="' + nextAssetid + '"]')[0];
+    
+                        if (i < (response.asset.length - 1)) {
+                            dfx.addClass(assetLine, 'located');
+                        } else {
+                            self.addToSelection(assetLine);
+                            lastSelection = assetLine;
+                            assetLine.scrollIntoView(true);
+                            self.getDefaultView(assetLine).top.scrollTo(0, 0);
+                        }
+                    }
 				}
 
 				self.message(js_translate('asset_map_status_bar_success'), false, 2000);
