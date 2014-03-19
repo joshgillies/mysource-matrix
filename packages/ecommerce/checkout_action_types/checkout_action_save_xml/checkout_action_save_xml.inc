@@ -66,6 +66,9 @@ class Checkout_Action_Save_Xml extends Checkout_Action
 					<?php
 					$location = array_get_index($xml_settings, 'location', '');
 					text_box($prefix.'_location', $location, 50);
+					if(!empty($location) && strpos($location, '/') !== 0) {
+					    $location = SQ_SYSTEM_ROOT.'/'.$location;
+					}
 					if (empty($location) || !is_dir($location) || !is_writable($location)) {
 						?><br />
 						<span class="sq-backend-warning"><?php echo translate('location_warning'); ?></span>
@@ -104,6 +107,8 @@ class Checkout_Action_Save_Xml extends Checkout_Action
 		}
 
 		$xml_settings['location'] = array_get_index($_POST, $prefix.'_location', '');
+		// use relative path
+		$xml_settings['location'] = str_replace(SQ_SYSTEM_ROOT.'/', '', $xml_settings['location']);
 		$xml_settings['include_trans_ref'] = array_get_index($_POST, $prefix.'_include_trans_ref', '0');
 
 		$settings['save_xml'] = $xml_settings;
@@ -164,6 +169,9 @@ class Checkout_Action_Save_Xml extends Checkout_Action
 		if (!self::isValid($checkout, $settings)) return FALSE;
 
 		$location = $xml_settings['location'];
+		if(!empty($location) && strpos($location, '/') !== 0) {
+		    $location = SQ_SYSTEM_ROOT.'/'.$location;
+		}
 		$include_trans_ref = $xml_settings['include_trans_ref'];
 		$file = $location.'/order-'.$order->id.'-'.date('YmdHis', $order->created).'.xml';
 
