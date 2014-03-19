@@ -3397,19 +3397,10 @@ class MySource extends MySource_Object
 			} else if (isset($GLOBALS['SQ_CLONE_COMPONENTS'] ) && $GLOBALS['SQ_CLONE_COMPONENTS']) {
 				$filter_enabled = FALSE;
 			} else {
-				// If we are in the front-end, check whether we had been called
-				// through an API request in simple edit. If so, allow it to be
-				// unfiltered -if- a user is logged in that can access Simple Edit.
-				$referrer_limbo = FALSE;
-				if (isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER'])) {
-					$referrer_limbo = (strpos($_SERVER['HTTP_REFERER'],SQ_CONF_LIMBO_SUFFIX) !== FALSE) ? TRUE : FALSE;
-				}
-
-				if ($referrer_limbo === TRUE) {
-					$user = $GLOBALS['SQ_SYSTEM']->user;
-					if ($user->canAccessBackend() === TRUE) {
-						$filter_enabled = FALSE;
-					}
+				// If user can access backend, it's safe
+				$user = $GLOBALS['SQ_SYSTEM']->user;
+				if ($user->canAccessBackend() === TRUE) {
+					$filter_enabled = FALSE;
 				}
 			}//end if
 		}//end if frontend
