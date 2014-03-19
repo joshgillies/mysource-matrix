@@ -2676,6 +2676,7 @@ var JS_Asset_Map = new function() {
 		dfx.addClass(bottomDiv, 'confirmBottom');
 
 		var buttonYesDiv = _createEl('button');
+		dfx.addClass(buttonYesDiv, 'sq-btn-bluexw');
 		buttonYesDiv.innerHTML = js_translate('yes');
 
 		var buttonNoDiv = _createEl('button');
@@ -2687,6 +2688,8 @@ var JS_Asset_Map = new function() {
 		confirmDiv.appendChild(bodyDiv);
 		confirmDiv.appendChild(bottomDiv);
 		assetMapContainer.appendChild(confirmDiv);
+		
+		buttonYesDiv.focus();
 
 		dfx.addEvent(buttonYesDiv, 'click', function() {
 			dfx.remove(confirmDiv);
@@ -2739,6 +2742,7 @@ var JS_Asset_Map = new function() {
 		dfx.addClass(bottomDiv, 'errorBottom');
 
 		var buttonDiv = _createEl('button');
+		dfx.addClass(buttonDiv, 'sq-btn-blue');
 		buttonDiv.innerHTML = js_translate('ok');
 
 		bottomDiv.appendChild(buttonDiv);
@@ -2747,6 +2751,8 @@ var JS_Asset_Map = new function() {
 		errorDiv.appendChild(bottomDiv);
 		assetMapContainer.appendChild(errorDiv);
 
+		buttonDiv.focus();
+		
 		dfx.addEvent(buttonDiv, 'click', function() {
 			self.overlay.hide();
 			dfx.remove(errorDiv);
@@ -3183,12 +3189,12 @@ var JS_Asset_Map = new function() {
 	};
 
 	this.addToRefreshQueue = function(assetids) {
-		refreshQueue = refreshQueue.concat(assetids);
+	    refreshQueue = refreshQueue.concat(assetids);
 	};
 
 
 	this.processRefreshQueue = function() {
-		var self = this;
+	    var self = this;
 
 		// Take a local copy of the refresh queue, and clear it.
 		var processQueue = refreshQueue.concat([]);
@@ -3200,57 +3206,73 @@ var JS_Asset_Map = new function() {
 		var hasRootFolder = false;
 
 		for (var i = 0; i < processQueue.length; i++) {
-			var assetNodes = dfx.find(assetMapContainer, 'div.asset[data-assetid="' + processQueue[i]  + '"]');
-			for (var j = 0; j < assetNodes.length; j++) {
-				assetRequests.push({
-					_attributes: {
-						assetid: processQueue[i],
-						linkid: assetNodes[j].getAttribute('data-linkid'),
-						start: 0,
-						limit: 1
-					}
-				});
-			}
+		    if (processQueue[i] === '1') {
+		        // If we have the root folder (#1), we need to add that separately
+		        // as it does not have an asset node.
+		        assetRequests.push({
+                    _attributes: {
+                        assetid: "1",
+                        linkid: "1",
+                        start: 0,
+                        limit: 1
+                    }
+                });
+		    } else {
+                var assetNodes = dfx.find(assetMapContainer, 'div.asset[data-assetid="' + processQueue[i]  + '"]');
+                for (var j = 0; j < assetNodes.length; j++) {
+                    assetRequests.push({
+                        _attributes: {
+                            assetid: processQueue[i],
+                            linkid: assetNodes[j].getAttribute('data-linkid'),
+                            start: 0,
+                            limit: 1
+                        }
+                    });
+                }
+            }//end if
 		}//end for
 
 		var processAssets = function(response) {
-			for (var i = 0; i < response.asset.length; i++) {
-				var thisAsset  = response.asset[i];
-				thisAsset._attributes.name      = decodeURIComponent(thisAsset._attributes.name.replace(/\+/g, '%20'));
-				thisAsset._attributes.assetid   = decodeURIComponent(thisAsset._attributes.assetid.replace(/\+/g, '%20'));
-				thisAsset._attributes.linkid    = decodeURIComponent(thisAsset._attributes.linkid.replace(/\+/g, '%20'));
-				thisAsset._attributes.type_code = decodeURIComponent(thisAsset._attributes.type_code.replace(/\+/g, '%20'));
-
-				var assetid = thisAsset._attributes.assetid;
-				var linkid  = thisAsset._attributes.linkid;
-				if (String(assetid) === '1') {
-					hasRootFolder = true;
-				} else {
-					var assetNodes = dfx.find(assetMapContainer, 'div.asset[data-linkid="' + linkid  + '"]');
-					for (var j = 0; j < assetNodes.length; j++) {
-						var assetNode     = assetNodes[j];
-						var newNode       = _formatAsset(thisAsset._attributes);
-						newNode.className = assetNode.className;
-
-						newNode.setAttribute('data-linkid', assetNode.getAttribute('data-linkid'));
-						newNode.setAttribute('data-asset-path', assetNode.getAttribute('data-asset-path'));
-						newNode.setAttribute('data-link-path', assetNode.getAttribute('data-link-path'));
-
-						assetNode.parentNode.replaceChild(newNode, assetNode);
-					}//end for
-
-					var expansions = dfx.find(assetMapContainer, '.childIndent[data-parentid="' + assetid + '"]');
-					if (expansions.length > 0) {
-						treeRefresh.push(assetid);
-						for (var j = 0; j < expansions.length; j++) {
-							var parentid = expansions[j].getAttribute('data-parentid');
-							if (treeRefresh.inArray(parentid) === false) {
-								treeRefresh.push(parentid);
-							}
-						}//end for
-					}//end if
-				}//end if
-			}//end for
+		    var hasRootFolder = false;
+		    if (response.asset) {
+                for (var i = 0; i < response.asset.length; i++) {
+                    var thisAsset  = response.asset[i];
+                    thisAsset._attributes.name      = decodeURIComponent(thisAsset._attributes.name.replace(/\+/g, '%20'));
+                    thisAsset._attributes.assetid   = decodeURIComponent(thisAsset._attributes.assetid.replace(/\+/g, '%20'));
+                    thisAsset._attributes.linkid    = decodeURIComponent(thisAsset._attributes.linkid.replace(/\+/g, '%20'));
+                    thisAsset._attributes.type_code = decodeURIComponent(thisAsset._attributes.type_code.replace(/\+/g, '%20'));
+    
+                    var assetid = thisAsset._attributes.assetid;
+                    var linkid  = thisAsset._attributes.linkid;
+                    if (String(assetid) === '1') {
+                        hasRootFolder = true;
+                    } else {
+                        var assetNodes = dfx.find(assetMapContainer, 'div.asset[data-linkid="' + linkid  + '"]');
+                        for (var j = 0; j < assetNodes.length; j++) {
+                            var assetNode     = assetNodes[j];
+                            var newNode       = _formatAsset(thisAsset._attributes);
+                            newNode.className = assetNode.className;
+    
+                            newNode.setAttribute('data-linkid', assetNode.getAttribute('data-linkid'));
+                            newNode.setAttribute('data-asset-path', assetNode.getAttribute('data-asset-path'));
+                            newNode.setAttribute('data-link-path', assetNode.getAttribute('data-link-path'));
+    
+                            assetNode.parentNode.replaceChild(newNode, assetNode);
+                        }//end for
+    
+                        var expansions = dfx.find(assetMapContainer, '.childIndent[data-parentid="' + assetid + '"]');
+                        if (expansions.length > 0) {
+                            treeRefresh.push(assetid);
+                            for (var j = 0; j < expansions.length; j++) {
+                                var parentid = expansions[j].getAttribute('data-parentid');
+                                if (treeRefresh.inArray(parentid) === false) {
+                                    treeRefresh.push(parentid);
+                                }
+                            }//end for
+                        }//end if
+                    }//end if
+                }//end for
+			}//end if
 
 			if (hasRootFolder) {
 				// If we have the root folder, just refresh the whole tree that
@@ -3553,29 +3575,32 @@ var JS_Asset_Map = new function() {
 			}
 
 			var processAssets = function(response) {
-				for (var i = 0; i < response.asset.length; i++) {
-					var sortOrder = savedSortOrders.shift();
-
-					var thisAsset = response.asset[i];
-					var container = _createChildContainer(thisAsset._attributes.assetid);
-					container.setAttribute('data-offset', sortOrder);
-					container.setAttribute('data-total', thisAsset._attributes.num_kids);
-
-					dfx.addClass(assetLine, 'expanded');
-					assetLine.parentNode.insertBefore(container, assetLine.nextSibling);
-					self.drawTree(assetLine, thisAsset, container, sortOrder, thisAsset._attributes.num_kids);
-
-					var nextAssetid = allAssetids[i];
-					assetLine       = dfx.find(container, 'div[data-assetid="' + nextAssetid + '"]')[0];
-
-					if (i < (response.asset.length - 1)) {
-						dfx.addClass(assetLine, 'located');
-					} else {
-						self.addToSelection(assetLine);
-						lastSelection = assetLine;
-						assetLine.scrollIntoView(true);
-						self.getDefaultView(assetLine).top.scrollTo(0, 0);
-					}
+			    // If no assets returned as a response, don't process.
+			    if (response.asset) {
+                    for (var i = 0; i < response.asset.length; i++) {
+                        var sortOrder = savedSortOrders.shift();
+    
+                        var thisAsset = response.asset[i];
+                        var container = _createChildContainer(thisAsset._attributes.assetid);
+                        container.setAttribute('data-offset', sortOrder);
+                        container.setAttribute('data-total', thisAsset._attributes.num_kids);
+    
+                        dfx.addClass(assetLine, 'expanded');
+                        assetLine.parentNode.insertBefore(container, assetLine.nextSibling);
+                        self.drawTree(assetLine, thisAsset, container, sortOrder, thisAsset._attributes.num_kids);
+    
+                        var nextAssetid = allAssetids[i];
+                        assetLine       = dfx.find(container, 'div[data-assetid="' + nextAssetid + '"]')[0];
+    
+                        if (i < (response.asset.length - 1)) {
+                            dfx.addClass(assetLine, 'located');
+                        } else {
+                            self.addToSelection(assetLine);
+                            lastSelection = assetLine;
+                            assetLine.scrollIntoView(true);
+                            self.getDefaultView(assetLine).top.scrollTo(0, 0);
+                        }
+                    }
 				}
 
 				self.message(js_translate('asset_map_status_bar_success'), false, 2000);
@@ -3922,10 +3947,11 @@ var JS_Asset_Map = new function() {
 	 * The type filter is either omitted (in which case all assets are selectable),
 	 * or a list of asset types.
 	 *
-	 * @param {Node}  element
-	 * @param {Array} [typeFilter] The type filter.
-	 * @param {Boolean} [returnAttributes] The type filter.
-	 *
+	 * @param {String}   name               Name prefix for name attributes.
+	 * @param {String}   safeName           Safe name prefix for ID attributes.
+	 * @param {Array}    [typeFilter]       The type filter.
+	 * @param {Boolean}  [returnAttributes] Return attributes when asset selected.
+	 * @param {Function} [doneCallback]     Call this function on asset selection.
 	 */
 	this.setUseMeMode = function(name, safeName, typeFilter, returnAttributes, doneCallback) {
 		var self = this;
@@ -3933,6 +3959,9 @@ var JS_Asset_Map = new function() {
 		if (this.isInUseMeMode() === true) {
 			alert(js_translate('asset_finder_in_use'));
 		} else {
+		    // Make sure typeFilter gets our own array functions.
+		    var typeFilter = [].concat(typeFilter);
+		    
 			var sourceFrame = self.getUseMeFrame();
 			var oldOnUnload = sourceFrame.onunload;
 			dfx.addEvent(sourceFrame, 'unload', function() {
@@ -4885,7 +4914,7 @@ var JS_Asset_Map = new function() {
 			reload_assets: function(assetids)
 			{
 				if (typeof assetids !== 'string') {
-					return false;
+				    return false;
 				}
 
 				assetids = assetids.split('|');
