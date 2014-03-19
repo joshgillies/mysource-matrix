@@ -2668,6 +2668,7 @@ var JS_Asset_Map = new function() {
 		dfx.addClass(bottomDiv, 'confirmBottom');
 
 		var buttonYesDiv = _createEl('button');
+		dfx.addClass(buttonYesDiv, 'sq-btn-bluexw');
 		buttonYesDiv.innerHTML = js_translate('yes');
 
 		var buttonNoDiv = _createEl('button');
@@ -2679,6 +2680,8 @@ var JS_Asset_Map = new function() {
 		confirmDiv.appendChild(bodyDiv);
 		confirmDiv.appendChild(bottomDiv);
 		assetMapContainer.appendChild(confirmDiv);
+		
+		buttonYesDiv.focus();
 
 		dfx.addEvent(buttonYesDiv, 'click', function() {
 			dfx.remove(confirmDiv);
@@ -2731,6 +2734,7 @@ var JS_Asset_Map = new function() {
 		dfx.addClass(bottomDiv, 'errorBottom');
 
 		var buttonDiv = _createEl('button');
+		dfx.addClass(buttonDiv, 'sq-btn-blue');
 		buttonDiv.innerHTML = js_translate('ok');
 
 		bottomDiv.appendChild(buttonDiv);
@@ -2739,6 +2743,8 @@ var JS_Asset_Map = new function() {
 		errorDiv.appendChild(bottomDiv);
 		assetMapContainer.appendChild(errorDiv);
 
+		buttonDiv.focus();
+		
 		dfx.addEvent(buttonDiv, 'click', function() {
 			self.overlay.hide();
 			dfx.remove(errorDiv);
@@ -4827,7 +4833,7 @@ var JS_Asset_Map = new function() {
 			reload_assets: function(assetids)
 			{
 				if (typeof assetids !== 'string') {
-					return false;
+				    return false;
 				}
 
 				assetids = assetids.split('|');
