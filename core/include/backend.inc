@@ -687,7 +687,7 @@ class Backend extends MySource_Object
 					if ($redirect_assetid !== NULL) {
 						$this->out->addOnLoad('
 							if (parent.frames["sq_main"]) {
-								parent.frames["sq_main"].location = "'.$_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid='.urlencode($searched_asset->id).'";
+								parent.frames["sq_main"].location = "'.$_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid='.urlencode($redirect_assetid).'";
 							}
 						');
 					}
