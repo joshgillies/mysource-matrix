@@ -82,6 +82,8 @@ if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')
 	exit();
 }
 
+require_once $SYSTEM_ROOT.'/core/include/init.inc';
+
 // only use console stuff if we're running from the command line
 if ($cli) {
 	require_once 'Console/Getopt.php';
@@ -106,7 +108,6 @@ if (empty($locale_list)) {
 	echo "\nWARNING: You did not specify a --locale parameter. This is okay but be aware that all locales will be compiled, which may take a while if you have multiple locales on your system\n\n";
 }
 
-require_once $SYSTEM_ROOT.'/core/include/init.inc';
 
 $root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 

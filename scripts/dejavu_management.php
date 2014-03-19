@@ -8,19 +8,30 @@
 * @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
-error_reporting(E_ALL);
+
 if ((php_sapi_name() != 'cli')) {
 	trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
+}
+
+if (defined('E_STRICT') && (E_ALL & E_STRICT)) {
+	error_reporting(E_ALL ^ E_DEPRECATED ^ E_STRICT);
+} else {
+	if (defined('E_DEPRECATED')) {
+		error_reporting(E_ALL ^ E_DEPRECATED);
+	} else {
+		error_reporting(E_ALL);
+	}
 }
 
 require_once 'Console/Getopt.php';
 
 $shortopt = 's:';
-$longopt = Array('enable', 'disable', 'forget', 'status', 'disable_force', 'recaching_delay=');
+$longopt = Array('enable', 'disable', 'forget', 'status', 'disable_force', 'recaching_delay=', 'cache_storage=');
 
-$args = Console_Getopt::readPHPArgv();
+$con = new Console_Getopt();
+$args = $con->readPHPArgv();
 array_shift($args);
-$options = Console_Getopt::getopt($args, $shortopt, $longopt);
+$options = $con->getopt($args, $shortopt, $longopt);
 if ($options instanceof PEAR_Error) {
 	usage();
 }

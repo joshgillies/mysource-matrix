@@ -46,16 +46,6 @@ if (!defined('PHP_VERSION_ID')) {
 }
 
 
-// set the level of PHP reported errors and some other
-// PHP thingies we want done OUR way
-if (PHP_VERSION_ID < 50300) {
-	// pear http/client module contains deprecated syntax which will cause trouble
-	// E_DEPRECATED is introduced in PHP 5.3 and included in E_ALL, so has to remove E_DEPRECATED for php 5.3 and above
-	error_reporting(E_ALL);
-}
-else {
-	error_reporting(E_ALL ^ E_DEPRECATED);
-}
 $SYSTEM_ROOT = '';
 
 $cli = TRUE;
@@ -86,6 +76,12 @@ if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')
 	exit();
 }
 
+if (!defined('SQ_SYSTEM_ROOT')) {
+	define('SQ_SYSTEM_ROOT',  $SYSTEM_ROOT);
+}
+
+require_once $SYSTEM_ROOT.'/core/include/init.inc';
+
 // only use console stuff if we're running from the command line
 if ($cli) {
 	require_once 'Console/Getopt.php';
@@ -103,11 +99,7 @@ if ($cli) {
 	}
 }
 
-if (!defined('SQ_SYSTEM_ROOT')) {
-	define('SQ_SYSTEM_ROOT',  $SYSTEM_ROOT);
-}
 
-require_once $SYSTEM_ROOT.'/core/include/init.inc';
 
 // check to see if the default/ tech email in main.inc are provided and are correct
 // for more info see bug report 5804 Default and Tech Emails shouldnt break install

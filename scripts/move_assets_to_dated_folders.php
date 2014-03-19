@@ -376,7 +376,16 @@ function setAssetStatus($asset_id, $status)
 
 /************************** MAIN PROGRAM ****************************/
 
-error_reporting(E_ALL);
+if (defined('E_STRICT') && (E_ALL & E_STRICT)) {
+	error_reporting(E_ALL ^ E_DEPRECATED ^ E_STRICT);
+} else {
+	if (defined('E_DEPRECATED')) {
+		error_reporting(E_ALL ^ E_DEPRECATED);
+	} else {
+		error_reporting(E_ALL);
+	}
+}
+
 if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');
 
 if ((php_sapi_name() != 'cli')) {
@@ -389,9 +398,10 @@ require_once 'Console/Getopt.php';
 $shortopt = '';
 $longopt = Array('root=', 'type=', 'field=', 'period=', 'folder-link-type=', 'make-folders-live', 'move-asset-status=');
 
-$args = Console_Getopt::readPHPArgv();
+$con = new Console_Getopt();
+$args = $con->readPHPArgv();
 array_shift($args);
-$options = Console_Getopt::getopt($args, $shortopt, $longopt);
+$options = $con->getopt($args, $shortopt, $longopt);
 if (empty($options[0])) {
 	printUsage();
 	exit();

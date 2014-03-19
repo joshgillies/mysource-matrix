@@ -75,6 +75,7 @@ if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')
 	exit();
 }
 
+require_once $SYSTEM_ROOT.'/install/install.inc';
 
 
 // only use console stuff if we're running from the command line
@@ -107,7 +108,6 @@ if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 }
 
 // get the list of functions used during install
-require_once $SYSTEM_ROOT.'/install/install.inc';
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 require_once 'XML/Tree.php';
 

@@ -26,7 +26,6 @@
 * @subpackage install
 */
 ini_set('memory_limit', -1);
-error_reporting(E_ALL);
 $SYSTEM_ROOT = '';
 $exs = Array();
 
@@ -61,6 +60,13 @@ if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')
 	exit();
 }
 
+// dont set SQ_INSTALL flag before this include because we want
+// a complete load now that the database has been created
+
+define('SQ_SYSTEM_ROOT',  $SYSTEM_ROOT);
+require_once $SYSTEM_ROOT.'/core/include/init.inc';
+
+
 // only use console stuff if we're running from the command line
 if ($cli) {
 	require_once 'Console/Getopt.php';
@@ -84,11 +90,7 @@ if (empty($locale_list)) {
 	sleep(2);
 }
 
-// dont set SQ_INSTALL flag before this include because we want
-// a complete load now that the database has been created
 
-define('SQ_SYSTEM_ROOT',  $SYSTEM_ROOT);
-require_once $SYSTEM_ROOT.'/core/include/init.inc';
 
 // Clean up any remembered data.
 require_once $SYSTEM_ROOT.'/core/include/deja_vu.inc';
