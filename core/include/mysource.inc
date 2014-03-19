@@ -1059,10 +1059,11 @@ class MySource extends MySource_Object
 	*/
 	public function replaceKeyword(&$content, $additional_replacements=Array())
 	{
-		// Replace any global keywords first
-		replace_global_keywords($content);
 
 		if ($this->getGlobalDefine('SQ_REPLACE_MYSOURCE_LEVEL_KEYWORDS', TRUE)) {
+		    	// Replace any global keywords first
+			replace_global_keywords($content);
+		
 			// Perform any additional replacements
 			$keywords = retrieve_keywords_replacements($content, '', TRUE);
 			foreach ($keywords as $word) {

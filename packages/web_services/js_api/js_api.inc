@@ -4292,7 +4292,6 @@ class JS_Api extends Page
 				}//end else
 
 				// Send our JSON
-				$output = preg_replace('/(%){1}(globals_[snippet|asset][_A-Za-z0-9\-:]*)(%){1}/','&#37;$2&#37;', $output);
 				$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_REPLACE_MYSOURCE_LEVEL_KEYWORDS', FALSE);
 
 				echo $output;
