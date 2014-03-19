@@ -23,7 +23,7 @@
 * @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
-if (defined('E_STRICT')) {
+if (defined('E_STRICT') && (E_ALL & E_STRICT)) {
 	error_reporting(E_ALL ^ E_DEPRECATED ^ E_STRICT);
 } else {
 	if (defined('E_DEPRECATED')) {
