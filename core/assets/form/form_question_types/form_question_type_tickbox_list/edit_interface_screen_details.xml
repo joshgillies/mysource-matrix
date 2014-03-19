@@ -15,7 +15,7 @@
 -->
 
 <contents>
-	<section name="Locking / Editing">
+	<section>
 	    <field>
 			<function_call>
 				<paint_function   name="paintLockMessage"   />
