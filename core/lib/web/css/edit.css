@@ -1001,8 +1001,9 @@ MAIN EDITING FRAME TABLE AND SECTION STRUCTURE
 	margin-bottom: 				-1px;
 }
 
-.sq-backend-section-div-wrapper.first {
-	overflow: 					hidden;
+.sq-backend-section-div-wrapper.first,
+.sq-backend-body-wrapper > input:first-child + a + .sq-backend-section-table-wrapper {
+	overflow: 					hidden;  /* There is a reason why this styl can't be applied to all of the above */
 }
 
 .sq-backend-body-wrapper .sq-backend-section-table-wrapper:last-child > table > tbody > tr:last-child .sq-backend-section-inner-table-wrapper{
@@ -1304,6 +1305,12 @@ table.sq-backend-table {
 .sq-backend-table .sq-parameter-map-inner td,
 .sq-backend-table .sq-parameter-map-inner td * {
 	vertical-align: 			middle;
+}
+
+/* UNCOMMON TABLE STYLES */
+
+.sq-child-tables-padded table td {
+	padding-right: 				6px;
 }
 
 /* PAGINATION IN TABLES */

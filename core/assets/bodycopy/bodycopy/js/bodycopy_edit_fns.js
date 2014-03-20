@@ -125,18 +125,30 @@
 		if ((bodycopy_has_class(document.getElementById('sq-content'), 'main')) && (bodycopy_type != undefined && bodycopy_id != undefined)) {
 			var id_selector = asset_id + '_' + bodycopy_type + '_' + bodycopy_id;
 			var bodycopy_parent_td = document.getElementById('bodycopy_' + id_selector);
-			//check if we are dealing with a simple edit layout, the above will return null, change the id to a layout type id instead
+			//check if we are dealing with a different type of layout, and depending on that layout, set the appropriate id prefix
 			if (bodycopy_parent_td == null || bodycopy_parent_td == undefined) {
-				bodycopy_parent_td = document.getElementById('layout_' +  id_selector);
+				//paint layout
+				bodycopy_parent_td = document.getElementById('paint_layout_bodycopy_' +  id_selector);
+				//check again
+				if (bodycopy_parent_td == null || bodycopy_parent_td == undefined) {
+					//simple edit layout
+					bodycopy_parent_td = document.getElementById('layout_' +  id_selector);
+				}
 			}
-			var xPosition = 0;
-    		var yPosition = 0;
-		    while(bodycopy_parent_td.className != 'sq-backend-section-table-inner') {
-		        xPosition += (bodycopy_parent_td.offsetLeft);
-		        yPosition += (bodycopy_parent_td.offsetTop);
-		        bodycopy_parent_td = bodycopy_parent_td.offsetParent;
-		    }
-  			bodycopy_popup.move(20, yPosition -50);
+			if (bodycopy_parent_td == null || bodycopy_parent_td == undefined) {
+				//if we still don't have it, revert to the old method
+				bodycopy_show_popup(file, width, height);
+			} else {
+				//else, run the new positioning method
+				var xPosition = 0;
+	    		var yPosition = 0;
+			    while(bodycopy_parent_td.className != 'sq-backend-section-table-inner') {
+			        xPosition += (bodycopy_parent_td.offsetLeft);
+			        yPosition += (bodycopy_parent_td.offsetTop);
+			        bodycopy_parent_td = bodycopy_parent_td.offsetParent;
+			    }
+	  			bodycopy_popup.move(20, yPosition -50);
+			}
 		} else {
 			var scroll_top  = ((is_ie4up) ? (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop  : self.pageYOffset);
 			var top_position = 0;

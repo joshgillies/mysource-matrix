@@ -1989,20 +1989,13 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 			if (!empty($actions)) {
 				?><table class="sq-backend-table">
-				<colgroup>
-					<col width="60"  align="center" />
-					<col width="150" />
-					<col/>
-					<col width="60"  align="center" />
-					<col width="60"  align="center" />
-				</colgroup>
 				<thead>
-					<th><p>Edit</p></th>
-					<th><p>Action Name / Type</p></th>
-					<th><p>Summary</p></th>
-					<th><p>Valid ?</p></th>
-					<th><p>Active ?</p></th>
-					<th><p>Delete ?</p></th>
+					<th style="width: 40px; text-align: center;">Edit</th>
+					<th style="width: 200px;">Action Name / Type</th>
+					<th>Summary</th>
+					<th style="width: 40px; text-align: center;">Valid?</th>
+					<th style="width: 40px; text-align: center;">Active?</th>
+					<th style="width: 40px; text-align: center;">Delete?</th>
 				</thead><tbody><?php
 
 				foreach ($actions as $key => $action) {
@@ -2019,19 +2012,19 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset($action_type);
 
 					if ($write_access && !$is_selected_action) {
-						?><td class="sq-backend-table-cell"><p><a href="#" onclick="document.getElementById('<?php echo $prefix ?>_new_selected_action').value = <?php echo $key ?>; document.main_form.submit(); return false;"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/edit_mode.png" width="15" height="15" border="0" /></a></p></td><?php
+						?><td style="text-align: center;"><a href="#" onclick="document.getElementById('<?php echo $prefix ?>_new_selected_action').value = <?php echo $key ?>; document.main_form.submit(); return false;"><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/edit_mode.png" width="15" height="15" border="0" /></a></td><?php
 					} else {
 						?><td class="sq-backend-table-cell">&nbsp;</td><?php
 					}
-					?><td class="sq-backend-table-cell"><p><strong><?php echo $action['name'] ?></strong><br/>(<?php echo $type_name ?>)</p></td><?php
-					?><td class="sq-backend-table-cell"><?php echo call_user_func(Array($action_type, 'paintSummary'), $asset, $settings, $o, $prefix, $key) ?></td><?php
-					?><td class="sq-backend-table-cell"><p><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo call_user_func(Array($action_type, 'isValid'), $asset, $settings) ? 'tick' : 'cross' ?>.gif" width="15" height="15" border="0" /></p></td><?php
+					?><td><strong><?php echo $action['name'] ?></strong><br/>(<?php echo $type_name ?>)</td><?php
+					?><td class="sq-child-tables-padded"><?php echo call_user_func(Array($action_type, 'paintSummary'), $asset, $settings, $o, $prefix, $key) ?></td><?php
+					?><td style="text-align: center;"><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo call_user_func(Array($action_type, 'isValid'), $asset, $settings) ? 'tick' : 'cross' ?>.gif" width="15" height="15" border="0" /></td><?php
 					if ($write_access) {
-						?><td class="sq-backend-table-cell"><p><?php check_box($prefix.'_rules[active]['.$key.']', '1', $action['active']) ?></p></td><?php
-						?><td class="sq-backend-table-cell"><p><?php check_box($prefix.'_rules[delete]['.$key.']', '1', FALSE) ?></p></td><?php
+						?><td style="text-align: center;"><?php check_box($prefix.'_rules[active]['.$key.']', '1', $action['active']) ?></td><?php
+						?><td style="text-align: center;"><?php check_box($prefix.'_rules[delete]['.$key.']', '1', FALSE) ?></td><?php
 					} else {
-						?><td class="sq-backend-table-cell"><p><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $action['active'] ? 'tick' : 'cross' ?>.gif" width="15" height="15" border="0" /></p></td><?php
-						?><td class="sq-backend-table-cell">&nbsp;</td><?php
+						?><td style="text-align: center;"><img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $action['active'] ? 'tick' : 'cross' ?>.gif" width="15" height="15" border="0" /></td><?php
+						?><td style="text-align: center;">&nbsp;</td><?php
 					}
 					?></tr><?php
 				}
@@ -2040,8 +2033,11 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 				?><p>There are no actions currently defined for this form.</p><?php
 			}
 
+			?>
+			<div class="sq-backend-section-note"><strong>Note:</strong> Only actions that are <strong>valid</strong> and <strong>active</strong> will be executed when a form is submitted. An action can be activated or deactivated with the <strong>Active?</strong> check box.</div>
+			<?php
+
 		$o->closeField();
-		$o->sectionNote('Only actions that are <strong>valid</strong> and <strong>active</strong> will be executed when a form is submitted. An action can be activated or deactivated with the <strong>Active ?</strong> check box.');
 
 		return $write_access;
 
@@ -2130,13 +2126,12 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 					combo_box($prefix.'_new_type', $names, FALSE, '', 0, 'disabled="disabled"');
 					?></p><?php
 			} else {
-				?><p>This screen must be locked before you can create a new action.</p><?php
+				?><p><em>You must acquire the locks on this screen before you can create a new action.</em></p><?php
 			}
-
-			// If we have a new action, are we
+			?>
+			<div class="sq-backend-section-note"><strong>Note:</strong> If you create a new action, the new action will be displayed immediately for you to edit. If you already have an action open to edit, the changes to that action will be saved when you commit before the new action is created.</div>
+			<?php
 		$o->closeField();
-
-		$o->sectionNote('If you create a new action, the new action will be displayed immediately for you to edit. If you already have an action open to edit, the changes to that action will be saved when you commit before the new action is created.');
 
 		return $write_access;
 
@@ -2260,13 +2255,13 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 			} else {
 				$o->openField('');
-					?><p>No action is currently selected for editing. To edit an action, please select from the "Existing Actions" list above.</p><?php
+					?><p><em>No action is currently selected for editing. To edit an action, please select from the "Existing Actions" list above.</em></p><?php
 				$o->closeField();
 
 			}//end if there is a selected action
 		} else {
 			$o->openField('');
-				?><p>This screen must be locked before you can edit an action.</p><?php
+				?><p><em>You must acquire the locks on this screen before you can edit an action.</em></p><?php
 			$o->closeField();
 		}//end if write_access
 

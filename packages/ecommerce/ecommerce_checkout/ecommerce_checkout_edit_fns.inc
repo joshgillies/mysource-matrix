@@ -642,9 +642,9 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 		<?php
 		foreach ($delivery_weight_fees as $key => $data) {
 			?>
-			<table width="200px">
+			<table class="sq-simple-table" style="margin-bottom: 15px;">
 			<tr>
-				<td colspan="3" width="100%" valign="top">
+				<td colspan="3">
 				<?php
 					$name = $prefix.'_country_delivery_weight_country['.$key.']';
 					$this->_paintCountrySelectBox($wa, $name, $data['countries'], 9, TRUE);
@@ -652,7 +652,7 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 				</td>
 			</tr>
 			<tr>
-				<td>
+				<td style="vertical-align: middle; width: 50px;">
 					<?php
 						$name = $prefix.'_country_delivery_weight_price['.$key.']';
 						echo translate('price').':';
@@ -667,7 +667,7 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 						}
 					?>
 				</td>
-				<td>
+				<td style="width: 120px;">
 				<?php
 				if ($wa) {
 					$clear_button_name = $prefix.'_country_delivery_weight_clear_button['.$key.']';
@@ -783,9 +783,9 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 		}
 		foreach ($conditions as $key => $data) {
 		?>
-			<table width="500px">
+			<table class="sq-simple-table" style="margin-bottom: 15px;">
 			<tr>
-				<td width="50%" rowspan="6" valign="top">
+				<td width="50%" rowspan="6">
 				<?php
 					$name = $prefix.'_conditional_fee_countries['.$key.']';
 					$this->_paintCountrySelectBox($wa, $name, $data['countries'], 9, TRUE);
@@ -796,10 +796,10 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 				<?php
 					$name = $prefix.'_conditional_fee_comparison_price['.$key.']';
 				?>
-				<td width="20%">
+				<td style="vertical-align: middle; width: 120px;">
 					<?php echo translate('ecom_checkout_comparison_price').':'; ?>
 				</td>
-				<td>
+				<td style="vertical-align: middle;">
 					<?php
 						if ($wa) {
 							echo text_box($name, $data['comparison_price'], 5);
@@ -819,7 +819,7 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 									'=='	=>	'=='
 								 );
 				?>
-				<td>
+				<td style="vertical-align: middle;">
 					<?php echo translate('ecom_checkout_operator').':'; ?>
 				</td>
 				<td>
@@ -836,10 +836,10 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 				<?php
 					$name = $prefix.'_conditional_fee_additional_cost['.$key.']';
 				?>
-				<td>
+				<td style="vertical-align: middle;">
 					<?php echo translate('ecom_checkout_additional_cost').':'; ?>
 				</td>
-				<td>
+				<td style="vertical-align: middle;">
 					<?php
 						if ($wa) {
 							echo text_box($name, $data['additional_cost'], 5);
@@ -853,10 +853,10 @@ class Ecommerce_Checkout_Edit_Fns extends Page_Edit_Fns
 				<?php
 					$name = $prefix.'_conditional_fee_remove_fees['.$key.']';
 				?>
-				<td>
+				<td style="vertical-align: middle;">
 					<?php echo translate('ecom_checkout_remove_fees').':'; ?>
 				</td>
-				<td>
+				<td style="vertical-align: middle;">
 					<?php
 						if ($wa) {
 							echo check_box($name, '1', $data['remove_fees']);

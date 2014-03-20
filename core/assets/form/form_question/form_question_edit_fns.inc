@@ -64,9 +64,9 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 	function paintRules(&$asset, &$o, $prefix)
 	{
 		if ($asset->getRuleCount() == 0) {
-			$o->openRaw();
-			echo translate('core_form_no_rules_set');
-			$o->closeRaw();
+			$o->openField('','wide_col');
+			echo '<em>'.translate('core_form_no_rules_set').'</em>';
+			$o->closeField();
 			return FALSE;
 		}
 
@@ -263,9 +263,9 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 
 		if (empty($lock)) {
 			if ($full_write_access && $acquire_lock_access) {
-				echo '<p class="sq-backend-unlocked">The "Attributes" lock to the '.(($section_asset instanceof Form_Section) ? 'Form Section' : 'Form').' is not currently held.</p>';
+				echo '<p class="sq-backend-unlocked">The <strong>"Attributes"</strong> lock to the <strong>'.(($section_asset instanceof Form_Section) ? 'Form Section' : 'Form').'</strong> is not currently held.</p>';
 			} else {
-				echo 'You do not have access to edit "'.$section_asset->name.'".';
+				echo 'You do not have access to edit <strong>"'.$section_asset->name.'"</strong>.';
 			}
 
 		} else {
@@ -285,12 +285,12 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 				require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 				$expires_in = easy_time_total(($lock['expires'] - $now), TRUE);
 				if (!$expires_in) $expires_in = '1 second';
-				$expires_in = 'The lock is due to expire in '.$expires_in;
+				$expires_in = 'The lock is due to expire in '.$expires_in.'.';
 			}
 
 			?>
 			<p class="sq-backend-locked-by-<?php echo ($GLOBALS['SQ_SYSTEM']->currentUser($user)) ? 'user' : 'someone-else'; ?>">
-			The "Attributes" lock to the <?php echo ($section_asset instanceof Form_Section) ? 'Form Section' : 'Form' ?> is held by user "<?php echo htmlspecialchars($user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET); ?>" at "<?php echo htmlspecialchars($editing->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET); ?>".<br/>
+			The <strong>"Attributes"</strong> lock to the <strong><?php echo ($section_asset instanceof Form_Section) ? 'Form Section' : 'Form' ?></strong> is held by user <strong>"<?php echo htmlspecialchars($user->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET); ?>"</strong> at <strong>"<?php echo htmlspecialchars($editing->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET); ?>"</strong>. 
 			<?php echo $expires_in; ?>
 			</p>
 			<?php
@@ -298,7 +298,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 		}//end if
 		?>
 
-		<p>Locking for this asset is controlled by its parent form<?php
+		<p style="margin-bottom: 0;">Locking for this asset is controlled by its parent <strong>Form</strong> asset<?php
 			if ($section_asset instanceof Form_Section) {
 				echo ' section';
 			}
@@ -342,7 +342,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 	{
 		// this condition is only available when the simple validation is set up as a required field
 		if (!$asset->attr('is_required')) {
-			echo translate('core_form_required_validation_condition');
+			echo '<em>'.translate('core_form_required_validation_condition').'</em>';
 			return TRUE;
 		}
 
