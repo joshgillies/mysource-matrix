@@ -205,11 +205,6 @@ class Marketo_Bridge extends Page
 
 	    // go
 	    $data = $this->client->getLead($user_identifier);
-	    
-	    // do the filtering of returned attributes
-	    $allowed_attributes = $this->attr('get_lead_allowed_attributes');
-	    if(!empty($allowed_attributes))
-		$data = $this->_filterGetLeadAttributes($data, $allowed_attributes);
 
 	    // cache it
 	    if(isset($data)) {
@@ -239,10 +234,6 @@ class Marketo_Bridge extends Page
 	    // start performance timer
 	    $GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'sync lead');
 		
-	    // filter attributes to sync
-	    $allowed_attributes = $this->attr('sync_lead_allowed_attributes');
-	    $post_attributes = empty($allowed_attributes) ? $post_attributes : $this->_filterSyncLeadAttributes($post_attributes, $allowed_attributes);
-			    
 	    // go
 	    $data = $this->client->syncLead($user_identifier, $post_attributes);
 
