@@ -1438,7 +1438,7 @@ function make_readable_list($string_array, $end_delimiter='and')
 */
 function escape_regex_chars($text)
 {
-	return preg_replace('|([\{\}\(\)\^\$\.\*\?\+\-\[\]\\\])|', '\\\$1', $text);
+	return preg_replace('|([\|\{\}\(\)\^\$\.\*\?\+\-\[\]\\\])|', '\\\$1', $text);
 
 }//end escape_regex_chars()
 
