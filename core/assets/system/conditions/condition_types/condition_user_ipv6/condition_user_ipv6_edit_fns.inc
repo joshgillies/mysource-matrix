@@ -212,7 +212,7 @@ class Condition_User_IPv6_Edit_Fns extends Condition_Edit_Fns
 		$ip_ranges = Array();
 
 		foreach ($_POST[$prefix] as $index => $post_data) {
-			if (!isset($post_data['delete'])) {
+			if (!isset($post_data['delete'])&& is_array($post_data)) {
 				$this_row = Array(
 								'ip_address'	=> self::processIPAddressField($post_data['ip_address']),
 								'cidr'			=> self::processIPRangeCIDRField($post_data['cidr']),
