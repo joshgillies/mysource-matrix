@@ -2676,7 +2676,7 @@ var JS_Asset_Map = new function() {
 		dfx.addClass(bottomDiv, 'confirmBottom');
 
 		var buttonYesDiv = _createEl('button');
-		dfx.addClass(buttonYesDiv, 'sq-btn-bluexw');
+		dfx.addClass(buttonYesDiv, 'sq-btn-blue');
 		buttonYesDiv.innerHTML = js_translate('yes');
 
 		var buttonNoDiv = _createEl('button');
