@@ -25,13 +25,13 @@
 		</field>
 	</section>
 	<section name="Design Areas" write_access="write:links" read_access="write:">
-		<field format="new_line">
+		<field>
 			<function_call>
 				<paint_function   name="paintCustomisedDesignAreas"   />
 				<process_function name="processCustomisedDesignAreas" />
 			</function_call>
 		</field>
-		<field format="new_line">
+		<field>
 			<function_call>
 				<paint_function   name="paintUnCustomisedDesignAreas"   />
 				<process_function name="processUnCustomisedDesignAreas" />

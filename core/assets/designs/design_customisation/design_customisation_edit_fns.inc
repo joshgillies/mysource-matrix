@@ -350,12 +350,12 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<th class="sq-backend-table-header" width="33%"><?php echo translate('type'); ?></th>
-				<th class="sq-backend-table-header" width="33%"><?php echo translate('core_design_area'); ?></th>
+				<th width="40%"><?php echo translate('type'); ?></th>
+				<th width="40%"><?php echo translate('core_design_area'); ?></th>
 			<?php
 			if ($write_access) {
 			?>
-				<th class="sq-backend-table-header" width="34%" style="text-align: center;"><?php echo $check_box_col; ?></th>
+				<th width="20%" style="text-align: center;"><?php echo $check_box_col; ?></th>
 			<?php
 			}// end if
 			?>
@@ -384,17 +384,17 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 			if (is_null($da)) continue;
 		?>
 			<tr>
-				<td class="sq-backend-table-cell">
+				<td>
 				<?php
 					if ($current_type != $da->type()) {
 						$current_type = $da->type();
-						echo '<i>', substr($current_type, 12), '</i>'; // take of the 'design_area_'
+						echo '<em>'.substr($current_type, 12).'</em>'; // take of the 'design_area_'
 					} else {
 						echo '&nbsp;';
 					}
 				?>
 				</td>
-				<td class="sq-backend-table-cell" style="white-space: nowrap;">
+				<td style="white-space: nowrap;">
 					<?php
 					if ($link_name) {
 						echo get_asset_tag_line($da->id, 'details');
@@ -406,7 +406,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 			<?php
 			if ($write_access) {
 				?>
-				<td class="sq-backend-table-cell" style="text-align: center;">
+				<td style="text-align: center;">
 					<input type="checkbox" name="<?php echo $check_box_name; ?>[]" value="<?php echo $da->attr('id_name');; ?>">
 				</td>
 			<?php
