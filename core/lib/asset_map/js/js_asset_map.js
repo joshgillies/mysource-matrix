@@ -3960,7 +3960,9 @@ var JS_Asset_Map = new function() {
 			alert(js_translate('asset_finder_in_use'));
 		} else {
 		    // Make sure typeFilter gets our own array functions.
-		    var typeFilter = [].concat(typeFilter);
+		    if (typeFilter) {
+		        var typeFilter = [].concat(typeFilter);
+		    }
 		    
 			var sourceFrame = self.getUseMeFrame();
 			var oldOnUnload = sourceFrame.onunload;
@@ -4800,7 +4802,7 @@ var JS_Asset_Map = new function() {
 
 			asset_finder_change_btn_press: function(name, safeName, typeCodes, doneCallback)
 			{
-				if (typeCodes === '') {
+			    if (typeCodes === '') {
 					typeCodes = undefined;
 				} else {
 					// Split piped type codes into an array, but if there's only one
