@@ -2398,14 +2398,16 @@ function replace_global_keywords(&$text)
 						    }
 
 						    if(!empty($user_identifier)) {
-							    $data = $marketo_bridge->getLead($user_identifier, $nocache);
 							    if(preg_match('|^_id|',$sub_keyword)){
+								$data = $marketo_bridge->getLead($user_identifier, $nocache);
 								$replacements[$full_keyword] = isset($data->result->leadRecordList->leadRecord->Id) ? $data->result->leadRecordList->leadRecord->Id : '';
 							    }
 							   else  if(preg_match('|^_email|',$sub_keyword)){
+								$data = $marketo_bridge->getLead($user_identifier, $nocache);
 								$replacements[$full_keyword] = isset($data->result->leadRecordList->leadRecord->Email) ? $data->result->leadRecordList->leadRecord->Email : '';
 							    }
 							   else  if(preg_match('|^_attribute_|',$sub_keyword)){
+								$data = $marketo_bridge->getLead($user_identifier, $nocache);
 								preg_match('|^_attribute_(.*):([0-9]+)$|',$sub_keyword,$matches);
 								if(isset($matches[1]) && isset($data->result->leadRecordList->leadRecord->leadAttributeList->attribute)) {
 								    $attributes = $data->result->leadRecordList->leadRecord->leadAttributeList->attribute;
@@ -2417,6 +2419,8 @@ function replace_global_keywords(&$text)
 								}
 							    }
 							    else  if(preg_match('|^:([0-9]+)$|',$sub_keyword)){
+								// have to filter results if getting all lead data
+								$data = $marketo_bridge->getLead($user_identifier, $nocache, TRUE);
 								$replacements[$full_keyword] = json_encode_array($data);
 							    }
 						    }
