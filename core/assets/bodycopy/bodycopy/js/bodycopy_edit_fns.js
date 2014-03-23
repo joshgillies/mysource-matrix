@@ -74,10 +74,6 @@
 
 	function bodycopy_show_popup(file, width, height, bodycopy_id, bodycopy_type) {
 		if (!bodycopy_initialised) {
-			if (confirm(js_translate('page_not_loaded_yet'))) {
-				document.edit.action.value='';
-				document.edit.submit()
-			}
 			return;
 		}
 
