@@ -934,6 +934,16 @@ class SAML_Account_Manager extends Page_Asset_Builder
 	*/
 	protected function _loginUser($userid)
 	{
+	    
+	    // store SAML user's attribute into global session keyword
+	    $saml_auth_manager = $this->_getAuthManager();
+	    $auth_data = $saml_auth_manager->getAuthDataArray();
+	    $attributes_array = array_get_index($auth_data, 'Attributes');
+	    if(!empty($attributes_array)) {
+		$_SESSION[SQ_SESSION_SANDBOX_INDEX]['saml_attributes'] = json_encode_array($attributes_array);
+		$this->_store_results($attributes_array);
+	    }
+	    
 	    $user =  $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
 	    if($user && $user->canLogin()) {
 		unset($_SESSION['SQ_RETURN_TO_HTTP']);
@@ -950,6 +960,32 @@ class SAML_Account_Manager extends Page_Asset_Builder
 		unset($_SESSION['sq_saml_account_manager_current_state_redirect_url']);
 	    }
 	}// end _loginUser
+	
+	
+	/**
+	* This function recursively checks an object properties and store them in session
+	* The stored data can be printed via keywords %globals_session_oauth_profile_xx%
+	*
+	* @return void
+	* @access private
+	*/
+	protected  function _store_results($object, $prefix = 'saml_attributes_')
+	{
+		if (empty($object)) return;
+
+		$vars = is_object($object) ? get_object_vars($object) : $object;
+		if (empty($vars)) return;
+
+		foreach ($vars as $index => $value) {
+			if (is_object($value) || is_array($value)) {
+				$this->_store_results ($value, $prefix.$index.'_');
+			} else {
+				$_SESSION[SQ_SESSION_SANDBOX_INDEX][$prefix.$index] = $value;
+			}
+		}
+
+	}//end _store_results()
+	
 	
 	
 	/**
