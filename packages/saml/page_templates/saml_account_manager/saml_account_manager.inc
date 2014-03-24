@@ -284,6 +284,19 @@ class SAML_Account_Manager extends Page_Asset_Builder
 				// link those 2 accounts
 				$this->_linkMatrixUserWithSAML($current_user->id, $samlUserid);
 				
+				// randomize user password, so user can no longer login with standard username and pw
+				if($this->attr('randomize_password'))  {
+				    if(!$GLOBALS['SQ_SYSTEM']->userSystemAdmin($current_user)) {
+				    $valid_password = random_user_password(Array($current_user->attr('username')));
+				    $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+					$result = @$current_user->setAttrValue('password', $valid_password);
+					if ($result) {
+					    $current_user->saveAttributes();
+					}
+				    $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+				    }
+				}
+				
 				// redirect after linking
 				if($this->attr('redirect_after_link')) {
 				    if(isset($_SESSION['sq_saml_account_manager_current_state_redirect_url']) && $_SESSION['sq_saml_account_manager_current_state_redirect_url'])  {
@@ -466,6 +479,15 @@ class SAML_Account_Manager extends Page_Asset_Builder
 			
 			
 			// SAML user should have been already authenticated at this point
+			
+			// store SAML user's attribute into global session keyword
+			$saml_auth_manager = $this->_getAuthManager();
+			$auth_data = $saml_auth_manager->getAuthDataArray();
+			$attributes_array = array_get_index($auth_data, 'Attributes');
+			if(!empty($attributes_array)) {
+			    $_SESSION[SQ_SESSION_SANDBOX_INDEX]['saml_attributes'] = json_encode_array($attributes_array);
+			    $this->_store_results($attributes_array);
+			}
 			 
 	
 			// try find linked Matrix user
@@ -934,15 +956,6 @@ class SAML_Account_Manager extends Page_Asset_Builder
 	*/
 	protected function _loginUser($userid)
 	{
-	    
-	    // store SAML user's attribute into global session keyword
-	    $saml_auth_manager = $this->_getAuthManager();
-	    $auth_data = $saml_auth_manager->getAuthDataArray();
-	    $attributes_array = array_get_index($auth_data, 'Attributes');
-	    if(!empty($attributes_array)) {
-		$_SESSION[SQ_SESSION_SANDBOX_INDEX]['saml_attributes'] = json_encode_array($attributes_array);
-		$this->_store_results($attributes_array);
-	    }
 	    
 	    $user =  $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
 	    if($user && $user->canLogin()) {

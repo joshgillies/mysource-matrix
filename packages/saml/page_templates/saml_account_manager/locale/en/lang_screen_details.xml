@@ -58,6 +58,10 @@
 			<display_name>Automatic Creation</display_name>
 			<note><![CDATA[After authentication of a new user, SAML Account Manager can automatically create the linked local user and log in as the local user. The username is generated from saml id. Password is generated as random string. All other attributes are left blank. Enabling this option to skip Create User process.]]></note>
 		</field>
+		<field attribute="randomize_password">
+			<display_name>Randomize Password</display_name>
+			<note><![CDATA[After linking an existing user to a SAML Account, this option will randomise the user’s password so that the user can no longer log into the system using their standard Matrix username and password. The user will only be able to login using their SAML details. Please note that this option is not applicable to System Administrator users.]]></note>
+		</field>
 	    </section>
 	    <section name="Authentication Request" >
 		<field attribute="nameid_policy">
