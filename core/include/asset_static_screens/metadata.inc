@@ -326,6 +326,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL, Array $layout_options
 				}
 
 				if (empty($field_prefix)) {
+					$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($field_assetid);
 					$field_prefix = $field->getPrefix();
 				}
 				if (isset($keywords['field_ids'][$field_assetid])) {
