@@ -1348,7 +1348,8 @@ var JS_Asset_Map = new function() {
 				if (options.simple === false) {
 					if (which === 1) {
 						self.clearMenus();
-						if ((e.clientX >= tree.clientWidth) || (e.clientY >= tree.clientHeight)) {
+						var treeCoords = dfx.getElementCoords(tree);
+						if (((e.clientX - treeCoords.x) >= tree.clientWidth) || ((e.clientY - treeCoords.y) >= tree.clientHeight)) {
 							// Appears to be starting outside the scrollbars.
 							e.stopImmediatePropagation();
 						} else {
