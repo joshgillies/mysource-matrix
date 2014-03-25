@@ -2852,11 +2852,6 @@ var JS_Asset_Map = new function() {
 		dfx.addClass(tbButton, 'restore');
 		tbButton.innerHTML = '&nbsp;';
 		tbButton.setAttribute('title', js_translate('asset_map_tooltip_restore_root'));
-
-		if (options.simple === true) {
-			dfx.addClass(tbButton, 'disabled');
-		}
-
 		tbButtons.appendChild(tbButton);
 
 		var tbButton = _createEl('span');
