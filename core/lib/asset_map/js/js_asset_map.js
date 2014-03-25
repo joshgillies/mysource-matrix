@@ -3581,7 +3581,8 @@ var JS_Asset_Map = new function() {
                         container.setAttribute('data-offset', sortOrder);
                         container.setAttribute('data-total', thisAsset._attributes.num_kids);
     
-                        dfx.addClass(assetLine, 'expanded');
+                        var branchTarget = dfx.getClass('branch-status', assetLine);
+                        dfx.addClass(branchTarget, 'expanded');
                         assetLine.parentNode.insertBefore(container, assetLine.nextSibling);
                         self.drawTree(assetLine, thisAsset, container, sortOrder, thisAsset._attributes.num_kids);
     
