@@ -344,7 +344,7 @@ if (isset($_GET['assetid']) && $_GET['assetid']) {
 				<tr>
 				    <td valign="top" class="sq-popup-asset-map">
 				        <div id="asset_map">
-				            <iframe src="insert_link_asset_map.php" name="sq_wysiwyg_popup_sidenav" frameborder="0" width="200" height="450" scrolling="no">
+				            <iframe src="insert_link_asset_map.php" name="sq_wysiwyg_popup_sidenav" frameborder="0" width="200" height="440" scrolling="no">
 				            </iframe>
 				        </div>
 				    </td>
@@ -648,16 +648,18 @@ if (isset($_GET['assetid']) && $_GET['assetid']) {
 			function set_asset_finder_from_search(assetid, label, url, linkid, type_code) {
 				document.cookie = 'lastSelectedAssetId=' + escape(assetid);
 				reset_type_selector();
-				var prefix ='';
+				var prefix = 'assetid';
 				if (type_code == 'link' || type_code == 'page_redirect') {
-					prefix = type_code + '_';
+					prefix = type_code + '_' + prefix;
 				}
-				ASSET_FINDER_OBJ.set_hidden_field(prefix+'assetid[assetid]', assetid);
-				ASSET_FINDER_OBJ.set_hidden_field(prefix+'assetid[url]', url);
-				ASSET_FINDER_OBJ.set_hidden_field(prefix+'assetid[linkid]', linkid);
-				ASSET_FINDER_OBJ.set_hidden_field(prefix+'assetid[type_code]', type_code);
-				ASSET_FINDER_OBJ.set_text_field('sq_asset_finder_assetid_label', (assetid == 0) ? '' : label + ' (Id : #' + assetid + ')');
-
+				
+				dfx.getId(prefix + '[assetid]').value    = assetid;
+				dfx.getId(prefix + '[url]').value        = url;
+				dfx.getId(prefix + '[linkid]').value     = linkid;
+				dfx.getId(prefix + '[type_code]').value  = type_code;
+				dfx.getId('sq_asset_finder_' + prefix + '_label').value   = label;
+				dfx.getId('sq_asset_finder_' + prefix + '_assetid').value = assetid;
+				
 				document.getElementById("new-message-popup").style.display = 'none';
 				setUrl();
 			}
