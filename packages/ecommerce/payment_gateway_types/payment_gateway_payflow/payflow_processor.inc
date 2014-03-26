@@ -581,13 +581,19 @@ class Payflow_Processor
 		$message .= 'Time: '.date('r')."\n";
 		$message .= 'Transaction Ref: '.$this->_reference_no."\n";
 		 if (preg_match('/ACCT\[[0-9]+\]=([0-9]+)/', $this->_parm_list, $match)) {
-			$message .= 'Card number: '.str_repeat('*', strlen($match[1])-4).substr($match[1], -4)."\n";
+		 	$card_number = str_repeat('*', strlen($match[1])-4).substr($match[1], -4);
 		} else {
-			$message .= 'Card number: Not supplied'."\n";
+			$card_number = 'Not supplied';
 		}
+		$message .= 'Card number: '.$card_number."\n";
 		$message .= 'Amount: '.$this->_transaction_amount."\n";
 		$message .= 'Currency: '.array_get_index($this->_response, 'CURRENCY', '')."\n";
-		$message .= 'Resquest String: '.$this->_parm_list."\n";
+
+		$log_param = $this->_parm_list;
+		$log_param = preg_replace('/(ACCT\[\d+\])=\d+/', '$1='.$card_number, $log_param);
+		$log_param = preg_replace('/(EXPDATE\[\d+\])=\d+/', '$1=****', $log_param);
+		$log_param = preg_replace('/(CV2\[\d+\])=\d+/', '$1=***', $log_param);
+		$message .= 'Resquest String: '.$log_param."\n";
 
 		$this->_log($message);
 

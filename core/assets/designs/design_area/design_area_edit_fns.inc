@@ -90,7 +90,8 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 		$file_contents = preg_replace($e, '<'.$this->tag_name.'_PRINT id_name=\'__global__\' var=\'css_path\' filename=\'\\1\' />', $file_contents);
 
 		// replace any './[folder/filename]' with '[folder/filename]'
-		$e = '/(<link[^>]*href=")\\.\\//i';
+		// except for './?a=' Matrix assetid links
+		$e = '/(<link[^>]*href=")\\.\\/(?!\\?a=)/i';
 		$file_contents = preg_replace($e, '\\1', $file_contents);
 
 		// lets just make sure they aren't trying to be tricky and do some processing we don't know about
