@@ -576,7 +576,25 @@ var JS_Asset_Map = new function() {
 
 		return supported;
 	};
-
+	
+	this.isMac = function() {
+	    var isMac = false;
+	    var ua    = navigator.userAgent;
+	    
+	    if (/Mac OS/.test(ua) === true) {
+	        isMac = true;
+	    }
+	    
+	    return isMac;
+	}
+	
+	this.ctrlKey = function(e) {
+	    if (this.isMac() === true) {
+	        return e.metaKey;
+	    } else {
+	        return e.ctrlKey;
+	    }
+	}
 
 	this.getBrowserVersion = function() {
 		var retval = {
@@ -958,7 +976,7 @@ var JS_Asset_Map = new function() {
 					e.preventDefault();
 					self.clearSearch();
 
-					if ((e.ctrlKey === true) || (e.metaKey === true)) {
+					if (self.ctrlKey.call(self, e) === true) {
 						var childIndent = lastSelection.nextSibling;
 						if (childIndent && (dfx.hasClass(childIndent, 'childIndent') === true)) {
 							var tool = dfx.getClass('paginationTool.down', childIndent);
@@ -998,7 +1016,7 @@ var JS_Asset_Map = new function() {
 					e.preventDefault();
 					self.clearSearch();
 
-					if ((e.ctrlKey === true) || (e.metaKey === true)) {
+					if (self.ctrlKey.call(self, e) === true) {
 						var childIndent = lastSelection.nextSibling;
 						if (childIndent && (dfx.hasClass(childIndent, 'childIndent') === true)) {
 							var tool = dfx.getClass('paginationTool.up', childIndent);
@@ -1087,7 +1105,7 @@ var JS_Asset_Map = new function() {
 						(dfx.hasClass(nextAsset, 'not-selectable') === false)) {
 						if (e.shiftKey === true) {
 							self.shiftSelectAssetNode(nextAsset, e);
-						} else if ((e.ctrlKey === true) || (e.metaKey === true)) {
+						} else if (self.ctrlKey.call(self, e) === true) {
 							lastSelection = nextAsset;
 							self.updateCaret();
 						} else {
@@ -1141,7 +1159,7 @@ var JS_Asset_Map = new function() {
 						(dfx.hasClass(nextAsset, 'not-selectable') === false)) {
 						if (e.shiftKey === true) {
 							self.shiftSelectAssetNode(nextAsset, e);
-						} else if ((e.ctrlKey === true) || (e.metaKey === true)) {
+						} else if (self.ctrlKey.call(self, e) === true) {
 							lastSelection = nextAsset;
 							self.updateCaret();
 						} else {
@@ -1226,12 +1244,12 @@ var JS_Asset_Map = new function() {
 				allButtons = e.button;
 			}
 
-			if ((which === 3) && ((allButtons & 2) === 0)) {
+			/*if ((which === 3) && ((allButtons & 2) === 0)) {
 				// RMB registered due to a ctrl-click (in eg. Firefox/Mac).
 				// Change to a left click and consider it like a ctrl-click
 				// in other platforms.
 				which = 1;
-			}
+			}*/
 
 			dragStatus = {
 				button: which,
@@ -1317,7 +1335,7 @@ var JS_Asset_Map = new function() {
 							// Shift-left click.
 							self.shiftSelectAssetNode(assetTarget, e);
 							e.preventDefault();
-						} else if (((e.ctrlKey === true) || (e.metaKey === true)) && (options.simple === false)) {
+						} else if ((self.ctrlKey.call(self, e) === true) && (options.simple === false)) {
 							// Control-left click. No drag, toggle selection of clicked asset.
 							self.ctrlSelectAssetNode(assetTarget);
 						} else {
@@ -1361,7 +1379,7 @@ var JS_Asset_Map = new function() {
 								selection: [],
 								originalSelection: []
 							};
-							if ((e.ctrlKey === true) || (e.metaKey === true)) {
+							if (self.ctrlKey.call(self, e) === true) {
 								dragStatus.selectionDrag.originalSelection = self.currentSelection();
 							}
 						}
@@ -1458,7 +1476,7 @@ var JS_Asset_Map = new function() {
 									var asset     = assets[i];
 									var iconDims  = dfx.getBoundingRectangle(dfx.getClass('icon', asset)[0]);
 									var nameDims  = dfx.getBoundingRectangle(dfx.getClass('assetName', asset)[0]);
-									var ctrlKey   = ((e.ctrlKey === true) || (e.metaKey === true));
+									var ctrlKey   = (self.ctrlKey.call(self, e) === true);
 									var inOrigSel = (dragStatus.selectionDrag.originalSelection.find(asset) !== -1);
 
 									// Work out if this asset is being touched by the selection.
@@ -2205,7 +2223,7 @@ var JS_Asset_Map = new function() {
 			between.push(assetNode);
 			for (var i = 0; i < between.length; i++) {
 				if (dfx.hasClass(between[i], 'asset') === true) {
-					if ((e.ctrlKey === true) || (e.metaKey === true)) {
+					if (this.ctrlKey(e) === true) {
 						dfx.toggleClass(between[i], 'selected');
 					} else {
 						dfx.addClass(between[i], 'selected');
