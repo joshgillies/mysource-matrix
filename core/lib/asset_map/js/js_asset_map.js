@@ -1287,6 +1287,7 @@ var JS_Asset_Map = new function() {
 							self.cancelDrag();
 						} else if (which === 1) {
 							self.handleDoubleClick(assetTarget);
+							self.clearMenus();
 						}
 					}
 				} else {
@@ -1365,8 +1366,10 @@ var JS_Asset_Map = new function() {
 							}
 						}
 					} else if (which === 3) {
-						var menu = self.drawAddMenu();
-						self.positionMenu(menu, {x: e.clientX, y: e.clientY});
+						if (self.isInUseMeMode() === false) {
+							var menu = self.drawAddMenu();
+							self.positionMenu(menu, {x: e.clientX, y: e.clientY});
+						}
 						self.cancelDrag();
 						e.stopImmediatePropagation();
 					}
@@ -2845,12 +2848,14 @@ var JS_Asset_Map = new function() {
 			addButton.innerHTML = '<img src="'+ options.libPath +'/web/images/icons/asset_map/add_off.png" alt="Add icon" title="Add new asset"/> Add';
 			container.appendChild(addButton);
 			dfx.addEvent(addButton, 'click', function(e) {
-				var target   = dfx.getMouseEventTarget(e);
-				var mousePos = dfx.getMouseEventPosition(e);
-				var menu     = self.drawAddMenu();
-				self.topDocumentElement(target).appendChild(menu);
-				dfx.setStyle(menu, 'left', (mousePos.x) + 'px');
-				dfx.setStyle(menu, 'top', (mousePos.y) + 'px');
+				if (self.isInUseMeMode() === false) {
+					var target   = dfx.getMouseEventTarget(e);
+					var mousePos = dfx.getMouseEventPosition(e);
+					var menu     = self.drawAddMenu();
+					self.topDocumentElement(target).appendChild(menu);
+					dfx.setStyle(menu, 'left', (mousePos.x) + 'px');
+					dfx.setStyle(menu, 'top', (mousePos.y) + 'px');
+				}
 			});
 		}
 
