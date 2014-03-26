@@ -540,6 +540,7 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 
 		foreach ($vars as $index => $value) {
 			if (is_object($value) || is_array($value)) {
+				$_SESSION[SQ_SESSION_SANDBOX_INDEX][$prefix.$index] = json_encode_array($value);
 				$this->_store_results ($value, $prefix.$index.'_');
 			} else {
 				$_SESSION[SQ_SESSION_SANDBOX_INDEX][$prefix.$index] = $value;
