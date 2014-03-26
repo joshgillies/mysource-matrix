@@ -1749,6 +1749,8 @@ var JS_Asset_Map = new function() {
 								self.handleDoubleClick(initialAsset);
 							});
 						}
+						
+						self.moveMe.cancel();
 					}//end if (dragged by enough)
 				}//end if
 			}//end if
