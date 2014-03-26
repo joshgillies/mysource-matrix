@@ -465,6 +465,8 @@
 	<!-- Page Title translations -->
 	<string source="page_title_simple_edit_interface">%s Simple Edit Interface</string>
 	<string source="page_title_admin_interface">%s Administration Interface</string>
+	<string source="page_title_simple_edit_mode">%s : Simple Edit Mode</string>
+	<string source="page_title_admin_mode">%s : Admin Mode</string>
 
 	<!-- Cron translations -->
 	<string source="cron_manager_not_configured">The Cron Manager has not been configured. No future statuses can be set for this asset</string>

@@ -269,9 +269,9 @@ class Backend extends MySource_Object
 
 		// Give the page the appropriate title based on whether we are in limbo or backend
 		if (SQ_IN_LIMBO) {
-			$page_title = translate('page_title_simple_edit_interface', SQ_SYSTEM_LONG_NAME);
+			$page_title = translate('page_title_simple_edit_mode', SQ_SYSTEM_LONG_NAME);
 		} else {
-			$page_title = translate('page_title_admin_interface', SQ_SYSTEM_LONG_NAME);
+			$page_title = translate('page_title_admin_mode', SQ_SYSTEM_LONG_NAME);
 		}
 
 		$body_class = '';
