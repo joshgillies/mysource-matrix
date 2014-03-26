@@ -344,7 +344,7 @@ if (isset($_GET['assetid']) && $_GET['assetid']) {
 				<tr>
 				    <td valign="top" class="sq-popup-asset-map">
 				        <div id="asset_map">
-				            <iframe src="insert_link_asset_map.php" name="sq_wysiwyg_popup_sidenav" frameborder="0" width="200" height="450" scrolling="no">
+				            <iframe src="insert_link_asset_map.php" name="sq_wysiwyg_popup_sidenav" frameborder="0" width="200" height="440" scrolling="no">
 				            </iframe>
 				        </div>
 				    </td>
