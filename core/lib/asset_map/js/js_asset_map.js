@@ -1244,12 +1244,12 @@ var JS_Asset_Map = new function() {
 				allButtons = e.button;
 			}
 
-			/*if ((which === 3) && ((allButtons & 2) === 0)) {
-				// RMB registered due to a ctrl-click (in eg. Firefox/Mac).
-				// Change to a left click and consider it like a ctrl-click
-				// in other platforms.
-				which = 1;
-			}*/
+			if ((self.isMac.call(self)) && (which === 1) && (e.ctrlKey === true)) {
+				// Treat a Ctrl+click on Mac like right-mouse button, as per Mac
+				// conventions. Firefox/Mac already does this by setting "which"
+				// to 3; this is for Webkit to do the same.
+				which = 3;
+			}
 
 			dragStatus = {
 				button: which,
