@@ -464,6 +464,7 @@ class Trigger_Action_Set_Standard_Asset_Date extends Trigger_Action
 					echo '<b>['.translate('asset_type_no_attributes_found').']</b>';
 				} else {
 					if ($write_access) {
+						$attr_options = Array();
 						foreach ($attrs as $name => $type) {
 							if ($type['type'] == 'datetime') {
 								$attr_options[$name] = $name;
