@@ -2308,6 +2308,8 @@ var JS_Asset_Map = new function() {
 		topDoc.appendChild(menu);
 		var elementHeight = topDoc.clientHeight;
 		var submenuHeight = dfx.getElementHeight(menu);
+		var pageStart     = dfx.getElementCoords(dfx.getClass('sq-iframe', dfx.getClass('sidenav', topDoc))[0]).y;
+		
 		dfx.setStyle(
 			menu,
 			'left',
@@ -2318,7 +2320,7 @@ var JS_Asset_Map = new function() {
 			'top',
 			(Math.min(
 				elementHeight - submenuHeight - 10,
-				mousePos.y
+				mousePos.y + pageStart
 			) + 'px')
 		);
 	};
