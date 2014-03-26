@@ -97,6 +97,14 @@ class Image_Variety_Management extends Asset_Management
 											'type'		=> 'int',
 											'default'	=> 0,
 										   ),
+						'alt'			=> Array(
+											'added'			=> '0.2',
+											'type'			=> 'text',
+											'default'		=> '',
+											'description'	=> 'The Alt attribute for the IMG tag',
+											'is_admin'		=> FALSE,
+											'is_contextable'	=> TRUE,
+										   ),
 					  );
 
 	}//end constructor

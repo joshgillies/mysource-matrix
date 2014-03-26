@@ -65,6 +65,11 @@ class Image_Variety extends Asset
 		$this->data_path        = $image->data_path.'/varieties';
 		$this->data_path_suffix = $image->data_path_suffix.'/varieties';
 		$this->data_path_public = $image->data_path_public.'/varieties';
+		
+		// use image's alt attribute
+		if(!isset($data['alt'])) {
+		    $data['alt'] = $image->attr('alt');
+		}
 
 		// if there is no varietyid then we haven't been created yet, so don't do anymore
 		if (!$this->_varietyid) return;
@@ -900,7 +905,7 @@ class Image_Variety extends Asset
 		if (!$filename) return;
 		$size = getimagesize($this->data_path.'/'.$filename);
 
-		$tag = '<img src="'.$this->getURL().'" '.$size[3].' alt="'.htmlentities($alt).'" title="'.htmlentities($title).'" />';
+		$tag = '<img src="'.$this->getURL().'" '.$size[3].' alt="'.$alt.'" title="'.$title.'" />';
 		if ($return) return $tag;
 		echo $tag;
 
