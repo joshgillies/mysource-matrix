@@ -790,11 +790,13 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 			function set_asset_finder_from_search(assetid, label, url, linkid, filename, alt, width, height) {
 				document.cookie = 'lastSelectedAssetId=' + escape(assetid);
 
-				ASSET_FINDER_OBJ.set_hidden_field('f_imageid[assetid]', assetid);
-				ASSET_FINDER_OBJ.set_hidden_field('f_imageid[url]', url);
-				ASSET_FINDER_OBJ.set_hidden_field('f_imageid[linkid]', linkid);
-				ASSET_FINDER_OBJ.set_text_field('sq_asset_finder_f_imageid_label', (assetid == 0) ? '' : label + ' (Id : #' + assetid + ')');
-
+				var prefix = 'f_imageid';
+				dfx.getId(prefix + '[assetid]').value    = assetid;
+				dfx.getId(prefix + '[url]').value        = url;
+				dfx.getId(prefix + '[linkid]').value     = linkid;
+				dfx.getId('sq_asset_finder_' + prefix + '_label').value   = label;
+				dfx.getId('sq_asset_finder_' + prefix + '_assetid').value = assetid;
+				
 				document.getElementById("new-message-popup").style.display = 'none';
 				document.getElementById("f_alt").value = alt;
 
