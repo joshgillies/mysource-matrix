@@ -1392,7 +1392,7 @@ class Asset_Manager extends MySource_Object
 
 		// array of asset ids
 		$existing_asset_ids = Array();
-		if (!$is_empty) {
+		if ($is_array && !$is_empty) {
 			for($i=0; $i<count($assetids); $i++) {
 				$assetids[$i] = MatrixDAL::quote($assetids[$i]);
 			}
