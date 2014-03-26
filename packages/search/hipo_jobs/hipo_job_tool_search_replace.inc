@@ -368,7 +368,8 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 						if ($type == 'metadata' || $type == 'schema') {
 							$value = $value['value'];
 						}
-
+						if(is_array($value)) continue;
+						
 						$matches = Array();
 						preg_match_all("/$search_string/i", $value, $matches);
 						$search_count[$assetid] += count($matches[0]);

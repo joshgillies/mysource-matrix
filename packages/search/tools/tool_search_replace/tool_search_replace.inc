@@ -249,7 +249,7 @@ class Tool_Search_Replace extends Tool
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 			foreach ($content as $content_type) {
-				switch ($content_type['source']) {
+				switch ($content_type) {
 
 					// asset contents containing search string
 					case preg_match('/contents/', $content_type) > 0:

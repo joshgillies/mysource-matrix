@@ -40,7 +40,7 @@ table.expandable thead th {
 	cursor: pointer;
 	background-repeat: no-repeat;
 	background-position: 5px 50%;
-	padding-left: 25px;
+	padding-left: 25px!important;
 	vertical-align: middle;
 }
 table.component td label {
