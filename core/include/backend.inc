@@ -290,22 +290,26 @@ class Backend extends MySource_Object
 		<?php
 		if (isset($_SERVER['HTTP_USER_AGENT']) && preg_match('/(?i)msie [1-8]/',$_SERVER['HTTP_USER_AGENT'])) {
         	// If we are in IE8 or less, don't use the conditional <html> tag as it can cause compatibility mode in those browsers
-    		// if IE<=8
+    		// IE<=8
     		?>
-    		<html class="ie8 sq-frame-parent">
+    		<html class="ie8 <?php echo $backendPage; ?>">
+    		<?php
+    	// If we are in IE10 and above, we must print the IE class manually as since IE10, IE doesn't support conditional comments anymore
+		} else if (isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'Trident/6.0; rv:10.0') !== FALSE) {
+    		// IE 10
+    		?>
+			<html class="ie ie10 gtie8 gtie9 <?php echo $backendPage; ?>">
     		<?php
 		} else if (isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'Trident/7.0; rv:11.0') !== FALSE) {
-        	// If we are in IE11, we must print the IE11 class manually as IE11 doesn't send the right browser header anymore for us to do simple HTML checking on
-    		// if IE 11
+    		// IE 11
     		?>
-			<html class="ie ie11 gtie8 gtie9 gtie10 sq-frame-parent">
+			<html class="ie ie11 gtie8 gtie9 gtie10 <?php echo $backendPage; ?>">
     		<?php
 		} else {
-    		// if IE>8 & !IE11
+    		// IE9 or other browsers
     		?>
-			<!--[if IE 9 ]>     <html class="ie ie9 gtie8 sq-frame-parent"> <![endif]-->
-			<!--[if IE 10 ]>    <html class="ie ie10 gtie8 gtie9 sq-frame-parent"> <![endif]-->
-			<!--[if !IE]> --> 	<html class="sq-frame-parent"> <!-- <![endif]-->
+			<!--[if IE 9 ]>     <html class="ie ie9 gtie8 <?php echo $backendPage; ?>"> <![endif]-->
+			<!--[if !IE]> --> 	<html class="<?php echo $backendPage; ?>"> <!-- <![endif]-->
     		<?php
 		}
 		?>
