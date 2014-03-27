@@ -16,7 +16,7 @@
 -->
 
 <strings>
-	<string source="trigger_morph_asset_warning">&lt;strong&gt;Note:&lt;/strong&gt; The target asset must be with Under Construction status and match "morph from" type code.</string>
+	<string source="trigger_morph_asset_warning">&lt;strong&gt;Note:&lt;/strong&gt; The target asset must be in Under Construction status and match the "morph from" type code.</string>
 	<string source="trigger_morph_asset_from">Morph from type </string>
 	<string source="trigger_morph_asset_to"> to type </string>
 </strings>
