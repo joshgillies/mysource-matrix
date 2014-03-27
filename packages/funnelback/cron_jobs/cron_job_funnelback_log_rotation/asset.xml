@@ -21,8 +21,8 @@
 	<package>funnelback</package>
 	<type_code>cron_job_funnelback_log_rotation</type_code>
 	<version>0.3</version>
-	<name>Funnelback Log Rotation Cron Job</name>
-	<description>This cron job manages the log rotation for query logs.</description>
+	<name>Funnelback Log Rotation Scheduled Job</name>
+	<description>This scheduled job manages the log rotation for query logs.</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>system</allowed_access>
 	<parent_type>cron_job</parent_type>

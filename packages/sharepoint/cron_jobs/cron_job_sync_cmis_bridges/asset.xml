@@ -22,7 +22,7 @@
 	<package>sharepoint</package>
 	<type_code>cron_job_sync_cmis_bridges</type_code>
 	<version>0.1</version>
-	<name>Sync CMIS Bridges Cron Job</name>
+	<name>Sync CMIS Bridges Scheduled Job</name>
 	<description>Synchronizes CMIS Bridge assets.</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>system</allowed_access>

@@ -22,7 +22,7 @@
 	<package>__core__</package>
 	<type_code>cron_job_expired_matrix_cache</type_code>
 	<version>0.1</version>
-	<name>Expired Matrix Cache Cron Job</name>
+	<name>Expired Matrix Cache Scheduled Job</name>
 	<description>Clears expired Matrix cache entries on a regular basis</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>system</allowed_access>

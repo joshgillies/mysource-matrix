@@ -22,8 +22,8 @@
 	<package>trim</package>
 	<type_code>cron_job_update_trim_record</type_code>
 	<version>0.1</version>
-	<name>Update TRIM Record Cron Job</name>
-	<description>This cron job handle the downloading of TRIM document specified by a datasource. This Cron Job download updated documents everynight.</description>
+	<name>Update TRIM Record Scheduled Job</name>
+	<description>This scheduled job handles the downloading of TRIM document specified by a datasource. This scheduled job downloads and updates documents everynight.</description>
 	<instantiable>no</instantiable>
 	<allowed_access>system</allowed_access>
 	<parent_type>cron_job</parent_type>

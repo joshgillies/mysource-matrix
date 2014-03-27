@@ -39,7 +39,7 @@
 		</field>
 		<field>
 			<display_name>Blackout Periods</display_name>
-			<note>Cron jobs will not run during blackout periods</note>
+			<note>Scheduled Jobs will not run during blackout periods.</note>
 			<function_call>
 				<paint_function   name="paintExcludedTime" />
 				<process_function name="processExcludedTime" />
@@ -47,7 +47,7 @@
 		</field>
 		<field>
 			<display_name>Log Rotate Time</display_name>
-			<note>Rotate the logs at a specified time</note>
+			<note>Rotate the logs at a specified time.</note>
 			<function_call>
 				<paint_function   name="paintLogRotateTime" />
 				<process_function name="processLogRotateTime" />
@@ -55,13 +55,13 @@
 		</field>
 		<field attribute="max_years">
 			<display_name>Maximum Years</display_name>
-			<note>Maximum number of years in future to display in a date's year field when setting up a cron job</note>
+			<note>Maximum number of years in future to display in a date's year field when setting up a Scheduled Job.</note>
 		</field>
 	</section>
 	<section name="Emailing Options">
 		<field>
-			<display_name>Cron Deadlock email receivers</display_name>
-			<note>Configurable option for User who should receive Cron Deadlock emails. &lt;br&gt;&lt;b&gt;NOTE :&lt;/b&gt; By default Root User and the emails configured in the main.inc will receive this email.</note>
+			<display_name>Scheduled Jobs Deadlock Email Receivers</display_name>
+			<note>Configurable option for User who should receive Scheduled Jobs Deadlock emails. &lt;br&gt;By default Root User and the emails configured in the main.inc will receive this email.</note>
 			<function_call>
 				<paint_function   name="paintEmailSelection"   />
 				<process_function name="processEmailSelection" />

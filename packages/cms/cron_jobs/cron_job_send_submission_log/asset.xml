@@ -22,8 +22,8 @@
 	<package>cms</package>
 	<type_code>cron_job_send_submission_log</type_code>
 	<version>0.1</version>
-	<name>Send Submission Log Cron Job</name>
-	<description>Sends the form submission in email to the select users when cron job runs</description>
+	<name>Send Submission Log Scheduled Job</name>
+	<description>Sends the form submission in email to the select users when the scheduled job manager runs</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>system</allowed_access>
 	<parent_type>cron_job</parent_type>

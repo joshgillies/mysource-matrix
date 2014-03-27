@@ -22,8 +22,8 @@
 	<package>bulkmail</package>
 	<type_code>cron_job_queue_scheduled_job</type_code>
 	<version>0.1</version>
-	<name>Queue Scheduled Bulkmail Job</name>
-	<description>This cron job handles tjhe queueing of the Bulkmail job that are scheduled at regualr intervals</description>
+	<name>Queue Scheduled Bulkmail Scheduled Job</name>
+	<description>This scheduled job handles the queueing of the Bulkmail job that are scheduled at regualr intervals</description>
 	<instantiable>no</instantiable>
 	<allowed_access>system</allowed_access>
 	<parent_type>cron_job</parent_type>

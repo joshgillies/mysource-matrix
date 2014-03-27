@@ -22,7 +22,7 @@
 	<package>__core__</package>
 	<type_code>cron_job_expired_matrix_locks</type_code>
 	<version>0.1</version>
-	<name>Expired Matrix Locks Cron Job</name>
+	<name>Expired Matrix Locks Scheduled Job</name>
 	<description>Clears expired Matrix locks on a regular basis</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>system</allowed_access>
