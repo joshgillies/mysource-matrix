@@ -3857,38 +3857,44 @@ class MySource extends MySource_Object
 		}
 
 		?>
-		<div align="center">
-		<style>
-		.sq-rollback-warning {
-			color: #FF0000;
-			font-family:  Verdana, Arial, Helvetica, sans-serif;
-			font-weight: bold;
-			text-decoration: none;
-			font-size: 11px;
-		}
-		</style>
-		<br/>
-		<table border="0" cellspacing="3" cellpadding="2" width="95%" bgcolor="#FF0000">
-			<tr>
-				<td bgcolor="#FFE5E8">
-					<table border="0" cellspacing="2" cellpadding="2" width="100%">
-						<tr>
-							<td class="sq-rollback-warning" align="right"><?php echo translate('exit_rollback_view'); ?><?php sq_print_icon(sq_web_path('lib').'/web/images/icons/delete.png', '16', '16', translate('exit_rollback_view'), NULL, 'onclick="window.top.location=\''.$exit_url.'\'; return false;" style="cursor: pointer;"'); ?>
-							</td>
-						</tr>
-						<tr>
-							<td class="sq-rollback-warning" align="center"><u><?php echo translate('in_rollback_mode'); ?></u>
-							</td>
-						</tr>
-						<tr>
-							<td class="sq-rollback-warning"><?php echo $warning_message; ?>
-							</td>
-						</tr>
-					</table>
-				</td>
-			</tr>
-		</table>
-		<br/>
+		<div class="sq-rollback-warning-wrapper">
+			<style>
+			.sq-rollback-warning-table {
+				border: 1px solid #f13e57 !important;
+			}
+			.sq-rollback-warning-table th{
+				border-bottom: 1px solid #f13e57 !important;
+				background:	#FFD0D0 !important;
+				color: red;
+				text-shadow: none;
+			}
+			.sq-rollback-warning-table td{
+				background:	#FFE4E4 !important;
+			}
+			.sq-rollback-warning {
+				color: #FF0000;
+				font-weight: bold;
+				font-size: 11px;
+			}
+			</style>
+			<table class="sq-backend-table sq-rollback-warning-table">
+				<tr>
+					<th>
+						<?php echo translate('in_rollback_mode'); ?>
+					</th>
+					<th style="text-align:right;">
+						<a href="#" onclick="window.top.location='<?php echo $exit_url; ?>'; return false;" >
+							<?php 
+								echo translate('exit_rollback_view').' ';
+								sq_print_icon(sq_web_path('lib').'/web/images/icons/cancel.png', '16', '16', translate('exit_rollback_view'), NULL); 
+							?>
+						</a>
+					</th>
+				<tr>
+					<td colspan="2" class="sq-rollback-warning"><?php echo $warning_message; ?>
+					</td>
+				</tr>
+			</table>
 		</div>
 		<?php
 
