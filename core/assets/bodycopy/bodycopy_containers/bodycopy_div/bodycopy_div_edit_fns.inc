@@ -227,9 +227,9 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 				break;
 				case 'css_class':
 					$name = 'class';
-				case 'conditions':
-					$skip_attribute = TRUE;
 				break;
+			    	case 'conditions':
+					$skip_attribute = TRUE;
 				break;
 			}
 
