@@ -633,7 +633,17 @@ class Asset_Map
 		$root = simplexml_load_string($xml);
 		if (function_exists('libxml_disable_entity_loader'))
 			libxml_disable_entity_loader(FALSE);
-		
+
+		// Release the session write lock for "read" operations
+		 switch ($root['action']) {
+			case 'get translations':
+			case 'initialise':
+			case 'get assets':
+			case 'get url':
+		    case 'get attributes':
+				session_write_close();
+		 }//end switch
+
 		ob_start();
 		switch ($root['action']) {
 			case 'get translations' :
