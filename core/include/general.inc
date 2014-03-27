@@ -1816,7 +1816,7 @@ function get_asset_tag_line_binoculars($assetid, $popupTitle=NULL)
 	if (count($lineages) > 1) {
 		echo $lineages_div;
 		?><div id="asset-tag-line-<?php echo $assetid ?>-cancel-icon" style="display:none"><?php
-			sq_print_icon(sq_web_path('data').'/asset_types/bodycopy/images/icons/delete.png', 16, 16, translate('cancel'), translate('cancel'), ' style="border:none"');
+			sq_print_icon(sq_web_path('lib').'/web/images/icons/cancel.png', 16, 16, translate('cancel'), translate('cancel'), ' style="border:none"');
 		?></div><?php
 		$lineages_onclick = 'tooltip.show(this, document.getElementById(\'asset-tag-line-'.str_replace('\\', '\\\\', $assetid).'-lineages\').innerHTML, \''.addslashes($popupTitle).'\', document.getElementById(\'asset-tag-line-'.str_replace('\\', '\\\\', $assetid).'-cancel-icon\').innerHTML)';
 		$lineages_name = translate('show_lineages');
