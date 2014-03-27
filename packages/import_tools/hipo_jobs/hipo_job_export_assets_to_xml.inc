@@ -60,7 +60,7 @@ class HIPO_Job_Export_Assets_To_Xml extends HIPO_Job
 	*/
 	function getCodeName()
 	{
-		return 'HIPO_Job_Export_Assets_To_Xml-'.md5($this->_running_vars['root_node_mapping'].$this->_running_vars['export_path']);
+		return 'HIPO_Job_Export_Assets_To_Xml-'.md5(serialize($this->_running_vars['root_node_mapping']).$this->_running_vars['export_path']);
 
 	}//end getCodeName()
 
