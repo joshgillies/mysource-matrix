@@ -22,7 +22,7 @@
 	<package>cms</package>
 	<type_code>cron_job_manage_incomplete_submissions</type_code>
 	<version>0.3</version>
-	<name>Manage Incomplete Submissions Cron Job</name>
+	<name>Manage Incomplete Submissions Scheduled Job</name>
 	<description>Manages sending of reminder emails and pruning of multiple-page Custom Form submissions that remain incomplete for an extended period.</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>system</allowed_access>

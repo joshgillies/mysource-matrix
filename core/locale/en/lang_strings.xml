@@ -118,7 +118,7 @@
 	<string source="content_tag">Content Tag</string>
 	<string source="content_tags">Content Tags</string>
 	<string source="context">Context</string>
-	<string source="cron_manager_appears_to_be_fine">Cron Manager appears to be fine.</string>
+	<string source="cron_manager_appears_to_be_fine">Scheduled Jobs Manager appears to be fine.</string>
 	<string source="csv_upload">CSV Upload</string>
 	<string source="current_hipo_jobs">Current HIPO Jobs</string>
 	<string source="orphaned_hipo_jobs">Orphaned HIPO Jobs</string>
@@ -127,8 +127,8 @@
 	<string source="display_linked_children">Linked Children</string>
 	<string source="current_linking">Current Linking</string>
 	<string source="create_linking">Create Link</string>
-	<string source="cron_manager_create_now_or_later">a future date and time. If no time is set, the new link will be created immediately else the cron manager will create the link at a future time</string>
-	<string source="cron_manager_delete_now_or_later">a future date and time. If no time is set, the selected link will be deleted immediately else the cron manager will delete the link at a future time</string>
+	<string source="cron_manager_create_now_or_later">a future date and time. If no time is set, the new link will be created immediately else the Scheduled Jobs Manager will create the link at a future time</string>
+	<string source="cron_manager_delete_now_or_later">a future date and time. If no time is set, the selected link will be deleted immediately else the Scheduled Jobs Manager will delete the link at a future time</string>
 	<string source="cron_manager_future_not_available_create">a future date and time. This feature is not availabe for the current asset</string>
 	<string source="cron_manager_future_not_available_delete">a future date and time. This feature is not availabe for the current asset</string>
 	<string source="current_lock_status">Current Lock Status</string>
@@ -465,15 +465,17 @@
 	<!-- Page Title translations -->
 	<string source="page_title_simple_edit_interface">%s Simple Edit Interface</string>
 	<string source="page_title_admin_interface">%s Administration Interface</string>
+	<string source="page_title_simple_edit_mode">%s : Simple Edit Mode</string>
+	<string source="page_title_admin_mode">%s : Admin Mode</string>
 
 	<!-- Cron translations -->
-	<string source="cron_manager_not_configured">The Cron Manager has not been configured. No future statuses can be set for this asset</string>
-	<string source="cron_manager_not_configured_regen">The Cron Manager has not been configured. No future regeneration can be set for this asset</string>
-	<string source="cron_manager_not_configured_refresh">The Cron Manager has not been configured. No future cache refreshing can be set for this asset</string>
+	<string source="cron_manager_not_configured">The Scheduled Jobs Manager has not been configured. No future statuses can be set for this asset</string>
+	<string source="cron_manager_not_configured_regen">The Scheduled Jobs Manager has not been configured. No future regeneration can be set for this asset</string>
+	<string source="cron_manager_not_configured_refresh">The Scheduled Jobs Manager has not been configured. No future cache refreshing can be set for this asset</string>
 	<string source="cron_manager_refresh_cache_running">Running</string>
 	<string source="cron_manager_refresh_cache_not_running">Not Running</string>
 	<string source="cron_manager_refresh_no_job">No Jobs available</string>
-	<string source="cron_manager_next_run">The Cron Manager runs every &lt;b&gt;%1$s&lt;/b&gt;. It will next run on the &lt;b&gt;%2$s&lt;/b&gt;.</string>
+	<string source="cron_manager_next_run">The Scheduled Jobs Manager runs every &lt;b&gt;%1$s&lt;/b&gt;. It will next run on the &lt;b&gt;%2$s&lt;/b&gt;.</string>
 	<string source="asset_currently_in_workflow">&lt;i&gt;This asset is currently in workflow. Approval or rejection of the changes must be done on the &lt;a href="%s"&gt;asset workflow screen&lt;/a&gt;&lt;/i&gt;</string>
 	<string source="workflow_not_running">Workflow is not currently running for this asset</string>
 	<string source="workflow_not_running_bundle">This bundle must be in &quot;Approving&quot; status to be able to approve or reject workflow at a bundle level</string>
@@ -482,35 +484,35 @@
 	<string source="workflow_email_link_has_been_updated">It is either that the workflow has already been %s or you do not have access to edit the workflow of the asset</string>
 	<string source="no_thumbnail_attatched">No thumbnail attached</string>
 	<string source="set_status_to">Set Status to </string>
-	<string source="cron_manager_refresh_unknown">The Cron Manager refresh time is unknown</string>
+	<string source="cron_manager_refresh_unknown">The Scheduled Jobs Manager refresh time is unknown</string>
 	<string source="or_in">or in</string>
 	<string source="cron_run_other">%1$s on %2$s</string>
 	<string source="cron_run_month">%1$s on the %2$s</string>
 	<string source="cron_run_hourly">%s minutes past the hour</string>
-	<string source="cron_run_always">Every time the cron manager runs</string>
+	<string source="cron_run_always">Every time the Scheduled Jobs Manager runs</string>
 	<string source="cron_run_repeat">Next run %1$s. Repeating every %2$s %3$s</string>
 	<string source="cron_no_jobs_registered">No Jobs Registered</string>
-	<string source="cron_deadlock_warning_list_item_1">An existing cron manager instance is currently running an extremely long running job.</string>
-	<string source="cron_deadlock_warning_list_item_2">Some thing has caused the cron manager to exit uncleanly when it was running and the lock wasn't able to be removed.</string>
-	<string source="cron_deadlock_warning_section_1">This is only a potential warning brought about because the cron manager has attempted to run %s times, but has not been able to. Two potential reasons for this are :</string>
+	<string source="cron_deadlock_warning_list_item_1">An existing Scheduled Jobs Manager instance is currently running an extremely long running job.</string>
+	<string source="cron_deadlock_warning_list_item_2">Some thing has caused the Scheduled Jobs Manager to exit uncleanly when it was running and the lock wasn't able to be removed.</string>
+	<string source="cron_deadlock_warning_section_1">This is only a potential warning brought about because the Scheduled Jobs Manager has attempted to run %s times, but has not been able to. Two potential reasons for this are :</string>
 	<string source="cron_deadlock_warning_check_error_log">Check the cron error log (in "%s") for any information</string>
-	<string source="cron_deadlock_warning_offending_job">The cron manager believes this job is still running: %s</string>
-	<string source="cron_deadlock_warning_section_2">To confirm the removal of the lock flag for the cron manager, enter the character string you see below into the box supplied, then press the Commit button</string>
-	<string source="cron_deadlock_warning_section_3">ONLY REMOVE THE LOCK IF YOU KNOW FOR CERTAIN THAT THE CRON MANAGER IS NOT RUNNING</string>
+	<string source="cron_deadlock_warning_offending_job">The Scheduled Jobs Manager believes this job is still running: %s</string>
+	<string source="cron_deadlock_warning_section_2">To confirm the removal of the lock flag for the Scheduled Jobs Manager, enter the character string you see below into the box supplied, then press the Commit button</string>
+	<string source="cron_deadlock_warning_section_3">ONLY REMOVE THE LOCK IF YOU KNOW FOR CERTAIN THAT THE SCHEDULED JOBS MANAGER IS NOT RUNNING</string>
 	<string source="cron_deadlock_must_acquire_lock">You must acquire the lock in order resolve this issue</string>
 	<string source="cron_deadlock_warning_contact_root">You must contact the root user to resolve this issue</string>
 	<string source="cron_force_lock_removal">Force Removal of Lock</string>
-	<string source="cron_job_escalate_safe_trash">Escalate Safe-Trash Cron Job</string>
-	<string source="cron_job_expired_workflow">Expired Workflow Cron Job</string>
-	<string source="cron_job_expired_matrix_cache">Expired Matrix Cache Cron Job</string>
-	<string source="cron_job_expired_matrix_locks">Expired Matrix Locks Cron Job</string>
-	<string source="cron_job_remove_soap_response_files">Remove SOAP Response Files Cron Job</string>
+	<string source="cron_job_escalate_safe_trash">Escalate Safe-Trash Scheduled Job</string>
+	<string source="cron_job_expired_workflow">Expired Workflow Scheduled Job</string>
+	<string source="cron_job_expired_matrix_cache">Expired Matrix Cache Scheduled Job</string>
+	<string source="cron_job_expired_matrix_locks">Expired Matrix Locks Scheduled Job</string>
+	<string source="cron_job_remove_soap_response_files">Remove SOAP Response Files Scheduled Job</string>
 	<string source="cron_new_future_linking">New Future Linking</string>
-	<string source="cron_job_asset-less_future_linking">Asset-less Future Linking Cron Job</string>
-	<string source="cron_job_asset_less_future_status">Asset-less Future Status Cron Job</string>
-	<string source="cron_job_asset_less_future_permission">Asset-less Future Permission Cron Job</string>
-	<string source="cron_job_assetless_attempt_safe_trash">Asset-less Attempt Safe-Trash Cron Job</string>
-	<string source="cron_job_generate_log_reports">Generate Log Reports Cron Job</string>
+	<string source="cron_job_asset-less_future_linking">Asset-less Future Linking Scheduled Job</string>
+	<string source="cron_job_asset_less_future_status">Asset-less Future Status Scheduled Job</string>
+	<string source="cron_job_asset_less_future_permission">Asset-less Future Permission Scheduled Job</string>
+	<string source="cron_job_assetless_attempt_safe_trash">Asset-less Attempt Safe-Trash Scheduled Job</string>
+	<string source="cron_job_generate_log_reports">Generate Log Reports Scheduled Job</string>
 	<string source="cron_safe_trash_for">Safe-Trash for %s</string>
 	<string source="cron_attempt_safe_trash_for">Attempt Safe-Trash for %s</string>
 	<string source="cron_fl_for">FL for %s</string>
@@ -526,7 +528,7 @@
 	<string source="deleting_link_id">Deleting Link Id #%s</string>
 	<string source="asset_from_under_asset">%1$s from under %2$s</string>
 	<string source="cron_altered_asset_status">Altered status of %1$s from %2$s to %3$s</string>
-	<string source="cron_excluded_time">Blackout Period</string>
+	<string source="cron_excluded_time">Blackout Periods</string>
 	<string source="cron_excluded_time_hour">Do not process jobs between %1$s:00 and %2$s:00</string>
 	<string source="cron_excluded_time_days"> on %s</string>
 	<string source="cron_excluded_time_every_day"> on every day</string>
@@ -1706,7 +1708,7 @@
 	<string source="found_in">Found In</string>
 	<string source="empty_fields">Empty Fields</string>
 	<string source="asset_format">"%1$s" [#%2$s]</string>
-	<string source="view_jobs">View Jobs</string>
+	<string source="view_jobs">View Scheduled Jobs</string>
 	<string source="run_as">Run As</string>
 	<string source="not_set">Not Set</string>
 	<string source="no_minor_asset_found">No Minor Asset Found</string>
@@ -2672,7 +2674,7 @@ If you are ready to continue, please click <strong>Next</strong> to proceed with
 	<string source="tool_matrix_cache_clear_now_field">Clear Now</string>
 	<string source="tool_matrix_cache_populate_question">Repopulate?</string>
 	<string source="tool_matrix_cache_populate_note">Request the asset after clearing the cache so that Matrix can recache it.</string>
-	<string source="tool_matrix_cache_note">Note: Level, Asset Types and Repopulate option will also be applied to the cron job if you schedule one.</string>
+	<string source="tool_matrix_cache_note">Note: Level, Asset Types and Repopulate option will also be applied to the Scheduled Job if you schedule one.</string>
 	<string source="tool_rename_thesaurus_term">Change Thesaurus Term Tool</string>
 	<string source="tool_thesaurus_term">Thesaurus Term</string>
 	<string source="tool_thesaurus_term_empty">No Thesaurus Term set</string>
@@ -2682,7 +2684,7 @@ If you are ready to continue, please click <strong>Next</strong> to proceed with
 	<string source="tool_thesaurus_term_cascade">Cascade</string>
 	<string source="tool_rename_thesaurus_term_note">This tool will update the metadata value on multiple assets with the new thesaurus term. You can specify a root node to restrict the running of this tool, or if no root node is set, the operation will run system wide.</string>
 
-	<string source="matrix_cache_schedule_section">Schedule Clear Cache Cron Job (Matrix)</string>
+	<string source="matrix_cache_schedule_section">Schedule Clear Cache Scheduled Job (Matrix)</string>
 	<string source="matrix_cache_scheduled_job_field">Scheduled Jobs</string>
 	<string source="matrix_cache_one_off_field">Schedule a One Off Job</string>
 	<string source="matrix_cache_repeating_field">Schedule a Repeating Job</string>
@@ -2729,8 +2731,8 @@ If you are ready to continue, please click <strong>Next</strong> to proceed with
 
 	<string source="safe_trash_line_common">This asset is marked to be automatically trashed when it meets Safe-Trash conditions.</string>
 	<string source="safe_trash_line_still_blocked">There are still Safe-Trash conditions that prevent this asset from being trashed:</string>
-	<string source="safe_trash_line_unblocked">This asset now satisfies those conditions and will now be trashed at the next run of the Cron Manager.</string>
-	<string source="safe_trash_line_disabled">However, Safe-Trash is currently disabled. This asset will be trashed at the next run of the Cron Manager.</string>
+	<string source="safe_trash_line_unblocked">This asset now satisfies those conditions and will now be trashed at the next run of the Scheduled Jobs Manager.</string>
+	<string source="safe_trash_line_disabled">However, Safe-Trash is currently disabled. This asset will be trashed at the next run of the Scheduled Jobs Manager.</string>
 	<string source="safe_trash_line_blocked_links"><![CDATA[There are NOTICE or TYPE_3 links from another asset to this asset. See the <a href="%s">Linking screen</a> for details of all this asset's links.]]></string>
 	<string source="safe_trash_line_blocked_status"><![CDATA[The asset's status is Live or higher status. Change the status to <em>Under Construction</em> or <em>Archived</em> to satisfy this condition.]]></string>
 	<string source="safe_trash_line_blocked_children">Any of the asset's children is either of Live or higher status, or is NOTICE or TYPE_3 linked to another asset.</string>
@@ -2769,11 +2771,11 @@ If you are ready to continue, please click <strong>Next</strong> to proceed with
 	<string source="trigger_add_web_path_dont_add_remap">Don't add remap</string>
 
 	<!-- Future Status Trigger Actions -->
-	<string source="trigger_delete_future_status">Delete all future status cron jobs that would change the asset's status to </string>
+	<string source="trigger_delete_future_status">Delete all future status Scheduled Jobs that would change the asset's status to </string>
 	<string source="trigger_action_future_status_cascade_all">and cascade the status change to all children of the asset</string>
 	<string source="trigger_action_future_status_failure_conditions">&lt;strong&gt;Note:&lt;/strong&gt; If a selected attribute is empty or not present, or the calculated value is in the past, no future status will be set.</string>
 	<string source="trigger_action_future_status_date_format">&lt;strong&gt;Note:&lt;/strong&gt; Metadata Date Field must provide ISO8601 format as "Y-m-d H:i:s".</string>
-	<string source="trigger_action_future_status_make_status_change_to">Add a cron job to change the asset's status to</string>
+	<string source="trigger_action_future_status_make_status_change_to">Add a Scheduled Job to change the asset's status to</string>
 	<string source="trigger_action_future_status_explicit_exact">at exactly</string>
 	<string source="trigger_action_future_status_explicit_interval">after the trigger was fired</string>
 	<string source="trigger_action_future_status_attr_exact">at exactly the date and time stored in the attribute</string>
@@ -2784,8 +2786,8 @@ If you are ready to continue, please click <strong>Next</strong> to proceed with
 	<string source="trigger_action_future_status_treat_as_fatal_note">&lt;br /&gt;&lt;strong&gt;Note:&lt;/strong&gt; Tick the box if the error is to be treated as fatal, i.e. stops the script execution. By default the error will be treated as &lt;i&gt;E_USER_WARNING&lt;/i&gt; which means the error will be lodged but the script execution will continue.</string>
 
 	<!-- Future Permission Trigger Actions -->
-	<string source="trigger_delete_future_permission">Delete all future permission cron jobs that would change the asset's</string>
-	<string source="trigger_action_future_permission_add_cron_job_to">Add a cron job to</string>
+	<string source="trigger_delete_future_permission">Delete all future permission Scheduled Jobs that would change the asset's</string>
+	<string source="trigger_action_future_permission_add_cron_job_to">Add a Scheduled Job to</string>
 	<string source="trigger_action_future_permission_explicit_exact">at exactly</string>
 	<string source="trigger_action_future_permission_explicit_interval">after the trigger was fired</string>
 	<string source="trigger_action_future_permission_attr_exact">at exactly the date and time stored in the attribute</string>
@@ -3058,7 +3060,7 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="mollom_accept_bypassed_submission_note">If set to yes, the submission will be accepted if Mollom fails to respond as expected.</string>
 
 	<!-- Trigger - Remove future lineage cron -->
-	<string source="trigger_remove_future_lineage_cron">Delete all the asset's future lineage cron jobs of type </string>
+	<string source="trigger_remove_future_lineage_cron">Delete all the asset's future lineage Scheduled Jobs of type </string>
 
 	<!-- Squid Caching -->
 	<string source="squid_cache_section">Clear Squid Cache</string>
@@ -3067,7 +3069,7 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="squid_hipo_clearing_squid_cache">Clearing Squid Cache</string>
 	<string source="squid_clearing_squid_cache">Clearing %s</string>
 
-	<string source="squid_cron_name">Purge Squid Cache Cron Job #%s</string>
+	<string source="squid_cron_name">Purge Squid Cache Scheduled Job #%s</string>
 	<string source="squid_cron_done_msg">Squid Cache cleared for all URLs applied to "%1$s" (Id: #%2$s).</string>
 
 	<string source="squid_tool_pref_note">Enter the Host Names separated by newlines, to be used in the command "squidclient -h hostname -m PURGE $url".</string>
@@ -3089,7 +3091,7 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="squid_tool_populate_question">Repopulate?</string>
 	<string source="squid_tool_populate_note">Request each URL after the purge action so that Squid can recache it.</string>
 	<string source="squid_tool_cascade_note">Clear the cache of the selected asset and its children.</string>
-	<string source="squid_tool_note">Note: Repopulate and Cascade option will also be applied to the cron job if you schedule one.</string>
+	<string source="squid_tool_note">Note: Repopulate and Cascade option will also be applied to the Scheduled Job if you schedule one.</string>
 
 	<string source="squid_tool_url_port_field">Add Port to URL</string>
 	<string source="squid_tool_url_port_note">You can specify a port to add to each URL when submitted to Squid. If you are running Squiz Matrix on a non-standard port behind Squid, you may need to add the port back to the URL to clear the cache.</string>

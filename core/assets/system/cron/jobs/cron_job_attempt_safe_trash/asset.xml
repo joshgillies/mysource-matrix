@@ -22,7 +22,7 @@
 	<package>__core__</package>
 	<type_code>cron_job_attempt_safe_trash</type_code>
 	<version>0.1</version>
-	<name>Attempt Safe Trash Cron Job</name>
+	<name>Attempt Safe Trash Scheduled Job</name>
 	<description>Added to an asset if requested by the user after a deletion was blocked due to safe trash. It will run until the safe trash can be effected.</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>system</allowed_access>

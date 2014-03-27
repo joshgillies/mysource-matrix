@@ -22,8 +22,8 @@
 	<package>__core__</package>
 	<type_code>cron_manager</type_code>
 	<version>0.3</version>
-	<name>Cron Manager</name>
-	<description>The Cron Manager looks after queueing and executing cron jobs for the system</description>
+	<name>Scheduled Jobs Manager</name>
+	<description>The Scheduled Jobs Manager looks after queueing and executing scheduled jobs for the system</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>system</allowed_access>
 	<parent_type>asset</parent_type>

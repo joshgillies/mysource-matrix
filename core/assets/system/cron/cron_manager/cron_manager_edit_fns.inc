@@ -194,13 +194,13 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 
 			<!-- start print pagination bar top -->
 			<?php $o->openField('', 'wide_col')?>
-			<table class="sq-backend-table">
-				<tr><th>
+			<table class="sq-backend-table" style="border-bottom: none;">
+				<tr><th style="text-align: center;">
 					<?php
 					hidden_field($prefix.'_link_offset', $link_offset);
 					if ($link_offset > 0) {
 					?>
-						<a title="<?php echo translate('pagination_go_to_first') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '0'); set_hidden_field('process_form', '0'); submit_form(); return false;">
+						<a title="<?php echo translate('pagination_go_to_first') ?>" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '0'); set_hidden_field('process_form', '0'); submit_form(); return false;">
 					<?php
 					} else {
 						?><span title="<?php echo translate('pagination_cannot_go_further_back') ?>" style="color: #333"><?php
@@ -215,7 +215,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 					}
 					?> &nbsp; &nbsp; <?php
 					if ($link_offset > 0) {
-						?><a title="<?php echo translate('pagination_go_to_previous') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo $link_offset - $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+						?><a title="<?php echo translate('pagination_go_to_previous') ?>" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo $link_offset - $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
 					} else {
 						?><span title="<?php echo translate('pagination_cannot_go_further_back') ?>" style="color: #333"><?php
 					}
@@ -231,7 +231,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 					&nbsp; &nbsp; <?php echo translate('page_number', round(($link_offset + $num_per_page) / $num_per_page), ceil($total_assets / $num_per_page)); ?> &nbsp; &nbsp;
 					<?php
 					if (($link_offset + $num_per_page) < $total_assets) {
-						?><a title="<?php echo translate('pagination_go_to_next') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo $link_offset + $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+						?><a title="<?php echo translate('pagination_go_to_next') ?>" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo $link_offset + $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
 					} else {
 						?><span title="<?php echo translate('pagination_cannot_go_further_forward') ?>" style="color: #333"><?php
 					}
@@ -245,7 +245,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 					}
 					?> &nbsp; &nbsp; <?php
 					if (($link_offset + $num_per_page) < $total_assets) {
-						?><a title="<?php echo translate('pagination_go_to_last') ?>" style="text-decoration: none; color: #fff" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo ($num_pages - 1) * $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
+						?><a title="<?php echo translate('pagination_go_to_last') ?>" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix ?>_link_offset', '<?php echo ($num_pages - 1) * $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
 					} else {
 						?><span title="<?php echo translate('pagination_cannot_go_further_forward') ?>" style="color: #333"><?php
 					}
@@ -451,13 +451,14 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		// take into account lock, plus only root can edit
 		if ($asset->writeAccess('attributes') && $GLOBALS['SQ_SYSTEM']->userRoot()) {
+			echo '<span class="sq-inline-fields-wrapper">';
 			$field->printField();
+			echo '</span>';
 		} else {
 			echo $field->format();
 		}//end if
 
 		$attr = $asset->getAttribute('epoch');
-		echo '<br />&nbsp;';
 		$o->note($attr->description);
 
 	}//end paintEpoch()
@@ -681,7 +682,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 					<th class="sq-backend-table-header"><?php echo translate('cron_excluded_time') ?></th>
 					<?php
 						if ($write_access) {
-							?><th class="sq-backend-table-header"><?php echo translate('delete') ?></th><?php
+							?><th class="sq-backend-table-header" style="text-align:center;"><?php echo translate('delete') ?>?</th><?php
 						}
 					?>
 				</tr><?php
@@ -707,15 +708,23 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 					combo_box($field_prefix.'[days]', $days_array, TRUE, $details['days']);
 					$days = ob_get_contents();
 				ob_end_clean();
-				?><td class="sq-backend-table-cell"><?php
+				?><td class="sq-backend-table-cell sq-top-align-children">
+					<span class="sq-inline-fields-wrapper">
+					<?php
 					echo translate('cron_excluded_time_hour', $from, $to);
 					echo translate('cron_excluded_time_days', $days);
-				?></td><td class="sq-backend-table-cell"><?php
+					?>
+					</span>
+				</td><td class="sq-backend-table-cell" style="text-align:center;"><?php
 					check_box($field_prefix.'[delete]', TRUE, FALSE);?></td></tr><?php
 			}
 
 			?>
-			<tr><td colspan="2">Add <?php check_box($prefix.'_add_exclude_time', TRUE, FALSE); ?></tr>
+			<tr><td colspan="2">
+				<?php 
+					check_box($prefix.'_add_exclude_time', TRUE, FALSE);
+					label('Add new blackout period', $prefix.'_add_exclude_time');
+				?></tr>
 			<?php
 
 		} else {
@@ -852,13 +861,15 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 		$lm = $GLOBALS['SQ_SYSTEM']->getLogManager();
 		$log_rotate_time = $lm->attr('log_rotate_time');
 
-		if ($write_access) {
-			combo_box($prefix.'_log_rotate_time', $hours_array, FALSE, $log_rotate_time);
-		} else {
-			echo $hours_array[$log_rotate_time];
-		}//end if
+		echo '<span class="sq-inline-fields-wrapper">';
+			if ($write_access) {
+				combo_box($prefix.'_log_rotate_time', $hours_array, FALSE, $log_rotate_time);
+			} else {
+				echo $hours_array[$log_rotate_time];
+			}//end if
 
-		echo translate('cron_log_rotate_time_desc2');
+			echo translate('cron_log_rotate_time_desc2');
+		echo '</span>';
 
 		return $write_access;
 

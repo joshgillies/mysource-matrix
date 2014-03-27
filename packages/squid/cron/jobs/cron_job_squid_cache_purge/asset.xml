@@ -22,8 +22,8 @@
 	<package>squid</package>
 	<type_code>cron_job_squid_cache_purge</type_code>
 	<version>0.1</version>
-	<name>Purge Squid Cache Cron Job</name>
-	<description>Allows the scheduling of a squid cache purge job to be done by the system at a point in time.</description>
+	<name>Purge Squid Cache Scheduled Job</name>
+	<description>Allows the scheduling of a squid cache purge scheduled job to be done by the system at a point in time.</description>
 	<instantiable>no</instantiable>
 	<allowed_access>system</allowed_access>
 	<parent_type>cron_job</parent_type>

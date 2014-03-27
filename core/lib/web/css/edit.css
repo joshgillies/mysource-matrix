@@ -327,6 +327,10 @@ button.delete-button {
 	margin-bottom: 				0px !important;
 }
 
+.sq-top-align-childre1n *{
+	vertical-align: top;
+}
+
 /*
 ####################################################################################################################
 GLOBAL FORM ELEMENTS

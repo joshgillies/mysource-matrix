@@ -121,7 +121,7 @@ class Trigger_Action_Morph_Asset extends Trigger_Action
 		if ($write_access) {
 			combo_box($prefix.'[from_type_code]', $from_options, FALSE, $from_type_code);
 		} else {
-			echo '<b>'.$type_code.'</b>';
+			echo '<b>'.get_asset_type_icon($from_type_code).$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($from_type_code, 'name').'</b>';
 		}
 		
 
@@ -129,48 +129,47 @@ class Trigger_Action_Morph_Asset extends Trigger_Action
 		if(isset($settings['from_type_code']) && !empty($settings['from_type_code'])) {
 		    echo (translate('trigger_morph_asset_to'));
 		    if ($write_access) {
-			$am = $GLOBALS['SQ_SYSTEM']->am;
-			$user = $am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserid());
+				$am = $GLOBALS['SQ_SYSTEM']->am;
+				$user = $am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserid());
 
-			$types = array_merge($am->getTypeAncestors($settings['from_type_code']), $am->getTypeDescendants($settings['from_type_code']));
-			for ($i = 0; $i < count($types); $i++) {
-				$types[$i] = '\''.$types[$i].'\'';
-			}
-			$type_code_cond = 'IN ('.implode(', ', $types).')';
-
-			$user_types = $am->getTypeAncestors($user->type());
-			$user_types[] = $user->type();
-			for ($i = 0; $i < count($user_types); $i++) {
-				$user_types[$i] = '\''.$user_types[$i].'\'';
-			}
-			$user_type_cond = 'IN ('.implode(', ', $user_types).')';
-
-			$sql = 'SELECT type_code
-					FROM sq_ast_typ
-					WHERE allowed_access '.$user_type_cond.'
-					  AND type_code '.$type_code_cond;
-
-			try {
-				$query = MatrixDAL::preparePdoQuery($sql);
-				$result = MatrixDAL::executePdoAssoc($query, 0);
-			} catch (Exception $e) {
-				throw new Exception('Unable to get type codes for these user types: '.$user_types.' due to database error: '.$e->getMessage());
-			}
-
-			if (empty($result)) {
-				echo translate('no_types_to_morph');
-			} else {
-				$to_options = Array('' => '');
-				foreach ($result as $type_code) {
-					$code_name = str_replace('_', ' ', $type_code);
-					$code_name = ucwords($code_name);
-					$to_options[$type_code] = $code_name;
+				$types = array_merge($am->getTypeAncestors($settings['from_type_code']), $am->getTypeDescendants($settings['from_type_code']));
+				for ($i = 0; $i < count($types); $i++) {
+					$types[$i] = '\''.$types[$i].'\'';
 				}
-				 combo_box($prefix.'[to_type_code]', $to_options, FALSE, $to_type_code);
-			}
+				$type_code_cond = 'IN ('.implode(', ', $types).')';
 
+				$user_types = $am->getTypeAncestors($user->type());
+				$user_types[] = $user->type();
+				for ($i = 0; $i < count($user_types); $i++) {
+					$user_types[$i] = '\''.$user_types[$i].'\'';
+				}
+				$user_type_cond = 'IN ('.implode(', ', $user_types).')';
+
+				$sql = 'SELECT type_code
+						FROM sq_ast_typ
+						WHERE allowed_access '.$user_type_cond.'
+						  AND type_code '.$type_code_cond;
+
+				try {
+					$query = MatrixDAL::preparePdoQuery($sql);
+					$result = MatrixDAL::executePdoAssoc($query, 0);
+				} catch (Exception $e) {
+					throw new Exception('Unable to get type codes for these user types: '.$user_types.' due to database error: '.$e->getMessage());
+				}
+
+				if (empty($result)) {
+					echo translate('no_types_to_morph');
+				} else {
+					$to_options = Array('' => '');
+					foreach ($result as $type_code) {
+						$code_name = str_replace('_', ' ', $type_code);
+						$code_name = ucwords($code_name);
+						$to_options[$type_code] = $code_name;
+					}
+					 combo_box($prefix.'[to_type_code]', $to_options, FALSE, $to_type_code);
+				}
 		    } else {
-			    echo '<b>'.$type_code.'</b>';
+			    echo '<b>'.get_asset_type_icon($to_type_code).$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($to_type_code, 'name').'</b>';
 		    }
 		}
 

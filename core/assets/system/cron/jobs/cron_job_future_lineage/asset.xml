@@ -22,7 +22,7 @@
 	<package>__core__</package>
 	<type_code>cron_job_future_lineage</type_code>
 	<version>0.4</version>
-	<name>Future Asset Lineage Cron Job</name>
+	<name>Future Asset Lineage Scheduled Job</name>
 	<description>Allows the scheduling of the lineage of an asset to be automatically updated by the system at a point in time</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>system</allowed_access>

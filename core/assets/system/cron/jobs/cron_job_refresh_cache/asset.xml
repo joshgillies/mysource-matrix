@@ -22,8 +22,8 @@
 	<package>__core__</package>
 	<type_code>cron_job_refresh_cache</type_code>
 	<version>0.1</version>
-	<name>Refresh Cache Cron Job</name>
-	<description>Cron Job scheduled to run at a time interval, to refresh cache</description>
+	<name>Refresh Cache Scheduled Job</name>
+	<description>Scheduled Job scheduled to run at a time interval, to refresh cache</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>system</allowed_access>
 	<parent_type>cron_job</parent_type>

@@ -21,8 +21,8 @@
 	<package>squiz_suite</package>
 	<type_code>cron_job_sync_suite_products</type_code>
 	<version>0.1</version>
-	<name>Sync Squiz Suite Products Cron Job</name>
-	<description>This cron job will sync the squiz suite products.</description>
+	<name>Sync Squiz Suite Products Scheduled Job</name>
+	<description>This scheduled job will sync the squiz suite products.</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>system</allowed_access>
 	<parent_type>cron_job</parent_type>

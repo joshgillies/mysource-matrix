@@ -46,25 +46,25 @@ class Cron_Manager_Management extends Asset_Management
 														'added'			=> '0.0.1',
 														'type'			=> 'int',
 														'default'		=> 0,
-														'description'	=> 'The GMT time of the "first" run that the Cron Manager made (or will make) was at this time',
+														'description'	=> 'The GMT time of the "first" run that the Scheduled Jobs Manager made (or will make) was at this time.',
 													   ),
 						'refresh_time'				=> Array(
 														'added'			=> '0.0.1',
 														'type'			=> 'duration',
 														'default'		=> 900,
-														'description'	=> 'The number of seconds between cron runs, whenever you change this update the "epoch" to the first time that this change will be felt',
+														'description'	=> 'The number of seconds between Scheduled Job runs, whenever you change this update the "epoch" to the first time that this change will be felt.',
 													   ),
 						'last_run'					=> Array(
 														'added'			=> '0.1',
 														'type'			=> 'int',
 														'default'		=> 0,
-														'description'	=> 'The last time that the cron manager was run',
+														'description'	=> 'The last time that the Scheduled Jobs Manager was run.',
 													   ),
 						'running'					=> Array(
 														'added'			=> '0.1',
 														'type'			=> 'boolean',
 														'default'		=> FALSE,
-														'description'	=> 'Are we currently running ?',
+														'description'	=> 'Are we currently running?',
 														'parameters'	=> Array(
 																			'allow_empty'	=> FALSE,
 																		   ),
@@ -73,19 +73,19 @@ class Cron_Manager_Management extends Asset_Management
 														'added'			=> '0.1',
 														'type'			=> 'int',
 														'default'		=> 0,
-														'description'	=> 'The number of times that a cron run has been started and stopped because the running flag is set true, this get\'s reset in run() after each pass over what jobs have to be done',
+														'description'	=> 'The number of times that a Scheduled Job has been started and stopped because the running flag is set true, this get\'s reset in run() after each pass over what jobs have to be done.',
 													   ),
 						'warn_after_num_run_checks'	=> Array(
 														'added'			=> '0.1',
 														'type'			=> 'int',
 														'default'		=> 3,
-														'description'	=> 'When run_check hits this number a warning will be sent out to announce the possible un-removed locking',
+														'description'	=> 'When run_check hits this number a warning will be sent out to announce the possible un-removed locking.',
 													   ),
 						'num_failed_attempts'		=> Array(
 														'added'			=> '0.1',
 														'type'			=> 'int',
 														'default'		=> 3,
-														'description'	=> 'The number of times that a cron job can fail and request to have another attempt at running',
+														'description'	=> 'The number of times that a Scheduled Job can fail and request to have another attempt at running.',
 													   ),
 						'exclude_times'				=> Array(
 														'added'			=> '0.2',
@@ -97,7 +97,7 @@ class Cron_Manager_Management extends Asset_Management
 																					'days'	=> Array(),
 																				   ),
 																		   ),
-														'description'	=> 'Cronjob Exlude times',
+														'description'	=> 'Scheduled Job Exlude times',
 													   ),
 						'current_job'				=> Array(
 														'added'			=> '0.3',
@@ -109,13 +109,13 @@ class Cron_Manager_Management extends Asset_Management
 														'added'			=> '0.3',
 														'type'			=> 'serialise',
 														'default'		=> Array(),
-														'description'	=> 'Users to send the cron deadlock email to',
+														'description'	=> 'Users to send the Scheduled Jobs deadlock email to.',
 													   ),
 						'max_years'					=> Array(
 														'added'			=> '0.3',
 														'type'			=> 'int',
 														'default'		=> 10,
-														'description'	=> 'Number of years in the future to display in the dropdown that be set when setting up a cron job',
+														'description'	=> 'Number of years in the future to display in the dropdown that be set when setting up a Scheduled Job.',
 													),
 
 

@@ -22,7 +22,7 @@
 	<package>__core__</package>
 	<type_code>cron_job_expired_workflow</type_code>
 	<version>0.1</version>
-	<name>Expired WorkFlow Cron Job</name>
+	<name>Expired WorkFlow Scheduled Job</name>
 	<description>Checks for expired workflow steps and e-mails asset administrators when appropriate</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>system</allowed_access>

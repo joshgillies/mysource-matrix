@@ -22,7 +22,7 @@
 	<package>cms</package>
 	<type_code>cron_job_manage_pending_accounts</type_code>
 	<version>0.3</version>
-	<name>Manage Pending Accounts Cron Job</name>
+	<name>Manage Pending Accounts Scheduled Job</name>
 	<description>Manages pending accounts created by account managers. This cron job handles the resending of validation emails to, or deletion of pending accounts that remain pending for an extended period of time.</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>system</allowed_access>
