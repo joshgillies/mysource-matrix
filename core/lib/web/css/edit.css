@@ -2718,6 +2718,7 @@ LEFT SIDEBAR FRAME STYLES
 	top:                		30px;
 	left:               		6px;
 	visibility:         		visible;
+	z-index: 					3;
 }
 
 #asset_map.in_limbo {
