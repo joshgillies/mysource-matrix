@@ -457,7 +457,7 @@ class Cron_Job extends Asset
 			break;
 
 			case 'WK' :
-				$ret_val .= translate('cron_run_other', $when_arr['hour'].':'.$when_arr['minute'], Cron_Job::whenWeekDayName($when_arr['day']).'\'s');
+				$ret_val .= translate('cron_run_other', $when_arr['hour'].':'.$when_arr['minute'], Cron_Job::whenWeekDayName($when_arr['day']).'s');
 			break;
 
 			case 'DL' :
