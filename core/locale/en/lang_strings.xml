@@ -1770,9 +1770,10 @@
 	<string source="not_customised">Not customised</string>
 
 
-	<string source="rollback_mode_warning_message">The system is as it appeared on %s.&lt;br /&gt;While viewing in rollback mode you cannot make any changes to the system.</string>
+	<string source="rollback_mode_warning_message">The system is as it appeared on &lt;strong&gt;%s&lt;/strong&gt;.&lt;br /&gt;While viewing in rollback mode you cannot make any changes to the system.</string>
 	<string source="exit_rollback_view">Exit Rollback View</string>
-	<string source="in_rollback_mode">You are currently viewing the system in rollback mode</string>
+	<string source="exit_rollback_mode">Exit Rollback Mode</string>
+	<string source="in_rollback_mode">You are currently viewing the system in ROLLBACK MODE</string>
 
 	<string source="log_type">Log Type</string>
 	<string source="no_logged_messages">There are no logged messages of this type for "%s"</string>
