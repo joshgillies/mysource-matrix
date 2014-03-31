@@ -3860,32 +3860,39 @@ class MySource extends MySource_Object
 		<div class="sq-rollback-warning-wrapper">
 			<style>
 			.sq-rollback-warning-table {
-				border: 1px solid #f13e57 !important;
+				border: 1px solid #e0d3a2 !important;
 			}
 			.sq-rollback-warning-table th{
-				border-bottom: 1px solid #f13e57 !important;
-				background:	#FFD0D0 !important;
-				color: red;
+				border-bottom: 1px solid #e0d3a2 !important;
+				background:	#fff1bb;
+				color: #000;
 				text-shadow: none;
 			}
+			.sq-rollback-warning-table .sq-rollback-header{
+				background:	#fff1bb url(<?php echo sq_web_path('lib').'/web/images/warning.png'; ?>) no-repeat 5px 6px !important;
+				padding-left: 35px;
+				border-right: none;
+			}
 			.sq-rollback-warning-table td{
-				background:	#FFE4E4 !important;
+				background:#fff1bb !important;
+			}
+			.sq-rollback-warning-table img{
+				vertical-align: top;
 			}
 			.sq-rollback-warning {
-				color: #FF0000;
-				font-weight: bold;
+				color: #000;
 				font-size: 11px;
 			}
 			</style>
 			<table class="sq-backend-table sq-rollback-warning-table">
 				<tr>
-					<th>
+					<th class="sq-rollback-header">
 						<?php echo translate('in_rollback_mode'); ?>
 					</th>
 					<th style="text-align:right;">
 						<a href="#" onclick="window.top.location='<?php echo $exit_url; ?>'; return false;" >
 							<?php 
-								echo translate('exit_rollback_view').' ';
+								echo translate('exit_rollback_mode').' ';
 								sq_print_icon(sq_web_path('lib').'/web/images/icons/cancel.png', '16', '16', translate('exit_rollback_view'), NULL); 
 							?>
 						</a>
