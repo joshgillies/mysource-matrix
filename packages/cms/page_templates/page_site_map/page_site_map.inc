@@ -409,7 +409,7 @@ class Page_Site_Map extends Page
 			preg_match_all('/%([^%]*)%/i', $format, $matches);
 			foreach ($matches[1] as $key => $keyword) {
 				$rep = $asset->getKeywordReplacement($keyword);
-				$format = preg_replace('!' . preg_quote($matches[0][$key], '!') . '!', $rep, $format);
+				$format = preg_replace('!' . preg_quote($matches[0][$key], '!') . '!', str_replace('$', '\$', $rep), $format);
 			}
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 		}
