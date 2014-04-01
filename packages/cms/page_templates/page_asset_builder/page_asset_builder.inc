@@ -1566,7 +1566,7 @@ class Page_Asset_Builder extends Page
 							$i = 0;
 							foreach ($data['locations'] as $id => $name) {
 								check_box($code_name."[$i]", $id, $checked);
-								label(str_replace(' ', '&nbsp;',$options[$id]), $code_name."[$i]");
+								label(str_replace('  ', '&nbsp;&nbsp;',$options[$id]), $code_name."[$i]");
 								echo "<br />";
 								$checked = FALSE;
 								$i++;
@@ -1576,7 +1576,7 @@ class Page_Asset_Builder extends Page
 
 							foreach ($data['locations'] as $id => $name) {
 								radio_button($code_name, $id, $checked);
-								label(str_replace(' ', '&nbsp;',$options[$id]), $code_name.'_'.$id);
+								label(str_replace('  ', '&nbsp;&nbsp;',$options[$id]), $code_name.'_'.$id);
 								echo "<br />";
 								$checked = FALSE;
 							}
