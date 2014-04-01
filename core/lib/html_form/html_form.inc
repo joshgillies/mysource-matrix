@@ -44,17 +44,17 @@ function submit_button($name, $value, $on_click='', $extras='')
 	}
 
 	if ($on_click) {
-		$extras .= ' onclick="'.htmlspecialchars($on_click).' "';
+		$extras .= ' onclick="'.htmlspecialchars($on_click, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).' "';
 	}
 
 	if (!stristr($extras, 'class=')) {
 		$extras .= ' class="sq-form-field"';
 	}
 	if (!stristr($extras, 'id=')) {
-		$extras .= ' id="'.htmlspecialchars($name).'"';
+		$extras .= ' id="'.htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'"';
 	}
 
-	echo '<input type="submit" name="', htmlspecialchars($name), '" value="', htmlspecialchars($value), '" ', $extras, ' />';
+	echo '<input type="submit" name="', htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), '" value="', htmlspecialchars($value, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), '" ', $extras, ' />';
 
 }//end submit_button()
 
@@ -79,16 +79,16 @@ function reset_button($name, $value, $on_click='', $extras='')
 	}
 
 	if ($on_click) {
-		$extras .= ' onclick="'.htmlspecialchars($on_click).' "';
+		$extras .= ' onclick="'.htmlspecialchars($on_click, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).' "';
 	}
 	if (!stristr($extras, 'class=')) {
 		$extras .= ' class="sq-form-field"';
 	}
 	if (!stristr($extras, 'id=')) {
-		$extras .= ' id="'.htmlspecialchars($name).'"';
+		$extras .= ' id="'.htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'"';
 	}
 
-	echo '<input type="reset" name="', htmlspecialchars($name), '" value="', htmlspecialchars($value), '" ', $extras, ' />';
+	echo '<input type="reset" name="', htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), '" value="', htmlspecialchars($value, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), '" ', $extras, ' />';
 
 }//end reset_button()
 
@@ -107,12 +107,12 @@ function reset_button($name, $value, $on_click='', $extras='')
 function normal_button($name, $value, $on_click='', $extras='')
 {
 	if ($on_click) {
-		$extras .= ' onclick="'.htmlspecialchars($on_click).' "';
+		$extras .= ' onclick="'.htmlspecialchars($on_click, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).' "';
 	}
 	if (!stristr($extras, 'class=')) {
 		$extras .= ' class="sq-form-field"';
 	}
-	echo '<input type="button" name="', htmlspecialchars($name), '" id="', htmlspecialchars($name), '" value="', htmlspecialchars($value), '" ', $extras, ' />';
+	echo '<input type="button" name="', htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), '" id="', htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), '" value="', htmlspecialchars($value), '" ', $extras, ' />';
 
 }//end normal_button()
 
@@ -133,9 +133,9 @@ function hidden_field($name, $value='', $extras='')
 		$extras .= ' class="sq-form-field"';
 	}
 	if (!stristr($extras, 'id=')) {
-		$extras .= ' id="'.htmlspecialchars($name).'"';
+		$extras .= ' id="'.htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'"';
 	}
-	echo '<input type="hidden" name="', htmlspecialchars($name), '" value="', htmlspecialchars($value), '" ', $extras, ' />';
+	echo '<input type="hidden" name="', htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), '" value="', htmlspecialchars($value, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), '" ', $extras, ' />';
 
 }//end hidden_field()
 
@@ -163,26 +163,26 @@ function text_box($name, $value='', $size='', $max='', $hide_value=FALSE, $extra
 		$extras .= ' class="sq-form-field"';
 	}
 	if (!stristr($extras, 'id=')) {
-		$extras .= ' id="'.htmlspecialchars($name).'"';
+		$extras .= ' id="'.htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'"';
 	}
 	if ($hide_value) {
 		if (!stristr($extras, 'onfocus')) {
-			$extras .= ' onfocus="if (this.value == \''.htmlspecialchars($value).'\') { this.value = \'\'; }"';
+			$extras .= ' onfocus="if (this.value == \''.htmlspecialchars($value, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'\') { this.value = \'\'; }"';
 		} else {
 			$insert_pos = strpos($extras, 'onfocus="') + 8;
-			$extras = substr($extras, 0, $insert_pos).'if (this.value == \''.htmlspecialchars($value).'\') { this.value = \'\'; }'.substr($extras, $insert_pos);
+			$extras = substr($extras, 0, $insert_pos).'if (this.value == \''.htmlspecialchars($value, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'\') { this.value = \'\'; }'.substr($extras, $insert_pos);
 		}
 		if (!stristr($extras, 'onblur')) {
-			$extras .= ' onblur="if (this.value == \'\') { this.value=\''.htmlspecialchars($value).'\'; }"';
+			$extras .= ' onblur="if (this.value == \'\') { this.value=\''.htmlspecialchars($value, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'\'; }"';
 		} else {
 			$quote_pos = strpos($extras, '"', strpos($extras, 'onblur="') + 8);
-			$extras = substr($extras, 0, $quote_pos).';  if (this.value == \'\') { this.value=\''.htmlspecialchars($value).'\'; }'.substr($extras, $quote_pos);
+			$extras = substr($extras, 0, $quote_pos).';  if (this.value == \'\') { this.value=\''.htmlspecialchars($value, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'\'; }'.substr($extras, $quote_pos);
 		}
 	}
 
 	echo	'<input type="'.$text_field_type.'" ',
-			'name="', htmlspecialchars($name), '" ',
-			'value="', htmlspecialchars($value), '" ',
+			'name="', htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), '" ',
+			'value="', htmlspecialchars($value, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), '" ',
 			(($size)   ? 'size="'.$size.'" '     : ''),
 			(($max)    ? 'maxlength="'.$max.'" ' : ''),
 			$extras,
@@ -273,11 +273,11 @@ function password_box($name, $value='', $size='', $max='', $extras='')
 		$extras .= ' class="sq-form-field"';
 	}
 	if (!stristr($extras, 'id=')) {
-		$extras .= ' id="'.htmlspecialchars($name).'"';
+		$extras .= ' id="'.htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'"';
 	}
 	echo	'<input type="password" ',
-			'name="', htmlspecialchars($name), '" ',
-			'value="', htmlspecialchars($value), '" ',
+			'name="', htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), '" ',
+			'value="', htmlspecialchars($value, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), '" ',
 			(($size)   ? 'size="'.$size.'" '     : ''),
 			(($max)    ? 'maxlength="'.$max.'" ' : ''),
 			$extras,
@@ -308,18 +308,18 @@ function text_area($name, $contents, $cols=0, $rows=0, $max=0, $extras='')
 		$extras .= ' class="sq-form-field"';
 	}
 	if (!stristr($extras, 'id=')) {
-		$extras .= ' id="'.htmlspecialchars($name).'"';
+		$extras .= ' id="'.htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'"';
 	}
 
 	$js = 'if (this.value.length > '.$max.') { this.value = this.value.substr(0,'.$max.'); alert(\'This field can contain no more than '.$max.' characters.\'); this.focus()}';
 
-	echo 	'<textarea name="', htmlspecialchars($name), '" ',
+	echo 	'<textarea name="', htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), '" ',
 			'cols="'.$cols.'" ',
 			'rows="'.$rows.'" ',
 			(($max)   ? 'onkeyup="'.$js.'" onblur="'.$js.'"' : ''),
 			$extras,
 			'>',
-			htmlspecialchars($contents),
+			htmlspecialchars($contents, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET),
 			'</textarea>';
 
 }//end text_area()
@@ -340,17 +340,17 @@ function text_area($name, $contents, $cols=0, $rows=0, $max=0, $extras='')
 function radio_button($name, $value='1', $checked=FALSE, $on_click='', $extras='')
 {
 	if ($on_click) {
-		$extras .= ' onclick="'.htmlspecialchars($on_click).' "';
+		$extras .= ' onclick="'.htmlspecialchars($on_click, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).' "';
 	}
 	if (!stristr($extras, 'class=')) {
 		$extras .= ' class="sq-form-field"';
 	}
 	if (!stristr($extras, 'id=')) {
-		$extras .= ' id="'.htmlspecialchars($name.'_'.$value).'"';
+		$extras .= ' id="'.htmlspecialchars($name.'_'.$value, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'"';
 	}
 	echo	'<input type="radio" ',
-			'name="', htmlspecialchars($name), '" ',
-			'value="', htmlspecialchars($value), '" ',
+			'name="', htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), '" ',
+			'value="', htmlspecialchars($value, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), '" ',
 			(($checked) ? 'checked="checked" ' : ''),
 			$extras,
 			' />';
@@ -373,17 +373,17 @@ function radio_button($name, $value='1', $checked=FALSE, $on_click='', $extras='
 function check_box($name, $value='1', $checked=FALSE, $on_click='', $extras='')
 {
 	if ($on_click) {
-		$extras .= ' onclick="'.htmlspecialchars($on_click).' "';
+		$extras .= ' onclick="'.htmlspecialchars($on_click, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).' "';
 	}
 	if (!stristr($extras, 'id=')) {
-		$extras .= ' id="'.htmlspecialchars($name).'"';
+		$extras .= ' id="'.htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'"';
 	}
 	if (!stristr($extras, 'class=')) {
 		$extras .= ' class="sq-form-field"';
 	}
 	echo	'<input type="checkbox" ',
-			'name="', htmlspecialchars($name), '" ',
-			'value="', htmlspecialchars($value), '" ',
+			'name="', htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), '" ',
+			'value="', htmlspecialchars($value, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), '" ',
 			(($checked) ? 'checked="checked" ' : ''),
 			$extras,
 			' />';
@@ -417,7 +417,7 @@ function combo_box($name, $contents, $multiple=FALSE, $defaults='', $height=0, $
 		$extras .= ' class="sq-form-field"';
 	}
 	if (!stristr($extras, 'id=')) {
-		$extras .= ' id="'.htmlspecialchars($name).'"';
+		$extras .= ' id="'.htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'"';
 	}
 	if ($multiple) {
 		$extras .= ' multiple="multiple"';
@@ -429,7 +429,7 @@ function combo_box($name, $contents, $multiple=FALSE, $defaults='', $height=0, $
 
 	if ($sort_options) asort($contents);
 
-	echo	'<select name="', htmlspecialchars($name), '" ',
+	echo	'<select name="', htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), '" ',
 			(($height > 1)? 'size="'.$height.'" ' : ''),
 			$extras,
 			'>';
@@ -441,8 +441,8 @@ function combo_box($name, $contents, $multiple=FALSE, $defaults='', $height=0, $
 				$value = substr($value, 0, $maxlength - 3).'...';
 			}
 		}
-		$value = str_replace('  ', '&nbsp;&nbsp;', htmlspecialchars($value));
-		echo	'<option value="', htmlspecialchars($key), '"',
+		$value = str_replace('  ', '&nbsp;&nbsp;', htmlspecialchars($value, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
+		echo	'<option value="', htmlspecialchars($key, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET), '"',
 				((in_array((string) $key, $defaults)) ? ' selected="selected"' : ''),
 				'>',
 				$value,
@@ -919,7 +919,7 @@ function multiple_asset_finder($name, $assetids=Array(), $type_codes=Array(), $m
 
 	$safe_name = 'sq_asset_finder_'.preg_replace('/[^A-Za-z0-9]/', '_', $name);
 	$type_codes_string = get_type_codes_string($type_codes);
-	echo '<input type="button" name="'.htmlspecialchars($safe_name.'_more_btn').'" id="'.htmlspecialchars($safe_name.'_more_btn').'" value="'.translate('more').'..." onclick="addNewAssetFinder(this, \''.$name.'\', \''.$safe_name.'\', \''.addslashes($type_codes_string).'\', \''.htmlentities($map_frame_exp, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'\', '.$done_fn.', '.(in_array('clear', $buttons) ? 'true' : 'false').')" />';
+	echo '<input type="button" name="'.htmlspecialchars($safe_name.'_more_btn', ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'" id="'.htmlspecialchars($safe_name.'_more_btn', ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'" value="'.translate('more').'..." onclick="addNewAssetFinder(this, \''.$name.'\', \''.$safe_name.'\', \''.addslashes($type_codes_string).'\', \''.htmlentities($map_frame_exp, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'\', '.$done_fn.', '.(in_array('clear', $buttons) ? 'true' : 'false').')" />';
 	echo '<br />';
 
 	echo '</div>';
