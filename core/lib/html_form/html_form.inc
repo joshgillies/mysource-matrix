@@ -587,10 +587,10 @@ function get_file_upload_info($name, $pre_uploaded=FALSE)
 	$max_size = min($filesize_limits);
 	if ($pref_max_filesize && $pref_max_filesize < $max_size) {
 		$settings_type = "Matrix";
-		$max_allowed_size = $pref_max_filesize/(1024*1024);
+		$max_allowed_size = $pref_max_filesize;
 	} else {
 		$settings_type = "PHP";
-		$max_allowed_size = $max_size/(1024*1024);
+		$max_allowed_size = $max_size;
 	}
 
 	// if something went wrong, sorry bad luck
@@ -601,12 +601,12 @@ function get_file_upload_info($name, $pre_uploaded=FALSE)
 		break;
 
 		case UPLOAD_ERR_INI_SIZE  :
-			trigger_localised_error('SYS0022', E_USER_WARNING, $nice_name, ini_get('upload_max_filesize'), $settings_type, $max_allowed_size);
+			trigger_localised_error('SYS0022', E_USER_WARNING, $nice_name, strtoupper(easy_filesize($max_file_size)));
 			return FALSE;
 		break;
 
 		case UPLOAD_ERR_FORM_SIZE :
-			trigger_localised_error('SYS0021', E_USER_WARNING, $nice_name, easy_filesize($_POST['MAX_FILE_SIZE']), $settings_type, $max_allowed_size);
+			trigger_localised_error('SYS0021', E_USER_WARNING, $nice_name, strtoupper(easy_filesize($max_file_size)));
 			return FALSE;
 		break;
 
