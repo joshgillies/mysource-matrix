@@ -92,6 +92,43 @@ class Cron_Job_Management extends Asset_Management
 
 	}//end constructor
 
+	
+	/**
+	* Upgrade
+	*
+	* @param string	$current_version	the version of the asset that is currenly installed
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _upgrade($current_version)
+	{
+		// first do things as normal
+		$res = parent::_upgrade($current_version);
+
+		if (version_compare($current_version, '0.5', '<')) {
+			pre_echo('RENAME CRON JOB TO SCHEDULED JOB FROM v < 0.5');
+
+			// reset all cron jobs to its default name
+			$cron_jobs = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('cron_job', FALSE, TRUE);
+			foreach ($cron_jobs as $id => $type) {
+				$cron_job = $GLOBALS['SQ_SYSTEM']->am->getAsset($id, $type['type_code']);
+				$cron_job->_updated();
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cron_job);
+				unset($cron_job);
+			}
+			
+			// rename cron manager to scheduled jobs manager
+			$cron_mgr = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+			$cron_mgr->_updated();
+			
+			pre_echo('DONE');
+			
+		}//end if
+		return TRUE;
+
+	}//end _upgrade()
+	
 
 }//end class
 ?>

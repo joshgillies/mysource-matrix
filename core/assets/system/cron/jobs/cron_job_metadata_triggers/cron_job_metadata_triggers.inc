@@ -112,7 +112,7 @@ class Cron_Job_Metadata_Triggers extends Cron_Job
 	*/
 	function _getName($short_name=FALSE)
 	{
-		return 'Metadata Triggers Cron Job';
+		return translate('cron_job_metadata_triggers');
 
 	}//end _getName()
 

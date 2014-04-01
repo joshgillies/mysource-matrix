@@ -97,7 +97,7 @@ class Cron_Job_Remove_SOAP_Response_Files extends Cron_Job
 	*/
 	protected function _getName($short_name=FALSE)
 	{
-		return 'Remove SOAP Response Files Cron Job';
+		return translate('cron_job_remove_soap_response_files');
 
 	}//end _getName()
 
