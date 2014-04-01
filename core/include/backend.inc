@@ -596,7 +596,8 @@ class Backend extends MySource_Object
 				$search_format = NULL;
 			}
 			
-			$search_string = trim($_POST['asset_search']);
+			$search_string = trim(array_get_index($_POST, 'asset_search', ''));
+			$search_root   = array_get_index($_POST, 'asset_search_root');
 			$search_words  = preg_split('/[\r\n\t \|\&\~\/]+/', $search_string);
 			$results       = Array();
 			$error_msg     = NULL;
@@ -617,7 +618,7 @@ class Backend extends MySource_Object
 			}//end if
 
 			try {
-				$results['keyword'] = Backend_Search::processSearch($search_string);
+				$results['keyword'] = Backend_Search::processSearch($search_string, Array($search_root));
 				if (count($results['keyword']) === 0) {
 					unset($results['keyword']);
 				}
