@@ -408,7 +408,7 @@ input[type="reset"],
 	text-shadow: 				0 1px 0 #fff;
 	box-shadow: 				0 1px 1px rgba(0, 0, 0, 0.10), 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 -2.4em 3.3em -2.4em rgba(0, 0, 0, 0.2) inset;
 	display: 					inline-block;
-	transition: 				all 0.2s ease-out;
+	transition: 				all 0.2s ease 0s;
 }
 
 .sq-btn-link {
