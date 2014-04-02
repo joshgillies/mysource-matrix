@@ -2625,18 +2625,11 @@ var JS_Asset_Map = new function() {
 			timeouts.message = null;
 		}
 
-		// The spinner is a sprite, so handle it using an interval.
-		if ((spinner === false) && (timeouts.spinner)) {
-			clearInterval(timeouts.spinner);
-			dfx.setStyle(spinnerDiv, 'background-position', '0 0');
-			timeouts.spinner = null;
+		// The spinner is now an animated gif, so we only need to show or hide it
+		if ((spinner === false)) {
+			dfx.setStyle(spinnerDiv, 'visibility', 'hidden');
 		} else if ((spinner === true) && (!timeouts.spinner)) {
-			dfx.setStyle(spinnerDiv, 'background-position', '-15px 0');
-			timeouts.spinner = setInterval(function() {
-				var bpPos   = dfx.getStyle(spinnerDiv, 'background-position').split(' ');
-				var newLeft = ((parseInt(bpPos[0], 10) % 180) - 15);
-				dfx.setStyle(spinnerDiv, 'background-position', newLeft + 'px 0px');
-			}, 100);
+			dfx.setStyle(spinnerDiv, 'visibility', 'visible');
 		}
 
 		if (timeout !== undefined) {

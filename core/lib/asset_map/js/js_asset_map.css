@@ -621,10 +621,10 @@
 #asset_map_container .messageLine .spinner {
 	display: inline-block;
 	vertical-align: middle;
-	width: 15px;
+	width: 16px;
 	height: 16px;
 	margin-right: 4px;
-	background: url(../../web/images/icons/asset_map/spinner.png) 0px 0px no-repeat;
+	background: url(../../web/images/icons/asset_map/spinner.gif) 0px 0px no-repeat;
 }
 
 #asset_map_container .messageLine .message {
