@@ -645,7 +645,7 @@
 	border-left: 				1px solid #ccc;
 	padding-top:				1px;
 	color: 						#000;
-	transition: 				height 0.2s ease-out;
+	transition: 				height 0.2s ease 0s;
 }
 
 #asset_map_container .tree *{
@@ -732,6 +732,7 @@
 #asset_map_container .statusList {
 	background-color: #f4f4f4;
 	border: 1px solid #ccc;
+	transition: background-color 0.3s ease 0s
 }
 
 #asset_map_container .statusList.expanded {
@@ -742,13 +743,15 @@
 #asset_map_container .statusListInner {
 	height: 0px;
 	overflow: hidden;
-	transition: all 0.2s ease-out;
+	opacity: 0;
+    transition: opacity 0.5s ease 0s;
 }
 
 #asset_map_container .statusList.expanded .statusListInner {
 	height: auto;
 	overflow: visible;
 	padding: 2px 5px;
+	opacity: 1;
 }
 
 #asset_map_container .fakeAsset {

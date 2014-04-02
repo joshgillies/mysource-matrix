@@ -394,7 +394,7 @@ class Backend extends MySource_Object
 					padding-left: <?php echo ($sidenav_width + $resizer_width) ?>px;
 					padding-top: <?php echo $header_height ?>px;
 					z-index: 0;
-					transition: padding 0.2s ease;
+					transition: padding 0.2s ease 0s;
 				}
 
 				body.sidenav-minimised div.iframe-container.main {
