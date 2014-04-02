@@ -552,6 +552,8 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array(), $ac
 	case "date_format":
 		// Format a date string and only prints the field required
 		$format = array_get_index($modifier['args'], 0, '');
+		// remove rubbish string from calendar date event
+		$text = preg_replace('/--(:)?/', '', $text);
 		return date($format, strtotime($text));
 
 	// Comparison date modifiers. By default these return '1' if true and '' if false.
