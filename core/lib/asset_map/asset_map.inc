@@ -2255,6 +2255,11 @@ class Asset_Map
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset((string)$asset_node->attributes()->assetid);
 			$old_parent = $GLOBALS['SQ_SYSTEM']->am->getAsset(urldecode((string)$asset_node->attributes()->parentid));
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById((string)$asset_node->attributes()->linkid, $old_parent->id);
+			
+			if (!$asset->readAccess()) {
+				$this->_error('AMAP0012');
+				return;
+			}
 
 			if (is_null($old_parent)) {
 				$this->_error('AMAP0036', (string)$asset_node->attributes()->parentid);
