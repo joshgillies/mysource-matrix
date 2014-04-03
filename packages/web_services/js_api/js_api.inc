@@ -1401,7 +1401,7 @@ class JS_Api extends Page
 				$extra_attributes	= (isset($args['extra_attributes']) && $args['extra_attributes'] == '1') ? TRUE : FALSE;
 
 				// Create our asset
-				$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+				$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED|SQ_SECURITY_LINK_INTEGRITY);
 					$data = $this->createAsset($asset->id, $type_code, $asset_name, $link_type, $link_value, $sort_order, $is_dependant, $is_exclusive, $extra_attributes, $args);
 				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 			} else {
