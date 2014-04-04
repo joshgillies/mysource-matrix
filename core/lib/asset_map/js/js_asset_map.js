@@ -2860,8 +2860,7 @@ var JS_Asset_Map = new function() {
 
 		if (drawAddButton !== false) {
 			var addButton = _createEl('div');
-			dfx.addClass(addButton, 'addButton sq-btn-link sq-btn-small sq-btn-no-shadow');
-			addButton.innerHTML = '<img src="'+ options.libPath +'/web/images/icons/asset_map/add_off.png" alt="Add icon" title="Add new asset"/> Add';
+			dfx.addClass(addButton, 'addButton');
 			container.appendChild(addButton);
 			dfx.addEvent(addButton, 'click', function(e) {
 				if (self.isInUseMeMode() === false) {
@@ -3109,7 +3108,7 @@ var JS_Asset_Map = new function() {
 		dfx.addClass(treeList, 'tree-list');
 
 		var tree1 = _createEl('span');
-		dfx.addClass(tree1, 'tab sq-menu-tab vertical');
+		dfx.addClass(tree1, 'tab');
 		tree1.setAttribute('data-treeid', 0);
 		tree1.innerHTML = js_translate('asset_map_tree1_name');
 		treeList.appendChild(tree1);
@@ -3120,7 +3119,7 @@ var JS_Asset_Map = new function() {
 		});
 
 		var tree2 = _createEl('span');
-		dfx.addClass(tree2, 'tab sq-menu-tab vertical');
+		dfx.addClass(tree2, 'tab');
 		tree2.setAttribute('data-treeid', 1);
 		tree2.innerHTML = js_translate('asset_map_tree2_name');
 		treeList.appendChild(tree2);
