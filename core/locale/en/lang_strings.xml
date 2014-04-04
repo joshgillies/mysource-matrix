@@ -513,6 +513,7 @@
 	<string source="cron_job_asset_less_future_permission">Asset-less Future Permission Scheduled Job</string>
 	<string source="cron_job_assetless_attempt_safe_trash">Asset-less Attempt Safe-Trash Scheduled Job</string>
 	<string source="cron_job_generate_log_reports">Generate Log Reports Scheduled Job</string>
+	<string source="cron_job_metadata_triggers">Metadata Triggers Scheduled Job</string>
 	<string source="cron_safe_trash_for">Safe-Trash for %s</string>
 	<string source="cron_attempt_safe_trash_for">Attempt Safe-Trash for %s</string>
 	<string source="cron_fl_for">FL for %s</string>

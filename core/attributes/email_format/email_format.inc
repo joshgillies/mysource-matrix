@@ -479,12 +479,15 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 
 				if ($addressee->type() == 'user_group') {
 					// Include directly and indirectly-linked shadow assets
-					$users = $GLOBALS['SQ_SYSTEM']->am->getChildren($addressee->id, 'user', FALSE, NULL, NULL, NULL, TRUE, NULL, NULL, FALSE, NULL);
+					$users = $GLOBALS['SQ_SYSTEM']->am->getChildren($addressee->id, 'user', FALSE, NULL, NULL, NULL, TRUE, NULL, NULL, FALSE, NULL, Array(), TRUE);
 
 					foreach ($users as $user_id => $type_code) {
+					    // make sure shadow ldap user group isn't returned
+					    if(isset($type_code[0]['type_code'])) {
 						$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($user_id);
 						$assetid_emails[] = $user->attr('email');
 						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
+					    }
 					}
 				} else {
 					$assetid_emails[] = $addressee->attr('email');

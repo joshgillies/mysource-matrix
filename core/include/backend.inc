@@ -363,23 +363,27 @@ class Backend extends MySource_Object
 				div.iframe-container.lower-set {
 					padding-top: 0;
 					z-index: 0;
-					/*overflow: hidden; Not sure why I put this in, but this causes a 4px movement upwards in webkit browsers on load, might be IE related */
 				}
 
 				div.iframe-container.sidenav {
-					width: <?php echo $sidenav_width ?>px;
 					z-index: 1;
-					transition: width 0.2s ease-out;
+					opacity: 1;
+				    transition: left 0.2s ease 0s;
+				    width: <?php echo $sidenav_width ?>px;
+				    left: 0;
+				    z-index: 1;
 				}
 
 				body.sidenav-minimised div.iframe-container.sidenav {
-					width: 0;
+					left: -<?php echo $sidenav_width ?>px;
+    				transform: rotateY(90deg);
 				}
 
 				div.iframe-container.resizer {
 					left: <?php echo $sidenav_width ?>px;
 					width: <?php echo $resizer_width ?>px;
 					z-index: 2;
+    				transition: left 0.2s ease 0s;
 				}
 
 				body.sidenav-minimised div.iframe-container.resizer {
@@ -390,7 +394,7 @@ class Backend extends MySource_Object
 					padding-left: <?php echo ($sidenav_width + $resizer_width) ?>px;
 					padding-top: <?php echo $header_height ?>px;
 					z-index: 0;
-					transition: width 0.2s ease-out;
+					transition: padding 0.2s ease 0s;
 				}
 
 				body.sidenav-minimised div.iframe-container.main {
