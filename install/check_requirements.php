@@ -775,7 +775,7 @@ function check_requirement($requirement_check, $package_name='core')
 
 			$check_name = $php_file;
 
-			if (is_file($php_file)) {
+			if (stream_resolve_include_path($php_file)) {
 				$check_ok = true;
 			} else {
 				$extra_info = " (only the php include_path was checked, if it is not in one of those paths the file has not been found)";
