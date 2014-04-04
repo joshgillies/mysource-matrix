@@ -2332,7 +2332,7 @@ var JS_Asset_Map = new function() {
 		
 		var pageStart = 0;
 		if (dfx.getClass('iframe-container', topDoc).length > 0) {
-			var pageStart = dfx.getElementCoords(dfx.getClass('sidenav', topDoc)[0]).y;
+			var pageStart = parseInt(dfx.getComputedStyle(dfx.getClass('sidenav', topDoc)[0], 'paddingTop'), 10);
 		} else {
 			var mainDoc   = window.top.frames['sq_wysiwyg_popup_main'].document;
 			var pageStart = dfx.getElementCoords(dfx.getId('asset_map', mainDoc)).y;
