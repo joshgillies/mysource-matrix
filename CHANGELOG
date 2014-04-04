@@ -1,5 +1,81 @@
 SQUIZ MATRIX CHANGELOG
 
+VERSION 4.18.5
+
+Featured Changes
+===================================
+
+SAML User Attribute Keywords [ Feature Request #6906 ]
+-----------------------------------------------------
+
+This feature adds new global keywords to provide access to a SAML user's attributes after being authenticated via the SAML Account Manager.
+
+The new keywords available are:
+
+* %globals_session_saml_attributes% : prints a JSON string representation of all attributes of the logged-in SAML user.
+* %globals_session_saml_attributes_XX_0% : prints a specified attribute (XX). The index can be set to specify the values to print in an array. In this example, only the first value in the array will be displayed.
+
+Please note that a SAML user's attributes are only stored temporarily for a session. As such, these keywords are only available for the session. Permanent storage can be made available using triggers to access attributes and store them in metadata.
+
+SAML Account Manager: New Option to Randomise User Password [ Feature Request #6908 ]
+-----------------------------------------------------
+
+A new option has been added to the SAML Account Manager to randomise the password of a SAML user. This means that when this option is enabled, a SAML user will no longer be able to log into the system using their standard Matrix username and password. The user will need to use their SAML details to access the system.
+
+By default, this option is disabled.
+
+Morph Asset Type Trigger Action [ Feature Request #6910 ]
+-----------------------------------------------------
+
+A new trigger action has been added to allow an asset to morph to a new asset type. Currently, this action only supports User and File type assets.
+
+Only Under Construction assets can be morphed.
+
+Additional Changes and Bug Fixes
+=================================== 
+
+Minor Enhancements
+
+Minor Enhancement #6855: %page_list_X% Keyword Added to Search Page Keyword Drop-Down.
+Minor Enhancement #6878: Account Manager: New Keyword to Show Form Processing Errors.
+Minor Enhancement #6911: Asset Map: Safely Release Session Write Lock for Read Requests.
+
+Core
+
+Fixed Bug #6859: Redirection for the defined protocols do not work as expected.
+Fixed Bug #6863: cosmetic warning in system config Undefined index: SQ_CONF_VISITED_PAGES_MAX_ENTRIES.
+Fixed Bug #6868: globals_context keyword pops current context from stack.
+Fixed Bug #6870: Embed YouTube video plugin inserting extra tags when committing in "view source" mode.
+Fixed Bug #6871: Don't log LDAP Bridge passwords.
+Fixed Bug #6877: Generate Report Cron Job not setting the job's "running" attribute due to permission issues.
+Fixed Bug #6886: WARNING: Array to string conversion.
+Fixed Bug #6898: /?a=XX links not evaluated correctly in design file.
+Fixed Bug #6902: htmlentities() call in text_area() function returns blank.
+Fixed Bug #6904: Xpath cannot use |, preg_replace() error return.
+Fixed Bug #6905: EES does not checks the parent asset's "allowed links" rule when creating new asset.
+Fixed Bug #6907: Small bug in display of site map items.
+Fixed Bug #6909: Accessing _edit mode throwing fatal error if asset does not has schema applied.
+Fixed Bug #6914: Undefined locale string "visited_pages_config_max_entries".
+Fixed Bug #6915: Space char getting replaced by &nbsp; in Matrix combo box.
+Fixed Bug #6918: Fix date_format keyword modifier to handle --:--:--.
+Fixed Bug #6884: Frequency Conditional keyword throws PHP errors.
+
+CMS
+
+Fixed Bug #6885: Backend user can't edit the job create by them for 'Send Submissions To Email'. 
+
+LDAP
+
+Fixed Bug #6874: Don't log LDAP Bridge passwords.
+Fixed Bug #6917: Send Email Trigger Action not sending to LDAP email attribute. 
+
+Bulkmail
+
+Fixed Bug #6861: Schedule Bulkmail Job trigger action's subscription filter does not works with Metadata Select Field.
+Fixed Bug #6899: Adding the bulkmail job using Schedule Bulkmail Job trigger action in EES mode not working.
+
+
+
 
 VERSION 4.18.4
 
