@@ -61,14 +61,15 @@ class Condition_User_Frequency extends Condition
 	* @return boolean
 	* @access public
 	*/
-	public static function evaluate(Asset $asset, Array $condition_data)
+	public static function evaluate(Asset $asset, Array $condition_data, $prefix)
 	{
 		$result = FALSE;
-
+		if(empty($prefix)) $prefix = '';
+		
 		// Retrieve the cookie or initialise it
-		if (isset($_COOKIE['user_frequency_cond_'.$condition_data['id_name']]) && (FALSE !== strpos($_COOKIE['user_frequency_cond_'.$condition_data['id_name']], '__'))) {
+		if (isset($_COOKIE['user_frequency_cond_'.$prefix]) && (FALSE !== strpos($_COOKIE['user_frequency_cond_'.$prefix], '__'))) {
 			$data = Array();
-			list($data['value'], $data['last_date']) = explode('__', $_COOKIE['user_frequency_cond_'.$condition_data['id_name']]);
+			list($data['value'], $data['last_date']) = explode('__', $_COOKIE['user_frequency_cond_'.$prefix]);
 		} else {
 			$data = Array(
 						'value'		=> 1,
@@ -137,7 +138,7 @@ class Condition_User_Frequency extends Condition
 			$domain = substr($root_url, 0, $slashpos);
 			$path = substr($root_url, $slashpos);
 		}
-		setcookie('user_frequency_cond_'.$condition_data['id_name'], $data['value'].'__'.$data['last_date'], strtotime('+3 months'), $path, $domain);
+		setcookie('user_frequency_cond_'.$prefix, $data['value'].'__'.$data['last_date'], strtotime('+3 months'), $path, $domain);
 
 		return $result;
 
