@@ -598,6 +598,7 @@ class Backend extends MySource_Object
 			
 			$search_string = trim(array_get_index($_POST, 'asset_search', ''));
 			$search_root   = array_get_index($_POST, 'asset_search_root');
+			$do_redirect   = ((array_get_index($_POST, 'asset_search_redirect') === '0') ? FALSE : TRUE);
 			$search_words  = preg_split('/[\r\n\t \|\&\~\/]+/', $search_string);
 			$results       = Array();
 			$error_msg     = NULL;
@@ -640,7 +641,7 @@ class Backend extends MySource_Object
 				echo json_encode_array($results);
 				exit();
 			} else {
-				if (empty($results) === TRUE) {
+			    if (empty($results) === TRUE) {
 					if ($error_msg !== NULL) {
 						$msg = translate('failed_searching_for_error', htmlspecialchars($search_string));
 					} else {
@@ -655,7 +656,7 @@ class Backend extends MySource_Object
 														'timeout' => 6.0,
 													   );
 					
-				} else if (array_key_exists('keyword', $results) === FALSE) {
+				} else if ((array_key_exists('keyword', $results) === FALSE) && ($do_redirect === TRUE)) {
 					// If there are no keyword results, then we may be able to
 					// redirect if the URL or asset ID matches.
 					$redirect_assetid = NULL;
@@ -674,19 +675,24 @@ class Backend extends MySource_Object
 					}
 					
 				} else {
-					// There are keyword results.
-					$detail_lines = Array();
+					// There are keyword results, or we are not redirecting, so
+					// give us the list of results.
+					$detail_lines       = Array();
+					$results['keyword'] = array_get_index($results, 'keyword', Array());
+					
 					$result_count = count($results['keyword']);
 					$js_code      = '';
 					
 					$redirect_assetid = NULL;
 					if (array_key_exists('url', $results) === TRUE) {
 						$detail_lines[] = '<strong>'.'Matched an asset by URL:'.'</strong>';
-						$detail_lines[] = get_asset_tag_line($results['url']->id, 'details');
+						$detail_lines[] = '<div class="sq-search-results-entry">'.get_asset_tag_line($results['assetid']->id, 'details').'</a>';
 					} else if (array_key_exists('assetid', $results) === TRUE) {
-						$redirect_assetid = $results['assetid']->id;
+					    if ($do_redirect === TRUE) {
+					        $redirect_assetid = $results['assetid']->id;
+						}
 						$detail_lines[] = '<strong>'.'Matched an asset by ID:'.'</strong>';
-						$detail_lines[] = get_asset_tag_line($results['assetid']->id, 'details');
+						$detail_lines[] = '<div class="sq-search-results-entry">'.get_asset_tag_line($results['assetid']->id, 'details').'</a>';
 					}
 					
 					if ($redirect_assetid !== NULL) {
@@ -705,142 +711,145 @@ class Backend extends MySource_Object
 						$format = '%d asset';
 					}
 					
-					$detail_lines[] = '<strong>'.'Matched on Keyword ('.sprintf($format, $result_count).'):'.'</strong>';
-					
-					$i = 0;
-					$results_per_page = $GLOBALS['SQ_SYSTEM']->getUserPrefs('search_manager', 'SQ_SEARCH_BACKEND_PAGE_SIZE');
-					$total_pages      = ceil($result_count / $results_per_page);
-					$keyword_lines    = '';
-					
-					if ($total_pages > 1) {
-						$detail_lines[] = '<div class="sq-search-navigation">
-						<a class="sq-btn-link sq-btn-small sq-btn-no-shadow" href="" onclick="MatrixBackendSearch.first(); return false;" title="Go back to first page">&lt;&lt;</a>
-						<a class="sq-btn-link sq-btn-small sq-btn-no-shadow" href="" onclick="MatrixBackendSearch.back(); return false;" title="Go back one page">&lt;</a>
-						<strong>( <span id="sq-search-results-page-start">1</span> - <span id="sq-search-results-page-end">'.min($result_count, $results_per_page).'</span> )</strong>
-						<a class="sq-btn-link sq-btn-small sq-btn-no-shadow sq-btn-small sq-btn-no-shadow" href="" onclick="MatrixBackendSearch.next(); return false;" title="Go forward one page">&gt;</a>
-						<a class="sq-btn-link sq-btn-small sq-btn-no-shadow" href="" onclick="MatrixBackendSearch.last(); return false;" title="Go forward to last page">&gt;&gt;</a></a></div>';
-					}//end if
-					$js_code .= 'with (parent.frames.sq_main.MatrixBackendSearch) { currentPage = 0; totalResults = '.$result_count.'; resultsPerPage = '.$results_per_page.';}';
-
-					foreach ($results['keyword'] as $result_assetid => $result_detail) {
-						$i++;
-						$page = ceil($i / $results_per_page) - 1;
-						$match_details = Array();
-						
-						foreach ($result_detail as $result_component_name => $result_component) {
-							foreach ($result_component as $name => $value) {
-								$name_detail = '';
-								switch ($result_component_name) {
-									case 'contents':
-										$name_detail = 'Asset Contents';
-									break;
-	
-									case 'metadata':
-										$name_detail = 'Metadata: ';
-	
-										// Find a friendly name for the metadata field, if there
-										// is none then use the standard name of the field itself
-										$attr_values = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('friendly_name', 'metadata_field', Array($name));
-										if (empty($attr_values)) {
-											$name_detail .= $value['name'];
-										} else {
-											$name_detail .= $attr_values[$name];
-										}
-	
-										$value = $value[0]['value'];
-									break;
-									
-									case 'schema':
-										$name_detail = 'Default Metadata: ';
-	
-										// Find a friendly name for the metadata field, if there
-										// is none then use the standard name of the field itself
-										$attr_values = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('friendly_name', 'metadata_field', Array($name));
-										if (empty($attr_values)) {
-											$name_detail .= $value['name'];
-										} else {
-											$name_detail .= $attr_values[$name];
-										}
-	
-										$value = $value['value'];
-									break;
-	
-									case 'attributes':
-										$name_detail = 'Attribute: '.ucwords(str_replace('_', ' ', $name));
-									break;
-								}//end switch
-								
-								// Work out where our matches are 
-								$value = strip_tags($value);
-								
-								// Add matches, and ellipsise out bits that are
-								// more than 15 characters either side.
-								preg_match_all('/('.addslashes(implode('|', $search_words)).')/i', $value, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
-								$last_match = 0;
-								$offset     = 0;
-								foreach ($matches as $match) {
-									$match_pos  = $match[1][1];
-									
-									if ($last_match === 0) {
-										if ($match_pos >= 18) {
-											$value   = substr_replace($value, '...', 0, $match_pos - 15);
-											$offset += ($match_pos - 15);
-										}
-									} else {
-										if ($match_pos >= 33) {
-											$value   = substr_replace($value, '...', ($last_match - $offset), ($match_pos - $last_match - 30));
-											$offset += ($match_pos - $last_match - 30);
-										}
-									}
-									
-									$last_match = $match_pos + strlen($match[1][0]);
-								}
-								
-								if ((strlen($value) - ($last_match - $offset)) >= 18) {
-									$value = substr_replace($value, '...', $last_match - $offset + 15);
-								}
-								
-								$value = ellipsisize($value, 120);
-								$value = preg_replace('/('.addslashes(implode('|', $search_words)).')/i', '<SQ_MATCH>$1</SQ_MATCH>', $value);
-								
-								$match_details[] = array(
-									'name'  => $name_detail,
-									'value' => $value,
-								);
-							}//end foreach
-						}//end foreach (result detail)
-						
-						// Build the result line, hiding all but the first page.
-						$extra = '';
-						if ($page > 0) {
-							$extra = ' style="display: none"';
-						}
-						
-						$line  = '<div class="sq-search-results-page-'.$page.'"'.$extra.'>';
-						$line .= '  <div class="sq-search-results-expand-div">';
-						$line .= '  <a href="#" class="sq-search-results-expand-link"';
-						$line .= '  onclick="if (this.innerHTML == \'+\') {this.parentNode.nextSibling.lastChild.style.display = \'block\'; this.innerHTML = \'-\';} else {this.parentNode.nextSibling.lastChild.style.display = \'none\'; this.innerHTML = \'+\';} return false;">+</a>';
-						$line .= '  </div>';
-						$line .= '<div class="sq-search-results-entry">';
-						$line .= get_asset_tag_line($result_assetid, 'details').'<br/>';
-						$line .= '<div class="sq-search-results-detail">';
-						
-						foreach ($match_details as $match) {
-							$value = htmlspecialchars($match['value']);
-							$name_detail = htmlspecialchars($match['name']);
-
-							$value = preg_replace('/&lt;SQ_MATCH&gt;(.*)&lt;\/SQ_MATCH&gt;/U', '<span class="sq-backend-search-results-highlight">$1</span>', $value);
-							$line .= $name_detail.'<br/><em>'.str_replace("\r", '', str_replace("\n", '<br/>', $value)).'</em><br/>';
-						}
-						
-						$line .= '</div></div>';
-						$line .= '</div>';
-						
-						$keyword_lines .= $line;
-							
-					}//end foreach (search result)
-					$detail_lines[] = $keyword_lines;
-					
+					if (count($results['keyword']) > 0) {
+                        $detail_lines[] = '<strong>'.'Matched on Keyword ('.sprintf($format, $result_count).'):'.'</strong>';
+                        
+                        $i = 0;
+                        $results_per_page = $GLOBALS['SQ_SYSTEM']->getUserPrefs('search_manager', 'SQ_SEARCH_BACKEND_PAGE_SIZE');
+                        $total_pages      = ceil($result_count / $results_per_page);
+                        $keyword_lines    = '';
+                        
+                        if ($total_pages > 1) {
+                            $detail_lines[] = '<div class="sq-search-navigation">
+                            <a class="sq-btn-link sq-btn-small sq-btn-no-shadow" href="" onclick="MatrixBackendSearch.first(); return false;" title="Go back to first page">&lt;&lt;</a>
+                            <a class="sq-btn-link sq-btn-small sq-btn-no-shadow" href="" onclick="MatrixBackendSearch.back(); return false;" title="Go back one page">&lt;</a>
+                            <strong>( <span id="sq-search-results-page-start">1</span> - <span id="sq-search-results-page-end">'.min($result_count, $results_per_page).'</span> )</strong>
+                            <a class="sq-btn-link sq-btn-small sq-btn-no-shadow sq-btn-small sq-btn-no-shadow" href="" onclick="MatrixBackendSearch.next(); return false;" title="Go forward one page">&gt;</a>
+                            <a class="sq-btn-link sq-btn-small sq-btn-no-shadow" href="" onclick="MatrixBackendSearch.last(); return false;" title="Go forward to last page">&gt;&gt;</a></a></div>';
+                        }//end if
+                        $js_code .= 'with (parent.frames.sq_main.MatrixBackendSearch) { currentPage = 0; totalResults = '.$result_count.'; resultsPerPage = '.$results_per_page.';}';
+    
+                        foreach ($results['keyword'] as $result_assetid => $result_detail) {
+                            $i++;
+                            $page = ceil($i / $results_per_page) - 1;
+                            $match_details = Array();
+                            
+                            foreach ($result_detail as $result_component_name => $result_component) {
+                                foreach ($result_component as $name => $value) {
+                                    $name_detail = '';
+                                    switch ($result_component_name) {
+                                        case 'contents':
+                                            $name_detail = 'Asset Contents';
+                                        break;
+        
+                                        case 'metadata':
+                                            $name_detail = 'Metadata: ';
+        
+                                            // Find a friendly name for the metadata field, if there
+                                            // is none then use the standard name of the field itself
+                                            $attr_values = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('friendly_name', 'metadata_field', Array($name));
+                                            if (empty($attr_values)) {
+                                                $name_detail .= $value['name'];
+                                            } else {
+                                                $name_detail .= $attr_values[$name];
+                                            }
+        
+                                            $value = $value[0]['value'];
+                                        break;
+                                        
+                                        case 'schema':
+                                            $name_detail = 'Default Metadata: ';
+        
+                                            // Find a friendly name for the metadata field, if there
+                                            // is none then use the standard name of the field itself
+                                            $attr_values = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('friendly_name', 'metadata_field', Array($name));
+                                            if (empty($attr_values)) {
+                                                $name_detail .= $value['name'];
+                                            } else {
+                                                $name_detail .= $attr_values[$name];
+                                            }
+        
+                                            $value = $value['value'];
+                                        break;
+        
+                                        case 'attributes':
+                                            $name_detail = 'Attribute: '.ucwords(str_replace('_', ' ', $name));
+                                        break;
+                                    }//end switch
+                                    
+                                    // Work out where our matches are 
+                                    $value = strip_tags($value);
+                                    
+                                    // Add matches, and ellipsise out bits that are
+                                    // more than 15 characters either side.
+                                    preg_match_all('/('.addslashes(implode('|', $search_words)).')/i', $value, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
+                                    $last_match = 0;
+                                    $offset     = 0;
+                                    foreach ($matches as $match) {
+                                        $match_pos  = $match[1][1];
+                                        
+                                        if ($last_match === 0) {
+                                            if ($match_pos >= 18) {
+                                                $value   = substr_replace($value, '...', 0, $match_pos - 15);
+                                                $offset += ($match_pos - 15);
+                                            }
+                                        } else {
+                                            if ($match_pos >= 33) {
+                                                $value   = substr_replace($value, '...', ($last_match - $offset), ($match_pos - $last_match - 30));
+                                                $offset += ($match_pos - $last_match - 30);
+                                            }
+                                        }
+                                        
+                                        $last_match = $match_pos + strlen($match[1][0]);
+                                    }
+                                    
+                                    if ((strlen($value) - ($last_match - $offset)) >= 18) {
+                                        $value = substr_replace($value, '...', $last_match - $offset + 15);
+                                    }
+                                    
+                                    $value = ellipsisize($value, 120);
+                                    $value = preg_replace('/('.addslashes(implode('|', $search_words)).')/i', '<SQ_MATCH>$1</SQ_MATCH>', $value);
+                                    
+                                    $match_details[] = array(
+                                        'name'  => $name_detail,
+                                        'value' => $value,
+                                    );
+                                }//end foreach
+                            }//end foreach (result detail)
+                            
+                            // Build the result line, hiding all but the first page.
+                            $extra = '';
+                            if ($page > 0) {
+                                $extra = ' style="display: none"';
+                            }
+                            
+                            $line  = '<div class="sq-search-results-page-'.$page.'"'.$extra.'>';
+                            $line .= '  <div class="sq-search-results-expand-div">';
+                            $line .= '  <a href="#" class="sq-search-results-expand-link"';
+                            $line .= '  onclick="if (this.innerHTML == \'+\') {this.parentNode.nextSibling.lastChild.style.display = \'block\'; this.innerHTML = \'-\';} else {this.parentNode.nextSibling.lastChild.style.display = \'none\'; this.innerHTML = \'+\';} return false;">+</a>';
+                            $line .= '  </div>';
+                            $line .= '<div class="sq-search-results-entry">';
+                            $line .= get_asset_tag_line($result_assetid, 'details').'<br/>';
+                            $line .= '<div class="sq-search-results-detail">';
+                            
+                            foreach ($match_details as $match) {
+                                $value = htmlspecialchars($match['value']);
+                                $name_detail = htmlspecialchars($match['name']);
+    
+                                $value = preg_replace('/&lt;SQ_MATCH&gt;(.*)&lt;\/SQ_MATCH&gt;/U', '<span class="sq-backend-search-results-highlight">$1</span>', $value);
+                                $line .= $name_detail.'<br/><em>'.str_replace("\r", '', str_replace("\n", '<br/>', $value)).'</em><br/>';
+                            }
+                            
+                            $line .= '</div></div>';
+                            $line .= '</div>';
+                            
+                            $keyword_lines .= $line;
+                                
+                        }//end foreach (search result)
+                        
+                        $detail_lines[] = $keyword_lines;
+                    }//end if (no keyword results)
+                    
 					$html = $this->_getDHTMLMessage(translate('search_results'), $detail_lines, 'search-results');
 					$html = preg_replace('/>\s+</', '> <', str_replace("\n", '', preg_replace('|<script.*</script>|U', '', $html)));
 					$dhtml_messages['search_results'] = Array(
