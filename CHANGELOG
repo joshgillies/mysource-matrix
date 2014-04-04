@@ -59,6 +59,17 @@ Fixed Bug #6914: Undefined locale string "visited_pages_config_max_entries".
 Fixed Bug #6915: Space char getting replaced by &nbsp; in Matrix combo box.
 Fixed Bug #6918: Fix date_format keyword modifier to handle --:--:--.
 Fixed Bug #6884: Frequency Conditional keyword throws PHP errors.
+Fixed bug #6675: cmd + click doesn't open right click menu
+Fixed bug #6842: When in Asset Picker Mode you can right click off an asset and it will try to create
+Fixed bug #6875: Right click context menu misaligned
+Fixed bug #6879: When in editing mode you can't expand a node by clicking the expand indicator
+Fixed bug #6687: Single clicking triggers the move / new-link selector
+Fixed bug #6819: Inconsistent Node Collapse
+Fixed bug #6883: Restore to root folder when inserting link/image is inactive
+Fixed bug #6876: Cannot create asset on top level of asset map
+Fixed bug #6658: Trash dialogue doesn't have a default to hit enter
+Fixed bug #6860: Asset map keeps throwing error, doesn't break anything though
+Fixed bug #6837: js_asset_map.css has error
 
 CMS
 
