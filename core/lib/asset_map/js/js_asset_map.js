@@ -2331,8 +2331,8 @@ var JS_Asset_Map = new function() {
 		var submenuHeight = dfx.getElementHeight(menu);
 		
 		var pageStart = 0;
-		if (dfx.getClass('sq-iframe', topDoc).length > 0) {
-			var pageStart = dfx.getElementCoords(dfx.getClass('sq-iframe', dfx.getClass('sidenav', topDoc))[0]).y;
+		if (dfx.getClass('iframe-container', topDoc).length > 0) {
+			var pageStart = dfx.getElementCoords(dfx.getClass('sidenav', topDoc)[0]).y;
 		} else {
 			var mainDoc   = window.top.frames['sq_wysiwyg_popup_main'].document;
 			var pageStart = dfx.getElementCoords(dfx.getId('asset_map', mainDoc)).y;
