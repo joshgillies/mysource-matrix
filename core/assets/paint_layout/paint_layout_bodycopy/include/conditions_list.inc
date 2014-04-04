@@ -479,6 +479,7 @@ class Conditions_List
 					$conditions_parameters_new[$new_name]['restriction']['condition_data'] = $condition_edit_fns->processEditInterface($o, $condition_prefix, $allowed_keywords);
 					$conditions_parameters_new[$new_name]['type_code'] = $condition_type;
 					$conditions_parameters_new[$new_name]['restriction']['match'] = array_get_index($_POST, $condition_prefix.'_match', TRUE);
+					$conditions_parameters_new[$new_name]['restriction']['prefix'] = $condition_prefix;
 				}
 			}
 
