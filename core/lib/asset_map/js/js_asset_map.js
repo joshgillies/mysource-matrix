@@ -2724,6 +2724,8 @@ var JS_Asset_Map = new function() {
 		confirmDiv.appendChild(bottomDiv);
 		assetMapContainer.appendChild(confirmDiv);
 
+        buttonYesDiv.focus();
+
 		dfx.addEvent(buttonYesDiv, 'click', function() {
 			dfx.remove(confirmDiv);
 			self.overlay.hide();
@@ -2782,6 +2784,8 @@ var JS_Asset_Map = new function() {
 		errorDiv.appendChild(bodyDiv);
 		errorDiv.appendChild(bottomDiv);
 		assetMapContainer.appendChild(errorDiv);
+
+        buttonDiv.focus();
 
 		dfx.addEvent(buttonDiv, 'click', function() {
 			self.overlay.hide();
