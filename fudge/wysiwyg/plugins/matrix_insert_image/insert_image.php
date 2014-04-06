@@ -582,7 +582,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 				    alt: alt,
 				    width: width,
 				    height: height
-				}
+				};
 
 				image_info_ser = var_serialise(image_info);
 				populateImageInfo(image_info_ser);
