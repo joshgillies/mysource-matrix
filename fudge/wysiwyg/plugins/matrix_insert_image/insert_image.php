@@ -800,11 +800,12 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 				document.getElementById("new-message-popup").style.display = 'none';
 				document.getElementById("f_alt").value = alt;
 
-				image_info = new Array();
-				image_info['name'] = filename;
-				image_info['alt'] = alt;
-				image_info['width'] = width;
-				image_info['height'] = height;
+				var image_info = {
+				    name: filename,
+				    alt: alt,
+				    width: width,
+				    height: height
+				}
 
 				image_info_ser = var_serialise(image_info);
 				populateImageInfo(image_info_ser);
