@@ -690,7 +690,7 @@ class Backend extends MySource_Object
 					$redirect_assetid = NULL;
 					if (array_key_exists('url', $results) === TRUE) {
 						$detail_lines[] = '<strong>'.'Matched an asset by URL:'.'</strong>';
-						$detail_lines[] = '<div class="sq-search-results-entry">'.get_asset_tag_line($results['assetid']->id, 'details').'</a>';
+						$detail_lines[] = '<div class="sq-search-results-entry">'.get_asset_tag_line($results['url']->id, 'details').'</a>';
 					} else if (array_key_exists('assetid', $results) === TRUE) {
 					    if ($do_redirect === TRUE) {
 					        $redirect_assetid = $results['assetid']->id;
