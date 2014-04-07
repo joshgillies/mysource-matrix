@@ -810,11 +810,6 @@ class SOAP_Common
 
 	/**
 	* Paint the additional fields for the selected authentication type
-
-	// Auth type fields paint/process functions //////////////
-
-	/**
-	* Paint the additional fields for the selected authentication type
 	*
 	* @param string $prefix
 	* @param array  $settings
