@@ -267,11 +267,15 @@ class Data_Source_Soap extends Data_Source
 		$soap_function = $this->attr('request_fn');
 		try {
 			$soap_client = $this->getSoapClient();
-			eval('$response = $soap_client->$soap_function('.$eval_string.');');
+			if (is_object($soap_client)) {
+				eval('$response = $soap_client->$soap_function('.$eval_string.');');
+			} else {
+				throw new Exception("Invalid SOAP response object");
+			}
 		} catch (Exception $e) {
 			// Save the last request
 			$data = Array();
-			$data['request'] = $soap_client->__getLastRequest();
+			$data['request'] = is_object($soap_client) ? $soap_client->__getLastRequest() : '';
 			$data['response'] = Array(
 									'last_response' => '',
 									'response_xml' => '',
@@ -297,10 +301,11 @@ class Data_Source_Soap extends Data_Source
 		$result_attr = $soap_function.'Response';
 		$response_xml = '';
 		if (!is_null($response)) {
-			$response = (array) $response;
-
+			// Convert response object to associative array
+			$response = json_decode(json_encode($response), TRUE);
 			// If response has any xml data, convert it to array first
 			array_walk_recursive($response, Array($this, '_xml_to_array'));
+			array_walk_recursive($response, Array($this, '_adjust_soap_array_values'));
 			$response_xml = '<'.$result_attr.'>'.SOAP_Common::arrayToXml($response)."\n".'</'.$result_attr.'>';
 		}
 		$data['response']['response_xml'] = $response_xml;
@@ -847,7 +852,7 @@ class Data_Source_Soap extends Data_Source
 	* @param array|string $val
 	* @param $key
 	*
-	* @return voild
+	* @return void
 	* @access private
 	*/
 	private function _xml_to_array(&$val, $key)
@@ -855,35 +860,46 @@ class Data_Source_Soap extends Data_Source
 		if (is_string($val)) {
 			$xml_obj = @simplexml_load_string($val);
 			if ($xml_obj) {
-				$val = (array) $xml_obj;
+				$val = json_decode(json_encode($xml_obj), TRUE);
 			}
-		}
-		if (is_object($val)) {
-			$val = (array) $val;
-		}
-
-		// SOAP response will return multiple results as:
-		// Array(
-		//		'result' => Array(
-		//						0 => [result1],
-		//						1 => [result2],
-		//						.
-		//						.
-		//						.
-		//				),
-		//		)
-		//
-		// However if there is only one result then it will return result as:
-		// Array(
-		//		'result' => [result1],
-		//	)
-		//
-		// So the below bit is to adjust the result to make it consistant
-		if (!is_int($key) && (is_array($val) && !preg_match('/^[0-9]+$/', implode('', array_keys($val))))) {
-			$val = Array($val);
 		}
 
 	}//end _xml_to_array()
+
+
+	/**
+	* Callback function for array_walk_recursive() in getSoapRequestResult() to
+	* adjust array data so tha "str_key" => "str_value" to
+	* "str_key" => Array(0 => "str_value")
+	* to make the SOAP response array consistant
+	*
+	* SOAP response will return multiple results as:
+	* Array(
+	*	'result' => Array(
+	*				0 => [result1],
+	*				1 => [result2],
+	*					.
+	*					.
+	*					.
+	*				),
+	*			)
+	* However if there is only one result then it will return result as:
+	* Array(
+	*	'result' => [result1],
+	* 	)
+	*
+	* This is done to for the respone array 
+	*
+	* @return void
+	* @access private
+	*/
+	private function _adjust_soap_array_values(&$val, $key)
+	{
+		if (!is_int($key)) {
+			$val = Array($val);
+		}
+
+	}//end _adjust_soap_array_values
 
 
 }//end class
