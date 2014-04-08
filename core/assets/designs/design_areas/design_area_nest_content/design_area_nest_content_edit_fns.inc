@@ -68,7 +68,7 @@ class Design_Area_Nest_Content_Edit_Fns extends Design_Area_Edit_Fns
 			?>
 			<table class="sq-backend-table sq-nest-content-table">
 				<tr>
-					<td class="sq-backend-table-cell-alt"><b><?php echo translate('nest_content_menu_nesting') ?></b></td>
+					<th><?php echo translate('nest_content_menu_nesting') ?></th>
 				</tr>
 				<tr>
 					<td class="sq-backend-table-cell">
@@ -78,15 +78,19 @@ class Design_Area_Nest_Content_Edit_Fns extends Design_Area_Edit_Fns
 					</td>
 				</tr>
 				<tr>
-					<td class="sq-backend-table-cell-alt"><b><?php echo translate('nest_content_menu_paint_with'); ?></b></td>
+					<th><?php echo translate('nest_content_menu_paint_with'); ?></th>
 				</tr>
 				<tr>
 					<td class="sq-backend-table-cell">
-					<input name="<?php echo $prefix ?>_paint_with" type="radio" value="raw" <?php if ($paint_with == 'raw') { ?>checked="checked"<?php } ?>> <?php echo translate('nest_content_menu_paint_raw'); ?><br />
-					<input name="<?php echo $prefix ?>_paint_with" type="radio" value="default" <?php if ($paint_with == 'default') { ?>checked="checked"<?php } ?>> <?php echo translate('nest_content_menu_paint_default'); ?><br />
-					<input name="<?php echo $prefix ?>_paint_with" type="radio" value="arbitrary" <?php if ($paint_with == 'arbitrary') { ?>checked="checked"<?php } ?>><?php
-					echo translate('nest_content_menu_paint_arbitrary');
-					asset_finder($prefix.'_paint_layout', $paint_layout, Array('paint_layout_page' => 'D'));
+					<input name="<?php echo $prefix ?>_paint_with" id="<?php echo $prefix ?>_paint_with_0" type="radio" value="raw" <?php if ($paint_with == 'raw') { ?>checked="checked"<?php } ?>> 
+					<?php label(translate('nest_content_menu_paint_raw'), $prefix.'_paint_with_0', 'style="display: inline-block; margin-bottom: 5px;"'); ?>
+					<br />
+					<input name="<?php echo $prefix ?>_paint_with" id="<?php echo $prefix ?>_paint_with_1" type="radio" value="default" <?php if ($paint_with == 'default') { ?>checked="checked"<?php } ?>> 
+					<?php label(translate('nest_content_menu_paint_default'), $prefix.'_paint_with_1'); ?>
+					<br />
+					<input name="<?php echo $prefix ?>_paint_with" id="<?php echo $prefix ?>_paint_with_2" type="radio" value="arbitrary" <?php if ($paint_with == 'arbitrary') { ?>checked="checked"<?php } ?>>
+					<?php label(translate('nest_content_menu_paint_arbitrary'), $prefix.'_paint_with_2'); ?>
+					<?php asset_finder($prefix.'_paint_layout', $paint_layout, Array('paint_layout_page' => 'D'));
 					?><br />
 					</td>
 				</tr>

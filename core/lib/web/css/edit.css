@@ -471,6 +471,7 @@ input.sq-btn-large.loading,
 	font-size:					0;
 	box-shadow: 				0 1px 0 rgba(255, 255, 255, 0.2) inset !important;
 	cursor: 					wait;
+	text-shadow:				none;
 }
 
 input.sq-btn-green, 

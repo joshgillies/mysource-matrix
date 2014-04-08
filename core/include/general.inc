@@ -208,9 +208,9 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 				$err_msg = nl2br(htmlspecialchars($err_msg));
 			}
 
-			$error_title_main = 'font-weight: bold; font-size: 14px; vertical-align: top; padding: 12px 19px 11px; border-bottom: 1px solid '.$border_colour.'; color: '.$text_colour.';';
-			$error_title = 'font-weight: bold; font-size: 12px; vertical-align: top; padding-right: 30px; padding-bottom: 5px; color: '.$text_colour.';';
-			$error_data  = 'font-size: 12px; vertical-align: top; padding-right: 30px; padding-bottom: 5px; color: '.$text_colour.';';
+			$error_title_main = 'font-weight: bold; font-size: 12px; vertical-align: top; padding: 6px 7px 5px; border-bottom: 1px solid '.$border_colour.'; color: '.$text_colour.';';
+			$error_title = 'font-weight: bold; font-size: 11px; vertical-align: top; padding-right: 30px; padding-bottom: 2px; color: '.$text_colour.';';
+			$error_data  = 'font-size: 11px; vertical-align: top; padding-right: 30px; padding-bottom: 2px; color: '.$text_colour.';';
 			//if(!(SQ_IN_BACKEND || SQ_IN_LIMBO)) echo '<!DOCTYPE html>';
 			?>
 			<!DOCTYPE html>
@@ -222,7 +222,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 						</td>
 					</tr>
 					<tr>
-						<td style="vertical-align: top; padding: 12px 19px 11px;">
+						<td style="vertical-align: top; padding: 6px 8px 2px;">
 			<?php
 			if (SQ_CONF_DEBUG & (1 | 2)) {
 			?>

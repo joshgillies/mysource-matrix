@@ -19,7 +19,7 @@
 	<section name="General">
 		<field attribute="print">
 			<display_name>Print</display_name>
-			<note>Select whether this design area should be printed or hidden in this design customisation</note>
+			<note>Select whether this design area should be printed or hidden in this design customisation.</note>
 		</field>
 		<field attribute="cache">
 			<display_name>Cache?</display_name>
@@ -33,7 +33,7 @@
 	<section name="Link">
 		<field>
 			<display_name>Nested Asset</display_name>
-			<note>The assetid that represents the asset to print in this nested content area</note>
+			<note>The assetid that represents the asset to print in this nested content area.</note>
 			<function_call>
 				<paint_function   name="paintAssetid" />
 				<process_function name="processAssetid" />
