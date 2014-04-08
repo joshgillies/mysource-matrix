@@ -2516,7 +2516,7 @@ var JS_Asset_Map = new function() {
 			// If we are moving any assets downward, we need to slot in ABOVE the
 			// selected slot, so adjust where we put in the sort order.
 			if ((String(parentid) === String(newParentAssetid)) &&
-				(assetNodes[i].getAttribute('data-sort-order') < sortOrder)) {
+				(Number(assetNodes[i].getAttribute('data-sort-order')) < Number(sortOrder))) {
 				sortOrderAdjust = 1;
 			}
 		}
@@ -4745,6 +4745,7 @@ var JS_Asset_Map = new function() {
 					} catch (ex) {
 						// That we made it here means it couldn't be handled.
 						self.message(js_translate('asset_map_status_bar_error_requesting'), false, 2000);
+						console.log(response);
 						if (dfx.isFn(failedCallback) === true) {
 							failedCallback(ex);
 						} else {
