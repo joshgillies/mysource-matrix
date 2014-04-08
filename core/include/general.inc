@@ -126,8 +126,11 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 	// if we are in XML output type then, send our error as XML
 	switch ($GLOBALS['SQ_OUTPUT_TYPE']) {
 		case 'xml' :
-			$msg = "$err_msg\nFile: $err_file\nLine:$err_line";
-
+			$msg = $err_msg;
+			if (SQ_CONF_DEBUG & 1) {
+			    $msg .= "\nFile: $err_file\nLine:$err_line";
+			}
+			    
 			$root = simplexml_load_string('<xml></xml>');
 			$output = $root->addChild('error', $msg);
 			header('Content-Type: text/xml');
@@ -139,6 +142,19 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 
 			exit(); // we need to always exit for XML otherwise we are likely to end up with XML parse errors at the other end
 		break;
+		
+	    case 'json':
+	        $msg = $err_msg;
+
+			$root = array(
+			    '_rootTag' => 'error',
+			    '_content' => $msg,
+			);
+			header('Content-Type: application/json');
+			echo json_encode_array($root);
+			
+	        exit();
+        break;
 
 		case 'text' :
 			// if they haven't put tags in the err msg assume it to be plain text
