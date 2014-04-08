@@ -691,8 +691,7 @@ class MySource extends MySource_Object
 								$browser_cache_expiry = $cm->attr('expiry');
 							}
 							$level = $cm->cacheControlLevel();
-							$no_cookie = $level === 'public' ? ', no-cache="set-cookie"' : '';
-							header('Cache-Control: max-age='.$browser_cache_expiry.', '.$acc_cache_string.$level.$no_cookie);
+							header('Cache-Control: max-age='.$browser_cache_expiry.', '.$acc_cache_string.$level);
 							header('Expires: '.gmdate('D, d M Y H:i:s', time() + $browser_cache_expiry).' GMT');
 						}
 
@@ -970,8 +969,7 @@ class MySource extends MySource_Object
 
 		if (!$recache) {
 			$level = $cm->cacheControlLevel();
-			$no_cookie = $level === 'public' ? ', no-cache="set-cookie"' : '';
-			header('Cache-Control: max-age='.$browser_cache_expiry.', '.$acc_cache_string.$level.$no_cookie);
+			header('Cache-Control: max-age='.$browser_cache_expiry.', '.$acc_cache_string.$level);
 		}
 
 		// not cached or has expired
@@ -2168,7 +2166,7 @@ class MySource extends MySource_Object
 		// when logging in we wipe the previous session file
 		$sess_filename = session_save_path().'/sess_'.$old_session_id;
 		@unlink($sess_filename);
-		$this->_updateSessionCookie();
+		$this->_updateSessionCookie(TRUE);
 
 		$_SESSION['userid'] = $user->id;
 		$_SESSION['user_type_code'] = $user->type();
@@ -2412,11 +2410,13 @@ class MySource extends MySource_Object
 	* Update the session cookie with the appropriate expiry time given the kind of user we are
 	*
 	* Note: this function must be called before any other cookies are set or it will clear their set-cookie headers
+	* 
+	* @param boolean	$force_send	force send cookie header to clear previous set-cookie headers
 	*
 	* @return void
 	* @access public
 	*/
-	protected function _updateSessionCookie()
+	protected function _updateSessionCookie($force_send=FALSE)
 	{
 		$session_id = session_id();
 		if (empty($session_id)) return FALSE;
@@ -2472,8 +2472,10 @@ class MySource extends MySource_Object
 			$header .= "secure; ";
 		}
 
-        // Do not replace in case, regenerating the session cookie is sending headers.
-		header($header, FALSE);
+		// we only need to send set-cookie header here if it is needed
+		// otherwise session handler should have already sent set-cookie header, no need to duplicate
+		if($force_send || (isset($new_domain) && !empty($new_domain)) || !empty($time_to_live))
+		    header($header, FALSE);
 
 	}//end _updateSessionCookie()
 
@@ -4260,8 +4262,7 @@ class MySource extends MySource_Object
 				$browser_cache_expiry = $cm->getExpiry($asset->type(), $asset->id);
 			}
 			$level = $cm->cacheControlLevel();
-			$no_cookie = $level === 'public' ? ', no-cache="set-cookie"' : '';
-			header('Cache-Control: max-age='.$browser_cache_expiry.', '.$acc_cache_string.$level.$no_cookie);
+			header('Cache-Control: max-age='.$browser_cache_expiry.', '.$acc_cache_string.$level);
 			header('Expires: '.gmdate('D, d M Y H:i:s', time() + $browser_cache_expiry).' GMT');
 		}
 

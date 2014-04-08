@@ -303,12 +303,16 @@ class Data_Source_Soap_Edit_Fns extends Data_Source_Edit_Fns
 		$data = @unserialize(file_get_contents($path));
 		$response = array_get_index($data, 'response', '');
 		if ($response) {
-			echo "<b>XML Message</b>";
+			echo "<b>Last Response XML Message</b>";
 			pre_echo(isset($response['last_response']) ? $response['last_response'] : '');
 
 			echo "<br/>";
 			echo "<b>Response Object</b>";
 			pre_echo(isset($response['response_obj']) ? unserialize($response['response_obj']) : '');
+			
+			echo "<br/>";
+			echo "<b>Response XML</b>";
+			pre_echo(isset($response['response_xml']) ? $response['response_xml'] : '');
 		}
 
 		return FALSE;

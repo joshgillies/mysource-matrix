@@ -32,7 +32,7 @@ if (empty($argv[1])) {
 	exit;
 }
 
-require dirname(__FILE__) . '/../../core/include/init.inc';
+require dirname(__FILE__) . '/../core/include/init.inc';
 
 // set up the root user
 $root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');

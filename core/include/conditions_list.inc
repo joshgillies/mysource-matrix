@@ -501,6 +501,7 @@ class Conditions_List
 					$conditions_parameters_new[$new_name]['type_code'] = $condition_type;
 					$conditions_parameters_new[$new_name]['restriction']['match'] = array_get_index($_POST, $condition_prefix.'_match', TRUE);
 					$conditions_parameters_new[$new_name]['force_no_cache'] = array_get_index($_POST, $condition_prefix.'_force_no_cache', TRUE);
+					$conditions_parameters_new[$new_name]['restriction']['prefix'] = $condition_prefix;
 				}
 			}
 
