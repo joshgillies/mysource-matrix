@@ -144,6 +144,9 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 		break;
 		
 	    case 'json':
+	        // Used by asset map to return an error. This format returns an
+	        // equivalent format to that used by the asset map's JSON serialisation
+	        // of the (previous) response XML, hence the odd response.
 	        $msg = $err_msg;
 
 			$root = array(
