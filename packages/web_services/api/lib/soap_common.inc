@@ -786,7 +786,7 @@ class SOAP_Common
 			$str = get_object_vars($str);
 		}
 		if (!is_array($str)) {
- 			return "\n".'<'.$parent_element.'>'.'<![CDATA['.$str.']]>'.'</'.$parent_element.'>';
+ 			return '<![CDATA['.$str.']]>';
 		}
 
 		$xml = '';
@@ -795,7 +795,7 @@ class SOAP_Common
 			$key = preg_replace('/\s+/', '', $key);
 			if ((empty($key) && $key != 0) || preg_match('/^xml$/i', $key)) continue;
 
-			if (!empty($parent_element) && (is_array($value) || is_object($value))) {
+			if (!empty($parent_element) && !preg_match('/^\d+$/', $parent_element)) {
 				$xml .= "\n".'<'.$parent_element.'>'.self::arrayToXml($value, $key).'</'.$parent_element.'>';
 			} else {
 				$xml .= self::arrayToXml($value, $key);
