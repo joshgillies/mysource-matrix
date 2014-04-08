@@ -16,8 +16,8 @@
 -->
 
 <strings>
-	<string source="nest_content_menu_nesting">Nesting the contents of: </string>
-	<string source="nest_content_menu_paint_with">Paint this asset:</string>
+	<string source="nest_content_menu_nesting">Nesting the contents of</string>
+	<string source="nest_content_menu_paint_with">Paint this asset</string>
 	<string source="nest_content_menu_paint_raw">Raw (no Paint Layout)</string>
 	<string source="nest_content_menu_paint_default">Using default Paint Layout (based on lookup rules)</string>
 	<string source="nest_content_menu_paint_arbitrary">Using an arbitrary Paint Layout: </string>
