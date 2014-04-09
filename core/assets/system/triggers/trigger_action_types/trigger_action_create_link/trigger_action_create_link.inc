@@ -141,13 +141,12 @@ class Trigger_Action_Create_Link extends Trigger_Action
 			}
 		}
 
-		// Whether to add auto remap
-		$rm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
-		$auto_add_remaps = $rm->attr('remap_upon_webpath_change');
+		// update lookups for moved asset (the minor asset)
+		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$vars = Array('assetids' => Array($minor->id));
+		$hh->freestyleHipo('hipo_job_update_lookups', $vars);
 
-		// update lookups for both assets
-		$major->updateLookups($auto_add_remaps);
-		$minor->updateLookups($auto_add_remaps);
+		
 
 		return Array(
 				'linkid'		=> $action_link['linkid'],

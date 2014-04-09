@@ -221,9 +221,10 @@ class Trigger_Action_Remove_Links extends Trigger_Action
 
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
-		// update lookups for both assets
-		$major->updateLookups();
-		$minor->updateLookups();
+		// update lookups for minor assets
+		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$vars = Array('assetids' => Array($minor->id));
+		$hh->freestyleHipo('hipo_job_update_lookups', $vars);
 
 		return Array();
 
