@@ -331,6 +331,14 @@ button.delete-button {
 	vertical-align: top;
 }
 
+pre.sq-code-example.inline{
+	display: 					inline-block;
+}
+
+pre.sq-code-example strong{
+	color: 						#000;
+}
+
 /*
 ####################################################################################################################
 GLOBAL FORM ELEMENTS
@@ -575,6 +583,24 @@ option:disabled:checked {
 .sq-option-list img {
 	vertical-align: 			inherit;
 	margin:						0;
+}
+
+.sq-option-list-header {
+	display: 					inline-block;
+	font-weight: 				bold;
+	margin: 					0 0 5px 0;
+}
+
+.sq-option-list-header.value {
+	width: 						165px;
+}
+
+.sq-option-list .sq-option-value {
+	width: 						150px;
+}
+
+.sq-option-list .sq-option-text {
+	width: 						200px;
 }
 
 /* Radio button list */

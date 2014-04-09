@@ -36,7 +36,7 @@
 		</field>
 		<field>
 			<display_name>Options</display_name>
-			<note>Enter possible options (the list will expand as necessary)</note>
+			<note><![CDATA[Enter possible options (the list will expand as necessary).<br/>The <strong>Value</strong> is what is submitted as part of the form and the <strong>Text</strong> is what is displayed to the front end user.<br/>For example, the HTML output for each option will be: <pre class="sq-code-example inline"><span>&lt;</span>option value="<strong>Value</strong>"<span>&gt;</span><strong>Text</strong><span>&lt;</span>/option<span>&gt;</span></pre>]]></note>
 			<function_call>
 				<paint_function 	name="paintOptions"   />
 				<process_function	name="processOptions" />
@@ -80,12 +80,12 @@
 			<note></note>
 		</field>
 		<field attribute="empty_key">
-			<display_name>Empty Text Key</display_name>
-			<note>If 'Allow Empty Option' is enabled, this text will be added as the empty option key</note>
+			<display_name>Empty Option Value</display_name>
+			<note>If 'Allow Empty Option' is enabled, this text will be used as the empty option's value.</note>
 		</field>
 		<field attribute="empty_text">
-			<display_name>Empty Text</display_name>
-			<note>If 'Allow Empty Option' is enabled, this text will be added as the empty option</note>
+			<display_name>Empty Option Text</display_name>
+			<note>If 'Allow Empty Option' is enabled, this text will be used as the empty option's text.</note>
 		</field>
 		<field attribute="allow_empty_selected">
 			<display_name>Allow Empty Option To Be Selected?</display_name>
@@ -97,11 +97,11 @@
 		</field>
 		<field attribute="tabindex">
 			<display_name>Tab Index</display_name>
-			<note>If a tab index is supplied it will be added to the input tag</note>
+			<note>If a tab index is supplied it will be added to the input tag.</note>
 		</field>
 		<field attribute="extra">
 			<display_name>Extras</display_name>
-			<note>Provides a means of specifying CSS classes, javascript onClick functions or other INPUT tag attributes, eg class="yourCssClass"</note>
+			<note>Provides a means of specifying CSS classes, javascript onClick functions or other INPUT tag attributes, eg class="yourCssClass".</note>
 		</field>
 		<field attribute="sticky">
 			<display_name>Sticky?</display_name>

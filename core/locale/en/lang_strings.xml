@@ -577,6 +577,7 @@
 	<string source="update_permission_to_current_children">Update this permission to all existing children that fall under this asset in the various hierarchies</string>
 	<string source="option_value">Option Value</string>
 	<string source="no_select_box_options">There are currently no select box options</string>
+	<string source="no_options_entered">No options entered</string>
 	<string source="response_keyword_note">Note: This list only shows the keywords for the first set of data for the array elements in the soap response, if any</string>
 	<string source="field_keyword_tags">Field Keyword (Tag)</string>
 	<string source="fail_validation_error_msg">If the specified field fails the validation, the step action will treat it as an regular form error.</string>
@@ -1651,6 +1652,8 @@
 	<string source="valid">Valid</string>
 	<string source="invalid">Invalid</string>
 	<string source="help">Help</string>
+	<string source="text">Text</string>
+	<string source="label">Label</string>
 
 	<!-- priority level strings -->
 
