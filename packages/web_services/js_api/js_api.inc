@@ -729,7 +729,7 @@ class JS_Api extends Page
 			if ($child_asset->writeAccess()) {
 
 				$ext_link_type = defined($links['existing_link_type'][$i]) ? constant($links['existing_link_type'][$i]) : SQ_LINK_TYPE_1;
-				$ext_link_value = $links['existing_link_value'][$i];
+				$ext_link_value = empty($links['existing_link_value'][$i]) ? NULL : $links['existing_link_value'][$i];
 				$link_type = defined($links['link_type'][$i]) ? constant($links['link_type'][$i]) : SQ_LINK_TYPE_1;
 				$link_value = $links['link_value'][$i];
 				$data[$i] = $this->updateLink(
@@ -740,7 +740,7 @@ class JS_Api extends Page
 										$link_type,
 										$link_value ,
 										($links['sort_order'][$i] != '' && $links['sort_order'][$i] != 'undefined') ? $links['sort_order'][$i] : NULL ,
-										($links['lock'][$i] != '' && $links['lock'][$i] != 'undefined') ? $links['lock'][$i] : TRUE
+										($links['lock'][$i] != '' && $links['lock'][$i] != 'undefined') ? $links['lock'][$i] : NULL
 									);
 			} else {
 				$data[$i] = 'Not enough permission to update link between Asset (#'.$child_asset->id.') and Asset (#'.$parent_asset->id.')';
@@ -1697,11 +1697,11 @@ class JS_Api extends Page
 			}
 
 			$old_link_type	= defined($args['existing_link_type']) ? constant($args['existing_link_type']) : SQ_LINK_TYPE_1 ;
-			$old_link_value	= $args['existing_link_value'];
+			$old_link_value	= empty($args['existing_link_value']) ? NULL : $args['existing_link_value'];
 			$new_link_type	= defined($args['link_type']) ? constant($args['link_type']) : SQ_LINK_TYPE_1 ;
 			$new_link_value	= $args['link_value'];
 			$sort_order		= (isset($args['sort_order']) && $args['sort_order'] != '' ) ?$args['sort_order'] : NULL;
-			$locked			= (isset($args['locked']) && $args['locked'] != '' ) ? $args['locked'] : TRUE;
+			$locked			= (isset($args['locked']) && $args['locked'] != '' ) ? $args['locked'] : NULL;
 
 			// Remove our link
 			$data = $this->updateLink($parent->id, $asset->id, $old_link_type, $old_link_value, $new_link_type, $new_link_value, $sort_order, $locked);
@@ -3158,7 +3158,7 @@ class JS_Api extends Page
 	* @return array
 	* @access public
 	*/
-	function updateLink($parent, $child, $existing_link_type=SQ_LINK_TYPE_1, $existing_link_value= '', $link_type=SQ_LINK_TYPE_1, $link_value='', $sort_order, $locked=TRUE)
+	function updateLink($parent, $child, $existing_link_type=SQ_LINK_TYPE_1, $existing_link_value= NULL, $link_type=SQ_LINK_TYPE_1, $link_value='', $sort_order, $locked=NULL)
 	{
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 
