@@ -48,7 +48,7 @@ class Metadata_Field_Date_Management extends Asset_Management
 						'format'			=> Array(
 												'added'				=> '0.1',
 												'type'				=> 'text',
-												'default'			=> 'd/m/Y H:i:s',
+												'default'			=> 'Y-m-d H:i:s',
 											   ),
 						'setup_params'		=> Array(
 												'added'				=> '0.0.1',

@@ -984,7 +984,7 @@ class DateTime_Field
 	{
 		if (empty($show)) $show = Array('s','n','c','t'); // default set of fields to show
 
-		$us = Array('d'=>'Day','m'=>'Month','y'=>'Year','h'=>'Hour','i'=>'Min.','s'=>'Sec.');
+		$us = Array('d'=>'Day','m'=>'Month','y'=>'Year','h'=>'Hour','i'=>'Min','s'=>'Sec');
 		$s =& $this->getParam('show');
 		$n =& $this->getParam('null');
 		$y =& $this->getParam('style');
@@ -992,8 +992,8 @@ class DateTime_Field
 		$t =& $this->getParam('standard');
 		?>
 
-		<table cellspacing="0" cellpadding="2" border="1">
-			<tr><td>
+		<table class="sq-backend-table" style="width: auto;">
+			<tr><th>
 				<?php
 					if (in_array('c', $show)) {
 						combo_box($this->prefix.'_allow_circa', Array(''=>'','1'=>'Allow "circa."'), FALSE, $c, 'class="smallprint"');
@@ -1003,11 +1003,11 @@ class DateTime_Field
 						combo_box($this->prefix.'_standard', Array('int'=>'Intl. (dd/mm/yyyy)','us'=>'US (mm/dd/yyyy)'), $t, 'class="fineprint"');
 					}
 				?>
-			</td>
+			</th>
 			<?php
 				foreach ($us as $k=>$v) {
 				?>
-					<td align=center><b><?php echo $v; ?></b></td>
+					<th style="text-align: center;"><?php echo $v; ?></th>
 			<?php }//end foreach
 			?>
 			</tr>
@@ -1017,7 +1017,7 @@ class DateTime_Field
 					if (in_array('s', $show)) {
 			?>
 			<tr>
-				<td><b>Show</b></td>
+				<th>Show</th>
 			<?php
 				foreach ($us as $k => $v) {
 			?>
@@ -1034,7 +1034,7 @@ class DateTime_Field
 					if (in_array('n', $show)) {
 			?>
 			<tr>
-				<td><b>Allow blank</b></td>
+				<th>Allow blank</th>
 				<?php
 					foreach ($us as $k=>$v) {
 				?><td align="center"><input type="checkbox" name="<?php echo $this->prefix; ?>_null[]" value=<?php echo $k; ?> <?php echo ((in_array($k, $n)) ? 'checked="checked"' : ''); ?>></b>
@@ -1046,7 +1046,7 @@ class DateTime_Field
 			?>
 
 			<tr>
-				<td><b>Select box</b></td>
+				<th>Select box</th>
 			<?php
 			foreach ($us as $k=>$v) {
 				?>
@@ -1059,7 +1059,7 @@ class DateTime_Field
 			</tr>
 
 			<tr>
-				<td><b>Text box</b></td>
+				<th>Text box</th>
 			<?php
 			foreach ($us as $k=>$v) {
 				?>
@@ -1072,13 +1072,13 @@ class DateTime_Field
 			</tr>
 
 			<tr>
-				<td><b>Min</b></td>
-				<td colspan="6"><?php $this->printMinField(); ?></td>
+				<th style="vertical-align: middle;">Min</th>
+				<td colspan="6"><span class="sq-inline-fields-wrapper"><?php $this->printMinField(); ?></span></td>
 			</tr>
 
 			<tr>
-				<td><b>Max</b></td>
-				<td colspan="6"><?php $this->printMaxField(); ?></td>
+				<th style="vertical-align: middle;">Max</th>
+				<td colspan="6"><span class="sq-inline-fields-wrapper"><?php $this->printMaxField(); ?></span></td>
 			</tr>
 
 		</table>
