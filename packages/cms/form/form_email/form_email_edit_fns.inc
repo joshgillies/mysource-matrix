@@ -659,56 +659,37 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	*/
 	function paintDownloadButton(&$asset, &$o, $prefix)
 	{
-		// explanation for onClick for the Download button, there is some trickery involved here >:)
-		// - set export switch to 1 = "ON"
-		// - submit form (automatically sets SQ_FORM_SUBMITTED) - we're still here though, as the
-		//   browser will be sent through the CSV/XML file and it will be offered to save - not display
-		//   (DEPENDS on browser - CSV should be offered to save, XML could be intercepted by browser!)
-		// - unset SQ_FORM_SUBMITTED so the form can still be submitted via Commit
-		// - set export switch to 0 = "OFF" so Commit doesn't try to save a file either
-		// - return true for the event as per JS standard
+		// If the 'Download File' button was pressed, do the processing
+		if (isset($_POST[$prefix.'_export_switch']) && $_POST[$prefix.'_export_switch'] == '1') {
 
-		echo normal_button($prefix.'_export', translate('download_file'), 'this.form.'.$prefix.'_export_switch.value = 1; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_export_switch.value = 0; return true;');
+			$export_type = array_get_index($_POST, $prefix.'_export_format', '');
+			$export_delimiter = array_get_index($_POST, $prefix.'_delimiter', '');
 
-	}//end paintDownloadButton()
+			switch ($export_type) {
+				case 'csv':
+					$this->processExportCSV($asset, $o, $prefix, TRUE, $export_delimiter);
+				break;
 
+				case 'csv_nhr':
+					$this->processExportCSV($asset, $o, $prefix, FALSE, $export_delimiter);
+				break;
 
-	/**
-	* Processes the Download Button press
-	*
-	* This function will pass off the work to processExportCSV() or processExportXML(), as appropriate.
-	* If we aren't downloading a file, this function will silently return a success.
-	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form elements
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processDownloadButton(&$asset, &$o, $prefix)
-	{
-		$export_button_pressed = array_get_index($_POST, $prefix.'_export_switch');
-		if (is_null($export_button_pressed)) return TRUE;
+				case 'xml':
+					$this->processExportXML($asset, $o, $prefix);
+				break;
+			}
+		} else {
+			// explanation for onClick for the Download button, there is some trickery involved here >:)
+			// - set export switch to 1 = "ON"
+			// - submit form (automatically sets SQ_FORM_SUBMITTED) - we're still here though, as the
+			//   browser will be sent through the CSV/XML file and it will be offered to save - not display
+			//   (DEPENDS on browser - CSV should be offered to save, XML could be intercepted by browser!)
+			// - unset SQ_FORM_SUBMITTED so the form can still be submitted via Commit
+			// - set export switch to 0 = "OFF" so Commit doesn't try to save a file either
+			// - return true for the event as per JS standard
 
-		$export_type = array_get_index($_POST, $prefix.'_export_format', '');
-		$export_delimiter = array_get_index($_POST, $prefix.'_delimiter', '');
-
-		switch ($export_type) {
-			case 'csv':
-				$this->processExportCSV($asset, $o, $prefix, TRUE, $export_delimiter);
-			break;
-
-			case 'csv_nhr':
-				$this->processExportCSV($asset, $o, $prefix, FALSE, $export_delimiter);
-			break;
-
-			case 'xml':
-				$this->processExportXML($asset, $o, $prefix);
-			break;
+			echo normal_button($prefix.'_export', translate('download_file'), 'this.form.'.$prefix.'_export_switch.value = 1; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_export_switch.value = 0; return true;');
 		}
-
-		return TRUE;
 
 	}//end processDownloadButton()
 
