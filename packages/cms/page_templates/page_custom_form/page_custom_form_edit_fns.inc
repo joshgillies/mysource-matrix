@@ -184,23 +184,6 @@ class Page_Custom_Form_Edit_Fns extends Page_Edit_Fns
 
 
 	/**
-	* Paints the download button
-	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form elements
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processDownloadButton(&$asset, &$o, $prefix)
-	{
-		return $this->delegateToFormEditMethod($asset, $o, $prefix, __FUNCTION__);
-
-	}//end processDownloadButton()
-
-
-	/**
 	* Paint submission date range
 	*
 	* @param object	&$asset	the asset whose interface we are painting
