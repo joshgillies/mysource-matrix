@@ -2771,7 +2771,7 @@ LEFT SIDEBAR FRAME STYLES
 #asset_map .addButton.sq-btn-link {
 	float: 						left;
 	cursor:						pointer;
-	margin-top: 				2px;
+	margin-top: 				3px;
 	width: 						38px;
 }
 
@@ -2816,9 +2816,16 @@ LEFT SIDEBAR FRAME STYLES
 }
 
 .myspace-section-wrapper {
-	background: #fff;
-	border-top: 1px solid #e2e2e2;
-	padding: 10px;
+	background:	 				#fff;
+	border-top: 				1px solid #e2e2e2;
+	padding: 					10px;
+	font-size: 					11px;
+}
+
+.myspace-toolbar-wrapper {
+	position: 					absolute;
+	top: 						7px;
+	left: 						5px;
 }
 
 #my_space .myspace-section td{

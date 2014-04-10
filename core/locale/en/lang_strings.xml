@@ -613,6 +613,9 @@
 	<string source="my_account">My Account</string>
 	<string source="asset_map">Asset Map</string>
 
+	<string source="locks_release_my_locks">Release all of my current locks</string>
+	<string source="locks">Locks</string>
+
 	<string source="my_inbox">My Inbox</string>
 	<string source="inbox_new_messages">You have &lt;b&gt;%1$s&lt;/b&gt; unread and &lt;b&gt;%2$s&lt;/b&gt; total new message(s)</string>
 	<string source="inbox_actions">Inbox Actions</string>
