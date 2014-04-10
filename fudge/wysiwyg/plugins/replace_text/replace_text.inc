@@ -129,7 +129,7 @@ class Replace_Text extends WYSIWYG_Plugin
 									break;
 								}
 								case 6	: {
-									reg = new RegExp(" style=\"?[^\">]*\"?", "gi");
+									reg = new RegExp("( style='.*?'| style=\".*?\")", "gi");
 									rep = "";
 									break;
 								}
