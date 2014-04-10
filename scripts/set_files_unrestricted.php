@@ -109,22 +109,19 @@ if (($UNRESTRICT_SETTING !== '0') && ($UNRESTRICT_SETTING !== '1')) {
 $file_assetids = $GLOBALS['SQ_SYSTEM']->am->getChildren($ROOT_ASSETID, 'file', FALSE);
 echo 'Found '.count($file_assetids).' File asset(s) underneath asset ID #'.$ROOT_ASSETID."\n";
 
+echo 'Are you sure you want to '.($UNRESTRICT_SETTING ? 'enable' : 'disable').' unrestricted setting on these assets (Y/N)?';
+$yes_no = rtrim(fgets(STDIN, 4094));
+if (strtolower($yes_no) != 'y') {
+	echo "\nScript aborted. \n";
+	exit;
+}
+
+
+
 // no assets to work on, just exit normally, otherwise continue
 if (count($file_assetids) > 0) {
-	// ask for the root password for the system
-	echo 'Enter the root password for "'.SQ_CONF_SYSTEM_NAME.'": ';
-	system('stty -echo');
-	$root_password = rtrim(fgets(STDIN, 4094));
-	system('stty echo');
-
-	// check that the correct root password was entered
-	$root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
-	if (!$root_user->comparePassword($root_password)) {
-	    error_line('Root password incorrect'."\n");
-    	exit(1);
-	}
-
 	// log in as root
+	$root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 	if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 	    error_line('Could not log in as root user');
     	exit(1);
