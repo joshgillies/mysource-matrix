@@ -141,10 +141,12 @@ class Trigger_Action_Create_Link extends Trigger_Action
 			}
 		}
 
-		// update lookups for moved asset (the minor asset)
+		// update lookups for minor asset and all its children
+		// update lookup only for the major asset (no need to update children)
 		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$vars = Array('assetids' => Array($minor->id));
 		$hh->freestyleHipo('hipo_job_update_lookups', $vars);
+		$major->updateLookups();
 
 		
 
