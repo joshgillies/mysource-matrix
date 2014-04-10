@@ -578,22 +578,22 @@ var JS_Asset_Map = new function() {
 	};
 	
 	this.isMac = function() {
-	    var isMac = false;
-	    var ua    = navigator.userAgent;
-	    
-	    if (/Mac OS/.test(ua) === true) {
-	        isMac = true;
-	    }
-	    
-	    return isMac;
+		var isMac = false;
+		var ua    = navigator.userAgent;
+		
+		if (/Mac OS/.test(ua) === true) {
+			isMac = true;
+		}
+		
+		return isMac;
 	}
 	
 	this.ctrlKey = function(e) {
-	    if (this.isMac() === true) {
-	        return e.metaKey;
-	    } else {
-	        return e.ctrlKey;
-	    }
+		if (this.isMac() === true) {
+			return e.metaKey;
+		} else {
+			return e.ctrlKey;
+		}
 	}
 
 	this.getBrowserVersion = function() {
@@ -912,13 +912,13 @@ var JS_Asset_Map = new function() {
 			// If a custom root is set and we're already on that root, we go
 			// back to the Root Folder (#1). Clicking again will restore the
 			// custom root.
-            var tree        = self.getCurrentTreeElement();
-            var currentRoot = tree.getAttribute('data-parentid');
-            if (String(options.teleportRoot) === String(currentRoot)) {
-                self.teleport(1, 1);
-            } else {
-                self.teleport(options.teleportRoot, options.teleportLink);
-            }
+			var tree        = self.getCurrentTreeElement();
+			var currentRoot = tree.getAttribute('data-parentid');
+			if (String(options.teleportRoot) === String(currentRoot)) {
+				self.teleport(1, 1);
+			} else {
+				self.teleport(options.teleportRoot, options.teleportLink);
+			}
 		});
 
 		dfx.addEvent(dfx.getId('asset_map_button_statuses'), 'click', function() {
@@ -3703,23 +3703,32 @@ var JS_Asset_Map = new function() {
 			this.doneCallback = callback;
 			this.selection    = null;
 
-			_lineEl = _createEl('div');
-			dfx.addClass(_lineEl, 'selectLine');
-			assetMapContainer.appendChild(_lineEl);
+			if (!_lineEl) {
+				_lineEl = _createEl('div');
+				dfx.addClass(_lineEl, 'selectLine');
+				assetMapContainer.appendChild(_lineEl);
+			}
 
 			dfx.addEvent(dfx.getClass('tree', assetMapContainer), 'mousedown.moveMe', function(e) {
-				var target = dfx.getMouseEventTarget(e);
-				if (dfx.hasClass(target, 'branch-status') === false) {
-					e.preventDefault();
-					if (self.selection) {
-						if (dfx.isFn(self.doneCallback) === true) {
-							self.doneCallback.call(self, self.source, self.selection, e);
+				var target     = dfx.getMouseEventTarget(e);
+				var tree       = self.parent.getCurrentTreeElement();
+				var treeCoords = dfx.getElementCoords(tree);
+				
+				if (((e.clientX - treeCoords.x) >= tree.clientWidth) || ((e.clientY - treeCoords.y) >= tree.clientHeight)) {
+					// Can't count the click if it's on the scrollbars
+				} else {                        
+					if (dfx.hasClass(target, 'branch-status') === false) {
+						e.preventDefault();
+						if (self.selection) {
+							if (dfx.isFn(self.doneCallback) === true) {
+								self.doneCallback.call(self, self.source, self.selection, e);
+							}
 						}
+		
+						// if there's no valid target when they click, then that's too bad.
+						self.cancel();
 					}
-	
-					// if there's no valid target when they click, then that's too bad.
-					self.cancel();
-				}
+				}//end if
 			});
 
 			dfx.addEvent(dfx.getClass('tree', assetMapContainer), 'mousemove.moveMe', function(e) {
