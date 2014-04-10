@@ -225,7 +225,8 @@ class Trigger_Action_Remove_Links extends Trigger_Action
 		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$vars = Array('assetids' => Array($minor->id));
 		$hh->freestyleHipo('hipo_job_update_lookups', $vars);
-
+		$major->updateLookups();
+		
 		return Array();
 
 	}//end execute()
