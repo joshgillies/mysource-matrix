@@ -85,7 +85,7 @@ class Form_Question_Type_Option_List_Edit_Fns extends Form_Question_Type_Tickbox
 					radio_button($name, ($ref - 1), $checked);
 				}
 
-				echo '&nbsp;<span onclick="this.previousSibling.previousSibling.checked = (!this.previousSibling.previousSibling.checked || this.previousSibling.previousSibling.type==\'radio\')">'.$option.'</span>';
+				echo '&nbsp;<label onclick="this.previousSibling.previousSibling.checked = (!this.previousSibling.previousSibling.checked || this.previousSibling.previousSibling.type==\'radio\')">'.$option.'</label>';
 				echo '</td></tr>';
 			}
 

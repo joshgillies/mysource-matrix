@@ -69,29 +69,29 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 		?>
 			<table class="sq-backend-table">
 			<tr>
-				<td width="12%" align="center" class="sq-backend-table-header">&nbsp;</td>
-				<td width="11%" align="center" class="sq-backend-table-header"><?php
+				<td width="12%" style="text-align:center;" class="sq-backend-table-header">&nbsp;</td>
+				<td width="11%" style="text-align:center;" class="sq-backend-table-header"><?php
 					echo translate('circa');
 				?></td>
-				<td width="11%" align="center" class="sq-backend-table-header"><?php
+				<td width="11%" style="text-align:center;" class="sq-backend-table-header"><?php
 					echo translate('day');
 				?></td>
-				<td width="11%" align="center" class="sq-backend-table-header"><?php
+				<td width="11%" style="text-align:center;"class="sq-backend-table-header"><?php
 					echo translate('month'); ?>
 				</td>
-				<td width="11%" align="center" class="sq-backend-table-header"><?php
+				<td width="11%" style="text-align:center;" class="sq-backend-table-header"><?php
 					echo translate('year');
 				?></td>
-				<td width="11%" align="center" class="sq-backend-table-header"><?php
+				<td width="11%" style="text-align:center;" class="sq-backend-table-header"><?php
 					echo translate('hour');
 				?></td>
-				<td width="11%" align="center" class="sq-backend-table-header"><?php
+				<td width="11%" style="text-align:center;" class="sq-backend-table-header"><?php
 					echo translate('minute');
 				?></td>
-				<td width="11%" align="center" class="sq-backend-table-header"><?php
+				<td width="11%" style="text-align:center;" class="sq-backend-table-header"><?php
 					echo translate('second');
 				?></td>
-				<td width="11%" align="center" class="sq-backend-table-header"><?php
+				<td width="11%" style="text-align:center;" class="sq-backend-table-header"><?php
 					echo translate('core_form_datetime_12_hour_format');
 				?></td>
 				</tr>
@@ -343,12 +343,12 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 		?>
 			<table class="sq-backend-table">
 				<tr>
-				<td width="8%" class="sq-backend-table-header"><?php
+				<td style="width: 50px;" class="sq-backend-table-header"><?php
 					echo translate('day');
 				?></td>
 				<td class="sq-backend-table-cell"><?php
 					if ($edit) {
-						text_box($prefix.'_d_extras', $extra_params['d']);
+						text_box($prefix.'_d_extras', $extra_params['d'], 50);
 					} else {
 						echo $extra_params['d'];
 					}
@@ -356,73 +356,73 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 				</tr>
 
 				<tr>
-				<td width="8%" class="sq-backend-table-header"><?php
+				<td class="sq-backend-table-header"><?php
 					echo translate('month'); ?>
 				</td>
 				<td class="sq-backend-table-cell"><?php
 					if ($edit) {
-						text_box($prefix.'_m_extras', $extra_params['m']);
+						text_box($prefix.'_m_extras', $extra_params['m'], 50);
 					} else {
 						echo $extra_params['m'];
 					}
 				?></td>
 				</tr>
 				<tr>
-				<td width="8%" class="sq-backend-table-header"><?php
+				<td class="sq-backend-table-header"><?php
 					echo translate('year');
 				?></td>
 				<td class="sq-backend-table-cell"><?php
 					if ($edit) {
-						text_box($prefix.'_y_extras', $extra_params['y']);
+						text_box($prefix.'_y_extras', $extra_params['y'], 50);
 					} else {
 						echo $extra_params['y'];
 					}
 				?></td>
 				</tr>
 				<tr>
-				<td width="8%" class="sq-backend-table-header"><?php
+				<td class="sq-backend-table-header"><?php
 					echo translate('hour');
 				?></td>
 				<td class="sq-backend-table-cell"><?php
 					if ($edit) {
-						text_box($prefix.'_h_extras', $extra_params['h']);
+						text_box($prefix.'_h_extras', $extra_params['h'], 50);
 					} else {
 						echo $extra_params['h'];
 					}
 				?></td>
 				</tr>
 				<tr>
-				<td width="8%" class="sq-backend-table-header"><?php
+				<td class="sq-backend-table-header"><?php
 					echo translate('minute');
 				?></td>
 				<td class="sq-backend-table-cell"><?php
 					if ($edit) {
-						text_box($prefix.'_i_extras', $extra_params['i']);
+						text_box($prefix.'_i_extras', $extra_params['i'], 50);
 					} else {
 						echo $extra_params['i'];
 					}
 				?></td>
 				</tr>
 				<tr>
-				<td width="8%" class="sq-backend-table-header"><?php
+				<td class="sq-backend-table-header"><?php
 					echo translate('second');
 				?></td>
 				<td class="sq-backend-table-cell"><?php
 					if ($edit) {
-						text_box($prefix.'_s_extras', $extra_params['s']);
+						text_box($prefix.'_s_extras', $extra_params['s'], 50);
 					} else {
 						echo $extra_params['s'];
 					}
 				?></td>
 				</tr>
 				<tr>
-				<td width="8%" class="sq-backend-table-header"><?php
+				<td class="sq-backend-table-header"><?php
 					echo translate('core_form_datetime_12_hour_format');
 				?></td>
 				<td class="sq-backend-table-cell"><?php
 					$extra_params['a'] = (isset($extra_params['a'])) ?  $extra_params['a'] : '';
 					if ($edit) {
-						text_box($prefix.'_a_extras', $extra_params['a']);
+						text_box($prefix.'_a_extras', $extra_params['a'], 50);
 					} else {
 						echo $extra_params['a'];
 					}

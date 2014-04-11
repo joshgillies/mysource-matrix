@@ -17,7 +17,7 @@
 -->
 
 <strings>
-<string source="core_form_datetime_text_box_question">Display as Text Box ?</string>
+<string source="core_form_datetime_text_box_question">Display as Text Box?</string>
 <string source="core_form_datetime_invalid_date_time">Invalid date/time</string>
 <string source="core_form_datetime_12_hour_format">12 hour</string>
 </strings>

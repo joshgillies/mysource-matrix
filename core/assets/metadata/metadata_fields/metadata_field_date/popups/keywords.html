@@ -17,222 +17,212 @@
 
 <html>
 	<head>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<title>Metadata Date Format Keys</title>
-		<style>
-body {
-	background-color:	#FFFFFF;
-}
-
-body, p, td, ul, li, input, select, textarea {
-	color:				#000000;
-	font-family:		Arial, Verdana Helvetica, sans-serif;
-	font-size:			12px;
-}
-
-a {
-	color:				black;
-	text-decoration:	underline;
-}
-
-a.hover {
-	color:	#4A3852;
-}
-
-.sq-backend-table {
-	width:				100%;
-	border:				1px solid #868578;
-	border-collapse:	collapse;
-}
-
-td.sq-backend-table-header, td.sq-backend-table-cell, td.sq-backend-table-cell-alt {
-	background-color:	#FFFFFF;
-	vertical-align:		top;
-	color:				#000000;
-	font-family:		Arial, Verdana, Helvetica, sans-serif;
-	font-size:			11px;
-	padding:			4px;
-	border-bottom:		1px dotted #F0F0F0;
-}
-
-td.sq-backend-table-header {
-	font-size:			12px;
-	font-weight:		bold;
-	background-color:	#CBCABE;
-}
-
-td.sq-backend-table-cell-alt {
-	background-color:	#F4F4EB;
-}
-
-		</style>
+		<link rel="stylesheet" type="text/css" href="../../../../__lib/web/css/edit.css" />
 	</head>
 
 	<body>
-		<p><b>The following characters are recognized in the format parameter string</b></p>
-
-	<table class="sq-backend-table">
-	<tr>
-		<td class="sq-backend-table-header"><i>format</i> character</td>
-		<td class="sq-backend-table-header">Description</td>
-		<td class="sq-backend-table-header">Example returned values</td>
-	</tr>
-	<tr>
-		<td class="sq-backend-table-cell">a</td>
-		<td class="sq-backend-table-cell">Lowercase Ante meridiem and Post meridiem</td>
-		<td class="sq-backend-table-cell">am or pm</td>
-	</tr>
-	<tr>
-		<td class="sq-backend-table-cell">A</td>
-		<td class="sq-backend-table-cell">Uppercase Ante meridiem and Post meridiem</td>
-		<td class="sq-backend-table-cell">AM or PM</td>
-	</tr>
-	<tr>
-		<td class="sq-backend-table-cell">B</td>
-		<td class="sq-backend-table-cell">Swatch Internet time</td>
-		<td class="sq-backend-table-cell">000 through 999</td>
-	</tr>
-	<tr>
-		<td class="sq-backend-table-cell">d</td>
-		<td class="sq-backend-table-cell">Day of the month, 2 digits with leading zeros</td>
-		<td class="sq-backend-table-cell">01 to 31</td>
-	</tr>
-	<tr>
-		<td class="sq-backend-table-cell">D</td>
-		<td class="sq-backend-table-cell">A textual representation of a day, three letters</td>
-		<td class="sq-backend-table-cell">Mon through Sun</td>
-	</tr>
-	<tr>
-		<td class="sq-backend-table-cell">F</td>
-		<td class="sq-backend-table-cell">A full textual representation of a month, such as January or March</td>
-		<td class="sq-backend-table-cell">January through December</td>
-	</tr>
-	<tr>
-		<td class="sq-backend-table-cell">g</td>
-		<td class="sq-backend-table-cell">12-hour format of an hour without leading zeros</td>
-		<td class="sq-backend-table-cell">1 through 12</td>
-	</tr>
-	<tr>
-		<td class="sq-backend-table-cell">G</td>
-		<td class="sq-backend-table-cell">24-hour format of an hour without leading zeros</td>
-		<td class="sq-backend-table-cell">0 through 23</td>
-	</tr>
-	<tr>
-		<td class="sq-backend-table-cell">h</td>
-		<td class="sq-backend-table-cell">12-hour format of an hour with leading zeros</td>
-		<td class="sq-backend-table-cell">01 through 12</td>
-	</tr>
-	<tr>
-		<td class="sq-backend-table-cell">H</td>
-		<td class="sq-backend-table-cell">24-hour format of an hour with leading zeros</td>
-		<td class="sq-backend-table-cell">00 through 23</td>
-	</tr>
-	<tr>
-		<td class="sq-backend-table-cell">i</td>
-		<td class="sq-backend-table-cell">Minutes with leading zeros</td>
-		<td class="sq-backend-table-cell">00 to 59</td>
-	</tr>
-	<tr>
-		<td class="sq-backend-table-cell">I (capital 'i')</td>
-		<td class="sq-backend-table-cell">Whether or not the date is in daylights savings time</td>
-		<td class="sq-backend-table-cell">1 if Daylight Savings Time, 0 otherwise</td>
-	</tr>
-	<tr>
-		<td class="sq-backend-table-cell">j</td>
-		<td class="sq-backend-table-cell">Day of the month without leading zeros</td>
-		<td class="sq-backend-table-cell">1 to 31</td>
-	</tr>
-	<tr>
-		<td class="sq-backend-table-cell">l (lowercase 'L')</td>
-		<td class="sq-backend-table-cell">A full textual representation of the day of the week</td>
-		<td class="sq-backend-table-cell">Sunday through Saturday</td>
-	</tr>
-	<tr>
-		<td class="sq-backend-table-cell">L</td>
-		<td class="sq-backend-table-cell">Whether it's a leap year</td>
-		<td class="sq-backend-table-cell">1 if it is a leap year, 0 otherwise.</td>
-	</tr>
-	<tr>
-		<td class="sq-backend-table-cell">m</td>
-		<td class="sq-backend-table-cell">Numeric representation of a month, with leading zeros</td>
-		<td class="sq-backend-table-cell">01 through 12</td>
-	</tr>
-	<tr>
-		<td class="sq-backend-table-cell">M</td>
-		<td class="sq-backend-table-cell">A short textual representation of a month, three letters</td>
-		<td class="sq-backend-table-cell">Jan through Dec</td>
-	</tr>
-	<tr>
-		<td class="sq-backend-table-cell">n</td>
-		<td class="sq-backend-table-cell">Numeric representation of a month, without leading zeros</td>
-		<td class="sq-backend-table-cell">1 through 12</td>
-	</tr>
-	<tr>
-		<td class="sq-backend-table-cell">O</td>
-		<td class="sq-backend-table-cell">Difference to Greenwich time (GMT) in hours</td>
-		<td class="sq-backend-table-cell">Example: +0200</td>
-	</tr>
-	<tr>
-		<td class="sq-backend-table-cell">r</td>
-		<td class="sq-backend-table-cell">RFC 822 formatted date</td>
-		<td class="sq-backend-table-cell">Example: Thu, 21 Dec 2000 16:01:07 +0200</td>
-	</tr>
-	<tr>
-		<td class="sq-backend-table-cell">s</td>
-		<td class="sq-backend-table-cell">Seconds, with leading zeros</td>
-		<td class="sq-backend-table-cell">00 through 59</td>
-	</tr>
-	<tr>
-		<td class="sq-backend-table-cell">S</td>
-		<td class="sq-backend-table-cell">English ordinal suffix for the day of the month, 2 characters</td>
-		<td class="sq-backend-table-cell">st, nd, rd or th. Works well with j</td>
-	</tr>
-	<tr>
-		<td class="sq-backend-table-cell">t</td>
-		<td class="sq-backend-table-cell">Number of days in the given month</td>
-		<td class="sq-backend-table-cell">28 through 31</td>
-	</tr>
-	<tr>
-		<td class="sq-backend-table-cell">T</td>
-		<td class="sq-backend-table-cell">Timezone setting of this machine</td>
-		<td class="sq-backend-table-cell">EST, MDT ...</td>
-	</tr>
-	<tr>
-		<td class="sq-backend-table-cell">U</td>
-		<td class="sq-backend-table-cell">Seconds since the Unix Epoch (January 1 1970 00:00:00 GMT)</td>
-		<td class="sq-backend-table-cell">-</td>
-	</tr>
-	<tr>
-		<td class="sq-backend-table-cell">w</td>
-		<td class="sq-backend-table-cell">Numeric representation of the day of the week</td>
-		<td class="sq-backend-table-cell">0 (for Sunday) through 6 (for Saturday)</td>
-	</tr>
-	<tr>
-		<td class="sq-backend-table-cell">W</td>
-		<td class="sq-backend-table-cell">ISO-8601 week number of year, weeks starting on Monday (added in PHP 4.1.0)</td>
-		<td class="sq-backend-table-cell">42 (the 42nd week in the year)</td>
-	</tr>
-	<tr>
-		<td class="sq-backend-table-cell">Y</td>
-		<td class="sq-backend-table-cell">A full numeric representation of a year, 4 digits</td>
-		<td class="sq-backend-table-cell">1999 or 2003</td>
-	</tr>
-	<tr>
-		<td class="sq-backend-table-cell">y</td>
-		<td class="sq-backend-table-cell">A two digit representation of a year</td>
-		<td class="sq-backend-table-cell">99 or 03</td>
-	</tr>
-	<tr>
-		<td class="sq-backend-table-cell">z</td>
-		<td class="sq-backend-table-cell">The day of the year (starting from 0)</td>
-		<td class="sq-backend-table-cell">0 through 365</td>
-	</tr>
-	<tr>
-		<td class="sq-backend-table-cell">Z</td>
-		<td class="sq-backend-table-cell">Timezone offset in seconds. The offset for timezones west of UTC is always negative, and for those east of UTC is always positive.</td>
-		<td class="sq-backend-table-cell">-43200 through 43200</td>
-	</tr>
-
-	</table>
-
+		<div id="sq-content" class="">
+			<div class="sq-backend-section-table-wrapper field wide_col">
+				<table class="sq-backend-section-table" id="backend_section_1">
+					<tr class="sq-backend-section-heading-container">
+						<td>
+							<table>
+								<tr>
+									<td class="sq-backend-section-heading">Metadata Date Format Keys</td>
+								</tr>
+							</table>
+						</td>		
+					<tr>
+					<tr>
+						<td class="sq-backend-section-inner-table-wrapper">
+							<table class="sq-backend-section-table-inner">
+								<tr class="sq-backend-row" >
+									<td class="sq-backend-data sq-backend-wide-col">
+										<p>The following characters are recognized in the format parameter string.</p>
+									</td>
+								</tr>
+								<tr>
+									<td class="sq-backend-section-inner-table-wrapper">
+										<div class="sq-backend-section-table-wrapper field wide_col">
+											<table class="sq-backend-section-table-inner">
+												<tr class="sq-backend-row">
+													<td class="sq-backend-data sq-backend-wide-col">
+														<table class="sq-backend-table compact">
+															<tr>
+																<td class="sq-backend-table-header">Format character</td>
+																<td class="sq-backend-table-header">Description</td>
+																<td class="sq-backend-table-header">Example returned values</td>
+															</tr>
+															<tr>
+																<td class="sq-backend-table-cell">a</td>
+																<td class="sq-backend-table-cell">Lowercase Ante meridiem and Post meridiem</td>
+																<td class="sq-backend-table-cell">am or pm</td>
+															</tr>
+															<tr>
+																<td class="sq-backend-table-cell">A</td>
+																<td class="sq-backend-table-cell">Uppercase Ante meridiem and Post meridiem</td>
+																<td class="sq-backend-table-cell">AM or PM</td>
+															</tr>
+															<tr>
+																<td class="sq-backend-table-cell">B</td>
+																<td class="sq-backend-table-cell">Swatch Internet time</td>
+																<td class="sq-backend-table-cell">000 through 999</td>
+															</tr>
+															<tr>
+																<td class="sq-backend-table-cell">d</td>
+																<td class="sq-backend-table-cell">Day of the month, 2 digits with leading zeros</td>
+																<td class="sq-backend-table-cell">01 to 31</td>
+															</tr>
+															<tr>
+																<td class="sq-backend-table-cell">D</td>
+																<td class="sq-backend-table-cell">A textual representation of a day, three letters</td>
+																<td class="sq-backend-table-cell">Mon through Sun</td>
+															</tr>
+															<tr>
+																<td class="sq-backend-table-cell">F</td>
+																<td class="sq-backend-table-cell">A full textual representation of a month, such as January or March</td>
+																<td class="sq-backend-table-cell">January through December</td>
+															</tr>
+															<tr>
+																<td class="sq-backend-table-cell">g</td>
+																<td class="sq-backend-table-cell">12-hour format of an hour without leading zeros</td>
+																<td class="sq-backend-table-cell">1 through 12</td>
+															</tr>
+															<tr>
+																<td class="sq-backend-table-cell">G</td>
+																<td class="sq-backend-table-cell">24-hour format of an hour without leading zeros</td>
+																<td class="sq-backend-table-cell">0 through 23</td>
+															</tr>
+															<tr>
+																<td class="sq-backend-table-cell">h</td>
+																<td class="sq-backend-table-cell">12-hour format of an hour with leading zeros</td>
+																<td class="sq-backend-table-cell">01 through 12</td>
+															</tr>
+															<tr>
+																<td class="sq-backend-table-cell">H</td>
+																<td class="sq-backend-table-cell">24-hour format of an hour with leading zeros</td>
+																<td class="sq-backend-table-cell">00 through 23</td>
+															</tr>
+															<tr>
+																<td class="sq-backend-table-cell">i</td>
+																<td class="sq-backend-table-cell">Minutes with leading zeros</td>
+																<td class="sq-backend-table-cell">00 to 59</td>
+															</tr>
+															<tr>
+																<td class="sq-backend-table-cell">I (capital 'i')</td>
+																<td class="sq-backend-table-cell">Whether or not the date is in daylights savings time</td>
+																<td class="sq-backend-table-cell">1 if Daylight Savings Time, 0 otherwise</td>
+															</tr>
+															<tr>
+																<td class="sq-backend-table-cell">j</td>
+																<td class="sq-backend-table-cell">Day of the month without leading zeros</td>
+																<td class="sq-backend-table-cell">1 to 31</td>
+															</tr>
+															<tr>
+																<td class="sq-backend-table-cell">l (lowercase 'L')</td>
+																<td class="sq-backend-table-cell">A full textual representation of the day of the week</td>
+																<td class="sq-backend-table-cell">Sunday through Saturday</td>
+															</tr>
+															<tr>
+																<td class="sq-backend-table-cell">L</td>
+																<td class="sq-backend-table-cell">Whether it's a leap year</td>
+																<td class="sq-backend-table-cell">1 if it is a leap year, 0 otherwise.</td>
+															</tr>
+															<tr>
+																<td class="sq-backend-table-cell">m</td>
+																<td class="sq-backend-table-cell">Numeric representation of a month, with leading zeros</td>
+																<td class="sq-backend-table-cell">01 through 12</td>
+															</tr>
+															<tr>
+																<td class="sq-backend-table-cell">M</td>
+																<td class="sq-backend-table-cell">A short textual representation of a month, three letters</td>
+																<td class="sq-backend-table-cell">Jan through Dec</td>
+															</tr>
+															<tr>
+																<td class="sq-backend-table-cell">n</td>
+																<td class="sq-backend-table-cell">Numeric representation of a month, without leading zeros</td>
+																<td class="sq-backend-table-cell">1 through 12</td>
+															</tr>
+															<tr>
+																<td class="sq-backend-table-cell">O</td>
+																<td class="sq-backend-table-cell">Difference to Greenwich time (GMT) in hours</td>
+																<td class="sq-backend-table-cell">Example: +0200</td>
+															</tr>
+															<tr>
+																<td class="sq-backend-table-cell">r</td>
+																<td class="sq-backend-table-cell">RFC 822 formatted date</td>
+																<td class="sq-backend-table-cell">Example: Thu, 21 Dec 2000 16:01:07 +0200</td>
+															</tr>
+															<tr>
+																<td class="sq-backend-table-cell">s</td>
+																<td class="sq-backend-table-cell">Seconds, with leading zeros</td>
+																<td class="sq-backend-table-cell">00 through 59</td>
+															</tr>
+															<tr>
+																<td class="sq-backend-table-cell">S</td>
+																<td class="sq-backend-table-cell">English ordinal suffix for the day of the month, 2 characters</td>
+																<td class="sq-backend-table-cell">st, nd, rd or th. Works well with j</td>
+															</tr>
+															<tr>
+																<td class="sq-backend-table-cell">t</td>
+																<td class="sq-backend-table-cell">Number of days in the given month</td>
+																<td class="sq-backend-table-cell">28 through 31</td>
+															</tr>
+															<tr>
+																<td class="sq-backend-table-cell">T</td>
+																<td class="sq-backend-table-cell">Timezone setting of this machine</td>
+																<td class="sq-backend-table-cell">EST, MDT ...</td>
+															</tr>
+															<tr>
+																<td class="sq-backend-table-cell">U</td>
+																<td class="sq-backend-table-cell">Seconds since the Unix Epoch (January 1 1970 00:00:00 GMT)</td>
+																<td class="sq-backend-table-cell">-</td>
+															</tr>
+															<tr>
+																<td class="sq-backend-table-cell">w</td>
+																<td class="sq-backend-table-cell">Numeric representation of the day of the week</td>
+																<td class="sq-backend-table-cell">0 (for Sunday) through 6 (for Saturday)</td>
+															</tr>
+															<tr>
+																<td class="sq-backend-table-cell">W</td>
+																<td class="sq-backend-table-cell">ISO-8601 week number of year, weeks starting on Monday (added in PHP 4.1.0)</td>
+																<td class="sq-backend-table-cell">42 (the 42nd week in the year)</td>
+															</tr>
+															<tr>
+																<td class="sq-backend-table-cell">Y</td>
+																<td class="sq-backend-table-cell">A full numeric representation of a year, 4 digits</td>
+																<td class="sq-backend-table-cell">1999 or 2003</td>
+															</tr>
+															<tr>
+																<td class="sq-backend-table-cell">y</td>
+																<td class="sq-backend-table-cell">A two digit representation of a year</td>
+																<td class="sq-backend-table-cell">99 or 03</td>
+															</tr>
+															<tr>
+																<td class="sq-backend-table-cell">z</td>
+																<td class="sq-backend-table-cell">The day of the year (starting from 0)</td>
+																<td class="sq-backend-table-cell">0 through 365</td>
+															</tr>
+															<tr>
+																<td class="sq-backend-table-cell">Z</td>
+																<td class="sq-backend-table-cell">Timezone offset in seconds. The offset for timezones west of UTC is always negative, and for those east of UTC is always positive.</td>
+																<td class="sq-backend-table-cell">-43200 through 43200</td>
+															</tr>
+														</table>
+													</td>
+												</tr>
+											</table>
+										</div>
+									</td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</div>
 	</body>
 </html>

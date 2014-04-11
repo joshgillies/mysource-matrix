@@ -196,26 +196,28 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 
 		if (!$read_only) {
 			?>
-				<div id="option-list-<?php echo $prefix; ?>">
-				<?php
-				$order = 0;
-				if (count($value) > 0) {
-					foreach ($value as $k => $v) {
-						$k = html_entity_decode($k, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
-						$v = html_entity_decode($v, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
-						$printup = ($order < 1) ? FALSE : TRUE;
-						$this->_printOptionField($k, $v, $order, $prefix, 20, $printup);
+				<div id="option-list-<?php echo $prefix; ?>" class="sq-option-list">
+					<label class="sq-option-list-header value" for="<?php echo $prefix; ?>_options_keys[0]"><?php echo translate('value'); ?></label><label class="sq-option-list-header text" for="<?php echo $prefix; ?>_options[0]"><?php echo translate('text'); ?></label> 
+					<br/>
+					<?php
+					$order = 0;
+					if (count($value) > 0) {
+						foreach ($value as $k => $v) {
+							$k = html_entity_decode($k, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
+							$v = html_entity_decode($v, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
+							$printup = ($order < 1) ? FALSE : TRUE;
+							$this->_printOptionField($k, $v, $order, $prefix, 30, $printup);
+							$order++;
+						}
+					}
+					for ($i = 0; $i < 2; $i++) {
+						$k = '';
+						$v = '';
+						$printdown = ($i < 1) ? TRUE : FALSE;
+						$this->_printOptionField($k, $v, $order, $prefix, 30, TRUE, $printdown);
 						$order++;
 					}
-				}
-				for ($i = 0; $i < 2; $i++) {
-					$k = '';
-					$v = '';
-					$printdown = ($i < 1) ? TRUE : FALSE;
-					$this->_printOptionField($k, $v, $order, $prefix, 20, TRUE, $printdown);
-					$order++;
-				}
-				?>
+					?>
 			</div>
 			<script type="text/javascript">
 			<?php
@@ -498,7 +500,28 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 		<?php
 	} else {
 		if (count($value) > 0) {
-			echo '<ul><li>'.html_entity_decode(implode('</li><li>', $value), ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET).'</li></ul>';
+			?>
+			<table class="sq-backend-table compact" style="width: auto;">
+				<tr>
+					<th><?php echo translate('value'); ?></th>
+					<th><?php echo translate('text'); ?></th>
+				</tr>
+				<?php
+				foreach ($value as $k => $v) {
+					$k = html_entity_decode($k, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
+					$v = html_entity_decode($v, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
+					?>
+					<tr>
+						<td><?php echo $k; ?></td>
+						<td><?php echo $v; ?></td>
+					</tr>
+					<?php
+				}
+				?>
+			</table>
+			<?php
+		} else {
+			echo '<em>'.translate('no_options_entered').'</em>';
 		}
 	}
 
@@ -629,8 +652,8 @@ function processOptions(&$asset, &$o, $prefix)
 
 		// Show the field
 		?>
-		<input type="text"  name="<?php echo $prefix; ?>_options_keys[]" value="<?php echo $key; ?>" id="<?php echo $prefix; ?>_options_keys[<?php echo $order; ?>]" size="<?=$key_size; ?>" />
-		<input type="text"  name="<?php echo $prefix; ?>_options[]" value="<?php echo $value; ?>" id="<?php echo $prefix; ?>_options[<?php echo $order; ?>]" size="<?=$size; ?>" />
+		<input type="text" class="sq-option-value" name="<?php echo $prefix; ?>_options_keys[]" value="<?php echo $key; ?>" id="<?php echo $prefix; ?>_options_keys[<?php echo $order; ?>]" size="<?=$size; ?>" />
+		<input type="text" class="sq-option-text" name="<?php echo $prefix; ?>_options[]" value="<?php echo $value; ?>" id="<?php echo $prefix; ?>_options[<?php echo $order; ?>]" size="<?=$size; ?>" />
 		<button type="button" tabindex="99999" class="delete-button">&nbsp;</button>
 		<?php
 			if ($showup) {
