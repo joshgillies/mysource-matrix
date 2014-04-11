@@ -396,7 +396,7 @@ class Internal_Message extends MySource_Object
 
 					// prepare the message content
 					$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
-					if (is_null($user)  || !($user instanceof User) || !$user->canAccessBackend()) continue;
+					if (is_null($user)  || !($user instanceof User) || !$user->canAccessBackend() || !$user->canLogin()) continue;
 					$user_locale = $user->attr('locale');
 					if (empty($user_locale)) {
 						$user_locale = SQ_CONF_DEFAULT_BACKEND_LOCALE;
@@ -633,7 +633,7 @@ class Internal_Message extends MySource_Object
 
 							case 'locking' :
 								if (isset($type[2]) && $type[2] == 'forced') {
-									$this->to += Array($this->parameters['former_userid']);
+									$this->to = array_merge($this->to, Array($this->parameters['former_userid']));
 								}
 							break;
 						}//end switch
@@ -649,7 +649,7 @@ class Internal_Message extends MySource_Object
 							trigger_localised_error('SYS0167', E_USER_WARNING, $this->parameters['assetid'], $this->type);
 						}
 
-						$this->to += $GLOBALS['SQ_SYSTEM']->am->getPermission($asset->id, SQ_PERMISSION_ADMIN, true, false);
+						$this->to = array_merge($this->to, $GLOBALS['SQ_SYSTEM']->am->getPermission($asset->id, SQ_PERMISSION_ADMIN, true, false));
 						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 					}
 				break;
@@ -658,7 +658,7 @@ class Internal_Message extends MySource_Object
 				case 'hipo'   :
 					// send config changes to the DEFAULT and TECH emails and to the Root User
 					$root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
-					$this->to += Array(0, $root_user->id);
+					$this->to = array_merge($this->to, Array(0, $root_user->id));
 				break;
 
 			}//end switch
