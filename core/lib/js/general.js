@@ -395,3 +395,24 @@ function vsprintf() {
 	return (txt);
 
 }//end vsprintf()
+
+
+/**
+* Handles the interactions of a toggle element by adding and removing classes to each toggle element.
+* Adds a class to the clicked toggle element and removes any selected classes of other active toggle elements.
+*
+* @param the_toggler		The element that was clicked on within the toggler wrapper			
+* 
+* @return boolean
+*/
+function sq_handle_toggle(the_toggler) {
+	//Update class names on the toggles
+	toggleElements = the_toggler.parentNode.getElementsByTagName('a');
+	for (var i in toggleElements) {
+		if (toggleElements[i].className == 'selected') {
+			toggleElements[i].className = '';
+		}
+	}
+	the_toggler.className = 'selected';
+	return false;
+}//end sprintf()

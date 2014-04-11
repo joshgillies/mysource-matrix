@@ -121,7 +121,13 @@ class Form_Question_Type_Tickbox_List_Edit_Fns extends Form_Question_Edit_Fns
 	*/
 	function paintOptions(&$asset, &$o, $prefix)
 	{
+
 		$write_access = $asset->writeAccess('attributes');
+		if ($write_access) {
+			?>
+			<label class="sq-option-list-header" for="<?php echo $prefix; ?>_option_list_options[0]"><?php echo translate('label'); ?></label>
+			<?php
+		}
 		require_once(SQ_ATTRIBUTES_PATH.'/option_list/option_list.inc');
 		$option_list = new Asset_Attribute_Option_List(0, $asset->attr('options'));
 		$option_list->paint($prefix.'_option_list', !$write_access, FALSE);
