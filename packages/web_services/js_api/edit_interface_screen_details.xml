@@ -71,6 +71,11 @@
         </field>	
 	</section>	
     <section name="Core" write_access="write:attributes">
+        <field>
+			<function_call>
+				<paint_function   name="paintSetAll"  />
+			</function_call>
+        </field>	
 		<field attribute="create_asset">
 			<boolean true_text="yes" false_text="no" />
 		</field>
@@ -131,6 +136,11 @@
 	</section>
 
     <section name="Linking" write_access="write:attributes">
+        <field>
+			<function_call>
+				<paint_function   name="paintSetAll"  />
+			</function_call>
+        </field>
 		<field attribute="create_link">
 			<boolean true_text="yes" false_text="no" />
 		</field>
@@ -160,6 +170,11 @@
 	</section>
 
     <section name="Traversing" write_access="write:attributes">
+        <field>
+			<function_call>
+				<paint_function   name="paintSetAll"  />
+			</function_call>
+        </field>
 		<field attribute="get_parents">
 			<boolean true_text="yes" false_text="no" />
 		</field>
@@ -181,6 +196,11 @@
 
 	</section>	
     <section name="Metadata" write_access="write:attributes">
+        <field>
+			<function_call>
+				<paint_function   name="paintSetAll"  />
+			</function_call>
+        </field>
 		<field attribute="get_metadata">
 			<boolean true_text="yes" false_text="no" />
 		</field>
@@ -195,6 +215,11 @@
 		</field>
 	</section>	
     <section name="Contexts" write_access="write:attributes">
+        <field>
+			<function_call>
+				<paint_function   name="paintSetAll"  />
+			</function_call>
+        </field>
 		<field attribute="get_context">
 			<boolean true_text="yes" false_text="no" />
 		</field>

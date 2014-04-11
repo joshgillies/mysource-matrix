@@ -88,6 +88,13 @@
         </field>
     </section>
     <section name="Core" write_access="write:attributes">
+        <field>
+            <display_name>Set All To</display_name>
+            <note />
+            <function_call>
+                <paint_function   name="paintSetAll"  />
+            </function_call>
+        </field>
         <field attribute="create_asset">
             <display_name>Create Asset</display_name>
             <note />
@@ -166,6 +173,13 @@
 		</field>
    </section>
     <section name="Linking" write_access="write:attributes">
+        <field>
+            <display_name>Set All To</display_name>
+            <note />
+            <function_call>
+                <paint_function   name="paintSetAll"  />
+            </function_call>
+        </field>
         <field attribute="create_link">
             <display_name>Create Link</display_name>
             <note />
@@ -200,6 +214,13 @@
         </field>
 	</section>
     <section name="Traversing" write_access="write:attributes">
+        <field>
+            <display_name>Set All To</display_name>
+            <note />
+            <function_call>
+                <paint_function   name="paintSetAll"  />
+            </function_call>
+        </field>
         <field attribute="get_parents">
             <display_name>Get Parents</display_name>
             <note />
@@ -226,6 +247,13 @@
         </field>
     </section>
     <section name="Metadata" write_access="write:attributes">
+        <field>
+            <display_name>Set All To</display_name>
+            <note />
+            <function_call>
+                <paint_function   name="paintSetAll"  />
+            </function_call>
+        </field>
         <field attribute="get_metadata">
             <display_name>Get Metadata</display_name>
             <note />
@@ -242,6 +270,13 @@
 		</field>
     </section>
     <section name="Contexts" write_access="write:attributes">
+        <field>
+            <display_name>Set All To</display_name>
+            <note />
+            <function_call>
+                <paint_function   name="paintSetAll"  />
+            </function_call>
+        </field>
         <field attribute="get_context">
             <display_name>Get Contexts</display_name>
             <note />
