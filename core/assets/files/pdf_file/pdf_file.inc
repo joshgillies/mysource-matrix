@@ -107,9 +107,6 @@ class PDF_File extends File
 
 				    fclose($pipes[0]);
 
-				    $content = stream_get_contents($pipes[1]);
-				    fclose($pipes[1]);
-
 				    // Find the errors ... do NOT throw to output
 				    $errors = stream_get_contents($pipes[2]);
 				    fclose($pipes[2]);
@@ -118,7 +115,9 @@ class PDF_File extends File
 					    log_error('Error occurred while getting contents for pdf File Asset #'.$this->id.' : '.trim(implode(', ', $errors), ', '), E_USER_WARNING);
 				    }//end if
 
-
+					// Get the content from stdout after getting the content from stderr
+				    $content = stream_get_contents($pipes[1]);
+				    fclose($pipes[1]);
 
 				    // Finally, get the status of this command
 				    $status = proc_close($process);
