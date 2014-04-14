@@ -115,7 +115,7 @@ class Bodycopy extends Asset
 	/**
 	* Perform any additional processing required during the creation of this asset
 	*
-	* Bodycopies create a DIV when they are created
+	* Bodycopies create a content container when they are created
 	*
 	* @param array	&$link	information used to create the initial link
 	*
@@ -134,7 +134,7 @@ class Bodycopy extends Asset
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy_div');
 		$bodycopy_div = new Bodycopy_DIV();
 		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'value' => '', 'sort_order' => 1, 'is_dependant' => 1);
-		$bodycopy_div->setAttrValue('name', 'Content DIV');
+		$bodycopy_div->setAttrValue('name', 'Content Container');
 		$create_success = $bodycopy_div->create($copy_link, $bc_data);
 		return $create_success;
 
