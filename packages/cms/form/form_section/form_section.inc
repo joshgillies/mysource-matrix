@@ -1536,6 +1536,7 @@ class Form_Section extends Asset implements Bridge
 			$keywords['question_note_'.$this->id.'_q'.$shadowid]  = 'Question Note: '.ellipsisize($question['attributes']['name'], 30).' ('.$this->id.':q'.$shadowid.')';
 			$keywords['question_label_'.$this->id.'_q'.$shadowid] = 'Question Label: '.ellipsisize($question['attributes']['name'], 30).' ('.$this->id.':q'.$shadowid.')';
 			$keywords['question_error_'.$this->id.'_q'.$shadowid] = 'Question Error: '.ellipsisize($question['attributes']['name'], 30).' ('.$this->id.':q'.$shadowid.')';
+			$keywords['question_contents_'.$this->id.'_q'.$shadowid] = 'Question Content: '.ellipsisize($question['attributes']['name'], 30).' ('.$this->id.':q'.$shadowid.')';
 		}
 
 		foreach ($GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'form_section', FALSE) as $link) {
@@ -1628,12 +1629,27 @@ class Form_Section extends Asset implements Bridge
 				$keywords['question_name_'.$this->id.'_q'.$shadowid]  = '<'.'?php echo $GLOBALS[\'SQ_SYSTEM\']->am->getAsset(\''.$assetid.'\')->attr(\'name\'); ?'.'>';
 				$keywords['question_id_'.$this->id.'_q'.$shadowid]    = $assetid;
 				$keywords['question_label_'.$this->id.'_q'.$shadowid] = '<'.'?php echo $GLOBALS[\'SQ_SYSTEM\']->am->getAsset(\''.$assetid.'\')->getHtmlLabel(); ?'.'>';
+				$keywords['question_error_'.$this->id.'_q'.$shadowid]    = '<'.'?php 
+					if(isset($form_asset->question_errors[$question->id])) {
+						$errors = $form_asset->question_errors[$question->id];
+						$error = array_pop($errors);
+						echo $error;
+					}
+				 ?'.'>';
+				$keywords['question_contents_'.$this->id.'_q'.$shadowid] = $this->getQuestionContentReplacement(TRUE, $q->id);
 			} else {
 				$keywords['question_field_'.$this->id.'_q'.$shadowid] = $q->getHtmlField();
 				$keywords['question_note_'.$this->id.'_q'.$shadowid]  = $q->attr('note');
 				$keywords['question_name_'.$this->id.'_q'.$shadowid]  = $q->attr('name');
 				$keywords['question_id_'.$this->id.'_q'.$shadowid]    = $assetid;
 				$keywords['question_label_'.$this->id.'_q'.$shadowid] = $q->getHtmlLabel();
+				$parent_form = $this->getParentForm();
+				if(isset($parent_form->question_errors[$q->id])) {
+					$errors = $parent_form->question_errors[$q->id];
+					$error = array_pop($errors);
+					$keywords['question_error_'.$this->id.'_q'.$shadowid]    = $error;
+				}
+				$keywords['question_contents_'.$this->id.'_q'.$shadowid] = $this->getQuestionContentReplacement(FALSE, $q->id);
 			}
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($q);
 			unset($q);
@@ -1748,6 +1764,87 @@ class Form_Section extends Asset implements Bridge
 	    return $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_form_id);
 
 	}//end getParentForm
+
+
+	/**
+	* Get the output/keyword replacement for question content including label input and everything
+	* @param boolean	$generating	if it's for generating a file or dynamic replacement
+	* @param int        $assetid    assetid of the question
+	*
+	* @return string
+	* @access public
+	*/
+	function getQuestionContentReplacement($generating=FALSE, $assetid)
+	{
+		$output = '';
+		$q = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		// skip over if asset doesn't exist anymore
+		if (is_null($q)) return '';
+
+		$type = str_replace('_', '-', str_replace('form_question_type_', '', $q->type()));
+		// use fieldset to group complex questions
+		$isFieldset = $q->useFieldset();
+
+		if($generating) {
+			$output .= '<'.'?php $question = $GLOBALS["SQ_SYSTEM"]->am->getAsset("'.$assetid.'"); ?'.'>'."\n";
+			
+			// add error class
+			$output .= '<'.'?php 
+			$error_class = isset($form_asset->question_errors[$question->id]) ? "sq-form-question-error" : "";
+			?'.'>'."\n";
+			// question wrapper
+			$output .= '<div class="sq-form-question sq-form-question-'.$type.' <?php echo $error_class; ?>">';
+			if($isFieldset)
+				$output .= '<fieldset>';
+			// label
+			$label   = $q->getHtmlLabel();
+			$label .= ' ';
+			escape_php($label);
+			$output .= $label;
+				    // note
+			if ($q->getVal('note')) {
+				$output .= '<em class="sq-form-question-note">'.$q->getVal('note').'</em> ';
+			}
+			// question content
+			$output .= '<div class="sq-form-question-answer" ><'.'?php echo $question->getHtmlField(); ?'.'></div>'."\n";
+			// question error
+			$output .= '<'.'?php 
+			if(isset($form_asset->question_errors[$question->id])) {
+				$errors = $form_asset->question_errors[$question->id];
+				$error = array_pop($errors);
+				echo " <p id=\"error_".str_replace(":", "_", $question->id)."\" class=\"sq-form-error\"  >".$error."</p>";
+			}
+			?'.'>'."\n";
+			if($isFieldset)
+				$output .= '</fieldset>';
+			$output .= '</div>';
+		}
+		else {
+			$parent_form = $this->getParentForm();
+			$is_error = isset($parent_form->question_errors[$q->id]);
+			$error_class = $is_error ? 'sq-form-question-error' : '';
+
+			$output .= '<div class="sq-form-question sq-form-question-'.$type.' '.$error_class.'">';
+			if($isFieldset)	$output .= '<fieldset>';
+			$label   = $q->getHtmlLabel();
+			$output .= $label.' ';
+			// note
+			if ($q->attr('note')) {
+				$output .= '<em class="sq-form-question-note">'.$q->attr('note').'</em> ';
+			}
+			// question content
+			$output .= '<div class="sq-form-question-answer" >'.$q->getHtmlField().'</div>'."\n";
+			if($is_error) {
+				$errors = $parent_form->question_errors[$q->id];
+				$error = array_pop($errors);
+				$output .= ' <p id="error_'.str_replace(":", "_", $q->id).'\" class="sq-form-error"  >'.$error.'</p>';
+			}
+			if($isFieldset) $output .= '</fieldset>';
+			$output .= '</div>';
+		}
+		return $output;
+	}//end getQuestionContentReplacement()
+
 
 
 }//end class
