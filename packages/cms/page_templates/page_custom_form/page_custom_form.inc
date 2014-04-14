@@ -143,6 +143,49 @@ class Page_Custom_Form extends Page
 
 
 	/**
+	* Returns the editable content of this asset
+	*
+	* @return string
+	* @access public
+	*/
+	function getContent()
+	{
+		// Editable content of all the Custom Form's bodycopies
+		$content = '';
+
+		$form = $this->getForm();
+		if (!is_null($form)) {
+			$bodycopy = $form->getBodycopy('Page Contents');
+			$folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($form->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'bodycopies_folder');
+			if (!empty($folder_link['minorid'])) {
+				$bodycopy_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($folder_link['minorid'], SQ_LINK_TYPE_2, 'bodycopy');
+			}
+			foreach($bodycopy_links as $link) {
+				if (!empty($link['minorid'])) {
+					$bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
+					if (!is_null($bodycopy)) {
+						$content .= ' '.$bodycopy->getContent();
+					}
+				}//end if
+			}//end foreach
+		}//end if
+
+		$form_sections = $form->getAllSections();
+		foreach($form_sections as $section) {
+			if (!is_null($section)) {
+				$section_bodycopy = $section->getFormatBodycopy();
+				if (!is_null($section_bodycopy)) {
+					$content .= ' '.$section_bodycopy->getContent();
+				}//end if
+			}//end if
+		}//end foreach
+
+		return $content;
+
+	}//end getContent()
+
+
+	/**
 	* Return the form linked to this page
 	*
 	* @return object
@@ -163,7 +206,6 @@ class Page_Custom_Form extends Page
 	}//end getForm()
 
 
-	
 	/**
 	 * Allow form page to replace response keywords from its form
 	 *
