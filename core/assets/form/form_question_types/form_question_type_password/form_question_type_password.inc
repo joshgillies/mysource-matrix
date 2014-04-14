@@ -287,10 +287,7 @@ class Form_Question_Type_Password extends Form_Question
 	{
 		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
 		if($form->useAccessibleFormat()) {
-		    $required_mark = '';
-		    if($this->attr('is_required')) {
-			$required_mark = $form->getRequiredFieldMark();
-		    }
+		    $required_mark = $form->getRequiredFieldMark();
 		    return '<legend class="sq-form-question-title">'.$this->attr('name').$required_mark.'</legend>';
 		}
 		else {

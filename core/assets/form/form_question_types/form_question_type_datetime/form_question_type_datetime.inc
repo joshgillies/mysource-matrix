@@ -560,7 +560,15 @@ class Form_Question_Type_Datetime extends Form_Question
 		$form = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
 		if($form->useAccessibleFormat()) {
 		    $required_mark = '';
-		    if($this->attr('is_required')) {
+		    $is_required = FALSE;
+		    $required_fields = $this->attr('null');
+			$show_params = $this->attr('show');
+			foreach ($required_fields as $field => $required) {
+				if ($required != '1' && $show_params[$field] == '1') {
+					$is_required = TRUE;
+				}
+			}
+		    if($is_required) {
 			$required_mark = $form->getRequiredFieldMark();
 		    }
 		    return '<legend class="sq-form-question-title">'.$this->attr('name').$required_mark.'</legend>';
