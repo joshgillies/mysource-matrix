@@ -4394,6 +4394,7 @@ class Form extends Asset implements Bridge
 			$keywords['question_note_' .$keyword_assetid] = translate('cms_form_section_q_note',  $parent->attr('name'), ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
 			$keywords['question_label_'.$keyword_assetid] = translate('cms_form_section_q_label', $parent->attr('name'), ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
 			$keywords['question_error_'.$keyword_assetid] = translate('cms_form_section_q_error', $parent->attr('name'), ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
+			$keywords['question_contents_'.$keyword_assetid] = translate('cms_form_question_contents', $parent->attr('name'), ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
 		} else {
 			$keywords['question_field_' .$keyword_assetid] = translate('cms_form_question_field',  ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
 			$keywords['question_name_' .$keyword_assetid] = translate('cms_form_question_name',  ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
@@ -4401,6 +4402,7 @@ class Form extends Asset implements Bridge
 			$keywords['question_note_' .$keyword_assetid] = translate('cms_form_question_note',  ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
 			$keywords['question_label_'.$keyword_assetid] = translate('cms_form_question_label', ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
 			$keywords['question_error_'.$keyword_assetid] = translate('cms_form_question_error', ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
+			$keywords['question_contents_'.$keyword_assetid] = translate('cms_form_question_contents', ellipsisize($question->attr('name'), 30)).' ('.$question->id.')';
 		}
 
 		return $keywords;
@@ -4534,6 +4536,11 @@ class Form extends Asset implements Bridge
 			$assetid = str_replace('_', ':', $assetid);
 
 			$question_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			$isFieldset = $question_asset->useFieldset();
+			$type = str_replace('_', '-', str_replace('form_question_type_', '', $question_asset->type()));
+			$is_error = isset($this->question_errors[$question_asset->id]);
+			$error_class = $is_error ? 'sq-form-question-error' : '';
+
 
 			if (!empty($question_asset)) {
 
@@ -4558,11 +4565,30 @@ class Form extends Asset implements Bridge
 						$replacement = $question_asset->getHtmlLabel();
 					break;
 				    
-				    	case 'error' :
-						if(isset($this->question_errors[$question_asset->id])) {
+				    case 'error' :
+						if($is_error) {
 						    $errors = $this->question_errors[$question_asset->id];
 						    $replacement = array_pop($errors);
 						}
+					break;
+					case 'contents' :
+						$replacement .= '<div class="sq-form-question sq-form-question-'.$type.' '.$error_class.'">';
+						if($isFieldset)	$replacement .= '<fieldset>';
+						$label   = $question_asset->getHtmlLabel();
+						$replacement .= $label.' ';
+						 // note
+					    if ($question_asset->attr('note')) {
+						    $replacement .= '<em class="sq-form-question-note">'.$question_asset->attr('note').'</em> ';
+					    }
+					    // question content
+				    	$replacement .= '<div class="sq-form-question-answer" >'.$question_asset->getHtmlField().'</div>'."\n";
+				    	if($is_error) {
+						    $errors = $this->question_errors[$question_asset->id];
+						    $error = array_pop($errors);
+				    		$replacement .= ' <p id="error_'.str_replace(":", "_", $question_asset->id).'\" class="sq-form-error"  >'.$error.'</p>';
+				    	}
+				    	if($isFieldset) $replacement .= '</fieldset>';
+				    	$replacement .= '</div>';
 					break;
 
 				}//end switch
