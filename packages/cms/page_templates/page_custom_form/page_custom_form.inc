@@ -160,25 +160,29 @@ class Page_Custom_Form extends Page
 			if (!empty($folder_link['minorid'])) {
 				$bodycopy_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($folder_link['minorid'], SQ_LINK_TYPE_2, 'bodycopy');
 			}
-			foreach($bodycopy_links as $link) {
-				if (!empty($link['minorid'])) {
-					$bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
-					if (!is_null($bodycopy)) {
-						$content .= ' '.$bodycopy->getContent();
-					}
-				}//end if
-			}//end foreach
+			if (!empty($bodycopy_links)) {
+				foreach($bodycopy_links as $link) {
+					if (!empty($link['minorid'])) {
+						$bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
+						if (!is_null($bodycopy)) {
+							$content .= ' '.$bodycopy->getContent();
+						}
+					}//end if
+				}//end foreach
+			}//end if
 		}//end if
 
 		$form_sections = $form->getAllSections();
-		foreach($form_sections as $section) {
-			if (!is_null($section)) {
-				$section_bodycopy = $section->getFormatBodycopy();
-				if (!is_null($section_bodycopy)) {
-					$content .= ' '.$section_bodycopy->getContent();
+		if (!empty($form_sections)) {
+			foreach($form_sections as $section) {
+				if (!is_null($section)) {
+					$section_bodycopy = $section->getFormatBodycopy();
+					if (!is_null($section_bodycopy)) {
+						$content .= ' '.$section_bodycopy->getContent();
+					}//end if
 				}//end if
-			}//end if
-		}//end foreach
+			}//end foreach
+		}//end if
 
 		return $content;
 
