@@ -919,8 +919,12 @@ class User_Prefs extends Prefs
 				$asset_map_settings1 = $asset_map_settings2;
 				$asset_map_settings2 = '';
 			}
-
-			$res['SQ_USER_ASSET_MAP_LINEAGE']['default'] = $asset_map_settings1;
+			
+			if (is_array($res['SQ_USER_ASSET_MAP_LINEAGE'])) {
+				$res['SQ_USER_ASSET_MAP_LINEAGE']['default'] = $asset_map_settings1;
+			} else {
+				$res['SQ_USER_ASSET_MAP_LINEAGE'] = Array('default' => $asset_map_settings1);
+			}
 
 			if (!empty($asset_map_settings2)) {
 				$res['SQ_USER_ASSET_MAP_LINEAGE']['default'] .= ','.$asset_map_settings2;
@@ -934,7 +938,12 @@ class User_Prefs extends Prefs
 			// note that param 2 is value only
 			$safe_trash1 = $prefs1['SQ_USER_SAFE_TYPE3_TRASH']['default'];
 			$safe_trash2 = $prefs2['SQ_USER_SAFE_TYPE3_TRASH']['default'];
-			$res['SQ_USER_SAFE_TYPE3_TRASH']['default'] = ($safe_trash1 || $safe_trash2) ? TRUE : FALSE;
+			if (is_array($res['SQ_USER_SAFE_TYPE3_TRASH'])) {
+				$res['SQ_USER_SAFE_TYPE3_TRASH']['default'] = ($safe_trash1 || $safe_trash2) ? TRUE : FALSE;
+			} else {
+				$res['SQ_USER_SAFE_TYPE3_TRASH'] = Array('default' => ($safe_trash1 || $safe_trash2) ? TRUE : FALSE);
+
+			}
 
 		}
 

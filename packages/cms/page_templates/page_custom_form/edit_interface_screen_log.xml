@@ -30,7 +30,6 @@
 		<field keyword="download_button">
 			<function_call>
 				<paint_function   name="paintDownloadButton"   />
-				<process_function name="processDownloadButton" />
 			</function_call>
 		</field>
 	</section>
