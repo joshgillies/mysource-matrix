@@ -2638,7 +2638,7 @@ class Asset_Map
 			    $real_value = array_get_index($value, 'value', '');
 			    if(!is_scalar($real_value)) continue;
 			    
-			    $attributes[urlencode($name)] = urlencode($real_value);
+			    $attributes[$name] = $real_value;
 			}
 			
 			// create a new node and fill out the attributes

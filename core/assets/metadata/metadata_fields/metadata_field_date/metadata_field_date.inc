@@ -113,8 +113,8 @@ class Metadata_Field_Date extends Metadata_Field
 		if (empty($parameters)) {
 			$date = getdate();
 			$parameters = Array(
-							'min'			=> '2003-01-01 00:00:00',
-							'max'			=> ($date['year'] + 1).'-12-31 23:59:59',
+							'min'			=> $date['year'].'-01-01 00:00:00',
+							'max'			=> ($date['year'] + 10).'-12-31 23:59:59',
 							'allow_circa'	=> '0',
 							'show'			=> Array('y', 'm', 'd', 'h', 'i', 's'),
 							'null'			=> Array(),

@@ -65,6 +65,13 @@ class Page_Asset_Builder extends Page
 	var $_default_state = 'create';
 
 
+	/*
+	* If we should show Matrix error to frontend user
+	* @var boolean
+	*/
+	var $_do_not_show_error = FALSE;
+
+
 	/**
 	* Constructor
 	*
@@ -593,7 +600,13 @@ class Page_Asset_Builder extends Page
 									if (!is_null($mf_asset)) {
 										$edit_fns = $mf_asset->getEditFns();
 										$cascade = TRUE;
+										// do not show Matrix errors when processing attributes to frontend users, we will have custom error overiding it anyway
+										$this->_do_not_show_error = TRUE;
+
 										$did_process = $edit_fns->processInlineValueInterface($mf_asset, $result_value, $cascade, $create_type);
+
+										// now we can show Matrix errors if we care
+										$this->_do_not_show_error = FALSE;
 
 										// When date is not supplied for metadata date field
 										if ($mf_asset->type() == 'metadata_field_date' && $result_value == '---------- --:--:--') {
@@ -637,6 +650,11 @@ class Page_Asset_Builder extends Page
 								// Process attributes
 								$real_attribute = $new_asset->getAttribute($attr, TRUE);
 								if (is_null($real_attribute)) continue;
+
+								// do not show Matrix errors when processing attributes to frontend users, we will have custom error overiding it anyway
+								$this->_do_not_show_error = TRUE;
+
+
 								// take a copy of the attribute so we don't muck anything up for the processBackend() below
 								$attribute = clone $real_attribute;
 								$attribute->process($prefix.'_'.$attribute->id);
@@ -647,6 +665,12 @@ class Page_Asset_Builder extends Page
 								if (empty($attribute->value)) {
 									$attribute->process($prefix.'_'.$attribute->name);
 								}//end if
+
+
+
+								// now we can show Matrix errors if we care
+								$this->_do_not_show_error = FALSE;
+
 
 								if (!$attribute->processed) {
 									if (empty($error_text)) {
@@ -669,6 +693,7 @@ class Page_Asset_Builder extends Page
 						}//end foreach
 
 					}//end if
+
 
 					// stop performance mode timer
 					$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'checkRequiredFields');
@@ -1744,7 +1769,8 @@ class Page_Asset_Builder extends Page
 				log_error($text_msg, $err_no, $err_file, $err_line);
 			}
 
-			$this->_errors[] = $text_msg;
+			if(!$this->_do_not_show_error)
+				$this->_errors[] = $text_msg;
 
 		}//end error_reporting
 

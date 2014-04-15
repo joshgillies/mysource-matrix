@@ -1410,7 +1410,16 @@ class Backend extends MySource_Object
 						}
 
 						$details_url = $user->getBackendHref('details');
+						?>
 
+						<div class="myspace-toolbar-wrapper">
+							<div class="myspace-release-locks">
+								<input type="button" name="" value="Release Locks" onclick="return onReleaseAllClick(); " class="sq-btn-link sq-btn-small sq-btn-no-shadow" id="" title="<?php echo translate('locks_release_my_locks'); ?> (9999)">
+								<span>(<strong>9999</strong> <?php echo translate('locks'); ?>)</span>
+							</div>
+						</div>
+
+						<?php
 						// get all unread messages and read messages that are less than 8 hours old
 						if (!empty($inbox_url)) {
 							?>
@@ -1421,7 +1430,6 @@ class Backend extends MySource_Object
 										</td>
 										<td>
 											<p>
-
 												<span class="myspace-section-header">
 													<a href="<?php echo $_SERVER['PHP_SELF'].$inbox_url; ?>" target="sq_main"><?php echo translate('my_inbox'); ?></a>
 												</span>

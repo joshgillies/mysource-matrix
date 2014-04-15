@@ -1804,4 +1804,21 @@ function sort_compare($left, $right)
 }//end sort_compare()
 
 
+/**
+* Function for printing a set all button
+*
+* @param string	 	$text
+* @param string 	$value
+*
+* @return void
+* @access public
+*/
+function print_set_all($text, $value)
+{
+	?>
+	<a href="#" class="sq-btn-link sq-btn-small" onclick="return setAllTo(this, <?php echo $value ?>);"><?php echo $text ?></a>
+	<?php
+}//print_set_all()
+
+
 ?>

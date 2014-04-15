@@ -394,8 +394,9 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 
 			foreach ($options as $option_key => $option_name) {
 					?><div id="<?php echo $prefix; ?>_field_<?php echo $option_key ?>" class="sq-datetime-field-date-option-<?php echo $prefix; ?>" style="display: <?php echo ($option_key === $date_option) ? 'block' : 'none'; ?>;">
-					<p><?php echo $edit_fields[$option_key]; ?></p>
-					<p><em><?php echo translate('attribute_datetime_select_'.$option_key); ?></em></p></div><?php
+						<p style="margin-bottom: 0;"><?php echo $edit_fields[$option_key]; ?></p>
+						<div class="sq-backend-smallprint"><?php echo translate('attribute_datetime_select_'.$option_key); ?></div>
+					</div><?php
 			}//end foreach
 
 			if (count($edit_fields) > 1) {

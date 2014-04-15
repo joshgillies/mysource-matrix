@@ -1067,8 +1067,11 @@ class Form_Ecommerce extends Form_Email
 
 		// Link the applied promotions to the asset
 		$this->_linkPromotionAssets($order);		
-
+			
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		
+		// fire trigger ecom order submitted
+		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_ecommerce_order_submitted', $order);
 
 	}//end _saveOrderAsset()
 	
@@ -1158,7 +1161,7 @@ class Form_Ecommerce extends Form_Email
 			$folder = new Folder();
 			$folder->setAttrValue('name', 'Orders');
 
-			$folder_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'value' => 'orders_folder', 'is_dependant' => 0, 'is_exclusive' => 1);
+			$folder_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'value' => 'orders_folder', 'is_dependant' => 0, 'is_exclusive' => 0);
 
 		 	// Create order folder
             $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
@@ -1194,7 +1197,7 @@ class Form_Ecommerce extends Form_Email
 
 		// create the Order asset
 		$order = new Order();
-		$copy_link  = Array('asset' => &$folder, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
+		$copy_link  = Array('asset' => &$folder, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 0);
 
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 		$success = $order->create($copy_link);

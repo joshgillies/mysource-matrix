@@ -508,12 +508,18 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		// Bug #5460 New DIVs created in Safe Edit showing on front end before going Live. See Bodycopy_Container::saveSystemVersion().
 		$new_container->_tmp['skip_save_system_version_content_file'] = TRUE;
 
-		$new_container->setAttrValue('name', 'New '.ucfirst($type));
+		// Now that we are calling bodycopy assets content containers, we need to name newly inserted containers properly as well
+		$type_name = ucfirst($type);
+		if ($type_name == 'Div') {
+			$type_name = 'Content Container';
+		}
+
+		$new_container->setAttrValue('name', 'New '.$type_name);
 		$new_container->setAttrValue('attributes', $bc_data['attributes']);
 		$retval = (bool) $new_container->create($copy_link, $bc_data);
 		if ($retval && (!isset($bc_data['attributes']['identifier']) || trim($bc_data['attributes']['identifier']) == '')) {
 			// try and update the name to be unique - but dont stress if we couldn't update it
-			$new_container->setAttrValue('name', 'New '.ucfirst($type).' '.$new_container->id);
+			$new_container->setAttrValue('name', 'New '.$type_name.' '.$new_container->id);
 			$new_container->saveAttributes();
 		}
 

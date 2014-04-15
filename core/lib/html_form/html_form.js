@@ -902,3 +902,36 @@ function sortMoveUp(currentOrder, el_prefix, order_el)
 	current_order_el.value = temp;
 
 }//end sortMoveUp()
+
+
+/**
+* Set all fields within a table section to a specific value.
+* NOTE: This will only work if run within a table
+*
+* @param object the_button		The button that was clicked that fired this function
+* @param string	the_value		The value to change all the fields to
+*
+*/
+function setAllTo(the_button, the_value)
+{
+	//First find the nearest parent table
+	var parent_table = the_button;
+    while(parent_table.tagName.toLowerCase() != 'table') {
+        parent_table = parent_table.parentNode;
+    }
+	//Now we should have the parent table, now find all fiels that we need to change the value of and change them
+	//Select fields
+	var fields = parent_table.getElementsByTagName('SELECT');
+	for (var i=0; i<fields.length; i++) {
+		fields[i].value = the_value;
+		//Make sure we fire any onchange events that might be attached to the select fields
+		if ('createEvent' in document) {
+		    var evt = document.createEvent('HTMLEvents');
+		    evt.initEvent('change', false, true);
+		    fields[i].dispatchEvent(evt);
+		} else
+		    fields[i].fireEvent('onchange');
+		}
+
+	return false;
+}

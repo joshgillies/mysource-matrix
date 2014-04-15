@@ -63,7 +63,7 @@ class JS_Api_Edit_Fns extends Page_Edit_Fns
 		} else {
 			// print the read-only version
 			if (empty($types)) {
-				echo '<p class="sq-backend-warning">'.translate('js_api_no_asset_types_selected').'</p>';
+				echo '<p><em>'.translate('js_api_no_asset_types_selected').'.</em></p>';
 			} else {
 				$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo(array_keys($types), 'name');
 				?>
@@ -141,7 +141,7 @@ class JS_Api_Edit_Fns extends Page_Edit_Fns
 			multiple_asset_finder($prefix.'_roots', $curr_list, Array('asset' => 'D'));
 		} else {
 			if (empty($curr_list)) {
-				echo translate('js_api_no_root_nodes_selected');
+				echo '<p class="sq-backend-warning"><em>'.translate('js_api_no_root_nodes_selected').'.</em></p>';
 			} else {
 				?><ul style="margin:1px 15px;"><?php
 				foreach ($curr_list as $assetid) {
@@ -225,7 +225,7 @@ class JS_Api_Edit_Fns extends Page_Edit_Fns
 		if ($write_access) {
 			text_box($prefix.'_key', $asset->attr('api_key')); 
 		} else {
-			echo '<p class="sq-backend-warning">'.translate('js_api_api_key_lock').'</p>';
+			echo '<p><em>'.translate('js_api_api_key_lock').'.</em></p>';
 		}//end else
 
 		return $write_access;
@@ -272,7 +272,7 @@ class JS_Api_Edit_Fns extends Page_Edit_Fns
 		} else {
 			// print the read-only version
 			if (empty($types)) {
-				echo '<p class="sq-backend-warning">'.translate('js_api_no_asset_types_selected').'</p>';
+				echo '<p><em>'.translate('js_api_no_asset_types_selected').'.</em></p>';
 			} else {
 				$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo(array_keys($types), 'name');
 				?>
@@ -330,6 +330,31 @@ class JS_Api_Edit_Fns extends Page_Edit_Fns
 
 	}//end processAssetTypes()
 	
+	
+	/**
+	* Print set all buttons
+	*
+	* Print 2 input buttons. One for making all values Yes, and one for No
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintSetAll(&$asset, &$o, $prefix)
+	{
+		if ($asset->writeAccess('attributes')) {
+			echo '<span class="sq-inline-fields-wrapper">';
+			print_set_all('Yes','1');
+			print_set_all('No','0');
+			echo '</span>';
+		} 
+		
+		return FALSE;
+
+	}//end processAssetTypes()
 
 }//end class
 ?>
