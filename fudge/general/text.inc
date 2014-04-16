@@ -1138,8 +1138,6 @@ function remove_silent_chars($text, $not_indexing=FALSE, $oracle_keyword=FALSE)
 
 		// Remove at (@) and period (.) in email addresses, e.g. everyone@squiz.net => everyonesquiznet
 		// The following pattern matches most email addresses, but it will need to be review to match all email addresses
-		$email_pattern = '/([^@\s]+)@(([-a-z0-9]+\.)+[a-z]{2,})/e';
-		$text = preg_replace($email_pattern, 'str_replace(".", "", "$1").str_replace(".", "", "$2")', $text);
 		$email_pattern = '/([^@\s]+)@(([-a-z0-9]+\.)+[a-z]{2,})/';
 		$text = preg_replace_callback($email_pattern,function($m) {
 		    return str_replace('.','',$m[1]) . str_replace('.','',$m[2]);
