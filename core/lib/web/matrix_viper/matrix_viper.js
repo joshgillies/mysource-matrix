@@ -103,6 +103,10 @@ var Matrix_Viper = new function() {
 		pm.setPluginSettings('ViperInlineToolbarPlugin', {buttons: settings.inlineButtons});
 		pm.setPluginSettings('ViperToolbarPlugin', {buttons: settings.buttons});
 		pm.setPluginSettings('ViperAccessibilityPlugin', {standard: settings.standard});
+
+		// need to specify jquery url for the new window view of source code mode
+		pm.setPluginSettings('ViperSourceViewPlugin', {jqueryURL: '../__lib/web/dfx/jquery.js'});
+
 		
 		// Get the toolbar plugin and apply it to the container
 		if(settings.toolbarContainer.length >=1) {
