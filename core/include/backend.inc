@@ -94,6 +94,21 @@ class Backend extends MySource_Object
 
 		}//end if in limbo
 
+		if (array_get_index($_REQUEST, 'SQ_BACKEND_PAGE') == 'held_locks') {
+			if (isset($GLOBALS['SQ_SYSTEM']->user)) {
+				if (isset($_REQUEST['locks_count'])) {
+					// Return the number of locks held by the user
+					echo count($GLOBALS['SQ_SYSTEM']->user->getUserLocks());
+				} else if (isset($_REQUEST['release_locks'])) {
+					// Release all the held locks and return 1
+					if ($GLOBALS['SQ_SYSTEM']->user->adminAccess()) {
+						$GLOBALS['SQ_SYSTEM']->user->releaseUserLocks();
+						echo '1';
+					}
+				}
+			}
+			return;
+		}//end if "held_locks" backend request
 
 		// now we should have an assetid - if we dont there is really nothing we can do
 		// unless someone has been kind enough to give us a URL like ?a=xx
@@ -1300,6 +1315,14 @@ class Backend extends MySource_Object
         $asset_map = new Asset_Map();
         $am_width  = $GLOBALS['SQ_SYSTEM']->getUserPrefs('user', 'SQ_USER_ASSET_MAP_WIDTH');
         $asset_map->embedAssetMapRequiredJS();
+
+		// If locks can be held by the current user
+		$show_release_locks_button = FALSE;
+		if (isset($GLOBALS['SQ_SYSTEM']->user)) {
+			$locks_held = $GLOBALS['SQ_SYSTEM']->user->getUserLocks();
+			$show_release_locks_button = $locks_held !== FALSE;
+		}
+
 		?>
 
 		<script type="text/javascript">
@@ -1329,6 +1352,29 @@ class Backend extends MySource_Object
 
 				// save this tab name for next time
 				oldTabName = tabName;
+				
+				<?php
+				if ($show_release_locks_button) {
+					// Get the locks held by the currnet user
+				?>
+					if (tabName == 'my_space') {
+						console.log(tabName);
+						var xhr = new XMLHttpRequest();
+						xhr.open('GET', '<?php echo $this->getBackendUrl('held_locks').'&locks_count=1'; ?>');
+						xhr.onreadystatechange = function() {
+												if (xhr.readyState === 4) {
+													var response = xhr.responseText;
+													if (response !== null) {
+														document.getElementById("my-account-held-locks-count").innerHTML = response;
+														document.getElementById("my-account-release-locks-btn").title = "<?php echo translate('locks_release_my_locks'); ?> ("+response+")";
+													}
+									}
+								}
+								xhr.send(null);
+					}
+				<?php
+				}
+				?>
 
 			}//end switchSideNav()
 		</script>
@@ -1411,11 +1457,38 @@ class Backend extends MySource_Object
 
 						$details_url = $user->getBackendHref('details');
 						?>
+						<script type="text/javascript">
+							function onReleaseAllClick()
+							{
+								if (!document.getElementById("my-account-release-locks-btn").className.match(/(?:^|\s)loading(?!\S)/)) {
+									document.getElementById("my-account-release-locks-btn").className += ' loading';
+								}
 
+								var xhr = new XMLHttpRequest();
+								xhr.open('GET', '<?php echo $this->getBackendUrl('held_locks').'&release_locks=1'; ?>');
+								xhr.onreadystatechange = function() {
+									if (xhr.readyState === 4) {
+										var response = xhr.responseText;
+										if (response !== null && response == '1') {
+											document.getElementById("my-account-held-locks-count").innerHTML = "0";
+											document.getElementById("my-account-release-locks-btn").title = "<?php echo translate('locks_release_my_locks'); ?> (0)";
+										}
+									}
+									document.getElementById("my-account-release-locks-btn").className = document.getElementById("my-account-release-locks-btn").className.replace(/(?:^|\s)loading(?!\S)/g , '');
+								}
+								xhr.send(null);
+							}
+						</script>
 						<div class="myspace-toolbar-wrapper">
 							<div class="myspace-release-locks">
-								<input type="button" name="" value="Release Locks" onclick="return onReleaseAllClick(); " class="sq-btn-link sq-btn-small sq-btn-no-shadow" id="" title="<?php echo translate('locks_release_my_locks'); ?> (9999)">
-								<span>(<strong>9999</strong> <?php echo translate('locks'); ?>)</span>
+								<?php
+								if ($show_release_locks_button) {
+								?>
+									<input type="button" name="" value="Release Locks" onclick="return onReleaseAllClick(); " class="sq-btn-link sq-btn-small sq-btn-no-shadow" id="my-account-release-locks-btn" title="<?php echo translate('locks_release_my_locks'); ?> ()">
+									<span>(<strong><span id="my-account-held-locks-count"></span></strong> <?php echo translate('locks'); ?>)</span>
+								<?php
+								}
+								?>
 							</div>
 						</div>
 
