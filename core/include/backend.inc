@@ -1358,22 +1358,20 @@ class Backend extends MySource_Object
 					// Get the locks held by the currnet user
 				?>
 					if (tabName == 'my_space') {
-						//console.log(tabName);
+						
 						document.getElementById("my-account-held-locks-count-wrapper").className = 'loading';
-						var xhr = new XMLHttpRequest();
-						xhr.open('GET', '<?php echo $this->getBackendUrl('held_locks').'&locks_count=1'; ?>');
-						xhr.onreadystatechange = function() {
-							if (xhr.readyState === 4) {
-								var response = xhr.responseText;
+						ajax_request(
+							"<?php echo $this->getBackendUrl('held_locks').'&locks_count=1'; ?>",
+							function(response) {
 								if (response !== null) {
 									document.getElementById("my-account-held-locks-count").innerHTML = response;
 									document.getElementById("my-account-release-locks-btn").title = "<?php echo translate('locks_release_my_locks'); ?> ("+response+")";
 								}
+								document.getElementById("my-account-held-locks-count-wrapper").className = '';
 							}
-							document.getElementById("my-account-held-locks-count-wrapper").className = '';
-						}
-						xhr.send(null);
-					}
+						);
+						
+					}//end if "my_space" tab
 				<?php
 				}
 				?>
@@ -1460,23 +1458,20 @@ class Backend extends MySource_Object
 						$details_url = $user->getBackendHref('details');
 						?>
 						<script>
-							//Reelase the locks held by the current user using an ajax call
+							//Release the locks held by the current user using an ajax call
 							function onReleaseAllClick()
 							{
 								document.getElementById("my-account-held-locks-count-wrapper").className = 'loading';
-								var xhr = new XMLHttpRequest();
-								xhr.open('GET', '<?php echo $this->getBackendUrl('held_locks').'&release_locks=1'; ?>');
-								xhr.onreadystatechange = function() {
-									if (xhr.readyState === 4) {
-										var response = xhr.responseText;
+								ajax_request(
+									'<?php echo $this->getBackendUrl('held_locks').'&release_locks=1'; ?>',
+									function(response) {
 										if (response !== null && response == '1') {
 											document.getElementById("my-account-held-locks-count").innerHTML = "0";
 											document.getElementById("my-account-release-locks-btn").title = "<?php echo translate('locks_release_my_locks'); ?> (0)";
 										}
+										document.getElementById("my-account-held-locks-count-wrapper").className = '';
 									}
-									document.getElementById("my-account-held-locks-count-wrapper").className = '';
-								}
-								xhr.send(null);
+								);
 							}
 						</script>
 						<div class="myspace-toolbar-wrapper">

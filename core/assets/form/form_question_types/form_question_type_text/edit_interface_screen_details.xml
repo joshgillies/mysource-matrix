@@ -31,7 +31,7 @@
 			<text width="40" height="2" />
 		</field>
 		<field attribute="default">
-			<text width="30" height="1" />
+			<text width="40" height="2" />
 		</field>
 		<field attribute="text_type">
 			<selection style="list" />
