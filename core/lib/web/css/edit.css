@@ -2744,8 +2744,12 @@ html.resizer div{
 LEFT SIDEBAR FRAME STYLES
 ####################################################################################################################
 */
+.sq-sidenav-wrapper input[type="button"],
+.sq-sidenav-wrapper .sq-btn-link {
+	transition-property:		box-shadow, background, color, text-shadow, border; /*This is to not cause a delay in the button visibility when sidenav toggling tabs*/
+}
 
-.sq-sidenav-tab-wrapper{
+.sq-sidenav-tab-wrapper {
 	position: 					relative;
 	margin-top: 				17px;
 	margin-left: 				32px;
@@ -2828,6 +2832,25 @@ LEFT SIDEBAR FRAME STYLES
 	left: 						5px;
 }
 
+#my-account-held-locks-count-wrapper {
+	background: 				url(../images/icons/asset_map/spinner.gif) no-repeat center -100px;
+	display: 					inline-block;
+	min-width: 					20px;
+}
+
+#my-account-held-locks-count-wrapper.loading {
+	background-position: 		center left;
+}
+
+#my-account-held-locks-count-wrapper.loading span{
+	visibility: 				hidden;
+}
+
+.myspace-toolbar-wrapper {
+	position: 					absolute;
+	top: 						7px;
+	left: 						5px;
+}
 #my_space .myspace-section td{
 	vertical-align: 			top;
 }

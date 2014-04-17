@@ -1325,7 +1325,7 @@ class Backend extends MySource_Object
 
 		?>
 
-		<script type="text/javascript">
+		<script>
 			var oldTabName = 'asset_map';
 			var tabNames = Array('asset_map', 'my_space');
 
@@ -1358,19 +1358,21 @@ class Backend extends MySource_Object
 					// Get the locks held by the currnet user
 				?>
 					if (tabName == 'my_space') {
-						console.log(tabName);
+						//console.log(tabName);
+						document.getElementById("my-account-held-locks-count-wrapper").className = 'loading';
 						var xhr = new XMLHttpRequest();
 						xhr.open('GET', '<?php echo $this->getBackendUrl('held_locks').'&locks_count=1'; ?>');
 						xhr.onreadystatechange = function() {
-												if (xhr.readyState === 4) {
-													var response = xhr.responseText;
-													if (response !== null) {
-														document.getElementById("my-account-held-locks-count").innerHTML = response;
-														document.getElementById("my-account-release-locks-btn").title = "<?php echo translate('locks_release_my_locks'); ?> ("+response+")";
-													}
-									}
+							if (xhr.readyState === 4) {
+								var response = xhr.responseText;
+								if (response !== null) {
+									document.getElementById("my-account-held-locks-count").innerHTML = response;
+									document.getElementById("my-account-release-locks-btn").title = "<?php echo translate('locks_release_my_locks'); ?> ("+response+")";
 								}
-								xhr.send(null);
+							}
+							document.getElementById("my-account-held-locks-count-wrapper").className = '';
+						}
+						xhr.send(null);
 					}
 				<?php
 				}
@@ -1457,13 +1459,11 @@ class Backend extends MySource_Object
 
 						$details_url = $user->getBackendHref('details');
 						?>
-						<script type="text/javascript">
+						<script>
+							//Reelase the locks held by the current user using an ajax call
 							function onReleaseAllClick()
 							{
-								if (!document.getElementById("my-account-release-locks-btn").className.match(/(?:^|\s)loading(?!\S)/)) {
-									document.getElementById("my-account-release-locks-btn").className += ' loading';
-								}
-
+								document.getElementById("my-account-held-locks-count-wrapper").className = 'loading';
 								var xhr = new XMLHttpRequest();
 								xhr.open('GET', '<?php echo $this->getBackendUrl('held_locks').'&release_locks=1'; ?>');
 								xhr.onreadystatechange = function() {
@@ -1474,7 +1474,7 @@ class Backend extends MySource_Object
 											document.getElementById("my-account-release-locks-btn").title = "<?php echo translate('locks_release_my_locks'); ?> (0)";
 										}
 									}
-									document.getElementById("my-account-release-locks-btn").className = document.getElementById("my-account-release-locks-btn").className.replace(/(?:^|\s)loading(?!\S)/g , '');
+									document.getElementById("my-account-held-locks-count-wrapper").className = '';
 								}
 								xhr.send(null);
 							}
@@ -1484,8 +1484,10 @@ class Backend extends MySource_Object
 								<?php
 								if ($show_release_locks_button) {
 								?>
-									<input type="button" name="" value="Release Locks" onclick="return onReleaseAllClick(); " class="sq-btn-link sq-btn-small sq-btn-no-shadow" id="my-account-release-locks-btn" title="<?php echo translate('locks_release_my_locks'); ?> ()">
-									<span>(<strong><span id="my-account-held-locks-count"></span></strong> <?php echo translate('locks'); ?>)</span>
+									<input type="button" name="" value="Release Locks" onclick="return onReleaseAllClick(); " class="sq-btn-small sq-btn-no-shadow" id="my-account-release-locks-btn" title="<?php echo translate('locks_release_my_locks'); ?> ()">
+									<span id="my-account-held-locks-count-wrapper">
+										<span>(<strong><span id="my-account-held-locks-count"></span></strong> <?php echo translate('locks'); ?>)</span>
+									</span>
 								<?php
 								}
 								?>
