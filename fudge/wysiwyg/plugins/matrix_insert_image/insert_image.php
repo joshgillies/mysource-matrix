@@ -76,6 +76,8 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 
 		<script type="text/javascript">
 
+			var is_post_ie11 = Boolean(navigator.userAgent.match(/Trident\/\d{1,}[\.\d]*;/)) && navigator.appName=="Netscape";
+
 			function getFocus() {
 				setTimeout('self.focus()',100);
 			};
@@ -90,7 +92,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 			function onOK() {
 				document.getElementById('main-form').action = "";
 				document.getElementById('main-form').method = "get";
-				if (navigator.appName == "Microsoft Internet Explorer") {
+				if (navigator.appName == "Microsoft Internet Explorer" || is_post_ie11) {
 					// Hack for IE, Files don't get uploaded unless this is set a very special way
 					// ie. don't set it here !?!
 				} else {
@@ -234,13 +236,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 			function submitCreateImage() {
 				document.getElementById('main-form').action = "upload_image.php";
 				document.getElementById('main-form').method = "post";
-				if (navigator.appName == "Microsoft Internet Explorer" && navigator.userAgent.indexOf('MSIE 9') == -1) {
-					// Hack for IE, Files don't get uploaded unless this is set a very special way
-					var encType = document.getElementById('main-form').getAttributeNode("enctype");
-					encType.value = "multipart/form-data";
-				} else {
-					document.getElementById('main-form').enctype = "multipart/form-data";
-				}
+				document.getElementById('main-form').setAttribute("enctype", "multipart/form-data");
 				document.getElementById('main-form').target = "create_image_frame";
 			}
 
