@@ -33,6 +33,6 @@
 	<string source="trigger_action_urban_airship_badge_instructions">A number to set as the app icon badge number. Keywords are supported. </string>
 	<string source="trigger_action_urban_airship_service_type">Notification Service</string>
 	<string source="trigger_action_urban_airship_custom_parameters">Custom parameters</string>
-	<string source="trigger_action_urban_airship_custom_parameters_note">Additional key value pairs that will be send as part of the payload. Keywords are supported for values.</string>
+	<string source="trigger_action_urban_airship_custom_parameters_note">Additional key value pairs that will be sent as part of the payload. Keywords are supported for values.</string>
 
 </strings>
