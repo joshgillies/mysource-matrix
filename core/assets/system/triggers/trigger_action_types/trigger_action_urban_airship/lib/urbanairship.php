@@ -39,7 +39,7 @@ class AirshipDeviceList implements Iterator, Countable {
         if ($response_code != 200) {
             throw new AirshipFailure($response[1], $response_code);
         }
-        $result = json_decode_array($response[1]);
+        $result = json_decode($response[1]);
         if ($this->_page == null) {
             $this->_page = $result;
         } else {
@@ -119,7 +119,7 @@ class Airship {
             $payload['badge'] = $badge;
         }
         if (count($payload) != 0) {
-            $body = json_encode_array($payload);
+            $body = json_encode($payload);
             $content_type = 'application/json';
         } else {
             $body = '';
@@ -151,7 +151,7 @@ class Airship {
         if ($response_code != 200) {
             throw new AirshipFailure($response[1], $response_code);
         }
-        return json_decode_array($response[1]);
+        return json_decode($response[1]);
     }
 
 
@@ -170,7 +170,7 @@ class Airship {
         if ($tags != null) {
             $payload['tags'] = $tags;
         }
-        $body = json_encode_array($payload);
+        $body = json_encode($payload);
         $response = $this->_request(PUSH_URL, 'POST', $body, 'application/json');
         $response_code = $response[0];
         if ($response_code != 200) {
@@ -183,7 +183,7 @@ class Airship {
         if ($exclude_tokens != null) {
             $payload['exclude_tokens'] = $exclude_tokens;
         }
-        $body = json_encode_array($payload);
+        $body = json_encode($payload);
         $response = $this->_request(BROADCAST_URL, 'POST', $body, 'application/json');
         $response_code = $response[0];
         if ($response_code != 200) {
@@ -202,7 +202,7 @@ class Airship {
         if ($response_code != 200) {
             throw new AirshipFailure($response[1], $response_code);
         }
-        $results = json_decode_array($response[1]);
+        $results = json_decode($response[1]);
         foreach ($results as $item) {
             $item->marked_inactive_on = new DateTime($item->marked_inactive_on,
                                                        new DateTimeZone('UTC'));

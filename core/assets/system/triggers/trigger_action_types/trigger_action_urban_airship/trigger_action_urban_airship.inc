@@ -26,7 +26,7 @@ require_once dirname(__FILE__).'/lib/urbanairship.php';
 * A trigger action that sends a redirect header with a user-configurable URL
 *
 * @author  Nic Hubbard <nic@zedsaid.com>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.1 $
 * @package MySource_Matrix_Packages
 * @subpackage zed_said
 */
@@ -55,6 +55,12 @@ class Trigger_Action_Urban_Airship extends Trigger_Action
 		$static_push_message = $settings['airship_message'];
 		$static_push_sound = $settings['airship_sound'];
 		$static_push_badge = $settings['airship_badge'];
+		$static_push_key1 = $settings['airship_key1'];
+		$static_push_key2 = $settings['airship_key2'];
+		$static_push_key3 = $settings['airship_key3'];
+		$static_push_value1 = $settings['airship_value1'];
+		$static_push_value2 = $settings['airship_value2'];
+		$static_push_value3 = $settings['airship_value3'];
 		
 		// check required settings
 		if (!isset($static_app_key) || empty($static_app_key)) {
@@ -110,6 +116,11 @@ class Trigger_Action_Urban_Airship extends Trigger_Action
 		$static_push_sound_replaced = $state['asset']->replaceKeywordsInString($static_push_sound);
 		$static_push_message_replaced = $state['asset']->replaceKeywordsInString($static_push_message);
 		
+		// Only values should be replaced, not keys
+		$static_push_value1_replaced = $state['asset']->replaceKeywordsInString($static_push_value1);
+		$static_push_value2_replaced = $state['asset']->replaceKeywordsInString($static_push_value2);
+		$static_push_value3_replaced = $state['asset']->replaceKeywordsInString($static_push_value3);
+				
 
 		if (!empty($static_push_message_replaced)) {
 			
@@ -126,15 +137,26 @@ class Trigger_Action_Urban_Airship extends Trigger_Action
 			}
 			$message = array('aps' => $message_data);
 			
+			// Custom payload
+			if (!empty($static_push_key1) && !empty($static_push_value1_replaced)) {
+				$message[$static_push_key1] = $static_push_value1_replaced;
+			}
+			if (!empty($static_push_key2) && !empty($static_push_value2_replaced)) {
+				$message[$static_push_key2] = $static_push_value2_replaced;
+			}
+			if (!empty($static_push_key3) && !empty($static_push_value3_replaced)) {
+				$message[$static_push_key3] = $static_push_value3_replaced;
+			}
+			
 			// If we should push or broadcast
 			if ($should_broadcast) {
 				$airship->broadcast($message);
 			} else {
 				// Check to see if we have multiple device tokens
-				if (strpos($static_app_token, ',') !== FALSE) {
+				if (strpos($static_app_token, ',')) {
 					$static_app_token = explode(',', $static_app_token);
 				}
-				//error_log(print_r($message, TRUE), 0);
+				error_log(print_r($message, TRUE), 0);
 				$airship->push($message, $static_app_token);
 			}//end
 
@@ -165,10 +187,10 @@ class Trigger_Action_Urban_Airship extends Trigger_Action
                 
 		<p class="sq-backend-section-subheading"><?php echo translate('trigger_action_urban_airship_section_api').' '; ?></p>
 
-			<table class="sq-backend-table with-bottom-margin" >
+			<table class="sq-backend-table" >
 				<tr>
-					<th width="100"><?php echo translate('trigger_action_urban_airship_app_key').' '; ?></th>
-					<td>
+					<td width="100"><p><?php echo translate('trigger_action_urban_airship_app_key').' '; ?></p></td>
+					<td><p>
 					<?php 
 						$app_key = array_get_index($settings, 'airship_app_key', '');
 						if ($write_access) {
@@ -176,11 +198,11 @@ class Trigger_Action_Urban_Airship extends Trigger_Action
 						} else {
 							echo str_repeat('&#9679;', strlen($app_key));
 						}
-					?></td>
+					?></p></td>
 				</tr>
 				<tr>
-					<th><?php echo translate('trigger_action_urban_airship_app_master_secret').' '; ?></td>
-					<td>
+					<td width="100"><p><?php echo translate('trigger_action_urban_airship_app_master_secret').' '; ?></p></td>
+					<td><p>
 					<?php 
 						$app_master_secret = array_get_index($settings, 'airship_app_master_secret', '');
 						if ($write_access) {
@@ -188,32 +210,34 @@ class Trigger_Action_Urban_Airship extends Trigger_Action
 						} else {
 							echo str_repeat('&#9679;', strlen($app_master_secret));
 						}
-					?></td>
+					?></p></td>
 				</tr>
 				<tr>
-					<th><?php echo translate('trigger_action_urban_airship_device_token').' '; ?></td>
+					<td width="100"><p><?php echo translate('trigger_action_urban_airship_device_token').' '; ?></p></td>
 					<td>
 					<?php 
 						$device_token = array_get_index($settings, 'airship_device_token', '');
 						if ($write_access) {
+							echo '<p>';
 							$option_list = new Asset_Attribute_Option_List(0, $device_token, ',');
 							$option_list->setEditParam('width', 85);
 							$option_list->paint('airship_device_token');
-							echo translate('trigger_action_urban_airship_device_token_instructions');
+							echo '</p>';
+							echo '<p>'.translate('trigger_action_urban_airship_device_token_instructions').'</p>';
 						} else {
-							echo str_replace(',', '<br />', $device_token);
+							echo '<p>'.str_replace(',', '<br />', $device_token).'</p>';
 						}
 					?></td>
 				<tr>
-					<th><?php echo translate('trigger_action_urban_airship_broadcast').' '; ?></td>
+					<td width="100"><p><?php echo translate('trigger_action_urban_airship_broadcast').' '; ?></p></td>
 					<td>
 					<?php 
 						$airship_broadcast = array_get_index($settings, 'airship_broadcast', 0);
 						if ($write_access) {
-							echo '<div class="sq-break-line-inputs">';
+							echo '<p>';
 							check_box($prefix.'[airship_broadcast]', 1, $airship_broadcast);
-							echo '</div>';
-							echo translate('trigger_action_urban_airship_broadcast_instructions');
+							echo '</p>';
+							echo '<p class="sq-backend-warning">'.translate('trigger_action_urban_airship_broadcast_instructions').'</p>';
 						} else {
 							$tick_type = ($airship_broadcast == '1') ? 'tick' : 'cross';
 							echo '<img class="sq-icon" width="16" height="16" src="'.sq_web_path('lib').'/web/images/'.$tick_type.'.gif" alt="" style="border: 0;" />';
@@ -221,54 +245,85 @@ class Trigger_Action_Urban_Airship extends Trigger_Action
 					?></td>
 				</tr>
                 
-			</table>
+			</table><br />
             
 			<p class="sq-backend-section-subheading"><?php echo translate('trigger_action_urban_airship_section_details').' '; ?></p>
-			<table class="sq-backend-table with-bottom-margin" >
+			<table class="sq-backend-table" >
 				<tr>
-					<th width="100"><?php echo translate('trigger_action_urban_airship_badge').' '; ?></td>
-					<td>
+					<td width="100"><p><?php echo translate('trigger_action_urban_airship_badge').' '; ?></p></td>
+					<td><p>
 					<?php 
 						$airship_badge = array_get_index($settings, 'airship_badge', '');
 						if ($write_access) {
-							echo '<div class="sq-break-line-inputs">';
+							echo '<p>';
 							text_box($prefix.'[airship_badge]', $airship_badge,  5);
-							echo '</div>';
-							echo translate('trigger_action_urban_airship_badge_instructions');
+							echo '</p>';
+							echo '<p>'.translate('trigger_action_urban_airship_badge_instructions').'</p>';
 						} else {
-							echo $airship_badge;
+							echo '<p>'.$airship_badge.'</p>';
 						}
-					?></td>
+					?></p></td>
 				</tr>
 				<tr>
-					<th><?php echo translate('trigger_action_urban_airship_sound').' '; ?></td>
-					<td>
+					<td width="100"><p><?php echo translate('trigger_action_urban_airship_sound').' '; ?></p></td>
+					<td><p>
 					<?php 
 						$airship_sound = array_get_index($settings, 'airship_sound', '');
 						if ($write_access) {
-							echo '<div class="sq-break-line-inputs">';
+							echo '<p>';
 							text_box($prefix.'[airship_sound]', $airship_sound, 25);
-							echo '</div>';
-							echo translate('trigger_action_urban_airship_sound_instructions');
+							echo '</p>';
+							echo '<p>'.translate('trigger_action_urban_airship_sound_instructions').'</p>';
 						} else {
-							echo $airship_sound;
+							echo '<p>'.$airship_sound.'</p>';
 						}
-					?></td>
+					?></p></td>
 				</tr>
 				<tr>
-					<th><?php echo translate('trigger_action_urban_airship_message').' '; ?></td>
-					<td>
+					<td width="100"><p><?php echo translate('trigger_action_urban_airship_message').' '; ?></p></td>
+					<td><p>
 					<?php 
 						$airship_message = array_get_index($settings, 'airship_message', '');
 						if ($write_access) {
-							echo '<div class="sq-break-line-inputs">';
+							echo '<p>';
 							text_box($prefix.'[airship_message]', $airship_message, 95);
-							echo '</div>';
-							echo translate('trigger_action_urban_airship_message_instructions');
+							echo '</p>';
+							echo '<p>'.translate('trigger_action_urban_airship_message_instructions').'</p>';
 						} else {
-							echo $airship_message;
+							echo '<p>'.$airship_message.'</p>';
 						}
-					?></td>
+					?></p></td>
+				<tr>
+					<td width="100"><p><?php echo translate('trigger_action_urban_airship_custom_parameters'); ?></p></td>
+					<td><p>
+					<?php 
+						$airship_key1 = array_get_index($settings, 'airship_key1', '');
+						$airship_key2 = array_get_index($settings, 'airship_key2', '');
+						$airship_key3 = array_get_index($settings, 'airship_key3', '');
+						$airship_value1 = array_get_index($settings, 'airship_value1', '');
+						$airship_value2 = array_get_index($settings, 'airship_value2', '');
+						$airship_value3 = array_get_index($settings, 'airship_value3', '');
+						if ($write_access) {
+							echo '<p>';
+							text_box($prefix.'[airship_key1]', $airship_key1, 15);
+							echo '&nbsp; &nbsp;';
+							text_box($prefix.'[airship_value1]', $airship_value1, 65);
+							echo '</p>';
+							echo '<p>';
+							text_box($prefix.'[airship_key2]', $airship_key2, 15);
+							echo '&nbsp;&nbsp;';
+							text_box($prefix.'[airship_value2]', $airship_value2, 65);
+							echo '</p>';
+							echo '<p>';
+							text_box($prefix.'[airship_key3]', $airship_key3, 15);
+							echo '&nbsp;&nbsp;';
+							text_box($prefix.'[airship_value3]', $airship_value3, 65);
+							echo '</p>';
+							echo '<p>'.translate('trigger_action_urban_airship_custom_parameters_note').'</p>';
+						} else {
+							echo '<p>'.$airship_message.'</p>';
+						}
+					?></p></td>
 				</tr>
 			</table>
             
@@ -277,8 +332,7 @@ class Trigger_Action_Urban_Airship extends Trigger_Action
 		// Print the parameter map
 		if ($write_access) {
 			
-			echo '<div>';
-			echo '<p class="sq-backend-section-subheading">'.translate('dynamic_inputs').'</p>';
+			echo '<br /><div>';
 			$new_prefix = str_replace(array('[',']'), '_', $prefix);
 			hidden_field($prefix.'[new_prefix]', $new_prefix);
 			
@@ -286,21 +340,6 @@ class Trigger_Action_Urban_Airship extends Trigger_Action
 			$atr_parameter_map = new Asset_Attribute_Parameter_Map(0, $parameter_map_value);
 			
 			// Param Map
-			/*
-			$current_params = $atr_parameter_map->getParameters();
-			if (!in_array('value_map_token', $current_params)) {
-				$atr_parameter_map->setParameter('value_map_token', 'Device Token');
-			}
-			if (!in_array('value_map_badge', $current_params)) {
-				$atr_parameter_map->setParameter('value_map_badge', 'Badge');
-			}
-			if (empty($param_map_sound)) {
-				$atr_parameter_map->setParameter('value_map_sound', 'Sound');
-			}
-			if (empty($param_map_message)) {
-				$atr_parameter_map->setParameter('value_map_message', 'Message');
-			}
-			*/
 			$atr_parameter_map->setParameter('value_map_token', 'Device Token');
 			$atr_parameter_map->setParameter('value_map_badge', 'Badge');
 			$atr_parameter_map->setParameter('value_map_sound', 'Sound');
@@ -333,6 +372,12 @@ class Trigger_Action_Urban_Airship extends Trigger_Action
 		$settings['airship_sound'] = trim(array_get_index($request_data, 'airship_sound', ''));
 		$settings['airship_broadcast'] = trim(array_get_index($request_data, 'airship_broadcast', 0));
 		$settings['airship_badge'] = trim(array_get_index($request_data, 'airship_badge', 0));
+		$settings['airship_key1'] = trim(array_get_index($request_data, 'airship_key1', 0));
+		$settings['airship_key2'] = trim(array_get_index($request_data, 'airship_key2', 0));
+		$settings['airship_key3'] = trim(array_get_index($request_data, 'airship_key3', 0));
+		$settings['airship_value1'] = trim(array_get_index($request_data, 'airship_value1', 0));
+		$settings['airship_value2'] = trim(array_get_index($request_data, 'airship_value2', 0));
+		$settings['airship_value3'] = trim(array_get_index($request_data, 'airship_value3', 0));
 		
 		$settings['value_map'] = '';
 		$new_prefix = str_replace(array('[',']'), '_', array_get_index($request_data, 'new_prefix', ''));
