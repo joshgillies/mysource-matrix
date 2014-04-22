@@ -288,7 +288,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 											<tr>
 												<td></td>
 												<td>
-												<div id="show_create_button" >
+												<div id="show_create_button" style="display: block;">
 													<input type="button" name="show" value="Create Image" onclick="toggleCreateImage();" />
 												</div>
 												</td>												
