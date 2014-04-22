@@ -2474,6 +2474,25 @@ function replace_global_keywords(&$text)
 					    }
 					}
 
+					// image variety url keyword
+					if (0 === strpos($keyword, 'globals_image_v_url_')) {
+					    $sub_keyword = substr($keyword, 20);
+					    preg_match('|(.*):([0-9]+)$|',$sub_keyword,$matches);
+					   	if(isset($matches[2]) && !empty($matches[2]) && isset($matches[1]) && !empty($matches[1])) {
+					   			$image = $GLOBALS['SQ_SYSTEM']->am->getAsset($matches[2]);
+					   			$vars = $image->attr('varieties');
+								if(isset($vars['data'])) {
+									foreach ($vars['data'] as $key => $value) {
+										if(isset($value['name']) && $value['name'] === $matches[1]) {
+											$assetid = $image->id.':'.$key;
+											$variety = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+											$replacements[$full_keyword] = $variety->getURL();
+										}
+									}
+								}
+					   	}
+					}
+
 
 					apply_keyword_modifiers($replacements[$full_keyword], $modifiers, Array(), $keyword);
 				}//end if is global keyword
