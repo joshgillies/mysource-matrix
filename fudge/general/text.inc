@@ -242,8 +242,7 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array(), $ac
 				    $asset = $GLOBALS['SQ_SYSTEM']->frontend_asset;
 			    }
 		    }
-		}
-		else {
+		} else {
 		    $asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		}
 		
@@ -262,7 +261,7 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array(), $ac
 					if ($global_keyword != '%'.$keyword.'%') {
 						$replacements[$keyword] = $global_keyword;
 					}
-				} else if (!empty($assetid)){
+				} else if (!empty($assetid) || !is_null($asset)){
 					if (!isset($asset)) $asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 					if ($asset){
 						foreach ($call_fns as $fn){
