@@ -75,5 +75,8 @@
 		<field attribute="munchkin_private_key">
 			<text width="60" height="1" />
 		</field>
+		<field attribute="munchkin_init_code">
+			<text width="130" height="4" />
+		</field>
 	</section>
 </contents>

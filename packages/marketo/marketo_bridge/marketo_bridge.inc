@@ -364,6 +364,22 @@ class Marketo_Bridge extends Page
 	{
 		return FALSE;
 	}//end canSendCacheableHeader()
+
+
+	/**
+	* Get munchkin init JS code
+	*
+	*
+	* @return string
+	* @access public
+	*/
+	public function getMunchkinInitCode()
+	{
+		$code = $this->attr('munchkin_init_code');
+		$account_id = $this->attr('munchkin_account_id');
+		$code = str_replace('%munchkin_account_id%', $account_id, $code);
+		return $code;
+	}//end getMunchkinInitCode()
 	
 }//end class
 ?>

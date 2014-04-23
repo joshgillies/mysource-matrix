@@ -127,6 +127,14 @@ class Marketo_Bridge_Management extends Asset_Management
 											    'type'			=> 'text',
 											    'default'			=> '',
 										 ),
+		    		    		 'munchkin_init_code'		=> Array(
+											    'added'			=> '0.1',
+											    'type'			=> 'text',
+											    'default'			=> '<script type="text/javascript">
+document.write(unescape("%3Cscript src=\'//munchkin.marketo.net/munchkin.js\' type=\'text/javascript\'%3E%3C/script%3E"));
+</script>
+<script>Munchkin.init(\'%munchkin_account_id%\');</script>',
+										 ),
     		    									
 			          );
 

@@ -2466,6 +2466,16 @@ function replace_global_keywords(&$text)
 					    }
 					}
 
+
+					if (0 === strpos($keyword, 'globals_marketo_munchkin_init')) {
+					    $sub_keyword = substr($keyword, 20);
+					    preg_match('|(.*):([0-9]+)$|',$sub_keyword,$matches);
+					    if(isset($matches[2]) && !empty($matches[2])) {
+						$marketo_bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($matches[2]);
+						$replacements[$full_keyword] = $marketo_bridge->getMunchkinInitCode();
+					    }
+					}
+
 					// verified email stored in session
 					if (0 === strpos($keyword, 'globals_verified_email')) {
 					    if(isset($_SESSION['SQ_VERIFY_EMAIL_VERIFIED'])) {
