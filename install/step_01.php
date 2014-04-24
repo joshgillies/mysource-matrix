@@ -58,12 +58,11 @@ define('SQ_LIB_PATH',     SQ_SYSTEM_ROOT.'/core/lib');
 define('SQ_DATA_PATH',    SQ_SYSTEM_ROOT.'/data');
 define('SQ_FUDGE_PATH',   SQ_SYSTEM_ROOT.'/fudge');
 define('SQ_PHP_CLI',      (php_sapi_name() == 'cli'));
+define('SQ_LOG_PATH',     SQ_SYSTEM_ROOT.'/data/private/logs');
 
 require_once SQ_INCLUDE_PATH.'/mysource_object.inc';
 require_once SQ_INCLUDE_PATH.'/system_config.inc';
 
-// override some of the default config values
-define('SQ_CONF_PEAR_PATH', SQ_SYSTEM_ROOT.'/php_includes');
 
 $cfg = new System_Config();
 $cfg->save(Array(), TRUE);
