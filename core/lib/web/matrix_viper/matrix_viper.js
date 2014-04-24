@@ -58,7 +58,8 @@ var Matrix_Viper = new function() {
 		    'ViperSourceViewPlugin',
 		    'ViperSearchReplacePlugin',
 		    'ViperLangToolsPlugin',
-		    'ViperCharMapPlugin'],
+		    'ViperCharMapPlugin',
+		    'ViperCursorAssistPlugin'],
 
 	    // Give the viper instance a name
 	    viperName: 'admin-viper',

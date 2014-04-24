@@ -2644,7 +2644,7 @@ class Asset_Map
 			// create a new node and fill out the attributes
 			$tmp_node = $root->addChild('asset');
 			foreach ($attributes as $info_k => $info_v) {
-				if (strlen($info_v) == 0)  $tmp_node->addAttribute($info_k, ' ');
+				if (strlen($info_v) == 0)  $tmp_node->addAttribute($info_k, '');
 				else $tmp_node->addAttribute($info_k, $info_v);
 			}	
 		}
