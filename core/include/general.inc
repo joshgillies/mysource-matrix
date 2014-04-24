@@ -894,7 +894,6 @@ function clean_url($url)
 */
 function current_protocol()
 {
-	if (is_ssl_accelerated()) return 'https';
 	return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 'https' : 'http';
 
 }//end current_protocol()
@@ -911,8 +910,14 @@ function is_ssl_accelerated()
 {
 	if (SQ_PHP_CLI) return FALSE;
 
+	$proxy_conf_file = SQ_DATA_PATH.'/private/conf/proxy_authentication.inc';
+	if (file_exists($proxy_conf_file)) {
+		// proxy configuration exists, let's see if we need to do anything
+		require_once($proxy_conf_file);
+	}
+
 	$enabled = FALSE;
-	if (SQ_SSLA_ENABLED) {
+	if (defined('SQ_SSLA_ENABLED') && SQ_SSLA_ENABLED) {
 		$enabled = TRUE;
 
 		$match_method = SQ_SSLA_MATCH;

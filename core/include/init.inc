@@ -276,6 +276,13 @@ if (get_magic_quotes_gpc()) {
 	}
 }
 
+
+// Force HTTPS if required
+if(is_ssl_accelerated()) {
+	$_SERVER['HTTPS'] = 'on';
+	$_SERVER['SERVER_PORT'] = 443;
+}
+
 // create and init the system object
 require_once SQ_INCLUDE_PATH.'/mysource.inc';
 $GLOBALS['SQ_SYSTEM'] = new MySource();
