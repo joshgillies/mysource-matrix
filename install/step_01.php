@@ -65,7 +65,7 @@ require_once SQ_INCLUDE_PATH.'/system_config.inc';
 
 
 $cfg = new System_Config();
-$cfg->save(Array(), TRUE);
+$cfg->save(Array(), FALSE);
 
 // Copy the DB config sample to the data directory
 // Only overwrite the file if there is no file exists already
