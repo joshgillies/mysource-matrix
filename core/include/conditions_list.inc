@@ -409,15 +409,17 @@ class Conditions_List
 				}
 
 				// force no cache header to be sent
-				$o->openField(translate('force_no_cache').'?');
-				$force_no_cache = isset($parameters['force_no_cache']) ? $parameters['force_no_cache'] : TRUE;
-				$force_no_cache_text = $force_no_cache ? 'Yes' : 'No';
-				if ($write_access) {
-					combo_box($condition_prefix.'_force_no_cache', Array('1' => 'Yes', '0' => 'No'), FALSE, $force_no_cache);
-				} else {
-					echo $force_no_cache_text;
+				if(!($asset instanceof Paint_Layout_Bodycopy)) {
+					$o->openField(translate('force_no_cache').'?');
+					$force_no_cache = isset($parameters['force_no_cache']) ? $parameters['force_no_cache'] : TRUE;
+					$force_no_cache_text = $force_no_cache ? 'Yes' : 'No';
+					if ($write_access) {
+						combo_box($condition_prefix.'_force_no_cache', Array('1' => 'Yes', '0' => 'No'), FALSE, $force_no_cache);
+					} else {
+						echo $force_no_cache_text;
+					}
+					$o->closeField();
 				}
-				$o->closeField();
 				
 				if ($write_access) {
 					$o->openField(translate('delete').'?');
