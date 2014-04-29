@@ -4448,6 +4448,11 @@ class MySource extends MySource_Object
 			$matches[1][$key] = rtrim($assetid, '$');
 			$org_assetids[$key] = $assetid;
 		}
+		// bug fix for squizmap issue #5266 /?a= link interpretation error
+		// replace the longer assetids first so that when we get to the maller assetids
+		// there is no chance of partial match and the world makes sense once again
+		arsort($matches[1]);
+
 		$assets_url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($matches[1]);
 
 		// Replace each ./a=xx link by its respective full URL
