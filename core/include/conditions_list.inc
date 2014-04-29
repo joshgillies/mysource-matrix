@@ -361,9 +361,11 @@ class Conditions_List
 					echo '<em>'.translate('no_existing_conditions').'</em>';
 				$o->closeField();
 			} else {
-				$o->openField('','wide_col');
-					$o->note(translate('condition_configuration_instructions'));
-				$o->closeField();
+				if(!($asset instanceof Paint_Layout_Bodycopy)) {
+					$o->openField('','wide_col');
+						$o->note(translate('condition_configuration_instructions'));
+					$o->closeField();
+				}
 			}
 			foreach ($conditions_parameters as $condition_name => $parameters) {
 				$condition_prefix = $prefix.$condition_name;
