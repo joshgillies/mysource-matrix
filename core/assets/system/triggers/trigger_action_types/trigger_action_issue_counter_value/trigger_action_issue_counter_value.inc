@@ -15,6 +15,8 @@
 
 require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_action.inc';
 require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
+require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+
 
 /**
 * Trigger_Action_Issue_Counter_Value
