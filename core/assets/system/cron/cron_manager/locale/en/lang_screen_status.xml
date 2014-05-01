@@ -30,7 +30,7 @@
 		</field>
 		<field attribute="run_check">
 			<display_name>Run Check</display_name>
-			<note>The number of consecutive times the cron's run has been cancelled due to another instance already running</note>
+			<note>The number of consecutive times the Scheduled Jobs Manager's run has been cancelled due to another instance already running.</note>
 		</field>
 	</section>
 	<section name="Dead Lock Status" />

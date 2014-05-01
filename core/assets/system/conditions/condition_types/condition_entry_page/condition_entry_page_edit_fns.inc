@@ -70,16 +70,16 @@ class Condition_Entry_Page_Edit_Fns extends Condition_Edit_Fns
 		}
 
 		?>
-		<table class="sq-backend_table">
+		<table class="sq-backend-table">
 			<tr>
-			<td>URL(s)</td>
-			<td>
+				<th class="sq-conditions-options-th"><?php echo translate('url_patterns'); ?></th>
+				<td>
 				<?php
 				if (!$write_access && empty($condition_data['url_patterns'])) {
-					?><em><?php echo translate("condition_entry_page_no_patterns_set"); ?></em><?php
+					?><em><?php echo translate("condition_no_patterns_entered"); ?></em><?php
 				} else {
 					?>
-					<table class="sq-backend-table">
+					<table class="sq-backend-table" style="margin-bottom: 0;">
 						<tr>
 						<?php
 						if ($write_access) {
@@ -89,7 +89,7 @@ class Condition_Entry_Page_Edit_Fns extends Condition_Edit_Fns
 						<th><?php echo translate('pattern'); ?></th>
 						<?php if ($write_access) {
 						?>
-							<th><?php echo translate('delete_question'); ?></th>
+							<th style="text-align: center;"><?php echo translate('delete_question'); ?></th>
 						<?php
 						}
 						?>
@@ -120,7 +120,7 @@ class Condition_Entry_Page_Edit_Fns extends Condition_Edit_Fns
 								</td>
 								<?php
 									if ($write_access && ($index !== 'new')) {
-										echo '<td>';
+										echo '<td style="text-align: center;">';
 										check_box($prefix.'['.$index.'][delete]', FALSE);
 										echo '</td>';
 									} else if ($write_access) {
@@ -135,18 +135,18 @@ class Condition_Entry_Page_Edit_Fns extends Condition_Edit_Fns
 				<?php
 				}//end else
 				?>
-			</td>
+				</td>
 			<tr>
-				<td>Asset(s)</td>
+				<th><?php echo translate('asset_ids'); ?></th>
 				<td>
 				<?php
 				if ( $write_access) {
 					multiple_asset_finder($prefix.'[assetids]', $condition_data['assetids']);
 				} else {
 					if (empty($condition_data['assetids'])) {
-						echo translate("condition_entry_page_no_assetids_selected");
+						echo '<em>'.translate('condition_no_assetids_selected').'</em>';
 					} else {
-						echo '<ul>';
+						echo '<ul class="sq-asset-id-list">';
 						foreach ($condition_data['assetids'] as $assetid) {
 							echo '<li>'.get_asset_tag_line($assetid).'</li>';
 						}
@@ -158,6 +158,7 @@ class Condition_Entry_Page_Edit_Fns extends Condition_Edit_Fns
 			</tr>
 		</table>
 		<?php
+		$o->note(translate('condition_entry_page_note'));
 
 	}//end paintEditInterface()
 

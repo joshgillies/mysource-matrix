@@ -169,6 +169,14 @@ class SAML_Account_Manager_Management extends Asset_Management
 												'allow_empty'   => FALSE,
 										    ),
 									    );
+		$this->vars['randomize_password']				= Array(
+										'added'		=> '0.1',
+										'type'		=> 'boolean',
+										'default'		=> FALSE,
+										'parameters'    => Array(
+												'allow_empty'   => FALSE,
+										    ),
+									    );
 				
 
 	}//end constructor

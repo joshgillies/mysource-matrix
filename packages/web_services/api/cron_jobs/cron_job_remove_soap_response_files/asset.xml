@@ -22,7 +22,7 @@
 	<package>web_services</package>
 	<type_code>cron_job_remove_soap_response_files</type_code>
 	<version>0.1</version>
-	<name>Remove SOAP Response Files Cron Job</name>
+	<name>Remove SOAP Response Files Scheduled Job</name>
 	<description>Clears the temporary saved file that we had been returned by the SOAP requests (trigger or form actions)</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>system</allowed_access>

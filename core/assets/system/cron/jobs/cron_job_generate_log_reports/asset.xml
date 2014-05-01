@@ -22,7 +22,7 @@
 	<package>__core__</package>
 	<type_code>cron_job_generate_log_reports</type_code>
 	<version>0.1</version>
-	<name>Generate Log Reports Cron Job</name>
+	<name>Generate Log Reports Scheduled Job</name>
 	<description>Checks for logs that need to be rotated, rotates them, and generate all reports that depend on that log.</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>system</allowed_access>

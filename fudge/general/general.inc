@@ -365,25 +365,20 @@ function dal_array_flatten($array, $column='')
 */
 function random_password($length, $include_uppercase=FALSE, $include_numbers=FALSE)
 {
+    require_once SQ_FUDGE_PATH.'/general/security.inc';
 	if (!$length) $length = 8;
 	$letters			= 'bcdfghjklnpqrstvwyz';
-	
+
 	// Please note that certain letters and numbers are missing due to being represented in a similar manner to lowercase chars in some fonts
 	$numbers			= '2346789';
 	$upper_letters		= 'DFGHLNQRT';
 
 	$password   = '';
 
-	//As of PHP 4.2.0, there is no need to seed the random number generator, it is done automatically by rand()
-	//global $RANDOM_PASSWORD_SEED;
-
 	// If we are including uppercase characters, ensure at least one is present
 	$uppercase_indexes = Array();
-	$chosen_default_uppercase_index = rand(0, $length-1);
-	//$seed = $RANDOM_PASSWORD_SEED + $length + ((int)(100000 * (double)microtime())) + time();
+	$chosen_default_uppercase_index = security_rand(0, $length-1);
 	if (($include_uppercase) && ($length > 1)) {
-		//srand($seed);
-
 		$uppercase_indexes[$chosen_default_uppercase_index] = 1;
 		$num_added = 1;
 
@@ -399,12 +394,10 @@ function random_password($length, $include_uppercase=FALSE, $include_numbers=FAL
 	// If we are including numbers, ensure at least one is present
 	$number_indexes = Array();
 	if (($include_numbers) && ($length > 2)) {
-		//srand($seed);
-
 		// Ensure that we don't place our initial inserted number over the top of an uppercase letter
-		$chosen_default_number_index = rand(0, $length-1);
+		$chosen_default_number_index = security_rand(0, $length-1);
 		while (isset($uppercase_indexes[$chosen_default_number_index])) {
-			$chosen_default_number_index = rand(0, $length-1);
+			$chosen_default_number_index = security_rand(0, $length-1);
 		}
 
 		$number_indexes[$chosen_default_number_index] = 1;
@@ -421,16 +414,16 @@ function random_password($length, $include_uppercase=FALSE, $include_numbers=FAL
 
 	$current_index = 0;
 	while ($length > 0) {
-		//$RANDOM_PASSWORD_SEED += $length;
-		//$seed = $RANDOM_PASSWORD_SEED + $length + ((int)(100000 * (double)microtime())) + time();
-		//srand($seed);
-		$appended_characters = $letters[rand(0,strlen($letters)-1)];
+		$letter_pos = (int)security_rand(0,strlen($letters)-1);
+		$appended_characters = $letters[$letter_pos];
 
 		// Assign either an uppercase letter or a number if we are destined to do so
 		if (($include_uppercase) && (isset($uppercase_indexes[$current_index]))) {
-			$appended_characters = $upper_letters[rand(0,strlen($upper_letters)-1)];
+			$letter_pos = (int)security_rand(0,strlen($upper_letters)-1);
+			$appended_characters = $upper_letters[$letter_pos];
 		} else if (($include_numbers) && (isset($number_indexes[$current_index]))) {
-			$appended_characters = $numbers[rand(0,strlen($numbers)-1)];
+			$number_pos = (int)security_rand(0,strlen($numbers)-1);
+			$appended_characters = $numbers[$number_pos];
 		}
 		$current_index++;
 
@@ -445,9 +438,9 @@ function random_password($length, $include_uppercase=FALSE, $include_numbers=FAL
 
 
 /**
-* Generates a random user pasword based on password rule. 
+* Generates a random user pasword based on password rule.
 * If the genrated password is blacklisted, it retries a couple of times.
-* 
+*
 * @param string	$userinfo	 array of username, first name, last name, email of user to be banned in password
 *
 * @return string
@@ -457,16 +450,16 @@ function random_user_password($userinfo = Array())
 {
     $config = new Password_Rules_Config();
     require_once $config->config_file;
-    
+
     $password = generate_random_user_password();
-    
+
     // check if this password contains blacklisted word
     $retry_max = 99;
     $blacklist = SQ_PASSWD_RULE_BLACK_LIST;
     $blacklist = str_replace("\r\n","\n", $blacklist);
     $blacklist = str_replace("\r","\n", $blacklist);
     $blacklist = explode("\n", $blacklist);
-    
+
     for($i=0;  $i<$retry_max; $i++) {
 	$retry = FALSE;
 	 if (!empty($blacklist)){
@@ -493,13 +486,13 @@ function random_user_password($userinfo = Array())
 	    break;
 	}
     }
-  
+
     return $password;
 }//end random_user_password()
 
 
 /**
-* Generates a random user pasword based on password rule. 
+* Generates a random user pasword based on password rule.
 * It does not take care of backlist word or no username match rule though.
 *
 *
@@ -580,8 +573,8 @@ function generate_random_user_password ()
 	}
 	return $return;
     }//end randString
-	
-	
+
+
     /**
     * Return an simple XML element from array
     *
@@ -612,8 +605,8 @@ function generate_random_user_password ()
 	    }
 	}
     }//end arrayToXml()
-	
-	
+
+
 /**
 * Chops a string at a certain maximum length and appends an ellipsis
 * ignores HTML tags
@@ -625,7 +618,7 @@ function generate_random_user_password ()
 * @access public
 */
 function ellipsisize($string, $length)
-{	
+{
 	// type verification
 	if (!is_string($string) || !is_int($length) ) {
 		return '';
@@ -657,9 +650,9 @@ function ellipsisize($string, $length)
 	if ($length < $j) {
 		$string = substr($string, 0, $chophere).'...';
 	}
-	
-	$string = check_char_encoding($string); 
-		
+
+	$string = check_char_encoding($string);
+
 	return $string;
 
 }//end ellipsisize()
@@ -741,10 +734,11 @@ function increment_name($name='', $spacer='')
 */
 function generate_security_key($key_len, $include_uppercase=FALSE, $include_numbers=FALSE)
 {
+    include_once SQ_FUDGE_PATH.'/general/security.inc';
 	$k = random_password($key_len, $include_uppercase, $include_numbers);
 	if ($key_len>10) {
 		$gl=Array('YmxhaXI=','Z3JlZw==','bWFyYw==','ZG9t');
-		$g=base64_decode($gl[rand(0,(count($gl)-1))]);$pos=rand(1,($key_len-strlen($g)));
+		$g=base64_decode($gl[security_rand(0,(count($gl)-1))]);$pos=security_rand(1,($key_len-strlen($g)));
 		$k=substr($k,0,$pos).$g.substr($k,($pos+strlen($g)));
 	}
 
@@ -1004,12 +998,12 @@ function add_reverse_ordinal_suffix($num)
 
 }//end add_reverse_ordinal_suffix()
 
-			 
+
 /**
-* Returns a valid string for specified charset encoding 
-* 
+* Returns a valid string for specified charset encoding
+*
 * Multibyte characters with invalid byte stream is stripped off
-* 
+*
 * @param string	$string				string to check and correct
 * @param string $string_encoding	character encoding to validate with
 *
@@ -1018,13 +1012,13 @@ function add_reverse_ordinal_suffix($num)
 */
 
 function check_char_encoding($string, $string_encoding = NULL)
-{	
+{
 	$string_encoding = $string_encoding ? $string_encoding : SQ_CONF_DEFAULT_CHARACTER_SET;
 
 	if (!extension_loaded('mbstring') || !SQ_CONF_DEFAULT_CHARACTER_SET) {
 		return $string;
 	}
-	
+
 	return mb_convert_encoding($string, $string_encoding, $string_encoding);
 
 }//end check_char_encoding()
@@ -1033,14 +1027,14 @@ function check_char_encoding($string, $string_encoding = NULL)
 /**
 * The callback comparision function defination for array_sort_by_length()
 * for descending order
-* 
+*
 * @param string $str1
 * @param string $str2
 *
 * @return int
 * @access private
 */
-function _cmp_dsort($str1, $str2) 
+function _cmp_dsort($str1, $str2)
 {
 	return strlen($str2) > strlen($str1);
 }
@@ -1049,14 +1043,14 @@ function _cmp_dsort($str1, $str2)
 /**
 * The callback comparision function defination for array_sort_by_length()
 * for ascending order
-* 
+*
 * @param string $str1
 * @param string $str2
 *
 * @return int
 * @access private
 */
-function _cmp_asort($str1, $str2) 
+function _cmp_asort($str1, $str2)
 {
 	return strlen($str1) > strlen($str2);
 }
@@ -1076,7 +1070,7 @@ function _cmp_asort($str1, $str2)
 * @access public
 */
 function array_sort_by_length(&$array, $sort_order=TRUE, $value_sort=TRUE)
-{	
+{
 	$cmp_function = $sort_order ? '_cmp_asort' : '_cmp_dsort';
 	$sort_function = $value_sort ? 'uasort' : 'uksort';
 
@@ -1097,8 +1091,9 @@ function get_unique_token()
 	if(isset($_SESSION['SQ_SYSTEM_NONCE_SECURITY_TOKEN'])) {
 	    return $_SESSION['SQ_SYSTEM_NONCE_SECURITY_TOKEN'];
 	}
-	
-	$prefix      = rand();
+
+    include_once SQ_FUDGE_PATH.'/general/security.inc';
+	$prefix      = security_rand();
 	$moreEntropy = TRUE;
 	$token       = sha1(uniqid($prefix, $moreEntropy));
 
@@ -1117,30 +1112,30 @@ function get_unique_token()
 * @return array|boolean
 * @access publc
 */
-function xml_to_array($xml) 
+function xml_to_array($xml)
 {
     return @_xml_to_array_helper(new SimpleXmlIterator($xml, null));
 
 }//end xml_to_array()
 
 
-/** 
+/**
 * Helper function to xml_to_array()
 *
 * @see xml_to_array()
 */
-function _xml_to_array_helper($iter) 
+function _xml_to_array_helper($iter)
 {
 	foreach($iter as $key=>$val) {
 		$arr[$key][] = ($iter->hasChildren()) ? call_user_func (__FUNCTION__, $val) : strval($val);
 	}
-	
+
 	return $arr;
 
 }//end xml_to_array_helper()
 
 
-/** 
+/**
 * Decode json string
 *
 * @param string $data	A string representing a well formed json document
@@ -1159,7 +1154,7 @@ function json_decode_array($data)
 }//end json_decode_array()
 
 
-/** 
+/**
 * Encode json string
 *
 * @param string $data	PHP Array
@@ -1178,5 +1173,44 @@ function json_encode_array($data)
     }//end else
     return $output;
 }//end json_encode_array()
+
+
+/**
+* array diff assoc on 2 arrays with nested elements
+*
+* @param string $array1	PHP Array
+* @param string $array2	PHP Array
+* @return FALSE | array return the difference between array 1 and array 2
+*/
+function array_diff_assoc_recursive($array1, $array2)
+{
+    foreach($array1 as $key => $value)
+    {
+        if(is_array($value))
+        {
+              if(!isset($array2[$key]))
+              {
+                  $difference[$key] = $value;
+              }
+              elseif(!is_array($array2[$key]))
+              {
+                  $difference[$key] = $value;
+              }
+              else
+              {
+                  $new_diff = array_diff_assoc_recursive($value, $array2[$key]);
+                  if($new_diff != FALSE)
+                  {
+                        $difference[$key] = $new_diff;
+                  }
+              }
+          }
+          elseif(!array_key_exists($key, $array2) || $array2[$key] != $value)
+          {
+              $difference[$key] = $value;
+          }
+    }
+    return !isset($difference) ? FALSE : $difference;
+} //end array_diff_assoc_recursive
 
 ?>

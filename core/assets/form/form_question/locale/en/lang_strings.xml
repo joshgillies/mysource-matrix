@@ -17,12 +17,12 @@
 -->
 
 <strings>
-<string source="core_form_no_rules_set">No rules set for this question</string>
+<string source="core_form_no_rules_set">No rules set for this question.</string>
 <string source="core_form_custom_error_text">Custom Error Text</string>
-<string source="core_form_no_custom_error_text_set">No custom error text set - a default message will be displayed</string>
+<string source="core_form_no_custom_error_text_set">No custom error text set - a default message will be displayed.</string>
 <string source="core_form_num_of_chars">Number of Characters</string>
 <string source="core_form_rule_details">Rule Details</string>
-<string source="core_form_case_sensitive_question">Case Sensitive ?</string>
+<string source="core_form_case_sensitive_question">Case Sensitive?</string>
 <string source="core_form_rule_boolean_note">This rule requires only the condition to be satisfied to be set.</string>
 <string source="core_form_case_sensitive">(case sensitive)</string>
 <string source="core_form_not_case_sensitive">(not case sensitive)</string>
@@ -30,6 +30,6 @@
 <string source="core_form_rule_static_value">Static Value</string>
 <string source="core_form_rule_static_or_question_note">Enter either a static value to compare responses against, or select another question from this form to compare with that question's response. The selection of a question takes precedence over a static value.</string>
 <string source="core_form_submission_errors">The following errors must be corrected before the form can be submitted:</string>
-<string source="core_form_required_validation_condition_description">If this question requires an entry in any case, leave the asset empty in this condition</string>
-<string source="core_form_required_validation_condition">Validation condition can be specified only when this question requires an entry </string>
+<string source="core_form_required_validation_condition_description">If this question requires an entry in any case, leave the asset empty in this condition.</string>
+<string source="core_form_required_validation_condition">Validation condition can be specified only when this question requires an entry.</string>
 </strings>

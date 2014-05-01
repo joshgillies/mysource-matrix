@@ -129,9 +129,6 @@ class Config extends MySource_Object
 
 		}// endif
 
-		if (SQ_PHP_CLI) {
-			echo "----------------------------------\n".($str)."----------------------------------\n";
-		}
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		// make sure the directory exists
 		if (!create_directory(dirname($this->config_file))) {
@@ -417,7 +414,12 @@ class Config extends MySource_Object
 		if (!empty($_POST['sq_lock_acquire'])) {
 			$this->acquireLock();
 		}
-
+		
+		// reset opcache otherwise it would cache the constants of config file and redriect won't help.
+		if(function_exists('opcache_reset')) {
+		    opcache_reset();
+		}
+		
 		// if the save was successful, we need to redirect because the constants
 		// that are already defined cannot be redefined in this script execution
 		if ($saved) $o->setRedirect($o->getCurrentLocation());

@@ -141,6 +141,7 @@ class Asset_Attribute_Duration extends Asset_Attribute
 		$remaining_value = $this->value;
 		$last_value = 0;
 		$printed_any = FALSE;
+		echo '<span class="sq-inline-fields-wrapper">';
 		foreach ($this->units as $current_name => $current_units) {
 			if ($current_units >= $smallest_units && $current_units <= $biggest_units) {
 				$current_value = (int) ($remaining_value / $current_units);
@@ -180,6 +181,7 @@ class Asset_Attribute_Duration extends Asset_Attribute
 				}
 			}//end if
 		}//end foreach unit
+		echo '</span>';
 
 	}//end paint()
 

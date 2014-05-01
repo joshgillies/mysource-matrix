@@ -235,16 +235,23 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 							<td class="sq-grey-header-wrapper sq-with-bottom-border">
 								<div class="sq-grey-header-row clearfix">
 									<span style="float:right;" id="<?php echo $prefix; ?>_format_mode" class="sq-email-format-version">
-										<?php echo translate('text_email_version'); ?>
+										<?php echo translate('html_email_version'); ?>
 									</span>
 									<?php
 									if ($read_only) {
-										sq_print_icon(sq_web_path('lib').'/web/images/icons/edit_mode.png', 16, 16, 'Toggle Email Format', 'Toggle Email Format','class="clickable" onclick="emailFormatSwitchReadingMode(\''.$prefix."', '".addslashes(translate('html_email_version'))."', '".addslashes(translate('text_email_version')).'\', \''.translate('wysiwyg_content_container').'\', \''.translate('raw_html_content_container').'\')"');
+										?>
+										<strong>View <span class="sq-toggle-option-wrapper">
+											<a href="#" onclick="emailFormatSwitchReadingMode('<?php echo $prefix; ?>', '<?php echo addslashes(translate('html_email_version')); ?>', '<?php echo addslashes(translate('text_email_version')); ?>', this); return sq_handle_toggle(this);">Text</a><a class="selected" href="#" onclick="emailFormatSwitchReadingMode('<?php echo $prefix; ?>', '<?php echo addslashes(translate('html_email_version')); ?>', '<?php echo addslashes(translate('text_email_version')); ?>', this); return sq_handle_toggle(this);">HTML</a>
+										</span> Version</strong>
+										<?php
 									} else {
-										sq_print_icon(sq_web_path('lib').'/web/images/icons/edit_mode.png', 16, 16, 'Toggle Email Format', 'Toggle Email Format','class="clickable" onclick="emailFormatSwitchEditingMode(\''.$prefix."', '".addslashes(translate('html_email_version'))."', '".addslashes(translate('text_email_version')).'\', \''.translate('wysiwyg_content_container').'\', \''.translate('raw_html_content_container').'\')"');
+										?>
+										<strong>Edit <span class="sq-toggle-option-wrapper">
+											<a href="#" onclick="emailFormatSwitchEditingMode('<?php echo $prefix; ?>', '<?php echo addslashes(translate('html_email_version')); ?>', '<?php echo addslashes(translate('text_email_version')); ?>', this); return sq_handle_toggle(this);">Text</a><a class="selected" href="#" onclick="emailFormatSwitchEditingMode('<?php echo $prefix; ?>', '<?php echo addslashes(translate('html_email_version')); ?>', '<?php echo addslashes(translate('text_email_version')); ?>', this); return sq_handle_toggle(this);">HTML</a>
+										</span> Version</strong>
+										<?php
 									}
 									?>
-									<strong id="<?php echo $prefix?>_content_type"><?php echo translate('raw_html_content_container') ?></strong>
 								</div>
 							</td>
 						</tr>
@@ -253,20 +260,20 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 								<?php
 								if ($read_only) {
 									?>
-									<div style="display: none" id="<?php echo $prefix?>_html_format" class="sq-wysiwyg-preview-wrapper">
+									<div id="<?php echo $prefix?>_html_format" class="sq-wysiwyg-preview-wrapper">
 										<?php echo $current_value['html_format']; ?>
 									</div>
-									<div id="<?php echo $prefix?>_text_format">
+									<div style="display: none" id="<?php echo $prefix?>_text_format" class="raw-text">
 										<?php echo nl2br($current_value['text_format']); ?>
 									</div>
 									<?php
 								} else {
 									?>
-									<div style="display: none" id="<?php echo $prefix?>_html_body_div" class="sq-email-format-html-body-div">
+									<div id="<?php echo $prefix?>_html_body_div" class="sq-email-format-html-body-div">
 									<?php
 									$o = $GLOBALS['SQ_SYSTEM']->backend->out;
 									if(!is_null($o) && $o->isViperAvailable()) {
-									    $o->enableViperEditor();	    
+									    $o->enableViperEditor();
 									    // Use a hidden input to pass the Viper edited content to Matrix backend form
 									    $o->addOnSubmit('document.getElementById("'.$prefix.'_contents_div_viper_input").value = document.getElementById("'.$prefix.'_contents_div_viper").innerHTML;');
 									    ?>
@@ -281,7 +288,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 									}
 									?>
 									</div>
-									<div id="<?php echo $prefix?>_text_body_div" class="sq-email-format-text-body-div">
+									<div style="display: none" id="<?php echo $prefix?>_text_body_div" class="sq-email-format-text-body-div raw-text">
 										<?php text_area($prefix.'_text_body', $current_value['text_format'], 105, 15); ?>
 									</div>
 									<?php
@@ -408,7 +415,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		}
 
 		if (!is_array($value)) return FALSE;
-		
+
 		if (!isset($value['to'])) {
 			$value['to'] = Array();
 		}
@@ -479,12 +486,15 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 
 				if ($addressee->type() == 'user_group') {
 					// Include directly and indirectly-linked shadow assets
-					$users = $GLOBALS['SQ_SYSTEM']->am->getChildren($addressee->id, 'user', FALSE, NULL, NULL, NULL, TRUE, NULL, NULL, FALSE, NULL);
+					$users = $GLOBALS['SQ_SYSTEM']->am->getChildren($addressee->id, 'user', FALSE, NULL, NULL, NULL, TRUE, NULL, NULL, FALSE, NULL, Array(), TRUE);
 
 					foreach ($users as $user_id => $type_code) {
+					    // make sure shadow ldap user group isn't returned
+					    if(isset($type_code[0]['type_code'])) {
 						$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($user_id);
 						$assetid_emails[] = $user->attr('email');
 						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
+					    }
 					}
 				} else {
 					$assetid_emails[] = $addressee->attr('email');
@@ -602,7 +612,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 					'From'		=> $from,
 					'Subject'	=> $subject,
 				);
-		
+
 		$reply_to = trim($reply_to);
 		if (!empty($reply_to)) $hdrs['Reply-To'] = $reply_to;
 
@@ -635,7 +645,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 					@$mime->addAttachment($file_path, $mime_type); // throws PHP5 strict warning
 				}
 			}
-			
+
 			// if it's email verification keyword replace it with a token
 			$keywords = retrieve_keywords_replacements($text_body);
 			$keywords += retrieve_keywords_replacements($html_body);
@@ -643,7 +653,8 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 			    foreach ($keywords as $keyword) {
 				if($keyword === 'email_verification_token') {
 				    // generate a random token
-				    $token = md5(uniqid(rand(), TRUE));
+                    include_once SQ_FUDGE_PATH.'/general/security.inc';
+				    $token = md5(uniqid(security_rand(), TRUE));
 				    $_SESSION['SQ_VERIFY_EMAIL_RAW'] = $to_email;
 				    $_SESSION['SQ_VERIFY_EMAIL_TOKEN'] = $token;
 				    $_SESSION['SQ_VERIFY_EMAIL_VERIFIED'] = '';

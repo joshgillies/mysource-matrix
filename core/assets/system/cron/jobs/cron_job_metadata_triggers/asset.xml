@@ -22,8 +22,8 @@
 	<package>__core__</package>
 	<type_code>cron_job_metadata_triggers</type_code>
 	<version>0.2</version>
-	<name>Cron Job Metadata Triggers</name>
-	<description>cron job metadata triggers fires Metadata Time events for expired metatdata fields</description>
+	<name>Metadata Triggers Scheduled Job</name>
+	<description>Scheduled job metadata triggers fires Metadata Time events for expired metatdata fields</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>system</allowed_access>
 	<parent_type>cron_job</parent_type>

@@ -187,7 +187,7 @@ function paintRoles(&$owner, &$o, &$ei, $keywords=NULL)
 							foreach ($roles as $roleid => $ids) {
 								$userids = Array();
 								foreach ($ids as $row => $userid) {
-									if ($GLOBALS['SQ_SYSTEM']->am->getAssetInfo($userid, Array('user', 'user_group'), FALSE)) {
+									if ($GLOBALS['SQ_SYSTEM']->am->getAssetInfo($userid, Array('user', 'user_group'), FALSE) || $userid == 0) {
 										$userids[] = $userid;
 									}
 								}

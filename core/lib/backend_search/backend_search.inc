@@ -74,7 +74,7 @@ class Backend_Search
 	* @return array
 	* @access public
 	*/
-	public static function processSearch($search_terms, $restrict_statuses=Array(), $restrict_asset_types=Array(), $result_limit=NULL, $offset=0)
+	public static function processSearch($search_terms, $search_roots=NULL, $restrict_statuses=Array(), $restrict_asset_types=Array(), $result_limit=NULL, $offset=0)
 	{
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		if (Backend_Search::isAvailable()) {
@@ -106,6 +106,11 @@ class Backend_Search
 										   ),
 							'statuses'	=> $restrict_statuses,
 						   );
+			
+			// Have we set search roots?
+			if (!empty($search_roots)) {
+			    $search_info['roots'] = $search_roots;
+			}
 
 			// Are we restricting by asset types? If so, add them as a condition
 			if (!empty($restrict_asset_types)) {

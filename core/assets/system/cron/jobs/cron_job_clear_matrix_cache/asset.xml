@@ -22,8 +22,8 @@
 	<package>__core__</package>
 	<type_code>cron_job_clear_matrix_cache</type_code>
 	<version>0.1</version>
-	<name>Clear Matrix Cache Cron Job</name>
-	<description>Allows the scheduling of a clear Matrix cache cron job to be done by the system at a point in time.</description>
+	<name>Clear Matrix Cache Scheduled Job</name>
+	<description>Allows the scheduling of a clear Matrix cache scheduled job to be done by the system at a point in time.</description>
 	<instantiable>no</instantiable>
 	<allowed_access>system</allowed_access>
 	<parent_type>cron_job</parent_type>

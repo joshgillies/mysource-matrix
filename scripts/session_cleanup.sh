@@ -67,20 +67,14 @@ file_exists()
 }
 
 SYSTEM_TAG=`echo $1 | sed -e 's/\//_/g'`
-TMPFILE="/tmp/${SYSTEM_TAG}-sessionclean.filelist.$$"
 OS=`uname`
 HEAD=`which head`
-XARGS=`which xargs`
 
 if [ ! -x $HEAD ]; then
 	echo 'head not found. Aborting.'
 	exit 1;
 fi;
 
-if [ ! -x $XARGS ]; then
-	echo 'xargs not found. Aborting.'
-	exit 1;
-fi;
 
 if [ "$OS" = "SunOS" ]; then
 
@@ -215,23 +209,8 @@ if [ $SESSION_LIFETIME -gt 0 ]; then
 
 	if [ -w $SESSION_LOCATION ]; then
 
-		if [ -f $TMPFILE ]; then
-			echo "The file $TMPFILE exists. Check that this script isn't already running and remove the files if it's orphaned. Aborting."
-			exit 1;
-		fi;
-
-		# Session files can be hashed by md5 (32 chars long) or sha1 (40 chars long)
-		# Instead of checking for both, check for a min of 32 chars
-		# Session files are only in the base $session_location folder, so limit it to
-		# only searching that folder.
-		`$FIND $SESSION_LOCATION -maxdepth 1 -name 'sess_*' $FIND_TIMEARG +$SESSION_LIFETIME > $TMPFILE`
-		if [ -s $TMPFILE ]; then
-			if [ $DEBUG -ne 0 ]; then echo Removing all sessions matching mask 'sess_*' older than $SESSION_MATRIXLIFE seconds from $SESSION_LOCATION; fi;
-			`cat $TMPFILE | $XARGS rm`
-		else
-			if [ $DEBUG -ne 0 ]; then echo Couldn\'t find any session files worth worrying about; fi;
-		fi;
-		`rm $TMPFILE`
+	if [ $DEBUG -ne 0 ]; then echo Removing all sessions matching mask 'sess_*' older than $SESSION_MATRIXLIFE seconds from $SESSION_LOCATION; fi;
+	`$FIND $SESSION_LOCATION -maxdepth 1 -name 'sess_*' $FIND_TIMEARG +$SESSION_LIFETIME -exec rm {} \;`
 
 	else
 		echo You don\'t have permission to delete files from $SESSION_LOCATION;

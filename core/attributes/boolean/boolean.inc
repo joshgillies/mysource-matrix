@@ -248,7 +248,9 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 		if (array_get_index($this->_params, 'allow_empty', false) && is_string($value) && $value == '') {
 			return true;
 		}
-
+		if (!is_scalar($value)) {
+			$value = (int) $value;
+		}
 		$new_value = (int) $value;
 		if ((string) $new_value != (string) $value) {
 			// check for strings that mean the same as true and false

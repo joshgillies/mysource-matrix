@@ -228,6 +228,9 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 				case 'css_class':
 					$name = 'class';
 				break;
+			    	case 'conditions':
+					$skip_attribute = TRUE;
+				break;
 			}
 
 			if ($skip_attribute) continue;
@@ -385,9 +388,9 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 							// print condition editing icon if there are conditions to use
 							if(!empty($all_conditions)) {
 							    	$condition_count = count($all_conditions);
-								$desc = 'There are '.$condition_count.' available conditions to set';
+								$desc = 'There are '.$condition_count.' available conditions to set.';
 								?><script language="JavaScript" type="text/javascript">bodycopy_available_conditions['<?php echo $asset->id; ?>'] = <?php echo $conditions_js; ?>; </script><?php
-								Bodycopy_Edit_Fns::printBodycopyIcon('bodycopy_edit_div_conditions(\''.$prefix.'\', '.$asset->id.', '.$parentid.');', 'Edit Container Conditions', $desc, 'conditions', '[Edit Container Conditions]');
+								Bodycopy_Edit_Fns::printBodycopyIcon('bodycopy_edit_div_conditions(\''.$prefix.'\', '.$asset->id.', '.$parentid.');', 'Edit Container Display Conditions', $desc, 'conditions', '[Edit Container Display Conditions]');
 							}
 							
 							if (!is_null($content_type)) {
@@ -400,7 +403,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 							<?php	
 							// print the condition set icon
 							if($is_conditional_display) {
-								Bodycopy_Edit_Fns::printBodycopyIcon('', 'Conditionally Displayed', 'This DIV is conditionally displayed', 'conditions_set', '[Conditional Display]');
+								Bodycopy_Edit_Fns::printBodycopyIcon('', 'Conditionally Displayed', 'This container has display conditions set on it.', 'conditions_set', '[Conditional Display]');
 							}
 							
 							$lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($asset->id, 5);								

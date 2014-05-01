@@ -67,6 +67,7 @@ class Tool_Structured_File_Import extends Tool
 		$itm = $am->getSystemAsset('import_tools_manager');
 
 		$import_dir = STRUCTURED_FILE_IMPORT_DIR;
+		if(!empty($import_dir) && strpos($import_dir, '/') !== 0)     $import_dir = SQ_SYSTEM_ROOT.'/'.$import_dir;
 		if (empty($import_dir)) {
 
 			$o->openSection('Warning');
@@ -281,10 +282,12 @@ class Tool_Structured_File_Import extends Tool
 			$vars['create_new_site'] = TRUE;
 			$vars['new_site_name'] = $_POST[$type_code.'_new_site_name'];
 		}
+		$import_dir = STRUCTURED_FILE_IMPORT_DIR;
+		if(!empty($import_dir) && strpos($import_dir, '/') !== 0)     $import_dir = SQ_SYSTEM_ROOT.'/'.$import_dir;
 		$vars['root_assetid'] = $_POST[$type_code.'_root_assetid']['assetid'];
 		$vars['use_headings'] = isset($_POST[$type_code.'_no_headings']) ? FALSE : TRUE;
 		$vars['headings'] = array_keys($_POST['structured_file_import_headings']);
-		$vars['import_dir'] = STRUCTURED_FILE_IMPORT_DIR;
+		$vars['import_dir'] = $import_dir;
 		$vars['create_css'] = isset($_POST[$type_code.'_create_css_file']);
 		$vars['create_site_map'] = isset($_POST[$type_code.'_create_new_map']);
 		$vars['leading_create'] = isset($_POST[$type_code.'_leading_text']);
@@ -299,7 +302,6 @@ class Tool_Structured_File_Import extends Tool
 		}
 
 		// Any deletion?
-		$import_dir = STRUCTURED_FILE_IMPORT_DIR;
 		$files_array = list_files($import_dir, TRUE);
 		$remove_list = Array();
 		foreach ($files_array as $id => $file_name) {

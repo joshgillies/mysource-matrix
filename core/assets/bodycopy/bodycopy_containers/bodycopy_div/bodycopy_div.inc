@@ -82,7 +82,7 @@ class Bodycopy_Div extends Bodycopy_Container
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset($content_type);
 		$wysiwyg = new $content_type();
 		$div_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'value' => 'div_contents', 'sort_order' => 1, 'is_dependant' => 1, 'is_exclusive' => 1);
-		$wysiwyg->setAttrValue('name', 'DIV Content');
+		$wysiwyg->setAttrValue('name', 'Container Content');
 		if (isset($bc_data['content']) && (trim($bc_data['content'] != ''))) {
 			$wysiwyg->setAttrValue('html', $bc_data['content']);
 		}

@@ -578,8 +578,8 @@ class SOAP_Common
 		if ($soap_client instanceof SoapClient) {
 			if ($ws_passwordDigest)
 			{
-
-				$nonce = mt_rand();
+                include_once SQ_FUDGE_PATH.'/general/security.inc';
+				$nonce = security_rand();
 				$timestamp = gmdate('Y-m-d\TH:i:s\Z');
 				$packedNonce = pack('H*', $nonce);
 				$packedTimestamp = pack('a*', $timestamp);
@@ -786,7 +786,7 @@ class SOAP_Common
 			$str = get_object_vars($str);
 		}
 		if (!is_array($str)) {
- 			return "\n".'<'.$parent_element.'>'.'<![CDATA['.$str.']]>'.'</'.$parent_element.'>';
+ 			return '<![CDATA['.$str.']]>';
 		}
 
 		$xml = '';
@@ -795,7 +795,7 @@ class SOAP_Common
 			$key = preg_replace('/\s+/', '', $key);
 			if ((empty($key) && $key != 0) || preg_match('/^xml$/i', $key)) continue;
 
-			if (!empty($parent_element) && (is_array($value) || is_object($value))) {
+			if (!empty($parent_element) && !preg_match('/^\d+$/', $parent_element)) {
 				$xml .= "\n".'<'.$parent_element.'>'.self::arrayToXml($value, $key).'</'.$parent_element.'>';
 			} else {
 				$xml .= self::arrayToXml($value, $key);
@@ -911,7 +911,7 @@ class SOAP_Common
 				<td>
 					<?php text_box($login_url_field_name, array_get_index($settings, 'login_url', ''), 100); ?>
 					<?php check_box($test_auth_field_name, '1', FALSE); ?> Test Authentication
-					
+
 					<?php
 						if (isset($settings['crm_auth_success']) && is_bool($settings['crm_auth_success'])) {
 							if ($settings['crm_auth_success'] === TRUE) {

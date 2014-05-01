@@ -23,7 +23,16 @@
 * @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
-error_reporting(E_ALL);
+if (defined('E_STRICT') && (E_ALL & E_STRICT)) {
+	error_reporting(E_ALL ^ E_DEPRECATED ^ E_STRICT);
+} else {
+	if (defined('E_DEPRECATED')) {
+		error_reporting(E_ALL ^ E_DEPRECATED);
+	} else {
+		error_reporting(E_ALL);
+	}
+}
+
 if ((php_sapi_name() != 'cli')) {
 	trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 }
@@ -33,9 +42,10 @@ require_once 'Console/Getopt.php';
 $shortopt = 's:';
 $longopt = Array('fix-table=', 'show-records');
 
-$args = Console_Getopt::readPHPArgv();
+$con = new Console_Getopt();
+$args = $con->readPHPArgv();
 array_shift($args);
-$options = Console_Getopt::getopt($args, $shortopt, $longopt);
+$options = $con->getopt($args, $shortopt, $longopt);
 
 if ($options instanceof PEAR_Error) {
 	usage();
@@ -49,7 +59,7 @@ $show_overlapping_entries = FALSE;
 $fix_table = '';
 foreach ($options[0] as $index => $option) {
 	if ($option[0] == 's' && !empty($option[1]) && empty($SYSTEM_ROOT)) {
-		$SYSTEM_ROOT = $option[1];		
+		$SYSTEM_ROOT = $option[1];
 	} else if ($option[0] == 's') {
 		usage();
 	}

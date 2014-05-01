@@ -65,6 +65,11 @@ class Image_Variety extends Asset
 		$this->data_path        = $image->data_path.'/varieties';
 		$this->data_path_suffix = $image->data_path_suffix.'/varieties';
 		$this->data_path_public = $image->data_path_public.'/varieties';
+		
+		// use image's alt attribute
+		if(!isset($data['alt'])) {
+		    $data['alt'] = $image->attr('alt');
+		}
 
 		// if there is no varietyid then we haven't been created yet, so don't do anymore
 		if (!$this->_varietyid) return;
@@ -851,8 +856,7 @@ class Image_Variety extends Asset
 			// send cacheable headers if file asset meets the credentials
 			if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && SQ_CONF_SEND_CACHEABLE_HEADER && ($GLOBALS['SQ_SYSTEM']->user instanceof Public_User) && empty($_POST) && $cm->cacheableHeadersEnabledForCurrentProtocol() && $this->status >= SQ_STATUS_LIVE && $this->readAccess()) {
 					$level = $cm->cacheControlLevel();
-					$no_cookie = $level === 'public' ? ', no-cache="set-cookie"' : '';
-					header('Cache-Control: '.$level.$no_cookie);
+					header('Cache-Control: '.$level);
 					header('Pragma: cache');
 					header('Expires: '.gmdate('D, d M Y H:i:s', (time()+86400)).' GMT');
 					header('Last-Modified: '.gmdate('D, d M Y H:i:s', filemtime($file)).' GMT');
@@ -900,7 +904,7 @@ class Image_Variety extends Asset
 		if (!$filename) return;
 		$size = getimagesize($this->data_path.'/'.$filename);
 
-		$tag = '<img src="'.$this->getURL().'" '.$size[3].' alt="'.htmlentities($alt).'" title="'.htmlentities($title).'" />';
+		$tag = '<img src="'.$this->getURL().'" '.$size[3].' alt="'.$alt.'" title="'.$title.'" />';
 		if ($return) return $tag;
 		echo $tag;
 

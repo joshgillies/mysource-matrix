@@ -358,7 +358,11 @@ class Conditions_List
 			$conditions_parameters = $this->_getAllConditions();
 			if (!count($conditions_parameters)) {
 				$o->openField('','wide_col');
-					echo translate('no_existing_conditions');
+					echo '<em>'.translate('no_existing_conditions').'</em>';
+				$o->closeField();
+			} else {
+				$o->openField('','wide_col');
+					$o->note(translate('condition_configuration_instructions'));
 				$o->closeField();
 			}
 			foreach ($conditions_parameters as $condition_name => $parameters) {
@@ -381,7 +385,7 @@ class Conditions_List
 				$condition_edit_fns = $this->_getConditionAsset($condition_type, TRUE);
 
 				// paint TRUE/FALSE bit
-				$o->openField('Condition Is True If');
+				$o->openField(translate('condition_is_true_if'));
 				$match_options = call_user_func(Array($condition_type, 'getMatchKeywords'), $condition_type);
 				if ($write_access) {
 					combo_box($condition_prefix.'_match', $match_options, FALSE, $parameters['restriction']['match']);
@@ -405,7 +409,7 @@ class Conditions_List
 				}
 
 				// force no cache header to be sent
-				$o->openField('Force No Cache');
+				$o->openField(translate('force_no_cache').'?');
 				$force_no_cache = isset($parameters['force_no_cache']) ? $parameters['force_no_cache'] : TRUE;
 				$force_no_cache_text = $force_no_cache ? 'Yes' : 'No';
 				if ($write_access) {
@@ -416,7 +420,7 @@ class Conditions_List
 				$o->closeField();
 				
 				if ($write_access) {
-					$o->openField(translate('delete'));
+					$o->openField(translate('delete').'?');
 					check_box($condition_prefix.'_delete', $value='1', $checked=FALSE);
 					label(translate('delete_this_condition'), $condition_prefix.'_delete');
 					$o->closeField();
@@ -497,6 +501,7 @@ class Conditions_List
 					$conditions_parameters_new[$new_name]['type_code'] = $condition_type;
 					$conditions_parameters_new[$new_name]['restriction']['match'] = array_get_index($_POST, $condition_prefix.'_match', TRUE);
 					$conditions_parameters_new[$new_name]['force_no_cache'] = array_get_index($_POST, $condition_prefix.'_force_no_cache', TRUE);
+					$conditions_parameters_new[$new_name]['restriction']['prefix'] = $condition_prefix;
 				}
 			}
 

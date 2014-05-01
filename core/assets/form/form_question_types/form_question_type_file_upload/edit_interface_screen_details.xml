@@ -15,7 +15,7 @@
 -->
 
 <contents>
-	<section name="Locking / Editing">
+	<section>
 	    <field>
 			<function_call>
 				<paint_function   name="paintLockMessage"   />
@@ -37,7 +37,7 @@
 			<int width="5" />
 		</field>
 		<field attribute="extra">
-			<text width="40" height="1" />
+			<text width="80" height="4" />
 		</field>
 		<field attribute="attach_to_mail">
 			<boolean true_text="yes" false_text="no" />

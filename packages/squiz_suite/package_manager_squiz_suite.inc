@@ -88,7 +88,6 @@ class Package_Manager_Squiz_Suite extends Package_Manager
 		if (!$suite_manager->create($suite_manager_link)) {
 			trigger_localised_error('SQS0001', E_USER_ERROR);
 		}
-		pre_echo('Squiz Suite Manager Asset Id : '.$suite_manager->id);
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('suite_manager', $suite_manager->id);
 
@@ -119,7 +118,6 @@ class Package_Manager_Squiz_Suite extends Package_Manager
 		if (!$cron_manager->addJob($cron_job, $root_user, SQ_LINK_TYPE_2)) {
 			trigger_error('Sync Squiz Suite Products Cron Job NOT CREATED', E_USER_ERROR);
 		}
-		pre_echo('Sync Squiz Suite Products Cron Job Id: '.$cron_job->id);
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('cron_job_sync_suite_products', $cron_job->id);
 

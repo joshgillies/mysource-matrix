@@ -789,11 +789,14 @@
 
 	<error code="SYS0019">Cannot use "submit" as the name of the Submit button</error><!-- core/lib/html_form/html_form.inc:50: -->
 
-	<error code="SYS0020">The uploaded file "%1$s" exceeded the set limit of %2$s</error><!-- core/lib/html_form/html_form.inc:562: -->
+	<!-- Exceeded set file size limit -->
+	<error code="SYS0020">File upload failed. The uploaded file "%1$s" exceeded the allowed maximum size of %2$s</error><!-- core/lib/html_form/html_form.inc:562: -->
 
-	<error code="SYS0021">The uploaded file "%1$s" exceeded the MAX_FILE_SIZE directive in form (%2$s). Your current %3$s settings allows you to upload files no larger than %4$sMB</error><!-- core/lib/html_form/html_form.inc:519: -->
+	<!-- Exceeded MAX_FILE_SIZE form setting -->
+	<error code="SYS0021">File upload failed. The uploaded file "%1$s" exceeded the allowed maximum size of %2$s</error><!-- core/lib/html_form/html_form.inc:519: -->
 
-	<error code="SYS0022">The uploaded file "%1$s" exceeded the size specified by the 'upload_max_filesize' directive in php.ini (%2$s). Your current %3$s settings allows you to upload files no larger than %4$sMB</error><!-- core/lib/html_form/html_form.inc:514: -->
+	<!-- Exceeded upload_max_filesize -->
+	<error code="SYS0022">File upload failed. The uploaded file "%1$s" exceeded the allowed maximum size of %2$s</error><!-- core/lib/html_form/html_form.inc:514: -->
 
 	<error code="SYS0023">The uploaded file "%s" was only partially uploaded.</error><!-- core/lib/html_form/html_form.inc:524: -->
 

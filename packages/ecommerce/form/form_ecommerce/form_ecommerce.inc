@@ -439,12 +439,17 @@ class Form_Ecommerce extends Form_Email
 					$create_location = $file_upload->attr('create_location');
 					if (empty($create_location)) {
 						if (!empty($extra_data['temp_filesystem_path'])) {
+							$temp_file_path = $extra_data['temp_filesystem_path'];
+							if(strpos($temp_file_path, '/') !== 0) $temp_file_path = SQ_SYSTEM_ROOT.'/'.$temp_file_path;
 							$filename   = $file_upload->getValue();
 							$perm_path  = $order_asset->data_path.'/attachments/'.str_replace(':', '_', $file_upload->id);
 		
 							// Move it using Fudge file_system function
 							create_directory($perm_path);
-							move_file($extra_data['temp_filesystem_path'], $perm_path.'/'.$filename);
+							move_file($temp_file_path, $perm_path.'/'.$filename);
+		
+							// have to use relative path
+							$perm_path = str_replace(SQ_SYSTEM_ROOT.'/', '', $perm_path);
 							$extra_data = Array(
 											'filesystem_path'	=> $perm_path.'/'.$filename,
 										  );
@@ -1062,8 +1067,11 @@ class Form_Ecommerce extends Form_Email
 
 		// Link the applied promotions to the asset
 		$this->_linkPromotionAssets($order);		
-
+			
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		
+		// fire trigger ecom order submitted
+		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_ecommerce_order_submitted', $order);
 
 	}//end _saveOrderAsset()
 	
@@ -1153,7 +1161,7 @@ class Form_Ecommerce extends Form_Email
 			$folder = new Folder();
 			$folder->setAttrValue('name', 'Orders');
 
-			$folder_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'value' => 'orders_folder', 'is_dependant' => 0, 'is_exclusive' => 1);
+			$folder_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'value' => 'orders_folder', 'is_dependant' => 0, 'is_exclusive' => 0);
 
 		 	// Create order folder
             $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
@@ -1189,7 +1197,7 @@ class Form_Ecommerce extends Form_Email
 
 		// create the Order asset
 		$order = new Order();
-		$copy_link  = Array('asset' => &$folder, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
+		$copy_link  = Array('asset' => &$folder, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 0);
 
 		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 		$success = $order->create($copy_link);

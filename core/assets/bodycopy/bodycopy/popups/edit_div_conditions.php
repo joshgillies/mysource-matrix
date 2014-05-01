@@ -105,7 +105,7 @@ include(dirname(__FILE__).'/header.php');
 	    	    
 	    // add "add condition" link
 	    var div =  document.createElement('div');
-	    div.style = 'text-align: center;';
+	    div.style.textAlign = 'center';
 	    var add_link = document.createElement('a');
 	    add_link.href = '#';
 	    add_link.innerHTML = '<img src="<?php echo sq_web_path('lib')?>/web/images/icons/add.png" alt="Add" title="Add condition group " class="sq-icon sq-link-icon small">';
@@ -120,7 +120,7 @@ include(dirname(__FILE__).'/header.php');
 	    var tr =document.createElement('tr');
 	    var td_label = document.createElement('td');
 	    var td_input = document.createElement('td');
-	    td_label.class = 'label';
+	    td_label.className = 'label';
 	    td_label.appendChild(document.createTextNode('Logical grouping:'));
 	    tr.appendChild(td_label);
 	    tr.appendChild(td_input);
@@ -223,7 +223,7 @@ include(dirname(__FILE__).'/header.php');
 	    deleteIcon.className = 'sq-popup-btn small';
 	    deleteIcon.alt = 'Delete this condition';
 	    deleteIcon.title = 'Delete this condition';
-	    deleteIcon.style = 'cursor: pointer;';
+	    deleteIcon.style.cursor = 'pointer';
 	    deleteIcon.onclick = function () {
 		this.parentNode.parentNode.parentNode.removeChild(this.parentNode.parentNode);
 		return false;
@@ -239,7 +239,7 @@ include(dirname(__FILE__).'/header.php');
 	<a href="#" onclick="javascript: popup_close(); return false;">
 		<img src="<?php echo sq_web_path('lib')?>/web/images/icons/cancel.png" alt="Cancel" title="<?php echo translate('cancel');?>" class="sq-icon">
 	</a>
-	Edit Container Conditions
+	Edit Container Display Conditions
 </h1>
 <form id="main_form" name="main_form"  style="height:410px;overflow: auto;">
 <input type="hidden" name="bodycopy_name" value="">
@@ -251,11 +251,11 @@ include(dirname(__FILE__).'/header.php');
 		<fieldset>
 			<table style="width:100%">
 				<tr>
-					<td class="label">Condition rules:</td>
+					<td class="label">Display conditions:</td>
 					<td>
 					    <select name="condition_rules_status">
-							<option value="enable" selected ><?php echo translate('enable'); ?></option>
-							<option value="disable"><?php echo translate('disable'); ?></option>
+							<option value="enable" selected ><?php echo translate('enabled'); ?></option>
+							<option value="disable"><?php echo translate('disabled'); ?></option>
 						</select>
 					</td>
 				</tr>

@@ -103,8 +103,8 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 																'protected'		=> FALSE,
 															   ),
 	    					'SQ_ENABLE_VIPER_EDITOR'						=> Array (
-																'name'			=> 'enable_viper_editor',
-																'description'	=> 'Enable Viper WYSIWYG editor',
+																'name'			=> 'enable_edit+_editor',
+																'description'	=> 'Enable Edit+ WYSIWYG editor',
 																'default'		=> 1,
 																'protected'		=> FALSE,
 															   ),
@@ -149,7 +149,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 			if ($have_lock && $is_admin) {
 				$options = Array(1 => 'Yes', 0 => 'No');
 				combo_box('prefs[SQ_ENABLE_VIPER_EDITOR]', $options, FALSE, $pref_var);
-				echo $o->note(translate('enable_viper_editor_note'));
+				echo $o->note(translate('enable_edit+_editor_note'));
 			} else {
 				echo ($pref_var) ? translate('yes') : translate('no');
 			}
@@ -491,7 +491,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 		// enable viper
 		if (is_null($pref) || $pref == 'SQ_ENABLE_VIPER_EDITOR') {
 			if (isset($_POST['prefs']['SQ_ENABLE_VIPER_EDITOR'])) {
-				$this->pref_vars['SQ_ENABLE_VIPER_EDITOR']['default'] = $_POST['prefs']['SQ_ENABLE_VIPER_EDITOR']['default'];
+				$this->pref_vars['SQ_ENABLE_VIPER_EDITOR']['default'] = $_POST['prefs']['SQ_ENABLE_VIPER_EDITOR'];
 			}
 		}		
 
@@ -505,7 +505,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 		// WYSIWYG APPLY DESIGN STYLE
 		if (is_null($pref) || $pref == 'SQ_WYSIWYG_APPLY_DESIGN_STYLE') {
 			if (isset($_POST['prefs']['SQ_WYSIWYG_APPLY_DESIGN_STYLE'])) {
-				$this->pref_vars['SQ_WYSIWYG_APPLY_DESIGN_STYLE']['default'] = $_POST['prefs']['SQ_WYSIWYG_APPLY_DESIGN_STYLE']['default'];
+				$this->pref_vars['SQ_WYSIWYG_APPLY_DESIGN_STYLE']['default'] = $_POST['prefs']['SQ_WYSIWYG_APPLY_DESIGN_STYLE'];
 			}
 		}
 		
@@ -587,7 +587,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 		// LIVE LINK ONLY
 		if (is_null($pref) || $pref == 'SQ_LIVE_LINK_ONLY') {
 			if (isset($_POST['prefs']['SQ_LIVE_LINK_ONLY'])) {
-				$this->pref_vars['SQ_LIVE_LINK_ONLY']['default'] = $_POST['prefs']['SQ_LIVE_LINK_ONLY']['default'];
+				$this->pref_vars['SQ_LIVE_LINK_ONLY']['default'] = $_POST['prefs']['SQ_LIVE_LINK_ONLY'];
 			}
 		}
 		

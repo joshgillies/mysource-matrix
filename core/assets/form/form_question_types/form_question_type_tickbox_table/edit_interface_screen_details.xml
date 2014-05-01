@@ -14,7 +14,7 @@
 */
 -->
 <contents>
-	<section name="Locking / Editing">
+	<section>
 	    <field>
 			<function_call>
 				<paint_function   name="paintLockMessage"   />
@@ -45,7 +45,7 @@
 			<int width="5" />
 		</field>
 		<field attribute="extra">
-			<text width="20" height="1" />
+			<text width="80" height="4" />
 		</field>
 		<field attribute="sticky">
 			<boolean true_text="yes" false_text="no" />

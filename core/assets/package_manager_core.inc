@@ -156,7 +156,6 @@ class Package_Manager_Core extends Package_Manager
 			trigger_localised_error('CORE0001', E_USER_ERROR, 'Root Folder');
 		}
 
-		pre_echo('Root Folder Asset Id : '.$root_folder->id);
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('root_folder', $root_folder->id);
 
 		return $root_folder;
@@ -186,7 +185,6 @@ class Package_Manager_Core extends Package_Manager
 		if (!$trash_folder->create($trash_link)) {
 			trigger_localised_error('CORE0001', E_USER_ERROR, 'Trash Folder');
 		}
-		pre_echo('Trash Asset Id : '.$trash_folder->id);
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('trash_folder', $trash_folder->id);
 		return $trash_folder;
@@ -214,7 +212,6 @@ class Package_Manager_Core extends Package_Manager
 		if (!$public_user->create($public_user_link)) {
 			trigger_localised_error('CORE0001', E_USER_ERROR, 'Public Access User');
 		}
-		pre_echo('Public Access User Asset Id : '.$public_user->id);
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('public_user', $public_user->id);
 
@@ -245,7 +242,6 @@ class Package_Manager_Core extends Package_Manager
 		if (!$system_management_folder->create($system_management_folder_link)) {
 			trigger_localised_error('CORE0001', E_USER_ERROR, 'System Management Folder');
 		}
-		pre_echo('System Management Asset Id : '.$system_management_folder->id);
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('system_management_folder', $system_management_folder->id);
 		return $system_management_folder;
@@ -269,7 +265,6 @@ class Package_Manager_Core extends Package_Manager
 		if (!$system_user_group->create($system_link)) {
 			trigger_localised_error('CORE0001', E_USER_ERROR, 'System Admin Group');
 		}
-		pre_echo('System Administrators User Group Asset Id : '.$system_user_group->id);
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('system_user_group', $system_user_group->id);
 		return $system_user_group;
@@ -308,8 +303,6 @@ class Package_Manager_Core extends Package_Manager
 			trigger_localised_error('CORE0001', E_USER_ERROR, 'Root User');
 		}
 
-		pre_echo('Root User Asset Id : '.$root_user->id);
-
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('root_user', $root_user->id);
 		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 		return $root_user;
@@ -333,7 +326,6 @@ class Package_Manager_Core extends Package_Manager
 		if (!$cron_manager->create($cron_manager_link)) {
 			trigger_localised_error('CORE0001', E_USER_ERROR, 'Cron Manager');
 		}
-		pre_echo('Cron Manager Asset Id : '.$cron_manager->id);
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('cron_manager', $cron_manager->id);
 		return $cron_manager;
@@ -357,7 +349,6 @@ class Package_Manager_Core extends Package_Manager
 		if (!$trigger_manager->create($trigger_manager_link)) {
 			trigger_localised_error('CORE0001', E_USER_ERROR, 'Trigger Manager');
 		}
-		pre_echo('Trigger Manager Asset Id : '.$trigger_manager->id);
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('trigger_manager', $trigger_manager->id);
 		return $trigger_manager;
@@ -381,7 +372,6 @@ class Package_Manager_Core extends Package_Manager
 		if (!$log_manager->create($log_manager_link)) {
 			trigger_localised_error('CORE0001', E_USER_ERROR, 'Trigger Manager');
 		}
-		pre_echo('Log Manager Asset Id : '.$log_manager->id);
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('log_manager', $log_manager->id);
 		return $log_manager;
@@ -405,7 +395,6 @@ class Package_Manager_Core extends Package_Manager
 		if (!$layout_manager->create($layout_manager_link)) {
 			trigger_localised_error('CORE0001', E_USER_ERROR, 'Layout Manager');
 		}
-		pre_echo('Layout Manager Asset Id : '.$layout_manager->id);
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('layout_manager', $layout_manager->id);
 		return $layout_manager;
@@ -429,7 +418,6 @@ class Package_Manager_Core extends Package_Manager
 		if (!$remap_manager->create($remap_manager_link)) {
 			trigger_localised_error('CORE0001', E_USER_ERROR, 'Remap Manager');
 		}
-		pre_echo('Remap Manager Asset Id : '.$remap_manager->id);
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('remap_manager',$remap_manager->id);
 		return $remap_manager;
@@ -453,7 +441,6 @@ class Package_Manager_Core extends Package_Manager
 		if (!$cache_manager->create($cache_manager_link)) {
 			trigger_localised_error('CORE0001', E_USER_ERROR, 'Cache Manager');
 		}
-		pre_echo('Cache Manager Asset Id : '.$cache_manager->id);
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('cache_manager', $cache_manager->id);
 		return $cache_manager;
@@ -477,7 +464,6 @@ class Package_Manager_Core extends Package_Manager
 		if (!$designs_folder->create($designs_folder_link)) {
 			trigger_localised_error('CORE0001', E_USER_ERROR, 'Designs Folder');
 		}
-		pre_echo('Design Folder Asset Id : '.$designs_folder->id);
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('designs_folder', $designs_folder->id);
 		return $designs_folder;
@@ -501,7 +487,6 @@ class Package_Manager_Core extends Package_Manager
 		if (!$authentication_folder->create($authentication_folder_link)) {
 			trigger_localised_error('CORE0001', E_USER_ERROR, 'Authentication Folder');
 		}
-		pre_echo('Authentication Folder Asset Id : '.$authentication_folder->id);
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('authentication_folder', $authentication_folder->id);
 		return $authentication_folder;
@@ -526,7 +511,6 @@ class Package_Manager_Core extends Package_Manager
 		if (!$login_design->create($login_design_link)) {
 			trigger_localised_error('CORE0001', E_USER_ERROR, 'Login Design');
 		}
-		pre_echo('Login Design Asset Id : '.$login_design->id);
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('login_design', $login_design->id);
 		return $login_design;
@@ -551,7 +535,6 @@ class Package_Manager_Core extends Package_Manager
 		if (!$login_design->create($login_design_link)) {
 			trigger_localised_error('CORE0001', E_USER_ERROR, 'EES Login Design');
 		}
-		pre_echo('EES Login Design Asset Id : '.$login_design->id);
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('ees_login_design', $login_design->id);
 		return $login_design;
@@ -575,7 +558,6 @@ class Package_Manager_Core extends Package_Manager
 		if (!$password_change_design->create($password_change_design_link)) {
 				trigger_localised_error('CORE0001', E_USER_ERROR, 'Password Change Design');
 		}
-		pre_echo('Password Change Design Asset Id : '.$password_change_design->id);
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('password_change_design', $password_change_design->id);
 		return $password_change_design;
@@ -605,7 +587,6 @@ class Package_Manager_Core extends Package_Manager
 		if (!$designs_folder->create($folder_link)) {
 			trigger_localised_error('CORE0001', E_USER_ERROR, 'Designs Folder');
 		}
-		pre_echo('Designs Folder Id : '.$designs_folder->id);
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('web_folder_designs', $designs_folder->id);
 		return $designs_folder;
@@ -635,7 +616,6 @@ class Package_Manager_Core extends Package_Manager
 		if (!$media_folder->create($folder_link)) {
 			trigger_localised_error('CORE0001', E_USER_ERROR, 'Media Folder');
 		}
-		pre_echo('Media Folder Id : '.$media_folder->id);
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('web_folder_media', $media_folder->id);
 		return $media_folder;
@@ -665,7 +645,6 @@ class Package_Manager_Core extends Package_Manager
 		if (!$users_folder->create($folder_link)) {
 			trigger_localised_error('CORE0001', E_USER_ERROR, 'Users Folder');
 		}
-		pre_echo('Users Folder Id : '.$users_folder->id);
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('web_folder_users', $users_folder->id);
 		return $users_folder;
@@ -695,7 +674,6 @@ class Package_Manager_Core extends Package_Manager
 		if (!$cron_manager->addJob($cron_job, $root_user, SQ_LINK_TYPE_2)) {
 			trigger_localised_error('CORE0001', E_USER_ERROR, 'Expired Workflow Cron Job');
 		}
-		pre_echo('Expired Workflow Cron Job Id: '.$cron_job->id);
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('cron_job_expired_workflow', $cron_job->id);
 
@@ -726,7 +704,6 @@ class Package_Manager_Core extends Package_Manager
 		if (!$cron_manager->addJob($cron_job, $root_user, SQ_LINK_TYPE_2)) {
 			trigger_error('Generate Log Reports Cron Job NOT CREATED', E_USER_ERROR);
 		}
-		pre_echo('Generate Log Reports Cron Job Id: '.$cron_job->id);
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('cron_job_generate_log_reports', $cron_job->id);
 
@@ -757,7 +734,6 @@ class Package_Manager_Core extends Package_Manager
 		if (!$cron_manager->addJob($cron_job, $root_user, SQ_LINK_TYPE_2)) {
 			trigger_error('Escalate Safe Trash Cron Job NOT CREATED', E_USER_ERROR);
 		}
-		pre_echo('Escalate Safe Trash Cron Job Id: '.$cron_job->id);
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('cron_job_escalate_safe_trash', $cron_job->id);
 
@@ -782,7 +758,6 @@ class Package_Manager_Core extends Package_Manager
 		if (!$tag_manager->create($tag_manager_link)) {
 			trigger_localised_error('CORE0001', E_USER_ERROR, 'Trigger Manager');
 		}
-		pre_echo('Tag Manager Asset Id : '.$tag_manager->id);
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('tag_manager', $tag_manager->id);
 		return $tag_manager;
@@ -812,7 +787,6 @@ class Package_Manager_Core extends Package_Manager
 		if (!$cron_manager->addJob($cron_job, $root_user, SQ_LINK_TYPE_2)) {
 			trigger_error('Metadata Triggers Cron Job NOT CREATED', E_USER_ERROR);
 		}
-		pre_echo('Metadata Triggers Cron Job Id: '.$cron_job->id);
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('cron_job_metadata_triggers', $cron_job->id);
 
@@ -843,7 +817,6 @@ class Package_Manager_Core extends Package_Manager
 		if (!$cron_manager->addJob($cron_job, $root_user, SQ_LINK_TYPE_2)) {
 			trigger_error('Expired Matrix Cache Cron Job NOT CREATED', E_USER_ERROR);
 		}
-		pre_echo('Expired Matrix Cache Cron Job Id: '.$cron_job->id);
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('cron_job_expired_matrix_cache', $cron_job->id);
 
@@ -874,7 +847,6 @@ class Package_Manager_Core extends Package_Manager
 		if (!$cron_manager->addJob($cron_job, $root_user, SQ_LINK_TYPE_2)) {
 			trigger_error('Expired Matrix Locks Cron Job NOT CREATED', E_USER_ERROR);
 		}
-		pre_echo('Expired Matrix Locks Cron Job Id: '.$cron_job->id);
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('cron_job_expired_matrix_locks', $cron_job->id);
 

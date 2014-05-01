@@ -234,7 +234,9 @@ class Metadata_Field extends Asset
 		// First escape % characters
 		$str = str_replace('%', '%'.ord('%').'%', $str);
 		// Next change \ escaped characters to ^d^ where d is the character's ascii code
-		$str = preg_replace('/\\\\([;=\\\\])/e', '"%".ord("\\1")."%"', $str);
+		$str = preg_replace_callback('/\\\\([;=\\\\])/', function($m) {
+		    return '%'.ord($m[1]).'%';
+		}, $str);
 
 		$value = '';
 		$check_component = !empty($components);
@@ -250,11 +252,15 @@ class Metadata_Field extends Asset
 			$pair[0] = trim($pair[0]);
 
 			// convert % escaped characters back
-			$pair[0] = preg_replace('/%(\d+)%/e', 'chr($1)', $pair[0]);
+			$pair[0] = preg_replace_callback('/%(\d+)%/', function($m) {
+			    return chr($m[1]);
+		    }, $pair[0]);
 
 			if (isset($pair[1])) {
-				$pair[1] = preg_replace('/%(\d+)%/e', 'chr($1)', $pair[1]);
-			}
+				$pair[1] = preg_replace_callback('/%(\d+)%/', function($m) {
+                    return chr($m[1]);
+                }, $pair[1]);
+		    }
 
 			if (!isset($pair[1])) {
 				if ($value != '') $value .= '; ';

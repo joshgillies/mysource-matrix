@@ -1245,10 +1245,6 @@ class Metadata_Manager extends MySource_Object
 		}
 
 		$schemas = $this->getSchemas($asset->id, TRUE, NULL, TRUE);
-		if (empty($schemas)) {
-			$GLOBALS['SQ_SYSTEM']->restoreContext();
-			return FALSE;
-		}
 
 		// an array of all metadata tag values
 		$tag_values = Array();

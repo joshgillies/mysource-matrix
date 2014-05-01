@@ -633,7 +633,17 @@ class Asset_Map
 		$root = simplexml_load_string($xml);
 		if (function_exists('libxml_disable_entity_loader'))
 			libxml_disable_entity_loader(FALSE);
-		
+
+		// Release the session write lock for "read" operations
+		 switch ($root['action']) {
+			case 'get translations':
+			case 'initialise':
+			case 'get assets':
+			case 'get url':
+		    case 'get attributes':
+				session_write_close();
+		 }//end switch
+
 		ob_start();
 		switch ($root['action']) {
 			case 'get translations' :
@@ -2202,6 +2212,11 @@ class Asset_Map
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset((string)$asset_node->attributes()->assetid);
 			$old_parent = $GLOBALS['SQ_SYSTEM']->am->getAsset(urldecode((string)$asset_node->attributes()->parentid));
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById((string)$asset_node->attributes()->linkid, $old_parent->id);
+			
+			if (!$asset->readAccess()) {
+				$this->_error('AMAP0012');
+				return;
+			}
 
 			if (is_null($old_parent)) {
 				$this->_error('AMAP0036', (string)$asset_node->attributes()->parentid);
@@ -2623,13 +2638,13 @@ class Asset_Map
 			    $real_value = array_get_index($value, 'value', '');
 			    if(!is_scalar($real_value)) continue;
 			    
-			    $attributes[urlencode($name)] = urlencode($real_value);
+			    $attributes[$name] = $real_value;
 			}
 			
 			// create a new node and fill out the attributes
 			$tmp_node = $root->addChild('asset');
 			foreach ($attributes as $info_k => $info_v) {
-				if (strlen($info_v) == 0)  $tmp_node->addAttribute($info_k, ' ');
+				if (strlen($info_v) == 0)  $tmp_node->addAttribute($info_k, '');
 				else $tmp_node->addAttribute($info_k, $info_v);
 			}	
 		}

@@ -201,6 +201,8 @@ class Ldap
 		}
 
 		if (!$sr) {
+			log_dump(ldap_err2str(ldap_errno($this->ptr)));
+			log_dump($filter);
 			return 0;
 		} else {
 			if (!is_null($sort_by)) ldap_sort($this->ptr, $sr,  $sort_by);

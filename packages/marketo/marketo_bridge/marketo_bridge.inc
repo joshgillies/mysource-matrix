@@ -117,12 +117,8 @@ class Marketo_Bridge extends Page
 				}
 			    }
 			    
-			    $data = $this->getLead($user_identifier, $nocache);
+			    $data = $this->getLead($user_identifier, $nocache, TRUE);
 			    
-			    // do the filtering of returned attributes
-			    $allowed_attributes = $this->attr('get_lead_allowed_attributes');
-			    if(!empty($allowed_attributes))
-				$data = $this->_filterGetLeadAttributes($data, $allowed_attributes);
 			    break;
 			    
 			
@@ -179,15 +175,18 @@ class Marketo_Bridge extends Page
 	 * 
 	 * @param array	$user_identifier	the user identifier to pass as argument, normally it's marketo cookie
 	 * @param bool	$nocache		no cache?
+	 * @param bool	$filter		filter attributes to return?
 	 * 
 	 * @return array
 	 * @access public
 	 */
-	public function getLead ($user_identifier, $nocache=FALSE)
+	public function getLead ($user_identifier, $nocache=FALSE, $filter=FALSE)
 	{    
 	    // start performance timer
 	    $GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'get lead');
 	    
+	    $allowed_attributes = $this->attr('get_lead_allowed_attributes');
+	   
 	    // if cached data is valid, just return the cached data
 	    if(isset($_SESSION['SQ_MARKETO_LEAD'])) {
 		$exire = $this->attr('get_lead_caching');
@@ -200,12 +199,16 @@ class Marketo_Bridge extends Page
 		$data =    $_SESSION['SQ_MARKETO_LEAD'];
 		 // stop performance timer
 		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'get lead');
+		// do the filtering of returned attributes
+		if($filter && !empty($allowed_attributes))
+		    $data = $this->_filterGetLeadAttributes($data, $allowed_attributes);
 		return ($data);
 	    }
 
 	    // go
 	    $data = $this->client->getLead($user_identifier);
 
+			    
 	    // cache it
 	    if(isset($data)) {
 		$data->timestamp = time();
@@ -215,6 +218,10 @@ class Marketo_Bridge extends Page
 	    // stop performance timer
 	    $GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'get lead');
 	    
+	    
+	    // do the filtering of returned attributes
+	    if($filter && !empty($allowed_attributes))
+		$data = $this->_filterGetLeadAttributes($data, $allowed_attributes);
 	    return $data;
 	}// end getLead
 	
@@ -308,17 +315,18 @@ class Marketo_Bridge extends Page
 	 */
 	private function _filterSyncLeadAttributes($data, $allowed_attributes)
 	{
+	    $new_data = unserialize(serialize($data));
 	    $allowed_attributes_array = explode(',', trim($allowed_attributes));
 	    foreach($allowed_attributes_array as $index => $attribute) {
 		$allowed_attributes_array[$index] = trim($attribute);
 	    }
 		
-	    foreach ($data as $name => $value) {
+	    foreach ($new_data as $name => $value) {
 		if(!in_array($name, $allowed_attributes_array)) {
-		    unset($data[$name]);
+		    unset($new_data[$name]);
 		}
 	    }
-	    return $data;
+	    return $new_data;
 	}//end _filterSyncLeadAttributes()
 	
 	/**
@@ -329,17 +337,19 @@ class Marketo_Bridge extends Page
 	 */
 	private function _filterGetLeadAttributes($data, $allowed_attributes)
 	{
+	    // make a deep clone of $data object, so we can unset elements in new object without affecting $data
+	    $new_data = unserialize(serialize($data));
 	    $allowed_attributes_array = explode(',', trim($allowed_attributes));
 	    foreach($allowed_attributes_array as $index => $attribute) {
 		$allowed_attributes_array[$index] = trim($attribute);
 	    }
 		
-	    foreach ($data->result->leadRecordList->leadRecord->leadAttributeList->attribute as  $index => $attribute) {
+	    foreach ($new_data->result->leadRecordList->leadRecord->leadAttributeList->attribute as  $index => $attribute) {
 		if(!in_array($attribute->attrName, $allowed_attributes_array)) {
-		    unset($data->result->leadRecordList->leadRecord->leadAttributeList->attribute[$index]);
+		    unset($new_data->result->leadRecordList->leadRecord->leadAttributeList->attribute[$index]);
 		}
 	    }
-	    return $data;
+	    return $new_data;
 	}//end _filterGetLeadAttributes()
 	
 	
@@ -354,6 +364,22 @@ class Marketo_Bridge extends Page
 	{
 		return FALSE;
 	}//end canSendCacheableHeader()
+
+
+	/**
+	* Get munchkin init JS code
+	*
+	*
+	* @return string
+	* @access public
+	*/
+	public function getMunchkinInitCode()
+	{
+		$code = $this->attr('munchkin_init_code');
+		$account_id = $this->attr('munchkin_account_id');
+		$code = str_replace('%munchkin_account_id%', $account_id, $code);
+		return $code;
+	}//end getMunchkinInitCode()
 	
 }//end class
 ?>

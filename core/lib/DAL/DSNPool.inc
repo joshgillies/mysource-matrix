@@ -17,32 +17,32 @@ require_once dirname(__FILE__).'/DSN.inc';
  *
  * A DSNPool object stores a list of DSN objects and provide methods for weighted-random
  * selection, failure registration, etc.
- * 
+ *
  * @since 4.0.0
  */
 class DSNPool
 {
-	
-	
+
+
 	/**
 	 * The pool of DSN objects
-	 * 
+	 *
 	 * @var array
 	 */
 	private $_pool;
-	
+
 	/**
 	 * The index of the current selected DSN.
 	 * It has the default value of -1 which means that no DSN is selected yet.
-	 * 
+	 *
 	 * @var int
 	 */
 	private $_currentIndex = -1;
-	
-	
+
+
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param array $dsn_arr	The array of DSNs
 	 * @access public
 	 */
@@ -52,14 +52,14 @@ class DSNPool
 		foreach ($dsn_arr as $dsn) {
 			$this->_pool[] = new DSN($dsn);
 		}
-		
+
 	}//end constructor
-	
-	
+
+
 	/**
 	 * Register a DSN object as failure so that it will not be selected by the random selection.
 	 * If no index is passed in, the current selected index will be used.
-	 * 
+	 *
 	 * @param int $index	The index of the DSN object to register as failure
 	 * @return void
 	 * @access public
@@ -70,17 +70,17 @@ class DSNPool
 		if (is_null($index)) {
 			$index = $this->_currentIndex;
 		}
-		
+
 		if (isset($this->_pool[$index])) {
 			$this->_pool[$index]->setFailure(TRUE);
 		}
-		
+
 	}//end registerFailureDSN()
-	
-	
+
+
 	/**
 	 * Get DSN array from a DSN object specified by the index.
-	 * 
+	 *
 	 * @param int $index	The index to get the DSN from
 	 * @return NULL|array	Return NULL if the index is -1 or invalid; otherwise, return
 	 *                   	the DSN array of the indexed DSN object
@@ -92,23 +92,23 @@ class DSNPool
 		if (!isset($this->_pool[$index])) {
 			$index = -1;
 		}
-		
+
 		// Set current index
 		$this->_currentIndex = $index;
-		
+
 		// If index = -1, we just want to reset the current index
 		if ($index == -1) {
 			return NULL;
 		}
-		
+
 		return $this->_pool[$index]->getDSN();
-		
+
 	}//end getDSNFromIndex()
-	
-	
+
+
 	/**
 	 * Get a weighted random DSN array from the DSN pool
-	 * 
+	 *
 	 * @return NULL|array	Return a weighted random DSN array if there is still an
 	 *                   	active (non-failure) DSN object; otherwise, return NULL
 	 * @access public
@@ -121,15 +121,15 @@ class DSNPool
 		$weight_index = $this->_getWeightedRandomIndex($dsn_weights['weights']);
 		// Get the pool index from the active weight index
 		$index = $weight_index == -1 ? -1 : $dsn_weights['indexes'][$weight_index];
-		
+
 		return $this->getDSNFromIndex($index);
-		
+
 	}//end getDSN()
-	
-	
+
+
 	/**
 	 * Get the weight and index arrays of the DSN objects which are not marked as failure.
-	 * 
+	 *
 	 * @return array	Return an array which contains both weight and index arrays of the DSN objects
 	 * @access private
 	 */
@@ -143,18 +143,18 @@ class DSNPool
 				$indexes[] = $index;
 			}
 		}
-		
+
 		return Array('weights' => $weights, 'indexes' => $indexes);
-		
+
 	}//end _getActiveDSNWeights()
-	
-	
+
+
 	/**
 	 * Get the random weighted index of a weight array. The weight array is just an array of integers, e.g. Array(10, 5, 20).
 	 * This method will return a random index in each invocation but the bigger the weight the higher chances of that index
 	 * will be returned. In the above example array, the index 2 is twice more likely to be returned than the index 0 which
 	 * in turn is twice more likely to be returned than 1.
-	 * 
+	 *
 	 * @param array $weights	The weight array to get weighted random index
 	 * @return int				Return -1 if the weight array is empty; Return 0 if the array only has one element; And return
 	 *            				a random index based on the weights if there are 2 or more elements in the array
@@ -170,7 +170,7 @@ class DSNPool
 				// The weight array has one element, return the first index
 				return 0;
 		}
-		
+
 		// Get a random index number based on the weights. The bigger the weight of an array element, the bigger chance its index is selected.
 		$total_weights = array_sum($weights);
 		$random_number = mt_rand(1, $total_weights);
@@ -181,12 +181,12 @@ class DSNPool
 				break;
 			}
 		}
-		
+
 		return $index;
-		
+
 	}//end _getWeightedRandomIndex()
-	
-	
+
+
 }//end class
 
 

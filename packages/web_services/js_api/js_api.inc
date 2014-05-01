@@ -169,8 +169,9 @@ class JS_Api extends Page
 		if (!parent::_createAdditional($link)) return FALSE;
 
 		// Create a random key
+        include_once SQ_FUDGE_PATH.'/general/security.inc';
 		$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes');
-		$key = rand(1000000000, 9999999999);
+		$key = security_rand(1000000000, 9999999999);
 		$this->setAttrValue('api_key', $key);
 		$this->saveAttributes();
 		$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
@@ -396,7 +397,13 @@ class JS_Api extends Page
 						if (preg_match('/[\$%]results_[^\$%]*[\$%]/', $args[$idx], $matches)) {
 							if(!isset($matches[0])) continue;
 							$keyword = $matches[0];
-							$instructions = explode('_', trim($keyword, '$%'));
+							$instructions = preg_split('/(?<!\\\\)\\_/', trim($keyword, '$%'));
+							
+							foreach ($instructions as &$instruction) {
+							    // Replace escaped underscores, and backslashes
+							    $instruction = str_replace('\\_', '_', $instruction);
+							    $instruction = str_replace('\\\\', '\\', $instruction);
+							}
 							// if we know where to take the new id from, do it or else
 							// just  continue with the previous one we have been using
 							$string_to_eval = '';
@@ -423,6 +430,8 @@ class JS_Api extends Page
 			// first thing check if the function that is being tried to executed is enabled
 			if ($this->attr($this->_attribute_mapping[$type])) {
 				$asset = NULL;
+				$error = NULL;
+				
 				if ($this->_permission_mapping[$type] != Array('no_check')) {
 					// Check to see if we supplied with valid assetid
 					if ((preg_match('/^[0-9]*:/i', $id) != FALSE) && !$GLOBALS['SQ_SYSTEM']->am->assetExists($id)) {
@@ -432,37 +441,41 @@ class JS_Api extends Page
 					}
 					$asset = $this->setAsset($id);
 
-					// Check to see if passed ID is under our root node, or, if we are using a root node
 					if (!$this->checkRoot($asset)) {
-						$this->returnError('You do not have permissions to access this asset');
-						restore_error_handler();
-						return;
-					}
-
-					if ($this->_permission_mapping[$type] == Array('read_access')) {
-						$ra = $asset->readAccess();
-						$wa = FALSE;
+						// If we are not the root node(s) or underneath them,
+						// return an error for that result.
+						$error = 'You do not have permissions to access this asset';
+						js_api_error_handler(E_USER_WARNING, $error);
 					} else {
-						// check if there is any runing workflow schema on it
-						$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
-						$running_wfs = $wfm->getSchemas($asset->id, TRUE, TRUE);
-						if(!empty($running_wfs)) {
-							$wa = $asset->writeAccess();
+						if ($this->_permission_mapping[$type] == Array('read_access')) {
+							$ra = $asset->readAccess();
+							$wa = FALSE;
 						} else {
-							$wa = $asset->writeAccess('', Array(), FALSE);
+							// check if there is any runing workflow schema on it
+							$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+							$running_wfs = $wfm->getSchemas($asset->id, TRUE, TRUE);
+							if(!empty($running_wfs)) {
+								$wa = $asset->writeAccess();
+							} else {
+								$wa = $asset->writeAccess('', Array(), FALSE);
+							}
+							$ra = FALSE;
 						}
-						$ra = FALSE;
+					}//end if
+				}//end if
+				
+				if ($error !== NULL) {
+					$results[$track_func]['error'] = $error;
+				} else {
+					$func_name = '_'.$type;
+					try {
+						$results[$track_func] = $this->$func_name($args, $asset, $ra, $wa);
+					} catch (Exception $e) {
+						// If any exception was thrown when executing the function, catch it
+						$results[$track_func]['error'] = 'Exception occured when executing JS API function "'.$type.'()": '.$e->getMessage();
+						js_api_error_handler(E_USER_ERROR, 'EXCEPTION: '.$e->getMessage(), $e->getFile(), $e->getLine());
 					}
-				}
-
-				$func_name = '_'.$type;
-				try {
-					$results[$track_func] = $this->$func_name($args, $asset, $ra, $wa);
-				} catch (Exception $e) {
-					// If any exception was thrown when executing the function, catch it
-					$results[$track_func]['error'] = 'Exception occured when executing JS API function "'.$type.'()": '.$e->getMessage();
-					js_api_error_handler(E_USER_ERROR, 'EXCEPTION: '.$e->getMessage(), $e->getFile(), $e->getLine());
-				}
+				}//end if
 
 				// if batching request and one of the function is set to blocking
 				// and of the function execution returned error bail out
@@ -729,7 +742,7 @@ class JS_Api extends Page
 			if ($child_asset->writeAccess()) {
 
 				$ext_link_type = defined($links['existing_link_type'][$i]) ? constant($links['existing_link_type'][$i]) : SQ_LINK_TYPE_1;
-				$ext_link_value = $links['existing_link_value'][$i];
+				$ext_link_value = empty($links['existing_link_value'][$i]) ? NULL : $links['existing_link_value'][$i];
 				$link_type = defined($links['link_type'][$i]) ? constant($links['link_type'][$i]) : SQ_LINK_TYPE_1;
 				$link_value = $links['link_value'][$i];
 				$data[$i] = $this->updateLink(
@@ -740,7 +753,7 @@ class JS_Api extends Page
 										$link_type,
 										$link_value ,
 										($links['sort_order'][$i] != '' && $links['sort_order'][$i] != 'undefined') ? $links['sort_order'][$i] : NULL ,
-										($links['lock'][$i] != '' && $links['lock'][$i] != 'undefined') ? $links['lock'][$i] : TRUE
+										($links['lock'][$i] != '' && $links['lock'][$i] != 'undefined') ? $links['lock'][$i] : NULL
 									);
 			} else {
 				$data[$i] = 'Not enough permission to update link between Asset (#'.$child_asset->id.') and Asset (#'.$parent_asset->id.')';
@@ -1401,7 +1414,7 @@ class JS_Api extends Page
 				$extra_attributes	= (isset($args['extra_attributes']) && $args['extra_attributes'] == '1') ? TRUE : FALSE;
 
 				// Create our asset
-				$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+				$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED|SQ_SECURITY_LINK_INTEGRITY);
 					$data = $this->createAsset($asset->id, $type_code, $asset_name, $link_type, $link_value, $sort_order, $is_dependant, $is_exclusive, $extra_attributes, $args);
 				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 			} else {
@@ -1697,11 +1710,11 @@ class JS_Api extends Page
 			}
 
 			$old_link_type	= defined($args['existing_link_type']) ? constant($args['existing_link_type']) : SQ_LINK_TYPE_1 ;
-			$old_link_value	= $args['existing_link_value'];
+			$old_link_value	= empty($args['existing_link_value']) ? NULL : $args['existing_link_value'];
 			$new_link_type	= defined($args['link_type']) ? constant($args['link_type']) : SQ_LINK_TYPE_1 ;
 			$new_link_value	= $args['link_value'];
 			$sort_order		= (isset($args['sort_order']) && $args['sort_order'] != '' ) ?$args['sort_order'] : NULL;
-			$locked			= (isset($args['locked']) && $args['locked'] != '' ) ? $args['locked'] : TRUE;
+			$locked			= (isset($args['locked']) && $args['locked'] != '' ) ? $args['locked'] : NULL;
 
 			// Remove our link
 			$data = $this->updateLink($parent->id, $asset->id, $old_link_type, $old_link_value, $new_link_type, $new_link_value, $sort_order, $locked);
@@ -2308,7 +2321,7 @@ class JS_Api extends Page
 	*/
 	private function _getLineageFromUrl($args=Array(), $asset=NULL, $read_access=FALSE, $write_access=FALSE)
 	{
-		// we have the url in the args, lets get it and get the asset are dealing with
+	    // we have the url in the args, lets get it and get the asset are dealing with
 		$url = trim(array_get_index($args, 'asset_url', ''));
 		if (empty($url)) return Array('error' => 'No URL supplied');
 
@@ -3158,7 +3171,7 @@ class JS_Api extends Page
 	* @return array
 	* @access public
 	*/
-	function updateLink($parent, $child, $existing_link_type=SQ_LINK_TYPE_1, $existing_link_value= '', $link_type=SQ_LINK_TYPE_1, $link_value='', $sort_order, $locked=TRUE)
+	function updateLink($parent, $child, $existing_link_type=SQ_LINK_TYPE_1, $existing_link_value= NULL, $link_type=SQ_LINK_TYPE_1, $link_value='', $sort_order, $locked=NULL)
 	{
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 
@@ -3845,13 +3858,13 @@ class JS_Api extends Page
 			
 			// for batch request we still have to look for the 'attributes' url param, because it won't be auto set in array
 			if(isset($attribute_values['attributes'])) {
-			    $all_attributes = explode('&', $attribute_values['attributes']);
-			    foreach ($all_attributes as $attribute_data) {
+				$all_attributes = explode('&', $attribute_values['attributes']);
+				foreach ($all_attributes as $attribute_data) {
 				$attribute_data_parts = explode('=', $attribute_data);
 				if(isset($attribute_data_parts[0]) && !empty($attribute_data_parts[0]) && isset($attribute_data_parts[1])) {
-				    $asset->setAttrValue(trim($attribute_data_parts[0]), $attribute_data_parts[1]);
+					$asset->setAttrValue(trim($attribute_data_parts[0]), $attribute_data_parts[1]);
 				}
-			    }
+				}
 			}
 		}//end if
 
@@ -4292,7 +4305,6 @@ class JS_Api extends Page
 				}//end else
 
 				// Send our JSON
-				$output = preg_replace('/(%){1}(globals_[snippet|asset][_A-Za-z0-9\-:]*)(%){1}/','&#37;$2&#37;', $output);
 				$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_REPLACE_MYSOURCE_LEVEL_KEYWORDS', FALSE);
 
 				echo $output;

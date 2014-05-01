@@ -68,7 +68,8 @@ class Condition extends Asset
 	public static function evaluateRestriction(Asset $asset, Array &$restriction, $condition_type_code)
 	{
 		$condition_data = empty($restriction['condition_data']) ? Array() : $restriction['condition_data'];
-		$evaluation_instruction = '$ret = '.$condition_type_code.'::evaluate($asset, $condition_data);';
+		$prefix = array_get_index($restriction, 'prefix', '');
+		$evaluation_instruction = '$ret = '.$condition_type_code.'::evaluate($asset, $condition_data, $prefix);';
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset($condition_type_code);
 		eval($evaluation_instruction);

@@ -256,7 +256,7 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 					}
 
 					// add conditions vars
-					var elements = document.getElementsByClassName('sq-preview-condition-radio-button');
+					var elements = document.querySelectorAll('.sq-preview-condition-radio-button');
 					for(var i = 0, length = elements.length; i < length; i++) {
 					    if(elements[i].checked) {
 						var id_parts = elements[i].id.split('_');

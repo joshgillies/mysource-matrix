@@ -75,7 +75,6 @@ class Package_Manager_Search extends Package_Manager
 		if (!$search_manager->create($search_manager_link)) {
 			trigger_localised_error('SCH0007', E_USER_ERROR);
 		}
-		pre_echo('Search Manager Asset Id : '.$search_manager->id);
 
 		$GLOBALS['SQ_SYSTEM']->am->registerSystemAsset('search_manager', $search_manager->id);
 

@@ -258,6 +258,7 @@ class HIPO_Job_Import_Assets_From_Xml extends HIPO_Job
 			if(isset($this->_running_vars['sub_job'])) {
 			    $hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			    $sub_job = $hh->getJob($this->_running_vars['sub_job']);
+			    unset($this->_running_vars['sub_job']);
 			    if (empty($sub_job) === TRUE) {
 				    return FALSE;
 			    }
@@ -267,7 +268,6 @@ class HIPO_Job_Import_Assets_From_Xml extends HIPO_Job
 					// Grab the errors from the status sub-job, since we need
 					// to show them to the user afterwards
 					$this->_hipo_vars['errors'] = array_merge($this->_hipo_vars['errors'], $sub_job->_hipo_vars['errors']);
-					unset($this->_running_vars['sub_job']);
 					$sub_job->save();
 					$hh->uncacheJob($sub_job->code_name);
 				} else {
@@ -280,7 +280,6 @@ class HIPO_Job_Import_Assets_From_Xml extends HIPO_Job
 				if ($sub_job->process() === TRUE) {
 				    if ($sub_job->complete() === TRUE) {
 					$this->_hipo_vars['errors'] = array_merge($this->_hipo_vars['errors'], $sub_job->_hipo_vars['errors']);
-					unset($this->_running_vars['sub_job']);
 				    }
 				}
 				else {

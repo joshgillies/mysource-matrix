@@ -242,8 +242,7 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array(), $ac
 				    $asset = $GLOBALS['SQ_SYSTEM']->frontend_asset;
 			    }
 		    }
-		}
-		else {
+		} else {
 		    $asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		}
 		
@@ -262,7 +261,7 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array(), $ac
 					if ($global_keyword != '%'.$keyword.'%') {
 						$replacements[$keyword] = $global_keyword;
 					}
-				} else if (!empty($assetid)){
+				} else if (!empty($assetid) || !is_null($asset)){
 					if (!isset($asset)) $asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 					if ($asset){
 						foreach ($call_fns as $fn){
@@ -589,6 +588,8 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array(), $ac
 	case "date_format":
 		// Format a date string and only prints the field required
 		$format = array_get_index($modifier['args'], 0, '');
+		// remove rubbish string from calendar date event
+		$text = preg_replace('/--(:)?/', '', $text);
 		return date($format, strtotime($text));
 
 	// Comparison date modifiers. By default these return '1' if true and '' if false.
@@ -1136,8 +1137,11 @@ function remove_silent_chars($text, $not_indexing=FALSE, $oracle_keyword=FALSE)
 
 		// Remove at (@) and period (.) in email addresses, e.g. everyone@squiz.net => everyonesquiznet
 		// The following pattern matches most email addresses, but it will need to be review to match all email addresses
-		$email_pattern = '/([^@\s]+)@(([-a-z0-9]+\.)+[a-z]{2,})/e';
-		$text = preg_replace($email_pattern, 'str_replace(".", "", "$1").str_replace(".", "", "$2")', $text);
+		$email_pattern = '/([^@\s]+)@(([-a-z0-9]+\.)+[a-z]{2,})/';
+		$text = preg_replace_callback($email_pattern,function($m) {
+		    return str_replace('.','',$m[1]) . str_replace('.','',$m[2]);
+		},
+		$text);
 
 		// Remove apostrophe ('), e.g. you've => youve
 		$text = str_replace('\'', '', $text);
@@ -1438,7 +1442,7 @@ function make_readable_list($string_array, $end_delimiter='and')
 */
 function escape_regex_chars($text)
 {
-	return preg_replace('|([\{\}\(\)\^\$\.\*\?\+\-\[\]\\\])|', '\\\$1', $text);
+	return preg_replace('|([\|\{\}\(\)\^\$\.\*\?\+\-\[\]\\\])|', '\\\$1', $text);
 
 }//end escape_regex_chars()
 

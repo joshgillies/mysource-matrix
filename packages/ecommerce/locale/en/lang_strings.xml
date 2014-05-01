@@ -53,4 +53,7 @@
 	<!-- Paypal Strings -->
 	<string source="paypal_configuration_encryption_lib_no_required_class">The Paypal Encryption Library file does not have the required class</string>
 	<string source="paypal_configuration_encryption_lib_no_required_method">The Paypal Encryption class PPCrypto does not contain the required method</string>
+	
+	<!-- checkout asset -->
+	<string source="location_warning">Location does not exist or is not writable</string>
 </strings>

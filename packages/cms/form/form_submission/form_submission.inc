@@ -369,6 +369,7 @@ class Form_Submission extends Asset
 				$extra_data = $this->getExtraData($question_assetid);
 				if (!empty($extra_data['filesystem_path'])) {
 					$filepath = $extra_data['filesystem_path'];
+					if(strpos($filepath, '/') !== 0) $filepath = SQ_SYSTEM_ROOT.'/'.$filepath;
 					if (is_file($filepath)) {
 						require SQ_FUDGE_PATH.'/standards_lists/mime_types.inc';
 						$type = array_get_index($standards_lists_mime_types, get_file_type($filepath), 'application/octet-stream');
@@ -398,7 +399,7 @@ class Form_Submission extends Asset
 	function printBody()
 	{
 		$summary = $this->attr('attributes');
-		$summary = $summary['summary'];
+		$summary = isset($summary['summary']) ? $summary['summary'] : Array();
 		?>
 		<table>
 			<thead>

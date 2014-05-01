@@ -22,7 +22,7 @@
 	<package>__core__</package>
 	<type_code>cron_job_escalate_safe_trash</type_code>
 	<version>0.1</version>
-	<name>Escalate Safe Trash Cron Job</name>
+	<name>Escalate Safe Trash Scheduled Job</name>
 	<description>Checks for assets that are still marked for Safe Trash and notifies users responsible for blocking the asset from being trashed</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>system</allowed_access>

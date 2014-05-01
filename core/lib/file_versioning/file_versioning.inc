@@ -207,10 +207,6 @@ class File_Versioning
 			return FUDGE_FV_ERROR;
 		}
 
-		if ($this->_dir != $ffv['dir']) {
-			trigger_localised_error('FVER0008', E_USER_WARNING);
-			return FUDGE_FV_ERROR;
-		}
 
 		$info = $this->_getFileInfoAtVersion($ffv['fileid'], (int) $ffv['version']);
 		if (empty($info)) {
@@ -645,7 +641,6 @@ class File_Versioning
 		if (is_dir($ffv_dir) || create_directory($ffv_dir)) {
 
 			$ffv_lines = Array(
-							'dir="'.$this->_dir.'"',
 							'fileid="'.$fileid.'"',
 							'version="'.$version.'"',
 						 );

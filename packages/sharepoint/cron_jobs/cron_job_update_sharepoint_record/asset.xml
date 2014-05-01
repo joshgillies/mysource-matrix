@@ -22,8 +22,8 @@
 	<package>sharepoint</package>
 	<type_code>cron_job_update_sharepoint_record</type_code>
 	<version>0.1</version>
-	<name>Update Sharepoint Record Cron Job</name>
-	<description>This cron job handle the downloading of Sharepoint document specified by a datasource. This Cron Job download updated documents everynight.</description>
+	<name>Update Sharepoint Record Scheduled Job</name>
+	<description>This scheduled job handles the downloading of Sharepoint document specified by a datasource. This scheduled job downloads and updates documents everynight.</description>
 	<instantiable>no</instantiable>
 	<allowed_access>system</allowed_access>
 	<parent_type>cron_job</parent_type>

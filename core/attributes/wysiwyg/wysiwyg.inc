@@ -311,7 +311,7 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 						$o = empty($GLOBALS['SQ_SYSTEM']->backend) ? NULL : $GLOBALS['SQ_SYSTEM']->backend->out;
 						if(is_null($o) || !$o->isViperAvailable()) {
 						?>
-							<div style="width: 16px; height: 16px; background: url(<?php echo sq_web_path('lib')?>/web/images/icons/edit_mode.png);background: expression('none');filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='<?php echo sq_web_path('lib')?>/web/images/icons/edit_mode.png', sizingMethod='scale'); font-size:10px; cursor:pointer;"
+							<div style="width: 16px; height: 16px; float: left; background: url(<?php echo sq_web_path('lib')?>/web/images/icons/edit_mode.png);background: expression('none');filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='<?php echo sq_web_path('lib')?>/web/images/icons/edit_mode.png', sizingMethod='scale'); font-size:10px; cursor:pointer;"
 					onclick="switchEditingMode('<?php echo $prefix; ?>_contents_div','<?php echo $prefix; ?>_wysiwyg_div', editor_<?php echo $prefix; ?>);">
 							</div>&nbsp;&nbsp;
 						<?php 
@@ -480,7 +480,7 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 
 		$o = empty($GLOBALS['SQ_SYSTEM']->backend) ? NULL : $GLOBALS['SQ_SYSTEM']->backend->out;
 		if(!is_null($o) && $o->isViperAvailable()) {
-		    //Bodycopy_Edit_Fns::printBodycopyIcon('', 'Viper Content Area', translate('viper_editor_enabled_icon_note'), 'viper_logo', '[Viper Content Area]');
+		    //Bodycopy_Edit_Fns::printBodycopyIcon('', 'Edit+ Content Area', translate('edit+_editor_enabled_icon_note'), 'viper_logo', '[Edit+ Content Area]');
 		}
 		else {
 		    // prints the status of the last run of htmltidy tool as a tag icon

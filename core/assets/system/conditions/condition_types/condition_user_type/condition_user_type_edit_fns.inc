@@ -64,32 +64,34 @@ class Condition_User_Type_Edit_Fns extends Condition_Edit_Fns
 			$user_types = str_replace(' ', '', $user_types);
 			$type_list = explode(',', $user_types);
 		}
+		?>
 
-		if ($write_access) {
-			?><table style="width: auto" border="0" class="no-borders">
-				<tr>
-					<td><?php
-						asset_type_chooser($prefix.'[type_list]', TRUE, $type_list, NULL, FALSE, FALSE, Array('user'));
-					?></td>
-				</tr>
-			</table><?php
-		} elseif (!empty($type_list)) {
-			$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_list, 'name');
-			?><table class="sq-backend-table">
-				<tr>
-					<th><?php echo translate('type') ?></th>
-				</tr><?php
-				$inherit_image_path = sq_web_path('lib').'/web/images/';
-				foreach ($type_list as $type) {
-					?><tr>
-						<td><?php
+		<table class="sq-backend-table">
+			<tr>
+				<th class="sq-conditions-options-th"><?php echo translate('user_types') ?></th>
+				<td>
+				<?php
+				if ($write_access) {
+					asset_type_chooser($prefix.'[type_list]', TRUE, $type_list, NULL, FALSE, FALSE, Array('user'));
+				} elseif (!empty($type_list)) {
+					$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_list, 'name');
+					echo '<ul class="sq-asset-id-list">';
+					foreach ($type_list as $type) {
+						echo '<li>';
 							echo get_asset_type_icon($type);
-							echo $type_names[$type];
-						?></td>
-					</tr><?php
+							echo '<strong>'.$type_names[$type].'</strong>';
+						echo '</li>';
+					}
+					echo '</ul>';
+				} else {
+					echo '<em>'.translate('condition_no_user_types_selected').'</em>';
 				}
-			?></table><?php
-		}
+				?>
+				</td>
+			</tr>
+		</table>
+
+		<?php
 
 	}//end paintEditInterface()
 

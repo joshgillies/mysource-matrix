@@ -48,12 +48,14 @@
 <string source="cms_form_question_name">Question Name: %s</string>
 <string source="cms_form_question_label">Question Label: %s</string>
 <string source="cms_form_question_error">Question Error: %s</string>
+<string source="cms_form_question_contents">Question Contents: %s</string>
 <string source="cms_form_section_q_field">Input Field: %1$s: %2$s</string>
 <string source="cms_form_section_q_id">Question ID: %1$s: %2$s</string>
 <string source="cms_form_section_q_note">Question Note: %1$s: %2$s</string>
 <string source="cms_form_section_q_name">Question Name: %1$s: %2$s</string>
 <string source="cms_form_section_q_label">Question Label: %1$s: %2$s</string>
 <string source="cms_form_section_q_error">Question Error: %1$s: %2$s</string>
+<string source="cms_form_section_q_contents">Question Contents: %1$s: %2$s</string>
 <string source="cms_form_save_confirmation">Your progress has been saved.</string>
 
 <string source="cms_public_auth_info_format"><![CDATA[Use the link below to resume the form submission:<br/>Link: %%return_to_form_url_latest%%<br/>Password: %%form_submission_password%%]]></string>

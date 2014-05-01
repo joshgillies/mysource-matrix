@@ -395,3 +395,76 @@ function vsprintf() {
 	return (txt);
 
 }//end vsprintf()
+
+
+/**
+* Handles the interactions of a toggle element by adding and removing classes to each toggle element.
+* Adds a class to the clicked toggle element and removes any selected classes of other active toggle elements.
+*
+* @param the_toggler		The element that was clicked on within the toggler wrapper			
+* 
+* @return boolean
+*/
+function sq_handle_toggle(the_toggler) {
+	//Update class names on the toggles
+	toggleElements = the_toggler.parentNode.getElementsByTagName('a');
+	for (var i in toggleElements) {
+		if (toggleElements[i].className == 'selected') {
+			toggleElements[i].className = '';
+		}
+	}
+	the_toggler.className = 'selected';
+	return false;
+}//end sprintf()
+
+
+/**
+* Make an AJAX request to the server
+*
+* @param url		URL to make the request to
+* @param callback	Callback function to execute when response is ready
+* @param method		Request method, 'GET' or 'POST'
+* @param data		POST data string to send
+* @param async		Whether to make asynchronous or synchronous request
+*
+* @return void
+*/
+function ajax_request(url, callback, method, data, async)
+{
+	if (url == null) {
+		return;
+	}
+
+	// Default values
+	if (method == null) {
+		method = 'GET';
+	}
+	if (async == null) {
+		async = true;
+	}
+
+	var xhr = new XMLHttpRequest();
+	xhr.open(method, url, async);
+	if (method == 'POST' && data) {        
+		xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+	}
+
+	// Asynchronous request
+	if (async && typeof(callback) == 'function') {
+		xhr.onreadystatechange = function() {
+			if (xhr.readyState === 4) {
+				var response = xhr.responseText;
+				callback(response);
+			}
+		}
+	}
+
+	xhr.send(data);
+
+	// Synchronous request
+	if (!async && callback != null && typeof(callback) == 'function') {
+		var response = xhr.responseText;
+		callback(response);
+	}
+
+}//end ajax_request()

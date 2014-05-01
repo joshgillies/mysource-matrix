@@ -36,15 +36,12 @@ if (ini_get('memory_limit') != '-1') ini_set('memory_limit', '-1');
 error_reporting(E_ALL);
 $SYSTEM_ROOT = '';
 
-$cli = TRUE;
-
 // from cmd line
 if ((php_sapi_name() == 'cli')) {
 	if (isset($_SERVER['argv'][1])) {
 		$SYSTEM_ROOT = $_SERVER['argv'][1];
 	}
 	$err_msg = "You need to supply the path to the System Root as the first argument\n";
-
 } else {
 	trigger_error("You can only run this script from the command line\n", E_USER_ERROR);
 }
@@ -59,28 +56,26 @@ if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')
 	exit();
 }
 
-// only use console stuff if we're running from the command line
-if ($cli) {
-	require_once 'Console/Getopt.php';
-
-	$shortopt = '';
-	$longopt = Array('package=');
-
-	$con = new Console_Getopt;
-	$args = $con->readPHPArgv();
-	array_shift($args);
-	$options = $con->getopt($args, $shortopt, $longopt);
-
-	if (is_array($options[0])) {
-		$package_list = get_console_list($options[0]);
-	}
-}
-
 if (!defined('SQ_SYSTEM_ROOT')) {
 	define('SQ_SYSTEM_ROOT',  $SYSTEM_ROOT);
 }
 
+// Include init first so it can set the right error_reporting levels.
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
+
+require_once 'Console/Getopt.php';
+
+$shortopt = '';
+$longopt = Array('package=');
+
+$con = new Console_Getopt;
+$args = $con->readPHPArgv();
+array_shift($args);
+$options = $con->getopt($args, $shortopt, $longopt);
+
+if (is_array($options[0])) {
+    $package_list = get_console_list($options[0]);
+}
 
 // get the list of functions used during install
 require_once $SYSTEM_ROOT.'/install/install.inc';

@@ -179,12 +179,17 @@ class Trigger_Action_Join_User_Group_For_Session extends Trigger_Action
 
 		// get user groups the current user is in
 		$current_groups = $current_user->getUserGroups();
-		
+
+		// we will need to get all parent user groups of the target user group
 		// if user is not physically linked to the specifed group
 		// add the current user to the specified user group that lasts only while the current session last
-		if (!in_array($value, $_SESSION['sq_effective_user_groups'][$GLOBALS['SQ_SYSTEM']->user->id])) {
-			$_SESSION['sq_effective_user_groups'][$GLOBALS['SQ_SYSTEM']->user->id][] = $value;
-			$_SESSION['sq_session_user_groups'][$GLOBALS['SQ_SYSTEM']->user->id][] = $value;
+		$groupids = $GLOBALS['SQ_SYSTEM']->am->getParents($value, 'user_group', FALSE);
+		$groupids[$value] = 'user_group';
+		foreach ($groupids as $groupid => $type_code) {
+			if (!in_array($groupid, $_SESSION['sq_effective_user_groups'][$GLOBALS['SQ_SYSTEM']->user->id])) {
+				$_SESSION['sq_effective_user_groups'][$GLOBALS['SQ_SYSTEM']->user->id][] = $groupid;
+				$_SESSION['sq_session_user_groups'][$GLOBALS['SQ_SYSTEM']->user->id][] = $groupid;
+			}
 		}
 
 		return Array(

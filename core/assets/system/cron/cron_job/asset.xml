@@ -21,7 +21,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>__core__</package>
 	<type_code>cron_job</type_code>
-	<version>0.4</version>
+	<version>0.5</version>
 	<name>Cron Job</name>
 	<description>The Cron Job, a single cron job to be queued and executed by the Cron Manager</description>
 	<instantiable>no</instantiable>

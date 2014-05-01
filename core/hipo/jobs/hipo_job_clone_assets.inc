@@ -800,8 +800,8 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	*/
 	function paintRefresh(&$step_data, &$o, $prefix)
 	{
-		// Only paint in the later steps (otherwise it performs a double 'get_assets' request to the asset map)
-		if ($step_data['percent_done'] > 0) {
+		// Only paint in the first step (otherwise it performs a double 'get_assets' request to the asset map)
+		if ($step_data['percent_done'] === 0) {
 			$o->addOnLoad('if (window.opener.parent.frames["sq_sidenav"] && window.opener.parent.frames["sq_sidenav"].reload_assets) window.opener.parent.frames["sq_sidenav"].reload_assets("'.$this->_running_vars['to_parent_assetid'].'");');
 		}//end if
 

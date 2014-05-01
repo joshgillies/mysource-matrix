@@ -521,6 +521,11 @@ class Form_Action_Upload_Youtube_Video extends Form_Action
 			$settings['description'] = $submission['answers'][$settings['description_question_id']]['answer'];
 		}
 		
+		// convert relative path to absulute path
+		if(strpos($video_path, '/') !== 0) {
+		    $video_path = SQ_SYSTEM_ROOT.'/'.$video_path;
+		}
+			
 		$keywords = Array();
 		if (self::processUploadVideo($settings, $video_path, $keywords) === TRUE){
 			$form->form_action_keywords = $keywords;

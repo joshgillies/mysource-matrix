@@ -138,7 +138,7 @@ blockquote:before, blockquote:after, q:before, q:after {
 	content: 					none;
 }
 
-pre, pre *{
+pre, pre *, .raw-text, .raw-text *{
 	font-family: 				'Courier';
 }
 
@@ -322,6 +322,23 @@ button.delete-button {
 	display: 					inline-block;
 }
 
+.sq-no-vertical-margin {
+	margin-top:					0px !important;
+	margin-bottom: 				0px !important;
+}
+
+.sq-top-align-childre1n *{
+	vertical-align: top;
+}
+
+pre.sq-code-example.inline{
+	display: 					inline-block;
+}
+
+pre.sq-code-example strong{
+	color: 						#000;
+}
+
 /*
 ####################################################################################################################
 GLOBAL FORM ELEMENTS
@@ -397,9 +414,9 @@ input[type="reset"],
 	line-height: 				26px;
 	color: 						#454545;
 	text-shadow: 				0 1px 0 #fff;
-	box-shadow: 				0 1px 2px rgba(0, 0, 0, 0.19), 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 -2.4em 3.3em -2.4em rgba(0, 0, 0, 0.2) inset;
+	box-shadow: 				0 1px 1px rgba(0, 0, 0, 0.10), 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 -2.4em 3.3em -2.4em rgba(0, 0, 0, 0.2) inset;
 	display: 					inline-block;
-	transition: 				all 0.2s ease-out;
+	transition: 				all 0.2s ease 0s;
 }
 
 .sq-btn-link {
@@ -462,6 +479,7 @@ input.sq-btn-large.loading,
 	font-size:					0;
 	box-shadow: 				0 1px 0 rgba(255, 255, 255, 0.2) inset !important;
 	cursor: 					wait;
+	text-shadow:				none;
 }
 
 input.sq-btn-green, 
@@ -551,6 +569,10 @@ option:disabled:checked {
 	color: 						#555;
 }
 
+.sq-multi-status-select-wrapper select{
+	height: 					150px;
+}
+
 /* Dynamic option lists */
 
 .sq-option-list input[type=text], 
@@ -558,9 +580,34 @@ option:disabled:checked {
 	margin-bottom: 				5px;
 }
 
+.sq-option-list a {
+	display: inline-block;
+	position: relative;
+	vertical-align: top;
+	top: 3px;
+}
+
 .sq-option-list img {
 	vertical-align: 			inherit;
 	margin:						0;
+}
+
+.sq-option-list-header {
+	display: 					inline-block;
+	font-weight: 				bold;
+	margin: 					0 0 5px 0;
+}
+
+.sq-option-list-header.value {
+	width: 						165px;
+}
+
+.sq-option-list .sq-option-value {
+	width: 						150px;
+}
+
+.sq-option-list .sq-option-text {
+	width: 						200px;
 }
 
 /* Radio button list */
@@ -638,14 +685,15 @@ TOP HEADER FRAME STYLES
 
 .sq-backend-header button, 
 .sq-backend-header input[type="button"] {
-	box-shadow: 				0 1px 0 rgba(255,255,255,0.07) inset,1px 0 0 rgba(255,255,255,0.05) inset, 1px 1px 0 rgba(255,255,255,0.1), 0 -2.4em 3.3em -2.4em rgba(0, 0, 0, 0.6) inset;
-	background: 				#333;
+	box-shadow: 				0 1px 0 rgba(255, 255, 255, 0.07) inset,1px 0 0 rgba(255, 255, 255, 0.05) inset;
+	background-color: 			rgba(0, 0, 0, 0.14);
 	text-shadow: 				none;
-	color: 						#dfdfdf;
+	color: 						#DFDFDF;
+	text-shadow: 				0 -1px 0 #000;
 	padding: 					0 8px;
-	height: 					29px;
+	height: 					30px;
 	line-height: 				26px;
-	margin: 					0 5px 0 0;
+	margin: 					0 3px 0 0;
 	border: 					1px solid #000;
 	position: 					relative;
 	top: 						0px;
@@ -654,21 +702,24 @@ TOP HEADER FRAME STYLES
 
 .sq-backend-header button:hover, 
 .sq-backend-header input[type="button"]:hover {
-	background: 				#3F3F3F;
+	background-color:			rgba(0, 0, 0, 0.25);
+	color: 						#DFDFDF;
 }
 
 .sq-backend-header button.sq-btn-blue,
 .sq-backend-header input[type="button"].sq-btn-blue {
+	box-shadow: 				0 1px 0 rgba(255,255,255,0.07) inset,1px 0 0 rgba(255,255,255,0.05) inset, 1px 1px 0 rgba(255,255,255,0.1), 0 -2.4em 3.3em -2.4em rgba(0, 0, 0, 0.6) inset;
 	background:					#2D77C2;
 }
 
 .sq-backend-header button.sq-btn-blue:hover,
 .sq-backend-header input[type="button"].sq-btn-blue:hover {
 	background:					#2F80D3;
+	color: 						#DFDFDF;
 }
 
 .sq-matrix-logo {
-	margin: 					0px 50px 0 0;
+	margin: 					0px 35px 0 0;
 	position: 					relative;
 	top: 						0px;
 	left: 						9px;
@@ -692,17 +743,20 @@ TOP HEADER FRAME STYLES
 	text-shadow:				1px 1px 0 #000;
 }
 
+.sq-backend-header-tool-buttons{
+	margin-right: 				5px;
+}
 
 .sq-text-field-wrapper {
 	display: 					inline-block;
-	height:						27px;
+	height:						28px;
 	background-color: 			#575757;
 	border: 					1px solid #303030;
 	border-radius:				3px;
 	box-shadow: 				0 1px 0 #404040;
 	width: 						auto;
 	border-radius: 				3px;
-	margin-right:				6px;
+	margin-right:				12px;
 	box-shadow: 				1px 1px 0 rgba(255,255,255,0.1), inset 1px 1px 1px #464545;
 	position: 					relative;
 	top:						0px;
@@ -734,13 +788,36 @@ input[type=text].sq-backend-header-text-box {
 }
 
 .sq-backend-header-tools-wrapper a{
-	display: 					inline-block;
+	padding:					5px 7px;
+	display: 					block;
+	float: 						left;
+	cursor: 					pointer;
+	overflow: 					hidden;
+	white-space: 				nowrap;
+	border: 					1px solid #000;
+	color: 						#DFDFDF;
+	text-shadow: 				0 -1px 0 #000;
+	background-color: 			rgba(0, 0, 0, 0.14);
+	box-shadow: 				0 1px 0 rgba(255, 255, 255, 0.07) inset,1px 0 0 rgba(255, 255, 255, 0.05) inset;
+	margin-left:				-1px;
+}
+
+.sq-backend-header-tools-wrapper a:first-child{
+	border-radius: 				3px 0 0 3px;
+}
+
+.sq-backend-header-tools-wrapper a:last-child{
+	border-radius: 				0 3px 3px 0;
+}
+
+.sq-backend-header-tools-wrapper a:hover{
+	background-color:			rgba(0, 0, 0, 0.25);
+	color: 						#DFDFDF;
 }
 
 .sq-backend-header-tools-wrapper img{
-	height:						20px;
+	height:						18px;
 	width:						auto;
-	margin: 					0 0 0 5px;
 	opacity: 					0.6;
 }
 
@@ -756,12 +833,17 @@ input[type=text].sq-backend-header-text-box {
 }
 
 .sq-backend-header-login-as-form .sq-text-field-wrapper {
-	top:						1px;
+	margin-right:				0;
+	border-radius: 				3px 0 0 3px;
 }
 
 .sq-backend-header-login-as-form label.sq-backend-header-item {
 	top:						0;
+}
 
+.sq-backend-header-login-as-form input[type="button"].sq-btn-blue {
+	border-radius: 				0 3px 3px 0;
+	margin-left:				-4px;
 }
 
 /*
@@ -957,8 +1039,9 @@ MAIN EDITING FRAME TABLE AND SECTION STRUCTURE
 	margin-bottom: 				-1px;
 }
 
-.sq-backend-section-div-wrapper.first {
-	overflow: 					hidden;
+.sq-backend-section-div-wrapper.first,
+.sq-backend-body-wrapper > input:first-child + a + .sq-backend-section-table-wrapper {
+	overflow: 					hidden;  /* There is a reason why this styl can't be applied to all of the above */
 }
 
 .sq-backend-body-wrapper .sq-backend-section-table-wrapper:last-child > table > tbody > tr:last-child .sq-backend-section-inner-table-wrapper{
@@ -1242,16 +1325,25 @@ table.sq-backend-table {
 	font-size: 					11px;
 }
 
-.sq-backend-table .sq-backend-table *, 
-.sq-backend-table .sq-backend-table *, 
-.sq-backend-table.compact *, 
-.sq-backend-table.compact *{
+.sq-backend-table .sq-backend-table, 
+.sq-backend-table.compact {
+	font-size: 					11px;
+}
+
+.sq-backend-table .sq-backend-table input,
+.sq-backend-table .sq-backend-table select,
+.sq-backend-table .sq-backend-table button {
 	font-size: 					11px;
 }
 
 .sq-backend-table table input[type="text"] {
 	height: 					21px;
 	padding: 					0 3px;
+}
+ 
+.sq-backend-table table input[type="button"] {
+	height: 					23px;
+	line-height: 				21px;
 }
 
 /* PARAMTER MAP TABLE */
@@ -1260,6 +1352,12 @@ table.sq-backend-table {
 .sq-backend-table .sq-parameter-map-inner td,
 .sq-backend-table .sq-parameter-map-inner td * {
 	vertical-align: 			middle;
+}
+
+/* UNCOMMON TABLE STYLES */
+
+.sq-child-tables-padded table td {
+	padding-right: 				6px;
 }
 
 /* PAGINATION IN TABLES */
@@ -1348,6 +1446,10 @@ table.sq-backend-table {
 	color: 						#333;
 }
 
+.sq-conditions-options-th {
+	width:						100px;
+}
+
 .sq-backend-commit {
 	text-align:					right;
 	padding:					2px;
@@ -1377,6 +1479,7 @@ TOOLBOX POPUP STYLES
 	color: 						#fff;
 	font-size: 					11px;
 	font-weight: 				bold;
+	text-shadow: 				1px 1px 0 #000;
 }
 
 .sq-toolbox-close {
@@ -1513,6 +1616,7 @@ BODYCOPY IFRAME POPUP STYLES
 	font-size: 					12px;
 	font-weight: 				bold;
 	margin:						0;
+	text-shadow: 				1px 1px 0 #000;
 }
 
 .sq-bodycopy-popup-wrapper h1 a{
@@ -1550,7 +1654,7 @@ BODYCOPY IFRAME POPUP STYLES
 	padding-bottom: 			6px;
 }
 
-.sq-bodycopy-popup-wrapper td td:last-child{
+.sq-bodycopy-popup-wrapper td td:first-child + td{
 	width:						58%;
 	padding-right: 				0;
 }
@@ -2392,6 +2496,17 @@ DROP DOWN POPUP STYLES (Slide down from under the top header on the right side)
 
 .sq-new-message-popup-wrapper table.hipo .sq-icon{
 	margin-top:					-4px;
+	margin: 					0 2px;
+}
+
+.sq-backend-search-results-body .sq-search-navigation{
+	text-align: 				center;
+	padding:					4px 0 0;
+}
+
+.sq-backend-search-results-body .sq-btn-link{
+	line-height: 				17px;
+	margin: 					0 2px;
 }
 
 .sq-popup-pagination {
@@ -2541,16 +2656,23 @@ ul.radio-list {
 	padding: 					8px 13px;
 }
 
+.sq-backend-commit input.sq-btn-green,
 #sq-commit-button-div-inside input.sq-btn-green{
 	background-image: 			url(../images/button-loader-green.gif);
 	background-repeat: 			no-repeat;
 	background-position: 		center -100px; 
 }
 
+.sq-backend-commit input.sq-btn-green.loading,
 #sq-commit-button-div-inside input.sq-btn-green.loading{
 	min-width:					72px;
 	height:						34px;
 	background: 				#419041 url(../images/button-loader-green.gif) center center no-repeat; 
+}
+
+/* For when commit button is not anchored to the bottom of the frame, but just on the bottom of the page */
+.sq-backend-commit input.sq-btn-green.loading{
+	min-width:					66px;
 }
 
 #sq_context_switcher_current {
@@ -2622,6 +2744,17 @@ html.resizer div{
 LEFT SIDEBAR FRAME STYLES
 ####################################################################################################################
 */
+.sq-sidenav-wrapper input[type="button"],
+.sq-sidenav-wrapper .sq-btn-link {
+	transition-property:		box-shadow, background, color, text-shadow, border; /*This is to not cause a delay in the button visibility when sidenav toggling tabs*/
+}
+
+.sq-sidenav-tab-wrapper {
+	position: 					relative;
+	margin-top: 				17px;
+	margin-left: 				32px;
+	width: 						auto;
+}
 
 /* ASSET MAP (Ecluding the asset map container) */
 
@@ -2632,6 +2765,7 @@ LEFT SIDEBAR FRAME STYLES
 	top:                		30px;
 	left:               		6px;
 	visibility:         		visible;
+	z-index: 					3;
 }
 
 #asset_map.in_limbo {
@@ -2641,7 +2775,7 @@ LEFT SIDEBAR FRAME STYLES
 #asset_map .addButton.sq-btn-link {
 	float: 						left;
 	cursor:						pointer;
-	margin-top: 				2px;
+	margin-top: 				3px;
 	width: 						38px;
 }
 
@@ -2686,11 +2820,37 @@ LEFT SIDEBAR FRAME STYLES
 }
 
 .myspace-section-wrapper {
-	background: #fff;
-	border-top: 1px solid #e2e2e2;
-	padding: 10px;
+	background:	 				#fff;
+	border-top: 				1px solid #e2e2e2;
+	padding: 					10px;
+	font-size: 					11px;
 }
 
+.myspace-toolbar-wrapper {
+	position: 					absolute;
+	top: 						7px;
+	left: 						5px;
+}
+
+#my-account-held-locks-count-wrapper {
+	background: 				url(../images/icons/asset_map/spinner.gif) no-repeat center -100px;
+	display: 					inline-block;
+	min-width: 					20px;
+}
+
+#my-account-held-locks-count-wrapper.loading {
+	background-position: 		center left;
+}
+
+#my-account-held-locks-count-wrapper.loading span{
+	visibility: 				hidden;
+}
+
+.myspace-toolbar-wrapper {
+	position: 					absolute;
+	top: 						7px;
+	left: 						5px;
+}
 #my_space .myspace-section td{
 	vertical-align: 			top;
 }
@@ -2711,9 +2871,9 @@ LEFT SIDEBAR FRAME STYLES
 	font-size:					12px;
 }
 
-/* SYSTEM VERSION */
+/* SYSTEM NOTES IN BOTTOM OF LEFT FRAME */
 
-#system_version {
+.sq-system-note {
 	position: 					absolute;
 	left: 						32px;
 	bottom:						10px;
@@ -2721,24 +2881,26 @@ LEFT SIDEBAR FRAME STYLES
 	color: 						#aaa;
 	text-shadow: 				1px 1px 0px #FFFFFF;
 	font-size: 					11px;
+	z-index:					2;
 }
 
-#system_version a {
+.sq-system-note.help-link{
+	right:						0;
+	text-align: 				right;
+	z-index:					1;
+}
+
+.sq-system-note a {
 	color: 						#aaa;
 	font-size:					11px;
 }
 
-#system_version a:hover {
+.sq-system-note a:hover {
 	color: 						#666;
 	text-decoration: 			none;
 }
 
-.sq-sidenav-tab-wrapper{
-	position: 					relative;
-	margin-top: 				17px;
-	margin-left: 				32px;
-	width: 						auto;
-}
+
 
 
 /*
@@ -2769,6 +2931,11 @@ MISCELLANEOUS STYLES
 
 .sq-root-node-selections-wrapper {
 	margin: 					5px 0 0 10px;
+	list-style: 				none;
+}
+
+.sq-asset-id-list {
+	margin: 					0;
 	list-style: 				none;
 }
 
@@ -2832,6 +2999,48 @@ img.sq-tag-line.sq-icon {
 	background: 				none;
 }
 
+/* TOGGLE OPTIONS */
+.sq-toggle-option-wrapper {
+	display: 					inline-block;
+	margin: 					0 3px;
+}
+
+.sq-toggle-option-wrapper a{
+	display: 					inline-block;
+	color: 						#666;
+	font-weight: 				bold;
+	border: 					1px solid #CCC;
+	padding: 					0 7px;
+	text-shadow: 				0 1px 0 #FFF;
+	background-color: 			#E4E4E4;
+	cursor:						pointer;
+	box-shadow:					0 -2.4em 3.3em -2.4em rgba(0, 0, 0, 0.2) inset;
+}
+
+.sq-toggle-option-wrapper a:first-child{
+	border-radius: 				3px 0 0 3px;
+}
+
+.sq-toggle-option-wrapper a:last-child{
+	border-radius: 				0 3px 3px 0;
+}
+
+.sq-toggle-option-wrapper a:hover{
+	color: 						#000;
+	border-color: 				#aaa;
+	text-decoration: 			none;
+}
+
+.sq-toggle-option-wrapper a.selected,
+.sq-toggle-option-wrapper a.selected:hover{
+	background-color: 			#A6CBF4;
+	box-shadow: 				0 0 4px #71B5FA,0 0 4px #5D9CDC inset;
+	border-color: 				#5F8DD2;
+	text-shadow: 				0 1px 0 rgba(255, 255, 255, 0.6);
+	color: 						#204070;
+	cursor: 					default;
+}
+
 /* LOG MANAGER */
 
 .sq-log-monitor-container table td {
@@ -2881,7 +3090,6 @@ table.sq-log-monitor-table td{
 	white-space:				pre;
 	overflow:					auto;
 	margin:						0 0 20px 0;
-	/*font-family:	"Lucida Grande", "Lucida Console", "Courier New", monospace;*/
 }
 
 #sq_message_body {
@@ -3043,6 +3251,13 @@ div.sq-grey-header-row,
 	color: 						#838080;
 	text-shadow: 				0 1px 0 #FFF;
 	border-radius: 				3px;
+	font-size: 					12px;
+}
+
+.div-conditions-set div.sq-grey-header-row{
+	background: 				#999999;
+	color: 						#FFF;
+	text-shadow: 				0 1px 0 #000;
 }
 
 .sq-grey-header-row .sq-content-type-name {
@@ -3104,27 +3319,7 @@ div.sq-grey-header-row,
 
 /*
 ####################################################################################################################
-LIMBO OUTPUTTER - SECTIONS AND FIELDS (not sure if we need any of this anymore)
-####################################################################################################################
-*/
-
-.sq-limbo-section-heading {
-	border-bottom:				1px solid black;
-}
-
-.sq-limbo-section-subheading {
-}
-
-.sq-limbo-field {
-	vertical-align:				top;
-	white-space:				nowrap;
-	padding:					0px 10px 0px 0px;
-}
-
-
-/*
-####################################################################################################################
-Preview Screen styles
+PREVIEW SCREEN STYLES
 ####################################################################################################################
 */
 
@@ -3140,6 +3335,26 @@ Preview Screen styles
 .sq-preview-conditions-show {
     padding-bottom: 10px;
 }
-.sq-preview-condition-radio-group label{
-    padding-right: 30px;
+.sq-preview-condition-radio-group label {
+    padding-right: 28px;
+}
+
+
+/*
+####################################################################################################################
+LIMBO OUTPUTTER (SIMPLE EDIT MODE)
+####################################################################################################################
+*/
+
+.sq-limbo-section-heading {
+	border-bottom:				1px solid black;
+}
+
+.sq-limbo-section-subheading {
+}
+
+.sq-limbo-field {
+	vertical-align:				top;
+	white-space:				nowrap;
+	padding:					0px 10px 0px 0px;
 }

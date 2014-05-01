@@ -28,8 +28,11 @@
 	<string source="trigger_action_urban_airship_sound">Sound</string>
 	<string source="trigger_action_urban_airship_sound_instructions">The name of the sound to be played when the notification is recieved. Use the word &lt;b&gt;default&lt;/b&gt; for the default message sound. &lt;br /&gt;You can specify a custom sound that iOS plays when it presents the remote notification for an application. The sound files must be in the main bundle of the client application. Keywords are supported. </string>
 	<string source="trigger_action_urban_airship_broadcast">Broadcast</string>
-	<string source="trigger_action_urban_airship_broadcast_instructions">&lt;strong&gt;Note: &lt;/strong&gt; This option will broadcast the push notification to ALL users associated with the App Key. If this option is used device token will be ignored.</string>
+	<string source="trigger_action_urban_airship_broadcast_instructions">This option will broadcast the push notification to ALL users associated with the App Key. If this option is used device token will be ignored.</string>
 	<string source="trigger_action_urban_airship_badge">Badge</string>
 	<string source="trigger_action_urban_airship_badge_instructions">A number to set as the app icon badge number. Keywords are supported. </string>
 	<string source="trigger_action_urban_airship_service_type">Notification Service</string>
+	<string source="trigger_action_urban_airship_custom_parameters">Custom parameters</string>
+	<string source="trigger_action_urban_airship_custom_parameters_note">Additional key value pairs that will be sent as part of the payload. Keywords are supported for values.</string>
+
 </strings>

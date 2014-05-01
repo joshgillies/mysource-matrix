@@ -36,13 +36,17 @@ if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')
 	exit();
 }
 
+// Include init first so it can set the right error_reporting levels.
+require_once $SYSTEM_ROOT.'/core/include/init.inc';
+
 require_once 'Console/Getopt.php';
 $shortopt = '';
 $longopt = Array('delete-orphans');
 
-$args = Console_Getopt::readPHPArgv();
+$con = new Console_Getopt();
+$args = $con->readPHPArgv();
 array_shift($args);
-$options = Console_Getopt::getopt($args, $shortopt, $longopt);
+$options = $con->getopt($args, $shortopt, $longopt);
 
 $DELETE = FALSE;
 foreach ($options[0] as $option) {
@@ -51,10 +55,7 @@ foreach ($options[0] as $option) {
 			$DELETE = TRUE;
 		break;
 	}
-
 }
-
-require_once $SYSTEM_ROOT.'/core/include/init.inc';
 
 // check that the correct root password was entered
 $root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');

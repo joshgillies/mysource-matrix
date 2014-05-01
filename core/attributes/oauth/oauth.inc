@@ -204,7 +204,7 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 					?>
 				</td>
 			</tr>
-			<?php 
+			<?php
 			}
 			if (($current_value['method'] == 'POST') || ($current_value['method'] == 'PUT')) {
 			?>
@@ -232,10 +232,10 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
                     ?>
                 </td>
             </tr>
-			<?php 
+			<?php
 			} else {
 				hidden_field($prefix.'_request_body', $current_value['request_body']);
-			}	
+			}
 			?>
 			</table>
 			<?php
@@ -256,9 +256,9 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 		$prefix = str_replace(':', '_', $prefix);
 
 		$value = Array();
-		
+
 		if ($this->getType() != 'TWO_LEGGED' && !isset($_REQUEST[$prefix.'_method'])) return FALSE;
-		
+
 		// Assign values
 		$value['consumer_key'] 		= (isset($_REQUEST[$prefix.'_consumer_key'])) ? trim($_REQUEST[$prefix.'_consumer_key']) : '';
 		$value['consumer_secret'] 	= (isset($_REQUEST[$prefix.'_consumer_secret'])) ? trim($_REQUEST[$prefix.'_consumer_secret']) : '';
@@ -276,13 +276,13 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 		$value['cache_post_requests'] 	= FALSE;
 		$value['default_cache_expiry']	= 60;
 		$value['request_body'] 			= (isset($_REQUEST[$prefix.'_request_body'])) ? trim($_REQUEST[$prefix.'_request_body']) : '';
-		
+
 		$hl = new Asset_Attribute_Option_List();
 		$hl->process($prefix.'_request_headers');
 		$value['request_headers'] = trim($hl->value) ? explode($hl->delimiter, $hl->value) : NULL;
-		
+
 		$value['type']			  = $this->getType();	// the type is controlled by calling asset(which sets the type as default), not the user
-		
+
 		$value['run_test'] = FALSE;
 
 		$this->processed = $this->setValue($value);
@@ -301,7 +301,7 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 	*/
 	private function _encodeParam($input, $url_encode = TRUE)
 	{
-		// if the passed value is an array, encode both keys and values 
+		// if the passed value is an array, encode both keys and values
 		if (is_array($input)) {
 			$encoded_array = Array();
 			foreach ($input as $key => $val) {
@@ -313,10 +313,10 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 			if ($url_encode) {
 				$input = str_replace('+', ' ', str_replace('%7E', '~', rawurlencode($input)));
 			}
-			
+
 			return $input;
 		}
-		
+
 
 	}//end _encodeParam()
 
@@ -330,8 +330,9 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 	*/
 	private function _generateNonce()
 	{
-		$mt = microtime();
-		$rand = mt_rand();
+        include_once SQ_FUDGE_PATH.'/general/security.inc';
+		$mt   = microtime();
+		$rand = security_rand();
 		return md5($mt . $rand);
 
 	}//end _generateNonce()
@@ -383,7 +384,7 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 		switch ($method) {
 			case 'HMAC-SHA1' :
 				return $this->_encodeParam(base64_encode(hash_hmac("sha1", $base_string, $key, TRUE)));
-	
+
 			// TODO: support RSA-SHA1
 			//case 'RSA-SHA1':
 
@@ -426,7 +427,7 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 	private function _getQueryParameterArray($url, $url_encode = TRUE)
 	{
 		if (empty($url)) return NULL;
-		
+
 		$query_parameters = Array();
 
 		// if the url has the parameters part, return the parameters as an array
@@ -435,13 +436,13 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 			$params = explode('&', $url_param[1]);
 			foreach ($params as $param) {
 				$param_val = explode('=', $param);
-				// the url might already be url encoded - decode it to avoid double encoding later on 
-				// so that it'll work whehter the url has been encoded or not     
+				// the url might already be url encoded - decode it to avoid double encoding later on
+				// so that it'll work whehter the url has been encoded or not
 				if($url_encode) {
 				    $param_val[0] = urldecode($param_val[0]);
 				    $param_val[1] = urldecode($param_val[1]);
 				}
-				$query_parameters[$this->_encodeParam($param_val[0], $url_encode)] = $this->_encodeParam($param_val[1], $url_encode);				
+				$query_parameters[$this->_encodeParam($param_val[0], $url_encode)] = $this->_encodeParam($param_val[1], $url_encode);
 			}
 		}
 
@@ -527,10 +528,10 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 
 			// Discard badly formatted headers.
 			if (preg_match('/(.+):(.+)/', $this->_res['request']['headers'][$i]) == 0) {
-				unset($this->_res['request']['headers'][$i]); 
+				unset($this->_res['request']['headers'][$i]);
 			}
 		}
-	
+
 		// Replace keywords in the body.
 		$this->_replaceKeywords($this->_res['request']['body']);
 
@@ -539,7 +540,7 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 		$this->_replaceKeywords($this->_res['request']['consumer_secret']);
 		$this->_replaceKeywords($this->_res['request']['callback_url']);
 
-		// if the header parameters haven't been constructed yet, 
+		// if the header parameters haven't been constructed yet,
 		// construct the header parameters required for requesting request token
 		if (empty($this->_header_params)) {
 			$nonce = $this->_generateNonce();
@@ -557,7 +558,7 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 			// gather parameters reuired for signature and encode them before signing the signature
 			$all_params = $this->_header_params = $this->_encodeParam($this->_header_params);
 			$query_params = $this->_getQueryParameterArray($this->_res['request']['urls'][0]);
-			if (!empty($query_params)) { 
+			if (!empty($query_params)) {
 				// if query parameters exist, they have to be included in the signature
 				// but shouldn't be included in the header parameters
 				$all_params = array_merge($all_params, $query_params);
@@ -586,7 +587,7 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 
 		// Set the first in responses to response
 		$this->_res['response'] =& $this->_res['responses'][0];
-		
+
 		// if the response is received, the response should contain request token & request token secret
 		// (and possibly callback_confirmed which is always true)
 		// remember the token and secret and set secret in the session to make it available later for access token request
@@ -618,7 +619,7 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 	* redirecting user to the service provider's site
 	*
 	* @param String  $request_token	request token string
-	* 
+	*
 	* @return null
 	* @access public
 	*/
@@ -628,11 +629,11 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 	    if (empty($this->_config)) return;
 	    if (empty($this->_config['authorization_url'])) return;
 	    if(!isset($request_token['oauth_token'])) return;
-	    
+
 	    $url = $this->_config['authorization_url'].'?oauth_token='.$request_token['oauth_token'];
 	    do_redirect($url);
 	}//end authorizeRedirect()
-	    
+
 	/**
 	* get a request token authorized by service provider
 	*
@@ -699,7 +700,7 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 		if ($this->_res['response']['info']['http_code'] >= 400) {
 			$this->_errors[] = translate('oauth_authorization_request_failed', $this->_res['request']['urls'][0], $this->_res['response']['info']['http_code'], $this->_res['response']['body']);
 			return $this->_res;
-		}	
+		}
 
 		// _res now should contain the authorization/log in page of the service provider
 		return $this->_res;
@@ -771,7 +772,7 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 		$this->_replaceKeywords($this->_res['request']['consumer_key']);
 		$this->_replaceKeywords($this->_res['request']['consumer_secret']);
 
-		// if the header parameters haven't been constructed yet, 
+		// if the header parameters haven't been constructed yet,
 		// construct the header parameters required for requesting access token
 		if (empty($this->_header_params)) {
 			$nonce = $this->_generateNonce();
@@ -790,12 +791,12 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 			// gather parameters reuired for signature and encode them before signing the signature
 			$all_params = $this->_header_params = $this->_encodeParam($this->_header_params);
 			$query_params = $this->_getQueryParameterArray($this->_res['request']['urls'][0]);
-			if (!empty($query_params)) { 
+			if (!empty($query_params)) {
 				// if query parameters exist, they have to be included in the signature
 				// but shouldn't be included in the header parameters
 				$all_params = array_merge($all_params, $query_params);
 			}
-			
+
 			// construct a base string for the signature
 			// request url used for signature shouldn't contain request parameters
 			$request_url = explode('?', $this->_res['request']['urls'][0]);
@@ -807,7 +808,7 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 			// generate a signature and set is as a header parameter
 			$this->_header_params['oauth_signature'] = $this->_generateSignature($signature_key, $base_string, $this->_config['signature_method']);
 		}
-		
+
 		// generate a header string required for oauth authorization
 		$header_string = $this->_generateAuthorizationHeader($this->_header_params);
 		$this->_res['request']['headers'][] = $header_string;
@@ -821,7 +822,7 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 		// if the response is received, the response should contain access token & access token secret
 		// remember the token and secret in the session to make them available later to obtain user data
 		// and set the session variable to indicate we have successfully exchaned the request(authorized) token
-		// to an access token, then clear the response and request user data 
+		// to an access token, then clear the response and request user data
 		if (!empty($this->_res['response']['body'])) {
 			$token_info = $this->_getTokenInfoArray($this->_res['response']['body']);
 
@@ -881,7 +882,7 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 		    $post_params =  $this->_getQueryParameterArray('?'.$this->_config['request_body']);
 		    $query_params = array_merge($query_params, $post_params);
 		}
-		if (!empty($query_params)) { 
+		if (!empty($query_params)) {
 			// if query parameters exist, they have to be included in the signature
 			// but shouldn't be included in the header parameters
 			$all_params = array_merge($all_params, $query_params);
@@ -891,7 +892,7 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 		// request url used for signature shouldn't contain request parameters
 		$request_url = explode('?', $url);
 		$base_string = $this->_generateBaseString($this->_config['method'], $request_url[0], $all_params);
-		
+
 		// signature key is a combination of cosumer key and token secret (received when an access token was issued)
 		$signature_key = $this->_encodeParam($this->_config['consumer_secret']).'&'.$access_token_secret;
 		$this->_header_params['oauth_signature'] = $this->_generateSignature($signature_key, $base_string, $this->_config['signature_method']);
@@ -915,8 +916,8 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 		return $this->_errors;
 
 	}//end getErrors()
-	
-	
+
+
 	/**
 	 * Get the type of this OAuth authentication - 2 legged or 3 legged
 	 *
@@ -931,7 +932,7 @@ class Asset_Attribute_OAuth extends Asset_Attribute_HTTP_Request
 		return isset($value['type']) ? $value['type'] : 'THREE_LEGGED';
 	}
 
-	
+
 	/**
 	 * Set a config value
 	 *

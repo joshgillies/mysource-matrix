@@ -58,7 +58,8 @@ var Matrix_Viper = new function() {
 		    'ViperSourceViewPlugin',
 		    'ViperSearchReplacePlugin',
 		    'ViperLangToolsPlugin',
-		    'ViperCharMapPlugin'],
+		    'ViperCharMapPlugin',
+		    'ViperCursorAssistPlugin'],
 
 	    // Give the viper instance a name
 	    viperName: 'admin-viper',
@@ -103,6 +104,10 @@ var Matrix_Viper = new function() {
 		pm.setPluginSettings('ViperInlineToolbarPlugin', {buttons: settings.inlineButtons});
 		pm.setPluginSettings('ViperToolbarPlugin', {buttons: settings.buttons});
 		pm.setPluginSettings('ViperAccessibilityPlugin', {standard: settings.standard});
+
+		// need to specify jquery url for the new window view of source code mode
+		pm.setPluginSettings('ViperSourceViewPlugin', {jqueryURL: options.jQueryPath});
+
 		
 		// Get the toolbar plugin and apply it to the container
 		if(settings.toolbarContainer.length >=1) {
@@ -174,4 +179,22 @@ var Matrix_Viper = new function() {
 
 
 // let's fire it up
-jQuery(document).ready(function() { Matrix_Viper.loadViper();});
+jQuery(document).ready(function() {
+    var scripts = document.getElementsByTagName('script');
+    var options = {};
+
+    // Loop through all the script tags that exist in the document and
+    // find which one has included jQuery.
+    for (var i = 0; i < scripts.length; i++) {
+        if (scripts[i].src) {
+            if (scripts[i].src.match(/jquery\.js/)) {
+                // We have found our appropriate <script> tag that includes
+                // this file, we can extract the path.
+                options.jQueryPath = scripts[i].src;
+                break;
+            }
+        }
+    }
+
+    Matrix_Viper.loadViper(options);
+});

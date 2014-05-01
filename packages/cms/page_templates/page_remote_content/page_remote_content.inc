@@ -135,9 +135,6 @@ class Page_Remote_Content extends Page
 		// start performance mode timer
 		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'printBody');
 
-		// Encoded URLs look like they've got keywords in them. Disable blanking out of unknown keywords
-		$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_REPLACE_MYSOURCE_LEVEL_KEYWORDS', FALSE);
-
 		$success = $this->_process();
 		$url = array_get_index($this->_tmp, 'url', '');
 
@@ -147,21 +144,30 @@ class Page_Remote_Content extends Page
 				echo $this->attr('error_message');
 			}
 		} else {
-			// if _process returns null, in some cases headers and content may not be set properly.
-			// So check they are available before trying to use them.
-			if (isset($this->_tmp['headers']) === TRUE && isset($this->_tmp['content']) === TRUE) {
-				$type = array_get_index($this->_tmp['headers'], 'content-type');
-				if (!empty($type) && (0 !== strpos($type, 'text/'))) {
-					// if we have got to this point and are trying to tunnel
-					// binary data, we must be nested and so we'll have to show
-					// a message instead of the content
-					$replacements['remote_url'] = $url;
-					echo replace_keywords($this->attr('binary_message'), $replacements);
-				} else {
-					// everything is good. get the page body.
-					echo $this->_tmp['content'][$url];
+			ob_start();
+				// if _process returns null, in some cases headers and content may not be set properly.
+				// So check they are available before trying to use them.
+				if (isset($this->_tmp['headers']) === TRUE && isset($this->_tmp['content']) === TRUE) {
+					$type = array_get_index($this->_tmp['headers'], 'content-type');
+					if (!empty($type) && (0 !== strpos($type, 'text/'))) {
+						// if we have got to this point and are trying to tunnel
+						// binary data, we must be nested and so we'll have to show
+						// a message instead of the content
+						$replacements['remote_url'] = $url;
+						echo replace_keywords($this->attr('binary_message'), $replacements);
+					} else {
+						// everything is good. get the page body.
+						echo $this->_tmp['content'][$url];
+					}
 				}
+				$content = ob_get_contents();
+			ob_end_clean();
+
+			// Escape the strings matching Matrix keyword pattern
+			if (!$this->_tmp['transform_settings']['replace_matrix_keywords']) {
+				$content = preg_replace('/%([a-zA-Z]{3,}_[a-zA-Z_\-0-9\.:]+(\^{1}[^%]+)*)%/', '&#37;$1&#37;', $content);
 			}
+			echo $content;
 		}
 
 		// stop performance mode timer

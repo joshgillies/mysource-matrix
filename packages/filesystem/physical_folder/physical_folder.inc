@@ -78,6 +78,8 @@ class Physical_Folder extends Asset
 		require_once (SQ_DATA_PATH.'/private/conf/file_bridge.inc');
 		$location = FILE_BRIDGE_PATH;
 		$location = rtrim('/', $location);
+		if(!empty($location) && strpos($location, '/') !== 0) $location = SQ_SYSTEM_ROOT.'/'.$location;
+		
 		$full_path = $location.'/'.$this->_shadowid;
 		$name = basename($full_path);
 

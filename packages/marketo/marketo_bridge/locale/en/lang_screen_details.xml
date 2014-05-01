@@ -92,6 +92,10 @@
 		<display_name>Munchkin Private Key</display_name>
 		<note />
 	    </field>
+	    <field attribute="munchkin_init_code">
+		<display_name>Munchkin Initialisation Code</display_name>
+		<note>Use keyword %globals_marketo_munchkin_init:123% to print this init code, where 123 is the asset id of the bridge. %munchkin_account_id% in the code will be replaced with actual Munchkin Account ID.</note>
+	    </field>
 	    <note>Munchkin API requires both Email and Private Key to be set above so that Matrix can generate a hash value to be used in Munchkin API call. Use keyword %globals_marketo_munchkin_hash:xx%</note>
 	</section>
 </contents>

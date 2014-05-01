@@ -24,20 +24,18 @@ function ToolTip()
 	this.normal_font	= "100% Tahoma,Arial";
 	this.title_font		= "bold 120% Tahoma,Arial";
 	this.title_align	= "left";
-	this.normal_bg		= "#F4F4EB";
-	this.title_bg		= "#594165";
-	this.border			= "solid 1px #000000";
 	this.normal_color	= "#000000";
 	this.title_color	= "#FFFFFF";
 	this.showing		= false;
 
-	this.print	= tt_print;
-	this.show	= tt_show;
-	this.hide	= tt_hide;
-	this.paint	= tt_paint;
+	this.print		= tt_print;
+	this.show		= tt_show;
+	this.hide		= tt_hide;
+	this.paint		= tt_paint;
+	this.getLeft	= tt_getLeft;
 
-	this.set	= tt_set;
-	this.get	= tt_get;
+	this.set		= tt_set;
+	this.get		= tt_get;
 
 }//end ToolTip()
 
@@ -124,9 +122,10 @@ function findPosY(obj)
 /**
 * Attach tooltip to corresponding object and make it visible.
 *
-* @param	obj	HTML object which will be base for tooltip
-* @param	text	content of the tooltip (could be HTML)
-* @param	title	title of the tooltip [optional]
+* @param	obj				HTML object which will be base for tooltip
+* @param	text			content of the tooltip (could be HTML)
+* @param	title			title of the tooltip
+* @param	close_button	doesnt look like this is used in the pain function anymore, but we have to leave it in here now to not stuff up any functions that might be sending it already
 *
 * @return
 * @access
@@ -139,7 +138,8 @@ function tt_show(obj, text, title, close_button)
 
 	var top = findPosY(obj);
 	top += obj.offsetHeight;
-	var left = findPosX(obj);
+	//var left = findPosX(obj);
+	var left = this.getLeft(obj);
 	this.paint(top, left, text, title, close_button);
 
 	this.showing = true;
@@ -185,22 +185,31 @@ function tt_paint(top, left, text, title, close_button)
 
 	if ((typeof(title) != "undefined" && title != "") || (typeof(top) == "undefined"))
 	{
-		/*
-		document.getElementById("ToolBoxTitle").style.textAlign = this.title_align;
-		document.getElementById("ToolBoxTitle").style.font = this.title_font;
-		document.getElementById("ToolBoxTitle").style.background = this.title_bg;
-		document.getElementById("ToolBoxTitle").style.color = this.title_color;
-		document.getElementById("ToolBoxTitle").style.padding = "2px";
-		document.getElementById("ToolBoxContent").style.font = this.normal_font;
-		*/
 
 		if (typeof(title) != "undefined") document.getElementById("ToolBoxTitle").innerHTML = unescape(title);
+		
+				if (closeElement = document.getElementById("ToolBoxClose")) {
+			closeElement.parentNode.removeChild(closeElement);
+		}
+
+		if (typeof close_button != 'undefined') {
+			closeElement = document.createElement('th');
+			closeElement.style.textAlign = 'right';
+			closeElement.style.padding = '2px';
+			closeElement.id = 'ToolBoxClose';
+
+			if (close_button == true) {
+				close_button = 'X';
+			}
+
+			closeElement.innerHTML = '<a href="#" style="text-decoration: none; color: ' + this.title_color + '" onclick="tooltip.hide(); return false;">' + close_button + '</a>';
+			document.getElementById("ToolBoxTitle").parentNode.appendChild(closeElement);
+			document.getElementById("ToolBoxContent").colSpan = 2;
+		}
 
 	}
 	else
 	{
-		/*document.getElementById("ToolBoxTitle").style.background = this.normal_bg;
-		document.getElementById("ToolBoxTitle").style.padding = "0px";*/
 		document.getElementById("ToolBoxTitle").innerHTML = "";
 	}
 	if ((typeof(text) != "undefined" && text != "") || (typeof(top) == "undefined"))
@@ -215,14 +224,10 @@ function tt_paint(top, left, text, title, close_button)
 			}
 			document.getElementById("ToolBoxContent").innerHTML = unescapedText;
 		}
-		/*document.getElementById("ToolBoxContent").style.padding = "2px";
-		document.getElementById("ToolBoxContent").style.background = this.normal_bg;*/
 	}
 	else
 	{
 		document.getElementById("ToolBoxContent").innerHTML = "";
-		/*document.getElementById("ToolBoxContent").style.padding = "0px";
-		document.getElementById("ToolBoxContent").style.background = this.title_bg;*/
 	}
 
 	if ((typeof(top) != "undefined") && (typeof(left) != "undefined"))
@@ -237,12 +242,6 @@ function tt_paint(top, left, text, title, close_button)
 		tool_box.style.left	= left + "px";
 
 	}
-	/*
-	tool_box.style.font 		= this.normal_font;
-	tool_box.style.color 		= this.color;
-	tool_box.style.border 		= this.border;
-	tool_box.style.background 	= this.normal_bg;
-	*/
 	tool_box.style.visibility 	= "visible";
 
 	if (tool_box.filters && tool_box.filters[0]) tool_box.filters[0].Play();
@@ -282,6 +281,26 @@ function tt_set(attr, value)
 	if (document.getElementById("ToolBox").style.visibility == "visible") this.paint();
 
 }//end tt_set()
+
+
+/**
+* Find element's position relative to the document.
+*
+* @param	elem	the element to get the offset from
+*
+* @return int
+* @access
+*/
+function tt_getLeft(elem)
+{
+    var offsetLeft = 0;
+    do {
+      if ( !isNaN( elem.offsetLeft ) ) {
+          offsetLeft += elem.offsetLeft;
+      }
+   	} while( elem = elem.offsetParent );
+    return offsetLeft;
+}
 
 
 //default tooltip object for all pages

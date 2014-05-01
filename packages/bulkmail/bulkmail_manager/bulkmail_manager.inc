@@ -317,6 +317,9 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 		$this->initProgressFile($data_dir);
 		$this->initDetailsFile($details_info, $data_dir);
 
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 		// add a new entry to the database table
 		try {
 			$bind_vars = Array(
@@ -328,6 +331,9 @@ class Bulkmail_Manager extends Bulkmail_Post_Office
 		} catch (Exception $e) {
 			throw new Exception("Unable to add bulkmail job (#$unique_id) due to database error: ".$e->getMessage());
 		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
 		return TRUE;
 

@@ -985,21 +985,25 @@ class Backend_Outputter
 		<?php
 		if (isset($_SERVER['HTTP_USER_AGENT']) && preg_match('/(?i)msie [1-8]/',$_SERVER['HTTP_USER_AGENT'])) {
         	// If we are in IE8 or less, don't use the conditional <html> tag as it can cause compatibility mode in those browsers
-    		// if IE<=8
+    		// IE<=8
     		?>
     		<html class="ie8 <?php echo $backendPage; ?>">
     		<?php
+    	// If we are in IE10 and above, we must print the IE class manually as since IE10, IE doesn't support conditional comments anymore
+		} else if (isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'Trident/6.0; rv:10.0') !== FALSE) {
+    		// IE 10
+    		?>
+			<html class="ie ie10 gtie8 gtie9 <?php echo $backendPage; ?>">
+    		<?php
 		} else if (isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'Trident/7.0; rv:11.0') !== FALSE) {
-        	// If we are in IE11, we must print the IE11 class manually as IE11 doesn't send the right browser header anymore for us to do simple HTML checking on
-    		// if IE 11
+    		// IE 11
     		?>
 			<html class="ie ie11 gtie8 gtie9 gtie10 <?php echo $backendPage; ?>">
     		<?php
 		} else {
-    		// if IE>8 & !IE11
+    		// IE9 or other browsers
     		?>
 			<!--[if IE 9 ]>     <html class="ie ie9 gtie8 <?php echo $backendPage; ?>"> <![endif]-->
-			<!--[if IE 10 ]>    <html class="ie ie10 gtie8 gtie9 <?php echo $backendPage; ?>"> <![endif]-->
 			<!--[if !IE]> --> 	<html class="<?php echo $backendPage; ?>"> <!-- <![endif]-->
     		<?php
 		}
@@ -1991,7 +1995,8 @@ class Backend_Outputter
 		    // if viper is not previously loaded, load them all
 		    // If in EES, viper.js would have been already loaded at this point. Loading below scripts would conflict with EES scripts.
 		    if(strpos($buffer_content, 'viper.js' ) === FALSE) {
-			$this->addJsInclude(sq_web_path('data').'/ees/Libs/jquery/libs-all.js');
+			$this->addJsInclude(sq_web_path('lib').'/web/dfx/jquery.js');
+			$this->addJsInclude(sq_web_path('lib').'/web/dfx/jquery.ui.js');
 			$this->addJsInclude(sq_web_path('data').'/ees/Plus/Libs/Viper/viper.js');
 			$this->addCssInclude(sq_web_path('data').'/ees/Plus/Libs/Viper/viper.css');
 			$this->addCssInclude(sq_web_path('lib').'/web/matrix_viper/matrix_viper.css');

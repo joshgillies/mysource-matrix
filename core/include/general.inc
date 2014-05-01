@@ -70,7 +70,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 	$bt = debug_backtrace();
 
 	if (count($bt) > 1) {
-		$real_bt_index = get_true_error_location($bt, 0);		
+		$real_bt_index = get_true_error_location($bt, 0);
 		if(isset($bt[$real_bt_index]['file'])) {
 		    $err_file = $bt[$real_bt_index]['file'];
 		}
@@ -126,8 +126,11 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 	// if we are in XML output type then, send our error as XML
 	switch ($GLOBALS['SQ_OUTPUT_TYPE']) {
 		case 'xml' :
-			$msg = "$err_msg\nFile: $err_file\nLine:$err_line";
-
+			$msg = $err_msg;
+			if (SQ_CONF_DEBUG & 1) {
+			    $msg .= "\nFile: $err_file\nLine:$err_line";
+			}
+			    
 			$root = simplexml_load_string('<xml></xml>');
 			$output = $root->addChild('error', $msg);
 			header('Content-Type: text/xml');
@@ -139,6 +142,22 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 
 			exit(); // we need to always exit for XML otherwise we are likely to end up with XML parse errors at the other end
 		break;
+		
+	    case 'json':
+	        // Used by asset map to return an error. This format returns an
+	        // equivalent format to that used by the asset map's JSON serialisation
+	        // of the (previous) response XML, hence the odd response.
+	        $msg = $err_msg;
+
+			$root = array(
+			    '_rootTag' => 'error',
+			    '_content' => $msg,
+			);
+			header('Content-Type: application/json');
+			echo json_encode_array($root);
+			
+	        exit();
+        break;
 
 		case 'text' :
 			// if they haven't put tags in the err msg assume it to be plain text
@@ -189,9 +208,9 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 				$err_msg = nl2br(htmlspecialchars($err_msg));
 			}
 
-			$error_title_main = 'font-weight: bold; font-size: 14px; vertical-align: top; padding: 12px 19px 11px; border-bottom: 1px solid '.$border_colour.'; color: '.$text_colour.';';
-			$error_title = 'font-weight: bold; font-size: 12px; vertical-align: top; padding-right: 30px; padding-bottom: 5px; color: '.$text_colour.';';
-			$error_data  = 'font-size: 12px; vertical-align: top; padding-right: 30px; padding-bottom: 5px; color: '.$text_colour.';';
+			$error_title_main = 'font-weight: bold; font-size: 12px; vertical-align: top; padding: 6px 7px 5px; border-bottom: 1px solid '.$border_colour.'; color: '.$text_colour.';';
+			$error_title = 'font-weight: bold; font-size: 11px; vertical-align: top; padding-right: 30px; padding-bottom: 2px; color: '.$text_colour.';';
+			$error_data  = 'font-size: 11px; vertical-align: top; padding-right: 30px; padding-bottom: 2px; color: '.$text_colour.';';
 			//if(!(SQ_IN_BACKEND || SQ_IN_LIMBO)) echo '<!DOCTYPE html>';
 			?>
 			<!DOCTYPE html>
@@ -203,7 +222,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 						</td>
 					</tr>
 					<tr>
-						<td style="vertical-align: top; padding: 12px 19px 11px;">
+						<td style="vertical-align: top; padding: 6px 8px 2px;">
 			<?php
 			if (SQ_CONF_DEBUG & (1 | 2)) {
 			?>
@@ -920,7 +939,6 @@ function clean_url($url)
 */
 function current_protocol()
 {
-	if (is_ssl_accelerated()) return 'https';
 	return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 'https' : 'http';
 
 }//end current_protocol()
@@ -937,8 +955,14 @@ function is_ssl_accelerated()
 {
 	if (SQ_PHP_CLI) return FALSE;
 
+	$proxy_conf_file = SQ_DATA_PATH.'/private/conf/proxy_authentication.inc';
+	if (file_exists($proxy_conf_file)) {
+		// proxy configuration exists, let's see if we need to do anything
+		require_once($proxy_conf_file);
+	}
+
 	$enabled = FALSE;
-	if (SQ_SSLA_ENABLED) {
+	if (defined('SQ_SSLA_ENABLED') && SQ_SSLA_ENABLED) {
 		$enabled = TRUE;
 
 		$match_method = SQ_SSLA_MATCH;
@@ -1771,46 +1795,44 @@ function get_asset_tag_line_binoculars($assetid, $popupTitle=NULL)
 
 	// start an inner buffer for the lineages popup
 	ob_start();
-	?>
-	<div id="asset-tag-line-<?php echo $assetid ?>-lineages" style="display:none">
-	<p>This asset is linked to <?php
-	if ($count_linked_to === 1) {
-		?><strong><em><?php echo $count_linked_to ?></em></strong> parent<?php
-	} else {
-		?><strong><em><?php echo $count_linked_to ?></em></strong> parents<?php
-	}
-	?></p>
-	<table class="sq-toolbox-asset-lineages-listing"><?php
-	foreach ($lineages as $lineage_key => $lineage) {
-		if ($lineage['link_type'] & SQ_SC_LINK_BACKEND_NAV) {
-			$lineage_assetids = array_keys($lineage['lineage']);
-			$lineage_assetids[] = str_replace('\\', '\\\\', $assetid);
-
-			$lineage_names = $lineage['lineage'];
-
-			// If we have too many in the lineage, we need to add '...' between first
-			// 2 and last 2 - including the asset itself
-			if (count($lineage['lineage']) > 3) {
-				$lineage_names = $lineage['lineage'];
-				array_splice($lineage_names, 2, -1, Array('...'));
-			}
-
-			foreach ($lineage_names as $id => $name){
-				$lineage_names[$id] = htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
-			}
-
-			$lineage_names[$assetid] = $asset_info['name'];
-			$lineages_onclick = asset_locator_onclick($lineage_assetids, TRUE);
-			?><tr>
-			<td class="sq-backend-table-cell" ><a href="#" onclick="<?php echo $lineages_onclick; ?>"><?php echo implode(' &gt; ', $lineage_names) ?></a></td>
-			</tr><?php
+	?><div id="asset-tag-line-<?php echo $assetid ?>-lineages" style="display:none;">
+		<p>This asset is linked to <?php
+		if ($count_linked_to === 1) {
+			?><strong><em><?php echo $count_linked_to ?></em></strong> parent<?php
 		} else {
-			unset($lineages[$lineage_key]);
+			?><strong><em><?php echo $count_linked_to ?></em></strong> parents<?php
 		}
-	}
-	?></table>
-	</div>
-	<?php
+		?></p>
+		<table class="sq-toolbox-asset-lineages-listing"><?php
+		foreach ($lineages as $lineage_key => $lineage) {
+			if ($lineage['link_type'] & SQ_SC_LINK_BACKEND_NAV) {
+				$lineage_assetids = array_keys($lineage['lineage']);
+				$lineage_assetids[] = str_replace('\\', '\\\\', $assetid);
+
+				$lineage_names = $lineage['lineage'];
+
+				// If we have too many in the lineage, we need to add '...' between first
+				// 2 and last 2 - including the asset itself
+				if (count($lineage['lineage']) > 3) {
+					$lineage_names = $lineage['lineage'];
+					array_splice($lineage_names, 2, -1, Array('...'));
+				}
+
+				foreach ($lineage_names as $id => $name){
+					$lineage_names[$id] = htmlspecialchars($name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET);
+				}
+
+				$lineage_names[$assetid] = $asset_info['name'];
+				$lineages_onclick = asset_locator_onclick($lineage_assetids, TRUE);
+				?><tr>
+				<td class="sq-backend-table-cell" ><a href="#" onclick="<?php echo $lineages_onclick; ?>"><?php echo implode(' &gt; ', $lineage_names) ?></a></td>
+				</tr><?php
+			} else {
+				unset($lineages[$lineage_key]);
+			}
+		}
+		?></table>
+	</div><?php
 	$lineages_div = ob_get_clean();
 
 	// If there is more than one lineage, then provide the popup, otherwise
@@ -1818,7 +1840,7 @@ function get_asset_tag_line_binoculars($assetid, $popupTitle=NULL)
 	if (count($lineages) > 1) {
 		echo $lineages_div;
 		?><div id="asset-tag-line-<?php echo $assetid ?>-cancel-icon" style="display:none"><?php
-			sq_print_icon(sq_web_path('data').'/asset_types/bodycopy/images/icons/delete.png', 16, 16, translate('cancel'), translate('cancel'), ' style="border:none"');
+			sq_print_icon(sq_web_path('lib').'/web/images/icons/cancel.png', 16, 16, translate('cancel'), translate('cancel'), ' style="border:none"');
 		?></div><?php
 		$lineages_onclick = 'tooltip.show(this, document.getElementById(\'asset-tag-line-'.str_replace('\\', '\\\\', $assetid).'-lineages\').innerHTML, \''.addslashes($popupTitle).'\', document.getElementById(\'asset-tag-line-'.str_replace('\\', '\\\\', $assetid).'-cancel-icon\').innerHTML)';
 		$lineages_name = translate('show_lineages');
@@ -2338,25 +2360,25 @@ function replace_global_keywords(&$text)
 					if ($keyword == 'globals_context') {
 						$context_name = '';
 						// get current context ID
-						$contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
-						if (!is_null($contextid)) {
+						$global_contextid = $GLOBALS['SQ_SYSTEM']->getContextId();
+						if (!is_null($global_contextid)) {
 							// get all available contexts and find the name of current context from ID
 							$all_contexts = $GLOBALS['SQ_SYSTEM']->getAllContexts();
-							if (isset($all_contexts[$contextid]['name'])) {
-								$context_name = $all_contexts[$contextid]['name'];
+							if (isset($all_contexts[$global_contextid]['name'])) {
+								$context_name = $all_contexts[$global_contextid]['name'];
 							}
 						}
 						$replacements[$full_keyword] = $context_name;
 					}//end if
-					
+
 					if (0 === strpos($keyword, 'globals_visited_urls')) {
 						$replacements[$full_keyword] = isset($_SESSION['visited_urls']) ? array_reverse(array_values($_SESSION['visited_urls'])) : '';
 					}//end if
-					
+
 					if (0 === strpos($keyword, 'globals_visited_assets')) {
 						$replacements[$full_keyword] = isset($_SESSION['visited_assets']) ? array_reverse(array_values($_SESSION['visited_assets'])) : '';
 					}//end if
-					
+
 					if (0 === strpos($keyword, 'globals_entry_asset')) {
 						$replacements[$full_keyword] = isset($_SESSION['entry_asset']) ? $_SESSION['entry_asset'] : '';
 					}//end if
@@ -2368,7 +2390,7 @@ function replace_global_keywords(&$text)
 					if (0 === strpos($keyword, 'globals_site_referrer')) {
 						$replacements[$full_keyword] = isset($_SESSION['site_referrer']) ? $_SESSION['site_referrer'] : '';
 					}//end if
-					
+
 					//marketo keywords
 					if (0 === strpos($keyword, 'globals_marketo_lead')) {
 						// no cache?
@@ -2380,7 +2402,7 @@ function replace_global_keywords(&$text)
 						    $nocache = FALSE;
 						    $sub_keyword = substr($keyword, 20);
 						}
-						
+
 						preg_match('|(.*):([0-9]+)$|',$sub_keyword,$matches);
 						if(isset($matches[2]) && !empty($matches[2])) {
 						    $marketo_bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($matches[2]);
@@ -2398,16 +2420,18 @@ function replace_global_keywords(&$text)
 							    $user_identifier['email'] = $email;
 							}
 						    }
-			    
+
 						    if(!empty($user_identifier)) {
-							    $data = $marketo_bridge->getLead($user_identifier, $nocache);
 							    if(preg_match('|^_id|',$sub_keyword)){
+								$data = $marketo_bridge->getLead($user_identifier, $nocache);
 								$replacements[$full_keyword] = isset($data->result->leadRecordList->leadRecord->Id) ? $data->result->leadRecordList->leadRecord->Id : '';
 							    }
 							   else  if(preg_match('|^_email|',$sub_keyword)){
+								$data = $marketo_bridge->getLead($user_identifier, $nocache);
 								$replacements[$full_keyword] = isset($data->result->leadRecordList->leadRecord->Email) ? $data->result->leadRecordList->leadRecord->Email : '';
 							    }
 							   else  if(preg_match('|^_attribute_|',$sub_keyword)){
+								$data = $marketo_bridge->getLead($user_identifier, $nocache);
 								preg_match('|^_attribute_(.*):([0-9]+)$|',$sub_keyword,$matches);
 								if(isset($matches[1]) && isset($data->result->leadRecordList->leadRecord->leadAttributeList->attribute)) {
 								    $attributes = $data->result->leadRecordList->leadRecord->leadAttributeList->attribute;
@@ -2419,12 +2443,14 @@ function replace_global_keywords(&$text)
 								}
 							    }
 							    else  if(preg_match('|^:([0-9]+)$|',$sub_keyword)){
+								// have to filter results if getting all lead data
+								$data = $marketo_bridge->getLead($user_identifier, $nocache, TRUE);
 								$replacements[$full_keyword] = json_encode_array($data);
-							    }	
-						    }   
+							    }
+						    }
 						}
 					}
-					
+
 					// marketo munchkin keywords
 					if (0 === strpos($keyword, 'globals_marketo_munchkin_hash')) {
 					    $sub_keyword = substr($keyword, 20);
@@ -2432,10 +2458,10 @@ function replace_global_keywords(&$text)
 					    if(isset($matches[2]) && !empty($matches[2])) {
 						$marketo_bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($matches[2]);
 						$replacements[$full_keyword] = $marketo_bridge->generateMunchkinHash();
-					    
+
 					    }
 					}
-					
+
 					if (0 === strpos($keyword, 'globals_marketo_munchkin_id')) {
 					    $sub_keyword = substr($keyword, 20);
 					    preg_match('|(.*):([0-9]+)$|',$sub_keyword,$matches);
@@ -2444,15 +2470,44 @@ function replace_global_keywords(&$text)
 						$replacements[$full_keyword] = $marketo_bridge->attr('munchkin_account_id');
 					    }
 					}
-					
+
+
+					if (0 === strpos($keyword, 'globals_marketo_munchkin_init')) {
+					    $sub_keyword = substr($keyword, 20);
+					    preg_match('|(.*):([0-9]+)$|',$sub_keyword,$matches);
+					    if(isset($matches[2]) && !empty($matches[2])) {
+						$marketo_bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($matches[2]);
+						$replacements[$full_keyword] = $marketo_bridge->getMunchkinInitCode();
+					    }
+					}
+
 					// verified email stored in session
 					if (0 === strpos($keyword, 'globals_verified_email')) {
 					    if(isset($_SESSION['SQ_VERIFY_EMAIL_VERIFIED'])) {
 						$replacements[$full_keyword] = $_SESSION['SQ_VERIFY_EMAIL_VERIFIED'];
-					    
+
 					    }
 					}
-					    
+
+					// image variety url keyword
+					if (0 === strpos($keyword, 'globals_image_v_url_')) {
+					    $sub_keyword = substr($keyword, 20);
+					    preg_match('|(.*):([0-9]+)$|',$sub_keyword,$matches);
+					   	if(isset($matches[2]) && !empty($matches[2]) && isset($matches[1]) && !empty($matches[1])) {
+					   			$image = $GLOBALS['SQ_SYSTEM']->am->getAsset($matches[2]);
+					   			$vars = $image->attr('varieties');
+								if(isset($vars['data'])) {
+									foreach ($vars['data'] as $key => $value) {
+										if(isset($value['name']) && $value['name'] === $matches[1]) {
+											$assetid = $image->id.':'.$key;
+											$variety = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+											$replacements[$full_keyword] = $variety->getURL();
+										}
+									}
+								}
+					   	}
+					}
+
 
 					apply_keyword_modifiers($replacements[$full_keyword], $modifiers, Array(), $keyword);
 				}//end if is global keyword
@@ -2542,7 +2597,7 @@ function clean_keyword_value($keyword_value, $allow_quotes=FALSE)
 {
 	if (is_array($keyword_value)) {
 		// Only scalars are accepted
-		array_walk_recursive($keyword_value, 'escapeHtmlSpecialChars', $allow_quotes); 
+		array_walk_recursive($keyword_value, 'escapeHtmlSpecialChars', $allow_quotes);
 	} else if (is_scalar($keyword_value)) {
 		$keyword_value = htmlspecialchars($keyword_value, $allow_quotes ? ENT_NOQUOTES : ENT_QUOTES, SQ_CONF_DEFAULT_CHARACTER_SET);
 	} else {

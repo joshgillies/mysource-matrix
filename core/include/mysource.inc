@@ -691,8 +691,7 @@ class MySource extends MySource_Object
 								$browser_cache_expiry = $cm->attr('expiry');
 							}
 							$level = $cm->cacheControlLevel();
-							$no_cookie = $level === 'public' ? ', no-cache="set-cookie"' : '';
-							header('Cache-Control: max-age='.$browser_cache_expiry.', '.$acc_cache_string.$level.$no_cookie);
+							header('Cache-Control: max-age='.$browser_cache_expiry.', '.$acc_cache_string.$level);
 							header('Expires: '.gmdate('D, d M Y H:i:s', time() + $browser_cache_expiry).' GMT');
 						}
 
@@ -970,8 +969,7 @@ class MySource extends MySource_Object
 
 		if (!$recache) {
 			$level = $cm->cacheControlLevel();
-			$no_cookie = $level === 'public' ? ', no-cache="set-cookie"' : '';
-			header('Cache-Control: max-age='.$browser_cache_expiry.', '.$acc_cache_string.$level.$no_cookie);
+			header('Cache-Control: max-age='.$browser_cache_expiry.', '.$acc_cache_string.$level);
 		}
 
 		// not cached or has expired
@@ -1064,10 +1062,11 @@ class MySource extends MySource_Object
 	*/
 	public function replaceKeyword(&$content, $additional_replacements=Array())
 	{
-		// Replace any global keywords first
-		replace_global_keywords($content);
 
 		if ($this->getGlobalDefine('SQ_REPLACE_MYSOURCE_LEVEL_KEYWORDS', TRUE)) {
+		    	// Replace any global keywords first
+			replace_global_keywords($content);
+		
 			// Perform any additional replacements
 			$keywords = retrieve_keywords_replacements($content, '', TRUE);
 			foreach ($keywords as $word) {
@@ -2167,7 +2166,7 @@ class MySource extends MySource_Object
 		// when logging in we wipe the previous session file
 		$sess_filename = session_save_path().'/sess_'.$old_session_id;
 		@unlink($sess_filename);
-		$this->_updateSessionCookie();
+		$this->_updateSessionCookie(TRUE);
 
 		$_SESSION['userid'] = $user->id;
 		$_SESSION['user_type_code'] = $user->type();
@@ -2411,11 +2410,13 @@ class MySource extends MySource_Object
 	* Update the session cookie with the appropriate expiry time given the kind of user we are
 	*
 	* Note: this function must be called before any other cookies are set or it will clear their set-cookie headers
+	* 
+	* @param boolean	$force_send	force send cookie header to clear previous set-cookie headers
 	*
 	* @return void
 	* @access public
 	*/
-	protected function _updateSessionCookie()
+	protected function _updateSessionCookie($force_send=FALSE)
 	{
 		$session_id = session_id();
 		if (empty($session_id)) return FALSE;
@@ -2471,8 +2472,10 @@ class MySource extends MySource_Object
 			$header .= "secure; ";
 		}
 
-        // Do not replace in case, regenerating the session cookie is sending headers.
-		header($header, FALSE);
+		// we only need to send set-cookie header here if it is needed
+		// otherwise session handler should have already sent set-cookie header, no need to duplicate
+		if($force_send || (isset($new_domain) && !empty($new_domain)) || !empty($time_to_live))
+		    header($header, FALSE);
 
 	}//end _updateSessionCookie()
 
@@ -3382,19 +3385,10 @@ class MySource extends MySource_Object
 			} else if (isset($GLOBALS['SQ_CLONE_COMPONENTS'] ) && $GLOBALS['SQ_CLONE_COMPONENTS']) {
 				$filter_enabled = FALSE;
 			} else {
-				// If we are in the front-end, check whether we had been called
-				// through an API request in simple edit. If so, allow it to be
-				// unfiltered -if- a user is logged in that can access Simple Edit.
-				$referrer_limbo = FALSE;
-				if (isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER'])) {
-					$referrer_limbo = (strpos($_SERVER['HTTP_REFERER'],SQ_CONF_LIMBO_SUFFIX) !== FALSE) ? TRUE : FALSE;
-				}
-
-				if ($referrer_limbo === TRUE) {
-					$user = $GLOBALS['SQ_SYSTEM']->user;
-					if ($user->canAccessBackend() === TRUE) {
-						$filter_enabled = FALSE;
-					}
+				// If user can access backend, it's safe
+				$user = $GLOBALS['SQ_SYSTEM']->user;
+				if ($user->canAccessBackend() === TRUE) {
+					$filter_enabled = FALSE;
 				}
 			}//end if
 		}//end if frontend
@@ -3865,38 +3859,51 @@ class MySource extends MySource_Object
 		}
 
 		?>
-		<div align="center">
-		<style>
-		.sq-rollback-warning {
-			color: #FF0000;
-			font-family:  Verdana, Arial, Helvetica, sans-serif;
-			font-weight: bold;
-			text-decoration: none;
-			font-size: 11px;
-		}
-		</style>
-		<br/>
-		<table border="0" cellspacing="3" cellpadding="2" width="95%" bgcolor="#FF0000">
-			<tr>
-				<td bgcolor="#FFE5E8">
-					<table border="0" cellspacing="2" cellpadding="2" width="100%">
-						<tr>
-							<td class="sq-rollback-warning" align="right"><?php echo translate('exit_rollback_view'); ?><?php sq_print_icon(sq_web_path('lib').'/web/images/icons/delete.png', '16', '16', translate('exit_rollback_view'), NULL, 'onclick="window.top.location=\''.$exit_url.'\'; return false;" style="cursor: pointer;"'); ?>
-							</td>
-						</tr>
-						<tr>
-							<td class="sq-rollback-warning" align="center"><u><?php echo translate('in_rollback_mode'); ?></u>
-							</td>
-						</tr>
-						<tr>
-							<td class="sq-rollback-warning"><?php echo $warning_message; ?>
-							</td>
-						</tr>
-					</table>
-				</td>
-			</tr>
-		</table>
-		<br/>
+		<div class="sq-rollback-warning-wrapper">
+			<style>
+			.sq-rollback-warning-table {
+				border: 1px solid #e0d3a2 !important;
+			}
+			.sq-rollback-warning-table th{
+				border-bottom: 1px solid #e0d3a2 !important;
+				background:	#fff1bb;
+				color: #000;
+				text-shadow: none;
+			}
+			.sq-rollback-warning-table .sq-rollback-header{
+				background:	#fff1bb url(<?php echo sq_web_path('lib').'/web/images/warning.png'; ?>) no-repeat 5px 6px !important;
+				padding-left: 35px;
+				border-right: none;
+			}
+			.sq-rollback-warning-table td{
+				background:#fff1bb !important;
+			}
+			.sq-rollback-warning-table img{
+				vertical-align: top;
+			}
+			.sq-rollback-warning {
+				color: #000;
+				font-size: 11px;
+			}
+			</style>
+			<table class="sq-backend-table sq-rollback-warning-table">
+				<tr>
+					<th class="sq-rollback-header">
+						<?php echo translate('in_rollback_mode'); ?>
+					</th>
+					<th style="text-align:right;">
+						<a href="#" onclick="window.top.location='<?php echo $exit_url; ?>'; return false;" >
+							<?php 
+								echo translate('exit_rollback_mode').' ';
+								sq_print_icon(sq_web_path('lib').'/web/images/icons/cancel.png', '16', '16', translate('exit_rollback_view'), NULL); 
+							?>
+						</a>
+					</th>
+				<tr>
+					<td colspan="2" class="sq-rollback-warning"><?php echo $warning_message; ?>
+					</td>
+				</tr>
+			</table>
 		</div>
 		<?php
 
@@ -4255,8 +4262,7 @@ class MySource extends MySource_Object
 				$browser_cache_expiry = $cm->getExpiry($asset->type(), $asset->id);
 			}
 			$level = $cm->cacheControlLevel();
-			$no_cookie = $level === 'public' ? ', no-cache="set-cookie"' : '';
-			header('Cache-Control: max-age='.$browser_cache_expiry.', '.$acc_cache_string.$level.$no_cookie);
+			header('Cache-Control: max-age='.$browser_cache_expiry.', '.$acc_cache_string.$level);
 			header('Expires: '.gmdate('D, d M Y H:i:s', time() + $browser_cache_expiry).' GMT');
 		}
 

@@ -76,6 +76,8 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 
 		<script type="text/javascript">
 
+			var is_post_ie11 = Boolean(navigator.userAgent.match(/Trident\/\d{1,}[\.\d]*;/)) && navigator.appName=="Netscape";
+
 			function getFocus() {
 				setTimeout('self.focus()',100);
 			};
@@ -90,7 +92,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 			function onOK() {
 				document.getElementById('main-form').action = "";
 				document.getElementById('main-form').method = "get";
-				if (navigator.appName == "Microsoft Internet Explorer") {
+				if (navigator.appName == "Microsoft Internet Explorer" || is_post_ie11) {
 					// Hack for IE, Files don't get uploaded unless this is set a very special way
 					// ie. don't set it here !?!
 				} else {
@@ -234,13 +236,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 			function submitCreateImage() {
 				document.getElementById('main-form').action = "upload_image.php";
 				document.getElementById('main-form').method = "post";
-				if (navigator.appName == "Microsoft Internet Explorer" && navigator.userAgent.indexOf('MSIE 9') == -1) {
-					// Hack for IE, Files don't get uploaded unless this is set a very special way
-					var encType = document.getElementById('main-form').getAttributeNode("enctype");
-					encType.value = "multipart/form-data";
-				} else {
-					document.getElementById('main-form').enctype = "multipart/form-data";
-				}
+				document.getElementById('main-form').setAttribute("enctype", "multipart/form-data");
 				document.getElementById('main-form').target = "create_image_frame";
 			}
 
@@ -292,7 +288,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 											<tr>
 												<td></td>
 												<td>
-												<div id="show_create_button" >
+												<div id="show_create_button" style="display: block;">
 													<input type="button" name="show" value="Create Image" onclick="toggleCreateImage();" />
 												</div>
 												</td>												
@@ -567,19 +563,22 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 			function set_asset_finder_from_search(assetid, label, url, linkid, filename, alt, width, height) {
 				document.cookie = 'lastSelectedAssetId=' + escape(assetid);
 
-				ASSET_FINDER_OBJ.set_hidden_field('f_imageid[assetid]', assetid);
-				ASSET_FINDER_OBJ.set_hidden_field('f_imageid[url]', url);
-				ASSET_FINDER_OBJ.set_hidden_field('f_imageid[linkid]', linkid);
-				ASSET_FINDER_OBJ.set_text_field('sq_asset_finder_f_imageid_label', (assetid == 0) ? '' : label + ' (Id : #' + assetid + ')');
-
+				var prefix = 'f_imageid';
+				dfx.getId(prefix + '[assetid]').value    = assetid;
+				dfx.getId(prefix + '[url]').value        = url;
+				dfx.getId(prefix + '[linkid]').value     = linkid;
+				dfx.getId('sq_asset_finder_' + prefix + '_label').value   = label;
+				dfx.getId('sq_asset_finder_' + prefix + '_assetid').value = assetid;
+				
 				document.getElementById("new-message-popup").style.display = 'none';
 				document.getElementById("f_alt").value = alt;
 
-				image_info = new Array();
-				image_info['name'] = filename;
-				image_info['alt'] = alt;
-				image_info['width'] = width;
-				image_info['height'] = height;
+				var image_info = {
+				    name: filename,
+				    alt: alt,
+				    width: width,
+				    height: height
+				};
 
 				image_info_ser = var_serialise(image_info);
 				populateImageInfo(image_info_ser);

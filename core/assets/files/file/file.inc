@@ -1363,10 +1363,9 @@ class File extends Asset
 					$browser_cache_expiry = $cm->getExpiry($this->type(), $this->id);
 				}
 				$level = $cm->cacheControlLevel();
-				$no_cookie = $level === 'public' ? ', no-cache="set-cookie"' : '';
 				
 				header('Expires: '.gmdate('D, d M Y H:i:s', time() + $browser_cache_expiry).' GMT');
-				header('Cache-Control: max-age='.$browser_cache_expiry.', '.$acc_cache_string.$level.$no_cookie);
+				header('Cache-Control: max-age='.$browser_cache_expiry.', '.$acc_cache_string.$level);
 				header('Pragma: cache');
 				header('Last-Modified: '.gmdate('D, d M Y H:i:s',$existing['modified']).' GMT');
 			} else if (!$using_ie6_8 || !$ssl_connection) {

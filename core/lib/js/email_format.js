@@ -13,77 +13,86 @@
 *
 */
 
-function emailFormatSwitchReadingMode(editor_name, html_label, text_label) {
-	var textDiv = document.getElementById(editor_name + "_text_format");
-	var htmlDiv = document.getElementById(editor_name + "_html_format");
-	var formatSpan = document.getElementById(editor_name + "_format_mode");
+function emailFormatSwitchReadingMode(editor_name, html_label, text_label, the_toggler) {
 
-	if (htmlDiv.style.display == "none") {
+	//Only run this function if the current clicked element is not already selected
+	if (the_toggler.className != 'selected') {
 
-		htmlDiv.style.display = "";
-		textDiv.style.display = "none";
-		formatSpan.innerHTML = html_label; //'HTML Email Version';
+		var textDiv = document.getElementById(editor_name + "_text_format");
+		var htmlDiv = document.getElementById(editor_name + "_html_format");
+		var formatSpan = document.getElementById(editor_name + "_format_mode");
 
-	} else {
+		if (htmlDiv.style.display == "none") {
 
-		textDiv.style.display = "";
-		htmlDiv.style.display = "none";
-		formatSpan.innerHTML = text_label; //'Text Email Version';
+			htmlDiv.style.display = "";
+			textDiv.style.display = "none";
+			formatSpan.innerHTML = html_label; //'HTML Email Version';
+
+		} else {
+
+			textDiv.style.display = "";
+			htmlDiv.style.display = "none";
+			formatSpan.innerHTML = text_label; //'Text Email Version';
+		}
+
 	}
 
 }//end emailFormatSwitchReadingMode()
 
 var initialisedEmailEditors = new Array();
-function emailFormatSwitchEditingMode(editor_name, html_label, text_label, html_type, text_type) {
+
+function emailFormatSwitchEditingMode(editor_name, html_label, text_label, the_toggler) {
+
+	//Only run this function if the current clicked element is not already selected
+	if (the_toggler.className != 'selected') {
 	
-	var textDiv = document.getElementById(editor_name + "_text_body_div");
-	var htmlDiv = document.getElementById(editor_name + "_html_body_div");
-	var viperDiv = document.getElementById(editor_name + "_contents_div_viper");
-	var formatSpan = document.getElementById(editor_name + "_format_mode");
-	var typeStrong = document.getElementById(editor_name + "_content_type");
+		var textDiv = document.getElementById(editor_name + "_text_body_div");
+		var htmlDiv = document.getElementById(editor_name + "_html_body_div");
+		var viperDiv = document.getElementById(editor_name + "_contents_div_viper");
+		var formatSpan = document.getElementById(editor_name + "_format_mode");
 
-	if (htmlDiv.style.display == "none") {
-		if(typeof Matrix_Viper === 'undefined')  {
-		    var editor = eval('editor_' + editor_name);
-		    var setDesignMode = true;
+		if (htmlDiv.style.display == "none") {
+			if(typeof Matrix_Viper === 'undefined')  {
+			    var editor = eval('editor_' + editor_name);
+			    var setDesignMode = true;
 
-		    // initilise the wysiwg if this is the first time
-		    // it is being shown - skip this otherwise
-		    if (initialisedEmailEditors[editor._uniqueID] == null) {
-			    initialisedEmailEditors[editor._uniqueID] = true;
-			    editor.generate();
-			    setDesignMode = false;
-		    } else if (editor._initialised != true) {
-			    return;
-		    }
-
-
-		    // if we are using an iframe for this editor, we set its designMode property if we need to
-		    if (editor._iframe) {
-			    editor._iframe.style.width = editor.config.width;
-			    if (editor._iframe.contentWindow.document.designMode) {
-				    editor._iframe.contentWindow.document.designMode = "on";
+			    // initilise the wysiwg if this is the first time
+			    // it is being shown - skip this otherwise
+			    if (initialisedEmailEditors[editor._uniqueID] == null) {
+				    initialisedEmailEditors[editor._uniqueID] = true;
+				    editor.generate();
+				    setDesignMode = false;
+			    } else if (editor._initialised != true) {
+				    return;
 			    }
-			    editor._iframe.style.height = editor.config.height;
-		    }
-		}
-		else {
-		    // init viper editor
-		     //Matrix_Viper.viper.setEditableElement(viperDiv);
+
+
+			    // if we are using an iframe for this editor, we set its designMode property if we need to
+			    if (editor._iframe) {
+				    editor._iframe.style.width = editor.config.width;
+				    if (editor._iframe.contentWindow.document.designMode) {
+					    editor._iframe.contentWindow.document.designMode = "on";
+				    }
+				    editor._iframe.style.height = editor.config.height;
+			    }
+			}
+			else {
+			    // init viper editor
+			     //Matrix_Viper.viper.setEditableElement(viperDiv);
+			}
+			
+			    textDiv.style.display = "none";
+			    htmlDiv.style.display = "";
+			    formatSpan.innerHTML = html_label; //'HTML Email Version';
+
+
+		} else {
+
+			textDiv.style.display = "";
+			htmlDiv.style.display = "none";
+			formatSpan.innerHTML = text_label; //'Text Email Version';
 		}
 		
-		    textDiv.style.display = "none";
-		    htmlDiv.style.display = "";
-		    formatSpan.innerHTML = html_label; //'HTML Email Version';
-		    typeStrong.innerHTML = html_type; //'WYSIWYG Content Container';
-
-
-	} else {
-
-		textDiv.style.display = "";
-		htmlDiv.style.display = "none";
-		formatSpan.innerHTML = text_label; //'Text Email Version';
-		typeStrong.innerHTML = text_type; //'Raw HTML Content Container';
 	}
 
 }//end emailFormatSwitchEditingMode()
