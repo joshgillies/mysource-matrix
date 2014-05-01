@@ -115,6 +115,10 @@
 		<field attribute="redirect_after_link">
 			<boolean true_text="yes" false_text="no" />
 		</field>
+		<field attribute="redirect_delay">
+			<int width="5" />
+		</field>
+
 	</section>
 	<section name="Asset Creation Settings" write_access="write:menu">
 		<field>

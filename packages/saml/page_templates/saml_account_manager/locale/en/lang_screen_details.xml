@@ -152,6 +152,11 @@
 			<display_name>Redirect After Link Created</display_name>
 			<note></note>
 		</field>
+		<field attribute="redirect_delay">
+			<display_name>Redirect Delay</display_name>
+			<note>Specify number of seconds to delay for redirect to happen. Javascript code will be used to execute delayed redirect.</note>
+		</field>
+
 	</section>
 	<section name="Asset Creation Settings">
 		<field>

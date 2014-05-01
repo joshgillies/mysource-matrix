@@ -300,9 +300,10 @@ class SAML_Account_Manager extends Page_Asset_Builder
 				// redirect after linking
 				if($this->attr('redirect_after_link')) {
 				    if(isset($_SESSION['sq_saml_account_manager_current_state_redirect_url']) && $_SESSION['sq_saml_account_manager_current_state_redirect_url'])  {
-					$redirect_url = $_SESSION['sq_saml_account_manager_current_state_redirect_url'];
-					unset($_SESSION['sq_saml_account_manager_current_state_redirect_url']);
-					do_redirect($redirect_url);
+						$redirect_url = $_SESSION['sq_saml_account_manager_current_state_redirect_url'];
+						unset($_SESSION['sq_saml_account_manager_current_state_redirect_url']);
+						$timeout = $this->attr('redirect_delay');
+						do_redirect($redirect_url, NULL, $timeout);;
 				    }
 				}
 				// stop further redirects
@@ -537,6 +538,7 @@ class SAML_Account_Manager extends Page_Asset_Builder
 		if( $this->_current_state == 'logged_in' && $this->attr('redirect_after_login') && isset($_SESSION['sq_saml_account_manager_current_state_redirect_url']) && $_SESSION['sq_saml_account_manager_current_state_redirect_url'])  {
 		    $redirect_url = $_SESSION['sq_saml_account_manager_current_state_redirect_url'];
 		    unset($_SESSION['sq_saml_account_manager_current_state_redirect_url']);
+		    // the redirect here can happen immidiately
 		    do_redirect($redirect_url);
 		}
 				    
@@ -966,7 +968,8 @@ class SAML_Account_Manager extends Page_Asset_Builder
 		    if(isset($_SESSION['sq_saml_account_manager_current_state_redirect_url']) && $_SESSION['sq_saml_account_manager_current_state_redirect_url'])  {
 			$redirect_url = $_SESSION['sq_saml_account_manager_current_state_redirect_url'];
 			unset($_SESSION['sq_saml_account_manager_current_state_redirect_url']);
-			do_redirect($redirect_url);
+			$timeout = $this->attr('redirect_delay');
+			do_redirect($redirect_url, NULL, $timeout);
 		    }
 		}
 		// stop further redirects
