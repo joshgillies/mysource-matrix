@@ -319,7 +319,12 @@ HTMLArea.prototype.insertHTML = function(html, range) {
 		var node = range.startContainer;
 	}
 	if (HTMLArea.is_ie) {
-		range.pasteHTML(html);
+		if (HTMLArea.is_ie9 || HTMLArea.is_ie10) {
+			range_obj = range.item(0);
+			range.item(0).outerHTML = html;
+		} else {
+			range.pasteHTML(html);
+		}
 	} else {
 		// Check whether we are just inside the HTML tag - if so we should really after HTML and inside the BODY tag
 		var sel = this._getSelection();

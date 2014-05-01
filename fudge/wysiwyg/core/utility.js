@@ -28,6 +28,8 @@ HTMLArea.agt        = navigator.userAgent.toLowerCase();
 HTMLArea.is_ie      = ((HTMLArea.agt.indexOf("msie") != -1) && (HTMLArea.agt.indexOf("opera") == -1));
 HTMLArea.is_ie7     = ((HTMLArea.agt.indexOf("msie 7") != -1) && HTMLArea.is_ie);
 HTMLArea.is_ie8     = ((HTMLArea.agt.indexOf("msie 8") != -1) && HTMLArea.is_ie);
+HTMLArea.is_ie9     = ((HTMLArea.agt.indexOf("msie 9") != -1) && HTMLArea.is_ie);
+HTMLArea.is_ie10    = ((HTMLArea.agt.indexOf("msie 10") != -1) && HTMLArea.is_ie);
 HTMLArea.is_opera   = (HTMLArea.agt.indexOf("opera") != -1);
 HTMLArea.is_mac     = (HTMLArea.agt.indexOf("mac") != -1);
 HTMLArea.is_mac_ie  = (HTMLArea.is_ie && HTMLArea.is_mac);

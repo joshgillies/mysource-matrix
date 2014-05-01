@@ -171,27 +171,32 @@ class matrix_insert_link extends wysiwyg_plugin
 				var text_range = false;
 
 				// OK, so they have a control object selected, let's try and make it a text selection
+				var inside_html = '';
 				if (sel.type && sel.type.toLowerCase() == "control") {
 					var control_range = this._createRange(sel);
 					var text_range = this._createTextRange(sel);
 					if (text_range != null) {
 						text_range = true;
-						editor.selectNodeContents(control_range(0));
+						if (Object.prototype.toString.call(control_range) == '[object ControlRangeCollection]') {
+							inside_html = control_range.item(0).outerHTML;
+						} else {
+							editor.selectNodeContents(control_range(0));
+							sel = this._getSelection();
+							range = this._createRange(sel);
+							inside_html = editor.getSelectedHTML();
+						}
 					} else {
 						alert(js_translate('object_requires_selection'));
 						sel.empty();
 						return;
 					}
-					sel = this._getSelection();
-					range = this._createRange(sel);
 				}// end if a control
 
-				var inside_html = '';
 				var current_a = this.getClosest("a");
 				if (current_a) {
 					inside_html = current_a.innerHTML;
 					this.selectNodeContents(current_a);
-				} else {
+				} else if (inside_html == '') {
 					inside_html = editor.getSelectedHTML();
 				}
 
@@ -385,13 +390,19 @@ class matrix_insert_link extends wysiwyg_plugin
 							param["target"] = "";
 						}
 
+						var htmlTextToCheck = '';
+						if (Object.prototype.toString.call(range) == '[object ControlRangeCollection]') {
+							htmlTextToCheck = control_range.item(0).outerHTML;
+						} else {
+							htmlTextToCheck = range.htmlText;
+						}
 						// This fixes some probs IE has with Paragraphs and list
-						if (HTMLArea.is_ie && (range.htmlText.indexOf('<p') != -1 || range.htmlText.indexOf('<P') != -1 || range.htmlText.indexOf('<li') != -1  || range.htmlText.indexOf('<LI') != -1)) {
+						if (HTMLArea.is_ie && (htmlTextToCheck.indexOf('<p') != -1 || htmlTextToCheck.indexOf('<P') != -1 || htmlTextToCheck.indexOf('<li') != -1  || htmlTextToCheck.indexOf('<LI') != -1)) {
 							//See bug #987 for details on why this is done
 							//It avoids <a> tags outside <p> tags
-							var start_new = range.htmlText.substring(0, range.htmlText.indexOf('>') + 1);
-							var end_new = range.htmlText.substring(range.htmlText.lastIndexOf('<'));
-							var new_middle = range.htmlText.substring(start_new.length, range.htmlText.length - end_new.length);
+							var start_new = htmlTextToCheck.substring(0, htmlTextToCheck.indexOf('>') + 1);
+							var end_new = htmlTextToCheck.substring(htmlTextToCheck.lastIndexOf('<'));
+							var new_middle = htmlTextToCheck.substring(start_new.length, htmlTextToCheck.length - end_new.length);
 							
 							html = '<a href="' + param["url"] + '"';
 							if (param["class_name"] != "") {
