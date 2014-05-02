@@ -454,6 +454,170 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 
 
 	/**
+	* Paint the interface for adding restrictions
+	*
+	* @param Workflow_Schema	$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the Backend Outputter object
+	* @param string				$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function paintWorkflowRestrictions(Workflow_Schema $asset, Backend_Outputter $o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+
+		$o->openField(translate('current_restrict'));
+			$restrictions = is_array($asset->attr('schema_restrictions')) ? $asset->attr('schema_restrictions') : unserialize($asset->attr('schema_restrictions'));
+			if (!empty($restrictions)) {
+				?>
+				<table class="sq-backend-table">
+					<tr>
+						<td class="sq-backend-table-header"><?php echo translate('asset_type'); ?></td>
+						<td style="text-align: center;" class="sq-backend-table-header" width="70"><?php echo translate('inherit').'?'; ?></td>
+						<?php
+						if ($write_access) {
+						?>
+						<td style="text-align: center;" class="sq-backend-table-header" width="70"><?php echo translate('remove').'?'; ?></td>
+						<?php
+						}
+						?>
+					</tr>
+					<?php
+					foreach ($restrictions as $asset_type => $inheritance) {
+						?>
+						<tr>
+							<td class="sq-backend-table-cell">
+								<?php echo ucfirst(str_replace('_', ' ', $asset_type)) ?>
+							</td>
+							<td align="center" class="sq-backend-table-cell">
+								<?php
+								if ($write_access) {
+									check_box($prefix.'_asset_type_inherit['.$asset_type.']', '1', $inheritance);
+								} else {
+									echo '<img src="'.sq_web_path('lib').'/web/images/'.($inheritance ? 'tick' : 'cross').'.gif" width=" 15" height="15" />';
+								}
+								?>
+							</td>
+							<?php
+							if ($write_access) {
+							?>
+							<td align="center" class="sq-backend-table-cell">
+								<?php check_box($prefix.'_remove_asset_type['.$asset_type.']'); ?>
+							</td>
+							<?php
+							}
+							?>
+						</tr>
+						<?php
+					}//end foreach()
+				?>
+				</table>
+
+				<?php
+			} else {
+				echo '<em>'.translate('no_restriction').'</em>';
+			}
+		$o->closeField();
+
+		if ($write_access) {
+			// New Restrictions
+			$o->openField(translate('new_restriction'));
+				asset_type_chooser($prefix.'_add_restriction', TRUE, Array(), NULL, FALSE, TRUE);
+			$o->closeField();
+		}
+
+	}//end paintSteps()
+
+
+	/**
+	* Processes the interface for adding wrestrictions
+	*
+	* @param Workflow_Schema	$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the Backend Outputter object
+	* @param string				$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function processWorkflowRestrictions(Workflow_Schema $asset, Backend_Outputter $o, $prefix)
+	{
+		// need to have write access to make any changes
+		if (!$asset->writeAccess('attributes')) return FALSE;
+
+		$prefix = $asset->getPrefix();
+		$updated = FALSE;
+
+		// handle restrictions
+		// delete
+		$current_restrictions = is_array($asset->attr('schema_restrictions')) ? $asset->attr('schema_restrictions') : unserialize($asset->attr('schema_restrictions'));
+		$changes_made = FALSE;
+		if (isset($_POST[$prefix.'_remove_asset_type'])) {
+			foreach($_POST[$prefix.'_remove_asset_type'] as $remove_type => $ahfortheheckofit) {
+				if (array_key_exists($remove_type, $current_restrictions)) {
+					unset($current_restrictions[$remove_type]);
+					$changes_made = TRUE;
+				}
+			}
+
+			// If something to save, save it, dammit!
+			if ($changes_made) {
+				$asset->setAttrValue('schema_restrictions', serialize($current_restrictions));
+				$asset->saveAttributes();
+			}
+		}
+
+		// inherit type setting
+		$current_restrictions = is_array($asset->attr('schema_restrictions')) ? $asset->attr('schema_restrictions') : unserialize($asset->attr('schema_restrictions'));
+		$changes_made = FALSE;
+		$inherit_enabled = isset($_POST[$prefix.'_asset_type_inherit']) ? $_POST[$prefix.'_asset_type_inherit'] : Array();
+		foreach($current_restrictions as $asset_type => $inheritance) {
+			if (isset($inherit_enabled[$asset_type])) {
+				$current_restrictions[$asset_type] = 1;
+			} else {
+				$current_restrictions[$asset_type] = 0;
+			}
+			if ($inheritance != array_get_index($inherit_enabled, $asset_type, 0)) {
+				$changes_made = TRUE;
+			}
+
+		}//end foreach
+
+		if ($changes_made) {
+			$asset->setAttrValue('schema_restrictions', serialize($current_restrictions));
+			$asset->saveAttributes();
+		}
+
+		// add
+		$current_restrictions = is_array($asset->attr('schema_restrictions')) ? $asset->attr('schema_restrictions') : unserialize($asset->attr('schema_restrictions'));
+		$changes_made = FALSE;
+		if (isset($_POST[$prefix.'_add_restriction']) && (isset($_POST[$prefix.'_add_restriction']['type_code']))) {
+			foreach($_POST[$prefix.'_add_restriction']['type_code'] as $field => $type_code) {
+				if (!empty($type_code)) {
+					$inheritance = $_POST[$prefix.'_add_restriction']['inherit'][$field];
+					if (!isset($current_restrictions[$type_code])) {
+						$current_restrictions[$type_code] = $inheritance;
+						$changes_made = TRUE;
+					} else if ($current_restrictions[$type_code] !== $inheritance) {
+						$current_restrictions[$type_code] = $inheritance;
+						$changes_made = TRUE;
+					}
+				}
+			}
+
+			// If something to save, save it, dammit!
+			if ($changes_made) {
+				$asset->setAttrValue('schema_restrictions', serialize($current_restrictions));
+				$asset->saveAttributes();
+			}
+		}
+
+		return TRUE;
+
+	}//end processSteps()
+
+
+	/**
 	* Generate an array representing the workflow structure for the schema at this point in time
 	*
 	* The generated array is a snap shot of the schema at a point in time that can get written

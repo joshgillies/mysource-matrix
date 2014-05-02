@@ -35,6 +35,12 @@
 		<field attribute="schema_reply_to_email_address">
 			<email width="50" />
 		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintWorkflowRestrictions"   />
+				<process_function name="processWorkflowRestrictions" />
+			</function_call>
+		</field>
 	</section>
 	<section name="Workflow Streams" write_access="write:links">
 		<field>

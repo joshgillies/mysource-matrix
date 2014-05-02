@@ -96,6 +96,12 @@ class Workflow_Schema_Management extends Asset_Management
 															'default'		=> '',
 															'description'	=> 'Customise the "Reply-To" email address for our workflow emails',
 														   ),
+						'schema_restrictions'			=> Array(
+															'added'			=> '0.2',
+															'type'			=> 'serialise',
+															'default'		=> Array(),
+															'description'	=> 'Asset restriction on which the schema can be set',
+														   ),
 					  );
 
 	}//end constructor

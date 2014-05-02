@@ -262,6 +262,31 @@ class Workflow_Manager extends MySource_Object
 			return FALSE;
 		}
 
+		// check if the schema is restricted to certain assets
+		$restrictions = is_array($schema->attr('schema_restrictions')) ? $schema->attr('schema_restrictions') : unserialize($schema->attr('schema_restrictions'));
+
+		$asset_found = FALSE;
+		if (!empty($restrictions)) {
+			$asset_dependant_parents = array_merge(Array($assetid), $GLOBALS['SQ_SYSTEM']->am->getDependantParents($assetid));
+			foreach ($asset_dependant_parents as $parent_assetid) {
+				$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_assetid);
+				foreach ($restrictions as $type_code_restricted => $inherit_it) {
+					if ($inherit_it && !$asset_found) {
+						$asset_type_with_parents = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeInfo(Array($parent_assetid));
+						foreach($asset_type_with_parents[$parent_assetid] as $index => $asset_type) {
+							if (array_key_exists($asset_type[0], $restrictions) && !$asset_found) {
+								$asset_found = TRUE;
+							}
+						}
+					} else if (array_key_exists($parent_asset->type(), $restrictions)){
+						$asset_found = TRUE;
+					}
+				}
+			}
+		}
+		// if the asset we are dealing with isn't allowed to work on the schema, bail out
+		if (!$asset_found) return FALSE;
+
 		// check for any running schemas - because if the asset is in workflow we cant do anything
 		$running_schemas = $this->getSchemas($assetid, TRUE, TRUE);
 		if (!empty($running_schemas)) {

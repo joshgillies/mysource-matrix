@@ -41,6 +41,14 @@
 			<display_name>Email to Reply-To</display_name>
 			<note>If this option is set, workflow emails will use this email address as their Reply-To address rather than the email address of the user triggering the workflow changes.</note>
 		</field>
+		<field>
+			<display_name></display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintWorkflowRestrictions"   />
+				<process_function name="processWorkflowRestrictions" />
+			</function_call>
+		</field>
 	</section>
 	<section name="Workflow Streams">
 		<field>
