@@ -828,13 +828,25 @@ class LDAP_Bridge extends Asset implements Bridge
 
 			foreach ($mo_groups as $group_name) {
 				$group_name = $this->decodeString($group_name);
-				$parents[$this->id.':'.$group_name] = 'ldap_user_group';
+				$result = $ldap->search($group_name, '(objectClass=*)', NULL, FALSE, FALSE, Array('objectclass'));
+				if (!$result) continue;
+
+				$group_data = $ldap->getEntries($result);
+				if ($group_data['count'] > 0) {
+					$parents[$this->id.':'.$group_data[0]['dn']] = 'ldap_user_group';
+				}
 			}
 
 			foreach ($ou_groups as $group_name => $group_dn) {
 				$group_name = $this->decodeString($group_name);
 				$ou_value = (isset($attrs['ou']) && $attrs['ou'] != '') ? $attrs['ou'] : 'ou';
-				$parents[$this->id.':'.$ou_value.'='.$group_name.','.$group_dn] = 'ldap_user_group';
+				$result = $ldap->search($ou_value.'='.$group_name.','.$group_dn, '(objectClass=organizationalUnit)', NULL, FALSE, FALSE, Array('objectclass'));
+				if (!$result) continue;
+				
+				$group_data = $ldap->getEntries($result);
+				if ($group_data['count'] > 0) {
+					$parents[$this->id.':'.$group_data[0]['dn']] = 'ldap_user_group';
+				}
 			}
 
 			if (!empty($parents)) {
