@@ -58,8 +58,7 @@ class Design_Area_Body extends Design_Area
 	{
 		$format = $this->attr('format');
 
-		echo '
-		<','?php';
+		echo '<','?php';
 		// NB we are leaving PHP mode here so that
 		// the following code is echoed rather than executed
 		?>
@@ -162,8 +161,7 @@ class Design_Area_Body extends Design_Area
 
 		}//end else print normally
 		<?php
-		echo '
-		?','>';
+		echo '?','>';
 
 		return TRUE;
 
