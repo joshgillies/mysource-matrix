@@ -283,9 +283,9 @@ class Workflow_Manager extends MySource_Object
 					}
 				}
 			}
+			// if the asset we are dealing with isn't allowed to work on the schema, bail out
+			if (!$asset_found) return FALSE;
 		}
-		// if the asset we are dealing with isn't allowed to work on the schema, bail out
-		if (!$asset_found) return FALSE;
 
 		// check for any running schemas - because if the asset is in workflow we cant do anything
 		$running_schemas = $this->getSchemas($assetid, TRUE, TRUE);
