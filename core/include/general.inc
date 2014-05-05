@@ -2502,6 +2502,14 @@ function quick_hipo($callback_assetid, $callback_function, $items, $settings, $f
 */
 function do_redirect($url, $message=NULL, $timeout=0)
 {
+	if (!headers_sent()) {
+         	header('Expires: ' . gmdate ('D, d M Y H:i:s', time()-3600 ) . ' GMT');
+         	header('Last-Modified: ' . gmdate( 'D, d M Y H:i:s' ) . ' GMT');
+         	header('Cache-Control: no-store, no-cache, must-revalidate');
+         	header('Cache-Control: post-check=0, pre-check=0', false);
+         	header('Pragma: no-cache');
+    }
+
 	if ($timeout || $message || headers_sent()) {
 		// Javascript Redirect
 		if (is_null($message)) {
