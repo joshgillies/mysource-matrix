@@ -1,5 +1,25 @@
 SQUIZ MATRIX CHANGELOG
 
+
+VERSION 5.0.1.0
+
+Bug Fixes
+=================================== 
+
+Fixed Bug #5266: ./?a=link interpretation error.
+Fixed Bug #5270: sq_vw_ast_roles query bug.
+Fixed Bug #5271: Paint Layout conditional keyword conditions should have Force No Cache options.
+Fixed Bug #5279: Adding a link to an image doesn't work well in IE9 and IE10.
+Fixed Bug #5280: Performance Mode is using wrong Matrix logo.
+Fixed Bug #5282: Issue Counter Value trigger action throwing fatal error.
+Fixed Bug #5285: Authenticating LDAP user throwing undefined index 'uid' error.
+Fixed Bug #5286: Hiding Keyword Selector in metadata DateTime field breaks Edit+.
+Fixed Bug #5291: Design Area Bodycopy prints extra space before php tag.
+Fixed Bug #5293: Page infinate redirect when sites are linked by Site Network. 
+Fixed Bug #5294: Permissions not working for LDAP Group linked to a regular User Group.
+
+
+
 VERSION 4.18.0 RC1
 
 Featured Changes
