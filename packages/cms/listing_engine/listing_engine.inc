@@ -3193,7 +3193,8 @@ class Listing_Engine extends Page
 						// nodes. If so, use the dynamic parameter as the root node; otherwise return an error.
 						$matching_root_ids = array_intersect(array_keys($dynamic_parents), $root_asset_ids);
 						if (empty($matching_root_ids)) {
-							trigger_localised_error('CMS0020', E_USER_WARNING, $dynamic_root, $this->id);
+							$additional_info = Array('frontend_assetid' => $this->id, 'frontend_url' => current_url(TRUE));
+							trigger_localised_error('CMS0020', E_USER_WARNING, $dynamic_root, $this->id, $additional_info);
 						} else {
 							$dynamic_root_nodes[] = $dynamic_root;
 						}

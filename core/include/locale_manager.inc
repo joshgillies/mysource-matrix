@@ -543,8 +543,25 @@ class Locale_Manager extends MySource_Object
 			$func_args = array_slice($func_args,2);
 		}
 
+		// loop through the arguments and find if we are going to print the additional
+		// information like the current frontent assetid nd the current url triggering this
+		$additional_info_array = Array();
+		foreach ($func_args as $index => $arg) {
+			if (is_array($arg) && (isset($arg['frontend_assetid']) || isset($arg['frontend_url']))) {
+				$additional_info_array = $arg;
+				unset($func_args[$index]);
+			}
+		}//end foreach
+
 		$error_msg = $this->getErrorMessage($code, $func_args);
 		trigger_error($error_msg, $error_level);
+
+		if (!empty($additional_info_array)) {
+			$additional_info  = isset($arg['frontend_assetid']) ? 'Frontend assetid: #'.$arg['frontend_assetid'] : '';
+			$additional_info .= empty($additional_info) ? '' : "\n"; 
+			$additional_info .= isset($arg['frontend_url']) ? 'Current URL: '.$arg['frontend_url'] : '';
+			error_log($additional_info);
+		}
 
 	}//end raiseError()
 
