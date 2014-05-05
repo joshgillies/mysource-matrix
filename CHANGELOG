@@ -1,5 +1,52 @@
 SQUIZ MATRIX CHANGELOG
 
+
+Featured Changes
+===================================
+
+Feature #6892: Accessible Custom Form: New Question Contents Keyword Replacement.
+
+Additional Changes and Bug Fixes
+=================================== 
+
+Minor Enhancements
+
+Minor Enhancement #6935: Custom Form Bodycopy Content Now Indexable.
+
+Bug Fixes
+
+Fixed Bug Squizmap #5266: ./?a=link interpretation error.
+Fixed Bug Squizmap #5270: sq_vw_ast_roles query bug.
+Fixed Bug Squizmap #5279: Adding a link to an image doesn't work well in IE9 and IE10.
+Fixed Bug Squizmap #5282: Issue Counter Value trigger action throwing fatal error.
+Fixed Bug Squizmap #5285: Authenticating LDAP user throwing undefined index 'uid' error.
+Fixed Bug Squizmap #5286: Hiding Keyword Selector in metadata DateTime field breaks Edit+.
+Fixed Bug Squizmap #5291: Design Area Bodycopy prints extra space before php tag.
+Fixed Bug Squizmap #5293: Page infinate redirect when sites are linked by Site Network.
+Fixed Bug Squizmap #5294: Permissions not working for LDAP Group linked to a regular User Group. 
+
+Fixed Bug #6862: Quick search no longer fills insert image/link dialogue.
+Fixed Bug #6873: Sort order is sometimes incorrect when moving an asset under the same parent.
+Fixed Bug #6890: Custom Form TextArea should allow multiple line default value.
+Fixed Bug #6894: Unhelpful error message when no selection on required multi-select metadata field.
+Fixed Bug #6900: DateTime questions don't show as required in Accessible Form even when they are.
+Fixed Bug #6922: SOAP Data Source asset not parsing some SOAP response.
+Fixed Bug #6923: Cannot export submission logs without acquiring locks.
+Fixed Bug #6926: WYSIWYG Replace Text tool doesn't replace properly for style attribute on IE9.
+Fixed Bug #6927: Order attributes not accessible after asset created.
+Fixed Bug #6928: JS API updateLink, updateMultiple link incorrect default values.
+Fixed Bug #6929: Web paths do not automatically update after Create Link trigger action is run.
+Fixed Bug #6930: Forcibly acquiring lock system trigger sends to non-live accounts too.
+Fixed Bug #6932: Remote Content page will disable the keyword replacement at the global level.
+Fixed Bug #6934: ptdtohtml tool causing Matrix to hang.
+Fixed Bug #6937: Some conflicting user preferences throwing error.
+Fixed Bug #6939: Insert Image WYSIWYG plugin doesn't work on IE11.
+Fixed Bug #6942: Removing a metadata schema off an asset doesn't clear out the values on frontend.
+Fixed Bug #6943: Comparing a global string with an asset id using ^replace_keywords: doesn't work.
+Fixed Bug #6944: Trigger action Join User Group only joins the target user group.
+Fixed Bug #6945: When Proxy SSL Accelerator enabled, the HTTPS protocol is not passed to external service.
+
+
 VERSION 4.18.5
 
 Featured Changes
