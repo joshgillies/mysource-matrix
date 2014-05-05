@@ -42,13 +42,13 @@ if ($primary_url == sq_web_path('root_url')) {
 	echo 'var SESSIONID = "'.session_id().'";';
 	?>
 	function start_session_handler(url) {
-		JsHttpConnector.submitRequest(url + '&sessionid=' + SESSIONID);
+		JsHttpConnector.submitRequest(url, null, 'sessionid=' + SESSIONID);
 	}
 	<?php
 
 } else {
     
-	if (!isset($_GET['sessionid']) || !preg_match('/^[a-z0-9]+$/i', $_GET['sessionid'])) {
+	if (!isset($_REQUEST['sessionid']) || !preg_match('/^[a-z0-9]+$/i', $_REQUEST['sessionid'])) {
 		// something is definately wrong
 		trigger_localised_error('SYS0013', E_USER_ERROR);
 	}
@@ -57,7 +57,7 @@ if ($primary_url == sq_web_path('root_url')) {
 	}
 	
 	$session_handler_instance = new $session_handler();
-	$session_handler_instance->syncSession($_GET['sessionid']);
+	$session_handler_instance->syncSession($_REQUEST['sessionid']);
 
 }//end if
 ?>

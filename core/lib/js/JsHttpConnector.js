@@ -118,10 +118,10 @@ TJsHttpConnector = function() {
 	* @return void
 	* @access public
 	*/
-	this.submitRequest = function(url, func)
+	this.submitRequest = function(url, func, post_parameters)
 	{
 		var thread = new JsHttpConnectorThread();
-		thread.submitRequest(url, func);
+		thread.submitRequest(url, func, post_parameters);
 	}
 
 
@@ -177,17 +177,23 @@ function JsHttpConnectorThread()
 	*
 	* @param	url		Server to send request to
 	* @param	func	Function to call to process response
+	* @param	post_parameters	Use POST method to send those params
 	*
 	* @return void
 	* @access public
 	*/
-	this.submitRequest = function(url, func)
+	this.submitRequest = function(url, func, post_parameters)
 	{
 		if (typeof func == "function") {
 			this.process = func;
 		}
-		this._submitRequest(url);
-
+		if (typeof post_parameters !== 'undefined' && post_parameters !== null) {
+			this._submitRequest(url, post_parameters, 'POST');
+		}
+		else {
+			this._submitRequest(url);
+		}	
+		
 	}//end submitRequest()
 
 
