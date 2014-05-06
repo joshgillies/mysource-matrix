@@ -118,7 +118,7 @@ class Metadata_Field_Multiple_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 				if ($enable_default) { echo '<span id="'.$prefix.'_field">';}
 						$attribute->paint($prefix, FALSE);
 					echo '</span>';
-				if ($enable_default) {
+				if ($enable_default && $is_default) {
 					echo '</span>';
 					?>
 					<script type="text/javascript"><!--
