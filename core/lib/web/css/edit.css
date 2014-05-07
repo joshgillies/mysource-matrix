@@ -1242,7 +1242,9 @@ table.sq-backend-table {
 .sq-backend-table tr {
 	background-color: 			#fafafa;
 }
-
+.sq-backend-table tr:hover {
+	    background-color: #fff;
+}
 /*.sq-backend-table tr:nth-child(even) {
 	background-color: 			#f9f9f9;
 }*/
