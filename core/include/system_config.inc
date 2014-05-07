@@ -129,6 +129,7 @@ class System_Config extends Config
 							1	=> 'Show File and Line number in error messages',
 							2	=> 'Show Stack Trace in error messages',
 							4	=> 'Show additional information about memory and performance',
+							8	=> 'Show current frontend assetid and url where the error message is triggered from',
 						 );
 
 

@@ -543,24 +543,26 @@ class Locale_Manager extends MySource_Object
 			$func_args = array_slice($func_args,2);
 		}
 
-		// loop through the arguments and find if we are going to print the additional
-		// information like the current frontent assetid nd the current url triggering this
 		$additional_info_array = Array();
-		foreach ($func_args as $index => $arg) {
-			if (is_array($arg) && (isset($arg['frontend_assetid']) || isset($arg['frontend_url']))) {
-				$additional_info_array = $arg;
-				unset($func_args[$index]);
+		if (SQ_CONF_DEBUG & 8) {
+			if (isset($GLOBALS['SQ_SYSTEM']->frontend_asset) && !is_null($GLOBALS['SQ_SYSTEM']->frontend_asset)) { 
+				$additional_info_array['frontend_assetid'] = $GLOBALS['SQ_SYSTEM']->frontend_asset->id;
 			}
-		}//end foreach
+			$additional_info_array['frontend_url']= current_url(TRUE);
+		}//end if
 
 		$error_msg = $this->getErrorMessage($code, $func_args);
 		trigger_error($error_msg, $error_level);
 
+		// We are doing this only for frontend
 		if (!empty($additional_info_array)) {
-			$additional_info  = isset($arg['frontend_assetid']) ? 'Frontend assetid: #'.$arg['frontend_assetid'] : '';
-			$additional_info .= empty($additional_info) ? '' : "\n"; 
-			$additional_info .= isset($arg['frontend_url']) ? 'Current URL: '.$arg['frontend_url'] : '';
-			error_log($additional_info);
+			$error_log_line   = 'Additional info for \''.$code.'\' error:'."\n";
+			$additional_info  = isset($additional_info_array['frontend_assetid']) ? 'Frontend assetid: #'.$additional_info_array['frontend_assetid'] : '';
+			if (!empty($additional_info) || strpos(current_url(), SQ_CONF_BACKEND_SUFFIX) === FALSE) {
+				$additional_info .= empty($additional_info) ? '' : "\n"; 
+				$additional_info .= isset($additional_info_array['frontend_url']) ? 'Current URL: '.$additional_info_array['frontend_url'] : '';
+			}
+			if (!empty($additional_info)) error_log($error_log_line.$additional_info);
 		}
 
 	}//end raiseError()
