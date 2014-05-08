@@ -399,7 +399,6 @@ class matrix_embed_youtube extends wysiwyg_plugin
 	{
 		// replace the special embedded tags with standard img tags
 		$contents = preg_replace('|(<sq_wysiwyg_embed_youtube([^>]*)?>)(.*?)(</sq_wysiwyg_embed_youtube>)|si', '<IMG src="'.$this->_img_url.'" $2>', $contents);
-		$contents = preg_replace('|\s+|', ' ', $contents);
 
 	}//end set_contents()
 
