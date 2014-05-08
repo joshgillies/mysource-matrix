@@ -621,6 +621,23 @@ class Remap_Manager extends Asset
 		// send a 404 header
 		header('HTTP/1.0 404 Not Found');
 
+		// Send Cacheable Header based on cache manager default setting
+		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+		if (SQ_CONF_SEND_CACHEABLE_HEADER && SQ_CONF_SEND_404_CACHEABLE_HEADER && $cm->cacheableHeadersEnabledForCurrentProtocol()) {
+			header('Pragma: cache');
+
+			$browser_cache_expiry = $cm->attr('browser_cache_expiry');
+			$acc_cache_expiry = $cm->attr('accelerator_cache_expiry');
+			$acc_cache_string = empty($acc_cache_expiry) ? '' : "s-maxage=$acc_cache_expiry, ";
+
+			if (empty($browser_cache_expiry)) {
+				$browser_cache_expiry = $cm->getExpiry($asset->type(), $asset->id);
+			}
+
+			header('Cache-Control: max-age='.$browser_cache_expiry.', '.$acc_cache_string.$cm->cacheControlLevel());
+			header('Expires: '.gmdate('D, d M Y H:i:s', time() + $browser_cache_expiry).' GMT');
+		}
+
 		$url = strip_url($this->getURL(), TRUE);
 		$asset_url = strip_url($asset->getURL(NULL, TRUE), TRUE);
 
