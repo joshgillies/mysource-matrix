@@ -4418,7 +4418,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 		unset($asset);
-		return $parents;
+		return array_values(array_unique($parents));
 
 	}//end getDependantParents()
 
