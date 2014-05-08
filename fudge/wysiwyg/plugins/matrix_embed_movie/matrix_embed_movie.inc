@@ -384,7 +384,6 @@ class matrix_embed_movie extends wysiwyg_plugin
 	{
 		// replace the special embedded tags with standard img tags
 		$contents = preg_replace('|(<sq_wysiwyg_embed_movie([^>]*)?>)(.*?)(</sq_wysiwyg_embed_movie>)|si', '<IMG src="'.$this->_img_url.'" $2>', $contents);
-		$contents = preg_replace('|\s+|', ' ', $contents);
 
 	}//end set_contents()
 

@@ -275,7 +275,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 			    $o->addOnSubmit('document.getElementById("'.$prefix.'_contents_div_viper_input").value = document.getElementById("'.$prefix.'_contents_div_viper").innerHTML;');
 			    ?>
 			    <div id="<?php echo $prefix?>_contents_div_viper" class="with-viper" data-keywords="<?php echo $keywords_encoded; ?>" data-snippets="<?php echo $snippets_encoded; ?>"><?php echo $asset->attr('html');?></div>
-			    <input  id="<?php echo $prefix?>_contents_div_viper_input" style="display:none;" name="<?php echo $prefix?>_contents_div_viper_input" value=""/>
+			    <textarea  id="<?php echo $prefix?>_contents_div_viper_input" style="display:none;" name="<?php echo $prefix?>_contents_div_viper_input" ></textarea>
 			   <?php
 			}
 			else {
