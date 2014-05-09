@@ -1580,7 +1580,7 @@ class MySource extends MySource_Object
 						// check that the user exists AND that it can login
 						// (ie. it is not yet live, or has been locked)
 						if (!is_null($user) && $user->canLogin()) {
-							return $this->loginUser($user);
+							return $this->loginUser($user, '', TRUE);
 						}
 					}
 
@@ -2033,7 +2033,7 @@ class MySource extends MySource_Object
 							if (isset($invoking_user_nav_history)) {
 								$_SESSION['sq_nav_history'] = $invoking_user_nav_history;
 							}
-							return $this->loginUser($secondary_user);
+							return $this->loginUser($secondary_user, '', TRUE);
 						} else {
 							/*
 							* Ok to be perfectly clear, we're NOT allowed to log in as the Root User, and
@@ -2056,7 +2056,7 @@ class MySource extends MySource_Object
 								}
 
 								// Ok all is good - login as the user we are after
-								return $this->loginUser($secondary_user, $old_user->name);
+								return $this->loginUser($secondary_user, $old_user->name, TRUE);
 							} else {
 								$failure_reason = translate('user_switching_access_denied');
 								$user_status = NULL;
@@ -2116,7 +2116,7 @@ class MySource extends MySource_Object
 			$system = $this->am->getAsset($systemid);
 			if (is_null($system)) continue;
 			$user = $system->authenticateHttpUser($http_username);
-			if (!is_null($user)) return $this->loginUser($user);
+			if (!is_null($user)) return $this->loginUser($user, '', TRUE);
 		}
 
 	}//end _loginHttpAuthenticatedUser()
@@ -2148,7 +2148,7 @@ class MySource extends MySource_Object
 			$system = $this->am->getAsset($systemid);
 			if (is_null($system)) continue;
 			$user = $system->authenticateUser($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']);
-			if (!is_null($user)) return $this->loginUser($user);
+			if (!is_null($user)) return $this->loginUser($user, '', TRUE);
 		}
 
 		// clear the PHP_AUTH_USER / PASS if authentication failed
@@ -2167,11 +2167,12 @@ class MySource extends MySource_Object
 	*
 	* @param User	$user						The user object to log in
 	* @param string	$invoking_user_full_name	The name of the user who has invoked the login (only used from the "Login As..." function)
+	* @param bool	$redirect					If we should do a redirect after login to remove the SQ_ACTION URL param
 	*
 	* @return void
 	* @access public
 	*/
-	public function loginUser(User $user, $invoking_user_full_name = '')
+	public function loginUser(User $user, $invoking_user_full_name = '', $redirect=FALSE)
 	{
 		if (is_null($user)) return FALSE;
 
@@ -2239,13 +2240,15 @@ class MySource extends MySource_Object
 		}
 
 		// Strip any SQ_ACTION from the URL and redirect.
-		$new_get = $_GET;
-		unset($new_get['SQ_ACTION']);
-		$current_url = current_url(TRUE, FALSE);
-		if (count($new_get) > 0) {
-			$current_url .= '?'.make_raw_post_data($new_get);
+		if($redirect) {
+			$new_get = $_GET;
+			unset($new_get['SQ_ACTION']);
+			$current_url = current_url(TRUE, FALSE);
+			if (count($new_get) > 0) {
+				$current_url .= '?'.make_raw_post_data($new_get);
+			}
+			do_redirect($current_url);
 		}
-		do_redirect($current_url);
 	
 		return TRUE;
 
