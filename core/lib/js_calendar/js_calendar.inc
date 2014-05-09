@@ -66,6 +66,8 @@ class JS_Calendar
 	*/
 	function changeSetting($name, $value)
 	{
+		// prevent xss attack
+		$value = preg_replace('/[^a-zA-Z0-9\-\%_:\.\/]/', '', $value);
 		$this->settings[$name] = $value;
 
 	}//end changeSetting()
