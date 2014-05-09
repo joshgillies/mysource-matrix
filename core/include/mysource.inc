@@ -1662,12 +1662,22 @@ class MySource extends MySource_Object
 					if ($for_real) {
 						$this->broadcastTriggerEvent('trigger_event_user_logout', $old_user, NULL);
 					}
+
 					$this->loginPublicUser();
 					$this->generateLoginKey(TRUE);
 
 					// Flag to know that logout request is made
 					// $_REQUEST['SQ_ACTION'] cannot be used as its value is unset after once its used
 					$_REQUEST['just_logged_out'] = 1;
+
+					// Strip any SQ_ACTION from the URL and redirect.
+					$new_get = $_GET;
+					unset($new_get['SQ_ACTION']);
+					$current_url = current_url(TRUE, FALSE);
+					if (count($new_get) > 0) {
+						$current_url .= '?'.make_raw_post_data($new_get);
+					}
+					do_redirect($current_url);
 				}
 			break;
 			case 'real_logout' :
@@ -1683,6 +1693,15 @@ class MySource extends MySource_Object
 				}
 				$this->loginPublicUser();
 				$this->generateLoginKey(TRUE);
+
+				// Strip any SQ_ACTION from the URL and redirect.
+				$new_get = $_GET;
+				unset($new_get['SQ_ACTION']);
+				$current_url = current_url(TRUE, FALSE);
+				if (count($new_get) > 0) {
+					$current_url .= '?'.make_raw_post_data($new_get);
+				}
+				do_redirect($current_url);
 
 			break;
 			case 'login_as' :
@@ -2219,6 +2238,15 @@ class MySource extends MySource_Object
 			do_redirect($current_url);
 		}
 
+		// Strip any SQ_ACTION from the URL and redirect.
+		$new_get = $_GET;
+		unset($new_get['SQ_ACTION']);
+		$current_url = current_url(TRUE, FALSE);
+		if (count($new_get) > 0) {
+			$current_url .= '?'.make_raw_post_data($new_get);
+		}
+		do_redirect($current_url);
+	
 		return TRUE;
 
 	}//end loginUser()
