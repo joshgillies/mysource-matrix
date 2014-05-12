@@ -2223,6 +2223,16 @@ class MySource extends MySource_Object
 		$_SESSION['user_last_access'] = time();
 		$_SESSION['user_last_authentication'] = time();
 
+
+		// set user last login date for real user asset
+		if(strpos($user->id, ':') === FALSE ) {
+			$this->setRunLevel(SQ_RUN_LEVEL_FORCED);
+			$user->setAttrValue('login_date', date("Y-m-d H:i:s"));
+			$user->setAttrValue('login_ip', filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP));
+			$user->saveAttributes();
+			$this->restoreRunLevel();
+		}
+
 		// Do pass any event data since we can get it from $_SESSION
 		$event_data = Array('password' => array_get_index($_POST, 'SQ_LOGIN_PASSWORD'));
 		$this->broadcastTriggerEvent('trigger_event_user_login', $user, $event_data);
