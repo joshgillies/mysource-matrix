@@ -505,34 +505,47 @@ class LDAP_Bridge extends Asset implements Bridge
 				}
 				if ($assetid != $this->id) {
 					$asset = $this->getAsset($this->id.':'.$assetid);
-					if ($asset->type() == 'ldap_user_group' && !empty($attr['gm']) && isset($asset->vars[$attr['gm']])) {
+					if ($asset->type() == 'ldap_user_group' && !empty($attr['gm']) && isset($asset->vars[$attr['gm']]) && !empty($attr['uid'])) {
 						$members = $asset->vars[$attr['gm']];
 						$entries = Array();
+						$user_uids = Array();
 						foreach ($members as $member) {
 							// If members are stored as "member" then it represents member's dn
 							if ($attr['gm'] == 'member') {
-								$dn = $member;
+								$user = $this->getAsset($this->id.':'.$member, '', FALSE, TRUE);
+								// Get the memeber's uid
+								$user_uid = !is_null($user) && !empty($user->vars[$attr['uid']]) ? $user->vars[$attr['uid']] : '';
 							} else {
 								// Otherwise if its stored as "memberUid" then we have the uid
-								// So get the memeber's dn from the "uid"
-								$base_dn = $this->decodeString($this->attr('root_dn'));
-								$member_result = $ldap->search($base_dn, '(uid='.$member.')', NULL, TRUE, TRUE, array_merge(array_values($attrs), Array('objectclass')));
-								if ($member_result) {
-									$member_entry = $ldap->getEntries($member_result);
-									// There got be just one entry for the given uid
-									if ($member_entry['count'] != 1 || !isset($member_entry[0]['dn'])) {
-										continue;
-									}
-									$dn = $member_entry[0]['dn'];
-								}
+								$user_uid = $member;
 							}
-							$user = $this->getAsset($this->id.':'.$dn, '', FALSE, TRUE);
-							// dn of user group was stripped out in construction, but we need it this time
-							if (!is_null($user)){
-								$user->vars['dn'] = $dn;
-								$entries[$dn] = $user->vars;
+							if (!empty($user_uid)) {
+								$user_uids[] = '('.$attr['uid'].'='.$user_uid.')';
 							}
-						}
+						}//end foreach
+
+						if (!empty($user_uids)) {
+							// Verify that the user is within the defined 'base dn'
+							$base_dn = $this->decodeString($this->attr('root_dn'));
+							// Query all uids in a single go
+							$uids_filter = '(|'.implode($user_uids).')';
+							$member_result = $ldap->search($base_dn, $uids_filter, NULL, TRUE, TRUE, array_merge(array_values($attrs), Array('objectclass')));
+							if ($member_result) {
+								$member_entries = $ldap->getEntries($member_result);
+								foreach($member_entries as $member_entry) {
+									if (isset($member_entry['dn'])) {
+										$dn = $member_entry['dn'];
+										$user = $this->getAsset($this->id.':'.$dn, '', FALSE, TRUE);
+										// dn of user group was stripped out in construction, but we need it this time
+										if (!is_null($user)){
+											$user->vars['dn'] = $dn;
+											$entries[$dn] = $user->vars;
+										}//end if
+									}//end if
+								}//end foreach
+							}//end if
+						}//end if
+
 						if (!empty($sort_by)){
 							uasort($entries, create_function('$a,$b',
 												'$a = (isset($a[\''.$sort_by.'\'][\'value\'])) ? $a[\''.$sort_by.'\'][\'value\'] : "";
@@ -1000,36 +1013,49 @@ class LDAP_Bridge extends Asset implements Bridge
 				if (isset($this->_group_types[$class])) {
 					$ldap_group = $this->getAsset($this->id.':'.$data['dn']);
 					// If "Group Memebers" is set and group defines its memebers
-					if (!empty($attrs['gm']) && isset($ldap_group->vars[$attrs['gm']])) {
+					if (!empty($attrs['gm']) && isset($ldap_group->vars[$attrs['gm']]) && !empty($attrs['uid'])) {
 						$members = $ldap_group->vars[$attrs['gm']];
 						if (empty($entries)) {
 							$entries = Array();
 						}
+
+						$user_uids = Array();
 						foreach ($members as $member) {
 							// If members are stored as "memeber" then it represnts member's dn
 							if ($attrs['gm'] == 'member') {
-								$dn = $member;
+								$user = $this->getAsset($this->id.':'.$member, '', FALSE, TRUE);
+								$user_uid = !is_null($user) && !empty($user->vars[$attrs['uid']]) ? $user->vars[$attrs['uid']] : '';
 							} else {
 								// Otherwise if its stored as "memberUid" then we have the uid
-								// So get the memeber's dn from the "uid"
-								$base_dn = $this->decodeString($this->attr('root_dn'));
-								$member_result = $ldap->search($base_dn, '(uid='.$member.')', NULL, TRUE, TRUE, array_merge(array_values($attrs), Array('objectclass')));
-								if ($member_result) {
-									$member_entry = $ldap->getEntries($member_result);
-									// There got be just one entry for the given uid
-									if ($member_entry['count'] != 1 || !isset($member_entry[0]['dn'])) {
-										continue;
-									}
-									$dn = $member_entry[0]['dn'];
-								}
+								$user_uid = $member;
 							}
-							$user = $this->getAsset($this->id.':'.$dn, '', FALSE, TRUE);
-							// dn of user group was stripped out in construction, but we need it this time
-							if (!is_null($user)){
-								$user->vars['dn'] = $dn;
-								$entries[] = $user->vars;
-							}//end if
+							if (!empty($user_uid)) {
+								$user_uids[] = '('.$attrs['uid'].'='.$user_uid.')';
+							}
 						}//end foreach
+						
+						if (!empty($user_uids)) {
+							// Verify that the users are within the defined 'base dn'
+							$base_dn = $this->decodeString($this->attr('root_dn'));
+							// Query all uids in a single go
+							$uids_filter = '(|'.implode($user_uids).')';
+							$member_result = $ldap->search($base_dn, $uids_filter, NULL, TRUE, TRUE, array_merge(array_values($attrs), Array('objectclass')));
+							if ($member_result) {
+								$member_entries = $ldap->getEntries($member_result);
+								foreach($member_entries as $member_entry) {
+								 	if (isset($member_entry['dn'])) {
+										$dn = $member_entry['dn'];
+										$user = $this->getAsset($this->id.':'.$dn, '', FALSE, TRUE);
+										// dn of user group was stripped out in construction, but we need it this time
+										if (!is_null($user)){
+											$user->vars['dn'] = $dn;
+											$entries[] = $user->vars;
+										}//end if
+									}//end if
+								}//end foreach
+							}//end if
+						}//end if
+
 					}//end if
 				}//end if
 			}//end foreach
