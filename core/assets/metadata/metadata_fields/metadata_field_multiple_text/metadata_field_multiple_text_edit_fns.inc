@@ -271,6 +271,11 @@ class Metadata_Field_Multiple_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		if ($attribute->processed) {
 			$value = $attribute->value;
+
+			if (strpos($value, '%asset_metadata_') !== FALSE) {
+				trigger_localised_error('SYS0344', E_USER_WARNING);
+				$value = preg_replace('/%asset_metadata_([^\s]*?)%/', '%metadata_field_$1%', $value);
+			}
 			$value_array = explode($attribute->delimiter, $value);
 			$asset->setAttrValue('default', implode('; ', $value_array));
 			$asset->saveAttributes();

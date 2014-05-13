@@ -278,6 +278,11 @@ class Metadata_Field_WYSIWYG_Edit_Fns extends Metadata_Field_Edit_Fns
 			$value = array_get_index($value, $asset->id, '');
 		}
 
+		if (strpos($new_value, '%asset_metadata_') !== FALSE) {
+			trigger_localised_error('SYS0344', E_USER_WARNING);
+			$new_value = preg_replace('/%asset_metadata_([^\s]*?)%/', '%metadata_field_$1%', $new_value);
+		}
+
 		if ($value !== $new_value) {
 			if ($is_contextable === TRUE) {
 				// If the metadata value is contextable, just use the contextable
