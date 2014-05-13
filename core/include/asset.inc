@@ -273,9 +273,9 @@ class Asset extends MySource_Object
 		$initial_status = SQ_STATUS_UNDER_CONSTRUCTION;
 		if (array_get_index($link, 'is_dependant') && ($link['asset']->status != SQ_STATUS_UNDER_CONSTRUCTION)) {
 			$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
-			if (0 == count($wfm->getSchemas($link['asset']->id, TRUE))) {
-				// no workflow for parent
-				 $initial_status = $link['asset']->status;
+			if (0 == count($wfm->getSchemas($link['asset']->id, TRUE, TRUE))) {
+				// No running workflow on the dependent parent, inherit the parent's status
+				$initial_status = $link['asset']->status;
 			}
 		}
 
