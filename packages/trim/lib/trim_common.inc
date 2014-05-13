@@ -1383,6 +1383,14 @@ class TRIM_Common
 
 			$data = $client->ListProperty(Array('PropertyName'	=> 'recTitle'));
 
+			if(empty($data) || !isset($data->ListPropertyResult)) {
+				$error_message = "Failed to connect to TRIM\n";
+				$error_message .= "Last Request:\n".$client->__getLastRequest()."\n";
+				$error_message .= "Last Response:\n".$client->__getLastResponse()."\n";
+				trigger_error(htmlentities($error_message));
+				return FALSE;
+			}
+
 	        $name = (string) $data->ListPropertyResult->Name;
 
 	        if ($name == 'recTitle') {
@@ -1391,7 +1399,10 @@ class TRIM_Common
 	        	return FALSE;
 	        }//end else
 		} catch (SoapFault $e) {
-			echo $e->getMessage();
+			$error_message = $e->getMessage();
+			$error_message .= "Last Request:\n".$client->__getLastRequest()."\n";
+			$error_message .= "Last Response:\n".$client->__getLastResponse()."\n";
+			trigger_error(htmlentities($error_message));
 			return FALSE;
 		}//end if
 
