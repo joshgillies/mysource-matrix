@@ -107,7 +107,11 @@ HTMLArea.prototype.getParentElement = function() {
 	if (sel == null) return [];
 	var range = this._createRange(sel);
 	if (HTMLArea.is_ie) {
-		return range.parentElement ? range.parentElement() : this._docContent;
+		if (Object.prototype.toString.call(range) == '[object ControlRangeCollection]') {
+			return range.item(0).parentElement ? range.item(0).parentElement : this._docContent;
+		} else {
+			return range.parentElement ? range.parentElement() : this._docContent;
+		}
 	} else {
 		var p = range.commonAncestorContainer;
 		while (p.nodeType == 3) {
