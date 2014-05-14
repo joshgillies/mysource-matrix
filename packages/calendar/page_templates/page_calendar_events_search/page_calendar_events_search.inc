@@ -1032,7 +1032,7 @@ class Page_Calendar_Events_Search extends Search_Page
 				if ($event_horizon < 0) {
 					$event_horizon = 180;
 				}
-				$from = date("Y-m-d", strtotime($today. " +1 day"));
+				$from = $today;
 				$to = date("Y-m-d", strtotime($from. " +".($event_horizon-1)." day"));
 			break;
 
