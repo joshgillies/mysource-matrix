@@ -1367,12 +1367,11 @@ class TRIM_Common
 			$options = array(
 						'FOLLOWLOCATION' => 1,
 						'RETURNTRANSFER' => 1,
-						'HTTPAUTH'          => CURLAUTH_BASIC,
 						'TIMEOUT'        => 5,
 						'SSL_VERIFYPEER' => 0,
-						'USERPWD'        => $connection['authentication']['login'].":".$connection['authentication']['password'],
+						'http_authentication' => Array('username' => $connection['authentication']['login'], 'password' => $connection['authentication']['password'])
 					   );
-			$details  = fetch_url($connection['wsdl'], $options, array(), FALSE);
+			$details  = fetch_url($connection['wsdl'], $options);
 			$contents = $details['response'];
 			if (strpos($contents, '?xml') === FALSE) return FALSE;
 		}
