@@ -808,13 +808,11 @@ ListVersion="0" >
 			$options = array(
 						'FOLLOWLOCATION' => 1,
 						'RETURNTRANSFER' => 1,
-						'HTTPAUTH'          => CURLAUTH_BASIC,
 						'TIMEOUT'        => 5,
 						'SSL_VERIFYPEER' => 0,
-						'USERPWD'        => $connection['authentication']['login'].":".$connection['authentication']['password'],
+						'http_authentication' => Array('username' => $connection['authentication']['login'], 'password' => $connection['authentication']['password'])
 					   );
-			$details  = fetch_url($connection['url'], $options, array(), FALSE);
-			bam($details);
+			$details  = fetch_url($connection['url'], $options);
 			$contents = $details['response'];
 			if (strpos($contents, 'wsdl') === FALSE) return FALSE;
 		}
