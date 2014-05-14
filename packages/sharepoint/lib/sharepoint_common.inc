@@ -802,6 +802,24 @@ ListVersion="0" >
 	*/
 	public static function test_sharepoint_connection($connection, $silent=FALSE)
 	{
+
+		//test a cURL connection first otherwise the Soap constructor will crash and leave edit interfaces inaccessible or cause Cron deadlocks.
+		if (!isset($connection['authentication']['proxy_login'])){ //TODO: test cURL with proxies involved
+			$options = array(
+						'FOLLOWLOCATION' => 1,
+						'RETURNTRANSFER' => 1,
+						'HTTPAUTH'          => CURLAUTH_BASIC,
+						'TIMEOUT'        => 5,
+						'SSL_VERIFYPEER' => 0,
+						'USERPWD'        => $connection['authentication']['login'].":".$connection['authentication']['password'],
+					   );
+			$details  = fetch_url($connection['url'], $options, array(), FALSE);
+			bam($details);
+			$contents = $details['response'];
+			if (strpos($contents, 'wsdl') === FALSE) return FALSE;
+		}
+
+
 		try {
 			$client = new SoapClient(self::getWSDLLocation('lists', $connection['url']), $connection['authentication']);
 			$fns	= $client->__getFunctions();
