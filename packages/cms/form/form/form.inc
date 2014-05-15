@@ -3492,7 +3492,7 @@ class Form extends Asset implements Bridge
 			$create_location = $file_upload->attr('create_location');
 			if (empty($create_location)) {
 				$extra_data = $file_upload->getExtraData();
-				$temp_file_path = $extra_data['temp_filesystem_path'];
+				$temp_file_path = isset($extra_data['temp_filesystem_path']) ? $extra_data['temp_filesystem_path'] : '';
 				if (!empty($temp_file_path)) {
 					if(strpos($temp_file_path, '/') !== 0) $temp_file_path = SQ_SYSTEM_ROOT.'/'.$temp_file_path;
 					$filename   = $file_upload->getValue();
