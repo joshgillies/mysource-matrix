@@ -2148,7 +2148,8 @@ class MySource extends MySource_Object
 			$system = $this->am->getAsset($systemid);
 			if (is_null($system)) continue;
 			$user = $system->authenticateUser($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']);
-			if (!is_null($user)) return $this->loginUser($user, '', TRUE);
+			// we can not do redirect for http authed user, or it would be infinate loop
+			if (!is_null($user)) return $this->loginUser($user);
 		}
 
 		// clear the PHP_AUTH_USER / PASS if authentication failed
