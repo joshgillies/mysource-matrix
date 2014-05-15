@@ -632,6 +632,12 @@ class Form_Management extends Asset_Management
 																'default'	=> '',
 																'description' => 'Error message when time requirement check fails',
 															),
+						'form_extra_attribute'	=> Array(
+																'added'		=> '0.17',
+																'type'		=> 'text',
+																'default'	=> '',
+																'description' => 'Error message when time requirement check fails',
+															),
 					  );
 
 	}//end constructor

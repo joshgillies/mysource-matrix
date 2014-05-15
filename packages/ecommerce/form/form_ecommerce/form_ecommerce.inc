@@ -653,9 +653,10 @@ class Form_Ecommerce extends Form_Email
 		}
 
 		$bodycopy->setKeywordReplacements($replacements);
+		$extra_attribute = $this->attr('form_extra_attribute');
 
 		// all the output is here
-		echo '<form id="'.$prefix.'" enctype="multipart/form-data" action="'.$form_action.'" method="post" '.$clientside.'>';
+		echo '<form id="'.$prefix.'" enctype="multipart/form-data" action="'.$form_action.'" method="post" '.$clientside.' '.$extra_attribute.' >';
 		echo $javascript;
 		echo hidden_field('SQ_FORM_'.$this->id.'_PAGE', 1);; 
 		$bodycopy->printBody();

@@ -2000,12 +2000,13 @@ class Form extends Asset implements Bridge
 		$form_action = $this->getFormAction();
 
 		$header = '';
+		$extra_attribute = $this->attr('form_extra_attribute');
 		if ($this->attr('use_client_side')) {
 			$on_submit = 'onsubmit="return beforeSubmit_'.$form_prefix.'(this);"';
-			$header .= '<form id="'.$form_prefix.'" enctype="multipart/form-data" action="'.$form_action.'" method="post" '.$on_submit.'>';
+			$header .= '<form id="'.$form_prefix.'" enctype="multipart/form-data" action="'.$form_action.'" method="post" '.$on_submit.' '.$extra_attribute.' >';
 			$header .= $this->getClientSideFunction();
 		} else {
-			$header .= '<form id="'.$form_prefix.'" enctype="multipart/form-data" action="'.$form_action.'" method="post">';
+			$header .= '<form id="'.$form_prefix.'" enctype="multipart/form-data" action="'.$form_action.'" method="post" '.$extra_attribute.' >';
 		}
 
 		$current_submission = $this->getSubmissionAsset();
