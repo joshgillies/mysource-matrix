@@ -2599,23 +2599,23 @@ class Form_Ecommerce extends Form_Email
 	*/
 	function _getLogFileName()
 	{
-		return 'order.log';
+		return 'form_ecommerce_order';
 
 	}//end _getLogFileName()
 
 
-	/**
-	* Get the path to log file
-	* @param string	$string	string to log
-	*
-	* @return string
-	* @access private
-	*/
-	function _getLogFilePath()
-	{
-		return $this->data_path.'/'.$this->_getLogFileName();
+    /**
+    * Get the path to log file
+    * @param string $string string to log
+    *
+    * @return string
+    * @access private
+    */
+    function _getLogFilePath()
+    {
+            return SQ_LOG_PATH.'/'.$this->_getLogFileName().'.log';
+    }//end _getLogFilePath()
 
-	}//end _getLogFilePath()
 
 
 	/**
@@ -2628,22 +2628,8 @@ class Form_Ecommerce extends Form_Email
 	*/
 	function _log($string='')
 	{
-		$file = $this->_getLogFilePath();
-		if (!$file_pointer = fopen($file, 'a')) return FALSE;
-
-		$sucess = fputs($file_pointer, $string);
-		fclose($file_pointer);
-		if ($sucess === FALSE) {
-			trigger_error('Unable to write '.$file, E_USER_WARNING);
-			return FALSE;
-		}
-
-		$om = umask(0000);
-		chmod($file, 0664);
-		umask($om);
-
+		log_write($string, $this->_getLogFileName(), E_USER_NOTICE, FALSE);
 		return TRUE;
-
 	}//end _log()
 
 
