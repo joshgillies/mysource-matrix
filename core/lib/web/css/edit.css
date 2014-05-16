@@ -1967,9 +1967,6 @@ EDIT BODYCOPY STYLES
 	border-top: 				none;
 }
 
-.sq-edit-bodycopy-section td{
-	padding: 					10px;
-}
 
 .sq-edit-bodycopy-section > tbody > tr:first-child > td{
 	border-bottom: 				1px dashed #ccc;
