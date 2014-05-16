@@ -2116,7 +2116,7 @@ class MySource extends MySource_Object
 			$system = $this->am->getAsset($systemid);
 			if (is_null($system)) continue;
 			$user = $system->authenticateHttpUser($http_username);
-			if (!is_null($user)) return $this->loginUser($user, '', TRUE);
+			if (!is_null($user)) return $this->loginUser($user);
 		}
 
 	}//end _loginHttpAuthenticatedUser()
