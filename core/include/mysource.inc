@@ -211,6 +211,14 @@ class MySource extends MySource_Object
 
 
 	/**
+	* Content that will be replaced at the highest level
+	*
+	* @var array(string)
+	*/
+	protected $_raw_contents = Array();
+
+
+	/**
 	* Constructor
 	*
 	*/
@@ -1064,7 +1072,7 @@ class MySource extends MySource_Object
 	{
 
 		if ($this->getGlobalDefine('SQ_REPLACE_MYSOURCE_LEVEL_KEYWORDS', TRUE)) {
-		    	// Replace any global keywords first
+	    	// Replace any global keywords first
 			replace_global_keywords($content);
 		
 			// Perform any additional replacements
@@ -1086,6 +1094,11 @@ class MySource extends MySource_Object
 				}
 			}
 			replace_keywords($content, $additional_replacements);
+		}
+
+		// After the highest level keyword replacement, place these contents back
+		foreach($this->_raw_contents as $hash => $replacement) {
+			$content = str_replace($hash, $replacement, $content);
 		}
 
 	}//end replaceKeyword()
@@ -4682,6 +4695,29 @@ class MySource extends MySource_Object
 		}
 
 	}//end _registerAssetAsVisited()
+
+
+	/**
+	* Add the content in the output that will be replaced after
+	* the highest level keyword replacement
+	*
+	* @param string $content
+	*
+	* @return void
+	* @accesss public
+	*/
+	public function addRawContent($content)
+	{
+		//Hash string to uniquely identify the content
+		$key = '<!--'.md5($content).strlen($content).'-->';
+		if (!isset($this->_raw_contents[$key])) {
+			$this->_raw_contents[$key] = $content;
+		}
+
+		// Output the hash key
+		echo $key;
+
+	}//end addRawContent()
 
 
 }//end class

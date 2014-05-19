@@ -92,10 +92,6 @@ class Page_Remote_Content extends Page
 			$this->_tmp['success'][$url] = $success;
 		}
 
-		if (!$this->_tmp['transform_settings']['replace_matrix_keywords']) {
-			$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_REPLACE_MYSOURCE_LEVEL_KEYWORDS', FALSE);
-		}
-
 		if ($this->_tmp['transform_settings']['use_design']) {
 			parent::printFrontend();
 			// stop performance mode timer
@@ -163,11 +159,13 @@ class Page_Remote_Content extends Page
 				$content = ob_get_contents();
 			ob_end_clean();
 
-			// Escape the strings matching Matrix keyword pattern
+			// If the content is to be left untouched by the Matrix keyword replacement,
+			// add the content after the keywords are replaced at the highest level
 			if (!$this->_tmp['transform_settings']['replace_matrix_keywords']) {
-				$content = preg_replace('/%([a-zA-Z]{3,}_[a-zA-Z_\-0-9\.:]+(\^{1}[^%]+)*)%/', '&#37;$1&#37;', $content);
+				$GLOBALS['SQ_SYSTEM']->addRawContent($content);
+			} else {
+				echo $content;
 			}
-			echo $content;
 		}
 
 		// stop performance mode timer
