@@ -3155,6 +3155,10 @@ table.sq-log-monitor-table td{
 	background: 				#EEE;
 }
 
+.htmlarea-div {
+	padding: 				10px;
+}
+
 
 /* These styles should be replicated into the /fudge/wysiwyg/core/core.js file so that the preview and editing view of the WYSIWYG content is consitent */
 .sq-wysiwyg-preview-wrapper {
@@ -3208,7 +3212,6 @@ table.sq-log-monitor-table td{
 
 .sq-wysiwyg-standalone-header, 
 .sq-wysiwyg-standalone-body {
-	padding: 					10px 10px 0px 10px;
 	border: 					1px dashed #ccc;
 	border-radius: 				0 0 4px 4px;
 }

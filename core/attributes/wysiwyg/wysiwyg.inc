@@ -343,7 +343,7 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 		?>
 		    
 			    <div style="display:none;" id="<?php echo $prefix?>_wysiwyg_div"><?php echo $wysiwyg->paint()?></div>
-			    <div id="<?php echo $prefix?>_contents_div" class="sq-wysiwyg-preview-wrapper"   data-keywords="<?php echo $keywords_encoded; ?>" data-snippets="<?php echo $snippets_encoded; ?>" onclick="editDiv=document.getElementById('<?php echo $prefix ?>_wysiwyg_div'); if (editDiv !== null && editDiv.style.display == 'none') {switchEditingMode('<?php echo $prefix ?>_contents_div','<?php echo $prefix ?>_wysiwyg_div', editor_<?php echo $prefix ?>);}"><?php echo $this->value?></div>
+			    <div id="<?php echo $prefix?>_contents_div" class="sq-wysiwyg-preview-wrapper htmlarea-div"   data-keywords="<?php echo $keywords_encoded; ?>" data-snippets="<?php echo $snippets_encoded; ?>" onclick="editDiv=document.getElementById('<?php echo $prefix ?>_wysiwyg_div'); if (editDiv !== null && editDiv.style.display == 'none') {switchEditingMode('<?php echo $prefix ?>_contents_div','<?php echo $prefix ?>_wysiwyg_div', editor_<?php echo $prefix ?>);}"><?php echo $this->value?></div>
 		    
 		<?php
 		}
