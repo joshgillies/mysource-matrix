@@ -91,16 +91,13 @@ class Page_REST_Resource extends Page
 				if ($resp['info']['http_code'] >= 400 && !empty($error_response)) {
 					echo $error_response;
 				} else {
-					// if we are asked to not allows the keyword replacement on this  response body then
-					// convert the % sign into the  html entity but only  for the %  signs that are part
-					// are part of the text that appears to be keyword like. Bug fix #6505 REST resource
-					// option to  'Allow Keyword replacement'  can stop all the keywords  from replacing
+					// If the content is to be left untouched by the Matrix keyword replacement,
+					// add the content after the keywords are replaced at the highest level
 					if (!$this->attr('allow_global_replace')) {
-						$pattern = '/(%)([a-zA-Z_\-0-9\.^%\^:]*)(%)/';
-						$replacement = '&#37;$2&#37;';
-						$resp['body'] = preg_replace($pattern, $replacement, $resp['body']);
+						$GLOBALS['SQ_SYSTEM']->addRawContent($resp['body']);
+					} else {
+						echo $resp['body'];
 					}
-					echo $resp['body'];
 				}
 			}
 		}
