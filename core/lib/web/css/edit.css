@@ -2979,7 +2979,7 @@ img.sq-tag-line.sq-icon {
 
 .sq-email-format-body > tbody > tr:last-child > td {
 	border-top:					1px dashed #ccc;
-	padding: 					7px 6px 3px;
+	padding: 					0px;
 }
 
 .sq-email-format-version {
