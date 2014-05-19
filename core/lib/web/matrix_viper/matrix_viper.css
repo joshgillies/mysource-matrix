@@ -79,7 +79,7 @@
     font-size: 1.1em;
     font-style: italic;
     min-height: 30px;
-    padding-top: 5px;
+    padding: 10px;
     text-align: center;
     min-width: 500px;
 }
@@ -89,6 +89,7 @@
    min-width: 500px;
    min-height: 30px;
    color: #222;
+   padding: 10px;
 }
 
 /* the tables inserted here needs to be visible, so set a default style */
