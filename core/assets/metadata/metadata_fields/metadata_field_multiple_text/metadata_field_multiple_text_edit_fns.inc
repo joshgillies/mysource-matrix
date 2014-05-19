@@ -61,7 +61,7 @@ class Metadata_Field_Multiple_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 	*/
 	public function paintValueInterface(Metadata_Field_Multiple_Text $asset, Backend_Outputter $o, $value_str, $write_access, $enable_default=TRUE, $print_cascade_values_option = TRUE, $type_code=NULL, $suffix_to_prefix = '')
 	{
-		$prefix = $asset->getPrefix();
+		$prefix = $asset->getPrefix().($type_code ? '_'.$type_code : '');
 		if (!empty($suffix_to_prefix)) $prefix .= $suffix_to_prefix;
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
@@ -155,7 +155,7 @@ class Metadata_Field_Multiple_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		$processed = FALSE;
 
-		$prefix = $asset->getPrefix();
+		$prefix = $asset->getPrefix().($type_code ? '_'.$type_code : '');
 		if (!empty($suffix_to_prefix)) $prefix .= $suffix_to_prefix;
 
 		if (!empty($_POST[$prefix.'_default'])) {
