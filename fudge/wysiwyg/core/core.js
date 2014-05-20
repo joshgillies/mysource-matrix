@@ -319,7 +319,7 @@ HTMLArea.prototype.insertHTML = function(html, range) {
 		var node = range.startContainer;
 	}
 	if (HTMLArea.is_ie) {
-		if (HTMLArea.is_ie9 || HTMLArea.is_ie10) {
+		if (Object.prototype.toString.call(range) == '[object ControlRangeCollection]') {
 			range_obj = range.item(0);
 			range.item(0).outerHTML = html;
 		} else {
