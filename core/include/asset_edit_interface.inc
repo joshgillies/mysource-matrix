@@ -1278,11 +1278,12 @@ class Asset_Edit_Interface extends MySource_Object
 	* @param object	&$owner		the owner of this interface
 	* @param object	&$o			the backend outputter
 	* @param object	&$layout	the layout to be painted
+	* @param string	$suffix		suffix string for the layout input field's id
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintLayout(&$owner, &$o, &$layout)
+	function paintLayout(&$owner, &$o, &$layout, $suffix='')
 	{
 		// Get the order in which keywords are placed in the raw content in container.
 		// This order is required to deciede which keyword to evaluate first. Say a metadata keyword is placed
@@ -1294,7 +1295,7 @@ class Asset_Edit_Interface extends MySource_Object
 		// See bug #3698 + bug #4458 Conflicting WYSIWYG's
 		$layout_keywords_order = $this->_getLayoutKeywordsOrder($layout);
 
-		$this->getKeywordsReplacementsForPaint($owner, $o, $layout, $layout_keywords_order);
+		$this->getKeywordsReplacementsForPaint($owner, $o, $layout, $layout_keywords_order, TRUE, FALSE, $suffix);
 
 		// we need to open a raw section so that the form gets printed before the contents of the layout
 		$o->openRaw();
@@ -1315,11 +1316,12 @@ class Asset_Edit_Interface extends MySource_Object
 	* @param array	 &$layout_keywords_order		order of appearence of the keywords
 	* @param boolean &$set_keywords_replacement	set keyword in body or just return replacements
 	* @param boolean &$invoke_backend			the layout to be painted
+	* @param string	 $suffix		suffix string for the layout input field's id
 	*
 	* @return mixed
 	* @access public
 	*/
-	public function getKeywordsReplacementsForPaint(&$owner, &$o, &$layout, $layout_keywords_order, $set_keywords_replacement = TRUE, $invoke_backend = FALSE)
+	public function getKeywordsReplacementsForPaint(&$owner, &$o, &$layout, $layout_keywords_order, $set_keywords_replacement = TRUE, $invoke_backend = FALSE, $suffix='')
 	{
 		$keywords = $layout->getLayoutKeywords();
 		$print_commit_button = FALSE;
@@ -1378,6 +1380,7 @@ class Asset_Edit_Interface extends MySource_Object
 								}
 							} else if ($screen == 'metadata') {
 								$layout_options = $layout->attr('options');
+								$layout_options['field_suffix'] = $suffix;
 								if ($this->_getStaticScreenKeywordReplacements($owner, $o, $screen, $static_keywords, $entire_screen, $layout_options)) {
 									$print_commit_button = TRUE;
 								}
