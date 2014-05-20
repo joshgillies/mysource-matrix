@@ -265,7 +265,6 @@ class Search_Page extends Listing_Engine
 	{
 		$page_links = parent::_getAllowedLinks();
 		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => 'M', 'exclusive' => TRUE);
-		$page_links[SQ_LINK_TYPE_2]['folder']   = Array('card' => 4, 'exclusive' => FALSE);
 		$page_links[SQ_LINK_TYPE_3]['folder']   = Array('card' => 1, 'exclusive' => FALSE);
 		$page_links[SQ_LINK_NOTICE]['asset']    = Array('card' => 'M', 'exclusive' => FALSE);
 		return $page_links;
