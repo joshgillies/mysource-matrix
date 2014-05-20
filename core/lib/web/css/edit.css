@@ -2998,6 +2998,10 @@ img.sq-tag-line.sq-icon {
 	background: 				none;
 }
 
+.sq-email-format-text-body-div {
+	padding: 5px;
+}
+
 /* TOGGLE OPTIONS */
 .sq-toggle-option-wrapper {
 	display: 					inline-block;
