@@ -694,7 +694,7 @@ function _paintDetailsChangeStatus(Asset $owner, Backend_Outputter $o, $prefix)
 		$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		$running_schemas = $wfm->getSchemas($owner->id, TRUE, TRUE);
 		if (!empty($running_schemas)) {
-			$o->note(translate('asset_currently_in_workflow', $owner->getBackendHref('workflow')));
+			echo translate('asset_currently_in_workflow', $owner->getBackendHref('workflow'));
 		} else {
 			_paintStatusChange($owner, $o, $prefix, $statii);
 			$needs_commit = TRUE;

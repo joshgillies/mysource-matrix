@@ -396,8 +396,8 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 								}//end if there are system workflow logs
 								?>
 								<tr>
-									<td class="sq-backend-table-header" colspan="3" align="middle">
-										<a class="sq-backend-table-header" href="<?php echo $owner->getBackendHref('logs'); ?>&sq_backend_log_type=asset.workflow"><?php echo translate('view_all_workflow_logs'); ?></a>
+									<td colspan="3" align="left">
+										<a href="<?php echo $owner->getBackendHref('logs'); ?>&sq_backend_log_type=asset.workflow"><?php echo translate('view_all_workflow_logs'); ?></a>
 									</td>
 								</tr>
 							</table>
