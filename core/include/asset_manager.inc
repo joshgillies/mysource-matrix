@@ -7795,7 +7795,7 @@ class Asset_Manager extends MySource_Object
 					foreach ($userid_assetids as $index => $userid_assetid) {
 						if ($userid_assetid == '0') continue;
 						if ($GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($info[$userid_assetid], 'user_group')) {
-							$expanded_users = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($userid_assetid, Array('user'), FALSE));
+							$expanded_users = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($userid_assetid, Array('user', 'user_group'), FALSE));
 							if (!empty($expanded_users)) {
 								if (isset($roles[$roleid])) {
 									$roles[$roleid] = array_merge($roles[$roleid], $expanded_users);
