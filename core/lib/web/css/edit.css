@@ -1967,9 +1967,6 @@ EDIT BODYCOPY STYLES
 	border-top: 				none;
 }
 
-.sq-edit-bodycopy-section td{
-	padding: 					10px;
-}
 
 .sq-edit-bodycopy-section > tbody > tr:first-child > td{
 	border-bottom: 				1px dashed #ccc;
@@ -2982,7 +2979,7 @@ img.sq-tag-line.sq-icon {
 
 .sq-email-format-body > tbody > tr:last-child > td {
 	border-top:					1px dashed #ccc;
-	padding: 					7px 6px 3px;
+	padding: 					0px;
 }
 
 .sq-email-format-version {
@@ -2997,6 +2994,10 @@ img.sq-tag-line.sq-icon {
 .sq-email-format-html-body-div {
 	width:						100%;
 	background: 				none;
+}
+
+.sq-email-format-text-body-div {
+	padding: 5px;
 }
 
 /* TOGGLE OPTIONS */
@@ -3158,6 +3159,10 @@ table.sq-log-monitor-table td{
 	background: 				#EEE;
 }
 
+.htmlarea-div {
+	padding: 				10px;
+}
+
 
 /* These styles should be replicated into the /fudge/wysiwyg/core/core.js file so that the preview and editing view of the WYSIWYG content is consitent */
 .sq-wysiwyg-preview-wrapper {
@@ -3211,7 +3216,6 @@ table.sq-log-monitor-table td{
 
 .sq-wysiwyg-standalone-header, 
 .sq-wysiwyg-standalone-body {
-	padding: 					10px 10px 0px 10px;
 	border: 					1px dashed #ccc;
 	border-radius: 				0 0 4px 4px;
 }

@@ -61,7 +61,7 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 	*/
 	public function paintValueInterface(Metadata_Field_Hierarchy $asset, Backend_Outputter $o, $value_str, $write_access, $enable_default=TRUE, $print_cascade_values_option=TRUE, $type_code=NULL, $suffix_to_prefix = '')
 	{
-		$prefix = $asset->getPrefix();
+		$prefix = $asset->getPrefix().($type_code ? '_'.$type_code : '');
 		if (!empty($suffix_to_prefix)) $prefix .= $suffix_to_prefix;
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
@@ -218,7 +218,7 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		$processed = FALSE;
 
-		$prefix = $asset->getPrefix();
+		$prefix = $asset->getPrefix().($type_code ? '_'.$type_code : '');
 		if (!empty($suffix_to_prefix)) $prefix .= $suffix_to_prefix;
 
 		if (!empty($_POST[$prefix.'_default'])) {
@@ -773,6 +773,16 @@ class Metadata_Field_Hierarchy_Edit_Fns extends Metadata_Field_Edit_Fns
 			if (strlen(trim($_POST[$prefix.'_new_key']))>0 && strlen(trim($_POST[$prefix.'_new_val']))>0) {
 				$new_hierarchy_key  = trim($_POST[$prefix.'_new_key']);
 				$new_hierarchy_val  = trim($_POST[$prefix.'_new_val']);
+
+				if (strpos($new_hierarchy_key, '%asset_metadata_') !== FALSE) {
+					trigger_localised_error('SYS0344', E_USER_WARNING);
+					$new_hierarchy_key = preg_replace('/%asset_metadata_([^\s]*?)%/', '%metadata_field_$1%', $new_hierarchy_key);
+				}
+				if (strpos($new_hierarchy_val, '%asset_metadata_') !== FALSE) {
+					trigger_localised_error('SYS0344', E_USER_WARNING);
+					$new_hierarchy_val = preg_replace('/%asset_metadata_([^\s]*?)%/', '%metadata_field_$1%', $new_hierarchy_val);
+				}
+
 				$hierarchy_options[$new_hierarchy_key] = $new_hierarchy_val;
 			}
 		}

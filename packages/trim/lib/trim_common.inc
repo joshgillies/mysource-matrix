@@ -1367,12 +1367,11 @@ class TRIM_Common
 			$options = array(
 						'FOLLOWLOCATION' => 1,
 						'RETURNTRANSFER' => 1,
-						'HTTPAUTH'          => CURLAUTH_BASIC,
 						'TIMEOUT'        => 5,
 						'SSL_VERIFYPEER' => 0,
-						'USERPWD'        => $connection['authentication']['login'].":".$connection['authentication']['password'],
+						'http_authentication' => Array('username' => $connection['authentication']['login'], 'password' => $connection['authentication']['password'])
 					   );
-			$details  = fetch_url($connection['wsdl'], $options, array(), FALSE);
+			$details  = fetch_url($connection['wsdl'], $options);
 			$contents = $details['response'];
 			if (strpos($contents, '?xml') === FALSE) return FALSE;
 		}
@@ -1383,6 +1382,14 @@ class TRIM_Common
 
 			$data = $client->ListProperty(Array('PropertyName'	=> 'recTitle'));
 
+			if(empty($data) || !isset($data->ListPropertyResult)) {
+				$error_message = "Failed to connect to TRIM\n";
+				$error_message .= "Last Request:\n".$client->__getLastRequest()."\n";
+				$error_message .= "Last Response:\n".$client->__getLastResponse()."\n";
+				trigger_error(htmlentities($error_message));
+				return FALSE;
+			}
+
 	        $name = (string) $data->ListPropertyResult->Name;
 
 	        if ($name == 'recTitle') {
@@ -1391,7 +1398,10 @@ class TRIM_Common
 	        	return FALSE;
 	        }//end else
 		} catch (SoapFault $e) {
-			echo $e->getMessage();
+			$error_message = $e->getMessage();
+			$error_message .= "Last Request:\n".$client->__getLastRequest()."\n";
+			$error_message .= "Last Response:\n".$client->__getLastResponse()."\n";
+			trigger_error(htmlentities($error_message));
 			return FALSE;
 		}//end if
 

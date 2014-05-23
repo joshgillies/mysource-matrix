@@ -1298,9 +1298,13 @@ var JS_Asset_Map = new function() {
 						self.selectAssetNode(assetTarget);
 
 						if (which === 3) {
-							var menu = self.drawUseMeMenu(assetTarget);
-							self.positionMenu(menu, dragStatus.startPoint);
-							self.cancelDrag();
+							if (dfx.hasClass(assetTarget, 'disabled') === false) {
+								var menu = self.drawUseMeMenu(assetTarget);
+								self.positionMenu(menu, dragStatus.startPoint);
+								self.cancelDrag();
+							} else {
+								self.clearMenus();
+							}
 						} else if (which === 1) {
 							self.handleDoubleClick(assetTarget);
 							self.clearMenus();
