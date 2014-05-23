@@ -1354,6 +1354,9 @@ var JS_Asset_Map = new function() {
 										y: assetTargetCoords.y - dragStatus.startPoint.y
 									}
 								}
+							} else {
+							    self.handleDoubleClick(assetTarget);
+							    self.clearMenus();
 							}
 						}//end if (ctrl-click)
 
