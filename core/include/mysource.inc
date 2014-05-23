@@ -385,7 +385,7 @@ class MySource extends MySource_Object
 				define('SQ_TABLE_RUNNING_PREFIX', 'sq_');
 				$ms = $this->getMessagingService();
 				$log = $ms->newMessage(Array(), 'system.security.alert', Array());
-				$log->parameters['remote_addr'] = $_SERVER['REMOTE_ADDR'];
+				$log->parameters['remote_addr'] = (isset($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : '';
 				$log->parameters['sessionid'] = session_id();
 				$log->parameters['userid'] = $_SESSION['userid'];
 				$log->send();
@@ -2186,7 +2186,7 @@ class MySource extends MySource_Object
 		$_SESSION['user'] = serialize($user);
 		$_SESSION['user_serialised_ts'] = time();
 		if (!$this->_user_is_public) {
-			$_SESSION['remote_addr'] = $_SERVER['REMOTE_ADDR'];
+			$_SESSION['remote_addr'] = (isset($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : '';
 		}
 
 		// log a message so we know someone has logged in
@@ -2675,7 +2675,7 @@ class MySource extends MySource_Object
 		$ms = $this->getMessagingService();
 		$msg_reps = Array('user_name' => $this->user->name) + $extra_replacements;
 		$log = $ms->newMessage(Array(), $code, $msg_reps);
-		$log->parameters['remote_addr'] = $_SERVER['REMOTE_ADDR'];
+		$log->parameters['remote_addr'] = (isset($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : '';
 		$log->parameters['sessionid'] = session_id();
 		$log->send();
 
