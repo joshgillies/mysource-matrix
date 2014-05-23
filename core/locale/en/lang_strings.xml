@@ -1014,9 +1014,9 @@
 	<string source="table_styles-colours">Table Styles / Colours</string>
 	<string source="style_information">Style Information</string>
 	<string source="presentation">Presentation</string>
-	<string source="inline">Inline</string>
-	<string source="block-level">Block-level</string>
-	<string source="raw_html">Raw HTML</string>
+	<string source="inline">Inline (span)</string>
+	<string source="block-level">Block (div)</string>
+	<string source="raw_html">Raw (no formatting)</string>
 	<string source="raw_html_content_container">Raw HTML Content Container</string>
 	<string source="class">Class</string>
 	<string source="identification">Identification</string>
