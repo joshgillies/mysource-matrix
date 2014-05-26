@@ -292,6 +292,9 @@ class Soap_Api_Metadata_Service extends Soap_Api
 		$assetid		= array_get_index($request_info, 'AssetID', '');
 		$metadata_info	= array_get_index($request_info, 'MetadataInfo', Array());
 
+		if(!is_array($metadata_info))
+			$metadata_info = Array($metadata_info);
+
 		if (!empty($assetid) && !empty($metadata_info)) {
 			$metadata_values = Array();
 			$mm	= $GLOBALS['SQ_SYSTEM']->getMetadataManager();
