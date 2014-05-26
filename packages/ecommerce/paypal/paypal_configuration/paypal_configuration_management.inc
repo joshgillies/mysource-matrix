@@ -47,12 +47,6 @@ class Paypal_Configuration_Management extends Asset_Management
 																	'is_admin'		=> FALSE,
 																	'is_contextable'=> TRUE,
 															    ),
-							'encryption_lib_path'		=> Array(
-																	'added'			=> '0.1',
-																	'type'			=> 'text',
-																	'default'		=> '/usr/bin/PPCrypto.php',
-															    	'description'	=> 'The path to the Paypal Encryption Library file',
-															    ),
 							'custom_param_secret_str'	=> Array(
 																	'added'			=> '0.1',
 																	'type'			=> 'text',
