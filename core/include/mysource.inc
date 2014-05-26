@@ -2242,7 +2242,9 @@ class MySource extends MySource_Object
 		if(strpos($user->id, ':') === FALSE ) {
 			$this->setRunLevel(SQ_RUN_LEVEL_FORCED);
 			$user->setAttrValue('login_date', date("Y-m-d H:i:s"));
-			$user->setAttrValue('login_ip', filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP));
+			if (isset($_SERVER['REMOTE_ADDR'])) {
+				$user->setAttrValue('login_ip', filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP));
+			}
 			$user->saveAttributes();
 			$this->restoreRunLevel();
 		}
