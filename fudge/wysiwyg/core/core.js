@@ -189,6 +189,10 @@ HTMLArea.prototype.generate = function () {
 			editor._doc.style.height = 'auto';
 		}
 
+		if (HTMLArea.is_ie) {
+			editor._doc.style.overflow = 'auto';
+		}
+
 		editor._doc.innerHTML = editor._textArea.value;
 		if (HTMLArea.is_ie) { editor._doc.contentEditable = true; }
 		// intercept some events; for updating the toolbar & keyboard handlers
