@@ -43,66 +43,6 @@ class Paypal_Configuration_Edit_Fns extends Asset_Edit_Fns
 	}//end constructor
 	
 	
-	/**
-	* Paint the interface for Paypal Encryption Library Path
-	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form elements
-	*
-	* @return boolean
-	* @access public
-	*/
-	function paintEncryptionLibPath(&$asset, &$o, $prefix)
-	{
-		$current_path = $asset->attr('encryption_lib_path');
-		
-		if ($asset->writeAccess('attributes')) {
-			text_box($prefix.'_encryption_lib_path', $current_path, 80);
-		} else {
-			if (trim($current_path) == '') {
-				echo '<b>[Empty]</b>';
-			} else {
-				echo '<b>'.$current_path.'</b>';
-			}
-		}
-		
-		if (!is_file($current_path)) {
-			?><br /><span class="sq-backend-warning"><?php echo translate('path_to_not_valid', 'Paypal Encryption Library'); ?></span><?php
-		} else {
-			include_once $current_path;
-			if (!class_exists('PPCrypto')) {
-				?><br /><span class="sq-backend-warning"><?php echo translate('paypal_configuration_encryption_lib_no_required_class'); ?></span><?php
-			} else {
-				if (!method_exists('PPCrypto', 'signAndEncrypt')) {
-					?><br /><span class="sq-backend-warning"><?php echo translate('paypal_configuration_encryption_lib_no_required_method'); ?></span><?php
-				}
-			}
-		}//end if
-		
-		return TRUE;
-		
-	}//end paintEncryptionLibPath()
-
-
-	/**
-	* Process the interface for Paypal Encryption Library Path
-	*
-	* @param object	&$asset	the asset whose interface we are painting
-	* @param object	&$o		the outputter class
-	* @param string	$prefix	prefix for the form elements
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processEncryptionLibPath(&$asset, &$o, $prefix)
-	{
-		if (!$asset->writeAccess('attributes')) return FALSE;
-		if (!isset($_POST[$prefix.'_encryption_lib_path'])) return FALSE;
-		
-		return $asset->setAttrValue('encryption_lib_path', trim($_POST[$prefix.'_encryption_lib_path']));
-		
-	}//end processEncryptionLibPath()
 
 
 }//end class
