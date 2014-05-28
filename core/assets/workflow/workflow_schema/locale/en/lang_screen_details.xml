@@ -21,6 +21,10 @@
 			<display_name>Schema Name</display_name>
 			<note />
 		</field>
+		<field attribute="allow_comment_on_request">
+			<display_name>Allow Comments When Requesting Approval?</display_name>
+			<note>If enabled, editors will be allowed to add a comment while initiating the workflow process.</note>
+		</field>
 		<field attribute="notify_starter_on_live">
 			<display_name>Notify Starter When Live?</display_name>
 			<note>If enabled, will send the Notify on Live message to the initiator of the workflow process.</note>

@@ -1709,6 +1709,8 @@ class Workflow_Manager extends MySource_Object
 			$this->setStartingStream($assetid, NULL);
 		}
 
+		$log_message = $this->getEditorCommentOnApplyForApproval($assetid);
+
 		if ($stream_name === NULL) {
 			$streams = $this->getDefaultStream($schemas);
 			$stream_name = 'Default Stream';
@@ -1838,7 +1840,6 @@ class Workflow_Manager extends MySource_Object
 					$accept_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=approve';
 					$reject_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=reject';
 
-
 					$msg_reps = Array(
 									'workflow_user'			=> $user->name,
 									'type_code'				=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
@@ -1854,7 +1855,7 @@ class Workflow_Manager extends MySource_Object
 									'stream'				=> $schema_workflow['stream_name'],
 									'asset_url'				=> $asset->getDependantParentsURL(),
 									'asset_version'			=> $asset->version,
-									'log_message'			=> '',
+									'log_message'			=> is_null($log_message) ? '' : $log_message,
 								);
 					$asset_edt_fns = $asset->getEditFns();
 					if (isset($asset_edt_fns->static_screens['preview'])) {
@@ -1913,6 +1914,20 @@ class Workflow_Manager extends MySource_Object
 
 				$msg->parameters['assetid'] = $asset->id;
 				$ms->enqueueMessage($msg);
+
+				// has a message been entered?
+				// process any messages that may have been submitted
+				if (!empty($log_message)) {
+					$msg_reps = Array(
+									'message'	=> $log_message,
+								);
+					$message = $ms->newMessage(Array(), 'asset.workflow.userlog', $msg_reps);
+					$message->parameters['assetid'] = $assetid;
+					$message->parameters['version'] = substr($asset->version, 0, strrpos($asset->version, '.'));
+					$message->send();
+				}
+
+
 			}//end foreach
 		}//end if
 
@@ -2846,6 +2861,28 @@ class Workflow_Manager extends MySource_Object
 		return array_get_index($starting_streams, $assetid, NULL);
 
 	}//end getStartingStream()
+
+
+	public function setEditorCommentOnApplyForApproval($assetid, $editor_comment)
+	{
+		$this->_tmp['editor_comment_on_request'][$assetid] = $editor_comment;
+
+	}//end setEditorCommentOnApplyForApproval()
+
+
+	/**
+	* Return a set starting stream name
+	*
+	* @param string	$schemaid	The asset to get the starting stream name for
+	*
+	* @return string
+	*/
+	public function getEditorCommentOnApplyForApproval($assetid)
+	{
+		$editor_comment = array_get_index($this->_tmp, 'editor_comment_on_request', Array());
+		return array_get_index($editor_comment, $assetid, NULL);
+
+	}//end getEditorCommentOnApplyForApproval()
 
 
 	/**

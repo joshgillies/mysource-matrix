@@ -54,7 +54,7 @@ class Workflow_Schema_Management extends Asset_Management
 																			   ),
 															'description'	=> 'If enabled, will send the Notify on Live message to the initiator of the workflow process.',
 														   ),
-		    				'notify_starter_after_approval'		=> Array (
+	    				'notify_starter_after_approval'	=> Array (
 															'added'			=> '0.1',
 															'type'			=> 'boolean',
 															'default'		=> FALSE,
@@ -63,7 +63,7 @@ class Workflow_Schema_Management extends Asset_Management
 																			   ),
 															'description'	=> 'If enabled, will send the Notify on Live message to the initiator of the workflow process.',
 														   ),
-		    				'notify_approvers_after_approval'		=> Array (
+		    		  'notify_approvers_after_approval' => Array (
 															'added'			=> '0.1',
 															'type'			=> 'boolean',
 															'default'		=> TRUE,
@@ -101,6 +101,15 @@ class Workflow_Schema_Management extends Asset_Management
 															'type'			=> 'serialise',
 															'default'		=> Array(),
 															'description'	=> 'Asset restriction on which the schema can be set',
+														   ),
+		   				'allow_comment_on_request'		=> Array (
+															'added'			=> '0.2',
+															'type'			=> 'boolean',
+															'default'		=> FALSE,
+															'parameters'	=> Array(
+																				'allow_empty'	=> FALSE,
+																			   ),
+															'description'	=> 'If enabled, editors wil be allowed to send the approval request while initiating the workflow process.',
 														   ),
 					  );
 

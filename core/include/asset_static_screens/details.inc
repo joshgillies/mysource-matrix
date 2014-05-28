@@ -345,6 +345,7 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 		// Test whether we have a status that may need the stream
 		$has_pending_status = FALSE;
 		$has_approved_status = FALSE;
+		$editor_commenting = FALSE;
 		foreach ($statii as $status_code => $status_text) {
 			if (($status_code & SQ_SC_STATUS_PENDING) > 0) {
 				$has_pending_status = TRUE;
@@ -374,6 +375,7 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 			$wfm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 			$schemas = $wfm->getSchemas($owner->id);
 			foreach ($schemas as $schemaid => $granted) {
+				$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 				$stream_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($schemaid, SQ_LINK_TYPE_2, 'workflow_stream', TRUE);
 				$streamids = Array();
 				foreach ($stream_links as $stream_link) {
@@ -398,6 +400,10 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 
 				$workflow_stream_names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($workflowable_streams, 'workflow_stream', TRUE, 'name');
 				$stream_names['workflow'] = array_merge($stream_names['workflow'], $workflow_stream_names);
+
+				if (!$editor_commenting && $schema->attr('allow_comment_on_request')) {
+					$editor_commenting = TRUE;
+				}
 
 			}//end foreach schema
 
@@ -450,6 +456,7 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 				hidden_field($prefix.'_change_status_stream', key($all_options));
 			}
 
+
 			// Javascript to keep the stream lists happy. The "Apply for Approval"
 			// list is displayed first, and they are switched when "Apply for Approval"
 			// and "Approve" are selected, respectively.
@@ -459,6 +466,7 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 				var status_cb = document.getElementById("<?php echo $prefix ?>_change_status");
 				var stream_wf_cb = document.getElementById("<?php echo $prefix ?>_change_status_stream_workflow");
 				var stream_byp_cb = document.getElementById("<?php echo $prefix ?>_change_status_stream_bypass");
+				var editor_comment = document.getElementById("<?php echo $prefix ?>_workflow_approval_request_comment");
 
 				if (stream_byp_cb !== null && stream_byp_cb !== undefined &&
 					 stream_wf_cb !== null && stream_wf_cb !== undefined) {
@@ -484,6 +492,7 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 						} else {
 							stream_byp_cb.disabled = true;
 						}
+						editorCommenting(status_cb);
 					}
 				}//end if
 			// ]]></script>
@@ -510,8 +519,35 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 			}
 		// ]]>
 		</script>
-
 		<?php
+		if ($editor_commenting) {
+			ob_start();
+				echo "<br /><br />";
+				text_area($prefix.'_workflow_approval_request_comment', '', 60, 6, 0, ' disabled="disabled" id="'.$prefix.'_workflow_approval_request_comment" style="display:none" placeholder="Enter comment"');
+				echo '<br /><div id="note_workflow_comment" style="display:none">'.translate('editor_comment_note').'</div>';
+				?>
+				<script type="text/javascript">
+				//<![CDATA[
+					function editorCommenting(status_cbox_ele)
+					{
+						var editor_comment = document.getElementById("<?php echo $prefix; ?>_workflow_approval_request_comment");
+						var editor_com_div = document.getElementById("note_workflow_comment");
+
+						if ((status_cbox_ele.value & <?php echo SQ_SC_STATUS_PENDING ?>) > 0 && (editor_comment !== null && editor_comment !== undefined)) {
+							editor_comment.disabled = false;
+							editor_comment.style.display = 'inline';
+							editor_com_div.style.display = 'inline';
+						} else if (editor_comment !== null && editor_comment !== undefined) {
+							editor_comment.disabled = true;
+							editor_comment.style.display = 'none';
+							editor_com_div.style.display = 'none';
+						}
+					}
+				// ]]>
+				</script>
+				<?php
+			ob_end_flush();
+		}
 	}
 
 }//end _paintStatusChange()
@@ -546,6 +582,11 @@ function _processStatusChange(&$owner, &$o, $prefix)
 					$vars['workflow_stream'] = $_POST[$prefix.'_change_status_stream'];
 				}
 			}
+
+			if (isset($_POST[$prefix.'_workflow_approval_request_comment']) && $_POST[$prefix.'_workflow_approval_request_comment'] !== '') {
+				$vars['workflow_editor_comment'] = $_POST[$prefix.'_workflow_approval_request_comment'];
+			}
+
 			$hh->queueHipo('hipo_job_edit_status', $vars);
 		}
 	}
