@@ -23,14 +23,6 @@
 		</field>
 	</section>
 	<section name="Payment Button Configuration">
-		<field>
-			<display_name>Paypal Encryption Library Path</display_name>
-			<note>The path to the Paypal Encryption Library file.</note>
-			<function_call>
-				<paint_function   name="paintEncryptionLibPath"   />
-				<process_function name="processEncryptionLibPath" />
-			</function_call>
-		</field>
 		<field attribute="custom_param_secret_str">
 			<display_name>Custom Parameter Secret String</display_name>
 			<note>The secret string that is used to calculate the checksum of custom variable so that no malicious users can modify it.</note>

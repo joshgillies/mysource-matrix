@@ -547,15 +547,12 @@ class LDAP_Bridge extends Asset implements Bridge
 						}//end if
 
 						if (!empty($sort_by)){
-							uasort($entries, create_function('$a,$b',
-												'$a = (isset($a[\''.$sort_by.'\'][\'value\'])) ? $a[\''.$sort_by.'\'][\'value\'] : "";
-												$b = (isset($b[\''.$sort_by.'\'][\'value\'])) ? $b[\''.$sort_by.'\'][\'value\'] : "";
-												if ($a == $b) {
-													return 0;
-												}
-												return ($a < $b) ? -1 : 1;'
-											)
-									);
+							uasort($entries, function($a, $b) use ($sort_by) {
+							    $a = isset($a[$sort_by]['value']) ? $a[$sort_by]['value'] : '';
+							    $b = isset($b[$sort_by]['value']) ? $b[$sort_by]['value'] : '';
+
+							    return ($a == $b) ? 0 : (($a < $b) ? -1 : 1);
+							});
 						}
 					}
 				}

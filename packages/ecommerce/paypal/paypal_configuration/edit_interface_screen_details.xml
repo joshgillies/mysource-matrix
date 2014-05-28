@@ -22,12 +22,6 @@
 		</field>
 	</section>
 	<section name="Payment Button Configuration" write_access="write:attributes" limbo_access="1">
-		<field>
-			<function_call>
-				<paint_function   name="paintEncryptionLibPath"   />
-				<process_function name="processEncryptionLibPath" />
-			</function_call>
-		</field>
 		<field attribute="custom_param_secret_str">
 			<text width="60" height="1" />
 		</field>
