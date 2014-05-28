@@ -451,7 +451,7 @@
 	<string source="workflow_status">Workflow Status</string>
 	<string source="header_frame_mail_lock">How long (in seconds) between refreshes of the top (header) frame - this frame keeps the lock on long edits and checks for new mail - Min: 60.</string>
 	<string source="metadata_in_approval_requires_fields_completion">"%1$s" is currently in an approval process but some required metadata fields are not yet compelete. These fields must be completed before "%1$s" can become 'Approved' to go live.</string>
-	<string source="metadata_fields_only_completed_by_administrator">These metadata fields can be completed by any editor or administrator of "%1$s" by going to the %2$s</string>
+	<string source="metadata_fields_only_completed_by_administrator">These metadata fields can be completed by any editor or administrator of "%1$s" by going to the %2$s.</string>
 	<string source="metadata_screen">Metadata screen</string>
 	<string source="cms_ct_raw_html_pref_editor_size">Raw HTML Editor Size</string>
 	<string source="back_to">Back to</string>
@@ -469,19 +469,19 @@
 	<string source="page_title_admin_mode">%s : Admin Mode</string>
 
 	<!-- Cron translations -->
-	<string source="cron_manager_not_configured">The Scheduled Jobs Manager has not been configured. No future statuses can be set for this asset</string>
-	<string source="cron_manager_not_configured_regen">The Scheduled Jobs Manager has not been configured. No future regeneration can be set for this asset</string>
-	<string source="cron_manager_not_configured_refresh">The Scheduled Jobs Manager has not been configured. No future cache refreshing can be set for this asset</string>
+	<string source="cron_manager_not_configured">The Scheduled Jobs Manager has not been configured. No future statuses can be set for this asset.</string>
+	<string source="cron_manager_not_configured_regen">The Scheduled Jobs Manager has not been configured. No future regeneration can be set for this asset.</string>
+	<string source="cron_manager_not_configured_refresh">The Scheduled Jobs Manager has not been configured. No future cache refreshing can be set for this asset.</string>
 	<string source="cron_manager_refresh_cache_running">Running</string>
 	<string source="cron_manager_refresh_cache_not_running">Not Running</string>
 	<string source="cron_manager_refresh_no_job">No Jobs available</string>
 	<string source="cron_manager_next_run">The Scheduled Jobs Manager runs every &lt;b&gt;%1$s&lt;/b&gt;. It will next run on the &lt;b&gt;%2$s&lt;/b&gt;.</string>
-	<string source="asset_currently_in_workflow">&lt;i&gt;This asset is currently in workflow. Approval or rejection of the changes must be done on the &lt;a href="%s"&gt;asset workflow screen&lt;/a&gt;&lt;/i&gt;</string>
+	<string source="asset_currently_in_workflow">&lt;i&gt;This asset is currently in workflow. Approval or rejection of the changes must be done on the &lt;a href="%s"&gt;asset workflow screen&lt;/a&gt;&lt;/i&gt;.</string>
 	<string source="workflow_not_running">Workflow is not currently running for this asset</string>
-	<string source="workflow_not_running_bundle">This bundle must be in &quot;Approving&quot; status to be able to approve or reject workflow at a bundle level</string>
+	<string source="workflow_not_running_bundle">This bundle must be in &quot;Approving&quot; status to be able to approve or reject workflow at a bundle level.</string>
 	<string source="workflow_bundle_not_current_step">To be able to approve or reject workflow at a bundle level, you must be able to approve or reject at least one bundled asset.</string>
 	<string source="workflow_email_link_updated">You have %s the changes successfully</string>
-	<string source="workflow_email_link_has_been_updated">It is either that the workflow has already been %s or you do not have access to edit the workflow of the asset</string>
+	<string source="workflow_email_link_has_been_updated">It is either that the workflow has already been %s or you do not have access to edit the workflow of the asset.</string>
 	<string source="no_thumbnail_attatched">No thumbnail attached</string>
 	<string source="set_status_to">Set Status to </string>
 	<string source="cron_manager_refresh_unknown">The Scheduled Jobs Manager refresh time is unknown</string>
@@ -495,10 +495,10 @@
 	<string source="cron_deadlock_warning_list_item_1">An existing Scheduled Jobs Manager instance is currently running an extremely long running job.</string>
 	<string source="cron_deadlock_warning_list_item_2">Some thing has caused the Scheduled Jobs Manager to exit uncleanly when it was running and the lock wasn't able to be removed.</string>
 	<string source="cron_deadlock_warning_section_1">This is only a potential warning brought about because the Scheduled Jobs Manager has attempted to run %s times, but has not been able to. Two potential reasons for this are :</string>
-	<string source="cron_deadlock_warning_check_error_log">Check the cron error log (in "%s") for any information</string>
+	<string source="cron_deadlock_warning_check_error_log">Check the cron error log (in "%s") for any information.</string>
 	<string source="cron_deadlock_warning_offending_job">The Scheduled Jobs Manager believes this job is still running: %s</string>
-	<string source="cron_deadlock_warning_section_2">To confirm the removal of the lock flag for the Scheduled Jobs Manager, enter the character string you see below into the box supplied, then press the Commit button</string>
-	<string source="cron_deadlock_warning_section_3">ONLY REMOVE THE LOCK IF YOU KNOW FOR CERTAIN THAT THE SCHEDULED JOBS MANAGER IS NOT RUNNING</string>
+	<string source="cron_deadlock_warning_section_2">To confirm the removal of the lock flag for the Scheduled Jobs Manager, enter the character string you see below into the box supplied, then press the Commit button.</string>
+	<string source="cron_deadlock_warning_section_3">ONLY REMOVE THE LOCK IF YOU KNOW FOR CERTAIN THAT THE SCHEDULED JOBS MANAGER IS NOT RUNNING.</string>
 	<string source="cron_deadlock_must_acquire_lock">You must acquire the lock in order resolve this issue</string>
 	<string source="cron_deadlock_warning_contact_root">You must contact the root user to resolve this issue</string>
 	<string source="cron_force_lock_removal">Force Removal of Lock</string>
@@ -1005,8 +1005,8 @@
 	<string source="bodycopy_asset_has_no_design">&lt;b&gt;NOTE:&lt;/b&gt; This asset does not have a design applied to it for the URL currently being edited [&lt;b&gt;%s&lt;/b&gt;]. No style information is available to use for content editing.</string>
 	<string source="bodycopy_asset_has_no_preview">&lt;b&gt;NOTE:&lt;/b&gt; This asset does not have a preview URL or design applied to it in this context. No style information is available to use for content editing.</string>
 	<string source="asset_has_no_design">&lt;b&gt;NOTE:&lt;/b&gt; This asset does not have a design applied to it. You need a Design applied for Paint Layouts to work.</string>
-	<string source="bodycopy_safe_edit_cannot_insert_new">&lt;b&gt;NOTE:&lt;/b&gt; You cannot insert a new Div or Table whilst in Safe Edit mode</string>
-	<string source="bodycopy_pref_cannot_insert_new">&lt;b&gt;NOTE:&lt;/b&gt; You cannot insert a new Div or Table while it is disabled in user preference</string>
+	<string source="bodycopy_safe_edit_cannot_insert_new">&lt;b&gt;NOTE:&lt;/b&gt; You cannot insert a new Div or Table whilst in Safe Edit mode.</string>
+	<string source="bodycopy_pref_cannot_insert_new">&lt;b&gt;NOTE:&lt;/b&gt; You cannot insert a new Div or Table while it is disabled in user preference.</string>
 	<string source="bodycopy_insert_table">Insert Table</string>
 	<string source="text_direction">Text direction settings</string>
 	<string source="bodycopy_direction">Direction:</string>
@@ -1063,8 +1063,8 @@
 	<string source="core_no_existing_parsefile">Not available - no existing parse file available</string>
 	<string source="core_manually_reparse">Yes, manually reparse the existing file</string>
 	<string source="core_require_upload_parsefile">You need to upload a parse file before you can edit it</string>
-	<string source="core_only_upload_files_of_type">&lt;b&gt;NOTE:&lt;/b&gt; You may only upload files of type %s</string>
-	<string source="core_image_size_restricted">&lt;b&gt;NOTE:&lt;/b&gt; Image size is restricted to a maximum of %1$s x %2$s pixels</string>
+	<string source="core_only_upload_files_of_type">&lt;b&gt;NOTE:&lt;/b&gt; You may only upload files of type %s.</string>
+	<string source="core_image_size_restricted">&lt;b&gt;NOTE:&lt;/b&gt; Image size is restricted to a maximum of %1$s x %2$s pixels.</string>
 	<string source="core_no_customisation_created">No Customisations Created</string>
 	<string source="core_design_area">Design Area</string>
 	<string source="core_remove_customisation_question">Remove Customisation?</string>
