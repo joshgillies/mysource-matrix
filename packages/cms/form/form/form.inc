@@ -688,7 +688,9 @@ class Form extends Asset implements Bridge
 
 		if (is_null($sort_by)) $sort_by = 'sort_order';
 
-		uasort($links, create_function('$a,$b','return $a["'.$sort_by.'"] > $b["'.$sort_by.'"];'));
+		uasort($links, function($a, $b) use ($sort_by) {
+			return $a[$sort_by] > $b[$sort_by];
+		});
 
 		return $links;
 
