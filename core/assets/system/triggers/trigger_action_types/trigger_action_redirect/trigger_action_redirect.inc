@@ -74,10 +74,12 @@ class Trigger_Action_Redirect extends Trigger_Action
 				$replacements[$keyword] = $state['asset']->getKeywordReplacement($keyword);
 			}
 			replace_keywords($url, $replacements);
+			replace_global_keywords($url);
 		}
 
 		if (!empty($url)) {
 			header('Location: '.$url);
+			exit();
 
 			return Array(
 					'assetid'	=> $state['asset']->id,
