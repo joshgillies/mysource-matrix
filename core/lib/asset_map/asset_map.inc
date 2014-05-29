@@ -1109,6 +1109,52 @@ class Asset_Map
 		return $attrs;
 
 	}//end _getAssetInfo()
+	
+	
+	/**
+	 * Takes a database sort order and returns the zero-based 'real' order.
+	 *
+	 * "Real" order meaning, the sort order after all gaps and irregularities
+	 * in the sort order column have been cleaned up, and all links not shown
+	 * in menus (TYPE_3 and NOTICE).
+	 *
+	 * TODO: Bridge assets.
+	 *
+	 * Returns FALSE if the sort order can't be found.
+	 *
+	 * @param string  $parent_assetid The parent asset.
+	 * @param integer $sort_order     The database sort order to find. 
+	 */
+	function _dbToRealSortOrder($parent_assetid, $sort_order)
+	{
+	    $sql = 'SELECT sort_order FROM sq_ast_lnk '.
+	            'WHERE parentid = :parent_assetid '.
+	            'AND link_type IN (1, 2) '.
+	            'ORDER BY sort_order';
+
+        $retval = FALSE;
+        
+	    try {
+	        $query = MatrixDAL::preparePdoQuery($sql);
+            MatrixDAL::bindValueToPdo($query, 'parent_assetid', $parent_assetid);
+            $results = MatrixDAL::executePdoAssoc($query, 0);
+            
+            // Now search the column of results we have.
+            $retval = array_search($sort_order, $results);
+	    } catch (Exception $e) {
+	        trigger_localised_error(
+	            'DB0000', 
+	            E_USER_ERROR, 
+	            sprintf(
+	                translate('Database error converting requested sort order to real order'),
+	                $e->getMessage()
+	            )
+	        );
+	    }//end try
+	    
+	    return $retval;
+	    
+	}//end _dbToRealSortOrder()
 
 
 	/**
@@ -1576,48 +1622,51 @@ class Asset_Map
 
 		$output = simplexml_load_string('<xml></xml>');
 		$root = $output->addChild('assets');
-		//$output = new XML_Tree();
-		//$root = $output->addRoot('assets', '');
 		$done = Array();
-
-		foreach ($input->children() as $k => $v) {
-			// get all the attribute values
-			$tmp_info = Array();
-			foreach ($v->attributes() as $a => $b) {
-				$tmp_info[$a] = urldecode((string)$b);
-			}
-		}
 
 		// go through the kids and add them to the $root
 		foreach ($input->children() as $k => $v) {
-
 			// get all the attribute values
 			$tmp_info = Array();
 			foreach ($v->attributes() as $a => $b) {
 				$tmp_info[$a] = urldecode((string)$b);
 			}
+			
+			$assetid = (string) $tmp_info['assetid'];
+			$linkid  = (string) $tmp_info['linkid'];
+			$start   = (integer) array_get_index($tmp_info, 'start', 0);
+			$limit   = (integer) array_get_index($tmp_info, 'limit', SQ_CONF_ASSET_MAP_ASSET_LIMIT);
+			if (empty($assetid)) continue;
 
-			if (empty($tmp_info['assetid'])) continue;
-
-			if (array_key_exists(urldecode($tmp_info['assetid']), $done)) {
+			// If we have a sort order attribute, change it to a start value
+			if ($tmp_info['sortorder'] && ($limit > 0)) {
+			    $real_order = $this->_dbToRealSortOrder($assetid, $sort_order);
+			    if ($real_order !== FALSE) {
+			        $start = floor($real_order / $limit) * $limit;
+			    } else {
+			        $start = floor($tmp_info['sortorder'] / $limit) * $limit;
+			    }
+			}
+			
+			if (array_key_exists(urldecode($assetid), $done)) {
 				// Double check
-				$linkid_check = ($done[urldecode($tmp_info['assetid'])]['linkid'] == urldecode($tmp_info['linkid']));
-				$start_check = ($done[urldecode($tmp_info['assetid'])]['start'] == urldecode($tmp_info['start']));
-				$limit_check = ($done[urldecode($tmp_info['assetid'])]['limit'] == urldecode($tmp_info['limit']));
+				$linkid_check = ($done[$assetid]['linkid'] == $linkid);
+				$start_check  = ($done[$assetid]['start'] == $start);
+				$limit_check  = ($done[$assetid]['limit'] == $limit);
 				if ($linkid_check && $start_check && $limit_check) {
 					continue;
 				}
 			}//end if
 
 			// get the information about the asset
-			$info = $this->_getAssetInfo(urldecode($tmp_info['assetid']), urldecode($tmp_info['linkid']));
+			$info = $this->_getAssetInfo($assetid), $linkid));
 
 			// Place in done array, so we don't double up
-			$done[urldecode($tmp_info['assetid'])] = Array(
-														'linkid'	=> urldecode($tmp_info['linkid']),
-														'start'		=> urldecode($tmp_info['start']),
-														'limit'		=> urldecode($tmp_info['limit']),
-													 );
+			$done[$assetid] = Array(
+                                'linkid' => $linkid,
+                                'start'	 => $start,
+                                'limit'	 => $limit,
+                              );
 
 			// create a new node and fill out the attributes
 			$tmp_node = $root->addChild('asset');
@@ -1627,7 +1676,7 @@ class Asset_Map
 			}
 
 			// add the children to the newly created node
-			$this->_getChildAssets($tmp_node, $tmp_info['assetid'], FALSE, $tmp_info['start'], $tmp_info['limit']);
+			$this->_getChildAssets($tmp_node, $assetid, FALSE, $start, $limit);
 		}
 
 		$this->_send($root);

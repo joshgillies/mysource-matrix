@@ -3592,14 +3592,13 @@ var JS_Asset_Map = new function() {
 			while (sortOrders.length > 0) {
 				var assetid    = assetids.shift();
 				var sortOrder  = sortOrders.shift();
-				sortOrder      = Math.max(0, Math.floor(sortOrder / options.assetsPerPage) * options.assetsPerPage);
 				savedSortOrders.push(sortOrder);
 
 				assetRequests.push({
 					_attributes: {
 						assetid: assetid,
 						linkid: null,
-						start: sortOrder,
+						sortorder: sortOrder,
 						limit: options.assetsPerPage
 					}
 				});
