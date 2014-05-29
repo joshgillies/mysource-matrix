@@ -62,7 +62,7 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 	*/
 	public function paintValueInterface(Metadata_Field_Text $asset, Backend_Outputter $o, $value_str, $write_access, $enable_default=TRUE, $print_cascade_values_option = TRUE, $type_code=NULL, $suffix_to_prefix = '', &$field_prefix='')
 	{
-		$prefix = $asset->getPrefix().($type_code ? '_'.$type_code : '');
+		$prefix = $asset->getPrefix();
 		if (!empty($suffix_to_prefix)) $prefix .= $suffix_to_prefix;
 
 		$is_default = FALSE;
@@ -207,7 +207,7 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		$processed = FALSE;
 
-		$prefix = $asset->getPrefix().($type_code ? '_'.$type_code : '');
+		$prefix = $asset->getPrefix();
 		if (!empty($suffix_to_prefix)) $prefix .= $suffix_to_prefix;
 
 		if (!empty($_POST[$prefix.'_default'])) {
