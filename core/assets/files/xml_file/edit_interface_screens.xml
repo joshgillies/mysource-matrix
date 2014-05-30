@@ -18,5 +18,5 @@
 <screens>
 	<screen code_name="paths" display_name="Web Paths" icon="web" lock_type="lookups"/>
 	<screen code_name="edit_file" display_name="Edit File" icon="edit" lock_type="attributes" force_unlock="0" />
-	<screen code_name="transform" display_name="Transformations" icon="edit" lock_type="links" force_unlock="0" />
+	<screen code_name="transform" display_name="Transformations" icon="edit" lock_type="all" force_unlock="0" />
 </screens>

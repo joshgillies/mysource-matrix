@@ -41,6 +41,14 @@ class Xml_File_Management extends Asset_Management
 	{
 		Asset_Management::__construct($pm);
 
+		$this->vars['xslt_file_replace_keywords'] = Array(
+														'added'         => '0.1',
+														'type'          => 'boolean',
+														'default'		=> FALSE,
+														'parameters'    => Array('allow_empty' => FALSE),
+														'description'   => 'Whether to replace keywords in the XSL file content before applying to the XML',
+													);
+
 	}//end constructor
 
 
