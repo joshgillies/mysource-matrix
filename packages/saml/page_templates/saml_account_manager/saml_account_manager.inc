@@ -243,11 +243,9 @@ class SAML_Account_Manager extends Page_Asset_Builder
 		$saml_auth_manager = $this->_getAuthManager();
 
 		// set global redirect URL
-		if(!isset($_SESSION['sq_saml_account_manager_current_state_redirect_url'])) {
-		    $redirect_url = $this->_getRedirectURL();
-		    if(!empty($redirect_url)) 
+		$redirect_url = $this->_getRedirectURL();
+		if(!empty($redirect_url)) 
 			$_SESSION['sq_saml_account_manager_current_state_redirect_url'] = $redirect_url;
-		}
 	
 	
 			    
