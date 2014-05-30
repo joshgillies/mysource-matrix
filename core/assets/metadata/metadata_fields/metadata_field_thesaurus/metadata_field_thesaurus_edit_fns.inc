@@ -117,7 +117,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 			return;
 		}//end if
 
-		$prefix = $asset->getPrefix().($type_code ? '_'.$type_code : '');
+		$prefix = $asset->getPrefix();
 		if (!empty($suffix_to_prefix)) $prefix .= $suffix_to_prefix;
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
@@ -284,7 +284,7 @@ class Metadata_Field_Thesaurus_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		$processed = FALSE;
 
-		$prefix = $asset->getPrefix().($type_code ? '_'.$type_code : '');
+		$prefix = $asset->getPrefix();
 		if (!empty($suffix_to_prefix)) $prefix .= $suffix_to_prefix;
 
 		$thesaurus = $asset->getThesaurusRef();

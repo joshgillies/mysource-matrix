@@ -1748,6 +1748,7 @@ class MySource extends MySource_Object
 			case 'attribute_image' :
 				// grab the details we need to make this work
 				$allowed_attributes = Array('email');
+				$text = '';
 				if (isset($_GET['attribute']) && !empty($_GET['attribute'])) {
 					$attribute = $_GET['attribute'];
 					if (!in_array($attribute, $allowed_attributes)) {
@@ -1757,16 +1758,14 @@ class MySource extends MySource_Object
 				if (isset($_GET['id']) && !empty($_GET['id'])) {
 					$assetid = $_GET['id'];
 					$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', TRUE);
-					if (is_null($asset) || !empty($attribute)) {
+					if (!is_null($asset) && !empty($attribute) && $asset->readAccess()) {
 						$text = $asset->attr($attribute);
 						if (empty($text)) {
 							$text = '';
 						}//end if
-					} else {
-						$text = $asset->attr($attribute);
-					}//end if
+					}
 				}
-
+				if(empty($text) || !is_string($text)) exit(1);
 				$this->_generateAttributeImage($text);
 				exit(1);
 			break;
@@ -4389,6 +4388,10 @@ class MySource extends MySource_Object
 		$hh = $height / 2;
 		$x = 0 + $hpad;
 		$y = (in_array($font, $default_fonts)) ? (0 + $vpad) : (round($height - ($size / 2), 0) - $vpad);
+
+		// invalid image dimensions
+		if(empty($width) || empty($height)) 
+			exit();
 
 		// Create the image
 		if (!$image = imagecreatetruecolor($width, $height)) {

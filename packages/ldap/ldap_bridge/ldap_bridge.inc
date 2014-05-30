@@ -522,6 +522,7 @@ class LDAP_Bridge extends Asset implements Bridge
 							}//end if
 						}//end if
 
+						$sort_by = str_replace("'", '', $sort_by);
 						if (!empty($sort_by)){
 							uasort($entries, create_function('$a,$b',
 												'$a = (isset($a[\''.$sort_by.'\'][\'value\'])) ? $a[\''.$sort_by.'\'][\'value\'] : "";

@@ -274,7 +274,8 @@ class Simple_Form extends Asset implements Bridge
 
 		if (is_null($sort_by)) $sort_by = 'sort_order';
 
-		uasort($links, create_function('$a,$b','return $a["'.$sort_by.'"] > $b["'.$sort_by.'"];'));
+		$sort_by = str_replace("'", '', $sort_by);
+		uasort($links, create_function('$a,$b','return $a[\''.$sort_by.'\'] > $b[\''.$sort_by.'\'];'));
 
 		return $links;
 

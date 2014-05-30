@@ -63,7 +63,7 @@ class Metadata_Field_WYSIWYG_Edit_Fns extends Metadata_Field_Edit_Fns
 	*/
 	public function paintValueInterface(Metadata_Field_WYSIWYG $asset, Backend_Outputter $o, $value_str, $write_access, $enable_default=TRUE, $print_cascade_values_option = TRUE, $type_code=NULL, $suffix_to_prefix = '')
 	{
-		$prefix = $asset->getPrefix().($type_code ? '_'.$type_code : '');
+		$prefix = $asset->getPrefix().'_'.$type_code;
 		if (!empty($suffix_to_prefix)) $prefix .= $suffix_to_prefix;
 		$wysiwyg = $asset->getAttribute('wysiwyg');
 
@@ -143,7 +143,7 @@ class Metadata_Field_WYSIWYG_Edit_Fns extends Metadata_Field_Edit_Fns
 		if (!$asset->attr('editable')) return FALSE; // nothing for us to do
 
 		$processed = FALSE;
-		$prefix = $asset->getPrefix().($type_code ? '_'.$type_code : '');
+		$prefix = $asset->getPrefix().'_'.$type_code;
 		if (!empty($suffix_to_prefix)) $prefix .= $suffix_to_prefix;
 
 		if (!empty($_POST[$prefix.'_default'])) {
