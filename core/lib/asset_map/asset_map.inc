@@ -1128,7 +1128,7 @@ class Asset_Map
 	function _dbToRealSortOrder($parent_assetid, $sort_order)
 	{
 	    $sql = 'SELECT sort_order FROM sq_ast_lnk '.
-	            'WHERE parentid = :parent_assetid '.
+	            'WHERE majorid = :parent_assetid '.
 	            'AND link_type IN (1, 2) '.
 	            'ORDER BY sort_order';
 
@@ -1142,11 +1142,9 @@ class Asset_Map
             // Now search the column of results we have.
             $retval = array_search($sort_order, $results);
 	    } catch (Exception $e) {
-	        trigger_localised_error(
-	            'DB0000', 
-	            E_USER_ERROR, 
+	        throw new Exception(
 	            sprintf(
-	                translate('Database error converting requested sort order to real order'),
+	                'Database error converting requested sort order to real order: %s',
 	                $e->getMessage()
 	            )
 	        );
@@ -1619,12 +1617,13 @@ class Asset_Map
 	*/
 	function _getAssets(&$input)
 	{
-
 		$output = simplexml_load_string('<xml></xml>');
 		$root = $output->addChild('assets');
 		$done = Array();
 
 		// go through the kids and add them to the $root
+		$previous_assetid = NULL;
+		$previous_node    = NULL;
 		foreach ($input->children() as $k => $v) {
 			// get all the attribute values
 			$tmp_info = Array();
@@ -1639,8 +1638,9 @@ class Asset_Map
 			if (empty($assetid)) continue;
 
 			// If we have a sort order attribute, change it to a start value
-			if ($tmp_info['sortorder'] && ($limit > 0)) {
-			    $real_order = $this->_dbToRealSortOrder($assetid, $sort_order);
+			$real_order = FALSE;
+			if (array_key_exists('sortorder', $tmp_info) && ($limit > 0)) {
+			    $real_order = $this->_dbToRealSortOrder($assetid, $tmp_info['sortorder']);
 			    if ($real_order !== FALSE) {
 			        $start = floor($real_order / $limit) * $limit;
 			    } else {
@@ -1659,7 +1659,7 @@ class Asset_Map
 			}//end if
 
 			// get the information about the asset
-			$info = $this->_getAssetInfo($assetid), $linkid));
+			$info = $this->_getAssetInfo($assetid, $linkid);
 
 			// Place in done array, so we don't double up
 			$done[$assetid] = Array(
@@ -1671,14 +1671,23 @@ class Asset_Map
 			// create a new node and fill out the attributes
 			$tmp_node = $root->addChild('asset');
 			foreach ($info as $info_k => $info_v) {
-				if (strlen($info_v) == 0)  $tmp_node->addAttribute($info_k, ' ');
-				else $tmp_node->addAttribute($info_k, $info_v);
+				if (strlen($info_v) == 0) {
+				    $tmp_node->addAttribute($info_k, ' ');
+				} else {
+				    $tmp_node->addAttribute($info_k, $info_v);
+				}
+			}//end foreach
+			
+			if ($real_order !== FALSE) {
+			    $tmp_node->addAttribute('real_order', $real_order);
 			}
-
+			
 			// add the children to the newly created node
 			$this->_getChildAssets($tmp_node, $assetid, FALSE, $start, $limit);
+			$previous_assetid = $assetid;
+			$previous_node    = $tmp_node;
 		}
-
+		
 		$this->_send($root);
 
 	}//end _getAssets()

@@ -3605,12 +3605,15 @@ var JS_Asset_Map = new function() {
 			}
 
 			var processAssets = function(response) {
-				// If no assets returned as a response, don't process.
+			    // If no assets returned as a response, don't process.
 				if (response.asset) {
 					for (var i = 0; i < response.asset.length; i++) {
-						var sortOrder = savedSortOrders.shift();
-	
 						var thisAsset = response.asset[i];
+						var sortOrder = savedSortOrders.shift();
+						if (thisAsset._attributes.real_order) {
+						    sortOrder = Number(Math.floor(thisAsset._attributes.real_order / options.assetsPerPage) * options.assetsPerPage);
+						}
+	
 						var container = _createChildContainer(thisAsset._attributes.assetid);
 						container.setAttribute('data-offset', sortOrder);
 						container.setAttribute('data-total', thisAsset._attributes.num_kids);
@@ -4751,7 +4754,6 @@ var JS_Asset_Map = new function() {
 					} catch (ex) {
 						// That we made it here means it couldn't be handled.
 						self.message(js_translate('asset_map_status_bar_error_requesting'), false, 2000);
-						console.log(response);
 						if (dfx.isFn(failedCallback) === true) {
 							failedCallback(ex);
 						} else {
