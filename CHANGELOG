@@ -1,6 +1,38 @@
 SQUIZ MATRIX CHANGELOG
 
 
+VERSION 4.18.7
+
+Bug Fixes
+=================================== 
+
+Fixed bug #2163: Error checking when using metadata keywords as metadata field default values.
+Fixed Bug #5317: PRE tags have their newlines stripped out in HTMLArea editor.
+Fixed Bug #5314: Remap Manager's Not Found Page doesn't obey the caching rules.
+Fixed bug #5327: Matrix LDAP Group membership shown in Asset Map does not respect base/root dn.
+Fixed bug #5332: TRIM Connector improved error message when connection fails.
+Fixed bug #5335: Matrix Insert Link popup not auto filling the link ID.
+Fixed bug #5336: Dependant child asset not inheriting the asset status of the parent with workflow applied.
+Fixed bug #5339: Sharepoint Cron Job: Fatal error stops cron.
+Fixed bug #5347: Issue with Metadata Text field in the Asset Builder form when there are multiple create types.
+Fixed bug #5349: Cannot insert link using IE10 in WYSIWYG on 4.18.6.
+Fixed bug #5353: Calendar Events Search Page should allow more than 4 TYPE_2 linked folders as children.
+Fixed bug #5355: Use Me mode on Asset Map doesn't exclude right-clicking on assets that shouldn't be selectable.
+Fixed bug #5359: REST Resource Page corrupting the remote content data.
+Fixed bug #5378: Nested User Group issue with workflow when working with roles.
+Fixed bug #5382: Double clicking on a Simple Asset Map doesn't work to expand the tree.
+Fixed Bug #5386: Content not properly wrapped inside the WYSIWYG Div in IE9.
+Fixed Bug #5393: Asset Map: Binoculars tool doesn't always jump to the correct page of assets.
+Fixed Bug #5397: SOAP API SetMultipleMetadataFields fails when setting a single field.
+Fixed Bug #5413: Metadata screen broken (due to #5347 changes).
+Fixed Bug #5418: Site Network JavaScript warning.
+Fixed Bug #5420: SAML Account Manager redirect issue when used under Site Network.
+Fixed Bug #5423: Urban Airship Trigger displays wrong fields for custom parameters when locks are not acquired
+
+
+
+VERSION 4.18.6
+
 Featured Changes
 ===================================
 
