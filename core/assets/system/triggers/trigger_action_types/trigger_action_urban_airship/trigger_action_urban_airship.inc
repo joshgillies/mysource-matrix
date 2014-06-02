@@ -321,7 +321,11 @@ class Trigger_Action_Urban_Airship extends Trigger_Action
 							echo '</p>';
 							echo '<p>'.translate('trigger_action_urban_airship_custom_parameters_note').'</p>';
 						} else {
-							echo '<p>'.$airship_message.'</p>';
+							echo '<p><ul>';
+							echo '<li>Key: '.$airship_key1.' Value: '.$airship_value1.'</li>';
+							echo '<li>Key: '.$airship_key2.' Value: '.$airship_value2.'</li>';
+							echo '<li>Key: '.$airship_key3.' Value: '.$airship_value3.'</li>';
+							echo '</ul></p>';
 						}
 					?></p></td>
 				</tr>
