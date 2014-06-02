@@ -1860,15 +1860,16 @@ class JS_Api extends Page
 	private function _setAssetStatus($args=Array(), $asset=NULL, $read_access=FALSE, $write_access=FALSE)
 	{
 		if ($write_access) {
-			$status				= (int) $args['status'];
-			$cascade			= isset($args['cascade']) ? $args['cascade'] : FALSE;
-			$workflow_stream	= (isset($args['workflow_stream']) && ($args['workflow_stream'] != '') )? $args['workflow_stream'] : 'SQ_USE_DEFAULT';
+			$status			 = (int) $args['status'];
+			$cascade		 = isset($args['cascade']) ? $args['cascade'] : FALSE;
+			$workflow_stream = (isset($args['workflow_stream']) && ($args['workflow_stream'] != '') )? $args['workflow_stream'] : 'SQ_USE_DEFAULT';
+			$userlog_message = array_get_index($args, 'userlog', '');
 
 			//let check if the status supplied is valid one
 			$desc = get_status_description($status);
 			$current_desc = ($status != $asset->status) ? get_status_description($asset->status) : $desc;
 
-			$response = $this->setAssetStatus($asset, $status, $cascade, $current_desc, $desc, $workflow_stream);
+			$response = $this->setAssetStatus($asset, $status, $cascade, $current_desc, $desc, $workflow_stream, $userlog_message);
 			if (empty($response)) {
 				if (!$cascade) {
 					$data[] = 'Status for Asset "'.$asset->name.'" (#'.$asset->id.') has been changed successfully to '.$desc;
@@ -4148,7 +4149,7 @@ class JS_Api extends Page
 	* @return array
 	* @access public
 	*/
-	public function setAssetStatus(Asset $asset, $status, $cascade, $current_status_desc, $to_be_status_desc, $workflow_stream)
+	public function setAssetStatus(Asset $asset, $status, $cascade, $current_status_desc, $to_be_status_desc, $workflow_stream, $userlog_message)
 	{
 
 		$return_array = Array();
@@ -4163,9 +4164,10 @@ class JS_Api extends Page
 		require_once $job_dir.'/hipo_job_edit_status.inc';
 		$init_hipo = new HIPO_Job_Edit_Status();
 		$running_vars = Array(
-							'assetid'           => $asset->id,
-							'new_status'        => $status,
-							'dependants_only'   => !$cascade,
+							'assetid'                 => $asset->id,
+							'new_status'              => $status,
+							'dependants_only'         => !$cascade,
+							'workflow_editor_comment' => $userlog_message,
 						);
 		if ($workflow_stream !== 'SQ_USE_DEFAULT') {
 			$running_vars['workflow_stream'] = $workflow_stream;
