@@ -16,7 +16,7 @@
 
 // include init.in, which will call $GLOBALS['SQ_SYSTEM']->init() and start a session
 require_once '../../include/init.inc';
-
+header("content-type: application/javascript");
 $site_network_id = array_get_index($_GET, 'site_network', '0');
 $site_network = null;
 $primary_url = '';
