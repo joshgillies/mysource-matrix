@@ -154,6 +154,7 @@ log_to_file("Regenerating for: " . var_export(count($children),TRUE) . " assets 
                     
                     require_once $SYSTEM_ROOT.'/core/include/init.inc';
                     $GLOBALS['SQ_SYSTEM']->setCurrentUser($GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user'));
+                    $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
                     
                     $mm    = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
                     
@@ -161,11 +162,6 @@ log_to_file("Regenerating for: " . var_export(count($children),TRUE) . " assets 
                         $child_asset    = $GLOBALS['SQ_SYSTEM']->am->getAsset($child_assetid);
                         if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($child_assetid, 'metadata')) {
                             log_to_file('Unable to acquire metadata lock for assetid ' .$child_assetid.'. Skipping this asset.', LOG_FILE);
-                            continue;
-                        }//end if
-        
-                        if (!$child_asset->writeAccess('metadata')) {
-                            log_to_file('Do not have write access for assetid ' .$child_assetid .'. Skipping this asset.', LOG_FILE);
                             continue;
                         }//end if
                         
@@ -182,7 +178,7 @@ log_to_file("Regenerating for: " . var_export(count($children),TRUE) . " assets 
                         unset($child_asset);
                         
                     }//end foreach
-
+                    $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
                     $GLOBALS['SQ_SYSTEM']->restoreCurrentUser();
 
                     exit(0);
