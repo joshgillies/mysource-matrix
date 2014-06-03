@@ -604,8 +604,8 @@ class Page_Asset_Builder extends Page
 										$cascade = TRUE;
 										// do not show Matrix errors when processing attributes to frontend users, we will have custom error overiding it anyway
 										$this->_do_not_show_error = TRUE;
-
-										$did_process = $edit_fns->processInlineValueInterface($mf_asset, $result_value, $cascade, $create_type, $field_suffix);
+										// Metadata field id prefix will have create asset type code only if there are multiple create types
+										$did_process = $edit_fns->processInlineValueInterface($mf_asset, $result_value, $cascade, $field_suffix ? $create_type : '');
 
 										// now we can show Matrix errors if we care
 										$this->_do_not_show_error = FALSE;
