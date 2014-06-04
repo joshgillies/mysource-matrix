@@ -66,6 +66,7 @@ class Soap_Api_Metadata_Service extends Soap_Api
 				'SetMultipleMetadataFields'		=> '1',
 				'SetMetadataFieldDefaultValue'	=> '1',
 				'GetSchemasOnAsset'				=> '1',
+				'MetadataSearch'				=> '1',
 			   );
 
 	}//end getFunctionList()
@@ -621,6 +622,138 @@ class Soap_Api_Metadata_Service extends Soap_Api
 
 
 	/**
+	* Description: This operation will return the assets matching the given value for the given metadata field id
+	*
+	* @param array $request	The request information
+	* <pre>
+	* Array (
+	*		'FieldID'					=> [The metadata field to search for metadata value],
+	*		'FieldValue'				=> [The metadata value to search],
+	*		'SearchFieldDefaultValue'	=> [Whether to include metadata defult values in search]
+	*		'ExactMatch'				=> [Whether to do "exact" match],
+	*		'ResultFormat'      		=> [The result output like "%asset_name% (#%asset_assetid%)]
+	*        )
+	* </pre>
+	*
+	* @return void
+	* @access public
+	*/
+	function MetadataSearch($request)
+	{
+		$request_info = (Array) $request;
+		$fieldid = array_get_index($request_info, 'FieldID', '');
+		$search_value = array_get_index($request_info, 'FieldValue', '');
+		$search_default_value = array_get_index($request_info, 'SearchFieldDefaultValue', FALSE);
+		$exact_match = array_get_index($request_info, 'ExactMatch', FALSE);
+		$result_format = array_get_index($request_info, 'ResultFormat', '');
+
+		if (empty($search_value)) {
+			throw new SoapFault('Server', 'Metadata field search value is empty.');
+		}
+
+		$mm	= $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		if (!empty($fieldid) && $mm->isMetadataFieldAssetid($fieldid)) {
+			// Result asset data
+			$assetids = Array();
+
+			if ($search_default_value) {
+				// Default values will not have entries in the asset metadata value table
+				// So will have to check the matching entries that does has schema applied
+				// but has no entry is asset metadata table
+				$default_value = $mm->getMetadataFieldDefaultValue($fieldid);
+				$sql = "SELECT default_val FROM sq_ast_mdata_dflt_val 
+							WHERE assetid = ".MatrixDAL::quote($fieldid)." AND default_val ".
+							($exact_match ? " = ".MatrixDAL::quote($search_value) : " LIKE ".MatrixDAL::quote('%'.$search_value.'%'));
+
+				$matched = MatrixDAL::executeSqlOne($sql);
+				if ($matched) {
+					$schemaids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($fieldid, 'metadata_schema'));
+					$sql = "SELECT a.* FROM sq_ast a, sq_ast_mdata m
+							WHERE a.assetid = m.assetid AND
+								m.schemaid IN('".implode("','", $schemaids)."') AND
+								m.assetid NOT IN (SELECT assetid FROM sq_ast_mdata_val WHERE fieldid=".MatrixDAL::quote($fieldid).")";
+					$result = MatrixDAL::executeSqlAll($sql);
+					foreach($result as $entry) {
+						$assetids[$entry['assetid']] = $entry;
+					}//end foreach
+				}//end if
+			}//end if
+
+			// Get the result from the asset metadata table
+			$sql = "SELECT a.* FROM sq_ast a, sq_ast_mdata_val v
+					WHERE a.assetid = v.assetid AND
+						v.fieldid = ".MatrixDAL::quote($fieldid)." AND v.value ".
+						($exact_match ? " = ".MatrixDAL::quote($search_value) : " LIKE ".MatrixDAL::quote('%'.$search_value.'%'));
+			$result = MatrixDAL::executeSqlAll($sql);
+			foreach($result as $entry) {
+				 $assetids[$entry['assetid']] = $entry;
+			}//end foreach
+
+			$search_result = Array();
+			// Apply the result format if required
+			if (!empty($result_format)) {
+				foreach($assetids as $asset_data) {
+					$search_result[] = self::_formatAssetResult($asset_data, $result_format);
+				}
+			} else {
+				$search_result = array_keys($assetids);
+			}
+
+			return Array (
+					'MetadataSearchResult' => $search_result,
+				   );
+		} else {
+			throw new SoapFault('Server', 'Metadata field asset id is not valid.');
+		}//end else
+
+	}//end MetadataSearch()
+
+
+	/**
+	* Returns the result format content based on given asset and format content
+	*
+	* @param array $asset_data
+	* @param string $result_format
+	*
+	* @return string
+	* @access private
+	*/
+	private static function _formatAssetResult($asset_data, $result_format)
+	{
+		require_once SQ_FUDGE_PATH.'/general/text.inc';
+		$keywords = extract_keywords($result_format);
+
+		if (!empty($keywords)) {
+			$replacement_keywords = Array();
+
+			// We dont need to load asset to evalute these keywords
+			foreach($asset_data as $asset_var => $value) {
+				if (!is_numeric($asset_var)) {
+					$replacement_keywords['asset_'.$asset_var] = $value;
+				}
+			}
+
+			if (array_diff($keywords, array_keys($replacement_keywords))) {
+				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset_data['assetid']);
+				foreach($keywords as $keyword) {
+					if (!isset($replacement_keywords[$keyword])) {
+						$replacement = $asset->getKeywordReplacement($keyword);
+						if ($replacement == '%'.$keyword.'%') {
+							$replacement = '';
+						}
+						$replacement_keywords[$keyword] = $replacement;
+					}//end if
+				}//end foreach
+			}//end else
+			replace_keywords($result_format, $replacement_keywords);
+		}//end if
+
+		return $result_format;
+
+	}//end _formatAssetResult()
+
+
+	/**
 	* getComplexType
 	*
 	* @return array
@@ -633,6 +766,7 @@ class Soap_Api_Metadata_Service extends Soap_Api
 		$grant_type						= self::getArgType('Grant', 1, 1);
 		$metadata_info					= self::getArgType('MetadataInfo', 0, 'unbounded', TRUE);
 		$fields_attr_info				= self::getArgType('MetadataFieldAttrInfo', 0, 'unbounded', TRUE);
+		$metadata_search_result         = self::getArgType('string', 0, 'unbounded', TRUE);
 
 		$complex_types	= Array (
 							'SetMetadataSchema'					=> Array (
@@ -730,6 +864,18 @@ class Soap_Api_Metadata_Service extends Soap_Api
 																											   ),
 																	'GetMetadataFieldValuesResponse'		=> Array (
 																												'GetMetadataFieldValuesResult'			=> $field_values,
+																											   ),
+																   ),
+							'MetadataSearch'					=> Array (
+																	'MetadataSearch'						=> Array (
+																												'FieldID'								=> self::$string_non_optional,
+																												'FieldValue'							=> self::$string_non_optional,
+																												'SearchFieldDefaultValue'				=> self::$boolean_optional,
+																												'ExactMatch'							=> self::$boolean_optional,
+																												'ResultFormat'							=> self::$string_optional,
+																											   ),
+																	'MetadataSearchResponse'				=> Array (
+																												'MetadataSearchResult'					=> $metadata_search_result,
 																											   ),
 																   ),
 						  );
