@@ -1580,6 +1580,7 @@ class MySource extends MySource_Object
 					// try each auth system in order to see if we can load a user asset
 					$user = NULL;
 					$user_status = NULL;
+					$disallowed_user = FALSE;
 					foreach ($auth_systems as $systemid) {
 						$system = $this->am->getAsset($systemid);
 						if (is_null($system)) continue;
@@ -1590,14 +1591,19 @@ class MySource extends MySource_Object
 
 						$user = $system->authenticateUser($login_username, $login_password);
 
+
+						if (!is_null($user)) $user_status = $user->status;
+
+
 						// if user is blocked from being authenticated by password
 						if(!is_null($user)) {
 							$disallow_password_login = $user->attr('disallow_password_login');
-							if ($disallow_password_login) continue;
+							if ($disallow_password_login) {
+								$disallowed_user = TRUE;
+								continue;
+							}
 						}
 
-
-						if (!is_null($user)) $user_status = $user->status;
 						// check that the user exists AND that it can login
 						// (ie. it is not yet live, or has been locked)
 						if (!is_null($user) && $user->canLogin()) {
@@ -1611,6 +1617,8 @@ class MySource extends MySource_Object
 							$display_message = $failure_reason = translate('root_user_disabled');
 						} else if ($user_status & SQ_SC_STATUS_NOT_LIVE) {
 							$failure_reason = translate('user_status_not_live');
+						} else if ($disallowed_user) {
+							$failure_reason = translate('user_password_login_disallowed');										
 						} else {
 							$failure_reason = translate('user_asset_in_trash');
 						}
