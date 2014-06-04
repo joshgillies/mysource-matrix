@@ -66,23 +66,29 @@ class Word_Doc extends File
 	*/
 	function getContent()
 	{
-		$file_info = $this->getExistingFile();
+	    $file_info = $this->getExistingFile();
 		if (empty($file_info)) return '';
 		$file = $file_info['path'];
-		$file = str_replace('"', '\\\"', $file);
-
+		
 		$content = '';
-		if (SQ_TOOL_ANTIWORD_ENABLED) {
-			// Run a program that converts Word doc to text, set environment variable of bin_path
-			$cmd = 'ANTIWORDHOME='.SQ_TOOL_ANTIWORD_MAPPING_PATH.' '.SQ_TOOL_ANTIWORD_PATH.' '.$file;
-			$content = shell_exec($cmd);
-
-		}
-
-		if (!$content) return '';
-
-		// strip out the whitespace
-		$content = strtolower(trim(preg_replace('/[\s]+/', ' ', $content)));
+		
+		// Can't use Antiword on Word 2007+ files...
+		$file_ext = substr(basename($file), strrpos($file, '.') + 1);
+		if ($file_ext === 'doc' || $file_ext === 'dot') {
+            $file = str_replace('"', '\\\"', $file);
+    
+            if (SQ_TOOL_ANTIWORD_ENABLED) {
+                // Run a program that converts Word doc to text, set environment variable of bin_path
+                $cmd = 'ANTIWORDHOME='.SQ_TOOL_ANTIWORD_MAPPING_PATH.' '.SQ_TOOL_ANTIWORD_PATH.' '.$file;
+                $content = shell_exec($cmd);
+    
+            }
+    
+            if (!$content) return '';
+    
+            // strip out the whitespace
+            $content = strtolower(trim(preg_replace('/[\s]+/', ' ', $content)));
+        }//end if
 
 		return $content;
 
