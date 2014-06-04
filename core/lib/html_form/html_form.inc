@@ -1328,8 +1328,8 @@ function asset_type_chooser($name, $multiple=FALSE, $defaults=Array(), $instanti
 			}
 			combo_box($name.'[type_code][]', $types, FALSE, '');
 			hidden_field($name.'[inherit][]', 0);
-			check_box('', 1, FALSE, 'toggleLastHiddenField(this)');
-			label(strtolower(translate('inherit').' &nbsp;'), $name.'[inherit]');
+			check_box($name.'[inherit_checkbox]', 1, FALSE, 'toggleLastHiddenField(this)');
+			label(translate('inherit').' &nbsp;', $name.'[inherit_checkbox]');
 			normal_button('', translate('clear'), 'resetLastSelect(this); clearLastCheckbox(this);', 'style="margin-bottom:3px;"');
 			normal_button('', translate('more').'...', 'prependTypeSelector(this); prependInheritSelector(this); prependClearButton(this, true)');
 		} else {

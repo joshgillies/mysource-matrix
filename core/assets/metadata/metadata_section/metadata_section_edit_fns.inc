@@ -98,7 +98,10 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 							?>
 							<tr>
 								<td class="sq-backend-table-cell">
-									<?php echo ucfirst(str_replace('_', ' ', $asset_type)) ?>
+									<?php 
+										get_asset_type_icon($asset_type);
+										echo ucfirst(str_replace('_', ' ', $asset_type));
+									?>
 								</td>
 								<td align="center" class="sq-backend-table-cell">
 									<?php
