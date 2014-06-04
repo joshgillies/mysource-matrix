@@ -1589,6 +1589,14 @@ class MySource extends MySource_Object
 						if ($login_username === 'root' && $system->name != 'Default Authentication') continue;
 
 						$user = $system->authenticateUser($login_username, $login_password);
+
+						// if user is blocked from being authenticated by password
+						if(!is_null($user)) {
+							$disallow_password_login = $user->attr('disallow_password_login');
+							if ($disallow_password_login) continue;
+						}
+
+
 						if (!is_null($user)) $user_status = $user->status;
 						// check that the user exists AND that it can login
 						// (ie. it is not yet live, or has been locked)
