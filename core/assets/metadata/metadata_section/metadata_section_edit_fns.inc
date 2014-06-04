@@ -98,7 +98,10 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 							?>
 							<tr>
 								<td class="sq-backend-table-cell">
-									<?php echo ucfirst(str_replace('_', ' ', $asset_type)) ?>
+									<?php 
+										get_asset_type_icon($asset_type);
+										echo ucfirst(str_replace('_', ' ', $asset_type));
+									?>
 								</td>
 								<td align="center" class="sq-backend-table-cell">
 									<?php
@@ -335,11 +338,12 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 	*															that we are setting metadata for (NOT THE SAME AS $asset)
 	* @param boolean			$print_cascade_values_option	Show the cascade value option
 	* @param string				$type_code						The type_code of the asset that the metadata is being printed
+	* @param boolean			$type_code_prefix				Whether to use $type_code as part of the metadata field id's prefix
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintInlineValueInterface(Metadata_Section $asset, Backend_Outputter $o, Array $values, $write_access, $print_cascade_values_option = TRUE, $type_code=NULL)
+	function paintInlineValueInterface(Metadata_Section $asset, Backend_Outputter $o, Array $values, $write_access, $print_cascade_values_option = TRUE, $type_code=NULL, $type_code_prefix=FALSE)
 	{
 		$restrictions = $asset->attr('restrict');
 		$flag_match_found = FALSE;
@@ -387,6 +391,7 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 				$field = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 				if (is_null($field)) continue;
 				$edit_fns = $field->getEditFns();
+				$type_code = $type_code_prefix ? $type_code : NULL;
 				if ($edit_fns->paintInlineValueInterface($field, $o, (isset($values[$field->id])) ? $values[$field->id][0]['value'] : NULL, $write_access, $print_cascade_values_option, $type_code)) {
 					$res = TRUE;
 				}
@@ -406,11 +411,14 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 	*
 	* @param Metadata_Section	$asset			the asset whose interface we are painting
 	* @param array				&$new_values	an array we can store the new values in
+	* @param boolean			$print_cascade_values_option	Show the cascade value option
+	* @param string				$type_code						The type_code of the asset that the metadata is being printed
+	* @param boolean			$type_code_prefix				Whether to use $type_code as part of the metadata field id's prefix
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processInlineValueInterface(Metadata_Section $asset, Array &$new_values, Array &$section_cascade_value_asset_ids, $type_code=NULL)
+	function processInlineValueInterface(Metadata_Section $asset, Array &$new_values, Array &$section_cascade_value_asset_ids, $type_code=NULL, $type_code_prefix=FALSE)
 	{
 		$res = FALSE;
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', FALSE, 'major', NULL, TRUE);
@@ -422,6 +430,7 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 			}
 			$edit_fns = $field->getEditFns();
 			$new_value = '';
+			$type_code = $type_code_prefix ? $type_code : NULL;
 			if ($edit_fns->processInlineValueInterface($field, $new_value, $field_cascade_value, $type_code)) {
 				// the process fn returned true, meaning something was submitted
 				// $new_value may be NULL, however, which signifies that we are reverting to default

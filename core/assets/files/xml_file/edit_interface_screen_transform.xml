@@ -15,12 +15,15 @@
 */
 -->
 <contents>
-	<section name="Transformations" write_access="write:links">
-		<field>
+	<section name="Transformations">
+		<field write_access="write:links">
 			<function_call>
 				<paint_function   name="paintTransformations"   />
 				<process_function name="processTransformations" />
 			</function_call>
+		</field>
+		<field attribute="xslt_file_replace_keywords" write_access="write:attributes">
+			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
 </contents>

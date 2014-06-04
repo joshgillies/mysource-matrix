@@ -99,7 +99,7 @@
 		</field>
 		<field attribute="form_extra_attribute">
 			<display_name>Form Extra Attribute</display_name>
-			<note>Adding extra attributes to the Form HTML Tag.e.g autocomplete="off"</note>
+			<note>Adding extra attributes to the Form HTML Tag.e.g autocomplete="off".</note>
 		</field>
 	</section>
 	<section name="Validation">

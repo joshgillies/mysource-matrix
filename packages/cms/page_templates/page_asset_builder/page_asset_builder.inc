@@ -566,6 +566,8 @@ class Page_Asset_Builder extends Page
 					$new_asset = new $create_type();
 					$prefix = $new_asset->getPrefix();
 
+					//If there multiple create types, the field will have 'create type' suffix to make then unique
+					$field_suffix = count($this->attr('create_type')) > 1 ? TRUE : FALSE;
 
 					  ///////////////////////
 					 //  REQUIRED FIELDS  //
@@ -602,8 +604,8 @@ class Page_Asset_Builder extends Page
 										$cascade = TRUE;
 										// do not show Matrix errors when processing attributes to frontend users, we will have custom error overiding it anyway
 										$this->_do_not_show_error = TRUE;
-
-										$did_process = $edit_fns->processInlineValueInterface($mf_asset, $result_value, $cascade, $create_type);
+										// Metadata field id prefix will have create asset type code only if there are multiple create types
+										$did_process = $edit_fns->processInlineValueInterface($mf_asset, $result_value, $cascade, $field_suffix ? $create_type : '');
 
 										// now we can show Matrix errors if we care
 										$this->_do_not_show_error = FALSE;
@@ -851,7 +853,7 @@ class Page_Asset_Builder extends Page
 								$mm->setSchema($new_asset->id, $schema->id, TRUE);
 								if (!is_null($schema)) {
 									$edit_fns = $schema->getEditFns();
-									$edit_fns->processInlineValueInterface($schema, $metadata_values, $cascade_values_asset_ids, $create_type);
+									$edit_fns->processInlineValueInterface($schema, $metadata_values, $cascade_values_asset_ids, $create_type, $field_suffix);
 								}
 							}
 
@@ -2326,9 +2328,12 @@ class Page_Asset_Builder extends Page
 					$asset = new $create_type();
 				}
 
+				// If multiple create types, add suffix to field ids to make then unique
+				$field_suffix = count($create_types) > 1 ? TRUE : FALSE;
+
 				if ($layout = $this->_getCreateFormLayout($create_type)) {
 					$ei = $asset->getEI();
-					$ei->paintLayout($asset, $o, $layout);
+					$ei->paintLayout($asset, $o, $layout, $field_suffix);
 					$o->addHiddenField('asset_action', 'create_custom');
 				} else {
 					unset($GLOBALS['painted_inline_value_interface']);
@@ -2337,7 +2342,7 @@ class Page_Asset_Builder extends Page
 						if (is_null($metadata_edit_fns)) {
 							$metadata_edit_fns = $schema->getEditFns();
 						}
-						$metadata_edit_fns->paintInlineValueInterface($schema, $o, Array(), TRUE, FALSE, $create_type);
+						$metadata_edit_fns->paintInlineValueInterface($schema, $o, Array(), TRUE, FALSE, $create_type, $field_suffix);
 					}
 					$asset->paintBackend($o);
 					$o->addHiddenField('asset_action', 'create');
