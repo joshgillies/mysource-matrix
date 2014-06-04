@@ -45,6 +45,8 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL, Array $layout_options
 	$prefix = $owner->getPrefix();
 	$print_commit_button = FALSE;
 
+	$type_code_prefix = empty($layout_options['type_code_prefix']) ? FALSE : TRUE;
+
 	$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 	$schemas = $mm->getSchemas($owner->id, TRUE, NULL, TRUE);
 	$metadata_warnings = Array();
@@ -213,7 +215,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL, Array $layout_options
 
 							// Paint only if user is not in limbo or if keywords for metadata fields are set
 							if ((!is_null($keywords) && isset($keywords['fields']['metadata_values'])) || !SQ_IN_LIMBO) {
-								if ($edit_fns->paintInlineValueInterface($schema, $o, $values, $write_access, $print_cascade_values_option, $owner->type())) {
+								if ($edit_fns->paintInlineValueInterface($schema, $o, $values, $write_access, $print_cascade_values_option, $owner->type(), $type_code_prefix)) {
 									$print_commit_button = TRUE;
 								}
 							}
@@ -322,7 +324,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL, Array $layout_options
 
 					$field_prefix = '';
 					ob_start();
-					$edit_fns->paintValueInterface($field, $o, $value, $write_access, FALSE, $print_cascade_values_option, $owner->type(), '', $field_prefix);
+					$edit_fns->paintValueInterface($field, $o, $value, $write_access, FALSE, $print_cascade_values_option, $type_code_prefix ? $owner->type() : NULL, '', $field_prefix);
 					$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][$field_assetid]] = ob_get_contents();
 					ob_end_flush();
 				}
@@ -352,7 +354,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=NULL, Array $layout_options
 						ob_start();
 						$values = $mm->getMetadata($owner->id);
 						$edit_fns = $section->getEditFns();
-						$edit_fns->paintInlineValueInterface($section, $o, $values, $write_access, $print_cascade_values_option, $owner->type());
+						$edit_fns->paintInlineValueInterface($section, $o, $values, $write_access, $print_cascade_values_option, $owner->type(), $type_code_prefix);
 						$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][$field_assetid]] = ob_get_contents();
 						ob_end_flush();
 					} else {

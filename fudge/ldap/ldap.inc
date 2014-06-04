@@ -10,9 +10,11 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap.inc,v 1.17 2012/08/30 00:56:51 ewang Exp $
-*
 */
+
+
+// Page size of LDAP search result when using pagination control
+define('SQ_LDAP_RESULT_PAGE_SIZE', 500);
 
 
 /**
@@ -177,6 +179,10 @@ class Ldap
 	/**
 	* Search the server starting at $startdn using $filter
 	*
+	* NOTE: This function usage in Matrix package has been replaced by searchEntries()
+	* which will return the actual ldap entries instead of LDAP search resource
+	* This function is not removed or renamed for backward compatibilty (custom client package, if any, using this class)
+	*
 	* @param string		$startdn		the DN to start searching at
 	* @param string		$filter			search filter
 	* @param boolean	$multi_level	search multiple levels
@@ -201,8 +207,8 @@ class Ldap
 		}
 
 		if (!$sr) {
-			log_dump(ldap_err2str(ldap_errno($this->ptr)));
-			log_dump($filter);
+			$ldap_error = ldap_err2str(ldap_errno($this->ptr));
+			log_error($ldap_error.' Filter string: '.$filter);
 			return 0;
 		} else {
 			if (!is_null($sort_by)) ldap_sort($this->ptr, $sr,  $sort_by);
@@ -210,6 +216,94 @@ class Ldap
 		}
 
 	}//end search()
+
+
+	/**
+	* Search the server starting at $startdn using $filter
+	* and return the LDAP entries
+	*
+	* @param string		$startdn		the DN to start searching at
+	* @param string		$filter			search filter
+	* @param string		$sort_by		attribute to sort by
+	* @param boolean	$multi_level	search multiple levels
+	* @param boolean	$multi_result	search for multiple entries
+	* @param array		$attributes		array of the attributes we want to return for the returned objects
+	* @param array		$binary_attributes 	the attributes that need to be extracted under binary format
+	*
+	* @return array|boolean
+	* @access public
+	*/
+	function searchEntries($startdn, $filter, $sort_by=null, $multi_level=true, $multi_result=true, $attributes=Array(), $binary_attributes = Array())
+	{
+		if (!$this->ptr) {
+			return FALSE;
+		}
+
+		if (empty($attributes)) {
+			$attributes = Array();
+		}
+
+		if (!$this->_paginateSearch()) {
+			if ($multi_level && $multi_result) $sr = @ldap_search($this->ptr, $startdn, $filter, $attributes);
+			else if ($multi_result) $sr = @ldap_list($this->ptr, $startdn, $filter, $attributes);
+			else $sr = @ldap_read($this->ptr, $startdn, $filter, $attributes);
+
+			if (!$sr) {
+				$ldap_error = ldap_err2str(ldap_errno($this->ptr));
+				log_error($ldap_error.' Filter string: '.$filter);
+				return FALSE;
+			}
+
+			$entries = $this->getEntries($sr, $binary_attributes);
+		} else {
+
+			$entries = Array('count' => 0);
+			$cookie = '';
+			do {
+				// Set the result page size
+				ldap_control_paged_result($this->ptr, SQ_LDAP_RESULT_PAGE_SIZE, FALSE, $cookie);
+
+				if ($multi_level && $multi_result) $sr = @ldap_search($this->ptr, $startdn, $filter, $attributes);
+				else if ($multi_result) $sr = @ldap_list($this->ptr, $startdn, $filter, $attributes);
+				else $sr = @ldap_read($this->ptr, $startdn, $filter, $attributes);
+
+				if (!$sr) {
+					$ldap_error = ldap_err2str(ldap_errno($this->ptr));
+					log_error($ldap_error.' Filter string: '.$filter);
+					return FALSE;
+				}
+				$page_entries = $this->getEntries($sr, $binary_attributes);
+				if (!isset($page_entries['count'])) {
+					break;
+				}
+
+				$page_entries['count'] += $entries['count'];
+				$entries = array_merge($entries, $page_entries);
+
+				if (!@ldap_control_paged_result_response($this->ptr, $sr, $cookie)) {
+					break;
+				}
+
+			} while ($cookie !== NULL && $cookie != '');
+		}
+
+		// Sort the result if required
+		if ($sort_by) {
+			uasort($entries, function($a, $b) use ($sort_by) {
+				$a = isset($a[$sort_by][0]) ? $a[$sort_by][0] : '';
+				$b = isset($b[$sort_by][0]) ? $b[$sort_by][0] : '';
+
+				return ($a == $b) ? 0 : (($a < $b) ? -1 : 1);
+			});
+		}
+
+		if (!isset($entries['count'])) {
+			$entries = Array('count' => 0);
+		}
+
+		return $entries;
+
+	}//end searchEntries()
 
 
 	/**
@@ -257,7 +351,7 @@ class Ldap
 					}
 				}
 			}
-			
+
 			return $info;
 		}
 
@@ -335,8 +429,8 @@ class Ldap
 		return true;
 
 	}//end deleteEntry()
-	
-	
+
+
 	/** 
 	* Escapes the given string according to RFC 2254 so that they can be safely used in LDAP filters.
 	* 
@@ -353,7 +447,21 @@ class Ldap
 	    $str=str_replace($metaChars,$quotedMetaChars,$str); //replace them
 	    return ($str);
 	    
-	}
+	}//end escape_filter_value()
+
+
+	/**
+	* Whether to use LDAP pagination control whne doing LDAP search
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _paginateSearch()
+	{
+		// LDAP pagination control functionality is available from PHP 5.4 only
+		return version_compare(PHP_VERSION, '5.4.0', '>=') && ldap_get_option($this->ptr, LDAP_OPT_PROTOCOL_VERSION, $ver) && $ver == '3';
+
+	}//end _paginateSearch()
 
 
 }//end class

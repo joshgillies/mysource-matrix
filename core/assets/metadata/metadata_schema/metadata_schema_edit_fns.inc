@@ -238,11 +238,12 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	*											that we are setting metadata for (NOT THE SAME AS $asset)
 	* @param boolean		$print_cascade_values_option	print the Metadata Field checkbox option to 'Cascade Values'
 	* @param string				$type_code		The type_code of the asset that the metadata is being printed
+	* @param boolean		$type_code_prefix	Whether to use $type_code as part of the metadata field id's prefix
 	*
 	* @return boolean
 	* @access public
 	*/
-	public function paintInlineValueInterface(Metadata_Schema $asset, Backend_Outputter $o, $values, $write_access, $print_cascade_values_option = TRUE, $type_code=NULL)
+	public function paintInlineValueInterface(Metadata_Schema $asset, Backend_Outputter $o, $values, $write_access, $print_cascade_values_option = TRUE, $type_code=NULL, $type_code_prefix=FALSE)
 	{
 		$o->openSection($asset->name);
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', FALSE, 'major', NULL, TRUE);
@@ -251,7 +252,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 			$section = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($section)) continue;
 			$edit_fns = $section->getEditFns();
-			if ($edit_fns->paintInlineValueInterface($section, $o, $values, $write_access, $print_cascade_values_option, $type_code)) {
+			if ($edit_fns->paintInlineValueInterface($section, $o, $values, $write_access, $print_cascade_values_option, $type_code, $type_code_prefix)) {
 				$res = TRUE;
 			}
 		}
@@ -270,11 +271,12 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	* @param Metadata_Schema	$asset			the asset whose interface we are painting
 	* @param array				&$new_values	an array we can store the new values in
 	* @param string				$type_code		The type_code of the asset that the metadata is being printed
+	* @param boolean			$type_code_prefix	Whether to use $type_code as part of the metadata field id's prefix
 	*
 	* @return boolean
 	* @access public
 	*/
-	public function processInlineValueInterface(Metadata_Schema $asset, Array &$new_values, Array &$schema_cascade_values_asset_ids, $type_code=NULL)
+	public function processInlineValueInterface(Metadata_Schema $asset, Array &$new_values, Array &$schema_cascade_values_asset_ids, $type_code=NULL, $type_code_prefix=FALSE)
 	{
 		$res = FALSE;
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', FALSE, 'major', NULL, TRUE);
@@ -283,7 +285,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 			$section = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($section)) continue;
 			$edit_fns = $section->getEditFns();
-			if ($edit_fns->processInlineValueInterface($section, $new_values, $section_cascade_values_asset_ids, $type_code)) {
+			if ($edit_fns->processInlineValueInterface($section, $new_values, $section_cascade_values_asset_ids, $type_code, $type_code_prefix)) {
 				$res = TRUE;
 
 				foreach($section_cascade_values_asset_ids as $asset_id => $val) {

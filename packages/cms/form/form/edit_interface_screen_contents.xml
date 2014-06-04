@@ -76,7 +76,7 @@
 			<text width="4" height="1" />
 		</field>
 		<field attribute="form_extra_attribute">
-			<text width="30" height="1" />
+			<text width="80" height="4" />
 		</field>
 	</section>
 	<section name="Validation">

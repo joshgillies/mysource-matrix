@@ -286,10 +286,20 @@ function paintWorkflow(Asset $owner, Backend_Outputter $o, Asset_Edit_Interface 
 								ob_start();
 							}
 
-							text_area($prefix.'_workflow_new_log_message', '', 60, 6);
+							$requires_comment = $wfm->requiresComment($owner->id, $GLOBALS['SQ_SYSTEM']->user->id);
+							
+							// If userlog required, add a required class. Note that we
+							// also have to provide sq-form-field because that is
+							// overridden otherwise.
+							$extras = '';
+							if ($requires_comment === TRUE) {
+							    $extras = ' class="sq-form-field sq-requires-userlog"';
+							}
+							
+							text_area($prefix.'_workflow_new_log_message', '', 60, 6, 0, $extras);
 							echo '<br/>';
 
-							if ($wfm->requiresComment($owner->id, $GLOBALS['SQ_SYSTEM']->user->id)) {
+							if ($requires_comment === TRUE) {
 								echo translate('workflow_must_enter_reason_for_decision');
 							} else {
 								echo translate('workflow_may_enter_reason_for_decision');
