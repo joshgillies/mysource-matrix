@@ -1699,14 +1699,17 @@ class MySource extends MySource_Object
 					// $_REQUEST['SQ_ACTION'] cannot be used as its value is unset after once its used
 					$_REQUEST['just_logged_out'] = 1;
 
-					// Strip any SQ_ACTION from the URL and redirect.
-					$new_get = $_GET;
-					unset($new_get['SQ_ACTION']);
-					$current_url = current_url(TRUE, FALSE);
-					if (count($new_get) > 0) {
-						$current_url .= '?'.make_raw_post_data($new_get);
+					// Strip any SQ_ACTION from the URL and redirect. 
+					// but don't redirect if it is a failed login attemp, still need to diplay the error message
+					if(!isset($failure_reason)) {
+						$new_get = $_GET;
+						unset($new_get['SQ_ACTION']);
+						$current_url = current_url(TRUE, FALSE);
+						if (count($new_get) > 0) {
+							$current_url .= '?'.make_raw_post_data($new_get);
+						}
+						do_redirect($current_url);
 					}
-					do_redirect($current_url);
 				}
 			break;
 			case 'real_logout' :
