@@ -120,7 +120,14 @@ class Oauth_Account_Manager_Management extends Asset_Management
 										'type'		=> 'serialise',
 										'default'	=> Array(),
 									 );
-
+		$this->vars['randomize_password']				= Array(
+										'added'		=> '0.1',
+										'type'		=> 'boolean',
+										'default'		=> TRUE,
+										'parameters'    => Array(
+												'allow_empty'   => FALSE,
+										    ),
+									    );
 
 	}//end constructor
 
