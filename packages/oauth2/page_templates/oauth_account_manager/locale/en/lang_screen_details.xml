@@ -71,7 +71,7 @@
 		</field>
 		<field attribute="randomize_password">
 			<display_name>Disallow Password Login</display_name>
-			<note><![CDATA[After linking a SAML Account to a user, this option will randomise the user’s password and disallow the user to log into the system using their standard Matrix username and password. The user will only be able to login via this SAML bridge. Please note that this option is not applicable to System Administrator users.]]></note>
+			<note><![CDATA[After linking an Oauth Account to a user, this option will randomise the user’s password and disallow the user to log into the system using their standard Matrix username and password. The user will only be able to login via this bridge. Please note that this option is not applicable to System Administrator users.]]></note>
 		</field>
 
 	</section>

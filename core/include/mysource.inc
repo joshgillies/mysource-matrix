@@ -1613,12 +1613,12 @@ class MySource extends MySource_Object
 
 					$display_message = $failure_reason = translate('user_not_found');
 					if (!is_null($user_status)) {
-						if ($login_username === 'root') {
+						if ($disallowed_user) {
+							$display_message = $failure_reason = translate('user_password_login_disallowed');
+						} else if ($login_username === 'root') {
 							$display_message = $failure_reason = translate('root_user_disabled');
 						} else if ($user_status & SQ_SC_STATUS_NOT_LIVE) {
-							$failure_reason = translate('user_status_not_live');
-						} else if ($disallowed_user) {
-							$failure_reason = translate('user_password_login_disallowed');										
+							$failure_reason = translate('user_status_not_live');									
 						} else {
 							$failure_reason = translate('user_asset_in_trash');
 						}
