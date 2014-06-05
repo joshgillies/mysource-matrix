@@ -68,7 +68,7 @@ class Cron_Job extends Asset
 		if (!parent::_preCreateCheck($link)) return FALSE;
 
 		if (!$this->attr('type') || !$this->attr('when')) {
-			trigger_localised_error('CRON0002', E_USER_ERROR);
+			trigger_localised_error('CRON0002', E_USER_WARNING);
 			return FALSE;
 		}
 

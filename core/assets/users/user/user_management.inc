@@ -80,11 +80,19 @@ class User_Management extends Asset_Management
 											'type'		=> 'serialise',
 											'default'	=> Array(),
 										   ),
-		    				'history_passwords'	=> Array(
+		    			'history_passwords'	=> Array(
 											'added'		=> '0.2',
 											'type'		=> 'serialise',
 											'default'	=> Array(),
 										   ),
+		    			'disallow_password_login'	=> Array(
+										'added'		=> '0.3',
+										'type'		=> 'boolean',
+										'default'		=> FALSE,
+										'parameters'    => Array(
+												'allow_empty'   => FALSE,
+										    ),
+									    ),
 					  );
 
 	}//end constructor
