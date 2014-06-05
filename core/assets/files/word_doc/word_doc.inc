@@ -74,7 +74,7 @@ class Word_Doc extends File
 		
 		// Can't use Antiword on Word 2007+ files...
 		$file_ext = substr(basename($file), strrpos($file, '.') + 1);
-		if (fileext($file) === 'doc' || fileext($file) === 'dot') {
+		if ($file_ext === 'doc' || $file_ext === 'dot') {
             $file = str_replace('"', '\\\"', $file);
     
             if (SQ_TOOL_ANTIWORD_ENABLED) {
