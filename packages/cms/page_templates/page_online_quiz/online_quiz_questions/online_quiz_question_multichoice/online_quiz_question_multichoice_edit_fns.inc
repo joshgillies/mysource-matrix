@@ -224,14 +224,19 @@ class Online_Quiz_Question_Multichoice_Edit_Fns extends Online_Quiz_Question_Edi
 					$points = array_get_index($option, 'points', NULL);
 
 					$supplementary_html = '';
-					if (isset($_REQUEST[$prefix.'_supplement_'.$option_key])) {
-						$supplementary_html = $_REQUEST[$prefix.'_supplement_'.$option_key];
-					}
+					$wysiwyg_prefix = $prefix.'_supplement_'.$option_key;
+					$wysiwyg = new Asset_Attribute_WYSIWYG();
+					$wysiwyg->process($wysiwyg_prefix);
+					$supplementary_html = $wysiwyg->value;
 
 					// Ensure that the content is retained when setting HTML options (text to WYSIWYG) or disabling this option (WYSIWYG to text)
 					if (($new_use_html_options) || ($asset_use_html_options && !$new_use_html_options)) {
-						if (isset($_REQUEST[$prefix.'_options_text_wysiwyg_'.$option_key])) {
-							$text = trim($_REQUEST[$prefix.'_options_text_wysiwyg_'.$option_key]);
+						$wysiwyg_prefix = $prefix.'_options_text_wysiwyg_'.$option_key;
+						$wysiwyg = new Asset_Attribute_WYSIWYG();
+						$wysiwyg->process($wysiwyg_prefix);
+						$content = $wysiwyg->value;
+						if (!empty($content)) {
+							$text = trim($content);
 						}
 					}
 
@@ -252,7 +257,12 @@ class Online_Quiz_Question_Multichoice_Edit_Fns extends Online_Quiz_Question_Edi
 			}//end foreach
 
 			// add
-			$new_option = trim(array_get_index($_REQUEST, $prefix.'_new_option'));
+			$wysiwyg_prefix = $prefix.'_new_option';
+			$wysiwyg = new Asset_Attribute_WYSIWYG();
+			$wysiwyg->process($wysiwyg_prefix);
+			$text = $wysiwyg->value;
+
+			$new_option = trim($text);
 			if (!empty($new_option)) {
 				if ($option_key_counter > ord('z')) {
 					$option_key_counter = ord('a');
