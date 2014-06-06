@@ -876,7 +876,7 @@ class Page_Remote_Content extends Page
 
 		// PATTERNS for urls that might need to be rewritten to point back to remote content
 		// links and frames except mailto and javascript and tel (URI Schemes)
-		$patterns[] = '/(<(?:(?:a(?:rea)?[^>]*?href)|(?:i?frame[^>]*?src))\s*=\s*[\'"]?)\s*((?:(?![\#]|mailto|javascript|tel))[^\'"> #]+)([\'"> #]?[^<]*>)/i';
+		$patterns[] = '/(<(?:(?:a(?:rea)?[^>]*?href)|(?:i?frame[^>]*?src))\s*=\s*[\'"]?)\s*((?:(?![\#]|mailto|javascript|tel))[^\'">#]+)([\'"> #]?[^<]*>)/i';
 
 		// this pattern is a special case. we don't generally look at JavaScript
 		// because that is a whole new territory
@@ -1256,6 +1256,11 @@ class Page_Remote_Content extends Page
 		if (empty($components['url'])) {
 			trigger_localised_error('CMS0065', E_USER_WARNING);
 		}
+
+		// if there were any white spaces in the url, parse_str will preserve it
+		// make sure to change to to %20 so that our browsers can understand it.
+		$components['url'] = str_replace(' ', '%20', $components['url']);
+
 		// insert any missing options (presumed false) and expand the 'all' option
 		foreach ($this->_transformation_options as $i => $v) {
 			$components[$v] = !empty($components[$v]) || !empty($components['all']);
