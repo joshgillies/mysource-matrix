@@ -368,8 +368,8 @@ function paintPreview(&$owner, &$o, &$ei, $keywords=NULL)
 					echo '<div class="sq-preview-available-urls-show"><a href="#" onclick="document.getElementById(\'sq-preview-available-urls\').style.display=\'block\'; this.style.display=\'none\'" >View a list of available URLs ('.count($preview_urls).' available)</a></div>';
 					echo '<div id="sq-preview-available-urls" class="sq-preview-available-urls" >';
 					echo '<ul style="margin-top: 0;">';
-					foreach ($preview_urls as $index => $primary_url) {
-						echo '<li><a href="'.$index.'" target="_blank">'.$index.'</a></li>';
+					foreach ($preview_urls as $index => $url) {
+						echo '<li><a href="'.$index.'" target="_blank">'.$url.'</a></li>';
 					}
 					echo '</ul>';
 					echo '</div>';
