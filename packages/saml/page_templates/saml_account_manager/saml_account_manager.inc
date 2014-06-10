@@ -284,7 +284,6 @@ class SAML_Account_Manager extends Page_Asset_Builder
 				
 				// randomize user password, so user can no longer login with standard username and pw
 				if($this->attr('randomize_password'))  {
-				    if(!$GLOBALS['SQ_SYSTEM']->userSystemAdmin($current_user)) {
 				    $valid_password = random_user_password(Array($current_user->attr('username')));
 				    $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 					$result = @$current_user->setAttrValue('password', $valid_password);
@@ -293,7 +292,6 @@ class SAML_Account_Manager extends Page_Asset_Builder
 					    $current_user->saveAttributes();
 					}
 				    $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-				    }
 				}
 				
 				// redirect after linking
@@ -1079,7 +1077,7 @@ class SAML_Account_Manager extends Page_Asset_Builder
 
 	    // if we force random password, we mean blocking the user from using password to login. 
 	    // have to enable this attribute of user to completely block password login, so he can't change password to bypass it
-	    if(!empty($this->_tmp['created_asset']) && $this->attr('randomize_password') && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin($this->_tmp['created_asset'])) {
+	    if(!empty($this->_tmp['created_asset']) && $this->attr('randomize_password')) {
 	    		    $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 					$result = @$this->_tmp['created_asset']->setAttrValue('disallow_password_login', TRUE);
 					if ($result) {
