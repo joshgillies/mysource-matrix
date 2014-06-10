@@ -82,6 +82,7 @@
     padding: 10px;
     text-align: center;
     min-width: 500px;
+    background: #FFF;
 }
 
 /* this is the actual div viper is enabled on*/
@@ -90,6 +91,7 @@
    min-height: 30px;
    color: #222;
    padding: 10px;
+   background: #FFF;
 }
 
 /* the tables inserted here needs to be visible, so set a default style */
