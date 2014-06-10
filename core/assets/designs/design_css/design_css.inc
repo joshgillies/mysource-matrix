@@ -418,7 +418,7 @@ echo '/*
 	*/
 	public function _getDesignFileHeader()
 	{
-		return '<?php header("Content-type: text/css"); ?>
+		return '<?php if (!isset($NO_HEADER)) {	header("Content-type: text/css"); }	?>
 		'.parent::_getDesignFileHeader();
 
 	}//end _getDesignFileHeader()
@@ -532,7 +532,7 @@ echo '/*
 		$old_level = error_reporting();
 		error_reporting(0);
 		ob_start();
-			$this->paint($this);
+			$this->paint($this, Array(), FALSE);
 			$file_contents = ob_get_contents();
 		ob_end_clean();
 		error_reporting($old_level);
@@ -654,11 +654,12 @@ echo '/*
 	* @param array	$FILE_URLS	an array of filename => URL to use to print files in the design
 	*							doesnt need to be passed in unless some URLs are overridden by
 	*							a customisation of the design
+	* @param boolean $send_header	Whether to send 'css' header when painting
 	*
 	* @return void
 	* @access public
 	*/
-	public function paint(Asset $ASSET, $FILE_URLS=Array())
+	public function paint(Asset $ASSET, $FILE_URLS=Array(), $send_header=TRUE)
 	{
 		// generate an array of all the URLs we are going to need for the files in this design
 		$file_link_ids = Array();
@@ -716,6 +717,11 @@ echo '/*
 
 		// Now we just include the design file to get it to print
 		if (file_exists($file_path)) {
+			// When $NO_HEADER is set, the content file will not send the css header
+			// See $this->_getDesignFileHeader()
+			if (!$send_header) {
+				$NO_HEADER = TRUE;
+			}
 			require $file_path;
 		} else {
 			trigger_localised_error('CORE0259', E_USER_WARNING, $ASSET->name);
