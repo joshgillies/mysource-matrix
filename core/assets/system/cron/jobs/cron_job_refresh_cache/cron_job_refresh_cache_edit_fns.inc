@@ -161,12 +161,14 @@ class Cron_Job_Refresh_Cache_Edit_Fns extends Cron_Job_Edit_Fns
 
 				// update the start time of this repeating time interval job
 				$when_ti = $this->_processWhenBox($asset, $o, $prefix);
-				$when_ti_arr = explode(',', $when_ti);
-				$when_ti_arr[0] = 'TI='.$start_time;
-				$when_ti_str = implode(',', $when_ti_arr);
-				$asset->setAttrValue('when', $when_ti_str);
-				$asset->setAttrValue('long', TRUE);
-				return TRUE;
+				if ($when_ti) {
+					$when_ti_arr = explode(',', $when_ti);
+					$when_ti_arr[0] = 'TI='.$start_time;
+					$when_ti_str = implode(',', $when_ti_arr);
+					$asset->setAttrValue('when', $when_ti_str);
+					$asset->setAttrValue('long', TRUE);
+					return TRUE;
+				}
 			}
 
 		}//end else
