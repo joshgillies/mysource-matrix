@@ -194,7 +194,9 @@ class Tool_Clear_Squid_Cache extends Tool
 			$o->closeField();
 
 		} else {
-				echo translate('cron_manager_not_configured');
+			$o->openField('Note');
+				$o->note(translate('cron_manager_not_configured'));
+			$o->closeField();
 		}
 
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cron_mgr);
