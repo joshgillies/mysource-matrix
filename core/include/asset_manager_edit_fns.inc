@@ -177,7 +177,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 
 						// limbo might require more locks so release them
 						if (SQ_IN_LIMBO && !empty($_POST['sq_limbo_lock_type'])) {
-							foreach (unserialize(urldecode($_POST['sq_limbo_lock_type'])) as $limbo_lock_type) {
+							foreach (explode(',', urldecode($_POST['sq_limbo_lock_type'])) as $limbo_lock_type) {
 								if ($limbo_lock_type != $_POST['sq_lock_type']) {
 									$this->am->releaseLock($asset->id, $limbo_lock_type);
 								}

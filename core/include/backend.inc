@@ -533,7 +533,7 @@ class Backend extends MySource_Object
 
 			// If we are in Limbo, we may need to refresh more locks
 			if (SQ_IN_LIMBO && !empty($_GET['sq_limbo_lock_type'])) {
-				foreach (@unserialize(urldecode($_GET['sq_limbo_lock_type'])) as $limbo_lock_types) {
+				foreach (explode(',', urldecode($_GET['sq_limbo_lock_type'])) as $limbo_lock_types) {
 					if ($limbo_lock_types != $_GET['sq_lock_type']) {
 						$GLOBALS['SQ_SYSTEM']->am->updateLock($_GET['current_assetid'], $limbo_lock_types);
 					}//end if

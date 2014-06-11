@@ -1248,7 +1248,7 @@ class Asset_Edit_Interface extends MySource_Object
 		}
 
 		$o->openRaw();
-			hidden_field('sq_limbo_lock_type', urlencode(serialize($locks)));
+			hidden_field('sq_limbo_lock_type', urlencode(implode(',', $locks)));
 		$o->closeRaw();
 
 	}//end acquireLimboLocks()
