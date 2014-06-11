@@ -114,7 +114,7 @@ $plugin = new wysiwyg_plugin($wysiwyg);
 			};
 		</script>
 
-		<script type="text/javascript" src="<?php echo $_SERVER['PHP_SELF'].'/../../'.$plugin->get_popup_href('spell_checker.js', 'spell_checker')?>"></script>
+		<script type="text/javascript" src="<?php echo '../'.$plugin->get_popup_href('spell_checker.js', 'spell_checker')?>"></script>
 
 		<style type="text/css">
 			html, body {
