@@ -130,7 +130,7 @@ class Regular_Expression_Edit_Fns extends Asset_Edit_Fns
 				}
 
 				$regex = trim(array_get_index($data, 'regex', ''));
-				$replacement = trim(array_get_index($data, 'replacement', ''));
+				$replacement = array_get_index($data, 'replacement', '');
 				$replace_keywords = array_get_index($data, 'replace_keywords', '');
 				if (empty($regex)) continue;
 
