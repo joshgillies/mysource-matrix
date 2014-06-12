@@ -285,35 +285,70 @@ class Locale_Manager extends MySource_Object
 
 
 	/**
-	* gets a string translation
+	* Gets a string translation(s).
 	*
-	* @param string	$string_code	the string code
+	* Alias in general.inc: translate().
 	*
-	* @return string
+	* Transitional before full change to gettext-style localisation, supporting
+	* both underscored and full untranslated bare strings along with Matrix 3/4
+	* style passing of arguments, sprintf-style.
+	*
+	* Sending sprintf-style arguments to translate() is DEPRECATED, and will be
+	* changed in existing code when localise changes are in full swing down
+	* the track.
+	* Please try to use sprintf() or vsprintf() in conjunction with just sending
+	* the string to translate(), instead.
+	*
+	* If a string is not found, it will return the untranslated string, possibly
+	* sprintf-replaced. This is a change from Matrix 3/4, where it would return
+	* a long error message.
+	*
+	* If sent an array of {$string}s, we'll throw back an array.
+	*
+	* @param mixed	$string		(string|array) The untranslated string(s) 
+	*
+	* @see    translate()
+	* @return string|array
 	* @access public
 	*/
-	public function getString($string_code)
+	public function getString($strings)
 	{
-		$locale = $this->getCurrentLocale();
-
-		// if second parameter is an array, use that as our list of params
+        $locale = $this->getCurrentLocale();
+        
+        // if second parameter is an array, use that as our list of params
 		if (!is_array($func_args = func_get_arg(1))) {
 			$func_args = func_get_args();
 			$func_args = array_slice($func_args,1);
+		} else {
+		    $func_args = Array();
 		}
-
-		if (!isset($this->_strings[$locale])) {
-			return "Source string for $string_code not found";
-		}
-
-		if (!isset($this->_strings[$locale][$string_code])) {
-			return "Source string for $string_code not found for locale $locale";
-		}
-
-		return vsprintf($this->_strings[$locale][$string_code],$func_args);
+        
+	    $return_array = TRUE;
+	    if (is_array($strings) === FALSE) {
+	        $return_array = FALSE;
+	        $strings      = Array($strings);
+	    }
+	    
+	    $retval = Array();
+	    
+	    foreach ($strings as $index => $string) {
+            if (!isset($this->_strings[$locale])) {
+                $retval[$index] = $string;
+            } else {
+                $retval[$index] = array_get_index($this->_strings[$locale], $string, $string);
+            }
+            
+            $retval[$index] = vsprintf($retval[$index], $func_args);
+        }
+        
+        if ($return_array === FALSE) {
+            $retval = reset($retval);
+        }
+        
+        return $retval;
 
 	}//end getString()
-
+	
 
 	/**
 	* Includes the compiled strings for a specified asset, if they haven't already
