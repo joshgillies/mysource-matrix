@@ -2,7 +2,7 @@
 /**
 * +--------------------------------------------------------------------+
 * | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd	   |
-* | ACN 084 670 600													   |
+* | ABN 77 084 670 600												   |
 * +--------------------------------------------------------------------+
 * | IMPORTANT: Your use of this Software is subject to the terms of    |
 * | the Licence provided in the file licence.txt. If you cannot find   |
@@ -17,6 +17,7 @@
 
 require_once SQ_CORE_PACKAGE_PATH.'/system/triggers/trigger_action/trigger_action.inc';
 require_once SQ_ATTRIBUTES_PATH.'/http_request/http_request.inc';
+require_once SQ_PACKAGES_PATH.'/web_services/rest/lib/rest_common.inc';
 
 /**
 * Trigger_Action_Call_Rest_Resource
@@ -76,7 +77,7 @@ class Trigger_Action_Call_Rest_Resource extends Trigger_Action
 										retrieve_keywords_replacements(implode(', ', $current_value['urls']))
 									);
 		}
-		
+
 		if (isset($current_value['request_headers'])) {
 			$keywords_list = array_merge(
 										$keywords_list,
@@ -90,7 +91,7 @@ class Trigger_Action_Call_Rest_Resource extends Trigger_Action
 										retrieve_keywords_replacements($current_value['request_body'])
 									);
 		}
-		
+
 		if (isset($current_value['http_auth_options'])) {
 			$keywords_list = array_merge(
 										$keywords_list,
@@ -114,6 +115,44 @@ class Trigger_Action_Call_Rest_Resource extends Trigger_Action
 
 		// send the request
 		$res =& $http_request_attr->run();
+
+		// If response needs to be stored in the session var
+		if (!empty($settings['js_session_var'])) {
+			$js = '';
+			$js_file_ids = $settings['js_include_files'];
+			foreach($js_file_ids as $js_file_id) {
+				$file = $GLOBALS['SQ_SYSTEM']->am->getAsset($js_file_id);
+				$existing = $file->getExistingFile();
+				if (!empty($existing)) {
+					$js .= file_get_contents($existing['path']);
+				}
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($file);
+			}
+			$js .= $settings['js_code'];
+
+			// Process JS if required
+			if (!empty($js)) {
+				// Append the JSON object "_REST" in the beginning of the JS code
+				$js = Rest_Common::createJsonStringFromRestResponse($res).$js;
+
+				// Replace global keywords and asset keywords
+				if ($settings['js_replace_keywords']) {
+					replace_global_keywords($js);
+					replace_keywords($js, $replacements);
+				}
+				$GLOBALS['SQ_SYSTEM']->pm->startTimer($state['asset'], 'processJavascript');
+				$ret = Rest_Common::processJavascript($js, $settings['js_engine']);
+				$GLOBALS['SQ_SYSTEM']->pm->stopTimer($state['asset'], 'processJavascript');
+				if (!empty($ret['output'])) {
+					$_SESSION[SQ_SESSION_SANDBOX_INDEX][$settings['js_session_var']] =  $ret['output'];
+				} else {
+					trigger_localised_error('REST0001', E_USER_WARNING, $state['asset']->id, $ret['error_message']);
+				}
+			} else {
+				// Store the response in the session as an array
+				$_SESSION[SQ_SESSION_SANDBOX_INDEX][$settings['js_session_var']] = $res;
+			}
+		}//end if process js
 
 		if (is_null($old_current_asset)) {
 			$GLOBALS['SQ_SYSTEM']->unsetGlobalDefine('CURRENT_ASSET');
@@ -145,14 +184,89 @@ class Trigger_Action_Call_Rest_Resource extends Trigger_Action
 	public static function getInterface($settings, $prefix, $write_access=FALSE)
 	{
 		ob_start();
-		
+
 		$new_prefix = str_replace(array('[',']'), '_', $prefix);
 
 		$http_request_value = array_get_index($settings, 'http_request', Array());
 		$http_request_attr = new Asset_Attribute_HTTP_Request(0, $http_request_value);
 
-		$http_request_attr->paint($new_prefix.'_http_request', !$write_access);
-
+		?>
+		<table class="sq-backend-table" border="1" style="width: auto">
+				<tr>
+					<th><?php echo translate('trigger_action_rest_resource_http_request'); ?></th>
+					<td><?php $http_request_attr->paint($new_prefix.'_http_request', !$write_access); ?></td>
+				<tr>
+				<tr>
+					<th><?php echo translate('trigger_action_rest_resource_js_processing_session_var'); ?></th>
+					<td><?php
+						if ($write_access) {
+							text_box($new_prefix.'_js_session_var', array_get_index($settings, 'js_session_var', ''), 20);
+						} else {
+							echo array_get_index($settings, 'js_session_var', '');
+						}
+						echo '<div class="sq-backend-smallprint">'.translate('trigger_action_rest_resource_js_processing_session_var_note').'</div>';
+						?>
+					</td>
+				</tr>
+				<tr>
+					<th><?php echo translate('trigger_action_rest_resource_js_processing_replace_keywords'); ?></th>
+					<td><?php
+						$options = Array(translate('no'), translate('yes'));
+						if ($write_access) {
+							combo_box($new_prefix.'_js_replace_keywords', $options, FALSE, array_get_index($settings, 'js_replace_keywords', 0));
+						} else {
+							echo array_get_index($options, array_get_index($settings, 'js_replace_keywords', 0), '');
+						}
+						echo '<div class="sq-backend-smallprint">'.translate('trigger_action_rest_resource_js_processing_replace_keywords_note').'</div>';
+						?>
+					</td>
+				</tr>
+				<tr>
+					<th><?php echo translate('trigger_action_rest_resource_js_processing_engine'); ?></th>
+					<td><?php
+						$supported_js_engines = Rest_Common::$supported_js_engines;
+						$default_js_engine = Rest_Common::$default_js_engine;
+						if ($write_access) {
+							combo_box($new_prefix.'_js_engine', $supported_js_engines, FALSE, array_get_index($settings, 'js_engine', $default_js_engine));
+						} else {
+							echo array_get_index($supported_js_engines, array_get_index($settings, 'js_engine', $default_js_engine), '');
+						}
+						echo '<div class="sq-backend-smallprint">'.translate('trigger_action_rest_resource_js_processing_engine_note').'</div>';
+						?>
+					</td>
+				</tr>
+				<tr>
+					<th><?php echo translate('trigger_action_rest_resource_js_processing_include_files'); ?></th>
+					<td><?php
+						$include_files = array_get_index($settings, 'js_include_files', Array());
+						if ($write_access) {
+							multiple_asset_finder($new_prefix.'_js_include_files', $include_files, Array('file' => 'D'));
+						} else {
+							echo '<ul>';
+								foreach ($include_files as $index => $assetid) {
+									echo '<li>'.get_asset_tag_line($assetid).'</li>';
+								}
+							echo '</ul>';
+						}
+						echo '<div class="sq-backend-smallprint">'.translate('trigger_action_rest_resource_js_processing_include_files_note').'</div>';
+						?>
+					</td>
+				</tr>
+				<tr>
+					<th><?php echo translate('trigger_action_rest_resource_js_processing_javascript'); ?></th>
+					<td><?php
+						$js_code = array_get_index($settings, 'js_code', '');
+						if ($write_access) {
+							text_area($new_prefix.'_js_code', $js_code, 92, 10, 0, 'style="font-family: monospace;');
+						} else {
+							echo "<pre>".htmlspecialchars($js_code)."</pre>";
+						}
+						echo '<div class="sq-backend-smallprint">'.translate('trigger_action_rest_resource_js_processing_javascript_note').'</div>';
+						?>
+					</td>
+				</tr>
+		</table>
+		<?php
 		hidden_field($prefix.'[new_prefix]', $new_prefix);
 
 		return ob_get_clean();
@@ -184,6 +298,19 @@ class Trigger_Action_Call_Rest_Resource extends Trigger_Action
 
 		$http_request_attr->process($new_prefix.'_http_request');
 		$settings['http_request'] = $http_request_attr->value;
+
+		$settings['js_session_var'] = array_get_index($_POST, $new_prefix.'_js_session_var', '');
+		$settings['js_replace_keywords'] = array_get_index($_POST, $new_prefix.'_js_replace_keywords', 0);
+		$settings['js_engine'] = array_get_index($_POST, $new_prefix.'_js_engine', Rest_Common::$default_js_engine);
+		$settings['js_code'] = array_get_index($_POST, $new_prefix.'_js_code', '');
+
+		$settings['js_include_files'] = Array();
+		$include_js_files = array_get_index($_POST, $new_prefix.'_js_include_files', Array());
+		foreach($include_js_files as $index => $asset_info) {
+			if (!empty($asset_info['assetid'])) {
+				$settings['js_include_files'][] = $asset_info['assetid'];
+			}//end if
+		}//end foreach
 
 		return FALSE;
 
