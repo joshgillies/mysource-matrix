@@ -324,9 +324,9 @@ class MySource extends MySource_Object
 			}
 
 			$session_set = FALSE;
-			if (isset($_GET['SESSION_ID']) && (isset($_GET['SESSION_KEY']) || isset($_GET['SOAP_SESSION_KEY']))) {
+			if (isset($_REQUEST['SESSION_ID']) && isset($_REQUEST['SOAP_SESSION_KEY'])) {
 				// asset map or someone has sent session key through the GET
-				session_id($_GET['SESSION_ID']);
+				session_id($_REQUEST['SESSION_ID']);
 				$session_set = TRUE;
 			}
 
@@ -364,15 +364,13 @@ class MySource extends MySource_Object
 
 			$invalid_key = TRUE;
 			if ($restore_session === FALSE) {
-				if (isset($_GET['SOAP_SESSION_KEY']) === TRUE) {
-					$invalid_key = ($this->getUniqueSOAPSessionKey() != $_GET['SOAP_SESSION_KEY']);
+				if (isset($_REQUEST['SOAP_SESSION_KEY']) === TRUE) {
+					$invalid_key = ($this->getUniqueSOAPSessionKey() != $_REQUEST['SOAP_SESSION_KEY']);
 					if ($invalid_key === FALSE) {
 						$_SESSION['activated'] = 1;
 						define('SQ_SOAP_AUTH', '1');
 					}//end if
-				} else if (isset($_GET['SESSION_KEY']) === TRUE) {
-					$invalid_key = ($this->getUniqueSessionKey() != $_GET['SESSION_KEY']);
-				}//end if
+				}
 			}//end if
 
 			if (!defined('SQ_SOAP_AUTH')) {
@@ -389,6 +387,8 @@ class MySource extends MySource_Object
 				$log->parameters['sessionid'] = session_id();
 				$log->parameters['userid'] = $_SESSION['userid'];
 				$log->send();
+				session_destroy();
+				$this->_clearSession();
 				exit();
 			}//end if
 
