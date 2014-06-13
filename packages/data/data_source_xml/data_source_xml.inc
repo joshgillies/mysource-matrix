@@ -132,8 +132,31 @@ class Data_Source_Xml extends Data_Source
 		parent::__construct($assetid);
 
 	}//end constructor
-	
-	
+
+
+	/**
+	* Initialises the XML data source variables
+	*
+	* @return void
+	* @access public
+	*/
+	function _initialiseVars()
+	{
+		$this->_tree_level = 0;
+		$this->_record_tree_level = 0;
+		$this->_non_empty_record = FALSE;
+		$this->_result = Array();
+		$this->_inside_relevant_tag = FALSE;
+		$this->_inside_root_tag = FALSE;
+		$this->_current_tag_name = '';
+		$this->_current_attributes = Array();
+		$this->_record_set_index = 0;
+		$this->_new_teg = FALSE;
+		$this->_complex_elements = Array();
+
+	}//end _initialiseVars()
+
+
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
@@ -188,6 +211,7 @@ class Data_Source_Xml extends Data_Source
 			}
 		}
 		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this);
+
 		return (!empty($url)) ? $this->_tmp[$hash] : Array();
 
 	}//end getResultSet()
@@ -201,7 +225,12 @@ class Data_Source_Xml extends Data_Source
 	*/
 	function getItems()
 	{
+		// Initialise the data source variables for the XML parsing so that 
+		// they does not confict with the previous XML parsing
+		$this->initialiseVars();
+
 		$result = $this->parseXML();
+		
 		return $result;
 
 	}//end getItems()
@@ -263,7 +292,6 @@ class Data_Source_Xml extends Data_Source
 		$content = $this->openFeed($url);
 
 		$content = $this->_addCDATA($content);
-
 		return $this->_createParser($content);
 
 	}//end parseXML()
