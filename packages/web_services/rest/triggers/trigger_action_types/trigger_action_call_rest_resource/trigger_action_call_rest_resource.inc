@@ -191,13 +191,15 @@ class Trigger_Action_Call_Rest_Resource extends Trigger_Action
 		$http_request_attr = new Asset_Attribute_HTTP_Request(0, $http_request_value);
 
 		?>
-		<table class="sq-backend-table" border="1" style="width: auto">
+		<div style="padding: 5px">
+			 <p class="sq-backend-section-subheading"><?php echo translate('trigger_action_rest_resource_http_request') ?></p>
+			 <?php $http_request_attr->paint($new_prefix.'_http_request', !$write_access); ?>
+		</div>
+		<div style="padding: 5px">
+			<p class="sq-backend-section-subheading"><?php echo translate('trigger_action_rest_resource_js_processing') ?></p>
+			<table border="0" class="sq-backend-table">
 				<tr>
-					<th><?php echo translate('trigger_action_rest_resource_http_request'); ?></th>
-					<td><?php $http_request_attr->paint($new_prefix.'_http_request', !$write_access); ?></td>
-				<tr>
-				<tr>
-					<th><?php echo translate('trigger_action_rest_resource_js_processing_session_var'); ?></th>
+					<th width="20%"><?php echo translate('trigger_action_rest_resource_js_processing_session_var'); ?></th>
 					<td><?php
 						if ($write_access) {
 							text_box($new_prefix.'_js_session_var', array_get_index($settings, 'js_session_var', ''), 20);
@@ -265,7 +267,8 @@ class Trigger_Action_Call_Rest_Resource extends Trigger_Action
 						?>
 					</td>
 				</tr>
-		</table>
+			</table>
+		</div>
 		<?php
 		hidden_field($prefix.'[new_prefix]', $new_prefix);
 

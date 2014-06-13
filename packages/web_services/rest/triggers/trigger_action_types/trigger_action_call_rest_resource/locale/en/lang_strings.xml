@@ -1,0 +1,30 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ABN 77 084 670 600                                                 |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.com.au) so we may provide|
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* Localised Strings File for Call REST Resource form submission action 
+*/
+-->
+
+<strings>
+	<string source="trigger_action_rest_resource_http_request">HTTP Request</string>
+	<string source="trigger_action_rest_resource_js_processing">JavaScript Processing</string>
+	<string source="trigger_action_rest_resource_js_processing_session_var">Session Var Name</string>
+	<string source="trigger_action_rest_resource_js_processing_replace_keywords">Pre-Process Matrix Global Keywords</string>
+	<string source="trigger_action_rest_resource_js_processing_engine">JS Engine</string>
+	<string source="trigger_action_rest_resource_js_processing_include_files">Include Files</string>
+	<string source="trigger_action_rest_resource_js_processing_javascript">JavaScript Code</string>
+	<string source="trigger_action_rest_resource_js_processing_session_var_note">The response of HTTP Request will be stored as an array in the specified var in the Matrix session sandbox. NOTE: If you add any JavaScript code below to be executed, it will overwrite the HTTP response array that gets stored into this session variable by default.</string>
+	<string source="trigger_action_rest_resource_js_processing_engine_note">JavaScript enigne to process the JavaScript code.</string>
+	<string source="trigger_action_rest_resource_js_processing_replace_keywords_note">Enabling this option will replace the global keywords in the JS code prior running the JS engine.</string>
+	<string source="trigger_action_rest_resource_js_processing_include_files_note">Selected JS files will be run sequentially before the JS code entered below.</string>
+	<string source="trigger_action_rest_resource_js_processing_javascript_note"><![CDATA[The HTTP Request data is available as JSON data in the pre-defined variable "_REST". Use the "Run Test" feature to view this structure. For example "print(_REST.response.body);" will print the body of the first response. If you are using E4X to process an XML document, you will likely need to use "_REST.response.bodyx" to avoid the XML declaration choking the parser.<br/>NOTE: Any data printed via the JS "print();" function. will be stored into the Session Var configured above.]]></string>
+</strings>
