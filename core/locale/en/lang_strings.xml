@@ -369,7 +369,7 @@
 	<string source="system_parent_domains">System Parent Domains</string>
 	<string source="system_parent_domains_note">Parent domains are examined when the system is setting the session cookie, and are useful if several system root URLs have a common parent domain (eg syd.example.com and melb.example.com).  If the current URL ends with one of the parent domains then the cookie will be set on the parent domain instead, with the result that the user's session will persist across the parent domain and all its subdomains.  Note that the common parent must be only one level up - alpha.syd.example.com and bravo.mel.example.com cannot share a cookie because their common parent domain is two levels up.</string>
 	<string source="system_static_url_note">Static URLs can be used to offload delivery of static files and images to an alternative web server. This is an advanced configuration option and requires specific web server configuration to operate correctly.</string>
-	<string source="system_static_url_exclude_note">Type the allowed file extensions with comma separated. For example: jpg,png,txt,mov, etc. If configured, the extensions specified won't be served via the Static URL.</string>
+	<string source="system_static_url_exclude_note">Type the restricted file extensions with comma separated. For example: jpg,png,txt,mov, etc. If configured, the extensions specified won't be served via the Static URL.</string>
 	<string source="file_types_restricted_to_be_served_on_static_url">Restricted File Extensions via Static Root Domain</string>
 	<string source="system_root">System Root</string>
 	<string source="system_settings">System Settings</string>
