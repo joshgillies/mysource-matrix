@@ -263,6 +263,17 @@ class Page_Upcoming_Events_List extends Page
 		$cache_key .= $num_events; 			// First entry so no colon out front like a little soldier
 		$cache_key .= ':'.$horizon;
 
+		// Include the dymanic root nodes as a part of the cache key
+		$parameter_map = $this->getAttribute('parameter_map');
+		$dynamic_root_nodes = $parameter_map->getParameterValue('replacement_root_node');
+		if (!empty($dynamic_root_nodes)) {
+			// Dynamic roots can be supplied as an array of asset ids or a comma delimited string of asset ids
+			if (is_array($dynamic_root_nodes)) {
+				$dynamic_root_nodes = implode(',', $dynamic_root_nodes);
+			}
+			$cache_key .= ':'.$dynamic_root_nodes;
+		}
+
 		$cache_key .= '-ctx'.$contextid;
 
 		return $cache_key;
