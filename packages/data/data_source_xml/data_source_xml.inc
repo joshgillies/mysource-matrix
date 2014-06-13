@@ -140,7 +140,7 @@ class Data_Source_Xml extends Data_Source
 	* @return void
 	* @access public
 	*/
-	function _initialiseVars()
+	function initialiseVars()
 	{
 		$this->_tree_level = 0;
 		$this->_record_tree_level = 0;
@@ -154,7 +154,7 @@ class Data_Source_Xml extends Data_Source
 		$this->_new_teg = FALSE;
 		$this->_complex_elements = Array();
 
-	}//end _initialiseVars()
+	}//end initialiseVars()
 
 
 	/**
