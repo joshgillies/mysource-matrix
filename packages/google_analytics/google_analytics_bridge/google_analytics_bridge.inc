@@ -185,9 +185,9 @@ class Google_Analytics_Bridge extends OAuth2_Token implements Bridge
 	 */
 	public function printBody()
 	{
-	    $token = $this->getAccessToken(FALSE);
-	    echo json_encode($token);
+	    echo '<pre style="word-wrap: break-word; white-space: pre-wrap; font-family: monospace">';
 	    echo json_encode($this->getProperties());
+	    echo '</pre>';
 	    
 	}//end printBody()
 	
@@ -195,13 +195,258 @@ class Google_Analytics_Bridge extends OAuth2_Token implements Bridge
 //--      ANALYTICS REQUESTING        --//
 
 
+    /**
+     *
+     */
     public function getProperties()
     {
-        $url = self::FETCH_PREFIX.'/management/accountSummaries';
-        $response = $this->fetch($url);
+        // Cache for 4 hours.
+        $cm       = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+        $key      = 'accountSummaries';
+        $response = Array();
+        
+        $refresh_key = $key.'.refresh';
+        $expiry      = (4 * 60 * 60);
+        
+        $refresh_resp = $this->loadFromFetchCache($this->_getRefreshKey($key));
+        if ((string) $refresh_resp === '1') {
+            // Not stale yet.
+            $response = $this->loadFromFetchCache($key);
+        } else {
+            // Stale or doesn't exist. Fetch it, and if it doesn't work, fall
+            // back to any previously existing cache.
+            $url      = self::FETCH_PREFIX.'/management/accountSummaries';
+            $response = $this->fetchWithBackoff($url);
+            
+            if ($response !== NULL) {
+                $this->saveToFetchCache($key, $response);
+            } else {
+                $response = $this->loadFromFetchCache($key);
+            }
+        }//end if
+        
+        if (($response === FALSE) || ($response === NULL)) {
+            $props = Array();
+        } else {
+            foreach ($response['items'] as $account) {
+                foreach ($account['webProperties'] as $property) {
+                    $props[$property['id']] = $property;
+                }
+            }//end foreach
+        }//end if
+        
+        return $props;
+        
+    }//end getProperties()
+
+
+    /**
+     *
+     */
+    public function getViewsByProperty($propertyId)
+    {
+        // Cache for 4 hours.
+        $cm  = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+        $key = 'accountSummaries';
+        
+        $response    = Array();
+        $refresh_key = $key.'.refresh';
+        
+        $refresh_resp = $this->loadFromFetchCache($this->_getRefreshKey($key));
+        if ((string) $refresh_resp === '1') {
+            // Not stale yet.
+            $response = $this->loadFromFetchCache($key);
+        } else {
+            // Stale or doesn't exist. Fetch it, and if it doesn't work, fall
+            // back to any previously existing cache.
+            $url      = self::FETCH_PREFIX.'/management/accountSummaries';
+            $response = $this->fetchWithBackoff($url);
+            
+            if ($response !== NULL) {
+                $this->saveToFetchCache($key, $response);
+            } else {
+                $response = $this->loadFromFetchCache($key);
+            }
+        }//end if
+        
+        if (($response === FALSE) || ($response === NULL)) {
+            $response = Array();
+        }
+        
         return $response;
         
     }//end getProperties()
+    
+    
+    /**
+     * Wrapper to saving fetched data from our Cache Manager.
+     *
+     * This is for our fetched data where we want it to be fresh within a
+     * certain time period (eg. 4 hours) but concede that we cannot always
+     * updated it. Cache Manager doesn't have the concept of "stale but
+     * retrievable" data, so we need to write our own wrapper.
+     *
+     * So this saves two values: a key and a refresh key. The key contains the
+     * value saved and has a very long-term expiry. The refresh key contains a
+     * basic value (string '1') and will expire as per our fetch expiry.
+     *
+     * @param string $key   The (main) key to store the value under.
+     * @param mixed  $value The value to store to the key.
+     *
+     * @return void
+     */
+    public function saveToFetchCache($key, $value)
+    {
+        // TODO: replace with attribute
+        $expiry      = (4 * 60 * 60);
+        $cm          = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+        $key         = 'fetch.'.$key;
+        $refresh_key = $this->_getRefreshKey($key);
+        
+        $cm->saveToCache($this->id, $this->type(), $key, json_encode($value), FALSE);
+        $cm->saveToCache($this->id, $this->type(), $refresh_key, json_encode('1'), FALSE, $expiry);
+        
+    }//end saveToFetchCache()
+    
+    
+    /**
+     * Wrapper to loading fetched data from our Cache Manager.
+     *
+     * @param string $key   The (main) key to store the value under.
+     *
+     * @return void
+     */
+    public function loadFromFetchCache($key)
+    {
+        $key    = 'fetch.'.$key;
+        $cm     = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+        $result = $cm->loadFromCache($this->id, $this->type(), $key, FALSE);
+        return json_decode($result, TRUE);
+        
+    }//end loadFromFetchCache()
+    
+    
+    /**
+     * Get refresh key.
+     */
+    protected function _getRefreshKey($key)
+    {
+        return $key.'.refresh';
+    }
+    
+    
+    /**
+     * Fetch but with Google Analytics' exponential backoff rules.
+     *
+     * GA's backoff rules are used when per-second quota limits are exceeded.
+     * At time of writing this is 10 queries/sec per view, and a limit of
+     * queries/sec per IP address (default 1, max 10). The backoff starts at
+     * one second then doubles until it reaches 16 seconds (+ random partial
+     * second).
+     * Also implements a single backoff for 500 errors.
+     *
+     * Call in place of fetch(). If a fetch fails (and in certain cases,
+     * retries run out), then return NULL.
+     *
+     * @param string $url   The URL to fetch.
+     *
+     * @return array
+     */
+    public function fetchWithBackoff($url)
+    {
+        $result  = NULL;
+        $retries = NULL;
+        $code    = NULL;
+        while (($retries === NULL) || ($retries > 0)) {
+            $response = $this->fetch($url, FALSE);
+            
+            // Firstly if we get one error initially then we get another,
+            // don't retry any further regardless of the error.
+            if (($code !== NULL) && ($response['code'] !== $code)) {
+                break;
+            } else {
+                $code = $response['code'];
+            }
+            
+            switch ((int) $response['code']) {
+                case 200:
+                    // OK. Take the result and 
+                    $result  = $response['result'];
+                    $retries = 0;
+                break;
+                
+                case 400:
+                    // Bad request or invalid parameter. Cannot retry.
+                    $retries = 0;
+                break;
+                
+                case 401:
+                    // Token has been revoked.
+                    $retries = 0;
+                break;
+                
+                case 403:
+                    // Find error list. If the 403 is due to a rate-per-second
+                    // limit, allow exponential backoff. Otherwise no retries.
+                    $errors       = $response['result']['error']['errors'];
+                    $retryBlocked = TRUE;
+                    foreach ($errors as $error) {
+                        if (($error['reason'] === 'userRateLimitExceeded') ||
+                            ($error['reason'] === 'quotaExceeded')) {
+                            $retryBlocked = FALSE;
+                        } else {
+                            $retryBlocked = TRUE;
+                            break;
+                        }
+                    }//end foreach
+                    
+                    if ($retryBlocked === TRUE) {
+                        // Retries are blocked.
+                        $retries = 0;
+                    } else {
+                        if ($retries === NULL) {
+                            // First retry.
+                            $retries = 5;
+                        } else {
+                            // Subsequent retry.
+                            $retries--;
+                        }
+                        
+                        if ($retries > 0) {
+                            // If there are retries left, back off for 1 sec,
+                            // then 2 sec, 4 sec... etc. Also add a random
+                            // component between 0-1 second.
+                            $waitTime  = (32.0 / pow(2, (5 - $retries)));
+                            $waitTime += (mt_rand() / mt_getrandmax());
+                            usleep($waitTime * 1e6);
+                        }
+                    }//end if
+                break;
+                
+                case 500:
+                    if ($retries === NULL) {
+                        // Only one retry. 1 second wait + random 0-1 second.
+                        $retries   = 1;
+                        $waitTime  = 1.0;
+                        $waitTime += (mt_rand() / mt_getrandmax());
+                        usleep($waitTime * 1e6);
+                    } else {
+                        // Won't be fooled again.
+                        $retries--;
+                    }
+                break;
+
+                default:
+                    // Unexpected result, including DNS issues
+                    // and 404s. Don't retry these.
+                    $retries = 0;
+                break;
+            }
+        }
+        
+        return $result;
+        
+    }//end fetchWithBackoff()
     
     
     public function revokeAccessToken()
@@ -219,20 +464,48 @@ class Google_Analytics_Bridge extends OAuth2_Token implements Bridge
 	*
 	* Returns NULL on error
 	*
-	* @param int		$shadowid		the shadow part asset id to be loaded (i.e part after the ':')
+	* @param int		$assetid		the full asset ID of the shadow asset
 	* @param string		$type_code		if this exists then this object is used to
 	*									load the asset, if not then the DB is queried
 	*									to find out the asset type
-	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
-	*									you can't use the '@' operator when returning by reference
+	* @param boolean	$mute_errors	deprecated
 	*
 	* @return mixed object|NULL
 	* @access public
 	* @see Asset_Manager::&getAsset()
 	*/
-	public function getAsset($shadowid, $type_code='', $mute_errors=FALSE)
+	public function getAsset($assetid, $type_code='', $mute_errors=FALSE)
 	{
 	    $result = NULL;
+	    list($realid, $shadowid) = explode(':', $assetid, 2); 
+	    
+	    $shadow_parts = explode('-', $shadowid, 2);
+	    switch ($shadow_parts[0]) {
+	        case 'p':
+	            // Property.
+	            $props = $this->getProperties();
+	            if (array_key_exists($shadow_parts[1], $props)) {
+                    $GLOBALS['SQ_SYSTEM']->am->includeAsset('google_analytics_property');
+                    $result = new Google_Analytics_Property();
+                    $result->id = $this->id.':'.$shadowid;
+                    $name = $props[$shadow_parts[1]]['name'];
+                    $result->setAttrValue('name', $name);
+                    $result->name       = $name;
+                    $result->short_name = $name;
+	            }
+	        break;
+	        
+	        case 'v':
+	            // View.
+	            $GLOBALS['SQ_SYSTEM']->am->includeAsset('google_analytics_view');
+	            $result = new Google_Analytics_View();
+	            $result->id = $this->id.':'.$shadowid;
+	            $name = 'View '.$shadow_parts[1];
+	            $result->setAttrValue('name', $name);
+	            $result->name       = $name;
+	            $result->short_name = $name;
+	        break;
+	    }//end switch
 	    
 	    return $result;
 	    
@@ -263,6 +536,26 @@ class Google_Analytics_Bridge extends OAuth2_Token implements Bridge
 	public function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $sort_by=NULL)
 	{
 	    $result = Array();
+	    
+	    if ($assetid === $this->id) {
+	        if ($side_of_link === 'major') {
+	            $props = $this->getProperties();
+                foreach ($props as $property) {
+                    $result[] = array(
+                        'linkid'          => $assetid.':p-'.$property['id'],
+                        'majorid'         => $assetid,
+                        'minorid'         => $assetid.':p-'.$property['id'],
+                        'minor_type_code' => 'google_analytics_property',
+                        'link_type'       => SQ_LINK_TYPE_2,
+                        'value'           => '',
+                        'sort_order'      => -1,
+                        'locked'          => 1,
+                        'is_dependant'    => 1,
+                        'is_exclusive'    => 1,
+                    );
+                }//end foreach properties
+	        }//end if major side
+	    }//end if
 	    
 	    return $result;
 	    
