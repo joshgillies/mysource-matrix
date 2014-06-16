@@ -1632,6 +1632,7 @@ class Form_Section extends Asset implements Bridge
 				$keywords['question_id_'.$this->id.'_q'.$shadowid]    = $assetid;
 				$keywords['question_label_'.$this->id.'_q'.$shadowid] = '<'.'?php echo $GLOBALS[\'SQ_SYSTEM\']->am->getAsset(\''.$assetid.'\')->getHtmlLabel(); ?'.'>';
 				$keywords['question_error_'.$this->id.'_q'.$shadowid]    = '<'.'?php 
+					$question = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset(\''.$assetid.'\');
 					if(isset($form_asset->question_errors[$question->id])) {
 						$errors = $form_asset->question_errors[$question->id];
 						$error = array_pop($errors);
