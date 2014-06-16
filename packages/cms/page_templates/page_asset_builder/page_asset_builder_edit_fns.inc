@@ -417,7 +417,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	function _paintSelectableLocationSet(&$asset, &$o, $prefix, $name, &$data)
 	{
 		$write_access = $asset->writeAccess('attributes');
-		$code_name = str_replace(Array(' ','\''), '_', strtolower($name));
+		$code_name = strtolower(preg_replace('/[^a-z0-9\-_]+/i', '_', $name));
 		?>
 		<table class="sq-backend-table">
 			<tr>
@@ -584,12 +584,11 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processSelectableLocationSets(&$asset, &$o, $prefix)
 	{
-
 		$sets = $asset->attr('create_location_optional');
 
 		// see if there is a set to delete altogether
 		foreach (array_keys($sets) as $name) {
-			$code_name = str_replace(Array(' ','\''), '_', strtolower($name));
+			$code_name = strtolower(preg_replace('/[^a-z0-9\-_]+/i', '_', $name));
 
 			if ($_POST[$prefix.'_'.$code_name.'_delete']) {
 				unset($sets[$name]);
@@ -602,7 +601,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 
 		// update the details for existing sets
 		foreach ($sets as $name => $details) {
-			$code_name = str_replace(Array(' ','\''), '_', strtolower($name));
+			$code_name = strtolower(preg_replace('/[^a-z0-9\-_]+/i', '_', $name));
 			// location options
 			if (is_array($new_options = array_values($_POST[$prefix.'_'.$code_name.'_location_options']))) {
 				$sets[$name]['locations'] = Array();
