@@ -186,7 +186,7 @@ class Google_Analytics_Bridge extends OAuth2_Token implements Bridge
 	public function printBody()
 	{
 	    echo '<pre style="word-wrap: break-word; white-space: pre-wrap; font-family: monospace">';
-	    echo json_encode($this->getProperties());
+	    echo print_r($this->getProperties());
 	    echo '</pre>';
 	    
 	}//end printBody()
