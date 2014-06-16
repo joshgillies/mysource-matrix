@@ -640,7 +640,7 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 				    $q_output = $asset->getQuestionContentReplacement(TRUE, $assetid);
 				    $output .= $q_output;
 				}
-				$output .= </fieldset>
+				$output .= '</fieldset>';
 			}
 			else {
 			     // deprecated tabular format
