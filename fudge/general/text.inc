@@ -1224,7 +1224,13 @@ function json_format($data)
 
 	// our encodeing has added extra double quotes at the start
 	// and end of our string. Remove them before returning text
-	return preg_replace('|^"?(.*?)"?$|ms', '$1', $output);
+	// NOTE: We are using string functions instead as preg_replace() is slower for large string
+	if (substr($output, 0, 1) == '"' && substr($output, -1) == '"') {
+		$output = substr($output, 1);
+		$output = substr($output, 0, -1);
+	}
+
+	return $output;
 
 }//end json_format()
 

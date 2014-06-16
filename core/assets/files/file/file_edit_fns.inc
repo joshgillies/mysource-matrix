@@ -558,6 +558,8 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		$info = Array();
 		if (isset($_POST[$prefix.'_server_file']) && (!empty($_POST[$prefix.'_server_file']))) {
 			$filename = trim($_POST[$prefix.'_server_file'], './');
+			// prevent file path injection
+			$filename = preg_replace('/[^A-Za-z0-9 _ .-]/', '', $filename);
 			$info['name'] = $filename;
 			$info['tmp_name'] = SQ_TEMP_PATH.'/'.$filename;
 			$info['non_uploaded_file'] = TRUE;

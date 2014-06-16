@@ -770,7 +770,17 @@ class File extends Asset
 	*/
 	public function usePublicPath()
 	{
-		return ($this->attr('allow_unrestricted') && $this->effectiveUnrestricted() && !($this->status & SQ_SC_STATUS_SAFE_EDITING));
+		$restricted_on_static = FALSE;
+		$existing = $this->getExistingFile();
+
+		if (SQ_FILE_TYPE_RESTRICT_ON_STATIC_URL !== '' && !empty($existing['filename'])) {
+			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+			$extension = get_file_type($existing['filename']);
+			$restricted_file_extensions = explode(',', SQ_FILE_TYPE_RESTRICT_ON_STATIC_URL);
+			$restricted_on_static = in_array($extension, $restricted_file_extensions)  ? TRUE : FALSE;
+		}
+
+		return ($this->attr('allow_unrestricted') && $this->effectiveUnrestricted() && !($this->status & SQ_SC_STATUS_SAFE_EDITING) && !$restricted_on_static);
 
 	}//end usePublicPath()
 
