@@ -20,13 +20,13 @@
 
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../packages/asset.xsd">
 	<package>google_analytics</package>
-	<type_code>google_analytics_bridge</type_code>
+	<type_code>google_analytics_view</type_code>
 	<version>0.1</version>
-	<name>Google Analytics Bridge</name>
-	<description>Provides an interface to a Google Analytics account.</description>
-	<instantiable>yes</instantiable>
+	<name>Google Analytics View</name>
+	<description>Shadow asset representing the reports of a single View (previously known as "Profile") underneath a Google Analytics Bridge.</description>
+	<instantiable>no</instantiable>
 	<allowed_access>backend_user</allowed_access>
-	<parent_type>oauth2_token</parent_type>
+	<parent_type>asset</parent_type>
 	<requirements />
 	<flash_menu_path>Google Analytics</flash_menu_path>
 </asset_info>
