@@ -243,39 +243,21 @@ class Google_Analytics_Bridge extends OAuth2_Token implements Bridge
     /**
      *
      */
-    public function getViewsByProperty($propertyId)
+    public function getViews()
     {
-        // Cache for 4 hours.
-        $cm  = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-        $key = 'accountSummaries';
+        $props = $this->getProperties();
+        $views = Array();
         
-        $response    = Array();
-        $refresh_key = $key.'.refresh';
-        
-        $refresh_resp = $this->loadFromFetchCache($this->_getRefreshKey($key));
-        if ((string) $refresh_resp === '1') {
-            // Not stale yet.
-            $response = $this->loadFromFetchCache($key);
-        } else {
-            // Stale or doesn't exist. Fetch it, and if it doesn't work, fall
-            // back to any previously existing cache.
-            $url      = self::FETCH_PREFIX.'/management/accountSummaries';
-            $response = $this->fetchWithBackoff($url);
-            
-            if ($response !== NULL) {
-                $this->saveToFetchCache($key, $response);
-            } else {
-                $response = $this->loadFromFetchCache($key);
+        foreach ($props as $propid => $prop) {
+            foreach ($prop['profiles'] as $view) {
+                $view['sq:propertyId'] = $propid;
+                $views[$view['id']] = $view;
             }
-        }//end if
-        
-        if (($response === FALSE) || ($response === NULL)) {
-            $response = Array();
         }
         
-        return $response;
+        return $views;
         
-    }//end getProperties()
+    }//end getViews()
     
     
     /**
@@ -492,18 +474,23 @@ class Google_Analytics_Bridge extends OAuth2_Token implements Bridge
                     $result->setAttrValue('name', $name);
                     $result->name       = $name;
                     $result->short_name = $name;
-	            }
+                    $result->status     = SQ_STATUS_UNDER_CONSTRUCTION;
+	            }//end if
 	        break;
 	        
 	        case 'v':
 	            // View.
-	            $GLOBALS['SQ_SYSTEM']->am->includeAsset('google_analytics_view');
-	            $result = new Google_Analytics_View();
-	            $result->id = $this->id.':'.$shadowid;
-	            $name = 'View '.$shadow_parts[1];
-	            $result->setAttrValue('name', $name);
-	            $result->name       = $name;
-	            $result->short_name = $name;
+	            $views = $this->getViews();
+	            if (array_key_exists($shadow_parts[1], $views)) {
+                    $GLOBALS['SQ_SYSTEM']->am->includeAsset('google_analytics_view');
+                    $result = new Google_Analytics_View();
+                    $result->id = $this->id.':'.$shadowid;
+                    $name = $views[$shadow_parts[1]]['name'];
+                    $result->setAttrValue('name', $name);
+                    $result->name       = $name;
+                    $result->short_name = $name;
+                    $result->status     = SQ_STATUS_UNDER_CONSTRUCTION;
+                }//end if
 	        break;
 	    }//end switch
 	    
@@ -555,6 +542,76 @@ class Google_Analytics_Bridge extends OAuth2_Token implements Bridge
                     );
                 }//end foreach properties
 	        }//end if major side
+	    } else {
+	        // Shadow asset.
+	        list($realid, $shadowid) = explode(':', $assetid, 2);
+	        $shadow_parts = explode('-', $shadowid, 2);
+                    
+            switch ($shadow_parts[0]) {
+                case 'p':
+                    // Property.
+                    $props = $this->getProperties();
+                    if (array_key_exists($shadow_parts[1], $props) === TRUE) {
+                        $property = $props[$shadow_parts[1]];
+                        if ($side_of_link === 'major') {
+                            $views = $this->getViews();
+                            foreach ($views as $view) {
+                                if ($view['sq:propertyId'] === $property['id']) {
+                                $result[] = array(
+                                    'linkid'          => $realid.':v-'.$view['id'],
+                                    'majorid'         => $assetid,
+                                    'minorid'         => $realid.':v-'.$view['id'],
+                                    'minor_type_code' => 'google_analytics_view',
+                                    'link_type'       => SQ_LINK_TYPE_2,
+                                    'value'           => '',
+                                    'sort_order'      => -1,
+                                    'locked'          => 1,
+                                    'is_dependant'    => 1,
+                                    'is_exclusive'    => 1,
+                                );
+                                }
+                            }//end foreach properties
+                        } else {
+                            $result[] = array(
+                                'linkid'          => $assetid.':p-'.$property['id'],
+                                'majorid'         => $realid,
+                                'minorid'         => $assetid,
+                                'major_type_code' => 'google_analytics_bridge',
+                                'link_type'       => SQ_LINK_TYPE_2,
+                                'value'           => '',
+                                'sort_order'      => -1,
+                                'locked'          => 1,
+                                'is_dependant'    => 1,
+                                'is_exclusive'    => 1,
+                            );
+                        }//end if major side
+                    }//end if property exists
+                break;
+                
+                case 'v':
+                    // View.
+                    $views = $this->getViews();                        
+                    if (array_key_exists($shadow_parts[1], $views) === TRUE) {                            
+                        $view = $views[$shadow_parts[1]];
+                        if ($side_of_link === 'major') {
+                            // No major links yet, TODO: goals and experiments
+                        } else {
+                            $result[] = array(
+                                'linkid'          => $assetid.':v-'.$view['id'],
+                                'majorid'         => $realid.':p-'.$view['sq:propertyId'],
+                                'minorid'         => $assetid,
+                                'major_type_code' => 'google_analytics_property',
+                                'link_type'       => SQ_LINK_TYPE_2,
+                                'value'           => '',
+                                'sort_order'      => -1,
+                                'locked'          => 1,
+                                'is_dependant'    => 1,
+                                'is_exclusive'    => 1,
+                            );
+                        }//end if major side
+                    }//end if view exists
+                break;
+            }//end switch
 	    }//end if
 	    
 	    return $result;

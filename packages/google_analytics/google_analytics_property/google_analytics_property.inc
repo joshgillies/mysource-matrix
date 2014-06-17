@@ -16,7 +16,6 @@
 
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
-require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 
 /**
 * Google Analytics Bridge
