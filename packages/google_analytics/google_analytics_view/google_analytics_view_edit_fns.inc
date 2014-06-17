@@ -49,7 +49,7 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	 */
 	public function paintSummaryOverallReport($asset, &$o, $prefix)
 	{
-	    $months = 6;
+	    $months = 1;
 	    $start_date = strtotime('-'.$months.' months 00:00:00');
 	    $end_date   = strtotime('yesterday 00:00:00');
 	    $day_count  = round(1 + (($end_date - $start_date) / 86400), 0);
