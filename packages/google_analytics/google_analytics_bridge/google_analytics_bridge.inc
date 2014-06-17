@@ -186,7 +186,13 @@ class Google_Analytics_Bridge extends OAuth2_Token implements Bridge
 	public function printBody()
 	{
 	    echo '<pre style="word-wrap: break-word; white-space: pre-wrap; font-family: monospace">';
-	    echo print_r($this->getProperties());
+	    
+	    $firstProp = reset($this->getProperties());
+	    $firstView = reset($firstProp['profiles']);
+	    $viewAsset = $this->getAsset($this->id.':v-'.$firstView['id']);
+	    $report    = $viewAsset->generateVisitorsReport();
+	    print_r($report);
+	    
 	    echo '</pre>';
 	    
 	}//end printBody()
@@ -208,7 +214,7 @@ class Google_Analytics_Bridge extends OAuth2_Token implements Bridge
         $refresh_key = $key.'.refresh';
         $expiry      = (4 * 60 * 60);
         
-        $refresh_resp = $this->loadFromFetchCache($this->_getRefreshKey($key));
+        $refresh_resp = $this->loadFromFetchCache($this->getRefreshKey($key));
         if ((string) $refresh_resp === '1') {
             // Not stale yet.
             $response = $this->loadFromFetchCache($key);
@@ -280,13 +286,16 @@ class Google_Analytics_Bridge extends OAuth2_Token implements Bridge
     public function saveToFetchCache($key, $value)
     {
         // TODO: replace with attribute
-        $expiry      = (4 * 60 * 60);
+        $long_expiry = (3 * 365 * 60 * 60);
         $cm          = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
         $key         = 'fetch.'.$key;
-        $refresh_key = $this->_getRefreshKey($key);
+        $refresh_key = $this->getRefreshKey($key);
         
-        $cm->saveToCache($this->id, $this->type(), $key, json_encode($value), FALSE);
-        $cm->saveToCache($this->id, $this->type(), $refresh_key, json_encode('1'), FALSE, $expiry);
+        $cm->saveToCache($this->id, $this->type(), $key, json_encode($value), FALSE, $long_expiry);
+        $cm->saveToCache($this->id, $this->type(), $refresh_key, json_encode('1'), FALSE);
+        
+        $this->loadFromFetchCache(substr($key, 6));
+        $this->loadFromFetchCache(substr($refresh_key, 6));
         
     }//end saveToFetchCache()
     
@@ -311,7 +320,7 @@ class Google_Analytics_Bridge extends OAuth2_Token implements Bridge
     /**
      * Get refresh key.
      */
-    protected function _getRefreshKey($key)
+    public function getRefreshKey($key)
     {
         return $key.'.refresh';
     }
@@ -359,11 +368,15 @@ class Google_Analytics_Bridge extends OAuth2_Token implements Bridge
                 
                 case 400:
                     // Bad request or invalid parameter. Cannot retry.
+                    $errors = $response['result']['error']['errors'];
+                    bam($errors);
                     $retries = 0;
                 break;
                 
                 case 401:
                     // Token has been revoked.
+                    $errors = $response['result']['error']['errors'];
+                    bam($errors);
                     $retries = 0;
                 break;
                 
@@ -469,7 +482,9 @@ class Google_Analytics_Bridge extends OAuth2_Token implements Bridge
 	            if (array_key_exists($shadow_parts[1], $props)) {
                     $GLOBALS['SQ_SYSTEM']->am->includeAsset('google_analytics_property');
                     $result = new Google_Analytics_Property();
-                    $result->id = $this->id.':'.$shadowid;
+                    $result->id       = $this->id.':'.$shadowid;
+                    $result->bridgeid = $this->id;
+                    
                     $name = $props[$shadow_parts[1]]['name'];
                     $result->setAttrValue('name', $name);
                     $result->name       = $name;
@@ -484,7 +499,10 @@ class Google_Analytics_Bridge extends OAuth2_Token implements Bridge
 	            if (array_key_exists($shadow_parts[1], $views)) {
                     $GLOBALS['SQ_SYSTEM']->am->includeAsset('google_analytics_view');
                     $result = new Google_Analytics_View();
-                    $result->id = $this->id.':'.$shadowid;
+                    $result->id         = $this->id.':'.$shadowid;
+                    $result->bridgeid   = $this->id;
+                    $result->propertyid = $views[$shadow_parts[1]]['sq:propertyId'];
+                    
                     $name = $views[$shadow_parts[1]]['name'];
                     $result->setAttrValue('name', $name);
                     $result->name       = $name;
@@ -617,6 +635,22 @@ class Google_Analytics_Bridge extends OAuth2_Token implements Bridge
 	    return $result;
 	    
 	}//end getLinks()
+	
+	
+	/**
+	 *
+	 */
+	public function getLink($assetid, $link_type, $type_code='', $strict_type_code=TRUE, $value='', $side_of_link='major', $exclusive=NULL)
+	{
+	    $result = Array();
+	    $links = $this->getLinks($assetid, $link_type, $type_code, $strict_type_code, $side_of_link);
+	    if (count($links) > 0) {
+	        $result = $links[0];
+	    }
+	    
+	    return $result;
+	    
+	}//end getLink()
 
 
 	/**

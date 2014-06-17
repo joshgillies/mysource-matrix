@@ -32,6 +32,24 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 class Google_Analytics_View extends Asset
 {
     
+    /**
+     * Shortcut to access the bridge asset
+     *
+     * @var string
+     */
+    var $bridgeid = NULL;
+    
+    
+    /**
+     * Property ID
+     *
+     * Just the string provided by GA. Convert to a full asset ID using
+     * $prop_assetid = $this->bridgeid.':p-'.$this->propertyid; 
+     *
+     * @var string
+     */
+    var $propertyid = NULL;
+    
     
 	/**
 	* Constructor
@@ -46,73 +64,117 @@ class Google_Analytics_View extends Asset
 
 	}//end constructor
 
-
+	
+	
+	
 	/**
-	* Perform any additional processing required during the creation of this asset
-	*
-	* Pages add a default web path when they are created
-	*
-	* @param array	&$link	information used to create the initial link
-	*
-	* @return boolean
-	* @access private
-	*/
-	protected function _createAdditional(Array &$link)
+	 * Generate the visitors report for this property
+	 *
+	 * Returns an array of the appropriate data, that can be sent to keywords
+	 * and reports, both front-end and back-end (edit interface).
+	 *
+	 * @return array
+	 */
+	public function generateVisitorsReport($dimensions=Array(), $start_date, $end_date)
 	{
-		if (!parent::_createAdditional($link)) return FALSE;
-
-        // Create an OAuth 2 Token
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset('ouath2_token');
-		$token     = new OAuth2_Token();
-		$link_info = Array(
-		    'asset'        => &$this,
-		    'link_type'    => SQ_LINK_TYPE_3,
-		    'value'        => 'token',
-		    'sort_order'   => 1,
-		    'is_dependant' => 1,
-		    'is_exclusive' => 1,
-		);
-		
-		$token->setAttrValue('name', translate('Authentication Token'));
-		$create_success = $token->create($link_info);
-		return $create_success;
+	    require_once SQ_FUDGE_PATH.'/general/www.inc';
+	    
+	    $GLOBALS['SQ_SYSTEM']->am->includeAsset('google_analytics_bridge');
+	    $bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->bridgeid);
+	    
+	    // Cache for 4 hours.
+        $cache_key = 'visitors';
         
-
-	}//end _createAdditional()
-
-
-	/**
-	* Returns name of the asset
-	*
-	* @param boolean	$short_name	whether or not we are after the shortname or the full name
-	*
-	* @return string
-	* @access private
-	* @see Asset::_getName()
-	*/
-	protected function _getName($short_name=FALSE, $contextid=NULL)
-	{
-		return $this->attr('name');
-
-	}//end _getName()
-
-
-	/**
-	* Returns an array of all the permitted link type, the type asset and the cardinality
-	*
-	* @return array
-	* @access private
-	* @see Asset::_getAllowLinks()
-	*/
-	public function _getAllowedLinks()
-	{
-		$links = parent::_getAllowedLinks();
-		$links[SQ_LINK_TYPE_2]['google_analytics_property'] = Array('card' => 'M', 'exclusive' => FALSE);
-		$links[SQ_LINK_TYPE_3]['oauth2_token'] = Array('card' => '1', 'exclusive' => TRUE);
-
-		return $links;
-
-	}//end _getAllowedLinks()
+        list($realid, $shadowid) = explode(':', $this->id, 2);
+        list(, $viewid) = explode('-', $shadowid, 2);
+        
+        // Query definitions.
+        $common_query_parts = Array(
+            'ids'         => 'ga:'.$viewid,
+            'start-date'  => date('Y-m-d', $start_date),
+            'end-date'    => date('Y-m-d', $end_date),
+            'max-results' => 10000,
+            'start-index' => 1,
+            'fields'      => 'rows',
+        );
+        
+        $queries = Array(
+            'summary' => Array(
+                'dimensions' => $dimensions,
+                'metrics'    => Array(
+                    'ga:sessions',
+                    'ga:newUsers',
+                    'ga:users',
+                    'ga:pageViews',
+                    'ga:sessionDuration',
+                    'ga:bounces'
+                ),
+            ),
+        );
+        
+        $params = array_merge(
+            $queries['summary'],
+            $common_query_parts
+        );
+        
+        $cache_key .= '.'.http_build_query($params, '', ',');
+        
+        $refresh_resp = $bridge->loadFromFetchCache($bridge->getRefreshKey($cache_key));
+        if ((string) $refresh_resp === '1') {
+            // Not stale yet.
+            $response = $bridge->loadFromFetchCache($cache_key);
+        } else {
+            // Stale or doesn't exist. Fetch it, and if it doesn't work, fall
+            // back to any previously existing cache.
+            $url      = Google_Analytics_Bridge::FETCH_PREFIX.'/data/ga';
+            
+            // Flatten out the dimensions and metrics.
+            $url_params = $params;
+            $url_params['dimensions'] = implode(',', $url_params['dimensions']);
+            $url_params['metrics']    = implode(',', $url_params['metrics']);
+            
+            // Also sorting if specified.
+            if (array_key_exists('sort', $url_params) === TRUE) {
+                $url_params['sort'] = implode(',', $url_params['sort']);
+            }
+            
+            if (array_key_exists('filters', $url_params) === TRUE) {
+                foreach ($url_params['filters'] as &$item) {
+                    // Filters can be two-dimensional, but the insides are always
+                    // "OR"d together.
+                    if (is_array($item) === TRUE) {
+                        $item = implode(',', $item);
+                    }
+                }
+                
+                // Then they are "AND"ed.
+                $url_params['filters'] = implode(';', $url_params['filters']);
+            }
+            
+            $url = replace_query_string_vars($url_params, $url);
+            $response = $bridge->fetchWithBackoff($url);
+            
+            if ($response !== NULL) {
+                $bridge->saveToFetchCache($cache_key, $response);
+            } else {
+                $response = $bridge->loadFromFetchCache($cache_key);
+            }
+        }//end if
+        
+        if (($response === FALSE) || ($response === NULL)) {
+            $result = Array();
+        } else {
+            $result = $response['rows'];
+            foreach ($result as &$row) {
+                $row = array_combine(($params['dimensions'] + $params['metrics']), $row);
+            }
+        }//end if
+        
+        return $result;
+	    
+	}//end generateVisitorsReport()
+	
+	
 
 
 }//end class

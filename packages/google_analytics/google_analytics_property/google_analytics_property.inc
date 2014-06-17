@@ -30,6 +30,12 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 */
 class Google_Analytics_Property extends Asset
 {
+    /**
+     * Shortcut to access the bridge asset
+     *
+     * @var string
+     */
+    var $bridgeid = NULL;
     
     
 	/**
