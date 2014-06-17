@@ -31,6 +31,23 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 */
 class Google_Analytics_View extends Asset
 {
+    /**
+     * Common site-level metrics.
+     */
+    const SITE_METRICS = 'ga:sessions,ga:newUsers,ga:users,ga:pageviews,ga:sessionDuration,ga:bounces,ga:goalStartsAll,ga:goalCompletionsAll';
+    
+    /**
+     * Common page-level metrics.
+     */
+    const PAGE_METRICS = 'ga:pageviews,ga:uniquePageviews,ga:entrances,ga:exits,ga:bounces';
+    
+    
+    /**
+     * Shortcut to access the view ID (without ga: prefix).
+     *
+     * @var string
+     */
+    var $viewid = NULL;
     
     /**
      * Shortcut to access the bridge asset
@@ -75,7 +92,7 @@ class Google_Analytics_View extends Asset
 	 *
 	 * @return array
 	 */
-	public function generateVisitorsReport($dimensions=Array(), $start_date, $end_date)
+	public function generateReport($dimensions, $metrics, $start_date, $end_date)
 	{
 	    require_once SQ_FUDGE_PATH.'/general/www.inc';
 	    
@@ -85,12 +102,9 @@ class Google_Analytics_View extends Asset
 	    // Cache for 4 hours.
         $cache_key = 'visitors';
         
-        list($realid, $shadowid) = explode(':', $this->id, 2);
-        list(, $viewid) = explode('-', $shadowid, 2);
-        
         // Query definitions.
         $common_query_parts = Array(
-            'ids'         => 'ga:'.$viewid,
+            'ids'         => 'ga:'.$this->viewid,
             'start-date'  => date('Y-m-d', $start_date),
             'end-date'    => date('Y-m-d', $end_date),
             'max-results' => 10000,
@@ -98,17 +112,18 @@ class Google_Analytics_View extends Asset
             'fields'      => 'rows',
         );
         
+        if (is_string($dimensions)) {
+            $dimensions = explode(',', $dimensions);
+        }
+        
+        if (is_string($metrics)) {
+            $metrics = explode(',', $metrics);
+        }
+        
         $queries = Array(
             'summary' => Array(
                 'dimensions' => $dimensions,
-                'metrics'    => Array(
-                    'ga:sessions',
-                    'ga:newUsers',
-                    'ga:users',
-                    'ga:pageViews',
-                    'ga:sessionDuration',
-                    'ga:bounces'
-                ),
+                'metrics'    => $metrics,
             ),
         );
         
@@ -164,7 +179,7 @@ class Google_Analytics_View extends Asset
         if (($response === FALSE) || ($response === NULL)) {
             $result = Array();
         } else {
-            $result = $response['rows'];
+            $result = array_get_index($response, 'rows', Array());
             foreach ($result as &$row) {
                 $row = array_combine(($params['dimensions'] + $params['metrics']), $row);
             }

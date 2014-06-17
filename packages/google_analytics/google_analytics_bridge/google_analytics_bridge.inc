@@ -187,11 +187,7 @@ class Google_Analytics_Bridge extends OAuth2_Token implements Bridge
 	{
 	    echo '<pre style="word-wrap: break-word; white-space: pre-wrap; font-family: monospace">';
 	    
-	    $firstProp = reset($this->getProperties());
-	    $firstView = reset($firstProp['profiles']);
-	    $viewAsset = $this->getAsset($this->id.':v-'.$firstView['id']);
-	    $report    = $viewAsset->generateVisitorsReport();
-	    print_r($report);
+	    
 	    
 	    echo '</pre>';
 	    
@@ -211,9 +207,6 @@ class Google_Analytics_Bridge extends OAuth2_Token implements Bridge
         $key      = 'accountSummaries';
         $response = Array();
         
-        $refresh_key = $key.'.refresh';
-        $expiry      = (4 * 60 * 60);
-        
         $refresh_resp = $this->loadFromFetchCache($this->getRefreshKey($key));
         if ((string) $refresh_resp === '1') {
             // Not stale yet.
@@ -231,12 +224,14 @@ class Google_Analytics_Bridge extends OAuth2_Token implements Bridge
             }
         }//end if
         
+        
         if (($response === FALSE) || ($response === NULL)) {
             $props = Array();
         } else {
-            foreach ($response['items'] as $account) {
-                foreach ($account['webProperties'] as $property) {
-                    $props[$property['id']] = $property;
+            foreach (array_get_index($response, 'items', Array()) as $account) {
+                foreach ($account['webProperties'] as $property) {                    
+                    $property['sq:accountId'] = $account['id'];
+                    $props[$property['id']]   = $property;
                 }
             }//end foreach
         }//end if
@@ -247,7 +242,9 @@ class Google_Analytics_Bridge extends OAuth2_Token implements Bridge
 
 
     /**
+     * Gets a list of views from the properties array.
      *
+     * @return array
      */
     public function getViews()
     {
@@ -256,6 +253,7 @@ class Google_Analytics_Bridge extends OAuth2_Token implements Bridge
         
         foreach ($props as $propid => $prop) {
             foreach ($prop['profiles'] as $view) {
+                $view['sq:accountId']  = $prop['sq:accountId'];
                 $view['sq:propertyId'] = $propid;
                 $views[$view['id']] = $view;
             }
@@ -264,6 +262,96 @@ class Google_Analytics_Bridge extends OAuth2_Token implements Bridge
         return $views;
         
     }//end getViews()
+    
+    
+    /**
+     * 
+     */
+    public function getGoals($viewid)
+    {
+        // Cache for 4 hours.
+        $cm       = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+        $key      = 'goals,'.$viewid;
+        $response = Array();
+        
+        $refresh_key = $key.'.refresh';
+        $expiry      = (4 * 60 * 60);
+        
+        $refresh_resp = $this->loadFromFetchCache($this->getRefreshKey($key));
+        if ((string) $refresh_resp === '1') {
+            // Not stale yet.
+            $response = $this->loadFromFetchCache($key);
+        } else {
+            // Stale or doesn't exist. Fetch it, and if it doesn't work, fall
+            // back to any previously existing cache.
+            $url      = self::FETCH_PREFIX.'/management/accounts/~all/webproperties/~all/profiles/~all/goals';
+            $response = $this->fetchWithBackoff($url);
+            
+            if ($response !== NULL) {
+                $this->saveToFetchCache($key, $response);
+            } else {
+                $response = $this->loadFromFetchCache($key);
+            }
+        }//end if
+        
+        if (($response === FALSE) || ($response === NULL)) {
+            $goals = Array();
+        } else {
+            $goals = Array();
+            foreach (array_get_index($response, 'items', Array()) as $goal) {
+                if ($goal['profileId'] === $viewid) {
+                    $goals[$goal['id']] = $goal;
+                }
+            }//end foreach
+        }//end if
+        
+        return $goals;
+    }//end getGoals()
+    
+    
+    /**
+     * 
+     */
+    public function getExperiments($viewid)
+    {
+        // Cache for 4 hours.
+        $cm       = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+        $key      = 'experiments,'.$viewid;
+        $response = Array();
+        $views    = $this->getViews();
+        $view     = $views[$viewid];
+        
+        $refresh_key = $key.'.refresh';
+        $expiry      = (4 * 60 * 60);
+        
+        $refresh_resp = $this->loadFromFetchCache($this->getRefreshKey($key));
+        if ((string) $refresh_resp === '1') {
+            // Not stale yet.
+            $response = $this->loadFromFetchCache($key);
+        } else {
+            // Stale or doesn't exist. Fetch it, and if it doesn't work, fall
+            // back to any previously existing cache.
+            $url      = self::FETCH_PREFIX.'/management/accounts/'.$view['sq:accountId'].'/webproperties/'.$view['sq:propertyId'].'/profiles/'.$viewid.'/experiments';
+            $response = $this->fetchWithBackoff($url);
+            
+            if ($response !== NULL) {
+                $this->saveToFetchCache($key, $response);
+            } else {
+                $response = $this->loadFromFetchCache($key);
+            }
+        }//end if
+        
+        if (($response === FALSE) || ($response === NULL)) {
+            $experiments = Array();
+        } else {
+            $experiments = Array();
+            foreach (array_get_index($response, 'items', Array()) as $experiment) {
+                $experiments[$experiment['id']] = $experiment;
+            }//end foreach
+        }//end if
+        
+        return $experiments;
+    }//end getExperiments()
     
     
     /**
@@ -500,6 +588,7 @@ class Google_Analytics_Bridge extends OAuth2_Token implements Bridge
                     $GLOBALS['SQ_SYSTEM']->am->includeAsset('google_analytics_view');
                     $result = new Google_Analytics_View();
                     $result->id         = $this->id.':'.$shadowid;
+                    $result->viewid     = $shadow_parts[1];
                     $result->bridgeid   = $this->id;
                     $result->propertyid = $views[$shadow_parts[1]]['sq:propertyId'];
                     
