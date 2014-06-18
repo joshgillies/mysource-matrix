@@ -307,8 +307,8 @@ class File_Bridge extends Asset implements Bridge
 
 			}//end else - looking from shadow asset
 
-			$sort_by = str_replace("'", '', $sort_by);
 			if (!is_null($sort_by)) {
+				$sort_by = str_replace("'", '', $sort_by);
 				uasort($links, create_function('$a,$b', 'return $a[\''.$sort_by.'\'] < $b[\''.$sort_by.'\'];'));
 			}
 
