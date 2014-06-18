@@ -512,6 +512,11 @@ The status of the bundle "%bundle_name%" is now "%new_status%"</body>
 		<subject>Proxy Authentication Config Updated</subject>
 		<body>Value (not shown here) for %setting% has been changed</body>
 	</message>
+	<message type="config.system_maintenance_config">
+		<subject>System Maintenance Mode Config Updated</subject>
+		<body>%setting% changed from %old_value% to %new_value%</body>
+	</message>
+
 	<message type="prefs.system">
 		<subject>Global Preferences Updated</subject>
 		<body>%type_code% preference variable %setting% changed from %old_value% to %new_value%</body>

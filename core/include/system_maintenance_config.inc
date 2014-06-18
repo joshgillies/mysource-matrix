@@ -164,20 +164,20 @@ class System_Maintenance_Config extends Config
 		$o->openSection(translate('maintenance_mode'));
 		$o->openField(translate('maintenance_mode'), '', translate('maintenance_mode_note'));
 		if ($write_access && $is_admin) {
-			combo_box($class.'[SQ_MAINTENANCE_MODE]', Array('0' => translate('no'), '1' => translate('yes')), FALSE, SQ_MAINTENANCE_MODE);
+			combo_box($class.'[SQ_MAINTENANCE_MODE]', Array('0' => translate('disabled'), '1' => translate('enabled')), FALSE, SQ_MAINTENANCE_MODE);
 		} else {
-			echo (SQ_MAINTENANCE_MODE) ? translate('yes') : translate('no');
+			echo (SQ_MAINTENANCE_MODE) ? translate('enabled') : translate('disabled');
 		}
 		$o->closeField();
 
-		$o->openField(translate('backend_maintenance_message'));
+		$o->openField(translate('backend_maintenance_message'), '', translate('backend_maintenance_message_note'));
 			$wysiwyg_prefix = $class.'_SQ_MAINTENANCE_BACKEND_MESSAGE';
 			$wysiwyg = new Asset_Attribute_WYSIWYG();
 			$wysiwyg->value = SQ_MAINTENANCE_BACKEND_MESSAGE;
 			$wysiwyg->paint($wysiwyg_prefix, !$write_access);
 		$o->closeField();
 
-		$o->openField(translate('frontend_maintenance_message'));
+		$o->openField(translate('frontend_maintenance_message'), '', translate('frontend_maintenance_message_note'));
 			$wysiwyg_prefix = $class.'_SQ_MAINTENANCE_FRONTEND_MESSAGE';
 			$wysiwyg = new Asset_Attribute_WYSIWYG();
 			$wysiwyg->value = SQ_MAINTENANCE_FRONTEND_MESSAGE;
@@ -185,21 +185,21 @@ class System_Maintenance_Config extends Config
 		$o->closeField();
 
 
-		$o->openField(translate('affected_asset_types'));
+		$o->openField(translate('affected_asset_types'), '', translate('affected_asset_types_note'));
 			$this->paintAssetTypes($o, $class);
 		$o->closeField();
 
-		$o->openField(translate('affected_root_nodes'));
+		$o->openField(translate('affected_root_nodes'), '', translate('affected_root_nodes_note'));
 			$this->paintRootNode($o, $class);
 		$o->closeField();
 
-		$o->openField(translate('excluded_root_nodes'));
+		$o->openField(translate('excluded_root_nodes'), '', translate('excluded_root_nodes_note'));
 			$this->paintExcludeRootNode($o, $class);
 		$o->closeField();
 
 		$o->openField(translate('retry_after'), '', translate('retry_after_note'));
 			if ($write_access && $is_admin) {
-				text_box($class.'[SQ_MAINTENANCE_RETRY_AFTER]', SQ_MAINTENANCE_RETRY_AFTER, 20);
+				text_box($class.'[SQ_MAINTENANCE_RETRY_AFTER]', SQ_MAINTENANCE_RETRY_AFTER, 40);
 			} else {
 				echo SQ_MAINTENANCE_RETRY_AFTER;
 			}

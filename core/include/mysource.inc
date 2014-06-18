@@ -4734,7 +4734,7 @@ class MySource extends MySource_Object
 			<table class="sq-backend-table sq-backend-warning-table">
 				<tr>
 					<th class="sq-backend-warning-header">
-						<?php echo translate('maintenance_mode'); ?>
+						<?php echo translate('maintenance_mode_enabled'); ?>
 					</th>
 				</tr>	
 				<tr>
