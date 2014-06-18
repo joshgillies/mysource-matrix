@@ -3660,15 +3660,17 @@ class JS_Api extends Page
 				}
 
 				$field_name		= $field->attr('name');
+				$field_value	= ($new_value[$i] == 'null') ? NULL : $new_value[$i];
 				$metadata_info	= Array (
 									$fieldid[$i]	=> Array (
 														Array (
 															'name'	=> $field_name,
-															'value'	=> $new_value[$i],
+															'value'	=> $field_value,
 														),
 													   ),
 								  );
 				// Set metadata
+
 				if (!$mm->setMetadata($assetid, $metadata_info)) $s_result = FALSE;
 
 			}//end for
