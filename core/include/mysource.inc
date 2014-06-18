@@ -3934,36 +3934,10 @@ class MySource extends MySource_Object
 		}
 
 		?>
-		<div class="sq-rollback-warning-wrapper">
-			<style>
-			.sq-rollback-warning-table {
-				border: 1px solid #e0d3a2 !important;
-			}
-			.sq-rollback-warning-table th{
-				border-bottom: 1px solid #e0d3a2 !important;
-				background:	#fff1bb;
-				color: #000;
-				text-shadow: none;
-			}
-			.sq-rollback-warning-table .sq-rollback-header{
-				background:	#fff1bb url(<?php echo sq_web_path('lib').'/web/images/warning.png'; ?>) no-repeat 5px 6px !important;
-				padding-left: 35px;
-				border-right: none;
-			}
-			.sq-rollback-warning-table td{
-				background:#fff1bb !important;
-			}
-			.sq-rollback-warning-table img{
-				vertical-align: top;
-			}
-			.sq-rollback-warning {
-				color: #000;
-				font-size: 11px;
-			}
-			</style>
-			<table class="sq-backend-table sq-rollback-warning-table">
+		<div class="sq-backend-warning-wrapper">
+			<table class="sq-backend-table sq-backend-warning-table">
 				<tr>
-					<th class="sq-rollback-header">
+					<th class="sq-backend-warning-header">
 						<?php echo translate('in_rollback_mode'); ?>
 					</th>
 					<th style="text-align:right;">
@@ -3974,6 +3948,7 @@ class MySource extends MySource_Object
 							?>
 						</a>
 					</th>
+				</tr>
 				<tr>
 					<td colspan="2" class="sq-rollback-warning"><?php echo $warning_message; ?>
 					</td>
@@ -3983,6 +3958,7 @@ class MySource extends MySource_Object
 		<?php
 
 	}//end printRollbackWarning()
+
 
 
 	/**
@@ -4743,6 +4719,34 @@ class MySource extends MySource_Object
 
 	}//end addRawContent()
 
+
+	/**
+	* Prints a warning box to let the user know that system is in maintenance mode. No changes will be saved.
+	*
+	* @return void
+	* @access public
+	*/
+	function printMaintenanceWarning()
+	{
+
+		?>
+		<div class="sq-backend-warning-wrapper">
+			<table class="sq-backend-table sq-backend-warning-table">
+				<tr>
+					<th class="sq-backend-warning-header">
+						<?php echo translate('maintenance_mode'); ?>
+					</th>
+				</tr>	
+				<tr>
+					<td colspan="2" ><?php echo SQ_MAINTENANCE_BACKEND_MESSAGE; ?>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<?php
+
+	}//end printMaintenanceWarning()
+	
 
 }//end class
 ?>

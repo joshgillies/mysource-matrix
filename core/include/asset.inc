@@ -4940,7 +4940,14 @@ class Asset extends MySource_Object
 			$design->paint($asset);
 		} else {
 			// we can't find a design, oh well let's just print out our body
-			$asset->printBody();
+			if($this->inMaintenanceMode()) {
+				echo SQ_MAINTENANCE_FRONTEND_MESSAGE;
+				header('HTTP/1.1 503 Service Unavailable');
+				header('Retry-After: '.SQ_MAINTENANCE_RETRY_AFTER);
+			}
+			else {
+				$asset->printBody();
+			}	
 		}
 
 		if (!is_null($original_asset)) {
@@ -5124,8 +5131,15 @@ class Asset extends MySource_Object
 				$GLOBALS['SQ_SYSTEM']->unsetGlobalDefine('SQ_PAINT_LAYOUT_ID');
 			}
 		} else {
-			// we can't find a layout, oh well let's just print out our body
-			$this->printBody();
+			// we can't find a design, oh well let's just print out our body
+			if($this->inMaintenanceMode()) {
+				echo SQ_MAINTENANCE_FRONTEND_MESSAGE;
+				header('HTTP/1.1 503 Service Unavailable');
+				header('Retry-After: '.SQ_MAINTENANCE_RETRY_AFTER);
+			}
+			else {
+				$this->printBody();
+			}	
 		}
 
 	}//end printBodyWithPaintLayout()
@@ -7016,6 +7030,70 @@ class Asset extends MySource_Object
 	}//end evaluateConditions
 	
 	
+
+	/**
+	*
+	* Is this asset in maintenance mode?
+	*
+	*
+	* @return bool
+	* @access public
+	*/
+	public function inMaintenanceMode()
+	{
+		require_once SQ_DATA_PATH.'/private/conf/maintenance.inc';
+		if(!SQ_MAINTENANCE_MODE) return FALSE;
+
+		
+		// check if current asset type is covered by maintenance mode
+		$current_type = $this->type();
+		$types = Array();
+		$covered = FALSE;
+		foreach (explode('|', SQ_MAINTENANCE_ASSET_TYPE) as $type) {
+			if(empty($type)) continue;
+			$type_array = explode(':', $type);
+			$types[$type_array[0]] = $type_array[1];
+		}
+		foreach ($types as $type => $inherit) {
+			if($type === $current_type) {
+				$covered = TRUE;
+				break;
+			}
+			if($inherit) {
+				$decendents = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type);
+				if(in_array($current_type, $decendents)) {
+					$covered = TRUE;
+					break;
+				}
+			}
+		}
+		if(!$covered) return FALSE;
+
+		// check if current asset is in root node list
+		$covered = FALSE;
+		$root_asset_ids = Array();
+		foreach (explode('|', SQ_MAINTENANCE_ROOT_NODE) as $node) {
+			if(empty($node)) continue;
+			$root_asset_ids[] = $node;
+		}
+		$excluded_root_asset_ids = Array();
+		foreach (explode('|', SQ_MAINTENANCE_EXCLUDE_ROOT_NODE) as $node) {
+			if(empty($node)) continue;
+			$excluded_root_asset_ids[] = $node;
+		}
+
+
+		if(!empty($root_asset_ids)) {
+			$isUnder = $GLOBALS['SQ_SYSTEM']->am->isUnderRootNodes($this->id, $root_asset_ids);
+			$isExcluded = $GLOBALS['SQ_SYSTEM']->am->isUnderRootNodes($this->id, $excluded_root_asset_ids);
+			if($isUnder && !$isExcluded) $covered = TRUE;
+		}
+		if(!$covered) return FALSE;
+
+
+
+	    return TRUE;
+	}//end inMaintenanceMode
 	
 }//end class
 

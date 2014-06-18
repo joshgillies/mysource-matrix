@@ -605,6 +605,19 @@
 	<string source="system_maintenance">System Maintenance</string>
 	<string source="reports_and_maintenance_tasks">Reports and Maintenance Tasks</string>
 	<string source="general_reports_not_installed">There are no General Reports installed</string>
+	<string source="reports">Reports</string>
+	<string source="maintenance_mode">Maintenance Mode</string>
+	<string source="maintenance_mode_note">If enabled, Backend Maintenance Message will be displayed in Admin interface. Frontend Maintenance Message will be displayed for affected asset types under affected root nodes. Use keyword %%globals_system_maintenance_message_frontend%% and %%globals_system_maintenance_message_backend%% to custom print the message in desired location.</string>
+	<string source="system_maintenance_configuration">System Maintenance Configuration</string>
+	<string source="backend_maintenance_message">Backend Maintenance Message</string>
+	<string source="frontend_maintenance_message">Frontend Maintenance Message</string>
+	<string source="maintenance_mode_backend_message">You are currently viewing the system in Maintenance Mode. Any changes made will not be saved.</string>
+	<string source="maintenance_mode_frontend_message">This site is currently in Maintenance Mode.</string>
+	<string source="affected_asset_types">Affected Asset Types</string>
+	<string source="affected_root_nodes">Affected Root Nodes</string>
+	<string source="excluded_root_nodes">Excluded Root Nodes</string>
+	<string source="retry_after">Retry After</string>
+	<string source="retry_after_note">The asset affected will send a 503 Service Unavailable header and Retry-After header to indicate how long the service is expected to be unavailable. The value of this field can be either an HTTP-date or an integer number of seconds.</string>
 
 	<string source="asset_tree">Asset Tree</string>
 	<string source="login_as">Login As</string>
@@ -1148,6 +1161,8 @@
 	<string source="condition_asset_type_false">The current asset is NOT of any of the following types</string>
 	<string source="condition_has_children_true">The current asset has children of any of the following types</string>
 	<string source="condition_has_children_false">The current asset does NOT have children of any of the following types</string>
+	<string source="condition_in_maintenance_mode_true">The system is in Maintenance Mode</string>
+	<string source="condition_in_maintenance_mode_false">The system is NOT in Maintenance Mode</string>
 
 	<!-- General condition strings and notes -->
 	<string source="condition_match_on_following_keywords">Match on %s of the following keywords</string>

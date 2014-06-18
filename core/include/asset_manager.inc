@@ -10601,32 +10601,45 @@ class Asset_Manager extends MySource_Object
 		if (empty($root_nodes)) return FALSE;
 		$matched_root_nodes = Array();
 
-		// get treeids of root nodes
-		$root_node_treeids = $this->getAssetTreeids($root_nodes);
+		// if 1 is in the root node list, there is no need to check root node at all.
+		$check_root_node = TRUE;
+		if(in_array('1', $root_nodes)) {
+			$check_root_node = FALSE;
+		}
 
-		// if checking for the root nodes that have been deleted by the user
-		// then the treeids wont be populated. best is the bail out from here
-		if(empty($root_node_treeids)) return FALSE;
+		if($check_root_node) {
+			// get treeids of root nodes
+			$root_node_treeids = $this->getAssetTreeids($root_nodes);
 
-		// put all the treeids of root nodes into an array of 'where' conditions
-		// i.e.
-		//Array
-		//(
-		//    [0] => t.treeid LIKE '00060000%'
-		//    [1] => t.treeid LIKE '00060001%'
-		//    [2] => t.treeid LIKE '000600020000%'
-		//)
-		$all_root_treeids = Array();
-		foreach ($root_node_treeids as $root_node_assetid => $treeids) {
-			foreach ($treeids as $treeid) {
-				$all_root_treeids[] = 't.treeid LIKE '. MatrixDAL::quote($treeid[0] . '%');
+			// if checking for the root nodes that have been deleted by the user
+			// then the treeids wont be populated. best is the bail out from here
+			if(empty($root_node_treeids)) return FALSE;
+
+			// put all the treeids of root nodes into an array of 'where' conditions
+			// i.e.
+			//Array
+			//(
+			//    [0] => t.treeid LIKE '00060000%'
+			//    [1] => t.treeid LIKE '00060001%'
+			//    [2] => t.treeid LIKE '000600020000%'
+			//)
+			$all_root_treeids = Array();
+			foreach ($root_node_treeids as $root_node_assetid => $treeids) {
+				foreach ($treeids as $treeid) {
+					$all_root_treeids[] = 't.treeid LIKE '. MatrixDAL::quote($treeid[0] . '%');
+				}//end foreach
 			}//end foreach
-		}//end foreach
 
-		// query the db to see if the asset is under the treeids
-		$sql = 'SELECT l.majorid, t.treeid
-				FROM sq_ast_lnk l JOIN sq_ast_lnk_tree t ON l.linkid=t.linkid
-				WHERE l.minorid=:assetid and (' . implode(' OR ', $all_root_treeids) . ')';
+			// query the db to see if the asset is under the treeids
+			$sql = 'SELECT l.majorid, t.treeid
+					FROM sq_ast_lnk l JOIN sq_ast_lnk_tree t ON l.linkid=t.linkid
+					WHERE l.minorid=:assetid and (' . implode(' OR ', $all_root_treeids) . ')';
+		}
+		else {
+			$sql = 'SELECT l.majorid, t.treeid FROM sq_ast_lnk l JOIN sq_ast_lnk_tree t ON l.linkid=t.linkid WHERE l.minorid=:assetid';
+		}
+
+
 		try {
 			$query = MatrixDAL::preparePdoQuery($sql);
 			MatrixDAL::bindValueToPdo($query, 'assetid', $assetid);

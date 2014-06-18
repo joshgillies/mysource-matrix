@@ -2045,6 +2045,8 @@ function get_available_global_keywords()
 					'globals_page_referrer'	=> 'Global Keywords - Page Referrer',
 					'globals_site_referrer'	=> 'Global Keywords - Site Referrer',
 					'globals_marketo_lead'	=> 'Global Keywords - Marketo Lead Data',
+					'globals_system_maintenance_'	=> 'Global Keywords - System Maintenance Mode keywords',
+
 				);
 
 	return $ret;
@@ -2506,6 +2508,25 @@ function replace_global_keywords(&$text)
 									}
 								}
 					   	}
+					}
+
+					// system maintenance mode keywords
+					if (0 === strpos($keyword, 'globals_system_maintenance_')) {
+						require_once (SQ_DATA_PATH.'/private/conf/maintenance.inc');
+						$sub_keyword = substr($keyword, 27);
+						if($sub_keyword === 'mode') {
+							$replacements[$full_keyword] = SQ_MAINTENANCE_MODE ? 'true' : 'false';
+						}
+						else if(SQ_MAINTENANCE_MODE) {
+							if($sub_keyword === 'message_backend') {
+								$replacements[$full_keyword] = SQ_MAINTENANCE_BACKEND_MESSAGE;
+							}
+							else if($sub_keyword === 'message_frontend') {
+								$replacements[$full_keyword] = SQ_MAINTENANCE_FRONTEND_MESSAGE;
+							}
+							header('HTTP/1.1 503 Service Unavailable');
+							header('Retry-After: '.SQ_MAINTENANCE_RETRY_AFTER);
+						}
 					}
 
 
