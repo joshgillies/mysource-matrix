@@ -413,8 +413,6 @@ function setMetadata(asset_id, field_id, field_val, dataCallback)
 	// Create blank function
 	var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
 
-	field_val = (!isset(field_val) || ( field_val.toString().toLowerCase() == 'null' )) ? 'null' : field_val;
-
 	// Build our string
 	var url = '<?php echo $api_url; ?>' + '?key=' + api_key + '&type=setMetadata&id=' + asset_id + '&field_id=' + field_id + '&field_val=' + field_val.replace(/#/g , "%23").replace(/&/g , "%26").replace(/\?/g , "%3F").replace(/\+/g , "%2B");
 
@@ -443,7 +441,6 @@ function setMetadataAllFields(asset_id, field_info, dataCallback)
 	for (var field_id in field_info) {
 		// construct our query strings to be passed
 		field_ids = field_ids + field_id + '\\,';
-		field_info[field_id] = (!isset(field_info[field_id]) || ( field_info[field_id].toString().toLowerCase() == 'null' )) ? 'null' : field_info[field_id];
 		field_vals = field_vals + field_info[field_id].replace(/&/g , "%26").replace(/#/g , "%23").replace(/\?/g , "%3F").replace(/\+/g , "%2B") + '\\,' ;
 	}
 

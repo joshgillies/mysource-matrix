@@ -829,9 +829,6 @@ class Js_Api_Enhanced_Function_List
 			for (var field_id in options.field_info) {
 				if (options.field_info.hasOwnProperty(field_id)){
 					field_ids.push(field_id);
-					if (options.field_info[field_id] == null || typeof((options.field_info[field_id])) == undefined) {
-							options.field_info[field_id] = 'null';
-					}
 					field_vals.push(this._cleanUrlParam(options.field_info[field_id]));
 				}// end if
 			}// end of
