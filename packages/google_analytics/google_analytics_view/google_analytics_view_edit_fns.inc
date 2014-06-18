@@ -39,6 +39,13 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	function __construct()
 	{
 		parent::__construct();
+		
+		// enable just the details
+		// disable lock section
+		$this->static_screens = Array();
+		$this->static_screens['details']['name'] = translate('Details');
+		$this->static_screens['details']['force_unlock'] = FALSE;
+		$this->static_screens['details']['lock_type'] = 'none';
 
 	}//end constructor
 	
@@ -181,16 +188,16 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	            <th><?php echo translate('Session duration') ?></th>
 	            <td><?php 
 	            $time = $report['ga:sessionDuration'] / $report['ga:sessions'];
-                    if ($time > 60) {
-                        echo sprintf(translate('%s min %s sec', '%s', '%s'), (int)($time / 60), ($time % 60));
+                    if ($time >= 60) {
+                        echo sprintf(translate('%s min %s sec', '%s', '%s'), (int)($time / 60), floor($time % 60));
                     } else {
                         echo sprintf(translate('%s sec', '%s'), (floor($time * 10) / 10));
                     }
 	            ?></td>
 	            <td colspan="2"><?php
 	                $nb_time = $report['ga:sessionDuration'] / ($report['ga:sessions'] - $report['ga:bounces']);
-                    if ($nb_time > 60) {
-                        $nb_str = sprintf(translate('%s min %s sec', '%s', '%s'), (int)($nb_time / 60), ($nb_time % 60));
+                    if ($nb_time >= 60) {
+                        $nb_str = sprintf(translate('%s min %s sec', '%s', '%s'), (int)($nb_time / 60), floor($nb_time % 60));
                     } else {
                         $nb_str = sprintf(translate('%s sec', '%s'), (floor($nb_time * 10) / 10));
                     }
@@ -394,7 +401,336 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	    $o->closeRaw();
 	    $o->closeSection();
 	    
+	    return FALSE;
+	    
 	}//end paintSummaryOverallReport()
+	
+	/**
+	 * Paint the geographic reports.
+	 *
+	 */
+	public function paintGeoCountryReport($asset, &$o, $prefix)
+	{
+	    $max_results = 20;
+	    $months      = 1;
+	    $start_date  = strtotime('-'.$months.' months 00:00:00');
+	    $end_date    = strtotime('yesterday 00:00:00');
+	    $day_count   = round(1 + (($end_date - $start_date) / 86400), 0);
+	    $raw_report  = $asset->generateReport(
+	        Array(
+	            'ga:country',
+	            'ga:region',
+	            'ga:city',
+            ),
+	        Google_Analytics_View::SITE_METRICS,
+	        $start_date,
+	        $end_date,
+	        Array('-ga:sessions')
+	    );
+	    
+	    $total_sessions = 0;
+	    $crop_sessions  = 0;
+	    $report         = Array();
+	    $city_report    = Array();
+	    
+	    $i = 0;
+	    foreach ($raw_report as $rowid => &$row) {
+	        $total_sessions += $row['ga:sessions'];
+	        if ($row['ga:country'] === '(not set)') {
+	            $crop_sessions += $row['ga:sessions'];
+                unset($report[$rowid]);
+	        } else {
+	            $country = $row['ga:country'];
+	            $city    = $row['ga:city'];
+	            
+	            if ($city === '(not set)') {
+	                $city = $row['ga:region'];
+	            } else if ($row['ga:region'] !== '(not set)') {
+	                $city .= ', '.$row['ga:region'];
+	            }
+	            
+	            if ($city !== '(not set)') {
+	                $i++;
+	                $city_report[$country] = array_get_index($city_report, $country, Array());
+                    $city_report[$country][$city] = $row;
+                    $city_report[$country][$city]['sq:cityRegion'] = $city;
+                    $city_report[$country][$city]['sq:rank'] = $i;
+                }
+	            
+	            if (array_key_exists($country, $report) === TRUE) {
+	                foreach ($row as $fieldid => &$value) {
+	                    if (is_numeric($value) === TRUE) {
+	                        $report[$country][$fieldid] += $value;
+	                    }
+	                }
+	            } else {
+	                $report[$country] = $row;
+	            }
+	        }
+	    }//end foreach
+	    
+	    usort($report, function($a, $b) {
+	        return $b['ga:sessions'] - $a['ga:sessions'];
+	    });
+	    
+	    foreach ($city_report as $country => &$city_rows) {
+            usort($city_rows, function($a, $b) {
+                return $a['sq:rank'] - $b['sq:rank'];
+            });
+            $city_rows = array_slice($city_rows, 0, 5);
+	    }	  
+	    
+	    $other_report = array_reduce(
+	        array_slice($report, $max_results),
+	        function($carry, $row) {
+	            if (empty($carry) === FALSE) {
+	                foreach ($row as $fieldid => &$value) {
+	                    if (is_numeric($value) === TRUE) {
+	                        $carry[$fieldid] += $value;
+	                    }
+	                }
+	            } else {
+	                $carry = $row;
+	            }
+	            
+	            return $carry;
+	        },
+	        Array()
+	    );
+	    
+	    $other_report['ga:country'] = translate('Other countries (%s)', count($report) - $max_results);
+	    $other_report['sq:other']   = TRUE;
+	    $report = array_slice($report, 0, $max_results);
+	    $report[] = $other_report;
+	    
+	    $o->openField(translate('Reporting Period'));
+	        echo sprintf(
+	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
+	            '<strong>'.date('jS M Y', $start_date).'</strong>',
+	            '<strong>'.date('jS M Y', $end_date).'</strong>',
+	            $day_count
+	        );
+	    $o->closeField();
+	    
+	    $o->openField(translate('Total Sessions'));
+            echo translate(
+                '%s / %s sessions analysed',
+                number_format(($total_sessions - $crop_sessions), 0),
+                number_format($total_sessions, 0)
+            );
+	    
+            if ($crop_sessions > 0) {
+                $o->note(translate(
+                    'Only %s%% of all session details provide location information',
+                    number_format(((1 - ($crop_sessions / $total_sessions)) * 100.0), 2)
+                ));
+            }
+        $o->closeField();
+	    
+	    $o->openRaw();
+	    ?><table class="sq-backend-table">
+	    <col width="40%" />
+	    <col width="8.5%" />
+	    <col width="6.5%" />
+	    <col width="15%" />
+	    <col width="15%" />
+	    <col width="15%" />
+	    <tbody>
+	        <tr>
+	            <th><?php echo translate('Country') ?></th>
+	            <th colspan="2"><?php echo translate('Sessions') ?></td>
+	            <th><?php echo translate('Unique Users') ?></td>
+	            <th><?php echo translate('Page Views / Session') ?></td>
+	            <th><?php echo translate('Session Duration') ?></td>
+	        </tr><?php
+	        $rank = 0;
+	        foreach ($report as $row) {
+	            $rank++;
+            ?><tr>
+                <th><?php 
+                $country = $row['ga:country'];
+                if (array_key_exists('sq:other', $row) === FALSE) {
+                    echo $rank.'. '.$row['ga:country'];
+                } else {
+                    echo $row['ga:country'];
+                } ?></th>
+                <th style="text-align: right"><strong><?php echo number_format($row['ga:sessions'], 0); ?></strong></th>
+                <th style="text-align: right"><?php echo number_format($row['ga:sessions'] / $total_sessions * 100.0, 2).'%'; ?></th>
+                <th style="text-align: right"><?php echo number_format($row['ga:users'], 0); ?></th>
+                <th style="text-align: right"><?php
+                if ($row['ga:sessions'] === 0) {
+                    echo translate('N/A');
+                } else {
+                    echo number_format($row['ga:pageviews'] / $row['ga:sessions'], 1);
+                }
+                ?></th>
+                <th style="text-align: right"><?php
+                if ($row['ga:sessions'] === 0) {
+                    echo translate('N/A');
+                } else {
+                    $time = $row['ga:sessionDuration'] / $row['ga:sessions'];
+                    if ($time >= 60) {
+                        echo sprintf(translate('%s min %s sec', '%s', '%s'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
+                    } else {
+                        echo sprintf(translate('%s sec', '%s'), floor($time));
+                    }
+                }
+                ?></th><?php
+                if (array_key_exists('sq:other', $row) === FALSE) {
+                    foreach ($city_report[$country] as $city_row) {
+                    ?><tr>
+                        <td><?php 
+                        echo '<span style="float: left; padding-left: 3ex">';
+                        echo $city_row['sq:cityRegion'];
+                        echo '</span><span style="float: right"><em>(#'.$city_row['sq:rank'].')</em></span>'; 
+                        ?></td>
+                        <td style="text-align: right"><strong><?php echo number_format($city_row['ga:sessions'], 0); ?></strong></td>
+                        <td style="text-align: right"><?php echo number_format($city_row['ga:sessions'] / $total_sessions * 100.0, 2).'%'; ?></td>
+                        <td style="text-align: right"><?php echo number_format($city_row['ga:users'], 0); ?></td>
+                        <td style="text-align: right"><?php
+                        if ($city_row['ga:sessions'] === 0) {
+                            echo translate('N/A');
+                        } else {
+                            echo number_format($city_row['ga:pageviews'] / $city_row['ga:sessions'], 1);
+                        }
+                        ?></td>
+                        <td style="text-align: right"><?php
+                        if ($city_row['ga:sessions'] === 0) {
+                            echo translate('N/A');
+                        } else {
+                            $time = $city_row['ga:sessionDuration'] / $city_row['ga:sessions'];
+                            if ($time >= 60) {
+                                echo sprintf(translate('%s min %s sec', '%s', '%s'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
+                            } else {
+                                echo sprintf(translate('%s sec', '%s'), floor($time));
+                            }
+                        }
+                        ?></td>
+                    </tr><?php
+                    }//end if city rows
+                }//end if not other
+            ?></tr><?php
+            }
+            ?></tbody></table><?php
+	    $o->closeRaw();
+	    
+	    return FALSE;
+	    
+	}//end paintGeographicReport()
+	
+	
+	/**
+	 * Paint the geographic reports.
+	 *
+	 */
+	public function paintGeoCityReport($asset, &$o, $prefix)
+	{
+	    $months = 1;
+	    $start_date = strtotime('-'.$months.' months 00:00:00');
+	    $end_date   = strtotime('yesterday 00:00:00');
+	    $day_count  = round(1 + (($end_date - $start_date) / 86400), 0);
+	    $report = $asset->generateReport(
+	        Array(
+	            'ga:country',
+	            'ga:region',
+	            'ga:city',
+            ),
+	        Google_Analytics_View::SITE_METRICS,
+	        $start_date,
+	        $end_date,
+	        Array('-ga:sessions')
+	    );
+	    
+	    $total_sessions = 0;
+	    $crop_sessions  = 0;
+	    foreach ($report as $rowid => &$row) {
+	        $total_sessions += $row['ga:sessions'];
+	        if ($row['ga:city'] === '(not set)') {
+	            $crop_sessions += $row['ga:sessions'];
+                unset($report[$rowid]);
+	        }
+	    }//end foreach
+	    
+	    $report = array_slice($report, 0, 50);
+	    
+	    $o->openField(translate('Reporting Period'));
+	        echo sprintf(
+	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
+	            '<strong>'.date('jS M Y', $start_date).'</strong>',
+	            '<strong>'.date('jS M Y', $end_date).'</strong>',
+	            $day_count
+	        );
+	    $o->closeField();
+	    
+	    $o->openField(translate('Total Sessions'));
+            echo translate(
+                '%s / %s sessions analysed',
+                number_format(($total_sessions - $crop_sessions), 0),
+                number_format($total_sessions, 0)
+            );
+        
+            if ($crop_sessions > 0) {
+                $o->note(translate(
+                    'Only %s%% of all session details provide a city',
+                    number_format(((1 - ($crop_sessions / $total_sessions)) * 100.0), 2)
+                ));
+            }
+        $o->closeField();
+	    
+	    $o->openRaw();
+	    ?><table class="sq-backend-table">
+	    <col width="20%" />
+	    <col width="20%" />
+	    <col width="8.5%" />
+	    <col width="6.5%" />
+	    <col width="15%" />
+	    <col width="15%" />
+	    <col width="15%" />
+	    <tbody>
+	        <tr>
+	            <th><?php echo translate('City Name') ?></th>
+	            <th><?php echo translate('Country') ?></th>
+	            <th colspan="2"><?php echo translate('Sessions') ?></td>
+	            <th><?php echo translate('Unique Users') ?></td>
+	            <th><?php echo translate('Page Views / Session') ?></td>
+	            <th><?php echo translate('Session Duration') ?></td>
+	        </tr><?php
+	        $rank = 0;
+	        foreach ($report as $row) {
+	            $rank++;
+            ?><tr>
+                <th><?php echo $rank.'. '.$row['ga:city']; ?></th>
+                <td><?php echo $row['ga:country']; ?></strong></td>
+                <td style="text-align: right"><strong><?php echo number_format($row['ga:sessions'], 0); ?></strong></td>
+                <td style="text-align: right"><?php echo number_format($row['ga:sessions'] / $total_sessions * 100.0, 2).'%'; ?></td>
+                <td style="text-align: right"><?php echo number_format($row['ga:users'], 0); ?></td>
+                <td style="text-align: right"><?php
+                if ($row['ga:sessions'] === 0) {
+                    echo translate('N/A');
+                } else {
+                    echo number_format($row['ga:pageviews'] / $row['ga:sessions'], 1);
+                }
+                ?></td>
+                <td style="text-align: right"><?php
+                if ($row['ga:sessions'] === 0) {
+                    echo translate('N/A');
+                } else {
+                    $time = $row['ga:sessionDuration'] / $row['ga:sessions'];
+                    if ($time >= 60) {
+                        echo sprintf(translate('%s min %s sec', '%s', '%s'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
+                    } else {
+                        echo sprintf(translate('%s sec', '%s'), floor($time));
+                    }
+                }
+                ?></td>
+            </tr><?php
+            }
+            ?></tbody></table><?php
+	    $o->closeRaw();
+	    
+	    return FALSE;
+	    
+	}//end paintGeoCountryReport()
 
 
 }//end class

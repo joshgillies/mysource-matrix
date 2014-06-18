@@ -15,7 +15,4 @@
 */
 -->
 
-<screens>
-	<screen code_name="summary" display_name="Summary" icon="edit" lock_type="" force_unlock="0" />
-	<screen code_name="geo" display_name="Geographic" icon="edit" lock_type="" force_unlock="0" />
-</screens>
+<screens />

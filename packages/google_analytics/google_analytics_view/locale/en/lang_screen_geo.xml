@@ -10,12 +10,9 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.3 2010/05/05 07:13:52 ewang Exp $
+* $Id: lang_screen_details.xml,v 1.1.1.1 2013/07/19 00:29:26 ewang Exp $
 *
 */
 -->
 
-<screens>
-	<screen code_name="summary" display_name="Summary" icon="edit" lock_type="" force_unlock="0" />
-	<screen code_name="geo" display_name="Geographic" icon="edit" lock_type="" force_unlock="0" />
-</screens>
+<contents />
