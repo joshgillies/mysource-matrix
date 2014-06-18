@@ -133,7 +133,7 @@ class HIPO_Job_Regenerate_Design extends HIPO_Job
 					'function_call'	=> Array(
 							    'process_function'	=> 'processCustomisation',
 							),
-					'running_mode'	=> 'web',
+					'running_mode'	=> 'server',
 					'auto_step'		=> true,
 					'allow_cancel'	=> true,
 					'percent_done'	=> 0,
