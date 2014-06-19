@@ -72,7 +72,10 @@ function array_contents(&$array, $max_depth=0, $ignore_ints=FALSE, $depth=0)
 					.((is_string($value)) ? "\"$value\"" : $value).",\n";
 		}
 	}
-	$string[ strlen($string) - 2 ] = ' ';
+	if (strlen($string) >= 2) {
+		$string[ strlen($string) - 2 ] = ' ';
+	}
+
 	return $string;
 
 }//end array_contents()
