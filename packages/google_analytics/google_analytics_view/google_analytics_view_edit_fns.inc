@@ -31,6 +31,20 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 {
 
+    /**
+     * Not set text from GA.
+     *
+     * @const string.
+     */
+    const NOT_SET = '(not set)';
+
+    /**
+     * Not provided text from GA.
+     *
+     * @const string.
+     */
+    const NOT_PROVIDED = '(not provided)';
+    
 
 	/**
 	* Constructor
@@ -436,20 +450,20 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	    $i = 0;
 	    foreach ($raw_report as $rowid => &$row) {
 	        $total_sessions += $row['ga:sessions'];
-	        if ($row['ga:country'] === '(not set)') {
+	        if ($row['ga:country'] === self::NOT_SET) {
 	            $crop_sessions += $row['ga:sessions'];
                 unset($report[$rowid]);
 	        } else {
 	            $country = $row['ga:country'];
 	            $city    = $row['ga:city'];
 	            
-	            if ($city === '(not set)') {
+	            if ($city === self::NOT_SET) {
 	                $city = $row['ga:region'];
-	            } else if ($row['ga:region'] !== '(not set)') {
+	            } else if ($row['ga:region'] !== self::NOT_SET) {
 	                $city .= ', '.$row['ga:region'];
 	            }
 	            
-	            if ($city !== '(not set)') {
+	            if ($city !== self::NOT_SET) {
 	                $i++;
 	                $city_report[$country] = array_get_index($city_report, $country, Array());
                     $city_report[$country][$city] = $row;
@@ -645,7 +659,7 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	    $crop_sessions  = 0;
 	    foreach ($report as $rowid => &$row) {
 	        $total_sessions += $row['ga:sessions'];
-	        if ($row['ga:city'] === '(not set)') {
+	        if ($row['ga:city'] === self::NOT_SET) {
 	            $crop_sessions += $row['ga:sessions'];
                 unset($report[$rowid]);
 	        }
@@ -730,8 +744,1842 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	    
 	    return FALSE;
 	    
-	}//end paintGeoCountryReport()
+	}//end paintGeoCityReport()
+	
+	
+//--        TECHNOLOGY REPORTS        --//
 
+
+
+	
+	/**
+	 * Paint the technologies OS report.
+	 *
+	 */
+	public function paintTechnologiesOSesReportDesktop($asset, &$o, $prefix)
+	{
+	    $max_results = 100;
+	    $months      = 1;
+	    $start_date  = strtotime('-'.$months.' months 00:00:00');
+	    $end_date    = strtotime('yesterday 00:00:00');
+	    $day_count   = round(1 + (($end_date - $start_date) / 86400), 0);
+	    
+	    // Grab all the reports.
+	    $raw_report  = $asset->generateReport(
+	        Array(
+	            'ga:deviceCategory',
+	            'ga:operatingSystem',
+	            'ga:operatingSystemVersion',
+	            'ga:browser',
+	            'ga:browserVersion',
+            ),
+	        Google_Analytics_View::SITE_METRICS,
+	        $start_date,
+	        $end_date
+	    );
+	    
+	    $total_sessions = 0;
+	    $crop_sessions  = 0;
+	    $report         = Array();
+	    $version_report = Array();
+	    
+	    foreach ($raw_report as $rowid => &$row) {
+	        if ($row['ga:deviceCategory'] !== 'desktop') {
+	            continue;
+	        }
+	        
+	        $total_sessions += $row['ga:sessions'];
+	        if ($row['ga:operatingSystem'] === self::NOT_SET) {
+	            $crop_sessions += $row['ga:sessions'];
+                unset($report[$rowid]);
+	        } else {
+	            $os      = $row['ga:operatingSystem'];
+	            $version = $row['ga:operatingSystemVersion'];
+	            
+	            if ($os !== self::NOT_SET) {
+	                $version_report[$os] = array_get_index($version_report, $os, Array());
+                    if (array_key_exists($version, $version_report[$os]) === TRUE) {
+                        foreach ($row as $fieldid => &$value) {
+                            if (($fieldid !== 'ga:operatingSystemVersion') && (is_numeric($value) === TRUE)) {
+                                $version_report[$os][$version][$fieldid] += $value;
+                            }
+                        }
+                    } else {
+                        $version_report[$os][$version] = $row;
+                    }
+                }//end if
+	            
+	            if (array_key_exists($os, $report) === TRUE) {
+	                foreach ($row as $fieldid => &$value) {
+	                    if (($fieldid !== 'ga:operatingSystemVersion') && (is_numeric($value) === TRUE)) {
+	                        $report[$os][$fieldid] += $value;
+	                    }
+	                }
+	            } else {
+	                $report[$os] = $row;
+	            }
+	        }//end if
+	    }//end foreach
+	    
+	    usort($report, function($a, $b) {
+	        return $b['ga:sessions'] - $a['ga:sessions'];
+	    });
+	    
+	    foreach ($version_report as $os => &$version_rows) {
+            usort($version_rows, function($a, $b) {
+                return $b['ga:sessions'] - $a['ga:sessions'];
+            });
+	    }
+	    
+	    $o->openField(translate('Reporting Period'));
+	        echo sprintf(
+	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
+	            '<strong>'.date('jS M Y', $start_date).'</strong>',
+	            '<strong>'.date('jS M Y', $end_date).'</strong>',
+	            $day_count
+	        );
+	    $o->closeField();
+	    
+	    $o->openField(translate('Total Sessions'));
+            echo translate(
+                '%s / %s sessions analysed',
+                number_format(($total_sessions - $crop_sessions), 0),
+                number_format($total_sessions, 0)
+            );
+	    
+            if ($crop_sessions > 0) {
+                $o->note(translate(
+                    'Only %s%% of all session details provided operating system information',
+                    number_format(((1 - ($crop_sessions / $total_sessions)) * 100.0), 2)
+                ));
+            }
+        $o->closeField();
+	    
+	    $o->openRaw();
+	    ?><table class="sq-backend-table">
+	    <col width="40%" />
+	    <col width="8.5%" />
+	    <col width="6.5%" />
+	    <col width="15%" />
+	    <col width="15%" />
+	    <col width="15%" />
+	    <tbody>
+	        <tr>
+	            <th><?php echo translate('Browser') ?></th>
+	            <th colspan="2"><?php echo translate('Sessions') ?></td>
+	            <th><?php echo translate('Unique Users') ?></td>
+	            <th><?php echo translate('Page Views / Session') ?></td>
+	            <th><?php echo translate('Session Duration') ?></td>
+	        </tr><?php
+	        $rank = 0;
+	        foreach ($report as $row) {
+	            $rank++;
+	            $translated_row = $this->_translateDesktopOS(
+                    $row['ga:operatingSystem'],
+                    self::NOT_SET
+                );
+            ?><tr>
+                <th><?php 
+                $os = $row['ga:operatingSystem'];
+                echo $rank.'. '.$translated_row['ga:operatingSystem'];
+                ?></th>
+                <th style="text-align: right"><strong><?php echo number_format($row['ga:sessions'], 0); ?></strong></th>
+                <th style="text-align: right"><?php echo number_format($row['ga:sessions'] / $total_sessions * 100.0, 2).'%'; ?></th>
+                <th style="text-align: right"><?php echo number_format($row['ga:users'], 0); ?></th>
+                <th style="text-align: right"><?php
+                if ($row['ga:sessions'] === 0) {
+                    echo translate('N/A');
+                } else {
+                    echo number_format($row['ga:pageviews'] / $row['ga:sessions'], 1);
+                }
+                ?></th>
+                <th style="text-align: right"><?php
+                if ($row['ga:sessions'] === 0) {
+                    echo translate('N/A');
+                } else {
+                    $time = $row['ga:sessionDuration'] / $row['ga:sessions'];
+                    if ($time >= 60) {
+                        echo sprintf(translate('%s min %s sec', '%s', '%s'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
+                    } else {
+                        echo sprintf(translate('%s sec', '%s'), floor($time));
+                    }
+                }
+                ?></th><?php
+                foreach ($version_report[$os] as $version_row) {
+                $translated_row = $this->_translateDesktopOS(
+                    $version_row['ga:operatingSystem'],
+                    $version_row['ga:operatingSystemVersion']
+                );
+                ?><tr>
+                    <td><?php 
+                    echo '<span style="float: left; padding-left: 3ex">';
+                    echo $translated_row['ga:operatingSystemVersion'].'</span>'; 
+                    ?></td>
+                    <td style="text-align: right"><strong><?php echo number_format($version_row['ga:sessions'], 0); ?></strong></td>
+                    <td style="text-align: right"><?php echo number_format($version_row['ga:sessions'] / $total_sessions * 100.0, 2).'%'; ?></td>
+                    <td style="text-align: right"><?php echo number_format($version_row['ga:users'], 0); ?></td>
+                    <td style="text-align: right"><?php
+                    if ($version_row['ga:sessions'] === 0) {
+                        echo translate('N/A');
+                    } else {
+                        echo number_format($version_row['ga:pageviews'] / $version_row['ga:sessions'], 1);
+                    }
+                    ?></td>
+                    <td style="text-align: right"><?php
+                    if ($version_row['ga:sessions'] === 0) {
+                        echo translate('N/A');
+                    } else {
+                        $time = $version_row['ga:sessionDuration'] / $version_row['ga:sessions'];
+                        if ($time >= 60) {
+                            echo sprintf(translate('%s min %s sec', '%s', '%s'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
+                        } else {
+                            echo sprintf(translate('%s sec', '%s'), floor($time));
+                        }
+                    }
+                    ?></td>
+                </tr><?php
+                }//end if city rows
+            ?></tr><?php
+            }
+            ?></tbody></table><?php
+	    $o->closeRaw();
+	    
+	    return FALSE;
+	    
+	}//end paintTechnologiesOSesReportDesktop()
+
+
+
+	
+	/**
+	 * Paint the technologies OS report.
+	 *
+	 */
+	public function paintTechnologiesOSesReportTablet($asset, &$o, $prefix)
+	{
+	    $max_results = 100;
+	    $months      = 1;
+	    $start_date  = strtotime('-'.$months.' months 00:00:00');
+	    $end_date    = strtotime('yesterday 00:00:00');
+	    $day_count   = round(1 + (($end_date - $start_date) / 86400), 0);
+	    
+	    // Grab all the reports.
+	    $raw_report  = $asset->generateReport(
+	        Array(
+	            'ga:deviceCategory',
+	            'ga:operatingSystem',
+	            'ga:operatingSystemVersion',
+	            'ga:browser',
+	            'ga:browserVersion',
+            ),
+	        Google_Analytics_View::SITE_METRICS,
+	        $start_date,
+	        $end_date
+	    );
+	    
+	    $total_sessions = 0;
+	    $crop_sessions  = 0;
+	    $report         = Array();
+	    $version_report = Array();
+	    
+	    foreach ($raw_report as $rowid => &$row) {
+	        if ($row['ga:deviceCategory'] !== 'tablet') {
+	            continue;
+	        }
+	        
+	        $row = array_merge(
+	            $row,
+	            $this->_translateMobileOS(
+	                $row['ga:operatingSystem'],
+	                $row['ga:operatingSystemVersion']
+	            )
+	        );
+	        
+	        $total_sessions += $row['ga:sessions'];
+	        if ($row['ga:operatingSystem'] === self::NOT_SET) {
+	            $crop_sessions += $row['ga:sessions'];
+                unset($report[$rowid]);
+	        } else {
+	            $os      = $row['ga:operatingSystem'];
+	            $version = $row['ga:operatingSystemVersion'];
+	            
+	            if ($os !== self::NOT_SET) {
+	                $version_report[$os] = array_get_index($version_report, $os, Array());
+                    if (array_key_exists($version, $version_report[$os]) === TRUE) {
+                        foreach ($row as $fieldid => &$value) {
+                            if (($fieldid !== 'ga:operatingSystemVersion') && (is_numeric($value) === TRUE)) {
+                                $version_report[$os][$version][$fieldid] += $value;
+                            }
+                        }
+                    } else {
+                        $version_report[$os][$version] = $row;
+                    }
+                }//end if
+	            
+	            if (array_key_exists($os, $report) === TRUE) {
+	                foreach ($row as $fieldid => &$value) {
+	                    if (($fieldid !== 'ga:operatingSystemVersion') && (is_numeric($value) === TRUE)) {
+	                        $report[$os][$fieldid] += $value;
+	                    }
+	                }
+	            } else {
+	                $report[$os] = $row;
+	            }
+	        }//end if
+	    }//end foreach
+	    
+	    usort($report, function($a, $b) {
+	        return $b['ga:sessions'] - $a['ga:sessions'];
+	    });
+	    
+	    foreach ($version_report as $os => &$version_rows) {
+            usort($version_rows, function($a, $b) {
+                return $b['ga:sessions'] - $a['ga:sessions'];
+            });
+	    }
+	    
+	    $o->openField(translate('Reporting Period'));
+	        echo sprintf(
+	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
+	            '<strong>'.date('jS M Y', $start_date).'</strong>',
+	            '<strong>'.date('jS M Y', $end_date).'</strong>',
+	            $day_count
+	        );
+	    $o->closeField();
+	    
+	    $o->openField(translate('Total Sessions'));
+            echo translate(
+                '%s / %s sessions analysed',
+                number_format(($total_sessions - $crop_sessions), 0),
+                number_format($total_sessions, 0)
+            );
+	    
+            if ($crop_sessions > 0) {
+                $o->note(translate(
+                    'Only %s%% of all session details provided operating system information',
+                    number_format(((1 - ($crop_sessions / $total_sessions)) * 100.0), 2)
+                ));
+            }
+        $o->closeField();
+	    
+	    $o->openRaw();
+	    ?><table class="sq-backend-table">
+	    <col width="40%" />
+	    <col width="8.5%" />
+	    <col width="6.5%" />
+	    <col width="15%" />
+	    <col width="15%" />
+	    <col width="15%" />
+	    <tbody>
+	        <tr>
+	            <th><?php echo translate('Browser') ?></th>
+	            <th colspan="2"><?php echo translate('Sessions') ?></td>
+	            <th><?php echo translate('Unique Users') ?></td>
+	            <th><?php echo translate('Page Views / Session') ?></td>
+	            <th><?php echo translate('Session Duration') ?></td>
+	        </tr><?php
+	        $rank = 0;
+	        foreach ($report as $row) {
+	            $rank++;
+            ?><tr>
+                <th><?php 
+                $os = $row['ga:operatingSystem'];
+                echo $rank.'. '.$os;
+                ?></th>
+                <th style="text-align: right"><strong><?php echo number_format($row['ga:sessions'], 0); ?></strong></th>
+                <th style="text-align: right"><?php echo number_format($row['ga:sessions'] / $total_sessions * 100.0, 2).'%'; ?></th>
+                <th style="text-align: right"><?php echo number_format($row['ga:users'], 0); ?></th>
+                <th style="text-align: right"><?php
+                if ($row['ga:sessions'] === 0) {
+                    echo translate('N/A');
+                } else {
+                    echo number_format($row['ga:pageviews'] / $row['ga:sessions'], 1);
+                }
+                ?></th>
+                <th style="text-align: right"><?php
+                if ($row['ga:sessions'] === 0) {
+                    echo translate('N/A');
+                } else {
+                    $time = $row['ga:sessionDuration'] / $row['ga:sessions'];
+                    if ($time >= 60) {
+                        echo sprintf(translate('%s min %s sec', '%s', '%s'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
+                    } else {
+                        echo sprintf(translate('%s sec', '%s'), floor($time));
+                    }
+                }
+                ?></th><?php
+                foreach ($version_report[$os] as $version_row) {
+                ?><tr>
+                    <td><?php 
+                    echo '<span style="float: left; padding-left: 3ex">';
+                    echo $version_row['ga:operatingSystemVersion'].'</span>'; 
+                    ?></td>
+                    <td style="text-align: right"><strong><?php echo number_format($version_row['ga:sessions'], 0); ?></strong></td>
+                    <td style="text-align: right"><?php echo number_format($version_row['ga:sessions'] / $total_sessions * 100.0, 2).'%'; ?></td>
+                    <td style="text-align: right"><?php echo number_format($version_row['ga:users'], 0); ?></td>
+                    <td style="text-align: right"><?php
+                    if ($version_row['ga:sessions'] === 0) {
+                        echo translate('N/A');
+                    } else {
+                        echo number_format($version_row['ga:pageviews'] / $version_row['ga:sessions'], 1);
+                    }
+                    ?></td>
+                    <td style="text-align: right"><?php
+                    if ($version_row['ga:sessions'] === 0) {
+                        echo translate('N/A');
+                    } else {
+                        $time = $version_row['ga:sessionDuration'] / $version_row['ga:sessions'];
+                        if ($time >= 60) {
+                            echo sprintf(translate('%s min %s sec', '%s', '%s'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
+                        } else {
+                            echo sprintf(translate('%s sec', '%s'), floor($time));
+                        }
+                    }
+                    ?></td>
+                </tr><?php
+                }//end if city rows
+            ?></tr><?php
+            }
+            ?></tbody></table><?php
+	    $o->closeRaw();
+	    
+	    return FALSE;
+	    
+	}//end paintTechnologiesOSesReportTablet()
+
+	
+	/**
+	 * Paint the technologies OS report.
+	 *
+	 */
+	public function paintTechnologiesOSesReportMobile($asset, &$o, $prefix)
+	{
+	    $max_results = 100;
+	    $months      = 1;
+	    $start_date  = strtotime('-'.$months.' months 00:00:00');
+	    $end_date    = strtotime('yesterday 00:00:00');
+	    $day_count   = round(1 + (($end_date - $start_date) / 86400), 0);
+	    
+	    // Grab all the reports.
+	    $raw_report  = $asset->generateReport(
+	        Array(
+	            'ga:deviceCategory',
+	            'ga:operatingSystem',
+	            'ga:operatingSystemVersion',
+	            'ga:browser',
+	            'ga:browserVersion',
+            ),
+	        Google_Analytics_View::SITE_METRICS,
+	        $start_date,
+	        $end_date
+	    );
+	    
+	    $total_sessions = 0;
+	    $crop_sessions  = 0;
+	    $report         = Array();
+	    $version_report = Array();
+	    
+	    foreach ($raw_report as $rowid => &$row) {
+	        if ($row['ga:deviceCategory'] !== 'mobile') {
+	            continue;
+	        }
+	        
+	        $row = array_merge(
+	            $row,
+	            $this->_translateMobileOS(
+	                $row['ga:operatingSystem'],
+	                $row['ga:operatingSystemVersion']
+	            )
+	        );
+	        
+	        $total_sessions += $row['ga:sessions'];
+	        if ($row['ga:operatingSystem'] === self::NOT_SET) {
+	            $crop_sessions += $row['ga:sessions'];
+                unset($report[$rowid]);
+	        } else {
+	            $os      = $row['ga:operatingSystem'];
+	            $version = $row['ga:operatingSystemVersion'];
+	            
+	            if ($os !== self::NOT_SET) {
+	                $version_report[$os] = array_get_index($version_report, $os, Array());
+                    if (array_key_exists($version, $version_report[$os]) === TRUE) {
+                        foreach ($row as $fieldid => &$value) {
+                            if (($fieldid !== 'ga:operatingSystemVersion') && (is_numeric($value) === TRUE)) {
+                                $version_report[$os][$version][$fieldid] += $value;
+                            }
+                        }
+                    } else {
+                        $version_report[$os][$version] = $row;
+                    }
+                }//end if
+	            
+	            if (array_key_exists($os, $report) === TRUE) {
+	                foreach ($row as $fieldid => &$value) {
+	                    if (($fieldid !== 'ga:operatingSystemVersion') && (is_numeric($value) === TRUE)) {
+	                        $report[$os][$fieldid] += $value;
+	                    }
+	                }
+	            } else {
+	                $report[$os] = $row;
+	            }
+	        }//end if
+	    }//end foreach
+	    
+	    usort($report, function($a, $b) {
+	        return $b['ga:sessions'] - $a['ga:sessions'];
+	    });
+	    
+	    foreach ($version_report as $os => &$version_rows) {
+            usort($version_rows, function($a, $b) {
+                return $b['ga:sessions'] - $a['ga:sessions'];
+            });
+	    }
+	    
+	    $o->openField(translate('Reporting Period'));
+	        echo sprintf(
+	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
+	            '<strong>'.date('jS M Y', $start_date).'</strong>',
+	            '<strong>'.date('jS M Y', $end_date).'</strong>',
+	            $day_count
+	        );
+	    $o->closeField();
+	    
+	    $o->openField(translate('Total Sessions'));
+            echo translate(
+                '%s / %s sessions analysed',
+                number_format(($total_sessions - $crop_sessions), 0),
+                number_format($total_sessions, 0)
+            );
+	    
+            if ($crop_sessions > 0) {
+                $o->note(translate(
+                    'Only %s%% of all session details provided operating system information',
+                    number_format(((1 - ($crop_sessions / $total_sessions)) * 100.0), 2)
+                ));
+            }
+        $o->closeField();
+	    
+	    $o->openRaw();
+	    ?><table class="sq-backend-table">
+	    <col width="40%" />
+	    <col width="8.5%" />
+	    <col width="6.5%" />
+	    <col width="15%" />
+	    <col width="15%" />
+	    <col width="15%" />
+	    <tbody>
+	        <tr>
+	            <th><?php echo translate('Browser') ?></th>
+	            <th colspan="2"><?php echo translate('Sessions') ?></td>
+	            <th><?php echo translate('Unique Users') ?></td>
+	            <th><?php echo translate('Page Views / Session') ?></td>
+	            <th><?php echo translate('Session Duration') ?></td>
+	        </tr><?php
+	        $rank = 0;
+	        foreach ($report as $row) {
+	            $rank++;
+            ?><tr>
+                <th><?php 
+                $os = $row['ga:operatingSystem'];
+                echo $rank.'. '.$os;
+                ?></th>
+                <th style="text-align: right"><strong><?php echo number_format($row['ga:sessions'], 0); ?></strong></th>
+                <th style="text-align: right"><?php echo number_format($row['ga:sessions'] / $total_sessions * 100.0, 2).'%'; ?></th>
+                <th style="text-align: right"><?php echo number_format($row['ga:users'], 0); ?></th>
+                <th style="text-align: right"><?php
+                if ($row['ga:sessions'] === 0) {
+                    echo translate('N/A');
+                } else {
+                    echo number_format($row['ga:pageviews'] / $row['ga:sessions'], 1);
+                }
+                ?></th>
+                <th style="text-align: right"><?php
+                if ($row['ga:sessions'] === 0) {
+                    echo translate('N/A');
+                } else {
+                    $time = $row['ga:sessionDuration'] / $row['ga:sessions'];
+                    if ($time >= 60) {
+                        echo sprintf(translate('%s min %s sec', '%s', '%s'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
+                    } else {
+                        echo sprintf(translate('%s sec', '%s'), floor($time));
+                    }
+                }
+                ?></th><?php
+                foreach ($version_report[$os] as $version_row) {
+                ?><tr>
+                    <td><?php 
+                    echo '<span style="float: left; padding-left: 3ex">';
+                    echo $version_row['ga:operatingSystemVersion'].'</span>'; 
+                    ?></td>
+                    <td style="text-align: right"><strong><?php echo number_format($version_row['ga:sessions'], 0); ?></strong></td>
+                    <td style="text-align: right"><?php echo number_format($version_row['ga:sessions'] / $total_sessions * 100.0, 2).'%'; ?></td>
+                    <td style="text-align: right"><?php echo number_format($version_row['ga:users'], 0); ?></td>
+                    <td style="text-align: right"><?php
+                    if ($version_row['ga:sessions'] === 0) {
+                        echo translate('N/A');
+                    } else {
+                        echo number_format($version_row['ga:pageviews'] / $version_row['ga:sessions'], 1);
+                    }
+                    ?></td>
+                    <td style="text-align: right"><?php
+                    if ($version_row['ga:sessions'] === 0) {
+                        echo translate('N/A');
+                    } else {
+                        $time = $version_row['ga:sessionDuration'] / $version_row['ga:sessions'];
+                        if ($time >= 60) {
+                            echo sprintf(translate('%s min %s sec', '%s', '%s'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
+                        } else {
+                            echo sprintf(translate('%s sec', '%s'), floor($time));
+                        }
+                    }
+                    ?></td>
+                </tr><?php
+                }//end if city rows
+            ?></tr><?php
+            }
+            ?></tbody></table><?php
+	    $o->closeRaw();
+	    
+	    return FALSE;
+	    
+	}//end paintTechnologiesOSesReportMobile()
+	
+	
+	/**
+	 * Paint the technologies OS report.
+	 *
+	 */
+	public function paintTechnologiesDevicesReportTablet($asset, &$o, $prefix)
+	{
+	    $max_results = 100;
+	    $months      = 1;
+	    $start_date  = strtotime('-'.$months.' months 00:00:00');
+	    $end_date    = strtotime('yesterday 00:00:00');
+	    $day_count   = round(1 + (($end_date - $start_date) / 86400), 0);
+	    
+	    // Grab all the reports.
+	    $raw_report  = $asset->generateReport(
+	        Array(
+	            'ga:deviceCategory',
+	            'ga:mobileDeviceBranding',
+	            'ga:mobileDeviceModel',
+	            'ga:mobileDeviceMarketingName',
+	            'ga:operatingSystem',
+	            'ga:operatingSystemVersion',
+            ),
+	        Google_Analytics_View::SITE_METRICS,
+	        $start_date,
+	        $end_date
+	    );
+	    
+	    $total_sessions = 0;
+	    $crop_sessions  = 0;
+	    $report         = Array();
+	    $version_report = Array();
+	    
+	    foreach ($raw_report as $rowid => &$row) {
+	        if ($row['ga:deviceCategory'] !== 'tablet') {
+	            continue;
+	        }
+	        
+	        $row['sq:mobileName'] = $row['ga:mobileDeviceBranding'];
+	        if ($row['ga:mobileDeviceMarketingName'] === self::NOT_SET) {
+	            $row['sq:mobileName'] .= ' '.$row['ga:mobileDeviceModel'];
+	        } else {
+	            $row['sq:mobileName'] .= ' '.$row['ga:mobileDeviceMarketingName'];
+	        }
+	        
+	        $row = array_merge(
+	            $row,
+	            $this->_translateMobileOS(
+	                $row['ga:operatingSystem'],
+	                $row['ga:operatingSystemVersion']
+	            )
+	        );
+	        
+	        $total_sessions += $row['ga:sessions'];
+	        if ($row['ga:mobileDeviceBranding'] === self::NOT_SET) {
+	            $crop_sessions += $row['ga:sessions'];
+                unset($report[$rowid]);
+	        } else {
+	            $os      = $row['sq:mobileName'];
+	            $version = $row['ga:operatingSystem'].' ('.$row['ga:operatingSystemVersion'].')';
+	            
+	            if ($os !== self::NOT_SET) {
+	                $version_report[$os] = array_get_index($version_report, $os, Array());
+                    if (array_key_exists($version, $version_report[$os]) === TRUE) {
+                        foreach ($row as $fieldid => &$value) {
+                            if (($fieldid !== 'ga:operatingSystemVersion') && (is_numeric($value) === TRUE)) {
+                                $version_report[$os][$version][$fieldid] += $value;
+                            }
+                        }
+                    } else {
+                        $version_report[$os][$version] = $row;
+                    }
+                }//end if
+	            
+	            if (array_key_exists($os, $report) === TRUE) {
+	                foreach ($row as $fieldid => &$value) {
+	                    if (($fieldid !== 'ga:operatingSystemVersion') && (is_numeric($value) === TRUE)) {
+	                        $report[$os][$fieldid] += $value;
+	                    }
+	                }
+	            } else {
+	                $report[$os] = $row;
+	            }
+	        }//end if
+	    }//end foreach
+	    
+	    usort($report, function($a, $b) {
+	        return $b['ga:sessions'] - $a['ga:sessions'];
+	    });
+	    
+	    foreach ($version_report as $os => &$version_rows) {
+            usort($version_rows, function($a, $b) {
+                return $b['ga:sessions'] - $a['ga:sessions'];
+            });
+	    }
+	    
+	    $o->openField(translate('Reporting Period'));
+	        echo sprintf(
+	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
+	            '<strong>'.date('jS M Y', $start_date).'</strong>',
+	            '<strong>'.date('jS M Y', $end_date).'</strong>',
+	            $day_count
+	        );
+	    $o->closeField();
+	    
+	    $o->openField(translate('Total Sessions'));
+            echo translate(
+                '%s / %s sessions analysed',
+                number_format(($total_sessions - $crop_sessions), 0),
+                number_format($total_sessions, 0)
+            );
+	    
+            if ($crop_sessions > 0) {
+                $o->note(translate(
+                    'Only %s%% of all session details provided mobile device branding information',
+                    number_format(((1 - ($crop_sessions / $total_sessions)) * 100.0), 2)
+                ));
+            }
+        $o->closeField();
+	    
+	    $o->openRaw();
+	    ?><table class="sq-backend-table">
+	    <col width="40%" />
+	    <col width="8.5%" />
+	    <col width="6.5%" />
+	    <col width="15%" />
+	    <col width="15%" />
+	    <col width="15%" />
+	    <tbody>
+	        <tr>
+	            <th><?php echo translate('Browser') ?></th>
+	            <th colspan="2"><?php echo translate('Sessions') ?></td>
+	            <th><?php echo translate('Unique Users') ?></td>
+	            <th><?php echo translate('Page Views / Session') ?></td>
+	            <th><?php echo translate('Session Duration') ?></td>
+	        </tr><?php
+	        $rank = 0;
+	        foreach ($report as $row) {
+	            $rank++;
+            ?><tr>
+                <th><?php 
+                $os = $row['sq:mobileName'];
+                echo '<span style="float: left">'.$rank.'. '.$os.'</span>';
+                if (count($version_report[$os]) === 1) {
+                    echo '<span style="float: right; font-weight: normal"><em>';
+                    echo $version_report[$os][0]['ga:operatingSystem'];
+                    if ($version_report[$os][0]['ga:operatingSystemVersion'] !== self::NOT_SET) {
+                        echo ' ('.$version_report[$os][0]['ga:operatingSystemVersion'].')';
+                    }
+                    echo '</em></span>';
+                    $version_report[$os] = Array();
+                }
+                ?></th>
+                <th style="text-align: right"><strong><?php echo number_format($row['ga:sessions'], 0); ?></strong></th>
+                <th style="text-align: right"><?php echo number_format($row['ga:sessions'] / $total_sessions * 100.0, 2).'%'; ?></th>
+                <th style="text-align: right"><?php echo number_format($row['ga:users'], 0); ?></th>
+                <th style="text-align: right"><?php
+                if ($row['ga:sessions'] === 0) {
+                    echo translate('N/A');
+                } else {
+                    echo number_format($row['ga:pageviews'] / $row['ga:sessions'], 1);
+                }
+                ?></th>
+                <th style="text-align: right"><?php
+                if ($row['ga:sessions'] === 0) {
+                    echo translate('N/A');
+                } else {
+                    $time = $row['ga:sessionDuration'] / $row['ga:sessions'];
+                    if ($time >= 60) {
+                        echo sprintf(translate('%s min %s sec', '%s', '%s'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
+                    } else {
+                        echo sprintf(translate('%s sec', '%s'), floor($time));
+                    }
+                }
+                ?></th><?php
+                foreach ($version_report[$os] as $version_row) {
+                ?><tr>
+                    <td><?php 
+                    echo '<span style="float: left; padding-left: 3ex">';
+                    echo $version_row['ga:operatingSystem'].' ('.$version_row['ga:operatingSystemVersion'].')</span>'; 
+                    ?></td>
+                    <td style="text-align: right"><strong><?php echo number_format($version_row['ga:sessions'], 0); ?></strong></td>
+                    <td style="text-align: right"><?php echo number_format($version_row['ga:sessions'] / $total_sessions * 100.0, 2).'%'; ?></td>
+                    <td style="text-align: right"><?php echo number_format($version_row['ga:users'], 0); ?></td>
+                    <td style="text-align: right"><?php
+                    if ($version_row['ga:sessions'] === 0) {
+                        echo translate('N/A');
+                    } else {
+                        echo number_format($version_row['ga:pageviews'] / $version_row['ga:sessions'], 1);
+                    }
+                    ?></td>
+                    <td style="text-align: right"><?php
+                    if ($version_row['ga:sessions'] === 0) {
+                        echo translate('N/A');
+                    } else {
+                        $time = $version_row['ga:sessionDuration'] / $version_row['ga:sessions'];
+                        if ($time >= 60) {
+                            echo sprintf(translate('%s min %s sec', '%s', '%s'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
+                        } else {
+                            echo sprintf(translate('%s sec', '%s'), floor($time));
+                        }
+                    }
+                    ?></td>
+                </tr><?php
+                }//end if city rows
+            ?></tr><?php
+            }
+            ?></tbody></table><?php
+	    $o->closeRaw();
+	    
+	    return FALSE;
+	    
+	}//end paintTechnologiesOSesReportMobile()
+	
+	
+	
+	
+	
+	/**
+	 * Paint the technologies OS report.
+	 *
+	 */
+	public function paintTechnologiesDevicesReportMobile($asset, &$o, $prefix)
+	{
+	    $max_results = 100;
+	    $months      = 1;
+	    $start_date  = strtotime('-'.$months.' months 00:00:00');
+	    $end_date    = strtotime('yesterday 00:00:00');
+	    $day_count   = round(1 + (($end_date - $start_date) / 86400), 0);
+	    
+	    // Grab all the reports.
+	    $raw_report  = $asset->generateReport(
+	        Array(
+	            'ga:deviceCategory',
+	            'ga:mobileDeviceBranding',
+	            'ga:mobileDeviceModel',
+	            'ga:mobileDeviceMarketingName',
+	            'ga:operatingSystem',
+	            'ga:operatingSystemVersion',
+            ),
+	        Google_Analytics_View::SITE_METRICS,
+	        $start_date,
+	        $end_date
+	    );
+	    
+	    $total_sessions = 0;
+	    $crop_sessions  = 0;
+	    $report         = Array();
+	    $version_report = Array();
+	    
+	    foreach ($raw_report as $rowid => &$row) {
+	        if ($row['ga:deviceCategory'] !== 'mobile') {
+	            continue;
+	        }
+	        
+	        $row['sq:mobileName'] = $row['ga:mobileDeviceBranding'];
+	        if ($row['ga:mobileDeviceMarketingName'] === self::NOT_SET) {
+	            $row['sq:mobileName'] .= ' '.$row['ga:mobileDeviceModel'];
+	        } else {
+	            $row['sq:mobileName'] .= ' '.$row['ga:mobileDeviceMarketingName'];
+	        }
+	        
+	        $row = array_merge(
+	            $row,
+	            $this->_translateMobileOS(
+	                $row['ga:operatingSystem'],
+	                $row['ga:operatingSystemVersion']
+	            )
+	        );
+	        
+	        $total_sessions += $row['ga:sessions'];
+	        if ($row['ga:mobileDeviceBranding'] === self::NOT_SET) {
+	            $crop_sessions += $row['ga:sessions'];
+                unset($report[$rowid]);
+	        } else {
+	            $os      = $row['sq:mobileName'];
+	            $version = $row['ga:operatingSystem'].' ('.$row['ga:operatingSystemVersion'].')';
+	            
+	            if ($os !== self::NOT_SET) {
+	                $version_report[$os] = array_get_index($version_report, $os, Array());
+                    if (array_key_exists($version, $version_report[$os]) === TRUE) {
+                        foreach ($row as $fieldid => &$value) {
+                            if (($fieldid !== 'ga:operatingSystemVersion') && (is_numeric($value) === TRUE)) {
+                                $version_report[$os][$version][$fieldid] += $value;
+                            }
+                        }
+                    } else {
+                        $version_report[$os][$version] = $row;
+                    }
+                }//end if
+	            
+	            if (array_key_exists($os, $report) === TRUE) {
+	                foreach ($row as $fieldid => &$value) {
+	                    if (($fieldid !== 'ga:operatingSystemVersion') && (is_numeric($value) === TRUE)) {
+	                        $report[$os][$fieldid] += $value;
+	                    }
+	                }
+	            } else {
+	                $report[$os] = $row;
+	            }
+	        }//end if
+	    }//end foreach
+	    
+	    usort($report, function($a, $b) {
+	        return $b['ga:sessions'] - $a['ga:sessions'];
+	    });
+	    
+	    foreach ($version_report as $os => &$version_rows) {
+            usort($version_rows, function($a, $b) {
+                return $b['ga:sessions'] - $a['ga:sessions'];
+            });
+	    }
+	    
+	    $o->openField(translate('Reporting Period'));
+	        echo sprintf(
+	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
+	            '<strong>'.date('jS M Y', $start_date).'</strong>',
+	            '<strong>'.date('jS M Y', $end_date).'</strong>',
+	            $day_count
+	        );
+	    $o->closeField();
+	    
+	    $o->openField(translate('Total Sessions'));
+            echo translate(
+                '%s / %s sessions analysed',
+                number_format(($total_sessions - $crop_sessions), 0),
+                number_format($total_sessions, 0)
+            );
+	    
+            if ($crop_sessions > 0) {
+                $o->note(translate(
+                    'Only %s%% of all session details provided mobile device branding information',
+                    number_format(((1 - ($crop_sessions / $total_sessions)) * 100.0), 2)
+                ));
+            }
+        $o->closeField();
+	    
+	    $o->openRaw();
+	    ?><table class="sq-backend-table">
+	    <col width="40%" />
+	    <col width="8.5%" />
+	    <col width="6.5%" />
+	    <col width="15%" />
+	    <col width="15%" />
+	    <col width="15%" />
+	    <tbody>
+	        <tr>
+	            <th><?php echo translate('Browser') ?></th>
+	            <th colspan="2"><?php echo translate('Sessions') ?></td>
+	            <th><?php echo translate('Unique Users') ?></td>
+	            <th><?php echo translate('Page Views / Session') ?></td>
+	            <th><?php echo translate('Session Duration') ?></td>
+	        </tr><?php
+	        $rank = 0;
+	        foreach ($report as $row) {
+	            $rank++;
+            ?><tr>
+                <th><?php 
+                $os = $row['sq:mobileName'];
+                echo '<span style="float: left">'.$rank.'. '.$os.'</span>';
+                if (count($version_report[$os]) === 1) {
+                    echo '<span style="float: right; font-weight: normal"><em>';
+                    echo $version_report[$os][0]['ga:operatingSystem'];
+                    if ($version_report[$os][0]['ga:operatingSystemVersion'] !== self::NOT_SET) {
+                        echo ' ('.$version_report[$os][0]['ga:operatingSystemVersion'].')';
+                    }
+                    echo '</em></span>';
+                    $version_report[$os] = Array();
+                }
+                ?></th>
+                <th style="text-align: right"><strong><?php echo number_format($row['ga:sessions'], 0); ?></strong></th>
+                <th style="text-align: right"><?php echo number_format($row['ga:sessions'] / $total_sessions * 100.0, 2).'%'; ?></th>
+                <th style="text-align: right"><?php echo number_format($row['ga:users'], 0); ?></th>
+                <th style="text-align: right"><?php
+                if ($row['ga:sessions'] === 0) {
+                    echo translate('N/A');
+                } else {
+                    echo number_format($row['ga:pageviews'] / $row['ga:sessions'], 1);
+                }
+                ?></th>
+                <th style="text-align: right"><?php
+                if ($row['ga:sessions'] === 0) {
+                    echo translate('N/A');
+                } else {
+                    $time = $row['ga:sessionDuration'] / $row['ga:sessions'];
+                    if ($time >= 60) {
+                        echo sprintf(translate('%s min %s sec', '%s', '%s'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
+                    } else {
+                        echo sprintf(translate('%s sec', '%s'), floor($time));
+                    }
+                }
+                ?></th><?php
+                foreach ($version_report[$os] as $version_row) {
+                ?><tr>
+                    <td><?php 
+                    echo '<span style="float: left; padding-left: 3ex">';
+                    echo $version_row['ga:operatingSystem'].' ('.$version_row['ga:operatingSystemVersion'].')</span>'; 
+                    ?></td>
+                    <td style="text-align: right"><strong><?php echo number_format($version_row['ga:sessions'], 0); ?></strong></td>
+                    <td style="text-align: right"><?php echo number_format($version_row['ga:sessions'] / $total_sessions * 100.0, 2).'%'; ?></td>
+                    <td style="text-align: right"><?php echo number_format($version_row['ga:users'], 0); ?></td>
+                    <td style="text-align: right"><?php
+                    if ($version_row['ga:sessions'] === 0) {
+                        echo translate('N/A');
+                    } else {
+                        echo number_format($version_row['ga:pageviews'] / $version_row['ga:sessions'], 1);
+                    }
+                    ?></td>
+                    <td style="text-align: right"><?php
+                    if ($version_row['ga:sessions'] === 0) {
+                        echo translate('N/A');
+                    } else {
+                        $time = $version_row['ga:sessionDuration'] / $version_row['ga:sessions'];
+                        if ($time >= 60) {
+                            echo sprintf(translate('%s min %s sec', '%s', '%s'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
+                        } else {
+                            echo sprintf(translate('%s sec', '%s'), floor($time));
+                        }
+                    }
+                    ?></td>
+                </tr><?php
+                }//end if city rows
+            ?></tr><?php
+            }
+            ?></tbody></table><?php
+	    $o->closeRaw();
+	    
+	    return FALSE;
+	    
+	}//end paintTechnologiesOSesReportTablet()
+	
+	
+
+	/**
+	 * Paint the technologies OS report.
+	 *
+	 */
+	public function paintTechnologiesBrowsersReportDesktop($asset, &$o, $prefix)
+	{
+	    $max_results = 100;
+	    $months      = 1;
+	    $start_date  = strtotime('-'.$months.' months 00:00:00');
+	    $end_date    = strtotime('yesterday 00:00:00');
+	    $day_count   = round(1 + (($end_date - $start_date) / 86400), 0);
+	    
+	    // Grab all the reports.
+	    $raw_report  = $asset->generateReport(
+	        Array(
+	            'ga:deviceCategory',
+	            'ga:operatingSystem',
+	            'ga:operatingSystemVersion',
+	            'ga:browser',
+	            'ga:browserVersion',
+            ),
+	        Google_Analytics_View::SITE_METRICS,
+	        $start_date,
+	        $end_date
+	    );
+	    
+	    $total_sessions = 0;
+	    $crop_sessions  = 0;
+	    $report         = Array();
+	    $version_report = Array();
+	    
+	    foreach ($raw_report as $rowid => &$row) {
+	        if ($row['ga:deviceCategory'] !== 'desktop') {
+	            continue;
+	        }
+	        
+	        $row = array_merge(
+	            $row,
+	            $this->_translateDesktopBrowser(
+	                $row['ga:browser'],
+	                $row['ga:browserVersion']
+	            )
+	        );
+	        
+	        $total_sessions += $row['ga:sessions'];
+	        if ($row['ga:browser'] === self::NOT_SET) {
+	            $crop_sessions += $row['ga:sessions'];
+                unset($report[$rowid]);
+	        } else {
+	            $os      = $row['ga:browser'];
+	            $version = $row['ga:browserVersion'];
+	            
+	            if ($os !== self::NOT_SET) {
+	                $version_report[$os] = array_get_index($version_report, $os, Array());
+                    if (array_key_exists($version, $version_report[$os]) === TRUE) {
+                        foreach ($row as $fieldid => &$value) {
+                            if ((($fieldid !== 'ga:operatingSystemVersion') && ($fieldid !== 'ga:browserVersion')) && (is_numeric($value) === TRUE)) {
+                                $version_report[$os][$version][$fieldid] += $value;
+                            }
+                        }
+                    } else {
+                        $version_report[$os][$version] = $row;
+                    }
+                }//end if
+	            
+	            if (array_key_exists($os, $report) === TRUE) {
+	                foreach ($row as $fieldid => &$value) {
+	                    if ((($fieldid !== 'ga:operatingSystemVersion') && ($fieldid !== 'ga:browserVersion')) && (is_numeric($value) === TRUE)) {
+	                        $report[$os][$fieldid] += $value;
+	                    }
+	                }
+	            } else {
+	                $report[$os] = $row;
+	            }
+	        }//end if
+	    }//end foreach
+	    
+	    usort($report, function($a, $b) {
+	        return $b['ga:sessions'] - $a['ga:sessions'];
+	    });
+	    
+	    foreach ($version_report as $os => &$version_rows) {
+            usort($version_rows, function($a, $b) {
+                return $b['ga:sessions'] - $a['ga:sessions'];
+            });
+	    }
+	    
+	    $o->openField(translate('Reporting Period'));
+	        echo sprintf(
+	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
+	            '<strong>'.date('jS M Y', $start_date).'</strong>',
+	            '<strong>'.date('jS M Y', $end_date).'</strong>',
+	            $day_count
+	        );
+	    $o->closeField();
+	    
+	    $o->openField(translate('Total Sessions'));
+            echo translate(
+                '%s / %s sessions analysed',
+                number_format(($total_sessions - $crop_sessions), 0),
+                number_format($total_sessions, 0)
+            );
+	    
+            if ($crop_sessions > 0) {
+                $o->note(translate(
+                    'Only %s%% of all session details provided browser information',
+                    number_format(((1 - ($crop_sessions / $total_sessions)) * 100.0), 2)
+                ));
+            }
+        $o->closeField();
+	    
+	    $o->openRaw();
+	    ?><table class="sq-backend-table">
+	    <col width="40%" />
+	    <col width="8.5%" />
+	    <col width="6.5%" />
+	    <col width="15%" />
+	    <col width="15%" />
+	    <col width="15%" />
+	    <tbody>
+	        <tr>
+	            <th><?php echo translate('Browser') ?></th>
+	            <th colspan="2"><?php echo translate('Sessions') ?></td>
+	            <th><?php echo translate('Unique Users') ?></td>
+	            <th><?php echo translate('Page Views / Session') ?></td>
+	            <th><?php echo translate('Session Duration') ?></td>
+	        </tr><?php
+	        $rank = 0;
+	        foreach ($report as $row) {
+	            $rank++;
+            ?><tr>
+                <th><?php 
+                $os = $row['ga:browser'];
+                echo $rank.'. '.$os;
+                ?></th>
+                <th style="text-align: right"><strong><?php echo number_format($row['ga:sessions'], 0); ?></strong></th>
+                <th style="text-align: right"><?php echo number_format($row['ga:sessions'] / $total_sessions * 100.0, 2).'%'; ?></th>
+                <th style="text-align: right"><?php echo number_format($row['ga:users'], 0); ?></th>
+                <th style="text-align: right"><?php
+                if ($row['ga:sessions'] === 0) {
+                    echo translate('N/A');
+                } else {
+                    echo number_format($row['ga:pageviews'] / $row['ga:sessions'], 1);
+                }
+                ?></th>
+                <th style="text-align: right"><?php
+                if ($row['ga:sessions'] === 0) {
+                    echo translate('N/A');
+                } else {
+                    $time = $row['ga:sessionDuration'] / $row['ga:sessions'];
+                    if ($time >= 60) {
+                        echo sprintf(translate('%s min %s sec', '%s', '%s'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
+                    } else {
+                        echo sprintf(translate('%s sec', '%s'), floor($time));
+                    }
+                }
+                ?></th><?php
+                foreach ($version_report[$os] as $version_row) {
+                ?><tr>
+                    <td><?php 
+                    echo '<span style="float: left; padding-left: 3ex">';
+                    echo $version_row['ga:browserVersion'].'</span>'; 
+                    ?></td>
+                    <td style="text-align: right"><strong><?php echo number_format($version_row['ga:sessions'], 0); ?></strong></td>
+                    <td style="text-align: right"><?php echo number_format($version_row['ga:sessions'] / $total_sessions * 100.0, 2).'%'; ?></td>
+                    <td style="text-align: right"><?php echo number_format($version_row['ga:users'], 0); ?></td>
+                    <td style="text-align: right"><?php
+                    if ($version_row['ga:sessions'] === 0) {
+                        echo translate('N/A');
+                    } else {
+                        echo number_format($version_row['ga:pageviews'] / $version_row['ga:sessions'], 1);
+                    }
+                    ?></td>
+                    <td style="text-align: right"><?php
+                    if ($version_row['ga:sessions'] === 0) {
+                        echo translate('N/A');
+                    } else {
+                        $time = $version_row['ga:sessionDuration'] / $version_row['ga:sessions'];
+                        if ($time >= 60) {
+                            echo sprintf(translate('%s min %s sec', '%s', '%s'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
+                        } else {
+                            echo sprintf(translate('%s sec', '%s'), floor($time));
+                        }
+                    }
+                    ?></td>
+                </tr><?php
+                }//end if city rows
+            ?></tr><?php
+            }
+            ?></tbody></table><?php
+	    $o->closeRaw();
+	    
+	    return FALSE;
+	    
+	}//end paintTechnologiesOSesReportMobile()
+	/**
+	 * Paint the technologies OS report.
+	 *
+	 */
+	public function paintTechnologiesBrowsersReportTablet($asset, &$o, $prefix)
+	{
+	    $max_results = 100;
+	    $months      = 1;
+	    $start_date  = strtotime('-'.$months.' months 00:00:00');
+	    $end_date    = strtotime('yesterday 00:00:00');
+	    $day_count   = round(1 + (($end_date - $start_date) / 86400), 0);
+	    
+	    // Grab all the reports.
+	    $raw_report  = $asset->generateReport(
+	        Array(
+	            'ga:deviceCategory',
+	            'ga:operatingSystem',
+	            'ga:operatingSystemVersion',
+	            'ga:browser',
+	            'ga:browserVersion',
+            ),
+	        Google_Analytics_View::SITE_METRICS,
+	        $start_date,
+	        $end_date
+	    );
+	    
+	    $total_sessions = 0;
+	    $crop_sessions  = 0;
+	    $report         = Array();
+	    $version_report = Array();
+	    
+	    foreach ($raw_report as $rowid => &$row) {
+	        if ($row['ga:deviceCategory'] !== 'tablet') {
+	            continue;
+	        }
+	        
+	        $row = array_merge(
+	            $row,
+	            $this->_translateMobileBrowser(
+	                $row['ga:browser'],
+	                $row['ga:browserVersion']
+	            )
+	        );
+	        
+	        $total_sessions += $row['ga:sessions'];
+	        if ($row['ga:browser'] === self::NOT_SET) {
+	            $crop_sessions += $row['ga:sessions'];
+                unset($report[$rowid]);
+	        } else {
+	            $os      = $row['ga:browser'];
+	            $version = $row['ga:browserVersion'];
+	            
+	            if ($os !== self::NOT_SET) {
+	                $version_report[$os] = array_get_index($version_report, $os, Array());
+                    if (array_key_exists($version, $version_report[$os]) === TRUE) {
+                        foreach ($row as $fieldid => &$value) {
+                            if (($fieldid !== 'ga:browserVersion') && (is_numeric($value) === TRUE)) {
+                                $version_report[$os][$version][$fieldid] += $value;
+                            }
+                        }
+                    } else {
+                        $version_report[$os][$version] = $row;
+                    }
+                }//end if
+	            
+	            if (array_key_exists($os, $report) === TRUE) {
+	                foreach ($row as $fieldid => &$value) {
+	                    if (($fieldid !== 'ga:browserVersion') && (is_numeric($value) === TRUE)) {
+	                        $report[$os][$fieldid] += $value;
+	                    }
+	                }
+	            } else {
+	                $report[$os] = $row;
+	            }
+	        }//end if
+	    }//end foreach
+	    
+	    usort($report, function($a, $b) {
+	        return $b['ga:sessions'] - $a['ga:sessions'];
+	    });
+	    
+	    foreach ($version_report as $os => &$version_rows) {
+            usort($version_rows, function($a, $b) {
+                return $b['ga:sessions'] - $a['ga:sessions'];
+            });
+	    }
+	    
+	    $o->openField(translate('Reporting Period'));
+	        echo sprintf(
+	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
+	            '<strong>'.date('jS M Y', $start_date).'</strong>',
+	            '<strong>'.date('jS M Y', $end_date).'</strong>',
+	            $day_count
+	        );
+	    $o->closeField();
+	    
+	    $o->openField(translate('Total Sessions'));
+            echo translate(
+                '%s / %s sessions analysed',
+                number_format(($total_sessions - $crop_sessions), 0),
+                number_format($total_sessions, 0)
+            );
+	    
+            if ($crop_sessions > 0) {
+                $o->note(translate(
+                    'Only %s%% of all session details provided browser information',
+                    number_format(((1 - ($crop_sessions / $total_sessions)) * 100.0), 2)
+                ));
+            }
+        $o->closeField();
+	    
+	    $o->openRaw();
+	    ?><table class="sq-backend-table">
+	    <col width="40%" />
+	    <col width="8.5%" />
+	    <col width="6.5%" />
+	    <col width="15%" />
+	    <col width="15%" />
+	    <col width="15%" />
+	    <tbody>
+	        <tr>
+	            <th><?php echo translate('Browser') ?></th>
+	            <th colspan="2"><?php echo translate('Sessions') ?></td>
+	            <th><?php echo translate('Unique Users') ?></td>
+	            <th><?php echo translate('Page Views / Session') ?></td>
+	            <th><?php echo translate('Session Duration') ?></td>
+	        </tr><?php
+	        $rank = 0;
+	        foreach ($report as $row) {
+	            $rank++;
+            ?><tr>
+                <th><?php 
+                $os = $row['ga:browser'];
+                echo $rank.'. '.$os;
+                ?></th>
+                <th style="text-align: right"><strong><?php echo number_format($row['ga:sessions'], 0); ?></strong></th>
+                <th style="text-align: right"><?php echo number_format($row['ga:sessions'] / $total_sessions * 100.0, 2).'%'; ?></th>
+                <th style="text-align: right"><?php echo number_format($row['ga:users'], 0); ?></th>
+                <th style="text-align: right"><?php
+                if ($row['ga:sessions'] === 0) {
+                    echo translate('N/A');
+                } else {
+                    echo number_format($row['ga:pageviews'] / $row['ga:sessions'], 1);
+                }
+                ?></th>
+                <th style="text-align: right"><?php
+                if ($row['ga:sessions'] === 0) {
+                    echo translate('N/A');
+                } else {
+                    $time = $row['ga:sessionDuration'] / $row['ga:sessions'];
+                    if ($time >= 60) {
+                        echo sprintf(translate('%s min %s sec', '%s', '%s'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
+                    } else {
+                        echo sprintf(translate('%s sec', '%s'), floor($time));
+                    }
+                }
+                ?></th><?php
+                foreach ($version_report[$os] as $version_row) {
+                ?><tr>
+                    <td><?php 
+                    echo '<span style="float: left; padding-left: 3ex">';
+                    echo $version_row['ga:browserVersion'].'</span>'; 
+                    ?></td>
+                    <td style="text-align: right"><strong><?php echo number_format($version_row['ga:sessions'], 0); ?></strong></td>
+                    <td style="text-align: right"><?php echo number_format($version_row['ga:sessions'] / $total_sessions * 100.0, 2).'%'; ?></td>
+                    <td style="text-align: right"><?php echo number_format($version_row['ga:users'], 0); ?></td>
+                    <td style="text-align: right"><?php
+                    if ($version_row['ga:sessions'] === 0) {
+                        echo translate('N/A');
+                    } else {
+                        echo number_format($version_row['ga:pageviews'] / $version_row['ga:sessions'], 1);
+                    }
+                    ?></td>
+                    <td style="text-align: right"><?php
+                    if ($version_row['ga:sessions'] === 0) {
+                        echo translate('N/A');
+                    } else {
+                        $time = $version_row['ga:sessionDuration'] / $version_row['ga:sessions'];
+                        if ($time >= 60) {
+                            echo sprintf(translate('%s min %s sec', '%s', '%s'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
+                        } else {
+                            echo sprintf(translate('%s sec', '%s'), floor($time));
+                        }
+                    }
+                    ?></td>
+                </tr><?php
+                }//end if city rows
+            ?></tr><?php
+            }
+            ?></tbody></table><?php
+	    $o->closeRaw();
+	    
+	    return FALSE;
+	    
+	}//end paintTechnologiesOSesReportMobile()
+	
+	/**
+	 * Paint the technologies OS report.
+	 *
+	 */
+	public function paintTechnologiesBrowsersReportMobile($asset, &$o, $prefix)
+	{
+	    $max_results = 100;
+	    $months      = 1;
+	    $start_date  = strtotime('-'.$months.' months 00:00:00');
+	    $end_date    = strtotime('yesterday 00:00:00');
+	    $day_count   = round(1 + (($end_date - $start_date) / 86400), 0);
+	    
+	    // Grab all the reports.
+	    $raw_report  = $asset->generateReport(
+	        Array(
+	            'ga:deviceCategory',
+	            'ga:operatingSystem',
+	            'ga:operatingSystemVersion',
+	            'ga:browser',
+	            'ga:browserVersion',
+            ),
+	        Google_Analytics_View::SITE_METRICS,
+	        $start_date,
+	        $end_date
+	    );
+	    
+	    $total_sessions = 0;
+	    $crop_sessions  = 0;
+	    $report         = Array();
+	    $version_report = Array();
+	    
+	    foreach ($raw_report as $rowid => &$row) {
+	        if ($row['ga:deviceCategory'] !== 'mobile') {
+	            continue;
+	        }
+	        
+	        $row = array_merge(
+	            $row,
+	            $this->_translateMobileBrowser(
+	                $row['ga:browser'],
+	                $row['ga:browserVersion']
+	            )
+	        );
+	        
+	        $total_sessions += $row['ga:sessions'];
+	        if ($row['ga:browser'] === self::NOT_SET) {
+	            $crop_sessions += $row['ga:sessions'];
+                unset($report[$rowid]);
+	        } else {
+	            $os      = $row['ga:browser'];
+	            $version = $row['ga:browserVersion'];
+	            
+	            if ($os !== self::NOT_SET) {
+	                $version_report[$os] = array_get_index($version_report, $os, Array());
+                    if (array_key_exists($version, $version_report[$os]) === TRUE) {
+                        foreach ($row as $fieldid => &$value) {
+                            if (($fieldid !== 'ga:browserVersion') && (is_numeric($value) === TRUE)) {
+                                $version_report[$os][$version][$fieldid] += $value;
+                            }
+                        }
+                    } else {
+                        $version_report[$os][$version] = $row;
+                    }
+                }//end if
+	            
+	            if (array_key_exists($os, $report) === TRUE) {
+	                foreach ($row as $fieldid => &$value) {
+	                    if (($fieldid !== 'ga:browserVersion') && (is_numeric($value) === TRUE)) {
+	                        $report[$os][$fieldid] += $value;
+	                    }
+	                }
+	            } else {
+	                $report[$os] = $row;
+	            }
+	        }//end if
+	    }//end foreach
+	    
+	    usort($report, function($a, $b) {
+	        return $b['ga:sessions'] - $a['ga:sessions'];
+	    });
+	    
+	    foreach ($version_report as $os => &$version_rows) {
+            usort($version_rows, function($a, $b) {
+                return $b['ga:sessions'] - $a['ga:sessions'];
+            });
+	    }
+	    
+	    $o->openField(translate('Reporting Period'));
+	        echo sprintf(
+	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
+	            '<strong>'.date('jS M Y', $start_date).'</strong>',
+	            '<strong>'.date('jS M Y', $end_date).'</strong>',
+	            $day_count
+	        );
+	    $o->closeField();
+	    
+	    $o->openField(translate('Total Sessions'));
+            echo translate(
+                '%s / %s sessions analysed',
+                number_format(($total_sessions - $crop_sessions), 0),
+                number_format($total_sessions, 0)
+            );
+	    
+            if ($crop_sessions > 0) {
+                $o->note(translate(
+                    'Only %s%% of all session details provided browser information',
+                    number_format(((1 - ($crop_sessions / $total_sessions)) * 100.0), 2)
+                ));
+            }
+        $o->closeField();
+	    
+	    $o->openRaw();
+	    ?><table class="sq-backend-table">
+	    <col width="40%" />
+	    <col width="8.5%" />
+	    <col width="6.5%" />
+	    <col width="15%" />
+	    <col width="15%" />
+	    <col width="15%" />
+	    <tbody>
+	        <tr>
+	            <th><?php echo translate('Browser') ?></th>
+	            <th colspan="2"><?php echo translate('Sessions') ?></td>
+	            <th><?php echo translate('Unique Users') ?></td>
+	            <th><?php echo translate('Page Views / Session') ?></td>
+	            <th><?php echo translate('Session Duration') ?></td>
+	        </tr><?php
+	        $rank = 0;
+	        foreach ($report as $row) {
+	            $rank++;
+            ?><tr>
+                <th><?php 
+                $os = $row['ga:browser'];
+                echo $rank.'. '.$os;
+                ?></th>
+                <th style="text-align: right"><strong><?php echo number_format($row['ga:sessions'], 0); ?></strong></th>
+                <th style="text-align: right"><?php echo number_format($row['ga:sessions'] / $total_sessions * 100.0, 2).'%'; ?></th>
+                <th style="text-align: right"><?php echo number_format($row['ga:users'], 0); ?></th>
+                <th style="text-align: right"><?php
+                if ($row['ga:sessions'] === 0) {
+                    echo translate('N/A');
+                } else {
+                    echo number_format($row['ga:pageviews'] / $row['ga:sessions'], 1);
+                }
+                ?></th>
+                <th style="text-align: right"><?php
+                if ($row['ga:sessions'] === 0) {
+                    echo translate('N/A');
+                } else {
+                    $time = $row['ga:sessionDuration'] / $row['ga:sessions'];
+                    if ($time >= 60) {
+                        echo sprintf(translate('%s min %s sec', '%s', '%s'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
+                    } else {
+                        echo sprintf(translate('%s sec', '%s'), floor($time));
+                    }
+                }
+                ?></th><?php
+                foreach ($version_report[$os] as $version_row) {
+                ?><tr>
+                    <td><?php 
+                    echo '<span style="float: left; padding-left: 3ex">';
+                    echo $version_row['ga:browserVersion'].'</span>'; 
+                    ?></td>
+                    <td style="text-align: right"><strong><?php echo number_format($version_row['ga:sessions'], 0); ?></strong></td>
+                    <td style="text-align: right"><?php echo number_format($version_row['ga:sessions'] / $total_sessions * 100.0, 2).'%'; ?></td>
+                    <td style="text-align: right"><?php echo number_format($version_row['ga:users'], 0); ?></td>
+                    <td style="text-align: right"><?php
+                    if ($version_row['ga:sessions'] === 0) {
+                        echo translate('N/A');
+                    } else {
+                        echo number_format($version_row['ga:pageviews'] / $version_row['ga:sessions'], 1);
+                    }
+                    ?></td>
+                    <td style="text-align: right"><?php
+                    if ($version_row['ga:sessions'] === 0) {
+                        echo translate('N/A');
+                    } else {
+                        $time = $version_row['ga:sessionDuration'] / $version_row['ga:sessions'];
+                        if ($time >= 60) {
+                            echo sprintf(translate('%s min %s sec', '%s', '%s'), (int)($time / 60), str_pad(floor($time % 60), 2, '0', STR_PAD_LEFT));
+                        } else {
+                            echo sprintf(translate('%s sec', '%s'), floor($time));
+                        }
+                    }
+                    ?></td>
+                </tr><?php
+                }//end if city rows
+            ?></tr><?php
+            }
+            ?></tbody></table><?php
+	    $o->closeRaw();
+	    
+	    return FALSE;
+	    
+	}//end paintTechnologiesOSesReportMobile()
+	
+	
+	private function _translateDesktopOS($os, $version) {
+	    switch ($os) {
+    	    case 'Windows':
+    	        $version = 'Windows '.$version;
+	        break;
+	        
+		    case 'Macintosh':
+		        $os = 'OS X (Mac)';
+		        
+		        // Remove the architecture.
+		        list(, $version) = explode(' ', $version);
+		        
+		        $version_list = Array(
+		            '10.10' => 'Yosemite',
+		            '10.9'  => 'Mavericks',
+		            '10.8'  => 'Mountain Lion',
+		            '10.7'  => 'Lion',
+		            '10.6'  => 'Snow Leopard',
+		            '10.5'  => 'Leopard',
+		            '10.4'  => 'Tiger',
+		            '10.3'  => 'Panther',
+		        );
+		        
+		        if (array_key_exists($version, $version_list) === TRUE) {
+		            $version = $version_list[$version].' ('.$version.')';
+		        }
+	        break;
+	        
+		    case 'Linux':
+		        if (($version === 'x86_64') || ($version === 'amd64')) {
+		            $version = translate('64-bit (x86-64)');
+		        } else if ($version === 'ia64') {
+		            $version = translate('64-bit (Itanium)');
+		        } else if (preg_match('/^i[3-6]86$/', $version) > 0) {
+		            $version = translate('32-bit');
+		        } else {
+		            $version = self::NOT_SET;
+		        }
+	        break;
+	    }//end switch
+	    
+	    return Array(
+	        'ga:operatingSystem'        => $os,
+	        'ga:operatingSystemVersion' => $version,
+	    );
+	    
+	}//end translateDesktopOSName()
+	
+	
+	private function _translateMobileOS($os, $version) {
+	    switch ($os) {
+		    case 'iOS':
+		        if ($version === self::NOT_SET) {
+		            $os = translate('iOS (unknown version)');
+		        } else {
+		            $version_parts = explode('.', $version);
+		            $os = 'iOS '.$version_parts[0];
+		        }
+	        break;
+	        
+		    case 'Android':
+		        $version_list = Array(
+		            '4\.4'     => 'KitKat',
+		            '4\.[123]' => 'Jelly Bean',
+		            '4\.0'     => 'Ice Cream Sandwich',
+		            '3\.'      => 'Honeycomb',
+		            '2\.3'     => 'Gingerbread',
+		            '2\.2'     => 'Froyo',
+		            '2\.[01]'  => 'Eclair',
+		            '1\.6'     => 'Donut',
+		            '1\.5'     => 'Cupcake',
+		        );
+		        
+		        if ($version === self::NOT_SET) {
+		            $os = translate('Android (unknown version)');
+		        } else {
+                    $os = translate('Android 1.1 or lower');
+                    foreach ($version_list as $regex => $version_name) {
+                        if (preg_match('/^'.$regex.'(\.[\d.]+)?$/', $version) > 0) {
+                            $os = 'Android '.$version_name;
+                            break;
+                        }
+                    }
+		        }
+	        break;
+	    }//end switch
+	    
+	    return Array(
+	        'ga:operatingSystem'        => $os,
+	        'ga:operatingSystemVersion' => $version,
+	    );
+	    
+	}//end translateDesktopOSName()
+	
+	
+	private function _translateDesktopBrowser($browser, $version) {
+	    switch ($browser) {
+	        case 'Chrome':
+	            $version_parts = explode('.', $version);
+	            $version = $version_parts[0].'.x';
+	            
+	            $version_list = Array(
+	                '32.0' => translate('2014 (versions 32+)'),
+	                '28.0' => translate('2013, Blink (versions 28-31)'),
+	                '24.0' => translate('2013, WebKit (versions 24-27)'),
+	                '17.0' => translate('2012 (versions 17-23)'),
+	                '9.0'  => translate('2011 (versions 9-16)'),
+	                '0.0'  => translate('2010 or earlier (versions 0.x-8)'),
+	            );
+	            
+	            foreach ($version_list as $version_minimum => $version_str) {
+	                if (version_compare($version, $version_minimum, '>=') === TRUE) {
+	                    $version = $version_str;
+	                    break;
+	                }
+	            }
+	        break;
+	        
+	        case 'Firefox':
+                $version_parts = explode('.', $version);
+                if ((int) $version_parts[0] >= 4) {
+                    $esr_version = floor(($version_parts[0] - 3) / 7) * 7 + 3;
+                    if ($esr_version < 10) {
+                        // Pre-ESR. Group rapid releases of 4.x+ together.
+                        $esr_version      = 4;
+                        $esr_last_version = 9;
+                    } else {
+                        // By rule, ESR versions currently span 7 rapid relases.
+                        $esr_last_version = $esr_version + 6;
+                    }
+                    $version = $esr_version.'-'.$esr_last_version;
+	            } else {
+                    $version = $version_parts[0].'.'.$version_parts[1];
+                }
+	        break;
+	        
+	        case 'Safari':
+	            $version_parts = explode('.', $version);
+	            $version = $version_parts[0].'.x';
+	        break;
+	        
+	        case 'Opera':
+	            $version_parts = explode('.', $version);
+	            
+	            if ($version_parts[0] >= 15) {
+	                // Blink-based Opera.
+                    $version_list = Array(
+                        '19.0'  => translate('Blink, 2014 (versions 19+)'),
+                        '15.0'  => translate('Blink, 2013 (versions 15-18)'),
+                    );
+	            
+                    foreach ($version_list as $version_minimum => $version_str) {
+                        if (version_compare($version, $version_minimum, '>=') === TRUE) {
+                            $version = $version_str;
+                            break;
+                        }
+                    }
+	            } else {
+	                // Classic Opera. Format it as, eg. '12.5x'
+	                $version = translate('Presto (up to version 12)'); 
+	                //$version = $version_parts[0].'.'.floor($version_parts[1] / 10).'x';
+	            }
+	        break;
+	        
+	        case 'Internet Explorer':
+	            if ($version === '999.1') {
+	                // Certain anti-viruses set IE's version to a dodgy value
+	                // to stop people gleaning security issues from their
+	                // version number. Not helpful.
+	                $version = self::NOT_SET;
+	            }
+	    }
+	    
+	    return Array(
+	        'ga:browser'        => $browser,
+	        'ga:browserVersion' => $version,
+	    );
+	    
+	    return Array(
+	        'ga:browser'        => $browser,
+	        'ga:browserVersion' => $version,
+	    );
+	    
+	}//end translateDesktopOSName()
+	
+	
+	private function _translateMobileBrowser($browser, $version) {
+	    switch ($browser) {
+	        case 'Chrome':
+	            $version_parts = explode('.', $version);
+	            $version = $version_parts[0].'.x';
+	        break;
+	        
+	        case 'Firefox':
+	            $version_parts = explode('.', $version);
+	            $version = $version_parts[0].'.x';
+	        break;
+	        
+	        case 'Safari':
+	            $version_parts = explode('.', $version);
+	            $version = $version_parts[0].'.x';
+	        break;
+	        
+	        case 'Opera Mini':
+	            $version_parts = explode('.', $version);
+	            $version = $version_parts[0].'.'.$version_parts[1];
+	        break;
+	    }
+	    
+	    return Array(
+	        'ga:browser'        => $browser,
+	        'ga:browserVersion' => $version,
+	    );
+	    
+	}//end translateDesktopOSName()
 
 }//end class
 
