@@ -7071,21 +7071,37 @@ class Asset extends MySource_Object
 
 		// check if current asset is in root node list
 		$covered = FALSE;
-		$root_asset_ids = Array();
+		$root_nodes = Array();
+		$root_nodes_cascade = Array();
 		foreach (explode('|', SQ_MAINTENANCE_ROOT_NODE) as $node) {
 			if(empty($node)) continue;
-			$root_asset_ids[] = $node;
+			$details = explode(':', $node);
+			$cascade = isset($details[1]) && $details[1] == 1 ? 1 : 0;
+			if($cascade) {
+				$root_nodes_cascade[] = $details[0];
+			}
+			else {
+				$root_nodes[] = $details[0];
+			}
 		}
-		$excluded_root_asset_ids = Array();
+		$exclude_root_nodes = Array();
+		$exclude_root_nodes_cascade = Array();
 		foreach (explode('|', SQ_MAINTENANCE_EXCLUDE_ROOT_NODE) as $node) {
 			if(empty($node)) continue;
-			$excluded_root_asset_ids[] = $node;
+			$details = explode(':', $node);
+			$cascade = isset($details[1]) && $details[1] == 1 ? 1 : 0;
+			if($cascade) {
+				$exclude_root_nodes_cascade[] = $details[0];
+			}
+			else {
+				$exclude_root_nodes[] = $details[0];
+			}
 		}
 
 
-		if(!empty($root_asset_ids)) {
-			$isUnder = $GLOBALS['SQ_SYSTEM']->am->isUnderRootNodes($this->id, $root_asset_ids);
-			$isExcluded = $GLOBALS['SQ_SYSTEM']->am->isUnderRootNodes($this->id, $excluded_root_asset_ids);
+		if(!empty($root_nodes) || !empty($root_nodes_cascade)) {
+			$isUnder = in_array($this->id, $root_nodes) || $GLOBALS['SQ_SYSTEM']->am->isUnderRootNodes($this->id, $root_nodes_cascade);
+			$isExcluded = in_array($this->id, $exclude_root_nodes) || $GLOBALS['SQ_SYSTEM']->am->isUnderRootNodes($this->id, $exclude_root_nodes_cascade);
 			if($isUnder && !$isExcluded) $covered = TRUE;
 		}
 		if(!$covered) return FALSE;

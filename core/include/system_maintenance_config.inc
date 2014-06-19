@@ -48,7 +48,7 @@ class System_Maintenance_Config extends Config
 		$this->config_vars = Array(
 						'SQ_MAINTENANCE_MODE'				=> Array('editable' => 1, 'default' => 0),
 						'SQ_MAINTENANCE_ASSET_TYPE'			=> Array('editable' => 1, 'default' => 'page_asset_builder:1|page_custom_form:1|page_account_manager:1|ecommerce_checkout:1'),
-						'SQ_MAINTENANCE_ROOT_NODE'			=> Array('editable' => 1, 'default' => '1'),
+						'SQ_MAINTENANCE_ROOT_NODE'			=> Array('editable' => 1, 'default' => '1:1'),
 						'SQ_MAINTENANCE_EXCLUDE_ROOT_NODE'			=> Array('editable' => 1, 'default' => ''),
 						'SQ_MAINTENANCE_FRONTEND_MESSAGE'	=> Array('editable' => 1, 'default' => translate('maintenance_mode_frontend_message')),
 						'SQ_MAINTENANCE_BACKEND_MESSAGE'	=> Array('editable' => 1, 'default' => translate('maintenance_mode_backend_message')),
@@ -326,6 +326,7 @@ class System_Maintenance_Config extends Config
 		$class = get_class_lower($this);
 		require_once $this->config_file;
 
+		// process asset type
 		if (isset($_POST[$class]['SQ_MAINTENANCE_ASSET_TYPE'])) {
 			$value = '';
 			$settings = $_POST[$class]['SQ_MAINTENANCE_ASSET_TYPE'];
@@ -339,35 +340,45 @@ class System_Maintenance_Config extends Config
 			}
 			$_POST[$class]['SQ_MAINTENANCE_ASSET_TYPE'] = $value;
 		}
-		
-		if (isset($_POST[$class]['SQ_MAINTENANCE_ROOT_NODE'])) {
+
+		// process root node
+		if (isset($_POST[$class.'_SQ_MAINTENANCE_ROOT_NODE_root_node'])) {
 			$value = '';
-			$settings = $_POST[$class]['SQ_MAINTENANCE_ROOT_NODE'];
+			$settings = $_POST[$class.'_SQ_MAINTENANCE_ROOT_NODE_root_node'];
+			$cascade_settings = $_POST[$class.'_SQ_MAINTENANCE_ROOT_NODE_all_underneath'];
 			if(!empty($settings)) {
 				foreach ($settings as $index => $node) {
-					if(isset($node['assetid'])) {
+					if(isset($node['assetid']) && !empty($node['assetid'])) {
 						$delimeter = $index == 0 ? '' : '|';
 						$value .= $delimeter.$node['assetid'];
+						$cascade = isset($cascade_settings[$index]) && $cascade_settings[$index] ? '1' : '0';
+						$value .= ':'.$cascade;
 					}
 				}
 			}
 			$_POST[$class]['SQ_MAINTENANCE_ROOT_NODE'] = $value;
 		}
 
-		if (isset($_POST[$class]['SQ_MAINTENANCE_EXCLUDE_ROOT_NODE'])) {
+		// process exclude root node
+		if (isset($_POST[$class.'_SQ_MAINTENANCE_EXCLUDE_ROOT_NODE_root_node'])) {
 			$value = '';
-			$settings = $_POST[$class]['SQ_MAINTENANCE_EXCLUDE_ROOT_NODE'];
+			$settings = $_POST[$class.'_SQ_MAINTENANCE_EXCLUDE_ROOT_NODE_root_node'];
+			$cascade_settings = $_POST[$class.'_SQ_MAINTENANCE_EXCLUDE_ROOT_NODE_all_underneath'];
 			if(!empty($settings)) {
 				foreach ($settings as $index => $node) {
-					if(isset($node['assetid'])) {
+					if(isset($node['assetid']) && !empty($node['assetid'])) {
 						$delimeter = $index == 0 ? '' : '|';
 						$value .= $delimeter.$node['assetid'];
+						$cascade = isset($cascade_settings[$index]) && $cascade_settings[$index] ? '1' : '0';
+						$value .= ':'.$cascade;
 					}
 				}
 			}
+
 			$_POST[$class]['SQ_MAINTENANCE_EXCLUDE_ROOT_NODE'] = $value;
 		}
 
+		// process messages
 		$wysiwyg_prefix = $class.'_SQ_MAINTENANCE_BACKEND_MESSAGE';
 		$wysiwyg = new Asset_Attribute_WYSIWYG();
 		$wysiwyg->process($wysiwyg_prefix);
@@ -515,29 +526,23 @@ class System_Maintenance_Config extends Config
 	function paintRootNode(&$o, $prefix)
 	{
 		// get root asset ids
-		$root_asset_ids = Array();
+		$root_nodes = Array();
 		foreach (explode('|', SQ_MAINTENANCE_ROOT_NODE) as $node) {
 			if(empty($node)) continue;
-			$root_asset_ids[] = $node;
+			$details = explode(':', $node);
+			$cascade = isset($details[1]) && $details[1] == 1 ? 1 : 0;
+			$root_nodes[$details[0]] = Array('all_underneath' => $cascade);
 		}
 
-		if ($this->writeAccess()) {
-			multiple_asset_finder($prefix.'[SQ_MAINTENANCE_ROOT_NODE]', $root_asset_ids);
-		} else {
-			$infos = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($root_asset_ids);
-			?><ul style="margin: 1px 15px;"><?php
-			foreach ($infos as $assetid => $info) {
-				echo '<li>'.get_asset_tag_line($assetid).'</li>';
-			}
-			?></ul><?php
-		}
+		multiple_root_nodes_selector($prefix.'_SQ_MAINTENANCE_ROOT_NODE', $root_nodes, $this->writeAccess());
+
 		return TRUE;
 
 	}//end paintRootNode()
 
 
 	/**
-	* Paints the root node selection box
+	* Paints the root node exclusion box
 	*
 	* @param object	&$asset	asset being painted
 	* @param object	&$o		backend outputter
@@ -549,22 +554,16 @@ class System_Maintenance_Config extends Config
 	function paintExcludeRootNode(&$o, $prefix)
 	{
 		// get root asset ids
-		$root_asset_ids = Array();
+		$root_nodes = Array();
 		foreach (explode('|', SQ_MAINTENANCE_EXCLUDE_ROOT_NODE) as $node) {
 			if(empty($node)) continue;
-			$root_asset_ids[] = $node;
+			$details = explode(':', $node);
+			$cascade = isset($details[1]) && $details[1] == 1 ? 1 : 0;
+			$root_nodes[$details[0]] = Array('all_underneath' => $cascade);
 		}
 
-		if ($this->writeAccess()) {
-			multiple_asset_finder($prefix.'[SQ_MAINTENANCE_EXCLUDE_ROOT_NODE]', $root_asset_ids);
-		} else {
-			$infos = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($root_asset_ids);
-			?><ul style="margin: 1px 15px;"><?php
-			foreach ($infos as $assetid => $info) {
-				echo '<li>'.get_asset_tag_line($assetid).'</li>';
-			}
-			?></ul><?php
-		}
+		multiple_root_nodes_selector($prefix.'_SQ_MAINTENANCE_EXCLUDE_ROOT_NODE', $root_nodes, $this->writeAccess());
+
 		return TRUE;
 
 	}//end paintExcludeRootNode()
