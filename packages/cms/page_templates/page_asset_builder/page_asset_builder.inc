@@ -2360,7 +2360,7 @@ class Page_Asset_Builder extends Page
 					foreach ($asset->vars as $attr_name => $attr_details) {
 						foreach ($_POST as $post_var => $post_var_value) {
 							$pos = strpos($post_var, $create_type);
-							if (($pos !== FALSE) && ($pos == 0)) {
+							if (($pos !== FALSE) && ($pos == 0) && is_scalar($post_var_value)) {
 								// does this var ends with the current attrid?
 								$idlength = strlen($attr_details['attrid']);
 								if (substr($post_var, -$idlength) == $attr_details['attrid']) {
