@@ -865,7 +865,7 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	    <col width="15%" />
 	    <tbody>
 	        <tr>
-	            <th><?php echo translate('Browser') ?></th>
+	            <th><?php echo translate('Operating System') ?></th>
 	            <th colspan="2"><?php echo translate('Sessions') ?></td>
 	            <th><?php echo translate('Unique Users') ?></td>
 	            <th><?php echo translate('Page Views / Session') ?></td>
@@ -1072,7 +1072,7 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	    <col width="15%" />
 	    <tbody>
 	        <tr>
-	            <th><?php echo translate('Browser') ?></th>
+	            <th><?php echo translate('Operating System') ?></th>
 	            <th colspan="2"><?php echo translate('Sessions') ?></td>
 	            <th><?php echo translate('Unique Users') ?></td>
 	            <th><?php echo translate('Page Views / Session') ?></td>
@@ -1269,7 +1269,7 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	    <col width="15%" />
 	    <tbody>
 	        <tr>
-	            <th><?php echo translate('Browser') ?></th>
+	            <th><?php echo translate('Operating System') ?></th>
 	            <th colspan="2"><?php echo translate('Sessions') ?></td>
 	            <th><?php echo translate('Unique Users') ?></td>
 	            <th><?php echo translate('Page Views / Session') ?></td>
@@ -1474,7 +1474,7 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	    <col width="15%" />
 	    <tbody>
 	        <tr>
-	            <th><?php echo translate('Browser') ?></th>
+	            <th><?php echo translate('Device Branding / Operating System') ?></th>
 	            <th colspan="2"><?php echo translate('Sessions') ?></td>
 	            <th><?php echo translate('Unique Users') ?></td>
 	            <th><?php echo translate('Page Views / Session') ?></td>
@@ -1691,7 +1691,7 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	    <col width="15%" />
 	    <tbody>
 	        <tr>
-	            <th><?php echo translate('Browser') ?></th>
+	            <th><?php echo translate('Device Branding / Operating System') ?></th>
 	            <th colspan="2"><?php echo translate('Sessions') ?></td>
 	            <th><?php echo translate('Unique Users') ?></td>
 	            <th><?php echo translate('Page Views / Session') ?></td>
