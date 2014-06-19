@@ -935,6 +935,173 @@ function multiple_asset_finder($name, $assetids=Array(), $type_codes=Array(), $m
 }//end multiple_asset_finder()
 
 
+
+
+/**
+* Prints an backend table for choosing several root nodes with cascade option
+*
+* @param string		$name		the base name to use for the form fields
+* @param array		$root_nodes	array of root nodes e.g array('12' => array('all_underneath' => 1))
+* @param bool		$wa			does user have write permission?
+*
+* @return void
+* @access public
+*/
+function multiple_root_nodes_selector ($name, $root_nodes, $wa)
+{
+		$prefix = $name;
+		if($wa && empty($root_nodes)) $root_nodes = Array(0);
+		$key = 0;
+			?>
+			<table class="sq-backend-table" id="select-root-node-table">
+				<tbody>
+					<tr>
+						<th><?php echo translate('root_node'); ?></th>
+						<th title="<?php echo translate('include_all_assets'); ?>?"><?php echo translate('cascade'); ?>?</th>
+					</tr>
+					<?php
+					foreach ($root_nodes as $assetid => $data) {
+					?>
+						<tr>
+							<td>
+								<?php
+									if ($wa) {
+										// holds the previous value
+										hidden_field($prefix.'_root_node_previous_values['.$key.']', $assetid);
+										asset_finder($prefix.'_root_node['.$key.']', $assetid);
+									} else {
+										echo get_asset_tag_line($assetid);
+									}
+								?>
+							</td>
+							<td>
+								<?php
+									if ($wa) {
+										$options = Array(
+														0	=> translate('no'),
+														1	=> translate('yes'),
+												   );
+										$combo_name = $prefix.'_all_underneath['.$key.']';
+										combo_box($combo_name, $options, FALSE, $data['all_underneath']);
+									} else {
+										if ($data['all_underneath']) {
+											echo '<img src="'.sq_web_path('lib').'/web/images/tick.gif" /> ';
+											echo '<strong>'.translate('yes').'</strong> ('.translate('assets_underneath_root_node_affected').')';
+										} else {
+											echo '<img src="'.sq_web_path('lib').'/web/images/cross.gif" /> ';
+											echo '<strong>'.translate('no').'</strong> ('.translate('assets_underneath_root_node_not_affected').')';
+										}
+									}
+								?>
+							</td>
+						</tr>
+						<?php
+						if ($wa && $key+1 === count($root_nodes)) {
+						?>
+							<tr>
+								<td colspan="3">
+									<?php
+										$more_button_name = $prefix.'_root_node_more_button['.$key.']';
+										normal_button($more_button_name, translate('add_root_node'), 'var table = prependLastRow(this); resetLastRowFields(table, false)');
+									?>
+								</td>
+							</tr>
+						<?php
+						}
+						$key++;
+						//if ($key !== count($root_nodes)) echo '<br />';
+					}//end foreach
+					?>
+				</tbody>
+			</table>
+
+				<script type="text/javascript">
+
+					function prependLastRow(moreButton)
+					{
+						var lastRow = moreButton.parentNode;
+						while (lastRow.tagName != 'TR') {
+							lastRow = lastRow.parentNode;
+						}
+
+						// to be used when adding the button back
+						var lastSibling = lastRow.previousSibling;
+						var lastRowButtonCell = moreButton.parentNode;
+
+						// look for sq-backend-data to prepend this row
+						var validLocation = moreButton.parentNode;
+						while (validLocation.tagName != 'TBODY') {
+							validLocation = validLocation.parentNode;
+						}
+
+						var clone = lastRow.previousSibling.previousSibling.cloneNode(true);
+
+						// inserting clone after original
+						validLocation.insertBefore(clone, lastRow.previousSibling);
+
+
+
+						// add an asset finder for the cloned row
+						cloneInnerHTML(lastRow.previousSibling.previousSibling.previousSibling, clone);
+
+						return clone;
+					}
+
+					// adds a new asset finder as a child of the specified element
+					function cloneInnerHTML(cellToCopy, cellToPopulate)
+					{
+						var htmlToClone = cellToCopy.innerHTML;
+						// discover what the new key should be
+						var currentKey = htmlToClone.match(/root_node_(\d+)_/);
+						var newKey = parseInt(currentKey[1]) + 1;
+						// increment the asset finder ids
+						var replaced_html = htmlToClone.replace(/root_node_(\d+)_/g, 'root_node_' + newKey + '_');
+						replaced_html = replaced_html.replace(/root_node\[(\d+)\]/g, 'root_node[' + newKey + ']');
+						replaced_html = replaced_html.replace(/root_node_previous_values\[(\d+)\]/g, 'root_node_previous_values[' + newKey + ']');
+						// increment the cascade select
+						replaced_html = replaced_html.replace(/all_underneath\[(\d+)\]/g, 'all_underneath[' + newKey + ']');
+						cellToPopulate.innerHTML = replaced_html;
+
+					}
+
+					function resetLastRowFields(element, findTable)
+					{
+						// clear all elements inside the table
+						if (findTable) {
+							var element = element.parentNode;
+							while (element.tagName != 'ROW') {
+								element = element.parentNode;
+							}
+						}
+
+						var i=0;
+						var elementChildren = element.childNodes[i];
+						var tagName = element.tagName;
+
+						if (tagName == 'INPUT') {
+							// don't clear buttons
+							if (element.type != 'button') {
+								element.value = '';
+							}
+							return;
+						} else if (tagName == 'SELECT') {
+							element.selectedIndex = 0;
+							return;
+						}
+
+						while (elementChildren) {
+							resetLastRowFields(elementChildren, false);
+							i++;
+							elementChildren = element.childNodes[i];
+						}
+					}
+				</script>
+			<?php	
+
+}//end multiple_root_nodes_selector()
+
+
+
 /**
 * Prints an interface for entering a security key generated inside an image
 * Call validate_security_key() to check if the value entered was correct
