@@ -118,6 +118,8 @@ class Esec_Processor_Integration_Interface extends Esec_Processor
 				 'RETURNTRANSFER' => 1,
 				 'SSL_VERIFYPEER' => 1,
 				 'SSL_VERIFYHOST' => 2,
+				 'TIMEOUT'			=> 30,
+				 'CONNECTTIMEOUT'	=> 10,
 				);
 		$details  = fetch_url($this->_url, $options);
 		$response = $details['response'];
