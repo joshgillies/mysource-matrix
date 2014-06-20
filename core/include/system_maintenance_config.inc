@@ -47,7 +47,7 @@ class System_Maintenance_Config extends Config
 		$this->config_file = SQ_DATA_PATH.'/private/conf/maintenance.inc';
 		$this->config_vars = Array(
 						'SQ_MAINTENANCE_MODE'				=> Array('editable' => 1, 'default' => 0),
-						'SQ_MAINTENANCE_ASSET_TYPE'			=> Array('editable' => 1, 'default' => 'page_asset_builder:1|page_custom_form:1|page_account_manager:1|ecommerce_checkout:1'),
+						'SQ_MAINTENANCE_ASSET_TYPE'			=> Array('editable' => 1, 'default' => 'page_asset_builder:1|page_custom_form:1|page_account_manager:1|ecommerce_checkout:1|page_password_reset:1|page_online_quiz:1|page_link_manager:1'),
 						'SQ_MAINTENANCE_ROOT_NODE'			=> Array('editable' => 1, 'default' => '1:1'),
 						'SQ_MAINTENANCE_EXCLUDE_ROOT_NODE'			=> Array('editable' => 1, 'default' => ''),
 						'SQ_MAINTENANCE_FRONTEND_MESSAGE'	=> Array('editable' => 1, 'default' => translate('maintenance_mode_frontend_message')),
@@ -485,7 +485,7 @@ class System_Maintenance_Config extends Config
 					<table class="sq-backend-table">
 						<tr>
 							<th><?php echo translate('type') ?></th>
-							<th><?php echo translate('inherit_question') ?></th>
+							<th style="width:340px;" ><?php echo translate('inherit_question') ?></th>
 						</tr>
 				<?php
 				$inherit_image_path = sq_web_path('lib').'/web/images/';
@@ -498,7 +498,7 @@ class System_Maintenance_Config extends Config
 								echo get_asset_type_icon($type);
 								echo $type_names[$type];
 							?></td>
-							<td><img src="<?php echo $inherit_image; ?>" alt="<?php echo $inherit_alt; ?>" /></td>
+							<td><img src="<?php echo $inherit_image; ?>" alt="<?php echo $inherit_alt; ?>" /> <strong><?php echo $inherit_alt; ?></strong></td>
 						</tr>
 					<?php
 				}
