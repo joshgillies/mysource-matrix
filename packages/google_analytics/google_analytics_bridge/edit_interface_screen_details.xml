@@ -27,6 +27,12 @@
 			<text width="25" height="1" />
 		</field>
 	</section>
+	<section name="Generation Settings" write_access="write:attributes">
+		<field attribute="period">
+		    <display_name>Period</display_name>
+			<selection />
+		</field>
+	</section>
 	<section name="OAuth Settings" write_access="write:attributes">
 		<field attribute="client_id">
 			<text width="60" height="1" />

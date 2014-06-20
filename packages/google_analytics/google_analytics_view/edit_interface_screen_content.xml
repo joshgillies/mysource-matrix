@@ -16,7 +16,7 @@
 -->
 
 <contents>
-	<section name="Most Viewed Content (Desktop)" write_access="root:none">
+	<section name="Most Viewed Content (Non-Mobile)" write_access="root:none">
 	    <function_call>
 	        <paint_function name="paintContentMostViewedReportDesktop" />
 	    </function_call>

@@ -77,8 +77,8 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	    $report = $asset->generateReport(
 	        Array(),
 	        Google_Analytics_View::SITE_METRICS,
-	        $start_date,
-	        $end_date
+	        $start_date->format('Y-m-d'),
+	        $end_date->format('Y-m-d')
 	    );
 	    
 	    $report = array_get_index($report, 0, Array());
@@ -129,9 +129,9 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	    $o->openField(translate('Reporting Period'));
 	        echo sprintf(
 	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
-	            '<strong>'.date('jS M Y', $start_date).'</strong>',
-	            '<strong>'.date('jS M Y', $end_date).'</strong>',
-	            $day_count
+	            '<strong>'.$start_date->format('jS M Y').'</strong>',
+	            '<strong>'.$end_date->format('jS M Y').'</strong>',
+	            $date_diff->format('%a')
 	        );
 	    $o->closeField();
 	    
@@ -437,8 +437,8 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	            'ga:city',
             ),
 	        Google_Analytics_View::SITE_METRICS,
-	        $start_date,
-	        $end_date,
+	        $start_date->format('Y-m-d'),
+	        $end_date->format('Y-m-d'),
 	        Array('-ga:sessions')
 	    );
 	    
@@ -520,9 +520,9 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	    $o->openField(translate('Reporting Period'));
 	        echo sprintf(
 	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
-	            '<strong>'.date('jS M Y', $start_date).'</strong>',
-	            '<strong>'.date('jS M Y', $end_date).'</strong>',
-	            $day_count
+	            '<strong>'.$start_date->format('jS M Y').'</strong>',
+	            '<strong>'.$end_date->format('jS M Y').'</strong>',
+	            $date_diff->format('%a')
 	        );
 	    $o->closeField();
 	    
@@ -639,10 +639,15 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	 */
 	public function paintGeoCityReport($asset, &$o, $prefix)
 	{
-	    $months = 1;
-	    $start_date = strtotime('-'.$months.' months 00:00:00');
-	    $end_date   = strtotime('yesterday 00:00:00');
-	    $day_count  = round(1 + (($end_date - $start_date) / 86400), 0);
+	    $bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->bridgeid);
+	    $period = $bridge->attr('period');
+	    
+	    $end_date    = new DateTime('today 00:00:00');
+	    $start_date  = clone $end_date;
+	    $start_date->sub(new DateInterval($period));
+	    $date_diff   = $start_date->diff($end_date);
+	    $start_date->add(new DateInterval('P1D'));
+
 	    $report = $asset->generateReport(
 	        Array(
 	            'ga:country',
@@ -650,8 +655,8 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	            'ga:city',
             ),
 	        Google_Analytics_View::SITE_METRICS,
-	        $start_date,
-	        $end_date,
+	        $start_date->format('Y-m-d'),
+	        $end_date->format('Y-m-d'),
 	        Array('-ga:sessions')
 	    );
 	    
@@ -670,9 +675,9 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	    $o->openField(translate('Reporting Period'));
 	        echo sprintf(
 	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
-	            '<strong>'.date('jS M Y', $start_date).'</strong>',
-	            '<strong>'.date('jS M Y', $end_date).'</strong>',
-	            $day_count
+	            '<strong>'.$start_date->format('jS M Y').'</strong>',
+	            '<strong>'.$end_date->format('jS M Y').'</strong>',
+	            $date_diff->format('%a')
 	        );
 	    $o->closeField();
 	    
@@ -758,11 +763,14 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	 */
 	public function paintTechnologiesOSesReportDesktop($asset, &$o, $prefix)
 	{
-	    $max_results = 100;
-	    $months      = 1;
-	    $start_date  = strtotime('-'.$months.' months 00:00:00');
-	    $end_date    = strtotime('yesterday 00:00:00');
-	    $day_count   = round(1 + (($end_date - $start_date) / 86400), 0);
+	    $bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->bridgeid);
+	    $period = $bridge->attr('period');
+	    
+	    $end_date    = new DateTime('today 00:00:00');
+	    $start_date  = clone $end_date;
+	    $start_date->sub(new DateInterval($period));
+	    $date_diff   = $start_date->diff($end_date);
+	    $start_date->add(new DateInterval('P1D'));
 	    
 	    // Grab all the reports.
 	    $raw_report  = $asset->generateReport(
@@ -774,8 +782,8 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	            'ga:browserVersion',
             ),
 	        Google_Analytics_View::SITE_METRICS,
-	        $start_date,
-	        $end_date
+	        $start_date->format('Y-m-d'),
+	        $end_date->format('Y-m-d')
 	    );
 	    
 	    $total_sessions = 0;
@@ -834,9 +842,9 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	    $o->openField(translate('Reporting Period'));
 	        echo sprintf(
 	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
-	            '<strong>'.date('jS M Y', $start_date).'</strong>',
-	            '<strong>'.date('jS M Y', $end_date).'</strong>',
-	            $day_count
+	            '<strong>'.$start_date->format('jS M Y').'</strong>',
+	            '<strong>'.$end_date->format('jS M Y').'</strong>',
+	            $date_diff->format('%a')
 	        );
 	    $o->closeField();
 	    
@@ -957,11 +965,14 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	 */
 	public function paintTechnologiesOSesReportTablet($asset, &$o, $prefix)
 	{
-	    $max_results = 100;
-	    $months      = 1;
-	    $start_date  = strtotime('-'.$months.' months 00:00:00');
-	    $end_date    = strtotime('yesterday 00:00:00');
-	    $day_count   = round(1 + (($end_date - $start_date) / 86400), 0);
+	    $bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->bridgeid);
+	    $period = $bridge->attr('period');
+	    
+	    $end_date    = new DateTime('today 00:00:00');
+	    $start_date  = clone $end_date;
+	    $start_date->sub(new DateInterval($period));
+	    $date_diff   = $start_date->diff($end_date);
+	    $start_date->add(new DateInterval('P1D'));
 	    
 	    // Grab all the reports.
 	    $raw_report  = $asset->generateReport(
@@ -973,8 +984,8 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	            'ga:browserVersion',
             ),
 	        Google_Analytics_View::SITE_METRICS,
-	        $start_date,
-	        $end_date
+	        $start_date->format('Y-m-d'),
+	        $end_date->format('Y-m-d')
 	    );
 	    
 	    $total_sessions = 0;
@@ -1041,9 +1052,9 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	    $o->openField(translate('Reporting Period'));
 	        echo sprintf(
 	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
-	            '<strong>'.date('jS M Y', $start_date).'</strong>',
-	            '<strong>'.date('jS M Y', $end_date).'</strong>',
-	            $day_count
+	            '<strong>'.$start_date->format('jS M Y').'</strong>',
+	            '<strong>'.$end_date->format('jS M Y').'</strong>',
+	            $date_diff->format('%a')
 	        );
 	    $o->closeField();
 	    
@@ -1154,11 +1165,14 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	 */
 	public function paintTechnologiesOSesReportMobile($asset, &$o, $prefix)
 	{
-	    $max_results = 100;
-	    $months      = 1;
-	    $start_date  = strtotime('-'.$months.' months 00:00:00');
-	    $end_date    = strtotime('yesterday 00:00:00');
-	    $day_count   = round(1 + (($end_date - $start_date) / 86400), 0);
+	    $bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->bridgeid);
+	    $period = $bridge->attr('period');
+	    
+	    $end_date    = new DateTime('today 00:00:00');
+	    $start_date  = clone $end_date;
+	    $start_date->sub(new DateInterval($period));
+	    $date_diff   = $start_date->diff($end_date);
+	    $start_date->add(new DateInterval('P1D'));
 	    
 	    // Grab all the reports.
 	    $raw_report  = $asset->generateReport(
@@ -1170,8 +1184,8 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	            'ga:browserVersion',
             ),
 	        Google_Analytics_View::SITE_METRICS,
-	        $start_date,
-	        $end_date
+	        $start_date->format('Y-m-d'),
+	        $end_date->format('Y-m-d')
 	    );
 	    
 	    $total_sessions = 0;
@@ -1238,9 +1252,9 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	    $o->openField(translate('Reporting Period'));
 	        echo sprintf(
 	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
-	            '<strong>'.date('jS M Y', $start_date).'</strong>',
-	            '<strong>'.date('jS M Y', $end_date).'</strong>',
-	            $day_count
+	            '<strong>'.$start_date->format('jS M Y').'</strong>',
+	            '<strong>'.$end_date->format('jS M Y').'</strong>',
+	            $date_diff->format('%a')
 	        );
 	    $o->closeField();
 	    
@@ -1351,11 +1365,14 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	 */
 	public function paintTechnologiesDevicesReportTablet($asset, &$o, $prefix)
 	{
-	    $max_results = 100;
-	    $months      = 1;
-	    $start_date  = strtotime('-'.$months.' months 00:00:00');
-	    $end_date    = strtotime('yesterday 00:00:00');
-	    $day_count   = round(1 + (($end_date - $start_date) / 86400), 0);
+	    $bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->bridgeid);
+	    $period = $bridge->attr('period');
+	    
+	    $end_date    = new DateTime('today 00:00:00');
+	    $start_date  = clone $end_date;
+	    $start_date->sub(new DateInterval($period));
+	    $date_diff   = $start_date->diff($end_date);
+	    $start_date->add(new DateInterval('P1D'));
 	    
 	    // Grab all the reports.
 	    $raw_report  = $asset->generateReport(
@@ -1368,8 +1385,8 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	            'ga:operatingSystemVersion',
             ),
 	        Google_Analytics_View::SITE_METRICS,
-	        $start_date,
-	        $end_date
+	        $start_date->format('Y-m-d'),
+	        $end_date->format('Y-m-d')
 	    );
 	    
 	    $total_sessions = 0;
@@ -1443,9 +1460,9 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	    $o->openField(translate('Reporting Period'));
 	        echo sprintf(
 	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
-	            '<strong>'.date('jS M Y', $start_date).'</strong>',
-	            '<strong>'.date('jS M Y', $end_date).'</strong>',
-	            $day_count
+	            '<strong>'.$start_date->format('jS M Y').'</strong>',
+	            '<strong>'.$end_date->format('jS M Y').'</strong>',
+	            $date_diff->format('%a')
 	        );
 	    $o->closeField();
 	    
@@ -1568,11 +1585,14 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	 */
 	public function paintTechnologiesDevicesReportMobile($asset, &$o, $prefix)
 	{
-	    $max_results = 100;
-	    $months      = 1;
-	    $start_date  = strtotime('-'.$months.' months 00:00:00');
-	    $end_date    = strtotime('yesterday 00:00:00');
-	    $day_count   = round(1 + (($end_date - $start_date) / 86400), 0);
+	    $bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->bridgeid);
+	    $period = $bridge->attr('period');
+	    
+	    $end_date    = new DateTime('today 00:00:00');
+	    $start_date  = clone $end_date;
+	    $start_date->sub(new DateInterval($period));
+	    $date_diff   = $start_date->diff($end_date);
+	    $start_date->add(new DateInterval('P1D'));
 	    
 	    // Grab all the reports.
 	    $raw_report  = $asset->generateReport(
@@ -1585,8 +1605,8 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	            'ga:operatingSystemVersion',
             ),
 	        Google_Analytics_View::SITE_METRICS,
-	        $start_date,
-	        $end_date
+	        $start_date->format('Y-m-d'),
+	        $end_date->format('Y-m-d')
 	    );
 	    
 	    $total_sessions = 0;
@@ -1660,9 +1680,9 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	    $o->openField(translate('Reporting Period'));
 	        echo sprintf(
 	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
-	            '<strong>'.date('jS M Y', $start_date).'</strong>',
-	            '<strong>'.date('jS M Y', $end_date).'</strong>',
-	            $day_count
+	            '<strong>'.$start_date->format('jS M Y').'</strong>',
+	            '<strong>'.$end_date->format('jS M Y').'</strong>',
+	            $date_diff->format('%a')
 	        );
 	    $o->closeField();
 	    
@@ -1783,11 +1803,14 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	 */
 	public function paintTechnologiesBrowsersReportDesktop($asset, &$o, $prefix)
 	{
-	    $max_results = 100;
-	    $months      = 1;
-	    $start_date  = strtotime('-'.$months.' months 00:00:00');
-	    $end_date    = strtotime('yesterday 00:00:00');
-	    $day_count   = round(1 + (($end_date - $start_date) / 86400), 0);
+	    $bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->bridgeid);
+	    $period = $bridge->attr('period');
+	    
+	    $end_date    = new DateTime('today 00:00:00');
+	    $start_date  = clone $end_date;
+	    $start_date->sub(new DateInterval($period));
+	    $date_diff   = $start_date->diff($end_date);
+	    $start_date->add(new DateInterval('P1D'));
 	    
 	    // Grab all the reports.
 	    $raw_report  = $asset->generateReport(
@@ -1799,8 +1822,8 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	            'ga:browserVersion',
             ),
 	        Google_Analytics_View::SITE_METRICS,
-	        $start_date,
-	        $end_date
+	        $start_date->format('Y-m-d'),
+	        $end_date->format('Y-m-d')
 	    );
 	    
 	    $total_sessions = 0;
@@ -1867,9 +1890,9 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	    $o->openField(translate('Reporting Period'));
 	        echo sprintf(
 	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
-	            '<strong>'.date('jS M Y', $start_date).'</strong>',
-	            '<strong>'.date('jS M Y', $end_date).'</strong>',
-	            $day_count
+	            '<strong>'.$start_date->format('jS M Y').'</strong>',
+	            '<strong>'.$end_date->format('jS M Y').'</strong>',
+	            $date_diff->format('%a')
 	        );
 	    $o->closeField();
 	    
@@ -1978,11 +2001,14 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	 */
 	public function paintTechnologiesBrowsersReportTablet($asset, &$o, $prefix)
 	{
-	    $max_results = 100;
-	    $months      = 1;
-	    $start_date  = strtotime('-'.$months.' months 00:00:00');
-	    $end_date    = strtotime('yesterday 00:00:00');
-	    $day_count   = round(1 + (($end_date - $start_date) / 86400), 0);
+	    $bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->bridgeid);
+	    $period = $bridge->attr('period');
+	    
+	    $end_date    = new DateTime('today 00:00:00');
+	    $start_date  = clone $end_date;
+	    $start_date->sub(new DateInterval($period));
+	    $date_diff   = $start_date->diff($end_date);
+	    $start_date->add(new DateInterval('P1D'));
 	    
 	    // Grab all the reports.
 	    $raw_report  = $asset->generateReport(
@@ -1994,8 +2020,8 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	            'ga:browserVersion',
             ),
 	        Google_Analytics_View::SITE_METRICS,
-	        $start_date,
-	        $end_date
+	        $start_date->format('Y-m-d'),
+	        $end_date->format('Y-m-d')
 	    );
 	    
 	    $total_sessions = 0;
@@ -2062,9 +2088,9 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	    $o->openField(translate('Reporting Period'));
 	        echo sprintf(
 	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
-	            '<strong>'.date('jS M Y', $start_date).'</strong>',
-	            '<strong>'.date('jS M Y', $end_date).'</strong>',
-	            $day_count
+	            '<strong>'.$start_date->format('jS M Y').'</strong>',
+	            '<strong>'.$end_date->format('jS M Y').'</strong>',
+	            $date_diff->format('%a')
 	        );
 	    $o->closeField();
 	    
@@ -2174,11 +2200,14 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	 */
 	public function paintTechnologiesBrowsersReportMobile($asset, &$o, $prefix)
 	{
-	    $max_results = 100;
-	    $months      = 1;
-	    $start_date  = strtotime('-'.$months.' months 00:00:00');
-	    $end_date    = strtotime('yesterday 00:00:00');
-	    $day_count   = round(1 + (($end_date - $start_date) / 86400), 0);
+	    $bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->bridgeid);
+	    $period = $bridge->attr('period');
+	    
+	    $end_date    = new DateTime('today 00:00:00');
+	    $start_date  = clone $end_date;
+	    $start_date->sub(new DateInterval($period));
+	    $date_diff   = $start_date->diff($end_date);
+	    $start_date->add(new DateInterval('P1D'));
 	    
 	    // Grab all the reports.
 	    $raw_report  = $asset->generateReport(
@@ -2190,8 +2219,8 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	            'ga:browserVersion',
             ),
 	        Google_Analytics_View::SITE_METRICS,
-	        $start_date,
-	        $end_date
+	        $start_date->format('Y-m-d'),
+	        $end_date->format('Y-m-d')
 	    );
 	    
 	    $total_sessions = 0;
@@ -2258,9 +2287,9 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	    $o->openField(translate('Reporting Period'));
 	        echo sprintf(
 	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
-	            '<strong>'.date('jS M Y', $start_date).'</strong>',
-	            '<strong>'.date('jS M Y', $end_date).'</strong>',
-	            $day_count
+	            '<strong>'.$start_date->format('jS M Y').'</strong>',
+	            '<strong>'.$end_date->format('jS M Y').'</strong>',
+	            $date_diff->format('%a')
 	        );
 	    $o->closeField();
 	    
@@ -2375,22 +2404,27 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 		        $os = 'OS X (Mac)';
 		        
 		        // Remove the architecture.
-		        list(, $version) = explode(' ', $version);
+		        if (strpos($version, ' ') === FALSE) {
+		            // We have arch but nothing else!
+		            $version = self::NOT_SET;
+		        } else {
+		            list($arch, $version) = explode(' ', $version);
 		        
-		        $version_list = Array(
-		            '10.10' => 'Yosemite',
-		            '10.9'  => 'Mavericks',
-		            '10.8'  => 'Mountain Lion',
-		            '10.7'  => 'Lion',
-		            '10.6'  => 'Snow Leopard',
-		            '10.5'  => 'Leopard',
-		            '10.4'  => 'Tiger',
-		            '10.3'  => 'Panther',
-		        );
-		        
-		        if (array_key_exists($version, $version_list) === TRUE) {
-		            $version = $version_list[$version].' ('.$version.')';
-		        }
+                    $version_list = Array(
+                        '10.10' => 'Yosemite',
+                        '10.9'  => 'Mavericks',
+                        '10.8'  => 'Mountain Lion',
+                        '10.7'  => 'Lion',
+                        '10.6'  => 'Snow Leopard',
+                        '10.5'  => 'Leopard',
+                        '10.4'  => 'Tiger',
+                        '10.3'  => 'Panther',
+                    );
+                    
+                    if (array_key_exists($version, $version_list) === TRUE) {
+                        $version = $version_list[$version].' ('.$version.')';
+                    }
+                }//end if
 	        break;
 	        
 		    case 'Linux':
@@ -2430,7 +2464,7 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 		            '4\.4'     => 'KitKat',
 		            '4\.[123]' => 'Jelly Bean',
 		            '4\.0'     => 'Ice Cream Sandwich',
-		            '3\.'      => 'Honeycomb',
+		            '3\.[012]' => 'Honeycomb',
 		            '2\.3'     => 'Gingerbread',
 		            '2\.2'     => 'Froyo',
 		            '2\.[01]'  => 'Eclair',
@@ -2588,16 +2622,19 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	 * Paint the technologies OS report.
+	 * Paint the Content screen's "Most viewed content, non-mobile" report.
 	 *
 	 */
 	public function paintContentMostViewedReportDesktop($asset, &$o, $prefix)
 	{
-	    $max_results = 100;
-	    $months      = 1;
-	    $start_date  = strtotime('-'.$months.' months 00:00:00');
-	    $end_date    = strtotime('yesterday 00:00:00');
-	    $day_count   = round(1 + (($end_date - $start_date) / 86400), 0);
+	    $bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->bridgeid);
+	    $period = $bridge->attr('period');
+	    
+	    $end_date    = new DateTime('today 00:00:00');
+	    $start_date  = clone $end_date;
+	    $start_date->sub(new DateInterval($period));
+	    $date_diff   = $start_date->diff($end_date);
+	    $start_date->add(new DateInterval('P1D'));
 	    
 	    // Grab all the reports.
 	    $raw_report  = $asset->generateReport(
@@ -2607,8 +2644,8 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	            'ga:pagePath'
             ),
 	        Google_Analytics_View::PAGE_METRICS,
-	        $start_date,
-	        $end_date
+	        $start_date->format('Y-m-d'),
+	        $end_date->format('Y-m-d')
 	    );
 	    
 	    $total_sessions = 0;
@@ -2616,7 +2653,7 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	    $report         = Array();
 	    
 	    foreach ($raw_report as $rowid => &$row) {
-	        if ($row['ga:deviceCategory'] !== 'desktop') {
+	        if ($row['ga:deviceCategory'] === 'mobile') {
 	            continue;
 	        }
 	        
@@ -2643,9 +2680,9 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	    $o->openField(translate('Reporting Period'));
 	        echo sprintf(
 	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
-	            '<strong>'.date('jS M Y', $start_date).'</strong>',
-	            '<strong>'.date('jS M Y', $end_date).'</strong>',
-	            $day_count
+	            '<strong>'.$start_date->format('jS M Y').'</strong>',
+	            '<strong>'.$end_date->format('jS M Y').'</strong>',
+	            $date_diff->format('%a')
 	        );
 	    $o->closeField();
 	    
@@ -2699,20 +2736,23 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	    
 	    return FALSE;
 	    
-	}//end paintContentMostViewedReport()
+	}//end paintContentMostViewedReportDesktop()
 
 
 
 
 	/**
-	 * Paint the technologies OS report.
+	 * Paint the Content screen's "Most viewed content on mobile" report.
 	 *
 	 */
 	public function paintContentMostViewedReportMobile($asset, &$o, $prefix)
 	{
+	    $bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->bridgeid);
+	    $period = $bridge->attr('period');
+	    
 	    $end_date    = new DateTime('today 00:00:00');
 	    $start_date  = clone $end_date;
-	    $start_date->sub(new DateInterval('P1M'));
+	    $start_date->sub(new DateInterval($period));
 	    $date_diff   = $start_date->diff($end_date);
 	    $start_date->add(new DateInterval('P1D'));
 	    
@@ -2816,20 +2856,23 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	    
 	    return FALSE;
 	    
-	}//end paintContentMostViewedReport()
+	}//end paintContentMostViewedReportDesktop()
 
 
 
 
 	/**
-	 * Paint the technologies OS report.
+	 * Paint the Content screen's "Most viewed content by returning users" report.
 	 *
 	 */
 	public function paintContentMostViewedReportReturningUsers($asset, &$o, $prefix)
 	{
+	    $bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->bridgeid);
+	    $period = $bridge->attr('period');
+	    
 	    $end_date    = new DateTime('today 00:00:00');
 	    $start_date  = clone $end_date;
-	    $start_date->sub(new DateInterval('P1M'));
+	    $start_date->sub(new DateInterval($period));
 	    $date_diff   = $start_date->diff($end_date);
 	    $start_date->add(new DateInterval('P1D'));
 	    
@@ -2933,7 +2976,7 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	    
 	    return FALSE;
 	    
-	}//end paintContentMostViewedReport()
+	}//end paintContentMostViewedReportReturningUsers()
 
 	
 	
