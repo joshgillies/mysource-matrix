@@ -83,6 +83,29 @@ class Google_Analytics_View extends Asset
 
 	
 	
+	protected function _getName($short_name=FALSE)
+	{
+	    return $this->name;
+	    
+	}//end _getName()
+	
+	
+	/**
+	 * Get keyword replacement
+	 *
+	 * @param string $keyword_name The keyword to fetch
+	 *
+	 * @return string
+	 */
+	public function getKeywordReplacement($keyword_name)
+	{
+	    $keyword_repl = '';
+	    
+	    return $keyword_repl; 
+	    
+	}//end getKeywordReplacement()
+	
+	
 	
 	/**
 	 * Generate the visitors report for this property
@@ -102,11 +125,19 @@ class Google_Analytics_View extends Asset
 	    // Cache for 4 hours.
         $cache_key = 'visitors';
         
+        if (is_string($start_date) === FALSE) {
+            $start_date = date('Y-m-d', $start_date);
+        }
+        
+        if (is_string($end_date) === FALSE) {
+            $end_date = date('Y-m-d', $end_date);
+        }
+        
         // Query definitions.
         $common_query_parts = Array(
             'ids'         => 'ga:'.$this->viewid,
-            'start-date'  => date('Y-m-d', $start_date),
-            'end-date'    => date('Y-m-d', $end_date),
+            'start-date'  => $start_date,
+            'end-date'    => $end_date,
             'max-results' => 10000,
             'start-index' => 1,
             'fields'      => 'rows',

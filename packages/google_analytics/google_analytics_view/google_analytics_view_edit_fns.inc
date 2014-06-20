@@ -2581,6 +2581,362 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	    
 	}//end translateDesktopOSName()
 
+	
+//--        CONTENT REPORTS        --//
+
+
+
+
+	/**
+	 * Paint the technologies OS report.
+	 *
+	 */
+	public function paintContentMostViewedReportDesktop($asset, &$o, $prefix)
+	{
+	    $max_results = 100;
+	    $months      = 1;
+	    $start_date  = strtotime('-'.$months.' months 00:00:00');
+	    $end_date    = strtotime('yesterday 00:00:00');
+	    $day_count   = round(1 + (($end_date - $start_date) / 86400), 0);
+	    
+	    // Grab all the reports.
+	    $raw_report  = $asset->generateReport(
+	        Array(
+	            'ga:deviceCategory',
+	            'ga:hostname',
+	            'ga:pagePath'
+            ),
+	        Google_Analytics_View::PAGE_METRICS,
+	        $start_date,
+	        $end_date
+	    );
+	    
+	    $total_sessions = 0;
+	    $crop_sessions  = 0;
+	    $report         = Array();
+	    
+	    foreach ($raw_report as $rowid => &$row) {
+	        if ($row['ga:deviceCategory'] !== 'desktop') {
+	            continue;
+	        }
+	        
+	        $total_sessions += $row['ga:pageviews'];
+	        $row['sq:domainPath'] = $row['ga:hostname'].$row['ga:pagePath'];
+	        $path = $row['sq:domainPath'];
+            if (array_key_exists($path, $report) === TRUE) {
+                foreach ($row as $fieldid => &$value) {
+                    if (is_numeric($value) === TRUE) {
+                        $report[$path][$fieldid] += $value;
+                    }
+                }
+            } else {
+                $report[$path] = $row;
+            }//end if
+	    }//end foreach
+	    
+	    usort($report, function($a, $b) {
+	        return $b['ga:pageviews'] - $a['ga:pageviews'];
+	    });
+	    
+	    $report = array_slice($report, 0, 50);
+
+	    $o->openField(translate('Reporting Period'));
+	        echo sprintf(
+	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
+	            '<strong>'.date('jS M Y', $start_date).'</strong>',
+	            '<strong>'.date('jS M Y', $end_date).'</strong>',
+	            $day_count
+	        );
+	    $o->closeField();
+	    
+	    $o->openField(translate('Total Page Views'));
+            echo translate(
+                '%s / %s page views analysed',
+                number_format(($total_sessions - $crop_sessions), 0),
+                number_format($total_sessions, 0)
+            );
+	    
+            if ($crop_sessions > 0) {
+                $o->note(translate(
+                    'Only %s%% of all page view hits provided page path information',
+                    number_format(((1 - ($crop_sessions / $total_sessions)) * 100.0), 2)
+                ));
+            }
+        $o->closeField();
+	    
+	    $o->openRaw();
+	    ?><table class="sq-backend-table">
+	    <col width="55%" />
+	    <col width="8.5%" />
+	    <col width="6.5%" />
+	    <col width="10%" />
+	    <col width="10%" />
+	    <col width="10%" />
+	    <tbody>
+	        <tr>
+	            <th><?php echo translate('Browser') ?></th>
+	            <th colspan="2"><?php echo translate('Page Views') ?></td>
+	            <th><?php echo translate('Landings') ?></td>
+	            <th><?php echo translate('Exits') ?></td>
+	            <th><?php echo translate('Bounces') ?></td>
+	        </tr><?php
+	        $rank = 0;
+	        foreach ($report as $row) {
+	            $rank++;
+            ?><tr>
+                <td><?php 
+                echo $rank.'. '.$row['sq:domainPath'];
+                ?></td>
+                <td style="text-align: right"><strong><?php echo number_format($row['ga:pageviews'], 0); ?></strong></th>
+                <td style="text-align: right"><?php echo number_format($row['ga:pageviews'] / $total_sessions * 100.0, 2).'%'; ?></th>
+                <td style="text-align: right"><?php echo number_format($row['ga:entrances'], 0); ?></th>
+                <td style="text-align: right"><?php echo number_format($row['ga:exits'], 0); ?></th>
+                <td style="text-align: right"><?php echo number_format($row['ga:bounces'], 0); ?></th>
+                </tr><?php
+            }//end foreach
+            ?></tbody></table><?php
+	    $o->closeRaw();
+	    
+	    return FALSE;
+	    
+	}//end paintContentMostViewedReport()
+
+
+
+
+	/**
+	 * Paint the technologies OS report.
+	 *
+	 */
+	public function paintContentMostViewedReportMobile($asset, &$o, $prefix)
+	{
+	    $end_date    = new DateTime('today 00:00:00');
+	    $start_date  = clone $end_date;
+	    $start_date->sub(new DateInterval('P1M'));
+	    $date_diff   = $start_date->diff($end_date);
+	    $start_date->add(new DateInterval('P1D'));
+	    
+	    // Grab all the reports.
+	    $raw_report  = $asset->generateReport(
+	        Array(
+	            'ga:deviceCategory',
+	            'ga:hostname',
+	            'ga:pagePath'
+            ),
+	        Google_Analytics_View::PAGE_METRICS,
+	        $start_date->format('Y-m-d'),
+	        $end_date->format('Y-m-d')
+	    );
+	    
+	    $total_sessions = 0;
+	    $crop_sessions  = 0;
+	    $report         = Array();
+	    
+	    foreach ($raw_report as $rowid => &$row) {
+	        if ($row['ga:deviceCategory'] !== 'mobile') {
+	            continue;
+	        }
+	        
+	        $total_sessions += $row['ga:pageviews'];
+	        $row['sq:domainPath'] = $row['ga:hostname'].$row['ga:pagePath'];
+	        $path = $row['sq:domainPath'];
+            if (array_key_exists($path, $report) === TRUE) {
+                foreach ($row as $fieldid => &$value) {
+                    if (is_numeric($value) === TRUE) {
+                        $report[$path][$fieldid] += $value;
+                    }
+                }
+            } else {
+                $report[$path] = $row;
+            }//end if
+	    }//end foreach
+	    
+	    usort($report, function($a, $b) {
+	        return $b['ga:pageviews'] - $a['ga:pageviews'];
+	    });
+	    
+	    $report = array_slice($report, 0, 50);
+	    
+	    $o->openField(translate('Reporting Period'));
+	        echo sprintf(
+	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
+	            '<strong>'.$start_date->format('jS M Y').'</strong>',
+	            '<strong>'.$end_date->format('jS M Y').'</strong>',
+	            $date_diff->format('%a')
+	        );
+	    $o->closeField();
+	    
+	    $o->openField(translate('Total Page Views'));
+            echo translate(
+                '%s / %s page views analysed',
+                number_format(($total_sessions - $crop_sessions), 0),
+                number_format($total_sessions, 0)
+            );
+	    
+            if ($crop_sessions > 0) {
+                $o->note(translate(
+                    'Only %s%% of all page view hits provided page path information',
+                    number_format(((1 - ($crop_sessions / $total_sessions)) * 100.0), 2)
+                ));
+            }
+        $o->closeField();
+	    
+	    $o->openRaw();
+	    ?><table class="sq-backend-table">
+	    <col width="55%" />
+	    <col width="8.5%" />
+	    <col width="6.5%" />
+	    <col width="10%" />
+	    <col width="10%" />
+	    <col width="10%" />
+	    <tbody>
+	        <tr>
+	            <th><?php echo translate('Browser') ?></th>
+	            <th colspan="2"><?php echo translate('Page Views') ?></td>
+	            <th><?php echo translate('Landings') ?></td>
+	            <th><?php echo translate('Exits') ?></td>
+	            <th><?php echo translate('Bounces') ?></td>
+	        </tr><?php
+	        $rank = 0;
+	        foreach ($report as $row) {
+	            $rank++;
+            ?><tr>
+                <td><?php 
+                echo $rank.'. '.$row['sq:domainPath'];
+                ?></td>
+                <td style="text-align: right"><strong><?php echo number_format($row['ga:pageviews'], 0); ?></strong></th>
+                <td style="text-align: right"><?php echo number_format($row['ga:pageviews'] / $total_sessions * 100.0, 2).'%'; ?></th>
+                <td style="text-align: right"><?php echo number_format($row['ga:entrances'], 0); ?></th>
+                <td style="text-align: right"><?php echo number_format($row['ga:exits'], 0); ?></th>
+                <td style="text-align: right"><?php echo number_format($row['ga:bounces'], 0); ?></th>
+                </tr><?php
+            }//end foreach
+            ?></tbody></table><?php
+	    $o->closeRaw();
+	    
+	    return FALSE;
+	    
+	}//end paintContentMostViewedReport()
+
+
+
+
+	/**
+	 * Paint the technologies OS report.
+	 *
+	 */
+	public function paintContentMostViewedReportReturningUsers($asset, &$o, $prefix)
+	{
+	    $end_date    = new DateTime('today 00:00:00');
+	    $start_date  = clone $end_date;
+	    $start_date->sub(new DateInterval('P1M'));
+	    $date_diff   = $start_date->diff($end_date);
+	    $start_date->add(new DateInterval('P1D'));
+	    
+	    // Grab all the reports.
+	    $raw_report = $asset->generateReport(
+	        Array(
+	            'ga:sessionCount',
+	            'ga:hostname',
+	            'ga:pagePath'
+            ),
+	        Google_Analytics_View::PAGE_METRICS,
+	        $start_date->format('Y-m-d'),
+	        $end_date->format('Y-m-d')
+	    );
+	    
+	    $total_sessions = 0;
+	    $crop_sessions  = 0;
+	    $report         = Array();
+	    
+	    foreach ($raw_report as $rowid => &$row) {
+	        if ($row['ga:sessionCount'] === '1') {
+	            continue;
+	        }
+	        
+	        $total_sessions += $row['ga:pageviews'];
+	        $row['sq:domainPath'] = $row['ga:hostname'].$row['ga:pagePath'];
+	        $path = $row['sq:domainPath'];
+            if (array_key_exists($path, $report) === TRUE) {
+                foreach ($row as $fieldid => &$value) {
+                    if (is_numeric($value) === TRUE) {
+                        $report[$path][$fieldid] += $value;
+                    }
+                }
+            } else {
+                $report[$path] = $row;
+            }//end if
+	    }//end foreach
+	    
+	    usort($report, function($a, $b) {
+	        return $b['ga:pageviews'] - $a['ga:pageviews'];
+	    });
+	    
+	    $report = array_slice($report, 0, 50);
+
+	    $o->openField(translate('Reporting Period'));
+	        echo sprintf(
+	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
+	            '<strong>'.$start_date->format('jS M Y').'</strong>',
+	            '<strong>'.$end_date->format('jS M Y').'</strong>',
+	            $date_diff->format('%a')
+	        );
+	    $o->closeField();
+	    
+	    $o->openField(translate('Total Page Views'));
+            echo translate(
+                '%s / %s page views analysed',
+                number_format(($total_sessions - $crop_sessions), 0),
+                number_format($total_sessions, 0)
+            );
+	    
+            if ($crop_sessions > 0) {
+                $o->note(translate(
+                    'Only %s%% of all page view hits provided page path information',
+                    number_format(((1 - ($crop_sessions / $total_sessions)) * 100.0), 2)
+                ));
+            }
+        $o->closeField();
+	    
+	    $o->openRaw();
+	    ?><table class="sq-backend-table">
+	    <col width="55%" />
+	    <col width="8.5%" />
+	    <col width="6.5%" />
+	    <col width="10%" />
+	    <col width="10%" />
+	    <col width="10%" />
+	    <tbody>
+	        <tr>
+	            <th><?php echo translate('Page Path') ?></th>
+	            <th colspan="2"><?php echo translate('Page Views') ?></td>
+	            <th><?php echo translate('Landings') ?></td>
+	            <th><?php echo translate('Exits') ?></td>
+	            <th><?php echo translate('Bounces') ?></td>
+	        </tr><?php
+	        $rank = 0;
+	        foreach ($report as $row) {
+	            $rank++;
+            ?><tr>
+                <td><?php 
+                echo $rank.'. '.$row['sq:domainPath'];
+                ?></td>
+                <td style="text-align: right"><strong><?php echo number_format($row['ga:pageviews'], 0); ?></strong></th>
+                <td style="text-align: right"><?php echo number_format($row['ga:pageviews'] / $total_sessions * 100.0, 2).'%'; ?></th>
+                <td style="text-align: right"><?php echo number_format($row['ga:entrances'], 0); ?></th>
+                <td style="text-align: right"><?php echo number_format($row['ga:exits'], 0); ?></th>
+                <td style="text-align: right"><?php echo number_format($row['ga:bounces'], 0); ?></th>
+                </tr><?php
+            }//end foreach
+            ?></tbody></table><?php
+	    $o->closeRaw();
+	    
+	    return FALSE;
+	    
+	}//end paintContentMostViewedReport()
+
+	
+	
 }//end class
 
 ?>
