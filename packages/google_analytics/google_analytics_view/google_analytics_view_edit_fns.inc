@@ -70,10 +70,15 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	 */
 	public function paintSummaryOverallReport($asset, &$o, $prefix)
 	{
-	    $months = 1;
-	    $start_date = strtotime('-'.$months.' months 00:00:00');
-	    $end_date   = strtotime('yesterday 00:00:00');
-	    $day_count  = round(1 + (($end_date - $start_date) / 86400), 0);
+	    $bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->bridgeid);
+	    $period = $bridge->attr('period');
+	    
+	    $end_date    = new DateTime('today 00:00:00');
+	    $start_date  = clone $end_date;
+	    $start_date->sub(new DateInterval($period));
+	    $date_diff   = $start_date->diff($end_date);
+	    $start_date->add(new DateInterval('P1D'));
+	    
 	    $report = $asset->generateReport(
 	        Array(),
 	        Google_Analytics_View::SITE_METRICS,
