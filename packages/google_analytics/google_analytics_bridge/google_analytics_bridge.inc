@@ -229,9 +229,11 @@ class Google_Analytics_Bridge extends OAuth2_Token implements Bridge
             $props = Array();
         } else {
             foreach (array_get_index($response, 'items', Array()) as $account) {
-                foreach ($account['webProperties'] as $property) {                    
-                    $property['sq:accountId'] = $account['id'];
-                    $props[$property['id']]   = $property;
+                foreach ($account['webProperties'] as $property) {
+                    if (array_key_exists('profiles', $property) === TRUE) {
+                        $property['sq:accountId'] = $account['id'];
+                        $props[$property['id']]   = $property;
+                    }
                 }
             }//end foreach
         }//end if
@@ -252,7 +254,7 @@ class Google_Analytics_Bridge extends OAuth2_Token implements Bridge
         $views = Array();
         
         foreach ($props as $propid => $prop) {
-            if (array_key_exists('profiles', $view) === TRUE) {
+            if (array_key_exists('profiles', $prop) === TRUE) {
                 foreach ($prop['profiles'] as $view) {
                     $view['sq:accountId']  = $prop['sq:accountId'];
                     $view['sq:propertyId'] = $propid;

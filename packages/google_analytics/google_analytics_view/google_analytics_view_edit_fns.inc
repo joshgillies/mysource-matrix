@@ -78,6 +78,7 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	    $start_date->sub(new DateInterval($period));
 	    $date_diff   = $start_date->diff($end_date);
 	    $start_date->add(new DateInterval('P1D'));
+	    $day_count   = (int) $date_diff->format('%a');
 	    
 	    $report = $asset->generateReport(
 	        Array(),
@@ -136,7 +137,7 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
 	            '<strong>'.$start_date->format('jS M Y').'</strong>',
 	            '<strong>'.$end_date->format('jS M Y').'</strong>',
-	            $date_diff->format('%a')
+	            $day_count
 	        );
 	    $o->closeField();
 	    
