@@ -252,10 +252,12 @@ class Google_Analytics_Bridge extends OAuth2_Token implements Bridge
         $views = Array();
         
         foreach ($props as $propid => $prop) {
-            foreach ($prop['profiles'] as $view) {
-                $view['sq:accountId']  = $prop['sq:accountId'];
-                $view['sq:propertyId'] = $propid;
-                $views[$view['id']] = $view;
+            if (array_key_exists('profiles', $view) === TRUE) {
+                foreach ($prop['profiles'] as $view) {
+                    $view['sq:accountId']  = $prop['sq:accountId'];
+                    $view['sq:propertyId'] = $propid;
+                    $views[$view['id']] = $view;
+                }
             }
         }
         
