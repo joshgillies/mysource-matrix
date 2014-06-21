@@ -504,6 +504,7 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
             $city_rows = array_slice($city_rows, 0, 5);
 	    }	  
 	    
+	    $max_results = 20;
 	    $other_report = array_reduce(
 	        array_slice($report, $max_results),
 	        function($carry, $row) {
