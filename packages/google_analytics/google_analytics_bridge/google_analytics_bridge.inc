@@ -164,19 +164,19 @@ class Google_Analytics_Bridge extends OAuth2_Token implements Bridge
 		header('Pragma: no-cache');
 		header('Expires: '.gmdate('D, d M Y H:i:s', time()-3600).' GMT');
 		
-		// start authentication (if required or forced)
-		// Unlike the OAuth2 Token, "force=true" is required, not "force" with
-		// any value.
-		// Eventually force won't exist, revoking of token to occur in the
-		// edit interface because we have a fixed place to do this.
-		$force = FALSE;
-		if (array_get_index($_GET, 'force') === 'true') {
-		    $force = TRUE;
-		}
-		
-		$token = $this->getAccessToken($force);
-		return parent::printFrontend();
-		
+        // start authentication (if required or forced)
+        // Unlike the OAuth2 Token, "force=true" is required, not "force" with
+        // any value.
+        // Eventually force won't exist, revoking of token to occur in the
+        // edit interface because we have a fixed place to do this.
+        $force = FALSE;
+        if (array_get_index($_GET, 'force') === 'true') {
+            $force = TRUE;
+        }
+        
+        $token = $this->getAccessToken($force);
+        return parent::printFrontend();
+        
 	}//end printFrontend()
 	
 	
@@ -433,6 +433,10 @@ class Google_Analytics_Bridge extends OAuth2_Token implements Bridge
      */
     public function fetchWithBackoff($url)
     {
+        if (($this->attr('client_id') === '') || ($this->attr('client_secret') === '')) {
+            return NULL;
+        }
+        
         $result  = NULL;
         $retries = NULL;
         $code    = NULL;
