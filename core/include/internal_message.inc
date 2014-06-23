@@ -470,6 +470,11 @@ class Internal_Message extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
+		// Clear internal message cache for the current user
+		if (!is_null($GLOBALS['SQ_SYSTEM']->user)) {
+			$GLOBALS['SQ_SYSTEM']->user->clearUserMessageLocalCache();
+		}
+
 		return true;
 
 	}//end send()
@@ -710,6 +715,11 @@ class Internal_Message extends MySource_Object
 		}
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		
+		// Clear the current user's local cache for internal message
+		if (!is_null($GLOBALS['SQ_SYSTEM']->user)) {
+			$GLOBALS['SQ_SYSTEM']->user->clearUserMessageLocalCache();
+		}
 
 		return TRUE;
 
@@ -736,6 +746,11 @@ class Internal_Message extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		
+		// Clear the current user's local cache for internal message
+		if (!is_null($GLOBALS['SQ_SYSTEM']->user)) {
+			$GLOBALS['SQ_SYSTEM']->user->clearUserMessageLocalCache();
+		}
 
 		return true;
 

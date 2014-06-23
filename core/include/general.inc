@@ -2087,10 +2087,21 @@ function replace_global_keywords(&$text)
 					} else if ($keyword == 'globals_get') {
 						$replacements[$full_keyword] = clean_keyword_value($_GET);
 					} else if (0 === strpos($keyword, 'globals_user_')) {
-						$user_keyword = 'asset_'.substr($keyword, 13);
-						$user_replacement = $GLOBALS['SQ_SYSTEM']->user->getKeywordReplacement($user_keyword);
-						if ((string)$user_replacement != "%$user_keyword%") {
-							$replacements[$full_keyword] = $user_replacement;
+						$user_keyword = substr($keyword, 13);
+						if (strpos($user_keyword, 'messages_') !== FALSE) {
+							// User message keywords
+							$user_keyword_parts = explode('_', $user_keyword);
+							$message_type = array_get_index($user_keyword_parts, 1, NULL);
+							$messages_size = array_get_index($user_keyword_parts, 2, NULL);
+							if ($message_type) {
+								$replacements[$full_keyword] = $GLOBALS['SQ_SYSTEM']->user->getMessages($message_type, $messages_size);
+							}
+						} else {
+							$user_keyword = 'asset_'.$user_keyword;
+							$user_replacement = $GLOBALS['SQ_SYSTEM']->user->getKeywordReplacement($user_keyword);
+							if ((string)$user_replacement != "%$user_keyword%") {
+								$replacements[$full_keyword] = $user_replacement;
+							}
 						}
 					}
 					if (0 === strpos($keyword, 'globals_get_')) {
@@ -2528,7 +2539,6 @@ function replace_global_keywords(&$text)
 							header('Retry-After: '.SQ_MAINTENANCE_RETRY_AFTER);
 						}
 					}
-
 
 					apply_keyword_modifiers($replacements[$full_keyword], $modifiers, Array(), $keyword);
 				}//end if is global keyword
