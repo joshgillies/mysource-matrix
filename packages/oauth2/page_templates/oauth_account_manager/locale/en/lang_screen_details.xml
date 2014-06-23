@@ -84,7 +84,18 @@
 				<process_function name="processPrefillFields" />
 			</function_call>
 		</field>
-		<note>Set user attributes using the profile data returned from API after user is created or linked.</note>
+		<note>Set user attributes using the profile data returned from API after user is created or linked.  Use format "work.0.employer.name" to denote a multi-level location in profile data</note>
+	</section>
+	<section name="Sync User Attributes" write_access="write:menu">
+		<field>
+		    	<display_name />
+			<note />
+			<function_call>
+				<paint_function   name="paintSyncFields"   />
+				<process_function name="processSyncFields" />
+			</function_call>
+		</field>
+		<note>Sync above user attributes using the returned profile data everytime the user logs in.</note>
 	</section>
 	<section name="Return Location">
 		<field attribute="redirect_url">

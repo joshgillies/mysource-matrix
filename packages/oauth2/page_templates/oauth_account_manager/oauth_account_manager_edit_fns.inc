@@ -211,23 +211,126 @@ class Oauth_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 
 	}//end processCreateFormCustomisation()
 
+		
+	
+	public function paintLinkedAccounts(&$asset, &$o, $prefix)
+	{
+		$page_size = 100;
+
+		$o->openRaw();
+
+		$bind_vars = Array(
+				'assetid'      => $asset->id,
+			    );
+		$result = MatrixDAL::executeAll('oauth2_package', 'getLinks', $bind_vars);
+
+		if (count($result) > 0) {
+			$num_pages = ceil(count($result) / $page_size);
+			$page_num = array_get_index($_POST, $prefix.'_usage_page', 1);
+			$page_num = max($page_num, 1);
+			$page_num = min($page_num, $num_pages);
+
+			if ($num_pages == 1) {
+				$page_tag = translate('page_number', $page_num, $num_pages);
+			} else {
+				$page_tag = translate('page_number_with_pager', $page_num, $num_pages, $prefix.'_usage_page');
+			}
+			$asset_count_tag = translate('item_range', ($page_num - 1) * $page_size + 1, min(count($result), $page_num * $page_size), count($result), strtolower(translate('links')));
+
+			$result = array_slice($result, ($page_num - 1) * $page_size, $page_size);
+
+			$links = Array(
+						'first'		=> '&lt;&lt;',
+						'previous'	=> '&lt;',
+						'page'		=> $page_tag,
+						'next'		=> '&gt;',
+						'last'		=> '&gt;&gt;',
+					);
+
+			if ($page_num > 1) {
+				$links['first'] = '<a title="'.translate('pagination_go_to_first').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', 1)">'.$links['first'].'</a>';
+				$links['previous'] = '<a title="'.translate('pagination_go_to_previous').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', '.($page_num - 1).')">'.$links['previous'].'</a>';
+			} else {
+				$links['first'] = '<span title="'.translate('pagination_cannot_go_further_back').'." style="color: #333">'.$links['first'].'</span>';
+				$links['previous'] = '<span title="'.translate('pagination_cannot_go_further_back').'." style="color: #333">'.$links['previous'].'</span>';
+			}
+
+			if ($page_num < $num_pages) {
+				$links['last'] = '<a title="'.translate('pagination_go_to_last').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', '.$num_pages.')">'.$links['last'].'</a>';
+				$links['next'] = '<a title="'.translate('pagination_go_to_next').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', '.($page_num + 1).')">'.$links['next'].'</a>';
+			} else {
+				$links['last'] = '<span title="'.translate('pagination_cannot_go_further_forward').'." style="color: #333">'.$links['last'].'</span>';
+				$links['next'] = '<span title="'.translate('pagination_cannot_go_further_forward').'." style="color: #333">'.$links['next'].'</span>';
+			}
+
+			hidden_field($prefix.'_usage_page', $page_num); ?>
+			<table class="sq-backend-table">
+			<thead>
+			<tr class="sq-backend-table-row">
+				<td class="sq-backend-table-header-header"><?php echo implode(' &nbsp; &nbsp; ', $links) ?></td>
+				<td class="sq-backend-table-header-header" colspan="2" style="text-align: right; font-weight: normal"><?php echo $asset_count_tag; ?></span></td>
+			</tr>
+			<tr class="sq-backend-table-row">
+				<th class="sq-backend-table-cell"><?php echo translate('matrix_user'); ?></th>
+				<th style="" class="sq-backend-table-cell"><?php echo translate('oauth_user') ?></th>
+				<th style="" class="sq-backend-table-cell"><?php echo translate('created') ?></th>
+			</tr>
+			</thead>
+			<tbody>
+			<?php
+
+			foreach ($result as $data) {
+					?><tr class="sq-backend-table-row">
+						<td class="sq-backend-table-cell">
+						<?php
+
+						$tag_line = get_asset_tag_line($data['matrix_userid'], 'details');
+						echo translate('asset_and_child_count_0', $tag_line);
+						?></td>
+						<td class="sq-backend-table-cell">
+							<?php echo htmlspecialchars($data['oauth_userid']); ?>
+						</td>
+						<td class="sq-backend-table-cell">
+							<?php echo $data['created']; ?>
+						</td>
+					</tr>
+					<?php
+
+			}//end foreach top tree
+			?>
+
+			</tbody>
+			</table>
+			<?php
+
+		} else {
+			$o->note(translate('oauth_account_manager_no_linked_accounts'));
+		}
+
+		$o->closeRaw();
+
+		return FALSE;
+
+	}//end paintLinkedAccounts()
 	
 	
-	
+
+
 	/**
-	* Paint the interface for prefilling attributes from user profile api response
+	* Paint the interface for prefilling/sync attributes from user profile api response
 	*
 	* @param object	&$asset	the asset whose interface we are painting
 	* @param object	&$o		the outputter class
 	* @param string	$prefix	prefix for the form elements
+	* @param boolean $prefill prefill attributes or sync attributes, they are stored in different places
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintPrefillFields(&$asset, &$o, $prefix)
+	function paintPrefillSyncFields(&$asset, &$o, $prefix, $prefill = TRUE)
 	{
 		$write_access = $asset->writeAccess('attributes');
-		$current = $asset->attr('prefilled_fields');
+		$current = $prefill ? $asset->attr('prefilled_fields') : $asset->attr('synced_fields');
 		$metadata_schemas = Array();
 		$metadata_schema_list = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, '', FALSE, 'major', 'schema_to_apply');
 		foreach ($metadata_schema_list as $metadata_schema) {
@@ -340,7 +443,7 @@ class Oauth_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 					}//end foreach
 				}
 
-				echo '<br/><b>'.translate('oauth_account_manager_new_prefill_attribute').' </b>';
+				echo '<br/><b>'.translate('new_attribute_to_set').' </b>';
 				combo_box($type_prefix.'_new_prefilled', $new_required, FALSE, '');
 			}
 
@@ -355,18 +458,20 @@ class Oauth_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 
 
 	/**
-	* Processes the interface for prefilling attributes from user profile api response
+	* Processes the interface for prefilling/sync attributes from user profile api response
 	*
 	* @param object	&$asset	the asset to which we belong
 	* @param object	&$o		the outputter class
 	* @param string	$prefix	prefix for the form element
+	* @param boolean $prefill prefill attributes or sync attributes, they are stored in different places
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processPrefillFields(&$asset, &$o, $prefix)
+	function processPrefillSyncFields(&$asset, &$o, $prefix, $prefill = TRUE)
 	{
-		$current = $asset->attr('prefilled_fields');
+		$attr_name = $prefill ? 'prefilled_fields' : 'synced_fields';
+		$current = $asset->attr($attr_name);
 		$required_fields = Array();
 
 		foreach (array_keys($asset->attr('create_type')) as $create_type) {
@@ -396,114 +501,61 @@ class Oauth_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 			}
 		}
 
-		return $asset->setAttrValue('prefilled_fields', $required_fields);
+		return $asset->setAttrValue($attr_name, $required_fields);
 
 	}//end processPrefillFields()
+
 	
-	
-	
-	
-	public function paintLinkedAccounts(&$asset, &$o, $prefix)
+
+	/**
+	* Paint the interface for syncing attributes from user profile api response
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*/
+	function paintSyncFields(&$asset, &$o, $prefix)
 	{
-		$page_size = 100;
+		$this->paintPrefillSyncFields($asset, $o, $prefix.'_sync', FALSE);
+	}//end paintSyncFields()
 
-		$o->openRaw();
+	/**
+	* Process the interface for syncing attributes from user profile api response
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*/
+	function processSyncFields(&$asset, &$o, $prefix)
+	{
+		$this->processPrefillSyncFields($asset, $o, $prefix.'_sync', FALSE);
+	}//end processSyncFields()
 
-		$bind_vars = Array(
-				'assetid'      => $asset->id,
-			    );
-		$result = MatrixDAL::executeAll('oauth2_package', 'getLinks', $bind_vars);
 
-		if (count($result) > 0) {
-			$num_pages = ceil(count($result) / $page_size);
-			$page_num = array_get_index($_POST, $prefix.'_usage_page', 1);
-			$page_num = max($page_num, 1);
-			$page_num = min($page_num, $num_pages);
+	/**
+	* Paint the interface for prefilling attributes from user profile api response
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*/
+	function paintPrefillFields(&$asset, &$o, $prefix)
+	{
+		$this->paintPrefillSyncFields($asset, $o, $prefix, TRUE);
+	}//end paintPrefillFields()
 
-			if ($num_pages == 1) {
-				$page_tag = translate('page_number', $page_num, $num_pages);
-			} else {
-				$page_tag = translate('page_number_with_pager', $page_num, $num_pages, $prefix.'_usage_page');
-			}
-			$asset_count_tag = translate('item_range', ($page_num - 1) * $page_size + 1, min(count($result), $page_num * $page_size), count($result), strtolower(translate('links')));
+	/**
+	* Process the interface for prefilling attributes from user profile api response
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*/
+	function processPrefillFields(&$asset, &$o, $prefix)
+	{
+		$this->processPrefillSyncFields($asset, $o, $prefix, TRUE);
+	}//end processPrefillFields()
 
-			$result = array_slice($result, ($page_num - 1) * $page_size, $page_size);
-
-			$links = Array(
-						'first'		=> '&lt;&lt;',
-						'previous'	=> '&lt;',
-						'page'		=> $page_tag,
-						'next'		=> '&gt;',
-						'last'		=> '&gt;&gt;',
-					);
-
-			if ($page_num > 1) {
-				$links['first'] = '<a title="'.translate('pagination_go_to_first').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', 1)">'.$links['first'].'</a>';
-				$links['previous'] = '<a title="'.translate('pagination_go_to_previous').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', '.($page_num - 1).')">'.$links['previous'].'</a>';
-			} else {
-				$links['first'] = '<span title="'.translate('pagination_cannot_go_further_back').'." style="color: #333">'.$links['first'].'</span>';
-				$links['previous'] = '<span title="'.translate('pagination_cannot_go_further_back').'." style="color: #333">'.$links['previous'].'</span>';
-			}
-
-			if ($page_num < $num_pages) {
-				$links['last'] = '<a title="'.translate('pagination_go_to_last').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', '.$num_pages.')">'.$links['last'].'</a>';
-				$links['next'] = '<a title="'.translate('pagination_go_to_next').'" style="text-decoration: none; color: #fff" href="#" onClick="return sq_pager_jump(\''.$prefix.'_usage_page\', '.($page_num + 1).')">'.$links['next'].'</a>';
-			} else {
-				$links['last'] = '<span title="'.translate('pagination_cannot_go_further_forward').'." style="color: #333">'.$links['last'].'</span>';
-				$links['next'] = '<span title="'.translate('pagination_cannot_go_further_forward').'." style="color: #333">'.$links['next'].'</span>';
-			}
-
-			hidden_field($prefix.'_usage_page', $page_num); ?>
-			<table class="sq-backend-table">
-			<thead>
-			<tr class="sq-backend-table-row">
-				<td class="sq-backend-table-header-header"><?php echo implode(' &nbsp; &nbsp; ', $links) ?></td>
-				<td class="sq-backend-table-header-header" colspan="2" style="text-align: right; font-weight: normal"><?php echo $asset_count_tag; ?></span></td>
-			</tr>
-			<tr class="sq-backend-table-row">
-				<th class="sq-backend-table-cell"><?php echo translate('matrix_user'); ?></th>
-				<th style="" class="sq-backend-table-cell"><?php echo translate('oauth_user') ?></th>
-				<th style="" class="sq-backend-table-cell"><?php echo translate('created') ?></th>
-			</tr>
-			</thead>
-			<tbody>
-			<?php
-
-			foreach ($result as $data) {
-					?><tr class="sq-backend-table-row">
-						<td class="sq-backend-table-cell">
-						<?php
-
-						$tag_line = get_asset_tag_line($data['matrix_userid'], 'details');
-						echo translate('asset_and_child_count_0', $tag_line);
-						?></td>
-						<td class="sq-backend-table-cell">
-							<?php echo htmlspecialchars($data['oauth_userid']); ?>
-						</td>
-						<td class="sq-backend-table-cell">
-							<?php echo $data['created']; ?>
-						</td>
-					</tr>
-					<?php
-
-			}//end foreach top tree
-			?>
-
-			</tbody>
-			</table>
-			<?php
-
-		} else {
-			$o->note(translate('oauth_account_manager_no_linked_accounts'));
-		}
-
-		$o->closeRaw();
-
-		return FALSE;
-
-	}//end paintLinkedAccounts()
-	
-	
 	
 }//end class
 

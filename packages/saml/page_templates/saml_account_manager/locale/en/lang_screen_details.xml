@@ -119,6 +119,28 @@
 			</function_call>
 		</field>
 	</section>
+	<section name="Populate User Attributes" write_access="write:menu">
+		<field>
+		    	<display_name />
+			<note />
+			<function_call>
+				<paint_function   name="paintPrefillFields"   />
+				<process_function name="processPrefillFields" />
+			</function_call>
+		</field>
+		<note>Prefill above user attributes using the returned SAML attributes after user is created or linked. The Location maps to the SAML attribute name in authentication response.</note>
+	</section>
+	<section name="Sync User Attributes" write_access="write:menu">
+		<field>
+		    	<display_name />
+			<note />
+			<function_call>
+				<paint_function   name="paintSyncFields"   />
+				<process_function name="processSyncFields" />
+			</function_call>
+		</field>
+		<note>Sync above user attributes using the returned SAML attributes everytime the user logs in.</note>
+	</section>
 	<section name="Return Location">
 		<field attribute="redirect_url">
 			<display_name>URL</display_name>
