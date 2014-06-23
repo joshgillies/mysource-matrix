@@ -125,7 +125,6 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		if (!isset($current_value['append_get_vars'])) $current_value['append_get_vars'] = FALSE;
 		if (!isset($current_value['forward_user_keys'])) $current_value['forward_user_keys'] = FALSE;
 		if (!isset($current_value['document_encoding'])) $current_value['document_encoding'] = 'Auto';
-		if (!isset($current_value['run_test'])) $current_value['run_test'] = FALSE;
 		if (!isset($current_value['oauth_asset']['assetid'])) $current_value['oauth_asset'] = Array('assetid' => '0', 'url' => '', 'linkid' => '');
 		if (!isset($current_value['oauth2_token']['assetid'])) $current_value['oauth2_token'] = Array('assetid' => '0', 'url' => '', 'linkid' => '');
 		if (!isset($current_value['enable_http_10'])) $current_value['enable_http_10'] = FALSE;
@@ -466,12 +465,12 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 				<td>
 					<?php
 						if ($read_only) {
-							echo $current_value['run_test'] ? 'Yes' : 'No';
+							echo translate('no');
 						} else {
 							check_box($prefix.'_run_test', 1, 0);
 
 							// Run the test?
-							if ($current_value['run_test'] == 1) {
+							if (isset($_REQUEST[$prefix.'_run_test']) && $_REQUEST[$prefix.'_run_test'] == 1) {
 								$res = $this->run();
 
 								if (!empty($res) || $res['responses'] != '' ) {
@@ -542,7 +541,6 @@ class Asset_Attribute_HTTP_Request extends Asset_Attribute_Serialise
 		$value['append_get_vars'] = (isset($_REQUEST[$prefix.'_append_get_vars'])) ? $_REQUEST[$prefix.'_append_get_vars'] : FALSE;
 		$value['forward_user_keys'] = (isset($_REQUEST[$prefix.'_forward_user_keys'])) ? $_REQUEST[$prefix.'_forward_user_keys'] : FALSE;
 		$value['document_encoding'] = (isset($_REQUEST[$prefix.'_document_encoding'])) ? $_REQUEST[$prefix.'_document_encoding'] : 'Auto';
-		$value['run_test'] = (isset($_REQUEST[$prefix.'_run_test'])) ? trim($_REQUEST[$prefix.'_run_test']) : FALSE;
 		$value['http_auth_options']['username'] = (isset($_REQUEST[$prefix.'_http_auth_user'])) ? $_REQUEST[$prefix.'_http_auth_user'] : '';
 		$value['http_auth_options']['password'] = (isset($_REQUEST[$prefix.'_http_auth_pass'])) ? $_REQUEST[$prefix.'_http_auth_pass'] : '';
 
