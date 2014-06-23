@@ -1489,7 +1489,7 @@ function asset_type_chooser($name, $multiple=FALSE, $defaults=Array(), $instanti
 					combo_box($name.'[type_code][]', $types, FALSE, $type_code);
 					hidden_field($name.'[inherit][]', $defaults['inherit'][$i]);
 					check_box('asset_type_chooser_inherit_check_box_'.$i, 1, $defaults['inherit'][$i], 'toggleLastHiddenField(this)');
-					label(strtolower(translate('inherit').' &nbsp;'), 'asset_type_chooser_inherit_check_box_'.$i);
+					label(translate('inherit').' &nbsp;', 'asset_type_chooser_inherit_check_box_'.$i);
 					normal_button('', translate('clear'), 'resetLastSelect(this)', 'style="margin-bottom:3px;"');
 					echo '<br />';
 				}
@@ -1519,7 +1519,7 @@ function asset_type_chooser($name, $multiple=FALSE, $defaults=Array(), $instanti
 			combo_box($name.'[type_code]', $types, FALSE, array_get_index($defaults, 'type_code', ''));
 			hidden_field($name.'[inherit]', array_get_index($defaults, 'inherit', '0'));
 			check_box('', 1, array_get_index($defaults, 'inherit', '0'), 'toggleLastHiddenField(this)');
-			label(strtolower(translate('inherit').' &nbsp;'), $name.'[inherit]');
+			label(translate('inherit').' &nbsp;', $name.'[inherit]');
 		} else {
 			combo_box($name, $types, FALSE, $defaults);
 		}
