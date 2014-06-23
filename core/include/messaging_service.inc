@@ -925,6 +925,8 @@ class Messaging_Service extends MySource_Object
 			} else {
 				$where .= ' AND type = '.MatrixDAL::quote($type);
 			}
+		} else {
+			$where .= ' AND type <> \'inbox.sent\'';
 		}
 		if (!empty($statii)) {
 			$statii_strs = Array();
@@ -965,11 +967,6 @@ class Messaging_Service extends MySource_Object
 		// Userids in the messages above. Both "to" and "from" user
 		$userids = Array();
 		foreach ($message_result as $index => $val) {
-
-			if (is_null($type) && $val['type'] == 'inbox.sent') {
-				unset($message_result[$index]);
-				continue;
-			}
 
 			// We dont get details for shadow assets for the performance reasons
 			// TODO: If this is required later
