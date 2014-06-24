@@ -283,7 +283,7 @@ function process_args(&$config) {
 	$config['permissions'] = array();
 	$config['permission_types'] = Array('r' => 1, 'w' => 2, 'a' => 3);
 			
-	$perms = split(';', $config['permissions_string'].';');
+	$perms = explode(';', $config['permissions_string'].';');
 	foreach ($perms as $p) {
 		if (!empty($p)) {
 			array_push($config['permissions'], Array(
