@@ -472,7 +472,7 @@ class JS_Api extends Page
 						$results[$track_func] = $this->$func_name($args, $asset, $ra, $wa);
 					} catch (Exception $e) {
 						// If any exception was thrown when executing the function, catch it
-						$results[$track_func]['error'] = 'Exception occured when executing JS API function "'.$type.'()": '.$e->getMessage();
+						$results[$track_func]['error'] = 'Exception occurred when executing JS API function "'.$type.'()": '.$e->getMessage();
 						js_api_error_handler(E_USER_ERROR, 'EXCEPTION: '.$e->getMessage(), $e->getFile(), $e->getLine());
 					}
 				}//end if
@@ -878,7 +878,7 @@ class JS_Api extends Page
 					if (empty($errors)) {
 						$data['success'] = 'Assets sucessfully imported under Asset #'.$import_under;
 					} else {
-						$data['error'] = 'Error occured while importing assets  under Asset #'.$import_under;
+						$data['error'] = 'Error occurred while importing assets  under Asset #'.$import_under;
 					}
 
 				} else {
@@ -2113,7 +2113,7 @@ class JS_Api extends Page
 					$success = $new_asset->create($link, $file_info);
 
 					if (!$success) {
-						$data['error'] = 'Error occured while creating new asset of type \''.$type_code.'\'';
+						$data['error'] = 'Error occurred while creating new asset of type \''.$type_code.'\'';
 					} else {
 						// done creating the asset ? let remove the temp file we had uploaded and make way for new one
 						$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
@@ -2171,7 +2171,7 @@ class JS_Api extends Page
 						if ($success) {
 							$data['success'] = 'Content of Asset '.$asset->short_name.'(#'.$asset->id.') successfully updated';
 						} else {
-							$data['error'] = 'Error occured while updating Content of Asset '.$asset->short_name.'(#'.$asset->id.')';
+							$data['error'] = 'Error occurred while updating Content of Asset '.$asset->short_name.'(#'.$asset->id.')';
 						}
 					}
 				} else {
@@ -3882,7 +3882,7 @@ class JS_Api extends Page
 				   );
 		}//end if
 
-		return Array('error' => 'Error occured while asset creation');
+		return Array('error' => 'Error occurred while asset creation');
 
 	}//end createAsset
 
