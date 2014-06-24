@@ -495,14 +495,20 @@ class SAML_Account_Manager extends Page_Asset_Builder
 			$samlUserid = $this->_getAuthenticatedSamlUserid();
 			$matrixUserid = $this->_searchLinkedMatrixUser($samlUserid);
 			
-			
+			// if the linked user doesn't exist, just remove it from DB
+			if($matrixUserid && !$GLOBALS['SQ_SYSTEM']->am->assetExists($matrixUserid)) {
+				$this-> _unlinkMatrixUserWithSAML($matrixUserid, $samlUserid);
+				$matrixUserid = NULL;
+			}
+
+
 			// Log in as the linked Matrix user
 			if ((is_null($current_user) || ($current_user instanceof Public_User)) && $matrixUserid) {
+			    // sync user attributes
+			    $this->_prefillUserAttributes($GLOBALS['SQ_SYSTEM']->am->getAsset($matrixUserid), FALSE);
+
 			    $this->_loginUser($matrixUserid);
 			    $current_user = $GLOBALS['SQ_SYSTEM']->user;
-
-			    // sync user attributes
-			    $this->_prefillUserAttributes($current_user, FALSE);
 			}
 			
 			
@@ -1114,16 +1120,9 @@ class SAML_Account_Manager extends Page_Asset_Builder
 		$metadata_field_name = $prefill ? $this->getPrefix().'_metadata_' : $this->getPrefix().'_sync_metadata_';
 		$prefilled_fields = $this->attr($attr_name);
 		if (!empty($prefilled_fields[$user->type()]) && !empty($user)) {
-			$saml_auth_manager = $this->_getAuthManager();
-			$auth_data = $saml_auth_manager->getAuthDataArray();
-			$attributes_array = array_get_index($auth_data, 'Attributes');
-			if(empty($attributes_array)) return TRUE;
-
-			foreach ($prefilled_fields[$user->type()] as $attr => $location) {
+			foreach ($prefilled_fields[$user->type()] as $attr => $value) {
 				// get the value to set from user profile
-				$prefill_value = array_get_index($attributes_array, $location, '');
-				// adjust the array structure
-				if(isset($prefill_value[0])) $prefill_value = $prefill_value[0];
+				$prefill_value = replace_global_keywords($value);
 				if(empty($prefill_value) || !is_scalar($prefill_value)) continue;
 
 				$pos = strpos($attr, $metadata_field_name);

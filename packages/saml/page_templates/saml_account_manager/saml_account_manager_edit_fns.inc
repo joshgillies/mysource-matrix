@@ -466,19 +466,16 @@ class SAML_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 			}
 			$type_prefix = $prefix.'_'.$create_type;
 
-			$type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($create_type, 'name');
-			$o->openSection($type_name);
-			$o->openRaw();
 
 			if (!empty($current[$create_type])) {
 				?>
 				<table class="sq-backend-table">
 					<tr>
-						<td class="sq-backend-table-header"><?php echo translate('name') ?></td>
-						<td class="sq-backend-table-header"><?php echo translate('location') ?></td>
+						<th class="sq-backend-table-header" style="width:190px;" ><?php echo translate('attribute') ?></th>
+						<th class="sq-backend-table-header"><?php echo translate('value') ?></th>
 						<?php
 						if ($write_access) {
-							?><td class="sq-backend-table-header"><?php echo translate('delete_question') ?></td><?php
+							?><th class="sq-backend-table-header" align="center" style="text-align:center;"><?php echo translate('delete_question') ?></th><?php
 						}
 						?>
 					</tr>
@@ -514,7 +511,7 @@ class SAML_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 							<?php
 							if ($write_access) {
 								?>
-								<td class="sq-backend-table-cell">
+								<td class="sq-backend-table-cell" " align="center">
 									<?php check_box($type_prefix.'_delete_prefilled['.$attr.']'); ?>
 								</td>
 								<?php
@@ -559,12 +556,11 @@ class SAML_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 					}//end foreach
 				}
 
-				echo '<br/><b>'.translate('new_attribute_to_set').' </b>';
+				$o->openField(translate('add_attribute'));
 				combo_box($type_prefix.'_new_prefilled', $new_required, FALSE, '');
+				$o->closeField();
 			}
 
-			$o->closeRaw();
-			$o->closeSection();
 
 		}//end foreach
 

@@ -77,27 +77,26 @@
 	</section>
 	<section name="Populate User Attributes" write_access="write:menu">
 		<field>
-		    	<display_name />
+		    	<display_name>Attributes To Populate on Creation</display_name>
 			<note />
 			<function_call>
 				<paint_function   name="paintPrefillFields"   />
 				<process_function name="processPrefillFields" />
 			</function_call>
 		</field>
-		<note>Set user attributes using the profile data returned from API after user is created or linked.  Use format "work.0.employer.name" to denote a multi-level location in profile data</note>
+		<note>Populate user attributes with predefined values on creation/linking of user asset. Global keywords are supported. For example, to prefill with a profile attribute "first_name", use keyword %globals_session_oauth_profile_first_name% in the value. If the profile attribute is stored as array structure, you can use numeric index to access specific array element. e.g %globals_session_oauth_profile_first_name_0%. Keyword %globals_session_oauth_profile% will print all attributes in JSON format string.</note>
 	</section>
 	<section name="Sync User Attributes" write_access="write:menu">
 		<field>
-		    	<display_name />
+		    	<display_name>Attributes To Sync on Login</display_name>
 			<note />
 			<function_call>
 				<paint_function   name="paintSyncFields"   />
 				<process_function name="processSyncFields" />
 			</function_call>
 		</field>
-		<note>Sync above user attributes using the returned profile data everytime the user logs in.</note>
-	</section>
-	<section name="Return Location">
+		<note>Similar to above Populate User Attributes except that it happens everytime user logs in Matrix.</note>
+	</section>	<section name="Return Location">
 		<field attribute="redirect_url">
 			<display_name>URL</display_name>
 			<note>%description% (for example, &lt;i&gt;http://matrix.squiz.net/&lt;/i&gt;). Global keywords are supported.

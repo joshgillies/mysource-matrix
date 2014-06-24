@@ -163,5 +163,55 @@ class Oauth_Account_Manager_Management extends Asset_Management
 
 	}//end getEventList()
 
+
+
+	/**
+	* Upgrade
+	*
+	* @param string	$current_version	the version of the asset that is currenly installed
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _upgrade($current_version)
+	{
+		// first do things as normal
+		$res = parent::_upgrade($current_version);
+
+		if (version_compare($current_version, '0.2', '<')) {
+			pre_echo('UPGRADING Oauth Account Manager TO v0.2');
+			$assetid_list = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('oauth_account_manager');
+			foreach ($assetid_list as $assetid) {
+				$oauth_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+
+				$prefilled_fields = $oauth_asset->attr('prefilled_fields');
+				if (!empty($prefilled_fields)) {
+					foreach ($prefilled_fields as $create_type => $data) {
+						foreach ($data as $attr => $value) {
+							if(strpos($value, '%') === FALSE) {
+								$new_value = implode('_', explode('.', $value));
+								$new_value = '%globals_session_oauth_profile_'.$new_value.'%';
+								$prefilled_fields[$create_type][$attr] = $new_value;
+							}
+						}
+					}
+
+					$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+					$oauth_asset->setAttrValue('prefilled_fields', $prefilled_fields);
+					if (!$oauth_asset->saveAttributes()) {
+						pre_echo('UPGRADE FAILED - Could not save attributes');
+						return FALSE;
+					}//end if
+					$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+				}
+
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($oauth_asset);
+			}
+			pre_echo(count($assetid_list).' Oauth Account Manager asset(s) UPDATED');
+		}
+
+		return $res;
+	}
+
 }//end class
 ?>

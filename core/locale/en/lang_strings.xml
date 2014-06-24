@@ -3182,4 +3182,5 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="use_relative_path">Path is relative to Matrix installation location unless prefixed with '/'.</string>
 
 	<string source="new_attribute_to_set">New attribute to set?</string>
+	<string source="add_attribute">Add Attribute</string>
 </strings>
