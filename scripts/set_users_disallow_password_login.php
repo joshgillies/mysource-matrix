@@ -25,6 +25,7 @@
 *      - system_root  : the filesystem root of the Matrix installation
 *      - root_assetid : asset ID of the root node to change from
 *      - setting      : 1 to set disallow password login, 0 to unset it
+*      - linked user only      : 1 to only apply changes to SAML/Oauth linked user, 0 to apply this change to all users
 *
 *    Change "php" to the appropriate CLI compilation of PHP for your system
 *    (eg. sometimes it will be installed to "php-cli" instead).
@@ -69,10 +70,16 @@ switch (count($ARGV)) {
 		error_line('You must tell the script whether users are to be disallowed for password login or unset this attribute');
 		short_usage();
 		exit(1);
+
+	case 4:
+		error_line('You must tell the script if it should apply for SAML/Oauth linked user or all users');
+		short_usage();
+		exit(1);
+
 	break;
 }
 
-list($SYSTEM_ROOT, $ROOT_ASSETID, $DISALLOW_SETTING) = array_slice($ARGV, 1, 3);
+list($SYSTEM_ROOT, $ROOT_ASSETID, $DISALLOW_SETTING, $LINKED_ONLY) = array_slice($ARGV, 1, 4);
 
 if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')) {
 	error_line('ERROR: Path provided doesn\'t point to a Matrix installation\'s System Root. Please provide correct path and try again.');;
@@ -99,7 +106,37 @@ if (($DISALLOW_SETTING !== '0') && ($DISALLOW_SETTING !== '1')) {
 	exit(1);
 }
 
+// The "linked only" seting is valid or not?
+if (($DISALLOW_SETTING !== '0') && ($DISALLOW_SETTING !== '1')) {
+	error_line('The linked user only setting is not invalid - it must be either "1" (only linked SAML/Oauth user) or "0" (all users)');
+	exit(1);
+}
+
+
 $user_assetids = $GLOBALS['SQ_SYSTEM']->am->getChildren($ROOT_ASSETID, 'user', FALSE);
+// if we are only interested in SAML/Oauth linked accounts, make sure we filter those don't
+if($LINKED_ONLY) {
+	foreach ($user_assetids as $id => $details) {
+		// filter SAML
+		$not_linked_saml = FALSE;
+		$sql='select count(*) from sq_saml_lnk where assetid = '.MatrixDAL::quote($id);
+		$result = MatrixDAL::executeSqlAssoc($sql);
+		if(isset($result[0]['count']) && empty($result[0]['count'])) {
+			$not_linked_saml = TRUE;
+		}
+		// filter Oauth
+		$not_linked_oauth = FALSE;
+		$sql='select count(*) from sq_oauth_lnk where matrix_userid = '.MatrixDAL::quote($id);
+		$result = MatrixDAL::executeSqlAssoc($sql);
+		if(isset($result[0]['count']) && empty($result[0]['count'])) {
+			$not_linked_oauth = TRUE;
+		}
+		if($not_linked_saml && $not_linked_oauth) {
+			unset($user_assetids[$id]);
+		}
+
+	}
+}
 echo 'Found '.count($user_assetids).' User asset(s) underneath asset ID #'.$ROOT_ASSETID."\n";
 
 echo 'Are you sure you want to '.($DISALLOW_SETTING ? 'enable' : 'disable').' Disallow Password Login setting on these assets (Y/N)?';
@@ -226,7 +263,7 @@ function long_usage()
 		$php_name = 'php';
 	}
 	
-	echo 'Usage: '.$php_name.' '.$_SERVER['argv'][0].' <system_root> <root_assetid> <setting>'."\n";
+	echo 'Usage: '.$php_name.' '.$_SERVER['argv'][0].' <system_root> <root_assetid> <setting> <linked_user_only>'."\n";
 	echo 'Sets all User assets underneath asset #<root_assetid> to either Disallow Password Login or'    ."\n";
 	echo 'unset this setting, depending on the value of <setting>.'                                   ."\n\n";
 
@@ -240,6 +277,9 @@ function long_usage()
 	echo '  setting        Determines what happens to Users assets underneath the root nodes:' ."\n";
 	echo '                     1   Sets Users to "Disallow Password Login".'                             ."\n";
 	echo '                     0   Unsets this setting.'                               ."\n";
+	echo '  linked_user_only   Determines if the change shold apply to SAML/Oauth linked users only or all users:' ."\n";
+	echo '                     1   Only apply to linked users.'                             ."\n";
+	echo '                     0   Apply to all users.'                               ."\n";
 	return;
 
 }//end long_usage()

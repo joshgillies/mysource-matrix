@@ -347,9 +347,9 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 		// repeating job
 		} else if ($repeating) {
 			$has_interval = isset($_POST[$prefix.'_interval_unit']);
-			$has_mins = isset($_POST[$prefix.'_interval_mins']) && ($_POST[$prefix.'_interval_mins'] != '--');
-			$has_hours = isset($_POST[$prefix.'_interval_hours']) && ($_POST[$prefix.'_interval_hours'] != '--');
-			$has_days = isset($_POST[$prefix.'_interval_days']) && ($_POST[$prefix.'_interval_days'] != '-');
+			$has_mins = isset($_POST[$prefix.'_interval_mins']) && ($_POST[$prefix.'_interval_mins'] != '--') && $_POST[$prefix.'_interval_mins'] > 0;
+			$has_hours = isset($_POST[$prefix.'_interval_hours']) && ($_POST[$prefix.'_interval_hours'] != '--') && $_POST[$prefix.'_interval_hours'] > 0;
+			$has_days = isset($_POST[$prefix.'_interval_days']) && ($_POST[$prefix.'_interval_days'] != '-') && $_POST[$prefix.'_interval_days'] > 0;
 			$valid_min = $has_interval && $has_mins && $_POST[$prefix.'_interval_unit'] == '60';
 			$valid_hour = $has_interval && $has_hours && $_POST[$prefix.'_interval_unit'] == '3600';
 			$valid_day = $has_interval && $has_days && $_POST[$prefix.'_interval_unit'] == '86400';

@@ -144,12 +144,14 @@ class Cron_Job_Send_Submission_Log_Edit_Fns extends Cron_Job_Edit_Fns
 			$cron_job_repeat = new Cron_Job();
 			$cron_job_repeat->setAttrValue('type', 'repeating');
 			$when_ti = $this->_processWhenBox($cron_job_repeat, $o, $prefix);
-			$when_ti_arr = explode(',', $when_ti);
-			$when_ti_arr[0] = 'TI='.$start_time;
-			$when_ti_str = implode(',', $when_ti_arr);
-			$asset->setAttrValue('when', $when_ti_str);
+			if ($when_ti) {
+				$when_ti_arr = explode(',', $when_ti);
+				$when_ti_arr[0] = 'TI='.$start_time;
+				$when_ti_str = implode(',', $when_ti_arr);
+				$asset->setAttrValue('when', $when_ti_str);
 
-			return TRUE;
+				return TRUE;
+			}
 		}
 		
 		return FALSE;

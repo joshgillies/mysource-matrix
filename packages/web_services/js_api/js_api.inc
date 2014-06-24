@@ -3991,6 +3991,9 @@ class JS_Api extends Page
 		$se_level_keywords = Array();
 		//lets split asset/global level keywords as opposed to simple edit layout keywords
 		foreach ($keywords as $index => $keyword) {
+			$extracted_keyword = extract_keywords($keyword);
+			if(empty($extracted_keyword)) continue;
+
 			if(!(strpos($keyword, '%asset_') === 0 || strpos($keyword, '%globals_') === 0) ) {
 				//seems like its a simple edit screen keywords
 				$se_level_keywords[] = $keyword;
@@ -4006,7 +4009,7 @@ class JS_Api extends Page
 				$return_array[$trimmed_keyword] = $asset->getKeywordReplacement($trimmed_keyword);
 			}
 			if (empty($return_array[$trimmed_keyword]) || $return_array[$trimmed_keyword] == '%'.$trimmed_keyword.'%') {
-				$return_array[$trimmed_keyword] = 'Could not get replacement for keyword : '.$trimmed_keyword ;
+				$return_array[$trimmed_keyword] = 'Could not get replacement for this keyword';
 			}
 		}
 
@@ -4040,7 +4043,7 @@ class JS_Api extends Page
 				$replacement_2 = '&#37;$2&#37;';
 				$return_array[$se_keyword] = preg_replace($pattern_2, $replacement_2 ,$return_array[$se_keyword]);
 
-				if (empty($return_array[$se_keyword])) $return_array[$se_keyword] = 'Could not get replacement for keyword : '.$se_keyword ;
+				if (empty($return_array[$se_keyword])) $return_array[$se_keyword] = 'Could not get replacement for this keyword';
 			}
 		}
 

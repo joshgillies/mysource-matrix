@@ -2303,9 +2303,14 @@ class Page_Calendar extends Page
 	*/
 	function _getClasses($treeids)
 	{
+		$root_nodes = $this->attr('root_nodes');
+		// No root nodes means no CSS classes, as classes are applied to the root nodes
+		if (empty($root_nodes)) {
+			return Array();
+		}
+
 		usort($treeids, Array(&$this, '_strlenCmp'));
 		$treeid_key = implode(',', $treeids);
-		$root_nodes = $this->attr('root_nodes');
 		if (!isset($this->_tmp['treeid_map'])) {
 			$root_node_roots = $GLOBALS['SQ_SYSTEM']->am->getAssetTreeids(array_keys($root_nodes));
 			$treeid_map = Array();
