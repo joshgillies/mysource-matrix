@@ -50,8 +50,10 @@ class System_Maintenance_Config extends Config
 						'SQ_MAINTENANCE_ASSET_TYPE'			=> Array('editable' => 1, 'default' => 'page_asset_builder:1|page_custom_form:1|page_account_manager:1|ecommerce_checkout:1|page_password_reset:1|page_online_quiz:1|page_link_manager:1'),
 						'SQ_MAINTENANCE_ROOT_NODE'			=> Array('editable' => 1, 'default' => '1:1'),
 						'SQ_MAINTENANCE_EXCLUDE_ROOT_NODE'			=> Array('editable' => 1, 'default' => ''),
-						'SQ_MAINTENANCE_FRONTEND_MESSAGE'	=> Array('editable' => 1, 'default' => translate('maintenance_mode_frontend_message')),
-						'SQ_MAINTENANCE_BACKEND_MESSAGE'	=> Array('editable' => 1, 'default' => translate('maintenance_mode_backend_message')),
+						'SQ_MAINTENANCE_FRONTEND_NOTIFIED_MESSAGE'	=> Array('editable' => 1, 'default' => translate('maintenance_mode_frontend_notified_message')),
+						'SQ_MAINTENANCE_BACKEND_NOTIFIED_MESSAGE'	=> Array('editable' => 1, 'default' => translate('maintenance_mode_backend_notified_message')),
+						'SQ_MAINTENANCE_FRONTEND_ENABLED_MESSAGE'	=> Array('editable' => 1, 'default' => translate('maintenance_mode_frontend_enabled_message')),
+						'SQ_MAINTENANCE_BACKEND_ENABLED_MESSAGE'	=> Array('editable' => 1, 'default' => translate('maintenance_mode_backend_enabled_message')),
 						'SQ_MAINTENANCE_RETRY_AFTER'			=> Array('editable' => 1, 'default' => 3600),
 					   );
 
@@ -164,23 +166,47 @@ class System_Maintenance_Config extends Config
 		$o->openSection(translate('maintenance_mode'));
 		$o->openField(translate('maintenance_mode'), '', translate('maintenance_mode_note'));
 		if ($write_access && $is_admin) {
-			combo_box($class.'[SQ_MAINTENANCE_MODE]', Array('0' => translate('disabled'), '1' => translate('enabled')), FALSE, SQ_MAINTENANCE_MODE);
+			combo_box($class.'[SQ_MAINTENANCE_MODE]', Array('0' => translate('disabled'), '1' => translate('notified'), '2' => translate('enabled')), FALSE, SQ_MAINTENANCE_MODE);
 		} else {
-			echo (SQ_MAINTENANCE_MODE) ? translate('enabled') : translate('disabled');
+			switch (SQ_MAINTENANCE_MODE) {
+				case '0':
+					echo translate('disabled');
+					break;
+				case '1':
+					echo translate('notified');
+					break;
+				case '2':
+					echo translate('enabled');
+					break;
+			}
 		}
 		$o->closeField();
 
-		$o->openField(translate('backend_maintenance_message'), '', translate('backend_maintenance_message_note'));
-			$wysiwyg_prefix = $class.'_SQ_MAINTENANCE_BACKEND_MESSAGE';
+		$o->openField(translate('backend_maintenance_notified_message'), '', translate('backend_maintenance_notified_message_note'));
+			$wysiwyg_prefix = $class.'_SQ_MAINTENANCE_BACKEND_NOTIFIED_MESSAGE';
 			$wysiwyg = new Asset_Attribute_WYSIWYG();
-			$wysiwyg->value = SQ_MAINTENANCE_BACKEND_MESSAGE;
+			$wysiwyg->value = SQ_MAINTENANCE_BACKEND_NOTIFIED_MESSAGE;
 			$wysiwyg->paint($wysiwyg_prefix, !$write_access);
 		$o->closeField();
 
-		$o->openField(translate('frontend_maintenance_message'), '', translate('frontend_maintenance_message_note'));
-			$wysiwyg_prefix = $class.'_SQ_MAINTENANCE_FRONTEND_MESSAGE';
+		$o->openField(translate('frontend_maintenance_notified_message'), '', translate('frontend_maintenance_notified_message_note'));
+			$wysiwyg_prefix = $class.'_SQ_MAINTENANCE_FRONTEND_NOTIFIED_MESSAGE';
 			$wysiwyg = new Asset_Attribute_WYSIWYG();
-			$wysiwyg->value = SQ_MAINTENANCE_FRONTEND_MESSAGE;
+			$wysiwyg->value = SQ_MAINTENANCE_FRONTEND_NOTIFIED_MESSAGE;
+			$wysiwyg->paint($wysiwyg_prefix, !$write_access);
+		$o->closeField();
+
+		$o->openField(translate('backend_maintenance_enabled_message'), '', translate('backend_maintenance_enabled_message_note'));
+			$wysiwyg_prefix = $class.'_SQ_MAINTENANCE_BACKEND_ENABLED_MESSAGE';
+			$wysiwyg = new Asset_Attribute_WYSIWYG();
+			$wysiwyg->value = SQ_MAINTENANCE_BACKEND_ENABLED_MESSAGE;
+			$wysiwyg->paint($wysiwyg_prefix, !$write_access);
+		$o->closeField();
+
+		$o->openField(translate('frontend_maintenance_enabled_message'), '', translate('frontend_maintenance_enabled_message_note'));
+			$wysiwyg_prefix = $class.'_SQ_MAINTENANCE_FRONTEND_ENABLED_MESSAGE';
+			$wysiwyg = new Asset_Attribute_WYSIWYG();
+			$wysiwyg->value = SQ_MAINTENANCE_FRONTEND_ENABLED_MESSAGE;
 			$wysiwyg->paint($wysiwyg_prefix, !$write_access);
 		$o->closeField();
 
@@ -379,18 +405,32 @@ class System_Maintenance_Config extends Config
 		}
 
 		// process messages
-		$wysiwyg_prefix = $class.'_SQ_MAINTENANCE_BACKEND_MESSAGE';
+		$wysiwyg_prefix = $class.'_SQ_MAINTENANCE_BACKEND_NOTIFIED_MESSAGE';
 		$wysiwyg = new Asset_Attribute_WYSIWYG();
 		$wysiwyg->process($wysiwyg_prefix);
 		$content = $wysiwyg->value;
-		$_POST[$class]['SQ_MAINTENANCE_BACKEND_MESSAGE'] = $content;
+		$_POST[$class]['SQ_MAINTENANCE_BACKEND_NOTIFIED_MESSAGE'] = $content;
 
 
-		$wysiwyg_prefix = $class.'_SQ_MAINTENANCE_FRONTEND_MESSAGE';
+		$wysiwyg_prefix = $class.'_SQ_MAINTENANCE_FRONTEND_NOTIFIED_MESSAGE';
 		$wysiwyg = new Asset_Attribute_WYSIWYG();
 		$wysiwyg->process($wysiwyg_prefix);
 		$content = $wysiwyg->value;
-		$_POST[$class]['SQ_MAINTENANCE_FRONTEND_MESSAGE'] = $content;
+		$_POST[$class]['SQ_MAINTENANCE_FRONTEND_NOTIFIED_MESSAGE'] = $content;
+
+		$wysiwyg_prefix = $class.'_SQ_MAINTENANCE_BACKEND_ENABLED_MESSAGE';
+		$wysiwyg = new Asset_Attribute_WYSIWYG();
+		$wysiwyg->process($wysiwyg_prefix);
+		$content = $wysiwyg->value;
+		$_POST[$class]['SQ_MAINTENANCE_BACKEND_ENABLED_MESSAGE'] = $content;
+
+
+		$wysiwyg_prefix = $class.'_SQ_MAINTENANCE_FRONTEND_ENABLED_MESSAGE';
+		$wysiwyg = new Asset_Attribute_WYSIWYG();
+		$wysiwyg->process($wysiwyg_prefix);
+		$content = $wysiwyg->value;
+		$_POST[$class]['SQ_MAINTENANCE_FRONTEND_ENABLED_MESSAGE'] = $content;
+
 
 		
 		return parent::processBackend($o);
