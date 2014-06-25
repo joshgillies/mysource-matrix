@@ -902,17 +902,18 @@ class Messaging_Service extends MySource_Object
 	* @param array		$messageids		can limit returned messages to those with a messageid in this array
 	* @param int		$from			timestamp that every msg returned must be this time or after (NULL to ignore)
 	* @param int		$to				timestamp that every msg returned must be this time	or before (NULL to ignore)
+	* @param boolean	$msgid_only		returns message id field only if set to true
 	*
 	* @return array
 	* @access public
 	*/
-	function getInternalMessages($userid, $statii=Array(), $max_msgs=NULL, $type=NULL, $messageids=Array(), $from=NULL, $to=NULL)
+	function getInternalMessages($userid, $statii=Array(), $max_msgs=NULL, $type=NULL, $messageids=Array(), $from=NULL, $to=NULL, $msgid_only=FALSE)
 	{
 		$sql = 'SELECT
-					msgid, userto as to_assetid, userfrom as from_assetid, subject, body, sent, priority, type,
+					msgid'.(!$msgid_only ? (', userto as to_assetid, userfrom as from_assetid, subject, body, sent, priority, type,
 					CASE
 						WHEN status=\'U\' THEN \'0\' ELSE \'1\'
-					END as read
+					END as read') : '').'
 				FROM
 					sq_internal_msg
 				WHERE';
@@ -926,7 +927,10 @@ class Messaging_Service extends MySource_Object
 				$where .= ' AND type = '.MatrixDAL::quote($type);
 			}
 		} else {
-			$where .= ' AND type <> \'inbox.sent\'';
+			// Trashed will contain both previous 'sent' and 'inbox' messages
+			if (!in_array(SQ_MSG_DELETED, $statii)) {
+				$where .= ' AND type <> \'inbox.sent\'';
+			}
 		}
 		if (!empty($statii)) {
 			$statii_strs = Array();
@@ -950,11 +954,12 @@ class Messaging_Service extends MySource_Object
 		$sql .= ' '.$where;
 		$sql .= ' ORDER BY sent DESC';
 
-		if (!$max_msgs) {
+		// '-1' size means get all the messages
+		if ($max_msgs != '-1') {
 			// Number of messages to return if this parameter is not supplied
-			$max_msgs = 100;
+			$max_msgs = !$max_msgs ? 100 : $max_msgs;
+			$sql = db_extras_modify_limit_clause($sql, MatrixDAL::getDbType(), $max_msgs);
 		}
-		$sql = db_extras_modify_limit_clause($sql, MatrixDAL::getDbType(), $max_msgs);
 
 		try {
 			$prepare = MatrixDAL::preparePdoQuery($sql);
@@ -963,6 +968,17 @@ class Messaging_Service extends MySource_Object
 		} catch (Exception $e) {
 			throw new Exception('Unable to get message information due to database error: '.$e->getMessage());
 		}//end try catch
+
+		// If just message id field is required then we are done here
+		if ($msgid_only) {
+			$msg_ids = Array();
+			foreach($message_result as $row) {
+				if (isset($row['msgid'])) {
+					$msg_ids[] = $row['msgid'];
+				}
+			}
+			return $msg_ids;
+		}
 
 		// Userids in the messages above. Both "to" and "from" user
 		$userids = Array();
