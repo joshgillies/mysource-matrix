@@ -53,6 +53,10 @@
 				<process_function name="processWorkflowRestrictions" />
 			</function_call>
 		</field>
+		<field attribute="who_can_choose_stream">
+			<display_name>Who Can Choose Workflow Stream?</display_name>
+			<note>Allow user with either admin or write access to choose workflow stream when applying workflow or only allow user with admin access to do so?</note>
+		</field>
 	</section>
 	<section name="Workflow Streams">
 		<field>
