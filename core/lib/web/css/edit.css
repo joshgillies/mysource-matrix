@@ -2436,6 +2436,7 @@ METADATA EDITING AND PREVIEW STYLES
 }
 
 .sq-metadata-select-list-wrapper ul {
+	margin-top:					0;
 	margin-left:				0;
 	list-style:					none;
 	float:						left;
