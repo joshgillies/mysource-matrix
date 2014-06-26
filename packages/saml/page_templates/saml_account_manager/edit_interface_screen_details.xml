@@ -93,6 +93,20 @@
 			</function_call>
 		</field>
 	</section>
+	<section name="Asset Creation Settings" write_access="write:menu">
+		<field>
+			<function_call>
+				<paint_function   name="paintAddCreateType"   />
+				<process_function name="processAddCreateType" />
+			</function_call>
+		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintSchemasToApply" />
+				<process_function name="processSchemasToApply" />
+			</function_call>
+		</field>
+	</section>
 	<section name="Populate User Attributes" write_access="write:menu">
 		<field>
 			<function_call>
@@ -135,20 +149,6 @@
 			<float width="5" />
 		</field>
 
-	</section>
-	<section name="Asset Creation Settings" write_access="write:menu">
-		<field>
-			<function_call>
-				<paint_function   name="paintAddCreateType"   />
-				<process_function name="processAddCreateType" />
-			</function_call>
-		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintSchemasToApply" />
-				<process_function name="processSchemasToApply" />
-			</function_call>
-		</field>
 	</section>
 	<section name="Advanced Settings" write_access="write:attributes">
 		<field attribute="allow_public_user">
