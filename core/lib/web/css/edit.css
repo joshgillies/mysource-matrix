@@ -2438,6 +2438,7 @@ METADATA EDITING AND PREVIEW STYLES
 }
 
 .sq-metadata-select-list-wrapper ul {
+	margin-top:					0;
 	margin-left:				0;
 	list-style:					none;
 	float:						left;
@@ -2447,6 +2448,7 @@ METADATA EDITING AND PREVIEW STYLES
 	clear:						left;
 }
 
+.sq-metadata-description,
 .sq-metadata-date-wrapper,
 .sq-metadata-multitext-wrapper,
 .sq-metadata-multitext-wrapper,
