@@ -2526,17 +2526,29 @@ function replace_global_keywords(&$text)
 						require_once (SQ_DATA_PATH.'/private/conf/maintenance.inc');
 						$sub_keyword = substr($keyword, 27);
 						if($sub_keyword === 'mode') {
-							$replacements[$full_keyword] = SQ_MAINTENANCE_MODE ? 'true' : 'false';
+							switch (SQ_MAINTENANCE_MODE) {
+								case '0':
+									$replacements[$full_keyword] = 'disabled';
+									break;
+								case '1':
+									$replacements[$full_keyword] = 'notify';
+									break;
+								case '2':
+									$replacements[$full_keyword] = 'enabled';
+									break;
+							}
 						}
 						else if(SQ_MAINTENANCE_MODE) {
 							if($sub_keyword === 'message_backend') {
-								$replacements[$full_keyword] = SQ_MAINTENANCE_BACKEND_MESSAGE;
+								$replacements[$full_keyword] = SQ_MAINTENANCE_MODE == '2' ? SQ_MAINTENANCE_BACKEND_ENABLED_MESSAGE : SQ_MAINTENANCE_BACKEND_NOTIFY_MESSAGE;
 							}
 							else if($sub_keyword === 'message_frontend') {
-								$replacements[$full_keyword] = SQ_MAINTENANCE_FRONTEND_MESSAGE;
+								$replacements[$full_keyword] = SQ_MAINTENANCE_MODE == '2' ? SQ_MAINTENANCE_FRONTEND_ENABLED_MESSAGE : SQ_MAINTENANCE_FRONTEND_NOTIFY_MESSAGE;
 							}
-							header('HTTP/1.1 503 Service Unavailable');
-							header('Retry-After: '.SQ_MAINTENANCE_RETRY_AFTER);
+							if (SQ_MAINTENANCE_MODE == '2') {
+								header('HTTP/1.1 503 Service Unavailable');
+								header('Retry-After: '.SQ_MAINTENANCE_RETRY_AFTER);
+							}
 						}
 					}
 

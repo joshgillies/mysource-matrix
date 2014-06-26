@@ -1377,19 +1377,22 @@ class Asset_Manager extends MySource_Object
 		// single asset id
 		if (!$is_array) {
 			if ($is_empty) return FALSE;
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('assetid = :assetids');
-			try {
-				$query = MatrixDAL::preparePdoQuery($sql.$where);
-				MatrixDAL::bindValueToPdo($query, 'assetids', $assetids);
-				$db_assetids = MatrixDAL::executePdoOne($query);
-			} catch (Exception $e) {
-				throw new Exception('Unable to determine if asset with assetid: '.$assetids.' exists due to database error: '.$e->getMessage());
-			}
+			$id_parts = explode(':', $assetids);
+			if (!isset($id_parts[1])) {
+				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('assetid = :assetids');
+				try {
+					$query = MatrixDAL::preparePdoQuery($sql.$where);
+					MatrixDAL::bindValueToPdo($query, 'assetids', $assetids);
+					$db_assetids = MatrixDAL::executePdoOne($query);
+				} catch (Exception $e) {
+					throw new Exception('Unable to determine if asset with assetid: '.$assetids.' exists due to database error: '.$e->getMessage());
+				}
 
-			if (!empty($shadow_asset_ids)) {
-				$shadow_asset_ids[] = $db_assetids;
-			} else {
-				return ($db_assetids == $assetids);
+				if (!empty($shadow_asset_ids)) {
+					$shadow_asset_ids[] = $db_assetids;
+				} else {
+					return ($db_assetids == $assetids);
+				}
 			}
 		}
 

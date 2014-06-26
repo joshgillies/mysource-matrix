@@ -118,11 +118,28 @@
 				<paint_function   name="paintParseMetadata"   />
 			</function_call>
 		</field>
+	</section>	
+	<section name="Asset Creation Settings">
+		<field>
+			<display_name>Matrix User to Create</display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintAddCreateType"   />
+				<process_function name="processAddCreateType" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Metadata Schemas to Apply</display_name>
+			<note>These metadata schemas will be applied to created assets.  Values for these schemas' fields may be supplied by the user when creating the asset.  By default, the complete interface for these schemas, exactly as it would appear in the administration interface, will be printed above the default create form for each asset type.  It is recommended that the create form be customised (see below) so that the individual fields can be laid out appropriately within the form using &#37;metadata-F_(fieldid)&#37; keywords.</note>
+			<function_call>
+				<paint_function   name="paintSchemasToApply" />
+				<process_function name="processSchemasToApply" />
+			</function_call>
+		</field>
 	</section>
 	<section name="Populate User Attributes" write_access="write:menu">
 		<field>
-		    	<display_name>Attributes To Populate on Creation</display_name>
-			<note />
+		    <display_name>Attributes To Populate on Creation</display_name>
 			<function_call>
 				<paint_function   name="paintPrefillFields"   />
 				<process_function name="processPrefillFields" />
@@ -132,14 +149,13 @@
 	</section>
 	<section name="Sync User Attributes" write_access="write:menu">
 		<field>
-		    	<display_name>Attributes To Sync on Login</display_name>
-			<note />
+	    	<display_name>Attributes To Sync on Login</display_name>
 			<function_call>
 				<paint_function   name="paintSyncFields"   />
 				<process_function name="processSyncFields" />
 			</function_call>
 		</field>
-		<note>Similar to above Populate User Attributes except that it happens everytime user logs in Matrix.</note>
+		<note>Similar to the Populate User Attributes function except that it happens every time the user logs into Matrix.</note>
 	</section>
 	<section name="Return Location">
 		<field attribute="redirect_url">
@@ -179,24 +195,6 @@
 			<note>Specify number of seconds to delay for redirect to happen. Javascript code will be used to execute delayed redirect.</note>
 		</field>
 
-	</section>
-	<section name="Asset Creation Settings">
-		<field>
-			<display_name>Matrix User to Create</display_name>
-			<note></note>
-			<function_call>
-				<paint_function   name="paintAddCreateType"   />
-				<process_function name="processAddCreateType" />
-			</function_call>
-		</field>
-		<field>
-			<display_name>Metadata Schemas to Apply</display_name>
-			<note>These metadata schemas will be applied to created assets.  Values for these schemas' fields may be supplied by the user when creating the asset.  By default, the complete interface for these schemas, exactly as it would appear in the administration interface, will be printed above the default create form for each asset type.  It is recommended that the create form be customised (see below) so that the individual fields can be laid out appropriately within the form using &#37;metadata-F_(fieldid)&#37; keywords.</note>
-			<function_call>
-				<paint_function   name="paintSchemasToApply" />
-				<process_function name="processSchemasToApply" />
-			</function_call>
-		</field>
 	</section>
 	<section name="Advanced Settings" write_access="write:attributes">
 		<field attribute="allow_public_user">

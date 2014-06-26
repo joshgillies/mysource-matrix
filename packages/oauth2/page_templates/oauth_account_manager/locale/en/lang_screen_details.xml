@@ -78,7 +78,6 @@
 	<section name="Populate User Attributes" write_access="write:menu">
 		<field>
 		    	<display_name>Attributes To Populate on Creation</display_name>
-			<note />
 			<function_call>
 				<paint_function   name="paintPrefillFields"   />
 				<process_function name="processPrefillFields" />
@@ -89,13 +88,12 @@
 	<section name="Sync User Attributes" write_access="write:menu">
 		<field>
 		    	<display_name>Attributes To Sync on Login</display_name>
-			<note />
 			<function_call>
 				<paint_function   name="paintSyncFields"   />
 				<process_function name="processSyncFields" />
 			</function_call>
 		</field>
-		<note>Similar to above Populate User Attributes except that it happens everytime user logs in Matrix.</note>
+		<note>Similar to the Populate User Attributes function except that it happens every time the user logs into Matrix.</note>
 	</section>	<section name="Return Location">
 		<field attribute="redirect_url">
 			<display_name>URL</display_name>
