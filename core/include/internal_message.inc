@@ -164,10 +164,14 @@ class Internal_Message extends MySource_Object
 	/**
 	* Sends an internal message
 	*
+	* @param boolean $user_inbox_only	If TRUE, sends internal message to User's Matrix inbox only
+	*									This will bypass the Message Service logs config settings
+	*									
+	*
 	* @return boolean
 	* @access public
 	*/
-	function send()
+	function send($user_inbox_only=FALSE)
 	{
 		// make sure we have the required fields
 		assert_not_empty(trim($this->type), 'Could not send internal message without a type set');
@@ -243,7 +247,7 @@ class Internal_Message extends MySource_Object
 		  //////////////////////////////
 		 // LOG MESSAGES TO LOG FILE //
 		//////////////////////////////
-		if ($log_to_file) {
+		if ($log_to_file && !$user_inbox_only) {
 			$log_body = preg_replace('|<SQ_MSG_LINK[^>]*?>(.*?)</SQ_MSG_LINK>|', '\\1', $this->body);
 
 			$log_line = '['.$this->type.' - '.$param_string.'] ('.
@@ -317,7 +321,7 @@ class Internal_Message extends MySource_Object
 		  ///////////////////////////
 		 // SEND MESSAGE TO USERS //
 		///////////////////////////
-		if ($send_mail || (0 === strpos($this->type, 'inbox'))) {
+		if ($send_mail || (0 === strpos($this->type, 'inbox')) || $user_inbox_only) {
 
 			require_once 'Mail.php';
 			require_once 'Mail/mime.php';
@@ -440,7 +444,7 @@ class Internal_Message extends MySource_Object
 						throw new Exception('Creation of internal message failed due to database error: '.$e->getMessage());
 					}
 
-					if ($send_mail) {
+					if ($send_mail && !$user_inbox_only) {
 						// send an email as well
 						$to_email = trim($user->attr('email'));
 						//reload the $body again, since it might be different from internal message.

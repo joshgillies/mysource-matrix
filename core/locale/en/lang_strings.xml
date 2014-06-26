@@ -1492,6 +1492,7 @@
 	<string source="trigger_send_to_active_user">Send to active user</string>
 	<string source="trigger_active_user_recipient">Active User Recipient</string>
 	<string source="trigger_send_to_active_user_note">Sends a copy to the user asset that fired this event</string>
+	<string source="trigger_send_email_to">Send Email To</string>
 
 	<string source="trigger_clear_cache_current_asset">Include Current Asset?</string>
 	<string source="trigger_clear_cache_include_current_asset">Includes the asset that the action is executing on?</string>
