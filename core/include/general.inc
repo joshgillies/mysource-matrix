@@ -2531,7 +2531,7 @@ function replace_global_keywords(&$text)
 									$replacements[$full_keyword] = 'disabled';
 									break;
 								case '1':
-									$replacements[$full_keyword] = 'notified';
+									$replacements[$full_keyword] = 'notify';
 									break;
 								case '2':
 									$replacements[$full_keyword] = 'enabled';
@@ -2540,10 +2540,10 @@ function replace_global_keywords(&$text)
 						}
 						else if(SQ_MAINTENANCE_MODE) {
 							if($sub_keyword === 'message_backend') {
-								$replacements[$full_keyword] = SQ_MAINTENANCE_MODE == '2' ? SQ_MAINTENANCE_BACKEND_ENABLED_MESSAGE : SQ_MAINTENANCE_BACKEND_NOTIFIED_MESSAGE;
+								$replacements[$full_keyword] = SQ_MAINTENANCE_MODE == '2' ? SQ_MAINTENANCE_BACKEND_ENABLED_MESSAGE : SQ_MAINTENANCE_BACKEND_NOTIFY_MESSAGE;
 							}
 							else if($sub_keyword === 'message_frontend') {
-								$replacements[$full_keyword] = SQ_MAINTENANCE_MODE == '2' ? SQ_MAINTENANCE_FRONTEND_ENABLED_MESSAGE : SQ_MAINTENANCE_FRONTEND_NOTIFIED_MESSAGE;
+								$replacements[$full_keyword] = SQ_MAINTENANCE_MODE == '2' ? SQ_MAINTENANCE_FRONTEND_ENABLED_MESSAGE : SQ_MAINTENANCE_FRONTEND_NOTIFY_MESSAGE;
 							}
 							if (SQ_MAINTENANCE_MODE == '2') {
 								header('HTTP/1.1 503 Service Unavailable');

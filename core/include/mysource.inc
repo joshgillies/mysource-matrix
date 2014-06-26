@@ -4734,11 +4734,11 @@ class MySource extends MySource_Object
 			<table class="sq-backend-table sq-backend-warning-table">
 				<tr>
 					<th class="sq-backend-warning-header">
-						<?php echo SQ_MAINTENANCE_MODE == '2' ? translate('maintenance_mode_enabled') : translate('maintenance_mode_notified'); ?>
+						<?php echo SQ_MAINTENANCE_MODE == '2' ? translate('maintenance_mode_enabled') : translate('maintenance_mode_notify'); ?>
 					</th>
 				</tr>	
 				<tr>
-					<td colspan="2" ><?php echo SQ_MAINTENANCE_MODE == '2' ? SQ_MAINTENANCE_BACKEND_ENABLED_MESSAGE : SQ_MAINTENANCE_BACKEND_NOTIFIED_MESSAGE; ?>
+					<td colspan="2" ><?php echo SQ_MAINTENANCE_MODE == '2' ? SQ_MAINTENANCE_BACKEND_ENABLED_MESSAGE : SQ_MAINTENANCE_BACKEND_NOTIFY_MESSAGE; ?>
 					</td>
 				</tr>
 			</table>

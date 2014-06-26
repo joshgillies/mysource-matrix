@@ -4942,7 +4942,7 @@ class Asset extends MySource_Object
 			// we can't find a design, oh well let's just print out our body
 			if($this->inMaintenanceMode()) {
 				if(SQ_MAINTENANCE_MODE == '1') {
-					echo SQ_MAINTENANCE_FRONTEND_NOTIFIED_MESSAGE;
+					echo SQ_MAINTENANCE_FRONTEND_NOTIFY_MESSAGE;
 					$asset->printBody();
 				}
 				else {
@@ -5140,7 +5140,7 @@ class Asset extends MySource_Object
 			// we can't find a design, oh well let's just print out our body
 			if($this->inMaintenanceMode()) {
 				if(SQ_MAINTENANCE_MODE == '1') {
-					echo SQ_MAINTENANCE_FRONTEND_NOTIFIED_MESSAGE;
+					echo SQ_MAINTENANCE_FRONTEND_NOTIFY_MESSAGE;
 					$this->printBody();
 				}
 				else {
