@@ -614,8 +614,11 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 
 		}
 
+		// Inbox type to send the message to
+		$send_mail_to_type = array_get_index($current_value, 'send_mail_to_type', SQ_EMAIL_FORMAT_SEND_TO_EMAIL);
+
 		// If message needs to be sent to email
-		if ($current_value['send_mail_to_type'] == SQ_EMAIL_FORMAT_SEND_TO_EMAIL || $current_value['send_mail_to_type'] == SQ_EMAIL_FORMAT_SEND_TO_BOTH) {
+		if ($send_mail_to_type == SQ_EMAIL_FORMAT_SEND_TO_EMAIL || $send_mail_to_type == SQ_EMAIL_FORMAT_SEND_TO_BOTH) {
 
 			$to = array_unique(array_merge($to, $assetid_emails, $cs_emails));
 
@@ -719,7 +722,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		}//end if send type = "email"
 
 		// If message needs to be sent to Matrix inbox
-		if (!empty($to_assetids) && ($current_value['send_mail_to_type'] == SQ_EMAIL_FORMAT_SEND_TO_MATRIX_INBOX || $current_value['send_mail_to_type'] == SQ_EMAIL_FORMAT_SEND_TO_BOTH)) {
+		if (!empty($to_assetids) && ($send_mail_to_type == SQ_EMAIL_FORMAT_SEND_TO_MATRIX_INBOX || $send_mail_to_type == SQ_EMAIL_FORMAT_SEND_TO_BOTH)) {
 
 			$to_assetids = array_unique($to_assetids);
 			$ms = $GLOBALS['SQ_SYSTEM']->getMessagingService();
