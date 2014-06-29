@@ -10298,13 +10298,18 @@ class Asset_Manager extends MySource_Object
 		if (!$this->installed('content_type_snippet')) {
 			return Array();
 		}
-		$rootid = $GLOBALS['SQ_SYSTEM']->getUserPrefs('content_type_snippet', 'SQ_SNIPPET_ROOT');
-		if (empty($rootid) || !$this->assetExists($rootid)) {
+		$rootids = explode(',', $GLOBALS['SQ_SYSTEM']->getUserPrefs('content_type_snippet', 'SQ_SNIPPET_ROOT'));
+		if (empty($rootids)) {
 			// snippet root preference not set
 			return Array();
 		}
-
-		$containers = $this->getChildren($rootid, 'bodycopy_container', FALSE);
+		// Validate the root node assetids
+		$rootids = array_keys($this->getAssetInfo($rootids));
+		
+		$containers = Array();
+		foreach($rootids as $rootid) {
+			$containers += $this->getChildren($rootid, 'bodycopy_container', FALSE);
+		}
 		if (empty($containers)) {
 			// no container found under the specified snippet root
 			return Array();
