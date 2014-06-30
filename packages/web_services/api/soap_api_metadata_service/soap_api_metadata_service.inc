@@ -679,10 +679,13 @@ class Soap_Api_Metadata_Service extends Soap_Api
 				}//end if
 			}//end if
 
+			// Type cast to char as CLOB type field in where clause in Oracle is not allowed
+			$value_col = DAL::getDbType() == 'oci' ? 'to_char(v.value) ' : 'v.value ';
+
 			// Get the result from the asset metadata table
 			$sql = "SELECT a.* FROM sq_ast a, sq_ast_mdata_val v
 					WHERE a.assetid = v.assetid AND
-						v.fieldid = ".MatrixDAL::quote($fieldid)." AND v.value ".
+						v.fieldid = ".MatrixDAL::quote($fieldid)." AND ".$value_col.
 						($exact_match ? " = ".MatrixDAL::quote($search_value) : " LIKE ".MatrixDAL::quote('%'.$search_value.'%'));
 			$result = MatrixDAL::executeSqlAll($sql);
 			foreach($result as $entry) {

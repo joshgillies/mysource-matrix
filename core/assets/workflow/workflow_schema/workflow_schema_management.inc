@@ -111,6 +111,19 @@ class Workflow_Schema_Management extends Asset_Management
 																			   ),
 															'description'	=> 'If enabled, editors wil be allowed to send the approval request while initiating the workflow process.',
 														   ),
+		   				'who_can_choose_stream'		=>Array(
+															'added'			=> '0.2',
+															'type'			=> 'selection',
+															'default'		=> 'admin_write',
+															'parameters'	=> Array(
+																				'multiple'		=> FALSE,
+																				'allow_empty'	=> FALSE,
+																				'options'		=> Array(
+																									'admin_write'	=> 'Admin Or Write Access User',
+																									'admin_only'	=> 'Admin Access User Only',
+																								   ),
+																			   ),
+														   ),
 					  );
 
 	}//end constructor

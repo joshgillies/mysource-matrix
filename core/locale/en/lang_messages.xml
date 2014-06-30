@@ -553,4 +553,8 @@ This asset is currently at a status of "%asset_status%". It cannot be trashed un
 
 Please rectify the above issue (by changing the status of the asset) so it can be trashed as soon as possible, or consult the user who marked the asset for safe trashing.</body>
 	</message>
+	<message type="internal.message">
+		<subject>%subject%</subject>
+		<body>%body%</body>
+	</message>
 </messages>
