@@ -400,7 +400,7 @@ class Internal_Message extends MySource_Object
 
 					// prepare the message content
 					$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
-					if (is_null($user)  || !($user instanceof User) || !$user->canAccessBackend() || !$user->canLogin()) continue;
+					if (is_null($user)  || !($user instanceof User) || (!$user_inbox_only && !$user->canAccessBackend()) || !$user->canLogin()) continue;
 					$user_locale = $user->attr('locale');
 					if (empty($user_locale)) {
 						$user_locale = SQ_CONF_DEFAULT_BACKEND_LOCALE;
