@@ -163,5 +163,47 @@ class Content_Type_Snippet_Prefs extends Prefs
 	}//end processBackend()
 
 
+	/**
+	* Merges two group-defined preference arrays for content type snippet
+	*
+	* Note that this function is only called if there is a conflict between two groups' preferences.
+	* If there is a conflict between a group's prefs and the global prefs, the group automatically wins and
+	* this function is not called.
+	* Array returned is of the format (prefs_var => prefs_details)
+	*
+	* @param array	$prefs1	array of preferences to merge
+	* @param array	$prefs2	array of preferences to merge
+	*
+	* @return array
+	* @access public
+	*/
+	function mergePrefs($prefs1, $prefs2)
+	{
+		// Combine the root nodes in the preferences
+		if (isset($prefs1['SQ_SNIPPET_ROOT']['default']) && isset($prefs2['SQ_SNIPPET_ROOT'])) {
+			if (is_array($prefs2['SQ_SNIPPET_ROOT']) && isset($prefs2['SQ_SNIPPET_ROOT']['default'])) {
+				$prefs1['SQ_SNIPPET_ROOT']['default'] .= ','.$prefs2['SQ_SNIPPET_ROOT']['default'];
+			} else {
+				$prefs1['SQ_SNIPPET_ROOT']['default'] .= ','.$prefs2['SQ_SNIPPET_ROOT'];
+			}
+		}
+
+		// If permission check is enabled in any prefernce, permission check will be enabled for all
+		if (isset($prefs1['SQ_SNIPPET_KEYWORDS_PERMISSION_CHECK']['default']) && isset($prefs2['SQ_SNIPPET_KEYWORDS_PERMISSION_CHECK'])) {
+			if (is_array($prefs2['SQ_SNIPPET_KEYWORDS_PERMISSION_CHECK']) && isset($prefs2['SQ_SNIPPET_KEYWORDS_PERMISSION_CHECK']['default'])) {
+				if ($prefs2['SQ_SNIPPET_KEYWORDS_PERMISSION_CHECK']['default']) {
+					$prefs1['SQ_SNIPPET_KEYWORDS_PERMISSION_CHECK']['default'] = 1;
+				}
+			} else {
+				if ($prefs2['SQ_SNIPPET_KEYWORDS_PERMISSION_CHECK']) {
+					$prefs1['SQ_SNIPPET_KEYWORDS_PERMISSION_CHECK']['default'] = 1;
+				}
+			}
+		}
+
+		return parent::mergePrefs($prefs1, $prefs2);
+
+	}//end mergePrefs()
+
 }//end class
 ?>
