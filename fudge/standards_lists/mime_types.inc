@@ -194,6 +194,7 @@ $standards_lists_mime_types = Array(
 									'trf'		=> 'application/octet-stream',
 									'tr5'		=> 'application/octet-stream',
 									'htc'		=> 'text/x-component',
+									'rdp'		=> 'application/rdp',
 									);
 
 ?>
