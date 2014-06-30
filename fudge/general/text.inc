@@ -842,13 +842,20 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array(), $ac
 		try {
 			//create an XSL object from the file asset id
 			$xsl_assetid = array_get_index($modifier['args'], 0, NULL);
+			// Whether to replace global keywords in the XSL content
+			$replace_keywords = array_get_index($modifier['args'], 1, 0);
 			if (empty($xsl_assetid)) return $new_text;
 			$xsl_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($xsl_assetid);
 			if (empty($xsl_asset)) return $new_text;
 
 			$xsl = new DOMDocument();
-			if ($xsl_asset instanceof File) {
-				$xsl->load($xsl_asset->data_path.'/'.$xsl_asset->name);
+			$xsl_filename = $xsl_asset->data_path.'/'.$xsl_asset->name;
+			if ($xsl_asset instanceof File && file_exists($xsl_filename)) {
+				$xsl_content = file_get_contents($xsl_filename);
+				if ($replace_keywords) {
+					replace_global_keywords($xsl_content);
+				}
+				$xsl->loadXML($xsl_content);
 			} else {
 				trigger_error("XSLT keyword modifier: The asset #$xsl_assetid is not a File asset.");
 				return $new_text;
