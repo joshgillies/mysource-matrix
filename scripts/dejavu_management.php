@@ -36,9 +36,13 @@ if ($options instanceof PEAR_Error) {
 if (empty($options[0])) usage();
 
 $SYSTEM_ROOT = '';
-$ACTION = '';
-$RECACHING_DELAY = '0';
-$CACHE_STORAGE = '';
+$SHOW_STATUS = FALSE;
+$ENABLE_DEJA_VU = FALSE;
+$DISABLE_DEJA_VU = FALSE;
+$FORGET_DEJA_VU = FALSE;
+$RECACHING_DELAY = FALSE;
+$CACHE_STORAGE = FALSE;
+$DISABLE_FORCE = FALSE;
 
 foreach ($options[0] as $option) {
 	switch ($option[0]) {
@@ -47,25 +51,48 @@ foreach ($options[0] as $option) {
 			if (!is_dir($option[1])) usage();
 			$SYSTEM_ROOT = $option[1];
 		break;
-		
-		default:
-			$ACTION = $option[0];
-			if ($ACTION == '--recaching_delay') {
-				if (empty($option[1]) || !is_numeric($option[1])) {
-					usage();
-				}
-				$RECACHING_DELAY = $option[1];
-				continue;
-			}
 
-			// Validation is done in Deja-Vu to make sure it's a valid type.
-			if ($ACTION == '--cache_storage') {
-				$CACHE_STORAGE = $option[1];
-				continue;
-			}
+		case '--status':
+			$SHOW_STATUS = TRUE;
 		break;
-	}
-}
+
+		case '--enable':
+			$ENABLE_DEJA_VU = TRUE;
+		break;
+
+		case '--disable':
+			$DISABLE_DEJA_VU = TRUE;
+		break;
+
+		case '--forget':
+			$FORGET_DEJA_VU = TRUE;
+		break;
+
+		case '--disable_force':
+			$DISABLE_FORCE = TRUE;
+		break;
+
+		case '--recaching_delay':
+			if (!is_numeric($option[1]) || $option[1]<0) {
+				usage();
+			}
+			$RECACHING_DELAY = $option[1];
+		break;
+
+		case '--cache_storage':
+			if (empty($option[1])) {
+				usage();
+			}
+			// Validation is done in Deja-Vu to make sure it's a valid type.
+			$CACHE_STORAGE = $option[1];
+		break;
+
+		default:
+			usage();
+		break;
+
+	}//end switch
+}//end foreach
 
 if (empty($SYSTEM_ROOT)) {
 	echo "ERROR: You need to supply the path to the System Root as the first argument\n";
@@ -77,92 +104,93 @@ if (!is_dir($SYSTEM_ROOT) || !is_readable($SYSTEM_ROOT.'/core/include/init.inc')
 	usage();
 }
 
-if($ACTION === '--disable_force') {
+if($DISABLE_FORCE) {
 	// forcibly disable deja vu before even include init.inc
 	file_put_contents($SYSTEM_ROOT.'/data/private/conf/.dejavu', '0');
 	echo "Deja Vu is forcibly disabled.\n";
 	exit();
 }
 
+
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
 require_once $SYSTEM_ROOT.'/core/include/deja_vu.inc';
 
 $deja_vu = new Deja_Vu();
-switch ($ACTION) {
-	case '--status':
-		if ($deja_vu->enabled() == FALSE) {
-			echo "Deja Vu is currently disabled.\n";
-		} else {
-			echo "Deja Vu is currently enabled.\n";
-			echo "Recaching delay time: ".$deja_vu->getRecachingDelay()."s.\n";
-			echo "Cache storage: ".$deja_vu->getCacheStorage().".\n";
-		}
-		break;
-	case '--enable':
-		if ($deja_vu->enabled() == TRUE) {
-			echo "Deja Vu is already enabled.\n";
-        } else {
-            $ok = $deja_vu->checkRequirements();
 
-			echo "Enabling Deja Vu...\n";
-			if ($deja_vu->enable()) {
-				$d_vu = new Deja_Vu();
-				if ($d_vu) {
-					echo "Forgetting everything previously remembered...\n";
-					if ($d_vu->forgetAll()) {
-						echo "[DONE]\n";
-						break;
-					}
-				} else{
-					echo "what?\n";
+if ($SHOW_STATUS) {
+	if ($deja_vu->enabled() == FALSE) {
+		echo "Deja Vu is currently disabled.\n";
+	} else {
+		echo "Deja Vu is currently enabled.\n";
+		echo "Recaching delay time: ".$deja_vu->getRecachingDelay()."s.\n";
+		echo "Cache storage: ".$deja_vu->getCacheStorage().".\n";
+	}
+	// Further options are ignored if any
+	exit;
+}
+
+// 'enable', 'disable' and 'forget' options are mutually exclusive
+if ($ENABLE_DEJA_VU) {
+	if ($deja_vu->enabled() == TRUE) {
+		echo "Deja Vu is already enabled.\n";
+	} else {
+		$ok = $deja_vu->checkRequirements();
+
+		echo "Enabling Deja Vu...\n";
+		if ($deja_vu->enable()) {
+			$d_vu = new Deja_Vu();
+			if ($d_vu) {
+				echo "Forgetting everything previously remembered...\n";
+				if ($d_vu->forgetAll()) {
+					echo "[DONE]\n";
+				} else {
+					echo "[FAILED]\n";
 				}
-			}
-			echo "[FAILED]\n";
-		}
-		break;
-	case '--disable':
-		if ($deja_vu->enabled() == FALSE) {
-			echo "Deja Vu is already disabled.\n";
-		} else {
-			echo "Disabling Deja Vu...\n";
-			if ($deja_vu->disable()) {
-				echo "[DONE]\n";
 			} else {
-				echo "[FAILED]\n";
+				echo "what?\n";
 			}
 		}
-		break;
-	case '--forget':
-		if ($deja_vu->enabled() == FALSE) {
-			echo "Deja Vu is currently disabled.\n";
-		} else {
-			echo "Forgetting everything in Deja Vu...\n";
-			if ($deja_vu->forgetAll()) {
-				echo "[DONE]\n";
-			} else {
-				echo "[FAILED]\n";
-			}
-		}
-		break;
-	case '--recaching_delay':
-		echo "Setting recaching delay time period ...\n";
-		if ($deja_vu->setRecachingDelay($RECACHING_DELAY)) {
+	}
+} else if ($DISABLE_DEJA_VU) {
+	if ($deja_vu->enabled() == FALSE) {
+		echo "Deja Vu is already disabled.\n";
+	} else {
+		echo "Disabling Deja Vu...\n";
+		if ($deja_vu->disable()) {
 			echo "[DONE]\n";
 		} else {
 			echo "[FAILED]\n";
 		}
-		break;
-	case '--cache_storage':
-		echo "Setting cache storage type ...\n";
-		if ($deja_vu->setCacheStorage($CACHE_STORAGE)) {
+	}
+} else if ($FORGET_DEJA_VU) {
+	if ($deja_vu->enabled() == FALSE) {
+		echo "Deja Vu is currently disabled.\n";
+	} else {
+		echo "Forgetting everything in Deja Vu...\n";
+		if ($deja_vu->forgetAll()) {
 			echo "[DONE]\n";
 		} else {
 			echo "[FAILED]\n";
 		}
-		break;
-	default:
-		usage();
-		break;
+	}
+}
+
+if ($RECACHING_DELAY !== FALSE) {
+	echo "Setting recaching delay time period ...\n";
+	if ($deja_vu->setRecachingDelay($RECACHING_DELAY)) {
+		echo "[DONE]\n";
+	} else {
+		echo "[FAILED]\n";
+	}
+}
+
+if ($CACHE_STORAGE) {
+	echo "Setting cache storage type ...\n";
+	if ($deja_vu->setCacheStorage($CACHE_STORAGE)) {
+		echo "[DONE]\n";
+	} else {
+		echo "[FAILED]\n";
+	}
 }
 
 
