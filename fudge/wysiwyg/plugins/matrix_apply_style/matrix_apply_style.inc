@@ -252,79 +252,82 @@ class Matrix_Apply_Style extends WYSIWYG_Plugin
 				// get the parent element of the range, working around an IE bug
 				// with parentELement()
 				var parent = range.parentElement();
-				while (true) {
-					var testRange = range.duplicate();
-					testRange.moveToElementText(parent);
-					if (testRange.inRange(range)) {
-						break;
-					}
-					if ((parent.nodeType != 1) || (parent.tagName.toLowerCase() == 'body')) {
-						break;
-					}
-					parent = parent.parentElement;
-				}
-				var selectedHTML = range.htmlText.replace(/^\s+|\s+$/, '');
-
-				if (selectedHTML == range.text.replace(/^\s+|\s+$/, '')) {
-					// we are within a single element
-					range.text = 'MYOPENSPAN'+range.text+'MYCLOSESPAN';
-				} else if ((parent.innerHTML == selectedHTML) || (parent.outerHTML.replace(/\s/g, '') == selectedHTML.replace(/\s/g, ''))) {
-					// Apply class to parent element directly
+				if ((parent.nodeType != 1) || (parent.tagName.toLowerCase() == 'p')) {
 					parent.className = value;
 				} else {
-					// Traverse children of parent
-					for (var elt = parent.firstChild; elt != null; elt = elt.nextSibling) {
-						var tempRange = document.body.createTextRange();
-						tempRange.moveToElementText(elt);
-						var overlaps =
-							(range.compareEndPoints('StartToEnd', tempRange) <= 0)
-							&& (range.compareEndPoints('EndToStart', tempRange) >= 0);
-						if (overlaps) {
-							var endsAfter = (range.compareEndPoints('EndToEnd', tempRange) == -1);
-							var startsBefore = (range.compareEndPoints('StartToStart', tempRange) == 1);
-							if (startsBefore) {
-								var offset = 0;
-								while (range.compareEndPoints('StartToStart', tempRange) == 1) {
-									offset++;
-									tempRange.moveStart('character', 1);
-								}
-								tempRange.moveToElementText(elt);
-								var newText = tempRange.text.substring(0, offset)+"MYOPENSPAN"+tempRange.text.substring(offset, tempRange.text.length)+"MYCLOSESPAN";
-								if (elt.nodeType == 3) {
-									elt.data = newText;
-								} else if ((elt.childNodes.length == 1) && (elt.firstChild.nodeType == 3)) {
-									elt.innerHTML = newText;
+					while (true) {
+						var testRange = range.duplicate();
+						testRange.moveToElementText(parent);
+						if (testRange.inRange(range)) {
+							break;
+						}
+						if ((parent.nodeType != 1) || (parent.tagName.toLowerCase() == 'body')) {
+							break;
+						}
+						parent = parent.parentElement;
+					}
+					var selectedHTML = range.htmlText.replace(/^\s+|\s+$/, '');
+
+					if (selectedHTML == range.text.replace(/^\s+|\s+$/, '')) {
+						// we are within a single element
+						range.text = 'MYOPENSPAN'+range.text+'MYCLOSESPAN';
+					} else if ((parent.innerHTML == selectedHTML) || (parent.outerHTML.replace(/\s/g, '') == selectedHTML.replace(/\s/g, ''))) {
+						// Apply class to parent element directly
+						parent.className = value;
+					} else {
+						// Traverse children of parent
+						for (var elt = parent.firstChild; elt != null; elt = elt.nextSibling) {
+							var tempRange = document.body.createTextRange();
+							tempRange.moveToElementText(elt);
+							var overlaps =
+								(range.compareEndPoints('StartToEnd', tempRange) <= 0)
+								&& (range.compareEndPoints('EndToStart', tempRange) >= 0);
+							if (overlaps) {
+								var endsAfter = (range.compareEndPoints('EndToEnd', tempRange) == -1);
+								var startsBefore = (range.compareEndPoints('StartToStart', tempRange) == 1);
+								if (startsBefore) {
+									var offset = 0;
+									while (range.compareEndPoints('StartToStart', tempRange) == 1) {
+										offset++;
+										tempRange.moveStart('character', 1);
+									}
+									tempRange.moveToElementText(elt);
+									var newText = tempRange.text.substring(0, offset)+"MYOPENSPAN"+tempRange.text.substring(offset, tempRange.text.length)+"MYCLOSESPAN";
+									if (elt.nodeType == 3) {
+										elt.data = newText;
+									} else if ((elt.childNodes.length == 1) && (elt.firstChild.nodeType == 3)) {
+										elt.innerHTML = newText;
+									} else {
+										tempRange.text = newText; // IE stuffs this up often so we avoid it
+									}
+								} else if (endsAfter) {
+									// This element extends beyond the selection
+									var offset = 0;
+									while (range.compareEndPoints('EndToEnd', tempRange) == -1) {
+										offset++;
+										tempRange.moveEnd('character', -1);
+									}
+									tempRange.moveToElementText(elt);
+									tempRange.text = "MYOPENSPAN"+tempRange.text.substring(0, tempRange.text.length-offset+1)+"MYCLOSESPAN"+tempRange.text.substring(tempRange.text.length-offset+1, tempRange.text.length);
 								} else {
-									tempRange.text = newText; // IE stuffs this up often so we avoid it
-								}
-							} else if (endsAfter) {
-								// This element extends beyond the selection
-								var offset = 0;
-								while (range.compareEndPoints('EndToEnd', tempRange) == -1) {
-									offset++;
-									tempRange.moveEnd('character', -1);
-								}
-								tempRange.moveToElementText(elt);
-								tempRange.text = "MYOPENSPAN"+tempRange.text.substring(0, tempRange.text.length-offset+1)+"MYCLOSESPAN"+tempRange.text.substring(tempRange.text.length-offset+1, tempRange.text.length);
-							} else {
-								// This element is fully within the selection
-								// Apply class to it, or wrap a classed span around it
-								if (elt.nodeType == 3) {
-									// surround it with a span
-									var newSpan = document.createElement('SPAN');
-									newSpan.innerHTML = elt.data;
-									newSpan.className = value;
-									elt.parentNode.insertBefore(newSpan, elt);
-									elt.parentNode.removeChild(elt);
-								} else {
-									elt.className = value;
+									// This element is fully within the selection
+									// Apply class to it, or wrap a classed span around it
+									if (elt.nodeType == 3) {
+										// surround it with a span
+										var newSpan = document.createElement('SPAN');
+										newSpan.innerHTML = elt.data;
+										newSpan.className = value;
+										elt.parentNode.insertBefore(newSpan, elt);
+										elt.parentNode.removeChild(elt);
+									} else {
+										elt.className = value;
+									}
 								}
 							}
 						}
 					}
+					parent.innerHTML = (parent.innerHTML.replace(new RegExp("MYOPENSPAN", "g"), '<span class="'+value+'">').replace(new RegExp("MYCLOSESPAN", "g"), '</span>'));
 				}
-				parent.innerHTML = (parent.innerHTML.replace(new RegExp("MYOPENSPAN", "g"), '<span class="'+value+'">').replace(new RegExp("MYCLOSESPAN", "g"), '</span>'));
-
 			} else {
 
 				///////// NON IE /////////
