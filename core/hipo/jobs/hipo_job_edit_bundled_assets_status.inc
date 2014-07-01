@@ -357,6 +357,7 @@ class HIPO_Job_Edit_Bundled_Assets_Status extends HIPO_Job
 	*/
 	public function processBundledAsset(&$step_data, $prefix, $freestyle=FALSE)
 	{
+		$run_level_set = FALSE;
 		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		if (empty($this->_running_vars['sub_job']) === FALSE) {
 			$sub_job = $hh->getJob($this->_running_vars['sub_job']);
@@ -382,6 +383,7 @@ class HIPO_Job_Edit_Bundled_Assets_Status extends HIPO_Job
 			if (isset($this->_running_vars['no_status_integrity'][$assetid])) {
 				$run_level = $GLOBALS['SQ_SYSTEM']->getRunLevel();
 				$GLOBALS['SQ_SYSTEM']->setRunLevel($run_level ^ SQ_SECURITY_STATUS_INTEGRITY);
+				$run_level_set = TRUE;
 			}
 
 			// NULL asset status means we should be skipping this asset instead
@@ -506,7 +508,7 @@ class HIPO_Job_Edit_Bundled_Assets_Status extends HIPO_Job
 			$step_data['complete']     = FALSE;
 		}
 
-		if (isset($this->_running_vars['no_status_integrity'][$assetid])) {
+		if ($run_level_set && isset($this->_running_vars['no_status_integrity'][$assetid])) {
 			unset($this->_running_vars['no_status_integrity'][$assetid]);
 			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 		}
