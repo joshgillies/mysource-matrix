@@ -262,31 +262,6 @@ class Workflow_Manager extends MySource_Object
 			return FALSE;
 		}
 
-		// check if the schema is restricted to certain assets
-		$restrictions = is_array($schema->attr('schema_restrictions')) ? $schema->attr('schema_restrictions') : unserialize($schema->attr('schema_restrictions'));
-
-		$asset_found = FALSE;
-		if (!empty($restrictions)) {
-			$asset_dependant_parents = array_merge(Array($assetid), $GLOBALS['SQ_SYSTEM']->am->getDependantParents($assetid));
-			foreach ($asset_dependant_parents as $parent_assetid) {
-				$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_assetid);
-				foreach ($restrictions as $type_code_restricted => $inherit_it) {
-					if ($inherit_it && !$asset_found) {
-						$asset_type_with_parents = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeInfo(Array($parent_assetid));
-						foreach($asset_type_with_parents[$parent_assetid] as $index => $asset_type) {
-							if (array_key_exists($asset_type[0], $restrictions) && !$asset_found) {
-								$asset_found = TRUE;
-							}
-						}
-					} else if (array_key_exists($parent_asset->type(), $restrictions)){
-						$asset_found = TRUE;
-					}
-				}
-			}
-			// if the asset we are dealing with isn't allowed to work on the schema, bail out
-			if (!$asset_found) return FALSE;
-		}
-
 		// check for any running schemas - because if the asset is in workflow we cant do anything
 		$running_schemas = $this->getSchemas($assetid, TRUE, TRUE);
 		if (!empty($running_schemas)) {
@@ -1709,8 +1684,6 @@ class Workflow_Manager extends MySource_Object
 			$this->setStartingStream($assetid, NULL);
 		}
 
-		$log_message = $this->getEditorCommentOnApplyForApproval($assetid);
-
 		if ($stream_name === NULL) {
 			$streams = $this->getDefaultStream($schemas);
 			$stream_name = 'Default Stream';
@@ -1840,6 +1813,7 @@ class Workflow_Manager extends MySource_Object
 					$accept_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=approve';
 					$reject_url = $workflow_backend_href.'&asset_version='.$asset->version.'&workflow_link_action=reject';
 
+
 					$msg_reps = Array(
 									'workflow_user'			=> $user->name,
 									'type_code'				=> $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name'),
@@ -1855,7 +1829,7 @@ class Workflow_Manager extends MySource_Object
 									'stream'				=> $schema_workflow['stream_name'],
 									'asset_url'				=> $asset->getDependantParentsURL(),
 									'asset_version'			=> $asset->version,
-									'log_message'			=> is_null($log_message) ? '' : $log_message,
+									'log_message'			=> '',
 								);
 					$asset_edt_fns = $asset->getEditFns();
 					if (isset($asset_edt_fns->static_screens['preview'])) {
@@ -1914,20 +1888,6 @@ class Workflow_Manager extends MySource_Object
 
 				$msg->parameters['assetid'] = $asset->id;
 				$ms->enqueueMessage($msg);
-
-				// has a message been entered?
-				// process any messages that may have been submitted
-				if (!empty($log_message)) {
-					$msg_reps = Array(
-									'message'	=> $log_message,
-								);
-					$message = $ms->newMessage(Array(), 'asset.workflow.userlog', $msg_reps);
-					$message->parameters['assetid'] = $assetid;
-					$message->parameters['version'] = substr($asset->version, 0, strrpos($asset->version, '.'));
-					$message->send();
-				}
-
-
 			}//end foreach
 		}//end if
 
@@ -2861,28 +2821,6 @@ class Workflow_Manager extends MySource_Object
 		return array_get_index($starting_streams, $assetid, NULL);
 
 	}//end getStartingStream()
-
-
-	public function setEditorCommentOnApplyForApproval($assetid, $editor_comment)
-	{
-		$this->_tmp['editor_comment_on_request'][$assetid] = $editor_comment;
-
-	}//end setEditorCommentOnApplyForApproval()
-
-
-	/**
-	* Return a set starting stream name
-	*
-	* @param string	$schemaid	The asset to get the starting stream name for
-	*
-	* @return string
-	*/
-	public function getEditorCommentOnApplyForApproval($assetid)
-	{
-		$editor_comment = array_get_index($this->_tmp, 'editor_comment_on_request', Array());
-		return array_get_index($editor_comment, $assetid, NULL);
-
-	}//end getEditorCommentOnApplyForApproval()
 
 
 	/**

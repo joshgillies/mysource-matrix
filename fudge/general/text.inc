@@ -144,8 +144,8 @@ function apply_keyword_modifiers(&$text, $modifiers, $replace_keywords=Array(), 
 		$text = apply_keyword_modifier($text, $m, $replace_keywords, $actual_keyword);
 	}
 
-	// If replacement is array, apply the default array modifier
-	if (is_array($text)) {
+	// If there are no modifiers to apply, for array data we will still need to apply "default" modifier
+	if (is_array($text) && empty($modifiers)) {
 		$text = apply_keyword_modifier($text, Array('modifier' => '','args' => Array()), $replace_keywords, $actual_keyword);
 	}
 
@@ -192,7 +192,7 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array(), $ac
 			return array_get_index($text, $index, '');
 
 		case "as_xml":
-			$root_element = array_get_index($modifier['args'], 0, 'as_xml');
+			$root_element = empty($actual_keyword) ? 'as_xml' : $actual_keyword;
 			return trim(array_to_xml(Array($root_element => $text)));
 
 		case "as_csv":
@@ -203,44 +203,6 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array(), $ac
 
 		case "as_url_string":
 			return http_build_query($text);
-
-		case "array_slice":
-			$offset = array_get_index($modifier['args'], 0, 0);
-			if (!is_numeric($offset)) {
-				$offset = 0;
-			}
-			$length = array_get_index($modifier['args'], 1, NULL);
-			if (!is_numeric($offset)) {
-				$offset = NULL;
-			}
-			$preserve_keys = array_get_index($modifier['args'], 2, 0) == '1' ? TRUE : FALSE;
-			return array_slice($text, $offset, $length, $preserve_keys);
-
-		case "array_reverse":
-			$preserve_keys = array_get_index($modifier['args'], 2, 0) == '1' ? TRUE : FALSE;
-			return array_reverse($text, $preserve_keys);
-
-		case "array_keys":
-			return array_keys($text);
-
-		case "array_values":
-			return array_values($text);
-
-		case "array_key_exists":
-			$key = array_get_index($modifier['args'], 0, NULL);
-			$t = array_get_index($modifier['args'], 1, '1');
-			$f = array_get_index($modifier['args'], 2, '');
-			return !is_null($key) && array_key_exists($key, $text) ? $t : $f;
-
-		case "in_array":
-			$key = array_get_index($modifier['args'], 0, NULL);
-			$t = array_get_index($modifier['args'], 1, '1');
-			$f = array_get_index($modifier['args'], 2, '');
-			return !is_null($key) && in_array($key, $text) ? $t : $f;
-
-		case "implode":
-			$glue = array_get_index($modifier['args'], 0, '');
-			return implode($glue, $text);
 
 		// Array value without any modifiers will be returned as a JSON string by default
 		case "as_json":
@@ -324,10 +286,6 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array(), $ac
 		}
 
 		return apply_keyword_modifier($text, Array('modifier' => $nested_modifier, 'args' => $nested_modifier_args));
-
-	case "explode":
-		$delimiter = array_get_index($modifier['args'], 0, '');
-		return !empty($delimiter) ? explode($delimiter, $text) : $text;
 
 	case "urlencode":
 		return urlencode($text);
@@ -842,20 +800,13 @@ function apply_keyword_modifier($text, $modifier, $replace_keywords=Array(), $ac
 		try {
 			//create an XSL object from the file asset id
 			$xsl_assetid = array_get_index($modifier['args'], 0, NULL);
-			// Whether to replace global keywords in the XSL content
-			$replace_keywords = array_get_index($modifier['args'], 1, 0);
 			if (empty($xsl_assetid)) return $new_text;
 			$xsl_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($xsl_assetid);
 			if (empty($xsl_asset)) return $new_text;
 
 			$xsl = new DOMDocument();
-			$xsl_filename = $xsl_asset->data_path.'/'.$xsl_asset->name;
-			if ($xsl_asset instanceof File && file_exists($xsl_filename)) {
-				$xsl_content = file_get_contents($xsl_filename);
-				if ($replace_keywords) {
-					replace_global_keywords($xsl_content);
-				}
-				$xsl->loadXML($xsl_content);
+			if ($xsl_asset instanceof File) {
+				$xsl->load($xsl_asset->data_path.'/'.$xsl_asset->name);
 			} else {
 				trigger_error("XSLT keyword modifier: The asset #$xsl_assetid is not a File asset.");
 				return $new_text;
@@ -1273,13 +1224,7 @@ function json_format($data)
 
 	// our encodeing has added extra double quotes at the start
 	// and end of our string. Remove them before returning text
-	// NOTE: We are using string functions instead as preg_replace() is slower for large string
-	if (substr($output, 0, 1) == '"' && substr($output, -1) == '"') {
-		$output = substr($output, 1);
-		$output = substr($output, 0, -1);
-	}
-
-	return $output;
+	return preg_replace('|^"?(.*?)"?$|ms', '$1', $output);
 
 }//end json_format()
 
@@ -1338,23 +1283,6 @@ function array_to_xml($str)
 *	name,address
 *	max,*array*
 *
-* Example 3:
-* If data is represeted as an array of recordset
-*	Array(
-*		Array(
-*			'id' => '000',
-*			'name'= > 'max',
-*		),
-*		Array(
-*			'id' => '001',
-*			'name' => 'min',
-*		),
-*	);
-* will be return as
-*	id, name
-*	000, max
-*	001, min
-*
 * @param array $array
 * @param boolean $include_header
 *
@@ -1366,69 +1294,53 @@ function array_to_csv($array, $include_header=TRUE)
 	if (!is_array($array)) {
 		return '';
 	}
-	
 	$data = Array();
-	if (is_numeric(implode('', array_keys($array))) && isset($array[0]) && is_array($array[0])) {
-		// Each array item is a record set
-		$count = 0;
-		if ($include_header) {
-			$data[] = '"'.implode('","', array_keys($array[0])).'",';
-			$count++;
-		}
-		
-		foreach($array as $record) {
-			$data[$count] = '';
-			foreach($record as $field => $value) {
-				$data[$count] .= '"'.(is_scalar($value) ? str_replace('"', '""', $value) : '*array*').'",';
-			}
-			$count++;
-		}//end forach
-	} else {
-		// First line is the CSV header
-		if ($include_header) {
-			$data[] = '"'.implode('","', array_keys($array)).'",';
-		}
-		$values = array_values($array);
 
-		// Maximum number of items in a single data row
-		$max_column_count = 0;
+	// First line is the CSV header
+	$data = Array();
+	if ($include_header) {
+		$data[] = '"'.implode('","', array_keys($array)).'",';
+	}
+	$values = array_values($array);
 
-		// If atleast one value is scalar, then whole array values will be handled as scalar
-		$scalar_values = FALSE;
-		foreach($values as $index => $value) {
-			if (is_scalar($value)) {
-				$scalar_values = TRUE;
-			}
-			if (count($value) > $max_column_count) {
-				$max_column_count = count($value);
-			}
-		}
-		if (!$max_column_count) {
-			return '';
-		}
+	// Maximum number of items in a single data row
+	$max_column_count = 0;
 
-		foreach($values as $index => $value) {
-			$count = 1;
-			if (!$scalar_values) {
-				for($i = 0; $i < $max_column_count; $i++) {
-					if (!isset($data[$count])) {
-						$data[$count] = '';
-					}
-					if (isset($value[$i])) {
-						$data[$count] .= '"'.(is_scalar($value[$i]) ? str_replace('"', '""', $value[$i]) : '*array*').'",';
-					} else {
-						$data[$count] .= ',';
-					}
-					$count++;
-				}//end for
-			} else {
+	// If atleast one value is scalar, then whole array values will be handled as scalar
+	$scalar_values = FALSE;
+	foreach($values as $index => $value) {
+		if (is_scalar($value)) {
+			$scalar_values = TRUE;
+		}
+		if (count($value) > $max_column_count) {
+			$max_column_count = count($value);
+		}
+	}
+	if (!$max_column_count) {
+		return '';
+	}
+
+	foreach($values as $index => $value) {
+		$count = 1;
+		if (!$scalar_values) {
+			for($i = 0; $i < $max_column_count; $i++) {
 				if (!isset($data[$count])) {
 					$data[$count] = '';
 				}
-				$data[$count] .= '"'.(is_scalar($value) ? str_replace('"', '""', $value) : '*array*').'",';
+				if (isset($value[$i])) {
+					$data[$count] .= '"'.(is_scalar($value[$i]) ? str_replace('"', '""', $value[$i]) : '*array*').'",';
+				} else {
+					$data[$count] .= ',';
+				}
+				$count++;
+			}//end for
+		} else {
+			if (!isset($data[$count])) {
+				$data[$count] = '';
 			}
-		}//end foreach
-	}
+			$data[$count] .= '"'.(is_scalar($value) ? str_replace('"', '""', $value) : '*array*').'",';
+		}
+	}//end foreach
 
 	// Strip out a single appending ','
 	foreach($data as $key => $val) {

@@ -832,3 +832,4 @@ function listProblematicCharacters($value)
 
 
 ?>
+

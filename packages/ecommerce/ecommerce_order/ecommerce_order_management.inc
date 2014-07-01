@@ -69,7 +69,6 @@ class Ecommerce_Order_Management extends Asset_Management
 												'added'		=> '0.1',
 												'type'		=> 'assetid',
 												'default'	=> '0',
-												'is_admin'	=> FALSE,
 											   ),
 						'delivery_state'	=> Array(
 												'added'		=> '0.1',

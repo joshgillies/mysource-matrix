@@ -1205,8 +1205,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 
 		$keywords['logout_form']				= translate('cms_asset_builder_keyword_logout_form');
 
-		// Exclude CAPTCHA keywords and other SPAM prevention functionality keywords from the "Logged In" form. 
-		// Presume if the user has logged in, that they are not an artificial intelligence
+		// Exclude CAPTCHA keywords from the "Logged In" form. Presume if the user has logged in, that they are not an artificial intelligence
 		if ($this->attr('require_captcha')) {
 			unset($keywords['form_captcha']);
 			unset($keywords['form_captcha_image']);
@@ -1214,18 +1213,6 @@ class Page_Account_Manager extends Page_Asset_Builder
 			unset($keywords['form_captcha_link']);
 		}
 
-		if ($this->attr('use_mollom')) {
-			unset($keywords['asset_builder_mollom_captcha']);
-			unset($keywords['asset_builder_mollom_captcha_image']);
-			unset($keywords['asset_builder_mollom_captcha_audio']);
-			unset($keywords['asset_builder_mollom_captcha_field']);
-			unset($keywords['asset_builder_mollom_captcha_regen_link']);
-		}
-		if ($this->attr('use_recaptcha')) {
-			unset($keywords['form_recaptcha']);
-		}
-		unset($keywords['form_honeypot_field']);
-		
 		return $keywords;
 
 	}//end _getLoggedInKeywords()
@@ -1264,6 +1251,13 @@ class Page_Account_Manager extends Page_Asset_Builder
 		$keywords['resend_validation_error']	= translate('cms_account_manager_keyword_resend_validation_error');
 		$keywords['resend_validation_form'] 	= translate('cms_account_manager_keyword_resend_validation_form');
 		$keywords['resend_validation_success'] 	= translate('cms_account_manager_keyword_resend_validation_success');
+
+		if ($this->attr('require_captcha')) {
+			$keywords['form_captcha'] = translate('cms_asset_builder_keyword_form_captcha');
+			$keywords['form_captcha_image'] = translate('cms_asset_builder_keyword_form_captcha_image');
+			$keywords['form_captcha_field'] = translate('cms_asset_builder_keyword_form_captcha_field');
+			$keywords['form_captcha_link'] = translate('cms_asset_builder_keyword_form_captcha_link');
+		}
 
 		return $keywords;
 

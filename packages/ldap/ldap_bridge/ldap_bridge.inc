@@ -265,16 +265,16 @@ class LDAP_Bridge extends Asset implements Bridge
 										Array('objectclass')
 							);
 
-				$result = $ldap->searchEntries($shadowid,'(objectClass=*)', NULL, FALSE, FALSE, array_values(array_unique($attr_req)));
+				$result = $ldap->search($shadowid,'(objectClass=*)', NULL, FALSE, FALSE, array_values(array_unique($attr_req)));
 			} else {
-				$result = $ldap->searchEntries($shadowid,'(objectClass=*)', NULL, FALSE, FALSE);
+				$result = $ldap->search($shadowid,'(objectClass=*)', NULL, FALSE, FALSE);
 			}
 
-			if (!isset($result['count']) || $result['count'] == 0) {
-				return $return_null ? NULL : $this->_getDummyAsset($shadowid);
-			}
+			if (!$result) return $return_null ? NULL : $this->_getDummyAsset($shadowid);
+			$data = $ldap->getEntries($result);
+			if (!$data['count']) return $return_null ? NULL : $this->_getDummyAsset($shadowid);
 
-			$data = $result[0];
+			$data = $data[0];
 
 
 		if (!isset($data['dn']) && isset($data['distinguishedname'])) {
@@ -529,9 +529,10 @@ class LDAP_Bridge extends Asset implements Bridge
 							$base_dn = $this->decodeString($this->attr('root_dn'));
 							// Query all uids in a single go
 							$uids_filter = '(|'.implode($user_uids).')';
-							$member_result = $ldap->searchEntries($base_dn, $uids_filter, NULL, TRUE, TRUE, array_merge(array_values($attrs), Array('objectclass')));
-							if (isset($member_result['count']) && $member_result['count'] > 0) {
-								foreach($member_result as $member_entry) {
+							$member_result = $ldap->search($base_dn, $uids_filter, NULL, TRUE, TRUE, array_merge(array_values($attrs), Array('objectclass')));
+							if ($member_result) {
+								$member_entries = $ldap->getEntries($member_result);
+								foreach($member_entries as $member_entry) {
 									if (isset($member_entry['dn'])) {
 										$dn = $member_entry['dn'];
 										$user = $this->getAsset($this->id.':'.$dn, '', FALSE, TRUE);
@@ -584,9 +585,14 @@ class LDAP_Bridge extends Asset implements Bridge
 					// Attributes representing the objectclass values are always required + attribute used for sorting
 					$sort_attr = (!empty($sort_by)) ? Array($sort_by) : Array();
 					$required_attrs = array_values(array_unique(array_merge($attr, $sort_attr, Array('c', 'o', 'ou', 'cn', 'dc', 'objectclass'))));
-					$entries = $ldap->searchEntries($base_dn, $filter, $sort_by, FALSE, TRUE, $required_attrs);
+					$result = $ldap->search($base_dn, $filter, $sort_by, FALSE, TRUE, $required_attrs);
 
-					if (!isset($entries['count']) || $entries['count'] == 0) {
+					if (!$result) {
+						return Array();
+					}
+
+					$entries = $ldap->getEntries($result);
+					if (!$entries['count']) {
 						// If there is no entry and no error, the $entries array is Array(count => 0).
 						// This mostly happens when we get links of an LDAP user so we need to cache the result.
 						$this->_tmp['getLinks'][$assetid][$side_of_link][$type_code_key][$strict_type_code][$sort_by] = Array();
@@ -774,12 +780,15 @@ class LDAP_Bridge extends Asset implements Bridge
 			$required_attrs = Array('objectclass');
 			if(isset($attrs['mo'])) $required_attrs[] = $attrs['mo'];
 			if(isset($attrs['uid'])) $required_attrs[] = $attrs['uid'];
+			
+			$result = $ldap->search($assetid,'(objectClass=*)', NULL, FALSE, FALSE, $required_attrs);
+			if (!$result) return Array();
 
-			$result = $ldap->searchEntries($assetid,'(objectClass=*)', NULL, FALSE, FALSE, $required_attrs);
-			if (!isset($result['count']) || $result['count'] == 0) {
+			$data = $ldap->getEntries($result);
+			if (!$data['count']) {
 				return Array();
 			}
-			$data = $result[0];
+			$data = $data[0];
 
 			$mo_groups = Array();
 
@@ -798,14 +807,15 @@ class LDAP_Bridge extends Asset implements Bridge
 					$filter = $data['uid'][0];
 				}
 
-				$mo_groups = Array();
-				$result = $ldap->searchEntries($base_dn, '('.$attrs['gm'].'='.$filter.')', NULL, TRUE, TRUE, Array('objectclass'));
-				if (isset($result['count']) && $result['count'] > 0) {
-					unset($result['count']);
-					foreach	($result as $group_data) {
+				$result = $ldap->search($base_dn, '('.$attrs['gm'].'='.$filter.')', NULL, TRUE, TRUE, Array('objectclass'));
+				if ($result) {
+					$groups = $ldap->getEntries($result);
+					if (!$groups['count']) $mo_groups = Array();
+					unset($groups['count']);
+					foreach	($groups as $group_data) {
 						$mo_groups[] = $group_data['dn'];
-					}//end foreach
-				}//end if
+					}
+				}
 			}
 
 			// also add in groups based on our DN
@@ -828,8 +838,11 @@ class LDAP_Bridge extends Asset implements Bridge
 
 			foreach ($mo_groups as $group_name) {
 				$group_name = $this->decodeString($group_name);
-				$group_data = $ldap->searchEntries($group_name, '(objectClass=*)', NULL, FALSE, FALSE, Array('objectclass'));
-				if (isset($group_data['count']) && $group_data['count'] > 0) {
+				$result = $ldap->search($group_name, '(objectClass=*)', NULL, FALSE, FALSE, Array('objectclass'));
+				if (!$result) continue;
+
+				$group_data = $ldap->getEntries($result);
+				if ($group_data['count'] > 0) {
 					$parents[$this->id.':'.$group_data[0]['dn']] = 'ldap_user_group';
 				}
 			}
@@ -837,9 +850,11 @@ class LDAP_Bridge extends Asset implements Bridge
 			foreach ($ou_groups as $group_name => $group_dn) {
 				$group_name = $this->decodeString($group_name);
 				$ou_value = (isset($attrs['ou']) && $attrs['ou'] != '') ? $attrs['ou'] : 'ou';
-				$group_data= $ldap->searchEntries($ou_value.'='.$group_name.','.$group_dn, '(objectClass=organizationalUnit)', NULL, FALSE, FALSE, Array('objectclass'));
-
-				if (isset($group_data['count']) && $group_data['count'] > 0) {
+				$result = $ldap->search($ou_value.'='.$group_name.','.$group_dn, '(objectClass=organizationalUnit)', NULL, FALSE, FALSE, Array('objectclass'));
+				if (!$result) continue;
+				
+				$group_data = $ldap->getEntries($result);
+				if ($group_data['count'] > 0) {
 					$parents[$this->id.':'.$group_data[0]['dn']] = 'ldap_user_group';
 				}
 			}
@@ -972,8 +987,13 @@ class LDAP_Bridge extends Asset implements Bridge
 		$attrs = $this->attr('attributes');
 
 		$base_dn = $this->decodeString($base_dn);
-		$entries = $ldap->searchEntries($base_dn,'(objectClass=*)', NULL, TRUE, TRUE, array_merge(array_values($attrs), Array('objectclass')));
-		if (!isset($entries['count']) || $entries['count'] == 0) {
+		$result = $ldap->search($base_dn,'(objectClass=*)', NULL, TRUE, TRUE, array_merge(array_values($attrs), Array('objectclass')));
+		if (!$result) {
+			$this->_tmp['getChildren'][$assetid][$type_code_key][$strict_type_code][$sort_by] = Array();
+			return Array();
+		}
+		$entries = $ldap->getEntries($result);
+		if (!$entries['count']) {
 			$this->_tmp['getChildren'][$assetid][$type_code_key][$strict_type_code][$sort_by] = Array();
 			return Array();
 		}
@@ -1016,21 +1036,21 @@ class LDAP_Bridge extends Asset implements Bridge
 							$base_dn = $this->decodeString($this->attr('root_dn'));
 							// Query all uids in a single go
 							$uids_filter = '(|'.implode($user_uids).')';
-							$member_result = $ldap->searchEntries($base_dn, $uids_filter, NULL, TRUE, TRUE, array_merge(array_values($attrs), Array('objectclass')));
-							if (!isset($member_result['count']) || $member_result['count'] == 0) {
-								continue;
-							}
-							foreach($member_result as $member_entry) {
-							 	if (isset($member_entry['dn'])) {
-									$dn = $member_entry['dn'];
-									$user = $this->getAsset($this->id.':'.$dn, '', FALSE, TRUE);
-									// dn of user group was stripped out in construction, but we need it this time
-									if (!is_null($user)){
-										$user->vars['dn'] = $dn;
-										$entries[] = $user->vars;
+							$member_result = $ldap->search($base_dn, $uids_filter, NULL, TRUE, TRUE, array_merge(array_values($attrs), Array('objectclass')));
+							if ($member_result) {
+								$member_entries = $ldap->getEntries($member_result);
+								foreach($member_entries as $member_entry) {
+								 	if (isset($member_entry['dn'])) {
+										$dn = $member_entry['dn'];
+										$user = $this->getAsset($this->id.':'.$dn, '', FALSE, TRUE);
+										// dn of user group was stripped out in construction, but we need it this time
+										if (!is_null($user)){
+											$user->vars['dn'] = $dn;
+											$entries[] = $user->vars;
+										}//end if
 									}//end if
-								}//end if
-							}//end foreach
+								}//end foreach
+							}//end if
 						}//end if
 
 					}//end if

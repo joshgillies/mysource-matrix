@@ -96,9 +96,5 @@
 			<display_name>XSL Transformation</display_name>
 			<note>Select the XSL file for XSL Transformation. You can view the XSLT output by previewing the XML Datasource asset.</note>
 		</field>
-		<field attribute="xslt_file_replace_keywords">
-			<display_name>Replace Global Keywords</display_name>
-			<note>If set to 'Yes', global keywords in the XSL file will be replaced when applying to the XML data.</note>
-		</field>
 	</section>	
 </contents>

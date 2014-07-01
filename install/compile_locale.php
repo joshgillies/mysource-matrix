@@ -102,6 +102,10 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 // let everyone know we are installing
 $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 
+// regenerate the configs
+if (!regenerate_configs()) {
+	trigger_error('Config Generation Failed', E_USER_ERROR);
+}
 
 // list of languages where we need to compile these for
 $string_locales = Array();

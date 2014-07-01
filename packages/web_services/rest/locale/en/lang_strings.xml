@@ -28,6 +28,4 @@
 	<string source="char_vtab">A vertical tab character</string>
 	<string source="char_ff">A form feed character</string>
 	<string source="char_cr">A carriage return character</string>
-	
-
 </strings>

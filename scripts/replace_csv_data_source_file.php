@@ -72,3 +72,4 @@ if(strtolower($FORCE_UPDATE) == 'y') {
 
 $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 ?>
+

@@ -230,23 +230,4 @@
 			<boolean true_text="yes" false_text="no" />
 		</field>
 	</section>
-    <section name="Form Questions" write_access="write:attributes">
-        <field>
-			<function_call>
-				<paint_function   name="paintSetAll"  />
-			</function_call>
-        </field>
-		<field attribute="create_form_question">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-		<field attribute="update_form_question">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-		<field attribute="remove_form_question">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-		<field attribute="update_question_order">
-			<boolean true_text="yes" false_text="no" />
-		</field>
-	</section>
 </contents>

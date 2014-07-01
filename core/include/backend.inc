@@ -1644,14 +1644,6 @@ class Backend extends MySource_Object
 			$this->out->closeRaw();
 		}
 
-		// if we are in maintenance mode, print a warning message
-		require_once (SQ_DATA_PATH.'/private/conf/maintenance.inc');
-		if (SQ_MAINTENANCE_MODE) {
-			$this->out->openRaw();
-			$GLOBALS['SQ_SYSTEM']->printMaintenanceWarning();
-			$this->out->closeRaw();
-		}
-
 		// add an onLoad event that checks if the current window is in the frameset
 		// and redirects the user to the frameset version if they are not
 		if (empty($_REQUEST['ignore_frames'])) {
@@ -1709,8 +1701,8 @@ class Backend extends MySource_Object
 			break;
 
 			case 'sys_maintenance' :
-				require_once SQ_INCLUDE_PATH.'/system_maintenance_config.inc';
-				$sys_maintenance = new System_Maintenance_Config();
+				require_once SQ_INCLUDE_PATH.'/system_maintenance.inc';
+				$sys_maintenance = new System_Maintenance();
 				$sys_maintenance->paintBackend($this);
 			break;
 

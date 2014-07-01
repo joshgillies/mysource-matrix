@@ -267,7 +267,6 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 
 			     // Log in as the linked Matrix user
 			    if ((is_null($current_user) || ($current_user instanceof Public_User)) && $matrixUserid) {
-			    $this->_prefillUserAttributes($GLOBALS['SQ_SYSTEM']->am->getAsset($matrixUserid), FALSE);
 				if(!$this->_loginUser($matrixUserid)){
 				    // login failed
 				    $this->_replacements['login_error'] = translate('oauth_account_manager_login_failed');
@@ -386,40 +385,37 @@ class Oauth_Account_Manager extends Page_Asset_Builder
 	* Prefill user attributes from user profile data
 	*
 	* @param object	$user	the user asset to prefill
-	* @param boolean $prefill  whether we are prefilling attributes or syncing attributes
 	* 
 	* @return bool
 	* @access protected
 	*/
-	protected function _prefillUserAttributes ($user, $prefill=TRUE)
+	protected function _prefillUserAttributes ($user)
 	{
-		$attr_name = $prefill ? 'prefilled_fields' : 'synced_fields';
-		$metadata_field_name = $prefill ? $this->getPrefix().'_metadata_' : $this->getPrefix().'_sync_metadata_';
-		$prefilled_fields = $this->attr($attr_name);
-		if (!empty($prefilled_fields[$user->type()]) && !empty($this->oauth_user_profile) && !empty($user)) {
-			foreach ($prefilled_fields[$user->type()] as $attr => $value) {
+		  $prefilled_fields = $this->attr('prefilled_fields');
+		    if (!empty($prefilled_fields[$user->type()]) && !empty($this->oauth_user_profile) && !empty($user)) {
+			    foreach ($prefilled_fields[$user->type()] as $attr => $location) {
 				    // get the value to set from user profile
-				$prefill_value = replace_global_keywords($value);
-				if(is_null($prefill_value)) continue;
-
-				$pos = strpos($attr, $metadata_field_name);
-				if ($pos !== FALSE) {
+				    $prefill_value = $this->_getValueFromLocation($location, $this->oauth_user_profile);
+				    if(is_null($prefill_value)) continue;
+				    
+				    $pos = strpos($attr, $this->getPrefix().'_metadata_');
+				    if ($pos !== FALSE) {
 					    // Process metadata
-					$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
-					$metadata_field = substr($attr, strlen($metadata_field_name));
-					$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-					$mm->setMetadata($user->id, Array($metadata_field => Array('0' => Array('value' => $prefill_value))));
-					$mm->generateContentFile($user->id, TRUE);
-					$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-				} else {
+					    $mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+					    $metadata_field = substr($attr, strlen($this->getPrefix().'_metadata_'));
+					    $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+					    $mm->setMetadata($user->id, Array($metadata_field => Array('0' => Array('value' => $prefill_value))));
+					    $mm->generateContentFile($user->id, TRUE);
+					    $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+				    } else {
 					    // Process attributes
-					$attribute = $user->getAttribute($attr, TRUE);
-					if (is_null($attribute)) continue;
-					$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-					$user->setAttrValue($attr, $prefill_value);
-					$user->saveAttributes();
-					$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
-					unset($attribute);
+					    $attribute = $user->getAttribute($attr, TRUE);
+					    if (is_null($attribute)) continue;
+					    $GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+					    $user->setAttrValue($attr, $prefill_value);
+					    $user->saveAttributes();
+					    $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+					    unset($attribute);
 
 				    }//end else
 			    }//end foreach

@@ -20,9 +20,6 @@
 		<field attribute="name">
 			<text width="20" height="1" />
 		</field>
-		<field attribute="allow_comment_on_request">
-			<boolean true_text="yes" false_text="no" />
-		</field>
 		<field attribute="notify_starter_on_live">
 			<boolean true_text="yes" false_text="no" />
 		</field>
@@ -37,15 +34,6 @@
 		</field>
 		<field attribute="schema_reply_to_email_address">
 			<email width="50" />
-		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintWorkflowRestrictions"   />
-				<process_function name="processWorkflowRestrictions" />
-			</function_call>
-		</field>
-		<field attribute="who_can_choose_stream">
-			<selection style="list" />
 		</field>
 	</section>
 	<section name="Workflow Streams" write_access="write:links">

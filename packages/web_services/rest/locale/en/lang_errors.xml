@@ -10,19 +10,16 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_strings.xml,v 1.2 2009/07/10 01:21:42 wszymanski Exp $
+* $Id: lang_errors.xml,v 1.3 2010/05/05 07:16:13 ewang Exp $
 *
-* Core Localised Strings File for Asset:
-*	Metadata Section (metadata_section)
+*
+* Rest Package Localised Strings File
 */
 -->
 
-<strings>
-	<string source="section_description">Section Description</string>
-	<string source="current_restrict">Current Restrictions</string>
-	<string source="no_restriction">No Restrictions</string>
-	<string source="restricted_to">This section is restricted to the following asset types:</string>
-	<string source="remove_restrictions_for_current">Remove ALL restrictions for the current section</string>
-	<string source="asset_type">Asset Type</string>
-	<string source="new_restriction">New Restriction</string>
-</strings>
+<errors>
+	<error code="REST0001">%1$s: Keyword %2$s not found in REST response.</error>
+	<error code="REST0002">%1$s: REST response not found.</error>
+	<error code="REST0003">%1$s: Keyword to find a value from REST response is not set.</error>
+	<error code="REST0004">%1$s: Session variable name to set a value is not set.</error>
+</errors>

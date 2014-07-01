@@ -105,13 +105,13 @@ class Page_Calendar_Management extends Asset_Management
 		$this->vars['day_starts_at'] = Array(
 										'added'		=> '0.1',
 										'type'		=> 'text',
-										'default'	=> '00:00',
+										'default'	=> '08:00',
 									   );
 
 		$this->vars['day_ends_at'] = Array(
 										'added'		=> '0.1',
 										'type'		=> 'text',
-										'default'	=> '00:00',
+										'default'	=> '20:00',
 									 );
 
 		// Time-length of vertical partitions in the week and day views

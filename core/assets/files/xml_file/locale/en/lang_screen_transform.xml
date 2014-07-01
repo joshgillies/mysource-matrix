@@ -18,15 +18,11 @@
 	<section name="Transformations">
 		<field>
 			<display_name>XSL Transformation</display_name>
-			<note>Select the XSL file for XSL Transformation. You can view the XSLT output by previewing the XML file asset.</note>
+			<note />
 			<function_call>
 				<paint_function   name="paintTransformations"   />
 				<process_function name="processTransformations" />
 			</function_call>
-		</field>
-		<field attribute="xslt_file_replace_keywords">
-			<display_name>Replace Global Keywords</display_name>
-			<note>If set to 'Yes', global keywords in the XSL file will be replaced when applying to the XML data.</note>
 		</field>
 	</section>
 </contents>

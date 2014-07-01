@@ -117,7 +117,6 @@ class System_Config extends Config
 						'SQ_CONF_DISABLE_ATTRIBUTION'			=> Array('editable' => 1, 'default' => '0'),
 						'SQ_CONF_ENFORCE_FRAME_SAMEORIGIN'		=> Array('editable' => 1, 'default' => '1'),
 						'SQ_CONF_VISITED_PAGES_MAX_ENTRIES'		=> Array('editable' => 1, 'default' => '10'),
-						'SQ_FILE_TYPE_RESTRICT_ON_STATIC_URL'	=> Array('editable' => 1, 'default' => ''),
 					   );
 
 	/**
@@ -130,7 +129,6 @@ class System_Config extends Config
 							1	=> 'Show File and Line number in error messages',
 							2	=> 'Show Stack Trace in error messages',
 							4	=> 'Show additional information about memory and performance',
-							8	=> 'Show current frontend assetid and url where the error message is triggered from',
 						 );
 
 
@@ -499,19 +497,6 @@ class System_Config extends Config
 					}
 				}
 				$o->note(translate('system_static_url_note'));
-			$o->closeField();
-
-			$o->openField(translate('file_types_restricted_to_be_served_on_static_url'));
-				if ($write_access && $is_root) {
-					text_box($class.'[SQ_FILE_TYPE_RESTRICT_ON_STATIC_URL]', SQ_FILE_TYPE_RESTRICT_ON_STATIC_URL, 80);
-				} else {
-					if (SQ_FILE_TYPE_RESTRICT_ON_STATIC_URL == '') {
-						echo translate('not_set');
-					} else {
-						echo SQ_FILE_TYPE_RESTRICT_ON_STATIC_URL;
-					}
-				}
-				$o->note(translate('system_static_url_exclude_note'));
 			$o->closeField();
 
 			$o->openField(translate('system_static_url_http'));

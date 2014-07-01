@@ -444,38 +444,6 @@ class JS_Api_Management extends Asset_Management
 																			'allow_empty'=> FALSE,
 																		   ),
 														),
-						'create_form_question'		=> Array(
-														'added'			=> '0.6',
-														'type'			=> 'boolean',
-														'default'		=> FALSE,
-														'parameters'	=> Array(
-																			'allow_empty'=> FALSE,
-																		   ),
-														),
-						'update_form_question'		=> Array(
-														'added'			=> '0.6',
-														'type'			=> 'boolean',
-														'default'		=> FALSE,
-														'parameters'	=> Array(
-																			'allow_empty'=> FALSE,
-																		   ),
-														),
-						'remove_form_question'		=> Array(
-														'added'			=> '0.6',
-														'type'			=> 'boolean',
-														'default'		=> FALSE,
-														'parameters'	=> Array(
-																			'allow_empty'=> FALSE,
-																		   ),
-														),
-						'update_question_order'		=> Array(
-														'added'			=> '0.6',
-														'type'			=> 'boolean',
-														'default'		=> FALSE,
-														'parameters'	=> Array(
-																			'allow_empty'=> FALSE,
-																		   ),
-														),
 					  );
 
 	}//end constructor

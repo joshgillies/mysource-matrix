@@ -1242,9 +1242,7 @@ table.sq-backend-table {
 .sq-backend-table tr {
 	background-color: 			#fafafa;
 }
-.sq-backend-table tr:hover {
-	    background-color: #fff;
-}
+
 /*.sq-backend-table tr:nth-child(even) {
 	background-color: 			#f9f9f9;
 }*/
@@ -3374,35 +3372,4 @@ LIMBO OUTPUTTER (SIMPLE EDIT MODE)
 	vertical-align:				top;
 	white-space:				nowrap;
 	padding:					0px 10px 0px 0px;
-}
-
-
-/*
-####################################################################################################################
-MAINTENANCE WARNING
-####################################################################################################################
-*/
-.sq-backend-warning-table {
-	border: 1px solid #e0d3a2 !important;
-}
-.sq-backend-warning-table th{
-	border-bottom: 1px solid #e0d3a2 !important;
-	background:	#fff1bb;
-	color: #000;
-	text-shadow: none;
-}
-.sq-backend-warning-table .sq-backend-warning-header{
-	background:	#fff1bb url(../images/warning.png) no-repeat 5px 6px !important;
-	padding-left: 35px;
-	border-right: none;
-}
-.sq-backend-warning-table td{
-	background:#fff1bb !important;
-}
-.sq-backend-warning-table img{
-	vertical-align: top;
-}
-.sq-backend-warning-table {
-	color: #000;
-	font-size: 12px;
 }
