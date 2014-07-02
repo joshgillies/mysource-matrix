@@ -2437,6 +2437,17 @@ METADATA EDITING AND PREVIEW STYLES
 	display: 					block;
 }
 
+.sq-metadata-select-list-wrapper ul {
+	margin-top:					0;
+	margin-left:				0;
+	list-style:					none;
+	float:						left;
+}
+
+.sq-metadata-description {
+	clear:						left;
+}
+
 .sq-metadata-description,
 .sq-metadata-date-wrapper,
 .sq-metadata-multitext-wrapper,

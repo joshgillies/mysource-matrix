@@ -606,20 +606,28 @@
 	<string source="reports_and_maintenance_tasks">Reports and Maintenance Tasks</string>
 	<string source="general_reports_not_installed">There are no General Reports installed</string>
 	<string source="reports">Reports</string>
+	<string source="notify">Notify</string>
 	<string source="maintenance_mode">Maintenance Mode</string>
 	<string source="maintenance_mode_enabled">Maintenance Mode Enabled</string>
-	<string source="maintenance_mode_note">When this setting is enabled, Matrix will go into Maintenance Mode and certain system and asset functionality will be disabled on both back end and front end. The &lt;strong&gt;%%globals_system_maintenance_mode%%&lt;/strong&gt; keyword will print "true" when Maintenance Mode is enabled, and "false" when it is disabled.</string>
+	<string source="maintenance_mode_notify">Maintenance Mode Will Soon Be Enabled</string>
+	<string source="maintenance_mode_note">When this setting is set to "Enabled", Matrix will enter Maintenance Mode and affected assets specified below will print a maintenance message instead of their asset contents on the front end.  If this setting is set to "Notify", Matrix will only print a different maintenance message as well as the asset contents on the front end for the affected assets. The %%globals_system_maintenance_mode%% keyword can be used to print the current maintenance mode status which will either be "disabled", "notify" or "enabled".</string>
 	<string source="system_maintenance_configuration">System Maintenance Configuration</string>
-	<string source="backend_maintenance_message">Back End Message</string>
-	<string source="backend_maintenance_message_note">The message that will be printed in Admin and Edit mode when Maintenance Mode is enabled. The &lt;strong&gt;%%globals_system_maintenance_message_backend%%&lt;/strong&gt; keyword can also be used to print this message manually but will print blank when Maintenance Mode is disabled.</string>
-	<string source="frontend_maintenance_message">Front End Message</string>
-	<string source="frontend_maintenance_message_note">The message that will be printed on affected asset on frontend when Maintenance Mode is enabled. The &lt;strong&gt;%%globals_system_maintenance_message_frontend%%&lt;/strong&gt; keyword can also be used to print this message manually but will print blank when Maintenance Mode is disabled.</string>
-	<string source="maintenance_mode_backend_message">You are currently viewing the system in Maintenance Mode. Any changes made will not be saved.</string>
-	<string source="maintenance_mode_frontend_message">Our website is currently undergoing maintenance and some website features have been temporarily disabled. We apologize for any inconvenience.</string>
+	<string source="backend_maintenance_enabled_message">Back End Enabled Message</string>
+	<string source="backend_maintenance_enabled_message_note">The message that will be printed in Admin and Edit mode when Maintenance Mode is set to "Enabled" status. The &lt;strong&gt;%%globals_system_maintenance_message_backend%%&lt;/strong&gt; keyword can also be used to print this message manually but will print blank when Maintenance Mode is disabled.</string>
+	<string source="backend_maintenance_notify_message">Back End Notify Message</string>
+	<string source="backend_maintenance_notify_message_note">The message that will be printed in Admin and Edit mode when Maintenance Mode is set to "Notify" status. The &lt;strong&gt;%%globals_system_maintenance_message_backend%%&lt;/strong&gt; keyword can also be used to print this message manually but will print blank when Maintenance Mode is disabled.</string>
+	<string source="frontend_maintenance_enabled_message">Front End Enabled Message</string>
+	<string source="frontend_maintenance_enabled_message_note">The message that will be printed on affected asset on frontend when Maintenance Mode is set to "Enabled" status. The &lt;strong&gt;%%globals_system_maintenance_message_frontend%%&lt;/strong&gt; keyword can also be used to print this message manually but will print blank when Maintenance Mode is disabled.</string>
+	<string source="frontend_maintenance_notify_message">Front End Notify Message</string>
+	<string source="frontend_maintenance_notify_message_note">The message that will be printed on affected asset on frontend when Maintenance Mode is set "Notify" status. The &lt;strong&gt;%%globals_system_maintenance_message_frontend%%&lt;/strong&gt; keyword can also be used to print this message manually but will print blank when Maintenance Mode is disabled.</string>
+	<string source="maintenance_mode_backend_notify_message">This Matrix system will soon be entering Maintenance Mode. Please save your work and consult the system owner for further information.</string>
+	<string source="maintenance_mode_frontend_notify_message">This website will soon be undergoing maintenance. Some website functions will temporarily be disabled.</string>
+	<string source="maintenance_mode_backend_enabled_message">This Matrix system has entered Maintenance Mode. Please consult the system owner before making any changes.</string>
+	<string source="maintenance_mode_frontend_enabled_message">This website is currently undergoing maintenance. Some website functions are temporarily disabled.</string>
 	<string source="affected_asset_types">Affected Asset Types</string>
 	<string source="affected_asset_types_note">When Maintenance Mode is enabled, the above types of assets will be affected.</string>
 	<string source="affected_root_nodes">Affected Root Nodes</string>
-	<string source="affected_root_nodes_note">When Maintenance Mode is enabled, the affected assets under above root nodes will print the &lt;strong&gt;Front End Message&lt;/strong&gt; instead of printing their content.</string>
+	<string source="affected_root_nodes_note">When Maintenance Mode is enabled, the affected assets under the above root nodes will print the &lt;strong&gt;Front End Message&lt;/strong&gt; instead of printing their content.</string>
 	<string source="excluded_root_nodes">Excluded Root Nodes</string>
 	<string source="excluded_root_nodes_note">The above root nodes are excluded and will overwrite any root nodes configured to be affected by Maintenance Mode.</string>
 	<string source="retry_after">Retry-After Response Header Value</string>
@@ -1492,6 +1500,7 @@
 	<string source="trigger_send_to_active_user">Send to active user</string>
 	<string source="trigger_active_user_recipient">Active User Recipient</string>
 	<string source="trigger_send_to_active_user_note">Sends a copy to the user asset that fired this event</string>
+	<string source="trigger_send_email_to">Send Email To</string>
 
 	<string source="trigger_clear_cache_current_asset">Include Current Asset?</string>
 	<string source="trigger_clear_cache_include_current_asset">Includes the asset that the action is executing on?</string>
@@ -3180,4 +3189,7 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 		
 	<!--  general -->
 	<string source="use_relative_path">Path is relative to Matrix installation location unless prefixed with '/'.</string>
+
+	<string source="new_attribute_to_set">New attribute to set?</string>
+	<string source="add_attribute">Add Attribute</string>
 </strings>

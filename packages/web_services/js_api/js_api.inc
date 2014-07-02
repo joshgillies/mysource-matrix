@@ -81,7 +81,11 @@ class JS_Api extends Page
 									'getCurrentContext'				=> 'get_context',
 									'getAllContexts'				=> 'get_context',
 									'getMetadataSchema'				=> 'get_metadata_schema',
-									'editMetadataSchema'				=> 'edit_metadata_schema',
+									'editMetadataSchema'			=> 'edit_metadata_schema',
+									'createQuestion'				=> 'create_form_question',
+									'updateQuestion'				=> 'update_form_question',
+									'removeQuestion'				=> 'remove_form_question',
+									'updateQuestionOrder'			=> 'update_question_order'
 								  );
 
 	/*
@@ -120,6 +124,10 @@ class JS_Api extends Page
 									'setContentOfEditableFileAsset'	=> Array('write_access'),
 									'getMetadataSchema'				=> Array('write_access'),
 									'editMetadataSchema'			=> Array('write_access'),
+									'createQuestion'				=> Array('write_access'),
+									'updateQuestion'				=> Array('write_access'),
+									'removeQuestion'				=> Array('write_access'),
+									'updateQuestionOrder'			=> Array('write_access'),
 									'getAssetTypes'					=> Array('no_check'),
 									'trashAsset'					=> Array('no_check'),
 									'getChildCount'					=> Array('no_check'),
@@ -474,7 +482,7 @@ class JS_Api extends Page
 						$results[$track_func] = $this->$func_name($args, $asset, $ra, $wa);
 					} catch (Exception $e) {
 						// If any exception was thrown when executing the function, catch it
-						$results[$track_func]['error']     = 'Exception occured when executing JS API function "'.$type.'()": '.$e->getMessage();
+						$results[$track_func]['error']     = 'Exception occurred when executing JS API function "'.$type.'()": '.$e->getMessage();
 						$results[$track_func]['errorCode'] = 'internalError';
 						js_api_error_handler(E_USER_ERROR, 'EXCEPTION: '.$e->getMessage(), $e->getFile(), $e->getLine());
 					}
@@ -897,7 +905,7 @@ class JS_Api extends Page
 					if (empty($errors)) {
 						$data['success'] = 'Assets sucessfully imported under Asset #'.$import_under;
 					} else {
-						$data['error'] = 'Error occured while importing assets under Asset #'.$import_under;
+						$data['error'] = 'Error occurred while importing assets under Asset #'.$import_under;
 						$data['errorCode'] = 'importFailed';
 					}
 
@@ -2193,7 +2201,7 @@ class JS_Api extends Page
 					$success = $new_asset->create($link, $file_info);
 
 					if (!$success) {
-						$data['error'] = 'Error occured while creating new asset of type \''.$type_code.'\'';
+						$data['error'] = 'Error occurred while creating new asset of type \''.$type_code.'\'';
 						$data['errorCode'] = 'createFailed';
 					} else {
 						// done creating the asset ? let remove the temp file we had uploaded and make way for new one
@@ -2255,7 +2263,7 @@ class JS_Api extends Page
 						if ($success) {
 							$data['success'] = 'Content of Asset '.$asset->short_name.'(#'.$asset->id.') successfully updated';
 						} else {
-							$data['error'] = 'Error occured while updating Content of Asset '.$asset->short_name.'(#'.$asset->id.')';
+							$data['error'] = 'Error occurred while updating Content of Asset '.$asset->short_name.'(#'.$asset->id.')';
 							$data['errorCode'] = 'updateFailed';
 						}
 					}
@@ -3010,6 +3018,248 @@ class JS_Api extends Page
 		return $data;
 
 	}// end _getMetadataSchema()
+
+
+	/**
+	* Creates type of question intended for a Form or Form Section
+	*
+	* @param array		$args			bundled array of arguments do be used while performing operations
+	* @param object		$asset			the Form or Form Section Asset
+	* @param boolean	$read_access	read access check for the asset we
+	*									are dealing with with respect to current user
+	* @param boolean	$write_access	write access check for the asset we
+	*									are dealing with with respect to current user
+	*
+	* @return array
+	* @access private
+	*/
+	private function _createQuestion($args=Array(), $asset=NULL, $read_access=FALSE, $write_access=FALSE)
+	{
+		if ($write_access) {
+			if (!is_null($asset) && ($asset instanceof Page_Custom_Form || $asset instanceof Form || $asset instanceof Form_Section)) {
+				$am = $GLOBALS['SQ_SYSTEM']->am;
+				// if we are passed the custom form page
+				// then get  the form  contents under it
+				if ($asset instanceof Page_Custom_Form ) {
+					$form_asset = $asset->getForm();
+				} else {
+					$form_asset = $asset;
+				}
+
+				$question_type = (strpos(strtolower($args['type_code']), 'form_question_type_') !== FALSE) ? strtolower($args['type_code']) : 'form_question_type_'.strtolower($args['type_code']);
+
+				if (in_array($question_type, $am->getTypeDescendants('form_question'))) {
+					$staus = TRUE;
+					$am->acquireLock($form_asset->id, 'attributes');
+					for ($i = 1; $i <= $args['units']; $i++) {
+						$status = $form_asset->attachQuestion($question_type);
+						if (!$status) {
+							$data['error'] = 'Error occurred while attaching question #'.$i.'. Please check the logs and try again';
+							break;
+						}
+					}
+					if ($status) $data['success'] = $args['units'].' questions of type \''.$question_type.'\' attached successfully';
+
+					// regen the content file
+					$form_asset->_updated();
+					$am->releaseLock($form_asset->id, 'attributes');
+				} else {
+					$data['error'] = '\''.$args['type_code'].'\' is not a valid form question type';
+				}
+
+			} else {
+				$data['error'] = 'Required Form or Form Section asset not provided';
+			}
+		} else {
+			$data['error'] = 'You do not have permissions to access this asset';
+		}//end else
+
+		return $data;
+
+	}// end _createQuestion()
+
+
+	/**
+	* Updates the information on passed question
+	*
+	* @param array		$args			bundled array of arguments do be used while performing operations
+	* @param object		$asset			the Form or Form Section Asset
+	* @param boolean	$read_access	read access check for the asset we
+	*									are dealing with with respect to current user
+	* @param boolean	$write_access	write access check for the asset we
+	*									are dealing with with respect to current user
+	*
+	* @return array
+	* @access private
+	*/
+	private function _updateQuestion($args=Array(), $asset=NULL, $read_access=FALSE, $write_access=FALSE)
+	{
+		if ($write_access) {
+			if (!is_null($asset) && ($asset instanceof Page_Custom_Form || $asset instanceof Form || $asset instanceof Form_Section)) {
+				$am = $GLOBALS['SQ_SYSTEM']->am;
+				// if we are passed the custom form page
+				// then get  the form  contents under it
+				if ($asset instanceof Page_Custom_Form ) {
+					$form_asset = $asset->getForm();
+				} else {
+					$form_asset = $asset;
+				}
+
+				$sort_order = $form_asset->attr('sort_order');
+				$question_order = array_search($form_asset->id.':'.$args['question_id'], $sort_order);
+				$question_asset = $asset->getQuestionByOrder($question_order);
+
+				$am->acquireLock($form_asset->id, 'attributes');
+				$success = TRUE;
+				foreach ($am->getAssetTypeAttributes($question_asset->type()) as $name => $type) {
+					if (isset($args[$name])) {
+						if (strpos($args[$name], '\,') !== FALSE) $args[$name] = explode('\\,', $args[$name]);
+						if ($type['type'] == 'serialise' && is_array($args[$name])) $args[$name] = serialize($args[$name]);
+
+						$success = $question_asset->setAttrValue($name, $args[$name]);
+					}
+				}
+				$success = $question_asset->saveAttributes();
+				$am->releaseLock($form_asset->id, 'attributes');
+				if ($success) {
+					$data['success'] = 'Question \''.$form_asset->id.':'.$args['question_id'].'\' successfully updated';
+				} else {
+					$data['error'] = 'Some error occurred while updating Question \''.$form_asset->id.':'.$args['question_id'].'\'';
+				}
+
+			} else {
+				$data['error'] = 'Required Form or Form Section asset not provided';
+			}
+		} else {
+			$data['error'] = 'You do not have permissions to access this asset';
+		}//end else
+
+		return $data;
+
+	}// end _updateQuestion()
+
+
+	/**
+	* Removes the passed question id of the Form or Form Section
+	*
+	* @param array		$args			bundled array of arguments do be used while performing operations
+	* @param object		$asset			the Form or Form Section Asset
+	* @param boolean	$read_access	read access check for the asset we
+	*									are dealing with with respect to current user
+	* @param boolean	$write_access	write access check for the asset we
+	*									are dealing with with respect to current user
+	*
+	* @return array
+	* @access private
+	*/
+	private function _removeQuestion($args=Array(), $asset=NULL, $read_access=FALSE, $write_access=FALSE)
+	{
+		if ($write_access) {
+			if (!is_null($asset) && ($asset instanceof Form || $asset instanceof Form_Section)) {
+				$am = $GLOBALS['SQ_SYSTEM']->am;
+
+				$sort_order = $asset->attr('sort_order');
+				$question_order = array_search($asset->id.':'.$args['question_id'], $sort_order);
+
+				if ($question_order !== FALSE && $question_asset = $asset->getQuestionByOrder($question_order)) {
+					$am->acquireLock($asset->id, 'attributes');
+					$status = $asset->deleteQuestion($question_asset);
+					if ($status) {
+						// regen the content file
+						$asset->_updated();
+						// make sure there is not 'gap' between question index
+						$asset->setAttrValue('sort_order', array_values($asset->attr('sort_order')));
+						$asset->saveAttributes();
+						$data['success'] = $asset->id.':'.$args['question_id'].' successfully deleted';
+					} else {
+						$data['error'] = 'Error occurred while deleting asset \''.$asset->id.':'.$args['question_id'].'\'';
+					}
+					$am->releaseLock($asset->id, 'attributes');
+				} else {
+					$data['error'] = $asset->id.':'.$args['question_id'].' is not a valid question asset';
+				}
+
+			} else {
+				$data['error'] = 'Required Form or Form Section asset not provided';
+			}
+		} else {
+			$data['error'] = 'You do not have permissions to access this asset';
+		}//end else
+
+		return $data;
+
+	}// end _removeQuestion()
+
+
+	/**
+	* Updates the order of form on Form or Form Section 
+	*
+	* @param array		$args			bundled array of arguments do be used while performing operations
+	* @param object		$asset			the Form or Form Section Asset
+	* @param boolean	$read_access	read access check for the asset we
+	*									are dealing with with respect to current user
+	* @param boolean	$write_access	write access check for the asset we
+	*									are dealing with with respect to current user
+	*
+	* @return array
+	* @access private
+	*/
+	private function _updateQuestionOrder($args=Array(), $asset=NULL, $read_access=FALSE, $write_access=FALSE)
+	{
+		if ($write_access) {
+			if (!is_null($asset) && ($asset instanceof Page_Custom_Form || $asset instanceof Form || $asset instanceof Form_Section)) {
+				$am = $GLOBALS['SQ_SYSTEM']->am;
+				// if we are passed the custom form page
+				// then get  the form  contents under it
+				if ($asset instanceof Page_Custom_Form ) {
+					$form_asset = $asset->getForm();
+				} else {
+					$form_asset = $asset;
+				}
+				$sort_order = explode('\\,', $args['sort_order']);
+
+				if (!empty($sort_order)) {
+					// check to see fi the question in the sortorder are all present
+					// also check if the sort order is same as the passed one
+					$curr_sort_order = $form_asset->attr('sort_order');
+
+					$diff_one = array_diff($sort_order, $curr_sort_order);
+					$diff_two = array_diff($curr_sort_order, $sort_order);
+					$all_quest_found = count($sort_order) == count($curr_sort_order) && empty($diff_one) && empty($diff_two);
+					$same_sort_order = TRUE;
+
+					// if all the question are not found then don't do anything
+					if ($all_quest_found) {
+						foreach ($curr_sort_order as $orderid => $question_id) {
+							$same_sort_order = ($same_sort_order && ($sort_order[$orderid] == $question_id)) ? TRUE : FALSE;
+						}
+
+						// if same sort order as now, then easy success
+						if (!$same_sort_order) {
+							$am->acquireLock($form_asset->id, 'attributes');
+							$form_asset->setAttrValue('sort_order', $sort_order);
+							$form_asset->saveAttributes();
+							$form_asset->_updated();
+							$am->releaseLock($form_asset->id, 'attributes');
+						}
+						$data['success'] = 'Sort oder successfully updated';
+					} else {
+						$data['error'] = 'There are question missing in the new sort order';
+					}
+				} else {
+					$data['error'] = 'Need to provide an array of new sort order for questions';
+				}
+
+			} else {
+				$data['error'] = 'Required Form or Form Section form_asset not provided';
+			}
+		} else {
+			$data['error'] = 'You do not have permissions to access this asset';
+		}//end else
+
+		return $data;
+
+	}// end _updateQuestionOrder()
 
 
 	/**

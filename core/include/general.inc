@@ -2087,10 +2087,21 @@ function replace_global_keywords(&$text)
 					} else if ($keyword == 'globals_get') {
 						$replacements[$full_keyword] = clean_keyword_value($_GET);
 					} else if (0 === strpos($keyword, 'globals_user_')) {
-						$user_keyword = 'asset_'.substr($keyword, 13);
-						$user_replacement = $GLOBALS['SQ_SYSTEM']->user->getKeywordReplacement($user_keyword);
-						if ((string)$user_replacement != "%$user_keyword%") {
-							$replacements[$full_keyword] = $user_replacement;
+						$user_keyword = substr($keyword, 13);
+						if (strpos($user_keyword, 'messages_') !== FALSE) {
+							// User message keywords
+							$user_keyword_parts = explode('_', $user_keyword);
+							$message_type = array_get_index($user_keyword_parts, 1, NULL);
+							$messages_size = array_get_index($user_keyword_parts, 2, NULL);
+							if ($message_type) {
+								$replacements[$full_keyword] = $GLOBALS['SQ_SYSTEM']->user->getMessages($message_type, $messages_size);
+							}
+						} else {
+							$user_keyword = 'asset_'.$user_keyword;
+							$user_replacement = $GLOBALS['SQ_SYSTEM']->user->getKeywordReplacement($user_keyword);
+							if ((string)$user_replacement != "%$user_keyword%") {
+								$replacements[$full_keyword] = $user_replacement;
+							}
 						}
 					}
 					if (0 === strpos($keyword, 'globals_get_')) {
@@ -2515,20 +2526,31 @@ function replace_global_keywords(&$text)
 						require_once (SQ_DATA_PATH.'/private/conf/maintenance.inc');
 						$sub_keyword = substr($keyword, 27);
 						if($sub_keyword === 'mode') {
-							$replacements[$full_keyword] = SQ_MAINTENANCE_MODE ? 'true' : 'false';
+							switch (SQ_MAINTENANCE_MODE) {
+								case '0':
+									$replacements[$full_keyword] = 'disabled';
+									break;
+								case '1':
+									$replacements[$full_keyword] = 'notify';
+									break;
+								case '2':
+									$replacements[$full_keyword] = 'enabled';
+									break;
+							}
 						}
 						else if(SQ_MAINTENANCE_MODE) {
 							if($sub_keyword === 'message_backend') {
-								$replacements[$full_keyword] = SQ_MAINTENANCE_BACKEND_MESSAGE;
+								$replacements[$full_keyword] = SQ_MAINTENANCE_MODE == '2' ? SQ_MAINTENANCE_BACKEND_ENABLED_MESSAGE : SQ_MAINTENANCE_BACKEND_NOTIFY_MESSAGE;
 							}
 							else if($sub_keyword === 'message_frontend') {
-								$replacements[$full_keyword] = SQ_MAINTENANCE_FRONTEND_MESSAGE;
+								$replacements[$full_keyword] = SQ_MAINTENANCE_MODE == '2' ? SQ_MAINTENANCE_FRONTEND_ENABLED_MESSAGE : SQ_MAINTENANCE_FRONTEND_NOTIFY_MESSAGE;
 							}
-							header('HTTP/1.1 503 Service Unavailable');
-							header('Retry-After: '.SQ_MAINTENANCE_RETRY_AFTER);
+							if (SQ_MAINTENANCE_MODE == '2') {
+								header('HTTP/1.1 503 Service Unavailable');
+								header('Retry-After: '.SQ_MAINTENANCE_RETRY_AFTER);
+							}
 						}
 					}
-
 
 					apply_keyword_modifiers($replacements[$full_keyword], $modifiers, Array(), $keyword);
 				}//end if is global keyword

@@ -4941,9 +4941,15 @@ class Asset extends MySource_Object
 		} else {
 			// we can't find a design, oh well let's just print out our body
 			if($this->inMaintenanceMode()) {
-				echo SQ_MAINTENANCE_FRONTEND_MESSAGE;
-				header('HTTP/1.1 503 Service Unavailable');
-				header('Retry-After: '.SQ_MAINTENANCE_RETRY_AFTER);
+				if(SQ_MAINTENANCE_MODE == '1') {
+					echo SQ_MAINTENANCE_FRONTEND_NOTIFY_MESSAGE;
+					$asset->printBody();
+				}
+				else {
+					echo SQ_MAINTENANCE_FRONTEND_ENABLED_MESSAGE;
+					header('HTTP/1.1 503 Service Unavailable');
+					header('Retry-After: '.SQ_MAINTENANCE_RETRY_AFTER);
+				}
 			}
 			else {
 				$asset->printBody();
@@ -5133,9 +5139,15 @@ class Asset extends MySource_Object
 		} else {
 			// we can't find a design, oh well let's just print out our body
 			if($this->inMaintenanceMode()) {
-				echo SQ_MAINTENANCE_FRONTEND_MESSAGE;
-				header('HTTP/1.1 503 Service Unavailable');
-				header('Retry-After: '.SQ_MAINTENANCE_RETRY_AFTER);
+				if(SQ_MAINTENANCE_MODE == '1') {
+					echo SQ_MAINTENANCE_FRONTEND_NOTIFY_MESSAGE;
+					$this->printBody();
+				}
+				else {
+					echo SQ_MAINTENANCE_FRONTEND_ENABLED_MESSAGE;
+					header('HTTP/1.1 503 Service Unavailable');
+					header('Retry-After: '.SQ_MAINTENANCE_RETRY_AFTER);
+				}
 			}
 			else {
 				$this->printBody();

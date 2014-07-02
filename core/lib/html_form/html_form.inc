@@ -957,7 +957,7 @@ function multiple_root_nodes_selector ($name, $root_nodes, $wa)
 				<tbody>
 					<tr>
 						<th><?php echo translate('root_node'); ?></th>
-						<th title="<?php echo translate('include_all_assets'); ?>?"><?php echo translate('cascade'); ?>?</th>
+						<th title="<?php echo translate('include_all_assets'); ?>?" style="width:340px;" ><?php echo translate('cascade'); ?>?</th>
 					</tr>
 					<?php
 					foreach ($root_nodes as $assetid => $data) {
@@ -1482,21 +1482,23 @@ function asset_type_chooser($name, $multiple=FALSE, $defaults=Array(), $instanti
 	$types = Array('' => '') + $types;
 	if ($multiple) {
 		if ($show_inherit_checkbox) {
+			$i=0;
 			if (!empty($defaults)) {
 				foreach ($defaults['type_code'] as $i => $type_code) {
 					if (empty($type_code)) continue;
 					combo_box($name.'[type_code][]', $types, FALSE, $type_code);
 					hidden_field($name.'[inherit][]', $defaults['inherit'][$i]);
-					check_box('', 1, $defaults['inherit'][$i], 'toggleLastHiddenField(this)');
-					label(strtolower(translate('inherit').' &nbsp;'), $name.'[inherit]');
+					check_box('asset_type_chooser_inherit_check_box_'.$i, 1, $defaults['inherit'][$i], 'toggleLastHiddenField(this)');
+					label(translate('inherit').' &nbsp;', 'asset_type_chooser_inherit_check_box_'.$i);
 					normal_button('', translate('clear'), 'resetLastSelect(this)', 'style="margin-bottom:3px;"');
 					echo '<br />';
 				}
 			}
+			$i++;
 			combo_box($name.'[type_code][]', $types, FALSE, '');
 			hidden_field($name.'[inherit][]', 0);
-			check_box($name.'[inherit_checkbox]', 1, FALSE, 'toggleLastHiddenField(this)');
-			label(translate('inherit').' &nbsp;', $name.'[inherit_checkbox]');
+			check_box('asset_type_chooser_inherit_check_box_'.$i, 1, FALSE, 'toggleLastHiddenField(this)');
+			label(translate('inherit').' &nbsp;', 'asset_type_chooser_inherit_check_box_'.$i);
 			normal_button('', translate('clear'), 'resetLastSelect(this); clearLastCheckbox(this);', 'style="margin-bottom:3px;"');
 			normal_button('', translate('more').'...', 'prependTypeSelector(this); prependInheritSelector(this); prependClearButton(this, true)');
 		} else {
@@ -1517,7 +1519,7 @@ function asset_type_chooser($name, $multiple=FALSE, $defaults=Array(), $instanti
 			combo_box($name.'[type_code]', $types, FALSE, array_get_index($defaults, 'type_code', ''));
 			hidden_field($name.'[inherit]', array_get_index($defaults, 'inherit', '0'));
 			check_box('', 1, array_get_index($defaults, 'inherit', '0'), 'toggleLastHiddenField(this)');
-			label(strtolower(translate('inherit').' &nbsp;'), $name.'[inherit]');
+			label(translate('inherit').' &nbsp;', $name.'[inherit]');
 		} else {
 			combo_box($name, $types, FALSE, $defaults);
 		}

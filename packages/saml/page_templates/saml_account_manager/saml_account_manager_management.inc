@@ -186,7 +186,16 @@ class SAML_Account_Manager_Management extends Asset_Management
 										    ),
 									    );
 
-				
+		$this->vars['prefilled_fields']				= Array(
+										'added'		=> '0.1',
+										'type'		=> 'serialise',
+										'default'	=> Array(),
+									 );
+		$this->vars['synced_fields']				= Array(
+										'added'		=> '0.1',
+										'type'		=> 'serialise',
+										'default'	=> Array(),
+									 );		
 
 	}//end constructor
 
