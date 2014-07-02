@@ -82,6 +82,11 @@ function regenerate_configs()
 	$pa_cfg = new Proxy_Authentication_Config();
 	if (!$pa_cfg->save(Array(), FALSE)) return FALSE;
 
+	// Re-generate the System Maintenance Config
+	require_once SQ_INCLUDE_PATH.'/system_maintenance_config.inc';
+	$pa_cfg = new System_Maintenance_Config();
+	if (!$pa_cfg->save(Array(), FALSE)) return FALSE;
+
 	// Re-generate the Context Config to ma.... yeah, yeah, you know the deal by now =)
 	// But this is a special case - saving to a DB table rather than a config file
 	// So need to make sure the table exists before saving to it

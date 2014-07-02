@@ -293,6 +293,9 @@ class SAML_Account_Manager extends Page_Asset_Builder
 					}
 				    $GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 				}
+
+				// prefill user attributes
+				$this->_prefillUserAttributes($current_user, TRUE);
 				
 				// redirect after linking
 				if($this->attr('redirect_after_link')) {
@@ -492,9 +495,18 @@ class SAML_Account_Manager extends Page_Asset_Builder
 			$samlUserid = $this->_getAuthenticatedSamlUserid();
 			$matrixUserid = $this->_searchLinkedMatrixUser($samlUserid);
 			
-			
+			// if the linked user doesn't exist, just remove it from DB
+			if($matrixUserid && !$GLOBALS['SQ_SYSTEM']->am->assetExists($matrixUserid)) {
+				$this-> _unlinkMatrixUserWithSAML($matrixUserid, $samlUserid);
+				$matrixUserid = NULL;
+			}
+
+
 			// Log in as the linked Matrix user
 			if ((is_null($current_user) || ($current_user instanceof Public_User)) && $matrixUserid) {
+			    // sync user attributes
+			    $this->_prefillUserAttributes($GLOBALS['SQ_SYSTEM']->am->getAsset($matrixUserid), FALSE);
+
 			    $this->_loginUser($matrixUserid);
 			    $current_user = $GLOBALS['SQ_SYSTEM']->user;
 			}
@@ -619,6 +631,9 @@ class SAML_Account_Manager extends Page_Asset_Builder
 		    $samlUserid = $this->_getAuthenticatedSamlUserid();
 		    if(!empty($samlUserid))
 			$this->_linkMatrixUserWithSAML($this->_tmp['created_asset']->id, $samlUserid);
+
+			// prefill user attributes
+			$this->_prefillUserAttributes($this->_tmp['created_asset'], TRUE);
 		 
 		    $this->_loginUser($this->_tmp['created_asset']->id);
 		    
@@ -1088,6 +1103,53 @@ class SAML_Account_Manager extends Page_Asset_Builder
 
 	} // end _createUser	
 	
+
+
+	/**
+	* Prefill user attributes from user profile data
+	*
+	* @param object	$user	the user asset to prefill
+	* @param boolean $prefill  whether we are prefilling attributes or syncing attributes
+	* 
+	* @return bool
+	* @access protected
+	*/
+	protected function _prefillUserAttributes ($user, $prefill=TRUE)
+	{
+		$attr_name = $prefill ? 'prefilled_fields' : 'synced_fields';
+		$metadata_field_name = $prefill ? $this->getPrefix().'_metadata_' : $this->getPrefix().'_sync_metadata_';
+		$prefilled_fields = $this->attr($attr_name);
+		if (!empty($prefilled_fields[$user->type()]) && !empty($user)) {
+			foreach ($prefilled_fields[$user->type()] as $attr => $value) {
+				// get the value to set from user profile
+				$prefill_value = replace_global_keywords($value);
+				if(empty($prefill_value) || !is_scalar($prefill_value)) continue;
+
+				$pos = strpos($attr, $metadata_field_name);
+				if ($pos !== FALSE) {
+					    // Process metadata
+					$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+					$metadata_field = substr($attr, strlen($metadata_field_name));
+					$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+					$mm->setMetadata($user->id, Array($metadata_field => Array('0' => Array('value' => $prefill_value))));
+					$mm->generateContentFile($user->id, TRUE);
+					$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+				} else {
+					    // Process attributes
+					$attribute = $user->getAttribute($attr, TRUE);
+					if (is_null($attribute)) continue;
+					$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+					$user->setAttrValue($attr, $prefill_value);
+					$user->saveAttributes();
+					$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+					unset($attribute);
+
+				    }//end else
+			    }//end foreach
+
+		    }//end if
+		    return TRUE;
+	}//end _prefillUserAttributes()
 
 
 }//end class

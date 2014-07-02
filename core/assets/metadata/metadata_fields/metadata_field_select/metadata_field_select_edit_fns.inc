@@ -128,7 +128,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 				if ($is_default) {
 					$selection->_edit_params['extras'] .= ' disabled="disabled"';
 				}
-				echo '<span id="'.$prefix.'_field">';
+				echo '<span id="'.$prefix.'_field" class="sq-metadata-select-list-wrapper">';
 			}
 			$selection->paint($prefix, FALSE);
 			if ($enable_default) echo '</span>';

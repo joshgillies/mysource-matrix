@@ -93,6 +93,36 @@
 			</function_call>
 		</field>
 	</section>
+	<section name="Asset Creation Settings" write_access="write:menu">
+		<field>
+			<function_call>
+				<paint_function   name="paintAddCreateType"   />
+				<process_function name="processAddCreateType" />
+			</function_call>
+		</field>
+		<field>
+			<function_call>
+				<paint_function   name="paintSchemasToApply" />
+				<process_function name="processSchemasToApply" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Populate User Attributes" write_access="write:menu">
+		<field>
+			<function_call>
+				<paint_function   name="paintPrefillFields"   />
+				<process_function name="processPrefillFields" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Sync User Attributes" write_access="write:menu">
+		<field>
+			<function_call>
+				<paint_function   name="paintSyncFields"   />
+				<process_function name="processSyncFields" />
+			</function_call>
+		</field>
+	</section>				
 	<section name="Return Location" write_access="write:attributes" limbo_access="1">
 		<field attribute="redirect_url">
 			<text width="80" height="1" />
@@ -119,20 +149,6 @@
 			<float width="5" />
 		</field>
 
-	</section>
-	<section name="Asset Creation Settings" write_access="write:menu">
-		<field>
-			<function_call>
-				<paint_function   name="paintAddCreateType"   />
-				<process_function name="processAddCreateType" />
-			</function_call>
-		</field>
-		<field>
-			<function_call>
-				<paint_function   name="paintSchemasToApply" />
-				<process_function name="processSchemasToApply" />
-			</function_call>
-		</field>
 	</section>
 	<section name="Advanced Settings" write_access="write:attributes">
 		<field attribute="allow_public_user">

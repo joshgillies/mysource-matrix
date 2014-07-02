@@ -336,12 +336,18 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=NULL)
 */
 function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 {
+	$is_bundle = $owner->type() === 'workflow_bundle';
+
 	if (!empty($statii)) {
 		$statii = array_reverse($statii, TRUE);
 		$statii[0] = '';
 		$statii = array_reverse($statii, TRUE);
-		combo_box($prefix.'_change_status', $statii, FALSE, $default_status, 0, 'onchange="checkStatus(\''.$prefix.'_change_status\', \''.$prefix.'_change_status_all_children\', \'warning_message_for_live_plus_cascade\')"');
-
+		if($is_bundle) {
+			combo_box($prefix.'_change_status', $statii, FALSE, $default_status);
+		}
+		else {
+			combo_box($prefix.'_change_status', $statii, FALSE, $default_status, 0, 'onchange="checkStatus(\''.$prefix.'_change_status\', \''.$prefix.'_change_status_all_children\', \'warning_message_for_live_plus_cascade\')"');
+		}
 		// Test whether we have a status that may need the stream
 		$has_pending_status = FALSE;
 		$has_approved_status = FALSE;
@@ -358,12 +364,14 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 			}
 		}
 
-		// Workflow streams activate to those with admin permission where:
+		// Workflow streams activate to those where:
+		// user has admin permission or write permission (depends on setting)
 		// - one of the options is a Pending status (either a Apply for Approval,
 		//   or Place Up for Review);
 		// - the current status is either a "can approve" state (Safe Edit or
 		//   U/C), or Live (otherwise we couldn't run Up for Review on a stream).
-		if (($owner->adminAccess() === TRUE) && (($owner->status & (SQ_STATUS_LIVE | SQ_SC_STATUS_CAN_APPROVE)) > 0) && (($has_pending_status === TRUE) || ($has_approved_status === TRUE))) {
+
+		if (($owner->writeAccess() === TRUE) && (($owner->status & (SQ_STATUS_LIVE | SQ_SC_STATUS_CAN_APPROVE)) > 0) && (($has_pending_status === TRUE) || ($has_approved_status === TRUE))) {
 			echo '&nbsp;';
 			// If it is possible that we will have a "apply for approval" in the
 			// drop-down, paint the streams box and enable/disable when required.
@@ -376,6 +384,10 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 			$schemas = $wfm->getSchemas($owner->id);
 			foreach ($schemas as $schemaid => $granted) {
 				$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+				// if schema requires admin access user only to choose stream, then we have to pass
+				$who_can_choose_stream = $schema->attr('who_can_choose_stream');
+				if($who_can_choose_stream === 'admin_only' && !$owner->adminAccess()) continue;
+
 				$stream_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($schemaid, SQ_LINK_TYPE_2, 'workflow_stream', TRUE);
 				$streamids = Array();
 				foreach ($stream_links as $stream_link) {
@@ -499,7 +511,12 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 			<?php
 		}
 		echo '&nbsp;';
-		check_box($prefix.'_change_status_all_children', 1, FALSE, 'checkStatus(\''.$prefix.'_change_status\', \''.$prefix.'_change_status_all_children\', \'warning_message_for_live_plus_cascade\')');
+		if($is_bundle) {
+			check_box($prefix.'_change_status_all_children');
+		}
+		else {
+			check_box($prefix.'_change_status_all_children', 1, FALSE, 'checkStatus(\''.$prefix.'_change_status\', \''.$prefix.'_change_status_all_children\', \'warning_message_for_live_plus_cascade\')');
+		}
 		label(translate('cascade_status_change'), $prefix.'_change_status_all_children');
 
 		?>

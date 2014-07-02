@@ -44,6 +44,9 @@
 				<process_function name="processWorkflowRestrictions" />
 			</function_call>
 		</field>
+		<field attribute="who_can_choose_stream">
+			<selection style="list" />
+		</field>
 	</section>
 	<section name="Workflow Streams" write_access="write:links">
 		<field>

@@ -430,7 +430,247 @@ class SAML_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 	
 	
 	
+
+
+	/**
+	* Paint the interface for prefilling/sync attributes from user profile api response
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	* @param boolean $prefill prefill attributes or sync attributes, they are stored in different places
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintPrefillSyncFields(&$asset, &$o, $prefix, $prefill = TRUE)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		$current = $prefill ? $asset->attr('prefilled_fields') : $asset->attr('synced_fields');
+		$metadata_schemas = Array();
+		$metadata_schema_list = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, '', FALSE, 'major', 'schema_to_apply');
+		foreach ($metadata_schema_list as $metadata_schema) {
+			$metadata_schemas[] = $metadata_schema['minorid'];
+		}
+
+		foreach (array_keys($asset->attr('create_type')) as $create_type) {
+
+			$attributes = Array();
+			$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($create_type, Array('name'));
+			foreach ($attrs as $name) {
+				$attributes[$name] = ucwords(str_replace('_', ' ', $name));
+			}
+
+			if (!isset($current[$create_type])) {
+				$current[$create_type] = Array();
+			}
+			$type_prefix = $prefix.'_'.$create_type;
+
+
+			if (!empty($current[$create_type])) {
+				?>
+				<table class="sq-backend-table">
+					<tr>
+						<th class="sq-backend-table-header" style="width:190px;" ><?php echo translate('attribute') ?></th>
+						<th class="sq-backend-table-header"><?php echo translate('value') ?></th>
+						<?php
+						if ($write_access) {
+							?><th class="sq-backend-table-header" align="center" style="text-align:center;"><?php echo translate('delete_question') ?></th><?php
+						}
+						?>
+					</tr>
+					<?php
+					foreach ($current[$create_type] as $attr => $location) {
+						$required_name = '';
+						$pos = strpos($attr, $prefix.'_metadata_');
+						if ($pos !== FALSE) {
+							if (empty($metadata_schemas)) continue;
+							$metadata_field = substr($attr, strlen($prefix.'_metadata_'));
+							$am = $GLOBALS['SQ_SYSTEM']->am;
+							$mf_asset = $am->getAsset($metadata_field);
+							if (!is_null($mf_asset)) {
+								$required_name = 'Metadata: '.$mf_asset->name;
+							} else {
+								$required_name = translate('unknown_metadata_field');
+							}
+						} else {
+							$required_name = $attributes[$attr];
+						}
+						?>
+						<tr>
+							<td class="sq-backend-table-cell"><?php echo $required_name; ?></td>
+							<td class="sq-backend-table-cell">
+								<?php
+								if ($write_access) {
+									text_box($type_prefix.'_prefilled_field['.$attr.']', $location, 50);
+								} else {
+									echo $location;
+								}
+								?>
+							</td>
+							<?php
+							if ($write_access) {
+								?>
+								<td class="sq-backend-table-cell" " align="center">
+									<?php check_box($type_prefix.'_delete_prefilled['.$attr.']'); ?>
+								</td>
+								<?php
+							}
+							?>
+						</tr>
+						<?php
+					}//end foreach
+					?>
+				</table>
+				<?php
+			}//end else
+
+			if ($write_access) {
+
+				$new_required = Array('' => '-- '.translate('select_attribute').' --');
+				foreach ($attributes as $attr => $name) {
+					if (isset($current[$create_type][$attr])) continue;
+					$new_required[$attr] = $name;
+				}
+				// If a metadata schema is applied, allow the option to choose Metadata as a required field
+				if (!empty($metadata_schemas)) {
+					$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+					$am = $GLOBALS['SQ_SYSTEM']->am;
+					$metadata_fields = $mm->getMetadataFields($metadata_schemas);
+					foreach ($metadata_fields as $metadata_field => $metadata_field_type_code) {
+						if (isset($current[$create_type][$prefix.'_metadata_'.$metadata_field])) continue;
+						// Get each field from the schema
+						$m_asset = $am->getAsset($metadata_field);
+						if (!is_null($m_asset)) {
+							$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($m_asset->id, SQ_LINK_TYPE_2, 'metadata_section', FALSE, 'minor', NULL, TRUE);
+							foreach ($current_links as $link) {
+								$section = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
+								if (is_null($section)) continue;
+								$restrictions = $section->attr('restrict');
+								if (empty($restrictions) || (!is_null($create_type) && array_key_exists($create_type, $restrictions))) {
+									$new_required[$prefix.'_metadata_'.$metadata_field] = 'Metadata: '.$m_asset->name;
+								}
+							}//end foreach
+						}//end if
+						$am->forgetAsset($m_asset);
+					}//end foreach
+				}
+
+				$o->openField(translate('add_attribute'));
+				combo_box($type_prefix.'_new_prefilled', $new_required, FALSE, '');
+				$o->closeField();
+			}
+
+
+		}//end foreach
+
+		return $write_access;
+
+	}//end paintPrefillFields()
+
+
+	/**
+	* Processes the interface for prefilling/sync attributes from user profile api response
+	*
+	* @param object	&$asset	the asset to which we belong
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form element
+	* @param boolean $prefill prefill attributes or sync attributes, they are stored in different places
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processPrefillSyncFields(&$asset, &$o, $prefix, $prefill = TRUE)
+	{
+		$attr_name = $prefill ? 'prefilled_fields' : 'synced_fields';
+		$current = $asset->attr($attr_name);
+		$required_fields = Array();
+
+		foreach (array_keys($asset->attr('create_type')) as $create_type) {
+
+			if (!isset($current[$create_type])) {
+				$current[$create_type] = Array();
+			}
+			$type_prefix = $prefix.'_'.$create_type;
+
+			// construct new  fields array removing deleted fields and updating location
+			foreach ($current[$create_type] as $attr => $location) {
+				if (!isset($_POST[$type_prefix.'_delete_prefilled'][$attr]) || !$_POST[$type_prefix.'_delete_prefilled'][$attr]) {
+					if (isset($_POST[$type_prefix.'_prefilled_field'][$attr])) {
+						$required_fields[$create_type][$attr] = trim($_POST[$type_prefix.'_prefilled_field'][$attr]);
+					} else {
+						$required_fields[$create_type][$attr] = $current[$create_type][$attr];
+					}//end else
+				}//end if
+			}//end foreach
+
+			// add new required field
+			if (isset($_POST[$type_prefix.'_new_prefilled']) && !empty($_POST[$type_prefix.'_new_prefilled'])) {
+				$new_required = $_POST[$type_prefix.'_new_prefilled'];
+				if (!isset($required_fields[$create_type][$new_required])) {
+					$required_fields[$create_type][$new_required] = '';
+				}
+			}
+		}
+
+		return $asset->setAttrValue($attr_name, $required_fields);
+
+	}//end processPrefillFields()
+
 	
+
+	/**
+	* Paint the interface for syncing attributes from user profile api response
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*/
+	function paintSyncFields(&$asset, &$o, $prefix)
+	{
+		$this->paintPrefillSyncFields($asset, $o, $prefix.'_sync', FALSE);
+	}//end paintSyncFields()
+
+	/**
+	* Process the interface for syncing attributes from user profile api response
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*/
+	function processSyncFields(&$asset, &$o, $prefix)
+	{
+		$this->processPrefillSyncFields($asset, $o, $prefix.'_sync', FALSE);
+	}//end processSyncFields()
+
+
+	/**
+	* Paint the interface for prefilling attributes from user profile api response
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*/
+	function paintPrefillFields(&$asset, &$o, $prefix)
+	{
+		$this->paintPrefillSyncFields($asset, $o, $prefix, TRUE);
+	}//end paintPrefillFields()
+
+	/**
+	* Process the interface for prefilling attributes from user profile api response
+	*
+	* @param object	&$asset	the asset whose interface we are painting
+	* @param object	&$o		the outputter class
+	* @param string	$prefix	prefix for the form elements
+	*/
+	function processPrefillFields(&$asset, &$o, $prefix)
+	{
+		$this->processPrefillSyncFields($asset, $o, $prefix, TRUE);
+	}//end processPrefillFields();
+
+
+
+
 }//end class
 
 ?>

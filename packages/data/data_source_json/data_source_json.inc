@@ -536,7 +536,19 @@ class Data_Source_Json extends Data_Source
 		// Try to get data from plain path/URI attribute
 		$uri = $this->attr('path');
 		if (!empty($uri)) {
+			// Replace the dynamic variables in the uri
+			$keyword_wrapper = '%%';
+			$keyword_pattern = '('.$keyword_wrapper.'([a-z_\-0-9\.]+)'.$keyword_wrapper.')';
+			preg_match_all('/'.$keyword_pattern.'/i', $uri, $matches, PREG_PATTERN_ORDER);
+			if (!empty($matches[2])) {
+				foreach($matches[2] as $keyword) {
+					$value = $this->getDynamicVariableValue($keyword);
+					$uri = str_replace($keyword_wrapper.$keyword.$keyword_wrapper, $value, $uri);
+				}//end foreach
+			}//end if
+
 			replace_global_keywords($uri);
+
 			return $uri;
 		}
 
@@ -598,6 +610,33 @@ class Data_Source_Json extends Data_Source
 		return $results;
 
 	}//end _parse()
+
+
+	/**
+	* Get a value of a dynamic variabl
+	* Overridden to urlencode the dynamic var values
+	*
+	* @param string $variable_name  Name of variable
+	*
+	* @return string
+	* @access public
+	*/
+	function getDynamicVariableValue($variable_name)
+	{
+		$dynamic_vars = $this->attr('dynamic_vars');
+		if (!isset($dynamic_vars[$variable_name])) return '';
+
+		$parameter_map = $this->getAttribute('parameter_map');
+		$value = $parameter_map->getParameterValue($variable_name);
+
+		if (empty($value)) {
+			// Default values are already urlencoded
+			return array_get_index($dynamic_vars, $variable_name, '');
+		}
+
+		return urlencode($value);
+
+	}//end getDynamicVariableValue()
 
 
 }//end class
