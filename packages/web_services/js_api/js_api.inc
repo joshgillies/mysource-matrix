@@ -85,7 +85,8 @@ class JS_Api extends Page
 									'createQuestion'				=> 'create_form_question',
 									'updateQuestion'				=> 'update_form_question',
 									'removeQuestion'				=> 'remove_form_question',
-									'updateQuestionOrder'			=> 'update_question_order'
+									'updateQuestionOrder'			=> 'update_question_order',
+									'getStatistics'        			=> 'get_statistics'
 								  );
 
 	/*
@@ -145,6 +146,7 @@ class JS_Api extends Page
 									'getAllContexts'				=> Array('no_check'),
 									'setContext'					=> Array('no_check'),
 									'restoreContext'				=> Array('no_check'),
+									'getStatistics' 				=> Array('no_check'),
 								   );
 
 
@@ -4678,6 +4680,128 @@ class JS_Api extends Page
 		return $return_array;
 
 	}//end getMetadataSchema()
+	
+	
+	/**
+	 * Get a statistics request from a Google Analytics view.
+	 *
+	 * Requests are subject to caching by the GA View. Use force: true to
+	 * get immediate results.
+	 *
+	 * Only one request per call; if you want multiple requests in one hit,
+	 * go batch it.
+	 *
+	 * The arguments passed are as follows:
+	 * - id         : The ID of the view we are displaying.
+	 * - end_date   : The end date in ISO 8601 date format (eg. 2014-06-01),
+	 *                it omitted defaults to "today".
+	 * - start_date : The start date in ISO 8601 date format.
+	 * - duration   : The duration in ISO 8601 period format (eg. "P14D" = 14
+	 *                days, "P2M" = 2 months).
+	 *       (Either one of start_date or duration is required, but not both.)
+	 * - dimensions : Array of dimensions (size 0 up to 7).
+	 *                Required even if empty.
+	 * - metrics    : Either array of metrics (size 1 up to 10), or
+	 *                "SQ_SITE_METRICS" for standard site metrics, or
+	 *                "SQ_PAGE_METRICS" for standard page metrics
+	 * - sort_by    : Array of sort fields in order of sorting.
+	 *                Add "-" to the front of sort field for descending sort.
+	 *                Omit for no sorting.
+	 * - filter     : Two-dimensional array of row filters in GA format. At each
+	 *                element of the top level, either specify a plain filter, or
+	 *                another array. Top level filters will be ANDed, inner
+	 *                arrays will be ORed together then ANDed into the top level.
+	 *                Omit for no filtering.
+	 * - force      : Force fresh data.
+	 *
+	* @param array		$args			bundled array of arguments do be used while performing operations
+	* @param object		$asset			the asset we are executing this function on
+	* @param boolean	$read_access	read access check for the asset we
+	*									are dealing with with respect to current user
+	* @param boolean	$write_access	write access check for the asset we
+	*									are dealing with with respect to current user
+	 *
+	 * @return array
+	 */
+	public function _getStatistics($args=Array(), $asset=NULL, $read_access=FALSE, $write_access=FALSE)
+	{
+	    $GLOBALS['SQ_SYSTEM']->am->includeAsset('google_analytics_view');
+	    
+	    if (($asset instanceof Google_Analytics_View) === FALSE) {
+	        $this->returnError(translate('The passed asset is not a Google Analytics View'), 'typeCodeError');
+	    }
+	    
+	    if (array_key_exists('end_date', $args) === FALSE) {
+	        // We can omit the end date; it will revert to "today".
+	        $args['end_date'] = date('Y-m-d');
+	    }
+	    
+	    if ((array_key_exists('start_date', $args) === TRUE) && (array_key_exists('duration', $args) === TRUE)) {
+	        // Both start_date and duration exist - Huh?
+	        $this->returnError(translate('Statistics request contains both a start_date and duration, you cannot use both'), 'badRequest');
+	    } else if (array_key_exists('duration', $args) === TRUE) {
+	        // If we get a duration, pass it in as a date interval. Duration
+	        // will be in ISO 8601 period format (eg. "P1M" = 1 month).
+	        $start_date = new DateTime($args['end_date']);
+	        $duration   = new DateInterval($args['duration']);
+	        
+	        $start_date->sub($duration);
+	        $start_date->add(new DateInterval('P1D'));
+	        $args['start_date'] = $start_date->format('Y-m-d');
+	    } else if (array_key_exists('start_date', $args) === FALSE) {
+	        $this->returnError(translate('Statistics request is missing a start_date or a duration'), 'badRequest');
+	    }
+	    
+	    if (strtotime($args['start_date']) > strtotime($args['end_date'])) {
+	        $this->returnError(translate('Start date must not be after the end date'), 'badRequest');
+	    }
+	    
+	    if (array_key_exists('dimensions', $args) === FALSE) {
+	        $this->returnError(translate('Statistics request is missing dimensions'), 'badRequest');
+	    } else if (array_key_exists('metrics', $args) === FALSE) {
+	        $this->returnError(translate('Statistics request is missing metrics'), 'badRequest');
+	    }
+	    
+	    // If we are sent a string, explode it. But allow special site and page
+	    // metrics combinations to be specified by a constant string.
+	    if ($args['metrics'] === 'SQ_SITE_METRICS') {
+	        $args['metrics'] = explode(',', Google_Analytics_View::SITE_METRICS);
+	    } else if ($args['metrics'] === 'SQ_PAGE_METRICS') {
+	        $args['metrics'] = explode(',', Google_Analytics_View::PAGE_METRICS);
+	    } else if (is_array($args['metrics']) === FALSE) {
+	        $args['metrics'] = explode(',', $args['metrics']);
+	    }
+	    
+	    if (is_array($args['dimensions']) === FALSE) {
+	        $args['dimensions'] = explode(',', $args['dimensions']);
+	    }
+	    if ((array_key_exists('sort_by', $args) === FALSE) && (is_array($args['sort_by']) === FALSE)) {
+	        $args['sort_by'] = explode(',', $args['sort_by']);
+	    }
+	    
+	    if (count($args['dimensions']) > 7) {
+	        $this->returnError(translate('Statistics request cannot exceed seven (7) dimensions'), 'badRequest');
+	    } else if (count($args['metrics']) < 1) {
+	        $this->returnError(translate('Statistics request requires at least one (1) metric'), 'badRequest');
+	    } else if (count($args['metrics']) > 10) {
+	        $this->returnError(translate('Statistics request cannot exceed ten (10) metrics'), 'badRequest');
+	    }
+	    
+	    $result = $asset->generateReport(
+	        $args['dimensions'],
+	        $args['metrics'],
+	        $args['start_date'],
+	        $args['end_date'],
+	        $args['sort']
+	    );
+	    
+	    if ($result === NULL) {
+	        $this->returnError(translate('Failed to get analytics data'), 'analyticsError');
+	    } else {
+	        return $result;
+	    }
+	    
+	}//end getStatistics()
 
 
 	/**
