@@ -94,12 +94,10 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 		$e = '/(<link[^>]*href=")\\.\\/(?!\\?a=)/i';
 		$file_contents = preg_replace($e, '\\1', $file_contents);
 
-		// Escape opening and closing php tags
-		$file_contents = str_replace(Array('<?', '?>'), Array('&lt;?', '?&gt;'), $file_contents);
-
-		// lets just make sure they aren't trying to be tricky and do some processing we don't know about
-		$file_contents = preg_replace('/\<\?(?!xml)(.*)(?=\?\>)\?\>/ims', '&lt;?$1?&gt;', $file_contents);
-		$file_contents = preg_replace('|\<\?(?=xml)(.+?)(?=\?\>)\?\>|', '<?php echo "<"."?"; ?>\\1<?php echo "?".">"; ?>', $file_contents);
+		// Lets just make sure they aren't trying to be tricky and do some processing we don't know about
+		// Escape all the opening '<?' tags that are not xml header tag '<?xml'
+		$file_contents = preg_replace('/\<\?(?!xml)/i', '&lt;?', $file_contents);
+		$file_contents = preg_replace('|\<\?(?=xml)(.+?)(?=\?\>)\?\>|', '<'.'?php echo "<"."?"; ?'.'>\\1<?php echo "?".">"; ?'.'>', $file_contents);
 
 		// Lets make all occurances of the open cnd close tags the
 		// same case as the constant just to make it easier to parse
