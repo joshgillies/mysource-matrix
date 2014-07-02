@@ -73,12 +73,12 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	    $bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->bridgeid);
 	    $period = $bridge->attr('period');
 	    
-	    $end_date    = new DateTime('today 00:00:00');
-	    $start_date  = clone $end_date;
+	    $end_date   = new DateTime('today 00:00:00');
+	    $start_date = clone $end_date;
 	    $start_date->sub(new DateInterval($period));
-	    $date_diff   = $start_date->diff($end_date);
+	    $date_diff  = $start_date->diff($end_date);
 	    $start_date->add(new DateInterval('P1D'));
-	    $day_count   = (int) $date_diff->format('%a');
+	    $day_count  = (int) $date_diff->format('%a');
 	    
 	    $report = $asset->generateReport(
 	        Array(),
@@ -89,6 +89,25 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	    
 	    $report = array_get_index($report, 0, Array());
 	    
+	    $visTypeRawReport = $asset->generateReport(
+	        Array('ga:userType'),
+	        Google_Analytics_View::SITE_METRICS,
+	        $start_date->format('Y-m-d'),
+	        $end_date->format('Y-m-d')
+	    );
+	    
+	    foreach ($visTypeRawReport as $row) {
+	        if ($row['ga:userType'] === 'New Visitor') {
+	            $visTypeReport['new'] = $row;
+	        } if ($row['ga:userType'] === 'Returning Visitor') {
+	            $visTypeReport['returning'] = $row;
+	        }
+	    }//end foreach
+	    
+	    $visTypeReport['new']       = array_get_index($visTypeReport, 'new', Array());
+	    $visTypeReport['returning'] = array_get_index($visTypeReport, 'returning', Array());
+	    unset($visTypeRawReport);
+
 	    // Give us some goal stats for this period, five at a time (because
 	    // 10 metrics maximum).
 	    $goals = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->bridgeid)->getGoals($asset->viewid);
@@ -102,8 +121,8 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	        $goals_report = $asset->generateReport(
                 Array(),
                 $goal_metrics,
-                $start_date,
-                $end_date
+                $start_date->format('Y-m-d'),
+                $end_date->format('Y-m-d')
 	        );
 	        $goals_reports = array_merge($goals_reports, $goals_report[0]);
 	    }//end foreach
@@ -153,12 +172,12 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	        <tr>
 	            <th><?php echo translate('Total sessions') ?></th>
 	            <td><strong><?php echo number_format($report['ga:sessions'], 0); ?></strong></td>
-	            <td><?php echo translate('%s / day', number_format($report['ga:sessions'] / $day_count, 0)); ?></td>
-	            <td><?php echo translate(
-	                '%s (%s%%) bounces',
-	                number_format($report['ga:bounces'], 0),
-	                number_format((100.0 * $report['ga:bounces'] / $report['ga:sessions']), 1)
-                ); ?></td>
+	            <td colspan="2"><?php echo translate('%s / day', number_format($report['ga:sessions'] / $day_count, 0)); ?></td>
+	        </tr>
+	        <tr>
+	            <th><?php echo translate('Bounced sessions') ?></th>
+	            <td><strong><?php echo number_format($report['ga:bounces'], 0); ?></strong></td>
+	            <td colspan="2"><?php echo translate('%s%% of total', number_format((100.0 * $report['ga:bounces'] / $report['ga:sessions']), 1)); ?></td>
 	        </tr>
 	        <tr>
 	            <th><?php echo translate('Unique users') ?></th>
@@ -167,16 +186,19 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	        </tr>
 	        <tr>
 	            <th><?php echo translate('New users') ?></th>
-	            <td colspan="3"><?php echo number_format($report['ga:newUsers'], 0); ?></td>
+	            <td colspan="3"><?php echo number_format($visTypeReport['new']['ga:users'], 0); ?></td>
+	        </tr>
+	        <tr>
+	            <th><?php echo translate('Returning users') ?></th>
+	            <td colspan="3"><?php echo number_format($visTypeReport['returning']['ga:users'], 0); ?></td>
 	        </tr>
 	        <tr>
 	            <th><?php echo translate('Sessions per user') ?></th>
-	            <td colspan="3"><?php echo number_format(($report['ga:sessions'] / $report['ga:users']), 2); ?></td>
+	            <td colspan="3"><?php echo number_format(($report['ga:sessions'] / $report['ga:users']), 1); ?></td>
 	        </tr>
 	        <tr>
-	            <th><?php echo translate('Return visits per user') ?></th>
-	            <td><?php echo number_format(($report['ga:sessions'] / ($report['ga:users'] - $report['ga:newUsers']) - 1), 2); ?></td>
-	            <td colspan="2"><?php echo translate('Excludes first visit from a new user during this period'); ?></td>
+	            <th><?php echo translate('Sessions per returning user') ?></th>
+	            <td colspan="3"><?php echo number_format(($visTypeReport['returning']['ga:sessions'] / $visTypeReport['returning']['ga:users']), 1); ?></td>
 	        </tr>
 	    </tbody></table><?php
 	    $o->closeRaw();
@@ -198,23 +220,43 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	        </tr>
 	        <tr>
 	            <th><?php echo translate('Page views per session') ?></th>
-	            <td><?php echo number_format($report['ga:pageviews'] / $report['ga:sessions'], 1); ?></td>
-	            <td colspan="2"><?php echo translate(
-	                '%s excluding bounces',
-	                number_format($report['ga:pageviews'] / ($report['ga:sessions'] - $report['ga:bounces']), 1)
-	            ); ?></td>
+	            <td colspan="3"><?php echo number_format($report['ga:pageviews'] / $report['ga:sessions'], 1); ?></td>
 	        </tr>
 	        <tr>
 	            <th><?php echo translate('Session duration') ?></th>
-	            <td><?php 
-	            $time = $report['ga:sessionDuration'] / $report['ga:sessions'];
+	            <td colspan="3"><?php 
+	                $time = $report['ga:sessionDuration'] / $report['ga:sessions'];
                     if ($time >= 60) {
                         echo sprintf(translate('%s min %s sec', '%s', '%s'), (int)($time / 60), floor($time % 60));
                     } else {
                         echo sprintf(translate('%s sec', '%s'), (floor($time * 10) / 10));
                     }
 	            ?></td>
-	            <td colspan="2"><?php
+	        </tr>
+	    </tbody>
+	    </table><?php
+	    $o->closeRaw();
+	    $o->closeSection();
+	    
+	    // Session statistics.
+	    $o->openSection(translate('...amongst users who don\'t bounce off your site'));
+	    $o->openRaw();
+	    ?><table class="sq-backend-table">
+	    <col width="25%" />
+	    <col width="15%" />
+	    <col width="15%" />
+	    <col width="35%" />
+	    <tbody>
+	        <tr>
+	            <th><?php echo translate('Page views per session') ?></th>
+	            <td colspan="3"><?php echo translate(
+	                '%s',
+	                number_format($report['ga:pageviews'] / ($report['ga:sessions'] - $report['ga:bounces']), 1)
+	            ); ?></td>
+	        </tr>
+	        <tr>
+	            <th><?php echo translate('Session duration') ?></th>
+	            <td colspan="3"><?php
 	                $nb_time = $report['ga:sessionDuration'] / ($report['ga:sessions'] - $report['ga:bounces']);
                     if ($nb_time >= 60) {
                         $nb_str = sprintf(translate('%s min %s sec', '%s', '%s'), (int)($nb_time / 60), floor($nb_time % 60));
@@ -222,7 +264,7 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
                         $nb_str = sprintf(translate('%s sec', '%s'), (floor($nb_time * 10) / 10));
                     }
                         
-                    echo translate('%s excluding bounces', $nb_str);
+                    echo translate('%s', $nb_str);
 	            ?></td>
 	        </tr>
 	    </tbody>
@@ -232,8 +274,12 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	    
 	    // Start the section on goal stats.
 	    $o->openSection(translate('Goal statistics'));
+	    $o->sectionNote(translate('For <strong>"URL (Funnel)" goals</strong>, only sessions that view the first page in the funnel are considered "starts".').
+	        '<br/>'.
+	        translate('For other goal types, all sessions are considered "starts" for the purposes of the Completion Rate presented here.'));
 	    $o->openRaw();
-	    ?><table class="sq-backend-table">
+	    ?>
+	    <table class="sq-backend-table">
 	    <col width="30%" />
 	    <col width="25%" />
 	    <col width="15%" />
@@ -241,11 +287,11 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	    <col width="15%" />
 	    <thead>
 	        <tr>
-	            <th><?php echo translate('Goal name') ?></th>
-	            <th><?php echo translate('Goal type') ?></th>
-	            <th><?php echo translate('Completion ratio') ?></th>
-	            <th><?php echo translate('Completions') ?></th>
-	            <th><?php echo translate('Starts') ?></th>
+	            <th><?php echo translate('Goal Name') ?></th>
+	            <th><?php echo translate('Goal Type') ?></th>
+	            <th style="text-align: right"><?php echo translate('Completion Rate') ?></th>
+	            <th style="text-align: right"><?php echo translate('Completions') ?></th>
+	            <th style="text-align: right"><?php echo translate('Starts') ?></th>
 	        </tr>
 	    <tbody><?php
 	        if (count($goals) === 0) {
@@ -256,15 +302,15 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
                 ?><tr>
                     <th><?php echo translate('All goals') ?></th>
                     <td></td>
-                    <td><strong><?php
+                    <td style="text-align: right"><strong><?php
                         if ($report['ga:goalStartsAll'] > 0) {
                             echo number_format($report['ga:goalCompletionsAll'] / $report['ga:goalStartsAll'] * 100.0, 1).'%';
                         } else {
                             echo translate('N/A');
                         }//end if
                     ?></strong></td>
-                    <td><strong><?php echo number_format($report['ga:goalCompletionsAll'], 0); ?></strong></td>
-                    <td><strong><?php echo number_format($report['ga:goalStartsAll'], 0); ?></strong></td>	           
+                    <td style="text-align: right"><strong><?php echo number_format($report['ga:goalCompletionsAll'], 0); ?></strong></td>
+                    <td style="text-align: right"><strong><?php echo number_format($report['ga:goalStartsAll'], 0); ?></strong></td>	           
                 </tr><?php
                 foreach ($goals as $goal) {
                 ?><tr>
@@ -292,15 +338,15 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
                             break;
                         }
                     ?></td>
-                    <td><strong><?php
+                    <td style="text-align: right"><strong><?php
                         if ($goals_reports['sq:goal'.$goal['id'].'Rate'] !== NULL) {
                             echo number_format($goals_reports['sq:goal'.$goal['id'].'Rate'] * 100.0, 1).'%';
                         } else {
                             echo translate('N/A');
                         }//end if
                     ?></strong></td>
-                    <td><?php echo number_format($goals_reports['ga:goal'.$goal['id'].'Completions'], 0); ?></td>
-                    <td><?php echo number_format(array_get_index($goals_reports, 'ga:goal'.$goal['id'].'Starts', $report['ga:sessions']), 0); ?></td>	           
+                    <td style="text-align: right"><?php echo number_format($goals_reports['ga:goal'.$goal['id'].'Completions'], 0); ?></td>
+                    <td style="text-align: right"><?php echo number_format(array_get_index($goals_reports, 'ga:goal'.$goal['id'].'Starts', $report['ga:sessions']), 0); ?></td>	           
                 </tr><?php
                 }//end foreach
             }//end if
@@ -309,7 +355,7 @@ class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
 	    $o->closeRaw();
 	    $o->closeSection();
 	    
-	    // Start the section on experiment stats (holy bleep).
+	    // Start the section on experiment management API info.
 	    $experiments = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->bridgeid)->getExperiments($asset->viewid);
 	    $o->openSection(translate('Content Experiments'));
 	    $o->openRaw();
