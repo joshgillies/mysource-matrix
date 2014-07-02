@@ -251,8 +251,11 @@ class Matrix_Apply_Style extends WYSIWYG_Plugin
 
 				// get the parent element of the range, working around an IE bug
 				// with parentELement()
+				var currSelectedHTML = range.htmlText.replace(/^\s+|\s+$/, '');
 				var parent = range.parentElement();
-				if ((parent.nodeType == 1) && (parent.tagName.toLowerCase() == 'p') && (parent.innerHTML == range.htmlText)) {
+				if ((parent.nodeType == 1) && (parent.tagName.toLowerCase() == 'p') && 
+						((parent.innerHTML.toLowerCase() == range.htmlText.toLowerCase()) || 
+						 	(parent.outerHTML.toLowerCase().replace(/\s/g, '') == currSelectedHTML.toLowerCase().replace(/\s/g, '')))) {
 					parent.className = value;
 				} else {
 					while (true) {
