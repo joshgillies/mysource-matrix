@@ -1600,7 +1600,7 @@ class JS_Api extends Page
 					$data[] ='"'.$screen.'" locks are now released for Asset "'.$asset->name.'" (#'.$asset->id.')';
 				} else {
 					$data['error'] = 'You cannot release locks on this asset';
-					$data['errorCode'] = 'cannotRelease';
+					$data['errorCode'] = 'releaseLockFailed';
 				}// end if
 			}//end else
 		} else {
