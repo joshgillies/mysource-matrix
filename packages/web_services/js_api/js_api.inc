@@ -240,14 +240,14 @@ class JS_Api extends Page
 		// nonce token check
 		$nonce_token = get_unique_token();
 		if (!isset($_POST['nonce_token']) || ($_POST['nonce_token'] !== $nonce_token)) {
-			$this->returnError('nonce token is invalid');
+			$this->returnError('nonce token is invalid', 'authError');
 			restore_error_handler();
 			return;
 		}
 
 		// Check to see if we have a function type
 		if (empty($function_type)) {
-			$this->returnError('You must set a function type');
+			$this->returnError('You must set a function type', 'badRequest');
 			restore_error_handler();
 			return;
 		}
@@ -265,7 +265,7 @@ class JS_Api extends Page
 		if ($function_type == 'batchRequest') {
 			// check to see if batching is allowed else complain
 			if (!$this->_attribute_mapping[$function_type]) {
-				$this->returnError('The '.$type.' function must be activated');
+				$this->returnError('The '.$type.' function must be activated', 'badRequest');
 				restore_error_handler();
 				return;
 			}
@@ -294,14 +294,14 @@ class JS_Api extends Page
 
 		// Check to see if we even have an API Key
 		if (!isset($check_key) || $check_key == '' || $api_key == '') {
-			$this->returnError('You must enter an API key in order to use this asset');
+			$this->returnError('You must enter an API key in order to use this asset', 'badRequest');
 			restore_error_handler();
 			return;
 		}
 
 		// Check to see if the API key attribute matches the JSON key
 		if ($check_key != $api_key) {
-			$this->returnError('The API key does not match, please enter a valid key');
+			$this->returnError('The API key does not match, please enter a valid key', 'authError');
 			restore_error_handler();
 			return;
 		}
@@ -435,7 +435,8 @@ class JS_Api extends Page
 				if ($this->_permission_mapping[$type] != Array('no_check')) {
 					// Check to see if we supplied with valid assetid
 					if ((preg_match('/^[0-9]*:/i', $id) != FALSE) && !$GLOBALS['SQ_SYSTEM']->am->assetExists($id)) {
-						$results[$track_func]['error'] = 'Assetid supplied doesnt exist on the system';
+						$results[$track_func]['error']     = 'Assetid supplied doesnt exist on the system';
+						$results[$track_func]['errorCode'] = 'assetNotFound';
 						$track_func++;
 						break;
 					}
@@ -466,13 +467,15 @@ class JS_Api extends Page
 				
 				if ($error !== NULL) {
 					$results[$track_func]['error'] = $error;
+					$results[$track_func]['errorCode'] = 'insufficientPermissions';
 				} else {
 					$func_name = '_'.$type;
 					try {
 						$results[$track_func] = $this->$func_name($args, $asset, $ra, $wa);
 					} catch (Exception $e) {
 						// If any exception was thrown when executing the function, catch it
-						$results[$track_func]['error'] = 'Exception occured when executing JS API function "'.$type.'()": '.$e->getMessage();
+						$results[$track_func]['error']     = 'Exception occured when executing JS API function "'.$type.'()": '.$e->getMessage();
+						$results[$track_func]['errorCode'] = 'internalError';
 						js_api_error_handler(E_USER_ERROR, 'EXCEPTION: '.$e->getMessage(), $e->getFile(), $e->getLine());
 					}
 				}//end if
@@ -480,12 +483,13 @@ class JS_Api extends Page
 				// if batching request and one of the function is set to blocking
 				// and of the function execution returned error bail out
 				if (isset($results[$track_func]['error']) && $blocking) {
-					$results['error'] = 'Function '.$type.' set to blocking returned error';
+					$results['error']     = 'Function '.$type.' set to blocking returned error';
+					$results['errorCode'] = 'batchBlocked';
 					break;
 				}
 
 			} else {
-				$this->returnError('The '.$type.' function must be activated');
+				$this->returnError('The '.$type.' function must be activated', 'badRequest');
 				restore_error_handler();
 				return;
 			}
@@ -532,7 +536,7 @@ class JS_Api extends Page
 
 		// Check to see if the asset id is real
 		if ($id == '') {
-			$this->returnError('You must enter a valid asset id or URL');
+			$this->returnError('You must enter a valid asset id or URL', 'badRequest');
 			return FALSE;
 		}
 
@@ -543,11 +547,11 @@ class JS_Api extends Page
 			try {
 				$valid_assetid = $am->assetExists($id);
 			} catch (Exception $e) {
-				$this->returnError($id.' is not a valid asset id');
+				$this->returnError($id.' is not a valid asset id', 'badRequest');
 				return FALSE;
 			}
 			if (!$valid_assetid) {
-				$this->returnError($id.' is not a valid asset id');
+				$this->returnError($id.' is not a valid asset id', 'notFound');
 				return FALSE;
 			}
 			// Set our asset reference
@@ -564,10 +568,13 @@ class JS_Api extends Page
 
 				// Set our asset reference
 				$asset = $am->getAssetFromURL($protocol, strip_url($id, TRUE), TRUE, TRUE);
-				if (is_null($asset)) $this->returnError($id.' is not a valid URL');
+				if (is_null($asset)) {
+				    $this->returnError($id.' is not a valid URL', 'notFound');
+				}
+				
 				return $asset;
 			} else {
-				$this->returnError($id.' is not a valid URL');
+				$this->returnError($id.' is not a valid URL', 'badRequest');
 				return FALSE;
 			}//end else
 
@@ -626,6 +633,7 @@ class JS_Api extends Page
 			$data = $this->trashAsset($assetids);
 		} else {
 			$data['error'] = 'Please Enter Asset Id(s) to move to Trash';
+			$data['errorCode'] = 'badRequest';
 		}
 
 		return $data;
@@ -661,6 +669,7 @@ class JS_Api extends Page
 			$data['child_count'] = count($children);
 		} else {
 			$data['error'] = 'Please Enter Asset Id to get the child count';
+			$data['error'] = 'badRequest';
 		}
 
 		return $data;
@@ -711,7 +720,8 @@ class JS_Api extends Page
 
 		foreach ($links as $elements) {
 			if (count($elements) != count($links['parents'])) {
-				$data['error'] =  'Please provide correct number of link elements';
+				$data['error']     = 'Please provide correct number of link elements';
+				$data['errorCode'] = 'badRequest';
 				return $data;
 			}
 		}
@@ -720,22 +730,26 @@ class JS_Api extends Page
 		for ($i = 0;  $i < count($links['parents']); $i++) {
 			// Update our link
 			if($links['children'][$i] == 'Undefined' || $links['children'][$i] == '' ) {
-				$data[$i]['error'] = 'Child Id whose link is to be update was not provided';
+				$data[$i]['error']     = 'Child Id whose link is to be update was not provided';
+				$data[$i]['errorCode'] = 'badRequest';
 				continue;
 			} else if ($links['parents'][$i] == 'Undefined' || $links['parents'][$i] == ''){
-				$data[$i]['error'] = 'Parent Id whose link is to be update was not provided';
+				$data[$i]['error']     = 'Parent Id whose link is to be update was not provided';
+				$data[$i]['errorCode'] = 'badRequest';
 				continue;
 			}
 
 			$child_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($links['children'][$i]);
 			if(is_null($child_asset)) {
-				$data[$i]['error'] = 'Asset #'.$links['children'][$i].' does not exist';
+				$data[$i]['error']     = 'Asset #'.$links['children'][$i].' does not exist';
+				$data[$i]['errorCode'] = 'assetNotFound';
 				continue;
 			}
 
 			$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($links['parents'][$i]);
 			if(is_null($parent_asset)) {
-				$data[$i]['error'] = 'Asset #'.$links['parents'][$i].' does not exist';
+				$data[$i]['error']     = 'Asset #'.$links['parents'][$i].' does not exist';
+				$data[$i]['errorCode'] = 'assetNotFound';
 				continue;
 			}
 
@@ -798,7 +812,8 @@ class JS_Api extends Page
 
 		foreach ($links as $elements) {
 			if (count($elements) != count($links['parents'])) {
-				$data['error'] = 'Please provide correct number of link elements';
+				$data['error'] = 'Please provide correct number of link elements';				
+				$data['errorCode'] = 'badRequest';
 				return $data;
 			}
 		}
@@ -807,22 +822,26 @@ class JS_Api extends Page
 		for ($i = 0;  $i < count($links['parents']); $i++) {
 			// Update our link
 			if($links['children'][$i] == 'Undefined' || $links['children'][$i] == '' || $links['children'][$i] == NULL) {
-				$data[$i]['error'] = 'Child Id whose link is to be update was not provided';
+				$data[$i]['error']     = 'Child Id whose link is to be update was not provided';
+				$data[$i]['errorCode'] = 'badRequest';
 				continue;
 			} else if ($links['parents'][$i] == 'Undefined' || $links['parents'][$i] == ''|| $links['children'][$i] == NULL){
-				$data[$i]['error'] = 'Parent Id whose link is to be update was not provided';
+				$data[$i]['error']     = 'Parent Id whose link is to be update was not provided';
+				$data[$i]['errorCode'] = 'badRequest';
 				continue;
 			}
 
 			$child_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($links['children'][$i]);
 			if(is_null($child_asset)) {
-				$data[$i]['error'] = 'Asset #'.$links['children'][$i].' does not exist';
+				$data[$i]['error']     = 'Asset #'.$links['children'][$i].' does not exist';
+				$data[$i]['errorCode'] = 'assetNotFound';
 				continue;
 			}
 
 			$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($links['parents'][$i]);
 			if(is_null($parent_asset)) {
-				$data[$i]['error'] = 'Asset #'.$links['parents'][$i].' does not exist';
+				$data[$i]['error']    = 'Asset #'.$links['parents'][$i].' does not exist';
+				$data[$i]['errorCode'] = 'assetNotFound';
 				continue;
 			}
 
@@ -878,17 +897,21 @@ class JS_Api extends Page
 					if (empty($errors)) {
 						$data['success'] = 'Assets sucessfully imported under Asset #'.$import_under;
 					} else {
-						$data['error'] = 'Error occured while importing assets  under Asset #'.$import_under;
+						$data['error'] = 'Error occured while importing assets under Asset #'.$import_under;
+						$data['errorCode'] = 'importFailed';
 					}
 
 				} else {
 					$data['error'] = 'Assetid provided to import assets under is not valid';
+					$data['errorCode'] = 'assetNotFound';
 				}
 			} else {
 				$data['error'] = 'File provided is not XML';
+				$data['errorCode'] = 'badRequest';
 			}
 		} else {
 			$data['error'] = 'No File path provided OR File does not exist for the provided path';
+            $data['errorCode'] = 'badRequest';
 		}
 
 		return $data;
@@ -961,16 +984,20 @@ class JS_Api extends Page
 
 			} else if ($tidy->htmltidy_status == 'fail') {
 				$data['error'] = 'HTML Tidy failed to process the given content';
+				$data['errorCode'] = 'tidyFailed';
 
 			} else if ($tidy->htmltidy_status == 'wait') {
 				$data['error'] = 'HTML Tidy wasn\'t ready to process content. Try again';
+				$data['errorCode'] = 'tidyNotReady';
 
 			} else if ($tidy->htmltidy_status == 'disabled') {
 				$data['error'] = 'HTML Tidy is disabled on the System';
+				$data['errorCode'] = 'tidyDisabled';
 			}
 
 		} else {
 			$data['error'] = 'No string passes to process HTMLTidy on';
+            $data['errorCode'] = 'badRequest';
 		}
 
 		return $data;
@@ -998,6 +1025,7 @@ class JS_Api extends Page
 			$data = $this->getGeneralInfo($asset, $get_attributes);
 		} else {
 			$data['error'] = 'You do not have permissions to access this asset';
+            $data['errorCode'] = 'permissionError';
 		}//end else
 
 		return $data;
@@ -1034,6 +1062,7 @@ class JS_Api extends Page
 			}//end foreach
 		} else {
 			$data['error'] = 'You do not have permissions to access this asset';
+            $data['errorCode'] = 'permissionError';
 		}//end else
 
 		return $data;
@@ -1098,13 +1127,16 @@ class JS_Api extends Page
 				if($success) {
 					$data = $success;
 				} else {
-					$data = 'Attribute for Asset #'.$asset->id.' were not set. Check Error Log for more information';
+					$data['error'] = 'Attribute for Asset #'.$asset->id.' were not set. Check Error Log for more information';
+					$data['errorCode'] = 'setFailed';
 				}
 			} else {
 				$data['error'] = 'Please enter both the attribute name and value';
+				$data['errorCode'] = 'badRequest';
 			}//end else
 		} else {
 			$data['error'] = 'You do not have permissions to access this asset';
+            $data['errorCode'] = 'permissionError';
 		}//end else
 
 		return $data;
@@ -1134,9 +1166,11 @@ class JS_Api extends Page
 				$data = $mm->getMetadataFieldValues($asset->id);
 			} else {
 				$data['error'] = 'No Metadata Schema applied to Asset "'.$asset->name.'(#'.$asset->id.')"';
+				$data['errorCode'] = 'notFound';
 			}
 		} else {
 			$data['error'] = 'You do not have permissions to access this asset';
+            $data['errorCode'] = 'permissionError';
 		}//end else
 
 		return $data;
@@ -1215,9 +1249,11 @@ class JS_Api extends Page
 				}
 			} else {
 				$data['error'] = 'Please enter both the field id and value';
+            $data['errorCode'] = 'badRequest';
 			}//end else
 		} else {
 			$data['error'] = 'You do not have permissions to access this asset';
+            $data['errorCode'] = 'permissionError';
 		}//end else
 
 		return $data;
@@ -1245,6 +1281,7 @@ class JS_Api extends Page
 		if ($read_access) {
 			if (empty($args['levels']) && $args['levels'] != '0') {
 				$data['error'] = 'Please set a depth(levels) limit';
+				$data['errorCode'] = 'badRequest';
 				return $data;
 			}
 			// Check to see how deep we should go
@@ -1274,9 +1311,11 @@ class JS_Api extends Page
 
 			if (empty($data)) {
 				$data['error'] = 'Asset #'.$asset->id.' has no children';
+				$data['errorCode'] = 'notFound';
 			}
 		} else {
 			$data['error'] = 'You do not have permissions to access this asset';
+            $data['errorCode'] = 'permissionError';
 		}//end else
 
 		return $data;
@@ -1304,10 +1343,12 @@ class JS_Api extends Page
 		if ($read_access) {
 			if ($asset->id == 1) {
 				$data['error'] = 'The root asset does not have any parents';
+				$data['errorCode'] = 'notFound';
 				return $data;
 			}
 			if (empty($args['levels']) && $args['levels'] != '0') {
 				$data['error'] = 'Please set a depth(levels) limit';
+				$data['errorCode'] = 'badRequest';
 				return $data;
 			}
 			// Check to see how deep we should go
@@ -1336,6 +1377,7 @@ class JS_Api extends Page
 			$data = $this->getParents($asset->id, $level, $type_codes, $link_types, $link_values, $get_attributes);
 		} else {
 			$data['error'] = 'You do not have permissions to access this asset';
+            $data['errorCode'] = 'permissionError';
 		}//end else
 
 		return $data;
@@ -1362,14 +1404,17 @@ class JS_Api extends Page
 			$level = $args['level'];
 			if (empty($level)) {
 				$data['error'] = 'Please set a permissions level';
+				$data['errorCode'] = 'badRequest';
 				return $data;
 			}
 			if (!is_numeric($level)) {
 				$data['error'] = 'Permissions level must be numeric';
+				$data['errorCode'] = 'badRequest';
 				return $data;
 			}
 			if ($level > 3) {
 				$data['error'] = $level.' is not a valid permissions level';
+				$data['errorCode'] = 'badRequest';
 				return $data;
 			}
 
@@ -1379,6 +1424,7 @@ class JS_Api extends Page
 			return $data;
 		} else {
 			$data['error'] = 'You do not have permissions to access this asset';
+            $data['errorCode'] = 'permissionError';
 		}//end else
 
 		return $data;
@@ -1419,9 +1465,11 @@ class JS_Api extends Page
 				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 			} else {
 				$data['error'] = 'You must set the parent id, type code and asset name to create an asset';
+				$data['errorCode'] = 'badRequest';
 			}
 		} else {
 			$data['error'] = 'You do not have permissions to create an asset';
+            $data['errorCode'] = 'permissionError';
 		}//end else
 
 		return $data;
@@ -1462,6 +1510,7 @@ class JS_Api extends Page
 			}// end if
 		} else {
 			$data['error'] = 'You do not have permission to access this asset';
+            $data['errorCode'] = 'permissionError';
 		}//end else
 
 		return $data;
@@ -1505,6 +1554,7 @@ class JS_Api extends Page
 			}// end if
 		} else {
 			$data['error'] = 'You do not have permission to access this asset';
+            $data['errorCode'] = 'permissionError';
 		}//end else
 
 		return $data;
@@ -1542,10 +1592,12 @@ class JS_Api extends Page
 					$data[] ='"'.$screen.'" locks are now released for Asset "'.$asset->name.'" (#'.$asset->id.')';
 				} else {
 					$data['error'] = 'You cannot release locks on this asset';
+					$data['errorCode'] = 'cannotRelease';
 				}// end if
 			}//end else
 		} else {
 			$data['error'] = 'You do not have permission to access this asset';
+            $data['errorCode'] = 'permissionError';
 		}//end else
 
 		return $data;
@@ -1577,6 +1629,7 @@ class JS_Api extends Page
 				if (!$parent) return FALSE;
 			} else {
 				$data['error'] = 'A parent asset is required';
+				$data['errorCode'] = 'badRequest';
 				return FALSE;
 			}
 
@@ -1589,6 +1642,7 @@ class JS_Api extends Page
 			$data = $this->createAssociation($parent->id, $asset->id, $link_type, $link_value, $sort_order, $is_dependant, $is_exclusive);
 		} else {
 			$data['error'] = 'You do not have permission to access this asset';
+            $data['errorCode'] = 'permissionError';
 		}//end else
 
 		return $data;
@@ -1619,6 +1673,7 @@ class JS_Api extends Page
 				if (!$parent) return FALSE;
 			} else {
 				$data['error'] = 'A parent asset is required';
+				$data['errorCode'] = 'badRequest';
 				return $data;
 			}
 			$link_type = defined($args['link_type']) ? constant($args['link_type']) : SQ_LINK_TYPE_1;
@@ -1629,6 +1684,7 @@ class JS_Api extends Page
 			if (!$data) return FALSE;
 		} else {
 			$data['error'] = 'You do not have permission to access this asset';
+            $data['errorCode'] = 'permissionError';
 		}//end else
 
 		return $data;
@@ -1658,10 +1714,12 @@ class JS_Api extends Page
 				$new_parent = $this->setAsset($args['new_parent_id']);
 				if (is_null($old_parent) || is_null($new_parent)) {
 					$data['error'] = 'Either Old Parent or the New Parent was not a valid assetid.';
+					$data['errorCode'] = 'assetNotFound';
 					return $data;
 				}
 			} else {
 				$data['error'] = 'A parent asset is required';
+				$data['errorCode'] = 'badRequest';
 				return $data;
 			}//end else
 
@@ -1677,6 +1735,7 @@ class JS_Api extends Page
 			if (!$data) return FALSE;
 		} else {
 			$data['error'] = 'You do not have permission to access this asset';
+            $data['errorCode'] = 'permissionError';
 		}//end else
 
 		return $data;
@@ -1706,6 +1765,7 @@ class JS_Api extends Page
 				if (!$parent) return FALSE;
 			} else {
 				$data['error'] = 'A parent asset is required';
+				$data['errorCode'] = 'badRequest';
 				return $data;
 			}
 
@@ -1722,6 +1782,7 @@ class JS_Api extends Page
 			if (!$data) return FALSE;
 		} else {
 			$data['error'] = 'You do not have permission to access this asset';
+            $data['errorCode'] = 'permissionError';
 		}//end else
 
 		return $data;
@@ -1751,6 +1812,7 @@ class JS_Api extends Page
 				if (!$parent) return FALSE;
 			} else {
 				$data['error'] = 'A parent asset is required';
+				$data['errorCode'] = 'badRequest';
 				return $data;
 			}
 			$link_type = defined($args['link_type']) ? constant($args['link_type']) : SQ_LINK_TYPE_1 ;
@@ -1762,9 +1824,11 @@ class JS_Api extends Page
 
 			if (!$data) {
 				$data['error'] = 'Parent Asset #'.$parent->id.' and Child Asset #'.$asset->id.' do not have a valid link for given Link Type and Link Value';
+				$data['errorCode'] = 'notFound';
 			}
 		} else {
 			$data['error'] = 'You do not have permissions to access this asset';
+            $data['errorCode'] = 'permissionError';
 		}//end if
 
 		return $data;
@@ -1797,9 +1861,13 @@ class JS_Api extends Page
 
 			$data = $GLOBALS['SQ_SYSTEM']->am->getAssetTree($asset->id, $levels);
 
-			if (empty($data)) $data['error'] = 'Asset #'.$asset->id.' has no children';
+			if (empty($data)) {
+			    $data['error'] = 'Asset #'.$asset->id.' has no children';			    
+			    $data['errorCode'] = 'notFound';
+			}
 		} else {
 			$data['error'] = 'You do not have permissions to access this asset';
+            $data['errorCode'] = 'permissionError';
 		}//end else
 
 		return $data;
@@ -1834,9 +1902,11 @@ class JS_Api extends Page
 				$data = $this->getKeywordsReplacements($asset, $keywords);
 			} else {
 				$data['error'] = 'Please provide keywords to get replacement for';
+            $data['errorCode'] = 'badRequest';
 			}
 		} else {
 			$data['error'] = 'You do not have permissions to access this asset';
+            $data['errorCode'] = 'permissionError';
 		}//end else
 
 		return $data;
@@ -1880,7 +1950,8 @@ class JS_Api extends Page
 				$data = $response;
 			}
 		} else {
-			$data['error'] = 'You do not have permissions to access this change status for this asset';
+			$data['error'] = 'You do not have permissions to access this change status for this asset';			
+            $data['errorCode'] = 'permissionError';
 		}//end else
 
 		return $data;
@@ -1916,6 +1987,7 @@ class JS_Api extends Page
 			}
 		} else {
 			$data['error'] = 'You do not have permission to access this asset';
+            $data['errorCode'] = 'permissionError';
 		}
 
 		return $data;
@@ -1949,13 +2021,16 @@ class JS_Api extends Page
 					$this->updateLookupsforAsset($asset->id);
 					$data[] = 'Webpath for Asset "'.$asset->name.'" (# '.$asset->id.') had been updated sucessfully';
 				} else {
-					$data[] = 'Could not update webpath for Asset "'.$asset->name.'" (# '.$asset->id.') ';
+					$data['error'] = 'Could not update webpath for Asset "'.$asset->name.'" (# '.$asset->id.') ';
+					$data['errorCode'] = 'updateLookupsFailed';
 				}
 			} else {
 				$data['error'] = 'No webpaths provided';
+				$data['errorCode'] = 'badRequest';
 			}
 		} else {
 			$data['error'] = 'You do not have permission to access this asset';
+            $data['errorCode'] = 'permissionError';
 		}
 
 		return $data;
@@ -2015,6 +2090,7 @@ class JS_Api extends Page
 			}
 		} else {
 			$data['error'] = 'You do not have permission to access this asset';
+            $data['errorCode'] = 'permissionError';
 		}
 
 		return $data;
@@ -2068,7 +2144,10 @@ class JS_Api extends Page
 					}
 
 					if (!in_array($file_ext, $allowed_extensions)) {
-						return Array('error' => 'The supplied file extension "'.$file_ext.'" is not allowed for file type "'.$type_code.'"');
+						return Array(
+						    'error' => 'The supplied file extension "'.$file_ext.'" is not allowed for file type "'.$type_code.'"',
+						    'errorCode' => 'fileExtensionError',
+						);
 					}
 					//We are going to write to the Matrix Data tmp dir
 					$tmp_file_name  = $this->getRandomFilename($filename);
@@ -2115,6 +2194,7 @@ class JS_Api extends Page
 
 					if (!$success) {
 						$data['error'] = 'Error occured while creating new asset of type \''.$type_code.'\'';
+						$data['errorCode'] = 'createFailed';
 					} else {
 						// done creating the asset ? let remove the temp file we had uploaded and make way for new one
 						$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
@@ -2126,12 +2206,15 @@ class JS_Api extends Page
 					}
 				} else {
 					$data['error'] = 'Passed type code is not File Type asset or its Descendant Type';
+                    $data['errorCode'] = 'typeCodeError';
 				}
 			} else {
 				$data['error'] = 'You must set the Name of the Asset and provide a Base 64 encoded file to upload';
+                $data['errorCode'] = 'badRequest';
 			}
 		} else {
 			$data['error'] = 'You do not have permissions to create an asset';
+            $data['errorCode'] = 'permissionError';
 		}
 
 		return $data;
@@ -2173,16 +2256,20 @@ class JS_Api extends Page
 							$data['success'] = 'Content of Asset '.$asset->short_name.'(#'.$asset->id.') successfully updated';
 						} else {
 							$data['error'] = 'Error occured while updating Content of Asset '.$asset->short_name.'(#'.$asset->id.')';
+							$data['errorCode'] = 'updateFailed';
 						}
 					}
 				} else {
 					$data['error'] = 'Locks are not acquired on Asset '.$asset->short_name.'(#'.$asset->id.'), content cannot be updated';
+					$data['errorCode'] = 'lockFailed';
 				}
 			} else {
 				$data['error'] = 'Content for Asset of type code \''.$asset->type().'\' cannot be updated';
+				$data['errorCode'] = 'typeCodeError';
 			}
 		} else {
 			$data['error'] = 'You do not have permissions to Edit this asset';
+            $data['errorCode'] = 'permissionError';
 		}
 
 		return $data;
@@ -2209,7 +2296,8 @@ class JS_Api extends Page
 		$url = trim(array_get_index($args, 'asset_url', ''));
 		if (empty($url)) {
 			return Array(
-					'error' => 'No URL supplied'
+					'error' => 'No URL supplied',
+					'errorCode' => 'badRequest',
 					);
 		}
 		$significant_link_only = array_get_index($args, 'significant_link_only', TRUE);
@@ -2224,23 +2312,31 @@ class JS_Api extends Page
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL($url_bits['scheme'], $url_bits['host'].$url_bits['path']);
 			if (is_null($asset)) {
 				return Array(
-						'error' => 'URL supplied does not point to asset in Matrix'
+						'error' => 'URL supplied does not point to asset in Matrix',
+						'errorCode' => 'assetNotFound',
 						);
 			}
 		} else if (preg_match('|^[0-9]+(?:\:.+)?|', $url)) {
 			if (!$GLOBALS['SQ_SYSTEM']->am->getAssetInfo($url)) {
 				return Array(
-						'error' => 'Supplied assetid #'.$url.' does not exist'
+						'error' => 'Supplied assetid #'.$url.' does not exist',
+						'errorCode' => 'assetNotFound',
 						);
 			}
 			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($url);
 		} else {
 			return Array(
-					'error' => 'URL supplied is invalid'
+					'error' => 'URL supplied is invalid',
+					'errorCode' => 'badRequest',
 					);
 		}
 
-		if(!$asset->readAccess()) return Array('error' => 'You do not have permissions to access this asset');
+		if(!$asset->readAccess()) {
+		    return Array(
+		            'error' => 'You do not have permissions to access this asset',
+		            'errorCode' => 'permissionError',
+		           );
+		}
 
 		$raw_lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($asset->id, 0, NULL, Array('name', 'type_code'), $significant_link_only);
 		$root_folder = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
@@ -2324,19 +2420,38 @@ class JS_Api extends Page
 	{
 	    // we have the url in the args, lets get it and get the asset are dealing with
 		$url = trim(array_get_index($args, 'asset_url', ''));
-		if (empty($url)) return Array('error' => 'No URL supplied');
+		if (empty($url)) {
+		    return Array(
+		            'error' => 'No URL supplied',
+		            'errorCode' => 'badRequest',
+		           );
+		}
 
 		$url_bits = parse_url($url);
 
 		$asset = $GLOBALS['SQ_SYSTEM']->am->getAssetFromURL($url_bits['scheme'], $url_bits['host'].$url_bits['path']);
 
-		if (is_null($asset)) return Array('error' => 'URL supplied does not point to asset in Matrix');
+		if (is_null($asset)) {
+		    return Array(
+		        'error' => 'URL supplied does not point to asset in Matrix',
+		        'errorCode' => 'assetNotFound',
+		    );
+		}
 
-		if(!$asset->readAccess()) return Array('error' => 'You do not have permissions to access this asset');
-
+		if(!$asset->readAccess()) {
+		    return Array(
+		        'error' => 'You do not have permissions to access this asset',
+		        'errorCode' => 'permissionError',
+		    );
+		}
 
 		$result_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL($url_bits['scheme'], $url_bits['host'].$url_bits['path']);
-		if(empty($result_lineage)) return Array('error' => 'No lineage found');
+		if (empty($result_lineage)) {
+		    return Array(
+		        'error' => 'No lineage found',
+		        'errorCode' => 'notFound',
+		    );
+		}
 
 		return $result_lineage;
 
@@ -2364,7 +2479,12 @@ class JS_Api extends Page
 		$protocol = trim(array_get_index($args, 'protocol', NULL));
 
 		if(empty($root_url)) $root_url = NULL;
-		if (empty($lineage)) return Array('error' => 'No lineage supplied');
+		if (empty($lineage)) {
+		    return Array(
+		        'error' => 'No lineage supplied',
+		        'errorCode' => 'badRequest',
+		    );
+		}
 
 		if(!is_array($lineage)) {
 			$lineage = explode('\\,', trim($lineage));
@@ -2374,16 +2494,31 @@ class JS_Api extends Page
 		$current_asset = $this->setAsset($current_asset_id);
 		If(!$current_asset) return FALSE;
 
-		if(!$current_asset->readAccess()) return Array('error' => 'You do not have permissions to access this asset');
+		if(!$current_asset->readAccess()) {
+		    return Array(
+		        'error' => 'You do not have permissions to access this asset',
+		        'errorCode' => 'permissionError',
+		    );
+		}
 
 		$candidate_urls = $GLOBALS['SQ_SYSTEM']->am->getURLs($current_asset_id);
-		if(empty($candidate_urls)) return Array('error' => 'No URL found for current asset');
+		if(empty($candidate_urls)) {
+		    return Array(
+		        'error' => 'No URL found for current asset',
+		        'errorCode' => 'notFound',
+		    );
+		}
 
 		$lineage[] = $current_asset_id;
 
 		$result = $GLOBALS['SQ_SYSTEM']->am->getUrlFromLineage($lineage, $root_url, $protocol);
 
-		if (empty($result)) return Array('error' => 'No URL found for supplied lineage');
+		if (empty($result)) {
+		    return Array(
+		        'error' => 'No URL found for supplied lineage',
+		        'errorCode' => 'notFound',
+		    );
+		}
 
 		return $result;
 
@@ -2412,17 +2547,20 @@ class JS_Api extends Page
 			// check if the parent asset is provided
 			if (empty($new_parent)) {
 				$data['error'] = 'No location to clone the asset was provided';
+				$data['errorCode'] = 'badRequest';
 				return $data;
 			}
 
 			// check to see if we have write permission to the new parent
 			if (!($new_parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($new_parent, '', TRUE))) {
 				$data['error'] = 'Assetid "'.$new_parent.'" provided is invalid or doesn\'t exist on system';
+				$data['errorCode'] = 'assetNotFound';
 				return $data;
 			}
 
 			if (!$new_parent_asset->writeAccess() && !$this->attr('ignore_permissions')) {
 				$data['error'] = 'You do not have write access to the Asset under which you are tying to clone';
+				$data['errorCode'] = 'permissionError';
 				return $data;
 			}
 
@@ -2463,12 +2601,15 @@ class JS_Api extends Page
 					$data['success'] = $asset->name.'(#'.$asset->id.') has been successfully cloned to '.$cloned_assets_string;
 				} else {
 					$data['error'] = $all_errors;
+					$data['errorCode'] = 'cloneFailed';
 				}
 			} else {
 				$data['error'] = 'Asset to clone was not provided';
+				$data['errorCode'] = 'badRequest';
 			}
 		} else {
 			$data['error'] = 'You do not have permissions to create an asset';
+            $data['errorCode'] = 'permissionError';
 		}//end else
 
 		return $data;
@@ -2495,11 +2636,13 @@ class JS_Api extends Page
 		$asset_2_id = array_get_index($args, 'assetid_2', '');
 		if (empty($asset_2_id)) {
 			$data['error'] = 'Only one asset was provided. Need 2 assets to check the difference';
+            $data['errorCode'] = 'badRequest';
 			return $data;
 		}
 
 		if (!($asset_2 = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset_2_id, '', TRUE))) {
 			$data['error'] = 'Assetid "'.$asset_2_id.'", provided is invalid or doesn\'t exist on system';
+            $data['errorCode'] = 'assetNotFound';
 			return $data;
 		}
 
@@ -2529,6 +2672,7 @@ class JS_Api extends Page
 				foreach (Array($paint_layout_1, $paint_layout_2) as $paint_layout_assetid) {
 					if (!$paint_layout = $GLOBALS['SQ_SYSTEM']->am->getAsset($paint_layout_assetid, 'paint_layout_page', 'TRUE')) {
 						$data['error'] = 'Invalid assetid (#'.$paint_layout_assetid.') provided for Paint Layout to use';
+						$data['errorCode'] = 'badRequest';
 					}
 					$paint_layout = NULL;
 					if (isset($data['error'])) return $data;
@@ -2566,6 +2710,7 @@ class JS_Api extends Page
 			$data['success'] = $difference;
 		} else {
 			$data['error'] = 'You do not have permissions to read content of one or either of the assets passed in';
+            $data['errorCode'] = 'permissionError';
 		}//end else
 
 		return $data;
@@ -2720,9 +2865,11 @@ class JS_Api extends Page
 				$data['success'] = "Context successfully set to '$context_id'.";
 			} else {
 				$data['error'] = 'Context Id Provided doesn\'t exist on the system.';
+				$data['errorCode'] = 'contextNotFound';
 			}
 		} else {
 			$data['error'] = 'No Context Id Provided.';
+            $data['errorCode'] = 'badRequest';
 		}
 
 		return $data;
@@ -2779,7 +2926,10 @@ class JS_Api extends Page
 
 				$set = array_get_index($args, 'set', '');
 
-				if (empty($set) && $set != 0) return $data['error'] = 'Please specify if the Metadata Scheme needs to be set or unset';
+				if (empty($set) && $set != 0) {
+				    return $data['error'] = 'Please specify if the Metadata Scheme needs to be set or unset';
+				    $data['errorCode'] = 'badRequest';
+				}
 
 				$granted  = array_get_index($args, 'granted', TRUE);
 				$cascades = array_get_index($args, 'cascades', NULL);
@@ -2796,6 +2946,7 @@ class JS_Api extends Page
 							$data['success'] = 'Metadata Schema #'.$schemaid.' successfully '.($granted ? 'applied' : 'denied').' to Asset #'.$asset->id;
 						} else {
 							$data['error'] = 'Could not '.($granted ? 'apply' : 'deny').' Metadata Schema #'.$schemaid.' to Asset #'.$asset->id;
+							$data['errorCode'] = 'setFailed';
 						}
 					} else {
 						$schemas = $mm->deleteSchema($asset->id, $schemaid);
@@ -2803,18 +2954,22 @@ class JS_Api extends Page
 							$data['success'] = 'Metadata Schema #'.$schemaid.' successfully removed from Asset #'.$asset->id;
 						} else {
 							$data['error'] = 'Could not remove Metadata Schema #'.$schemaid.' from Asset #'.$asset->id;
+							$data['errorCode'] = 'unsetFailed';
 						}
 					}
 					$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'metadata');
 
 				} else {
 					$data['error'] = 'Assetid for the Metadata Schema to set on the Asset not provided';
+					$data['errorCode'] = 'badRequest';
 				}
 			} else {
 				$data['error'] = 'Asset to set the Metadata Schema to was not provided';
+				$data['errorCode'] = 'badRequest';
 			}
 		} else {
 			$data['error'] = 'You do not have permissions to access this asset';
+            $data['errorCode'] = 'permissionError';
 		}//end else
 
 		return $data;
@@ -2845,9 +3000,11 @@ class JS_Api extends Page
 				$data = $this->getMetadataSchema($asset, $granted, $cascades);
 			} else {
 				$data['error'] = 'Asset to get the Metadata Schema applied to it was not provided';
+				$data['errorCode'] = 'badRequest';
 			}
 		} else {
 			$data['error'] = 'You do not have permissions to access this asset';
+            $data['errorCode'] = 'permissionError';
 		}//end else
 
 		return $data;
@@ -3006,16 +3163,24 @@ class JS_Api extends Page
 			$new_id = $am->createAssetLink($parent, $child, $link_type, $link_value, $sort_order, $is_dependant, $is_exclusive);
 			//done creating the link, lets update lookup
 			$result = $this->updateLookupsforAsset($child->id);
-			if (!is_null($result)) return Array('error' => 'Unable to Update Lookups on the Asset #'.$child->id.' and its Childrens');
+			if (!is_null($result)) {
+			    return Array(
+			        'error' => 'Unable to Update Lookups on the Asset #'.$child->id.' and its Childrens',
+			        'errorCode' => 'updateLookupsFailed',
+			    );
+			}
 
 			if ($new_id == 0) {
-				return Array('error' => 'Unable to create link');
+				return Array(
+				    'error' => 'Unable to create link',
+				    'errorCode' => 'createFailed',
+				);
 			}//end if
 			return Array (
 					'link_id'	=>	$new_id,
 				   );
 		} else {
-			$this->returnError('Missing information to create link. Make sure parent id and child are provided');
+			$this->returnError('Missing information to create link. Make sure parent id and child are provided', 'badRequest');
 		}//end else
 
 	}//end createAssociation:()
@@ -3041,6 +3206,7 @@ class JS_Api extends Page
 
 		if (!$linkid) {
 			$data['error'] = 'Parent Asset #'.$parent.' and Child Asset #'.$child.' do not have a valid link for given Link Type and Link Value';
+			$date['errorCode'] = 'notFound';
 			return $data;
 		}
 
@@ -3049,6 +3215,7 @@ class JS_Api extends Page
 
 		if ($linkid['locked']) {
 			$data['error'] = 'Link #"'.$linkid['link_id'].'" between Asset "'.$child_asset->name.'" (#'.$child_asset->id.') and Asset "'.$parent_asset->name.'" (#'.$parent_asset->id.') " cannot be deleted, link is locked';
+			$data['errorCode'] = 'linkLocked';
 			return $data;
 		}
 
@@ -3075,7 +3242,9 @@ class JS_Api extends Page
 				}//end if
 				//no matter if link is deleted or the whole asset is moved to trash, we will update lookups :)
 				$result_from_update = $this->updateLookupsforAsset($child);
-				if (!is_null($result_from_update)) $this->returnError('Unable to Update Lookups on the Asset "'.$child_asset->name.'" (#'.$child.') and its Childrens');
+				if (!is_null($result_from_update)) {
+				    $this->returnError('Unable to Update Lookups on the Asset "'.$child_asset->name.'" (#'.$child.') and its Childrens', 'updateLookupsFailed');
+				}
 
 				// Release all our locks
 				$am->releaseLock($link['minorid'], 'all');
@@ -3086,16 +3255,19 @@ class JS_Api extends Page
 					return $data;
 				} else {
 					$data['error'] = 'Unable to delete link';
+					$data['errorCode'] = 'deleteFailed';
 					return $data;
 				}//end else
 
 			} else {
 				$data['error'] = 'The link id that was provided is invalid';
+				$data['errorCode'] = 'badRequest';
 				return $data;
 			}//end else
 
 		} else {
 			$data['error'] = 'The link id provided is empty';
+            $data['errorCode'] = 'badRequest';
 			return $data;
 		}//end else
 
@@ -3131,11 +3303,12 @@ class JS_Api extends Page
 
 			if (!$link_id) {
 				$data['error'] = 'Parent Asset #'.$old_parent_id.' and Child Asset #'.$asset_id_to_move.' do not have a valid link for given Link Type and Link Value';
+				$data['errorCode'] = 'notFound';
 				return $data;
 			}
 
 			if ($link_id['locked']) {
-				$this->returnError('Link "'.$link_id['link_id'].'" cannot be moved, link is locked');
+				$this->returnError('Link "'.$link_id['link_id'].'" cannot be moved, link is locked', 'linkLocked');
 				return FALSE;
 			}
 			$new_link_id = $GLOBALS['SQ_SYSTEM']->am->moveLink($link_id['link_id'], $new_parent_id, $new_link_type, $new_position, $new_link_value);
@@ -3143,15 +3316,18 @@ class JS_Api extends Page
 			if (!empty($new_link_id)) {
 				//wow we moved the asset successfully, now lets try and update lookups
 				$result = $this->updateLookupsforAsset($asset_id_to_move);
-				if (!is_null($result)) $this->returnError('Unable to Update Lookups on the Asset #'.$asset_id_to_move.' and its Childrens');
+				if (!is_null($result)) {
+				    $this->returnError('Unable to Update Lookups on the Asset #'.$asset_id_to_move.' and its Childrens', 'updateLookupsFailed');
+				}
+				
 				return Array (
 						'link_id'	=> $new_link_id,
 					   );
 			} else {
-				$this->returnError('Unable to move link');
+				$this->returnError('Unable to move link', 'moveFailed');
 			}//end else
 		} else {
-			$this->returnError('Please provide a valid current parent id, asset id to move, and new parent id');
+			$this->returnError('Please provide a valid current parent id, asset id to move, and new parent id', 'badRequest');
 		}//end else
 
 		return FALSE;
@@ -3184,6 +3360,7 @@ class JS_Api extends Page
 
 			if (!$link_id) {
 				$data['error'] = 'Parent Asset #'.$parent.' and Child Asset #'.$child.' do not have a valid link for given Link Type and Link Value';
+				$data['errorCode'] = 'notFound';
 				return $data;
 			}
 
@@ -3212,10 +3389,11 @@ class JS_Api extends Page
 				return $response;
 			} else {
 				$response['error'] = 'Unable to update Link #'.$link_id['link_id'].' between Asset "'.$child_asset->name.'" (#'.$child_asset->id.') and Asset "'.$parent_asset->name.'" (#'.$parent_asset->id.')';
+				$response['errorCode'] = 'updateFailed';
 				return $response;
 			}//end else
 		} else {
-			$this->returnError('Please enter a valid parent id and child id');
+			$this->returnError('Please enter a valid parent id and child id', 'badRequest');
 			return FALSE;
 		}//end else
 
@@ -3251,7 +3429,7 @@ class JS_Api extends Page
 
 			$permissions = $am->getPermission($id, $level, NULL, FALSE, FALSE, TRUE);
 			if (empty($permissions)) {
-				$this->returnError('There are no '.$level_name.' permissions set for id #'.$id);
+				$this->returnError('There are no '.$level_name.' permissions set for id #'.$id, 'notFound');
 				return FALSE;
 			}
 
@@ -3279,7 +3457,7 @@ class JS_Api extends Page
 			return $data;
 
 		} else {
-			$this->returnError('Asset ID or Access Level is not valid. Please provide a valid AssetID and Access Level');
+			$this->returnError('Asset ID or Access Level is not valid. Please provide a valid AssetID and Access Level', 'badRequest');
 			return FALSE;
 		}//end else
 
@@ -3357,6 +3535,7 @@ class JS_Api extends Page
 				$show_link = $this->getLinkId($parent, $id, NULL, NULL, TRUE);
 				if (!$show_link) {
 					$data['error'] = 'Parent Asset #'.$parent.' and Child Asset #'.$id.' do not have a valid link';
+					$data['errorCode'] = 'notFound';
 					return $data;
 				}
 
@@ -3396,6 +3575,7 @@ class JS_Api extends Page
 		// if not then stop matrix from throwing a JSON.parse: unexpected end of data error
 		if (empty($parent_arr)) {
 			$parent_arr['error'] = 'No parents found for asset #'.$id.' for the given filters';
+            $parent_arr['errorCode'] = 'notFound';
 		}
 
 		return $parent_arr;
@@ -3549,7 +3729,7 @@ class JS_Api extends Page
 
 			}
 		} else {
-			$this->returnError('Please provide a valid Asset ID');
+			$this->returnError('Please provide a valid Asset ID', 'badRequest');
 			return FALSE;
 		}//end else
 
@@ -3571,7 +3751,10 @@ class JS_Api extends Page
 	function setAttributeValue($assetid, $attr_name, $attr_val)
 	{
 		if (!empty($assetid) && !empty($attr_name) && !empty($attr_val)) {
-			if (count($attr_name) != count($attr_val) ) $this->returnError('Please provide Attributes and corresponding values correctly');
+			if (count($attr_name) != count($attr_val) ) {
+			    $this->returnError('Please provide Attributes and corresponding values correctly', 'badRequest');
+			}
+			
 			// Shortcuts
 			$asset	= $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			$am = $GLOBALS['SQ_SYSTEM']->am;
@@ -3617,7 +3800,7 @@ class JS_Api extends Page
 
 			return $data;
 		} else {
-			$this->returnError('Please make sure to provide an Asset ID, Attribute Name and Attribute Value');
+			$this->returnError('Please make sure to provide an Asset ID, Attribute Name and Attribute Value', 'badRequest');
 		}//end else
 
 	}//end setAttributeValue()
@@ -3636,7 +3819,10 @@ class JS_Api extends Page
 	function setAssetMetadata($assetid, $fieldid, $new_value)
 	{
 		if (!empty($assetid) && !empty($fieldid)) {
-			if (count($fieldid) != count($new_value) ) $this->returnError('Please provide Metadata fieldids and corresponding values correctly');
+			if (count($fieldid) != count($new_value) ) {
+			    $this->returnError('Please provide Metadata fieldids and corresponding values correctly', 'badRequest');
+			}
+			
 			$s_result = TRUE;
 			$g_result = TRUE;
 
@@ -3651,7 +3837,7 @@ class JS_Api extends Page
 
 				$field	= $am->getAsset($fieldid[$i]);
 				if (!($field instanceof Metadata_Field)) {
-					$this->returnError('The Field ID provided does not belong to a metadata field');
+					$this->returnError('The Field ID provided does not belong to a metadata field', 'notFound');
 					return FALSE;
 				}//end if
 
@@ -3660,16 +3846,14 @@ class JS_Api extends Page
 				}
 
 				$field_name		= $field->attr('name');
-				$field_value	= ($new_value[$i] == 'SQ_METADATA_USE_DEFAULT') ? NULL : $new_value[$i];
 				$metadata_info	= Array (
 									$fieldid[$i]	=> Array (
 														Array (
 															'name'	=> $field_name,
-															'value'	=> $field_value,
+															'value'	=> $new_value[$i],
 														),
 													   ),
 								  );
-
 				// Set metadata
 				if (!$mm->setMetadata($assetid, $metadata_info)) $s_result = FALSE;
 
@@ -3679,7 +3863,7 @@ class JS_Api extends Page
 			// if the Metadata wasnt set correctly, dont even worry about regenerating the metadata file
 			// just return from here telling the user it was a big time fail ;)
 			if(!$s_result) {
-				$this->returnError('Unable to set Matadata for Asset #'.$assetid);
+				$this->returnError('Unable to set Metadata for Asset #'.$assetid, 'setFailed');
 				return FALSE;
 			}
 
@@ -3699,11 +3883,11 @@ class JS_Api extends Page
 			if ($s_result && $g_result) {
 				return TRUE;
 			} else {
-				$this->returnError('Unable To Regenerate Metadata For Asset #'.$assetid);
+				$this->returnError('Unable To Regenerate Metadata For Asset #'.$assetid, 'regenerateFailed');
 				return FALSE;
 			}//end else
 		} else {
-			$this->returnError('Please provide both AssetID and FieldID of the metadata field');
+			$this->returnError('Please provide both AssetID and FieldID of the metadata field', 'badRequest');
 			return FALSE;
 		}//end else
 
@@ -3729,7 +3913,7 @@ class JS_Api extends Page
 			if (empty($link)) {
 				return FALSE;
 			} else if (count($link) > 1) {
-				$this->returnError('More than one link found between Parent Asset #'.$parent.' and Child Asset #'.$child.', please filter out with help of Link value and Link Type');
+				$this->returnError('More than one link found between Parent Asset #'.$parent.' and Child Asset #'.$child.', please filter out with help of Link value and Link Type', 'ambiguousRequest');
 				return FALSE;
 			}
 
@@ -3753,7 +3937,7 @@ class JS_Api extends Page
 				return $data_array;
 			}
 		} else {
-			$this->returnError('Please provide a parent id and child id');
+			$this->returnError('Please provide a parent id and child id', 'badRequest');
 			return FALSE;
 		}//end else
 
@@ -3812,14 +3996,20 @@ class JS_Api extends Page
 		// Set our asset type to create
 		$type_code = strtolower($type_code);
 		if (!$am->installed($type_code)) {
-			return Array('error' => 'Asset type requested to create not installed on the system');
+			return Array(
+			    'error' => 'Asset type requested to create not installed on the system',
+			    'errorCode' => 'typeCodeError',
+			);
 		}//end if
 
 		// Are we allowed to create this?
 		$types = $this->attr('types');
 		if (!empty($types)) {
 			if (!isset($types[$type_code])) {
-				return Array('error' => 'Asset type requested to create is not allowed via API');
+				return Array(
+				    'error' => 'Asset type requested to create is not allowed via API',
+				    'errorCode' => 'typeCodeError',
+				);
 			}
 		}
 
@@ -3827,7 +4017,10 @@ class JS_Api extends Page
 		$restrict = $this->attr('types_restriction');
 		if (!empty($restrict)) {
 			if (!$this->checkParentType($pa)) {
-				return Array('error' => 'Parent asset passed does not match the restricted Parents type configured');
+				return Array(
+				    'error' => 'Parent asset passed does not match the restricted Parents type configured',
+				    'errorCode' => 'rootNodeError',
+				);
 			}
 		}
 
@@ -3885,7 +4078,10 @@ class JS_Api extends Page
 				   );
 		}//end if
 
-		return Array('error' => 'Error occured while asset creation');
+		return Array(
+		    'error' => 'Error occured while asset creation',
+		    'errorCode' => 'createFailed',
+		);
 
 	}//end createAsset
 
@@ -4095,6 +4291,7 @@ class JS_Api extends Page
 			$init_hipo->_steps = $init_hipo->getInitialStepData();
 			if (!$init_hipo->prepare()) {
 				$return_array['error'] = 'Could not initialise HIPO job';
+				$return_array['errorCode'] = 'hipoFailed';
 				return $return_array;
 			}
 			set_error_handler(Array(&$init_hipo, '_errorHandler'));
@@ -4107,6 +4304,7 @@ class JS_Api extends Page
 			// to update the locks
 			if (!$GLOBALS['SQ_SYSTEM']->am->updateLock($asset->id, $screen)) {
 				$return_array['error'] = 'Unable to update locks for Asset '.$asset->name.'('.$asset->id.')';
+				$return_array['errorCode'] = 'updateFailed';
 			} else {
 				$return_array[] = 'Locks for \''.$screen.'\' screen for Asset '.$asset->name.'('.$asset->id.') successfully updated';
 			}
@@ -4224,6 +4422,7 @@ class JS_Api extends Page
 			}//end foreach
 		} else {
 			$return_array['error'] = 'Asset #'.$asset->id.' does not has any Metadata Schema '.($granted ? 'applied' : 'denied') .' to it';
+			$return_array['errorCode'] = 'notFound';
 		}
 
 		return $return_array;
@@ -4235,10 +4434,11 @@ class JS_Api extends Page
 	* Returns an error in JSON format
 	*
 	* @param string	 $error	The error to send back as JSON
+	* @param string  $code  A short code that will not be translated
 	*
 	* @access public
 	*/
-	function returnError($error)
+	function returnError($error, $code=NULL)
 	{
 		// Sanitise the error message
 		$error = htmlspecialchars($error);
@@ -4248,6 +4448,9 @@ class JS_Api extends Page
 
 		// Send error as JSON so they are not confused why the function quit
 		$data['error'] = $error;
+		if ($code !== NULL) {
+		    $data['errorCode'] = $code;
+		}
 
 		// if we are batching  request then  don't send the error to console yet, wait
 		// wait for all the remaining request to execute and provide feedback together
@@ -4279,7 +4482,7 @@ class JS_Api extends Page
 					$json = new Services_JSON();
 					$output = $json->encode($data);
 					if (Services_JSON::isError($output)) {
-						$this->returnError($output);
+						$this->returnError($output, 'internalError');
 					}
 				} else {
 					// all ISO characters have to be converted to UTF8 encoding
@@ -4307,7 +4510,7 @@ class JS_Api extends Page
 								$error = 'Unknown error';
 								break;
 						}
-						$this->returnError($error);
+						$this->returnError($error, 'internalError');
 					}
 				}//end else
 
