@@ -559,7 +559,7 @@ class JS_Api extends Page
 				return FALSE;
 			}
 			if (!$valid_assetid) {
-				$this->returnError($id.' is not a valid asset id', 'notFound');
+				$this->returnError($id.' is not a valid asset id', 'assetNotFound');
 				return FALSE;
 			}
 			// Set our asset reference
@@ -577,7 +577,7 @@ class JS_Api extends Page
 				// Set our asset reference
 				$asset = $am->getAssetFromURL($protocol, strip_url($id, TRUE), TRUE, TRUE);
 				if (is_null($asset)) {
-				    $this->returnError($id.' is not a valid URL', 'notFound');
+				    $this->returnError($id.' is not a valid URL', 'assetNotFound');
 				}
 				
 				return $asset;
@@ -1600,7 +1600,7 @@ class JS_Api extends Page
 					$data[] ='"'.$screen.'" locks are now released for Asset "'.$asset->name.'" (#'.$asset->id.')';
 				} else {
 					$data['error'] = 'You cannot release locks on this asset';
-					$data['errorCode'] = 'cannotRelease';
+					$data['errorCode'] = 'releaseLockFailed';
 				}// end if
 			}//end else
 		} else {
@@ -2269,7 +2269,7 @@ class JS_Api extends Page
 					}
 				} else {
 					$data['error'] = 'Locks are not acquired on Asset '.$asset->short_name.'(#'.$asset->id.'), content cannot be updated';
-					$data['errorCode'] = 'lockFailed';
+					$data['errorCode'] = 'locksRequired';
 				}
 			} else {
 				$data['error'] = 'Content for Asset of type code \''.$asset->type().'\' cannot be updated';
@@ -4087,7 +4087,7 @@ class JS_Api extends Page
 
 				$field	= $am->getAsset($fieldid[$i]);
 				if (!($field instanceof Metadata_Field)) {
-					$this->returnError('The Field ID provided does not belong to a metadata field', 'notFound');
+					$this->returnError('The Field ID provided does not belong to a metadata field', 'typeCodeError');
 					return FALSE;
 				}//end if
 
@@ -4541,7 +4541,7 @@ class JS_Api extends Page
 			$init_hipo->_steps = $init_hipo->getInitialStepData();
 			if (!$init_hipo->prepare()) {
 				$return_array['error'] = 'Could not initialise HIPO job';
-				$return_array['errorCode'] = 'hipoFailed';
+				$return_array['errorCode'] = 'lockFailed';
 				return $return_array;
 			}
 			set_error_handler(Array(&$init_hipo, '_errorHandler'));
