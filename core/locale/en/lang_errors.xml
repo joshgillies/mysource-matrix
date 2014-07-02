@@ -1883,7 +1883,7 @@ Full Node Contents :
 	<error code="SYS0342">Cannot clean up metadata values of asset ID #%1$s, DB error while deleting: "%2$s"</error>
 	<error code="SYS0343">Cannot get interface value of metadata field ID #%1$s for asset ID #%2$s in context ID #%3$s, DB error while getting: "%4$s"</error>
 	<error code="SYS0344">Cannot use asset_metadata_XXX keyword for metadata field value. Replacing asset_metadata_XXX keyword by metadata_field_XXX</error>
-	<error code="SYS0353">Cannot use the Metadata Select Field's reserved delimiter string "; " (semi-colon and space) as a part of the option key in "#%1$s". Replacing "; " by ";".</error>
+	<error code="SYS0353">Cannot use the Metadata Select Field's reserved delimiter string "; " (semi-colon and space) as a part of the option key in "%1$s". Replacing "; " with ";".</error>
 
 	<!-- core/lib/html_form/html_form.inc::get_file_upload_info() -->
 	<error code="SYS0349">Upload error for "%s" file: No file was uploaded.</error>
