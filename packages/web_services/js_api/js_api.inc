@@ -475,7 +475,7 @@ class JS_Api extends Page
 				
 				if ($error !== NULL) {
 					$results[$track_func]['error'] = $error;
-					$results[$track_func]['errorCode'] = 'insufficientPermissions';
+					$results[$track_func]['errorCode'] = 'permissionError';
 				} else {
 					$func_name = '_'.$type;
 					try {
