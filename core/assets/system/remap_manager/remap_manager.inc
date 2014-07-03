@@ -248,7 +248,7 @@ class Remap_Manager extends Asset
 						  );
 			$type_codes = MatrixDAL::executeQuery('core', 'insertRemap', $bind_vars);
 		} catch (Exception $e) {
-			throw new Exception('Unable to insert new remap from: '.$old_url.' to: '.$new_url.' due to database error: '. $e->getMessage());
+			trigger_error('Unable to insert new remap from: '.$old_url.' to: '.$new_url.' due to database error: '. $e->getMessage(), E_USER_ERROR);
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
