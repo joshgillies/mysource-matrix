@@ -383,7 +383,7 @@ input[type="text"],
 input[type="password"] {
 	background-color: 			rgb( 255, 255, 255 );
 	height: 					auto;
-	line-height: 				12px;
+	line-height: 				18px;
 	padding: 					4px 4px 4px;
 	margin: 					0 3px 0 0;
 }
