@@ -30,8 +30,12 @@ class JS_Api extends Page
 {
 
 	/*
-	* maping array for the function
-	* and the attribute to enable them
+	* Mapping array for enabling attributes.
+	*
+	* Array is keyed by method name, and value is the attribute required to
+	* enable the API method. Some attributes enable more than one method.
+	*
+	* @var array
 	*/
 	private $_attribute_mapping = Array(
 									'getAssetTypes'					=> 'get_asset_types',
@@ -106,6 +110,7 @@ class JS_Api extends Page
 									'getWebPath'					=> Array('read_access'),
 									'getWorkflowSchema'				=> Array('read_access'),
 									'showDifference'				=> Array('read_access'),
+									'getGoogleAnalyticsStatistics' 	=> Array('no_check'),
 									'setMultipleAttributes'			=> Array('write_access'),
 									'setAttribute'					=> Array('write_access'),
 									'setMetadataAllFields'			=> Array('write_access'),
@@ -213,41 +218,88 @@ class JS_Api extends Page
 	*/
 	function printFrontend()
 	{
-		// Make sure the user can log in first
-		if (!$this->readAccess()) {
-			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
-			return;
-		}
-
-		// Should we print our JS file, or send back some JSON?
-		if (!isset($_REQUEST['key']) && !isset($_REQUEST['id']) && !isset($_REQUEST['type'])) {
-			header('Content-Type: text/javascript');
-			header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
-			if ($this->attr('use_enhanced_js')) {
-				require_once 'js_api_enhanced_function_list.inc';
-				echo Js_Api_Enhanced_Function_List::paintJSFunctions($this);
-			} else {
-				require_once 'js_api_standard_function_list.inc';
-				echo Js_Api_Standard_Function_List::paintJSFunctions($this);
-			}
-			return;
-		}
-
-
 		// Overriding the matrix error handler so HTML doesn't get printed to the screen
 		require_once dirname(__FILE__).'/js_api_error_handler.inc';
 		$old_error_handler = set_error_handler('js_api_error_handler');
 
+		// Grab our data.
+		$content_type = array_get_index($_SERVER, 'CONTENT_TYPE', array_get_index($_SERVER, 'HTTP_CONTENT_TYPE', ''));
+        $sent_as_json = FALSE;
+		if (strpos($content_type, 'application/json') === 0) {
+           $sent_as_json = TRUE;
+           $this->_tmp['sent_as_json'] = TRUE;
+        }
+        
+        $api_key = '';
+        if (array_key_exists('HTTP_AUTHORIZATION', $_SERVER) === TRUE) {
+            $auth_string = $_SERVER['HTTP_AUTHORIZATION'];
+            $found       = preg_match('/^Matrix-JSAPI key=(\d+|"\d+")$/', $auth_string, $matches);
+            if ($found > 0) {
+                $api_key = trim($matches[1], '"');
+            }
+        }
+        
+        if (($api_key === '') && (array_key_exists('key', $_GET) === TRUE)) {
+            $api_key = array_get_index($_GET, 'key', '');
+        }
+		
+		if ((boolean) $this->attr('use_enhanced_js') === FALSE) {
+		    $request_data = $_REQUEST;
+		} else {
+		    if ($sent_as_json === TRUE) {
+		        // Block any potential payload DDOS that doesn't send the right key in GET.
+		        if (($this->readAccess()) && ($api_key !== '') && ($api_key === $this->attr('api_key'))) {
+                    $raw_request_data = file_get_contents('php://input');
+                    $request_data = json_decode($raw_request_data, TRUE);
+                    if ($request_data === NULL) {
+                        $this->returnError('Malformed input.', 'badRequest');
+                        restore_error_handler();
+                        return;
+                    }
+		        } else {
+                    $request_data = Array();
+		        }
+		    } else {
+		        $request_data = $_REQUEST;
+		    }
+		}
+        
+		// Should we print our JS file, or send back some JSON?
+		if (($api_key === '') && !isset($request_data['id']) && !isset($request_data['type'])) {
+		    if (!$this->readAccess()) {
+		        // Paint the login page if we can't login.
+		        restore_error_handler();
+		        $GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
+		    } else {
+                header('Content-Type: text/javascript');
+                header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
+                if ($this->attr('use_enhanced_js')) {
+                    require_once 'js_api_enhanced_function_list.inc';
+                    echo Js_Api_Enhanced_Function_List::paintJSFunctions($this);
+                } else {
+                    require_once 'js_api_standard_function_list.inc';
+                    echo Js_Api_Standard_Function_List::paintJSFunctions($this);
+                }
+            }
+			return;
+		}
+		
+		// If we are returning data, still check for read access.
+		if (!$this->readAccess()) {
+            $this->returnError('You do not have permissions to access this asset', 'authError');
+            restore_error_handler();
+            return;
+        }
+
 		// Get our JSON data that was sent, then encode it into an array
-		$api_key = array_get_index($_REQUEST, 'key', '');
-		$id = array_get_index($_REQUEST, 'id', '');
+		$id = array_get_index($request_data, 'id', '');
 		// if id is still empty try getting 'assetid'
-		if (empty($id)) $id = array_get_index($_REQUEST, 'assetid', '');
-		$function_type = array_get_index($_REQUEST, 'type', '');
+		if (empty($id)) $id = array_get_index($request_data, 'assetid', '');
+		$function_type = array_get_index($request_data, 'type', '');
 
 		// nonce token check
 		$nonce_token = get_unique_token();
-		if (!isset($_POST['nonce_token']) || ($_POST['nonce_token'] !== $nonce_token)) {
+		if (!isset($request_data['nonce_token']) || ($request_data['nonce_token'] !== $nonce_token)) {
 			$this->returnError('nonce token is invalid', 'authError');
 			restore_error_handler();
 			return;
@@ -277,16 +329,12 @@ class JS_Api extends Page
 				restore_error_handler();
 				return;
 			}
-			if (!function_exists('json_decode')) {
-				require_once 'Services/JSON.php';
-				$json = new Services_JSON();
-				$functions_info = Array();
-				$request_data = $json->decode($_REQUEST['functions']);
-				$functions_info = $this->object2Array($request_data);
-			} else {
-				$functions_info = json_decode($_REQUEST['functions'], TRUE);
-			}//end else
-
+			
+			$functions_info = $request_data['functions'];
+			if ($sent_as_json === FALSE) {
+			    $functions_info = json_decode($functions_info, TRUE);
+			}
+			
 			foreach ($functions_info as $index => $info) {
 				$function_calls[$index] = $info['function'];
 			}
@@ -315,8 +363,8 @@ class JS_Api extends Page
 		}
 
 		// #4372  Feature Request : JS API ability to specify _admin/_edit access
-		// Lets populate our $_REQUEST var so that we can use it later :)
-		$_REQUEST['force_simple_edit'] = $this->attr('force_simple_edit');
+		// Lets populate our $request_data var so that we can use it later :)
+		$request_data['force_simple_edit'] = $this->attr('force_simple_edit');
 
 		$temp_server_vars_php_self = array_get_index($_SERVER, 'PHP_SELF', NULL);;
 		$temp_server_vars_request_uri = array_get_index($_SERVER, 'REQUEST_URI', NULL);
@@ -349,7 +397,7 @@ class JS_Api extends Page
 				$_SERVER['PHP_SELF'] = preg_replace('|/'.SQ_CONF_LIMBO_SUFFIX.'(.)*|', '', $_SERVER['PHP_SELF']);
 				$_SERVER['PHP_SELF'] = preg_replace('|/'.SQ_CONF_BACKEND_SUFFIX.'(.)*|', '', $_SERVER['PHP_SELF']);
 				$_SERVER['PHP_SELF'] = $_SERVER['PHP_SELF'].'/';
-				$_REQUEST['force_simple_edit'] = TRUE;
+				$request_data['force_simple_edit'] = TRUE;
 			}
 
 			// If 'PHP_SELF' was updated, set the same to 'REQUEST_URI'
@@ -396,7 +444,7 @@ class JS_Api extends Page
 				// format there is $results_0_*$ type else it might be raw input that we use
 				if ($track_func === 0) {
 					$id = $args['id'];
-				} else {
+				} else {				    				
 					// okie so we arent the first called function in batched request
 					// and we are to use the assetid from the previous function exec
 					// but no we look into any of the argument where the  $result_*$
@@ -427,14 +475,19 @@ class JS_Api extends Page
 				}//end if/else
 			} else {
 				// old API way
-				$args = $_REQUEST;
+				$args = $request_data;
+				log_write(var_export($args, TRUE));
 			}
 
 			// fix our args elements
-			foreach ($args as $index => $arg) {
-				$args[$index] = str_replace($replace_these, $replace_with, $args[$index]);
+			if ($sent_as_json === FALSE) {
+                foreach ($args as $index => $arg) {
+                    $args[$index] = str_replace($replace_these, $replace_with, $args[$index]);
+                }
 			}
 
+            log_write(var_export($args, TRUE));
+            
 			// first thing check if the function that is being tried to executed is enabled
 			if ($this->attr($this->_attribute_mapping[$type])) {
 				$asset = NULL;
@@ -477,8 +530,9 @@ class JS_Api extends Page
 					$results[$track_func]['error'] = $error;
 					$results[$track_func]['errorCode'] = 'permissionError';
 				} else {
-					$func_name = '_'.$type;
+				    $func_name = '_'.$type;
 					try {
+					    log_write(var_export($args, TRUE));
 						$results[$track_func] = $this->$func_name($args, $asset, $ra, $wa);
 					} catch (Exception $e) {
 						// If any exception was thrown when executing the function, catch it
@@ -4700,6 +4754,10 @@ class JS_Api extends Page
 		$data['error'] = $error;
 		if ($code !== NULL) {
 		    $data['errorCode'] = $code;
+		}
+		
+		if ($detail !== NULL) {
+		    $data['errorDetail'] = $detail;
 		}
 
 		// if we are batching  request then  don't send the error to console yet, wait

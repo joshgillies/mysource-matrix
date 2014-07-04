@@ -176,21 +176,20 @@ class Js_Api_Enhanced_Function_List
 			function data(params)
 			{
 				// Automatically append 'key' to every request
-				var dataArr = ['key=' + self.key];
+				var dataArr = {};
 
-				for (var i = 0, l = params.length; i<l; i+=1) {
-					dataArr.push(params[i][0] + '=' + params[i][1]);
+				for (var i = 0, l = params.length; i < l; i+=1) {
+					dataArr[params[i][0]] = params[i][1];
 				}// end for
-				return dataArr.join("&");
+				return JSON.stringify(dataArr);
 
 			}// end data
 
 			// Set some defaults for the HTTP Request
 			options = self._options(['params'],{
 						url:                '<?php echo $api_url; ?>',
-						query:              null,
 						method:             'POST',
-						contentType:        'application/x-www-form-urlencoded',
+						contentType:        'application/json',
 						params:             [],
 						async:              true,
 						onSuccess:          function(){},
@@ -217,10 +216,10 @@ class Js_Api_Enhanced_Function_List
 			};// end onreadstatechange
 
 			http.setRequestHeader("Content-type", options.contentType);
-
+			http.setRequestHeader("Authorization", 'Matrix-JSAPI key="' + self.key + '"');
 
 			// Send the request
-			http.send(encodeURI(data(options.params)));
+			http.send(data(options.params));
 
 		},// end _ajax
 
@@ -304,10 +303,10 @@ class Js_Api_Enhanced_Function_List
 			options = this._options(fnConfig.required,fnConfig.defaults,options);
 
 			// Package up the required function calls into string to POST
-			var postData = JSON.stringify(options.functions);
+			//var postData = JSON.stringify(options.functions);
 
 			this._doPost(fnName,[
-				['functions', this._cleanUrlParam(postData)]
+				['functions', options.functions]
 			],options);
 
 		},// end batchRequest
