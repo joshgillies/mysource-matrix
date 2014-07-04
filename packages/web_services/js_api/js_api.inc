@@ -4777,7 +4777,12 @@ class JS_Api extends Page
 	        return;
 	    }
 	    
-	    if (array_key_exists('end_date', $args) === FALSE) {
+	    if ($asset->readAccess() === FALSE) {
+	        $this->returnError(translate('You do not have permissions to access this asset'), 'permissionError');
+	        return;
+	    }
+	    
+	    if ($args['end_date'] === NULL) {
 	        // We can omit the end date; it will revert to "today".
 	        $args['end_date'] = date('Y-m-d');
 	    }
@@ -4801,7 +4806,7 @@ class JS_Api extends Page
 	    }
 	    
 	    if (strtotime($args['start_date']) > strtotime($args['end_date'])) {
-	        $this->returnError(translate('Start date must not be after the end date'), 'badRequest');
+	        $this->returnError(translate('Start date [%s] must not be after the end date [%s]', $args['start_date'], $args['end_date']), 'badRequest');
 	        return;
 	    }
 	    
