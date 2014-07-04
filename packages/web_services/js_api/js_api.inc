@@ -230,14 +230,29 @@ class JS_Api extends Page
            $this->_tmp['sent_as_json'] = TRUE;
         }
         
-        $api_key = '';
-        if (array_key_exists('HTTP_AUTHORIZATION', $_SERVER) === TRUE) {
-            $auth_string = $_SERVER['HTTP_AUTHORIZATION'];
-            $found       = preg_match('/^Matrix-JSAPI key=(\d+|"\d+")$/', $auth_string, $matches);
+        $api_key        = '';        
+        $auth_string    = '';
+         
+        if (function_exists('apache_request_headers') === TRUE) {
+            $apache_headers = apache_request_headers();
+        } else {
+            $apache_headers = FALSE;
+        }
+        
+        if ($apache_headers !== FALSE) {
+            // Apache SAPI, or FastCGI from PHP5.4+
+            $auth_string = array_get_index($apache_headers, 'Authorization', '');
+        } else if (array_key_exists('HTTP_AUTHORIZATION', $_SERVER) === TRUE) {
+            // Old method of getting from FastCGI.
+            $auth_string = array_get_index($_SERVER, 'HTTP_AUTHORIZATION', '');
+        }
+        
+        if ($auth_string !== '') {
+            $found = preg_match('/^Matrix-JSAPI key=(\d+|"\d+")$/', $auth_string, $matches);
             if ($found > 0) {
                 $api_key = trim($matches[1], '"');
             }
-        }
+        }//end if
         
         if (($api_key === '') && (array_key_exists('key', $_GET) === TRUE)) {
             $api_key = array_get_index($_GET, 'key', '');
