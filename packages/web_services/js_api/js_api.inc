@@ -110,7 +110,6 @@ class JS_Api extends Page
 									'getWebPath'					=> Array('read_access'),
 									'getWorkflowSchema'				=> Array('read_access'),
 									'showDifference'				=> Array('read_access'),
-									'getGoogleAnalyticsStatistics' 	=> Array('no_check'),
 									'setMultipleAttributes'			=> Array('write_access'),
 									'setAttribute'					=> Array('write_access'),
 									'setMetadataAllFields'			=> Array('write_access'),
