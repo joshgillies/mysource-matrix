@@ -4683,12 +4683,13 @@ class JS_Api extends Page
 	/**
 	* Returns an error in JSON format
 	*
-	* @param string	 $error	The error to send back as JSON
-	* @param string  $code  A short code that will not be translated
+	* @param string	 $error	  The error to send back as JSON
+	* @param string  $code    A short code that will not be translated
+	* @param string  $detail  Additional details to be provided
 	*
 	* @access public
 	*/
-	function returnError($error, $code=NULL)
+	function returnError($error, $code=NULL, $detail=NULL)
 	{
 		// Sanitise the error message
 		$error = htmlspecialchars($error);
@@ -4700,6 +4701,10 @@ class JS_Api extends Page
 		$data['error'] = $error;
 		if ($code !== NULL) {
 		    $data['errorCode'] = $code;
+		}
+		
+		if ($detail !== NULL) {
+		    $data['errorDetail'] = $detail;
 		}
 
 		// if we are batching  request then  don't send the error to console yet, wait
