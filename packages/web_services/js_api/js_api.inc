@@ -3242,7 +3242,7 @@ class JS_Api extends Page
 							$form_asset->_updated();
 							$am->releaseLock($form_asset->id, 'attributes');
 						}
-						$data['success'] = 'Sort oder successfully updated';
+						$data['success'] = 'Sort order successfully updated';
 					} else {
 						$data['error'] = 'There are question missing in the new sort order';
 					}

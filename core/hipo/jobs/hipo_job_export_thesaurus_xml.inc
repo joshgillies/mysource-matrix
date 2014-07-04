@@ -228,11 +228,13 @@ class HIPO_Job_Export_Thesaurus_XML extends HIPO_Job
 		}
 
 		// generate the xml
-		if (!$this->processCreateXML($step_data, '')) {
-			$this->_addError('generating the xml failed');
-			$success = FALSE;
-			return FALSE;
-		}
+		do {
+			if (!$this->processCreateXML($step_data, '')) {
+				$this->_addError('generating the xml failed');
+				$success = FALSE;
+				return FALSE;
+			}
+		} while (!$step_data['complete']);
 
 		return TRUE;
 
