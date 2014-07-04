@@ -229,14 +229,26 @@ class JS_Api extends Page
 		if (strpos($content_type, 'application/json') === 0) {
            $sent_as_json = TRUE;
         }
+        
+        $api_key = '';
+        if (array_key_exists('HTTP_AUTHORIZATION', $_SERVER) === TRUE) {
+            $auth_string = $_SERVER['HTTP_AUTHORIZATION'];
+            $found       = preg_match('/^Matrix-JSAPI key=(\d+)$/', $auth_string, $matches);
+            if ($found > 0) {
+                $api_key = $matches[1];
+            }
+        }
+        
+        if (($api_key === '') && (array_key_exists('key', $_GET) === TRUE)) {
+            $api_key = array_get_index($_GET, 'key', '');
+        }
 		
 		if ((boolean) $this->attr('use_enhanced_js') === FALSE) {
 		    $request_data = $_REQUEST;
 		} else {
 		    if ($sent_as_json === TRUE) {
 		        // Block any potential payload DDOS that doesn't send the right key in GET.
-		        $key = array_get_index($_GET, 'key', '');
-		        if (($this->readAccess()) && ($key !== '') && ($key === $this->attr('api_key'))) {
+		        if (($this->readAccess()) && ($api_key !== '') && ($api_key === $this->attr('api_key'))) {
                     $raw_request_data = file_get_contents('php://input');
                     $request_data = json_decode($raw_request_data, TRUE);
                     if ($request_data === NULL) {
@@ -253,7 +265,7 @@ class JS_Api extends Page
 		}
         
 		// Should we print our JS file, or send back some JSON?
-		if (!isset($_GET['key']) && !isset($request_data['id']) && !isset($request_data['type'])) {
+		if (($api_key === '') && !isset($request_data['id']) && !isset($request_data['type'])) {
 		    if (!$this->readAccess()) {
 		        // Paint the login page if we can't login.
 		        restore_error_handler();
@@ -280,7 +292,6 @@ class JS_Api extends Page
         }
 
 		// Get our JSON data that was sent, then encode it into an array
-		$api_key = array_get_index($_GET, 'key', '');
 		$id = array_get_index($request_data, 'id', '');
 		// if id is still empty try getting 'assetid'
 		if (empty($id)) $id = array_get_index($request_data, 'assetid', '');

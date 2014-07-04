@@ -187,7 +187,7 @@ class Js_Api_Enhanced_Function_List
 
 			// Set some defaults for the HTTP Request
 			options = self._options(['params'],{
-						url:                '<?php echo $api_url; ?>?key=' + encodeURI(self.key),
+						url:                '<?php echo $api_url; ?>',
 						method:             'POST',
 						contentType:        'application/json',
 						params:             [],
@@ -216,7 +216,7 @@ class Js_Api_Enhanced_Function_List
 			};// end onreadstatechange
 
 			http.setRequestHeader("Content-type", options.contentType);
-
+			http.setRequestHeader("Authorization", 'Matrix-JSAPI key=' + self.key);
 
 			// Send the request
 			http.send(data(options.params));
