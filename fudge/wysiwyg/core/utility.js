@@ -113,7 +113,20 @@ HTMLArea.prototype.getParentElement = function() {
 			return range.parentElement ? range.parentElement() : this._docContent;
 		}
 	} else {
-		var p = range.commonAncestorContainer;
+
+		var p = null;
+		if (range.startContainer.nodeType === 3 && range.startOffset === range.startContainer.data.length) {
+			p = range.startContainer.nextSibling;
+		} else if (range.endContainer.nodeType === 3 && range.endOffset >= range.endContainer.data.length-1) {
+			p = range.endContainer.previousSibling;
+		} else if (range.endContainer.nodeType === 1 && range.startOffset <= range.startContainer.childNodes.length && range.endOffset >= range.endContainer.childNodes.length-1) {
+			p = range.startContainer.childNodes[range.startOffset];
+		}
+
+		if (p == null) {
+			p = range.commonAncestorContainer;
+		}
+
 		while (p.nodeType == 3) {
 			p = p.parentNode;
 		}
