@@ -423,6 +423,170 @@ class Workflow_Stream_Edit_Fns extends Asset_Edit_Fns
 	}//end generateWorkflowArray()
 
 
+
+	/**
+	* Paint the interface for config rules of automatic stream selection
+	*
+	* @param Workflow_Schema	$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the Backend Outputter object
+	* @param string				$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function paintStreamSelectionRules(Workflow_Stream $asset, Backend_Outputter $o, $prefix)
+	{
+		$wa = $asset->writeAccess('attributes');
+		$prefix .= '_automatic_stream';
+		$o->openField($wa ? translate('current_rules') : '');
+			$current_rules = is_array($asset->attr('stream_selection_rules')) ? $asset->attr('stream_selection_rules') : unserialize($asset->attr('stream_selection_rules'));
+			$keyword_datas = $current_rules;
+
+			if (!empty($keyword_datas)) {
+				?>
+				<table class="sq-backend-table">
+					<tr>
+						<th style="width: 60ex"><?php echo translate('keyword'); ?></th>
+						<th><?php echo translate('pattern') ?></th>
+					<?php
+					if ($wa) {
+						?>
+						<th style="width: 12ex; text-align:center;"><?php echo translate('delete_question'); ?></th>
+						<?php
+					}
+					?>
+					</tr>
+				<?php
+				foreach ($keyword_datas as $id => $info) {
+					?>
+					<tr>
+						<td>
+							<?php
+							if ($wa) {
+								text_box($prefix.'_current['.$id.'][keyword]', array_get_index($info,'keyword',''));
+							} else {
+								echo array_get_index($info, 'name', '');
+							}
+							?>
+						</td>
+						<td>
+							<?php
+							if ($wa) {
+								text_box($prefix.'_current['.$id.'][pattern]', array_get_index($info,'pattern',''));
+							} else {
+								echo array_get_index($info, 'pattern', '');
+							}
+							?>
+						</td>
+					<?php
+					if ($wa) {
+						?>
+						<td style="text-align:center;">
+							<?php
+							check_box($prefix.'_current['.$id.'][remove]', '1');
+							?>
+						</td>
+						<?php
+					}
+					?>
+					</tr>
+					<?php
+				}//end foreach
+				?>
+				</table>
+				<?php
+			} else {
+				echo translate('no_automatic_workflow_stream_rules');
+			}
+		$o->closeField();
+		if ($wa) {
+			$o->openField(translate('new_rule'));
+				?>
+				<table class="sq-backend-table" style="width: 60ex">
+					<tr>
+						<th style="width: 20ex"><?php echo translate('keyword'); ?></th>
+						<td><?php text_box($prefix.'_new[keyword]', ''); ?></td>
+					</tr>
+					<tr>
+						<th><?php echo translate('pattern'); ?></th>
+						<td><?php text_box($prefix.'_new[pattern]', ''); ?></td>
+					</tr>
+				</table>
+				<?php
+			$o->closeField();
+		}
+
+		$o->openField(translate('rules_logic'));
+		$query_types = Array('all' => translate('match_all_rules'), 'any' => translate('match_any_rule'));
+		$current_logic = $asset->attr('rules_logic');
+		if ($wa) {
+			combo_box($prefix.'_logic', $query_types, FALSE, $current_logic);
+ 		}
+ 		else {
+ 			echo $query_types[$current_logic];
+ 		}
+ 		$o->closeField();
+
+
+	}//end paintStreamSelectionRules()
+
+
+	/**
+	* Processes the interface for config rules of automatic stream selection
+	*
+	* @param Workflow_Schema	$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the Backend Outputter object
+	* @param string				$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function processStreamSelectionRules(Workflow_Stream $asset, Backend_Outputter $o, $prefix)
+	{
+		$current_rules = is_array($asset->attr('stream_selection_rules')) ? $asset->attr('stream_selection_rules') : unserialize($asset->attr('stream_selection_rules'));
+		$prefix .= '_automatic_stream';
+		$res = FALSE;
+
+		if (!empty($_POST[$prefix.'_current'])) {
+			foreach ($_POST[$prefix.'_current'] as $i => $details) {
+				if (!empty($details['remove'])) {
+					unset($current_rules[$i]);
+				} else {
+					$current_rules[$i]['pattern'] = $details['pattern'];
+					if (!empty($details['keyword'])) {
+						$current_rules[$i]['keyword'] = $details['keyword'];
+					}
+				}
+			}
+			$res = TRUE;
+		}
+
+		if (!empty($_POST[$prefix.'_new']['pattern']) && !empty($_POST[$prefix.'_new']['keyword'])) {
+			$option = Array(
+						'pattern'		=> $_POST[$prefix.'_new']['pattern'],
+						'keyword'	=> $_POST[$prefix.'_new']['keyword'],
+					  );
+			$current_rules[] = $option;
+			$res = TRUE;
+		}
+
+		if (!empty($_POST[$prefix.'_logic']) && !empty($_POST[$prefix.'_logic'])) {
+			$grouping_logic = $_POST[$prefix.'_logic'];
+			$res = TRUE;
+		}
+
+		if ($res) {
+			$asset->setAttrValue('stream_selection_rules', $current_rules);
+			$asset->setAttrValue('rules_logic', $grouping_logic);
+			$asset->saveAttributes();
+			return TRUE;
+		}
+		return FALSE;
+
+	}//end processStreamSelectionRules()
+
+
+
 }//end class
 
 ?>

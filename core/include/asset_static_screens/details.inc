@@ -342,12 +342,8 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 		$statii = array_reverse($statii, TRUE);
 		$statii[0] = '';
 		$statii = array_reverse($statii, TRUE);
-		if($is_bundle) {
-			combo_box($prefix.'_change_status', $statii, FALSE, $default_status);
-		}
-		else {
-			combo_box($prefix.'_change_status', $statii, FALSE, $default_status, 0, 'onchange="checkStatus(\''.$prefix.'_change_status\', \''.$prefix.'_change_status_all_children\', \'warning_message_for_live_plus_cascade\')"');
-		}
+		combo_box($prefix.'_change_status', $statii, FALSE, $default_status, 0, 'onchange="checkStatusDisplayWarning()"');
+
 		// Test whether we have a status that may need the stream
 		$has_pending_status = FALSE;
 		$has_approved_status = FALSE;
@@ -390,10 +386,13 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 
 				$stream_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($schemaid, SQ_LINK_TYPE_2, 'workflow_stream', TRUE);
 				$streamids = Array();
+				$default_streamid = '';
 				foreach ($stream_links as $stream_link) {
-					$step_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($stream_link['minorid'], SQ_LINK_TYPE_2, 'workflow_step', TRUE);
 					if ($stream_link['value'] !== 'default_stream') {
 						$streamids[] = $stream_link['minorid'];
+					}
+					else {
+						$default_streamid = $stream_link['minorid'];
 					}
 				}
 
@@ -404,6 +403,11 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 					$workflowable_streams = array_diff($streamids, $bypassable_streams);
 
 					$bypass_stream_names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($bypassable_streams, 'workflow_stream', TRUE, 'name');
+					// evaluate stream rules and determine which rule shouldn't be shown to user
+					foreach ($bypass_stream_names as $streamid => $name) {
+						if(!$wfm->evaluateStreamSelectionRules($streamid, $owner->id))
+							unset($bypass_stream_names[$streamid]);
+					}
 					$stream_names['bypass'] = array_merge($stream_names['bypass'], $bypass_stream_names);
 				} else {
 					// We cannot bypass (either none work, or metadata is not finished)
@@ -411,6 +415,13 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 				}
 
 				$workflow_stream_names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($workflowable_streams, 'workflow_stream', TRUE, 'name');
+				// evaluate stream rules and determine which rule shouldn't be shown to user
+				foreach ($workflow_stream_names as $streamid => $name) {
+					if(!$wfm->evaluateStreamSelectionRules($streamid, $owner->id))
+						unset($workflow_stream_names[$streamid]);
+				}
+
+
 				$stream_names['workflow'] = array_merge($stream_names['workflow'], $workflow_stream_names);
 
 				if (!$editor_commenting && $schema->attr('allow_comment_on_request')) {
@@ -432,12 +443,21 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 						'bypass'	=> Array(),
 					   );
 
+			// should we place default stream at all?
+			$place_default_stream = TRUE;
+			if(!empty($default_streamid) && !$wfm->evaluateStreamSelectionRules($default_streamid, $owner->id)) {
+				if(!empty($stream_names['bypass']) || !empty($stream_names['workflow']))
+					$place_default_stream = FALSE;
+			}
+
 			// Work out which set of options the default streams should be placed
-			$default_test = $wfm->testPublish($owner->id, $GLOBALS['SQ_SYSTEM']->user->id, '');
-			if (($has_approved_status === TRUE) && ($default_test === TRUE)) {
-				$options['bypass']   = Array('SQ_USE_DEFAULT' => 'Default Stream');
-			} else {
-				$options['workflow'] = Array('SQ_USE_DEFAULT' => 'Default Stream');
+			if($place_default_stream) {
+				$default_test = $wfm->testPublish($owner->id, $GLOBALS['SQ_SYSTEM']->user->id, '');
+				if (($has_approved_status === TRUE) && ($default_test === TRUE)) {
+					$options['bypass']   = Array('SQ_USE_DEFAULT' => 'Default Stream');
+				} else {
+					$options['workflow'] = Array('SQ_USE_DEFAULT' => 'Default Stream');
+				}
 			}
 
 			$total_options = 1;
@@ -505,6 +525,7 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 							stream_byp_cb.disabled = true;
 						}
 						editorCommenting(status_cb);
+						checkStatusDisplayWarning();
 					}
 				}//end if
 			// ]]></script>
@@ -515,49 +536,78 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 			check_box($prefix.'_change_status_all_children');
 		}
 		else {
-			check_box($prefix.'_change_status_all_children', 1, FALSE, 'checkStatus(\''.$prefix.'_change_status\', \''.$prefix.'_change_status_all_children\', \'warning_message_for_live_plus_cascade\')');
+			check_box($prefix.'_change_status_all_children', 1, FALSE, 'checkStatusDisplayWarning()');
 		}
 		label(translate('cascade_status_change'), $prefix.'_change_status_all_children');
 
 		?>
 		<script type="text/javascript">
 		//<![CDATA[
-			function checkStatus(status_cb, status_cascade, note_div)
+			function checkStatusDisplayWarning()
 			{
-				var status_cb_ele = document.getElementById(status_cb);
-				var status_cascade_ele = document.getElementById(status_cascade);
+				var prefix = "<?php echo $prefix; ?>";
+				// check if we are display warning for status change or new future status change
 
-				var note_text = document.getElementById(note_div);
+				var status_cb_ele = document.getElementById(prefix + '_change_status');
+				var status_cascade_ele = document.getElementById(prefix + '_change_status_all_children');
+				var note_text = document.getElementById('warning_message_for_live_plus_cascade');
+
+
+				// display warning message for cascading live status
 				if (status_cb_ele.value == <?php echo SQ_STATUS_LIVE ?> && status_cascade_ele.checked) {
 					note_text.style.display="block";
 				} else {
 					note_text.style.display="none";
 				}
+
+				// display warning message for cascading with stream
+				if(status_cb_ele.value & <?php echo SQ_SC_STATUS_PENDING ?> || status_cb_ele.value & <?php echo SQ_SC_STATUS_ALL_APPROVED ?> ) {
+					var note_text = document.getElementById('warning_message_for_stream_cascade');
+					if (status_cascade_ele.checked) {
+						note_text.style.display="block";
+					} else {
+						note_text.style.display="none";
+					}
+				}
+
 			}
+
+			function checkStatusDisplayWarningFutureStatus()
+			{
+				var prefix = "<?php echo $prefix; ?>";
+				// check if we are display warning for status change or new future status change
+				var status_cb_ele = document.getElementById(prefix + '_new_fs_status');
+				var status_cascade_ele = document.getElementById(prefix + '_new_fs_change_status_all_children');
+				var note_text = document.getElementById('warning_message_for_live_plus_cascade_fs');
+
+				// display warning message for cascading live status
+				if (status_cb_ele.value == <?php echo SQ_STATUS_LIVE ?> && status_cascade_ele.checked) {
+					note_text.style.display="block";
+				} else {
+					note_text.style.display="none";
+				}
+
+			}
+
 		// ]]>
 		</script>
 		<?php
 		if ($editor_commenting) {
 			ob_start();
-				echo "<br /><br />";
-				text_area($prefix.'_workflow_approval_request_comment', '', 60, 6, 0, ' disabled="disabled" id="'.$prefix.'_workflow_approval_request_comment" style="display:none" placeholder="Enter comment"');
-				echo '<br /><div id="note_workflow_comment" style="display:none">'.translate('editor_comment_note').'</div>';
+				echo '<div id="'.$prefix.'_workflow_approval_request_comment_div" style="display:none"><br /><br />';
+				text_area($prefix.'_workflow_approval_request_comment', '', 60, 6, 0, '  id="'.$prefix.'_workflow_approval_request_comment"  placeholder="Enter comment"');
+				echo '<br /><div id="note_workflow_comment">'.translate('editor_comment_note').'</div></div>';
 				?>
 				<script type="text/javascript">
 				//<![CDATA[
 					function editorCommenting(status_cbox_ele)
 					{
-						var editor_comment = document.getElementById("<?php echo $prefix; ?>_workflow_approval_request_comment");
-						var editor_com_div = document.getElementById("note_workflow_comment");
+						var editor_comment = document.getElementById("<?php echo $prefix; ?>_workflow_approval_request_comment_div");
 
 						if ((status_cbox_ele.value & <?php echo SQ_SC_STATUS_PENDING ?>) > 0 && (editor_comment !== null && editor_comment !== undefined)) {
-							editor_comment.disabled = false;
 							editor_comment.style.display = 'inline';
-							editor_com_div.style.display = 'inline';
 						} else if (editor_comment !== null && editor_comment !== undefined) {
-							editor_comment.disabled = true;
 							editor_comment.style.display = 'none';
-							editor_com_div.style.display = 'none';
 						}
 					}
 				// ]]>
@@ -762,6 +812,7 @@ function _paintDetailsChangeStatus(Asset $owner, Backend_Outputter $o, $prefix)
 				$o->note($note);
 			}
 			echo '<div id="warning_message_for_live_plus_cascade" style="display:none" class="sq-warning-message top-margin">'.translate('asset_status_live_warning').'</div>';
+			echo '<div id="warning_message_for_stream_cascade" style="display:none" class="sq-warning-message top-margin">'.translate('cascade_stream_warning').'</div>';
 		}
 
 	}

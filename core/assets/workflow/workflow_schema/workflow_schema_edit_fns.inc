@@ -77,13 +77,34 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 			}
 		}
 
+
 		$streams_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($streamids);
+
+		$selection_rules_strings = Array();
+		foreach($streams_info as $streamid => $details) {
+			$string = '';
+			$stream = $GLOBALS['SQ_SYSTEM']->am->getAsset($streamid);
+			$rules = is_array($stream->attr('stream_selection_rules')) ? $stream->attr('stream_selection_rules') : unserialize($stream->attr('stream_selection_rules'));
+			if(empty($rules)) continue;
+			$logic = $stream->attr('rules_logic');
+			$string .= $logic === 'all' ? translate('match_all_rules_description') : translate('match_any_rule_description');
+			$string .= '<ul>';
+			foreach ($rules as $rule) {
+				$string .= '<li>';
+				$string .= translate('stream_selection_rule_description', $rule['keyword'], $rule['pattern']);
+				$string .= '</li>';
+			}
+			$string .= '</ul>';
+			$selection_rules_strings[$streamid] = $string;
+		}
+
 
 		?>
 			<table class="sq-backend-table">
 			<thead>
 				<colgroup>
 					<col width="70" />
+					<col />
 					<col />
 					<col />
 					<?php
@@ -96,9 +117,10 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 					<th><p><?php echo translate('edit_question'); ?></p></th>
 					<th><?php echo translate('stream_name'); ?></th>
 					<th><?php echo translate('workflow_summary'); ?></th>
+					<th><?php echo translate('selection_rules'); ?></th>
 					<?php
 					if ($write_access === TRUE) {
-						?><th align="center"><b><?php echo translate('delete_question'); ?></b></th><?php
+						?><th style="text-align:center"><b><?php echo translate('delete_question'); ?></b></th><?php
 					}
 					?>
 				</tr>
@@ -184,7 +206,7 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 
 						echo '</td>';
 
-						echo '<td'.$border_style.'><div style="text-align: right">';
+						echo '<td'.$border_style.'><div>';
 						$expiry = (int)$step_asset->attr('expiry_time');
 						$expiry_text = easy_time_total($expiry);
 
@@ -214,9 +236,9 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 					$class_style .= ' alt';
 				}
 				if ($alt_stream_num === 0) {
-					?><tr class="sq-table-row"><td class="sq-backend-table-header-header" colspan="<?php echo 3 + ($write_access ? 1 : 0) ?>"><?php echo translate('default_stream'); ?></td></tr><?php
+					?><tr class="sq-table-row"><td class="sq-backend-table-header-header" colspan="<?php echo 4 + ($write_access ? 1 : 0) ?>"><?php echo translate('default_stream'); ?></td></tr><?php
 				} else if ($alt_stream_num === 1) {
-					?><tr class="sq-table-row"><td class="sq-backend-table-header-header" colspan="<?php echo 3 + ($write_access ? 1 : 0) ?>"><?php echo translate('alternate_streams'); ?></td></tr><?php
+					?><tr class="sq-table-row"><td class="sq-backend-table-header-header" colspan="<?php echo 4 + ($write_access ? 1 : 0) ?>"><?php echo translate('alternate_streams'); ?></td></tr><?php
 				}
 			?>
 				<tr class="<?php echo $class_style ?>">
@@ -225,12 +247,13 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 					} ?></td>
 					<td><p><strong><?php echo $stream_info['name'] ?></strong></p></td>
 					<td><?php echo $workflow_summary; ?></td>
+					<td><?php if(isset($selection_rules_strings[$streamid])) echo ($selection_rules_strings[$streamid]);?></td>
 					<?php
 					if ($write_access === TRUE) {
 						if ($alt_stream_num === 0) {
-							?><td align="center" class="sq-backend-table-header"></td><?php
+							?><td style="text-align:center" class="sq-backend-table-header"></td><?php
 						} else {
-							?><td align="center" class="sq-backend-table-header"><?php echo check_box($prefix.'_delete_stream[]', $streamid, FALSE); ?></td><?php
+							?><td style="text-align:center" class="sq-backend-table-header"><?php echo check_box($prefix.'_delete_stream[]', $streamid, FALSE); ?></td><?php
 						}
 					}
 					?>
@@ -241,16 +264,16 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 			}
 
 			if (count($streams_info) <= 1) {
-				?><tr class="sq-table-row"><td class="sq-backend-table-header-header" colspan="<?php echo 3 + ($write_access ? 1 : 0) ?>"><?php echo translate('alternate_streams'); ?></td></tr><?php
-				?><tr class="sq-table-row"><td></td><td colspan="<?php echo 2 + ($write_access ? 1 : 0) ?>"><?php echo translate('workflow_stream_no_alternate_'.($write_access ? 'locked' : 'unlocked')); ?></td></tr><?php
+				?><tr class="sq-table-row"><td class="sq-backend-table-header-header" colspan="<?php echo 4 + ($write_access ? 1 : 0) ?>"><?php echo translate('alternate_streams'); ?></td></tr><?php
+				?><tr class="sq-table-row"><td></td><td colspan="<?php echo 3 + ($write_access ? 1 : 0) ?>"><?php echo translate('workflow_stream_no_alternate_'.($write_access ? 'locked' : 'unlocked')); ?></td></tr><?php
 			}
 
 			if ($write_access === TRUE) {
-				?><tr class="sq-table-row"><td class="sq-backend-table-header-header" colspan="4">Add New Workflow Stream</td></tr><?php
+				?><tr class="sq-table-row"><td class="sq-backend-table-header-header" colspan="5">Add New Workflow Stream</td></tr><?php
 			?>
 				<tr>
 					<td></td>
-					<td colspan="3"><?php
+					<td colspan="4"><?php
 						check_box($prefix.'_new_stream', '1', FALSE, 'document.getElementById("'.$prefix.'_new_stream_name").disabled = !this.checked; if (this.checked == true) { document.getElementById("'.$prefix.'_new_stream_name").focus() };');
 						label(translate('create_new_stream_called'), $prefix.'_new_stream');
 						text_box($prefix.'_new_stream_name', '', 30, 0, FALSE, ' disabled="disabled"');
@@ -493,7 +516,7 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 									echo ucfirst(str_replace('_', ' ', $asset_type));
 								?>
 							</td>
-							<td align="center" class="sq-backend-table-cell">
+							<td style="text-align:center" class="sq-backend-table-cell">
 								<?php
 								if ($write_access) {
 									check_box($prefix.'_asset_type_inherit['.$asset_type.']', '1', $inheritance);
@@ -505,7 +528,7 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 							<?php
 							if ($write_access) {
 							?>
-							<td align="center" class="sq-backend-table-cell">
+							<td style="text-align:center" class="sq-backend-table-cell">
 								<?php check_box($prefix.'_remove_asset_type['.$asset_type.']'); ?>
 							</td>
 							<?php
@@ -927,6 +950,55 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 		return $res;
 
 	}//end _getTreeTops()
+
+
+
+	/**
+	* Paint the interface for stream rules setup
+	*
+	* @param Workflow_Schema	$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the Backend Outputter object
+	* @param string				$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function paintStreamSelectionRules(Workflow_Schema $asset, Backend_Outputter $o, $prefix)
+	{
+		if (!$asset->writeAccess('links')) return FALSE;
+
+		$selected_stream = $this->getCurrentStream($prefix);
+		if ($selected_stream === NULL) return FALSE;
+
+		$edit_fns = $selected_stream->getEditFns();
+		return $edit_fns->paintStreamSelectionRules($selected_stream, $o, $prefix);
+
+	}//end paintStreamSelectionRules()
+
+
+	/**
+	* Paint the interface for stream rules setup
+	*
+	* @param Workflow_Schema	$asset	the asset to which we belong
+	* @param Backend_Outputter	$o		the Backend Outputter object
+	* @param string				$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function processStreamSelectionRules(Workflow_Schema $asset, Backend_Outputter $o, $prefix)
+	{
+		if (!$asset->writeAccess('links')) return FALSE;
+
+		$selected_stream = $this->getPriorStream($prefix);
+		if ($selected_stream === NULL) return FALSE;
+
+		$edit_fns = $selected_stream->getEditFns();
+		return $edit_fns->processStreamSelectionRules($selected_stream, $o, $prefix);
+
+	}//end processStreamSelectionRules()
+
+
 
 
 }//end class
