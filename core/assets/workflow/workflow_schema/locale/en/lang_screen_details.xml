@@ -68,6 +68,17 @@
 			</function_call>
 		</field>
 	</section>
+	<section name="Stream Selection Rules">
+		<field>
+			<display_name></display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintAutomaticStreamSelection"   />
+				<process_function name="processAutomaticStreamSelection" />
+			</function_call>
+		</field>
+		<note>If rules are configured and evaluated to true, this stream will be available for user selection. If rules are evaluated to false, this stream will not be available. Regular Expression is supported in the Pattern.</note>
+	</section>
 	<section name="Workflow Stream Summary">
 		<field>
 			<display_name></display_name>

@@ -56,6 +56,14 @@
 			</function_call>
 		</field>
 	</section>
+	<section name="Stream Selection Rules" write_access="write:links" show_if="hasSelectedCurrentStream">
+		<field>
+			<function_call>
+				<paint_function   name="paintStreamSelectionRules"   />
+				<process_function name="processStreamSelectionRules" />
+			</function_call>
+		</field>
+	</section>
 	<section name="Workflow Stream Summary" write_access="write:links" show_if="hasSelectedCurrentStream">
 		<field>
 			<function_call>

@@ -1499,6 +1499,10 @@ class Workflow_Manager extends MySource_Object
 			if (!in_array($schemaid, $running_schemas)) continue;
 
 			foreach ($schema_workflows[$schemaid] as $streamid => &$workflow) {
+
+				// evaluate stream rules, we can only test those valid ones
+				if(!$this->evaluateStreamSelectionRules($streamid, $assetid)) return FALSE;
+
 				// already finished the workflow?
 				if ($workflow['complete']) continue;
 
@@ -2952,6 +2956,60 @@ class Workflow_Manager extends MySource_Object
 		}//end foreach
 
 	}//end setCurrentUserAsLastStarted()
+
+
+
+	/**
+	* Evaluate rules of a stream and determine if it should be made available
+	*
+	* @param string	$streamid	The stream to evaluate
+	* @param string	$assetid	The asset to evaluate against
+	*
+	* @return string
+	*/
+	public function evaluateStreamSelectionRules($streamid, $assetid)
+	{
+		$stream = $GLOBALS['SQ_SYSTEM']->am->getAsset($streamid);
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+
+		if(empty($stream) || empty($asset)) return FALSE;
+
+		$rules = is_array($stream->attr('stream_selection_rules')) ? $stream->attr('stream_selection_rules') : unserialize($stream->attr('stream_selection_rules'));
+		$logic = $stream->attr('rules_logic');
+		if(empty($rules)) return TRUE;
+
+		foreach ($rules as $details) {
+			$keyword_replacement = $details['keyword'];
+			//replace global keywords
+			replace_global_keywords($keyword_replacement);
+	
+			//replace asset keywords
+			$keywords = retrieve_keywords_replacements($keyword_replacement);
+			$replacements = Array();
+			foreach ($keywords as $keyword) {
+				$replacements[$keyword] = $asset->getKeywordReplacement($keyword);
+			}
+			replace_keywords($keyword_replacement, $replacements);
+			// prevent null byte attack
+			$pattern = str_replace("\0", '', $details['pattern']);
+
+			if(preg_match('/'.$pattern.'/i', $keyword_replacement)) {
+				if($logic === 'any') return TRUE;
+			}
+			else {
+				if($logic === 'all') return FALSE;
+			}
+		}
+		// if all rules must match, and we got here it means all rules passes.
+		if($logic === 'all') {
+			return TRUE;
+		}
+		else {
+			// this means none of rules match
+			return FALSE;
+		}
+
+	}//end evaluateStreamSelectionRules()
 
 
 }//end class
