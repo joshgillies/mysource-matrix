@@ -142,7 +142,11 @@ var Matrix_Viper = new function() {
 			    jQuery(document).bind('mouseup.viper',function(e){
 				$editable.attr('contenteditable', 'true');
 				viper.setEditableElement($editable.get(0));
-				viper.element.focus();
+				// Firefox doesn't swallow the BR, so select it.
+                if (viper.browser === 'Firefox') {
+                	viper.selectNode($editable.find('br').get(0));
+                }
+                viper.element.focus(); 
 				viper.focus();
 				jQuery(document).unbind('mouseup.viper');
 			    });
@@ -156,7 +160,7 @@ var Matrix_Viper = new function() {
 		    if (rawText.match(/^\s+$/) !== null ||
 			rawText === "" ||
 			rawText.match(/^<[a-z]+>[\s\n(&nbsp;)]*<\/[a-z]+>$/i) !== null) {
-			$editable.html('<p></p>');
+			$editable.html('<p><br/> </p>');
 			$editCallToAction.show();
 			$editable.hide();
 		    }// End if
