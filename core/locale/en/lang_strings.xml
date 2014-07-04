@@ -707,7 +707,7 @@
 	<string source="workflow_may_enter_reason_for_decision">You can enter a reason for your decision in the box above so that other approvers know why you have accepted or rejected the changes.</string>
 	<string source="workflow_must_enter_reason_for_decision">You must enter the reason for your decision in the box above so that other approvers know why you have accepted or rejected the changes.</string>
 	<string source="workflow_must_enter_reason_for_decision_bundle">You must enter the reason for your decision in the box above so that other approvers know why you have accepted or rejected the changes. At least one bundled asset requires you do this.</string>
-	<string source="editor_comment_note">You can enter a comment that the approvers will see when they get notified of this request..</string>
+	<string source="editor_comment_note">You can enter a comment that the approvers will see when they get notified of this request.</string>
 
 	<string source="logged_by">Logged By</string>
 	<string source="log_time">Log Time</string>
@@ -1604,7 +1604,6 @@
 	<string source="dimension">Dimension</string>
 	<string source="both">Both</string>
 	<string source="neither">Neither</string>
-	<string source="square_center_weighted">Square (Centre Weighted)</string>
 	<string source="htmlwidth">HTML Width</string>
 	<string source="css">CSS</string>
 	<string source="not">Not</string>

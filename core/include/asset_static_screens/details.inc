@@ -594,25 +594,20 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 		<?php
 		if ($editor_commenting) {
 			ob_start();
-				echo "<br /><br />";
-				text_area($prefix.'_workflow_approval_request_comment', '', 60, 6, 0, ' disabled="disabled" id="'.$prefix.'_workflow_approval_request_comment" style="display:none" placeholder="Enter comment"');
-				echo '<br /><div id="note_workflow_comment" style="display:none">'.translate('editor_comment_note').'</div>';
+				echo '<div id="'.$prefix.'_workflow_approval_request_comment_div" style="display:none"><br /><br />';
+				text_area($prefix.'_workflow_approval_request_comment', '', 60, 6, 0, '  id="'.$prefix.'_workflow_approval_request_comment"  placeholder="Enter comment"');
+				echo '<br /><div id="note_workflow_comment">'.translate('editor_comment_note').'</div></div>';
 				?>
 				<script type="text/javascript">
 				//<![CDATA[
 					function editorCommenting(status_cbox_ele)
 					{
-						var editor_comment = document.getElementById("<?php echo $prefix; ?>_workflow_approval_request_comment");
-						var editor_com_div = document.getElementById("note_workflow_comment");
+						var editor_comment = document.getElementById("<?php echo $prefix; ?>_workflow_approval_request_comment_div");
 
 						if ((status_cbox_ele.value & <?php echo SQ_SC_STATUS_PENDING ?>) > 0 && (editor_comment !== null && editor_comment !== undefined)) {
-							editor_comment.disabled = false;
 							editor_comment.style.display = 'inline';
-							editor_com_div.style.display = 'inline';
 						} else if (editor_comment !== null && editor_comment !== undefined) {
-							editor_comment.disabled = true;
 							editor_comment.style.display = 'none';
-							editor_com_div.style.display = 'none';
 						}
 					}
 				// ]]>
