@@ -113,9 +113,9 @@ class Google_Analytics_View extends Asset
 	 * Returns an array of the appropriate data, that can be sent to keywords
 	 * and reports, both front-end and back-end (edit interface).
 	 *
-	 * @return array
+	 * @return array|NULL
 	 */
-	public function generateReport($dimensions, $metrics, $start_date, $end_date, $sort=Array())
+	public function generateReport($dimensions, $metrics, $start_date, $end_date, $sort=Array(), $force=FALSE)
 	{
 	    require_once SQ_FUDGE_PATH.'/general/www.inc';
 	    
@@ -166,7 +166,12 @@ class Google_Analytics_View extends Asset
         
         $cache_key .= '.'.http_build_query($params, '', ',');
         
-        $refresh_resp = $bridge->loadFromFetchCache($bridge->getRefreshKey($cache_key));
+        if ($force === TRUE) {
+            $refresh_resp = '0';
+        } else {
+            $refresh_resp = $bridge->loadFromFetchCache($bridge->getRefreshKey($cache_key));
+        }
+        
         if ((string) $refresh_resp === '1') {
             // Not stale yet.
             $response = $bridge->loadFromFetchCache($cache_key);
@@ -211,7 +216,7 @@ class Google_Analytics_View extends Asset
         }//end if
         
         if (($response === FALSE) || ($response === NULL)) {
-            $result = Array();
+            $result = NULL;
         } else {
             $result = array_get_index($response, 'rows', Array());
             foreach ($result as &$row) {
@@ -221,7 +226,7 @@ class Google_Analytics_View extends Asset
         
         return $result;
 	    
-	}//end generateVisitorsReport()
+	}//end generateReport()
 	
 	
 
