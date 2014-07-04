@@ -30,8 +30,12 @@ class JS_Api extends Page
 {
 
 	/*
-	* maping array for the function
-	* and the attribute to enable them
+	* Mapping array for enabling attributes.
+	*
+	* Array is keyed by method name, and value is the attribute required to
+	* enable the API method. Some attributes enable more than one method.
+	*
+	* @var array
 	*/
 	private $_attribute_mapping = Array(
 									'getAssetTypes'					=> 'get_asset_types',
@@ -85,7 +89,8 @@ class JS_Api extends Page
 									'createQuestion'				=> 'create_form_question',
 									'updateQuestion'				=> 'update_form_question',
 									'removeQuestion'				=> 'remove_form_question',
-									'updateQuestionOrder'			=> 'update_question_order'
+									'updateQuestionOrder'			=> 'update_question_order',
+									'getGoogleAnalyticsStatistics'  => 'get_ga_statistics',
 								  );
 
 	/*
@@ -106,6 +111,7 @@ class JS_Api extends Page
 									'getWebPath'					=> Array('read_access'),
 									'getWorkflowSchema'				=> Array('read_access'),
 									'showDifference'				=> Array('read_access'),
+									'getGoogleAnalyticsStatistics' 	=> Array('no_check'),
 									'setMultipleAttributes'			=> Array('write_access'),
 									'setAttribute'					=> Array('write_access'),
 									'setMetadataAllFields'			=> Array('write_access'),
@@ -213,41 +219,87 @@ class JS_Api extends Page
 	*/
 	function printFrontend()
 	{
-		// Make sure the user can log in first
-		if (!$this->readAccess()) {
-			$GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
-			return;
-		}
-
-		// Should we print our JS file, or send back some JSON?
-		if (!isset($_REQUEST['key']) && !isset($_REQUEST['id']) && !isset($_REQUEST['type'])) {
-			header('Content-Type: text/javascript');
-			header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
-			if ($this->attr('use_enhanced_js')) {
-				require_once 'js_api_enhanced_function_list.inc';
-				echo Js_Api_Enhanced_Function_List::paintJSFunctions($this);
-			} else {
-				require_once 'js_api_standard_function_list.inc';
-				echo Js_Api_Standard_Function_List::paintJSFunctions($this);
-			}
-			return;
-		}
-
-
 		// Overriding the matrix error handler so HTML doesn't get printed to the screen
 		require_once dirname(__FILE__).'/js_api_error_handler.inc';
 		$old_error_handler = set_error_handler('js_api_error_handler');
 
+		// Grab our data.
+		$content_type = array_get_index($_SERVER, 'CONTENT_TYPE', array_get_index($_SERVER, 'HTTP_CONTENT_TYPE', ''));
+        $sent_as_json = FALSE;
+		if (strpos($content_type, 'application/json') === 0) {
+           $sent_as_json = TRUE;
+        }
+        
+        $api_key = '';
+        if (array_key_exists('HTTP_AUTHORIZATION', $_SERVER) === TRUE) {
+            $auth_string = $_SERVER['HTTP_AUTHORIZATION'];
+            $found       = preg_match('/^Matrix-JSAPI key=(\d+)$/', $auth_string, $matches);
+            if ($found > 0) {
+                $api_key = $matches[1];
+            }
+        }
+        
+        if (($api_key === '') && (array_key_exists('key', $_GET) === TRUE)) {
+            $api_key = array_get_index($_GET, 'key', '');
+        }
+		
+		if ((boolean) $this->attr('use_enhanced_js') === FALSE) {
+		    $request_data = $_REQUEST;
+		} else {
+		    if ($sent_as_json === TRUE) {
+		        // Block any potential payload DDOS that doesn't send the right key in GET.
+		        if (($this->readAccess()) && ($api_key !== '') && ($api_key === $this->attr('api_key'))) {
+                    $raw_request_data = file_get_contents('php://input');
+                    $request_data = json_decode($raw_request_data, TRUE);
+                    if ($request_data === NULL) {
+                        $this->returnError('Malformed input.', 'badRequest');
+                        restore_error_handler();
+                        return;
+                    }
+		        } else {
+                    $request_data = Array();
+		        }
+		    } else {
+		        $request_data = $_REQUEST;
+		    }
+		}
+        
+		// Should we print our JS file, or send back some JSON?
+		if (($api_key === '') && !isset($request_data['id']) && !isset($request_data['type'])) {
+		    if (!$this->readAccess()) {
+		        // Paint the login page if we can't login.
+		        restore_error_handler();
+		        $GLOBALS['SQ_SYSTEM']->paintLogin(translate('login'), translate('cannot_access_asset', $this->name));
+		    } else {
+                header('Content-Type: text/javascript');
+                header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
+                if ($this->attr('use_enhanced_js')) {
+                    require_once 'js_api_enhanced_function_list.inc';
+                    echo Js_Api_Enhanced_Function_List::paintJSFunctions($this);
+                } else {
+                    require_once 'js_api_standard_function_list.inc';
+                    echo Js_Api_Standard_Function_List::paintJSFunctions($this);
+                }
+            }
+			return;
+		}
+		
+		// If we are returning data, still check for read access.
+		if (!$this->readAccess()) {
+            $this->returnError('You do not have permissions to access this asset', 'authError');
+            restore_error_handler();
+            return;
+        }
+
 		// Get our JSON data that was sent, then encode it into an array
-		$api_key = array_get_index($_REQUEST, 'key', '');
-		$id = array_get_index($_REQUEST, 'id', '');
+		$id = array_get_index($request_data, 'id', '');
 		// if id is still empty try getting 'assetid'
-		if (empty($id)) $id = array_get_index($_REQUEST, 'assetid', '');
-		$function_type = array_get_index($_REQUEST, 'type', '');
+		if (empty($id)) $id = array_get_index($request_data, 'assetid', '');
+		$function_type = array_get_index($request_data, 'type', '');
 
 		// nonce token check
 		$nonce_token = get_unique_token();
-		if (!isset($_POST['nonce_token']) || ($_POST['nonce_token'] !== $nonce_token)) {
+		if (!isset($request_data['nonce_token']) || ($request_data['nonce_token'] !== $nonce_token)) {
 			$this->returnError('nonce token is invalid', 'authError');
 			restore_error_handler();
 			return;
@@ -277,16 +329,12 @@ class JS_Api extends Page
 				restore_error_handler();
 				return;
 			}
-			if (!function_exists('json_decode')) {
-				require_once 'Services/JSON.php';
-				$json = new Services_JSON();
-				$functions_info = Array();
-				$request_data = $json->decode($_REQUEST['functions']);
-				$functions_info = $this->object2Array($request_data);
-			} else {
-				$functions_info = json_decode($_REQUEST['functions'], TRUE);
-			}//end else
-
+			
+			$functions_info = $request_data['functions'];
+			if ($sent_as_json === FALSE) {
+			    $functions_info = json_decode($functions_info, TRUE);
+			}
+			
 			foreach ($functions_info as $index => $info) {
 				$function_calls[$index] = $info['function'];
 			}
@@ -315,8 +363,8 @@ class JS_Api extends Page
 		}
 
 		// #4372  Feature Request : JS API ability to specify _admin/_edit access
-		// Lets populate our $_REQUEST var so that we can use it later :)
-		$_REQUEST['force_simple_edit'] = $this->attr('force_simple_edit');
+		// Lets populate our $request_data var so that we can use it later :)
+		$request_data['force_simple_edit'] = $this->attr('force_simple_edit');
 
 		$temp_server_vars_php_self = array_get_index($_SERVER, 'PHP_SELF', NULL);;
 		$temp_server_vars_request_uri = array_get_index($_SERVER, 'REQUEST_URI', NULL);
@@ -349,7 +397,7 @@ class JS_Api extends Page
 				$_SERVER['PHP_SELF'] = preg_replace('|/'.SQ_CONF_LIMBO_SUFFIX.'(.)*|', '', $_SERVER['PHP_SELF']);
 				$_SERVER['PHP_SELF'] = preg_replace('|/'.SQ_CONF_BACKEND_SUFFIX.'(.)*|', '', $_SERVER['PHP_SELF']);
 				$_SERVER['PHP_SELF'] = $_SERVER['PHP_SELF'].'/';
-				$_REQUEST['force_simple_edit'] = TRUE;
+				$request_data['force_simple_edit'] = TRUE;
 			}
 
 			// If 'PHP_SELF' was updated, set the same to 'REQUEST_URI'
@@ -396,7 +444,7 @@ class JS_Api extends Page
 				// format there is $results_0_*$ type else it might be raw input that we use
 				if ($track_func === 0) {
 					$id = $args['id'];
-				} else {
+				} else {				    				
 					// okie so we arent the first called function in batched request
 					// and we are to use the assetid from the previous function exec
 					// but no we look into any of the argument where the  $result_*$
@@ -427,14 +475,19 @@ class JS_Api extends Page
 				}//end if/else
 			} else {
 				// old API way
-				$args = $_REQUEST;
+				$args = $request_data;
+				log_write(var_export($args, TRUE));
 			}
 
 			// fix our args elements
-			foreach ($args as $index => $arg) {
-				$args[$index] = str_replace($replace_these, $replace_with, $args[$index]);
+			if ($sent_as_json === FALSE) {
+                foreach ($args as $index => $arg) {
+                    $args[$index] = str_replace($replace_these, $replace_with, $args[$index]);
+                }
 			}
 
+            log_write(var_export($args, TRUE));
+            
 			// first thing check if the function that is being tried to executed is enabled
 			if ($this->attr($this->_attribute_mapping[$type])) {
 				$asset = NULL;
@@ -477,8 +530,9 @@ class JS_Api extends Page
 					$results[$track_func]['error'] = $error;
 					$results[$track_func]['errorCode'] = 'permissionError';
 				} else {
-					$func_name = '_'.$type;
+				    $func_name = '_'.$type;
 					try {
+					    log_write(var_export($args, TRUE));
 						$results[$track_func] = $this->$func_name($args, $asset, $ra, $wa);
 					} catch (Exception $e) {
 						// If any exception was thrown when executing the function, catch it
@@ -3242,7 +3296,7 @@ class JS_Api extends Page
 							$form_asset->_updated();
 							$am->releaseLock($form_asset->id, 'attributes');
 						}
-						$data['success'] = 'Sort order successfully updated';
+						$data['success'] = 'Sort oder successfully updated';
 					} else {
 						$data['error'] = 'There are question missing in the new sort order';
 					}
@@ -4678,6 +4732,147 @@ class JS_Api extends Page
 		return $return_array;
 
 	}//end getMetadataSchema()
+	
+	
+	/**
+	 * Get a statistics request from a Google Analytics view.
+	 *
+	 * Requests are subject to caching by the GA View. Use force: true to
+	 * get immediate results.
+	 *
+	 * Only one request per call; if you want multiple requests in one hit,
+	 * go batch it.
+	 *
+	 * The arguments passed are as follows:
+	 * - assetid    : The ID of the view we are displaying.
+	 * - end_date   : The end date in ISO 8601 date format (eg. 2014-06-01),
+	 *                it omitted defaults to "today".
+	 * - start_date : The start date in ISO 8601 date format.
+	 * - duration   : The duration in ISO 8601 period format (eg. "P14D" = 14
+	 *                days, "P2M" = 2 months).
+	 *       (Either one of start_date or duration is required, but not both.)
+	 * - dimensions : Array of dimensions (size 0 up to 7).
+	 *                Required even if empty.
+	 * - metrics    : Either array of metrics (size 1 up to 10), or
+	 *                "SQ_SITE_METRICS" for standard site metrics, or
+	 *                "SQ_PAGE_METRICS" for standard page metrics
+	 * - sort_by    : Array of sort fields in order of sorting.
+	 *                Add "-" to the front of sort field for descending sort.
+	 *                Omit for no sorting.
+	 * - filter     : Two-dimensional array of row filters in GA format. At each
+	 *                element of the top level, either specify a plain filter, or
+	 *                another array. Top level filters will be ANDed, inner
+	 *                arrays will be ORed together then ANDed into the top level.
+	 *                Omit for no filtering.
+	 * - force      : Force fresh data.
+	 *
+	* @param array		$args			bundled array of arguments do be used while performing operations
+	* @param object		$asset			the asset we are executing this function on
+	* @param boolean	$read_access	read access check for the asset we
+	*									are dealing with with respect to current user
+	* @param boolean	$write_access	write access check for the asset we
+	*									are dealing with with respect to current user
+	 *
+	 * @return array
+	 */
+	public function _getGoogleAnalyticsStatistics($args=Array(), $asset=NULL, $read_access=FALSE, $write_access=FALSE)
+	{
+	    $GLOBALS['SQ_SYSTEM']->am->includeAsset('google_analytics_view');
+	    
+        log_write(var_export($args, TRUE));
+        
+	    // We have to get our own asset ID.
+	    $asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($args['id']);
+	    if (($asset instanceof Google_Analytics_View) === FALSE) {
+	        $this->returnError(translate('The passed asset is not a Google Analytics View'), 'typeCodeError');
+	        return;
+	    }
+	    
+	    if ($asset->readAccess() === FALSE) {
+	        $this->returnError(translate('You do not have permissions to access this asset'), 'permissionError');
+	        return;
+	    }
+	    
+	    if ($args['end_date'] === NULL) {
+	        // We can omit the end date; it will revert to "today".
+	        $args['end_date'] = date('Y-m-d');
+	    }
+	    
+	    if (($args['start_date'] !== NULL) && ($args['duration'] !== NULL)) {
+	        // Both start_date and duration exist - huh?
+	        $this->returnError(translate('Statistics request contains both a start_date and duration, you cannot use both'), 'badRequest');
+	        return;
+	    } else if ($args['duration'] !== NULL) {
+	        // If we get a duration, pass it in as a date interval. Duration
+	        // will be in ISO 8601 period format (eg. "P1M" = 1 month).
+	        $start_date = new DateTime($args['end_date']);
+	        $duration   = new DateInterval($args['duration']);
+	        
+	        $start_date->sub($duration);
+	        $start_date->add(new DateInterval('P1D'));
+	        $args['start_date'] = $start_date->format('Y-m-d');
+	    } else if (array_key_exists('start_date', $args) === FALSE) {
+	        $this->returnError(translate('Statistics request is missing a start_date or a duration'), 'badRequest');
+	        return;
+	    }
+	    
+	    if (strtotime($args['start_date']) > strtotime($args['end_date'])) {
+	        $this->returnError(translate('Start date [%s] must not be after the end date [%s]', $args['start_date'], $args['end_date']), 'badRequest');
+	        return;
+	    }
+	    
+	    if (array_key_exists('dimensions', $args) === FALSE) {
+	        $this->returnError(translate('Statistics request is missing dimensions'), 'badRequest');
+	        return;
+	    } else if (array_key_exists('metrics', $args) === FALSE) {
+	        $this->returnError(translate('Statistics request is missing metrics'), 'badRequest');
+	        return;
+	    }
+	    
+	    // If we are sent a string, explode it. But allow special site and page
+	    // metrics combinations to be specified by a constant string.
+	    if ($args['metrics'] === 'SQ_SITE_METRICS') {
+	        $args['metrics'] = explode(',', Google_Analytics_View::SITE_METRICS);
+	    } else if ($args['metrics'] === 'SQ_PAGE_METRICS') {
+	        $args['metrics'] = explode(',', Google_Analytics_View::PAGE_METRICS);
+	    } else if (is_array($args['metrics']) === FALSE) {
+	        $args['metrics'] = explode(',', $args['metrics']);
+	    }
+	    
+	    if (is_array($args['dimensions']) === FALSE) {
+	        $args['dimensions'] = explode(',', $args['dimensions']);
+	    }
+	    if ((array_key_exists('sort_by', $args) === FALSE) && (is_array($args['sort_by']) === FALSE)) {
+	        $args['sort_by'] = explode(',', $args['sort_by']);
+	    }
+	    
+	    if (count($args['dimensions']) > 7) {
+	        $this->returnError(translate('Statistics request cannot exceed seven (7) dimensions'), 'badRequest');
+	        return;
+	    } else if (count($args['metrics']) < 1) {
+	        $this->returnError(translate('Statistics request requires at least one (1) metric'), 'badRequest');
+	        return;
+	    } else if (count($args['metrics']) > 10) {
+	        $this->returnError(translate('Statistics request cannot exceed ten (10) metrics'), 'badRequest');
+	        return;
+	    }
+	    
+	    $result = $asset->generateReport(
+	        $args['dimensions'],
+	        $args['metrics'],
+	        $args['start_date'],
+	        $args['end_date'],
+	        $args['sort']
+	    );
+
+	    if ($result['errors'] !== NULL) {
+	        $this->returnError(translate('Failed to get analytics data'), 'analyticsError', $result['errors']);
+	        return;
+	    } else {
+	        return $result;
+	    }
+	    
+	}//end _getGoogleAnalyticsStatistics()
 
 
 	/**

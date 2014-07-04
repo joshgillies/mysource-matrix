@@ -217,7 +217,7 @@ class Js_Api_Enhanced_Function_List
 			};// end onreadstatechange
 
 			http.setRequestHeader("Content-type", options.contentType);
-
+			http.setRequestHeader("Authorization", 'Matrix-JSAPI key=' + self.key);
 
 			// Send the request
 			http.send(encodeURI(data(options.params)));
