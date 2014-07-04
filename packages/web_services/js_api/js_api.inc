@@ -228,14 +228,15 @@ class JS_Api extends Page
         $sent_as_json = FALSE;
 		if (strpos($content_type, 'application/json') === 0) {
            $sent_as_json = TRUE;
+           $this->_tmp['sent_as_json'] = TRUE;
         }
         
         $api_key = '';
         if (array_key_exists('HTTP_AUTHORIZATION', $_SERVER) === TRUE) {
             $auth_string = $_SERVER['HTTP_AUTHORIZATION'];
-            $found       = preg_match('/^Matrix-JSAPI key=(\d+)$/', $auth_string, $matches);
+            $found       = preg_match('/^Matrix-JSAPI key=(\d+|"\d+")$/', $auth_string, $matches);
             if ($found > 0) {
-                $api_key = $matches[1];
+                $api_key = trim($matches[1], '"');
             }
         }
         
