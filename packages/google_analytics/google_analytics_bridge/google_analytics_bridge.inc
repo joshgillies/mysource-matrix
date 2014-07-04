@@ -214,10 +214,11 @@ class Google_Analytics_Bridge extends OAuth2_Token implements Bridge
         } else {
             // Stale or doesn't exist. Fetch it, and if it doesn't work, fall
             // back to any previously existing cache.
-            $url      = self::FETCH_PREFIX.'/management/accountSummaries';
-            $response = $this->fetchWithBackoff($url);
+            $url = self::FETCH_PREFIX.'/management/accountSummaries';
+            $raw_response = $this->fetchWithBackoff($url);
             
-            if ($response !== NULL) {
+            if ($raw_response['errors'] === NULL) {
+                $response = $raw_response['result'];
                 $this->saveToFetchCache($key, $response);
             } else {
                 $response = $this->loadFromFetchCache($key);
@@ -288,10 +289,11 @@ class Google_Analytics_Bridge extends OAuth2_Token implements Bridge
         } else {
             // Stale or doesn't exist. Fetch it, and if it doesn't work, fall
             // back to any previously existing cache.
-            $url      = self::FETCH_PREFIX.'/management/accounts/~all/webproperties/~all/profiles/~all/goals';
-            $response = $this->fetchWithBackoff($url);
+            $url = self::FETCH_PREFIX.'/management/accounts/~all/webproperties/~all/profiles/~all/goals';
+            $raw_response = $this->fetchWithBackoff($url);
             
-            if ($response !== NULL) {
+            if ($raw_response['errors'] === NULL) {
+                $response = $raw_response['result'];
                 $this->saveToFetchCache($key, $response);
             } else {
                 $response = $this->loadFromFetchCache($key);
@@ -335,10 +337,11 @@ class Google_Analytics_Bridge extends OAuth2_Token implements Bridge
         } else {
             // Stale or doesn't exist. Fetch it, and if it doesn't work, fall
             // back to any previously existing cache.
-            $url      = self::FETCH_PREFIX.'/management/accounts/'.$view['sq:accountId'].'/webproperties/'.$view['sq:propertyId'].'/profiles/'.$viewid.'/experiments';
-            $response = $this->fetchWithBackoff($url);
+            $url = self::FETCH_PREFIX.'/management/accounts/'.$view['sq:accountId'].'/webproperties/'.$view['sq:propertyId'].'/profiles/'.$viewid.'/experiments';
+            $raw_response = $this->fetchWithBackoff($url);
             
-            if ($response !== NULL) {
+            if ($raw_response['errors'] === NULL) {
+                $response = $raw_response['result'];
                 $this->saveToFetchCache($key, $response);
             } else {
                 $response = $this->loadFromFetchCache($key);
@@ -443,6 +446,7 @@ class Google_Analytics_Bridge extends OAuth2_Token implements Bridge
         
         $result  = NULL;
         $retries = NULL;
+        $errors  = NULL;
         $code    = NULL;
         while (($retries === NULL) || ($retries > 0)) {
             $response = $this->fetch($url, FALSE);
@@ -465,14 +469,12 @@ class Google_Analytics_Bridge extends OAuth2_Token implements Bridge
                 case 400:
                     // Bad request or invalid parameter. Cannot retry.
                     $errors = $response['result']['error']['errors'];
-                    bam($errors);
                     $retries = 0;
                 break;
                 
                 case 401:
                     // Token has been revoked.
                     $errors = $response['result']['error']['errors'];
-                    bam($errors);
                     $retries = 0;
                 break;
                 
@@ -535,7 +537,13 @@ class Google_Analytics_Bridge extends OAuth2_Token implements Bridge
             }
         }
         
-        return $result;
+        $retval = Array(
+                    'result' => $result,
+                    'code'   => $code,
+                    'errors' => $errors,
+                  );
+        
+        return $retval;
         
     }//end fetchWithBackoff()
     

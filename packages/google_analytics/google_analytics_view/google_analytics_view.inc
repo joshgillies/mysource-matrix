@@ -206,9 +206,10 @@ class Google_Analytics_View extends Asset
             }
             
             $url = replace_query_string_vars($url_params, $url);
-            $response = $bridge->fetchWithBackoff($url);
+            $raw_response = $bridge->fetchWithBackoff($url);
             
-            if ($response !== NULL) {
+            if ($raw_response['errors'] === NULL) {
+                $response = $raw_response['result'];
                 $bridge->saveToFetchCache($cache_key, $response);
             } else {
                 $response = $bridge->loadFromFetchCache($cache_key);
@@ -216,7 +217,9 @@ class Google_Analytics_View extends Asset
         }//end if
         
         if (($response === FALSE) || ($response === NULL)) {
-            $result = NULL;
+            $result = Array(
+                        'errors' => $raw_response['errors'],
+                      );
         } else {
             $result = array_get_index($response, 'rows', Array());
             foreach ($result as &$row) {
@@ -227,8 +230,6 @@ class Google_Analytics_View extends Asset
         return $result;
 	    
 	}//end generateReport()
-	
-	
 
 
 }//end class
