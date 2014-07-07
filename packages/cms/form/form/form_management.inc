@@ -638,6 +638,15 @@ class Form_Management extends Asset_Management
 																'default'	=> '',
 																'description' => 'Error message when time requirement check fails',
 															),
+	    				'restricted_submission_access'	=> Array(
+															'added'			=> '0.17',
+															'type'			=> 'boolean',
+															'default'		=> FALSE,
+															'parameters'	=> Array(
+																				'allow_empty'	=> FALSE,
+																			   ),
+															'description' => 'If true, only admin will have any access on the completed submissions',
+															),
 					  );
 
 	}//end constructor
