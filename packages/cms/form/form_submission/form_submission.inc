@@ -644,7 +644,7 @@ class Form_Submission extends Asset
 
 	/**
 	* If the submission asset is restricted to admin users only
-	* as per form asser settings to which the submission belongs
+	* as per form asset settings to which the submission belongs
 	*
 	* @return boolean
 	* @access public
@@ -708,7 +708,7 @@ class Form_Submission extends Asset
 			return $this->adminAccess('', $assetids);
 		}
 
-		return parent::readAccess();
+		return parent::readAccess($assetids);
 
 	}//end readAccess()
 
@@ -738,7 +738,7 @@ class Form_Submission extends Asset
 			return $this->adminAccess($lock_type, $assetids);
 		}
 
-		return parent::writeAccess();
+		return parent::writeAccess($lock_type, $assetids, $only_workflow);
 
 	}//end writeAccess()
 
