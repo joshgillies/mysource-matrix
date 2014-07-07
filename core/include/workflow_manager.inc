@@ -2969,8 +2969,8 @@ class Workflow_Manager extends MySource_Object
 	*/
 	public function evaluateStreamSelectionRules($streamid, $assetid)
 	{
-		$stream = $GLOBALS['SQ_SYSTEM']->am->getAsset($streamid);
-		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		$stream = $GLOBALS['SQ_SYSTEM']->am->getAsset($streamid, '', TRUE);
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', TRUE);
 
 		if(empty($stream) || empty($asset)) return FALSE;
 
