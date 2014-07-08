@@ -3075,8 +3075,8 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="miscellaneous_config">Miscellaneous Settings</string>
 	<string source="visited_pages_config_max_entries">Visited Pages Maximum Entries</string>
 	<string source="visited_pages_config_note">Maximum number of visited URLs entires to store in the session. Visited URLs and asset ids can be accessed via global session var "visited_urls" and "visited_assets" respectively.</string>
-
-
+	<string source="strip_matrix_comments">Strip Matrix Comments</string>
+	<string source="strip_matrix_comments_note">Strip out special Matrix comments, "&lt;!--@@ @@--&gt;" and "/*@@ @@*/" from the output.</string>
 
 	<!-- Install and warranty key -->
 	<string source="install_and_warranty_key">Install and Warranty Key</string>

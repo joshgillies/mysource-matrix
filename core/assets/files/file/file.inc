@@ -661,6 +661,13 @@ class File extends Asset
 				}
 
 				if ($fv->checkOut($this->data_path_suffix.'/'.$filename, $this->data_path_public)) {
+					if (SQ_CONFIG_STRIP_MATRIX_COMMENTS && $this->isFileContentEditable()) {
+						// Stip Matrix comments in the unrestricted file in the public directory
+						$file_content = file_get_contents($this->data_path_public.'/'.$filename);
+						$GLOBALS['SQ_SYSTEM']->stripMatrixComments($file_content);
+						file_put_contents($this->data_path_public.'/'.$filename, $file_content);
+						unset($file_content);
+					}
 					$changed = TRUE;
 				} else {
 					trigger_localised_error('CORE0032', E_USER_WARNING);
@@ -749,6 +756,13 @@ class File extends Asset
 			}
 
 			if ($fv->checkOut($this->data_path_suffix.'/'.$existing['filename'], $this->data_path_public)) {
+				if (SQ_CONFIG_STRIP_MATRIX_COMMENTS && $this->isFileContentEditable()) {
+					// Stip Matrix comments in the unrestricted file in the public directory
+					$file_content = file_get_contents($this->data_path_public.'/'.$existing['filename']);
+					$GLOBALS['SQ_SYSTEM']->stripMatrixComments($file_content);
+					file_put_contents($this->data_path_public.'/'.$existing['filename'], $file_content);
+					unset($file_content);
+				}
 				return TRUE;
 			} else {
 				trigger_localised_error('CORE0032', E_USER_WARNING);
@@ -1410,8 +1424,15 @@ class File extends Asset
 			header('Content-Disposition: '.$disposition.'; filename="'.$existing['filename'].'";');
 			header('Content-Length: '.$existing['size']);
 			ob_end_flush();
-
-			readfile($existing['path']);
+			
+			// Remove Matrix comments from the files that can be edited via Matrix backend editor
+			if (SQ_CONFIG_STRIP_MATRIX_COMMENTS && $this->isFileContentEditable()) {
+				$file_content = file_get_contents($existing['path']);
+				$GLOBALS['SQ_SYSTEM']->stripMatrixComments($file_content);
+				echo $file_content;
+			} else {
+				readfile($existing['path']);
+			}
 
 		}//end if
 
@@ -1781,6 +1802,21 @@ class File extends Asset
 
 	}//end getOriginalURL()
 
+
+	/**
+	* Returns TRUE if the file asset has "Edit File" screen
+	* i.e. if file can be edited via Matrix backend (e.g. Text, JS, CSS, XML file assets)
+	*
+	* @return boolean
+	* @access public
+	*/
+	public function isFileContentEditable()
+	{
+		$edit_fns = $this->getEditFns();
+
+		return !isset($edit_fns->static_screens['edit_file']);
+
+	}//end isFileContentEditable()
 
 }//end class
 
