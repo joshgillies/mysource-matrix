@@ -369,9 +369,9 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 			// Style comments
 			$comment_types = Array(
-							'/(&lt;!--)(.*?(--&gt;))/ims' => 'color:#347C17;', // HTML comment
+							'/(&lt;!--)(?!@@)(.*?(?!@@)(--&gt;))/ims' => 'color:#347C17;', // HTML comment
 							'/(&lt;!--)(@@.*?@@(--&gt;))/ims' => 'color:#B19420;', // Matrix HTML comment
-							'/(\/\*)(.*?(\*\/))/ms' => 'color:#347C17;', // JS/CSS comment
+							'/(\/\*)(?!@@)(.*?(?!@@)(\*\/))/ms' => 'color:#347C17;', // JS/CSS comment
 							'/(\/\*)(@@.*?@@(\*\/))/ms' => 'color:#B19420;', // Matrix JS/CSS comment
 						);
 			foreach($comment_types as $cmmt_search => $style) {
