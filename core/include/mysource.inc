@@ -1096,6 +1096,9 @@ class MySource extends MySource_Object
 			replace_keywords($content, $additional_replacements);
 		}
 
+		// Strip out the Matrix comments
+		$this->stripMatrixComments($content);
+
 		// After the highest level keyword replacement, place these contents back
 		foreach($this->_raw_contents as $hash => $replacement) {
 			$content = str_replace($hash, $replacement, $content);
@@ -4746,7 +4749,23 @@ class MySource extends MySource_Object
 		<?php
 
 	}//end printMaintenanceWarning()
-	
+
+
+	/**
+	* Strip out Matrix comments in the content
+	*
+	* @param string @$content	The output content
+	* @access private
+	*/
+	public function stripMatrixComments(&$content)
+	{
+		if (SQ_CONFIG_STRIP_MATRIX_COMMENTS) {
+			// Strip out <!--@@ ... @@--> and /*@@ ... @@*/ style comment from the content
+			$content = preg_replace('/<!\-\-@@.*?@@\-\->/ms', '', $content);
+			$content = preg_replace('/\/\*@@.*?@@\*\//ms', '', $content);
+		}
+
+	}//end stripMatrixComments()
 
 }//end class
 ?>

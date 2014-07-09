@@ -2665,7 +2665,7 @@ ul.radio-list {
 #sq-commit-button-div-inside input[type=button]{
 	padding: 					8px 13px;
 	height:						34px;
-	min-width:					74px;
+	min-width:					78px;
 }
 
 .sq-backend-commit input.sq-btn-green,
@@ -2677,7 +2677,7 @@ ul.radio-list {
 
 .sq-backend-commit input.sq-btn-green.loading,
 #sq-commit-button-div-inside input.sq-btn-green.loading{
-	min-width:					74px;
+	min-width:					78px;
 	height:						34px;
 	background: 				#419041 url(../images/button-loader-green.gif) center center no-repeat; 
 }

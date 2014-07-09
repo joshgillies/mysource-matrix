@@ -367,21 +367,28 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 							  );
 			$str = preg_replace($html_search, $html_replace, $str);
 
-			// Comments
-			function wrap_comment($matches)
-			{
-				$cmmt_style	= 'style="color:#347C17;"';
-				$return_string  = '';
-				$return_string .= '<span '.$cmmt_style.'>&lt;!-- ';
-				$white_space = Array("\r\n", "\n", "\r");
-				$return_string .= str_replace($white_space, "</span>\n<span ".$cmmt_style.'>', $matches[1]);
-				$return_string .= '</span>';
-				return $return_string;
-			}
-			$cmmt_search	= Array(
-								'/&lt;!--(.*?(--&gt;))/ims',
-							  );
-			$str = preg_replace_callback($cmmt_search, "wrap_comment", $str);
+			// Style comments
+			$comment_types = Array(
+							'/(&lt;!--)(?!@@)(.*?(?!@@)(--&gt;))/ims' => 'color:#347C17;', // HTML comment
+							'/(&lt;!--)(@@.*?@@(--&gt;))/ims' => 'color:#B19420;', // Matrix HTML comment
+							'/(\/\*)(?!@@)(.*?(?!@@)(\*\/))/ms' => 'color:#347C17;', // JS/CSS comment
+							'/(\/\*)(@@.*?@@(\*\/))/ms' => 'color:#B19420;', // Matrix JS/CSS comment
+						);
+			foreach($comment_types as $cmmt_search => $style) {
+				$str = preg_replace_callback(
+								$cmmt_search,
+								function($matches) use ($style) {
+									$cmmt_style	= 'style="'.$style.'"';
+									$return_string  = '';
+									$return_string .= '<span '.$cmmt_style.'>'.$matches[1];
+									$white_space = Array("\r\n", "\n", "\r");
+									$return_string .= str_replace($white_space, "</span>\n<span ".$cmmt_style.'>', $matches[2]);
+									$return_string .= '</span>';
+									return $return_string;
+								},
+								$str
+						);
+			}//end foreach
 
 			// Line Numbering and cleanup
 			$pre_style	= 'style=""';

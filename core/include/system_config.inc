@@ -118,6 +118,7 @@ class System_Config extends Config
 						'SQ_CONF_ENFORCE_FRAME_SAMEORIGIN'		=> Array('editable' => 1, 'default' => '1'),
 						'SQ_CONF_VISITED_PAGES_MAX_ENTRIES'		=> Array('editable' => 1, 'default' => '10'),
 						'SQ_FILE_TYPE_RESTRICT_ON_STATIC_URL'	=> Array('editable' => 1, 'default' => ''),
+						'SQ_CONFIG_STRIP_MATRIX_COMMENTS'		=> Array('editable' => 1, 'default' => TRUE),
 					   );
 
 	/**
@@ -1111,6 +1112,16 @@ class System_Config extends Config
 			}
 				$o->note(translate('visited_pages_config_note'));
 			$o->closeField();
+
+			$o->openField(translate('strip_matrix_comments'));
+				if ($write_access && $is_root) {
+					combo_box($class.'[SQ_CONFIG_STRIP_MATRIX_COMMENTS]', Array('1' => translate('yes'), '0' => translate('no')), FALSE, SQ_CONFIG_STRIP_MATRIX_COMMENTS);
+				} else {
+					echo (SQ_CONF_STATIC_ROOT_HTTP) ? translate('yes') : translate('no');
+				}
+				$o->note(htmlspecialchars(translate('strip_matrix_comments_note')));
+			$o->closeField();
+
 		$o->closeSection();
 
 		$o->openSection(translate('install_key'));

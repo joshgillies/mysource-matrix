@@ -98,6 +98,11 @@
 			<text width="100" />
 		</field>
 	</section>
+	<section name="Submission Access" write_access="admin:attributes" limbo_access="1">
+		<field attribute="restricted_submission_access">
+			<boolean true_text="yes" false_text="no" />
+		</field>
+	</section>
 	<section name="CAPTCHA" limbo_access="1">
 		<field attribute="require_captcha">
 			<boolean true_text="yes" false_text="no" />
