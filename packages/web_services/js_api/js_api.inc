@@ -974,6 +974,7 @@ class JS_Api extends Page
 					$errors = $hh->freestyleHipo('hipo_job_import_assets_from_xml', $vars, SQ_PACKAGES_PATH.'/import_tools/hipo_jobs');
 					if (empty($errors)) {
 						$data['success'] = 'Assets sucessfully imported under Asset #'.$import_under;
+						$data['rootAssetid'] = $import_under;
 					} else {
 						$data['error'] = 'Error occurred while importing assets under Asset #'.$import_under;
 						$data['errorCode'] = 'importFailed';
@@ -1316,12 +1317,18 @@ class JS_Api extends Page
 				$result = $this->setAssetMetadata($asset->id, $field_ids, $field_vals);
 				if($result) {
 					$i = 0;
+					$data['changes'] = Array();
 					foreach($field_vals as $index =>  $fieldVal) {
 						$value = $fieldVal;
 						$to_decode = Array('\=', '\;', '\\\\');
 						$decoded_str = Array('=', ';', '\\');
 						$value = str_replace($to_decode, $decoded_str, $value);
 						$data['success'][] = 'Metadata field #'.$field_ids[$i].' has been successfully set to "'.$value.'" for Asset "'.$asset->name.'" (#'.$asset->id.')';
+                        $data['changes'][] = Array(
+                            'fieldid' => $field_ids[$i],
+                            'value'   => $value,
+                            'assetid' => $asset->id,
+						);
 						$i++;
 					}
 				}
@@ -2332,6 +2339,7 @@ class JS_Api extends Page
 						$success 	= $edit_fns->processEditFile($asset, $o, $prefix);
 						if ($success) {
 							$data['success'] = 'Content of Asset '.$asset->short_name.'(#'.$asset->id.') successfully updated';
+							$data['assetid'] = $asset->id;
 						} else {
 							$data['error'] = 'Error occurred while updating Content of Asset '.$asset->short_name.'(#'.$asset->id.')';
 							$data['errorCode'] = 'updateFailed';
@@ -2676,7 +2684,9 @@ class JS_Api extends Page
 				}//end for
 				if (empty($all_errors)) {
 					$cloned_assets_string = implode($cloned_assets, ', ');
-					$data['success'] = $asset->name.'(#'.$asset->id.') has been successfully cloned to '.$cloned_assets_string;
+					$data['success']        = $asset->name.'(#'.$asset->id.') has been successfully cloned to '.$cloned_assets_string;
+					$data['assetid']        = $asset->id;
+					$data['clonedAssetids'] = $cloned_assets;
 				} else {
 					$data['error'] = $all_errors;
 					$data['errorCode'] = 'cloneFailed';
@@ -2941,6 +2951,7 @@ class JS_Api extends Page
 					$_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_BACKEND_ALTERNATE_CONTEXT_ID'] = $context_id;
 				}
 				$data['success'] = "Context successfully set to '$context_id'.";
+				$data['contextid'] = $context_id;
 			} else {
 				$data['error'] = 'Context Id Provided doesn\'t exist on the system.';
 				$data['errorCode'] = 'contextNotFound';
@@ -2977,7 +2988,8 @@ class JS_Api extends Page
 			$_SESSION[SQ_SESSION_SANDBOX_INDEX]['SQ_BACKEND_ALTERNATE_CONTEXT_ID'] = $restored_context;
 		}
 
-		$data['success'] = "Context successfully restored back to '$restored_context'.";
+		$data['success']   = "Context successfully restored back to '$restored_context'.";
+		$data['contextid'] = $restored_context;
 
 		return $data;
 
@@ -3022,6 +3034,13 @@ class JS_Api extends Page
 
 						if ($schemas) {
 							$data['success'] = 'Metadata Schema #'.$schemaid.' successfully '.($granted ? 'applied' : 'denied').' to Asset #'.$asset->id;
+							
+							if ($granted) {
+							    $data['appliedSchemaid'] = $schemaid;
+							} else {
+							    $data['deniedSchemaid'] = $schemaid;
+							}
+							$data['assetid']  = $asset->id;
 						} else {
 							$data['error'] = 'Could not '.($granted ? 'apply' : 'deny').' Metadata Schema #'.$schemaid.' to Asset #'.$asset->id;
 							$data['errorCode'] = 'setFailed';
@@ -3030,6 +3049,8 @@ class JS_Api extends Page
 						$schemas = $mm->deleteSchema($asset->id, $schemaid);
 						if ($schemas) {
 							$data['success'] = 'Metadata Schema #'.$schemaid.' successfully removed from Asset #'.$asset->id;
+                            $data['removedSchemaid'] = $schemaid;
+                            $data['assetid']  = $asset->id;
 						} else {
 							$data['error'] = 'Could not remove Metadata Schema #'.$schemaid.' from Asset #'.$asset->id;
 							$data['errorCode'] = 'unsetFailed';
@@ -3119,29 +3140,37 @@ class JS_Api extends Page
 				$question_type = (strpos(strtolower($args['type_code']), 'form_question_type_') !== FALSE) ? strtolower($args['type_code']) : 'form_question_type_'.strtolower($args['type_code']);
 
 				if (in_array($question_type, $am->getTypeDescendants('form_question'))) {
-					$staus = TRUE;
+					$status = TRUE;
 					$am->acquireLock($form_asset->id, 'attributes');
 					for ($i = 1; $i <= $args['units']; $i++) {
 						$status = $form_asset->attachQuestion($question_type);
 						if (!$status) {
 							$data['error'] = 'Error occurred while attaching question #'.$i.'. Please check the logs and try again';
+							$data['errorCode'] = 'createFailed';
 							break;
 						}
 					}
-					if ($status) $data['success'] = $args['units'].' questions of type \''.$question_type.'\' attached successfully';
+					if ($status) {
+					    $data['success'] = $args['units'].' questions of type \''.$question_type.'\' attached successfully';
+					    $data['type']    = $args['type_code'];
+					    $data['units']   = $args['units'];
+					}
 
 					// regen the content file
 					$form_asset->_updated();
 					$am->releaseLock($form_asset->id, 'attributes');
 				} else {
 					$data['error'] = '\''.$args['type_code'].'\' is not a valid form question type';
+					$data['errorCode'] = 'typeCodeError';
 				}
 
 			} else {
 				$data['error'] = 'Required Form or Form Section asset not provided';
+				$data['errorCode'] = 'badRequest';
 			}
 		} else {
 			$data['error'] = 'You do not have permissions to access this asset';
+			$data['errorCode'] = 'permissionError';
 		}//end else
 
 		return $data;
@@ -3193,15 +3222,19 @@ class JS_Api extends Page
 				$am->releaseLock($form_asset->id, 'attributes');
 				if ($success) {
 					$data['success'] = 'Question \''.$form_asset->id.':'.$args['question_id'].'\' successfully updated';
+					$data['assetid'] = $form_asset->id.':'.$args['question_id'];
 				} else {
 					$data['error'] = 'Some error occurred while updating Question \''.$form_asset->id.':'.$args['question_id'].'\'';
+					$data['errorCode'] = 'updateFailed';
 				}
 
 			} else {
 				$data['error'] = 'Required Form or Form Section asset not provided';
+				$data['errorCode'] = 'badRequest';
 			}
 		} else {
 			$data['error'] = 'You do not have permissions to access this asset';
+			$data['errorCode'] = 'permissionError';
 		}//end else
 
 		return $data;
@@ -3241,19 +3274,24 @@ class JS_Api extends Page
 						$asset->setAttrValue('sort_order', array_values($asset->attr('sort_order')));
 						$asset->saveAttributes();
 						$data['success'] = $asset->id.':'.$args['question_id'].' successfully deleted';
+						$data['assetid'] = $form_asset->id.':'.$args['question_id'];
 					} else {
 						$data['error'] = 'Error occurred while deleting asset \''.$asset->id.':'.$args['question_id'].'\'';
+						$data['errorCode'] = 'deleteFailed';
 					}
 					$am->releaseLock($asset->id, 'attributes');
 				} else {
 					$data['error'] = $asset->id.':'.$args['question_id'].' is not a valid question asset';
+					$data['errorCode'] = 'assetNotFound';
 				}
 
 			} else {
 				$data['error'] = 'Required Form or Form Section asset not provided';
+				$data['errorCode'] = 'badRequest';
 			}
 		} else {
 			$data['error'] = 'You do not have permissions to access this asset';
+			$data['errorCode'] = 'permissionError';
 		}//end else
 
 		return $data;
@@ -3312,19 +3350,24 @@ class JS_Api extends Page
 							$form_asset->_updated();
 							$am->releaseLock($form_asset->id, 'attributes');
 						}
-						$data['success'] = 'Sort oder successfully updated';
+						$data['success']   = 'Sort order successfully updated';
+						$data['sortOrder'] = $sort_order;
 					} else {
 						$data['error'] = 'There are question missing in the new sort order';
+						$data['errorCode'] = 'badRequest';
 					}
 				} else {
 					$data['error'] = 'Need to provide an array of new sort order for questions';
+					$data['errorCode'] = 'badRequest';
 				}
 
 			} else {
 				$data['error'] = 'Required Form or Form Section form_asset not provided';
+				$data['errorCode'] = 'badRequest';
 			}
 		} else {
 			$data['error'] = 'You do not have permissions to access this asset';
+			$data['errorCode'] = 'permissionError';
 		}//end else
 
 		return $data;
@@ -3571,7 +3614,10 @@ class JS_Api extends Page
 				$am->releaseLock($link['majorid'], 'all');
 
 				if ($result) {
-					$data['success'] = 'Link #"'.$linkid['link_id'].'" between Asset "'.$child_asset->name.'" (#'.$child_asset->id.') and Asset "'.$parent_asset->name.'" (#'.$parent_asset->id.') " has been sucessfully removed';
+					$data['success']      = 'Link #"'.$linkid['link_id'].'" between Asset "'.$child_asset->name.'" (#'.$child_asset->id.') and Asset "'.$parent_asset->name.'" (#'.$parent_asset->id.') " has been sucessfully removed';
+					$data['linkid']       = $linkid['link_id'];
+					$data['minorAssetid'] = $child_asset->id;
+					$data['majorAssetid'] = $parent_asset->id;
 					return $data;
 				} else {
 					$data['error'] = 'Unable to delete link';
@@ -3706,6 +3752,9 @@ class JS_Api extends Page
 
 			if (!empty($new_link_id)) {
 				$response['success'] = 'Link #'.$link_id['link_id'].' between Asset "'.$child_asset->name.'" (#'.$child_asset->id.') and Asset "'.$parent_asset->name.'" (#'.$parent_asset->id.') has been updated';
+				$data['linkid']  = $linkid['link_id'];
+                $data['minorAssetid'] = $child_asset->id;
+                $data['majorAssetid'] = $parent_asset->id;
 				return $response;
 			} else {
 				$response['error'] = 'Unable to update Link #'.$link_id['link_id'].' between Asset "'.$child_asset->name.'" (#'.$child_asset->id.') and Asset "'.$parent_asset->name.'" (#'.$parent_asset->id.')';
