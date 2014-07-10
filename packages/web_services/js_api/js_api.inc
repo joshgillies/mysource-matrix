@@ -2678,23 +2678,23 @@ class JS_Api extends Page
 					$errors	= $hh->freestyleHipo('hipo_job_clone_assets', $running_vars_copy);
 					if(isset($running_vars_copy['cloned_asset'])) {
 						$cloned_asset_id = array_pop(array_keys($running_vars_copy['cloned_asset']));
-						$cloned_asset_id = '#'.$cloned_asset_id;
-						$cloned_assets[] = $cloned_asset_id;
+						$cloned_assets[] = (string) $cloned_asset_id;
 					}
 					$all_errors	+= $errors;
 				}//end for
 				if (empty($all_errors)) {
-					$cloned_assets_string = implode($cloned_assets, ', ');
-					$data['success']      = $asset->name.'(#'.$asset->id.') has been successfully cloned to '.$cloned_assets_string;
-					$data['assetid']      = $asset->id;
+					$cloned_assets_string = '#'.implode($cloned_assets, ', #');
+					$data['success']      = $asset->name.' (#'.$asset->id.') has been successfully cloned to '.$cloned_assets_string;
+					$data['assetid']      = (string) $asset->id;
+					$data['newParent']    = (string) $new_parent;
 					$data['clonedAssets'] = Array();
 					
 					$clone_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($cloned_assets);
 					foreach ($cloned_assets as $clone_assetid) {
-					    $link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($asset->id, $clone_assetid, $link_type, 'major');
+					    $link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($new_parent, $clone_assetid, $link_type);
 					    $data['clonedAssets'][] = Array(
-					        'id'      => $cloned_assets,
-					        'link_id' => $link['id'],
+					        'id'      => $clone_assetid,
+					        'link_id' => $link['linkid'],
 					        'name'    => $clone_info[$clone_assetid]['name'],
 					    );
 					}
