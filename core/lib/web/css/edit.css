@@ -764,8 +764,8 @@ TOP HEADER FRAME STYLES
 
 input[type=text].sq-backend-header-text-box {
 	vertical-align:				middle;
-	line-height: 				15px;
-	padding: 					6px 0 10px 8px;
+	line-height: 				16px;
+	padding: 					6px 0 8px 8px;
 	background: 				none;
 	border: 					none;
 	box-shadow: 				none;
