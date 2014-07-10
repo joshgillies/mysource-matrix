@@ -325,11 +325,13 @@ class Bodycopy_Container extends Asset
 	* @param mixed(array|null)	$keyword_replacements	some replacements for keywords in the content,
 	* 													pass an array of replacements or 
 	* 													null for the container to attempt the replacements itself
+	* @param boolean $generating    					Whether the PHP content generated for content file needs to executed at the run time
+	*													Applicable to Nested Content Type asset only
 	*
 	* @return void
 	* @access public
 	*/
-	public function printBody($keyword_replacements=NULL)
+	public function printBody($keyword_replacements=NULL, $generating=FALSE)
 	{
 		if (!$this->readAccess()) return;
 
@@ -490,10 +492,20 @@ class Bodycopy_Container extends Asset
 				trigger_localised_error('CORE0009', E_USER_WARNING, $this->name);
 			} else {
 
-				ob_start();
-					include($this->data_path.'/'.$content_file_name);
-					$content = ob_get_contents();
-				ob_end_clean();
+				// Include the nested content file dynamically if the content is getting included in the upper level content file 
+				if ($generating) {
+					$content_type = $this->getContentType();
+					$generating = !is_null($content_type) && $content_type->type() == 'content_type_nest_content';
+				}
+
+				if ($generating) {
+					$content = '<'.'?php include("'.$this->data_path.'/'.$content_file_name.'"); ?'.'>'."\n";
+				} else {
+					ob_start();
+						include($this->data_path.'/'.$content_file_name);
+						$content = ob_get_contents();
+					ob_end_clean();
+				}
 
 				// remove any sq_wysiwyg_* tags used as placeholders for plugins
 				// such as Embed Movie/Youtube but only on frontend

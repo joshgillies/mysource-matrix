@@ -333,10 +333,13 @@ class Bodycopy extends Asset
 	/**
 	* Called by the design to print the body of this asset
 	*
+	* @param boolean $generating	Whether the PHP content generated for content file needs to executed at the run time
+	*								Applicable to Nested Content Type asset only
+	*
 	* @return boolean
 	* @access public
 	*/
-	public function printBody()
+	public function printBody($generating=FALSE)
 	{
 		// Bodycopy no longer handles the use of system version file, such uses is now being handled by containers.
 		// But For the sake of the upgrading, check for existing file in the bodycopy data dir.
@@ -369,7 +372,7 @@ class Bodycopy extends Asset
 			// paint each container
 			foreach (array_keys($containers) as $i) {
 				$container =& $containers[$i];
-				$container->printBody($this->keyword_replacements);
+				$container->printBody($this->keyword_replacements, $generating);
 			}
 		}
 
