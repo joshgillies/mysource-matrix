@@ -190,7 +190,13 @@ class Workflow_Stream_Edit_Fns extends Asset_Edit_Fns
 							$condition = reset($conditions);
 							$userids = $am->getAttributeValuesByName('userid', 'workflow_step_condition', Array($condition['minorid']));
 							$userid = $userids[$condition['minorid']];
-							echo get_asset_tag_line($userid);
+							if(empty($userid)) {
+								$dynamic_userids = $am->getAttributeValuesByName('dynamic_userid', 'workflow_step_condition', Array($condition['minorid']));
+								echo $dynamic_userids[$condition['minorid']];
+							}
+							else {
+								echo get_asset_tag_line($userid);
+							}
 						} else if (count($conditions) === 0) {
 							echo '<span class="sq-backend-warning">None selected</span>';
 						} else {
@@ -390,11 +396,12 @@ class Workflow_Stream_Edit_Fns extends Asset_Edit_Fns
 	* to the database and used for publishing etc.
 	*
 	* @param Workflow_Stream	$asset	the asset we are generating the array for
+	* @param int				$top_parent	the dependant top parent of current asset
 	*
 	* @return array
 	* @access public
 	*/
-	public function generateWorkflowArray(Workflow_Stream $asset)
+	public function generateWorkflowArray(Workflow_Stream $asset, $top_parent='')
 	{
 		$workflow_array['steps']        = Array();
 		$workflow_array['current_step'] = Array('1');
@@ -410,7 +417,7 @@ class Workflow_Stream_Edit_Fns extends Asset_Edit_Fns
 			if (is_null($step)) continue;
 			$edit_fns = $step->getEditFns();
 			$workflow_array['steps'][$i] = Array();
-			if (!$edit_fns->generateWorkflowArray($step, $workflow_array['steps'][$i])) {
+			if (!$edit_fns->generateWorkflowArray($step, $workflow_array['steps'][$i], $top_parent)) {
 				return FALSE;
 			}
 			if ($i == 1) {
