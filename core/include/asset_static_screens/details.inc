@@ -551,10 +551,11 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 				var status_cb_ele = document.getElementById(prefix + '_change_status');
 				var status_cascade_ele = document.getElementById(prefix + '_change_status_all_children');
 				var note_text = document.getElementById('warning_message_for_live_plus_cascade');
+				var current_status = <?php echo $owner->status; ?>;
 
 
 				// display warning message for cascading live status
-				if (status_cb_ele.value == <?php echo SQ_STATUS_LIVE ?> && status_cascade_ele.checked) {
+				if ((status_cb_ele.value == <?php echo SQ_STATUS_LIVE ?> || current_status == <?php echo SQ_STATUS_LIVE ?>) && status_cascade_ele.checked) {
 					note_text.style.display="block";
 				} else {
 					note_text.style.display="none";
@@ -579,9 +580,10 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 				var status_cb_ele = document.getElementById(prefix + '_new_fs_status');
 				var status_cascade_ele = document.getElementById(prefix + '_new_fs_change_status_all_children');
 				var note_text = document.getElementById('warning_message_for_live_plus_cascade_fs');
+				var current_status = <?php echo $owner->status; ?>;
 
 				// display warning message for cascading live status
-				if (status_cb_ele.value == <?php echo SQ_STATUS_LIVE ?> && status_cascade_ele.checked) {
+				if ((status_cb_ele.value == <?php echo SQ_STATUS_LIVE ?> || current_status == <?php echo SQ_STATUS_LIVE ?>) && status_cascade_ele.checked) {
 					note_text.style.display="block";
 				} else {
 					note_text.style.display="none";
