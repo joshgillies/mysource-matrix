@@ -236,12 +236,26 @@ $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 	// update the sq_ast_attr val table for all the attributes value of type "assetid", coz if the old dn is not going to be available
 	// henceforth then there is no point keeping it in our database
 	// see #5608 ldap_change_dn.php does  not update running_as attribute  for cron jobs
-	printActionName('Changing Asset Attributes ');
+	printActionName('Changing asset attributes ');
 
 		$sql = 'UPDATE sq_ast_attr_val
 				SET custom_val = '.MatrixDAL::quote($new_dn).'
 				WHERE '.(MatrixDAL::getDbType() === 'oci' ? 'DBMS_LOB.SUBSTR(custom_val, 2000, 1)' : 'custom_val').' = '.MatrixDAL::quote($old_dn).'
 				AND attrid IN (SELECT attrid FROM sq_ast_attr WHERE type=\'assetid\')';
+		$result = MatrixDAL::executeSql($sql);
+		printActionStatus('OK');
+
+	printActionName('Changing asset roles');
+		$sql = 'UPDATE sq_ast_role
+				SET userid = '.MatrixDAL::quote($new_dn).'
+				WHERE userid = '.MatrixDAL::quote($old_dn);
+		$result = MatrixDAL::executeSql($sql);
+		printActionStatus('OK');
+
+	printActionName('Changing asset roles (rollback)');
+		$sql = 'UPDATE sq_rb_ast_role
+				SET userid = '.MatrixDAL::quote($new_dn).'
+				WHERE userid = '.MatrixDAL::quote($old_dn);
 		$result = MatrixDAL::executeSql($sql);
 		printActionStatus('OK');
 
