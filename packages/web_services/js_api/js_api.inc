@@ -2671,6 +2671,7 @@ class JS_Api extends Page
 
 				$all_errors	= Array();
 				$cloned_assets = Array();
+				
 				for ($i = 0; $i < $clone_num; $i++) {
 					// Need to reset the running vars again as it is passed by reference to the hipo job
 					$running_vars_copy	= $running_vars;
@@ -2684,9 +2685,19 @@ class JS_Api extends Page
 				}//end for
 				if (empty($all_errors)) {
 					$cloned_assets_string = implode($cloned_assets, ', ');
-					$data['success']        = $asset->name.'(#'.$asset->id.') has been successfully cloned to '.$cloned_assets_string;
-					$data['assetid']        = $asset->id;
-					$data['clonedAssetids'] = $cloned_assets;
+					$data['success']      = $asset->name.'(#'.$asset->id.') has been successfully cloned to '.$cloned_assets_string;
+					$data['assetid']      = $asset->id;
+					$data['clonedAssets'] = Array();
+					
+					$clone_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($cloned_assets);
+					foreach ($cloned_assets as $clone_assetid) {
+					    $link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($asset->id, $clone_assetid, $link_type, 'major');
+					    $data['clonedAssets'][] = Array(
+					        'id'      => $cloned_assets,
+					        'link_id' => $link['id'],
+					        'name'    => $clone_info[$clone_assetid]['name'],
+					    );
+					}
 				} else {
 					$data['error'] = $all_errors;
 					$data['errorCode'] = 'cloneFailed';
