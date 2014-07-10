@@ -3206,6 +3206,8 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="match_any_rule_description">Match on ANY rule:</string>
 	<string source="stream_selection_rule_description">%1$s matches "%2$s"</string>
 
+	<string source="new_dynamic_condition_question">New Dynamic Condition?</string>
+	<string source="new_dynamic_condition_question_note">Specify a Matrix keyword to be dynamically evaluated as the condition asset ID. This keyword will be only evaluated against the dependant parent asset. Global keywords and keyword modifier are supported. e.g %%asset_metadata_value^empty:12%%</string>
 	
 
 </strings>

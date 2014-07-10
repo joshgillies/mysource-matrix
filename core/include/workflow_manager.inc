@@ -53,6 +53,9 @@ class Workflow_Manager extends MySource_Object
 	var $_valid_cond_logic = Array('>=' => 'At least', 'all' => 'All');
 
 
+
+
+
 	/**
 	* Constructor
 	*
@@ -1445,6 +1448,13 @@ class Workflow_Manager extends MySource_Object
 		$running_schemas = $this->getSchemas($assetid, TRUE, TRUE);
 
 		if (empty($running_schemas)) {
+
+			// evaluate dynamic step condtion keyword on the dependant parent asset only
+			$dependant_parents = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($assetid);
+			$top_parent = array_pop($dependant_parents);
+			if(empty($top_parent)) $top_parent = $assetid;
+
+
 			// we dont actually have any running workflows, so lets pretend we do
 			$schemas = $this->getSchemas($assetid, TRUE);
 			$streamids = Array();
@@ -1482,7 +1492,7 @@ class Workflow_Manager extends MySource_Object
 
 			foreach ($schemas as $schemaid) {
 				foreach ($streamids[$schemaid] as $streamid => &$stream_name) {
-					$schema_workflows[$schemaid][$streamid] = $this->generateWorkflowArray($assetid, $streamid);
+					$schema_workflows[$schemaid][$streamid] = $this->generateWorkflowArray($assetid, $streamid, $top_parent);
 				}
 				$running_schemas[] = $schemaid;
 			}
@@ -1518,7 +1528,6 @@ class Workflow_Manager extends MySource_Object
 				if (!$workflow['complete']) return FALSE;
 			}
 		}
-
 		return TRUE;
 
 	}//end testPublish()
@@ -1650,7 +1659,7 @@ class Workflow_Manager extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function generateWorkflowArray($assetid, $streamid)
+	function generateWorkflowArray($assetid, $streamid, $top_parent)
 	{
 		$assetid  = (int) $assetid;
 		$streamid = (int) $streamid;
@@ -1681,7 +1690,7 @@ class Workflow_Manager extends MySource_Object
 		}
 
 		$edit_fns = $stream->getEditFns();
-		return $edit_fns->generateWorkflowArray($stream);
+		return $edit_fns->generateWorkflowArray($stream, $top_parent);
 
 	}//end generateWorkflowArray()
 
@@ -1704,6 +1713,12 @@ class Workflow_Manager extends MySource_Object
 			trigger_localised_error('SYS0179', E_USER_WARNING, $assetid);
 			return FALSE;
 		}
+
+		// evaluate dynamic step condtion keyword on the dependant parent asset only
+		$dependant_parents = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($assetid);
+		$top_parent = array_pop($dependant_parents);
+		if(empty($top_parent)) $top_parent = $assetid;
+
 
 		$schemas = $this->getSchemas($assetid, TRUE, FALSE);
 
@@ -1730,7 +1745,7 @@ class Workflow_Manager extends MySource_Object
 		foreach ($schemas as $schemaid) {
 			// Grab the workflow array from the appropriate stream, and then
 			// make that our workflow for this
-			$workflow = $this->generateWorkflowArray($assetid, $streams[$schemaid]);
+			$workflow = $this->generateWorkflowArray($assetid, $streams[$schemaid], $top_parent);
 			$workflow['schema_name'] = $workflow_names[$schemaid]['name'];
 
 			$stream_names = $this->getStreams($schemaid);

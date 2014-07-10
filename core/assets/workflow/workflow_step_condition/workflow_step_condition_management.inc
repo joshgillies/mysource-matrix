@@ -71,6 +71,12 @@ class Workflow_Step_Condition_Management extends Asset_Management
 																	'allow_empty'	=> FALSE,
 																   ),
 											   ),
+						'dynamic_userid'	=> Array (
+												'added'			=> '0.2',
+												'type'			=> 'text',
+												'default'		=> '',
+											   ),
+
 					  );
 
 	}//end constructor

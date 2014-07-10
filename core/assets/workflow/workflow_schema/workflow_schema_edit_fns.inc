@@ -185,12 +185,19 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 							$userid = $userids[$condition['minorid']];
 							$user_name = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($userid);
 							if (empty($user_name)) {
-								trigger_localised_error('SYS0348', E_USER_NOTICE, $userid, $condition['minorid']);
-								continue;
+								$dynamic_userids = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('dynamic_userid', 'workflow_step_condition', Array($condition['minorid']));
+								$dynamic_userid = $dynamic_userids[$condition['minorid']];
+								if(empty($dynamic_userid)) {
+									trigger_localised_error('SYS0348', E_USER_NOTICE, $userid, $condition['minorid']);
+									continue;
+								}
+								$condition_name = $dynamic_userid;
 							}
-							$condition_name = $user_name[$userid]['name'].' (Id: #'.$userid.')';
+							else {
+								$condition_name = $user_name[$userid]['name'].' (Id: #'.$userid.')';
+							}
 
-							if ($GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($user_name[$userid]['type_code'], 'user_group') === TRUE) {
+							if (!empty($user_name) && $GLOBALS['SQ_SYSTEM']->am->isTypeDecendant($user_name[$userid]['type_code'], 'user_group') === TRUE) {
 								$logic = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('logic', 'workflow_step_condition', Array($condition['minorid']));
 								$logic_num = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('logic_num', 'workflow_step_condition', Array($condition['minorid']));
 								if ($logic[$condition['minorid']] === 'all') {
@@ -654,7 +661,7 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 	* @return array
 	* @access public
 	*/
-	public function generateWorkflowArray(Asset $asset)
+	public function generateWorkflowArray(Asset $asset, $top_parent='')
 	{
 		$workflow_array['steps']        = Array();
 		$workflow_array['current_step'] = Array('1');
@@ -670,7 +677,7 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 			if (is_null($step)) continue;
 			$edit_fns = $step->getEditFns();
 			$workflow_array['steps'][$i] = Array();
-			if (!$edit_fns->generateWorkflowArray($step, $workflow_array['steps'][$i])) {
+			if (!$edit_fns->generateWorkflowArray($step, $workflow_array['steps'][$i], $top_parent)) {
 				return FALSE;
 			}
 			if ($i == 1) {
