@@ -511,9 +511,10 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 			{
 				var status_cb_ele = document.getElementById(status_cb);
 				var status_cascade_ele = document.getElementById(status_cascade);
+				var current_status = <?php echo $owner->status; ?>;
 
 				var note_text = document.getElementById(note_div);
-				if (status_cb_ele.value == <?php echo SQ_STATUS_LIVE ?> && status_cascade_ele.checked) {
+				if ((status_cb_ele.value == <?php echo SQ_STATUS_LIVE ?> || current_status == <?php echo SQ_STATUS_LIVE ?>) && status_cascade_ele.checked) {
 					note_text.style.display="block";
 				} else {
 					note_text.style.display="none";
