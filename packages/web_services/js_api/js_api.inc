@@ -253,8 +253,8 @@ class JS_Api extends Page
             }
         }//end if
         
-        if (($api_key === '') && (array_key_exists('key', $_POST) === TRUE)) {
-            $api_key = array_get_index($_POST, 'key', '');
+        if (($api_key === '') && (array_key_exists('key', $_REQUEST) === TRUE)) {
+            $api_key = array_get_index($_REQUEST, 'key', '');
         }
 		
 		if ((boolean) $this->attr('use_enhanced_js') === FALSE) {
