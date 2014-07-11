@@ -95,9 +95,9 @@ class Asset_Status_Editing extends Asset_Status
 			if ($mm->allowsMetadata($this->owner->id)) {
                 $is_dependant =  $GLOBALS['SQ_SYSTEM']->am->isDependant($this->owner->id);
 				
-				if (($mm->requiredFieldsComplete($this->owner->id) && !$is_dependant) || $is_dependant) {
+				$schemas = $wfm->getSchemas($this->owner->id, true);
+                if (($mm->requiredFieldsComplete($this->owner->id) && !$is_dependant) || $is_dependant) {
 					// metadata is complete
-					$schemas = $wfm->getSchemas($this->owner->id, true);
 					if (empty($schemas)) {
 						// no workflow schemas applied, so any admin can make this live
 						if ($this->owner->adminAccess('')) {
@@ -143,7 +143,10 @@ class Asset_Status_Editing extends Asset_Status
 					}
 				} else {
 					// can't grant approval yet because owner is a independent asset with incomplete metadata
-					$statii[SQ_STATUS_EDITING_APPROVAL] = translate('status_change_apply_for_approval');
+					// but if workflow is applied we can at least start the process
+					if ($needs_workflow === TRUE) {
+					    $statii[SQ_STATUS_EDITING_APPROVAL] = translate('status_change_apply_for_approval');
+					}
 				}
 
 			} else {
