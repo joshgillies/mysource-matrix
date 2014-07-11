@@ -82,7 +82,7 @@ class Quotation extends WYSIWYG_Plugin
 				}
 
 				// Remove all the "blockquotes" in select area
-				var pattern = /(<blockquote>\r?\n?.*?\r?\n?<\/blockquote>)|(\r?\n?<blockquote \/>)/i;
+				var pattern = /(<blockquote>\r?\n?.*?\r?\n?<\/blockquote>)/i;
 				if (pattern.test(selection)) {
 					inside_blockquote = true;
 					var nodeContent;
