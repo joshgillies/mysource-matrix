@@ -637,15 +637,17 @@ class Backend extends MySource_Object
 				}
 			}//end if
 
-			try {
-				$results['keyword'] = Backend_Search::processSearch($search_string, Array($search_root));
-				if (count($results['keyword']) === 0) {
-					unset($results['keyword']);
-				}
-			} catch (Exception $e) {
-				$error_msg = $e->getMessage();
-				log_error('Search for "'.$search_string.'" failed due to error: '.$error_msg, E_USER_WARNING);
-			}//end try
+			if (!isset($results['url']) && !isset($results['assetid'])) {
+				try {
+					$results['keyword'] = Backend_Search::processSearch($search_string, Array($search_root));
+					if (count($results['keyword']) === 0) {
+						unset($results['keyword']);
+					}
+				} catch (Exception $e) {
+					$error_msg = $e->getMessage();
+					log_error('Search for "'.$search_string.'" failed due to error: '.$error_msg, E_USER_WARNING);
+				}//end try
+			}
 			
 			// Now do the results.
 			if ($search_format === 'json') {
@@ -684,7 +686,7 @@ class Backend extends MySource_Object
 					} else if (array_key_exists('assetid', $results) === TRUE) {
 						$redirect_assetid = $results['assetid']->id;
 					}
-					
+
 					if ($redirect_assetid !== NULL) {
 						$this->out->addOnLoad('
 							if (parent.frames["sq_main"]) {
