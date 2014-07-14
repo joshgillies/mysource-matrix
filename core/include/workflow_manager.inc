@@ -1509,9 +1509,7 @@ class Workflow_Manager extends MySource_Object
 			if (!in_array($schemaid, $running_schemas)) continue;
 
 			foreach ($schema_workflows[$schemaid] as $streamid => &$workflow) {
-
-				// evaluate stream rules, we can only test those valid ones
-				if(!$this->evaluateStreamSelectionRules($streamid, $assetid)) return FALSE;
+;
 
 				// already finished the workflow?
 				if ($workflow['complete']) continue;
@@ -2972,6 +2970,43 @@ class Workflow_Manager extends MySource_Object
 
 	}//end setCurrentUserAsLastStarted()
 
+
+	/**
+	* Apply Stream Selection Rules and only return the streams that matches the rules.
+	*
+	* @param string	$schemaid	The schema to get streams from
+	* @param string	$assetid	The asset to evaluate against
+	*
+	* @return array
+	*/
+	public function getValidStreams($schemaid, $assetid)
+	{
+		$streams = $this->getStreams($schemaid);
+		$valid_streamids = Array();
+		foreach ($streams as $streamid => $details) {
+			$result = $this->evaluateStreamSelectionRules($streamid, $assetid);
+			if($result) {
+				$valid_streamids[] = $streamid;
+			}
+
+		}
+
+		// if there is no valid streams, we have to use plan B
+		if(empty($valid_streamids)) {
+			$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+			$stream_selection_rules_no_match = $schema->attr('stream_selection_rules_no_match');
+			if($stream_selection_rules_no_match == 'allow_default_stream') {
+				// just return default stream
+				$valid_streamids = Array($this->getDefaultStream($schemaid));
+			}
+			else {
+				// allow all streams
+				$valid_streamids = array_keys($streams);
+			}
+		}
+
+		return $valid_streamids;
+	}//end getValidStreams()
 
 
 	/**

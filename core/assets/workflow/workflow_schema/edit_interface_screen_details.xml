@@ -47,6 +47,10 @@
 		<field attribute="who_can_choose_stream">
 			<selection style="list" />
 		</field>
+		<field attribute="stream_selection_rules_no_match">
+			<selection style="list" />
+		</field>
+
 	</section>
 	<section name="Workflow Streams" write_access="write:links">
 		<field>

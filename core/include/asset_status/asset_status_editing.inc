@@ -124,6 +124,7 @@ class Asset_Status_Editing extends Asset_Status
 							}
 
 							if($just_check_default) {
+								// it's simple because only default stream is used
 								$publish_result = $wfm->testPublish($this->owner->id, $GLOBALS['SQ_SYSTEM']->currentUserId(), $streams[$wfm->getDefaultStream($schemaid)]);
 								if ($publish_result === TRUE) {
 									$wf_complete = TRUE;
@@ -132,7 +133,10 @@ class Asset_Status_Editing extends Asset_Status
 								}
 							}
 							else {
+								$valid_streams = $wfm->getValidStreams($schemaid, $this->owner->id);
 								foreach ($streams as $streamid => $stream_name) {
+									// if this stream has selection rules set and not match, we shouldn't test publish on this stream
+									if(!in_array($streamid, $valid_streams)) continue;
 									$publish_result = $wfm->testPublish($this->owner->id, $GLOBALS['SQ_SYSTEM']->currentUserId(), $stream_name);
 									if ($publish_result === TRUE) {
 										$wf_complete = TRUE;

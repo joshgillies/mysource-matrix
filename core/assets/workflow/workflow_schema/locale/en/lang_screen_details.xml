@@ -57,6 +57,11 @@
 			<display_name>Who Can Choose Workflow Stream?</display_name>
 			<note>Allow user with either admin or write access to choose workflow stream when applying workflow or only allow user with admin access to do so?</note>
 		</field>
+		<field attribute="stream_selection_rules_no_match">
+			<display_name>Stream Selection Rules No Match</display_name>
+			<note>Specify the behaviour when no stream can be automaticlaly selected from the Stream Selection Rules.</note>
+		</field>
+
 	</section>
 	<section name="Workflow Streams">
 		<field>

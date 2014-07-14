@@ -380,7 +380,14 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 			$schemas = $wfm->getSchemas($owner->id);
 			foreach ($schemas as $schemaid => $granted) {
 				$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
-				// if schema requires admin access user only to choose stream, then we have to pass
+
+				// should we allow commenting
+				if (!$editor_commenting && $schema->attr('allow_comment_on_request')) {
+					$editor_commenting = TRUE;
+				}
+
+
+				// if schema requires admin access user only to choose stream and we are not admin user, then we have to skip stream selection
 				$who_can_choose_stream = $schema->attr('who_can_choose_stream');
 				if($who_can_choose_stream === 'admin_only' && !$owner->adminAccess()) continue;
 
@@ -395,6 +402,8 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 						$default_streamid = $stream_link['minorid'];
 					}
 				}
+				// evaluate stream selection rules and get a list of valid streams
+				$valid_streams = $wfm->getValidStreams($schemaid, $owner->id);
 
 				if ($has_approved_status === TRUE) {
 					// We can bypass workflow on at least one stream
@@ -405,7 +414,7 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 					$bypass_stream_names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($bypassable_streams, 'workflow_stream', TRUE, 'name');
 					// evaluate stream rules and determine which rule shouldn't be shown to user
 					foreach ($bypass_stream_names as $streamid => $name) {
-						if(!$wfm->evaluateStreamSelectionRules($streamid, $owner->id))
+						if(!in_array($streamid, $valid_streams))
 							unset($bypass_stream_names[$streamid]);
 					}
 					$stream_names['bypass'] = array_merge($stream_names['bypass'], $bypass_stream_names);
@@ -417,16 +426,12 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 				$workflow_stream_names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($workflowable_streams, 'workflow_stream', TRUE, 'name');
 				// evaluate stream rules and determine which rule shouldn't be shown to user
 				foreach ($workflow_stream_names as $streamid => $name) {
-					if(!$wfm->evaluateStreamSelectionRules($streamid, $owner->id))
+					if(!in_array($streamid, $valid_streams))
 						unset($workflow_stream_names[$streamid]);
 				}
 
 
 				$stream_names['workflow'] = array_merge($stream_names['workflow'], $workflow_stream_names);
-
-				if (!$editor_commenting && $schema->attr('allow_comment_on_request')) {
-					$editor_commenting = TRUE;
-				}
 
 			}//end foreach schema
 
@@ -445,7 +450,7 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 
 			// should we place default stream at all?
 			$place_default_stream = TRUE;
-			if(!empty($default_streamid) && !$wfm->evaluateStreamSelectionRules($default_streamid, $owner->id)) {
+			if(!empty($default_streamid) && !in_array($default_streamid, $valid_streams)) {
 				if(!empty($stream_names['bypass']) || !empty($stream_names['workflow']))
 					$place_default_stream = FALSE;
 			}
@@ -524,7 +529,9 @@ function _paintStatusChange(&$owner, &$o, $prefix, $statii, $default_status=0)
 						} else {
 							stream_byp_cb.disabled = true;
 						}
-						editorCommenting(status_cb);
+						if (typeof(editorCommenting) != "undefined") { 
+							editorCommenting(status_cb);
+						}
 						checkStatusDisplayWarning();
 					}
 				}//end if

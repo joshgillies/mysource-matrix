@@ -124,6 +124,19 @@ class Workflow_Schema_Management extends Asset_Management
 																								   ),
 																			   ),
 														   ),
+		   				'stream_selection_rules_no_match'		=>Array(
+															'added'			=> '0.2',
+															'type'			=> 'selection',
+															'default'		=> 'allow_default_stream',
+															'parameters'	=> Array(
+																				'multiple'		=> FALSE,
+																				'allow_empty'	=> FALSE,
+																				'options'		=> Array(
+																									'allow_default_stream'	=> 'Use Default Stream',
+																									'allow_all_streams'	=> 'Allow All Streams',
+																								   ),
+																			   ),
+														   ),
 					  );
 
 	}//end constructor
