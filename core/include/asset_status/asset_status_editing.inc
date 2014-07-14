@@ -104,17 +104,34 @@ class Asset_Status_Editing extends Asset_Status
 							$statii[SQ_STATUS_EDITING_APPROVED] = translate('status_change_approve');
 						}
 					} else {
-						// workflow applied but not running;
-						// see whether the current user could publish if we started workflow
-						if ($this->owner->adminAccess('')) {
-							// If we are an admin, we should test all the streams
-							// to see if some need workflow and others don't
-							$needs_workflow = FALSE;
-							$wf_complete    = FALSE;
 
-							foreach ($schemas as $schemaid) {
-								$streams = $wfm->getStreams($schemaid);
+						$needs_workflow = FALSE;
+						$wf_complete    = FALSE;
+						// we have to test publish to determine if we should include "approve" or "apply for approval" status
+						// this gets complicated when we have to check who can choose stream setting and decide first which streams of schema to test with
+						foreach ($schemas as $schemaid) {
+							$schema = $GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+							$who_can_choose_stream = $schema->attr('who_can_choose_stream');
+							$streams = $wfm->getStreams($schemaid);
 
+							// should we just test publish on default stream or having to test all streams?
+							$just_check_default = FALSE;
+							if($who_can_choose_stream == 'admin_only' && !$this->owner->adminAccess('')) {
+								$just_check_default = TRUE;
+							}
+							else if($who_can_choose_stream == 'admin_write' && !$this->owner->writeAccess('')) {
+								$just_check_default = TRUE;
+							}
+
+							if($just_check_default) {
+								$publish_result = $wfm->testPublish($this->owner->id, $GLOBALS['SQ_SYSTEM']->currentUserId(), $streams[$wfm->getDefaultStream($schemaid)]);
+								if ($publish_result === TRUE) {
+									$wf_complete = TRUE;
+								} else {
+									$needs_workflow = TRUE;
+								}
+							}
+							else {
 								foreach ($streams as $streamid => $stream_name) {
 									$publish_result = $wfm->testPublish($this->owner->id, $GLOBALS['SQ_SYSTEM']->currentUserId(), $stream_name);
 									if ($publish_result === TRUE) {
@@ -124,11 +141,6 @@ class Asset_Status_Editing extends Asset_Status
 									}
 								}
 							}
-						} else {
-							// If we are a normal user, we can only use the default
-							// stream, so only test that instead
-							$wf_complete = $wfm->testPublish($this->owner->id, $GLOBALS['SQ_SYSTEM']->currentUserId(), '');
-							$needs_workflow = !$wf_complete;
 						}
 
 						// We could have BOTH Approve and Apply for Approval,
