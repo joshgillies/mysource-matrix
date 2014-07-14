@@ -226,15 +226,23 @@ class LDAP_Bridge extends Asset implements Bridge
 	*/
 	function getAsset($assetid, $type_code='', $mute_errors=FALSE, $return_null=FALSE, $get_all_attr = FALSE)
 	{
-		if(isset($this->_tmp['getAsset'][$assetid][$return_null][$get_all_attr])) return $this->_tmp['getAsset'][$assetid][$return_null][$get_all_attr];
-		
+		// Cache key for this request
+		$cache_key = 'getAsset'.$assetid.'r'.$return_null.'a'.$get_all_attr;
+		$cache_key = md5($cache_key).strlen($cache_key);
+		// Shadow assets are cached in the object with this key
+		$local_cache_key = 'local'.$cache_key;
+
+		if (isset($this->_tmp[$local_cache_key])) {
+			return $this->_tmp[$local_cache_key];
+		}
+
 		$asset = NULL;
 		$id_parts = explode(':', $assetid);
-				    
+
 		if (isset($id_parts[1])) {
 			$shadowid = $id_parts[1];
 		} else {
-			$this->_tmp['getAsset'][$assetid][$return_null][$get_all_attr] = $asset;
+			$this->_tmp[$local_cache_key] = $asset;
 			return $asset;
 		}
 
@@ -245,16 +253,21 @@ class LDAP_Bridge extends Asset implements Bridge
 			$inbox_asset->id = $this->id.':'.$shadowid.':inbox';
 			$inbox_asset->name = 'Inbox';
 			$inbox_asset->status = $this->status;
-			$this->_tmp['getAsset'][$assetid][$return_null][$get_all_attr] = $inbox_asset;
+			$this->_tmp[$local_cache_key] = $inbox_asset;
+
 			return $inbox_asset;
 		}
 
-		$ldap = @$this->connectToLdap();
-			if (is_null($ldap) || is_null($ldap->ptr)) return $return_null ? NULL : $this->_getDummyAsset($shadowid);
+		// Check the Matrix cache for the LDAP result for this request
+		$result = $this->_loadFromCache($cache_key);
+		if (!isset($result[0])) {
+			$ldap = @$this->connectToLdap();
+			if (is_null($ldap) || is_null($ldap->ptr)) {
+				return $return_null ? NULL : $this->_getDummyAsset($shadowid);
+			}
+
 			$required_attrs = $this->attr('attributes');
-
 			$shadowid = $this->decodeString($shadowid);
-
 			if (!$get_all_attr) {
 				$user_attrs = $this->attr('user_attributes');
 				$sort_attr = (!empty($user_attrs['sort_by'])) ? Array($user_attrs['sort_by']) : Array();
@@ -270,13 +283,15 @@ class LDAP_Bridge extends Asset implements Bridge
 				$result = $ldap->searchEntries($shadowid,'(objectClass=*)', NULL, FALSE, FALSE);
 			}
 
+			// Save the LDAP search result to cache
+			$this->_saveToCache($cache_key, $result);
+
 			if (!isset($result['count']) || $result['count'] == 0) {
 				return $return_null ? NULL : $this->_getDummyAsset($shadowid);
 			}
+		}
 
-			$data = $result[0];
-
-
+		$data = $result[0];
 		if (!isset($data['dn']) && isset($data['distinguishedname'])) {
 			$data['dn'] = $data['distinguishedname'];
 		}
@@ -289,7 +304,9 @@ class LDAP_Bridge extends Asset implements Bridge
 				// an LDAP user group
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset('ldap_user_group');
 				$asset = new Ldap_User_Group($this->id, $data);
-				$this->_tmp['getAsset'][$assetid][$return_null][$get_all_attr] = $asset;
+
+				$this->_tmp[$local_cache_key] = $asset;
+
 				return $asset;
 
 			} else if (isset($this->_user_types[$class])) {
@@ -301,7 +318,9 @@ class LDAP_Bridge extends Asset implements Bridge
 				// depending on the bridge setting
 				$user_type = $this->attr('user_type');
 				$asset = new $user_type($this->id, $data);
-				$this->_tmp['getAsset'][$assetid][$return_null][$get_all_attr] = $asset;
+
+				$this->_tmp[$local_cache_key] = $asset;
+
 				return $asset;
 			}
 		}
@@ -400,7 +419,6 @@ class LDAP_Bridge extends Asset implements Bridge
 	*/
 	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=TRUE, $side_of_link='major', $sort_by=NULL, $dependant=NULL, $exclusive=NULL)
 	{
-
 		// if the wanted link type is not the type of links
 		// that this bridge allows, lets return now
 		if (!($this->ldap_shdw_link_type & $link_types)) {
@@ -426,300 +444,306 @@ class LDAP_Bridge extends Asset implements Bridge
 		// the attribute mappings to the LDAP schemas
 		$attrs = $this->attr('attributes');
 
-		if (!isset($this->_tmp['getLinks'][$assetid][$side_of_link][$type_code_key][$strict_type_code][$sort_by])) {
-		    
-			$ldap = @$this->connectToLdap();
-			if (is_null($ldap) || is_null($ldap->ptr)) {
-				return Array();
-			}
+		// Check the Matrix cache for the LDAP result for this request
+		$cache_key = 'getLinks'.$assetid.$side_of_link.$type_code_key.$strict_type_code.$sort_by.'d'.($dependant ? '1' : (is_null($dependant) ? 'n' : '')).'e'.($exclusive ? '1' : (is_null($exclusive) ? 'n' : ''));
+		$cache_key = md5($cache_key).strlen($cache_key);
+		$links = $this->_loadFromCache($cache_key);
+		if ($links !== FALSE) {
+			return $links;
+		}
 
-			if ($side_of_link == 'minor') {
+		$ldap = @$this->connectToLdap();
+		if (is_null($ldap) || is_null($ldap->ptr)) {
+			return Array();
+		}
 
-				// we'll get the direct parent above us using our DN
-				$minorid = substr($assetid, strpos($assetid, ',') +1);
-				if ($minorid == $this->attr('root_dn')) {
-					// the parent is the bridge
-					$links[] = Array(
-								'linkid'			=> 0,
-								'majorid'			=> $this->id,
-								'major_type_code'	=> $this->type(),
-								'minorid'			=> $this->id.':'.$assetid,
-								'value'				=> '',
-								'link_type'			=> $this->ldap_shdw_link_type,
-								'is_dependant'		=> FALSE,
-								'is_exclusive'		=> FALSE,
-								'sort_order'		=> 0,
-								'locked'			=> 0,
-							   );
+		if ($side_of_link == 'minor') {
 
-				} else {
-					$asset = $this->getAsset($this->id.':'.$minorid);
-
-					if (!empty($type_code)) {
-						if ($asset->type() == 'ldap_user_group') {
-							if (!((in_array('ldap_user_group', $type_code)) || (!$strict_type_code && in_array('user_group', $type_code)))) {
-								return Array();
-							}
-						} else if ($asset->type() == 'ldap_backend_user') {
-							if (!((in_array('ldap_backend_user', $type_code)) || (!$strict_type_code && in_array('user', $type_code)) || (!$strict_type_code && in_array('ldap_user', $type_code)))) {
-								return Array();
-							}
-						} else if ($asset->type() == 'ldap_backend_user') {
-							if (!((in_array('ldap_simple_edit_user', $type_code)) || (!$strict_type_code && in_array('user', $type_code)) || (!$strict_type_code && in_array('ldap_user', $type_code)))) {
-								return Array();
-							}
-						} else if ($asset->type() == 'ldap_user') {
-							if (!((in_array('ldap_user', $type_code)) || (!$strict_type_code && in_array('user', $type_code)))) {
-								return Array();
-							}
-						}
-					}
-
-					$links[] = Array(
-								'linkid'			=> 0,
-								'majorid'			=> $asset->id,
-								'major_type_code'	=> $asset->type(),
-								'minorid'			=> $this->id.':'.$assetid,
-								'value'				=> '',
-								'link_type'			=> $this->ldap_shdw_link_type,
-								'is_dependant'		=> FALSE,
-								'is_exclusive'		=> FALSE,
-								'sort_order'		=> 0,
-								'locked'			=> 0,
-							   );
-				}
+			// we'll get the direct parent above us using our DN
+			$minorid = substr($assetid, strpos($assetid, ',') +1);
+			if ($minorid == $this->attr('root_dn')) {
+				// the parent is the bridge
+				$links[] = Array(
+							'linkid'			=> 0,
+							'majorid'			=> $this->id,
+							'major_type_code'	=> $this->type(),
+							'minorid'			=> $this->id.':'.$assetid,
+							'value'				=> '',
+							'link_type'			=> $this->ldap_shdw_link_type,
+							'is_dependant'		=> FALSE,
+							'is_exclusive'		=> FALSE,
+							'sort_order'		=> 0,
+							'locked'			=> 0,
+					   );
 
 			} else {
+				$asset = $this->getAsset($this->id.':'.$minorid);
 
-				$entries = NULL;
-
-				$attr = $this->attr('attributes');
-				$user_attrs = $this->attr('user_attributes');
-				$sort_by = (!empty($user_attrs['sort_by'])) ? $user_attrs['sort_by'] : NULL;
-
-				// If the group defines its own members, use the "Group Members" attribute to
-				// provide links to its members. Note that this is mandatory in Active Directory
-				// so if nothing is provided, the default "member" will be used.
-				if (($this->attr('system_type') == 'activedirectory') && empty($attr['gm'])) {
-					$attr['gm'] = 'member';
-				}
-				if ($assetid != $this->id) {
-					$asset = $this->getAsset($this->id.':'.$assetid);
-					if ($asset->type() == 'ldap_user_group' && !empty($attr['gm']) && isset($asset->vars[$attr['gm']]) && !empty($attr['uid'])) {
-						$members = $asset->vars[$attr['gm']];
-						$entries = Array();
-						$user_uids = Array();
-						foreach ($members as $member) {
-							// If members are stored as "member" then it represents member's dn
-							if ($attr['gm'] == 'member') {
-								$user = $this->getAsset($this->id.':'.$member, '', FALSE, TRUE);
-								// Get the memeber's uid
-								$user_uid = !is_null($user) && !empty($user->vars[$attr['uid']]) ? $user->vars[$attr['uid']] : '';
-							} else {
-								// Otherwise if its stored as "memberUid" then we have the uid
-								$user_uid = $member;
-							}
-							if (!empty($user_uid)) {
-								$user_uids[] = '('.$attr['uid'].'='.$user_uid.')';
-							}
-						}//end foreach
-
-						if (!empty($user_uids)) {
-							// Verify that the user is within the defined 'base dn'
-							$base_dn = $this->decodeString($this->attr('root_dn'));
-							// Query all uids in a single go
-							$uids_filter = '(|'.implode($user_uids).')';
-							$member_result = $ldap->searchEntries($base_dn, $uids_filter, NULL, TRUE, TRUE, array_merge(array_values($attrs), Array('objectclass')));
-							if (isset($member_result['count']) && $member_result['count'] > 0) {
-								foreach($member_result as $member_entry) {
-									if (isset($member_entry['dn'])) {
-										$dn = $member_entry['dn'];
-										$user = $this->getAsset($this->id.':'.$dn, '', FALSE, TRUE);
-										// dn of user group was stripped out in construction, but we need it this time
-										if (!is_null($user)){
-											$user->vars['dn'] = $dn;
-											$entries[$dn] = $user->vars;
-										}//end if
-									}//end if
-								}//end foreach
-							}//end if
-						}//end if
-
-						if (!empty($sort_by)){
-							uasort($entries, function($a, $b) use ($sort_by) {
-							    $a = isset($a[$sort_by]['value']) ? $a[$sort_by]['value'] : '';
-							    $b = isset($b[$sort_by]['value']) ? $b[$sort_by]['value'] : '';
-
-							    return ($a == $b) ? 0 : (($a < $b) ? -1 : 1);
-							});
+				if (!empty($type_code)) {
+					if ($asset->type() == 'ldap_user_group') {
+						if (!((in_array('ldap_user_group', $type_code)) || (!$strict_type_code && in_array('user_group', $type_code)))) {
+							return Array();
+						}
+					} else if ($asset->type() == 'ldap_backend_user') {
+						if (!((in_array('ldap_backend_user', $type_code)) || (!$strict_type_code && in_array('user', $type_code)) || (!$strict_type_code && in_array('ldap_user', $type_code)))) {
+							return Array();
+						}
+					} else if ($asset->type() == 'ldap_backend_user') {
+						if (!((in_array('ldap_simple_edit_user', $type_code)) || (!$strict_type_code && in_array('user', $type_code)) || (!$strict_type_code && in_array('ldap_user', $type_code)))) {
+							return Array();
+						}
+					} else if ($asset->type() == 'ldap_user') {
+						if (!((in_array('ldap_user', $type_code)) || (!$strict_type_code && in_array('user', $type_code)))) {
+							return Array();
 						}
 					}
 				}
 
-				if (is_null($entries)) {
-					if ($assetid == $this->id) {
-						$base_dn = $this->attr('root_dn');
-					} else {
-						$base_dn = $assetid;
-					}
+				$links[] = Array(
+							'linkid'			=> 0,
+							'majorid'			=> $asset->id,
+							'major_type_code'	=> $asset->type(),
+							'minorid'			=> $this->id.':'.$assetid,
+							'value'				=> '',
+							'link_type'			=> $this->ldap_shdw_link_type,
+							'is_dependant'		=> FALSE,
+							'is_exclusive'		=> FALSE,
+							'sort_order'		=> 0,
+							'locked'			=> 0,
+					   );
+			}
 
-					$filter = '';
-					foreach ($this->_group_types as $key => $value) {
-						if (empty($filter)) {
-							$filter = '(objectClass='.$key.')';
+		} else {
+
+			$entries = NULL;
+
+			$attr = $this->attr('attributes');
+			$user_attrs = $this->attr('user_attributes');
+			$sort_by = (!empty($user_attrs['sort_by'])) ? $user_attrs['sort_by'] : NULL;
+
+			// If the group defines its own members, use the "Group Members" attribute to
+			// provide links to its members. Note that this is mandatory in Active Directory
+			// so if nothing is provided, the default "member" will be used.
+			if (($this->attr('system_type') == 'activedirectory') && empty($attr['gm'])) {
+				$attr['gm'] = 'member';
+			}
+			if ($assetid != $this->id) {
+				$asset = $this->getAsset($this->id.':'.$assetid);
+				if ($asset->type() == 'ldap_user_group' && !empty($attr['gm']) && isset($asset->vars[$attr['gm']]) && !empty($attr['uid'])) {
+					$members = $asset->vars[$attr['gm']];
+					$entries = Array();
+					$user_uids = Array();
+					foreach ($members as $member) {
+						// If members are stored as "member" then it represents member's dn
+						if ($attr['gm'] == 'member') {
+							$user = $this->getAsset($this->id.':'.$member, '', FALSE, TRUE);
+							// Get the memeber's uid
+							$user_uid = !is_null($user) && !empty($user->vars[$attr['uid']]) ? $user->vars[$attr['uid']] : '';
 						} else {
-							$filter = '(|'.$filter.'(objectClass='.$key.'))';
+							// Otherwise if its stored as "memberUid" then we have the uid
+							$user_uid = $member;
 						}
-					}
-					foreach ($this->_user_types as $key => $value) {
-						if (empty($filter)) {
-							$filter = '(objectClass='.$key.')';
-						} else {
-							$filter = '(|'.$filter.'(objectClass='.$key.'))';
+						if (!empty($user_uid)) {
+							$user_uids[] = '('.$attr['uid'].'='.$user_uid.')';
 						}
-					}
-
-					$base_dn = $this->decodeString($base_dn);
-
-					// Attributes representing the objectclass values are always required + attribute used for sorting
-					$sort_attr = (!empty($sort_by)) ? Array($sort_by) : Array();
-					$required_attrs = array_values(array_unique(array_merge($attr, $sort_attr, Array('c', 'o', 'ou', 'cn', 'dc', 'objectclass'))));
-					$entries = $ldap->searchEntries($base_dn, $filter, $sort_by, FALSE, TRUE, $required_attrs);
-
-					if (!isset($entries['count']) || $entries['count'] == 0) {
-						// If there is no entry and no error, the $entries array is Array(count => 0).
-						// This mostly happens when we get links of an LDAP user so we need to cache the result.
-						$this->_tmp['getLinks'][$assetid][$side_of_link][$type_code_key][$strict_type_code][$sort_by] = Array();
-						return Array();
-					}
-					unset($entries['count']);
-
-				}//end if is_null
-
-				$links = Array();
-
-				$i = 0;
-				foreach ($entries as $data) {
-
-					$type = '';
-					if (isset($data['objectclass']['count'])) {
-						unset($data['objectclass']['count']);
-					}
-
-					if (isset($data['objectclass']['value'])) {
-						$data['objectclass'] = $data['objectclass']['value'];
-					}
-
-					if (!is_array($data['objectclass'])) {
-						$data['objectclass'] = Array($data['objectclass']);
-					}
-
-					foreach ($data['objectclass'] as $class) {
-						$class = strtolower($class);
-						foreach ($this->_group_types as $key => $value) {
-							if ($class == $key) {
-								if (!isset($data[$value][0])) {
-									continue(3);
-								}
-
-								$name = $data[$value][0];
-								$type = 'ldap_user_group';
-							}
-						}
-
-						// if this container is not a group, check the $result to see if it is a user
-						if (empty($type)) {
-							foreach ($this->_user_types as $key => $value) {
-								if ($class == $key) {
-									if (!isset($attrs[$value])) {
-										$attrs[$value] = $value;
-									}
-
-									if ((!isset($data[$attrs[$value]][0]) && !isset($data[$attrs[$value]]['value']))) {
-										continue(2);
-									}
-
-									if (isset($data[$attrs[$value]]['value']) && isset($data[$attrs[$value]]['value'][0])) {
-										$name = $data[$attrs[$value]]['value'][0];
-									} else {
-										$name = $data[$attrs[$value]][0];
-									}
-									$type = $this->attr('user_type');
-								}
-							}
-						}
-						if (!empty($type)) break;
 					}//end foreach
 
-					if (empty($type)) continue;
-					if (!empty($type_code)) {
+					if (!empty($user_uids)) {
+						// Verify that the user is within the defined 'base dn'
+						$base_dn = $this->decodeString($this->attr('root_dn'));
+						// Query all uids in a single go
+						$uids_filter = '(|'.implode($user_uids).')';
+						$member_result = $ldap->searchEntries($base_dn, $uids_filter, NULL, TRUE, TRUE, array_merge(array_values($attrs), Array('objectclass')));
+						if (isset($member_result['count']) && $member_result['count'] > 0) {
+							foreach($member_result as $member_entry) {
+								if (isset($member_entry['dn'])) {
+									$dn = $member_entry['dn'];
+									$user = $this->getAsset($this->id.':'.$dn, '', FALSE, TRUE);
+									// dn of user group was stripped out in construction, but we need it this time
+									if (!is_null($user)){
+										$user->vars['dn'] = $dn;
+										$entries[$dn] = $user->vars;
+									}//end if
+								}//end if
+							}//end foreach
+						}//end if
+					}//end if
 
-						if ($type == 'ldap_user_group') {
-							if (!in_array('user_group', $type_code) && !in_array('ldap_user_group', $type_code)) {
-								continue;
-							}
-						} else {
-							// work out the type code we want to list
-							if ($this->attr('user_type') == 'ldap_backend_user') {
-								$all_types = Array(
-												'user',
-												'ldap_user',
-												'ldap_simple_edit_user',
-												'ldap_backend_user',
-											 );
-							} else if ($this->attr('user_type') == 'ldap_simple_edit_user') {
-								$all_types = Array(
-												'user',
-												'ldap_user',
-												'ldap_simple_edit_user',
-											 );
-							} else {
-								// ldap_user
-								$all_types = Array(
-												'user',
-												'ldap_user',
-											 );
-							}
-							$found = array_intersect($all_types, $type_code);
-							if (empty($found)) continue;
-						}
+					if (!empty($sort_by)){
+						uasort($entries, function($a, $b) use ($sort_by) {
+						    $a = isset($a[$sort_by]['value']) ? $a[$sort_by]['value'] : '';
+						    $b = isset($b[$sort_by]['value']) ? $b[$sort_by]['value'] : '';
 
+						    return ($a == $b) ? 0 : (($a < $b) ? -1 : 1);
+						});
 					}
+				}
+			}
 
-					// find the DN for the asset
-					// make sure we have dn
-					if (!isset($data['dn']) && isset($data['distinguishedname'])) {
-						$data['dn'] = $data['distinguishedname'];
-					}
+			if (is_null($entries)) {
+				if ($assetid == $this->id) {
+					$base_dn = $this->attr('root_dn');
+				} else {
+					$base_dn = $assetid;
+				}
 
-					if (is_array($data['dn'])) {
-						$dn = array_shift($data['dn']);
+				$filter = '';
+				foreach ($this->_group_types as $key => $value) {
+					if (empty($filter)) {
+						$filter = '(objectClass='.$key.')';
 					} else {
-						$dn = $data['dn'];
+						$filter = '(|'.$filter.'(objectClass='.$key.'))';
+					}
+				}
+				foreach ($this->_user_types as $key => $value) {
+					if (empty($filter)) {
+						$filter = '(objectClass='.$key.')';
+					} else {
+						$filter = '(|'.$filter.'(objectClass='.$key.'))';
+					}
+				}
+
+				$base_dn = $this->decodeString($base_dn);
+
+				// Attributes representing the objectclass values are always required + attribute used for sorting
+				$sort_attr = (!empty($sort_by)) ? Array($sort_by) : Array();
+				$required_attrs = array_values(array_unique(array_merge($attr, $sort_attr, Array('c', 'o', 'ou', 'cn', 'dc', 'objectclass'))));
+				$entries = $ldap->searchEntries($base_dn, $filter, $sort_by, FALSE, TRUE, $required_attrs);
+
+				if (!isset($entries['count']) || $entries['count'] == 0) {
+					// If there is no entry and no error, the $entries array is Array(count => 0).
+					// This mostly happens when we get links of an LDAP user so we need to cache the result.
+					$this->_saveToCache($cache_key, Array());
+
+					return Array();
+				}
+				unset($entries['count']);
+
+			}//end if is_null
+
+			$links = Array();
+
+			$i = 0;
+			foreach ($entries as $data) {
+
+				$type = '';
+				if (isset($data['objectclass']['count'])) {
+					unset($data['objectclass']['count']);
+				}
+
+				if (isset($data['objectclass']['value'])) {
+					$data['objectclass'] = $data['objectclass']['value'];
+				}
+
+				if (!is_array($data['objectclass'])) {
+					$data['objectclass'] = Array($data['objectclass']);
+				}
+
+				foreach ($data['objectclass'] as $class) {
+					$class = strtolower($class);
+					foreach ($this->_group_types as $key => $value) {
+						if ($class == $key) {
+							if (!isset($data[$value][0])) {
+								continue(3);
+							}
+
+							$name = $data[$value][0];
+							$type = 'ldap_user_group';
+						}
 					}
 
-					$links[] = Array(
-								'linkid'			=> 0,
-								'majorid'			=> $this->id,
-								'minorid'			=> $this->id.':'.$this->encodeString($dn),
-								'minor_type_code'	=> $type,
-								'value'				=> '',
-								'link_type'			=> $this->ldap_shdw_link_type,
-								'is_dependant'		=> FALSE,
-								'is_exclusive'		=> FALSE,
-								'sort_order'		=> $i,
-								'locked'			=> 0,
-							   );
-					$i++;
+					// if this container is not a group, check the $result to see if it is a user
+					if (empty($type)) {
+						foreach ($this->_user_types as $key => $value) {
+							if ($class == $key) {
+								if (!isset($attrs[$value])) {
+									$attrs[$value] = $value;
+								}
 
-				}//end foreach entries
+								if ((!isset($data[$attrs[$value]][0]) && !isset($data[$attrs[$value]]['value']))) {
+									continue(2);
+								}
 
-			}//end else side_of_link
+								if (isset($data[$attrs[$value]]['value']) && isset($data[$attrs[$value]]['value'][0])) {
+									$name = $data[$attrs[$value]]['value'][0];
+								} else {
+									$name = $data[$attrs[$value]][0];
+								}
+								$type = $this->attr('user_type');
+							}
+						}
+					}
+					if (!empty($type)) break;
+				}//end foreach
 
-			$this->_tmp['getLinks'][$assetid][$side_of_link][$type_code_key][$strict_type_code][$sort_by] = $links;
-		}//end if isset
+				if (empty($type)) continue;
+				if (!empty($type_code)) {
 
-		return $this->_tmp['getLinks'][$assetid][$side_of_link][$type_code_key][$strict_type_code][$sort_by];
+					if ($type == 'ldap_user_group') {
+						if (!in_array('user_group', $type_code) && !in_array('ldap_user_group', $type_code)) {
+							continue;
+						}
+					} else {
+						// work out the type code we want to list
+						if ($this->attr('user_type') == 'ldap_backend_user') {
+							$all_types = Array(
+											'user',
+											'ldap_user',
+											'ldap_simple_edit_user',
+											'ldap_backend_user',
+										 );
+						} else if ($this->attr('user_type') == 'ldap_simple_edit_user') {
+							$all_types = Array(
+											'user',
+											'ldap_user',
+											'ldap_simple_edit_user',
+										 );
+						} else {
+							// ldap_user
+							$all_types = Array(
+											'user',
+											'ldap_user',
+										 );
+						}
+						$found = array_intersect($all_types, $type_code);
+						if (empty($found)) continue;
+					}
+
+				}
+
+				// find the DN for the asset
+				// make sure we have dn
+				if (!isset($data['dn']) && isset($data['distinguishedname'])) {
+					$data['dn'] = $data['distinguishedname'];
+				}
+
+				if (is_array($data['dn'])) {
+					$dn = array_shift($data['dn']);
+				} else {
+					$dn = $data['dn'];
+				}
+
+				$links[] = Array(
+							'linkid'			=> 0,
+							'majorid'			=> $this->id,
+							'minorid'			=> $this->id.':'.$this->encodeString($dn),
+							'minor_type_code'	=> $type,
+							'value'				=> '',
+							'link_type'			=> $this->ldap_shdw_link_type,
+							'is_dependant'		=> FALSE,
+							'is_exclusive'		=> FALSE,
+							'sort_order'		=> $i,
+							'locked'			=> 0,
+						   );
+				$i++;
+
+			}//end foreach entries
+
+		}//end else side_of_link
+
+		$this->_saveToCache($cache_key, $links);
+
+		return $links;
 
 	}//end getLinks()
 
@@ -753,7 +777,6 @@ class LDAP_Bridge extends Asset implements Bridge
 			}
 		}
 		$type_code_key = implode('-', $type_code);
-		
 
 		// Bug Fix #4487 - allowing 'ldap_user_group' as a valid type code to return data
 		$valid_types = Array('user_group', 'ldap_user_group');
@@ -763,147 +786,151 @@ class LDAP_Bridge extends Asset implements Bridge
 			return Array();
 		}
 
-		if (!isset($this->_tmp['getParents'][$assetid][$type_code_key][$strict_type_code])) {
-			$ldap = @$this->connectToLdap();
-			if (is_null($ldap) || is_null($ldap->ptr)) return Array();
+		// Check the Matrix cache for the LDAP result for this request
+		$cache_key = 'getParents'.$assetid.$type_code_key.$strict_type_code;
+		$cache_key = md5($cache_key).strlen($cache_key);
+		$parents = $this->_loadFromCache($cache_key);
+		if ($parents !== FALSE) {
+			return $parents;
+		}
 
-			// the attribute mappings to the LDAP schemas
-			$attrs = $this->attr('attributes');
-			$assetid = $this->decodeString($assetid);
+		$ldap = @$this->connectToLdap();
+		if (is_null($ldap) || is_null($ldap->ptr)) return Array();
+
+		// the attribute mappings to the LDAP schemas
+		$attrs = $this->attr('attributes');
+		$assetid = $this->decodeString($assetid);
 			
-			$required_attrs = Array('objectclass');
-			if(isset($attrs['mo'])) $required_attrs[] = $attrs['mo'];
-			if(isset($attrs['uid'])) $required_attrs[] = $attrs['uid'];
+		$required_attrs = Array('objectclass');
+		if(isset($attrs['mo'])) $required_attrs[] = $attrs['mo'];
+		if(isset($attrs['uid'])) $required_attrs[] = $attrs['uid'];
 
-			$result = $ldap->searchEntries($assetid,'(objectClass=*)', NULL, FALSE, FALSE, $required_attrs);
-			if (!isset($result['count']) || $result['count'] == 0) {
-				return Array();
+		$result = $ldap->searchEntries($assetid,'(objectClass=*)', NULL, FALSE, FALSE, $required_attrs);
+		if (!isset($result['count']) || $result['count'] == 0) {
+			return Array();
+		}
+		$data = $result[0];
+
+		$mo_groups = Array();
+
+		if (isset($attrs['mo']) && isset($data[$attrs['mo']])) {
+			// User defines the groups it is a part of
+			$mo_groups = $data[$attrs['mo']];
+			if (!$mo_groups['count']) $mo_groups = Array();
+			unset($mo_groups['count']);
+		} else if (isset($attrs['gm'])) {
+			// Group defines its members
+			$base_dn = $this->attr('root_dn');
+			$base_dn = $this->decodeString($base_dn);
+			$filter = $ldap->escape_filter_value($assetid);
+			// If group stores the memberUid (uid)
+			if (strtolower($attrs['gm']) == 'memberuid' && !empty($data['uid'][0])) {
+				$filter = $data['uid'][0];
 			}
-			$data = $result[0];
 
 			$mo_groups = Array();
+			$result = $ldap->searchEntries($base_dn, '('.$attrs['gm'].'='.$filter.')', NULL, TRUE, TRUE, Array('objectclass'));
+			if (isset($result['count']) && $result['count'] > 0) {
+				unset($result['count']);
+				foreach	($result as $group_data) {
+					$mo_groups[] = $group_data['dn'];
+				}//end foreach
+			}//end if
+		}
 
-			if (isset($attrs['mo']) && isset($data[$attrs['mo']])) {
-				// User defines the groups it is a part of
-				$mo_groups = $data[$attrs['mo']];
-				if (!$mo_groups['count']) $mo_groups = Array();
-				unset($mo_groups['count']);
-			} else if (isset($attrs['gm'])) {
-				// Group defines its members
-				$base_dn = $this->attr('root_dn');
-				$base_dn = $this->decodeString($base_dn);
-				$filter = $ldap->escape_filter_value($assetid);
-				// If group stores the memberUid (uid)
-				if (strtolower($attrs['gm']) == 'memberuid' && !empty($data['uid'][0])) {
-					$filter = $data['uid'][0];
-				}
+		// also add in groups based on our DN
+		$ou_groups = Array();
+		$matches = Array();
+		$reg_expression = '|ou=([^,]+),(.*)|i';
+		$reg_string = substr($assetid, strpos($assetid, ',') + 1);
 
-				$mo_groups = Array();
-				$result = $ldap->searchEntries($base_dn, '('.$attrs['gm'].'='.$filter.')', NULL, TRUE, TRUE, Array('objectclass'));
-				if (isset($result['count']) && $result['count'] > 0) {
-					unset($result['count']);
-					foreach	($result as $group_data) {
-						$mo_groups[] = $group_data['dn'];
-					}//end foreach
-				}//end if
-			}
-
-			// also add in groups based on our DN
-			$ou_groups = Array();
+		$matching = TRUE;
+		while ($matching){
 			$matches = Array();
-			$reg_expression = '|ou=([^,]+),(.*)|i';
-			$reg_string = substr($assetid, strpos($assetid, ',') + 1);
+			preg_match_all($reg_expression, $reg_string, $matches);
+			if (!empty($matches[1])) {
+				$reg_string = array_shift($matches[2]);
+				$ou_groups[array_shift($matches[1])] = $reg_string;
+			} else {
+				$matching = FALSE;
+			}
+		}
 
-			$matching = TRUE;
-			while ($matching){
-				$matches = Array();
-				preg_match_all($reg_expression, $reg_string, $matches);
-				if (!empty($matches[1])) {
-					$reg_string = array_shift($matches[2]);
-					$ou_groups[array_shift($matches[1])] = $reg_string;
-				} else {
-					$matching = FALSE;
+		foreach ($mo_groups as $group_name) {
+			$group_name = $this->decodeString($group_name);
+			$group_data = $ldap->searchEntries($group_name, '(objectClass=*)', NULL, FALSE, FALSE, Array('objectclass'));
+			if (isset($group_data['count']) && $group_data['count'] > 0) {
+				$parents[$this->id.':'.$group_data[0]['dn']] = 'ldap_user_group';
+			}
+		}
+
+		foreach ($ou_groups as $group_name => $group_dn) {
+			$group_name = $this->decodeString($group_name);
+			$ou_value = (isset($attrs['ou']) && $attrs['ou'] != '') ? $attrs['ou'] : 'ou';
+			$group_data= $ldap->searchEntries($ou_value.'='.$group_name.','.$group_dn, '(objectClass=organizationalUnit)', NULL, FALSE, FALSE, Array('objectclass'));
+
+			if (isset($group_data['count']) && $group_data['count'] > 0) {
+				$parents[$this->id.':'.$group_data[0]['dn']] = 'ldap_user_group';
+			}
+		}
+
+		if (!empty($parents)) {
+			// Initialise the list of all parents to prevent infinite recursive loop.
+			// As we use the _tmp attribute of this object to store the list, we need
+			// a flag to unset it when we finish. Otherwise, the list will be used for
+			// the next clean getParents() method call and can cause incorrect results.
+			$bridge_getParents_first_level = FALSE;
+			if (!isset($this->_tmp['all_parents'])) {
+				// Include the asset ID so that it will not be the parent of itself
+				$this->_tmp['all_parents'] = Array($this->id.':'.$assetid => '');
+				$bridge_getParents_first_level = TRUE;
+			}
+
+			// Filter the parents against the list of all parents so that we will not need
+			// to process a parent asset twice. That will also prevent infinite recursive loop.
+			$valid_parents = Array();
+			foreach ($parents as $parent_id => $parent_type_code) {
+				if (!isset($this->_tmp['all_parents'][$parent_id])) {
+					$valid_parents[$parent_id] = $parent_type_code;
 				}
 			}
 
-			foreach ($mo_groups as $group_name) {
-				$group_name = $this->decodeString($group_name);
-				$group_data = $ldap->searchEntries($group_name, '(objectClass=*)', NULL, FALSE, FALSE, Array('objectclass'));
-				if (isset($group_data['count']) && $group_data['count'] > 0) {
-					$parents[$this->id.':'.$group_data[0]['dn']] = 'ldap_user_group';
-				}
-			}
+			// Assign valid parents to the parent list.
+			$parents = $valid_parents;
 
-			foreach ($ou_groups as $group_name => $group_dn) {
-				$group_name = $this->decodeString($group_name);
-				$ou_value = (isset($attrs['ou']) && $attrs['ou'] != '') ? $attrs['ou'] : 'ou';
-				$group_data= $ldap->searchEntries($ou_value.'='.$group_name.','.$group_dn, '(objectClass=organizationalUnit)', NULL, FALSE, FALSE, Array('objectclass'));
-
-				if (isset($group_data['count']) && $group_data['count'] > 0) {
-					$parents[$this->id.':'.$group_data[0]['dn']] = 'ldap_user_group';
-				}
-			}
-
-			if (!empty($parents)) {
-				// Initialise the list of all parents to prevent infinite recursive loop.
-				// As we use the _tmp attribute of this object to store the list, we need
-				// a flag to unset it when we finish. Otherwise, the list will be used for
-				// the next clean getParents() method call and can cause incorrect results.
-				$bridge_getParents_first_level = FALSE;
-				if (!isset($this->_tmp['all_parents'])) {
-					// Include the asset ID so that it will not be the parent of itself
-					$this->_tmp['all_parents'] = Array($this->id.':'.$assetid => '');
-					$bridge_getParents_first_level = TRUE;
-				}
-
-				// Filter the parents against the list of all parents so that we will not need
-				// to process a parent asset twice. That will also prevent infinite recursive loop.
-				$valid_parents = Array();
-				foreach ($parents as $parent_id => $parent_type_code) {
-					if (!isset($this->_tmp['all_parents'][$parent_id])) {
-						$valid_parents[$parent_id] = $parent_type_code;
-					}
-				}
-
-				// Assign valid parents to the parent list.
-				$parents = $valid_parents;
-
-				if (!empty($valid_parents)) {
-					// Add the valid parents to the list of all parents now to make them
-					// available in the recursive getParents() invocation below.
-					$this->_tmp['all_parents'] += $valid_parents;
+			if (!empty($valid_parents)) {
+				// Add the valid parents to the list of all parents now to make them
+				// available in the recursive getParents() invocation below.
+				$this->_tmp['all_parents'] += $valid_parents;
 					
-					// should we get all recursive parents? this might be a slow process
-					$get_all_parents = $this->attr('recursive_parents');
+				// should we get all recursive parents? this might be a slow process
+				$get_all_parents = $this->attr('recursive_parents');
 					
-					// Get the grandparents of the valid parents recursively.
-					$grandparents = Array();
-					foreach ($valid_parents as $parent_id => $parent_type_code) {
-						$grandparents += $GLOBALS['SQ_SYSTEM']->am->getParents($parent_id, $type_code, $strict_type_code, NULL, NULL, TRUE, NULL, NULL, !$get_all_parents);
-					}
-
-					// Add the grandparents to the parent list
-					$parents += $grandparents;
-
+				// Get the grandparents of the valid parents recursively.
+				$grandparents = Array();
+				foreach ($valid_parents as $parent_id => $parent_type_code) {
+					$grandparents += $GLOBALS['SQ_SYSTEM']->am->getParents($parent_id, $type_code, $strict_type_code, NULL, NULL, TRUE, NULL, NULL, !$get_all_parents);
 				}
 
-				if ($bridge_getParents_first_level) {
-					// Unset the list of all parents to prevent it from being used by
-					// the next first level call to this bridge's getParents() method.
-					unset($this->_tmp['all_parents']);
-				} else {
-					// We do not want to cache the parents in the array $this->_tmp['getParents']
-					// if they have been filtered against the list of all parents as they might be
-					// different from the original ones returned from the first level getParents() call.
-					return $parents;
-				}
+				// Add the grandparents to the parent list
+				$parents += $grandparents;
 			}
 
-			$this->_tmp['getParents'][$assetid][$type_code_key][$strict_type_code] = $parents;
+			if ($bridge_getParents_first_level) {
+				// Unset the list of all parents to prevent it from being used by
+				// the next first level call to this bridge's getParents() method.
+				unset($this->_tmp['all_parents']);
+			} else {
+				// We do not want to cache the parents in the array $this->_tmp['getParents']
+				// if they have been filtered against the list of all parents as they might be
+				// different from the original ones returned from the first level getParents() call.
+				return $parents;
+			}
+		}
 
-		}//end if not cached
+		$this->_saveToCache($cache_key, $parents);
 
-		return $this->_tmp['getParents'][$assetid][$type_code_key][$strict_type_code];
+		return $parents;
 
 	}//end getParents()
 
@@ -942,8 +969,14 @@ class LDAP_Bridge extends Asset implements Bridge
 		}
 		$type_code_key = implode('-', $type_code);
 
-		if(isset($this->_tmp['getChildren'][$assetid][$type_code_key][$strict_type_code][$sort_by])) return $this->_tmp['getChildren'][$assetid][$type_code_key][$strict_type_code][$sort_by];
-		    
+		// Check the Matrix cache for the LDAP result for this request
+		$cache_key = 'getChildren'.$assetid.$type_code_key.$strict_type_code.$sort_by.($dependant ? '1' : (is_null($dependant) ? 'n' : ''));
+		$cache_key = md5($cache_key).strlen($cache_key);
+		$children  = $this->_loadFromCache($cache_key);
+		if ($children !== FALSE) {
+			return $children;
+		}
+
 		if ($assetid != $this->id) {
 			// if we are using Active Directory, the tree structure does not quite work the same
 			// as openLDAP, so we can only do one level for now
@@ -954,7 +987,8 @@ class LDAP_Bridge extends Asset implements Bridge
 				foreach ($links as $link_data) {
 					$children[$link_data['minorid']][0]['type_code'] = $link_data['minor_type_code'];
 				}
-				$this->_tmp['getChildren'][$assetid][$type_code_key][$strict_type_code][$sort_by] = $children;
+				$this->_saveToCache($cache_key, $children);
+
 				return $children;
 			}
 		}
@@ -974,7 +1008,8 @@ class LDAP_Bridge extends Asset implements Bridge
 		$base_dn = $this->decodeString($base_dn);
 		$entries = $ldap->searchEntries($base_dn,'(objectClass=*)', NULL, TRUE, TRUE, array_merge(array_values($attrs), Array('objectclass')));
 		if (!isset($entries['count']) || $entries['count'] == 0) {
-			$this->_tmp['getChildren'][$assetid][$type_code_key][$strict_type_code][$sort_by] = Array();
+			$this->_saveToCache($cache_key, Array());
+
 			return Array();
 		}
 		unset($entries['count']);
@@ -1126,8 +1161,9 @@ class LDAP_Bridge extends Asset implements Bridge
 			}
 		}
 
-		$this->_tmp['getChildren'][$assetid][$type_code_key][$strict_type_code][$sort_by] = $children;
-		
+		// Save the result to the cache
+		$this->_saveToCache($cache_key, $children);
+
 		return $children;
 
 	}//end getChildren()
@@ -1849,6 +1885,98 @@ class LDAP_Bridge extends Asset implements Bridge
 		return Array();
 
 	}//end getAssetMapAssetInfo()
+
+
+	/**
+	* Save attributes set with setAttrValue to the database
+	*
+	* @param boolean    $dont_run_updated   if TRUE this->_updated() won't be run
+	* @param boolean    $log_message    if FALSE attrubutes change won't be logged in system log
+	*
+	* @return boolean
+	* @access public
+	* @see Asset::setAttrValue()
+	*/
+	public function saveAttributes($dont_run_updated=FALSE, $log_message=TRUE)
+	{
+		if (parent::saveAttributes($dont_run_updated, $log_message)) {
+
+			// Clear the LDAP search result from the Matrix cache
+			$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+			$cm->clearCache(Array($this->id));
+
+			return TRUE;
+		}
+
+		return FALSE;
+
+	}//end saveAttributes()
+
+
+	/**
+	* Load the LDAP result from the Matrix cache
+	*
+	* @param string  $cache_key
+	*
+	* @return boolean|mixed
+	* @access private
+	*/
+	private function _loadFromCache($cache_key)
+	{
+		// Check local asset cache first
+		if (isset($this->_tmp[$cache_key])) {
+			return $this->_tmp[$cache_key];
+		}
+
+		// Only check cache if LDAP bridge's result caching is enabled
+		if (!$this->attr('cache_status')) {
+			return FALSE;
+		}
+
+		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+
+		$result = $cm->loadFromCache($this->id, $this->type(), $cache_key, FALSE, TRUE);
+		if ($result !== FALSE) {
+			$result = unserialize($result);
+			$this->_tmp[$cache_key] = $result;
+		}
+
+		return $result;
+
+	}//end _loadFromCache()
+
+
+	/**
+	* Store the LDAP result to the Matrix cache
+	*
+	* @param string  $cache_key
+	* @param mixed	 $data
+	*
+	* @return boolean
+	* @access private
+	*/
+	private function _saveToCache($cache_key, $data)
+	{
+		// Save to the local asset cache
+		$this->_tmp[$cache_key] = $data;
+
+		// Only cache if LDAP bridge's result caching is enabled
+		if (!$this->attr('cache_status')) {
+			return TRUE;
+		}
+
+		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+
+		// LDAP bridge result's cache expiry setting
+		$cache_expiry = (int) trim($this->attr('cache_expiry'));
+		if ($cache_expiry <= 0) {
+			// If 0 or invalid value, use the global Cache Manager expiry setting
+			$cache_expiry = '';
+		}
+
+		return $cm->saveToCache($this->id, $this->type(), $cache_key, serialize($data), FALSE, $cache_expiry, TRUE);
+
+	}//end _saveToCache()
 
 
 }//end class

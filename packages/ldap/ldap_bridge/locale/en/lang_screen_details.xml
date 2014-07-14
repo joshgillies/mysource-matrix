@@ -84,6 +84,16 @@
 		</field>
 		<note>If the <![CDATA[<b>Bind DN</b>]]> field is left blank, the LDAP Bridge will assume that the directory is to be accessed anonymously, and the <![CDATA[<b>Password</b>]]> field will be ignored. Your LDAP directory must be set up to allow anonymous binding for this to work correctly.</note>	
 	</section>
+	<section name="Cache Options" write_access="admin:attributes">
+		<field attribute="cache_status">
+			<display_name>Caching Status</display_name>
+			<note>Setting this value to 'On', will enable caching for the LDAP result and bring the Cache Expiry setting into effect. The Caching Status on the Cache Manager must also be enabled in order for this setting to take effect.</note>
+		</field>
+		<field attribute="cache_expiry">
+			<display_name>Cache Expiry</display_name>
+			<note>The length of time an LDAP result cache entry is valid in seconds. Memcache storage type accepts maximum 2592000 (30 days). When this value is set to zero or not supplied, the cached LDAP result will expire after the "Default Expiry" period set on the Cache Manager.</note>
+		</field>		
+	</section>
 	<section name="LDAP Not Available">
 		<field>
 			<display_name />
