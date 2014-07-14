@@ -144,7 +144,7 @@ class Asset_Status_Editing extends Asset_Status
 				} else {
 					// can't grant approval yet because owner is a independent asset with incomplete metadata
 					// but if workflow is applied we can at least start the process
-					if ($needs_workflow === TRUE) {
+					if (!empty($schemas)) {
 					    $statii[SQ_STATUS_EDITING_APPROVAL] = translate('status_change_apply_for_approval');
 					}
 				}
