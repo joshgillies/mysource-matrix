@@ -96,19 +96,52 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 																				   ),
 																'protected'		=> FALSE,
 															   ),
-						'SQ_LIVE_LINK_ONLY'						=> Array (
+						'SQ_LIVE_LINK_ONLY'					=> Array (
 																'name'			=> 'live_link_only',
 																'description'	=> 'To allow links pointing only to live asset',
 																'default'		=> 0,
 																'protected'		=> FALSE,
 															   ),
-	    					'SQ_ENABLE_VIPER_EDITOR'						=> Array (
+    					'SQ_ENABLE_VIPER_EDITOR'			=> Array (
 																'name'			=> 'enable_edit+_editor',
 																'description'	=> 'Enable Edit+ WYSIWYG editor',
 																'default'		=> 1,
 																'protected'		=> FALSE,
 															   ),
+						'SQ_VIPER_PLUGINS'				=> Array(
+																'name'			=> 'viper_plugins',
+																'description'	=> 'This preference allows you to select which features of the Viper editor you would like make available while editing',
+																'default'		=> 'all',
+																'protected'		=> FALSE,
+															   ),
 					 );
+
+	// Store all the viper plugins here. Unlike WYSYWIG we can traverse
+	// through file system (on somethin to do on server side) to get the
+	// list of the plugins available to us. For further details for this
+	// please see RM issue #5323 Add global preferences for Edit+ WYSIWYG
+	// plugin options (https://squizmap.squiz.net/matrix/5323)
+	var $_viper_plugins = Array(
+							'ViperAccessibilityPlugin'	=> 'accessibility_viper',
+							'ViperLangToolsPlugin'		=> 'choose_lang_tool_viper',
+							'ViperCursorAssistPlugin'	=> 'cursor_assist_viper',
+							'ViperCoreStylesPlugin'		=> 'format_core_style_viper',
+							'ViperFormatPlugin'			=> 'format_viper',
+							'ViperHistoryPlugin'		=> 'history_viper',
+							'ViperInlineToolbarPlugin'	=> 'inline_toolbar_viper',
+							'MatrixImagePlugin'			=> 'insert_image_viper_matrix',
+							'MatrixLinkPlugin'			=> 'insert_link_viper_matrix',
+							'ViperKeyboardEditorPlugin'	=> 'keyboard_editor_viper',
+							'MatrixKeywordsPlugin'		=> 'keyword_plugin_viper_matrix',
+							'ViperListPlugin'			=> 'list_viper',
+							'MatrixCopyPastePlugin'		=> 'matrix_edit_copy_paste',
+							'ViperSearchReplacePlugin'	=> 'search_and_replace_viper',
+							'ViperCharMapPlugin'		=> 'special_char_map_viper',
+							'ViperTableEditorPlugin'	=> 'table_editor_viper',
+							'ViperToolbarPlugin'		=> 'toolbar_viper',
+							'ViperSourceViewPlugin'		=> 'view_source_viper',
+							'ViperCopyPastePlugin'		=> 'viper_edit_copy_paste',
+						  );
 
 
 	/**
@@ -139,11 +172,11 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 
 		// enable viper editor?
 		if (is_null($pref) || $pref == 'SQ_ENABLE_VIPER_EDITOR') {		
-						
+
 			if (is_null($pref)) {
 				$o->openField(translate($this->pref_vars['SQ_ENABLE_VIPER_EDITOR']['name']));
 			}
-						
+
 			$pref_var =& $this->pref_vars['SQ_ENABLE_VIPER_EDITOR']['default'];
 
 			if ($have_lock && $is_admin) {
@@ -153,12 +186,45 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 			} else {
 				echo ($pref_var) ? translate('yes') : translate('no');
 			}
-						
+
 			if (is_null($pref)) $o->closeField();
-			
+
 		}//end if show SQ_ENABLE_VIPER_EDITOR
 		
 		
+		if (is_null($pref) || $pref == 'SQ_VIPER_PLUGINS') {
+			if (is_null($pref)) {
+				$o->openField(translate($this->pref_vars['SQ_VIPER_PLUGINS']['name']));
+			}
+
+			$viper_plugins = Array();
+			if (!empty($this->pref_vars['SQ_VIPER_PLUGINS']['default'])) {
+				$viper_plugins = explode('|', $this->pref_vars['SQ_VIPER_PLUGINS']['default']);
+			}
+			$all = in_array('all', $viper_plugins);
+
+			if ($have_lock && $is_admin) {
+				foreach ($this->_viper_plugins as $index => $plugin_name) {
+					check_box('prefs[SQ_VIPER_PLUGINS]['.$index.']', 1,($all || in_array($index, $viper_plugins)));
+					echo translate($plugin_name);
+					echo '<br/>';
+				}
+			} else {
+				if ($all) {
+					echo translate('all_plugins_selected');
+				} else {
+					echo '<ul>';
+					foreach ($viper_plugins as $plugin_name) {
+						echo '<li class="sq-backend-data">'.translate($this->_viper_plugins[$plugin_name]).'</li>';
+					}
+					echo '</ul>';
+				}
+			}
+
+			if (is_null($pref)) $o->closeField();
+		}//end if show SQ_VIPER_PLUGINS
+
+
 		if (is_null($pref) || $pref == 'SQ_WYSIWYG_STYLE') {
 			if (is_null($pref)) {
 				$o->openField(translate($this->pref_vars['SQ_WYSIWYG_STYLE']['name']));
@@ -494,6 +560,34 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 				$this->pref_vars['SQ_ENABLE_VIPER_EDITOR']['default'] = $_POST['prefs']['SQ_ENABLE_VIPER_EDITOR'];
 			}
 		}		
+
+		// VIPER PLUGINS
+		if (is_null($pref) || $pref == 'SQ_VIPER_PLUGINS') {
+				$viper_plugins = Array();
+
+				if (isset($_POST['prefs']['SQ_VIPER_PLUGINS'])) {
+					$viper_plugins = $_POST['prefs']['SQ_VIPER_PLUGINS'];
+				}
+				$plugin_list = '';
+				$all = TRUE;
+
+				foreach ($this->_viper_plugins as $index => $plugin_name) {
+					if (!isset($viper_plugins[$index]) || !$viper_plugins[$index]) {
+						$all = FALSE;
+						continue;
+					}
+					$plugin_list .= $index.'|';
+				}
+
+				if ($all) {
+					$plugin_list = 'all';
+				} else {
+					$plugin_list = trim($plugin_list, '|');
+				}
+
+				$this->pref_vars['SQ_VIPER_PLUGINS']['default'] = $plugin_list;
+		}//end if
+
 
 		// WYSIWYG STYLE
 		if (is_null($pref) || $pref == 'SQ_WYSIWYG_STYLE') {
