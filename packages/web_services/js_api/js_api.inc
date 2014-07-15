@@ -4872,7 +4872,13 @@ class JS_Api extends Page
 	    if ($args['end_date'] === NULL) {
 	        // We can omit the end date; it will revert to "today".
 	        $args['end_date'] = date('Y-m-d');
-	    }
+	    } else if (strpos($args['end_date'], 'P') === 0) {
+            // We got given a duration in P format.
+            $period = $args['end_date'];
+            $args['end_date'] = new DateTime('today 00:00:00');
+            $args['end_date']->add(new DateInterval($period));
+            $args['end_date'] = $args['end_date']->format('Y-m-d');
+        }
 	    
 	    if (($args['start_date'] !== NULL) && ($args['duration'] !== NULL)) {
 	        // Both start_date and duration exist - huh?
