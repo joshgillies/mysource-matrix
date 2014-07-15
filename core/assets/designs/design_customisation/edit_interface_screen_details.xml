@@ -23,6 +23,9 @@
 		<field attribute="static_url_versioning">
 			<boolean true_text="yes" false_text="no"/>
 		</field>
+		<field attribute="file_reference_method">
+			<selection style="list" />
+		</field>
 	</section>
 	<section name="Design Areas" write_access="write:links" read_access="write:">
 		<field>

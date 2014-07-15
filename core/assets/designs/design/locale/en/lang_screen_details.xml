@@ -29,6 +29,16 @@
 			<display_name>Include file version in static URL</display_name>
 			<note>This will help bust external caching of statically served content.</note>
 		</field>
+		<field attribute="file_reference_method">
+			<display_name>File Reference Method</display_name>
+			<note><![CDATA[Reference method used when printing 'mysource_files' links in the design on the frontend. Examples:
+				<ul>
+					<li>Absolute Path - http://www.site.com/path/to/file</li>
+					<li>Scheme Relative Path - //www.site.com/path/to/file</li>
+					<li>Domain Relative Path - /path/to/file</li>
+				</ul>]]>
+			</note>
+		</field>
 	</section>
 	<section name="Parse File">
 		<field>

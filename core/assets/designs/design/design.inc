@@ -1034,6 +1034,10 @@ echo '/*
 			}
 		}
 
+		// Adjust the file URLs based on selected reference method
+		$this->_adjustFileUrls($FILE_URLS);
+		$this->_adjustFileUrls($CSS_URLS);
+
 		// Now we just include the design file to get it to print
 		// else
 		require $file_path;
@@ -1274,6 +1278,49 @@ echo '/*
 		}
 
 	}//end _setupVarReferences()
+
+	/*
+	* Adjusted the URLs based on the selected file reference method
+	*
+	* @param array &$file_urls	List of file URLs
+	*
+	* @return void
+	* @access protected
+	*/
+	protected function _adjustFileUrls(&$file_urls)
+	{
+		$reference_type = $this->attr('file_reference_method');
+
+		// Given urls are already absoulte URLs, so do nothing for 'absoulte'
+		if ($reference_type != 'absoulte') {
+
+			foreach($file_urls as &$url) {
+				$parts = parse_url($url);
+
+				// Seperate URL host and remaining components
+				$host = array_get_index($parts, 'host', '');
+				$part_url = '';
+				if (!empty($parts['path'])) {
+					$part_url .= $parts['path'];
+				}
+				if (!empty($parts['query'])) {
+					$part_url .= '?'.$parts['query'];
+				}
+				if (!empty($parts['fragment'])) {
+					$part_url .= '#'.$parts['fragment'];
+				}
+
+				if ($reference_type == 'scheme_relative') {
+					$url = '//'.$host.$part_url;
+
+				} else if ($reference_type == 'domain_relative') {
+					$url = $part_url;
+				}
+
+			}//end foreach
+		}
+
+	}//end _adjustFileUrls()
 
 
 }//end class

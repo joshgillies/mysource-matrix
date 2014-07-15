@@ -20,6 +20,9 @@
 		<field attribute="id_name">
 			<text width="60" height="1" />
 		</field>
+		<field attribute="file_reference_method">
+			<selection style="list" />
+		</field>
 	</section>
 	<section name="Parse File" write_access="write:parsing" read_access="write:">
 		<field>

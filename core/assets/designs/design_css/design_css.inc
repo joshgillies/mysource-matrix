@@ -714,6 +714,9 @@ echo '/*
 				}
 			}
 		}
+		
+		// Adjust the file URLs based on selected reference method
+		$this->_adjustFileUrls($FILE_URLS);
 
 		// Now we just include the design file to get it to print
 		if (file_exists($file_path)) {
