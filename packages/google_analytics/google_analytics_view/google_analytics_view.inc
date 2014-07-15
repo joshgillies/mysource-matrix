@@ -131,6 +131,12 @@ class Google_Analytics_View extends Asset
         
         if (is_string($end_date) === FALSE) {
             $end_date = date('Y-m-d', $end_date);
+        } else if (strpos($end_date, 'P') === 0) {
+            // We got given a duration in P format.
+            $period     = $end_date;
+            $end_date   = new DateTime('today 00:00:00');
+            $end_date->add(new DateInterval($period));
+            $end_date   = $end_date->format('Y-m-d');
         }
         
         // Query definitions.
