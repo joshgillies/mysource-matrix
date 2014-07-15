@@ -452,6 +452,7 @@ class LDAP_Bridge extends Asset implements Bridge
 			return $links;
 		}
 
+		$links = Array();
 		$ldap = @$this->connectToLdap();
 		if (is_null($ldap) || is_null($ldap->ptr)) {
 			return Array();
@@ -768,7 +769,6 @@ class LDAP_Bridge extends Asset implements Bridge
 		$id_parts = explode(':', $assetid);
 		if (isset($id_parts[1])) $assetid = $id_parts[1];
 
-		$parents = Array();
 		if (!is_array($type_code)) {
 			if (empty($type_code)) {
 				$type_code = Array();
@@ -794,6 +794,7 @@ class LDAP_Bridge extends Asset implements Bridge
 			return $parents;
 		}
 
+		$parents = Array();
 		$ldap = @$this->connectToLdap();
 		if (is_null($ldap) || is_null($ldap->ptr)) return Array();
 
@@ -1901,9 +1902,11 @@ class LDAP_Bridge extends Asset implements Bridge
 	{
 		if (parent::saveAttributes($dont_run_updated, $log_message)) {
 
-			// Clear the LDAP search result from the Matrix cache
-			$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-			$cm->clearCache(Array($this->id));
+			if ($this->id) {
+				// Clear the LDAP search result from the Matrix cache
+				$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+				$cm->clearCache(Array($this->id));
+			}
 
 			return TRUE;
 		}
