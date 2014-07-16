@@ -190,6 +190,7 @@ class Google_Analytics_View extends Asset
         if ((string) $refresh_resp === '1') {
             // Not stale yet.
             $response = $bridge->loadFromFetchCache($cache_key);
+	bam('Loaded from cache');
         } else {
             // Stale or doesn't exist. Fetch it, and if it doesn't work, fall
             // back to any previously existing cache.
@@ -219,6 +220,10 @@ class Google_Analytics_View extends Asset
                 // Then they are "AND"ed.
                 $url_params['filters'] = implode(';', $url_params['filters']);
             }
+
+	    if ($url_params['filters'] === '') {
+		unset($url_params['filters']);
+            }
             
             $url = replace_query_string_vars($url_params, $url);
             $raw_response = $bridge->fetchWithBackoff($url);
@@ -227,10 +232,10 @@ class Google_Analytics_View extends Asset
                 $response = $raw_response['result'];
                 $bridge->saveToFetchCache($cache_key, $response);
             } else {
-                $response = $bridge->loadFromFetchCache($cache_key);
+                $response = NULL;
             }
         }//end if
-        
+       
         if (($response === FALSE) || ($response === NULL)) {
             $result = Array(
                         'errors' => $raw_response['errors'],
