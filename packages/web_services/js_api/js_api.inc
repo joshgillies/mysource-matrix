@@ -4855,7 +4855,9 @@ class JS_Api extends Page
 	{
 	    $GLOBALS['SQ_SYSTEM']->am->includeAsset('google_analytics_view');
 	    
-        log_write(var_export($args, TRUE));
+        if (array_key_exists('id', $args) === FALSE) {
+            $args['id'] = array_get_index($args, 'assetid', NULL);
+        };
         
 	    // We have to get our own asset ID.
 	    $asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($args['id']);
