@@ -206,7 +206,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 			if ($have_lock && $is_admin) {
 				foreach ($this->_viper_plugins as $index => $plugin_name) {
 					check_box('prefs[SQ_VIPER_PLUGINS]['.$index.']', 1,($all || in_array($index, $viper_plugins)));
-					echo translate($plugin_name);
+					label(translate($plugin_name), 'prefs[SQ_VIPER_PLUGINS]['.$index.']');
 					echo '<br/>';
 				}
 			} else {
@@ -357,7 +357,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 					$check_result = call_user_func(Array($plugin_name, 'check_usable'));
 					$extra = ($check_result === TRUE) ? '' : 'disabled="disabled"';
 					check_box('prefs[SQ_WYSIWYG_PLUGINS]['.$plugin_name.']', '1', ($all || in_array($plugin_name, $plugins)),'',$extra);
-					echo '&nbsp;'.ucwords(str_replace('_', ' ', $plugin_name));
+					label('&nbsp;'.ucwords(str_replace('_', ' ', $plugin_name)), 'prefs[SQ_WYSIWYG_PLUGINS]['.$plugin_name.']');
 					if ($check_result !== TRUE) {
 						echo ' <i>('.$check_result.')</i>';					}
 					echo '<br/>';
