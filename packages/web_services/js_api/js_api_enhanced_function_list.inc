@@ -3049,6 +3049,7 @@ class Js_Api_Enhanced_Function_List
 						start_date:     null,
 						end_date:       null,
 						sort_by:        null,
+						filter:         null,
 						dataCallback:	function(){}
 					},
 
@@ -3075,7 +3076,8 @@ class Js_Api_Enhanced_Function_List
 					['duration', options.duration],
 					['start_date', options.start_date],
 					['end_date', options.end_date],
-					['sort_by', options.sort_by]
+					['sort_by', options.sort_by],
+					['filter', options.filter]
 			],options);
 
 		},// end getGoogleAnalyticsStatistics

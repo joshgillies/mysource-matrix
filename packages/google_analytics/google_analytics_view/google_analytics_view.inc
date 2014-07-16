@@ -115,7 +115,7 @@ class Google_Analytics_View extends Asset
 	 *
 	 * @return array|NULL
 	 */
-	public function generateReport($dimensions, $metrics, $start_date, $end_date, $sort=Array(), $force=FALSE)
+	public function generateReport($dimensions, $metrics, $start_date, $end_date, $sort=Array(), $filter=Array(), $force=FALSE)
 	{
 	    require_once SQ_FUDGE_PATH.'/general/www.inc';
 	    
@@ -163,16 +163,25 @@ class Google_Analytics_View extends Asset
             $metrics = explode(',', $metrics);
         }
         
-        $queries = Array(
-            'summary' => Array(
-                'dimensions' => $dimensions,
-                'metrics'    => $metrics,
-                'sort'       => $sort,
-            ),
+        $query = Array(
+            'dimensions' => $dimensions,
+            'metrics'    => $metrics,
+            'sort'       => $sort,          
         );
         
+        // Add the filter.
+        if (is_array($filter) === TRUE) {
+            foreach ($filter as &$filter_part) {
+                if (is_array($filter_part) === TRUE) {
+                    $filter_part = implode(',', $filter_part);
+                }
+            }
+            
+            $query['filter'] = implode(';', $filter);
+        }
+        
         $params = array_merge(
-            $queries['summary'],
+            $query,
             $common_query_parts
         );
         
