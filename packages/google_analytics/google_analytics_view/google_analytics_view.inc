@@ -131,6 +131,13 @@ class Google_Analytics_View extends Asset
         
         if (is_string($end_date) === FALSE) {
             $end_date = date('Y-m-d', $end_date);
+        } else if (strpos($end_date, '-P') === 0) {
+            // We got given a negative duration in P format.
+            $period     = substr($end_date, 1);
+            $end_date   = new DateTime('today 00:00:00');
+            $end_date->sub(new DateInterval($period));
+            $end_date   = $end_date->format('Y-m-d');
+        }
         } else if (strpos($end_date, 'P') === 0) {
             // We got given a duration in P format.
             $period     = $end_date;
@@ -230,6 +237,15 @@ class Google_Analytics_View extends Asset
             $result = array_get_index($response, 'rows', Array());
             foreach ($result as &$row) {
                 $row = array_combine(array_merge($params['dimensions'], $params['metrics']), $row);
+                
+                // Turn metrics into numbers
+                foreach ($params['metrics'] as $metric) {
+                    if (strpos($row[$metric], '.') === FALSE) {
+                        $row[$metric] = (int) $row[$metric];
+                    } else {
+                        $row[$metric] = (float) $row[$metric];
+                    }
+                }
             }
         }//end if
         
