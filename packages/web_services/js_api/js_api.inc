@@ -4855,7 +4855,9 @@ class JS_Api extends Page
 	{
 	    $GLOBALS['SQ_SYSTEM']->am->includeAsset('google_analytics_view');
 	    
-        log_write(var_export($args, TRUE));
+        if (array_key_exists('id', $args) === FALSE) {
+            $args['id'] = array_get_index($args, 'assetid', NULL);
+        };
         
 	    // We have to get our own asset ID.
 	    $asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($args['id']);
@@ -4872,7 +4874,13 @@ class JS_Api extends Page
 	    if ($args['end_date'] === NULL) {
 	        // We can omit the end date; it will revert to "today".
 	        $args['end_date'] = date('Y-m-d');
-	    } else if (strpos($args['end_date'], 'P') === 0) {
+	    } else if (strpos($args['end_date'], '-P') === 0) {
+            // We got given a negative duration in P format.
+            $period = substr($args['end_date'], 1);
+            $args['end_date'] = new DateTime('today 00:00:00');
+            $args['end_date']->sub(new DateInterval($period));
+            $args['end_date'] = $args['end_date']->format('Y-m-d');
+        } else if (strpos($args['end_date'], 'P') === 0) {
             // We got given a duration in P format.
             $period = $args['end_date'];
             $args['end_date'] = new DateTime('today 00:00:00');
