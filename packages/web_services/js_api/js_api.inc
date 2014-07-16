@@ -4822,7 +4822,10 @@ class JS_Api extends Page
 	 * The arguments passed are as follows:
 	 * - assetid    : The ID of the view we are displaying.
 	 * - end_date   : The end date in ISO 8601 date format (eg. 2014-06-01),
-	 *                it omitted defaults to "today".
+	 *                or a period relative to "today" (eg. "-P14D").
+	 *                If the period is prior to the current date when the minus
+	 *                must come first (ie. "-P14D" and not "P-14D").
+	 *                If omitted defaults to "today".
 	 * - start_date : The start date in ISO 8601 date format.
 	 * - duration   : The duration in ISO 8601 period format (eg. "P14D" = 14
 	 *                days, "P2M" = 2 months).
