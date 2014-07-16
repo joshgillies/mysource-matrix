@@ -190,7 +190,6 @@ class Google_Analytics_View extends Asset
         if ((string) $refresh_resp === '1') {
             // Not stale yet.
             $response = $bridge->loadFromFetchCache($cache_key);
-	bam('Loaded from cache');
         } else {
             // Stale or doesn't exist. Fetch it, and if it doesn't work, fall
             // back to any previously existing cache.
