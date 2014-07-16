@@ -171,20 +171,14 @@ class Google_Analytics_View extends Asset
         
         // Add the filter.
         if (is_array($filter) === TRUE) {
-            foreach ($filter as &$filter_part) {
-                if (is_array($filter_part) === TRUE) {
-                    $filter_part = implode(',', $filter_part);
-                }
-            }
-            
-            $query['filter'] = implode(';', $filter);
+            $query['filters'] = $filter;
         }
         
         $params = array_merge(
             $query,
             $common_query_parts
         );
-        
+ 
         $cache_key .= '.'.http_build_query($params, '', ',');
         
         if ($force === TRUE) {
