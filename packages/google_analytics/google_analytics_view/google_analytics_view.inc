@@ -137,7 +137,6 @@ class Google_Analytics_View extends Asset
             $end_date   = new DateTime('today 00:00:00');
             $end_date->sub(new DateInterval($period));
             $end_date   = $end_date->format('Y-m-d');
-        }
         } else if (strpos($end_date, 'P') === 0) {
             // We got given a duration in P format.
             $period     = $end_date;
