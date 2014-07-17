@@ -492,7 +492,6 @@ class JS_Api extends Page
 			} else {
 				// old API way
 				$args = $request_data;
-				log_write(var_export($args, TRUE));
 			}
 
 			// fix our args elements
@@ -502,8 +501,6 @@ class JS_Api extends Page
                 }
 			}
 
-            log_write(var_export($args, TRUE));
-            
 			// first thing check if the function that is being tried to executed is enabled
 			if ($this->attr($this->_attribute_mapping[$type])) {
 				$asset = NULL;
@@ -548,8 +545,7 @@ class JS_Api extends Page
 				} else {
 				    $func_name = '_'.$type;
 					try {
-					    log_write(var_export($args, TRUE));
-						$results[$track_func] = $this->$func_name($args, $asset, $ra, $wa);
+					    $results[$track_func] = $this->$func_name($args, $asset, $ra, $wa);
 					} catch (Exception $e) {
 						// If any exception was thrown when executing the function, catch it
 						$results[$track_func]['error']     = 'Exception occurred when executing JS API function "'.$type.'()": '.$e->getMessage();
