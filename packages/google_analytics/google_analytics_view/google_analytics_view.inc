@@ -220,8 +220,12 @@ class Google_Analytics_View extends Asset
                 $url_params['filters'] = implode(';', $url_params['filters']);
             }
 
-	    if ($url_params['filters'] === '') {
-		unset($url_params['filters']);
+            if ($url_params['filters'] === '') {
+                unset($url_params['filters']);
+            }
+
+            if ($url_params['sort'] === '') {
+                unset($url_params['sort']);
             }
             
             $url = replace_query_string_vars($url_params, $url);
