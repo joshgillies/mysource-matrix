@@ -42,6 +42,29 @@ class Metadata_Field_WYSIWYG extends Metadata_Field
 	}//end constructor
 
 
+	/**
+	* Output the JS code to untick the "Use Default" checkbox
+	* after populating the respective metadata field
+	*
+	* @param string $el_id	Id of the metadata field's "use default" checkbox element
+	*
+	* @return void
+	* @access protected
+	* @see Metadata Field::printRepopulateFieldJs()
+	*/
+	protected function _printUntickUseDefaultCheckboxJs($el_id)
+	{
+		if (!isset($_POST[$el_id])) {
+			?>
+			if (document.getElementById('<?php echo htmlspecialchars($el_id, ENT_QUOTES); ?>')) {
+				document.getElementById('<?php echo htmlspecialchars($el_id, ENT_QUOTES); ?>').click();
+			}
+			<?php
+		}
+
+	}//end _printUntickUseDefaultCheckboxJs()
+
+
 }//end class
 
 ?>
