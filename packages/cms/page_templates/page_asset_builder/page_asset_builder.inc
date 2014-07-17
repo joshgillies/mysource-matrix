@@ -2357,6 +2357,17 @@ class Page_Asset_Builder extends Page
 				?>
 				<script type="text/javascript">
 				<?php
+					// Print JS code to repopulate metadata input fields from the posted data
+					if (!empty($metadata_schemas)) {
+						$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+						$metadata_fields = $mm->getMetadataFields($metadata_schemas);
+						foreach($metadata_fields as $metadata_field_id => $type_code) {
+							$metadata_field = $GLOBALS['SQ_SYSTEM']->am->getAsset($metadata_field_id);
+							$metadata_field->printRepopulateFieldJs();
+						}//end foreach
+					}//end if
+
+					// Print JS code to populate asset attribute input fields from the posted data
 					foreach ($asset->vars as $attr_name => $attr_details) {
 						foreach ($_POST as $post_var => $post_var_value) {
 							$pos = strpos($post_var, $create_type);

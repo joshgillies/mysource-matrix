@@ -399,6 +399,77 @@ class Metadata_Field extends Asset
 	}//end getAdditionalKeywordReplacement()
 
 
+	/**
+	* Output the JS code to repopulate the metadata field
+	* from the data in the POST
+	*
+	* @return void
+	* @access public
+	*/
+	public function printRepopulateFieldJs()
+	{
+		if (empty($_POST) || !is_array($_POST)) {
+			return;
+		}
+
+		foreach($_POST as $post_var => $post_var_value) {
+			$field_prefix = $this->type().'_'.$this->id;
+			if (strpos($post_var, $field_prefix) === 0 && substr($post_var, -8) != '_default') {
+				if (is_scalar($post_var_value)) {
+					// Single value fields like text field
+					?>
+					if (document.getElementById('<?php echo htmlspecialchars($post_var, ENT_QUOTES); ?>')) {
+						document.getElementById('<?php echo htmlspecialchars($post_var, ENT_QUOTES); ?>').value = "<?php echo str_replace("\r\n", "\\\r\n", htmlspecialchars($post_var_value, ENT_QUOTES)); ?>";
+						document.getElementById('<?php echo htmlspecialchars($post_var, ENT_QUOTES); ?>').disabled = '';
+					}
+					<?php
+				} else if (is_array($post_var_value)) {
+					// Complex fields like date field
+					foreach($post_var_value as $sub_var => $sub_value) {
+					?>
+						if (document.getElementById('<?php echo htmlspecialchars($post_var.'_'.$sub_var, ENT_QUOTES); ?>')) {
+							document.getElementById('<?php echo htmlspecialchars($post_var.'_'.$sub_var, ENT_QUOTES); ?>').value = '<?php echo htmlspecialchars($sub_value, ENT_QUOTES); ?>';
+							document.getElementById('<?php echo htmlspecialchars($post_var.'_'.$sub_var, ENT_QUOTES); ?>').disabled = '';
+						} else if (document.getElementById('<?php echo htmlspecialchars($post_var.'['.$sub_var.']', ENT_QUOTES); ?>')) {
+							document.getElementById('<?php echo htmlspecialchars($post_var.'['.$sub_var.']', ENT_QUOTES); ?>').value = '<?php echo htmlspecialchars($sub_value, ENT_QUOTES); ?>';
+							document.getElementById('<?php echo htmlspecialchars($post_var.'['.$sub_var.']', ENT_QUOTES); ?>').disabled = '';
+						}
+					<?php
+					}
+				}
+
+				// Untick the 'user default' check for this field posted with non-default value
+				$default_field_el_id = preg_replace('/^(metadata_field_.*?_[0-9]+)(.*)$/', '$1', $post_var).'_default';
+				$this->_printUntickUseDefaultCheckboxJs($default_field_el_id);
+
+			}//end if
+		}//end foreach
+
+	}//end printRepopulateFieldJs()
+
+
+	/**
+	* Output the JS code to untick the "Use Default" checkbox
+	* after populating the respective metadata field
+	*
+	* @param string $el_id	Id of the metadata field's "use default" checkbox field
+	*
+	* @return void
+	* @access protected
+	* @see Metadata Field::printRepopulateFieldJs()
+	*/
+	protected function _printUntickUseDefaultCheckboxJs($el_id)
+	{
+		if (!isset($_POST[$el_id])) {
+			?>
+			if (document.getElementById('<?php echo htmlspecialchars($el_id, ENT_QUOTES); ?>')) {
+				document.getElementById('<?php echo htmlspecialchars($el_id, ENT_QUOTES); ?>').checked = '';
+			}
+			<?php
+		}
+
+	}//end _printUntickUseDefaultCheckboxJs()
+
 }//end class
 
 ?>
