@@ -4955,7 +4955,7 @@ class JS_Api extends Page
 	        $args['metrics'],
 	        $args['start_date'],
 	        $args['end_date'],
-	        $args['sort'],
+	        $args['sort_by'],
 	        $args['filter']
 	    );
 
