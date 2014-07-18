@@ -275,11 +275,12 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	* Creates a PHP file to print on the frontend instead of doing processing there
 	*
 	* @param Bodycopy_Container	$asset	the container
+	* @param boolean $generating	TRUE if output of this is being cached in a content file
 	*
 	* @return boolean
 	* @access public
 	*/
-	public function generateContentFile(Bodycopy_Container $asset)
+	public function generateContentFile(Bodycopy_Container $asset, $generating=FALSE)
 	{
 		ob_start();
 			$this->paint($asset, FALSE, TRUE);
@@ -331,29 +332,32 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 			}
 		}//end foreach
 
-		// replacing normal assetids is simple because they can only be numerical chars :)
-		$e = '|\\./\\?a=([0-9]+)([^0-9:])|';
-		$r = '<'.'?php echo array_get_index($sq_asset_url_list, $1, "./?a=$1"); ?'.'>$2';
-		$output = preg_replace($e, $r, $output);
-		// replacing shadow assetids isn't so simple because they can have any characters...and therefore need to be escaped
-		$e = '|\\./\\?a=([0-9]+:[0-9A-Za-z]*)\\$?|';
-		$matches = Array();
-		if (preg_match_all($e, $output, $matches, PREG_PATTERN_ORDER)) {
+		// Leave "./?a=xxx" links untranslated if the content generating is being cached
+		if (!$generating) {
+			// replacing normal assetids is simple because they can only be numerical chars :)
+			$e = '|\\./\\?a=([0-9]+)([^0-9:])|';
+			$r = '<'.'?php echo array_get_index($sq_asset_url_list, $1, "./?a=$1"); ?'.'>$2';
+			$output = preg_replace($e, $r, $output);
+			// replacing shadow assetids isn't so simple because they can have any characters...and therefore need to be escaped
+			$e = '|\\./\\?a=([0-9]+:[0-9A-Za-z]*)\\$?|';
+			$matches = Array();
+			if (preg_match_all($e, $output, $matches, PREG_PATTERN_ORDER)) {
 
-			$replacements = Array();
-			foreach ($matches[1] as $shadow_assetid) {
-				// if this is a shadow asset, then we need to escape the shadow part (as it is plain text)
-				$replacements[] = '<'.'?php echo $sq_asset_url_list['.var_export($shadow_assetid, 1).']; ?'.'>';
+				$replacements = Array();
+				foreach ($matches[1] as $shadow_assetid) {
+					// if this is a shadow asset, then we need to escape the shadow part (as it is plain text)
+					$replacements[] = '<'.'?php echo $sq_asset_url_list['.var_export($shadow_assetid, 1).']; ?'.'>';
+				}
+
+				$output = str_replace($matches[0], $replacements, $output);
+
+			}// end if
+
+			// Put the keywords containing './?a=xxx' urls back
+			foreach($matrix_url_keywords as $hash => $keyword) {
+				$output = preg_replace('|%((<([^>]+?)>)+)?'.$hash.'((<([^>]+?)>)+)?%|', '%${1}'.$keyword.'$4%', $output);
 			}
-
-			$output = str_replace($matches[0], $replacements, $output);
-
-		}// end if
-
-		// Put the keywords containing './?a=xxx' urls back
-		foreach($matrix_url_keywords as $hash => $keyword) {
-			$output = preg_replace('|%((<([^>]+?)>)+)?'.$hash.'((<([^>]+?)>)+)?%|', '%${1}'.$keyword.'$4%', $output);
-		}
+		}//end if $generating
 
 		$attributes = $asset->attr('attributes');
 		if (empty($attributes['disable_keywords'])) {

@@ -482,10 +482,10 @@ class Bodycopy_Container extends Asset
 				return;
 			}
 
-			if (!is_file($this->data_path.'/'.$content_file_name)) {
+			if ($generating || !is_file($this->data_path.'/'.$content_file_name)) {
 				// generate the content file
 				$edit = $this->getEditFns();
-				$edit->generateContentFile($this);
+				$edit->generateContentFile($this, $generating);
 			}
 
 			if (!is_file($this->data_path.'/'.$content_file_name)) {
