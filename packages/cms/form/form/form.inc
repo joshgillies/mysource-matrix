@@ -2171,8 +2171,10 @@ class Form extends Asset implements Bridge
 					// Printing a section - sections are zero based after they were
 					// re-based by array_values
 					$section_link = reset(array_slice($sections, $page_number - 1, 1));
-					$section = $GLOBALS['SQ_SYSTEM']->am->getAsset($section_link['minorid']);
-					$section->printBody($this);
+					if (isset($section_link['minorid']) && $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($section_link['minorid'], 'form_section')) {
+						$section = $GLOBALS['SQ_SYSTEM']->am->getAsset($section_link['minorid']);
+						$section->printBody($this);
+					}
 				}
 			} else {
 				$this->printPageContentsBodycopy();
