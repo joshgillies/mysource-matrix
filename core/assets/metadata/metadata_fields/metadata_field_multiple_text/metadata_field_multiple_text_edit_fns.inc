@@ -70,9 +70,9 @@ class Metadata_Field_Multiple_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		Metadata_Field::decodeValueString($value_str, $value, $value_components);
 
+		$is_default = FALSE;
 		if ($enable_default) {
 			$o->addJsInclude(sq_web_path('data').'/asset_types/metadata_field_multiple_text/js/metadata_field_multiple_text.js');
-			$is_default = FALSE;
 			if (is_null($value_str)) {
 				$value_str = $asset->getDefaultValue();
 				Metadata_Field::decodeValueString($value_str, $value, $value_components);
