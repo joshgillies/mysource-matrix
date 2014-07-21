@@ -629,7 +629,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 						$errors .= '<li>'.$text.'</li>';
 					}//end foreach
 				}//end if
-				$this->_replacements['form_errors'] = $errors;
+				$this->_replacements['form_errors'] = '<ul>'.$errors.'</ul>';
 			}
 
 			return TRUE;
@@ -1437,7 +1437,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 			ob_end_clean();
 
 			if (!empty($errors)) {
-				$this->_replacements['form_errors'] = $errors;
+				$this->_replacements['form_errors'] = '<ul>'.$errors.'</ul>';
 			} else if (array_get_index($_POST, 'process_form', FALSE) && empty($lock_errors)){
 				$this->_replacements['edit_details_success'] = $this->attr('edit_details_success');
 			}
