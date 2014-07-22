@@ -853,7 +853,7 @@ class MySource extends MySource_Object
 				}//end if
 				// caching is enabled and asset is readable by public user, send HTTP headers
 				// however not send if user have just logged out (see bug #3766)
-				else if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX &&
+				else if (basename($_SERVER['PHP_SELF']) != SQ_CONF_NOCACHE_SUFFIX && basename($_SERVER['PHP_SELF']) != SQ_CONF_NOPROXYCACHE_SUFFIX &&
 						 SQ_CONF_SEND_CACHEABLE_HEADER &&
 						 $asset->canSendCacheableHeader() &&
 						 empty($_POST) && $asset->status >= SQ_STATUS_LIVE &&

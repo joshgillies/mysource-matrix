@@ -42,6 +42,7 @@ class System_Config extends Config
 						'SQ_CONF_LIMBO_SUFFIX'					=> Array('editable' => 1, 'default' => '_edit'),
 						'SQ_CONF_LOGIN_SUFFIX'					=> Array('editable' => 1, 'default' => '_login'),
 						'SQ_CONF_NOCACHE_SUFFIX'				=> Array('editable' => 1, 'default' => '_nocache'),
+						'SQ_CONF_NOPROXYCACHE_SUFFIX'			=> Array('editable' => 1, 'default' => '_noproxycache'),
 						'SQ_CONF_RECACHE_SUFFIX'				=> Array('editable' => 1, 'default' => '_recache'),
 						'SQ_CONF_PERFORMANCE_SUFFIX'			=> Array('editable' => 1, 'default' => '_performance'),
 						'SQ_CONF_PERFORMANCE_TIMING_SUFFIX'		=> Array('editable' => 1, 'default' => '_performance_timing'),
@@ -420,6 +421,14 @@ class System_Config extends Config
 			} else {
 				echo nl2br(SQ_CONF_NOCACHE_SUFFIX);
 			}
+
+			$o->openField(translate('system_noproxycache_suffix'));
+			if ($write_access) {
+				text_box($class.'[SQ_CONF_NOPROXYCACHE_SUFFIX]', SQ_CONF_NOPROXYCACHE_SUFFIX, 15);
+			} else {
+				echo nl2br(SQ_CONF_NOPROXYCACHE_SUFFIX);
+			}
+
 
 			$o->openField(translate('system_recache_suffix'));
 			if ($write_access) {

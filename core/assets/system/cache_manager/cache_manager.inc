@@ -569,7 +569,7 @@ class Cache_Manager extends Asset
 	{
 		// first check some obvious things
 		if (SQ_ROLLBACK_VIEW) return FALSE;
-		if (basename($_SERVER['PHP_SELF']) == SQ_CONF_NOCACHE_SUFFIX) {
+		if (basename($_SERVER['PHP_SELF']) == SQ_CONF_NOCACHE_SUFFIX || basename($_SERVER['PHP_SELF']) == SQ_CONF_NOPROXYCACHE_SUFFIX) {
 			return FALSE;
 		}
 		if (array_get_index($_GET, 'SQ_ACTION') == 'diff') {

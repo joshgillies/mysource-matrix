@@ -4855,7 +4855,50 @@ class Asset extends MySource_Object
 	*/
 	public function printFrontend()
 	{
-		$this->printFrontendAsset($this);
+		// SQ_ASSET_CONTENT is a special URL param to print asset content without design
+		if(isset($_GET['SQ_ASSET_CONTENTS']) || isset($_GET['SQ_ASSET_CONTENTS_RAW'])) {
+
+			// if container id is specified, only print those containers specified
+			$container_id = isset($_GET['SQ_ASSET_CONTENTS']) ? $_GET['SQ_ASSET_CONTENTS'] : $_GET['SQ_ASSET_CONTENTS_RAW'];
+			if(!empty($container_id)) {
+				$container_id_array = explode(',', trim($container_id));
+				$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CONTAINER_TO_PRINT', $container_id_array);
+			}
+
+			if(isset($_GET['SQ_ASSET_CONTENTS_RAW'])) {
+				$this->printBody();
+			}
+			else {
+				$layout_id = FALSE;
+				$this_url = preg_replace('/https?:\/\//', '', $this->getURL());
+				if(isset($_GET['SQ_PAINT_LAYOUT'])) {
+					$layout_id = $_GET['SQ_PAINT_LAYOUT'];
+					$layout = $GLOBALS['SQ_SYSTEM']->am->getAsset($layout_id, '', true);
+					if(!method_exists($layout, 'paint')) {
+						$layout_id = FALSE;
+					}
+				}
+				else if (isset($_GET['SQ_PAINT_LAYOUT_NAME'])) {
+					$layout_name = $_GET['SQ_PAINT_LAYOUT_NAME'];
+					if (strpos($layout_name, 'paint_layout::user::') === FALSE && strpos($layout_name, 'paint_layout::system::frontend') === FALSE) {
+						$layout_name = 'paint_layout::user::'.$layout_name;
+					}
+					$layout_id = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL($this_url, $layout_name);
+				}
+				else {
+					$this_paint_layout = $this->getCurrentPaintLayoutName();
+					$layout_id = $GLOBALS['SQ_SYSTEM']->am->getValueFromURL($this_url, $this_paint_layout);
+				}
+				if (!$layout_id) {
+					$this->printBodyWithPaintLayout();
+				} else {
+					$this->printBodyWithPaintLayout($layout_id);
+				}
+			}
+		}
+		else {
+			$this->printFrontendAsset($this);
+		}
 
 	}//end printFrontend()
 
@@ -5473,7 +5516,7 @@ class Asset extends MySource_Object
 
 			// do not run hipo if any of the paths start with __ or is reserved by Matrix
 			foreach ($paths as $orig_path) {
-				if (preg_match('/^__/', $orig_path) || $orig_path == SQ_CONF_BACKEND_SUFFIX || $orig_path == SQ_CONF_LIMBO_SUFFIX || $orig_path == SQ_CONF_NOCACHE_SUFFIX) {
+				if (preg_match('/^__/', $orig_path) || $orig_path == SQ_CONF_BACKEND_SUFFIX || $orig_path == SQ_CONF_LIMBO_SUFFIX || $orig_path == SQ_CONF_NOCACHE_SUFFIX || $orig_path == SQ_CONF_NOPROXYCACHE_SUFFIX) {
 					return FALSE;
 				}
 			}

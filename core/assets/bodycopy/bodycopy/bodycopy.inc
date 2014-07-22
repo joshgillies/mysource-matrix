@@ -343,6 +343,18 @@ class Bodycopy extends Asset
 	{
 		// get all the containers linked to this bodycopy
 		$containers =& $this->getContainers();
+
+		// if we are limiting the containers to print
+		$containers_to_print = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CONTAINER_TO_PRINT', NULL);
+		if(!empty($containers_to_print) && is_array($containers_to_print)) {
+	       foreach (array_keys($containers) as $i) {
+    	           $container =& $containers[$i];
+        	       if(!in_array($container->id, $containers_to_print)) 
+            	           unset($containers[$i]);
+            }
+            // the limit is only applied to the current top level page, it does not affect the nested pages
+            $GLOBALS['SQ_SYSTEM']->unsetGlobalDefine('CONTAINER_TO_PRINT');
+		}
 		
 		// if conditional display of div is enabled
 		if(isset($GLOBALS['SQ_CONDITION']['conditional_div'])) {
