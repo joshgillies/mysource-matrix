@@ -346,14 +346,15 @@ class Bodycopy extends Asset
 
 		// if we are limiting the containers to print
 		$containers_to_print = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CONTAINER_TO_PRINT', NULL);
-		if(!empty($containers_to_print) && is_array($containers_to_print)) {
+		$containers_main_asset = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CONTAINER_TO_PRINT_MAIN_ASSET', NULL);
+		$frontend_asset = $GLOBALS['SQ_SYSTEM']->frontend_asset;
+		// make sure we are only limiting containers in "current" page, not in the nested assets
+		if(isset($frontend_asset) && ($frontend_asset->id == $containers_main_asset) && !empty($containers_to_print) && is_array($containers_to_print)) {
 	       foreach (array_keys($containers) as $i) {
     	           $container =& $containers[$i];
         	       if(!in_array($container->id, $containers_to_print)) 
             	           unset($containers[$i]);
             }
-            // the limit is only applied to the current top level page, it does not affect the nested pages
-            $GLOBALS['SQ_SYSTEM']->unsetGlobalDefine('CONTAINER_TO_PRINT');
 		}
 		
 		// if conditional display of div is enabled

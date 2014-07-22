@@ -4863,6 +4863,7 @@ class Asset extends MySource_Object
 			if(!empty($container_id)) {
 				$container_id_array = explode(',', trim($container_id));
 				$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CONTAINER_TO_PRINT', $container_id_array);
+				$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CONTAINER_TO_PRINT_MAIN_ASSET', $this->id);
 			}
 
 			if(isset($_GET['SQ_ASSET_CONTENTS_RAW'])) {
