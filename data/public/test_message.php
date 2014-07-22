@@ -70,20 +70,20 @@ if (!empty($_GET['checkdb']) || !empty($_GET['checkreplication'])) {
 
 		$error = FALSE;
 		try {
-			MatrixDAL::dbConnect('db');
+			$dsn=NULL;
+			MatrixDAL::dbConnect($dsn, 'db');
 		} catch (Exception $e) {
 			$return_code = '500';
 			$error = TRUE;
 		}
 
 		if (!$error) {
-			$query = MatrixDAL::preparePdoQuery('SELECT assetid FROM sq_ast WHERE assetid = 1');
+			$query = MatrixDAL::preparePdoQuery('SELECT assetid FROM sq_ast WHERE assetid = \'1\'');
 			try {
 				$res = MatrixDAL::executePdoOne($query);
 			} catch (Exception $e) {
 				$return_code = '500';
 			}
-			MatrixDAL::dbClose('db');
 		}
 	}
 
@@ -209,6 +209,12 @@ if (!empty($_GET['checkdb']) || !empty($_GET['checkreplication'])) {
 		header('HTTP/1.0 '.$return_code.' Internal Server Error');
 	}
 	echo 'the return code was '.$return_code;
+
+	$logged_in = ($GLOBALS['SQ_SYSTEM']->user && !($GLOBALS['SQ_SYSTEM']->user instanceof Public_User));
+	if (!$logged_in) {
+		session_destroy();
+	}
+
 	exit;
 }
 
@@ -418,5 +424,11 @@ if ($return_code == '200') {
 }
 
 print $output;
+
+
+$logged_in = ($GLOBALS['SQ_SYSTEM']->user && !($GLOBALS['SQ_SYSTEM']->user instanceof Public_User));
+if (!$logged_in) {
+	session_destroy();
+}
 
 ?>
