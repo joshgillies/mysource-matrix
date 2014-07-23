@@ -42,19 +42,19 @@ class SOAP_Common
 	private static $recent_parsed_type = Array();
 
 	public static $wsdl_caching_opts = Array(
-											WSDL_CACHE_BOTH => 'Cache to both disk and memory',
-											WSDL_CACHE_DISK => 'Cache to disk',
-											WSDL_CACHE_MEMORY => 'Cache to memory',
-											WSDL_CACHE_NONE => 'Never cache',
+											WSDL_CACHE_BOTH 	=> 'Cache to both disk and memory',
+											WSDL_CACHE_DISK		=> 'Cache to disk',
+											WSDL_CACHE_MEMORY	=> 'Cache to memory',
+											WSDL_CACHE_NONE		=> 'Never cache',
 										);
 
 	// Available SOAP authentication types
 	public static $auth_types = Array(
-									'HTTP_BASIC' => 'HTTP Basic',
-									'JSESSIONID' => 'JSESSIONID Cookie',
-									'WSS_USERNAME_TOKEN' => 'WSS Username Token',
-									'WSS_PASSWORD_DIGEST' => 'WSS Password Digest',
-									'MARKETO_SIGNATURE'	=> 'Marketo Signature',
+									'HTTP_BASIC'			=> 'HTTP Basic',
+									'JSESSIONID'			=> 'JSESSIONID Cookie',
+									'WSS_USERNAME_TOKEN'	=> 'WSS Username Token',
+									'WSS_PASSWORD_DIGEST'	=> 'WSS Password Digest',
+									'MARKETO_SIGNATURE'		=> 'Marketo Signature',
 								);
 
 
@@ -345,6 +345,10 @@ class SOAP_Common
 
 		if(isset($settings['service_address']) && !empty($settings['service_address'])) {
 		    $options['location'] = $settings['service_address'];
+		}
+
+		if (isset($settings['connection_timeout']) && (int)$settings['connection_timeout'] !== 0) {
+			$options['connection_timeout'] = $settings['connection_timeout'];
 		}
 
 		return $options;
@@ -723,13 +727,14 @@ class SOAP_Common
 		if(empty($wsdl)) return Array();
 
 		$address_array = Array();
-		$options = array(
-			'FOLLOWLOCATION' => 1,
-			'RETURNTRANSFER' => 1,
-			'HTTPAUTH'          => CURLAUTH_BASIC,
-			'TIMEOUT'        => 3,
-			'SSL_VERIFYPEER' => 0,
-		   );
+		$options = Array(
+					'FOLLOWLOCATION'	=> 1,
+					'RETURNTRANSFER'	=> 1,
+					'HTTPAUTH'			=> CURLAUTH_BASIC,
+					'TIMEOUT'			=> 3,
+					'SSL_VERIFYPEER'	=> 0,
+				   );
+
 		if(!empty($username)) {
 		    $options['USERPWD'] = $username.":".$password;
 		}
