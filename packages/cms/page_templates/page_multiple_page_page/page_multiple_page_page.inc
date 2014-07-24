@@ -34,6 +34,14 @@ class Page_Multiple_Page_Page extends Bodycopy
 
 
 	/**
+	* Weather the asset is deprecated or not.
+	* this will be used in asset_map.inc:_cloneAsset() to see if the asset type
+	* can be created (cloned) on the system
+	*/
+	public $deprecated = TRUE;
+
+
+	/**
 	* Constructor
 	*
 	* @param int	$assetid	the asset id to be loaded
