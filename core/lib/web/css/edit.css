@@ -790,3 +790,10 @@ ul.radio-list {
 	font-weight: normal;
 	display: none;
 }
+
+pre, pre *, .raw-text, .raw-text *{
+	font-family: 				'Courier';
+	white-space: 				pre-wrap;
+}
+
+
