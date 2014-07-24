@@ -669,7 +669,9 @@ class Form_Section extends Asset implements Bridge
 
 		if (is_null($sort_by)) $sort_by = 'sort_order';
 
-		uasort($links, create_function('$a,$b','return $a["'.$sort_by.'"] > $b["'.$sort_by.'"];'));
+		uasort($links, function($a, $b) use ($sort_by) {
+			return $a[$sort_by] > $b[$sort_by];
+		});
 
 		return $links;
 
@@ -1630,6 +1632,7 @@ class Form_Section extends Asset implements Bridge
 				$keywords['question_id_'.$this->id.'_q'.$shadowid]    = $assetid;
 				$keywords['question_label_'.$this->id.'_q'.$shadowid] = '<'.'?php echo $GLOBALS[\'SQ_SYSTEM\']->am->getAsset(\''.$assetid.'\')->getHtmlLabel(); ?'.'>';
 				$keywords['question_error_'.$this->id.'_q'.$shadowid]    = '<'.'?php 
+					$question = $GLOBALS[\'SQ_SYSTEM\']->am->getAsset(\''.$assetid.'\');
 					if(isset($form_asset->question_errors[$question->id])) {
 						$errors = $form_asset->question_errors[$question->id];
 						$error = array_pop($errors);
@@ -1845,6 +1848,48 @@ class Form_Section extends Asset implements Bridge
 		return $output;
 	}//end getQuestionContentReplacement()
 
+
+	/**
+	* Determine if the passed assetid or assetids refer(s) to a valid asset in the system
+	*
+	* If a single asset ID is passed the function will return TRUE or FALSE depending on
+	* whether that asset exists. If an array is passed it will return an array of the
+	* assetids that exist.
+	*
+	*
+	* @param mixed	$assetids	the ID of the asset we are going to the check for existence
+	*							or an array of assetids we want to check
+	*
+	* @return mixed boolean|array
+	* @access public
+	*/
+	function assetExists($assetids)
+	{
+		$sort_order = $this->attr('sort_order');
+
+		if (is_array($assetids)) {
+			$ret_val = Array();
+	       	foreach ($assetids as $assetid) {
+				$question_order = array_search($assetid, $sort_order);
+				if ($question_order !== FALSE) {
+					$question_asset = $this->getQuestionByOrder($question_order);
+					if (!is_null($question_asset)) {
+						$ret_val[] = $question_asset->id;
+					}
+				}
+			}
+		} else {
+			$ret_val = FALSE;
+			$question_order = array_search($assetids, $sort_order);
+			$question_asset = $this->getQuestionByOrder($question_order);
+			if (!is_null($question_asset)){
+				$ret_val = TRUE;
+			}
+		}
+
+		return $ret_val;
+
+	}//end assetExists()
 
 
 }//end class

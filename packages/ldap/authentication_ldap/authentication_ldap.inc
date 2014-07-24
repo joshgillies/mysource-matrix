@@ -299,7 +299,7 @@ class Authentication_LDAP extends Authentication
 		// the attribute mappings to the LDAP schemas
 		$attrs = $bridge->attr('attributes');
 
-		if (is_null($ldap)) return $null;
+		if (empty($attrs['uid']) || is_null($ldap)) return $null;
 
 		// we do the search instead of binding directly as the user because ldap->connect_as_user requires
 		// the full dn as the first arg and doing it this way doesn't limit you to having all the users in the

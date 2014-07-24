@@ -168,7 +168,10 @@ class Online_Quiz_Question_Group_Edit_Fns extends Folder_Edit_Fns
 					$name      = trim(array_get_index($option, 'name'));
 					$min_score = array_get_index($option, 'min_score', NULL);
 					$max_score = array_get_index($option, 'max_score', NULL);
-					$content = $_REQUEST[$prefix.'_supplement_'.$option_key];
+					$wysiwyg_prefix = $prefix.'_supplement_'.$option_key;
+					$wysiwyg = new Asset_Attribute_WYSIWYG();
+					$wysiwyg->process($wysiwyg_prefix);
+					$content = $wysiwyg->value;
 
 					if (!empty($name)) {
 						$score_categories[$option_key_counter]['name']	= $name;

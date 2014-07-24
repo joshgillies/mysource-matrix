@@ -472,7 +472,7 @@ class JS_Api extends Page
 						$results[$track_func] = $this->$func_name($args, $asset, $ra, $wa);
 					} catch (Exception $e) {
 						// If any exception was thrown when executing the function, catch it
-						$results[$track_func]['error'] = 'Exception occured when executing JS API function "'.$type.'()": '.$e->getMessage();
+						$results[$track_func]['error'] = 'Exception occurred when executing JS API function "'.$type.'()": '.$e->getMessage();
 						js_api_error_handler(E_USER_ERROR, 'EXCEPTION: '.$e->getMessage(), $e->getFile(), $e->getLine());
 					}
 				}//end if
@@ -878,7 +878,7 @@ class JS_Api extends Page
 					if (empty($errors)) {
 						$data['success'] = 'Assets sucessfully imported under Asset #'.$import_under;
 					} else {
-						$data['error'] = 'Error occured while importing assets  under Asset #'.$import_under;
+						$data['error'] = 'Error occurred while importing assets  under Asset #'.$import_under;
 					}
 
 				} else {
@@ -2113,7 +2113,7 @@ class JS_Api extends Page
 					$success = $new_asset->create($link, $file_info);
 
 					if (!$success) {
-						$data['error'] = 'Error occured while creating new asset of type \''.$type_code.'\'';
+						$data['error'] = 'Error occurred while creating new asset of type \''.$type_code.'\'';
 					} else {
 						// done creating the asset ? let remove the temp file we had uploaded and make way for new one
 						$fv = $GLOBALS['SQ_SYSTEM']->getFileVersioning();
@@ -2171,7 +2171,7 @@ class JS_Api extends Page
 						if ($success) {
 							$data['success'] = 'Content of Asset '.$asset->short_name.'(#'.$asset->id.') successfully updated';
 						} else {
-							$data['error'] = 'Error occured while updating Content of Asset '.$asset->short_name.'(#'.$asset->id.')';
+							$data['error'] = 'Error occurred while updating Content of Asset '.$asset->short_name.'(#'.$asset->id.')';
 						}
 					}
 				} else {
@@ -3882,7 +3882,7 @@ class JS_Api extends Page
 				   );
 		}//end if
 
-		return Array('error' => 'Error occured while asset creation');
+		return Array('error' => 'Error occurred while asset creation');
 
 	}//end createAsset
 
@@ -3991,6 +3991,9 @@ class JS_Api extends Page
 		$se_level_keywords = Array();
 		//lets split asset/global level keywords as opposed to simple edit layout keywords
 		foreach ($keywords as $index => $keyword) {
+			$extracted_keyword = extract_keywords($keyword);
+			if(empty($extracted_keyword)) continue;
+
 			if(!(strpos($keyword, '%asset_') === 0 || strpos($keyword, '%globals_') === 0) ) {
 				//seems like its a simple edit screen keywords
 				$se_level_keywords[] = $keyword;
@@ -4006,7 +4009,7 @@ class JS_Api extends Page
 				$return_array[$trimmed_keyword] = $asset->getKeywordReplacement($trimmed_keyword);
 			}
 			if (empty($return_array[$trimmed_keyword]) || $return_array[$trimmed_keyword] == '%'.$trimmed_keyword.'%') {
-				$return_array[$trimmed_keyword] = 'Could not get replacement for keyword : '.$trimmed_keyword ;
+				$return_array[$trimmed_keyword] = 'Could not get replacement for this keyword';
 			}
 		}
 
@@ -4040,7 +4043,7 @@ class JS_Api extends Page
 				$replacement_2 = '&#37;$2&#37;';
 				$return_array[$se_keyword] = preg_replace($pattern_2, $replacement_2 ,$return_array[$se_keyword]);
 
-				if (empty($return_array[$se_keyword])) $return_array[$se_keyword] = 'Could not get replacement for keyword : '.$se_keyword ;
+				if (empty($return_array[$se_keyword])) $return_array[$se_keyword] = 'Could not get replacement for this keyword';
 			}
 		}
 

@@ -688,7 +688,9 @@ class Form extends Asset implements Bridge
 
 		if (is_null($sort_by)) $sort_by = 'sort_order';
 
-		uasort($links, create_function('$a,$b','return $a["'.$sort_by.'"] > $b["'.$sort_by.'"];'));
+		uasort($links, function($a, $b) use ($sort_by) {
+			return $a[$sort_by] > $b[$sort_by];
+		});
 
 		return $links;
 
@@ -1116,7 +1118,10 @@ class Form extends Asset implements Bridge
 	/**
 	* Determine if the passed assetid or assetids refer(s) to a valid asset in the system
 	*
-	* Note that this will always return FALSE if you pass it a shadow asset
+	* If a single asset ID is passed the function will return TRUE or FALSE depending on
+	* whether that asset exists. If an array is passed it will return an array of the
+	* assetids that exist.
+	*
 	*
 	* @param mixed	$assetids	the ID of the asset we are going to the check for existence
 	*							or an array of assetids we want to check
@@ -1126,7 +1131,29 @@ class Form extends Asset implements Bridge
 	*/
 	function assetExists($assetids)
 	{
-		return FALSE;
+		$sort_order = $this->attr('sort_order');
+
+		if (is_array($assetids)) {
+			$ret_val = Array();
+	       	foreach ($assetids as $assetid) {
+				$question_order = array_search($assetid, $sort_order);
+				if ($question_order !== FALSE) {
+					$question_asset = $this->getQuestionByOrder($question_order);
+					if (!is_null($question_asset)) {
+						$ret_val[] = $question_asset->id;
+					}
+				}
+			}
+		} else {
+			$ret_val = FALSE;
+			$question_order = array_search($assetids, $sort_order);
+			$question_asset = $this->getQuestionByOrder($question_order);
+			if (!is_null($question_asset)){
+				$ret_val = TRUE;
+			}
+		}
+
+		return $ret_val;
 
 	}//end assetExists()
 
@@ -3492,7 +3519,7 @@ class Form extends Asset implements Bridge
 			$create_location = $file_upload->attr('create_location');
 			if (empty($create_location)) {
 				$extra_data = $file_upload->getExtraData();
-				$temp_file_path = $extra_data['temp_filesystem_path'];
+				$temp_file_path = isset($extra_data['temp_filesystem_path']) ? $extra_data['temp_filesystem_path'] : '';
 				if (!empty($temp_file_path)) {
 					if(strpos($temp_file_path, '/') !== 0) $temp_file_path = SQ_SYSTEM_ROOT.'/'.$temp_file_path;
 					$filename   = $file_upload->getValue();

@@ -92,10 +92,6 @@ class Page_Remote_Content extends Page
 			$this->_tmp['success'][$url] = $success;
 		}
 
-		if (!$this->_tmp['transform_settings']['replace_matrix_keywords']) {
-			$GLOBALS['SQ_SYSTEM']->setGlobalDefine('SQ_REPLACE_MYSOURCE_LEVEL_KEYWORDS', FALSE);
-		}
-
 		if ($this->_tmp['transform_settings']['use_design']) {
 			parent::printFrontend();
 			// stop performance mode timer
@@ -163,11 +159,13 @@ class Page_Remote_Content extends Page
 				$content = ob_get_contents();
 			ob_end_clean();
 
-			// Escape the strings matching Matrix keyword pattern
+			// If the content is to be left untouched by the Matrix keyword replacement,
+			// add the content after the keywords are replaced at the highest level
 			if (!$this->_tmp['transform_settings']['replace_matrix_keywords']) {
-				$content = preg_replace('/%([a-zA-Z]{3,}_[a-zA-Z_\-0-9\.:]+(\^{1}[^%]+)*)%/', '&#37;$1&#37;', $content);
+				$GLOBALS['SQ_SYSTEM']->addRawContent($content);
+			} else {
+				echo $content;
 			}
-			echo $content;
 		}
 
 		// stop performance mode timer
@@ -878,7 +876,7 @@ class Page_Remote_Content extends Page
 
 		// PATTERNS for urls that might need to be rewritten to point back to remote content
 		// links and frames except mailto and javascript and tel (URI Schemes)
-		$patterns[] = '/(<(?:(?:a(?:rea)?[^>]*?href)|(?:i?frame[^>]*?src))\s*=\s*[\'"]?)\s*((?:(?![\#]|mailto|javascript|tel))[^\'"> #]+)([\'"> #]?[^<]*>)/i';
+		$patterns[] = '/(<(?:(?:a(?:rea)?[^>]*?href)|(?:i?frame[^>]*?src))\s*=\s*[\'"]?)\s*((?:(?![\#]|mailto|javascript|tel))[^\'">#]+)([\'"> #]?[^<]*>)/i';
 
 		// this pattern is a special case. we don't generally look at JavaScript
 		// because that is a whole new territory
@@ -1258,6 +1256,11 @@ class Page_Remote_Content extends Page
 		if (empty($components['url'])) {
 			trigger_localised_error('CMS0065', E_USER_WARNING);
 		}
+
+		// if there were any white spaces in the url, parse_str will preserve it
+		// make sure to change to to %20 so that our browsers can understand it.
+		$components['url'] = str_replace(' ', '%20', $components['url']);
+
 		// insert any missing options (presumed false) and expand the 'all' option
 		foreach ($this->_transformation_options as $i => $v) {
 			$components[$v] = !empty($components[$v]) || !empty($components['all']);

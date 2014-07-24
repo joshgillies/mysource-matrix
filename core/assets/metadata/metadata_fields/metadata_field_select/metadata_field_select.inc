@@ -64,7 +64,20 @@ class Metadata_Field_Select extends Metadata_Field
 	{
 		if ($name === 'select_options') {
 			$this->_clearContextedSelectOptionsCache();
+
+			// Validate and fix the option key values
+			$validated_values = Array();
+			foreach($value as $key => $option) {
+				// Option keys cannot contain '; ' string
+				if (strpos($key, '; ') !== FALSE) {
+					trigger_localised_error('SYS0353', E_USER_NOTICE, $key);
+					$key = preg_replace('/;\s+/', ';', $key);
+				}
+				$validated_values[$key] = $option;
+			}
+			$value = $validated_values;
 		}
+
 		return parent::setAttrValue($name, $value);
 
 	}//end setAttrValue()

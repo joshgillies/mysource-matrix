@@ -57,6 +57,9 @@
 		<field attribute="auto_create">
 			<boolean true_text="yes" false_text="no" />
 		</field>
+		<field attribute="randomize_password">
+			<boolean true_text="yes" false_text="no" />
+		</field>
 	</section>
 	<section name="Populate User Attributes" write_access="write:menu">
 		<field>

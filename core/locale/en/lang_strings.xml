@@ -416,6 +416,7 @@
 	<string source="user_not_found">Invalid username or password entered</string>
 	<string source="user_status_not_live">User asset status not live</string>
 	<string source="user_asset_in_trash">User asset is in trash</string>
+	<string source="user_password_login_disallowed">User asset is not allowed to login via standard username and password. Only an external login system such as SAML or Oauth2 can authenticate this user.</string>
 	<string source="root_user_disabled">Root User account is disabled in this system</string>
 	<string source="user_switching_access_denied">User cannot be accessed when user switching</string>
 	<string source="value">Value</string>
@@ -1569,6 +1570,7 @@
 	<string source="dimension">Dimension</string>
 	<string source="both">Both</string>
 	<string source="neither">Neither</string>
+	<string source="square_center_weighted">Square (Centre Weighted)</string>
 	<string source="htmlwidth">HTML Width</string>
 	<string source="css">CSS</string>
 	<string source="not">Not</string>

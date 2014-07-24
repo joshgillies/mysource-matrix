@@ -107,13 +107,18 @@ class Content_Type_Snippet extends Content_Type
 	*/
 	function getSnippets()
 	{
-		$rootid = $GLOBALS['SQ_SYSTEM']->getUserPrefs($this->type(), 'SQ_SNIPPET_ROOT');
-		if (empty($rootid)) {
+		$rootids = explode(',', $GLOBALS['SQ_SYSTEM']->getUserPrefs($this->type(), 'SQ_SNIPPET_ROOT'));
+		if (empty($rootids)) {
 			// snippet root preference not set
 			return Array();
 		}
+		// Validate the root node assetids
+		$rootids = array_keys($GLOBALS['SQ_SYSTEM']->am->getAssetInfo($rootids));
 
-		$containers = $GLOBALS['SQ_SYSTEM']->am->getChildren($rootid, 'bodycopy_container', FALSE);
+		$containers = Array();
+		foreach($rootids as $rootid) {
+			$containers += $GLOBALS['SQ_SYSTEM']->am->getChildren($rootid, 'bodycopy_container', FALSE);
+		}
 		if (empty($containers)) {
 			// no container found under the specified snippet root
 			return Array();

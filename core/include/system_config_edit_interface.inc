@@ -176,7 +176,17 @@ class System_Config_Edit_Interface extends MySource_Object
 
 				if (!empty($_POST['config_posted'])) {
 					$this->processUserPrefs($o);
+					// reset opcache otherwise it would cache the constants of config file and redriect won't help.
+					if(function_exists('opcache_reset')) {
+					    opcache_reset();
+					}
+		
+					// if the save was successful, we need to redirect because the constants
+					// that are already defined cannot be redefined in this script execution
+					$o->setRedirect($o->getCurrentLocation());
 				}
+
+
 
 				$this->paintUserPrefs($o);
 

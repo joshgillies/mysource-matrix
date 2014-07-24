@@ -114,7 +114,8 @@ class Design_Area_JS_Calendar_Navigator extends Design_Area
 			$calendar->changeSetting("height",		"100%");
 			$calendar->changeSetting("width",		"100%");
 			if (isset($_GET["SQ_CALENDAR_DATE"])) {
-				$calendar->changeSetting("currentDate",	$_GET["SQ_CALENDAR_DATE"]);
+				$date = preg_replace('/[^0-9\-]/', '', $_GET["SQ_CALENDAR_DATE"]);
+				$calendar->changeSetting("currentDate",	$date);
 			}
 
 			$custom_style_assetid = '<?php echo $this->attr('style_assetid'); ?>';

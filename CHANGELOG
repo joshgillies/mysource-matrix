@@ -1,5 +1,52 @@
 SQUIZ MATRIX CHANGELOG
 
+VERSION 5.0.2.0
+
+Bug Fixes
+=================================== 
+
+Fixed Bug #5383: Replacing asset contents does not update File Name or Upload Name.
+Fixed Bug #5393: Asset Map: Binoculars tool don't always jump to the correct page of assets.
+Fixed Bug #5397: SOAP API SetMultipleMetadataFields fails when setting a single field.
+Fixed Bug #5407: Trigger Action Redirect URL doesn't work properly.
+Fixed Bug #5408: Global Preference doesn't show updated setting after Commit.
+Fixed Bug #5413: Metadata screen broken (due to #5347 changes).
+Fixed Bug #5418: Site Network JavaScript warning.
+Fixed Bug #5420: SAML Account Manager redirect issue when used under Site Network.
+Fixed Bug #5423: Urban Airship Trigger displays wrong fields for custom parameters when locks are not acquired.
+
+
+VERSION 5.0.1.1
+
+Bug Fixes
+===================================
+
+Fixed Bug #5301: Multiple Text metadata editing & deleting issues.
+Fixed Bug #5314: Remap Manager's Not Found Page doesn't obey the caching rules.
+Fixed Bug #5317: PRE tags have their newlines stripped out of them in HTMLArea editor.
+Fixed Bug #5320: Asset_Manager::getDependantParents() returning duplicate assetids.
+Fixed Bug #5313: Line breaks in <pre> tags are not preserved in Edit+ editor in Admin Mode. 
+
+
+VERSION 5.0.1.0
+
+Bug Fixes
+=================================== 
+
+Fixed Bug #5266: ./?a=link interpretation error.
+Fixed Bug #5270: sq_vw_ast_roles query bug.
+Fixed Bug #5271: Paint Layout conditional keyword conditions should have Force No Cache options.
+Fixed Bug #5279: Adding a link to an image doesn't work well in IE9 and IE10.
+Fixed Bug #5280: Performance Mode is using wrong Matrix logo.
+Fixed Bug #5282: Issue Counter Value trigger action throwing fatal error.
+Fixed Bug #5285: Authenticating LDAP user throwing undefined index 'uid' error.
+Fixed Bug #5286: Hiding Keyword Selector in metadata DateTime field breaks Edit+.
+Fixed Bug #5291: Design Area Bodycopy prints extra space before php tag.
+Fixed Bug #5293: Page infinate redirect when sites are linked by Site Network. 
+Fixed Bug #5294: Permissions not working for LDAP Group linked to a regular User Group.
+
+
+
 VERSION 4.18.0 RC1
 
 Featured Changes

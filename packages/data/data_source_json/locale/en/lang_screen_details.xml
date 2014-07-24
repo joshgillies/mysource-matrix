@@ -65,10 +65,4 @@
 			<note>The above keywords are available for the record set assets exposed by this data source and can be used in the asset name (above) or when listing these assets.</note>
 		</field>
 	</section>
-	<section name="Dynamic Parameters">
-		<field attribute="parameter_map">
-			<display_name>Dynamic Parameters</display_name>
-			<note />
-		</field>
-	</section>
 </contents>

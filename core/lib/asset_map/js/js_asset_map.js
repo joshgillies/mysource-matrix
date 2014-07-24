@@ -1298,9 +1298,13 @@ var JS_Asset_Map = new function() {
 						self.selectAssetNode(assetTarget);
 
 						if (which === 3) {
-							var menu = self.drawUseMeMenu(assetTarget);
-							self.positionMenu(menu, dragStatus.startPoint);
-							self.cancelDrag();
+							if (dfx.hasClass(assetTarget, 'disabled') === false) {
+								var menu = self.drawUseMeMenu(assetTarget);
+								self.positionMenu(menu, dragStatus.startPoint);
+								self.cancelDrag();
+							} else {
+								self.clearMenus();
+							}
 						} else if (which === 1) {
 							self.handleDoubleClick(assetTarget);
 							self.clearMenus();
@@ -1354,6 +1358,9 @@ var JS_Asset_Map = new function() {
 										y: assetTargetCoords.y - dragStatus.startPoint.y
 									}
 								}
+							} else {
+							    self.handleDoubleClick(assetTarget);
+							    self.clearMenus();
 							}
 						}//end if (ctrl-click)
 
@@ -2925,6 +2932,7 @@ var JS_Asset_Map = new function() {
 
 		// Work out the last page, but if we have shadow assets, just make it behave
 		// like the "next page" button.
+		offset = Number(offset);
 		var lastPageStart = (offset + options.assetsPerPage);
 		if (Number(totalAssets) !== -1) {
 			lastPageStart = Math.floor((totalAssets - 1) / options.assetsPerPage) * options.assetsPerPage;
@@ -3585,26 +3593,30 @@ var JS_Asset_Map = new function() {
 			while (sortOrders.length > 0) {
 				var assetid    = assetids.shift();
 				var sortOrder  = sortOrders.shift();
-				sortOrder      = Math.max(0, Math.floor(sortOrder / options.assetsPerPage) * options.assetsPerPage);
 				savedSortOrders.push(sortOrder);
 
 				assetRequests.push({
 					_attributes: {
 						assetid: assetid,
 						linkid: null,
-						start: sortOrder,
+						sortorder: sortOrder,
 						limit: options.assetsPerPage
 					}
 				});
 			}
 
 			var processAssets = function(response) {
-				// If no assets returned as a response, don't process.
+			    // If no assets returned as a response, don't process.
 				if (response.asset) {
 					for (var i = 0; i < response.asset.length; i++) {
-						var sortOrder = savedSortOrders.shift();
-	
 						var thisAsset = response.asset[i];
+						var sortOrder = Number(savedSortOrders.shift());
+						if (thisAsset._attributes.real_order) {
+						    sortOrder = Number(Math.floor(thisAsset._attributes.real_order / options.assetsPerPage) * options.assetsPerPage);
+						} else {
+						    sortOrder = Number(Math.floor(sortOrder / options.assetsPerPage) * options.assetsPerPage);
+						}
+	
 						var container = _createChildContainer(thisAsset._attributes.assetid);
 						container.setAttribute('data-offset', sortOrder);
 						container.setAttribute('data-total', thisAsset._attributes.num_kids);
@@ -4754,7 +4766,6 @@ var JS_Asset_Map = new function() {
 					} catch (ex) {
 						// That we made it here means it couldn't be handled.
 						self.message(js_translate('asset_map_status_bar_error_requesting'), false, 2000);
-						console.log(response);
 						if (dfx.isFn(failedCallback) === true) {
 							failedCallback(ex);
 						} else {

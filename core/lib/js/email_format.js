@@ -39,12 +39,14 @@ function emailFormatSwitchReadingMode(editor_name, html_label, text_label, the_t
 
 }//end emailFormatSwitchReadingMode()
 
-var initialisedEmailEditors = new Array();
+if (typeof initialisedEmailEditors == 'undefined') {
+	var initialisedEmailEditors = new Array();
+}
 
 function emailFormatSwitchEditingMode(editor_name, html_label, text_label, the_toggler) {
 
 	//Only run this function if the current clicked element is not already selected
-	if (the_toggler.className != 'selected') {
+	if (the_toggler == null || the_toggler.className != 'selected') {
 	
 		var textDiv = document.getElementById(editor_name + "_text_body_div");
 		var htmlDiv = document.getElementById(editor_name + "_html_body_div");
@@ -80,19 +82,54 @@ function emailFormatSwitchEditingMode(editor_name, html_label, text_label, the_t
 			    // init viper editor
 			     //Matrix_Viper.viper.setEditableElement(viperDiv);
 			}
-			
+			if(textDiv != null) {
 			    textDiv.style.display = "none";
-			    htmlDiv.style.display = "";
-			    formatSpan.innerHTML = html_label; //'HTML Email Version';
-
+			}
+			if(htmlDiv != null) {
+			   htmlDiv.style.display = "";
+			}
+			formatSpan.innerHTML = html_label; //'HTML Email Version';
 
 		} else {
 
-			textDiv.style.display = "";
-			htmlDiv.style.display = "none";
+			if(textDiv != null) {
+				textDiv.style.display = "";
+			}
+			if(htmlDiv != null) {
+				htmlDiv.style.display = "none";
+			}
 			formatSpan.innerHTML = text_label; //'Text Email Version';
 		}
 		
 	}
 
 }//end emailFormatSwitchEditingMode()
+
+
+function loadWYSIWYG(editor_name) {
+
+	 			var editor = eval('editor_' + editor_name);
+			    var setDesignMode = true;
+
+			    // initilise the wysiwg if this is the first time
+			    // it is being shown - skip this otherwise
+			    if (initialisedEmailEditors[editor._uniqueID] == null) {
+				    initialisedEmailEditors[editor._uniqueID] = true;
+				    editor.generate();
+				    setDesignMode = false;
+			    } else if (editor._initialised != true) {
+				    return;
+			    }
+
+
+			    // if we are using an iframe for this editor, we set its designMode property if we need to
+			    if (editor._iframe) {
+				    editor._iframe.style.width = editor.config.width;
+				    if (editor._iframe.contentWindow.document.designMode) {
+					    editor._iframe.contentWindow.document.designMode = "on";
+				    }
+				    editor._iframe.style.height = editor.config.height;
+			    }
+
+}
+

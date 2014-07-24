@@ -211,6 +211,14 @@ class MySource extends MySource_Object
 
 
 	/**
+	* Content that will be replaced at the highest level
+	*
+	* @var array(string)
+	*/
+	protected $_raw_contents = Array();
+
+
+	/**
 	* Constructor
 	*
 	*/
@@ -316,9 +324,9 @@ class MySource extends MySource_Object
 			}
 
 			$session_set = FALSE;
-			if (isset($_GET['SESSION_ID']) && (isset($_GET['SESSION_KEY']) || isset($_GET['SOAP_SESSION_KEY']))) {
+			if (isset($_REQUEST['SESSION_ID']) && isset($_REQUEST['SOAP_SESSION_KEY'])) {
 				// asset map or someone has sent session key through the GET
-				session_id($_GET['SESSION_ID']);
+				session_id($_REQUEST['SESSION_ID']);
 				$session_set = TRUE;
 			}
 
@@ -356,15 +364,13 @@ class MySource extends MySource_Object
 
 			$invalid_key = TRUE;
 			if ($restore_session === FALSE) {
-				if (isset($_GET['SOAP_SESSION_KEY']) === TRUE) {
-					$invalid_key = ($this->getUniqueSOAPSessionKey() != $_GET['SOAP_SESSION_KEY']);
+				if (isset($_REQUEST['SOAP_SESSION_KEY']) === TRUE) {
+					$invalid_key = ($this->getUniqueSOAPSessionKey() != $_REQUEST['SOAP_SESSION_KEY']);
 					if ($invalid_key === FALSE) {
 						$_SESSION['activated'] = 1;
 						define('SQ_SOAP_AUTH', '1');
 					}//end if
-				} else if (isset($_GET['SESSION_KEY']) === TRUE) {
-					$invalid_key = ($this->getUniqueSessionKey() != $_GET['SESSION_KEY']);
-				}//end if
+				}
 			}//end if
 
 			if (!defined('SQ_SOAP_AUTH')) {
@@ -377,10 +383,12 @@ class MySource extends MySource_Object
 				define('SQ_TABLE_RUNNING_PREFIX', 'sq_');
 				$ms = $this->getMessagingService();
 				$log = $ms->newMessage(Array(), 'system.security.alert', Array());
-				$log->parameters['remote_addr'] = $_SERVER['REMOTE_ADDR'];
+				$log->parameters['remote_addr'] = (isset($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : '';
 				$log->parameters['sessionid'] = session_id();
 				$log->parameters['userid'] = $_SESSION['userid'];
 				$log->send();
+				session_destroy();
+				$this->_clearSession();
 				exit();
 			}//end if
 
@@ -1064,7 +1072,7 @@ class MySource extends MySource_Object
 	{
 
 		if ($this->getGlobalDefine('SQ_REPLACE_MYSOURCE_LEVEL_KEYWORDS', TRUE)) {
-		    	// Replace any global keywords first
+	    	// Replace any global keywords first
 			replace_global_keywords($content);
 		
 			// Perform any additional replacements
@@ -1086,6 +1094,11 @@ class MySource extends MySource_Object
 				}
 			}
 			replace_keywords($content, $additional_replacements);
+		}
+
+		// After the highest level keyword replacement, place these contents back
+		foreach($this->_raw_contents as $hash => $replacement) {
+			$content = str_replace($hash, $replacement, $content);
 		}
 
 	}//end replaceKeyword()
@@ -1567,6 +1580,7 @@ class MySource extends MySource_Object
 					// try each auth system in order to see if we can load a user asset
 					$user = NULL;
 					$user_status = NULL;
+					$disallowed_user = FALSE;
 					foreach ($auth_systems as $systemid) {
 						$system = $this->am->getAsset($systemid);
 						if (is_null($system)) continue;
@@ -1576,7 +1590,20 @@ class MySource extends MySource_Object
 						if ($login_username === 'root' && $system->name != 'Default Authentication') continue;
 
 						$user = $system->authenticateUser($login_username, $login_password);
+
+
 						if (!is_null($user)) $user_status = $user->status;
+
+
+						// if user is blocked from being authenticated by password
+						if(!is_null($user)) {
+							$disallow_password_login = $user->attr('disallow_password_login');
+							if ($disallow_password_login) {
+								$disallowed_user = TRUE;
+								continue;
+							}
+						}
+
 						// check that the user exists AND that it can login
 						// (ie. it is not yet live, or has been locked)
 						if (!is_null($user) && $user->canLogin()) {
@@ -1586,10 +1613,12 @@ class MySource extends MySource_Object
 
 					$display_message = $failure_reason = translate('user_not_found');
 					if (!is_null($user_status)) {
-						if ($login_username === 'root') {
+						if ($disallowed_user) {
+							$display_message = $failure_reason = translate('user_password_login_disallowed');
+						} else if ($login_username === 'root') {
 							$display_message = $failure_reason = translate('root_user_disabled');
 						} else if ($user_status & SQ_SC_STATUS_NOT_LIVE) {
-							$failure_reason = translate('user_status_not_live');
+							$failure_reason = translate('user_status_not_live');									
 						} else {
 							$failure_reason = translate('user_asset_in_trash');
 						}
@@ -1738,6 +1767,7 @@ class MySource extends MySource_Object
 			case 'attribute_image' :
 				// grab the details we need to make this work
 				$allowed_attributes = Array('email');
+				$text = '';
 				if (isset($_GET['attribute']) && !empty($_GET['attribute'])) {
 					$attribute = $_GET['attribute'];
 					if (!in_array($attribute, $allowed_attributes)) {
@@ -1747,16 +1777,14 @@ class MySource extends MySource_Object
 				if (isset($_GET['id']) && !empty($_GET['id'])) {
 					$assetid = $_GET['id'];
 					$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', TRUE);
-					if (is_null($asset) || !empty($attribute)) {
+					if (!is_null($asset) && !empty($attribute) && $asset->readAccess()) {
 						$text = $asset->attr($attribute);
 						if (empty($text)) {
 							$text = '';
 						}//end if
-					} else {
-						$text = $asset->attr($attribute);
-					}//end if
+					}
 				}
-
+				if(empty($text) || !is_string($text)) exit(1);
 				$this->_generateAttributeImage($text);
 				exit(1);
 			break;
@@ -2173,7 +2201,7 @@ class MySource extends MySource_Object
 		$_SESSION['user'] = serialize($user);
 		$_SESSION['user_serialised_ts'] = time();
 		if (!$this->_user_is_public) {
-			$_SESSION['remote_addr'] = $_SERVER['REMOTE_ADDR'];
+			$_SESSION['remote_addr'] = (isset($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : '';
 		}
 
 		// log a message so we know someone has logged in
@@ -2662,7 +2690,7 @@ class MySource extends MySource_Object
 		$ms = $this->getMessagingService();
 		$msg_reps = Array('user_name' => $this->user->name) + $extra_replacements;
 		$log = $ms->newMessage(Array(), $code, $msg_reps);
-		$log->parameters['remote_addr'] = $_SERVER['REMOTE_ADDR'];
+		$log->parameters['remote_addr'] = (isset($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : '';
 		$log->parameters['sessionid'] = session_id();
 		$log->send();
 
@@ -4377,6 +4405,10 @@ class MySource extends MySource_Object
 		$x = 0 + $hpad;
 		$y = (in_array($font, $default_fonts)) ? (0 + $vpad) : (round($height - ($size / 2), 0) - $vpad);
 
+		// invalid image dimensions
+		if(empty($width) || empty($height)) 
+			exit();
+
 		// Create the image
 		if (!$image = imagecreatetruecolor($width, $height)) {
 			trigger_error('Cannot Initialize new GD image stream', E_USER_WARNING);
@@ -4448,6 +4480,11 @@ class MySource extends MySource_Object
 			$matches[1][$key] = rtrim($assetid, '$');
 			$org_assetids[$key] = $assetid;
 		}
+		// bug fix for squizmap issue #5266 /?a= link interpretation error
+		// replace the longer assetids first so that when we get to the maller assetids
+		// there is no chance of partial match and the world makes sense once again
+		arsort($matches[1]);
+
 		$assets_url = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($matches[1]);
 
 		// Replace each ./a=xx link by its respective full URL
@@ -4635,6 +4672,29 @@ class MySource extends MySource_Object
 		}
 
 	}//end _registerAssetAsVisited()
+
+
+	/**
+	* Add the content in the output that will be replaced after
+	* the highest level keyword replacement
+	*
+	* @param string $content
+	*
+	* @return void
+	* @accesss public
+	*/
+	public function addRawContent($content)
+	{
+		//Hash string to uniquely identify the content
+		$key = '<!--'.md5($content).strlen($content).'-->';
+		if (!isset($this->_raw_contents[$key])) {
+			$this->_raw_contents[$key] = $content;
+		}
+
+		// Output the hash key
+		echo $key;
+
+	}//end addRawContent()
 
 
 }//end class

@@ -137,7 +137,7 @@ HTMLArea.prototype.generate = function () {
 		   
 		}
 
-		html += "<style> body { " + editor.config.bodyStyle + "; color: #000; font-family: arial,verdana,sans-serif; margin: 0px; padding: 10px 0 0; font-size: 13px; line-height: 1.2em;}\n";
+		html += "<style> body { " + editor.config.bodyStyle + "; color: #000; font-family: arial,verdana,sans-serif; font-size: 13px; line-height: 1.2em;}\n";
 		html += "body.editingFrame { padding: 10px 0 0 !important;}\n";
 		html += ".wysiwyg-noborders { border: 1px dashed #3366CC; }\n";
 		html += ".wysiwyg-source-view, .wysiwyg-source-view * { font-family: Courier New, Courier, monospace !important; color: #111111 !important;}\n";
@@ -382,7 +382,12 @@ HTMLArea.prototype.insertHTML = function(html, range) {
 		var node = range.startContainer;
 	}
 	if (HTMLArea.is_ie) {
-		range.pasteHTML(html);
+		if (Object.prototype.toString.call(range) == '[object ControlRangeCollection]') {
+			range_obj = range.item(0);
+			range.item(0).outerHTML = html;
+		} else {
+			range.pasteHTML(html);
+		}
 	} else {
 		// Check whether we are just inside the HTML tag - if so we should really after HTML and inside the BODY tag
 		var sel = this._getSelection();

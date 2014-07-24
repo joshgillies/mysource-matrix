@@ -579,17 +579,24 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 
 			ob_start();
 				$replacements = $asset->getDisplayKeywordReplacements(TRUE);
+
+				// Include global keywords in the custom format bodycopy replacements
+				$bodycopy_keywords = $format_bodycopy->getKeywords();
+				foreach($bodycopy_keywords as $keyword) {
+					if (strpos($keyword, 'globals_') === 0 && !isset($replacements[$keyword])) {
+						$replacements[$keyword] = '%'.$keyword.'%';
+					}
+				}
 				$format_bodycopy->setKeywordReplacements($replacements);
-				$format_bodycopy->printBody();
+
+				// If the bodycopy container contains Nested Content type asset,
+				// the nested type content file will be included in the section's contnet file
+				$format_bodycopy->printBody(TRUE);
 			$output .= ob_get_clean();
 		} else {
 			// No custom format, so generate a default format
 			$output .= $this->generateGenericSection($asset);
 		}
-
-		// if there are any tags left that haven't been replaced,
-		// we want to strip them out
-		$output = preg_replace('/%[^<>%]+%/', '', $output);
 
 		create_directory($asset->data_path);
 		$ok = string_to_file($output, $asset->data_path.'/content_file.php');
@@ -640,6 +647,7 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 				    $q_output = $asset->getQuestionContentReplacement(TRUE, $assetid);
 				    $output .= $q_output;
 				}
+				$output .= '</fieldset>';
 			}
 			else {
 			     // deprecated tabular format

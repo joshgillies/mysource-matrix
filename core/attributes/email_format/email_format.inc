@@ -285,6 +285,9 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 									    $wysiwyg = $this->_createEditor($prefix);
 									    $wysiwyg->set_contents($current_value['html_format']);
 									    echo $wysiwyg->paint();
+									    // enable the WYSIWYG editor by default
+									    ?><script type="text/javascript">loadWYSIWYG('<?php echo $prefix; ?>');</script>
+									    <?php
 									}
 									?>
 									</div>

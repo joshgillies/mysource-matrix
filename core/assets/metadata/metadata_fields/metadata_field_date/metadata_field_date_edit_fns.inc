@@ -342,14 +342,23 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 					echo '<span class="sq-metadata-default-wrapper">';
 						if ((substr($default_val, 0, 1) == '%') || empty($value)) {
 							$default_date_exp = 'null';
-							$default_kw_exp = "'".trim($default_val, '%')."'";
+							$default_kw_exp = $asset->attr('show_keywords') ? "'".trim($default_val, '%')."'" : 'null';
 						} else {
 							list($dy, $dm, $dd, $dh, $di, $ds) = sscanf($default_val, '%d-%d-%d %d:%d:%d');
 							// bug fix 4653 Default metadata checkbox generates JS error when defaults are empty
 							// make sure the the values are not NULL , if so we will have to take care of the default checkbox
 							if($dy == NULL && $dm == NULL && $dd == NULL && $dh == NULL && $di == NULL && $ds == NULL) {
 								$default_date_exp = 'null';
-							} else { 
+							} else {
+								if ($dh == NULL) {
+									$dh = '00';
+								}
+								if ($di == NULL) {
+									$di = '00';
+								}
+								if ($ds == NULL) {
+									$ds = '00';
+								}
 								$default_date_exp = "{y:$dy, m:$dm, d:$dd, h:$dh, i:$di, s:$ds}";
 							}
 							$default_kw_exp = 'null';

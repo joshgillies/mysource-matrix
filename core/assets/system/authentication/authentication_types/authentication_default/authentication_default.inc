@@ -186,7 +186,24 @@ class Authentication_Default extends Authentication
 					if ($user->processStatusChange(SQ_STATUS_UNDER_CONSTRUCTION)) {
 						$success = TRUE;
 					}
+
+					// if root user account is attemped, we need to disable it, change to UC status is not enough
+					if($user instanceof Root_User) {
+						$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+                		$vars = Array('SQ_CONF_ROOT_USER_DISABLED' => 1);
+                		ob_start();
+                        include_once SQ_INCLUDE_PATH.'/system_config.inc';
+                        $system_config = new System_Config();
+                        $result = $system_config->save($vars);
+                		ob_end_clean();
+                		$success = TRUE;
+                		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+					}
+
+
 					$GLOBALS['SQ_SYSTEM']->restoreCurrentUser();
+
+
 
 					// restore the runlevel if we have to
 					if ($changed_runlevel) {

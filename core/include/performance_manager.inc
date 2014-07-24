@@ -493,7 +493,7 @@ var addUrlParam = function(search, key, val){
 <div id="perfToolBar">
 <div id="perfToolBarPadder">
 
-    <div id="productLogo"><img src="<?php echo (sq_web_path('lib').'/web/images/performance/logo-matrix.png');  ?>" alt="logo-matrix" /></div>
+    <div id="productLogo"><img src="<?php echo (sq_web_path('lib').'/web/images/logo-toolbar-matrix.png');  ?>" alt="logo-matrix" /></div>
     
     <div id="perfSummary">
         <div class="perfTotal">Total Time <strong><?php echo ($this->_printTime($total_time)); ?></strong>,&nbsp; System <strong><?php echo ($this->_printTime($total_system_time)); ?></strong> (<?php echo ($this->_printPercent($total_system_time, $total_time, 2)); ?>), Queries: <strong><?php echo ($this->_printTime($total_time_queries)); ?></strong> (<?php echo $total_num_queries; ?>)</div>

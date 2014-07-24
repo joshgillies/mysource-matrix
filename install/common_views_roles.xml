@@ -19,12 +19,17 @@
 	<sql_element display_name="sq_vw_ast_role View">
 		<![CDATA[
 			CREATE OR REPLACE VIEW sq_vw_ast_role AS
-				(SELECT
-					r.assetid, r.roleid, l.minorid as userid
-				FROM
-					sq_vw_ast_lnk_minor l INNER JOIN sq_ast_role r ON l.majorid = r.roleid
-				WHERE
-					r.userid = '0')
+				(
+					SELECT r.assetid, r.roleid, l.minorid AS userid
+					FROM sq_ast_lnk l
+					JOIN sq_ast_role r ON l.majorid = r.roleid
+					WHERE r.userid = '0'
+				UNION ALL
+					SELECT r.assetid, r.roleid, l.minorid AS userid
+					FROM sq_shdw_ast_lnk l
+					JOIN sq_ast_role r ON l.majorid = r.roleid
+					WHERE r.userid = '0'
+				)
 			UNION
 				(SELECT
 					assetid, roleid, userid

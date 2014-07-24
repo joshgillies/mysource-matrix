@@ -28,6 +28,8 @@ HTMLArea.agt        = navigator.userAgent.toLowerCase();
 HTMLArea.is_ie      = ((HTMLArea.agt.indexOf("msie") != -1) && (HTMLArea.agt.indexOf("opera") == -1));
 HTMLArea.is_ie7     = ((HTMLArea.agt.indexOf("msie 7") != -1) && HTMLArea.is_ie);
 HTMLArea.is_ie8     = ((HTMLArea.agt.indexOf("msie 8") != -1) && HTMLArea.is_ie);
+HTMLArea.is_ie9     = ((HTMLArea.agt.indexOf("msie 9") != -1) && HTMLArea.is_ie);
+HTMLArea.is_ie10    = ((HTMLArea.agt.indexOf("msie 10") != -1) && HTMLArea.is_ie);
 HTMLArea.is_opera   = (HTMLArea.agt.indexOf("opera") != -1);
 HTMLArea.is_mac     = (HTMLArea.agt.indexOf("mac") != -1);
 HTMLArea.is_mac_ie  = (HTMLArea.is_ie && HTMLArea.is_mac);
@@ -105,9 +107,26 @@ HTMLArea.prototype.getParentElement = function() {
 	if (sel == null) return [];
 	var range = this._createRange(sel);
 	if (HTMLArea.is_ie) {
-		return range.parentElement ? range.parentElement() : this._docContent;
+		if (Object.prototype.toString.call(range) == '[object ControlRangeCollection]') {
+			return range.item(0).parentElement ? range.item(0).parentElement : this._docContent;
+		} else {
+			return range.parentElement ? range.parentElement() : this._docContent;
+		}
 	} else {
-		var p = range.commonAncestorContainer;
+
+		var p = null;
+		if (range.startContainer.nodeType === 3 && range.startOffset === range.startContainer.data.length) {
+			p = range.startContainer.nextSibling;
+		} else if (range.endContainer.nodeType === 3 && range.endOffset >= range.endContainer.data.length-1) {
+			p = range.endContainer.previousSibling;
+		} else if (range.endContainer.nodeType === 1 && range.startOffset <= range.startContainer.childNodes.length && range.endOffset >= range.endContainer.childNodes.length-1) {
+			p = range.startContainer.childNodes[range.startOffset];
+		}
+
+		if (p == null) {
+			p = range.commonAncestorContainer;
+		}
+
 		while (p.nodeType == 3) {
 			p = p.parentNode;
 		}
