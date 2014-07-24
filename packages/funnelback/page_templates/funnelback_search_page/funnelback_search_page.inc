@@ -139,6 +139,13 @@ class Funnelback_Search_Page extends Listing_Engine
 											   ),
 					);
 
+	/**
+	* Weather the asset is deprecated or not.
+	* this will be used in asset_map.inc:_cloneAsset() to see if the asset type
+	* can be created (cloned) on the system
+	*/
+	public $deprecated = TRUE;
+
 
 	/**
 	* Constructor

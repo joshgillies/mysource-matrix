@@ -24,7 +24,7 @@
 	<version>0.1</version>
 	<name>Funnelback Search Log Report</name>
 	<description>A report that analyses the funnelback's logs</description>
-	<instantiable>yes</instantiable>
+	<instantiable>no</instantiable>
 	<parent_type>report</parent_type>
 	<requirements>
 		<requirement type="asset">
