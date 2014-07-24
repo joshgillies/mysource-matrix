@@ -140,6 +140,7 @@ blockquote:before, blockquote:after, q:before, q:after {
 
 pre, pre *, .raw-text, .raw-text *{
 	font-family: 				'Courier';
+	white-space: 				pre-wrap;
 }
 
 .status-archived, 
