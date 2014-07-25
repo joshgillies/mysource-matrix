@@ -1388,6 +1388,25 @@
 	<string source="link">Link</string>
 	<string source="trigger_ids">Trigger Ids</string>
 	<string source="trigger_ids_note">Specify the Triggers that may only be executed. Leave blank to allow any Trigger.</string>
+	<string source="trigger_action_other_assets">Action On Other Assets</string>
+	<string source="trigger_action_other_assets_title">Assets To Action On</string>
+	<string source="trigger_action_other_assets_note">Select which other assets, in addition to or instead of the broadcasting asset, this action will fire on.</string>
+	<string source="trigger_action_include_current_asset">Include Current Asset?</string>
+	<string source="trigger_action_include_current_asset_note">Include the asset that the action is executing on</string>
+	<string source="trigger_action_include_linked_parents">Include Linked Parents?</string>
+	<string source="trigger_action_include_linked_parents_include_parents_note">Include parents of the current asset with </string>
+	<string source="trigger_action_link_type">Link Type</string>
+	<string source="trigger_action_link_value">Link Value</string>
+	<string source="trigger_action_and"> and </string>
+	<string source="trigger_action_assets">Assets</string>
+	<string source="trigger_action_include_linked_parents_note"><![CDATA[<strong>NOTE:</strong> For NOTICE type links where the linked parent is a Bodycopy Container or a Content Type asset, the trigger will action on the dependant parent instead.]]></string>
+	<string source="trigger_action_dynamic_parameters">Dynamic Parameters</string>
+	<string source="trigger_action_dynamic_parameters_assets">Comma separated list of asset ids</string>
+	<string source="trigger_action_asset_level">Asset Level</string>
+	<string source="trigger_action_asset_level_note"><![CDATA[<strong>NOTE:</strong> Selecting the "Selected assets and their children" as an asset level option can significantly decrease system performance when this action is fired as it can potentiall affect a large number of assets.]]></string>
+	<string source="trigger_action_asset_types">Include Asset Types</string>
+	<string source="trigger_action_all_asset_types">All asset types</string>
+	<string source="trigger_action_use_other_assets_setting"><![CDATA[<strong>NOTE:</strong> Please use the "Action On Other Assets" function to specify which other assets to fire this action on.]]></string>
 
 	<string source="trigger_clone_asset_missing">The asset to clone is missing and cloning broadcasting asset is not selected</string>
 	<string source="trigger_clone_parent_missing">Parent to clone under is missing and linking to broadcasting asset is not selected</string>

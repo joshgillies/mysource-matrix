@@ -31,6 +31,7 @@ define('SQ_TRIG_RESULT_FAILURE',  0);
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
 require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
+require_once SQ_SYSTEM_ROOT.'/core/attributes/parameter_map/parameter_map.inc';
 require_once 'hash.inc';
 
 register_implementation('trigger_manager', 'bridge');
@@ -1228,6 +1229,49 @@ class Trigger_Manager extends Asset implements Bridge
 
 
 	/**
+	* Returns the trigger "state" for the trigger action actioning on the given asset id
+	* This evalutes only the necessary state data required by the trigger action
+	*
+	* @param string	$assetid
+	* @param array	$state
+	*
+	* @return array|boolean
+	* @access private
+	*/
+	private function _calculatePseudoState($assetid, $state)
+	{
+		$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		if (is_null($asset)) {
+			return FALSE;
+		}
+
+		$pseudo_state = Array();
+
+		$pseudo_state['event'] = Array();
+		$pseudo_state['event']['name'] = $state['event']['name'];
+		$pseudo_state['event']['data'] = $state['event']['data'];
+
+		$pseudo_state['asset'] = $asset;
+		$pseudo_state['assetid'] = $asset->id;
+		$pseudo_state['type'] = $asset->type();
+	
+		$pseudo_state['target_assetids'] = $state['target_assetids'];
+		
+		// Below trigger state data is not used or required by trigger actions
+		// and hence can be left to empty
+		$pseudo_state['immediate_parent_link_map'] = Array();
+		$pseudo_state['immediate_parent_links'] = Array();
+		$pseudo_state['immediate_parents'] = Array();
+		$pseudo_state['immediate_child_link_map'] = Array();
+		$pseudo_state['immediate_child_links'] = Array();
+		$pseudo_state['immediate_children'] = Array();
+		$pseudo_state['treeid'] = Array();
+
+		return $pseudo_state;
+
+	}//end _calculatePseudoState()
+
+	/**
 	* Returns a state_hash calculated from the state
 	*
 	* @param array	&$state	the state to calculate the hash from
@@ -1492,45 +1536,77 @@ class Trigger_Manager extends Asset implements Bridge
 			$not_required = array_get_index($action, 'not_required', FALSE);
 			$ignore_permissions = array_get_index($action, 'ignore_permissions', FALSE);
 
-			if ($ignore_permissions || !$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
+			// Trigger action's "other" asset ids to action on
+			$target_assetids = $this->_getTargetAssetIds($action, $state_data);
+			if ($target_assetids === FALSE) {
+				// If "Action On Other Assets" setting is empty, use the current asset
+				$target_assetids = Array($state_data['assetid']);
+			}
+			$state_data['target_assetids'] = $target_assetids;
 
-				// execute action
-				$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-				$action_success = call_user_func_array(Array($action['type'], 'execute'), Array($action['data'], &$state_data));
-				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+			// If the target assets are to actioned in a single go, in which case the foreach loop below will break in the very first iteration
+			// It is the responsibility of the specific trigger action to process all the target assets in the a single action call
+			$action_at_once = method_exists($action['type'], 'actionAssetsAtOnce') && is_callable(Array($action['type'], 'actionAssetsAtOnce')) && call_user_func(Array($action['type'], 'actionAssetsAtOnce'));
 
-			} else {
-				$lock_success = TRUE;
-				// acquire locks
-				// dynamic substitution of static action class
-				$action_locks = call_user_func_array(Array($action['type'], 'getLocks'), Array($action['data'], &$state_data));
+			foreach($target_assetids as $target_assetid) {
 
-				foreach ($action_locks as $lock_assetid => $lock_types) {
-					foreach ($lock_types as $lock_type) {
-						$lock_success = $am->acquireLock($lock_assetid, $lock_type);
-						// add this lock to the list of locks to release if we actually acquired, not if we only updated
-						if ($lock_success==1) {
-							$locks_held[$lock_assetid][$lock_type] = TRUE;
-						} else if ($lock_success==0) {
-							// bail if we can't get all of the locks
-							break 2;
+				// Whether actioning on broadcaster or the "other" assets, we need to set the state data accourdingly
+				if ($target_assetid == $state_data['assetid'] || $action_at_once) {
+					$action_state_data = $state_data;
+				} else {
+					$action_state_data = $this->_calculatePseudoState($target_assetid, $state_data);
+				}
+
+				if ($ignore_permissions || !$GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
+
+					// execute action
+					$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+					$action_success = call_user_func_array(Array($action['type'], 'execute'), Array($action['data'], &$action_state_data));
+					$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+
+				} else {
+					$lock_success = TRUE;
+					// acquire locks
+					// dynamic substitution of static action class
+					$action_locks = call_user_func_array(Array($action['type'], 'getLocks'), Array($action['data'], &$action_state_data));
+
+					foreach ($action_locks as $lock_assetid => $lock_types) {
+						foreach ($lock_types as $lock_type) {
+							$lock_success = $am->acquireLock($lock_assetid, $lock_type);
+							// add this lock to the list of locks to release if we actually acquired, not if we only updated
+							if ($lock_success==1) {
+								$locks_held[$lock_assetid][$lock_type] = TRUE;
+							} else if ($lock_success==0) {
+								// bail if we can't get all of the locks
+								break 2;
+							}
 						}
 					}
-				}
 
-				if (!$lock_success) {
-					if ($not_required) {
-						// next action, please
-						continue;
-					} else {
-						$status = SQ_TRIG_RESULT_FAILURE;
-						break;
+					if (!$lock_success) {
+						if ($not_required) {
+							// next action, please
+							continue;
+						} else {
+							$status = SQ_TRIG_RESULT_FAILURE;
+							break;
+						}
 					}
+
+					// execute action
+					$action_success = call_user_func_array(Array($action['type'], 'execute'), Array($action['data'], &$action_state_data));
+				}//end else
+
+				if (!$action_success && !$not_required) {
+					break;
 				}
 
-				// execute action
-				$action_success = call_user_func_array(Array($action['type'], 'execute'), Array($action['data'], &$state_data));
-			}//end else
+				if ($action_at_once) {
+					// The trigger action is supposed to action all target assets in a single go, so we are done here
+					break;
+				}
+
+			}//end foreach target assetids
 
 			if ($action_success === FALSE) {
 				if ($not_required) {
@@ -1562,6 +1638,119 @@ class Trigger_Manager extends Asset implements Bridge
 		return $status;
 
 	}//end _executeTrigger()
+
+
+	/**
+	* Return the list of asset ids to be actioned on by the Trigger Action
+	* as per action's "Action On Other Assets" settings
+	*
+	* @param array	$action	Trigger action settings
+	* @param array	$state	Trigger action state data
+	*
+	* @return array|boolean
+	* @access private
+	*/
+	private function _getTargetAssetIds($action, $state)
+	{
+		// "Action On Other Assets" settings
+		$settings = array_get_index($action, 'other_assets', FALSE);
+		if (!$settings || empty($settings['enabled'])) {
+			return FALSE;
+		}
+
+		$assetids = Array();
+		// Include current asset
+		if (array_get_index($settings, 'current_asset', FALSE)) {
+			$assetids[] = $state['assetid'];
+		}
+
+		// Include linked parents of the current asset
+		$parnets_linked_types = array_get_index($settings, 'parent_link_types', Array());
+		if (!empty($parnets_linked_types)) {
+			$link_type = 0;
+			foreach($parnets_linked_types as $parnets_linked_type) {
+				$link_type |= $parnets_linked_type;
+			}
+			$link_value = array_get_index($settings, 'parent_link_value', '');
+			$parent_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($state['assetid'], $link_type, '', TRUE, 'minor', $link_value);
+			if (!empty($parent_links)) {
+				foreach($parent_links as $parent_link) {
+					if (isset($parent_link['majorid'])) {
+						$assetids[] = $parent_link['majorid'];
+
+						// Note: This is as an exception - when the noticed linked parent is bodycopy container/content type,
+						// we include its dependant parent in the list as well ("./?=xxx", nesting asset)
+						if ($parent_link['link_type'] == SQ_LINK_NOTICE) {
+							$linked_parent = $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_link['majorid']);
+							if ($linked_parent instanceof Content_Type || $linked_parent instanceof Bodycopy_Container) {
+								$dependant_parents = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($parent_link['majorid']);
+								$assetids = array_merge($assetids, $dependant_parents);
+							}
+						}
+					}//end if
+				}//end foreach
+			}//end if
+		}//end if
+
+		// Include the selected assets
+		if (!empty($settings['assets'])) {
+			$assetids = array_merge($assetids, $settings['assets']);
+		}
+
+		// Include dynamic source assets
+		if (!empty($settings['dynamic_source'])) {
+			$old_current_asset = $GLOBALS['SQ_SYSTEM']->getGlobalDefine('CURRENT_ASSET', NULL);
+			$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CURRENT_ASSET', $state['asset']);
+
+			$atr_parameter_map = new Asset_Attribute_Parameter_Map(0, $settings['dynamic_source']);
+			$value_map_value = $atr_parameter_map->getParameterValue('assetids');
+			foreach(explode(',', $value_map_value) as $ds_assetid) {
+				$ds_assetid = trim($ds_assetid);
+				if (!empty($ds_assetid)) {
+					$assetids[] = $ds_assetid;
+				}
+			}
+			if (is_null($old_current_asset)) {
+				$GLOBALS['SQ_SYSTEM']->unsetGlobalDefine('CURRENT_ASSET');
+			} else {
+				$GLOBALS['SQ_SYSTEM']->setGlobalDefine('CURRENT_ASSET', $old_current_asset);
+	 		}
+		}
+
+		if (!empty($assetids)) {
+			$assetids = array_unique($assetids);
+		}
+
+		// Selected asset types filter
+		$selected_asset_types = array_get_index($settings, 'asset_types', '');
+
+		// Include the children of the selected assetids if required
+		$child_assetids = Array();
+		if (!empty($settings['asset_level']) && $settings['asset_level'] != 'single') {
+			// Validate the selected assetids before getting their children
+			$assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids));
+
+			foreach($assetids as $assetid) {
+				if ($settings['asset_level'] == 'children') {
+					$child_assetids += $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid, $selected_asset_types);
+				} else {
+					$child_assetids += $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($assetid, $selected_asset_types);
+				}
+			}//end foreach
+
+		}//end if
+		
+		// Filter the selected assetids as per asset types filter setting
+		$assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids, $selected_asset_types));
+
+		if (!empty($child_assetids)) {
+			$assetids = array_unique(array_merge($assetids, array_keys($child_assetids)));
+			unset($child_assetids);
+		}
+
+		return $assetids;
+
+	}//end _getTargetAssetIds()
 
 
 //--        TRIGGER CREATION        --//
