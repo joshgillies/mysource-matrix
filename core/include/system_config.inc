@@ -80,7 +80,7 @@ class System_Config extends Config
 						'SQ_CONF_ERRORS_HIDE_FRONTEND'			=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_CONF_DEFAULT_FRONTEND_LANGUAGE'		=> Array('editable' => 1, 'default' => 'en'),
 						'SQ_CONF_DEFAULT_BACKEND_LOCALE'		=> Array('editable' => 1, 'default' => 'en_AU'),
-						'SQ_CONF_DEFAULT_CHARACTER_SET'			=> Array('editable' => 1, 'default' => 'utf-8'),
+						'SQ_CONF_DEFAULT_CHARACTER_SET'			=> Array('editable' => 0, 'default' => 'utf-8'),
 						'SQ_CONF_USE_LANG_CHAR_MAP'				=> Array('editable' => 1, 'default' => FALSE),
 						'SQ_CONF_ALLOW_IP_CHANGE'				=> Array('editable' => 1, 'default' => '0'),
 						'SQ_CONF_ALLOW_HTTP_LOGIN'				=> Array('editable' => 1, 'default' => '0'),
@@ -877,11 +877,7 @@ class System_Config extends Config
 
 			$o->openField(translate('default_character_set'));
 			require SQ_FUDGE_PATH.'/standards_lists/character_sets.inc';
-			if ($write_access) {
-				combo_box($class.'[SQ_CONF_DEFAULT_CHARACTER_SET]', $standards_lists_character_sets, FALSE, SQ_CONF_DEFAULT_CHARACTER_SET);
-			} else {
-				echo $standards_lists_character_sets[SQ_CONF_DEFAULT_CHARACTER_SET];
-			}
+			echo $standards_lists_character_sets[SQ_CONF_DEFAULT_CHARACTER_SET];
 
 			$o->openField(translate('use_lang_character_map'));
 			if ($write_access) {
