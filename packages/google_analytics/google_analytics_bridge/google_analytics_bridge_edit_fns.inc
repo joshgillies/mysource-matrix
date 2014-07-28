@@ -43,6 +43,27 @@ class Google_Analytics_Bridge_Edit_Fns extends OAuth2_Token_Edit_Fns
 	}//end constructor
 
 
+	/**
+	 * Paints a list of views and a method to create a view.
+	 *
+	 * @param Google_Analytics_Bridge $asset  The asset being painted.
+	 * @param Backend_Outputter       $o      The relevant outputter.
+	 * @param string                  $prefix The prefix for form elements.
+	 *
+	 * @return boolean
+	 */
+	public function paintViewList(Google_Analytics_Bridge $asset, Backend_Outputter $o, $prefix)
+	{
+		$views = $asset->getViews();
+		echo '<pre>';
+		print_r($views);
+		echo '</pre>';
+
+		return TRUE;
+
+	}//end paintViewList()
+
+
 }//end class
 
 ?>

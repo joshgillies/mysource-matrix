@@ -15,4 +15,14 @@
 */
 -->
 
-<contents />
+<contents>
+	<section name="Views" write_access="write:attributes">
+		<field>
+			<function_call>
+				<paint_function   name="paintViewList" />
+			</function_call>
+			<display_name></display_name>
+			<note></note>
+		</field>
+	</section>
+</contents>

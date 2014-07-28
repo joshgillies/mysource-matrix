@@ -52,4 +52,11 @@
 		    The  
 		</note>
 	</section>
+	<section name="Views" write_access="write:attributes">
+		<field>
+			<function_call>
+				<paint_function   name="paintViewList" />
+			</function_call>
+		</field>
+	</section>
 </contents>
