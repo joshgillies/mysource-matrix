@@ -4933,11 +4933,7 @@ class Asset extends MySource_Object
 		}
 
 		if (!headers_sent()) {
-			if ($asset->charset) {
-				header('Content-type: text/html; charset='.$asset->charset);
-			} else {
-				header('Content-type: text/html; charset='.SQ_CONF_DEFAULT_CHARACTER_SET);
-			}
+			header('Content-type: text/html; charset='.SQ_CONF_DEFAULT_CHARACTER_SET);
 
 			if ($asset->languages) {
 				header('Content-language: '.$asset->languages);
