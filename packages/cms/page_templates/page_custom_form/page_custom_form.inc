@@ -40,6 +40,7 @@ class Page_Custom_Form extends Page
 	*/
 	function __construct($assetid=0)
 	{
+		$this->_ser_attrs = TRUE;
 		parent::__construct($assetid);
 
 	}//end constructor
@@ -121,6 +122,16 @@ class Page_Custom_Form extends Page
 	*/
 	function printBody()
 	{
+
+		// evaluate conditions to show conditional divs and replace conditional keywords
+		$conditions = $this->getConditions();
+		if(!empty($conditions)) {
+		    $GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'evaluate conditions');
+		    $this->evaluateConditions();
+		    $GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'evaluate conditions');
+		}
+
+
 		// start performance mode timer
 		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this);
 
@@ -232,7 +243,52 @@ class Page_Custom_Form extends Page
 		return parent::getKeywordReplacement($keyword);
 
 	}//end getKewordReplacement()
+
+
+	/**
+	*
+	* Call this function when the asset has been changed in some way (or its containers), so we should update the condition evaluation array of it
+	*
+	* @param boolean	$update_parents	should we go through an update all our dependant parents as well ?
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _updated($update_parents=TRUE)
+	{
+		if (!parent::_updated($update_parents)) return FALSE;
+				
+		$form = $this->getForm();
+		$am = $GLOBALS['SQ_SYSTEM']->am;
+		$bodycopy_array = Array();
+
+		$folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($form->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'bodycopies_folder');
+		if (!empty($folder_link)) {
+			$folder = $am->getAsset($folder_link['minorid'], $folder_link['minor_type_code']);
+			$bodycopy_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($folder->id, SQ_LINK_TYPE_2, 'bodycopy');
+			foreach($bodycopy_links as $data) {
+				$bodycopy_array[] = $data['minorid'];
+			}
+		}
+
 	
+
+		$sections = $form->getSections();
+		foreach($sections as $section) {
+			$bodycopy_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($section->id, SQ_LINK_TYPE_2, 'bodycopy');
+			foreach($bodycopy_links as $data) {
+				$bodycopy_array[] = $data['minorid'];
+			}
+		}
+
+
+		if(empty($bodycopy_array)) return TRUE;
+		
+		return ($this->extractConditionsFromBodycopy($bodycopy_array));
+	}//end _updated()
+
+
+
 	
 }//end class
 ?>

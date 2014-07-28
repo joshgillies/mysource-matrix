@@ -367,6 +367,9 @@ class Bodycopy extends Asset
 			}
 		    }
 		}
+		// if conditional keyword is used
+		if (isset($GLOBALS['SQ_CONDITION']['conditional_keywords'])) 
+			$this->keyword_replacements = array_merge ($this->keyword_replacements, $GLOBALS['SQ_CONDITION']['conditional_keywords']);
 
 		// paint each container
 		foreach (array_keys($containers) as $i) {
