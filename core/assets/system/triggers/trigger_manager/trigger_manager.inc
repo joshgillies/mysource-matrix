@@ -1544,6 +1544,9 @@ class Trigger_Manager extends Asset implements Bridge
 			}
 			$state_data['target_assetids'] = $target_assetids;
 
+			// If there are no target assets to action on, its as good
+			$action_success = TRUE;
+
 			// If the target assets are to actioned in a single go, in which case the foreach loop below will break in the very first iteration
 			// It is the responsibility of the specific trigger action to process all the target assets in the a single action call
 			$action_at_once = method_exists($action['type'], 'actionAssetsAtOnce') && is_callable(Array($action['type'], 'actionAssetsAtOnce')) && call_user_func(Array($action['type'], 'actionAssetsAtOnce'));
@@ -1672,6 +1675,9 @@ class Trigger_Manager extends Asset implements Bridge
 				$link_type |= $parnets_linked_type;
 			}
 			$link_value = array_get_index($settings, 'parent_link_value', '');
+			if (!$link_value) {
+				$link_value = NULL;
+			}
 			$parent_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($state['assetid'], $link_type, '', TRUE, 'minor', $link_value);
 			if (!empty($parent_links)) {
 				foreach($parent_links as $parent_link) {
