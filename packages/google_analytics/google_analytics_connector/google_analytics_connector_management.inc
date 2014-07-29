@@ -10,24 +10,21 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_record_management.inc,v 1.5 2012/08/30 01:09:05 ewang Exp $
-*
 */
 
 
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 
 /**
-* Google Analytics Bridge Management
+* Google Analytics Connector Management
 *
 * @see Asset_Management
 *
 * @author  Squiz Pty Ltd <products@squiz.net>
-* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-class Google_Analytics_Bridge_Management extends Asset_Management
+class Google_Analytics_Connector_Management extends Asset_Management
 {
 
 

@@ -10,25 +10,22 @@
 * | you a copy.                                                        |
 * +--------------------------------------------------------------------+
 *
-* $Id: data_record_edit_fns.inc,v 1.4 2012/08/30 01:09:05 ewang Exp $
-*
 */
 
 
 require_once SQ_PACKAGES_PATH.'/oauth2/oauth2_token/oauth2_token_edit_fns.inc';
 
 /**
-* Data_Record_Edit_Fns
+* Google Analytics Connector Edit Functions
 *
 * Purpose
 *
 *
-* @author  Scott Kim <skim@squiz.net>
-* @version $Revision: 1.4 $
+* @author  Squiz Pty Ltd <products@squiz.net>
 * @package MySource_Matrix_Packages
-* @subpackage __core__
+* @subpackage google_analytics
 */
-class Google_Analytics_Bridge_Edit_Fns extends OAuth2_Token_Edit_Fns
+class Google_Analytics_Connector_Edit_Fns extends OAuth2_Token_Edit_Fns
 {
 
 
@@ -46,13 +43,13 @@ class Google_Analytics_Bridge_Edit_Fns extends OAuth2_Token_Edit_Fns
 	/**
 	 * Paints a list of views and a method to create a view.
 	 *
-	 * @param Google_Analytics_Bridge $asset  The asset being painted.
+	 * @param Google_Analytics_Connector $asset  The asset being painted.
 	 * @param Backend_Outputter       $o      The relevant outputter.
 	 * @param string                  $prefix The prefix for form elements.
 	 *
 	 * @return boolean
 	 */
-	public function paintViewList(Google_Analytics_Bridge $asset, Backend_Outputter $o, $prefix)
+	public function paintViewList(Google_Analytics_Connector $asset, Backend_Outputter $o, $prefix)
 	{
 		$write_access = $asset->writeAccess('attributes');
 		$properties   = $asset->getProperties();
@@ -119,13 +116,13 @@ class Google_Analytics_Bridge_Edit_Fns extends OAuth2_Token_Edit_Fns
 	/**
 	 * Processes a list of views and a method to create a view.
 	 *
-	 * @param Google_Analytics_Bridge $asset  The asset being painted.
+	 * @param Google_Analytics_Connector $asset  The asset being painted.
 	 * @param Backend_Outputter       $o      The relevant outputter.
 	 * @param string                  $prefix The prefix for form elements.
 	 *
 	 * @return boolean
 	 */
-	public function processViewList(Google_Analytics_Bridge $asset, Backend_Outputter $o, $prefix)
+	public function processViewList(Google_Analytics_Connector $asset, Backend_Outputter $o, $prefix)
 	{
 		$ok        = TRUE;
 		$viewid    = array_get_index($_POST, $prefix.'_create_view', '');
@@ -152,7 +149,7 @@ class Google_Analytics_Bridge_Edit_Fns extends OAuth2_Token_Edit_Fns
 				);
 				$view_asset->create($initial_link);
 
-				// Create a notice link to the bridge asset so it can remain linked
+				// Create a notice link to the connector asset so it can remain linked
 				// regardless of whether it is moved
 				$notice_link = $GLOBALS['SQ_SYSTEM']->am->createAssetLink($asset, $view_asset, SQ_LINK_NOTICE);
 			}//end if (view exists)

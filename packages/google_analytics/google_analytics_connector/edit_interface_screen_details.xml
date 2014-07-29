@@ -10,19 +10,17 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1.1.1 2013/07/19 00:29:26 ewang Exp $
-*
 */
 -->
 
 <contents>
 	<section name="Details" write_access="write:attributes">
 		<field attribute="name">
-		    <display_name>Bridge Name</display_name>
+		    <display_name>Connector Name</display_name>
 			<text width="35" height="1" />
 		</field>
 		<field attribute="short_name">
-		    <display_name>Bridge Short Name</display_name>
+		    <display_name>Connector Short Name</display_name>
 		    <note/>
 			<text width="25" height="1" />
 		</field>

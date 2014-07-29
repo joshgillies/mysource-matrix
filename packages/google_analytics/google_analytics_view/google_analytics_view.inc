@@ -18,7 +18,7 @@
 require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 
 /**
-* Google Analytics Bridge
+* Google Analytics View
 *
 * Purpose
 *
@@ -92,9 +92,9 @@ class Google_Analytics_View extends Page
 	{
 	    require_once SQ_FUDGE_PATH.'/general/www.inc';
 	    
-	    $GLOBALS['SQ_SYSTEM']->am->includeAsset('google_analytics_bridge');
-	    $bridge_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'google_analytics_bridge', FALSE, NULL, 'minor');
-	    $bridge      = $GLOBALS['SQ_SYSTEM']->am->getAsset($bridge_link['majorid']);
+	    $GLOBALS['SQ_SYSTEM']->am->includeAsset('google_analytics_connector');
+	    $connector_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'google_analytics_connector', FALSE, NULL, 'minor');
+	    $connector      = $GLOBALS['SQ_SYSTEM']->am->getAsset($connector_link['majorid']);
         
 	    // Cache for 4 hours.
         $cache_key = 'visitors';
@@ -158,16 +158,16 @@ class Google_Analytics_View extends Page
         if ($force === TRUE) {
             $refresh_resp = '0';
         } else {
-            $refresh_resp = $bridge->loadFromFetchCache($bridge->getRefreshKey($cache_key));
+            $refresh_resp = $connector->loadFromFetchCache($connector->getRefreshKey($cache_key));
         }
         
         if ((string) $refresh_resp === '1') {
             // Not stale yet.
-            $response = $bridge->loadFromFetchCache($cache_key);
+            $response = $connector->loadFromFetchCache($cache_key);
         } else {
             // Stale or doesn't exist. Fetch it, and if it doesn't work, fall
             // back to any previously existing cache.
-            $url      = Google_Analytics_Bridge::FETCH_PREFIX.'/data/ga';
+            $url      = Google_Analytics_Connector::FETCH_PREFIX.'/data/ga';
             
             // Flatten out the dimensions and metrics.
             $url_params = $params;
@@ -203,11 +203,11 @@ class Google_Analytics_View extends Page
             }
             
             $url = replace_query_string_vars($url_params, $url);
-            $raw_response = $bridge->fetchWithBackoff($url);
+            $raw_response = $connector->fetchWithBackoff($url);
             
             if ($raw_response['errors'] === NULL) {
                 $response = $raw_response['result'];
-                $bridge->saveToFetchCache($cache_key, $response);
+                $connector->saveToFetchCache($cache_key, $response);
             } else {
                 $response = NULL;
             }

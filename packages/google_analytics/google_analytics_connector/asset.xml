@@ -13,17 +13,15 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.4 2008/11/24 22:28:19 mbrydon Exp $
-*
 */
 -->
 
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../packages/asset.xsd">
 	<package>google_analytics</package>
-	<type_code>google_analytics_bridge</type_code>
+	<type_code>google_analytics_connector</type_code>
 	<version>0.1</version>
-	<name>Google Analytics Bridge</name>
-	<description>Provides an interface to a Google Analytics account.</description>
+	<name>Google Analytics Connector</name>
+	<description>Provides an interface to a Google Analytics account, using OAuth2 authentication.</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>backend_user</allowed_access>
 	<parent_type>oauth2_token</parent_type>
