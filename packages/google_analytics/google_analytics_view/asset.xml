@@ -26,7 +26,7 @@
 	<description>Shadow asset representing the reports of a single View (previously known as "Profile") underneath a Google Analytics Bridge.</description>
 	<instantiable>no</instantiable>
 	<allowed_access>backend_user</allowed_access>
-	<parent_type>asset</parent_type>
+	<parent_type>page</parent_type>
 	<requirements />
 	<flash_menu_path>Google Analytics</flash_menu_path>
 </asset_info>

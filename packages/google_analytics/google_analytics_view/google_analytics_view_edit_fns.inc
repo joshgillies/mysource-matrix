@@ -15,7 +15,7 @@
 */
 
 
-require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 
 /**
 * Data_Record_Edit_Fns
@@ -28,7 +28,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-class Google_Analytics_View_Edit_Fns extends Asset_Edit_Fns
+class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 {
 
     /**

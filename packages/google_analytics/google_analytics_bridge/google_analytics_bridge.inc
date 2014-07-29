@@ -16,7 +16,6 @@
 
 
 require_once SQ_PACKAGES_PATH.'/oauth2/oauth2_token/oauth2_token.inc';
-require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 
 /**
 * Google Analytics Bridge
@@ -29,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 * @package MySource_Matrix_Packages
 * @subpackage google_analytics
 */
-class Google_Analytics_Bridge extends OAuth2_Token implements Bridge
+class Google_Analytics_Bridge extends OAuth2_Token
 {
 
 
@@ -141,7 +140,8 @@ class Google_Analytics_Bridge extends OAuth2_Token implements Bridge
 	public function _getAllowedLinks()
 	{
 		$links = parent::_getAllowedLinks();
-		$links[SQ_LINK_TYPE_2]['google_analytics_property'] = Array('card' => 'M', 'exclusive' => FALSE);
+		$links[SQ_LINK_TYPE_1]['google_analytics_view'] = Array('card' => 'M', 'exclusive' => FALSE);
+        $links[SQ_LINK_NOTICE]['google_analytics_view'] = Array('card' => 'M', 'exclusive' => FALSE);
 
 		return $links;
 

@@ -15,8 +15,7 @@
 */
 
 
-require_once SQ_INCLUDE_PATH.'/asset.inc';
-require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 
 /**
 * Google Analytics Bridge
@@ -29,7 +28,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/interfaces/bridge/bridge.inc';
 * @package MySource_Matrix_Packages
 * @subpackage google_analytics
 */
-class Google_Analytics_View extends Asset
+class Google_Analytics_View extends Page
 {
     /**
      * Common site-level metrics.
@@ -40,32 +39,6 @@ class Google_Analytics_View extends Asset
      * Common page-level metrics.
      */
     const PAGE_METRICS = 'ga:pageviews,ga:uniquePageviews,ga:entrances,ga:exits,ga:bounces';
-    
-    
-    /**
-     * Shortcut to access the view ID (without ga: prefix).
-     *
-     * @var string
-     */
-    var $viewid = NULL;
-    
-    /**
-     * Shortcut to access the bridge asset
-     *
-     * @var string
-     */
-    var $bridgeid = NULL;
-    
-    
-    /**
-     * Property ID
-     *
-     * Just the string provided by GA. Convert to a full asset ID using
-     * $prop_assetid = $this->bridgeid.':p-'.$this->propertyid; 
-     *
-     * @var string
-     */
-    var $propertyid = NULL;
     
     
 	/**
@@ -85,7 +58,7 @@ class Google_Analytics_View extends Asset
 	
 	protected function _getName($short_name=FALSE)
 	{
-	    return $this->name;
+	    return $this->attr('name');
 	    
 	}//end _getName()
 	
@@ -120,8 +93,9 @@ class Google_Analytics_View extends Asset
 	    require_once SQ_FUDGE_PATH.'/general/www.inc';
 	    
 	    $GLOBALS['SQ_SYSTEM']->am->includeAsset('google_analytics_bridge');
-	    $bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($this->bridgeid);
-	    
+	    $bridge_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'google_analytics_bridge', FALSE, NULL, 'minor');
+	    $bridge      = $GLOBALS['SQ_SYSTEM']->am->getAsset($bridge_link['majorid']);
+        
 	    // Cache for 4 hours.
         $cache_key = 'visitors';
         
@@ -147,7 +121,7 @@ class Google_Analytics_View extends Asset
         
         // Query definitions.
         $common_query_parts = Array(
-            'ids'         => 'ga:'.$this->viewid,
+            'ids'         => 'ga:'.$this->attr('viewid'),
             'start-date'  => $start_date,
             'end-date'    => $end_date,
             'max-results' => 10000,
@@ -166,7 +140,7 @@ class Google_Analytics_View extends Asset
         $query = Array(
             'dimensions' => $dimensions,
             'metrics'    => $metrics,
-            'sort'       => $sort,          
+            'sort'       => $sort,
         );
         
         // Add the filter.

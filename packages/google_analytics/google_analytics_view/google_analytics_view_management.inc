@@ -42,11 +42,20 @@ class Google_Analytics_View_Management extends Asset_Management
 		Asset_Management::__construct($pm);
 
 		$this->vars = Array(
+						'viewid' => Array(
+									'added'			=> '0.0.1',
+									'type'			=> 'text',
+									'default'		=> '',
+									'description'	=> 'The internal ID of the View',
+									'update_fn'		=> '',
+									'is_admin'		=> FALSE,
+									'is_contextable'=> TRUE,
+								   ),
 						'name'	=> Array(
 									'added'			=> '0.0.1',
 									'type'			=> 'text',
 									'default'		=> '',
-									'description'	=> 'The full name of the record',
+									'description'	=> 'The name of the View',
 									'update_fn'		=> '',
 									'is_admin'		=> FALSE,
 									'is_contextable'=> TRUE,
