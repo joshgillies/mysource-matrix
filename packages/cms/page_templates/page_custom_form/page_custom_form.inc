@@ -259,6 +259,8 @@ class Page_Custom_Form extends Page
 		if (!parent::_updated($update_parents)) return FALSE;
 				
 		$form = $this->getForm();
+		if(empty($form)) return TRUE;
+		
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$bodycopy_array = Array();
 
