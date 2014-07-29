@@ -377,6 +377,7 @@
 	<string source="system_simple_edit_suffix">System Simple Edit Suffix</string>
 	<string source="system_login_suffix">System Login Suffix</string>
 	<string source="system_nocache_suffix">System Bypass Cache Suffix</string>
+	<string source="system_noproxycache_suffix">System Bypass Proxy Cache Suffix</string>
 	<string source="system_recache_suffix">System Clear Cache Suffix</string>
 	<string source="system_performance_suffix">System Performance Mode Suffix</string>
 	<string source="system_timezone">System Timezone</string>
