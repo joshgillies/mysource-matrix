@@ -351,32 +351,7 @@ function paintSettings(&$owner, &$o, &$ei, $keywords=NULL)
 						ob_start();
 					}
 
-					$o->openSection($display_name);
-					$o->openField('Current');
-					require SQ_FUDGE_PATH.'/standards_lists/character_sets.inc';
-
-					if ($owner->writeAccess('settings')) {
-						$created = TRUE;
-						$standards_lists_character_sets = array_reverse($standards_lists_character_sets);
-						$standards_lists_character_sets[''] = '** Use System Default **';
-						$standards_lists_character_sets = array_reverse($standards_lists_character_sets);
-						combo_box($prefix.'_intl_character_set', $standards_lists_character_sets, FALSE, $owner->charset);
-					} else {
-						if (isset($standards_lists_character_sets[$owner->charset])) {
-							echo $standards_lists_character_sets[$owner->charset];
-						} else if ($owner->charset == '') {
-							echo translate('no_character_set', htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET));
-						} else {
-							echo '<i>'.translate('no_charactet_set_set', $owner->charset, htmlspecialchars($owner->name, ENT_COMPAT, SQ_CONF_DEFAULT_CHARACTER_SET)).'</i>';
-						}
-					}
-
-					if (!is_null($field->note) && (strlen((string)$field->note) > 0)) {
-						$o->note((string) $field->note);
-					}
-
-					$o->closeField();
-					$o->closeSection();
+		
 					if (!is_null($keywords) && isset($keywords['fields'][strtolower((string) $field['code'])])) {
 						$ei->_tmp['layout_keyword_replacements'][$keywords['fields'][strtolower((string) $field['code'])]] = ob_get_contents();
 						ob_end_flush();
@@ -810,11 +785,6 @@ function processSettings(&$owner, &$o, &$ei)
 	$owner->setLanguages($set_languages);
 
 
-	//// CHARACTER SET ////
-	if (isset($_POST[$prefix.'_intl_character_set'])) {
-		$new_charset = $_POST[$prefix.'_intl_character_set'];
-		$owner->setCharset($new_charset);
-	}
 
 
 	//// MORPHING ////
