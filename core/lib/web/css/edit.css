@@ -557,6 +557,11 @@ label {
 	margin: 					0 2px 0 0;
 }
 
+.bold-labels label{
+	font-weight:				bold;
+}
+
+
 /* Default disabled styles */
 select[disabled="disabled"],
 select[disabled] {
@@ -2123,8 +2128,13 @@ TRIGGER EDITING STYLES
 	background: 				#f7f7f7;
 }
 
-.sq-backend-triggers-component-global-options label{
+.sq-backend-triggers-component-global-options > label {
 	margin-right:				20px;
+}
+
+.sq-backend-triggers-component-global-options .sq-backend-section-subheading{
+	margin: 					6px 0 0 0;
+	padding: 					0;
 }
 
 .sq-backend-triggers-component-body {
@@ -2134,7 +2144,8 @@ TRIGGER EDITING STYLES
 	border-top: 				none;
 }
 
-.sq-backend-triggers-component-body .sq-backend-table {
+.sq-backend-triggers-component-body .sq-backend-table,
+.sq-backend-triggers-component-global-options .sq-backend-table {
 	margin-bottom: 				0;
 }
 .sq-backend-triggers-component-body .sq-backend-table.with-bottom-margin {

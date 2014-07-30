@@ -1510,6 +1510,14 @@ class Form_Section extends Asset implements Bridge
 
 		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
 
+
+		// get conditions keywords from page custom form
+		$form_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'form', FALSE, NULL, 'minor');
+		$parent_link = $GLOBALS['SQ_SYSTEM']->am->getLink($form_link['majorid'], SQ_LINK_TYPE_2, 'page_custom_form', FALSE, NULL, 'minor');
+		$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_link['majorid']);
+		$keywords = $parent_asset->getAvailableConditionKeywords();
+		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
+
 	}//end onRequestKeywords()
 
 

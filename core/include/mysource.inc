@@ -1100,9 +1100,7 @@ class MySource extends MySource_Object
 		$this->stripMatrixComments($content);
 
 		// After the highest level keyword replacement, place these contents back
-		foreach($this->_raw_contents as $hash => $replacement) {
-			$content = str_replace($hash, $replacement, $content);
-		}
+		$this->replaceRawContents($content);
 
 	}//end replaceKeyword()
 
@@ -4721,6 +4719,24 @@ class MySource extends MySource_Object
 		echo $key;
 
 	}//end addRawContent()
+
+
+	/**
+	* Replace the raw content with actual data in given string
+	*
+	* @param string &$content
+	*
+	* @return void
+	* @accesss public
+	* @see self::addRawContent()
+	*/
+	public function replaceRawContents(&$content)
+	{
+		foreach($this->_raw_contents as $hash => $replacement) {
+			$content = str_replace($hash, $replacement, $content);
+		}
+
+	}//end replaceRawContents()
 
 
 	/**
