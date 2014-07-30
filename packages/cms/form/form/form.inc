@@ -2220,7 +2220,7 @@ class Form extends Asset implements Bridge
 
 		} else {
 			// Grab the default "unattached questions" content file (at the moment)
-			require_once $this->data_path.'/content_file_questions.php';
+			$this->includeContentFile('Questions');
 		}
 	}//end printUnattachedQuestion()
 
