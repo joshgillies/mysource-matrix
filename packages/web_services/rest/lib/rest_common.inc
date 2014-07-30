@@ -41,7 +41,7 @@ class Rest_Common
 	*
 	* @string
 	*/
-	public static $default_js_engine = 'spidermonkey';
+	public static $default_js_engine = 'v8';
 
 
 	/**

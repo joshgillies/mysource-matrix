@@ -84,14 +84,15 @@ class Page_REST_Resource_JS extends Page_REST_Resource
 		$GLOBALS['SQ_SYSTEM']->pm->startTimer($this, 'processJavascript');
 		$ret = Rest_Common::processJavascript($js, $this->attr('js_engine'));
 		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'processJavascript');
-		if (!empty($ret['output'])) {
+
+		if (!empty($ret['error_message'])) {
+			trigger_localised_error('REST0001', E_USER_WARNING, $this->id, $ret['error_message']);
+		} else {
 			if (!$this->attr('allow_global_replace')) {
 				require_once SQ_FUDGE_PATH.'/general/text.inc';
 				escape_matrix_keywords($ret['output']);
 			}
 			echo $ret['output'];
-		} else {
-			trigger_localised_error('REST0001', E_USER_WARNING, $this->id, $ret['error_message']);
 		}
 
 	}//end printBody()
