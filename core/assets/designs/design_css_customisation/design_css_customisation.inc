@@ -351,11 +351,12 @@ class Design_Css_Customisation extends Design_Css
 	* @param array	$FILE_URLS	an array of filename => URL to use to print files in the design
 	*							doesnt need to be passed in unless some URLs are overridden by
 	*							a customisation of the design
+	* @param boolean $send_header   Whether to send 'css' header when painting
 	*
 	* @return void
 	* @access public
 	*/
-	public function paint(Asset $ASSET, Array $FILE_URLS=Array())
+	public function paint(Asset $ASSET, Array $FILE_URLS=Array(), $send_header=TRUE)
 	{
 		// generate an array of all the URLs we are going to need for the files in this customisation
 		// that are inherited from the design we are customising
@@ -379,7 +380,7 @@ class Design_Css_Customisation extends Design_Css
 			$FILE_URLS[$file_info['name']] = $file_url;
 		}
 
-		return parent::paint($ASSET, $FILE_URLS);
+		return parent::paint($ASSET, $FILE_URLS, $send_header);
 
 	}//end paint()
 
