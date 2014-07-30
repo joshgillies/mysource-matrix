@@ -31,6 +31,13 @@ require_once(dirname(__FILE__).'/bodycopy_table_cell.inc');
 class Bodycopy_Table extends Bodycopy_Container
 {
 
+	/**
+	* Weather the asset is deprecated or not.
+	* this will be used in asset_map.inc:_cloneAsset() to see if the asset type
+	* can be created (cloned) on the system
+	*/
+	public $deprecated = TRUE;
+
 
 	/**
 	* Constructor

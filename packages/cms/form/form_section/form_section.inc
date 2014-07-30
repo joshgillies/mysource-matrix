@@ -1452,6 +1452,34 @@ class Form_Section extends Asset implements Bridge
 	}//end isFormatBodycopyEnabled()
 
 
+
+
+	/**
+	* Returns all format bodycopies including current section and all nested sections
+	*
+	* @return object
+	* @access public
+	*/
+	function getNestedFormatBodycopies()
+	{
+		$bodycopies = Array();
+
+		$bodycopy = $this->getFormatBodycopy();
+		if(!empty($bodycopy))
+			$bodycopies[] = $bodycopy->id;
+
+		$nested_sections = $this->getSectionLinks();
+		foreach ($nested_sections as $section_link) {
+			$section = $GLOBALS['SQ_SYSTEM']->am->getAsset($section_link['minorid']);
+			$bodycopies = array_merge($bodycopies, $section->getNestedFormatBodycopies());
+		}
+
+		return $bodycopies;
+
+	}//end getNestedFormatBodycopies()
+
+
+
 	/**
 	* Handles the enabling or disabling of the format bodycopy
 	*
@@ -1512,9 +1540,7 @@ class Form_Section extends Asset implements Bridge
 
 
 		// get conditions keywords from page custom form
-		$form_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'form', FALSE, NULL, 'minor');
-		$parent_link = $GLOBALS['SQ_SYSTEM']->am->getLink($form_link['majorid'], SQ_LINK_TYPE_2, 'page_custom_form', FALSE, NULL, 'minor');
-		$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_link['majorid']);
+		$parent_asset = $this->getParentForm();
 		$keywords = $parent_asset->getAvailableConditionKeywords();
 		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
 
@@ -1898,6 +1924,24 @@ class Form_Section extends Asset implements Bridge
 		return $ret_val;
 
 	}//end assetExists()
+
+
+
+
+	/**
+	*
+	* Get available keywords based on condition set on the asset
+	*
+	*
+	* @return array
+	* @access public
+	*/
+	function getAvailableConditionKeywords()
+	{
+		$form = $this->getParentForm();
+		return $form->getAvailableConditionKeywords();
+	}
+
 
 
 }//end class

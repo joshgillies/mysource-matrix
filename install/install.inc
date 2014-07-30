@@ -1295,7 +1295,7 @@ function build_localised_screen($asset_type, $screen, $locale)
 
 					case 'note':
 						// is a section note already set?
-						if (!isset($this_section->attributes()->note)) {
+						if (!isset($this_section->note)) {
 							$this_section->addChild($xml_field->getName(), (string)$xml_field);
 						}
 					break;
