@@ -37,23 +37,6 @@ class Google_Analytics_Connector_Management extends Asset_Management
 	function __construct(Package_Manager $pm)
 	{
 		Asset_Management::__construct($pm);
-		
-		// Period.
-		$this->vars['period'] = Array(
-                                    'added'			=> '0.1',
-                                    'type'			=> 'selection',
-                                    'default'		=> 'P1M',
-                                    'description'	=> 'The period to generate. Key is to be an ISO8601 period.',
-                                    'parameters'	=> Array(
-                                                        'multiple'		=> FALSE,
-                                                        'allow_empty'	=> FALSE,
-                                                        'options'		=> Array(
-                                                                            'P1M'	=> 'Previous month',
-                                                                            'P3M'	=> 'Previous 3 months',
-                                                                            'P6M'	=> 'Previous 6 months',
-                                                                           ),
-                                                       ),
-                                );
 
 	}//end constructor
 

@@ -391,9 +391,6 @@ class Google_Analytics_Connector extends OAuth2_Token
         $cm->saveToCache($this->id, $this->type(), $key, json_encode($value), FALSE, $long_expiry);
         $cm->saveToCache($this->id, $this->type(), $refresh_key, json_encode('1'), FALSE);
         
-        $this->loadFromFetchCache(substr($key, 6));
-        $this->loadFromFetchCache(substr($refresh_key, 6));
-        
     }//end saveToFetchCache()
     
     

@@ -10,6 +10,8 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
+* $Id: lang_screen_details.xml,v 1.1.1.1 2013/07/19 00:29:26 ewang Exp $
+*
 */
 -->
 
@@ -17,24 +19,25 @@
 	<section name="Details" write_access="write:attributes">
 		<field attribute="name">
 		    <display_name>Connector Name</display_name>
-			<text width="35" height="1" />
 		</field>
 		<field attribute="short_name">
 		    <display_name>Connector Short Name</display_name>
 		    <note/>
-			<text width="25" height="1" />
+		</field>
+	</section>
+	<section name="Generation Settings" write_access="write:attributes">
+		<field attribute="period">
+		    <display_name>Period</display_name>
 		</field>
 	</section>
 	<section name="OAuth Settings" write_access="write:attributes">
 		<field attribute="client_id">
 		    <display_name>Client ID</display_name>
 		    <note/>
-			<text width="60" height="1" />
 		</field>
 		<field attribute="client_secret">
 		    <display_name>Client Secret</display_name>
 		    <note/>
-			<text width="60" height="1" />
 		</field>
 		<field>
 		    <display_name>Access Token</display_name>
@@ -56,3 +59,4 @@
 		<note>Locks must be acquired to create a new View.</note>
 	</section>
 </contents>
+
