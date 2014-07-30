@@ -1446,4 +1446,27 @@ function escape_regex_chars($text)
 
 }//end escape_regex_chars()
 
+
+/**
+* Escape the Matrix keywords by replaceing the keyword delimiter "%" by its entity equivalent "&#37;"
+* so that keywords in the content are not replaced at the global level
+*
+* @param string &$content   Content to escape the keywords from
+*
+* @return void
+* @access public
+*/
+function escape_matrix_keywords(&$content)
+{
+	// Escape only "strict format" keywords, because at global level Matrix will replace "strict" keywords only
+	$keywords = extract_keywords($content, '', TRUE);
+	$replacements = Array();
+	foreach($keywords as $keyword) {
+		$replacements[$keyword] = '&#37;'.$keyword.'&#37;';
+	}
+
+	replace_keywords($content, $replacements);
+
+}//end escape_matrix_keywords()
+
 ?>
