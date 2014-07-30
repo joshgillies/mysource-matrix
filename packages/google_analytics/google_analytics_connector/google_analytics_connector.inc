@@ -35,9 +35,14 @@ class Google_Analytics_Connector extends OAuth2_Token
      * The "access_type=offline" query param is to ensure we get a refresh
      * token. Google doesn't provide this by default.
      *
+     * The "approval_prompt=force" query param is also for refresh tokens.
+     * Google doesn't give out refresh tokens without showing the user a
+     * consent screen (and fair enough) and this is therefore necessary if
+     * a project has to be re-authed on an account for some reason.
+     *
      * @const string
      */
-    const AUTH_ENDPOINT = 'https://accounts.google.com/o/oauth2/auth?access_type=offline';
+    const AUTH_ENDPOINT = 'https://accounts.google.com/o/oauth2/auth?access_type=offline&approval_prompt=force';
     
     /**
      * The token endpoint.

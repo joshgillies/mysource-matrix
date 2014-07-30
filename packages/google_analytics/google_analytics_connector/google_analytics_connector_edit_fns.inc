@@ -51,6 +51,14 @@ class Google_Analytics_Connector_Edit_Fns extends OAuth2_Token_Edit_Fns
 	 */
 	public function paintViewList(Google_Analytics_Connector $asset, Backend_Outputter $o, $prefix)
 	{
+		$access_token = $asset->attr('global_access_token');
+		if (empty($access_token) === TRUE) {
+			$o->openRaw();
+				echo translate('You need to authorise the account before you can see the available views.');
+			$o->closeRaw();
+			return FALSE;
+		}
+
 		$write_access = $asset->writeAccess('attributes');
 		$properties   = $asset->getProperties();
 		$views        = $asset->getViews();
