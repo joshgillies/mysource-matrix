@@ -4281,9 +4281,7 @@ class Form extends Asset implements Bridge
 		}
 
 		// get conditions keywords from page custom form
-		$parent_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'page_custom_form', FALSE, NULL, 'minor');
-		$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_link['majorid']);
-		$keywords = $parent_asset->getAvailableConditionKeywords();
+		$keywords = $this->getAvailableConditionKeywords();
 		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
 
 	}//end onRequestKeywords()
@@ -4683,7 +4681,7 @@ class Form extends Asset implements Bridge
 
 				case 'contents' :
 					ob_start();
-						include_once($section_asset->data_path.'/content_file.php');
+						$section_asset->printBody($this);
 					$replacement = ob_get_clean();
 				break;
 
@@ -6048,6 +6046,23 @@ class Form extends Asset implements Bridge
 
 	}//end _passedMinimumTimeThreshold()
 
+
+	/**
+	*
+	* Get available keywords based on condition set on the asset
+	*
+	*
+	* @return array
+	* @access public
+	*/
+	function getAvailableConditionKeywords()
+	{
+		// get conditions keywords from page custom form
+		$parent_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'page_custom_form', FALSE, NULL, 'minor');
+		$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_link['majorid']);
+		$keywords = $parent_asset->getAvailableConditionKeywords();
+		return $keywords;
+	}
 
 }//end class
 ?>

@@ -264,6 +264,7 @@ class Page_Custom_Form extends Page
 		$am = $GLOBALS['SQ_SYSTEM']->am;
 		$bodycopy_array = Array();
 
+		// get bodycopy from current form
 		$folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($form->id, SQ_LINK_TYPE_2, 'folder', TRUE, 'bodycopies_folder');
 		if (!empty($folder_link)) {
 			$folder = $am->getAsset($folder_link['minorid'], $folder_link['minor_type_code']);
@@ -274,13 +275,10 @@ class Page_Custom_Form extends Page
 		}
 
 	
-
+		// get all format bodycopies from sections and nested sections
 		$sections = $form->getSections();
 		foreach($sections as $section) {
-			$bodycopy_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($section->id, SQ_LINK_TYPE_2, 'bodycopy');
-			foreach($bodycopy_links as $data) {
-				$bodycopy_array[] = $data['minorid'];
-			}
+			$bodycopy_array = array_merge($bodycopy_array, $section->getNestedFormatBodycopies());
 		}
 
 
