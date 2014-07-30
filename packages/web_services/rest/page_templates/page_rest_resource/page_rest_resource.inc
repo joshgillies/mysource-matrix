@@ -75,11 +75,15 @@ class Page_REST_Resource extends Page
 		// Run the request(s).
 		$this->_process();
 
+		$binary_data = FALSE;
 		if (!empty($this->_res['responses'])) {
 			if ($this->attr('send_headers')) {
 				foreach ($this->_response_headers as $h) {
 					if (isset($this->_res['response']['headers'][$h])) {
 						header("$h: " . $this->_res['response']['headers'][$h]);
+						if (!$binary_data && strtolower($h) == 'content-type' && strpos($this->_res['response']['headers'][$h], 'text/') !== 0) {
+							$binary_data = TRUE;
+						}
 					}
 				}
 			}
@@ -91,13 +95,14 @@ class Page_REST_Resource extends Page
 				if ($resp['info']['http_code'] >= 400 && !empty($error_response)) {
 					echo $error_response;
 				} else {
-					// If the content is to be left untouched by the Matrix keyword replacement,
-					// add the content after the keywords are replaced at the highest level
-					if (!$this->attr('allow_global_replace')) {
-						$GLOBALS['SQ_SYSTEM']->addRawContent($resp['body']);
-					} else {
-						echo $resp['body'];
+					$content = $resp['body'];
+					// If the keywords in rest content are not supposed to be replaced, escape the keywords.
+					// However if the content is binary, leave the content as it as
+					if (!$this->attr('allow_global_replace') && !$binary_data) {
+						require_once SQ_FUDGE_PATH.'/general/text.inc';
+						escape_matrix_keywords($content);
 					}
+					echo $content;
 				}
 			}
 		}
