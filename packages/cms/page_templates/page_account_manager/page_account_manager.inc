@@ -1389,10 +1389,16 @@ class Page_Account_Manager extends Page_Asset_Builder
 					}//end foreach
 				}//end if
 			}
+
 			ob_start();
 
 				if (!empty($lock_errors)) {
 					$this->_replacements['edit_details_lock_error'] = $this->attr('edit_details_lock_error');
+
+					// because we aren't going to the customised layout to get the keywords
+					// add upon the edit_details_lock_error to our content to allow
+					// users to see the error message for the lock acquiring failure
+					echo "<p>%edit_details_lock_error%</p>";
 					$asset->printBody();
 				} else {
 
@@ -1403,12 +1409,41 @@ class Page_Account_Manager extends Page_Asset_Builder
 					$o->addHiddenField('form_submitted', '1');
 					$ei->paintLayout($asset, $o, $layout);
 					$o->paint();
+
+					// ie. they have permission to access the default screen for a user
+					require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
+					$aei = new Asset_Edit_Interface($asset->type());
+					$allowed_screens = $aei->getAllowedScreens($asset);
+					$default_screen = $aei->_default_screen;
+					if (empty($default_screen)) {
+						$default_screen = 'details';
+					}
+
+					$check_screen_restrictions = (!($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()));
+					if ($check_screen_restrictions) {
+						if (empty($allowed_screens)) {
+							$check_screen_restrictions = FALSE;
+						}
+					}
+
+					if ($check_screen_restrictions && !isset($allowed_screens[$default_screen])) {
+						$this->_replacements['edit_details_invite'] = '<p>'.translate('cms_account_manager_cannot_edit_details').'</p>';
+					} else {
+						$this->_replacements['edit_details_invite'] = $this->attr('edit_details_invite');
+					}
+					unset($aei);
+
 					$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 				}
 				$content = ob_get_contents();
 			ob_end_clean();
-			
-			$this->_replacements['form_errors'] = $errors;
+
+			if (!empty($errors)) {
+				$this->_replacements['form_errors'] = '<ul>'.$errors.'</ul>';
+			} else if (array_get_index($_POST, 'process_form', FALSE) && empty($lock_errors)){
+				$this->_replacements['edit_details_success'] = $this->attr('edit_details_success');
+			}
+
 			replace_keywords($content, $this->_replacements);
 
 			echo $content;

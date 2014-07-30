@@ -116,7 +116,7 @@
 			</function_call>
 		</field>
 		<field>
-			<display_name>Logged in bodycopy Customisation</display_name>
+			<display_name>Logged In Bodycopy Customisation</display_name>
 			<note>If logged in customisation is enabled, a layout asset will be created under this page and will be used when showing the logged in bodycopy.  Fields from the user's details or metadata screens may be included in the layout.</note>
 			<function_call>
 				<paint_function   name="paintLoggedInFormCustomisation" />
