@@ -140,6 +140,7 @@ class Page_Remote_Content extends Page
 				echo $this->attr('error_message');
 			}
 		} else {
+			$binary_data = FALSE;
 			ob_start();
 				// if _process returns null, in some cases headers and content may not be set properly.
 				// So check they are available before trying to use them.
@@ -151,6 +152,8 @@ class Page_Remote_Content extends Page
 						// a message instead of the content
 						$replacements['remote_url'] = $url;
 						echo replace_keywords($this->attr('binary_message'), $replacements);
+
+						$binary_data = TRUE;
 					} else {
 						// everything is good. get the page body.
 						echo $this->_tmp['content'][$url];
@@ -159,13 +162,13 @@ class Page_Remote_Content extends Page
 				$content = ob_get_contents();
 			ob_end_clean();
 
-			// If the content is to be left untouched by the Matrix keyword replacement,
-			// add the content after the keywords are replaced at the highest level
-			if (!$this->_tmp['transform_settings']['replace_matrix_keywords']) {
-				$GLOBALS['SQ_SYSTEM']->addRawContent($content);
-			} else {
-				echo $content;
+			// If the keywords in rest content are not supposed to be replaced, escape the keywords.
+			// However if the content is binary, leave the content as it as
+			if (!$this->_tmp['transform_settings']['replace_matrix_keywords'] && !$binary_data) {
+				require_once SQ_FUDGE_PATH.'/general/text.inc';
+				escape_matrix_keywords($content);
 			}
+			echo $content;
 		}
 
 		// stop performance mode timer
