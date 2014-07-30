@@ -460,8 +460,6 @@ class Data_Source_Json extends Data_Source
 			$asset_contents = ob_get_contents();
 			ob_end_clean();
 
-			// This is asset level output and hence must replace the raw contents (see Mysource:addRawContent());
-			$GLOBALS['SQ_SYSTEM']->replaceRawContents($asset_contents);
 		}
 
 		return $asset_contents;

@@ -86,10 +86,10 @@ class Page_REST_Resource_JS extends Page_REST_Resource
 		$GLOBALS['SQ_SYSTEM']->pm->stopTimer($this, 'processJavascript');
 		if (!empty($ret['output'])) {
 			if (!$this->attr('allow_global_replace')) {
-				$GLOBALS['SQ_SYSTEM']->addRawContent($ret['output']);
-			} else {
-				echo $ret['output'];
+				require_once SQ_FUDGE_PATH.'/general/text.inc';
+				escape_matrix_keywords($ret['output']);
 			}
+			echo $ret['output'];
 		} else {
 			trigger_localised_error('REST0001', E_USER_WARNING, $this->id, $ret['error_message']);
 		}
