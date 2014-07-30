@@ -154,17 +154,9 @@ class Google_Analytics_View extends Page
         );
  
         $cache_key .= '.'.http_build_query($params, '', ',');
-        
-        if ($force === TRUE) {
-            $refresh_resp = '0';
-        } else {
-            $refresh_resp = $connector->loadFromFetchCache($connector->getRefreshKey($cache_key));
-        }
-        
-        if ((string) $refresh_resp === '1') {
-            // Not stale yet.
-            $response = $connector->loadFromFetchCache($cache_key);
-        } else {
+
+        $raw_response = $connector->loadFromFetchCache($cache_key);
+        if ($raw_response === NULL) {
             // Stale or doesn't exist. Fetch it, and if it doesn't work, fall
             // back to any previously existing cache.
             $url      = Google_Analytics_Connector::FETCH_PREFIX.'/data/ga';
@@ -204,14 +196,14 @@ class Google_Analytics_View extends Page
             
             $url = replace_query_string_vars($url_params, $url);
             $raw_response = $connector->fetchWithBackoff($url);
-            
-            if ($raw_response['errors'] === NULL) {
-                $response = $raw_response['result'];
-                $connector->saveToFetchCache($cache_key, $response);
-            } else {
-                $response = NULL;
-            }
         }//end if
+            
+        if ($raw_response['errors'] === NULL) {
+            $response = $raw_response['result'];
+            $connector->saveToFetchCache($cache_key, $raw_response);
+        } else {
+            $response = NULL;
+        }
        
         if (($response === FALSE) || ($response === NULL)) {
             $result = Array(

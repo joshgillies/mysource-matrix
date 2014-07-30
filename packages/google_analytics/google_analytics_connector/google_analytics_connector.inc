@@ -364,16 +364,10 @@ class Google_Analytics_Connector extends OAuth2_Token
     
     
     /**
-     * Wrapper to saving fetched data from our Cache Manager.
+     * Wrapper to saving fetched data to our fetch cache.
      *
-     * This is for our fetched data where we want it to be fresh within a
-     * certain time period (eg. 4 hours) but concede that we cannot always
-     * updated it. Cache Manager doesn't have the concept of "stale but
-     * retrievable" data, so we need to write our own wrapper.
-     *
-     * So this saves two values: a key and a refresh key. The key contains the
-     * value saved and has a very long-term expiry. The refresh key contains a
-     * basic value (string '1') and will expire as per our fetch expiry.
+     * We can't use Cache Manager as that's meant for a different
+     * type of caching, and can't be used for a "global cache".
      *
      * @param string $key   The (main) key to store the value under.
      * @param mixed  $value The value to store to the key.
@@ -382,14 +376,14 @@ class Google_Analytics_Connector extends OAuth2_Token
      */
     public function saveToFetchCache($key, $value)
     {
-        // TODO: replace with attribute
-        $long_expiry = (3 * 365 * 60 * 60);
-        $cm          = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-        $key         = 'fetch.'.$key;
-        $refresh_key = $this->getRefreshKey($key);
+        include_once SQ_FUDGE_PATH.'/general/file_system.inc';
+
+        $key  = sha1($key);
+        $dir  = $this->data_path.'/fetch-cache/'.substr($key, 0, 2).'/'.substr($key, 2, 2);
+        $file = $dir.'/'.$key.'.json';
         
-        $cm->saveToCache($this->id, $this->type(), $key, json_encode($value), FALSE, $long_expiry);
-        $cm->saveToCache($this->id, $this->type(), $refresh_key, json_encode('1'), FALSE);
+        create_directory($dir);
+        file_put_contents($file, json_encode($value));
         
     }//end saveToFetchCache()
     
@@ -403,21 +397,22 @@ class Google_Analytics_Connector extends OAuth2_Token
      */
     public function loadFromFetchCache($key)
     {
-        $key    = 'fetch.'.$key;
-        $cm     = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-        $result = $cm->loadFromCache($this->id, $this->type(), $key, FALSE);
+        $key       = sha1($key);
+        $max_cache = 4 * 60 * 60;
+        $dir       = $this->data_path.'/fetch-cache/'.substr($key, 0, 2).'/'.substr($key, 2, 2);
+        $file      = $dir.'/'.$key.'.json';
+
+        if (file_exists($file) === FALSE) {
+            return NULL;
+        } else if ((time() - filemtime($file)) > $max_cache) {
+            unlink($file);
+            return NULL;
+        }     
+
+        $result = file_get_contents($file);
         return json_decode($result, TRUE);
         
     }//end loadFromFetchCache()
-    
-    
-    /**
-     * Get refresh key.
-     */
-    public function getRefreshKey($key)
-    {
-        return $key.'.refresh';
-    }
     
     
     /**
