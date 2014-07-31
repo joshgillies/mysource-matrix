@@ -1991,7 +1991,6 @@ class Workflow_Manager extends MySource_Object
 		$running_schemas = $this->getSchemas($assetid, TRUE, TRUE);
 		if (empty($running_schemas)) return Array();
 		$schema_workflows = $this->getSchemaWorkflows($assetid);
-
 		$steps = Array();
 		foreach ($schema_workflows as $schemaid => $workflow) {
 			if (!in_array($schemaid, $running_schemas)) continue;

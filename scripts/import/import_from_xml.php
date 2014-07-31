@@ -68,6 +68,12 @@ if (isset($_SERVER['argv'][3]) && $_SERVER['argv'][3] == '--root-node' ) {
 	}
 }//end if
 
+
+// should we skip virus check?
+$skip_virus_check = getCLIArg('skip-virus-check');
+if($skip_virus_check) $GLOBALS['SQ_SKIP_VIRUS_SCAN'] = TRUE;
+
+
 $root_user = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 require_once SQ_LIB_PATH.'/import_export/import.inc';
 $import_actions = get_import_actions($import_file);
@@ -322,14 +328,33 @@ function _connectToMatrixDatabase()
 */
 function usage()
 {
-	echo "\nUSAGE:\n".basename(__FILE__)." <system_root> <import_xml_file_to_read_from> [--root-node XX] [--force-create-dependants]\n\n";
+	echo "\nUSAGE:\n".basename(__FILE__)." <system_root> <import_xml_file_to_read_from> [--root-node XX] [--force-create-dependants] [--skip-virus-check]\n\n";
 	echo "system_root                   :The path to the Matrix install\n";
 	echo "import_xml_file_to_read_from  :The XML file that contains the asset data\n";
 	echo "--root-node                   :Optional argument used to let the script know the assetid to import the assets under.\n";
 	echo "                               --root-node needs to be followed by assetid after a space\n";
 	echo "--force-create-dependants     :Optional argument used to tell script to force create the dependant assets (like bodycopy under standard page)\n";
 	echo "                               if the actions to create these isn't in the XML import file\n";
+	echo "--skip-virus-check            :Optional argument. If global Virus Checker is enabled, immediate scan of created file will slow down the import process.\n";
+	echo "                               You can disable this immediate check using this argument.\n";
 
 }//end usage()
+
+
+/**
+ * Get CLI Argument
+ * Check to see if the argument is set, if it has a value, return the value
+ * otherwise return true if set, or false if not
+ *
+ * @params $arg string argument
+ *
+ * @return string/boolean
+ * @author Matthew Spurrier
+ */
+function getCLIArg($arg)
+{
+	return (count($match = array_values(preg_grep("/--" . $arg . "(\=(.*)|)/i",$_SERVER['argv']))) > 0 === TRUE) ? ((preg_match('/--(.*)=(.*)/',$match[0],$reg)) ? $reg[2] : true) : false;
+
+}//end getCLIArg()
 
 ?>
