@@ -207,13 +207,8 @@ class Google_Analytics_Connector extends OAuth2_Token
         // Cache for 4 hours.
         $cm       = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
         $key      = 'accountSummaries';
-        $response = Array();
-        
-        $refresh_resp = $this->loadFromFetchCache($this->getRefreshKey($key));
-        if ((string) $refresh_resp === '1') {
-            // Not stale yet.
-            $response = $this->loadFromFetchCache($key);
-        } else {
+        $response = $this->loadFromFetchCache($key);
+        if ($response === NULL) {
             // Stale or doesn't exist. Fetch it, and if it doesn't work, fall
             // back to any previously existing cache.
             $url = self::FETCH_PREFIX.'/management/accountSummaries';
@@ -279,16 +274,8 @@ class Google_Analytics_Connector extends OAuth2_Token
         // Cache for 4 hours.
         $cm       = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
         $key      = 'goals,'.$viewid;
-        $response = Array();
-        
-        $refresh_key = $key.'.refresh';
-        $expiry      = (4 * 60 * 60);
-        
-        $refresh_resp = $this->loadFromFetchCache($this->getRefreshKey($key));
-        if ((string) $refresh_resp === '1') {
-            // Not stale yet.
-            $response = $this->loadFromFetchCache($key);
-        } else {
+        $response = $this->loadFromFetchCache($key);
+        if ($response = NULL) {
             // Stale or doesn't exist. Fetch it, and if it doesn't work, fall
             // back to any previously existing cache.
             $url = self::FETCH_PREFIX.'/management/accounts/~all/webproperties/~all/profiles/~all/goals';
@@ -325,18 +312,10 @@ class Google_Analytics_Connector extends OAuth2_Token
         // Cache for 4 hours.
         $cm       = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
         $key      = 'experiments,'.$viewid;
-        $response = Array();
         $views    = $this->getViews();
         $view     = $views[$viewid];
-        
-        $refresh_key = $key.'.refresh';
-        $expiry      = (4 * 60 * 60);
-        
-        $refresh_resp = $this->loadFromFetchCache($this->getRefreshKey($key));
-        if ((string) $refresh_resp === '1') {
-            // Not stale yet.
-            $response = $this->loadFromFetchCache($key);
-        } else {
+        $response = $this->loadFromFetchCache($key);
+        if ($response === NULL) {
             // Stale or doesn't exist. Fetch it, and if it doesn't work, fall
             // back to any previously existing cache.
             $url = self::FETCH_PREFIX.'/management/accounts/'.$view['sq:accountId'].'/webproperties/'.$view['sq:propertyId'].'/profiles/'.$viewid.'/experiments';
