@@ -124,8 +124,6 @@ class Google_Analytics_View extends Page
             'ids'         => 'ga:'.$this->attr('viewid'),
             'start-date'  => $start_date,
             'end-date'    => $end_date,
-            'max-results' => 10000,
-            'start-index' => 1,
             'fields'      => 'rows',
         );
         
@@ -155,55 +153,72 @@ class Google_Analytics_View extends Page
  
         $cache_key .= '.'.http_build_query($params, '', ',');
 
-        $raw_response = $connector->loadFromFetchCache($cache_key);
-        if ($raw_response === NULL) {
-            // Stale or doesn't exist. Fetch it, and if it doesn't work, fall
-            // back to any previously existing cache.
-            $url      = Google_Analytics_Connector::FETCH_PREFIX.'/data/ga';
-            
-            // Flatten out the dimensions and metrics.
+        $response = $connector->loadFromFetchCache($cache_key);
+        if ($response === NULL) {
+            $done     = FALSE;
+            $response = Array();
             $url_params = $params;
-            $url_params['dimensions'] = implode(',', $url_params['dimensions']);
-            $url_params['metrics']    = implode(',', $url_params['metrics']);
-            
-            // Also sorting if specified.
-            if (count($url_params['sort']) > 0) {
-                $url_params['sort'] = implode(',', $url_params['sort']);
-            } else {
-                unset($url_params['sort']);
-            }
-            
-            if (array_key_exists('filters', $url_params) === TRUE) {
-                foreach ($url_params['filters'] as &$item) {
-                    // Filters can be two-dimensional, but the insides are always
-                    // "OR"d together.
-                    if (is_array($item) === TRUE) {
-                        $item = implode(',', $item);
-                    }
+            $url_params['start-index'] = 1;
+            $url_params['max-results'] = 10000;
+
+            while ($done === FALSE) {
+                // Stale or doesn't exist. Fetch it, and if it doesn't work, fall
+                // back to any previously existing cache.
+                $url      = Google_Analytics_Connector::FETCH_PREFIX.'/data/ga';
+                
+                // Flatten out the dimensions and metrics.
+                $url_params['dimensions'] = implode(',', $url_params['dimensions']);
+                $url_params['metrics']    = implode(',', $url_params['metrics']);
+                
+                // Also sorting if specified.
+                if (count($url_params['sort']) > 0) {
+                    $url_params['sort'] = implode(',', $url_params['sort']);
+                } else {
+                    unset($url_params['sort']);
                 }
                 
-                // Then they are "AND"ed.
-                $url_params['filters'] = implode(';', $url_params['filters']);
-            }
+                if (array_key_exists('filters', $url_params) === TRUE) {
+                    foreach ($url_params['filters'] as &$item) {
+                        // Filters can be two-dimensional, but the insides are always
+                        // "OR"d together.
+                        if (is_array($item) === TRUE) {
+                            $item = implode(',', $item);
+                        }
+                    }
+                    
+                    // Then they are "AND"ed.
+                    $url_params['filters'] = implode(';', $url_params['filters']);
+                }
 
-            if ($url_params['filters'] === '') {
-                unset($url_params['filters']);
-            }
+                if ($url_params['filters'] === '') {
+                    unset($url_params['filters']);
+                }
 
-            if ($url_params['sort'] === '') {
-                unset($url_params['sort']);
+                if ($url_params['sort'] === '') {
+                    unset($url_params['sort']);
+                }
+                
+                $url = replace_query_string_vars($url_params, $url);
+                $raw_response = $connector->fetchWithBackoff($url);
+
+                if ($raw_response['errors'] === NULL) {
+                    $response = array_merge($response, $raw_response['result']);
+                    if (count($raw_response['result']) === $url_params['max-results']) {
+                        // We have more results to come.
+                        $url_params['start-index'] += $url_params['max-results'];
+                    } else {
+                        $done = TRUE;
+                    }
+                } else {
+                    $response = NULL;
+                    $done     = TRUE;
+                }
+            }//end while (not done)
+
+            if ($response !== NULL) {
+                $connector->saveToFetchCache($cache_key, $response);
             }
-            
-            $url = replace_query_string_vars($url_params, $url);
-            $raw_response = $connector->fetchWithBackoff($url);
-        }//end if
-            
-        if ($raw_response['errors'] === NULL) {
-            $response = $raw_response['result'];
-            $connector->saveToFetchCache($cache_key, $raw_response);
-        } else {
-            $response = NULL;
-        }
+        }//end if (not cached)
        
         if (($response === FALSE) || ($response === NULL)) {
             $result = Array(
