@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8' ?>
-<?xml-stylesheet href="../../asset.xsl" type="text/xsl"?>
+<?xml-stylesheet href="../../../packages/asset.xsl" type="text/xsl"?>
 
 <!--
 /**
@@ -13,19 +13,18 @@
 * | you a copy.                                                        |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.11 2011/07/14 00:34:24 akarelia Exp $
-*
 */
 -->
 
-<asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
-    <package>web_services</package>
-    <type_code>js_api</type_code>
-    <version>0.7</version>
-    <name>Javascript API</name>
-    <description>The API contains a number of functions which is exposed to allow external system to do operations in Matrix</description>
-    <instantiable>yes</instantiable>
-    <allowed_access>backend_user</allowed_access>
-    <parent_type>page</parent_type>
-	<flash_menu_path>Web Services</flash_menu_path>
+<asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../packages/asset.xsd">
+	<package>google_analytics</package>
+	<type_code>google_analytics_connector</type_code>
+	<version>0.1</version>
+	<name>Google Analytics Connector</name>
+	<description>Provides an interface to a Google Analytics account, using OAuth2 authentication.</description>
+	<instantiable>yes</instantiable>
+	<allowed_access>backend_user</allowed_access>
+	<parent_type>oauth2_token</parent_type>
+	<requirements />
+	<flash_menu_path>Google Analytics</flash_menu_path>
 </asset_info>

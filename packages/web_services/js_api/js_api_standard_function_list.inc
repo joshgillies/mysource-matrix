@@ -2376,6 +2376,70 @@ function updateQuestionOrder(assetid, sort_order, dataCallback)
 			<?php
 		}//end if(update_question_order)
 
+		
+		if ($js_api_asset->attr('get_ga_statistics')) {
+			?>
+
+		/**
+		* Makes a statistics request.
+		*
+		* Required:
+		* - either duration or start_date is required but not both
+		* - dimensions are required even if empty; no more than 7 allowed
+	    * - metrics are required and must be between 1 and 10 of them
+		*
+		* Defaults:
+		* - request.end_date defaults to today's date if omitted
+		* - sort_by and filter are empty if omitted
+		* - force defaults to false
+		*
+		* Notes:
+		* - duration is ISO 8601 period format, eg. "P14D" for 14 days, "P2M"
+		*   for 2 months. Sets start date to "take end_date, subtract duration,
+		*   add one day".
+		* - Setting start date, on the other hand, is inclusive.
+		* - metrics also can be set to 'SQ_SITE_METRICS' or 'SQ_PAGE_METRICS'
+		*   for a set of standard site or page metrics.
+		* - sort_by array are 
+		* - filters are ANDed together. Filters can also be specified as an array
+		*   of subfilters which are ORed together first.
+		*
+		* @param {String} assetid                       The ID of the asset
+		* @param {Object} request                       Request info.
+		* @param {String} request.end_date              The end date.
+		* @param {String} request.start_date            The start date.
+		* @param {String} request.duration              The period duration.
+		* @param {Array.String} request.dimensions      Dimensions to retrieve.
+		* @param {String|Array.String} request.metrics  Metrics to retrieve.
+		* @param {Array.String} request.sort_by         Sort order of results.
+		* @param {Array.(String|Array.String)} request.filter  Filters.
+		* @param {Function} dataCallback                Custom callback function.
+		*/
+		getGoogleAnalyticsStatistics: function(assetid, request, dataCallback)
+		{
+			// Create blank function
+            var dataCallback = typeof(dataCallback) != 'undefined' ? dataCallback : function() {};
+        
+            var url = '<?php echo $api_url; ?>' + '?key=' + api_key
+                        + '&type=getGoogleAnalyticsStatistics&id=' + assetid;
+        
+            for (field_name in request) {
+                if (Object.prototype.toString.call(request[field_name]) === '[object Array]') {
+                    url = url + '&' + field_name + '=' + request[field_name].join('\\,');
+                } else {
+                    url = url + '&' + field_name + '=' + request[field_name];
+                }
+            }
+
+            // Make our request
+            makeRequest(url, true, dataCallback);
+
+		},// end getGoogleAnalyticsStatistics
+
+
+			<?php
+		}//end if(get_statistics)
+		
 
 	}//end paintJSFunctions()
 

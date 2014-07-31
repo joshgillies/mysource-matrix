@@ -1,0 +1,34 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This MySource Matrix CMS file is Copyright (c) Squiz Pty Ltd       |
+* | ACN 084 670 600                                                    |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | IMPORTANT: Your use of this Software is subject to the terms of    |
+* | the Licence provided in the file licence.txt. If you cannot find   |
+* | this file please contact Squiz (www.squiz.net) so we may provide   |
+* | you a copy.                                                        |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_details.xml,v 1.1.1.1 2013/07/19 00:29:26 ewang Exp $
+*
+*/
+-->
+
+<contents>
+	<section name="Most Viewed Content (Non-Mobile)" write_access="root:none">
+	    <function_call>
+	        <paint_function name="paintContentMostViewedReportDesktop" />
+	    </function_call>
+	</section>
+	<section name="Most Viewed Content (Mobile)" write_access="root:none">
+	    <function_call>
+	        <paint_function name="paintContentMostViewedReportMobile" />
+	    </function_call>
+	</section>
+	<section name="Most Viewed Content by Returning Users (All Platforms)" write_access="root:none">
+	    <function_call>
+	        <paint_function name="paintContentMostViewedReportReturningUsers" />
+	    </function_call>
+	</section>
+</contents>
