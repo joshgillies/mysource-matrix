@@ -38,6 +38,10 @@
 					<li>Domain Relative Path - /path/to/file</li>
 				</ul>]]>
 			</note>
+			<function_call>
+				<paint_function name="paintFileReferenceMethod"   />
+				<process_function name="processFileReferenceMethod" />
+			</function_call>
 		</field>
 	</section>
 	<section name="Parse File">
