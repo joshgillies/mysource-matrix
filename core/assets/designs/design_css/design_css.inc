@@ -781,6 +781,48 @@ echo '/*
 	}//end _setCacheFileEnabled()
 
 
+	/**
+	* Returns the editable content of this asset
+	*
+	* NOTE: We don't want to return the editable content for most of the cases
+	* For example, we dont want Search Manager to index CSS content
+	*
+	* @param boolean $empty_content	If TRUE, empty content will be returned
+	*
+	* @return string
+	* @access public
+	*/
+	public function getContent($empty_content=TRUE)
+	{
+		if ($empty_content) {
+			return '';
+		}
+
+		$cache_asset = NULL;
+		if ($this->attr('cache_css')) {
+			$cache_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_3, 'file', FALSE, 'css_cache');
+			if (!empty($cache_link['minorid'])) {
+				$cache_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($cache_link['minorid']);
+			}
+		}
+
+		if (!is_null($cache_asset)) {
+			$content = $cache_asset->getContent(FALSE);
+		} else {
+			// Either cache file option is off or cache has not been created yet
+			$old_level = error_reporting();
+			error_reporting(0);
+				ob_start();
+					$this->paint($this, Array(), FALSE);
+					$content = ob_get_contents();
+				ob_end_clean();
+			error_reporting($old_level);
+		}
+
+		return $content;
+
+	}//end getContent()
+
 
 }//end class
 ?>

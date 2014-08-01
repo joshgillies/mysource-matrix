@@ -61,20 +61,24 @@ class Css_File_Folder extends File_Folder
 	{
 		return 'css';
 
-	}//end minifyFiles()
+	}//end getFileExtension()
 
 
 	/**
-	* Get the file asset type that this folder supports
+	* Get the file asset types that this folder supports
 	*
 	* @return boolean
 	* @access public
 	*/
-	public function getFileAssetType()
+	public function getFileAssetTypes()
 	{
-		return 'css_file';
+		return Array(
+				'css_file',
+				'design_css',
+			);
 
-	}//end minifyFiles()
+	}//end getFileAssetTypes()
+
 
 }//end class
 

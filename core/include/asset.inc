@@ -4383,10 +4383,12 @@ class Asset extends MySource_Object
 	/**
 	* Returns the editable content of this asset
 	*
+	* @param boolean $empty_content If TRUE, empty content will be returned
+	*
 	* @return string
 	* @access public
 	*/
-	public function getContent()
+	public function getContent($empty_content=TRUE)
 	{
 		return '';
 
