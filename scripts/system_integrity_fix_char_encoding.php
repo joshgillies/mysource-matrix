@@ -76,6 +76,9 @@ $root_node_id = ($root_node_id) ? $root_node_id : 1;
 
 $reportOnly = getCLIArg('report');
 
+// Whether to include rollback tables in the db
+$include_rollback = !getCLIArg('ignore-rollback');
+
 // Make sure iconv is available.
 if (function_exists('iconv') == FALSE) {
     echo "This script requires the php iconv module which isn't available.\n";
@@ -139,6 +142,16 @@ $tables = Array(
 			Array(
 				'table'			=> 'trig',
 				'values'		=> Array('name', 'data', 'description', 'category'),
+				'asset_assoc'	=> FALSE,
+			),
+			Array(
+				'table'			=> 'sch_idx',
+				'values'		=> Array('value'),
+				'asset_assoc'	=> TRUE,
+			),
+			Array(
+				'table'			=> 'thes_term',
+				'values'		=> Array('term'),
 				'asset_assoc'	=> FALSE,
 			),
 	);
@@ -210,6 +223,38 @@ define('BATCH_SIZE', '100');
  // No turning back now. Start char fixing.
 $start_time = microtime(TRUE);
 
+// Whether to check rollback tables
+$rollback_summary = NULL;
+if ($include_rollback) {
+
+	$pid = fork();
+	if (!$pid) {
+    	
+		// NOTE: This seemingly ridiculousness allows us to workaround Oracle, forking and CLOBs
+	    // if a query is executed that returns more than 1 LOB before a fork occurs,
+    	// the Oracle DB connection will be lost inside the fork
+		require_once $SYSTEM_ROOT.'/core/include/init.inc';
+
+		// Fix the rollback tables
+		$summary = fix_db($root_node_id, $tables, TRUE);
+
+		// Unlike regular tables, for rollback table entries we dont need to obtain affected assetids 
+		// list to regenerate the relevant files in the filesystem
+		unset($summary['affected_assetids']);
+		file_put_contents(SYNC_FILE, serialize($summary));
+	
+
+		exit();
+
+	}//end child process
+
+	if (!is_file(SYNC_FILE)) {
+		echo "Expected sync file containing the affected rollback entries not found. Only rollback tables were updated\n";
+		exit(1);
+	}
+	$rollback_summary = unserialize(file_get_contents(SYNC_FILE));
+}
+
 $pid = fork();
 if (!$pid) {
 
@@ -218,7 +263,8 @@ if (!$pid) {
     // the Oracle DB connection will be lost inside the fork
 	require_once $SYSTEM_ROOT.'/core/include/init.inc';
 
-	$summary = fix_db($root_node_id, $tables);
+	// Fix regular tables
+	$summary = fix_db($root_node_id, $tables, FALSE);
 
 	// Get the list of assetids for which we need to regenerate  the filesystem content
 	// to reflect the changes made in the db
@@ -227,7 +273,14 @@ if (!$pid) {
 	// Also get the context ids
 	$contextids = array_keys($GLOBALS['SQ_SYSTEM']->getAllContexts());
 
-	file_put_contents(SYNC_FILE, serialize(Array('affected_assetids' => $affected_assetids, 'db_summary' => $summary, 'contextids' => $contextids)));
+	// Database update summary for both regular and rollback tables
+	unset($summary['affected_assetids']);
+	$db_summary = Array(
+					'regular' => $summary,
+					'rollback' => $rollback_summary,
+				);
+
+	file_put_contents(SYNC_FILE, serialize(Array('affected_assetids' => $affected_assetids, 'db_summary' => $db_summary, 'contextids' => $contextids)));
 
 	exit();
 
@@ -240,19 +293,27 @@ if (!is_file(SYNC_FILE)) {
 
 $summary = unserialize(file_get_contents(SYNC_FILE));
 
-// Fix the filesystem content to reflect the changes made in the db
-if ($reportOnly == FALSE) {
+if (!$reportOnly) {
+	// Fix the filesystem content to reflect the changes made in the db
 	regenerate_filesystem_content($summary['affected_assetids'], $summary['contextids']);
 
-	echo "Number of db records replaced successfully: ".$summary['db_summary']['records_fixed_count']."\n";
-	echo "Total errors recorded: ".$summary['db_summary']['error_count']."\n";
+	echo "Number of db records replaced successfully: ".$summary['db_summary']['regular']['records_fixed_count']."\n";
+	echo "Total errors recorded: ".$summary['db_summary']['regular']['error_count']."\n";
+	if ($include_rollback) {
+		echo "Number of rollback db records replaced successfully: ".$summary['db_summary']['rollback']['records_fixed_count']."\n";
+		echo "Total rollback errors recorded: ".$summary['db_summary']['rollback']['error_count']."\n";
+	}
 } else {
-	echo "Number of db records that need replacing: ".$summary['db_summary']['records_fixed_count']."\n";
+	echo "Number of db records that need replacing: ".$summary['db_summary']['regular']['records_fixed_count']."\n";
+	if ($include_rollback) {
+		echo "Number of rollback db records that need replacing: ".$summary['db_summary']['rollback']['records_fixed_count']."\n";
+	}
 }
 
 echo "Total time taken to run the script: ".round(microtime(TRUE)-$start_time, 2)." second(s)\n";
 
-if ($summary['db_summary']['error_count'] > 0)	{
+$total_error_count = $include_rollback ? $summary['db_summary']['regular']['error_count']+$summary['db_summary']['rollback']['error_count'] : $summary['db_summary']['regular']['error_count'];
+if ($total_error_count > 0)	{
 	echo "\nPlease check ".SCRIPT_LOG_FILE." file for errors\n\n";
 }
 echo "\n";
@@ -265,16 +326,17 @@ exit();
 /**
  * Fixes the char encoding in the given tables in the database
  *
- * @param int 	$root_node		Assetid of rootnode, all childern of rootnode will be processed for char replacement
- * @param array	$tables			DB tables and colunms info
+ * @param int		$root_node		Assetid of rootnode, all childern of rootnode will be processed for char replacement
+ * @param array		$tables			DB tables and colunms info
+ * @param boolean	$rollback		If TRUE process rollback tables, else process regular tables
  *
  * @return void
  */
-function fix_db($root_node, $tables)
+function fix_db($root_node, $tables, $rollback)
 {
     global $reportOnly;
 
-	$table_info = get_tables_info();
+	$tables_info = get_tables_info();
 
 	// Get the list of attrids of the type 'serialise'
 	$sql = "SELECT attrid FROM sq_ast_attr where type='serialise'";
@@ -307,7 +369,7 @@ function fix_db($root_node, $tables)
 			continue;
 		}
 
-		$key_fields = isset($table_info[$table]['primary_key']) ? $table_info[$table]['primary_key'] : '';
+		$key_fields = isset($tables_info[$table]['primary_key']) ? $tables_info[$table]['primary_key'] : '';
 		if (empty($key_fields)) {
 			echo "\n".'Ignoring table "'.$table.'". Table info for this table not found'." \n";
 			continue;
@@ -318,14 +380,27 @@ function fix_db($root_node, $tables)
 			continue;
 		}
 
-		// Prepend table prefix. Script handles non-rollback tables only
-		$table = 'sq_'.$table;
+		if ($rollback) {
+			// Make sure table has rollback trigggers enabled, otherwise it will have rollback table
+			if (isset($tables_info[$table]['rollback']) && $tables_info[$table]['rollback']) {
+				// Add rollback table primary key field to the table's keys
+				$key_fields[] = 'sq_eff_from';
+			} else {
+				// This table does not has corresponding rollback table
+				continue;
+			}
+		}
+
+		// Prepend table prefix
+		$table = !$rollback ? 'sq_'.$table : 'sq_rb_'.$table;
 
 		$asste_specific_table = $table_data['asset_assoc'];
 		$select_fields = array_merge($value_fields, $key_fields);
 		if ($asste_specific_table && !in_array('assetid', $select_fields)) {
 			$select_fields[] = 'assetid';
 		}
+
+		echo "\nChecking ".$table." .";
 
 		// For non-asset specific table, this loop will break at end of the very first iteration
 		foreach ($chunks as $assetids) {
@@ -457,8 +532,8 @@ function fix_db($root_node, $tables)
 						}
 						$where_sql = Array();
 						foreach($key_values as $field_name => $value) {
-							$where_sql[] = $field_name.'=:'.$field_name.'_v';
-							$bind_vars[$field_name.'_v'] = $value;
+							$where_sql[] = $field_name.'=:'.$field_name.'_k';
+							$bind_vars[$field_name.'_k'] = $value;
 						}
 
                         try {
@@ -865,17 +940,19 @@ function getCLIArg($arg)
  */
 function print_usage()
 {
-    echo "\nThis script performs the charset conversion on the database from the older to the current encoding.";
-    echo "\nIt also regenerates the content files (bodycopy, metadata and design) of asset associated with the db record.\n\n";
+	echo "\nThis script performs the charset conversion on the database from the older to the current encoding.";
+	echo "\nIt also regenerates the content files (bodycopy, metadata and design) of asset associated with the db record.\n\n";
 
-    echo "Usage: php ".basename(__FILE__)." --system=<SYSTEM_ROOT> --old=<OLD_CHARSET> [--new=<NEW_CHARSET>] [--rootnode=<ROOT_NODE>] [--report]\n\n";
-    echo "\t<SYSTEM_ROOT> : The root directory of Matrix system.\n";
-    echo "\t<OLD_CHARSET> : Previous charset of the system. (eg. UTF-8, Windows-1252, etc)\n";
-    echo "\t<NEW_CHARSET> : New charset of the system. (eg. UTF-8, Windows-1252, etc)\n";
-    echo "\t<ROOT_NODE>   : Assetid of the rootnode (all children of the rootnode will be processed by the script).\n";
-    echo "\t<--report>    : Issue a report only instead of also trying to convert the data.\n";
+	echo "Usage: php ".basename(__FILE__)." --system=<SYSTEM_ROOT> --old=<OLD_CHARSET> [--new=<NEW_CHARSET>] [--rootnode=<ROOT_NODE>] [--ignore-rollback] [--report]\n\n";
+	echo "\t<SYSTEM_ROOT>		: The root directory of Matrix system.\n";
+	echo "\t<OLD_CHARSET>		: Previous charset of the system. (eg. UTF-8, Windows-1252, etc)\n";
+	echo "\t<NEW_CHARSET>		: New charset of the system. (eg. UTF-8, Windows-1252, etc)\n";
+	echo "\t<ROOT_NODE>			: Assetid of the rootnode (all children of the rootnode will be processed by the script).\n";
+	echo "\t<ROOT_NODE>			: Assetid of the rootnode (all children of the rootnode will be processed by the script).\n";
+	echo "\t[--report]			: Issue a report only instead of also trying to convert the data.\n";
+	echo "\t[--ignore-rollback]	: Do not include rollback tables.\n";
 
-    echo "\nWARNING: IT IS STRONGLY RECOMMENDED THAT YOU BACKUP YOUR SYSTEM BEFORE RUNNING THIS SCRIPT\n\n";
+	echo "\nWARNING: IT IS STRONGLY RECOMMENDED THAT YOU BACKUP YOUR SYSTEM BEFORE RUNNING THIS SCRIPT\n\n";
 
 }//end print_usage()
 
