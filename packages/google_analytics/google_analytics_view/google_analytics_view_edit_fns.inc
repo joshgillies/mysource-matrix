@@ -44,7 +44,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
      * @const string.
      */
     const NOT_PROVIDED = '(not provided)';
-    
+
 
 	/**
 	* Constructor
@@ -53,7 +53,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	function __construct()
 	{
 		parent::__construct();
-		
+
 		// enable just the details
 		// disable lock section
 		$this->static_screens = Array();
@@ -62,40 +62,41 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 		$this->static_screens['details']['lock_type'] = 'none';
 
 	}//end constructor
-	
-	
+
+
 	/**
 	 * Paint the "overall" report.
 	 *
 	 */
 	public function paintSummaryOverallReport($asset, &$o, $prefix)
 	{
-	    $bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->bridgeid);
-	    $period = $bridge->attr('period');
-	    
+	    $connector_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'google_analytics_connector', FALSE, NULL, 'minor');
+	    $connector      = $GLOBALS['SQ_SYSTEM']->am->getAsset($connector_link['majorid']);
+        $period         = 'P1M';
+
 	    $end_date   = new DateTime('today 00:00:00');
 	    $start_date = clone $end_date;
 	    $start_date->sub(new DateInterval($period));
 	    $date_diff  = $start_date->diff($end_date);
 	    $start_date->add(new DateInterval('P1D'));
 	    $day_count  = (int) $date_diff->format('%a');
-	    
+
 	    $report = $asset->generateReport(
 	        Array(),
 	        Google_Analytics_View::SITE_METRICS,
 	        $start_date->format('Y-m-d'),
 	        $end_date->format('Y-m-d')
 	    );
-	    
+
 	    $report = array_get_index($report, 0, Array());
-	    
+
 	    $visTypeRawReport = $asset->generateReport(
 	        Array('ga:userType'),
 	        Google_Analytics_View::SITE_METRICS,
 	        $start_date->format('Y-m-d'),
 	        $end_date->format('Y-m-d')
 	    );
-	    
+
 	    foreach ($visTypeRawReport as $row) {
 	        if ($row['ga:userType'] === 'New Visitor') {
 	            $visTypeReport['new'] = $row;
@@ -103,14 +104,14 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	            $visTypeReport['returning'] = $row;
 	        }
 	    }//end foreach
-	    
+
 	    $visTypeReport['new']       = array_get_index($visTypeReport, 'new', Array());
 	    $visTypeReport['returning'] = array_get_index($visTypeReport, 'returning', Array());
 	    unset($visTypeRawReport);
 
 	    // Give us some goal stats for this period, five at a time (because
 	    // 10 metrics maximum).
-	    $goals = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->bridgeid)->getGoals($asset->viewid);
+	    $goals = $connector->getGoals($asset->viewid);
 	    $goals_reports = Array();
 	    foreach (array_chunk(array_keys($goals), 5) as $goalids) {
 	        $goal_metrics = Array();
@@ -126,7 +127,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	        );
 	        $goals_reports = array_merge($goals_reports, $goals_report[0]);
 	    }//end foreach
-	    
+
 	    // But we still need to calculate our own rate, because Starts only
 	    // has meaning for a funnel. Anything that doesn't have a funnel will
 	    // have the same number of starts as completions, so reset that to
@@ -135,7 +136,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	        if (($goal['type'] !== 'URL_DESTINATION') || ($goal['urlDestinationDetails']['firstStepRequired'] === FALSE)) {
 	            $report['ga:goalStartsAll'] -= $goals_reports['ga:goal'.$goal['id'].'Starts'];
 	            $report['ga:goalStartsAll'] += $report['ga:sessions'];
-	            
+
 	            $goals_reports['ga:goal'.$goal['id'].'Starts'] = NULL;
 	            if ($report['ga:sessions'] === 0) {
 	                $goals_reports['sq:goal'.$goal['id'].'Rate'] = NULL;
@@ -150,7 +151,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	            }
 	        }
 	    }//end foreach
-	    
+
 	    $o->openField(translate('Reporting Period'));
 	        echo sprintf(
 	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
@@ -159,7 +160,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	            $day_count
 	        );
 	    $o->closeField();
-	    
+
 	    // Sessions and unique users.
 	    $o->openSection(translate('Sessions and users'));
 	    $o->openRaw();
@@ -203,7 +204,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    </tbody></table><?php
 	    $o->closeRaw();
 	    $o->closeSection();
-	    
+
 	    // Session statistics.
 	    $o->openSection(translate('Session statistics'));
 	    $o->openRaw();
@@ -224,7 +225,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	        </tr>
 	        <tr>
 	            <th><?php echo translate('Session duration') ?></th>
-	            <td colspan="3"><?php 
+	            <td colspan="3"><?php
 	                $time = $report['ga:sessionDuration'] / $report['ga:sessions'];
                     if ($time >= 60) {
                         echo sprintf(translate('%s min %s sec', '%s', '%s'), (int)($time / 60), floor($time % 60));
@@ -237,7 +238,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    </table><?php
 	    $o->closeRaw();
 	    $o->closeSection();
-	    
+
 	    // Session statistics.
 	    $o->openSection(translate('...amongst users who don\'t bounce off your site'));
 	    $o->openRaw();
@@ -263,7 +264,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                     } else {
                         $nb_str = sprintf(translate('%s sec', '%s'), (floor($nb_time * 10) / 10));
                     }
-                        
+
                     echo translate('%s', $nb_str);
 	            ?></td>
 	        </tr>
@@ -271,7 +272,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    </table><?php
 	    $o->closeRaw();
 	    $o->closeSection();
-	    
+
 	    // Start the section on goal stats.
 	    $o->openSection(translate('Goal statistics'));
 	    $o->sectionNote(translate('For <strong>"URL (Funnel)" goals</strong>, only sessions that view the first page in the funnel are considered "starts".').
@@ -310,7 +311,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                         }//end if
                     ?></strong></td>
                     <td style="text-align: right"><strong><?php echo number_format($report['ga:goalCompletionsAll'], 0); ?></strong></td>
-                    <td style="text-align: right"><strong><?php echo number_format($report['ga:goalStartsAll'], 0); ?></strong></td>	           
+                    <td style="text-align: right"><strong><?php echo number_format($report['ga:goalStartsAll'], 0); ?></strong></td>
                 </tr><?php
                 foreach ($goals as $goal) {
                 ?><tr>
@@ -346,7 +347,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                         }//end if
                     ?></strong></td>
                     <td style="text-align: right"><?php echo number_format($goals_reports['ga:goal'.$goal['id'].'Completions'], 0); ?></td>
-                    <td style="text-align: right"><?php echo number_format(array_get_index($goals_reports, 'ga:goal'.$goal['id'].'Starts', $report['ga:sessions']), 0); ?></td>	           
+                    <td style="text-align: right"><?php echo number_format(array_get_index($goals_reports, 'ga:goal'.$goal['id'].'Starts', $report['ga:sessions']), 0); ?></td>
                 </tr><?php
                 }//end foreach
             }//end if
@@ -354,9 +355,9 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    </table><?php
 	    $o->closeRaw();
 	    $o->closeSection();
-	    
+
 	    // Start the section on experiment management API info.
-	    $experiments = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->bridgeid)->getExperiments($asset->viewid);
+	    $experiments = $connector->getExperiments($asset->viewid);
 	    $o->openSection(translate('Content Experiments'));
 	    $o->openRaw();
 	    ?><table class="sq-backend-table">
@@ -382,7 +383,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	            ?><tr>
 	            <td colspan="7"><?php echo translate('No content experiments available for this view'); ?></td>
 	            </tr><?php
-	        } else {	       
+	        } else {
                 foreach ($experiments as $experiment) {
                 ?><tr>
                     <th style="font-weight: normal"><strong><?php echo $experiment['name'] ?></strong><br/>
@@ -406,7 +407,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                                 } else {
                                     echo translate('Ended %s', date('jS M Y', $end_time));
                                 }
-                                
+
                                 echo '<br/>';
                                 switch ($experiment['reasonExperimentEnded']) {
                                     case 'WINNER_FOUND':
@@ -451,7 +452,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                     echo '<ol><li>'.implode('</li><li>', $variation_list).'</li></ol>';
                     ?></td>
                     <td><?php echo translate('%s%%', $experiment['trafficCoverage'] * 100.0) ?></td>
-                    <td><?php 
+                    <td><?php
                     if ($experiment['equalWeighting'] === TRUE) {
                         echo translate('Equal');
                     } else {
@@ -466,26 +467,25 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    </table><?php
 	    $o->closeRaw();
 	    $o->closeSection();
-	    
+
 	    return FALSE;
-	    
+
 	}//end paintSummaryOverallReport()
-	
+
 	/**
 	 * Paint the geographic reports.
 	 *
 	 */
 	public function paintGeoCountryReport($asset, &$o, $prefix)
 	{
-	    $bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->bridgeid);
-	    $period = $bridge->attr('period');
-	    
+	    $period = 'P1M';
+
 	    $end_date    = new DateTime('today 00:00:00');
 	    $start_date  = clone $end_date;
 	    $start_date->sub(new DateInterval($period));
 	    $date_diff   = $start_date->diff($end_date);
 	    $start_date->add(new DateInterval('P1D'));
-	    
+
 	    $raw_report  = $asset->generateReport(
 	        Array(
 	            'ga:country',
@@ -497,12 +497,12 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	        $end_date->format('Y-m-d'),
 	        Array('-ga:sessions')
 	    );
-	    
+
 	    $total_sessions = 0;
 	    $crop_sessions  = 0;
 	    $report         = Array();
 	    $city_report    = Array();
-	    
+
 	    $i = 0;
 	    foreach ($raw_report as $rowid => &$row) {
 	        $total_sessions += $row['ga:sessions'];
@@ -512,13 +512,13 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	        } else {
 	            $country = $row['ga:country'];
 	            $city    = $row['ga:city'];
-	            
+
 	            if ($city === self::NOT_SET) {
 	                $city = $row['ga:region'];
 	            } else if ($row['ga:region'] !== self::NOT_SET) {
 	                $city .= ', '.$row['ga:region'];
 	            }
-	            
+
 	            if ($city !== self::NOT_SET) {
 	                $i++;
 	                $city_report[$country] = array_get_index($city_report, $country, Array());
@@ -526,7 +526,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                     $city_report[$country][$city]['sq:cityRegion'] = $city;
                     $city_report[$country][$city]['sq:rank'] = $i;
                 }
-	            
+
 	            if (array_key_exists($country, $report) === TRUE) {
 	                foreach ($row as $fieldid => &$value) {
 	                    if (is_numeric($value) === TRUE) {
@@ -538,18 +538,18 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	            }
 	        }
 	    }//end foreach
-	    
+
 	    usort($report, function($a, $b) {
 	        return $b['ga:sessions'] - $a['ga:sessions'];
 	    });
-	    
+
 	    foreach ($city_report as $country => &$city_rows) {
             usort($city_rows, function($a, $b) {
                 return $a['sq:rank'] - $b['sq:rank'];
             });
             $city_rows = array_slice($city_rows, 0, 5);
-	    }	  
-	    
+	    }
+
 	    $max_results = 20;
 	    $other_report = array_reduce(
 	        array_slice($report, $max_results),
@@ -563,17 +563,17 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	            } else {
 	                $carry = $row;
 	            }
-	            
+
 	            return $carry;
 	        },
 	        Array()
 	    );
-	    
+
 	    $other_report['ga:country'] = translate('Other countries (%s)', count($report) - $max_results);
 	    $other_report['sq:other']   = TRUE;
 	    $report = array_slice($report, 0, $max_results);
 	    $report[] = $other_report;
-	    
+
 	    $o->openField(translate('Reporting Period'));
 	        echo sprintf(
 	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
@@ -582,14 +582,14 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	            $date_diff->format('%a')
 	        );
 	    $o->closeField();
-	    
+
 	    $o->openField(translate('Total Sessions'));
             echo translate(
                 '%s / %s sessions analysed',
                 number_format(($total_sessions - $crop_sessions), 0),
                 number_format($total_sessions, 0)
             );
-	    
+
             if ($crop_sessions > 0) {
                 $o->note(translate(
                     'Only %s%% of all session details provide location information',
@@ -597,7 +597,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                 ));
             }
         $o->closeField();
-	    
+
 	    $o->openRaw();
 	    ?><table class="sq-backend-table">
 	    <col width="40%" />
@@ -618,7 +618,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	        foreach ($report as $row) {
 	            $rank++;
             ?><tr>
-                <th><?php 
+                <th><?php
                 $country = $row['ga:country'];
                 if (array_key_exists('sq:other', $row) === FALSE) {
                     echo $rank.'. '.$row['ga:country'];
@@ -650,10 +650,10 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                 if (array_key_exists('sq:other', $row) === FALSE) {
                     foreach ($city_report[$country] as $city_row) {
                     ?><tr>
-                        <td><?php 
+                        <td><?php
                         echo '<span style="float: left; padding-left: 3ex">';
                         echo $city_row['sq:cityRegion'];
-                        echo '</span><span style="float: right"><em>(#'.$city_row['sq:rank'].')</em></span>'; 
+                        echo '</span><span style="float: right"><em>(#'.$city_row['sq:rank'].')</em></span>';
                         ?></td>
                         <td style="text-align: right"><strong><?php echo number_format($city_row['ga:sessions'], 0); ?></strong></td>
                         <td style="text-align: right"><?php echo number_format($city_row['ga:sessions'] / $total_sessions * 100.0, 2).'%'; ?></td>
@@ -684,12 +684,12 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
             }
             ?></tbody></table><?php
 	    $o->closeRaw();
-	    
+
 	    return FALSE;
-	    
+
 	}//end paintGeographicReport()
-	
-	
+
+
 	/**
 	 * Paint the geographic reports.
 	 *
@@ -698,7 +698,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	{
 	    $bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->bridgeid);
 	    $period = $bridge->attr('period');
-	    
+
 	    $end_date    = new DateTime('today 00:00:00');
 	    $start_date  = clone $end_date;
 	    $start_date->sub(new DateInterval($period));
@@ -716,7 +716,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	        $end_date->format('Y-m-d'),
 	        Array('-ga:sessions')
 	    );
-	    
+
 	    $total_sessions = 0;
 	    $crop_sessions  = 0;
 	    foreach ($report as $rowid => &$row) {
@@ -726,9 +726,9 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                 unset($report[$rowid]);
 	        }
 	    }//end foreach
-	    
+
 	    $report = array_slice($report, 0, 50);
-	    
+
 	    $o->openField(translate('Reporting Period'));
 	        echo sprintf(
 	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
@@ -737,14 +737,14 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	            $date_diff->format('%a')
 	        );
 	    $o->closeField();
-	    
+
 	    $o->openField(translate('Total Sessions'));
             echo translate(
                 '%s / %s sessions analysed',
                 number_format(($total_sessions - $crop_sessions), 0),
                 number_format($total_sessions, 0)
             );
-        
+
             if ($crop_sessions > 0) {
                 $o->note(translate(
                     'Only %s%% of all session details provide a city',
@@ -752,7 +752,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                 ));
             }
         $o->closeField();
-	    
+
 	    $o->openRaw();
 	    ?><table class="sq-backend-table">
 	    <col width="20%" />
@@ -803,17 +803,17 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
             }
             ?></tbody></table><?php
 	    $o->closeRaw();
-	    
+
 	    return FALSE;
-	    
+
 	}//end paintGeoCityReport()
-	
-	
+
+
 //--        TECHNOLOGY REPORTS        --//
 
 
 
-	
+
 	/**
 	 * Paint the technologies OS report.
 	 *
@@ -822,13 +822,13 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	{
 	    $bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->bridgeid);
 	    $period = $bridge->attr('period');
-	    
+
 	    $end_date    = new DateTime('today 00:00:00');
 	    $start_date  = clone $end_date;
 	    $start_date->sub(new DateInterval($period));
 	    $date_diff   = $start_date->diff($end_date);
 	    $start_date->add(new DateInterval('P1D'));
-	    
+
 	    // Grab all the reports.
 	    $raw_report  = $asset->generateReport(
 	        Array(
@@ -842,17 +842,17 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	        $start_date->format('Y-m-d'),
 	        $end_date->format('Y-m-d')
 	    );
-	    
+
 	    $total_sessions = 0;
 	    $crop_sessions  = 0;
 	    $report         = Array();
 	    $version_report = Array();
-	    
+
 	    foreach ($raw_report as $rowid => &$row) {
 	        if ($row['ga:deviceCategory'] !== 'desktop') {
 	            continue;
 	        }
-	        
+
 	        $total_sessions += $row['ga:sessions'];
 	        if ($row['ga:operatingSystem'] === self::NOT_SET) {
 	            $crop_sessions += $row['ga:sessions'];
@@ -860,7 +860,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	        } else {
 	            $os      = $row['ga:operatingSystem'];
 	            $version = $row['ga:operatingSystemVersion'];
-	            
+
 	            if ($os !== self::NOT_SET) {
 	                $version_report[$os] = array_get_index($version_report, $os, Array());
                     if (array_key_exists($version, $version_report[$os]) === TRUE) {
@@ -873,7 +873,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                         $version_report[$os][$version] = $row;
                     }
                 }//end if
-	            
+
 	            if (array_key_exists($os, $report) === TRUE) {
 	                foreach ($row as $fieldid => &$value) {
 	                    if (($fieldid !== 'ga:operatingSystemVersion') && (is_numeric($value) === TRUE)) {
@@ -885,17 +885,17 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	            }
 	        }//end if
 	    }//end foreach
-	    
+
 	    usort($report, function($a, $b) {
 	        return $b['ga:sessions'] - $a['ga:sessions'];
 	    });
-	    
+
 	    foreach ($version_report as $os => &$version_rows) {
             usort($version_rows, function($a, $b) {
                 return $b['ga:sessions'] - $a['ga:sessions'];
             });
 	    }
-	    
+
 	    $o->openField(translate('Reporting Period'));
 	        echo sprintf(
 	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
@@ -904,14 +904,14 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	            $date_diff->format('%a')
 	        );
 	    $o->closeField();
-	    
+
 	    $o->openField(translate('Total Sessions'));
             echo translate(
                 '%s / %s sessions analysed',
                 number_format(($total_sessions - $crop_sessions), 0),
                 number_format($total_sessions, 0)
             );
-	    
+
             if ($crop_sessions > 0) {
                 $o->note(translate(
                     'Only %s%% of all session details provided operating system information',
@@ -919,7 +919,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                 ));
             }
         $o->closeField();
-	    
+
 	    $o->openRaw();
 	    ?><table class="sq-backend-table">
 	    <col width="40%" />
@@ -944,7 +944,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                     self::NOT_SET
                 );
             ?><tr>
-                <th><?php 
+                <th><?php
                 $os = $row['ga:operatingSystem'];
                 echo $rank.'. '.$translated_row['ga:operatingSystem'];
                 ?></th>
@@ -976,9 +976,9 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                     $version_row['ga:operatingSystemVersion']
                 );
                 ?><tr>
-                    <td><?php 
+                    <td><?php
                     echo '<span style="float: left; padding-left: 3ex">';
-                    echo $translated_row['ga:operatingSystemVersion'].'</span>'; 
+                    echo $translated_row['ga:operatingSystemVersion'].'</span>';
                     ?></td>
                     <td style="text-align: right"><strong><?php echo number_format($version_row['ga:sessions'], 0); ?></strong></td>
                     <td style="text-align: right"><?php echo number_format($version_row['ga:sessions'] / $total_sessions * 100.0, 2).'%'; ?></td>
@@ -1008,14 +1008,14 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
             }
             ?></tbody></table><?php
 	    $o->closeRaw();
-	    
+
 	    return FALSE;
-	    
+
 	}//end paintTechnologiesOSesReportDesktop()
 
 
 
-	
+
 	/**
 	 * Paint the technologies OS report.
 	 *
@@ -1024,13 +1024,13 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	{
 	    $bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->bridgeid);
 	    $period = $bridge->attr('period');
-	    
+
 	    $end_date    = new DateTime('today 00:00:00');
 	    $start_date  = clone $end_date;
 	    $start_date->sub(new DateInterval($period));
 	    $date_diff   = $start_date->diff($end_date);
 	    $start_date->add(new DateInterval('P1D'));
-	    
+
 	    // Grab all the reports.
 	    $raw_report  = $asset->generateReport(
 	        Array(
@@ -1044,17 +1044,17 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	        $start_date->format('Y-m-d'),
 	        $end_date->format('Y-m-d')
 	    );
-	    
+
 	    $total_sessions = 0;
 	    $crop_sessions  = 0;
 	    $report         = Array();
 	    $version_report = Array();
-	    
+
 	    foreach ($raw_report as $rowid => &$row) {
 	        if ($row['ga:deviceCategory'] !== 'tablet') {
 	            continue;
 	        }
-	        
+
 	        $row = array_merge(
 	            $row,
 	            $this->_translateMobileOS(
@@ -1062,7 +1062,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	                $row['ga:operatingSystemVersion']
 	            )
 	        );
-	        
+
 	        $total_sessions += $row['ga:sessions'];
 	        if ($row['ga:operatingSystem'] === self::NOT_SET) {
 	            $crop_sessions += $row['ga:sessions'];
@@ -1070,7 +1070,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	        } else {
 	            $os      = $row['ga:operatingSystem'];
 	            $version = $row['ga:operatingSystemVersion'];
-	            
+
 	            if ($os !== self::NOT_SET) {
 	                $version_report[$os] = array_get_index($version_report, $os, Array());
                     if (array_key_exists($version, $version_report[$os]) === TRUE) {
@@ -1083,7 +1083,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                         $version_report[$os][$version] = $row;
                     }
                 }//end if
-	            
+
 	            if (array_key_exists($os, $report) === TRUE) {
 	                foreach ($row as $fieldid => &$value) {
 	                    if (($fieldid !== 'ga:operatingSystemVersion') && (is_numeric($value) === TRUE)) {
@@ -1095,17 +1095,17 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	            }
 	        }//end if
 	    }//end foreach
-	    
+
 	    usort($report, function($a, $b) {
 	        return $b['ga:sessions'] - $a['ga:sessions'];
 	    });
-	    
+
 	    foreach ($version_report as $os => &$version_rows) {
             usort($version_rows, function($a, $b) {
                 return $b['ga:sessions'] - $a['ga:sessions'];
             });
 	    }
-	    
+
 	    $o->openField(translate('Reporting Period'));
 	        echo sprintf(
 	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
@@ -1114,14 +1114,14 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	            $date_diff->format('%a')
 	        );
 	    $o->closeField();
-	    
+
 	    $o->openField(translate('Total Sessions'));
             echo translate(
                 '%s / %s sessions analysed',
                 number_format(($total_sessions - $crop_sessions), 0),
                 number_format($total_sessions, 0)
             );
-	    
+
             if ($crop_sessions > 0) {
                 $o->note(translate(
                     'Only %s%% of all session details provided operating system information',
@@ -1129,7 +1129,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                 ));
             }
         $o->closeField();
-	    
+
 	    $o->openRaw();
 	    ?><table class="sq-backend-table">
 	    <col width="40%" />
@@ -1150,7 +1150,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	        foreach ($report as $row) {
 	            $rank++;
             ?><tr>
-                <th><?php 
+                <th><?php
                 $os = $row['ga:operatingSystem'];
                 echo $rank.'. '.$os;
                 ?></th>
@@ -1178,9 +1178,9 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                 ?></th><?php
                 foreach ($version_report[$os] as $version_row) {
                 ?><tr>
-                    <td><?php 
+                    <td><?php
                     echo '<span style="float: left; padding-left: 3ex">';
-                    echo $version_row['ga:operatingSystemVersion'].'</span>'; 
+                    echo $version_row['ga:operatingSystemVersion'].'</span>';
                     ?></td>
                     <td style="text-align: right"><strong><?php echo number_format($version_row['ga:sessions'], 0); ?></strong></td>
                     <td style="text-align: right"><?php echo number_format($version_row['ga:sessions'] / $total_sessions * 100.0, 2).'%'; ?></td>
@@ -1210,12 +1210,12 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
             }
             ?></tbody></table><?php
 	    $o->closeRaw();
-	    
+
 	    return FALSE;
-	    
+
 	}//end paintTechnologiesOSesReportTablet()
 
-	
+
 	/**
 	 * Paint the technologies OS report.
 	 *
@@ -1224,13 +1224,13 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	{
 	    $bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->bridgeid);
 	    $period = $bridge->attr('period');
-	    
+
 	    $end_date    = new DateTime('today 00:00:00');
 	    $start_date  = clone $end_date;
 	    $start_date->sub(new DateInterval($period));
 	    $date_diff   = $start_date->diff($end_date);
 	    $start_date->add(new DateInterval('P1D'));
-	    
+
 	    // Grab all the reports.
 	    $raw_report  = $asset->generateReport(
 	        Array(
@@ -1244,17 +1244,17 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	        $start_date->format('Y-m-d'),
 	        $end_date->format('Y-m-d')
 	    );
-	    
+
 	    $total_sessions = 0;
 	    $crop_sessions  = 0;
 	    $report         = Array();
 	    $version_report = Array();
-	    
+
 	    foreach ($raw_report as $rowid => &$row) {
 	        if ($row['ga:deviceCategory'] !== 'mobile') {
 	            continue;
 	        }
-	        
+
 	        $row = array_merge(
 	            $row,
 	            $this->_translateMobileOS(
@@ -1262,7 +1262,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	                $row['ga:operatingSystemVersion']
 	            )
 	        );
-	        
+
 	        $total_sessions += $row['ga:sessions'];
 	        if ($row['ga:operatingSystem'] === self::NOT_SET) {
 	            $crop_sessions += $row['ga:sessions'];
@@ -1270,7 +1270,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	        } else {
 	            $os      = $row['ga:operatingSystem'];
 	            $version = $row['ga:operatingSystemVersion'];
-	            
+
 	            if ($os !== self::NOT_SET) {
 	                $version_report[$os] = array_get_index($version_report, $os, Array());
                     if (array_key_exists($version, $version_report[$os]) === TRUE) {
@@ -1283,7 +1283,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                         $version_report[$os][$version] = $row;
                     }
                 }//end if
-	            
+
 	            if (array_key_exists($os, $report) === TRUE) {
 	                foreach ($row as $fieldid => &$value) {
 	                    if (($fieldid !== 'ga:operatingSystemVersion') && (is_numeric($value) === TRUE)) {
@@ -1295,17 +1295,17 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	            }
 	        }//end if
 	    }//end foreach
-	    
+
 	    usort($report, function($a, $b) {
 	        return $b['ga:sessions'] - $a['ga:sessions'];
 	    });
-	    
+
 	    foreach ($version_report as $os => &$version_rows) {
             usort($version_rows, function($a, $b) {
                 return $b['ga:sessions'] - $a['ga:sessions'];
             });
 	    }
-	    
+
 	    $o->openField(translate('Reporting Period'));
 	        echo sprintf(
 	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
@@ -1314,14 +1314,14 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	            $date_diff->format('%a')
 	        );
 	    $o->closeField();
-	    
+
 	    $o->openField(translate('Total Sessions'));
             echo translate(
                 '%s / %s sessions analysed',
                 number_format(($total_sessions - $crop_sessions), 0),
                 number_format($total_sessions, 0)
             );
-	    
+
             if ($crop_sessions > 0) {
                 $o->note(translate(
                     'Only %s%% of all session details provided operating system information',
@@ -1329,7 +1329,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                 ));
             }
         $o->closeField();
-	    
+
 	    $o->openRaw();
 	    ?><table class="sq-backend-table">
 	    <col width="40%" />
@@ -1350,7 +1350,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	        foreach ($report as $row) {
 	            $rank++;
             ?><tr>
-                <th><?php 
+                <th><?php
                 $os = $row['ga:operatingSystem'];
                 echo $rank.'. '.$os;
                 ?></th>
@@ -1378,9 +1378,9 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                 ?></th><?php
                 foreach ($version_report[$os] as $version_row) {
                 ?><tr>
-                    <td><?php 
+                    <td><?php
                     echo '<span style="float: left; padding-left: 3ex">';
-                    echo $version_row['ga:operatingSystemVersion'].'</span>'; 
+                    echo $version_row['ga:operatingSystemVersion'].'</span>';
                     ?></td>
                     <td style="text-align: right"><strong><?php echo number_format($version_row['ga:sessions'], 0); ?></strong></td>
                     <td style="text-align: right"><?php echo number_format($version_row['ga:sessions'] / $total_sessions * 100.0, 2).'%'; ?></td>
@@ -1410,12 +1410,12 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
             }
             ?></tbody></table><?php
 	    $o->closeRaw();
-	    
+
 	    return FALSE;
-	    
+
 	}//end paintTechnologiesOSesReportMobile()
-	
-	
+
+
 	/**
 	 * Paint the technologies OS report.
 	 *
@@ -1424,13 +1424,13 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	{
 	    $bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->bridgeid);
 	    $period = $bridge->attr('period');
-	    
+
 	    $end_date    = new DateTime('today 00:00:00');
 	    $start_date  = clone $end_date;
 	    $start_date->sub(new DateInterval($period));
 	    $date_diff   = $start_date->diff($end_date);
 	    $start_date->add(new DateInterval('P1D'));
-	    
+
 	    // Grab all the reports.
 	    $raw_report  = $asset->generateReport(
 	        Array(
@@ -1445,24 +1445,24 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	        $start_date->format('Y-m-d'),
 	        $end_date->format('Y-m-d')
 	    );
-	    
+
 	    $total_sessions = 0;
 	    $crop_sessions  = 0;
 	    $report         = Array();
 	    $version_report = Array();
-	    
+
 	    foreach ($raw_report as $rowid => &$row) {
 	        if ($row['ga:deviceCategory'] !== 'tablet') {
 	            continue;
 	        }
-	        
+
 	        $row['sq:mobileName'] = $row['ga:mobileDeviceBranding'];
 	        if ($row['ga:mobileDeviceMarketingName'] === self::NOT_SET) {
 	            $row['sq:mobileName'] .= ' '.$row['ga:mobileDeviceModel'];
 	        } else {
 	            $row['sq:mobileName'] .= ' '.$row['ga:mobileDeviceMarketingName'];
 	        }
-	        
+
 	        $row = array_merge(
 	            $row,
 	            $this->_translateMobileOS(
@@ -1470,7 +1470,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	                $row['ga:operatingSystemVersion']
 	            )
 	        );
-	        
+
 	        $total_sessions += $row['ga:sessions'];
 	        if ($row['ga:mobileDeviceBranding'] === self::NOT_SET) {
 	            $crop_sessions += $row['ga:sessions'];
@@ -1478,7 +1478,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	        } else {
 	            $os      = $row['sq:mobileName'];
 	            $version = $row['ga:operatingSystem'].' ('.$row['ga:operatingSystemVersion'].')';
-	            
+
 	            if ($os !== self::NOT_SET) {
 	                $version_report[$os] = array_get_index($version_report, $os, Array());
                     if (array_key_exists($version, $version_report[$os]) === TRUE) {
@@ -1491,7 +1491,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                         $version_report[$os][$version] = $row;
                     }
                 }//end if
-	            
+
 	            if (array_key_exists($os, $report) === TRUE) {
 	                foreach ($row as $fieldid => &$value) {
 	                    if (($fieldid !== 'ga:operatingSystemVersion') && (is_numeric($value) === TRUE)) {
@@ -1503,17 +1503,17 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	            }
 	        }//end if
 	    }//end foreach
-	    
+
 	    usort($report, function($a, $b) {
 	        return $b['ga:sessions'] - $a['ga:sessions'];
 	    });
-	    
+
 	    foreach ($version_report as $os => &$version_rows) {
             usort($version_rows, function($a, $b) {
                 return $b['ga:sessions'] - $a['ga:sessions'];
             });
 	    }
-	    
+
 	    $o->openField(translate('Reporting Period'));
 	        echo sprintf(
 	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
@@ -1522,14 +1522,14 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	            $date_diff->format('%a')
 	        );
 	    $o->closeField();
-	    
+
 	    $o->openField(translate('Total Sessions'));
             echo translate(
                 '%s / %s sessions analysed',
                 number_format(($total_sessions - $crop_sessions), 0),
                 number_format($total_sessions, 0)
             );
-	    
+
             if ($crop_sessions > 0) {
                 $o->note(translate(
                     'Only %s%% of all session details provided mobile device branding information',
@@ -1537,7 +1537,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                 ));
             }
         $o->closeField();
-	    
+
 	    $o->openRaw();
 	    ?><table class="sq-backend-table">
 	    <col width="40%" />
@@ -1558,7 +1558,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	        foreach ($report as $row) {
 	            $rank++;
             ?><tr>
-                <th><?php 
+                <th><?php
                 $os = $row['sq:mobileName'];
                 echo '<span style="float: left">'.$rank.'. '.$os.'</span>';
                 if (count($version_report[$os]) === 1) {
@@ -1595,9 +1595,9 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                 ?></th><?php
                 foreach ($version_report[$os] as $version_row) {
                 ?><tr>
-                    <td><?php 
+                    <td><?php
                     echo '<span style="float: left; padding-left: 3ex">';
-                    echo $version_row['ga:operatingSystem'].' ('.$version_row['ga:operatingSystemVersion'].')</span>'; 
+                    echo $version_row['ga:operatingSystem'].' ('.$version_row['ga:operatingSystemVersion'].')</span>';
                     ?></td>
                     <td style="text-align: right"><strong><?php echo number_format($version_row['ga:sessions'], 0); ?></strong></td>
                     <td style="text-align: right"><?php echo number_format($version_row['ga:sessions'] / $total_sessions * 100.0, 2).'%'; ?></td>
@@ -1627,15 +1627,15 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
             }
             ?></tbody></table><?php
 	    $o->closeRaw();
-	    
+
 	    return FALSE;
-	    
+
 	}//end paintTechnologiesOSesReportMobile()
-	
-	
-	
-	
-	
+
+
+
+
+
 	/**
 	 * Paint the technologies OS report.
 	 *
@@ -1644,13 +1644,13 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	{
 	    $bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->bridgeid);
 	    $period = $bridge->attr('period');
-	    
+
 	    $end_date    = new DateTime('today 00:00:00');
 	    $start_date  = clone $end_date;
 	    $start_date->sub(new DateInterval($period));
 	    $date_diff   = $start_date->diff($end_date);
 	    $start_date->add(new DateInterval('P1D'));
-	    
+
 	    // Grab all the reports.
 	    $raw_report  = $asset->generateReport(
 	        Array(
@@ -1665,24 +1665,24 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	        $start_date->format('Y-m-d'),
 	        $end_date->format('Y-m-d')
 	    );
-	    
+
 	    $total_sessions = 0;
 	    $crop_sessions  = 0;
 	    $report         = Array();
 	    $version_report = Array();
-	    
+
 	    foreach ($raw_report as $rowid => &$row) {
 	        if ($row['ga:deviceCategory'] !== 'mobile') {
 	            continue;
 	        }
-	        
+
 	        $row['sq:mobileName'] = $row['ga:mobileDeviceBranding'];
 	        if ($row['ga:mobileDeviceMarketingName'] === self::NOT_SET) {
 	            $row['sq:mobileName'] .= ' '.$row['ga:mobileDeviceModel'];
 	        } else {
 	            $row['sq:mobileName'] .= ' '.$row['ga:mobileDeviceMarketingName'];
 	        }
-	        
+
 	        $row = array_merge(
 	            $row,
 	            $this->_translateMobileOS(
@@ -1690,7 +1690,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	                $row['ga:operatingSystemVersion']
 	            )
 	        );
-	        
+
 	        $total_sessions += $row['ga:sessions'];
 	        if ($row['ga:mobileDeviceBranding'] === self::NOT_SET) {
 	            $crop_sessions += $row['ga:sessions'];
@@ -1698,7 +1698,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	        } else {
 	            $os      = $row['sq:mobileName'];
 	            $version = $row['ga:operatingSystem'].' ('.$row['ga:operatingSystemVersion'].')';
-	            
+
 	            if ($os !== self::NOT_SET) {
 	                $version_report[$os] = array_get_index($version_report, $os, Array());
                     if (array_key_exists($version, $version_report[$os]) === TRUE) {
@@ -1711,7 +1711,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                         $version_report[$os][$version] = $row;
                     }
                 }//end if
-	            
+
 	            if (array_key_exists($os, $report) === TRUE) {
 	                foreach ($row as $fieldid => &$value) {
 	                    if (($fieldid !== 'ga:operatingSystemVersion') && (is_numeric($value) === TRUE)) {
@@ -1723,17 +1723,17 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	            }
 	        }//end if
 	    }//end foreach
-	    
+
 	    usort($report, function($a, $b) {
 	        return $b['ga:sessions'] - $a['ga:sessions'];
 	    });
-	    
+
 	    foreach ($version_report as $os => &$version_rows) {
             usort($version_rows, function($a, $b) {
                 return $b['ga:sessions'] - $a['ga:sessions'];
             });
 	    }
-	    
+
 	    $o->openField(translate('Reporting Period'));
 	        echo sprintf(
 	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
@@ -1742,14 +1742,14 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	            $date_diff->format('%a')
 	        );
 	    $o->closeField();
-	    
+
 	    $o->openField(translate('Total Sessions'));
             echo translate(
                 '%s / %s sessions analysed',
                 number_format(($total_sessions - $crop_sessions), 0),
                 number_format($total_sessions, 0)
             );
-	    
+
             if ($crop_sessions > 0) {
                 $o->note(translate(
                     'Only %s%% of all session details provided mobile device branding information',
@@ -1757,7 +1757,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                 ));
             }
         $o->closeField();
-	    
+
 	    $o->openRaw();
 	    ?><table class="sq-backend-table">
 	    <col width="40%" />
@@ -1778,7 +1778,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	        foreach ($report as $row) {
 	            $rank++;
             ?><tr>
-                <th><?php 
+                <th><?php
                 $os = $row['sq:mobileName'];
                 echo '<span style="float: left">'.$rank.'. '.$os.'</span>';
                 if (count($version_report[$os]) === 1) {
@@ -1815,9 +1815,9 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                 ?></th><?php
                 foreach ($version_report[$os] as $version_row) {
                 ?><tr>
-                    <td><?php 
+                    <td><?php
                     echo '<span style="float: left; padding-left: 3ex">';
-                    echo $version_row['ga:operatingSystem'].' ('.$version_row['ga:operatingSystemVersion'].')</span>'; 
+                    echo $version_row['ga:operatingSystem'].' ('.$version_row['ga:operatingSystemVersion'].')</span>';
                     ?></td>
                     <td style="text-align: right"><strong><?php echo number_format($version_row['ga:sessions'], 0); ?></strong></td>
                     <td style="text-align: right"><?php echo number_format($version_row['ga:sessions'] / $total_sessions * 100.0, 2).'%'; ?></td>
@@ -1847,12 +1847,12 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
             }
             ?></tbody></table><?php
 	    $o->closeRaw();
-	    
+
 	    return FALSE;
-	    
+
 	}//end paintTechnologiesOSesReportTablet()
-	
-	
+
+
 
 	/**
 	 * Paint the technologies OS report.
@@ -1862,13 +1862,13 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	{
 	    $bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->bridgeid);
 	    $period = $bridge->attr('period');
-	    
+
 	    $end_date    = new DateTime('today 00:00:00');
 	    $start_date  = clone $end_date;
 	    $start_date->sub(new DateInterval($period));
 	    $date_diff   = $start_date->diff($end_date);
 	    $start_date->add(new DateInterval('P1D'));
-	    
+
 	    // Grab all the reports.
 	    $raw_report  = $asset->generateReport(
 	        Array(
@@ -1882,17 +1882,17 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	        $start_date->format('Y-m-d'),
 	        $end_date->format('Y-m-d')
 	    );
-	    
+
 	    $total_sessions = 0;
 	    $crop_sessions  = 0;
 	    $report         = Array();
 	    $version_report = Array();
-	    
+
 	    foreach ($raw_report as $rowid => &$row) {
 	        if ($row['ga:deviceCategory'] !== 'desktop') {
 	            continue;
 	        }
-	        
+
 	        $row = array_merge(
 	            $row,
 	            $this->_translateDesktopBrowser(
@@ -1900,7 +1900,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	                $row['ga:browserVersion']
 	            )
 	        );
-	        
+
 	        $total_sessions += $row['ga:sessions'];
 	        if ($row['ga:browser'] === self::NOT_SET) {
 	            $crop_sessions += $row['ga:sessions'];
@@ -1908,7 +1908,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	        } else {
 	            $os      = $row['ga:browser'];
 	            $version = $row['ga:browserVersion'];
-	            
+
 	            if ($os !== self::NOT_SET) {
 	                $version_report[$os] = array_get_index($version_report, $os, Array());
                     if (array_key_exists($version, $version_report[$os]) === TRUE) {
@@ -1921,7 +1921,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                         $version_report[$os][$version] = $row;
                     }
                 }//end if
-	            
+
 	            if (array_key_exists($os, $report) === TRUE) {
 	                foreach ($row as $fieldid => &$value) {
 	                    if ((($fieldid !== 'ga:operatingSystemVersion') && ($fieldid !== 'ga:browserVersion')) && (is_numeric($value) === TRUE)) {
@@ -1933,17 +1933,17 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	            }
 	        }//end if
 	    }//end foreach
-	    
+
 	    usort($report, function($a, $b) {
 	        return $b['ga:sessions'] - $a['ga:sessions'];
 	    });
-	    
+
 	    foreach ($version_report as $os => &$version_rows) {
             usort($version_rows, function($a, $b) {
                 return $b['ga:sessions'] - $a['ga:sessions'];
             });
 	    }
-	    
+
 	    $o->openField(translate('Reporting Period'));
 	        echo sprintf(
 	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
@@ -1952,14 +1952,14 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	            $date_diff->format('%a')
 	        );
 	    $o->closeField();
-	    
+
 	    $o->openField(translate('Total Sessions'));
             echo translate(
                 '%s / %s sessions analysed',
                 number_format(($total_sessions - $crop_sessions), 0),
                 number_format($total_sessions, 0)
             );
-	    
+
             if ($crop_sessions > 0) {
                 $o->note(translate(
                     'Only %s%% of all session details provided browser information',
@@ -1967,7 +1967,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                 ));
             }
         $o->closeField();
-	    
+
 	    $o->openRaw();
 	    ?><table class="sq-backend-table">
 	    <col width="40%" />
@@ -1988,7 +1988,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	        foreach ($report as $row) {
 	            $rank++;
             ?><tr>
-                <th><?php 
+                <th><?php
                 $os = $row['ga:browser'];
                 echo $rank.'. '.$os;
                 ?></th>
@@ -2016,9 +2016,9 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                 ?></th><?php
                 foreach ($version_report[$os] as $version_row) {
                 ?><tr>
-                    <td><?php 
+                    <td><?php
                     echo '<span style="float: left; padding-left: 3ex">';
-                    echo $version_row['ga:browserVersion'].'</span>'; 
+                    echo $version_row['ga:browserVersion'].'</span>';
                     ?></td>
                     <td style="text-align: right"><strong><?php echo number_format($version_row['ga:sessions'], 0); ?></strong></td>
                     <td style="text-align: right"><?php echo number_format($version_row['ga:sessions'] / $total_sessions * 100.0, 2).'%'; ?></td>
@@ -2048,9 +2048,9 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
             }
             ?></tbody></table><?php
 	    $o->closeRaw();
-	    
+
 	    return FALSE;
-	    
+
 	}//end paintTechnologiesOSesReportMobile()
 	/**
 	 * Paint the technologies OS report.
@@ -2060,13 +2060,13 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	{
 	    $bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->bridgeid);
 	    $period = $bridge->attr('period');
-	    
+
 	    $end_date    = new DateTime('today 00:00:00');
 	    $start_date  = clone $end_date;
 	    $start_date->sub(new DateInterval($period));
 	    $date_diff   = $start_date->diff($end_date);
 	    $start_date->add(new DateInterval('P1D'));
-	    
+
 	    // Grab all the reports.
 	    $raw_report  = $asset->generateReport(
 	        Array(
@@ -2080,17 +2080,17 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	        $start_date->format('Y-m-d'),
 	        $end_date->format('Y-m-d')
 	    );
-	    
+
 	    $total_sessions = 0;
 	    $crop_sessions  = 0;
 	    $report         = Array();
 	    $version_report = Array();
-	    
+
 	    foreach ($raw_report as $rowid => &$row) {
 	        if ($row['ga:deviceCategory'] !== 'tablet') {
 	            continue;
 	        }
-	        
+
 	        $row = array_merge(
 	            $row,
 	            $this->_translateMobileBrowser(
@@ -2098,7 +2098,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	                $row['ga:browserVersion']
 	            )
 	        );
-	        
+
 	        $total_sessions += $row['ga:sessions'];
 	        if ($row['ga:browser'] === self::NOT_SET) {
 	            $crop_sessions += $row['ga:sessions'];
@@ -2106,7 +2106,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	        } else {
 	            $os      = $row['ga:browser'];
 	            $version = $row['ga:browserVersion'];
-	            
+
 	            if ($os !== self::NOT_SET) {
 	                $version_report[$os] = array_get_index($version_report, $os, Array());
                     if (array_key_exists($version, $version_report[$os]) === TRUE) {
@@ -2119,7 +2119,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                         $version_report[$os][$version] = $row;
                     }
                 }//end if
-	            
+
 	            if (array_key_exists($os, $report) === TRUE) {
 	                foreach ($row as $fieldid => &$value) {
 	                    if (($fieldid !== 'ga:browserVersion') && (is_numeric($value) === TRUE)) {
@@ -2131,17 +2131,17 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	            }
 	        }//end if
 	    }//end foreach
-	    
+
 	    usort($report, function($a, $b) {
 	        return $b['ga:sessions'] - $a['ga:sessions'];
 	    });
-	    
+
 	    foreach ($version_report as $os => &$version_rows) {
             usort($version_rows, function($a, $b) {
                 return $b['ga:sessions'] - $a['ga:sessions'];
             });
 	    }
-	    
+
 	    $o->openField(translate('Reporting Period'));
 	        echo sprintf(
 	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
@@ -2150,14 +2150,14 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	            $date_diff->format('%a')
 	        );
 	    $o->closeField();
-	    
+
 	    $o->openField(translate('Total Sessions'));
             echo translate(
                 '%s / %s sessions analysed',
                 number_format(($total_sessions - $crop_sessions), 0),
                 number_format($total_sessions, 0)
             );
-	    
+
             if ($crop_sessions > 0) {
                 $o->note(translate(
                     'Only %s%% of all session details provided browser information',
@@ -2165,7 +2165,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                 ));
             }
         $o->closeField();
-	    
+
 	    $o->openRaw();
 	    ?><table class="sq-backend-table">
 	    <col width="40%" />
@@ -2186,7 +2186,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	        foreach ($report as $row) {
 	            $rank++;
             ?><tr>
-                <th><?php 
+                <th><?php
                 $os = $row['ga:browser'];
                 echo $rank.'. '.$os;
                 ?></th>
@@ -2214,9 +2214,9 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                 ?></th><?php
                 foreach ($version_report[$os] as $version_row) {
                 ?><tr>
-                    <td><?php 
+                    <td><?php
                     echo '<span style="float: left; padding-left: 3ex">';
-                    echo $version_row['ga:browserVersion'].'</span>'; 
+                    echo $version_row['ga:browserVersion'].'</span>';
                     ?></td>
                     <td style="text-align: right"><strong><?php echo number_format($version_row['ga:sessions'], 0); ?></strong></td>
                     <td style="text-align: right"><?php echo number_format($version_row['ga:sessions'] / $total_sessions * 100.0, 2).'%'; ?></td>
@@ -2246,11 +2246,11 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
             }
             ?></tbody></table><?php
 	    $o->closeRaw();
-	    
+
 	    return FALSE;
-	    
+
 	}//end paintTechnologiesOSesReportMobile()
-	
+
 	/**
 	 * Paint the technologies OS report.
 	 *
@@ -2259,13 +2259,13 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	{
 	    $bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->bridgeid);
 	    $period = $bridge->attr('period');
-	    
+
 	    $end_date    = new DateTime('today 00:00:00');
 	    $start_date  = clone $end_date;
 	    $start_date->sub(new DateInterval($period));
 	    $date_diff   = $start_date->diff($end_date);
 	    $start_date->add(new DateInterval('P1D'));
-	    
+
 	    // Grab all the reports.
 	    $raw_report  = $asset->generateReport(
 	        Array(
@@ -2279,17 +2279,17 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	        $start_date->format('Y-m-d'),
 	        $end_date->format('Y-m-d')
 	    );
-	    
+
 	    $total_sessions = 0;
 	    $crop_sessions  = 0;
 	    $report         = Array();
 	    $version_report = Array();
-	    
+
 	    foreach ($raw_report as $rowid => &$row) {
 	        if ($row['ga:deviceCategory'] !== 'mobile') {
 	            continue;
 	        }
-	        
+
 	        $row = array_merge(
 	            $row,
 	            $this->_translateMobileBrowser(
@@ -2297,7 +2297,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	                $row['ga:browserVersion']
 	            )
 	        );
-	        
+
 	        $total_sessions += $row['ga:sessions'];
 	        if ($row['ga:browser'] === self::NOT_SET) {
 	            $crop_sessions += $row['ga:sessions'];
@@ -2305,7 +2305,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	        } else {
 	            $os      = $row['ga:browser'];
 	            $version = $row['ga:browserVersion'];
-	            
+
 	            if ($os !== self::NOT_SET) {
 	                $version_report[$os] = array_get_index($version_report, $os, Array());
                     if (array_key_exists($version, $version_report[$os]) === TRUE) {
@@ -2318,7 +2318,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                         $version_report[$os][$version] = $row;
                     }
                 }//end if
-	            
+
 	            if (array_key_exists($os, $report) === TRUE) {
 	                foreach ($row as $fieldid => &$value) {
 	                    if (($fieldid !== 'ga:browserVersion') && (is_numeric($value) === TRUE)) {
@@ -2330,17 +2330,17 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	            }
 	        }//end if
 	    }//end foreach
-	    
+
 	    usort($report, function($a, $b) {
 	        return $b['ga:sessions'] - $a['ga:sessions'];
 	    });
-	    
+
 	    foreach ($version_report as $os => &$version_rows) {
             usort($version_rows, function($a, $b) {
                 return $b['ga:sessions'] - $a['ga:sessions'];
             });
 	    }
-	    
+
 	    $o->openField(translate('Reporting Period'));
 	        echo sprintf(
 	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
@@ -2349,14 +2349,14 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	            $date_diff->format('%a')
 	        );
 	    $o->closeField();
-	    
+
 	    $o->openField(translate('Total Sessions'));
             echo translate(
                 '%s / %s sessions analysed',
                 number_format(($total_sessions - $crop_sessions), 0),
                 number_format($total_sessions, 0)
             );
-	    
+
             if ($crop_sessions > 0) {
                 $o->note(translate(
                     'Only %s%% of all session details provided browser information',
@@ -2364,7 +2364,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                 ));
             }
         $o->closeField();
-	    
+
 	    $o->openRaw();
 	    ?><table class="sq-backend-table">
 	    <col width="40%" />
@@ -2385,7 +2385,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	        foreach ($report as $row) {
 	            $rank++;
             ?><tr>
-                <th><?php 
+                <th><?php
                 $os = $row['ga:browser'];
                 echo $rank.'. '.$os;
                 ?></th>
@@ -2413,9 +2413,9 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                 ?></th><?php
                 foreach ($version_report[$os] as $version_row) {
                 ?><tr>
-                    <td><?php 
+                    <td><?php
                     echo '<span style="float: left; padding-left: 3ex">';
-                    echo $version_row['ga:browserVersion'].'</span>'; 
+                    echo $version_row['ga:browserVersion'].'</span>';
                     ?></td>
                     <td style="text-align: right"><strong><?php echo number_format($version_row['ga:sessions'], 0); ?></strong></td>
                     <td style="text-align: right"><?php echo number_format($version_row['ga:sessions'] / $total_sessions * 100.0, 2).'%'; ?></td>
@@ -2445,28 +2445,28 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
             }
             ?></tbody></table><?php
 	    $o->closeRaw();
-	    
+
 	    return FALSE;
-	    
+
 	}//end paintTechnologiesOSesReportMobile()
-	
-	
+
+
 	private function _translateDesktopOS($os, $version) {
 	    switch ($os) {
     	    case 'Windows':
     	        $version = 'Windows '.$version;
 	        break;
-	        
+
 		    case 'Macintosh':
 		        $os = 'OS X (Mac)';
-		        
+
 		        // Remove the architecture.
 		        if (strpos($version, ' ') === FALSE) {
 		            // We have arch but nothing else!
 		            $version = self::NOT_SET;
 		        } else {
 		            list($arch, $version) = explode(' ', $version);
-		        
+
                     $version_list = Array(
                         '10.10' => 'Yosemite',
                         '10.9'  => 'Mavericks',
@@ -2477,13 +2477,13 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                         '10.4'  => 'Tiger',
                         '10.3'  => 'Panther',
                     );
-                    
+
                     if (array_key_exists($version, $version_list) === TRUE) {
                         $version = $version_list[$version].' ('.$version.')';
                     }
                 }//end if
 	        break;
-	        
+
 		    case 'Linux':
 		        if (($version === 'x86_64') || ($version === 'amd64')) {
 		            $version = translate('64-bit (x86-64)');
@@ -2496,15 +2496,15 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 		        }
 	        break;
 	    }//end switch
-	    
+
 	    return Array(
 	        'ga:operatingSystem'        => $os,
 	        'ga:operatingSystemVersion' => $version,
 	    );
-	    
+
 	}//end translateDesktopOSName()
-	
-	
+
+
 	private function _translateMobileOS($os, $version) {
 	    switch ($os) {
 		    case 'iOS':
@@ -2515,7 +2515,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 		            $os = 'iOS '.$version_parts[0];
 		        }
 	        break;
-	        
+
 		    case 'Android':
 		        $version_list = Array(
 		            '4\.4'     => 'KitKat',
@@ -2528,7 +2528,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 		            '1\.6'     => 'Donut',
 		            '1\.5'     => 'Cupcake',
 		        );
-		        
+
 		        if ($version === self::NOT_SET) {
 		            $os = translate('Android (unknown version)');
 		        } else {
@@ -2542,21 +2542,21 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 		        }
 	        break;
 	    }//end switch
-	    
+
 	    return Array(
 	        'ga:operatingSystem'        => $os,
 	        'ga:operatingSystemVersion' => $version,
 	    );
-	    
+
 	}//end translateDesktopOSName()
-	
-	
+
+
 	private function _translateDesktopBrowser($browser, $version) {
 	    switch ($browser) {
 	        case 'Chrome':
 	            $version_parts = explode('.', $version);
 	            $version = $version_parts[0].'.x';
-	            
+
 	            $version_list = Array(
 	                '32.0' => translate('2014 (versions 32+)'),
 	                '28.0' => translate('2013, Blink (versions 28-31)'),
@@ -2565,7 +2565,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	                '9.0'  => translate('2011 (versions 9-16)'),
 	                '0.0'  => translate('2010 or earlier (versions 0.x-8)'),
 	            );
-	            
+
 	            foreach ($version_list as $version_minimum => $version_str) {
 	                if (version_compare($version, $version_minimum, '>=') === TRUE) {
 	                    $version = $version_str;
@@ -2573,7 +2573,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	                }
 	            }
 	        break;
-	        
+
 	        case 'Firefox':
                 $version_parts = explode('.', $version);
                 if ((int) $version_parts[0] >= 4) {
@@ -2591,22 +2591,22 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                     $version = $version_parts[0].'.'.$version_parts[1];
                 }
 	        break;
-	        
+
 	        case 'Safari':
 	            $version_parts = explode('.', $version);
 	            $version = $version_parts[0].'.x';
 	        break;
-	        
+
 	        case 'Opera':
 	            $version_parts = explode('.', $version);
-	            
+
 	            if ($version_parts[0] >= 15) {
 	                // Blink-based Opera.
                     $version_list = Array(
                         '19.0'  => translate('Blink, 2014 (versions 19+)'),
                         '15.0'  => translate('Blink, 2013 (versions 15-18)'),
                     );
-	            
+
                     foreach ($version_list as $version_minimum => $version_str) {
                         if (version_compare($version, $version_minimum, '>=') === TRUE) {
                             $version = $version_str;
@@ -2615,11 +2615,11 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                     }
 	            } else {
 	                // Classic Opera. Format it as, eg. '12.5x'
-	                $version = translate('Presto (up to version 12)'); 
+	                $version = translate('Presto (up to version 12)');
 	                //$version = $version_parts[0].'.'.floor($version_parts[1] / 10).'x';
 	            }
 	        break;
-	        
+
 	        case 'Internet Explorer':
 	            if ($version === '999.1') {
 	                // Certain anti-viruses set IE's version to a dodgy value
@@ -2628,51 +2628,51 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	                $version = self::NOT_SET;
 	            }
 	    }
-	    
+
 	    return Array(
 	        'ga:browser'        => $browser,
 	        'ga:browserVersion' => $version,
 	    );
-	    
+
 	    return Array(
 	        'ga:browser'        => $browser,
 	        'ga:browserVersion' => $version,
 	    );
-	    
+
 	}//end translateDesktopOSName()
-	
-	
+
+
 	private function _translateMobileBrowser($browser, $version) {
 	    switch ($browser) {
 	        case 'Chrome':
 	            $version_parts = explode('.', $version);
 	            $version = $version_parts[0].'.x';
 	        break;
-	        
+
 	        case 'Firefox':
 	            $version_parts = explode('.', $version);
 	            $version = $version_parts[0].'.x';
 	        break;
-	        
+
 	        case 'Safari':
 	            $version_parts = explode('.', $version);
 	            $version = $version_parts[0].'.x';
 	        break;
-	        
+
 	        case 'Opera Mini':
 	            $version_parts = explode('.', $version);
 	            $version = $version_parts[0].'.'.$version_parts[1];
 	        break;
 	    }
-	    
+
 	    return Array(
 	        'ga:browser'        => $browser,
 	        'ga:browserVersion' => $version,
 	    );
-	    
+
 	}//end translateDesktopOSName()
 
-	
+
 //--        CONTENT REPORTS        --//
 
 
@@ -2686,13 +2686,13 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	{
 	    $bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->bridgeid);
 	    $period = $bridge->attr('period');
-	    
+
 	    $end_date    = new DateTime('today 00:00:00');
 	    $start_date  = clone $end_date;
 	    $start_date->sub(new DateInterval($period));
 	    $date_diff   = $start_date->diff($end_date);
 	    $start_date->add(new DateInterval('P1D'));
-	    
+
 	    // Grab all the reports.
 	    $raw_report  = $asset->generateReport(
 	        Array(
@@ -2704,16 +2704,16 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	        $start_date->format('Y-m-d'),
 	        $end_date->format('Y-m-d')
 	    );
-	    
+
 	    $total_sessions = 0;
 	    $crop_sessions  = 0;
 	    $report         = Array();
-	    
+
 	    foreach ($raw_report as $rowid => &$row) {
 	        if ($row['ga:deviceCategory'] === 'mobile') {
 	            continue;
 	        }
-	        
+
 	        $total_sessions += $row['ga:pageviews'];
 	        $row['sq:domainPath'] = $row['ga:hostname'].$row['ga:pagePath'];
 	        $path = $row['sq:domainPath'];
@@ -2727,11 +2727,11 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                 $report[$path] = $row;
             }//end if
 	    }//end foreach
-	    
+
 	    usort($report, function($a, $b) {
 	        return $b['ga:pageviews'] - $a['ga:pageviews'];
 	    });
-	    
+
 	    $report = array_slice($report, 0, 50);
 
 	    $o->openField(translate('Reporting Period'));
@@ -2742,14 +2742,14 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	            $date_diff->format('%a')
 	        );
 	    $o->closeField();
-	    
+
 	    $o->openField(translate('Total Page Views'));
             echo translate(
                 '%s / %s page views analysed',
                 number_format(($total_sessions - $crop_sessions), 0),
                 number_format($total_sessions, 0)
             );
-	    
+
             if ($crop_sessions > 0) {
                 $o->note(translate(
                     'Only %s%% of all page view hits provided page path information',
@@ -2757,7 +2757,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                 ));
             }
         $o->closeField();
-	    
+
 	    $o->openRaw();
 	    ?><table class="sq-backend-table">
 	    <col width="55%" />
@@ -2778,7 +2778,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	        foreach ($report as $row) {
 	            $rank++;
             ?><tr>
-                <td><?php 
+                <td><?php
                 echo $rank.'. '.$row['sq:domainPath'];
                 ?></td>
                 <td style="text-align: right"><strong><?php echo number_format($row['ga:pageviews'], 0); ?></strong></th>
@@ -2790,9 +2790,9 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
             }//end foreach
             ?></tbody></table><?php
 	    $o->closeRaw();
-	    
+
 	    return FALSE;
-	    
+
 	}//end paintContentMostViewedReportDesktop()
 
 
@@ -2806,13 +2806,13 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	{
 	    $bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->bridgeid);
 	    $period = $bridge->attr('period');
-	    
+
 	    $end_date    = new DateTime('today 00:00:00');
 	    $start_date  = clone $end_date;
 	    $start_date->sub(new DateInterval($period));
 	    $date_diff   = $start_date->diff($end_date);
 	    $start_date->add(new DateInterval('P1D'));
-	    
+
 	    // Grab all the reports.
 	    $raw_report  = $asset->generateReport(
 	        Array(
@@ -2824,16 +2824,16 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	        $start_date->format('Y-m-d'),
 	        $end_date->format('Y-m-d')
 	    );
-	    
+
 	    $total_sessions = 0;
 	    $crop_sessions  = 0;
 	    $report         = Array();
-	    
+
 	    foreach ($raw_report as $rowid => &$row) {
 	        if ($row['ga:deviceCategory'] !== 'mobile') {
 	            continue;
 	        }
-	        
+
 	        $total_sessions += $row['ga:pageviews'];
 	        $row['sq:domainPath'] = $row['ga:hostname'].$row['ga:pagePath'];
 	        $path = $row['sq:domainPath'];
@@ -2847,13 +2847,13 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                 $report[$path] = $row;
             }//end if
 	    }//end foreach
-	    
+
 	    usort($report, function($a, $b) {
 	        return $b['ga:pageviews'] - $a['ga:pageviews'];
 	    });
-	    
+
 	    $report = array_slice($report, 0, 50);
-	    
+
 	    $o->openField(translate('Reporting Period'));
 	        echo sprintf(
 	            translate('%s until %s (%s days)', '%s', '%s', '%s'),
@@ -2862,14 +2862,14 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	            $date_diff->format('%a')
 	        );
 	    $o->closeField();
-	    
+
 	    $o->openField(translate('Total Page Views'));
             echo translate(
                 '%s / %s page views analysed',
                 number_format(($total_sessions - $crop_sessions), 0),
                 number_format($total_sessions, 0)
             );
-	    
+
             if ($crop_sessions > 0) {
                 $o->note(translate(
                     'Only %s%% of all page view hits provided page path information',
@@ -2877,7 +2877,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                 ));
             }
         $o->closeField();
-	    
+
 	    $o->openRaw();
 	    ?><table class="sq-backend-table">
 	    <col width="55%" />
@@ -2898,7 +2898,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	        foreach ($report as $row) {
 	            $rank++;
             ?><tr>
-                <td><?php 
+                <td><?php
                 echo $rank.'. '.$row['sq:domainPath'];
                 ?></td>
                 <td style="text-align: right"><strong><?php echo number_format($row['ga:pageviews'], 0); ?></strong></th>
@@ -2910,9 +2910,9 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
             }//end foreach
             ?></tbody></table><?php
 	    $o->closeRaw();
-	    
+
 	    return FALSE;
-	    
+
 	}//end paintContentMostViewedReportDesktop()
 
 
@@ -2926,13 +2926,13 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	{
 	    $bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->bridgeid);
 	    $period = $bridge->attr('period');
-	    
+
 	    $end_date    = new DateTime('today 00:00:00');
 	    $start_date  = clone $end_date;
 	    $start_date->sub(new DateInterval($period));
 	    $date_diff   = $start_date->diff($end_date);
 	    $start_date->add(new DateInterval('P1D'));
-	    
+
 	    // Grab all the reports.
 	    $raw_report = $asset->generateReport(
 	        Array(
@@ -2944,16 +2944,16 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	        $start_date->format('Y-m-d'),
 	        $end_date->format('Y-m-d')
 	    );
-	    
+
 	    $total_sessions = 0;
 	    $crop_sessions  = 0;
 	    $report         = Array();
-	    
+
 	    foreach ($raw_report as $rowid => &$row) {
 	        if ($row['ga:sessionCount'] === '1') {
 	            continue;
 	        }
-	        
+
 	        $total_sessions += $row['ga:pageviews'];
 	        $row['sq:domainPath'] = $row['ga:hostname'].$row['ga:pagePath'];
 	        $path = $row['sq:domainPath'];
@@ -2967,11 +2967,11 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                 $report[$path] = $row;
             }//end if
 	    }//end foreach
-	    
+
 	    usort($report, function($a, $b) {
 	        return $b['ga:pageviews'] - $a['ga:pageviews'];
 	    });
-	    
+
 	    $report = array_slice($report, 0, 50);
 
 	    $o->openField(translate('Reporting Period'));
@@ -2982,14 +2982,14 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	            $date_diff->format('%a')
 	        );
 	    $o->closeField();
-	    
+
 	    $o->openField(translate('Total Page Views'));
             echo translate(
                 '%s / %s page views analysed',
                 number_format(($total_sessions - $crop_sessions), 0),
                 number_format($total_sessions, 0)
             );
-	    
+
             if ($crop_sessions > 0) {
                 $o->note(translate(
                     'Only %s%% of all page view hits provided page path information',
@@ -2997,7 +2997,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
                 ));
             }
         $o->closeField();
-	    
+
 	    $o->openRaw();
 	    ?><table class="sq-backend-table">
 	    <col width="55%" />
@@ -3018,7 +3018,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	        foreach ($report as $row) {
 	            $rank++;
             ?><tr>
-                <td><?php 
+                <td><?php
                 echo $rank.'. '.$row['sq:domainPath'];
                 ?></td>
                 <td style="text-align: right"><strong><?php echo number_format($row['ga:pageviews'], 0); ?></strong></th>
@@ -3030,13 +3030,13 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
             }//end foreach
             ?></tbody></table><?php
 	    $o->closeRaw();
-	    
+
 	    return FALSE;
-	    
+
 	}//end paintContentMostViewedReportReturningUsers()
 
-	
-	
+
+
 }//end class
 
 ?>
