@@ -34,13 +34,13 @@ class Google_Analytics_View extends Page
      * Common site-level metrics.
      */
     const SITE_METRICS = 'ga:sessions,ga:newUsers,ga:users,ga:pageviews,ga:sessionDuration,ga:bounces,ga:goalStartsAll,ga:goalCompletionsAll';
-    
+
     /**
      * Common page-level metrics.
      */
     const PAGE_METRICS = 'ga:pageviews,ga:uniquePageviews,ga:entrances,ga:exits,ga:bounces';
-    
-    
+
+
 	/**
 	* Constructor
 	*
@@ -54,15 +54,15 @@ class Google_Analytics_View extends Page
 
 	}//end constructor
 
-	
-	
+
+
 	protected function _getName($short_name=FALSE)
 	{
 	    return $this->attr('name');
-	    
+
 	}//end _getName()
-	
-	
+
+
 	/**
 	 * Get keyword replacement
 	 *
@@ -73,13 +73,13 @@ class Google_Analytics_View extends Page
 	public function getKeywordReplacement($keyword_name)
 	{
 	    $keyword_repl = '';
-	    
-	    return $keyword_repl; 
-	    
+
+	    return $keyword_repl;
+
 	}//end getKeywordReplacement()
-	
-	
-	
+
+
+
 	/**
 	 * Generate the visitors report for this property
 	 *
@@ -91,18 +91,18 @@ class Google_Analytics_View extends Page
 	public function generateReport($dimensions, $metrics, $start_date, $end_date, $sort=Array(), $filter=Array(), $force=FALSE)
 	{
 	    require_once SQ_FUDGE_PATH.'/general/www.inc';
-	    
+
 	    $GLOBALS['SQ_SYSTEM']->am->includeAsset('google_analytics_connector');
 	    $connector_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'google_analytics_connector', FALSE, NULL, 'minor');
 	    $connector      = $GLOBALS['SQ_SYSTEM']->am->getAsset($connector_link['majorid']);
-        
+
 	    // Cache for 4 hours.
         $cache_key = 'visitors';
-        
+
         if (is_string($start_date) === FALSE) {
             $start_date = date('Y-m-d', $start_date);
         }
-        
+
         if (is_string($end_date) === FALSE) {
             $end_date = date('Y-m-d', $end_date);
         } else if (strpos($end_date, '-P') === 0) {
@@ -118,7 +118,7 @@ class Google_Analytics_View extends Page
             $end_date->add(new DateInterval($period));
             $end_date   = $end_date->format('Y-m-d');
         }
-        
+
         // Query definitions.
         $common_query_parts = Array(
             'ids'         => 'ga:'.$this->attr('viewid'),
@@ -126,31 +126,31 @@ class Google_Analytics_View extends Page
             'end-date'    => $end_date,
             'fields'      => 'rows',
         );
-        
+
         if (is_string($dimensions)) {
             $dimensions = explode(',', $dimensions);
         }
-        
+
         if (is_string($metrics)) {
             $metrics = explode(',', $metrics);
         }
-        
+
         $query = Array(
             'dimensions' => $dimensions,
             'metrics'    => $metrics,
             'sort'       => $sort,
         );
-        
+
         // Add the filter.
         if (is_array($filter) === TRUE) {
             $query['filters'] = $filter;
         }
-        
+
         $params = array_merge(
             $query,
             $common_query_parts
         );
- 
+
         $cache_key .= '.'.http_build_query($params, '', ',');
 
         $response = $connector->loadFromFetchCache($cache_key);
@@ -161,43 +161,43 @@ class Google_Analytics_View extends Page
             $url_params['start-index'] = 1;
             $url_params['max-results'] = 10000;
 
+            // Flatten out the dimensions and metrics.
+            $url_params['dimensions'] = implode(',', $url_params['dimensions']);
+            $url_params['metrics']    = implode(',', $url_params['metrics']);
+
+            // Also sorting if specified.
+            if (count($url_params['sort']) > 0) {
+                $url_params['sort'] = implode(',', $url_params['sort']);
+            } else {
+                unset($url_params['sort']);
+            }
+
+            if (array_key_exists('filters', $url_params) === TRUE) {
+                foreach ($url_params['filters'] as &$item) {
+                    // Filters can be two-dimensional, but the insides are always
+                    // "OR"d together.
+                    if (is_array($item) === TRUE) {
+                        $item = implode(',', $item);
+                    }
+                }
+
+                // Then they are "AND"ed.
+                $url_params['filters'] = implode(';', $url_params['filters']);
+            }
+
+            if (array_get_index($url_params, 'filters', '') === '') {
+                unset($url_params['filters']);
+            }
+
+            if (array_get_index($url_params, 'sort', '') === '') {
+                unset($url_params['sort']);
+            }
+
             while ($done === FALSE) {
                 // Stale or doesn't exist. Fetch it, and if it doesn't work, fall
                 // back to any previously existing cache.
-                $url      = Google_Analytics_Connector::FETCH_PREFIX.'/data/ga';
-                
-                // Flatten out the dimensions and metrics.
-                $url_params['dimensions'] = implode(',', $url_params['dimensions']);
-                $url_params['metrics']    = implode(',', $url_params['metrics']);
-                
-                // Also sorting if specified.
-                if (count($url_params['sort']) > 0) {
-                    $url_params['sort'] = implode(',', $url_params['sort']);
-                } else {
-                    unset($url_params['sort']);
-                }
-                
-                if (array_key_exists('filters', $url_params) === TRUE) {
-                    foreach ($url_params['filters'] as &$item) {
-                        // Filters can be two-dimensional, but the insides are always
-                        // "OR"d together.
-                        if (is_array($item) === TRUE) {
-                            $item = implode(',', $item);
-                        }
-                    }
-                    
-                    // Then they are "AND"ed.
-                    $url_params['filters'] = implode(';', $url_params['filters']);
-                }
+                $url = Google_Analytics_Connector::FETCH_PREFIX.'/data/ga';
 
-                if ($url_params['filters'] === '') {
-                    unset($url_params['filters']);
-                }
-
-                if ($url_params['sort'] === '') {
-                    unset($url_params['sort']);
-                }
-                
                 $url = replace_query_string_vars($url_params, $url);
                 $raw_response = $connector->fetchWithBackoff($url);
 
@@ -219,7 +219,7 @@ class Google_Analytics_View extends Page
                 $connector->saveToFetchCache($cache_key, $response);
             }
         }//end if (not cached)
-       
+
         if (($response === FALSE) || ($response === NULL)) {
             $result = Array(
                         'errors' => $raw_response['errors'],
@@ -228,7 +228,7 @@ class Google_Analytics_View extends Page
             $result = array_get_index($response, 'rows', Array());
             foreach ($result as &$row) {
                 $row = array_combine(array_merge($params['dimensions'], $params['metrics']), $row);
-                
+
                 // Turn metrics into numbers
                 foreach ($params['metrics'] as $metric) {
                     if (strpos($row[$metric], '.') === FALSE) {
@@ -239,9 +239,9 @@ class Google_Analytics_View extends Page
                 }
             }
         }//end if
-        
+
         return $result;
-	    
+
 	}//end generateReport()
 
 
