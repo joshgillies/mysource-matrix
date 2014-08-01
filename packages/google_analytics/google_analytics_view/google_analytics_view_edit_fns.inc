@@ -111,7 +111,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 
 	    // Give us some goal stats for this period, five at a time (because
 	    // 10 metrics maximum).
-	    $goals = $connector->getGoals($asset->viewid);
+	    $goals = $connector->getGoals($asset->attr('viewid'));
 	    $goals_reports = Array();
 	    foreach (array_chunk(array_keys($goals), 5) as $goalids) {
 	        $goal_metrics = Array();
@@ -357,7 +357,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	    $o->closeSection();
 
 	    // Start the section on experiment management API info.
-	    $experiments = $connector->getExperiments($asset->viewid);
+	    $experiments = $connector->getExperiments($asset->attr('viewid'));
 	    $o->openSection(translate('Content Experiments'));
 	    $o->openRaw();
 	    ?><table class="sq-backend-table">
@@ -696,8 +696,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	 */
 	public function paintGeoCityReport($asset, &$o, $prefix)
 	{
-	    $bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->bridgeid);
-	    $period = $bridge->attr('period');
+	    $period = 'P1M';
 
 	    $end_date    = new DateTime('today 00:00:00');
 	    $start_date  = clone $end_date;
@@ -820,8 +819,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	 */
 	public function paintTechnologiesOSesReportDesktop($asset, &$o, $prefix)
 	{
-	    $bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->bridgeid);
-	    $period = $bridge->attr('period');
+	    $period = 'P1M';
 
 	    $end_date    = new DateTime('today 00:00:00');
 	    $start_date  = clone $end_date;
@@ -1022,8 +1020,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	 */
 	public function paintTechnologiesOSesReportTablet($asset, &$o, $prefix)
 	{
-	    $bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->bridgeid);
-	    $period = $bridge->attr('period');
+	    $period = 'P1M';
 
 	    $end_date    = new DateTime('today 00:00:00');
 	    $start_date  = clone $end_date;
@@ -1222,8 +1219,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	 */
 	public function paintTechnologiesOSesReportMobile($asset, &$o, $prefix)
 	{
-	    $bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->bridgeid);
-	    $period = $bridge->attr('period');
+	    $period = 'P1M';
 
 	    $end_date    = new DateTime('today 00:00:00');
 	    $start_date  = clone $end_date;
@@ -1422,8 +1418,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	 */
 	public function paintTechnologiesDevicesReportTablet($asset, &$o, $prefix)
 	{
-	    $bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->bridgeid);
-	    $period = $bridge->attr('period');
+	    $period = 'P1M';
 
 	    $end_date    = new DateTime('today 00:00:00');
 	    $start_date  = clone $end_date;
@@ -1642,8 +1637,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	 */
 	public function paintTechnologiesDevicesReportMobile($asset, &$o, $prefix)
 	{
-	    $bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->bridgeid);
-	    $period = $bridge->attr('period');
+	    $period = 'P1M';
 
 	    $end_date    = new DateTime('today 00:00:00');
 	    $start_date  = clone $end_date;
@@ -1860,8 +1854,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	 */
 	public function paintTechnologiesBrowsersReportDesktop($asset, &$o, $prefix)
 	{
-	    $bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->bridgeid);
-	    $period = $bridge->attr('period');
+	    $period = 'P1M';
 
 	    $end_date    = new DateTime('today 00:00:00');
 	    $start_date  = clone $end_date;
@@ -2058,8 +2051,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	 */
 	public function paintTechnologiesBrowsersReportTablet($asset, &$o, $prefix)
 	{
-	    $bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->bridgeid);
-	    $period = $bridge->attr('period');
+	    $period = 'P1M';
 
 	    $end_date    = new DateTime('today 00:00:00');
 	    $start_date  = clone $end_date;
@@ -2257,8 +2249,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	 */
 	public function paintTechnologiesBrowsersReportMobile($asset, &$o, $prefix)
 	{
-	    $bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->bridgeid);
-	    $period = $bridge->attr('period');
+	    $period = 'P1M';
 
 	    $end_date    = new DateTime('today 00:00:00');
 	    $start_date  = clone $end_date;
@@ -2684,8 +2675,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	 */
 	public function paintContentMostViewedReportDesktop($asset, &$o, $prefix)
 	{
-	    $bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->bridgeid);
-	    $period = $bridge->attr('period');
+	    $period = 'P1M';
 
 	    $end_date    = new DateTime('today 00:00:00');
 	    $start_date  = clone $end_date;
@@ -2804,8 +2794,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	 */
 	public function paintContentMostViewedReportMobile($asset, &$o, $prefix)
 	{
-	    $bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->bridgeid);
-	    $period = $bridge->attr('period');
+	    $period = 'P1M';
 
 	    $end_date    = new DateTime('today 00:00:00');
 	    $start_date  = clone $end_date;
@@ -2924,8 +2913,7 @@ class Google_Analytics_View_Edit_Fns extends Page_Edit_Fns
 	 */
 	public function paintContentMostViewedReportReturningUsers($asset, &$o, $prefix)
 	{
-	    $bridge = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->bridgeid);
-	    $period = $bridge->attr('period');
+	    $period = 'P1M';
 
 	    $end_date    = new DateTime('today 00:00:00');
 	    $start_date  = clone $end_date;
