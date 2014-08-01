@@ -3249,5 +3249,9 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="new_dynamic_condition_question">New Dynamic Condition?</string>
 	<string source="new_dynamic_condition_question_note">Specify a Matrix keyword to be dynamically evaluated as the condition asset ID. This keyword will be only evaluated against the dependant parent asset. Global keywords and keyword modifier are supported. e.g %%asset_metadata_value^empty:12%%</string>
 	
+	<!-- Deprecation Warning-->
+    <string source="asset_deprecated_note">Asset of type "%1$s" has been deprecated since Matrix version %2$s. This type of asset won't be available for use in future MINOR Matrix releases. It is strongly recommended that you replace this asset with a different implementation and delete all assets of this type in your Matrix system.</string>
+	<string source="asset_deprecated_header">Asset Deprecated</string>
+
 
 </strings>
