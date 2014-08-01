@@ -145,11 +145,6 @@ $tables = Array(
 				'asset_assoc'	=> FALSE,
 			),
 			Array(
-				'table'			=> 'sch_idx',
-				'values'		=> Array('value'),
-				'asset_assoc'	=> TRUE,
-			),
-			Array(
 				'table'			=> 'thes_term',
 				'values'		=> Array('term'),
 				'asset_assoc'	=> FALSE,
