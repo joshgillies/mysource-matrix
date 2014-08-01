@@ -248,6 +248,7 @@ if ($include_rollback) {
 		exit(1);
 	}
 	$rollback_summary = unserialize(file_get_contents(SYNC_FILE));
+	unlink(SYNC_FILE);
 }
 
 $pid = fork();
@@ -287,6 +288,7 @@ if (!is_file(SYNC_FILE)) {
 }
 
 $summary = unserialize(file_get_contents(SYNC_FILE));
+unlink(SYNC_FILE);
 
 if (!$reportOnly) {
 	// Fix the filesystem content to reflect the changes made in the db
