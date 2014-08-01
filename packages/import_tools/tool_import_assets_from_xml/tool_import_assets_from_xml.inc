@@ -76,6 +76,11 @@ class Tool_Import_Assets_From_Xml extends Tool
 			$o->note(translate('tool_import_assets_from_xml_create_under_note'));
 		$o->closeField();
 
+		$o->openField(translate('allow_virus_scan'));
+			combo_box($type_code.'_allow_virus_scan', Array(1 => 'Yes', 0 => 'No'));
+			$o->note(translate('allow_virus_scan_note'));
+		$o->closeField();
+
 		$o->closeSection();
 
 	}//end paintTool()
@@ -156,6 +161,7 @@ class Tool_Import_Assets_From_Xml extends Tool
 		$vars['file_info'] = $temp_filename;
 		$vars['create_under_assetid'] = $root_node_id;
 		$vars['delete_after_import'] = TRUE;
+		$vars['allow_virus_scan'] = isset($_POST[$type_code.'_allow_virus_scan']) ? $_POST[$type_code.'_allow_virus_scan'] : TRUE;
 
 		// run HIPO job
 		$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();

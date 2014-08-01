@@ -1851,6 +1851,60 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	}//end processDivClasses()
 
 
+	/**
+	* Function to paint the File Reference Method field
+	*
+	* @param Design					$asset	the asset whose interface we are painting
+	* @param Backend_Outputter		$o		the outputter class
+	* @param string					$prefix	prefix for the form elements
+	*
+	*/
+	public function paintFileReferenceMethod(Design $asset, Backend_Outputter $o, $prefix)
+	{
+		$wa = $asset->writeAccess('attributes');
+
+		$attribute = $asset->getAttribute('file_reference_method');
+		$attribute->paint($prefix.'_file_reference_method', !$wa);
+
+		return TRUE;
+
+	}//end paintFileReferenceMethod()
+
+
+	/**
+	* Function to process the File Reference Method field
+	*
+	* @param Design					$asset	the asset whose interface we are painting
+	* @param Backend_Outputter		$o		the outputter class
+	* @param string					$prefix	prefix for the form elements
+	*
+	*/
+	public function processFileReferenceMethod(Design $asset, Backend_Outputter $o, $prefix)
+	{
+		if (!$asset->writeAccess('attributes')) {
+			return FALSE;
+		}
+
+		$attribute = $asset->getAttribute('file_reference_method');
+		$attribute->process($prefix.'_file_reference_method');
+		if ($attribute->processed && $attribute->value != $asset->attr('file_reference_method')) {
+			$asset->setAttrValue('file_reference_method', $attribute->value);
+
+			// Update the customisations as well
+			$customisations = $asset->getAllCustomisations();
+			foreach($customisations as $customisation_id => $type_code) {
+				$customisation = $GLOBALS['SQ_SYSTEM']->am->getAsset($customisation_id);
+				$GLOBALS['SQ_SYSTEM']->setRunLevel('SQ_RUN_LEVEL_FORCED');
+					$customisation->setAttrValue('file_reference_method', $attribute->value);
+					$customisation->saveAttributes();
+				$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+			}//end foreach
+		}//end if
+
+		return TRUE;
+
+	}//end processFileReferenceMethod()
+
 }//end class
 
 ?>

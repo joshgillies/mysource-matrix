@@ -80,6 +80,11 @@ class Tool_Bulk_File_Import extends Tool
 				combo_box($type_code.'_link_type', Array(SQ_LINK_TYPE_1 => 'TYPE_1', SQ_LINK_TYPE_2 => 'TYPE_2'));
 				$o->note(translate('file_import_tools_file_link_type_msg'));
 			$o->closeField();
+
+			$o->openField(translate('allow_virus_scan'));
+				combo_box($type_code.'_allow_virus_scan', Array(1 => 'Yes', 0 => 'No'));
+				$o->note(translate('allow_virus_scan_note'));
+			$o->closeField();
 		$o->closeSection();
 
 		$o->openSection(translate('file_import_tools_file_dir_selection'));
@@ -711,6 +716,7 @@ class Tool_Bulk_File_Import extends Tool
 
 			$vars['allow_unrestricted'] = array_get_index($_POST, $type_code.'_allow_unrestricted', TRUE);
 			$vars['link_type'] = array_get_index($_POST, $type_code.'_link_type', SQ_LINK_TYPE_1);
+			$vars['allow_virus_scan'] = array_get_index($_POST, $type_code.'_allow_virus_scan', TRUE);
 			// We have all the required data, so queue up our HIPO and go to town
 			$hh = $GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$result = $hh->queueHipo('hipo_job_bulk_file_import', $vars, '', SQ_PACKAGES_PATH.'/import_tools/hipo_jobs/');

@@ -2995,6 +2995,96 @@ class Js_Api_Enhanced_Function_List
 
 			<?php
 		}//end if(update_question_order)
+		
+		
+		if ($js_api_asset->attr('get_ga_statistics')) {
+			?>
+
+		/**
+		* Makes a statistics request.
+		*
+		* Required:
+		* - either duration or start_date is required but not both
+		* - dimensions are required even if empty; no more than 7 allowed
+	    * - metrics are required and must be between 1 and 10 of them
+		*
+		* Defaults:
+		* - request.end_date defaults to today's date if omitted
+		* - sort_by and filter are empty if omitted
+		* - force defaults to false
+		*
+		* Notes:
+		* - duration is ISO 8601 period format, eg. "P14D" for 14 days, "P2M"
+		*   for 2 months. Sets start date to "take end_date, subtract duration,
+		*   add one day".
+		* - Setting start date, on the other hand, is inclusive.
+		* - metrics also can be set to 'SQ_SITE_METRICS' or 'SQ_PAGE_METRICS'
+		*   for a set of standard site or page metrics.
+		* - sort_by array are 
+		* - filters are ANDed together. Filters can also be specified as an array
+		*   of subfilters which are ORed together first.
+		*
+		* @param {Object} options                       Request info.
+		* @param {String} options.assetid               The ID of the asset
+		* @param {String} options.end_date              The end date.
+		* @param {String} options.start_date            The start date.
+		* @param {String} options.duration              The period duration.
+		* @param {Array.String} options.dimensions      Dimensions to retrieve.
+		* @param {String|Array.String} options.metrics  Metrics to retrieve.
+		* @param {Array.String} options.sort_by         Sort order of results.
+		* @param {Array.(String|Array.String)} options.filter  Filters.
+		* @param {Function} options.dataCallback        Custom callback function.
+		*/
+		getGoogleAnalyticsStatistics: function(options)
+		{
+			var fnName = 'getGoogleAnalyticsStatistics';
+			if (arguments.length === 0) {
+				return {
+					// Set the default values
+					defaults: {
+						assetid:		null,
+						dimensions:     null,
+						metrics:        null,
+						duration:       null,
+						start_date:     null,
+						end_date:       null,
+						sort_by:        null,
+						filter:         null,
+						dataCallback:	function(){}
+					},
+
+					// Set the required arguments
+					required: ['assetid', 'metrics']
+				};
+			}// end if
+
+			if (options.id !== null && typeof(options.id) !== "undefined") {
+				options.assetid = options.id;
+			} else if (options.asset_id !== null && typeof(options.asset_id) !== "undefined") {
+				options.assetid = options.asset_id;
+			}
+
+			// Extract some configuration and use it to build
+			// parameters for the post call
+			var fnConfig = this[fnName].call(this);
+			options = this._options(fnConfig.required,fnConfig.defaults,options);
+
+			this._doPost(fnName,[
+					['id', options.assetid],
+					['dimensions', options.dimensions],
+					['metrics', options.metrics],
+					['duration', options.duration],
+					['start_date', options.start_date],
+					['end_date', options.end_date],
+					['sort_by', options.sort_by],
+					['filter', options.filter]
+			],options);
+
+		},// end getGoogleAnalyticsStatistics
+
+
+			<?php
+		}//end if(get_statistics)
 
 
 		?>

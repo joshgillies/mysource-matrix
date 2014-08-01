@@ -1677,6 +1677,22 @@ class File extends Asset
 	*/
 	public function scanFile($path='')
 	{
+
+		// no need to scan a cloned file, it's safe
+		if(isset($GLOBALS['SQ_CLONE_COMPONENTS']) && $GLOBALS['SQ_CLONE_COMPONENTS'] === TRUE) {
+			return TRUE;
+		}
+
+		// do not scan file if it's in intensive import process
+		if(isset($GLOBALS['SQ_SKIP_VIRUS_SCAN']) && $GLOBALS['SQ_SKIP_VIRUS_SCAN'] === TRUE) {
+			return TRUE;
+		}
+
+		// only scan file if global virus checked is enabled
+		require_once SQ_DATA_PATH.'/private/conf/tools.inc';
+		if(!SQ_TOOL_VIRUS_CHECKER_ENABLED) return TRUE;
+
+
 		// Default to not scanned
 		$status = TRUE;
 		// Load the virus checker
@@ -1817,6 +1833,32 @@ class File extends Asset
 		return !isset($edit_fns->static_screens['edit_file']);
 
 	}//end isFileContentEditable()
+
+
+	/**
+	* Returns the editable content of this asset
+	*
+	* NOTE: We don't want to return the editable contnet for most of the cases
+	* For example, we dont want Search Manager to index the content for css/js/xsl file assets
+	*
+	* @param boolean $empty_content If TRUE, empty content will be returned
+	*
+	* @return string
+	* @access public
+	*/
+	public function getContent($empty_content=TRUE)
+	{
+		if ($empty_content) {
+			return '';
+		}
+
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+		$file = $this->data_path.'/'.$this->name;
+		$content = file_to_string($file);
+
+		return $content;
+
+	}//end getContent()
 
 }//end class
 

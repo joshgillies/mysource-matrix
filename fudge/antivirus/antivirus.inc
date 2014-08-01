@@ -54,16 +54,15 @@ class Antivirus
 		require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 
 		// Scan the file
-		if (SQ_TOOL_VIRUS_CHECKER_ENABLED) {
-			if (!file_exists(SQ_TOOL_VIRUS_CHECKER_PATH)) {
+		if (!file_exists(SQ_TOOL_VIRUS_CHECKER_PATH)) {
 				// Unable to scan the file
 				// Warn the user sometime ho hum
-			} else {
+		} else {
 
-				if (empty($path)) {
-					return $status;
-				} else {
-					$file = $path;
+			if (empty($path)) {
+				return $status;
+			} else {
+				$file = $path;
 				}//end if
 
 				// Check the file exists (it would be a bit dumb to scan nothing!)
@@ -71,14 +70,14 @@ class Antivirus
 					$options = Array();
 					switch (SQ_TOOL_VIRUS_CHECKER_TYPE) {
 						case 'f-prot':
-							$options = Array(
-											'-old',
-									   );
+						$options = Array(
+							'-old',
+							);
 						break;
 
 						default:
-							$options = Array();
-							if ($recursive) $options[] = '-r';
+						$options = Array();
+						if ($recursive) $options[] = '-r';
 					}//end switch
 
 					// Scan the file
@@ -87,7 +86,7 @@ class Antivirus
 						$path_to_av .= ' '.$option;
 					}//end foreach
 					$command = $path_to_av.' '.escapeshellarg($file).' 2>&1';
-
+log_dump(get_backtrace());
 					// Run the command
 					exec($command, $av, $return);
 					
@@ -112,7 +111,6 @@ class Antivirus
 					}//end if
 				}//end if
 			}//end if
-		}//end if
 		// Return
 
 		return $status;

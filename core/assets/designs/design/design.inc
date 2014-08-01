@@ -1133,6 +1133,31 @@ echo '/*
 
 
 	/**
+	* Return asset id of all the customisations of the design
+	*
+	* @return array
+	* @access public
+	*/
+	public function getAllCustomisations()
+	{
+		$customisation_assetids = Array();
+
+		$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'design', FALSE, 'major', 'customisation');
+		foreach ($customisation_links as $link) {
+			$customisation = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+			if (!is_null($customisation)) {
+				$customisation_assetids[$link['minorid']] = $link['minor_type_code'];
+				// Customisation can have further customisations
+				$customisation_assetids += $customisation->getAllCustomisations();
+			}//end if
+		}//end foreach
+
+		return $customisation_assetids;
+
+	}//end getAllCustomisations()
+
+
+	/**
 	* Get the header for the design file
 	*
 	* @return string
