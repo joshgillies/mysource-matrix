@@ -1834,6 +1834,32 @@ class File extends Asset
 
 	}//end isFileContentEditable()
 
+
+	/**
+	* Returns the editable content of this asset
+	*
+	* NOTE: We don't want to return the editable contnet for most of the cases
+	* For example, we dont want Search Manager to index the content for css/js/xsl file assets
+	*
+	* @param boolean $empty_content If TRUE, empty content will be returned
+	*
+	* @return string
+	* @access public
+	*/
+	public function getContent($empty_content=TRUE)
+	{
+		if ($empty_content) {
+			return '';
+		}
+
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+		$file = $this->data_path.'/'.$this->name;
+		$content = file_to_string($file);
+
+		return $content;
+
+	}//end getContent()
+
 }//end class
 
 ?>

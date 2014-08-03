@@ -1841,7 +1841,6 @@ Full Node Contents :
     <error code="CORE0324">Error occurred while getting contents for pdf File Asset #%1$s : %2$s</error>
 
 	<!-- Deprecation Warning-->
-    <error code="CORE0325">Asset of type "%1$s" have been deprecated since Matrix version %2$s. These type of assets won't be available for use in later minor Matrix releases.</error>
     <error code="CORE0326">Asset of type "%1$s" have been deprecated since Matrix version %2$s and cannot be cloned.</error>
 
 	<error code="RPRT0000">Could not open temporary file, report generation aborted</error>

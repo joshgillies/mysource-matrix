@@ -4731,5 +4731,35 @@ class MySource extends MySource_Object
 
 	}//end stripMatrixComments()
 
+
+	/**
+	* Prints a
+	*
+	* @return void
+	* @access public
+	*/
+	function printDeprecatedWarning($asset)
+	{
+
+		?>
+		<div class="sq-backend-warning-wrapper">
+			<table class="sq-backend-table sq-backend-warning-table">
+				<tr>
+					<th class="sq-backend-warning-header">
+						<?php echo translate('asset_deprecated_header'); ?>
+					</th>
+				</tr>	
+				<tr>
+					<td colspan="2" ><?php echo translate('asset_deprecated_note', ucwords(str_replace('_', ' ', $asset->type())), $asset->deprecated_since); ?>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<?php
+
+	}//end printDeprecatedWarning()
+
+
 }//end class
+
 ?>

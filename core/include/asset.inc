@@ -191,6 +191,14 @@ class Asset extends MySource_Object
 	*/
 	public $deprecated = FALSE;
 
+
+	/**
+	* Marking the asset deprecated since so that we can
+	* use it when warning the users on backend
+	*/
+	public $deprecated_since = '';
+	
+	
 	/**
 	* Constructor
 	*
@@ -4383,10 +4391,12 @@ class Asset extends MySource_Object
 	/**
 	* Returns the editable content of this asset
 	*
+	* @param boolean $empty_content If TRUE, empty content will be returned
+	*
 	* @return string
 	* @access public
 	*/
-	public function getContent()
+	public function getContent($empty_content=TRUE)
 	{
 		return '';
 

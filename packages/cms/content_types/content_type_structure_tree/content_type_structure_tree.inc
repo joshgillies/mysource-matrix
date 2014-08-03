@@ -38,7 +38,14 @@ class Content_Type_Structure_Tree extends Content_Type
 	*/
 	public $deprecated = TRUE;
 
-    
+ 
+	/**
+	* Marking the asset deprecated since so that we can
+	* use it when warning the users on backend
+	*/
+	public $deprecated_since = '5.1';
+
+   
 	/**
 	* Constructor
 	*

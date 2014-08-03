@@ -42,6 +42,13 @@ class Page_Multiple_Page_Page extends Bodycopy
 
 
 	/**
+	* Marking the asset deprecated since so that we can
+	* use it when warning the users on backend
+	*/
+	public $deprecated_since = '5.1';
+
+
+	/**
 	* Constructor
 	*
 	* @param int	$assetid	the asset id to be loaded

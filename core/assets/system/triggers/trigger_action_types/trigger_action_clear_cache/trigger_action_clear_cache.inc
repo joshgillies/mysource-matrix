@@ -52,7 +52,7 @@ class Trigger_Action_Clear_Cache extends Trigger_Action
 	* @return mixed array|boolean
 	* @access public
 	*/
-	public static function execute($settings, &$state, $other_assets=FALSE)
+	public static function execute($settings, &$state)
 	{
 		if (empty($state['asset'])) {
 			// grab the asset if assetid is given, but not the asset.
