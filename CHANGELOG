@@ -1,5 +1,16 @@
 SQUIZ MATRIX CHANGELOG
 
+VERSION 5.0.4.3
+
+Bug Fixes
+=================================== 
+
+Fixed Bug #5693: Account Manager's Customise the Editing Layout Form issues.
+Fixed Bug #5720: The charset conversion script does not look into trigger, asset and internal message tables.
+Fixed Bug #5751: Using Static Cache File option in CSS Design File with a customisation breaks the back-end after commit.
+Fixed Bug #5754: Nested REST Resource asset content not showing in the output.
+
+
 VERSION 5.0.4.2
 
 Bug Fixes
