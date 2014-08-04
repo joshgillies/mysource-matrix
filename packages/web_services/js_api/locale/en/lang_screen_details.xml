@@ -71,6 +71,14 @@
 			<display_name>Use Enhanced JS API</display_name>
 			<note>Selecting this option will enable the use of Enhanced API for better perfomance.&lt;br /&gt; &lt;b&gt;NOTE:&lt;/b&gt; The list of usable functions remains the same for any of the API type being used.</note>
 		</field>
+		<field show_if="isUsingStandard">
+			<display_name />
+			<note />
+			<function_call>
+				<paint_function   name="paintWarning"  />
+				<process_function name="processWarning"/>
+			</function_call>
+		</field>
 		<field attribute="batch_requests">
 			<display_name>Allow Batching Requests</display_name>
 			<note>Enables the &lt;i&gt;batchRequest&lt;/i&gt; function which can perform multiple function calls in one API call&lt;br /&gt; &lt;b&gt;NOTE:&lt;/b&gt; The returned result is all data returned by the performed functions in the batched request</note>
