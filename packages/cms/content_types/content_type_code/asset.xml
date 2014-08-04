@@ -24,7 +24,7 @@
 	<version>0.1</version>
 	<name>Code Content Type</name>
 	<description>Code Content Type, for displaying source code</description>
-	<instantiable>yes</instantiable>
+	<instantiable>no</instantiable>
 	<allowed_access>system</allowed_access>
 	<parent_type>content_type</parent_type>
 	<requirements>

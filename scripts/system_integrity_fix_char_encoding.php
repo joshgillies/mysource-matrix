@@ -1067,4 +1067,3 @@ function get_tables_info()
 
 
 ?>
-

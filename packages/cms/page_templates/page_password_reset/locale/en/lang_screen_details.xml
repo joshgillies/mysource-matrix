@@ -43,5 +43,9 @@
 			<display_name>Check Browser Session</display_name>
 			<note>Force user to open the reset link in the same browser session in which the password reset was requested. This measure is in place to ensure that no other users on the same email address will be able to complete the password reset request on your account.</note>
 		</field>
+		<field attribute="password_autocomplete">
+			<display_name>Auto Complete Password</display_name>
+				<note>If set to 'Disable', the login forms will allow, browsers which support the attribute, to populate the password field on login screen.</note>
+		</field>
 	</section>	
 </contents>

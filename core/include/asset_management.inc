@@ -271,14 +271,24 @@ class Asset_Management extends MySource_Object
 			throw new Exception('Unable to add information for new asset type "'.$type_code.'" due to database error: '.$e->getMessage());
 		}
 
-		// now inform the asset manager that this asset is available for use
+		// now inform the asset manager that this asset type is available for use
 		$this->_am->refreshAssetType($type_code);
 
 		// now add the attributes
 		$all_vars = $this->_getAllVars();
+
+		// In case a package is being re-installed, be mindful of existing attributes.
+		$existing_attributes = $this->_getExistingAttributes($type_code);
+
 		for (reset($all_vars); null !== ($k = key($all_vars)); next($all_vars)) {
 			$name = $all_vars[$k];
-			if (!$this->_addAttribute($name)) return false;
+			if (in_array($name, $existing_attributes)) {
+				continue;
+			}
+
+			if (!$this->_addAttribute($name)) {
+				return false;
+			}
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -373,6 +383,36 @@ class Asset_Management extends MySource_Object
 		return true;
 
 	}//end _upgrade()
+
+
+	/**
+	 * Get a list of existing attributes for a particular type code.
+	 * Only returns the name of existing attributes (if any).
+	 *
+	 * @param string $type_code The type code to get attributes for.
+	 *
+	 * @return array
+	 */
+	function _getExistingAttributes($type_code)
+	{
+		$db = MatrixDAL::getDb();
+
+		$type_code = $this->getAssetType();
+		$sql = 'SELECT atr.name
+				FROM sq_ast_attr atr
+				  WHERE atr.type_code = :type_code';
+
+		try {
+			$query = MatrixDAL::preparePdoQuery($sql);
+			MatrixDAL::bindValueToPdo($query, 'type_code', $type_code, PDO::PARAM_STR);
+			$existing_attributes = MatrixDAL::executePdoAssoc($query, 0);
+		} catch (Exception $e) {
+			throw new Exception('Unable to get attribute list for type code "'.$type_code.'" due to database error: '.$e->getMessage());
+		}
+
+		return $existing_attributes;
+
+	}//end _getExistingAttributes()
 
 
 	/**

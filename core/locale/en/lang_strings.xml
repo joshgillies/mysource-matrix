@@ -74,6 +74,7 @@
 	<string source="asset_status">Asset Status</string>
 	<string source="asset_statuses">Asset Statuses</string>
 	<string source="asset_status_live_warning">&lt;strong&gt;Warning:&lt;/strong&gt; Cascading Live status to child assets may result in unintended canceling of Safe Editing of those children which can result in loss of content.</string>
+	<string source="cascade_stream_warning">&lt;strong&gt;Warning:&lt;/strong&gt; Cascading this workflow initiation status to child assets will initiate the workflow for all children that are in a workflow ready state. The chosen workflow stream will also be cascaded if applicable.</string>
 	<string source="asset_current_status_change_from_parent">Current status for this asset can only be set from parent asset's &lt;a href="%s"&gt;details screen&lt;/a&gt;&lt;/i&gt;</string>
 	<string source="asset_future_status_change_from_parent">Future status for this asset can only be set from parent asset's &lt;a href="%s"&gt;details screen&lt;/a&gt;&lt;/i&gt;</string>
 	<string source="cannot_make_live_metadata_incomplete">This asset cannot be made live because some mandatory %s fields are empty</string>
@@ -369,11 +370,14 @@
 	<string source="system_parent_domains">System Parent Domains</string>
 	<string source="system_parent_domains_note">Parent domains are examined when the system is setting the session cookie, and are useful if several system root URLs have a common parent domain (eg syd.example.com and melb.example.com).  If the current URL ends with one of the parent domains then the cookie will be set on the parent domain instead, with the result that the user's session will persist across the parent domain and all its subdomains.  Note that the common parent must be only one level up - alpha.syd.example.com and bravo.mel.example.com cannot share a cookie because their common parent domain is two levels up.</string>
 	<string source="system_static_url_note">Static URLs can be used to offload delivery of static files and images to an alternative web server. This is an advanced configuration option and requires specific web server configuration to operate correctly.</string>
+	<string source="system_static_url_exclude_note">Type the restricted file extensions with comma separated. For example: jpg,png,txt,mov, etc. If configured, the extensions specified won't be served via the Static URL.</string>
+	<string source="file_types_restricted_to_be_served_on_static_url">Restricted File Extensions via Static Root Domain</string>
 	<string source="system_root">System Root</string>
 	<string source="system_settings">System Settings</string>
 	<string source="system_simple_edit_suffix">System Simple Edit Suffix</string>
 	<string source="system_login_suffix">System Login Suffix</string>
 	<string source="system_nocache_suffix">System Bypass Cache Suffix</string>
+	<string source="system_noproxycache_suffix">System Bypass Proxy Cache Suffix</string>
 	<string source="system_recache_suffix">System Clear Cache Suffix</string>
 	<string source="system_performance_suffix">System Performance Mode Suffix</string>
 	<string source="system_timezone">System Timezone</string>
@@ -452,7 +456,7 @@
 	<string source="workflow_status">Workflow Status</string>
 	<string source="header_frame_mail_lock">How long (in seconds) between refreshes of the top (header) frame - this frame keeps the lock on long edits and checks for new mail - Min: 60.</string>
 	<string source="metadata_in_approval_requires_fields_completion">"%1$s" is currently in an approval process but some required metadata fields are not yet compelete. These fields must be completed before "%1$s" can become 'Approved' to go live.</string>
-	<string source="metadata_fields_only_completed_by_administrator">These metadata fields can be completed by any editor or administrator of "%1$s" by going to the %2$s</string>
+	<string source="metadata_fields_only_completed_by_administrator">These metadata fields can be completed by any editor or administrator of "%1$s" by going to the %2$s.</string>
 	<string source="metadata_screen">Metadata screen</string>
 	<string source="cms_ct_raw_html_pref_editor_size">Raw HTML Editor Size</string>
 	<string source="back_to">Back to</string>
@@ -470,19 +474,19 @@
 	<string source="page_title_admin_mode">%s : Admin Mode</string>
 
 	<!-- Cron translations -->
-	<string source="cron_manager_not_configured">The Scheduled Jobs Manager has not been configured. No future statuses can be set for this asset</string>
-	<string source="cron_manager_not_configured_regen">The Scheduled Jobs Manager has not been configured. No future regeneration can be set for this asset</string>
-	<string source="cron_manager_not_configured_refresh">The Scheduled Jobs Manager has not been configured. No future cache refreshing can be set for this asset</string>
+	<string source="cron_manager_not_configured">The Scheduled Jobs Manager has not been configured. No future statuses can be set for this asset.</string>
+	<string source="cron_manager_not_configured_regen">The Scheduled Jobs Manager has not been configured. No future regeneration can be set for this asset.</string>
+	<string source="cron_manager_not_configured_refresh">The Scheduled Jobs Manager has not been configured. No future cache refreshing can be set for this asset.</string>
 	<string source="cron_manager_refresh_cache_running">Running</string>
 	<string source="cron_manager_refresh_cache_not_running">Not Running</string>
 	<string source="cron_manager_refresh_no_job">No Jobs available</string>
 	<string source="cron_manager_next_run">The Scheduled Jobs Manager runs every &lt;b&gt;%1$s&lt;/b&gt;. It will next run on the &lt;b&gt;%2$s&lt;/b&gt;.</string>
-	<string source="asset_currently_in_workflow">&lt;i&gt;This asset is currently in workflow. Approval or rejection of the changes must be done on the &lt;a href="%s"&gt;asset workflow screen&lt;/a&gt;&lt;/i&gt;</string>
+	<string source="asset_currently_in_workflow">&lt;i&gt;This asset is currently in workflow. Approval or rejection of the changes must be done on the &lt;a href="%s"&gt;asset workflow screen&lt;/a&gt;&lt;/i&gt;.</string>
 	<string source="workflow_not_running">Workflow is not currently running for this asset</string>
-	<string source="workflow_not_running_bundle">This bundle must be in &quot;Approving&quot; status to be able to approve or reject workflow at a bundle level</string>
+	<string source="workflow_not_running_bundle">This bundle must be in &quot;Approving&quot; status to be able to approve or reject workflow at a bundle level.</string>
 	<string source="workflow_bundle_not_current_step">To be able to approve or reject workflow at a bundle level, you must be able to approve or reject at least one bundled asset.</string>
 	<string source="workflow_email_link_updated">You have %s the changes successfully</string>
-	<string source="workflow_email_link_has_been_updated">It is either that the workflow has already been %s or you do not have access to edit the workflow of the asset</string>
+	<string source="workflow_email_link_has_been_updated">It is either that the workflow has already been %s or you do not have access to edit the workflow of the asset.</string>
 	<string source="no_thumbnail_attatched">No thumbnail attached</string>
 	<string source="set_status_to">Set Status to </string>
 	<string source="cron_manager_refresh_unknown">The Scheduled Jobs Manager refresh time is unknown</string>
@@ -496,10 +500,10 @@
 	<string source="cron_deadlock_warning_list_item_1">An existing Scheduled Jobs Manager instance is currently running an extremely long running job.</string>
 	<string source="cron_deadlock_warning_list_item_2">Some thing has caused the Scheduled Jobs Manager to exit uncleanly when it was running and the lock wasn't able to be removed.</string>
 	<string source="cron_deadlock_warning_section_1">This is only a potential warning brought about because the Scheduled Jobs Manager has attempted to run %s times, but has not been able to. Two potential reasons for this are :</string>
-	<string source="cron_deadlock_warning_check_error_log">Check the cron error log (in "%s") for any information</string>
+	<string source="cron_deadlock_warning_check_error_log">Check the cron error log (in "%s") for any information.</string>
 	<string source="cron_deadlock_warning_offending_job">The Scheduled Jobs Manager believes this job is still running: %s</string>
-	<string source="cron_deadlock_warning_section_2">To confirm the removal of the lock flag for the Scheduled Jobs Manager, enter the character string you see below into the box supplied, then press the Commit button</string>
-	<string source="cron_deadlock_warning_section_3">ONLY REMOVE THE LOCK IF YOU KNOW FOR CERTAIN THAT THE SCHEDULED JOBS MANAGER IS NOT RUNNING</string>
+	<string source="cron_deadlock_warning_section_2">To confirm the removal of the lock flag for the Scheduled Jobs Manager, enter the character string you see below into the box supplied, then press the Commit button.</string>
+	<string source="cron_deadlock_warning_section_3">ONLY REMOVE THE LOCK IF YOU KNOW FOR CERTAIN THAT THE SCHEDULED JOBS MANAGER IS NOT RUNNING.</string>
 	<string source="cron_deadlock_must_acquire_lock">You must acquire the lock in order resolve this issue</string>
 	<string source="cron_deadlock_warning_contact_root">You must contact the root user to resolve this issue</string>
 	<string source="cron_force_lock_removal">Force Removal of Lock</string>
@@ -603,6 +607,33 @@
 	<string source="system_maintenance">System Maintenance</string>
 	<string source="reports_and_maintenance_tasks">Reports and Maintenance Tasks</string>
 	<string source="general_reports_not_installed">There are no General Reports installed</string>
+	<string source="reports">Reports</string>
+	<string source="notify">Notify</string>
+	<string source="maintenance_mode">Maintenance Mode</string>
+	<string source="maintenance_mode_enabled">Maintenance Mode Enabled</string>
+	<string source="maintenance_mode_notify">Maintenance Mode Will Soon Be Enabled</string>
+	<string source="maintenance_mode_note">When this setting is set to "Enabled", Matrix will enter Maintenance Mode and affected assets specified below will print a maintenance message instead of their asset contents on the front end.  If this setting is set to "Notify", Matrix will only print a different maintenance message as well as the asset contents on the front end for the affected assets. The %%globals_system_maintenance_mode%% keyword can be used to print the current maintenance mode status which will either be "disabled", "notify" or "enabled".</string>
+	<string source="system_maintenance_configuration">System Maintenance Configuration</string>
+	<string source="backend_maintenance_enabled_message">Back End Enabled Message</string>
+	<string source="backend_maintenance_enabled_message_note">The message that will be printed in Admin and Edit mode when Maintenance Mode is set to "Enabled" status. The &lt;strong&gt;%%globals_system_maintenance_message_backend%%&lt;/strong&gt; keyword can also be used to print this message manually but will print blank when Maintenance Mode is disabled.</string>
+	<string source="backend_maintenance_notify_message">Back End Notify Message</string>
+	<string source="backend_maintenance_notify_message_note">The message that will be printed in Admin and Edit mode when Maintenance Mode is set to "Notify" status. The &lt;strong&gt;%%globals_system_maintenance_message_backend%%&lt;/strong&gt; keyword can also be used to print this message manually but will print blank when Maintenance Mode is disabled.</string>
+	<string source="frontend_maintenance_enabled_message">Front End Enabled Message</string>
+	<string source="frontend_maintenance_enabled_message_note">The message that will be printed on affected asset on frontend when Maintenance Mode is set to "Enabled" status. The &lt;strong&gt;%%globals_system_maintenance_message_frontend%%&lt;/strong&gt; keyword can also be used to print this message manually but will print blank when Maintenance Mode is disabled.</string>
+	<string source="frontend_maintenance_notify_message">Front End Notify Message</string>
+	<string source="frontend_maintenance_notify_message_note">The message that will be printed on affected asset on frontend when Maintenance Mode is set "Notify" status. The &lt;strong&gt;%%globals_system_maintenance_message_frontend%%&lt;/strong&gt; keyword can also be used to print this message manually but will print blank when Maintenance Mode is disabled.</string>
+	<string source="maintenance_mode_backend_notify_message">This Matrix system will soon be entering Maintenance Mode. Please save your work and consult the system owner for further information.</string>
+	<string source="maintenance_mode_frontend_notify_message">This website will soon be undergoing maintenance. Some website functions will temporarily be disabled.</string>
+	<string source="maintenance_mode_backend_enabled_message">This Matrix system has entered Maintenance Mode. Please consult the system owner before making any changes.</string>
+	<string source="maintenance_mode_frontend_enabled_message">This website is currently undergoing maintenance. Some website functions are temporarily disabled.</string>
+	<string source="affected_asset_types">Affected Asset Types</string>
+	<string source="affected_asset_types_note">When Maintenance Mode is enabled, the above types of assets will be affected.</string>
+	<string source="affected_root_nodes">Affected Root Nodes</string>
+	<string source="affected_root_nodes_note">When Maintenance Mode is enabled, the affected assets under the above root nodes will print the &lt;strong&gt;Front End Message&lt;/strong&gt; instead of printing their content.</string>
+	<string source="excluded_root_nodes">Excluded Root Nodes</string>
+	<string source="excluded_root_nodes_note">The above root nodes are excluded and will overwrite any root nodes configured to be affected by Maintenance Mode.</string>
+	<string source="retry_after">Retry-After Response Header Value</string>
+	<string source="retry_after_note">When Maintenance Mode is enabled, affected assets will send a 503 Service Unavailable and a Retry-After response header to the requesting client to indicate that the page is unavailable and to try again after a certain amount of time. The value of this field can be either an HTTP-date or an integer number of seconds (in decimal) after the time of the response.</string>
 
 	<string source="asset_tree">Asset Tree</string>
 	<string source="login_as">Login As</string>
@@ -677,6 +708,7 @@
 	<string source="workflow_may_enter_reason_for_decision">You can enter a reason for your decision in the box above so that other approvers know why you have accepted or rejected the changes.</string>
 	<string source="workflow_must_enter_reason_for_decision">You must enter the reason for your decision in the box above so that other approvers know why you have accepted or rejected the changes.</string>
 	<string source="workflow_must_enter_reason_for_decision_bundle">You must enter the reason for your decision in the box above so that other approvers know why you have accepted or rejected the changes. At least one bundled asset requires you do this.</string>
+	<string source="editor_comment_note">You can enter a comment that the approvers will see when they get notified of this request.</string>
 
 	<string source="logged_by">Logged By</string>
 	<string source="log_time">Log Time</string>
@@ -1005,8 +1037,8 @@
 	<string source="bodycopy_asset_has_no_design">&lt;b&gt;NOTE:&lt;/b&gt; This asset does not have a design applied to it for the URL currently being edited [&lt;b&gt;%s&lt;/b&gt;]. No style information is available to use for content editing.</string>
 	<string source="bodycopy_asset_has_no_preview">&lt;b&gt;NOTE:&lt;/b&gt; This asset does not have a preview URL or design applied to it in this context. No style information is available to use for content editing.</string>
 	<string source="asset_has_no_design">&lt;b&gt;NOTE:&lt;/b&gt; This asset does not have a design applied to it. You need a Design applied for Paint Layouts to work.</string>
-	<string source="bodycopy_safe_edit_cannot_insert_new">&lt;b&gt;NOTE:&lt;/b&gt; You cannot insert a new Div or Table whilst in Safe Edit mode</string>
-	<string source="bodycopy_pref_cannot_insert_new">&lt;b&gt;NOTE:&lt;/b&gt; You cannot insert a new Div or Table while it is disabled in user preference</string>
+	<string source="bodycopy_safe_edit_cannot_insert_new">&lt;b&gt;NOTE:&lt;/b&gt; You cannot insert a new Div or Table whilst in Safe Edit mode.</string>
+	<string source="bodycopy_pref_cannot_insert_new">&lt;b&gt;NOTE:&lt;/b&gt; You cannot insert a new Div or Table while it is disabled in user preference.</string>
 	<string source="bodycopy_insert_table">Insert Table</string>
 	<string source="text_direction">Text direction settings</string>
 	<string source="bodycopy_direction">Direction:</string>
@@ -1015,9 +1047,9 @@
 	<string source="table_styles-colours">Table Styles / Colours</string>
 	<string source="style_information">Style Information</string>
 	<string source="presentation">Presentation</string>
-	<string source="inline">Inline</string>
-	<string source="block-level">Block-level</string>
-	<string source="raw_html">Raw HTML</string>
+	<string source="inline">Inline (span)</string>
+	<string source="block-level">Block (div)</string>
+	<string source="raw_html">Raw (no formatting)</string>
 	<string source="raw_html_content_container">Raw HTML Content Container</string>
 	<string source="class">Class</string>
 	<string source="identification">Identification</string>
@@ -1063,8 +1095,8 @@
 	<string source="core_no_existing_parsefile">Not available - no existing parse file available</string>
 	<string source="core_manually_reparse">Yes, manually reparse the existing file</string>
 	<string source="core_require_upload_parsefile">You need to upload a parse file before you can edit it</string>
-	<string source="core_only_upload_files_of_type">&lt;b&gt;NOTE:&lt;/b&gt; You may only upload files of type %s</string>
-	<string source="core_image_size_restricted">&lt;b&gt;NOTE:&lt;/b&gt; Image size is restricted to a maximum of %1$s x %2$s pixels</string>
+	<string source="core_only_upload_files_of_type">&lt;b&gt;NOTE:&lt;/b&gt; You may only upload files of type %s.</string>
+	<string source="core_image_size_restricted">&lt;b&gt;NOTE:&lt;/b&gt; Image size is restricted to a maximum of %1$s x %2$s pixels.</string>
 	<string source="core_no_customisation_created">No Customisations Created</string>
 	<string source="core_design_area">Design Area</string>
 	<string source="core_remove_customisation_question">Remove Customisation?</string>
@@ -1145,6 +1177,8 @@
 	<string source="condition_asset_type_false">The current asset is NOT of any of the following types</string>
 	<string source="condition_has_children_true">The current asset has children of any of the following types</string>
 	<string source="condition_has_children_false">The current asset does NOT have children of any of the following types</string>
+	<string source="condition_in_maintenance_mode_true">The system is in Maintenance Mode</string>
+	<string source="condition_in_maintenance_mode_false">The system is NOT in Maintenance Mode</string>
 
 	<!-- General condition strings and notes -->
 	<string source="condition_match_on_following_keywords">Match on %s of the following keywords</string>
@@ -1355,6 +1389,25 @@
 	<string source="link">Link</string>
 	<string source="trigger_ids">Trigger Ids</string>
 	<string source="trigger_ids_note">Specify the Triggers that may only be executed. Leave blank to allow any Trigger.</string>
+	<string source="trigger_action_other_assets">Action On Other Assets</string>
+	<string source="trigger_action_other_assets_title">Assets To Action On</string>
+	<string source="trigger_action_other_assets_note">Select which other assets, in addition to or instead of the broadcasting asset, this action will fire on.</string>
+	<string source="trigger_action_include_current_asset">Include Current Asset?</string>
+	<string source="trigger_action_include_current_asset_note">Include the asset that the action is executing on</string>
+	<string source="trigger_action_include_linked_parents">Include Linked Parents?</string>
+	<string source="trigger_action_include_linked_parents_include_parents_note">Include parents of the current asset with </string>
+	<string source="trigger_action_link_type">Link Type</string>
+	<string source="trigger_action_link_value">Link Value</string>
+	<string source="trigger_action_and"> and </string>
+	<string source="trigger_action_assets">Assets</string>
+	<string source="trigger_action_include_linked_parents_note"><![CDATA[<strong>NOTE:</strong> For NOTICE type links where the linked parent is a Bodycopy Container or a Content Type asset, the trigger will action on the dependant parent instead.]]></string>
+	<string source="trigger_action_dynamic_parameters">Dynamic Parameters</string>
+	<string source="trigger_action_dynamic_parameters_assets">Comma separated list of asset ids</string>
+	<string source="trigger_action_asset_level">Asset Level</string>
+	<string source="trigger_action_asset_level_note"><![CDATA[<strong>NOTE:</strong> Selecting the "Selected assets and their children" as an asset level option can significantly decrease system performance when this action is fired as it can potentiall affect a large number of assets.]]></string>
+	<string source="trigger_action_asset_types">Include Asset Types</string>
+	<string source="trigger_action_all_asset_types">All asset types</string>
+	<string source="trigger_action_use_other_assets_setting"><![CDATA[<strong>NOTE:</strong> Please use the "Action On Other Assets" function to specify which other assets to fire this action on.]]></string>
 
 	<string source="trigger_clone_asset_missing">The asset to clone is missing and cloning broadcasting asset is not selected</string>
 	<string source="trigger_clone_parent_missing">Parent to clone under is missing and linking to broadcasting asset is not selected</string>
@@ -1468,6 +1521,7 @@
 	<string source="trigger_send_to_active_user">Send to active user</string>
 	<string source="trigger_active_user_recipient">Active User Recipient</string>
 	<string source="trigger_send_to_active_user_note">Sends a copy to the user asset that fired this event</string>
+	<string source="trigger_send_email_to">Send Email To</string>
 
 	<string source="trigger_clear_cache_current_asset">Include Current Asset?</string>
 	<string source="trigger_clear_cache_include_current_asset">Includes the asset that the action is executing on?</string>
@@ -1570,7 +1624,6 @@
 	<string source="dimension">Dimension</string>
 	<string source="both">Both</string>
 	<string source="neither">Neither</string>
-	<string source="square_center_weighted">Square (Centre Weighted)</string>
 	<string source="htmlwidth">HTML Width</string>
 	<string source="css">CSS</string>
 	<string source="not">Not</string>
@@ -3042,8 +3095,8 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 	<string source="miscellaneous_config">Miscellaneous Settings</string>
 	<string source="visited_pages_config_max_entries">Visited Pages Maximum Entries</string>
 	<string source="visited_pages_config_note">Maximum number of visited URLs entires to store in the session. Visited URLs and asset ids can be accessed via global session var "visited_urls" and "visited_assets" respectively.</string>
-
-
+	<string source="strip_matrix_comments">Strip Matrix Comments</string>
+	<string source="strip_matrix_comments_note">Strip out special Matrix comments, "&lt;!--@@ @@--&gt;" and "/*@@ @@*/" from the output.</string>
 
 	<!-- Install and warranty key -->
 	<string source="install_and_warranty_key">Install and Warranty Key</string>
@@ -3145,8 +3198,28 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 
 	<!-- Edit+ WYSIWYG edito (Viper) -->
  	<string source="enable_edit+_editor">Enable Edit+ Editor</string>
+ 	<string source="viper_plugins">Edit+ Editor Plugins</string>
 	<string source="enable_edit+_editor_note">If this option is enabled, the new Edit+ editor will be used for the WYSIWYG content type and attributes. As a result, the following WSIWYG preferences will not be applied: WYSIWYG Style, Apply CSS Styles, WYSIWYG Plugins, WYSIWYG Disable Image Resize, Thesaurus and Protocol Templates.</string>
 	<string source="edit+_editor_enabled_icon_note">Click inside the content area to start editing using the Edit+ Content Editor.</string>
+    <string source="format_core_style_viper">Format Fonts</string>
+    <string source="keyboard_editor_viper">Keyboard Editor</string>
+    <string source="inline_toolbar_viper">Inline Toolbar</string>
+    <string source="history_viper">History</string>
+    <string source="list_viper">Listing</string>
+    <string source="format_viper">Formating</string>
+    <string source="toolbar_viper">Viper Toolbar &lt;i&gt;(Top)&lt;/i&gt;</string>
+    <string source="table_editor_viper">Table Editing</string>
+    <string source="viper_edit_copy_paste">Viper Editing Tools &lt;i&gt;(Copy, Paste, etc.)&lt;/i&gt;</string>
+    <string source="matrix_edit_copy_paste">Matrix Editing Tools &lt;i&gt;(Specific to editing Matrix based URLs)&lt;/i&gt;</string>
+    <string source="insert_image_viper_matrix">Insert Image</string>
+    <string source="insert_link_viper_matrix">Insert Link</string>
+    <string source="keyword_plugin_viper_matrix">Keywords &lt;i&gt;(Asset based &amp; Snippets)&lt;/i&gt;</string>
+    <string source="accessibility_viper">Accessibility</string>
+    <string source="view_source_viper">View Source</string>
+    <string source="search_and_replace_viper">Search And Replace</string>
+    <string source="choose_lang_tool_viper">Choose Language</string>
+    <string source="special_char_map_viper">Special Chars</string>
+    <string source="cursor_assist_viper">Cursor Assist</string>
 
 	<!-- External URLs -->
  	<string source="url_matrix_manuals_homepage">http://manuals.matrix.squizsuite.net/</string>
@@ -3157,4 +3230,32 @@ If you click &quot;OK&quot;, this context - and the attribute and metadata value
 		
 	<!--  general -->
 	<string source="use_relative_path">Path is relative to Matrix installation location unless prefixed with '/'.</string>
+
+	<string source="new_attribute_to_set">New attribute to set?</string>
+	<string source="add_attribute">Add Attribute</string>
+
+	<!-- workflow schema -->
+	<string source="no_automatic_workflow_stream_rules">There is no rule set.</string>
+	<string source="current_rules">Current Rules</string>
+	<string source="new_rule">New Rule</string>
+	<string source="rules_logic">Rules Logic</string>
+	<string source="match_all_rules">Match On All Rules</string>
+	<string source="match_any_rule">Match On Any Rule</string>
+	<string source="selection_rules">Selection Rules</string>
+	<string source="match_all_rules_description">Match on ALL rules:</string>
+	<string source="match_any_rule_description">Match on ANY rule:</string>
+	<string source="stream_selection_rule_description">%1$s matches "%2$s"</string>
+
+	<string source="new_dynamic_condition_question">New Dynamic Condition?</string>
+	<string source="new_dynamic_condition_question_note">Specify a Matrix keyword to be dynamically evaluated as the condition asset ID. This keyword will be only evaluated against the dependant parent asset. Global keywords and keyword modifier are supported. e.g %%asset_metadata_value^empty:12%%</string>
+	
+	<!-- Deprecation Warning-->
+    <string source="asset_deprecated_note">Asset of type "%1$s" has been deprecated since Matrix version %2$s. This type of asset won't be available for use in future MINOR Matrix releases. It is strongly recommended that you replace this asset with a different implementation and delete all assets of this type in your Matrix system.</string>
+	<string source="asset_deprecated_header">Asset Deprecated</string>
+
+
+	<!-- virus scan -->
+	<string source="allow_virus_scan">Allow Virus Scan</string>
+	<string source="allow_virus_scan_note">If global Virus Checker is enabled, perform immediate virus scan on each imported file. This will slow down import process.</string>
+
 </strings>

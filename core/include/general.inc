@@ -876,6 +876,7 @@ function current_url($inc_protocol=TRUE, $strip_backend_suffix=FALSE, $strip_ext
 			// NOTE: We shouldn't strip off '/' at the end of url
 			// otherwise it will create issues when generating relative herf
 			$url = preg_replace('/'.SQ_CONF_NOCACHE_SUFFIX.'\/?$/', '', $url);
+			$url = preg_replace('/'.SQ_CONF_NOPROXYCACHE_SUFFIX.'\/?$/', '', $url);
 
 			$regex = '/\/(';
 			$regex .= SQ_CONF_RECACHE_SUFFIX.'|';
@@ -919,6 +920,7 @@ function clean_url($url)
 				SQ_CONF_LIMBO_SUFFIX,
 				SQ_CONF_BACKEND_SUFFIX,
 				SQ_CONF_NOCACHE_SUFFIX,
+				SQ_CONF_NOPROXYCACHE_SUFFIX,				
 				SQ_CONF_RECACHE_SUFFIX,
 				SQ_CONF_PERFORMANCE_SUFFIX,
 			);

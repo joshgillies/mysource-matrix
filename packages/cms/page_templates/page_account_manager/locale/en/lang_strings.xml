@@ -44,6 +44,7 @@
 	<string source="cms_account_manager_keyword_resend_validation_user_not_found">Specified user name was not found</string>
 	<string source="cms_account_manager_keyword_resend_validation_cannot_send_user">Validation email cannot be sent to this user</string>
 	<string source="cms_account_manager_keyword_resend_validation_success">Resend Validation Success</string>
+	<string source="cms_account_manager_keyword_form_errors">List of Form Submission Errors</string>
 	<string source="cms_account_manager_created_need_activation">Your account has been created but needs to be activated before you can log in.</string>
 	<string source="cms_account_manager_created_please_log_in">Your account has been created and activated.  Please log in using the form below.</string>
 	<string source="cms_account_manager_validation_email_default_subject">Activating your new account</string>

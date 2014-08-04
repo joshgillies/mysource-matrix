@@ -54,8 +54,8 @@ class Trigger_Action_Set_Cache_Expiry extends Trigger_Action_Clear_Cache
 	* Array(DSN, user, password, type)
 	* The trigger action interface has been updated to get 3 more fields
 	*
-	* @param array	$settings	the stored settings for this action
-	* @param array	&$state		the state that describes the asset the action is executing on
+	* @param array	$settings		the stored settings for this action
+	* @param array	&$state			the state that describes the asset the action is executing on
 	*
 	* @return mixed array|boolean
 	* @access public
@@ -107,14 +107,8 @@ class Trigger_Action_Set_Cache_Expiry extends Trigger_Action_Clear_Cache
 			$GLOBALS['SQ_SYSTEM']->tm->begin('dbalt');
 		}
 
-		// work out all affected assetids
-		$todo_assetids = Array();
-		if ($settings['use_current_asset']) {
-			$todo_assetids = Trigger_Action_Set_Cache_Expiry::_getAssetIDs($state['assetid'], $settings);
-		}
-		foreach ($settings['selected_assets'] as $id) {
-			$todo_assetids = array_merge($todo_assetids, Trigger_Action_Set_Cache_Expiry::_getAssetIDs($id, $settings));
-		}
+		// Target asset list is compiled by Trigger Manager as per action's "Action On Other Assets" setting
+		$todo_assetids = array_get_index($state, 'target_assetids', Array($state['assetid']));
 
 		// only update db if at least one asset has been selected
 		if (!empty($todo_assetids)) {
@@ -164,16 +158,18 @@ class Trigger_Action_Set_Cache_Expiry extends Trigger_Action_Clear_Cache
 	* @param array		$settings		settings that this condition saves in processInterface()
 	* @param string		$prefix			unique prefix
 	* @param boolean	$write_access	determines whether the interface is editable
+	* @param object		$trigger		the trigger asset
+	* @param integer	$action_id		current action's index value in the the trigger asset's "action" array
 	*
 	* @return boolean
 	* @access public
 	*/
-	public static function getInterface($settings, $prefix, $write_access=FALSE)
+	public static function getInterface($settings, $prefix, $write_access=FALSE, $trigger=NULL, $action_id='')
 	{
-		$output = parent::getInterface($settings, $prefix, $write_access);
-		$output .= Trigger_Action_Set_Cache_Expiry::_paintTimeUnit($settings, $prefix, $write_access);
+		$output = Trigger_Action_Set_Cache_Expiry::_paintTimeUnit($settings, $prefix, $write_access);
 		$output .= '<br />';
 		$output .= Trigger_Action_Set_Cache_Expiry::_paintDSN($settings, $prefix, $write_access);
+		$output .= '<div class="sq-backend-note">'.translate('trigger_action_use_other_assets_setting').'</div>';
 
 		return $output;
 
@@ -387,37 +383,17 @@ class Trigger_Action_Set_Cache_Expiry extends Trigger_Action_Clear_Cache
 
 
 	/**
-	* Gets list of assetids to update based on the settings
+	* If TRUE, the Trigger Manager will call this action just once instead of for each target assets
+	* In which case it is the trigger action responsibility to action all the target assets in a single go
 	*
-	* @param int	$id			the asset id that we are processing
-	* @param array	$settings	settings that this condition saves in processInterface()
-	*
-	* @return array
-	* @access private
+	* @return boolean
+	* @access public
 	*/
-	private static function _getAssetIDs($id, $settings)
+	public static function actionAssetsAtOnce()
 	{
-		// empty asset_types = include all type
-		$type_code = empty($settings['asset_types']) ? '' : $settings['asset_types'];
-		$todo_assetids = Array();
+		return TRUE;
 
-		switch ($settings['level']) {
-			case 'single':
-				$todo_assetids = Array($id);
-			break;
-			case 'dependants':
-				$todo_assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getDependantChildren($id, $type_code));
-				$todo_assetids[] = $id;
-			break;
-			case 'children':
-				$todo_assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($id, $type_code));
-				$todo_assetids[] = $id;
-			break;
-		}
-
-		return $todo_assetids;
-
-	}//end _getAssetIDs()
+	}//end actionAssetsAtOnce()
 
 
 }//end class

@@ -806,7 +806,7 @@
 		<table name="ast_lookup" require_rollback="1">
 			<columns>
 				<column name="url" allow_null="0">
-					<type>VARCHAR(500)</type>
+					<type>VARCHAR(1000)</type>
 					<type_variations />
 					<default>''</default>
 					<description />
@@ -850,7 +850,7 @@
 		<table name="ast_lookup_value" require_rollback="1">
 			<columns>
 				<column name="url" allow_null="0">
-					<type>VARCHAR(500)</type>
+					<type>VARCHAR(1000)</type>
 					<type_variations />
 					<default>''</default>
 					<description />
@@ -892,13 +892,13 @@
 		<table name="ast_lookup_remap" require_rollback="1">
 			<columns>
 				<column name="url" allow_null="0">
-					<type>VARCHAR(500)</type>
+					<type>VARCHAR(1000)</type>
 					<type_variations />
 					<default>''</default>
 					<description>The URL that is remapping to another URL</description>
 				</column>
 				<column name="remap_url" allow_null="0">
-					<type>VARCHAR(500)</type>
+					<type>VARCHAR(1000)</type>
 					<type_variations />
 					<default>''</default>
 					<description>The (hopefully) valid URL that is being remapped to</description>

@@ -172,11 +172,12 @@ class Cache_Manager extends Asset
 	* @param string		$asset_type	type_code of that asset
 	* @param string		$cache_key	the cache key for this entry
 	* @param boolean	$use_url	whether to use the current url
+	* @param boolean	$ignore_perm	ignore permission/group level caching
 	*
 	* @return mixed string|boolean
 	* @access public
 	*/
-	function loadFromCache($assetid, $asset_type, $cache_key='', $use_url=TRUE)
+	function loadFromCache($assetid, $asset_type, $cache_key='', $use_url=TRUE, $ignore_perm=FALSE)
 	{	
 		
 		if (basename($_SERVER['PHP_SELF']) == SQ_CONF_RECACHE_SUFFIX) {
@@ -187,9 +188,14 @@ class Cache_Manager extends Asset
 		// if any root node specific options are configured, it will return TRUE blindly and the DB will be checked for a cache entry
 		if (!$this->cacheEnabled($asset_type)) return FALSE;
 
-		$perm_key = $this->_getPermKey($assetid, $cache_key);
-
-		if (empty($perm_key)) return FALSE;
+		if (!$ignore_perm) {
+			$perm_key = $this->_getPermKey($assetid, $cache_key);
+			if (empty($perm_key)) {
+				return FALSE;
+			}
+		} else {
+			$perm_key = '';
+		}
 
 		if ($use_url && !$this->global_cache) {
 			$url = current_url();
@@ -220,16 +226,23 @@ class Cache_Manager extends Asset
 	* @param string		$contents			the contents to save to cache
 	* @param boolean	$use_url			whether to use the current url
 	* @param int		$expiry_override	override expiry length in seconds
+	* @param boolean	$ignore_perm		ignore permission/group level caching
 	*
 	* @return boolean
 	* @access public
 	*/
-	function saveToCache($assetid, $asset_type, $cache_key, $contents, $use_url=TRUE, $expiry_override='')
+	function saveToCache($assetid, $asset_type, $cache_key, $contents, $use_url=TRUE, $expiry_override='', $ignore_perm=FALSE)
 	{
 		if (!$this->cacheEnabled($asset_type, $assetid)) return FALSE;
-		$perm_key = $this->_getPermKey($assetid, $cache_key);
 		
-		if (empty($perm_key)) return FALSE;
+		if (!$ignore_perm) {
+			$perm_key = $this->_getPermKey($assetid, $cache_key);
+			if (empty($perm_key)) {
+				return FALSE;
+			}
+		} else {
+			$perm_key = '';
+		}
 
 		if ($use_url && !$this->global_cache) {
 			$url = current_url();
@@ -556,7 +569,7 @@ class Cache_Manager extends Asset
 	{
 		// first check some obvious things
 		if (SQ_ROLLBACK_VIEW) return FALSE;
-		if (basename($_SERVER['PHP_SELF']) == SQ_CONF_NOCACHE_SUFFIX) {
+		if (basename($_SERVER['PHP_SELF']) == SQ_CONF_NOCACHE_SUFFIX || basename($_SERVER['PHP_SELF']) == SQ_CONF_NOPROXYCACHE_SUFFIX) {
 			return FALSE;
 		}
 		if (array_get_index($_GET, 'SQ_ACTION') == 'diff') {

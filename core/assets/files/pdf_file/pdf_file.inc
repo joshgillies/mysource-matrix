@@ -147,7 +147,7 @@ class PDF_File extends File
 
 					    }//end switch
 
-					    trigger_error('Error occurred while getting contents for pdf File Asset #'.$this->id.' : '.$error_str, E_USER_WARNING);
+					    trigger_localised_error('CORE0324', E_USER_WARNING, $this->id, $error_str);
 					    return '';
 				    }//end if
 			    }//end if

@@ -34,6 +34,9 @@
 		<field attribute="reset_in_same_session">
 			<boolean true_text="yes" false_text="no" />
 		</field>
+		<field attribute="password_autocomplete">
+			<boolean true_text="Enable" false_text="Disable" />
+		</field>
 	</section>
 	
 </contents>
