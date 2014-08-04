@@ -58,6 +58,12 @@
 		<field attribute="use_enhanced_js">
 			<boolean true_text="yes" false_text="no" />
 		</field>
+		<field show_if="isUsingStandard">
+			<function_call>
+				<paint_function   name="paintWarning"  />
+				<process_function name="processWarning"/>
+			</function_call>
+		</field>
 		<field attribute="batch_requests">
 			<boolean true_text="yes" false_text="no" />
 		</field>
